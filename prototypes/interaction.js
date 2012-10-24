@@ -13,6 +13,15 @@ function IMMark(dropzones, d3objclass, columnname)
 	this.d3objclass = d3objclass;
 	this.columnname=columnname;
 }
+function dataObjectsToColumn(objectarray,colname)
+{
+	var column=[];
+	for(var i in objectarray)
+	{
+		column.push(objectarray[i][colname]);
+	}
+	return column;
+}
 $(document).ready(function(){
 		
 	$.getJSON("./olympics.json",function(response){
@@ -20,11 +29,10 @@ $(document).ready(function(){
 		for (var attr in response) {
 			data[attr] = response[attr];
 		}
-		console.log(data);
 		n=data.length;
+		
 		// populate list of columns
 		for( var label in data[0]) {
-			console.log(label);
 			var newelement=$("<li class=\"column\"></li>");
 			newelement.text(label);
 			newelement.appendTo($("#data ul"));
@@ -34,11 +42,10 @@ $(document).ready(function(){
 				$(".vertzone").show();
 			},
 			stop:function(event,ui){
-				$(".vertzone").hide(500);
+				$(".vertzone").hide(500); // necessary or drop won't register
 			}
 		})
 		.draggable("option","helper","clone");
-		console.log("stuff")
 	});
 		
     $(".mark").draggable()
@@ -58,17 +65,18 @@ $(document).ready(function(){
 				var newmark = new IMMark();
 				marks.push(newmark);
 				svgm = d3.select("svg#vis");
-				svgm.selectAll("mark"+markcount)
+				svgm.selectAll(".mark"+markcount)
 					.data(dataset)
 					.enter()
 					.append("rect")
-					.attr("height",String)
+					.attr("height",100)
 					.attr("width",50)
 					.attr("x",x)
 					.attr("y",y)
 					.attr("fill","steelblue")
 					.attr("stroke","#ccc")
 					.attr("stroke-width","2")
+					.attr("class","mark"+markcount);
 					
 				newmark.d3objclass="mark"+markcount;
 				newmark.x = event.pageX;
@@ -80,7 +88,33 @@ $(document).ready(function(){
 				heightzone.droppable({
 					accept: ".column",
 					drop: function(event,ui){
-						console.log("dropped "+ui.draggable.text());					
+						var marknum=+(($(this).attr("id")).substr(10));
+						var colname=ui.draggable.text();
+						var datacolumn=[],
+						extents=[];
+						datacolumn=dataObjectsToColumn(data,colname);
+						extents = d3.extent(datacolumn);
+						console.log(extents);
+						var yscale = d3.scale.linear()
+						.domain(extents)
+						.range([0, 100]);
+						console.log("dropped "+ colname + " on mark"+marknum);		
+						svgm = d3.select("svg#vis");
+						console.log(svgm.selectAll("mark"+marknum));
+						svgm.selectAll(".mark"+marknum).remove();
+						svgm.selectAll(".mark"+marknum)
+							.data(datacolumn)
+							.enter()
+							.append("rect")
+							.attr("height",function(d,i){return yscale(d);})
+							.attr("width",20)
+							.attr("x",function(d,i){return i*20+x;})
+							.attr("y",function(d,i){return y+100-yscale(d);})
+							.attr("fill","steelblue")
+							.attr("stroke","#ccc")
+							.attr("stroke-width","2")
+							.attr("class","mark"+marknum);
+						
 					},
 					activate:function(event,ui){
 						//move to rect
@@ -92,10 +126,6 @@ $(document).ready(function(){
 				});
 				markcount++;					
 
-			}
-			else if(dragged.hasClass("column"))
-			{
-				console.log("text");
 			}
 
 		}
