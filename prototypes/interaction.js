@@ -39,10 +39,10 @@ $(document).ready(function(){
 		}
 		$(".column").draggable({
 			start:function(event,ui){
-				$(".vertzone").show();
+				$(".zone").show();
 			},
 			stop:function(event,ui){
-				$(".vertzone").hide(500); // necessary or drop won't register
+				$(".zone").hide(500); // necessary or drop won't register
 			}
 		})
 		.draggable("option","helper","clone");
@@ -81,11 +81,13 @@ $(document).ready(function(){
 				newmark.d3objclass="mark"+markcount;
 				newmark.x = event.pageX;
 				newmark.y = event.pageY;
-				var heightzone=$("<div class=\"vertzone\" id=\"heightzone"+markcount+"\" style=\"width:50px;height:100px;\"></div>");
+				var heightzone=$("<div class=\"zone\" id=\"heightzone"+markcount+"\" style=\"width:50px;height:100px;\"></div>");
+				var colorzone=$("<div class=\"zone\" id=\"color"+markcount+"\" style=\"width:100px;height:50px;\"></div>");
 					
 				heightzone.appendTo($("body"));
 				heightzone.hide();
 				heightzone.droppable({
+				
 					accept: ".column",
 					drop: function(event,ui){
 						var marknum=+(($(this).attr("id")).substr(10));
@@ -100,7 +102,6 @@ $(document).ready(function(){
 						.range([0, 100]);
 						console.log("dropped "+ colname + " on mark"+marknum);		
 						svgm = d3.select("svg#vis");
-						console.log(svgm.selectAll("mark"+marknum));
 						svgm.selectAll(".mark"+marknum).remove();
 						svgm.selectAll(".mark"+marknum)
 							.data(datacolumn)
@@ -124,6 +125,47 @@ $(document).ready(function(){
 						myzone.css("top",marks[marknum].y+"px");
 					}
 				});
+				
+/*				colorzone.appendTo($("body"));
+				colorzone.hide();
+				colorzone.droppable({
+					accept: ".column",
+					drop: function(event,ui){
+						var marknum=+(($(this).attr("id")).substr(10));
+						var colname=ui.draggable.text();
+						var datacolumn=[],
+						extents=[];
+						datacolumn=dataObjectsToColumn(data,colname);
+						extents = d3.extent(datacolumn);
+						console.log(extents);
+						var colorscale = d3.scale.category20()
+						.domain(datacolumn)
+						console.log("dropped "+ colname + " on mark"+marknum);		
+						svgm = d3.select("svg#vis");
+						console.log(svgm.selectAll("mark"+marknum));
+						svgm.selectAll(".mark"+marknum).remove();
+						svgm.selectAll(".mark"+marknum)
+							.data(datacolumn)
+							.enter()
+							.append("rect")
+							.attr("height",function(d,i){return yscale(d);})
+							.attr("width",20)
+							.attr("x",function(d,i){return i*20+x;})
+							.attr("y",function(d,i){return y+100-yscale(d);})
+							.attr("fill","steelblue")
+							.attr("stroke","#ccc")
+							.attr("stroke-width","2")
+							.attr("class","mark"+marknum);
+						
+					},
+					activate:function(event,ui){
+						//move to rect
+						var marknum=+(($(this).attr("id")).substr(10));
+						var myzone=$("#colorzone"+marknum);
+						myzone.css("left",(marks[marknum].x-zonewidth-10)+"px");
+						myzone.css("top",marks[marknum].y+"px");
+					}
+				});*/
 				markcount++;					
 
 			}

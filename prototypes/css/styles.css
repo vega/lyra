@@ -35,12 +35,10 @@ svg#vis {
 	cursor: default;
 }
 
-.vertzone{
+.zone{
     display: block;
     background: lightgreen;
 	position: absolute;
-	left: 100px;
-	top: 100px;
 	border-color: #ccc;
 	border-width: 2;
 }
@@ -62,5 +60,10 @@ display: none;
 
 .mark-accept-highlight {
     background: green;
+
+}
+
+#region{
+	
 
 }
