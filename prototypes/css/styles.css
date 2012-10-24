@@ -34,6 +34,20 @@ svg#vis {
     margin-left: 0;
 }
 
+.vertzone{
+    display: block;
+    background: lightgreen;
+	position: absolute;
+	left: 100px;
+	top: 100px;
+	border-color: #ccc;
+	border-width: 2;
+}
+
+.vertzonehidden{
+display: none;
+}
+
 .mark {
     display: block;
     width: 50px;
@@ -41,4 +55,11 @@ svg#vis {
     background: steelblue;
     margin: 25px 200px;
     cursor: move;
+	border-color: #ccc;
+	border-width: 2;
+}
+
+.mark-accept-highlight {
+    background: green;
+
 }
