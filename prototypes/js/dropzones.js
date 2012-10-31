@@ -90,7 +90,7 @@ function width(marknum, datacolumn, hover) {
 		.attr('height', 15)
 		// .attr("x", function(d,i){ return xscale(d); })
 		.attr('y', function(d, i) { return yscale(i)})
-		.attr("width",function(d,i){return xscale(d);})
+		.attr("width",function(d,i){return x+100-xscale(d);})
 		.attr('opacity', function(d, i) { return hover ? 0.6 : 1 })	
 }
 
