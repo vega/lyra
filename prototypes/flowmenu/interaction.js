@@ -3,7 +3,7 @@ var svgm;
 var marks=[];
 // intermediate link between the data, d3, and its dropzones
 var markcount=0;
-var dataset = [ 1];
+var dataset = [];
 var zonewidth=50;
 var n;
 var data=[];
@@ -60,7 +60,7 @@ $(document).ready(function(){
 			xmlns = "http://www.w3.org/2000/svg";
 			if(dragged.hasClass("mark")) {
 
-
+				for(var i=0; i<n;i++) dataset.push(i);
 				svgm = d3.select("svg#vis");
 				svgm.selectAll(".mark"+markcount)
 					.data(dataset)
@@ -185,7 +185,7 @@ $(document).ready(function(){
 									else if(scaleselection === "logarithmic")
 									{
 									// how to deal with zeroes?
-									console.log(extents);
+								//	console.log(extents);
 									if(extents[0]===0) extents[0]=1;
 									yscale = d3.scale.log()
 									.domain(extents)
@@ -218,45 +218,21 @@ $(document).ready(function(){
 								var minx = +d3.min(attachedmarks, function(d,i){return this.attr("x")});
 								var maxx = +d3.max(attachedmarks, function(d,i){return this.attr("x")});	var miny = +d3.min(attachedmarks, function(d,i){return this.attr("y")});
 								var maxy = +d3.max(attachedmarks, function(d,i){return this.attr("y")});
-								var logextra = 1;
+								var logextra = 0;
 								svgm = d3.select("svg#vis");
 
 								var marks=svgm.selectAll(".mark"+marknum)
 									.data(data)
 							
-								if(parameter==="height")
-								{
-							
-								marks.transition()
-									.attr("height",function(d,i){return yscale(d[colname]+logextra);})
-									.attr("width",20)
-									.attr("x",function(d,i){return i*20+minx;})
-									.attr("y",function(d,i){return miny+100-yscale(d[colname]+logextra);})
-									.attr("fill","steelblue")
-									.attr("stroke","#ccc");
-								}
-								else if(parameter==="width")
-								{
-								marks.transition()
-									.attr("width",function(d,i){return yscale(d[colname]+logextra);})
-									.attr("height",20)
-									.attr("y",function(d,i){return i*20+miny;})
-									.attr("x",function(d,i){return minx+100-yscale(d[colname]+logextra);})
-									.attr("fill","steelblue")
-									.attr("stroke","#ccc");								
-								}
-								else if(parameter==="fill")
-								{
-									marks.attr("fill",function(d,i){return colorscale(d);})					
-								}
-								else if(parameter==="stroke")
-								{
-									marks.attr("stroke",function(d,i){return colorscale(d);})
-								}
+								if(scaleselection==="logarithmic") marks.classed("log",true);
+								if(marks.classed("log")) logextra=1; // fixes 0 values 
+
 									marks.enter()
 									.append("rect")
 									.attr("stroke-width","2")
-									.attr("class","mark"+marknum);
+									.attr("class","mark"+marknum)
+									.attr("fill","steelblue")
+									.attr("stroke","#ccc");
 									
 								if(parameter==="height")
 								{
@@ -265,9 +241,7 @@ $(document).ready(function(){
 									.attr("height",function(d,i){return yscale(d[colname]+logextra);})
 									.attr("width",20)
 									.attr("x",function(d,i){return i*20+minx;})
-									.attr("y",function(d,i){return miny+100-yscale(d[colname]+logextra);})
-									.attr("fill","steelblue")
-									.attr("stroke","#ccc");
+									.attr("y",function(d,i){return miny+100-yscale(d[colname]+logextra);});
 								}
 								else if(parameter==="width")
 								{
@@ -275,18 +249,17 @@ $(document).ready(function(){
 									.attr("width",function(d,i){return yscale(d[colname]+logextra);})
 									.attr("height",20)
 									.attr("y",function(d,i){return i*20+miny;})
-									.attr("x",function(d,i){return minx+100-yscale(d[colname]+logextra);})
-									.attr("fill","steelblue")
-									.attr("stroke","#ccc");								
+									.attr("x",function(d,i){return minx;});						
 								}
 								else if(parameter==="fill")
 								{
-									marks.attr("fill",function(d,i){return colorscale(d);})					
+									marks.attr("fill",function(d,i){return colorscale(d[colname]);})					
 								}
 								else if(parameter==="stroke")
 								{
-									marks.attr("stroke",function(d,i){return colorscale(d);})
+									marks.attr("stroke",function(d,i){return colorscale(d[colname]);})
 								}
+								marks.exit().remove();
 
 							},
 							activate:function(event,ui){
@@ -301,7 +274,7 @@ $(document).ready(function(){
 					
 							}
 						});
-						option.droppable("option","tolerance","pointer");
+						option.droppable("option","tolerance","touch");
 					}
 				}
 				
