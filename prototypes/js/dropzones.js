@@ -7,6 +7,7 @@ var dataset = [ 5, 10, 15, 20, 25 ];
 var zonewidth=50;
 var n;
 var data=[];
+var propsTimer;
 function Mark()
 {
 	this.markId = 0;
@@ -23,7 +24,9 @@ function dataObjectsToColumn(objectarray,colname)
 	return column;
 }
 
-function height(marknum, datacolumn, hover) {
+function markHeight(marknum, datacolumn, hover, log) {
+	console.log(arguments);
+
 	var vis	= $('#vis');
 	var delegate = $("#delegate" + marknum);
 	var x = delegate.offset().left - vis.offset().left;
@@ -31,9 +34,20 @@ function height(marknum, datacolumn, hover) {
 
 	extents = d3.extent(datacolumn);
 
-	var yscale = d3.scale.linear()
-		.domain(extents)
-		.range([0, 100]);
+	var yscale;
+
+	if(log == "1") {
+		console.log('log scale');
+
+		yscale = d3.scale.log()
+			.range([0, 100]);
+	} else {
+		console.log('linear scale');
+
+		yscale = d3.scale.linear()
+			.domain(extents)
+			.range([0, 100])
+	}
 
 	var xscale = d3.scale.linear()
 		.domain([0, datacolumn.length])
@@ -49,7 +63,7 @@ function height(marknum, datacolumn, hover) {
 	marks.transition().duration(500)
 		.attr('height', 0)
 		.attr("width", 20)
-		.attr("x", function(d,i){ return xscale(i); })
+		// .attr("x", function(d,i){ return xscale(i); })
 		.attr("y", y+100)
 		.attr("fill", "steelblue")
 		.attr("x", function(d,i){ return xscale(i); })
@@ -58,14 +72,14 @@ function height(marknum, datacolumn, hover) {
 		.attr('opacity', function(d, i) { return hover ? 0.6 : 1 })
 }
 
-function width(marknum, datacolumn, hover) {
+function markWidth(marknum, datacolumn, hover) {
 	var vis	= $('#vis');
 	var delegate = $("#delegate" + marknum);
 	var x = delegate.offset().left - vis.offset().left;
 	var y = delegate.offset().top - vis.offset().top;
 
 	extents = d3.extent(datacolumn);
-	console.log(y);
+	
 	var yscale = d3.scale.linear()
 		.domain([0, datacolumn.length])
 		.range([y-125, y+225]);
@@ -115,7 +129,7 @@ $(document).ready(function(){
 				$(".zone").fadeIn(250);
 			},
 			stop: function(event,ui){
-				$(".zone").fadeOut(250); // necessary or drop won't register
+				// $(".zone").fadeOut(250); // necessary or drop won't register
 			}
 		})
 		.draggable("option","helper","clone");
@@ -148,6 +162,14 @@ $(document).ready(function(){
         		.css('left', (event.pageX - 20) + 'px')
         		.css('top', event.pageY + 'px')
 
+        	var heightOptions = $('<div class="properties" id="properties' + markcount + '" style="display: none;">' +
+        		'<p>Scale: <select id="scale' + markcount + '" onchange="console.log(this.value); markHeight(' + markcount + ', marks[' + markcount + '].oldData, 1, this.value);"><option value="0">Linear</option><option value="1">Logarithmic</option></select></p>' +
+        		'<p><button onclick="$(\'.zone\').hide(); $(\'#properties' + markcount + '\').hide()">Save</button></p>' +
+        		'</div>')
+        		.css('left', (event.pageX - 20) + 'px')
+        		.css('top', event.pageY + 'px')
+
+
         	var widthZone = $('<div class="property zone" id="widthZone' + markcount + '">width</div>')
         		.css('height', '15px')
         		.css('width', '50px')
@@ -156,6 +178,7 @@ $(document).ready(function(){
 
         	$('body').append(delegate);
         	$('body').append(heightZone);
+        	$('body').append(heightOptions);
         	$('body').append(widthZone);
 
         	heightZone.droppable({
@@ -163,7 +186,11 @@ $(document).ready(function(){
 
         		over: function(e, ui) {
         			var marknum = $(this).attr('id').replace('heightZone', '');
-        			height(marknum, dataObjectsToColumn(data, ui.draggable.text()), 1);
+        			markHeight(marknum, dataObjectsToColumn(data, ui.draggable.text()), 1);
+
+        			propsTimer = window.setTimeout(function() {
+        				$('#properties' + marknum).fadeIn(250);
+        			}, 500);
         		},
 
         		out: function(e, ui) {
@@ -171,15 +198,19 @@ $(document).ready(function(){
         			var o = marks[marknum].orientation;
         			var oldData = marks[marknum].oldData;
 
-        			(o == 'height') ? height(marknum, oldData, 0) : width(marknum, oldData, 0);
+        			(o == 'height') ? markHeight(marknum, oldData, 0) : markWidth(marknum, oldData, 0);
+
+        			window.clearTimeout(propsTimer);
+        			$('#properties' + marknum).fadeOut(250);
         		},
 
         		drop: function(e, ui) {
         			var marknum = $(this).attr('id').replace('heightZone', '');
-					height(marknum, dataObjectsToColumn(data,ui.draggable.text()), 0);
+					markHeight(marknum, dataObjectsToColumn(data,ui.draggable.text()), 0);
 
 					marks[marknum].oldData = d3.select('#vis').selectAll('rect').data();
 					marks[marknum].orientation = 'height';
+					// $('#properties' + marknum).fadeOut(250);
         		}
         	});	
 
@@ -188,7 +219,7 @@ $(document).ready(function(){
 
         		over: function(e, ui) {
         			var marknum = $(this).attr('id').replace('widthZone', '');
-        			width(marknum, dataObjectsToColumn(data, ui.draggable.text()), 1);
+        			markWidth(marknum, dataObjectsToColumn(data, ui.draggable.text()), 1);
         		},
 
         		out: function(e, ui) {
@@ -196,12 +227,12 @@ $(document).ready(function(){
         			var o = marks[marknum].orientation;
         			var oldData = marks[marknum].oldData;
 
-        			(o == 'height') ? height(marknum, oldData, 0) : width(marknum, oldData, 0);
+        			(o == 'height') ? markHeight(marknum, oldData, 0) : markWidth(marknum, oldData, 0);
         		},
 
         		drop: function(e, ui) {
         			var marknum = $(this).attr('id').replace('widthZone', '');
-					width(marknum, dataObjectsToColumn(data,ui.draggable.text()), 0);
+					markWidth(marknum, dataObjectsToColumn(data,ui.draggable.text()), 0);
 
 					marks[marknum].oldData = d3.select('#vis').selectAll('rect').data();
 					marks[marknum].orientation = 'width';

@@ -72,6 +72,15 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 display: none;
 }
 
+.properties {
+    display: block;
+    background: #ccc;
+    border: 1px solid #666;
+    width: 200px;
+    padding: 10px;
+    position: absolute;
+}
+
 .mark {
     display: block;
     width: 50px;
