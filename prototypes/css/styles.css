@@ -35,12 +35,37 @@ svg#vis {
 	cursor: default;
 }
 
-.zone{
+.zone {
     display: block;
-    background: lightgreen;
 	position: absolute;
-	border-color: #ccc;
-	border-width: 2;
+    opacity: 0.6;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.delegate { background: steelblue; }
+.property { background: #999; }
+
+.zone .rotate {
+    display: block;
+    /* Safari */
+-webkit-transform: rotate(-90deg);
+
+/* Firefox */
+-moz-transform: rotate(-90deg);
+
+/* IE */
+-ms-transform: rotate(-90deg);
+
+/* Opera */
+-o-transform: rotate(-90deg);
+
+/* Internet Explorer */
+filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+
+    position: absolute;
+    bottom: 12px;
+    right: 0px;
 }
 
 .vertzonehidden{
