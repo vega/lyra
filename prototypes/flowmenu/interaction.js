@@ -106,33 +106,7 @@ $(document).ready(function(){
 						accept: ".column",
 						drop: function(event,ui){
 						// TODO take default behavior
-						/*
-							var marknum=+(($(this).attr("id")).substr(10));
-							var colname=ui.draggable.text();
-							var datacolumn=[],
-							extents=[];
-							datacolumn=dataObjectsToColumn(data,colname);
-							extents = d3.extent(datacolumn);
-							console.log(extents);
-							var yscale = d3.scale.linear()
-							.domain(extents)
-							.range([0, 100]);
-							console.log("dropped "+ colname + " on mark"+marknum);		
-							svgm = d3.select("svg#vis");
-							svgm.selectAll(".mark"+marknum).remove();
-							svgm.selectAll(".mark"+marknum)
-								.data(data)
-								.enter()
-								.append("rect")
-								.attr("height",function(d,i){return yscale(d[colname]);})
-								.attr("width",20)
-								.attr("x",function(d,i){return i*20+x;})
-								.attr("y",function(d,i){return y+100-yscale(d[colname]);})
-								.attr("fill","steelblue")
-								.attr("stroke","#ccc")
-								.attr("stroke-width","2")
-								.attr("class","mark"+marknum);
-								*/
+
 							
 						},
 						activate:function(event,ui){
@@ -185,8 +159,99 @@ $(document).ready(function(){
 								var myid = option.attr("id");
 								var marknum = myid.split("_")[1];
 								var menuindex = myid.split("_")[2];
+								var optionindex = myid.split("_")[3];
 								var myparent = d3.select("#menudiv_"+marknum+"_"+menuindex);
 								console.log("drop "  + menulabels[menuindex]+" "+option.text());
+								var parameter = menulabels[menuindex];
+								var colname=ui.draggable.text();
+								var datacolumn=[],
+								extents=[];
+								datacolumn=dataObjectsToColumn(data,colname);
+								extents = d3.extent(datacolumn);
+							//	console.log(extents);
+								
+								var yscale;
+								var colorscale;
+								if(parameter === "height" || parameter==="width")
+								{
+									var scaleselection = option.text();
+									if(scaleselection === "linear")
+									{
+									yscale = d3.scale.linear()
+									.domain(extents)
+									.range([0, 100]);
+									}
+									else if(scaleselection === "logarithmic")
+									{
+									// how to deal with zeroes?
+									yscale = d3.scale.log()
+									.domain(extents)
+									.range([0, 100]);
+									}
+								}
+								else
+								{
+									var palletselection = option.text().split(" ")[1];
+									if(palletselection==="A")
+									{
+										colorscale=d3.scale.category20()
+										.domain(extents); // ??
+									}
+									else if(palletselection==="B")
+									{
+										colorscale=d3.scale.category20b()
+										.domain(extents); // ??
+									}
+									else if(palletselection==="C")
+									{
+										colorscale=d3.scale.category20c()
+										.domain(extents); // ??
+									}
+								}
+								
+								console.log("dropped "+ colname + " on mark"+marknum);	
+								var attachedmarks = d3.selectAll(".mark"+marknum);
+								
+								var minx = +d3.min(attachedmarks, function(d,i){return this.attr("x")});
+								var maxx = +d3.max(attachedmarks, function(d,i){return this.attr("x")});	var miny = +d3.min(attachedmarks, function(d,i){return this.attr("y")});
+								var maxy = +d3.max(attachedmarks, function(d,i){return this.attr("y")});								
+								svgm = d3.select("svg#vis");
+								svgm.selectAll(".mark"+marknum).remove(); //FIX
+								var marks=svgm.selectAll(".mark"+marknum)
+									.data(data)
+									.enter()
+									.append("rect")
+									.attr("stroke-width","2")
+									.attr("class","mark"+marknum);
+								
+								if(parameter==="height")
+								{
+								marks.attr("height",function(d,i){return yscale(d[colname]+1);})
+									.attr("width",20)
+									.attr("x",function(d,i){return i*20+minx;})
+									.attr("y",function(d,i){return miny+100-yscale(d[colname]+1);})
+									.attr("fill","steelblue")
+									.attr("stroke","#ccc");
+								}
+								else if(parameter==="width")
+								{
+								marks.attr("width",function(d,i){return yscale(d[colname]+1);})
+									.attr("height",20)
+									.attr("y",function(d,i){return i*20+miny;})
+									.attr("x",function(d,i){return minx+100-yscale(d[colname]+1);})
+									.attr("fill","steelblue")
+									.attr("stroke","#ccc");								
+								}
+								else if(parameter==="fill")
+								{
+									marks.attr("fill",function(d,i){return colorscale(d);})					
+								}
+								else if(parameter==="stroke")
+								{
+									marks.attr("stroke",function(d,i){return colorscale(d);})
+								}
+								
+
 							},
 							activate:function(event,ui){
 
