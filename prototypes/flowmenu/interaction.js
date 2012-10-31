@@ -3,7 +3,7 @@ var svgm;
 var marks=[];
 // intermediate link between the data, d3, and its dropzones
 var markcount=0;
-var dataset = [ 5, 10, 15, 20, 25 ];
+var dataset = [ 1];
 var zonewidth=50;
 var n;
 var data=[];
@@ -73,7 +73,8 @@ $(document).ready(function(){
 					.attr("fill","steelblue")
 					.attr("stroke","#ccc")
 					.attr("stroke-width","2")
-					.attr("class","mark"+markcount);
+					.attr("class","mark"+markcount)
+					.classed("tempmark",true);
 				
 				var menudivs=[];
 				menulabels=d3.keys(menus);
@@ -184,6 +185,8 @@ $(document).ready(function(){
 									else if(scaleselection === "logarithmic")
 									{
 									// how to deal with zeroes?
+									console.log(extents);
+									if(extents[0]===0) extents[0]=1;
 									yscale = d3.scale.log()
 									.domain(extents)
 									.range([0, 100]);
@@ -214,31 +217,31 @@ $(document).ready(function(){
 								
 								var minx = +d3.min(attachedmarks, function(d,i){return this.attr("x")});
 								var maxx = +d3.max(attachedmarks, function(d,i){return this.attr("x")});	var miny = +d3.min(attachedmarks, function(d,i){return this.attr("y")});
-								var maxy = +d3.max(attachedmarks, function(d,i){return this.attr("y")});								
+								var maxy = +d3.max(attachedmarks, function(d,i){return this.attr("y")});
+								var logextra = 1;
 								svgm = d3.select("svg#vis");
-								svgm.selectAll(".mark"+marknum).remove(); //FIX
+
 								var marks=svgm.selectAll(".mark"+marknum)
 									.data(data)
-									.enter()
-									.append("rect")
-									.attr("stroke-width","2")
-									.attr("class","mark"+marknum);
-								
+							
 								if(parameter==="height")
 								{
-								marks.attr("height",function(d,i){return yscale(d[colname]+1);})
+							
+								marks.transition()
+									.attr("height",function(d,i){return yscale(d[colname]+logextra);})
 									.attr("width",20)
 									.attr("x",function(d,i){return i*20+minx;})
-									.attr("y",function(d,i){return miny+100-yscale(d[colname]+1);})
+									.attr("y",function(d,i){return miny+100-yscale(d[colname]+logextra);})
 									.attr("fill","steelblue")
 									.attr("stroke","#ccc");
 								}
 								else if(parameter==="width")
 								{
-								marks.attr("width",function(d,i){return yscale(d[colname]+1);})
+								marks.transition()
+									.attr("width",function(d,i){return yscale(d[colname]+logextra);})
 									.attr("height",20)
 									.attr("y",function(d,i){return i*20+miny;})
-									.attr("x",function(d,i){return minx+100-yscale(d[colname]+1);})
+									.attr("x",function(d,i){return minx+100-yscale(d[colname]+logextra);})
 									.attr("fill","steelblue")
 									.attr("stroke","#ccc");								
 								}
@@ -250,7 +253,40 @@ $(document).ready(function(){
 								{
 									marks.attr("stroke",function(d,i){return colorscale(d);})
 								}
+									marks.enter()
+									.append("rect")
+									.attr("stroke-width","2")
+									.attr("class","mark"+marknum);
+									
+								if(parameter==="height")
+								{
 								
+								marks.transition()
+									.attr("height",function(d,i){return yscale(d[colname]+logextra);})
+									.attr("width",20)
+									.attr("x",function(d,i){return i*20+minx;})
+									.attr("y",function(d,i){return miny+100-yscale(d[colname]+logextra);})
+									.attr("fill","steelblue")
+									.attr("stroke","#ccc");
+								}
+								else if(parameter==="width")
+								{
+								marks.transition()
+									.attr("width",function(d,i){return yscale(d[colname]+logextra);})
+									.attr("height",20)
+									.attr("y",function(d,i){return i*20+miny;})
+									.attr("x",function(d,i){return minx+100-yscale(d[colname]+logextra);})
+									.attr("fill","steelblue")
+									.attr("stroke","#ccc");								
+								}
+								else if(parameter==="fill")
+								{
+									marks.attr("fill",function(d,i){return colorscale(d);})					
+								}
+								else if(parameter==="stroke")
+								{
+									marks.attr("stroke",function(d,i){return colorscale(d);})
+								}
 
 							},
 							activate:function(event,ui){
@@ -265,7 +301,7 @@ $(document).ready(function(){
 					
 							}
 						});
-						option.droppable("option","tolerance","intersect");
+						option.droppable("option","tolerance","pointer");
 					}
 				}
 				
@@ -285,5 +321,5 @@ $(document).ready(function(){
 
 });
 
-		
+
 
