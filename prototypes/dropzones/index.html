@@ -9,8 +9,8 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
 	<script src="http://d3js.org/d3.v2.js"></script>
-		<style type="text/css">@import "jquery.svg.css";</style> 
-	<script type="text/javascript" src="./jquery.svg.js"></script>
+		<style type="text/css">@import "../jquery.svg.css";</style> 
+	<script type="text/javascript" src="../jquery.svg.js"></script>
 	</head>
 <body>
 
@@ -20,25 +20,32 @@
 	</script>
 
 <div id="toolbar">
+    <h2>Marks</h2>
+
     <div id="draggable" class="mark"></div>
 </div>
 
 <div id="sidebar">
     <div id="data">
+        <h2>Data</h2>
+
         <ul>
             <li class="column"> Country Name </li>
         </ul>
     </div>
-
-    <div id="properties">
-
-    </div>
 </div>
 
-<div id="region">
-<svg id="vis" width="700" height="500" xmlns="http://www.w3.org/2000/svg">
- <!--   <rect x="200" y="200" width="50" height="100" fill="steelblue" stroke="#ccc" stroke-width="2"></rect> -->
-</svg>
+<div id="design">
+    <h2>Design</h2>
+
+
 </div>
+
+<div id="preview">
+    <h2>Preview</h2>
+
+    <svg id="vis" width="700" height="500" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
 </body>
 </html>

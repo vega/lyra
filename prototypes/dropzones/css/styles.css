@@ -7,31 +7,56 @@ html {
     font-size: 14px;
 }
 
+h2 {
+    display: block;
+    margin: 0;
+    padding: 0 10px;
+    background: #333;
+    color: #fff;
+    font-size: 14px;
+}
+
 #toolbar {
     display: block;
-    height: 100px;
+    height: 75px;
     border: 1px solid #333;
     margin-bottom: 10px;
+}
+
+#toolbar h2 {
+    -webkit-transform: rotate(-90deg);
+    width: 115px;
+    margin-left: -60px;
 }
 
 #sidebar {
     display: block;
     float: left;
-    margin-right: 10px;
-    width: 200px;
-    height: 500px;
+    width: 125px;
     border: 1px solid #333;
 
 }
 
-svg#vis {
+#design {
+    float: left;
     display: block;
+    width: 500px;
+    height: 200px;
+    margin: 0 10px;
+    border: 1px solid #333;
+}
+
+#preview {
+    float: left;
+    display: block;
+    width: 700px;
+    height: 500px;
     border: 1px solid #333;
 }
 
 #data ul {
     list-style-type: none;
-    margin-left: 0;
+    padding-left: 10px;
 	cursor: default;
 }
 
@@ -86,7 +111,7 @@ display: none;
     width: 50px;
     height: 50px;
     background: steelblue;
-    margin: 25px 200px;
+    margin: -5px 30px;
     cursor: default;
 	border-color: #ccc;
 	border-width: 2;
@@ -94,10 +119,5 @@ display: none;
 
 .mark-accept-highlight {
     background: green;
-
-}
-
-#region{
-	
 
 }

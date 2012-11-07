@@ -139,7 +139,7 @@ $(document).ready(function(){
 	.draggable("option","revert","invalid")
 	.draggable("option","helper","clone");
 
-     $( "#region" ).droppable({
+     $( "#design" ).droppable({
 		accept: ".mark",
         drop: function( event, ui ) {
         	if(!ui.draggable.hasClass('mark'))
