@@ -52,10 +52,14 @@ display: none;
     width: 50px;
     height: 50px;
     background: steelblue;
-    margin: 25px 200px;
+    margin: 25px 20px;
     cursor: default;
 	border-color: #ccc;
 	border-width: 2;
+	float: left;
+	font-size: 46px;
+	text-align: center;
+	vertical-align: center;
 }
 
 .mark-accept-highlight {
@@ -68,6 +72,16 @@ display: none;
 
 }
 
+#draggable_text{
+	font-size: 46px;
+	text-align: center;
+	vertical-align: center;
+}
+#draggable_arc{
+	font-size: 46px;
+	text-align: center;
+	vertical-align: center;
+}
 .hoverselected{
 	color: darkgrey;
 
