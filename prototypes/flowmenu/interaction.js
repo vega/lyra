@@ -74,7 +74,7 @@ $(document).ready(function(){
 			svgm = d3.select("svg#vis");
 
 				dataset=[];
-				for(var i=0; i<n;i++) dataset.push(i);
+				for(var i=0; i<n;i++) dataset.push(20);
 
 				createMarks(x,y,markcount,markID);
 				
@@ -359,8 +359,8 @@ var dropSubMenu=function(event,ui){
 		marks.transition()
 			.attr("width",function(d,i){return yscale(d[colname]+logextra);})
 			.attr("height",20)
-			.attr("y",function(d,i){return i*20;})
-			.attr("x",function(d,i){return 0;});						
+			.attr("x",function(d,i){return 0;})	
+			.attr("y",function(d,i){return i*20;});
 		}
 		else if(parameter==="fill")
 		{
