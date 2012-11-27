@@ -644,10 +644,9 @@ var dropSubMenu=function(event,ui){
 	
 	
 	logextra = scaleselection==="logarithmic" ? 1 : 0;
-	
+
 	switch(nodeType) {
 		case "rect":
-			
 			var marks=svgm.selectAll(".mark"+marknum+" .realmark")
 										.data(allData);
 										
@@ -699,14 +698,31 @@ var dropSubMenu=function(event,ui){
 			
 			switch(parameter) {
 				case "angle":
-					marks.transition()
-						.attr("height",function(d,i){return yscale(d[colname]+logextra);})
-						.attr("width",20)
-						.attr("x",function(d,i){return i*20;})
-						.attr("y",function(d,i){return 100-yscale(d[colname]+logextra);});
+					arc.innerRadius(0);
+					arc.outerRadius(100);
+					
+					sum = 0;
+					cum = new Array();
+					cum[0] = 0;
+					for(i=0; i<n-1; i++) {
+						sum += yscale(datacolumn[i]+logextra);
+						cum[i+1] = sum;
+					}
+					cum[n] = sum;
+					
+					arc.startAngle(function(d,i) {
+						return cum[i]/sum*2*Math.PI;
+					})
+					arc.endAngle(function(d,i) {
+						return cum[i+1]/sum*2*Math.PI;
+					})
+					
+					marks.selectAll("path").transition()
+						.attr("d", arc); 	
 					break;
 					
 				case "inner radius":
+					
 					arc.outerRadius(100);
 					arc.innerRadius(function(d,i){
 						return yscale(datacolumn[i]+logextra);
