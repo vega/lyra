@@ -65,7 +65,7 @@ $(document).ready(function(){
 		}
 		
 		//n=allData.length;
-		allData.push(allData[0]); //push a fake piece of data on the end to serve as the chart selector
+//		allData.push(allData[0]); //push a fake piece of data on the end to serve as the chart selector. What is this?
 		console.log(allData);
 		
 		//populate list of columns
@@ -113,11 +113,13 @@ $(document).ready(function(){
 					console.log(n);
 					for(var i=0; i<n;i++) dataset.push(1);
 	
+					// make mark svg element group and elements
 					createMarks(x,y,markcount,markID);
 
 					//make a 1st level menu for each graph
 					createMenus(markID,markcount);
 
+					// global mark index
 					markcount++;					
 				}
 			}
@@ -231,10 +233,12 @@ var createMarks=function(x,y,markcount,type) {
 		case "rect":
 			var rectcont = svgm.append("g")
 			.classed("mark"+markcount,true)
+			.classed("rectmark",true)
 			.attr("transform", "translate(" + x + "," + y + ")")
 			.attr("fill", "steelblue")
 			.attr("stroke","#ccc")
-			.attr("stroke-width","2");
+			.attr("stroke-width","2")
+			.attr("id","mark_"+markcount+"_group");
 	
 			rectcont.selectAll("rect")
 			.data(dataset)
@@ -245,7 +249,7 @@ var createMarks=function(x,y,markcount,type) {
 			.attr("x",0)
 			.attr("y",0)	
 			.attr("fill", function(d,i) {
-				if(i==n-1) { return "#ccc"; }
+				if(i==n-1) { return "#ccc"; }  // ???
 				return "steelblue"; })
 			.attr("fill-opacity", function(d,i) {
 				if(i==n-1) { return 0; }
@@ -256,8 +260,10 @@ var createMarks=function(x,y,markcount,type) {
 			.attr("stroke-width", function(d,i) {
 				if(i==n-1) { return 0; }
 				return 2; })
-			.classed("realmark",true)
-			.classed("tempmark",true);
+			.classed("realmark",true);
+			
+			rectcont.append("rect")
+			.classed("container",true);
 			break;
 		
 		case "arc":
@@ -267,10 +273,14 @@ var createMarks=function(x,y,markcount,type) {
 			var arcscont=svgm.append("g")
 				.data([dataset])
 				.attr("class","mark"+markcount)
+				.classed("arcmark",true)
 				.attr("transform", "translate(" + x + "," + y + ")")
 				.attr("stroke","#ccc")
-				.classed("tempmark",true)
-				.attr("stroke-width","2");
+				.attr("stroke-width","2")
+				.attr("id","mark_"+markcount+"_group");	
+				
+//			arcscont.append("rect")
+//			.classed("container",true);	
 			
 			var arcs=arcscont
 				.selectAll(".mark"+markcount+" g.arc")
@@ -305,77 +315,96 @@ var createMarks=function(x,y,markcount,type) {
 			
 			//console.log(groupX + " + " + ui.position.left + " - " + mouseX + " = " + parseInt(groupX+dx));
 			//console.log("DRAG: " + ui.position.left);
+			var target;
+			target=d3.select(this)
+			console.log(target.attr("class"));
 			
-			switch(scaleMode) {
-				case "move":
-					t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
-					t += "scale(" + tSpecs[2] + "," + tSpecs[3] + ")";
-					$(e.target).attr("transform", t);
-					break;
+			if(target.classed("rectmark")) {
+				switch(scaleMode) {
+					case "move":
+						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
+						t += "scale(" + tSpecs[2] + "," + tSpecs[3] + ")";
+						$(e.target).attr("transform", t);
+						break;
+						
+					case "e-resize":
+						sx = (groupW+dx)/groupW;
+						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
+						t += "scale(" + sx*groupSX + ", " + tSpecs[3] + ")";
+						$(e.target).attr("transform", t);
+						break;
+						
+					case "w-resize":
+						sx = (groupW-dx)/groupW;
+						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
+						t += "scale(" + sx*groupSX + ", " + tSpecs[3] + ")";
+						$(e.target).attr("transform", t);
+						break;
+						
+					case "n-resize":
+						sy = (groupH-dy)/groupH;
+						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
+						t += "scale(" + tSpecs[2] + ", " + sy*groupSY + ")";
+						$(e.target).attr("transform", t);
+						break;
+						
+					case "s-resize":
+						sy = (groupH+dy)/groupH;
+						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
+						t += "scale(" + tSpecs[2] + ", " + sy*groupSY + ")";
+						$(e.target).attr("transform", t);
+						break;
+						
+					case "se-resize":
+						sx = (groupW+dx)/groupW;
+						sy = (groupH+dy)/groupH;
+						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
+						t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
+						$(e.target).attr("transform", t);
+						break;
+						
+					case "ne-resize":
+						sx = (groupW+dx)/groupW;
+						sy = (groupH-dy)/groupH;
+						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
+						t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
+						$(e.target).attr("transform", t);
+						break;
+						
+					case "sw-resize":
+						sx = (groupW-dx)/groupW;
+						sy = (groupH+dy)/groupH;
+						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
+						t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
+						$(e.target).attr("transform", t);
+						break;
 					
-				case "e-resize":
-					sx = (groupW+dx)/groupW;
-					t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
-					t += "scale(" + sx*groupSX + ", " + tSpecs[3] + ")";
-					$(e.target).attr("transform", t);
-					break;
-					
-				case "w-resize":
-					sx = (groupW-dx)/groupW;
-					t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
-					t += "scale(" + sx*groupSX + ", " + tSpecs[3] + ")";
-					$(e.target).attr("transform", t);
-					break;
-					
-				case "n-resize":
-					sy = (groupH-dy)/groupH;
-					t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
-					t += "scale(" + tSpecs[2] + ", " + sy*groupSY + ")";
-					$(e.target).attr("transform", t);
-					break;
-					
-				case "s-resize":
-					sy = (groupH+dy)/groupH;
-					t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
-					t += "scale(" + tSpecs[2] + ", " + sy*groupSY + ")";
-					$(e.target).attr("transform", t);
-					break;
-					
-				case "se-resize":
-					sx = (groupW+dx)/groupW;
-					sy = (groupH+dy)/groupH;
-					t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
-					t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
-					$(e.target).attr("transform", t);
-					break;
-					
-				case "ne-resize":
-					sx = (groupW+dx)/groupW;
-					sy = (groupH-dy)/groupH;
-					t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
-					t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
-					$(e.target).attr("transform", t);
-					break;
-					
-				case "sw-resize":
-					sx = (groupW-dx)/groupW;
-					sy = (groupH+dy)/groupH;
-					t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
-					t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
-					$(e.target).attr("transform", t);
-					break;
-				
-				case "nw-resize":
-					sx = (groupW-dx)/groupW;
-					sy = (groupH-dy)/groupH;
-					t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
-					t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
-					$(e.target).attr("transform", t);
-					break;
-							
-				default:
-					console.log("NADA");
-			}	
+					case "nw-resize":
+						sx = (groupW-dx)/groupW;
+						sy = (groupH-dy)/groupH;
+						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
+						t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
+						$(e.target).attr("transform", t);
+						break;
+								
+					default:
+						console.log("NADA");
+				}
+			}
+			else if(target.classed("arcmark")) {
+				switch(scaleMode) {
+					case "move":
+						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
+						t += "scale(" + tSpecs[2] + "," + tSpecs[3] + ")";
+						$(e.target).attr("transform", t);
+						break;						
+					default:
+					var	clickDist = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
+						$(e.target).attr("r", Math.max(10, clickDist));
+						$(e.target).attr("transform", t);
+						break;
+				}
+			}
 		},
 				
 		
@@ -384,7 +413,7 @@ var createMarks=function(x,y,markcount,type) {
 			isDragging = true;
 			
 			tSpecs = transformSpecs(e.target);
-			wh = getDimensions($(e.target).children());
+			wh = getDimensions($(e.target));
 			
 			mouseX = parseInt(ui.position.left);
 			mouseY = parseInt(ui.position.top);
@@ -406,7 +435,7 @@ var createMarks=function(x,y,markcount,type) {
 			
 			//note new width/height
 			tSpecs = transformSpecs(this);
-			wh = getDimensions($(this).children());
+			wh = getDimensions($(this));
 		  
 			console.log("STOP");
 			groupW = wh[0]*tSpecs[2];
@@ -428,10 +457,12 @@ var createMarks=function(x,y,markcount,type) {
 		  console.log("OVER");
 		  if(!isDragging) {
 			  tSpecs = transformSpecs(this);
-				wh = getDimensions($(this).children());
+				wh = getDimensions($(this));
 				groupW = wh[0]*tSpecs[2];
 				groupH = wh[1]*tSpecs[3];
 			}
+			var marknum = $(this).attr("id").split("_")[1];
+		updateBackgroundHighlight(marknum, .3);
 	  })
 	  
 	  
@@ -450,6 +481,8 @@ var createMarks=function(x,y,markcount,type) {
 	  
 	  .mouseout(function(e) {
 		  $('body').css('cursor', 'auto');
+		var marknum = $(this).attr("id").split("_")[1];
+		updateBackgroundHighlight(marknum, 0);
 	  });
 
 }
@@ -463,22 +496,23 @@ var scaleMode = "";
 function getCursorType(shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) {
 	pX = (mouseX-shapeX)/shapeW; //percentage of X shape
 	pY = (mouseY-shapeY)/shapeH; //percentage of Y shape
+	var boundaryWidth = .1;
 	
-	if(pX<.1 && pY<.1) {
+	if(pX<boundaryWidth && pY<boundaryWidth) {
 		scaleMode = "nw-resize";		
-	} else if(pX<.1 && pY>.9) {
+	} else if(pX<boundaryWidth && pY>(1-boundaryWidth)) {
 		scaleMode = "sw-resize";
-	} else if(pX<.1) {
+	} else if(pX<boundaryWidth) {
 		scaleMode = "w-resize";
-	} else if(pX>.9 && pY<.1) {
+	} else if(pX>(1-boundaryWidth) && pY<boundaryWidth) {
 		scaleMode = "ne-resize";
-	} else if(pX>.9 && pY>.9) {
+	} else if(pX>(1-boundaryWidth) && pY>(1-boundaryWidth)) {
 		scaleMode = "se-resize";
-	} else if(pX>.9) {
+	} else if(pX>(1-boundaryWidth)) {
 		scaleMode = "e-resize";
-	} else if(pY<.1) {
+	} else if(pY<boundaryWidth) {
 		scaleMode = "n-resize";
-	} else if(pY>.9) {
+	} else if(pY>(1-boundaryWidth)) {
 		scaleMode = "s-resize";
 	} else {
 		scaleMode = "move";
@@ -503,7 +537,7 @@ function transformSpecs(shape) {
 }
 
 
-
+/*
 //Get the width and height of g group based on its SVG elements (only works for rect now)
 function getDimensions(shapes) {
 	mode = -1; //0 = bar graph horizontal; 1 = bar graph vertical
@@ -541,12 +575,18 @@ function getDimensions(shapes) {
 	
 	return [maxW, maxH];
 }
+*/
+
+// get svg group bounding box
+function getDimensions(shapes) {
+	shapes=shapes[0];
+	var bb = shapes.getBBox();
+	return [bb["width"], bb["height"]];
+}
 
 
-
-
-
-
+// handle dropped column onto menu label and
+// update marks
 var dropSubMenu=function(event,ui){
 	//switch based on parent menu type
 	var option = $(this);
@@ -562,14 +602,25 @@ var dropSubMenu=function(event,ui){
 	var parameter = menulabels[menuindex]; //second-level menu option
 	var colname = ui.draggable.text(); //column name of data
 	
+	//Set scales to either linear or logarithmic
+	var scaleselection = option.text();
+			
+	console.log("dropped "+ colname + " on mark"+marknum);	
+	
+	updateMarks(marknum, parameter, colname, scaleselection);
+	
+
+}
+
+var updateMarks = function(marknum, parameter, colname, scaleselection)
+{
+
 	var datacolumn = dataObjectsToColumn(allData,colname);
 	var extents = d3.extent(datacolumn); 
 
 	var yscale;
 	var colorscale;
 
-	//Set scales to either linear or logarithmic
-	var scaleselection = option.text();
 	switch(scaleselection) {
 		case "linear":
 			yscale = d3.scale.linear()
@@ -598,58 +649,20 @@ var dropSubMenu=function(event,ui){
 					break;
 			}
 	}
-			
-
-	console.log("dropped "+ colname + " on mark"+marknum);	
-	var attachedmarks = d3.selectAll(".mark"+marknum+" .realmark");
 	
 	var nodeType;
 	d3.select(".mark"+marknum+" .realmark").each(function(d,i){nodeType=this.nodeName;}); // better way?
 	
 	var logextra = 0;
 	svgm = d3.select("svg#vis");
-	console.log(attachedmarks);
-	
-	
-	
-	
-	/*if(nodeType==="rect"){
-		var marks=svgm.selectAll(".mark"+marknum+" .realmark")
-			.data(allData)
-	}
-	else if(nodeType==="path") {
-		var marks=svgm.selectAll("g.mark"+marknum)
-			.data([allData])	
-	}
-	
-	
-	if(scaleselection==="logarithmic") marks.classed("logX",true);
-	if(marks.classed("logX")) logextra=1; // fixes 0 values */
-	
-	
-	
-	
-/*	if(nodeType==="path")
-	{
-	}
-	else if(nodeType==="rect")
-	{
-		marks.enter()
-		.append("rect")
-		.attr("stroke-width","2")
-		.attr("class","mark"+marknum)
-		.attr("fill","steelblue")
-		.attr("stroke","#ccc");
-	}	*/
 	
 	
 	logextra = scaleselection==="logarithmic" ? 1 : 0;
-
+	
 	switch(nodeType) {
 		case "rect":
 			var marks=svgm.selectAll(".mark"+marknum+" .realmark")
 										.data(allData);
-										
 			switch(parameter) {
 				case "height":
 					marks.transition()
@@ -689,7 +702,7 @@ var dropSubMenu=function(event,ui){
 					marks.attr("stroke",function(d,i){return colorscale(d[colname]);})
 					break;
 			}
-	
+			break;
 		case "path":
 			
 			var arc = d3.svg.arc();
@@ -749,10 +762,22 @@ var dropSubMenu=function(event,ui){
 					break;
 			}
 	}
-	
 	marks.exit().remove();
 
 }
 
+var updateBackgroundHighlight=function(marknum, opacity)
+{
+	var group = svgm.select("g.mark"+marknum);
+	var container = group.select(".container")
+	console.log(container[0][0]);			
+	var bbox = getDimensions($(group[0][0]));
+	
+	container.attr("width",bbox[0])
+	.attr("height",bbox[1])
+	.attr("fill","steelblue")
+	.attr("opacity",opacity);
 
+
+}
 
