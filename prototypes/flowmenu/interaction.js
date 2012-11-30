@@ -134,7 +134,7 @@ $(document).ready(function(){
 	
 					dataset=[];
 					n=allData.length;
-					console.log(n);
+//					console.log(n);
 					for(var i=0; i<n;i++) dataset.push(1);
 	
 					// make mark svg element group and elements
@@ -157,13 +157,13 @@ $(document).ready(function(){
 
 
 var createMenus=function(markID,markcount) {
-	console.log(markID);
+//	console.log(markID);
 	
 	var menudivs=[];
-	menulabels=d3.keys(menus[markID]);
+	var menulabels=d3.keys(menus[markID]);
 	
 	var menuitem;
-	console.log(menulabels);
+//	console.log(menulabels);
 	
 	for (var divnum=0; divnum<menulabels.length; divnum++) {
 		menuitem=$("<div class=\"menudiv"+divnum+" menudiv\" id=\"menudiv_"+markcount+"_"+divnum+"\" style=\"position:absolute;\">"+menulabels[divnum]+ "</div>");
@@ -352,78 +352,63 @@ var createMarks=function(x,y,markcount,type) {
 						break;
 						
 					case "e-resize":
-//						sx = (groupW+dx)/groupW;
-//						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
-//						t += "scale(" + sx*groupSX + ", " + tSpecs[3] + ")";
-//						$(e.target).attr("transform", t);
 						var newwidth = groupW+dx;
-						updateRectMarks(marknum, newwidth, undefined);
-						
+						updateRectMarks(marknum, newwidth, undefined);						
 						break;
 						
 					case "w-resize":
-//						sx = (groupW-dx)/groupW;
 						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
-//						t += "scale(" + sx*groupSX + ", " + tSpecs[3] + ")";
 						$(e.target).attr("transform", t);
 						var newwidth = groupW-dx;
 						updateRectMarks(marknum, newwidth, undefined);
 						break;
 						
 					case "n-resize":
-//						sy = (groupH-dy)/groupH;
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
-//						t += "scale(" + tSpecs[2] + ", " + sy*groupSY + ")";
-						$(e.target).attr("transform", t);
 						var newheight = groupH-dy;
 						updateRectMarks(marknum, undefined, newheight);
-						
+						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?				
 						break;
 						
 					case "s-resize":
-//						sy = (groupH+dy)/groupH;
-//						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
-//						t += "scale(" + tSpecs[2] + ", " + sy*groupSY + ")";
-//						$(e.target).attr("transform", t);
 						var newheight = groupH+dy;
 						updateRectMarks(marknum, undefined, newheight);
 						break;
 						
-/*					case "se-resize":
-						sx = (groupW+dx)/groupW;
-						sy = (groupH+dy)/groupH;
-						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
-						t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
-						$(e.target).attr("transform", t);
+					case "se-resize":
+						var newheight = groupH+dy;
+						var newwidth = groupW+dx;						
+						updateRectMarks(marknum, newwidth, newheight);
 						break;
 						
 					case "ne-resize":
-						sx = (groupW+dx)/groupW;
-						sy = (groupH-dy)/groupH;
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
-						t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
-						$(e.target).attr("transform", t);
+						var newheight = groupH-dy;
+						var newwidth = groupW+dx;						
+						updateRectMarks(marknum, newwidth, newheight);
+						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?		
 						break;
 						
 					case "sw-resize":
-						sx = (groupW-dx)/groupW;
-						sy = (groupH+dy)/groupH;
 						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
-						t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
 						$(e.target).attr("transform", t);
+						var newwidth = groupW-dx;					
+						var newheight = groupH+dy;
+						updateRectMarks(marknum, newwidth, newheight);
 						break;
 					
 					case "nw-resize":
-						sx = (groupW-dx)/groupW;
-						sy = (groupH-dy)/groupH;
+						var newwidth = groupW-dx;					
 						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
-						t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
-						$(e.target).attr("transform", t);
-						break;*/
+						var newheight = groupH-dy;
+						updateRectMarks(marknum, newwidth, newheight);
+						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
+						break;
 								
 					default:
-						console.log("NADA");
+//						console.log("NADA");
 				}
+				updateBackgroundHighlight(marknum, .3);
 			}
 			else if(target.classed("arcmark")) {
 				switch(scaleMode) {
@@ -442,7 +427,7 @@ var createMarks=function(x,y,markcount,type) {
 						break;
 				}
 				var marknum = $(this).attr("id").split("_")[1];
-				console.log($(this).attr("id"));
+	//			console.log($(this).attr("id"));
 				updateBackgroundHighlight(marknum, .3);
 			}
 		},
@@ -654,20 +639,21 @@ var dropSubMenu=function(event,ui){
 	var marknum = s[1], menuindex = s[2], optionindex = s[3];
 	var myparent = d3.select("#menudiv_"+marknum+"_"+menuindex);
 	
-	console.log("DROP "  + menulabels[menuindex]+" "+option.text());
+//	console.log("DROP "  + myparent.text()+" "+option.text()+ " " + menuindex);
 	
-	var parameter = menulabels[menuindex]; //second-level menu option
+	var parameter = myparent.text(); //parameter menu option
 	var colname = ui.draggable.text(); //column name of data
 	
 	//Set scales to either linear or logarithmic
 	var scaleselection = option.text();
 	var type  = markGroups[marknum].type;	
 	
-	console.log("dropped "+ colname + " on mark"+marknum);	
+//	console.log("dropped "+ colname + " on mark"+marknum);	
 	
 	if(type==="rect")
 	{
-		updateRectMarks(marknum, undefined, undefined, parameter, colname, scaleselection);		
+		console.log(parameter + " " + colname);
+		updateRectMarks(marknum, n*20, undefined, parameter, colname, scaleselection);	// remove constant	
 	}
 	else if(type==="arc")
 	{
@@ -750,7 +736,7 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined)
 	{
 
-		console.log("me");
+
 		var marks = svgm.selectAll("g.mark"+marknum+" rect.realmark")
 		.attr("height",newheight)
 		.attr("width",newwidth)	
@@ -759,6 +745,8 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 	}
 	else
 	{
+	
+		console.log(parameter + " " + colname + " " + scaleselection);
 		// regular update
 		if(colname === undefined && scaleselection === undefined && parameter === undefined)
 		{
@@ -790,9 +778,9 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 					.attr("height",function(d,i){
 						return yscale(d[colname]+logextra);})
 					.attr("width",function(d,i) {
-						return 20;})
+						return newwidth/n;})
 					.attr("x",function(d,i){
-						return i*20;})
+						return i*newwidth/n;})
 					.attr("y",function(d,i){
 						return newheight-yscale(d[colname]+logextra);});
 				break;
@@ -803,10 +791,10 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 					.attr("width",function(d,i){
 						return yscale(d[colname]+logextra);})
 					.attr("height", function(d,i) {
-						return 20;})
+						return newheight/n;})
 					.attr("x",function(d,i){return 0;})	
 					.attr("y",function(d,i){
-						return i*20;});
+						return i*newheight/n;});
 				break;
 			
 			case "fill":
@@ -886,6 +874,8 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 		var arc = d3.svg.arc();
 		var marks=svgm.selectAll("g.mark"+marknum)
 									.data([allData]);
+		var arcs = marks.selectAll("path");
+		console.log(arcs);
 		
 		switch(parameter) {
 			case "angle":
@@ -932,11 +922,11 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 				break;
 				
 			case "fill":
-				marks.attr("fill",function(d,i){return colorscale(d[colname]);})
+				arcs.attr("fill",function(d,i){return colorscale(datacolumn[i]);})
 				break;
 				
 			case "stroke":
-				marks.attr("stroke",function(d,i){return colorscale(d[colname]);})
+				arcs.attr("stroke",function(d,i){return colorscale(datacolumn[i]);})
 				break;
 		}
 
