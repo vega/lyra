@@ -12,7 +12,9 @@ function MarkGroup(type)
 {
 	this.scales = {}; // maps visual property -> scale object
 	this.majorParameter = undefined;
-	this.range= 50;
+	this.radius = 50;
+	this.height = 100;
+	this.width = 50;
 	this.type=type;
 	
 	this.addScale = function(property, newscale)
@@ -339,6 +341,7 @@ var createMarks=function(x,y,markcount,type) {
 			//console.log("DRAG: " + ui.position.left);
 			var target;
 			target=d3.select(this)
+			var marknum = $(this).attr("id").split("_")[1];	
 			
 			if(target.classed("rectmark")) {
 				switch(scaleMode) {
@@ -349,34 +352,44 @@ var createMarks=function(x,y,markcount,type) {
 						break;
 						
 					case "e-resize":
-						sx = (groupW+dx)/groupW;
-						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
-						t += "scale(" + sx*groupSX + ", " + tSpecs[3] + ")";
-						$(e.target).attr("transform", t);
+//						sx = (groupW+dx)/groupW;
+//						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
+//						t += "scale(" + sx*groupSX + ", " + tSpecs[3] + ")";
+//						$(e.target).attr("transform", t);
+						var newwidth = groupW+dx;
+						updateRectMarks(marknum, newwidth, undefined);
+						
 						break;
 						
 					case "w-resize":
-						sx = (groupW-dx)/groupW;
+//						sx = (groupW-dx)/groupW;
 						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
-						t += "scale(" + sx*groupSX + ", " + tSpecs[3] + ")";
+//						t += "scale(" + sx*groupSX + ", " + tSpecs[3] + ")";
 						$(e.target).attr("transform", t);
+						var newwidth = groupW-dx;
+						updateRectMarks(marknum, newwidth, undefined);
 						break;
 						
 					case "n-resize":
-						sy = (groupH-dy)/groupH;
+//						sy = (groupH-dy)/groupH;
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
-						t += "scale(" + tSpecs[2] + ", " + sy*groupSY + ")";
+//						t += "scale(" + tSpecs[2] + ", " + sy*groupSY + ")";
 						$(e.target).attr("transform", t);
+						var newheight = groupH-dy;
+						updateRectMarks(marknum, undefined, newheight);
+						
 						break;
 						
 					case "s-resize":
-						sy = (groupH+dy)/groupH;
-						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
-						t += "scale(" + tSpecs[2] + ", " + sy*groupSY + ")";
-						$(e.target).attr("transform", t);
+//						sy = (groupH+dy)/groupH;
+//						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
+//						t += "scale(" + tSpecs[2] + ", " + sy*groupSY + ")";
+//						$(e.target).attr("transform", t);
+						var newheight = groupH+dy;
+						updateRectMarks(marknum, undefined, newheight);
 						break;
 						
-					case "se-resize":
+/*					case "se-resize":
 						sx = (groupW+dx)/groupW;
 						sy = (groupH+dy)/groupH;
 						t = "translate(" + tSpecs[0] + "," + tSpecs[1] + ") ";
@@ -406,7 +419,7 @@ var createMarks=function(x,y,markcount,type) {
 						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
 						t += "scale(" + sx*groupSX + ", " + sy*groupSY + ")";
 						$(e.target).attr("transform", t);
-						break;
+						break;*/
 								
 					default:
 						console.log("NADA");
@@ -419,15 +432,13 @@ var createMarks=function(x,y,markcount,type) {
 						t += "scale(" + tSpecs[2] + "," + tSpecs[3] + ")";
 						$(e.target).attr("transform", t);
 						break;						
-					default:
-										var visarea = $("#vis");	 		
-					console.log(e.pageY + " " + ui.position.top + " " + groupY + " " + visarea.offset().top);
-					
+					default:		
+	//				console.log(e.pageY + " " + ui.position.top + " " + groupY + " " + visarea.offset().top);				
 					// ui.position.left/top is EVIL
-					
+					var visarea = $("#vis");	 					
 					var	clickDist = Math.sqrt(Math.pow(groupX+visarea.offset().left-e.pageX,2)+Math.pow(groupY+visarea.offset().top-e.pageY,2));
 					var marknum = $(this).attr("id").split("_")[1];
-						updateMarks(marknum, clickDist);
+						updateArcMarks(marknum, clickDist);
 						break;
 				}
 				var marknum = $(this).attr("id").split("_")[1];
@@ -492,7 +503,6 @@ var createMarks=function(x,y,markcount,type) {
 				groupH = wh[1]*tSpecs[3];
 			}
 			var marknum = $(this).attr("id").split("_")[1];
-			console.log($(this).attr("id"));
 			updateBackgroundHighlight(marknum, .3);
 	  })
 	  
@@ -503,9 +513,9 @@ var createMarks=function(x,y,markcount,type) {
 			//console.log(e.offsetX);
 			//console.log(groupW + " | " + groupH);
 			//console.log(s[1] + "|" + s[2] + "|" + wh[0] + "|" + wh[1] + "|" + e.offsetX + "|" + e.offsetY);
-			
+			var marknum = $(this).attr("id").split("_")[1];
 			if(!isDragging) {
-				getCursorType(tSpecs[0], tSpecs[1], groupW, groupH, e.offsetX, e.offsetY);
+				getCursorType(marknum, tSpecs[0], tSpecs[1], groupW, groupH, e.offsetX, e.offsetY);
 			}
 	  })
 	  
@@ -521,15 +531,30 @@ var createMarks=function(x,y,markcount,type) {
 
 var scaleMode = "";
 
-
-
 //Determine cursor type for moving/scaling
-function getCursorType(shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) {
-	pX = (mouseX-shapeX)/shapeW; //percentage of X shape
-	pY = (mouseY-shapeY)/shapeH; //percentage of Y shape
+function getCursorType(marknum, shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) {
+
+	var type  = markGroups[marknum].type;
 	var boundaryWidth = .1;
+	var	clickDist;
 	
-	if(pX<boundaryWidth && pY<boundaryWidth) {
+	if(type === "rect") {
+		pX = (mouseX-shapeX)/shapeW; //percentage of X shape
+		pY = (mouseY-shapeY)/shapeH; //percentage of Y shape
+	}
+	else if(type === "arc")
+	{
+		pX = (mouseX-shapeX+.5*shapeW)/shapeW; //percentage of X shape
+		pY = (mouseY-shapeY+.5*shapeH)/shapeH; //percentage of Y shape	
+		boundaryWidth = .5;
+		
+		clickDist = Math.sqrt(Math.pow(mouseX-shapeX,2)+Math.pow(mouseY-shapeY,2));
+	}
+	
+
+	if(type === "arc" && clickDist < (.5*shapeW)*(1-boundaryWidth)) {
+			scaleMode = "move";
+	} else if(pX<boundaryWidth && pY<boundaryWidth) {
 		scaleMode = "nw-resize";		
 	} else if(pX<boundaryWidth && pY>(1-boundaryWidth)) {
 		scaleMode = "sw-resize";
@@ -548,6 +573,7 @@ function getCursorType(shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) {
 	} else {
 		scaleMode = "move";
 	}
+	
 	
 	$('body').css('cursor', scaleMode);	
 }
@@ -635,16 +661,74 @@ var dropSubMenu=function(event,ui){
 	
 	//Set scales to either linear or logarithmic
 	var scaleselection = option.text();
-			
+	var type  = markGroups[marknum].type;	
+	
 	console.log("dropped "+ colname + " on mark"+marknum);	
 	
-	updateMarks(marknum, 100, parameter, colname, scaleselection);
-	
+	if(type==="rect")
+	{
+		updateRectMarks(marknum, undefined, undefined, parameter, colname, scaleselection);		
+	}
+	else if(type==="arc")
+	{
+		updateArcMarks(marknum, undefined, parameter, colname, scaleselection);
+	}
 
 }
 
+var makeQuantScale = function(scaleselection, datacolumn, range)
+{
+	var yscale;
+	var extents = d3.extent(datacolumn); 
+	// set up scale based on menu choice	
+	switch(scaleselection) {
+		case "linear":
+			yscale = d3.scale.linear()
+				.domain(extents)
+				.range([0, range]);
+			break;
+		
+		case "logarithmic":
+			if(extents[0]<=0) extents[0]=1; //how to deal with zeroes?
+			yscale = d3.scale.log()
+				.domain(extents)
+				.range([0, range]);
+			break;
+
+	}
+	
+	return yscale;
+
+
+}
+
+var makeColorScale= function(scaleselection, datacolumn)
+{
+	var colorscale;
+	// set up scale based on menu choice	
+
+	var palletselection = scaleselection.split(" ")[1];
+	switch(palletselection) {
+		case "A": 
+			colorscale=d3.scale.category20().domain(datacolumn);
+			break;
+		case "B":
+			colorscale=d3.scale.category20b().domain(datacolumn);
+			break;
+		case "C":
+			colorscale=d3.scale.category20c().domain(datacolumn);
+			break;
+	}
+	
+	
+	return colorscale;
+
+
+}
+
+
 // mark number, visual property, column name, type of scale
-var updateMarks = function(marknum, range, parameter, colname, scaleselection)
+var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection)
 {
 
 	var yscale;
@@ -655,27 +739,23 @@ var updateMarks = function(marknum, range, parameter, colname, scaleselection)
 	
 	d3.select(".mark"+marknum+" .realmark").each(function(d,i){nodeType=this.nodeName;}); 
 	
-	range = Math.floor(range);
-	markGroups[marknum].range = range;
+	if(newheight===undefined) { newheight = markGroups[marknum].height; }
+	else {  markGroups[marknum].height = newheight; }
+	if(newwidth===undefined) { newwidth = markGroups[marknum].width; }
+	else {  markGroups[marknum].width = newwidth; }	
+	
 	// use established values if scale update
 	
 	// resize default
 	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined)
 	{
-		if(nodeType === "rect")
-		{
-		
-		}
-		else if(nodeType === "path")
-		{
-			var marks=svgm.selectAll("g.mark"+marknum)
-										.data([allData]);
-			var arc = d3.svg.arc();
-			arc.innerRadius(0);
-			arc.outerRadius(range);
-			marks.selectAll("path")
-				.attr("d", arc); 				
-		}
+
+		console.log("me");
+		var marks = svgm.selectAll("g.mark"+marknum+" rect.realmark")
+		.attr("height",newheight)
+		.attr("width",newwidth)	
+		console.log(marks);
+	
 	}
 	else
 	{
@@ -690,40 +770,112 @@ var updateMarks = function(marknum, range, parameter, colname, scaleselection)
 		}
 		
 		var datacolumn = dataObjectsToColumn(allData,colname);
-		var extents = d3.extent(datacolumn); 
+		
+		console.log(parameter + " " + colname + " " + scaleselection);
+			
+		var logextra;
+		logextra = scaleselection==="logarithmic" ? 1 : 0;
+
+		svgm = d3.select("svg#vis");
+
+		var marks=svgm.selectAll(".mark"+marknum+" .realmark")
+									.data(allData);
+
+		colorscale = makeColorScale(scaleselection, datacolumn);
+									
+		switch(parameter) {
+			case "height":
+				yscale = makeQuantScale(scaleselection, datacolumn, newheight);
+				marks.transition().duration(transduration)
+					.attr("height",function(d,i){
+						return yscale(d[colname]+logextra);})
+					.attr("width",function(d,i) {
+						return 20;})
+					.attr("x",function(d,i){
+						return i*20;})
+					.attr("y",function(d,i){
+						return newheight-yscale(d[colname]+logextra);});
+				break;
+				
+			case "width":
+				yscale = makeQuantScale(scaleselection, datacolumn, newwidth);
+				marks.transition().duration(transduration)
+					.attr("width",function(d,i){
+						return yscale(d[colname]+logextra);})
+					.attr("height", function(d,i) {
+						return 20;})
+					.attr("x",function(d,i){return 0;})	
+					.attr("y",function(d,i){
+						return i*20;});
+				break;
+			
+			case "fill":
+				marks.attr("fill",function(d,i){return colorscale(d[colname]);})		
+				break;
+				
+			case "stroke":
+				marks.attr("stroke",function(d,i){return colorscale(d[colname]);})
+				break;
+		}
+				
+		
+		markGroups[marknum].addScale(parameter, new Scale(yscale, colorscale, scaleselection, colname));
+
+		if($.inArray(parameter, ["height", "width"])!==-1) { markGroups[marknum].majorParameter = parameter; }
+		
+		marks.exit().remove();
+	
+	}
+
+}
+
+var updateArcMarks = function(marknum, radius, parameter, colname, scaleselection)
+{
+
+	var yscale;
+	var colorscale;
+	var nodeType;
+	var dragupdate=false;
+	var transduration = 250;
+	
+	d3.select(".mark"+marknum+" .realmark").each(function(d,i){nodeType=this.nodeName;}); 
+	
+	if(radius === undefined) { radius = markGroups[marknum].radius; }
+	else {	markGroups[marknum].radius = radius; }
+	// use established values if scale update
+	
+	// resize default
+	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined)
+	{
+
+		var marks=svgm.selectAll("g.mark"+marknum)
+									.data([allData]);
+		var arc = d3.svg.arc();
+		arc.innerRadius(0);
+		arc.outerRadius(radius);
+		marks.selectAll("path")
+			.attr("d", arc); 				
+	}
+	else
+	{
+		// regular update
+		if(colname === undefined && scaleselection === undefined && parameter === undefined)
+		{
+			parameter = markGroups[marknum].majorParameter;
+			colname = markGroups[marknum].scales[parameter].columnName;
+			scaleselection = markGroups[marknum].scales[parameter].type;		
+			dragupdate=true;
+			transduration=0;
+		}
+		
+		var datacolumn = dataObjectsToColumn(allData,colname);
 		
 		console.log(parameter + " " + colname + " " + scaleselection);
 
 		// set up scale based on menu choice	
-		switch(scaleselection) {
-			case "linear":
-				yscale = d3.scale.linear()
-					.domain(extents)
-					.range([0, range]);
-				break;
-			
-			case "logarithmic":
-				if(extents[0]<=0) extents[0]=1; //how to deal with zeroes?
-				yscale = d3.scale.log()
-					.domain(extents)
-					.range([0, range]);
-				break;
-			
-			default: 
-				var palletselection = scaleselection.split(" ")[1];
-				switch(palletselection) {
-					case "A": 
-						colorscale=d3.scale.category20().domain(datacolumn);
-						break;
-					case "B":
-						colorscale=d3.scale.category20b().domain(datacolumn);
-						break;
-					case "C":
-						colorscale=d3.scale.category20c().domain(datacolumn);
-						break;
-				}
-		}
-		
+
+		colorscale = makeColorScale(scaleselection, datacolumn);
+		yscale = makeQuantScale(scaleselection, datacolumn, radius);
 
 		
 		var logextra;
@@ -731,106 +883,67 @@ var updateMarks = function(marknum, range, parameter, colname, scaleselection)
 
 		svgm = d3.select("svg#vis");
 
-		switch(nodeType) {
-			case "rect":
-				var marks=svgm.selectAll(".mark"+marknum+" .realmark")
-											.data(allData);
-				switch(parameter) {
-					case "height":
-						marks.transition().duration(transduration)
-							.attr("height",function(d,i){
-								return yscale(d[colname]+logextra);})
-							.attr("width",function(d,i) {
-								return 20;})
-							.attr("x",function(d,i){
-								return i*20;})
-							.attr("y",function(d,i){
-								return range-yscale(d[colname]+logextra);});
-						break;
-						
-					case "width":
-						marks.transition().duration(transduration)
-							.attr("width",function(d,i){
-								return yscale(d[colname]+logextra);})
-							.attr("height", function(d,i) {
-								return 20;})
-							.attr("x",function(d,i){return 0;})	
-							.attr("y",function(d,i){
-								return i*20;});
-						break;
-					
-					case "fill":
-						marks.attr("fill",function(d,i){return colorscale(d[colname]);})		
-						break;
-						
-					case "stroke":
-						marks.attr("stroke",function(d,i){return colorscale(d[colname]);})
-						break;
+		var arc = d3.svg.arc();
+		var marks=svgm.selectAll("g.mark"+marknum)
+									.data([allData]);
+		
+		switch(parameter) {
+			case "angle":
+				arc.innerRadius(0);
+				arc.outerRadius(radius);
+				
+				sum = 0;
+				cum = new Array();
+				cum[0] = 0;
+				for(i=0; i<n-1; i++) {
+					sum += yscale(datacolumn[i]+logextra);
+					cum[i+1] = sum;
 				}
+				cum[n] = sum;
+				
+				arc.startAngle(function(d,i) {
+					return cum[i]/sum*2*Math.PI;
+				})
+				arc.endAngle(function(d,i) {
+					return cum[i+1]/sum*2*Math.PI;
+				})
+				
+				marks.selectAll("path").transition().duration(transduration)
+					.attr("d", arc); 	
 				break;
-			case "path":
 				
-				var arc = d3.svg.arc();
-				var marks=svgm.selectAll("g.mark"+marknum)
-											.data([allData]);
+			case "inner radius":
 				
-				switch(parameter) {
-					case "angle":
-						arc.innerRadius(0);
-						arc.outerRadius(range);
-						
-						sum = 0;
-						cum = new Array();
-						cum[0] = 0;
-						for(i=0; i<n-1; i++) {
-							sum += yscale(datacolumn[i]+logextra);
-							cum[i+1] = sum;
-						}
-						cum[n] = sum;
-						
-						arc.startAngle(function(d,i) {
-							return cum[i]/sum*2*Math.PI;
-						})
-						arc.endAngle(function(d,i) {
-							return cum[i+1]/sum*2*Math.PI;
-						})
-						
-						marks.selectAll("path").transition().duration(transduration)
-							.attr("d", arc); 	
-						break;
-						
-					case "inner radius":
-						
-						arc.outerRadius(range);
-						arc.innerRadius(function(d,i){
-							return yscale(datacolumn[i]+logextra);
-						});
-						marks.selectAll("path").transition().duration(transduration)
-							.attr("d", arc); 						
-						break;
-					
-					case "outer radius":
-						arc.innerRadius(0);
-						arc.outerRadius(function(d,i){
-							return yscale(datacolumn[i]+logextra);
-						});
-						marks.selectAll("path").transition().duration(transduration)
-							.attr("d", arc); 			
-						break;
-						
-					case "fill":
-						marks.attr("fill",function(d,i){return colorscale(d[colname]);})
-						break;
-						
-					case "stroke":
-						marks.attr("stroke",function(d,i){return colorscale(d[colname]);})
-						break;
-				}
+				arc.outerRadius(radius);
+				arc.innerRadius(function(d,i){
+					return yscale(datacolumn[i]+logextra);
+				});
+				marks.selectAll("path").transition().duration(transduration)
+					.attr("d", arc); 						
+				break;
+			
+			case "outer radius":
+				arc.innerRadius(0);
+				arc.outerRadius(function(d,i){
+					return yscale(datacolumn[i]+logextra);
+				});
+				marks.selectAll("path").transition().duration(transduration)
+					.attr("d", arc); 			
+				break;
+				
+			case "fill":
+				marks.attr("fill",function(d,i){return colorscale(d[colname]);})
+				break;
+				
+			case "stroke":
+				marks.attr("stroke",function(d,i){return colorscale(d[colname]);})
+				break;
 		}
+
 		
 		markGroups[marknum].addScale(parameter, new Scale(yscale, colorscale, scaleselection, colname));
 
-		if($.inArray(parameter, ["outer radius", "inner radius", "angle", "height", "width"])!==-1) { markGroups[marknum].majorParameter = parameter; }
+		if($.inArray(parameter, ["outer radius", "inner radius", "angle"])!==-1) { markGroups[marknum].majorParameter = parameter; }
 		
 		marks.exit().remove();
 	
@@ -848,11 +961,10 @@ var updateBackgroundHighlight=function(marknum, opacity)
 	container.attr("width",0);
 	
 	var bbox = getDimensions($(group[0][0]));
-	console.log(bbox);
 
 	if(markGroups[marknum].type==="arc")
 	{
-		container.attr("r",(markGroups[marknum].range)+5)
+		container.attr("r",(markGroups[marknum].radius)+5)
 		.attr("fill","steelblue")
 		.attr("opacity",opacity);
 	}
