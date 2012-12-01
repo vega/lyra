@@ -102,6 +102,10 @@ $(document).ready(function(){
 		//Column class for each variable in the data
 		$(".column").draggable({
 			start:function(event,ui){
+				$(".menudiv").each(function(index)
+				{
+					positionFirstLevelMenu($(this).attr("id"));
+				});		
 				$(".menudiv").show(); //show available attribute encoders
 			},
 			stop:function(event,ui){
@@ -157,13 +161,11 @@ $(document).ready(function(){
 
 
 var createMenus=function(markID,markcount) {
-//	console.log(markID);
 	
 	var menudivs=[];
-	var menulabels=d3.keys(menus[markID]);
+	var menulabels=d3.keys(menus[markID]);  // top level menu items
 	
 	var menuitem;
-//	console.log(menulabels);
 	
 	for (var divnum=0; divnum<menulabels.length; divnum++) {
 		menuitem=$("<div class=\"menudiv"+divnum+" menudiv\" id=\"menudiv_"+markcount+"_"+divnum+"\" style=\"position:absolute;\">"+menulabels[divnum]+ "</div>");
@@ -173,18 +175,7 @@ var createMenus=function(markID,markcount) {
 		menuitem.hide();
 		
 		//move menu item to rect
-		var myid = menuitem.attr("id");
-		var marknum = myid.split("_")[1];
-		var menuindex = myid.split("_")[2];
-		var markgroup = d3.select(".mark"+marknum);		
-		//var attachedmarks = markgroup.selectAll("rect");
-		var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
-		var minx = +cleantrans[0];
-		var maxy = +cleantrans[1];
-		var visarea = $("#vis");
-		 
-		menuitem.css("left",(minx+visarea.offset().left)+"px");
-		menuitem.css("top",maxy+visarea.offset().top+120+menuindex*20+"px");
+		positionFirstLevelMenu(menuitem.attr("id"));
 		
 		menuitem.droppable({
 		
@@ -200,7 +191,13 @@ var createMenus=function(markID,markcount) {
 				var menuindex = myid.split("_")[2];
 				mytext.classed("hoverselected",true);
 				// reveal next level
+//				$(".optiondiv").each(function(index){console.log($(this).attr("id"));});
+
 				$(".optiondiv").hide();
+				$(".optiondiv_"+marknum+"_"+menuindex).each(function(index)
+				{
+					positionSecondLevelMenu($(this).attr("id"));
+				});				
 				$(".optiondiv_"+marknum+"_"+menuindex).show();
 			},
 			out:function(event,ui){
@@ -220,17 +217,8 @@ var createMenus=function(markID,markcount) {
 			option.appendTo($("body"));
 			option.hide();
 
-			var myid = option.attr("id");
-			var marknum = myid.split("_")[1];
-			var menuindex = myid.split("_")[2];
-			var myparent = d3.select("#menudiv_"+marknum+"_"+menuindex);
-			var parentX = +(myparent.style("left").split("px")[0]);
-			var parentY = +(myparent.style("top").split("px")[0]);
-			var visarea = $("#vis");
-			
-			option.css("left",(parentX+zonewidth*2)+"px");
-			option.css("top",parentY+optionnum*20+"px");
-			
+			positionSecondLevelMenu(option.attr("id"));
+					
 			option.droppable({
 				accept: ".column",
 				drop:dropSubMenu,
@@ -244,6 +232,48 @@ var createMenus=function(markID,markcount) {
 			option.droppable("option","tolerance","touch");
 		}
 	}
+}
+
+var postionMenus = function(markid)
+{
+
+
+}
+
+var positionFirstLevelMenu = function(id)
+{
+	var menuitem = $("#"+id);
+	var marknum = id.split("_")[1];
+	var menuindex = id.split("_")[2];
+	
+	var markgroup = d3.select(".mark"+marknum);		
+	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+	var minx = +cleantrans[0];
+	var maxy = +cleantrans[1];
+	var visarea = $("#vis");
+	 
+	menuitem.css("left",(minx+visarea.offset().left)+"px");
+	menuitem.css("top",maxy+visarea.offset().top+120+menuindex*20+"px");
+
+}
+
+// gets position from parent
+var positionSecondLevelMenu = function(id)
+{
+	var option = $("#"+id);
+	var marknum = id.split("_")[1];
+	var menuindex = id.split("_")[2];
+	var optionnum = id.split("_")[3];
+	
+	var myparent = d3.select("#menudiv_"+marknum+"_"+menuindex);
+	var parentX = +(myparent.style("left").split("px")[0]);
+	var parentY = +(myparent.style("top").split("px")[0]);
+
+
+	option.css("left",(parentX+zonewidth*2)+"px");
+	option.css("top",parentY+optionnum*20+"px");
+
+
 }
 
 
