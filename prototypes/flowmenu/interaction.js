@@ -104,9 +104,9 @@ $(document).ready(function(){
 			start:function(event,ui){
 				$(".menudiv").each(function(index)
 				{
-					positionMarkAttachments($(this).attr("id"));
+					positionMarkAttachments($(this).attr("id"));			
 				});		
-				$(".menudiv").show(); //show available attribute encoders
+				$(".menudiv").show(); //show available attribute encoders					
 			},
 			stop:function(event,ui){
 				$(".menudiv").hide(500); //necessary or drop won't register
@@ -120,6 +120,22 @@ $(document).ready(function(){
   $(".mark").draggable()
 						.draggable("option", "revert", "invalid") 
 						.draggable("option", "helper", "clone"); //duplicate of draggable moves with cursor
+	$(".axismark").draggable(
+	{
+		revert:"invalid",
+		helper:"clone",
+		start:function(event,ui){
+			$(".axisanchor").each(function(index){
+				var marknum = $(this).attr("id").split("_")[1];
+				positionAnnotations(marknum);
+			});
+			$(".axisanchor").show();
+		},
+		stop:function(event,ui){
+			$(".axisanchor").hide(100); //necessary or drop won't register
+		}
+	
+	});
 
 	//Region is everything below the marks div								
   $("#region").droppable({
@@ -146,6 +162,8 @@ $(document).ready(function(){
 
 					//make 1st and 2nd level menus for each graph
 					createMenus(markID,markcount);
+					
+					createAnnotations(markID,markcount);
 
 					// global mark index
 					markcount++;					
@@ -155,7 +173,49 @@ $(document).ready(function(){
 
 });
 
+var createAnnotations = function(markID,markcount)
+{
+	var closeicon;
+	
+	// make close icon
+	closeicon=$("<div class=\"closeicon\" id=\"closeicon_"+markcount+"\" style=\"position:absolute;\"></div>");
+	
+	closeicon.mouseenter(function()
+	{
+		var marknum = $(this).attr("id").split("_")[1];
+		$(this).show();
+		updateBackgroundHighlight(marknum, .3);
+	});
+	closeicon.click(function()
+	{
+		var marknum = $(this).attr("id").split("_")[1];
+		destroyMark(marknum);
+	});
+	
+	closeicon.appendTo($("body"));
+	closeicon.hide();
+	
+	var axisanchor;
+	
+	for(var axisanchornum=0; axisanchornum<4; axisanchornum++)
+	{
+		axisanchor =  $("<div class=\"axisanchor axisanchor_"+markcount+"\" id=\"axisanchor_"+markcount+"_"+axisanchornum+"\" style=\"position:absolute;\"></div>")
+	
+		axisanchor.droppable({
+			accept:".axismark",
+			drop:function(event,ui)
+			{
+				console.log($(this).attr("id"));
+			},
+			tolerance:"pointer"
+		});
+	
+		axisanchor.appendTo($("body"));
+		axisanchor.hide();
+	}
 
+
+}
 
 
 
@@ -166,7 +226,6 @@ var createMenus=function(markID,markcount) {
 	var menulabels=d3.keys(menus[markID]);  // top level menu items
 	
 	var menuitem;
-	var closeicon;
 	
 	for (var divnum=0; divnum<menulabels.length; divnum++) {
 		menuitem=$("<div class=\"menudiv_"+markcount+" menudiv\" id=\"menudiv_"+markcount+"_"+divnum+"\" style=\"position:absolute;\">"+menulabels[divnum]+ "</div>");
@@ -175,22 +234,6 @@ var createMenus=function(markID,markcount) {
 		menuitem.appendTo($("body"));
 		menuitem.hide();
 
-		closeicon=$("<div class=\"closeicon\" id=\"closeicon_"+markcount+"\" style=\"position:absolute;\"></div>");
-		
-		closeicon.mouseenter(function()
-		{
-			var marknum = $(this).attr("id").split("_")[1];
-			$(this).show();
-			updateBackgroundHighlight(marknum, .3);
-		});
-		closeicon.click(function()
-		{
-			var marknum = $(this).attr("id").split("_")[1];
-			destroyMark(marknum);
-		});
-		
-		closeicon.appendTo($("body"));
-		closeicon.hide();
 		
 		//move menu item to rect
 		positionMarkAttachments(menuitem.attr("id"));
@@ -242,12 +285,35 @@ var createMenus=function(markID,markcount) {
 				deactivate:function(event,ui){
 					$(this).hide(500);
 				},
-				over:function(event,ui){}
+				over:function(event,ui){}, // does not register unless shown at drag start
+				out:function(event,ui){}				
 			});
 			
 			option.droppable("option","tolerance","touch");
 		}
 	}
+}
+
+var positionAnnotations = function(marknum)
+{
+	positionCloseIcon(marknum);
+	positionAxisAnchor(marknum);
+
+}
+
+var showAnnotations = function(marknum)
+{
+	$("#closeicon_"+marknum).show();	
+	$(".axisanchor_"+marknum).show();
+
+}
+
+var hideAnnotations = function(marknum)
+{
+
+	$("#closeicon_"+marknum).hide();	
+	$(".axisanchor_"+marknum).hide();
+
 }
 
 var positionCloseIcon = function(marknum)
@@ -270,6 +336,59 @@ var positionCloseIcon = function(marknum)
 		var radius = markGroups[marknum].radius;
 		icon.css("left",(minx+visarea.offset().left+Math.cos(45)*radius)+"px");
 		icon.css("top",miny+visarea.offset().top-Math.sin(45)*radius+"px");	
+	}
+
+}
+
+var positionAxisAnchor = function(marknum)
+{
+
+	
+	var markgroup = d3.select(".mark"+marknum);		
+	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+	var wh = getDimensions($("g.mark"+marknum));
+	var minx = +cleantrans[0];
+	var miny = +cleantrans[1];
+	var visarea = $("#vis");
+	var type = markGroups[marknum].type;
+	
+	for(var axisanchornum=0; axisanchornum<4; axisanchornum++)
+	{
+		var anchor = $("#axisanchor_"+marknum+"_"+axisanchornum);	
+		var x,y;
+		
+		switch(axisanchornum){
+			case 0:
+				// north
+				x = minx+visarea.offset().left+.5*wh[0]+"px";
+				y = miny+visarea.offset().top - 15 + "px";
+			break;
+			case 1:
+				// east
+				x = minx+visarea.offset().left+wh[0]+"px";
+				y = miny+visarea.offset().top + .5*wh[1]+"px";
+			break;
+			case 2:
+				// south
+				x = minx+visarea.offset().left+.5*wh[0]+"px";
+				y = miny+visarea.offset().top + wh[1] + "px";		
+			break;
+			case 3:
+				// west
+				x = minx+visarea.offset().left-15+"px";
+				y = miny+visarea.offset().top + .5*wh[1]+"px";		
+			break;		
+		
+		
+		}
+	
+		if(type==="rect"){
+			anchor.css("left",x);
+			anchor.css("top", y);
+		}
+		else if(type==="arc"){
+			// TODO handle
+		}
 	}
 
 }
@@ -487,8 +606,8 @@ var createMarks=function(x,y,markcount,type) {
 //						console.log("NADA");
 				}
 				updateBackgroundHighlight(marknum, .3);
-				positionCloseIcon(marknum);
-				$("#closeicon_"+marknum).show();
+				positionAnnotations(marknum);
+				$("#closeicon_"+marknum).show();	
 			}
 			else if(target.classed("arcmark")) {
 				switch(scaleMode) {
@@ -509,7 +628,7 @@ var createMarks=function(x,y,markcount,type) {
 				var marknum = $(this).attr("id").split("_")[1];
 	//			console.log($(this).attr("id"));
 				updateBackgroundHighlight(marknum, .3);
-				positionCloseIcon(marknum);
+				positionAnnotations(marknum);			
 				$("#closeicon_"+marknum).show();
 			}
 		},
@@ -571,7 +690,7 @@ var createMarks=function(x,y,markcount,type) {
 			}
 			var marknum = $(this).attr("id").split("_")[1];
 			updateBackgroundHighlight(marknum, .3);
-			positionCloseIcon(marknum);
+			positionAnnotations(marknum);		
 			$("#closeicon_"+marknum).show();
 	  })
 	  
@@ -614,6 +733,8 @@ var destroyMark = function(marknum)
 	
 	menus.remove(); 
 	$("#closeicon_"+marknum).remove();
+	
+	$(".axisanchor_"+marknum).remove();
 
 }
 
@@ -758,8 +879,13 @@ var dropSubMenu=function(event,ui){
 	var parameter = myparent.text(); //parameter menu option
 	var colname = ui.draggable.text(); //column name of data
 	
+	var selectedoption = $("#optiondiv_"+marknum+"_"+menuindex+"_"+optionindex);
+	
+	$(".optiondiv_"+marknum+"_"+menuindex).removeClass("optionselected");
+	selectedoption.addClass("optionselected");
+	
 	//Set scales to either linear or logarithmic or pallet color
-	var scaleselection = $("#optiondiv_"+marknum+"_"+menuindex+"_"+optionindex).text(); // option.text();
+	var scaleselection = selectedoption.text(); // option.text();
 	var type  = markGroups[marknum].type;	
 	
 //	console.log("dropped "+ colname + " on mark"+marknum);	
@@ -976,12 +1102,10 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 		console.log(parameter + " " + colname + " " + scaleselection);
 
 		// set up scale based on menu choice	
-
-		if($.inArray(parameter, ["outer radius", "inner radius"]))
+		if($.inArray(parameter, ["outer radius", "inner radius"])!==-1)
 		{
 			for(var elem in datacolumn) datacolumn[elem] = Math.sqrt(datacolumn[elem]);
 		}
-		
 		colorscale = makeColorScale(scaleselection, datacolumn);
 		yscale = makeQuantScale(scaleselection, datacolumn, radius);
 
