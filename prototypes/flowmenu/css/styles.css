@@ -60,10 +60,27 @@ display: none;
 	font-size: 46px;
 	text-align: center;
 	vertical-align: center;
+
 }
 
 .mark-accept-highlight {
     background: green;
+
+}
+
+.closeicon{
+    width: 15px;
+    height: 15px;
+    background: red;
+    cursor: default;
+	border-color: black;
+	border-width: 2;
+	text-align: center;
+	vertical-align: center;
+	opacity: .7;
+	user-select: none;
+}
+
 
 }
 

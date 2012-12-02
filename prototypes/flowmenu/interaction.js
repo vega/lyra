@@ -90,7 +90,7 @@ $(document).ready(function(){
 		
 		//n=allData.length;
 //		allData.push(allData[0]); //push a fake piece of data on the end to serve as the chart selector. What is this?
-		console.log(allData);
+//		console.log(allData);
 		
 		//populate list of columns
 		for(var label in allData[0]) {
@@ -104,7 +104,7 @@ $(document).ready(function(){
 			start:function(event,ui){
 				$(".menudiv").each(function(index)
 				{
-					positionFirstLevelMenu($(this).attr("id"));
+					positionMarkAttachments($(this).attr("id"));
 				});		
 				$(".menudiv").show(); //show available attribute encoders
 			},
@@ -144,7 +144,7 @@ $(document).ready(function(){
 					// make mark svg element group and elements
 					createMarks(x,y,markcount,markID);
 
-					//make a 1st level menu for each graph
+					//make 1st and 2nd level menus for each graph
 					createMenus(markID,markcount);
 
 					// global mark index
@@ -166,23 +166,39 @@ var createMenus=function(markID,markcount) {
 	var menulabels=d3.keys(menus[markID]);  // top level menu items
 	
 	var menuitem;
+	var closeicon;
 	
 	for (var divnum=0; divnum<menulabels.length; divnum++) {
-		menuitem=$("<div class=\"menudiv"+divnum+" menudiv\" id=\"menudiv_"+markcount+"_"+divnum+"\" style=\"position:absolute;\">"+menulabels[divnum]+ "</div>");
+		menuitem=$("<div class=\"menudiv_"+markcount+" menudiv\" id=\"menudiv_"+markcount+"_"+divnum+"\" style=\"position:absolute;\">"+menulabels[divnum]+ "</div>");
 		
 		menudivs.push(menuitem);
 		menuitem.appendTo($("body"));
 		menuitem.hide();
+
+		closeicon=$("<div class=\"closeicon\" id=\"closeicon_"+markcount+"\" style=\"position:absolute;\"></div>");
+		
+		closeicon.mouseenter(function()
+		{
+			var marknum = $(this).attr("id").split("_")[1];
+			$(this).show();
+			updateBackgroundHighlight(marknum, .3);
+		});
+		closeicon.click(function()
+		{
+			var marknum = $(this).attr("id").split("_")[1];
+			destroyMark(marknum);
+		});
+		
+		closeicon.appendTo($("body"));
+		closeicon.hide();
 		
 		//move menu item to rect
-		positionFirstLevelMenu(menuitem.attr("id"));
+		positionMarkAttachments(menuitem.attr("id"));
 		
 		menuitem.droppable({
 		
 			accept: ".column",
-			drop: function(event,ui){
-				// TODO take default behavior
-			},
+			drop: dropSubMenu,
 			activate:function(event,ui){ },
 			over:function(event,ui){
 				var mytext = d3.select(this);
@@ -234,10 +250,34 @@ var createMenus=function(markID,markcount) {
 	}
 }
 
-var postionMenus = function(markid)
+var positionCloseIcon = function(marknum)
 {
+	var icon = $("#closeicon_"+marknum);
+	
+	var markgroup = d3.select(".mark"+marknum);		
+	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+	var wh = getDimensions($("g.mark"+marknum));
+	var minx = +cleantrans[0];
+	var miny = +cleantrans[1];
+	var visarea = $("#vis");
+	var type = markGroups[marknum].type;
+	
+	if(type==="rect"){
+		icon.css("left",(minx+visarea.offset().left+wh[0]-20)+"px");
+		icon.css("top",miny+visarea.offset().top+"px");
+	}
+	else if(type==="arc"){
+		var radius = markGroups[marknum].radius;
+		icon.css("left",(minx+visarea.offset().left+Math.cos(45)*radius)+"px");
+		icon.css("top",miny+visarea.offset().top-Math.sin(45)*radius+"px");	
+	}
 
+}
 
+var positionMarkAttachments = function(id)
+{
+	positionFirstLevelMenu(id);
+//	positionCloseIcon(id);
 }
 
 var positionFirstLevelMenu = function(id)
@@ -248,12 +288,20 @@ var positionFirstLevelMenu = function(id)
 	
 	var markgroup = d3.select(".mark"+marknum);		
 	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+	var wh = getDimensions($("g.mark"+marknum));
 	var minx = +cleantrans[0];
-	var maxy = +cleantrans[1];
+	var miny = +cleantrans[1];
 	var visarea = $("#vis");
-	 
-	menuitem.css("left",(minx+visarea.offset().left)+"px");
-	menuitem.css("top",maxy+visarea.offset().top+120+menuindex*20+"px");
+	var type = markGroups[marknum].type;
+	
+	if(type==="rect"){
+		menuitem.css("left",(minx+visarea.offset().left+.5*wh[0])+"px");
+		menuitem.css("top",miny+visarea.offset().top+wh[1]+20+menuindex*20+"px");
+	}
+	else if(type==="arc"){
+		menuitem.css("left",(minx+visarea.offset().left)+"px");
+		menuitem.css("top",miny+visarea.offset().top+.5*wh[1]+20+menuindex*20+"px");	
+	}
 
 }
 
@@ -439,6 +487,8 @@ var createMarks=function(x,y,markcount,type) {
 //						console.log("NADA");
 				}
 				updateBackgroundHighlight(marknum, .3);
+				positionCloseIcon(marknum);
+				$("#closeicon_"+marknum).show();
 			}
 			else if(target.classed("arcmark")) {
 				switch(scaleMode) {
@@ -459,6 +509,8 @@ var createMarks=function(x,y,markcount,type) {
 				var marknum = $(this).attr("id").split("_")[1];
 	//			console.log($(this).attr("id"));
 				updateBackgroundHighlight(marknum, .3);
+				positionCloseIcon(marknum);
+				$("#closeicon_"+marknum).show();
 			}
 		},
 				
@@ -519,6 +571,8 @@ var createMarks=function(x,y,markcount,type) {
 			}
 			var marknum = $(this).attr("id").split("_")[1];
 			updateBackgroundHighlight(marknum, .3);
+			positionCloseIcon(marknum);
+			$("#closeicon_"+marknum).show();
 	  })
 	  
 	  
@@ -539,7 +593,27 @@ var createMarks=function(x,y,markcount,type) {
 		  $('body').css('cursor', 'auto');
 		var marknum = $(this).attr("id").split("_")[1];
 		updateBackgroundHighlight(marknum, 0);
+		$("#closeicon_"+marknum).hide();
 	  });
+
+}
+
+// destory a mark and all associated menus
+var destroyMark = function(marknum)
+{
+
+	var marks = d3.select("#mark_"+marknum+"_group");
+	marks.remove();
+
+	
+	var menus = $(".menudiv_"+marknum).each(function(index){
+		var options = $(".optiondiv_"+marknum+"_"+index);
+		options.remove();
+	
+	});
+	
+	menus.remove(); 
+	$("#closeicon_"+marknum).remove();
 
 }
 
@@ -664,18 +738,28 @@ var dropSubMenu=function(event,ui){
 	var option = $(this);
 	var myid = option.attr("id");
 	var s = myid.split("_");
+	var marknum = s[1], menuindex = s[2], optionindex;
+	
+	if(s.length<4)
+	{
+		// take default action
+		optionindex = 0; 
+	}
+	else
+	{
+		optionindex = s[3];
+	}
 	
 	//high-level mark, first-level menu, second-level menu option
-	var marknum = s[1], menuindex = s[2], optionindex = s[3];
+
 	var myparent = d3.select("#menudiv_"+marknum+"_"+menuindex);
-	
-//	console.log("DROP "  + myparent.text()+" "+option.text()+ " " + menuindex);
+	myparent.classed("hoverselected",false);
 	
 	var parameter = myparent.text(); //parameter menu option
 	var colname = ui.draggable.text(); //column name of data
 	
-	//Set scales to either linear or logarithmic
-	var scaleselection = option.text();
+	//Set scales to either linear or logarithmic or pallet color
+	var scaleselection = $("#optiondiv_"+marknum+"_"+menuindex+"_"+optionindex).text(); // option.text();
 	var type  = markGroups[marknum].type;	
 	
 //	console.log("dropped "+ colname + " on mark"+marknum);	
@@ -694,6 +778,7 @@ var dropSubMenu=function(event,ui){
 
 var makeQuantScale = function(scaleselection, datacolumn, range)
 {
+
 	var yscale;
 	var extents = d3.extent(datacolumn); 
 	// set up scale based on menu choice	
@@ -892,6 +977,11 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 
 		// set up scale based on menu choice	
 
+		if($.inArray(parameter, ["outer radius", "inner radius"]))
+		{
+			for(var elem in datacolumn) datacolumn[elem] = Math.sqrt(datacolumn[elem]);
+		}
+		
 		colorscale = makeColorScale(scaleselection, datacolumn);
 		yscale = makeQuantScale(scaleselection, datacolumn, radius);
 
