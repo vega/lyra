@@ -12,6 +12,8 @@ function MarkGroup(type)
 {
 	this.scales = {}; // maps visual property -> scale object
 	this.majorParameter = undefined;
+	this.majorScale = undefined;
+	this.majorAxis = undefined;
 	this.radius = 50;
 	this.height = 100;
 	this.width = 50;
@@ -205,7 +207,50 @@ var createAnnotations = function(markID,markcount)
 			accept:".axismark",
 			drop:function(event,ui)
 			{
-				console.log($(this).attr("id"));
+			// create axis
+				var myid = $(this).attr("id");
+				var marknum = myid.split("_")[1];
+				var anchornum = +myid.split("_")[2];
+				var flippedscale = d3.scale.linear();
+				var range = markGroups[marknum].majorScale.range();
+				
+				flippedscale.domain(markGroups[marknum].majorScale.domain())
+							.range([range[1], range[0]]);
+				
+				var axis = d3.svg.axis()
+							.scale(flippedscale);
+		
+				var wh = getDimensions($("g.mark"+marknum));
+		
+				switch(anchornum)
+				{
+					case 1:
+						axis.orient("right");
+					break;
+					case 3:
+						axis.orient("left");
+					break;
+				}
+				
+				markGroups[marknum].majorAxis = axis;
+				var markgroup = d3.select("g.mark"+marknum);
+				var axisgroup = markgroup.append("g");
+				axisgroup.classed("axis",true);
+//				$(axisgroup[0][0]).draggable();
+				axisgroup.call(axis);
+				
+				switch(anchornum)
+				{
+					case 1:
+						axisgroup.attr("transform", "translate(" + wh[0] + "," + 0 + ")")
+					break;
+					case 3:
+						axisgroup.attr("transform", "translate(" + 0 + "," + 0 + ")")
+					break;
+				}
+				
+
+				
 			},
 			tolerance:"pointer"
 		});
@@ -456,9 +501,6 @@ var createMarks=function(x,y,markcount,type) {
 			.classed("mark"+markcount,true)
 			.classed("rectmark",true)
 			.attr("transform", "translate(" + x + "," + y + ")")
-			.attr("fill", "steelblue")
-			.attr("stroke","#ccc")
-			.attr("stroke-width","2")
 			.attr("id","mark_"+markcount+"_group");
 	
 			rectcont.selectAll("rect")
@@ -473,9 +515,8 @@ var createMarks=function(x,y,markcount,type) {
 				return "steelblue"; })
 			.attr("fill-opacity", function(d,i) {
 				return 1; })
-// 			.attr("stroke", function(d,i) {
-// 				if(i==n-1) { return "#000"; }
-// 				return "#ccc"; })
+ 			.attr("stroke", function(d,i) {
+ 				return "#ccc"; })
 			.attr("stroke-width", function(d,i) {
 				return 2; })
 			.classed("realmark",true);
@@ -846,9 +887,12 @@ function getDimensions(shapes) {
 
 // get svg group bounding box
 function getDimensions(shapes) {
+	console.log(shapes[0]);
 	shapes=shapes[0];
 	var bb = shapes.getBBox();
-	return [bb["width"], bb["height"]];
+	// handle axis width here?
+	console.log(bb);
+	return [bb["width"]-bb["x"], bb["height"]-bb["y"]];
 }
 
 
@@ -1006,6 +1050,23 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 		logextra = scaleselection==="logarithmic" ? 1 : 0;
 
 		svgm = d3.select("svg#vis");
+		
+/*		var axes = d3.selectAll("g.mark"+marknum+" .axis");
+		
+		if(axes[0].length > 0){
+		
+		var flippedscale = d3.scale.linear();
+		var range = markGroups[marknum].majorScale.range();
+		
+		flippedscale.domain(markGroups[marknum].majorScale.domain())
+					.range([range[1], range[0]]);
+		
+		var axis = d3.svg.axis()
+					.scale(flippedscale)
+					.orient(markGroups[marknum].majorAxis.orient());
+
+		axes.call(axis);
+		}*/
 
 		var marks=svgm.selectAll(".mark"+marknum+" .realmark")
 									.data(allData);
@@ -1050,7 +1111,10 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 		
 		markGroups[marknum].addScale(parameter, new Scale(yscale, colorscale, scaleselection, colname));
 
-		if($.inArray(parameter, ["height", "width"])!==-1) { markGroups[marknum].majorParameter = parameter; }
+		if($.inArray(parameter, ["height", "width"])!==-1) { 
+			markGroups[marknum].majorParameter = parameter;
+			markGroups[marknum].majorScale = yscale;
+		}
 		
 		marks.exit().remove();
 	
