@@ -211,45 +211,52 @@ var createAnnotations = function(markID,markcount)
 				var myid = $(this).attr("id");
 				var marknum = myid.split("_")[1];
 				var anchornum = +myid.split("_")[2];
-				var flippedscale = d3.scale.linear();
-				var range = markGroups[marknum].majorScale.range();
-				
-				flippedscale.domain(markGroups[marknum].majorScale.domain())
-							.range([range[1], range[0]]);
-				
-				var axis = d3.svg.axis()
-							.scale(flippedscale);
-		
-				var wh = getDimensions($("g.mark"+marknum));
-		
-				switch(anchornum)
-				{
-					case 1:
-						axis.orient("right");
-					break;
-					case 3:
-						axis.orient("left");
-					break;
-				}
-				
-				markGroups[marknum].majorAxis = axis;
-				var markgroup = d3.select("g.mark"+marknum);
-				var axisgroup = markgroup.append("g");
-				axisgroup.classed("axis",true);
-//				$(axisgroup[0][0]).draggable();
-				axisgroup.call(axis);
-				
-				switch(anchornum)
-				{
-					case 1:
-						axisgroup.attr("transform", "translate(" + wh[0] + "," + 0 + ")")
-					break;
-					case 3:
-						axisgroup.attr("transform", "translate(" + 0 + "," + 0 + ")")
-					break;
-				}
-				
 
+				// no double axes
+				if($("#axis_"+marknum+"_"+anchornum).length > 0) return;
+				// bounce out for weird axes
+				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
+				if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===4)) return;							
+	
+				var axisgroup = d3.select("#vis").append("g");
+				axisgroup.classed("axis",true);
+				axisgroup.classed("axis_"+marknum,true);				
+				axisgroup.attr("id","axis_"+marknum+"_"+anchornum);
+				
+				
+				// make the axis itself draggable for customization / deletion
+				$(axisgroup[0][0]).draggable(
+				{
+					drag:function(e, ui)
+					{
+
+						tSpecs = transformSpecs(e.target);
+						
+						dx = parseInt(ui.position.left - mouseX);
+						dy = parseInt(ui.position.top - mouseY);
+
+						var target;
+						target=d3.select(this);
+						console.log
+						var marknum = $(this).attr("id").split("_")[1];	
+
+
+						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
+						$(e.target).attr("transform", t);					
+					},
+					start: function(e, ui) {
+					isDragging = true;
+					
+					mouseX = parseInt(ui.position.left);
+					mouseY = parseInt(ui.position.top);
+
+					groupX = parseInt(tSpecs[0]);
+					groupY = parseInt(tSpecs[1]);
+					}
+				});
+
+				
+			positionAxis($(axisgroup[0][0]));
 				
 			},
 			tolerance:"pointer"
@@ -584,9 +591,9 @@ var createMarks=function(x,y,markcount,type) {
 			if(target.classed("rectmark")) {
 				switch(scaleMode) {
 					case "move":
-						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
-						t += "scale(" + tSpecs[2] + "," + tSpecs[3] + ")";
+						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";							
 						$(e.target).attr("transform", t);
+						updateRectMarks(marknum, undefined, undefined);	 // TODO: check						
 						break;
 						
 					case "e-resize":
@@ -776,6 +783,8 @@ var destroyMark = function(marknum)
 	$("#closeicon_"+marknum).remove();
 	
 	$(".axisanchor_"+marknum).remove();
+	
+	$(".axis_"+marknum).remove();
 
 }
 
@@ -887,11 +896,9 @@ function getDimensions(shapes) {
 
 // get svg group bounding box
 function getDimensions(shapes) {
-	console.log(shapes[0]);
 	shapes=shapes[0];
 	var bb = shapes.getBBox();
 	// handle axis width here?
-	console.log(bb);
 	return [bb["width"]-bb["x"], bb["height"]-bb["y"]];
 }
 
@@ -943,6 +950,16 @@ var dropSubMenu=function(event,ui){
 	{
 		updateArcMarks(marknum, undefined, parameter, colname, scaleselection);
 	}
+	
+					// scale axes of current plot		
+		var axes = d3.selectAll("g.axis_"+marknum);
+		
+		axes.each(function(){
+		
+		positionAxis($(this));
+				
+		});
+		
 
 }
 
@@ -1031,7 +1048,7 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 	else
 	{
 	
-		console.log(parameter + " " + colname + " " + scaleselection);
+//		console.log(parameter + " " + colname + " " + scaleselection);
 		// regular update
 		if(colname === undefined && scaleselection === undefined && parameter === undefined)
 		{
@@ -1044,29 +1061,15 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 		
 		var datacolumn = dataObjectsToColumn(allData,colname);
 		
-		console.log(parameter + " " + colname + " " + scaleselection);
+//		console.log(parameter + " " + colname + " " + scaleselection);
 			
 		var logextra;
 		logextra = scaleselection==="logarithmic" ? 1 : 0;
 
 		svgm = d3.select("svg#vis");
-		
-/*		var axes = d3.selectAll("g.mark"+marknum+" .axis");
-		
-		if(axes[0].length > 0){
-		
-		var flippedscale = d3.scale.linear();
-		var range = markGroups[marknum].majorScale.range();
-		
-		flippedscale.domain(markGroups[marknum].majorScale.domain())
-					.range([range[1], range[0]]);
-		
-		var axis = d3.svg.axis()
-					.scale(flippedscale)
-					.orient(markGroups[marknum].majorAxis.orient());
 
-		axes.call(axis);
-		}*/
+
+
 
 		var marks=svgm.selectAll(".mark"+marknum+" .realmark")
 									.data(allData);
@@ -1107,7 +1110,17 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 				marks.attr("stroke",function(d,i){return colorscale(d[colname]);})
 				break;
 		}
-				
+			
+
+		// scale axes of current plot		
+		var axes = d3.selectAll("g.axis_"+marknum);
+		if((markGroups[marknum].majorParameter === "height" && parameter==="width") || (markGroups[marknum].majorParameter === "width" && parameter==="height"))	{
+			axes.remove();
+		}
+		else {
+			axes.each(function(){		
+				positionAxis($(this));});		
+		}
 		
 		markGroups[marknum].addScale(parameter, new Scale(yscale, colorscale, scaleselection, colname));
 
@@ -1119,6 +1132,74 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 		marks.exit().remove();
 	
 	}
+
+}
+
+var positionAxis = function(curaxis)
+{
+	var myid = curaxis.attr("id");
+	var marknum = myid.split("_")[1];
+	var anchornum = +myid.split("_")[2];
+	var axisgroup = d3.select("#axis_"+marknum+"_"+anchornum);			
+	
+	var flippedscale = d3.scale.linear();
+	var normalscale = d3.scale.linear();
+	var axis = d3.svg.axis();				
+	var range = markGroups[marknum].majorScale.range();
+	
+	normalscale.domain(markGroups[marknum].majorScale.domain())
+				.range(markGroups[marknum].majorScale.range());
+	flippedscale.domain(markGroups[marknum].majorScale.domain())
+				.range([range[1], range[0]]);
+	
+
+	switch(anchornum)
+	{
+		case 0:
+			axis.orient("top");
+		break;
+		case 1:
+			axis.orient("right");
+		break;
+		case 2:
+			axis.orient("bottom");
+		break;
+		case 3:
+			axis.orient("left");
+		break;
+	}
+		
+
+
+	var wh = getDimensions($("g.mark"+marknum));
+	var trans = transformSpecs($("g.mark"+marknum).get());
+	if(anchornum===1 || anchornum===3) {
+		axis.scale(flippedscale);
+		axisgroup.attr("height",wh[1]);
+		axisgroup.call(axis);
+	}
+	else {
+		axis.scale(normalscale);
+		axisgroup.attr("width",wh[0]);
+		axisgroup.call(axis);
+	}
+
+	switch(anchornum)
+	{
+		case 0:
+			axisgroup.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")");			
+		break;
+		case 1:
+			axisgroup.attr("transform", "translate(" + ((+trans[0])+(+wh[0])) + "," + trans[1] + ")");
+		break;
+		case 2:
+			axisgroup.attr("transform", "translate(" + trans[0]  + "," + ((+trans[1])+(+wh[1])) + ")");
+		break;					
+		case 3:
+			axisgroup.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")");
+		break;
+	} 	
+
 
 }
 
