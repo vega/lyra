@@ -144,3 +144,6 @@ display: none;
 	user-select: none;
 
 }
+.ui-state-disabled{
+	opacity: 1;
+}

@@ -98,6 +98,14 @@ $(document).ready(function(){
 		for(var label in allData[0]) {
 			var newelement=$("<li class=\"column\"></li>");
 			newelement.text(label);
+			if(isNaN(allData[0][label]))
+			{
+				newelement.addClass("ordinal");
+			}
+			else
+			{
+				newelement.addClass("quantitative");
+			}
 			newelement.appendTo($("#data ul"));
 		}
 		
@@ -131,7 +139,15 @@ $(document).ready(function(){
 				var marknum = $(this).attr("id").split("_")[1];
 				positionAnnotations(marknum);
 			});
-			$(".axisanchor").show();
+			// only show allowed anchors
+			$(".axisanchor").each(function(index){
+			var myid = $(this).attr("id");
+			var marknum = myid.split("_")[1];
+			var anchornum = +myid.split("_")[2];
+			if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
+			if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===2)) return;
+			$(this).show();
+	});
 		},
 		stop:function(event,ui){
 			$(".axisanchor").hide(100); //necessary or drop won't register
@@ -139,6 +155,16 @@ $(document).ready(function(){
 	
 	});
 
+	$("#region").click(function()
+	{
+		// needed for text mark
+		$(".note").draggable("enable");
+		// clean empty marks
+		$(".note").each(function(){
+			if($(this).text().length === 0) $(this).remove();
+		});
+	});
+	
 	//Region is everything below the marks div								
   $("#region").droppable({
 			accept: ".mark",
@@ -149,6 +175,28 @@ $(document).ready(function(){
 				x=event.pageX - visarea.offset().left;
 				y=event.pageY - visarea.offset().top;
 				xmlns = "http://www.w3.org/2000/svg";
+				
+				// handle text marks specially
+				if(dragged.hasClass("textmark"))
+				{
+					var markID = $(dragged).attr("id").split("_")[1];
+					svgm = d3.select("svg#vis");
+					var textbox=$("<div class=\"note\" id=\"note_"+markcount+"\" contenteditable=true style=\"position:absolute;\">Lorem Ipsum</div>");
+					
+					textbox.css("left",(event.pageX)+"px");
+					textbox.css("top",event.pageY+"px");
+					
+					textbox.draggable();
+					textbox.click(function(){
+
+					textbox.draggable("disable");
+					textbox.removeClass("ui-state-disabled"); // removes greying
+					});
+					
+					textbox.appendTo($("body"));
+						
+					return;
+				}
 				
 				if(dragged.hasClass("mark")) {
 					var markID = $(dragged).attr("id").split("_")[1];
@@ -214,9 +262,10 @@ var createAnnotations = function(markID,markcount)
 
 				// no double axes
 				if($("#axis_"+marknum+"_"+anchornum).length > 0) return;
+
 				// bounce out for weird axes
-				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
-				if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===4)) return;							
+//				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
+//				if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===2)) return;							
 	
 				var axisgroup = d3.select("#vis").append("g");
 				axisgroup.classed("axis",true);
@@ -230,10 +279,10 @@ var createAnnotations = function(markID,markcount)
 					drag:function(e, ui)
 					{
 
-						tSpecs = transformSpecs(e.target);
+				//		tSpecs2 = transformSpecs(e.target);
 						
-						dx = parseInt(ui.position.left - mouseX);
-						dy = parseInt(ui.position.top - mouseY);
+						dx = parseInt(ui.position.left - mouseX2);
+						dy = parseInt(ui.position.top - mouseY2);
 
 						var target;
 						target=d3.select(this);
@@ -241,17 +290,17 @@ var createAnnotations = function(markID,markcount)
 						var marknum = $(this).attr("id").split("_")[1];	
 
 
-						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
+						t = "translate(" + parseInt(groupX2+dx) + "," + parseInt(groupY2+dy) + ") ";
 						$(e.target).attr("transform", t);					
 					},
 					start: function(e, ui) {
-					isDragging = true;
-					
-					mouseX = parseInt(ui.position.left);
-					mouseY = parseInt(ui.position.top);
+					//	isDragging = true;
+						tSpecs2 = transformSpecs(e.target);					
+						mouseX2 = parseInt(ui.position.left);
+						mouseY2 = parseInt(ui.position.top);
 
-					groupX = parseInt(tSpecs[0]);
-					groupY = parseInt(tSpecs[1]);
+						groupX2 = parseInt(tSpecs2[0]);
+						groupY2 = parseInt(tSpecs2[1]);
 					}
 				});
 
@@ -350,13 +399,6 @@ var positionAnnotations = function(marknum)
 {
 	positionCloseIcon(marknum);
 	positionAxisAnchor(marknum);
-
-}
-
-var showAnnotations = function(marknum)
-{
-	$("#closeicon_"+marknum).show();	
-	$(".axisanchor_"+marknum).show();
 
 }
 
@@ -611,8 +653,8 @@ var createMarks=function(x,y,markcount,type) {
 					case "n-resize":
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
-						updateRectMarks(marknum, undefined, newheight);
-						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?				
+						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
+						updateRectMarks(marknum, undefined, newheight);			// why does flipping with previous line === bad?			
 						break;
 						
 					case "s-resize":
@@ -630,8 +672,8 @@ var createMarks=function(x,y,markcount,type) {
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
 						var newwidth = groupW+dx;						
-						updateRectMarks(marknum, newwidth, newheight);
-						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?		
+						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
+						updateRectMarks(marknum, newwidth, newheight);						
 						break;
 						
 					case "sw-resize":
@@ -646,8 +688,8 @@ var createMarks=function(x,y,markcount,type) {
 						var newwidth = groupW-dx;					
 						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
-						updateRectMarks(marknum, newwidth, newheight);
 						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
+						updateRectMarks(marknum, newwidth, newheight);						
 						break;
 								
 					default:
@@ -698,8 +740,6 @@ var createMarks=function(x,y,markcount,type) {
 			groupW = wh[0]*tSpecs[2];
 			groupH = wh[1]*tSpecs[3];
 			
-			groupSX = tSpecs[2];
-			groupSY = tSpecs[3];
 			
 		},
 		
@@ -939,11 +979,17 @@ var dropSubMenu=function(event,ui){
 	var scaleselection = selectedoption.text(); // option.text();
 	var type  = markGroups[marknum].type;	
 	
+	// prevent crashing with ordinal types on quant parameters
+	if(ui.draggable.hasClass("ordinal") && !(parameter === "fill" || parameter=== "stroke"))
+	{
+		return;
+	}
+	
 //	console.log("dropped "+ colname + " on mark"+marknum);	
 	
 	if(type==="rect")
 	{
-		console.log(parameter + " " + colname);
+//		console.log(parameter + " " + colname);
 		updateRectMarks(marknum, n*20, undefined, parameter, colname, scaleselection);	// remove constant	
 	}
 	else if(type==="arc")
@@ -1067,9 +1113,6 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 		logextra = scaleselection==="logarithmic" ? 1 : 0;
 
 		svgm = d3.select("svg#vis");
-
-
-
 
 		var marks=svgm.selectAll(".mark"+marknum+" .realmark")
 									.data(allData);
@@ -1264,7 +1307,7 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 		var marks=svgm.selectAll("g.mark"+marknum)
 									.data([allData]);
 		var arcs = marks.selectAll("path");
-		console.log(arcs);
+//		console.log(arcs);
 		
 		switch(parameter) {
 			case "angle":
