@@ -7,6 +7,53 @@ html {
     font-size: 14px;
 }
 
+
+li.ui-draggable-dragging.column{
+	color:white;
+	opacity:0.6;
+	z-index:20;
+	background-color:red;
+}
+
+div.menudivGroup {
+	position:absolute;
+	background-color:#ccc;
+	border:1px solid #999;
+	box-shadow: 2px 2px 5px #666;
+	width:120px;
+	padding-left:2px;
+}
+
+
+div.menudiv {
+	height:25px;
+}
+
+div.submenudivGroup {
+	position:absolute;
+	background-color:#ccc;
+	border:1px solid #999;
+	box-shadow: 2px 2px 5px #666;
+	width:100px;
+	padding-left:2px;
+	left:118px;
+	top:-1px;
+}
+
+
+div.optiondiv {
+	height:20px;
+	margin-bottom:18px;
+	margin-top:18px;
+}
+
+div.menuArrow {
+	position:relative;
+	top:-18px;
+	left:105px;
+}
+
+
 #toolbar {
     display: block;
     height: 100px;
@@ -107,8 +154,6 @@ display: none;
 }
 
 #region{
-	
-
 }
 
 #draggable_text{
@@ -121,16 +166,19 @@ display: none;
 	text-align: center;
 	vertical-align: center;
 }
+
 .hoverselected{
 	color: black;
 	background: khaki;
-
 }
+
+
 .optionselected{
 	color: black;
-	background: khaki;
-
+	//background: khaki;
+	font-weight:bold;
 }
+
 .axisanchor{
 	background: orange;
     width: 15px;

@@ -112,14 +112,19 @@ $(document).ready(function(){
 		//Column class for each variable in the data
 		$(".column").draggable({
 			start:function(event,ui){
-				$(".menudiv").each(function(index)
+				$(".menudivGroup").each(function(index)
 				{
-					positionMarkAttachments($(this).attr("id"));			
+					//positionMarkAttachments($(this).attr("id"));		
+					positionFlowMenu($(this).attr("id"));	
 				});		
-				$(".menudiv").show(); //show available attribute encoders					
+				//$(".menudiv").show(); //show available attribute encoders		
+				$(".menudiv").css("visibility", "visible");	
+				$(".menudivGroup").css("visibility", "visible");			
 			},
 			stop:function(event,ui){
-				$(".menudiv").hide(500); //necessary or drop won't register
+				//$(".menudiv").hide(500); //necessary or drop won't register
+				$(".menudiv").css("visibility", "hidden");
+				$(".menudivGroup").css("visibility", "hidden");
 			}
 		})
 		.draggable("option","helper","clone");
@@ -328,71 +333,96 @@ var createMenus=function(markID,markcount) {
 	
 	var menuitem;
 	
+	
+	$("body").append("<div style='position:absolute' class='menudivGroup' id='menudivGroup_" + markcount + "'></div>");
+	positionFlowMenu("menudivGroup_" + markcount);
+	$("div#menudivGroup_" + markcount).css("visibility", "hidden");
+	
 	for (var divnum=0; divnum<menulabels.length; divnum++) {
-		menuitem=$("<div class=\"menudiv_"+markcount+" menudiv\" id=\"menudiv_"+markcount+"_"+divnum+"\" style=\"position:absolute;\">"+menulabels[divnum]+ "</div>");
+		menuitem=$("<div class=\"menudiv_"+markcount+" menudiv\" id=\"menudiv_"+markcount+"_"+divnum+"\" style=\"position:relative\">"+menulabels[divnum]+ "<div class='menuArrow'>&#9654;</div>" + "</div>");
 		
-		menudivs.push(menuitem);
-		menuitem.appendTo($("body"));
-		menuitem.hide();
+		menuitem.data("vizAttribute", menulabels[divnum]);
 
-		
-		//move menu item to rect
-		positionMarkAttachments(menuitem.attr("id"));
-		
+		menudivs.push(menuitem);
+		menuitem.appendTo($("div#menudivGroup_" + markcount));
+		menuitem.css("visibility", "hidden");
+
 		menuitem.droppable({
-		
 			accept: ".column",
 			drop: dropSubMenu,
 			activate:function(event,ui){ },
 			over:function(event,ui){
-				var mytext = d3.select(this);
-				var myid = mytext.attr("id");
+				var myid = $(this).attr("id");
 				var marknum = myid.split("_")[1];
 				var menuindex = myid.split("_")[2];
-				mytext.classed("hoverselected",true);
-				// reveal next level
-//				$(".optiondiv").each(function(index){console.log($(this).attr("id"));});
+				
+				$("div.menudiv").removeClass("hoverselected");
+				$(this).addClass("hoverselected");
 
-				$(".optiondiv").hide();
-				$(".optiondiv_"+marknum+"_"+menuindex).each(function(index)
-				{
-					positionSecondLevelMenu($(this).attr("id"));
-				});				
-				$(".optiondiv_"+marknum+"_"+menuindex).show();
+				//Hide so that events do not register on its children
+				$("div.submenudivGroup").hide();
+				$("div.submenudivGroup").css("visibility", "hidden");
+				$("#submenudivGroup_"+marknum+"_"+menuindex).css("visibility", "visible");
+				$("#submenudivGroup_"+marknum+"_"+menuindex).show();
+				//$("div.optiondiv").hide();
+				$("div.optiondiv").droppable("disable");
+				//$("div.optiondiv_"+marknum+"_"+menuindex).show();
+				$("div.optiondiv_"+marknum+"_"+menuindex).droppable("enable");
+				
+				//make all optiondiv not highlighted except first one of this group!!
+				$("div.optiondiv").removeClass("hoverselected");
+				$(this).children().eq(1).children().eq(0).addClass("hoverselected");
 			},
-			out:function(event,ui){
-				var mytext = d3.select(this);
-				mytext.classed("hoverselected",false);
-				//hide other elements
-			}
+			out:function(event,ui){}
 			
 		});
 		
 		menuitem.droppable("option","tolerance","pointer");
+		menuitem.append("<div class='submenudivGroup' id='submenudivGroup_" +markcount+ "_" +divnum+ "'></div>");
+
+		//Need to keep it hidden, but need to "show" so that "over" will work
+		$("div.submenudivGroup").css("visibility", "hidden");
+		$("div#submenudivGroup_" +markcount+ "_" +divnum).show();
 		
 		// make a 2nd level menu for each 1st level menu
 		var optionslist = menus[markID][menulabels[divnum]];
 		for(var optionnum=0; optionnum<optionslist.length; optionnum++) {
-			option=$("<div class=\"optiondiv_"+markcount+"_"+divnum+" optiondiv\" id=\"optiondiv_"+markcount+"_"+divnum+"_"+optionnum+"\" style=\"position:absolute;\">"+optionslist[optionnum]+ "</div>");
-			option.appendTo($("body"));
-			option.hide();
+			option=$("<div class=\"optiondiv_"+markcount+"_"+divnum+" optiondiv\" id=\"optiondiv_"+markcount+"_"+divnum+"_"+optionnum+"\" style=\"position:relative;\">"+optionslist[optionnum]+ "</div>");
 
-			positionSecondLevelMenu(option.attr("id"));
+			$("div#submenudivGroup_" +markcount+ "_" + divnum).append(option);
 					
 			option.droppable({
 				accept: ".column",
-				drop:dropSubMenu,
-				activate:function(event,ui){},
+				drop: dropSubMenu,
+				activate: {},
 				deactivate:function(event,ui){
-					$(this).hide(500);
+					//console.log("DEACTIVATE: " + $(this).attr("id"));
+					
+					//Need to keep it hidden, but...
+					$("div.submenudivGroup").css("visibility", "hidden");
+
+					//Need to have them "show" so that "over" will work on these
+					$("div.submenudivGroup").show();
 				},
-				over:function(event,ui){}, // does not register unless shown at drag start
-				out:function(event,ui){}				
+				//OVER does not register unless shown at drag start
+				over:function(event,ui){
+					console.log("OVER");
+					//if($(this).parent().css("visibility")=="visible")
+					//$("div.optiondiv").removeClass("hoverselected");
+					
+					$(this).addClass("hoverselected");
+				}, 
+				out:function(event,ui){
+					console.log("OUT");
+					$(this).removeClass("hoverselected");
+					}				
 			});
 			
 			option.droppable("option","tolerance","touch");
 		}
 	}
+	
+	
 }
 
 var positionAnnotations = function(marknum)
@@ -487,17 +517,12 @@ var positionAxisAnchor = function(marknum)
 
 }
 
-var positionMarkAttachments = function(id)
-{
-	positionFirstLevelMenu(id);
-//	positionCloseIcon(id);
-}
 
-var positionFirstLevelMenu = function(id)
-{
+
+//Position top-level flow menu
+var positionFlowMenu = function(id) {
 	var menuitem = $("#"+id);
 	var marknum = id.split("_")[1];
-	var menuindex = id.split("_")[2];
 	
 	var markgroup = d3.select(".mark"+marknum);		
 	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
@@ -509,32 +534,12 @@ var positionFirstLevelMenu = function(id)
 	
 	if(type==="rect"){
 		menuitem.css("left",(minx+visarea.offset().left+.5*wh[0])+"px");
-		menuitem.css("top",miny+visarea.offset().top+wh[1]+20+menuindex*20+"px");
+		menuitem.css("top",miny+visarea.offset().top+wh[1]+20+"px");
 	}
 	else if(type==="arc"){
 		menuitem.css("left",(minx+visarea.offset().left)+"px");
-		menuitem.css("top",miny+visarea.offset().top+.5*wh[1]+20+menuindex*20+"px");	
+		menuitem.css("top",miny+visarea.offset().top+.5*wh[1]+20+"px");	
 	}
-
-}
-
-// gets position from parent
-var positionSecondLevelMenu = function(id)
-{
-	var option = $("#"+id);
-	var marknum = id.split("_")[1];
-	var menuindex = id.split("_")[2];
-	var optionnum = id.split("_")[3];
-	
-	var myparent = d3.select("#menudiv_"+marknum+"_"+menuindex);
-	var parentX = +(myparent.style("left").split("px")[0]);
-	var parentY = +(myparent.style("top").split("px")[0]);
-
-
-	option.css("left",(parentX+zonewidth*2)+"px");
-	option.css("top",parentY+optionnum*20+"px");
-
-
 }
 
 
@@ -967,18 +972,20 @@ var dropSubMenu=function(event,ui){
 	var myparent = d3.select("#menudiv_"+marknum+"_"+menuindex);
 	myparent.classed("hoverselected",false);
 	
-	var parameter = myparent.text(); //parameter menu option
+	$(this).removeClass("hoverselected");
+	$(this).addClass("optionselected"); //TODO: need to remove optionselected from other attributes that are no longer active
+	
+	//var parameter = myparent.text(); //parameter menu option
+	var parameter = $("#menudiv_"+marknum+"_"+menuindex).data("vizAttribute");
 	var colname = ui.draggable.text(); //column name of data
 	
 	var selectedoption = $("#optiondiv_"+marknum+"_"+menuindex+"_"+optionindex);
-	
-	$(".optiondiv_"+marknum+"_"+menuindex).removeClass("optionselected");
-	selectedoption.addClass("optionselected");
+
 	
 	//Set scales to either linear or logarithmic or pallet color
 	var scaleselection = selectedoption.text(); // option.text();
+
 	var type  = markGroups[marknum].type;	
-	
 	// prevent crashing with ordinal types on quant parameters
 	if(ui.draggable.hasClass("ordinal") && !(parameter === "fill" || parameter=== "stroke"))
 	{
@@ -989,7 +996,8 @@ var dropSubMenu=function(event,ui){
 	
 	if(type==="rect")
 	{
-//		console.log(parameter + " " + colname);
+		console.log(parameter);
+		console.log(colname);
 		updateRectMarks(marknum, n*20, undefined, parameter, colname, scaleselection);	// remove constant	
 	}
 	else if(type==="arc")
