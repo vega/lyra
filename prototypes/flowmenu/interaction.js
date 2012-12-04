@@ -68,10 +68,84 @@ function dataObjectsToColumn(objectArray,colname){
 }
 
 
-
-
 $(document).ready(function(){
 		
+	//Bar Width Slider Receive Events
+	$("input#barWidthSlider").change(function() {
+		v = $("input#barWidthSlider").val();
+		rects = $("g.mark0 rect.realmark");
+		
+		for(i=0; i<rects.length; i++) {
+			newW = $(rects[i]).data("referenceW")*v/100;
+			$(rects[i]).attr("width", newW)
+			
+			x = $(rects[i]).attr("x");
+			
+			if(i<=1) {
+				console.log(x);
+				console.log($(rects[i]).data("referenceX"));
+				console.log($(rects[i]).data("referenceW")-newW);
+				console.log("---");
+			}
+			
+			
+			
+			$(rects[i]).attr("x", $(rects[i]).data("referenceX")+(($(rects[i]).data("referenceW")-newW)/2));
+		}
+	});
+	
+	$("input#barWidthSlider").mouseenter(function() {
+		slideStartW = $("g.mark0 rect").eq(0).attr("width");
+		slideStartX = $("g.mark0 rect").eq(0).attr("x");
+		
+		rects = $("g.mark0 rect.realmark");
+		for(i=0; i<rects.length; i++) {
+			//If it doesn't have data, give it data for referenceX
+			if(!$(rects[i]).data("referenceX")) {
+				console.log("REF-X CHANGE for " + i);
+				$(rects[i]).data("referenceX", parseInt($(rects[i]).attr("x")));
+			}
+			
+			//If it doesn't have data, give it data for referenceW
+			if(!$(rects[i]).data("referenceW")) {
+				$(rects[i]).data("referenceW", parseInt($(rects[i]).attr("width")));
+			}
+			
+		}
+	});
+	
+	$("input#barWidthSlider").mouseout(function() {
+		console.log("MOUSE OUT");
+	});
+	
+	
+	//Bar Fill Color
+	$("input#barFillColor").change(function() {
+		v = $("input#barFillColor").val();
+		rects = $("g.mark0 rect.realmark");
+		for(i=0; i<rects.length; i++) {
+			$(rects[i]).attr("fill", v);
+		}
+	});
+	
+	//Bar Stroke Color
+	$("input#barStrokeColor").change(function() {
+		v = $("input#barStrokeColor").val();
+		rects = $("g.mark0 rect.realmark");
+		for(i=0; i<rects.length; i++) {
+			$(rects[i]).attr("stroke", v);
+		}
+	});
+	
+	//Text Size
+	$("input#updateFontSize").change(function() {
+		$("div.note").css("font-size", $("input#updateFontSize").val() + "px");
+		
+	});
+	
+	
+	
+	
 	//$.getJSON("./olympics.json",function(response){
 	
 	//Read in Data from CSV File
@@ -188,6 +262,16 @@ $(document).ready(function(){
 					svgm = d3.select("svg#vis");
 					var textbox=$("<div class=\"note\" id=\"note_"+markcount+"\" contenteditable=true style=\"position:absolute;\">Lorem Ipsum</div>");
 					
+					textbox.focusin(function() {
+						console.log("DC");
+						$(this).css("cursor", "text");
+					});
+					
+					textbox.focusout(function() {
+						console.log("FOCUS IN");
+						$(this).css("cursor", "move");
+					});
+					
 					textbox.css("left",(event.pageX)+"px");
 					textbox.css("top",event.pageY+"px");
 					
@@ -233,7 +317,7 @@ var createAnnotations = function(markID,markcount)
 	var closeicon;
 	
 	// make close icon
-	closeicon=$("<div class=\"closeicon\" id=\"closeicon_"+markcount+"\" style=\"position:absolute;\"></div>");
+	closeicon=$("<div class=\"closeicon\" id=\"closeicon_"+markcount+"\" style=\"position:absolute;\">X</div>");
 	
 	closeicon.mouseenter(function()
 	{
@@ -332,13 +416,13 @@ var createMenus=function(markID,markcount) {
 	var menulabels=d3.keys(menus[markID]);  // top level menu items
 	
 	var menuitem;
-	
-	
+
+	//Append menudivGroup to body
 	$("body").append("<div style='position:absolute' class='menudivGroup' id='menudivGroup_" + markcount + "'></div>");
 	positionFlowMenu("menudivGroup_" + markcount);
 	$("div#menudivGroup_" + markcount).css("visibility", "hidden");
 	
-	for (var divnum=0; divnum<menulabels.length; divnum++) {
+	for(var divnum=0; divnum<menulabels.length; divnum++) {
 		menuitem=$("<div class=\"menudiv_"+markcount+" menudiv\" id=\"menudiv_"+markcount+"_"+divnum+"\" style=\"position:relative\">"+menulabels[divnum]+ "<div class='menuArrow'>&#9654;</div>" + "</div>");
 		
 		menuitem.data("vizAttribute", menulabels[divnum]);
@@ -364,10 +448,10 @@ var createMenus=function(markID,markcount) {
 				$("div.submenudivGroup").css("visibility", "hidden");
 				$("#submenudivGroup_"+marknum+"_"+menuindex).css("visibility", "visible");
 				$("#submenudivGroup_"+marknum+"_"+menuindex).show();
-				//$("div.optiondiv").hide();
-				$("div.optiondiv").droppable("disable");
-				//$("div.optiondiv_"+marknum+"_"+menuindex).show();
-				$("div.optiondiv_"+marknum+"_"+menuindex).droppable("enable");
+				
+				//Disable/enable droppable optiondiv
+				//$("div.optiondiv").droppable("disable");
+				//$("div.optiondiv_"+marknum+"_"+menuindex).droppable("enable");
 				
 				//make all optiondiv not highlighted except first one of this group!!
 				$("div.optiondiv").removeClass("hoverselected");
@@ -396,34 +480,28 @@ var createMenus=function(markID,markcount) {
 				drop: dropSubMenu,
 				activate: {},
 				deactivate:function(event,ui){
-					//console.log("DEACTIVATE: " + $(this).attr("id"));
-					
-					//Need to keep it hidden, but...
+					//Need to keep it hidden, but need to "show" so that "over" will work
 					$("div.submenudivGroup").css("visibility", "hidden");
-
-					//Need to have them "show" so that "over" will work on these
 					$("div.submenudivGroup").show();
 				},
 				//OVER does not register unless shown at drag start
 				over:function(event,ui){
-					console.log("OVER");
+					//console.log("OVER");
 					//if($(this).parent().css("visibility")=="visible")
-					//$("div.optiondiv").removeClass("hoverselected");
-					
 					$(this).addClass("hoverselected");
 				}, 
 				out:function(event,ui){
-					console.log("OUT");
+					//console.log("OUT");
 					$(this).removeClass("hoverselected");
-					}				
+				}				
 			});
 			
 			option.droppable("option","tolerance","touch");
 		}
 	}
-	
-	
 }
+
+
 
 var positionAnnotations = function(marknum)
 {
@@ -447,6 +525,11 @@ var positionCloseIcon = function(marknum)
 	var markgroup = d3.select(".mark"+marknum);		
 	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
 	var wh = getDimensions($("g.mark"+marknum));
+	
+	console.log("CLOSE ICON WIDTH: " + wh[0]);
+	console.log("CLOSE ICON WIDTH: " + wh[1]);
+	console.log(cleantrans);
+	
 	var minx = +cleantrans[0];
 	var miny = +cleantrans[1];
 	var visarea = $("#vis");
@@ -800,6 +883,10 @@ var createMarks=function(x,y,markcount,type) {
 			}
 	  })
 	  
+	  .dblclick(function(e) {
+		  console.log("DOUBLE CLICK");
+	  })
+	  
 	  
 	  .mouseout(function(e) {
 		  $('body').css('cursor', 'auto');
@@ -944,6 +1031,11 @@ function getDimensions(shapes) {
 	shapes=shapes[0];
 	var bb = shapes.getBBox();
 	// handle axis width here?
+// 	console.log("W: " + bb["width"]);
+// 	console.log("X: " + bb["x"]);
+// 	console.log("H: " + bb["height"]);
+// 	console.log("Y: " + bb["y"]);
+	
 	return [bb["width"]-bb["x"], bb["height"]-bb["y"]];
 }
 

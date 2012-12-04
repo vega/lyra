@@ -15,6 +15,21 @@ li.ui-draggable-dragging.column{
 	background-color:red;
 }
 
+
+div#propertyEditor {
+	position:absolute;
+	left:1030px;
+	width:250px;
+	top:112px;
+	height:400px;
+	border:1px solid red;
+}
+
+
+
+
+
+
 div.menudivGroup {
 	position:absolute;
 	background-color:#ccc;
@@ -131,16 +146,20 @@ display: none;
 }
 
 .closeicon{
-    width: 15px;
-    height: 15px;
-    background: red;
-    cursor: default;
+  width: 15px;
+  height: 15px;
+  background: red;
+  cursor: default;
 	border-color: black;
 	border-width: 2;
 	text-align: center;
 	vertical-align: center;
 	opacity: .7;
 	user-select: none;
+}
+
+.closeicon:hover {
+	cursor:pointer;
 }
 
 .menudiv{
@@ -154,6 +173,7 @@ display: none;
 }
 
 #region{
+	width: 1020px;
 }
 
 #draggable_text{
@@ -194,4 +214,9 @@ display: none;
 }
 .ui-state-disabled{
 	opacity: 1;
+}
+
+
+div.note:hover {
+	cursor: move; /*only for the starting state; this CSS property gets updated on focusin/focusout events in code*/
 }
