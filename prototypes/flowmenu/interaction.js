@@ -8,6 +8,11 @@ var n;
 var allData=[];
 var markGroups=[];
 
+var colors10 = new Array("#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf");
+var activeMark = -1; //index of the active mark (the one whose property editor will work for)
+var overMarks = false; //false if mouse is not over marks; true if mouse is over a mark group (to register clicks on non-marks)
+
+//MARKGROUP OBJECT
 function MarkGroup(type)
 {
 	this.scales = {}; // maps visual property -> scale object
@@ -25,6 +30,10 @@ function MarkGroup(type)
 	}
 
 }
+
+
+
+//SCALE OBJECT
 function Scale(scaleobj, colorscale, type, columnName)
 {
 	this.scaleobj = scaleobj;
@@ -33,6 +42,9 @@ function Scale(scaleobj, colorscale, type, columnName)
 	this.columnName = columnName;
 }
 
+
+
+//MENUS ARRAY
 var menus = {"rect":
 							{"height":
 								["linear","logarithmic"],
@@ -59,6 +71,10 @@ var menulabels;
 var extents;
 
 
+
+
+
+//GIVEN ALL THE DATA (OBJECTARRAY) AND A COLUMN NAME (LIKE "FEMALE COUNT"), RETURNS THE NUMBERS FOR FEMALE COUNT
 function dataObjectsToColumn(objectArray,colname){
 	var column=[];
 	for(var i in objectArray) {
@@ -68,90 +84,195 @@ function dataObjectsToColumn(objectArray,colname){
 }
 
 
+
+//GRABBED THIS UTILITY FUNCTION FROM ONLINE
+function rgb2hex(rgb) {
+	console.log("RGB: " + rgb);
+	
+  rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\).*$/);
+
+  function hex(x) {
+  	return ("0" + parseInt(x).toString(16)).slice(-2);
+  }
+  return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+}
+
+
+
+function setPropertyEditorDefaults() {
+
+	if($("div#note_" + activeMark).length==1) {
+		$("input#barFillColor").val(rgb2hex($("div#note_" + activeMark).css("color")));
+		$("input#barStrokeColor").val(rgb2hex($("div#note_" + activeMark).css("background-color")));
+		
+		fontSz = $("div#note_" + activeMark).css("font-size");
+		fontSz = parseInt(fontSz.split("px")[0]);
+		$("input#updateFontSize").val(fontSz);
+		
+		leftPos = $("div#note_" + activeMark).css("left");
+		leftPos = parseInt(leftPos.split("px")[0]);
+		$("input#updateXPos").val(leftPos-213);
+		
+		topPos = $("div#note_" + activeMark).css("top");
+		topPos = parseInt(topPos.split("px")[0]);
+		$("input#updateYPos").val(topPos-112);
+	} else {
+		//TODO: Do this for other marks besides text marks
+	}
+
+}
+
+
+
+
+//EVERYTHING TO DO WHEN THE DOCUMENT LOADS
 $(document).ready(function(){
 		
+	$("div#region").click(function() {
+		if(!overMarks) {
+			//set all containers to transparent
+			var group = svgm.selectAll(".container");
+			group.attr("opacity",0);
+			
+			$("div.note").css("border", "1px solid #fff");
+			$("div.note").removeClass("selectedNote")
+
+			activeMark = -1; //reset activeMark status to -1
+		}
+	});
+	
+	
+	
 	//Bar Width Slider Receive Events
 	$("input#barWidthSlider").change(function() {
 		v = $("input#barWidthSlider").val();
-		rects = $("g.mark0 rect.realmark");
 		
-		for(i=0; i<rects.length; i++) {
-			newW = $(rects[i]).data("referenceW")*v/100;
-			$(rects[i]).attr("width", newW)
-			
-			x = $(rects[i]).attr("x");
-			
-			if(i<=1) {
-				console.log(x);
-				console.log($(rects[i]).data("referenceX"));
-				console.log($(rects[i]).data("referenceW")-newW);
-				console.log("---");
-			}
-			
-			
-			
-			$(rects[i]).attr("x", $(rects[i]).data("referenceX")+(($(rects[i]).data("referenceW")-newW)/2));
-		}
+		maxWidth = $("g.mark" + activeMark).data("maxWidth");
+		console.log("MAX WIDTH: " + maxWidth);
+		
+		
+		v = maxWidth/n*v/100;
+		console.log("V: " + v);
+		
+		//rects = $("g.mark0 rect.realmark");
+		
+		//updateRectMarks(activeMark, undefined, undefined, "width", undefined, "logarithmic", v);
+// 		for(i=0; i<rects.length; i++) {
+// 			newW = $(rects[i]).data("referenceW")*v/100;
+// 			$(rects[i]).attr("width", newW)
+// 			
+// 			x = $(rects[i]).attr("x");
+// 			
+// 			if(i<=1) {
+// 				console.log(x);
+// 				console.log($(rects[i]).data("referenceX"));
+// 				console.log($(rects[i]).data("referenceW")-newW);
+// 				console.log("---");
+// 			}
+// 			
+// 			
+// 			
+// 			$(rects[i]).attr("x", $(rects[i]).data("referenceX")+(($(rects[i]).data("referenceW")-newW)/2));
+// 		}
 	});
 	
-	$("input#barWidthSlider").mouseenter(function() {
-		slideStartW = $("g.mark0 rect").eq(0).attr("width");
-		slideStartX = $("g.mark0 rect").eq(0).attr("x");
-		
-		rects = $("g.mark0 rect.realmark");
-		for(i=0; i<rects.length; i++) {
-			//If it doesn't have data, give it data for referenceX
-			if(!$(rects[i]).data("referenceX")) {
-				console.log("REF-X CHANGE for " + i);
-				$(rects[i]).data("referenceX", parseInt($(rects[i]).attr("x")));
-			}
-			
-			//If it doesn't have data, give it data for referenceW
-			if(!$(rects[i]).data("referenceW")) {
-				$(rects[i]).data("referenceW", parseInt($(rects[i]).attr("width")));
-			}
-			
-		}
-	});
 	
-	$("input#barWidthSlider").mouseout(function() {
-		console.log("MOUSE OUT");
-	});
+	//Get references and store them in the HTML element's data()
+// 	$("input#barWidthSlider").mouseenter(function() {
+// 		slideStartW = $("g.mark0 rect").eq(0).attr("width");
+// 		slideStartX = $("g.mark0 rect").eq(0).attr("x");
+// 		
+// 		rects = $("g.mark0 rect.realmark");
+// 		for(i=0; i<rects.length; i++) {
+// 			//If it doesn't have data, give it data for referenceX
+// 			if(!$(rects[i]).data("referenceX")) {
+// 				console.log("REF-X CHANGE for " + i);
+// 				$(rects[i]).data("referenceX", parseInt($(rects[i]).attr("x")));
+// 			}
+// 			
+// 			//If it doesn't have data, give it data for referenceW
+// 			if(!$(rects[i]).data("referenceW")) {
+// 				$(rects[i]).data("referenceW", parseInt($(rects[i]).attr("width")));
+// 			}
+// 		}
+// 	});
+	
+// 	$("input#barWidthSlider").mouseout(function() {
+// 		console.log("MOUSE OUT");
+// 	});
+	
+	
 	
 	
 	//Bar Fill Color
 	$("input#barFillColor").change(function() {
 		v = $("input#barFillColor").val();
-		rects = $("g.mark0 rect.realmark");
-		for(i=0; i<rects.length; i++) {
-			$(rects[i]).attr("fill", v);
+		if(activeMark!=-1) {
+			if($("div#note_" + activeMark).length==1) {
+				$("div#note_" + activeMark).css("color", v);
+			} else {
+				v = $("input#barFillColor").val();
+				updateRectMarks(activeMark, undefined, undefined, "fill", undefined, "logarithmic", v);
+			}
 		}
 	});
+	
 	
 	//Bar Stroke Color
 	$("input#barStrokeColor").change(function() {
 		v = $("input#barStrokeColor").val();
-		rects = $("g.mark0 rect.realmark");
-		for(i=0; i<rects.length; i++) {
-			$(rects[i]).attr("stroke", v);
+		
+		if(activeMark!=-1) {
+			if($("div#note_" + activeMark).length==1) {
+				$("div#note_" + activeMark).css("backgroundColor", v);
+			} else {
+				v = $("input#barFillColor").val();
+				updateRectMarks(activeMark, undefined, undefined, "stroke", undefined, "logarithmic", v);
+			}
 		}
 	});
 	
+	
+	
 	//Text Size
 	$("input#updateFontSize").change(function() {
-		$("div.note").css("font-size", $("input#updateFontSize").val() + "px");
-		
+		if(activeMark!=-1) {
+			if($("div#note_" + activeMark).length==1) {
+				$("div#note_" + activeMark).css("font-size", $("input#updateFontSize").val() + "px");
+			}
+		}
 	});
 	
 	
 	
-	
-	//$.getJSON("./olympics.json",function(response){
-	
-	//Read in Data from CSV File
-	d3.csv("./olympics.csv", function(response) {
-		//console.log(response);
+	//X Position
+	$("input#updateXPos").change(function() {
+		v = parseInt($("input#updateXPos").val());
 		
+		if($("div#note_" + activeMark).length==1) {
+			$("div#note_" + activeMark).css("left", v+213); //213 hardcoded
+		} else {
+			tSpecs = transformSpecs($("g#mark_" + activeMark + "_group"));
+			$("g#mark_" + activeMark + "_group").attr("transform", "translate(" + v + "," + tSpecs[1] + ")");
+		}
+	});
+
+	//Y Position
+	$("input#updateYPos").change(function() {
+		v = parseInt($("input#updateYPos").val());
+
+		if($("div#note_" + activeMark).length==1) {
+			$("div#note_" + activeMark).css("top", v+112); //112 hardcoded
+		} else {
+			tSpecs = transformSpecs($("g#mark_" + activeMark + "_group"));
+			$("g#mark_" + activeMark + "_group").attr("transform", "translate(" + tSpecs[0] + "," + v + ")");
+		}
+	});
+
+	
+
+	//READ IN DATA FROM CSV FILE AND POPULATE LIST OF COLUMNS OF DATA VARIABLE NAMES
+	d3.csv("./olympics.csv", function(response) {
 		//use d3 loader instead?
 		for (var i in response) {
 			allData[i]={};
@@ -163,154 +284,190 @@ $(document).ready(function(){
 				}
 			}
 		}
-		
-		//n=allData.length;
-//		allData.push(allData[0]); //push a fake piece of data on the end to serve as the chart selector. What is this?
-//		console.log(allData);
+
 		
 		//populate list of columns
 		for(var label in allData[0]) {
-			var newelement=$("<li class=\"column\"></li>");
+			var newelement=$("<li class='column'></li>");
 			newelement.text(label);
-			if(isNaN(allData[0][label]))
-			{
-				newelement.addClass("ordinal");
-			}
-			else
-			{
-				newelement.addClass("quantitative");
-			}
+			newelement.addClass(isNaN(allData[0][label]) ? "ordinal" : "quantitative");
 			newelement.appendTo($("#data ul"));
 		}
-		
-		//Column class for each variable in the data
+
+		//column class for each variable in the data
 		$(".column").draggable({
+			
 			start:function(event,ui){
-				$(".menudivGroup").each(function(index)
-				{
-					//positionMarkAttachments($(this).attr("id"));		
+				//position its flow menu
+				$(".menudivGroup").each(function(index) {		
 					positionFlowMenu($(this).attr("id"));	
 				});		
-				//$(".menudiv").show(); //show available attribute encoders		
+
+				//make its top-level flow menu DIVs visible
 				$(".menudiv").css("visibility", "visible");	
 				$(".menudivGroup").css("visibility", "visible");			
 			},
+			
+			//make its top-level flow menu DIVs hidden
 			stop:function(event,ui){
 				//$(".menudiv").hide(500); //necessary or drop won't register
 				$(".menudiv").css("visibility", "hidden");
 				$(".menudivGroup").css("visibility", "hidden");
-			}
-		})
-		.draggable("option","helper","clone");
+			},
+			
+			helper: "clone"
+		});
+		//.draggable("option","helper","clone");
 	});
+	//END OF READING IN DATA
 	
 	
-	//Mark boxes at top of screen	
+	
+	//MARK BOXES AT TOP OF SCREEN	
   $(".mark").draggable()
 						.draggable("option", "revert", "invalid") 
 						.draggable("option", "helper", "clone"); //duplicate of draggable moves with cursor
+						
+						
 	$(".axismark").draggable(
 	{
 		revert:"invalid",
+		
 		helper:"clone",
+		
 		start:function(event,ui){
-			$(".axisanchor").each(function(index){
+			$(".axisanchor").each(function(index) {
 				var marknum = $(this).attr("id").split("_")[1];
 				positionAnnotations(marknum);
 			});
-			// only show allowed anchors
-			$(".axisanchor").each(function(index){
-			var myid = $(this).attr("id");
-			var marknum = myid.split("_")[1];
-			var anchornum = +myid.split("_")[2];
-			if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
-			if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===2)) return;
-			$(this).show();
-	});
+			
+			//only show allowed anchors
+			$(".axisanchor").each(function(index) {
+				var myid = $(this).attr("id");
+				var marknum = myid.split("_")[1];
+				var anchornum = +myid.split("_")[2];
+				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
+				if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===2)) return;
+				$(this).show();
+			});
 		},
+		
 		stop:function(event,ui){
 			$(".axisanchor").hide(100); //necessary or drop won't register
 		}
 	
 	});
+	
 
 	$("#region").click(function()
 	{
 		// needed for text mark
 		$(".note").draggable("enable");
+		
 		// clean empty marks
 		$(".note").each(function(){
 			if($(this).text().length === 0) $(this).remove();
 		});
 	});
 	
+	
 	//Region is everything below the marks div								
   $("#region").droppable({
-			accept: ".mark",
-			drop: function( event, ui ) {
-				var x,y;
-				var dragged=ui.draggable;
-				var visarea = $("#vis");
-				x=event.pageX - visarea.offset().left;
-				y=event.pageY - visarea.offset().top;
-				xmlns = "http://www.w3.org/2000/svg";
+		accept: ".mark",
+		
+		drop: function( event, ui ) {
+			var x,y;
+			var dragged=ui.draggable;
+			var visarea = $("#vis");
+			x=event.pageX - visarea.offset().left;
+			y=event.pageY - visarea.offset().top;
+			xmlns = "http://www.w3.org/2000/svg";
+			
+			//handle text marks specially
+			if(dragged.hasClass("textmark")) {
+				var markID = $(dragged).attr("id").split("_")[1];
+				svgm = d3.select("svg#vis");
+				var textbox=$("<div class=\"note\" id=\"note_"+markcount+"\" contenteditable=true style=\"position:absolute;\">Lorem Ipsum</div>");
 				
-				// handle text marks specially
-				if(dragged.hasClass("textmark"))
-				{
-					var markID = $(dragged).attr("id").split("_")[1];
-					svgm = d3.select("svg#vis");
-					var textbox=$("<div class=\"note\" id=\"note_"+markcount+"\" contenteditable=true style=\"position:absolute;\">Lorem Ipsum</div>");
-					
-					textbox.focusin(function() {
-						console.log("DC");
-						$(this).css("cursor", "text");
-					});
-					
-					textbox.focusout(function() {
-						console.log("FOCUS IN");
+				//from jeff - i think this logic is correct here on the textboxes
+				textbox.focusin(function() {
+					$(this).css("cursor", "text");
+					var marknum = $(this).attr("id").split("_")[1];
+					activeMark = marknum;
+					setPropertyEditorDefaults();
+					$(this).css("border", "2px solid " + colors10[marknum]);
+					$(this).addClass("selectedNote");
+				});
+				
+				textbox.focusout(function() {
+					console.log("FOCUS OUT");
+					$(this).css("cursor", "move");
+				});
+				
+				textbox.mouseover(function() {
+					if(!$(this).hasClass("selectedNote")) {
+						$(this).css("border", "1px dashed #888");
 						$(this).css("cursor", "move");
-					});
-					
-					textbox.css("left",(event.pageX)+"px");
-					textbox.css("top",event.pageY+"px");
-					
-					textbox.draggable();
-					textbox.click(function(){
-
-					textbox.draggable("disable");
-					textbox.removeClass("ui-state-disabled"); // removes greying
-					});
-					
-					textbox.appendTo($("body"));
-						
-					return;
-				}
+					} else {
+						$(this).css("cursor", "text");
+					}
+					overMarks = true;
+				});
 				
-				if(dragged.hasClass("mark")) {
-					var markID = $(dragged).attr("id").split("_")[1];
-					svgm = d3.select("svg#vis");
-	
-					dataset=[];
-					n=allData.length;
-//					console.log(n);
-					for(var i=0; i<n;i++) dataset.push(1);
-	
-					// make mark svg element group and elements
-					createMarks(x,y,markcount,markID);
+				textbox.mouseout(function() {
+					overMarks = false;
+					if(!$(this).hasClass("selectedNote")) {
+						$(this).css("border", "1px solid #fff");
+					}
+				});
+				
+				textbox.css("left",(event.pageX)+"px");
+				textbox.css("top",event.pageY+"px");
+				
+				textbox.draggable();
+				textbox.click(function(){
 
-					//make 1st and 2nd level menus for each graph
-					createMenus(markID,markcount);
+				textbox.draggable("disable");
+				textbox.removeClass("ui-state-disabled"); // removes greying
+				});
+				
+				textbox.appendTo($("body"));
+				//global mark index
+				markcount++;
+				markGroups.push(new MarkGroup("textbox"));
 					
-					createAnnotations(markID,markcount);
-
-					// global mark index
-					markcount++;					
-				}
+				return;
 			}
+			
+			if(dragged.hasClass("mark")) {
+				var markID = $(dragged).attr("id").split("_")[1];
+				svgm = d3.select("svg#vis");
+
+				dataset=[];
+				n=allData.length;
+//					console.log(n);
+				for(var i=0; i<n;i++) dataset.push(1);
+
+				// make mark svg element group and elements
+				createMarks(x,y,markcount,markID);
+
+				//make 1st and 2nd level menus for each graph
+				createMenus(markID,markcount);
+				
+				createAnnotations(markID,markcount);
+
+				//global mark index
+				markcount++;
+			}
+		}
 	});
 
 });
+//END OF EVERYTHING TO DO WHEN THE DOCUMENT LOADS
+
+
+
+
 
 var createAnnotations = function(markID,markcount)
 {
@@ -410,14 +567,16 @@ var createAnnotations = function(markID,markcount)
 
 
 
+
+//CREATE FLOW MENUS
 var createMenus=function(markID,markcount) {
 	
 	var menudivs=[];
-	var menulabels=d3.keys(menus[markID]);  // top level menu items
+	var menulabels=d3.keys(menus[markID]);  //top level menu items
 	
 	var menuitem;
 
-	//Append menudivGroup to body
+	//append menudivGroup to body
 	$("body").append("<div style='position:absolute' class='menudivGroup' id='menudivGroup_" + markcount + "'></div>");
 	positionFlowMenu("menudivGroup_" + markcount);
 	$("div#menudivGroup_" + markcount).css("visibility", "hidden");
@@ -433,8 +592,11 @@ var createMenus=function(markID,markcount) {
 
 		menuitem.droppable({
 			accept: ".column",
+			
 			drop: dropSubMenu,
+			
 			activate:function(event,ui){ },
+			
 			over:function(event,ui){
 				var myid = $(this).attr("id");
 				var marknum = myid.split("_")[1];
@@ -443,13 +605,13 @@ var createMenus=function(markID,markcount) {
 				$("div.menudiv").removeClass("hoverselected");
 				$(this).addClass("hoverselected");
 
-				//Hide so that events do not register on its children
+				//hide so that events do not register on its children
 				$("div.submenudivGroup").hide();
 				$("div.submenudivGroup").css("visibility", "hidden");
 				$("#submenudivGroup_"+marknum+"_"+menuindex).css("visibility", "visible");
 				$("#submenudivGroup_"+marknum+"_"+menuindex).show();
 				
-				//Disable/enable droppable optiondiv
+				//disable/enable droppable optiondiv
 				//$("div.optiondiv").droppable("disable");
 				//$("div.optiondiv_"+marknum+"_"+menuindex).droppable("enable");
 				
@@ -457,6 +619,7 @@ var createMenus=function(markID,markcount) {
 				$("div.optiondiv").removeClass("hoverselected");
 				$(this).children().eq(1).children().eq(0).addClass("hoverselected");
 			},
+			
 			out:function(event,ui){}
 			
 		});
@@ -464,7 +627,7 @@ var createMenus=function(markID,markcount) {
 		menuitem.droppable("option","tolerance","pointer");
 		menuitem.append("<div class='submenudivGroup' id='submenudivGroup_" +markcount+ "_" +divnum+ "'></div>");
 
-		//Need to keep it hidden, but need to "show" so that "over" will work
+		//need to keep it hidden, but need to "show" so that "over" will work
 		$("div.submenudivGroup").css("visibility", "hidden");
 		$("div#submenudivGroup_" +markcount+ "_" +divnum).show();
 		
@@ -477,19 +640,24 @@ var createMenus=function(markID,markcount) {
 					
 			option.droppable({
 				accept: ".column",
+				
 				drop: dropSubMenu,
+				
 				activate: {},
+				
 				deactivate:function(event,ui){
-					//Need to keep it hidden, but need to "show" so that "over" will work
+					//need to keep it hidden, but need to "show" so that "over" will work
 					$("div.submenudivGroup").css("visibility", "hidden");
 					$("div.submenudivGroup").show();
 				},
-				//OVER does not register unless shown at drag start
+				
+				//*over* does not register unless shown at drag start
 				over:function(event,ui){
 					//console.log("OVER");
 					//if($(this).parent().css("visibility")=="visible")
 					$(this).addClass("hoverselected");
 				}, 
+				
 				out:function(event,ui){
 					//console.log("OUT");
 					$(this).removeClass("hoverselected");
@@ -503,32 +671,32 @@ var createMenus=function(markID,markcount) {
 
 
 
-var positionAnnotations = function(marknum)
-{
+
+
+var positionAnnotations = function(marknum) {
 	positionCloseIcon(marknum);
 	positionAxisAnchor(marknum);
-
 }
 
-var hideAnnotations = function(marknum)
-{
 
+
+var hideAnnotations = function(marknum) {
 	$("#closeicon_"+marknum).hide();	
 	$(".axisanchor_"+marknum).hide();
-
 }
 
-var positionCloseIcon = function(marknum)
-{
+
+
+var positionCloseIcon = function(marknum) {
 	var icon = $("#closeicon_"+marknum);
 	
 	var markgroup = d3.select(".mark"+marknum);		
 	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
 	var wh = getDimensions($("g.mark"+marknum));
 	
-	console.log("CLOSE ICON WIDTH: " + wh[0]);
-	console.log("CLOSE ICON WIDTH: " + wh[1]);
-	console.log(cleantrans);
+	//console.log("CLOSE ICON WIDTH: " + wh[0]);
+	//console.log("CLOSE ICON WIDTH: " + wh[1]);
+	//console.log(cleantrans);
 	
 	var minx = +cleantrans[0];
 	var miny = +cleantrans[1];
@@ -544,13 +712,11 @@ var positionCloseIcon = function(marknum)
 		icon.css("left",(minx+visarea.offset().left+Math.cos(45)*radius)+"px");
 		icon.css("top",miny+visarea.offset().top-Math.sin(45)*radius+"px");	
 	}
-
 }
 
-var positionAxisAnchor = function(marknum)
-{
 
-	
+
+var positionAxisAnchor = function(marknum) {
 	var markgroup = d3.select(".mark"+marknum);		
 	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
 	var wh = getDimensions($("g.mark"+marknum));
@@ -597,12 +763,13 @@ var positionAxisAnchor = function(marknum)
 			// TODO handle
 		}
 	}
-
 }
 
 
 
-//Position top-level flow menu
+
+
+//POSITION TOP-LEVEL FLOW MENU
 var positionFlowMenu = function(id) {
 	var menuitem = $("#"+id);
 	var marknum = id.split("_")[1];
@@ -628,7 +795,7 @@ var positionFlowMenu = function(id) {
 
 
 
-
+//CREATE MARKS
 var createMarks=function(x,y,markcount,type) {
 	
 	switch(type) {
@@ -704,6 +871,8 @@ var createMarks=function(x,y,markcount,type) {
 	groupSY = 1;
 	isDragging = false;
 	
+	
+	//G MARK GROUP - INCLUDING WHAT TO DO WHEN IN DRAGS
 	$("g.mark" + markcount).draggable({
 		drag: function(e, ui) {
 			$('body').css('cursor', scaleMode);
@@ -712,8 +881,6 @@ var createMarks=function(x,y,markcount,type) {
 			dx = parseInt(ui.position.left - mouseX);
 			dy = parseInt(ui.position.top - mouseY);
 			
-			//console.log(groupX + " + " + ui.position.left + " - " + mouseX + " = " + parseInt(groupX+dx));
-			//console.log("DRAG: " + ui.position.left);
 			var target;
 			target=d3.select(this)
 			var marknum = $(this).attr("id").split("_")[1];	
@@ -780,8 +947,7 @@ var createMarks=function(x,y,markcount,type) {
 						updateRectMarks(marknum, newwidth, newheight);						
 						break;
 								
-					default:
-//						console.log("NADA");
+					default: console.log("Error Dragging");
 				}
 				updateBackgroundHighlight(marknum, .3);
 				positionAnnotations(marknum);
@@ -868,6 +1034,7 @@ var createMarks=function(x,y,markcount,type) {
 			updateBackgroundHighlight(marknum, .3);
 			positionAnnotations(marknum);		
 			$("#closeicon_"+marknum).show();
+			overMarks = true;
 	  })
 	  
 	  
@@ -884,27 +1051,39 @@ var createMarks=function(x,y,markcount,type) {
 	  })
 	  
 	  .dblclick(function(e) {
-		  console.log("DOUBLE CLICK");
+		  var marknum = $(this).attr("id").split("_")[1];
+		  //set all other containers to transparent
+			var group = svgm.selectAll(".container");
+			group.attr("opacity",0);
+			updateBackgroundHighlight(marknum, .3);
+		  activeMark = marknum;
+		  setPropertyEditorDefaults();
+		  //TODO: activate the property editor here
 	  })
 	  
 	  
 	  .mouseout(function(e) {
 		  $('body').css('cursor', 'auto');
-		var marknum = $(this).attr("id").split("_")[1];
-		updateBackgroundHighlight(marknum, 0);
-		$("#closeicon_"+marknum).hide();
+			var marknum = $(this).attr("id").split("_")[1];
+			
+			//If no active mark, then backgorund highlighted box should become transparent
+			if(marknum!=activeMark) {
+				updateBackgroundHighlight(marknum, 0);
+			}
+			$("#closeicon_"+marknum).hide();
+			overMarks = false;
 	  });
 
 }
 
-// destory a mark and all associated menus
-var destroyMark = function(marknum)
-{
 
+
+
+//DESTORY A MARK AND ALL ASSOCIATED MENUS
+var destroyMark = function(marknum) {
 	var marks = d3.select("#mark_"+marknum+"_group");
 	marks.remove();
 
-	
 	var menus = $(".menudiv_"+marknum).each(function(index){
 		var options = $(".optiondiv_"+marknum+"_"+index);
 		options.remove();
@@ -912,18 +1091,18 @@ var destroyMark = function(marknum)
 	});
 	
 	menus.remove(); 
+	
 	$("#closeicon_"+marknum).remove();
-	
 	$(".axisanchor_"+marknum).remove();
-	
 	$(".axis_"+marknum).remove();
-
 }
+
+
 
 
 var scaleMode = "";
 
-//Determine cursor type for moving/scaling
+//DETERMINE CURSOR TYPE FOR MOVING/SCALING
 function getCursorType(marknum, shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) {
 
 	var type  = markGroups[marknum].type;
@@ -966,12 +1145,13 @@ function getCursorType(marknum, shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) 
 		scaleMode = "move";
 	}
 	
-	
 	$('body').css('cursor', scaleMode);	
 }
 
 
-//Get specs from transform attribute of g group
+
+
+//GET SPECS FROM TRANSFORM ATTRIBUTE OF G GROUP
 function transformSpecs(shape) {
 	t = $(shape).attr("transform");
 	p = /\(|\)|\,/g;
@@ -984,6 +1164,8 @@ function transformSpecs(shape) {
 		return [s[1], s[2], s[4], s[5]];
 	}
 }
+
+
 
 
 /*
@@ -1026,7 +1208,10 @@ function getDimensions(shapes) {
 }
 */
 
-// get svg group bounding box
+
+
+
+//GET SVG GROUP BOUNDING BOX
 function getDimensions(shapes) {
 	shapes=shapes[0];
 	var bb = shapes.getBBox();
@@ -1040,8 +1225,8 @@ function getDimensions(shapes) {
 }
 
 
-// handle dropped column onto menu label and
-// update marks
+
+//HANDLE DROPPED COLUMN ONTO MENU LABEL AND UPDATE MARKS
 var dropSubMenu=function(event,ui){
 	//switch based on parent menu type
 	var option = $(this);
@@ -1049,13 +1234,10 @@ var dropSubMenu=function(event,ui){
 	var s = myid.split("_");
 	var marknum = s[1], menuindex = s[2], optionindex;
 	
-	if(s.length<4)
-	{
+	if(s.length<4) {
 		// take default action
 		optionindex = 0; 
-	}
-	else
-	{
+	} else {
 		optionindex = s[3];
 	}
 	
@@ -1074,41 +1256,43 @@ var dropSubMenu=function(event,ui){
 	var selectedoption = $("#optiondiv_"+marknum+"_"+menuindex+"_"+optionindex);
 
 	
-	//Set scales to either linear or logarithmic or pallet color
+	//set scales to either linear or logarithmic or pallet color
 	var scaleselection = selectedoption.text(); // option.text();
 
 	var type  = markGroups[marknum].type;	
 	// prevent crashing with ordinal types on quant parameters
-	if(ui.draggable.hasClass("ordinal") && !(parameter === "fill" || parameter=== "stroke"))
-	{
+	if(ui.draggable.hasClass("ordinal") && !(parameter === "fill" || parameter=== "stroke")) {
 		return;
 	}
 	
 //	console.log("dropped "+ colname + " on mark"+marknum);	
 	
-	if(type==="rect")
-	{
+	if(type==="rect") {
 		console.log(parameter);
 		console.log(colname);
+		//why is second parameter n*20?
 		updateRectMarks(marknum, n*20, undefined, parameter, colname, scaleselection);	// remove constant	
 	}
-	else if(type==="arc")
-	{
+	else if(type==="arc") {
 		updateArcMarks(marknum, undefined, parameter, colname, scaleselection);
 	}
 	
-					// scale axes of current plot		
-		var axes = d3.selectAll("g.axis_"+marknum);
-		
-		axes.each(function(){
-		
-		positionAxis($(this));
-				
-		});
+	//scale axes of current plot		
+	var axes = d3.selectAll("g.axis_"+marknum);
+	
+	axes.each(function() {
+	
+	positionAxis($(this));
+			
+	});
 		
 
 }
 
+
+
+
+//MAKE QUANTITATIVE SCALE
 var makeQuantScale = function(scaleselection, datacolumn, range)
 {
 
@@ -1136,6 +1320,9 @@ var makeQuantScale = function(scaleselection, datacolumn, range)
 
 }
 
+
+
+//MAKE COLOR SCALE
 var makeColorScale= function(scaleselection, datacolumn)
 {
 	var colorscale;
@@ -1161,40 +1348,43 @@ var makeColorScale= function(scaleselection, datacolumn)
 }
 
 
-// mark number, visual property, column name, type of scale
-var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection)
-{
 
+
+
+//MARK NUMBER, VISUAL PROPERTY, COLUMN NAME, TYPE OF SCALE
+var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection, constantValue)
+{
 	var yscale;
 	var colorscale;
 	var nodeType;
 	var dragupdate=false;
 	var transduration = 250;
 	
-	d3.select(".mark"+marknum+" .realmark").each(function(d,i){nodeType=this.nodeName;}); 
+	d3.select(".mark"+marknum+" .realmark").each(function(d,i){
+		nodeType=this.nodeName;
+	}); 
 	
+
 	if(newheight===undefined) { newheight = markGroups[marknum].height; }
 	else {  markGroups[marknum].height = newheight; }
 	if(newwidth===undefined) { newwidth = markGroups[marknum].width; }
-	else {  markGroups[marknum].width = newwidth; }	
+	else {  markGroups[marknum].width = newwidth; }
+
+	if(constantValue===undefined) {
+		$("g.mark" + marknum).data("maxWidth", newwidth);
+	}
 	
 	// use established values if scale update
-	
 	// resize default
 	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined)
 	{
-
-
 		var marks = svgm.selectAll("g.mark"+marknum+" rect.realmark")
 		.attr("height",newheight)
 		.attr("width",newwidth)	
-		console.log(marks);
-	
 	}
+	
 	else
 	{
-	
-//		console.log(parameter + " " + colname + " " + scaleselection);
 		// regular update
 		if(colname === undefined && scaleselection === undefined && parameter === undefined)
 		{
@@ -1205,7 +1395,9 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 			transduration=0;
 		}
 		
-		var datacolumn = dataObjectsToColumn(allData,colname);
+		if(constantValue===undefined) {
+			var datacolumn = dataObjectsToColumn(allData,colname);
+		}
 		
 //		console.log(parameter + " " + colname + " " + scaleselection);
 			
@@ -1217,10 +1409,13 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 		var marks=svgm.selectAll(".mark"+marknum+" .realmark")
 									.data(allData);
 
-		colorscale = makeColorScale(scaleselection, datacolumn);
-									
+		if(constantValue===undefined) {							
+			colorscale = makeColorScale(scaleselection, datacolumn);
+		}
+					
 		switch(parameter) {
-			case "height":
+			case "height":	
+			console.log("HEIGHT");				
 				yscale = makeQuantScale(scaleselection, datacolumn, newheight);
 				marks.transition().duration(transduration)
 					.attr("height",function(d,i){
@@ -1234,6 +1429,20 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 				break;
 				
 			case "width":
+				
+// 				if(constantValue!==undefined) {
+// 					maxWidth = $("g.mark" + marknum).data("maxWidth");
+// 					avgWidth = maxWidth/n;
+// 					
+// 					marks.transition().duration(0)
+// 						.attr("width", function(d,i) {
+// 							return constantValue;})
+// 						.attr("x",function(d,i){
+// 							pad = (avgWidth-constantValue)/2;
+// 							return i*avgWidth+pad;});
+// 					break;
+// 				}
+				
 				yscale = makeQuantScale(scaleselection, datacolumn, newwidth);
 				marks.transition().duration(transduration)
 					.attr("width",function(d,i){
@@ -1246,11 +1455,27 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 				break;
 			
 			case "fill":
-				marks.attr("fill",function(d,i){return colorscale(d[colname]);})		
+				if(constantValue===undefined) {
+					marks.attr("fill",function(d,i){
+						return colorscale(d[colname]);
+					})
+				} else {
+					marks.attr("fill",function(d,i){
+						return constantValue;
+					})
+				}
 				break;
 				
 			case "stroke":
-				marks.attr("stroke",function(d,i){return colorscale(d[colname]);})
+				if(constantValue===undefined) {
+					marks.attr("stroke",function(d,i){
+						return colorscale(d[colname]);
+					})
+				} else {
+					marks.attr("stroke",function(d,i){
+						return constantValue;
+					})
+				}
 				break;
 		}
 			
@@ -1267,9 +1492,11 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 		
 		markGroups[marknum].addScale(parameter, new Scale(yscale, colorscale, scaleselection, colname));
 
-		if($.inArray(parameter, ["height", "width"])!==-1) { 
-			markGroups[marknum].majorParameter = parameter;
-			markGroups[marknum].majorScale = yscale;
+		if(constantValue===undefined) {
+			if($.inArray(parameter, ["height", "width"])!==-1) { 
+				markGroups[marknum].majorParameter = parameter;
+				markGroups[marknum].majorScale = yscale;
+			}
 		}
 		
 		marks.exit().remove();
@@ -1277,6 +1504,11 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 	}
 
 }
+
+
+
+
+
 
 var positionAxis = function(curaxis)
 {
@@ -1386,8 +1618,6 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 		}
 		
 		var datacolumn = dataObjectsToColumn(allData,colname);
-		
-		console.log(parameter + " " + colname + " " + scaleselection);
 
 		// set up scale based on menu choice	
 		if($.inArray(parameter, ["outer radius", "inner radius"])!==-1)
@@ -1473,8 +1703,17 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 
 }
 
+
+
+
+//UPDATE BACKGROUND HIGHLIGHTED *CONTAINER* BOX
 var updateBackgroundHighlight=function(marknum, opacity)
 {
+	//set all other containers to transparent
+	//var group = svgm.selectAll(".container");
+	//group.attr("opacity",0);
+	
+
 	var group = svgm.select("g.mark"+marknum);
 	
 	// set container to 0 size to avoid distorting bounding box
@@ -1483,11 +1722,12 @@ var updateBackgroundHighlight=function(marknum, opacity)
 	container.attr("width",0);
 	
 	var bbox = getDimensions($(group[0][0]));
+	//console.log("BBOX: " + bbox[0] + "/" + bbox[1]);
 
 	if(markGroups[marknum].type==="arc")
 	{
 		container.attr("r",(markGroups[marknum].radius)+5)
-		.attr("fill","steelblue")
+		.attr("fill",colors10[marknum%10])
 		.attr("opacity",opacity);
 	}
 	else if(markGroups[marknum].type==="rect")
@@ -1496,7 +1736,7 @@ var updateBackgroundHighlight=function(marknum, opacity)
 		.attr("height",bbox[1]+10)
 		.attr("x",-5)
 		.attr("y",-5)
-		.attr("fill","steelblue")
+		.attr("fill",colors10[marknum%10])
 		.attr("opacity",opacity);	
 	}
 

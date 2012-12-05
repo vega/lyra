@@ -38,17 +38,33 @@
 </div>
 
 <div id="propertyEditor">
-	<p>Update Bar Widths:</p>
-	<input type="range" name="barWidthSlider" id="barWidthSlider" min="10" max="100" step="1" value="100" style="width: 242px"/>
+	<!--<p>Update Bar Widths:</p>
+	<input type="range" name="barWidthSlider" id="barWidthSlider" min="10" max="100" step="1" value="100" style="width: 242px"/>-->
 	
-	<p>Update Bar Color:</p>
-	<input type="color" name="barFillColor" id="barFillColor"/>
+	<div class="propertyEditorHeader">Update Primary Color</div>
+	<div class="propertyEditorWidget">
+		<input style="width:150px" type="color" name="barFillColor" id="barFillColor"/>
+	</div>
 	
-	<p>Update Stroke Color:</p>
-	<input type="color" name="barStrokeColor" id="barStrokeColor"/>
+	<div class="propertyEditorHeader">Update Secondary Color</div>
+	<div class="propertyEditorWidget">
+		<input style="width:150px" type="color" name="barStrokeColor" id="barStrokeColor"/>
+	</div>
 	
-	<p>Update Font Size:</p>
-	<input type="text" name="updateFontSize" id="updateFontSize" style="width:25px"/>px
+	<div class="propertyEditorHeader">Update Font Size</div>
+	<div class="propertyEditorWidget">
+		<input type="text" name="updateFontSize" id="updateFontSize" style="width:25px"/>px
+	</div>
+	
+	<div class="propertyEditorHeader">Update X Position</div>
+	<div class="propertyEditorWidget">
+		<input type="text" name="updateXPos" id="updateXPos" style="width:25px"/>px
+	</div>
+	
+	<div class="propertyEditorHeader">Update Y Position</div>
+	<div class="propertyEditorWidget">
+		<input type="text" name="updateYPos" id="updateYPos" style="width:25px"/>px
+	</div>
 </div>
 
 

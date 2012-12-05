@@ -5,6 +5,7 @@ html {
     color:#000;
     background:#fff;
     font-size: 14px;
+    font-family: Verdana, Tahoma, sans-serif;
 }
 
 
@@ -216,7 +217,25 @@ display: none;
 	opacity: 1;
 }
 
-
-div.note:hover {
-	cursor: move; /*only for the starting state; this CSS property gets updated on focusin/focusout events in code*/
+div.note {
+	padding:2px;
+	border:1px solid #fff;
+	background-color: #fff;
 }
+
+div.propertyEditorHeader {
+	text-align:center;
+	background-color:black;
+	color:white;
+	font-size:16px;
+	font-family:Georgia, sans-serif;
+	padding:2px;
+	margin-bottom:5px;
+}
+
+div.propertyEditorWidget {
+	text-align:center;
+	margin-bottom:15px;
+}
+
+
