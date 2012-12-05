@@ -268,8 +268,9 @@ $(document).ready(function(){
 			$("g#mark_" + activeMark + "_group").attr("transform", "translate(" + tSpecs[0] + "," + v + ")");
 		}
 	});
-
 	
+	createDraggableIcons();	
+
 
 	//READ IN DATA FROM CSV FILE AND POPULATE LIST OF COLUMNS OF DATA VARIABLE NAMES
 	d3.csv("./olympics.csv", function(response) {
@@ -277,7 +278,7 @@ $(document).ready(function(){
 		for (var i in response) {
 			allData[i]={};
 			for(var attr in response[0]) {
-				if(attr==="ISO Country code" || attr === "Country name" || attr === "Continent") {
+				if(attr==="ISO country code" || attr === "Country name" || attr === "Continent") {
 					allData[i][attr] = response[i][attr];
 				} else {
 					allData[i][attr] = +response[i][attr]; //data holds number
@@ -465,7 +466,31 @@ $(document).ready(function(){
 });
 //END OF EVERYTHING TO DO WHEN THE DOCUMENT LOADS
 
+var createDraggableIcons = function()
+{
+		var arc = d3.svg.arc();
+		var dragmark = 	d3.select("#arcdrag");
+		var group = dragmark.append("g");
+		arc.startAngle(.1);
+		arc.endAngle(1.2);
+		arc.outerRadius(30);
+		arc.innerRadius(0);
+		group.attr("transform","translate(15,40)");
+		group.append("path").attr("d", arc); 
+		
+		var axis = d3.svg.axis();
+		var dragmark = 	d3.select("#axisdrag");
+		var group = dragmark.append("g");
+		var normalscale = d3.scale.linear();
+			normalscale.domain([0,5]).range([35,0]);
+			axis.orient("left");
 
+		axis.scale(normalscale);
+		axis.ticks(5);
+		group.attr("height",50);
+		group.attr("transform","translate(25,8)");		
+		group.call(axis);	
+}
 
 
 

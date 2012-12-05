@@ -16,8 +16,8 @@
 <div id="toolbar">
     <div id="draggable_rect" class="mark" ></div>
 	<div id="draggable_text" class="mark textmark" >T</div>
-	<div id="draggable_arc" class="mark" >A</div>
-	<div id="draggable_axis" class="axismark" >X</div>	
+	<div id="draggable_arc" class="mark" ><svg id="arcdrag" width="50" height="50"></svg></div>
+	<div id="draggable_axis" class="axismark" ><svg id="axisdrag" width="50" height="50"></svg></div>	
 </div>
 
 <div id="sidebar">
@@ -41,27 +41,27 @@
 	<!--<p>Update Bar Widths:</p>
 	<input type="range" name="barWidthSlider" id="barWidthSlider" min="10" max="100" step="1" value="100" style="width: 242px"/>-->
 	
-	<div class="propertyEditorHeader">Update Primary Color</div>
+	<div class="propertyEditorHeader">Primary Color</div>
 	<div class="propertyEditorWidget">
 		<input style="width:150px" type="color" name="barFillColor" id="barFillColor"/>
 	</div>
 	
-	<div class="propertyEditorHeader">Update Secondary Color</div>
+	<div class="propertyEditorHeader">Secondary Color</div>
 	<div class="propertyEditorWidget">
 		<input style="width:150px" type="color" name="barStrokeColor" id="barStrokeColor"/>
 	</div>
 	
-	<div class="propertyEditorHeader">Update Font Size</div>
+	<div class="propertyEditorHeader">Font Size</div>
 	<div class="propertyEditorWidget">
 		<input type="text" name="updateFontSize" id="updateFontSize" style="width:25px"/>px
 	</div>
 	
-	<div class="propertyEditorHeader">Update X Position</div>
+	<div class="propertyEditorHeader">X Position</div>
 	<div class="propertyEditorWidget">
 		<input type="text" name="updateXPos" id="updateXPos" style="width:25px"/>px
 	</div>
 	
-	<div class="propertyEditorHeader">Update Y Position</div>
+	<div class="propertyEditorHeader">Y Position</div>
 	<div class="propertyEditorWidget">
 		<input type="text" name="updateYPos" id="updateYPos" style="width:25px"/>px
 	</div>
