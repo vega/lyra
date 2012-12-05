@@ -117,7 +117,46 @@ function setPropertyEditorDefaults() {
 		topPos = parseInt(topPos.split("px")[0]);
 		$("input#updateYPos").val(topPos-112);
 	} else {
+		var type = markGroups[activeMark].type;
+		var mark = d3.select("g#mark_" + activeMark + "_group");
+		var markjq = $("g#mark_" + activeMark + "_group");		
+		var tSpecs = transformSpecs(mark[0][0]);
+		
+		if(type === "rect")
+		{
+			var rect = mark.select("rect.realmark");
+			$("input#barFillColor").val(rect.attr("fill"));
+			$("input#barStrokeColor").val(rect.attr("stroke"));
+			
+			fontSz = markjq.css("font-size");
+			fontSz = parseInt(fontSz.split("px")[0]);
+			$("input#updateFontSize").val(fontSz);
+			
+			$("input#updateXPos").val(tSpecs[0]);
+			
+			$("input#updateYPos").val(tSpecs[1]);		
+		
+		}
+		else if(type === "arc")
+		{
+			var arcgroup = mark.select("g.arc");
+			var arc = arcgroup.select("path");
+			console.log(arcgroup[0][0]);
+			$("input#barFillColor").val(arc.attr("fill"));
+			$("input#barStrokeColor").val(arc.attr("stroke"));
+			
+			fontSz = markjq.css("font-size");
+			fontSz = parseInt(fontSz.split("px")[0]);
+			$("input#updateFontSize").val(fontSz);
+			
+			$("input#updateXPos").val(tSpecs[0]);
+			
+			$("input#updateYPos").val(tSpecs[1]);			
+		
+		
+		}	
 		//TODO: Do this for other marks besides text marks
+
 	}
 
 }
@@ -226,7 +265,7 @@ $(document).ready(function(){
 			if($("div#note_" + activeMark).length==1) {
 				$("div#note_" + activeMark).css("backgroundColor", v);
 			} else {
-				v = $("input#barFillColor").val();
+				v = $("input#barStrokeColor").val();
 				updateRectMarks(activeMark, undefined, undefined, "stroke", undefined, "logarithmic", v);
 			}
 		}
@@ -490,6 +529,14 @@ var createDraggableIcons = function()
 		group.attr("height",50);
 		group.attr("transform","translate(25,8)");		
 		group.call(axis);	
+		
+		var dragmark = d3.select("#rectdrag");
+		dragmark.append("rect")
+				.attr("height",35)
+				.attr("width",15)
+				.attr("x",17.5)
+				.attr("y",7.5);
+		
 }
 
 
@@ -841,11 +888,11 @@ var createMarks=function(x,y,markcount,type) {
 			.attr("x",0)
 			.attr("y",0)	
 			.attr("fill", function(d,i) {
-				return "steelblue"; })
+				return "#4682B4"; })
 			.attr("fill-opacity", function(d,i) {
 				return 1; })
  			.attr("stroke", function(d,i) {
- 				return "#ccc"; })
+ 				return "#cccccc"; })
 			.attr("stroke-width", function(d,i) {
 				return 2; })
 			.classed("realmark",true);
@@ -865,7 +912,7 @@ var createMarks=function(x,y,markcount,type) {
 				.attr("class","mark"+markcount)
 				.classed("arcmark",true)
 				.attr("transform", "translate(" + x + "," + y + ")")
-				.attr("stroke","#ccc")
+				.attr("stroke","#cccccc")
 				.attr("stroke-width","2")
 				.attr("id","mark_"+markcount+"_group");	
 				
@@ -879,7 +926,8 @@ var createMarks=function(x,y,markcount,type) {
 				.attr("class", "arc");
 				
 			arcs.append("path")
-				.attr("fill", "steelblue")
+				.attr("fill", "#4682B4")
+				.attr("stroke","#cccccc")				
 				.attr("d", arc)
 				.classed("realmark",true);
 			markGroups.push(new MarkGroup("arc"));
@@ -1000,6 +1048,7 @@ var createMarks=function(x,y,markcount,type) {
 				positionAnnotations(marknum);			
 				$("#closeicon_"+marknum).show();
 			}
+			if(activeMark!==-1) setPropertyEditorDefaults();  // too easy?
 		},
 				
 		

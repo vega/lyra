@@ -23,7 +23,7 @@ div#propertyEditor {
 	width:250px;
 	top:112px;
 	height:400px;
-	border:1px solid red;
+	border:1px solid black;
 }
 
 
@@ -33,7 +33,7 @@ div#propertyEditor {
 
 div.menudivGroup {
 	position:absolute;
-	background-color:#ccc;
+	background-color:#cccccc;
 	border:1px solid #999;
 	box-shadow: 2px 2px 5px #666;
 	width:120px;
@@ -47,7 +47,7 @@ div.menudiv {
 
 div.submenudivGroup {
 	position:absolute;
-	background-color:#ccc;
+	background-color:#cccccc;
 	border:1px solid #999;
 	box-shadow: 2px 2px 5px #666;
 	width:100px;
@@ -83,7 +83,7 @@ div.menuArrow {
     margin-right: 10px;
     width: 200px;
     height: 500px;
-    border: 1px solid #333;
+    border: 1px solid #ccc;
 
 }
 
@@ -102,7 +102,7 @@ svg#vis {
     display: block;
     background: lightgreen;
 	position: absolute;
-	border-color: #ccc;
+	border-color: #cccccc;
 	border-width: 2;
 }
 
@@ -110,14 +110,35 @@ svg#vis {
 display: none;
 }
 
+#axisdrag path,line {
+	font-size: 10px;
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+	font-family: sans-serif;	
+}
+
+#axisdrag text {
+	font-size: 8px;
+	font-family: sans-serif;	
+}
+
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;	
+}
+
 .mark {
     display: block;
     width: 50px;
     height: 50px;
-    background: steelblue;
+    background: #4682B4;
     margin: 25px 20px;
     cursor: default;
-	border-color: #ccc;
+	border-color: #cccccc;
 	border-width: 2;
 	float: left;
 	font-size: 46px;
@@ -129,10 +150,10 @@ display: none;
     display: block;
     width: 50px;
     height: 50px;
-    background: steelblue;
+    background: #4682B4;
     margin: 25px 20px;
     cursor: default;
-	border-color: #ccc;
+	border-color: #cccccc;
 	border-width: 2;
 	float: left;
 	font-size: 46px;
