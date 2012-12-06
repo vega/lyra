@@ -54,7 +54,7 @@ var menus = {"rect":
 								["Pallet A","Pallet B","Pallet C"],
 							"stroke":
 								["Pallet A","Pallet B","Pallet C"]}, 
-						"arc":
+			"arc":
 							{"angle":
 								["linear","logarithmic"],
 							"inner radius":
@@ -64,7 +64,17 @@ var menus = {"rect":
 							"fill":
 								["Pallet A","Pallet B","Pallet C"],
 							"stroke":
-								["Pallet A","Pallet B","Pallet C"]}};
+								["Pallet A","Pallet B","Pallet C"]},
+			"scatter":
+							{"height":
+								["linear","logarithmic"],
+							"width":
+								["linear","logarithmic"],
+							"fill":
+								["Pallet A","Pallet B","Pallet C"],
+							"stroke":
+								["Pallet A","Pallet B","Pallet C"]}, 								
+			};
 
 
 var menulabels;
@@ -175,6 +185,7 @@ $(document).ready(function(){
 	$("div#region").click(function() {
 		if(!overMarks) {
 			//set all containers to transparent
+			svgm = d3.select("#region");
 			var group = svgm.selectAll(".container");
 			group.attr("opacity",0);
 			
@@ -429,6 +440,7 @@ $(document).ready(function(){
 				var anchornum = +myid.split("_")[2];
 				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
 				if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===2)) return;
+				// change to support axes
 				$(this).show();
 			});
 		},
@@ -577,6 +589,17 @@ var createDraggableIcons = function()
 				.attr("width",15)
 				.attr("x",17.5)
 				.attr("y",7.5);
+				
+		var dragmark = d3.select("#scatterdrag");
+		var tempdata = [2, 1, 3, 2, 4, 6, 8, 6];
+		var tempsymbol = d3.svg.symbol();
+		tempsymbol.size(5);
+		dragmark.selectAll("path").data(tempdata).enter().append("svg:path")
+				.attr("transform",function(d,i)	// position
+				{
+					return "translate("+ (5*i + 5) + ","+ (50 - 5*tempdata[i] ) +")"; // 10*i
+				})
+				.attr("d", tempsymbol);
 		
 }
 
@@ -948,6 +971,10 @@ var positionCloseIcon = function(marknum) {
 		icon.css("left",(minx+visarea.offset().left+Math.cos(45)*radius)+"px");
 		icon.css("top",miny+visarea.offset().top-Math.sin(45)*radius+"px");	
 	}
+	if(type==="scatter"){
+		icon.css("left",(minx+visarea.offset().left+wh[0]-40)+"px");
+		icon.css("top",miny+visarea.offset().top+"px");
+	}	
 }
 
 var positionTextAnchors = function(marknum)
@@ -1110,6 +1137,11 @@ var positionAxisAnchor = function(marknum) {
 		else if(type==="arc"){
 			// TODO handle
 		}
+		else if(type==="scatter")
+		{
+			anchor.css("left",x);
+			anchor.css("top", y);	
+		}
 	}
 }
 
@@ -1138,6 +1170,10 @@ var positionFlowMenu = function(id) {
 		menuitem.css("left",(minx+visarea.offset().left)+"px");
 		menuitem.css("top",miny+visarea.offset().top+.5*wh[1]+20+"px");	
 	}
+	else if(type==="scatter"){
+		menuitem.css("left",(minx+visarea.offset().left+.5*wh[0])+"px");
+		menuitem.css("top",miny+visarea.offset().top+wh[1]+20+"px");
+	}	
 }
 
 
@@ -1207,6 +1243,36 @@ var createMarks=function(x,y,markcount,type) {
 				.attr("d", arc)
 				.classed("realmark",true);
 			markGroups.push(new MarkGroup("arc"));
+			break;
+		case "scatter":
+			var scattercont = svgm.append("g")
+									.classed("mark"+markcount,true)
+									.classed("scattermark",true)
+									.attr("transform", "translate(" + x + "," + y + ")")
+									.attr("id","mark_"+markcount+"_group");
+			var symbol = d3.svg.symbol();
+			scattercont.selectAll("path")
+				.data(dataset)
+				.enter()
+				.append("svg:path")
+				.attr("fill", function(d,i) {
+					return "#4682B4"; })
+				.attr("fill-opacity", function(d,i) {
+					return 1; })
+				.attr("stroke", function(d,i) {
+					return "#cccccc"; })
+				.attr("stroke-width", function(d,i) {
+					return 2; })
+				.classed("realmark",true)
+				.attr("transform",function(d,i)	// position
+				{
+					return "translate("+ 0 + ","+ 0+")"; // 10*i
+				})
+				.attr("d", symbol);
+				scattercont.append("rect")	// shape
+				.classed("container",true);
+				
+				markGroups.push(new MarkGroup("scatter"));									
 			break;
 	}
 	
@@ -1323,6 +1389,75 @@ var createMarks=function(x,y,markcount,type) {
 				updateBackgroundHighlight(marknum, .3);
 				positionAnnotations(marknum);			
 				$("#closeicon_"+marknum).show();
+			}
+			else if(target.classed("scattermark")) {
+					switch(scaleMode) {
+					case "move":
+						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";							
+						$(e.target).attr("transform", t);
+						updateScatterMarks(marknum, undefined, undefined);	 // TODO: check						
+						break;
+						
+					case "e-resize":
+						var newwidth = groupW+dx;
+						updateScatterMarks(marknum, newwidth, undefined);						
+						break;
+						
+					case "w-resize":
+						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
+						$(e.target).attr("transform", t);
+						var newwidth = groupW-dx;
+						updateScatterMarks(marknum, newwidth, undefined);
+						break;
+						
+					case "n-resize":
+						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
+						var newheight = groupH-dy;
+						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
+						updateScatterMarks(marknum, undefined, newheight);			// why does flipping with previous line === bad?			
+						break;
+						
+					case "s-resize":
+						var newheight = groupH+dy;
+						updateScatterMarks(marknum, undefined, newheight);
+						break;
+						
+					case "se-resize":
+						var newheight = groupH+dy;
+						var newwidth = groupW+dx;						
+						updateScatterMarks(marknum, newwidth, newheight);
+						break;
+						
+					case "ne-resize":
+						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
+						var newheight = groupH-dy;
+						var newwidth = groupW+dx;						
+						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
+						updateScatterMarks(marknum, newwidth, newheight);						
+						break;
+						
+					case "sw-resize":
+						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
+						$(e.target).attr("transform", t);
+						var newwidth = groupW-dx;					
+						var newheight = groupH+dy;
+						updateScatterMarks(marknum, newwidth, newheight);
+						break;
+					
+					case "nw-resize":
+						var newwidth = groupW-dx;					
+						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
+						var newheight = groupH-dy;
+						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
+						updateScatterMarks(marknum, newwidth, newheight);						
+						break;
+								
+					default: console.log("Error Dragging");
+				}
+				updateBackgroundHighlight(marknum, .3);
+				positionAnnotations(marknum);
+				$("#closeicon_"+marknum).show();		
+			
 			}
 			if(activeMark!==-1) setPropertyEditorDefaults();  // too easy?
 		},
@@ -1476,7 +1611,11 @@ function getCursorType(marknum, shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) 
 		
 		clickDist = Math.sqrt(Math.pow(mouseX-shapeX,2)+Math.pow(mouseY-shapeY,2));
 	}
-	
+	else if(type === "scatter")
+	{
+		pX = (mouseX-shapeX)/shapeW; //percentage of X shape
+		pY = (mouseY-shapeY)/shapeH; //percentage of Y shape
+	}	
 
 	if(type === "arc" && clickDist < (.5*shapeW)*(1-boundaryWidth)) {
 			scaleMode = "move";
@@ -1620,17 +1759,20 @@ var dropSubMenu=function(event,ui){
 		return;
 	}
 	
-//	console.log("dropped "+ colname + " on mark"+marknum);	
-	
+	console.log("dropped "+ colname + " on mark"+marknum);	
+
 	if(type==="rect") {
 		console.log(parameter);
 		console.log(colname);
-		//why is second parameter n*20?
+		//why is second parameter n*20? it's the fixed width
 		updateRectMarks(marknum, n*20, undefined, parameter, colname, scaleselection);	// remove constant	
 	}
 	else if(type==="arc") {
 		updateArcMarks(marknum, undefined, parameter, colname, scaleselection);
 	}
+	else if(type==="scatter") {
+		updateScatterMarks(marknum, n*20, undefined, parameter, colname, scaleselection);
+	}	
 	
 	//scale axes of current plot		
 	positionAxes(marknum);
@@ -1868,7 +2010,171 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 }
 
 
+var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection, constantValue)
+{
 
+	var yscale;
+	var colorscale;
+	var nodeType;
+	var dragupdate=false;
+	var transduration = 250;
+	
+	d3.select(".mark"+marknum+" .realmark").each(function(d,i){
+		nodeType=this.nodeName;
+	}); 
+	
+//	console.log("scatter");
+	if(newheight===undefined) { newheight = markGroups[marknum].height; }
+	else {  markGroups[marknum].height = newheight; }
+	if(newwidth===undefined) { newwidth = markGroups[marknum].width; }
+	else {  markGroups[marknum].width = newwidth; }
+
+	if(constantValue===undefined) {
+		$("g.mark" + marknum).data("maxWidth", newwidth);
+	}
+	
+	// use established values if scale update
+	// resize default
+	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined)
+	{
+		var marks = svgm.selectAll("g.mark"+marknum+" rect.realmark")
+		.attr("height",newheight)
+		.attr("width",newwidth)	
+	}
+	
+	else
+	{
+		// regular update
+		if(colname === undefined && scaleselection === undefined && parameter === undefined)
+		{
+			parameter = markGroups[marknum].majorParameter;
+			colname = markGroups[marknum].scales[parameter].columnName;
+			scaleselection = markGroups[marknum].scales[parameter].type;		
+			dragupdate=true;
+			transduration=0;
+		}
+		
+		if(constantValue===undefined) {
+			var datacolumn = dataObjectsToColumn(allData,colname);
+		}
+		
+//		console.log(parameter + " " + colname + " " + scaleselection);
+			
+		var logextra;
+		logextra = scaleselection==="logarithmic" ? 1 : 0;
+
+		svgm = d3.select("svg#vis");
+
+		var marks=svgm.selectAll(".mark"+marknum+" .realmark")
+									.data(allData);
+
+		if(constantValue===undefined) {							
+			colorscale = makeColorScale(scaleselection, datacolumn);
+		}
+		
+		var symbol = d3.svg.symbol();
+		
+		switch(parameter) {
+			case "height":	
+			console.log("HEIGHT");				
+				yscale = makeQuantScale(scaleselection, datacolumn, newheight);
+				marks.transition().duration(transduration)
+					// .attr("height",function(d,i){
+						// return yscale(d[colname]+logextra);})
+					// .attr("width",function(d,i) {
+						// return newwidth/n;})
+					// .attr("x",function(d,i){
+						// return i*newwidth/n;})
+					// .attr("y",function(d,i){
+						// return newheight-yscale(d[colname]+logextra);});
+				.attr("transform",function(d,i)
+				{
+					return "translate("+ i*newwidth/n  + ","+ yscale(d[colname]+logextra)+")";
+				})
+				.attr("d", symbol);
+				break;
+				
+			case "width":
+				
+// 				if(constantValue!==undefined) {
+// 					maxWidth = $("g.mark" + marknum).data("maxWidth");
+// 					avgWidth = maxWidth/n;
+// 					
+// 					marks.transition().duration(0)
+// 						.attr("width", function(d,i) {
+// 							return constantValue;})
+// 						.attr("x",function(d,i){
+// 							pad = (avgWidth-constantValue)/2;
+// 							return i*avgWidth+pad;});
+// 					break;
+// 				}
+				
+				yscale = makeQuantScale(scaleselection, datacolumn, newwidth);
+				marks.transition().duration(transduration)
+					// .attr("width",function(d,i){
+						// return yscale(d[colname]+logextra);})
+					// .attr("height", function(d,i) {
+						// return newheight/n;})
+					// .attr("x",function(d,i){return 0;})	
+					// .attr("y",function(d,i){
+						// return i*newheight/n;});
+				.attr("transform",function(d,i)
+				{
+					return "translate("+ yscale(d[colname]+logextra) + ","+i*newheight/n+")";
+				})
+				.attr("d", symbol);						
+				break;
+			
+			case "fill":
+				if(constantValue===undefined) {
+					marks.attr("fill",function(d,i){
+						return colorscale(d[colname]);
+					})
+				} else {
+					marks.attr("fill",function(d,i){
+						return constantValue;
+					})
+				}
+				break;
+				
+			case "stroke":
+				if(constantValue===undefined) {
+					marks.attr("stroke",function(d,i){
+						return colorscale(d[colname]);
+					})
+				} else {
+					marks.attr("stroke",function(d,i){
+						return constantValue;
+					})
+				}
+				break;
+		}
+			
+
+		// scale axes of current plot		
+		var axes = d3.selectAll("g.axis_"+marknum);
+		if((markGroups[marknum].majorParameter === "height" && parameter==="width") || (markGroups[marknum].majorParameter === "width" && parameter==="height"))	{
+			axes.remove();
+		}
+		else {
+			axes.each(function(){		
+				positionAxis($(this));});		
+		}
+		
+		markGroups[marknum].addScale(parameter, new Scale(yscale, colorscale, scaleselection, colname));
+
+		if(constantValue===undefined) {
+			if($.inArray(parameter, ["height", "width"])!==-1) { 
+				markGroups[marknum].majorParameter = parameter;
+				markGroups[marknum].majorScale = yscale;
+			}
+		}
+		
+		marks.exit().remove();
+	
+	}
+
+}
 
 
 
@@ -2110,6 +2416,16 @@ var updateBackgroundHighlight=function(marknum, opacity)
 		.attr("y",-5)
 		.attr("fill",colors10[marknum%10])
 		.attr("opacity",opacity);	
+	}
+	else if(markGroups[marknum].type==="scatter")
+	{
+		container.attr("width",bbox[0]+10)
+		.attr("height",bbox[1]+10)
+		.attr("x",-10)
+		.attr("y",-10) 
+		.attr("fill",colors10[marknum%10])
+		.attr("opacity",opacity);
+		// update?
 	}
 
 
