@@ -372,9 +372,18 @@ $(document).ready(function(){
 			start:function(event,ui){
 				//position its flow menu
 				$(".menudivGroup").each(function(index) {		
-					positionFlowMenu($(this).attr("id"));	
+					positionFlowMenu($(this).attr("id"));					
 				});		
-
+				// position text anchors
+				$(".textanchor").each(function(i)
+				{
+					var marknum = $(this).attr("id").split("_")[1];
+					if(markGroups[marknum].majorParameter !== undefined) {
+						positionAnnotations(marknum);	
+						$(this).show();
+					}
+				});
+				
 				//make its top-level flow menu DIVs visible
 				$(".menudiv").css("visibility", "visible");	
 				$(".menudivGroup").css("visibility", "visible");			
@@ -786,7 +795,7 @@ var createTextAnchors = function(markcount)
 		});
 	
 		textanchor.appendTo($("body"));
-	//	textanchor.hide();
+		textanchor.hide();
 	}
 }
 
@@ -954,7 +963,7 @@ var positionTextAnchors = function(marknum)
 	if(type==="rect"){
 	
 //		var thismark = markgroup.selectAll("rect").each(function(i){
-		var curmark = d3.select(markgroup.selectAll("rect.realmark")[0][0]);
+		var curmark = d3.select(markgroup.selectAll("rect.realmark")[0][Math.floor(n/2)]);
 	//	console.log(curmark);
 	//		var curmark = d3.select(this);
 			
@@ -1625,7 +1634,8 @@ var dropSubMenu=function(event,ui){
 	
 	//scale axes of current plot		
 	positionAxes(marknum);
-		
+	positionAnnotations(marknum);	
+	
 
 }
 
