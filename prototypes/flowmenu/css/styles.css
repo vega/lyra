@@ -83,7 +83,7 @@ div.menuArrow {
     margin-right: 10px;
     width: 200px;
     height: 500px;
-    border: 1px solid #ccc;
+    border: 1px solid #000;
 
 }
 
@@ -123,12 +123,28 @@ display: none;
 	font-family: sans-serif;	
 }
 
+.axis {
+	font-size: 14px;
+}
 
 .axis path,
 .axis line {
     fill: none;
     stroke: black;
     shape-rendering: crispEdges;	
+}
+.textanchor{
+	background: orange;
+    width: 15px;
+    height: 15px;
+    cursor: default;
+	border-color: black;
+	border-width: 2;
+	text-align: center;
+	vertical-align: center;
+	opacity: .7;
+	user-select: none;
+
 }
 
 .mark {

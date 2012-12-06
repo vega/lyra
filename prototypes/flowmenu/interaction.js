@@ -122,15 +122,20 @@ function setPropertyEditorDefaults() {
 		var markjq = $("g#mark_" + activeMark + "_group");		
 		var tSpecs = transformSpecs(mark[0][0]);
 		
+		// get axis text props here
+		
 		if(type === "rect")
 		{
 			var rect = mark.select("rect.realmark");
+			var axis = $(".axis_"+activeMark); 
 			$("input#barFillColor").val(rect.attr("fill"));
 			$("input#barStrokeColor").val(rect.attr("stroke"));
 			
-			fontSz = markjq.css("font-size");
-			fontSz = parseInt(fontSz.split("px")[0]);
-			$("input#updateFontSize").val(fontSz);
+			if(axis.length>0){
+			fontSz = axis.css("font-size");
+	//		fontSz = markjq.css("font-size");
+			fontSz = parseInt(fontSz.split("px")[0]); 
+			$("input#updateFontSize").val(fontSz); }
 			
 			$("input#updateXPos").val(tSpecs[0]);
 			
@@ -138,12 +143,12 @@ function setPropertyEditorDefaults() {
 		
 		}
 		else if(type === "arc")
-		{
-			var arcgroup = mark.select("g.arc");
-			var arc = arcgroup.select("path");
-			console.log(arcgroup[0][0]);
-			$("input#barFillColor").val(arc.attr("fill"));
-			$("input#barStrokeColor").val(arc.attr("stroke"));
+		{ 
+			var myarcgroup = mark.select("g.arc");
+						console.log(myarcgroup[0][0]);
+			var singlearc = myarcgroup.selectAll("path"); 	// if this is a select, bad bad things happen, d3 bug?
+			$("input#barFillColor").val(singlearc.attr("fill"));
+			$("input#barStrokeColor").val(singlearc.attr("stroke"));
 			
 			fontSz = markjq.css("font-size");
 			fontSz = parseInt(fontSz.split("px")[0]);
@@ -153,7 +158,7 @@ function setPropertyEditorDefaults() {
 			
 			$("input#updateYPos").val(tSpecs[1]);			
 		
-		
+			singlearc = 0;
 		}	
 		//TODO: Do this for other marks besides text marks
 
@@ -179,6 +184,14 @@ $(document).ready(function(){
 			activeMark = -1; //reset activeMark status to -1
 		}
 	});
+	
+/*	$("div#region").dblclick(function() {
+		if(!overMarks)
+		{
+			activeMark = -1; //reset activeMark status to -1
+		}
+	
+	});*/
 	
 	
 	
@@ -251,7 +264,14 @@ $(document).ready(function(){
 				$("div#note_" + activeMark).css("color", v);
 			} else {
 				v = $("input#barFillColor").val();
-				updateRectMarks(activeMark, undefined, undefined, "fill", undefined, "logarithmic", v);
+				var type = markGroups[activeMark].type;
+				if(type === "rect"){
+					updateRectMarks(activeMark, undefined, undefined, "fill", undefined, "logarithmic", v);
+				}
+				else if(type === "arc")
+				{
+					updateArcMarks(activeMark, undefined, "fill", undefined, undefined, v);
+				}
 			}
 		}
 	});
@@ -266,7 +286,13 @@ $(document).ready(function(){
 				$("div#note_" + activeMark).css("backgroundColor", v);
 			} else {
 				v = $("input#barStrokeColor").val();
-				updateRectMarks(activeMark, undefined, undefined, "stroke", undefined, "logarithmic", v);
+				var type = markGroups[marknum].type;
+				if(type === "rect")
+					updateRectMarks(activeMark, undefined, undefined, "stroke", undefined, "logarithmic", v);
+				else if(type === "arc")
+				{
+					updateArcMarks(activeMark, undefined, "fill", undefined, undefined, v);
+				}
 			}
 		}
 	});
@@ -278,6 +304,10 @@ $(document).ready(function(){
 		if(activeMark!=-1) {
 			if($("div#note_" + activeMark).length==1) {
 				$("div#note_" + activeMark).css("font-size", $("input#updateFontSize").val() + "px");
+			}
+			else
+			{
+				$(".axis_"+activeMark).css("font-size", $("input#updateFontSize").val() + "px");
 			}
 		}
 	});
@@ -293,6 +323,7 @@ $(document).ready(function(){
 		} else {
 			tSpecs = transformSpecs($("g#mark_" + activeMark + "_group"));
 			$("g#mark_" + activeMark + "_group").attr("transform", "translate(" + v + "," + tSpecs[1] + ")");
+			positionAxes(activeMark);			
 		}
 	});
 
@@ -305,6 +336,7 @@ $(document).ready(function(){
 		} else {
 			tSpecs = transformSpecs($("g#mark_" + activeMark + "_group"));
 			$("g#mark_" + activeMark + "_group").attr("transform", "translate(" + tSpecs[0] + "," + v + ")");
+			positionAxes(activeMark);			
 		}
 	});
 	
@@ -563,6 +595,11 @@ var createAnnotations = function(markID,markcount)
 	closeicon.appendTo($("body"));
 	closeicon.hide();
 	
+	// text anchors
+	
+	createTextAnchors(markcount);
+	
+	
 	var axisanchor;
 	
 	for(var axisanchornum=0; axisanchornum<4; axisanchornum++)
@@ -636,6 +673,122 @@ var createAnnotations = function(markID,markcount)
 
 }
 
+var createTextAnchors = function(markcount)
+{
+	var textanchor;
+	
+	for(var textanchornum=0; textanchornum<3; textanchornum++)
+	{
+		textanchor =  $("<div class=\"textanchor textanchor_"+markcount+"\" id=\"textanchor_"+markcount+"_"+textanchornum+"\" style=\"position:absolute;\"></div>")
+	
+		textanchor.droppable({
+			accept:".column",
+			drop:function(event,ui)
+			{
+			// create axis
+				var myid = $(this).attr("id");
+				var marknum = myid.split("_")[1];
+				var anchornum = +myid.split("_")[2];
+
+				// no double notes
+//				if($("#text_"+marknum+"_"+anchornum).length > 0) return;
+
+				// bounce out for weird axes
+//				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
+//				if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===2)) return;	
+						
+				var colname = ui.draggable.text(); //column name of data		
+				var datacolumn = dataObjectsToColumn(allData,colname);
+
+				var markgroup;
+				if($(".textcont_"+marknum) !== undefined) {
+					markgroup = svgm.append("g");
+					markgroup.classed("textcont_"+marknum,true);					
+				}
+				markgroup = d3.select(".textcont_"+marknum);
+				markgroup.selectAll(".text_"+marknum+"_"+anchornum).data(datacolumn).enter().append("text").classed("text",true)
+				.classed("text_"+marknum,true)
+				.classed("text_"+marknum+"_"+anchornum,true);
+	
+			
+	
+				var textelems = svgm.selectAll(".text_"+marknum+"_"+anchornum);
+				
+					
+				textelems.attr("id",function(d,i){ return "text_"+marknum+"_"+anchornum+"_"+i;});
+				textelems.text(function(d,i){ return d;});
+				
+				positionTextAnnotations(marknum);
+				
+
+/*				for(var textanchornum=0; textanchornum<3; textanchornum++)
+				{
+					var anchor = $("#textanchor_"+marknum+"_"+textanchornum);	
+					var x,y;
+
+					x = minx+visarea.offset().left+ +curmark.attr("x")+"px";
+					switch(textanchornum){
+						case 0:
+							// top
+							y = miny+ visarea.offset().top + +curmark.attr("y") - 10 + "px";
+						break;
+						case 1:
+							// middle
+							y = miny+visarea.offset().top + +curmark.attr("y") + .5*+curmark.attr("height")+"px";
+						break;
+						case 2:
+							// bottom
+							y = miny+visarea.offset().top + +curmark.attr("y") + +curmark.attr("height") + "px";		
+						break;
+									
+					}
+				
+					anchor.css("left",x);
+					anchor.css("top", y);
+				}
+				
+				// make the axis itself draggable for customization / deletion
+				$(text[0][0]).draggable(
+				{
+					drag:function(e, ui)
+					{
+
+				//		tSpecs2 = transformSpecs(e.target);
+						
+						dx = parseInt(ui.position.left - mouseX2);
+						dy = parseInt(ui.position.top - mouseY2);
+
+						var target;
+						target=d3.select(this);
+						console.log
+						var marknum = $(this).attr("id").split("_")[1];	
+
+
+						t = "translate(" + parseInt(groupX2+dx) + "," + parseInt(groupY2+dy) + ") ";
+						$(e.target).attr("transform", t);					
+					},
+					start: function(e, ui) {
+					//	isDragging = true;
+						tSpecs2 = transformSpecs(e.target);					
+						mouseX2 = parseInt(ui.position.left);
+						mouseY2 = parseInt(ui.position.top);
+
+						groupX2 = parseInt(tSpecs2[0]);
+						groupY2 = parseInt(tSpecs2[1]);
+					}
+				});
+			*/
+				
+	//		positionAxis($(axisgroup[0][0]));
+				
+			},
+			tolerance:"pointer"
+		});
+	
+		textanchor.appendTo($("body"));
+	//	textanchor.hide();
+	}
+}
 
 
 
@@ -748,6 +901,8 @@ var createMenus=function(markID,markcount) {
 var positionAnnotations = function(marknum) {
 	positionCloseIcon(marknum);
 	positionAxisAnchor(marknum);
+	positionTextAnchors(marknum);
+	positionTextAnnotations(marknum);
 }
 
 
@@ -784,6 +939,118 @@ var positionCloseIcon = function(marknum) {
 		icon.css("left",(minx+visarea.offset().left+Math.cos(45)*radius)+"px");
 		icon.css("top",miny+visarea.offset().top-Math.sin(45)*radius+"px");	
 	}
+}
+
+var positionTextAnchors = function(marknum)
+{
+	var markgroup = d3.select(".mark"+marknum);		
+	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+	var wh = getDimensions($("g.mark"+marknum));
+	var minx = +cleantrans[0];
+	var miny = +cleantrans[1];
+	var visarea = $("#vis");
+	var type = markGroups[marknum].type;
+
+	if(type==="rect"){
+	
+//		var thismark = markgroup.selectAll("rect").each(function(i){
+		var curmark = d3.select(markgroup.selectAll("rect.realmark")[0][0]);
+	//	console.log(curmark);
+	//		var curmark = d3.select(this);
+			
+			for(var textanchornum=0; textanchornum<3; textanchornum++)
+			{
+				var anchor = $("#textanchor_"+marknum+"_"+textanchornum);	
+				var x,y;
+
+				x = minx+visarea.offset().left+ +curmark.attr("x")+"px";
+				switch(textanchornum){
+					case 0:
+						// top
+						y = miny+ visarea.offset().top + +curmark.attr("y") - 10 + "px";
+					break;
+					case 1:
+						// middle
+						y = miny+visarea.offset().top + +curmark.attr("y") + .5*+curmark.attr("height")+"px";
+					break;
+					case 2:
+						// bottom
+						y = miny+visarea.offset().top + +curmark.attr("y") + +curmark.attr("height") + "px";		
+					break;
+								
+				}
+			
+				anchor.css("left",x);
+				anchor.css("top", y);
+			}
+//		});
+	}
+
+
+}
+
+var positionTextAnnotations = function(marknum)
+{
+
+				var parentgroup = d3.select(".mark"+marknum);
+				var parenttrans = transformSpecs($(parentgroup[0][0]));
+
+				var markgroup = d3.select(".mark"+marknum);
+				var textmarkgroup = d3.selectAll(".textcont_"+marknum);
+
+				if(textmarkgroup[0].length < 1) return;
+				
+				textmarkgroup.attr("transform","translate("+parenttrans[0]+","+parenttrans[1]+")");
+//				var textelems = markgroup.selectAll(".text")
+	
+
+				
+				markgroup.selectAll("rect.realmark").each(function(d,i)
+				{
+					var curmark = d3.select(this);
+					var myx = +d3.select(this).attr("x");
+					var myy = +d3.select(this).attr("y");	
+					var x;
+					var y;
+					var wh = getDimensions($("g.mark"+marknum));
+
+					for(var anchornum=0; anchornum<3; anchornum++){
+					
+						var textelems = textmarkgroup.selectAll(".text_"+marknum+"_"+anchornum);
+						
+						if(textelems[0].length < 1) continue;
+						
+						
+						var textbbox = getDimensions($(textelems[0][i]));
+						
+						var textanchornum = +d3.select(textelems[0][i]).attr("id").split("_")[2];		
+
+						
+						x=myx ;//+ .5*(wh[0]/(n+1)-textbbox[0]); // + .5*wh[0]/n;
+						y=myy;
+	//					console.log(wh[0] + " " + textbbox[0]);
+						
+						switch(textanchornum){
+							case 0:
+								// top
+								y = myy - 5;
+							break;
+							case 1:
+								// middle
+								y = myy + .5*Math.floor(+curmark.attr("height"));
+							break;
+							case 2:
+								// bottom
+								y = myy + Math.floor(+curmark.attr("height")) + 15;		
+							break;
+										
+						}
+
+						
+						d3.select(textelems[0][i]).transition().duration(0).attr("x",x).attr("y",y);
+					}
+				});
+
 }
 
 
@@ -1125,12 +1392,14 @@ var createMarks=function(x,y,markcount,type) {
 	  })
 	  
 	  .dblclick(function(e) {
+
 		  var marknum = $(this).attr("id").split("_")[1];
 		  //set all other containers to transparent
 			var group = svgm.selectAll(".container");
 			group.attr("opacity",0);
+	
 			updateBackgroundHighlight(marknum, .3);
-		  activeMark = marknum;
+		  activeMark = marknum;		  
 		  setPropertyEditorDefaults();
 		  //TODO: activate the property editor here
 	  })
@@ -1169,6 +1438,9 @@ var destroyMark = function(marknum) {
 	$("#closeicon_"+marknum).remove();
 	$(".axisanchor_"+marknum).remove();
 	$(".axis_"+marknum).remove();
+	$("#menudivGroup_"+marknum).remove();
+	$(".textanchor_"+marknum).remove();	
+	d3.selectAll(".textcont_"+marknum).remove();
 }
 
 
@@ -1352,14 +1624,20 @@ var dropSubMenu=function(event,ui){
 	}
 	
 	//scale axes of current plot		
+	positionAxes(marknum);
+		
+
+}
+
+var positionAxes = function(marknum)
+{
 	var axes = d3.selectAll("g.axis_"+marknum);
 	
-	axes.each(function() {
+		axes.each(function() {
 	
-	positionAxis($(this));
+		positionAxis($(this));
 			
-	});
-		
+		});
 
 }
 
@@ -1652,7 +1930,7 @@ var positionAxis = function(curaxis)
 
 }
 
-var updateArcMarks = function(marknum, radius, parameter, colname, scaleselection)
+var updateArcMarks = function(marknum, radius, parameter, colname, scaleselection, constant)
 {
 
 	var yscale;
@@ -1663,12 +1941,14 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 	
 	d3.select(".mark"+marknum+" .realmark").each(function(d,i){nodeType=this.nodeName;}); 
 	
+	console.log(constant);
+	
 	if(radius === undefined) { radius = markGroups[marknum].radius; }
 	else {	markGroups[marknum].radius = radius; }
 	// use established values if scale update
 	
 	// resize default
-	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined)
+	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined && constant === undefined)
 	{
 
 		var marks=svgm.selectAll("g.mark"+marknum)
@@ -1698,8 +1978,10 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 		{
 			for(var elem in datacolumn) datacolumn[elem] = Math.sqrt(datacolumn[elem]);
 		}
-		colorscale = makeColorScale(scaleselection, datacolumn);
-		yscale = makeQuantScale(scaleselection, datacolumn, radius);
+		if(constant === undefined) {
+			colorscale = makeColorScale(scaleselection, datacolumn);
+			yscale = makeQuantScale(scaleselection, datacolumn, radius);
+		}
 
 		
 		var logextra;
@@ -1758,19 +2040,25 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 				break;
 				
 			case "fill":
-				arcs.attr("fill",function(d,i){return colorscale(datacolumn[i]);})
+				if(constant!==undefined)
+					arcs.attr("fill",constant);
+				else
+					arcs.attr("fill",function(d,i){return colorscale(datacolumn[i]);});
 				break;
 				
 			case "stroke":
-				arcs.attr("stroke",function(d,i){return colorscale(datacolumn[i]);})
+				if(constant!==undefined)
+					arcs.attr("stroke",constant);
+				else
+					arcs.attr("stroke",function(d,i){return colorscale(datacolumn[i]);});
 				break;
 		}
 
 		
 		markGroups[marknum].addScale(parameter, new Scale(yscale, colorscale, scaleselection, colname));
-
-		if($.inArray(parameter, ["outer radius", "inner radius", "angle"])!==-1) { markGroups[marknum].majorParameter = parameter; }
-		
+		if(constant===undefined) {
+			if($.inArray(parameter, ["outer radius", "inner radius", "angle"])!==-1) { markGroups[marknum].majorParameter = parameter; }
+		}
 		marks.exit().remove();
 	
 	}
