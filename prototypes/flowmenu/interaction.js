@@ -54,9 +54,9 @@ var menus = {
 							"width":
 								["linear","logarithmic"],
 							"fill":
-								["Pallet A","Pallet B","Pallet C"],
+								["Palette A","Palette B","Palette C"],
 							"stroke":
-								["Pallet A","Pallet B","Pallet C"]}, 
+								["Palette A","Palette B","Palette C"]}, 
 								
 			"arc":
 							{"angle":
@@ -66,9 +66,9 @@ var menus = {
 							"outer radius":
 								["linear","logarithmic"],
 							"fill":
-								["Pallet A","Pallet B","Pallet C"],
+								["Palette A","Palette B","Palette C"],
 							"stroke":
-								["Pallet A","Pallet B","Pallet C"]},
+								["Palette A","Palette B","Palette C"]},
 								
 			"scatter":
 							{"x":
@@ -80,9 +80,9 @@ var menus = {
 //							"shape":
 //								["circle"],								
 							"fill":
-								["Pallet A","Pallet B","Pallet C"],
+								["Palette A","Palette B","Palette C"],
 							"stroke":
-								["Pallet A","Pallet B","Pallet C"]}, 								
+								["Palette A","Palette B","Palette C"]}, 								
 			};
 
 
