@@ -19,6 +19,10 @@ function MarkGroup(type)
 	this.majorParameter = undefined;
 	this.majorScale = undefined;
 	this.majorAxis = undefined;
+	this.xScale = undefined;
+	this.yScale = undefined;
+//	this.xParameter = "Data Index";
+//	this.yParameter = "Data Index";
 	this.radius = 50;
 	this.height = 100;
 	this.width = 50;
@@ -66,10 +70,14 @@ var menus = {"rect":
 							"stroke":
 								["Pallet A","Pallet B","Pallet C"]},
 			"scatter":
-							{"height":
+							{"x":
 								["linear","logarithmic"],
-							"width":
+							"y":
 								["linear","logarithmic"],
+							"radius":
+								["linear","logarithmic"],								
+//							"shape":
+//								["circle"],								
 							"fill":
 								["Pallet A","Pallet B","Pallet C"],
 							"stroke":
@@ -366,6 +374,7 @@ $(document).ready(function(){
 					allData[i][attr] = +response[i][attr]; //data holds number
 				}
 			}
+			allData[i]["Data Index"] = +i;
 		}
 
 		
@@ -405,6 +414,7 @@ $(document).ready(function(){
 				//$(".menudiv").hide(500); //necessary or drop won't register
 				$(".menudiv").css("visibility", "hidden");
 				$(".menudivGroup").css("visibility", "hidden");
+				$(".textanchor").hide();
 			},
 			
 			helper: "clone"
@@ -752,6 +762,7 @@ var createTextAnchors = function(markcount)
 				
 				positionTextAnnotations(marknum);
 				
+				$(".textanchor").hide();
 
 /*				for(var textanchornum=0; textanchornum<3; textanchornum++)
 				{
@@ -1162,6 +1173,7 @@ var positionFlowMenu = function(id) {
 	var visarea = $("#vis");
 	var type = markGroups[marknum].type;
 	
+	console.log(marknum);
 	if(type==="rect"){
 		menuitem.css("left",(minx+visarea.offset().left+.5*wh[0])+"px");
 		menuitem.css("top",miny+visarea.offset().top+wh[1]+20+"px");
@@ -1251,6 +1263,9 @@ var createMarks=function(x,y,markcount,type) {
 									.attr("transform", "translate(" + x + "," + y + ")")
 									.attr("id","mark_"+markcount+"_group");
 			var symbol = d3.svg.symbol();
+			var yscale = d3.scale.linear()
+						.domain([0, n-1])
+						.range([0, 100]);
 			scattercont.selectAll("path")
 				.data(dataset)
 				.enter()
@@ -1266,13 +1281,16 @@ var createMarks=function(x,y,markcount,type) {
 				.classed("realmark",true)
 				.attr("transform",function(d,i)	// position
 				{
-					return "translate("+ 0 + ","+ 0+")"; // 10*i
+					return "translate("+ yscale(i) + ","+ yscale(i)+")"; // 10*i
 				})
 				.attr("d", symbol);
 				scattercont.append("rect")	// shape
 				.classed("container",true);
 				
-				markGroups.push(new MarkGroup("scatter"));									
+				var markgroup = new MarkGroup("scatter");
+				markgroup.addScale("x", new Scale(yscale, undefined, "linear", "Data Index"));
+				markgroup.addScale("y", new Scale(yscale, undefined, "linear", "Data Index"));				
+				markGroups.push(markgroup);									
 			break;
 	}
 	
@@ -1797,24 +1815,27 @@ var positionAxes = function(marknum)
 
 
 //MAKE QUANTITATIVE SCALE
-var makeQuantScale = function(scaleselection, datacolumn, range)
+var makeQuantScale = function(scaleselection, datacolumn, range, min)
 {
 
 	var yscale;
 	var extents = d3.extent(datacolumn); 
 	// set up scale based on menu choice	
+	
+	if(min===undefined) min = 0;
+	
 	switch(scaleselection) {
 		case "linear":
 			yscale = d3.scale.linear()
 				.domain(extents)
-				.range([0, range]);
+				.range([min, range+min]);
 			break;
 		
 		case "logarithmic":
 			if(extents[0]<=0) extents[0]=1; //how to deal with zeroes?
 			yscale = d3.scale.log()
 				.domain(extents)
-				.range([0, range]);
+				.range([min, range+min]);
 			break;
 
 	}
@@ -2013,15 +2034,15 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection, constantValue)
 {
 
-	var yscale;
+	var xscale, yscale;
 	var colorscale;
-	var nodeType;
 	var dragupdate=false;
-	var transduration = 250;
-	
-	d3.select(".mark"+marknum+" .realmark").each(function(d,i){
-		nodeType=this.nodeName;
-	}); 
+	var transduration = 700;
+	var xparameter, yparater;
+	var xscaleselection, yscaleselection;
+	var xcolname, ycolname;
+	var xlogextra=0, ylogextra=0;
+
 	
 //	console.log("scatter");
 	if(newheight===undefined) { newheight = markGroups[marknum].height; }
@@ -2035,82 +2056,89 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 	
 	// use established values if scale update
 	// resize default
-	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined)
-	{
-		var marks = svgm.selectAll("g.mark"+marknum+" rect.realmark")
-		.attr("height",newheight)
-		.attr("width",newwidth)	
-	}
+	// if(colname === undefined && scaleselection === undefined && parameter === undefined)
+	// {
+		// can't scale a single mark ?
+//		var marks = svgm.selectAll("g.mark"+marknum+" rect.realmark")
+//		.attr("height",newheight)
+//		.attr("width",newwidth)	
+	// }
 	
-	else
-	{
+	// else
+	// {
+	
+			
+		xcolname = markGroups[marknum].scales["x"].columnName;
+		ycolname = markGroups[marknum].scales["y"].columnName;			
+		xscaleselection = markGroups[marknum].scales["x"].type;		
+		yscaleselection = markGroups[marknum].scales["y"].type;	
+		
 		// regular update
 		if(colname === undefined && scaleselection === undefined && parameter === undefined)
-		{
-			parameter = markGroups[marknum].majorParameter;
-			colname = markGroups[marknum].scales[parameter].columnName;
-			scaleselection = markGroups[marknum].scales[parameter].type;		
+		{	
 			dragupdate=true;
 			transduration=0;
+			parameter = "update";
+			console.log("update");
 		}
 		
 		if(constantValue===undefined) {
-			var datacolumn = dataObjectsToColumn(allData,colname);
+			if(parameter === "x") {
+				xcolname = colname;
+				xscaleselection = scaleselection;
+			}
+			else if(parameter === "y")
+			{
+				ycolname = colname;		
+				yscaleselection = scaleselection;
+			}
 		}
+		
+		if(constantValue===undefined) {
+			var xdatacolumn = dataObjectsToColumn(allData,xcolname);
+			var ydatacolumn = dataObjectsToColumn(allData,ycolname);	
+			var datacolumn = dataObjectsToColumn(allData,colname);								
+
+		}
+		
 		
 //		console.log(parameter + " " + colname + " " + scaleselection);
 			
 		var logextra;
 		logextra = scaleselection==="logarithmic" ? 1 : 0;
+		xlogextra = xscaleselection==="logarithmic" ? 1 : 0;
+		ylogextra = yscaleselection==="logarithmic" ? 1 : 0;
 
 		svgm = d3.select("svg#vis");
 
 		var marks=svgm.selectAll(".mark"+marknum+" .realmark")
 									.data(allData);
 
-		if(constantValue===undefined) {							
-			colorscale = makeColorScale(scaleselection, datacolumn);
-		}
+
 		
 		var symbol = d3.svg.symbol();
 		
 		switch(parameter) {
-			case "height":	
-			console.log("HEIGHT");				
-				yscale = makeQuantScale(scaleselection, datacolumn, newheight);
+			case "update":
+			case "x":	
+			case "y":
+				xscale = makeQuantScale(xscaleselection, xdatacolumn, newwidth);
+				yscale = makeQuantScale(yscaleselection, ydatacolumn, newheight);
 				marks.transition().duration(transduration)
-					// .attr("height",function(d,i){
-						// return yscale(d[colname]+logextra);})
-					// .attr("width",function(d,i) {
-						// return newwidth/n;})
-					// .attr("x",function(d,i){
-						// return i*newwidth/n;})
-					// .attr("y",function(d,i){
-						// return newheight-yscale(d[colname]+logextra);});
 				.attr("transform",function(d,i)
 				{
-					return "translate("+ i*newwidth/n  + ","+ yscale(d[colname]+logextra)+")";
-				})
-				.attr("d", symbol);
+					return "translate("+ xscale(d[xcolname]+xlogextra)  + ","+ yscale(d[ycolname]+ylogextra)+")";
+				});
 				break;
-				
-			case "width":
-				
-// 				if(constantValue!==undefined) {
-// 					maxWidth = $("g.mark" + marknum).data("maxWidth");
-// 					avgWidth = maxWidth/n;
-// 					
-// 					marks.transition().duration(0)
-// 						.attr("width", function(d,i) {
-// 							return constantValue;})
-// 						.attr("x",function(d,i){
-// 							pad = (avgWidth-constantValue)/2;
-// 							return i*avgWidth+pad;});
-// 					break;
-// 				}
-				
-				yscale = makeQuantScale(scaleselection, datacolumn, newwidth);
+			case "radius":
+				var scale = makeQuantScale(scaleselection, datacolumn, 200, 60);
+				symbol.size(function(d,i){ return scale(d[colname]+logextra);});
 				marks.transition().duration(transduration)
+				.attr("d", symbol);	
+				break;
+			// case "width":			
+				// yscale = makeQuantScale(scaleselection, datacolumn, newwidth);
+				// marks.transition().duration(transduration)
 					// .attr("width",function(d,i){
 						// return yscale(d[colname]+logextra);})
 					// .attr("height", function(d,i) {
@@ -2118,15 +2146,17 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 					// .attr("x",function(d,i){return 0;})	
 					// .attr("y",function(d,i){
 						// return i*newheight/n;});
-				.attr("transform",function(d,i)
-				{
-					return "translate("+ yscale(d[colname]+logextra) + ","+i*newheight/n+")";
-				})
-				.attr("d", symbol);						
-				break;
+				// .attr("transform",function(d,i)
+				// {
+					// return "translate("+ yscale(d[colname]+logextra) + ","+i*newheight/n+")";
+				// })
+				// .attr("d", symbol);						
+				// break;
+				
 			
 			case "fill":
 				if(constantValue===undefined) {
+					colorscale = makeColorScale(scaleselection, datacolumn);
 					marks.attr("fill",function(d,i){
 						return colorscale(d[colname]);
 					})
@@ -2139,6 +2169,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 				
 			case "stroke":
 				if(constantValue===undefined) {
+					colorscale = makeColorScale(scaleselection, datacolumn);				
 					marks.attr("stroke",function(d,i){
 						return colorscale(d[colname]);
 					})
@@ -2153,26 +2184,29 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 
 		// scale axes of current plot		
 		var axes = d3.selectAll("g.axis_"+marknum);
-		if((markGroups[marknum].majorParameter === "height" && parameter==="width") || (markGroups[marknum].majorParameter === "width" && parameter==="height"))	{
-			axes.remove();
-		}
-		else {
+		// if((markGroups[marknum].majorParameter === "height" && parameter==="width") || (markGroups[marknum].majorParameter === "width" && parameter==="height"))	{
+			// axes.remove();
+		// }
 			axes.each(function(){		
 				positionAxis($(this));});		
-		}
-		
-		markGroups[marknum].addScale(parameter, new Scale(yscale, colorscale, scaleselection, colname));
+	
 
 		if(constantValue===undefined) {
-			if($.inArray(parameter, ["height", "width"])!==-1) { 
-				markGroups[marknum].majorParameter = parameter;
-				markGroups[marknum].majorScale = yscale;
+			if(parameter === "x")
+			{
+				markGroups[marknum].addScale("x", new Scale(xscale, colorscale, scaleselection, colname));			
+				markGroups[marknum].xScale = xscale;
+			}
+			else if(parameter === "y")
+			{
+				markGroups[marknum].addScale("y", new Scale(yscale, colorscale, scaleselection, colname));				
+				markGroups[marknum].yScale = yscale;			
 			}
 		}
 		
 		marks.exit().remove();
 	
-	}
+	// }
 
 }
 
