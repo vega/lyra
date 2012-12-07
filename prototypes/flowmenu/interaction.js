@@ -214,6 +214,18 @@ $(document).ready(function(){
 // 	});
 
 
+	
+	$("rect.guideline").hide();
+	//Toggle Guidelines
+	$("input#toggleGuidelines").click(function() {
+		console.log("HERE");
+		if($("rect.guideline").eq(0).css("display") == "none") {
+			$(this).val("TURN OFF");
+		} else {
+			$(this).val("TURN ON");
+		}
+		$("rect.guideline").toggle();
+	});
 
 	//Property Editor Change: Bar Fill Color
 	$("input#barFillColor").change(function() {

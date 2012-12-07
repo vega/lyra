@@ -10,6 +10,9 @@
   <script src="./jquery-ui-1.9.1.custom.js"></script>
 	<script src="./d3.v2.js" type="text/javascript"></script>
   <script src="./interaction.js"></script>
+  
+  <link href='http://fonts.googleapis.com/css?family=Amaranth:700' rel='stylesheet' type='text/css'>
+	
 </head>
 
 
@@ -19,6 +22,7 @@
 
 	<div id="leftSide">
 		<div id="toolbar">
+			<div class="header" id="header1">MARKS</div>
 			<div id="draggable_rect" class="mark blueBox"> <svg id="rectdrag" width="50" height="50"></svg> </div>
 			<div id="draggable_arc" class="mark blueBox"> <svg id="arcdrag" width="50" height="50"></svg> </div>
 			<div id="draggable_scatter" class="mark blueBox"> <svg id="scatterdrag" width="50" height="50"></svg> </div>	
@@ -27,6 +31,7 @@
 		</div>
 		
 		<div id="sidebar">
+	    <div class="header" id="header2">DATA COLUMNS</div>
 	    <div id="data">
 	      <ul></ul>
 	    </div>
@@ -36,26 +41,46 @@
 		<div id="propertyEditor">
 			<!--<p>Update Bar Widths:</p>
 			<input type="range" name="barWidthSlider" id="barWidthSlider" min="10" max="100" step="1" value="100" style="width: 242px"/>-->
+			<div class="header" id="header3">PROPERTY EDITOR</div>
 			
 			<table>
 				<tr>
-					<td class="propertyEditorHeader">Primary Color:</td>
+					<td class="propertyEditorHeader">Fill Color:</td>
 					<td class="propertyEditorWidget">
 						<input class="colorInput" type="color" name="barFillColor" id="barFillColor"/>
 					</td>
 				</tr>
 				
 				<tr>
-					<td class="propertyEditorHeader">Secondary Color:</td>
+					<td class="propertyEditorHeader">Background Color:</td>
 					<td class="propertyEditorWidget">
 						<input class="colorInput" type="color" name="barStrokeColor" id="barStrokeColor"/>
 					</td>
 				</tr>
 				
 				<tr>
-					<td class="propertyEditorHeader">Font Size:</td>
+					<td class="propertyEditorHeader">Text Size:</td>
 					<td class="propertyEditorWidget">
 						<div class="pixelInput"><input type="text" name="updateFontSize" id="updateFontSize"/> px</div>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="propertyEditorHeader">Text Font:</td>
+					<td class="propertyEditorWidget">
+						<div class="textInput"><input type="text" name="updateTextFont" id="updateTextFont" value="Verdana"/></div>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="propertyEditorHeader">Bold/Italics/ULine:</td>
+					<td class="propertyEditorWidget">
+						<div class="buttonInput">
+							<input type="submit" name="boldButton" id="boldButton" value="B" style='font-weight:bold'/>
+							<input type="submit" name="italButton" id="italButton" value="I" style='font-style:italic'/>
+							<input type="submit" name="ulneButton" id="ulneButton" value="U" style='text-decoration:underline'/>
+							
+						</div>
 					</td>
 				</tr>
 				
@@ -72,6 +97,15 @@
 						<div class="pixelInput"><input type="text" name="updateYPos" id="updateYPos"/> px</div>
 					</td>
 				</tr>
+				
+				<tr>
+					<td class="propertyEditorHeader">Toggle Guidelines:</td>
+					<td class="propertyEditorWidget">
+						<div><input style='width:97px' type="submit" name="toggleGuidelines" id="toggleGuidelines" value="TURN ON"/></div>
+					</td>
+				</tr>
+				
+				
 			</table>
 			
 		</div>
@@ -83,6 +117,60 @@
 		<div id="region">
 			<svg id="vis" width="2000" height="3000" xmlns="http://www.w3.org/2000/svg">
 			 <!--   <rect x="200" y="200" width="50" height="100" fill="steelblue" stroke="#ccc" stroke-width="2"></rect> -->
+			 
+				<rect class='guideline vguideline' x="0" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="100" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="200" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="300" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="400" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="500" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="600" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="700" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="800" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="900" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="1000" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="1100" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="1200" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="1300" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="1400" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="1500" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="1600" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="1700" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="1800" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="1900" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				<rect class='guideline vguideline' x="2000" y='0' width='2' height='3000' fill='#e0e0e0'></rect>
+				
+				<rect class='guideline hguideline' x="0" y='0' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='100' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='200' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='300' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='400' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='500' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='600' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='700' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='800' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='900' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='1000' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='1100' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='1200' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='1300' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='1400' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='1500' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='1600' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='1700' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='1800' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='1900' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='2000' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='2100' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='2200' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='2300' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='2400' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='2500' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='2600' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='2700' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='2800' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='2900' width='2000' height='2' fill='#e0e0e0'></rect>
+				<rect class='guideline hguideline' x="0" y='3000' width='2000' height='2' fill='#e0e0e0'></rect>
 			</svg>
 		</div>
 	</div>

@@ -21,6 +21,17 @@ div#leftSide {
 	z-index:5; /* important to make sure its z-index is greater than that of div#rightSide for good fixed scrolling */
 }
 
+		div.header {
+			font-family: 'Amaranth', sans-serif;
+			font-size: 18px;
+			text-align:center;
+			background-color:black;
+			color:white;
+			padding-top:2px;
+			padding-bottom:2px;
+		}
+		
+
 div#rightSide {
 	position:absolute;
 	left:250px;
@@ -35,8 +46,8 @@ div#rightSide {
 
 div#toolbar {
   position:relative;
-  height:130px;
-  border-bottom:2px solid #000;
+  height:160px;
+  //border-bottom:2px solid #000;
   margin-bottom:10px;
 }
 		
@@ -61,31 +72,31 @@ div#toolbar {
 		div#draggable_rect {
 			position:absolute;
 			left:32px;
-			top:10px;
+			top:30px;
 		}
 		
 		div#draggable_arc {
 			position:absolute;
 			left:97px;
-			top:10px;
+			top:30px;
 		}
 		
 		div#draggable_scatter {
 			position:absolute;
 			left:162px;
-			top:10px;
+			top:30px;
 		}
 		
 		div#draggable_axis {
 			position:absolute;
 			left:65px;
-			top:70px;
+			top:90px;
 		}
 		
 		div#draggable_text {
 			position:absolute;
 			left:130px;
-			top:70px;
+			top:90px;
 		}
 
 		
@@ -94,8 +105,8 @@ div#toolbar {
 
 div#sidebar {
   position:relative;
-  border-bottom:2px solid #000;
-  margin-bottom:10px;
+  //border-bottom:2px solid #000;
+  margin-bottom:20px;
 }
 
 		#data ul {
@@ -141,7 +152,7 @@ div#propertyEditor {
 		}
 		
 		td.propertyEditorHeader {
-			width:110px;
+			width:120px;
 			vertical-align:middle;
 			font-size:12px;
 			font-family:Verdana, Georgia, sans-serif;
@@ -160,9 +171,28 @@ div#propertyEditor {
 			width:90%;
 		}
 		
-		td.propertyEditorWidget div.pixelInput input {
-			width:75px;
+		td.propertyEditorWidget div.textInput {
+			width:90%;
 		}
+		
+		td.propertyEditorWidget div.buttonInput {
+			width:90%;
+		}
+		
+		td.propertyEditorWidget div.pixelInput input {
+			width:70px;
+		}
+		
+		td.propertyEditorWidget div.textInput input {
+			width:100px;
+		}
+		
+		td.propertyEditorWidget div.buttonInput input {
+			width:29px;
+		}
+		
+
+		
 
 
 
