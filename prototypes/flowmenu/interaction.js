@@ -1,55 +1,54 @@
-var svgm; //stores all active intermediate objects
+var svgm; //stores all active intermediate objects => svgm = d3.select("svg#vis")
 var marks=[]; //intermediate link between the data, d3, and its dropzones
-var markcount=0; //number of marks on screen
+var markcount=0; //number of marks on screen, which increments any time a high-level mark is dropped onto the "region"
 
-var dataset = [];
-var zonewidth=50;
-var n;
-var allData=[];
-var markGroups=[];
+var dataset = []; //dataset for a mark
+//var zonewidth=50; 
+var n; //number of rows in your dataset
+var allData=[]; //the entire CSV you imported
+var markGroups=[]; //collection of MarkGroup objects
 
+//colors10 used to cycle through background colors for markGroups
 var colors10 = new Array("#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf");
 var activeMark = -1; //index of the active mark (the one whose property editor will work for)
 var overMarks = false; //false if mouse is not over marks; true if mouse is over a mark group (to register clicks on non-marks)
 
 //MARKGROUP OBJECT
-function MarkGroup(type)
-{
-	this.scales = {}; // maps visual property -> scale object
-	this.majorParameter = undefined;
-	this.majorScale = undefined;
-	this.majorAxis = undefined;
-	this.xScale = undefined;
-	this.yScale = undefined;
+function MarkGroup(markType) {
+	this.scales = {}; //maps visual property -> scale object
+	this.majorParameter = undefined; //major encoded parameter
+	this.majorScale = undefined; //major scale
+	this.majorAxis = undefined; //major axis, either xscale or yscale
+	this.xScale = undefined; //xscale = makeQuantScale(xscaleselection, xdatacolumn, newwidth);
+	this.yScale = undefined; //yscale = makeQuantScale(yscaleselection, ydatacolumn, newheight);
 //	this.xParameter = "Data Index";
 //	this.yParameter = "Data Index";
-	this.radius = 50;
-	this.height = 100;
-	this.width = 50;
-	this.type=type;
+	this.radius = 50; //DEFAULT radius
+	this.height = 100; //DEFAULT height
+	this.width = 50; //DEFAULT width
+	this.type = markType; //type of MarkGroup, namely: rect, arc, scatter
 	
-	this.addScale = function(property, newscale)
-	{
+	//adds to scales array
+	this.addScale = function(property, newscale) {
 		this.scales[property] = newscale;
 	}
-
 }
 
 
 
 //SCALE OBJECT
-function Scale(scaleobj, colorscale, type, columnName)
-{
+function Scale(scaleobj, colorscale, markType, columnName) {
 	this.scaleobj = scaleobj;
 	this.colorscale = colorscale;
-	this.type = type;
+	this.type = markType;
 	this.columnName = columnName;
 }
 
 
 
 //MENUS ARRAY
-var menus = {"rect":
+var menus = {
+			"rect":
 							{"height":
 								["linear","logarithmic"],
 							"width":
@@ -58,6 +57,7 @@ var menus = {"rect":
 								["Pallet A","Pallet B","Pallet C"],
 							"stroke":
 								["Pallet A","Pallet B","Pallet C"]}, 
+								
 			"arc":
 							{"angle":
 								["linear","logarithmic"],
@@ -69,6 +69,7 @@ var menus = {"rect":
 								["Pallet A","Pallet B","Pallet C"],
 							"stroke":
 								["Pallet A","Pallet B","Pallet C"]},
+								
 			"scatter":
 							{"x":
 								["linear","logarithmic"],
@@ -85,9 +86,17 @@ var menus = {"rect":
 			};
 
 
+			
 var menulabels;
 var extents;
 
+
+
+
+//CONVENIENCE METHOD TO GET THE MARK NUMBER OF A SELECTOR
+function getMarkNum(selector) {
+	return selector.attr("id").split("_")[1];
+}
 
 
 
@@ -103,7 +112,7 @@ function dataObjectsToColumn(objectArray,colname){
 
 
 
-//GRABBED THIS UTILITY FUNCTION FROM ONLINE
+//GRABBED THIS UTILITY FUNCTION ONLINE TO CONVERT RGB TO HEX VALUES
 function rgb2hex(rgb) {
 	console.log("RGB: " + rgb);
 	
@@ -118,7 +127,7 @@ function rgb2hex(rgb) {
 
 
 function setPropertyEditorDefaults() {
-
+	//If there is a "note" active
 	if($("div#note_" + activeMark).length==1) {
 		$("input#barFillColor").val(rgb2hex($("div#note_" + activeMark).css("color")));
 		$("input#barStrokeColor").val(rgb2hex($("div#note_" + activeMark).css("background-color")));
@@ -134,54 +143,56 @@ function setPropertyEditorDefaults() {
 		topPos = $("div#note_" + activeMark).css("top");
 		topPos = parseInt(topPos.split("px")[0]);
 		$("input#updateYPos").val(topPos-112);
-	} else {
-		var type = markGroups[activeMark].type;
-		var mark = d3.select("g#mark_" + activeMark + "_group");
-		var markjq = $("g#mark_" + activeMark + "_group");		
-		var tSpecs = transformSpecs(mark[0][0]);
+	} 
+	
+	//Otherwise, the active mark is not a "note"
+	else {
+		var markType = markGroups[activeMark].type;
+		var markD3 = d3.select("g#mark_" + activeMark + "_group");
+		var markJQ = $("g#mark_" + activeMark + "_group");		
+		var tSpecs = transformSpecs(markD3[0][0]); //get translateX, translateY, {scaleX, scaleY}
 		
-		// get axis text props here
+		//TODO: get axis text props here
 		
-		if(type === "rect")
-		{
-			var rect = mark.select("rect.realmark");
-			var axis = $(".axis_"+activeMark); 
-			$("input#barFillColor").val(rect.attr("fill"));
-			$("input#barStrokeColor").val(rect.attr("stroke"));
+		switch(markType) {
 			
-			if(axis.length>0){
-			fontSz = axis.css("font-size");
-	//		fontSz = markjq.css("font-size");
-			fontSz = parseInt(fontSz.split("px")[0]); 
-			$("input#updateFontSize").val(fontSz); }
+			case "rect":
+				var rect = markD3.select("rect.realmark");
+				var axis = $(".axis_" + activeMark); 
+				$("input#barFillColor").val(rect.attr("fill"));
+				$("input#barStrokeColor").val(rect.attr("stroke"));
+				
+				if(axis.length>0){
+				fontSz = axis.css("font-size");
+				fontSz = parseInt(fontSz.split("px")[0]); 
+				$("input#updateFontSize").val(fontSz); }
+				
+				$("input#updateXPos").val(tSpecs[0]);
+				
+				$("input#updateYPos").val(tSpecs[1]);
+			break;
 			
-			$("input#updateXPos").val(tSpecs[0]);
+			case "arc":
+				var myarcgroup = markD3.select("g.arc");
+							console.log(myarcgroup[0][0]);
+				var singlearc = myarcgroup.selectAll("path"); 	// if this is a select, bad bad things happen, d3 bug?
+				$("input#barFillColor").val(singlearc.attr("fill"));
+				$("input#barStrokeColor").val(singlearc.attr("stroke"));
+				
+				fontSz = markJQ.css("font-size");
+				fontSz = parseInt(fontSz.split("px")[0]);
+				$("input#updateFontSize").val(fontSz);
+				
+				$("input#updateXPos").val(tSpecs[0]);
+				
+				$("input#updateYPos").val(tSpecs[1]);			
 			
-			$("input#updateYPos").val(tSpecs[1]);		
-		
+				singlearc = 0;
+			break;
 		}
-		else if(type === "arc")
-		{ 
-			var myarcgroup = mark.select("g.arc");
-						console.log(myarcgroup[0][0]);
-			var singlearc = myarcgroup.selectAll("path"); 	// if this is a select, bad bad things happen, d3 bug?
-			$("input#barFillColor").val(singlearc.attr("fill"));
-			$("input#barStrokeColor").val(singlearc.attr("stroke"));
-			
-			fontSz = markjq.css("font-size");
-			fontSz = parseInt(fontSz.split("px")[0]);
-			$("input#updateFontSize").val(fontSz);
-			
-			$("input#updateXPos").val(tSpecs[0]);
-			
-			$("input#updateYPos").val(tSpecs[1]);			
-		
-			singlearc = 0;
-		}	
+
 		//TODO: Do this for other marks besides text marks
-
 	}
-
 }
 
 
@@ -190,150 +201,89 @@ function setPropertyEditorDefaults() {
 //EVERYTHING TO DO WHEN THE DOCUMENT LOADS
 $(document).ready(function(){
 		
-	$("div#region").click(function() {
-		if(!overMarks) {
-			//set all containers to transparent
-			svgm = d3.select("#region");
-			var group = svgm.selectAll(".container");
-			group.attr("opacity",0);
-			
-			$("div.note").css("border", "1px solid #fff");
-			$("div.note").removeClass("selectedNote")
-
-			activeMark = -1; //reset activeMark status to -1
-		}
-	});
-	
-/*	$("div#region").dblclick(function() {
-		if(!overMarks)
-		{
-			activeMark = -1; //reset activeMark status to -1
-		}
-	
-	});*/
-	
-	
-	
 	//Bar Width Slider Receive Events
-	$("input#barWidthSlider").change(function() {
-		v = $("input#barWidthSlider").val();
-		
-		maxWidth = $("g.mark" + activeMark).data("maxWidth");
-		console.log("MAX WIDTH: " + maxWidth);
-		
-		
-		v = maxWidth/n*v/100;
-		console.log("V: " + v);
-		
-		//rects = $("g.mark0 rect.realmark");
-		
-		//updateRectMarks(activeMark, undefined, undefined, "width", undefined, "logarithmic", v);
-// 		for(i=0; i<rects.length; i++) {
-// 			newW = $(rects[i]).data("referenceW")*v/100;
-// 			$(rects[i]).attr("width", newW)
-// 			
-// 			x = $(rects[i]).attr("x");
-// 			
-// 			if(i<=1) {
-// 				console.log(x);
-// 				console.log($(rects[i]).data("referenceX"));
-// 				console.log($(rects[i]).data("referenceW")-newW);
-// 				console.log("---");
-// 			}
-// 			
-// 			
-// 			
-// 			$(rects[i]).attr("x", $(rects[i]).data("referenceX")+(($(rects[i]).data("referenceW")-newW)/2));
-// 		}
-	});
-	
-	
-	//Get references and store them in the HTML element's data()
-// 	$("input#barWidthSlider").mouseenter(function() {
-// 		slideStartW = $("g.mark0 rect").eq(0).attr("width");
-// 		slideStartX = $("g.mark0 rect").eq(0).attr("x");
+// 	$("input#barWidthSlider").change(function() {
+// 		v = $("input#barWidthSlider").val();
 // 		
-// 		rects = $("g.mark0 rect.realmark");
-// 		for(i=0; i<rects.length; i++) {
-// 			//If it doesn't have data, give it data for referenceX
-// 			if(!$(rects[i]).data("referenceX")) {
-// 				console.log("REF-X CHANGE for " + i);
-// 				$(rects[i]).data("referenceX", parseInt($(rects[i]).attr("x")));
-// 			}
-// 			
-// 			//If it doesn't have data, give it data for referenceW
-// 			if(!$(rects[i]).data("referenceW")) {
-// 				$(rects[i]).data("referenceW", parseInt($(rects[i]).attr("width")));
-// 			}
-// 		}
+// 		maxWidth = $("g.mark" + activeMark).data("maxWidth");
+// 		console.log("MAX WIDTH: " + maxWidth);
+// 		
+// 		
+// 		v = maxWidth/n*v/100;
+// 		console.log("V: " + v);
 // 	});
-	
-// 	$("input#barWidthSlider").mouseout(function() {
-// 		console.log("MOUSE OUT");
-// 	});
-	
-	
-	
-	
-	//Bar Fill Color
+
+
+
+	//Property Editor Change: Bar Fill Color
 	$("input#barFillColor").change(function() {
 		v = $("input#barFillColor").val();
-		if(activeMark!=-1) {
-			if($("div#note_" + activeMark).length==1) {
-				$("div#note_" + activeMark).css("color", v);
-			} else {
-				v = $("input#barFillColor").val();
-				var type = markGroups[activeMark].type;
-				if(type === "rect"){
+		
+		if(activeMark==-1) { return; } //only change the active mark; if there is no active mark, activeMark set to -1
+		
+
+		if($("div#note_" + activeMark).length==1) {
+			$("div#note_" + activeMark).css("color", v); //change color of "note"
+		} 
+		else {
+			v = $("input#barFillColor").val();
+			var markType = markGroups[activeMark].type;
+			
+			switch(markType) {
+				case "rect" :
 					updateRectMarks(activeMark, undefined, undefined, "fill", undefined, "logarithmic", v);
-				}
-				else if(type === "arc")
-				{
+				break;
+				
+				case "arc" :
 					updateArcMarks(activeMark, undefined, "fill", undefined, undefined, v);
-				}
+				break;
 			}
 		}
 	});
 	
 	
-	//Bar Stroke Color
+	//Property Editor Change: Bar Stroke Color
 	$("input#barStrokeColor").change(function() {
 		v = $("input#barStrokeColor").val();
 		
-		if(activeMark!=-1) {
-			if($("div#note_" + activeMark).length==1) {
-				$("div#note_" + activeMark).css("backgroundColor", v);
-			} else {
-				v = $("input#barStrokeColor").val();
-				var type = markGroups[marknum].type;
-				if(type === "rect")
+		if(activeMark==-1) { return; } //only change the active mark; if there is no active mark, activeMark set to -1
+		
+		if($("div#note_" + activeMark).length==1) {
+			$("div#note_" + activeMark).css("backgroundColor", v); //change background color of "note"
+		} 
+		else {
+			v = $("input#barStrokeColor").val();
+			var markType = markGroups[marknum].type;
+			
+			switch(markType) {
+				case "rect" :
 					updateRectMarks(activeMark, undefined, undefined, "stroke", undefined, "logarithmic", v);
-				else if(type === "arc")
-				{
+				break;
+				
+				case "arc" :
 					updateArcMarks(activeMark, undefined, "fill", undefined, undefined, v);
-				}
+				break;
 			}
 		}
 	});
 	
 	
 	
-	//Text Size
+	//Property Editor Change: Text Size
 	$("input#updateFontSize").change(function() {
-		if(activeMark!=-1) {
-			if($("div#note_" + activeMark).length==1) {
-				$("div#note_" + activeMark).css("font-size", $("input#updateFontSize").val() + "px");
-			}
-			else
-			{
-				$(".axis_"+activeMark).css("font-size", $("input#updateFontSize").val() + "px");
-			}
+		if(activeMark==-1) { return; } //only change the active mark; if there is no active mark, activeMark set to -1
+		
+		
+		if($("div#note_" + activeMark).length==1) {
+			$("div#note_" + activeMark).css("font-size", $("input#updateFontSize").val() + "px");
+		} else {
+			$(".axis_" + activeMark).css("font-size", $("input#updateFontSize").val() + "px");
 		}
+
 	});
 	
 	
-	
-	//X Position
+	//Property Editor Change: X Position
 	$("input#updateXPos").change(function() {
 		v = parseInt($("input#updateXPos").val());
 		
@@ -346,7 +296,8 @@ $(document).ready(function(){
 		}
 	});
 
-	//Y Position
+	
+	//Property Editor Change: Y Position
 	$("input#updateYPos").change(function() {
 		v = parseInt($("input#updateYPos").val());
 
@@ -359,12 +310,14 @@ $(document).ready(function(){
 		}
 	});
 	
-	createDraggableIcons();	
+	
+	createDraggableIcons();	//create draggable icons (the top-level marks)
 
+	
+	
 
 	//READ IN DATA FROM CSV FILE AND POPULATE LIST OF COLUMNS OF DATA VARIABLE NAMES
 	d3.csv("./olympics.csv", function(response) {
-		//use d3 loader instead?
 		for (var i in response) {
 			allData[i]={};
 			for(var attr in response[0]) {
@@ -374,10 +327,9 @@ $(document).ready(function(){
 					allData[i][attr] = +response[i][attr]; //data holds number
 				}
 			}
-			allData[i]["Data Index"] = +i;
+			allData[i]["Data Index"] = +i; //include data index as variable as well
 		}
 
-		
 		//populate list of columns
 		for(var label in allData[0]) {
 			var newelement=$("<li class='column'></li>");
@@ -389,15 +341,14 @@ $(document).ready(function(){
 		//column class for each variable in the data
 		$(".column").draggable({
 			
+			//When you start to drag a column, position its flow menu and text anchors appropriately
 			start:function(event,ui){
-				//position its flow menu
 				$(".menudivGroup").each(function(index) {		
 					positionFlowMenu($(this).attr("id"));					
 				});		
-				// position text anchors
-				$(".textanchor").each(function(i)
-				{
-					var marknum = $(this).attr("id").split("_")[1];
+
+				$(".textanchor").each(function(i) {
+					var marknum = getMarkNum($(this));
 					if(markGroups[marknum].majorParameter !== undefined) {
 						positionAnnotations(marknum);	
 						$(this).show();
@@ -409,9 +360,8 @@ $(document).ready(function(){
 				$(".menudivGroup").css("visibility", "visible");			
 			},
 			
-			//make its top-level flow menu DIVs hidden
+			//make its top-level flow menu DIVs invisible/hidden
 			stop:function(event,ui){
-				//$(".menudiv").hide(500); //necessary or drop won't register
 				$(".menudiv").css("visibility", "hidden");
 				$(".menudivGroup").css("visibility", "hidden");
 				$(".textanchor").hide();
@@ -419,38 +369,37 @@ $(document).ready(function(){
 			
 			helper: "clone"
 		});
-		//.draggable("option","helper","clone");
 	});
 	//END OF READING IN DATA
 	
 	
 	
+
 	//MARK BOXES AT TOP OF SCREEN	
   $(".mark").draggable()
 						.draggable("option", "revert", "invalid") 
 						.draggable("option", "helper", "clone"); //duplicate of draggable moves with cursor
 						
-						
-	$(".axismark").draggable(
-	{
+	//When you drag an axismark...
+	$(".axismark").draggable({
 		revert:"invalid",
 		
 		helper:"clone",
 		
 		start:function(event,ui){
-			$(".axisanchor").each(function(index) {
-				var marknum = $(this).attr("id").split("_")[1];
-				positionAnnotations(marknum);
+			$(".axisanchor").each(function(index) { //do so for everything of class axisanchor
+				var marknum = getMarkNum($(this));
+				positionAnnotations(marknum); //position annotations for the mark num
 			});
 			
 			//only show allowed anchors
 			$(".axisanchor").each(function(index) {
 				var myid = $(this).attr("id");
-				var marknum = myid.split("_")[1];
+				var marknum = getMarkNum($(this));
 				var anchornum = +myid.split("_")[2];
 				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
 				if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===2)) return;
-				// change to support axes
+				//TODO: change to support axes
 				$(this).show();
 			});
 		},
@@ -462,40 +411,52 @@ $(document).ready(function(){
 	});
 	
 
-	$("#region").click(function()
-	{
-		// needed for text mark
-		$(".note").draggable("enable");
+	//When region is clicked, an active mark is no longer active
+	$("div#region").click(function() {
+		$(".note").draggable("enable"); //needed for text mark
 		
-		// clean empty marks
+		
 		$(".note").each(function(){
-			if($(this).text().length === 0) $(this).remove();
+			if($(this).text().length === 0) $(this).remove(); //clean empty marks
 		});
+		
+		
+		//Check if mouse over a markGroup since the region will intercept those click events too
+		if(!overMarks) {
+			d3.selectAll("#region .container").attr("opacity",0); //set all containers to transparent
+			
+			$("div.note").css("border", "1px solid #fff");
+			$("div.note").removeClass("selectedNote");
+
+			activeMark = -1; //reset activeMark status to -1
+		}
 	});
+	
+	
 	
 	
 	//Region is everything below the marks div								
   $("#region").droppable({
 		accept: ".mark",
 		
-		drop: function( event, ui ) {
+		drop: function(event,ui) {
 			var x,y;
 			var dragged=ui.draggable;
 			var visarea = $("#vis");
-			x=event.pageX - visarea.offset().left;
-			y=event.pageY - visarea.offset().top;
+			x=event.pageX - visarea.offset().left; //TODO: remove if absolute positioning?
+			y=event.pageY - visarea.offset().top; //TODO: remove if absolute positioning?
 			xmlns = "http://www.w3.org/2000/svg";
 			
-			//handle text marks specially
+			//Specifically handle text marks
 			if(dragged.hasClass("textmark")) {
 				var markID = $(dragged).attr("id").split("_")[1];
 				svgm = d3.select("svg#vis");
-				var textbox=$("<div class=\"note\" id=\"note_"+markcount+"\" contenteditable=true style=\"position:absolute;\">Lorem Ipsum</div>");
+				var textbox=$("<div class='note' id='note_" + markcount + "' style='position:absolute' contenteditable=true>Lorem Ipsum</div>");
 				
-				//from jeff - i think this logic is correct here on the textboxes
+				//Event handlers for textboxes
 				textbox.focusin(function() {
 					$(this).css("cursor", "text");
-					var marknum = $(this).attr("id").split("_")[1];
+					var marknum = getMarkNum($(this));
 					activeMark = marknum;
 					setPropertyEditorDefaults();
 					$(this).css("border", "2px solid " + colors10[marknum]);
@@ -524,42 +485,39 @@ $(document).ready(function(){
 					}
 				});
 				
-				textbox.css("left",(event.pageX)+"px");
-				textbox.css("top",event.pageY+"px");
+				textbox.css("left", event.pageX + "px");
+				textbox.css("top", event.pageY + "px");
 				
 				textbox.draggable();
 				textbox.click(function(){
-
-				textbox.draggable("disable");
-				textbox.removeClass("ui-state-disabled"); // removes greying
+					textbox.draggable("disable");
+					textbox.removeClass("ui-state-disabled"); // removes greying
 				});
 				
 				textbox.appendTo($("body"));
-				//global mark index
+
 				markcount++;
 				markGroups.push(new MarkGroup("textbox"));
 					
 				return;
 			}
 			
+			//If the dragged item is a mark
 			if(dragged.hasClass("mark")) {
 				var markID = $(dragged).attr("id").split("_")[1];
 				svgm = d3.select("svg#vis");
 
 				dataset=[];
 				n=allData.length;
-//					console.log(n);
-				for(var i=0; i<n;i++) dataset.push(1);
 
-				// make mark svg element group and elements
-				createMarks(x,y,markcount,markID);
+				for(var i=0; i<n;i++) {
+					dataset.push(1);
+				}
 
-				//make 1st and 2nd level menus for each graph
-				createMenus(markID,markcount);
-				
+				createMarks(x,y,markcount,markID); //make mark svg element group and elements
+				createMenus(markID,markcount); //make 1st and 2nd level menus for each graph
 				createAnnotations(markID,markcount);
-
-				//global mark index
+				
 				markcount++;
 			}
 		}
@@ -568,8 +526,20 @@ $(document).ready(function(){
 });
 //END OF EVERYTHING TO DO WHEN THE DOCUMENT LOADS
 
-var createDraggableIcons = function()
-{
+
+
+
+
+
+
+
+
+
+
+
+//CREATE DRAGGABLE ICONS (THE TOP LEVEL MARKS)
+var createDraggableIcons = function() {
+		//Make arc icon
 		var arc = d3.svg.arc();
 		var dragmark = 	d3.select("#arcdrag");
 		var group = dragmark.append("g");
@@ -580,19 +550,21 @@ var createDraggableIcons = function()
 		group.attr("transform","translate(15,40)");
 		group.append("path").attr("d", arc); 
 		
+		//Make axis icon
 		var axis = d3.svg.axis();
 		var dragmark = 	d3.select("#axisdrag");
 		var group = dragmark.append("g");
 		var normalscale = d3.scale.linear();
 			normalscale.domain([0,5]).range([35,0]);
 			axis.orient("left");
-
+			
 		axis.scale(normalscale);
 		axis.ticks(5);
 		group.attr("height",50);
 		group.attr("transform","translate(25,8)");		
 		group.call(axis);	
 		
+		//Make rect icon
 		var dragmark = d3.select("#rectdrag");
 		dragmark.append("rect")
 				.attr("height",35)
@@ -600,6 +572,7 @@ var createDraggableIcons = function()
 				.attr("x",17.5)
 				.attr("y",7.5);
 				
+		//Make scatter icon
 		var dragmark = d3.select("#scatterdrag");
 		var tempdata = [2, 1, 3, 2, 4, 6, 8, 6];
 		var tempsymbol = d3.svg.symbol();
@@ -610,55 +583,56 @@ var createDraggableIcons = function()
 					return "translate("+ (5*i + 5) + ","+ (50 - 5*tempdata[i] ) +")"; // 10*i
 				})
 				.attr("d", tempsymbol);
-		
 }
 
 
 
-var createAnnotations = function(markID,markcount)
-{
-	var closeicon;
+
+
+
+
+
+//CREATE ANNOTATIONS: CLOSE ICON & TEXT ANCHORS
+var createAnnotations = function(markID,markcount) {
 	
-	// make close icon
-	closeicon=$("<div class=\"closeicon\" id=\"closeicon_"+markcount+"\" style=\"position:absolute;\">X</div>");
+	//CLOSE ICON
+	var closeicon=$("<div class='closeicon' id='closeicon_" + markcount + "' style='position:absolute;'>X</div>");
 	
-	closeicon.mouseenter(function()
-	{
-		var marknum = $(this).attr("id").split("_")[1];
+	closeicon.mouseenter(function() {
+		var marknum = getMarkNum($(this));
 		$(this).show();
 		updateBackgroundHighlight(marknum, .3);
 	});
-	closeicon.click(function()
-	{
-		var marknum = $(this).attr("id").split("_")[1];
+	
+	closeicon.click(function() {
+		var marknum = getMarkNum($(this));
 		destroyMark(marknum);
 	});
 	
-	closeicon.appendTo($("body"));
+	$("body").append(closeicon);
 	closeicon.hide();
 	
-	// text anchors
 	
+	//TEXT ANCHORS
 	createTextAnchors(markcount);
-	
 	
 	var axisanchor;
 	
-	for(var axisanchornum=0; axisanchornum<4; axisanchornum++)
-	{
-		axisanchor =  $("<div class=\"axisanchor axisanchor_"+markcount+"\" id=\"axisanchor_"+markcount+"_"+axisanchornum+"\" style=\"position:absolute;\"></div>")
+	for(var axisanchornum=0; axisanchornum<4; axisanchornum++) {
+		axisanchor = $("<div class='axisanchor axisanchor_" + markcount + "' id='axisanchor_" + markcount + "_" + axisanchornum + "' style='position:absolute;'></div>")
 	
 		axisanchor.droppable({
 			accept:".axismark",
-			drop:function(event,ui)
-			{
-			// create axis
+			
+			drop:function(event,ui) {
+				
+				//create axis
 				var myid = $(this).attr("id");
-				var marknum = myid.split("_")[1];
+				var marknum = getMarkNum($(this));
 				var anchornum = +myid.split("_")[2];
 
-				// no double axes
-				if($("#axis_"+marknum+"_"+anchornum).length > 0) return;
+				//no double axes
+				if($("#axis_" + marknum + "_" + anchornum).length > 0) return;
 
 				// bounce out for weird axes
 //				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
@@ -666,30 +640,24 @@ var createAnnotations = function(markID,markcount)
 	
 				var axisgroup = d3.select("#vis").append("g");
 				axisgroup.classed("axis",true);
-				axisgroup.classed("axis_"+marknum,true);				
-				axisgroup.attr("id","axis_"+marknum+"_"+anchornum);
-				
+				axisgroup.classed("axis_" + marknum, true);				
+				axisgroup.attr("id", "axis_" + marknum + "_" + anchornum);
 				
 				// make the axis itself draggable for customization / deletion
-				$(axisgroup[0][0]).draggable(
-				{
-					drag:function(e, ui)
-					{
-
-				//		tSpecs2 = transformSpecs(e.target);
-						
+				$(axisgroup[0][0]).draggable({
+					drag:function(e, ui) {
 						dx = parseInt(ui.position.left - mouseX2);
 						dy = parseInt(ui.position.top - mouseY2);
 
 						var target;
 						target=d3.select(this);
-						console.log
-						var marknum = $(this).attr("id").split("_")[1];	
-
+						
+						var marknum = getMarkNum($(this));
 
 						t = "translate(" + parseInt(groupX2+dx) + "," + parseInt(groupY2+dy) + ") ";
 						$(e.target).attr("transform", t);					
 					},
+					
 					start: function(e, ui) {
 					//	isDragging = true;
 						tSpecs2 = transformSpecs(e.target);					
@@ -708,32 +676,32 @@ var createAnnotations = function(markID,markcount)
 			tolerance:"pointer"
 		});
 	
-		axisanchor.appendTo($("body"));
+		$("body").append(axisanchor);
 		axisanchor.hide();
 	}
-
-
 }
 
-var createTextAnchors = function(markcount)
-{
+
+
+
+
+var createTextAnchors = function(markcount) {
 	var textanchor;
 	
-	for(var textanchornum=0; textanchornum<3; textanchornum++)
-	{
-		textanchor =  $("<div class=\"textanchor textanchor_"+markcount+"\" id=\"textanchor_"+markcount+"_"+textanchornum+"\" style=\"position:absolute;\"></div>")
+	for(var textanchornum=0; textanchornum<3; textanchornum++) {
+		textanchor =  $("<div class='textanchor textanchor_" + markcount + "' id='textanchor_" + markcount + "_" + textanchornum + "' style='position:absolute'></div>")
 	
 		textanchor.droppable({
 			accept:".column",
-			drop:function(event,ui)
-			{
-			// create axis
+			
+			drop:function(event,ui) {
+				//create axis
 				var myid = $(this).attr("id");
-				var marknum = myid.split("_")[1];
+				var marknum = getMarkNum($(this));
 				var anchornum = +myid.split("_")[2];
 
 				// no double notes
-//				if($("#text_"+marknum+"_"+anchornum).length > 0) return;
+//				if($("#text_" + marknum + "_" + anchornum).length > 0) return;
 
 				// bounce out for weird axes
 //				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
@@ -743,21 +711,19 @@ var createTextAnchors = function(markcount)
 				var datacolumn = dataObjectsToColumn(allData,colname);
 
 				var markgroup;
-				if($(".textcont_"+marknum) !== undefined) {
+				if($(".textcont_" + marknum) !== undefined) {
 					markgroup = svgm.append("g");
-					markgroup.classed("textcont_"+marknum,true);					
+					markgroup.classed("textcont_" + marknum,true);					
 				}
-				markgroup = d3.select(".textcont_"+marknum);
-				markgroup.selectAll(".text_"+marknum+"_"+anchornum).data(datacolumn).enter().append("text").classed("text",true)
-				.classed("text_"+marknum,true)
-				.classed("text_"+marknum+"_"+anchornum,true);
-	
-			
-	
-				var textelems = svgm.selectAll(".text_"+marknum+"_"+anchornum);
 				
-					
-				textelems.attr("id",function(d,i){ return "text_"+marknum+"_"+anchornum+"_"+i;});
+				markgroup = d3.select(".textcont_" + marknum);
+				markgroup.selectAll(".text_" + marknum + "_" + anchornum).data(datacolumn).enter().append("text").classed("text",true)
+								.classed("text_" + marknum,true)
+								.classed("text_" + marknum + "_" + anchornum,true);
+
+				var textelems = svgm.selectAll(".text_" + marknum + "_" + anchornum);
+
+				textelems.attr("id",function(d,i){ return "text_" + marknum + "_" + anchornum + "_" + i;});
 				textelems.text(function(d,i){ return d;});
 				
 				positionTextAnnotations(marknum);
@@ -766,7 +732,7 @@ var createTextAnchors = function(markcount)
 
 /*				for(var textanchornum=0; textanchornum<3; textanchornum++)
 				{
-					var anchor = $("#textanchor_"+marknum+"_"+textanchornum);	
+					var anchor = $("#textanchor_" + marknum + "_" + textanchornum);	
 					var x,y;
 
 					x = minx+visarea.offset().left+ +curmark.attr("x")+"px";
@@ -828,7 +794,7 @@ var createTextAnchors = function(markcount)
 			tolerance:"pointer"
 		});
 	
-		textanchor.appendTo($("body"));
+		$("body").append(textanchor);
 		textanchor.hide();
 	}
 }
@@ -839,18 +805,20 @@ var createTextAnchors = function(markcount)
 //CREATE FLOW MENUS
 var createMenus=function(markID,markcount) {
 	
-	var menudivs=[];
-	var menulabels=d3.keys(menus[markID]);  //top level menu items
+	var menudivs = [];
+	var menulabels=d3.keys(menus[markID]); //top level menu items
 	
 	var menuitem;
 
 	//append menudivGroup to body
 	$("body").append("<div style='position:absolute' class='menudivGroup' id='menudivGroup_" + markcount + "'></div>");
+	
 	positionFlowMenu("menudivGroup_" + markcount);
 	$("div#menudivGroup_" + markcount).css("visibility", "hidden");
 	
+	//For each top-level menu item
 	for(var divnum=0; divnum<menulabels.length; divnum++) {
-		menuitem=$("<div class=\"menudiv_"+markcount+" menudiv\" id=\"menudiv_"+markcount+"_"+divnum+"\" style=\"position:relative\">"+menulabels[divnum]+ "<div class='menuArrow'>&#9654;</div>" + "</div>");
+		menuitem=$("<div class='menudiv_" + markcount + " menudiv' id='menudiv_" + markcount + "_" + divnum + "' style='position:relative'>" + menulabels[divnum]+ "<div class='menuArrow'>&#9654;</div>" + "</div>");
 		
 		menuitem.data("vizAttribute", menulabels[divnum]);
 
@@ -867,7 +835,7 @@ var createMenus=function(markID,markcount) {
 			
 			over:function(event,ui){
 				var myid = $(this).attr("id");
-				var marknum = myid.split("_")[1];
+				var marknum = getMarkNum($(this));
 				var menuindex = myid.split("_")[2];
 				
 				$("div.menudiv").removeClass("hoverselected");
@@ -876,12 +844,12 @@ var createMenus=function(markID,markcount) {
 				//hide so that events do not register on its children
 				$("div.submenudivGroup").hide();
 				$("div.submenudivGroup").css("visibility", "hidden");
-				$("#submenudivGroup_"+marknum+"_"+menuindex).css("visibility", "visible");
-				$("#submenudivGroup_"+marknum+"_"+menuindex).show();
+				$("#submenudivGroup_" + marknum + "_" + menuindex).css("visibility", "visible");
+				$("#submenudivGroup_" + marknum + "_" + menuindex).show();
 				
 				//disable/enable droppable optiondiv
 				//$("div.optiondiv").droppable("disable");
-				//$("div.optiondiv_"+marknum+"_"+menuindex).droppable("enable");
+				//$("div.optiondiv_" + marknum + "_" + menuindex).droppable("enable");
 				
 				//make all optiondiv not highlighted except first one of this group!!
 				$("div.optiondiv").removeClass("hoverselected");
@@ -889,7 +857,6 @@ var createMenus=function(markID,markcount) {
 			},
 			
 			out:function(event,ui){}
-			
 		});
 		
 		menuitem.droppable("option","tolerance","pointer");
@@ -899,10 +866,11 @@ var createMenus=function(markID,markcount) {
 		$("div.submenudivGroup").css("visibility", "hidden");
 		$("div#submenudivGroup_" +markcount+ "_" +divnum).show();
 		
-		// make a 2nd level menu for each 1st level menu
+		//Make a 2nd level menu for each 1st level menu
 		var optionslist = menus[markID][menulabels[divnum]];
+		
 		for(var optionnum=0; optionnum<optionslist.length; optionnum++) {
-			option=$("<div class=\"optiondiv_"+markcount+"_"+divnum+" optiondiv\" id=\"optiondiv_"+markcount+"_"+divnum+"_"+optionnum+"\" style=\"position:relative;\">"+optionslist[optionnum]+ "</div>");
+			option=$("<div class='optiondiv_" + markcount + "_" + divnum + " optiondiv' id='optiondiv_" + markcount + "_" + divnum + "_" + optionnum + "' style='position:relative;'>" + optionslist[optionnum]+ "</div>");
 
 			$("div#submenudivGroup_" +markcount+ "_" + divnum).append(option);
 					
@@ -941,6 +909,7 @@ var createMenus=function(markID,markcount) {
 
 
 
+
 var positionAnnotations = function(marknum) {
 	positionCloseIcon(marknum);
 	positionAxisAnchor(marknum);
@@ -950,211 +919,209 @@ var positionAnnotations = function(marknum) {
 
 
 
+
 var hideAnnotations = function(marknum) {
-	$("#closeicon_"+marknum).hide();	
-	$(".axisanchor_"+marknum).hide();
+	$("#closeicon_" + marknum).hide();	
+	$(".axisanchor_" + marknum).hide();
 }
 
 
 
 var positionCloseIcon = function(marknum) {
-	var icon = $("#closeicon_"+marknum);
+	var icon = $("#closeicon_" + marknum);
 	
-	var markgroup = d3.select(".mark"+marknum);		
+	var markgroup = d3.select(".mark" + marknum);		
 	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
-	var wh = getDimensions($("g.mark"+marknum));
-	
-	//console.log("CLOSE ICON WIDTH: " + wh[0]);
-	//console.log("CLOSE ICON WIDTH: " + wh[1]);
-	//console.log(cleantrans);
+	var wh = getDimensions($("g.mark" + marknum));
 	
 	var minx = +cleantrans[0];
 	var miny = +cleantrans[1];
 	var visarea = $("#vis");
-	var type = markGroups[marknum].type;
+	var markType = markGroups[marknum].type;
 	
-	if(type==="rect"){
-		icon.css("left",(minx+visarea.offset().left+wh[0]-20)+"px");
-		icon.css("top",miny+visarea.offset().top+"px");
-	}
-	else if(type==="arc"){
-		var radius = markGroups[marknum].radius;
-		icon.css("left",(minx+visarea.offset().left+Math.cos(45)*radius)+"px");
-		icon.css("top",miny+visarea.offset().top-Math.sin(45)*radius+"px");	
-	}
-	if(type==="scatter"){
-		icon.css("left",(minx+visarea.offset().left+wh[0]-40)+"px");
-		icon.css("top",miny+visarea.offset().top+"px");
+	switch(markType) {
+		case "rect":
+			icon.css("left",(minx+visarea.offset().left+wh[0]-20)+"px");
+			icon.css("top",miny+visarea.offset().top + "px");
+		break;
+		
+		case "arc":
+			var radius = markGroups[marknum].radius;
+			icon.css("left",(minx+visarea.offset().left+Math.cos(45)*radius)+"px");
+			icon.css("top",miny+visarea.offset().top-Math.sin(45)*radius + "px");
+		break;
+		
+		case "scatter":
+			icon.css("left",(minx+visarea.offset().left+wh[0]-40)+"px");
+			icon.css("top",miny+visarea.offset().top + "px");
+		break;
 	}	
 }
 
-var positionTextAnchors = function(marknum)
-{
-	var markgroup = d3.select(".mark"+marknum);		
+
+
+
+var positionTextAnchors = function(marknum) {
+	var markgroup = d3.select(".mark" + marknum);		
 	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
-	var wh = getDimensions($("g.mark"+marknum));
+	var wh = getDimensions($("g.mark" + marknum));
 	var minx = +cleantrans[0];
 	var miny = +cleantrans[1];
 	var visarea = $("#vis");
-	var type = markGroups[marknum].type;
+	var markType = markGroups[marknum].type;
 
-	if(type==="rect"){
-	
-//		var thismark = markgroup.selectAll("rect").each(function(i){
+	if(markType==="rect"){
 		var curmark = d3.select(markgroup.selectAll("rect.realmark")[0][Math.floor(n/2)]);
-	//	console.log(curmark);
-	//		var curmark = d3.select(this);
-			
-			for(var textanchornum=0; textanchornum<3; textanchornum++)
-			{
-				var anchor = $("#textanchor_"+marknum+"_"+textanchornum);	
-				var x,y;
+		
+		for(var textanchornum=0; textanchornum<3; textanchornum++) {
+			var anchor = $("#textanchor_" + marknum + "_" + textanchornum);	
+			var x,y;
 
-				x = minx+visarea.offset().left+ +curmark.attr("x")+"px";
-				switch(textanchornum){
-					case 0:
-						// top
-						y = miny+ visarea.offset().top + +curmark.attr("y") - 10 + "px";
-					break;
-					case 1:
-						// middle
-						y = miny+visarea.offset().top + +curmark.attr("y") + .5*+curmark.attr("height")+"px";
-					break;
-					case 2:
-						// bottom
-						y = miny+visarea.offset().top + +curmark.attr("y") + +curmark.attr("height") + "px";		
-					break;
-								
-				}
+			x = minx+visarea.offset().left+ +curmark.attr("x")+"px";
 			
-				anchor.css("left",x);
-				anchor.css("top", y);
+			switch(textanchornum){
+				//top
+				case 0:
+					y = miny+ visarea.offset().top + +curmark.attr("y") - 10 + "px";
+				break;
+				
+				//middle
+				case 1:
+					y = miny+visarea.offset().top + +curmark.attr("y") + .5*+curmark.attr("height")+"px";
+				break;
+				
+				//bottom
+				case 2:
+					y = miny+visarea.offset().top + +curmark.attr("y") + +curmark.attr("height") + "px";		
+				break;		
 			}
-//		});
+		
+			anchor.css("left",x);
+			anchor.css("top", y);
+		}
 	}
-
-
 }
 
-var positionTextAnnotations = function(marknum)
-{
 
-				var parentgroup = d3.select(".mark"+marknum);
-				var parenttrans = transformSpecs($(parentgroup[0][0]));
 
-				var markgroup = d3.select(".mark"+marknum);
-				var textmarkgroup = d3.selectAll(".textcont_"+marknum);
 
-				if(textmarkgroup[0].length < 1) return;
-				
-				textmarkgroup.attr("transform","translate("+parenttrans[0]+","+parenttrans[1]+")");
-//				var textelems = markgroup.selectAll(".text")
+
+
+
+var positionTextAnnotations = function(marknum) {
+	var parentgroup = d3.select(".mark" + marknum);
+	var parenttrans = transformSpecs($(parentgroup[0][0]));
+
+	var markgroup = d3.select(".mark" + marknum);
+	var textmarkgroup = d3.selectAll(".textcont_" + marknum);
+
+	if(textmarkgroup[0].length < 1) { return; }
 	
+	textmarkgroup.attr("transform","translate(" + parenttrans[0]+"," + parenttrans[1]+")");
 
+	markgroup.selectAll("rect.realmark").each(function(d,i) {
+		var curmark = d3.select(this);
+		var myx = +d3.select(this).attr("x");
+		var myy = +d3.select(this).attr("y");	
+		var x;
+		var y;
+		var wh = getDimensions($("g.mark" + marknum));
+
+		for(var anchornum=0; anchornum<3; anchornum++){
+			var textelems = textmarkgroup.selectAll(".text_" + marknum + "_" + anchornum);
+			
+			if(textelems[0].length < 1) { continue; }
+			
+			var textbbox = getDimensions($(textelems[0][i]));
+			var textanchornum = +d3.select(textelems[0][i]).attr("id").split("_")[2];		
+
+			x=myx ;//+ .5*(wh[0]/(n+1)-textbbox[0]); // + .5*wh[0]/n;
+			y=myy;
+			
+			switch(textanchornum){
+				//top
+				case 0:
+					y = myy - 5;
+				break;
 				
-				markgroup.selectAll("rect.realmark").each(function(d,i)
-				{
-					var curmark = d3.select(this);
-					var myx = +d3.select(this).attr("x");
-					var myy = +d3.select(this).attr("y");	
-					var x;
-					var y;
-					var wh = getDimensions($("g.mark"+marknum));
+				//middle
+				case 1:
+					y = myy + .5*Math.floor(+curmark.attr("height"));
+				break;
+				
+				//bottom	
+				case 2:
+					y = myy + Math.floor(+curmark.attr("height")) + 15;		
+				break;			
+			}
 
-					for(var anchornum=0; anchornum<3; anchornum++){
-					
-						var textelems = textmarkgroup.selectAll(".text_"+marknum+"_"+anchornum);
-						
-						if(textelems[0].length < 1) continue;
-						
-						
-						var textbbox = getDimensions($(textelems[0][i]));
-						
-						var textanchornum = +d3.select(textelems[0][i]).attr("id").split("_")[2];		
-
-						
-						x=myx ;//+ .5*(wh[0]/(n+1)-textbbox[0]); // + .5*wh[0]/n;
-						y=myy;
-	//					console.log(wh[0] + " " + textbbox[0]);
-						
-						switch(textanchornum){
-							case 0:
-								// top
-								y = myy - 5;
-							break;
-							case 1:
-								// middle
-								y = myy + .5*Math.floor(+curmark.attr("height"));
-							break;
-							case 2:
-								// bottom
-								y = myy + Math.floor(+curmark.attr("height")) + 15;		
-							break;
-										
-						}
-
-						
-						d3.select(textelems[0][i]).transition().duration(0).attr("x",x).attr("y",y);
-					}
-				});
-
+			d3.select(textelems[0][i]).transition().duration(0).attr("x",x).attr("y",y);
+		}
+	});
 }
+
+
+
 
 
 
 var positionAxisAnchor = function(marknum) {
-	var markgroup = d3.select(".mark"+marknum);		
+	var markgroup = d3.select(".mark" + marknum);		
 	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
-	var wh = getDimensions($("g.mark"+marknum));
+	var wh = getDimensions($("g.mark" + marknum));
 	var minx = +cleantrans[0];
 	var miny = +cleantrans[1];
 	var visarea = $("#vis");
-	var type = markGroups[marknum].type;
+	var markType = markGroups[marknum].type;
 	
-	for(var axisanchornum=0; axisanchornum<4; axisanchornum++)
-	{
-		var anchor = $("#axisanchor_"+marknum+"_"+axisanchornum);	
+	for(var axisanchornum=0; axisanchornum<4; axisanchornum++) {
+		var anchor = $("#axisanchor_" + marknum + "_" + axisanchornum);	
 		var x,y;
 		
 		switch(axisanchornum){
+			//north
 			case 0:
-				// north
 				x = minx+visarea.offset().left+.5*wh[0]+"px";
 				y = miny+visarea.offset().top - 15 + "px";
 			break;
+			
+			//east
 			case 1:
-				// east
 				x = minx+visarea.offset().left+wh[0]+"px";
 				y = miny+visarea.offset().top + .5*wh[1]+"px";
 			break;
+			
+			//south
 			case 2:
-				// south
 				x = minx+visarea.offset().left+.5*wh[0]+"px";
 				y = miny+visarea.offset().top + wh[1] + "px";		
 			break;
+			
+			//west
 			case 3:
-				// west
-				x = minx+visarea.offset().left-15+"px";
+				x = minx+visarea.offset().left-15 + "px";
 				y = miny+visarea.offset().top + .5*wh[1]+"px";		
 			break;		
-		
-		
 		}
 	
-		if(type==="rect"){
-			anchor.css("left",x);
-			anchor.css("top", y);
-		}
-		else if(type==="arc"){
-			// TODO handle
-		}
-		else if(type==="scatter")
-		{
-			anchor.css("left",x);
-			anchor.css("top", y);	
+		switch(markType) {
+			case "rect":
+				anchor.css("left",x);
+				anchor.css("top", y);
+			break;
+			
+			case "arc":
+				//TODO: handle this case
+			break;
+				
+			case "scatter":
+				anchor.css("left",x);
+				anchor.css("top", y);	
+			break;
 		}
 	}
 }
+
 
 
 
@@ -1162,29 +1129,32 @@ var positionAxisAnchor = function(marknum) {
 
 //POSITION TOP-LEVEL FLOW MENU
 var positionFlowMenu = function(id) {
-	var menuitem = $("#"+id);
+	var menuitem = $("#" + id);
 	var marknum = id.split("_")[1];
 	
-	var markgroup = d3.select(".mark"+marknum);		
+	var markgroup = d3.select(".mark" + marknum);		
 	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
-	var wh = getDimensions($("g.mark"+marknum));
+	var wh = getDimensions($("g.mark" + marknum));
 	var minx = +cleantrans[0];
 	var miny = +cleantrans[1];
 	var visarea = $("#vis");
-	var type = markGroups[marknum].type;
+	var markType = markGroups[marknum].type;
 	
-	console.log(marknum);
-	if(type==="rect"){
-		menuitem.css("left",(minx+visarea.offset().left+.5*wh[0])+"px");
-		menuitem.css("top",miny+visarea.offset().top+wh[1]+20+"px");
-	}
-	else if(type==="arc"){
-		menuitem.css("left",(minx+visarea.offset().left)+"px");
-		menuitem.css("top",miny+visarea.offset().top+.5*wh[1]+20+"px");	
-	}
-	else if(type==="scatter"){
-		menuitem.css("left",(minx+visarea.offset().left+.5*wh[0])+"px");
-		menuitem.css("top",miny+visarea.offset().top+wh[1]+20+"px");
+	switch(markType) {
+		case "rect":
+			menuitem.css("left",(minx+visarea.offset().left+.5*wh[0])+"px");
+			menuitem.css("top",miny+visarea.offset().top+wh[1]+20 + "px");
+		break;
+		
+		case "arc":
+			menuitem.css("left",(minx+visarea.offset().left)+"px");
+			menuitem.css("top",miny+visarea.offset().top+.5*wh[1]+20 + "px");
+		break;
+		
+		case "scatter":	
+			menuitem.css("left",(minx+visarea.offset().left+.5*wh[0])+"px");
+			menuitem.css("top",miny+visarea.offset().top+wh[1]+20 + "px");
+		break;
 	}	
 }
 
@@ -1192,40 +1162,39 @@ var positionFlowMenu = function(id) {
 
 
 //CREATE MARKS
-var createMarks=function(x,y,markcount,type) {
+var createMarks = function(x, y, markcount, markType) {
 	
-	switch(type) {
-		
+	switch(markType) {
 		case "rect":
 			var rectcont = svgm.append("g")
-			.classed("mark"+markcount,true)
-			.classed("rectmark",true)
-			.attr("transform", "translate(" + x + "," + y + ")")
-			.attr("id","mark_"+markcount+"_group");
+				.classed("mark" + markcount, true)
+				.classed("rectmark", true)
+				.attr("transform", "translate(" + x + "," + y + ")")
+				.attr("id","mark_" + markcount + "_group");
 	
 			rectcont.selectAll("rect")
-			.data(dataset)
-			.enter()
-			.append("rect")
-			.attr("height",100)
-			.attr("width",50)
-			.attr("x",0)
-			.attr("y",0)	
-			.attr("fill", function(d,i) {
-				return "#4682B4"; })
-			.attr("fill-opacity", function(d,i) {
-				return 1; })
- 			.attr("stroke", function(d,i) {
- 				return "#cccccc"; })
-			.attr("stroke-width", function(d,i) {
-				return 2; })
-			.classed("realmark",true);
+				.data(dataset)
+				.enter()
+				.append("rect")
+				.attr("height",100)
+				.attr("width",50)
+				.attr("x",0)
+				.attr("y",0)	
+				.attr("fill", function(d,i) {
+					return "#4682B4"; })
+				.attr("fill-opacity", function(d,i) {
+					return 1; })
+	 			.attr("stroke", function(d,i) {
+	 				return "#cccccc"; })
+				.attr("stroke-width", function(d,i) {
+					return 2; })
+				.classed("realmark",true);
 			
 			rectcont.append("rect")
-			.classed("container",true);
+				.classed("container",true);
 			
 			markGroups.push(new MarkGroup("rect"));
-			break;
+		break;
 		
 		case "arc":
 			var donut = d3.layout.pie(),
@@ -1233,18 +1202,18 @@ var createMarks=function(x,y,markcount,type) {
 	
 			var arcscont=svgm.append("g")
 				.data([dataset])
-				.attr("class","mark"+markcount)
+				.attr("class","mark" + markcount)
 				.classed("arcmark",true)
 				.attr("transform", "translate(" + x + "," + y + ")")
 				.attr("stroke","#cccccc")
 				.attr("stroke-width","2")
-				.attr("id","mark_"+markcount+"_group");	
+				.attr("id","mark_" + markcount + "_group");	
 				
 			arcscont.append("circle")
-			.classed("container",true);	
+				.classed("container",true);	
 			
 			var arcs=arcscont
-				.selectAll(".mark"+markcount+" g.arc")
+				.selectAll(".mark" + markcount + " g.arc")
 				.data(donut)
 				.enter().append("g")		
 				.attr("class", "arc");
@@ -1254,18 +1223,23 @@ var createMarks=function(x,y,markcount,type) {
 				.attr("stroke","#cccccc")				
 				.attr("d", arc)
 				.classed("realmark",true);
+			
 			markGroups.push(new MarkGroup("arc"));
-			break;
+		
+		break;
+		
 		case "scatter":
 			var scattercont = svgm.append("g")
-									.classed("mark"+markcount,true)
-									.classed("scattermark",true)
-									.attr("transform", "translate(" + x + "," + y + ")")
-									.attr("id","mark_"+markcount+"_group");
+				.classed("mark" + markcount,true)
+				.classed("scattermark",true)
+				.attr("transform", "translate(" + x + "," + y + ")")
+				.attr("id","mark_" + markcount + "_group");
+				
 			var symbol = d3.svg.symbol();
 			var yscale = d3.scale.linear()
-						.domain([0, n-1])
-						.range([0, 100]);
+				.domain([0, n-1])
+				.range([0, 100]);
+			
 			scattercont.selectAll("path")
 				.data(dataset)
 				.enter()
@@ -1279,19 +1253,20 @@ var createMarks=function(x,y,markcount,type) {
 				.attr("stroke-width", function(d,i) {
 					return 2; })
 				.classed("realmark",true)
-				.attr("transform",function(d,i)	// position
-				{
+				.attr("transform",function(d,i)	{
+					//position
 					return "translate("+ yscale(i) + ","+ yscale(i)+")"; // 10*i
 				})
 				.attr("d", symbol);
-				scattercont.append("rect")	// shape
+				
+			scattercont.append("rect") //shape
 				.classed("container",true);
 				
-				var markgroup = new MarkGroup("scatter");
-				markgroup.addScale("x", new Scale(yscale, undefined, "linear", "Data Index"));
-				markgroup.addScale("y", new Scale(yscale, undefined, "linear", "Data Index"));				
-				markGroups.push(markgroup);									
-			break;
+			var markgroup = new MarkGroup("scatter");
+			markgroup.addScale("x", new Scale(yscale, undefined, "linear", "Data Index"));
+			markgroup.addScale("y", new Scale(yscale, undefined, "linear", "Data Index"));				
+			markGroups.push(markgroup);									
+		break;
 	}
 	
 	mouseX = 0;
@@ -1316,7 +1291,7 @@ var createMarks=function(x,y,markcount,type) {
 			
 			var target;
 			target=d3.select(this)
-			var marknum = $(this).attr("id").split("_")[1];	
+			var marknum = getMarkNum($(this));
 			
 			if(target.classed("rectmark")) {
 				switch(scaleMode) {
@@ -1382,69 +1357,72 @@ var createMarks=function(x,y,markcount,type) {
 								
 					default: console.log("Error Dragging");
 				}
+				
 				updateBackgroundHighlight(marknum, .3);
 				positionAnnotations(marknum);
-				$("#closeicon_"+marknum).show();	
+				$("#closeicon_" + marknum).show();	
 			}
+			
 			else if(target.classed("arcmark")) {
 				switch(scaleMode) {
 					case "move":
 						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
 						t += "scale(" + tSpecs[2] + "," + tSpecs[3] + ")";
 						$(e.target).attr("transform", t);
-						break;						
-					default:		
-	//				console.log(e.pageY + " " + ui.position.top + " " + groupY + " " + visarea.offset().top);				
-					// ui.position.left/top is EVIL
-					var visarea = $("#vis");	 					
-					var	clickDist = Math.sqrt(Math.pow(groupX+visarea.offset().left-e.pageX,2)+Math.pow(groupY+visarea.offset().top-e.pageY,2));
-					var marknum = $(this).attr("id").split("_")[1];
+					break;						
+					
+					default:					
+						// ui.position.left/top is EVIL
+						var visarea = $("#vis");	 					
+						var	clickDist = Math.sqrt(Math.pow(groupX+visarea.offset().left-e.pageX,2)+Math.pow(groupY+visarea.offset().top-e.pageY,2));
+						var marknum = getMarkNum($(this));
 						updateArcMarks(marknum, clickDist);
 						break;
 				}
-				var marknum = $(this).attr("id").split("_")[1];
-	//			console.log($(this).attr("id"));
+				
+				var marknum = getMarkNum($(this));
 				updateBackgroundHighlight(marknum, .3);
 				positionAnnotations(marknum);			
-				$("#closeicon_"+marknum).show();
+				$("#closeicon_" + marknum).show();
 			}
+			
 			else if(target.classed("scattermark")) {
-					switch(scaleMode) {
+				switch(scaleMode) {
 					case "move":
 						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";							
 						$(e.target).attr("transform", t);
 						updateScatterMarks(marknum, undefined, undefined);	 // TODO: check						
-						break;
+					break;
 						
 					case "e-resize":
 						var newwidth = groupW+dx;
 						updateScatterMarks(marknum, newwidth, undefined);						
-						break;
+					break;
 						
 					case "w-resize":
 						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
 						$(e.target).attr("transform", t);
 						var newwidth = groupW-dx;
 						updateScatterMarks(marknum, newwidth, undefined);
-						break;
+					break;
 						
 					case "n-resize":
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
 						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
 						updateScatterMarks(marknum, undefined, newheight);			// why does flipping with previous line === bad?			
-						break;
+					break;
 						
 					case "s-resize":
 						var newheight = groupH+dy;
 						updateScatterMarks(marknum, undefined, newheight);
-						break;
+					break;
 						
 					case "se-resize":
 						var newheight = groupH+dy;
 						var newwidth = groupW+dx;						
 						updateScatterMarks(marknum, newwidth, newheight);
-						break;
+					break;
 						
 					case "ne-resize":
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
@@ -1452,7 +1430,7 @@ var createMarks=function(x,y,markcount,type) {
 						var newwidth = groupW+dx;						
 						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
 						updateScatterMarks(marknum, newwidth, newheight);						
-						break;
+					break;
 						
 					case "sw-resize":
 						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
@@ -1460,7 +1438,7 @@ var createMarks=function(x,y,markcount,type) {
 						var newwidth = groupW-dx;					
 						var newheight = groupH+dy;
 						updateScatterMarks(marknum, newwidth, newheight);
-						break;
+					break;
 					
 					case "nw-resize":
 						var newwidth = groupW-dx;					
@@ -1468,21 +1446,23 @@ var createMarks=function(x,y,markcount,type) {
 						var newheight = groupH-dy;
 						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
 						updateScatterMarks(marknum, newwidth, newheight);						
-						break;
+					break;
 								
 					default: console.log("Error Dragging");
 				}
 				updateBackgroundHighlight(marknum, .3);
 				positionAnnotations(marknum);
-				$("#closeicon_"+marknum).show();		
-			
+				$("#closeicon_" + marknum).show();		
 			}
-			if(activeMark!==-1) setPropertyEditorDefaults();  // too easy?
+			
+			//too easy?
+			if(activeMark!==-1) {
+				setPropertyEditorDefaults();
+			}
 		},
 				
 		
 		start: function(e, ui) {
-//			console.log("-START");
 			isDragging = true;
 			
 			tSpecs = transformSpecs(e.target);
@@ -1496,20 +1476,16 @@ var createMarks=function(x,y,markcount,type) {
 			
 			groupW = wh[0]*tSpecs[2];
 			groupH = wh[1]*tSpecs[3];
-			
-			
 		},
 		
 		
 		stop: function(e, ui) {
-//			console.log("-STOP");
 			isDragging = false;
 			
 			//note new width/height
 			tSpecs = transformSpecs(this);
 			wh = getDimensions($(this));
 		  
-//			console.log("STOP");
 			groupW = wh[0]*tSpecs[2];
 			groupH = wh[1]*tSpecs[3];
 			
@@ -1521,22 +1497,21 @@ var createMarks=function(x,y,markcount,type) {
     .mousedown(function(e) {
 	    //append target to front of the group so it is in the front
 	    //$(e.target).parent().append(e.target);
-//	    console.log("-MDOWN");
 	  })
 	  
 	  
 	  .mouseover(function(e) {
-//		  console.log("OVER");
 		  if(!isDragging) {
 			  tSpecs = transformSpecs(this);
 				wh = getDimensions($(this));
 				groupW = wh[0]*tSpecs[2];
 				groupH = wh[1]*tSpecs[3];
 			}
-			var marknum = $(this).attr("id").split("_")[1];
+			
+			var marknum = getMarkNum($(this));
 			updateBackgroundHighlight(marknum, .3);
 			positionAnnotations(marknum);		
-			$("#closeicon_"+marknum).show();
+			$("#closeicon_" + marknum).show();
 			overMarks = true;
 	  })
 	  
@@ -1547,15 +1522,17 @@ var createMarks=function(x,y,markcount,type) {
 			//console.log(e.offsetX);
 			//console.log(groupW + " | " + groupH);
 			//console.log(s[1] + "|" + s[2] + "|" + wh[0] + "|" + wh[1] + "|" + e.offsetX + "|" + e.offsetY);
-			var marknum = $(this).attr("id").split("_")[1];
+			
+			var marknum = getMarkNum($(this));
 			if(!isDragging) {
 				getCursorType(marknum, tSpecs[0], tSpecs[1], groupW, groupH, e.offsetX, e.offsetY);
 			}
 	  })
 	  
+	  
 	  .dblclick(function(e) {
-
-		  var marknum = $(this).attr("id").split("_")[1];
+		  var marknum = getMarkNum($(this));
+		  
 		  //set all other containers to transparent
 			var group = svgm.selectAll(".container");
 			group.attr("opacity",0);
@@ -1563,19 +1540,20 @@ var createMarks=function(x,y,markcount,type) {
 			updateBackgroundHighlight(marknum, .3);
 		  activeMark = marknum;		  
 		  setPropertyEditorDefaults();
+		  
 		  //TODO: activate the property editor here
 	  })
 	  
 	  
 	  .mouseout(function(e) {
 		  $('body').css('cursor', 'auto');
-			var marknum = $(this).attr("id").split("_")[1];
+			var marknum = getMarkNum($(this));
 			
 			//If no active mark, then backgorund highlighted box should become transparent
 			if(marknum!=activeMark) {
 				updateBackgroundHighlight(marknum, 0);
 			}
-			$("#closeicon_"+marknum).hide();
+			$("#closeicon_" + marknum).hide();
 			overMarks = false;
 	  });
 
@@ -1586,23 +1564,22 @@ var createMarks=function(x,y,markcount,type) {
 
 //DESTORY A MARK AND ALL ASSOCIATED MENUS
 var destroyMark = function(marknum) {
-	var marks = d3.select("#mark_"+marknum+"_group");
+	var marks = d3.select("#mark_" + marknum + "_group");
 	marks.remove();
 
-	var menus = $(".menudiv_"+marknum).each(function(index){
-		var options = $(".optiondiv_"+marknum+"_"+index);
+	var menus = $(".menudiv_" + marknum).each(function(index){
+		var options = $(".optiondiv_" + marknum + "_" + index);
 		options.remove();
-	
 	});
 	
 	menus.remove(); 
 	
-	$("#closeicon_"+marknum).remove();
-	$(".axisanchor_"+marknum).remove();
-	$(".axis_"+marknum).remove();
-	$("#menudivGroup_"+marknum).remove();
-	$(".textanchor_"+marknum).remove();	
-	d3.selectAll(".textcont_"+marknum).remove();
+	$("#closeicon_" + marknum).remove();
+	$(".axisanchor_" + marknum).remove();
+	$(".axis_" + marknum).remove();
+	$("#menudivGroup_" + marknum).remove();
+	$(".textanchor_" + marknum).remove();	
+	d3.selectAll(".textcont_" + marknum).remove();
 }
 
 
@@ -1613,30 +1590,31 @@ var scaleMode = "";
 //DETERMINE CURSOR TYPE FOR MOVING/SCALING
 function getCursorType(marknum, shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) {
 
-	var type  = markGroups[marknum].type;
+	var markType = markGroups[marknum].type;
 	var boundaryWidth = .1;
 	var	clickDist;
 	
-	if(type === "rect") {
-		pX = (mouseX-shapeX)/shapeW; //percentage of X shape
-		pY = (mouseY-shapeY)/shapeH; //percentage of Y shape
-	}
-	else if(type === "arc")
-	{
-		pX = (mouseX-shapeX+.5*shapeW)/shapeW; //percentage of X shape
-		pY = (mouseY-shapeY+.5*shapeH)/shapeH; //percentage of Y shape	
-		boundaryWidth = .5;
+	switch(markType) {
+		case "rect":
+			pX = (mouseX-shapeX)/shapeW; //percentage of X shape
+			pY = (mouseY-shapeY)/shapeH; //percentage of Y shape
+		break;
 		
-		clickDist = Math.sqrt(Math.pow(mouseX-shapeX,2)+Math.pow(mouseY-shapeY,2));
-	}
-	else if(type === "scatter")
-	{
-		pX = (mouseX-shapeX)/shapeW; //percentage of X shape
-		pY = (mouseY-shapeY)/shapeH; //percentage of Y shape
+		case "arc":
+			pX = (mouseX-shapeX+.5*shapeW)/shapeW; //percentage of X shape
+			pY = (mouseY-shapeY+.5*shapeH)/shapeH; //percentage of Y shape	
+			boundaryWidth = .5;
+			clickDist = Math.sqrt(Math.pow(mouseX-shapeX,2)+Math.pow(mouseY-shapeY,2));
+		break;
+		
+		case "scatter":
+			pX = (mouseX-shapeX)/shapeW; //percentage of X shape
+			pY = (mouseY-shapeY)/shapeH; //percentage of Y shape
+		break;
 	}	
 
-	if(type === "arc" && clickDist < (.5*shapeW)*(1-boundaryWidth)) {
-			scaleMode = "move";
+	if(markType === "arc" && clickDist < (.5*shapeW)*(1-boundaryWidth)) {
+		scaleMode = "move";
 	} else if(pX<boundaryWidth && pY<boundaryWidth) {
 		scaleMode = "nw-resize";		
 	} else if(pX<boundaryWidth && pY>(1-boundaryWidth)) {
@@ -1659,6 +1637,7 @@ function getCursorType(marknum, shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) 
 	
 	$('body').css('cursor', scaleMode);	
 }
+
 
 
 
@@ -1727,7 +1706,7 @@ function getDimensions(shapes) {
 function getDimensions(shapes) {
 	shapes=shapes[0];
 	var bb = shapes.getBBox();
-	// handle axis width here?
+	//handle axis width here?
 // 	console.log("W: " + bb["width"]);
 // 	console.log("X: " + bb["x"]);
 // 	console.log("H: " + bb["height"]);
@@ -1735,6 +1714,8 @@ function getDimensions(shapes) {
 	
 	return [bb["width"]-bb["x"], bb["height"]-bb["y"]];
 }
+
+
 
 
 
@@ -1754,122 +1735,115 @@ var dropSubMenu=function(event,ui){
 	}
 	
 	//high-level mark, first-level menu, second-level menu option
-
-	var myparent = d3.select("#menudiv_"+marknum+"_"+menuindex);
+	var myparent = d3.select("#menudiv_" + marknum + "_" + menuindex);
 	myparent.classed("hoverselected",false);
 	
 	$(this).removeClass("hoverselected");
 	$(this).addClass("optionselected"); //TODO: need to remove optionselected from other attributes that are no longer active
 	
+	
 	//var parameter = myparent.text(); //parameter menu option
-	var parameter = $("#menudiv_"+marknum+"_"+menuindex).data("vizAttribute");
+	var parameter = $("#menudiv_" + marknum + "_" + menuindex).data("vizAttribute");
 	var colname = ui.draggable.text(); //column name of data
 	
-	var selectedoption = $("#optiondiv_"+marknum+"_"+menuindex+"_"+optionindex);
+	var selectedoption = $("#optiondiv_" + marknum + "_" + menuindex + "_" + optionindex);
 
 	
 	//set scales to either linear or logarithmic or pallet color
 	var scaleselection = selectedoption.text(); // option.text();
-
-	var type  = markGroups[marknum].type;	
-	// prevent crashing with ordinal types on quant parameters
+	
+	var markType = markGroups[marknum].type;	
+	
+	//prevent crashing with ordinal types on quant parameters
 	if(ui.draggable.hasClass("ordinal") && !(parameter === "fill" || parameter=== "stroke")) {
 		return;
 	}
 	
-	console.log("dropped "+ colname + " on mark"+marknum);	
+	console.log("dropped "+ colname + " on mark" + marknum);	
 
-	if(type==="rect") {
-		console.log(parameter);
-		console.log(colname);
-		//why is second parameter n*20? it's the fixed width
-		updateRectMarks(marknum, n*20, undefined, parameter, colname, scaleselection);	// remove constant	
-	}
-	else if(type==="arc") {
-		updateArcMarks(marknum, undefined, parameter, colname, scaleselection);
-	}
-	else if(type==="scatter") {
-		updateScatterMarks(marknum, n*20, undefined, parameter, colname, scaleselection);
+	switch(markType) {
+		case "rect":
+			//why is second parameter n*20? it's the fixed width
+			updateRectMarks(marknum, n*20, undefined, parameter, colname, scaleselection);	// remove constant
+		break;
+		
+		case "arc":
+			updateArcMarks(marknum, undefined, parameter, colname, scaleselection);
+		break;
+		
+		case "scatter":
+			updateScatterMarks(marknum, n*20, undefined, parameter, colname, scaleselection);
+		break;
 	}	
 	
 	//scale axes of current plot		
 	positionAxes(marknum);
 	positionAnnotations(marknum);	
-	
-
 }
 
-var positionAxes = function(marknum)
-{
-	var axes = d3.selectAll("g.axis_"+marknum);
-	
-		axes.each(function() {
-	
-		positionAxis($(this));
-			
-		});
 
+
+var positionAxes = function(marknum) {
+	var axes = d3.selectAll("g.axis_" + marknum);
+	
+	axes.each(function() {
+		positionAxis($(this));
+	});
 }
 
 
 
 
 //MAKE QUANTITATIVE SCALE
-var makeQuantScale = function(scaleselection, datacolumn, range, min)
-{
-
+var makeQuantScale = function(scaleselection, datacolumn, range, min) {
 	var yscale;
 	var extents = d3.extent(datacolumn); 
-	// set up scale based on menu choice	
 	
-	if(min===undefined) min = 0;
+	//set up scale based on menu choice	
+	if(min===undefined) { min = 0; }
 	
 	switch(scaleselection) {
 		case "linear":
 			yscale = d3.scale.linear()
 				.domain(extents)
 				.range([min, range+min]);
-			break;
+		break;
 		
 		case "logarithmic":
 			if(extents[0]<=0) extents[0]=1; //how to deal with zeroes?
 			yscale = d3.scale.log()
 				.domain(extents)
 				.range([min, range+min]);
-			break;
-
+		break;
 	}
 	
 	return yscale;
-
-
 }
 
 
 
 //MAKE COLOR SCALE
-var makeColorScale= function(scaleselection, datacolumn)
-{
+var makeColorScale= function(scaleselection, datacolumn) {
 	var colorscale;
-	// set up scale based on menu choice	
-
+	
+	//set up scale based on menu choice	
 	var palletselection = scaleselection.split(" ")[1];
+	
 	switch(palletselection) {
 		case "A": 
 			colorscale=d3.scale.category20().domain(datacolumn);
-			break;
+		break;
+		
 		case "B":
 			colorscale=d3.scale.category20b().domain(datacolumn);
-			break;
+		break;
+		
 		case "C":
 			colorscale=d3.scale.category20c().domain(datacolumn);
-			break;
+		break;
 	}
 	
-	
 	return colorscale;
-
-
 }
 
 
@@ -1877,19 +1851,17 @@ var makeColorScale= function(scaleselection, datacolumn)
 
 
 //MARK NUMBER, VISUAL PROPERTY, COLUMN NAME, TYPE OF SCALE
-var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection, constantValue)
-{
+var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection, constantValue) {
 	var yscale;
 	var colorscale;
 	var nodeType;
 	var dragupdate=false;
 	var transduration = 250;
 	
-	d3.select(".mark"+marknum+" .realmark").each(function(d,i){
-		nodeType=this.nodeName;
+	d3.select(".mark" + marknum + " .realmark").each(function(d,i){
+		nodeType = this.nodeName;
 	}); 
 	
-
 	if(newheight===undefined) { newheight = markGroups[marknum].height; }
 	else {  markGroups[marknum].height = newheight; }
 	if(newwidth===undefined) { newwidth = markGroups[marknum].width; }
@@ -1903,7 +1875,7 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 	// resize default
 	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined)
 	{
-		var marks = svgm.selectAll("g.mark"+marknum+" rect.realmark")
+		var marks = svgm.selectAll("g.mark" + marknum + " rect.realmark")
 		.attr("height",newheight)
 		.attr("width",newwidth)	
 	}
@@ -1931,7 +1903,7 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 
 		svgm = d3.select("svg#vis");
 
-		var marks=svgm.selectAll(".mark"+marknum+" .realmark")
+		var marks=svgm.selectAll(".mark" + marknum + " .realmark")
 									.data(allData);
 
 		if(constantValue===undefined) {							
@@ -2006,7 +1978,7 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 			
 
 		// scale axes of current plot		
-		var axes = d3.selectAll("g.axis_"+marknum);
+		var axes = d3.selectAll("g.axis_" + marknum);
 		if((markGroups[marknum].majorParameter === "height" && parameter==="width") || (markGroups[marknum].majorParameter === "width" && parameter==="height"))	{
 			axes.remove();
 		}
@@ -2029,6 +2001,8 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 	}
 
 }
+
+
 
 
 var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection, constantValue)
@@ -2059,7 +2033,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 	// if(colname === undefined && scaleselection === undefined && parameter === undefined)
 	// {
 		// can't scale a single mark ?
-//		var marks = svgm.selectAll("g.mark"+marknum+" rect.realmark")
+//		var marks = svgm.selectAll("g.mark" + marknum + " rect.realmark")
 //		.attr("height",newheight)
 //		.attr("width",newwidth)	
 	// }
@@ -2111,7 +2085,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 
 		svgm = d3.select("svg#vis");
 
-		var marks=svgm.selectAll(".mark"+marknum+" .realmark")
+		var marks=svgm.selectAll(".mark" + marknum + " .realmark")
 									.data(allData);
 
 
@@ -2148,7 +2122,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 						// return i*newheight/n;});
 				// .attr("transform",function(d,i)
 				// {
-					// return "translate("+ yscale(d[colname]+logextra) + ","+i*newheight/n+")";
+					// return "translate("+ yscale(d[colname]+logextra) + "," + i*newheight/n + ")";
 				// })
 				// .attr("d", symbol);						
 				// break;
@@ -2183,7 +2157,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 			
 
 		// scale axes of current plot		
-		var axes = d3.selectAll("g.axis_"+marknum);
+		var axes = d3.selectAll("g.axis_" + marknum);
 		// if((markGroups[marknum].majorParameter === "height" && parameter==="width") || (markGroups[marknum].majorParameter === "width" && parameter==="height"))	{
 			// axes.remove();
 		// }
@@ -2212,12 +2186,14 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 
 
 
-var positionAxis = function(curaxis)
-{
+
+
+
+var positionAxis = function(curaxis) {
 	var myid = curaxis.attr("id");
 	var marknum = myid.split("_")[1];
 	var anchornum = +myid.split("_")[2];
-	var axisgroup = d3.select("#axis_"+marknum+"_"+anchornum);			
+	var axisgroup = d3.select("#axis_" + marknum + "_" + anchornum);			
 	
 	var flippedscale = d3.scale.linear();
 	var normalscale = d3.scale.linear();
@@ -2230,17 +2206,19 @@ var positionAxis = function(curaxis)
 				.range([range[1], range[0]]);
 	
 
-	switch(anchornum)
-	{
+	switch(anchornum) {
 		case 0:
 			axis.orient("top");
 		break;
+		
 		case 1:
 			axis.orient("right");
 		break;
+		
 		case 2:
 			axis.orient("bottom");
 		break;
+		
 		case 3:
 			axis.orient("left");
 		break;
@@ -2248,48 +2226,52 @@ var positionAxis = function(curaxis)
 		
 
 
-	var wh = getDimensions($("g.mark"+marknum));
-	var trans = transformSpecs($("g.mark"+marknum).get());
+	var wh = getDimensions($("g.mark" + marknum));
+	var trans = transformSpecs($("g.mark" + marknum).get());
+	
 	if(anchornum===1 || anchornum===3) {
 		axis.scale(flippedscale);
 		axisgroup.attr("height",wh[1]);
 		axisgroup.call(axis);
-	}
-	else {
+	} else {
 		axis.scale(normalscale);
 		axisgroup.attr("width",wh[0]);
 		axisgroup.call(axis);
 	}
 
-	switch(anchornum)
-	{
+	switch(anchornum) {
 		case 0:
 			axisgroup.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")");			
 		break;
+		
 		case 1:
 			axisgroup.attr("transform", "translate(" + ((+trans[0])+(+wh[0])) + "," + trans[1] + ")");
 		break;
+		
 		case 2:
 			axisgroup.attr("transform", "translate(" + trans[0]  + "," + ((+trans[1])+(+wh[1])) + ")");
-		break;					
+		break;	
+						
 		case 3:
 			axisgroup.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")");
 		break;
 	} 	
-
-
 }
 
-var updateArcMarks = function(marknum, radius, parameter, colname, scaleselection, constant)
-{
 
+
+
+
+var updateArcMarks = function(marknum, radius, parameter, colname, scaleselection, constant) {
 	var yscale;
 	var colorscale;
 	var nodeType;
-	var dragupdate=false;
+	var dragupdate = false;
 	var transduration = 250;
 	
-	d3.select(".mark"+marknum+" .realmark").each(function(d,i){nodeType=this.nodeName;}); 
+	d3.select(".mark" + marknum + " .realmark").each(function(d,i){
+		nodeType=this.nodeName;
+	}); 
 	
 	console.log(constant);
 	
@@ -2301,7 +2283,7 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined && constant === undefined)
 	{
 
-		var marks=svgm.selectAll("g.mark"+marknum)
+		var marks=svgm.selectAll("g.mark" + marknum)
 									.data([allData]);
 		var arc = d3.svg.arc();
 		arc.innerRadius(0);
@@ -2340,7 +2322,7 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 		svgm = d3.select("svg#vis");
 
 		var arc = d3.svg.arc();
-		var marks=svgm.selectAll("g.mark"+marknum)
+		var marks=svgm.selectAll("g.mark" + marknum)
 									.data([allData]);
 		var arcs = marks.selectAll("path");
 //		console.log(arcs);
@@ -2418,6 +2400,8 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 
 
 
+
+
 //UPDATE BACKGROUND HIGHLIGHTED *CONTAINER* BOX
 var updateBackgroundHighlight=function(marknum, opacity)
 {
@@ -2426,7 +2410,7 @@ var updateBackgroundHighlight=function(marknum, opacity)
 	//group.attr("opacity",0);
 	
 
-	var group = svgm.select("g.mark"+marknum);
+	var group = svgm.select("g.mark" + marknum);
 	
 	// set container to 0 size to avoid distorting bounding box
 	var container = group.select(".container")
@@ -2434,34 +2418,33 @@ var updateBackgroundHighlight=function(marknum, opacity)
 	container.attr("width",0);
 	
 	var bbox = getDimensions($(group[0][0]));
-	//console.log("BBOX: " + bbox[0] + "/" + bbox[1]);
 
-	if(markGroups[marknum].type==="arc")
-	{
-		container.attr("r",(markGroups[marknum].radius)+5)
-		.attr("fill",colors10[marknum%10])
-		.attr("opacity",opacity);
+	markType = markGroups[marknum].type;
+	
+	switch(markType) {
+		case "arc":
+			container.attr("r",(markGroups[marknum].radius)+5)
+				.attr("fill",colors10[marknum%10])
+				.attr("opacity",opacity);
+		break;
+		
+		case "rect":
+			container.attr("width",bbox[0]+10)
+				.attr("height",bbox[1]+10)
+				.attr("x",-5)
+				.attr("y",-5)
+				.attr("fill",colors10[marknum%10])
+				.attr("opacity",opacity);	
+		break;
+		
+		case "scatter":
+			container.attr("width",bbox[0]+10)
+				.attr("height",bbox[1]+10)
+				.attr("x",-10)
+				.attr("y",-10) 
+				.attr("fill",colors10[marknum%10])
+				.attr("opacity",opacity);
+		break;
 	}
-	else if(markGroups[marknum].type==="rect")
-	{
-		container.attr("width",bbox[0]+10)
-		.attr("height",bbox[1]+10)
-		.attr("x",-5)
-		.attr("y",-5)
-		.attr("fill",colors10[marknum%10])
-		.attr("opacity",opacity);	
-	}
-	else if(markGroups[marknum].type==="scatter")
-	{
-		container.attr("width",bbox[0]+10)
-		.attr("height",bbox[1]+10)
-		.attr("x",-10)
-		.attr("y",-10) 
-		.attr("fill",colors10[marknum%10])
-		.attr("opacity",opacity);
-		// update?
-	}
-
-
 }
 

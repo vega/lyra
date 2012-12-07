@@ -1,72 +1,91 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>VDE Prototype</title>
+  <title>VDE Prototype</title>
 
-    <link rel="stylesheet" type="text/css" href="css/styles.css" />
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.23/themes/base/jquery-ui.css" type="text/css" />
+  <link rel="stylesheet" type="text/css" href="css/styles.css" />
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.23/themes/base/jquery-ui.css" type="text/css" />
 
-    <script src="./jquery-1.8.2.js"></script>
-    <script src="./jquery-ui-1.9.1.custom.js"></script>
+  <script src="./jquery-1.8.2.js"></script>
+  <script src="./jquery-ui-1.9.1.custom.js"></script>
 	<script src="./d3.v2.js" type="text/javascript"></script>
-    <script src="./interaction.js"></script>
-	</head>
+  <script src="./interaction.js"></script>
+</head>
+
+
 <body>
 
-<div id="toolbar">
-    <div id="draggable_rect" class="mark" ><svg id="rectdrag" width="50" height="50"></svg></div>
-	<div id="draggable_text" class="mark textmark" >T</div>
-	<div id="draggable_arc" class="mark" ><svg id="arcdrag" width="50" height="50"></svg></div>
-	<div id="draggable_axis" class="axismark" ><svg id="axisdrag" width="50" height="50"></svg></div>	
-	<div id="draggable_scatter" class="mark" ><svg id="scatterdrag" width="50" height="50"></svg></div>	
-</div>
 
-<div id="sidebar">
-    <div id="data">
-        <ul>
-        </ul>
-    </div>
 
-    <div id="properties">
+	<div id="leftSide">
+		<div id="toolbar">
+			<div id="draggable_rect" class="mark blueBox"> <svg id="rectdrag" width="50" height="50"></svg> </div>
+			<div id="draggable_arc" class="mark blueBox"> <svg id="arcdrag" width="50" height="50"></svg> </div>
+			<div id="draggable_scatter" class="mark blueBox"> <svg id="scatterdrag" width="50" height="50"></svg> </div>	
+			<div id="draggable_axis" class="axismark blueBox"> <svg id="axisdrag" width="50" height="50"></svg> </div>	
+			<div id="draggable_text" class="mark blueBox textmark">T</div>
+		</div>
+		
+		<div id="sidebar">
+	    <div id="data">
+	      <ul></ul>
+	    </div>
+		    <!--<div id="properties"></div>-->
+		</div>
 
-    </div>
-</div>
-
-<div id="region">
-<svg id="vis" width="800" height="500" xmlns="http://www.w3.org/2000/svg">
- <!--   <rect x="200" y="200" width="50" height="100" fill="steelblue" stroke="#ccc" stroke-width="2"></rect> -->
-</svg>
-</div>
-
-<div id="propertyEditor">
-	<!--<p>Update Bar Widths:</p>
-	<input type="range" name="barWidthSlider" id="barWidthSlider" min="10" max="100" step="1" value="100" style="width: 242px"/>-->
-	
-	<div class="propertyEditorHeader">Primary Color</div>
-	<div class="propertyEditorWidget">
-		<input style="width:150px" type="color" name="barFillColor" id="barFillColor"/>
+		<div id="propertyEditor">
+			<!--<p>Update Bar Widths:</p>
+			<input type="range" name="barWidthSlider" id="barWidthSlider" min="10" max="100" step="1" value="100" style="width: 242px"/>-->
+			
+			<table>
+				<tr>
+					<td class="propertyEditorHeader">Primary Color:</td>
+					<td class="propertyEditorWidget">
+						<input class="colorInput" type="color" name="barFillColor" id="barFillColor"/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="propertyEditorHeader">Secondary Color:</td>
+					<td class="propertyEditorWidget">
+						<input class="colorInput" type="color" name="barStrokeColor" id="barStrokeColor"/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="propertyEditorHeader">Font Size:</td>
+					<td class="propertyEditorWidget">
+						<div class="pixelInput"><input type="text" name="updateFontSize" id="updateFontSize"/> px</div>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="propertyEditorHeader">X Position:</td>
+					<td class="propertyEditorWidget">
+						<div class="pixelInput"><input type="text" name="updateXPos" id="updateXPos"/> px</div>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="propertyEditorHeader">Y Position:</td>
+					<td class="propertyEditorWidget">
+						<div class="pixelInput"><input type="text" name="updateYPos" id="updateYPos"/> px</div>
+					</td>
+				</tr>
+			</table>
+			
+		</div>
 	</div>
 	
-	<div class="propertyEditorHeader">Secondary Color</div>
-	<div class="propertyEditorWidget">
-		<input style="width:150px" type="color" name="barStrokeColor" id="barStrokeColor"/>
-	</div>
 	
-	<div class="propertyEditorHeader">Font Size</div>
-	<div class="propertyEditorWidget">
-		<input type="text" name="updateFontSize" id="updateFontSize" style="width:25px"/>px
-	</div>
 	
-	<div class="propertyEditorHeader">X Position</div>
-	<div class="propertyEditorWidget">
-		<input type="text" name="updateXPos" id="updateXPos" style="width:25px"/>px
+	<div id="rightSide">			
+		<div id="region">
+			<svg id="vis" width="2000" height="3000" xmlns="http://www.w3.org/2000/svg">
+			 <!--   <rect x="200" y="200" width="50" height="100" fill="steelblue" stroke="#ccc" stroke-width="2"></rect> -->
+			</svg>
+		</div>
 	</div>
-	
-	<div class="propertyEditorHeader">Y Position</div>
-	<div class="propertyEditorWidget">
-		<input type="text" name="updateYPos" id="updateYPos" style="width:25px"/>px
-	</div>
-</div>
 
 
 

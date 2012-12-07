@@ -1,30 +1,174 @@
-body,
-html {
-    margin:0;
-    padding:0;
-    color:#000;
-    background:#fff;
-    font-size: 14px;
-    font-family: Verdana, Tahoma, sans-serif;
+body, html {
+  margin:0;
+  padding:0;
+  color:#000;
+  background:#fff;
+  font-size:14px;
+  font-family:Verdana, Tahoma, sans-serif;
 }
 
 
-li.ui-draggable-dragging.column{
-	color:white;
-	opacity:0.6;
-	z-index:20;
-	background-color:red;
+
+
+
+div#leftSide {
+	position:fixed;
+	width:245px;	
+	left:0px;
+	top:5px;
+	background-color:#ddd;
+	height:100%;
+	z-index:5;
 }
 
-
-div#propertyEditor {
+div#rightSide {
 	position:absolute;
-	left:1030px;
-	width:250px;
-	top:112px;
-	height:400px;
-	border:1px solid black;
+	left:250px;
+	top:5px;
+	z-index:4;
 }
+
+
+
+
+
+
+
+div#toolbar {
+  position:relative;
+  height:130px;
+  border-bottom:2px solid #000;
+  margin-bottom:10px;
+}
+		
+		div.blueBox {
+		  display: block;
+		  width: 50px;
+		  height: 50px;
+		  background: #4682B4;
+		  cursor: default;
+			border-color: #cccccc;
+			border-width: 2;
+			float: left;
+			font-size: 46px;
+			text-align: center;
+			vertical-align: center;
+		}
+		
+		div.blueBox:hover {
+			cursor:pointer;
+		}
+		
+		div#draggable_rect {
+			position:absolute;
+			left:32px;
+			top:10px;
+		}
+		
+		div#draggable_arc {
+			position:absolute;
+			left:97px;
+			top:10px;
+		}
+		
+		div#draggable_scatter {
+			position:absolute;
+			left:162px;
+			top:10px;
+		}
+		
+		div#draggable_axis {
+			position:absolute;
+			left:65px;
+			top:70px;
+		}
+		
+		div#draggable_text {
+			position:absolute;
+			left:130px;
+			top:70px;
+		}
+
+		
+		
+		
+
+div#sidebar {
+  position:relative;
+  border-bottom:2px solid #000;
+  margin-bottom:10px;
+}
+
+		#data ul {
+			position:relative;
+		  list-style-type: none;
+		  left:-8px;
+			cursor: default;
+		}
+		
+		#data ul li:hover {
+			cursor:pointer;
+		}
+
+		/* What the list item looks like when it is dragged;
+		   because it is cloned, inherits the same properties from normal li */
+		li.ui-draggable-dragging.column{
+			position:relative;
+			color:white;
+			opacity:0.6;
+			z-index:20;
+			background-color:red;
+		}
+
+		
+		
+		
+		
+div#propertyEditor {
+	position:relative;
+}
+
+		table {
+			width:100%;	
+		}
+		
+		table tr td:nth-child(1) {
+			text-align:right;	
+			padding-right:5px;
+		}
+		
+		table tr td:nth-child(2) {
+			text-align:left;	
+		}
+		
+		td.propertyEditorHeader {
+			width:110px;
+			vertical-align:middle;
+			font-size:12px;
+			font-family:Verdana, Georgia, sans-serif;
+		}
+		
+		td.propertyEditorWidget {
+			text-align:center;
+			//margin-bottom:15px;
+		}	
+		
+		td.propertyEditorWidget input.colorInput {
+			width:90%;
+		}
+		
+		td.propertyEditorWidget div.pixelInput {
+			width:90%;
+		}
+		
+		td.propertyEditorWidget div.pixelInput input {
+			width:75px;
+		}
+
+
+
+
+
 
 
 
@@ -40,81 +184,66 @@ div.menudivGroup {
 	padding-left:2px;
 }
 
+		div.menudiv {
+			height:25px;
+		}
+		
+		div.submenudivGroup {
+			position:absolute;
+			background-color:#cccccc;
+			border:1px solid #999;
+			box-shadow: 2px 2px 5px #666;
+			width:100px;
+			padding-left:2px;
+			left:118px;
+			top:-1px;
+		}
 
-div.menudiv {
-	height:25px;
+		div.optiondiv {
+			height:20px;
+			margin-bottom:18px;
+			margin-top:18px;
+		}
+		
+		div.menuArrow {
+			position:relative;
+			top:-18px;
+			left:105px;
+		}
+
+
+		
+
+
+div.note {
+	padding:2px;
+	border:1px solid #fff;
+	background-color: #fff;
 }
 
-div.submenudivGroup {
-	position:absolute;
-	background-color:#cccccc;
-	border:1px solid #999;
-	box-shadow: 2px 2px 5px #666;
-	width:100px;
-	padding-left:2px;
-	left:118px;
-	top:-1px;
-}
+	
 
 
-div.optiondiv {
-	height:20px;
-	margin-bottom:18px;
-	margin-top:18px;
-}
-
-div.menuArrow {
-	position:relative;
-	top:-18px;
-	left:105px;
-}
 
 
-#toolbar {
-    display: block;
-    height: 100px;
-    border: 1px solid #333;
-    margin-bottom: 10px;
-}
-
-#sidebar {
-    display: block;
-    float: left;
-    margin-right: 10px;
-    width: 200px;
-    height: 500px;
-    border: 1px solid #000;
-
-}
-
-svg#vis {
-    display: block;
-    border: 1px solid #333;
-}
-
-#data ul {
-    list-style-type: none;
-    margin-left: 0;
-	cursor: default;
-}
 
 .zone{
-    display: block;
-    background: lightgreen;
+  display: block;
+  background: lightgreen;
 	position: absolute;
 	border-color: #cccccc;
 	border-width: 2;
 }
 
 .vertzonehidden{
-display: none;
+	display: none;
 }
 
 #axisdrag path,line {
 	font-size: 10px;
-    fill: none;
-    stroke: black;
-    shape-rendering: crispEdges;
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
 	font-family: sans-serif;	
 }
 
@@ -147,36 +276,9 @@ display: none;
 
 }
 
-.mark {
-    display: block;
-    width: 50px;
-    height: 50px;
-    background: #4682B4;
-    margin: 25px 20px;
-    cursor: default;
-	border-color: #cccccc;
-	border-width: 2;
-	float: left;
-	font-size: 46px;
-	text-align: center;
-	vertical-align: center;
 
-}
-.axismark {
-    display: block;
-    width: 50px;
-    height: 50px;
-    background: #4682B4;
-    margin: 25px 20px;
-    cursor: default;
-	border-color: #cccccc;
-	border-width: 2;
-	float: left;
-	font-size: 46px;
-	text-align: center;
-	vertical-align: center;
 
-}
+
 
 .mark-accept-highlight {
     background: green;
@@ -210,9 +312,7 @@ display: none;
 
 }
 
-#region{
-	width: 1020px;
-}
+
 
 #draggable_text{
 	font-size: 46px;
@@ -254,25 +354,6 @@ display: none;
 	opacity: 1;
 }
 
-div.note {
-	padding:2px;
-	border:1px solid #fff;
-	background-color: #fff;
-}
 
-div.propertyEditorHeader {
-	text-align:center;
-	background-color:black;
-	color:white;
-	font-size:16px;
-	font-family:Georgia, sans-serif;
-	padding:2px;
-	margin-bottom:5px;
-}
-
-div.propertyEditorWidget {
-	text-align:center;
-	margin-bottom:15px;
-}
 
 
