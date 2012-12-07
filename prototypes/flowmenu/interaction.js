@@ -138,11 +138,11 @@ function setPropertyEditorDefaults() {
 		
 		leftPos = $("div#note_" + activeMark).css("left");
 		leftPos = parseInt(leftPos.split("px")[0]);
-		$("input#updateXPos").val(leftPos-213);
+		$("input#updateXPos").val(leftPos); //leftPos-213 hardcoded
 		
 		topPos = $("div#note_" + activeMark).css("top");
 		topPos = parseInt(topPos.split("px")[0]);
-		$("input#updateYPos").val(topPos-112);
+		$("input#updateYPos").val(topPos); //topPos-112 hardcoded
 	} 
 	
 	//Otherwise, the active mark is not a "note"
@@ -288,7 +288,7 @@ $(document).ready(function(){
 		v = parseInt($("input#updateXPos").val());
 		
 		if($("div#note_" + activeMark).length==1) {
-			$("div#note_" + activeMark).css("left", v+213); //213 hardcoded
+			$("div#note_" + activeMark).css("left", v); //v+213 hardcoded
 		} else {
 			tSpecs = transformSpecs($("g#mark_" + activeMark + "_group"));
 			$("g#mark_" + activeMark + "_group").attr("transform", "translate(" + v + "," + tSpecs[1] + ")");
@@ -302,7 +302,7 @@ $(document).ready(function(){
 		v = parseInt($("input#updateYPos").val());
 
 		if($("div#note_" + activeMark).length==1) {
-			$("div#note_" + activeMark).css("top", v+112); //112 hardcoded
+			$("div#note_" + activeMark).css("top", v); //v+112 hardcoded
 		} else {
 			tSpecs = transformSpecs($("g#mark_" + activeMark + "_group"));
 			$("g#mark_" + activeMark + "_group").attr("transform", "translate(" + tSpecs[0] + "," + v + ")");

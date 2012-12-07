@@ -18,14 +18,13 @@ div#leftSide {
 	top:5px;
 	background-color:#ddd;
 	height:100%;
-	z-index:5;
+	z-index:5; /* important to make sure its z-index is greater than that of div#rightSide for good fixed scrolling */
 }
 
 div#rightSide {
 	position:absolute;
 	left:250px;
 	top:5px;
-	z-index:4;
 }
 
 
