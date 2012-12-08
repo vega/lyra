@@ -1873,7 +1873,7 @@ var dropSubMenu=function(event,ui){
 		case "rect":
 			//why is second parameter n*20? it's the fixed width
 			rememberEncoding(marknum, parameter, colname, selectedoption.attr("name"));
-			updateRectMarks(marknum, n*20, undefined, parameter, colname, scaleselection);	// remove constant
+			updateRectMarks(marknum, undefined, undefined, parameter, colname, scaleselection);	// remove constant
 		break;
 		
 		case "arc":
@@ -1883,7 +1883,7 @@ var dropSubMenu=function(event,ui){
 		
 		case "scatter":
 			rememberEncoding(marknum, parameter, colname, selectedoption.attr("name"));
-			updateScatterMarks(marknum, n*20, undefined, parameter, colname, scaleselection);
+			updateScatterMarks(marknum, undefined, undefined, parameter, colname, scaleselection);
 		break;
 	}	
 	
@@ -2209,6 +2209,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 			case "y":
 				xscale = makeQuantScale(xscaleselection, xdatacolumn, newwidth);
 				yscale = makeQuantScale(yscaleselection, ydatacolumn, newheight);
+				console.log(xscale.range());
 				marks.transition().duration(transduration)
 				.attr("transform",function(d,i)
 				{
@@ -2287,6 +2288,13 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 				markGroups[marknum].addScale("y", new Scale(yscale, colorscale, scaleselection, colname));				
 				markGroups[marknum].yScale = yscale;			
 			}
+			else if(parameter==="update")
+			{
+				markGroups[marknum].addScale("x", new Scale(xscale, colorscale, xscaleselection, xcolname));			
+				markGroups[marknum].xScale = xscale;
+				markGroups[marknum].addScale("y", new Scale(yscale, colorscale, yscaleselection, ycolname));				
+				markGroups[marknum].yScale = yscale;				
+			}
 		}
 		
 		marks.exit().remove();
@@ -2306,14 +2314,31 @@ var positionAxis = function(curaxis) {
 	var anchornum = +myid.split("_")[2];
 	var axisgroup = d3.select("#axis_" + marknum + "_" + anchornum);			
 	
+	var marktype = markGroups[marknum].type;
+	
 	var flippedscale = d3.scale.linear();
 	var normalscale = d3.scale.linear();
-	var axis = d3.svg.axis();				
-	var range = markGroups[marknum].majorScale.range();
+	var axis = d3.svg.axis();		
+	var range;
+	var markscale;
 	
-	normalscale.domain(markGroups[marknum].majorScale.domain())
-				.range(markGroups[marknum].majorScale.range());
-	flippedscale.domain(markGroups[marknum].majorScale.domain())
+	if(marktype==="rect")
+	{
+		markscale = markGroups[marknum].majorScale;
+	}
+	else if(marktype==="scatter")
+	{
+		if(anchornum===1 || anchornum===3) {
+			markscale = markGroups[marknum].yScale;
+		} else {
+			markscale = markGroups[marknum].xScale;
+		}
+	}
+	
+	range = markscale.range();
+	normalscale.domain(markscale.domain())
+				.range(markscale.range());
+	flippedscale.domain(markscale.domain())
 				.range([range[1], range[0]]);
 	
 
