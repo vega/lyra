@@ -32,6 +32,27 @@ function MarkGroup(markType) {
 	this.addScale = function(property, newscale) {
 		this.scales[property] = newscale;
 	}
+	
+	this.parameters = {}; //key-value of KEY=parameter to VALUE=colname if present
+	
+	this.addParameter = function(parameter, colname, option) {
+		this.parameters[parameter] = {};
+		this.parameters[parameter].colname = colname;
+		this.parameters[parameter].option = option;
+	}
+	
+	this.removeParameter = function(parameter) {
+		delete this.parameters[parameter];
+	}
+	
+	//Convenience function for easier debugging
+	this.printParameters = function() {
+		console.log("Printing parameters...");
+		for(var key in this.parameters) {
+			console.log("KEY: " + key + ", VALUE: " + this.parameters[key].colname);
+		}
+	}
+
 }
 
 
@@ -100,6 +121,49 @@ function getMarkNum(selector) {
 
 
 
+//REMEMBER ENCODINGS FOR EACH MARKGORUP OBJECT
+function rememberEncoding(marknum, parameter, colname, optionname) {
+	console.log("OPTION NAME: " + optionname);
+	markGroup = markGroups[marknum];
+	
+	switch(markGroup.type) {
+		//TODO: add for other marks if some properties are mutually exclusive
+		case "rect":
+			if(parameter==="height" && markGroup.parameters["width"]) {
+				markGroup.removeParameter("width");
+			}
+			
+			if(parameter==="width" && markGroup.parameters["height"]) {
+				markGroup.removeParameter("height");
+			}
+
+		break;
+	}
+
+	markGroup.addParameter(parameter, colname, optionname);
+	
+	
+	//Add bold classes to current parameters
+	$("div.optiondiv").removeClass("optionselected");
+	menuDIVS = $("div.menudiv");
+	
+	for(i=0; i<menuDIVS.length; i++) {
+		menuName = menuDIVS.eq(i).attr("name");
+		optionDIVS = $("div.menudiv:eq(" + i + ") div.submenudivGroup div");
+		for(j=0; j<optionDIVS.length; j++) {
+			optionName = optionDIVS.eq(j).attr("name");
+			if(markGroup.parameters[menuName]) {
+				if(markGroup.parameters[menuName].option === optionName) {
+					optionDIVS.eq(j).addClass("optionselected");
+				}
+			}
+		}
+	}
+			
+	markGroup.printParameters();
+}
+
+
 
 //GIVEN ALL THE DATA (OBJECTARRAY) AND A COLUMN NAME (LIKE "FEMALE COUNT"), RETURNS THE NUMBERS FOR FEMALE COUNT
 function dataObjectsToColumn(objectArray,colname){
@@ -110,6 +174,18 @@ function dataObjectsToColumn(objectArray,colname){
 	return column;
 }
 
+
+function activeMarkOn(markID) {	
+	//Make visible again all the standard property editor features
+	$("table#propertyEditorTable tr td").children().css("visibility", "visible");
+	activeMark = markID;
+}
+
+function activeMarkOff() {
+	//Make visible again all the standard property editor features
+	$("table#propertyEditorTable tr td").children().css("visibility", "hidden");
+	activeMark = -1;
+}
 
 
 //GRABBED THIS UTILITY FUNCTION ONLINE TO CONVERT RGB TO HEX VALUES
@@ -127,22 +203,27 @@ function rgb2hex(rgb) {
 
 
 function setPropertyEditorDefaults() {
+	//First, remove all "data-driven" spans
+	$("table#propertyEditorTable tr.tempRow").remove();
+
 	//If there is a "note" active
-	if($("div#note_" + activeMark).length==1) {
-		$("input#barFillColor").val(rgb2hex($("div#note_" + activeMark).css("color")));
-		$("input#barStrokeColor").val(rgb2hex($("div#note_" + activeMark).css("background-color")));
+	if(markGroups[activeMark].type==="note") {
+		var markJQ = $("div#note_" + activeMark);
 		
-		fontSz = $("div#note_" + activeMark).css("font-size");
+		$("input#barFillColor").val(rgb2hex(markJQ.css("color")));
+		$("input#barStrokeColor").val(rgb2hex(markJQ.css("background-color")));
+		
+		fontSz = markJQ.css("font-size");
 		fontSz = parseInt(fontSz.split("px")[0]);
 		$("input#updateFontSize").val(fontSz);
 		
-		leftPos = $("div#note_" + activeMark).css("left");
+		leftPos = markJQ.css("left");
 		leftPos = parseInt(leftPos.split("px")[0]);
-		$("input#updateXPos").val(leftPos); //leftPos-213 hardcoded
+		$("input#updateXPos").val(leftPos);
 		
-		topPos = $("div#note_" + activeMark).css("top");
+		topPos = markJQ.css("top");
 		topPos = parseInt(topPos.split("px")[0]);
-		$("input#updateYPos").val(topPos); //topPos-112 hardcoded
+		$("input#updateYPos").val(topPos);
 	} 
 	
 	//Otherwise, the active mark is not a "note"
@@ -157,18 +238,29 @@ function setPropertyEditorDefaults() {
 		switch(markType) {
 			
 			case "rect":
-				var rect = markD3.select("rect.realmark");
+				var rectMark = markD3.select("rect.realmark"); //select the first mark of the group
 				var axis = $(".axis_" + activeMark); 
-				$("input#barFillColor").val(rect.attr("fill"));
-				$("input#barStrokeColor").val(rect.attr("stroke"));
+
+				if(axis.length>0) {
+					fontSz = axis.css("font-size");
+					fontSz = parseInt(fontSz.split("px")[0]); 
+					$("input#updateFontSize").val(fontSz); 
+				}
 				
-				if(axis.length>0){
-				fontSz = axis.css("font-size");
-				fontSz = parseInt(fontSz.split("px")[0]); 
-				$("input#updateFontSize").val(fontSz); }
+				markGroup = markGroups[activeMark];
+				
+				if(markGroup.parameters["fill"]) {
+					console.log("A");
+					$("input#barFillColor").val("rgb(0,0,0)");
+					$("tr#barFillColorRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["fill"].colname + "</span></td></tr>")
+				} else {
+					console.log("B");
+					$("input#barFillColor").val(rectMark.attr("fill"));
+				}
+				
+				$("input#barStrokeColor").val(rectMark.attr("stroke"));
 				
 				$("input#updateXPos").val(tSpecs[0]);
-				
 				$("input#updateYPos").val(tSpecs[1]);
 			break;
 			
@@ -200,6 +292,8 @@ function setPropertyEditorDefaults() {
 
 //EVERYTHING TO DO WHEN THE DOCUMENT LOADS
 $(document).ready(function(){
+	
+	activeMarkOff();
 		
 	//Bar Width Slider Receive Events
 // 	$("input#barWidthSlider").change(function() {
@@ -215,7 +309,7 @@ $(document).ready(function(){
 
 
 	
-	$("rect.guideline").hide();
+	$("rect.guideline").hide(); //hide guidelines when you load the page
 	//Toggle Guidelines
 	$("input#toggleGuidelines").click(function() {
 		console.log("HERE");
@@ -227,14 +321,14 @@ $(document).ready(function(){
 		$("rect.guideline").toggle();
 	});
 
+	
 	//Property Editor Change: Bar Fill Color
 	$("input#barFillColor").change(function() {
 		v = $("input#barFillColor").val();
 		
 		if(activeMark==-1) { return; } //only change the active mark; if there is no active mark, activeMark set to -1
-		
 
-		if($("div#note_" + activeMark).length==1) {
+		if(markGroups[activeMark].type==="note") {
 			$("div#note_" + activeMark).css("color", v); //change color of "note"
 		} 
 		else {
@@ -244,6 +338,8 @@ $(document).ready(function(){
 			switch(markType) {
 				case "rect" :
 					updateRectMarks(activeMark, undefined, undefined, "fill", undefined, "logarithmic", v);
+					markGroups[activeMark].removeParameter("fill");
+					setPropertyEditorDefaults();
 				break;
 				
 				case "arc" :
@@ -260,7 +356,7 @@ $(document).ready(function(){
 		
 		if(activeMark==-1) { return; } //only change the active mark; if there is no active mark, activeMark set to -1
 		
-		if($("div#note_" + activeMark).length==1) {
+		if(markGroups[activeMark].type==="note") {
 			$("div#note_" + activeMark).css("backgroundColor", v); //change background color of "note"
 		} 
 		else {
@@ -286,7 +382,7 @@ $(document).ready(function(){
 		if(activeMark==-1) { return; } //only change the active mark; if there is no active mark, activeMark set to -1
 		
 		
-		if($("div#note_" + activeMark).length==1) {
+		if(markGroups[activeMark].type==="note") {
 			$("div#note_" + activeMark).css("font-size", $("input#updateFontSize").val() + "px");
 		} else {
 			$(".axis_" + activeMark).css("font-size", $("input#updateFontSize").val() + "px");
@@ -299,7 +395,7 @@ $(document).ready(function(){
 	$("input#updateXPos").change(function() {
 		v = parseInt($("input#updateXPos").val());
 		
-		if($("div#note_" + activeMark).length==1) {
+		if(markGroups[activeMark].type==="note") {
 			$("div#note_" + activeMark).css("left", v); //v+213 hardcoded
 		} else {
 			tSpecs = transformSpecs($("g#mark_" + activeMark + "_group"));
@@ -313,7 +409,7 @@ $(document).ready(function(){
 	$("input#updateYPos").change(function() {
 		v = parseInt($("input#updateYPos").val());
 
-		if($("div#note_" + activeMark).length==1) {
+		if(markGroups[activeMark].type==="note") {
 			$("div#note_" + activeMark).css("top", v); //v+112 hardcoded
 		} else {
 			tSpecs = transformSpecs($("g#mark_" + activeMark + "_group"));
@@ -440,7 +536,7 @@ $(document).ready(function(){
 			$("div.note").css("border", "1px solid #fff");
 			$("div.note").removeClass("selectedNote");
 
-			activeMark = -1; //reset activeMark status to -1
+			activeMarkOff();
 		}
 	});
 	
@@ -469,7 +565,7 @@ $(document).ready(function(){
 				textbox.focusin(function() {
 					$(this).css("cursor", "text");
 					var marknum = getMarkNum($(this));
-					activeMark = marknum;
+					activeMarkOn(marknum);
 					setPropertyEditorDefaults();
 					$(this).css("border", "2px solid " + colors10[marknum]);
 					$(this).addClass("selectedNote");
@@ -509,7 +605,7 @@ $(document).ready(function(){
 				textbox.appendTo($("body"));
 
 				markcount++;
-				markGroups.push(new MarkGroup("textbox"));
+				markGroups.push(new MarkGroup("note"));
 					
 				return;
 			}
@@ -828,9 +924,10 @@ var createMenus=function(markID,markcount) {
 	positionFlowMenu("menudivGroup_" + markcount);
 	$("div#menudivGroup_" + markcount).css("visibility", "hidden");
 	
+	
 	//For each top-level menu item
 	for(var divnum=0; divnum<menulabels.length; divnum++) {
-		menuitem=$("<div class='menudiv_" + markcount + " menudiv' id='menudiv_" + markcount + "_" + divnum + "' style='position:relative'>" + menulabels[divnum]+ "<div class='menuArrow'>&#9654;</div>" + "</div>");
+		menuitem=$("<div class='menudiv_" + markcount + " menudiv' id='menudiv_" + markcount + "_" + divnum + "' style='position:relative' name='" + menulabels[divnum] + "'>" + menulabels[divnum]+ "<div class='menuArrow'>&#9654;</div>" + "</div>");
 		
 		menuitem.data("vizAttribute", menulabels[divnum]);
 
@@ -878,11 +975,12 @@ var createMenus=function(markID,markcount) {
 		$("div.submenudivGroup").css("visibility", "hidden");
 		$("div#submenudivGroup_" +markcount+ "_" +divnum).show();
 		
+		
 		//Make a 2nd level menu for each 1st level menu
 		var optionslist = menus[markID][menulabels[divnum]];
 		
 		for(var optionnum=0; optionnum<optionslist.length; optionnum++) {
-			option=$("<div class='optiondiv_" + markcount + "_" + divnum + " optiondiv' id='optiondiv_" + markcount + "_" + divnum + "_" + optionnum + "' style='position:relative;'>" + optionslist[optionnum]+ "</div>");
+			option=$("<div class='optiondiv_" + markcount + "_" + divnum + " optiondiv' id='optiondiv_" + markcount + "_" + divnum + "_" + optionnum + "' style='position:relative' name='" + optionslist[optionnum] + "'>" + optionslist[optionnum]+ "</div>");
 
 			$("div#submenudivGroup_" +markcount+ "_" + divnum).append(option);
 					
@@ -1542,7 +1640,8 @@ var createMarks = function(x, y, markcount, markType) {
 	  })
 	  
 	  
-	  .dblclick(function(e) {
+	  //.dblclick(function(e) {
+	  .mousedown(function(e) {
 		  var marknum = getMarkNum($(this));
 		  
 		  //set all other containers to transparent
@@ -1550,10 +1649,8 @@ var createMarks = function(x, y, markcount, markType) {
 			group.attr("opacity",0);
 	
 			updateBackgroundHighlight(marknum, .3);
-		  activeMark = marknum;		  
+		  activeMarkOn(marknum);		  
 		  setPropertyEditorDefaults();
-		  
-		  //TODO: activate the property editor here
 	  })
 	  
 	  
@@ -1751,7 +1848,6 @@ var dropSubMenu=function(event,ui){
 	myparent.classed("hoverselected",false);
 	
 	$(this).removeClass("hoverselected");
-	$(this).addClass("optionselected"); //TODO: need to remove optionselected from other attributes that are no longer active
 	
 	
 	//var parameter = myparent.text(); //parameter menu option
@@ -1776,14 +1872,17 @@ var dropSubMenu=function(event,ui){
 	switch(markType) {
 		case "rect":
 			//why is second parameter n*20? it's the fixed width
+			rememberEncoding(marknum, parameter, colname, selectedoption.attr("name"));
 			updateRectMarks(marknum, n*20, undefined, parameter, colname, scaleselection);	// remove constant
 		break;
 		
 		case "arc":
+			rememberEncoding(marknum, parameter, colname, selectedoption.attr("name"));
 			updateArcMarks(marknum, undefined, parameter, colname, scaleselection);
 		break;
 		
 		case "scatter":
+			rememberEncoding(marknum, parameter, colname, selectedoption.attr("name"));
 			updateScatterMarks(marknum, n*20, undefined, parameter, colname, scaleselection);
 		break;
 	}	

@@ -41,57 +41,56 @@
 		<div id="propertyEditor">
 			<!--<p>Update Bar Widths:</p>
 			<input type="range" name="barWidthSlider" id="barWidthSlider" min="10" max="100" step="1" value="100" style="width: 242px"/>-->
-			<div class="header" id="header3">PROPERTY EDITOR</div>
+			<div class="header" id="header3" style="margin-bottom:10px">PROPERTY EDITOR</div>
 			
-			<table>
-				<tr>
+			<table id="propertyEditorTable">
+				<tr id="barFillColorRow">
 					<td class="propertyEditorHeader">Fill Color:</td>
 					<td class="propertyEditorWidget">
 						<input class="colorInput" type="color" name="barFillColor" id="barFillColor"/>
 					</td>
 				</tr>
 				
-				<tr>
+				<tr id="barStrokeColorRow">
 					<td class="propertyEditorHeader">Background Color:</td>
 					<td class="propertyEditorWidget">
 						<input class="colorInput" type="color" name="barStrokeColor" id="barStrokeColor"/>
 					</td>
 				</tr>
 				
-				<tr>
+				<tr id="updateFontSizeRow">
 					<td class="propertyEditorHeader">Text Size:</td>
 					<td class="propertyEditorWidget">
 						<div class="pixelInput"><input type="text" name="updateFontSize" id="updateFontSize"/> px</div>
 					</td>
 				</tr>
 				
-				<tr>
+				<tr id="updateTextFontRow">
 					<td class="propertyEditorHeader">Text Font:</td>
 					<td class="propertyEditorWidget">
 						<div class="textInput"><input type="text" name="updateTextFont" id="updateTextFont" value="Verdana"/></div>
 					</td>
 				</tr>
 				
-				<tr>
+				<tr id="styleTextRow">
 					<td class="propertyEditorHeader">Bold/Italics/ULine:</td>
 					<td class="propertyEditorWidget">
 						<div class="buttonInput">
 							<input type="submit" name="boldButton" id="boldButton" value="B" style='font-weight:bold'/>
 							<input type="submit" name="italButton" id="italButton" value="I" style='font-style:italic'/>
 							<input type="submit" name="ulneButton" id="ulneButton" value="U" style='text-decoration:underline'/>
-							
 						</div>
 					</td>
 				</tr>
 				
-				<tr>
+				<tr id="updateXPosRow">
 					<td class="propertyEditorHeader">X Position:</td>
 					<td class="propertyEditorWidget">
 						<div class="pixelInput"><input type="text" name="updateXPos" id="updateXPos"/> px</div>
 					</td>
 				</tr>
 				
-				<tr>
+				<tr id="updateYPosRow">
 					<td class="propertyEditorHeader">Y Position:</td>
 					<td class="propertyEditorWidget">
 						<div class="pixelInput"><input type="text" name="updateYPos" id="updateYPos"/> px</div>

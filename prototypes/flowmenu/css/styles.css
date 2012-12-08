@@ -72,31 +72,31 @@ div#toolbar {
 		div#draggable_rect {
 			position:absolute;
 			left:32px;
-			top:30px;
+			top:38px;
 		}
 		
 		div#draggable_arc {
 			position:absolute;
 			left:97px;
-			top:30px;
+			top:38px;
 		}
 		
 		div#draggable_scatter {
 			position:absolute;
 			left:162px;
-			top:30px;
+			top:38px;
 		}
 		
 		div#draggable_axis {
 			position:absolute;
 			left:65px;
-			top:90px;
+			top:98px;
 		}
 		
 		div#draggable_text {
 			position:absolute;
 			left:130px;
-			top:90px;
+			top:98px;
 		}
 
 		
@@ -189,6 +189,10 @@ div#propertyEditor {
 		
 		td.propertyEditorWidget div.buttonInput input {
 			width:29px;
+		}
+		
+		tr.tempRow td {
+			color:red;
 		}
 		
 
@@ -354,19 +358,18 @@ div.note {
 	vertical-align: center;
 }
 
-.hoverselected{
+.hoverselected {
 	color: black;
 	background: khaki;
 }
 
 
-.optionselected{
+.optionselected {
 	color: black;
-	//background: khaki;
 	font-weight:bold;
 }
 
-.axisanchor{
+.axisanchor {
 	background: orange;
     width: 15px;
     height: 15px;
@@ -379,7 +382,8 @@ div.note {
 	user-select: none;
 
 }
-.ui-state-disabled{
+
+.ui-state-disabled {
 	opacity: 1;
 }
 
