@@ -205,8 +205,24 @@ div#propertyEditor {
 
 
 
+table.legend {
+	position:absolute;
+	background-color:#cccccc;
+	border:1px solid #999;
+	box-shadow: 2px 2px 5px #666;
+	width:120px;
+	left: 500px;
 
+}
+	table.legend tr td.title {
+	font-size: 14px;
+	
+	}
 
+	table.legend tr td {
+	text-align: center;
+	
+	}
 
 div.menudivGroup {
 	position:absolute;

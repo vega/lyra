@@ -694,8 +694,132 @@ var createDraggableIcons = function() {
 }
 
 
+var createLegend = function(marknum, parameter)
+{
+	var prettyname = parameter
+	prettyname=prettyname[0].toUpperCase()+prettyname.slice(1);
+	
+	var prevlegend = $("#mark_"+marknum+"_"+parameter);
+	if(prevlegend.length > 0){
+		$("closeicon_mark"+marknum+"_"+parameter).remove();
+		prevlegend.remove();
+		
+	}
+	
+	var tablestring = "<table class='legend' id='mark_"+marknum+"_"+parameter+"'><tr><td colspan='2' class='title' contenteditable=true>"+prettyname+"</td></tr>";
+	var isordinal;
+	var uniqueelements = {};
+	var colorscale;
+
+	var colname = markGroups[marknum].parameters[parameter].colname;
+	var option = markGroups[marknum].parameters[parameter].option
+	isordinal = isNaN(allData[0][colname]);
+
+	if(isordinal)
+	{
+		colorscale = makeColorScale(option, dataObjectsToColumn(allData,colname));
+
+		for(var i in allData)
+		{
+			uniqueelements[allData[i][colname]]=i;
+		}
+
+		for(var elem in uniqueelements)
+		{
+			var row = "<tr><td style='background-color:"+colorscale(elem)+"'</td><td>"+elem+"</tr>";
+			tablestring += row;
+		}
 
 
+
+	}
+	tablestring += "</table>";
+	var legend = $(tablestring);
+
+	
+
+	legend.appendTo($("body"));
+	
+	
+	var markgroup = d3.select(".mark" + marknum);		
+	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+	var wh = getDimensions($("g.mark" + marknum));
+	
+	var minx = +cleantrans[0];
+	var miny = +cleantrans[1];
+	var visarea = $("#vis");
+	var markType = markGroups[marknum].type;
+	
+	switch(markType) {
+		case "rect":
+			legend.css("left",(minx+visarea.offset().left+wh[0]+20)+"px");
+			legend.css("top",miny+visarea.offset().top + "px");
+		break;
+		
+		case "arc":
+			var radius = markGroups[marknum].radius;
+			legend.css("left",(minx+visarea.offset().left+Math.cos(45)*radius+20)+"px");
+			legend.css("top",miny+visarea.offset().top-Math.sin(45)*radius + "px");
+		break;
+		
+		case "scatter":
+			legend.css("left",(minx+visarea.offset().left+wh[0]+20)+"px");
+			legend.css("top",miny+visarea.offset().top + "px");
+		break;
+	}
+	
+	createCloseIcon(legend.attr("id"));
+	
+	legend.draggable({
+		drag:function(e,ui)
+		{
+			$("#closeicon_"+legend.attr("id")).show();
+			positionCloseIcons(marknum);
+		}
+	});
+}
+
+
+// generic close icon given an element id
+
+var createCloseIcon = function(id)
+{
+	var parent=$("#"+id);
+	var marknum = getMarkNum($("#"+id));
+	//CLOSE ICON
+	var closeicon=$("<div class='closeicon closeicon_"+marknum+"' id='closeicon_" + id + "' style='position:absolute;'>X</div>");
+	
+	closeicon.mouseenter(function() {
+		$(this).show();
+	});
+	
+	closeicon.click(function() {
+		var id = $(this).attr("id");
+		var idelems = id.split("_");
+		idelems.shift();
+		var targetid = idelems.join("_");
+		
+		destroyElement(targetid);
+		$(this).remove();
+	});
+	
+	// it flickers sometimes
+	parent.find("tr").mouseenter(function()
+	{
+		positionCloseIcons(marknum);
+		closeicon.show();
+	//	console.log("show "+marknum);
+	});	
+	parent.find("tr").mouseout(function()
+	{
+		closeicon.hide();
+	});		
+	
+	$("body").append(closeicon);
+	closeicon.hide();
+
+
+}
 
 
 
@@ -1022,6 +1146,7 @@ var createMenus=function(markID,markcount) {
 
 var positionAnnotations = function(marknum) {
 	positionCloseIcon(marknum);
+	positionCloseIcons(marknum);	
 	positionAxisAnchor(marknum);
 	positionTextAnchors(marknum);
 	positionTextAnnotations(marknum);
@@ -1068,6 +1193,62 @@ var positionCloseIcon = function(marknum) {
 	}	
 }
 
+// position close icons of all attached objects (axes, legends)
+var positionCloseIcons = function(marknum) {
+	var icons = $(".closeicon_" + marknum);
+	
+	icons.each(function(index){
+	
+		var icon = $(this);
+		var id = icon.attr("id");
+		var idelems = id.split("_");
+		idelems.shift();
+		var parentid = idelems.join("_");		
+		var parent = $("#"+parentid);
+		
+		var islegend = parent.hasClass("legend");
+
+			if(islegend){
+				var iconleft = (+parent.offset().left) +  (+parent.css("width").split("px")[0]) - 10 +"px";	
+				icon.css("left",iconleft);
+				icon.css("top",parent.offset().top);
+			}
+			
+			else
+			{
+			// handle axes
+			
+				// var markgroup = d3.select(".mark" + marknum);		
+				// var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+				// var wh = getDimensions($("g.mark" + marknum));
+				
+				// var minx = +cleantrans[0];
+				// var miny = +cleantrans[1];
+				// var visarea = $("#vis");
+				// var markType = markGroups[marknum].type;
+				
+				// switch(markType) {
+					// case "rect":
+						// icon.css("left",(minx+visarea.offset().left+wh[0]-20)+"px");
+						// icon.css("top",miny+visarea.offset().top + "px");
+					// break;
+					
+					// case "arc":
+						// var radius = markGroups[marknum].radius;
+						// icon.css("left",(minx+visarea.offset().left+Math.cos(45)*radius)+"px");
+						// icon.css("top",miny+visarea.offset().top-Math.sin(45)*radius + "px");
+					// break;
+					
+					// case "scatter":
+						// icon.css("left",(minx+visarea.offset().left+wh[0]-40)+"px");
+						// icon.css("top",miny+visarea.offset().top + "px");
+					// break;
+				// }		
+			
+			}
+
+	});
+}
 
 
 
@@ -1691,6 +1872,13 @@ var destroyMark = function(marknum) {
 	d3.selectAll(".textcont_" + marknum).remove();
 }
 
+// destroy a single element. handle resetting relevant params here
+var destroyElement = function(id)
+{
+	var element = $("#"+id);
+	element.remove();
+}
+
 
 
 
@@ -2066,7 +2254,8 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 				if(constantValue===undefined) {
 					marks.attr("fill",function(d,i){
 						return colorscale(d[colname]);
-					})
+					});
+					createLegend(marknum,"fill");
 				} else {
 					marks.attr("fill",function(d,i){
 						return constantValue;
@@ -2078,7 +2267,8 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 				if(constantValue===undefined) {
 					marks.attr("stroke",function(d,i){
 						return colorscale(d[colname]);
-					})
+					});
+					createLegend(marknum,"stroke");					
 				} else {
 					marks.attr("stroke",function(d,i){
 						return constantValue;
@@ -2245,7 +2435,8 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 					colorscale = makeColorScale(scaleselection, datacolumn);
 					marks.attr("fill",function(d,i){
 						return colorscale(d[colname]);
-					})
+					});
+					createLegend(marknum,"fill");					
 				} else {
 					marks.attr("fill",function(d,i){
 						return constantValue;
@@ -2258,7 +2449,8 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 					colorscale = makeColorScale(scaleselection, datacolumn);				
 					marks.attr("stroke",function(d,i){
 						return colorscale(d[colname]);
-					})
+					});
+					createLegend(marknum,"stroke");					
 				} else {
 					marks.attr("stroke",function(d,i){
 						return constantValue;
@@ -2511,6 +2703,7 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 				if(constant!==undefined)
 					arcs.attr("fill",constant);
 				else
+					createLegend(marknum,"fill");					
 					arcs.attr("fill",function(d,i){return colorscale(datacolumn[i]);});
 				break;
 				
@@ -2518,6 +2711,7 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 				if(constant!==undefined)
 					arcs.attr("stroke",constant);
 				else
+					createLegend(marknum,"stroke");					
 					arcs.attr("stroke",function(d,i){return colorscale(datacolumn[i]);});
 				break;
 		}
