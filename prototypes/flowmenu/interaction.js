@@ -123,7 +123,6 @@ function getMarkNum(selector) {
 
 //REMEMBER ENCODINGS FOR EACH MARKGORUP OBJECT
 function rememberEncoding(marknum, parameter, colname, optionname) {
-	console.log("OPTION NAME: " + optionname);
 	markGroup = markGroups[marknum];
 	
 	switch(markGroup.type) {
@@ -143,7 +142,7 @@ function rememberEncoding(marknum, parameter, colname, optionname) {
 	markGroup.addParameter(parameter, colname, optionname);
 	
 	
-	//Add bold classes to current parameters
+	//Add bolded classes to current parameters
 	$("div.optiondiv").removeClass("optionselected");
 	menuDIVS = $("div.menudiv");
 	
@@ -183,6 +182,7 @@ function activeMarkOn(markID) {
 
 function activeMarkOff() {
 	//Make visible again all the standard property editor features
+	console.log("Active Mark Off");
 	$("table#propertyEditorTable tr td").children().css("visibility", "hidden");
 	activeMark = -1;
 }
@@ -203,12 +203,15 @@ function rgb2hex(rgb) {
 
 
 function setPropertyEditorDefaults() {
-	//First, remove all "data-driven" spans
+	//First, remove all "data-driven" rows
 	$("table#propertyEditorTable tr.tempRow").remove();
 
 	//If there is a "note" active
 	if(markGroups[activeMark].type==="note") {
 		var markJQ = $("div#note_" + activeMark);
+		
+		$("tr#barFillColorRow td.propertyEditorHeader").text("Text Color:");
+		$("tr#barStrokeColorRow td.propertyEditorHeader").text("Background Color:");
 		
 		$("input#barFillColor").val(rgb2hex(markJQ.css("color")));
 		$("input#barStrokeColor").val(rgb2hex(markJQ.css("background-color")));
@@ -224,66 +227,93 @@ function setPropertyEditorDefaults() {
 		topPos = markJQ.css("top");
 		topPos = parseInt(topPos.split("px")[0]);
 		$("input#updateYPos").val(topPos);
+		
+		$("input#updateTextFont").val(markJQ.css("font-family"));
+
+		if(markJQ.css("font-weight")==="bold") {
+			$("button#boldButton").addClass("activeButton");
+		} else {
+			$("button#boldButton").removeClass("activeButton");
+		}
+		
+		if(markJQ.css("font-style")==="italic") {
+			$("button#italButton").addClass("activeButton");
+		} else {
+			$("button#italButton").removeClass("activeButton");
+		}
+		
+		if(markJQ.css("text-decoration")==="underline") {
+			$("button#ulneButton").addClass("activeButton");
+		} else {
+			$("button#ulneButton").removeClass("activeButton");
+		}
 	} 
 	
 	//Otherwise, the active mark is not a "note"
 	else {
 		var markType = markGroups[activeMark].type;
-		var markD3 = d3.select("g#mark_" + activeMark + "_group");
 		var markJQ = $("g#mark_" + activeMark + "_group");		
-		var tSpecs = transformSpecs(markD3[0][0]); //get translateX, translateY, {scaleX, scaleY}
+		var tSpecs = transformSpecs(markJQ); //get translateX, translateY, {scaleX, scaleY}
 		
-		//TODO: get axis text props here
-		
-		switch(markType) {
-			
-			case "rect":
-				var rectMark = markD3.select("rect.realmark"); //select the first mark of the group
-				var axis = $(".axis_" + activeMark); 
+		$("tr#barFillColorRow td.propertyEditorHeader").text("Fill Color:");
+		$("tr#barStrokeColorRow td.propertyEditorHeader").text("Stroke Color:");
 
-				if(axis.length>0) {
-					fontSz = axis.css("font-size");
-					fontSz = parseInt(fontSz.split("px")[0]); 
-					$("input#updateFontSize").val(fontSz); 
-				}
-				
-				markGroup = markGroups[activeMark];
-				
-				if(markGroup.parameters["fill"]) {
-					console.log("A");
-					$("input#barFillColor").val("rgb(0,0,0)");
-					$("tr#barFillColorRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["fill"].colname + "</span></td></tr>")
-				} else {
-					console.log("B");
-					$("input#barFillColor").val(rectMark.attr("fill"));
-				}
-				
-				$("input#barStrokeColor").val(rectMark.attr("stroke"));
-				
-				$("input#updateXPos").val(tSpecs[0]);
-				$("input#updateYPos").val(tSpecs[1]);
-			break;
-			
-			case "arc":
-				var myarcgroup = markD3.select("g.arc");
-							console.log(myarcgroup[0][0]);
-				var singlearc = myarcgroup.selectAll("path"); 	// if this is a select, bad bad things happen, d3 bug?
-				$("input#barFillColor").val(singlearc.attr("fill"));
-				$("input#barStrokeColor").val(singlearc.attr("stroke"));
-				
-				fontSz = markJQ.css("font-size");
-				fontSz = parseInt(fontSz.split("px")[0]);
-				$("input#updateFontSize").val(fontSz);
-				
-				$("input#updateXPos").val(tSpecs[0]);
-				
-				$("input#updateYPos").val(tSpecs[1]);			
-			
-				singlearc = 0;
-			break;
+		markGroup = markGroups[activeMark];
+		marks = svgm.selectAll(".mark" + activeMark + " .realmark")
+		
+		//If fill was data-driven
+		if(markGroup.parameters["fill"]) {
+			$("input#barFillColor").val("rgb(0,0,0)");
+			$("tr#barFillColorRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["fill"].colname + "</span></td></tr>")
+		} else {
+			$("input#barFillColor").val(marks.attr("fill"));
 		}
-
-		//TODO: Do this for other marks besides text marks
+		
+		if(markGroup.parameters["stroke"]) {
+			$("input#barStrokeColor").val("rgb(0,0,0)");
+			$("tr#barStrokeColorRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["stroke"].colname + "</span></td></tr>")
+		} else {
+			$("input#barStrokeColor").val(marks.attr("stroke"));
+		}
+		
+		var axis = $(".axis_" + activeMark);
+		
+		if(axis.length>0) {
+			fontSz = axis.eq(0).css("font-size");
+			fontSz = parseInt(fontSz.split("px")[0]); 
+			$("input#updateFontSize").val(fontSz);
+			
+			$("input#updateTextFont").val(axis.eq(0).css("font-family"));
+			
+			
+			if(axis.eq(0).css("font-weight")==="bold") {
+				$("button#boldButton").addClass("activeButton");
+			} else {
+				$("button#boldButton").removeClass("activeButton");
+			}
+			
+			if(axis.eq(0).css("font-style")==="italic") {
+				$("button#italButton").addClass("activeButton");
+			} else {
+				$("button#italButton").removeClass("activeButton");
+			}
+			
+			if(axis.eq(0).css("text-decoration")==="underline") {
+				$("button#ulneButton").addClass("activeButton");
+			} else {
+				$("button#ulneButton").removeClass("activeButton");
+			}
+		} 
+		else {
+			$("input#updateFontSize").val("");
+			$("button#boldButton").removeClass("activeButton");
+			$("button#italButton").removeClass("activeButton");
+			$("button#ulneButton").removeClass("activeButton");
+		}
+		
+		
+		$("input#updateXPos").val(tSpecs[0]);
+		$("input#updateYPos").val(tSpecs[1]);
 	}
 }
 
@@ -322,101 +352,84 @@ $(document).ready(function(){
 	});
 
 	
-	//Property Editor Change: Bar Fill Color
+	//Property Editor Change: Fill Color
 	$("input#barFillColor").change(function() {
 		v = $("input#barFillColor").val();
-		
-		if(activeMark==-1) { return; } //only change the active mark; if there is no active mark, activeMark set to -1
-
-		if(markGroups[activeMark].type==="note") {
-			$("div#note_" + activeMark).css("color", v); //change color of "note"
-		} 
-		else {
-			v = $("input#barFillColor").val();
-			var markType = markGroups[activeMark].type;
-			
-			switch(markType) {
-				case "rect" :
-					updateRectMarks(activeMark, undefined, undefined, "fill", undefined, "logarithmic", v);
-					markGroups[activeMark].removeParameter("fill");
-					setPropertyEditorDefaults();
-				break;
-				
-				case "arc" :
-					updateArcMarks(activeMark, undefined, "fill", undefined, undefined, v);
-				break;
-			}
-		}
+		updateFromPropertyEditor(activeMark, "fill", v);
 	});
 	
 	
-	//Property Editor Change: Bar Stroke Color
+	//Property Editor Change: Stroke (or Background for notes) Color
 	$("input#barStrokeColor").change(function() {
 		v = $("input#barStrokeColor").val();
-		
-		if(activeMark==-1) { return; } //only change the active mark; if there is no active mark, activeMark set to -1
-		
-		if(markGroups[activeMark].type==="note") {
-			$("div#note_" + activeMark).css("backgroundColor", v); //change background color of "note"
-		} 
-		else {
-			v = $("input#barStrokeColor").val();
-			var markType = markGroups[marknum].type;
-			
-			switch(markType) {
-				case "rect" :
-					updateRectMarks(activeMark, undefined, undefined, "stroke", undefined, "logarithmic", v);
-				break;
-				
-				case "arc" :
-					updateArcMarks(activeMark, undefined, "fill", undefined, undefined, v);
-				break;
-			}
-		}
+		updateFromPropertyEditor(activeMark, "stroke", v);
 	});
-	
-	
+
 	
 	//Property Editor Change: Text Size
 	$("input#updateFontSize").change(function() {
-		if(activeMark==-1) { return; } //only change the active mark; if there is no active mark, activeMark set to -1
-		
-		
-		if(markGroups[activeMark].type==="note") {
-			$("div#note_" + activeMark).css("font-size", $("input#updateFontSize").val() + "px");
-		} else {
-			$(".axis_" + activeMark).css("font-size", $("input#updateFontSize").val() + "px");
-		}
-
+		v = $("input#updateFontSize").val();
+		updateFromPropertyEditor(activeMark, "font-size", v);
 	});
 	
 	
 	//Property Editor Change: X Position
 	$("input#updateXPos").change(function() {
 		v = parseInt($("input#updateXPos").val());
-		
-		if(markGroups[activeMark].type==="note") {
-			$("div#note_" + activeMark).css("left", v); //v+213 hardcoded
-		} else {
-			tSpecs = transformSpecs($("g#mark_" + activeMark + "_group"));
-			$("g#mark_" + activeMark + "_group").attr("transform", "translate(" + v + "," + tSpecs[1] + ")");
-			positionAxes(activeMark);			
-		}
+		updateFromPropertyEditor(activeMark, "left", v);
 	});
 
 	
 	//Property Editor Change: Y Position
 	$("input#updateYPos").change(function() {
 		v = parseInt($("input#updateYPos").val());
+		updateFromPropertyEditor(activeMark, "top", v);
+	});
 
-		if(markGroups[activeMark].type==="note") {
-			$("div#note_" + activeMark).css("top", v); //v+112 hardcoded
+	//Property Editor Change: Font
+	$("input#updateTextFont").change(function() {
+		v = $("input#updateTextFont").val();
+		updateFromPropertyEditor(activeMark, "font-family", v);
+	});
+	
+	//Property Editor Change: Bold
+	$("button#boldButton").click(function() {
+		if($(this).hasClass("activeButton")) {
+			$(this).removeClass("activeButton");
+			updateFromPropertyEditor(activeMark, "font-weight", "normal");
 		} else {
-			tSpecs = transformSpecs($("g#mark_" + activeMark + "_group"));
-			$("g#mark_" + activeMark + "_group").attr("transform", "translate(" + tSpecs[0] + "," + v + ")");
-			positionAxes(activeMark);			
+			$(this).addClass("activeButton");
+			updateFromPropertyEditor(activeMark, "font-weight", "bold");
 		}
 	});
+	
+	//Property Editor Change: Italic
+	$("button#italButton").click(function() {
+		if($(this).hasClass("activeButton")) {
+			$(this).removeClass("activeButton");
+			updateFromPropertyEditor(activeMark, "font-style", "normal");
+		} else {
+			$(this).addClass("activeButton");
+			updateFromPropertyEditor(activeMark, "font-style", "italic");
+		}
+	});
+	
+	//Property Editor Change: Underline
+	$("button#ulneButton").click(function() {
+		if($(this).hasClass("activeButton")) {
+			$(this).removeClass("activeButton");
+			updateFromPropertyEditor(activeMark, "text-decoration", "none");
+		} else {
+			$(this).addClass("activeButton");
+			updateFromPropertyEditor(activeMark, "text-decoration", "underline");
+		}
+	});
+	
+	
+	
+	
+	
+	
 	
 	
 	createDraggableIcons();	//create draggable icons (the top-level marks)
@@ -548,11 +561,14 @@ $(document).ready(function(){
 		accept: ".mark",
 		
 		drop: function(event,ui) {
-			var x,y;
-			var dragged=ui.draggable;
+			activeMarkOff();
+			var x, y;
+			var dragged = ui.draggable;
 			var visarea = $("#vis");
-			x=event.pageX - visarea.offset().left; //TODO: remove if absolute positioning?
-			y=event.pageY - visarea.offset().top; //TODO: remove if absolute positioning?
+			
+			//Necessary because you're dragging onto the screen, but visarea is in a particular section of the screen
+			x = event.pageX - visarea.offset().left;
+			y = event.pageY - visarea.offset().top;
 			xmlns = "http://www.w3.org/2000/svg";
 			
 			//Specifically handle text marks
@@ -593,8 +609,8 @@ $(document).ready(function(){
 					}
 				});
 				
-				textbox.css("left", event.pageX + "px");
-				textbox.css("top", event.pageY + "px");
+				textbox.css("left", x);
+				textbox.css("top", y);
 				
 				textbox.draggable();
 				textbox.click(function(){
@@ -602,7 +618,7 @@ $(document).ready(function(){
 					textbox.removeClass("ui-state-disabled"); // removes greying
 				});
 				
-				textbox.appendTo($("body"));
+				textbox.appendTo($("div#rightSide"));
 
 				markcount++;
 				markGroups.push(new MarkGroup("note"));
@@ -1870,7 +1886,13 @@ var destroyMark = function(marknum) {
 	$("#menudivGroup_" + marknum).remove();
 	$(".textanchor_" + marknum).remove();	
 	d3.selectAll(".textcont_" + marknum).remove();
+	
+	activeMarkOff();
 }
+
+
+
+
 
 // destroy a single element. handle resetting relevant params here
 var destroyElement = function(id)
@@ -2146,6 +2168,74 @@ var makeColorScale= function(scaleselection, datacolumn) {
 }
 
 
+//UPDATE MARKS EXCLUSIVELY FROM THE PROPERTY EDITOR
+function updateFromPropertyEditor(marknum, property, propValue) {
+	console.log("In updateFromPropertyEditor...");
+	
+	var markType = markGroups[marknum].type;
+	//marks = svgm.selectAll(".mark" + marknum + " .realmark").data(allData); //causing problems for arc mark
+	marks = svgm.selectAll(".mark" + marknum + " .realmark");
+
+		
+									
+	//If note, go through HTML/CSS
+	if(markType==="note") {
+		
+		if(property==="fill") { property = "color"; }
+		if(property==="stroke") { property = "background-color"; }
+		
+		if(property==="color" || property==="background-color" || property==="left" || property==="top" ||
+			 property==="font-weight" || property==="font-style" || property==="text-decoration" || property==="font-family") {
+			
+			$("div#note_" + activeMark).css(property, propValue);
+		}
+		
+		if(property==="font-size") {
+			$("div#note_" + activeMark).css("font-size", propValue + "px");
+		}
+		
+	}
+	
+	//If SVG, go through D3
+	else {
+		
+		if(property==="fill" || property==="stroke") {
+			marks.attr(property, function(){ return propValue; })
+		}
+			
+		if(property==="font-size") {
+			$(".axis_" + activeMark).css(property, propValue + "px");
+		}	
+		
+		if(property==="font-weight" || property==="font-style" || property==="text-decoration" || property==="font-family") {
+			$(".axis_" + activeMark).css(property, propValue);
+		}	
+		
+		if(property==="left" || property==="top") {
+			tSpecs = transformSpecs($("g#mark_" + marknum + "_group"));
+			
+			l = property==="left" ? propValue : tSpecs[0];
+			t = property==="top" ? propValue : tSpecs[1];
+			
+			$("g#mark_" + marknum + "_group").attr("transform", "translate(" + l + "," + t + ")");
+			positionAxes(marknum);		
+		}
+		
+		
+	}
+	
+	//Since the parameter/property is not being set by the data anymore, remove it as a parameter
+	markGroups[marknum].removeParameter(property);
+	
+	//Reset the property editor defaults to reflect the changes (especially removing data-driven text)
+	setPropertyEditorDefaults();
+}
+
+
+
+
+
+
 
 
 
@@ -2153,13 +2243,9 @@ var makeColorScale= function(scaleselection, datacolumn) {
 var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection, constantValue) {
 	var yscale;
 	var colorscale;
-	var nodeType;
+	var nodeType = "rect";
 	var dragupdate=false;
 	var transduration = 250;
-	
-	d3.select(".mark" + marknum + " .realmark").each(function(d,i){
-		nodeType = this.nodeName;
-	}); 
 	
 	if(newheight===undefined) { newheight = markGroups[marknum].height; }
 	else {  markGroups[marknum].height = newheight; }
@@ -2591,11 +2677,15 @@ var positionAxis = function(curaxis) {
 
 
 var updateArcMarks = function(marknum, radius, parameter, colname, scaleselection, constant) {
+	
+	console.log(marknum + "|" + radius + "|" + parameter + "|" + colname + "|" + scaleselection + "|" + constant);
+	
 	var yscale;
 	var colorscale;
 	var nodeType;
 	var dragupdate = false;
 	var transduration = 250;
+	
 	
 	d3.select(".mark" + marknum + " .realmark").each(function(d,i){
 		nodeType=this.nodeName;
@@ -2610,14 +2700,13 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 	// resize default
 	if(markGroups[marknum].majorParameter === undefined && colname === undefined && scaleselection === undefined && parameter === undefined && constant === undefined)
 	{
-
 		var marks=svgm.selectAll("g.mark" + marknum)
 									.data([allData]);
 		var arc = d3.svg.arc();
 		arc.innerRadius(0);
 		arc.outerRadius(radius);
 		marks.selectAll("path")
-			.attr("d", arc); 				
+			.attr("d", arc); 	//problem here
 	}
 	else
 	{
@@ -2716,13 +2805,11 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 				break;
 		}
 
-		
 		markGroups[marknum].addScale(parameter, new Scale(yscale, colorscale, scaleselection, colname));
 		if(constant===undefined) {
 			if($.inArray(parameter, ["outer radius", "inner radius", "angle"])!==-1) { markGroups[marknum].majorParameter = parameter; }
 		}
 		marks.exit().remove();
-	
 	}
 
 }

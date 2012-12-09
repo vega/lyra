@@ -4,7 +4,7 @@ body, html {
   color:#000;
   background:#fff;
   font-size:14px;
-  font-family:Verdana, Tahoma, sans-serif;
+  font-family:Verdana;
 }
 
 
@@ -56,7 +56,7 @@ div#toolbar {
 		  width: 50px;
 		  height: 50px;
 		  background: #4682B4;
-		  cursor: default;
+		  cursor: move;
 			border-color: #cccccc;
 			border-width: 2;
 			float: left;
@@ -139,7 +139,8 @@ div#propertyEditor {
 }
 
 		table {
-			width:100%;	
+			width:100%;
+			position:relative;
 		}
 		
 		table tr td:nth-child(1) {
@@ -187,10 +188,10 @@ div#propertyEditor {
 			width:100px;
 		}
 		
-		td.propertyEditorWidget div.buttonInput input {
+		td.propertyEditorWidget div.buttonInput button {
 			width:29px;
 		}
-		
+
 		tr.tempRow td {
 			color:red;
 		}
@@ -201,7 +202,10 @@ div#propertyEditor {
 
 
 
-
+button.activeButton {
+	background-color:#000;
+	color:#fff;
+}
 
 
 
@@ -313,15 +317,16 @@ div.note {
 }
 .textanchor{
 	background: orange;
-    width: 15px;
-    height: 15px;
-    cursor: default;
+  width: 15px;
+  height: 15px;
+  cursor: default;
 	border-color: black;
 	border-width: 2;
 	text-align: center;
 	vertical-align: center;
 	opacity: .7;
 	user-select: none;
+	z-index:25; /* so that it shows up above other things */
 
 }
 
@@ -387,16 +392,16 @@ div.note {
 
 .axisanchor {
 	background: orange;
-    width: 15px;
-    height: 15px;
-    cursor: default;
+  width: 15px;
+  height: 15px;
+  cursor: default;
 	border-color: black;
 	border-width: 2;
 	text-align: center;
 	vertical-align: center;
 	opacity: .7;
 	user-select: none;
-
+	z-index:25; /* so that it shows up above other things */
 }
 
 .ui-state-disabled {
