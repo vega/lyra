@@ -99,7 +99,9 @@ var menus = {
 							"radius":
 								["linear","logarithmic"],								
 //							"shape":
-//								["circle"],								
+//								["circle","cross","diamond","square"],		
+							"opacity":
+								["linear","logarithmic"],								
 							"fill":
 								["Palette A","Palette B","Palette C"],
 							"stroke":
@@ -935,9 +937,10 @@ var createAnnotations = function(markID,markcount) {
 
 var createTextAnchors = function(markcount) {
 	var textanchor;
+	var anchornames = ["Top", "Center", "Bottom"];
 	
 	for(var textanchornum=0; textanchornum<3; textanchornum++) {
-		textanchor =  $("<div class='textanchor textanchor_" + markcount + "' id='textanchor_" + markcount + "_" + textanchornum + "' style='position:absolute'></div>")
+		textanchor =  $("<div class='textanchor textanchor_" + markcount + "' id='textanchor_" + markcount + "_" + textanchornum + "' style='position:absolute'>"+anchornames[textanchornum]+"</div>")
 	
 		textanchor.droppable({
 			accept:".column",
@@ -1278,33 +1281,64 @@ var positionTextAnchors = function(marknum) {
 	var markType = markGroups[marknum].type;
 
 	if(markType==="rect"){
-		var curmark = d3.select(markgroup.selectAll("rect.realmark")[0][Math.floor(n/2)]);
+//		var curmark = d3.select(markgroup.selectAll("rect.realmark")[0][Math.floor(n/2)]);
+		var curmark = d3.select(markgroup.selectAll("rect.realmark")[0][0]);	
+		var majorparam = markGroups[marknum].majorParameter;
 		
 		for(var textanchornum=0; textanchornum<3; textanchornum++) {
 			var anchor = $("#textanchor_" + marknum + "_" + textanchornum);	
 			var x,y;
-
-			x = minx+visarea.offset().left+ +curmark.attr("x")+"px";
 			
-			switch(textanchornum){
-				//top
-				case 0:
-					y = miny+ visarea.offset().top + +curmark.attr("y") - 10 + "px";
-				break;
+			if(majorparam === "height") {
+	//			x = minx+visarea.offset().left+ +curmark.attr("x")+"px";
+				x = minx+visarea.offset().left+ +curmark.attr("x") - 60 +"px";	
 				
-				//middle
-				case 1:
-					y = miny+visarea.offset().top + +curmark.attr("y") + .5*+curmark.attr("height")+"px";
-				break;
-				
-				//bottom
-				case 2:
-					y = miny+visarea.offset().top + +curmark.attr("y") + +curmark.attr("height") + "px";		
-				break;		
+				switch(textanchornum){
+					//top
+					case 0:
+						y = miny + visarea.offset().top + "px";
+	//					y = miny+ visarea.offset().top + +curmark.attr("y") - 10 + "px";
+					break;
+					
+					//middle
+					case 1:
+						y = miny + visarea.offset().top + .5*wh[1] + "px";				
+	//					y = miny+visarea.offset().top + +curmark.attr("y") + .5*+curmark.attr("height")+"px";
+					break;
+					
+					//bottom
+					case 2:
+						y = miny + visarea.offset().top + wh[1] + "px";					
+	//					y = miny+visarea.offset().top + +curmark.attr("y") + +curmark.attr("height") + "px";		
+					break;		
+				}
+			
+				anchor.css("left",x);
+				anchor.css("top", y);
 			}
-		
-			anchor.css("left",x);
-			anchor.css("top", y);
+			else if(majorparam === "width") {
+				y = miny+visarea.offset().top+ +curmark.attr("y") - 25 +"px";	
+				
+				switch(textanchornum){
+					//bottom
+					case 2:
+						x = minx + visarea.offset().left + "px";
+					break;
+					
+					//middle
+					case 1:
+						x = minx + visarea.offset().left + .5*wh[0] - 25 + "px";				
+					break;
+					
+					//top
+					case 0:
+						x = minx + visarea.offset().left + wh[0] - 50 + "px";						
+					break;		
+				}
+			
+				anchor.css("left",x);
+				anchor.css("top", y);
+			}
 		}
 	}
 }
@@ -1325,7 +1359,9 @@ var positionTextAnnotations = function(marknum) {
 	if(textmarkgroup[0].length < 1) { return; }
 	
 	textmarkgroup.attr("transform","translate(" + parenttrans[0]+"," + parenttrans[1]+")");
-
+	
+	var majorparam = markGroups[marknum].majorParameter;
+	
 	markgroup.selectAll("rect.realmark").each(function(d,i) {
 		var curmark = d3.select(this);
 		var myx = +d3.select(this).attr("x");
@@ -1341,25 +1377,54 @@ var positionTextAnnotations = function(marknum) {
 			
 			var textbbox = getDimensions($(textelems[0][i]));
 			var textanchornum = +d3.select(textelems[0][i]).attr("id").split("_")[2];		
-
-			x=myx ;//+ .5*(wh[0]/(n+1)-textbbox[0]); // + .5*wh[0]/n;
-			y=myy;
 			
-			switch(textanchornum){
-				//top
-				case 0:
-					y = myy - 5;
-				break;
+			if(majorparam=="height") {
+			
+				// measure text to center
+				x= Math.floor(myx + .5*(wh[0]/(n)-textbbox[0])); // + .5*wh[0]/n;
+				y=myy;
 				
-				//middle
-				case 1:
-					y = myy + .5*Math.floor(+curmark.attr("height"));
-				break;
+				switch(textanchornum){
+					//top
+					case 0:
+						y = myy - 5;
+					break;
+					
+					//middle
+					case 1:
+						y = myy + .5*Math.floor(+curmark.attr("height"));
+					break;
+					
+					//bottom	
+					case 2:
+						y = myy + Math.floor(+curmark.attr("height")) + 15;		
+					break;			
+				}
+			}
+			else if(majorparam=="width") {
+			
+				console.log(curmark.attr("height") + " " + textbbox[1]);
+				// measure text to center
+				y= Math.floor(myy + .5*(+curmark.attr("height") + .5*textbbox[1])); // + .5*wh[0]/n
+//				y = myy;
+				x=myx;
 				
-				//bottom	
-				case 2:
-					y = myy + Math.floor(+curmark.attr("height")) + 15;		
-				break;			
+				switch(textanchornum){
+					//bottom
+					case 2:
+						x = myx;
+					break;
+					
+					//middle
+					case 1:
+						x = myx + .5*Math.floor(+curmark.attr("width"));
+					break;
+					
+					//top	
+					case 0:
+						x = myx + Math.floor(+curmark.attr("width")) + 5;		
+					break;			
+				}
 			}
 
 			d3.select(textelems[0][i]).transition().duration(0).attr("x",x).attr("y",y);
@@ -1571,7 +1636,9 @@ var createMarks = function(x, y, markcount, markType) {
 				
 			var markgroup = new MarkGroup("scatter");
 			markgroup.addScale("x", new Scale(yscale, undefined, "linear", "Data Index"));
-			markgroup.addScale("y", new Scale(yscale, undefined, "linear", "Data Index"));				
+			markgroup.addScale("y", new Scale(yscale, undefined, "linear", "Data Index"));
+			markgroup.xScale = yscale;
+			markgroup.yScale = yscale;
 			markGroups.push(markgroup);									
 		break;
 	}
@@ -1913,6 +1980,12 @@ function getCursorType(marknum, shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) 
 	var boundaryWidth = .1;
 	var	clickDist;
 	
+	// fixes bounding box cursor issues
+	shapeW-=20;
+	shapeH-=20;
+	
+//	console.log(shapeW + " " + shapeH + " " + mouseX + " " + mouseY + " " + shapeX + " " + shapeY);
+	
 	switch(markType) {
 		case "rect":
 			pX = (mouseX-shapeX)/shapeW; //percentage of X shape
@@ -2031,7 +2104,8 @@ function getDimensions(shapes) {
 // 	console.log("H: " + bb["height"]);
 // 	console.log("Y: " + bb["y"]);
 	
-	return [bb["width"]-bb["x"], bb["height"]-bb["y"]];
+//	return [bb["width"]-bb["x"], bb["height"]-bb["y"]];
+	return [bb["width"], bb["height"]];
 }
 
 
@@ -2198,7 +2272,7 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 	
 	//If SVG, go through D3
 	else {
-		
+		console.log(marks);
 		if(property==="fill" || property==="stroke") {
 			marks.attr(property, function(){ return propValue; })
 		}
@@ -2301,13 +2375,21 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 				yscale = makeQuantScale(scaleselection, datacolumn, newheight);
 				marks.transition().duration(transduration)
 					.attr("height",function(d,i){
+						if(yscale(d[colname]+logextra)<1) return 1; // handles small values					
 						return yscale(d[colname]+logextra);})
 					.attr("width",function(d,i) {
 						return newwidth/n;})
 					.attr("x",function(d,i){
 						return i*newwidth/n;})
 					.attr("y",function(d,i){
-						return newheight-yscale(d[colname]+logextra);});
+						return newheight-yscale(d[colname]+logextra);})
+					.each("start",function(d,i){
+						if(i!=0) return;
+						d3.selectAll(".text_"+marknum).attr("opacity",0);})							
+					.each("end",function(d,i){
+						if(i!=n-1) return;
+					d3.selectAll(".text_"+marknum).attr("opacity",1);						
+					positionTextAnnotations(marknum);});
 				break;
 				
 			case "width":
@@ -2328,12 +2410,20 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 				yscale = makeQuantScale(scaleselection, datacolumn, newwidth);
 				marks.transition().duration(transduration)
 					.attr("width",function(d,i){
+						if(yscale(d[colname]+logextra)<1) return 1; // hack for small values					
 						return yscale(d[colname]+logextra);})
 					.attr("height", function(d,i) {
 						return newheight/n;})
 					.attr("x",function(d,i){return 0;})	
 					.attr("y",function(d,i){
-						return i*newheight/n;});
+						return i*newheight/n;})
+					.each("start",function(d,i){
+						if(i!=0) return;
+						d3.selectAll(".text_"+marknum).attr("opacity",0);})							
+					.each("end",function(d,i){
+						if(i!=n-1) return;
+					d3.selectAll(".text_"+marknum).attr("opacity",1);						
+					positionTextAnnotations(marknum);});						
 				break;
 			
 			case "fill":
@@ -2497,6 +2587,11 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 				symbol.size(function(d,i){ return scale(d[colname]+logextra);});
 				marks.transition().duration(transduration)
 				.attr("d", symbol);	
+				break;
+			case "opacity":
+				var scale = makeQuantScale(scaleselection, datacolumn, 1);
+				marks.transition().duration(transduration)
+				.attr("fill-opacity", function(d,i){ return scale(d[colname]+logextra);});	
 				break;
 			// case "width":			
 				// yscale = makeQuantScale(scaleselection, datacolumn, newwidth);
