@@ -99,7 +99,11 @@ div#toolbar {
 			top:98px;
 		}
 
-		
+g.selectedlabel{
+	fill: orange;
+	fill-opacity: .9;
+
+}		
 		
 		
 
@@ -220,7 +224,7 @@ table.legend {
 	box-shadow: 2px 2px 5px #666;
 	width:120px;
 	left: 500px;
-
+	cursor: move;
 }
 	table.legend tr td.title {
 	font-size: 14px;
@@ -229,7 +233,7 @@ table.legend {
 
 	table.legend tr td {
 	text-align: center;
-	
+	cursor: move;
 	}
 
 div.menudivGroup {

@@ -12,6 +12,7 @@ var markGroups=[]; //collection of MarkGroup objects
 var colors10 = new Array("#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf");
 var activeMark = -1; //index of the active mark (the one whose property editor will work for)
 var overMarks = false; //false if mouse is not over marks; true if mouse is over a mark group (to register clicks on non-marks)
+var activeAttachmentID = undefined; // keeps track of the last clicked on axis or label group
 
 //MARKGROUP OBJECT
 function MarkGroup(markType) {
@@ -190,6 +191,7 @@ function activeMarkOff() {
 	//Make visible again all the standard property editor features
 	$("table#propertyEditorTable tr td").children().css("visibility", "hidden");
 	activeMark = -1;
+	activeAttachmentID = undefined;
 }
 
 
@@ -618,7 +620,10 @@ $(document).ready(function(){
 			
 			$("div.note").css("border", "1px solid #fff");
 			$("div.note").removeClass("selectedNote");
-
+			
+			d3.selectAll("g.textsubcont").classed("selectedlabel",false);
+			$(".closeicon").hide();	
+			
 			activeMarkOff();
 		}
 	});
@@ -822,8 +827,6 @@ var createLegend = function(marknum, parameter)
 	tablestring += "</table>";
 	var legend = $(tablestring);
 
-	
-
 	legend.appendTo($("body"));
 	
 	
@@ -875,8 +878,13 @@ var createCloseIcon = function(id)
 	//CLOSE ICON
 	var closeicon=$("<div class='closeicon closeicon_"+marknum+"' id='closeicon_" + id + "' style='position:absolute;'>X</div>");
 	
+	var parenttype = parent.attr("id").split("_")[0];
+	
 	closeicon.mouseenter(function() {
 		$(this).show();
+	});
+	closeicon.mouseout(function() {
+		$(this).hide();
 	});
 	
 	closeicon.click(function() {
@@ -890,17 +898,23 @@ var createCloseIcon = function(id)
 	});
 	
 	// it flickers sometimes
-	parent.find("tr").mouseenter(function()
+	parent.mouseenter(function() //find("tr").
 	{
+		if(parenttype==="textcont") return;
+		
 		positionCloseIcons(marknum);
 		closeicon.show();
 	//	console.log("show "+marknum);
 	});	
-	parent.find("tr").mouseout(function()
+	parent.mouseout(function(e)
 	{
+		if(parenttype==="textcont") closeicon.hide();
+		
+		// fixes close icon flicker
+		if(e.relatedTarget!==$("#vis").get(0)) return;
 		closeicon.hide();
 	});		
-	
+
 	$("body").append(closeicon);
 	closeicon.hide();
 
@@ -973,7 +987,7 @@ var createAnnotations = function(markID,markcount) {
 						var marknum = getMarkNum($(this));
 
 						var axisnum = $(this).attr("id").split("_")[2];
-						console.log(axisnum);
+
 						if(axisnum == 0 || axisnum == 2)
 						{
 							t = "translate(" + parseInt(groupX2) + "," + parseInt(groupY2+dy) + ") ";				
@@ -1041,13 +1055,22 @@ var createTextAnchors = function(markcount) {
 				var datacolumn = dataObjectsToColumn(allData,colname);
 
 				var markgroup;
-				if($(".textcont_" + marknum) !== undefined) {
+				var subgroup;
+				if($(".textcont_" + marknum).length < 1) {
 					markgroup = svgm.append("g");
-					markgroup.classed("textcont_" + marknum,true);					
+					markgroup.classed("textcont_" + marknum,true);	
+					markgroup.classed("textcont",true);
 				}
-				
 				markgroup = d3.select(".textcont_" + marknum);
-				markgroup.selectAll(".text_" + marknum + "_" + anchornum).data(datacolumn).enter().append("text").classed("text",true)
+				if($("#textcont_" + marknum+"_"+anchornum).length < 1) {
+					subgroup = markgroup.append("g");
+					subgroup.classed("textsubcont",true);					
+					subgroup.attr("id","textcont_" + marknum+"_"+anchornum,true);
+					createCloseIcon("textcont_" + marknum+"_"+anchornum);
+				}	
+				subgroup = d3.select("#textcont_" + marknum+"_"+anchornum);
+				
+				subgroup.selectAll(".text_" + marknum + "_" + anchornum).data(datacolumn).enter().append("text").classed("text",true)
 								.classed("text_" + marknum,true)
 								.classed("text_" + marknum + "_" + anchornum,true);
 
@@ -1057,6 +1080,42 @@ var createTextAnchors = function(markcount) {
 				textelems.text(function(d,i){ return d;});
 				
 				positionTextAnnotations(marknum);
+				
+				textelems.on("click",function(d,i){
+					var myid = d3.select(this).attr("id");
+					var myidarr = myid.split("_");
+					myidarr.pop();
+					myidarr[0]="textcont";
+					var myclass = myidarr.join("_");
+					activeAttachmentID = myclass;	
+					var parent = svgm.selectAll("#"+myclass);
+					parent.classed("selectedlabel",true);
+					console.log("#closeicon_"+myclass);
+					$("#closeicon_"+myclass).show();
+					
+					var markgroup = d3.select(".textcont_"+marknum);		
+					var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+					var wh = getDimensions($(this));
+					var me = d3.select(this);
+	//				console.log(wh);
+					var minx = +cleantrans[0] + +me.attr("x");
+					var miny = +cleantrans[1] + +me.attr("y");
+					var visarea = $("#vis");
+					var icon = $("#closeicon_"+myclass);
+					icon.css("left",(minx+visarea.offset().left+wh[0] - 5)+"px");
+					icon.css("top",(miny+visarea.offset().top-20) + "px");
+					
+			//		positionCloseIcons(marknum);
+					
+				});
+				textelems.on("mouseover",function(d,i)
+				{
+					overMarks=true;
+				});
+				textelems.on("mouseout",function(d,i)
+				{
+					overMarks=false;
+				});
 				
 				$(".text_"+marknum + "_" + anchornum).draggable({
 					drag:function(e, ui) {
@@ -1329,15 +1388,31 @@ var positionCloseIcons = function(marknum) {
 		idelems.shift();
 		var parentid = idelems.join("_");		
 		var parent = $("#"+parentid);
+		var parentd3 = d3.select("#"+parentid);
 		
 		var islegend = parent.hasClass("legend");
+		var islabelgroup = parentd3.classed("textsubcont");
 
 			if(islegend){
 				var iconleft = (+parent.offset().left) +  (+parent.css("width").split("px")[0]) - 10 +"px";	
 				icon.css("left",iconleft);
 				icon.css("top",parent.offset().top);
-			}
+			}		
+			else if(islabelgroup)
+			{
 			
+				// var markgroup = d3.select(".textcont_"+marknum);		
+				// var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+				// var wh = getDimensions(parent);
+				//console.log(wh);
+				// var minx = +cleantrans[0];
+				// var miny = +cleantrans[1];
+				// var visarea = $("#vis");
+	
+				// icon.css("left",(minx+visarea.offset().left+wh[0]-20)+"px");
+				// icon.css("top",miny+visarea.offset().top + "px");
+					
+			}
 			else
 			{
 			// handle axes
@@ -1495,8 +1570,7 @@ var positionTextAnnotations = function(marknum) {
 	if(textmarkgroup[0].length < 1) { return; }
 	
 	textmarkgroup.attr("transform","translate(" + parenttrans[0]+"," + parenttrans[1]+")");
-	
-	console.log("wtf");
+
 	
 //	textmarkgroup.attr("width",parentgroup.attr("width"));
 	if(marktype === "rect") {
@@ -1817,7 +1891,7 @@ var createMarks = function(x, y, markcount, markType) {
 				.classed("realmark",true)
 				.attr("transform",function(d,i)	{
 					//position
-					return "translate("+ yscale(i) + ","+ yscale(i)+")"; // 10*i
+					return "translate("+ yscale(i) + ","+ (100-yscale(i))+")"; // 10*i
 				})
 				.attr("d", symbol);
 				
@@ -1871,6 +1945,7 @@ var createMarks = function(x, y, markcount, markType) {
 						break;
 						
 					case "w-resize":
+						if(dx > groupW){ break}; // stop overdrag
 						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
 						$(e.target).attr("transform", t);
 						var newwidth = groupW-dx;
@@ -1878,6 +1953,8 @@ var createMarks = function(x, y, markcount, markType) {
 						break;
 						
 					case "n-resize":
+						//console.log(dx + " " + dy);
+						if(dy > groupH){ break}; // stop overdrag
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
 						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
@@ -1896,6 +1973,7 @@ var createMarks = function(x, y, markcount, markType) {
 						break;
 						
 					case "ne-resize":
+						if(dy > groupH){ break}; // stop overdrag			
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
 						var newwidth = groupW+dx;						
@@ -1904,6 +1982,7 @@ var createMarks = function(x, y, markcount, markType) {
 						break;
 						
 					case "sw-resize":
+						if(dx > groupW){ break}; // stop overdrag					
 						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
 						$(e.target).attr("transform", t);
 						var newwidth = groupW-dx;					
@@ -1912,6 +1991,8 @@ var createMarks = function(x, y, markcount, markType) {
 						break;
 					
 					case "nw-resize":
+						if(dy > groupH){ break}; // stop overdrag	
+						if(dx > groupW){ break}; // stop overdrag						
 						var newwidth = groupW-dx;					
 						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
@@ -1959,11 +2040,13 @@ var createMarks = function(x, y, markcount, markType) {
 					break;
 						
 					case "e-resize":
+						if(-dx > groupW){ break}; // stop overdrag						
 						var newwidth = groupW+dx;
 						updateScatterMarks(marknum, newwidth, undefined);						
 					break;
 						
 					case "w-resize":
+						if(dx > groupW){ break}; // stop overdrag						
 						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
 						$(e.target).attr("transform", t);
 						var newwidth = groupW-dx;
@@ -1971,6 +2054,7 @@ var createMarks = function(x, y, markcount, markType) {
 					break;
 						
 					case "n-resize":
+						if(dy > groupH){ break}; // stop overdrag					
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
 						$(e.target).attr("transform", t);		// causes wiggling, but unavoidable?	
@@ -1978,17 +2062,22 @@ var createMarks = function(x, y, markcount, markType) {
 					break;
 						
 					case "s-resize":
+						if(-dy > groupH){ break}; // stop overdrag						
 						var newheight = groupH+dy;
 						updateScatterMarks(marknum, undefined, newheight);
 					break;
 						
 					case "se-resize":
+						if(-dx > groupW){ break}; // stop overdrag						
+						if(-dy > groupH){ break}; // stop overdrag						
 						var newheight = groupH+dy;
 						var newwidth = groupW+dx;						
 						updateScatterMarks(marknum, newwidth, newheight);
 					break;
 						
 					case "ne-resize":
+						if(-dx > groupW){ break}; // stop overdrag						
+						if(dy > groupH){ break}; // stop overdrag					
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
 						var newwidth = groupW+dx;						
@@ -1997,6 +2086,8 @@ var createMarks = function(x, y, markcount, markType) {
 					break;
 						
 					case "sw-resize":
+						if(-dy > groupH){ break}; // stop overdrag						
+						if(dx > groupW){ break}; // stop overdrag						
 						t = "translate(" + parseInt(groupX+dx) + "," + tSpecs[1] + ") ";
 						$(e.target).attr("transform", t);
 						var newwidth = groupW-dx;					
@@ -2005,6 +2096,8 @@ var createMarks = function(x, y, markcount, markType) {
 					break;
 					
 					case "nw-resize":
+						if(dy > groupH){ break}; // stop overdrag	
+						if(dx > groupW){ break}; // stop overdrag							
 						var newwidth = groupW-dx;					
 						t = "translate(" + parseInt(groupX+dx) + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
@@ -2563,6 +2656,9 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 	var dragupdate=false;
 	var transduration = 250;
 	
+	if(newheight!==undefined && newheight < 1) return;
+	if(newwidth!==undefined && newwidth < 1) return;
+	
 	if(newheight===undefined) { newheight = markGroups[marknum].height; }
 	else {  markGroups[marknum].height = newheight; }
 	if(newwidth===undefined) { newwidth = markGroups[marknum].width; }
@@ -2764,7 +2860,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 			dragupdate=true;
 			transduration=0;
 			parameter = "update";
-			console.log("update");
+//			console.log("update");
 		}
 		
 		if(constantValue===undefined) {
@@ -2809,11 +2905,13 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 			case "y":
 				xscale = makeQuantScale(xscaleselection, xdatacolumn, newwidth);
 				yscale = makeQuantScale(yscaleselection, ydatacolumn, newheight);
-				console.log(xscale.range());
+//				console.log(xscale.range());
+
 				marks.transition().duration(transduration)
 				.attr("transform",function(d,i)
 				{
-					return "translate("+ xscale(d[xcolname]+xlogextra)  + ","+ yscale(d[ycolname]+ylogextra)+")";
+	//			console.log((newheight-yscale(d[ycolname]+ylogextra)));				
+					return "translate("+ xscale(d[xcolname]+xlogextra)  + ","+ (newheight-yscale(d[ycolname]+ylogextra))+")";
 				})
 				.each("start",function(d,i){
 					if(i!=0) return;
@@ -2937,8 +3035,8 @@ var positionAxis = function(curaxis) {
 	
 	var marktype = markGroups[marknum].type;
 	
-	var flippedscale = d3.scale.linear();
-	var normalscale = d3.scale.linear();
+	var flippedscale;
+	var normalscale;
 	var axis = d3.svg.axis();		
 	var range;
 	var markscale;
@@ -2946,13 +3044,38 @@ var positionAxis = function(curaxis) {
 	if(marktype==="rect")
 	{
 		markscale = markGroups[marknum].majorScale;
+		var param = markGroups[marknum].majorParameter;
+		var scaletype = markGroups[marknum].scales[param].type;
+		
+		if(scaletype === "linear") {
+			normalscale = d3.scale.linear();
+			flippedscale = d3.scale.linear();
+		}
+		else if(scaletype === "logarithmic")
+		{
+			normalscale = d3.scale.log();
+			flippedscale = d3.scale.log();
+		}
 	}
 	else if(marktype==="scatter")
 	{
+		var axisname;
 		if(anchornum===1 || anchornum===3) {
 			markscale = markGroups[marknum].yScale;
+			axisname = "y";
 		} else {
 			markscale = markGroups[marknum].xScale;
+			axisname="x";
+		}
+		var scaletype = markGroups[marknum].scales[axisname].type;
+		if(scaletype === "linear") {
+			normalscale = d3.scale.linear();
+			flippedscale = d3.scale.linear();
+		}
+		else if(scaletype === "logarithmic")
+		{
+			normalscale = d3.scale.log();
+			flippedscale = d3.scale.log();
 		}
 	}
 	
