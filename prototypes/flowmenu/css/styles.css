@@ -188,6 +188,10 @@ div#propertyEditor {
 			width:100px;
 		}
 		
+		td.propertyEditorWidget div.sliderInput input {
+			width:100px;
+		}
+		
 		td.propertyEditorWidget div.buttonInput button {
 			width:29px;
 		}

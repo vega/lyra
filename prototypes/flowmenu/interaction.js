@@ -74,6 +74,8 @@ var menus = {
 								["linear","logarithmic"],
 							"width":
 								["linear","logarithmic"],
+							"opacity":
+								["linear","logarithmic"],
 							"fill":
 								["Palette A","Palette B","Palette C"],
 							"stroke":
@@ -85,6 +87,8 @@ var menus = {
 							"inner radius":
 								["linear","logarithmic"],
 							"outer radius":
+								["linear","logarithmic"],
+							"opacity":
 								["linear","logarithmic"],
 							"fill":
 								["Palette A","Palette B","Palette C"],
@@ -184,7 +188,6 @@ function activeMarkOn(markID) {
 
 function activeMarkOff() {
 	//Make visible again all the standard property editor features
-	console.log("Active Mark Off");
 	$("table#propertyEditorTable tr td").children().css("visibility", "hidden");
 	activeMark = -1;
 }
@@ -207,6 +210,20 @@ function rgb2hex(rgb) {
 function setPropertyEditorDefaults() {
 	//First, remove all "data-driven" rows
 	$("table#propertyEditorTable tr.tempRow").remove();
+	
+	//Second, check for context sensitive properties
+	if(markGroups[activeMark].type==="scatter") {
+		$("tr#updateDotSizeRow").show();
+	} else {
+		$("tr#updateDotSizeRow").hide();
+	}
+	
+	if(markGroups[activeMark].type==="arc") {
+		$("tr#innerRadiusRow").show();
+	} else {
+		$("tr#innerRadiusRow").hide();
+	}
+		
 
 	//If there is a "note" active
 	if(markGroups[activeMark].type==="note") {
@@ -249,6 +266,8 @@ function setPropertyEditorDefaults() {
 		} else {
 			$("button#ulneButton").removeClass("activeButton");
 		}
+		
+		$("input#updateOpacity").val(markJQ.css("opacity"));
 	} 
 	
 	//Otherwise, the active mark is not a "note"
@@ -261,22 +280,57 @@ function setPropertyEditorDefaults() {
 		$("tr#barStrokeColorRow td.propertyEditorHeader").text("Stroke Color:");
 
 		markGroup = markGroups[activeMark];
-		marks = svgm.selectAll(".mark" + activeMark + " .realmark")
+		//marks = svgm.selectAll(".mark" + activeMark + " .realmark")
+		marks = $(".mark" + activeMark + " .realmark");
 		
 		//If fill was data-driven
 		if(markGroup.parameters["fill"]) {
 			$("input#barFillColor").val("rgb(0,0,0)");
 			$("tr#barFillColorRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["fill"].colname + "</span></td></tr>")
 		} else {
-			$("input#barFillColor").val(marks.attr("fill"));
+			$("input#barFillColor").val(marks.eq(0).attr("fill"));
 		}
 		
 		if(markGroup.parameters["stroke"]) {
 			$("input#barStrokeColor").val("rgb(0,0,0)");
 			$("tr#barStrokeColorRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["stroke"].colname + "</span></td></tr>")
 		} else {
-			$("input#barStrokeColor").val(marks.attr("stroke"));
+			$("input#barStrokeColor").val(marks.eq(0).attr("stroke"));
 		}
+		
+		if(markGroup.parameters["opacity"]) {
+			$("input#updateOpacity").val(1);
+			$("tr#updateOpacityRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["opacity"].colname + "</span></td></tr>")
+		} else {
+			if(marks.eq(0).attr("fill-opacity")===undefined) {
+				$("input#updateOpacity").val(1); //for example, arc marks don't have fill-opacity at start
+			} else {
+				$("input#updateOpacity").val(marks.eq(0).attr("fill-opacity"));
+			}
+		}
+		
+		if(markGroup.parameters["radius"]) {
+			$("input#updateDotSize").val(64); //64 is the D3 default
+			$("tr#updateDotSizeRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["radius"].colname + "</span></td></tr>")
+		} else {
+			if(!marks.eq(0).data("jSize")) { //if there is no jSize set yet for this
+				$("input#updateDotSize").val(64); //64 is the D3 default
+			} else {
+				$("input#updateDotSize").val(marks.eq(0).data("jSize"));
+			}
+		}
+		
+		if(markGroup.parameters["inner radius"]) {
+			$("input#innerRadius").val(0);
+			$("tr#innerRadiusRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["inner radius"].colname + "</span></td></tr>")
+		} else {
+// 			if(!marks.eq(0).data("jSize")) { //if there is no jSize set yet for this
+// 				$("input#updateDotSize").val(64); //64 is the D3 default
+// 			} else {
+// 				$("input#updateDotSize").val(marks.eq(0).data("jSize"));
+// 			}
+		}
+		
 		
 		var axis = $(".axis_" + activeMark);
 		
@@ -427,9 +481,23 @@ $(document).ready(function(){
 		}
 	});
 	
+	//Property Editor Change: Opacity
+	$("input#updateOpacity").change(function() {
+		v = $("input#updateOpacity").val();
+		updateFromPropertyEditor(activeMark, "fill-opacity", v);
+	});
 	
+	//Property Editor Change: Dot Size (only for mark: scatter)
+	$("input#updateDotSize").change(function() {
+		v = $("input#updateDotSize").val();
+		updateFromPropertyEditor(activeMark, "radius", v);
+	});
 	
-	
+	//Property Editor Change: Inner Radius (only for mark: arc)
+	$("input#innerRadius").change(function() {
+		v = $("input#innerRadius").val();
+		updateFromPropertyEditor(activeMark, "inner radius", v);
+	});
 	
 	
 	
@@ -1434,6 +1502,7 @@ var positionTextAnnotations = function(marknum) {
 	if(marktype === "rect") {
 		var majorparam = markGroups[marknum].majorParameter;
 		
+		//Position label relative to its realmark
 		markgroup.selectAll("rect.realmark").each(function(d,i) {
 			var curmark = d3.select(this);
 			var myx = +d3.select(this).attr("x");
@@ -2370,7 +2439,7 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 	var markType = markGroups[marknum].type;
 	//marks = svgm.selectAll(".mark" + marknum + " .realmark").data(allData); //causing problems for arc mark
 	marks = svgm.selectAll(".mark" + marknum + " .realmark");
-
+	marksJQ = $(".mark" + marknum + " .realmark");
 		
 									
 	//If note, go through HTML/CSS
@@ -2378,9 +2447,11 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 		
 		if(property==="fill") { property = "color"; }
 		if(property==="stroke") { property = "background-color"; }
+		if(property==="fill-opacity") { property = "opacity"; }
 		
 		if(property==="color" || property==="background-color" || property==="left" || property==="top" ||
-			 property==="font-weight" || property==="font-style" || property==="text-decoration" || property==="font-family") {
+			 property==="font-weight" || property==="font-style" || property==="text-decoration" || property==="font-family" ||
+			 property==="opacity") {
 			
 			$("div#note_" + activeMark).css(property, propValue);
 		}
@@ -2393,8 +2464,7 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 	
 	//If SVG, go through D3
 	else {
-		console.log(marks);
-		if(property==="fill" || property==="stroke") {
+		if(property==="fill" || property==="stroke" || property==="fill-opacity") {
 			marks.attr(property, function(){ return propValue; })
 		}
 			
@@ -2416,7 +2486,58 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 			positionAxes(marknum);		
 		}
 		
+		if(property==="radius") {
+			var symbol = d3.svg.symbol();
+			symbol.size(function(){ return propValue; });
+
+			marksJQ.data("jSize", propValue); //jSize to remember size for slider
+			marks.attr("d", symbol);
+		}
 		
+		if(property==="inner radius") {
+			//Re-establish marks variable for arc-specific mark
+			var marks = svgm.selectAll("g.mark" + activeMark).data(allData);
+			console.log("MARKS: " + marks);
+									
+			var arc = d3.svg.arc();
+			var radius = markGroups[activeMark].radius;
+			
+			//If the arc mark has a data-driven angle encoding
+			if(markGroups[activeMark].parameters["angle"]) {
+				var scaleselection = markGroups[activeMark].scales["angle"].type;	
+				var logextra = scaleselection==="logarithmic" ? 1 : 0;
+				var datacolumn = dataObjectsToColumn(allData, markGroups[activeMark].parameters["angle"].colname);
+				var yscale = makeQuantScale(scaleselection, datacolumn, radius);
+				
+				arc.innerRadius(propValue);
+				arc.outerRadius(radius);
+				
+				sum = 0;
+				cum = new Array();
+				cum[0] = 0;
+				for(i=0; i<n-1; i++) {
+					sum += yscale(datacolumn[i]+logextra);
+					cum[i+1] = sum;
+				}
+				cum[n] = sum;
+
+				arc.startAngle(function(d,i) {
+					return cum[i]/sum*2*Math.PI;
+				})
+				arc.endAngle(function(d,i) {
+					return cum[i+1]/sum*2*Math.PI;
+				})
+				
+				marks.selectAll("path").attr("d", arc);
+			}
+			
+			else {
+				arc.innerRadius(propValue);
+				arc.outerRadius(radius);
+				
+				marks.selectAll("path").attr("d", arc);
+			}
+		}
 	}
 	
 	//Since the parameter/property is not being set by the data anymore, remove it as a parameter
@@ -2491,8 +2612,7 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 		}
 					
 		switch(parameter) {
-			case "height":	
-			console.log("HEIGHT");				
+			case "height":				
 				yscale = makeQuantScale(scaleselection, datacolumn, newheight);
 				marks.transition().duration(transduration)
 					.attr("height",function(d,i){
@@ -2511,23 +2631,9 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 						if(i!=n-1) return;
 					d3.selectAll(".text_"+marknum).attr("opacity",1);						
 					positionTextAnnotations(marknum);});
-				break;
+			break;
 				
 			case "width":
-				
-// 				if(constantValue!==undefined) {
-// 					maxWidth = $("g.mark" + marknum).data("maxWidth");
-// 					avgWidth = maxWidth/n;
-// 					
-// 					marks.transition().duration(0)
-// 						.attr("width", function(d,i) {
-// 							return constantValue;})
-// 						.attr("x",function(d,i){
-// 							pad = (avgWidth-constantValue)/2;
-// 							return i*avgWidth+pad;});
-// 					break;
-// 				}
-				
 				yscale = makeQuantScale(scaleselection, datacolumn, newwidth);
 				marks.transition().duration(transduration)
 					.attr("width",function(d,i){
@@ -2545,8 +2651,17 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 						if(i!=n-1) return;
 					d3.selectAll(".text_"+marknum).attr("opacity",1);						
 					positionTextAnnotations(marknum);});						
-				break;
+			break;
 			
+			case "opacity":
+				var scale = makeQuantScale(scaleselection, datacolumn, 1);
+				console.log(scaleselection + " .. " + datacolumn + " .. " + logextra);
+				marks.transition().duration(transduration)
+				.attr("fill-opacity", function(d,i){ 
+					console.log(d);
+					return scale(d[colname]+logextra);});	
+			break;
+				
 			case "fill":
 				if(constantValue===undefined) {
 					marks.attr("fill",function(d,i){
@@ -2558,7 +2673,7 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 						return constantValue;
 					})
 				}
-				break;
+			break;
 				
 			case "stroke":
 				if(constantValue===undefined) {
@@ -2571,7 +2686,7 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 						return constantValue;
 					})
 				}
-				break;
+			break;
 		}
 			
 
@@ -2603,9 +2718,7 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 
 
 
-var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection, constantValue)
-{
-
+var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection, constantValue) {
 	var xscale, yscale;
 	var colorscale;
 	var dragupdate=false;
@@ -2907,9 +3020,7 @@ var positionAxis = function(curaxis) {
 
 
 var updateArcMarks = function(marknum, radius, parameter, colname, scaleselection, constant) {
-	
-	console.log(marknum + "|" + radius + "|" + parameter + "|" + colname + "|" + scaleselection + "|" + constant);
-	
+
 	var yscale;
 	var colorscale;
 	var nodeType;
@@ -2968,9 +3079,13 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 
 		svgm = d3.select("svg#vis");
 
+		
+		
 		var arc = d3.svg.arc();
-		var marks=svgm.selectAll("g.mark" + marknum)
+		var marks = svgm.selectAll("g.mark" + marknum)
 									.data([allData]);
+
+									
 		var arcs = marks.selectAll("path");
 //		console.log(arcs);
 		
@@ -2997,7 +3112,7 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 				
 				marks.selectAll("path").transition().duration(transduration)
 					.attr("d", arc); 	
-				break;
+			break;
 				
 			case "inner radius":
 				
@@ -3007,7 +3122,7 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 				});
 				marks.selectAll("path").transition().duration(transduration)
 					.attr("d", arc); 						
-				break;
+			break;
 			
 			case "outer radius":
 				arc.innerRadius(0);
@@ -3016,15 +3131,23 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 				});
 				marks.selectAll("path").transition().duration(transduration)
 					.attr("d", arc); 			
-				break;
-				
+			break;
+			
+			case "opacity":
+				var scale = makeQuantScale(scaleselection, datacolumn, 1);
+				marks.selectAll("path").transition().duration(transduration)
+			
+				arcs.attr("fill-opacity", function(d,i){
+					return scale(datacolumn[i]+logextra);});
+			break;
+			
 			case "fill":
 				if(constant!==undefined)
 					arcs.attr("fill",constant);
 				else
 					createLegend(marknum,"fill");					
 					arcs.attr("fill",function(d,i){return colorscale(datacolumn[i]);});
-				break;
+			break;
 				
 			case "stroke":
 				if(constant!==undefined)
@@ -3032,7 +3155,7 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 				else
 					createLegend(marknum,"stroke");					
 					arcs.attr("stroke",function(d,i){return colorscale(datacolumn[i]);});
-				break;
+			break;
 		}
 
 		markGroups[marknum].addScale(parameter, new Scale(yscale, colorscale, scaleselection, colname));
