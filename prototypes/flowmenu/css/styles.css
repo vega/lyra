@@ -18,7 +18,7 @@ div#leftSide {
 	top:5px;
 	background-color:#ddd;
 	height:100%;
-	z-index:5; /* important to make sure its z-index is greater than that of div#rightSide for good fixed scrolling */
+	z-index:25; /* important to make sure its z-index is greater than that of div#rightSide for good fixed scrolling */
 }
 
 		div.header {
@@ -130,8 +130,10 @@ div#sidebar {
 			position:relative;
 			color:white;
 			opacity:0.6;
-			z-index:20;
+			z-index:25;
 			background-color:red;
+			width:150px;
+			text-align:center;
 		}
 
 		
@@ -207,7 +209,9 @@ div#propertyEditor {
 
 		
 
-
+text:hover {
+	cursor:move;
+}
 
 
 button.activeButton {
@@ -219,22 +223,30 @@ button.activeButton {
 
 table.legend {
 	position:absolute;
-	background-color:#cccccc;
-	border:1px solid #999;
-	box-shadow: 2px 2px 5px #666;
-	width:120px;
-	left: 500px;
+	border:1px solid black;
+	padding:4px;
+	padding-top:0px;
+	width:auto;
 	cursor: move;
 }
-	table.legend tr td.title {
-	font-size: 14px;
+		table.legend tr td.title {
+			font-size: 14px;
+			text-align:center;
+			font-weight: bold;
+		}
 	
-	}
-
-	table.legend tr td {
-	text-align: center;
-	cursor: move;
-	}
+		table.legend tr td {
+			text-align: left;
+		}
+		
+		table.legend tr td:nth-child(odd) {
+			width:16px;
+		}
+		
+		
+		
+		
+		
 
 div.menudivGroup {
 	position:absolute;
@@ -243,6 +255,7 @@ div.menudivGroup {
 	box-shadow: 2px 2px 5px #666;
 	width:120px;
 	padding-left:2px;
+	z-index:20; /* menu should always be above everything but the dragged mark */
 }
 
 		div.menudiv {
@@ -334,7 +347,7 @@ div.note {
 	vertical-align: center;
 	opacity: .7;
 	user-select: none;
-	z-index:25; /* so that it shows up above other things */
+	z-index:19; /* so that it shows up above other things */
 
 }
 
@@ -409,7 +422,7 @@ div.note {
 	vertical-align: center;
 	opacity: .7;
 	user-select: none;
-	z-index:25; /* so that it shows up above other things */
+	z-index:19; /* so that it shows up above other things */
 }
 
 .ui-state-disabled {
