@@ -517,7 +517,7 @@ $(document).ready(function(){
 	
 	
 	//READ IN DATA FROM CSV FILE AND POPULATE LIST OF COLUMNS OF DATA VARIABLE NAMES
-	d3.csv("./" + filename, function(response) {
+	d3.csv("./data/" + filename, function(response) {
 		for (var i in response) {
 			allData[i]={};
 			for(var attr in response[0]) {
@@ -1165,7 +1165,8 @@ var createTextAnchors = function(markcount) {
 				var textelems = svgm.selectAll(".text_" + marknum + "_" + anchornum);
 
 				textelems.attr("id",function(d,i){ return "text_" + marknum + "_" + anchornum + "_" + i;});
-				textelems.text(function(d,i){ return d;});
+				textelems.text(function(d,i){ return d;})
+				.attr("fill-opacity",0);
 				
 				positionTextAnnotations(marknum);
 				
@@ -1230,7 +1231,7 @@ var createTextAnchors = function(markcount) {
 						groupY2 = +$(e.target).attr("y");
 					}						
 				});
-				
+				setTimeout(function(){ declutterMarks(marknum); }, 10);
 				$(".textanchor").hide();
 
 /*				for(var textanchornum=0; textanchornum<3; textanchornum++)
@@ -1774,8 +1775,8 @@ var positionTextAnnotations = function(marknum) {
 	}
 	else if(marktype == "scatter")
 	{
-		
 		markgroup.selectAll("path.realmark").each(function(d,i) {
+			console.log(1);
 			var curmark = d3.select(this);
 			var mytrans = transformSpecs($(this));
 			var myx = mytrans[0];
@@ -1787,7 +1788,7 @@ var positionTextAnnotations = function(marknum) {
 //			console.log(wh);
 			for(var anchornum=0; anchornum<3; anchornum++){
 				var textelems = textmarkgroup.selectAll(".text_" + marknum + "_" + anchornum);
-				
+
 				if(textelems[0].length < 1) { continue; }
 				
 				var textbbox = getDimensions($(textelems[0][i]));
@@ -1819,11 +1820,71 @@ var positionTextAnnotations = function(marknum) {
 				d3.select(textelems[0][i]).transition().duration(0).attr("x",x).attr("y",y);				
 			}
 		});
+		
 	}
 }
 
+var declutterMarks = function(marknum)
+{
+	var textmarkgroup = d3.selectAll(".textcont_" + marknum);
+	
+	if(textmarkgroup[0].length < 1) { return; }
+		var labelshown=[];
+		var labelarr = [];
+		var labels = textmarkgroup.selectAll(".text_" + marknum);
+		var block = 1;
+		for(var labelnum=0; labelnum<labels[0].length;labelnum++) {
+			labelshown.push(1);
+			labelarr.push(labels[0][labelnum]);
+			d3.select(labels[0][labelnum]).attr("fill-opacity",1);
+		}
 
 
+		for(var label in labelarr)
+		{
+			if(labelshown[label]==0) continue;
+			
+			var me = d3.select(labelarr[label]);
+			var mywh = getDimensions($(labelarr[label]));
+			var myleft = +me.attr("x");
+			var myright = myleft + mywh[0];
+			var mytop = +me.attr("y");
+			var mybottom = mytop + mywh[1];
+			
+			for(var enemy in labelarr)
+			{
+				if(labelshown[enemy]==0) continue;
+				if(enemy==label) continue;
+				
+				if(collide(myleft, myright, mytop, mybottom, labelarr[enemy]))
+				{
+					labelshown[enemy] = 0;
+					d3.select(labelarr[enemy]).attr("fill-opacity",0);
+				}
+			}
+		
+		}
+
+}
+
+var collide = function(myleft, myright, mytop, mybottom, enemydom)
+{
+
+	var enemy = d3.select(enemydom);
+	var ewh = getDimensions($(enemydom));
+	var eleft = +enemy.attr("x");
+	var eright = eleft + ewh[0];
+	var etop = +enemy.attr("y");
+	var ebottom = etop + ewh[1];
+	
+	if(myleft > eright) return 0;
+	if(myright < eleft) return 0;
+	if(mytop > ebottom) return 0;
+	if(mybottom < etop) return 0;
+	
+	return 1;
+
+}
 
 
 
