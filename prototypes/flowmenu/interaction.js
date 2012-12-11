@@ -12,7 +12,8 @@ var markGroups=[]; //collection of MarkGroup objects
 var colors10 = new Array("#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf");
 var activeMark = -1; //index of the active mark (the one whose property editor will work for)
 var overMarks = false; //false if mouse is not over marks; true if mouse is over a mark group (to register clicks on non-marks)
-var activeAttachmentID = undefined; // keeps track of the last clicked on axis or label group
+var activeAttachmentClass = undefined; // keeps track of the last clicked on axis or label GROUP
+var activeAttachmentID = undefined; // keeps track of the last clicked on axis or label SPECIFICALLY
 var timeout = undefined;
 
 //MARKGROUP OBJECT
@@ -204,6 +205,7 @@ function activeMarkOff() {
 	//Make visible again all the standard property editor features
 	$("table#propertyEditorTable tr td").children().css("visibility", "hidden");
 	activeMark = -1;
+	activeAttachmentClass = undefined;
 	activeAttachmentID = undefined;
 }
 
@@ -225,6 +227,8 @@ function rgb2hex(rgb) {
 function setPropertyEditorDefaults() {
 	//First, remove all "data-driven" rows
 	$("table#propertyEditorTable tr.tempRow").remove();
+	$("table#propertyEditorTable tr").show();
+	$("tr#axesColorRow").hide(); //will only show if there are axes
 	
 	//Second, check for context sensitive properties
 	if(markGroups[activeMark].type==="scatter") {
@@ -243,6 +247,124 @@ function setPropertyEditorDefaults() {
 	$("span#fontFound").text("");
 		
 
+	//If there is an activeAttachmentClass
+	if(activeAttachmentClass!==undefined) {
+		$("tr#barFillColorRow td.propertyEditorHeader").text("Text Color:");
+		$("tr#barStrokeColorRow").hide();
+		
+		$("tr#updateXPosRow").hide();
+		$("tr#updateYPosRow").hide();
+		$("tr#updateOpacityRow").hide();
+		$("tr#updateDotSizeRow").hide();
+		$("tr#innerRadiusRow").hide();
+		
+		fontSz = $("g#" + activeAttachmentClass + " text").eq(0).attr("font-size");
+		if(fontSz===undefined) {
+			$("input#updateFontSize").val(14);
+		} else {
+			$("input#updateFontSize").val(fontSz);
+		}
+		
+		fontFm = $("g#" + activeAttachmentClass + " text").eq(0).attr("font-family");
+		if(fontFm===undefined) {
+			$("input#updateTextFont").val("Verdana");
+		} else {
+			$("input#updateTextFont").val(fontFm);
+		}
+		
+		textColor = $("g#" + activeAttachmentClass + " text").eq(0).attr("fill");
+		if(textColor===undefined) {
+			$("input#barFillColor").val("#000000");
+		} else {
+			$("input#barFillColor").val(textColor);
+		}
+		
+		bolded = $("g#" + activeAttachmentClass + " text").eq(0).attr("font-weight");
+		if(bolded===undefined || bolded!=="bold") {
+			$("button#boldButton").removeClass("activeButton");
+		} else {
+			$("button#boldButton").addClass("activeButton");
+		}
+		
+		italiczed = $("g#" + activeAttachmentClass + " text").eq(0).attr("font-style");
+		if(italiczed===undefined || italiczed!=="italic") {
+			$("button#italButton").removeClass("activeButton");
+		} else {
+			$("button#italButton").addClass("activeButton");
+		}
+		
+		underlined = $("g#" + activeAttachmentClass + " text").eq(0).attr("text-decoration");
+		if(underlined===undefined || underlined!=="underline") {
+			$("button#ulneButton").removeClass("activeButton");
+		} else {
+			$("button#ulneButton").addClass("activeButton");
+		}
+		
+// 		console.log("YES, a class!");
+// 		console.log(activeAttachmentClass);
+		return;
+	}
+	
+	if(activeAttachmentID!==undefined) {
+		$("tr#barFillColorRow td.propertyEditorHeader").text("Text Color:");
+		$("tr#barStrokeColorRow").hide();
+		
+		$("tr#updateXPosRow").hide();
+		$("tr#updateYPosRow").hide();
+		$("tr#updateOpacityRow").hide();
+		$("tr#updateDotSizeRow").hide();
+		$("tr#innerRadiusRow").hide();
+		
+		fontSz = $("text#" + activeAttachmentID).eq(0).attr("font-size");
+		if(fontSz===undefined) {
+			$("input#updateFontSize").val(14);
+		} else {
+			$("input#updateFontSize").val(fontSz);
+		}
+		
+		fontFm = $("text#" + activeAttachmentID).eq(0).attr("font-family");
+		if(fontFm===undefined) {
+			$("input#updateTextFont").val("Verdana");
+		} else {
+			$("input#updateTextFont").val(fontFm);
+		}
+		
+		textColor = $("text#" + activeAttachmentID).eq(0).attr("fill");
+		if(textColor===undefined) {
+			$("input#barFillColor").val("#000000");
+		} else {
+			$("input#barFillColor").val(textColor);
+		}
+		
+		bolded = $("text#" + activeAttachmentID).eq(0).attr("font-weight");
+		if(bolded===undefined || bolded!=="bold") {
+			$("button#boldButton").removeClass("activeButton");
+		} else {
+			$("button#boldButton").addClass("activeButton");
+		}
+		
+		italiczed = $("text#" + activeAttachmentID).eq(0).attr("font-style");
+		if(italiczed===undefined || italiczed!=="italic") {
+			$("button#italButton").removeClass("activeButton");
+		} else {
+			$("button#italButton").addClass("activeButton");
+		}
+		
+		underlined = $("text#" + activeAttachmentID).eq(0).attr("text-decoration");
+		if(underlined===undefined || underlined!=="underline") {
+			$("button#ulneButton").removeClass("activeButton");
+		} else {
+			$("button#ulneButton").addClass("activeButton");
+		}
+// 		
+// 		console.log("YES, an ID!");
+// 		console.log(activeAttachmentID);
+		return;
+	}
+		
+		
+	
+	
 	//If there is a "note" active
 	if(markGroups[activeMark].type==="note") {
 		var markJQ = $("div#note_" + activeMark);
@@ -352,10 +474,19 @@ function setPropertyEditorDefaults() {
 		
 		
 		var axis = $(".axis_" + activeMark);
-		var labelText = $(".textcont_" + activeMark);
+// 		var labelText = $(".textcont_" + activeMark);
 		
-		//Might not be axis... might be text!!
+		//Might not be axis... NO LONGER might be text!!
 		if(axis.length>0) {
+			$("tr#axesColorRow").show();
+			
+			var axesColor = $(".axis_" + activeMark + " text").eq(0).attr("fill");
+			if(axesColor===undefined) {
+				$("input#axesColor").val("#000000");
+			} else {
+				$("input#axesColor").val(axesColor);
+			}
+
 			fontSz = axis.eq(0).css("font-size");
 			fontSz = parseInt(fontSz.split("px")[0]); 
 			
@@ -380,36 +511,36 @@ function setPropertyEditorDefaults() {
 				$("button#ulneButton").removeClass("activeButton");
 			}
 		} 
-		else if(labelText.length>0) {
-			fontSz = labelText.eq(0).css("font-size");
-			fontSz = parseInt(fontSz.split("px")[0]); 
-			
-			$("input#updateFontSize").val(fontSz);
-			$("input#updateTextFont").val(labelText.eq(0).css("font-family"));
-			
-			if(labelText.eq(0).css("font-weight")==="bold") {
-				$("button#boldButton").addClass("activeButton");
-			} else {
-				$("button#boldButton").removeClass("activeButton");
-			}
-			
-			if(labelText.eq(0).css("font-style")==="italic") {
-				$("button#italButton").addClass("activeButton");
-			} else {
-				$("button#italButton").removeClass("activeButton");
-			}
-			
-			if(labelText.eq(0).css("text-decoration")==="underline") {
-				$("button#ulneButton").addClass("activeButton");
-			} else {
-				$("button#ulneButton").removeClass("activeButton");
-			}
-		} else {
-			$("input#updateFontSize").val("");
-			$("button#boldButton").removeClass("activeButton");
-			$("button#italButton").removeClass("activeButton");
-			$("button#ulneButton").removeClass("activeButton");
-		}
+// 		else if(labelText.length>0) {
+// 			fontSz = labelText.eq(0).css("font-size");
+// 			fontSz = parseInt(fontSz.split("px")[0]); 
+// 			
+// 			$("input#updateFontSize").val(fontSz);
+// 			$("input#updateTextFont").val(labelText.eq(0).css("font-family"));
+// 			
+// 			if(labelText.eq(0).css("font-weight")==="bold") {
+// 				$("button#boldButton").addClass("activeButton");
+// 			} else {
+// 				$("button#boldButton").removeClass("activeButton");
+// 			}
+// 			
+// 			if(labelText.eq(0).css("font-style")==="italic") {
+// 				$("button#italButton").addClass("activeButton");
+// 			} else {
+// 				$("button#italButton").removeClass("activeButton");
+// 			}
+// 			
+// 			if(labelText.eq(0).css("text-decoration")==="underline") {
+// 				$("button#ulneButton").addClass("activeButton");
+// 			} else {
+// 				$("button#ulneButton").removeClass("activeButton");
+// 			}
+// 		} else {
+// 			$("input#updateFontSize").val("");
+// 			$("button#boldButton").removeClass("activeButton");
+// 			$("button#italButton").removeClass("activeButton");
+// 			$("button#ulneButton").removeClass("activeButton");
+// 		}
 		
 		
 		$("input#updateXPos").val(tSpecs[0]);
@@ -437,7 +568,6 @@ $(document).ready(function(){
 // 		console.log("V: " + v);
 // 	});
 
-
 	
 	$("rect.guideline").hide(); //hide guidelines when you load the page
 	//Toggle Guidelines
@@ -450,6 +580,12 @@ $(document).ready(function(){
 		$("rect.guideline").toggle();
 	});
 
+	//Property Editor Change: Axes Color
+	$("input#axesColor").change(function() {
+		v = $("input#axesColor").val();
+		updateFromPropertyEditor(activeMark, "axescolor", v);
+	});
+	
 	
 	//Property Editor Change: Fill Color
 	$("input#barFillColor").change(function() {
@@ -686,6 +822,10 @@ $(document).ready(function(){
 			$("div.note").removeClass("selectedNote");
 			
 			d3.selectAll("g.textsubcont").classed("selectedlabel",false);
+			
+			var kids = svgm.selectAll("g.textsubcont text");
+			kids.classed("selectedlabel2", false);
+
 			$(".closeicon").hide();	
 			
 			activeMarkOff();
@@ -1309,22 +1449,32 @@ var createTextAnchors = function(markcount) {
 				positionTextAnnotations(marknum);
 				
 				textelems.on("click",function(d,i){
+					var marknum = getMarkNum($(this));
+					activeMarkOn(marknum); //active mark on for its parent
+					
 					var myid = d3.select(this).attr("id");
 					var myidarr = myid.split("_");
 					myidarr.pop();
 					myidarr[0]="textcont";
 					var myclass = myidarr.join("_");
-					activeAttachmentID = myclass;	
+					
+					activeAttachmentClass = myclass;	
+					activeAttachmentID = undefined;
+					
 					var parent = svgm.selectAll("#"+myclass);
 					parent.classed("selectedlabel",true);
-					console.log("#closeicon_"+myclass);
+					
+					var kids = svgm.selectAll("#"+myclass + " text");
+					kids.classed("selectedlabel2", false);
+					
+					
 					$("#closeicon_"+myclass).show();
 					
 					var markgroup = d3.select(".textcont_"+marknum);		
 					var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
 					var wh = getDimensions($(this));
 					var me = d3.select(this);
-	//				console.log(wh);
+
 					var minx = +cleantrans[0] + +me.attr("x");
 					var miny = +cleantrans[1] + +me.attr("y");
 					var visarea = $("#vis");
@@ -1332,9 +1482,49 @@ var createTextAnchors = function(markcount) {
 					icon.css("left",(minx+visarea.offset().left+wh[0] - 5)+"px");
 					icon.css("top",(miny+visarea.offset().top-20) + "px");
 					
+					setPropertyEditorDefaults();
+					
 			//		positionCloseIcons(marknum);
 					
 				});
+				
+				textelems.on("dblclick",function(d,i){
+					var myid = d3.select(this).attr("id");
+					//console.log("ID: " + myid);
+					var myidarr = myid.split("_");
+					myidarr.pop();
+					myidarr[0]="textcont";
+					var myclass = myidarr.join("_");
+					
+					activeAttachmentClass = undefined;	
+					activeAttachmentID = myid;
+
+					var parent = svgm.selectAll("#"+myclass);
+					parent.classed("selectedlabel",false);
+
+					d3.select(this).classed("selectedlabel2",true);
+					
+					$("#closeicon_"+myclass).show();
+					
+					var markgroup = d3.select(".textcont_"+marknum);		
+					var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+					var wh = getDimensions($(this));
+					var me = d3.select(this);
+
+					var minx = +cleantrans[0] + +me.attr("x");
+					var miny = +cleantrans[1] + +me.attr("y");
+					var visarea = $("#vis");
+					var icon = $("#closeicon_"+myclass);
+					icon.css("left",(minx+visarea.offset().left+wh[0] - 5)+"px");
+					icon.css("top",(miny+visarea.offset().top-20) + "px");
+					
+					setPropertyEditorDefaults();
+					
+			//		positionCloseIcons(marknum);
+					
+				});
+				
+				
 				textelems.on("mouseover",function(d,i)
 				{
 					overMarks=true;
@@ -2011,6 +2201,7 @@ var declutterMarks = function(marknum)
 			labelshown.push(1);
 			labelarr.push(labels[0][labelnum]);
 			d3.select(labels[0][labelnum]).attr("fill-opacity",1);
+			$(labelarr[enemy]).show();
 		}
 
 
@@ -2034,6 +2225,8 @@ var declutterMarks = function(marknum)
 				{
 					labelshown[enemy] = 0;
 					d3.select(labelarr[enemy]).attr("fill-opacity",0);
+					
+					$(labelarr[enemy]).hide(); //makes double clicking on specific label easier
 				}
 			}
 		
@@ -2897,6 +3090,19 @@ var makeColorScale= function(scaleselection, datacolumn) {
 
 //UPDATE MARKS EXCLUSIVELY FROM THE PROPERTY EDITOR
 function updateFromPropertyEditor(marknum, property, propValue) {
+	//If activeAttachmentClass, work on that
+	if(activeAttachmentClass!==undefined) {
+		$("g#" + activeAttachmentClass + " text").attr(property, propValue);	
+		return;
+	}
+	
+	if(activeAttachmentID!==undefined) {
+		$("text#" + activeAttachmentID).attr(property, propValue);	
+		return;
+	}
+	
+
+	
 	var markType = markGroups[marknum].type;
 	//marks = svgm.selectAll(".mark" + marknum + " .realmark").data(allData); //causing problems for arc mark
 	marks = svgm.selectAll(".mark" + marknum + " .realmark");
@@ -2930,17 +3136,21 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 			$("table#mark_" + marknum + "_" + property).hide();
 		}
 			
-		//Affects axis and other text
+		//Affects axis, NOT other text
 		if(property==="font-size") {
 			$(".axis_" + activeMark).css(property, propValue + "px");
-			$(".textcont_" + activeMark).css(property, propValue + "px");
+			//$(".textcont_" + activeMark).css(property, propValue + "px");
 		}	
 		
-		//Affects axis and other text
+		//Affects axis, NOT other text
 		if(property==="font-weight" || property==="font-style" || property==="text-decoration" || property==="font-family") {
 			$(".axis_" + activeMark).css(property, propValue);
-			$(".textcont_" + activeMark).css(property, propValue);
+			//$(".textcont_" + activeMark).css(property, propValue);
 		}	
+		
+		if(property==="axescolor") {
+			$(".axis_" + activeMark + " text").attr("fill", propValue);
+		}
 		
 		if(property==="left" || property==="top") {
 			tSpecs = transformSpecs($("g#mark_" + marknum + "_group"));
@@ -2963,8 +3173,7 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 		if(property==="inner radius") {
 			//Re-establish marks variable for arc-specific mark
 			var marks = svgm.selectAll("g.mark" + activeMark).data(allData);
-			console.log("MARKS: " + marks);
-									
+					
 			var arc = d3.svg.arc();
 			var radius = markGroups[activeMark].radius;
 			

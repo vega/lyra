@@ -102,7 +102,11 @@ div#toolbar {
 g.selectedlabel{
 	fill: orange;
 	fill-opacity: .9;
+}		
 
+text.selectedlabel2{
+	fill: red;
+	fill-opacity: .9;
 }		
 		
 		
@@ -347,7 +351,7 @@ div.note {
 	vertical-align: center;
 	opacity: .7;
 	user-select: none;
-	z-index:30; /* so that it shows up above other things */
+	z-index:15; /* so that it shows up above other things except menu, tooltip, dragged out columns */
 
 }
 
@@ -453,7 +457,7 @@ div.note {
 	vertical-align: center;
 	opacity: .7;
 	user-select: none;
-	z-index:30; /* so that it shows up above other things */
+	z-index:15; /* so that it shows up above other things except menu, tooltip, dragged out columns */
 }
 
 .ui-state-disabled {
