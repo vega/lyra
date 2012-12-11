@@ -2656,8 +2656,6 @@ var makeColorScale= function(scaleselection, datacolumn) {
 
 //UPDATE MARKS EXCLUSIVELY FROM THE PROPERTY EDITOR
 function updateFromPropertyEditor(marknum, property, propValue) {
-	console.log("In updateFromPropertyEditor...");
-	
 	var markType = markGroups[marknum].type;
 	//marks = svgm.selectAll(".mark" + marknum + " .realmark").data(allData); //causing problems for arc mark
 	marks = svgm.selectAll(".mark" + marknum + " .realmark");
@@ -2688,6 +2686,7 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 	else {
 		if(property==="fill" || property==="stroke" || property==="fill-opacity") {
 			marks.attr(property, function(){ return propValue; })
+			$("table#mark_" + marknum + "_" + property).hide();
 		}
 			
 		if(property==="font-size") {
