@@ -36,7 +36,6 @@ function MarkGroup(markType) {
 	
 	this.parameters = {}; //key-value of KEY=parameter to VALUE=colname if present
 	
-	//For example, parameter = "fill", colname="countryName", option="PaletteA"
 	this.addParameter = function(parameter, colname, option) {
 		this.parameters[parameter] = {};
 		this.parameters[parameter].colname = colname;
@@ -401,6 +400,7 @@ $(document).ready(function(){
 	$("rect.guideline").hide(); //hide guidelines when you load the page
 	//Toggle Guidelines
 	$("input#toggleGuidelines").click(function() {
+		console.log("HERE");
 		if($("rect.guideline").eq(0).css("display") == "none") {
 			$(this).val("TURN OFF");
 		} else {
@@ -510,11 +510,13 @@ $(document).ready(function(){
 	
 
 	//READ IN DATA FROM CSV FILE AND POPULATE LIST OF COLUMNS OF DATA VARIABLE NAMES
-	d3.csv("./olympics.csv", function(response) {
+	d3.csv("./iris.csv", function(response) {
 		for (var i in response) {
 			allData[i]={};
 			for(var attr in response[0]) {
-				if(attr==="ISO country code" || attr === "Country name" || attr === "Continent") {
+//				if(attr==="ISO country code" || attr === "Country name" || attr === "Continent") {
+//				if(attr==="Species") {
+				if(isNaN(response[0][attr])) {
 					allData[i][attr] = response[i][attr];
 				} else {
 					allData[i][attr] = +response[i][attr]; //data holds number
@@ -629,17 +631,14 @@ $(document).ready(function(){
 	});
 	
 	
-
-	//Region is everything on the right-hand side						
+	
+	
+	//Region is everything below the marks div								
   $("#region").droppable({
 		accept: ".mark",
 		
 		drop: function(event,ui) {
-			//Only turn active mark off if dragging out a new high-level mark (not axis) and thus has class "mark"
-			if(ui.draggable.hasClass("mark")) {
-				activeMarkOff();
-			}
-			
+			activeMarkOff();
 			var x, y;
 			var dragged = ui.draggable;
 			var visarea = $("#vis");
@@ -788,73 +787,45 @@ var createDraggableIcons = function() {
 }
 
 
-
-
-//CREATE LEGEND
-var createLegend = function(marknum, parameter) {
-	var prettyname = parameter;
-	prettyname = prettyname[0].toUpperCase()+prettyname.slice(1);
+var createLegend = function(marknum, parameter)
+{
+	var prettyname = parameter
+	prettyname=prettyname[0].toUpperCase()+prettyname.slice(1);
 	
-	//Remove previous legend of for the same parameter!
 	var prevlegend = $("#mark_"+marknum+"_"+parameter);
 	if(prevlegend.length > 0){
-		console.log("REMOVING PREVIOUS LEGEND");
-		$("#closeicon_mark_"+marknum+"_"+parameter).remove(); //bug fix (added # at start and underscore after mark)
+		$("closeicon_mark"+marknum+"_"+parameter).remove();
 		prevlegend.remove();
+		
 	}
 	
+	var tablestring = "<table class='legend' id='mark_"+marknum+"_"+parameter+"'><tr><td colspan='2' class='title' contenteditable=true>"+prettyname+"</td></tr>";
 	var isordinal;
 	var uniqueelements = {};
-	var reverseLookup = {};
 	var colorscale;
 
 	var colname = markGroups[marknum].parameters[parameter].colname;
-	var option = markGroups[marknum].parameters[parameter].option;
+	var option = markGroups[marknum].parameters[parameter].option
 	isordinal = isNaN(allData[0][colname]);
 
-	if(!isordinal) {
-		return;
-	}
-	
-	
-	if(isordinal) {
+	if(isordinal)
+	{
 		colorscale = makeColorScale(option, dataObjectsToColumn(allData,colname));
-		var numUnique = 0;
-		
-		for(var i in allData) {
-			if(uniqueelements[allData[i][colname]]===undefined) {
-				reverseLookup[numUnique++] = allData[i][colname];
-			}
+
+		for(var i in allData)
+		{
 			uniqueelements[allData[i][colname]]=i;
 		}
 
-		//Prettier layout (so not one huge column)
-		var numColumns = Math.ceil(numUnique/10);
-		var numRows = Math.ceil(numUnique/numColumns);
-		
-		//Content editbale meant to be a feature here???
-		var tablestring = "<table class='legend' id='mark_"+marknum+"_"+parameter+"'>";
-		//tablestring += "<tr><td colspan='" + numColumns*2 + "' class='title' contenteditable=true>"+prettyname+"</td></tr>";
-		tablestring += "<tr><td colspan='" + numColumns*2 + "' class='title'>"+prettyname+"</td></tr>";
-	
-		for(var r=0; r<numRows; r++) {
-			tablestring += "<tr>";
-			for(var c=0; c<numColumns; c++) {
-				elem = reverseLookup[r+c*numRows];
-				if(elem!==undefined) {
-					tablestring += "<td class='legendColor' style='background-color:" + colorscale(elem) + "'</td><td>" + elem + "</td>";
-				}
-			}
-			tablestring += "</tr>";
+		for(var elem in uniqueelements)
+		{
+			var row = "<tr><td style='background-color:"+colorscale(elem)+"'</td><td>"+elem+"</tr>";
+			tablestring += row;
 		}
-		
-		
-// 		for(var elem in uniqueelements) {
-// 			var row = "<tr><td style='background-color:"+colorscale(elem)+"'</td><td>"+elem+"</tr>";
-// 			tablestring += row;
-// 		}
+
+
+
 	}
-	
 	tablestring += "</table>";
 	var legend = $(tablestring);
 
@@ -891,7 +862,8 @@ var createLegend = function(marknum, parameter) {
 	createCloseIcon(legend.attr("id"));
 	
 	legend.draggable({
-		drag:function(e,ui) {
+		drag:function(e,ui)
+		{
 			$("#closeicon_"+legend.attr("id")).show();
 			positionCloseIcons(marknum);
 		}
@@ -899,11 +871,10 @@ var createLegend = function(marknum, parameter) {
 }
 
 
+// generic close icon given an element id
 
-
-//CREATE CLOSE ICON
-//generic close icon given an element id
-var createCloseIcon = function(id) {
+var createCloseIcon = function(id)
+{
 	var parent=$("#"+id);
 	var marknum = getMarkNum($("#"+id));
 	//CLOSE ICON
@@ -2523,7 +2494,7 @@ var makeQuantScale = function(scaleselection, datacolumn, range, min) {
 			yscale = d3.scale.log()
 				.domain(extents)
 				.range([min, range+min]);
-		break;W
+		break;
 	}
 	
 	return yscale;
@@ -3059,8 +3030,6 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 
 
 var positionAxis = function(curaxis) {
-	console.log("Position Axis...");
-	
 	var myid = curaxis.attr("id");
 	var marknum = myid.split("_")[1];
 	var anchornum = +myid.split("_")[2];
@@ -3142,32 +3111,12 @@ var positionAxis = function(curaxis) {
 	var wh = getDimensions($("g.mark" + marknum));
 	var trans = transformSpecs($("g.mark" + marknum).get());
 	
-	//Vertical axis
 	if(anchornum===1 || anchornum===3) {
-		var numTicks = wh[1]/50+1;
-		
-		if(scaletype === "linear") {
-			axis.scale(flippedscale).ticks(numTicks);
-		} else if(scaletype === "logarithmic") {
-			var formatNumber = d3.format(",.0f");
-			axis.scale(flippedscale).ticks(numTicks, formatNumber);
-		}
-
+		axis.scale(flippedscale);
 		axisgroup.attr("height",wh[1]);
 		axisgroup.call(axis);
-	} 
-	
-	//Horizontal axis
-	else {
-		var numTicks = wh[0]/50+1;
-		
-		if(scaletype === "linear") {
-			axis.scale(normalscale).ticks(numTicks);
-		} else if(scaletype === "logarithmic") {
-			var formatNumber = d3.format(",.0f");
-			axis.scale(normalscale).ticks(numTicks, formatNumber);
-		}
-		
+	} else {
+		axis.scale(normalscale);
 		axisgroup.attr("width",wh[0]);
 		axisgroup.call(axis);
 	}
