@@ -467,6 +467,9 @@ function setPropertyEditorDefaults() {
 			$("input#innerRadius").val(0);
 			$("tr#innerRadiusRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["inner radius"].colname + "</span></td></tr>")
 		} else {
+			console.log("X");
+			console.log(markGroups[activeMark].innerRadius);
+			$("input#innerRadius").val(markGroups[activeMark].innerRadius);
 // 			if(!marks.eq(0).data("jSize")) { //if there is no jSize set yet for this
 // 				$("input#updateDotSize").val(64); //64 is the D3 default
 // 			} else {
@@ -3185,6 +3188,7 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 					
 			var arc = d3.svg.arc();
 			var radius = markGroups[activeMark].radius;
+			markGroups[activeMark].innerRadius = propValue;
 			
 			//If the arc mark has a data-driven angle encoding
 			if(markGroups[activeMark].parameters["angle"]) {
@@ -3195,7 +3199,6 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 				
 				arc.innerRadius(propValue);
 				arc.outerRadius(radius);
-				markGroups[activeMark].innerRadius = propValue;
 				markGroup.removeParameter("outer radius"); //also remove outer radius
 				
 				sum = 0;
