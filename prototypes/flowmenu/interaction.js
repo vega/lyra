@@ -198,12 +198,14 @@ function dataObjectsToColumn(objectArray,colname){
 function activeMarkOn(markID) {	
 	//Make visible again all the standard property editor features
 	$("table#propertyEditorTable tr td").children().css("visibility", "visible");
+	$("table#propertyEditorTable").show();
 	activeMark = markID;
 }
 
 function activeMarkOff() {
 	//Make visible again all the standard property editor features
 	$("table#propertyEditorTable tr td").children().css("visibility", "hidden");
+	$("table#propertyEditorTable").hide();
 	activeMark = -1;
 	activeAttachmentClass = undefined;
 	activeAttachmentID = undefined;
@@ -718,10 +720,14 @@ $(document).ready(function(){
 				}
 			}
 			allData[i]["Data Index"] = +i; //include data index as variable as well
+			allData[i]["Constant"] = 0; //include data constant as variable as well
 		}
 
 		//populate list of columns
 		for(var label in allData[0]) {
+			if(label==="Constant") {
+				continue;
+			}
 			var newelement=$("<li class='column'></li>");
 			newelement.text(label);
 			newelement.addClass(isNaN(allData[0][label]) ? "ordinal" : "quantitative");
@@ -2452,7 +2458,8 @@ var createMarks = function(x, y, markcount, markType) {
 				.classed("realmark",true)
 				.attr("transform",function(d,i)	{
 					//position
-					return "translate("+ xscale(i) + ","+ (150-yscale(i))+")"; // 10*i
+					//return "translate("+ xscale(i) + ","+ (150-yscale(i))+")"; // 10*i
+					return "translate("+ 0 + ","+ 150 +")";
 				})
 				.attr("d", symbol);
 				
@@ -2460,8 +2467,8 @@ var createMarks = function(x, y, markcount, markType) {
 				.classed("container",true);
 				
 			var markgroup = new MarkGroup("scatter");
-			markgroup.addScale("x", new Scale(xscale, undefined, "linear", "Data Index"));
-			markgroup.addScale("y", new Scale(yscale, undefined, "linear", "Data Index"));
+			markgroup.addScale("x", new Scale(xscale, undefined, "linear", "Constant"));
+			markgroup.addScale("y", new Scale(yscale, undefined, "linear", "Constant"));
 			markgroup.xScale = xscale;
 			markgroup.yScale = yscale;
 			markGroups.push(markgroup);									
@@ -3718,7 +3725,7 @@ var positionAxis = function(curaxis) {
 	
 	//Horizontal axis
 	else {
-		var numTicks = wh[0]/50+1;
+		var numTicks = wh[0]/100+1;
 		
 		if(scaletype === "linear") {
 			axis.scale(normalscale).ticks(numTicks);

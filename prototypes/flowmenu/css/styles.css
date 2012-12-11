@@ -46,7 +46,7 @@ div#rightSide {
 
 div#toolbar {
   position:relative;
-  height:160px;
+  height:150px;
   //border-bottom:2px solid #000;
   margin-bottom:10px;
 }
@@ -115,7 +115,7 @@ text.selectedlabel2{
 div#sidebar {
   position:relative;
   //border-bottom:2px solid #000;
-  margin-bottom:20px;
+  margin-bottom:-5px;
 }
 
 		#data ul {
