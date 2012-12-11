@@ -3449,34 +3449,68 @@ var positionAxis = function(curaxis) {
 	label.text(labeltext);
 	var textwh = getDimensions($(label[0][0]));
 	var labelx, labely;
-	
+	label.attr("x",0).attr("y",0);
+	var axiswh = getDimensions($(axisgroup[0][0]));
+
 	switch(anchornum) {
 		case 0:
 			axisgroup.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")");	
 			labelx = .5*(+wh[0] - +textwh[0]);
-			label.attr("x",labelx).attr("y",-2*textwh[1]);					
+			label.attr("x",labelx).attr("y",-+axiswh[1]-.2*textwh[1]);					
 		break;
 		
 		case 1:
 			axisgroup.attr("transform", "translate(" + ((+trans[0])+(+wh[0])) + "," + trans[1] + ")");
 			label.attr("transform","rotate(90 0 0)");
 			labelx = .5*(+wh[1] - +textwh[0]);
-			label.attr("x",labelx).attr("y",-3*textwh[1]);	
+			label.attr("x",labelx).attr("y",-+axiswh[0]-.4*textwh[1]);	
 		break;
 		
 		case 2:
 			axisgroup.attr("transform", "translate(" + trans[0]  + "," + ((+trans[1])+(+wh[1])) + ")");
 			labelx = .5*(+wh[0] - +textwh[0]);
-			label.attr("x",labelx).attr("y",2*textwh[1]);			
+			label.attr("x",labelx).attr("y",+axiswh[1]+.2*textwh[1]);			
 		break;	
 						
 		case 3:
 			axisgroup.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")");
 			label.attr("transform","rotate(-90 0 0)");
 			labelx = -.5*(+wh[1] + +textwh[0]);
-			label.attr("x",labelx).attr("y",-3*textwh[1]);				
+			label.attr("x",labelx).attr("y",-+axiswh[0]-.4*textwh[1]);				
 		break;
-	} 	
+	} 
+	
+	
+	// necessary duplication
+	label.text(labeltext);
+	var textwh = getDimensions($(label[0][0]));
+	var labelx, labely;
+	label.attr("x",0).attr("y",0);
+	var axiswh = getDimensions($(axisgroup[0][0]));
+
+	switch(anchornum) {
+		case 0:
+			labelx = .5*(+wh[0] - +textwh[0]);
+			label.attr("x",labelx).attr("y",-+axiswh[1]-.2*textwh[1]);					
+		break;
+		
+		case 1:
+			label.attr("transform","rotate(90 0 0)");
+			labelx = .5*(+wh[1] - +textwh[0]);
+			label.attr("x",labelx).attr("y",-+axiswh[0]-.4*textwh[1]);	
+		break;
+		
+		case 2:
+			labelx = .5*(+wh[0] - +textwh[0]);
+			label.attr("x",labelx).attr("y",+axiswh[1]+.2*textwh[1]);			
+		break;	
+						
+		case 3:
+			label.attr("transform","rotate(-90 0 0)");
+			labelx = -.5*(+wh[1] + +textwh[0]);
+			label.attr("x",labelx).attr("y",-+axiswh[0]-.4*textwh[1]);				
+		break;
+	} 		
 }
 
 
