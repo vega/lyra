@@ -1077,6 +1077,9 @@ var createAnnotations = function(markID,markcount) {
 				axisgroup.classed("axis_" + marknum, true);				
 				axisgroup.attr("id", "axis_" + marknum + "_" + anchornum);
 				
+				var axislabel = axisgroup.append("text");
+				axislabel.attr("class","label");
+				
 				// make the axis itself draggable for customization / deletion
 				$(axisgroup[0][0]).draggable({
 					drag:function(e, ui) {
@@ -3252,6 +3255,9 @@ var positionAxis = function(curaxis) {
 	var range;
 	var markscale;
 	
+	var label = axisgroup.select("text.label");
+	var labeltext;
+	
 	if(marktype==="rect")
 	{
 		markscale = markGroups[marknum].majorScale;
@@ -3267,6 +3273,7 @@ var positionAxis = function(curaxis) {
 			normalscale = d3.scale.log();
 			flippedscale = d3.scale.log();
 		}
+	labeltext = markGroups[marknum].parameters[param].colname;
 	}
 	else if(marktype==="scatter")
 	{
@@ -3288,7 +3295,9 @@ var positionAxis = function(curaxis) {
 			normalscale = d3.scale.log();
 			flippedscale = d3.scale.log();
 		}
+		labeltext = markGroups[marknum].scales[axisname].columnName;		
 	}
+	
 	
 	range = markscale.range();
 	normalscale.domain(markscale.domain())
@@ -3348,23 +3357,39 @@ var positionAxis = function(curaxis) {
 		
 		axisgroup.attr("width",wh[0]);
 		axisgroup.call(axis);
-	}
+		
 
+	}
+	
+	label.text(labeltext);
+	var textwh = getDimensions($(label[0][0]));
+	var labelx, labely;
+	
 	switch(anchornum) {
 		case 0:
-			axisgroup.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")");			
+			axisgroup.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")");	
+			labelx = .5*(+wh[0] - +textwh[0]);
+			label.attr("x",labelx).attr("y",-2*textwh[1]);					
 		break;
 		
 		case 1:
 			axisgroup.attr("transform", "translate(" + ((+trans[0])+(+wh[0])) + "," + trans[1] + ")");
+			label.attr("transform","rotate(90 0 0)");
+			labelx = .5*(+wh[1] - +textwh[0]);
+			label.attr("x",labelx).attr("y",-3*textwh[1]);	
 		break;
 		
 		case 2:
 			axisgroup.attr("transform", "translate(" + trans[0]  + "," + ((+trans[1])+(+wh[1])) + ")");
+			labelx = .5*(+wh[0] - +textwh[0]);
+			label.attr("x",labelx).attr("y",2*textwh[1]);			
 		break;	
 						
 		case 3:
 			axisgroup.attr("transform", "translate(" + trans[0] + "," + trans[1] + ")");
+			label.attr("transform","rotate(-90 0 0)");
+			labelx = -.5*(+wh[1] + +textwh[0]);
+			label.attr("x",labelx).attr("y",-3*textwh[1]);				
 		break;
 	} 	
 }
