@@ -24,10 +24,10 @@ function MarkGroup(markType) {
 	this.yScale = undefined; //yscale = makeQuantScale(yscaleselection, ydatacolumn, newheight);
 //	this.xParameter = "Data Index";
 //	this.yParameter = "Data Index";
-	this.radius = 50; //DEFAULT radius
+	this.radius = 150; //DEFAULT radius (used to be 50)
 	this.innerRadius = 0; //DEFAULT inner radius
-	this.height = 100; //DEFAULT height
-	this.width = 50; //DEFAULT width
+	this.height = 150; //DEFAULT height (used to be 100)
+	this.width = 300; //DEFAULT width (used to be 50)
 	this.type = markType; //type of MarkGroup, namely: rect, arc, scatter
 	
 	//adds to scales array
@@ -351,14 +351,15 @@ function setPropertyEditorDefaults() {
 		
 		
 		var axis = $(".axis_" + activeMark);
+		var labelText = $(".textcont_" + activeMark);
 		
+		//Might not be axis... might be text!!
 		if(axis.length>0) {
 			fontSz = axis.eq(0).css("font-size");
 			fontSz = parseInt(fontSz.split("px")[0]); 
+			
 			$("input#updateFontSize").val(fontSz);
-			
 			$("input#updateTextFont").val(axis.eq(0).css("font-family"));
-			
 			
 			if(axis.eq(0).css("font-weight")==="bold") {
 				$("button#boldButton").addClass("activeButton");
@@ -378,7 +379,31 @@ function setPropertyEditorDefaults() {
 				$("button#ulneButton").removeClass("activeButton");
 			}
 		} 
-		else {
+		else if(labelText.length>0) {
+			fontSz = labelText.eq(0).css("font-size");
+			fontSz = parseInt(fontSz.split("px")[0]); 
+			
+			$("input#updateFontSize").val(fontSz);
+			$("input#updateTextFont").val(labelText.eq(0).css("font-family"));
+			
+			if(labelText.eq(0).css("font-weight")==="bold") {
+				$("button#boldButton").addClass("activeButton");
+			} else {
+				$("button#boldButton").removeClass("activeButton");
+			}
+			
+			if(labelText.eq(0).css("font-style")==="italic") {
+				$("button#italButton").addClass("activeButton");
+			} else {
+				$("button#italButton").removeClass("activeButton");
+			}
+			
+			if(labelText.eq(0).css("text-decoration")==="underline") {
+				$("button#ulneButton").addClass("activeButton");
+			} else {
+				$("button#ulneButton").removeClass("activeButton");
+			}
+		} else {
 			$("input#updateFontSize").val("");
 			$("button#boldButton").removeClass("activeButton");
 			$("button#italButton").removeClass("activeButton");
@@ -1099,7 +1124,7 @@ var createAnnotations = function(markID,markcount) {
 		l = +$(this).css("left").split("px")[0];
 		t = +$(this).css("top").split("px")[0];
 
-		var newHTML = "<div class='tooltip' style='position:absolute; left:" + l + "px; top:" + (t+20) + "px'>";
+		var newHTML = "<div class='tooltip' style='position:absolute; left:" + l + "px; top:" + (t+35) + "px'>";
 		
 		k = Object.keys(markGroups[marknum].parameters);
 		
@@ -2107,8 +2132,8 @@ var createMarks = function(x, y, markcount, markType) {
 				.data(dataset)
 				.enter()
 				.append("rect")
-				.attr("height",100)
-				.attr("width",50)
+				.attr("height",150) //100
+				.attr("width",300) //50
 				.attr("x",0)
 				.attr("y",0)	
 				.attr("fill", function(d,i) {
@@ -2129,7 +2154,7 @@ var createMarks = function(x, y, markcount, markType) {
 		
 		case "arc":
 			var donut = d3.layout.pie(),
-			arc = d3.svg.arc().innerRadius(0).outerRadius(50);
+			arc = d3.svg.arc().innerRadius(0).outerRadius(150); //50
 	
 			var arcscont=svgm.append("g")
 				.data([dataset])
@@ -2169,7 +2194,11 @@ var createMarks = function(x, y, markcount, markType) {
 			var symbol = d3.svg.symbol();
 			var yscale = d3.scale.linear()
 				.domain([0, n-1])
-				.range([0, 100]);
+				.range([0, 150]); //0,100
+				
+			var xscale = d3.scale.linear()
+				.domain([0, n-1])
+				.range([0, 300]); //0,100
 			
 			scattercont.selectAll("path")
 				.data(dataset)
@@ -2186,7 +2215,7 @@ var createMarks = function(x, y, markcount, markType) {
 				.classed("realmark",true)
 				.attr("transform",function(d,i)	{
 					//position
-					return "translate("+ yscale(i) + ","+ (100-yscale(i))+")"; // 10*i
+					return "translate("+ xscale(i) + ","+ (150-yscale(i))+")"; // 10*i
 				})
 				.attr("d", symbol);
 				
@@ -2194,9 +2223,9 @@ var createMarks = function(x, y, markcount, markType) {
 				.classed("container",true);
 				
 			var markgroup = new MarkGroup("scatter");
-			markgroup.addScale("x", new Scale(yscale, undefined, "linear", "Data Index"));
+			markgroup.addScale("x", new Scale(xscale, undefined, "linear", "Data Index"));
 			markgroup.addScale("y", new Scale(yscale, undefined, "linear", "Data Index"));
-			markgroup.xScale = yscale;
+			markgroup.xScale = xscale;
 			markgroup.yScale = yscale;
 			markGroups.push(markgroup);									
 		break;
@@ -2857,12 +2886,16 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 			$("table#mark_" + marknum + "_" + property).hide();
 		}
 			
+		//Affects axis and other text
 		if(property==="font-size") {
 			$(".axis_" + activeMark).css(property, propValue + "px");
+			$(".textcont_" + activeMark).css(property, propValue + "px");
 		}	
 		
+		//Affects axis and other text
 		if(property==="font-weight" || property==="font-style" || property==="text-decoration" || property==="font-family") {
 			$(".axis_" + activeMark).css(property, propValue);
+			$(".textcont_" + activeMark).css(property, propValue);
 		}	
 		
 		if(property==="left" || property==="top") {
