@@ -36,6 +36,7 @@ function MarkGroup(markType) {
 	
 	this.parameters = {}; //key-value of KEY=parameter to VALUE=colname if present
 	
+	//For example, parameter = "fill", colname="countryName", option="PaletteA"
 	this.addParameter = function(parameter, colname, option) {
 		this.parameters[parameter] = {};
 		this.parameters[parameter].colname = colname;
@@ -400,7 +401,6 @@ $(document).ready(function(){
 	$("rect.guideline").hide(); //hide guidelines when you load the page
 	//Toggle Guidelines
 	$("input#toggleGuidelines").click(function() {
-		console.log("HERE");
 		if($("rect.guideline").eq(0).css("display") == "none") {
 			$(this).val("TURN OFF");
 		} else {
@@ -506,11 +506,18 @@ $(document).ready(function(){
 	
 	createDraggableIcons();	//create draggable icons (the top-level marks)
 
+	//filename, like olympics.csv or iris.csv
+	if(window.location.search==="") {
+		filename = "olympics.csv";
+	} else if(window.location.search.split("=").length!=2) {
+		filename = "olympics.csv";
+	} else {
+		filename = window.location.search.split("=")[1];
+	}
 	
 	
-
 	//READ IN DATA FROM CSV FILE AND POPULATE LIST OF COLUMNS OF DATA VARIABLE NAMES
-	d3.csv("./iris.csv", function(response) {
+	d3.csv("./" + filename, function(response) {
 		for (var i in response) {
 			allData[i]={};
 			for(var attr in response[0]) {
@@ -631,14 +638,17 @@ $(document).ready(function(){
 	});
 	
 	
-	
-	
-	//Region is everything below the marks div								
+
+	//Region is everything on the right-hand side						
   $("#region").droppable({
 		accept: ".mark",
 		
 		drop: function(event,ui) {
-			activeMarkOff();
+			//Only turn active mark off if dragging out a new high-level mark (not axis) and thus has class "mark"
+			if(ui.draggable.hasClass("mark")) {
+				activeMarkOff();
+			}
+			
 			var x, y;
 			var dragged = ui.draggable;
 			var visarea = $("#vis");
@@ -787,45 +797,73 @@ var createDraggableIcons = function() {
 }
 
 
-var createLegend = function(marknum, parameter)
-{
-	var prettyname = parameter
-	prettyname=prettyname[0].toUpperCase()+prettyname.slice(1);
+
+
+//CREATE LEGEND
+var createLegend = function(marknum, parameter) {
+	var prettyname = parameter;
+	prettyname = prettyname[0].toUpperCase()+prettyname.slice(1);
 	
+	//Remove previous legend of for the same parameter!
 	var prevlegend = $("#mark_"+marknum+"_"+parameter);
 	if(prevlegend.length > 0){
-		$("closeicon_mark"+marknum+"_"+parameter).remove();
+		console.log("REMOVING PREVIOUS LEGEND");
+		$("#closeicon_mark_"+marknum+"_"+parameter).remove(); //bug fix (added # at start and underscore after mark)
 		prevlegend.remove();
-		
 	}
 	
-	var tablestring = "<table class='legend' id='mark_"+marknum+"_"+parameter+"'><tr><td colspan='2' class='title' contenteditable=true>"+prettyname+"</td></tr>";
 	var isordinal;
 	var uniqueelements = {};
+	var reverseLookup = {};
 	var colorscale;
 
 	var colname = markGroups[marknum].parameters[parameter].colname;
-	var option = markGroups[marknum].parameters[parameter].option
+	var option = markGroups[marknum].parameters[parameter].option;
 	isordinal = isNaN(allData[0][colname]);
 
-	if(isordinal)
-	{
+	if(!isordinal) {
+		return;
+	}
+	
+	
+	if(isordinal) {
 		colorscale = makeColorScale(option, dataObjectsToColumn(allData,colname));
-
-		for(var i in allData)
-		{
+		var numUnique = 0;
+		
+		for(var i in allData) {
+			if(uniqueelements[allData[i][colname]]===undefined) {
+				reverseLookup[numUnique++] = allData[i][colname];
+			}
 			uniqueelements[allData[i][colname]]=i;
 		}
 
-		for(var elem in uniqueelements)
-		{
-			var row = "<tr><td style='background-color:"+colorscale(elem)+"'</td><td>"+elem+"</tr>";
-			tablestring += row;
+		//Prettier layout (so not one huge column)
+		var numColumns = Math.ceil(numUnique/10);
+		var numRows = Math.ceil(numUnique/numColumns);
+		
+		//Content editbale meant to be a feature here???
+		var tablestring = "<table class='legend' id='mark_"+marknum+"_"+parameter+"'>";
+		//tablestring += "<tr><td colspan='" + numColumns*2 + "' class='title' contenteditable=true>"+prettyname+"</td></tr>";
+		tablestring += "<tr><td colspan='" + numColumns*2 + "' class='title'>"+prettyname+"</td></tr>";
+	
+		for(var r=0; r<numRows; r++) {
+			tablestring += "<tr>";
+			for(var c=0; c<numColumns; c++) {
+				elem = reverseLookup[r+c*numRows];
+				if(elem!==undefined) {
+					tablestring += "<td class='legendColor' style='background-color:" + colorscale(elem) + "'</td><td>" + elem + "</td>";
+				}
+			}
+			tablestring += "</tr>";
 		}
-
-
-
+		
+		
+// 		for(var elem in uniqueelements) {
+// 			var row = "<tr><td style='background-color:"+colorscale(elem)+"'</td><td>"+elem+"</tr>";
+// 			tablestring += row;
+// 		}
 	}
+	
 	tablestring += "</table>";
 	var legend = $(tablestring);
 
@@ -862,8 +900,7 @@ var createLegend = function(marknum, parameter)
 	createCloseIcon(legend.attr("id"));
 	
 	legend.draggable({
-		drag:function(e,ui)
-		{
+		drag:function(e,ui) {
 			$("#closeicon_"+legend.attr("id")).show();
 			positionCloseIcons(marknum);
 		}
@@ -871,10 +908,11 @@ var createLegend = function(marknum, parameter)
 }
 
 
-// generic close icon given an element id
 
-var createCloseIcon = function(id)
-{
+
+//CREATE CLOSE ICON
+//generic close icon given an element id
+var createCloseIcon = function(id) {
 	var parent=$("#"+id);
 	var marknum = getMarkNum($("#"+id));
 	//CLOSE ICON
@@ -919,9 +957,13 @@ var createCloseIcon = function(id)
 
 	$("body").append(closeicon);
 	closeicon.hide();
-
-
 }
+
+
+
+
+
+
 
 
 
@@ -945,6 +987,50 @@ var createAnnotations = function(markID,markcount) {
 	
 	$("body").append(closeicon);
 	closeicon.hide();
+	
+	//INFO ICON
+	var infoicon=$("<div class='infoicon' id='infoicon_" + markcount + "' style='position:absolute;'>i</div>");
+	
+	infoicon.mouseenter(function() {
+		var marknum = getMarkNum($(this));
+		$(this).show();
+		updateBackgroundHighlight(marknum, .3);
+
+		l = +$(this).css("left").split("px")[0];
+		t = +$(this).css("top").split("px")[0];
+
+		var newHTML = "<div class='tooltip' style='position:absolute; left:" + l + "px; top:" + (t+20) + "px'>";
+		
+		k = Object.keys(markGroups[marknum].parameters);
+		
+		if(k.length==0) {
+			newHTML += "<span>No data mapped yet!</span>";
+		} else {
+			p = markGroups[marknum].parameters;
+			for(i=0; i<k.length; i++) { 
+				if(i!=0) { newHTML += "<br/>"; }
+				newHTML += "<span>" + k[i] + "<span style='color:red'> mapped to </span>" + p[k[i]].colname + " (" + p[k[i]].option + ")</span>";
+			}
+		}
+		
+		newHTML += "</div>";
+		$("body").append(newHTML);
+		
+	});
+	
+	infoicon.mouseout(function() {
+		$(".tooltip").remove();
+	});
+	
+	
+	
+	infoicon.click(function() {
+// 		var marknum = getMarkNum($(this));
+// 		destroyMark(marknum);
+	});
+	
+	$("body").append(infoicon);
+	infoicon.hide();
 	
 	
 	//TEXT ANCHORS
@@ -1331,6 +1417,7 @@ var createMenus=function(markID,markcount) {
 
 var positionAnnotations = function(marknum) {
 	positionCloseIcon(marknum);
+	positionInfoIcon(marknum);
 	positionCloseIcons(marknum);	
 	positionAxisAnchor(marknum);
 	positionTextAnchors(marknum);
@@ -1377,6 +1464,43 @@ var positionCloseIcon = function(marknum) {
 		break;
 	}	
 }
+
+
+
+var positionInfoIcon = function(marknum) {
+	var icon = $("#infoicon_" + marknum);
+	
+	var markgroup = d3.select(".mark" + marknum);		
+	var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+	var wh = getDimensions($("g.mark" + marknum));
+	
+	var minx = +cleantrans[0];
+	var miny = +cleantrans[1];
+	var visarea = $("#vis");
+	var markType = markGroups[marknum].type;
+	
+	switch(markType) {
+		case "rect":
+			icon.css("left",(minx+visarea.offset().left+wh[0]-40)+"px");
+			icon.css("top",miny+visarea.offset().top + "px");
+		break;
+		
+		case "arc":
+			var radius = markGroups[marknum].radius;
+			icon.css("left",(minx+visarea.offset().left+Math.cos(45)*radius)-20+"px");
+			icon.css("top",miny+visarea.offset().top-Math.sin(45)*radius + "px");
+		break;
+		
+		case "scatter":
+			icon.css("left",(minx+visarea.offset().left+wh[0]-60)+"px");
+			icon.css("top",miny+visarea.offset().top + "px");
+		break;
+	}	
+}
+
+
+
+
 
 // position close icons of all attached objects (axes, legends)
 var positionCloseIcons = function(marknum) {
@@ -2171,6 +2295,7 @@ var createMarks = function(x, y, markcount, markType) {
 			updateBackgroundHighlight(marknum, .3);
 			positionAnnotations(marknum);		
 			$("#closeicon_" + marknum).show();
+			$("#infoicon_" + marknum).show();
 			overMarks = true;
 	  })
 	  
@@ -2212,6 +2337,7 @@ var createMarks = function(x, y, markcount, markType) {
 				updateBackgroundHighlight(marknum, 0);
 			}
 			$("#closeicon_" + marknum).hide();
+			$("#infoicon_" + marknum).hide();
 			overMarks = false;
 	  });
 
@@ -2238,6 +2364,7 @@ var destroyMark = function(marknum) {
 	$("#menudivGroup_" + marknum).remove();
 	$(".textanchor_" + marknum).remove();	
 	d3.selectAll(".textcont_" + marknum).remove();
+	$("#infoicon_" + marknum).remove();
 	
 	activeMarkOff();
 }
@@ -2756,7 +2883,6 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 				console.log(scaleselection + " .. " + datacolumn + " .. " + logextra);
 				marks.transition().duration(transduration)
 				.attr("fill-opacity", function(d,i){ 
-					console.log(d);
 					return scale(d[colname]+logextra);});	
 			break;
 				
@@ -3030,6 +3156,8 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 
 
 var positionAxis = function(curaxis) {
+	console.log("Position Axis...");
+	
 	var myid = curaxis.attr("id");
 	var marknum = myid.split("_")[1];
 	var anchornum = +myid.split("_")[2];
@@ -3111,12 +3239,32 @@ var positionAxis = function(curaxis) {
 	var wh = getDimensions($("g.mark" + marknum));
 	var trans = transformSpecs($("g.mark" + marknum).get());
 	
+	//Vertical axis
 	if(anchornum===1 || anchornum===3) {
-		axis.scale(flippedscale);
+		var numTicks = wh[1]/50+1;
+		
+		if(scaletype === "linear") {
+			axis.scale(flippedscale).ticks(numTicks);
+		} else if(scaletype === "logarithmic") {
+			var formatNumber = d3.format(",.0f");
+			axis.scale(flippedscale).ticks(numTicks, formatNumber);
+		}
+
 		axisgroup.attr("height",wh[1]);
 		axisgroup.call(axis);
-	} else {
-		axis.scale(normalscale);
+	} 
+	
+	//Horizontal axis
+	else {
+		var numTicks = wh[0]/50+1;
+		
+		if(scaletype === "linear") {
+			axis.scale(normalscale).ticks(numTicks);
+		} else if(scaletype === "logarithmic") {
+			var formatNumber = d3.format(",.0f");
+			axis.scale(normalscale).ticks(numTicks, formatNumber);
+		}
+		
 		axisgroup.attr("width",wh[0]);
 		axisgroup.call(axis);
 	}

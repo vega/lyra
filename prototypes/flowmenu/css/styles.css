@@ -347,7 +347,7 @@ div.note {
 	vertical-align: center;
 	opacity: .7;
 	user-select: none;
-	z-index:19; /* so that it shows up above other things */
+	z-index:30; /* so that it shows up above other things */
 
 }
 
@@ -373,9 +373,40 @@ div.note {
 	user-select: none;
 }
 
-.closeicon:hover {
-	cursor:pointer;
+		.closeicon:hover {
+			cursor:pointer;
+		}
+		
+
+.infoicon{
+  width: 15px;
+  height: 15px;
+  background: cyan;
+  cursor: default;
+	border-color: black;
+	border-width: 2;
+	text-align: center;
+	vertical-align: center;
+	opacity: .7;
+	user-select: none;
 }
+
+		.infoicon:hover {
+			cursor:pointer;
+		}	
+		
+		div.tooltip {
+			z-index:50; /* should ALWAYS BE SEEN */
+			background-color:black;
+			color:white;
+			font-size:12px;
+			padding:2px;
+		}
+		
+		
+		
+		
+		
 
 .menudiv{
 	background: none;
@@ -422,7 +453,7 @@ div.note {
 	vertical-align: center;
 	opacity: .7;
 	user-select: none;
-	z-index:19; /* so that it shows up above other things */
+	z-index:30; /* so that it shows up above other things */
 }
 
 .ui-state-disabled {
