@@ -2800,6 +2800,7 @@ var destroyMark = function(marknum) {
 	menus.remove(); 
 	
 	$("#closeicon_" + marknum).remove();
+	$(".closeicon_" + marknum).remove();
 	$(".axisanchor_" + marknum).remove();
 	$(".axis_" + marknum).remove();
 	$("#menudivGroup_" + marknum).remove();
