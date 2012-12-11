@@ -187,11 +187,11 @@ div#propertyEditor {
 		}
 		
 		td.propertyEditorWidget div.pixelInput input {
-			width:70px;
+			width:50px;
 		}
 		
 		td.propertyEditorWidget div.textInput input {
-			width:100px;
+			width:75px;
 		}
 		
 		td.propertyEditorWidget div.sliderInput input {
