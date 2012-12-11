@@ -13,6 +13,7 @@ var colors10 = new Array("#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c5
 var activeMark = -1; //index of the active mark (the one whose property editor will work for)
 var overMarks = false; //false if mouse is not over marks; true if mouse is over a mark group (to register clicks on non-marks)
 var activeAttachmentID = undefined; // keeps track of the last clicked on axis or label group
+var timeout = undefined;
 
 //MARKGROUP OBJECT
 function MarkGroup(markType) {
@@ -763,7 +764,9 @@ $(document).ready(function(){
 				});
 				
 				textbox.appendTo($("div#rightSide"));
-
+				
+				createCloseIcon(textbox.attr("id"));
+				
 				markcount++;
 				markGroups.push(new MarkGroup("note"));
 					
@@ -1065,17 +1068,24 @@ var createCloseIcon = function(id) {
 	// it flickers sometimes
 	parent.mouseenter(function() //find("tr").
 	{
-		if(parenttype==="textcont") return;
-		
+
+		if(timeout!==undefined) clearTimeout(timeout);
+		if(parenttype==="textcont") return;		
 		positionCloseIcons(marknum);
 		closeicon.show();
 	//	console.log("show "+marknum);
 	});	
 	parent.mouseout(function(e)
 	{
+
 		if(parenttype==="textcont") closeicon.hide();
-		
-		// fixes close icon flicker
+		if(parenttype==="axis" || parenttype==="textcont") {
+			timeout = setTimeout(function(){
+			closeicon.hide();
+			}, 1000);	
+			closeicon.show();
+			return;
+		}	// fixes close icon flicker
 		if(e.relatedTarget!==$("#vis").get(0)) return;
 		closeicon.hide();
 	});		
@@ -1228,7 +1238,7 @@ var createAnnotations = function(markID,markcount) {
 					}
 				});
 
-				
+			createCloseIcon($(axisgroup[0][0]).attr("id"));				
 			positionAxis($(axisgroup[0][0]));
 				
 			},
@@ -1648,12 +1658,45 @@ var positionCloseIcons = function(marknum) {
 		
 		var islegend = parent.hasClass("legend");
 		var islabelgroup = parentd3.classed("textsubcont");
-
+		var isnote = parent.hasClass("note");
+		var isaxis = parentd3.classed("axis");
+		
 			if(islegend){
 				var iconleft = (+parent.offset().left) +  (+parent.css("width").split("px")[0]) - 10 +"px";	
 				icon.css("left",iconleft);
 				icon.css("top",parent.offset().top);
 			}		
+			else if(isnote)
+			{
+			
+				var iconleft = (+parent.offset().left) +  (+parent.css("width").split("px")[0]) +"px";	
+				var icontop = (+parent.offset().top - 8) +"px"
+				icon.css("left",iconleft);
+				icon.css("top",icontop);
+					
+			}
+			else if(isaxis)
+			{
+			
+				var markgroup = parent;		
+				var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
+				var wh = getDimensions(parent);
+				
+	//			console.log(parent);
+	//			console.log(wh);
+				
+				var minx = +cleantrans[0];
+				var miny = +cleantrans[1];
+				var visarea = $("#vis");
+				var hfix = 0;
+				var wfix = +wh[0];
+				if(parent.attr("id").split("_")[2]==0) hfix = +wh[1];
+				if(parent.attr("id").split("_")[2]==3) wfix = 0;	
+				
+				icon.css("left",(minx+visarea.offset().left+ wfix)+"px");
+				icon.css("top",miny+visarea.offset().top - hfix + "px");
+					
+			}			
 			else if(islabelgroup)
 			{
 			
@@ -1668,7 +1711,7 @@ var positionCloseIcons = function(marknum) {
 				// icon.css("left",(minx+visarea.offset().left+wh[0]-20)+"px");
 				// icon.css("top",miny+visarea.offset().top + "px");
 					
-			}
+			}	
 			else
 			{
 			// handle axes
