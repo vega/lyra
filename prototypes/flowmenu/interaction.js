@@ -25,6 +25,7 @@ function MarkGroup(markType) {
 //	this.xParameter = "Data Index";
 //	this.yParameter = "Data Index";
 	this.radius = 50; //DEFAULT radius
+	this.innerRadius = 0; //DEFAULT inner radius
 	this.height = 100; //DEFAULT height
 	this.width = 50; //DEFAULT width
 	this.type = markType; //type of MarkGroup, namely: rect, arc, scatter
@@ -134,7 +135,7 @@ function rememberEncoding(marknum, parameter, colname, optionname) {
 	markGroup = markGroups[marknum];
 	
 	switch(markGroup.type) {
-		//TODO: add for other marks if some properties are mutually exclusive
+		//For bar graphs, height and width are mutually exclusive properties
 		case "rect":
 			if(parameter==="height" && markGroup.parameters["width"]) {
 				markGroup.removeParameter("width");
@@ -143,7 +144,17 @@ function rememberEncoding(marknum, parameter, colname, optionname) {
 			if(parameter==="width" && markGroup.parameters["height"]) {
 				markGroup.removeParameter("height");
 			}
-
+		break;
+		
+		//For pie charts, inner radius and outer radius are mutually exclusive properties
+		case "arc":
+			if(parameter==="inner radius" && markGroup.parameters["outer radius"]) {
+				markGroup.removeParameter("outer radius");
+			}
+			
+			if(parameter==="outer radius" && markGroup.parameters["inner radius"]) {
+				markGroup.removeParameter("inner radius");
+			}
 		break;
 	}
 
@@ -552,8 +563,11 @@ $(document).ready(function(){
 				$(".textanchor").each(function(i) {
 					var marknum = getMarkNum($(this));
 					if(markGroups[marknum].majorParameter !== undefined || markGroups[marknum].type==="scatter") {
-						positionAnnotations(marknum);	
-						$(this).show();
+						//Don't show text anchors for arc types
+						if(markGroups[marknum].type !== "arc") {
+							positionAnnotations(marknum);	
+							$(this).show();
+						}
 					}
 				});
 				
@@ -1231,6 +1245,7 @@ var createTextAnchors = function(markcount) {
 						groupY2 = +$(e.target).attr("y");
 					}						
 				});
+				
 				setTimeout(function(){ declutterMarks(marknum); }, 10);
 				$(".textanchor").hide();
 
@@ -1775,8 +1790,8 @@ var positionTextAnnotations = function(marknum) {
 	}
 	else if(marktype == "scatter")
 	{
+		
 		markgroup.selectAll("path.realmark").each(function(d,i) {
-			console.log(1);
 			var curmark = d3.select(this);
 			var mytrans = transformSpecs($(this));
 			var myx = mytrans[0];
@@ -1788,7 +1803,7 @@ var positionTextAnnotations = function(marknum) {
 //			console.log(wh);
 			for(var anchornum=0; anchornum<3; anchornum++){
 				var textelems = textmarkgroup.selectAll(".text_" + marknum + "_" + anchornum);
-
+				
 				if(textelems[0].length < 1) { continue; }
 				
 				var textbbox = getDimensions($(textelems[0][i]));
@@ -1820,9 +1835,10 @@ var positionTextAnnotations = function(marknum) {
 				d3.select(textelems[0][i]).transition().duration(0).attr("x",x).attr("y",y);				
 			}
 		});
-		
 	}
 }
+
+
 
 var declutterMarks = function(marknum)
 {
@@ -1885,6 +1901,9 @@ var collide = function(myleft, myright, mytop, mybottom, enemydom)
 	return 1;
 
 }
+
+
+
 
 
 
@@ -2793,6 +2812,8 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 				
 				arc.innerRadius(propValue);
 				arc.outerRadius(radius);
+				markGroups[activeMark].innerRadius = propValue;
+				markGroup.removeParameter("outer radius"); //also remove outer radius
 				
 				sum = 0;
 				cum = new Array();
@@ -3377,7 +3398,7 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 		var marks=svgm.selectAll("g.mark" + marknum)
 									.data([allData]);
 		var arc = d3.svg.arc();
-		arc.innerRadius(0);
+		arc.innerRadius(markGroups[marknum].innerRadius);
 		arc.outerRadius(radius);
 		marks.selectAll("path")
 			.attr("d", arc); 	//problem here
@@ -3424,8 +3445,30 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 		
 		switch(parameter) {
 			case "angle":
-				arc.innerRadius(0);
-				arc.outerRadius(radius);
+				//If the arc mark has a data-driven inner radius encoding, maintain it!!
+				if(markGroups[marknum].parameters["inner radius"]) {
+					var datacolumn2 = dataObjectsToColumn(allData, markGroups[marknum].parameters["inner radius"].colname);
+					var logextra2 = markGroups[marknum].parameters["inner radius"].option ==="logarithmic" ? 1 : 0;
+					var yscale2 = makeQuantScale(scaleselection, datacolumn2, radius);
+					
+					arc.innerRadius(function(d,i){
+						return yscale2(datacolumn2[i]+logextra2);
+					});
+				} else {
+					arc.innerRadius(markGroups[marknum].innerRadius);
+				}
+				
+				if(markGroups[marknum].parameters["outer radius"]) {
+					var datacolumn2 = dataObjectsToColumn(allData, markGroups[marknum].parameters["outer radius"].colname);
+					var logextra2 = markGroups[marknum].parameters["outer radius"].option ==="logarithmic" ? 1 : 0;
+					var yscale2 = makeQuantScale(scaleselection, datacolumn2, radius);
+					
+					arc.outerRadius(function(d,i){
+					return yscale2(datacolumn2[i]+logextra2);
+				});
+				} else {
+					arc.outerRadius(radius);
+				}
 				
 				sum = 0;
 				cum = new Array();
@@ -3448,7 +3491,29 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 			break;
 				
 			case "inner radius":
-				
+				//If the arc mark has a data-driven angle encoding, maintain it!!
+				if(markGroups[marknum].parameters["angle"]) {
+					var datacolumn2 = dataObjectsToColumn(allData, markGroups[marknum].parameters["angle"].colname);
+					var logextra2 = markGroups[marknum].parameters["angle"].option ==="logarithmic" ? 1 : 0;
+					var yscale2 = makeQuantScale(scaleselection, datacolumn2, radius);
+
+					sum = 0;
+					cum = new Array();
+					cum[0] = 0;
+					for(i=0; i<n-1; i++) {
+						sum += yscale2(datacolumn2[i]+logextra2);
+						cum[i+1] = sum;
+					}
+					cum[n] = sum;
+	
+					arc.startAngle(function(d,i) {
+						return cum[i]/sum*2*Math.PI;
+					})
+					arc.endAngle(function(d,i) {
+						return cum[i+1]/sum*2*Math.PI;
+					})
+				}
+
 				arc.outerRadius(radius);
 				arc.innerRadius(function(d,i){
 					return yscale(datacolumn[i]+logextra);
@@ -3458,7 +3523,30 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 			break;
 			
 			case "outer radius":
-				arc.innerRadius(0);
+				//If the arc mark has a data-driven angle encoding, maintain it!!
+				if(markGroups[marknum].parameters["angle"]) {
+					var datacolumn2 = dataObjectsToColumn(allData, markGroups[marknum].parameters["angle"].colname);
+					var logextra2 = markGroups[marknum].parameters["angle"].option ==="logarithmic" ? 1 : 0;
+					var yscale2 = makeQuantScale(scaleselection, datacolumn2, radius);
+
+					sum = 0;
+					cum = new Array();
+					cum[0] = 0;
+					for(i=0; i<n-1; i++) {
+						sum += yscale2(datacolumn2[i]+logextra2);
+						cum[i+1] = sum;
+					}
+					cum[n] = sum;
+	
+					arc.startAngle(function(d,i) {
+						return cum[i]/sum*2*Math.PI;
+					})
+					arc.endAngle(function(d,i) {
+						return cum[i+1]/sum*2*Math.PI;
+					})
+				}
+				
+				arc.innerRadius(markGroups[marknum].innerRadius);
 				arc.outerRadius(function(d,i){
 					return yscale(datacolumn[i]+logextra);
 				});
