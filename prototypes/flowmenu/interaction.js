@@ -1926,7 +1926,8 @@ var positionTextAnnotations = function(marknum) {
 					switch(textanchornum){
 						//bottom
 						case 2:
-							x = myx;
+							var textwh = getDimensions($(textelems[0][i])); 
+							x = myx-textwh[0]-5;
 						break;
 						
 						//middle
