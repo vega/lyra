@@ -3134,6 +3134,7 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 		if(property==="fill" || property==="stroke" || property==="fill-opacity") {
 			marks.attr(property, function(){ return propValue; })
 			$("table#mark_" + marknum + "_" + property).hide();
+			if(property==="fill-opacity") { property = "opacity"; } //so parameter is properly removed
 		}
 			
 		//Affects axis, NOT other text

@@ -63,6 +63,7 @@ div#toolbar {
 			font-size: 46px;
 			text-align: center;
 			vertical-align: center;
+			opacity:0.7;
 		}
 		
 		div.blueBox:hover {
