@@ -2202,44 +2202,46 @@ var declutterMarks = function(marknum)
 	var textmarkgroup = d3.selectAll(".textcont_" + marknum);
 	
 	if(textmarkgroup[0].length < 1) { return; }
-		var labelshown=[];
-		var labelarr = [];
-		var labels = textmarkgroup.selectAll(".text_" + marknum);
-		var block = 1;
-		for(var labelnum=0; labelnum<labels[0].length;labelnum++) {
-			labelshown.push(1);
-			labelarr.push(labels[0][labelnum]);
-			d3.select(labels[0][labelnum]).attr("fill-opacity",1);
-			$(labelarr[enemy]).show();
-		}
+	
+	var labelshown=[];
+	var labelarr = [];
+	var labels = textmarkgroup.selectAll(".text_" + marknum);
+	var block = 1;
+	$(".text_" + marknum).show(); //reset everything to show
+	for(var labelnum=0; labelnum<labels[0].length;labelnum++) {
+		labelshown.push(1);
+		labelarr.push(labels[0][labelnum]);
+		d3.select(labels[0][labelnum]).attr("fill-opacity",1);
+		$(labelarr[enemy]).show();
+	}
 
 
-		for(var label in labelarr)
-		{
-			if(labelshown[label]==0) continue;
-			
-			var me = d3.select(labelarr[label]);
-			var mywh = getDimensions($(labelarr[label]));
-			var myleft = +me.attr("x");
-			var myright = myleft + mywh[0];
-			var mytop = +me.attr("y");
-			var mybottom = mytop + mywh[1];
-			
-			for(var enemy in labelarr)
-			{
-				if(labelshown[enemy]==0) continue;
-				if(enemy==label) continue;
-				
-				if(collide(myleft, myright, mytop, mybottom, labelarr[enemy]))
-				{
-					labelshown[enemy] = 0;
-					d3.select(labelarr[enemy]).attr("fill-opacity",0);
-					
-					$(labelarr[enemy]).hide(); //makes double clicking on specific label easier
-				}
-			}
+	for(var label in labelarr)
+	{
+		if(labelshown[label]==0) continue;
 		
+		var me = d3.select(labelarr[label]);
+		var mywh = getDimensions($(labelarr[label]));
+		var myleft = +me.attr("x");
+		var myright = myleft + mywh[0];
+		var mytop = +me.attr("y");
+		var mybottom = mytop + mywh[1];
+		
+		for(var enemy in labelarr)
+		{
+			if(labelshown[enemy]==0) continue;
+			if(enemy==label) continue;
+			
+			if(collide(myleft, myright, mytop, mybottom, labelarr[enemy]))
+			{
+				labelshown[enemy] = 0;
+				d3.select(labelarr[enemy]).attr("fill-opacity",0);
+				
+				$(labelarr[enemy]).hide(); //makes double clicking on specific label easier
+			}
 		}
+	
+	}
 
 }
 
@@ -2719,6 +2721,10 @@ var createMarks = function(x, y, markcount, markType) {
 			
 			groupSX = tSpecs[2];
 			groupSY = tSpecs[3];
+			
+			//declutter marks when you finish scaling
+			var marknum = getMarkNum($(this));
+			setTimeout(function(){ declutterMarks(marknum); }, 10);
     }})
       
     
@@ -2790,7 +2796,7 @@ var createMarks = function(x, y, markcount, markType) {
 
 
 
-//DESTORY A MARK AND ALL ASSOCIATED MENUS
+//DESTROY A MARK AND ALL ASSOCIATED MENUS
 var destroyMark = function(marknum) {
 	var marks = d3.select("#mark_" + marknum + "_group");
 	marks.remove();
@@ -3103,7 +3109,9 @@ var makeColorScale= function(scaleselection, datacolumn) {
 function updateFromPropertyEditor(marknum, property, propValue) {
 	//If activeAttachmentClass, work on that
 	if(activeAttachmentClass!==undefined) {
-		$("g#" + activeAttachmentClass + " text").attr(property, propValue);	
+		$("g#" + activeAttachmentClass + " text").attr(property, propValue);
+		//declutter marks when you update a property of them
+		setTimeout(function(){ declutterMarks(marknum); }, 10);
 		return;
 	}
 	
