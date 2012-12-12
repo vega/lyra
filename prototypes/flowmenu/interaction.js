@@ -390,7 +390,6 @@ function setPropertyEditorDefaults() {
 		$("input#updateYPos").val(topPos);
 		
 		$("input#updateTextFont").val(markJQ.css("font-family"));
-		console.log("OH YEAH");
 
 		if(markJQ.css("font-weight")==="bold") {
 			$("button#boldButton").addClass("activeButton");
@@ -467,8 +466,6 @@ function setPropertyEditorDefaults() {
 			$("input#innerRadius").val(0);
 			$("tr#innerRadiusRow").after("<tr class='tempRow'><td colspan='2'><span>is mapped to " + markGroup.parameters["inner radius"].colname + "</span></td></tr>")
 		} else {
-			console.log("X");
-			console.log(markGroups[activeMark].innerRadius);
 			$("input#innerRadius").val(markGroups[activeMark].innerRadius);
 // 			if(!marks.eq(0).data("jSize")) { //if there is no jSize set yet for this
 // 				$("input#updateDotSize").val(64); //64 is the D3 default
@@ -879,7 +876,6 @@ $(document).ready(function(){
 				});
 				
 				textbox.focusout(function() {
-					console.log("FOCUS OUT");
 					$(this).css("cursor", "move");
 				});
 				
@@ -1084,7 +1080,6 @@ var createLegend = function(marknum, parameter) {
 	//Remove previous legend of for the same parameter!
 	var prevlegend = $("#mark_"+marknum+"_"+parameter);
 	if(prevlegend.length > 0){
-		console.log("REMOVING PREVIOUS LEGEND");
 		$("#closeicon_mark_"+marknum+"_"+parameter).remove(); //bug fix (added # at start and underscore after mark)
 		prevlegend.remove();
 	}
@@ -1966,7 +1961,7 @@ var positionTextAnchors = function(marknum) {
 		for(var textanchornum=0; textanchornum<3; textanchornum++) {
 			var anchor = $("#textanchor_" + marknum + "_" + textanchornum);	
 			var x,y;
-			
+
 			if(majorparam === "height") {
 	//			x = minx+visarea.offset().left+ +curmark.attr("x")+"px";
 				x = minx+visarea.offset().left+ +curmark.attr("x") - 60 +"px";	
@@ -2115,8 +2110,6 @@ var positionTextAnnotations = function(marknum) {
 					}
 				}
 				else if(majorparam=="width") {
-				
-					console.log(curmark.attr("height") + " " + textbbox[1]);
 					// measure text to center
 					y= Math.floor(myy + .5*(+curmark.attr("height") + .5*textbbox[1])); // + .5*wh[0]/n
 	//				y = myy;
@@ -2242,6 +2235,8 @@ var declutterMarks = function(marknum)
 		}
 	
 	}
+	
+	positionAnnotations(marknum);
 
 }
 
@@ -2501,7 +2496,7 @@ var createMarks = function(x, y, markcount, markType) {
 			dy = parseInt(ui.position.top - mouseY);
 			
 			var target;
-			target=d3.select(this)
+			target=d3.select(this);
 			var marknum = getMarkNum($(this));
 			
 			if(target.classed("rectmark")) {
@@ -2575,7 +2570,11 @@ var createMarks = function(x, y, markcount, markType) {
 								
 					default: console.log("Error Dragging");
 				}
-				
+
+				//declutter bar graphs as you scale
+				var marknum = getMarkNum($(this));
+				setTimeout(function(){ declutterMarks(marknum); }, 10);
+			
 				updateBackgroundHighlight(marknum, .3);
 				positionAnnotations(marknum);
 				$("#closeicon_" + marknum).show();	
@@ -2681,6 +2680,7 @@ var createMarks = function(x, y, markcount, markType) {
 					default: console.log("Error Dragging");
 				}
 				updateBackgroundHighlight(marknum, .3);
+
 				positionAnnotations(marknum);
 				$("#closeicon_" + marknum).show();		
 			}
@@ -2689,6 +2689,9 @@ var createMarks = function(x, y, markcount, markType) {
 			if(activeMark!==-1) {
 				setPropertyEditorDefaults();
 			}
+			
+			
+			
 		},
 				
 		
@@ -2706,6 +2709,7 @@ var createMarks = function(x, y, markcount, markType) {
 			
 			groupW = wh[0]*tSpecs[2];
 			groupH = wh[1]*tSpecs[3];
+
 		},
 		
 		
@@ -2721,10 +2725,16 @@ var createMarks = function(x, y, markcount, markType) {
 			
 			groupSX = tSpecs[2];
 			groupSY = tSpecs[3];
-			
-			//declutter marks when you finish scaling
+
+			target=d3.select(this)
 			var marknum = getMarkNum($(this));
-			setTimeout(function(){ declutterMarks(marknum); }, 10);
+			
+			if(target.classed("scattermark")) {
+				//declutter marks when you finish scaling
+				setTimeout(function(){ declutterMarks(marknum); }, 10);
+			} else {
+				positionTextAnnotations(marknum);
+			}
     }})
       
     
