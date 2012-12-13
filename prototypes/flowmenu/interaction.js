@@ -24,8 +24,6 @@ function MarkGroup(markType) {
 	this.majorAxis = undefined; //major axis, either xscale or yscale
 	this.xScale = undefined; //xscale = makeQuantScale(xscaleselection, xdatacolumn, newwidth);
 	this.yScale = undefined; //yscale = makeQuantScale(yscaleselection, ydatacolumn, newheight);
-//	this.xParameter = "Data Index";
-//	this.yParameter = "Data Index";
 	this.radius = 150; //DEFAULT radius (used to be 50)
 	this.innerRadius = 0; //DEFAULT inner radius
 	this.height = 150; //DEFAULT height (used to be 100)
@@ -48,13 +46,30 @@ function MarkGroup(markType) {
 	
 	this.removeParameter = function(parameter) {
 		delete this.parameters[parameter];
+		
+		//Add bolded classes to current parameters
+		$("div#menudivGroup_" + activeMark + " div.optiondiv").removeClass("optionselected");
+		menuDIVS = $("div#menudivGroup_" + activeMark + " div.menudiv");
+		
+		for(i=0; i<menuDIVS.length; i++) {
+			menuName = menuDIVS.eq(i).attr("name");
+			optionDIVS = $("div#menudivGroup_" + activeMark + " div.menudiv:eq(" + i + ") div.submenudivGroup div");
+			for(j=0; j<optionDIVS.length; j++) {
+				optionName = optionDIVS.eq(j).attr("name");
+				if(markGroup.parameters[menuName]) {
+					if(markGroup.parameters[menuName].option === optionName) {
+						optionDIVS.eq(j).addClass("optionselected");
+					}
+				}
+			}
+		}
 	}
 	
 	//Convenience function for easier debugging
 	this.printParameters = function() {
-		console.log("Printing parameters...");
+		//console.log("Printing parameters...");
 		for(var key in this.parameters) {
-			console.log("KEY: " + key + ", VALUE: " + this.parameters[key].colname);
+			//console.log("KEY: " + key + ", VALUE: " + this.parameters[key].colname);
 		}
 	}
 
@@ -164,12 +179,12 @@ function rememberEncoding(marknum, parameter, colname, optionname) {
 	
 	
 	//Add bolded classes to current parameters
-	$("div.optiondiv").removeClass("optionselected");
-	menuDIVS = $("div.menudiv");
+	$("div#menudivGroup_" + marknum + " div.optiondiv").removeClass("optionselected");
+	menuDIVS = $("div#menudivGroup_" + marknum + " div.menudiv");
 	
 	for(i=0; i<menuDIVS.length; i++) {
 		menuName = menuDIVS.eq(i).attr("name");
-		optionDIVS = $("div.menudiv:eq(" + i + ") div.submenudivGroup div");
+		optionDIVS = $("div#menudivGroup_" + marknum + " div.menudiv:eq(" + i + ") div.submenudivGroup div");
 		for(j=0; j<optionDIVS.length; j++) {
 			optionName = optionDIVS.eq(j).attr("name");
 			if(markGroup.parameters[menuName]) {
@@ -214,8 +229,6 @@ function activeMarkOff() {
 
 //GRABBED THIS UTILITY FUNCTION ONLINE TO CONVERT RGB TO HEX VALUES
 function rgb2hex(rgb) {
-	console.log("RGB: " + rgb);
-	
   rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\).*$/);
 
   function hex(x) {
@@ -301,9 +314,7 @@ function setPropertyEditorDefaults() {
 		} else {
 			$("button#ulneButton").addClass("activeButton");
 		}
-		
-// 		console.log("YES, a class!");
-// 		console.log(activeAttachmentClass);
+
 		return;
 	}
 	
@@ -358,9 +369,7 @@ function setPropertyEditorDefaults() {
 		} else {
 			$("button#ulneButton").addClass("activeButton");
 		}
-// 		
-// 		console.log("YES, an ID!");
-// 		console.log(activeAttachmentID);
+
 		return;
 	}
 		
@@ -513,37 +522,6 @@ function setPropertyEditorDefaults() {
 				$("button#ulneButton").removeClass("activeButton");
 			}
 		} 
-// 		else if(labelText.length>0) {
-// 			fontSz = labelText.eq(0).css("font-size");
-// 			fontSz = parseInt(fontSz.split("px")[0]); 
-// 			
-// 			$("input#updateFontSize").val(fontSz);
-// 			$("input#updateTextFont").val(labelText.eq(0).css("font-family"));
-// 			
-// 			if(labelText.eq(0).css("font-weight")==="bold") {
-// 				$("button#boldButton").addClass("activeButton");
-// 			} else {
-// 				$("button#boldButton").removeClass("activeButton");
-// 			}
-// 			
-// 			if(labelText.eq(0).css("font-style")==="italic") {
-// 				$("button#italButton").addClass("activeButton");
-// 			} else {
-// 				$("button#italButton").removeClass("activeButton");
-// 			}
-// 			
-// 			if(labelText.eq(0).css("text-decoration")==="underline") {
-// 				$("button#ulneButton").addClass("activeButton");
-// 			} else {
-// 				$("button#ulneButton").removeClass("activeButton");
-// 			}
-// 		} else {
-// 			$("input#updateFontSize").val("");
-// 			$("button#boldButton").removeClass("activeButton");
-// 			$("button#italButton").removeClass("activeButton");
-// 			$("button#ulneButton").removeClass("activeButton");
-// 		}
-		
 		
 		$("input#updateXPos").val(tSpecs[0]);
 		$("input#updateYPos").val(tSpecs[1]);
@@ -557,19 +535,6 @@ function setPropertyEditorDefaults() {
 $(document).ready(function(){
 	
 	activeMarkOff();
-		
-	//Bar Width Slider Receive Events
-// 	$("input#barWidthSlider").change(function() {
-// 		v = $("input#barWidthSlider").val();
-// 		
-// 		maxWidth = $("g.mark" + activeMark).data("maxWidth");
-// 		console.log("MAX WIDTH: " + maxWidth);
-// 		
-// 		
-// 		v = maxWidth/n*v/100;
-// 		console.log("V: " + v);
-// 	});
-
 	
 	$("rect.guideline").hide(); //hide guidelines when you load the page
 	//Toggle Guidelines
@@ -711,8 +676,6 @@ $(document).ready(function(){
 		for (var i in response) {
 			allData[i]={};
 			for(var attr in response[0]) {
-//				if(attr==="ISO country code" || attr === "Country name" || attr === "Continent") {
-//				if(attr==="Species") {
 				if(isNaN(response[0][attr])) {
 					allData[i][attr] = response[i][attr];
 				} else {
@@ -798,7 +761,6 @@ $(document).ready(function(){
 				var anchornum = +myid.split("_")[2];
 				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
 				if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===2)) return;
-				//TODO: change to support axes
 				$(this).show();
 			});
 		},
@@ -1217,7 +1179,6 @@ var createCloseIcon = function(id) {
 		if(parenttype==="textcont") return;		
 		positionCloseIcons(marknum);
 		closeicon.show();
-	//	console.log("show "+marknum);
 	});	
 	parent.mouseout(function(e)
 	{
@@ -1301,12 +1262,7 @@ var createAnnotations = function(markID,markcount) {
 		$(".tooltip").remove();
 	});
 	
-	
-	
-	infoicon.click(function() {
-// 		var marknum = getMarkNum($(this));
-// 		destroyMark(marknum);
-	});
+
 	
 	$("body").append(infoicon);
 	infoicon.hide();
@@ -1333,10 +1289,6 @@ var createAnnotations = function(markID,markcount) {
 				//no double axes
 				if($("#axis_" + marknum + "_" + anchornum).length > 0) return;
 
-				// bounce out for weird axes
-//				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
-//				if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===2)) return;							
-	
 				var axisgroup = d3.select("#vis").append("g");
 				axisgroup.classed("axis",true);
 				axisgroup.classed("axis_" + marknum, true);				
@@ -1413,13 +1365,6 @@ var createTextAnchors = function(markcount) {
 				var myid = $(this).attr("id");
 				var marknum = getMarkNum($(this));
 				var anchornum = +myid.split("_")[2];
-
-				// no double notes
-//				if($("#text_" + marknum + "_" + anchornum).length > 0) return;
-
-				// bounce out for weird axes
-//				if(markGroups[marknum].majorParameter==="width" && (anchornum===1 || anchornum===3)) return;
-//				if(markGroups[marknum].majorParameter==="height" && (anchornum===0 || anchornum===2)) return;	
 						
 				var colname = ui.draggable.text(); //column name of data		
 				var datacolumn = dataObjectsToColumn(allData,colname);
@@ -1488,13 +1433,10 @@ var createTextAnchors = function(markcount) {
 					
 					setPropertyEditorDefaults();
 					
-			//		positionCloseIcons(marknum);
-					
 				});
 				
 				textelems.on("dblclick",function(d,i){
 					var myid = d3.select(this).attr("id");
-					//console.log("ID: " + myid);
 					var myidarr = myid.split("_");
 					myidarr.pop();
 					myidarr[0]="textcont";
@@ -1548,14 +1490,10 @@ var createTextAnchors = function(markcount) {
 						
 						var marknum = getMarkNum($(this));
 
-//						t = "translate(" + parseInt(groupX2+dx) + "," + parseInt(groupY2+dy) + ") ";
-//						$(e.target).attr("transform", t);	
 						$(e.target).attr("x",parseInt(groupX2+dx)).attr("y",parseInt(groupY2+dy));
 					},
 					
-					start: function(e, ui) {
-					//	isDragging = true;
-				//		tSpecs2 = transformSpecs(e.target);					
+					start: function(e, ui) {			
 						mouseX2 = parseInt(ui.position.left);
 						mouseY2 = parseInt(ui.position.top);
 
@@ -1567,65 +1505,7 @@ var createTextAnchors = function(markcount) {
 				setTimeout(function(){ declutterMarks(marknum); }, 10);
 				$(".textanchor").hide();
 
-/*				for(var textanchornum=0; textanchornum<3; textanchornum++)
-				{
-					var anchor = $("#textanchor_" + marknum + "_" + textanchornum);	
-					var x,y;
 
-					x = minx+visarea.offset().left+ +curmark.attr("x")+"px";
-					switch(textanchornum){
-						case 0:
-							// top
-							y = miny+ visarea.offset().top + +curmark.attr("y") - 10 + "px";
-						break;
-						case 1:
-							// middle
-							y = miny+visarea.offset().top + +curmark.attr("y") + .5*+curmark.attr("height")+"px";
-						break;
-						case 2:
-							// bottom
-							y = miny+visarea.offset().top + +curmark.attr("y") + +curmark.attr("height") + "px";		
-						break;
-									
-					}
-				
-					anchor.css("left",x);
-					anchor.css("top", y);
-				}
-				
-				// make the axis itself draggable for customization / deletion
-				$(text[0][0]).draggable(
-				{
-					drag:function(e, ui)
-					{
-
-				//		tSpecs2 = transformSpecs(e.target);
-						
-						dx = parseInt(ui.position.left - mouseX2);
-						dy = parseInt(ui.position.top - mouseY2);
-
-						var target;
-						target=d3.select(this);
-						console.log
-						var marknum = $(this).attr("id").split("_")[1];	
-
-
-						t = "translate(" + parseInt(groupX2+dx) + "," + parseInt(groupY2+dy) + ") ";
-						$(e.target).attr("transform", t);					
-					},
-					start: function(e, ui) {
-					//	isDragging = true;
-						tSpecs2 = transformSpecs(e.target);					
-						mouseX2 = parseInt(ui.position.left);
-						mouseY2 = parseInt(ui.position.top);
-
-						groupX2 = parseInt(tSpecs2[0]);
-						groupY2 = parseInt(tSpecs2[1]);
-					}
-				});
-			*/
-				
-	//		positionAxis($(axisgroup[0][0]));
 				
 			},
 			tolerance:"pointer"
@@ -1684,11 +1564,7 @@ var createMenus=function(markID,markcount) {
 				$("div.submenudivGroup").css("visibility", "hidden");
 				$("#submenudivGroup_" + marknum + "_" + menuindex).css("visibility", "visible");
 				$("#submenudivGroup_" + marknum + "_" + menuindex).show();
-				
-				//disable/enable droppable optiondiv
-				//$("div.optiondiv").droppable("disable");
-				//$("div.optiondiv_" + marknum + "_" + menuindex).droppable("enable");
-				
+
 				//make all optiondiv not highlighted except first one of this group!!
 				$("div.optiondiv").removeClass("hoverselected");
 				$(this).children().eq(1).children().eq(0).addClass("hoverselected");
@@ -1728,13 +1604,10 @@ var createMenus=function(markID,markcount) {
 				
 				//*over* does not register unless shown at drag start
 				over:function(event,ui){
-					//console.log("OVER");
-					//if($(this).parent().css("visibility")=="visible")
 					$(this).addClass("hoverselected");
 				}, 
 				
 				out:function(event,ui){
-					//console.log("OUT");
 					$(this).removeClass("hoverselected");
 				}				
 			});
@@ -1876,9 +1749,6 @@ var positionCloseIcons = function(marknum) {
 				var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
 				var wh = getDimensions(parent);
 				
-	//			console.log(parent);
-	//			console.log(wh);
-				
 				var minx = +cleantrans[0];
 				var miny = +cleantrans[1];
 				var visarea = $("#vis");
@@ -1891,54 +1761,6 @@ var positionCloseIcons = function(marknum) {
 				icon.css("top",miny+visarea.offset().top - hfix + "px");
 					
 			}			
-			else if(islabelgroup)
-			{
-			
-				// var markgroup = d3.select(".textcont_"+marknum);		
-				// var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
-				// var wh = getDimensions(parent);
-				//console.log(wh);
-				// var minx = +cleantrans[0];
-				// var miny = +cleantrans[1];
-				// var visarea = $("#vis");
-	
-				// icon.css("left",(minx+visarea.offset().left+wh[0]-20)+"px");
-				// icon.css("top",miny+visarea.offset().top + "px");
-					
-			}	
-			else
-			{
-			// handle axes
-			
-				// var markgroup = d3.select(".mark" + marknum);		
-				// var cleantrans = markgroup.attr("transform").substring(10).split(")")[0].split(",");
-				// var wh = getDimensions($("g.mark" + marknum));
-				
-				// var minx = +cleantrans[0];
-				// var miny = +cleantrans[1];
-				// var visarea = $("#vis");
-				// var markType = markGroups[marknum].type;
-				
-				// switch(markType) {
-					// case "rect":
-						// icon.css("left",(minx+visarea.offset().left+wh[0]-20)+"px");
-						// icon.css("top",miny+visarea.offset().top + "px");
-					// break;
-					
-					// case "arc":
-						// var radius = markGroups[marknum].radius;
-						// icon.css("left",(minx+visarea.offset().left+Math.cos(45)*radius)+"px");
-						// icon.css("top",miny+visarea.offset().top-Math.sin(45)*radius + "px");
-					// break;
-					
-					// case "scatter":
-						// icon.css("left",(minx+visarea.offset().left+wh[0]-40)+"px");
-						// icon.css("top",miny+visarea.offset().top + "px");
-					// break;
-				// }		
-			
-			}
-
 	});
 }
 
@@ -2149,8 +1971,7 @@ var positionTextAnnotations = function(marknum) {
 			var x;
 			var y;
 			var wh = getDimensions($(this));
-//			console.log(mytrans);
-//			console.log(wh);
+
 			for(var anchornum=0; anchornum<3; anchornum++){
 				var textelems = textmarkgroup.selectAll(".text_" + marknum + "_" + anchornum);
 				
@@ -2181,7 +2002,7 @@ var positionTextAnnotations = function(marknum) {
 				}
 				x = Math.floor(x);
 				y = Math.floor(y);
-//				console.log(x + " " + y);
+
 				d3.select(textelems[0][i]).transition().duration(0).attr("x",x).attr("y",y);				
 			}
 		});
@@ -2521,7 +2342,6 @@ var createMarks = function(x, y, markcount, markType) {
 						break;
 						
 					case "n-resize":
-						//console.log(dx + " " + dy);
 						if(dy > groupH){ break}; // stop overdrag
 						t = "translate(" + tSpecs[0] + "," + parseInt(groupY+dy) + ") ";
 						var newheight = groupH-dy;
@@ -2568,7 +2388,7 @@ var createMarks = function(x, y, markcount, markType) {
 						updateRectMarks(marknum, newwidth, newheight);						
 						break;
 								
-					default: console.log("Error Dragging");
+					//default: console.log("Error Dragging");
 				}
 
 				//declutter bar graphs as you scale
@@ -2677,7 +2497,7 @@ var createMarks = function(x, y, markcount, markType) {
 						updateScatterMarks(marknum, newwidth, newheight);						
 					break;
 								
-					default: console.log("Error Dragging");
+					//default: console.log("Error Dragging");
 				}
 				updateBackgroundHighlight(marknum, .3);
 
@@ -2736,13 +2556,6 @@ var createMarks = function(x, y, markcount, markType) {
 				positionTextAnnotations(marknum);
 			}
     }})
-      
-    
-    .mousedown(function(e) {
-	    //append target to front of the group so it is in the front
-	    //$(e.target).parent().append(e.target);
-	  })
-	  
 	  
 	  .mouseover(function(e) {
 		  if(!isDragging) {
@@ -2763,19 +2576,13 @@ var createMarks = function(x, y, markcount, markType) {
 	  
 	  .mousemove(function(e) {
 		  tSpecs = transformSpecs(this);
-			
-			//console.log(e.offsetX);
-			//console.log(groupW + " | " + groupH);
-			//console.log(s[1] + "|" + s[2] + "|" + wh[0] + "|" + wh[1] + "|" + e.offsetX + "|" + e.offsetY);
-			
+		  
 			var marknum = getMarkNum($(this));
 			if(!isDragging) {
 				getCursorType(marknum, tSpecs[0], tSpecs[1], groupW, groupH, e.offsetX, e.offsetY);
 			}
 	  })
 	  
-	  
-	  //.dblclick(function(e) {
 	  .mousedown(function(e) {
 		  var marknum = getMarkNum($(this));
 		  
@@ -2856,9 +2663,7 @@ function getCursorType(marknum, shapeX, shapeY, shapeW, shapeH, mouseX, mouseY) 
 	// fixes bounding box cursor issues
 	shapeW-=20;
 	shapeH-=20;
-	
-//	console.log(shapeW + " " + shapeH + " " + mouseX + " " + mouseY + " " + shapeX + " " + shapeY);
-	
+
 	switch(markType) {
 		case "rect":
 			pX = (mouseX-shapeX)/shapeW; //percentage of X shape
@@ -2923,61 +2728,10 @@ function transformSpecs(shape) {
 
 
 
-
-/*
-//Get the width and height of g group based on its SVG elements (only works for rect now)
-function getDimensions(shapes) {
-	mode = -1; //0 = bar graph horizontal; 1 = bar graph vertical
-	
-	maxW = +$(shapes).eq(0).attr("width");
-	maxH = +$(shapes).eq(0).attr("height");
-	
-	
-	//bar graph with bars of same width or same height?
-	for(i=1; i<shapes.length-1; i++) {
-		if(maxH !== +$(shapes).eq(i).attr("height")) {
-			mode = 0;
-			break;
-		} else if(maxW !== +$(shapes).eq(i).attr("width")) {
-			mode = 1;
-			break;
-		}
-	}
-	
-	if(mode==-1) { return [maxW, maxH]; }
-	
-	maxW = 0, maxH = 0;
-
-	//determine width and height of parent by finding max W/H or cumulative W/H
-	for(i=0; i<shapes.length-1; i++) {
-		if(mode==0) {
-			maxW += +$(shapes).eq(i).attr("width");
-			maxH = Math.max(maxH, +$(shapes).eq(i).attr("height"));
-		}
-		if(mode==1) {
-			maxW = Math.max(maxW, +$(shapes).eq(i).attr("width"));
-			maxH += +$(shapes).eq(i).attr("height");
-		}
-	}
-	
-	return [maxW, maxH];
-}
-*/
-
-
-
-
 //GET SVG GROUP BOUNDING BOX
 function getDimensions(shapes) {
 	shapes=shapes[0];
 	var bb = shapes.getBBox();
-	//handle axis width here?
-// 	console.log("W: " + bb["width"]);
-// 	console.log("X: " + bb["x"]);
-// 	console.log("H: " + bb["height"]);
-// 	console.log("Y: " + bb["y"]);
-	
-//	return [bb["width"]-bb["x"], bb["height"]-bb["y"]];
 	return [bb["width"], bb["height"]];
 }
 
@@ -3024,8 +2778,6 @@ var dropSubMenu=function(event,ui){
 		return;
 	}
 	
-	console.log("dropped "+ colname + " on mark" + marknum);	
-
 	switch(markType) {
 		case "rect":
 			//why is second parameter n*20? it's the fixed width
@@ -3258,10 +3010,6 @@ function updateFromPropertyEditor(marknum, property, propValue) {
 
 
 
-
-
-
-
 //MARK NUMBER, VISUAL PROPERTY, COLUMN NAME, TYPE OF SCALE
 var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname, scaleselection, constantValue) {
 	var yscale;
@@ -3306,9 +3054,7 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 		if(constantValue===undefined) {
 			var datacolumn = dataObjectsToColumn(allData,colname);
 		}
-		
-//		console.log(parameter + " " + colname + " " + scaleselection);
-			
+
 		var logextra;
 		logextra = scaleselection==="logarithmic" ? 1 : 0;
 
@@ -3365,7 +3111,6 @@ var updateRectMarks = function(marknum, newwidth, newheight, parameter, colname,
 			
 			case "opacity":
 				var scale = makeQuantScale(scaleselection, datacolumn, 1);
-				console.log(scaleselection + " .. " + datacolumn + " .. " + logextra);
 				marks.transition().duration(transduration)
 				.attr("fill-opacity", function(d,i){ 
 					return scale(d[colname]+logextra);});	
@@ -3438,7 +3183,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 	var xlogextra=0, ylogextra=0;
 
 	
-//	console.log("scatter");
+
 	if(newheight===undefined) { newheight = markGroups[marknum].height; }
 	else {  markGroups[marknum].height = newheight; }
 	if(newwidth===undefined) { newwidth = markGroups[marknum].width; }
@@ -3447,20 +3192,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 	if(constantValue===undefined) {
 		$("g.mark" + marknum).data("maxWidth", newwidth);
 	}
-	
-	// use established values if scale update
-	// resize default
-	// if(colname === undefined && scaleselection === undefined && parameter === undefined)
-	// {
-		// can't scale a single mark ?
-//		var marks = svgm.selectAll("g.mark" + marknum + " rect.realmark")
-//		.attr("height",newheight)
-//		.attr("width",newwidth)	
-	// }
-	
-	// else
-	// {
-	
+
 			
 		xcolname = markGroups[marknum].scales["x"].columnName;
 		ycolname = markGroups[marknum].scales["y"].columnName;			
@@ -3473,7 +3205,6 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 			dragupdate=true;
 			transduration=0;
 			parameter = "update";
-//			console.log("update");
 		}
 		
 		if(constantValue===undefined) {
@@ -3495,9 +3226,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 
 		}
 		
-		
-//		console.log(parameter + " " + colname + " " + scaleselection);
-			
+
 		var logextra;
 		logextra = scaleselection==="logarithmic" ? 1 : 0;
 		xlogextra = xscaleselection==="logarithmic" ? 1 : 0;
@@ -3518,12 +3247,11 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 			case "y":
 				xscale = makeQuantScale(xscaleselection, xdatacolumn, newwidth);
 				yscale = makeQuantScale(yscaleselection, ydatacolumn, newheight);
-//				console.log(xscale.range());
+
 
 				marks.transition().duration(transduration)
 				.attr("transform",function(d,i)
 				{
-	//			console.log((newheight-yscale(d[ycolname]+ylogextra)));				
 					return "translate("+ xscale(d[xcolname]+xlogextra)  + ","+ (newheight-yscale(d[ycolname]+ylogextra))+")";
 				})
 				.each("start",function(d,i){
@@ -3552,23 +3280,6 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 				marks.transition().duration(transduration)
 				.attr("fill-opacity", function(d,i){ return scale(d[colname]+logextra);});	
 				break;
-			// case "width":			
-				// yscale = makeQuantScale(scaleselection, datacolumn, newwidth);
-				// marks.transition().duration(transduration)
-					// .attr("width",function(d,i){
-						// return yscale(d[colname]+logextra);})
-					// .attr("height", function(d,i) {
-						// return newheight/n;})
-					// .attr("x",function(d,i){return 0;})	
-					// .attr("y",function(d,i){
-						// return i*newheight/n;});
-				// .attr("transform",function(d,i)
-				// {
-					// return "translate("+ yscale(d[colname]+logextra) + "," + i*newheight/n + ")";
-				// })
-				// .attr("d", symbol);						
-				// break;
-				
 			
 			case "fill":
 				if(constantValue===undefined) {
@@ -3602,9 +3313,6 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 
 		// scale axes of current plot		
 		var axes = d3.selectAll("g.axis_" + marknum);
-		// if((markGroups[marknum].majorParameter === "height" && parameter==="width") || (markGroups[marknum].majorParameter === "width" && parameter==="height"))	{
-			// axes.remove();
-		// }
 			axes.each(function(){		
 				positionAxis($(this));});		
 	
@@ -3630,8 +3338,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 		}
 		
 		marks.exit().remove();
-	
-	// }
+
 
 }
 
@@ -3640,9 +3347,7 @@ var updateScatterMarks = function(marknum, newwidth, newheight, parameter, colna
 
 
 
-var positionAxis = function(curaxis) {
-	console.log("Position Axis...");
-	
+var positionAxis = function(curaxis) {	
 	var myid = curaxis.attr("id");
 	var marknum = myid.split("_")[1];
 	var anchornum = +myid.split("_")[2];
@@ -3846,8 +3551,6 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 		nodeType=this.nodeName;
 	}); 
 	
-	console.log(constant);
-	
 	if(radius === undefined) { radius = markGroups[marknum].radius; }
 	else {	markGroups[marknum].radius = radius; }
 	// use established values if scale update
@@ -3901,8 +3604,7 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 
 									
 		var arcs = marks.selectAll("path");
-//		console.log(arcs);
-		
+
 		switch(parameter) {
 			case "angle":
 				//If the arc mark has a data-driven inner radius encoding, maintain it!!
@@ -4056,11 +3758,6 @@ var updateArcMarks = function(marknum, radius, parameter, colname, scaleselectio
 //UPDATE BACKGROUND HIGHLIGHTED *CONTAINER* BOX
 var updateBackgroundHighlight=function(marknum, opacity)
 {
-	//set all other containers to transparent
-	//var group = svgm.selectAll(".container");
-	//group.attr("opacity",0);
-	
-
 	var group = svgm.select("g.mark" + marknum);
 	
 	// set container to 0 size to avoid distorting bounding box
@@ -4098,4 +3795,3 @@ var updateBackgroundHighlight=function(marknum, opacity)
 		break;
 	}
 }
-
