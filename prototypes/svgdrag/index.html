@@ -1,0 +1,305 @@
+<!doctype html>
+ 
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SVG Playground</title>
+  
+  <script src="js/jquery-1.8.2.js"></script>
+  <script src="js/jquery-ui-1.9.1.custom.js"></script>
+  
+  <style>
+	  #droppable { 
+		  width: 150px; 
+		  height: 150px; 
+		  padding: 0.5em; 
+		  float: left; 
+		  margin: 10px; 
+		  background-color: #666;
+		}
+	  
+		#draggable {
+			 width: 100px; 
+			 height: 100px;
+			 padding: 0.5em; 
+			 float: left; 
+			 margin: 10px 10px 10px 0; 
+			 background-color: #f00;
+		}
+		
+		circle {
+			fill: #999;
+			stroke: black;
+			stroke-width:1;
+		}
+		
+		rect {
+			fill: green;
+			stroke: black;
+			stroke-width:1;
+		}
+		
+		p#blurb {
+			position: absolute;
+			font-family: Georgia, Tahoma, sans-serif;
+			left: 350px;
+			top:20px;
+			width:360px;
+		}
+			 
+	</style>
+	
+	<script>
+	  $(function() {
+		  
+		  var startW;
+		  var startX;
+		  
+		  var startH;
+		  var startY;
+		  
+		  var startR;
+		  
+		  var mode; //1=move; 2=resize height; 3=resize width; 4=resize both
+		  
+      /*$("#draggable").draggable();
+
+       $("#droppable").droppable({
+          accept: "#draggable",
+          activeClass: "ui-state-hover",
+          hoverClass: "ui-state-active",
+          
+          drop: function(event, ui) {
+            $(this).addClass("ui-state-highlight").find("p").html("Dropped!");
+          }
+      });*/
+      
+      
+      
+      $("rect").draggable({
+	      drag: function(e, ui) {
+		      //$(e.target).attr("x", ui.position.left);
+				  //$(e.target).attr("y", ui.position.top);
+				  
+				  
+// 				  console.log(ui.position.top); //CSS absolute position of HELPER on the page (from where you started clicking)
+// 				  console.log(ui.offset.top); //CSS relative? position of HELPER
+// 				  console.log(e.pageX); //actual position of MOUSE on the page
+// 				  console.log(e.offsetX); //relative? position of MOUSE on the page
+						
+//$(e.target).attr("width", $(e.target).attr("width")+ui.offset.top-startX);
+						//console.log(ui.offset.top);
+
+					// TODO: functionize
+					if(mode==="move") {
+						$(e.target).attr("x", ui.position.left);
+						$(e.target).attr("y", ui.position.top);
+						$('body').css('cursor', 'move');
+					} 
+					else if(mode==="sresize") {
+						$(e.target).attr("height",  Math.max(20, startH+ui.offset.top-startY));
+						$('body').css('cursor', 'n-resize');
+					} 
+					else if(mode==="eresize") {
+						$(e.target).attr("width", Math.max(20, startW+ui.offset.left-startX));
+						$('body').css('cursor', 'w-resize');
+					} 
+					// these are stranger since x and y have to change
+					else if(mode==="nresize") {
+						if(startY>=ui.offset.top-startH+40) {
+							$(e.target).attr("y", ui.position.top); 
+							$(e.target).attr("height", Math.max(20, startH+(startY-ui.position.top)));}
+						$('body').css('cursor', 'n-resize');
+					}	
+					else if(mode==="wresize") {
+						if(startX>=ui.offset.left-startW+20) {
+							$(e.target).attr("x", ui.position.left); 
+							$(e.target).attr("width", Math.max(20, startW+ (startX-ui.offset.left)));}
+						$('body').css('cursor', 'w-resize');
+					} 
+					else if(mode==="seresize") {
+						$(e.target).attr("height",  Math.max(20, startH+ui.offset.top-startY));
+						$(e.target).attr("width",  Math.max(20, startW+ui.offset.left-startX));
+						$('body').css('cursor', 'se-resize');
+					}
+					else if(mode==="neresize") {
+						if(startY>=ui.offset.top-startH+40) {
+							$(e.target).attr("y", ui.position.top); 
+							$(e.target).attr("height", Math.max(20, startH+(startY-ui.position.top)));}
+							
+						$(e.target).attr("width", Math.max(20, startW+ui.offset.left-startX));
+						$('body').css('cursor', 'ne-resize');							
+					}
+					else if(mode==="nwresize")
+					{
+					
+						if(startY>=ui.offset.top-startH+40) {
+							$(e.target).attr("y", ui.position.top); 
+							$(e.target).attr("height", Math.max(20, startH+(startY-ui.position.top)));}
+							
+						if(startX>=ui.offset.left-startW+20) {
+							$(e.target).attr("x", ui.position.left); 
+							$(e.target).attr("width", Math.max(20, startW+ (startX-ui.offset.left)));}
+						$('body').css('cursor', 'nw-resize');
+					
+					}
+					else if(mode==="swresize")
+					{
+						$(e.target).attr("height",  Math.max(20, startH+ui.offset.top-startY));	
+						
+						if(startX>=ui.offset.left-startW+20) {
+							$(e.target).attr("x", ui.position.left); 
+							$(e.target).attr("width", Math.max(20, startW+ (startX-ui.offset.left)));}	
+						$('body').css('cursor', 'sw-resize');						
+					}
+
+      },
+      
+      start: function(e, ui) {
+	      //console.log(ui.position.top);
+			  //console.log(ui.offset.top);
+			  
+			  startX = parseInt($(e.target).attr("x")); //ui.offset.left;
+			  startY = parseInt($(e.target).attr("y")); //ui.offset.top;
+			  
+			  startH = parseInt($(e.target).attr("height"));
+			  startW = parseInt($(e.target).attr("width"));
+			  
+			  clickY = parseInt(e.offsetY);
+			  clickX = parseInt(e.offsetX);
+
+			  mode = "move";
+
+	//				console.log("starty " + startY + "clicky " + clickY);			  
+			  // sketchy - fix
+			  if(startH+startY-clickY<10) {
+				  mode = "sresize"; //resize height s 
+			  }
+			  else if(clickY-startY<10) {
+				  mode = "nresize"; //resize height n
+			  }			  		  
+			  if(startW+startX-clickX<10) {
+				if(mode==="sresize")
+					mode="seresize";
+				else if(mode==="nresize")
+					mode="neresize";
+				else
+				  mode = "eresize"; //resize width e
+			  }			  
+			  if(clickX-startX<10) {
+			  	if(mode==="sresize")
+					mode="swresize";
+				else if(mode==="nresize")
+					mode="nwresize";
+				else
+				mode = "wresize"; //resize width w
+			  }
+			  
+      },
+      
+      stop: function(e, ui) {
+	      $('body').css('cursor', 'auto');
+	      
+      }})
+      
+      .mousedown(function(e) {
+		    //append target to front of the group so it is in the front
+		    $(e.target).parent().append(e.target);
+		  });
+
+      
+		  
+		  $("circle").draggable({
+	      drag: function(e, ui) {
+					if(mode==1) {
+						$(e.target).attr("cx", ui.position.left+startR);
+						$(e.target).attr("cy", ui.position.top+startR);
+						$('body').css('cursor', 'move');
+					} else if(mode==4) {
+//						diffY = ui.offset.top+startR-startY;
+//						diffX = ui.offset.left+startR-startX;
+//						diffA = Math.min(diffY, diffX);
+//						diffB = Math.sqrt(2*Math.pow(diffA, 2));
+						
+					//	if(diffA<0) { diffB = -diffB; }
+						
+						//console.log("D: " + diffB);
+						//console.log("R: " + diffC);
+						  clickY = parseInt(e.offsetY);
+						  clickX = parseInt(e.offsetX);						
+						clickDist = Math.sqrt(Math.pow(clickX-startX,2)+Math.pow(clickY-startY,2));
+						
+						$(e.target).attr("r", Math.max(10, clickDist));
+						$('body').css('cursor', 'se-resize');
+					}
+
+      },
+      
+      start: function(e, ui) {
+			  startX = parseInt($(e.target).attr("cx"));
+			  startY = parseInt($(e.target).attr("cy"));
+  
+			  startR = parseInt($(e.target).attr("r"));
+			  
+			  clickY = parseInt(e.offsetY);
+			  clickX = parseInt(e.offsetX);
+
+			  mode = 1;
+			  
+			  console.log(startR);
+			  console.log(startY);
+			  console.log(clickY);
+
+//			  if(clickY-startY>startR/3 && clickX-startX>startR/3) {
+			  clickDist = Math.sqrt(Math.pow(clickX-startX,2)+Math.pow(clickY-startY,2));
+			  if(clickDist>.9*startR && clickDist<1.1*startR) {
+				  mode = 4; //resize circle
+			  }
+
+      },
+      
+      stop: function(e, ui) {
+	      $('body').css('cursor', 'auto');
+	      
+      }})
+      
+      .mousedown(function(e) {
+		    $(e.target).parent().append(e.target);
+		  });
+
+      
+      
+	  });
+  </script>
+  
+</head>
+
+
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <g><rect width="300" height="100" x="0" y="0"/>
+  <circle cx="400" cy="300" r="100"/>
+   <!--<rect width="300" height="100" x="0" y="300"/>
+   <polygon points="100,50 100,0 400,0 400,50"/>--></g>
+</svg>
+
+<p id="blurb">USE CHROME! You can move the SVG shapes around. To scale, start dragging at the bottom of the shape, the left of the shape, or the bottom-left corner of the shape!</p>
+
+<!--<div id="draggable" class="ui-widget-content">
+    <p>Drag me to my target</p>
+</div>
+ 
+<div id="droppable" class="ui-widget-header">
+    <p>accept: '#draggable'</p>
+</div>-->
+
+
+
+ 
+ 
+
+
+ 
+</body>
+</html>
