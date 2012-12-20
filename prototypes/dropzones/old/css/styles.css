@@ -68,7 +68,12 @@ h2 {
     font-size: 18px;
 }
 
-.delegate { background: steelblue; }
+.delegate { 
+    display: block;
+    position: absolute;
+    background: steelblue; 
+}
+
 .property { background: #999; }
 
 .zone .rotate {

@@ -29,8 +29,8 @@ function markHeight(marknum, datacolumn, hover, log) {
 
 	var vis	= $('#vis');
 	var delegate = $("#delegate" + marknum);
-	var x = delegate.offset().left - vis.offset().left;
-	var y = delegate.offset().top - vis.offset().top;
+	var x = 0;
+	var y = 100;
 
 	extents = d3.extent(datacolumn);
 
@@ -75,8 +75,8 @@ function markHeight(marknum, datacolumn, hover, log) {
 function markWidth(marknum, datacolumn, hover) {
 	var vis	= $('#vis');
 	var delegate = $("#delegate" + marknum);
-	var x = delegate.offset().left - vis.offset().left;
-	var y = delegate.offset().top - vis.offset().top;
+	var x = 0;
+	var y = 200;
 
 	extents = d3.extent(datacolumn);
 	
@@ -150,7 +150,7 @@ $(document).ready(function(){
 
         	var vis = $('#vis');
 
-        	var delegate = $('<div class="delegate zone" id="delegate' + markcount + '"></div>')
+        	var delegate = $('<div class="delegate" id="delegate' + markcount + '"></div>')
         		.css('height', '100px')
         		.css('width', '50px')
         		.css('left', event.pageX + 'px')
