@@ -1,0 +1,108 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    color:#000;
+    background:#fff;
+    font: 14px Verdana, sans-serif;
+}
+
+#ui-left {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20%;
+    height: 100%;
+}
+
+#ui-right {
+    display: block;
+    position: fixed;
+    left: 22.5%;
+    top: 0;
+    width: 77.5%;
+    height: 100%;
+}
+
+.ui-box {
+    border: 1px solid #333;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    padding-top: 0;
+}
+
+.ui-box h2 {
+    background: #333;
+    border: 1px solid #333;
+    border-radius: 10px 10px 0 0;
+    color: #fff;
+    margin: 0 -10px 10px -10px;
+    padding: 5px;
+    font-size: 12px;
+}
+
+#ui-design {
+    display: block;
+    height: 49.5%;
+    margin-bottom: 1%;
+}
+
+#ui-vis { height: 49.5%; }
+
+#ui-data ul, #ui-primitives ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#ui-primitives ul li {
+    float: left;
+    padding: 10px;
+}
+
+#ui-primitives ul li:hover { background: #ddd; }
+
+#ui-new-panel {
+    display: none;
+    width: 20%;
+    height: 20%;
+    background: #ccc;
+    border: 5px dashed #999;
+    border-radius: 10px;
+}
+
+#ui-new-panel h3 {
+    color: #999;
+    font-size: 24px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.vis-panel {
+    border: 1px solid #999;
+    position: relative;
+}
+
+.delegate { position: absolute; }
+
+.delegate .primitive {
+    background: steelblue; 
+    position: absolute; 
+}
+
+.dropzone { 
+    position: absolute; 
+    display: none;
+    background: #999;
+    cursor: pointer;
+}
+
+.dropzone h3 { 
+    text-transform: lowercase; 
+    font-size: 13px;
+}
+
+.delegate:hover .dropzone {
+    display: block;
+}
