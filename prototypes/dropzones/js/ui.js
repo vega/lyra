@@ -23,12 +23,14 @@ function loadData() {
             helper: "clone",
             opacity: 0.9,
             zIndex: 1000,
+            cursor: 'imgs/closedhand.cur',
             start: function( event, ui ) {
                 // Make the helper more visually salient
                 ui.helper
                     .css('background', '#ccc')
                     .css('font-size', '10px')
-                    .css('padding', '3px');
+                    .css('padding', '3px')
+                    .css('cursor', 'url(imgs/closedhand.cur), default');
 
                 $('.delegate').addClass('delegate-droppable');
             },

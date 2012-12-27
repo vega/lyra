@@ -64,7 +64,7 @@ html {
 #ui-data ul, #ui-primitives ul {
     list-style-type: none;
     padding: 0;
-    cursor: pointer;
+    cursor: url(../imgs/openhand.cur), default !important;
 }
 
 #ui-primitives ul li {
@@ -80,9 +80,9 @@ html {
     background-position: 50% 50%;
 }
 
-#ui-primitives ul li:hover { background-color: #ddd; }
+#ui-left ul li:hover { background-color: #ddd; }
 
-.primitive_rect { background-image: url('../imgs/rect.png'); }
+.primitive_rect { background-image: url(../imgs/rect.png); }
 
 #ui-new-panel {
     background: #ccc;
