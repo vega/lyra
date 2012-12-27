@@ -70,6 +70,8 @@ var primitives = {
             }
         },
 
+        defaultDataMapping: 'height',
+
         visualization: function(mark, panelId, preview) {
             var xScale, yScale;
             var x, y, height, width;
@@ -134,7 +136,7 @@ var primitives = {
         }
     },
 
-    arc: {
+    // arc: {
 
-    }
+    // }
 };

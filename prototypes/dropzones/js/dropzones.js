@@ -6,20 +6,62 @@ $(document).ready(function(){
     $.getJSON("./data/olympics.json", function(response) {
         fullData = response;
         // assuming first row is column names
-        for(var label in fullData[0])
-            $("#ui-data ul").append('<li class="data-col">' + label + '</li>');
+        for(var label in fullData[0]) {
+            var li = $('<li></li>')
+                .addClass('data-col')
+                .text(label);
 
+            $("#ui-data ul").append(li);
+        }
+
+        // Make the data columns draggable
+        $('.data-col').draggable({ 
+            helper: "clone",
+            opacity: 0.9,
+            zIndex: 1000,
+            start: function( event, ui ) {
+                // Make the helper more visually salient
+                ui.helper
+                    .css('background', '#ccc')
+                    .css('font-size', '10px')
+                    .css('padding', '3px');
+            },
+            stop: function( event, ui ) {
+                $('.ui-valid-target').removeClass('ui-valid-target');
+            }
+        });
     });
 
-    for(var id in primitives)
-        $('#ui-primitives ul').append('<li class="primitive"><img src="imgs/' + id + '.png" /></li>');
+    for(var id in primitives) {
+        var li = $('<li></li>')
+            .addClass('primitive')
+            .attr('id', 'primitive_' + id)
+            .append($('<img />').attr('src', 'imgs/' + id + '.png'));
 
+        $('#ui-primitives ul').append(li);
+    }
+
+    $('#ui-primitives li').droppable({
+        accept: '.data-col',
+        activeClass: 'ui-valid-target',
+        hoverClass: 'ui-valid-target-hover',
+        drop: function(event, ui) {
+            var primitiveId = $(this).attr('id').replace('primitive_', '');
+            var primitive = primitives[primitiveId];
+            var panelId = newPanel();
+
+            primitive.dropzones[primitive.defaultDataMapping].mapped = ui.helper.text();
+
+            addPrimitive(primitive, panelId);
+        }
+    });
 });
 
 function newPanel() {
+    var panelId = panels.length;
     var panel = $('<div></div>')
         .addClass('vis-panel')
-        .attr('id', 'vis-panel_' + panels.length);
+        .attr('id', 'vis-panel_' + panelId);
 
     $('#ui-new-panel').before(panel);
 
@@ -27,9 +69,11 @@ function newPanel() {
     var stage = d3.select('#ui-vis')
         .append('svg:svg')
             .attr('class', 'vis-stage')
-            .attr('id', 'vis-stage_' + panels.length);
+            .attr('id', 'vis-stage_' + panelId);
 
     panels.push([]);
+
+    return panelId;
 }
 
 function addPrimitive(primitive, panelId) {
@@ -68,4 +112,6 @@ function addPrimitive(primitive, panelId) {
 
     primitive.id = primitiveId;
     panels[panelId].push(primitive);
+
+    primitive.visualization(primitive, panelId);
 }

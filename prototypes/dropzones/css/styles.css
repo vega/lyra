@@ -14,6 +14,7 @@ html {
     left: 0;
     width: 20%;
     height: 100%;
+    z-index: 10;
 }
 
 #ui-right {
@@ -23,6 +24,7 @@ html {
     top: 0;
     width: 77.5%;
     height: 100%;
+    z-index: 1;
 }
 
 .ui-box {
@@ -43,6 +45,20 @@ html {
     font-size: 12px;
 }
 
+.ui-valid-target { border: 1px solid #ffcc66; }
+.ui-valid-target-hover { border: 1px solid #66ccff; }
+
+.ui-valid-target h2 {
+    background: #ffcc66;
+    border: 1px solid #ffcc66;   
+    color: #333;
+}
+
+.ui-valid-target-hover h2 {
+    background: #66ccff;
+    border: 1px solid #66ccff;     
+}
+
 #ui-design {
     display: block;
     height: 250px;
@@ -54,15 +70,23 @@ html {
 #ui-data ul, #ui-primitives ul {
     list-style-type: none;
     padding: 0;
+    cursor: pointer;
 }
 
 #ui-primitives ul li {
     float: left;
     padding: 10px;
     border-radius: 10px;
+    border: 1px solid #fff;
 }
 
 #ui-primitives ul li:hover { background: #ddd; }
+#ui-primitives .ui-valid-target { 
+    background: rgba(255, 204, 102, 0.6);
+}
+#ui-primitives .ui-valid-target-hover { 
+    background: rgba(102, 204, 255, 0.6); 
+}
 
 #ui-new-panel {
     background: #ccc;
