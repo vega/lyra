@@ -187,12 +187,4 @@ fieldset input, fieldset select {
 }
 
 fieldset input[type=color] { width: 115px; }
-
-fieldset div div {
-    float: none;
-    clear: none !important;
-    margin-left: 80px;
-    width: 120px;
-}
-
-.ui-slider-handle { border-radius: 50% !important; }
+fieldset input[type=range] { width: 120px; }

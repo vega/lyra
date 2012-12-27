@@ -244,18 +244,17 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
 
             fNode.append(sel);
         } else if(f.type == 'slider') {
-            fNode.append('<div></div>')
-                .addClass('slider');
-
-            fNode.children('div').slider({
-                min: f.range[0],
-                max: f.range[1],
-                step: f.step,
-                value: f.value,
-                slide: function(event, ui) {
-                    updateFieldVal(panelId, primitive, dzId, fieldId, ui.value);
-                }
-            });
+            fNode.append(
+                $('<input>')
+                    .attr('type', 'range')
+                    .attr('min', f.range[0])
+                    .attr('max', f.range[1])
+                    .attr('step', f.step)
+                    .attr('value', f.value)
+                    .change(function() {
+                        updateFieldVal(panelId, primitive, dzId, fieldId, $(this).val());
+                    })
+            );
         } else if(f.type == 'colorpicker') {
             fNode.append(
                 $('<input>')
