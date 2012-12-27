@@ -45,18 +45,12 @@ html {
     font-size: 12px;
 }
 
-.ui-valid-target { border: 1px solid #ffcc66; }
-.ui-valid-target-hover { border: 1px solid #66ccff; }
-
-.ui-valid-target h2 {
-    background: #ffcc66;
-    border: 1px solid #ffcc66;   
-    color: #333;
+.ui-valid-target { 
+    background: rgba(255, 204, 102, 0.6) !important;
 }
 
-.ui-valid-target-hover h2 {
-    background: #66ccff;
-    border: 1px solid #66ccff;     
+.ui-valid-target-hover { 
+    background: rgba(102, 204, 255, 0.6) !important; 
 }
 
 #ui-design {
@@ -81,12 +75,6 @@ html {
 }
 
 #ui-primitives ul li:hover { background: #ddd; }
-#ui-primitives .ui-valid-target { 
-    background: rgba(255, 204, 102, 0.6);
-}
-#ui-primitives .ui-valid-target-hover { 
-    background: rgba(102, 204, 255, 0.6); 
-}
 
 #ui-new-panel {
     background: #ccc;
@@ -132,11 +120,11 @@ html {
     font-size: 13px;
 }
 
-.delegate:hover {
+.delegate:hover, .delegate-droppable {
     border: 1px dashed #999;
 }
 
-.delegate:hover .dropzone {
+.delegate:hover .dropzone, .delegate-droppable .dropzone {
     display: block;
 }
 

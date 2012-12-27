@@ -51,32 +51,33 @@ var primitives = {
                     type: 'slider'
                 }]
             },
-            fill: {
-                label: 'Fill',
-                fields: [{
-                    label: 'Fill Color',
-                    if_unlinked: true,
-                    type: 'colorpicker'
-                }, {
-                    label: 'Fill Opacity',
-                    type: 'slider'
-                }, {
-                    label: 'Stroke Color',
-                    type: 'colorpicker'
-                }, {
-                    label: 'Stroke Width',
-                    type: 'slider'
-                }]
-            }
+            // fill: {
+            //     label: 'Fill',
+            //     fields: [{
+            //         label: 'Fill Color',
+            //         if_unlinked: true,
+            //         type: 'colorpicker'
+            //     }, {
+            //         label: 'Fill Opacity',
+            //         type: 'slider'
+            //     }, {
+            //         label: 'Stroke Color',
+            //         type: 'colorpicker'
+            //     }, {
+            //         label: 'Stroke Width',
+            //         type: 'slider'
+            //     }]
+            // }
         },
 
         defaultDataMapping: 'height',
+        mappingXors: [['height', 'width']],
 
-        visualization: function(mark, panelId, preview) {
+        visualization: function(panelId, preview) {
             var xScale, yScale;
             var x, y, height, width;
-            var heightMapped = mark.dropzones.height.hasOwnProperty('mapped');
-            var dataCol = heightMapped ? mark.dropzones.height.mapped : mark.dropzones.width.mapped;
+            var heightMapped = this.dropzones.height.hasOwnProperty('mapped');
+            var dataCol = heightMapped ? this.dropzones.height.mapped : this.dropzones.width.mapped;
             var data = [];
             for(var i = 0; i < fullData.length; i++)
                 data.push(fullData[i][dataCol]);
@@ -116,12 +117,12 @@ var primitives = {
                 y = function(d, i) { return yScale(i); }
             }
 
-            var marks = stage.selectAll('rect.mark_' + mark.id)
+            var marks = stage.selectAll('rect.mark_' + this.id)
                 .data(data);
 
             marks.enter()
                 .append('rect')
-                .attr('class', 'mark_' + mark.id)
+                .attr('class', 'mark_' + this.id)
 
             marks.transition()
                 .duration(500)
@@ -131,7 +132,7 @@ var primitives = {
                 .attr('y', y)
                 .attr('fill', 'steelblue')
                 .attr('opacity', function() { 
-                    return preview ? 0.6 : 1; 
+                    return preview ? 0.5 : 1; 
                 });
         }
     },
@@ -139,4 +140,21 @@ var primitives = {
     // arc: {
 
     // }
+
 };
+
+function setMapping(mark, dropzone, value) {
+    var dropzones = mark.dropzones;
+    var xors = mark.mappingXors;
+    for(var i in xors) {
+        if(xors[i].indexOf(dropzone) == -1)
+            continue;
+
+        for(var j in xors[i])
+            delete dropzones[xors[i][j]].mapped;
+    }
+
+    dropzones[dropzone].mapped = value;
+
+    return mark;
+}
