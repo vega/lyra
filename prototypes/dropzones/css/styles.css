@@ -108,7 +108,7 @@ html {
 
 .delegate { 
     position: absolute; 
-    border: 1px dashed transparent;
+    border: 1px dashed #999;
 }
 
 .delegate .primitive {
@@ -129,11 +129,11 @@ html {
 }
 
 .delegate:hover, .delegate-droppable {
-    border: 1px dashed #999;
+    border: 1px dashed #999 !important;
 }
 
-.delegate:hover .dropzone, .delegate-droppable .dropzone {
-    display: block;
+.delegate:hover .dropzone, .delegate-preview .dropzone, .delegate-droppable .dropzone {
+    display: block !important;
 }
 
 .vis-stage {

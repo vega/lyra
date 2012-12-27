@@ -57,7 +57,9 @@ function loadPrimitives() {
         opacity: 0.9,
         zIndex: 1000,
         start: function(event, ui) {
-            ui.helper.css('background', '#ddd');
+            ui.helper
+                .css('backgroundColor', '#ddd')
+                .css('borderColor', '#ddd');
         }
     });
 
@@ -116,6 +118,7 @@ function addPrimitive(primitive, panelId) {
 
     var delegate = $('<div></div>')
         .addClass('delegate')
+        .addClass('delegate-preview')
         .attr('id', primitiveId)
         .css('top', '15px')
         .css('left', '75px')
@@ -132,6 +135,16 @@ function addPrimitive(primitive, panelId) {
 
     primitive.id = primitiveId;
     panels[panelId][primitiveId] = primitive;
+
+    // When a primitive is added, show all of its dropzones 
+    // initially and then fade out to cue user.
+    window.setTimeout(function() {
+        delegate.children('.dropzone').fadeOut(500, function() {
+            delegate.removeClass('delegate-preview');
+        }); 
+        delegate.animate({ borderColor: '#fff'}, 500);
+    }, 1500);
+    
 
     primitive.visualization(panelId);
 }
