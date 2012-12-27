@@ -85,6 +85,7 @@ var primitives = {
                     fillColor: {
                         label: 'Fill Color',
                         if_mapped: false,
+                        value: '#4682b4',
                         type: 'colorpicker'
                     }, 
                     fillOpacity: {
@@ -96,6 +97,7 @@ var primitives = {
                     }, 
                     strokeColor: {
                         label: 'Stroke Color',
+                        value: '#000000',
                         type: 'colorpicker'
                     }, 
                     strokeWidth: {
@@ -170,7 +172,10 @@ var primitives = {
                 .attr('height', height)
                 .attr('x', x)
                 .attr('y', y)
-                .attr('fill', 'steelblue')
+                .attr('fill', this.dropzones.fill.fields.fillColor.value)
+                .attr('fill-opacity', this.dropzones.fill.fields.fillOpacity.value)
+                .attr('stroke', this.dropzones.fill.fields.strokeColor.value)
+                .attr('stroke-width', this.dropzones.fill.fields.strokeWidth.value)
                 .attr('opacity', function() { 
                     return preview ? 0.5 : 1; 
                 });
