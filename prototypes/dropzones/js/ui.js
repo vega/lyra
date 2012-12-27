@@ -160,9 +160,6 @@ function buildDropZone(panelId, primitiveId, primitive, dzId) {
 
     var dzNode = $('<div></div>')
         .addClass('dropzone')
-        .attr('panelId', panelId)
-        .attr('primitiveId', primitiveId)
-        .attr('dzId', dzId)
         .css('left',   dz.x + 'px')
         .css('top',    dz.y + 'px')
         .css('width',  dz.width + 'px')
@@ -196,7 +193,7 @@ function buildDropZone(panelId, primitiveId, primitive, dzId) {
     });
 
     dzNode.click(function() {
-        $('#fieldset_' + primitiveId + '_' + dzId).toggle();
+        $('#fieldset_' + primitiveId + '_' + dzId).show();
 
         for(var fieldId in dz.fields) {
             var field = $('#field_' + primitiveId + '_' + dzId + '_' + fieldId);
@@ -225,9 +222,7 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
 
     fieldset.append($('<legend></legend>').text(dz.label.text));
 
-    for(var fieldId in dz.fields) {
-        var f = dz.fields[fieldId];
-
+    $.each(dz.fields, function(fieldId, f)  {
         var fNode = $('<div></div>')
             .attr('id', 'field_' + primitiveId + '_' + dzId + '_' + fieldId);
 
@@ -262,15 +257,26 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
                 }
             });
         } else if(f.type == 'colorpicker') {
-            fNode.append($('<input>').attr('type', 'color'));
+            fNode.append(
+                $('<input>')
+                    .attr('type', 'color')
+                    .change(function() {
+                        updateFieldVal(panelId, primitive, dzId, fieldId, $(this).val());
+                    })
+            );
         }
 
         fieldset.append(fNode);
-    }
+    });
 
     fieldset.append(
         $('<button></button>')
             .text('Close')
+            .click(function(evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                $('fieldset').hide();
+            })
     );
 
     dzNode.append(fieldset);
