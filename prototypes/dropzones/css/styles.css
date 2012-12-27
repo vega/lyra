@@ -123,6 +123,8 @@ html {
     cursor: pointer;
 }
 
+.dropzone:hover { background: #aaa; }
+
 .dropzone h3 { 
     text-transform: lowercase; 
     font-size: 13px;
@@ -141,3 +143,56 @@ html {
     width: 100%;
     height: 450px;
 }
+
+fieldset {
+    position: absolute;
+    display: none;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    margin: 0;
+    padding: 5px 15px;
+    background: #999;
+    border: 1px solid #666;
+    width: 200px;
+    font-size: 11px;
+}
+
+fieldset legend {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+fieldset div { 
+    float: left;
+    clear: both;
+    width: 200px;
+    margin-bottom: 10px;
+}
+
+fieldset label { 
+    float: left;
+    width: 75px; 
+}
+
+fieldset button { 
+    float: left; 
+    clear: both;
+    margin: 0;
+}
+
+fieldset input, fieldset select {
+    float: left;
+    width: 125px;
+}
+
+fieldset input[type=color] { width: 115px; }
+
+fieldset div div {
+    float: none;
+    clear: none !important;
+    margin-left: 80px;
+    width: 120px;
+}
+
+.ui-slider-handle { border-radius: 50% !important; }

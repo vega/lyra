@@ -10,66 +10,103 @@ var primitives = {
 
         dropzones: {
             height: {
-                label: {
-                    text: 'Height',
-                    x: -50,
-                    y: 0
-                },
                 x: 0,
                 y: 0,
                 width: 15,
                 height: 150,
 
-                fields: [{
-                    label: 'Scale',
-                    type: 'menu',
-                    if_mapped: true,
-                    options: ['Linear', 'Logarithmic']
-                }, {
-                    label: 'Margin',
-                    if_mapped: false,
-                    type: 'slider'
-                }]
+                label: {
+                    text: 'Height',
+                    x: -50,
+                    y: 0
+                },
+
+                fields: {
+                    scale: {
+                        label: 'Scale',
+                        type: 'menu',
+                        if_mapped: true,
+                        value: 'Linear',
+                        options: ['Linear', 'Logarithmic']
+                    }, 
+                    height: {
+                        label: 'Height',
+                        if_mapped: false,
+                        value: 15,
+                        range: [1, 30],  // How to set dynamically?
+                        step: 1,
+                        type: 'slider'
+                    }
+                }
             },
             width: {
-                label: {
-                    text: 'Width',
-                    x: 0,
-                    y: 15
-                },
                 x: 20,
                 y: 155,
                 width: 60,
                 height: 15,
 
-                fields: [{
-                    label: 'Scale',
-                    type: 'menu',
-                    if_mapped: true,
-                    options: ['Linear', 'Logarithmic']
-                }, {
-                    label: 'Margin',
-                    if_mapped: false,
-                    type: 'slider'
-                }]
+                label: {
+                    text: 'Width',
+                    x: 0,
+                    y: 15
+                },
+
+                fields: {
+                    scale: {
+                        label: 'Scale',
+                        type: 'menu',
+                        if_mapped: true,
+                        value: 'Linear',
+                        options: ['Linear', 'Logarithmic']
+                    }, 
+                    width: {
+                        label: 'Width',
+                        if_mapped: false,
+                        value: 20,
+                        range: [1, 50],  // How to set dynamically?
+                        step: 1,
+                        type: 'slider'
+                    }
+                }
             },
-            // fill: {
-            //     label: 'Fill',
-            //     fields: [{
-            //         label: 'Fill Color',
-            //         if_mapped: false,
-            //         type: 'colorpicker'
-            //     }, {
-            //         label: 'Fill Opacity',
-            //         type: 'slider'
-            //     }, {
-            //         label: 'Stroke Color',
-            //         type: 'colorpicker'
-            //     }, {
-            //         label: 'Stroke Width',
-            //         type: 'slider'
-            //     }]
-            // }
+            fill: {
+                x: 50,
+                y: 75,
+                width: 75,
+                height: 15,
+
+                label: {
+                    text: 'Fill',
+                    x: 31,
+                    y: 15
+                },
+
+                fields: {
+                    fillColor: {
+                        label: 'Fill Color',
+                        if_mapped: false,
+                        type: 'colorpicker'
+                    }, 
+                    fillOpacity: {
+                        label: 'Fill Opacity',
+                        value: 1,
+                        range: [0, 1],
+                        step: 0.1,
+                        type: 'slider'
+                    }, 
+                    strokeColor: {
+                        label: 'Stroke Color',
+                        type: 'colorpicker'
+                    }, 
+                    strokeWidth: {
+                        label: 'Stroke Width',
+                        value: 0,
+                        range: [0, 5],
+                        step: 0.5,
+                        type: 'slider'
+                    }
+                }
+            }
         },
 
         defaultDataMapping: 'height',
@@ -95,7 +132,7 @@ var primitives = {
                     .domain(extents)
                     .range([0, parseInt(stage.style('height'))]);
 
-                width  = 20;
+                width  = this.dropzones.width.fields.width.value;
                 height = function(d, i) { return yScale(d); };
 
                 x = function(d, i) { return xScale(i); };
@@ -113,7 +150,7 @@ var primitives = {
                     .range([0, parseInt(stage.style('height'))]);                    
 
                 width  = function(d, i) { return xScale(d); };
-                height = 15;
+                height = this.dropzones.height.fields.height.value;
 
                 x = 0;
                 y = function(d, i) { return yScale(i); }
@@ -124,10 +161,11 @@ var primitives = {
 
             marks.enter()
                 .append('rect')
-                .attr('class', 'mark_' + this.id)
+                .attr('class', 'mark_' + this.id);
 
             marks.transition()
                 .duration(500)
+                .delay(function(d, i) { return 30*i; })
                 .attr('width', width)
                 .attr('height', height)
                 .attr('x', x)

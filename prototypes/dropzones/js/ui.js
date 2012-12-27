@@ -133,6 +133,8 @@ function addPrimitive(primitive, panelId) {
     for(var dzId in primitive.dropzones) {
         var dzNode = buildDropZone(panelId, primitiveId, primitive, dzId);
         delegate.append(dzNode);
+
+        buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode);
     }
 
     $('#vis-panel_' + panelId).append(delegate);
@@ -178,31 +180,103 @@ function buildDropZone(panelId, primitiveId, primitive, dzId) {
         hoverClass: 'ui-valid-target-hover',
         tolerance: 'touch',
         over: function(event, ui) {
-            panelId = $(this).attr('panelId');
-            primitiveId = $(this).attr('primitiveId');
-            dzId = $(this).attr('dzId');
-
             var p = jQuery.extend(true, {}, panels[panelId][primitiveId]);
             p = setMapping(p, dzId, ui.helper.text());
             p.visualization(panelId, 1);
         },
         out: function(event, ui) {
-            panelId = $(this).attr('panelId');
-            primitiveId = $(this).attr('primitiveId');
-
             var p = panels[panelId][primitiveId];
             p.visualization(panelId);
         },
         drop: function(event, ui) {
-            panelId = $(this).attr('panelId');
-            primitiveId = $(this).attr('primitiveId');
-            dzId = $(this).attr('dzId');
-
             var p = panels[panelId][primitiveId];
             p = setMapping(p, dzId, ui.helper.text());
             p.visualization(panelId);
         }
     });
 
+    dzNode.click(function() {
+        $('#fieldset_' + primitiveId + '_' + dzId).toggle();
+
+        for(var fieldId in dz.fields) {
+            var field = $('#field_' + primitiveId + '_' + dzId + '_' + fieldId);
+            var if_mapped = dz.fields[fieldId].if_mapped;
+
+            if((dz.mapped == undefined && if_mapped == false) || 
+                (dz.mapped != undefined && if_mapped == true) || 
+                (if_mapped == undefined))
+
+                field.show();
+            else
+                field.hide();
+        }
+    });
+
+    dzNode
+
     return dzNode;
+}
+
+function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
+    var dz = primitive.dropzones[dzId];
+
+    var fieldset = $('<fieldset></fieldset>')
+        .attr('id', 'fieldset_' + primitiveId + '_' + dzId);
+
+    fieldset.append($('<legend></legend>').text(dz.label.text));
+
+    for(var fieldId in dz.fields) {
+        var f = dz.fields[fieldId];
+
+        var fNode = $('<div></div>')
+            .attr('id', 'field_' + primitiveId + '_' + dzId + '_' + fieldId);
+
+        fNode.append(
+            $('<label></label>')
+                .text(f.label)
+                .attr('for', 'field_' + fieldId)
+        );
+
+        if(f.type == 'menu') {
+            var sel = $('<select></select>')
+                .attr('name', 'field_' + fieldId)
+                .change(function() {
+                    updateFieldVal(panelId, primitive, dzId, fieldId, $(this).val());
+                });
+
+            for(var j in f.options)
+                sel.append($('<option></option>').text(f.options[j]));
+
+            fNode.append(sel);
+        } else if(f.type == 'slider') {
+            fNode.append('<div></div>')
+                .addClass('slider');
+
+            fNode.children('div').slider({
+                min: f.range[0],
+                max: f.range[1],
+                step: f.step,
+                value: f.value,
+                slide: function(event, ui) {
+                    updateFieldVal(panelId, primitive, dzId, fieldId, ui.value);
+                }
+            });
+        } else if(f.type == 'colorpicker') {
+            fNode.append($('<input>').attr('type', 'color'));
+        }
+
+        fieldset.append(fNode);
+    }
+
+    fieldset.append(
+        $('<button></button>')
+            .text('Close')
+    );
+
+    dzNode.append(fieldset);
+}
+
+function updateFieldVal(panelId, primitive, dzId, fieldId, val) {
+    primitive.dropzones[dzId].fields[fieldId].value = val;
+    primitive.visualization(panelId);
 }
