@@ -45,11 +45,11 @@ html {
 
 #ui-design {
     display: block;
-    height: 49.5%;
-    margin-bottom: 1%;
+    height: 250px;
+    margin-bottom: 20px;
 }
 
-#ui-vis { height: 49.5%; }
+#ui-vis { height: 500px }
 
 #ui-data ul, #ui-primitives ul {
     list-style-type: none;
@@ -59,17 +59,14 @@ html {
 #ui-primitives ul li {
     float: left;
     padding: 10px;
+    border-radius: 10px;
 }
 
 #ui-primitives ul li:hover { background: #ddd; }
 
 #ui-new-panel {
-    display: none;
-    width: 20%;
-    height: 20%;
     background: #ccc;
-    border: 5px dashed #999;
-    border-radius: 10px;
+    border: 1px solid #ccc;
 }
 
 #ui-new-panel h3 {
@@ -81,10 +78,18 @@ html {
 
 .vis-panel {
     border: 1px solid #999;
+    border-radius: 10px;
     position: relative;
+    float: left;
+    margin-right: 20px;
+    width: 250px; 
+    height: 200px;
 }
 
-.delegate { position: absolute; }
+.delegate { 
+    position: absolute; 
+    border: 1px dashed transparent;
+}
 
 .delegate .primitive {
     background: steelblue; 
@@ -103,6 +108,16 @@ html {
     font-size: 13px;
 }
 
+.delegate:hover {
+    border: 1px dashed #999;
+}
+
 .delegate:hover .dropzone {
     display: block;
+}
+
+.vis-stage {
+    border: 1px solid #999;
+    width: 100%;
+    height: 450px;
 }
