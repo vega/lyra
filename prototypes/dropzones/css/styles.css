@@ -106,7 +106,7 @@ html {
     height: 200px;
 }
 
-.delegate { 
+.delegate, .delegate-preview { 
     position: absolute; 
     border: 1px dashed #999;
 }

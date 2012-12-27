@@ -194,6 +194,7 @@ function buildDropZone(panelId, primitiveId, primitive, dzId) {
 
     dzNode.click(function() {
         $('#fieldset_' + primitiveId + '_' + dzId).show();
+        $('#' + primitiveId).addClass('delegate-preview');
 
         for(var fieldId in dz.fields) {
             var field = $('#field_' + primitiveId + '_' + dzId + '_' + fieldId);
@@ -275,6 +276,7 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
                 evt.stopPropagation();
                 evt.preventDefault();
                 $('fieldset').hide();
+                $('.delegate-preview').removeClass('delegate-preview');
             })
     );
 
