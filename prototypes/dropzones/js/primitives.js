@@ -23,10 +23,11 @@ var primitives = {
                 fields: [{
                     label: 'Scale',
                     type: 'menu',
+                    if_mapped: true,
                     options: ['Linear', 'Logarithmic']
                 }, {
                     label: 'Margin',
-                    if_unlinked: true,
+                    if_mapped: false,
                     type: 'slider'
                 }]
             },
@@ -44,10 +45,11 @@ var primitives = {
                 fields: [{
                     label: 'Scale',
                     type: 'menu',
+                    if_mapped: true,
                     options: ['Linear', 'Logarithmic']
                 }, {
                     label: 'Margin',
-                    if_unlinked: true,
+                    if_mapped: false,
                     type: 'slider'
                 }]
             },
@@ -55,7 +57,7 @@ var primitives = {
             //     label: 'Fill',
             //     fields: [{
             //         label: 'Fill Color',
-            //         if_unlinked: true,
+            //         if_mapped: false,
             //         type: 'colorpicker'
             //     }, {
             //         label: 'Fill Opacity',

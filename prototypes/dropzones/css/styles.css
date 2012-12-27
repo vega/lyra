@@ -46,11 +46,11 @@ html {
 }
 
 .ui-valid-target { 
-    background: rgba(255, 204, 102, 0.6) !important;
+    background-color: rgba(255, 204, 102, 0.6) !important;
 }
 
 .ui-valid-target-hover { 
-    background: rgba(102, 204, 255, 0.6) !important; 
+    background-color: rgba(102, 204, 255, 0.6) !important; 
 }
 
 #ui-design {
@@ -69,12 +69,20 @@ html {
 
 #ui-primitives ul li {
     float: left;
-    padding: 10px;
+    display: block;
+    width: 16px;
+    height: 16px;
+    padding: 16px;
     border-radius: 10px;
     border: 1px solid #fff;
+    text-indent: -999em;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
 }
 
-#ui-primitives ul li:hover { background: #ddd; }
+#ui-primitives ul li:hover { background-color: #ddd; }
+
+.primitive_rect { background-image: url('../imgs/rect.png'); }
 
 #ui-new-panel {
     background: #ccc;
