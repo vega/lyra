@@ -2,7 +2,11 @@ var fullData;
 var panels = [];
 
 $(document).ready(function(){
-        
+    loadData();        
+    loadPrimitives();
+});
+
+function loadData() {
     $.getJSON("./data/olympics.json", function(response) {
         fullData = response;
         // assuming first row is column names
@@ -33,7 +37,9 @@ $(document).ready(function(){
             }
         });
     });
+}
 
+function loadPrimitives() {
     for(var id in primitives) {
         var li = $('<li></li>')
             .addClass('primitive')
@@ -67,7 +73,6 @@ $(document).ready(function(){
         }   
     });
 
-
     // Primitives can also be droppable, accepting any data column
     // to automatically create a new panel.
     $('#ui-primitives li').droppable({
@@ -84,7 +89,7 @@ $(document).ready(function(){
             addPrimitive(primitive, panelId);
         }
     });
-});
+}
 
 function newPanel() {
     var panelId = panels.length;
