@@ -58,10 +58,12 @@ function loadPrimitives() {
         helper: 'clone',
         opacity: 0.9,
         zIndex: 1000,
+        cursor: 'imgs/closedhand.cur',
         start: function(event, ui) {
             ui.helper
                 .css('backgroundColor', '#ddd')
-                .css('borderColor', '#ddd');
+                .css('borderColor', '#ddd')
+                .css('cursor', 'url(imgs/closedhand.cur), default');
         }
     });
 
