@@ -105,7 +105,7 @@ function newPanel() {
 
     $('#ui-new-panel').before(panel);
 
-    $('#ui-vis svg').hide();
+    // $('#ui-vis svg').hide();
     var stage = d3.select('#ui-vis')
         .append('svg:svg')
             .attr('class', 'vis-stage')
@@ -140,6 +140,7 @@ function addPrimitive(primitive, panelId) {
     $('#vis-panel_' + panelId).append(delegate);
 
     primitive.id = primitiveId;
+    primitive.panelId = panelId;
     panels[panelId][primitiveId] = primitive;
 
     // When a primitive is added, show all of its dropzones 
@@ -152,7 +153,7 @@ function addPrimitive(primitive, panelId) {
     }, 1500);
     
 
-    primitive.visualization(panelId);
+    primitive.visualization();
 }
 
 function buildDropZone(panelId, primitiveId, primitive, dzId) {
@@ -179,16 +180,16 @@ function buildDropZone(panelId, primitiveId, primitive, dzId) {
         over: function(event, ui) {
             var p = jQuery.extend(true, {}, panels[panelId][primitiveId]);
             p = setMapping(p, dzId, ui.helper.text());
-            p.visualization(panelId, 1);
+            p.visualization(1);
         },
         out: function(event, ui) {
             var p = panels[panelId][primitiveId];
-            p.visualization(panelId);
+            p.visualization();
         },
         drop: function(event, ui) {
             var p = panels[panelId][primitiveId];
             p = setMapping(p, dzId, ui.helper.text());
-            p.visualization(panelId);
+            p.visualization();
         }
     });
 
@@ -285,5 +286,5 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
 
 function updateFieldVal(panelId, primitive, dzId, fieldId, val) {
     primitive.dropzones[dzId].fields[fieldId].value = val;
-    primitive.visualization(panelId);
+    primitive.visualization();
 }

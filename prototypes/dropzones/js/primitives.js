@@ -114,42 +114,43 @@ var primitives = {
         defaultDataMapping: 'height',
         mappingXors: [['height', 'width']],
 
-        visualization: function(panelId, preview) {
+        visualization: function(preview) {
             var xScale, yScale;
             var x, y, height, width;
+            var primitive = this;   // For callbacks
             var heightMapped = this.dropzones.height.hasOwnProperty('mapped');
             var dataCol = heightMapped ? this.dropzones.height.mapped : this.dropzones.width.mapped;
             var data = [];
             for(var i = 0; i < fullData.length; i++)
                 data.push(fullData[i][dataCol]);
             var extents = d3.extent(data);
-            var stage = d3.select('svg#vis-stage_' + panelId);
+            var stage = d3.select('svg#vis-stage_' + this.panelId);
 
             if(heightMapped) {
                 xScale = d3.scale.linear()
                     .domain([0, data.length])
-                    .range([0, parseInt(stage.style('width'))]);
+                    .range([this.x, this.x + this.width]);
 
                 yScale = d3.scale.linear()
                     .domain(extents)
-                    .range([0, parseInt(stage.style('height'))]);
+                    .range([0, this.height]);
 
                 width  = this.dropzones.width.fields.width.value;
                 height = function(d, i) { return yScale(d); };
 
                 x = function(d, i) { return xScale(i); };
                 y = function(d, i) { 
-                    return parseInt(stage.style('height')) - yScale(d); 
+                    return parseInt(stage.style('height')) - yScale(d) - primitive.y; 
                 };
 
             } else {
                 xScale = d3.scale.linear()
                     .domain(extents)
-                    .range([0, parseInt(stage.style('width'))]);
+                    .range([this.x, this.x + this.width]);
 
                 yScale = d3.scale.linear()
                     .domain([0, data.length])
-                    .range([0, parseInt(stage.style('height'))]);                    
+                    .range([0, this.height]);                    
 
                 width  = function(d, i) { return xScale(d); };
                 height = this.dropzones.height.fields.height.value;
@@ -166,8 +167,8 @@ var primitives = {
                 .attr('class', 'mark_' + this.id);
 
             marks.transition()
-                .duration(500)
-                .delay(function(d, i) { return 30*i; })
+                // .duration(0)
+                // .delay(function(d, i) { return 30*i; })
                 .attr('width', width)
                 .attr('height', height)
                 .attr('x', x)
@@ -179,7 +180,16 @@ var primitives = {
                 .attr('opacity', function() { 
                     return preview ? 0.5 : 1; 
                 });
-        }
+        },
+
+        // Properties of the mark that get defined when the mark
+        // is added to a panel/visualization
+        id: 0,
+        panelId: 0,
+        x: 100,
+        y: 100,  // From the bottom, not the top. How confusing.
+        width: 500,
+        height: 250
     },
 
     // arc: {
