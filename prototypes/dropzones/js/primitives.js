@@ -120,10 +120,7 @@ var primitives = {
             var primitive = this;   // For callbacks
             var heightMapped = this.dropzones.height.hasOwnProperty('mapped');
             var dataCol = heightMapped ? this.dropzones.height.mapped : this.dropzones.width.mapped;
-            var data = [];
-            for(var i = 0; i < fullData.length; i++)
-                data.push(fullData[i][dataCol]);
-            var extents = d3.extent(data);
+            var extents = d3.extent(fullData, function(d) { return d[dataCol] });
             var group = d3.select('svg#vis-stage_' + this.panelId)
                 .select('g#' + this.id);
  
@@ -136,7 +133,7 @@ var primitives = {
 
             if(heightMapped) {
                 xScale = d3.scale.linear()
-                    .domain([0, data.length])
+                    .domain([0, fullData.length])
                     .range([0, this.width]);
 
                 yScale = d3.scale.linear()
@@ -144,10 +141,10 @@ var primitives = {
                     .range([0, this.height]);
 
                 width  = this.dropzones.width.fields.width.value;
-                height = function(d, i) { return yScale(d); };
+                height = function(d, i) { return yScale(d[dataCol]); };
 
                 x = function(d, i) { return xScale(i); };
-                y = function(d, i) { return primitive.height - yScale(d); };
+                y = function(d, i) { return primitive.height - yScale(d[dataCol]); };
 
             } else {
                 xScale = d3.scale.linear()
@@ -155,10 +152,10 @@ var primitives = {
                     .range([0, this.width]);
 
                 yScale = d3.scale.linear()
-                    .domain([0, data.length])
+                    .domain([0, fullData.length])
                     .range([0, this.height]);                    
 
-                width  = function(d, i) { return xScale(d); };
+                width  = function(d, i) { return xScale(d[dataCol]); };
                 height = this.dropzones.height.fields.height.value;
 
                 x = 0;
@@ -166,7 +163,7 @@ var primitives = {
             }
 
             var marks = group.selectAll('rect.mark_' + this.id)
-                .data(data);
+                .data(fullData);
 
             marks.enter()
                 .append('rect')
