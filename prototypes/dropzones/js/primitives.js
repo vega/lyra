@@ -124,12 +124,20 @@ var primitives = {
             for(var i = 0; i < fullData.length; i++)
                 data.push(fullData[i][dataCol]);
             var extents = d3.extent(data);
-            var stage = d3.select('svg#vis-stage_' + this.panelId);
+            var group = d3.select('svg#vis-stage_' + this.panelId)
+                .select('g#' + this.id);
+ 
+            if(group.empty())
+                group = d3.select('svg#vis-stage_' + this.panelId)
+                    .append('g')
+                        .attr('id', this.id);
+
+            group.attr('transform', 'translate(' + this.x + ', ' + this.y + ')');
 
             if(heightMapped) {
                 xScale = d3.scale.linear()
                     .domain([0, data.length])
-                    .range([this.x, this.x + this.width]);
+                    .range([0, this.width]);
 
                 yScale = d3.scale.linear()
                     .domain(extents)
@@ -139,14 +147,12 @@ var primitives = {
                 height = function(d, i) { return yScale(d); };
 
                 x = function(d, i) { return xScale(i); };
-                y = function(d, i) { 
-                    return parseInt(stage.style('height')) - yScale(d) - primitive.y; 
-                };
+                y = function(d, i) { return primitive.height - yScale(d); };
 
             } else {
                 xScale = d3.scale.linear()
                     .domain(extents)
-                    .range([this.x, this.x + this.width]);
+                    .range([0, this.width]);
 
                 yScale = d3.scale.linear()
                     .domain([0, data.length])
@@ -159,7 +165,7 @@ var primitives = {
                 y = function(d, i) { return yScale(i); }
             }
 
-            var marks = stage.selectAll('rect.mark_' + this.id)
+            var marks = group.selectAll('rect.mark_' + this.id)
                 .data(data);
 
             marks.enter()
@@ -187,7 +193,7 @@ var primitives = {
         id: 0,
         panelId: 0,
         x: 100,
-        y: 100,  // From the bottom, not the top. How confusing.
+        y: 100,
         width: 500,
         height: 250
     },
