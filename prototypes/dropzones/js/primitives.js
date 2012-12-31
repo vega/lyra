@@ -8,6 +8,64 @@ var primitives = {
             width: 100
         },
 
+        properties: {
+            height: {
+                label: 'Height',
+                if_mapped: false,
+                value: 7,
+                range: [1, 30],  // How to set dynamically?
+                step: 1,
+                type: 'slider'
+            },
+            heightScale: {
+                label: 'Scale',
+                type: 'menu',
+                if_mapped: 'height',
+                value: 'Linear',
+                options: ['Linear', 'Logarithmic']
+            }, 
+            width: {
+                label: 'Width',
+                if_mapped: false,
+                value: 20,
+                range: [1, 50],  // How to set dynamically?
+                step: 1,
+                type: 'slider'
+            },
+            widthScale: {
+                label: 'Scale',
+                type: 'menu',
+                if_mapped: 'width',
+                value: 'Linear',
+                options: ['Linear', 'Logarithmic']
+            }, 
+            fillColor: {
+                label: 'Fill Color',
+                if_mapped: false,
+                value: '#4682b4',
+                type: 'colorpicker'
+            }, 
+            fillOpacity: {
+                label: 'Fill Opacity',
+                value: 1,
+                range: [0, 1],
+                step: 0.1,
+                type: 'slider'
+            }, 
+            strokeColor: {
+                label: 'Stroke Color',
+                value: '#000000',
+                type: 'colorpicker'
+            }, 
+            strokeWidth: {
+                label: 'Stroke Width',
+                value: 0,
+                range: [0, 5],
+                step: 0.5,
+                type: 'slider'
+            }
+        },
+
         dropzones: {
             height: {
                 x: 0,
@@ -21,23 +79,7 @@ var primitives = {
                     y: 0
                 },
 
-                fields: {
-                    scale: {
-                        label: 'Scale',
-                        type: 'menu',
-                        if_mapped: true,
-                        value: 'Linear',
-                        options: ['Linear', 'Logarithmic']
-                    }, 
-                    height: {
-                        label: 'Height',
-                        if_mapped: false,
-                        value: 15,
-                        range: [1, 30],  // How to set dynamically?
-                        step: 1,
-                        type: 'slider'
-                    }
-                }
+                properties: ['height', 'heightScale']
             },
             width: {
                 x: 20,
@@ -51,23 +93,7 @@ var primitives = {
                     y: 15
                 },
 
-                fields: {
-                    scale: {
-                        label: 'Scale',
-                        type: 'menu',
-                        if_mapped: true,
-                        value: 'Linear',
-                        options: ['Linear', 'Logarithmic']
-                    }, 
-                    width: {
-                        label: 'Width',
-                        if_mapped: false,
-                        value: 20,
-                        range: [1, 50],  // How to set dynamically?
-                        step: 1,
-                        type: 'slider'
-                    }
-                }
+                properties: ['width', 'widthScale']
             },
             fill: {
                 x: 50,
@@ -81,33 +107,7 @@ var primitives = {
                     y: 15
                 },
 
-                fields: {
-                    fillColor: {
-                        label: 'Fill Color',
-                        if_mapped: false,
-                        value: '#4682b4',
-                        type: 'colorpicker'
-                    }, 
-                    fillOpacity: {
-                        label: 'Fill Opacity',
-                        value: 1,
-                        range: [0, 1],
-                        step: 0.1,
-                        type: 'slider'
-                    }, 
-                    strokeColor: {
-                        label: 'Stroke Color',
-                        value: '#000000',
-                        type: 'colorpicker'
-                    }, 
-                    strokeWidth: {
-                        label: 'Stroke Width',
-                        value: 0,
-                        range: [0, 5],
-                        step: 0.5,
-                        type: 'slider'
-                    }
-                }
+                properties: ['fillColor', 'fillOpacity', 'strokeColor', 'strokeWidth']
             }
         },
 
@@ -118,8 +118,8 @@ var primitives = {
             var xScale, yScale;
             var x, y, height, width;
             var primitive = this;   // For callbacks
-            var heightMapped = this.dropzones.height.hasOwnProperty('mapped');
-            var dataCol = heightMapped ? this.dropzones.height.mapped : this.dropzones.width.mapped;
+            var heightMapped = this.properties.height.hasOwnProperty('mapped');
+            var dataCol = heightMapped ? this.properties.height.mapped : this.properties.width.mapped;
             var extents = d3.extent(fullData, function(d) { return d[dataCol] });
             var group = d3.select('svg#vis-stage_' + this.panelId)
                 .select('g#' + this.id);
@@ -129,7 +129,9 @@ var primitives = {
                     .append('g')
                         .attr('id', this.id);
 
-            group.attr('transform', 'translate(' + this.x + ', ' + this.y + ')');
+            group.attr('transform', 'translate(' + this.x + ', ' + this.y + ')')
+                .attr('width',  this.width)
+                .attr('height', this.height);
 
             if(heightMapped) {
                 xScale = d3.scale.linear()
@@ -140,7 +142,7 @@ var primitives = {
                     .domain(extents)
                     .range([0, this.height]);
 
-                width  = this.dropzones.width.fields.width.value;
+                width  = this.properties.width.value;
                 height = function(d, i) { return yScale(d[dataCol]); };
 
                 x = function(d, i) { return xScale(i); };
@@ -156,7 +158,7 @@ var primitives = {
                     .range([0, this.height]);                    
 
                 width  = function(d, i) { return xScale(d[dataCol]); };
-                height = this.dropzones.height.fields.height.value;
+                height = this.properties.height.value;
 
                 x = 0;
                 y = function(d, i) { return yScale(i); }
@@ -176,10 +178,10 @@ var primitives = {
                 .attr('height', height)
                 .attr('x', x)
                 .attr('y', y)
-                .attr('fill', this.dropzones.fill.fields.fillColor.value)
-                .attr('fill-opacity', this.dropzones.fill.fields.fillOpacity.value)
-                .attr('stroke', this.dropzones.fill.fields.strokeColor.value)
-                .attr('stroke-width', this.dropzones.fill.fields.strokeWidth.value)
+                .attr('fill', this.properties.fillColor.value)
+                .attr('fill-opacity', this.properties.fillOpacity.value)
+                .attr('stroke', this.properties.strokeColor.value)
+                .attr('stroke-width', this.properties.strokeWidth.value)
                 .attr('opacity', function() { 
                     return preview ? 0.5 : 1; 
                 });
@@ -202,17 +204,18 @@ var primitives = {
 };
 
 function setMapping(mark, dropzone, value) {
-    var dropzones = mark.dropzones;
+    // Automatically map to the first property of the dropzone
+    var property = mark.dropzones[dropzone].properties[0];
     var xors = mark.mappingXors;
     for(var i in xors) {
-        if(xors[i].indexOf(dropzone) == -1)
+        if(xors[i].indexOf(property) == -1)
             continue;
 
         for(var j in xors[i])
-            delete dropzones[xors[i][j]].mapped;
+            delete mark.properties[xors[i][j]].mapped;
     }
 
-    dropzones[dropzone].mapped = value;
+    mark.properties[property].mapped = value;
 
     return mark;
 }

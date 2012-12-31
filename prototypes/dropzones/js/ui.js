@@ -197,18 +197,27 @@ function buildDropZone(panelId, primitiveId, primitive, dzId) {
         $('#fieldset_' + primitiveId + '_' + dzId).show();
         $('#' + primitiveId).addClass('delegate-preview');
 
-        for(var fieldId in dz.fields) {
-            var field = $('#field_' + primitiveId + '_' + dzId + '_' + fieldId);
-            var if_mapped = dz.fields[fieldId].if_mapped;
+        $.each(dz.properties, function(i, propId) {
+            var field = $('#field_' + primitiveId + '_' + propId);
+            var prop  = primitive.properties[propId];
+            var showField = false;
 
-            if((dz.mapped == undefined && if_mapped == false) || 
-                (dz.mapped != undefined && if_mapped == true) || 
-                (if_mapped == undefined))
+            if(prop.hasOwnProperty('if_mapped') == false) {
+                showField = true;
+            } else if(typeof prop.if_mapped == 'boolean') {
+                if(prop.hasOwnProperty('mapped') == prop.if_mapped)
+                    showField = true;
+            } else if(typeof prop.if_mapped == 'string') {
+                var mappedProp = primitive.properties[prop.if_mapped];
+                if(mappedProp.hasOwnProperty('mapped'))
+                    showField = true;
+            }
 
+            if(showField)
                 field.show();
             else
                 field.hide();
-        }
+        });
     });
 
     dzNode
@@ -224,45 +233,46 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
 
     fieldset.append($('<legend></legend>').text(dz.label.text));
 
-    $.each(dz.fields, function(fieldId, f)  {
+    $.each(dz.properties, function(i, propId)  {
+        var prop = primitive.properties[propId];
         var fNode = $('<div></div>')
-            .attr('id', 'field_' + primitiveId + '_' + dzId + '_' + fieldId);
+            .attr('id', 'field_' + primitiveId + '_' + propId);
 
         fNode.append(
             $('<label></label>')
-                .text(f.label)
-                .attr('for', 'field_' + fieldId)
+                .text(prop.label)
+                .attr('for', 'field_' + propId)
         );
 
-        if(f.type == 'menu') {
+        if(prop.type == 'menu') {
             var sel = $('<select></select>')
-                .attr('name', 'field_' + fieldId)
+                .attr('name', 'field_' + propId)
                 .change(function() {
-                    updateFieldVal(panelId, primitive, dzId, fieldId, $(this).val());
+                    updateFieldVal(panelId, primitive, propId, $(this).val());
                 });
 
-            for(var j in f.options)
-                sel.append($('<option></option>').text(f.options[j]));
+            for(var j in prop.options)
+                sel.append($('<option></option>').text(prop.options[j]));
 
             fNode.append(sel);
-        } else if(f.type == 'slider') {
+        } else if(prop.type == 'slider') {
             fNode.append(
                 $('<input>')
                     .attr('type', 'range')
-                    .attr('min', f.range[0])
-                    .attr('max', f.range[1])
-                    .attr('step', f.step)
-                    .attr('value', f.value)
+                    .attr('min', prop.range[0])
+                    .attr('max', prop.range[1])
+                    .attr('step', prop.step)
+                    .attr('value', prop.value)
                     .change(function() {
-                        updateFieldVal(panelId, primitive, dzId, fieldId, $(this).val());
+                        updateFieldVal(panelId, primitive, propId, $(this).val());
                     })
             );
-        } else if(f.type == 'colorpicker') {
+        } else if(prop.type == 'colorpicker') {
             fNode.append(
                 $('<input>')
                     .attr('type', 'color')
                     .change(function() {
-                        updateFieldVal(panelId, primitive, dzId, fieldId, $(this).val());
+                        updateFieldVal(panelId, primitive, propId, $(this).val());
                     })
             );
         }
@@ -284,7 +294,7 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
     dzNode.append(fieldset);
 }
 
-function updateFieldVal(panelId, primitive, dzId, fieldId, val) {
-    primitive.dropzones[dzId].fields[fieldId].value = val;
+function updateFieldVal(panelId, primitive, propId, val) {
+    primitive.properties[propId].value = val;
     primitive.visualization();
 }
