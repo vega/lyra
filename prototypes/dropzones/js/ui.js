@@ -256,11 +256,18 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
 
             fNode.append(sel);
         } else if(prop.type == 'slider') {
+            var range = prop.range;
+            if(typeof range == 'function')
+                range = range.call(primitive);
+
+            console.log(propId);
+            console.log(range);
+
             fNode.append(
                 $('<input>')
                     .attr('type', 'range')
-                    .attr('min', prop.range[0])
-                    .attr('max', prop.range[1])
+                    .attr('min', range[0])
+                    .attr('max', range[1])
                     .attr('step', prop.step)
                     .attr('value', prop.value)
                     .change(function() {

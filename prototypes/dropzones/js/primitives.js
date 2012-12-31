@@ -13,7 +13,9 @@ var primitives = {
                 label: 'Height',
                 if_mapped: false,
                 value: 7,
-                range: [1, 30],  // How to set dynamically?
+                range: function() {
+                    return [1, Math.floor(this.yScale()(1))];
+                },
                 step: 1,
                 type: 'slider'
             },
@@ -28,7 +30,9 @@ var primitives = {
                 label: 'Width',
                 if_mapped: false,
                 value: 20,
-                range: [1, 50],  // How to set dynamically?
+                range: function() {
+                    return [1, Math.floor(this.xScale()(1))];
+                },
                 step: 1,
                 type: 'slider'
             },
