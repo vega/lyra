@@ -83,6 +83,7 @@ html {
 #ui-left ul li:hover { background-color: #ddd; }
 
 .primitive_rect { background-image: url(../imgs/rect.png); }
+.primitive_cartesian_axes { background-image: url(../imgs/axes.png); }
 
 #ui-new-panel {
     background: #ccc;
@@ -138,6 +139,12 @@ html {
     display: block !important;
 }
 
+.anchor {
+    position: absolute;
+    background: #999;
+    display: none;
+}
+
 .vis-stage {
     border: 1px solid #999;
     width: 100%;
@@ -188,3 +195,10 @@ fieldset input, fieldset select {
 
 fieldset input[type=color] { width: 115px; }
 fieldset input[type=range] { width: 120px; }
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}

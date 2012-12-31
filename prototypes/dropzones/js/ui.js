@@ -43,11 +43,20 @@ function loadData() {
 
 function loadPrimitives() {
     for(var id in primitives) {
+        var p = primitives[id];
+
         var li = $('<li></li>')
             .addClass('primitive')
             .addClass('primitive_' + id)
+            .addClass('primitive-' + p.type)
             .attr('id', 'primitive_' + id)
-            .text(id);            
+            .attr('primitive_id', id)
+            .text(id);  
+
+        if(p.hasOwnProperty('anchors_to'))
+            $.each(p.anchors_to, function(i, anchorType) {
+                li.addClass('anchor-' + anchorType);
+            });
 
         $('#ui-primitives ul').append(li);
     }
@@ -64,11 +73,20 @@ function loadPrimitives() {
                 .css('backgroundColor', '#ddd')
                 .css('borderColor', '#ddd')
                 .css('cursor', 'url(imgs/closedhand.cur), default');
+
+            if($(this).hasClass('anchor-edge'))
+                $('#ui-design .anchor-edge').show();
+            if($(this).hasClass('anchor-vertex'))
+                $('#ui-design .anchor-vertex').show();
+        },
+        stop: function(event, ui) {
+            $('#ui-design .anchor-edge').hide();
+            $('#ui-design .anchor-vertex').hide();
         }
     });
 
     $('#ui-new-panel').droppable({
-        accept: '#ui-primitives li',
+        accept: '.primitive-mark',
         activeClass: 'ui-valid-target',
         hoverClass: 'ui-valid-target-hover',     
         drop: function(event, ui) {
@@ -81,7 +99,7 @@ function loadPrimitives() {
 
     // Primitives can also be droppable, accepting any data column
     // to automatically create a new panel.
-    $('#ui-primitives li').droppable({
+    $('.primitive-mark').droppable({
         accept: '.data-col',
         activeClass: 'ui-valid-target',
         hoverClass: 'ui-valid-target-hover',
@@ -90,7 +108,7 @@ function loadPrimitives() {
             var primitive = jQuery.extend(true, {}, primitives[primitiveId]);
             var panelId = newPanel();
 
-            primitive = setMapping(primitive, primitive.defaultDataMapping, ui.helper.text());
+            setMapping.call(primitive, primitive.defaultDataMapping, ui.helper.text());
 
             addPrimitive(primitive, panelId);
         }
@@ -118,30 +136,35 @@ function newPanel() {
 
 function addPrimitive(primitive, panelId) {
     var panel = panels[panelId];
-    var primitiveId = primitive.type + '_' + panelId + '_' + $(panel).length;
+    var primitiveId = primitive.type + '_' + panelId + '_' + Object.keys(panel).length;
+    primitive.id = primitiveId;
+    primitive.panelId = panelId;
+    panels[panelId][primitiveId] = primitive;
 
     var delegate = $('<div></div>')
         .addClass('delegate')
         .addClass('delegate-preview')
         .attr('id', primitiveId)
-        .css('top', '15px')
-        .css('left', '75px')
+        .css('top', primitive.delegate.y + 'px')
+        .css('left', primitive.delegate.x + 'px')
         .css('width', primitive.delegate.width   + 'px')
         .css('height', primitive.delegate.height + 'px')
         .html(primitive.delegate.html);
 
     for(var dzId in primitive.dropzones) {
-        var dzNode = buildDropZone(panelId, primitiveId, primitive, dzId);
-        delegate.append(dzNode);
+        var dzNode   = buildDropZone(panelId, primitiveId, dzId);
+        var fieldset = buildPropEditor(panelId, primitiveId, dzId);
 
-        buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode);
+        dzNode.append(fieldset);
+        delegate.append(dzNode);        
+    }
+
+    for(var anchorId in primitive.anchors) {
+        var anchorNode = buildAnchor(panelId, primitiveId, anchorId);
+        delegate.append(anchorNode);
     }
 
     $('#vis-panel_' + panelId).append(delegate);
-
-    primitive.id = primitiveId;
-    primitive.panelId = panelId;
-    panels[panelId][primitiveId] = primitive;
 
     // When a primitive is added, show all of its dropzones 
     // initially and then fade out to cue user.
@@ -156,7 +179,8 @@ function addPrimitive(primitive, panelId) {
     primitive.visualization();
 }
 
-function buildDropZone(panelId, primitiveId, primitive, dzId) {
+function buildDropZone(panelId, primitiveId, dzId) {
+    var primitive = panels[panelId][primitiveId];
     var dz = primitive.dropzones[dzId];
 
     var dzNode = $('<div></div>')
@@ -179,7 +203,7 @@ function buildDropZone(panelId, primitiveId, primitive, dzId) {
         tolerance: 'touch',
         over: function(event, ui) {
             var p = jQuery.extend(true, {}, panels[panelId][primitiveId]);
-            p = setMapping(p, dzId, ui.helper.text());
+            setMapping.call(p, dzId, ui.helper.text());
             p.visualization(1);
         },
         out: function(event, ui) {
@@ -188,7 +212,7 @@ function buildDropZone(panelId, primitiveId, primitive, dzId) {
         },
         drop: function(event, ui) {
             var p = panels[panelId][primitiveId];
-            p = setMapping(p, dzId, ui.helper.text());
+            setMapping.call(p, dzId, ui.helper.text());
             p.visualization();
         }
     });
@@ -220,12 +244,11 @@ function buildDropZone(panelId, primitiveId, primitive, dzId) {
         });
     });
 
-    dzNode
-
     return dzNode;
 }
 
-function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
+function buildPropEditor(panelId, primitiveId, dzId) {
+    var primitive = panels[panelId][primitiveId];
     var dz = primitive.dropzones[dzId];
 
     var fieldset = $('<fieldset></fieldset>')
@@ -248,7 +271,7 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
             var sel = $('<select></select>')
                 .attr('name', 'field_' + propId)
                 .change(function() {
-                    updateFieldVal(panelId, primitive, propId, $(this).val());
+                    updateFieldVal(panelId, primitiveId, propId, $(this).val());
                 });
 
             for(var j in prop.options)
@@ -260,9 +283,6 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
             if(typeof range == 'function')
                 range = range.call(primitive);
 
-            console.log(propId);
-            console.log(range);
-
             fNode.append(
                 $('<input>')
                     .attr('type', 'range')
@@ -271,7 +291,7 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
                     .attr('step', prop.step)
                     .attr('value', prop.value)
                     .change(function() {
-                        updateFieldVal(panelId, primitive, propId, $(this).val());
+                        updateFieldVal(panelId, primitiveId, propId, $(this).val());
                     })
             );
         } else if(prop.type == 'colorpicker') {
@@ -279,7 +299,7 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
                 $('<input>')
                     .attr('type', 'color')
                     .change(function() {
-                        updateFieldVal(panelId, primitive, propId, $(this).val());
+                        updateFieldVal(panelId, primitiveId, propId, $(this).val());
                     })
             );
         }
@@ -298,10 +318,68 @@ function buildPropEditor(panelId, primitiveId, primitive, dzId, dzNode) {
             })
     );
 
-    dzNode.append(fieldset);
+    return fieldset;
 }
 
-function updateFieldVal(panelId, primitive, propId, val) {
-    primitive.properties[propId].value = val;
-    primitive.visualization();
+function updateFieldVal(panelId, primitiveId, propId, val) {
+    var p = panels[panelId][primitiveId];
+    p.properties[propId].value = val;
+    p.visualization();
+}
+
+function buildAnchor(panelId, primitiveId, anchorId) {
+    var p = panels[panelId][primitiveId];
+    var a = p.anchors[anchorId];
+    var left = 0, top = 0, width = 0, height = 0;
+
+    if(a.type == 'edge') {
+        left   = a.delegate[0][0];
+        top    = a.delegate[0][1];
+        width  = a.delegate[1][0] - left;
+        height = a.delegate[1][1] - top;
+    } else {
+        left   = a.delegate[0];
+        top    = a.delegate[1];
+    }
+
+    if(width == 0)
+        width = 5;
+    if(height == 0)
+        height = 5;
+
+    var anchorNode = $('<div></div>')
+        .attr('id', 'anchor_' + primitiveId + '_' + anchorId)
+        .addClass('anchor')
+        .addClass('anchor-' + a.type)
+        .addClass('anchor-' + anchorId)
+        .css('left', left + 'px')
+        .css('top',  top + 'px')
+        .css('width',  width + 'px')
+        .css('height', height + 'px');
+
+    anchorNode.droppable({
+        accept: '.anchor-' + a.type,
+        activeClass: 'ui-valid-target',
+        hoverClass: 'ui-valid-target-hover',
+        tolerance: 'touch',
+        over: function(event, ui) {
+            // var p = jQuery.extend(true, {}, panels[panelId][primitiveId]);
+            // setMapping.call(p, dzId, ui.helper.text());
+            // p.visualization(1);
+        },
+        out: function(event, ui) {
+            // var p = panels[panelId][primitiveId];
+            // p.visualization();
+        },
+        drop: function(event, ui) {
+            var clientId  = ui.draggable.attr('id').replace('primitive_', '');
+            var client    = jQuery.extend(true, {}, primitives[clientId]);
+            client.hostId = p.id;
+            client.anchoredTo = anchorId;
+
+            addPrimitive(client, panelId);
+        }
+    });
+
+    return anchorNode;
 }

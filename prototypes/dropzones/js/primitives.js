@@ -4,8 +4,10 @@ var primitives = {
 
         delegate: {
             html: '<div class="primitive" style="top: 0px; left: 20px; width: 60px; height: 150px"></div>',
+            x: 75,
+            y: 15,
             height: 170,
-            width: 100
+            width: 100,
         },
 
         properties: {
@@ -118,6 +120,49 @@ var primitives = {
         defaultDataMapping: 'height',
         mappingXors: [['height', 'width']],
 
+        anchors: {
+            left: {
+                type: 'edge',
+                points: function() {
+                    return [[this.x, this.y], [this.x, this.y + this.height]];
+                },
+                scale: function() {
+                    return this.yScale();
+                },
+                delegate: [[10, 5], [10, 145]]
+            },
+            right: {
+                type: 'edge',
+                points: function() {
+                    return [[this.x + this.width, this.y], [this.x + this.width, this.y + this.height]];
+                },
+                scale: function() {
+                    return this.yScale();
+                },
+                delegate: [[85, 5], [85, 145]]
+            },
+            top: {
+                type: 'edge',
+                points: function() {
+                    return [[this.x, this.y], [this.x + this.width, this.y]];
+                },
+                scale: function() {
+                    return this.xScale();
+                },
+                delegate: [[25, -10], [75, -10]]
+            },
+            bottom: {
+                type: 'edge',
+                points: function() {
+                    return [[this.x, this.y + this.height], [this.x + this.width, this.y + this.height]];
+                },
+                scale: function() {
+                    return this.xScale();
+                },
+                delegate: [[25, 155], [75, 155]]
+            }
+        },
+
         dataCol: function() {
             var heightMapped = this.properties.height.hasOwnProperty('mapped');
             return heightMapped ? this.properties.height.mapped : this.properties.width.mapped;
@@ -127,9 +172,9 @@ var primitives = {
             var xScale;
 
             if(this.properties.height.hasOwnProperty('mapped'))
-                xScale = d3.scale.linear()
-                    .domain([0, fullData.length])
-                    .range([0, this.width]);
+                xScale = d3.scale.ordinal()
+                    .domain(d3.range(0, fullData.length))
+                    .rangeBands([0, this.width]);
             else
                 xScale = d3.scale.linear()
                     .domain(this.extents())
@@ -144,11 +189,11 @@ var primitives = {
             if(this.properties.height.hasOwnProperty('mapped'))
                 yScale = d3.scale.linear()
                     .domain(this.extents())
-                    .range([0, this.height]);
+                    .range([this.height, 0]);
             else
-                yScale = d3.scale.linear()
-                    .domain([0, fullData.length])
-                    .range([0, this.height]); 
+                yScale = d3.scale.ordinal()
+                    .domain(d3.range(0, fullData.length))
+                    .rangeBands([0, this.height]); 
 
             return yScale;
         },
@@ -165,13 +210,7 @@ var primitives = {
             var yScale  = this.yScale();
             var x, y, height, width;
 
-            var group = d3.select('svg#vis-stage_' + this.panelId)
-                .select('g#' + this.id);
- 
-            if(group.empty())
-                group = d3.select('svg#vis-stage_' + this.panelId)
-                    .append('g')
-                        .attr('id', this.id);
+            var group = createGroup.call(this);
 
             group.attr('transform', 'translate(' + this.x + ', ' + this.y + ')')
                 .attr('width',  this.width)
@@ -179,10 +218,10 @@ var primitives = {
 
             if(this.properties.height.hasOwnProperty('mapped')) {
                 width  = this.properties.width.value;
-                height = function(d, i) { return yScale(d[dataCol]); };
+                height = function(d, i) { return mark.height - yScale(d[dataCol]); };
 
                 x = function(d, i) { return xScale(i); };
-                y = function(d, i) { return mark.height - yScale(d[dataCol]); };
+                y = function(d, i) { return yScale(d[dataCol]); };
 
             } else {
                 width  = function(d, i) { return xScale(d[dataCol]); };
@@ -225,25 +264,71 @@ var primitives = {
         height: 250
     },
 
-    // arc: {
+    cartesian_axes: {
+        type: 'axes',
+        anchors_to: ['edge'],
 
-    // }
+        delegate: {
+            html: '',
+            x: 0,
+            y: 0,
+            width: 50,
+            height: 50
+        },
+
+        host: function() {
+            return panels[this.panelId][this.hostId];
+        },
+
+        axis: function() {
+            var host  = this.host();
+            var scale = host.anchors[this.anchoredTo].scale.call(host);
+
+            return d3.svg.axis()
+                .scale(scale)
+                .orient(this.anchoredTo);
+        },
+
+        visualization: function(preview) {
+            var host  = this.host();
+            var group = createGroup.call(this);
+
+            var translate = host.anchors[this.anchoredTo].points.call(host)[0];
+
+            group.attr('class', 'axis')
+                .attr('transform', 'translate(' + translate[0] + ', ' + translate[1] + ')')
+                .attr('width',  host.width)
+                .attr('height', host.height);
+
+            group.call(this.axis());
+        }
+    }
 
 };
 
-function setMapping(mark, dropzone, value) {
+function setMapping(dzId, value) {
     // Automatically map to the first property of the dropzone
-    var property = mark.dropzones[dropzone].properties[0];
-    var xors = mark.mappingXors;
+    var property = this.dropzones[dzId].properties[0];
+    var xors = this.mappingXors;
     for(var i in xors) {
         if(xors[i].indexOf(property) == -1)
             continue;
 
         for(var j in xors[i])
-            delete mark.properties[xors[i][j]].mapped;
+            delete this.properties[xors[i][j]].mapped;
     }
 
-    mark.properties[property].mapped = value;
+    this.properties[property].mapped = value;
+}
 
-    return mark;
+function createGroup() {
+    var group = d3.select('svg#vis-stage_' + this.panelId)
+        .select('g#' + this.id);
+
+    if(group.empty())
+        group = d3.select('svg#vis-stage_' + this.panelId)
+            .append('g')
+                .attr('id', this.id);
+
+    return group;
 }
