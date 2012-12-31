@@ -114,13 +114,53 @@ var primitives = {
         defaultDataMapping: 'height',
         mappingXors: [['height', 'width']],
 
-        visualization: function(preview) {
-            var xScale, yScale;
-            var x, y, height, width;
-            var primitive = this;   // For callbacks
+        dataCol: function() {
             var heightMapped = this.properties.height.hasOwnProperty('mapped');
-            var dataCol = heightMapped ? this.properties.height.mapped : this.properties.width.mapped;
-            var extents = d3.extent(fullData, function(d) { return d[dataCol] });
+            return heightMapped ? this.properties.height.mapped : this.properties.width.mapped;
+        },
+
+        xScale: function() {
+            var xScale;
+
+            if(this.properties.height.hasOwnProperty('mapped'))
+                xScale = d3.scale.linear()
+                    .domain([0, fullData.length])
+                    .range([0, this.width]);
+            else
+                xScale = d3.scale.linear()
+                    .domain(this.extents())
+                    .range([0, this.width]);
+
+            return xScale;
+        },
+
+        yScale: function() {
+            var yScale;
+
+            if(this.properties.height.hasOwnProperty('mapped'))
+                yScale = d3.scale.linear()
+                    .domain(this.extents())
+                    .range([0, this.height]);
+            else
+                yScale = d3.scale.linear()
+                    .domain([0, fullData.length])
+                    .range([0, this.height]); 
+
+            return yScale;
+        },
+
+        extents: function() {
+            var dataCol = this.dataCol();
+            return d3.extent(fullData, function(d) { return d[dataCol] });
+        },
+
+        visualization: function(preview) {
+            var mark    = this;   // For callbacks
+            var dataCol = this.dataCol();
+            var xScale  = this.xScale();
+            var yScale  = this.yScale();
+            var x, y, height, width;
+
             var group = d3.select('svg#vis-stage_' + this.panelId)
                 .select('g#' + this.id);
  
@@ -133,30 +173,14 @@ var primitives = {
                 .attr('width',  this.width)
                 .attr('height', this.height);
 
-            if(heightMapped) {
-                xScale = d3.scale.linear()
-                    .domain([0, fullData.length])
-                    .range([0, this.width]);
-
-                yScale = d3.scale.linear()
-                    .domain(extents)
-                    .range([0, this.height]);
-
+            if(this.properties.height.hasOwnProperty('mapped')) {
                 width  = this.properties.width.value;
                 height = function(d, i) { return yScale(d[dataCol]); };
 
                 x = function(d, i) { return xScale(i); };
-                y = function(d, i) { return primitive.height - yScale(d[dataCol]); };
+                y = function(d, i) { return mark.height - yScale(d[dataCol]); };
 
             } else {
-                xScale = d3.scale.linear()
-                    .domain(extents)
-                    .range([0, this.width]);
-
-                yScale = d3.scale.linear()
-                    .domain([0, fullData.length])
-                    .range([0, this.height]);                    
-
                 width  = function(d, i) { return xScale(d[dataCol]); };
                 height = this.properties.height.value;
 
