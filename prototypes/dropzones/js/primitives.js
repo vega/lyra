@@ -81,8 +81,9 @@ var primitives = {
 
                 label: {
                     text: 'Height',
-                    x: -50,
-                    y: 0
+                    x: 0,
+                    y: 80,
+                    rotate: -90
                 },
 
                 properties: ['height', 'heightScale']
@@ -96,7 +97,8 @@ var primitives = {
                 label: {
                     text: 'Width',
                     x: 0,
-                    y: 15
+                    y: 0,
+                    rotate: 0
                 },
 
                 properties: ['width', 'widthScale']
@@ -109,8 +111,9 @@ var primitives = {
 
                 label: {
                     text: 'Fill',
-                    x: 31,
-                    y: 15
+                    x: 0,
+                    y: 0,
+                    rotate: 0
                 },
 
                 properties: ['fillColor', 'fillOpacity', 'strokeColor', 'strokeWidth']

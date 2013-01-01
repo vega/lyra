@@ -200,7 +200,9 @@ function buildDropZone(panelId, primitiveId, dzId) {
     var dzLbl = $('<h3></h3>')
         .text(dz.label.text)
         .css('marginLeft', dz.label.x + 'px')
-        .css('marginTop',  dz.label.y + 'px');
+        .css('marginTop',  dz.label.y + 'px')
+        .css('-webkit-transform', 'rotateZ(' + dz.label.rotate + 'deg)')
+        .css('textAlign', 'center');
 
     dzNode.append(dzLbl);
     dzNode.droppable({
