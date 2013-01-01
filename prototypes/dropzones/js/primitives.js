@@ -5,7 +5,7 @@ var primitives = {
         delegate: {
             html: '<div class="primitive" style="top: 0px; left: 20px; width: 60px; height: 150px"></div>',
             x: 75,
-            y: 15,
+            y: 30,
             height: 170,
             width: 100,
         },
@@ -129,7 +129,7 @@ var primitives = {
                 scale: function() {
                     return this.yScale();
                 },
-                delegate: [[10, 5], [10, 145]]
+                delegate: [[0, 5], [0, 145]]
             },
             right: {
                 type: 'edge',
@@ -139,7 +139,7 @@ var primitives = {
                 scale: function() {
                     return this.yScale();
                 },
-                delegate: [[85, 5], [85, 145]]
+                delegate: [[95, 5], [95, 145]]
             },
             top: {
                 type: 'edge',
@@ -159,7 +159,7 @@ var primitives = {
                 scale: function() {
                     return this.xScale();
                 },
-                delegate: [[25, 155], [75, 155]]
+                delegate: [[25, 165], [75, 165]]
             }
         },
 
@@ -212,7 +212,7 @@ var primitives = {
 
             var group = createGroup.call(this);
 
-            group.attr('transform', 'translate(' + this.x + ', ' + this.y + ')')
+            group.attr('transform', 'translate(' + [this.x, this.y].join(',') + ')')
                 .attr('width',  this.width)
                 .attr('height', this.height);
 
@@ -268,12 +268,68 @@ var primitives = {
         type: 'axes',
         anchors_to: ['edge'],
 
-        delegate: {
-            html: '',
-            x: 0,
-            y: 0,
-            width: 50,
-            height: 50
+        // This is awful, the delegate should just re-use the
+        // visualization, somehow. 
+        // This is some crazy black magic.
+        // Basically, position approx to anchor.delegate but
+        // outside the boundaries of host.delegate. 
+        delegate: function() {
+            var primitive = this;   // For callbacks
+            var host   = this.host();
+            var anchor = host.anchors[this.anchoredTo];
+            var width  = anchor.delegate[1][0] - anchor.delegate[0][0];
+            var height = anchor.delegate[1][1] - anchor.delegate[0][1];
+            var x = host.delegate.x + anchor.delegate[0][0];
+            var y = host.delegate.y + anchor.delegate[0][1];
+
+            if(width == 0)
+                width = 20;
+            if(height == 0)
+                height = 20;
+
+            switch(this.anchoredTo) {
+                case 'left':
+                    x -= width;
+                    translate = [19, -5];
+                break;
+
+                case 'right':
+                    translate = [0, -5];
+                break;
+
+                case 'top':
+                    y -= height;
+                    translate = [-1, 19];
+                break;
+
+                case 'bottom':
+                    translate = [-1, 0];
+                break;
+            }
+
+            var drawAxes = function() {
+                var axis = d3.svg.axis()
+                    .orient(this.anchoredTo)
+                    .scale(anchor.scale.call(host));
+
+                d3.select('#' + primitive.id)
+                    .append("svg")
+                        .attr("class", "axis")
+                        .attr("width", width)
+                        .attr("height", height)
+                        .append("g")
+                            .attr("transform", "translate(" + translate.join(',') + ")")
+                            .call(axis);
+            };
+
+            return {
+                html: '',
+                script: drawAxes,
+                x: x,
+                y: y,
+                width: width,
+                height: height
+            };
         },
 
         host: function() {
@@ -296,9 +352,12 @@ var primitives = {
             var translate = host.anchors[this.anchoredTo].points.call(host)[0];
 
             group.attr('class', 'axis')
-                .attr('transform', 'translate(' + translate[0] + ', ' + translate[1] + ')')
+                .attr('transform', 'translate(' + translate.join(',') + ')')
                 .attr('width',  host.width)
-                .attr('height', host.height);
+                .attr('height', host.height)
+                .attr('opacity', function() { 
+                    return preview ? 0.5 : 1; 
+                });
 
             group.call(this.axis());
         }

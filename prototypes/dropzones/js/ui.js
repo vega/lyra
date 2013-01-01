@@ -141,38 +141,44 @@ function addPrimitive(primitive, panelId) {
     primitive.panelId = panelId;
     panels[panelId][primitiveId] = primitive;
 
-    var delegate = $('<div></div>')
+    var delegate = primitive.delegate;
+    if(typeof delegate == 'function')
+        delegate = delegate.call(primitive);
+
+    var delegateNode = $('<div></div>')
         .addClass('delegate')
         .addClass('delegate-preview')
         .attr('id', primitiveId)
-        .css('top', primitive.delegate.y + 'px')
-        .css('left', primitive.delegate.x + 'px')
-        .css('width', primitive.delegate.width   + 'px')
-        .css('height', primitive.delegate.height + 'px')
-        .html(primitive.delegate.html);
+        .css('top', delegate.y + 'px')
+        .css('left', delegate.x + 'px')
+        .css('width', delegate.width   + 'px')
+        .css('height', delegate.height + 'px')
+        .html(delegate.html);
 
     for(var dzId in primitive.dropzones) {
         var dzNode   = buildDropZone(panelId, primitiveId, dzId);
         var fieldset = buildPropEditor(panelId, primitiveId, dzId);
 
         dzNode.append(fieldset);
-        delegate.append(dzNode);        
+        delegateNode.append(dzNode);        
     }
 
     for(var anchorId in primitive.anchors) {
         var anchorNode = buildAnchor(panelId, primitiveId, anchorId);
-        delegate.append(anchorNode);
+        delegateNode.append(anchorNode);
     }
 
-    $('#vis-panel_' + panelId).append(delegate);
+    $('#vis-panel_' + panelId).append(delegateNode);
+    if(delegate.hasOwnProperty('script'))
+        delegate.script.call(primitive);
 
     // When a primitive is added, show all of its dropzones 
     // initially and then fade out to cue user.
     window.setTimeout(function() {
-        delegate.children('.dropzone').fadeOut(500, function() {
-            delegate.removeClass('delegate-preview');
+        delegateNode.children('.dropzone').fadeOut(500, function() {
+            delegateNode.removeClass('delegate-preview');
         }); 
-        delegate.animate({ borderColor: '#fff'}, 500);
+        delegateNode.animate({ borderColor: 'transparent'}, 500);
     }, 1500);
     
 
@@ -188,7 +194,8 @@ function buildDropZone(panelId, primitiveId, dzId) {
         .css('left',   dz.x + 'px')
         .css('top',    dz.y + 'px')
         .css('width',  dz.width + 'px')
-        .css('height', dz.height + 'px');
+        .css('height', dz.height + 'px')
+        .css('z-index', primitive.hasOwnProperty('anchoredTo') ? 1 : 10);
 
     var dzLbl = $('<h3></h3>')
         .text(dz.label.text)

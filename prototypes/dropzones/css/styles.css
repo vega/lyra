@@ -55,8 +55,8 @@ html {
 
 #ui-design {
     display: block;
-    height: 250px;
-    margin-bottom: 20px;
+    height: 260px;
+    margin-bottom: 10px;
 }
 
 #ui-vis { height: 500px }
@@ -104,7 +104,7 @@ html {
     float: left;
     margin-right: 20px;
     width: 250px; 
-    height: 200px;
+    height: 225px;
 }
 
 .delegate, .delegate-preview { 
@@ -137,6 +137,10 @@ html {
 
 .delegate:hover .dropzone, .delegate-preview .dropzone, .delegate-droppable .dropzone {
     display: block !important;
+}
+
+.delegate svg text {
+    font-size: 8px;
 }
 
 .anchor {
