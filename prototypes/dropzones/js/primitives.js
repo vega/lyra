@@ -7,7 +7,7 @@ var primitives = {
             x: 75,
             y: 30,
             height: 170,
-            width: 100,
+            width: 95,
         },
 
         properties: {
@@ -19,7 +19,7 @@ var primitives = {
                     return [1, Math.floor(this.yScale()(1))];
                 },
                 step: 1,
-                type: 'slider'
+                type: 'range'
             },
             heightScale: {
                 label: 'Scale',
@@ -36,7 +36,7 @@ var primitives = {
                     return [1, Math.floor(this.xScale()(1))];
                 },
                 step: 1,
-                type: 'slider'
+                type: 'range'
             },
             widthScale: {
                 label: 'Scale',
@@ -56,7 +56,7 @@ var primitives = {
                 value: 1,
                 range: [0, 1],
                 step: 0.1,
-                type: 'slider'
+                type: 'range'
             }, 
             strokeColor: {
                 label: 'Stroke Color',
@@ -68,7 +68,7 @@ var primitives = {
                 value: 0,
                 range: [0, 5],
                 step: 0.5,
-                type: 'slider'
+                type: 'range'
             }
         },
 
@@ -104,9 +104,9 @@ var primitives = {
                 properties: ['width', 'widthScale']
             },
             fill: {
-                x: 50,
-                y: 75,
-                width: 75,
+                x: 20,
+                y: 70,
+                width: 60,
                 height: 15,
 
                 label: {
@@ -270,6 +270,47 @@ var primitives = {
     cartesian_axes: {
         type: 'axes',
         anchors_to: ['edge'],
+        // anchoredTo:
+
+        properties: {   // Other d3.svg.axes properties?
+            tickValues: {
+                label: 'Tick Values',
+                if_mapped: false,
+                value: false
+            },
+            fontSize: {
+                label: 'Font Size',
+                value: 14,
+                step: 1,
+                range: [6, 24],
+                type: 'number',
+            },
+            fontColor: {
+                label: 'Font Color',
+                value: '#000000',
+                type: 'colorpicker'
+            },
+            fontFamily: {
+                label: 'Font Family',
+                value: 'Verdana',
+                type: 'text'
+            },
+            strokeColor: {
+                label: 'Stroke Color',
+                value: '#000000',
+                type: 'colorpicker'
+            }, 
+            strokeWidth: {
+                label: 'Stroke Width',
+                value: 1,
+                range: [0, 5],
+                step: 0.5,
+                type: 'range'
+            }
+        },
+
+
+        mappingXors: [],
 
         // This is awful, the delegate should just re-use the
         // visualization, somehow. 
@@ -331,7 +372,9 @@ var primitives = {
                 x: x,
                 y: y,
                 width: width,
-                height: height
+                height: height,
+                dropzone: 1,
+                properties: ['tickValues', 'fontSize', 'fontColor', 'fontFamily', 'strokeColor', 'strokeWidth']
             };
         },
 
@@ -341,11 +384,23 @@ var primitives = {
 
         axis: function() {
             var host  = this.host();
+            var primitive = this;   // For callbacks
             var scale = host.anchors[this.anchoredTo].scale.call(host);
 
-            return d3.svg.axis()
+            var axis = d3.svg.axis()
                 .scale(scale)
                 .orient(this.anchoredTo);
+
+            if(this.properties.tickValues.hasOwnProperty('mapped')) {
+                var tickValues = [];
+                $.each(fullData, function(i, data) {
+                    tickValues.push(data[primitive.properties.tickValues.mapped])
+                });
+
+                axis.tickValues(tickValues);
+            }
+
+            return axis;
         },
 
         visualization: function(preview) {
@@ -363,6 +418,15 @@ var primitives = {
                 });
 
             group.call(this.axis());
+
+            group.selectAll('.axis path, .axis line')
+                .style('stroke', this.properties.strokeColor.value)
+                .style('stroke-width', this.properties.strokeWidth.value);
+
+            group.selectAll('.axis text')
+                .style('fill', this.properties.fontColor.value)
+                .style('font-family', this.properties.fontFamily.value)
+                .style('font-size', this.properties.fontSize.value + 'px');
         }
     }
 
@@ -370,7 +434,7 @@ var primitives = {
 
 function setMapping(dzId, value) {
     // Automatically map to the first property of the dropzone
-    var property = this.dropzones[dzId].properties[0];
+    var property = getProperties.call(this, dzId)[0];
     var xors = this.mappingXors;
     for(var i in xors) {
         if(xors[i].indexOf(property) == -1)
@@ -381,6 +445,26 @@ function setMapping(dzId, value) {
     }
 
     this.properties[property].mapped = value;
+}
+
+function getDelegate() {
+    var delegate = this.delegate;
+    if(typeof delegate == 'function')
+        delegate = delegate.call(this);
+
+    return delegate;
+}
+
+function getProperties(dzId) {
+    var properties = [];
+    if(dzId)
+        properties = this.dropzones[dzId].properties;
+    else {
+        var delegate = getDelegate.call(this);
+        properties = delegate.properties;
+    }
+
+    return properties;
 }
 
 function createGroup() {

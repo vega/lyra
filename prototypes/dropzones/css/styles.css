@@ -139,9 +139,8 @@ html {
     display: block !important;
 }
 
-.delegate svg text {
-    font-size: 8px;
-}
+.delegate svg text { font-size: 8px; }
+.delegate .axis path, .delegate .axis line { stroke: black; }
 
 .anchor {
     position: absolute;
@@ -172,6 +171,7 @@ fieldset {
 fieldset legend {
     font-size: 13px;
     font-weight: bold;
+    display: none;
 }
 
 fieldset div { 
@@ -194,15 +194,14 @@ fieldset button {
 
 fieldset input, fieldset select {
     float: left;
-    width: 125px;
+    width: 115px;
 }
 
-fieldset input[type=color] { width: 115px; }
-fieldset input[type=range] { width: 120px; }
+fieldset input[type=number] { width: auto; }
 
 .axis path,
 .axis line {
     fill: none;
-    stroke: black;
+    /*stroke: black;*/
     shape-rendering: crispEdges;
 }

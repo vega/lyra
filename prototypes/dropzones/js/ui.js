@@ -141,9 +141,7 @@ function addPrimitive(primitive, panelId) {
     primitive.panelId = panelId;
     panels[panelId][primitiveId] = primitive;
 
-    var delegate = primitive.delegate;
-    if(typeof delegate == 'function')
-        delegate = delegate.call(primitive);
+    var delegate = getDelegate.call(primitive);
 
     var delegateNode = $('<div></div>')
         .addClass('delegate')
@@ -155,12 +153,30 @@ function addPrimitive(primitive, panelId) {
         .css('height', delegate.height + 'px')
         .html(delegate.html);
 
-    for(var dzId in primitive.dropzones) {
-        var dzNode   = buildDropZone(panelId, primitiveId, dzId);
-        var fieldset = buildPropEditor(panelId, primitiveId, dzId);
+    if(delegate.hasOwnProperty('dropzone')) {
+        var fieldset = buildPropEditor(panelId, primitiveId);
+        delegateNode.append(fieldset)
+            .css('cursor', 'pointer')
+            .click(function() { showPropEditor(panelId, primitiveId); })
+            .droppable({
+                accept: '.data-col',
+                activeClass: 'ui-valid-target',
+                hoverClass: 'ui-valid-target-hover',
+                tolerance: 'touch',
+                drop: function(event, ui) {
+                    var p = panels[panelId][primitiveId];
+                    setMapping.call(p, '', ui.helper.text());
+                    p.visualization();
+                }
+            });        
+    } else {
+        for(var dzId in primitive.dropzones) {
+            var dzNode   = buildDropZone(panelId, primitiveId, dzId);
+            var fieldset = buildPropEditor(panelId, primitiveId, dzId);
 
-        dzNode.append(fieldset);
-        delegateNode.append(dzNode);        
+            dzNode.append(fieldset);
+            delegateNode.append(dzNode);        
+        }        
     }
 
     for(var anchorId in primitive.anchors) {
@@ -226,46 +242,21 @@ function buildDropZone(panelId, primitiveId, dzId) {
         }
     });
 
-    dzNode.click(function() {
-        $('#fieldset_' + primitiveId + '_' + dzId).show();
-        $('#' + primitiveId).addClass('delegate-preview');
-
-        $.each(dz.properties, function(i, propId) {
-            var field = $('#field_' + primitiveId + '_' + propId);
-            var prop  = primitive.properties[propId];
-            var showField = false;
-
-            if(prop.hasOwnProperty('if_mapped') == false) {
-                showField = true;
-            } else if(typeof prop.if_mapped == 'boolean') {
-                if(prop.hasOwnProperty('mapped') == prop.if_mapped)
-                    showField = true;
-            } else if(typeof prop.if_mapped == 'string') {
-                var mappedProp = primitive.properties[prop.if_mapped];
-                if(mappedProp.hasOwnProperty('mapped'))
-                    showField = true;
-            }
-
-            if(showField)
-                field.show();
-            else
-                field.hide();
-        });
-    });
+    dzNode.click(function() { showPropEditor(panelId, primitiveId, dzId); });
 
     return dzNode;
 }
 
 function buildPropEditor(panelId, primitiveId, dzId) {
-    var primitive = panels[panelId][primitiveId];
-    var dz = primitive.dropzones[dzId];
+    var primitive  = panels[panelId][primitiveId];
 
     var fieldset = $('<fieldset></fieldset>')
         .attr('id', 'fieldset_' + primitiveId + '_' + dzId);
 
-    fieldset.append($('<legend></legend>').text(dz.label.text));
+    // fieldset.append($('<legend></legend>').text(dz.label.text));
+    var properties = getProperties.call(primitive, dzId);
 
-    $.each(dz.properties, function(i, propId)  {
+    $.each(properties, function(i, propId)  {
         var prop = primitive.properties[propId];
         var fNode = $('<div></div>')
             .attr('id', 'field_' + primitiveId + '_' + propId);
@@ -287,14 +278,14 @@ function buildPropEditor(panelId, primitiveId, dzId) {
                 sel.append($('<option></option>').text(prop.options[j]));
 
             fNode.append(sel);
-        } else if(prop.type == 'slider') {
+        } else if((prop.type == 'range') || (prop.type == 'number')) {
             var range = prop.range;
             if(typeof range == 'function')
                 range = range.call(primitive);
 
             fNode.append(
                 $('<input>')
-                    .attr('type', 'range')
+                    .attr('type', prop.type)
                     .attr('min', range[0])
                     .attr('max', range[1])
                     .attr('step', prop.step)
@@ -303,6 +294,15 @@ function buildPropEditor(panelId, primitiveId, dzId) {
                         updateFieldVal(panelId, primitiveId, propId, $(this).val());
                     })
             );
+        } else if(prop.type == 'text') {
+            fNode.append(
+                $('<input>')
+                    .attr('type', 'text')
+                    .attr('value', prop.value)
+                    .change(function() {
+                        updateFieldVal(panelId, primitiveId, propId, $(this).val());
+                    })
+            );            
         } else if(prop.type == 'colorpicker') {
             fNode.append(
                 $('<input>')
@@ -328,6 +328,36 @@ function buildPropEditor(panelId, primitiveId, dzId) {
     );
 
     return fieldset;
+}
+
+function showPropEditor(panelId, primitiveId, dzId) {
+    var primitive  = panels[panelId][primitiveId];
+    var properties = getProperties.call(primitive, dzId);
+
+    $('#fieldset_' + primitiveId + '_' + dzId).show();
+    $('#' + primitiveId).addClass('delegate-preview');
+
+    $.each(properties, function(i, propId) {
+        var field = $('#field_' + primitiveId + '_' + propId);
+        var prop  = primitive.properties[propId];
+        var showField = false;
+
+        if(prop.hasOwnProperty('if_mapped') == false) {
+            showField = true;
+        } else if(typeof prop.if_mapped == 'boolean') {
+            if(prop.hasOwnProperty('mapped') == prop.if_mapped)
+                showField = true;
+        } else if(typeof prop.if_mapped == 'string') {
+            var mappedProp = primitive.properties[prop.if_mapped];
+            if(mappedProp.hasOwnProperty('mapped'))
+                showField = true;
+        }
+
+        if(showField)
+            field.show();
+        else
+            field.hide();
+    });
 }
 
 function updateFieldVal(panelId, primitiveId, propId, val) {
