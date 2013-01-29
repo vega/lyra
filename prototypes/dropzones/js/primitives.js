@@ -248,7 +248,13 @@ var primitives = {
                 .attr('height', height)
                 .attr('x', x)
                 .attr('y', y)
-                .attr('fill', this.properties.fillColor.value)
+                .attr('fill', function(d, i) { 
+                    if(mark.properties.fillColor.hasOwnProperty('mapped'))
+                        return d3.scale.category20()
+                            .domain(d3.range(0, fullData.length))(i);
+                    else
+                        return mark.properties.fillColor.value;
+                })
                 .attr('fill-opacity', this.properties.fillOpacity.value)
                 .attr('stroke', this.properties.strokeColor.value)
                 .attr('stroke-width', this.properties.strokeWidth.value)
@@ -352,9 +358,7 @@ var primitives = {
             }
 
             var drawAxes = function() {
-                var axis = d3.svg.axis()
-                    .orient(this.anchoredTo)
-                    .scale(anchor.scale.call(host));
+                var axis = this.axis();
 
                 d3.select('#' + primitive.id)
                     .append("svg")
