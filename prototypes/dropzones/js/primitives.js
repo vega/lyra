@@ -178,10 +178,15 @@ var primitives = {
                 xScale = d3.scale.ordinal()
                     .domain(d3.range(0, fullData.length))
                     .rangeBands([0, this.width]);
-            else
-                xScale = d3.scale.linear()
-                    .domain(this.extents())
+            else {
+                if(this.properties.widthScale.value == 'Linear')
+                    xScale = d3.scale.linear();
+                else
+                    xScale = d3.scale.log();
+
+                xScale.domain(this.extents())
                     .range([0, this.width]);
+            }                
 
             return xScale;
         },
@@ -189,10 +194,15 @@ var primitives = {
         yScale: function() {
             var yScale;
 
-            if(this.properties.height.hasOwnProperty('mapped'))
-                yScale = d3.scale.linear()
-                    .domain(this.extents())
+            if(this.properties.height.hasOwnProperty('mapped')) {
+                if(this.properties.heightScale.value == 'Linear')
+                    yScale = d3.scale.linear();
+                else
+                    yScale = d3.scale.log();
+
+                yScale.domain(this.extents())
                     .range([this.height, 0]);
+            }
             else
                 yScale = d3.scale.ordinal()
                     .domain(d3.range(0, fullData.length))
@@ -203,7 +213,10 @@ var primitives = {
 
         extents: function() {
             var dataCol = this.dataCol();
-            return d3.extent(fullData, function(d) { return d[dataCol] });
+            var extent = d3.extent(fullData, function(d) { return d[dataCol] })
+            if(extent[0] == 0)
+                extent[0] = 0.0000001;
+            return extent;
         },
 
         visualization: function(preview) {
