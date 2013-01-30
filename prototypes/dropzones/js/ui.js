@@ -1,5 +1,6 @@
 var fullData;
 var panels = [];
+var resizing;
 
 $(document).ready(function(){
     loadData();        
@@ -124,10 +125,31 @@ function newPanel() {
     $('#ui-new-panel').before(panel);
 
     // $('#ui-vis svg').hide();
-    var stage = d3.select('#ui-vis')
-        .append('svg:svg')
-            .attr('class', 'vis-stage')
-            .attr('id', 'vis-stage_' + panelId);
+    var stage = $('<div></div>')
+        .addClass('vis-stage')
+        .attr('id', 'vis-stage_' + panelId)
+        // Hacky because DOM Mutation Observers don't seem to track
+        // CSS3 resize changes.
+        .mousedown(function() { resizing = panelId })
+        .mouseup(function() { resizing = undefined })
+        .mousemove(function() {
+            var panel = panels[panelId];
+            for(var primitiveId in panel) {
+                var p = panel[primitiveId];
+                if(p.hasOwnProperty('width'))
+                    p.width = $('#vis-stage_' + panelId).width() - 50;
+
+                if(p.hasOwnProperty('height'))
+                    p.height = $('#vis-stage_' + panelId).height() - 50;
+
+                p.visualization();
+            }
+        });
+
+    $('#ui-vis').append(stage);
+
+    d3.select('#vis-stage_' + panelId)
+        .append('svg:svg');
 
     panels.push({});
 

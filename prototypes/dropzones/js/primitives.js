@@ -13,13 +13,13 @@ var primitives = {
         properties: {
             height: {
                 label: 'Height',
-                if_mapped: false,
+                // if_mapped: true,
                 value: 7,
                 range: function() {
                     return [1, Math.floor(this.yScale()(1))];
                 },
                 step: 1,
-                type: 'range'
+                // type: 'range'
             },
             heightScale: {
                 label: 'Scale',
@@ -30,13 +30,13 @@ var primitives = {
             }, 
             width: {
                 label: 'Width',
-                if_mapped: false,
+                // if_mapped: true,
                 value: 20,
                 range: function() {
                     return [1, Math.floor(this.xScale()(1))];
                 },
                 step: 1,
-                type: 'range'
+                // type: 'range'
             },
             widthScale: {
                 label: 'Scale',
@@ -177,7 +177,7 @@ var primitives = {
             if(this.properties.height.hasOwnProperty('mapped'))
                 xScale = d3.scale.ordinal()
                     .domain(d3.range(0, fullData.length))
-                    .rangeBands([0, this.width]);
+                    .rangeBands([0, this.width], 0.1);
             else {
                 if(this.properties.widthScale.value == 'Linear')
                     xScale = d3.scale.linear();
@@ -206,7 +206,7 @@ var primitives = {
             else
                 yScale = d3.scale.ordinal()
                     .domain(d3.range(0, fullData.length))
-                    .rangeBands([0, this.height]); 
+                    .rangeBands([0, this.height], 0.1); 
 
             return yScale;
         },
@@ -214,8 +214,8 @@ var primitives = {
         extents: function() {
             var dataCol = this.dataCol();
             var extent = d3.extent(fullData, function(d) { return d[dataCol] })
-            if(extent[0] == 0)
-                extent[0] = 0.0000001;
+            // if(extent[0] == 0)
+            //     extent[0] = 0.0000001;
             return extent;
         },
 
@@ -233,7 +233,7 @@ var primitives = {
                 .attr('height', this.height);
 
             if(this.properties.height.hasOwnProperty('mapped')) {
-                width  = this.properties.width.value;
+                width  = xScale.rangeBand();
                 height = function(d, i) { return mark.height - yScale(d[dataCol]); };
 
                 x = function(d, i) { return xScale(i); };
@@ -241,7 +241,7 @@ var primitives = {
 
             } else {
                 width  = function(d, i) { return xScale(d[dataCol]); };
-                height = this.properties.height.value;
+                height = yScale.rangeBand();
 
                 x = 0;
                 y = function(d, i) { return yScale(i); }
@@ -255,7 +255,7 @@ var primitives = {
                 .attr('class', 'mark_' + this.id);
 
             marks.transition()
-                // .duration(0)
+                .duration(0)
                 // .delay(function(d, i) { return 30*i; })
                 .attr('width', width)
                 .attr('height', height)
@@ -280,10 +280,10 @@ var primitives = {
         // is added to a panel/visualization
         id: 0,
         panelId: 0,
-        x: 100,
-        y: 100,
-        width: 500,
-        height: 250
+        x: 30,
+        y: 10,
+        width: 300,
+        height: 150
     },
 
     cartesian_axes: {
@@ -299,7 +299,7 @@ var primitives = {
             },
             fontSize: {
                 label: 'Font Size',
-                value: 14,
+                value: 11,
                 step: 1,
                 range: [6, 24],
                 type: 'number',
@@ -485,11 +485,11 @@ function getProperties(dzId) {
 }
 
 function createGroup() {
-    var group = d3.select('svg#vis-stage_' + this.panelId)
+    var group = d3.select('#vis-stage_' + this.panelId + ' svg')
         .select('g#' + this.id);
 
     if(group.empty())
-        group = d3.select('svg#vis-stage_' + this.panelId)
+        group = d3.select('#vis-stage_' + this.panelId + ' svg')
             .append('g')
                 .attr('id', this.id);
 
