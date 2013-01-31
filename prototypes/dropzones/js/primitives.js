@@ -179,12 +179,16 @@ var primitives = {
                     .domain(d3.range(0, fullData.length))
                     .rangeBands([0, this.width], 0.1);
             else {
+                var extents = this.extents();
+
                 if(this.properties.widthScale.value == 'Linear')
                     xScale = d3.scale.linear();
-                else
+                else {
                     xScale = d3.scale.log();
+                    extents[0] = 0.000000000001;
+                }
 
-                xScale.domain(this.extents())
+                xScale.domain(extents)
                     .range([0, this.width]);
             }                
 
@@ -195,12 +199,16 @@ var primitives = {
             var yScale;
 
             if(this.properties.height.hasOwnProperty('mapped')) {
+                var extents = this.extents();
+
                 if(this.properties.heightScale.value == 'Linear')
                     yScale = d3.scale.linear();
-                else
+                else {
                     yScale = d3.scale.log();
+                    extents[0] = 0.00000000001;
+                }
 
-                yScale.domain(this.extents())
+                yScale.domain(extents)
                     .range([this.height, 0]);
             }
             else
@@ -214,12 +222,10 @@ var primitives = {
         extents: function() {
             var dataCol = this.dataCol();
             var extent = d3.extent(fullData, function(d) { return d[dataCol] })
-            // if(extent[0] == 0)
-            //     extent[0] = 0.0000001;
             return extent;
         },
 
-        visualization: function(preview) {
+        visualization: function(preview, noAnimation) {
             var mark    = this;   // For callbacks
             var dataCol = this.dataCol();
             var xScale  = this.xScale();
@@ -255,7 +261,7 @@ var primitives = {
                 .attr('class', 'mark_' + this.id);
 
             marks.transition()
-                .duration(0)
+                .duration(function() { return noAnimation ? 0 : 250 })
                 // .delay(function(d, i) { return 30*i; })
                 .attr('width', width)
                 .attr('height', height)
@@ -420,7 +426,7 @@ var primitives = {
             return axis;
         },
 
-        visualization: function(preview) {
+        visualization: function(preview, noAnimation) {
             var host  = this.host();
             var group = createGroup.call(this);
 

@@ -142,7 +142,7 @@ function newPanel() {
                 if(p.hasOwnProperty('height'))
                     p.height = $('#vis-stage_' + panelId).height() - 50;
 
-                p.visualization();
+                p.visualization(false, true);
             }
         });
 

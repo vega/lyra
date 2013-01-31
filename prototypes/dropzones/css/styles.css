@@ -53,6 +53,10 @@ html {
     background-color: rgba(102, 204, 255, 0.6) !important; 
 }
 
+.ui-mapped {
+    background-color: rgba(204, 255, 102, 0.6) !important;
+}
+
 #ui-design {
     display: block;
     height: 260px;
