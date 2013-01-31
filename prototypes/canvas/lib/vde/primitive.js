@@ -1,0 +1,3 @@
+vde.primitive = function() {
+
+};
