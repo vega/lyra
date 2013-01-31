@@ -3,18 +3,20 @@ vde.ui.panel = function(idx) {
     this.id     = 'panel_' + this.idx;
     this.el  = null;
 
-    this.visWidth  = 500;
-    this.visHeight = 350;
+    this.visWidth  = 450;
+    this.visHeight = 300;
     this.sidebarWidth = 250;
     this.toolbarHeight = 32;
 
-    this.paddingX = 20;
-    this.paddingY = 20;
+    this.visPadding   = 30;
+    this.panelPadding = 20;
 
     this.spec   = new vde.spec()
         .set('name', 'vis_' + this.idx)
         .set('width', this.visWidth)
-        .set('height', this.visHeight);
+        .set('height', this.visHeight)
+        .set('padding', this.visPadding)
+        .set('duration', 500);
 
     this.scales = {};
     this.axes   = {};
@@ -38,11 +40,11 @@ vde.ui.panel.prototype.el = function(el) {
 };
 
 vde.ui.panel.prototype.width = function() {
-    return this.visWidth + this.sidebarWidth + this.paddingX;
+    return this.visWidth + 2*this.visPadding + this.sidebarWidth + 2*this.panelPadding;
 };
 
 vde.ui.panel.prototype.height = function() {
-    return this.visHeight + this.toolbarHeight*2 + this.paddingY;
+    return this.visHeight + 2*this.visPadding + 2*this.toolbarHeight + 2*this.panelPadding;
 };
 
 vde.ui.panel.prototype.compile = function() {
@@ -68,15 +70,15 @@ vde.ui.panel.prototype.build = function() {
     this.el.append('div')
         .classed('toolbar', true)
         .classed('primitives', true)
-        .style('width', this.visWidth + 'px')
+        .style('width', (this.visWidth + 2*this.visPadding) + 'px')
         .style('height', this.toolbarHeight + 'px');
 
     this.buildPrimitives();
 
     this.el.append('div')
         .classed('vis', true)
-        .style('width', this.visWidth + 'px')
-        .style('height', this.visHeight + 'px')
+        .style('width', (this.visWidth + 2*this.visPadding) + 'px')
+        .style('height', (this.visHeight + 2*this.visPadding) + 'px')
         .on('dragenter', function() {
             d3.event.preventDefault();
             return false;
@@ -95,12 +97,12 @@ vde.ui.panel.prototype.build = function() {
         .classed('sidebar', true)
         .classed('inspector', true)
         .style('width', this.sidebarWidth + 'px')
-        .style('height', this.visHeight + 'px');
+        .style('height', (this.visHeight + 2*this.visPadding) + 'px');
 
     this.el.append('div')
         .classed('toolbar', true)
         .classed('data', true)
-        .style('width', this.visWidth + 'px')
+        .style('width', (this.visWidth + 2*this.visPadding) + 'px')
         .style('height', this.toolbarHeight + 'px');
 };
 
