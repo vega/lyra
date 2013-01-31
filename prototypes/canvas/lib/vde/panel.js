@@ -11,9 +11,18 @@ vde.ui.panel = function(idx) {
     this.paddingX = 20;
     this.paddingY = 20;
 
-    this.spec   = new vde.spec();
+    this.spec   = new vde.spec()
+        .set('name', 'vis_' + this.idx)
+        .set('width', this.visWidth)
+        .set('height', this.visHeight);
+
+    this.scales = {};
+    this.axes   = {};
+    this.marks  = {};
 
     this.build();
+
+    return this;
 };
 
 vde.ui.panel.prototype.id = function(id) {
@@ -36,6 +45,16 @@ vde.ui.panel.prototype.height = function() {
     return this.visHeight + this.toolbarHeight*2 + this.paddingY;
 };
 
+vde.ui.panel.prototype.compile = function() {
+    this.spec.compile();
+    this.spec.vis.load(function() {
+        if(this.spec.el() == null)
+            this.spec.vis.el(this.id() + ' .vis').data({'table': vde.data[0]}).init()
+
+        this.spec.vis.update();
+    });
+}
+
 vde.ui.panel.prototype.build = function() {
     var self = this;
     this.panel =  d3.select('body')
@@ -48,8 +67,7 @@ vde.ui.panel.prototype.build = function() {
             self.onHover(this);
         })
         .on('mouseout', function() {
-            self.panel.selectAll('.toolbar, .sidebar')
-                .style('display', 'none');
+            self.onOut(this);
         });
 
     this.panel.append('div')
@@ -77,9 +95,25 @@ vde.ui.panel.prototype.build = function() {
 };
 
 vde.ui.panel.prototype.onHover = function(target) {
-    this.panel.select('.primitives')
-        .html(d3.select('#primitives').html());
+    var pToolbar = this.panel.select('.primitives')
+        .html('')
+        .append('ul');
+
+    Object.keys(vde.primitives).forEach(function(type) {
+        var primitive = eval('new vde.primitives.' + type + '(this)');
+        if(!primitive.toolbar)
+            return;
+
+        pToolbar.append('li')
+            .classed(type, true)
+            .text(type);
+    });
 
     this.panel.selectAll('.toolbar, .sidebar')
         .style('display', 'block');
 }
+
+vde.ui.panel.prototype.onOut = function(target) {
+    this.panel.selectAll('.toolbar, .sidebar')
+        .style('display', 'none');
+};

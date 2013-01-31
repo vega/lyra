@@ -9,9 +9,16 @@ vde.spec = function() {
 
     // Compiled visualization
     this.vis = {};
+
+    return this;
 };
 
-vde.spec.prototype.getProperty = function(property, criteria) {
+vde.spec.prototype.set = function(key, value) {
+    this.spec[key] = value;
+    return this;
+};
+
+vde.spec.prototype.get = function(property, criteria) {
     var property = this.spec[property];
 
     if(criteria && property instanceof Array) {
@@ -20,16 +27,16 @@ vde.spec.prototype.getProperty = function(property, criteria) {
             for(var key in criteria)
                 _return = (p[key] == criteria[key]) ? true : false;
             
-            if(_return) break;
+            if(_return) p;
         });
-        if(!_return) return undefined;
+        return null;
     }
 
     return property;
 };
 
 vde.spec.prototype.scale = function(criteria, defaultValue) {
-    var scale = this.getProperty('scales', criteria);
+    var scale = this.get('scales', criteria);
     if(!scale) {
         for(key in criteria) defaultValue[key] = criteria[key];
         defaultValue['type'] || (defaultValue['type'] = 'linear');
@@ -41,7 +48,7 @@ vde.spec.prototype.scale = function(criteria, defaultValue) {
 };
 
 vde.spec.prototype.axis = function(criteria, defaultValue) {
-    var axis = this.getProperty('axes', criteria);
+    var axis = this.get('axes', criteria);
     if(!axis) {
         for(key in criteria) defaultValue[key] = criteria[key];
         var idx = this.spec.axes.push(defaultValue);
@@ -52,7 +59,7 @@ vde.spec.prototype.axis = function(criteria, defaultValue) {
 };
 
 vde.spec.prototype.mark = function(criter, defaultValue) {
-    var mark = this.getProperty('marks', criteria);
+    var mark = this.get('marks', criteria);
     if(!mark) {
         for(key in criteria) defaultValue[key] = criteria[key];
         var idx = this.spec.marks.push(defaultValue);
@@ -66,4 +73,6 @@ vde.spec.compile = function() {
   var source = vg.compile(spec, vde.template);
   eval("source = "+source+";");
   this.vis = source();
+
+  return this;
 };
