@@ -1,5 +1,6 @@
 vde.primitives.scale = function(panel, name) {
     this.name = name;
+    this.inspector = false;
 
     return vde.primitive.call(this, panel, false);
 };

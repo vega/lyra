@@ -9,6 +9,7 @@
     border: 1px solid #ccc;
     background: #ccc; 
     visibility: hidden;
+    overflow: auto;
 }
 
 .panel:hover .toolbar, .panel:hover .sidebar { visibility: visible; }
@@ -16,13 +17,15 @@
 .vis {
     float: left;
     border: 1px solid #999;
+    resize: both;
+    overflow: hidden;
 }
 
 .primitives ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    cursor: url(imgs/openhand.cur), default !important;
+    cursor: url(../imgs/openhand.cur), default !important;
 }
 
 .primitives li {
@@ -38,6 +41,6 @@
 
 .primitives li:hover { background-color: #ddd; }
 
-.primitives .rect { background-image: url(imgs/rect.png); }
-.primitives .arc { background-image: url(imgs/arc.png); }
-.primitives .axis { background-image: url(imgs/axis.png); }
+.primitives .rect { background-image: url(../imgs/rect.png); }
+.primitives .arc { background-image: url(../imgs/arc.png); }
+.primitives .axis { background-image: url(../imgs/axis.png); }

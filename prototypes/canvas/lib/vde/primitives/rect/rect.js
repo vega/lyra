@@ -1,5 +1,6 @@
 vde.primitives.rect = function(panel, name) {
     this.name   = name;
+    this.inspector = true;
 
     this.xScale = new vde.primitives.scale(panel, this.name + '_x');
     this.yScale = new vde.primitives.scale(panel, this.name + '_y');

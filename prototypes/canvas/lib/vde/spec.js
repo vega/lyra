@@ -67,11 +67,8 @@ vde.spec.prototype.mark = function(criteria, defaultValue) {
 };
 
 vde.spec.prototype.compile = function() {
-    console.log(JSON.stringify(this.spec, null, 2));
   var source = vg.compile(this.spec, vde.template);
-  console.log(source);
   eval("var chart = "+source+";");
-  console.log(chart);
   this.vis = chart();
 
   return this;

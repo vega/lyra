@@ -13,8 +13,6 @@ vde.ui.panel = function(idx) {
 
     this.spec   = new vde.spec()
         .set('name', 'vis_' + this.idx)
-        .set('width', this.visWidth)
-        .set('height', this.visHeight)
         .set('padding', this.visPadding)
         .set('duration', 500);
 
@@ -49,12 +47,12 @@ vde.ui.panel.prototype.height = function() {
 
 vde.ui.panel.prototype.compile = function() {
     var self = this;
+    if(this.spec.spec.marks.length == 0)
+        return;
+
     this.spec.set('data', [{'name': 'table'}]).compile();
     this.spec.vis.load(function() {
-        if(self.spec.vis.el() == null)
-            self.spec.vis.el('#' + self.id + ' .vis').data({'table': vde.data[0]}).init()
-
-        self.spec.vis.update();
+        self.spec.vis.el('#' + self.id + ' .vis').data({'table': vde.data.dummy}).init().update();
     });
 }
 
@@ -63,22 +61,16 @@ vde.ui.panel.prototype.build = function() {
     this.el =  d3.select('body')
         .append('div')
         .attr('id', this.id)
-        .classed('panel', true)
-        .style('width', this.width() + 'px')
-        .style('height', this.height() + 'px');
+        .classed('panel', true);
 
     this.el.append('div')
         .classed('toolbar', true)
-        .classed('primitives', true)
-        .style('width', (this.visWidth + 2*this.visPadding) + 'px')
-        .style('height', this.toolbarHeight + 'px');
+        .classed('primitives', true);
 
     this.buildPrimitives();
 
     this.el.append('div')
         .classed('vis', true)
-        .style('width', (this.visWidth + 2*this.visPadding) + 'px')
-        .style('height', (this.visHeight + 2*this.visPadding) + 'px')
         .on('dragenter', function() {
             d3.event.preventDefault();
             return false;
@@ -91,19 +83,21 @@ vde.ui.panel.prototype.build = function() {
             var type = d3.event.dataTransfer.getData('text/plain');
             var primitive = eval('new vde.primitives.' + type + '(self, "' + self.id + '_' + type + '")');
             return primitive.onDrop(d3.event);
+        })
+        .on('mousemove', function() {
+            self.resize();
+            self.compile();
         });
 
     this.el.append('div')
         .classed('sidebar', true)
-        .classed('inspector', true)
-        .style('width', this.sidebarWidth + 'px')
-        .style('height', (this.visHeight + 2*this.visPadding) + 'px');
+        .classed('inspector', true);
 
-    this.el.append('div')
-        .classed('toolbar', true)
-        .classed('data', true)
-        .style('width', (this.visWidth + 2*this.visPadding) + 'px')
-        .style('height', this.toolbarHeight + 'px');
+    // this.el.append('div')
+    //     .classed('toolbar', true)
+    //     .classed('data', true);
+
+    this.resize();
 };
 
 vde.ui.panel.prototype.buildPrimitives = function() {
@@ -128,4 +122,35 @@ vde.ui.panel.prototype.buildPrimitives = function() {
     });
 
     return pToolbar;
+};
+
+vde.ui.panel.prototype.resize = function() {
+    var vis = this.el.select('.vis');
+    var visWidth  = parseFloat(vis.style('width'));
+    var visHeight = parseFloat(vis.style('height'));
+
+    if(visWidth == (this.visWidth + 2*this.visPadding) && 
+        visHeight == (this.visHeight + 2*this.visPadding))
+        return false;
+
+    this.visWidth  = (visWidth > 0) ? visWidth - 2*this.visPadding : this.visWidth;
+    this.visHeight = (visHeight > 0) ? visHeight - 2*this.visPadding : this.visHeight;
+
+    this.el.style('width', this.width() + 'px')
+        .style('height', this.height() + 'px');
+
+    this.el.select('.vis')
+        .style('width', (this.visWidth + 2*this.visPadding) + 'px')
+        .style('height', (this.visHeight + 2*this.visPadding) + 'px')
+
+    this.el.select('.primitives')
+        .style('width', (this.visWidth + 2*this.visPadding) + 'px')
+        .style('height', this.toolbarHeight + 'px');
+
+    this.el.select('.inspector')
+        .style('width', this.sidebarWidth + 'px')
+        .style('height', (this.visHeight + 2*this.visPadding) + 'px');
+
+    this.spec.set('width', this.visWidth)
+        .set('height', this.visHeight);
 };
