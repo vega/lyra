@@ -1,4 +1,4 @@
-vde.primitives.scale = function(name, panel) {
+vde.primitives.scale = function(panel, name) {
     this.name = name;
 
     return vde.primitive.call(this, panel, false);

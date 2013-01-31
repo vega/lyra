@@ -19,20 +19,17 @@ vde.spec.prototype.set = function(key, value) {
 };
 
 vde.spec.prototype.get = function(property, criteria) {
-    var property = this.spec[property];
-
-    if(criteria && property instanceof Array) {
-        var _return = false;
-        property.forEach(function(p) {
+    var prop = this.spec[property];
+    if(criteria && prop instanceof Array) {
+        var _return = null;
+        prop.forEach(function(p) {
             for(var key in criteria)
-                _return = (p[key] == criteria[key]) ? true : false;
-            
-            if(_return) p;
+                _return = (p[key] == criteria[key]) ? p : null;
         });
-        return null;
+        return _return;
     }
 
-    return property;
+    return prop;
 };
 
 vde.spec.prototype.scale = function(criteria, defaultValue) {
@@ -40,8 +37,8 @@ vde.spec.prototype.scale = function(criteria, defaultValue) {
     if(!scale) {
         for(key in criteria) defaultValue[key] = criteria[key];
         defaultValue['type'] || (defaultValue['type'] = 'linear');
-        var idx = this.spec.scales.push(defaultValue);
-        scale = this.spec.scales[idx];
+        var len = this.spec.scales.push(defaultValue);
+        scale = this.spec.scales[--len];
     }
 
     return scale;
@@ -51,28 +48,31 @@ vde.spec.prototype.axis = function(criteria, defaultValue) {
     var axis = this.get('axes', criteria);
     if(!axis) {
         for(key in criteria) defaultValue[key] = criteria[key];
-        var idx = this.spec.axes.push(defaultValue);
-        axis = this.spec.axes[idx];
+        var len = this.spec.axes.push(defaultValue);
+        axis = this.spec.axes[--len];
     }
 
     return axis;
 };
 
-vde.spec.prototype.mark = function(criter, defaultValue) {
+vde.spec.prototype.mark = function(criteria, defaultValue) {
     var mark = this.get('marks', criteria);
     if(!mark) {
         for(key in criteria) defaultValue[key] = criteria[key];
-        var idx = this.spec.marks.push(defaultValue);
-        mark = this.spec.marks[idx];
+        var len = this.spec.marks.push(defaultValue);
+        mark = this.spec.marks[--len];
     }
 
     return mark;       
 };
 
-vde.spec.compile = function() {
-  var source = vg.compile(spec, vde.template);
-  eval("source = "+source+";");
-  this.vis = source();
+vde.spec.prototype.compile = function() {
+    console.log(JSON.stringify(this.spec, null, 2));
+  var source = vg.compile(this.spec, vde.template);
+  console.log(source);
+  eval("var chart = "+source+";");
+  console.log(chart);
+  this.vis = chart();
 
   return this;
 };

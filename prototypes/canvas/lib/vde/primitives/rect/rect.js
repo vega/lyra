@@ -1,8 +1,8 @@
-vde.primitives.rect = function(name, panel) {
+vde.primitives.rect = function(panel, name) {
     this.name   = name;
 
-    this.xScale = new vde.primitives.scale(this.name + '_x');
-    this.yScale = new vde.primitives.scale(this.name + '_y');
+    this.xScale = new vde.primitives.scale(panel, this.name + '_x');
+    this.yScale = new vde.primitives.scale(panel, this.name + '_y');
 
     return vde.primitive.call(this, panel);
 };
@@ -10,7 +10,7 @@ vde.primitives.rect = function(name, panel) {
 vde.primitives.rect.prototype = new vde.primitive();
 
 vde.primitives.rect.prototype.spec = function() {
-    return this.panel.spec.mark({'name': this.name}, {});
+    return this.panel.spec.mark({'name': this.name, type: 'rect'}, {});
 };
 
 vde.primitives.rect.prototype.init = function() {
@@ -22,16 +22,17 @@ vde.primitives.rect.prototype.init = function() {
 };
 
 vde.primitives.rect.prototype.update = function(field) {
-    this.scale('x', {'data': 'table', 'field': 'i'})
+    this.scale('x', {'data': 'table', 'field': 'a'})
         .scale('y', {'data': 'table', 'field': field})
-        .enter({
-            'x1': {'scale': this.xScale.name, 'field': 'i'},
+        .prop('from', 'table')
+        .prop('enter', {
+            'x1': {'scale': this.xScale.name, 'field': 'a'},
             'y1': {'scale': this.yScale.name, 'value': 0},
             'y2': {'scale': this.yScale.name, 'value': 0},
             'width': {'scale': this.xScale.name, 'band': true, 'offset': -1},
             'fill': {'value': 'steelblue'}
         })
-        .update({
+        .prop('update', {
             'y1': {'scale': this.yScale.name, 'field': field},
             'y2': {'scale': this.yScale.name, 'value': 0}
         });
@@ -46,7 +47,9 @@ vde.primitives.rect.prototype.scale = function(type, domain) {
         this.xScale
             .prop('type', 'ordinal')
             .prop('domain', domain)
-            .prop('range', 'width');
+            .prop('range', 'width')
+            .prop('round', true)
+            .prop('padding', '0');
     } else if(type == 'y') {
         this.yScale
             .prop('type', 'linear')
@@ -56,3 +59,10 @@ vde.primitives.rect.prototype.scale = function(type, domain) {
 
     return this;
 };
+
+vde.primitives.rect.prototype.onDrop = function(e) {
+    this.init()
+        .update('b');
+
+    return false;
+}

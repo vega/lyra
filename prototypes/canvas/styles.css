@@ -1,10 +1,17 @@
+.panel { 
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
 .toolbar, .sidebar { 
     float: left; 
     border: 1px solid #ccc;
     background: #ccc; 
+    visibility: hidden;
 }
 
-.toolbar, .sidebar, #primitives { display: none; }
+.panel:hover .toolbar, .panel:hover .sidebar { visibility: visible; }
 
 .vis {
     float: left;
@@ -29,7 +36,7 @@
     background-position: 50% 50%;
 }
 
-/*.primitives li:hover { background-color: #ddd; }*/
+.primitives li:hover { background-color: #ddd; }
 
 .primitives .rect { background-image: url(imgs/rect.png); }
 .primitives .arc { background-image: url(imgs/arc.png); }

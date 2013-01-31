@@ -13,26 +13,20 @@ vde.primitive.prototype.init = function() {
     return this;
 };
 
+vde.primitive.prototype.spec = function() { console.log('spec'); return null; }
+
 vde.primitive.prototype.prop = function(k, v) {
     var spec = this.spec();
     if(v) {
-        spec[k] = v;
+        if(v instanceof Object) {
+            spec[k] || (spec[k] = {});
+            for(var k1 in v) spec[k][k1] = v[k1];
+        } else {
+            spec[k] = v;
+        }
+
         return this;
     } else {
         return spec[k];
     }
-};
-
-vde.primitive.prototype.enter = function(props) {
-    var enter = this.prop('enter');
-    for(var k in props) enter[k] = props[k];
-
-    return this;
-};
-
-vde.primitive.prototype.update = function(props) {
-    var enter = this.prop('update');
-    for(var k in props) enter[k] = props[k];
-
-    return this;
 };
