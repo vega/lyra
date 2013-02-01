@@ -30,3 +30,11 @@ vde.primitive.prototype.prop = function(k, v) {
         return spec[k];
     }
 };
+
+vde.primitive.prototype.onDragStart = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.onDrop = function(e) {
+    return false;
+};

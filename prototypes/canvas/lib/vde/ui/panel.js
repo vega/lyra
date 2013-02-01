@@ -20,7 +20,7 @@ vde.ui.panel = function(idx) {
     this.axes   = {};
     this.marks  = {};
 
-    this.build();
+    this.build().resize();
 
     return this;
 };
@@ -53,8 +53,10 @@ vde.ui.panel.prototype.compile = function() {
     this.spec.set('data', [{'name': 'dummy'}]).compile();
     this.spec.vis.load(function() {
         self.spec.vis.el('#' + self.id + ' .vis').data({'dummy': vde.data.dummy}).init().update();
-        self.registerHover();
+        self.registerHover('marks').registerHover('axes');
     });
+
+    return this;
 }
 
 vde.ui.panel.prototype.build = function() {
@@ -70,23 +72,20 @@ vde.ui.panel.prototype.build = function() {
 
     this.buildPrimitives();
 
+    var cancelDrag = function() {
+        d3.event.preventDefault();
+        return false;
+    };
+
     this.el.append('div')
         .classed('vis', true)
-        .on('dragenter', function() {
-            d3.event.preventDefault();
-            return false;
-        })
-        .on('dragover', function() {
-            d3.event.preventDefault();
-            return false;
-        })
+        .on('mousemove', function() { self.resize(); })
+        .on('dragenter', cancelDrag)
+        .on('dragover', cancelDrag)
         .on('drop', function() {
             var type = d3.event.dataTransfer.getData('text/plain');
             var primitive = eval('new vde.primitives.' + type + '(self, "' + self.id + '_' + type + '")');
             return primitive.onDrop(d3.event);
-        })
-        .on('mousemove', function() {
-            self.resize();
         });
 
     this.el.append('div')
@@ -97,7 +96,7 @@ vde.ui.panel.prototype.build = function() {
     //     .classed('toolbar', true)
     //     .classed('data', true);
 
-    this.resize();
+    return this;
 };
 
 vde.ui.panel.prototype.buildPrimitives = function() {
@@ -118,10 +117,11 @@ vde.ui.panel.prototype.buildPrimitives = function() {
             .on('dragstart', function() {
                 d3.event.dataTransfer.effectAllowed = 'copy';
                 d3.event.dataTransfer.setData('text/plain', type);
+                primitive.onDragStart(d3.event);
             });
     });
 
-    return pToolbar;
+    return this;
 };
 
 vde.ui.panel.prototype.resize = function() {
@@ -159,17 +159,18 @@ vde.ui.panel.prototype.resize = function() {
         .set('height', this.visHeight);
 
     this.compile();
+
+    return this;
 };
 
-vde.ui.panel.prototype.registerHover = function() {
+vde.ui.panel.prototype.registerHover = function(primitives) {
     var self = this;
-    Object.keys(this.marks).forEach(function(name) {
-        var type = self.marks[name].type;
+    Object.keys(self[primitives]).forEach(function(name) {
+        var type = self[primitives][name].type;
 
         self.el.select('g.'+name)
-            .on('mouseover', function() {
-                d3.select(this).style('opacity', 0.9);
-            })
+            .on('mouseover', function() { d3.select(this).style('opacity', 0.9); })
+            .on('mouseout',  function() { d3.select(this).style('opacity', 1.0); })
             .on('click', function() {
                 d3.select(this).style('opacity', 0.9);
 
@@ -183,10 +184,9 @@ vde.ui.panel.prototype.registerHover = function() {
 
                 inspector.remove();
 
-                vde.ui.inspector[type].init(self.marks[name]);
-            })
-            .on('mouseout', function() {
-                d3.select(this).style('opacity', 1);
+                vde.ui.inspector[type].init(self[primitives][name]);
             });
     });
+
+    return this;
 };

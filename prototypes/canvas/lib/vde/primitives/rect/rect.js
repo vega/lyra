@@ -2,7 +2,6 @@ vde.primitives.rect = function(panel, name) {
     this.name   = name;
     this.type   = 'rect';
     this.inspector = true;
-    this.field  = null;
 
     this.fill   = '#4682b4';
     this.stroke = '#000';
@@ -78,7 +77,6 @@ vde.primitives.rect.prototype.scale = function(type, domain) {
 
 vde.primitives.rect.prototype.onDrop = function(e) {
     this.init()
-    this.field = 'b';
     this.update();
 
     return false;
