@@ -21,7 +21,7 @@ vde.primitives.rect.prototype.spec = function() {
     return this.panel.spec.mark({'name': this.name, type: 'rect'}, {});
 };
 
-vde.primitives.rect.prototype.init = function(field) {
+vde.primitives.rect.prototype.init = function() {
     this.panel.scales[this.name + '_x'] = this.xScale;
     this.panel.scales[this.name + '_y'] = this.yScale;   
     this.panel.marks[this.name] = this;
@@ -75,9 +75,9 @@ vde.primitives.rect.prototype.scale = function(type, domain) {
     return this;
 };
 
-vde.primitives.rect.prototype.onDrop = function(e) {
+vde.primitives.rect.prototype.toolbarDrop = function(e) {
     this.init()
-    this.update();
+        .update();
 
     return false;
 }

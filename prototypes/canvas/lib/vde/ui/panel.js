@@ -72,10 +72,7 @@ vde.ui.panel.prototype.build = function() {
 
     this.buildPrimitives();
 
-    var cancelDrag = function() {
-        d3.event.preventDefault();
-        return false;
-    };
+    var cancelDrag = function() { d3.event.preventDefault(); return false; };
 
     this.el.append('div')
         .classed('vis', true)
@@ -85,7 +82,7 @@ vde.ui.panel.prototype.build = function() {
         .on('drop', function() {
             var type = d3.event.dataTransfer.getData('text/plain');
             var primitive = eval('new vde.primitives.' + type + '(self, "' + self.id + '_' + type + '")');
-            return primitive.onDrop(d3.event);
+            return primitive.toolbarDrop(d3.event);
         });
 
     this.el.append('div')
@@ -106,7 +103,7 @@ vde.ui.panel.prototype.buildPrimitives = function() {
         .append('ul');
 
     Object.keys(vde.primitives).forEach(function(type) {
-        var primitive = eval('new vde.primitives.' + type + '(self)');
+        var primitive = eval('new vde.primitives.' + type + '(self, "' + self.id + '_' + type + '")');
         if(!primitive.toolbar)
             return;
 
@@ -117,8 +114,9 @@ vde.ui.panel.prototype.buildPrimitives = function() {
             .on('dragstart', function() {
                 d3.event.dataTransfer.effectAllowed = 'copy';
                 d3.event.dataTransfer.setData('text/plain', type);
-                primitive.onDragStart(d3.event);
-            });
+                return primitive.toolbarDragStart(d3.event);
+            })
+            .on('dragend', function() { return primitive.toolbarDragEnd(d3.event); });
     });
 
     return this;

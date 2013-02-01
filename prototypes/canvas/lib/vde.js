@@ -3,6 +3,7 @@ var vde = {
     libs: ['spec', 'primitive', 'ui', 'ui.panel', 'ui.inspector'],
     primitives: {
         scale: {inspector: false},
+        axis: {inspector: false},
         rect: {inspector: true}
     },
     data: {},

@@ -31,10 +31,14 @@ vde.primitive.prototype.prop = function(k, v) {
     }
 };
 
-vde.primitive.prototype.onDragStart = function(e) {
+vde.primitive.prototype.toolbarDragStart = function(e) {
     return false;
 };
 
-vde.primitive.prototype.onDrop = function(e) {
+vde.primitive.prototype.toolbarDragEnd = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.toolbarDrop = function(e) {
     return false;
 };

@@ -17,6 +17,7 @@
 
 .vis {
     float: left;
+    position: relative;
     border: 1px solid #999;
     resize: both;
     overflow: hidden;
@@ -47,3 +48,15 @@
 .primitives .axis { background-image: url(../imgs/axis.png); }
 
 svg g {cursor: pointer;}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: black;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+}
