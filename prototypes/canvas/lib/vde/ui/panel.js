@@ -53,6 +53,7 @@ vde.ui.panel.prototype.compile = function() {
     this.spec.set('data', [{'name': 'table'}]).compile();
     this.spec.vis.load(function() {
         self.spec.vis.el('#' + self.id + ' .vis').data({'table': vde.data.dummy}).init().update();
+        self.registerHover();
     });
 }
 
@@ -86,12 +87,10 @@ vde.ui.panel.prototype.build = function() {
         })
         .on('mousemove', function() {
             self.resize();
-            self.compile();
         });
 
     this.el.append('div')
-        .classed('sidebar', true)
-        .classed('inspector', true);
+        .classed('sidebar', true);
 
     // this.el.append('div')
     //     .classed('toolbar', true)
@@ -141,16 +140,53 @@ vde.ui.panel.prototype.resize = function() {
 
     this.el.select('.vis')
         .style('width', (this.visWidth + 2*this.visPadding) + 'px')
-        .style('height', (this.visHeight + 2*this.visPadding) + 'px')
+        .style('height', (this.visHeight + 2*this.visPadding) + 'px');
+
+    this.el.select('.vis div svg')
+        .attr('width', (this.visWidth + 2*this.visPadding))
+        .attr('height', (this.visHeight + 2*this.visPadding));
 
     this.el.select('.primitives')
         .style('width', (this.visWidth + 2*this.visPadding) + 'px')
         .style('height', this.toolbarHeight + 'px');
 
-    this.el.select('.inspector')
+    this.el.select('.sidebar')
         .style('width', this.sidebarWidth + 'px')
-        .style('height', (this.visHeight + 2*this.visPadding) + 'px');
+        .style('height', (this.visHeight + 2*this.visPadding) + 'px')
+        .style('display', 'none');
 
     this.spec.set('width', this.visWidth)
         .set('height', this.visHeight);
+
+    this.compile();
+};
+
+vde.ui.panel.prototype.registerHover = function() {
+    var self = this;
+    Object.keys(this.marks).forEach(function(name) {
+        var type = self.marks[name].type;
+
+        self.el.select('g.'+name)
+            .on('mouseover', function() {
+                d3.select(this).style('opacity', 0.5);
+            })
+            .on('click', function() {
+                d3.select(this).style('opacity', 0.5);
+
+                var inspector = d3.select('#inspector_' + type);
+                    
+                self.el.select('.sidebar')
+                    .style('display', 'block')
+                    .append('div')
+                        .attr('id', 'inspector_' + type)
+                        .html(inspector.html());
+
+                inspector.remove();
+
+                vde.ui.inspector[type].init(self.marks[name]);
+            })
+            .on('mouseout', function() {
+                d3.select(this).style('opacity', 1);
+            });
+    });
 };

@@ -9,7 +9,8 @@
     border: 1px solid #ccc;
     background: #ccc; 
     visibility: hidden;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .panel:hover .toolbar, .panel:hover .sidebar { visibility: visible; }

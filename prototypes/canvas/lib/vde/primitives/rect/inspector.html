@@ -1,0 +1,46 @@
+<div class="inspector">
+    <svg width="250">
+        <!-- Width "error bar" -->
+        <line stroke="black" stroke-width="1" x1="175" x2="175" y1="40" y2="50" />    
+        <line stroke="black" stroke-width="1" x1="175" x2="225" y1="45" y2="45" />
+        <line stroke="black" stroke-width="1" x1="225" x2="225" y1="40" y2="50" /> 
+
+        <rect fill="steelblue" width="50" height="150" x="175" y="60" />
+
+        <!-- Height "error bar" -->
+        <line stroke="black" stroke-width="1" x1="155" x2="165" y1="60" y2="60" />    
+        <line stroke="black" stroke-width="1" x1="160" x2="160" y1="60" y2="210" />
+        <line stroke="black" stroke-width="1" x1="155" x2="165" y1="210" y2="210" /> 
+    </svg>
+
+    <p class="height field">
+        <label>Height</label><br />
+        <select>
+            <option>Select field</option>
+            <!-- <option value="dummy">Dummy Data</option> -->
+        </select>
+    </p>
+
+    <p class="width field">
+        <label>Width</label>
+        <select>
+            <option>Select field</option>
+            <!-- <option value="dummy">Dummy Data</option> -->
+        </select>
+    </p>
+
+    <p class="fill field">
+        <label>Fill</label><br />
+        <input type="color" value="#4682b4">
+    </p>
+
+    <p class="stroke field">
+        <label>Stroke</label><br />
+        <input type="color" value="#000">
+    </p>
+
+    <p class="strokeWidth field">
+        <label>&nbsp;</label><br />
+        <input type="range" min="0" max="10" step="0.5" />
+    </p>
+</div>

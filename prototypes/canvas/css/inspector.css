@@ -1,0 +1,11 @@
+.inspector {
+    display: block;
+    width: 245px;
+    background: #ccc;
+    border: 1px solid #ccc;
+    position: relative;
+}
+
+svg line, svg path {
+    shape-rendering: crispEdges;
+}

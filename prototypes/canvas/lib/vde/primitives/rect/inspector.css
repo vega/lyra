@@ -1,0 +1,43 @@
+.inspector {
+    height: 275px;
+}
+
+.field { 
+    position: absolute; 
+    margin: 0;
+}
+.field select { width: 100px;}
+
+label {
+    font: italic 12px Georgia, serif;
+    text-transform: lowercase;
+}
+
+.height {
+    top: 105px;
+    left: 50px;
+}
+
+.width {
+    top: 10px;
+    left: 90px;
+}
+
+.fill {
+    top: 105px;
+    left: 180px;
+}
+
+.fill input { width: 35px; }
+
+.stroke {
+    top: 220px;
+    left: 50px;
+}
+
+.strokeWidth {
+    top: 220px;
+    left: 110px;
+}
+
+.strokeWidth input { width: 115px; }
