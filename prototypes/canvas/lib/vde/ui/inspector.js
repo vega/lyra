@@ -6,18 +6,13 @@ vde.ui.inspector.populateFields = function(property, allowDummy, allowCustom) {
 
     menu.html('');
 
-    if(allowDummy)
-        menu.append('option')
-            .attr('value', 'dummy')
-            .text('Dummy Data');
-
     if(allowCustom)
         menu.append('option')
             .attr('value', 'custom')
             .text('Custom')
 
     Object.keys(vde.data).forEach(function(k, i) {
-        if(i == 0)  // Dummy
+        if(i == 0 && !allowDummy)  // Dummy
             return;
 
         menu.append('option')
@@ -32,13 +27,24 @@ vde.ui.inspector.populateFields = function(property, allowDummy, allowCustom) {
 };
 
 vde.ui.inspector.getProperty = function(property) {
-    return this.el.select('.' + property).select('input').property('value');
+    return this.el.select('.' + property).selectAll('input, select').property('value');
+};
+
+vde.ui.inspector.getScaleDomain = function(scale) {
+    var domain = this.primitive[scale];
+    return domain.data + ':' + domain.field;
 };
 
 vde.ui.inspector.updateProperty = function(property) {
     this.primitive[property] = vde.ui.inspector.getProperty.call(this, property);
     this.primitive.update();
 };
+
+vde.ui.inspector.updateScaleDomain = function(scale, property) {
+    var scaleValue = vde.ui.inspector.getProperty.call(this, property).split(':');
+    this.primitive[scale] = {'data': scaleValue[0], 'field': scaleValue[1] };
+    this.primitive.update();
+}
 
 vde.ui.inspector.close = function() {
     d3.select('body').append('div')

@@ -8,12 +8,12 @@
     float: left; 
     border: 1px solid #ccc;
     background: #ccc; 
-    visibility: hidden;
+    /*visibility: hidden;*/
     overflow-x: hidden;
     overflow-y: auto;
 }
 
-.panel:hover .toolbar, .panel:hover .sidebar { visibility: visible; }
+/*.panel:hover .toolbar, .panel:hover .sidebar { visibility: visible; }*/
 
 .vis {
     float: left;
@@ -45,3 +45,5 @@
 .primitives .rect { background-image: url(../imgs/rect.png); }
 .primitives .arc { background-image: url(../imgs/arc.png); }
 .primitives .axis { background-image: url(../imgs/axis.png); }
+
+svg g {cursor: pointer;}

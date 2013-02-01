@@ -10,6 +10,8 @@ vde.primitives.rect = function(panel, name) {
 
     this.xScale = new vde.primitives.scale(panel, this.name + '_x');
     this.yScale = new vde.primitives.scale(panel, this.name + '_y');
+    this.xDomain = {'data': 'dummy', 'field': 'a'};
+    this.yDomain = {'data': 'dummy', 'field': 'b'};
 
     return vde.primitive.call(this, panel);
 };
@@ -20,7 +22,7 @@ vde.primitives.rect.prototype.spec = function() {
     return this.panel.spec.mark({'name': this.name, type: 'rect'}, {});
 };
 
-vde.primitives.rect.prototype.init = function() {
+vde.primitives.rect.prototype.init = function(field) {
     this.panel.scales[this.name + '_x'] = this.xScale;
     this.panel.scales[this.name + '_y'] = this.yScale;   
     this.panel.marks[this.name] = this;
@@ -29,11 +31,11 @@ vde.primitives.rect.prototype.init = function() {
 };
 
 vde.primitives.rect.prototype.update = function() {
-    this.scale('x', {'data': 'table', 'field': 'a'})
-        .scale('y', {'data': 'table', 'field': this.field})
-        .prop('from', 'table')
+    this.scale('x', this.xDomain)
+        .scale('y', this.yDomain)
+        .prop('from', 'dummy')
         .prop('enter', {
-            'x1': {'scale': this.xScale.name, 'field': 'a'},
+            'x1': {'scale': this.xScale.name, 'field': this.xDomain.field},
             'y1': {'scale': this.yScale.name, 'value': 0},
             'y2': {'scale': this.yScale.name, 'value': 0},
             'width': {'scale': this.xScale.name, 'band': true, 'offset': -1},
@@ -42,9 +44,9 @@ vde.primitives.rect.prototype.update = function() {
             'strokeWidth': {'value': this.strokeWidth}
         })
         .prop('update', {
-            'x1': {'scale': this.xScale.name, 'field': 'a'},
+            'x1': {'scale': this.xScale.name, 'field': this.xDomain.field},
             'width': {'scale': this.xScale.name, 'band': true, 'offset': -1},
-            'y1': {'scale': this.yScale.name, 'field': this.field},
+            'y1': {'scale': this.yScale.name, 'field': this.yDomain.field},
             'y2': {'scale': this.yScale.name, 'value': 0},
             'fill': {'value': this.fill},
             'stroke': {'value': this.stroke},

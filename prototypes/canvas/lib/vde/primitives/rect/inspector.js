@@ -30,14 +30,28 @@ vde.ui.inspector.rect.init = function(rect) {
             self.updateDelegate('strokeWidth', 'stroke-width');
         });
 
+    vde.ui.inspector.populateFields.call(this, 'width', true, true);
     vde.ui.inspector.populateFields.call(this, 'height', true, false);
-    vde.ui.inspector.populateFields.call(this, 'false', true, true);
+
+    this.el.select('.width select')
+        .property('value', vde.ui.inspector.getScaleDomain.call(this, 'xDomain'))
+        .on('change', function() {
+            vde.ui.inspector.updateScaleDomain.call(self, 'xDomain', 'width');
+    });    
+
+    this.el.select('.height select')
+        .property('value', vde.ui.inspector.getScaleDomain.call(this, 'yDomain'))
+        .on('change', function() {
+            vde.ui.inspector.updateScaleDomain.call(self, 'yDomain', 'height');
+        }); 
 };
 
 vde.ui.inspector.rect.updateDelegate = function(property, style) {
     style || (style = property);
     this.el.select('rect').style(style, vde.ui.inspector.getProperty.call(this, property));
 };
+
+
 
 vde.ui.inspector.rect.close = function() {
     return vde.ui.inspector.close.call(this);

@@ -50,9 +50,9 @@ vde.ui.panel.prototype.compile = function() {
     if(this.spec.spec.marks.length == 0)
         return;
 
-    this.spec.set('data', [{'name': 'table'}]).compile();
+    this.spec.set('data', [{'name': 'dummy'}]).compile();
     this.spec.vis.load(function() {
-        self.spec.vis.el('#' + self.id + ' .vis').data({'table': vde.data.dummy}).init().update();
+        self.spec.vis.el('#' + self.id + ' .vis').data({'dummy': vde.data.dummy}).init().update();
         self.registerHover();
     });
 }
@@ -90,7 +90,8 @@ vde.ui.panel.prototype.build = function() {
         });
 
     this.el.append('div')
-        .classed('sidebar', true);
+        .classed('sidebar', true)
+        .style('display', 'none');
 
     // this.el.append('div')
     //     .classed('toolbar', true)
@@ -152,8 +153,7 @@ vde.ui.panel.prototype.resize = function() {
 
     this.el.select('.sidebar')
         .style('width', this.sidebarWidth + 'px')
-        .style('height', (this.visHeight + 2*this.visPadding) + 'px')
-        .style('display', 'none');
+        .style('height', (this.visHeight + 2*this.visPadding) + 'px');
 
     this.spec.set('width', this.visWidth)
         .set('height', this.visHeight);
@@ -168,10 +168,10 @@ vde.ui.panel.prototype.registerHover = function() {
 
         self.el.select('g.'+name)
             .on('mouseover', function() {
-                d3.select(this).style('opacity', 0.5);
+                d3.select(this).style('opacity', 0.9);
             })
             .on('click', function() {
-                d3.select(this).style('opacity', 0.5);
+                d3.select(this).style('opacity', 0.9);
 
                 var inspector = d3.select('#inspector_' + type);
                     

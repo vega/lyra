@@ -22,9 +22,11 @@ vde.spec.prototype.get = function(property, criteria) {
     var prop = this.spec[property];
     if(criteria && prop instanceof Array) {
         var _return = null;
-        prop.forEach(function(p) {
+        prop.some(function(p) {
             for(var key in criteria)
                 _return = (p[key] == criteria[key]) ? p : null;
+
+            if(_return) return true;
         });
         return _return;
     }
