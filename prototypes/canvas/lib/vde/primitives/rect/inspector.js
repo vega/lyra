@@ -9,6 +9,8 @@ vde.ui.inspector.rect.init = function(rect) {
     this.primitive = rect;
     this.el = d3.select('#inspector_rect');
 
+    vde.ui.inspector.init.call(this);
+
     this.el.select('.fill input')
         .property('value', this.primitive.fill)
         .on('change', function() {
@@ -51,8 +53,3 @@ vde.ui.inspector.rect.updateDelegate = function(property, style) {
     this.el.select('rect').style(style, vde.ui.inspector.getProperty.call(this, property));
 };
 
-
-
-vde.ui.inspector.rect.close = function() {
-    return vde.ui.inspector.close.call(this);
-};

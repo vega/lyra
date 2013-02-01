@@ -1,11 +1,23 @@
 .inspector {
     display: block;
-    width: 245px;
+    width: 250px;
     background: #ccc;
-    border: 1px solid #ccc;
     position: relative;
 }
 
 svg line, svg path {
     shape-rendering: crispEdges;
+}
+
+.close {
+    display: block;
+    background: #666;
+    color: #fff;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0px;
+    padding: 5px;
+    font: 11px Verdana, sans-serif;
+    text-transform: lowercase;
 }

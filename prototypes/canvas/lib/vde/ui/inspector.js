@@ -1,5 +1,13 @@
 vde.ui.inspector = {};
 
+vde.ui.inspector.init = function() {
+    var self = this;
+    this.el.select('.close')
+        .on('click', function() {
+            vde.ui.inspector.close.call(self);
+        });
+};
+
 vde.ui.inspector.populateFields = function(property, allowDummy, allowCustom) {
     var menu = this.el.select('.' + property)
         .select('select');
@@ -50,6 +58,9 @@ vde.ui.inspector.close = function() {
     d3.select('body').append('div')
         .attr('id', this.el.attr('id'))
         .html(this.el.html())
+        .style('display', 'none');
+
+    d3.select(this.el.node().parentNode)
         .style('display', 'none');
 
     this.el.remove();
