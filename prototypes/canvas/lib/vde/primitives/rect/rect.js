@@ -12,6 +12,9 @@ vde.primitives.rect = function(panel, name) {
     this.xDomain = {'data': 'dummy', 'field': 'a'};
     this.yDomain = {'data': 'dummy', 'field': 'b'};
 
+    this.xOffset = 0;
+    this.yOffset = 0;
+
     return vde.primitive.call(this, panel);
 };
 
@@ -34,19 +37,19 @@ vde.primitives.rect.prototype.update = function() {
         .scale('y', this.yDomain)
         .prop('from', 'dummy')
         .prop('enter', {
-            'x1': {'scale': this.xScale.name, 'field': this.xDomain.field},
-            'y1': {'scale': this.yScale.name, 'value': 0},
-            'y2': {'scale': this.yScale.name, 'value': 0},
+            'x1': {'scale': this.xScale.name, 'field': this.xDomain.field, 'offset': this.xOffset},
+            'y1': {'scale': this.yScale.name, 'value': 0, 'offset': this.yOffset},
+            'y2': {'scale': this.yScale.name, 'value': 0, 'offset': this.yOffset},
             'width': {'scale': this.xScale.name, 'band': true, 'offset': -1},
             'fill': {'value': this.fill},
             'stroke': {'value': this.stroke},
             'strokeWidth': {'value': this.strokeWidth}
         })
         .prop('update', {
-            'x1': {'scale': this.xScale.name, 'field': this.xDomain.field},
+            'x1': {'scale': this.xScale.name, 'field': this.xDomain.field, 'offset': this.xOffset},
             'width': {'scale': this.xScale.name, 'band': true, 'offset': -1},
-            'y1': {'scale': this.yScale.name, 'field': this.yDomain.field},
-            'y2': {'scale': this.yScale.name, 'value': 0},
+            'y1': {'scale': this.yScale.name, 'field': this.yDomain.field, 'offset': this.yOffset},
+            'y2': {'scale': this.yScale.name, 'value': 0, 'offset': this.yOffset},
             'fill': {'value': this.fill},
             'stroke': {'value': this.stroke},
             'strokeWidth': {'value': this.strokeWidth}
@@ -76,8 +79,43 @@ vde.primitives.rect.prototype.scale = function(type, domain) {
 };
 
 vde.primitives.rect.prototype.toolbarDrop = function(e) {
-    this.init()
-        .update();
+    this.init().update();
+    return false;
+};
+
+vde.primitives.rect.prototype.getOffset = function() {
+    var coords  = d3.mouse(this.panel.el.select('.vis svg').node());
+    var xOffset = this.xOffset + (coords[0] - this.panel.mouseDownCoords[0]);
+    var yOffset = this.yOffset + (coords[1] - this.panel.mouseDownCoords[1]);
+
+    return [xOffset, yOffset];
+};
+
+vde.primitives.rect.prototype.visMouseMove = function(e) {
+    if(this.panel.visDragging != this)
+        return false;
+    
+    var offsets = {
+        'x1': {'offset': this.getOffset()[0]},
+        'y1': {'offset': this.getOffset()[1]},
+        'y2': {'offset': this.getOffset()[1]}
+    };
+
+    this.prop('enter', offsets).prop('update', offsets);
+    this.panel.resetDuration(true).compile();
 
     return false;
-}
+};
+
+vde.primitives.rect.prototype.visMouseUp = function(e) {
+    if(this.panel.visDragging != this)
+        return false;
+
+    var coords  = d3.mouse(this.panel.el.select('.vis svg').node());
+    this.xOffset = this.getOffset()[0];
+    this.yOffset = this.getOffset()[1];
+
+    this.update();
+
+    return false;
+};

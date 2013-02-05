@@ -109,3 +109,32 @@ vde.primitives.axis.prototype.toolbarDragStart = function(e) {
 vde.primitives.axis.prototype.toolbarDragEnd = function(e) {
     this.panel.el.select('.vis').selectAll('.dropzone').remove();
 };
+
+vde.primitives.axis.prototype.getOffset = function() {
+    var coords  = d3.mouse(this.panel.el.select('.vis svg').node());
+    var idx = (this.orient == 'left' || this.orient == 'right') ? 0 : 1;
+
+    return this.offset + ((this.orient == 'left' || this.orient == 'top') ? 
+        -(coords[idx] - this.panel.mouseDownCoords[idx]) : 
+        (coords[idx] - this.panel.mouseDownCoords[idx]));
+};
+
+vde.primitives.axis.prototype.visMouseMove = function(e) {
+    if(this.panel.visDragging != this)
+        return false;
+
+    this.prop('offset', this.getOffset());
+    this.panel.resetDuration(true).compile();
+
+    return false;
+};
+
+vde.primitives.axis.prototype.visMouseUp = function(e) {
+    if(this.panel.visDragging != this)
+        return false;
+
+    this.offset = this.getOffset();
+    this.update();
+
+    return false;
+};

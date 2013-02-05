@@ -13,17 +13,34 @@ vde.primitive.prototype.init = function() {
     return this;
 };
 
+vde.primitive.prototype.update = function() {
+    return false;
+};
+
 vde.primitive.prototype.spec = function() { console.log('spec'); return null; }
 
 vde.primitive.prototype.prop = function(k, v) {
     var spec = this.spec();
     if(v) {
-        if(v instanceof Object) {
-            spec[k] || (spec[k] = {});
-            for(var k1 in v) spec[k][k1] = v[k1];
-        } else {
-            spec[k] = v;
-        }
+        var propRecurse = function(keys, value) {
+            if(value instanceof Object) {
+                for(var k1 in value) {
+                    keys.push(k1);
+                    propRecurse(keys, value[k1]);
+                    keys.pop();
+                }
+            } else {
+                var s = spec;
+                keys.some(function(k, i){
+                    if(i == keys.length-1)
+                        return;
+                    s = s[k] || (s[k] = {});
+                });
+                s[keys[keys.length-1]] = value;
+            }
+        };
+
+        propRecurse([k], v);
 
         return this;
     } else {
@@ -40,5 +57,41 @@ vde.primitive.prototype.toolbarDragEnd = function(e) {
 };
 
 vde.primitive.prototype.toolbarDrop = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.visMouseOver = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.visMouseOut = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.visMouseDown = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.visMouseUp = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.visMouseMove = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.visClick = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.visDragStart = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.visDragEnd = function(e) {
+    return false;
+};
+
+vde.primitive.prototype.visDrop = function(e) {
     return false;
 };

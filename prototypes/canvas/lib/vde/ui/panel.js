@@ -11,6 +11,10 @@ vde.ui.panel = function(idx) {
     this.visPadding   = 30;
     this.panelPadding = 20;
 
+    this.visDragging  = null;
+    this.mouseDownCoords = null;
+    this.duration = null;
+
     this.spec   = new vde.spec()
         .set('name', 'vis_' + this.idx)
         .set('padding', this.visPadding)
@@ -56,6 +60,8 @@ vde.ui.panel.prototype.compile = function() {
         self.registerHover('marks').registerHover('axes');
     });
 
+    this.resetDuration(false);
+
     return this;
 }
 
@@ -76,11 +82,18 @@ vde.ui.panel.prototype.build = function() {
 
     this.el.append('div')
         .classed('vis', true)
-        .on('mousemove', function() { self.resize(); })
+        .on('mousemove', function() { 
+            self.resize(); 
+            if(self.visDragging)
+                self.visDragging.visMouseMove(d3.event);
+        })
         .on('dragenter', cancelDrag)
         .on('dragover', cancelDrag)
         .on('drop', function() {
-            var type = d3.event.dataTransfer.getData('text/plain');
+            var type = d3.event.dataTransfer.getData('vde.primitive');
+            if(!type)
+                return false;
+
             var primitive = eval('new vde.primitives.' + type + '(self, "' + self.id + '_' + type + '")');
             return primitive.toolbarDrop(d3.event);
         });
@@ -113,7 +126,7 @@ vde.ui.panel.prototype.buildPrimitives = function() {
             .attr('draggable', 'true')
             .on('dragstart', function() {
                 d3.event.dataTransfer.effectAllowed = 'copy';
-                d3.event.dataTransfer.setData('text/plain', type);
+                d3.event.dataTransfer.setData('vde.primitive', type);
                 return primitive.toolbarDragStart(d3.event);
             })
             .on('dragend', function() { return primitive.toolbarDragEnd(d3.event); });
@@ -130,6 +143,8 @@ vde.ui.panel.prototype.resize = function() {
     if(visWidth == (this.visWidth + 2*this.visPadding) && 
         visHeight == (this.visHeight + 2*this.visPadding))
         return false;
+
+    this.resetDuration(true);
 
     this.visWidth  = (visWidth > 0) ? visWidth - 2*this.visPadding : this.visWidth;
     this.visHeight = (visHeight > 0) ? visHeight - 2*this.visPadding : this.visHeight;
@@ -163,28 +178,59 @@ vde.ui.panel.prototype.resize = function() {
 
 vde.ui.panel.prototype.registerHover = function(primitives) {
     var self = this;
+    var opacities = {marks: 0.9, axes: 0.6};
+
     Object.keys(self[primitives]).forEach(function(name) {
-        var type = self[primitives][name].type;
+        var p = self[primitives][name];
 
         self.el.select('g.'+name)
-            .on('mouseover', function() { d3.select(this).style('opacity', 0.9); })
-            .on('mouseout',  function() { d3.select(this).style('opacity', 1.0); })
-            .on('click', function() {
-                d3.select(this).style('opacity', 0.9);
+            .on('mousedown', function() { 
+                d3.event.preventDefault();
 
-                var inspector = d3.select('#inspector_' + type);
+                self.visDragging = p; 
+                self.mouseDownCoords = d3.mouse(self.el.select('.vis svg').node()); 
+                return p.visMouseDown(d3.event); 
+            })
+            .on('mouseup', function() {
+                p.visMouseUp(d3.event); 
+                self.visDragging = null; 
+                self.mouseDownCoords = null; 
+            })
+            .on('mousemove', function() { return p.visMouseMove(d3.event); })
+            .on('mouseover', function() { d3.select(this).style('opacity', opacities[primitives]); return p.visMouseOver(d3.event); })
+            .on('mouseout',  function() { d3.select(this).style('opacity', 1.0); return p.visMouseOut(d3.event); })
+            .on('dragstart', function() { return p.visDragStart(d3.event); })
+            .on('dragend',   function() { return p.visDragEnd(d3.event); })
+            .on('click', function() {
+                d3.select(this).style('opacity', opacities[primitives]);
+
+                var inspector = d3.select('#inspector_' + p.type);
                     
                 self.el.select('.sidebar')
                     .style('display', 'block')
                     .append('div')
-                        .attr('id', 'inspector_' + type)
+                        .attr('id', 'inspector_' + p.type)
                         .html(inspector.html());
 
                 inspector.remove();
 
-                vde.ui.inspector[type].init(self[primitives][name]);
+                vde.ui.inspector[p.type].init(p);
+
+                return p.visClick(d3.event);
             });
     });
+
+    return this;
+};
+
+vde.ui.panel.prototype.resetDuration = function(zero) {
+    if(zero) {
+        this.duration = this.spec.get('duration');
+        this.spec.set('duration', 0);
+    } else if(this.duration) {
+        this.spec.set('duration', this.duration);
+        this.duration = null;
+    }
 
     return this;
 };
