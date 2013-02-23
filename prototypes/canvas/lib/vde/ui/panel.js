@@ -8,7 +8,7 @@ vde.ui.panel = function(idx) {
     this.sidebarWidth = 250;
     this.toolbarHeight = 32;
 
-    this.visPadding   = 30;
+    this.visPadding   = 25;
     this.panelPadding = 20;
 
     this.visDragging  = null;
@@ -17,12 +17,14 @@ vde.ui.panel = function(idx) {
 
     this.spec   = new vde.spec()
         .set('name', 'vis_' + this.idx)
-        .set('padding', this.visPadding)
+        // .set('padding', this.visPadding)
         .set('duration', 500);
 
     this.scales = {};
     this.axes   = {};
     this.marks  = {};
+
+    this.view   = {};
 
     this.build().resize();
 
@@ -54,11 +56,12 @@ vde.ui.panel.prototype.compile = function() {
     if(this.spec.spec.marks.length == 0)
         return;
 
-    this.spec.set('data', [{'name': 'dummy'}]).compile();
-    this.spec.vis.load(function() {
-        self.spec.vis.el('#' + self.id + ' .vis').data({'dummy': vde.data.dummy}).init().update();
-        self.registerHover('marks').registerHover('axes');
-    });
+    this.spec
+        .set('data', [{'name': 'dummy', 'values': vde.data.dummy}])
+        .parse(function(chart) {
+            self.el.select('.vis').selectAll('*').remove();
+            (self.view = chart('.vis')).update();
+        });
 
     this.resetDuration(false);
 

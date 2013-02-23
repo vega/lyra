@@ -9,8 +9,8 @@ vde.primitives.rect = function(panel, name) {
 
     this.xScale = new vde.primitives.scale(panel, this.name + '_x');
     this.yScale = new vde.primitives.scale(panel, this.name + '_y');
-    this.xDomain = {'data': 'dummy', 'field': 'a'};
-    this.yDomain = {'data': 'dummy', 'field': 'b'};
+    this.xDomain = {'data': 'dummy', 'field': ['data', 'a']};
+    this.yDomain = {'data': 'dummy', 'field': ['data', 'b']};
 
     this.xOffset = 0;
     this.yOffset = 0;
@@ -35,25 +35,25 @@ vde.primitives.rect.prototype.init = function() {
 vde.primitives.rect.prototype.update = function() {
     this.scale('x', this.xDomain)
         .scale('y', this.yDomain)
-        .prop('from', 'dummy')
-        .prop('enter', {
-            'x1': {'scale': this.xScale.name, 'field': this.xDomain.field, 'offset': this.xOffset},
-            'y1': {'scale': this.yScale.name, 'value': 0, 'offset': this.yOffset},
+        .prop('from', {'data': 'dummy'})
+        .prop('properties', {'enter': {
+            'x': {'scale': this.xScale.name, 'field': this.xDomain.field, 'offset': this.xOffset},
+            'y': {'scale': this.yScale.name, 'value': 0, 'offset': this.yOffset},
             'y2': {'scale': this.yScale.name, 'value': 0, 'offset': this.yOffset},
             'width': {'scale': this.xScale.name, 'band': true, 'offset': -1},
             'fill': {'value': this.fill},
             'stroke': {'value': this.stroke},
             'strokeWidth': {'value': this.strokeWidth}
-        })
-        .prop('update', {
-            'x1': {'scale': this.xScale.name, 'field': this.xDomain.field, 'offset': this.xOffset},
+        }})
+        .prop('properties', {'update': {
+            'x': {'scale': this.xScale.name, 'field': this.xDomain.field, 'offset': this.xOffset},
             'width': {'scale': this.xScale.name, 'band': true, 'offset': -1},
-            'y1': {'scale': this.yScale.name, 'field': this.yDomain.field, 'offset': this.yOffset},
+            'y': {'scale': this.yScale.name, 'field': this.yDomain.field, 'offset': this.yOffset},
             'y2': {'scale': this.yScale.name, 'value': 0, 'offset': this.yOffset},
             'fill': {'value': this.fill},
             'stroke': {'value': this.stroke},
             'strokeWidth': {'value': this.strokeWidth}
-        });
+        }});
 
     this.panel.compile();
 

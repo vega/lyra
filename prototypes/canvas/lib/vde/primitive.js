@@ -17,13 +17,13 @@ vde.primitive.prototype.update = function() {
     return false;
 };
 
-vde.primitive.prototype.spec = function() { console.log('spec'); return null; }
+vde.primitive.prototype.spec = function() { return null; }
 
 vde.primitive.prototype.prop = function(k, v) {
     var spec = this.spec();
     if(v) {
         var propRecurse = function(keys, value) {
-            if(value instanceof Object) {
+            if(value instanceof Object && !(value instanceof Array)) {
                 for(var k1 in value) {
                     keys.push(k1);
                     propRecurse(keys, value[k1]);

@@ -7,9 +7,6 @@ vde.spec = function() {
         marks:  []
     };
 
-    // Compiled visualization
-    this.vis = {};
-
     return this;
 };
 
@@ -68,10 +65,6 @@ vde.spec.prototype.mark = function(criteria, defaultValue) {
     return mark;       
 };
 
-vde.spec.prototype.compile = function() {
-  var source = vg.compile(this.spec, vde.template);
-  eval("var chart = "+source+";");
-  this.vis = chart();
-
-  return this;
+vde.spec.prototype.parse = function(callback) {
+    vg.parse.spec(this.spec, callback);
 };
