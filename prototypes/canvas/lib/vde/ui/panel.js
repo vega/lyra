@@ -61,6 +61,7 @@ vde.ui.panel.prototype.compile = function() {
         .parse(function(chart) {
             self.el.select('.vis').selectAll('*').remove();
             (self.view = chart('.vis')).update();
+            self.registerVisEvents();
         });
 
     this.resetDuration(false);
@@ -179,49 +180,61 @@ vde.ui.panel.prototype.resize = function() {
     return this;
 };
 
-vde.ui.panel.prototype.registerHover = function(primitives) {
+vde.ui.panel.prototype.registerVisEvents = function() {
     var self = this;
     var opacities = {marks: 0.9, axes: 0.6};
 
-    Object.keys(self[primitives]).forEach(function(name) {
-        var p = self[primitives][name];
+    // Go up the path until you can get to the definition
+    // for a primtive. 
+    var getPrimitiveFromView = function(item) {
+        var def = {};
+        item.path.some(function(i) {
+            if(i.hasOwnProperty('def')) {
+                def = i;
+                return i;
+            }
+        });
 
-        self.el.select('g.'+name)
-            .on('mousedown', function() { 
-                d3.event.preventDefault();
+        return self.marks[def.def.name];
+    };
 
-                self.visDragging = p; 
-                self.mouseDownCoords = d3.mouse(self.el.select('.vis svg').node()); 
-                return p.visMouseDown(d3.event); 
-            })
-            .on('mouseup', function() {
-                p.visMouseUp(d3.event); 
-                self.visDragging = null; 
-                self.mouseDownCoords = null; 
-            })
-            .on('mousemove', function() { return p.visMouseMove(d3.event); })
-            .on('mouseover', function() { d3.select(this).style('opacity', opacities[primitives]); return p.visMouseOver(d3.event); })
-            .on('mouseout',  function() { d3.select(this).style('opacity', 1.0); return p.visMouseOut(d3.event); })
-            .on('dragstart', function() { return p.visDragStart(d3.event); })
-            .on('dragend',   function() { return p.visDragEnd(d3.event); })
-            .on('click', function() {
-                d3.select(this).style('opacity', opacities[primitives]);
+    this.view
+        .on('mousedown', function(e, item) {
+            e.preventDefault();
+            var p = getPrimitiveFromView(item);
+            self.visDragging = p; 
+            self.mouseDownCoords = d3.mouse(self.el.select('.vis svg').node()); 
+            return p.visMouseDown(e); 
+        })
+        .on('mouseup', function(e, item) {
+            var p = getPrimitiveFromView(item);
+            p.visMouseUp(e); 
+            self.visDragging = null; 
+            self.mouseDownCoords = null; 
+        })
+        .on('mousemove', function(e, item) { return getPrimitiveFromView(item).visMouseMove(e); })
+        .on('mouseover', function(e, item) { return getPrimitiveFromView(item).visMouseOver(e); })
+        .on('mouseout',  function(e, item) { return getPrimitiveFromView(item).visMouseOut(e); })
+        .on('dragstart', function(e, item) { return getPrimitiveFromView(item).visDragStart(e); })
+        .on('dragend',   function(e, item) { return getPrimitiveFromView(item).visDragEnd(e); })
+        .on('click', function(e, item) {
+            var p = getPrimitiveFromView(item);
+            var inspector = d3.select('#inspector_' + p.type);
+                
+            self.el.select('.sidebar')
+                .style('display', 'block')
+                .append('div')
+                    .attr('id', 'inspector_' + p.type)
+                    .html(inspector.html());
 
-                var inspector = d3.select('#inspector_' + p.type);
-                    
-                self.el.select('.sidebar')
-                    .style('display', 'block')
-                    .append('div')
-                        .attr('id', 'inspector_' + p.type)
-                        .html(inspector.html());
+            // Remove the template from the document. When we close
+            // the inspector, we'll re-create this.
+            inspector.remove();
 
-                inspector.remove();
+            vde.ui.inspector[p.type].init(p);
 
-                vde.ui.inspector[p.type].init(p);
-
-                return p.visClick(d3.event);
-            });
-    });
+            return p.visClick(d3.event);
+        });
 
     return this;
 };
