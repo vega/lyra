@@ -9,7 +9,7 @@ svg line, svg path {
     shape-rendering: crispEdges;
 }
 
-.close {
+.inspector .close {
     display: block;
     background: #666;
     color: #fff;

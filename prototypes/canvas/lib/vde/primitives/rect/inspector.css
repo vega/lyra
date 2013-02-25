@@ -2,42 +2,42 @@
     height: 275px;
 }
 
-.field { 
+.inspector .field { 
     position: absolute; 
     margin: 0;
 }
-.field select { width: 100px;}
+.inspector .field select { width: 100px;}
 
-label {
+.inspector label {
     font: italic 12px Georgia, serif;
     text-transform: lowercase;
 }
 
-.height {
+.inspector .height {
     top: 105px;
     left: 50px;
 }
 
-.width {
+.inspector .width {
     top: 10px;
     left: 90px;
 }
 
-.fill {
+.inspector .fill {
     top: 105px;
     left: 180px;
 }
 
-.fill input { width: 35px; }
+.inspector .fill input { width: 35px; }
 
-.stroke {
+.inspector .stroke {
     top: 220px;
     left: 50px;
 }
 
-.strokeWidth {
+.inspector .strokeWidth {
     top: 220px;
     left: 110px;
 }
 
-.strokeWidth input { width: 115px; }
+.inspector .strokeWidth input { width: 115px; }

@@ -44,11 +44,11 @@ vde.ui.panel.prototype.el = function(el) {
 };
 
 vde.ui.panel.prototype.width = function() {
-    return this.visWidth + 2*this.visPadding + this.sidebarWidth + 2*this.panelPadding;
+    return this.visWidth + 2*this.visPadding + this.sidebarWidth + 2*this.panelPadding + this.toolbarHeight;
 };
 
 vde.ui.panel.prototype.height = function() {
-    return this.visHeight + 2*this.visPadding + 2*this.toolbarHeight + 2*this.panelPadding;
+    return this.visHeight + 2*this.visPadding + this.toolbarHeight + 2*this.panelPadding;
 };
 
 vde.ui.panel.prototype.compile = function() {
@@ -80,8 +80,6 @@ vde.ui.panel.prototype.build = function() {
         .classed('toolbar', true)
         .classed('primitives', true);
 
-    this.buildPrimitives();
-
     var cancelDrag = function() { d3.event.preventDefault(); return false; };
 
     this.el.append('div')
@@ -106,9 +104,11 @@ vde.ui.panel.prototype.build = function() {
         .classed('sidebar', true)
         .style('display', 'none');
 
-    // this.el.append('div')
-    //     .classed('toolbar', true)
-    //     .classed('data', true);
+    this.el.append('div')
+        .classed('toolbar', true)
+        .classed('data', true);
+
+    this.buildPrimitives().buildData();
 
     return this;
 };
@@ -139,6 +139,37 @@ vde.ui.panel.prototype.buildPrimitives = function() {
     return this;
 };
 
+vde.ui.panel.prototype.buildData = function() {
+    var self = this;
+
+    var toolbar = this.el.select('.data');
+    var srcList = toolbar.append('select')
+        .on('change', function() {
+            d3.selectAll('.datasrc-' + this.value).style('display', 'inline-block');
+        });
+
+    srcList.append('option')
+        .attr('value', '')
+        .text('Data Sources');
+
+    Object.keys(vde.data).forEach(function(src) {
+        srcList.append('option')
+            .attr('value', src)
+            .text(src);
+
+        Object.keys(vde.data[src][0]).forEach(function(field) {
+            new vde.ui.pill(src, field, false).build(toolbar);
+        });
+    });
+
+    toolbar.selectAll('.pill').style('display', 'none');
+    toolbar
+        .on('mouseover', function() { d3.select(this).style('height', this.scrollHeight + 'px'); })
+        .on('mouseout',  function() { d3.select(this).style('height', self.toolbarHeight + 'px'); })
+
+    return this;
+};
+
 vde.ui.panel.prototype.resize = function() {
     var vis = this.el.select('.vis');
     var visWidth  = parseFloat(vis.style('width'));
@@ -164,9 +195,13 @@ vde.ui.panel.prototype.resize = function() {
         .attr('width', (this.visWidth + 2*this.visPadding))
         .attr('height', (this.visHeight + 2*this.visPadding));
 
-    this.el.select('.primitives')
+    this.el.select('.data')
         .style('width', (this.visWidth + 2*this.visPadding) + 'px')
-        .style('height', this.toolbarHeight + 'px');
+        .style('height', (this.toolbarHeight) + 'px');
+
+    this.el.select('.primitives')
+        .style('width', (this.toolbarHeight) + 'px')
+        .style('height', (this.visHeight + 2*this.visPadding) + 'px');
 
     this.el.select('.sidebar')
         .style('width', this.sidebarWidth + 'px')
@@ -233,7 +268,7 @@ vde.ui.panel.prototype.registerVisEvents = function() {
 
             vde.ui.inspector[p.type].init(p);
 
-            return p.visClick(d3.event);
+            return p.visClick(e);
         });
 
     return this;

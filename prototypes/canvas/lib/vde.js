@@ -1,6 +1,6 @@
 var vde = {
     version: '0.0.1',
-    libs: ['spec', 'primitive', 'ui', 'ui.panel', 'ui.inspector'],
+    libs: ['spec', 'primitive', 'ui', 'ui.panel', 'ui.inspector', 'ui.pill'],
     primitives: {
         scale: {inspector: false},
         rect: {inspector: true},
@@ -65,11 +65,11 @@ vde.loadTemplate = function(uri) {
 
 vde.loadData = function() {
     // Dummy data ("table") from Vega examples
-    this.data.dummy = [{"a":0,"b":1,"k":0,"s":0,"c":"A"},{"a":1,"b":2,"k":1,"s":0,"c":"B"},{"a":2,"b":3,"k":2,"s":0,"c":"C"},{"a":3,"b":4,"k":3,"s":0,"c":"D"},{"a":4,"b":10,"k":4,"s":0,"c":"A"},{"a":5,"b":7,"k":5,"s":0,"c":"B"},{"a":6,"b":8,"k":6,"s":0,"c":"C"},{"a":7,"b":0,"k":7,"s":0,"c":"D"}];
+    // this.data.dummy = [{"a":0,"b":1,"k":0,"s":0,"c":"A"},{"a":1,"b":2,"k":1,"s":0,"c":"B"},{"a":2,"b":3,"k":2,"s":0,"c":"C"},{"a":3,"b":4,"k":3,"s":0,"c":"D"},{"a":4,"b":10,"k":4,"s":0,"c":"A"},{"a":5,"b":7,"k":5,"s":0,"c":"B"},{"a":6,"b":8,"k":6,"s":0,"c":"C"},{"a":7,"b":0,"k":7,"s":0,"c":"D"}];
 
-    // d3.json('data/olympics.json', function(error, response) {
-    //     vde.data.olympics = response;
-    // });
+    d3.json('data/olympics.json', function(error, response) {
+        vde.data.olympics = response;
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {

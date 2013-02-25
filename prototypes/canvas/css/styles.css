@@ -1,3 +1,7 @@
+body {
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
 .panel { 
     position: absolute;
     top: 10px;
@@ -9,6 +13,11 @@
     border: 1px solid #ccc;
     background: #ccc; 
     /*visibility: hidden;*/
+}
+
+.toolbar { overflow: hidden; }
+
+.sidebar {
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -22,6 +31,8 @@
     resize: both;
     overflow: hidden;
 }
+
+.primitives { clear: both; }
 
 .primitives ul {
     list-style-type: none;
@@ -46,6 +57,45 @@
 .primitives .rect { background-image: url(../imgs/rect.png); }
 .primitives .arc { background-image: url(../imgs/arc.png); }
 .primitives .axis { background-image: url(../imgs/axis.png); }
+
+.toolbar.data { margin-left: 34px; }
+.toolbar.data select { 
+    float: left;
+    margin: 5px; 
+}
+
+.pill {
+    float: left;
+    padding: 3px 0;
+    margin: 5px;
+    background: #aaa;
+    border: 1px solid #999;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+.pill:hover { 
+    background-color: #bbb; 
+    border-color: #aaa;
+}
+
+.pill .field { cursor: url(../imgs/openhand.cur), default !important; }
+
+.pill .close {
+    font-weight: bold;    
+    padding: 0 3px 0 5px;
+    cursor: pointer;
+    visibility: hidden;
+}
+
+.pill .expand {
+    padding: 0 5px 0 3px;
+    cursor: pointer;
+    visibility: hidden;
+}
+
+.pill.show-controls:hover .close, .pill.show-controls:hover .expand { visibility: visible; }
+.pill .close:hover, .pill .expand:hover { color: #666; }
 
 svg g {cursor: pointer;}
 

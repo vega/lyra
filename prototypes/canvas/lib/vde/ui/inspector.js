@@ -50,7 +50,7 @@ vde.ui.inspector.updateProperty = function(property) {
 
 vde.ui.inspector.updateScaleDomain = function(scale, property) {
     var scaleValue = vde.ui.inspector.getProperty.call(this, property).split(':');
-    this.primitive[scale] = {'data': scaleValue[0], 'field': scaleValue[1] };
+    this.primitive[scale] = {'data': scaleValue[0], 'field': ['data', scaleValue[1]] };
     this.primitive.update();
 }
 

@@ -91,31 +91,31 @@ vde.primitives.rect.prototype.getOffset = function() {
     return [xOffset, yOffset];
 };
 
-vde.primitives.rect.prototype.visMouseMove = function(e) {
-    if(this.panel.visDragging != this)
-        return false;
+// vde.primitives.rect.prototype.visMouseMove = function(e) {
+//     if(this.panel.visDragging != this)
+//         return false;
     
-    var offsets = {
-        'x1': {'offset': this.getOffset()[0]},
-        'y1': {'offset': this.getOffset()[1]},
-        'y2': {'offset': this.getOffset()[1]}
-    };
+//     var offsets = {
+//         'x1': {'offset': this.getOffset()[0]},
+//         'y1': {'offset': this.getOffset()[1]},
+//         'y2': {'offset': this.getOffset()[1]}
+//     };
 
-    this.prop('enter', offsets).prop('update', offsets);
-    this.panel.resetDuration(true).compile();
+//     this.prop('enter', offsets).prop('update', offsets);
+//     this.panel.resetDuration(true).compile();
 
-    return false;
-};
+//     return false;
+// };
 
-vde.primitives.rect.prototype.visMouseUp = function(e) {
-    if(this.panel.visDragging != this)
-        return false;
+// vde.primitives.rect.prototype.visMouseUp = function(e) {
+//     if(this.panel.visDragging != this)
+//         return false;
 
-    var coords  = d3.mouse(this.panel.el.select('.vis svg').node());
-    this.xOffset = this.getOffset()[0];
-    this.yOffset = this.getOffset()[1];
+//     var coords  = d3.mouse(this.panel.el.select('.vis svg').node());
+//     this.xOffset = this.getOffset()[0];
+//     this.yOffset = this.getOffset()[1];
 
-    this.update();
+//     this.update();
 
-    return false;
-};
+//     return false;
+// };
