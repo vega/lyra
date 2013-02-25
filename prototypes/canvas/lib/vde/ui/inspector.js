@@ -8,30 +8,13 @@ vde.ui.inspector.init = function() {
         });
 };
 
-vde.ui.inspector.populateFields = function(property, allowDummy, allowCustom) {
-    var menu = this.el.select('.' + property)
-        .select('select');
+vde.ui.inspector.onDragEnter = function() {
+    // d3.select(this).style('background', '#dddddd');
+    return vde.ui.cancelDrag;
+};
 
-    menu.html('');
-
-    if(allowCustom)
-        menu.append('option')
-            .attr('value', 'custom')
-            .text('Custom')
-
-    Object.keys(vde.data).forEach(function(k, i) {
-        if(i == 0 && !allowDummy)  // Dummy
-            return;
-
-        menu.append('option')
-            .attr('value', '')
-            .text(k);
-
-        for(var f in vde.data[k][0])
-            menu.append('option')
-                .attr('value', k+':'+f)
-                .html('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + f);
-    });
+vde.ui.inspector.onDragLeave = function() {
+    // d3.select(this).style('background', 'transparent');
 };
 
 vde.ui.inspector.getProperty = function(property) {

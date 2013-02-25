@@ -11,6 +11,50 @@ vde.ui.inspector.rect.init = function(rect) {
 
     vde.ui.inspector.init.call(this);
 
+    var drop = function() {
+        var opts = JSON.parse(d3.event.dataTransfer.getData('vde.pill'));
+        var field = d3.select(this);
+        field.select('.default').style('display', 'none');
+        field.selectAll('.pill').remove();
+        var p = new vde.ui.pill(opts.src, opts.field, true).build(field);
+        p.el.select('.delete').on('click', function() {
+            field.select('.pill').remove();
+            field.select('.default').style('display', 'block');
+            field.classed('bound', false);
+        });
+        field.classed('bound', true);
+    }
+
+    this.el.select('.height')
+        .on('dragenter', vde.ui.inspector.onDragEnter)
+        .on('dragleave', vde.ui.inspector.onDragLeave)
+        .on('dragover', vde.ui.cancelDrag)
+        .on('drop', drop);
+
+    this.el.select('.width')
+        .on('dragenter', vde.ui.inspector.onDragEnter)
+        .on('dragleave', vde.ui.inspector.onDragLeave)
+        .on('dragover', vde.ui.cancelDrag)
+        .on('drop', drop);
+
+    this.el.select('.fill')
+        .on('dragenter', vde.ui.inspector.onDragEnter)
+        .on('dragleave', vde.ui.inspector.onDragLeave)
+        .on('dragover', vde.ui.cancelDrag)
+        .on('drop', drop);
+
+    this.el.select('.stroke')
+        .on('dragenter', vde.ui.inspector.onDragEnter)
+        .on('dragleave', vde.ui.inspector.onDragLeave)
+        .on('dragover', vde.ui.cancelDrag)
+        .on('drop', drop);
+
+    this.el.select('.strokeWidth')
+        .on('dragenter', vde.ui.inspector.onDragEnter)
+        .on('dragleave', vde.ui.inspector.onDragLeave)
+        .on('dragover', vde.ui.cancelDrag)
+        .on('drop', drop);
+
     this.el.select('.fill input')
         .property('value', this.primitive.fill)
         .on('change', function() {
@@ -31,21 +75,6 @@ vde.ui.inspector.rect.init = function(rect) {
             vde.ui.inspector.updateProperty.call(self, 'strokeWidth');
             self.updateDelegate('strokeWidth', 'stroke-width');
         });
-
-    vde.ui.inspector.populateFields.call(this, 'width', true, true);
-    vde.ui.inspector.populateFields.call(this, 'height', true, false);
-
-    this.el.select('.width select')
-        .property('value', vde.ui.inspector.getScaleDomain.call(this, 'xDomain'))
-        .on('change', function() {
-            vde.ui.inspector.updateScaleDomain.call(self, 'xDomain', 'width');
-    });    
-
-    this.el.select('.height select')
-        .property('value', vde.ui.inspector.getScaleDomain.call(this, 'yDomain'))
-        .on('change', function() {
-            vde.ui.inspector.updateScaleDomain.call(self, 'yDomain', 'height');
-        }); 
 };
 
 vde.ui.inspector.rect.updateDelegate = function(property, style) {

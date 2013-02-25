@@ -1,5 +1,5 @@
 vde.ui.pill = function(src, field, controls) {
-    this.source = src;
+    this.src = src;
     this.field  = field;
     this.controls = controls;
 
@@ -14,14 +14,14 @@ vde.ui.pill.prototype.build = function(container) {
         .attr('id', this.id)
         .classed('pill', true)
         .classed('show-controls', this.controls)
-        .classed('datasrc-' + this.source, true);
+        .classed('datasrc-' + this.src, true);
 
     this.el.append('span')
-        .classed('close', true)
+        .classed('delete', true)
         .html('x');
 
     this.el.append('span')
-        .classed('field', true)
+        .classed('name', true)
         .html(this.field);
 
     this.el.append('span')
@@ -30,3 +30,4 @@ vde.ui.pill.prototype.build = function(container) {
 
     return this;
 };
+

@@ -3,46 +3,38 @@
 
     <svg width="250">
         <!-- Width "error bar" -->
-        <line stroke="black" stroke-width="1" x1="175" x2="175" y1="40" y2="50" />    
-        <line stroke="black" stroke-width="1" x1="175" x2="225" y1="45" y2="45" />
-        <line stroke="black" stroke-width="1" x1="225" x2="225" y1="40" y2="50" /> 
+        <line stroke="black" stroke-width="1" x1="20" x2="20" y1="60" y2="70" />    
+        <line stroke="black" stroke-width="1" x1="20" x2="70" y1="65" y2="65" />
+        <line stroke="black" stroke-width="1" x1="70" x2="70" y1="60" y2="70" /> 
 
-        <rect fill="steelblue" stroke="black" stroke-width="0" width="50" height="150" x="175" y="60" />
+        <rect fill="steelblue" stroke="black" stroke-width="0" width="50" height="150" x="20" y="80" />
 
         <!-- Height "error bar" -->
-        <line stroke="black" stroke-width="1" x1="155" x2="165" y1="60" y2="60" />    
-        <line stroke="black" stroke-width="1" x1="160" x2="160" y1="60" y2="210" />
-        <line stroke="black" stroke-width="1" x1="155" x2="165" y1="210" y2="210" /> 
+        <line stroke="black" stroke-width="1" x1="80" x2="90" y1="80" y2="80" />    
+        <line stroke="black" stroke-width="1" x1="85" x2="85" y1="80" y2="230" />
+        <line stroke="black" stroke-width="1" x1="80" x2="90" y1="230" y2="230" /> 
     </svg>
 
-    <p class="height field">
-        <label>Height</label><br />
-        <select>
-            <option>Select field</option>
-            <!-- <option value="dummy">Dummy Data</option> -->
-        </select>
-    </p>
+    <div class="height field">
+        <label>Height</label>
+    </div>
 
     <p class="width field">
         <label>Width</label>
-        <select>
-            <option>Select field</option>
-            <!-- <option value="dummy">Dummy Data</option> -->
-        </select>
     </p>
 
     <p class="fill field">
         <label>Fill</label><br />
-        <input type="color" value="#4682b4">
+        <input type="color" value="#4682b4" class="default">
     </p>
 
     <p class="stroke field">
         <label>Stroke</label><br />
-        <input type="color" value="#000">
+        <input type="color" value="#000" class="default">
     </p>
 
     <p class="strokeWidth field">
-        <label>&nbsp;</label><br />
-        <input type="range" min="0" max="10" step="0.5" />
+        <label>Stroke Width</label><br />
+        <input type="range" min="0" max="10" step="0.5" class="default" />
     </p>
 </div>

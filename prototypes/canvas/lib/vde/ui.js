@@ -1,5 +1,6 @@
 vde.ui = {
-    panels: []
+    panels: [],
+    pills: {}
 };
 
 vde.ui.init = function() {
@@ -17,3 +18,5 @@ vde.ui.init = function() {
         });
     });
 };
+
+vde.ui.cancelDrag = function() { d3.event.preventDefault(); return false; };

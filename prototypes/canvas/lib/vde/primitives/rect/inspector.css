@@ -5,39 +5,49 @@
 .inspector .field { 
     position: absolute; 
     margin: 0;
+    padding: 3px;
+    border: 1px dashed transparent;
 }
 .inspector .field select { width: 100px;}
 
 .inspector label {
+    /*float: left;*/
     font: italic 12px Georgia, serif;
     text-transform: lowercase;
 }
 
+.inspector .bound { background: transparent !important; }
+
 .inspector .height {
-    top: 105px;
-    left: 50px;
+    top: 130px;
+    left: 100px;
 }
 
 .inspector .width {
-    top: 10px;
-    left: 90px;
+    top: 25px;
+    left: 20px;
+}
+
+.inspector .width label { 
+    float: left; 
+    margin-top: 10px;
 }
 
 .inspector .fill {
-    top: 105px;
-    left: 180px;
+    top: 180px;
+    left: 20px;
 }
 
 .inspector .fill input { width: 35px; }
 
 .inspector .stroke {
-    top: 220px;
-    left: 50px;
+    top: 235px;
+    left: 15px;
 }
 
 .inspector .strokeWidth {
-    top: 220px;
-    left: 110px;
+    top: 290px;
+    left: 15px;
 }
 
 .inspector .strokeWidth input { width: 115px; }

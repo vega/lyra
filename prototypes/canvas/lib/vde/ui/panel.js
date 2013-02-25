@@ -80,8 +80,6 @@ vde.ui.panel.prototype.build = function() {
         .classed('toolbar', true)
         .classed('primitives', true);
 
-    var cancelDrag = function() { d3.event.preventDefault(); return false; };
-
     this.el.append('div')
         .classed('vis', true)
         .on('mousemove', function() { 
@@ -89,8 +87,8 @@ vde.ui.panel.prototype.build = function() {
             if(self.visDragging)
                 self.visDragging.visMouseMove(d3.event);
         })
-        .on('dragenter', cancelDrag)
-        .on('dragover', cancelDrag)
+        .on('dragenter', vde.ui.cancelDrag)
+        .on('dragover', vde.ui.cancelDrag)
         .on('drop', function() {
             var type = d3.event.dataTransfer.getData('vde.primitive');
             if(!type)
@@ -145,7 +143,8 @@ vde.ui.panel.prototype.buildData = function() {
     var toolbar = this.el.select('.data');
     var srcList = toolbar.append('select')
         .on('change', function() {
-            d3.selectAll('.datasrc-' + this.value).style('display', 'inline-block');
+            toolbar.selectAll('.pill').style('display', 'none');
+            toolbar.selectAll('.datasrc-' + this.value).style('display', 'inline-block');
         });
 
     srcList.append('option')
@@ -158,7 +157,17 @@ vde.ui.panel.prototype.buildData = function() {
             .text(src);
 
         Object.keys(vde.data[src][0]).forEach(function(field) {
-            new vde.ui.pill(src, field, false).build(toolbar);
+            var p = new vde.ui.pill(src, field, false).build(toolbar);
+            p.el.attr('draggable', 'true')
+                .on('dragstart', function() {
+                    d3.selectAll('.inspector .field').style('border', '1px dashed #666');
+                    d3.event.dataTransfer.effectAllowed = 'copy';
+                    d3.event.dataTransfer.setData('vde.pill', JSON.stringify({src: p.src, field: p.field}));
+                    return false
+                })
+                .on('dragend', function() {
+                    d3.selectAll('.inspector .field').style('border', '1px dashed transparent');
+                });
         });
     });
 
