@@ -1,4 +1,4 @@
-vde.ui.pill = function(src, field, controls) {
+vde.ui.capsule = function(src, field, controls) {
     this.src = src;
     this.field  = field;
     this.controls = controls;
@@ -12,10 +12,10 @@ vde.ui.pill = function(src, field, controls) {
     return this;
 };
 
-vde.ui.pill.prototype.build = function(container) {
+vde.ui.capsule.prototype.build = function(container) {
     this.el = container.append('div')
         .attr('id', this.id)
-        .classed('pill', true)
+        .classed('capsule', true)
         .classed('show-controls', this.controls)
         .classed('datasrc-' + this.src, true);
 
@@ -34,15 +34,15 @@ vde.ui.pill.prototype.build = function(container) {
     return this;
 };
 
-vde.ui.pill.prototype.init = function(panel, scaleType) {
+vde.ui.capsule.prototype.init = function(panel, scaleType) {
     this.panel = panel;
-    this.panel.pills[this.id] = this;
+    this.panel.capsules[this.id] = this;
     this.scale = new vde.primitives.scale(this.panel, this.id)
         .prop('domain', this.domain());
 
     return this;
 };
 
-vde.ui.pill.prototype.domain = function() {
+vde.ui.capsule.prototype.domain = function() {
     return {'data': this.src, 'field': ['data', this.field]};
 };

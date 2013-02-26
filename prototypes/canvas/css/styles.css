@@ -64,7 +64,7 @@ body {
     margin: 5px; 
 }
 
-.pill {
+.capsule {
     float: left;
     padding: 3px 0;
     margin: 5px;
@@ -75,26 +75,26 @@ body {
     cursor: url(../imgs/openhand.cur), default !important;
 }
 
-.pill:hover { 
+.capsule:hover { 
     background-color: #bbb; 
     border-color: #aaa;
 }
 
-.pill .delete {
+.capsule .delete {
     font-weight: bold;    
     padding: 0 3px 0 5px;
     cursor: pointer !important;
     visibility: hidden;
 }
 
-.pill .expand {
+.capsule .expand {
     padding: 0 5px 0 3px;
     cursor: pointer !important;
     visibility: hidden;
 }
 
-.pill.show-controls:hover .delete, .pill.show-controls:hover .expand { visibility: visible; }
-.pill .delete:hover, .pill .expand:hover { color: #666; }
+.capsule.show-controls:hover .delete, .capsule.show-controls:hover .expand { visibility: visible; }
+.capsule .delete:hover, .capsule .expand:hover { color: #666; }
 
 svg g {cursor: pointer;}
 

@@ -12,27 +12,29 @@ vde.ui.inspector.rect.init = function(rect) {
     vde.ui.inspector.init.call(this);
 
     var drop = function(property) {
-        var opts = JSON.parse(d3.event.dataTransfer.getData('vde.pill'));
+        var opts = JSON.parse(d3.event.dataTransfer.getData('vde.capsule'));
         var field = d3.select(this);
         field.select('.default').style('display', 'none');
-        field.selectAll('.pill').remove();
+        field.selectAll('.capsule').remove();
         field.classed('bound', true);
 
-        var p = new vde.ui.pill(opts.src, opts.field, true).build(field);
+        var p = new vde.ui.capsule(opts.src, opts.field, true).build(field);
         p.el.select('.delete').on('click', function() {
-            field.select('.pill').remove();
+            field.select('.capsule').remove();
             field.select('.default').style('display', 'block');
             field.classed('bound', false);
+            self.primitive.update();
         });
         p.init(self.primitive.panel);
-        self.primitive[property] = {'pill': p};
+        self.primitive[property] = {'capsule': p};
         self.primitive.from = opts.src;
         if(property == 'height') {
             p.scale.prop('type', 'linear')
                 .prop('range', 'height')
         } else if(property == 'width') {
             p.scale.prop('type', 'ordinal')
-                .prop('range', 'width');
+                .prop('range', 'width')
+                .prop('nice', true);
         }
 
         self.primitive.update();

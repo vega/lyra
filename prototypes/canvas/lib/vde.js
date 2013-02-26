@@ -1,10 +1,10 @@
 var vde = {
     version: '0.0.1',
-    libs: ['spec', 'primitive', 'ui', 'ui.panel', 'ui.inspector', 'ui.pill'],
+    libs: ['spec', 'primitive', 'ui', 'ui.panel', 'ui.inspector', 'ui.capsule'],
     primitives: {
         scale: {inspector: false},
         rect: {inspector: true},
-        axis: {inspector: false}
+        // axis: {inspector: false}
     },
     data: {},
     loaded: 0

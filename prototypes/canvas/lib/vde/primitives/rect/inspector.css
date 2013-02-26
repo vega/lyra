@@ -23,6 +23,8 @@
     left: 100px;
 }
 
+.inspector .height label { float: none; }
+
 .inspector .width {
     top: 35px;
     left: 20px;

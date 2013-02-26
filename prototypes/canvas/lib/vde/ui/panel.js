@@ -23,7 +23,7 @@ vde.ui.panel = function(idx) {
     this.scales = {};
     this.axes   = {};
     this.marks  = {};
-    this.pills  = {};
+    this.capsules  = {};
     this.view   = {};
 
     this.build().resize();
@@ -57,7 +57,7 @@ vde.ui.panel.prototype.compile = function() {
         return;
 
     this.spec
-        .set('data', [{'name': 'dummy', 'values': vde.data.dummy}])
+        .set('data', [{'name': 'dummy', 'values': vde.data.dummy}, {'name': 'olympics', 'url': 'data/olympics.json'}])
         .parse(function(chart) {
             self.el.select('.vis').selectAll('*').remove();
             (self.view = chart('.vis')).update();
@@ -143,7 +143,7 @@ vde.ui.panel.prototype.buildData = function() {
     var toolbar = this.el.select('.data');
     var srcList = toolbar.append('select')
         .on('change', function() {
-            toolbar.selectAll('.pill').style('display', 'none');
+            toolbar.selectAll('.capsule').style('display', 'none');
             toolbar.selectAll('.datasrc-' + this.value).style('display', 'inline-block');
         });
 
@@ -157,12 +157,12 @@ vde.ui.panel.prototype.buildData = function() {
             .text(src);
 
         Object.keys(vde.data[src][0]).forEach(function(field) {
-            var p = new vde.ui.pill(src, field, false).build(toolbar);
+            var p = new vde.ui.capsule(src, field, false).build(toolbar);
             p.el.attr('draggable', 'true')
                 .on('dragstart', function() {
                     d3.selectAll('.inspector .field').style('border', '1px dashed #666');
                     d3.event.dataTransfer.effectAllowed = 'copy';
-                    d3.event.dataTransfer.setData('vde.pill', JSON.stringify({src: p.src, field: p.field}));
+                    d3.event.dataTransfer.setData('vde.capsule', JSON.stringify({src: p.src, field: p.field}));
                     return false
                 })
                 .on('dragend', function() {
@@ -171,7 +171,7 @@ vde.ui.panel.prototype.buildData = function() {
         });
     });
 
-    toolbar.selectAll('.pill').style('display', 'none');
+    toolbar.selectAll('.capsule').style('display', 'none');
     toolbar
         .on('mouseover', function() { d3.select(this).style('height', this.scrollHeight + 'px'); })
         .on('mouseout',  function() { d3.select(this).style('height', self.toolbarHeight + 'px'); })

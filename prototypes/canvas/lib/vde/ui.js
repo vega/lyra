@@ -1,6 +1,6 @@
 vde.ui = {
     panels: [],
-    pills: {}
+    capsules: {}
 };
 
 vde.ui.init = function() {

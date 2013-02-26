@@ -6,7 +6,7 @@ vde.primitives.rect = function(panel, name) {
     this.from   = null;
     this.height = {};
     this.width  = {};
-    this.fill   = {'value': 'steelblue'};
+    this.fill   = {'value': '#4682b4'};
     this.stroke = {'value': '#000'};
     this.strokeWidth = {'value': 0};
 
@@ -31,13 +31,13 @@ vde.primitives.rect.prototype.init = function() {
 vde.primitives.rect.prototype.update = function() {
     this.prop('from', {'data': this.from})
         .prop('properties', {'enter': {
-            'x': {'scale': this.width.pill.id, 'field': this.width.pill.domain().field, 'offset': this.xOffset},
-            'y': {'scale': this.height.pill.id, 'field': this.height.pill.domain().field, 'offset': this.yOffset},
-            'y2': {'scale': this.height.pill.id, 'value': 0, 'offset': this.yOffset},
-            'width': {'scale': this.width.pill.id, 'band': true, 'offset': -1},
-            'fill': (this.fill.hasOwnProperty('pill') ? {'scale': this.fill.pill.id, 'field': this.fill.pill.domain().field} : {'value': this.fill.value}),
-            'stroke': (this.stroke.hasOwnProperty('pill') ? {'scale': this.stroke.pill.id, 'field': this.stroke.pill.domain().field} : {'value': this.stroke.value}),
-            'strokeWidth': (this.strokeWidth.hasOwnProperty('pill') ? {'scale': this.strokeWidth.pill.id, 'field': this.strokeWidth.pill.domain().field} : {'value': this.strokeWidth.value})
+            'x': {'scale': this.width.capsule.id, 'field': this.width.capsule.domain().field, 'offset': this.xOffset},
+            'y': {'scale': this.height.capsule.id, 'field': this.height.capsule.domain().field, 'offset': this.yOffset},
+            'y2': {'scale': this.height.capsule.id, 'value': 0, 'offset': this.yOffset},
+            'width': {'scale': this.width.capsule.id, 'band': true, 'offset': -1},
+            'fill': (this.fill.hasOwnProperty('capsule') ? {'scale': this.fill.capsule.id, 'field': this.fill.capsule.domain().field} : {'value': this.fill.value}),
+            'stroke': (this.stroke.hasOwnProperty('capsule') ? {'scale': this.stroke.capsule.id, 'field': this.stroke.capsule.domain().field} : {'value': this.stroke.value}),
+            'strokeWidth': (this.strokeWidth.hasOwnProperty('capsule') ? {'scale': this.strokeWidth.capsule.id, 'field': this.strokeWidth.capsule.domain().field} : {'value': this.strokeWidth.value})
         }});
 
     this.panel.compile();
