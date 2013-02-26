@@ -151,23 +151,36 @@ vde.ui.panel.prototype.buildData = function() {
         .attr('value', '')
         .text('Data Sources');
 
+    var dragstart = function(src, field, idx) {
+        d3.selectAll('.inspector .field').style('border', '1px dashed #666');
+        d3.event.dataTransfer.effectAllowed = 'copy';
+        d3.event.dataTransfer.setData('vde.capsule', JSON.stringify({src: src, field: field, index: idx}));
+        return false;
+    };
+
+    var dragend = function(idx) {
+        d3.selectAll('.inspector .field').style('border', '1px dashed transparent');
+    };
+
     Object.keys(vde.data).forEach(function(src) {
         srcList.append('option')
             .attr('value', src)
             .text(src);
 
+        var indexCapsule = new vde.ui.capsule(src, 'index', false, true).build(toolbar);
+        indexCapsule.el.attr('draggable', 'true')
+            .on('dragstart', function() {
+                return dragstart(src, 'index', true);
+            })
+            .on('dragend', dragend);
+
         Object.keys(vde.data[src][0]).forEach(function(field) {
             var p = new vde.ui.capsule(src, field, false).build(toolbar);
             p.el.attr('draggable', 'true')
                 .on('dragstart', function() {
-                    d3.selectAll('.inspector .field').style('border', '1px dashed #666');
-                    d3.event.dataTransfer.effectAllowed = 'copy';
-                    d3.event.dataTransfer.setData('vde.capsule', JSON.stringify({src: p.src, field: p.field}));
-                    return false
+                    return dragstart(src, field, false);
                 })
-                .on('dragend', function() {
-                    d3.selectAll('.inspector .field').style('border', '1px dashed transparent');
-                });
+                .on('dragend', dragend);
         });
     });
 

@@ -1,7 +1,8 @@
-vde.ui.capsule = function(src, field, controls) {
-    this.src = src;
-    this.field  = field;
+vde.ui.capsule = function(src, field, controls, index) {
+    this.src      = src;
+    this.field    = field;
     this.controls = controls;
+    this.index    = index
 
     this.id = src + '_' + field + '_' + Date.now();
     this.el = null;
@@ -17,6 +18,7 @@ vde.ui.capsule.prototype.build = function(container) {
         .attr('id', this.id)
         .classed('capsule', true)
         .classed('show-controls', this.controls)
+        .classed('index', this.index)
         .classed('datasrc-' + this.src, true);
 
     this.el.append('span')
@@ -44,5 +46,5 @@ vde.ui.capsule.prototype.init = function(panel, scaleType) {
 };
 
 vde.ui.capsule.prototype.domain = function() {
-    return {'data': this.src, 'field': ['data', this.field]};
+    return {'data': this.src, 'field': this.index ? ['index'] : ['data', this.field]};
 };

@@ -18,7 +18,7 @@ vde.ui.inspector.rect.init = function(rect) {
         field.selectAll('.capsule').remove();
         field.classed('bound', true);
 
-        var p = new vde.ui.capsule(opts.src, opts.field, true).build(field);
+        var p = new vde.ui.capsule(opts.src, opts.field, true, opts.index).build(field);
         p.el.select('.delete').on('click', function() {
             field.select('.capsule').remove();
             field.select('.default').style('display', 'block');
