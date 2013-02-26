@@ -263,9 +263,27 @@ vde.ui.panel.prototype.registerVisEvents = function() {
         .on('dragend',   function(e, item) { return getPrimitiveFromView(item).visDragEnd(e); })
         .on('click', function(e, item) {
             var p = getPrimitiveFromView(item);
+<<<<<<< HEAD
             vde.ui.inspector.show(self, p);
 
             return p.visClick(e);
+=======
+            var inspector = d3.select('#inspector_' + p.type);
+                
+            self.el.select('.sidebar')
+                .style('display', 'block')
+                .append('div')
+                    .attr('id', 'inspector_' + p.type)
+                    .html(inspector.html());
+
+            // Remove the template from the document. When we close
+            // the inspector, we'll re-create this.
+            inspector.remove();
+
+            vde.ui.inspector[p.type].init(p);
+
+            return p.visClick(d3.event);
+>>>>>>> e8d3192ca9e55d5270d5d87a03c6fa39135ae11f
         });
 
     return this;
