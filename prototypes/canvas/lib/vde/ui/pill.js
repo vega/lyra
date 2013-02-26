@@ -6,6 +6,9 @@ vde.ui.pill = function(src, field, controls) {
     this.id = src + '_' + field + '_' + Date.now();
     this.el = null;
 
+    this.panel = null;
+    this.scale = null;
+
     return this;
 };
 
@@ -31,3 +34,15 @@ vde.ui.pill.prototype.build = function(container) {
     return this;
 };
 
+vde.ui.pill.prototype.init = function(panel, scaleType) {
+    this.panel = panel;
+    this.panel.pills[this.id] = this;
+    this.scale = new vde.primitives.scale(this.panel, this.id)
+        .prop('domain', this.domain());
+
+    return this;
+};
+
+vde.ui.pill.prototype.domain = function() {
+    return {'data': this.src, 'field': ['data', this.field]};
+};

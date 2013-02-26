@@ -11,7 +11,7 @@
 .inspector .field select { width: 100px;}
 
 .inspector label {
-    /*float: left;*/
+    float: left;
     font: italic 12px Georgia, serif;
     text-transform: lowercase;
 }
@@ -24,13 +24,18 @@
 }
 
 .inspector .width {
-    top: 25px;
+    top: 35px;
     left: 20px;
 }
 
 .inspector .width label { 
     float: left; 
-    margin-top: 10px;
+    margin-top: 0px;
+}
+.inspector .width.bound { top: 25px; }
+.inspector .width.bound label { 
+    float: left;
+    margin-top: 10px; 
 }
 
 .inspector .fill {
@@ -41,8 +46,13 @@
 .inspector .fill input { width: 35px; }
 
 .inspector .stroke {
-    top: 235px;
+    top: 245px;
     left: 15px;
+}
+
+.inspector .stroke input { 
+    float: left; 
+    margin-left: 10px;
 }
 
 .inspector .strokeWidth {
@@ -50,4 +60,11 @@
     left: 15px;
 }
 
-.inspector .strokeWidth input { width: 115px; }
+.inspector .strokeWidth input { 
+    float: left;
+    width: 115px;
+    margin-left: 10px; 
+}
+
+.inspector .strokeWidth.bound { top: 275px; }
+.inspector .stroke.bound label, .inspector .strokeWidth.bound label { margin-top: 10px; }

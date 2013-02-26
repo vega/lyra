@@ -23,7 +23,7 @@ vde.ui.panel = function(idx) {
     this.scales = {};
     this.axes   = {};
     this.marks  = {};
-
+    this.pills  = {};
     this.view   = {};
 
     this.build().resize();
@@ -263,19 +263,7 @@ vde.ui.panel.prototype.registerVisEvents = function() {
         .on('dragend',   function(e, item) { return getPrimitiveFromView(item).visDragEnd(e); })
         .on('click', function(e, item) {
             var p = getPrimitiveFromView(item);
-            var inspector = d3.select('#inspector_' + p.type);
-                
-            self.el.select('.sidebar')
-                .style('display', 'block')
-                .append('div')
-                    .attr('id', 'inspector_' + p.type)
-                    .html(inspector.html());
-
-            // Remove the template from the document. When we close
-            // the inspector, we'll re-create this.
-            inspector.remove();
-
-            vde.ui.inspector[p.type].init(p);
+            vde.ui.inspector.show(self, p);
 
             return p.visClick(e);
         });

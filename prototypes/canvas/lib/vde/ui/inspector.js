@@ -8,6 +8,22 @@ vde.ui.inspector.init = function() {
         });
 };
 
+vde.ui.inspector.show = function(panel, primitive) {
+    var inspector = d3.select('#inspector_' + primitive.type);
+        
+    panel.el.select('.sidebar')
+        .style('display', 'block')
+        .append('div')
+            .attr('id', 'inspector_' + primitive.type)
+            .html(inspector.html());
+
+    // Remove the template from the document. When we close
+    // the inspector, we'll re-create this.
+    inspector.remove();
+
+    vde.ui.inspector[primitive.type].init(primitive);
+};
+
 vde.ui.inspector.onDragEnter = function() {
     // d3.select(this).style('background', '#dddddd');
     return vde.ui.cancelDrag;
@@ -27,15 +43,9 @@ vde.ui.inspector.getScaleDomain = function(scale) {
 };
 
 vde.ui.inspector.updateProperty = function(property) {
-    this.primitive[property] = vde.ui.inspector.getProperty.call(this, property);
+    this.primitive[property] = {'value': vde.ui.inspector.getProperty.call(this, property)};
     this.primitive.update();
 };
-
-vde.ui.inspector.updateScaleDomain = function(scale, property) {
-    var scaleValue = vde.ui.inspector.getProperty.call(this, property).split(':');
-    this.primitive[scale] = {'data': scaleValue[0], 'field': ['data', scaleValue[1]] };
-    this.primitive.update();
-}
 
 vde.ui.inspector.close = function() {
     d3.select('body').append('div')
