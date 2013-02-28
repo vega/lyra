@@ -47,14 +47,18 @@ vde.parse = function() {
     };
 
     Object.keys(vde.data).forEach(function(d) {
-        var dd = vg.duplicate(d);
+        var dd = vg.duplicate(vde.data[d]);
         if(dd.url)
             delete dd.values;
 
         spec.data.push(dd);
     });
 
+    vg.keys(vde.groups).forEach(function(k) { spec.marks.push(vde.groups[k].getSpec()); });
+
     vg.parse.spec(spec, vde.ui.render);
+
+    return spec;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

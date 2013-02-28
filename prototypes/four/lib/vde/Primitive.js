@@ -4,12 +4,16 @@ vde.Primitive = (function() {
             name: name
         };
 
+        this.class = 'vde.Primitive';
+
         return this;
     };
 
     var prototype = primitive.prototype;
 
-    prototype.getSpec = function() { return spec; };
+    prototype.getName = function() { return this.spec.name; }
+    prototype.getType = function() { return this.spec.type; }
+    prototype.getSpec = function() { return this.spec; };
 
     prototype.initUI = function() { return this; };
 

@@ -10,12 +10,12 @@ vde.ui.init = function() {
 
 vde.ui.addPrimitiveToolbar = function(primitive) {
     d3.select('#primitives ul').append('li')
-        .classed(primitive.type, true)
-        .text(primitive.type)
+        .classed(primitive.getType(), true)
+        .text(primitive.getType())
         .attr('draggable', 'true')
         .on('dragstart', function() {
             d3.event.dataTransfer.effectAllowed = 'copy';
-            d3.event.dataTransfer.setData('vde.primitive', primitive.type);
+            d3.event.dataTransfer.setData('vde.primitive', primitive.class);
             return primitive.toolbarDragStart(d3.event);
         })
         .on('dragend', function() { return primitive.toolbarDragEnd(d3.event); });
@@ -73,14 +73,40 @@ vde.ui.addDataToolbar = function(src) {
     return this;    
 };
 
-
 vde.ui.render = function(chart) {
     d3.select('#vis').selectAll('*').remove();
     (vde.view = chart('#vis')).update();
 };
 
+vde.ui.cancelDrag = function() { d3.event.preventDefault(); return false; };
+
 vde.ui.regEvtHandlers = function() {
     var self = this;
 
+    d3.select('#vis')
+        .on('dragenter', vde.ui.cancelDrag)
+        .on('dragover', vde.ui.cancelDrag)
+        .on('drop', function() {
+            var pClass = d3.event.dataTransfer.getData('vde.primitive');
+            if(!pClass)
+                return false;
 
+            var primitive = eval('new ' + pClass + '("primitive_' + Date.now() + '")');
+            primitive.toolbarDrop(d3.event);
+
+            vde.parse();
+        });
+
+    // Go up the path until you can get to the mark
+    var getMarkFromView = function(item) {
+        var def = {};
+        item.path.some(function(i) {
+            if(i.hasOwnProperty('def')) {
+                def = i;
+                return i;
+            }
+        });
+
+        return self.marks[def.def.name];
+    };
 };
