@@ -1,0 +1,95 @@
+body {
+    font: 12px Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+#primitives {
+    position: fixed;
+    top: 33px;
+    left: 0;
+    width: 32px;
+    background: #ccc;
+    border: 1px solid #aaa;
+}
+
+#primitives ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    cursor: url(../imgs/openhand.cur), default !important;
+}
+
+#primitives li {
+    float: left;
+    display: block;
+    width: 16px;
+    height: 16px;
+    padding: 8px;
+    text-indent: -999em;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+#primitives li:hover { background-color: #ddd; }
+
+#primitives .rect { background-image: url(../imgs/rect.png); }
+#primitives .arc { background-image: url(../imgs/arc.png); }
+#primitives .axis { background-image: url(../imgs/axis.png); }
+
+#data {
+    position: fixed;
+    top: 0;
+    left: 33px;
+    height: 32px;
+    overflow: hidden;
+    z-index: 10;
+    background: #ccc;
+    border: 1px solid #aaa;
+}
+
+#data select { 
+    float: left;
+    margin: 5px; 
+}
+
+.capsule {
+    float: left;
+    padding: 3px 0;
+    margin: 5px;
+    background: #aaa;
+    border: 1px solid #999;
+    border-radius: 10px;
+    font-size: 11px;
+    cursor: url(../imgs/openhand.cur), default !important;
+}
+
+.capsule:hover { 
+    background-color: #bbb; 
+    border-color: #aaa;
+}
+
+.capsule .delete {
+    font-weight: bold;    
+    padding: 0 3px 0 5px;
+    cursor: pointer !important;
+    visibility: hidden;
+}
+
+.capsule .expand {
+    padding: 0 5px 0 3px;
+    cursor: pointer !important;
+    visibility: hidden;
+}
+
+.capsule.show-controls:hover .delete, .capsule.show-controls:hover .expand { visibility: visible; }
+.capsule .delete:hover, .capsule .expand:hover { color: #666; }
+
+#vis {
+    position: fixed;
+    top: 40px;
+    left: 40px;
+    bottom: 10px;
+    right: 10px;
+    border: 1px solid #aaa;
+    resize: both;
+    overflow: hidden;
+}
