@@ -1,4 +1,4 @@
-vde.ui = {};
+vde.ui = {dragging:null};
 
 vde.ui.init = function() {
     // Initialize each primitive's specific UI (e.g. inspectors)
@@ -15,7 +15,7 @@ vde.ui.addPrimitiveToolbar = function(primitive) {
         .attr('draggable', 'true')
         .on('dragstart', function() {
             d3.event.dataTransfer.effectAllowed = 'copy';
-            d3.event.dataTransfer.setData('vde.primitive', primitive.class);
+            d3.event.dataTransfer.setData('vde.primitive', primitive.getClass(true));
             return primitive.toolbarDragStart(d3.event);
         })
         .on('dragend', function() { return primitive.toolbarDragEnd(d3.event); });
@@ -76,6 +76,8 @@ vde.ui.addDataToolbar = function(src) {
 vde.ui.render = function(chart) {
     d3.select('#vis').selectAll('*').remove();
     (vde.view = chart('#vis')).update();
+
+    vde.ui.regEvtHandlers();
 };
 
 vde.ui.cancelDrag = function() { d3.event.preventDefault(); return false; };
@@ -97,16 +99,34 @@ vde.ui.regEvtHandlers = function() {
             vde.parse();
         });
 
-    // Go up the path until you can get to the mark
-    var getMarkFromView = function(item) {
-        var def = {};
-        item.path.some(function(i) {
-            if(i.hasOwnProperty('def')) {
-                def = i;
-                return i;
-            }
-        });
+    if(!vde.view)
+        return;
 
-        return self.marks[def.def.name];
+    // Go up the path until you can get to the mark
+    var getMarkFromView = function(obj, type) {
+        if(obj.mark.marktype == type)
+            return obj;
+        else if(obj.mark.group)
+            return getMarkFromView(obj.mark.group, type)
+
+        return null;
     };
+
+    vde.view.on('mouseover', function(e, i) {
+        // Outline the group container
+        var group = getMarkFromView(i, 'group');
+        if(!group.stroke || group.strokeWidth < 1) {
+            group.stroke = '#ccc';
+            group.strokeWidth = '1';
+            group.vdeStroke = true;
+            vde.view.render();
+        }        
+    }).on('mouseout', function(e, i) {
+        // Remove group container outline
+        var group = getMarkFromView(i, 'group');
+        if(group.vdeStroke) {
+            group.strokeWidth = '0';
+            vde.view.render();
+        }        
+    });
 };
