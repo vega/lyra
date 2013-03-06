@@ -17,7 +17,7 @@ vde.primitives.Scale = (function() {
         var name = spec.type || 'linear';
 
         if(spec.domain)
-            name += '_' + spec.domain.data + '_' + spec.domain.field.join('_');
+            name += '_' + spec.domain.data + '_' + spec.domain.field;
 
         if(spec.range)
             name += '_' + spec.range

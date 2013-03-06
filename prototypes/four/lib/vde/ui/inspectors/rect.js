@@ -32,7 +32,7 @@
         var scaleSpec = {};
         var domain = {
             data: opts.src, 
-            field: (opts.field == 'index') ? ['index'] : ['data', opts.field]
+            field: (opts.field == 'index') ? 'index' : 'data.'+opts.field
         };
 
         switch(field) {
