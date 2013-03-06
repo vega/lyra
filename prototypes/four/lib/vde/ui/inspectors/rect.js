@@ -5,6 +5,10 @@
 
     inspector.init = function(primitive) {
         rect = primitive;
+
+        // For now, hide x1/x2/y1/y2
+        el.selectAll('.height-expanded, .width-expanded').style('display', 'none')
+        el.selectAll('.contract').classed('expand', true).classed('contract', false);
     };
 
     inspector.close = function() {
@@ -18,6 +22,7 @@
 
         // TODO: orientation of bar (i.e. in vertical, width is ordinal
         // but in horizontal, height would be ordinal).
+        var scaleSpec = {};
         var domain = {
             data: opts.src, 
             field: (opts.field == 'index') ? ['index'] : ['data', opts.field]
@@ -25,57 +30,33 @@
 
         switch(field) {
             case 'height':
-                var scale = rect.group.scale({
+                scaleSpec = {
                     type: 'linear',
                     range: 'height',
                     nice: true,
                     domain: domain
-                });
-
-                rect
-                  .enter('y', {
-                    scale: scale.spec.name,
-                    field: domain.field
-                  })
-                  .enter('y2', {
-                    scale: scale.spec.name,
-                    value: 0
-                  });
+                };
             break;
 
             case 'width':
-                var scale = rect.group.scale({
+                scaleSpec = {
                     type: 'ordinal',
                     range: 'width',
                     domain: domain
-                });
-
-                rect
-                  .enter('x', {
-                    scale: scale.spec.name,
-                    field: domain.field
-                  })
-                  .enter('width', {
-                    scale: scale.spec.name,
-                    band: true,
-                    offset: -1
-                  });                
+                };             
             break;
 
             case 'fill':
             case 'stroke':
-                var scale = rect.group.scale({
+                scaleSpec = {
                     type: 'ordinal',
                     range: 'category20',
                     domain: domain
-                });
-
-                rect.enter(field, {
-                    scale: scale.spec.name,
-                    field: domain.field
-                });
+                };
             break;
         }
+
+        rect.properties[field] = rect.group.scale(scaleSpec);;
     };
 
 })();

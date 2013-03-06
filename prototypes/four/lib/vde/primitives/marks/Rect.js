@@ -7,12 +7,12 @@ vde.primitives.marks.Rect = (function() {
 
         this.fullClass = 'vde.primitives.marks.Rect';
 
-        this.default = {
-            width:  50,
-            height: 150,
-            fill: 'steelblue',
-            stroke: 'black',
-            strokeWidth: 0
+        this.properties = {
+            width: {value: 50},
+            height: {value: 150},
+            fill: {value: 'steelblue'},
+            stroke: {value: 'black'},
+            strokeWidth: {value: 0}
         };
 
         return this;
@@ -29,12 +29,6 @@ vde.primitives.marks.Rect = (function() {
 
         this.group.marks[this.getName()] = this;
 
-        this.enter('x', {'value': 0})
-            .enter('width', {'value': this.default.width})
-            .enter('y', {'value': 0})
-            .enter('height', {'value': this.default.height})
-            .enter('fill', {'value': this.default.fill});
-
         return this;
     };
 
@@ -42,6 +36,64 @@ vde.primitives.marks.Rect = (function() {
         vde.ui.addPrimitiveToolbar(this);
         vde.ui.inspector.load(this);
         return this;
+    };
+
+    prototype.getSpec = function() {
+        this.setWidth();
+        this.setHeight();
+        this.setFillStroke('fill');
+        this.setFillStroke('stroke');
+
+        this.enter('strokeWidth', this.properties.strokeWidth);
+
+        return this.spec;
+    }
+
+    prototype.setWidth = function() {
+        if(this.properties.width instanceof vde.primitives.Scale) {
+            var scale = this.properties.width;
+            this.enter('x', scale.getDataRef())
+                .enter('width', {
+                    scale: scale.spec.name,
+                    band: true,
+                    offset: -1
+                });
+        } else {
+            if(this.spec.from) {
+                var scale = this.group.scale({
+                    type: 'ordinal',
+                    range: 'width',
+                    domain: {data: this.spec.from, field: ['index']}
+                });
+                this.enter('x', scale.getDataRef())
+            } else {
+                this.enter('x', {value: 0});
+            }
+
+            this.enter('width', this.properties.width);            
+        }
+    };
+
+    prototype.setHeight = function() {
+        if(this.properties.height instanceof vde.primitives.Scale) {
+            var scale = this.properties.height;
+            this.enter('y', scale.getDataRef()).enter('y2', {
+                scale: scale.spec.name,
+                value: 0
+            });
+        } else {
+            this.enter('y', this.properties.height)
+                .enter('y2', {value: 0});
+        }
+    };
+
+    prototype.setFillStroke = function(type) {
+        if(this.properties[type] instanceof vde.primitives.Scale) {
+            var scale = this.properties[type];
+            this.enter(type, scale.getDataRef());
+        } else {
+            this.enter(type, this.properties[type]);
+        }
     };
 
     prototype.onToolbarDrop = function(e) {

@@ -33,6 +33,13 @@ vde.primitives.Scale = (function() {
         vg.keys(spec).forEach(function(s) { self.spec[s] = spec[s]; });
 
         return this;
+    };
+
+    prototype.getDataRef = function() {
+        return {
+            scale: this.spec.name,
+            field: this.spec.domain.field
+        };
     }
 
     prototype.domain = function(def) {
@@ -40,7 +47,7 @@ vde.primitives.Scale = (function() {
 
         this.spec.domain = def;
         return this;
-    }
+    };
 
     return scale;
 })();
