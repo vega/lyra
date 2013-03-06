@@ -62,5 +62,69 @@ vde.primitives.marks.Group = (function() {
         return scale;
     };
 
+    prototype.onViewMouseMove = function(e, obj) {
+        var self = this;
+        var coords = vde.ui.mouse(d3.select('#vis').node(), e);
+        var cursor = document.body.style.cursor;
+
+        // If we're dragging, first resize the container, and then
+        // test for cursor type
+        if(vde.ui.dragging && vde.ui.dragging.el == this.spec.name) {
+            var update = function(prop, reverse) {
+                var c = (prop == 'x' || prop == 'width') ? 0 : 1;
+                var newVal = self.enter(prop).value;
+                newVal += (reverse ? -1 : 1) * (coords[c] - vde.ui.dragging.old[c]);
+
+                self.enter(prop, {value: newVal});
+                obj[prop] = newVal;
+
+                vde.view.render();
+            };
+            
+            if(cursor == 'move') { update('x'); update('y'); }
+            else if(cursor == 'e-resize') { update('width'); }
+            else if(cursor == 's-resize') { update('height'); }
+            else if(cursor == 'n-resize') { update('y'); update('height', true); }
+            else if(cursor == 'w-resize') { update('x'); update('width', true); }
+            else if(cursor == 'ne-resize') { update('y'); update('height', true); update('width'); }
+            else if(cursor == 'se-resize') { update('height'); update('width'); }
+            else if(cursor == 'nw-resize') { update('y'); update('height', true); update('x'); update('width', true); }
+            else if(cursor == 'sw-resize') { update('height'); update('x'); update('width', true); }
+
+            vde.ui.dragging.old = coords;
+        }
+
+        // After any resizing/moving, set the cursor
+        var delta = 0.1;
+        var dx = (coords[0] - vde.padding.left - this.enter('x').value) / this.enter('width').value;
+        var dy = (coords[1] - vde.padding.top -  this.enter('y').value) / this.enter('height').value;
+        
+        if(dx < delta && dy < delta) {
+            cursor = "nw-resize";        
+        } else if(dx < delta && dy>(1 - delta)) {
+            cursor = "sw-resize";
+        } else if(dx < delta) {
+            cursor = "w-resize";
+        } else if(dx > (1 - delta) && dy < delta) {
+            cursor = "ne-resize";
+        } else if(dx > (1 - delta) && dy > (1 - delta)) {
+            cursor = "se-resize";
+        } else if(dx > (1 - delta)) {
+            cursor = "e-resize";
+        } else if(dy < delta) {
+            cursor = "n-resize";
+        } else if(dy > (1 - delta)) {
+            cursor = "s-resize";
+        } else {
+            cursor = "move";
+        }
+
+        document.body.style.cursor = cursor;
+    };
+
+    prototype.onViewMouseOut = function(e) {
+        document.body.style.cursor = 'auto';
+    };
+
     return group;
 })();

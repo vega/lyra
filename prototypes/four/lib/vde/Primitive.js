@@ -22,5 +22,11 @@ vde.Primitive = (function() {
     prototype.onToolbarDragEnd   = function(e) { return this; };
     prototype.onToolbarDrop      = function(e) { return this; };
 
+    prototype.onViewMouseOver = function(e, i) { return this; };
+    prototype.onViewMouseOut = function(e, i) { return this; };
+    prototype.onViewMouseDown = function(e, i) { return this; };
+    prototype.onViewMouseUp = function(e, i) { return this; };
+    prototype.onViewMouseMove = function(e, i) { return this; };
+
     return primitive;
 })();

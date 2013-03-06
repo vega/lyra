@@ -13,6 +13,7 @@ vde.init = function() {
     vde.loadData('olympics', 'data/olympics.json');
 
     vde.ui.init();
+    vde.parse();
 };
 
 vde.loadData = function(name, data) {

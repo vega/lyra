@@ -4,8 +4,6 @@ vde.ui.init = function() {
     // Initialize each primitive's specific UI (e.g. inspectors)
     var rect = new vde.primitives.marks.Rect;
     rect.initUI();
-
-    this.regEvtHandlers();
 };
 
 vde.ui.addPrimitiveToolbar = function(primitive) {
@@ -99,9 +97,6 @@ vde.ui.regEvtHandlers = function() {
             vde.parse();
         });
 
-    if(!vde.view)
-        return;
-
     // Go up the path until you can get to the mark
     var getMarkFromView = function(obj, type) {
         if(obj.mark.marktype == type)
@@ -112,33 +107,87 @@ vde.ui.regEvtHandlers = function() {
         return null;
     };
 
-    vde.view.on('mouseover', function(e, i) {
-        // Outline the group container
-        var group = getMarkFromView(i, 'group');
-        if(!group.stroke || group.strokeWidth < 1) {
-            group.stroke = '#ccc';
-            group.strokeWidth = '1';
-            group.vdeStroke = true;
-            vde.view.render();
-        }        
-    }).on('mouseout', function(e, i) {
-        // Remove group container outline
-        var group = getMarkFromView(i, 'group');
-        if(group.vdeStroke) {
-            group.strokeWidth = '0';
-            vde.view.render();
-        }        
-    }).on('click', function(e, i) {
-        var mark = i.mark;
-        var primitive;
+    var primitiveFromView = function(obj) {
+        if(obj.mark.marktype == 'group')
+            return vde.groups[obj.mark.def.name];
+        else 
+            return vde.groups[obj.mark.group.mark.def.name].marks[obj.mark.def.name];
+    }
 
-        if(mark.marktype == "group")
-            primitive = vde.groups[mark.def.name];
-        else {
+    vde.view
+        .on('mouseover', function(e, i) {
+            // Outline the group container
             var group = getMarkFromView(i, 'group');
-            primitive = vde.groups[group.mark.def.name].marks[mark.def.name];
-        }
+            if(!group.stroke || group.strokeWidth < 1) {
+                group.stroke = '#ccc';
+                group.strokeWidth = '1';
+                group.vdeStroke = true;
+                vde.view.render();
+            }  
 
-        vde.ui.inspector.show(primitive, [e.pageX, e.pageY]);
-    });
+            var primitive = primitiveFromView(i);
+            return primitive.onViewMouseOver(e, i);
+        })
+        .on('mouseout', function(e, i) {
+            // Remove group container outline
+            var group = getMarkFromView(i, 'group');
+            if(group.vdeStroke) {
+                group.strokeWidth = '0';
+                vde.view.render();
+            }  
+
+            var primitive = primitiveFromView(i);
+            return primitive.onViewMouseOut(e, i);      
+        })
+        .on('mousedown', function(e, i) {
+            var primitive = primitiveFromView(i);
+            vde.ui.dragging = {
+                el: primitive.spec.name,
+                old: vde.ui.mouse(d3.select('#vis').node(), e)
+            };
+
+            return primitive.onViewMouseDown(e, i);
+        })
+        .on('mouseup', function(e, i) {
+            var primitive = primitiveFromView(i);
+            vde.ui.dragging = null;
+            
+            return primitive.onViewMouseUp(e, i);
+        })        
+        .on('mousemove', function(e, i) {
+            var primitive = primitiveFromView(i);
+            return primitive.onViewMouseMove(e, i);
+        })
+        .on('click', function(e, i) {
+            var mark = i.mark;
+            var primitive = primitiveFromView(i);
+
+            vde.ui.inspector.show(primitive, [e.pageX, e.pageY]);
+        });
+};
+
+// Hacky, copied from d3 so we can feed it non d3.events
+vde.ui.d3_mouse_bug44083 = /WebKit/.test(window.navigator.userAgent) ? -1 : 0;
+vde.ui.mouse = function(container, e) {
+  var svg = container.ownerSVGElement || container;
+  if (svg.createSVGPoint) {
+    var point = svg.createSVGPoint();
+    if (vde.ui.d3_mouse_bug44083 < 0 && (window.scrollX || window.scrollY)) {
+      svg = d3.select(d3_document.body).append("svg").style("position", "absolute").style("top", 0).style("left", 0);
+      var ctm = svg[0][0].getScreenCTM();
+      d3_mouse_bug44083 = !(ctm.f || ctm.e);
+      svg.remove();
+    }
+    if (d3_mouse_bug44083) {
+      point.x = e.pageX;
+      point.y = e.pageY;
+    } else {
+      point.x = e.clientX;
+      point.y = e.clientY;
+    }
+    point = point.matrixTransform(container.getScreenCTM().inverse());
+    return [ point.x, point.y ];
+  }
+  var rect = container.getBoundingClientRect();
+  return [ e.clientX - rect.left - container.clientLeft, e.clientY - rect.top - container.clientTop ];
 };
