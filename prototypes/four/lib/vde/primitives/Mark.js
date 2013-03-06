@@ -10,7 +10,7 @@ vde.primitives.Mark = (function() {
             hover:  {}
         };
 
-        this.class = 'vde.primitives.Mark';
+        this.fullClass = 'vde.primitives.Mark';
 
         return this;
     };
@@ -18,20 +18,26 @@ vde.primitives.Mark = (function() {
     mark.prototype = new vde.Primitive();
     var prototype = mark.prototype;
 
+    prototype.getClass = function(full) { return full ? this.fullClass : this.spec.type.charAt(0).toUpperCase() + this.spec.type.slice(1);} 
+
     prototype.enter = function(k, v) {
-        this.spec.properties.enter[k] = v;
-        return this;
+        return this.prop('enter', k, v);
     };
 
     prototype.update = function(k, v) {
-        this.spec.properties.update[k] = v;
-        return this;
+        return this.prop('update', k, v);
     };
 
     prototype.hover = function(k, v) {
-        this.spec.properties.hover[k] = v;
+        return this.prop('hover', k, v);
+    };
+
+    prototype.prop = function(type, k, v) {
+        if(!v) return this.spec.properties[type][k];
+
+        this.spec.properties[type][k] = v;
         return this;
-    }
+    };
 
     return mark;
 })();

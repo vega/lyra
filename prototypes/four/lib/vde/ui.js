@@ -16,9 +16,9 @@ vde.ui.addPrimitiveToolbar = function(primitive) {
         .on('dragstart', function() {
             d3.event.dataTransfer.effectAllowed = 'copy';
             d3.event.dataTransfer.setData('vde.primitive', primitive.getClass(true));
-            return primitive.toolbarDragStart(d3.event);
+            return primitive.onToolbarDragStart(d3.event);
         })
-        .on('dragend', function() { return primitive.toolbarDragEnd(d3.event); });
+        .on('dragend', function() { return primitive.onToolbarDragEnd(d3.event); });
 };
 
 vde.ui.addDataToolbar = function(src) {
@@ -49,7 +49,7 @@ vde.ui.addDataToolbar = function(src) {
         .attr('value', src)
         .text(src);
 
-    var indexCapsule = new vde.ui.Capsule(src, 'index', false, true).build(toolbar);
+    var indexCapsule = new vde.ui.Capsule(src, 'index', true).build(toolbar);
     indexCapsule.el.attr('draggable', 'true')
         .on('dragstart', function() {
             return dragstart(src, 'index', true);
@@ -57,10 +57,10 @@ vde.ui.addDataToolbar = function(src) {
         .on('dragend', dragend);
 
     Object.keys(vde.data[src].values[0]).forEach(function(field) {
-        var p = new vde.ui.Capsule(src, field, false).build(toolbar);
+        var p = new vde.ui.Capsule(src, field).build(toolbar);
         p.el.attr('draggable', 'true')
             .on('dragstart', function() {
-                return dragstart(src, field, false);
+                return dragstart(src, field);
             })
             .on('dragend', dragend);
     });
@@ -94,7 +94,7 @@ vde.ui.regEvtHandlers = function() {
                 return false;
 
             var primitive = eval('new ' + pClass + '("primitive_' + Date.now() + '")');
-            primitive.toolbarDrop(d3.event);
+            primitive.onToolbarDrop(d3.event);
 
             vde.parse();
         });

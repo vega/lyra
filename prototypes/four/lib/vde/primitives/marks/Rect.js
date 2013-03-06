@@ -5,7 +5,7 @@ vde.primitives.marks.Rect = (function() {
         this.spec.type = 'rect';
         this.group = group;
 
-        this.class = 'vde.primitives.marks.Rect';
+        this.fullClass = 'vde.primitives.marks.Rect';
 
         this.default = {
             width:  50,
@@ -20,11 +20,6 @@ vde.primitives.marks.Rect = (function() {
 
     rect.prototype = new vde.primitives.Mark();
     var prototype  = rect.prototype;
-
-    prototype.initUI = function() {
-        vde.ui.addPrimitiveToolbar(this);
-        return this;
-    };
 
     prototype.init = function() {
         if(!this.group) {
@@ -41,10 +36,31 @@ vde.primitives.marks.Rect = (function() {
             .enter('fill', {'value': this.default.fill});
 
         return this;
-    }
+    };
 
-    prototype.toolbarDrop = function(e) {
+    prototype.initUI = function() {
+        vde.ui.addPrimitiveToolbar(this);
+        vde.ui.inspector.load(this);
+        return this;
+    };
+
+    prototype.onToolbarDrop = function(e) {
         this.init();
+        vde.ui.inspector.show(this, [e.pageX, e.pageY]);
+    };
+
+    prototype.inspectorValues = function() {
+        return {
+            enter_x:  this.enter('x'),
+            enter_x2: this.enter('x2'),
+            enter_y:  this.enter('y'),
+            enter_y2: this.enter('y2'),
+            enter_width: this.enter('width'),
+            enter_height: this.enter('height'),
+            enter_fill: this.enter('fill'),
+            enter_stroke: this.enter('stroke'),
+            enter_strokeWidth: this.enter('strokeWidth')
+        };
     };
 
     return rect;

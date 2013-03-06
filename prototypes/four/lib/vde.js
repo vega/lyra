@@ -1,6 +1,7 @@
 var vde = {version: '0.0.4'};
 
 vde.primitives = {marks:{}};
+vde.padding = {top:20, left:20, right:20, bottom:20};
 vde.data    = {};
 vde.scales  = {};
 vde.groups  = {};

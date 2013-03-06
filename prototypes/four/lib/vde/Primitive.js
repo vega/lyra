@@ -4,7 +4,7 @@ vde.Primitive = (function() {
             name: name
         };
 
-        this.class = 'vde.Primitive';
+        this.fullClass = 'vde.Primitive';
 
         return this;
     };
@@ -13,13 +13,14 @@ vde.Primitive = (function() {
 
     prototype.getName = function() { return this.spec.name; }
     prototype.getType = function() { return this.spec.type; }
+    prototype.getClass = function(full) { return full ? this.fullClass : this.type.charAt(0).toUpperCase() + this.type.slice(1);} 
     prototype.getSpec = function() { return this.spec; };
 
     prototype.initUI = function() { return this; };
 
-    prototype.toolbarDragStart = function(e) { return this; };
-    prototype.toolbarDragEnd   = function(e) { return this; };
-    prototype.toolbarDrop      = function(e) { return this; };
+    prototype.onToolbarDragStart = function(e) { return this; };
+    prototype.onToolbarDragEnd   = function(e) { return this; };
+    prototype.onToolbarDrop      = function(e) { return this; };
 
     return primitive;
 })();

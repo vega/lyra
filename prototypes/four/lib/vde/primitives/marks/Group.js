@@ -16,7 +16,7 @@ vde.primitives.marks.Group = (function() {
             height: 300
         };
 
-        this.class = 'vde.primitives.marks.Group';
+        this.fullClass = 'vde.primitives.marks.Group';
 
         return this;
     };
@@ -41,9 +41,9 @@ vde.primitives.marks.Group = (function() {
 
         var mouse = d3.mouse(d3.select('#vis').node());
 
-        this.enter('x', {'value': (mouse ? mouse[0] : 0)})
+        this.enter('x', {'value': (mouse ? mouse[0] : 0) - vde.padding.left})
             .enter('width', {'value': this.default.width})
-            .enter('y', {'value': (mouse ? mouse[1] : 0)})
+            .enter('y', {'value': (mouse ? mouse[1] : 0) - vde.padding.top})
             .enter('height', {'value': this.default.height});
 
         vde.groups[this.getName()] = this;
@@ -51,5 +51,16 @@ vde.primitives.marks.Group = (function() {
         return this;
     };
 
-  return group;
+    prototype.scale = function(spec) {
+        var scaleName = vde.primitives.Scale.nameFromSpec(spec);
+        var scale = this.scales[scaleName];
+
+        if(!scale)
+            scale = new vde.primitives.Scale(scaleName)
+                .init(this, spec);
+
+        return scale;
+    };
+
+    return group;
 })();
