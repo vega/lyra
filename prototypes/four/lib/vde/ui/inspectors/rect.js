@@ -11,9 +11,16 @@
         el.selectAll('.contract').classed('expand', true).classed('contract', false);
     };
 
-    inspector.close = function() {
-        rect = null;
-    };
+    inspector.close = function() { rect = null; };
+
+    inspector.getPrimitive = function() { return rect; };
+
+    inspector.updateDelegate = function(property, value) {
+        if(property == 'strokeWidth')
+            property = 'stroke-width';
+
+        el.select('rect').style(property, value);
+    }
 
     inspector.onDrop = function(opts, field_el) {
         var field = field_el.attr('field');
@@ -56,7 +63,7 @@
             break;
         }
 
-        rect.properties[field] = rect.group.scale(scaleSpec);;
+        rect.properties[field] = rect.group.scale(scaleSpec);
     };
 
 })();

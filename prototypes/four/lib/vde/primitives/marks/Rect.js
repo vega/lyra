@@ -63,7 +63,7 @@ vde.primitives.marks.Rect = (function() {
                 var scale = this.group.scale({
                     type: 'ordinal',
                     range: 'width',
-                    domain: {data: this.spec.from, field: ['index']}
+                    domain: {data: this.spec.from.data, field: ['index']}
                 });
                 this.enter('x', scale.getDataRef())
             } else {

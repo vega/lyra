@@ -128,5 +128,17 @@ vde.ui.regEvtHandlers = function() {
             group.strokeWidth = '0';
             vde.view.render();
         }        
+    }).on('click', function(e, i) {
+        var mark = i.mark;
+        var primitive;
+
+        if(mark.marktype == "group")
+            primitive = vde.groups[mark.def.name];
+        else {
+            var group = getMarkFromView(i, 'group');
+            primitive = vde.groups[group.mark.def.name].marks[mark.def.name];
+        }
+
+        vde.ui.inspector.show(primitive, [e.pageX, e.pageY]);
     });
 };

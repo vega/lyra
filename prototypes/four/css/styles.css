@@ -175,13 +175,18 @@ svg line, svg path {
 }
 
 #inspector_rect .width {
-    top: 50px;
+    top: 40px;
     left: 27px;
 }
 
 #inspector_rect .width label { 
     float: left; 
-    margin-top: 0px;
+    margin-top: 10px;
+}
+
+#inspector_rect .width input, #inspector_rect .height input { 
+    margin-left: 5px; 
+    width: 50px;
 }
 
 #inspector_rect .x1 {
@@ -197,12 +202,6 @@ svg line, svg path {
 #inspector_rect .x1 label, #inspector_rect .x2 label { 
     float: left; 
     margin-top: 0px;
-}
-
-#inspector_rect .width.bound { top: 25px; }
-#inspector_rect .width.bound label { 
-    float: left;
-    margin-top: 10px; 
 }
 
 #inspector_rect .fill {
