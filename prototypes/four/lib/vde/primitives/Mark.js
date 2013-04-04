@@ -20,6 +20,17 @@ vde.primitives.Mark = (function() {
 
     prototype.getClass = function(full) { return full ? this.fullClass : this.spec.type.charAt(0).toUpperCase() + this.spec.type.slice(1);} 
 
+    prototype.init = function() {
+        if(!this.group) {
+            this.group = new vde.primitives.marks.Group("group_" + Date.now());
+            this.group.init();
+        }
+
+        this.group.marks[this.getName()] = this;
+
+        return this;
+    };
+
     prototype.enter = function(k, v) {
         return this.prop('enter', k, v);
     };

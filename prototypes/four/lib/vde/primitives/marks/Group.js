@@ -78,7 +78,8 @@ vde.primitives.marks.Group = (function() {
                 self.enter(prop, {value: newVal});
                 obj[prop] = newVal;
 
-                vde.view.render();
+                vde.view._build = false;
+                vde.view.update();
             };
             
             if(cursor == 'move') { update('x'); update('y'); }
@@ -125,6 +126,11 @@ vde.primitives.marks.Group = (function() {
     prototype.onViewMouseOut = function(e) {
         document.body.style.cursor = 'auto';
     };
+
+    prototype.onViewMouseUp = function(e, i) {
+        // if(vde.ui.dragging && vde.ui.dragging.el == this.spec.name)
+            // vde.parse();
+    }
 
     return group;
 })();

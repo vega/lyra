@@ -1,19 +1,19 @@
 vde.ui.inspector = {};
 
 vde.ui.inspector.load = function(primitive) {
-    var which = primitive.getClass().toLowerCase();
+    var inspectorFor = primitive.getClass().toLowerCase();
 
     d3.select('head').append('script')
-                .attr('src', 'lib/vde/ui/inspectors/'+which+'.js');
+                .attr('src', 'lib/vde/ui/inspectors/'+inspectorFor+'.js');
 
-    d3.xhr('lib/vde/ui/inspectors/'+which+'.html', function(error, response) {
-        vde.ui.inspector[which] = {};
+    d3.xhr('lib/vde/ui/inspectors/'+inspectorFor+'.html', function(error, response) {
+        vde.ui.inspector[inspectorFor] = {};
 
-        var id = 'inspector_' + which;
+        var id = 'inspector_' + inspectorFor;
         var inspector = d3.select('body').selectAll('div#'+id).data([1]);
         inspector.enter().append('div')
             .attr('id', id)
-            .attr('which_inspector', which)
+            .attr('inspector_for', inspectorFor)
             .classed('inspector', true)
             .html(response.responseText)
             .style('display', 'none')
@@ -66,23 +66,44 @@ vde.ui.inspector.load = function(primitive) {
     });
 };
 
-vde.ui.inspector.whichFromField = function(el) {
-    return d3.select(el.node().parentNode).attr('which_inspector');
+vde.ui.inspector.for = function(el) {
+    return d3.select(el.node().parentNode).attr('inspector_for');
 };
 
 vde.ui.inspector.show = function(primitive, loc) {
-    var which = primitive.getClass().toLowerCase();
-    var inspector = d3.select('div#inspector_' + which);
+    var inspectorFor = primitive.getClass().toLowerCase();
+    var inspector = d3.select('div#inspector_' + inspectorFor);
     inspector.style('left', (loc[0] - parseInt(inspector.style('width'))) + 'px')
         .style('top',  loc[1] + 'px')
         .style('display', 'block');
 
-    vde.ui.inspector[which].init(primitive);
+    // Load values
+    var values = primitive.inspectorValues();
+    vg.keys(values).forEach(function(k) {
+        var field_el = inspector.select('div[field=' + k + ']');
+        field_el.selectAll('.capsule').remove();
+
+        if(values[k] instanceof vde.primitives.Scale) {
+            var spec = values[k].spec;
+            var opts = {
+                src: spec.domain.data,
+                field: spec.domain.field.replace('data.', ''),
+                index: (spec.domain.field == 'index')
+            };
+            vde.ui.inspector.buildCapsule(field_el, opts);
+        } else {
+            field_el.select('.value').style('display', 'block');
+            field_el.select('.value').node().value = values[k].value;
+        }
+            
+    });
+
+    vde.ui.inspector[inspectorFor].init(primitive);
 };
 
 vde.ui.inspector.close = function(el) { 
     el.style('display', 'none'); 
-    return vde.ui.inspector[el.attr('which_inspector')].close();
+    return vde.ui.inspector[el.attr('inspector_for')].close();
 };
 
 vde.ui.inspector.toggleField = function(id, field) {
@@ -100,34 +121,20 @@ vde.ui.inspector.toggleField = function(id, field) {
     }
 };
 
-vde.ui.inspector.onChange = function() {
-    var field_el = d3.select(this.parentNode);
-    var field = field_el.attr('field');
-    var which = vde.ui.inspector.whichFromField(field_el);
-    var primitive = vde.ui.inspector[which].getPrimitive();
-
-    primitive.properties[field] = {value: this.value};
-    vde.ui.inspector[which].updateDelegate(field, this.value);
-
-    vde.parse();
-};
-
-vde.ui.inspector.onDrop = function() {
-    var opts = JSON.parse(d3.event.dataTransfer.getData('vde.capsule'));
-    var field_el = d3.select(this);
-    field_el.select('.value').style('display', 'none');
-    field_el.classed('bound', true);
+vde.ui.inspector.buildCapsule = function(field, opts) {
+    field.select('.value').style('display', 'none');
+    field.classed('bound', true);
 
     var capsule = new vde.ui.Capsule(opts.src, opts.field, opts.index, true)
-        .build(field_el);
+        .build(field);
 
     if(opts.index)
         capsule.el.select('span.name').text('BIN(# Records)');
 
     capsule.el.select('.delete').on('click', function() {
         capsule.el.remove();
-        if(field_el.selectAll('.capsule').empty()) {
-            var input = field_el.select('.value')
+        if(field.selectAll('.capsule').empty()) {
+            var input = field.select('.value')
                 .style('display', 'block');
 
             var node = input.node();
@@ -139,13 +146,32 @@ vde.ui.inspector.onDrop = function() {
                 node.dispatchEvent(evt);
             }
         }       
-        field_el.classed('bound', false);     
+        field.classed('bound', false);     
 
         vde.parse();
     });
+}
 
-    var which = vde.ui.inspector.whichFromField(field_el);
-    vde.ui.inspector[which].onDrop.call(this, opts, field_el);
+vde.ui.inspector.onChange = function() {
+    var field_el = d3.select(this.parentNode);
+    var field = field_el.attr('field');
+    var inspectorFor = vde.ui.inspector.for(field_el);
+    var primitive = vde.ui.inspector[inspectorFor].getPrimitive();
+
+    primitive.properties[field] = {value: this.value};
+    vde.ui.inspector[inspectorFor].updateDelegate(field, this.value);
 
     vde.parse();
-}
+};
+
+vde.ui.inspector.onDrop = function() {
+    var opts = JSON.parse(d3.event.dataTransfer.getData('vde.capsule'));
+    var field_el = d3.select(this);
+    
+    vde.ui.inspector.buildCapsule(field_el, opts);
+
+    var inspectorFor = vde.ui.inspector.for(field_el);
+    vde.ui.inspector[inspectorFor].onDrop.call(this, opts, field_el);
+
+    vde.parse();
+};

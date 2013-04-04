@@ -2,7 +2,7 @@ vde.ui = {dragging:null};
 
 vde.ui.init = function() {
     // Initialize each primitive's specific UI (e.g. inspectors)
-    var rect = new vde.primitives.marks.Rect;
+    var rect = new vde.primitives.marks.Rect();
     rect.initUI();
 };
 
@@ -73,7 +73,7 @@ vde.ui.addDataToolbar = function(src) {
 
 vde.ui.render = function(chart) {
     d3.select('#vis').selectAll('*').remove();
-    (vde.view = chart('#vis')).update();
+    (vde.view = chart({ el: '#vis' })).update();
 
     vde.ui.regEvtHandlers();
 };
@@ -107,6 +107,16 @@ vde.ui.regEvtHandlers = function() {
         return null;
     };
 
+    // Get the "panel" group
+    var getPanelFromView = function(obj) {
+        // Panels exist within a top-level group, 
+        // but these groups aren't named
+        if(obj.mark.group && obj.mark.group.mark.def.name)
+            return getPanelFromView(obj.mark.group);
+
+        return obj;
+    }
+
     var primitiveFromView = function(obj) {
         if(obj.mark.marktype == 'group')
             return vde.groups[obj.mark.def.name];
@@ -117,7 +127,7 @@ vde.ui.regEvtHandlers = function() {
     vde.view
         .on('mouseover', function(e, i) {
             // Outline the group container
-            var group = getMarkFromView(i, 'group');
+            var group = getPanelFromView(i);
             if(!group.stroke || group.strokeWidth < 1) {
                 group.stroke = '#ccc';
                 group.strokeWidth = '1';
@@ -130,7 +140,7 @@ vde.ui.regEvtHandlers = function() {
         })
         .on('mouseout', function(e, i) {
             // Remove group container outline
-            var group = getMarkFromView(i, 'group');
+            var group = getPanelFromView(i);
             if(group.vdeStroke) {
                 group.strokeWidth = '0';
                 vde.view.render();
@@ -150,9 +160,10 @@ vde.ui.regEvtHandlers = function() {
         })
         .on('mouseup', function(e, i) {
             var primitive = primitiveFromView(i);
+            primitive.onViewMouseUp(e, i);
+
             vde.ui.dragging = null;
-            
-            return primitive.onViewMouseUp(e, i);
+            return false;
         })        
         .on('mousemove', function(e, i) {
             var primitive = primitiveFromView(i);

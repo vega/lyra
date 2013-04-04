@@ -10,8 +10,8 @@ vde.primitives.marks.Rect = (function() {
         this.properties = {
             width: {value: 50},
             height: {value: 150},
-            fill: {value: 'steelblue'},
-            stroke: {value: 'black'},
+            fill: {value: '#4682b4'},
+            stroke: {value: '#000000'},
             strokeWidth: {value: 0}
         };
 
@@ -20,17 +20,6 @@ vde.primitives.marks.Rect = (function() {
 
     rect.prototype = new vde.primitives.Mark();
     var prototype  = rect.prototype;
-
-    prototype.init = function() {
-        if(!this.group) {
-            this.group = new vde.primitives.marks.Group("group_" + Date.now());
-            this.group.init();
-        }
-
-        this.group.marks[this.getName()] = this;
-
-        return this;
-    };
 
     prototype.initUI = function() {
         vde.ui.addPrimitiveToolbar(this);
@@ -45,6 +34,8 @@ vde.primitives.marks.Rect = (function() {
         this.setFillStroke('stroke');
 
         this.enter('strokeWidth', this.properties.strokeWidth);
+        // TODO: update shouldn't be the same as enter. 
+        this.spec.properties.update = this.spec.properties.enter;
 
         return this.spec;
     }
@@ -103,15 +94,15 @@ vde.primitives.marks.Rect = (function() {
 
     prototype.inspectorValues = function() {
         return {
-            enter_x:  this.enter('x'),
-            enter_x2: this.enter('x2'),
-            enter_y:  this.enter('y'),
-            enter_y2: this.enter('y2'),
-            enter_width: this.enter('width'),
-            enter_height: this.enter('height'),
-            enter_fill: this.enter('fill'),
-            enter_stroke: this.enter('stroke'),
-            enter_strokeWidth: this.enter('strokeWidth')
+            // x1:  this.enter('x'),
+            // x2: this.enter('x2'),
+            // y1:  this.enter('y'),
+            // y2: this.enter('y2'),
+            width: this.properties.width,
+            height: this.properties.height,
+            fill: this.properties.fill,
+            stroke: this.properties.stroke,
+            strokeWidth: this.properties.strokeWidth
         };
     };
 
