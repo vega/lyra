@@ -1,0 +1,58 @@
+<svg width="250" height="345">
+<g transform="translate(140, 100)">
+    <path d="M-69.28203230275511,39.99999999999998A80,80 0 0,1 4.898425415289509e-15,-80L2.1430611191891602e-15,-35A35,35 0 0,0 -30.310889132455358,17.49999999999999Z" fill="steelblue" stroke="black" stroke-width="1" class="arc"></path>
+
+    <!-- Center -->
+    <circle r="1" fill="black" cx="0" cy="0" />
+
+    <!-- innerRadius "error bar" -->
+    <line stroke="black" stroke-width="1" x1="10" x2="20" y1="-35" y2="-35" /> 
+    <line stroke="black" stroke-width="1" x1="15" x2="15" y1="0" y2="-35" />
+    <line stroke="black" stroke-width="1" x1="10" x2="20" y1="0" y2="0" /> 
+
+    <!-- outerRadius "error bar" -->
+    <g transform="rotate(-120) translate(-30, 0)">
+        <line stroke="black" stroke-width="1" x1="5" x2="15" y1="-80" y2="-80" class="outerRadius" /> 
+        <line stroke="black" stroke-width="1" x1="10" x2="10" y1="0" y2="-80" class="outerRadius" />
+        <line stroke="black" stroke-width="1" x1="5" x2="15" y1="0" y2="0" class="outerRadius" />
+    </g>
+</g>
+</svg>
+
+<!-- <div class="startAngle angle-expanded field" field="startAngle">
+    <label>Start Angle</label>
+</div>
+
+<div class="endAngle angle-expanded field" field="endAngle">
+    <label>End Angle</label>
+</div> -->
+
+<div class="angle field" field="angle">
+    <label>Angle</label><br />
+    <!-- <input type="number" value="360" min="0" max="360" class="value"> -->
+</div>
+
+<div class="innerRadius field" field="innerRadius">
+    <label>Inner Radius</label><br />
+    <input type="number" value="0" />
+</div>
+
+<div class="outerRadius field" field="outerRadius">
+    <label>Outer Radius</label><br />
+    <input type="number" value="100" />
+</div>
+
+<div class="fill field" field="fill">
+    <label>Fill</label><br />
+    <input type="color" value="#4682b4" class="value">
+</div>
+
+<div class="stroke field" field="stroke">
+    <label>Stroke</label>
+    <input type="color" value="#000000" class="value">
+</div>
+
+<div class="strokeWidth field" field="strokeWidth">
+    <label>Stroke Width</label>
+    <input type="range" min="0" max="10" step="0.5" class="value" />
+</div>

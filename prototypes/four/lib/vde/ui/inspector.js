@@ -48,7 +48,7 @@ vde.ui.inspector.load = function(primitive) {
                 });
 
         // Don't drag the inspector if we're dragging an input
-        inspector.selectAll('input, select')
+        inspector.selectAll('.value')
             .on('mousedown', function() {
                 d3.event.stopPropagation();
             })

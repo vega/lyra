@@ -4,6 +4,9 @@ vde.ui.init = function() {
     // Initialize each primitive's specific UI (e.g. inspectors)
     var rect = new vde.primitives.marks.Rect();
     rect.initUI();
+
+    var arc = new vde.primitives.marks.Arc();
+    arc.initUI();
 };
 
 vde.ui.addPrimitiveToolbar = function(primitive) {

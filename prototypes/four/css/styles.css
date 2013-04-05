@@ -114,9 +114,7 @@ body {
     box-shadow: 2px 5px 15px 3px rgba(0, 0, 0, 0.4);
 }
 
-svg line, svg path {
-    shape-rendering: crispEdges;
-}
+svg line { shape-rendering: crispEdges; }
 
 .inspector .close {
     display: block;
@@ -141,21 +139,22 @@ svg line, svg path {
 .inspector label.expand { background: url(../imgs/expand.gif) no-repeat; } 
 .inspector label.contract { background: url(../imgs/contract.gif) no-repeat;}  
 
-#inspector_rect .field { 
+.inspector .field { 
     position: absolute; 
     margin: 0;
     padding: 3px;
     border: 1px dashed transparent;
 }
-#inspector_rect .field select { width: 100px;}
+.inspector .field select { width: 100px;}
+.inspector .field input[type=number] { width: 40px; }
 
-#inspector_rect label {
+.inspector label {
     float: left;
     font: italic 12px Georgia, serif;
     text-transform: lowercase;
 }
 
-#inspector_rect .bound { background: transparent !important; }
+.inspector .bound { background: transparent !important; }
 
 #inspector_rect .height {
     top: 155px;
@@ -216,7 +215,7 @@ svg line, svg path {
     left: 15px;
 }
 
-#inspector_rect .stroke input { 
+.inspector .stroke input { 
     float: left; 
     margin-left: 10px;
 }
@@ -226,7 +225,7 @@ svg line, svg path {
     left: 15px;
 }
 
-#inspector_rect .strokeWidth input { 
+.inspector .strokeWidth input { 
     float: left;
     width: 115px;
     margin-left: 10px; 
@@ -234,3 +233,43 @@ svg line, svg path {
 
 #inspector_rect .strokeWidth.bound { top: 295px; }
 #inspector_rect .stroke.bound label, #inspector_rect .strokeWidth.bound label { margin-top: 10px; }
+
+#inspector_arc line.outerRadius { shape-rendering: geometricPrecision; }
+
+#inspector_arc .angle {
+    top: 85px;
+    left: 5px;
+}
+
+#inspector_arc .innerRadius {
+    top: 60px;
+    left: 160px;
+}
+
+#inspector_arc .outerRadius {
+    top: 135px;
+    left: 115px;
+}
+
+#inspector_arc .fill {
+    top: 35px;
+    left: 72px;
+}
+
+#inspector_arc .fill label {
+    display: block;
+    width: 100%;
+    padding-left: 10px;
+}
+
+#inspector_arc .fill input { width: 30px; }
+
+#inspector_arc .stroke {
+    top: 190px;
+    left: 5px;
+}
+
+#inspector_arc .strokeWidth {
+    top: 225px;
+    left: 5px;
+}
