@@ -37,7 +37,7 @@ vde.loadData = function(name, data) {
             vde.ui.addDataToolbar(name);
         });   
     }     
-}
+};
 
 vde.parse = function() {
     var spec = {
@@ -61,7 +61,7 @@ vde.parse = function() {
     vg.parse.spec(spec, vde.ui.render);
 
     return spec;
-}
+};
 
 document.addEventListener('DOMContentLoaded', function() {
     vde.init();

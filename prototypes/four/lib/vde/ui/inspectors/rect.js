@@ -15,6 +15,8 @@
 
     inspector.getPrimitive = function() { return rect; };
 
+    inspector.loadValues = function() {};
+
     inspector.updateDelegate = function(property, value) {
         if(property == 'strokeWidth')
             property = 'stroke-width';

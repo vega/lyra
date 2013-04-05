@@ -6,16 +6,18 @@
     inspector.init = function(primitive) {
         arc = primitive;
 
-        // For now, hide x1/x2/y1/y2
-        el.selectAll('.height-expanded, .width-expanded').style('display', 'none')
-        el.selectAll('.contract').classed('expand', true).classed('contract', false);
-
         el.selectAll('.innerRadius input, .outerRadius input').on('change', inspector.radiusChange);
     };
 
     inspector.close = function() { arc = null; };
 
     inspector.getPrimitive = function() { return arc; };
+
+    inspector.loadValues = function() {
+        var values = arc.inspectorValues();
+        el.select('.innerRadius input').node().value = values.innerRadius.value;
+        el.select('.outerRadius input').node().value = values.outerRadius.value;
+    };
 
     inspector.updateDelegate = function(property, value) {
         if(property == 'strokeWidth')
@@ -60,7 +62,6 @@
                 });
             break;
         }
-
     };
 
     inspector.radiusChange = function() {
@@ -68,6 +69,8 @@
         var field = field_el.attr('field');
 
         arc.properties.radiiRanges[(field == 'innerRadius') ? 0 : 1] = this.value;
+        if(field_el.selectAll('.capsule').empty())
+            arc.properties[field] = {value: this.value};
 
         vde.parse();
     };

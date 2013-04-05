@@ -81,7 +81,7 @@ vde.primitives.marks.Arc = (function() {
         var or = this.properties.outerRadius;
         if(or instanceof vde.primitives.Scale)
             or.spec.range = this.properties.radiiRanges;
-        
+
         this.enter('outerRadius', (or instanceof vde.primitives.Scale) ? or.getDataRef() : or);
     };
 
@@ -100,7 +100,14 @@ vde.primitives.marks.Arc = (function() {
     };
 
     prototype.inspectorValues = function() {
-
+        return {
+            angle: this.properties.angle,
+            innerRadius: this.properties.innerRadius,
+            outerRadius: this.properties.outerRadius,
+            fill: this.properties.fill,
+            stroke: this.properties.stroke,
+            strokeWidth: this.properties.strokeWidth
+        }
     };
 
     return arc;

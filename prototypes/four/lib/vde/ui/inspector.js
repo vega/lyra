@@ -77,7 +77,18 @@ vde.ui.inspector.show = function(primitive, loc) {
         .style('top',  loc[1] + 'px')
         .style('display', 'block');
 
-    // Load values
+    vde.ui.inspector[inspectorFor].init(primitive);
+};
+
+vde.ui.inspector.close = function(el) { 
+    el.style('display', 'none'); 
+    return vde.ui.inspector[el.attr('inspector_for')].close();
+};
+
+vde.ui.inspector.loadValues = function(primitive) {
+    var inspectorFor = primitive.getClass().toLowerCase();
+    var inspector = d3.select('div#inspector_' + inspectorFor);
+
     var values = primitive.inspectorValues();
     vg.keys(values).forEach(function(k) {
         var field_el = inspector.select('div[field=' + k + ']');
@@ -93,18 +104,14 @@ vde.ui.inspector.show = function(primitive, loc) {
             vde.ui.inspector.buildCapsule(field_el, opts);
         } else {
             field_el.select('.value').style('display', 'block');
-            field_el.select('.value').node().value = values[k].value;
+            if(!field_el.select('.value').empty() && values[k])
+                field_el.select('.value').node().value = values[k].value;
         }
             
     });
 
-    vde.ui.inspector[inspectorFor].init(primitive);
-};
-
-vde.ui.inspector.close = function(el) { 
-    el.style('display', 'none'); 
-    return vde.ui.inspector[el.attr('inspector_for')].close();
-};
+    vde.ui.inspector[inspectorFor].loadValues();
+}
 
 vde.ui.inspector.toggleField = function(id, field) {
     var inspector = d3.select('div#' + id);
@@ -134,7 +141,7 @@ vde.ui.inspector.buildCapsule = function(field, opts) {
     capsule.el.select('.delete').on('click', function() {
         capsule.el.remove();
         if(field.selectAll('.capsule').empty()) {
-            var input = field.select('.value')
+            var input = field.selectAll('input, select')
                 .style('display', 'block');
 
             var node = input.node();
