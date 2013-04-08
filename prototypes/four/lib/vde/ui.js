@@ -96,6 +96,26 @@ vde.ui.render = function(chart) {
     vde.ui.regEvtHandlers();
 };
 
+vde.ui.export = function() {
+    var overlay = d3.select('body').selectAll('#overlay').data([1]);
+    overlay.enter()
+        .append('div')
+            .attr('id', 'overlay')
+            .style('opacity', '0')
+            .on('click', function() {
+                d3.select('#export').style('display', 'none');
+                overlay.remove();
+            });
+
+    overlay.transition()
+        .duration(250)
+        .style('opacity', '0.6');    
+
+    d3.select('#export')
+        .text(JSON.stringify(vde.parse(), null, 2))
+        .style('display', 'block');
+};
+
 vde.ui.cancelDrag = function() { d3.event.preventDefault(); return false; };
 
 vde.ui.regEvtHandlers = function() {

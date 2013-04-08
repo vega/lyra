@@ -110,3 +110,38 @@ body {
     color: #fff;
     font: italic 12px Georgia, serif;
 }
+
+#export-link {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    background: #ccc url(../imgs/export.png) no-repeat 95% 50%;
+    border: 1px solid #aaa;
+    width: 55px;
+    padding: 5px;
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#export-link:hover { background-color: #ddd }
+
+#export {
+    display: none;
+    position: absolute;
+    top: 30%;
+    left: 30%;
+    z-index: 100;
+    width: 40%;
+    height: 30%;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 10;
+}
