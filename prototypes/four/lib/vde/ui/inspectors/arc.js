@@ -14,9 +14,12 @@
     inspector.getPrimitive = function() { return arc; };
 
     inspector.loadValues = function() {
+        if(!arc)
+            return;
+        
         var values = arc.inspectorValues();
-        el.select('.innerRadius input').node().value = values.innerRadius.value;
-        el.select('.outerRadius input').node().value = values.outerRadius.value;
+        el.select('.innerRadius input').node().value = values.radiiRanges[0];
+        el.select('.outerRadius input').node().value = values.radiiRanges[1];
     };
 
     inspector.updateDelegate = function(property, value) {
@@ -68,9 +71,9 @@
         var field_el = d3.select(this.parentNode);
         var field = field_el.attr('field');
 
-        arc.properties.radiiRanges[(field == 'innerRadius') ? 0 : 1] = this.value;
+        arc.properties.radiiRanges[(field == 'innerRadius') ? 0 : 1] = parseInt(this.value);
         if(field_el.selectAll('.capsule').empty())
-            arc.properties[field] = {value: this.value};
+            arc.properties[field] = {};
 
         vde.parse();
     };

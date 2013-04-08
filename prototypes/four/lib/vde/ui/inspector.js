@@ -20,22 +20,12 @@ vde.ui.inspector.load = function(primitive) {
             .on('mousedown', function() {
                 vde.ui.dragging = {
                     el: d3.select(this).attr('id'),
-                    old: d3.mouse(this)
+                    old: d3.mouse(this),
+                    target: vde.ui.inspector,
+                    onmousemove: vde.ui.inspector.onMouseMove
                 };
             })
-            .on('mousemove', function() {
-                var inspector = d3.select(this);
-                if(!vde.ui.dragging || vde.ui.dragging.el != inspector.attr('id'))
-                    return;
-
-                var coords  = d3.mouse(this);
-                var oldLeft = parseInt(inspector.style('left'));
-                var oldTop  = parseInt(inspector.style('top'));
-
-                inspector.style('left', (oldLeft + coords[0] - vde.ui.dragging.old[0]) + 'px')
-                    .style('top', (oldTop + coords[1] - vde.ui.dragging.old[1]) + 'px');
-                
-            })
+            .on('mousemove', function() { vde.ui.inspector.onMouseMove(d3.event); })
             .on('mouseup', function() {
                 if(vde.ui.dragging && vde.ui.dragging.el == d3.select(this).attr('id'))
                     vde.ui.dragging = null;
@@ -64,6 +54,19 @@ vde.ui.inspector.load = function(primitive) {
             .on('dragover', vde.ui.cancelDrag)
             .on('drop', vde.ui.inspector.onDrop);
     });
+};
+
+vde.ui.inspector.onMouseMove = function(e) {
+    if(!vde.ui.dragging)
+        return;
+
+    var inspector = d3.select('#' + vde.ui.dragging.el)
+    var coords  = vde.ui.mouse(inspector.node(), e);
+    var oldLeft = parseInt(inspector.style('left'));
+    var oldTop  = parseInt(inspector.style('top'));
+
+    inspector.style('left', (oldLeft + coords[0] - vde.ui.dragging.old[0]) + 'px')
+        .style('top', (oldTop + coords[1] - vde.ui.dragging.old[1]) + 'px'); 
 };
 
 vde.ui.inspector.for = function(el) {

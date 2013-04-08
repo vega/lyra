@@ -74,6 +74,21 @@ vde.ui.addDataToolbar = function(src) {
     return this;    
 };
 
+vde.ui.toolTip = function(on, x, y, tooltip) {
+    if(on) {
+        var tip = d3.select('body').selectAll('div#tooltip').data([1]);
+        tip.enter()
+            .append('div')
+                .attr('id', 'tooltip')
+
+        tip.style('left', x + 'px')
+            .style('top', y + 'px')
+            .html(tooltip);
+    } else {
+        d3.select('div#tooltip').remove();
+    }
+};
+
 vde.ui.render = function(chart) {
     d3.select('#vis').selectAll('*').remove();
     (vde.view = chart({ el: '#vis' })).update();
@@ -156,7 +171,11 @@ vde.ui.regEvtHandlers = function() {
             var primitive = primitiveFromView(i);
             vde.ui.dragging = {
                 el: primitive.spec.name,
-                old: vde.ui.mouse(d3.select('#vis').node(), e)
+                old: vde.ui.mouse(d3.select('#vis').node(), e),
+                sceneObj: i,
+                target: primitive,
+                onmousemove: primitive.onViewMouseMove,
+                onmouseup: primitive.onViewMouseUp
             };
 
             return primitive.onViewMouseDown(e, i);
@@ -165,11 +184,15 @@ vde.ui.regEvtHandlers = function() {
             var primitive = primitiveFromView(i);
             primitive.onViewMouseUp(e, i);
 
+            vde.ui.onMouseUp(e);
+
             vde.ui.dragging = null;
             return false;
         })        
         .on('mousemove', function(e, i) {
             var primitive = primitiveFromView(i);
+            vde.ui.onMouseMove(e);
+
             return primitive.onViewMouseMove(e, i);
         })
         .on('click', function(e, i) {
@@ -178,6 +201,34 @@ vde.ui.regEvtHandlers = function() {
 
             vde.ui.inspector.show(primitive, [e.pageX, e.pageY]);
         });
+
+    // When we begin a drag on a scene graph object, if the mouse
+    // cursor travels fast and escapes the target, have these global
+    // listeners to catch those events and transmit them back. 
+    d3.select('body')
+        .on('mousemove', vde.ui.onMouseMove)
+        .on('mouseup', vde.ui.onMouseUp);
+};
+
+vde.ui.onMouseMove = function(e) {
+    if(!vde.ui.dragging)
+        return;
+
+    var d = vde.ui.dragging;
+    if(d.onmousemove)
+        d.onmousemove.call(d.target, (d3.event || e), d.sceneObj);    
+};
+
+vde.ui.onMouseUp = function(e) {
+    if(!vde.ui.dragging)
+        return;
+
+    var d = vde.ui.dragging;
+    if(d.onmouseup)
+        d.onmouseup.call(d.target, (d3.event || e), d.sceneObj);
+
+    vde.ui.dragging = null;
+    return false;
 };
 
 // Hacky, copied from d3 so we can feed it non d3.events

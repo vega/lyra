@@ -101,3 +101,12 @@ body {
     pointer-events: none;
     border: 1px dashed transparent;
 }
+
+#tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 5px;
+    padding: 3px 10px;
+    color: #fff;
+    font: italic 12px Georgia, serif;
+}

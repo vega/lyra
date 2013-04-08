@@ -155,6 +155,8 @@
     left: 115px;
 }
 
+#inspector_arc .outerRadius input { float: left; }
+
 #inspector_arc .fill {
     top: 35px;
     left: 105px;
