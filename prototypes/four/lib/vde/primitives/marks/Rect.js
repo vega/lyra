@@ -28,10 +28,10 @@ vde.primitives.marks.Rect = (function() {
     };
 
     prototype.getSpec = function() {
-        this.setWidth();
-        this.setHeight();
-        this.setFillStroke('fill');
-        this.setFillStroke('stroke');
+        this.setWidth()
+            .setHeight()
+            .setFillStroke('fill')
+            .setFillStroke('stroke')
 
         this.enter('strokeWidth', this.properties.strokeWidth);
         // TODO: update shouldn't be the same as enter. 
@@ -63,6 +63,8 @@ vde.primitives.marks.Rect = (function() {
 
             this.enter('width', this.properties.width);            
         }
+
+        return this;
     };
 
     prototype.setHeight = function() {
@@ -76,6 +78,8 @@ vde.primitives.marks.Rect = (function() {
             this.enter('y', this.properties.height)
                 .enter('y2', {value: 0});
         }
+
+        return this;
     };
 
     prototype.setFillStroke = function(type) {
@@ -85,6 +89,8 @@ vde.primitives.marks.Rect = (function() {
         } else {
             this.enter(type, this.properties[type]);
         }
+
+        return this;
     };
 
     prototype.onToolbarDrop = function(e) {

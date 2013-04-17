@@ -35,12 +35,11 @@ vde.primitives.marks.Arc = (function() {
     };
 
     prototype.getSpec = function() {
-        this.setAngle();
-        this.setInnerRadius();
-        this.setOuterRadius();
-
-        this.setFillStroke('fill');
-        this.setFillStroke('stroke');
+        this.setAngle()
+            .setInnerRadius()
+            .setOuterRadius()
+            .setFillStroke('fill')
+            .setFillStroke('stroke');
 
         this.enter('x', this.properties.x)
             .enter('y', this.properties.y)
@@ -69,6 +68,8 @@ vde.primitives.marks.Arc = (function() {
                     .enter('endAngle', deg2rad(this.properties.endAngle));
             }      
         }
+
+        return this;
     };
 
     prototype.setInnerRadius = function() {
@@ -77,6 +78,8 @@ vde.primitives.marks.Arc = (function() {
             ir.spec.range = [0, this.properties.radiiRanges[0]];
 
         this.enter('innerRadius', (ir instanceof vde.primitives.Scale) ? ir.getDataRef() : {value: this.properties.radiiRanges[0]});
+
+        return this;
     };
 
     prototype.setOuterRadius = function() {
@@ -85,6 +88,8 @@ vde.primitives.marks.Arc = (function() {
             or.spec.range = this.properties.radiiRanges;
 
         this.enter('outerRadius', (or instanceof vde.primitives.Scale) ? or.getDataRef() : {value: this.properties.radiiRanges[1]});
+
+        return this;
     };
 
     prototype.setFillStroke = function(type) {
@@ -94,6 +99,8 @@ vde.primitives.marks.Arc = (function() {
         } else {
             this.enter(type, this.properties[type]);
         }
+
+        return this;
     };
 
     prototype.onToolbarDrop = function(e) {
@@ -116,7 +123,6 @@ vde.primitives.marks.Arc = (function() {
 
     prototype.onViewMouseDown = function(e, sceneObj) {
         this.getDragBounds(e, sceneObj);
-        console.log('hello');
         vde.ui.dragging.isInner = this.dragBounds.isInner;
     };
 
@@ -138,8 +144,12 @@ vde.primitives.marks.Arc = (function() {
                 var diff = Math.floor(Math.sqrt(Math.pow(coords[0] - old[0], 2) + Math.pow(coords[1] - old[1], 2)));
                 self.properties.radiiRanges[vde.ui.dragging.isInner ? 0 : 1] += (diff * ((reverse) ? -1 : 1));
                 
-                vde.parse();
                 vde.ui.inspector.arc.loadValues();
+                
+                self.setInnerRadius().setOuterRadius();
+                sceneObj.mark.def.properties.enter  = vg.parse.properties(self.spec.properties.enter);
+                sceneObj.mark.def.properties.update = vg.parse.properties(self.spec.properties.update);
+                vde.view.update();
             };
             
             if(cursor == 'move') {  }
