@@ -49,5 +49,14 @@ vde.primitives.Scale = (function() {
         return this;
     };
 
+    prototype.getDef = function() {
+        var groupDef = this.group.getDef();
+        for(var i = 0; i < groupDef.scales.length; i++)
+            if(groupDef.scales[i].name == this.getName())
+                return groupDef.scales[i];
+
+        return null;
+    };
+
     return scale;
 })();

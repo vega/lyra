@@ -145,10 +145,11 @@ vde.primitives.marks.Arc = (function() {
                 self.properties.radiiRanges[vde.ui.dragging.isInner ? 0 : 1] += (diff * ((reverse) ? -1 : 1));
                 
                 vde.ui.inspector.arc.loadValues();
-                
+
                 self.setInnerRadius().setOuterRadius();
                 sceneObj.mark.def.properties.enter  = vg.parse.properties(self.spec.properties.enter);
                 sceneObj.mark.def.properties.update = vg.parse.properties(self.spec.properties.update);
+                vde.view._build = false;
                 vde.view.update();
             };
             

@@ -50,5 +50,39 @@ vde.primitives.Mark = (function() {
         return this;
     };
 
+    prototype.getDef = function() {
+        var path = [], p = this,
+            defs = vde.view.model().defs(),
+            d = defs.marks;
+
+        while(p) {
+            path.push(p.getName());
+            p = p.group;
+        }
+
+        var findMarkDef = function(def, name) {
+            if(def.name == name)
+                return def;
+
+            for(var i = 0; i < def.marks.length; i++) {
+                if(def.marks[i].name == name)
+                    return def.marks[i];
+            }
+
+            return null;
+        } 
+        
+        while(p = path.pop()) {
+            if(d.name == p)
+                continue;
+
+            d = findMarkDef(d, p);
+            if(!d)
+                return null;
+        }
+
+        return d;
+    };
+
     return mark;
 })();
