@@ -78,8 +78,8 @@ vde.primitives.marks.Group = (function() {
                 self.enter(prop, {value: newVal});
                 obj[prop] = newVal;
 
-                vde.view._build = false;
-                vde.view.update();
+                vde.dirty[self.getName()] = self;
+                vde.update();
             };
             
             if(cursor == 'move') { update('x'); update('y'); }

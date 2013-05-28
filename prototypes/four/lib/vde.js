@@ -5,6 +5,7 @@ vde.padding = {top:20, left:20, right:20, bottom:20};
 vde.data    = {};
 vde.scales  = {};
 vde.groups  = {};
+vde.dirty   = {};
 
 vde.view    = null;
 
@@ -61,6 +62,14 @@ vde.parse = function() {
     vg.parse.spec(spec, vde.ui.render);
 
     return spec;
+};
+
+vde.update = function() {
+    vg.keys(vde.dirty).forEach(function(k) {
+        vde.dirty[k].updateProps();
+    });
+
+    vde.view.update();
 };
 
 document.addEventListener('DOMContentLoaded', function() {

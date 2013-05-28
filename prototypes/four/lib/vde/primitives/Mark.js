@@ -84,5 +84,13 @@ vde.primitives.Mark = (function() {
         return d;
     };
 
+    prototype.updateProps = function() {
+        var def  = this.getDef(),
+            spec = this.getSpec();
+
+        def.properties.enter  = vg.parse.properties(spec.properties.enter);
+        def.properties.update = vg.parse.properties(spec.properties.update);
+    };
+
     return mark;
 })();
