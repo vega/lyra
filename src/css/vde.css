@@ -1,0 +1,81 @@
+/* html5doctor.com Reset v1.6.1 (http://html5doctor.com/html-5-reset-stylesheet/) - http://cssreset.com */
+html,body,div,span,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,abbr,address,cite,code,del,dfn,em,img,ins,kbd,q,samp,small,strong,sub,sup,var,b,i,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}
+body{line-height:1}
+article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}
+nav ul{list-style:none}
+blockquote,q{quotes:none}
+blockquote:before,blockquote:after,q:before,q:after{content:none}
+a{margin:0;padding:0;font-size:100%;vertical-align:baseline;background:transparent}
+ins{background-color:#ff9;color:#000;text-decoration:none}
+mark{background-color:#ff9;color:#000;font-style:italic;font-weight:bold}
+del{text-decoration:line-through}
+abbr[title],dfn[title]{border-bottom:1px dotted;cursor:help}
+table{border-collapse:collapse;border-spacing:0}
+hr{display:block;height:1px;border:0;border-top:1px solid #ccc;margin:1em 0;padding:0}
+input,select{vertical-align:middle}
+
+/* VDE */
+
+body { background: #cdcdcd; }
+
+.chrome { 
+    background: #a4a4a4; 
+    padding: 10px;
+}
+
+#inspectors {
+    position: absolute;
+    width: 280px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+}
+
+#groups {
+    position: absolute;
+    width: 130px;
+    top: 0;
+    bottom: 0;
+    right: 0;
+}
+
+#marks {
+    position: absolute;
+    height: 16px;
+    top: 0;
+    left: 300px;
+    right: 150px;
+    padding: 0 0 10px 0;
+}
+
+#marks ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    cursor: url(../imgs/openhand.cur), default !important;
+}
+
+#marks li {
+    float: left;
+    display: block;
+    width: 16px;
+    height: 16px;
+    padding: 5px;
+    margin-left: 10px;
+    text-indent: -999em;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+#marks li:hover { background-color: #ddd; }
+#marks #Rect { background-image: url(../imgs/rect.png); }
+#marks #Arc { background-image: url(../imgs/arc.png); }
+#marks #axis { background-image: url(../imgs/axis.png); }
+
+#vis {
+    position: absolute;
+    left: 315px;
+    top: 40px;
+    background: #fff;
+    border: 1px solid #999;
+}

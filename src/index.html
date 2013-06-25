@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html ng-app="vde">
+  <head>
+    <title>VDE</title>
+    <link rel="stylesheet" type="text/css" href="css/vde.css" />
+
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://trifacta.github.io/vega/vega.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+
+    <script src="js/app/vde.js"></script>
+    <script src="js/app/marks.js"></script>
+    <script src="js/vis/Vis.js"></script>
+    <script src="js/vis/Mark.js"></script>
+    <script src="js/vis/marks/Group.js"></script>
+    <script src="js/vis/marks/Rect.js"></script>
+    <script src="js/vis/Scale.js"></script>
+
+  </head>
+  <body ng-controller="VdeCtrl" ng-init="parse()">
+    
+    <div id="marks" class="chrome" ng-include src="'tmpl/marks.html'"></div>
+
+    <div id="inspectors" class="chrome" ng-view></div>
+
+    <div id="groups" class="chrome"></div>
+
+    <div id="vis" mark-droppable></div>
+
+  </body>
+</html>

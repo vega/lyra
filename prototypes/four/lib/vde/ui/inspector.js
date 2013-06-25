@@ -171,7 +171,8 @@ vde.ui.inspector.onChange = function() {
     primitive.properties[field] = {value: this.value};
     vde.ui.inspector[inspectorFor].updateDelegate(field, this.value);
 
-    vde.parse();
+    vde.dirty[primitive.getName()] = primitive;
+    vde.update();
 };
 
 vde.ui.inspector.onDrop = function() {
