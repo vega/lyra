@@ -1,3 +1,9 @@
-<ul ng-controller="MarksCtrl">
-  <li ng-repeat="mark in marks" id="{{mark}}" draggable="true" mark-draggable>{{mark}}</li>
-</ul>
+<div ng-controller="MarksCtrl">
+  <div id="marks" class="chrome">
+    <ul>
+      <li ng-repeat="mark in marks" id="{{mark}}" draggable="true" mark-draggable>{{mark}}</li>
+    </ul>
+  </div>
+
+  <div id="vis" mark-droppable></div>
+</div>

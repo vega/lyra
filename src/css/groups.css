@@ -1,0 +1,22 @@
+#groups {
+  position: absolute;
+  width: 130px;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+
+#groups h3 {
+  font-size: 12px;
+  font-weight: normal;
+  background: url(../imgs/spinner-closed.png) 0 0 no-repeat;
+  background-size: 12px 12px;
+  padding-left: 20px;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+#groups h3.expanded {
+  background-image: url(../imgs/spinner-open.png);
+  font-style: italic;
+}

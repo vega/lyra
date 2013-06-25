@@ -1,0 +1,24 @@
+<div id="groups" class="chrome" ng-controller="GroupsCtrl" ng-class="activeGroup">
+  <h2><span>Groups</span></h2> 
+
+  <div class="group" ng-repeat="(groupName, group) in groups">
+    <h3 ng-class="{expanded:activeGroup == groupName}" ng-click="activateGroup(groupName)">{{groupName|inflector:'humanize'}}</h3>
+
+    <div class="member" ng-show="activeGroup == groupName" ng-hide="activeGroup != groupName">
+      <h4>Scales</h4>
+
+      <a ng-repeat="(scaleName, scale) in group.scales" ng-href="#/group/{{groupName}}/scale/{{scaleName}}">{{scaleName|inflector:'humanize'}}</a>
+
+      <h4>Axes</h4>
+
+      <a ng-repeat="(axisName, axis) in group.axes" ng-href="#/group/{{groupName}}/axis/{{axisName}}">{{axisName|inflector:'humanize'}}</a>
+
+      <h4>Marks</h4>
+
+      <a ng-repeat="(markName, mark) in group.marks" ng-href="#/group/{{groupName}}/{{mark.type}}/{{markName}}">{{markName|inflector:'humanize'}}</a>
+
+    </div>
+
+  </div>
+</div>
+

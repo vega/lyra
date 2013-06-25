@@ -23,7 +23,7 @@ vde.Vis.Mark = (function() {
     }
 
     if(!this.name)
-      this.name = this.type + '_' + vg.keys(this.group.marks).length;
+      this.name = this.type + '_' + (vg.keys(this.group.marks).length+1);
 
     this.group.marks[this.name] = this;
 

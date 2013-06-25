@@ -1,0 +1,32 @@
+#marks {
+    position: absolute;
+    height: 16px;
+    top: 0;
+    left: 300px;
+    right: 150px;
+    padding: 0 0 10px 0;
+}
+
+#marks ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    cursor: url(../imgs/openhand.cur), default !important;
+}
+
+#marks li {
+    float: left;
+    display: block;
+    width: 16px;
+    height: 16px;
+    padding: 5px;
+    margin-left: 10px;
+    text-indent: -999em;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+#marks li:hover { background-color: #ddd; }
+#marks #Rect { background-image: url(../imgs/rect.png); }
+#marks #Arc { background-image: url(../imgs/arc.png); }
+#marks #axis { background-image: url(../imgs/axis.png); }

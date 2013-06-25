@@ -1,15 +1,17 @@
 vde.Vis.marks.Group = (function() {
   var group = function(name) {
-    vde.Vis.Mark.call(this, name || 'group_' + vg.keys(vde.Vis.groups).length);
+    vde.Vis.Mark.call(this, name || 'group_' + (vg.keys(vde.Vis.groups).length+1));
 
-    this.type = 'group';
-    this._spec.scales = [];
-    this._spec.axes   = [];
-    this._spec.marks  = [];
+    this.type   = 'group';
+    this.pseudo = false;  // A psuedo-group exists in the spec, but not in the VDE UI.
 
     this.scales = {};
     this.axes   = {};
     this.marks  = {};
+
+    this._spec.scales = [];
+    this._spec.axes   = [];
+    this._spec.marks  = [];
 
     return this;
   };

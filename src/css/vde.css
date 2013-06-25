@@ -16,66 +16,42 @@ input,select{vertical-align:middle}
 
 /* VDE */
 
-body { background: #cdcdcd; }
+body { 
+  background: #cdcdcd; 
+  font: 12px 'Helvetica Neue', sans-serif;
+}
 
 .chrome { 
-    background: #a4a4a4; 
-    padding: 10px;
+  background: #a4a4a4; 
+  padding: 10px;
+}
+
+.chrome h2 {
+  height: 16px;
+  margin: -10px -10px 10px;
+  padding: 5px 10px 5px 10px;
+  background: #333;
+  color: #fff;
+  font-size: 14px;
+}
+
+.chrome h2 span {
+  text-transform: uppercase;
+  font-weight: normal;
 }
 
 #inspectors {
-    position: absolute;
-    width: 280px;
-    top: 0;
-    bottom: 0;
-    left: 0;
+  position: absolute;
+  width: 280px;
+  top: 0;
+  bottom: 0;
+  left: 0;
 }
-
-#groups {
-    position: absolute;
-    width: 130px;
-    top: 0;
-    bottom: 0;
-    right: 0;
-}
-
-#marks {
-    position: absolute;
-    height: 16px;
-    top: 0;
-    left: 300px;
-    right: 150px;
-    padding: 0 0 10px 0;
-}
-
-#marks ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    cursor: url(../imgs/openhand.cur), default !important;
-}
-
-#marks li {
-    float: left;
-    display: block;
-    width: 16px;
-    height: 16px;
-    padding: 5px;
-    margin-left: 10px;
-    text-indent: -999em;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-}
-
-#marks li:hover { background-color: #ddd; }
-#marks #Rect { background-image: url(../imgs/rect.png); }
-#marks #Arc { background-image: url(../imgs/arc.png); }
-#marks #axis { background-image: url(../imgs/axis.png); }
 
 #vis {
-    position: absolute;
-    left: 315px;
-    top: 40px;
-    background: #fff;
-    border: 1px solid #999;
+  position: absolute;
+  left: 315px;
+  top: 40px;
+  background: #fff;
+  border: 1px solid #999;
 }
