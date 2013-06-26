@@ -19,6 +19,8 @@ input,select{vertical-align:middle}
 body { 
   background: #cdcdcd; 
   font: 12px 'Helvetica Neue', sans-serif;
+  height: 100%;
+  overflow: hidden;
 }
 
 .chrome { 

@@ -5,13 +5,13 @@
     <h3 ng-class="{expanded:activeGroup == groupName}" ng-click="toggleGroup(groupName)">{{groupName|inflector:'humanize'}}</h3>
 
     <div class="member" ng-show="activeGroup == groupName" ng-hide="activeGroup != groupName">
-      <h4>Scales</h4>
+      <h4>Scales <a href="#" class="add">New Scale</a></h4>
 
       <ul>
         <li ng-repeat="(scaleName, scale) in group.scales"><a ng-href="#/group/{{groupName}}/scale/{{scaleName}}">{{scaleName|inflector:'humanize'}}</a></li>
       </ul>
 
-      <h4>Axes</h4>
+      <h4>Axes <a href="#" class="add">New Axis</a></h4>
       
       <ul>
         <li ng-repeat="(axisName, axis) in group.axes"><a ng-href="#/group/{{groupName}}/axis/{{axisName}}">{{axisName|inflector:'humanize'}}</a></li>

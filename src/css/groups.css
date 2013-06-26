@@ -9,9 +9,9 @@
 #groups h2 { margin-bottom: 10px; }
 
 #groups h3 {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: normal;
-  background: url(../imgs/spinner-closed.png) 0 0 no-repeat;
+  background: url(../imgs/spinner-closed.png) 0 1px no-repeat;
   background-size: 12px 12px;
   padding-left: 20px;
   margin: 5px 10px;
@@ -20,22 +20,36 @@
 
 #groups h3.expanded {
   background-image: url(../imgs/spinner-open.png);
-  font-style: italic;
+  background-position: 0 2px;
+  font-weight: bold;
 }
 
 #groups h4 { 
-  margin: 5px 10px; 
+  margin: 10px 10px 5px 10px; 
+  font-weight: normal;
+  border-bottom: 1px solid #777;
+}
+
+#groups h4 a.add {
+  display: inline-block;
+  float: right;
+  width: 12px;
+  height: 12px;
+  background: url(../imgs/add-grey.png) no-repeat;
+  background-size: 12px;
+  text-indent: -999em;
 }
 
 #groups li {
   list-style-type: none;
-  padding: 5px 10px;
+  margin: 5px 10px;
+  padding: 5px;
   border: 1px solid #a4a4a4;
 }
 
 #groups li.selected { background: #ccc; }
 
 #groups li a {
-  color: #333;
+  color: #000;
   text-decoration: none;
 }
