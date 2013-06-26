@@ -12,10 +12,16 @@ vde.App.config(function ($routeProvider) {
       template: '<ng-include src="\'tmpl/inspectors/pipeline.html\'"></ng-include> <ng-include src="\'tmpl/inspectors/group.html\'"></ng-include>',
       controller: 'InspectorsCtrl'
     })
+    .when('/group/:groupName/axes/:itemName', {
+      template: '<ng-include src="\'tmpl/inspectors/axis.html\'"></ng-include>',
+      controller: 'InspectorsCtrl'
+    })
+    .when('/group/:groupName/:type/:itemName', {
+      templateUrl: 'tmpl/inspectors/routeStub.html',
+      controller: 'InspectorsStubCtrl'
+    })
 })
 
 vde.App.controller('VdeCtrl', function($scope, $rootScope) {
-  $scope.parse = function() { 
-    vde.Vis.parse(); 
-  }
+    $scope.$on('$viewContentLoaded', function() { vde.Vis.parse(); }); 
 });

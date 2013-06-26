@@ -28,7 +28,7 @@ vde.App.directive('markDroppable', function($rootScope, $location) {
           vde.Vis.parse();
 
           // Then route to this mark to load its inspector
-          $location.path('/group/' + activeGroup + '/rect/' + mark.name);
+          $location.path('/group/' + mark.group.name + '/marks/' + mark.name);
         });
       })
   }

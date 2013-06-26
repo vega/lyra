@@ -6,7 +6,20 @@
   left: 0;
 }
 
-#pipeline { height: 49%; }
+#pipeline { 
+  height: 49%; 
+  margin-bottom: 1%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#properties { 
+  height: 49%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.fullHeight { height: 99% !important; }
 
 .property {
   height: 30px;

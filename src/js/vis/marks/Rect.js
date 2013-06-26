@@ -11,6 +11,7 @@ vde.Vis.marks.Rect = (function() {
       y: {value: 0},
       height: {value: 150},
       fill: {value: '#4682b4'},
+      fillOpacity: {value: 1},
       stroke: {value: '#000000'},
       strokeWidth: {value: 0}
     };

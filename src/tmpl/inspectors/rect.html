@@ -1,0 +1,42 @@
+<h2><span>Visual</span>: {{itemName|inflector:'humanize'}}</h2>
+
+<div id="properties">
+  <fieldset id="x">
+    <legend>X</legend>
+
+    <vde-property label="Start" type="number" ng-model="properties.x.value" reparse="1"></vde-property>
+
+    <vde-property label="Span" type="number" ng-model="properties.width.value" reparse="1"></vde-property>
+
+    <vde-property label="End" type="number" ng-model="properties.x2.value" reparse="1"></vde-property>
+
+  </fieldset>
+
+  <fieldset id="y">
+    <legend>Y</legend>
+
+    <vde-property label="Start" type="number" ng-model="properties.y.value" reparse="1"></vde-property>
+
+    <vde-property label="Span" type="number" ng-model="properties.height.value" reparse="1"></vde-property>
+
+    <vde-property label="End" type="number" ng-model="properties.y2.value" reparse="1"></vde-property>
+
+  </fieldset>
+
+  <fieldset id="fill">
+    <legend>Fill</legend>
+
+    <vde-property label="Color" type="color" ng-model="properties.fill.value" reparse="1"></vde-property>  
+
+    <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" ng-model="properties.fillOpacity.value" reparse="1"></vde-property> 
+  </fieldset>  
+
+  <fieldset id="stroke">
+    <legend>Stroke</legend>
+
+    <vde-property label="Color" type="color" ng-model="properties.stroke.value" reparse="1"></vde-property>  
+
+    <vde-property label="Width" type="range" min="0" step="0.25" max="10" ng-model="properties.strokeWidth.value" reparse="1"></vde-property> 
+  </fieldset>  
+ 
+</div>

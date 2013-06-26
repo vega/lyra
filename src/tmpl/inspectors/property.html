@@ -1,6 +1,10 @@
 <div class="property">
   <label>{{label}}</label>
   <div class="field" ng-switch on="type">
-    <ng-switch-when="number"><input type="number" ng-model="ngModel" ng-change="onchange()" /></ng-switch-when>
+    <span ng-switch-when="number"><input type="number" ng-model="$parent.ngModel" ng-change="onchange()" /></span>
+
+    <span ng-switch-when="range"><input type="range" ng-model="$parent.ngModel" ng-change="onchange()" min="{{min}}" max="{{max}}" step="{{step}}" /></span>
+
+    <span ng-switch-when="color"><input type="color" ng-model="$parent.ngModel" ng-change="onchange()" /></span>
   </div>
 </div>
