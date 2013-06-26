@@ -1,22 +1,17 @@
 #inspectors {
   position: absolute;
-  width: 280px;
+  width: 300px;
   top: 0;
   bottom: 0;
   left: 0;
 }
 
-#pipeline { 
+#pipeline, #properties { 
   height: 49%; 
   margin-bottom: 1%;
   overflow-x: hidden;
   overflow-y: auto;
-}
-
-#properties { 
-  height: 49%;
-  overflow-x: hidden;
-  overflow-y: auto;
+  padding: 10px;
 }
 
 .fullHeight { height: 99% !important; }
@@ -36,7 +31,8 @@
 
 .property .field { float: left; }
 
-.property .field input[type=number] { width: 50px; }
+.property .field input[type=number],
+.property .field input[type=color] { width: 50px; }
 
 fieldset { 
   margin-top: 10px;
@@ -44,7 +40,8 @@ fieldset {
 }
 
 legend {
-  padding: 0 7px;
+  padding: 0 5px;
+  margin-left: 5px;
   font-weight: bold;
   text-transform: lowercase;
 }

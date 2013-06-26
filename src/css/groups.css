@@ -1,10 +1,12 @@
 #groups {
   position: absolute;
-  width: 130px;
+  width: 150px;
   top: 0;
   bottom: 0;
   right: 0;
 }
+
+#groups h2 { margin-bottom: 10px; }
 
 #groups h3 {
   font-size: 12px;
@@ -12,11 +14,28 @@
   background: url(../imgs/spinner-closed.png) 0 0 no-repeat;
   background-size: 12px 12px;
   padding-left: 20px;
-  margin: 10px 0;
+  margin: 5px 10px;
   cursor: pointer;
 }
 
 #groups h3.expanded {
   background-image: url(../imgs/spinner-open.png);
   font-style: italic;
+}
+
+#groups h4 { 
+  margin: 5px 10px; 
+}
+
+#groups li {
+  list-style-type: none;
+  padding: 5px 10px;
+  border: 1px solid #a4a4a4;
+}
+
+#groups li.selected { background: #ccc; }
+
+#groups li a {
+  color: #333;
+  text-decoration: none;
 }

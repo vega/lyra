@@ -8,11 +8,11 @@ vde.App.controller('InspectorsCtrl', function($scope, $rootScope, $routeParams) 
       var type = $routeParams.type || 'axes';
       var item = group[type][$routeParams.itemName];
 
-      $scope.itemName   = item.name;
+      $rootScope.itemName   = item.name;
       $scope.properties = item.properties;
       $scope.fullWidth  = (type == 'axes');
     } else {
-      $scope.itemName   = group.name;
+      $rootScope.itemName   = group.name;
       $scope.properties = group.properties;
     }
   } else {
