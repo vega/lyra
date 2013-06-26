@@ -1,0 +1,42 @@
+#inspectors {
+  position: absolute;
+  width: 280px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#pipeline { height: 49%; }
+
+.property {
+  height: 30px;
+}
+
+.property label {
+  float: left;
+  width: 50px;
+  margin: 5px 10px 0 0;
+  font-style: italic;
+  text-transform: lowercase;
+  text-align: right;
+}
+
+.property .field { float: left; }
+
+.property .field input[type=number] { width: 50px; }
+
+fieldset { 
+  margin-top: 10px;
+  border: 1px solid #666; 
+}
+
+legend {
+  padding: 0 7px;
+  font-weight: bold;
+  text-transform: lowercase;
+}
+
+fieldset#padding .property { 
+  float: left; 
+  margin-right: 15px;
+}

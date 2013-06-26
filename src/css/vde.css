@@ -33,20 +33,10 @@ body {
   background: #333;
   color: #fff;
   font-size: 14px;
-}
-
-.chrome h2 span {
-  text-transform: uppercase;
   font-weight: normal;
 }
 
-#inspectors {
-  position: absolute;
-  width: 280px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-}
+.chrome h2 span { text-transform: uppercase; }
 
 #vis {
   position: absolute;
