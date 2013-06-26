@@ -5,14 +5,11 @@ vde.App.controller('InspectorsCtrl', function($scope, $rootScope, $route, $route
     $rootScope.activeGroup = undefined;
     $scope.properties = vde.Vis.properties;
   }
-
-  $scope.reParse = function() { vde.Vis.parse(); }
 });
 
 vde.App.directive('vdeProperty', function() {
   return {
     restrict: 'E',
-    transclude: true,
     scope: {
       label: '@',
       type: '@',
@@ -22,7 +19,8 @@ vde.App.directive('vdeProperty', function() {
     templateUrl: 'tmpl/inspectors/property.html',
     controller: function($scope, $element, $attrs) {
       $scope.onchange = function() {
-        if($attrs.reparse) $scope.$parent.reParse();
+        if($attrs.reparse) 
+          vde.Vis.parse();
       }
     }
   }
