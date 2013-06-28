@@ -10,23 +10,25 @@ vde.Vis = (function() {
     groups: {}
   };
 
-  vis.data = function(name, data) {
+  vis.data = function(name, data, type) {
     if(!data) return vis._data[name];
-    
+
     if(vg.isObject(data)) {
-      vis.data[name] = {
+      vis._data[name] = {
         name: name,
         values: data
       };
     }
 
     if(vg.isString(data)) {
-      d3.json(data, function(error, response) {
-        vis.data[name] = {
-            name: name,
-            url: data,
-            values: response
-        };
+      vis._data[name] = {
+        name: name,
+        url: data,
+        type: type
+      };
+
+      d3[type](data, function(error, response) {
+        vis._data[name].values = response;
       });   
     }     
   };
@@ -41,8 +43,8 @@ vde.Vis = (function() {
       marks: []
     };
 
-    vg.keys(vis.data).forEach(function(d) {
-      var dd = vg.duplicate(vis.data[d]);
+    vg.keys(vis._data).forEach(function(d) {
+      var dd = vg.duplicate(vis._data[d]);
       if(dd.url)
         delete dd.values;
 

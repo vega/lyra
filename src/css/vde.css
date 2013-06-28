@@ -23,6 +23,11 @@ body {
   overflow: hidden;
 }
 
+a { 
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .chrome { 
   background: #a4a4a4;
 }

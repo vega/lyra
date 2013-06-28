@@ -1,5 +1,41 @@
-<h2><span>Pipeline</span></h2>
+<h2><span>Pipeline</span> <a ng-if="itemType == 'visualization'" class="add-data" id="add-data" ng-click="toggleData()">Add Data</a> <a ng-if="itemType == 'mark'" ng-hide="dataBound" class="import-data" id="add-data" ng-click="addData()">Add Data</a></h2>
 
-<div id="pipeline">
+<div id="pipeline" ng-controller="PipelineCtrl" ng-switch on="itemType">
+  <div ng-switch-when="visualization">
+    <ul>
+      <li class="add-data icon" ng-repeat="(dataName, data) in data" ng-animate="'slide'">Add <code>{{data.name || data.url}}</code></li>
+    </ul>
+
+    <div id="add-data-dialog" ng-show="showAddData" ng-animate="{show: 'fade-show'}">
+      <div class="bubble top">
+        <form ng-submit="addData()">
+          <h4>Add Data Source</h4>
+
+          <vde-property label="Name" type="text" ng-model="$parent.dataName"></vde-property>
+
+          <vde-property label="URL" type="text" ng-model="$parent.dataSrc"></vde-property>
+
+          <vde-property label="Type" type="select" options="types" ng-model="$parent.dataType"></vde-property>
+
+          <input type="submit" value="Add" />
+        </form>
+      </div>  
+    </div>
+
+  </div>
+
+  <div ng-switch-when="mark">
+    <ul>
+      <li ng-hide="dataBound">This mark is not currently associated with any <a ng-click="addData()">data.</a></li>
+      <li class="import-data icon" ng-show="dataBound" ng-animate="{show: 'slide-enter'}">Import data from
+        <select ng-model="item.from.data" ng-options="src for src in dataSources"></select>
+      </li>
+    </ul>
+
+    <div id="pipelineData" class="slickgrid" vde-data-grid="{{item.from.data}}"></div>
+
+  </div>
+
+
 
 </div>

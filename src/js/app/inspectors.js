@@ -5,24 +5,33 @@ vde.App.controller('InspectorsCtrl', function($scope, $rootScope, $routeParams) 
 
     // TODO: Deal with pseudo-groups and subgroups. 
     if('itemName' in $routeParams) {
-      var type = $routeParams.type || 'axes';
-      var item = group[type][$routeParams.itemName];
+      var type = $routeParams.type || 'axis';
+      var types = (type == 'axis') ? 'axes' : (type == 'scale') ? 'scales' : 'marks';
+      var item = group[types][$routeParams.itemName];
 
-      $rootScope.itemName   = item.name;
+      $rootScope.itemName = item.name;
+      $rootScope.itemType = type;
+      $scope.item       = item;
       $scope.properties = item.properties;
-      $scope.fullWidth  = (type == 'axes');
+      $scope.fullWidth  = (type == 'axis');
     } else {
-      $rootScope.itemName   = group.name;
+      $rootScope.itemName = group.name;
+      $rootScope.itemType = 'group';
+      $scope.item       = group;
       $scope.properties = group.properties;
     }
   } else {
     $rootScope.activeGroup = undefined;
+    $rootScope.itemType = 'visualization';
     $scope.properties = vde.Vis.properties;
   }
 });
 
 vde.App.controller('InspectorsStubCtrl', function($scope, $routeParams) {
-  var item = vde.Vis.groups[$routeParams.groupName][$routeParams.type][$routeParams.itemName];
+  var type = $routeParams.type || 'axis';
+  var types = (type == 'axis') ? 'axes' : (type == 'scale') ? 'scales' : 'marks';
+
+  var item = vde.Vis.groups[$routeParams.groupName][types][$routeParams.itemName];
   $scope.templateUrl = 'tmpl/inspectors/' + item.type + '.html';
 });
 
@@ -36,6 +45,7 @@ vde.App.directive('vdeProperty', function() {
       min: '@',
       step: '@',
       ngModel: '=',
+      options: '=',
       reparse: '@'
     },
     templateUrl: 'tmpl/inspectors/property.html',
