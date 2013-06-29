@@ -17,7 +17,8 @@
 .fullHeight { height: 99% !important; }
 
 .property {
-  height: 30px;
+  height: 25px;
+  margin-bottom: 5px;
 }
 
 .property label {
@@ -29,10 +30,28 @@
   text-align: right;
 }
 
-.property .field { float: left; }
+.property .field { 
+  float: left; 
+  width: 195px;
+}
 
 .property .field input[type=number],
 .property .field input[type=color] { width: 50px; }
+
+.property .field a.unbind {
+  display: none;
+  float: right;
+  width: 16px;
+  height: 16px;
+  background: url(../imgs/remove-black.png) no-repeat;
+  background-size: 16px;
+  text-indent: -999em;
+}
+
+.property:hover .field a.unbind { display: inline-block; }
+.property:hover .field a.unbind:hover { 
+  background-image: url(../imgs/remove-white.png);
+}
 
 fieldset { 
   margin-top: 10px;

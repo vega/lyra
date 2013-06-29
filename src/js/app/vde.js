@@ -27,6 +27,6 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope) {
       vde.Vis.parse(); 
 
       vde.Vis.data('olympics', 'http://localhost:8000/data/olympics.json', 'json');
-      vde.Vis.data('olympics2', 'http://localhost:8000/data/olympics.json', 'json');
+      // vde.Vis.data('olympics2', 'http://localhost:8000/data/olympics.json', 'json');
     }); 
 });

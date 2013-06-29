@@ -56,6 +56,27 @@ vde.App.directive('vdeDataGrid', function () {
             enableCellNavigation: true,
             syncColumnCellResize: true
           });
+
+          $(element).find('.slick-header-column').each(function(i) {
+            $(this).drag('start', function(e, dd) {
+              return $('<div></div>')
+                .text($(this).text())
+                .addClass('schema')
+                .css('opacity', 0.75)
+                .css('position', 'absolute')
+                .css('z-index', 100)
+                .appendTo(document.body);
+            })
+            .drag(function( ev, dd ){
+              $( dd.proxy ).css({
+                top: dd.offsetY,
+                left: dd.offsetX
+              });
+            })
+            .drag("end",function( ev, dd ){
+              $( dd.proxy ).remove();
+            });
+          })
         }
       })
     }

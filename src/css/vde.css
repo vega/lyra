@@ -43,10 +43,149 @@ a {
 
 .chrome h2 span { text-transform: uppercase; }
 
-#vis {
-  position: absolute;
-  left: 315px;
-  top: 40px;
-  background: #fff;
-  border: 1px solid #999;
+.binding, .binding .scale, .schema, .binding .empty {
+  float: left;
+  border-radius: 10px;
+  font-size: 11px;
+  cursor: url(../imgs/openhand.cur), default !important;
+}
+
+.binding {
+  background: #4b4b4b;
+  border-left: 1px solid #4b4b4b;
+  color: #fff;
+}
+
+.binding:hover { 
+  background-color: #666;
+  border-left: 1px solid #666;
+}
+
+.binding .scale {
+  border-top: 1px solid #4b4b4b;
+  border-bottom: 1px solid #4b4b4b;
+  padding: 3px 5px;
+}
+
+.binding:hover .scale {
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+}
+
+.schema {
+  padding: 3px 5px;
+  background: #ccc;
+  border: 1px solid #888;
+  color: #333;  
+}
+
+.schema:hover, .binding:hover .schema {
+  background-color: #ddd;
+  border-color: #999;
+}
+
+.binding .empty {
+  padding: 3px 5px;
+  background: #a4a4a4;
+  border: 1px solid #a4a4a4;
+  border-radius: 0;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;  
+}
+
+.bubble {
+    background-color: #F2F2F2;
+    display: inline-block;
+    padding: 7px;
+    position: relative;
+    vertical-align: top;
+    box-shadow: 2px 5px 15px 0px rgba(0, 0, 0, 0.3);
+}
+
+.bubble::before {
+    background-color: #F2F2F2;
+    content: "\00a0";
+    display: block;
+    height: 16px;
+    position: absolute;
+    width:  20px;
+}
+
+.top:before {
+  left: 5px;
+  top: -5px;
+  transform:             rotate( 117deg ) skew( -35deg );
+      -moz-transform:    rotate( 117deg ) skew( -35deg );
+      -ms-transform:     rotate( 117deg ) skew( -35deg );
+      -o-transform:      rotate( 117deg ) skew( -35deg );
+      -webkit-transform: rotate( 117deg ) skew( -35deg ); 
+}
+
+.bottom:before {
+  left: 5px;
+  top: 27px;
+  transform:             rotate( -63deg ) skew( -35deg );
+      -moz-transform:    rotate( -63deg ) skew( -35deg );
+      -ms-transform:     rotate( -63deg ) skew( -35deg );
+      -o-transform:      rotate( -63deg ) skew( -35deg );
+      -webkit-transform: rotate( -63deg ) skew( -35deg ); 
+}
+
+.left:before {
+  left: -9px; 
+  top: 11px;
+  transform:             rotate( 29deg ) skew( -35deg );
+      -moz-transform:    rotate( 29deg ) skew( -35deg );
+      -ms-transform:     rotate( 29deg ) skew( -35deg );
+      -o-transform:      rotate( 29deg ) skew( -35deg );
+      -webkit-transform: rotate( 29deg ) skew( -35deg );  
+}
+
+.right:before {
+  right: -9px;
+  top: 11px;
+  transform:             rotate( 29deg ) skew( -35deg );
+      -moz-transform:    rotate( 29deg ) skew( -35deg );
+      -ms-transform:     rotate( 29deg ) skew( -35deg );
+      -o-transform:      rotate( 29deg ) skew( -35deg );
+      -webkit-transform: rotate( 29deg ) skew( -35deg );   
+}
+
+.slide-enter, 
+.slide-leave
+{ 
+    -webkit-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    -moz-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    -ms-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    -o-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    position: relative;
+    display: block;
+} 
+ 
+.slide-enter.slide-enter-active, 
+.slide-leave {
+    opacity: 1;
+    left: 0;
+}
+ 
+.slide-leave.slide-leave-active,
+.slide-enter {
+    opacity: 0;
+    left: -50px;
+}
+
+.fade-show, .fade-hide { 
+    -webkit-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    -moz-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    -ms-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    -o-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+} 
+
+.fade-hide, .fade-show.fade-show-active {
+  opacity:1;
+}
+.fade-hide.fade-hide-active, .fade-show {
+  opacity:0;
 }

@@ -1,6 +1,6 @@
 vde.Vis.Scale = (function() {
   var scale = function(name, group, spec) {
-    this.name  = (name || 'scale_' + vg.keys(group.scales).length);
+    this.name  = (name || 'scale_' + (vg.keys(group.scales).length+1));
 
     this.group = group;
     this.group.scales[this.name] = this;
@@ -26,4 +26,15 @@ vde.Vis.Scale = (function() {
     return null;
   };
 
+  prototype.equals = function(b) {
+    var a = {}, self = this;
+
+    vg.keys(b).forEach(function(k) {
+      a[k] = self._spec[k];
+    });
+
+    return JSON.stringify(a) == JSON.stringify(b);
+  };
+
+  return scale;
 })();

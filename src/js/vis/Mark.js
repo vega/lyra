@@ -17,10 +17,8 @@ vde.Vis.Mark = (function() {
   var prototype = mark.prototype;
 
   prototype.init = function() {
-    if(!this.group) {
+    if(!this.group)
       this.group = new vde.Vis.marks.Group();
-      this.group.init();
-    }
 
     if(!this.name)
       this.name = this.type + '_' + (vg.keys(this.group.marks).length+1);
@@ -31,10 +29,25 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.spec = function() {
-    this._spec.name = this.name;
-    this._spec.type = this.type;
+    var spec = vg.duplicate(this._spec);
 
-    return this._spec;
+    spec.name = this.name;
+    spec.type = this.type;
+
+    var props = {};
+
+    for(var prop in this.properties) {
+      var p = this.properties[prop];
+      if('scale' in p)
+        props[prop] = {scale: p.scale.name, field: p.field};
+      else
+        props[prop] = p;
+    }
+
+    spec.properties.enter  = props;
+    spec.properties.update = props;
+
+    return spec;
   };
 
   prototype.enter = function(k, v) {
@@ -56,6 +69,10 @@ vde.Vis.Mark = (function() {
 
     this._spec.properties[type][k] = v;
     return this;
+  };
+
+  prototype.unbindProperty = function(prop) {
+    this.properties[prop] = {scale: undefined, value: 0};
   };
 
   prototype.def = function() {

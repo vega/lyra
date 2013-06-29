@@ -25,6 +25,7 @@
   </div>
 
   <div ng-switch-when="mark">
+    
     <ul>
       <li ng-hide="dataBound">This mark is not currently associated with any <a ng-click="addData()">data.</a></li>
       <li class="import-data icon" ng-show="dataBound" ng-animate="{show: 'slide-enter'}">Import data from
@@ -33,6 +34,8 @@
     </ul>
 
     <div id="pipelineData" class="slickgrid" vde-data-grid="{{item.from.data}}"></div>
+
+
 
   </div>
 

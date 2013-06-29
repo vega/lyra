@@ -30,3 +30,11 @@
 #marks #Rect { background-image: url(../imgs/rect.png); }
 #marks #Arc { background-image: url(../imgs/arc.png); }
 #marks #axis { background-image: url(../imgs/axis.png); }
+
+#vis {
+  position: absolute;
+  left: 315px;
+  top: 40px;
+  background: #fff;
+  border: 1px solid #999;
+}

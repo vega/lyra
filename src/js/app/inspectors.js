@@ -44,16 +44,48 @@ vde.App.directive('vdeProperty', function() {
       max: '@', 
       min: '@',
       step: '@',
+      item: '=',
+      property: '@',
       ngModel: '=',
+      scale: '=',
+      field: '=',
       options: '=',
       reparse: '@'
     },
     templateUrl: 'tmpl/inspectors/property.html',
-    controller: function($scope, $element, $attrs) {
+    controller: function($scope, $element, $attrs) {      
       $scope.onchange = function() {
         if($attrs.reparse) 
           vde.Vis.parse();
-      }
+      };
+    },
+    link: function(scope, element, attrs) {
+      $(element).find('.property').drop(function(e, dd) {
+        var field = $(dd.proxy).hasClass('schema');
+        var value = $(dd.proxy).text();
+
+        scope.$apply(function() {
+          scope.item.bindProperty(attrs.property, 
+            field ? {field: value} : {scale: value});
+        });
+
+        vde.Vis.parse();
+      }).drop('dropstart', function() {
+        $(this).css('backgroundColor', '#bbb');
+      }).drop('dropend', function() {
+        $(this).css('backgroundColor', 'transparent');
+      })
     }
   }
 });
+
+vde.App.directive('vdeBinding', function() {
+  return {
+    restrict: 'E',
+    scope: {
+      scale: '=',
+      field: '='
+    },
+    templateUrl: 'tmpl/inspectors/binding.html'
+  }
+})

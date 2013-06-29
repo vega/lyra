@@ -22,11 +22,41 @@ vde.Vis.marks.Rect = (function() {
   rect.prototype = new vde.Vis.Mark();
   var prototype  = rect.prototype;
 
-  prototype.spec = function() {
-    var spec = vg.duplicate(vde.Vis.Mark.prototype.spec.call(this));
-    spec.properties.enter = this.properties;
-    spec.properties.update = this.properties;
-    return spec;
+  prototype.bindProperty = function(prop, opts) {
+    this.properties[prop] || (this.properties[prop] = {});
+
+    if(opts.scale)
+      this.properties[prop].scale = this.group.scale({ name: scale });
+
+    if(opts.field) {
+      var scale;
+
+      switch(prop) {
+        case 'x':
+        case 'x2':
+        case 'width':
+          scale = this.group.scale({
+            type: 'ordinal',
+            domain: {data: this.from.data, field: opts.field},
+            range: 'width'
+          });
+        break;
+
+        case 'y':
+        case 'y2':
+        case 'height':
+          scale = this.group.scale({
+            type: 'ordinal',
+            domain: {data: this.from.data, field: opts.field}
+          });
+        break;
+      }
+
+      this.properties[prop].scale = scale;
+      this.properties[prop].field = opts.field;
+    }
+
+    delete this.properties[prop].value;
   };
 
   return rect;
