@@ -13,6 +13,17 @@ vde.Vis.marks.Group = (function() {
     this._spec.axes   = [];
     this._spec.marks  = [];
 
+    this.properties = {
+      x: {value: 0},
+      width: {value: vde.Vis.properties.width},
+      y: {value: 0},
+      height: {value: vde.Vis.properties.height},
+      fill: {value: '#ffffff'},
+      fillOpacity: {value: 1},
+      stroke: {value: '#000000'},
+      strokeWidth: {value: 0}
+    };
+
     vde.Vis.groups[this.name] = this;
 
     return this;
@@ -34,11 +45,14 @@ vde.Vis.marks.Group = (function() {
 
   // Given a spec, find a pre-existing scale that matches,
   // or if none do, build a new scale. 
-  prototype.scale = function(spec) {
+  prototype.scale = function(spec, defaultSpec) {
     for(var scaleName in this.scales) {
       if(this.scales[scaleName].equals(spec))
         return this.scales[scaleName];
     }
+
+    for(var k in defaultSpec)
+      spec[k] = defaultSpec[k];
 
     return new vde.Vis.Scale('', this, spec);
   };
