@@ -58,6 +58,11 @@ vde.App.directive('vdeProperty', function() {
         if($attrs.reparse) 
           vde.Vis.parse();
       };
+
+      $scope.unbind = function(property) {
+        $scope.item.unbindProperty(property);
+        vde.Vis.parse();
+      }
     },
     link: function(scope, element, attrs) {
       $(element).find('.property').drop(function(e, dd) {

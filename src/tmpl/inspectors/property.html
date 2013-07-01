@@ -1,7 +1,13 @@
 <div class="property">
   <label>{{label}}</label>
   <div class="field" ng-switch on="type">
-    <div ng-if="scale == undefined">
+    <div ng-show="scale">
+      <vde-binding scale="scale.name" field="field"></vde-binding>
+
+      <a class="unbind" ng-click="unbind(property)">Unbind</a>
+    </div>
+
+    <div ng-hide="field">
       <span ng-switch-when="text"><input type="text" ng-model="$parent.ngModel" ng-change="onchange()" /></span>
 
       <span ng-switch-when="number"><input type="number" ng-model="$parent.ngModel" ng-change="onchange()" /></span>
@@ -11,12 +17,6 @@
       <span ng-switch-when="color"><input type="color" ng-model="$parent.ngModel" ng-change="onchange()" /></span>
 
       <span ng-switch-when="select"><select ng-model="$parent.ngModel" ng-options="opt for opt in $parent.options"></select></span>
-    </div>
-
-    <div ng-if="scale != undefined">
-      <vde-binding scale="scale.name" field="field"></vde-binding>
-
-      <a class="unbind" ng-click="item.unbindProperty(property)">Unbind</a>
     </div>
   </div>
 </div>
