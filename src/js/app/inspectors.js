@@ -77,6 +77,8 @@ vde.App.directive('vdeProperty', function() {
             field ? {field: value} : {scale: value});
         });
 
+        $('.proxy').remove();
+
         vde.Vis.parse();
       }).drop('dropstart', function() {
         $(this).css('backgroundColor', '#bbb');

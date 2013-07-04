@@ -7,6 +7,7 @@ vde.App.directive('markDraggable', function() {
     element
       .drag('start', function(e, dd) {
         return $(this).clone()
+            .addClass('proxy')
             .css('opacity', 0.75)
             .css('position', 'absolute')
             .css('z-index', 100)

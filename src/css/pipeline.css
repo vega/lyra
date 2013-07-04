@@ -58,7 +58,7 @@
   background: url(../imgs/accept.png) no-repeat; 
   opacity: 0.6;
 }
-.add-transform .cancel { 
+.add-transform .delete { 
   background: url(../imgs/delete.png) no-repeat; 
   opacity: 0.4;
   margin-left: 5px;

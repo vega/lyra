@@ -38,7 +38,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
         $scope.newTransforms.splice(i, 1);
       };
 
-      $scope.cancelTransform = function(i, isNewTransform) {
+      $scope.removeTransform = function(i, isNewTransform) {
         if(isNewTransform)
           $scope.newTransforms.splice(i, 1);
         else
@@ -53,61 +53,53 @@ vde.App.directive('vdeDataGrid', function () {
   return {
     restrict: 'A',
     scope: {
-      vdeDataGrid: '@',
+      source: '=',
       transforms: '='
     },
     controller: function($scope, $element, $attrs) {
       $scope.buildSlickGrid = function() {
-        var grid, columns = [],
-            data = vde.Vis._data[$attrs.vdeDataGrid];
+        var grid, data = vde.Vis._data[$scope.source];
+        if(!data || !vg.isArray(data.values)) return;
 
-        if(data && vg.isArray(data.values)) {
-          var values = vg.duplicate(data.values);
+        var values = vg.duplicate(data.values);
+        var columns = vg.keys(values[0]).map(function(d) {
+          return { name: d, field: d, id: d };
+        });
 
-          vg.keys(values[0]).forEach(function(d) {
-            columns.push({
-              name: d, 
-              field: d,
-              id: d
-            });
+        if(vg.isArray($scope.transforms)) {
+          var ingested = values.map(vg.data.ingest);
+          $scope.transforms.forEach(function(t) { 
+            ingested = t.transform(ingested); 
           });
 
-          if(vg.isArray($scope.transforms)) {
-            $scope.transforms.forEach(function(t) {
-              values = t.transform(values);
-            });
-          }
-
-          grid = new Slick.Grid($element, values, columns, {
-            enableColumnReorder: false,
-            enableCellNavigation: true,
-            syncColumnCellResize: true
-          });
-
-          $($element).find('.slick-header-column').each(function(i) {
-            $(this).drag('start', function(e, dd) {
-              return $('<div></div>')
-                .text($(this).text())
-                .addClass('schema')
-                .css('opacity', 0.75)
-                .css('position', 'absolute')
-                .css('z-index', 100)
-                .appendTo(document.body);
-            })
-            .drag(function( ev, dd ){
-              $( dd.proxy ).css({
-                top: dd.offsetY,
-                left: dd.offsetX
-              });
-            })
-            .drag("end",function( ev, dd ){
-              $( dd.proxy ).remove();
-            });
-          })
+          values = ingested.map(function(d) { return d.data; });
         }
+
+        grid = new Slick.Grid($element, values, columns, {
+          enableColumnReorder: false,
+          enableCellNavigation: true,
+          syncColumnCellResize: true
+        });
+
+        $($element).find('.slick-header-column').each(function(i) {
+          $(this).drag('start', function(e, dd) {
+            return $('<div></div>')
+              .text($(this).text())
+              .addClass('schema')
+              .addClass('proxy')
+              .css('opacity', 0.75)
+              .css('position', 'absolute')
+              .css('z-index', 100)
+              .appendTo(document.body);
+          })
+          .drag(function(ev, dd){
+            $(dd.proxy).css({ top: dd.offsetY, left: dd.offsetX });
+          })
+          .drag("end", function(ev, dd){ $(dd.proxy).remove(); });
+        })
       };
 
-      $attrs.$observe('vdeDataGrid', $scope.buildSlickGrid);     
+      $scope.$watch('source', $scope.buildSlickGrid);     
       $scope.$watch('transforms', $scope.buildSlickGrid, true);      
     }
   };
@@ -116,6 +108,6 @@ vde.App.directive('vdeDataGrid', function () {
 vde.App.directive('vdeAddTransform', function() {
   return {
     restrict: 'E',
-    template: '<span class="add-transform"><a ng-click="cancelTransform($index, isNewTransform)" class="cancel">Cancel</a> <a ng-if="isNewTransform" ng-click="addTransform($index)" class="accept">Add</a></span>'
+    template: '<span class="add-transform"><a ng-click="removeTransform($index, isNewTransform)" class="delete">Delete</a> <a ng-if="isNewTransform" ng-click="addTransform($index)" class="accept">Add</a></span>'
   }
 });

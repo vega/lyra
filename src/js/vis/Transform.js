@@ -26,11 +26,10 @@ vde.Vis.Transform = (function() {
     this.properties[prop] = opts.field;
   };
 
+  // Assumes data is already ingested
   prototype.transform = function(data) {
     var transform = vg.parse.dataflow({transform: [this.spec()]})
-    var emit = function(d) { return d.data; };
-
-    return transform((data || []).map(vg.data.ingest)).map(emit);
+    return transform(data);
   };
 
   return transform;
