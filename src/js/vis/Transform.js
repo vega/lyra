@@ -26,6 +26,13 @@ vde.Vis.Transform = (function() {
     this.properties[prop] = opts.field;
   };
 
+  prototype.transform = function(data) {
+    var transform = vg.parse.dataflow({transform: [this.spec()]})
+    var emit = function(d) { return d.data; };
+
+    return transform((data || []).map(vg.data.ingest)).map(emit);
+  };
+
   return transform;
 })();
 

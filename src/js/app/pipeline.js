@@ -22,7 +22,6 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
     case 'mark':
       $scope.dataSources = vg.keys(vde.Vis._data);
       $scope.$parent.dataBound = 'data' in $scope.$parent.item.from;
-      $scope.transforms = $scope.item.transforms;
 
       $scope.$parent.addData = function() {
         $scope.$parent.item.from = {data: ''};
@@ -39,8 +38,11 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
         $scope.newTransforms.splice(i, 1);
       };
 
-      $scope.cancelTransform = function(i) {
-        $scope.newTransforms.splice(i, 1);
+      $scope.cancelTransform = function(i, isNewTransform) {
+        if(isNewTransform)
+          $scope.newTransforms.splice(i, 1);
+        else
+          $scope.item.transforms.splice(i, 1);
       };
 
     break;
@@ -51,15 +53,18 @@ vde.App.directive('vdeDataGrid', function () {
   return {
     restrict: 'A',
     scope: {
-      vdeDataGrid: '@'
+      vdeDataGrid: '@',
+      transforms: '='
     },
-    link: function(scope, element, attrs) {
-      attrs.$observe('vdeDataGrid', function(dataSrc) {
+    controller: function($scope, $element, $attrs) {
+      $scope.buildSlickGrid = function() {
         var grid, columns = [],
-            data = vde.Vis._data[dataSrc];
+            data = vde.Vis._data[$attrs.vdeDataGrid];
 
         if(data && vg.isArray(data.values)) {
-          vg.keys(data.values[0]).forEach(function(d) {
+          var values = vg.duplicate(data.values);
+
+          vg.keys(values[0]).forEach(function(d) {
             columns.push({
               name: d, 
               field: d,
@@ -67,13 +72,19 @@ vde.App.directive('vdeDataGrid', function () {
             });
           });
 
-          grid = new Slick.Grid(element, data.values, columns, {
+          if(vg.isArray($scope.transforms)) {
+            $scope.transforms.forEach(function(t) {
+              values = t.transform(values);
+            });
+          }
+
+          grid = new Slick.Grid($element, values, columns, {
             enableColumnReorder: false,
             enableCellNavigation: true,
             syncColumnCellResize: true
           });
 
-          $(element).find('.slick-header-column').each(function(i) {
+          $($element).find('.slick-header-column').each(function(i) {
             $(this).drag('start', function(e, dd) {
               return $('<div></div>')
                 .text($(this).text())
@@ -94,7 +105,10 @@ vde.App.directive('vdeDataGrid', function () {
             });
           })
         }
-      })
+      };
+
+      $attrs.$observe('vdeDataGrid', $scope.buildSlickGrid);     
+      $scope.$watch('transforms', $scope.buildSlickGrid, true);      
     }
   };
 });
@@ -102,6 +116,6 @@ vde.App.directive('vdeDataGrid', function () {
 vde.App.directive('vdeAddTransform', function() {
   return {
     restrict: 'E',
-    template: '<span class="add-transform" ng-if="isNewTransform"><a ng-click="cancelTransform($index)" class="cancel">Cancel</a> <a ng-click="addTransform($index)" class="accept">Add</a></span>'
+    template: '<span class="add-transform"><a ng-click="cancelTransform($index, isNewTransform)" class="cancel">Cancel</a> <a ng-if="isNewTransform" ng-click="addTransform($index)" class="accept">Add</a></span>'
   }
 });

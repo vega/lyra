@@ -35,7 +35,12 @@ vde.Vis.Mark = (function() {
 
     spec.name = this.name;
     spec.type = this.type;
+
     spec.from = this.from;
+    spec.from.transform = [];
+    this.transforms.forEach(function(t) {
+      spec.from.transform.push(t.spec());
+    });
 
     var props = {};
 

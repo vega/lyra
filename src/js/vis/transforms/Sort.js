@@ -5,8 +5,9 @@ vde.Vis.transforms.Sort = (function() {
   }
 
   sort.prototype = new vde.Vis.Transform();
+  var prototype = sort.prototype;
 
-  sort.spec = function() {
+  prototype.spec = function() {
     return {
       type: this.type,
       by: (this.properties.order == 'Descending' ? '-' : '') + 'data.' + this.properties.by
