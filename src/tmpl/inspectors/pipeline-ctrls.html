@@ -1,0 +1,13 @@
+<div class="pipeline-ctrls">
+  <a ng-hide="isNewTransform" ng-mouseover="previewTransform = $index" ng-mouseleave="previewTransform = ''" class="preview">Preview</a>
+
+  <a ng-click="removeTransform($index, isNewTransform)" class="delete">Delete</a> 
+
+  <a ng-if="isNewTransform" ng-click="addTransform($index)" class="accept">Add</a>
+</div>
+
+<div class="preview-transform" ng-if="previewTransform === $index">
+  <div class="bubble left" ng-init="slicedTransforms = item.transforms.slice(0, $index+1)">
+    <div class="slickgrid" vde-data-grid source="item.from.data" transforms="slicedTransforms"></div>
+  </div>
+</div>

@@ -39,9 +39,12 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
       };
 
       $scope.removeTransform = function(i, isNewTransform) {
+        var cnf = confirm("Are you sure you wish to delete this transformation?")
+        if(!cnf) return;
+
         if(isNewTransform)
           $scope.newTransforms.splice(i, 1);
-        else
+        else 
           $scope.item.transforms.splice(i, 1);
       };
 
@@ -62,10 +65,6 @@ vde.App.directive('vdeDataGrid', function () {
         if(!data || !vg.isArray(data.values)) return;
 
         var values = vg.duplicate(data.values);
-        var columns = vg.keys(values[0]).map(function(d) {
-          return { name: d, field: d, id: d };
-        });
-
         if(vg.isArray($scope.transforms)) {
           var ingested = values.map(vg.data.ingest);
           $scope.transforms.forEach(function(t) { 
@@ -74,6 +73,12 @@ vde.App.directive('vdeDataGrid', function () {
 
           values = ingested.map(function(d) { return d.data; });
         }
+
+        // Get column names after transformations to account for
+        // any schema changes. 
+        var columns = vg.keys(values[0]).map(function(d) {
+          return { name: d, field: d, id: d };
+        });
 
         grid = new Slick.Grid($element, values, columns, {
           enableColumnReorder: false,
@@ -105,9 +110,9 @@ vde.App.directive('vdeDataGrid', function () {
   };
 });
 
-vde.App.directive('vdeAddTransform', function() {
+vde.App.directive('vdePipelineCtrls', function() {
   return {
     restrict: 'E',
-    template: '<span class="add-transform"><a ng-click="removeTransform($index, isNewTransform)" class="delete">Delete</a> <a ng-if="isNewTransform" ng-click="addTransform($index)" class="accept">Add</a></span>'
+    templateUrl: 'tmpl/inspectors/pipeline-ctrls.html'
   }
 });

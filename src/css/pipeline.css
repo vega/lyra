@@ -1,4 +1,4 @@
-#add-data, #transforms a, .add-transform a {
+#add-data, #transforms a, .pipeline-ctrls a {
   display: inline-block;
   float: right;
   width: 16px;
@@ -40,9 +40,19 @@
   margin-bottom: 10px;
 }
 
+#pipeline h3 { 
+  float: left;
+  padding: 3px 5px;
+  background: #4f4f4f;
+  color: #FFF;
+  font-weight: normal;
+}
+
 #transforms {
-  background: #bbb;
+  background: #ccc;
+  border: 1px solid #4f4f4f;
   padding: 5px;
+  clear: both;
 }
 
 #transforms a { 
@@ -50,16 +60,38 @@
   margin: 0 10px 0 0;
 }
 
-#add-filter { background: url(../imgs/filter_add.png) no-repeat;}
-#add-sort { background: url(../imgs/sort_add.png) no-repeat;}
+.pipeline-ctrls {
+  display: inline-block;
+  float: right; 
+}
 
-.add-transform a:hover { opacity: 1; }
-.add-transform .accept { 
+#pipeline ul:first-of-type li .pipeline-ctrls { visibility: hidden; }
+#pipeline ul:first-of-type li:hover .pipeline-ctrls { visibility: visible; }
+
+.pipeline-ctrls a { margin-left: 5px; }
+
+.pipeline-ctrls a:hover { opacity: 1; }
+.pipeline-ctrls .accept { 
   background: url(../imgs/accept.png) no-repeat; 
   opacity: 0.6;
 }
-.add-transform .delete { 
+.pipeline-ctrls .delete { 
   background: url(../imgs/delete.png) no-repeat; 
   opacity: 0.4;
-  margin-left: 5px;
+}
+
+.pipeline-ctrls .preview {
+  background: url(../imgs/preview.png) no-repeat; 
+  opacity: 0.6;
+}
+
+.preview-transform {
+  position: absolute;
+  right: -245px;
+  width: 250px;
+}
+
+#pipeline .preview-transform .slickgrid { 
+  width: 300px; 
+  margin: 0;
 }
