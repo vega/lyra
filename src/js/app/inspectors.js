@@ -50,7 +50,8 @@ vde.App.directive('vdeProperty', function() {
       scale: '=',
       field: '=',
       options: '=',
-      reparse: '@'
+      reparse: '@',
+      nodrop: '@'
     },
     templateUrl: 'tmpl/inspectors/property.html',
     controller: function($scope, $element, $attrs) {      
@@ -65,6 +66,8 @@ vde.App.directive('vdeProperty', function() {
       }
     },
     link: function(scope, element, attrs) {
+      if(attrs.nodrop) return;
+
       $(element).find('.property').drop(function(e, dd) {
         var field = $(dd.proxy).hasClass('schema');
         var value = $(dd.proxy).text();

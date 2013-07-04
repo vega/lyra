@@ -1,4 +1,4 @@
-#add-data {
+#add-data, #transforms a, .add-transform a {
   display: inline-block;
   float: right;
   width: 16px;
@@ -22,7 +22,7 @@
 
 #pipeline li {
   list-style-type: none;
-  padding: 0 0 10px 0;
+  padding: 0 0 5px 0;
   margin-bottom: 10px;
   border-bottom: 1px solid #888;
 }
@@ -30,9 +30,36 @@
 #pipeline li.icon { padding-left: 25px; }
 .add-data { background: url(../imgs/table_add.png) no-repeat; }
 .import-data { background: url(../imgs/table_import.png) no-repeat; }
+.transform-filter { background: url(../imgs/filter.png) no-repeat; }
+.transform-sort { background: url(../imgs/sort.png) no-repeat; }
 
 #pipeline .slickgrid {
   width: 100%;
   height: 175px;
   font-size: 11px;
+  margin-bottom: 10px;
+}
+
+#transforms {
+  background: #bbb;
+  padding: 5px;
+}
+
+#transforms a { 
+  float: left; 
+  margin: 0 10px 0 0;
+}
+
+#add-filter { background: url(../imgs/filter_add.png) no-repeat;}
+#add-sort { background: url(../imgs/sort_add.png) no-repeat;}
+
+.add-transform a:hover { opacity: 1; }
+.add-transform .accept { 
+  background: url(../imgs/accept.png) no-repeat; 
+  opacity: 0.6;
+}
+.add-transform .cancel { 
+  background: url(../imgs/delete.png) no-repeat; 
+  opacity: 0.4;
+  margin-left: 5px;
 }

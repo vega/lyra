@@ -25,17 +25,27 @@
   </div>
 
   <div ng-switch-when="mark">
-    
+
     <ul>
       <li ng-hide="dataBound">This mark is not currently associated with any <a ng-click="addData()">data.</a></li>
       <li class="import-data icon" ng-show="dataBound" ng-animate="{show: 'slide-enter'}">Import data from
         <select ng-model="item.from.data" ng-options="src for src in dataSources"></select>
       </li>
+
+      <li ng-repeat="transform in transforms" class="transform-{{transform.type|lowercase}} icon" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
     </ul>
 
-    <div id="pipelineData" class="slickgrid" vde-data-grid="{{item.from.data}}"></div>
+    <div id="pipelineData" class="slickgrid" vde-data-grid="{{item.from.data}}" transforms="transforms"></div>
 
+    <ul>
+      <li ng-repeat="transform in newTransforms" class="transform-{{transform.type|lowercase}} icon" ng-init="isNewTransform = 1" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
+    </ul>
 
+    <div id="transforms" ng-show="item.from.data && newTransforms.length == 0">
+      <a id="add-filter" ng-click="newTransform('Filter')">Filter</a>
+      <a id="add-sort"   ng-click="newTransform('Sort')">Sort</a>
+      <br clear="all" />
+    </div>
 
   </div>
 

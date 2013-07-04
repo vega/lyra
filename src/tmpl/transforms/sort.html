@@ -1,0 +1,9 @@
+<div ng-init="sortOrder=['Ascending', 'Descending']">
+  Sort
+
+  <vde-add-transform></vde-add-transform>
+
+  <vde-property label="By" type="field" item="transform" property="by" ng-model="transform.properties.by" field="transform.properties.by" reparse="1"></vde-property>
+
+  <vde-property label="Order" type="select" item="transform" options="sortOrder" ng-model="transform.properties.order" reparse="1" nodrop="1"></vde-property>
+</div>

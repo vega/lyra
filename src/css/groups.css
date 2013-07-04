@@ -25,6 +25,7 @@
 }
 
 #groups h4 { 
+  clear: both;
   margin: 10px 10px 5px 10px; 
   font-weight: normal;
   border-bottom: 1px solid #777;

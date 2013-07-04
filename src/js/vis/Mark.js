@@ -1,7 +1,9 @@
 vde.Vis.Mark = (function() {
   var mark = function(name) {
     this.name = name;
+
     this.from = {};
+    this.transforms = [];
 
     this._spec = {
       properties: {
