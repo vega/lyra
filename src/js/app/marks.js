@@ -1,5 +1,5 @@
 vde.App.controller('MarksCtrl', function($scope, $rootScope) {
-  $scope.marks = ['Rect', 'Arc'];
+  $scope.marks = ['Rect', 'Symbol'];
 });
 
 vde.App.directive('markDraggable', function() {

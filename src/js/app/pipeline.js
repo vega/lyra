@@ -36,6 +36,8 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
       $scope.addTransform = function(i) {
         $scope.item.transforms.push($scope.newTransforms[i]);
         $scope.newTransforms.splice(i, 1);
+
+        vde.Vis.parse();
       };
 
       $scope.removeTransform = function(i, isNewTransform) {

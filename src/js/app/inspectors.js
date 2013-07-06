@@ -67,6 +67,7 @@ vde.App.directive('vdeProperty', function() {
     },
     link: function(scope, element, attrs) {
       if(attrs.nodrop) return;
+      if(attrs.type == 'expr') return;
 
       $(element).find('.property').drop(function(e, dd) {
         var field = $(dd.proxy).hasClass('schema');
@@ -97,5 +98,38 @@ vde.App.directive('vdeBinding', function() {
       field: '='
     },
     templateUrl: 'tmpl/inspectors/binding.html'
+  }
+});
+
+vde.App.directive('vdeExpr', function() {
+  return {
+    restrict: 'A',
+    template: '<div class="expr" contenteditable="true"></div>',
+    link: function(scope, element, attrs) {
+      $(element).find('.expr')
+        .html(scope.$parent.ngModel)
+        .drop(function(e, dd) {
+          var field = $(dd.proxy).hasClass('schema');
+          var value = $(dd.proxy).text();
+          $('.proxy').remove();
+
+          $(this).append(' <div class="schema" contenteditable="false">' + value + '</div> ');
+          $(this).focus();
+        }).drop('dropstart', function() {
+          $(this).parent().css('borderColor', '#bbb');
+        }).drop('dropend', function() {
+          $(this).parent().css('borderColor', '#aaa');
+        })
+        .bind('keyup', function(e) {
+          var html  = $(this).html();
+          var value = html.replace(/\s*<div(.*?)>\s*/g, 'd.data.').replace(/\s*<\/div>\s*/,'');
+          value = $('<p>' + value + '</p>').text(); // Hack to convert HTML entities to text
+
+          scope.$apply(function() {
+            scope.item.properties[scope.property] = value;
+            scope.item.properties[scope.property + 'Html'] = html;
+          });
+        })    
+    }
   }
 })

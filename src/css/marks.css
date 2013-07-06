@@ -23,13 +23,22 @@
     margin-left: 10px;
     text-indent: -999em;
     background-repeat: no-repeat;
-    background-position: 50% 50%;
 }
 
 #marks li:hover { background-color: #ddd; }
-#marks #Rect { background-image: url(../imgs/rect.png); }
-#marks #Arc { background-image: url(../imgs/arc.png); }
-#marks #axis { background-image: url(../imgs/axis.png); }
+#marks #Rect {
+ background-image: url(../imgs/rect.png); 
+ background-position: 50% 50%;
+}
+#marks #Arc { 
+  background-image: url(../imgs/arc.png); 
+  background-position: -5px 3px;
+}
+
+#marks #Symbol { 
+  background-image: url(../imgs/symbol.png); 
+  background-position: 3px 1px;
+}
 
 #vis {
   position: absolute;

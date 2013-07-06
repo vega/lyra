@@ -75,3 +75,18 @@ fieldset#padding .property {
   float: left; 
   margin-right: 15px;
 }
+
+.expr-container {
+  background: #fff;
+  border: 1px solid #aaa;
+  overflow: hidden;
+  height: 20px;
+  padding: 2px;
+}
+
+.expr { width: 1000px; }
+
+.expr .schema {
+  float: none;
+  display: inline-block;
+}
