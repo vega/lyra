@@ -1,0 +1,28 @@
+<h2><span>Visual</span>: {{itemName|inflector:'humanize'}}</h2>
+
+<div id="properties" ng-init="shapes=['circle', 'square', 'cross', 'diamond', 'triangle-up', 'triangle-down']">
+  <vde-property label="X" type="number" item="item" property="x" ng-model="properties.x.value" scale="properties.x.scale" field="properties.x.field" reparse="1"></vde-property>
+
+  <vde-property label="Y" type="number" item="item" property="y" ng-model="properties.y.value" scale="properties.y.scale" field="properties.y.field" reparse="1"></vde-property>
+
+  <vde-property label="Shape" type="select" options="shapes" item="item" property="shape" ng-model="properties.shape.value" scale="properties.shape.scale" field="properties.shape.field" reparse="1"></vde-property>
+
+  <vde-property label="Size" type="number" item="item" property="size" ng-model="properties.size.value" scale="properties.size.scale" field="properties.size.field" reparse="1"></vde-property>
+
+  <fieldset id="fill">
+    <legend>Fill</legend>
+
+    <vde-property label="Color" type="color" item="item" property="fill" ng-model="properties.fill.value" scale="properties.fill.scale" field="properties.fill.field" reparse="1"></vde-property>  
+
+    <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" item="item" property="fillOpacity" ng-model="properties.fillOpacity.value" scale="properties.fillOpacity.scale" field="properties.fillOpacity.field" reparse="1"></vde-property> 
+  </fieldset>  
+
+  <fieldset id="stroke">
+    <legend>Stroke</legend>
+
+    <vde-property label="Color" type="color" item="item" property="stroke" ng-model="properties.stroke.value" scale="properties.stroke.scale" field="properties.stroke.field" reparse="1"></vde-property>  
+
+    <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="item" property="strokeWidth" ng-model="properties.strokeWidth.value" scale="properties.strokeWidth.scale" field="properties.strokeWidth.field" reparse="1"></vde-property> 
+  </fieldset>  
+ 
+</div>
