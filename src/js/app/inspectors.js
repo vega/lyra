@@ -61,10 +61,12 @@ vde.App.directive('vdeProperty', function() {
       nodrop: '@'
     },
     templateUrl: 'tmpl/inspectors/property.html',
-    controller: function($scope, $element, $attrs) {      
+    controller: function($scope, $element, $attrs, $timeout) {      
       $scope.onchange = function() {
-        if($attrs.reparse) 
-          vde.Vis.parse();
+        $timeout(function() {
+          if($attrs.reparse) 
+            vde.Vis.parse();
+        }, 100);        
       };
 
       $scope.unbind = function(property) {
