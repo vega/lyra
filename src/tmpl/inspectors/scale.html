@@ -1,11 +1,11 @@
 <h2><span>Properties</span>: {{itemName|inflector:'humanize'}}</h2>
 
 <div id="properties" ng-init="types=['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile', 'quantize', 'threshold', 'utc', 'time']">
-  <vde-property label="Name" type="text" item="item" property="name" ng-model="properties.name" reparse="1" nodrop="1"></vde-property>
+  <vde-property label="Name" type="text" item="item" property="name" ng-model="properties.name" nodrop="1"></vde-property>
 
-  <vde-property label="Type" type="select" options="types" item="item" property="type" ng-model="properties.type" reparse="1" nodrop="1"></vde-property>
+  <vde-property label="Type" type="select" options="types" item="item" property="type" ng-model="properties.type" nodrop="1"></vde-property>
 
-  <vde-property label="Domain" type="field" item="item" property="field" field="properties.field" reparse="1"></vde-property>
+  <vde-property label="Domain" type="field" item="item" property="field" field="properties.field"></vde-property>
 
-  <vde-property label="Range" type="field" item="item" property="range" field="properties.range" reparse="1"></vde-property>
+  <vde-property label="Range" type="field" item="item" property="range" field="properties.range"></vde-property>
 </div>

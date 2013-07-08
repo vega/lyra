@@ -6,7 +6,7 @@ vde.App.controller('InspectorsCtrl', function($scope, $rootScope, $routeParams, 
     // TODO: Deal with pseudo-groups and subgroups. 
     if('itemName' in $routeParams) {
       var path = $location.path();
-      var type, types;
+      var type, types, item;
       if(path.indexOf('mark') != -1) { // TODO: This is ugly. Fix routes. 
         type  = 'mark';
         types = 'marks';
@@ -17,7 +17,11 @@ vde.App.controller('InspectorsCtrl', function($scope, $rootScope, $routeParams, 
         type  = 'scale';
         types = 'scales';
       }
-      var item = group[types][$routeParams.itemName];
+      
+      if($routeParams.itemName == 'new')
+        item = (type == 'scale') ? new vde.Vis.Scale('', group) : new vde.Vis.Axis('', group);
+      else
+        item = group[types][$routeParams.itemName];
 
       $rootScope.itemName = item.name;
       $rootScope.itemType = type;
@@ -34,7 +38,7 @@ vde.App.controller('InspectorsCtrl', function($scope, $rootScope, $routeParams, 
     $rootScope.activeGroup = undefined;
     $rootScope.itemType = 'visualization';
     $scope.properties = vde.Vis.properties;
-  }
+  };
 });
 
 vde.App.controller('InspectorsStubCtrl', function($scope, $routeParams) {
@@ -57,14 +61,18 @@ vde.App.directive('vdeProperty', function() {
       scale: '=',
       field: '=',
       options: '=',
-      reparse: '@',
       nodrop: '@'
     },
+    transclude: true,
     templateUrl: 'tmpl/inspectors/property.html',
-    controller: function($scope, $element, $attrs, $timeout) {      
+    controller: function($scope, $element, $attrs, $timeout) { 
       $scope.onchange = function() {
         $timeout(function() {
-          if($attrs.reparse) 
+          // if($scope.item.updateProps) {
+          //   $scope.item.updateProps()
+          //   vde.Vis.view.update();
+          // }
+          // else
             vde.Vis.parse();
         }, 100);        
       };

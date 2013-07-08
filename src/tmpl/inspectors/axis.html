@@ -1,0 +1,49 @@
+<h2><span>Properties</span>: {{itemName|inflector:'humanize'}}</h2>
+
+<div id="properties" ng-init="types=['x', 'y']; orient=['top', 'bottom', 'left', 'right']">
+  <vde-property label="Name" type="text" item="item" property="name" ng-model="item.name" nodrop="1"></vde-property>
+
+  <vde-property label="Type" type="radio" options="types" item="item" property="type" ng-model="properties.type" nodrop="1"></vde-property>
+
+  <vde-property label="Orient" type="select" options="orient" item="item" property="orient" ng-model="properties.orient" nodrop="1"></vde-property>
+
+  <vde-property label="Scale" type="scale" item="item" property="scale" ng-model="properties.scale" scale="properties.scale"></vde-property>
+
+  <fieldset id="ticks">
+    <legend>Ticks</legend>
+
+    <vde-property label="# of ticks" type="number" item="item" property="ticks" ng-model="properties.ticks" nodrop="1"></vde-property>
+
+    <vde-property label="size" type="number" item="item" property="tickSize" ng-model="properties.tickSize" nodrop="1"></vde-property>
+
+    <vde-property label="Color" type="color" item="item" property="tickStyle.stroke" ng-model="properties.tickStyle.stroke.value" nodrop="1"></vde-property>  
+
+    <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="item" property="tickStyle.strokeWidth" ng-model="properties.tickStyle.strokeWidth.value" nodrop="1"></vde-property>
+
+  </fieldset>
+
+  <fieldset id="labels">
+    <legend>Labels</legend>
+
+    <vde-property label="font" nodrop="1">
+      <input type="number" ng-model="properties.labelStyle.font" ng-change="onchange()" class="fontSize" />
+
+      <select ng-model="properties.labelStyle.font" ng-change="onchange()" class="fontFamily">
+        <option>Helvetica</option>
+        <option>Verdana</option>
+        <option>Georgia</option>
+        <option>Palatino</option>
+        <option>Garamond</option>
+        <option>Trebuchet MS</option>
+      </select>
+    </vde-property>
+
+    <vde-property label="angle" type="number" min="0" max="360" item="item" property="labelStyle.angle" ng-model="properties.labelStyle.angle" nodrop="1"></vde-property>
+
+    <vde-property label="Fill" type="color" item="item" property="tickStyle.fill" ng-model="properties.tickStyle.fill.value" nodrop="1"></vde-property>  
+    
+  </fieldset>  
+
+
+
+</div>

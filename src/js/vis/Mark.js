@@ -85,11 +85,11 @@ vde.Vis.Mark = (function() {
 
   prototype.def = function() {
     var path = [], p = this,
-    defs = vde.Vis._view.model().defs(),
+    defs = vde.Vis.view.model().defs(),
     d = defs.marks;
 
     while(p) {
-      path.push(p.getName());
+      path.push(p.name);
       p = p.group;
     }
 
