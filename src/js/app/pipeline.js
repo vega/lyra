@@ -74,26 +74,40 @@ vde.App.directive('vdeDataGrid', function () {
         var grid, data = vde.Vis._data[$scope.source];
         if(!data || !vg.isArray(data.values)) return;
 
-        var values = vg.duplicate(data.values);
+        var values = vg.duplicate(data.values).map(vg.data.ingest);
         if(vg.isArray($scope.transforms)) {
-          var ingested = values.map(vg.data.ingest);
           $scope.transforms.forEach(function(t) { 
-            ingested = t.transform(ingested); 
+            values = t.transform(values); 
           });
-
-          values = ingested.map(function(d) { return d.data; });
         }
 
         // Get column names after transformations to account for
         // any schema changes. 
-        var columns = vg.keys(values[0]).map(function(d) {
-          return { name: d, field: d, id: d };
+        var columns = [];
+
+        vg.keys(values[0]).forEach(function(d) { 
+          if(d == 'data') return;
+          columns.push({ name: d, field: d, id: d }); 
         });
+
+        columns = columns.concat(vg.keys(values[0].data).map(function(d) {
+          return { name: d, field: 'data.' + d, id: d};
+        }));
 
         grid = new Slick.Grid($element, values, columns, {
           enableColumnReorder: false,
           enableCellNavigation: true,
-          syncColumnCellResize: true
+          syncColumnCellResize: true,
+          dataItemColumnValueExtractor: function(item, columnDef) {
+            var names = columnDef.field.split('.'),
+                val   = item[names[0]];
+
+            for (var i = 1; i < names.length; i++)
+              val = (val && typeof val == 'object' && names[i] in val) ? 
+                val[names[i]] : '';
+
+            return val;
+          }
         });
 
         $($element).find('.slick-header-column').each(function(i) {
@@ -102,6 +116,7 @@ vde.App.directive('vdeDataGrid', function () {
               .text($(this).text())
               .addClass('schema')
               .addClass('proxy')
+              .attr('field', columns[i].field)
               .css('opacity', 0.75)
               .css('position', 'absolute')
               .css('z-index', 100)
