@@ -2,7 +2,7 @@
   <label>{{label}}</label>
   <div class="field" ng-switch on="type">
     <div ng-show="scale">
-      <vde-binding scale="scale.name" field="field"></vde-binding>
+      <vde-binding scale="scale.properties.name" field="field"></vde-binding>
 
       <a class="unbind" ng-click="unbind(property)">Unbind</a>
     </div>

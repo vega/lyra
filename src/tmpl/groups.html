@@ -8,7 +8,7 @@
       <h4>Scales <a href="#" class="add">New Scale</a></h4>
 
       <ul>
-        <li ng-repeat="(scaleName, scale) in group.scales"><a ng-href="#/group/{{groupName}}/scale/{{scaleName}}">{{scaleName|inflector:'humanize'}}</a></li>
+        <li ng-class="{selected:itemName==scaleName}" ng-repeat="(scaleName, scale) in group.scales"><a ng-href="#/group/{{groupName}}/scale/{{scaleName}}">{{scale.properties.name|inflector:'humanize'}}</a></li>
       </ul>
 
       <h4>Axes <a href="#" class="add">New Axis</a></h4>

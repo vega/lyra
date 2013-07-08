@@ -3,6 +3,7 @@ vde.Vis.Scale = (function() {
     this.name  = (name || 'scale_' + (vg.keys(group.scales).length+1));
 
     this.properties = properties;
+    this.properties.name = this.name; // Prop.name = UI; this.name = Model/Spec;
 
     this.group = group;
     this.group.scales[this.name] = this;
@@ -39,6 +40,12 @@ vde.Vis.Scale = (function() {
     });
 
     return JSON.stringify(a) == JSON.stringify(b);
+  };
+
+  prototype.bindProperty = function(prop, opts) {
+    if(!opts.field) return; // Because this makes no sense
+
+    this.properties[prop] = opts.field;
   };
 
   return scale;

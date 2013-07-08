@@ -1,8 +1,8 @@
 vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
+  $scope.dataSources = vg.keys(vde.Vis._data);
+
   switch($scope.$parent.itemType) {
-    case 'visualization':
-      $scope.data = vde.Vis._data;
-      
+    case 'visualization':    
       $rootScope.showAddData = false;
       $scope.$parent.toggleData = function() {
           $rootScope.showAddData = !$rootScope.showAddData;
@@ -20,7 +20,6 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
     break;
 
     case 'mark':
-      $scope.dataSources = vg.keys(vde.Vis._data);
       $scope.$parent.dataBound = 'data' in $scope.$parent.item.from;
 
       $scope.$parent.addData = function() {
@@ -50,6 +49,15 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
           $scope.item.transforms.splice(i, 1);
       };
 
+    break;
+
+    case 'scale':
+      // TODO: Scales currently get defined on the original data sources;
+      // but if we add a whole bunch of transforms to the original source,
+      // maybe that should instantiate a new data source drawn from the original,
+      // and define the scale over that?
+      var data = $scope.$parent.item.properties.data;
+      $scope.schema = vg.keys(vde.Vis._data[data].values[0]);
     break;
   };
 });

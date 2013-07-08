@@ -10,30 +10,7 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope) {
   })
 });
 
-vde.App.directive('markDraggable', function() {
-  return function(scope, element, attrs) {
-    element
-      .drag('start', function(e, dd) {
-        return $(this).clone()
-            .addClass('proxy')
-            .css('opacity', 0.75)
-            .css('position', 'absolute')
-            .css('z-index', 100)
-            .appendTo(this.parentNode);
-      })
-      .drag(function( ev, dd ){
-        $( dd.proxy ).css({
-          top: dd.offsetY,
-          left: (dd.offsetX - 300)
-        });
-      })
-      .drag("end",function( ev, dd ){
-        $( dd.proxy ).remove();
-      });
-  }
-})
-
-vde.App.directive('markDroppable', function($rootScope, $location) {
+vde.App.directive('vdeMarkDroppable', function($rootScope, $location) {
   return function(scope, element, attrs) {
     element.drop(function(e, dd) {
       var markType = $(dd.drag).attr('id');

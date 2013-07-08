@@ -1,12 +1,22 @@
-vde.App.controller('InspectorsCtrl', function($scope, $rootScope, $routeParams) {
+vde.App.controller('InspectorsCtrl', function($scope, $rootScope, $routeParams, $location) {
   if('groupName' in $routeParams) {
     var group = vde.Vis.groups[$routeParams.groupName];
     $rootScope.activeGroup = group.name;
 
     // TODO: Deal with pseudo-groups and subgroups. 
     if('itemName' in $routeParams) {
-      var type = $routeParams.type || 'axis';
-      var types = (type == 'axis') ? 'axes' : (type == 'scale') ? 'scales' : 'marks';
+      var path = $location.path();
+      var type, types;
+      if(path.indexOf('mark') != -1) { // TODO: This is ugly. Fix routes. 
+        type  = 'mark';
+        types = 'marks';
+      } else if(path.indexOf('axis') != -1) {
+        type  = 'axis';
+        types = 'axes'
+      } else {
+        type  = 'scale';
+        types = 'scales';
+      }
       var item = group[types][$routeParams.itemName];
 
       $rootScope.itemName = item.name;
@@ -28,11 +38,8 @@ vde.App.controller('InspectorsCtrl', function($scope, $rootScope, $routeParams) 
 });
 
 vde.App.controller('InspectorsStubCtrl', function($scope, $routeParams) {
-  var type = $routeParams.type || 'axis';
-  var types = (type == 'axis') ? 'axes' : (type == 'scale') ? 'scales' : 'marks';
-
-  var item = vde.Vis.groups[$routeParams.groupName][types][$routeParams.itemName];
-  $scope.templateUrl = 'tmpl/inspectors/' + item.type + '.html';
+  var mark = vde.Vis.groups[$routeParams.groupName]['marks'][$routeParams.itemName];
+  $scope.templateUrl = 'tmpl/inspectors/' + mark.type + '.html';
 });
 
 vde.App.directive('vdeProperty', function() {

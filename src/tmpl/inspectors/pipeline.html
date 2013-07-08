@@ -3,7 +3,7 @@
 <div id="pipeline" ng-controller="PipelineCtrl" ng-switch on="itemType">
   <div ng-switch-when="visualization">
     <ul>
-      <li class="add-data icon" ng-repeat="(dataName, data) in data" ng-animate="'slide'">Add <code>{{data.name || data.url}}</code></li>
+      <li class="add-data icon" ng-repeat="dataName in dataSources" ng-animate="'slide'">Add <code>{{data.name || data.url}}</code></li>
     </ul>
 
     <div id="add-data-dialog" ng-show="showAddData" ng-animate="{show: 'fade-show'}">
@@ -51,6 +51,30 @@
       </div>
     </div>
 
+  </div>
+
+  <div ng-switch-when="scale">
+    <ul>
+      <li class="import-data icon" ng-animate="{show: 'slide-enter'}">Import data from
+        <select ng-model="item.properties.data" ng-options="src for src in dataSources"></select>
+      </li>
+
+      <li>These fields may be used to set the <b>domain</b>:
+        <br clear="all" />
+        <div class="schema" ng-repeat="s in schema" vde-draggable>{{s}}</div>
+        <br clear="all" />
+      </li>
+
+      <li>These fields may be used to set the <b>range</b>:
+        <br clear="all" />
+        <div class="schema" vde-draggable>height</div>
+        <div class="schema" vde-draggable>width</div>
+        <div class="schema" vde-draggable>shapes</div>
+        <div class="schema" vde-draggable>category10</div>
+        <div class="schema" vde-draggable>category20</div>
+        <br clear="all" />
+      </li>
+    </ul>
   </div>
 
 </div>

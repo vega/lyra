@@ -14,7 +14,7 @@
     cursor: url(../imgs/openhand.cur), default !important;
 }
 
-#marks li {
+.mark {
     float: left;
     display: block;
     width: 16px;
@@ -25,22 +25,23 @@
     background-repeat: no-repeat;
 }
 
-#marks li:hover { background-color: #ddd; }
-#marks #Rect {
+.mark:hover { background-color: #ddd; }
+
+#Rect {
  background-image: url(../imgs/rect.png); 
  background-position: 50% 50%;
 }
-#marks #Arc { 
+#Arc { 
   background-image: url(../imgs/arc.png); 
   background-position: -5px 3px;
 }
 
-#marks #Symbol { 
+#Symbol { 
   background-image: url(../imgs/symbol.png); 
   background-position: 3px 1px;
 }
 
-#marks #Area { 
+#Area { 
   background-image: url(../imgs/area.png); 
   background-position: 3px 1px;
 }
