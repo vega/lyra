@@ -116,12 +116,12 @@ vde.App.directive('vdeExpr', function() {
           $(this).append(' <div class="schema" contenteditable="false">' + value + '</div> ');
           $(this).focus();
         }).drop('dropstart', function() {
-          $(this).parent().css('borderColor', '#bbb');
+          $(this).parent().css('borderColor', '#333');
         }).drop('dropend', function() {
           $(this).parent().css('borderColor', '#aaa');
         })
         .bind('keyup', function(e) {
-          var html  = $(this).html();
+          var html  = $(this).html().replace('<br>','');
           var value = html.replace(/\s*<div(.*?)>\s*/g, 'd.data.').replace(/\s*<\/div>\s*/,'');
           value = $('<p>' + value + '</p>').text(); // Hack to convert HTML entities to text
 

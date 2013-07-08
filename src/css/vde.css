@@ -64,7 +64,7 @@ a {
 .binding .scale {
   border-top: 1px solid #4b4b4b;
   border-bottom: 1px solid #4b4b4b;
-  padding: 3px 5px;
+  padding: 2px 5px;
 }
 
 .binding:hover .scale {
@@ -73,7 +73,7 @@ a {
 }
 
 .schema {
-  padding: 3px 5px;
+  padding: 2px 5px;
   background: #ccc;
   border: 1px solid #888;
   color: #333;  
@@ -85,7 +85,7 @@ a {
 }
 
 .binding .empty {
-  padding: 3px 5px;
+  padding: 2px 5px;
   background: #a4a4a4;
   border: 1px solid #a4a4a4;
   border-radius: 0;

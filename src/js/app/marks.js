@@ -1,5 +1,13 @@
 vde.App.controller('MarksCtrl', function($scope, $rootScope) {
   $scope.marks = ['Rect', 'Symbol'];
+
+  // Cardinal sin
+  $(document).ready(function() {
+    vde.Vis.parse(); 
+
+      if(vg.keys(vde.Vis._data).length == 0)
+        vde.Vis.data('olympics', 'http://localhost:8000/data/olympics.json', 'json');
+  })
 });
 
 vde.App.directive('markDraggable', function() {

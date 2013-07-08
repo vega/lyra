@@ -40,6 +40,11 @@
   background-position: 3px 1px;
 }
 
+#marks #Area { 
+  background-image: url(../imgs/area.png); 
+  background-position: 3px 1px;
+}
+
 #vis {
   position: absolute;
   left: 315px;

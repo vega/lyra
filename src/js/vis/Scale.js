@@ -1,11 +1,11 @@
 vde.Vis.Scale = (function() {
-  var scale = function(name, group, spec) {
+  var scale = function(name, group, properties) {
     this.name  = (name || 'scale_' + (vg.keys(group.scales).length+1));
+
+    this.properties = properties;
 
     this.group = group;
     this.group.scales[this.name] = this;
-
-    this._spec = spec || {};
 
     return this;
   };
@@ -13,8 +13,13 @@ vde.Vis.Scale = (function() {
   var prototype = scale.prototype;
 
   prototype.spec = function() {
-    this._spec.name = this.name;
-    return this._spec;
+    var spec = vg.duplicate(this.properties);
+    spec.name = this.name;
+    spec.domain = {data: this.properties.data, field: 'data.' + this.properties.field};
+    delete spec.data;
+    delete spec.field;
+
+    return spec;
   };
 
   prototype.def = function() {
@@ -30,7 +35,7 @@ vde.Vis.Scale = (function() {
     var a = {}, self = this;
 
     vg.keys(b).forEach(function(k) {
-      a[k] = self._spec[k];
+      a[k] = self.properties[k];
     });
 
     return JSON.stringify(a) == JSON.stringify(b);

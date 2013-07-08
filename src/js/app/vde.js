@@ -23,11 +23,5 @@ vde.App.config(function ($routeProvider) {
 })
 
 vde.App.controller('VdeCtrl', function($scope, $rootScope) {
-    $scope.$on('$viewContentLoaded', function() { 
-      vde.Vis.parse(); 
 
-      if(vg.keys(vde.Vis._data).length == 0)
-        vde.Vis.data('olympics', 'http://localhost:8000/data/olympics.json', 'json');
-      // vde.Vis.data('olympics2', 'http://localhost:8000/data/olympics.json', 'json');
-    }); 
 });

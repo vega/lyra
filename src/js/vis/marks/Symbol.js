@@ -37,21 +37,24 @@ vde.Vis.marks.Symbol = (function() {
         case 'x':
           scale = this.group.scale({
             type: 'ordinal',
-            domain: {data: this.from.data, field: 'data.' + opts.field}
+            data: this.from.data,
+            field: opts.field
           }, {range: 'width'});
         break;
 
         case 'y':
           scale = this.group.scale({
             type: 'linear',
-            domain: {data: this.from.data, field: 'data.' + opts.field},
+            data: this.from.data, 
+            field: opts.field,
           }, {range: 'height'});
         break;
 
         case 'size':
           scale = this.group.scale({
             type: 'linear',
-            domain: {data: this.from.data, field: 'data.' + opts.field},
+            data: this.from.data, 
+            field: opts.field
           }, {range: [50, 1000]});
         break;
       }

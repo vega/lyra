@@ -3,7 +3,6 @@
   float: right;
   width: 16px;
   height: 16px;
-  background-size: 16px;
   text-indent: -999em;
   cursor: pointer;
 }
@@ -32,6 +31,7 @@
 .import-data { background: url(../imgs/table_import.png) no-repeat; }
 .transform-filter { background: url(../imgs/filter.png) no-repeat; }
 .transform-sort { background: url(../imgs/sort.png) no-repeat; }
+.transform-formula { background: url(../imgs/formula.png) -6px -1px no-repeat; }
 
 #pipeline .slickgrid {
   width: 100%;
