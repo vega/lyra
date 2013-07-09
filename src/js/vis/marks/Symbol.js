@@ -28,17 +28,17 @@ vde.Vis.marks.Symbol = (function() {
     this.properties[prop] || (this.properties[prop] = {});
 
     if(opts.scale)
-      this.properties[prop].scale = this.group.scale({ name: scale });
+      this.properties[prop].scale = this.group.scale({ name: scaleName });
 
     if(opts.field) {
-      var scale;
+      var scale, field = new vde.Vis.Field(opts.field);
 
       switch(prop) {
         case 'x':
           scale = this.group.scale({
             type: 'ordinal',
             data: this.from.data,
-            field: opts.field
+            field: field
           }, {range: 'width'});
         break;
 
@@ -46,7 +46,7 @@ vde.Vis.marks.Symbol = (function() {
           scale = this.group.scale({
             type: 'linear',
             data: this.from.data, 
-            field: opts.field,
+            field: field,
           }, {range: 'height'});
         break;
 
@@ -54,13 +54,13 @@ vde.Vis.marks.Symbol = (function() {
           scale = this.group.scale({
             type: 'linear',
             data: this.from.data, 
-            field: opts.field
+            field: field
           }, {range: [50, 1000]});
         break;
       }
 
       this.properties[prop].scale = scale;
-      this.properties[prop].field = opts.field;
+      this.properties[prop].field = field;
     }
 
     delete this.properties[prop].value;

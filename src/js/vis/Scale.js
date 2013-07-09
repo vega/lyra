@@ -16,7 +16,7 @@ vde.Vis.Scale = (function() {
   prototype.spec = function() {
     var spec = vg.duplicate(this.properties);
     spec.name = this.name;
-    spec.domain = {data: this.properties.data, field: 'data.' + this.properties.field};
+    spec.domain = {data: this.properties.data, field: this.properties.field.spec()};
     delete spec.data;
     delete spec.field;
 
@@ -45,7 +45,15 @@ vde.Vis.Scale = (function() {
   prototype.bindProperty = function(prop, opts) {
     if(!opts.field) return; // Because this makes no sense
 
-    this.properties[prop] = opts.field;
+    switch(prop) {
+      case 'field':
+        this.properties[prop] = new vde.Vis.Field(opts.field);
+      break;
+
+      case 'range':
+        this.properties[prop] = opts.field;
+      break;
+    }
   };
 
   return scale;

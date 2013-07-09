@@ -61,17 +61,17 @@
 
       <li>These fields may be used to set the <b>domain</b>:
         <br clear="all" />
-        <div class="schema" ng-repeat="s in schema" vde-draggable>{{s}}</div>
+        <div class="raw schema" ng-repeat="s in schema" field="data.{{s}}" vde-draggable>{{s}}</div>
         <br clear="all" />
       </li>
 
       <li>These fields may be used to set the <b>range</b>:
         <br clear="all" />
-        <div class="schema" vde-draggable>height</div>
-        <div class="schema" vde-draggable>width</div>
-        <div class="schema" vde-draggable>shapes</div>
-        <div class="schema" vde-draggable>category10</div>
-        <div class="schema" vde-draggable>category20</div>
+        <div class="derived schema" field="height" vde-draggable>height</div>
+        <div class="derived schema" field="width" vde-draggable>width</div>
+        <div class="derived schema" field="shapes" vde-draggable>shapes</div>
+        <div class="derived schema" field="category10" vde-draggable>category10</div>
+        <div class="derived schema" field="category20" vde-draggable>category20</div>
         <br clear="all" />
       </li>
     </ul>

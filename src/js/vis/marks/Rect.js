@@ -25,11 +25,11 @@ vde.Vis.marks.Rect = (function() {
   prototype.bindProperty = function(prop, opts) {
     this.properties[prop] || (this.properties[prop] = {});
 
-    if(opts.scale)
-      this.properties[prop].scale = this.group.scale({ name: scale });
+    if(opts.scaleName)
+      this.properties[prop].scale = this.group.scale({ name: opts.scaleName });
 
     if(opts.field) {
-      var scale;
+      var scale, field = new vde.Vis.Field(opts.field);
 
       switch(prop) {
         case 'x':
@@ -38,7 +38,7 @@ vde.Vis.marks.Rect = (function() {
           scale = this.group.scale({
             type: 'ordinal',
             data: this.from.data,
-            field: opts.field
+            field: field
           }, {range: 'width'});
         break;
 
@@ -48,13 +48,13 @@ vde.Vis.marks.Rect = (function() {
           scale = this.group.scale({
             type: 'linear',
             data: this.from.data,
-            field: opts.field
+            field: field
           }, {range: 'height'});
         break;
       }
 
       this.properties[prop].scale = scale;
-      this.properties[prop].field = opts.field;
+      this.properties[prop].field = field;
     }
 
     delete this.properties[prop].value;

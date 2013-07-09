@@ -87,12 +87,12 @@ vde.App.directive('vdeProperty', function() {
       if(attrs.type == 'expr') return;
 
       $(element).find('.property').drop(function(e, dd) {
-        var field = $(dd.proxy).hasClass('schema');
-        var value = $(dd.proxy).text();
+        var isField = $(dd.proxy).hasClass('schema');
+        var value = $(dd.proxy).attr('field') || $(dd.proxy).attr('scale');
 
         scope.$apply(function() {
           scope.item.bindProperty(attrs.property, 
-            field ? {field: value} : {scale: value});
+            isField ? {field: value} : {scaleName: value});
         });
 
         $('.proxy').remove();
@@ -126,11 +126,16 @@ vde.App.directive('vdeExpr', function() {
       $(element).find('.expr')
         .html(scope.$parent.ngModel)
         .drop(function(e, dd) {
-          var field = $(dd.proxy).hasClass('schema');
-          var value = $(dd.proxy).text();
-          $('.proxy').remove();
+          var field = $(dd.proxy).attr('field');
+          if(!field) return;
 
-          $(this).append(' <div class="schema" contenteditable="false">' + value + '</div> ');
+          $('<div class="schema" contenteditable="false">' + $(dd.proxy).text() + '</div>')
+            .attr('field', field)
+            .toggleClass('raw',     $(dd.proxy).hasClass('raw'))
+            .toggleClass('derived', $(dd.proxy).hasClass('derived'))
+            .appendTo(this);
+
+          $('.proxy').remove();
           $(this).focus();
         }).drop('dropstart', function() {
           $(this).parent().css('borderColor', '#333');
@@ -139,11 +144,13 @@ vde.App.directive('vdeExpr', function() {
         })
         .bind('keyup', function(e) {
           var html  = $(this).html().replace('<br>','');
-          var value = html.replace(/\s*<div(.*?)>\s*/g, 'd.data.').replace(/\s*<\/div>\s*/,'');
-          value = $('<p>' + value + '</p>').text(); // Hack to convert HTML entities to text
+          var value = $('<div>' + html + '</div>');
+          value.find('.schema').each(function(i, e) {
+            $(e).text('d.' + $(e).attr('field'));
+          });
 
           scope.$apply(function() {
-            scope.item.properties[scope.property] = value;
+            scope.item.properties[scope.property] = value.text();
             scope.item.properties[scope.property + 'Html'] = html;
           });
         })    

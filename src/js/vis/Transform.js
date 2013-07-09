@@ -23,7 +23,7 @@ vde.Vis.Transform = (function() {
   prototype.bindProperty = function(prop, opts) {
     if(!opts.field) return; // Because this makes negatory sense.
 
-    this.properties[prop] = opts.field;
+    this.properties[prop] = new vde.Vis.Field(opts.field);
   };
 
   // Assumes data is already ingested

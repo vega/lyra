@@ -87,11 +87,11 @@ vde.App.directive('vdeDataGrid', function () {
 
         vg.keys(values[0]).forEach(function(d) { 
           if(d == 'data') return;
-          columns.push({ name: d, field: d, id: d }); 
+          columns.push({ name: d, field: d, id: d, headerCssClass: 'derived' }); 
         });
 
         columns = columns.concat(vg.keys(values[0].data).map(function(d) {
-          return { name: d, field: 'data.' + d, id: d};
+          return { name: d, field: 'data.' + d, id: d, headerCssClass: 'raw'};
         }));
 
         grid = new Slick.Grid($element, values, columns, {
@@ -116,6 +116,7 @@ vde.App.directive('vdeDataGrid', function () {
               .text($(this).text())
               .addClass('schema')
               .addClass('proxy')
+              .addClass(columns[i].headerCssClass)
               .attr('field', columns[i].field)
               .css('opacity', 0.75)
               .css('position', 'absolute')

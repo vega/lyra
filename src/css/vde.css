@@ -84,6 +84,20 @@ a {
   border-color: #999;
 }
 
+.schema.raw {
+  background: #d1e2f8;
+  border-color: #9bc0ef;
+}
+
+.schema.raw:hover { background: #e7f0fc; }
+
+.schema.derived {
+  background: #efe7cc;
+  border-color: #d1bf94;
+}
+
+.schema.derived:hover, .binding:hover .schema.derived { background: #fcf7e5; }
+
 .binding .empty {
   padding: 2px 5px;
   background: #a4a4a4;

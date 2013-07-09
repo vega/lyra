@@ -10,7 +10,7 @@ vde.Vis.transforms.Sort = (function() {
   prototype.spec = function() {
     return {
       type: this.type,
-      by: (this.properties.order == 'Descending' ? '-' : '') + 'data.' + this.properties.by
+      by: (this.properties.order == 'Descending' ? '-' : '') + this.properties.by.spec()
     };
   }
 

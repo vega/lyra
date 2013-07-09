@@ -1,13 +1,11 @@
 <div class="property">
   <label>{{label}}</label>
   <div class="field" ng-switch on="type">
-    <div ng-show="scale">
+    <div ng-if="scale || field">
       <vde-binding scale="scale.properties.name" field="field"></vde-binding>
 
       <a class="unbind" ng-click="unbind(property)">Unbind</a>
     </div>
-
-    <div class="schema" ng-show="field && !scale">{{field}}</div>
 
     <div ng-show="!field">
       <span ng-switch-when="text"><input type="text" ng-model="$parent.ngModel" ng-change="onchange()" /></span>
