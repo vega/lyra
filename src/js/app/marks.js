@@ -5,7 +5,7 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope) {
   $(document).ready(function() {
     vde.Vis.parse(); 
 
-      if(vg.keys(vde.Vis._data).length == 0)
+      if(vg.keys(vde.Vis._rawData).length == 0)
         vde.Vis.data('olympics', 'http://localhost:8000/data/olympics.json', 'json');
   })
 });

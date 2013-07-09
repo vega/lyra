@@ -20,10 +20,10 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
     break;
 
     case 'mark':
-      $scope.$parent.dataBound = 'data' in $scope.$parent.item.from;
+      $scope.$parent.dataBound = vg.boolean($scope.$parent.item.pipeline);
 
       $scope.$parent.addData = function() {
-        $scope.$parent.item.from = {data: ''};
+        $scope.$parent.item.pipeline = new vde.Vis.Pipeline();
         $scope.$parent.dataBound = true;
       };  
 
@@ -33,7 +33,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
       };
 
       $scope.addTransform = function(i) {
-        $scope.item.transforms.push($scope.newTransforms[i]);
+        $scope.item.pipeline.transforms.push($scope.newTransforms[i]);
         $scope.newTransforms.splice(i, 1);
 
         vde.Vis.parse();
@@ -45,19 +45,17 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
 
         if(isNewTransform)
           $scope.newTransforms.splice(i, 1);
-        else 
-          $scope.item.transforms.splice(i, 1);
+        else {
+          $scope.item.pipeline.transforms.splice(i, 1);
+          vde.Vis.parse();
+        }
       };
 
     break;
 
     case 'scale':
-      // TODO: Scales currently get defined on the original data sources;
-      // but if we add a whole bunch of transforms to the original source,
-      // maybe that should instantiate a new data source drawn from the original,
-      // and define the scale over that?
-      var data = $scope.$parent.item.properties.data;
-      $scope.schema = vg.keys(vde.Vis._data[data].values[0]);
+      var pipelineName = $scope.$parent.item.properties.pipeline.name;
+      $scope.schema = vg.keys(vde.Vis.pipelines[pipelineName].values()[0]);
     break;
   };
 });
@@ -66,20 +64,15 @@ vde.App.directive('vdeDataGrid', function () {
   return {
     restrict: 'A',
     scope: {
-      source: '=',
-      transforms: '='
+      pipeline: '=',
+      sliceBeg: '&',
+      sliceEnd: '&'
     },
     controller: function($scope, $element, $attrs) {
       $scope.buildSlickGrid = function() {
-        var grid, data = vde.Vis._data[$scope.source];
-        if(!data || !vg.isArray(data.values)) return;
+        if(!$scope.pipeline || !$scope.pipeline.source) return;
 
-        var values = vg.duplicate(data.values).map(vg.data.ingest);
-        if(vg.isArray($scope.transforms)) {
-          $scope.transforms.forEach(function(t) { 
-            values = t.transform(values); 
-          });
-        }
+        var values = $scope.pipeline.values($scope.sliceBeg(), $scope.sliceEnd());
 
         // Get column names after transformations to account for
         // any schema changes. 
@@ -94,7 +87,7 @@ vde.App.directive('vdeDataGrid', function () {
           return { name: d, field: 'data.' + d, id: d, headerCssClass: 'raw'};
         }));
 
-        grid = new Slick.Grid($element, values, columns, {
+        var grid = new Slick.Grid($element, values, columns, {
           enableColumnReorder: false,
           enableCellNavigation: true,
           syncColumnCellResize: true,
@@ -130,8 +123,7 @@ vde.App.directive('vdeDataGrid', function () {
         })
       };
 
-      $scope.$watch('source', $scope.buildSlickGrid);     
-      $scope.$watch('transforms', $scope.buildSlickGrid, true);      
+      $scope.$watch('pipeline', $scope.buildSlickGrid, true);      
     }
   };
 });

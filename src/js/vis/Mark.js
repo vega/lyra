@@ -2,8 +2,7 @@ vde.Vis.Mark = (function() {
   var mark = function(name) {
     this.name = name;
 
-    this.from = {};
-    this.transforms = [];
+    this.pipeline = null;
 
     this._spec = {
       properties: {
@@ -36,11 +35,7 @@ vde.Vis.Mark = (function() {
     spec.name = this.name;
     spec.type = this.type;
 
-    spec.from = this.from;
-    spec.from.transform = [];
-    this.transforms.forEach(function(t) {
-      spec.from.transform.push(t.spec());
-    });
+    if(this.pipeline) spec.from = {data: this.pipeline.name};
 
     var props = {};
 

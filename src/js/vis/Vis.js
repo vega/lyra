@@ -7,6 +7,7 @@ vde.Vis = (function() {
     },
 
     _data:   {},
+    pipelines: {},
     groups: {}
   };
 
@@ -51,6 +52,7 @@ vde.Vis = (function() {
       spec.data.push(dd);
     });
 
+    vg.keys(vis.pipelines).forEach(function(k) { spec.data.push(vis.pipelines[k].spec() )});
     vg.keys(vis.groups).forEach(function(k) { spec.marks.push(vis.groups[k].spec()); });
 
     vg.parse.spec(spec, function(chart) {

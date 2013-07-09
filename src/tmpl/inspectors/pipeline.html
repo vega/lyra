@@ -29,19 +29,19 @@
     <ul>
       <li ng-hide="dataBound">This mark is not currently associated with any <a ng-click="addData()">data.</a></li>
       <li class="import-data icon" ng-show="dataBound" ng-animate="{show: 'slide-enter'}">Import data from
-        <select ng-model="item.from.data" ng-options="src for src in dataSources"></select>
+        <select ng-model="item.pipeline.source" ng-options="src for src in dataSources"></select>
       </li>
 
-      <li ng-repeat="transform in item.transforms" class="transform-{{transform.type|lowercase}} icon" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
+      <li ng-repeat="transform in item.pipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
     </ul>
 
-    <div class="slickgrid" vde-data-grid source="item.from.data" transforms="item.transforms"></div>
+    <div class="slickgrid" vde-data-grid pipeline="item.pipeline"></div>
 
     <ul>
       <li ng-repeat="transform in newTransforms" class="transform-{{transform.type|lowercase}} icon" ng-init="isNewTransform = 1" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
     </ul>
 
-    <div ng-show="item.from.data && newTransforms.length == 0">
+    <div ng-show="item.pipeline.source && newTransforms.length == 0">
       <h3>Data Transforms</h3>
       <div id="transforms">
         <a class="transform-filter" ng-click="newTransform('Filter')">Filter</a>
