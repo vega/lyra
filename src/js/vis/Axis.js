@@ -17,16 +17,21 @@ vde.Vis.Axis = (function() {
   var prototype = axis.prototype;
 
   prototype.spec = function() {
-    var spec = vg.duplicate(this.properties);
-    spec.scale = spec.scale.name;
+    var spec = {}, self = this;
+    vg.keys(this.properties).forEach(function(k) {
+      var p = self.properties[k];
+      if(p == undefined) return;
+
+      if(k == 'scale') spec[k] = p.name;
+      else if(k.indexOf('Style') != -1) return;
+      else spec[k] = p;
+    });
+
     spec.properties = {
-      ticks: vg.duplicate(spec.tickStyle),
-      labels: vg.duplicate(spec.labelStyle),
-      axesStyle: vg.duplicate(spec.axesStyle)
+      ticks: vg.duplicate(this.properties.tickStyle),
+      labels: vg.duplicate(this.properties.labelStyle),
+      axesStyle: vg.duplicate(this.properties.axesStyle)
     };
-    delete spec.tickStyle;
-    delete spec.labelStyle;
-    delete spec.axesStyle;
 
     return spec;
   };
@@ -41,9 +46,9 @@ vde.Vis.Axis = (function() {
   };
 
   prototype.bindProperty = function(prop, opts) {
-    if(!opts.scale) return; // Because this makes no sense
+    if(!opts.scaleName) return; // Because this makes no sense
 
-    this.properties[prop] = opts.scale;
+    this.properties[prop] = this.group.scales[opts.scaleName];
   };
 
   return axis;

@@ -39,6 +39,12 @@
 .property .field input[type=text] { width: 125px; }
 .property .field input[type=number],
 .property .field input[type=color] { width: 50px; }
+.property .field .scaled-input {
+  height: 15px;
+  margin-left: -15px;
+  border: 1px solid #888;
+  border-radius: 10px;
+}
 
 .property .field label {
   width: auto;
