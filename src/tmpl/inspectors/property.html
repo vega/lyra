@@ -2,7 +2,7 @@
   <label>{{label}}</label>
   <div class="field" ng-switch on="type">
     <div ng-if="scale || field">
-      <vde-binding scale="scale.properties.name" field="field"></vde-binding>
+      <vde-binding scale="scale" field="field"></vde-binding>
 
       <a class="unbind" ng-click="unbind(property)">Unbind</a>
     </div>
@@ -18,7 +18,7 @@
 
       <span ng-switch-when="select"><select ng-change="onchange()" ng-model="$parent.ngModel" ng-options="opt for opt in $parent.options"></select></span>
 
-      <span ng-switch-when="radio"><input type="radio" ng-repeat="opt in opt" ng-model="$parent.ngModel" value="{{opt}}" /> {{opt}} </span>
+      <span ng-switch-when="radio"><label ng-repeat="opt in $parent.options"><input type="radio" ng-model="$parent.ngModel" value="{{opt}}" /> {{opt}}</label> </span>
 
       <span ng-switch-when="field" class="schema-target">Drop a column here.</span>
 

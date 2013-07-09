@@ -24,7 +24,7 @@
 .property label {
   float: left;
   width: 50px;
-  margin: 5px 10px 0 0;
+  margin: 3px 10px 0 0;
   font-style: italic;
   text-transform: lowercase;
   text-align: right;
@@ -35,9 +35,15 @@
   width: 180px;
 }
 
+.property .field * { margin-top: 0; }
 .property .field input[type=text] { width: 125px; }
 .property .field input[type=number],
 .property .field input[type=color] { width: 50px; }
+
+.property .field label {
+  width: auto;
+  font-style: normal;
+}
 
 .property .field a.unbind {
   display: none;
@@ -92,3 +98,6 @@ fieldset#padding .property {
   float: none;
   display: inline-block;
 }
+
+#properties .binding, #properties .scale, #properties .schema 
+{ cursor: default; }

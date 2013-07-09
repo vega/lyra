@@ -1,9 +1,9 @@
 vde.Vis.Scale = (function() {
   var scale = function(name, group, properties) {
     this.name  = (name || 'scale_' + (vg.keys(group.scales).length+1));
+    this.displayName = this.name; // displayName = UI; this.name = Model/Spec;
 
     this.properties = properties;
-    this.properties.name = this.name; // Prop.name = UI; this.name = Model/Spec;
 
     this.group = group;
     this.group.scales[this.name] = this;

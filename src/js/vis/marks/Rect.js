@@ -26,7 +26,7 @@ vde.Vis.marks.Rect = (function() {
     this.properties[prop] || (this.properties[prop] = {});
 
     if(opts.scaleName)
-      this.properties[prop].scale = this.group.scale({ name: opts.scaleName });
+      this.properties[prop].scale = this.group.scales[opts.scaleName];
 
     if(opts.field) {
       var scale, field = new vde.Vis.Field(opts.field);

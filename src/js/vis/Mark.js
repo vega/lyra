@@ -46,10 +46,13 @@ vde.Vis.Mark = (function() {
 
     for(var prop in this.properties) {
       var p = this.properties[prop];
-      if(p.scale)
-        props[prop] = {scale: p.scale.name, field: p.field.spec()};
-      else
-        props[prop] = p;
+      props[prop] = {};
+
+      vg.keys(p).forEach(function(k) {
+        if(k == 'scale') props[prop][k] = p[k].name;
+        else if(k == 'field') props[prop][k] = p[k].spec();
+        else props[prop][k] = p[k];
+      });
     }
 
     spec.properties.enter  = props;

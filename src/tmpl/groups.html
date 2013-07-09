@@ -7,14 +7,18 @@
     <div class="member" ng-show="activeGroup == groupName" ng-hide="activeGroup != groupName">
       <h4>Scales <a ng-href="#/group/{{groupName}}/scale/new" class="add">New Scale</a></h4>
 
-      <ul>
-        <li ng-class="{selected:itemName==scaleName}" ng-repeat="(scaleName, scale) in group.scales"><a ng-href="#/group/{{groupName}}/scale/{{scaleName}}">{{scale.properties.name|inflector:'humanize'}}</a></li>
+      <ul class="scales">
+        <li ng-class="{selected:itemName==scaleName}" ng-repeat="(scaleName, scale) in group.scales">
+
+        <vde-binding scale="scale" draggable-scale="1"></vde-binding>
+        <br clear="all" />
+        </li>
       </ul>
 
       <h4>Axes <a ng-href="#/group/{{groupName}}/axis/new" class="add">New Axis</a></h4>
       
       <ul>
-        <li ng-repeat="(axisName, axis) in group.axes"><a ng-href="#/group/{{groupName}}/axis/{{axisName}}">{{axis.name|inflector:'humanize'}}</a></li>
+        <li ng-class="{selected:itemName==axisName}" ng-repeat="(axisName, axis) in group.axes"><a ng-href="#/group/{{groupName}}/axis/{{axisName}}">{{axis.name|inflector:'humanize'}}</a></li>
       </ul>
 
       <h4>Marks</h4>
