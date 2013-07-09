@@ -39,7 +39,7 @@ vde.Vis.marks.Rect = (function() {
             type: 'ordinal',
             data: this.from.data,
             field: field
-          }, {range: 'width'});
+          }, {range: new vde.Vis.Field('width')});
         break;
 
         case 'y':
@@ -49,7 +49,7 @@ vde.Vis.marks.Rect = (function() {
             type: 'linear',
             data: this.from.data,
             field: field
-          }, {range: 'height'});
+          }, {range: new vde.Vis.Field('height')});
         break;
       }
 

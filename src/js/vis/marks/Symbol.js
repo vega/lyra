@@ -39,7 +39,7 @@ vde.Vis.marks.Symbol = (function() {
             type: 'ordinal',
             data: this.from.data,
             field: field
-          }, {range: 'width'});
+          }, {range: new vde.Vis.Field('width')});
         break;
 
         case 'y':
@@ -47,7 +47,7 @@ vde.Vis.marks.Symbol = (function() {
             type: 'linear',
             data: this.from.data, 
             field: field,
-          }, {range: 'height'});
+          }, {range: new vde.Vis.Field('height')});
         break;
 
         case 'size':
