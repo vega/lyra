@@ -3,16 +3,15 @@
 .inspectors li {
   list-style-type: none;
   margin: 5px 10px;
-  padding: 5px;
+  padding: 5px 10px;
   border: 1px solid #939393;
 }
 
 .inspectors li.selected { 
   background: #a4a4a4;
-  border: 1px solid #5d5d5d; 
+  border: 1px solid #777; 
+  border-radius: 5px;
 }
-
-.inspector { margin-top: 10px; }
 
 .property {
   height: 25px;
@@ -30,7 +29,7 @@
 
 .property .field { 
   float: left; 
-  width: 180px;
+  width: 170px;
 }
 
 .property .field * { margin-top: 0; }
@@ -67,12 +66,13 @@
 .schema-target {
   display: inline-block;
   padding: 3px;
-  border: 1px dashed #666;
+  border: 1px dashed #777;
 }
 
 fieldset { 
   margin-top: 10px;
-  border: 1px solid #666; 
+  border: 1px solid #777; 
+  border-radius: 5px;
 }
 
 legend {

@@ -4,7 +4,7 @@
   left: 300px;
   top: 0;
   bottom: 0;
-  border-left: 1px dashed #333;
+  border-left: 1px dashed #777;
 }
 
 #groups h3 {
@@ -50,7 +50,10 @@
   cursor: pointer;
 }
 
-#groups li.selected h5 { font-weight: bold; }
+#groups li.selected h5 { 
+  font-weight: bold; 
+  margin-bottom: 10px;
+}
 
 #groups .scales li {
   padding: 0;

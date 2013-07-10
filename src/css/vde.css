@@ -51,25 +51,25 @@ a {
 }
 
 .binding {
-  background: #4b4b4b;
-  border-left: 1px solid #4b4b4b;
+  background: #666;
+  border-left: 1px solid #666;
   color: #fff;
 }
 
 .binding:hover { 
-  background-color: #666;
-  border-left: 1px solid #666;
+  background-color: #777;
+  border-left: 1px solid #777;
 }
 
 .binding .scale {
-  border-top: 1px solid #4b4b4b;
-  border-bottom: 1px solid #4b4b4b;
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
   padding: 2px 5px;
 }
 
 .binding:hover .scale {
-  border-top: 1px solid #666;
-  border-bottom: 1px solid #666;
+  border-top: 1px solid #777;
+  border-bottom: 1px solid #777;
 }
 
 .schema {

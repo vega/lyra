@@ -1,5 +1,9 @@
 <div class="inspector" ng-controller="PipelineCtrl">
     <ul>
+      <li class="pipeline-name icon">Pipeline name
+        <input type="text" ng-model="activePipeline.displayName" />
+      </li>
+
       <li class="import-data icon">Import data from
         <select ng-model="pMdl.activePipelineSource" ng-change="setSource()">
           <option value="">Select...</option>
@@ -30,7 +34,7 @@
     <h4>Scales</h4>
     <div id="scales">
         <vde-binding ng-repeat="(scaleName, scale) in activePipeline.scales" scale="scale" draggable-scale="1"></vde-binding>
-        
+
         <br clear="all" />
     </div>
 

@@ -11,7 +11,11 @@
   font-weight: normal;
 }
 
-.pipeline.selected h3 { font-weight: bold; }
+.pipeline.selected h3 { 
+  font-size: 12px;
+  font-weight: bold; 
+  margin-bottom: 10px;
+}
 
 #add-data, #transforms a, .pipeline-ctrls a {
   display: inline-block;
@@ -43,6 +47,7 @@
 }
 
 .pipeline li.icon { padding-left: 25px; }
+.pipeline-name { background: url(../imgs/pipeline.png) no-repeat;}
 .add-data { background: url(../imgs/table_add.png) no-repeat; }
 .import-data { background: url(../imgs/table_import.png) no-repeat; }
 .transform-filter { background: url(../imgs/filter.png) no-repeat; }
@@ -58,15 +63,23 @@
 
 .pipeline h4 { 
   float: left;
-  padding: 3px 5px;
-  background: #4f4f4f;
-  color: #FFF;
-  font-weight: normal;
+  margin-bottom: -1px;
+  padding: 0 5px;
+  background: #ccc;
+  border: 1px solid #777;
+  border-bottom: 1px solid #ccc;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  color: #333;
+  font-weight: bold;   
 }
 
 #transforms, #scales {
   background: #ccc;
-  border: 1px solid #4f4f4f;
+  border: 1px solid #777;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
   padding: 5px;
   margin-bottom: 10px;
   clear: both;

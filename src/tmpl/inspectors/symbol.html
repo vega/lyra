@@ -1,16 +1,4 @@
 <div id="properties" ng-init="shapes=['circle', 'square', 'cross', 'diamond', 'triangle-up', 'triangle-down']">
-  <vde-property label="Name" type="text" item="activeVisual" ng-model="activeVisual.displayName"></vde-property>
-
-  <vde-property label="Pipeline">
-    <select ng-model="gMdl.activeVisualPipeline" ng-change="setPipeline()">
-      <option value="">Select...</option>
-      <option ng-repeat="(pipelineName, pipeline) in gMdl.pipelines" value="{{pipelineName}}" ng-selected
-     expression="gMdl.activeVisualPipeline==pipelineName">{{pipeline.displayName}}</option>
-      <option value="vdeNewPipeline">New Pipeline</option>
-    </select>
-    {{gMdl.activeVisualPipeline}}
-  </vde-property>
-
   <vde-property label="X" type="number" item="activeVisual" property="x" ng-model="activeVisual.properties.x.value" scale="activeVisual.properties.x.scale" field="activeVisual.properties.x.field"></vde-property>
 
   <vde-property label="Y" type="number" item="activeVisual" property="y" ng-model="activeVisual.properties.y.value" scale="activeVisual.properties.y.scale" field="activeVisual.properties.y.field"></vde-property>

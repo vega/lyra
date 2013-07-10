@@ -1,0 +1,11 @@
+<div id="pipelines" class="inspectors chrome" ng-controller="PipelineCtrl">
+  <h2><span>Data Pipelines</span></h2>
+
+  <ul>
+    <li class="pipeline" ng-repeat="(pipelineName, pipeline) in pMdl.pipelines" ng-class="{selected:activePipeline==pipeline}">
+      <h3 ng-click="togglePipeline(pipeline)">{{pipeline.displayName|inflector:'humanize'}}</h3>
+
+      <ng-include src="'tmpl/inspectors/pipeline.html'" ng-if="activePipeline == pipeline"></ng-include>
+    </li>
+  </ul>
+</div>

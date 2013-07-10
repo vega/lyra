@@ -106,7 +106,11 @@ vde.App.directive('vdeDataGrid', function () {
       };
 
       $scope.$watch(function($scope) { 
-        return {name: $scope.pipeline.name, source: $scope.pipeline.source} 
+        return {
+          name: $scope.pipeline.name, 
+          source: $scope.pipeline.source,
+          transforms: $scope.pipeline.transforms
+        } 
       }, $scope.buildSlickGrid, true);     
     }
   };
