@@ -6,16 +6,14 @@
   right: 0;
 }
 
-#groups h2 { margin-bottom: 10px; }
-
 #groups h3 {
   font-size: 14px;
   font-weight: normal;
-  background: url(../imgs/spinner-closed.png) 0 1px no-repeat;
-  background-size: 12px 12px;
   padding-left: 20px;
   margin: 5px 10px;
   cursor: pointer;
+  background: url(../imgs/spinner-closed.png) 0 1px no-repeat;
+  background-size: 12px 12px;
 }
 
 #groups h3.expanded {
@@ -41,24 +39,15 @@
   text-indent: -999em;
 }
 
-#groups li {
-  list-style-type: none;
-  margin: 5px 10px;
-  padding: 5px;
-  border: 1px solid #939393;
-}
-
-#groups li.selected { 
-  background: #a4a4a4;
-  border: 1px solid #5d5d5d; 
-}
-
 #groups li a {
   color: #000;
   text-decoration: none;
 }
 
-#groups li h5 { font-weight: normal; }
+#groups li h5 { 
+  font-weight: normal; 
+  cursor: pointer;
+}
 
 #groups li.selected h5 { font-weight: bold; }
 

@@ -1,7 +1,7 @@
-<div id="groups" class="chrome" ng-controller="GroupsCtrl">
+<div id="groups" class="inspectors chrome" ng-controller="GroupsCtrl">
   <h2><span>Visual Layers</span></h2> 
 
-  <div class="group" ng-repeat="(groupName, group) in groups">
+  <div class="group" ng-repeat="(groupName, group) in gMdl.groups">
     <div ng-if="group.layer">
       <h3 ng-class="{expanded:activeGroup == group}" ng-click="toggleVisual(group)">{{groupName|inflector:'humanize'}}</h3>
 
@@ -11,7 +11,7 @@
         
         <ul>
           <li ng-repeat="(axisName, axis) in group.axes" ng-class="{selected:activeVisual==axis}">
-            <h5><a ng-click="toggleVisual(axis)">{{axis.name|inflector:'humanize'}}</a></h5>
+            <h5 ng-click="toggleVisual(axis)">{{axis.name|inflector:'humanize'}}</h5>
 
             <ng-include src="'tmpl/inspectors/axis.html'" ng-if="activeVisual==axis"></ng-include>
           </li>
@@ -21,7 +21,7 @@
         
         <ul>
           <li ng-repeat="(markName, mark) in group.marks" ng-class="{selected:activeVisual==mark}">
-            <h5><a ng-click="toggleVisual(mark)">{{mark.displayName|inflector:'humanize'}}</a></h5>
+            <h5 ng-click="toggleVisual(mark)">{{mark.displayName|inflector:'humanize'}}</h5>
 
             <ng-include src="'tmpl/inspectors/' + mark.type + '.html'" ng-if="activeVisual==mark"></ng-include>
           </li>

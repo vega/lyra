@@ -1,68 +1,45 @@
 vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
-  $scope.pipelines   = vde.Vis.pipelines;
-  $scope.dataSources = vg.keys(vde.Vis._data);
+  $scope.pMdl = { // General catch-all model for scoping
+    pipelines: vde.Vis.pipelines,
+    dataSources: vg.keys(vde.Vis._data)
+  }; 
 
   $scope.togglePipeline = function(p) {
     $rootScope.activePipeline = p;
   };
 
-  switch($scope.$parent.itemType) {
-    case 'visualization':    
-      $rootScope.showAddData = false;
-      $scope.$parent.toggleData = function() {
-          $rootScope.showAddData = !$rootScope.showAddData;
-          $scope.dataName = '';
-          $scope.dataSrc  = '';
-          $scope.dataType = '';
-      }
-
-      $scope.$parent.types = ['json', 'tsv', 'csv'];
-      $scope.addData = function() {
-        vde.Vis.data($scope.dataName, $scope.dataSrc, $scope.dataType);
-
-        $rootScope.showAddData = false;
-      }
-    break;
-
-    case 'mark':
-      $scope.$parent.dataBound = vg.boolean($scope.$parent.item.pipeline);
-
-      $scope.$parent.addData = function() {
-        $scope.$parent.item.pipeline = new vde.Vis.Pipeline();
-        $scope.$parent.dataBound = true;
-      };  
-
-      $scope.newTransforms = [];
-      $scope.newTransform = function(type) {
-        $scope.newTransforms.push(new vde.Vis.transforms[type]);
-      };
-
-      $scope.addTransform = function(i) {
-        $scope.item.pipeline.transforms.push($scope.newTransforms[i]);
-        $scope.newTransforms.splice(i, 1);
-
-        vde.Vis.parse();
-      };
-
-      $scope.removeTransform = function(i, isNewTransform) {
-        var cnf = confirm("Are you sure you wish to delete this transformation?")
-        if(!cnf) return;
-
-        if(isNewTransform)
-          $scope.newTransforms.splice(i, 1);
-        else {
-          $scope.item.pipeline.transforms.splice(i, 1);
-          vde.Vis.parse();
-        }
-      };
-
-    break;
-
-    case 'scale':
-      var pipelineName = $scope.$parent.item.properties.pipeline.name;
-      $scope.schema = vg.keys(vde.Vis.pipelines[pipelineName].values()[0]);
-    break;
+  $scope.setSource = function() {
+    var src = $scope.pMdl.activePipelineSource;
+    if(src == '') $scope.activePipeline.source = null;
+    else if(src == 'vdeNewData') {
+      // TODO: Show Modal Dialog
+    }
+    else $scope.activePipeline.source = src;
   };
+
+  $scope.newTransforms = [];
+  $scope.newTransform = function(type) {
+    $scope.newTransforms.push(new vde.Vis.transforms[type]);
+  };
+
+  $scope.addTransform = function(i) {
+    $scope.activePipeline.transforms.push($scope.newTransforms[i]);
+    $scope.newTransforms.splice(i, 1);
+
+    vde.Vis.parse();
+  };
+
+  $scope.removeTransform = function(i, isNewTransform) {
+    var cnf = confirm("Are you sure you wish to delete this transformation?")
+    if(!cnf) return;
+
+    if(isNewTransform)
+      $scope.newTransforms.splice(i, 1);
+    else {
+      $scope.activePipeline.transforms.splice(i, 1);
+      vde.Vis.parse();
+    }
+  };  
 });
 
 vde.App.directive('vdeDataGrid', function () {
@@ -128,7 +105,9 @@ vde.App.directive('vdeDataGrid', function () {
         })
       };
 
-      $scope.$watch('pipeline', $scope.buildSlickGrid, true);      
+      $scope.$watch(function($scope) { 
+        return {name: $scope.pipeline.name, source: $scope.pipeline.source} 
+      }, $scope.buildSlickGrid, true);     
     }
   };
 });

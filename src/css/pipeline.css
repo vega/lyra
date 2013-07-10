@@ -1,10 +1,17 @@
-#pipeline {
+#pipelines {
   position: absolute;
   width: 300px;
   top: 0;
   bottom: 0;
   left: 0;
 }
+
+.pipeline h3 {
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.pipeline.selected h3 { font-weight: bold; }
 
 #add-data, #transforms a, .pipeline-ctrls a {
   display: inline-block;
@@ -27,28 +34,29 @@
 
 .bubble input[type=submit] { margin-left: 10px; }
 
-#pipeline li {
+.pipeline .inspector li {
   list-style-type: none;
   padding: 0 0 5px 0;
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
+  border: 0;
   border-bottom: 1px solid #888;
 }
 
-#pipeline li.icon { padding-left: 25px; }
+.pipeline li.icon { padding-left: 25px; }
 .add-data { background: url(../imgs/table_add.png) no-repeat; }
 .import-data { background: url(../imgs/table_import.png) no-repeat; }
 .transform-filter { background: url(../imgs/filter.png) no-repeat; }
 .transform-sort { background: url(../imgs/sort.png) no-repeat; }
 .transform-formula { background: url(../imgs/formula.png) -6px -1px no-repeat; }
 
-#pipeline .slickgrid {
+.pipeline .slickgrid {
   width: 100%;
   height: 175px;
   font-size: 11px;
   margin-bottom: 10px;
 }
 
-#pipeline h3 { 
+.pipeline h4 { 
   float: left;
   padding: 3px 5px;
   background: #4f4f4f;
@@ -73,8 +81,8 @@
   float: right; 
 }
 
-#pipeline ul:first-of-type li .pipeline-ctrls { visibility: hidden; }
-#pipeline ul:first-of-type li:hover .pipeline-ctrls { visibility: visible; }
+.pipeline ul:first-of-type li .pipeline-ctrls { visibility: hidden; }
+.pipeline ul:first-of-type li:hover .pipeline-ctrls { visibility: visible; }
 
 .pipeline-ctrls a { margin-left: 5px; }
 
@@ -99,7 +107,7 @@
   width: 250px;
 }
 
-#pipeline .preview-transform .slickgrid { 
+.pipeline .preview-transform .slickgrid { 
   width: 300px; 
   margin: 0;
 }

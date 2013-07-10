@@ -1,48 +1,24 @@
-<h2><span>Pipeline</span> <a ng-if="itemType == 'visualization'" class="add-data" id="add-data" ng-click="toggleData()">Add Data</a> <a ng-if="itemType == 'mark'" ng-hide="dataBound" class="import-data" id="add-data" ng-click="addData()">Add Data</a></h2>
-
-<div id="pipeline" ng-controller="PipelineCtrl" ng-switch on="itemType">
-  <div ng-switch-when="visualization">
+<div class="inspector" ng-controller="PipelineCtrl">
     <ul>
-      <li class="add-data icon" ng-repeat="dataName in dataSources" ng-animate="'slide'">Add <code>{{dataName || data.url}}</code></li>
-    </ul>
-
-    <div id="add-data-dialog" ng-show="showAddData" ng-animate="{show: 'fade-show'}">
-      <div class="bubble top">
-        <form ng-submit="addData()">
-          <h4>Add Data Source</h4>
-
-          <vde-property label="Name" type="text" ng-model="$parent.dataName"></vde-property>
-
-          <vde-property label="URL" type="text" ng-model="$parent.dataSrc"></vde-property>
-
-          <vde-property label="Type" type="select" options="types" ng-model="$parent.dataType"></vde-property>
-
-          <input type="submit" value="Add" />
-        </form>
-      </div>  
-    </div>
-
-  </div>
-
-  <div ng-switch-when="mark">
-
-    <ul>
-      <li ng-hide="dataBound">This mark is not currently associated with any <a ng-click="addData()">data.</a></li>
-      <li class="import-data icon" ng-show="dataBound" ng-animate="{show: 'slide-enter'}">Import data from
-        <select ng-model="item.pipeline.source" ng-options="src for src in dataSources"></select>
+      <li class="import-data icon">Import data from
+        <select ng-model="pMdl.activePipelineSource" ng-change="setSource()">
+          <option value="">Select...</option>
+          <option ng-repeat="src in pMdl.dataSources" value="{{src}}">{{src}}</option>
+          <option value="vdeNewData">New Data Source</option>
+        </select>
       </li>
 
-      <li ng-repeat="transform in item.pipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
+      <li ng-repeat="transform in activePipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
     </ul>
 
-    <div class="slickgrid" vde-data-grid pipeline="item.pipeline"></div>
+    <div class="slickgrid" ng-if="activePipeline.source" vde-data-grid pipeline="activePipeline"></div>
 
     <ul>
       <li ng-repeat="transform in newTransforms" class="transform-{{transform.type|lowercase}} icon" ng-init="isNewTransform = 1" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
     </ul>
 
-    <div ng-show="item.pipeline.source && newTransforms.length == 0">
-      <h3>Data Transforms</h3>
+    <div ng-show="activePipeline.source && newTransforms.length == 0">
+      <h4>Data Transforms</h4>
       <div id="transforms">
         <a class="transform-filter" ng-click="newTransform('Filter')">Filter</a>
         <a class="transform-sort" ng-click="newTransform('Sort')">Sort</a>
@@ -51,30 +27,14 @@
       </div>
     </div>
 
-  </div>
+    <ul class="scales">
+        <li ng-class="{selected:itemName==scaleName}" ng-repeat="(scaleName, scale) in activePipeline.scales">
 
-  <div ng-switch-when="scale">
-    <ul>
-      <li class="import-data icon" ng-animate="{show: 'slide-enter'}">Import data from
-        <select ng-model="item.properties.data" ng-options="src for src in dataSources"></select>
-      </li>
+        <vde-binding scale="scale" draggable-scale="1"></vde-binding>
+        <br clear="all" />
+        </li>
+       </ul>
 
-      <li>These fields may be used to set the <b>domain</b>:
-        <br clear="all" />
-        <div class="raw schema" ng-repeat="s in schema" field="data.{{s}}" vde-draggable>{{s}}</div>
-        <br clear="all" />
-      </li>
-
-      <li>These fields may be used to set the <b>range</b>:
-        <br clear="all" />
-        <div class="derived schema" field="height" vde-draggable>height</div>
-        <div class="derived schema" field="width" vde-draggable>width</div>
-        <div class="derived schema" field="shapes" vde-draggable>shapes</div>
-        <div class="derived schema" field="category10" vde-draggable>category10</div>
-        <div class="derived schema" field="category20" vde-draggable>category20</div>
-        <br clear="all" />
-      </li>
-    </ul>
   </div>
 
 </div>

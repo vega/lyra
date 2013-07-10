@@ -28,30 +28,28 @@ vde.Vis.marks.Symbol = (function() {
     this.properties[prop] || (this.properties[prop] = {});
 
     if(opts.scale)
-      this.properties[prop].scale = this.group.scale({ name: scaleName });
+      this.properties[prop].scale = this.pipeline.scale({ name: scaleName });
 
     if(opts.field) {
       var scale, field = new vde.Vis.Field(opts.field);
 
       switch(prop) {
         case 'x':
-          scale = this.group.scale({
+          scale = this.pipeline.scale({
             type: 'ordinal',
-            pipeline: this.pipeline,
             field: field
           }, {range: new vde.Vis.Field('width')});
         break;
 
         case 'y':
-          scale = this.group.scale({
+          scale = this.pipeline.scale({
             type: 'linear',
-            pipeline: this.pipeline, 
             field: field,
           }, {range: new vde.Vis.Field('height')});
         break;
 
         case 'size':
-          scale = this.group.scale({
+          scale = this.pipeline.scale({
             type: 'linear',
             pipeline: this.pipeline, 
             field: field

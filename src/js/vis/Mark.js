@@ -3,6 +3,7 @@ vde.Vis.Mark = (function() {
     this.name = name;
     this.displayName = name;
 
+    this.group    = null;
     this.pipeline = null;
 
     this._spec = {

@@ -26,7 +26,7 @@ vde.Vis.marks.Rect = (function() {
     this.properties[prop] || (this.properties[prop] = {});
 
     if(opts.scaleName)
-      this.properties[prop].scale = this.group.scales[opts.scaleName];
+      this.properties[prop].scale = this.pipeline.scales[opts.scaleName];
 
     if(opts.field) {
       var scale, field = new vde.Vis.Field(opts.field);
@@ -35,9 +35,8 @@ vde.Vis.marks.Rect = (function() {
         case 'x':
         case 'x2':
         case 'width':
-          scale = this.group.scale({
+          scale = this.pipeline.scale({
             type: 'ordinal',
-            pipeline: this.pipeline,
             field: field
           }, {range: new vde.Vis.Field('width')});
         break;
@@ -45,9 +44,8 @@ vde.Vis.marks.Rect = (function() {
         case 'y':
         case 'y2':
         case 'height':
-          scale = this.group.scale({
+          scale = this.pipeline.scale({
             type: 'linear',
-            pipeline: this.pipeline,
             field: field
           }, {range: new vde.Vis.Field('height')});
         break;

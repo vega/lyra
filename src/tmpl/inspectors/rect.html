@@ -1,12 +1,14 @@
-<div id="properties">
+<div class="inspector">
   <vde-property label="Name" type="text" item="activeVisual" ng-model="activeVisual.displayName"></vde-property>
 
   <vde-property label="Pipeline">
     <select ng-model="gMdl.activeVisualPipeline" ng-change="setPipeline()">
       <option value="">Select...</option>
-      <option ng-repeat="(pipelineName, pipeline) in pipelines" value="{{pipelineName}}">{{pipeline.displayName}}</option>
+      <option ng-repeat="(pipelineName, pipeline) in gMdl.pipelines" value="{{pipelineName}}" ng-selected
+     expression="gMdl.activeVisualPipeline==pipelineName">{{pipeline.displayName}}</option>
       <option value="vdeNewPipeline">New Pipeline</option>
     </select>
+    {{gMdl.activeVisualPipeline}}
   </vde-property>
 
   <fieldset id="x">

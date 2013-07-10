@@ -1,11 +1,17 @@
 vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
-  $scope.groups = vde.Vis.groups;
-  $scope.pipelines = vde.Vis.pipelines;
-  $scope.gMdl = {}; // General catch-all model for scoping
+  $scope.gMdl = { // General catch-all model for scoping
+    groups: vde.Vis.groups,
+    pipelines: vde.Vis.pipelines
+  }; 
 
   $scope.toggleVisual = function(v) {
     $rootScope.activeVisual = v;
     $rootScope.activeGroup  = v.group || v;
+
+    if(v.pipeline) {
+      $rootScope.activePipeline = v.pipeline;
+      $scope.gMdl.activeVisualPipeline = v.pipeline.name;
+    }
   };  
 
   $scope.setPipeline = function() {
@@ -14,6 +20,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
     else if(p == 'vdeNewPipeline') {
       $scope.activeVisual.pipeline = new vde.Vis.Pipeline();
       $rootScope.activePipeline = $scope.activeVisual.pipeline;
+      $scope.gMdl.activeVisualPipeline = $scope.activeVisual.pipeline.name;
     }
     else $scope.activeVisual.pipeline = vde.Vis.pipelines[p];
   };

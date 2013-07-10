@@ -1,6 +1,6 @@
 vde.Vis.Pipeline = (function() {
   var pipeline = function(source) {
-    this.name = 'vdePipeline_' + (vg.keys(vde.Vis._derivedData).length+1);
+    this.name = 'vdePipeline_' + (vg.keys(vde.Vis.pipelines).length+1);
     this.displayName = this.name;
 
     this.source = source;

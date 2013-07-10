@@ -78,10 +78,7 @@ vde.App.directive('vdeBinding', function($compile) {
       if(!attrs.draggableScale) return;
 
       var binding = element.find('.binding');
-      element.find('.binding-draggable').append(binding)
-        .bind('click', function() {
-          alert('whaddup!')
-        });
+      element.find('.binding-draggable').append(binding);
     }
   }
 });

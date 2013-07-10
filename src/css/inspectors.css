@@ -1,4 +1,18 @@
-#properties { margin-top: 10px; }
+.inspectors h2 { margin-bottom: 10px; }
+
+.inspectors li {
+  list-style-type: none;
+  margin: 5px 10px;
+  padding: 5px;
+  border: 1px solid #939393;
+}
+
+.inspectors li.selected { 
+  background: #a4a4a4;
+  border: 1px solid #5d5d5d; 
+}
+
+.inspector { margin-top: 10px; }
 
 .property {
   height: 25px;
