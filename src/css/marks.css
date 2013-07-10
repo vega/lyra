@@ -2,8 +2,8 @@
     position: absolute;
     height: 16px;
     top: 0;
-    left: 300px;
-    right: 300px;
+    left: 600px;
+    right: 0;
     padding-bottom: 10px;
 }
 
@@ -48,7 +48,7 @@
 
 #vis {
   position: absolute;
-  left: 315px;
+  left: 615px;
   top: 40px;
   background: #fff;
   border: 1px solid #999;

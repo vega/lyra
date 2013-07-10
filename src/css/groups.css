@@ -1,9 +1,10 @@
 #groups {
   position: absolute;
   width: 300px;
+  left: 300px;
   top: 0;
   bottom: 0;
-  right: 0;
+  border-left: 1px dashed #333;
 }
 
 #groups h3 {

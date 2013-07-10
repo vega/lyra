@@ -64,11 +64,17 @@
   font-weight: normal;
 }
 
-#transforms {
+#transforms, #scales {
   background: #ccc;
   border: 1px solid #4f4f4f;
   padding: 5px;
+  margin-bottom: 10px;
   clear: both;
+}
+
+#pipelines #scales .binding .empty { 
+  background: #ccc; 
+  border-color: #ccc;
 }
 
 #transforms a { 
