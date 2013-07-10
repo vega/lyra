@@ -29,7 +29,7 @@ a {
 }
 
 .chrome { 
-  background: #a4a4a4;
+  background: #939393;
 }
 
 .chrome h2 {
@@ -100,8 +100,8 @@ a {
 
 .binding .empty {
   padding: 2px 5px;
-  background: #a4a4a4;
-  border: 1px solid #a4a4a4;
+  background: #939393;
+  border: 1px solid #939393;
   border-radius: 0;
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;  

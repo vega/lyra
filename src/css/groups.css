@@ -1,6 +1,6 @@
 #groups {
   position: absolute;
-  width: 150px;
+  width: 300px;
   top: 0;
   bottom: 0;
   right: 0;
@@ -9,7 +9,7 @@
 #groups h2 { margin-bottom: 10px; }
 
 #groups h3 {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: normal;
   background: url(../imgs/spinner-closed.png) 0 1px no-repeat;
   background-size: 12px 12px;
@@ -45,15 +45,22 @@
   list-style-type: none;
   margin: 5px 10px;
   padding: 5px;
-  border: 1px solid #a4a4a4;
+  border: 1px solid #939393;
 }
 
-#groups li.selected { background: #ccc; }
+#groups li.selected { 
+  background: #a4a4a4;
+  border: 1px solid #5d5d5d; 
+}
 
 #groups li a {
   color: #000;
   text-decoration: none;
 }
+
+#groups li h5 { font-weight: normal; }
+
+#groups li.selected h5 { font-weight: bold; }
 
 #groups .scales li {
   padding: 0;

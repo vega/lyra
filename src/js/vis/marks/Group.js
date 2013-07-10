@@ -3,13 +3,11 @@ vde.Vis.marks.Group = (function() {
     vde.Vis.Mark.call(this, name || 'group_' + (vg.keys(vde.Vis.groups).length+1));
 
     this.type   = 'group';
-    this.pseudo = false;  // A psuedo-group exists in the spec, but not in the VDE UI.
+    this.layer  = true;  // A psuedo-group exists in the spec, but not in the VDE UI.
 
-    this.scales = {};
     this.axes   = {};
     this.marks  = {};
 
-    this._spec.scales = [];
     this._spec.axes   = [];
     this._spec.marks  = [];
 
@@ -41,20 +39,6 @@ vde.Vis.marks.Group = (function() {
     vg.keys(this.marks).forEach(function(k)  { spec.marks.push(self.marks[k].spec()); });
 
     return spec;
-  };
-
-  // Given a spec, find a pre-existing scale that matches,
-  // or if none do, build a new scale. 
-  prototype.scale = function(spec, defaultSpec) {
-    for(var scaleName in this.scales) {
-      if(this.scales[scaleName].equals(spec))
-        return this.scales[scaleName];
-    }
-
-    for(var k in defaultSpec)
-      spec[k] = defaultSpec[k];
-
-    return new vde.Vis.Scale('', this, spec);
   };
 
   return group;

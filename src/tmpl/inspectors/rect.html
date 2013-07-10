@@ -1,42 +1,50 @@
-<h2><span>Visual</span>: {{itemName|inflector:'humanize'}}</h2>
-
 <div id="properties">
+  <vde-property label="Name" type="text" item="activeVisual" ng-model="activeVisual.displayName"></vde-property>
+
+  <vde-property label="Pipeline">
+    <select ng-model="gMdl.activeVisualPipeline" ng-change="setPipeline()">
+      <option value="">Select...</option>
+      <option ng-repeat="(pipelineName, pipeline) in pipelines" value="{{pipelineName}}">{{pipeline.displayName}}</option>
+      <option value="vdeNewPipeline">New Pipeline</option>
+    </select>
+  </vde-property>
+
   <fieldset id="x">
     <legend>X</legend>
 
-    <vde-property label="Start" type="number" item="item" property="x" ng-model="properties.x.value" scale="properties.x.scale" field="properties.x.field"></vde-property>
+    <vde-property label="Start" type="number" item="activeVisual" property="x" ng-model="activeVisual.properties.x.value" scale="activeVisual.properties.x.scale" field="activeVisual.properties.x.field"></vde-property>
 
-    <vde-property label="Width" type="number" item="item" property="width" ng-model="properties.width.value" scale="properties.width.scale" field="properties.width.field"></vde-property>
+    <vde-property label="Width" type="number" item="activeVisual" property="width" ng-model="activeVisual.properties.width.value" scale="activeVisual.properties.width.scale" field="activeVisual.properties.width.field"></vde-property>
 
-    <vde-property label="End" type="number" item="item" property="x2" ng-model="properties.x2.value" scale="properties.x2.scale" field="properties.x2.field"></vde-property>
+    <vde-property label="End" type="number" item="activeVisual" property="x2" ng-model="activeVisual.properties.x2.value" scale="activeVisual.properties.x2.scale" field="activeVisual.properties.x2.field"></vde-property>
 
   </fieldset>
 
   <fieldset id="y">
     <legend>Y</legend>
 
-    <vde-property label="Start" type="number" item="item" property="y" ng-model="properties.y.value" scale="properties.y.scale" field="properties.y.field"></vde-property>
+    <vde-property label="Start" type="number" item="activeVisual" property="y" ng-model="activeVisual.properties.y.value" scale="activeVisual.properties.y.scale" field="activeVisual.properties.y.field"></vde-property>
 
-    <vde-property label="Height" type="number" item="item" property="height" ng-model="properties.height.value" scale="properties.height.scale" field="properties.height.field"></vde-property>
+    <vde-property label="Height" type="number" item="activeVisual" property="height" ng-model="activeVisual.properties.height.value" scale="activeVisual.properties.height.scale" field="activeVisual.properties.height.field"></vde-property>
 
-    <vde-property label="End" type="number" item="item" property="y2" ng-model="properties.y2.value" scale="properties.y2.scale" field="properties.y2.field"></vde-property>
+    <vde-property label="End" type="number" item="activeVisual" property="y2" ng-model="activeVisual.properties.y2.value" scale="activeVisual.properties.y2.scale" field="activeVisual.properties.y2.field"></vde-property>
 
   </fieldset>
 
   <fieldset id="fill">
     <legend>Fill</legend>
 
-    <vde-property label="Color" type="color" item="item" property="fill" ng-model="properties.fill.value" scale="properties.fill.scale" field="properties.fill.field"></vde-property>  
+    <vde-property label="Color" type="color" item="activeVisual" property="fill" ng-model="activeVisual.properties.fill.value" scale="activeVisual.properties.fill.scale" field="activeVisual.properties.fill.field"></vde-property>  
 
-    <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" item="item" property="fillOpacity" ng-model="properties.fillOpacity.value" scale="properties.fillOpacity.scale" field="properties.fillOpacity.field"></vde-property> 
+    <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" item="activeVisual" property="fillOpacity" ng-model="activeVisual.properties.fillOpacity.value" scale="activeVisual.properties.fillOpacity.scale" field="activeVisual.properties.fillOpacity.field"></vde-property> 
   </fieldset>  
 
   <fieldset id="stroke">
     <legend>Stroke</legend>
 
-    <vde-property label="Color" type="color" item="item" property="stroke" ng-model="properties.stroke.value" scale="properties.stroke.scale" field="properties.stroke.field"></vde-property>  
+    <vde-property label="Color" type="color" item="activeVisual" property="stroke" ng-model="activeVisual.properties.stroke.value" scale="activeVisual.properties.stroke.scale" field="activeVisual.properties.stroke.field"></vde-property>  
 
-    <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="item" property="strokeWidth" ng-model="properties.strokeWidth.value" scale="properties.strokeWidth.scale" field="properties.strokeWidth.field"></vde-property> 
+    <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="activeVisual" property="strokeWidth" ng-model="activeVisual.properties.strokeWidth.value" scale="activeVisual.properties.strokeWidth.scale" field="activeVisual.properties.strokeWidth.field"></vde-property> 
   </fieldset>  
  
 </div>

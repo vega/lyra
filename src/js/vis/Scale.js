@@ -1,12 +1,12 @@
 vde.Vis.Scale = (function() {
-  var scale = function(name, group, properties) {
-    this.name  = (name || 'scale_' + (vg.keys(group.scales).length+1));
+  var scale = function(name, pipeline, properties) {
+    this.name  = (name || 'scale_' + (vg.keys(pipeline.scales).length+1));
     this.displayName = this.name; // displayName = UI; this.name = Model/Spec;
 
     this.properties = properties;
 
-    this.group = group;
-    this.group.scales[this.name] = this;
+    this.pipeline = pipeline;
+    this.pipeline.scales[this.name] = this;
 
     return this;
   };
@@ -25,10 +25,7 @@ vde.Vis.Scale = (function() {
   };
 
   prototype.def = function() {
-    var groupDef = this.group.def();
-    for(var i = 0; i < groupDef.scales.length; i++)
-        if(groupDef.scales[i].name == this.name)
-            return groupDef.scales[i];
+    // TODO
 
     return null;
   };

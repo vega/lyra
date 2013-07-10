@@ -1,6 +1,7 @@
 vde.Vis.Mark = (function() {
   var mark = function(name) {
     this.name = name;
+    this.displayName = name;
 
     this.pipeline = null;
 
@@ -23,6 +24,9 @@ vde.Vis.Mark = (function() {
 
     if(!this.name)
       this.name = this.type + '_' + (vg.keys(this.group.marks).length+1);
+
+    if(!this.displayName) 
+      this.displayName = this.name;
 
     this.group.marks[this.name] = this;
 

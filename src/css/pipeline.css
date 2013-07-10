@@ -1,3 +1,11 @@
+#pipeline {
+  position: absolute;
+  width: 300px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
 #add-data, #transforms a, .pipeline-ctrls a {
   display: inline-block;
   float: right;

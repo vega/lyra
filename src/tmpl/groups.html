@@ -1,36 +1,34 @@
-<div id="groups" class="chrome" ng-controller="GroupsCtrl" ng-class="activeGroup">
-  <h2><span>Groups</span></h2> 
+<div id="groups" class="chrome" ng-controller="GroupsCtrl">
+  <h2><span>Visual Layers</span></h2> 
 
   <div class="group" ng-repeat="(groupName, group) in groups">
-    <h3 ng-class="{expanded:activeGroup == groupName}" ng-click="toggleGroup(groupName)">{{groupName|inflector:'humanize'}}</h3>
+    <div ng-if="group.layer">
+      <h3 ng-class="{expanded:activeGroup == group}" ng-click="toggleVisual(group)">{{groupName|inflector:'humanize'}}</h3>
 
-    <div class="member" ng-show="activeGroup == groupName" ng-hide="activeGroup != groupName">
-      <h4>Scales <a ng-href="#/group/{{groupName}}/scale/new" class="add">New Scale</a></h4>
+      <div ng-if="activeGroup == group">
 
-      <ul class="scales">
-        <li ng-class="{selected:itemName==scaleName}" ng-repeat="(scaleName, scale) in group.scales">
+        <h4>Axes</h4>
+        
+        <ul>
+          <li ng-repeat="(axisName, axis) in group.axes" ng-class="{selected:activeVisual==axis}">
+            <h5><a ng-click="toggleVisual(axis)">{{axis.name|inflector:'humanize'}}</a></h5>
 
-        <vde-binding scale="scale" draggable-scale="1"></vde-binding>
-        <br clear="all" />
+            <ng-include src="'tmpl/inspectors/axis.html'" ng-if="activeVisual==axis"></ng-include>
+          </li>
+        </ul>
 
-        <a ng-href="#/group/{{groupName}}/scale/{{scaleName}}">edit</a>
-        </li>
-      </ul>
+        <h4>Marks</h4>
+        
+        <ul>
+          <li ng-repeat="(markName, mark) in group.marks" ng-class="{selected:activeVisual==mark}">
+            <h5><a ng-click="toggleVisual(mark)">{{mark.displayName|inflector:'humanize'}}</a></h5>
 
-      <h4>Axes <a ng-href="#/group/{{groupName}}/axis/new" class="add">New Axis</a></h4>
-      
-      <ul>
-        <li ng-class="{selected:itemName==axisName}" ng-repeat="(axisName, axis) in group.axes"><a ng-href="#/group/{{groupName}}/axis/{{axisName}}">{{axis.name|inflector:'humanize'}}</a></li>
-      </ul>
+            <ng-include src="'tmpl/inspectors/' + mark.type + '.html'" ng-if="activeVisual==mark"></ng-include>
+          </li>
+        </ul>
 
-      <h4>Marks</h4>
-      
-      <ul>
-        <li ng-class="{selected:itemName==markName}" ng-repeat="(markName, mark) in group.marks"><a ng-href="#/group/{{groupName}}/mark/{{markName}}">{{markName|inflector:'humanize'}}</a></li>
-      </ul>
-
+      </div>
     </div>
-
   </div>
 </div>
 

@@ -1,5 +1,10 @@
 vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
+  $scope.pipelines   = vde.Vis.pipelines;
   $scope.dataSources = vg.keys(vde.Vis._data);
+
+  $scope.togglePipeline = function(p) {
+    $rootScope.activePipeline = p;
+  };
 
   switch($scope.$parent.itemType) {
     case 'visualization':    

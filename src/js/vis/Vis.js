@@ -52,7 +52,15 @@ vde.Vis = (function() {
       spec.data.push(dd);
     });
 
-    vg.keys(vis.pipelines).forEach(function(k) { spec.data.push(vis.pipelines[k].spec() )});
+    vg.keys(vis.pipelines).forEach(function(k) { 
+      var p = vis.pipelines[k];
+
+      spec.data.push(p.spec());
+      vg.keys(p.scales).forEach(function(s) {
+        spec.scales.push(p.scales[s].spec());
+      });
+    });
+    
     vg.keys(vis.groups).forEach(function(k) { spec.marks.push(vis.groups[k].spec()); });
 
     vg.parse.spec(spec, function(chart) {

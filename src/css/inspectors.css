@@ -1,20 +1,4 @@
-#inspectors {
-  position: absolute;
-  width: 300px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-}
-
-#pipeline, #properties { 
-  height: 49%; 
-  margin-bottom: 1%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-.fullHeight { height: 99% !important; }
+#properties { margin-top: 10px; }
 
 .property {
   height: 25px;

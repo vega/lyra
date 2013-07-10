@@ -1,51 +1,3 @@
-vde.App.controller('InspectorsCtrl', function($scope, $rootScope, $routeParams, $location) {
-  if('groupName' in $routeParams) {
-    var group = vde.Vis.groups[$routeParams.groupName];
-    $rootScope.activeGroup = group.name;
-
-    // TODO: Deal with pseudo-groups and subgroups. 
-    if('itemName' in $routeParams) {
-      var path = $location.path();
-      var type, types, item;
-      if(path.indexOf('mark') != -1) { // TODO: This is ugly. Fix routes. 
-        type  = 'mark';
-        types = 'marks';
-      } else if(path.indexOf('axis') != -1) {
-        type  = 'axis';
-        types = 'axes'
-      } else {
-        type  = 'scale';
-        types = 'scales';
-      }
-      
-      if($routeParams.itemName == 'new')
-        item = (type == 'scale') ? new vde.Vis.Scale('', group) : new vde.Vis.Axis('', group);
-      else
-        item = group[types][$routeParams.itemName];
-
-      $rootScope.itemName = item.name;
-      $rootScope.itemType = type;
-      $scope.item       = item;
-      $scope.properties = item.properties;
-      $scope.fullWidth  = (type == 'axis');
-    } else {
-      $rootScope.itemName = group.name;
-      $rootScope.itemType = 'group';
-      $scope.item       = group;
-      $scope.properties = group.properties;
-    }
-  } else {
-    $rootScope.activeGroup = undefined;
-    $rootScope.itemType = 'visualization';
-    $scope.properties = vde.Vis.properties;
-  };
-});
-
-vde.App.controller('InspectorsStubCtrl', function($scope, $routeParams) {
-  var mark = vde.Vis.groups[$routeParams.groupName]['marks'][$routeParams.itemName];
-  $scope.templateUrl = 'tmpl/inspectors/' + mark.type + '.html';
-});
-
 vde.App.directive('vdeProperty', function() {
   return {
     restrict: 'E',
@@ -126,7 +78,10 @@ vde.App.directive('vdeBinding', function($compile) {
       if(!attrs.draggableScale) return;
 
       var binding = element.find('.binding');
-      element.find('.binding-draggable').append(binding);
+      element.find('.binding-draggable').append(binding)
+        .bind('click', function() {
+          alert('whaddup!')
+        });
     }
   }
 });
