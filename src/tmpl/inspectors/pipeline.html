@@ -22,8 +22,8 @@
     </ul>
 
     <div ng-show="activePipeline.source && newTransforms.length == 0">
-      <h4>Data Transforms</h4>
-      <div id="transforms">
+      <h6>Data Transforms</h6>
+      <div id="transforms" class="shelf icons">
         <a class="transform-filter" ng-click="newTransform('Filter')">Filter</a>
         <a class="transform-sort" ng-click="newTransform('Sort')">Sort</a>
         <a class="transform-formula" ng-click="newTransform('Formula')">Formula (Extend)</a>
@@ -31,9 +31,9 @@
       </div>
     </div>
 
-    <h4>Scales</h4>
-    <div id="scales">
-        <vde-binding ng-repeat="(scaleName, scale) in activePipeline.scales" scale="scale" draggable-scale="1"></vde-binding>
+    <h6>Scales</h6>
+    <div id="scales" class="shelf">
+        <vde-binding ng-repeat="(scaleName, scale) in activePipeline.scales" scale="scale" draggable="1"></vde-binding>
 
         <br clear="all" />
     </div>

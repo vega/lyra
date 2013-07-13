@@ -70,7 +70,7 @@
 }
 
 fieldset { 
-  margin-top: 10px;
+  margin: 10px 0;
   border: 1px solid #777; 
   border-radius: 5px;
 }
@@ -105,3 +105,37 @@ fieldset#padding .property {
 
 #properties .binding, #properties .scale, #properties .schema 
 { cursor: default; }
+
+.inspector h6 { 
+  float: left;
+  margin-bottom: -1px;
+  padding: 0 5px;
+  background: #ccc;
+  border: 1px solid #777;
+  border-bottom: 1px solid #ccc;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  color: #333;
+  font-weight: bold;   
+}
+
+.shelf {
+  background: #ccc;
+  border: 1px solid #777;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+  padding: 5px;
+  margin-bottom: 10px;
+  clear: both;
+}
+
+.icons a {
+  display: inline-block;
+  float: left;
+  margin: 0 10px 0 0;
+  width: 16px;
+  height: 16px;
+  text-indent: -999em;
+  cursor: pointer;
+}

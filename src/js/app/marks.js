@@ -1,6 +1,4 @@
-vde.App.controller('MarksCtrl', function($scope, $rootScope) {
-  $scope.marks = ['Rect', 'Symbol'];
-
+vde.App.controller('MarksCtrl', function($scope, $rootScope) { 
   // Cardinal sin
   $(document).ready(function() {
     vde.Vis.parse(); 

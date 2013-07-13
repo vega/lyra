@@ -5,6 +5,7 @@ vde.Vis.Mark = (function() {
 
     this.group    = null;
     this.pipeline = null;
+    this.encoders = []; // Visual encoders
 
     this._spec = {
       properties: {
@@ -39,8 +40,17 @@ vde.Vis.Mark = (function() {
 
     spec.name = this.name;
     spec.type = this.type;
+    spec.from = {};
 
-    if(this.pipeline) spec.from = {data: this.pipeline.name};
+    if(this.pipeline) spec.from.data = this.pipeline.name;
+
+    // Visual encoders
+    if(this.encoders) {
+      spec.from.transform = [];
+      this.encoders.forEach(function(e) {
+        spec.from.transform.push(e.spec());
+      })
+    }
 
     var props = {};
 
@@ -85,7 +95,7 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.unbindProperty = function(prop) {
-    this.properties[prop] = {scale: undefined, value: 0};
+    this.properties[prop] = {value: 0};
   };
 
   prototype.def = function() {

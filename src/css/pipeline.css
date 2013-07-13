@@ -17,15 +17,6 @@
   margin-bottom: 10px;
 }
 
-#add-data, #transforms a, .pipeline-ctrls a {
-  display: inline-block;
-  float: right;
-  width: 16px;
-  height: 16px;
-  text-indent: -999em;
-  cursor: pointer;
-}
-
 #add-data-dialog {
   position: absolute;
   top: 40px;
@@ -61,44 +52,19 @@
   margin-bottom: 10px;
 }
 
-.pipeline h4 { 
-  float: left;
-  margin-bottom: -1px;
-  padding: 0 5px;
-  background: #ccc;
-  border: 1px solid #777;
-  border-bottom: 1px solid #ccc;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  color: #333;
-  font-weight: bold;   
-}
-
-#transforms, #scales {
-  background: #ccc;
-  border: 1px solid #777;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  border-top-right-radius: 5px;
-  padding: 5px;
-  margin-bottom: 10px;
-  clear: both;
-}
+#pipelines #scales .binding { margin: 5px 0; }
 
 #pipelines #scales .binding .empty { 
   background: #ccc; 
   border-color: #ccc;
 }
 
-#transforms a { 
-  float: left; 
-  margin: 0 10px 0 0;
-}
-
 .pipeline-ctrls {
   display: inline-block;
   float: right; 
 }
+
+.pipeline-ctrls a { margin: 0 0 0 5px;}
 
 .pipeline ul:first-of-type li .pipeline-ctrls { visibility: hidden; }
 .pipeline ul:first-of-type li:hover .pipeline-ctrls { visibility: visible; }

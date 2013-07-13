@@ -39,12 +39,12 @@ vde.App.directive('vdeProperty', function() {
       if(attrs.type == 'expr') return;
 
       $(element).find('.property').drop(function(e, dd) {
-        var isField = $(dd.proxy).hasClass('schema');
-        var value = $(dd.proxy).attr('field') || $(dd.proxy).find('.scale').attr('scale');
+        var field = $(dd.proxy).attr('field') || $(dd.proxy).find('.schema').attr('field');
+        var scale = $(dd.proxy).find('.scale').attr('scale');
 
         scope.$apply(function() {
           scope.item.bindProperty(attrs.property, 
-            isField ? {field: value} : {scaleName: value});
+            field ? {field: field} : {scaleName: scale});
         });
 
         $('.proxy').remove();
@@ -65,17 +65,17 @@ vde.App.directive('vdeBinding', function($compile) {
     scope: {
       scale: '=',
       field: '=',
-      draggableScale: '@',
+      draggable: '@',
     },
     templateUrl: 'tmpl/inspectors/binding.html',
     controller: function($scope, $element, $attrs) {
-      if(!$attrs.draggableScale) return;
+      if(!$attrs.draggable) return;
 
       var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
       $element.append(el);
     },
     link: function(scope, element, attrs) {
-      if(!attrs.draggableScale) return;
+      if(!attrs.draggable) return;
 
       var binding = element.find('.binding');
       element.find('.binding-draggable').append(binding);

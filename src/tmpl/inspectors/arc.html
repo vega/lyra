@@ -1,0 +1,64 @@
+<div class="inspector">
+	<div ng-if="activeVisual.encoders.length == 0">
+		<h6>Templates</h6>
+		<div class="shelf icons">
+			<a class="encoder-pie" ng-click="addEncoder('Pie')">Pie</a>
+			<br clear="all" />
+		</div>
+	</div>
+
+	<div ng-repeat="encoder in activeVisual.encoders">
+		<fieldset ng-if="encoder.type == 'pie'" id="pie">
+			<legend>Pie</legend>
+
+			<vde-property label="Angles" type="field" item="encoder" property="value" ng-model="encoder.properties.value" field="encoder.properties.value"></vde-property>
+
+			<vde-property label="Sort" type="checkbox" item="encoder" property="sort" ng-model="encoder.properties.sort"></vde-property>
+
+			<vde-property label="Output">
+				<vde-binding field="'startAngle'" draggable="1"></vde-binding>
+				<vde-binding field="'endAngle'" draggable="1"></vde-binding>
+			</vde-property>
+		</fieldset>
+	</div>
+
+	<fieldset id="position">
+		<legend>Position</legend>
+
+		<vde-property label="X" type="number" item="activeVisual" property="x" ng-model="activeVisual.properties.x.value" scale="activeVisual.properties.x.scale" field="activeVisual.properties.x.field"></vde-property>
+
+	  <vde-property label="Y" type="number" item="activeVisual" property="y" ng-model="activeVisual.properties.y.value" scale="activeVisual.properties.y.scale" field="activeVisual.properties.y.field"></vde-property>
+	</fieldset>
+
+	<fieldset id="angle">
+		<legend>Angle</legend>
+
+		<vde-property label="Start" type="number" item="activeVisual" property="startAngle" ng-model="activeVisual.properties.startAngle.value" scale="activeVisual.properties.startAngle.scale" field="activeVisual.properties.startAngle.field"></vde-property>
+
+		<vde-property label="End" type="number" item="activeVisual" property="endAngle" ng-model="activeVisual.properties.endAngle.value" scale="activeVisual.properties.endAngle.scale" field="activeVisual.properties.endAngle.field"></vde-property>
+	</fieldset>
+
+	<fieldset id="radius">
+		<legend>Radius</legend>
+
+		<vde-property label="Inner" type="number" item="activeVisual" property="innerRadius" ng-model="activeVisual.properties.innerRadius.value" scale="activeVisual.properties.innerRadius.scale" field="activeVisual.properties.innerRadius.field"></vde-property>
+
+		<vde-property label="Outer" type="number" item="activeVisual" property="outerRadius" ng-model="activeVisual.properties.outerRadius.value" scale="activeVisual.properties.outerRadius.scale" field="activeVisual.properties.outerRadius.field"></vde-property>
+	</fieldset>
+
+	<fieldset id="fill">
+	  <legend>Fill</legend>
+
+	  <vde-property label="Color" type="color" item="activeVisual" property="fill" ng-model="activeVisual.properties.fill.value" scale="activeVisual.properties.fill.scale" field="activeVisual.properties.fill.field"></vde-property>  
+
+	  <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" item="activeVisual" property="fillOpacity" ng-model="activeVisual.properties.fillOpacity.value" scale="activeVisual.properties.fillOpacity.scale" field="activeVisual.properties.fillOpacity.field"></vde-property> 
+	</fieldset>  
+
+	<fieldset id="stroke">
+		<legend>Stroke</legend>
+
+	  <vde-property label="Color" type="color" item="activeVisual" property="stroke" ng-model="activeVisual.properties.stroke.value" scale="activeVisual.properties.stroke.scale" field="activeVisual.properties.stroke.field"></vde-property>  
+
+	  <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="activeVisual" property="strokeWidth" ng-model="activeVisual.properties.strokeWidth.value" scale="activeVisual.properties.strokeWidth.scale" field="activeVisual.properties.strokeWidth.field"></vde-property> 
+	</fieldset> 
+</div>
