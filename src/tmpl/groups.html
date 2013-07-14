@@ -7,11 +7,11 @@
 
       <div ng-if="activeGroup == group">
 
-        <h4>Axes</h4>
+        <h4>Axes <a ng-click="addAxis()" class="add">New Axis</a></h4>
         
         <ul>
-          <li ng-repeat="(axisName, axis) in group.axes" ng-class="{selected:activeVisual==axis}">
-            <h5 ng-click="toggleVisual(axis)">{{axis.name|inflector:'humanize'}}</h5>
+          <li ng-repeat="(axisName, axis) in group.axes" ng-class="{selected:activeVisual==axis}" ng-click="toggleVisual(axis)">
+            <h5>{{axis.name|inflector:'humanize'}}</h5>
 
             <ng-include src="'tmpl/inspectors/axis.html'" ng-if="activeVisual==axis"></ng-include>
           </li>
@@ -20,20 +20,18 @@
         <h4>Marks</h4>
         
         <ul>
-          <li ng-repeat="(markName, mark) in group.marks" ng-class="{selected:activeVisual==mark}">
-            <h5 ng-click="toggleVisual(mark)">{{mark.displayName|inflector:'humanize'}}</h5>
+          <li ng-repeat="(markName, mark) in group.marks" ng-class="{selected:activeVisual==mark}" ng-click="toggleVisual(mark)">
+            <h5>{{mark.displayName|inflector:'humanize'}}</h5>
 
             <div ng-if="activeVisual==mark">
-              <vde-property label="Name" type="text" item="activeVisual" ng-model="activeVisual.displayName"></vde-property>
+              <vde-property label="Name" type="text" item="activeVisual" ng-model="activeVisual.displayName" nodrop="1"></vde-property>
 
-              <vde-property label="Pipeline">
+              <vde-property label="Pipeline" nodrop="1">
                 <select ng-model="gMdl.activeVisualPipeline" ng-change="setPipeline()">
                   <option value="">Select...</option>
-                  <option ng-repeat="(pipelineName, pipeline) in gMdl.pipelines" value="{{pipelineName}}" ng-selected
-                 expression="gMdl.activeVisualPipeline==pipelineName">{{pipeline.displayName}}</option>
+                  <option ng-repeat="(pipelineName, pipeline) in gMdl.pipelines" value="{{pipelineName}}" ng-selected="gMdl.activeVisualPipeline==pipelineName">{{pipeline.displayName|inflector:'humanize'}}</option>
                   <option value="vdeNewPipeline">New Pipeline</option>
                 </select>
-                {{gMdl.activeVisualPipeline}}
               </vde-property>
 
               <ng-include src="'tmpl/inspectors/' + mark.type + '.html'"></ng-include>

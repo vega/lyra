@@ -9,7 +9,13 @@
 
 .inspectors li.selected { 
   background: #a4a4a4;
-  border: 1px solid #777; 
+  border: 1px solid #777 !important; 
+  border-radius: 5px;
+}
+
+.inspectors li:hover { 
+  background: #a4a4a4;
+  border-color: #a4a4a4; 
   border-radius: 5px;
 }
 
@@ -48,7 +54,7 @@
   font-style: normal;
 }
 
-.property .field a.unbind {
+.property a.unbind {
   display: none;
   float: right;
   width: 16px;
@@ -56,10 +62,11 @@
   background: url(../imgs/remove-black.png) no-repeat;
   background-size: 16px;
   text-indent: -999em;
+  margin-right: 5px;
 }
 
-.property:hover .field a.unbind { display: inline-block; }
-.property:hover .field a.unbind:hover { 
+.property:hover a.unbind { display: inline-block; }
+.property:hover a.unbind:hover { 
   background-image: url(../imgs/remove-white.png);
 }
 
@@ -105,6 +112,11 @@ fieldset#padding .property {
 
 #properties .binding, #properties .scale, #properties .schema 
 { cursor: default; }
+
+.inspectors li.selected  .binding .empty { 
+  background: #a4a4a4; 
+  border-color: #a4a4a4;
+}
 
 .inspector h6 { 
   float: left;

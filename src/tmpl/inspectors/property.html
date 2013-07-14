@@ -3,8 +3,6 @@
   <div class="field" ng-switch on="type">
     <div ng-if="scale || field">
       <vde-binding scale="scale" field="field"></vde-binding>
-
-      <a class="unbind" ng-click="unbind(property)">Unbind</a>
     </div>
 
     <div ng-show="!field">
@@ -24,9 +22,24 @@
 
       <span ng-switch-when="field" class="schema-target">Drop a column here.</span>
 
+      <span ng-switch-when="font">
+        <input type="number" ng-model="$parent.ngModel.fontSize.value" ng-change="onchange()" class="fontSize" />
+
+        <select ng-model="$parent.ngModel.font.value" ng-change="onchange()" class="fontFamily">
+          <option>Helvetica</option>
+          <option>Verdana</option>
+          <option>Georgia</option>
+          <option>Palatino</option>
+          <option>Garamond</option>
+          <option>Trebuchet MS</option>
+        </select>
+      </span>
+
       <div class="expr-container" ng-switch-when="expr" ng-model="$parent.ngModel" vde-expr></div>
     </div>
 
     <div ng-transclude="1"></div>
   </div>
+
+  <a class="unbind" ng-if="scale || field" ng-click="unbind(property)">Unbind</a>
 </div>

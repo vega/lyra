@@ -9,6 +9,7 @@
 .pipeline h3 {
   font-size: 14px;
   font-weight: normal;
+  cursor: pointer;
 }
 
 .pipeline.selected h3 { 

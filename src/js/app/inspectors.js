@@ -1,4 +1,4 @@
-vde.App.directive('vdeProperty', function() {
+vde.App.directive('vdeProperty', function($rootScope) {
   return {
     restrict: 'E',
     scope: {
@@ -41,10 +41,14 @@ vde.App.directive('vdeProperty', function() {
       $(element).find('.property').drop(function(e, dd) {
         var field = $(dd.proxy).attr('field') || $(dd.proxy).find('.schema').attr('field');
         var scale = $(dd.proxy).find('.scale').attr('scale');
+        var pipeline = $rootScope.activePipeline;
+
+        if(scope.item.pipeline && pipeline != scope.item.pipeline)
+          return alert('Pipelines don\'t match');
 
         scope.$apply(function() {
           scope.item.bindProperty(attrs.property, 
-            field ? {field: field} : {scaleName: scale});
+            field ? {field: field, pipeline: pipeline} : {scaleName: scale, pipeline: pipeline});
         });
 
         $('.proxy').remove();

@@ -27,4 +27,9 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
     $rootScope.activeVisual.encoders.push(new vde.Vis.transforms[type]);
   };
 
+  $scope.addAxis = function() {
+    var axis = new vde.Vis.Axis('', $rootScope.activeGroup);
+    $rootScope.activeVisual = axis;
+  };
+
 });

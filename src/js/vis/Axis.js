@@ -4,11 +4,16 @@ vde.Vis.Axis = (function() {
 
     this.properties = {
       tickStyle: {},
-      labelStyle: {},
-      axesStyle: {}
+      labelStyle: {
+        fontSize: {value: 10},
+        font: {value: "Helvetica"},
+        angle: {value: 0}
+      },
+      axisStyle: {}
     };
 
     this.group = group;
+    this.pipeline = null;
     this.group.axes[this.name] = this;
 
     return this;
@@ -30,7 +35,7 @@ vde.Vis.Axis = (function() {
     spec.properties = {
       ticks: vg.duplicate(this.properties.tickStyle),
       labels: vg.duplicate(this.properties.labelStyle),
-      axesStyle: vg.duplicate(this.properties.axesStyle)
+      axis: vg.duplicate(this.properties.axisStyle)
     };
 
     return spec;
@@ -48,7 +53,12 @@ vde.Vis.Axis = (function() {
   prototype.bindProperty = function(prop, opts) {
     if(!opts.scaleName) return; // Because this makes no sense
 
-    this.properties[prop] = this.group.scales[opts.scaleName];
+    this.pipeline = opts.pipeline;
+    this.properties[prop] = this.pipeline.scales[opts.scaleName];
+  };
+
+  prototype.unbindProperty = function(prop) {
+    delete this.properties[prop];
   };
 
   return axis;
