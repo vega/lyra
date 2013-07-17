@@ -9,7 +9,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
     $rootScope.activeGroup  = v.group || v;
 
     $rootScope.activePipeline = v.pipeline;
-    $scope.gMdl.activeVisualPipeline = v.pipeline.name || null;
+    $scope.gMdl.activeVisualPipeline = v.pipeline.name || undefined;
   };  
 
   $scope.setPipeline = function() {
@@ -30,6 +30,11 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
   $scope.addAxis = function() {
     var axis = new vde.Vis.Axis('', $rootScope.activeGroup);
     $rootScope.activeVisual = axis;
+  };
+
+  $scope.removeVisual = function(type, name) {
+    delete $rootScope.activeGroup[type][name];
+    vde.Vis.parse();
   };
 
 });

@@ -44,6 +44,8 @@ vde.Vis = (function() {
       marks: []
     };
 
+    vde.Vis.Callback.run('vis.pre_spec', this, {spec: spec});
+
     vg.keys(vis._data).forEach(function(d) {
       var dd = vg.duplicate(vis._data[d]);
       if(dd.url)
@@ -62,6 +64,8 @@ vde.Vis = (function() {
     });
     
     vg.keys(vis.groups).forEach(function(k) { spec.marks.push(vis.groups[k].spec()); });
+
+    vde.Vis.Callback.run('vis.post_spec', this, {spec: spec});
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#vis').selectAll('*').remove();

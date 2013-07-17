@@ -7,7 +7,7 @@
       <li class="import-data icon">Import data from
         <select ng-model="pMdl.activePipelineSource" ng-change="setSource()">
           <option value="">Select...</option>
-          <option ng-repeat="src in pMdl.dataSources" value="{{src}}" ng-selected="pMdl.activePipelineSource==src">{{src}}</option>
+          <option ng-repeat="src in pMdl.dataSources" value="{{src}}" ng-selected="pMdl.activePipelineSource==src||activePipeline.source==src">{{src}}</option>
           <option value="vdeNewData">New Data Source</option>
         </select>
       </li>
@@ -27,6 +27,7 @@
         <a class="transform-filter" ng-click="newTransform('Filter')">Filter</a>
         <a class="transform-sort" ng-click="newTransform('Sort')">Sort</a>
         <a class="transform-formula" ng-click="newTransform('Formula')">Formula (Extend)</a>
+        <a class="transform-facet" ng-click="newTransform('Facet')">Facet (Group)</a>
         <br clear="all" />
       </div>
     </div>

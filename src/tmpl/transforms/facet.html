@@ -1,0 +1,10 @@
+<div ng-init="layouts=['Overlap', 'Horizontal', 'Vertical']">
+  Facet
+
+  <vde-pipeline-ctrls></vde-pipeline-ctrls>
+
+  <vde-property label="Group By" type="field" item="transform" property="keys" ng-model="transform.properties.keys" field="transform.properties.keys"></vde-property>
+
+  <vde-property label="Layout" type="select" options="layouts" item="transform" property="layout" ng-model="transform.properties.layout"></vde-property>
+
+</div>

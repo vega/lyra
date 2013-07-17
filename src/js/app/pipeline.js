@@ -6,15 +6,20 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
 
   $scope.togglePipeline = function(p) {
     $rootScope.activePipeline = p;
+    $scope.pMdl.activePipelineSource = p.source;
+  };
+
+  $scope.removePipeline = function(p) {
+    delete vde.Vis.pipelines[p];
   };
 
   $scope.setSource = function() {
     var src = $scope.pMdl.activePipelineSource;
-    if(src == '') $scope.activePipeline.source = null;
+    if(src == '') $rootScope.activePipeline.source = null;
     else if(src == 'vdeNewData') {
       // TODO: Show Modal Dialog
     }
-    else $scope.activePipeline.source = src;
+    else $rootScope.activePipeline.source = src;
   };
 
   $scope.newTransforms = [];
@@ -23,7 +28,8 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
   };
 
   $scope.addTransform = function(i) {
-    $scope.activePipeline.transforms.push($scope.newTransforms[i]);
+    $scope.newTransforms[i].pipeline = $rootScope.activePipeline;
+    $rootScope.activePipeline.transforms.push($scope.newTransforms[i]);
     $scope.newTransforms.splice(i, 1);
 
     vde.Vis.parse();
@@ -36,7 +42,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
     if(isNewTransform)
       $scope.newTransforms.splice(i, 1);
     else {
-      $scope.activePipeline.transforms.splice(i, 1);
+      $rootScope.activePipeline.transforms.splice(i, 1);
       vde.Vis.parse();
     }
   };  
@@ -109,7 +115,7 @@ vde.App.directive('vdeDataGrid', function () {
         return {
           name: $scope.pipeline.name, 
           source: $scope.pipeline.source,
-          transforms: $scope.pipeline.transforms
+          transforms: $scope.pipeline.transforms.map(function(t) { return t.properties; })
         } 
       }, $scope.buildSlickGrid, true);     
     }

@@ -11,7 +11,7 @@
         
         <ul>
           <li ng-repeat="(axisName, axis) in group.axes" ng-class="{selected:activeVisual==axis}" ng-click="toggleVisual(axis)">
-            <h5>{{axis.name|inflector:'humanize'}}</h5>
+            <h5>{{axis.name|inflector:'humanize'}} <a ng-click="removeVisual('axes', axis.name);" class="remove">Delete</a></h5>
 
             <ng-include src="'tmpl/inspectors/axis.html'" ng-if="activeVisual==axis"></ng-include>
           </li>
@@ -21,7 +21,7 @@
         
         <ul>
           <li ng-repeat="(markName, mark) in group.marks" ng-class="{selected:activeVisual==mark}" ng-click="toggleVisual(mark)">
-            <h5>{{mark.displayName|inflector:'humanize'}}</h5>
+            <h5>{{mark.displayName|inflector:'humanize'}} <a ng-click="removeVisual('marks', mark.name);" class="remove">Delete</a></h5>
 
             <div ng-if="activeVisual==mark">
               <vde-property label="Name" type="text" item="activeVisual" ng-model="activeVisual.displayName" nodrop="1"></vde-property>

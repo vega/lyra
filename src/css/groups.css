@@ -30,22 +30,6 @@
   border-bottom: 1px solid #777;
 }
 
-#groups h4 a.add {
-  display: inline-block;
-  float: right;
-  width: 14px;
-  height: 14px;
-  background: url(../imgs/add-black.png) no-repeat;
-  background-size: 14px;
-  text-indent: -999em;
-  margin-top: -3px;
-}
-
-#groups h4 a.add:hover { 
-  background-image: url(../imgs/add-white.png); 
-  /*background-size: 16px;*/
-}
-
 #groups li a {
   color: #000;
   text-decoration: none;

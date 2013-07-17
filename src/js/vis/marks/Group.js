@@ -34,9 +34,17 @@ vde.Vis.marks.Group = (function() {
     var self = this;
     var spec = vg.duplicate(vde.Vis.Mark.prototype.spec.call(this));
 
-    vg.keys(this.scales).forEach(function(k) { spec.scales.push(self.scales[k].spec()); });
-    vg.keys(this.axes).forEach(function(k)   { spec.axes.push(self.axes[k].spec()); });
-    vg.keys(this.marks).forEach(function(k)  { spec.marks.push(self.marks[k].spec()); });
+    vde.Vis.Callback.run('group.pre_spec', this, {spec: spec});
+
+    ['scales', 'axes', 'marks'].forEach(function(t) {
+      vg.keys(self[t]).forEach(function(k) {
+        var s = self[t][k].spec();
+        if(!s) return;
+        spec[t].push(s);
+      });      
+    });
+
+    vde.Vis.Callback.run('group.post_spec', this, {spec: spec});
 
     return spec;
   };

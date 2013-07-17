@@ -3,7 +3,7 @@
 
   <ul>
     <li class="pipeline" ng-repeat="(pipelineName, pipeline) in pMdl.pipelines" ng-class="{selected:activePipeline==pipeline}">
-      <h3 ng-click="togglePipeline(pipeline)">{{pipeline.displayName|inflector:'humanize'}}</h3>
+      <h3 ng-click="togglePipeline(pipeline)">{{pipeline.displayName|inflector:'humanize'}} <a ng-click="removePipeline(pipelineName);" class="remove">Delete</a></h3>
 
       <ng-include src="'tmpl/inspectors/pipeline.html'" ng-if="activePipeline == pipeline"></ng-include>
     </li>

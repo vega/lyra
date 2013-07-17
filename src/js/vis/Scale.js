@@ -15,11 +15,16 @@ vde.Vis.Scale = (function() {
 
   prototype.spec = function() {
     var spec = vg.duplicate(this.properties);
+
+    vde.Vis.Callback.run('scale.pre_spec', this, {spec: spec});
+
     spec.name = this.name;
     spec.domain = {data: this.pipeline.name, field: this.properties.field.spec()};
     spec.range = this.properties.range.spec();
     delete spec.pipeline;
     delete spec.field;
+
+    vde.Vis.Callback.run('scale.post_spec', this, {spec: spec});
 
     return spec;
   };

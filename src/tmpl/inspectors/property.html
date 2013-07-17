@@ -18,7 +18,7 @@
 
       <span ng-switch-when="select"><select ng-change="onchange()" ng-model="$parent.ngModel" ng-options="opt for opt in $parent.options" ng-class="{'scaled-input': scale != undefined}"></select></span>
 
-      <span ng-switch-when="radio"><label ng-repeat="opt in $parent.options"><input type="radio" ng-model="$parent.ngModel" value="{{opt}}" /> {{opt}}</label> </span>
+      <span ng-switch-when="radio"><label ng-repeat="opt in $parent.options"><input type="radio" ng-model="$parent.$parent.ngModel" value="{{opt}}" /> {{opt}}</label> </span>
 
       <span ng-switch-when="field" class="schema-target">Drop a column here.</span>
 

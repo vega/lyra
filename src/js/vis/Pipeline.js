@@ -22,9 +22,15 @@ vde.Vis.Pipeline = (function() {
       transform: []
     };
 
+    vde.Vis.Callback.run('pipeline.pre_spec', this, {spec: spec});
+
     this.transforms.forEach(function(t) {
-      spec.transform.push(t.spec());
+      var s = t.spec();
+      if(!s) return;
+      spec.transform.push(s);
     });
+
+    vde.Vis.Callback.run('pipeline.post_spec', this, {spec: spec});
 
     return spec;
   };

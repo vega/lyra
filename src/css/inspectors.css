@@ -14,10 +14,39 @@
 }
 
 .inspectors li:hover { 
-  background: #a4a4a4;
+  background-color: #a4a4a4;
   border-color: #a4a4a4; 
   border-radius: 5px;
 }
+
+#groups h4 a.add, #groups h5 a.remove,
+#pipelines h3 a.add, #pipelines h3 a.remove {
+  display: inline-block;
+  float: right;
+  width: 14px;
+  height: 14px;
+  background-repeat: no-repeat;
+  background-size: 14px;
+  text-indent: -999em;
+}
+
+#groups h4 a.add { 
+  background-image: url(../imgs/add-black.png); 
+  margin-top: -3px;
+}
+
+#groups h4 a.add:hover { background-image: url(../imgs/add-white.png); }
+#groups h5 a.remove, #pipelines h3 a.remove { 
+  background-image: url(../imgs/delete-black.png); 
+  visibility: hidden;
+}
+#groups h5:hover a.remove, #pipelines h3:hover a.remove 
+{ visibility: visible; }
+
+#groups h5:hover a.remove:hover,
+#pipelines h3:hover a.remove:hover  
+{ background-image: url(../imgs/delete-white.png); }
+
 
 .property {
   height: 25px;

@@ -45,6 +45,7 @@
 .transform-filter { background: url(../imgs/filter.png) no-repeat; }
 .transform-sort { background: url(../imgs/sort.png) no-repeat; }
 .transform-formula { background: url(../imgs/formula.png) -6px -1px no-repeat; }
+.transform-facet { background: url(../imgs/categories.png) no-repeat; }
 
 .pipeline .slickgrid {
   width: 100%;

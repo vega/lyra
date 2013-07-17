@@ -5,6 +5,8 @@ vde.Vis.Transform = (function() {
     this.input = input;
     this.output = output;
 
+    this.pipeline = null;
+
     this.properties = {};
 
     return this;

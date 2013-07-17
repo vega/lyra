@@ -38,6 +38,8 @@ vde.Vis.Mark = (function() {
   prototype.spec = function() {
     var spec = vg.duplicate(this._spec);
 
+    vde.Vis.Callback.run('mark.pre_spec', this, {spec: spec});
+
     spec.name = this.name;
     spec.type = this.type;
     spec.from = {};
@@ -69,6 +71,8 @@ vde.Vis.Mark = (function() {
 
     spec.properties.enter  = props;
     // spec.properties.update = props;
+
+    vde.Vis.Callback.run('mark.post_spec', this, {spec: spec});
 
     return spec;
   };

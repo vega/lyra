@@ -23,6 +23,9 @@ vde.Vis.Axis = (function() {
 
   prototype.spec = function() {
     var spec = {}, self = this;
+
+    vde.Vis.Callback.run('axis.pre_spec', this, {spec: spec});
+
     vg.keys(this.properties).forEach(function(k) {
       var p = self.properties[k];
       if(p == undefined) return;
@@ -37,6 +40,8 @@ vde.Vis.Axis = (function() {
       labels: vg.duplicate(this.properties.labelStyle),
       axis: vg.duplicate(this.properties.axisStyle)
     };
+
+    vde.Vis.Callback.run('axis.post_spec', this, {spec: spec});
 
     return spec;
   };
