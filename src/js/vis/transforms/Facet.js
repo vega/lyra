@@ -14,7 +14,7 @@ vde.Vis.transforms.Facet = (function() {
     };
 
     vde.Vis.Callback.register('mark.post_spec',  this, this.markPostSpec);
-    // vde.Vis.Callback.register('scale.post_spec', this, this.scalePostSpec);
+    vde.Vis.Callback.register('scale.post_spec', this, this.scalePostSpec);
     vde.Vis.Callback.register('group.post_spec', this, this.groupPostSpec);
 
     return this;
@@ -43,11 +43,13 @@ vde.Vis.transforms.Facet = (function() {
     if(!this.pipeline) return;
     if(opts.item.pipeline && opts.item.pipeline.name != this.pipeline.name)  return;
 
-    delete opts.spec.domain.data;   // Inherit from the group
-    this._group.scales.push(vg.duplicate(opts.spec));
+    // Shadow this scale if it uses group width/height and we're laying out _groups
+    if((this.properties.layout == 'Horizontal' && opts.spec.range == 'width') || 
+       (this.properties.layout == 'Vertical' && opts.spec.range == 'height'))
+          this._group.scales.push(vg.duplicate(opts.spec));
 
     // Clear the spec because we'll inject it in later
-    opts.spec = {};
+    // opts.spec = {};
   };
 
   prototype.groupPostSpec = function(opts) {
