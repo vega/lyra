@@ -42,6 +42,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
     if(isNewTransform)
       $scope.newTransforms.splice(i, 1);
     else {
+      $rootScope.activePipeline.transforms[i].destroy();
       $rootScope.activePipeline.transforms.splice(i, 1);
       vde.Vis.parse();
     }

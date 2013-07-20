@@ -57,7 +57,7 @@ vde.Vis = (function() {
     vg.keys(vis.pipelines).forEach(function(k) { 
       var p = vis.pipelines[k];
 
-      spec.data.push(p.spec());
+      spec.data = spec.data.concat(p.spec());
       vg.keys(p.scales).forEach(function(s) {
         spec.scales.push(p.scales[s].spec());
       });

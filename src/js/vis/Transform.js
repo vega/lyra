@@ -14,6 +14,8 @@ vde.Vis.Transform = (function() {
 
   var prototype = transform.prototype;
 
+  prototype.destroy = function() { return; }
+
   prototype.spec = function() {
     var spec = {type: this.type};
     for(var i in this.inputs)

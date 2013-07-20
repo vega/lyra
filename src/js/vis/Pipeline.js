@@ -5,6 +5,7 @@ vde.Vis.Pipeline = (function() {
 
     this.source = source;
     this.transforms = [];
+    this.forks = [];
 
     this.scales = {};
 
@@ -16,23 +17,38 @@ vde.Vis.Pipeline = (function() {
   var prototype = pipeline.prototype;
 
   prototype.spec = function() {
-    var spec = {
+    var self = this;
+    var specs = [{
       name: this.name,
       source: this.source,
       transform: []
-    };
+    }];
 
-    vde.Vis.Callback.run('pipeline.pre_spec', this, {spec: spec});
+    vde.Vis.Callback.run('pipeline.pre_spec', this, {spec: specs});
 
-    this.transforms.forEach(function(t) {
+    var spec = 0; 
+    this.forks = [];
+    this.transforms.forEach(function(t, i) {
       var s = t.spec();
       if(!s) return;
-      spec.transform.push(s);
+
+      if(t.forkPipeline) {
+        spec++;
+        t.forkName || (t.forkName = self.name + '_fork_' + spec);
+        specs.push({
+          name: t.forkName,
+          source: self.source,
+          transform: vg.duplicate(specs[spec-1].transform || [])
+        });    
+        self.forks.push(spec);
+      }
+
+      specs[spec].transform.push(s);
     });
 
-    vde.Vis.Callback.run('pipeline.post_spec', this, {spec: spec});
+    vde.Vis.Callback.run('pipeline.post_spec', this, {spec: specs});
 
-    return spec;
+    return specs;
   };
 
   prototype.values = function(sliceBeg, sliceEnd) {
