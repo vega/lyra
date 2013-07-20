@@ -3,7 +3,7 @@ vde.Vis = (function() {
     properties: {
       width: 400,
       height: 300,
-      padding: {top:20, left:20, right:20, bottom:20}
+      padding: {top:30, left:30, right:30, bottom:30}
     },
 
     _data:   {},

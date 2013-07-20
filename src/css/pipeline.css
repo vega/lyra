@@ -92,6 +92,7 @@
   position: absolute;
   right: -245px;
   width: 250px;
+  z-index: 10000;
 }
 
 .pipeline .preview-transform .slickgrid { 

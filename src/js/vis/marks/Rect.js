@@ -7,7 +7,7 @@ vde.Vis.marks.Rect = (function() {
 
     this.properties = {
       x: {value: 0},
-      width: {value: 50},
+      width: {value: 15},
       y: {value: 0},
       height: {value: 150},
       fill: {value: '#4682b4'},
@@ -48,6 +48,16 @@ vde.Vis.marks.Rect = (function() {
             type: 'linear',
             field: field
           }, {range: new vde.Vis.Field('height')});
+        break;
+
+        // HERE BE DRAGONS!
+        case 'fill':
+        case 'stroke':
+          scale = this.pipeline.scale({
+            type: 'ordinal',
+            field: field,
+            range: new vde.Vis.Field('category20')
+          });          
         break;
       }
 

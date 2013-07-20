@@ -1,4 +1,16 @@
 <div class="inspector">
+  <div ng-if="activeVisual.encoders.length == 0">
+    <h6>Templates</h6>
+    <div class="shelf icons">
+      <a class="encoder-stack" ng-click="addEncoder('Stack')">Stack</a>
+      <br clear="all" />
+    </div>
+  </div>
+
+  <div ng-repeat="encoder in activeVisual.encoders">
+    <div ng-if="encoder.type == 'stack'" id="stack" ng-include="'tmpl/transforms/stack.html'"></div>
+  </div>
+
   <fieldset id="x">
     <legend>X</legend>
 
