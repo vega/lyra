@@ -5,7 +5,6 @@ vde.Vis.Mark = (function() {
 
     this.group    = null;
     this.pipeline = null;
-    this.encoders = []; // Visual encoders
 
     this._spec = {
       properties: {
@@ -45,14 +44,6 @@ vde.Vis.Mark = (function() {
     spec.from = {};
 
     if(this.pipeline) spec.from.data = this.pipeline.name;
-
-    // Visual encoders
-    if(this.encoders) {
-      spec.from.transform = [];
-      this.encoders.forEach(function(e) {
-        spec.from.transform.push(e.spec());
-      })
-    }
 
     var props = {};
 

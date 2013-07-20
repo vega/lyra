@@ -1,27 +1,4 @@
 <div class="inspector">
-	<div ng-if="activeVisual.encoders.length == 0">
-		<h6>Templates</h6>
-		<div class="shelf icons">
-			<a class="encoder-pie" ng-click="addEncoder('Pie')">Pie</a>
-			<br clear="all" />
-		</div>
-	</div>
-
-	<div ng-repeat="encoder in activeVisual.encoders">
-		<fieldset ng-if="encoder.type == 'pie'" id="pie">
-			<legend>Pie</legend>
-
-			<vde-property label="Angles" type="field" item="encoder" property="value" ng-model="encoder.properties.value" field="encoder.properties.value"></vde-property>
-
-			<vde-property label="Sort" type="checkbox" item="encoder" property="sort" ng-model="encoder.properties.sort"></vde-property>
-
-			<vde-property label="Output">
-				<vde-binding field="'startAngle'" draggable="1"></vde-binding>
-				<vde-binding field="'endAngle'" draggable="1"></vde-binding>
-			</vde-property>
-		</fieldset>
-	</div>
-
 	<fieldset id="position">
 		<legend>Position</legend>
 

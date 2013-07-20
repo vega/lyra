@@ -48,9 +48,3 @@
 #groups .scales li {
   padding: 0;
 }
-
-.encoder-pie { background: url(../imgs/pie.png) no-repeat; }
-.encoder-stack { 
-  background: url(../imgs/stack.png) no-repeat; 
-  background-size: 16px;
-}

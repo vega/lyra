@@ -54,6 +54,8 @@ vde.Vis.Pipeline = (function() {
   prototype.values = function(sliceBeg, sliceEnd) {
     var values = vg.duplicate(vde.Vis._data[this.source].values).map(vg.data.ingest);
     this.transforms.slice(sliceBeg, sliceEnd).forEach(function(t) {
+      if(t.isVisual) return;
+      
       values = t.transform(values);
     });
 

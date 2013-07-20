@@ -5,7 +5,12 @@ vde.Vis.Transform = (function() {
     this.input = input;
     this.output = output;
 
-    this.pipeline = null;
+    this.pipeline     = null;
+    this.forkPipeline = false;  // Structural transforms cause a fork
+    this.forkName     = null;
+    this.requiresFork = false;
+
+    this.isVisual     = false;
 
     this.properties = {};
 

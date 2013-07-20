@@ -1,6 +1,9 @@
 vde.Vis.transforms.Pie = (function() {
   var pie = function() { 
     vde.Vis.Transform.call(this, 'pie', ['value', 'sort']);
+
+    this.isVisual = true;
+    
     return this;
   }
 

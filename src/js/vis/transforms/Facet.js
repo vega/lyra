@@ -4,9 +4,7 @@ vde.Vis.transforms.Facet = (function() {
 
     // Because facets perform structural transformations, fork
     // whatever pipeline this is assigned to. 
-    this.pipeline     = null;
     this.forkPipeline = true;
-    this.forkName     = null;
 
     // When the facet transform is applied to marks, hook into 
     // the spec generation and inject a new group that inherits
