@@ -23,6 +23,7 @@ vde.Vis.Axis = (function() {
 
   prototype.spec = function() {
     var spec = {}, self = this;
+    if(!this.properties.scale) return;
 
     vde.Vis.Callback.run('axis.pre_spec', this, {spec: spec});
 
