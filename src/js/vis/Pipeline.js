@@ -5,7 +5,9 @@ vde.Vis.Pipeline = (function() {
 
     this.source = source;
     this.transforms = [];
-    this.forks = [];
+
+    this.forkName = null;
+    this.forkIdx  = null;
 
     this.scales = {};
 
@@ -26,24 +28,21 @@ vde.Vis.Pipeline = (function() {
 
     vde.Vis.Callback.run('pipeline.pre_spec', this, {spec: specs});
 
-    var spec = 0; 
-    this.forks = [];
     this.transforms.forEach(function(t, i) {
-      var s = t.spec();
-      if(!s) return;
-
       if(t.forkPipeline) {
         spec++;
-        t.forkName || (t.forkName = self.name + '_fork_' + spec);
+        this.forkName || (this.forkName = self.name + '_' + t.type);
+        this.forkIdx = i;
+
         specs.push({
-          name: t.forkName,
+          name: this.forkName,
           source: self.source,
           transform: vg.duplicate(specs[spec-1].transform || [])
-        });    
-        self.forks.push(spec);
+        }); 
       }
 
-      specs[spec].transform.push(s);
+      var s = t.spec();
+      if(s) specs[spec].transform.push(s);
     });
 
     vde.Vis.Callback.run('pipeline.post_spec', this, {spec: specs});
@@ -55,7 +54,7 @@ vde.Vis.Pipeline = (function() {
     var values = vg.duplicate(vde.Vis._data[this.source].values).map(vg.data.ingest);
     this.transforms.slice(sliceBeg, sliceEnd).forEach(function(t) {
       if(t.isVisual) return;
-      
+
       values = t.transform(values);
     });
 
@@ -75,6 +74,18 @@ vde.Vis.Pipeline = (function() {
 
     return new vde.Vis.Scale('', this, spec);
   };
+
+  prototype.addTransform = function(t) {
+    // Figure out where to add the transform:
+    // If the transform explicitly requires a fork, always add it
+    // to the end of the transform chain. However, if it doesn't
+    // look at the fields it uses -- fields from the master, or 
+    // from the fork? -- and add it appropriately. 
+    if(t.requiresFork) this.transforms.push(t);
+    else {
+      
+    }
+  };  
 
   return pipeline;
 })();

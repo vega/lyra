@@ -3,7 +3,7 @@
 
   <a ng-if="isNewTransform" ng-click="addTransform($index)" class="accept">Add</a>
 
-  <a ng-hide="isNewTransform" ng-mouseover="previewTransform = $index" ng-mouseleave="previewTransform = ''" class="preview">Preview</a>
+  <a ng-hide="isNewTransform || transform.isVisual" ng-mouseover="previewTransform = $index" ng-mouseleave="previewTransform = ''" class="preview">Preview</a>
 </div>
 
 <div class="preview-transform" ng-if="previewTransform === $index">

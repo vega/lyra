@@ -15,7 +15,7 @@
       <li ng-repeat="transform in activePipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
     </ul>
 
-    <div class="slickgrid" ng-if="activePipeline.source" vde-data-grid pipeline="activePipeline"></div>
+    <div class="datatable" ng-if="activePipeline.source" vde-data-grid pipeline="activePipeline"><table></table></div>
 
     <ul>
       <li ng-repeat="transform in newTransforms" class="transform-{{transform.type|lowercase}} icon" ng-init="isNewTransform = 1" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
@@ -34,6 +34,7 @@
       <h6>Visual Transforms</h6>
       <div class="shelf icons">
         <a class="transform-pie" ng-click="newTransform('Pie')">Pie Chart</a>
+        <a class="encoder-stack" ng-click="addEncoder('Stack')">Stack</a>        
         <br clear="all" />
       </div>
     </div>

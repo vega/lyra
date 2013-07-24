@@ -7,7 +7,6 @@ vde.Vis.Transform = (function() {
 
     this.pipeline     = null;
     this.forkPipeline = false;  // Structural transforms cause a fork
-    this.forkName     = null;
     this.requiresFork = false;
 
     this.isVisual     = false;

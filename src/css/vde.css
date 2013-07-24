@@ -84,19 +84,23 @@ a {
   border-color: #999;
 }
 
-.schema.raw {
+.schema.raw, .DTFC_LeftBodyWrapper td.raw {
   background: #d1e2f8;
   border-color: #9bc0ef;
 }
 
-.schema.raw:hover { background: #e7f0fc; }
+.schema.raw:hover, .binding:hover .schema.raw,
+.DTFC_LeftBodyWrapper td.raw:hover
+{ background: #e7f0fc; }
 
-.schema.derived {
+.schema.derived, .DTFC_LeftBodyWrapper td.derived {
   background: #efe7cc;
   border-color: #d1bf94;
 }
 
-.schema.derived:hover, .binding:hover .schema.derived { background: #fcf7e5; }
+.schema.derived:hover, .binding:hover .schema.derived,
+.DTFC_LeftBodyWrapper td.derived:hover
+{ background: #fcf7e5; }
 
 .binding .empty {
   padding: 2px 5px;

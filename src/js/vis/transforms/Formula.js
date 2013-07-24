@@ -13,7 +13,12 @@ vde.Vis.transforms.Formula = (function() {
       field: this.properties.field,
       expr: this.properties.expr
     };
-  }
+  };
+
+  prototype.bindProperty = function(prop, opts) {
+    vde.Vis.Transform.prototype.bindProperty.call(this, prop, opts);
+    this.output = [this.properties.field];
+  };
 
   return formula;
 })();

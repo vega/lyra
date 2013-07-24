@@ -58,58 +58,109 @@ vde.App.directive('vdeDataGrid', function () {
       sliceEnd: '&'
     },
     controller: function($scope, $element, $attrs) {
-      $scope.buildSlickGrid = function() {
+      $scope.buildDataTable = function() {
         if(!$scope.pipeline || !$scope.pipeline.source) return;
 
         var values = $scope.pipeline.values($scope.sliceBeg(), $scope.sliceEnd());
 
         // Get column names after transformations to account for
         // any schema changes. 
-        var columns = [];
+        var columns = [{ sTitle: 'col', mData: null}];
 
         vg.keys(values[0]).forEach(function(d) { 
           if(d == 'data') return;
-          columns.push({ name: d, field: d, id: d, headerCssClass: 'derived' }); 
+          columns.push({ sTitle: d, mData: d, id: d, headerCssClass: 'derived' }); 
         });
 
         columns = columns.concat(vg.keys(values[0].data).map(function(d) {
-          return { name: d, field: 'data.' + d, id: d, headerCssClass: 'raw'};
+          return { sTitle: d, mData: 'data.' + d, id: d, headerCssClass: 'raw'};
         }));
 
-        var grid = new Slick.Grid($element, values, columns, {
-          enableColumnReorder: false,
-          enableCellNavigation: true,
-          syncColumnCellResize: true,
-          dataItemColumnValueExtractor: function(item, columnDef) {
-            var names = columnDef.field.split('.'),
-                val   = item[names[0]];
+        var oTable = $('table', $element).dataTable({
+          'aaData': values,
+          'aoColumns': columns,
+          'sScrollX': '250px',
+          // 'sScrollInner': '150%',
+          'sScrollY': '200px',
+          'bScrollCollapse': true,
+          'sDom': 'rtip',
+          'iDisplayLength': 20,
+          // 'bAutoWidth': false,
+          // 'bJQueryUI': true,
+          'bDeferRender': true,
+          'bSort': false,
+          'oLanguage': {
+            'sInfo': '_START_&ndash;_END_ of _TOTAL_',
+            'oPaginate': {'sPrevious': '', 'sNext': ''}
+          },
+          fnDrawCallback: function (oSettings) {
+            var thead = oSettings.nTHead,
+                tbody = oSettings.nTBody,
+                start = oSettings._iDisplayStart, 
+                end   = oSettings._iDisplayEnd,
+                data  = oSettings.aoData;
 
-            for (var i = 1; i < names.length; i++)
-              val = (val && typeof val == 'object' && names[i] in val) ? 
-                val[names[i]] : '';
+            for(var i = 0; i < columns.length - 1; i++) {
+              var colData = [], nTr = $('<tr></tr>');
 
-            return val;
+              for(var j = start; j < end; j++) {
+                var d = data[j];
+                nTr.append('<td>' + $('td:eq(' + i + ')', d.nTr).text() + '</td>');
+              }
+
+              $(tbody).append(nTr);
+            };
+
+            $(thead).hide();
+            $('.even, .odd', tbody).remove();
           }
         });
 
-        $($element).find('.slick-header-column').each(function(i) {
-          $(this).drag('start', function(e, dd) {
-            return $('<div></div>')
-              .text($(this).text())
-              .addClass('schema')
-              .addClass('proxy')
-              .addClass(columns[i].headerCssClass)
-              .attr('field', columns[i].field)
-              .css('opacity', 0.75)
-              .css('position', 'absolute')
-              .css('z-index', 100)
-              .appendTo(document.body);
-          })
-          .drag(function(ev, dd){
-            $(dd.proxy).css({ top: dd.offsetY, left: dd.offsetX });
-          })
-          .drag("end", function(ev, dd){ $(dd.proxy).remove(); });
-        })
+        new FixedColumns(oTable, {
+          fnDrawCallback: function(left, right) {
+            var self = this;
+
+            // Replace the first/fixed column with col headers
+            $('thead tr th', left.header).text('');
+            $('tbody tr td', left.body).each(function(i) {
+              var c = columns[i+1];
+              if(!c) return;
+
+              $(this).text(c.sTitle)
+                .addClass(c.headerCssClass)
+                .drag('start', function(e, dd) {
+                  return $('<div></div>')
+                    .text($(this).text())
+                    .addClass('schema')
+                    .addClass('proxy')
+                    .addClass(c.headerCssClass)
+                    .attr('field', c.mData)
+                    .css('opacity', 0.75)
+                    .css('position', 'absolute')
+                    .css('z-index', 100)
+                    .appendTo(document.body);
+                })
+                .drag(function(ev, dd){ 
+                  $(dd.proxy).css({ top: dd.offsetY, left: dd.offsetX }); 
+                })
+                .drag("end", function(ev, dd){ 
+                  $(dd.proxy).remove(); 
+                }); 
+            });
+
+            // Reset widths
+            var lWrap = $(left.body).parent().parent().width('auto');
+            this.s.iLeftWidth  = lWrap.width() > 75 ? 75 : lWrap.width();
+            this.s.iRightWidth = 0;
+            this._fnGridLayout();
+
+            $('tbody tr td', left.body).each(function() {
+              $(this).width(self.s.iLeftWidth - 10)
+                .height($(this).parent().height() - 10)
+                .css('position', 'absolute');
+            });         
+          }
+        });
       };
 
       $scope.$watch(function($scope) { 
@@ -118,7 +169,7 @@ vde.App.directive('vdeDataGrid', function () {
           source: $scope.pipeline.source,
           transforms: $scope.pipeline.transforms.map(function(t) { return t.properties; })
         } 
-      }, $scope.buildSlickGrid, true);     
+      }, $scope.buildDataTable, true);     
     }
   };
 });

@@ -43,7 +43,7 @@ vde.Vis.transforms.Facet = (function() {
   };
 
   prototype.markPostSpec = function(opts) {
-    if(!this.pipeline || !this.forkName) return;
+    if(!this.pipeline || !this.pipeline.forkName) return;
     if(opts.item.type == 'group')  return;
     if(opts.item.pipeline && opts.item.pipeline.name != this.pipeline.name)  return;
     if(this._seen.marks[opts.item.name]) return;
@@ -57,7 +57,7 @@ vde.Vis.transforms.Facet = (function() {
   };
 
   prototype.scalePostSpec = function(opts) {
-    if(!this.pipeline || !this.forkName) return;
+    if(!this.pipeline || !this.pipeline.forkName) return;
     if(opts.item.pipeline && opts.item.pipeline.name != this.pipeline.name)  return;
     if(this._seen.scales[opts.item.name]) return;
 
@@ -70,13 +70,13 @@ vde.Vis.transforms.Facet = (function() {
   };
 
   prototype.groupPostSpec = function(opts) {
-    if(!this.pipeline || !this.forkName) return;
+    if(!this.pipeline || !this.pipeline.forkName) return;
     if(this._group.scales.length == 0 && this._group.axes.length == 0 &&
         this._group.marks.length == 0) return;
 
     var key = this.properties.keys.spec();
 
-    this._group.from = {data: this.forkName};
+    this._group.from = {data: this.pipeline.forkName};
 
     // Inject spec to position groups
     if(this.properties.layout != 'Overlap') {
