@@ -29,7 +29,8 @@ vde.Vis.marks.Rect = (function() {
       this.properties[prop].scale = this.pipeline.scales[opts.scaleName];
 
     if(opts.field) {
-      var scale, field = new vde.Vis.Field(opts.field);
+      var scale, field = opts.field;
+      if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
 
       switch(prop) {
         case 'x':

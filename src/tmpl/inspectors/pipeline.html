@@ -15,7 +15,7 @@
       <li ng-repeat="transform in activePipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
     </ul>
 
-    <div class="datatable" ng-if="activePipeline.source" vde-data-grid pipeline="activePipeline"><table></table></div>
+    <div class="datatable" ng-if="activePipeline.source" vde-data-grid pipeline="activePipeline"></div>
 
     <ul>
       <li ng-repeat="transform in newTransforms" class="transform-{{transform.type|lowercase}} icon" ng-init="isNewTransform = 1" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>

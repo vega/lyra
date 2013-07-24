@@ -20,7 +20,7 @@ vde.Vis.Scale = (function() {
     vde.Vis.Callback.run('scale.pre_spec', this, {spec: spec});
 
     spec.name = this.name;
-    spec.domain = {data: this.pipeline.name, field: this.properties.field.spec()};
+    spec.domain = {data: this.properties.field.pipelineName || this.pipeline.name, field: this.properties.field.spec()};
     spec.range = this.properties.range.spec();
     delete spec.pipeline;
     delete spec.field;

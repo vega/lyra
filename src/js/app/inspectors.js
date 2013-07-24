@@ -39,7 +39,7 @@ vde.App.directive('vdeProperty', function($rootScope) {
       if(attrs.type == 'expr') return;
 
       $(element).find('.property').drop(function(e, dd) {
-        var field = $(dd.proxy).attr('field') || $(dd.proxy).find('.schema').attr('field');
+        var field = $(dd.proxy).data('field') || $(dd.proxy).find('.schema').data('field') || $(dd.proxy).find('.schema').attr('field');
         var scale = $(dd.proxy).find('.scale').attr('scale');
         var pipeline = $rootScope.activePipeline;
 
@@ -83,6 +83,9 @@ vde.App.directive('vdeBinding', function($compile) {
 
       var binding = element.find('.binding');
       element.find('.binding-draggable').append(binding);
+
+      if(scope.field instanceof vde.Vis.Field)
+        element.find('.schema').data('field', scope.field);
     }
   }
 });
@@ -95,11 +98,11 @@ vde.App.directive('vdeExpr', function() {
       $(element).find('.expr')
         .html(scope.$parent.ngModel)
         .drop(function(e, dd) {
-          var field = $(dd.proxy).attr('field');
+          var field = $(dd.proxy).data('field') || $(dd.proxy).find('.schema').data('field') || $(dd.proxy).find('.schema').attr('field');
           if(!field) return;
 
           $('<div class="schema" contenteditable="false">' + $(dd.proxy).text() + '</div>')
-            .attr('field', field)
+            .attr('field-spec', (field instanceof vde.Vis.Field) ? field.spec() : null)
             .toggleClass('raw',     $(dd.proxy).hasClass('raw'))
             .toggleClass('derived', $(dd.proxy).hasClass('derived'))
             .appendTo(this);
@@ -115,7 +118,7 @@ vde.App.directive('vdeExpr', function() {
           var html  = $(this).html().replace('<br>','');
           var value = $('<div>' + html + '</div>');
           value.find('.schema').each(function(i, e) {
-            $(e).text('d.' + $(e).attr('field'));
+            $(e).text('d.' + $(e).attr('field-spec'));
           });
 
           scope.$apply(function() {

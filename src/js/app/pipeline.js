@@ -29,7 +29,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
 
   $scope.addTransform = function(i) {
     $scope.newTransforms[i].pipeline = $rootScope.activePipeline;
-    $rootScope.activePipeline.transforms.push($scope.newTransforms[i]);
+    $rootScope.activePipeline.addTransform($scope.newTransforms[i]);
     $scope.newTransforms.splice(i, 1);
 
     vde.Vis.parse();
@@ -61,23 +61,16 @@ vde.App.directive('vdeDataGrid', function () {
       $scope.buildDataTable = function() {
         if(!$scope.pipeline || !$scope.pipeline.source) return;
 
-        var values = $scope.pipeline.values($scope.sliceBeg(), $scope.sliceEnd());
-
-        // Get column names after transformations to account for
-        // any schema changes. 
+        var schema  = $scope.pipeline.schema($scope.sliceBeg(), $scope.sliceEnd());
         var columns = [{ sTitle: 'col', mData: null}];
-
-        vg.keys(values[0]).forEach(function(d) { 
-          if(d == 'data') return;
-          columns.push({ sTitle: d, mData: d, id: d, headerCssClass: 'derived' }); 
+        schema[0].forEach(function(f) {
+          columns.push({ sTitle: f.name, mData: f.spec(), headerCssClass: f.raw ? 'raw' : 'derived' });
         });
 
-        columns = columns.concat(vg.keys(values[0].data).map(function(d) {
-          return { sTitle: d, mData: 'data.' + d, id: d, headerCssClass: 'raw'};
-        }));
+        $($element).html('<table></table>');
 
-        var oTable = $('table', $element).dataTable({
-          'aaData': values,
+        oTable = $('table', $element).dataTable({
+          'aaData': schema[1],
           'aoColumns': columns,
           'sScrollX': '250px',
           // 'sScrollInner': '150%',
@@ -89,6 +82,7 @@ vde.App.directive('vdeDataGrid', function () {
           // 'bJQueryUI': true,
           'bDeferRender': true,
           'bSort': false,
+          'bDestroy': true,
           'oLanguage': {
             'sInfo': '_START_&ndash;_END_ of _TOTAL_',
             'oPaginate': {'sPrevious': '', 'sNext': ''}
@@ -124,6 +118,7 @@ vde.App.directive('vdeDataGrid', function () {
             $('thead tr th', left.header).text('');
             $('tbody tr td', left.body).each(function(i) {
               var c = columns[i+1];
+              var f = schema[0][i];
               if(!c) return;
 
               $(this).text(c.sTitle)
@@ -134,7 +129,7 @@ vde.App.directive('vdeDataGrid', function () {
                     .addClass('schema')
                     .addClass('proxy')
                     .addClass(c.headerCssClass)
-                    .attr('field', c.mData)
+                    .data('field', f)
                     .css('opacity', 0.75)
                     .css('position', 'absolute')
                     .css('z-index', 100)

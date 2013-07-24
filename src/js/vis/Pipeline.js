@@ -28,14 +28,15 @@ vde.Vis.Pipeline = (function() {
 
     vde.Vis.Callback.run('pipeline.pre_spec', this, {spec: specs});
 
+    var spec = 0;
     this.transforms.forEach(function(t, i) {
       if(t.forkPipeline) {
         spec++;
-        this.forkName || (this.forkName = self.name + '_' + t.type);
-        this.forkIdx = i;
+        self.forkName || (self.forkName = self.name + '_' + t.type);
+        self.forkIdx = i;
 
         specs.push({
-          name: this.forkName,
+          name: self.forkName,
           source: self.source,
           transform: vg.duplicate(specs[spec-1].transform || [])
         }); 
@@ -61,6 +62,47 @@ vde.Vis.Pipeline = (function() {
     return values;
   };
 
+  prototype.schema = function(sliceBeg, sliceEnd) {
+    var fields = [], seenFields = {}, self = this;
+    var values = vg.duplicate(vde.Vis._data[this.source].values).map(vg.data.ingest);
+
+    var buildFields = function(pipeline) {
+      [values[0], (values[0] || {}).data].forEach(function(v, i) {
+        vg.keys(v).forEach(function(k) {
+          if(i == 0 && (k == 'data' || k == 'values')) return;
+          if(seenFields[k]) return;
+
+          var field = new vde.Vis.Field(k);
+          field.raw = (i != 0);
+          field.pipelineName = pipeline;
+
+          fields.push(field);
+          seenFields[k] = true;
+        });
+      });
+    };
+
+    // Build fields once before we apply any transforms
+    buildFields(this.name);
+
+    var pipelineName = this.name;
+    this.transforms.slice(sliceBeg, sliceEnd).forEach(function(t) {
+      if(t.forkPipeline) pipelineName = self.forkName;
+      if(t.isVisual) return;
+
+      values = t.transform(values);
+      buildFields(pipelineName);
+    });
+
+    // If we've faceted/forked, let's flatten
+    if(pipelineName == this.forkName) {
+      var flatten = vg.parse.dataflow({transform: [{type: 'flatten'}]});
+      values = flatten(values);
+    }      
+
+    return [fields, values];
+  };
+
   // Given a spec, find a pre-existing scale that matches,
   // or if none do, build a new scale. 
   prototype.scale = function(spec, defaultSpec) {
@@ -75,16 +117,13 @@ vde.Vis.Pipeline = (function() {
     return new vde.Vis.Scale('', this, spec);
   };
 
+  // Figure out where to add the transform:
+  // If the transform requires a fork, add it to the end
+  // otherwise, assume forks are the last thing to happen
+  // in a pipeline (e.g. facet)
   prototype.addTransform = function(t) {
-    // Figure out where to add the transform:
-    // If the transform explicitly requires a fork, always add it
-    // to the end of the transform chain. However, if it doesn't
-    // look at the fields it uses -- fields from the master, or 
-    // from the fork? -- and add it appropriately. 
-    if(t.requiresFork) this.transforms.push(t);
-    else {
-      
-    }
+    if(t.forkPipeline || t.requiresFork) this.transforms.push(t);
+    else this.transforms.splice(this.transforms.length-1, 0, t);
   };  
 
   return pipeline;
