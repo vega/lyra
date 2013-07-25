@@ -67,7 +67,7 @@ vde.App.directive('vdeDataGrid', function () {
         }, [{ sTitle: 'col', mData: null}]);
 
         var values = schema[1];
-        console.log('schema1', values);
+
         if(!vg.isArray(values)) { // Facet
           values = values.values.reduce(function(vals, v) {
             return vals.concat(v.values.reduce(function(vs, vv) {
@@ -80,11 +80,8 @@ vde.App.directive('vdeDataGrid', function () {
 
         var lastType = ($scope.pipeline.transforms[$scope.pipeline.transforms.length-1] || {}).type;
 
-        console.log('cols', columns);
-        console.log('values', values);
-
         $($element).html('<table></table>');
-        oTable = $('table', $element).dataTable({
+        var oTable = $('table', $element).dataTable({
           'aaData': values,
           'aoColumns': columns,
           'sScrollX': '250px',
@@ -101,19 +98,14 @@ vde.App.directive('vdeDataGrid', function () {
           'oLanguage': {
             'sInfo': '_START_&ndash;_END_ of _TOTAL_',
             'oPaginate': {'sPrevious': '', 'sNext': ''}
-          }
-        });
-  
-        new FixedColumns(oTable, {
-          fnDrawCallback: function(left, right) {
+          },
+          fnDrawCallback: function(oSettings) {
             var self = this,
-                oSettings = oTable.fnSettings(),
                 thead = oSettings.nTHead,
                 tbody = oSettings.nTBody,
                 start = oSettings._iDisplayStart, 
                 end   = oSettings._iDisplayEnd,
-                data  = oSettings.aoData,
-                lbody = left.body;
+                data  = oSettings.aoData;
 
             ///
             // First, transpose the data
@@ -128,15 +120,20 @@ vde.App.directive('vdeDataGrid', function () {
 
               $(tbody).append(nTr);
             }
-            $('.even, .odd', tbody).remove();
             $(thead).hide();
-
-            ///
-            // Now, deal with the fixed column (row headers)
-            ///
+            $('.even, .odd', tbody).remove();
+          }
+        });
+  
+        new FixedColumns(oTable, {
+          fnDrawCallback: function(left, right) {
+            var self = this, 
+                oSettings = oTable.fnSettings(),
+                tbody = oSettings.nTBody,
+                lbody = left.body;
 
             // Clear out the fixed column header (columns[0])
-            $('thead', left.header).hide();
+            $('thead tr th', left.header).text('');
 
             // Ensure that there are as many header rows as there are columns
             var rowHeaders = $('tbody tr td', lbody).length;
