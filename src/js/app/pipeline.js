@@ -68,8 +68,8 @@ vde.App.directive('vdeDataGrid', function () {
 
         var values = schema[1];
 
-        if(!vg.isArray(values)) { // Facet
-          values = values.values.reduce(function(vals, v) {
+        if(!vg.isArray(values) || vg.isArray(values[0].values)) { // Facet
+          values = (values.values || values).reduce(function(vals, v) {
             return vals.concat(v.values.reduce(function(vs, vv) {
               vv.key = v.key;
               vv.keys = v.keys;
@@ -86,7 +86,7 @@ vde.App.directive('vdeDataGrid', function () {
           'aoColumns': columns,
           'sScrollX': '250px',
           // 'sScrollInner': '150%',
-          'sScrollY': '200px',
+          'sScrollY': '250px',
           // 'bScrollCollapse': true,
           'sDom': 'rtip',
           'iDisplayLength': 20,
@@ -129,6 +129,7 @@ vde.App.directive('vdeDataGrid', function () {
           fnDrawCallback: function(left, right) {
             var self = this, 
                 oSettings = oTable.fnSettings(),
+                table = oSettings.nTable,
                 tbody = oSettings.nTBody,
                 lbody = left.body;
 
@@ -176,7 +177,7 @@ vde.App.directive('vdeDataGrid', function () {
                 $(this).parent().css('height', $('tr:eq(' + i + ')', tbody).css('height'));
             });
 
-            // Widths get screwy after the transpose, so reset them.
+            // Widths/Heights get screwy after the transpose, so reset them.
             var lWrap = $(lbody).parent().parent().width('auto');
             this.s.iLeftWidth  = lWrap.width() > 75 ? 75 : lWrap.width();
             this.s.iRightWidth = 0;
@@ -186,7 +187,10 @@ vde.App.directive('vdeDataGrid', function () {
               $(this).width(self.s.iLeftWidth - 10)
                 .height($(this).parent().height() - 10)
                 .css('position', 'absolute');
-            });         
+            });   
+
+            var height = $(table).height() + 15;
+            $(table).parent().height(height > 250 ? 250 : height);      
           }
         });
       };

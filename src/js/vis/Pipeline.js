@@ -68,14 +68,13 @@ vde.Vis.Pipeline = (function() {
     var values = vg.duplicate(vde.Vis._data[this.source].values).map(vg.data.ingest);
 
     var buildFields = function(pipeline) {
-      [values[0], (values.values || [])[0], (values[0] || {}).data].forEach(function(v, i) {
+      [(values[0] || {}).data, values[0], (values.values || [])[0]].forEach(function(v, i) {
         vg.keys(v).forEach(function(k) {
-          if(i == 0 && (k == 'data' || k == 'values')) return;
-          if(i == 1 && vg.isObject(v[k])) return;
+          if(i != 0 && ['data', 'values', 'keys'].indexOf(k) != -1) return;
           if(seenFields[k]) return;
 
           var field = new vde.Vis.Field(k);
-          field.raw = (i == 2);
+          field.raw = (i == 0);
           field.pipelineName = pipeline;
 
           fields.push(field);
@@ -115,11 +114,22 @@ vde.Vis.Pipeline = (function() {
 
   // Figure out where to add the transform:
   // If the transform requires a fork, add it to the end
-  // otherwise, assume forks are the last thing to happen
-  // in a pipeline (e.g. facet)
+  // otherwise, assume look at properties to see where to
+  // add it
   prototype.addTransform = function(t) {
     if(t.forkPipeline || t.requiresFork) this.transforms.push(t);
-    else this.transforms.splice(this.transforms.length-1, 0, t);
+    else {
+      var pipelineName = this.name;
+      vg.keys(t.properties).some(function(k) {
+        if(t.properties[k] instanceof vde.Vis.Field) {
+          pipelineName = t.properties[k].pipelineName;
+          return true;
+        }
+      });
+
+      if(pipelineName == this.forkName) this.transforms.push(t);
+      else this.transforms.splice(this.forkIdx-1, 0, t);
+    }
   };  
 
   return pipeline;
