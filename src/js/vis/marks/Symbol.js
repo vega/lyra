@@ -56,6 +56,16 @@ vde.Vis.marks.Symbol = (function() {
             field: field
           }, {range: [50, 1000]});
         break;
+
+        // HERE BE DRAGONS!
+        case 'fill':
+        case 'stroke':
+          scale = this.pipeline.scale({
+            type: 'ordinal',
+            field: field,
+            range: new vde.Vis.Field('category20')
+          });          
+        break;
       }
 
       this.properties[prop].scale = scale;
