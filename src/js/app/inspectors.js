@@ -90,7 +90,7 @@ vde.App.directive('vdeBinding', function($compile) {
   }
 });
 
-vde.App.directive('vdeExpr', function() {
+vde.App.directive('vdeExpr', function($rootScope) {
   return {
     restrict: 'A',
     template: '<div class="expr" contenteditable="true"></div>',
@@ -100,6 +100,10 @@ vde.App.directive('vdeExpr', function() {
         .drop(function(e, dd) {
           var field = $(dd.proxy).data('field') || $(dd.proxy).find('.schema').data('field') || $(dd.proxy).find('.schema').attr('field');
           if(!field) return;
+
+          if(scope.item instanceof vde.Vis.Transform && 
+            !scope.item.requiresFork && field instanceof vde.Vis.Field) 
+            scope.item.requiresFork = ($rootScope.activePipeline.name != field.pipelineName);
 
           $('<div class="schema" contenteditable="false">' + $(dd.proxy).text() + '</div>')
             .attr('field-spec', (field instanceof vde.Vis.Field) ? field.spec() : null)
@@ -122,6 +126,7 @@ vde.App.directive('vdeExpr', function() {
           });
 
           scope.$apply(function() {
+
             scope.item.properties[scope.property] = value.text();
             scope.item.properties[scope.property + 'Html'] = html;
           });

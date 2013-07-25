@@ -71,8 +71,11 @@ vde.App.directive('vdeDataGrid', function () {
         if(!vg.isArray(values) || vg.isArray(values[0].values)) { // Facet
           values = (values.values || values).reduce(function(vals, v) {
             return vals.concat(v.values.reduce(function(vs, vv) {
-              vv.key = v.key;
-              vv.keys = v.keys;
+              vg.keys(v).forEach(function(k) {
+                if(['index', 'values'].indexOf(k) != -1) return;
+                vv[k] = v[k];
+              }); 
+
               return vs.concat([vv]);
             }, []));
           }, []);
