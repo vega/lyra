@@ -40,31 +40,18 @@ vde.Vis.marks.Arc = (function() {
     return spec;
   };
 
-  prototype.bindProperty = function(prop, opts) {
-    this.properties[prop] || (this.properties[prop] = {});
-
-    if(opts.scaleName)
-      this.properties[prop].scale = this.pipeline.scales[opts.scaleName];
-
-    if(opts.field) {
-      var scale, field = opts.field;
-      if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
-
-      switch(prop) {
-        case 'innerRadius':
-        case 'outerRadius':
-          scale = this.pipeline.scale({
-            type: 'sqrt',
-            field: field
-          }, {range: new vde.Vis.Field('width')});
-        break;
-      }
-
-      this.properties[prop].scale = scale;
-      this.properties[prop].field = field;
+  prototype.bindProperty = function(prop, scale, field) {
+    switch(prop) {
+      case 'innerRadius':
+      case 'outerRadius':
+        scale = this.pipeline.scale({
+          type: 'sqrt',
+          field: field
+        }, {range: new vde.Vis.Field('width')});
+      break;
     }
 
-    delete this.properties[prop].value;
+    return [scale, field];
   };
 
   return arc;

@@ -89,6 +89,44 @@ vde.Vis.Mark = (function() {
     return this;
   };
 
+  prototype.bindProperty = function(prop, opts) {
+    this.properties[prop] || (this.properties[prop] = {});
+
+    if(opts.scaleName)
+      this.properties[prop].scale = this.pipeline.scales[opts.scaleName];
+
+    if(opts.field) {
+      var scale, field = opts.field;
+      if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
+
+      switch(prop) {
+        case 'fill':
+        case 'stroke':
+          scale = this.pipeline.scale({
+            type: field.type || 'ordinal',
+            field: field,
+            range: new vde.Vis.Field('category20')
+          });          
+        break;
+
+        default:
+          var prules = this.productionRules(prop, opts.scale, field);
+          scale = prules[0];
+          field = prules[1];
+        break;
+      }
+
+      this.properties[prop].scale = scale;
+      this.properties[prop].field = field;
+    }
+
+    delete this.properties[prop].value;    
+  };
+
+  prototype.productionRules = function(prop, scale, field) {
+    return [scale, field];
+  };
+
   prototype.unbindProperty = function(prop) {
     this.properties[prop] = {value: 0};
   };

@@ -24,55 +24,32 @@ vde.Vis.marks.Symbol = (function() {
   symbol.prototype = new vde.Vis.Mark();
   var prototype  = symbol.prototype;
 
-  prototype.bindProperty = function(prop, opts) {
-    this.properties[prop] || (this.properties[prop] = {});
+  prototype.productionRules = function(prop, scale, field) {
+    switch(prop) {
+      case 'x':
+        scale = this.pipeline.scale({
+          type: 'ordinal',
+          field: field
+        }, {range: new vde.Vis.Field('width')});
+      break;
 
-    if(opts.scale)
-      this.properties[prop].scale = this.pipeline.scale({ name: scaleName });
+      case 'y':
+        scale = this.pipeline.scale({
+          type: 'linear',
+          field: field,
+        }, {range: new vde.Vis.Field('height')});
+      break;
 
-    if(opts.field) {
-      var scale, field = opts.field;
-      if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
-
-      switch(prop) {
-        case 'x':
-          scale = this.pipeline.scale({
-            type: 'ordinal',
-            field: field
-          }, {range: new vde.Vis.Field('width')});
-        break;
-
-        case 'y':
-          scale = this.pipeline.scale({
-            type: 'linear',
-            field: field,
-          }, {range: new vde.Vis.Field('height')});
-        break;
-
-        case 'size':
-          scale = this.pipeline.scale({
-            type: 'linear',
-            pipeline: this.pipeline, 
-            field: field
-          }, {range: [50, 1000]});
-        break;
-
-        // HERE BE DRAGONS!
-        case 'fill':
-        case 'stroke':
-          scale = this.pipeline.scale({
-            type: 'ordinal',
-            field: field,
-            range: new vde.Vis.Field('category20')
-          });          
-        break;
-      }
-
-      this.properties[prop].scale = scale;
-      this.properties[prop].field = field;
+      case 'size':
+        scale = this.pipeline.scale({
+          type: 'linear',
+          pipeline: this.pipeline, 
+          field: field
+        }, {range: [50, 1000]});
+      break;
     }
 
-    delete this.properties[prop].value;
+    return [scale, field];
   };
 
   return symbol;

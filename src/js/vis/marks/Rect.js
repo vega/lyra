@@ -22,51 +22,28 @@ vde.Vis.marks.Rect = (function() {
   rect.prototype = new vde.Vis.Mark();
   var prototype  = rect.prototype;
 
-  prototype.bindProperty = function(prop, opts) {
-    this.properties[prop] || (this.properties[prop] = {});
+  prototype.productionRules = function(prop, scale, field) {
+    switch(prop) {
+      case 'x':
+      case 'x2':
+      case 'width':
+        scale = this.pipeline.scale({
+          type: field.type || 'ordinal',
+          field: field
+        }, {range: new vde.Vis.Field('width')});
+      break;
 
-    if(opts.scaleName)
-      this.properties[prop].scale = this.pipeline.scales[opts.scaleName];
-
-    if(opts.field) {
-      var scale, field = opts.field;
-      if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
-
-      switch(prop) {
-        case 'x':
-        case 'x2':
-        case 'width':
-          scale = this.pipeline.scale({
-            type: 'ordinal',
-            field: field
-          }, {range: new vde.Vis.Field('width')});
-        break;
-
-        case 'y':
-        case 'y2':
-        case 'height':
-          scale = this.pipeline.scale({
-            type: 'linear',
-            field: field
-          }, {range: new vde.Vis.Field('height')});
-        break;
-
-        // HERE BE DRAGONS!
-        case 'fill':
-        case 'stroke':
-          scale = this.pipeline.scale({
-            type: 'ordinal',
-            field: field,
-            range: new vde.Vis.Field('category20')
-          });          
-        break;
-      }
-
-      this.properties[prop].scale = scale;
-      this.properties[prop].field = field;
+      case 'y':
+      case 'y2':
+      case 'height':
+        scale = this.pipeline.scale({
+          type: field.type || 'linear',
+          field: field
+        }, {range: new vde.Vis.Field('height')});
+      break;
     }
 
-    delete this.properties[prop].value;
+    return [scale, field]
   };
 
   return rect;
