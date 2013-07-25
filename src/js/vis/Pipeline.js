@@ -63,17 +63,19 @@ vde.Vis.Pipeline = (function() {
   };
 
   prototype.schema = function(sliceBeg, sliceEnd) {
-    var fields = [], seenFields = {}, self = this;
+    var self = this, 
+        fields = [], seenFields = {};
     var values = vg.duplicate(vde.Vis._data[this.source].values).map(vg.data.ingest);
 
     var buildFields = function(pipeline) {
-      [values[0], (values[0] || {}).data].forEach(function(v, i) {
+      [values[0], (values.values || [])[0], (values[0] || {}).data].forEach(function(v, i) {
         vg.keys(v).forEach(function(k) {
           if(i == 0 && (k == 'data' || k == 'values')) return;
+          if(i == 1 && vg.isObject(v[k])) return;
           if(seenFields[k]) return;
 
           var field = new vde.Vis.Field(k);
-          field.raw = (i != 0);
+          field.raw = (i == 2);
           field.pipelineName = pipeline;
 
           fields.push(field);
@@ -93,12 +95,6 @@ vde.Vis.Pipeline = (function() {
       values = t.transform(values);
       buildFields(pipelineName);
     });
-
-    // If we've faceted/forked, let's flatten
-    if(pipelineName == this.forkName) {
-      var flatten = vg.parse.dataflow({transform: [{type: 'flatten'}]});
-      values = flatten(values);
-    }      
 
     return [fields, values];
   };

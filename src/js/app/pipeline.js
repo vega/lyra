@@ -62,20 +62,35 @@ vde.App.directive('vdeDataGrid', function () {
         if(!$scope.pipeline || !$scope.pipeline.source) return;
 
         var schema  = $scope.pipeline.schema($scope.sliceBeg(), $scope.sliceEnd());
-        var columns = [{ sTitle: 'col', mData: null}];
-        schema[0].forEach(function(f) {
-          columns.push({ sTitle: f.name, mData: f.spec(), headerCssClass: f.raw ? 'raw' : 'derived' });
-        });
+        var columns = schema[0].reduce(function(c, f) { 
+          return c.concat([{ sTitle: f.name, mData: f.spec(), headerCssClass: f.raw ? 'raw' : 'derived' }]);
+        }, [{ sTitle: 'col', mData: null}]);
+
+        var values = schema[1];
+        console.log('schema1', values);
+        if(!vg.isArray(values)) { // Facet
+          values = values.values.reduce(function(vals, v) {
+            return vals.concat(v.values.reduce(function(vs, vv) {
+              vv.key = v.key;
+              vv.keys = v.keys;
+              return vs.concat([vv]);
+            }, []));
+          }, []);
+        }
+
+        var lastType = ($scope.pipeline.transforms[$scope.pipeline.transforms.length-1] || {}).type;
+
+        console.log('cols', columns);
+        console.log('values', values);
 
         $($element).html('<table></table>');
-
         oTable = $('table', $element).dataTable({
-          'aaData': schema[1],
+          'aaData': values,
           'aoColumns': columns,
           'sScrollX': '250px',
           // 'sScrollInner': '150%',
           'sScrollY': '200px',
-          'bScrollCollapse': true,
+          // 'bScrollCollapse': true,
           'sDom': 'rtip',
           'iDisplayLength': 20,
           // 'bAutoWidth': false,
@@ -86,14 +101,23 @@ vde.App.directive('vdeDataGrid', function () {
           'oLanguage': {
             'sInfo': '_START_&ndash;_END_ of _TOTAL_',
             'oPaginate': {'sPrevious': '', 'sNext': ''}
-          },
-          fnDrawCallback: function (oSettings) {
-            var thead = oSettings.nTHead,
+          }
+        });
+  
+        new FixedColumns(oTable, {
+          fnDrawCallback: function(left, right) {
+            var self = this,
+                oSettings = oTable.fnSettings(),
+                thead = oSettings.nTHead,
                 tbody = oSettings.nTBody,
                 start = oSettings._iDisplayStart, 
                 end   = oSettings._iDisplayEnd,
-                data  = oSettings.aoData;
+                data  = oSettings.aoData,
+                lbody = left.body;
 
+            ///
+            // First, transpose the data
+            ///
             for(var i = 0; i < columns.length - 1; i++) {
               var colData = [], nTr = $('<tr></tr>');
 
@@ -103,20 +127,33 @@ vde.App.directive('vdeDataGrid', function () {
               }
 
               $(tbody).append(nTr);
-            };
-
-            $(thead).hide();
+            }
             $('.even, .odd', tbody).remove();
-          }
-        });
+            $(thead).hide();
 
-        new FixedColumns(oTable, {
-          fnDrawCallback: function(left, right) {
-            var self = this;
+            ///
+            // Now, deal with the fixed column (row headers)
+            ///
 
-            // Replace the first/fixed column with col headers
-            $('thead tr th', left.header).text('');
-            $('tbody tr td', left.body).each(function(i) {
+            // Clear out the fixed column header (columns[0])
+            $('thead', left.header).hide();
+
+            // Ensure that there are as many header rows as there are columns
+            var rowHeaders = $('tbody tr td', lbody).length;
+            if(rowHeaders < columns.length) {
+              for(var i = rowHeaders+1; i < columns.length; i++) {
+                var td = $('<td></td>')
+                  .text(columns[i].sTitle)
+                  .css('width', $('tbody tr td:eq(0)', lbody).css('width'));
+
+                $('tbody tr:eq(' + (i-1) + ')', lbody).append(td);
+              }
+            }
+            if(rowHeaders > columns.length)
+              $('tbody tr:gt(' + (columns.length-2) + ')', lbody).remove()
+
+            // Now, make them draggable
+            $('tbody tr td', lbody).each(function(i) {
               var c = columns[i+1];
               var f = schema[0][i];
               if(!c) return;
@@ -126,13 +163,9 @@ vde.App.directive('vdeDataGrid', function () {
                 .drag('start', function(e, dd) {
                   return $('<div></div>')
                     .text($(this).text())
-                    .addClass('schema')
-                    .addClass('proxy')
-                    .addClass(c.headerCssClass)
+                    .addClass('schema proxy ' + c.headerCssClass)
                     .data('field', f)
-                    .css('opacity', 0.75)
-                    .css('position', 'absolute')
-                    .css('z-index', 100)
+                    .css({ opacity: 0.75, position: 'absolute', 'z-index': 100 })
                     .appendTo(document.body);
                 })
                 .drag(function(ev, dd){ 
@@ -141,15 +174,18 @@ vde.App.directive('vdeDataGrid', function () {
                 .drag("end", function(ev, dd){ 
                   $(dd.proxy).remove(); 
                 }); 
+
+                // Reset the height of its parent
+                $(this).parent().css('height', $('tr:eq(' + i + ')', tbody).css('height'));
             });
 
-            // Reset widths
-            var lWrap = $(left.body).parent().parent().width('auto');
+            // Widths get screwy after the transpose, so reset them.
+            var lWrap = $(lbody).parent().parent().width('auto');
             this.s.iLeftWidth  = lWrap.width() > 75 ? 75 : lWrap.width();
             this.s.iRightWidth = 0;
             this._fnGridLayout();
 
-            $('tbody tr td', left.body).each(function() {
+            $('tbody tr td', lbody).each(function() {
               $(this).width(self.s.iLeftWidth - 10)
                 .height($(this).parent().height() - 10)
                 .css('position', 'absolute');

@@ -58,10 +58,15 @@
   margin-bottom: 25px;
 }
 
-.pipeline .datatable td { padding: 5px !important; }
-
 .dataTables_info { margin-top: 5px;}
 
+.dataTables_scrollHead thead th {
+  /*display: inline-block;*/
+  padding: 3px 5px 3px 5px !important;
+  border: 1px solid #000;
+}
+
+.pipeline .datatable td { padding: 5px !important; }
 .dataTables_scroll td {
   background: #fff;
   border-left: 2px solid silver;
