@@ -133,25 +133,26 @@ vde.Vis.Mark = (function() {
 
   prototype.checkExtents = function(prop) {
     var self = this;
+
     for(var ext in this.extents) {
-      var e = this.extents[ext];
+      var e = this.extents[ext], p = this.properties[prop];
       if(e.fields.indexOf(prop) == -1) continue;
 
       var check = e.fields.reduce(function(c, f) { return (self.properties[f] || {}).scale ? c : c.concat([f]) }, []);
+      var hist  = e.history || (e.history = []);
 
       // If we've hit the limit based on scales, then disable the rest of the fields
       if(e.fields.length - check.length == e.limit)
         check.forEach(function(f) { self.properties[f].disabled = true; });
       else {  // Otherwise, check the history
-        var limit = e.limit - (e.fields.length - check.length);
-        e.history || (e.history = []);
+        var remaining = e.limit - (e.fields.length - check.length);
+        if(hist.indexOf(prop) != -1) hist.splice(hist.indexOf(prop), 1);
+        if(!p.scale) hist.push(prop);
+        delete p.disabled; 
 
-        if(e.history[e.history.length-1] != prop) e.history.push(prop);
-        delete this.properties[prop].disabled; 
-
-        if(e.history.length > limit) {
-          var p = e.history.shift();
-          if(p != prop && check.indexOf(p) != -1) this.properties[p].disabled = true;
+        if(hist.length > remaining) {
+          var pOld = hist.shift();
+          if(pOld != prop && check.indexOf(pOld) != -1) this.properties[pOld].disabled = true;
         }
       }
     }

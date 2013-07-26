@@ -8,8 +8,10 @@ vde.Vis.marks.Rect = (function() {
     this.properties = {
       x: {value: 0},
       width: {value: 15},
+      x2: {value: 0, disabled: true},
       y: {value: 0},
       height: {value: 150},
+      y2: {value: 0, disabled: true},
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
       stroke: {value: '#000000'},
@@ -17,8 +19,8 @@ vde.Vis.marks.Rect = (function() {
     };
 
     this.extents = {
-      horizontal: {fields: ['x', 'x2', 'width'], limit: 2},
-      vertical: {fields: ['y', 'y2', 'height'], limit: 2}
+      horizontal: {fields: ['x', 'x2', 'width'], limit: 2, history: ['x', 'width']},
+      vertical: {fields: ['y', 'y2', 'height'],  limit: 2, history: ['y', 'height']}
     };
 
     return this.init();

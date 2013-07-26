@@ -19,7 +19,8 @@ vde.App.directive('vdeProperty', function($rootScope) {
     templateUrl: 'tmpl/inspectors/property.html',
     controller: function($scope, $element, $attrs, $timeout) { 
       $scope.onchange = function() {
-        $scope.item.checkExtents($scope.property);
+        if('checkExtents' in $scope.item)
+          $scope.item.checkExtents($scope.property);
 
         $timeout(function() {
           // if($scope.item.updateProps) {
