@@ -140,15 +140,15 @@ vde.Vis.Mark = (function() {
 
       var check = e.fields.reduce(function(c, f) { return (self.properties[f] || {}).scale ? c : c.concat([f]) }, []);
       var hist  = e.history || (e.history = []);
-
+      if(hist.indexOf(prop) != -1) hist.splice(hist.indexOf(prop), 1);
+      delete p.disabled; 
+      
       // If we've hit the limit based on scales, then disable the rest of the fields
       if(e.fields.length - check.length == e.limit)
         check.forEach(function(f) { self.properties[f].disabled = true; });
       else {  // Otherwise, check the history
         var remaining = e.limit - (e.fields.length - check.length);
-        if(hist.indexOf(prop) != -1) hist.splice(hist.indexOf(prop), 1);
         if(!p.scale) hist.push(prop);
-        delete p.disabled; 
 
         if(hist.length > remaining) {
           var pOld = hist.shift();

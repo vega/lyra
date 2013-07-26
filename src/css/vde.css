@@ -123,15 +123,6 @@ a {
   text-transform: uppercase;
 }
 
-.binding .schema .edit {
-  display: none;
-  cursor: pointer;
-  width: 12px;
-  padding-left: 3px;
-  border-left: 1px solid #666;
-  background-position: 3px;
-}
-
 .binding .schema.raw .edit { border-color: #9bc0ef;}
 .binding .schema.derived .edit { border-color: #d1bf94;}
 
