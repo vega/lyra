@@ -76,6 +76,7 @@ vde.Vis.Pipeline = (function() {
           var field = new vde.Vis.Field(k);
           field.raw = (i == 0);
           field.pipelineName = pipeline;
+          field.type = vg.isNumber(v[k]) ? 'linear' : 'ordinal';
 
           fields.push(field);
           seenFields[k] = true;
