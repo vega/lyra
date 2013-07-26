@@ -51,10 +51,10 @@ vde.Vis.marks.Group = (function() {
     return spec;
   };
 
-  prototype.scale = function(mark, spec, defaultSpec) {
-    var scale = mark.pipeline.scale(spec, defaultSpec);
+  prototype.scale = function(mark, spec, defaultSpec, displayName) {
+    var scale = mark.pipeline.scale(spec, defaultSpec, displayName);
     this.scales[scale.name] = scale;
-    
+
     return scale;
   };
 

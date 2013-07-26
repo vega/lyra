@@ -30,14 +30,14 @@ vde.Vis.marks.Symbol = (function() {
         scale = this.group.scale(this, {
           type: 'ordinal',
           field: field
-        }, {range: new vde.Vis.Field('width')});
+        }, {range: new vde.Vis.Field('width')}, 'x');
       break;
 
       case 'y':
         scale = this.group.scale(this, {
           type: 'linear',
           field: field,
-        }, {range: new vde.Vis.Field('height')});
+        }, {range: new vde.Vis.Field('height')}, 'y');
       break;
 
       case 'size':
@@ -45,7 +45,7 @@ vde.Vis.marks.Symbol = (function() {
           type: 'linear',
           pipeline: this.pipeline, 
           field: field
-        }, {range: [50, 1000]});
+        }, {range: [50, 1000]}, 'size');
       break;
     }
 

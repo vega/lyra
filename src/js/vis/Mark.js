@@ -112,7 +112,7 @@ vde.Vis.Mark = (function() {
             type: 'ordinal',
             field: field,
             range: new vde.Vis.Field('category20')
-          });          
+          }, {}, prop + '_color');          
         break;
 
         default:

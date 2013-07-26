@@ -47,7 +47,7 @@ vde.Vis.marks.Arc = (function() {
         scale = this.pipeline.scale({
           type: 'sqrt',
           field: field
-        }, {range: new vde.Vis.Field('width')});
+        }, {range: new vde.Vis.Field('width')}, 'radius');
       break;
     }
 

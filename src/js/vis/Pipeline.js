@@ -101,7 +101,7 @@ vde.Vis.Pipeline = (function() {
 
   // Given a spec, find a pre-existing scale that matches,
   // or if none do, build a new scale. 
-  prototype.scale = function(spec, defaultSpec) {
+  prototype.scale = function(spec, defaultSpec, displayName) {
     for(var scaleName in this.scales) {
       if(this.scales[scaleName].equals(spec))
         return this.scales[scaleName];
@@ -110,7 +110,7 @@ vde.Vis.Pipeline = (function() {
     for(var k in defaultSpec)
       spec[k] = defaultSpec[k];
 
-    return new vde.Vis.Scale('', this, spec);
+    return new vde.Vis.Scale('', this, spec, displayName);
   };
 
   // Figure out where to add the transform:

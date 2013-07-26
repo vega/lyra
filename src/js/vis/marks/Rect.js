@@ -37,7 +37,7 @@ vde.Vis.marks.Rect = (function() {
         scale = this.group.scale(this, {
           type: field.type || 'ordinal',
           field: field
-        }, {range: new vde.Vis.Field('width')});
+        }, {range: new vde.Vis.Field('width')}, 'x');
       break;
 
       case 'y':
@@ -46,7 +46,7 @@ vde.Vis.marks.Rect = (function() {
         scale = this.group.scale(this, {
           type: field.type || 'linear',
           field: field
-        }, {range: new vde.Vis.Field('height')});
+        }, {range: new vde.Vis.Field('height')}, 'y');
       break;
     }
 
