@@ -78,6 +78,11 @@
   border-radius: 10px;
 }
 
+.property .field .disabled-input { 
+  background: #999; 
+  border: 2px solid #888;
+}
+
 .property .field label {
   width: auto;
   font-style: normal;

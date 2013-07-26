@@ -14,6 +14,8 @@ vde.Vis.Mark = (function() {
       }
     };
 
+    this.extents = {};
+
     return this;
   };
 
@@ -49,15 +51,16 @@ vde.Vis.Mark = (function() {
 
     for(var prop in this.properties) {
       var p = this.properties[prop];
-      props[prop] = {};
+      if(p.disabled) continue;
 
-      vg.keys(p).forEach(function(k) {
-        if(p[k] == undefined) return;
+      props[prop] = {};
+      for(var k in p) {
+        if(p[k] == undefined) continue;
 
         if(k == 'scale') props[prop][k] = p[k].name;
         else if(k == 'field') props[prop][k] = p[k].spec();
         else props[prop][k] = p[k];
-      });
+      };
     }
 
     spec.properties.enter  = props;
@@ -120,11 +123,38 @@ vde.Vis.Mark = (function() {
       this.properties[prop].field = field;
     }
 
-    delete this.properties[prop].value;    
+    this.checkExtents(prop);
+    delete this.properties[prop].value;
   };
 
   prototype.productionRules = function(prop, scale, field) {
     return [scale, field];
+  };
+
+  prototype.checkExtents = function(prop) {
+    var self = this;
+    for(var ext in this.extents) {
+      var e = this.extents[ext];
+      if(e.fields.indexOf(prop) == -1) continue;
+
+      var check = e.fields.reduce(function(c, f) { return (self.properties[f] || {}).scale ? c : c.concat([f]) }, []);
+
+      // If we've hit the limit based on scales, then disable the rest of the fields
+      if(e.fields.length - check.length == e.limit)
+        check.forEach(function(f) { self.properties[f].disabled = true; });
+      else {  // Otherwise, check the history
+        var limit = e.limit - (e.fields.length - check.length);
+        e.history || (e.history = []);
+
+        if(e.history[e.history.length-1] != prop) e.history.push(prop);
+        delete this.properties[prop].disabled; 
+
+        if(e.history.length > limit) {
+          var p = e.history.shift();
+          if(p != prop && check.indexOf(p) != -1) this.properties[p].disabled = true;
+        }
+      }
+    }
   };
 
   prototype.unbindProperty = function(prop) {

@@ -16,6 +16,11 @@ vde.Vis.marks.Rect = (function() {
       strokeWidth: {value: 0}
     };
 
+    this.extents = {
+      horizontal: {fields: ['x', 'x2', 'width'], limit: 2},
+      vertical: {fields: ['y', 'y2', 'height'], limit: 2}
+    };
+
     return this.init();
   };
 
