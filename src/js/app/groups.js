@@ -29,6 +29,9 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
   };
 
   $scope.removeVisual = function(type, name) {
+    var cnf = confirm("Are you sure you wish to delete this mark?")
+    if(!cnf) return;
+
     delete $rootScope.activeGroup[type][name];
     vde.Vis.parse();
   };
