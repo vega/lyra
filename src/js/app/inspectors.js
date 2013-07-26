@@ -99,7 +99,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout) {
             $('.bubble', inspector).removeClass('bottom').addClass('top');  
           }  
          
-          inspector.show();        
+          inspector.toggle();        
         }, 100);
       };
     },

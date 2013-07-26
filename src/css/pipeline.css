@@ -86,8 +86,8 @@
 #pipelines #scales .binding { margin: 5px 0; }
 
 #pipelines #scales .binding .empty { 
-  background: #ccc; 
-  border-color: #ccc;
+  background: #bbb; 
+  border-color: #bbb;
 }
 
 .pipeline-ctrls {

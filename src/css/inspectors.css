@@ -158,9 +158,9 @@ fieldset#padding .property {
   float: left;
   margin-bottom: -1px;
   padding: 0 5px;
-  background: #ccc;
-  border: 1px solid #777;
-  border-bottom: 1px solid #ccc;
+  background: #bbb;
+  border: 1px solid #888;
+  border-bottom: 1px solid #bbb;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   color: #333;
@@ -168,8 +168,8 @@ fieldset#padding .property {
 }
 
 .shelf {
-  background: #ccc;
-  border: 1px solid #777;
+  background: #bbb;
+  border: 1px solid #888;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
   border-top-right-radius: 5px;

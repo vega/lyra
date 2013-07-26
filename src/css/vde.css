@@ -139,7 +139,7 @@ a {
 }
 
 .bubble {
-    background-color: #F2F2F2;
+    background-color: #ddd;
     display: inline-block;
     padding: 7px;
     position: relative;
@@ -149,7 +149,7 @@ a {
 }
 
 .bubble::before {
-    background-color: #F2F2F2;
+    background-color: #ddd;
     content: "\00a0";
     display: block;
     height: 16px;
@@ -208,6 +208,16 @@ a {
     position: relative;
     display: block;
 } 
+
+.bubble a.close {
+  display: inline-block;
+  float: right;
+  width: 10px;
+  height: 10px;
+  text-indent: -999em;
+  background: url(../imgs/close.png) no-repeat;
+  background-size: 10px;
+}
  
 .slide-enter.slide-enter-active, 
 .slide-leave {
