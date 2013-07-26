@@ -27,7 +27,12 @@ vde.App = angular.module('vde', ['ui.inflector']);
 // })
 
 vde.App.controller('VdeCtrl', function($scope, $rootScope) {
-
+  $scope.clearBubbles = function() {
+    // Sorry Angular Gods! I need to do this rather than use ng-show
+    // because the position of the bubble is determined by its size
+    // which happens on a timeout. 
+    $('#binding-inspector').hide();
+  }
 });
 
 vde.App.directive('vdeDraggable', function() {
