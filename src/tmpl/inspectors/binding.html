@@ -1,5 +1,5 @@
 <div class="binding">
-  <div ng-if="scale" class="scale" scale="{{scale.name}}">{{scale.displayName|inflector:'humanize'}}</div>
+  <div ng-if="scale" class="scale" scale="{{scale.name}}"><div class="edit" ng-click="editScale($event)">{{scale.properties.type.slice(0, 3)}}</div> {{scale.displayName|inflector:'humanize'}}</div>
   <div ng-if="field" class="schema" ng-class="{'raw': field.raw, 'derived': !field.raw}" field="{{field.name || field}}">{{field.name || field}}</div>
   <div ng-if="!field" class="empty">&nbsp;</div>
 </div>

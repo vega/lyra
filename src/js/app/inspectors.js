@@ -66,7 +66,7 @@ vde.App.directive('vdeProperty', function($rootScope) {
   }
 });
 
-vde.App.directive('vdeBinding', function($compile) {
+vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout) {
   return {
     restrict: 'E',
     scope: {
@@ -76,16 +76,38 @@ vde.App.directive('vdeBinding', function($compile) {
     },
     templateUrl: 'tmpl/inspectors/binding.html',
     controller: function($scope, $element, $attrs) {
-      if(!$attrs.draggable) return;
+      if($attrs.draggable) {
+        var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
+        $element.append(el);
+      }
 
-      var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
-      $element.append(el);
+      $scope.editScale = function(evt) {
+        $rootScope.activeScale = $scope.scale;
+        $rootScope.activeField = $scope.field;
+
+        $timeout(function() {
+          var winHeight = $(window).height(),
+              pageX     = evt.pageX,
+              pageY     = evt.pageY,
+              inspector = $('#binding-inspector').css('left', (pageX-15) + 'px');
+              
+          if(pageY > winHeight / 2) { // If below half-way, position top
+            inspector.css('top', (pageY - inspector.height() - 25) + 'px');
+            $('.bubble', inspector).removeClass('top').addClass('bottom');          
+          } else {
+            inspector.css('top', (pageY + 25) + 'px');
+            $('.bubble', inspector).removeClass('bottom').addClass('top');  
+          }  
+         
+          inspector.show();        
+        }, 100);
+      };
     },
     link: function(scope, element, attrs) {
-      if(!attrs.draggable) return;
-
-      var binding = element.find('.binding');
-      element.find('.binding-draggable').append(binding);
+      if(attrs.draggable) {
+        var binding = element.find('.binding');
+        element.find('.binding-draggable').append(binding);
+      }    
 
       if(scope.field instanceof vde.Vis.Field)
         element.find('.schema').data('field', scope.field);
@@ -129,7 +151,6 @@ vde.App.directive('vdeExpr', function($rootScope) {
           });
 
           scope.$apply(function() {
-
             scope.item.properties[scope.property] = value.text();
             scope.item.properties[scope.property + 'Html'] = html;
           });

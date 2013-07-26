@@ -111,6 +111,42 @@ a {
   border-bottom-left-radius: 10px;  
 }
 
+.binding .scale .edit {
+  display: inline-block;
+  padding-right: 3px;
+  margin-right: 3px;
+  font-size: 10px;
+  font-weight: bolder;
+  color: #333;
+  border-right: 1px solid #444;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.binding .schema .edit {
+  display: none;
+  cursor: pointer;
+  width: 12px;
+  padding-left: 3px;
+  border-left: 1px solid #666;
+  background-position: 3px;
+}
+
+.binding .schema.raw .edit { border-color: #9bc0ef;}
+.binding .schema.derived .edit { border-color: #d1bf94;}
+
+.binding:hover .edit {
+  display: inline-block;
+  color: transparent;
+  background-image: url(../imgs/pencil-black.png);
+  background-repeat: no-repeat;
+  background-size: 12px;
+}
+
+.binding:hover .edit:hover {
+  background-image: url(../imgs/pencil-white.png);
+}
+
 .bubble {
     background-color: #F2F2F2;
     display: inline-block;
@@ -118,6 +154,7 @@ a {
     position: relative;
     vertical-align: top;
     box-shadow: 2px 5px 15px 0px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
 }
 
 .bubble::before {
@@ -141,7 +178,7 @@ a {
 
 .bottom:before {
   left: 5px;
-  top: 27px;
+  bottom: -9px;
   transform:             rotate( -63deg ) skew( -35deg );
       -moz-transform:    rotate( -63deg ) skew( -35deg );
       -ms-transform:     rotate( -63deg ) skew( -35deg );
