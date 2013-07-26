@@ -5,9 +5,11 @@ vde.Vis.marks.Group = (function() {
     this.type   = 'group';
     this.layer  = true;  // A psuedo-group exists in the spec, but not in the VDE UI.
 
+    this.scales = {};
     this.axes   = {};
     this.marks  = {};
 
+    this._spec.scales   = [];
     this._spec.axes   = [];
     this._spec.marks  = [];
 
@@ -47,6 +49,13 @@ vde.Vis.marks.Group = (function() {
     vde.Vis.Callback.run('group.post_spec', this, {spec: spec});
 
     return spec;
+  };
+
+  prototype.scale = function(mark, spec, defaultSpec) {
+    var scale = mark.pipeline.scale(spec, defaultSpec);
+    this.scales[scale.name] = scale;
+    
+    return scale;
   };
 
   return group;

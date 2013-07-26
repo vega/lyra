@@ -95,8 +95,11 @@ vde.Vis.Mark = (function() {
   prototype.bindProperty = function(prop, opts) {
     this.properties[prop] || (this.properties[prop] = {});
 
-    if(opts.scaleName)
-      this.properties[prop].scale = this.pipeline.scales[opts.scaleName];
+    if(opts.scaleName) {
+      var scale = this.pipeline.scales[opts.scaleName];
+      this.group.scales[opts.scaleName] = scale;
+      this.properties[prop].scale = scale;
+    }
 
     if(opts.field) {
       var scale, field = opts.field;
@@ -105,8 +108,8 @@ vde.Vis.Mark = (function() {
       switch(prop) {
         case 'fill':
         case 'stroke':
-          scale = this.pipeline.scale({
-            type: field.type || 'ordinal',
+          scale = this.group.scale(this, {
+            type: 'ordinal',
             field: field,
             range: new vde.Vis.Field('category20')
           });          

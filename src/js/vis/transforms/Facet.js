@@ -20,7 +20,7 @@ vde.Vis.transforms.Facet = (function() {
     this._seen = {scales: {}, axes: {}, marks: {}};
 
     vde.Vis.Callback.register('mark.post_spec',  this, this.markPostSpec);
-    vde.Vis.Callback.register('scale.post_spec', this, this.scalePostSpec);
+    // vde.Vis.Callback.register('scale.post_spec', this, this.scalePostSpec);
     vde.Vis.Callback.register('group.post_spec', this, this.groupPostSpec);
 
     return this;
@@ -31,7 +31,7 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.destroy = function() {
     vde.Vis.Callback.deregister('mark.post_spec',  this);
-    vde.Vis.Callback.deregister('scale.post_spec', this);
+    // vde.Vis.Callback.deregister('scale.post_spec', this);
     vde.Vis.Callback.deregister('group.post_spec', this);
   };
 
@@ -74,7 +74,7 @@ vde.Vis.transforms.Facet = (function() {
     if(this._group.scales.length == 0 && this._group.axes.length == 0 &&
         this._group.marks.length == 0) return;
 
-    var key = this.properties.keys.spec();
+    var self = this, key = this.properties.keys.spec();
 
     this._group.from = {data: this.pipeline.forkName};
 
@@ -90,6 +90,13 @@ vde.Vis.transforms.Facet = (function() {
       });
 
       opts.spec.scales || (opts.spec.scales = []);
+      opts.spec.scales.forEach(function(scale) {
+        // Shadow this scale if it uses group width/height and we're laying out _groups
+        if((self.properties.layout == 'Horizontal' && scale.range == 'width') || 
+           (self.properties.layout == 'Vertical' && scale.range == 'height'))
+              self._group.scales.push(vg.duplicate(scale));        
+      });
+
       opts.spec.scales.push(posScale.spec());
 
       var pos = {scale: posScale.name, field: 'key'};

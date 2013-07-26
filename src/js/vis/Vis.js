@@ -58,9 +58,10 @@ vde.Vis = (function() {
       var p = vis.pipelines[k];
 
       spec.data = spec.data.concat(p.spec());
-      vg.keys(p.scales).forEach(function(s) {
-        spec.scales.push(p.scales[s].spec());
-      });
+      // Scales are defined within groups. No global scales.
+      // vg.keys(p.scales).forEach(function(s) {
+      //   spec.scales.push(p.scales[s].spec());
+      // });
     });
     
     vg.keys(vis.groups).forEach(function(k) { spec.marks.push(vis.groups[k].spec()); });
