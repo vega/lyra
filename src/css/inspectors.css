@@ -196,3 +196,23 @@ fieldset#padding .property {
   width: 250px;
   position: absolute;
 }
+
+.text.inspector .icons a { 
+  width: 18px;
+  height: 20px;
+  background-position: 50% 50%;
+  opacity: 0.5; 
+}
+.text.inspector .icons a.selected, .text.inspector .icons a:hover { 
+  background-color: #fff;
+  opacity: 1; 
+}
+
+.text-bold { background: url(../imgs/text_bold.png) no-repeat; }
+.text-italic { background: url(../imgs/text_italic.png) no-repeat; }
+.text-left-align { background: url(../imgs/text_align_left.png) no-repeat; }
+.text-center-align { background: url(../imgs/text_align_center.png) no-repeat; }
+.text-right-align { background: url(../imgs/text_align_right.png) no-repeat; }
+.text-top-align { background: url(../imgs/text_align_top.png) no-repeat; }
+.text-middle-align { background: url(../imgs/text_align_middle.png) no-repeat; }
+.text-bottom-align { background: url(../imgs/text_align_bottom.png) no-repeat; }

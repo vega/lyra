@@ -46,6 +46,11 @@
   background-position: 3px 1px;
 }
 
+#Text { 
+  background-image: url(../imgs/text.png); 
+  background-position: 50% 50%;
+}
+
 #vis {
   position: absolute;
   left: 615px;
