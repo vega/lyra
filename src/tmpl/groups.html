@@ -23,7 +23,7 @@
           <li ng-repeat="(markName, mark) in group.marks" ng-class="{selected:activeVisual==mark}" ng-click="toggleVisual(mark)">
             <h5>{{mark.displayName|inflector:'humanize'}} <a ng-click="removeVisual('marks', mark.name);" class="remove">Delete</a></h5>
 
-            <div ng-if="activeVisual==mark">
+            <div ng-if="activeVisual==mark" ng-init="gMdl.activeVisualPipeline = activeVisual.pipeline.name || ''">
               <vde-property label="Name" type="text" item="activeVisual" ng-model="activeVisual.displayName" nodrop="1"></vde-property>
 
               <vde-property label="Pipeline" nodrop="1">

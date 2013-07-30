@@ -52,6 +52,7 @@
   background: url(../imgs/stack.png) no-repeat; 
   background-size: 16px;
 }
+.transform-wordcloud { background: url(../imgs/tag_cloud.png) no-repeat; }
 
 .pipeline .datatable {
   width: 100%;

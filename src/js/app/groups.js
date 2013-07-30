@@ -20,7 +20,10 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
       $rootScope.activePipeline = $scope.activeVisual.pipeline;
       $scope.gMdl.activeVisualPipeline = $scope.activeVisual.pipeline.name;
     }
-    else $scope.activeVisual.pipeline = vde.Vis.pipelines[p];
+    else {
+      $scope.activeVisual.pipeline = vde.Vis.pipelines[p];
+      $rootScope.activePipeline = vde.Vis.pipelines[p];
+    }
   };
 
   $scope.addAxis = function() {
