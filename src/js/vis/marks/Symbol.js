@@ -26,24 +26,6 @@ vde.Vis.marks.Symbol = (function() {
 
   prototype.productionRules = function(prop, scale, field) {
     switch(prop) {
-      case 'x':
-        scale = this.group.scale(this, {
-          field: field
-        }, {
-          type: field.type || 'ordinal',
-          range: new vde.Vis.Field('width')
-        }, 'x');
-      break;
-
-      case 'y':
-        scale = this.group.scale(this, {
-          field: field,
-        }, {
-          type: field.type || 'linear',
-          range: new vde.Vis.Field('height')
-        }, 'y');
-      break;
-
       case 'size':
         scale = this.group.scale(this, {
           type: 'linear',

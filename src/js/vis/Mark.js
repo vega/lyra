@@ -108,6 +108,24 @@ vde.Vis.Mark = (function() {
 
       if(!scale) {
         switch(prop) {
+          case 'x':
+            scale = this.group.scale(this, {
+              field: field
+            }, {
+              type: field.type || 'ordinal',
+              range: new vde.Vis.Field('width')
+            }, 'x');
+          break;
+
+          case 'y':
+            scale = this.group.scale(this, {
+              field: field,
+            }, {
+              type: field.type || 'linear',
+              range: new vde.Vis.Field('height')
+            }, 'y');
+          break;
+                
           case 'fill':
           case 'stroke':
             scale = this.group.scale(this, {
