@@ -35,18 +35,22 @@ vde.Vis.marks.Rect = (function() {
       case 'x2':
       case 'width':
         scale = this.group.scale(this, {
-          type: field.type || 'ordinal',
           field: field
-        }, {range: new vde.Vis.Field('width')}, 'x');
+        }, {
+          type: field.type || 'ordinal',
+          range: new vde.Vis.Field('width')
+        }, 'x');
       break;
 
       case 'y':
       case 'y2':
       case 'height':
         scale = this.group.scale(this, {
-          type: field.type || 'linear',
           field: field
-        }, {range: new vde.Vis.Field('height')}, 'y');
+        }, {
+          type: field.type || 'linear',
+          range: new vde.Vis.Field('height')
+        }, 'y');
       break;
     }
 

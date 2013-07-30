@@ -45,7 +45,8 @@ vde.Vis.transforms.Facet = (function() {
   prototype.markPostSpec = function(opts) {
     if(!this.pipeline || !this.pipeline.forkName) return;
     if(opts.item.type == 'group')  return;
-    if(opts.item.pipeline && opts.item.pipeline.name != this.pipeline.name)  return;
+    if(!opts.item.pipeline || 
+      (opts.item.pipeline && opts.item.pipeline.name != this.pipeline.name)) return;
     if(this._seen.marks[opts.item.name]) return;
 
     delete opts.spec.from.data;   // Inherit from the group
@@ -58,7 +59,8 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.scalePostSpec = function(opts) {
     if(!this.pipeline || !this.pipeline.forkName) return;
-    if(opts.item.pipeline && opts.item.pipeline.name != this.pipeline.name)  return;
+    if(!opts.item.pipeline || 
+      (opts.item.pipeline && opts.item.pipeline.name != this.pipeline.name)) return;
     if(this._seen.scales[opts.item.name]) return;
 
     // Shadow this scale if it uses group width/height and we're laying out _groups
