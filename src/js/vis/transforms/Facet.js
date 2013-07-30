@@ -89,7 +89,7 @@ vde.Vis.transforms.Facet = (function() {
         padding: 0.2,
         field: this.properties.keys,
         range: new vde.Vis.Field(isHoriz ? 'width' : 'height')
-      });
+      }, {}, 'facets');
 
       opts.spec.scales || (opts.spec.scales = []);
       opts.spec.scales.forEach(function(scale) {

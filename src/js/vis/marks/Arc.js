@@ -40,11 +40,11 @@ vde.Vis.marks.Arc = (function() {
     return spec;
   };
 
-  prototype.bindProperty = function(prop, scale, field) {
+  prototype.productionRules = function(prop, scale, field) {
     switch(prop) {
       case 'innerRadius':
       case 'outerRadius':
-        scale = this.pipeline.scale({
+        scale = this.group.scale(this, {
           type: 'sqrt',
           field: field
         }, {range: new vde.Vis.Field('width')}, 'radius');
