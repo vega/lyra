@@ -1,9 +1,9 @@
 vde.Vis.Field = (function() {
-  var field = function(name, raw) {
+  var field = function(name, raw, type, pipelineName) {
     this.name = name.replace('data.', '');
     this.raw = (raw || name.indexOf('data.') != -1);
-    this.type = null;
-    this.pipelineName = null;
+    this.type = type;
+    this.pipelineName = pipelineName;
 
     return this;
   };

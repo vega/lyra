@@ -7,7 +7,7 @@
 
 	<vde-property label="Sort" type="checkbox" item="transform" property="sort" ng-model="transform.properties.sort"></vde-property>
 
-	<vde-property label="Output">
+	<vde-property label="Output" ng-if="transform.pipeline">
 		<vde-binding field="'startAngle'" draggable="1"></vde-binding>
 		<vde-binding field="'endAngle'" draggable="1"></vde-binding>
 	</vde-property>

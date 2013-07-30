@@ -94,32 +94,35 @@ vde.Vis.Mark = (function() {
 
   prototype.bindProperty = function(prop, opts) {
     this.properties[prop] || (this.properties[prop] = {});
+    var scale, field;
 
     if(opts.scaleName) {
-      var scale = this.pipeline.scales[opts.scaleName];
+      scale = this.pipeline.scales[opts.scaleName];
       this.group.scales[opts.scaleName] = scale;
       this.properties[prop].scale = scale;
     }
 
     if(opts.field) {
-      var scale, field = opts.field;
+      field = opts.field;
       if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
 
-      switch(prop) {
-        case 'fill':
-        case 'stroke':
-          scale = this.group.scale(this, {
-            type: 'ordinal',
-            field: field,
-            range: new vde.Vis.Field('category20')
-          }, {}, prop + '_color');          
-        break;
+      if(!scale) {
+        switch(prop) {
+          case 'fill':
+          case 'stroke':
+            scale = this.group.scale(this, {
+              type: 'ordinal',
+              field: field,
+              range: new vde.Vis.Field('category20')
+            }, {}, prop + '_color');          
+          break;
 
-        default:
-          var prules = this.productionRules(prop, opts.scale, field);
-          scale = prules[0];
-          field = prules[1];
-        break;
+          default:
+            var prules = this.productionRules(prop, opts.scale, field);
+            scale = prules[0];
+            field = prules[1];
+          break;
+        }        
       }
 
       this.properties[prop].scale = scale;

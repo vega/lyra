@@ -51,7 +51,7 @@ vde.App.directive('vdeProperty', function($rootScope) {
 
         scope.$apply(function() {
           scope.item.bindProperty(attrs.property, 
-            field ? {field: field, pipeline: pipeline} : {scaleName: scale, pipeline: pipeline});
+            {field: field, scaleName: scale, pipeline: pipeline});
         });
 
         $('.proxy').remove();
@@ -83,7 +83,6 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout) {
 
       $scope.editScale = function(evt) {
         $rootScope.activeScale = $scope.scale;
-        $rootScope.activeField = $scope.field;
 
         $timeout(function() {
           var winHeight = $(window).height(),
