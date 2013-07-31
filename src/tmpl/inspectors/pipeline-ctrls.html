@@ -1,13 +1,5 @@
-<div class="pipeline-ctrls icons" ng-hide="isNewTransform">
-  <a ng-click="removeTransform($index, isNewTransform)" class="delete">Delete</a> 
+<div class="pipeline-ctrls icons">
+  <a ng-click="removeTransform($index, isNewTransform)" class="remove">Delete</a>
 
-  <a ng-if="isNewTransform" ng-click="addTransform($index)" class="accept">Add</a>
-
-  <a ng-hide="isNewTransform || transform.isVisual" ng-mouseover="previewTransform = $index" ng-mouseleave="previewTransform = ''" class="preview">Preview</a>
-</div>
-
-<div class="preview-transform" ng-if="previewTransform === $index">
-  <div class="bubble left">
-    <div class="slickgrid" vde-data-grid pipeline="activePipeline" slice-end="$index+1"></div>
-  </div>
+  <a ng-hide="isNewTransform || transform.isVisual" ng-click="previewTransform($index, $event);" class="preview">Preview</a>
 </div>

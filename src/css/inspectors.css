@@ -31,20 +31,20 @@ a.add, a.remove {
 
 a.add { 
   background-image: url(../imgs/add-black.png); 
+  opacity: 0.4;
   margin-top: -3px;
 }
 
-a.add:hover { background-image: url(../imgs/add-white.png); }
+a.add:hover { opacity: 1; }
 a.remove { 
   background-image: url(../imgs/delete-black.png); 
+  opacity: 0.4;
   visibility: hidden;
 }
-#groups h5:hover a.remove, #pipelines h3:hover a.remove 
+#groups h5:hover a.remove, #pipelines h3:hover a.remove
 { visibility: visible; }
 
-#groups h5:hover a.remove:hover,
-#pipelines h3:hover a.remove:hover  
-{ background-image: url(../imgs/delete-white.png); }
+a.remove:hover { opacity: 1; }
 
 .property {
   margin-bottom: 10px;
@@ -93,6 +93,7 @@ a.remove {
   width: 16px;
   height: 16px;
   background: url(../imgs/remove-black.png) no-repeat;
+  opacity: 0.5;
   background-size: 16px;
   text-indent: -999em;
   margin-left: 5px;
@@ -100,7 +101,7 @@ a.remove {
 
 .property:hover a.unbind { visibility: visible; }
 .property:hover a.unbind:hover { 
-  background-image: url(../imgs/remove-white.png);
+  opacity: 1;
 }
 
 .schema-target {
