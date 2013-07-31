@@ -1,0 +1,24 @@
+<div class="inspector" ng-init="interpolation=['linear', 'step-before', 'step-after', 'basis', 'basis-open', 'cardinal', 'cardinal-open', 'monotone']">
+    
+  <fieldset id="points">
+    <legend>Points</legend>
+
+    <vde-property label="X" type="number" item="activeVisual" property="x" ng-model="activeVisual.properties.x.value" scale="activeVisual.properties.x.scale" field="activeVisual.properties.x.field"></vde-property>
+
+    <vde-property label="Y" type="number" item="activeVisual" property="y" ng-model="activeVisual.properties.y.value" scale="activeVisual.properties.y.scale" field="activeVisual.properties.y.field"></vde-property>
+
+    <vde-property label="Interpolate" type="select" options="interpolation" item="activeVisual" property="interpolate" ng-model="activeVisual.properties.interpolate.value" scale="activeVisual.properties.interpolate.scale" field="activeVisual.properties.interpolate.field"></vde-property> 
+ 
+    <vde-property label="Tension" type="number" item="activeVisual" property="tension" ng-model="activeVisual.properties.tension.value" scale="activeVisual.properties.tension.scale" field="activeVisual.properties.tension.field"></vde-property> 
+
+  </fieldset>  
+
+  <fieldset id="stroke">
+    <legend>Stroke</legend>
+
+    <vde-property label="Color" type="color" item="activeVisual" property="stroke" ng-model="activeVisual.properties.stroke.value" scale="activeVisual.properties.stroke.scale" field="activeVisual.properties.stroke.field"></vde-property>  
+
+    <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="activeVisual" property="strokeWidth" ng-model="activeVisual.properties.strokeWidth.value" scale="activeVisual.properties.strokeWidth.scale" field="activeVisual.properties.strokeWidth.field"></vde-property> 
+  </fieldset>  
+
+</div>

@@ -1,11 +1,17 @@
 <div id="properties" ng-init="shapes=['circle', 'square', 'cross', 'diamond', 'triangle-up', 'triangle-down']">
-  <vde-property label="X" type="number" item="activeVisual" property="x" ng-model="activeVisual.properties.x.value" scale="activeVisual.properties.x.scale" field="activeVisual.properties.x.field"></vde-property>
 
-  <vde-property label="Y" type="number" item="activeVisual" property="y" ng-model="activeVisual.properties.y.value" scale="activeVisual.properties.y.scale" field="activeVisual.properties.y.field"></vde-property>
+  <fieldset id="Points">
+    <legend>Points</legend>
 
-  <vde-property label="Shape" type="select" options="shapes" item="activeVisual" property="shape" ng-model="activeVisual.properties.shape.value" scale="activeVisual.properties.shape.scale" field="activeVisual.properties.shape.field"></vde-property>
+    <vde-property label="X" type="number" item="activeVisual" property="x" ng-model="activeVisual.properties.x.value" scale="activeVisual.properties.x.scale" field="activeVisual.properties.x.field"></vde-property>
 
-  <vde-property label="Size" type="number" item="activeVisual" property="size" ng-model="activeVisual.properties.size.value" scale="activeVisual.properties.size.scale" field="activeVisual.properties.size.field"></vde-property>
+    <vde-property label="Y" type="number" item="activeVisual" property="y" ng-model="activeVisual.properties.y.value" scale="activeVisual.properties.y.scale" field="activeVisual.properties.y.field"></vde-property>
+
+    <vde-property label="Shape" type="select" options="shapes" item="activeVisual" property="shape" ng-model="activeVisual.properties.shape.value" scale="activeVisual.properties.shape.scale" field="activeVisual.properties.shape.field"></vde-property>
+
+    <vde-property label="Size" type="number" item="activeVisual" property="size" ng-model="activeVisual.properties.size.value" scale="activeVisual.properties.size.scale" field="activeVisual.properties.size.field"></vde-property>
+    
+  </fieldset>
 
   <fieldset id="fill">
     <legend>Fill</legend>

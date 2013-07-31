@@ -49,6 +49,12 @@
 #Text { 
   background-image: url(../imgs/text.png); 
   background-position: 50% 50%;
+  margin-left: 5px;
+}
+
+#Line { 
+  background-image: url(../imgs/line-2.png); 
+  background-position: 50% 50%;
 }
 
 #vis {
