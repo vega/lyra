@@ -38,7 +38,7 @@ vde.App.directive('vdeDraggable', function() {
   return function(scope, element, attrs) {
     element
       .drag('start', function(e, dd) {
-        return $(this).clone()
+        return $(this).clone(true, true)
             .addClass('proxy')
             .css('opacity', 0.75)
             .css('position', 'absolute')

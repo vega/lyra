@@ -79,10 +79,10 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout) {
     },
     templateUrl: 'tmpl/inspectors/binding.html',
     controller: function($scope, $element, $attrs) {
-      if($attrs.draggable) {
+      // if($attrs.draggable) {
         var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
         $element.append(el);
-      }
+      // }
 
       $scope.editScale = function(evt) {
         var inspector = $('#binding-inspector');
@@ -107,13 +107,14 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout) {
       };
     },
     link: function(scope, element, attrs) {
-      if(attrs.draggable) {
+      // if(attrs.draggable) {
         var binding = element.find('.binding');
         element.find('.binding-draggable').append(binding);
-      }    
-
-      if(scope.field instanceof vde.Vis.Field)
-        element.find('.schema').data('field', scope.field);
+      // }    
+      $timeout(function() {
+        if(scope.field instanceof vde.Vis.Field)
+          element.find('.schema').data('field', scope.field);
+      }, 100)
     }
   }
 });
