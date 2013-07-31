@@ -53,6 +53,9 @@ vde.Vis.marks.Rect = (function() {
       break;
     }
 
+    if(scale.properties.type == 'ordinal')
+      scale.properties.points = false;
+
     return [scale, field]
   };
 

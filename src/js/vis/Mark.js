@@ -145,14 +145,12 @@ vde.Vis.Mark = (function() {
               range: new vde.Vis.Field('category20')
             }, {}, prop + '_color');          
           break;
-
-          default:
-            var prules = this.productionRules(prop, opts.scale, field);
-            scale = prules[0];
-            field = prules[1];
-          break;
         }        
       }
+
+      var prules = this.productionRules(prop, scale, field);
+          scale = prules[0];
+          field = prules[1];
 
       this.properties[prop].scale = scale;
       this.properties[prop].field = field;
