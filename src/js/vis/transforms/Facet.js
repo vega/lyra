@@ -50,7 +50,16 @@ vde.Vis.transforms.Facet = (function() {
     if(this._seen.marks[opts.item.name]) return;
 
     delete opts.spec.from.data;   // Inherit from the group
-    this._group.marks.push(vg.duplicate(opts.spec));
+    var spec = vg.duplicate(opts.spec);
+    if(opts.item.oncePerFork) {
+      spec.from.transform || (spec.from.transform = [])
+      spec.from.transform.push({
+        type: 'filter',
+        test: 'index == 0'
+      });
+    }
+
+    this._group.marks.push(spec);
     this._seen.marks[opts.item.name] = 1;
 
     // Clear the spec because we'll inject it in later

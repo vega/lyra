@@ -5,6 +5,7 @@ vde.Vis.Mark = (function() {
 
     this.group    = null;
     this.pipeline = null;
+    this.oncePerFork = false;
 
     this._spec = {
       properties: {
@@ -125,7 +126,7 @@ vde.Vis.Mark = (function() {
               range: new vde.Vis.Field('height')
             }, 'y');
           break;
-                
+
           case 'fill':
           case 'stroke':
             scale = this.group.scale(this, {

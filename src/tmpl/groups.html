@@ -32,6 +32,8 @@
                   <option ng-repeat="(pipelineName, pipeline) in gMdl.pipelines" value="{{pipelineName}}" ng-selected="gMdl.activeVisualPipeline==pipelineName">{{pipeline.displayName|inflector:'humanize'}}</option>
                   <option value="vdeNewPipeline">New Pipeline</option>
                 </select>
+
+                <p ng-if="activeVisual.pipeline.forkName"><label><input type="checkbox" ng-model="activeVisual.oncePerFork" /> Once per facet</label></p>
               </vde-property>
 
               <ng-include src="'tmpl/inspectors/' + mark.type + '.html'"></ng-include>

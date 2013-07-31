@@ -24,6 +24,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
       $scope.activeVisual.pipeline = vde.Vis.pipelines[p];
       $rootScope.activePipeline = vde.Vis.pipelines[p];
     }
+
+    vde.Vis.parse();
   };
 
   $scope.addAxis = function() {
