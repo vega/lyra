@@ -42,6 +42,7 @@ vde.App.directive('vdeProperty', function($rootScope) {
       if(attrs.type == 'expr') return;
 
       $(element).find('.property').drop(function(e, dd) {
+        if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         var field = $(dd.proxy).data('field') || $(dd.proxy).find('.schema').data('field') || $(dd.proxy).find('.schema').attr('field');
         var scale = $(dd.proxy).find('.scale').attr('scale');
         var pipeline = $rootScope.activePipeline;
@@ -58,8 +59,10 @@ vde.App.directive('vdeProperty', function($rootScope) {
 
         vde.Vis.parse();
       }).drop('dropstart', function() {
+        if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         $(this).css('backgroundColor', '#bbb');
       }).drop('dropend', function() {
+        if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         $(this).css('backgroundColor', 'transparent');
       })
     }
@@ -82,14 +85,15 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout) {
       }
 
       $scope.editScale = function(evt) {
-        $rootScope.activeScale = $scope.scale;
+        var inspector = $('#binding-inspector');
+        $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
 
         $timeout(function() {
           var winHeight = $(window).height(),
               pageX     = evt.pageX,
-              pageY     = evt.pageY,
-              inspector = $('#binding-inspector').css('left', (pageX-15) + 'px');
-              
+              pageY     = evt.pageY;
+
+          inspector.css('left', (pageX-15) + 'px');
           if(pageY > winHeight / 2) { // If below half-way, position top
             inspector.css('top', (pageY - inspector.height() - 25) + 'px');
             $('.bubble', inspector).removeClass('top').addClass('bottom');          

@@ -51,6 +51,7 @@ vde.App.directive('vdeDraggable', function() {
 vde.App.directive('vdeClearBubbles', function($rootScope) {
   return function(scope, element, attrs) {
     element.click(function() {
+      $rootScope.activeScale = null;
       $('#binding-inspector').hide();
     })
   };
