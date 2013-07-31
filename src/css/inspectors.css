@@ -19,7 +19,7 @@
   border-radius: 5px;
 }
 
-a.add, a.remove {
+a.add, a.remove, a.edit-vis {
   display: inline-block;
   float: right;
   width: 14px;
@@ -27,24 +27,28 @@ a.add, a.remove {
   background-repeat: no-repeat;
   background-size: 14px;
   text-indent: -999em;
+  opacity: 0.4;
 }
 
 a.add { 
   background-image: url(../imgs/add-black.png); 
-  opacity: 0.4;
   margin-top: -3px;
 }
 
-a.add:hover { opacity: 1; }
+h2 a.add { 
+  background-image: url(../imgs/add-allwhite.png); 
+  margin: 0 15px;
+}
+
 a.remove { 
   background-image: url(../imgs/delete-black.png); 
-  opacity: 0.4;
   visibility: hidden;
 }
-#groups h5:hover a.remove, #pipelines h3:hover a.remove
+#groups h3:hover a.remove, #groups h5:hover a.remove, #pipelines h3:hover a.remove
 { visibility: visible; }
 
-a.remove:hover { opacity: 1; }
+a.edit-vis { background-image: url(../imgs/pencil-white.png); }
+a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
 
 .property {
   margin-bottom: 10px;

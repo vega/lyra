@@ -154,7 +154,6 @@
 
 #preview-transform {
   position: absolute;
-  width: 250px;
   z-index: 10000;
 }
 

@@ -1,0 +1,29 @@
+<div id="binding-inspector" ng-init="types=['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile', 'quantize', 'threshold', 'utc', 'time', 'ref']">
+	<div class="bubble">
+		<a class="close" vde-clear-bubbles>Close</a>
+
+		<h5>Scale Properties</h5>
+
+	  <vde-property label="Name" type="text" item="activeScale" property="name" ng-model="activeScale.displayName" nodrop="1"></vde-property>
+
+	  <vde-property label="Type" type="select" options="types" item="activeScale" property="type" ng-model="activeScale.properties.type" nodrop="1"></vde-property>
+
+	  <vde-property label="Domain" type="field" item="activeScale" property="field" field="activeScale.properties.field"></vde-property>
+
+  	<vde-property label="Range" type="field" item="activeScale" property="range" field="activeScale.properties.range"></vde-property>
+
+  	<div class="hint">
+	  	<p>The following fields may be used to set the range of this scale:</p>
+
+	  	<vde-binding field="'width'" draggable="1"></vde-binding>
+	  	<vde-binding field="'height'" draggable="1"></vde-binding>
+	  	<vde-binding field="'shapes'" draggable="1"></vde-binding>
+	  	<vde-binding field="'category10'" draggable="1"></vde-binding>
+	  	<vde-binding field="'category20'" draggable="1"></vde-binding>
+
+	  	<br clear="all" />
+	  </div>
+
+	  <vde-property label="Points" type="checkbox" item="activeScale" property="points" ng-model="activeScale.properties.points"></vde-property>
+	</div>
+</div>

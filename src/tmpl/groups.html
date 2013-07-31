@@ -1,9 +1,9 @@
 <div id="groups" class="inspectors chrome" ng-controller="GroupsCtrl">
-  <h2><span>Visual Layers</span></h2> 
+  <h2><span>Visual Layers</span> <a class="edit-vis" ng-click="editVisualization()">Edit Visualization</a> <a class="add" ng-click="addGroup()">New Group</a> </h2> 
 
   <div class="group" ng-repeat="(groupName, group) in gMdl.groups">
     <div ng-if="group.layer">
-      <h3 ng-class="{expanded:activeGroup == group}" ng-click="toggleVisual(group)">{{groupName|inflector:'humanize'}}</h3>
+      <h3 ng-class="{expanded:activeGroup == group}" ng-click="toggleVisual(group)">{{groupName|inflector:'humanize'}} <a ng-click="removeVisual('group', groupName);" class="remove">Delete</a></h3>
 
       <div ng-if="activeGroup == group">
 

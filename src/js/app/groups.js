@@ -29,6 +29,12 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
     vde.Vis.parse();
   };
 
+  $scope.addGroup = function() {
+    var g = new vde.Vis.marks.Group();
+    $rootScope.activeGroup = g;
+    $rootScope.activeVisual = g;
+  };
+
   $scope.addAxis = function() {
     var axis = new vde.Vis.Axis('', $rootScope.activeGroup.name);
     $rootScope.activeVisual = axis;
@@ -38,7 +44,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
     var cnf = confirm("Are you sure you wish to delete this visual element?")
     if(!cnf) return;
 
-    delete $rootScope.activeGroup[type][name];
+    if(type == 'group') delete vde.Vis.groups[name];
+    else delete $rootScope.activeGroup[type][name];
     vde.Vis.parse();
   };
 
@@ -50,5 +57,10 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
     $rootScope.activeVisual.checkExtents(prop);
 
     vde.Vis.parse();
+  };
+
+  $scope.editVisualization = function() {
+    $rootScope.editVis = !$rootScope.editVis;
+    $rootScope.vis = vde.Vis.properties;
   };
 });

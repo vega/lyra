@@ -175,6 +175,13 @@ textarea#export {
   background-color: #555;
 }
 
+#vis-edit {
+  position: absolute;
+  top: 40px;
+  left: 570px;
+  width: 250px;
+}
+
 .bubble {
     background-color: #ddd;
     display: inline-block;
@@ -183,6 +190,12 @@ textarea#export {
     vertical-align: top;
     box-shadow: 2px 5px 15px 0px rgba(0, 0, 0, 0.3);
     border-radius: 5px;
+    width: 100%;
+}
+
+.bubble h5 { 
+  margin: 10px 0; 
+  font-size: 13px;
 }
 
 .bubble::before {
