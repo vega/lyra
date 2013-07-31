@@ -27,7 +27,11 @@ vde.App = angular.module('vde', ['ui.inflector']);
 // })
 
 vde.App.controller('VdeCtrl', function($scope, $rootScope) {
+  $scope.vMdl = {};
 
+  $scope.export = function() {
+    $scope.vMdl.spec = JSON.stringify(vde.Vis.parse(), null, 2);
+  };
 });
 
 vde.App.directive('vdeDraggable', function() {

@@ -138,6 +138,43 @@ a {
   background-image: url(../imgs/pencil-white.png);
 }
 
+#overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
+
+#overlay textarea {
+  position: absolute;
+  top: 30%;
+  left: 30%;
+  z-index: 100;
+  width: 40%;
+  height: 30%;
+}
+
+#export-link {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 55px;
+  height: 16px;
+  padding: 5px;
+  background: #333 url(../imgs/export.png) no-repeat 95% 50%;
+  /*border: 2px solid #333;*/
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#export-link:hover { 
+  background-color: #555;
+}
+
 .bubble {
     background-color: #ddd;
     display: inline-block;
