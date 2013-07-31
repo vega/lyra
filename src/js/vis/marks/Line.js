@@ -3,6 +3,7 @@ vde.Vis.marks.Line = (function() {
     vde.Vis.Mark.call(this, name);
 
     this.type = 'line';
+    this.propType = 'points';
     this.group = group;
 
     this.properties = {
@@ -21,6 +22,20 @@ vde.Vis.marks.Line = (function() {
 
   line.prototype = new vde.Vis.Mark();
   var prototype  = line.prototype;
+
+  prototype.spec = function() {
+    var propsForType = {
+      points: ['x', 'y', 'interpolate', 'tension', 'stroke', 'strokeWidth'],
+      path: ['path', 'fill', 'fillOpacity', 'stroke', 'strokeWidth']
+    };
+
+    for(var p in this.properties) {
+      if(propsForType[this.propType].indexOf(p) == -1)
+        delete this.properties[p];
+    }
+
+    return vde.Vis.Mark.prototype.spec.call(this);
+  };  
 
   return line;
 })();

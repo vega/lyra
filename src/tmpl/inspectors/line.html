@@ -1,6 +1,8 @@
-<div class="inspector" ng-init="interpolation=['linear', 'step-before', 'step-after', 'basis', 'basis-open', 'cardinal', 'cardinal-open', 'monotone']">
+<div class="inspector" ng-init="interpolation=['linear', 'step-before', 'step-after', 'basis', 'basis-open', 'cardinal', 'cardinal-open', 'monotone']; types=['points', 'path']">
+
+  <vde-property label="Type" type="select" options="types" item="activeVisual" property="propType" ng-model="activeVisual.propType" nodrop="1"></vde-property>
     
-  <fieldset id="points">
+  <fieldset id="points" ng-if="activeVisual.propType == 'points'">
     <legend>Points</legend>
 
     <vde-property label="X" type="number" item="activeVisual" property="x" ng-model="activeVisual.properties.x.value" scale="activeVisual.properties.x.scale" field="activeVisual.properties.x.field"></vde-property>
@@ -12,6 +14,16 @@
     <vde-property label="Tension" type="number" item="activeVisual" property="tension" ng-model="activeVisual.properties.tension.value" scale="activeVisual.properties.tension.scale" field="activeVisual.properties.tension.field"></vde-property> 
 
   </fieldset>  
+
+  <vde-property ng-if="activeVisual.propType == 'path'" label="Path" type="field" item="activeVisual" property="path" ng-model="activeVisual.properties.path.value" field="activeVisual.properties.path.field"></vde-property> 
+
+  <fieldset id="fill" ng-if="activeVisual.propType == 'path'">
+    <legend>Fill</legend>
+
+    <vde-property label="Color" type="color" item="activeVisual" property="fill" ng-model="activeVisual.properties.fill.value" scale="activeVisual.properties.fill.scale" field="activeVisual.properties.fill.field"></vde-property>  
+
+    <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" item="activeVisual" property="fillOpacity" ng-model="activeVisual.properties.fillOpacity.value" scale="activeVisual.properties.fillOpacity.scale" field="activeVisual.properties.fillOpacity.field"></vde-property> 
+  </fieldset>    
 
   <fieldset id="stroke">
     <legend>Stroke</legend>
