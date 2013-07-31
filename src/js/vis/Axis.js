@@ -21,10 +21,10 @@ vde.Vis.Axis = (function() {
   var prototype = axis.prototype;
 
   prototype.init = function() {
-    this.group().axes[this.name] = this;
-
     if(!this.name)
       this.name = 'axis_' + (vg.keys(this.group().axes).length+1);
+
+    this.group().axes[this.name] = this;
 
     return this;
   };
