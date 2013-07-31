@@ -12,7 +12,11 @@
         </select>
       </li>
 
-      <li ng-repeat="transform in activePipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-include="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></li>
+      <li ng-repeat="transform in activePipeline.transforms" class="transform-{{transform.type|lowercase}} icon">
+        <vde-pipeline-ctrls></vde-pipeline-ctrls>
+
+        <ng-include src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></ng-include>
+      </li>
     </ul>
 
     <div class="datatable" ng-if="activePipeline.source" vde-data-grid pipeline="activePipeline"></div>

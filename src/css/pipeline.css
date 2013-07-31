@@ -60,7 +60,10 @@
   margin-bottom: 25px;
 }
 
-.dataTables_info { margin-top: 5px;}
+.dataTables_info { 
+  margin-top: 5px;
+  color: #444;
+}
 
 .dataTables_scrollHead thead th {
   /*display: inline-block;*/
@@ -84,6 +87,33 @@
   cursor: url(../imgs/openhand.cur), default !important;
 }
 
+.paginate_enabled_previous { 
+  background: url('../imgs/previous-black.png') no-repeat !important; 
+  background-size: 14px !important;
+  margin-top: 5px;
+  padding-left: 15px !important;
+  opacity: 0.4;
+}
+.paginate_enabled_previous:hover { opacity: 1; }
+.paginate_disabled_previous { 
+  padding-right: 15px !important;
+  visibility: hidden; 
+}
+
+.paginate_enabled_next {
+  background: url('../imgs/next-black.png') no-repeat !important; 
+  background-size: 14px !important;
+  margin-top: 5px;
+  padding-right: 15px !important;
+  opacity: 0.4;
+}
+.paginate_enabled_next:hover { opacity: 1; }
+.paginate_disabled_next { 
+  visibility: hidden; 
+  padding-right: 0 !important;
+  padding-left: 15px !important;
+}
+
 #pipelines #scales .binding { margin: 5px 0; }
 
 #pipelines #scales .binding .empty { 
@@ -99,7 +129,8 @@
 .pipeline-ctrls a { margin: 0 0 0 5px;}
 
 .pipeline ul:first-of-type li .pipeline-ctrls { visibility: hidden; }
-.pipeline ul:first-of-type li:hover .pipeline-ctrls { visibility: visible; }
+.pipeline ul:first-of-type li:hover .pipeline-ctrls,
+.pipeline ul:first-of-type li:hover .pipeline-ctrls a.remove { visibility: visible; }
 
 .pipeline-ctrls a { margin-left: 5px; }
 
@@ -114,18 +145,20 @@
 }
 
 .pipeline-ctrls .preview {
-  background: url(../imgs/preview.png) no-repeat; 
+  background: url(../imgs/preview-black.png) no-repeat; 
   opacity: 0.6;
+  background-size: 20px auto;
+  background-position: 50%;
+  width: 20px;
 }
 
-.preview-transform {
+#preview-transform {
   position: absolute;
-  right: -245px;
   width: 250px;
   z-index: 10000;
 }
 
-.pipeline .preview-transform .slickgrid { 
+#preview-transform .slickgrid { 
   width: 300px; 
   margin: 0;
 }

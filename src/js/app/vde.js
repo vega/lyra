@@ -57,6 +57,8 @@ vde.App.directive('vdeClearBubbles', function($rootScope) {
     element.click(function() {
       $rootScope.activeScale = null;
       $('#binding-inspector').hide();
+
+      $rootScope.previewTransformIdx = null;
     })
   };
 })

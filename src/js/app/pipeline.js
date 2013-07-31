@@ -213,9 +213,20 @@ vde.App.directive('vdeDataGrid', function () {
   };
 });
 
-vde.App.directive('vdePipelineCtrls', function() {
+vde.App.directive('vdePipelineCtrls', function($rootScope, $timeout) {
   return {
     restrict: 'E',
-    templateUrl: 'tmpl/inspectors/pipeline-ctrls.html'
+    templateUrl: 'tmpl/inspectors/pipeline-ctrls.html',
+    controller: function($scope, $element, $attrs) {
+      $scope.previewTransform = function(idx, evt) {
+        $rootScope.previewTransformIdx = ($rootScope.previewTransformIdx != null) ? null : idx;
+
+        $timeout(function(){
+          $('#preview-transform').css('left', (evt.pageX+30) + 'px').css('top', (evt.pageY-20) + 'px');
+        }, 100);
+      };
+
+
+    }
   }
 });
