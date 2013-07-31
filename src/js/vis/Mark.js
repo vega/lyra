@@ -1,9 +1,9 @@
 vde.Vis.Mark = (function() {
-  var mark = function(name) {
+  var mark = function(name, groupName) {
     this.name = name;
     this.displayName = name;
 
-    this.group    = null;
+    this.groupName    = groupName;
     this.pipelineName = null;
     this.oncePerFork = false;
 
@@ -23,22 +23,28 @@ vde.Vis.Mark = (function() {
   var prototype = mark.prototype;
 
   prototype.init = function() {
-    if(!this.group)
-      this.group = new vde.Vis.marks.Group();
+    if(!this.groupName) {
+      var g = new vde.Vis.marks.Group();
+      this.groupName = g.name;
+    }
 
     if(!this.name)
-      this.name = this.type + '_' + (vg.keys(this.group.marks).length+1);
+      this.name = this.type + '_' + (vg.keys(this.group().marks).length+1);
 
     if(!this.displayName) 
       this.displayName = this.name;
 
-    this.group.marks[this.name] = this;
+    this.group().marks[this.name] = this;
 
     return this;
   };
 
   prototype.pipeline = function() {
     return vde.Vis.pipelines[this.pipelineName];
+  };
+
+  prototype.group = function() {
+    return vde.Vis.groups[this.groupName];
   };
 
   prototype.spec = function() {
@@ -103,7 +109,7 @@ vde.Vis.Mark = (function() {
 
     if(opts.scaleName) {
       scale = this.pipeline().scales[opts.scaleName];
-      this.group.scales[opts.scaleName] = scale;
+      this.group().scales[opts.scaleName] = scale;
       this.properties[prop].scale = scale;
     }
 
@@ -114,7 +120,7 @@ vde.Vis.Mark = (function() {
       if(!scale) {
         switch(prop) {
           case 'x':
-            scale = this.group.scale(this, {
+            scale = this.group().scale(this, {
               field: field
             }, {
               type: field.type || 'ordinal',
@@ -123,7 +129,7 @@ vde.Vis.Mark = (function() {
           break;
 
           case 'y':
-            scale = this.group.scale(this, {
+            scale = this.group().scale(this, {
               field: field,
             }, {
               type: field.type || 'linear',
@@ -133,7 +139,7 @@ vde.Vis.Mark = (function() {
 
           case 'fill':
           case 'stroke':
-            scale = this.group.scale(this, {
+            scale = this.group().scale(this, {
               type: 'ordinal',
               field: field,
               range: new vde.Vis.Field('category20')

@@ -1,9 +1,8 @@
 vde.Vis.marks.Arc = (function() {
-  var arc = function(name, group) {
-    vde.Vis.Mark.call(this, name);
+  var arc = function(name, groupName) {
+    vde.Vis.Mark.call(this, name, groupName);
 
     this.type = 'arc';
-    this.group = group;
 
     this.properties = {
       x: {value: 0},
@@ -44,7 +43,7 @@ vde.Vis.marks.Arc = (function() {
     switch(prop) {
       case 'innerRadius':
       case 'outerRadius':
-        scale = this.group.scale(this, {
+        scale = this.group().scale(this, {
           type: 'sqrt',
           field: field
         }, {range: new vde.Vis.Field('width')}, 'radius');

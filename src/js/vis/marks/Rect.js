@@ -1,9 +1,8 @@
 vde.Vis.marks.Rect = (function() {
-  var rect = function(name, group) {
-    vde.Vis.Mark.call(this, name);
+  var rect = function(name, groupName) {
+    vde.Vis.Mark.call(this, name, groupName);
 
     this.type = 'rect';
-    this.group = group;
 
     this.properties = {
       x: {value: 0},
@@ -34,7 +33,7 @@ vde.Vis.marks.Rect = (function() {
       case 'x':
       case 'x2':
       case 'width':
-        scale = this.group.scale(this, {
+        scale = this.group().scale(this, {
           field: field
         }, {
           type: field.type || 'ordinal',
@@ -45,7 +44,7 @@ vde.Vis.marks.Rect = (function() {
       case 'y':
       case 'y2':
       case 'height':
-        scale = this.group.scale(this, {
+        scale = this.group().scale(this, {
           field: field
         }, {
           type: field.type || 'linear',

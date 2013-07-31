@@ -1,9 +1,8 @@
 vde.Vis.marks.Area = (function() {
-  var area = function(name, group) {
-    vde.Vis.Mark.call(this, name);
+  var area = function(name, groupName) {
+    vde.Vis.Mark.call(this, name, groupName);
 
     this.type = 'area';
-    this.group = group;
 
     this.properties = {
       x: {value: 0},
@@ -28,7 +27,7 @@ vde.Vis.marks.Area = (function() {
   prototype.productionRules = function(prop, scale, field) {
     switch(prop) {
       case 'y2':
-        scale = this.group.scale(this, {
+        scale = this.group().scale(this, {
           field: field
         }, {
           type: field.type || 'linear',

@@ -1,9 +1,8 @@
 vde.Vis.marks.Text = (function() {
-  var text = function(name, group) {
-    vde.Vis.Mark.call(this, name);
+  var text = function(name, groupName) {
+    vde.Vis.Mark.call(this, name, groupName);
 
     this.type = 'text';
-    this.group = group;
 
     this.properties = {
       x: {value: 0},

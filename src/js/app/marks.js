@@ -19,13 +19,13 @@ vde.App.directive('vdeMarkDroppable', function($rootScope, $location) {
 
       scope.$apply(function() {
         // Add mark to model, then reparse vega spec
-        var group = $rootScope.activeGroup;
-        var mark = eval('new vde.Vis.marks["' + markType + '"](undefined, group)');
+        var groupName = ($rootScope.activeGroup || {}).name;
+        var mark = eval('new vde.Vis.marks["' + markType + '"](undefined, groupName)');
         vde.Vis.parse();
 
         // Then route to this mark to load its inspector
         $rootScope.activeVisual = mark;
-        $rootScope.activeGroup  = mark.group || mark;
+        $rootScope.activeGroup  = mark.group() || mark;
       });
     })
   }

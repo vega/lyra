@@ -1,6 +1,6 @@
 vde.Vis.Axis = (function() {
-  var axis = function(name, group) {
-    this.name  = (name || 'axis_' + (vg.keys(group.axes).length+1));
+  var axis = function(name, groupName) {
+    this.name  = name;
 
     this.properties = {
       tickStyle: {},
@@ -12,14 +12,22 @@ vde.Vis.Axis = (function() {
       axisStyle: {}
     };
 
-    this.group = group;
-    this.pipeline = null;
-    this.group.axes[this.name] = this;
+    this.groupName = groupName;
+    this.pipelineName = null;
 
-    return this;
+    return this.init();
   };
 
   var prototype = axis.prototype;
+
+  prototype.init = function() {
+    this.group().axes[this.name] = this;
+
+    if(!this.name)
+      this.name = 'axis_' + (vg.keys(this.group().axes).length+1);
+
+    return this;
+  };
 
   prototype.spec = function() {
     var spec = {}, self = this;
@@ -58,6 +66,10 @@ vde.Vis.Axis = (function() {
 
   prototype.pipeline = function() {
     return vde.Vis.pipelines[this.pipelineName];
+  };
+
+  prototype.group = function() {
+    return vde.Vis.groups[this.groupName];
   };
 
   prototype.bindProperty = function(prop, opts) {

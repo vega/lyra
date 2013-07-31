@@ -1,9 +1,8 @@
 vde.Vis.marks.Symbol = (function() {
-  var symbol = function(name, group) {
-    vde.Vis.Mark.call(this, name);
+  var symbol = function(name, groupName) {
+    vde.Vis.Mark.call(this, name, groupName);
 
     this.type = 'symbol';
-    this.group = group;
 
     this.properties = {
       x: {value: 0},
@@ -27,7 +26,7 @@ vde.Vis.marks.Symbol = (function() {
   prototype.productionRules = function(prop, scale, field) {
     switch(prop) {
       case 'size':
-        scale = this.group.scale(this, {
+        scale = this.group().scale(this, {
           type: 'linear',
           field: field
         }, {range: [50, 1000]}, 'size');
