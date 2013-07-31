@@ -56,11 +56,15 @@ vde.Vis.Axis = (function() {
     return null;
   };
 
+  prototype.pipeline = function() {
+    return vde.Vis.pipelines[this.pipelineName];
+  };
+
   prototype.bindProperty = function(prop, opts) {
     if(!opts.scaleName) return; // Because this makes no sense
 
-    this.pipeline = opts.pipeline;
-    this.properties[prop] = this.pipeline.scales[opts.scaleName];
+    this.pipelineName = opts.pipelineName;
+    this.properties[prop] = this.pipeline().scales[opts.scaleName];
   };
 
   prototype.unbindProperty = function(prop) {

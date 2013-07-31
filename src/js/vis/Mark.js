@@ -4,7 +4,7 @@ vde.Vis.Mark = (function() {
     this.displayName = name;
 
     this.group    = null;
-    this.pipeline = null;
+    this.pipelineName = null;
     this.oncePerFork = false;
 
     this._spec = {
@@ -37,6 +37,10 @@ vde.Vis.Mark = (function() {
     return this;
   };
 
+  prototype.pipeline = function() {
+    return vde.Vis.pipelines[this.pipelineName];
+  };
+
   prototype.spec = function() {
     var spec = vg.duplicate(this._spec);
 
@@ -46,7 +50,7 @@ vde.Vis.Mark = (function() {
     spec.type = this.type;
     spec.from = {};
 
-    if(this.pipeline) spec.from.data = this.pipeline.name;
+    if(this.pipeline()) spec.from.data = this.pipeline().name;
 
     var props = {};
 
@@ -98,7 +102,7 @@ vde.Vis.Mark = (function() {
     var scale, field;
 
     if(opts.scaleName) {
-      scale = this.pipeline.scales[opts.scaleName];
+      scale = this.pipeline().scales[opts.scaleName];
       this.group.scales[opts.scaleName] = scale;
       this.properties[prop].scale = scale;
     }

@@ -29,7 +29,6 @@ vde.Vis.marks.Symbol = (function() {
       case 'size':
         scale = this.group.scale(this, {
           type: 'linear',
-          pipeline: this.pipeline, 
           field: field
         }, {range: [50, 1000]}, 'size');
       break;

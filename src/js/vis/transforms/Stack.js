@@ -19,8 +19,8 @@ vde.Vis.transforms.Stack = (function() {
 
   prototype.spec = function() {
     // Add a scale for the stacking
-    this.scale = this.pipeline.scale({
-      field: new vde.Vis.Field('sum', false, 'linear', this.pipeline.name + '_stack')
+    this.scale = this.pipeline().scale({
+      field: new vde.Vis.Field('sum', false, 'linear', this.pipeline().name + '_stack')
     }, {
       type: 'linear', 
       range: new vde.Vis.Field('height')

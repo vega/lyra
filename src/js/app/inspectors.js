@@ -45,14 +45,14 @@ vde.App.directive('vdeProperty', function($rootScope) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         var field = $(dd.proxy).data('field') || $(dd.proxy).find('.schema').data('field') || $(dd.proxy).find('.schema').attr('field');
         var scale = $(dd.proxy).find('.scale').attr('scale');
-        var pipeline = $rootScope.activePipeline;
+        var pipelineName = $rootScope.activePipeline.name;
 
-        if(scope.item.pipeline && pipeline != scope.item.pipeline)
+        if(scope.item.pipelineName && pipelineName != scope.item.pipelineName)
           return alert('Pipelines don\'t match');
 
         scope.$apply(function() {
           scope.item.bindProperty(attrs.property, 
-            {field: field, scaleName: scale, pipeline: pipeline});
+            {field: field, scaleName: scale, pipelineName: pipelineName});
         });
 
         $('.proxy').remove();
@@ -131,7 +131,7 @@ vde.App.directive('vdeExpr', function($rootScope) {
 
           if(scope.item instanceof vde.Vis.Transform && 
             !scope.item.requiresFork && field instanceof vde.Vis.Field) 
-            scope.item.requiresFork = ($rootScope.activePipeline.name != field.pipelineName);
+              scope.item.requiresFork = ($rootScope.activePipeline.name != field.pipelineName);
 
           $('<div class="schema" contenteditable="false">' + $(dd.proxy).text() + '</div>')
             .attr('field-spec', (field instanceof vde.Vis.Field) ? field.spec() : null)

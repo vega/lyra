@@ -28,7 +28,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
   };
 
   $scope.addTransform = function(i) {
-    $scope.newTransforms[i].pipeline = $rootScope.activePipeline;
+    $scope.newTransforms[i].pipelineName = $rootScope.activePipeline.name;
     $rootScope.activePipeline.addTransform($scope.newTransforms[i]);
     $scope.newTransforms.splice(i, 1);
 

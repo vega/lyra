@@ -6,8 +6,8 @@ vde.Vis.Scale = (function() {
 
     this.properties = properties;
 
-    this.pipeline = pipeline;
-    this.pipeline.scales[this.name] = this;
+    this.pipelineName = pipeline.name;
+    pipeline.scales[this.name] = this;
 
     return this;
   };
@@ -20,7 +20,7 @@ vde.Vis.Scale = (function() {
     vde.Vis.Callback.run('scale.pre_spec', this, {spec: spec});
 
     spec.name = this.name;
-    spec.domain = {data: this.properties.field.pipelineName || this.pipeline.name, field: this.properties.field.spec()};
+    spec.domain = {data: this.properties.field.pipelineName || this.pipeline().name, field: this.properties.field.spec()};
     spec.range = this.properties.range.spec();
     delete spec.pipeline;
     delete spec.field;
@@ -34,6 +34,10 @@ vde.Vis.Scale = (function() {
     // TODO
 
     return null;
+  };
+
+  prototype.pipeline = function() {
+    return vde.Vis.pipelines[this.pipelineName];
   };
 
   prototype.equals = function(b) {

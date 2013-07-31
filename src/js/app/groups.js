@@ -8,20 +8,21 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
     $rootScope.activeVisual = v;
     $rootScope.activeGroup  = v.group || v;
 
-    $rootScope.activePipeline = v.pipeline;
-    $scope.gMdl.activeVisualPipeline = (v.pipeline || {}).name;
+    $rootScope.activePipeline = v.pipeline();
+    $scope.gMdl.activeVisualPipeline = (v.pipeline() || {}).name;
   };  
 
   $scope.setPipeline = function() {
     var p = $scope.gMdl.activeVisualPipeline;
-    if(p == '') $scope.activeVisual.pipeline = null;
+    if(p == '') $scope.activeVisual.pipelineName = null;
     else if(p == 'vdeNewPipeline') {
-      $scope.activeVisual.pipeline = new vde.Vis.Pipeline();
-      $rootScope.activePipeline = $scope.activeVisual.pipeline;
-      $scope.gMdl.activeVisualPipeline = $scope.activeVisual.pipeline.name;
+      var pipeline = new vde.Vis.Pipeline();
+      $scope.activeVisual.pipelineName = pipeline.name
+      $rootScope.activePipeline = pipeline;
+      $scope.gMdl.activeVisualPipeline = pipeline.name;
     }
     else {
-      $scope.activeVisual.pipeline = vde.Vis.pipelines[p];
+      $scope.activeVisual.pipelineName = p;
       $rootScope.activePipeline = vde.Vis.pipelines[p];
     }
 

@@ -5,7 +5,7 @@ vde.Vis.Transform = (function() {
     this.input = input;
     this.output = output;
 
-    this.pipeline     = null;
+    this.pipelineName = null;
     this.forkPipeline = false;  // Structural transforms cause a fork
     this.requiresFork = false;
 
@@ -19,6 +19,10 @@ vde.Vis.Transform = (function() {
   var prototype = transform.prototype;
 
   prototype.destroy = function() { return; }
+
+  prototype.pipeline = function() {
+    return vde.Vis.pipelines[this.pipelineName];
+  };
 
   prototype.spec = function() {
     var spec = {type: this.type};
