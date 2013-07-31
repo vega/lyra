@@ -1,6 +1,7 @@
 <div id="overlay" ng-show="vMdl.spec" ng-click="vMdl.spec = null;">
-	<textarea>{{vMdl.spec}}</textarea>
 </div>
+
+<textarea ng-show="vMdl.spec" id="export">{{vMdl.spec}}</textarea>
 
 <a id="export-link" class="toolbar" ng-click="export()">Export</a>
 

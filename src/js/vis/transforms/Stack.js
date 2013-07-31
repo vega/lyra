@@ -37,8 +37,8 @@ vde.Vis.transforms.Stack = (function() {
   prototype.visPostSpec = function(opts) {
     var self = this;
     opts.spec.data.push({
-      name: self.pipeline.name + '_stack',
-      source: self.pipeline.source,
+      name: self.pipeline().name + '_stack',
+      source: self.pipeline().source,
       transform: [
         {type: 'facet', keys: [self.properties.point.spec()]},
         {type: 'stats', value: self.properties.height.spec()}
