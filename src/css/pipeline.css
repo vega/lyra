@@ -131,3 +131,5 @@
 }
 
 .pipeline .property .field { width: 150px !important;}
+
+.pipeline .addScale { margin-top: -1px;}

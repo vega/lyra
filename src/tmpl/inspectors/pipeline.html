@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <h6>Scales</h6>
+    <h6>Scales <a ng-click="addScale()" class="addScale add">New Axis</a></h6>
     <div id="scales" class="shelf">
         <vde-binding ng-repeat="(scaleName, scale) in activePipeline.scales" scale="scale" draggable="1"></vde-binding>
 

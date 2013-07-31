@@ -46,7 +46,11 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
       $rootScope.activePipeline.transforms.splice(i, 1);
       vde.Vis.parse();
     }
-  };  
+  }; 
+
+  $scope.addScale = function() {
+    return new vde.Vis.Scale('', $rootScope.activePipeline, {type: 'ordinal'}, 'new_scale');
+  };
 });
 
 vde.App.directive('vdeDataGrid', function () {

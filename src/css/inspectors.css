@@ -19,8 +19,7 @@
   border-radius: 5px;
 }
 
-#groups h4 a.add, #groups h5 a.remove,
-#pipelines h3 a.add, #pipelines h3 a.remove {
+a.add, a.remove {
   display: inline-block;
   float: right;
   width: 14px;
@@ -30,13 +29,13 @@
   text-indent: -999em;
 }
 
-#groups h4 a.add { 
+a.add { 
   background-image: url(../imgs/add-black.png); 
   margin-top: -3px;
 }
 
-#groups h4 a.add:hover { background-image: url(../imgs/add-white.png); }
-#groups h5 a.remove, #pipelines h3 a.remove { 
+a.add:hover { background-image: url(../imgs/add-white.png); }
+a.remove { 
   background-image: url(../imgs/delete-black.png); 
   visibility: hidden;
 }
@@ -46,7 +45,6 @@
 #groups h5:hover a.remove:hover,
 #pipelines h3:hover a.remove:hover  
 { background-image: url(../imgs/delete-white.png); }
-
 
 .property {
   margin-bottom: 10px;
@@ -155,14 +153,6 @@ fieldset#padding .property {
 }
 
 .inspector h6 { 
-  float: left;
-  margin-bottom: -1px;
-  padding: 0 5px;
-  background: #bbb;
-  border: 1px solid #888;
-  border-bottom: 1px solid #bbb;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
   color: #333;
   font-weight: bold;   
 }
@@ -170,9 +160,7 @@ fieldset#padding .property {
 .shelf {
   background: #bbb;
   border: 1px solid #888;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  border-top-right-radius: 5px;
+  border-radius: 5px;
   padding: 5px;
   margin-bottom: 10px;
   clear: both;
