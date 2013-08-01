@@ -1,0 +1,33 @@
+<div id="new-data" ng-show="newData">
+	<div class="bubble top">
+		<a class="close" vde-clear-bubbles>Close</a>
+
+		<h5>New Data Source</h5>
+
+		<vde-property label="Name" type="text" item="dMdl.src" property="name" ng-model="dMdl.src.name" nodrop="1" nochange="1"></vde-property>
+
+		<vde-property label="Url" type="text" item="dMdl.src" property="url" ng-model="dMdl.src.url" nodrop="1" nochange="1"></vde-property>
+
+		<vde-property label="Format" type="select" options="dMdl.formats" item="dMdl.src" property="format.type" ng-model="dMdl.src.format.type" nodrop="1" nochange="1"></vde-property>
+
+		<input type="button" ng-show="!dMdl.src.values" ng-click="cancel()" value="Cancel" />
+
+		<input type="button" ng-show="!dMdl.src.values" ng-click="loadValues()" ng-disabled="dMdl.isLoading" value="Load" />
+
+		<!-- <vde-property ng-show="dMdl.isObj" label="Property" type="select" options="dMdl.properties" item="dMdl.src" property="property" ng-model="dMdl.src.property" nodrop="1" nochange="1"></vde-property> -->
+
+		<!-- <p ng-show="dMdl.isObj">This data source contains a JSON object. You may retrieve a sub-property here using JSON syntax: e.g. <code>values.features</code></p> -->
+
+		<fieldset ng-show="dMdl.src.values">
+			<legend>Parsings</legend>
+
+			<div ng-repeat="(field, parse) in dMdl.src.format.parse track by $index">
+				<vde-property label="{{field}}" type="select" options="dMdl.parsings" item="dMdl.src.format.parse[field]" property="dMdl.src.format.parse[field]" ng-model="dMdl.src.format.parse[field]" nodrop="1" nochange="1"></vde-property>
+			</div>
+		</fieldset>
+
+		<input type="button" ng-show="dMdl.src.values" ng-click="cancel()" value="Cancel" />
+
+		<input type="button" ng-show="dMdl.src.values" ng-click="add()" value="Add Data Source" />
+	</div>
+</div>

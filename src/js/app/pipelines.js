@@ -1,7 +1,7 @@
 vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
   $scope.pMdl = { // General catch-all model for scoping
     pipelines: vde.Vis.pipelines,
-    dataSources: vg.keys(vde.Vis._data)
+    dataSources: vde.Vis._data
   }; 
 
   $scope.togglePipeline = function(p) {
@@ -13,11 +13,12 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
     delete vde.Vis.pipelines[p];
   };
 
-  $scope.setSource = function() {
+  $scope.setSource = function(evt) {
     var src = $scope.pMdl.activePipelineSource;
     if(src == '') $rootScope.activePipeline.source = null;
     else if(src == 'vdeNewData') {
-      // TODO: Show Modal Dialog
+      $rootScope.newData = true;
+      $('#new-data').css('top', (evt.pageY+15) + 'px')
     }
     else $rootScope.activePipeline.source = src;
   };

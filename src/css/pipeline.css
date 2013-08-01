@@ -19,14 +19,6 @@
   margin-bottom: 10px;
 }
 
-#add-data-dialog {
-  position: absolute;
-  top: 40px;
-  left: 265px;
-}
-
-#add-data-dialog .bubble { width: 255px; }
-
 .bubble h4 { margin: 0 0 5px 10px }
 
 .bubble input[type=submit] { margin-left: 10px; }
@@ -165,3 +157,11 @@
 .pipeline .property .field { width: 150px !important;}
 
 .pipeline .addScale { margin-top: -1px;}
+
+#new-data {
+  position: absolute;
+  width: 250px;
+  max-height: 400px;
+  left: 140px;
+  overflow-y: auto;
+}

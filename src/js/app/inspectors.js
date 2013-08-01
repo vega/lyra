@@ -13,12 +13,14 @@ vde.App.directive('vdeProperty', function($rootScope) {
       scale: '=',
       field: '=',
       options: '=',
-      nodrop: '@'
+      nodrop: '@',
+      nochange: '@'
     },
     transclude: true,
     templateUrl: 'tmpl/inspectors/property.html',
     controller: function($scope, $element, $attrs, $timeout) { 
       $scope.onchange = function() {
+        if($attrs.nochange) return;
         if('checkExtents' in $scope.item)
           $scope.item.checkExtents($scope.property);
 

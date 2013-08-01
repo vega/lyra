@@ -32,7 +32,8 @@
     <script src="js/app/marks.js"></script>
     <script src="js/app/groups.js"></script>
     <script src="js/app/inspectors.js"></script>
-    <script src="js/app/pipeline.js"></script>
+    <script src="js/app/pipelines.js"></script>
+    <script src="js/app/data.js"></script>
 
     <script src="js/vis/Vis.js"></script>
     <script src="js/vis/Callback.js"></script>
@@ -56,7 +57,7 @@
     <script src="js/vis/transforms/Facet.js"></script>
     <script src="js/vis/transforms/Stack.js"></script>
   </head>
-  <body ng-controller="VdeCtrl" ng-click="clearBubbles();">
+  <body ng-click="clearBubbles();">
     
     <ng-include src="'tmpl/marks.html'"></ng-include>
 
@@ -70,7 +71,9 @@
 
     <ng-include src="'tmpl/popovers/vis.html'"></ng-include>
 
-    <ng-include src="'tmpl/export.html'"></ng-include>
+    <ng-include src="'tmpl/export.html'" ng-controller="ExportCtrl"></ng-include>
+
+    <ng-include src="'tmpl/popovers/data.html'" ng-controller="DataCtrl"></ng-include>
 
   </body>
 </html>

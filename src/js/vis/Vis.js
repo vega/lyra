@@ -25,12 +25,12 @@ vde.Vis = (function() {
       vis._data[name] = {
         name: name,
         url: data,
-        type: type
+        format: {type: type}
       };
 
-      d3[type](data, function(error, response) {
-        vis._data[name].values = response;
-      });   
+      var dataModel = vg.parse.data([vis._data[name]], function() {
+        vis._data[name].values = dataModel.load[name];
+      });
     }     
   };
 

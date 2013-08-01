@@ -5,9 +5,9 @@
       </li>
 
       <li class="import-data icon">Import data from
-        <select ng-model="pMdl.activePipelineSource" ng-change="setSource()">
+        <select ng-model="pMdl.activePipelineSource" ng-change="setSource(this)">
           <option value="">Select...</option>
-          <option ng-repeat="src in pMdl.dataSources" value="{{src}}" ng-selected="pMdl.activePipelineSource==src||activePipeline.source==src">{{src}}</option>
+          <option ng-repeat="(srcName, src) in pMdl.dataSources" value="{{srcName}}" ng-selected="pMdl.activePipelineSource==srcName||activePipeline.source==srcName">{{srcName}}</option>
           <option value="vdeNewData">New Data Source</option>
         </select>
       </li>
