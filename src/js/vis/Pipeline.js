@@ -68,7 +68,7 @@ vde.Vis.Pipeline = (function() {
     var values = vg.duplicate(vde.Vis._data[this.source].values).map(vg.data.ingest);
 
     var buildFields = function(pipeline) {
-      var parse = vde.Vis._data[self.source].format.parse;
+      var parse = vde.Vis._data[self.source].format.parse || {};
       [(values[0] || {}).data, values[0], (values.values || [])[0]].forEach(function(v, i) {
         vg.keys(v).forEach(function(k) {
           if(i != 0 && ['data', 'values', 'keys'].indexOf(k) != -1) return;

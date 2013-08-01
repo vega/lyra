@@ -8,7 +8,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
     $rootScope.activeVisual = v;
     $rootScope.activeGroup  = v.group() || v;
 
-    $rootScope.activePipeline = v.pipeline();
+    $rootScope.activePipeline = v.pipelineName ? v.pipeline() : $rootScope.activePipeline;
     $scope.gMdl.activeVisualPipeline = (v.pipeline() || {}).name;
   };  
 

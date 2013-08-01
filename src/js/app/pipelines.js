@@ -4,6 +4,10 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
     dataSources: vde.Vis._data
   }; 
 
+  $scope.addPipeline = function() {
+    $rootScope.activePipeline = new vde.Vis.Pipeline();
+  };
+
   $scope.togglePipeline = function(p) {
     $rootScope.activePipeline = p;
     $scope.pMdl.activePipelineSource = p.source;

@@ -1,9 +1,9 @@
 <div id="pipelines" class="inspectors chrome" ng-controller="PipelineCtrl">
-  <h2><span>Data Pipelines</span></h2>
+  <h2><span>Data Pipelines</span> <a class="add" ng-click="addPipeline()" vde-tooltip="New Pipeline">New Pipeline</a></h2>
 
   <ul>
     <li class="pipeline" ng-repeat="(pipelineName, pipeline) in pMdl.pipelines" ng-class="{selected:activePipeline==pipeline}">
-      <h3 ng-click="togglePipeline(pipeline)">{{pipeline.displayName|inflector:'humanize'}} <a ng-click="removePipeline(pipelineName);" class="remove">Delete</a></h3>
+      <h3 ng-click="togglePipeline(pipeline)">{{pipeline.displayName|inflector:'humanize'}} <a ng-click="removePipeline(pipelineName);" class="remove" vde-tooltip="Delete Pipeline">Delete Pipeline</a></h3>
 
       <ng-include src="'tmpl/inspectors/pipeline.html'" ng-if="activePipeline == pipeline"></ng-include>
     </li>

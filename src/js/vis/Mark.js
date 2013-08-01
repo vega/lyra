@@ -111,6 +111,8 @@ vde.Vis.Mark = (function() {
       scale = this.pipeline().scales[opts.scaleName];
       this.group().scales[opts.scaleName] = scale;
       this.properties[prop].scale = scale;
+    } else {
+      scale = this.properties[prop].scale;
     }
 
     if(opts.field) {

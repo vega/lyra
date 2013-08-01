@@ -1,7 +1,7 @@
 <div ng-controller="MarksCtrl">
   <div id="marks" class="chrome" ng-init="marks=['Rect', 'Symbol', 'Arc', 'Area', 'Line', 'Text']">
     <ul>
-      <li ng-repeat="mark in marks" id="{{mark}}" class="mark" draggable="true" vde-draggable>{{mark}}</li>
+      <li ng-repeat="mark in marks" id="{{mark}}" class="mark" draggable="true" vde-draggable vde-tooltip="{{mark}}">{{mark}}</li>
     </ul>
   </div>
 

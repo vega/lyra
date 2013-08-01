@@ -37,7 +37,7 @@ a.add {
 
 h2 a.add { 
   background-image: url(../imgs/add-allwhite.png); 
-  margin: 0 15px;
+  margin: 0;
 }
 
 a.remove { 
@@ -47,7 +47,10 @@ a.remove {
 #groups h3:hover a.remove, #groups h5:hover a.remove, #pipelines h3:hover a.remove
 { visibility: visible; }
 
-a.edit-vis { background-image: url(../imgs/pencil-white.png); }
+a.edit-vis { 
+  background-image: url(../imgs/pencil-white.png); 
+  margin-left: 15px;
+}
 a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
 
 .property {
