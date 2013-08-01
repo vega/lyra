@@ -163,5 +163,9 @@
   width: 250px;
   max-height: 400px;
   left: 140px;
-  overflow-y: auto;
+}
+
+#new-data fieldset.parsings {
+  max-height: 300px;
+  overflow: auto;
 }

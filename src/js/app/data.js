@@ -47,3 +47,12 @@ vde.App.controller('DataCtrl', function($scope, $rootScope) {
   };
 
 });
+
+vde.App.directive('vdePosNewData', function () {
+  return function(scope, element, attrs) {
+    element.on('change', function(evt) {
+      var offset = $(evt.target).offset();
+      $('#new-data').css('top', (offset.top+35) + 'px');
+    })
+  };
+});

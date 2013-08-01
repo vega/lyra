@@ -13,13 +13,10 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
     delete vde.Vis.pipelines[p];
   };
 
-  $scope.setSource = function(evt) {
+  $scope.setSource = function() {
     var src = $scope.pMdl.activePipelineSource;
     if(src == '') $rootScope.activePipeline.source = null;
-    else if(src == 'vdeNewData') {
-      $rootScope.newData = true;
-      $('#new-data').css('top', (evt.pageY+15) + 'px')
-    }
+    else if(src == 'vdeNewData') $rootScope.newData = true;
     else $rootScope.activePipeline.source = src;
   };
 

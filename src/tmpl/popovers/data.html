@@ -1,6 +1,6 @@
 <div id="new-data" ng-show="newData">
 	<div class="bubble top">
-		<a class="close" vde-clear-bubbles>Close</a>
+		<a class="close" vde-clear-bubbles ng-click="cancel()">Close</a>
 
 		<h5>New Data Source</h5>
 
@@ -18,7 +18,7 @@
 
 		<!-- <p ng-show="dMdl.isObj">This data source contains a JSON object. You may retrieve a sub-property here using JSON syntax: e.g. <code>values.features</code></p> -->
 
-		<fieldset ng-show="dMdl.src.values">
+		<fieldset class="parsings" ng-show="dMdl.src.values">
 			<legend>Parsings</legend>
 
 			<div ng-repeat="(field, parse) in dMdl.src.format.parse track by $index">
