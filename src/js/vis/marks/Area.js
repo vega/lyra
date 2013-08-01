@@ -25,15 +25,17 @@ vde.Vis.marks.Area = (function() {
   var prototype  = area.prototype;
 
   prototype.productionRules = function(prop, scale, field) {
-    switch(prop) {
-      case 'y2':
-        scale = this.group().scale(this, {
-          field: field
-        }, {
-          type: field.type || 'linear',
-          range: new vde.Vis.Field('height')
-        }, 'y');
-      break;
+    if(!scale) {
+      switch(prop) {
+        case 'y2':
+          scale = this.group().scale(this, {
+            field: field
+          }, {
+            type: field.type || 'linear',
+            range: new vde.Vis.Field('height')
+          }, 'y');
+        break;
+      }      
     }
 
     return [scale, field];

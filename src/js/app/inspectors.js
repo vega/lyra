@@ -53,6 +53,8 @@ vde.App.directive('vdeProperty', function($rootScope) {
           return alert('Pipelines don\'t match');
 
         scope.$apply(function() {
+          if(!scope.item.pipelineName && !(scope.item instanceof vde.Vis.Transform)) scope.item.pipelineName = pipelineName;
+
           scope.item.bindProperty(attrs.property, 
             {field: field, scaleName: scale, pipelineName: pipelineName});
         });

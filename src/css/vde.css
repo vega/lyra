@@ -188,7 +188,7 @@ textarea#export {
     padding: 7px;
     position: relative;
     vertical-align: top;
-    box-shadow: 2px 5px 15px 0px rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 5px 15px 0px rgba(0, 0, 0, 0.5);
     border-radius: 5px;
     width: 100%;
 }

@@ -29,7 +29,7 @@
               <vde-property label="Pipeline" nodrop="1">
                 <select ng-model="gMdl.activeVisualPipeline" ng-change="setPipeline()">
                   <option value="">Select...</option>
-                  <option ng-repeat="(pipelineName, pipeline) in gMdl.pipelines" value="{{pipelineName}}" ng-selected="gMdl.activeVisualPipeline==pipelineName">{{pipeline.displayName|inflector:'humanize'}}</option>
+                  <option ng-repeat="(pipelineName, pipeline) in gMdl.pipelines" value="{{pipelineName}}" ng-selected="gMdl.activeVisualPipeline==pipelineName||activeVisual.pipelineName==pipelineName">{{pipeline.displayName|inflector:'humanize'}}</option>
                   <option value="vdeNewPipeline">New Pipeline</option>
                 </select>
 

@@ -29,28 +29,30 @@ vde.Vis.marks.Rect = (function() {
   var prototype  = rect.prototype;
 
   prototype.productionRules = function(prop, scale, field) {
-    switch(prop) {
-      case 'x':
-      case 'x2':
-      case 'width':
-        scale = this.group().scale(this, {
-          field: field
-        }, {
-          type: field.type || 'ordinal',
-          range: new vde.Vis.Field('width')
-        }, 'x');
-      break;
+    if(!scale) {
+      switch(prop) {
+        case 'x':
+        case 'x2':
+        case 'width':
+          scale = this.group().scale(this, {
+            field: field
+          }, {
+            type: field.type || 'ordinal',
+            range: new vde.Vis.Field('width')
+          }, 'x');
+        break;
 
-      case 'y':
-      case 'y2':
-      case 'height':
-        scale = this.group().scale(this, {
-          field: field
-        }, {
-          type: field.type || 'linear',
-          range: new vde.Vis.Field('height')
-        }, 'y');
-      break;
+        case 'y':
+        case 'y2':
+        case 'height':
+          scale = this.group().scale(this, {
+            field: field
+          }, {
+            type: field.type || 'linear',
+            range: new vde.Vis.Field('height')
+          }, 'y');
+        break;
+      }
     }
 
     if(scale.properties.type == 'ordinal')
