@@ -1,4 +1,4 @@
-vde.App.directive('vdeProperty', function($rootScope) {
+vde.App.directive('vdeProperty', function($rootScope, logger) {
   return {
     restrict: 'E',
     scope: {
@@ -31,12 +31,28 @@ vde.App.directive('vdeProperty', function($rootScope) {
           // }
           // else
             vde.Vis.parse();
-        }, 100);        
+        }, 100);   
+
+        logger.log('onchange', {
+          item: $scope.item.name,
+          group: $scope.item.groupName,
+          pipeline: $scope.item.pipelineName,
+          property: $attrs.property,
+          ngModel: $attrs.ngModel
+        });
       };
 
       $scope.unbind = function(property) {
         $scope.item.unbindProperty(property);
         vde.Vis.parse();
+
+        logger.log('unbind', {
+          item: $scope.item.name,
+          group: $scope.item.groupName,
+          pipeline: $scope.item.pipelineName,
+          property: $attrs.property,
+          ngModel: $attrs.ngModel
+        }, true, true);
       }
     },
     link: function(scope, element, attrs) {
@@ -62,6 +78,17 @@ vde.App.directive('vdeProperty', function($rootScope) {
         $('.proxy').remove();
 
         vde.Vis.parse();
+
+        logger.log('bind', {
+          item: scope.item.name,
+          group: scope.item.groupName,
+          activePipeline: pipelineName,
+          itemPipeline: scope.item.pipelineName,
+          property: attrs.property,
+          ngModel: attrs.ngModel,
+          field: field,
+          scaleName: scale
+        }, true, true);
       }).drop('dropstart', function() {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         $(this).css('backgroundColor', '#bbb');
@@ -73,7 +100,7 @@ vde.App.directive('vdeProperty', function($rootScope) {
   }
 });
 
-vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout) {
+vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger) {
   return {
     restrict: 'E',
     scope: {
@@ -108,6 +135,8 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout) {
          
           inspector.toggle();        
         }, 100);
+
+        logger.log('edit_scale', { activeScale: $rootScope.activeScale });
       };
     },
     link: function(scope, element, attrs) {
@@ -123,7 +152,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout) {
   }
 });
 
-vde.App.directive('vdeExpr', function($rootScope) {
+vde.App.directive('vdeExpr', function($rootScope, logger) {
   return {
     restrict: 'A',
     template: '<div class="expr" contenteditable="true"></div>',

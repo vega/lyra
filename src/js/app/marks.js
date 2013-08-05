@@ -1,17 +1,17 @@
-vde.App.controller('MarksCtrl', function($scope, $rootScope) { 
+vde.App.controller('MarksCtrl', function($scope, $rootScope, logger) { 
   // Cardinal sin
   $(document).ready(function() {
     vde.Vis.parse(); 
 
       if(vg.keys(vde.Vis._rawData).length == 0) {
-        vde.Vis.data('olympics', 'http://localhost:8000/data/olympics.json', 'json');
-        vde.Vis.data('groups', 'http://localhost:8000/data/groups.json', 'json');
-        vde.Vis.data('barley', 'http://localhost:8000/data/barley.json', 'json');
+        vde.Vis.data('olympics', 'data/olympics.json', 'json');
+        vde.Vis.data('groups', 'data/groups.json', 'json');
+        vde.Vis.data('barley', 'data/barley.json', 'json');
       }
   })
 });
 
-vde.App.directive('vdeMarkDroppable', function($rootScope, $location) {
+vde.App.directive('vdeMarkDroppable', function($rootScope, $location, logger) {
   return function(scope, element, attrs) {
     element.drop(function(e, dd) {
       var markType = $(dd.drag).attr('id');
@@ -26,7 +26,14 @@ vde.App.directive('vdeMarkDroppable', function($rootScope, $location) {
         // Then route to this mark to load its inspector
         $rootScope.activeVisual = mark;
         $rootScope.activeGroup  = mark.group() || mark;
+
+        logger.log('new_mark', {
+          markType: markType,
+          markName: mark.name,
+          activeGroup: ($rootScope.activeGroup || {}).name,
+          markGroup: mark.groupName
+        }, true);        
       });
-    })
+    });
   }
 })

@@ -99,6 +99,7 @@ vde.Vis.transforms.Facet = (function() {
         field: this.properties.keys,
         range: new vde.Vis.Field(isHoriz ? 'width' : 'height')
       }, {}, 'facets');
+      posScale.properties.points = false;
 
       opts.spec.scales || (opts.spec.scales = []);
       opts.spec.scales.forEach(function(scale) {
@@ -110,7 +111,7 @@ vde.Vis.transforms.Facet = (function() {
 
       opts.spec.scales.push(posScale.spec());
 
-      var pos = {scale: posScale.name, field: 'key'};
+      var pos =  {scale: posScale.name, field: 'key'};
       var size = {scale: posScale.name, band: true};
 
       this._group.properties.enter = isHoriz ? 

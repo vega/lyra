@@ -1,4 +1,4 @@
-vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
+vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location, logger) {
   $scope.gMdl = { // General catch-all model for scoping
     groups: vde.Vis.groups,
     pipelines: vde.Vis.pipelines
@@ -10,6 +10,13 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
 
     $rootScope.activePipeline = v.pipelineName ? v.pipeline() : $rootScope.activePipeline;
     $scope.gMdl.activeVisualPipeline = (v.pipeline() || {}).name;
+
+    logger.log('toggle_visual', {
+      activeVisual: v.name,
+      activeGroup: v.groupName || v,
+      visualPipeline: v.pipelineName,
+      activePipeline: $rootScope.activePipeline.name
+    });
   };  
 
   $scope.setPipeline = function() {
@@ -27,17 +34,38 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
     }
 
     vde.Vis.parse();
+
+    logger.log('set_pipeline', {
+      activeVisual: $rootScope.activeVisual.name,
+      activeGroup: $rootScope.activeGroup.name,
+      activeVisualPipeline: p,
+      activePipeline: $rootScope.activePipeline.name
+    }, true, true);
   };
 
   $scope.addGroup = function() {
     var g = new vde.Vis.marks.Group();
     $rootScope.activeGroup = g;
     $rootScope.activeVisual = g;
+
+    logger.log('new_group', {
+      activeVisual: g.name,
+      activeGroup: g.groupName || g,
+      visualPipeline: g.pipelineName,
+      activePipeline: $rootScope.activePipeline.name
+    }, true);
   };
 
   $scope.addAxis = function() {
     var axis = new vde.Vis.Axis('', $rootScope.activeGroup.name);
     $rootScope.activeVisual = axis;
+
+    logger.log('new_axis', {
+      activeVisual: axis.name,
+      activeGroup: axis.groupName || axis,
+      visualPipeline: axis.pipelineName,
+      activePipeline: $rootScope.activePipeline.name
+    }, true);
   };
 
   $scope.removeVisual = function(type, name) {
@@ -47,6 +75,13 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
     if(type == 'group') delete vde.Vis.groups[name];
     else delete $rootScope.activeGroup[type][name];
     vde.Vis.parse();
+
+    logger.log('remove_visual', {
+      type: type,
+      name: name,
+      activeGroup: $rootScope.activeGroup.name,
+      activePipeline: $rootScope.activePipeline.name
+    }, true);
   };
 
   $scope.toggleFont = function(prop, value) {
@@ -62,5 +97,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location) {
   $scope.editVisualization = function() {
     $rootScope.editVis = !$rootScope.editVis;
     $rootScope.vis = vde.Vis.properties;
+
+    logger.log('edit_vis', {});
   };
 });

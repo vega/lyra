@@ -1,4 +1,4 @@
-vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
+vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams, logger) {
   $scope.pMdl = { // General catch-all model for scoping
     pipelines: vde.Vis.pipelines,
     dataSources: vde.Vis._data
@@ -6,15 +6,25 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
 
   $scope.addPipeline = function() {
     $rootScope.activePipeline = new vde.Vis.Pipeline();
+
+    logger.log('new_pipeline', {
+      activePipeline: $rootScope.activePipeline.name
+    }, false, true);
   };
 
   $scope.togglePipeline = function(p) {
     $rootScope.activePipeline = p;
     $scope.pMdl.activePipelineSource = p.source;
+
+    logger.log('toggle_pipeline', {
+      activePipeline: $rootScope.activePipeline.name
+    });
   };
 
   $scope.removePipeline = function(p) {
     delete vde.Vis.pipelines[p];
+
+    logger.log('remove_pipeline', { pipelineName: p }, false, true);
   };
 
   $scope.setSource = function() {
@@ -22,18 +32,24 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
     if(src == '') $rootScope.activePipeline.source = null;
     else if(src == 'vdeNewData') $rootScope.newData = true;
     else $rootScope.activePipeline.source = src;
+
+    logger.log('set_source', { src: src }, false, true);
   };
 
   $scope.newTransforms = [];
   $scope.newTransform = function(type) {
     $scope.newTransforms.push(new vde.Vis.transforms[type]);
+
+    logger.log('new_transform', { type: type });
   };
 
   $scope.addTransform = function(i) {
     $scope.newTransforms[i].pipelineName = $rootScope.activePipeline.name;
     $rootScope.activePipeline.addTransform($scope.newTransforms[i]);
-    $scope.newTransforms.splice(i, 1);
 
+    logger.log('add_transform', { transform: $scope.newTransforms[i] }, false, true);
+
+    $scope.newTransforms.splice(i, 1);
     vde.Vis.parse();
   };
 
@@ -48,10 +64,16 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams) {
       $rootScope.activePipeline.transforms.splice(i, 1);
       vde.Vis.parse();
     }
+
+    logger.log('remove_transform', { idx: i, isNewTransform: isNewTransform }, false, true);
   }; 
 
   $scope.addScale = function() {
-    return new vde.Vis.Scale('', $rootScope.activePipeline, {type: 'ordinal'}, 'new_scale');
+    var s = new vde.Vis.Scale('', $rootScope.activePipeline, {type: 'ordinal'}, 'new_scale');
+    
+    logger.log('add_scale', { scale: s.name }, false, true);
+
+    return s;
   };
 });
 
