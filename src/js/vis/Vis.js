@@ -25,7 +25,7 @@ vde.Vis = (function() {
       vis._data[name] = {
         name: name,
         url: data,
-        format: {type: type}
+        format: vg.isString(type) ? {type: type} : type
       };
 
       var dataModel = vg.parse.data([vis._data[name]], function() {

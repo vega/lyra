@@ -7,6 +7,9 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope, logger) {
         vde.Vis.data('olympics', 'data/olympics.json', 'json');
         vde.Vis.data('groups', 'data/groups.json', 'json');
         vde.Vis.data('barley', 'data/barley.json', 'json');
+        vde.Vis.data('iris', 'data/iris.json', 'json');
+        vde.Vis.data('jobs', 'data/jobs.json', 'json');
+        vde.Vis.data('stocks', 'data/stocks.json', {"type": "csv", "parse": {"price":"number", "date":"date"}});
       }
   })
 });
