@@ -1,5 +1,5 @@
 <?php
-  $filename = $_POST['name'];
+  $filename = str_replace(':', '-', $_POST['name']);
   $events   = stripslashes($_POST['events']);
 
   $file = fopen('logs/' . $filename . '.log.json', "w" );
