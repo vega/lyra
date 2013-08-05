@@ -23,4 +23,23 @@ vde.App.factory('logger', ['$http', function(http) {
     }
     
   };
-}])
+}]);
+
+vde.App.controller('BugCtrl', function($scope, $rootScope, logger) { 
+  $scope.bMdl = { bugReport: false };
+
+  $scope.reportBug = function() {
+    logger.log('bug_report', { 
+      name: $scope.bMdl.name,
+      email: $scope.bMdl.email,
+      report: $scope.bMdl.report
+    }, true, true);
+
+    logger.save();
+    $scope.bMdl.bugReport = false;
+    $scope.bMdl.report = '';
+
+    $window.alert('Thanks for the bug report!');
+  };
+
+});

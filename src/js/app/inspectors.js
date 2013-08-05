@@ -38,7 +38,8 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           group: $scope.item.groupName,
           pipeline: $scope.item.pipelineName,
           property: $attrs.property,
-          ngModel: $attrs.ngModel
+          ngModel: $attrs.ngModel,
+          value: $scope.ngModel
         });
       };
 

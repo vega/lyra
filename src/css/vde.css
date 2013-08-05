@@ -138,7 +138,7 @@ a {
   background-image: url(../imgs/pencil-white.png);
 }
 
-#overlay {
+.overlay {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -148,7 +148,7 @@ a {
   z-index: 10;
 }
 
-textarea#export {
+textarea.export {
   position: absolute;
   top: 30%;
   left: 30%;
@@ -173,6 +173,38 @@ textarea#export {
 
 #export-link:hover { 
   background-color: #555;
+}
+
+#bug-link {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  padding: 3px;
+  background: #333 url(../imgs/bug.png) no-repeat 50%;
+  text-indent: -999em;
+}
+
+#bug-link:hover { background-color: #555; }
+
+#bug-report {
+  position: absolute;
+  top: 30%;
+  left: 40%;
+  width: 375px;
+  z-index: 100;
+  color: #ddd;
+}
+
+#bug-report p { 
+  margin-bottom: 10px; 
+}
+
+#bug-report input[type=text] { width: 300px !important;}
+#bug-report textarea {
+  width: 300px !important;
+  height: 100px !important;
 }
 
 #vis-edit {
