@@ -48,8 +48,8 @@ vde.Vis = (function() {
 
     vg.keys(vis._data).forEach(function(d) {
       var dd = vg.duplicate(vis._data[d]);
-      if(dd.url)
-        delete dd.values;
+      if(dd.url)        // Inline values to deal with x-site restrictions
+        delete dd.url;
 
       spec.data.push(dd);
     });

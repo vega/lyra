@@ -6,9 +6,10 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, logger) {
   };
 
   $scope.loadValues = function() {
-    var src = $scope.dMdl.src;
+    var src = $scope.dMdl.src, req = vg.duplicate(src);
+    req.url = 'proxy.php?url=' + req.url;
     $scope.dMdl.isLoading = true;
-    var dataModel = vg.parse.data([src], function() {
+    var dataModel = vg.parse.data([req], function() {
       $scope.$apply(function() {
         src.values = dataModel.load[src.name];
         src.format.parse = {};
