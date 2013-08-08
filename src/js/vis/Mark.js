@@ -240,6 +240,10 @@ vde.Vis.Mark = (function() {
     def.properties.update = vg.parse.properties(spec.properties.update);
   };
 
+  prototype.ngScope = function() {
+    return angular.element($('body')).scope();
+  };
+
   return mark;
 })();
 

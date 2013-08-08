@@ -46,6 +46,8 @@ vde.Vis = (function() {
       marks: []
     };
 
+    var ispec = vg.duplicate(spec);
+
     vde.Vis.Callback.run('vis.pre_spec', this, {spec: spec});
 
     for(var d in vis._data) {
@@ -66,9 +68,29 @@ vde.Vis = (function() {
     vg.parse.spec(spec, function(chart) {
       d3.select('#vis').selectAll('*').remove();
       (vde.Vis.view = chart({ el: '#vis' })).update();
-      
+
       for(var g in vis.groups) vis.groups[g].annotateDef();
     });
+
+    vg.parse.spec(ispec, function(chart) {
+      d3.select('#ivis').selectAll('*').remove();
+      (vde.Vis.iview = chart({ el: '#ivis' })).update();
+
+      // We have event handlers registered on both #vis and #ivis
+      // so transmit interactions on ivis (on top) to #vis (bottom).
+      var dispatchEvent = function() {
+        var e = d3.event;
+        var evt = document.createEvent("MouseEvents");
+        evt.initMouseEvent(e.type, true, true, window,
+          0, e.screenX, e.screenY, e.clientX, e.clientY, 
+          false, false, false, false, 0, null);
+        d3.select('#vis canvas').node().dispatchEvent(evt);
+      };
+
+      d3.select('#ivis canvas')
+        .on('mousemove', dispatchEvent) // To get "active" mark in vg's view
+        .on('click', dispatchEvent);      
+    });    
 
     return spec;
   };

@@ -57,10 +57,12 @@
   background-position: 50% 50%;
 }
 
-#vis {
+#vis, #ivis {
   position: absolute;
   left: 615px;
   top: 40px;
   background: #fff;
   border: 1px solid #999;
 }
+
+#ivis { background: transparent; }
