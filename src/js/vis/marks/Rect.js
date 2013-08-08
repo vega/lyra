@@ -70,7 +70,7 @@ vde.Vis.marks.Rect = (function() {
 
   prototype.onClick = function(evt, item) {
     var self = this;
-
+    if(item.mark.def.type != this.type || item.mark.def.name != this.name) return;
     if(item.items) return;  // We don't want to select the container item
 
     var positions = function() {
