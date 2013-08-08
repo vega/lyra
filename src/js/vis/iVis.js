@@ -20,11 +20,11 @@ vde.iVis = (function() {
     spec.data.push({ name: interactor + '_data', values: data });
     spec.marks.push(ivis[interactor]());
 
-    console.log(interactor, JSON.stringify(spec, null, 2));
-
     vg.parse.spec(spec, function(chart) {
       d3.select('#ivis').selectAll('*').remove();
       (vde.iVis.view = chart({ el: '#ivis', renderer: 'svg' })).update();
+
+      var canvas = d3.select('#vis canvas'), svg = d3.select('#ivis svg');
 
       // We have event handlers registered on both #vis and #ivis
       // so transmit interactions on ivis (on top) to #vis (bottom).
@@ -34,26 +34,33 @@ vde.iVis = (function() {
         evt.initMouseEvent(e.type, true, true, window,
           0, e.screenX, e.screenY, e.clientX, e.clientY, 
           false, false, false, false, 0, null);
-        d3.select('#vis canvas').node().dispatchEvent(evt);
+        canvas.node().dispatchEvent(evt);
       };
 
       events.forEach(function(type) {
-        d3.select('#ivis svg').on(type, dispatchEvent);
+        svg.on(type, dispatchEvent);
 
-        if(type == 'mousemove') d3.select('#ivis svg').on('mousemove', evtHandlers[type] || new Function())
+        if(type == 'mousemove') svg.on('mousemove', evtHandlers[type] || new Function())
         else vde.iVis.view.on(type, evtHandlers[type] || new Function());
       });
 
       // For handles, automatically register a mousedown/up event to enable
       // dragging
       if(interactor == 'handle') {
-        vde.iVis.view
-          .on('mousedown', function(e, i) { 
-            vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]}; 
-          })
-          .on('mouseup', function() { vde.iVis.dragging = null; });
+        var mouseup = function() { vde.iVis.dragging = null; svg.style('cursor', 'auto'); };
 
-        d3.select('#ivis svg').on('mouseup', function() { vde.iVis.dragging = null; });
+        vde.iVis.view
+          .on('mouseover', function(e, i) {
+            if(i.datum.data.cursor) svg.style('cursor', i.datum.data.cursor);
+          })
+          .on('mouseout', function() { if(!vde.iVis.dragging) mouseup(); })
+          .on('mousedown', function(e, i) {
+            vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
+            if(i.datum.data.cursor) svg.style('cursor', i.datum.data.cursor); 
+          })
+          .on('mouseup', mouseup);
+
+        svg.on('mouseup', mouseup);
       }
            
     }); 
@@ -91,3 +98,8 @@ vde.iVis = (function() {
 
   return ivis;
 })();
+
+$(document).ready(function() {
+  // Prevent text selection cursor
+  document.onselectstart = function() { return false; }
+})

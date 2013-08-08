@@ -73,10 +73,10 @@ vde.Vis.marks.Rect = (function() {
 
     var positions = function() {
       var b = vde.iVis.translatedBounds(item, item.bounds),
-        top    = {x: b.x1 + (b.width()/2), y: b.y1, pos: 'top'},
-        bottom = {x: b.x1 + (b.width()/2), y: b.y2, pos: 'bottom'},
-        left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left'},
-        right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right'};
+        top    = {x: b.x1 + (b.width()/2), y: b.y1, pos: 'top',    cursor: 'n-resize'},
+        bottom = {x: b.x1 + (b.width()/2), y: b.y2, pos: 'bottom', cursor: 's-resize'},
+        left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',  cursor: 'w-resize'},
+        right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right', cursor: 'e-resize'};
 
       return [top, bottom, left, right];      
     };    
