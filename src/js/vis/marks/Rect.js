@@ -28,6 +28,13 @@ vde.Vis.marks.Rect = (function() {
   rect.prototype = new vde.Vis.Mark();
   var prototype  = rect.prototype;
 
+  prototype.init = function() {
+    var self = this;
+    vde.Vis.Mark.prototype.init.call(this);
+
+    vde.Vis.addEventListener('click', function(e, i) { return self.onClick(e, i); });
+  };
+
   prototype.productionRules = function(prop, scale, field) {
     if(!scale) {
       switch(prop) {
@@ -60,6 +67,74 @@ vde.Vis.marks.Rect = (function() {
 
     return [scale, field]
   };
+
+  prototype.onClick = function(evt, item) {
+    var self = this;
+
+    var positions = function() {
+      var b = vde.iVis.translatedBounds(item, item.bounds),
+        top    = {x: b.x1 + (b.width()/2), y: b.y1, pos: 'top'},
+        bottom = {x: b.x1 + (b.width()/2), y: b.y2, pos: 'bottom'},
+        left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left'},
+        right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right'};
+
+      return [top, bottom, left, right];      
+    };    
+
+    var mousemove = function() {
+      var dragging = vde.iVis.dragging, evt = d3.event;
+      if(!dragging) return;
+
+      var dx = Math.ceil(evt.pageX - dragging.prev[0]), 
+          dy = Math.ceil(evt.pageY - dragging.prev[1]),
+          pos = positions()[dragging.item.key], props = self.properties;
+
+      switch(pos.pos) {
+        case 'top':
+          var reverse = (props.y.scale && 
+            props.y.scale.field.range.name == 'height') ? -1 : 1;
+
+          self.ngScope().$apply(function() {
+            if(!props.y.disabled) props.y.value += dy*reverse;
+            if(!props.height.disabled) props.height.value += dy*-1;
+          });
+        break;
+
+        case 'bottom':
+          var reverse = (props.y2.scale && 
+            props.y2.scale.field.range.name == 'height') ? -1 : 1;
+
+          self.ngScope().$apply(function() {
+            if(!props.y2.disabled) props.y2.value += dy*reverse;
+            if(!props.height.disabled) props.height.value += dy;
+          });          
+        break;
+
+        case 'left':
+          self.ngScope().$apply(function() {
+            if(!props.x.disabled) props.x.value += dx;
+            if(!props.width.disabled) props.width.value += dx*-1;
+          });         
+        break;
+
+        case 'right':
+          self.ngScope().$apply(function() {
+            if(!props.x2.disabled) props.x2.value += dx;
+            if(!props.width.disabled) props.width.value += dx;
+          });  
+        break;
+      }
+
+      dragging.prev = [evt.pageX, evt.pageY];
+
+      self.update('x').update('x2').update('width')
+        .update('y').update('y2').update('height');
+
+      vde.iVis.view.data({ 'handle_data': positions() }).update();
+    };
+
+    vde.iVis.interactor('handle', positions(), {mousemove: mousemove});
+  };  
 
   return rect;
 })();

@@ -25,6 +25,7 @@ vde.Vis.Mark = (function() {
   var prototype = mark.prototype;
 
   prototype.init = function() {
+    var self = this;
     if(!this.groupName) {
       var g = new vde.Vis.marks.Group();
       this.groupName = g.name;
@@ -70,6 +71,8 @@ vde.Vis.Mark = (function() {
 
     def.properties.update = vg.parse.properties(this.type, update);
     vde.Vis.view.update();
+
+    return this;
   };
 
   prototype.spec = function() {
