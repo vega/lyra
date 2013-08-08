@@ -71,6 +71,8 @@ vde.Vis.marks.Rect = (function() {
   prototype.onClick = function(evt, item) {
     var self = this;
 
+    if(item.items) return;  // We don't want to select the container item
+
     var positions = function() {
       var b = vde.iVis.translatedBounds(item, item.bounds),
         top    = {x: b.x1 + (b.width()/2), y: b.y1, pos: 'top',    cursor: 'n-resize'},
