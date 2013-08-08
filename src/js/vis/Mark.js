@@ -17,6 +17,8 @@ vde.Vis.Mark = (function() {
 
     this.extents = {};
 
+    this._def = null;
+
     return this;
   };
 
@@ -78,6 +80,8 @@ vde.Vis.Mark = (function() {
     // spec.properties.update = props;
 
     vde.Vis.Callback.run('mark.post_spec', this, {spec: spec});
+
+    this._def = null;
 
     return spec;
   };
@@ -198,37 +202,34 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.def = function() {
-    var path = [], p = this,
-    defs = vde.Vis.view.model().defs(),
-    d = defs.marks;
+    var self  = this,
+        start = this.groupName ? this.group().def() : vde.Vis.view.model().defs().marks; 
 
-    while(p) {
-      path.push(p.name);
-      p = p.group;
-    }
-
-    var findMarkDef = function(def, name) {
-      if(def.name == name)
-        return def;
-
-      for(var i = 0; i < def.marks.length; i++) {
-        if(def.marks[i].name == name)
-          return def.marks[i];
-      }
+    var visit = function(node, name) {
+      if(!name) name = self.name;
+      for(var i = 0; i < node.marks.length; i++)
+        if(node.marks[i].name == name) return node.marks[i];
 
       return null;
-    } 
+    };
 
-    while(p = path.pop()) {
-      if(d.name == p)
-        continue;
+    if(this._def) return this._def;
 
-      d = findMarkDef(d, p);
-      if(!d)
-        return null;
+    var def = visit(start);
+    if(!def && this.groupName) {
+      // If we haven't found the def in the group, there must be
+      // some group injection going on. This means that the last
+      // mark in the group def should be another group def. 
+      var marks = this.group().def().marks;
+      start = marks[marks.length-1];
+      if(start.type == 'group' && start.name.indexOf(this.groupName) != -1)
+        def = visit(start);
     }
 
-    return d;
+    def.vdeMdl = this;
+    this._def = def;
+
+    return this._def;
   };
 
   prototype.updateProps = function() {

@@ -148,7 +148,7 @@ a {
   z-index: 10;
 }
 
-textarea.export {
+textarea#export {
   position: absolute;
   top: 30%;
   left: 30%;

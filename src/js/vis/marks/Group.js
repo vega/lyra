@@ -58,5 +58,9 @@ vde.Vis.marks.Group = (function() {
     return scale;
   };
 
+  prototype.annotateDef = function() {
+    for(var m in this.marks) this.marks[m].def();
+  };
+
   return group;
 })();

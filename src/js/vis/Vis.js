@@ -8,7 +8,9 @@ vde.Vis = (function() {
 
     _data:   {},
     pipelines: {},
-    groups: {}
+    groups: {},
+
+    view: null
   };
 
   vis.data = function(name, data, type) {
@@ -46,31 +48,26 @@ vde.Vis = (function() {
 
     vde.Vis.Callback.run('vis.pre_spec', this, {spec: spec});
 
-    vg.keys(vis._data).forEach(function(d) {
+    for(var d in vis._data) {
       var dd = vg.duplicate(vis._data[d]);
       if(dd.url)        // Inline values to deal with x-site restrictions
-        delete dd.url;
+        delete dd.values;
 
       spec.data.push(dd);
-    });
+    };
 
-    vg.keys(vis.pipelines).forEach(function(k) { 
-      var p = vis.pipelines[k];
+    // Scales are defined within groups. No global scales.
+    for(var p in vis.pipelines) spec.data = spec.data.concat(vis.pipelines[p].spec());
 
-      spec.data = spec.data.concat(p.spec());
-      // Scales are defined within groups. No global scales.
-      // vg.keys(p.scales).forEach(function(s) {
-      //   spec.scales.push(p.scales[s].spec());
-      // });
-    });
-    
-    vg.keys(vis.groups).forEach(function(k) { spec.marks.push(vis.groups[k].spec()); });
+    for(var g in vis.groups) spec.marks.push(vis.groups[g].spec());
 
     vde.Vis.Callback.run('vis.post_spec', this, {spec: spec});
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#vis').selectAll('*').remove();
-      (vis.view = chart({ el: '#vis' })).update();
+      (vde.Vis.view = chart({ el: '#vis' })).update();
+      
+      for(var g in vis.groups) vis.groups[g].annotateDef();
     });
 
     return spec;

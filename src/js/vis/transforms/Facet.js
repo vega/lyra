@@ -63,6 +63,7 @@ vde.Vis.transforms.Facet = (function() {
     this._seen.marks[opts.item.name] = 1;
 
     // Clear the spec because we'll inject it in later
+    delete opts.spec.name;
     delete opts.spec.properties;
   };
 
@@ -87,6 +88,7 @@ vde.Vis.transforms.Facet = (function() {
 
     var self = this, key = this.properties.keys.spec();
 
+    this._group.name = opts.item.name + '_facet';
     this._group.from = {data: this.pipeline().forkName};
 
     // Inject spec to position groups
