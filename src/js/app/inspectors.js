@@ -25,13 +25,9 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           $scope.item.checkExtents($scope.property);
 
         $timeout(function() {
-          // if($scope.item.updateProps) {
-          //   $scope.item.updateProps()
-          //   vde.Vis.view.update();
-          // }
-          // else
-            vde.Vis.parse();
-        }, 100);   
+          if($scope.item.update) $scope.item.update($attrs.property);
+          else vde.Vis.parse();
+        }, 1);   
 
         logger.log('onchange', {
           item: $scope.item.name,

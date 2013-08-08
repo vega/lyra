@@ -9,9 +9,9 @@ vde.Vis.Mark = (function() {
 
     this._spec = {
       properties: {
-        enter:  {},
-        update: {},
-        hover:  {}
+        enter:  {}
+        // update: {},
+        // hover:  {}
       }
     };
 
@@ -49,6 +49,29 @@ vde.Vis.Mark = (function() {
     return vde.Vis.groups[this.groupName];
   };
 
+  prototype.property = function(prop) {
+    var p = this.properties[prop], parsed = {};
+    if(p.disabled) return;
+
+    for(var k in p) {
+      if(p[k] == undefined) return;
+
+      if(k == 'scale') parsed[k] = p[k].name;
+      else if(k == 'field') parsed[k] = p[k].spec();
+      else parsed[k] = p[k];
+    };
+
+    return parsed;
+  };
+
+  prototype.update = function(prop) {
+    var def  = this.def(), update = {};
+    update[prop] = this.property(prop);
+
+    def.properties.update = vg.parse.properties(this.type, update);
+    vde.Vis.view.update();
+  };
+
   prototype.spec = function() {
     var spec = vg.duplicate(this._spec);
 
@@ -62,49 +85,15 @@ vde.Vis.Mark = (function() {
 
     var props = {};
 
-    for(var prop in this.properties) {
-      var p = this.properties[prop];
-      if(p.disabled) continue;
+    for(var prop in this.properties) props[prop] = this.property(prop);
 
-      props[prop] = {};
-      for(var k in p) {
-        if(p[k] == undefined) continue;
-
-        if(k == 'scale') props[prop][k] = p[k].name;
-        else if(k == 'field') props[prop][k] = p[k].spec();
-        else props[prop][k] = p[k];
-      };
-    }
-
-    spec.properties.enter  = props;
-    // spec.properties.update = props;
+    spec.properties.enter = props;
 
     vde.Vis.Callback.run('mark.post_spec', this, {spec: spec});
 
     this._def = null;
 
     return spec;
-  };
-
-  prototype.enter = function(k, v) {
-    return this.prop('enter', k, v);
-  };
-
-  prototype.update = function(k, v) {
-    if(!k && !v) return this.updateProps();
-
-    return this.prop('update', k, v);
-  };
-
-  prototype.hover = function(k, v) {
-    return this.prop('hover', k, v);
-  };
-
-  prototype.prop = function(type, k, v) {
-    if(!v) return this._spec.properties[type][k];
-
-    this._spec.properties[type][k] = v;
-    return this;
   };
 
   prototype.bindProperty = function(prop, opts) {
@@ -230,14 +219,6 @@ vde.Vis.Mark = (function() {
     this._def = def;
 
     return this._def;
-  };
-
-  prototype.updateProps = function() {
-    var def  = this.def(),
-        spec = this.spec();
-
-    def.properties.enter  = vg.parse.properties(spec.properties.enter);
-    def.properties.update = vg.parse.properties(spec.properties.update);
   };
 
   prototype.ngScope = function() {

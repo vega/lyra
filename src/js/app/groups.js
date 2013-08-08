@@ -15,7 +15,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location, logger)
       activeVisual: v.name,
       activeGroup: v.groupName || v,
       visualPipeline: v.pipelineName,
-      activePipeline: $rootScope.activePipeline.name
+      activePipeline: ($rootScope.activePipeline||{}).name
     });
   };  
 
