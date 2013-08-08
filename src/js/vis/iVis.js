@@ -24,7 +24,7 @@ vde.iVis = (function() {
       d3.select('#ivis').selectAll('*').remove();
       (vde.iVis.view = chart({ el: '#ivis' })).update();
 
-      var vis = d3.select('#vis canvas'), ivis = d3.select('#ivis canvas');
+      var ivis = d3.select('#ivis canvas');
 
       // We have event handlers registered on both #vis and #ivis
       // so transmit interactions on ivis (on top) to #vis (bottom).
@@ -34,8 +34,7 @@ vde.iVis = (function() {
         evt.initMouseEvent(e.type, true, true, window,
           0, e.screenX, e.screenY, e.clientX, e.clientY, 
           false, false, false, false, 0, null);
-        vis.node().dispatchEvent(evt);
-        console.log('dispatchEvent', e);
+        d3.select('#vis canvas').node().dispatchEvent(evt);
       };
 
       events.forEach(function(type) {
