@@ -39,6 +39,19 @@ vde.Vis.Mark = (function() {
 
     this.group().marks[this.name] = this;
 
+    vde.Vis.addEventListener('click', function(e, item) { 
+      if(item.mark.def.type != self.type || item.mark.def.name != self.name) return;
+      if(item.mark.group.mark.def.name != self.groupName) return;
+      if(item.items) return;
+
+      vde.iVis.activeMark = self;
+      vde.iVis.activeItem = item;
+
+      self.ngScope().toggleVisual(self);
+
+      vde.iVis.parse();
+    });    
+
     return this;
   };
 

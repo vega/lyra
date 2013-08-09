@@ -28,7 +28,8 @@ vde.iVis = (function() {
       data: [], scales: [], marks: []
     };
 
-    if((this._data.length == 0 || this._marks.length == 0) && this.activeMark) {
+    if((this._data.length == 0 || this._marks.length == 0) && 
+        this.activeMark && this.activeMark.interactive) {
       var active = this.activeMark.interactive();
       this.interactor(active[0], active[1], active[2]);
     }

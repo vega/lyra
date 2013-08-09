@@ -28,23 +28,6 @@ vde.Vis.marks.Rect = (function() {
   rect.prototype = new vde.Vis.Mark();
   var prototype  = rect.prototype;
 
-  prototype.init = function() {
-    var self = this;
-    vde.Vis.Mark.prototype.init.call(this);
-
-    vde.Vis.addEventListener('click', function(e, item) { 
-      if(item.mark.def.type != self.type || item.mark.def.name != self.name) return;
-      if(item.items) return;
-
-      vde.iVis.activeMark = self;
-      vde.iVis.activeItem = item;
-
-      self.ngScope().toggleVisual(self);
-
-      vde.iVis.parse();
-    });
-  };
-
   prototype.productionRules = function(prop, scale, field) {
     if(!scale) {
       switch(prop) {
