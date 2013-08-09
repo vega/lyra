@@ -26,13 +26,27 @@ vde.Vis.marks.Group = (function() {
       strokeWidth: {value: 0}
     };
 
-    vde.Vis.groups[this.name] = this;
-
-    return this;
+    return this.init();
   };
 
   group.prototype = new vde.Vis.Mark();
   var prototype = group.prototype;
+
+  prototype.init = function() {
+    var self = this;
+    vde.Vis.groups[this.name] = this;
+
+    vde.Vis.addEventListener('click', function(e, item) { 
+      if(item.mark.def.type != self.type || item.mark.def.name != self.name) return;
+
+      vde.iVis.activeMark = self;
+      vde.iVis.activeItem = item;
+
+      self.ngScope().toggleVisual(self);
+
+      vde.iVis.parse();
+    });
+  };
 
   prototype.update = function(prop) {
     // Because a group could affect sub-marks, re-parse the whole thing
@@ -77,6 +91,11 @@ vde.Vis.marks.Group = (function() {
 
   prototype.annotateDef = function() {
     for(var m in this.marks) this.marks[m].def();
+  };
+
+  prototype.interactive = function() {
+    // Since groups are fancy rects
+    return vde.Vis.marks.Rect.prototype.interactive.call(this);
   };
 
   return group;
