@@ -1,7 +1,10 @@
 vde.iVis = (function() {
   var ivis = {
     view: null,
-    dragging: null
+    dragging: null,
+    _data: [], _marks: [], _evtHandlers: {},
+    activeMark: null,
+    activeItem: null
   };
 
   var events = [
@@ -10,6 +13,14 @@ vde.iVis = (function() {
   ];
 
   ivis.interactor = function(interactor, data, evtHandlers) {
+    if(!interactor || !data) return;
+
+    this._data = [{ name: interactor + '_data', values: data }]
+    this._marks = [this[interactor]()];
+    this._evtHandlers = evtHandlers || {};
+  };
+
+  ivis.parse = function() {
     var spec = {
       width: vde.Vis.properties.width,
       height: vde.Vis.properties.height,
@@ -17,14 +28,24 @@ vde.iVis = (function() {
       data: [], scales: [], marks: []
     };
 
-    spec.data.push({ name: interactor + '_data', values: data });
-    spec.marks.push(ivis[interactor]());
+    if((this._data.length == 0 || this._marks.length == 0) && this.activeMark) {
+      var active = this.activeMark.interactive();
+      this.interactor(active[0], active[1], active[2]);
+    }
+    
+    spec.data  = this._data;
+    spec.marks = this._marks;        
+    spec.scales.push({
+      name: 'disabled',
+      domain: [0, 1],
+      range: ['#fff', '#999']
+    });
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#ivis').selectAll('*').remove();
       (vde.iVis.view = chart({ el: '#ivis' })).update();
 
-      var ivis = d3.select('#ivis canvas');
+      var icanvas = d3.select('#ivis canvas');
 
       // We have event handlers registered on both #vis and #ivis
       // so transmit interactions on ivis (on top) to #vis (bottom).
@@ -39,36 +60,37 @@ vde.iVis = (function() {
 
       events.forEach(function(type) {
         if(type == 'mousemove') {
-          ivis.on('mousemove', function() {
+          icanvas.on('mousemove', function() {
             dispatchEvent();
-            if(evtHandlers[type]) evtHandlers[type]();
+            if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
           })
         } else {
-          ivis.on(type, dispatchEvent);
-          vde.iVis.view.on(type, evtHandlers[type] || new Function());
+          icanvas.on(type, dispatchEvent);
+          vde.iVis.view.on(type, ivis._evtHandlers[type] || new Function());
         }
       });
 
       // For handles, automatically register a mousedown/up event to enable
       // dragging
-      if(interactor == 'handle') {
-        var mouseup = function() { vde.iVis.dragging = null; ivis.style('cursor', 'auto'); };
+      if(spec.marks.length > 0 && spec.marks[0].name == 'handle') {
+        var mouseup = function() { vde.iVis.dragging = null; icanvas.style('cursor', 'auto'); };
 
         vde.iVis.view
           .on('mouseover', function(e, i) {
-            if(i.datum.data.cursor) ivis.style('cursor', i.datum.data.cursor);
+            if(i.datum.data.cursor && !i.datum.data.disabled) icanvas.style('cursor', i.datum.data.cursor);
           })
           .on('mouseout', function() { if(!vde.iVis.dragging) mouseup(); })
           .on('mousedown', function(e, i) {
             vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
-            if(i.datum.data.cursor) ivis.style('cursor', i.datum.data.cursor); 
+            if(i.datum.data.cursor && !i.datum.data.disabled) icanvas.style('cursor', i.datum.data.cursor); 
           })
           .on('mouseup', mouseup);
 
-        ivis.on('mouseup', mouseup);
+        icanvas.on('mouseup', mouseup);
       }
-           
-    }); 
+
+      ivis._data = [], ivis._marks = [];
+    });     
   };
 
   ivis.handle = function() {
@@ -80,7 +102,7 @@ vde.iVis = (function() {
         enter: {
           width: {value: 6},
           height: {value: 6},
-          fill: {value: 'white'},
+          fill: {scale: 'disabled', field: 'data.disabled'},
           stroke: {value: 'black'},
           strokeWidth: {value: 0.5}
         },

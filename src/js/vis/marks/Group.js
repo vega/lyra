@@ -16,10 +16,12 @@ vde.Vis.marks.Group = (function() {
     this.properties = {
       x: {value: 0},
       width: {value: vde.Vis.properties.width},
+      x2: {value: 0, disabled: true},
       y: {value: 0},
       height: {value: vde.Vis.properties.height},
+      y2: {value: 0, disabled: true},
       fill: {value: '#ffffff'},
-      fillOpacity: {value: 1},
+      fillOpacity: {value: 0},
       stroke: {value: '#000000'},
       strokeWidth: {value: 0}
     };
@@ -31,6 +33,21 @@ vde.Vis.marks.Group = (function() {
 
   group.prototype = new vde.Vis.Mark();
   var prototype = group.prototype;
+
+  prototype.update = function(prop) {
+    // Because a group could affect sub-marks, re-parse the whole thing
+    var def = this.def(), update = {};
+    update[prop] = this.property(prop);
+
+    def.properties.update = vg.parse.properties(this.type, update);
+    vde.Vis.view.update();
+
+    for(var m in this.marks)
+      this.marks[m].update('x').update('x2').update('width')
+        .update('y').update('y2').update('height');   
+
+    return this;
+  }
 
   prototype.spec = function() {
     var self = this;

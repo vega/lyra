@@ -68,6 +68,7 @@ vde.Vis.Mark = (function() {
   prototype.update = function(prop) {
     var def  = this.def(), update = {};
     update[prop] = this.property(prop);
+    if(!update[prop]) return this;
 
     def.properties.update = vg.parse.properties(this.type, update);
     vde.Vis.view.update();

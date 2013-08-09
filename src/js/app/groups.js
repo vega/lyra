@@ -4,7 +4,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location, logger)
     pipelines: vde.Vis.pipelines
   }; 
 
-  $scope.toggleVisual = function(v) {
+  $rootScope.toggleVisual = function(v) {
     $rootScope.activeVisual = v;
     $rootScope.activeGroup  = v.group() || v;
 

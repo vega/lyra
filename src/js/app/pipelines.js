@@ -12,7 +12,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams, lo
     }, false, true);
   };
 
-  $scope.togglePipeline = function(p) {
+  $rootScope.togglePipeline = function(p) {
     $rootScope.activePipeline = p;
     $scope.pMdl.activePipelineSource = p.source;
 

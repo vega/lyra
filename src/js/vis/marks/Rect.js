@@ -32,7 +32,17 @@ vde.Vis.marks.Rect = (function() {
     var self = this;
     vde.Vis.Mark.prototype.init.call(this);
 
-    vde.Vis.addEventListener('click', function(e, i) { return self.onClick(e, i); });
+    vde.Vis.addEventListener('click', function(e, item) { 
+      if(item.mark.def.type != self.type || item.mark.def.name != self.name) return;
+      if(item.items) return;
+
+      vde.iVis.activeMark = self;
+      vde.iVis.activeItem = item;
+
+      self.ngScope().toggleVisual(self);
+
+      vde.iVis.parse();
+    });
   };
 
   prototype.productionRules = function(prop, scale, field) {
@@ -68,17 +78,27 @@ vde.Vis.marks.Rect = (function() {
     return [scale, field]
   };
 
-  prototype.onClick = function(evt, item) {
-    var self = this;
-    if(item.mark.def.type != this.type || item.mark.def.name != this.name) return;
-    if(item.items) return;  // We don't want to select the container item
+  prototype.interactive = function() {
+    var self = this, item = vde.iVis.activeItem;
 
     var positions = function() {
       var b = vde.iVis.translatedBounds(item, item.bounds),
-        top    = {x: b.x1 + (b.width()/2), y: b.y1, pos: 'top',    cursor: 'n-resize'},
-        bottom = {x: b.x1 + (b.width()/2), y: b.y2, pos: 'bottom', cursor: 's-resize'},
-        left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',  cursor: 'w-resize'},
-        right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right', cursor: 'e-resize'};
+        top    = {x: b.x1 + (b.width()/2), y: b.y1,  pos: 'top',    cursor: 'n-resize', disabled: 1},
+        bottom = {x: b.x1 + (b.width()/2), y: b.y2,  pos: 'bottom', cursor: 's-resize', disabled: 1},
+        left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',   cursor: 'w-resize', disabled: 1},
+        right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right',  cursor: 'e-resize', disabled: 1};
+
+      if(!self.properties.y.scale  || (self.properties.y2.scale && !self.properties.height.scale))
+        top.disabled = 0;
+
+      if(!self.properties.y2.scale || (self.properties.y.scale  && !self.properties.height.scale))
+        bottom.disabled = 0;      
+
+      if(!self.properties.x.scale  || (self.properties.x2.scale && !self.properties.width.scale))
+        left.disabled = 0;
+
+      if(!self.properties.x2.scale || (self.properties.x.scale  && !self.properties.width.scale))
+        right.disabled = 0;
 
       return [top, bottom, left, right];      
     };    
@@ -87,11 +107,14 @@ vde.Vis.marks.Rect = (function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
       if(!dragging) return;
 
-      var dx = Math.ceil(evt.pageX - dragging.prev[0]), 
+      var props = self.properties,
+          dx = Math.ceil(evt.pageX - dragging.prev[0]), 
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
-          pos = positions()[dragging.item.key], props = self.properties;
+          data = dragging.item.datum.data;
 
-      switch(pos.pos) {
+      if(data.disabled) return;    
+
+      switch(data.pos) {
         case 'top':
           var reverse = (props.y.scale && 
             props.y.scale.field.range.name == 'height') ? -1 : 1;
@@ -135,7 +158,7 @@ vde.Vis.marks.Rect = (function() {
       vde.iVis.view.data({ 'handle_data': positions() }).update();
     };
 
-    vde.iVis.interactor('handle', positions(), {mousemove: mousemove});
+    return ['handle', positions(), {mousemove: mousemove}];
   };  
 
   return rect;

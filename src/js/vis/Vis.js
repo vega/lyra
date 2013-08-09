@@ -77,6 +77,10 @@ vde.Vis = (function() {
 
       for(var type in vis.evtHandlers)
         vis.evtHandlers[type].forEach(function(h) { vde.Vis.view.on(type, h) });
+
+      // If the vis gets reparsed, reparse the interactive layer too to update any 
+      // visible handlers, etc.
+      vde.iVis.parse();
     }); 
 
     return spec;
