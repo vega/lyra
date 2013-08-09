@@ -71,16 +71,16 @@ vde.Vis.marks.Rect = (function() {
         left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',   cursor: 'w-resize', disabled: 1},
         right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right',  cursor: 'e-resize', disabled: 1};
 
-      if(!self.properties.y.scale  || (self.properties.y2.scale && !self.properties.height.scale))
+      if((!self.properties.y.field && !self.properties.y.disabled)   || !self.properties.height.disabled)
         top.disabled = 0;
 
-      if(!self.properties.y2.scale || (self.properties.y.scale  && !self.properties.height.scale))
+      if((!self.properties.y2.field && !self.properties.y2.disabled) || !self.properties.height.disabled)
         bottom.disabled = 0;      
 
-      if(!self.properties.x.scale  || (self.properties.x2.scale && !self.properties.width.scale))
+      if((!self.properties.x.field && !self.properties.x.disabled)   || !self.properties.width.disabled)
         left.disabled = 0;
 
-      if(!self.properties.x2.scale || (self.properties.x.scale  && !self.properties.width.scale))
+      if((!self.properties.x2.field && !self.properties.x2.disabled) || !self.properties.width.disabled)
         right.disabled = 0;
 
       return [top, bottom, left, right];      
@@ -100,7 +100,7 @@ vde.Vis.marks.Rect = (function() {
       switch(data.pos) {
         case 'top':
           var reverse = (props.y.scale && 
-            props.y.scale.field.range.name == 'height') ? -1 : 1;
+            props.y.scale.properties.range.name == 'height') ? -1 : 1;
 
           self.ngScope().$apply(function() {
             if(!props.y.disabled) props.y.value += dy*reverse;
@@ -110,7 +110,7 @@ vde.Vis.marks.Rect = (function() {
 
         case 'bottom':
           var reverse = (props.y2.scale && 
-            props.y2.scale.field.range.name == 'height') ? -1 : 1;
+            props.y2.scale.properties.range.name == 'height') ? -1 : 1;
 
           self.ngScope().$apply(function() {
             if(!props.y2.disabled) props.y2.value += dy*reverse;

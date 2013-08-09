@@ -54,6 +54,8 @@ vde.Vis.marks.Group = (function() {
     update[prop] = this.property(prop);
 
     def.properties.update = vg.parse.properties(this.type, update);
+    vde.Vis.view.model().build();
+    vde.Vis.view.model().encode();
     vde.Vis.view.update();
 
     for(var m in this.marks)

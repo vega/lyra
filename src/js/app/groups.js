@@ -13,7 +13,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location, logger)
 
     logger.log('toggle_visual', {
       activeVisual: v.name,
-      activeGroup: v.groupName || v,
+      activeGroup: v.groupName || v.name,
       visualPipeline: v.pipelineName,
       activePipeline: ($rootScope.activePipeline||{}).name
     });
@@ -50,7 +50,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location, logger)
 
     logger.log('new_group', {
       activeVisual: g.name,
-      activeGroup: g.groupName || g,
+      activeGroup: g.groupName || g.name,
       visualPipeline: g.pipelineName,
       activePipeline: $rootScope.activePipeline.name
     }, true);
@@ -62,7 +62,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location, logger)
 
     logger.log('new_axis', {
       activeVisual: axis.name,
-      activeGroup: axis.groupName || axis,
+      activeGroup: axis.groupName || axis.name,
       visualPipeline: axis.pipelineName,
       activePipeline: $rootScope.activePipeline.name
     }, true);

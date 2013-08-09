@@ -166,10 +166,10 @@ vde.Vis.Mark = (function() {
 
       this.properties[prop].scale = scale;
       this.properties[prop].field = field;
+      delete this.properties[prop].value;
     }
 
     this.checkExtents(prop);
-    delete this.properties[prop].value;
   };
 
   prototype.productionRules = function(prop, scale, field) {
@@ -232,7 +232,7 @@ vde.Vis.Mark = (function() {
         def = visit(start);
     }
 
-    def.vdeMdl = this;
+    // def.vdeMdl = this;
     this._def = def;
 
     return this._def;
