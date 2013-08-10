@@ -6,7 +6,7 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope) {
   $scope.eMdl = {};
 
   $scope.export = function() {
-    $scope.eMdl.spec = JSON.stringify(vde.Vis.parse(), null, 2);
+    $scope.eMdl.spec = JSON.stringify(vde.Vis.parse(false), null, 2);
   };
 });
 

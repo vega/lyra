@@ -42,7 +42,7 @@ vde.Vis = (function() {
     vis.evtHandlers[type].push(handler);
   };
 
-  vis.parse = function() {
+  vis.parse = function(inlinedValues) {
     var spec = {
       width: vis.properties.width,
       height: vis.properties.height,
@@ -54,10 +54,11 @@ vde.Vis = (function() {
 
     vde.Vis.Callback.run('vis.pre_spec', this, {spec: spec});
 
+    inlinedValues = (inlinedValues == null || inlinedValues == true);
     for(var d in vis._data) {
       var dd = vg.duplicate(vis._data[d]);
       if(dd.url)        // Inline values to deal with x-site restrictions
-        delete dd.values;
+        delete dd[inlinedValues ? 'url' : 'values'];
 
       spec.data.push(dd);
     };
