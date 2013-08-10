@@ -14,7 +14,7 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope, logger) {
   })
 });
 
-vde.App.directive('vdeMarkDroppable', function($rootScope, $location, logger) {
+vde.App.directive('vdeMarkDroppable', function($rootScope, $timeout, logger) {
   return function(scope, element, attrs) {
     element.drop(function(e, dd) {
       var markType = $(dd.drag).attr('id');
@@ -26,9 +26,9 @@ vde.App.directive('vdeMarkDroppable', function($rootScope, $location, logger) {
         var mark = eval('new vde.Vis.marks["' + markType + '"](undefined, groupName)');
         vde.Vis.parse();
 
-        // Then route to this mark to load its inspector
-        $rootScope.activeVisual = mark;
-        $rootScope.activeGroup  = mark.group() || mark;
+        // Then route to this mark to load its inspector, but wait until 
+        // parsing/annotating is done.
+        $timeout(function() { $rootScope.toggleVisual(mark); }, 1);
 
         logger.log('new_mark', {
           markType: markType,
