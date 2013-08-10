@@ -126,8 +126,3 @@ vde.iVis = (function() {
 
   return ivis;
 })();
-
-$(document).ready(function() {
-  // Prevent text selection cursor
-  document.onselectstart = function() { return false; }
-})

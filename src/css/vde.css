@@ -21,6 +21,13 @@ body {
   font: 12px 'Helvetica Neue', sans-serif;
   height: 100%;
   overflow: hidden;
+
+  /* Prevent text selection cursor on drag */
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 a { 
