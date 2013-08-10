@@ -87,5 +87,15 @@ vde.Vis = (function() {
     return spec;
   };
 
+  vis.export = function() {
+    var ex = {
+      groups: {},
+      pipelines: vg.duplicate(vis.pipelines)
+    };
+
+    for(var g in vis.groups) ex.groups[g] = vg.duplicate(vis.groups[g].export());
+    return ex;
+  }
+
   return vis;
 })();

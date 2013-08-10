@@ -44,10 +44,7 @@ vde.Vis.Mark = (function() {
       if(item.mark.def != self.def()) return;
       if(item.items) return;
 
-      vde.iVis.activeMark = self;
-      vde.iVis.activeItem = item.key;
-
-      self.ngScope().toggleVisual(self);
+      self.ngScope().toggleVisual(self, item.key);
 
       vde.iVis.parse();
     });    
@@ -278,6 +275,20 @@ vde.Vis.Mark = (function() {
     if(i > items.length) i = 0;
 
     return items[i];
+  };
+
+  prototype.export = function() {
+    // Export w/o the circular structure
+    if(!this._def && this._items.length == 0) return vg.duplicate(this);
+    var def = this.def(), items = this.items();
+
+    this._def = null;
+    this._items = [];
+    var ex = vg.duplicate(this);
+    this._def = def;
+    this._items = items;
+
+    return ex;
   };
 
   prototype.ngScope = function() {

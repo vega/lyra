@@ -103,6 +103,27 @@ vde.Vis.marks.Group = (function() {
     }
   };
 
+  prototype.export = function() {
+    // Export w/o circular structure in marks
+    if(!this._def && this._items.length == 0) return vg.duplicate(this);
+    var marks = this.marks, def = this.def(), items = this.items();
+
+    this.marks = {};
+    for(var m in marks) {
+      var ex = marks[m].export();
+      this.marks[ex.name] = ex;
+    }
+    this._def = null;
+    this._items = [];
+
+    var ex = vg.duplicate(this);
+    this.marks = marks;
+    this._def = def;
+    this._items = items;
+
+    return ex;
+  };
+
   prototype.interactive = function() {
     // Since groups are fancy rects
     return vde.Vis.marks.Rect.prototype.interactive.call(this);
