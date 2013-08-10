@@ -73,7 +73,7 @@ vde.Vis = (function() {
       d3.select('#vis').selectAll('*').remove();
       (vde.Vis.view = chart({ el: '#vis' })).update();
 
-      for(var g in vis.groups) vis.groups[g].annotateDef();
+      for(var g in vis.groups) vis.groups[g].annotate();
 
       for(var type in vis.evtHandlers)
         vis.evtHandlers[type].forEach(function(h) { vde.Vis.view.on(type, h) });

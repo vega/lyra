@@ -17,7 +17,8 @@ vde.Vis.Mark = (function() {
 
     this.extents = {};
 
-    this._def = null;
+    this._def   = null;
+    this._items = [];
 
     return this;
   };
@@ -210,6 +211,8 @@ vde.Vis.Mark = (function() {
     var self  = this,
         start = this.groupName ? this.group().def() : vde.Vis.view.model().defs().marks; 
 
+    if(this._def) return this._def;
+
     var visit = function(node, name) {
       if(!name) name = self.name;
       for(var i = 0; i < node.marks.length; i++)
@@ -217,8 +220,6 @@ vde.Vis.Mark = (function() {
 
       return null;
     };
-
-    if(this._def) return this._def;
 
     var def = visit(start);
     if(!def && this.groupName) {
@@ -235,6 +236,48 @@ vde.Vis.Mark = (function() {
     this._def = def;
 
     return this._def;
+  };
+
+  prototype.items = function() {
+    var self = this,
+        parents = this.groupName ? this.group().items() : [vde.Vis.view.model().scene().items[0]],
+        def = this.def();
+
+    if(this._items.length > 0) return this._items;
+
+    var visit = function(parent, group) {
+      var items = [];
+      parent.items.forEach(function(i) { 
+        if(i.def && (i.def == def || (group && i.marktype == 'group')))
+          items = items.concat(i.items); 
+      });
+      return items;
+    };
+
+    for(var p = 0; p < parents.length; p++) 
+      this._items = this._items.concat(visit(parents[p]));
+
+    if(this._items.length == 0) {
+      // If we've found no items in the group, there must be
+      // group injection going on. So first find those groups
+      // and use them as parents
+      var groups = [];
+      for(var p = 0; p < parents.length; p++) 
+        groups = groups.concat(visit(parents[p], true));
+
+      for(var g = 0; g < groups.length; g++)
+        this._items = this._items.concat(visit(groups[g]));
+    }
+
+    this._items = this._items.sort(function(a, b) { return a.key - b.key; });
+    return this._items;
+  };
+
+  prototype.item = function(i) {
+    var items = this.items();
+    if(i > items.length) i = 0;
+
+    return items[i];
   };
 
   prototype.ngScope = function() {

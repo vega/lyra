@@ -91,8 +91,16 @@ vde.Vis.marks.Group = (function() {
     return scale;
   };
 
-  prototype.annotateDef = function() {
-    for(var m in this.marks) this.marks[m].def();
+  prototype.annotate = function() {
+    this._def = null;
+    this._items = [];
+
+    for(var m in this.marks) {
+      this.marks[m]._def = null;
+      this.marks[m]._items = [];
+
+      this.marks[m].def();
+    }
   };
 
   prototype.interactive = function() {
