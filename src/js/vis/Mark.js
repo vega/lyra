@@ -45,7 +45,7 @@ vde.Vis.Mark = (function() {
       if(item.items) return;
 
       vde.iVis.activeMark = self;
-      vde.iVis.activeItem = item;
+      vde.iVis.activeItem = item.key;
 
       self.ngScope().toggleVisual(self);
 

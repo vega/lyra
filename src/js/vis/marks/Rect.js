@@ -62,7 +62,7 @@ vde.Vis.marks.Rect = (function() {
   };
 
   prototype.interactive = function() {
-    var self = this, item = vde.iVis.activeItem;
+    var self = this, item = this.item(vde.iVis.activeItem);
 
     var positions = function() {
       var b = vde.iVis.translatedBounds(item, item.bounds),
