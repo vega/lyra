@@ -116,7 +116,7 @@ vde.iVis = (function() {
         },
         update: {
           x: {field: 'data.x'},
-          y: {field: 'data.y'},
+          y: {field: 'data.y'}
         }
       }
     }
