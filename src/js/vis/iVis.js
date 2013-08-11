@@ -2,7 +2,7 @@ vde.iVis = (function() {
   var ivis = {
     view: null,
     dragging: null,
-    _data: [], _marks: [], _evtHandlers: {},
+    _data: {}, _marks: [], _evtHandlers: {},
     activeMark: null,
     activeItem: null
   };
@@ -14,10 +14,13 @@ vde.iVis = (function() {
 
   ivis.interactor = function(interactor, data, evtHandlers) {
     if(!interactor || !data) return;
+    this._data[interactor + '_data'] = data;
+    this._marks.push(this[interactor]());
 
-    this._data = [{ name: interactor + '_data', values: data }]
-    this._marks = [this[interactor]()];
-    this._evtHandlers = evtHandlers || {};
+    for(var type in evtHandlers) {
+      this._evtHandlers[type] || (this._evtHandlers[type] = []);
+      this._evtHandlers[type].push(evtHandlers[type]);
+    }
   };
 
   ivis.parse = function() {
@@ -34,19 +37,20 @@ vde.iVis = (function() {
       this.interactor(active[0], active[1], active[2]);
     }
     
-    spec.data  = this._data;
     spec.marks = this._marks;        
     spec.scales.push({
       name: 'disabled',
       domain: [0, 1],
       range: ['#fff', '#999']
     });
+    for(var d in this._data)
+      spec.data.push({ name: d, values: this._data[d] });
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#ivis').selectAll('*').remove();
-      (vde.iVis.view = chart({ el: '#ivis' })).update();
+      (vde.iVis.view = chart({ el: '#ivis', renderer: 'svg' })).update();
 
-      var icanvas = d3.select('#ivis canvas');
+      var icanvas = d3.select('#ivis svg');
 
       // We have event handlers registered on both #vis and #ivis
       // so transmit interactions on ivis (on top) to #vis (bottom).
@@ -63,11 +67,12 @@ vde.iVis = (function() {
         if(type == 'mousemove') {
           icanvas.on('mousemove', function() {
             dispatchEvent();
-            if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
+            if(ivis._evtHandlers[type]) ivis._evtHandlers[type].forEach(function(f) { f() });
           })
         } else {
           icanvas.on(type, dispatchEvent);
-          vde.iVis.view.on(type, ivis._evtHandlers[type] || new Function());
+          if(ivis._evtHandlers[type])
+            ivis._evtHandlers[type].forEach(function(f) { vde.iVis.view.on(type, f); });
         }
       });
 
@@ -90,28 +95,76 @@ vde.iVis = (function() {
         icanvas.on('mouseup', mouseup);
       }
 
-      ivis._data = [], ivis._marks = [];
+      ivis._data = {}, ivis._marks = [];
     });     
+
+    return spec;
   };
 
   ivis.handle = function() {
     return {
       name: 'handle',
-      type: 'rect',
+      type: 'symbol',
       from: {data: 'handle_data'},
       properties: {
         enter: {
-          width: {value: 6},
-          height: {value: 6},
+          shape: {value: 'square'},
+          size: {value: 40},
           fill: {scale: 'disabled', field: 'data.disabled'},
           stroke: {value: 'black'},
           strokeWidth: {value: 0.5}
         },
         update: {
-          x: {field: 'data.x', offset: -3},
-          y: {field: 'data.y', offset: -3},
+          x: {field: 'data.x'},
+          y: {field: 'data.y'},
         }
       }
+    }
+  };
+
+  ivis.connector = function() {
+    return {
+      name: 'connector',
+      type: 'symbol',
+      from: {data: 'connector_data'},
+      properties: {
+        enter: {
+          shape: {value: 'circle'},
+          size: {value: 40},
+          fill: {value: 'cyan'},
+          stroke: {value: 'cyan'},
+          strokeWidth: {value: 0.5}
+        },
+        update: {
+          x: {field: 'data.x'},
+          y: {field: 'data.y'},
+        }
+      }
+    };
+  };
+
+  ivis.span = function() {
+    return {
+      name: 'span_group',
+      type: 'group',
+      from: {
+        data: 'span_data',
+        transform: [{type: 'facet', keys:['data.span']}]
+      },
+      marks: [{
+        name: 'span',
+        type: 'line',
+        properties: {
+          enter: {
+            stroke: {value: 'cyan'},
+            strokeWidth: {value: 1}
+          },
+          update: {
+            x: {field: 'data.x'},
+            y: {field: 'data.y'}
+          }
+        }
+      }]
     }
   };
 

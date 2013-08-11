@@ -56,7 +56,16 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       if(attrs.nodrop) return;
       if(attrs.type == 'expr') return;
 
-      $(element).find('.property').drop(function(e, dd) {
+      $(element).find('.property').on('mousemove', function(e) {
+        if(!(scope.item instanceof vde.Vis.Mark)) return;
+        var width = $(this).width(), offset = $(this).offset(),
+            band = width / scope.item.items().length;
+
+        var i = Math.floor((e.pageX - offset.left) / band);
+        scope.item.helper(attrs.property, i);
+      })
+      .on('mouseleave', function(e) { vde.iVis.parse(); }) // Clear helpers
+      .drop(function(e, dd) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         var field = $(dd.proxy).data('field') || $(dd.proxy).find('.schema').data('field') || $(dd.proxy).find('.schema').attr('field');
         var scale = $(dd.proxy).find('.scale').attr('scale');

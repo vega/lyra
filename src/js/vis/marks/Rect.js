@@ -144,5 +144,72 @@ vde.Vis.marks.Rect = (function() {
     return ['handle', positions(), {mousemove: mousemove}];
   };  
 
+  prototype.helper = function(property, item) {
+    var self = this, props = this.properties;
+    if(!item.key) item = this.item(item);
+    if(['x', 'x2', 'width', 'y', 'y2', 'height'].indexOf(property) == -1) return;
+
+    var connectors = function(i) {
+      var b  = vde.iVis.translatedBounds(i, i.bounds);
+      switch(property) {
+        case 'x': return [{x: b.x1, y: b.y1}, {x: b.x1, y: b.y2}]; break;
+        case 'x2': return [{x: b.x2, y: b.y1}, {x: b.x2, y: b.y2}]; break;
+        case 'width': return [{x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}]; break;
+
+        case 'y': return [{x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}]; break;
+        case 'y2': return [{x: b.x1, y: b.y2}, {x: b.x2, y: b.y2}]; break;
+        case 'height': return [{x: b.x1, y: b.y1}, {x: b.x1, y: b.y2}]; break;
+      };
+    };
+
+    var spans = function(i) {
+      var b  = vde.iVis.translatedBounds(i, i.bounds),
+          gb = vde.iVis.translatedBounds(i.mark.group, i.mark.group.bounds),
+          go = 10, io = 7; // offsets
+
+      switch(property) {
+        case 'x': 
+          return [{x: (gb.x1-go), y: (b.y1-io), span: 0}, {x: b.x1, y: (b.y1-io), span: 0},
+           {x: (gb.x1-go), y: (b.y2+io), span: 1}, {x: b.x1, y: (b.y2+io), span: 1}];
+        break;
+
+        case 'x2': 
+          return [{x: (gb.x1-go), y: (b.y1-io), span: 0}, {x: b.x2, y: (b.y1-io), span: 0},
+           {x: (gb.x1-go), y: (b.y2+io), span: 1}, {x: b.x2, y: (b.y2+io), span: 1}];
+        break;
+
+        case 'width': return [{x: b.x1, y: (b.y1-io), span: 0}, {x: b.x2, y: (b.y1-io), span: 0}]; break;
+
+        case 'y': return (props.y.scale && props.y.scale.properties.range.name == 'height') ?
+          [{x: (b.x1-io), y: (gb.y2+go), span: 0}, {x: (b.x1-io), y: b.y1, span: 0},
+           {x: (b.x2+io), y: (gb.y2+go), span: 1}, {x: (b.x2+io), y: b.y1, span: 1}]
+        :
+          [{x: (b.x1-io), y: (gb.y1-go), span: 0}, {x: (b.x1-io), y: b.y1, span: 0},
+           {x: (b.x2+io), y: (gb.y1-go), span: 1}, {x: (b.x2+io), y: b.y1, span: 1}];
+        break;
+
+        case 'y2': return (props.y2.scale && props.y2.scale.properties.range.name == 'height') ?
+          [{x: (b.x1-io), y: (gb.y2+go), span: 0}, {x: (b.x1-io), y: b.y2, span: 0},
+           {x: (b.x2+io), y: (gb.y2+go), span: 1}, {x: (b.x2+io), y: b.y2, span: 1}]
+        :
+          [{x: (b.x1-io), y: (gb.y1-go), span: 0}, {x: (b.x1-io), y: b.y2, span: 0},
+           {x: (b.x2+io), y: (gb.y1-go), span: 1}, {x: (b.x2+io), y: b.y2, span: 1}];
+        break;
+
+        case 'height': return [{x: (b.x1-io), y: b.y1, span: 0}, {x: (b.x1-io), y: b.y2, span: 0}]; break;
+      };
+    }
+
+    var connectorData = this.items().reduce(function(acc, i) {
+      return acc.concat(connectors(i));
+    }, []);
+
+    var spanData = spans(item);
+
+    vde.iVis.interactor('connector', connectorData);
+    vde.iVis.interactor('span', spanData);
+    vde.iVis.parse();
+  };
+
   return rect;
 })();
