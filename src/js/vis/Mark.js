@@ -80,8 +80,11 @@ vde.Vis.Mark = (function() {
     update[prop] = this.property(prop);
     if(!update[prop]) return this;
 
-    def.properties.update = vg.parse.properties(this.type, update);
-    vde.Vis.view.update();
+    if(update[prop].scale) vde.Vis.parse();
+    else {
+      def.properties.update = vg.parse.properties(this.type, update);
+      vde.Vis.view.update();
+    }
 
     return this;
   };
@@ -195,6 +198,7 @@ vde.Vis.Mark = (function() {
         if(hist.length > remaining) {
           var pOld = hist.shift();
           if(pOld != prop && check.indexOf(pOld) != -1) this.properties[pOld].disabled = true;
+          this.update(pOld);
         }
       }
     }
@@ -294,6 +298,8 @@ vde.Vis.Mark = (function() {
   prototype.ngScope = function() {
     return angular.element($('body')).scope();
   };
+
+  prototype.helper = function() { return null; }
 
   return mark;
 })();

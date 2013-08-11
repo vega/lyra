@@ -1,4 +1,4 @@
-vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location, logger) {
+vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) {
   $scope.gMdl = { // General catch-all model for scoping
     groups: vde.Vis.groups,
     pipelines: vde.Vis.pipelines
@@ -13,7 +13,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $location, logger)
 
     vde.iVis.activeMark = v;
     vde.iVis.activeItem = key || 0;
-    vde.iVis.parse();
+    $timeout(function() { vde.iVis.parse(); }, 1);
 
     logger.log('toggle_visual', {
       activeVisual: v.name,

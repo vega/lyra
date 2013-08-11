@@ -9,7 +9,7 @@ vde.iVis = (function() {
 
   var events = [
     "mousemove", "mousedown", "mouseup", "mouseover", "mouseout",
-    "click", "dblclick"
+    "click", "dblclick", "keypress", "keydown", "keyup"
   ];
 
   ivis.interactor = function(interactor, data, evtHandlers) {
@@ -66,6 +66,9 @@ vde.iVis = (function() {
             dispatchEvent();
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
           })
+        } else if(type.indexOf('key') != -1) {
+          if(ivis._evtHandlers[type])
+            d3.select('body').on(type, ivis._evtHandlers[type]);
         } else {
           icanvas.on(type, dispatchEvent);
           if(ivis._evtHandlers[type])

@@ -89,6 +89,7 @@ vde.Vis.marks.Rect = (function() {
     var mousemove = function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
       if(!dragging) return;
+      if(vde.iVis.activeMark != self) return;
 
       var props = self.properties,
           dx = Math.ceil(evt.pageX - dragging.prev[0]), 
@@ -203,6 +204,7 @@ vde.Vis.marks.Rect = (function() {
     var connectorData = this.items().reduce(function(acc, i) {
       return acc.concat(connectors(i));
     }, []);
+    // var connectorData = connectors(item);
 
     var spanData = spans(item);
 

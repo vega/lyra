@@ -50,24 +50,32 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           property: $attrs.property,
           ngModel: $attrs.ngModel
         }, true, true);
-      }
+      };
+
+      $scope.showHelper = function(target, e) {
+        if(!($scope.item instanceof vde.Vis.Mark)) return;
+        var width = target.width(), offset = target.offset(),
+            band = width / $scope.item.items().length;
+
+        var i = Math.floor((e.pageX - offset.left) / band);
+        $scope.item.helper($attrs.property, i);
+        target.css('backgroundColor', '#bbb');
+      };
+
+      $scope.hideHelper = function(target, e) {
+        vde.iVis.parse(); 
+        target.css('backgroundColor', 'transparent');
+      };
     },
     link: function(scope, element, attrs) {
       if(attrs.nodrop) return;
       if(attrs.type == 'expr') return;
 
       $(element).find('.property').on('mousemove', function(e) {
-        if(!(scope.item instanceof vde.Vis.Mark)) return;
-        var width = $(this).width(), offset = $(this).offset(),
-            band = width / scope.item.items().length;
-
-        var i = Math.floor((e.pageX - offset.left) / band);
-        scope.item.helper(attrs.property, i);
-        $(this).css('backgroundColor', '#bbb');
+        scope.showHelper($(this), e);
       })
       .on('mouseleave', function(e) { 
-        vde.iVis.parse(); 
-        $(this).css('backgroundColor', 'transparent');
+        scope.hideHelper($(this), e);
       }) // Clear helpers
       .drop(function(e, dd) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
@@ -99,12 +107,12 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           field: field,
           scaleName: scale
         }, true, true);
-      }).drop('dropstart', function() {
+      }).drop('dropstart', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
-        $(this).css('backgroundColor', '#bbb');
-      }).drop('dropend', function() {
+        scope.showHelper($(this), e);
+      }).drop('dropend', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
-        $(this).css('backgroundColor', 'transparent');
+        scope.hideHelper($(this), e);
       })
     }
   }
