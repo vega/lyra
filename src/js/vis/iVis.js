@@ -17,10 +17,7 @@ vde.iVis = (function() {
     this._data[interactor + '_data'] = data;
     this._marks.push(this[interactor]());
 
-    for(var type in evtHandlers) {
-      this._evtHandlers[type] || (this._evtHandlers[type] = []);
-      this._evtHandlers[type].push(evtHandlers[type]);
-    }
+    for(var type in evtHandlers) this._evtHandlers[type] = evtHandlers[type];
   };
 
   ivis.parse = function() {
@@ -36,7 +33,7 @@ vde.iVis = (function() {
       var active = this.activeMark.interactive();
       this.interactor(active[0], active[1], active[2]);
     }
-    
+
     spec.marks = this._marks;        
     spec.scales.push({
       name: 'disabled',
@@ -48,9 +45,9 @@ vde.iVis = (function() {
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#ivis').selectAll('*').remove();
-      (vde.iVis.view = chart({ el: '#ivis', renderer: 'svg' })).update();
+      (vde.iVis.view = chart({ el: '#ivis' })).update();
 
-      var icanvas = d3.select('#ivis svg');
+      var icanvas = d3.select('#ivis canvas');
 
       // We have event handlers registered on both #vis and #ivis
       // so transmit interactions on ivis (on top) to #vis (bottom).
@@ -67,12 +64,12 @@ vde.iVis = (function() {
         if(type == 'mousemove') {
           icanvas.on('mousemove', function() {
             dispatchEvent();
-            if(ivis._evtHandlers[type]) ivis._evtHandlers[type].forEach(function(f) { f() });
+            if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
           })
         } else {
           icanvas.on(type, dispatchEvent);
           if(ivis._evtHandlers[type])
-            ivis._evtHandlers[type].forEach(function(f) { vde.iVis.view.on(type, f); });
+            ivis._evtHandlers[type]();
         }
       });
 

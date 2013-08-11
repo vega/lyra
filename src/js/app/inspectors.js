@@ -63,8 +63,12 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
 
         var i = Math.floor((e.pageX - offset.left) / band);
         scope.item.helper(attrs.property, i);
+        $(this).css('backgroundColor', '#bbb');
       })
-      .on('mouseleave', function(e) { vde.iVis.parse(); }) // Clear helpers
+      .on('mouseleave', function(e) { 
+        vde.iVis.parse(); 
+        $(this).css('backgroundColor', 'transparent');
+      }) // Clear helpers
       .drop(function(e, dd) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         var field = $(dd.proxy).data('field') || $(dd.proxy).find('.schema').data('field') || $(dd.proxy).find('.schema').attr('field');
