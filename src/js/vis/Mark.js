@@ -84,6 +84,7 @@ vde.Vis.Mark = (function() {
     else {
       def.properties.update = vg.parse.properties(this.type, update);
       vde.Vis.view.update();
+      vde.iVis.parse();
     }
 
     return this;
