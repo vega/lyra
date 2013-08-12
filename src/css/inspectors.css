@@ -143,6 +143,12 @@ fieldset#padding .property {
   width: 125px;
   height: 18px;
   padding: 1px 2px;
+
+  -moz-user-select: -moz-text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 .expr { width: 1000px; }
