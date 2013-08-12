@@ -54,9 +54,9 @@ vde.iVis = (function() {
       var dispatchEvent = function() {
         var e = d3.event;
         var evt = document.createEvent("MouseEvents");
-        evt.initMouseEvent(e.type, true, true, window,
-          0, e.screenX, e.screenY, e.clientX, e.clientY, 
-          false, false, false, false, 0, null);
+        evt.initMouseEvent(e.type, e.canBubble, e.cancelable, window,
+          e.detail, e.screenX, e.screenY, e.clientX, e.clientY, 
+          e.ctrlKey, e.altKey, e.shiftKey, e.metaKey, e.button, e.relatedTarget);
         d3.select('#vis canvas').node().dispatchEvent(evt);
       };
 
@@ -72,7 +72,7 @@ vde.iVis = (function() {
         } else {
           icanvas.on(type, dispatchEvent);
           if(ivis._evtHandlers[type])
-            ivis._evtHandlers[type]();
+            vde.iVis.view.on(type, ivis._evtHandlers[type]);
         }
       });
 

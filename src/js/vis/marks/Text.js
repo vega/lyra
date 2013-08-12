@@ -8,9 +8,9 @@ vde.Vis.marks.Text = (function() {
       x: {value: 0},
       y: {value: 0},
 
-      text: {value: 'Hello World'},
-      align: {value: 'left'},
-      baseline: {value: 'bottom'},
+      text: {value: 'Text'},
+      align: {value: 'center'},
+      baseline: {value: 'middle'},
       dx: {value: 0},
       dy: {value: 0},
       angle: {value: 0},
@@ -57,13 +57,16 @@ vde.Vis.marks.Text = (function() {
       var b = vde.iVis.translatedBounds(item, item.bounds),
         left = null, right = null;
 
-      if(props.angle.value % 90 != 0) {
-        left  = {x: b.x1, y: b.y1, pos: 'left',  cursor: 'nw-resize', disabled: 0};
-        right = {x: b.x2, y: b.y2, pos: 'right', cursor: 'se-resize', disabled: 0};
+      if(props.angle.value < 0 || (props.angle.value > 90 && props.angle.value < 180)) {
+        left = {x: b.x1, y: b.y2}; right = {x: b.x2, y: b.y1}; 
+      } else if(props.angle.value != 0) {
+        left  = {x: b.x1, y: b.y1}; right = {x: b.x2, y: b.y2};
       } else {
-        left  = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',   cursor: 'w-resize', disabled: 0};
-        right = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right',  cursor: 'e-resize', disabled: 0};
+        left  = {x: b.x1, y: b.y1 + (b.height()/2)}; right = {x: b.x2, y: b.y1 + (b.height()/2)};
       }
+
+      left.pos = 'left'; left.cursor = 'nw-resize'; left.disabled = 0;
+      right.pos = 'right'; right.cursor = 'se-resize'; right.disabled = 0;
 
       return [left, right];
     }; 
@@ -80,13 +83,25 @@ vde.Vis.marks.Text = (function() {
 
       self.ngScope().$apply(function() {
         if(handle) {
-          if(data.pos == 'left') {
+          if(evt.metaKey && !props.angle.field) { // Rotate
+            var b  = vde.iVis.translatedBounds(item, item.bounds),
+                o  = $('#vis canvas').offset(),
+                cx = b.x1 + b.width()/2,
+                cy = b.y1 + b.height()/2;
+
+            var rad = Math.atan2(evt.pageX - (o.left + cx), evt.pageY - (o.top + cy));
+            var deg = (rad * (180 / Math.PI) * -1) + 90; 
+            props.angle.value = deg;
+            self.update('angle');
+          } else {
+            if(data.pos == 'left') {
             if(!props.x.field) props.x.value = Math.round(props.x.value + dx/5); self.update('x');
-            dx *= -1;
+              dx *= -1;
+            }
+            props.fontSize.value = Math.round(props.fontSize.value + dx/5);
+            if(props.fontSize.value < 1) props.fontSize.value = 1;
+            self.update('fontSize');
           }
-          props.fontSize.value = Math.round(props.fontSize.value + dx/5);
-          if(props.fontSize.value < 1) props.fontSize.value = 1;
-          self.update('fontSize');
         } else {
           if(!props.x.field) props.x.value += dx; self.update('x');
           if(!props.y.field) props.y.value += dy; self.update('y');
