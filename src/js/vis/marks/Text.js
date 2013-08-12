@@ -55,8 +55,15 @@ vde.Vis.marks.Text = (function() {
 
     var positions = function() {
       var b = vde.iVis.translatedBounds(item, item.bounds),
-        left  = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',   cursor: 'w-resize', disabled: 0},
+        left = null, right = null;
+
+      if(props.angle.value % 90 != 0) {
+        left  = {x: b.x1, y: b.y1, pos: 'left',  cursor: 'nw-resize', disabled: 0};
+        right = {x: b.x2, y: b.y2, pos: 'right', cursor: 'se-resize', disabled: 0};
+      } else {
+        left  = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',   cursor: 'w-resize', disabled: 0};
         right = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right',  cursor: 'e-resize', disabled: 0};
+      }
 
       return [left, right];
     }; 
@@ -73,14 +80,16 @@ vde.Vis.marks.Text = (function() {
 
       self.ngScope().$apply(function() {
         if(handle) {
-          if(data.pos == 'left') dx *= -1;
+          if(data.pos == 'left') {
+            if(!props.x.field) props.x.value = Math.round(props.x.value + dx/5); self.update('x');
+            dx *= -1;
+          }
           props.fontSize.value = Math.round(props.fontSize.value + dx/5);
           if(props.fontSize.value < 1) props.fontSize.value = 1;
           self.update('fontSize');
         } else {
-          if(!props.x.field) props.x.value += dx;
-          if(!props.y.field) props.y.value += dy;
-          self.update('x').update('y');
+          if(!props.x.field) props.x.value += dx; self.update('x');
+          if(!props.y.field) props.y.value += dy; self.update('y');
         }
       });
 

@@ -104,8 +104,8 @@ vde.Vis.marks.Rect = (function() {
             props.y.scale.properties.range.name == 'height') ? -1 : 1;
 
           self.ngScope().$apply(function() {
-            if(!props.y.disabled) props.y.value += dy*reverse;
-            if(!props.height.disabled) props.height.value += dy*-1;
+            if(!props.y.disabled) props.y.value += dy*reverse; self.update('y');
+            if(!props.height.disabled) props.height.value += dy*-1; self.update('height');
           });
         break;
 
@@ -114,30 +114,27 @@ vde.Vis.marks.Rect = (function() {
             props.y2.scale.properties.range.name == 'height') ? -1 : 1;
 
           self.ngScope().$apply(function() {
-            if(!props.y2.disabled) props.y2.value += dy*reverse;
-            if(!props.height.disabled) props.height.value += dy;
+            if(!props.y2.disabled) props.y2.value += dy*reverse; self.update('y2');
+            if(!props.height.disabled) props.height.value += dy; self.update('height');
           });          
         break;
 
         case 'left':
           self.ngScope().$apply(function() {
-            if(!props.x.disabled) props.x.value += dx;
-            if(!props.width.disabled) props.width.value += dx*-1;
+            if(!props.x.disabled) props.x.value += dx; self.update('x');
+            if(!props.width.disabled) props.width.value += dx*-1; self.update('width');
           });         
         break;
 
         case 'right':
           self.ngScope().$apply(function() {
-            if(!props.x2.disabled) props.x2.value += dx;
-            if(!props.width.disabled) props.width.value += dx;
+            if(!props.x2.disabled) props.x2.value += dx; self.update('x2');
+            if(!props.width.disabled) props.width.value += dx; self.update('width');
           });  
         break;
       }
 
       dragging.prev = [evt.pageX, evt.pageY];
-
-      self.update('x').update('x2').update('width')
-        .update('y').update('y2').update('height');
 
       vde.iVis.view.data({ 'handle_data': positions() }).update();
     };
