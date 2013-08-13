@@ -23,9 +23,9 @@
       <span ng-switch-when="field" class="schema-target">Drop a column here.</span>
 
       <span ng-switch-when="font">
-        <input type="number" ng-model="$parent.ngModel.fontSize.value" ng-change="onchange()" class="fontSize" />
+        <input type="number" ng-model="$parent.ngModel.fontSize.value" ng-change="onchange('fontSize')" class="fontSize" />
 
-        <select ng-model="$parent.ngModel.font.value" ng-change="onchange()" class="fontFamily">
+        <select ng-model="$parent.ngModel.font.value" ng-change="onchange('font')" class="fontFamily">
           <option>Helvetica</option>
           <option>Verdana</option>
           <option>Georgia</option>

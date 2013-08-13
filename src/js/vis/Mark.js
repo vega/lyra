@@ -43,7 +43,7 @@ vde.Vis.Mark = (function() {
     vde.Vis.addEventListener('click', function(e, item) { 
       if(item.mark.def != self.def()) return;
       if(item.items) return;
-
+console.log(item.key);
       self.ngScope().toggleVisual(self, item.key);
 
       vde.iVis.parse();
@@ -164,8 +164,8 @@ vde.Vis.Mark = (function() {
           scale = prules[0];
           field = prules[1];
 
-      this.properties[prop].scale = scale;
-      this.properties[prop].field = field;
+      if(scale) this.properties[prop].scale = scale;
+      if(field) this.properties[prop].field = field;
       delete this.properties[prop].value;
     }
 
@@ -270,7 +270,7 @@ vde.Vis.Mark = (function() {
         this._items = this._items.concat(visit(groups[g]));
     }
 
-    this._items = this._items.sort(function(a, b) { return a.key - b.key; });
+    // this._items = this._items.sort(function(a, b) { return a.key - b.key; });
     return this._items;
   };
 

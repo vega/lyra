@@ -95,7 +95,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
 
     $rootScope.activeVisual.checkExtents(prop);
 
-    vde.Vis.parse();
+    $rootScope.activeVisual.update(prop);
   };
 
   $scope.editVisualization = function() {

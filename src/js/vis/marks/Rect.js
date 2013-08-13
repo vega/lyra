@@ -62,7 +62,8 @@ vde.Vis.marks.Rect = (function() {
   };
 
   prototype.interactive = function() {
-    var self = this, item = this.item(vde.iVis.activeItem);
+    var self = this, item = vde.iVis.activeItem;
+    if(!item.key) item = this.item(item);
 
     var positions = function() {
       var b = vde.iVis.translatedBounds(item, item.bounds),
@@ -96,7 +97,7 @@ vde.Vis.marks.Rect = (function() {
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
           data = dragging.item.datum.data;
 
-      if(data.disabled) return;    
+      if(!data || data.disabled) return;    
 
       switch(data.pos) {
         case 'top':
@@ -161,6 +162,8 @@ vde.Vis.marks.Rect = (function() {
     };
 
     var spans = function(i) {
+      if(!i) return;
+      if(i > self.items().length) i = self.items().length - 1;
       var b  = vde.iVis.translatedBounds(i, i.bounds),
           gb = vde.iVis.translatedBounds(i.mark.group, i.mark.group.bounds),
           go = 10, io = 7; // offsets

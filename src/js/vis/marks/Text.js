@@ -50,8 +50,9 @@ vde.Vis.marks.Text = (function() {
 
   prototype.interactive = function() {
     var self = this, 
-        item = this.item(vde.iVis.activeItem), 
+        item = vde.iVis.activeItem, 
         props = this.properties;
+    if(!item.key) item = this.item(item);
 
     var positions = function() {
       var b = vde.iVis.translatedBounds(item, item.bounds),

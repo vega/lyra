@@ -19,13 +19,13 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
     transclude: true,
     templateUrl: 'tmpl/inspectors/property.html',
     controller: function($scope, $element, $attrs, $timeout) { 
-      $scope.onchange = function() {
+      $scope.onchange = function(prop) {
         if($attrs.nochange) return;
         if('checkExtents' in $scope.item)
-          $scope.item.checkExtents($scope.property);
+          $scope.item.checkExtents(prop || $scope.property);
 
         $timeout(function() {
-          if($scope.item.update) $scope.item.update($attrs.property);
+          if($scope.item.update) $scope.item.update(prop || $attrs.property);
           else vde.Vis.parse();
           vde.iVis.parse();
         }, 1);   
@@ -54,12 +54,14 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       };
 
       $scope.showHelper = function(target, e) {
-        if(!($scope.item instanceof vde.Vis.Mark)) return;
-        var width = target.width(), offset = target.offset(),
-            band = width / $scope.item.items().length;
+        if(($scope.item instanceof vde.Vis.Mark)) {
+          var width = target.width(), offset = target.offset(),
+              band = width / $scope.item.items().length;
 
-        var i = Math.floor((e.pageX - offset.left) / band);
-        $scope.item.helper($attrs.property, i);
+          var i = Math.floor((e.pageX - offset.left) / band);
+          $scope.item.helper($attrs.property, i);  
+        }
+        
         target.css('backgroundColor', '#bbb');
       };
 
