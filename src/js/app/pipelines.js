@@ -206,7 +206,7 @@ vde.App.directive('vdeDataGrid', function () {
                     .appendTo(document.body);
                 })
                 .drag(function(ev, dd){ 
-                  $(dd.proxy).css({ top: dd.offsetY, left: dd.offsetX }); 
+                  $(dd.proxy).css({ top: ev.pageY, left: ev.pageX }); 
                 })
                 .drag("end", function(ev, dd){ 
                   $(dd.available).removeClass('available');

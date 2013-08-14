@@ -157,7 +157,6 @@ vde.Vis.marks.Rect = (function() {
 
     var spans = function(i) {
       if(!i) return;
-      if(i > self.items().length) i = self.items().length - 1;
       var b  = vde.iVis.translatedBounds(i, i.bounds),
           gb = vde.iVis.translatedBounds(i.mark.group, i.mark.group.bounds),
           go = 10, io = 7; // offsets
@@ -195,10 +194,10 @@ vde.Vis.marks.Rect = (function() {
       };
     }
 
-    var connectorData = this.items().reduce(function(acc, i) {
-      return acc.concat(connectors(i));
-    }, []);
-    // var connectorData = connectors(item);
+    // var connectorData = this.items().reduce(function(acc, i) {
+      // return acc.concat(connectors(i));
+    // }, []);
+    var connectorData = connectors(item);
 
     var spanData = spans(item);
 

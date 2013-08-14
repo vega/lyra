@@ -32,7 +32,7 @@ vde.App.directive('vdeDraggable', function() {
             .appendTo(document.body);
       })
       .drag(function(e, dd){
-        $(dd.proxy).css({ top: dd.offsetY, left: dd.offsetX });
+        $(dd.proxy).css({ top: e.pageY, left: e.pageX });
       })
       .drag("end",function(e, dd){ 
         $(dd.available).removeClass('available');

@@ -60,7 +60,7 @@ a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
 }
 
 .property.available { background: #bbb; }
-.property.helper { background: #aaa; }
+.property.helper, .property.drophover { background: #aaa; }
 
 .property label {
   float: left;

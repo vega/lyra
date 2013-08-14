@@ -53,21 +53,24 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
         }, true, true);
       };
 
-      $scope.showHelper = function(target, e) {
+      $scope.showHelper = function(target, e, helperClass) {
         if(($scope.item instanceof vde.Vis.Mark)) {
           var width = target.width(), offset = target.offset(),
-              band = width / $scope.item.items().length;
+              numItems = $scope.item.items().length,
+              band = width / numItems;
 
           var i = Math.floor((e.pageX - offset.left) / band);
+          if(i < 0) i = 0;
+          if(i > numItems-1) i = numItems-1;
           $scope.item.helper($attrs.property, i);  
         }
         
-        target.addClass('helper');
+        target.addClass(helperClass);
       };
 
-      $scope.hideHelper = function(target, e) {
+      $scope.hideHelper = function(target, e, helperClass) {
         vde.iVis.parse(); 
-        target.removeClass('helper');
+        target.removeClass(helperClass);
       };
     },
     link: function(scope, element, attrs) {
@@ -75,10 +78,10 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       if(attrs.type == 'expr') return;
 
       $(element).find('.property').on('mousemove', function(e) {
-        scope.showHelper($(this), e);
+        scope.showHelper($(this), e, 'helper');
       })
       .on('mouseleave', function(e) { 
-        scope.hideHelper($(this), e);
+        scope.hideHelper($(this), e, 'helper');
       }) // Clear helpers
       .drop(function(e, dd) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
@@ -112,10 +115,10 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
         }, true, true);
       }).drop('dropstart', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
-        scope.showHelper($(this), e);
+        scope.showHelper($(this), e, 'drophover');
       }).drop('dropend', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
-        scope.hideHelper($(this), e);
+        scope.hideHelper($(this), e, 'drophover');
       })
     }
   }
