@@ -14,6 +14,16 @@ vde.App.directive('vdeDraggable', function() {
   return function(scope, element, attrs) {
     element
       .drag('start', function(e, dd) {
+        if(!$(this).hasClass('mark')) {
+          $(dd.available).each(function(i, a) {
+            // Only light up properties without nodrop
+            if(!$(a).hasClass('property')) return;
+            if($(a).parent().attr('nodrop')) return;
+
+            $(a).addClass('available');
+          })
+        }
+
         return $(this).clone(true, true)
             .addClass('proxy')
             .css('opacity', 0.75)
@@ -24,7 +34,10 @@ vde.App.directive('vdeDraggable', function() {
       .drag(function(e, dd){
         $(dd.proxy).css({ top: dd.offsetY, left: dd.offsetX });
       })
-      .drag("end",function(e, dd){ $( dd.proxy ).remove(); });
+      .drag("end",function(e, dd){ 
+        $(dd.available).removeClass('available');
+        $( dd.proxy ).remove(); 
+      });
   }
 });
 

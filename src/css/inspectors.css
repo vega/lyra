@@ -56,7 +56,11 @@ a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
 .property {
   margin-bottom: 10px;
   white-space: nowrap;
+  border: 1px solid transparent;
 }
+
+.property.available { background: #bbb; }
+.property.helper { background: #aaa; }
 
 .property label {
   float: left;

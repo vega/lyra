@@ -22,7 +22,7 @@ vde.Vis.Scale = (function() {
 
     spec.name = this.name;
     spec.domain = {data: this.properties.field.pipelineName || this.pipeline().name, field: this.properties.field.spec()};
-    spec.range = this.properties.range.spec();
+    spec.range = (this.properties.range instanceof vde.Vis.Field) ? this.properties.range.spec() : this.properties.range;
 
     delete spec.pipeline;
     delete spec.field;

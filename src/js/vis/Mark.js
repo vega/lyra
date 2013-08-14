@@ -157,6 +157,16 @@ vde.Vis.Mark = (function() {
               range: new vde.Vis.Field('category20')
             }, {}, prop + '_color');          
           break;
+
+          case 'fillOpacity':
+          case 'strokeWidth':
+            scale = this.group().scale(this, {
+              field: field,
+              range: (prop == 'fillOpacity') ? [0, 1] : [0, 10]
+            }, {
+              type: field.type || 'linear'
+            }, prop);
+          break;
         }        
       }
 

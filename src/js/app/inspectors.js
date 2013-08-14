@@ -62,12 +62,12 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           $scope.item.helper($attrs.property, i);  
         }
         
-        target.css('backgroundColor', '#bbb');
+        target.addClass('helper');
       };
 
       $scope.hideHelper = function(target, e) {
         vde.iVis.parse(); 
-        target.css('backgroundColor', 'transparent');
+        target.removeClass('helper');
       };
     },
     link: function(scope, element, attrs) {

@@ -191,6 +191,13 @@ vde.App.directive('vdeDataGrid', function () {
               $(this).text(c.sTitle)
                 .addClass(c.headerCssClass)
                 .drag('start', function(e, dd) {
+                  $(dd.available).each(function(i, a) {
+                    // Only light up properties without nodrop
+                    if(!$(a).hasClass('property')) return;
+                    if($(a).parent().attr('nodrop')) return;
+
+                    $(a).addClass('available');
+                  })
                   return $('<div></div>')
                     .text($(this).text())
                     .addClass('schema proxy ' + c.headerCssClass)
@@ -202,6 +209,7 @@ vde.App.directive('vdeDataGrid', function () {
                   $(dd.proxy).css({ top: dd.offsetY, left: dd.offsetX }); 
                 })
                 .drag("end", function(ev, dd){ 
+                  $(dd.available).removeClass('available');
                   $(dd.proxy).remove(); 
                 }); 
 
