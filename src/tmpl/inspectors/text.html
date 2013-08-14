@@ -1,50 +1,50 @@
 <div class="text inspector">
 
-  <vde-property label="Text" type="text" item="activeVisual" property="text" ng-model="activeVisual.properties.text.value" field="activeVisual.properties.text.field"></vde-property>
+  <vde-property label="Text" type="text" item="mark" property="text" ng-model="mark.properties.text.value" field="mark.properties.text.field"></vde-property>
 
-  <vde-property label="Font" type="font" item="activeVisual" property="properties" ng-model="activeVisual.properties" nodrop="1"></vde-property>
+  <vde-property label="Font" type="font" item="mark" property="properties" ng-model="mark.properties" nodrop="1"></vde-property>
 
-  <vde-property label="" item="activeVisual" nodrop="1">
+  <vde-property label="" item="mark" nodrop="1">
     <div class="icons">
-      <a class="text-bold" ng-click="toggleFont('fontWeight', 'bold');" ng-class="{selected: activeVisual.properties.fontWeight.value == 'bold'}">Bold</a>
+      <a class="text-bold" ng-click="toggleFont('fontWeight', 'bold');" ng-class="{selected: mark.properties.fontWeight.value == 'bold'}">Bold</a>
 
-      <a class="text-italic" ng-click="toggleFont('fontStyle', 'italic');" ng-class="{selected: activeVisual.properties.fontStyle.value == 'italic'}">Italic</a>
+      <a class="text-italic" ng-click="toggleFont('fontStyle', 'italic');" ng-class="{selected: mark.properties.fontStyle.value == 'italic'}">Italic</a>
     </div>
   </vde-property>
 
-  <vde-property label="Color" type="color" item="activeVisual" property="fill" ng-model="activeVisual.properties.fill.value" scale="activeVisual.properties.fill.scale" field="activeVisual.properties.fill.field"></vde-property> 
+  <vde-property label="Color" type="color" item="mark" property="fill" ng-model="mark.properties.fill.value" scale="mark.properties.fill.scale" field="mark.properties.fill.field"></vde-property> 
 
   <fieldset>
     <legend>Position</legend>
 
-    <vde-property label="X" type="number" item="activeVisual" property="x" ng-model="activeVisual.properties.x.value" scale="activeVisual.properties.x.scale" field="activeVisual.properties.x.field"></vde-property>
+    <vde-property label="X" type="number" item="mark" property="x" ng-model="mark.properties.x.value" scale="mark.properties.x.scale" field="mark.properties.x.field"></vde-property>
 
-    <vde-property label="Y" type="number" item="activeVisual" property="y" ng-model="activeVisual.properties.y.value" scale="activeVisual.properties.y.scale" field="activeVisual.properties.y.field"></vde-property>
+    <vde-property label="Y" type="number" item="mark" property="y" ng-model="mark.properties.y.value" scale="mark.properties.y.scale" field="mark.properties.y.field"></vde-property>
   </fieldset>
 
   <fieldset>
     <legend>Align</legend>
 
-    <vde-property label="" item="activeVisual" nodrop="1">
+    <vde-property label="" item="mark" nodrop="1">
       <div class="icons">
-        <a class="text-left-align" ng-click="toggleFont('align', 'left');" ng-class="{selected: activeVisual.properties.align.value == 'left'}">Left Align</a>
+        <a class="text-left-align" ng-click="toggleFont('align', 'left');" ng-class="{selected: mark.properties.align.value == 'left'}">Left Align</a>
 
-        <a class="text-center-align" ng-click="toggleFont('align', 'center');" ng-class="{selected: activeVisual.properties.align.value == 'center'}">Center Align</a>
+        <a class="text-center-align" ng-click="toggleFont('align', 'center');" ng-class="{selected: mark.properties.align.value == 'center'}">Center Align</a>
 
-        <a class="text-right-align" ng-click="toggleFont('align', 'right');" ng-class="{selected: activeVisual.properties.align.value == 'right'}">Right Align</a>
+        <a class="text-right-align" ng-click="toggleFont('align', 'right');" ng-class="{selected: mark.properties.align.value == 'right'}">Right Align</a>
 
-        <a class="text-top-align" ng-click="toggleFont('baseline', 'top');" ng-class="{selected: activeVisual.properties.baseline.value == 'top'}">Top Align</a>
+        <a class="text-top-align" ng-click="toggleFont('baseline', 'top');" ng-class="{selected: mark.properties.baseline.value == 'top'}">Top Align</a>
 
-        <a class="text-middle-align" ng-click="toggleFont('baseline', 'middle');" ng-class="{selected: activeVisual.properties.baseline.value == 'middle'}">Middle Align</a>
+        <a class="text-middle-align" ng-click="toggleFont('baseline', 'middle');" ng-class="{selected: mark.properties.baseline.value == 'middle'}">Middle Align</a>
 
-        <a class="text-bottom-align" ng-click="toggleFont('baseline', 'bottom');" ng-class="{selected: activeVisual.properties.baseline.value == 'bottom'}">Bottom Align</a>      
+        <a class="text-bottom-align" ng-click="toggleFont('baseline', 'bottom');" ng-class="{selected: mark.properties.baseline.value == 'bottom'}">Bottom Align</a>      
       </div>
     </vde-property> 
 
-    <vde-property label="X" type="number" item="activeVisual" property="dx" ng-model="activeVisual.properties.dx.value" scale="activeVisual.properties.dx.scale" field="activeVisual.properties.dx.field"></vde-property>
+    <vde-property label="X" type="number" item="mark" property="dx" ng-model="mark.properties.dx.value" scale="mark.properties.dx.scale" field="mark.properties.dx.field"></vde-property>
 
-    <vde-property label="Y" type="number" item="activeVisual" property="dy" ng-model="activeVisual.properties.dy.value" scale="activeVisual.properties.dy.scale" field="activeVisual.properties.dy.field"></vde-property>
+    <vde-property label="Y" type="number" item="mark" property="dy" ng-model="mark.properties.dy.value" scale="mark.properties.dy.scale" field="mark.properties.dy.field"></vde-property>
   </fieldset>
 
-  <vde-property label="Angle" type="number" item="activeVisual" property="angle" ng-model="activeVisual.properties.angle.value" scale="activeVisual.properties.angle.scale" field="activeVisual.properties.angle.field"></vde-property>
+  <vde-property label="Angle" type="number" item="mark" property="angle" ng-model="mark.properties.angle.value" scale="mark.properties.angle.scale" field="mark.properties.angle.field"></vde-property>
 </div>

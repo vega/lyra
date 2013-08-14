@@ -59,8 +59,8 @@ a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
   border: 1px solid transparent;
 }
 
-.property.available { background: #bbb; }
-.property.helper, .property.drophover { background: #aaa; }
+.property.available { background: #b0b0b0; }
+.property.helper, .property.drophover { background: #bbb; }
 
 .property label {
   float: left;

@@ -25,6 +25,7 @@ vde.App.directive('vdeMarkDroppable', function($rootScope, $timeout, logger) {
         // Add mark to model, then reparse vega spec
         var groupName = ($rootScope.activeGroup || {}).name;
         var mark = eval('new vde.Vis.marks["' + markType + '"](undefined, groupName)');
+        mark.pipelineName = ($rootScope.activePipeline || {}).name;
         vde.Vis.parse();
 
         // Then route to this mark to load its inspector, but wait until 

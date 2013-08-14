@@ -1,25 +1,25 @@
 <div class="inspector" ng-controller="PipelineCtrl">
     <ul>
       <li class="pipeline-name icon">Pipeline name
-        <input type="text" ng-model="activePipeline.displayName" />
+        <input type="text" ng-model="pipeline.displayName" />
       </li>
 
       <li class="import-data icon">Import data from
         <select ng-model="pMdl.activePipelineSource" ng-change="setSource()" vde-pos-new-data="1">
           <option value="">Select...</option>
-          <option ng-repeat="(srcName, src) in pMdl.dataSources" value="{{srcName}}" ng-selected="pMdl.activePipelineSource==srcName||activePipeline.source==srcName">{{srcName}}</option>
+          <option ng-repeat="(srcName, src) in pMdl.dataSources" value="{{srcName}}" ng-selected="pMdl.activePipelineSource==srcName||pipeline.source==srcName">{{srcName}}</option>
           <option value="vdeNewData">New Data Source</option>
         </select>
       </li>
 
-      <li ng-repeat="transform in activePipeline.transforms" class="transform-{{transform.type|lowercase}} icon">
+      <li ng-repeat="transform in pipeline.transforms" class="transform-{{transform.type|lowercase}} icon">
         <vde-pipeline-ctrls></vde-pipeline-ctrls>
 
         <ng-include src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></ng-include>
       </li>
     </ul>
 
-    <div class="datatable" ng-if="activePipeline.source" vde-data-grid pipeline="activePipeline"></div>
+    <div class="datatable" ng-if="pipeline.source" vde-data-grid pipeline="pipeline"></div>
 
     <ul>
       <li ng-repeat="transform in newTransforms" class="transform-{{transform.type|lowercase}} icon" ng-init="isNewTransform = 1"> 
@@ -31,7 +31,7 @@
       </li>
     </ul>
 
-    <div ng-show="activePipeline.source && newTransforms.length == 0">
+    <div ng-show="pipeline.source && newTransforms.length == 0">
       <h6>Data Transforms</h6>
       <div class="shelf icons">
         <a class="transform-filter" ng-click="newTransform('Filter')" vde-tooltip="Filter">Filter</a>
@@ -52,7 +52,7 @@
 
     <h6>Scales <a ng-click="addScale()" class="addScale add" vde-tooltip="New Scale">New Scale</a></h6>
     <div id="scales" class="shelf">
-        <vde-binding ng-repeat="(scaleName, scale) in activePipeline.scales" scale="scale" draggable="1"></vde-binding>
+        <vde-binding ng-repeat="(scaleName, scale) in pipeline.scales" scale="scale" draggable="1"></vde-binding>
 
         <br clear="all" />
     </div>
