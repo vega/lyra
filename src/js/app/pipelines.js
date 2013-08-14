@@ -57,9 +57,10 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams, lo
     var cnf = confirm("Are you sure you wish to delete this transformation?")
     if(!cnf) return;
 
-    if(isNewTransform)
+    if(isNewTransform) {
+      $scope.newTransforms[i].destroy();
       $scope.newTransforms.splice(i, 1);
-    else {
+    } else {
       $rootScope.activePipeline.transforms[i].destroy();
       $rootScope.activePipeline.transforms.splice(i, 1);
       vde.Vis.parse();
