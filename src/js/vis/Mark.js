@@ -43,8 +43,8 @@ vde.Vis.Mark = (function() {
     vde.Vis.addEventListener('click', function(e, item) { 
       if(item.mark.def != self.def()) return;
       if(item.items) return;
-console.log(item.key);
-      self.ngScope().toggleVisual(self, item.key);
+
+      self.ngScope().toggleVisual(self, item.vdeKey || item.key || 0);
 
       vde.iVis.parse();
     });    
@@ -233,7 +233,7 @@ console.log(item.key);
         def = visit(start);
     }
 
-    // def.vdeMdl = this;
+    def.vdeMdl = this;
     this._def = def;
 
     return this._def;
@@ -269,6 +269,8 @@ console.log(item.key);
       for(var g = 0; g < groups.length; g++)
         this._items = this._items.concat(visit(groups[g]));
     }
+
+    for(var i = 0; i < this._items.length; i++) this._items[i].vdeKey = i;
 
     // this._items = this._items.sort(function(a, b) { return a.key - b.key; });
     return this._items;

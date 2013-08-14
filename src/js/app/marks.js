@@ -5,7 +5,7 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope, logger) {
 
       if(vg.keys(vde.Vis._rawData).length == 0) {
         vde.Vis.data('medals', 'data/medals.json', 'json');
-        // vde.Vis.data('olympics', 'data/olympics.json', 'json');
+        vde.Vis.data('olympics', 'data/olympics.json', 'json');
         vde.Vis.data('groups', 'data/groups.json', 'json');
         vde.Vis.data('barley', 'data/barley.json', 'json');
         vde.Vis.data('iris', 'data/iris.json', 'json');
