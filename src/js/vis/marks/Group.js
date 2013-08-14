@@ -48,19 +48,12 @@ vde.Vis.marks.Group = (function() {
     });
   };
 
-  prototype.update = function(prop) {
-    // Because a group could affect sub-marks, re-parse the whole thing
-    var def = this.def(), update = {};
-    update[prop] = this.property(prop);
-
-    def.properties.update = vg.parse.properties(this.type, update);
-    vde.Vis.view.model().build();
-    vde.Vis.view.model().encode();
-    vde.Vis.view.update();
-
+  prototype.update = function(props) {
+    vde.Vis.Mark.prototype.update.call(this, props);
+    
+    // Because a group could affect sub-marks, re-parse the submarks
     for(var m in this.marks)
-      this.marks[m].update('x').update('x2').update('width')
-        .update('y').update('y2').update('height');   
+      this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);   
 
     return this;
   }

@@ -75,16 +75,21 @@ vde.Vis.Mark = (function() {
     return parsed;
   };
 
-  prototype.update = function(prop) {
-    var def  = this.def(), update = {};
-    update[prop] = this.property(prop);
-    if(!update[prop]) return this;
+  prototype.update = function(props) {
+    var self = this, def  = this.def();
+    if(!vg.isArray(props)) props = [props];
+    
+    var update = props.reduce(function(up, prop) {
+      var p = self.property(prop); 
+      if(p) up[prop] = p;
+      return up;
+    }, {});
 
-    if(update[prop].scale) vde.Vis.parse();
-    else {
+    // if(update[prop].scale) vde.Vis.parse();
+    // else {
       def.properties.update = vg.parse.properties(this.type, update);
       vde.Vis.view.update();
-    }
+    // }
 
     return this;
   };

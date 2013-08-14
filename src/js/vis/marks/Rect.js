@@ -105,26 +105,34 @@ vde.Vis.marks.Rect = (function() {
             var reverse = (props.y.scale && 
               props.y.scale.properties.range.name == 'height') ? -1 : 1;
             
-              if(!props.y.disabled) props.y.value += dy*reverse; self.update('y');
-              if(!props.height.disabled) props.height.value += dy*-1; self.update('height');
+              if(!props.y.disabled) props.y.value += dy*reverse;
+              if(!props.height.disabled) props.height.value += dy*-1;
+
+              self.update(['y', 'height']);
           break;
 
           case 'bottom':
             var reverse = (props.y2.scale && 
               props.y2.scale.properties.range.name == 'height') ? -1 : 1;
 
-            if(!props.y2.disabled) props.y2.value += dy*reverse; self.update('y2');
-            if(!props.height.disabled) props.height.value += dy; self.update('height');
+            if(!props.y2.disabled) props.y2.value += dy*reverse;
+            if(!props.height.disabled) props.height.value += dy;
+
+            self.update(['y2', 'height']);
           break;
 
           case 'left':
-            if(!props.x.disabled) props.x.value += dx; self.update('x');
-            if(!props.width.disabled) props.width.value += dx*-1; self.update('width');
+            if(!props.x.disabled) props.x.value += dx;
+            if(!props.width.disabled) props.width.value += dx*-1;
+
+            self.update(['x', 'width']);
           break;
 
           case 'right':
-            if(!props.x2.disabled) props.x2.value += dx; self.update('x2');
-            if(!props.width.disabled) props.width.value += dx; self.update('width');
+            if(!props.x2.disabled) props.x2.value += dx;
+            if(!props.width.disabled) props.width.value += dx;
+
+            self.update(['x2', 'width']);
           break;
         }
       });

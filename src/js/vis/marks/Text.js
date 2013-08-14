@@ -99,8 +99,10 @@ vde.Vis.marks.Text = (function() {
             self.update('fontSize');
           }
         } else {
-          if(!props.x.field) props.x.value += dx; self.update('x');
-          if(!props.y.field) props.y.value += dy; self.update('y');
+          if(!props.x.field) props.x.value += dx;
+          if(!props.y.field) props.y.value += dy;
+
+          self.update(['x', 'y']);
         }
       });
 

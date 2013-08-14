@@ -56,11 +56,11 @@ a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
 .property {
   margin-bottom: 10px;
   white-space: nowrap;
-  border: 1px solid transparent;
+  border-radius: 10px;
 }
 
-.property.available { background: #b0b0b0; }
-.property.helper, .property.drophover { background: #bbb; }
+.property.available, .property.helper { background: #b5b5b5; }
+.property.drophover { background: #ccc; }
 
 .property label {
   float: left;
