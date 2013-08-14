@@ -137,8 +137,10 @@ vde.Vis.marks.Rect = (function() {
     return ['handle', positions(), {mousemove: mousemove}];
   };  
 
-  prototype.helper = function(property, item) {
-    var self = this, props = this.properties;
+  prototype.helper = function(property) {
+    var self = this, 
+        item = vde.iVis.activeItem, 
+        props = this.properties;
     if(!item.key) item = this.item(item);
     if(['x', 'x2', 'width', 'y', 'y2', 'height'].indexOf(property) == -1) return;
 

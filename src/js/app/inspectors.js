@@ -54,16 +54,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       };
 
       $scope.showHelper = function(target, e, helperClass) {
-        if(($scope.item instanceof vde.Vis.Mark)) {
-          var width = target.width(), offset = target.offset(),
-              numItems = $scope.item.items().length,
-              band = width / numItems;
-
-          var i = Math.floor((e.pageX - offset.left) / band);
-          if(i < 0) i = 0;
-          if(i > numItems-1) i = numItems-1;
-          $scope.item.helper($attrs.property, i);  
-        }
+        if($scope.item instanceof vde.Vis.Mark) $scope.item.helper($attrs.property);
         
         target.addClass(helperClass);
       };
