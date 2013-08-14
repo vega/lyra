@@ -123,6 +123,7 @@ vde.Vis.transforms.Facet = (function() {
     opts.spec.marks.push(vg.duplicate(this._group));
 
     // Clear it for the next pass
+    this._group.properties = {};
     this._group.scales = [];
     this._group.axes = [];      
     this._group.marks = [];

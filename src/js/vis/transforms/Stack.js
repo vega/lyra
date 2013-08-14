@@ -36,6 +36,8 @@ vde.Vis.transforms.Stack = (function() {
   // Inject stats calculation for height scales
   prototype.visPostSpec = function(opts) {
     var self = this;
+    if(!this.pipeline() || !this.pipeline().forkName) return;
+    
     opts.spec.data.push({
       name: self.pipeline().name + '_stack',
       source: self.pipeline().source,
