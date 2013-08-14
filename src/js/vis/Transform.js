@@ -42,6 +42,10 @@ vde.Vis.Transform = (function() {
     this.properties[prop] = field;
   };
 
+  prototype.unbindProperty = function(prop) {
+    delete this.properties[prop];
+  };
+
   // Assumes data is already ingested
   prototype.transform = function(data) {
     var transform = vg.parse.dataflow({transform: [this.spec()]})
