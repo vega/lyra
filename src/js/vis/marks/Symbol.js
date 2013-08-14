@@ -36,5 +36,44 @@ vde.Vis.marks.Symbol = (function() {
     return [scale, field];
   };
 
+  prototype.interactive = function() {
+    var self = this, 
+        item = vde.iVis.activeItem, 
+        props = this.properties;
+    if(!item.key) item = this.item(item);
+
+    var positions = function() {
+      var b = vde.iVis.translatedBounds(item, item.bounds),
+          pt   = {x: b.x1 + (b.width()/2), y: b.y1 + (b.height()/2), cursor: 'se-resize', disabled: 0};
+
+      if(self.properties.size.field) pt.disabled = 1;
+
+      return [pt];
+    }; 
+
+    var mousemove = function() {
+      var dragging = vde.iVis.dragging, evt = d3.event;
+      if(!dragging) return;
+      if(vde.iVis.activeMark != self) return;
+
+      var handle = (dragging.item.mark.def.name == 'handle'),
+          dx = Math.ceil(evt.pageX - dragging.prev[0]),
+          dy = Math.ceil(evt.pageY - dragging.prev[1]),
+          data = dragging.item.datum.data;
+
+      if(!handle) return;
+
+      self.ngScope().$apply(function() { 
+        props.size.value += dx*10; 
+        self.update('size'); 
+      }); 
+
+      dragging.prev = [evt.pageX, evt.pageY];
+      vde.iVis.view.data({ 'handle_data': positions() }).update();
+    };
+
+    return ['handle', positions(), {mousemove: mousemove}];
+  };  
+
   return symbol;
 })();

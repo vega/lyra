@@ -19,7 +19,7 @@ vde.Vis.marks.Text = (function() {
       fontWeight: {value: 'normal'},
       fontStyle: {value: 'normal'},
 
-      fill: {value: '#4682b4'},
+      fill: {value: '#4682b4'}
     };
 
     return this.init();
@@ -60,11 +60,9 @@ vde.Vis.marks.Text = (function() {
 
       if(props.angle.value < 0 || (props.angle.value > 90 && props.angle.value < 180)) {
         left = {x: b.x1, y: b.y2}; right = {x: b.x2, y: b.y1}; 
-      } else if(props.angle.value != 0) {
-        left  = {x: b.x1, y: b.y1}; right = {x: b.x2, y: b.y2};
       } else {
-        left  = {x: b.x1, y: b.y1 + (b.height()/2)}; right = {x: b.x2, y: b.y1 + (b.height()/2)};
-      }
+        left  = {x: b.x1, y: b.y1}; right = {x: b.x2, y: b.y2};
+      } 
 
       left.pos = 'left'; left.cursor = 'nw-resize'; left.disabled = 0;
       right.pos = 'right'; right.cursor = 'se-resize'; right.disabled = 0;
@@ -92,13 +90,10 @@ vde.Vis.marks.Text = (function() {
 
             var rad = Math.atan2(evt.pageX - (o.left + cx), evt.pageY - (o.top + cy));
             var deg = (rad * (180 / Math.PI) * -1) + 90; 
-            props.angle.value = deg;
+            props.angle.value = Math.round(deg);
             self.update('angle');
           } else {
-            if(data.pos == 'left') {
-            if(!props.x.field) props.x.value = Math.round(props.x.value + dx/5); self.update('x');
-              dx *= -1;
-            }
+            if(data.pos == 'left') dx*=-1;
             props.fontSize.value = Math.round(props.fontSize.value + dx/5);
             if(props.fontSize.value < 1) props.fontSize.value = 1;
             self.update('fontSize');

@@ -97,43 +97,37 @@ vde.Vis.marks.Rect = (function() {
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
           data = dragging.item.datum.data;
 
-      if(!data || data.disabled) return;    
+      if(!data || data.disabled) return; 
 
-      switch(data.pos) {
-        case 'top':
-          var reverse = (props.y.scale && 
-            props.y.scale.properties.range.name == 'height') ? -1 : 1;
+      self.ngScope().$apply(function() {   
+        switch(data.pos) {
+          case 'top':
+            var reverse = (props.y.scale && 
+              props.y.scale.properties.range.name == 'height') ? -1 : 1;
+            
+              if(!props.y.disabled) props.y.value += dy*reverse; self.update('y');
+              if(!props.height.disabled) props.height.value += dy*-1; self.update('height');
+          break;
 
-          self.ngScope().$apply(function() {
-            if(!props.y.disabled) props.y.value += dy*reverse; self.update('y');
-            if(!props.height.disabled) props.height.value += dy*-1; self.update('height');
-          });
-        break;
+          case 'bottom':
+            var reverse = (props.y2.scale && 
+              props.y2.scale.properties.range.name == 'height') ? -1 : 1;
 
-        case 'bottom':
-          var reverse = (props.y2.scale && 
-            props.y2.scale.properties.range.name == 'height') ? -1 : 1;
-
-          self.ngScope().$apply(function() {
             if(!props.y2.disabled) props.y2.value += dy*reverse; self.update('y2');
             if(!props.height.disabled) props.height.value += dy; self.update('height');
-          });          
-        break;
+          break;
 
-        case 'left':
-          self.ngScope().$apply(function() {
+          case 'left':
             if(!props.x.disabled) props.x.value += dx; self.update('x');
             if(!props.width.disabled) props.width.value += dx*-1; self.update('width');
-          });         
-        break;
+          break;
 
-        case 'right':
-          self.ngScope().$apply(function() {
+          case 'right':
             if(!props.x2.disabled) props.x2.value += dx; self.update('x2');
             if(!props.width.disabled) props.width.value += dx; self.update('width');
-          });  
-        break;
-      }
+          break;
+        }
+      });
 
       dragging.prev = [evt.pageX, evt.pageY];
 
