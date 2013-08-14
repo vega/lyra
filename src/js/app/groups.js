@@ -80,6 +80,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     else delete $rootScope.activeGroup[type][name];
     vde.Vis.parse();
 
+    $('.tooltip').remove();
+
     logger.log('remove_visual', {
       type: type,
       name: name,

@@ -23,7 +23,8 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams, lo
 
   $scope.removePipeline = function(p) {
     delete vde.Vis.pipelines[p];
-
+    $('.tooltip').remove();
+    
     logger.log('remove_pipeline', { pipelineName: p }, false, true);
   };
 
@@ -65,6 +66,8 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams, lo
       $rootScope.activePipeline.transforms.splice(i, 1);
       vde.Vis.parse();
     }
+
+    $('.tooltip').remove();
 
     logger.log('remove_transform', { idx: i, isNewTransform: isNewTransform }, false, true);
   }; 
