@@ -69,7 +69,7 @@ vde.Vis.Mark = (function() {
 
       if(k == 'scale') parsed[k] = p[k].name;
       else if(k == 'field') parsed[k] = p[k].spec();
-      else parsed[k] = p[k];
+      else parsed[k] = (!isNaN(+p[k])) ? +p[k] : p[k];
     };
 
     return parsed;
