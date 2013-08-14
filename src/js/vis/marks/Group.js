@@ -43,14 +43,12 @@ vde.Vis.marks.Group = (function() {
       vde.iVis.activeItem = item;
 
       self.ngScope().toggleVisual(self);
-
-      vde.iVis.parse();
     });
   };
 
   prototype.update = function(props) {
     vde.Vis.Mark.prototype.update.call(this, props);
-    
+
     // Because a group could affect sub-marks, re-parse the submarks
     for(var m in this.marks)
       this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);   

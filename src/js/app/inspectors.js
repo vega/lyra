@@ -27,7 +27,6 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
         $timeout(function() {
           if($scope.item.update) $scope.item.update(prop || $attrs.property);
           else vde.Vis.parse();
-          vde.iVis.parse();
         }, 1);   
 
         logger.log('onchange', {
@@ -60,7 +59,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       };
 
       $scope.hideHelper = function(target, e, helperClass) {
-        vde.iVis.parse(); 
+        vde.iVis.show('handle'); 
         target.removeClass(helperClass);
       };
     },

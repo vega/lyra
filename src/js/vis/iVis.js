@@ -12,36 +12,43 @@ vde.iVis = (function() {
     "click", "dblclick", "keypress", "keydown", "keyup"
   ];
 
+  var interactors = ['handle', 'connector', 'span'];
+
   ivis.interactor = function(interactor, data, evtHandlers) {
     if(!interactor || !data) return;
-    this._data[interactor + '_data'] = data;
-    this._marks.push(this[interactor]());
 
+    this._data[interactor] = data;
     for(var type in evtHandlers) this._evtHandlers[type] = evtHandlers[type];
   };
 
+  ivis.show = function(show) {
+    if(!vg.isArray(show)) show = [show];
+    if(this.activeMark) this.activeMark.interactive();
+
+    var d = {};
+    interactors.forEach(function(i) { d[i] = []; });
+    show.forEach(function(s) { d[s] = ivis._data[s]; });
+
+    ivis.view.data(d).update();
+  };
+
+  // We can't keep re-parsing the iVis layer. This triggers false mouseout
+  // events as a result of removing all #ivis children. So, we only reparse
+  // when we reparse the Vis, and subsequently only update the datasets. 
   ivis.parse = function() {
     var spec = {
       width: vde.Vis.properties.width,
       height: vde.Vis.properties.height,
-      padding: vde.Vis.properties.padding,
-      data: [], scales: [], marks: []
+      padding: vde.Vis.properties.padding
     };
 
-    if((this._data.length == 0 || this._marks.length == 0) && 
-        this.activeMark && this.activeMark.interactive) {
-      var active = this.activeMark.interactive();
-      this.interactor(active[0], active[1], active[2]);
-    }
-
-    spec.marks = this._marks;        
-    spec.scales.push({
+    spec.data = interactors.map(function(i) { return {name: i, values: [] }});
+    spec.scales = [{
       name: 'disabled',
       domain: [0, 1],
       range: ['#fff', '#999']
-    });
-    for(var d in this._data)
-      spec.data.push({ name: d, values: this._data[d] });
+    }];
+    spec.marks = interactors.map(function(i) { return ivis[i](); });
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#ivis').selectAll('*').remove();
@@ -60,42 +67,45 @@ vde.iVis = (function() {
         d3.select('#vis canvas').node().dispatchEvent(evt);
       };
 
+      var mouseup = function() { vde.iVis.dragging = null; icanvas.style('cursor', 'auto'); };
+
       events.forEach(function(type) {
-        if(type == 'mousemove') {
+        if(type == 'mousemove') { 
           icanvas.on('mousemove', function() {
             dispatchEvent();
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
           })
         } else if(type.indexOf('key') != -1) {
-          if(ivis._evtHandlers[type])
-            d3.select('body').on(type, ivis._evtHandlers[type]);
+          d3.select('body').on(type, function() {
+            if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
+          });
         } else {
-          icanvas.on(type, dispatchEvent);
-          if(ivis._evtHandlers[type])
-            vde.iVis.view.on(type, ivis._evtHandlers[type]);
+          icanvas.on(type, function(){
+            if(type == 'mouseup') mouseup();
+            dispatchEvent();
+          });
+
+          vde.iVis.view.on(type, function(e, i) {
+            // Automatically register events to handle dragging
+            switch(type) {
+              case 'mouseover':
+                if(i.datum.data.cursor && !i.datum.data.disabled) icanvas.style('cursor', i.datum.data.cursor);
+              break;
+
+              case 'mouseout': if(!vde.iVis.dragging) mouseup(); break;
+
+              case 'mousedown':
+                vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
+                if(i.datum.data.cursor && !i.datum.data.disabled) icanvas.style('cursor', i.datum.data.cursor); 
+              break;
+
+              case 'mouseup': mouseup(); break;
+            }
+
+            if(ivis._evtHandlers[type]) ivis._evtHandlers[type](e, i);
+          });
         }
       });
-
-      // For handles, automatically register a mousedown/up event to enable
-      // dragging
-      if(spec.marks.length > 0 && spec.marks[0].name == 'handle') {
-        var mouseup = function() { vde.iVis.dragging = null; icanvas.style('cursor', 'auto'); };
-
-        vde.iVis.view
-          .on('mouseover', function(e, i) {
-            if(i.datum.data.cursor && !i.datum.data.disabled) icanvas.style('cursor', i.datum.data.cursor);
-          })
-          .on('mouseout', function() { if(!vde.iVis.dragging) mouseup(); })
-          .on('mousedown', function(e, i) {
-            vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
-            if(i.datum.data.cursor && !i.datum.data.disabled) icanvas.style('cursor', i.datum.data.cursor); 
-          })
-          .on('mouseup', mouseup);
-
-        icanvas.on('mouseup', mouseup);
-      }
-
-      ivis._data = {}, ivis._marks = [];
     });     
 
     return spec;
@@ -105,7 +115,7 @@ vde.iVis = (function() {
     return {
       name: 'handle',
       type: 'symbol',
-      from: {data: 'handle_data'},
+      from: {data: 'handle'},
       properties: {
         enter: {
           shape: {value: 'square'},
@@ -126,7 +136,7 @@ vde.iVis = (function() {
     return {
       name: 'connector',
       type: 'symbol',
-      from: {data: 'connector_data'},
+      from: {data: 'connector'},
       properties: {
         enter: {
           shape: {value: 'circle'},
@@ -148,7 +158,7 @@ vde.iVis = (function() {
       name: 'span_group',
       type: 'group',
       from: {
-        data: 'span_data',
+        data: 'span',
         transform: [{type: 'facet', keys:['data.span']}]
       },
       marks: [{

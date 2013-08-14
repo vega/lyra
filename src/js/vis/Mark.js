@@ -45,8 +45,6 @@ vde.Vis.Mark = (function() {
       if(item.items) return;
 
       self.ngScope().toggleVisual(self, item.vdeKey || item.key || 0);
-
-      vde.iVis.parse();
     });    
 
     return this;

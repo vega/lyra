@@ -139,10 +139,10 @@ vde.Vis.marks.Rect = (function() {
 
       dragging.prev = [evt.pageX, evt.pageY];
 
-      vde.iVis.view.data({ 'handle_data': positions() }).update();
+      vde.iVis.show('handle');
     };
 
-    return ['handle', positions(), {mousemove: mousemove}];
+    vde.iVis.interactor('handle', positions(), {mousemove: mousemove});
   };  
 
   prototype.helper = function(property) {
@@ -213,7 +213,7 @@ vde.Vis.marks.Rect = (function() {
 
     vde.iVis.interactor('connector', connectorData);
     vde.iVis.interactor('span', spanData);
-    vde.iVis.parse();
+    vde.iVis.show(['connector', 'span']);
   };
 
   return rect;
