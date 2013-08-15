@@ -54,22 +54,6 @@ vde.Vis.marks.Text = (function() {
         props = this.properties;
     if(!item.key) item = this.item(item);
 
-    var positions = function() {
-      var b = vde.iVis.translatedBounds(item, item.bounds),
-        left = null, right = null;
-
-      if(props.angle.value < 0 || (props.angle.value > 90 && props.angle.value < 180)) {
-        left = {x: b.x1, y: b.y2}; right = {x: b.x2, y: b.y1}; 
-      } else {
-        left  = {x: b.x1, y: b.y1}; right = {x: b.x2, y: b.y2};
-      } 
-
-      left.pos = 'left'; left.cursor = 'nw-resize'; left.disabled = 0;
-      right.pos = 'right'; right.cursor = 'se-resize'; right.disabled = 0;
-
-      return [left, right];
-    }; 
-
     var mousemove = function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
       if(!dragging) return;
@@ -107,7 +91,7 @@ vde.Vis.marks.Text = (function() {
       });
 
       dragging.prev = [evt.pageX, evt.pageY];
-      vde.iVis.view.data({ 'handle_data': positions() }).update();
+      vde.iVis.show('handle');
     };
 
     var keydown = function() {
@@ -126,11 +110,28 @@ vde.Vis.marks.Text = (function() {
           break;
         }
 
-        self.update('fontWeight').update('fontStyle');
+        self.update(['fontWeight', 'fontStyle']);
       });      
     };
 
-    vde.iVis.interactor('handle', positions(), {mousemove: mousemove, keydown: keydown});
+    vde.iVis.interactor('handle', this.handles(item), {mousemove: mousemove, keydown: keydown});
+  };
+
+  prototype.handles = function(item) {
+    var props = this.properties,
+        b = vde.iVis.translatedBounds(item, item.bounds),
+        left = null, right = null;
+
+    if(props.angle.value < 0 || (props.angle.value > 90 && props.angle.value < 180)) {
+      left = {x: b.x1, y: b.y2}; right = {x: b.x2, y: b.y1}; 
+    } else {
+      left  = {x: b.x1, y: b.y1}; right = {x: b.x2, y: b.y2};
+    } 
+
+    left.pos = 'left'; left.cursor = 'nw-resize'; left.disabled = 0;
+    right.pos = 'right'; right.cursor = 'se-resize'; right.disabled = 0;
+
+    return [left, right];
   };
 
   return text;

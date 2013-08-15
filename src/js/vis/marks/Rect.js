@@ -65,28 +65,6 @@ vde.Vis.marks.Rect = (function() {
     var self = this, item = vde.iVis.activeItem;
     if(!item.key) item = this.item(item);
 
-    var positions = function() {
-      var b = vde.iVis.translatedBounds(item, item.bounds),
-        top    = {x: b.x1 + (b.width()/2), y: b.y1,  pos: 'top',    cursor: 'n-resize', disabled: 1},
-        bottom = {x: b.x1 + (b.width()/2), y: b.y2,  pos: 'bottom', cursor: 's-resize', disabled: 1},
-        left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',   cursor: 'w-resize', disabled: 1},
-        right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right',  cursor: 'e-resize', disabled: 1};
-
-      if((!self.properties.y.field && !self.properties.y.disabled)   || !self.properties.height.disabled)
-        top.disabled = 0;
-
-      if((!self.properties.y2.field && !self.properties.y2.disabled) || !self.properties.height.disabled)
-        bottom.disabled = 0;      
-
-      if((!self.properties.x.field && !self.properties.x.disabled)   || !self.properties.width.disabled)
-        left.disabled = 0;
-
-      if((!self.properties.x2.field && !self.properties.x2.disabled) || !self.properties.width.disabled)
-        right.disabled = 0;
-
-      return [top, bottom, left, right];      
-    };    
-
     var mousemove = function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
       if(!dragging) return;
@@ -138,82 +116,95 @@ vde.Vis.marks.Rect = (function() {
       });
 
       dragging.prev = [evt.pageX, evt.pageY];
-
       vde.iVis.show('handle');
     };
 
-    vde.iVis.interactor('handle', positions(), {mousemove: mousemove});
+    vde.iVis.interactor('handle', this.handles(item), {mousemove: mousemove});
   };  
 
   prototype.helper = function(property) {
-    var self = this, 
-        item = vde.iVis.activeItem, 
-        props = this.properties;
+    var item = vde.iVis.activeItem;
     if(!item.key) item = this.item(item);
     if(['x', 'x2', 'width', 'y', 'y2', 'height'].indexOf(property) == -1) return;
 
-    var connectors = function(i) {
-      var b  = vde.iVis.translatedBounds(i, i.bounds);
-      switch(property) {
-        case 'x': return [{x: b.x1, y: b.y1}, {x: b.x1, y: b.y2}]; break;
-        case 'x2': return [{x: b.x2, y: b.y1}, {x: b.x2, y: b.y2}]; break;
-        case 'width': return [{x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}]; break;
-
-        case 'y': return [{x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}]; break;
-        case 'y2': return [{x: b.x1, y: b.y2}, {x: b.x2, y: b.y2}]; break;
-        case 'height': return [{x: b.x1, y: b.y1}, {x: b.x1, y: b.y2}]; break;
-      };
-    };
-
-    var spans = function(i) {
-      if(!i) return;
-      var b  = vde.iVis.translatedBounds(i, i.bounds),
-          gb = vde.iVis.translatedBounds(i.mark.group, i.mark.group.bounds),
-          go = 10, io = 7; // offsets
-
-      switch(property) {
-        case 'x': 
-          return [{x: (gb.x1-go), y: (b.y1-io), span: 0}, {x: b.x1, y: (b.y1-io), span: 0},
-           {x: (gb.x1-go), y: (b.y2+io), span: 1}, {x: b.x1, y: (b.y2+io), span: 1}];
-        break;
-
-        case 'x2': 
-          return [{x: (gb.x1-go), y: (b.y1-io), span: 0}, {x: b.x2, y: (b.y1-io), span: 0},
-           {x: (gb.x1-go), y: (b.y2+io), span: 1}, {x: b.x2, y: (b.y2+io), span: 1}];
-        break;
-
-        case 'width': return [{x: b.x1, y: (b.y1-io), span: 0}, {x: b.x2, y: (b.y1-io), span: 0}]; break;
-
-        case 'y': return (props.y.scale && props.y.scale.properties.range.name == 'height') ?
-          [{x: (b.x1-io), y: (gb.y2+go), span: 0}, {x: (b.x1-io), y: b.y1, span: 0},
-           {x: (b.x2+io), y: (gb.y2+go), span: 1}, {x: (b.x2+io), y: b.y1, span: 1}]
-        :
-          [{x: (b.x1-io), y: (gb.y1-go), span: 0}, {x: (b.x1-io), y: b.y1, span: 0},
-           {x: (b.x2+io), y: (gb.y1-go), span: 1}, {x: (b.x2+io), y: b.y1, span: 1}];
-        break;
-
-        case 'y2': return (props.y2.scale && props.y2.scale.properties.range.name == 'height') ?
-          [{x: (b.x1-io), y: (gb.y2+go), span: 0}, {x: (b.x1-io), y: b.y2, span: 0},
-           {x: (b.x2+io), y: (gb.y2+go), span: 1}, {x: (b.x2+io), y: b.y2, span: 1}]
-        :
-          [{x: (b.x1-io), y: (gb.y1-go), span: 0}, {x: (b.x1-io), y: b.y2, span: 0},
-           {x: (b.x2+io), y: (gb.y1-go), span: 1}, {x: (b.x2+io), y: b.y2, span: 1}];
-        break;
-
-        case 'height': return [{x: (b.x1-io), y: b.y1, span: 0}, {x: (b.x1-io), y: b.y2, span: 0}]; break;
-      };
-    }
-
-    // var connectorData = this.items().reduce(function(acc, i) {
-      // return acc.concat(connectors(i));
-    // }, []);
-    var connectorData = connectors(item);
-
-    var spanData = spans(item);
-
-    vde.iVis.interactor('connector', connectorData);
-    vde.iVis.interactor('span', spanData);
+    vde.iVis.interactor('connector', this.connectors(item, property));
+    vde.iVis.interactor('span', this.spans(item, property));
     vde.iVis.show(['connector', 'span']);
+  };
+
+  prototype.handles = function(item) {
+    var b = vde.iVis.translatedBounds(item, item.bounds),
+      top    = {x: b.x1 + (b.width()/2), y: b.y1,  pos: 'top',    cursor: 'n-resize', disabled: 1},
+      bottom = {x: b.x1 + (b.width()/2), y: b.y2,  pos: 'bottom', cursor: 's-resize', disabled: 1},
+      left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',   cursor: 'w-resize', disabled: 1},
+      right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right',  cursor: 'e-resize', disabled: 1};
+
+    if((!this.properties.y.field && !this.properties.y.disabled)   || !this.properties.height.disabled)
+      top.disabled = 0;
+
+    if((!this.properties.y2.field && !this.properties.y2.disabled) || !this.properties.height.disabled)
+      bottom.disabled = 0;      
+
+    if((!this.properties.x.field && !this.properties.x.disabled)   || !this.properties.width.disabled)
+      left.disabled = 0;
+
+    if((!this.properties.x2.field && !this.properties.x2.disabled) || !this.properties.width.disabled)
+      right.disabled = 0;
+
+    return [top, bottom, left, right];      
+  }; 
+
+  prototype.connectors = function(i, property) {
+    var b  = vde.iVis.translatedBounds(i, i.bounds);
+    switch(property) {
+      case 'x': return [{x: b.x1, y: b.y1}, {x: b.x1, y: b.y2}]; break;
+      case 'x2': return [{x: b.x2, y: b.y1}, {x: b.x2, y: b.y2}]; break;
+      case 'width': return [{x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}]; break;
+
+      case 'y': return [{x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}]; break;
+      case 'y2': return [{x: b.x1, y: b.y2}, {x: b.x2, y: b.y2}]; break;
+      case 'height': return [{x: b.x1, y: b.y1}, {x: b.x1, y: b.y2}]; break;
+    };
+  };
+
+  prototype.spans = function(i, property) {
+    if(!i) return;
+    var props = this.properties,
+        b  = vde.iVis.translatedBounds(i, i.bounds),
+        gb = vde.iVis.translatedBounds(i.mark.group, i.mark.group.bounds),
+        go = 10, io = 7; // offsets
+
+    switch(property) {
+      case 'x': 
+        return [{x: (gb.x1-go), y: (b.y1-io), span: 0}, {x: b.x1, y: (b.y1-io), span: 0},
+         {x: (gb.x1-go), y: (b.y2+io), span: 1}, {x: b.x1, y: (b.y2+io), span: 1}];
+      break;
+
+      case 'x2': 
+        return [{x: (gb.x1-go), y: (b.y1-io), span: 0}, {x: b.x2, y: (b.y1-io), span: 0},
+         {x: (gb.x1-go), y: (b.y2+io), span: 1}, {x: b.x2, y: (b.y2+io), span: 1}];
+      break;
+
+      case 'width': return [{x: b.x1, y: (b.y1-io), span: 0}, {x: b.x2, y: (b.y1-io), span: 0}]; break;
+
+      case 'y': return (props.y.scale && props.y.scale.properties.range.name == 'height') ?
+        [{x: (b.x1-io), y: (gb.y2+go), span: 0}, {x: (b.x1-io), y: b.y1, span: 0},
+         {x: (b.x2+io), y: (gb.y2+go), span: 1}, {x: (b.x2+io), y: b.y1, span: 1}]
+      :
+        [{x: (b.x1-io), y: (gb.y1-go), span: 0}, {x: (b.x1-io), y: b.y1, span: 0},
+         {x: (b.x2+io), y: (gb.y1-go), span: 1}, {x: (b.x2+io), y: b.y1, span: 1}];
+      break;
+
+      case 'y2': return (props.y2.scale && props.y2.scale.properties.range.name == 'height') ?
+        [{x: (b.x1-io), y: (gb.y2+go), span: 0}, {x: (b.x1-io), y: b.y2, span: 0},
+         {x: (b.x2+io), y: (gb.y2+go), span: 1}, {x: (b.x2+io), y: b.y2, span: 1}]
+      :
+        [{x: (b.x1-io), y: (gb.y1-go), span: 0}, {x: (b.x1-io), y: b.y2, span: 0},
+         {x: (b.x2+io), y: (gb.y1-go), span: 1}, {x: (b.x2+io), y: b.y2, span: 1}];
+      break;
+
+      case 'height': return [{x: (b.x1-io), y: b.y1, span: 0}, {x: (b.x1-io), y: b.y2, span: 0}]; break;
+    };
   };
 
   return rect;

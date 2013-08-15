@@ -42,15 +42,6 @@ vde.Vis.marks.Symbol = (function() {
         props = this.properties;
     if(!item.key) item = this.item(item);
 
-    var positions = function() {
-      var b = vde.iVis.translatedBounds(item, item.bounds),
-          pt   = {x: b.x1 + (b.width()/2), y: b.y1 + (b.height()/2), cursor: 'se-resize', disabled: 0};
-
-      if(self.properties.size.field) pt.disabled = 1;
-
-      return [pt];
-    }; 
-
     var mousemove = function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
       if(!dragging) return;
@@ -69,11 +60,20 @@ vde.Vis.marks.Symbol = (function() {
       }); 
 
       dragging.prev = [evt.pageX, evt.pageY];
-      vde.iVis.view.data({ 'handle_data': positions() }).update();
+      vde.iVis.show('handle');
     };
 
-    vde.iVis.interactor('handle', positions(), {mousemove: mousemove});
+    vde.iVis.interactor('handle', this.handles(item), {mousemove: mousemove});
   };  
+
+  prototype.handles = function(item) {
+    var b = vde.iVis.translatedBounds(item, item.bounds),
+        pt   = {x: b.x1 + (b.width()/2), y: b.y1 + (b.height()/2), cursor: 'se-resize', disabled: 0};
+
+    if(this.properties.size.field) pt.disabled = 1;
+
+    return [pt];
+  };
 
   return symbol;
 })();

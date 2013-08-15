@@ -120,5 +120,9 @@ vde.Vis.marks.Group = (function() {
     return vde.Vis.marks.Rect.prototype.selected.call(this);
   };
 
+  prototype.handles = function(item) { 
+    return vde.Vis.marks.Rect.prototype.handles.call(this, item); 
+  };
+
   return group;
 })();
