@@ -116,7 +116,7 @@ vde.Vis.Mark = (function() {
     return spec;
   };
 
-  prototype.bindProperty = function(prop, opts) {
+  prototype.bindProperty = function(prop, opts, defaults) {
     this.properties[prop] || (this.properties[prop] = {});
     var scale, field;
 
@@ -182,7 +182,33 @@ vde.Vis.Mark = (function() {
       delete this.properties[prop].value;
     }
 
-    this.checkExtents(prop);
+    if(defaults) {
+      this.defaults(prop);
+
+      // Add axes by defaults
+      var aOpts = {scaleName: scale.name, pipelineName: scale.pipelineName};
+      switch(prop) {
+        case 'x':
+        case 'x2':
+        case 'width':
+          var xAxis = new vde.Vis.Axis('x_axis', this.groupName);
+          var ap = xAxis.properties;
+          ap.type = 'x'; ap.orient = 'bottom';
+          xAxis.bindProperty('scale', aOpts);
+        break;
+
+        case 'y':
+        case 'y2':
+        case 'height':
+          var yAxis = new vde.Vis.Axis('y_axis', this.groupName);
+          var ap = yAxis.properties;
+          ap.type = 'y'; ap.orient = 'left';
+          yAxis.bindProperty('scale', aOpts);
+        break;        
+      }
+    } else {
+      this.checkExtents(prop);
+    }
   };
 
   prototype.productionRules = function(prop, scale, field) {

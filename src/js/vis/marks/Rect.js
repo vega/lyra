@@ -62,6 +62,30 @@ vde.Vis.marks.Rect = (function() {
     return [scale, field];
   };
 
+  prototype.defaults = function(prop) {
+    var props = this.properties;
+    // If we set the width/height, by default map x/y
+    if(['width', 'height'].indexOf(prop) == -1) return;
+    var defaultProp = (prop == 'width') ? 'x' : 'y';
+
+    props[defaultProp] = {
+      scale: props[prop].scale,
+      field: props[prop].field
+    };
+
+    if(props[prop].scale.properties.type == 'ordinal') {
+      props[prop] = {value: 15};
+    } else {
+      props[defaultProp+'2'] = {
+        scale: props[prop].scale,
+        value: 0
+      };
+
+      this.unbindProperty(prop);
+      props[prop].disabled = true;
+    }
+  };
+
   prototype.selected = function() {
     var self = this, item = this.item(vde.iVis.activeItem);
 
@@ -188,7 +212,7 @@ vde.Vis.marks.Rect = (function() {
           props: 'hover',
           items: item.cousin(-1).items[0].items
         });
-        
+
         d3.select('#' + item.property + '.property').classed('drophover', true);
       }
     };
@@ -220,7 +244,10 @@ vde.Vis.marks.Rect = (function() {
       if(!vde.iVis.dragging) return;
       if(item.mark.def.name != 'dropzone') return;
 
-      if(item.property) vde.iVis.bindProperty(self, item.property);
+      if(item.property) vde.iVis.bindProperty(self, item.property, true);
+
+      d3.select('#' + item.property + '.property').classed('drophover', false);
+      window.clearTimeout(vde.iVis.timeout); 
     };
 
     vde.iVis.interactor('connector', connectors);

@@ -210,7 +210,7 @@ vde.iVis = (function() {
     }
   };
 
-  ivis.bindProperty = function(visual, property) {
+  ivis.bindProperty = function(visual, property, defaults) {
     if(!ivis.dragging) return;
 
     var rootScope = ivis.ngScope();
@@ -225,7 +225,7 @@ vde.iVis = (function() {
       if(!visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
 
       visual.bindProperty(property, 
-        {field: field, scaleName: scale, pipelineName: pipelineName});
+        {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
     $('.proxy').remove();

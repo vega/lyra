@@ -3,6 +3,10 @@ vde.Vis.Axis = (function() {
     this.name  = name;
 
     this.properties = {
+      type: null,
+      orient: null,
+      scale: null,
+
       tickStyle: {},
       labelStyle: {
         fontSize: {value: 10},
