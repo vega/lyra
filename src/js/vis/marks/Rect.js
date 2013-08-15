@@ -61,7 +61,7 @@ vde.Vis.marks.Rect = (function() {
     return [scale, field]
   };
 
-  prototype.interactive = function() {
+  prototype.selected = function() {
     var self = this, item = vde.iVis.activeItem;
     if(!item.key) item = this.item(item);
 

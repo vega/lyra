@@ -30,7 +30,7 @@ vde.App.directive('vdeMarkDroppable', function($rootScope, $timeout, logger) {
 
         // Then route to this mark to load its inspector, but wait until 
         // parsing/annotating is done.
-        $timeout(function() { $rootScope.toggleVisual(mark); }, 1);
+        $timeout(function() { $rootScope.toggleVisual(mark); }, 100);
 
         logger.log('new_mark', {
           markType: markType,

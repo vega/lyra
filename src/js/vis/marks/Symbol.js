@@ -36,7 +36,7 @@ vde.Vis.marks.Symbol = (function() {
     return [scale, field];
   };
 
-  prototype.interactive = function() {
+  prototype.selected = function() {
     var self = this, 
         item = vde.iVis.activeItem, 
         props = this.properties;
@@ -72,7 +72,7 @@ vde.Vis.marks.Symbol = (function() {
       vde.iVis.view.data({ 'handle_data': positions() }).update();
     };
 
-    return ['handle', positions(), {mousemove: mousemove}];
+    vde.iVis.interactor('handle', positions(), {mousemove: mousemove});
   };  
 
   return symbol;

@@ -115,9 +115,9 @@ vde.Vis.marks.Group = (function() {
     return ex;
   };
 
-  prototype.interactive = function() {
+  prototype.selected = function() {
     // Since groups are fancy rects
-    return vde.Vis.marks.Rect.prototype.interactive.call(this);
+    return vde.Vis.marks.Rect.prototype.selected.call(this);
   };
 
   return group;

@@ -314,6 +314,7 @@ vde.Vis.Mark = (function() {
     return angular.element($('body')).scope();
   };
 
+  prototype.selected = function() { return null; }
   prototype.helper = function() { return null; }
 
   return mark;

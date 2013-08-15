@@ -48,7 +48,7 @@ vde.Vis.marks.Text = (function() {
     else delete p.dy.disabled;
   };
 
-  prototype.interactive = function() {
+  prototype.selected = function() {
     var self = this, 
         item = vde.iVis.activeItem, 
         props = this.properties;
@@ -130,7 +130,7 @@ vde.Vis.marks.Text = (function() {
       });      
     };
 
-    return ['handle', positions(), {mousemove: mousemove, keydown: keydown}];
+    vde.iVis.interactor('handle', positions(), {mousemove: mousemove, keydown: keydown});
   };
 
   return text;

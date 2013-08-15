@@ -13,7 +13,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
 
     vde.iVis.activeMark = v;
     vde.iVis.activeItem = key || 0;
-    $timeout(function() { vde.iVis.show('handle'); }, 1);
+    vde.iVis.show('handle');
 
     logger.log('toggle_visual', {
       activeVisual: v.name,

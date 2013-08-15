@@ -23,11 +23,11 @@ vde.iVis = (function() {
 
   ivis.show = function(show) {
     if(!vg.isArray(show)) show = [show];
-    if(this.activeMark) this.activeMark.interactive();
+    if(this.activeMark) this.activeMark.selected();
 
     var d = {};
     interactors.forEach(function(i) { d[i] = []; });
-    show.forEach(function(s) { d[s] = ivis._data[s]; });
+    show.forEach(function(s) { if(ivis._data[s]) d[s] = ivis._data[s]; });
 
     ivis.view.data(d).update();
   };
@@ -106,6 +106,8 @@ vde.iVis = (function() {
           });
         }
       });
+
+      ivis.show('handle');
     });     
 
     return spec;
