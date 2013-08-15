@@ -67,6 +67,7 @@ vde.Vis.marks.Rect = (function() {
     // If we set the width/height, by default map x/y
     if(['width', 'height'].indexOf(prop) == -1) return;
     var defaultProp = (prop == 'width') ? 'x' : 'y';
+    var otherProp = (prop == 'width') ? 'y' : 'x';
 
     props[defaultProp] = {
       scale: props[prop].scale,
@@ -83,6 +84,15 @@ vde.Vis.marks.Rect = (function() {
 
       this.unbindProperty(prop);
       props[prop].disabled = true;
+
+      // Check to see if the other property has been assigned
+      // if not, assign it to index
+      if(!props[otherProp].scale) {
+        this.bindProperty(otherProp, {
+          field: new vde.Vis.Field('index', false, 'ordinal', this.pipelineName),
+          pipelineName: this.pipelineName
+        }, true);
+      }
     }
   };
 
