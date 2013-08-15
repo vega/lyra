@@ -42,7 +42,7 @@ vde.Vis.marks.Group = (function() {
       vde.iVis.activeMark = self;
       vde.iVis.activeItem = item;
 
-      self.ngScope().toggleVisual(self);
+      vde.iVis.ngScope().toggleVisual(self);
     });
   };
 

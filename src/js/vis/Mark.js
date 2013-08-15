@@ -44,7 +44,7 @@ vde.Vis.Mark = (function() {
       if(item.mark.def != self.def()) return;
       if(item.items) return;
 
-      self.ngScope().toggleVisual(self, item.vdeKey || item.key || 0);
+      vde.iVis.ngScope().toggleVisual(self, item.vdeKey || item.key || 0);
     });    
 
     return this;
@@ -290,6 +290,8 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.item = function(i) {
+    if(i.key) return i;
+    
     var items = this.items();
     if(i > items.length) i = 0;
 
@@ -310,12 +312,13 @@ vde.Vis.Mark = (function() {
     return ex;
   };
 
-  prototype.ngScope = function() {
-    return angular.element($('body')).scope();
-  };
-
   prototype.selected = function() { return null; }
   prototype.helper = function() { return null; }
+  prototype.target = function() { return null; }
+
+  prototype.handles = function() { return null; }
+  prototype.connectors = function() { return null; }
+  prototype.spans = function() { return null; }
 
   return mark;
 })();

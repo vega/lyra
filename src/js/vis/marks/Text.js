@@ -50,13 +50,12 @@ vde.Vis.marks.Text = (function() {
 
   prototype.selected = function() {
     var self = this, 
-        item = vde.iVis.activeItem, 
+        item = this.item(vde.iVis.activeItem), 
         props = this.properties;
-    if(!item.key) item = this.item(item);
 
     var mousemove = function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
-      if(!dragging) return;
+      if(!dragging || !dragging.prev) return;
       if(vde.iVis.activeMark != self) return;
 
       var handle = (dragging.item.mark.def.name == 'handle'),
@@ -64,7 +63,7 @@ vde.Vis.marks.Text = (function() {
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
           data = dragging.item.datum.data;
 
-      self.ngScope().$apply(function() {
+      vde.iVis.ngScope().$apply(function() {
         if(handle) {
           if(evt.metaKey && !props.angle.field) { // Rotate
             var b  = vde.iVis.translatedBounds(item, item.bounds),
@@ -99,7 +98,7 @@ vde.Vis.marks.Text = (function() {
       if(vde.iVis.activeMark != self) return;
       if(!e.metaKey) return;
 
-      self.ngScope().$apply(function() {
+      vde.iVis.ngScope().$apply(function() {
         switch(e.keyCode) {
           case 66: // b
             props.fontWeight.value = (props.fontWeight.value == 'normal') ? 'bold' : 'normal';

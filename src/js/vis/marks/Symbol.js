@@ -38,13 +38,12 @@ vde.Vis.marks.Symbol = (function() {
 
   prototype.selected = function() {
     var self = this, 
-        item = vde.iVis.activeItem, 
+        item = this.item(vde.iVis.activeItem),
         props = this.properties;
-    if(!item.key) item = this.item(item);
 
     var mousemove = function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
-      if(!dragging) return;
+      if(!dragging || !dragging.prev) return;
       if(vde.iVis.activeMark != self) return;
 
       var handle = (dragging.item.mark.def.name == 'handle'),
@@ -54,7 +53,7 @@ vde.Vis.marks.Symbol = (function() {
 
       if(!handle) return;
 
-      self.ngScope().$apply(function() { 
+      vde.iVis.ngScope().$apply(function() { 
         props.size.value += dx*10; 
         self.update('size'); 
       }); 

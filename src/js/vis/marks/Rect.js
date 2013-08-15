@@ -27,6 +27,7 @@ vde.Vis.marks.Rect = (function() {
 
   rect.prototype = new vde.Vis.Mark();
   var prototype  = rect.prototype;
+  var geomOffset = 7; // Offset from rect for the interactive geometry
 
   prototype.productionRules = function(prop, scale, field) {
     if(!scale) {
@@ -62,12 +63,11 @@ vde.Vis.marks.Rect = (function() {
   };
 
   prototype.selected = function() {
-    var self = this, item = vde.iVis.activeItem;
-    if(!item.key) item = this.item(item);
+    var self = this, item = this.item(vde.iVis.activeItem);
 
     var mousemove = function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
-      if(!dragging) return;
+      if(!dragging || !dragging.prev) return;
       if(vde.iVis.activeMark != self) return;
 
       var props = self.properties,
@@ -77,7 +77,7 @@ vde.Vis.marks.Rect = (function() {
 
       if(!data || data.disabled) return; 
 
-      self.ngScope().$apply(function() {   
+      vde.iVis.ngScope().$apply(function() {   
         switch(data.pos) {
           case 'top':
             var reverse = (props.y.scale && 
@@ -123,13 +123,110 @@ vde.Vis.marks.Rect = (function() {
   };  
 
   prototype.helper = function(property) {
-    var item = vde.iVis.activeItem;
-    if(!item.key) item = this.item(item);
+    var item = this.item(vde.iVis.activeItem);
     if(['x', 'x2', 'width', 'y', 'y2', 'height'].indexOf(property) == -1) return;
 
     vde.iVis.interactor('connector', this.connectors(item, property));
     vde.iVis.interactor('span', this.spans(item, property));
     vde.iVis.show(['connector', 'span']);
+  };
+
+  prototype.target = function(connector) {
+    var self  = this,
+        item  = this.item(vde.iVis.activeItem),
+        props = [],
+        spans = [], dropzones = [];
+
+    var connToSpan = {
+      'top-left': {props: ['x', 'y'], span: 0},
+      'bottom-right': {props: ['x2', 'y2'], span: 1}
+    };
+
+    if(connector) props = connToSpan[connector].props;
+    if(props.length == 0) props = ['width', 'height'];
+
+    props.forEach(function(prop) {
+      var span = self.spans(item, prop)
+
+      if(connector != null && connToSpan[connector]) 
+        span = span.reduce(function(acc, s) { 
+          // Offset dropzones for top-left connector to prevent overlaps
+          if(connector == 'top-left' && prop == 'x') s.y += 2*geomOffset;
+          if(connector == 'top-left' && prop == 'y') s.x += 2*geomOffset;
+
+          if(s.span == prop + '_' + connToSpan[connector].span) acc.push(s);
+          return acc;
+        }, []);
+
+      dropzones = dropzones.concat(self.dropzones(span));
+      spans = spans.concat(span);
+    });
+    
+    var connectors = [this.connectors(item, 'x')[0], this.connectors(item, 'x2')[1]];
+
+    // Order is important with dropzones to ensure on overlap, the connector dropzones
+    // take precendence. 
+    var dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
+
+    var mouseover = function(e, item) {
+      if(!vde.iVis.dragging) return;
+      if(item.mark.def.name != 'dropzone') return;
+
+      // On mouseover, highlight the underlying span/connector.
+      // For connectors, switch targets after a timeout.
+      if(item.connector) {
+        vde.iVis.view.update({
+          props: 'hover',
+          items: item.mark.group.items[1].items[item.key-2]
+        });
+
+        vde.iVis.timeout = window.setTimeout(function() {
+          self.target((item.connector == connector) ? '' : item.connector);
+        }, 750);
+      } else {
+        vde.iVis.view.update({
+          props: 'hover',
+          items: item.cousin(-1).items[0].items
+        });
+      }
+    };
+
+    var mouseout = function(e, item) { 
+      if(!vde.iVis.dragging) return;
+      if(item.mark.def.name != 'dropzone') return;
+
+      // Clear highlights
+      if(item.connector) {
+        vde.iVis.view.update({
+          props: 'update',
+          items: item.mark.group.items[1].items[item.key-2]
+        });
+      } else {
+        vde.iVis.view.update({
+          props: 'update',
+          items: item.cousin(-1).items[0].items
+        });
+      }
+
+      // Clear timeout
+      window.clearTimeout(vde.iVis.timeout); 
+    };
+
+    var mouseup = function(e, item) {
+      if(!vde.iVis.dragging) return;
+      if(item.mark.def.name != 'dropzone') return;
+
+      if(item.property) vde.iVis.bindProperty(self, item.property);
+    };
+
+    vde.iVis.interactor('connector', connectors);
+    vde.iVis.interactor('span', spans);
+    vde.iVis.interactor('dropzone', dropzones, {
+      mouseover: mouseover,
+      mouseout: mouseout,
+      mouseup: mouseup
+    })
+    vde.iVis.show(['connector', 'span', 'dropzone']);    
   };
 
   prototype.handles = function(item) {
@@ -154,57 +251,79 @@ vde.Vis.marks.Rect = (function() {
     return [top, bottom, left, right];      
   }; 
 
-  prototype.connectors = function(i, property) {
-    var b  = vde.iVis.translatedBounds(i, i.bounds);
+  prototype.connectors = function(item, property) {
+    var b  = vde.iVis.translatedBounds(item, item.bounds);
     switch(property) {
-      case 'x': return [{x: b.x1, y: b.y1}, {x: b.x1, y: b.y2}]; break;
-      case 'x2': return [{x: b.x2, y: b.y1}, {x: b.x2, y: b.y2}]; break;
-      case 'width': return [{x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}]; break;
+      case 'x': return [{x: b.x1, y: b.y1, connector: 'top-left'}, {x: b.x1, y: b.y2, connector: 'bottom-left'}]; break;
+      case 'x2': return [{x: b.x2, y: b.y1, connector: 'top-right'}, {x: b.x2, y: b.y2, connector: 'bottom-right'}]; break;
+      case 'width': return [{x: b.x1, y: b.y1, connector: 'top-left'}, {x: b.x2, y: b.y1, connector: 'top-right'}]; break;
 
-      case 'y': return [{x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}]; break;
-      case 'y2': return [{x: b.x1, y: b.y2}, {x: b.x2, y: b.y2}]; break;
-      case 'height': return [{x: b.x1, y: b.y1}, {x: b.x1, y: b.y2}]; break;
+      case 'y': return [{x: b.x1, y: b.y1, connector: 'top-left'}, {x: b.x2, y: b.y1, connector: 'top-right'}]; break;
+      case 'y2': return [{x: b.x1, y: b.y2, connector: 'bottom-left'}, {x: b.x2, y: b.y2, connector: 'bottom-right'}]; break;
+      case 'height': return [{x: b.x1, y: b.y1, connector: 'top-left'}, {x: b.x1, y: b.y2, connector: 'bottom-left'}]; break;
     };
   };
 
-  prototype.spans = function(i, property) {
-    if(!i) return;
+  prototype.spans = function(item, property) {
     var props = this.properties,
-        b  = vde.iVis.translatedBounds(i, i.bounds),
-        gb = vde.iVis.translatedBounds(i.mark.group, i.mark.group.bounds),
-        go = 10, io = 7; // offsets
+        b  = vde.iVis.translatedBounds(item, item.bounds),
+        gb = vde.iVis.translatedBounds(item.mark.group, item.mark.group.bounds),
+        go = 3*geomOffset, io = geomOffset; // offsets
 
     switch(property) {
       case 'x': 
-        return [{x: (gb.x1-go), y: (b.y1-io), span: 0}, {x: b.x1, y: (b.y1-io), span: 0},
-         {x: (gb.x1-go), y: (b.y2+io), span: 1}, {x: b.x1, y: (b.y2+io), span: 1}];
+        return [{x: (gb.x1-go), y: (b.y1-io), span: 'x_0'}, {x: b.x1, y: (b.y1-io), span: 'x_0'},
+         {x: (gb.x1-go), y: (b.y2+io), span: 'x_1'}, {x: b.x1, y: (b.y2+io), span: 'x_1'}];
       break;
 
       case 'x2': 
-        return [{x: (gb.x1-go), y: (b.y1-io), span: 0}, {x: b.x2, y: (b.y1-io), span: 0},
-         {x: (gb.x1-go), y: (b.y2+io), span: 1}, {x: b.x2, y: (b.y2+io), span: 1}];
+        return [{x: (gb.x1-go), y: (b.y1-io), span: 'x2_0'}, {x: b.x2, y: (b.y1-io), span: 'x2_0'},
+         {x: (gb.x1-go), y: (b.y2+io), span: 'x2_1'}, {x: b.x2, y: (b.y2+io), span: 'x2_1'}];
       break;
 
-      case 'width': return [{x: b.x1, y: (b.y1-io), span: 0}, {x: b.x2, y: (b.y1-io), span: 0}]; break;
+      case 'width': return [{x: b.x1, y: (b.y1-io), span: 'width_0'}, {x: b.x2, y: (b.y1-io), span: 'width_0'}]; break;
 
       case 'y': return (props.y.scale && props.y.scale.properties.range.name == 'height') ?
-        [{x: (b.x1-io), y: (gb.y2+go), span: 0}, {x: (b.x1-io), y: b.y1, span: 0},
-         {x: (b.x2+io), y: (gb.y2+go), span: 1}, {x: (b.x2+io), y: b.y1, span: 1}]
+        [{x: (b.x1-io), y: (gb.y2+go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
+         {x: (b.x2+io), y: (gb.y2+go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}]
       :
-        [{x: (b.x1-io), y: (gb.y1-go), span: 0}, {x: (b.x1-io), y: b.y1, span: 0},
-         {x: (b.x2+io), y: (gb.y1-go), span: 1}, {x: (b.x2+io), y: b.y1, span: 1}];
+        [{x: (b.x1-io), y: (gb.y1-go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
+         {x: (b.x2+io), y: (gb.y1-go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}];
       break;
 
       case 'y2': return (props.y2.scale && props.y2.scale.properties.range.name == 'height') ?
-        [{x: (b.x1-io), y: (gb.y2+go), span: 0}, {x: (b.x1-io), y: b.y2, span: 0},
-         {x: (b.x2+io), y: (gb.y2+go), span: 1}, {x: (b.x2+io), y: b.y2, span: 1}]
+        [{x: (b.x1-io), y: (gb.y2+go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
+         {x: (b.x2+io), y: (gb.y2+go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}]
       :
-        [{x: (b.x1-io), y: (gb.y1-go), span: 0}, {x: (b.x1-io), y: b.y2, span: 0},
-         {x: (b.x2+io), y: (gb.y1-go), span: 1}, {x: (b.x2+io), y: b.y2, span: 1}];
+        [{x: (b.x1-io), y: (gb.y1-go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
+         {x: (b.x2+io), y: (gb.y1-go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}];
       break;
 
-      case 'height': return [{x: (b.x1-io), y: b.y1, span: 0}, {x: (b.x1-io), y: b.y2, span: 0}]; break;
+      case 'height': return [{x: (b.x1-io), y: b.y1, span: 'height_0'}, {x: (b.x1-io), y: b.y2, span: 'height_0'}]; break;
     };
+  };
+
+  prototype.dropzones = function(area) {
+    if(area.connector) {
+      return {
+        x: area.x-geomOffset, x2: area.x+geomOffset,
+        y: area.y-geomOffset, y2: area.y+geomOffset,
+        connector: area.connector
+      }
+    } else {
+      if(area[0].x == area[1].x) 
+        return {
+          x: area[0].x-2*geomOffset, x2: area[0].x,
+          y: area[0].y, y2: area[1].y,
+          property: area[0].span.split('_')[0]
+        }
+      else if(area[0].y == area[1].y)
+        return {
+          x: area[0].x, x2: area[1].x,
+          y: area[0].y-2*geomOffset, y2: area[0].y,
+          property: area[0].span.split('_')[0]
+        }
+    }
   };
 
   return rect;

@@ -2,6 +2,7 @@ vde.iVis = (function() {
   var ivis = {
     view: null,
     dragging: null,
+    timeout: null,
     _data: {}, _marks: [], _evtHandlers: {},
     activeMark: null,
     activeItem: null
@@ -12,7 +13,7 @@ vde.iVis = (function() {
     "click", "dblclick", "keypress", "keydown", "keyup"
   ];
 
-  var interactors = ['handle', 'connector', 'span'];
+  var interactors = ['handle', 'connector', 'span', 'dropzone'];
 
   ivis.interactor = function(interactor, data, evtHandlers) {
     if(!interactor || !data) return;
@@ -86,6 +87,8 @@ vde.iVis = (function() {
           });
 
           vde.iVis.view.on(type, function(e, i) {
+            if(ivis._evtHandlers[type]) ivis._evtHandlers[type](e, i);
+            
             // Automatically register events to handle dragging
             switch(type) {
               case 'mouseover':
@@ -101,8 +104,6 @@ vde.iVis = (function() {
 
               case 'mouseup': mouseup(); break;
             }
-
-            if(ivis._evtHandlers[type]) ivis._evtHandlers[type](e, i);
           });
         }
       });
@@ -142,14 +143,17 @@ vde.iVis = (function() {
       properties: {
         enter: {
           shape: {value: 'circle'},
-          size: {value: 40},
-          fill: {value: 'cyan'},
-          stroke: {value: 'cyan'},
-          strokeWidth: {value: 0.5}
         },
         update: {
           x: {field: 'data.x'},
           y: {field: 'data.y'},
+          fill: {value: 'cyan'},
+          size: {value: 40},
+          connector: {field: 'data.connector'}
+        },
+        hover: {
+          size: {value: 80},
+          fill: {value: 'lightsalmon'}
         }
       }
     };
@@ -167,17 +171,67 @@ vde.iVis = (function() {
         name: 'span',
         type: 'line',
         properties: {
-          enter: {
-            stroke: {value: 'cyan'},
-            strokeWidth: {value: 1}
-          },
           update: {
             x: {field: 'data.x'},
-            y: {field: 'data.y'}
+            y: {field: 'data.y'},
+            stroke: {value: 'cyan'},
+            strokeWidth: {value: 1},
+            span: {field: 'data.span'}
+          },
+          hover: {
+            stroke: {value: 'lightsalmon'},
+            strokeWidth: {value: 3}
           }
         }
       }]
     }
+  };
+
+  ivis.dropzone = function() {
+    return {
+      name: 'dropzone',
+      type: 'rect',
+      from: {data: 'dropzone'},
+      properties: {
+        enter: {
+          fillOpacity: {value: 0},
+          // stroke: {value: 'black'},
+          // strokeDash: {value: [0.3, 1]}
+        },
+        update: {
+          x: {field: 'data.x'},
+          y: {field: 'data.y'},
+          x2: {field: 'data.x2'},
+          y2: {field: 'data.y2'},
+          property: {field: 'data.property'},
+          connector: {field: 'data.connector'}
+        }
+      }
+    }
+  };
+
+  ivis.bindProperty = function(visual, property) {
+    if(!ivis.dragging) return;
+    console.log(visual, property);
+    var rootScope = ivis.ngScope();
+    var field = $(ivis.dragging).data('field') || $(ivis.dragging).find('.schema').data('field') || $(ivis.dragging).find('.schema').attr('field');
+    var scale = $(ivis.dragging).find('.scale').attr('scale');
+    var pipelineName = rootScope.activePipeline.name;
+
+    if(visual.pipelineName && pipelineName != visual.pipelineName)
+      return alert('Pipelines don\'t match');
+
+    rootScope.$apply(function() {
+      if(!visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
+
+      visual.bindProperty(property, 
+        {field: field, scaleName: scale, pipelineName: pipelineName});
+    });
+
+    $('.proxy').remove();
+    ivis.dragging = null;
+
+    vde.Vis.parse();
   };
 
   // From vg.canvas.Renderer
@@ -187,6 +241,10 @@ vde.iVis = (function() {
       b.translate(item.x || 0, item.y || 0);
     }
     return b;
+  };
+
+  ivis.ngScope = function() {
+    return angular.element($('body')).scope();
   };
 
   return ivis;

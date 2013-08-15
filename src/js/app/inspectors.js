@@ -59,7 +59,10 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       };
 
       $scope.hideHelper = function(target, e, helperClass) {
-        vde.iVis.show('handle'); 
+        if(!vde.iVis.dragging) vde.iVis.show('handle'); 
+        else if($rootScope.activeVisual instanceof vde.Vis.Mark)
+          $rootScope.activeVisual.target();
+        
         target.removeClass(helperClass);
       };
     },
@@ -75,23 +78,8 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       }) // Clear helpers
       .drop(function(e, dd) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
-        var field = $(dd.proxy).data('field') || $(dd.proxy).find('.schema').data('field') || $(dd.proxy).find('.schema').attr('field');
-        var scale = $(dd.proxy).find('.scale').attr('scale');
-        var pipelineName = $rootScope.activePipeline.name;
-
-        if(scope.item.pipelineName && pipelineName != scope.item.pipelineName)
-          return alert('Pipelines don\'t match');
-
-        scope.$apply(function() {
-          if(!scope.item.pipelineName && !(scope.item instanceof vde.Vis.Transform)) scope.item.pipelineName = pipelineName;
-
-          scope.item.bindProperty(attrs.property, 
-            {field: field, scaleName: scale, pipelineName: pipelineName});
-        });
-
-        $('.proxy').remove();
-
-        vde.Vis.parse();
+        
+        vde.iVis.bindProperty(scope.item, attrs.property);
 
         logger.log('bind', {
           item: scope.item.name,
@@ -102,7 +90,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           ngModel: attrs.ngModel,
           field: field,
           scaleName: scale
-        }, true, true);
+        }, true, true);        
       }).drop('dropstart', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         scope.showHelper($(this), e, 'drophover');
