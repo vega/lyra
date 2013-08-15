@@ -81,7 +81,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams, lo
   };
 });
 
-vde.App.directive('vdeDataGrid', function () {
+vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
   return {
     restrict: 'A',
     scope: {
@@ -194,27 +194,17 @@ vde.App.directive('vdeDataGrid', function () {
               $(this).text(c.sTitle)
                 .addClass(c.headerCssClass)
                 .drag('start', function(e, dd) {
-                  $(dd.available).each(function(i, a) {
-                    // Only light up properties without nodrop
-                    if(!$(a).hasClass('property')) return;
-                    if($(a).parent().attr('nodrop')) return;
-
-                    $(a).addClass('available');
-                  })
-                  return $('<div></div>')
+                  var proxy = $('<div></div>')
                     .text($(this).text())
                     .addClass('schema proxy ' + c.headerCssClass)
                     .data('field', f)
                     .css({ opacity: 0.75, position: 'absolute', 'z-index': 100 })
                     .appendTo(document.body);
+
+                  return draggable.dragstart(e, dd, proxy);
                 })
-                .drag(function(ev, dd){ 
-                  $(dd.proxy).css({ top: ev.pageY, left: ev.pageX }); 
-                })
-                .drag("end", function(ev, dd){ 
-                  $(dd.available).removeClass('available');
-                  $(dd.proxy).remove(); 
-                }); 
+                .drag(draggable.drag)
+                .drag('end', draggable.dragend); 
 
                 // Reset the height of its parent
                 $(this).parent().css('height', $('tr:eq(' + i + ')', tbody).css('height'));

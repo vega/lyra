@@ -10,37 +10,6 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope) {
   };
 });
 
-vde.App.directive('vdeDraggable', function() {
-  return function(scope, element, attrs) {
-    element
-      .drag('start', function(e, dd) {
-        if(!$(this).hasClass('mark')) {
-          $(dd.available).each(function(i, a) {
-            // Only light up properties without nodrop
-            if(!$(a).hasClass('property')) return;
-            if($(a).parent().attr('nodrop')) return;
-
-            $(a).addClass('available');
-          })
-        }
-
-        return $(this).clone(true, true)
-            .addClass('proxy')
-            .css('opacity', 0.75)
-            .css('position', 'absolute')
-            .css('z-index', 100)
-            .appendTo(document.body);
-      })
-      .drag(function(e, dd){
-        $(dd.proxy).css({ top: e.pageY, left: e.pageX });
-      })
-      .drag("end",function(e, dd){ 
-        $(dd.available).removeClass('available');
-        $( dd.proxy ).remove(); 
-      });
-  }
-});
-
 vde.App.directive('vdeClearBubbles', function($rootScope) {
   return function(scope, element, attrs) {
     element.click(function() {
