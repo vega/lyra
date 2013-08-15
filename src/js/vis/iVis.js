@@ -88,7 +88,7 @@ vde.iVis = (function() {
 
           vde.iVis.view.on(type, function(e, i) {
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type](e, i);
-            
+
             // Automatically register events to handle dragging
             switch(type) {
               case 'mouseover':
@@ -212,7 +212,7 @@ vde.iVis = (function() {
 
   ivis.bindProperty = function(visual, property) {
     if(!ivis.dragging) return;
-    console.log(visual, property);
+
     var rootScope = ivis.ngScope();
     var field = $(ivis.dragging).data('field') || $(ivis.dragging).find('.schema').data('field') || $(ivis.dragging).find('.schema').attr('field');
     var scale = $(ivis.dragging).find('.scale').attr('scale');
@@ -232,6 +232,8 @@ vde.iVis = (function() {
     ivis.dragging = null;
 
     vde.Vis.parse();
+
+    return [scale, field];
   };
 
   // From vg.canvas.Renderer

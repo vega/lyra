@@ -59,7 +59,7 @@ vde.Vis.marks.Rect = (function() {
     if(scale.properties.type == 'ordinal')
       scale.properties.points = false;
 
-    return [scale, field]
+    return [scale, field];
   };
 
   prototype.selected = function() {
@@ -188,6 +188,8 @@ vde.Vis.marks.Rect = (function() {
           props: 'hover',
           items: item.cousin(-1).items[0].items
         });
+        
+        d3.select('#' + item.property + '.property').classed('drophover', true);
       }
     };
 
@@ -206,6 +208,8 @@ vde.Vis.marks.Rect = (function() {
           props: 'update',
           items: item.cousin(-1).items[0].items
         });
+
+        d3.select('#' + item.property + '.property').classed('drophover', false);
       }
 
       // Clear timeout

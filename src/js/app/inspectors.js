@@ -62,7 +62,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
         if(!vde.iVis.dragging) vde.iVis.show('handle'); 
         else if($rootScope.activeVisual instanceof vde.Vis.Mark)
           $rootScope.activeVisual.target();
-        
+
         target.removeClass(helperClass);
       };
     },
@@ -79,17 +79,17 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       .drop(function(e, dd) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         
-        vde.iVis.bindProperty(scope.item, attrs.property);
+        var binding = vde.iVis.bindProperty(scope.item, attrs.property);
 
         logger.log('bind', {
           item: scope.item.name,
           group: scope.item.groupName,
-          activePipeline: pipelineName,
+          activePipeline: $rootScope.activePipeline.name,
           itemPipeline: scope.item.pipelineName,
           property: attrs.property,
           ngModel: attrs.ngModel,
-          field: field,
-          scaleName: scale
+          scaleName: binding[0],
+          field: binding[1]
         }, true, true);        
       }).drop('dropstart', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
