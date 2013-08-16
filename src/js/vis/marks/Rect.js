@@ -273,32 +273,24 @@ vde.Vis.marks.Rect = (function() {
   prototype.handles = function(item) {
     var props = this.properties,
         b = vde.iVis.translatedBounds(item, item.bounds),
-        top    = {x: b.x1 + (b.width()/2), y: b.y1,  pos: 'top',    cursor: 'n-resize', disabled: 1},
-        bottom = {x: b.x1 + (b.width()/2), y: b.y2,  pos: 'bottom', cursor: 's-resize', disabled: 1},
-        left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',   cursor: 'w-resize', disabled: 1},
-        right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right',  cursor: 'e-resize', disabled: 1};
+        top    = {x: b.x1 + (b.width()/2), y: b.y1,  pos: 'top',    cursor: 'n-resize', disabled: 0},
+        bottom = {x: b.x1 + (b.width()/2), y: b.y2,  pos: 'bottom', cursor: 's-resize', disabled: 0},
+        left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',   cursor: 'w-resize', disabled: 0},
+        right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right',  cursor: 'e-resize', disabled: 0};
 
-    if(props.y.value != null) top.disabled = 0;
+    var checkExtents = function(extents, handles) {
+      var count = 0;
+      extents.forEach(function(e) { if(props[e].field) count++ });
+      if(count > 2) handles.forEach(function(h) { h.disabled = 1; });
+    }
 
-    if((props.y2.value != null) || (props.height.value != null && !props.height.disabled && props.y.field))
-      bottom.disabled = 0;
-
-    if(props.x.value != null) left.disabled = 0;
-
-    if((props.x2.value != null) || (props.width.value != null && !props.width.disabled && props.x.field))
-      right.disabled = 0;
-
-    // if((!props.y.field && !props.y.disabled)   || (!props.height.disabled))
-    //   top.disabled = 0;
-
-    // if((!props.y2.field && !props.y2.disabled) || !props.height.disabled)
-    //   bottom.disabled = 0;      
-
-    // if((!props.x.field && !props.x.disabled)   || !props.width.disabled)
-    //   left.disabled = 0;
-
-    // if((!props.x2.field && !props.x2.disabled) || !props.width.disabled)
-    //   right.disabled = 0;
+    checkExtents(['y', 'y2', 'height'], [top, bottom]);
+    if(props.y.field) top.disabled = 1;
+    if(props.y2.field) bottom.disabled = 1;
+    
+    checkExtents(['x', 'x2', 'height'], [left, right]);
+    if(props.x.field) left.disabled = 1;
+    if(props.x2.field) right.disabled = 1;
 
     return [top, bottom, left, right];      
   }; 
