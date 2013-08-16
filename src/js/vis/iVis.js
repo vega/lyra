@@ -53,9 +53,9 @@ vde.iVis = (function() {
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#ivis').selectAll('*').remove();
-      (vde.iVis.view = chart({ el: '#ivis', renderer: 'svg' })).update();
+      (vde.iVis.view = chart({ el: '#ivis' })).update();
 
-      var icanvas = d3.select('#ivis svg');
+      var icanvas = d3.select('#ivis canvas');
 
       // We have event handlers registered on both #vis and #ivis
       // so transmit interactions on ivis (on top) to #vis (bottom).

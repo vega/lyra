@@ -59,11 +59,12 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       };
 
       $scope.hideHelper = function(target, e, helperClass) {
+        target.removeClass(helperClass);
+        if(target.hasClass('helper') || target.hasClass('drophover')) return;
+
         if(!vde.iVis.dragging) vde.iVis.show('handle'); 
         else if($rootScope.activeVisual instanceof vde.Vis.Mark)
           $rootScope.activeVisual.target();
-
-        target.removeClass(helperClass);
       };
     },
     link: function(scope, element, attrs) {
