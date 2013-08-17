@@ -22,6 +22,12 @@ vde.Vis.marks.Rect = (function() {
       vertical: {fields: ['y', 'y2', 'height'],  limit: 2, history: ['y', 'height']}
     };
 
+    this.connectors = {
+      'top-left': {}, 'top-center': {}, 'top-right': {},
+      'middle-left' : {}, 'middle-center': {}, 'middle-right': {},
+      'bottom-left': {}, 'bottom-center': {}, 'bottom-right': {}
+    };
+
     return this.init();
   };
 
@@ -122,8 +128,8 @@ vde.Vis.marks.Rect = (function() {
       }
 
       vde.iVis.ngScope().$apply(function() {
-        switch(data.pos) {
-          case 'top':
+        switch(data.connector) {
+          case 'top-center':
             var reverse = (props.y.scale && 
               props.y.scale.range().name == 'height') ? -1 : 1;
             
@@ -132,7 +138,7 @@ vde.Vis.marks.Rect = (function() {
             self.update(['y', 'y2', 'height']);
           break;
 
-          case 'bottom':
+          case 'bottom-center':
             var reverse = (props.y2.scale && 
               props.y2.scale.range().name == 'height') ? -1 : 1;
 
@@ -141,13 +147,13 @@ vde.Vis.marks.Rect = (function() {
             self.update(['y', 'y2', 'height']);
           break;
 
-          case 'left':
+          case 'middle-left':
             updateValue('x', dx);
             updateValue('width', dx*-1);
             self.update(['x', 'x2', 'width']);
           break;
 
-          case 'right':
+          case 'middle-right':
             updateValue('x2', dx);
             updateValue('width', dx);
             self.update(['x', 'x2', 'width']);
@@ -163,10 +169,21 @@ vde.Vis.marks.Rect = (function() {
   };  
 
   prototype.helper = function(property) {
-    var item = this.item(vde.iVis.activeItem);
+    var item = this.item(vde.iVis.activeItem),
+        c = this.connectors, propConnectors = [];
     if(['x', 'x2', 'width', 'y', 'y2', 'height'].indexOf(property) == -1) return;
 
-    vde.iVis.interactor('connector', this.connectors(item, property));
+    switch(property) {
+      case 'x': propConnectors = [c['top-left'].coords(item), c['bottom-left'].coords(item)]; break;
+      case 'x2': propConnectors = [c['top-right'].coords(item), c['bottom-right'].coords(item)]; break;
+      case 'width': propConnectors = [c['top-left'].coords(item), c['top-right'].coords(item)]; break;
+
+      case 'y': propConnectors = [c['top-left'].coords(item), c['top-right'].coords(item)]; break;
+      case 'y2': propConnectors = [c['bottom-left'].coords(item), c['bottom-right'].coords(item)]; break;
+      case 'height': propConnectors = [c['top-left'].coords(item), c['bottom-left'].coords(item)]; break;
+    };
+
+    vde.iVis.interactor('connector', propConnectors);
     vde.iVis.interactor('span', this.spans(item, property));
     vde.iVis.show(['connector', 'span']);
   };
@@ -202,7 +219,7 @@ vde.Vis.marks.Rect = (function() {
       spans = spans.concat(span);
     });
     
-    var connectors = [this.connectors(item, 'x')[0], this.connectors(item, 'x2')[1]];
+    var connectors = [this.connectors['top-left'].coords(item), this.connectors['bottom-right'].coords(item)];
 
     // Order is important with dropzones to ensure on overlap, the connector dropzones
     // take precendence. 
@@ -276,13 +293,36 @@ vde.Vis.marks.Rect = (function() {
     vde.iVis.show(['connector', 'span', 'dropzone']);    
   };
 
+  prototype.coordinates = function(connector, item, def) {
+    if(!item) item = this.item(vde.iVis.activeItem);
+    var b = vde.iVis.translatedBounds(item, item.bounds),
+        coord = {};
+
+    switch(connector) {
+      case 'top-left': coord = {x: b.x1, y: b.y1, cursor: 'nw-resize'}; break;
+      case 'top-center': coord = {x: b.x1 + (b.width()/2), y: b.y1, cursor: 'n-resize'}; break;
+      case 'top-right': coord = {x: b.x2, y: b.y1, cursor: 'ne-resize'}; break;
+      case 'middle-left': coord = {x: b.x1, y: b.y1 + (b.height()/2), cursor: 'w-resize'}; break;
+      case 'middle-center': coord = {x: b.x1 + (b.width()/2), y: b.y1 + (b.height()/2), cursor: 'move'}; break;
+      case 'middle-right': coord = {x: b.x2, y: b.y1 + (b.height()/2), cursor: 'e-resize'}; break;
+      case 'bottom-left': coord = {x: b.x1, y: b.y2, cursor: 'sw-resize'}; break;
+      case 'bottom-center': coord = {x: b.x1 + (b.width()/2), y: b.y2, cursor: 's-resize'}; break;
+      case 'bottom-right': coord = {x: b.x2, y: b.y2, cursor: 'se-resize'}; break;
+    }
+
+    coord.connector = connector;
+    for(var k in def) coord[k] = def[k];
+
+    return coord;
+  };
+
   prototype.handles = function(item) {
     var props = this.properties,
         b = vde.iVis.translatedBounds(item, item.bounds),
-        top    = {x: b.x1 + (b.width()/2), y: b.y1,  pos: 'top',    cursor: 'n-resize', disabled: 0},
-        bottom = {x: b.x1 + (b.width()/2), y: b.y2,  pos: 'bottom', cursor: 's-resize', disabled: 0},
-        left   = {x: b.x1, y: b.y1 + (b.height()/2), pos: 'left',   cursor: 'w-resize', disabled: 0},
-        right  = {x: b.x2, y: b.y1 + (b.height()/2), pos: 'right',  cursor: 'e-resize', disabled: 0};
+        top = this.connectors['top-center'].coords(item, {disabled: 0}),
+        bottom = this.connectors['bottom-center'].coords(item, {disabled: 0}),
+        left = this.connectors['middle-left'].coords(item, {disabled: 0}),
+        right = this.connectors['middle-right'].coords(item, {disabled: 0});
 
     var checkExtents = function(extents, handles) {
       var count = 0;
@@ -302,19 +342,6 @@ vde.Vis.marks.Rect = (function() {
 
     return [top, bottom, left, right];      
   }; 
-
-  prototype.connectors = function(item, property) {
-    var b  = vde.iVis.translatedBounds(item, item.bounds);
-    switch(property) {
-      case 'x': return [{x: b.x1, y: b.y1, connector: 'top-left'}, {x: b.x1, y: b.y2, connector: 'bottom-left'}]; break;
-      case 'x2': return [{x: b.x2, y: b.y1, connector: 'top-right'}, {x: b.x2, y: b.y2, connector: 'bottom-right'}]; break;
-      case 'width': return [{x: b.x1, y: b.y1, connector: 'top-left'}, {x: b.x2, y: b.y1, connector: 'top-right'}]; break;
-
-      case 'y': return [{x: b.x1, y: b.y1, connector: 'top-left'}, {x: b.x2, y: b.y1, connector: 'top-right'}]; break;
-      case 'y2': return [{x: b.x1, y: b.y2, connector: 'bottom-left'}, {x: b.x2, y: b.y2, connector: 'bottom-right'}]; break;
-      case 'height': return [{x: b.x1, y: b.y1, connector: 'top-left'}, {x: b.x1, y: b.y2, connector: 'bottom-left'}]; break;
-    };
-  };
 
   prototype.spans = function(item, property) {
     var props = this.properties,

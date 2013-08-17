@@ -89,19 +89,20 @@ vde.iVis = (function() {
           vde.iVis.view.on(type, function(e, i) {
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type](e, i);
 
+            var cursor = function() {
+              if(i.mark.def.name == 'handle' && i.datum.data && 
+                  i.datum.data.cursor && !i.datum.data.disabled) 
+                icanvas.style('cursor', i.datum.data.cursor);
+            };
+
             // Automatically register events to handle dragging
             switch(type) {
-              case 'mouseover':
-                if(i.datum.data.cursor && !i.datum.data.disabled) icanvas.style('cursor', i.datum.data.cursor);
-              break;
-
+              case 'mouseover': cursor(); break;
               case 'mouseout': if(!vde.iVis.dragging) mouseup(); break;
-
               case 'mousedown':
                 vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
-                if(i.datum.data.cursor && !i.datum.data.disabled) icanvas.style('cursor', i.datum.data.cursor); 
+                cursor();
               break;
-
               case 'mouseup': mouseup(); break;
             }
           });

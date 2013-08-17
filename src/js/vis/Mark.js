@@ -40,6 +40,13 @@ vde.Vis.Mark = (function() {
 
     this.group().marks[this.name] = this;
 
+    vg.keys(this.connectors).forEach(function(c) {
+      self.connectors[c] = {
+        connections: [],
+        coords: function(item, def) { return self.coordinates(c, item, def); }
+      };
+    });      
+
     vde.Vis.addEventListener('click', function(e, item) { 
       if(item.mark.def != self.def()) return;
       if(item.items) return;
@@ -349,12 +356,12 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.selected = function() { return null; }
-  prototype.helper = function() { return null; }
-  prototype.target = function() { return null; }
+  prototype.helper = function(property) { return null; }
+  prototype.target = function(connector) { return null; }
 
-  prototype.handles = function() { return null; }
-  prototype.connectors = function() { return null; }
-  prototype.spans = function() { return null; }
+  prototype.coordinates = function(connector, item, def) { return null; }
+  prototype.handles = function(item) { return null; }
+  prototype.spans = function(item, property) { return null; }
 
   return mark;
 })();
