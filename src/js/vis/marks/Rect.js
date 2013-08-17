@@ -30,7 +30,7 @@ vde.Vis.marks.Rect = (function() {
   var geomOffset = 7; // Offset from rect for the interactive geometry
 
   prototype.productionRules = function(prop, scale, field) {
-    if(!scale) {
+    if(!scale || scale.field().name != field.name) {
       switch(prop) {
         case 'x':
         case 'x2':
@@ -56,7 +56,7 @@ vde.Vis.marks.Rect = (function() {
       }
     }
 
-    if(scale.properties.type == 'ordinal')
+    if(scale.type() == 'ordinal')
       scale.properties.points = false;
 
     return [scale, field];
@@ -74,7 +74,7 @@ vde.Vis.marks.Rect = (function() {
       field: props[prop].field
     };
 
-    if(props[prop].scale.properties.type == 'ordinal') {
+    if(props[prop].scale.type() == 'ordinal') {
       delete props[prop].field;
       props[prop].value = 'auto';
     } else {
@@ -118,7 +118,7 @@ vde.Vis.marks.Rect = (function() {
         switch(data.pos) {
           case 'top':
             var reverse = (props.y.scale && 
-              props.y.scale.properties.range.name == 'height') ? -1 : 1;
+              props.y.scale.range().name == 'height') ? -1 : 1;
             
               if(!props.y.disabled) 
                 props.y.value = +props.y.value + dy*reverse;
@@ -130,7 +130,7 @@ vde.Vis.marks.Rect = (function() {
 
           case 'bottom':
             var reverse = (props.y2.scale && 
-              props.y2.scale.properties.range.name == 'height') ? -1 : 1;
+              props.y2.scale.range().name == 'height') ? -1 : 1;
 
             if(!props.y2.disabled) 
               props.y2.value = +props.y2.value + dy*reverse;
@@ -298,10 +298,12 @@ vde.Vis.marks.Rect = (function() {
     checkExtents(['y', 'y2', 'height'], [top, bottom]);
     if(props.y.field) top.disabled = 1;
     if(props.y2.field) bottom.disabled = 1;
+    if(props.width.field) top.disabled = bottom.disabled = 1;
     
     checkExtents(['x', 'x2', 'height'], [left, right]);
     if(props.x.field) left.disabled = 1;
     if(props.x2.field) right.disabled = 1;
+    if(props.height.field) left.disabled = right.disabled = 1;
 
     return [top, bottom, left, right];      
   }; 
@@ -338,7 +340,7 @@ vde.Vis.marks.Rect = (function() {
 
       case 'width': return [{x: b.x1, y: (b.y1-io), span: 'width_0'}, {x: b.x2, y: (b.y1-io), span: 'width_0'}]; break;
 
-      case 'y': return (props.y.scale && props.y.scale.properties.range.name == 'height') ?
+      case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
         [{x: (b.x1-io), y: (gb.y2+go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
          {x: (b.x2+io), y: (gb.y2+go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}]
       :
@@ -346,7 +348,7 @@ vde.Vis.marks.Rect = (function() {
          {x: (b.x2+io), y: (gb.y1-go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}];
       break;
 
-      case 'y2': return (props.y2.scale && props.y2.scale.properties.range.name == 'height') ?
+      case 'y2': return (props.y2.scale && props.y2.scale.range().name == 'height') ?
         [{x: (b.x1-io), y: (gb.y2+go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
          {x: (b.x2+io), y: (gb.y2+go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}]
       :

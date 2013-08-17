@@ -70,7 +70,7 @@ vde.Vis.Mark = (function() {
       else {
         var value = (!isNaN(+p[k])) ? +p[k] : p[k];
         if(value == 'auto') {   // If the value is auto, rangeband
-          if(p.scale.properties.type == 'ordinal') { 
+          if(p.scale.type() == 'ordinal') { 
             parsed.band = true; 
             parsed.offset = -1; 
           } else parsed[k] = 0; // If we don't have an ordinal scale, just set value:0
@@ -142,7 +142,7 @@ vde.Vis.Mark = (function() {
       field = opts.field;
       if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
 
-      if(!scale) {
+      if(!scale || scale.field().name != field.name) {
         switch(prop) {
           case 'x':
             scale = this.group().scale(this, {

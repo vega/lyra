@@ -38,6 +38,10 @@ vde.Vis.Scale = (function() {
     return null;
   };
 
+  prototype.type  = function() { return this.properties.type; };
+  prototype.field = function() { return this.properties.field; };
+  prototype.range = function() { return this.properties.range; };
+
   prototype.pipeline = function() {
     return vde.Vis.pipelines[this.pipelineName];
   };
