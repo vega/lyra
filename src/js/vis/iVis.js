@@ -13,7 +13,7 @@ vde.iVis = (function() {
     "click", "dblclick", "keypress", "keydown", "keyup"
   ];
 
-  var interactors = ['handle', 'point', 'span', 'dropzone'];
+  var interactors = ['handle', 'connector', 'point', 'span', 'dropzone'];
 
   ivis.interactor = function(interactor, data, evtHandlers) {
     if(!interactor || !data) return;
@@ -136,6 +136,32 @@ vde.iVis = (function() {
       }
     }
   };
+
+  ivis.connector = function() {
+    return {
+      name: 'connector',
+      type: 'symbol',
+      from: {data: 'connector'},
+      properties: {
+        enter: {
+          shape: {value: 'diamond'},
+          size: {value: 40},
+          fill: {value: 'white'}
+        },
+        update: {
+          x: {field: 'data.x'},
+          y: {field: 'data.y'},
+          stroke: {value: 'magenta'},
+          strokeWidth: {value: 0.5},
+          connector: {field: 'data.connector'}
+        },
+        hover: {
+          stroke: {value: 'lime'},
+          strokeWidth: {value: 1}
+        }
+      }
+    }
+  };  
 
   ivis.point = function() {
     return {
