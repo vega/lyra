@@ -183,9 +183,9 @@ vde.Vis.marks.Rect = (function() {
       case 'height': propConnectors = [c['top-left'].coords(item), c['bottom-left'].coords(item)]; break;
     };
 
-    vde.iVis.interactor('connector', propConnectors);
+    vde.iVis.interactor('point', propConnectors);
     vde.iVis.interactor('span', this.spans(item, property));
-    vde.iVis.show(['connector', 'span']);
+    vde.iVis.show(['point', 'span']);
   };
 
   prototype.target = function(connector) {
@@ -283,14 +283,14 @@ vde.Vis.marks.Rect = (function() {
       window.clearTimeout(vde.iVis.timeout); 
     };
 
-    vde.iVis.interactor('connector', connectors);
+    vde.iVis.interactor('point', connectors);
     vde.iVis.interactor('span', spans);
     vde.iVis.interactor('dropzone', dropzones, {
       mouseover: mouseover,
       mouseout: mouseout,
       mouseup: mouseup
     })
-    vde.iVis.show(['connector', 'span', 'dropzone']);    
+    vde.iVis.show(['point', 'span', 'dropzone']);    
   };
 
   prototype.coordinates = function(connector, item, def) {
@@ -318,7 +318,6 @@ vde.Vis.marks.Rect = (function() {
 
   prototype.handles = function(item) {
     var props = this.properties,
-        b = vde.iVis.translatedBounds(item, item.bounds),
         top = this.connectors['top-center'].coords(item, {disabled: 0}),
         bottom = this.connectors['bottom-center'].coords(item, {disabled: 0}),
         left = this.connectors['middle-left'].coords(item, {disabled: 0}),
