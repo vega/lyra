@@ -230,11 +230,11 @@ vde.Vis.marks.Rect = (function() {
       if(item.mark.def.name != 'dropzone') return;
 
       // On mouseover, highlight the underlying span/connector.
-      // For connectors, switch targets after a timeout.
+      // For points, switch targets after a timeout.
       if(item.connector) {
         vde.iVis.view.update({
           props: 'hover',
-          items: item.mark.group.items[1].items[item.key-2]
+          items: item.mark.group.items[2].items[item.key-2]
         });
 
         vde.iVis.timeout = window.setTimeout(function() {
