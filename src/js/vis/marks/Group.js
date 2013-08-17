@@ -4,6 +4,7 @@ vde.Vis.marks.Group = (function() {
 
     this.type   = 'group';
     this.layer  = true;  // A psuedo-group exists in the spec, but not in the VDE UI.
+    this.groupName = this.name;
 
     this.scales = {};
     this.axes   = {};
@@ -26,6 +27,12 @@ vde.Vis.marks.Group = (function() {
       strokeWidth: {value: 0}
     };
 
+    this.connectors = {
+      'top-left': {}, 'top-center': {}, 'top-right': {},
+      'middle-left' : {}, 'middle-center': {}, 'middle-right': {},
+      'bottom-left': {}, 'bottom-center': {}, 'bottom-right': {}
+    };
+
     return this.init();
   };
 
@@ -33,17 +40,9 @@ vde.Vis.marks.Group = (function() {
   var prototype = group.prototype;
 
   prototype.init = function() {
-    var self = this;
     vde.Vis.groups[this.name] = this;
 
-    vde.Vis.addEventListener('click', function(e, item) { 
-      if(item.mark.def.type != self.type || item.mark.def.name != self.name) return;
-
-      vde.iVis.activeMark = self;
-      vde.iVis.activeItem = item;
-
-      vde.iVis.ngScope().toggleVisual(self);
-    });
+    return vde.Vis.Mark.prototype.init.call(this);
   };
 
   prototype.update = function(props) {
@@ -120,9 +119,17 @@ vde.Vis.marks.Group = (function() {
     return vde.Vis.marks.Rect.prototype.selected.call(this);
   };
 
+  prototype.coordinates = function(connector, item, def) {
+    return vde.Vis.marks.Rect.prototype.coordinates.call(this, connector, item, def);
+  };
+
   prototype.handles = function(item) { 
     return vde.Vis.marks.Rect.prototype.handles.call(this, item); 
   };
+
+  prototype.spans = function(item, property) {
+    return vde.Vis.marks.Rect.prototype.spans.call(this, item, property);
+  }
 
   return group;
 })();

@@ -38,7 +38,8 @@ vde.Vis.Mark = (function() {
     if(!this.displayName) 
       this.displayName = this.name;
 
-    this.group().marks[this.name] = this;
+    if(this.group() != this)
+      this.group().marks[this.name] = this;
 
     vg.keys(this.connectors).forEach(function(c) {
       self.connectors[c] = {
@@ -49,7 +50,7 @@ vde.Vis.Mark = (function() {
 
     vde.Vis.addEventListener('click', function(e, item) { 
       if(item.mark.def != self.def()) return;
-      if(item.items) return;
+      if(item.items && self.type != 'group') return;
 
       vde.iVis.ngScope().toggleVisual(self, item.vdeKey || item.key || 0);
     });    
@@ -266,7 +267,7 @@ vde.Vis.Mark = (function() {
 
   prototype.def = function() {
     var self  = this,
-        start = this.groupName ? this.group().def() : vde.Vis.view.model().defs().marks; 
+        start = this.type == 'group' ? vde.Vis.view.model().defs().marks : this.group().def(); 
 
     if(this._def) return this._def;
 
@@ -297,7 +298,7 @@ vde.Vis.Mark = (function() {
 
   prototype.items = function() {
     var self = this,
-        parents = this.groupName ? this.group().items() : [vde.Vis.view.model().scene().items[0]],
+        parents = this.type == 'group' ? [vde.Vis.view.model().scene().items[0]] : this.group().items(),
         def = this.def();
 
     if(this._items.length > 0) return this._items;
