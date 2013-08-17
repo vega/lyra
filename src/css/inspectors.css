@@ -79,7 +79,8 @@ a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
 .property .field * { margin-top: 0; }
 .property .field input[type=text] { width: 125px; }
 .property .field input[type=number],
-.property .field input[type=color] { width: 50px; }
+.property .field input[type=color],
+.property .field .number { width: 50px !important; }
 .property .field .scaled-input {
   height: 15px;
   margin-left: -15px;

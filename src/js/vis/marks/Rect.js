@@ -67,7 +67,7 @@ vde.Vis.marks.Rect = (function() {
     // If we set the width/height, by default map x/y
     if(['width', 'height'].indexOf(prop) == -1) return;
     var defaultProp = (prop == 'width') ? 'x' : 'y';
-    var otherProp = (prop == 'width') ? 'y' : 'x';
+    var otherProps = (prop == 'width') ? ['y', 'y2', 'height'] : ['x', 'x2', 'width'];
 
     props[defaultProp] = {
       scale: props[prop].scale,
@@ -75,7 +75,8 @@ vde.Vis.marks.Rect = (function() {
     };
 
     if(props[prop].scale.properties.type == 'ordinal') {
-      props[prop] = {value: 15};
+      delete props[prop].field;
+      props[prop].value = 'auto';
     } else {
       props[defaultProp+'2'] = {
         scale: props[prop].scale,
@@ -87,8 +88,10 @@ vde.Vis.marks.Rect = (function() {
 
       // Check to see if the other property has been assigned
       // if not, assign it to index
-      if(!props[otherProp].scale) {
-        this.bindProperty(otherProp, {
+      var scaledOther = false;
+      otherProps.some(function(o) { return (scaledOther = !!props[o].scale); })
+      if(!scaledOther) {
+        this.bindProperty(otherProps[2], {
           field: new vde.Vis.Field('index', false, 'ordinal', this.pipelineName),
           pipelineName: this.pipelineName
         }, true);
@@ -117,8 +120,10 @@ vde.Vis.marks.Rect = (function() {
             var reverse = (props.y.scale && 
               props.y.scale.properties.range.name == 'height') ? -1 : 1;
             
-              if(!props.y.disabled) props.y.value += dy*reverse;
-              if(!props.height.disabled) props.height.value += dy*-1;
+              if(!props.y.disabled) 
+                props.y.value = +props.y.value + dy*reverse;
+              if(!props.height.disabled) 
+                props.height = {value: (props.height.value == 'auto' ? item.height : +props.height.value) + dy*-1};
 
               self.update(['y', 'y2', 'height']);
           break;
@@ -127,22 +132,28 @@ vde.Vis.marks.Rect = (function() {
             var reverse = (props.y2.scale && 
               props.y2.scale.properties.range.name == 'height') ? -1 : 1;
 
-            if(!props.y2.disabled) props.y2.value += dy*reverse;
-            if(!props.height.disabled) props.height.value += dy;
+            if(!props.y2.disabled) 
+              props.y2.value = +props.y2.value + dy*reverse;
+            if(!props.height.disabled) 
+              props.height = {value: (props.height.value == 'auto' ? item.height : +props.height.value) + dy};
 
             self.update(['y', 'y2', 'height']);
           break;
 
           case 'left':
-            if(!props.x.disabled) props.x.value += dx;
-            if(!props.width.disabled) props.width.value += dx*-1;
+            if(!props.x.disabled) 
+              props.x.value = +props.x.value + dx;
+            if(!props.width.disabled) 
+              props.width = {value: (props.width.value == 'auto' ? item.width : +props.width.value) + dx*-1};
 
             self.update(['x', 'x2', 'width']);
           break;
 
           case 'right':
-            if(!props.x2.disabled) props.x2.value += dx;
-            if(!props.width.disabled) props.width.value += dx;
+            if(!props.x2.disabled) 
+              props.x2.value = +props.x2.value + dx;
+            if(!props.width.disabled) 
+              props.width = {value: (props.width.value == 'auto' ? item.width : +props.width.value) + dx};
 
             self.update(['x', 'x2', 'width']);
           break;

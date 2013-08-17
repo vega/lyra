@@ -27,6 +27,8 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
         $timeout(function() {
           if($scope.item.update) $scope.item.update(prop || $attrs.property);
           else vde.Vis.parse();
+
+          vde.iVis.show('handle');
         }, 1);   
 
         logger.log('onchange', {

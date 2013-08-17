@@ -67,7 +67,17 @@ vde.Vis.Mark = (function() {
 
       if(k == 'scale') parsed[k] = p[k].name;
       else if(k == 'field') parsed[k] = p[k].spec();
-      else parsed[k] = (!isNaN(+p[k])) ? +p[k] : p[k];
+      else {
+        var value = (!isNaN(+p[k])) ? +p[k] : p[k];
+        if(value == 'auto') {   // If the value is auto, rangeband
+          if(p.scale.properties.type == 'ordinal') { 
+            parsed.band = true; 
+            parsed.offset = -1; 
+          } else parsed[k] = 0; // If we don't have an ordinal scale, just set value:0
+        } else {
+          parsed[k] = value;
+        }
+      }
     };
 
     return parsed;
