@@ -114,47 +114,42 @@ vde.Vis.marks.Rect = (function() {
 
       if(!data || data.disabled) return; 
 
+      // Since we're updating a value, pull the current value from the
+      // scenegraph directly rather than properties. This makes it easier
+      // to cope with rangeBands and {scale, value} properties.
+      var updateValue = function(prop, delta) {
+        if(!props[prop].disabled) props[prop] = {value: item[prop] + delta};
+      }
+
       vde.iVis.ngScope().$apply(function() {
         switch(data.pos) {
           case 'top':
             var reverse = (props.y.scale && 
               props.y.scale.range().name == 'height') ? -1 : 1;
             
-              if(!props.y.disabled) 
-                props.y.value = +props.y.value + dy*reverse;
-              if(!props.height.disabled) 
-                props.height = {value: (props.height.value == 'auto' ? item.height : +props.height.value) + dy*-1};
-
-              self.update(['y', 'y2', 'height']);
+            updateValue('y', dy*reverse);
+            updateValue('height', dy*-1);
+            self.update(['y', 'y2', 'height']);
           break;
 
           case 'bottom':
             var reverse = (props.y2.scale && 
               props.y2.scale.range().name == 'height') ? -1 : 1;
 
-            if(!props.y2.disabled) 
-              props.y2.value = +props.y2.value + dy*reverse;
-            if(!props.height.disabled) 
-              props.height = {value: (props.height.value == 'auto' ? item.height : +props.height.value) + dy};
-
+            updateValue('y2', dy*reverse);
+            updateValue('height', dy);
             self.update(['y', 'y2', 'height']);
           break;
 
           case 'left':
-            if(!props.x.disabled) 
-              props.x.value = +props.x.value + dx;
-            if(!props.width.disabled) 
-              props.width = {value: (props.width.value == 'auto' ? item.width : +props.width.value) + dx*-1};
-
+            updateValue('x', dx);
+            updateValue('width', dx*-1);
             self.update(['x', 'x2', 'width']);
           break;
 
           case 'right':
-            if(!props.x2.disabled) 
-              props.x2.value = +props.x2.value + dx;
-            if(!props.width.disabled) 
-              props.width = {value: (props.width.value == 'auto' ? item.width : +props.width.value) + dx};
-
+            updateValue('x2', dx);
+            updateValue('width', dx);
             self.update(['x', 'x2', 'width']);
           break;
         }
