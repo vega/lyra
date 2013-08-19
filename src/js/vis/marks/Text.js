@@ -14,8 +14,8 @@ vde.Vis.marks.Text = (function() {
 
       align: {value: 'center'},
       baseline: {value: 'middle'},
-      dx: {value: 0},
-      dy: {value: 0},
+      dx: {value: 0, disabled: 1},
+      dy: {value: 0, disabled: 1},
       angle: {value: 0},
       font: {value: 'Helvetica'},
       fontSize: {value: 12},
@@ -25,21 +25,46 @@ vde.Vis.marks.Text = (function() {
       fill: {value: '#4682b4'}
     };
 
+    this.connectors = {
+      'anchor': {},
+      'left': {}, 'right': {}
+    };
+
     return this.init();
   };
 
   text.prototype = new vde.Vis.Mark();
   var prototype  = text.prototype;
+  var geomOffset = 7;
 
-  prototype.spec = function() {
-    this._spec.from = {transform: [{
+  prototype.from = function() {
+    return {transform: [{
       type: 'formula', 
       field: 'vdeTextFormula', 
       expr: this.properties.textFormula 
     }]};
+  };
 
+  prototype.spec = function() {
+    this._spec.from = this.from();
     return vde.Vis.Mark.prototype.spec.call(this);
   };
+
+  prototype.update = function(prop) {
+    if(prop.indexOf('text') != -1) {
+      var def = this.def();
+
+      // Copied from vg.parse.parse
+      var name = this.pipelineName,
+          tx = vg.parse.dataflow(this.from());
+      def.from = function(db, group, parentData) {
+        var data = vg.scene.data(name ? db[name] : null, parentData);
+        return tx(data, db, group);
+      };
+    }
+
+    return vde.Vis.Mark.prototype.update.call(this, prop);
+  }
 
   prototype.productionRules = function(prop, scale, field) {
     switch(prop) {
@@ -89,7 +114,7 @@ vde.Vis.marks.Text = (function() {
             props.angle.value = Math.round(deg);
             self.update('angle');
           } else {
-            if(data.pos == 'left') dx*=-1;
+            if(data.connector == 'left') dx*=-1;
             props.fontSize.value = Math.round(props.fontSize.value + dx/5);
             if(props.fontSize.value < 1) props.fontSize.value = 1;
             self.update('fontSize');
@@ -129,21 +154,76 @@ vde.Vis.marks.Text = (function() {
     vde.iVis.interactor('handle', this.handles(item), {mousemove: mousemove, keydown: keydown});
   };
 
+  prototype.helper = function(property) {
+    var item = this.item(vde.iVis.activeItem);
+    if(['x', 'y', 'dx', 'dy'].indexOf(property) == -1) return;
+
+    vde.iVis.interactor('point', [this.connectors['anchor'].coords(item)]);
+    vde.iVis.interactor('span', this.spans(item, property));
+    vde.iVis.show(['point', 'span']);
+  };
+
+  prototype.coordinates = function(connector, item, def) {
+    if(!item) item = this.item(vde.iVis.activeItem);
+    var coord = {};
+
+    if(connector == 'anchor') {
+      var b  = vde.iVis.translatedBounds(item, 
+          new vg.Bounds({x1: item.x, x2: item.x, y1: item.y, y2: item.y}));
+      coord = {x: b.x1, y: b.y1, cursor: 'move'};
+    } else {
+      var b = new vg.Bounds();
+      vg.scene.bounds.text(item, b, true);  // Calculate text bounds w/o rotating
+      b.rotate(item.angle*Math.PI/180, item.x||0, item.y||0);
+      b = vde.iVis.translatedBounds(item, b);
+
+      coord = (connector == 'left') ? 
+        {x: b.x1, y: b.y1, cursor: 'nw-resize'} : {x: b.x2, y: b.y2, cursor: 'se-resize'};
+    }
+
+    coord.connector = connector;
+    for(var k in def) coord[k] = def[k];
+
+    return coord;
+  };
+
   prototype.handles = function(item) {
     var props = this.properties,
         b = vde.iVis.translatedBounds(item, item.bounds),
-        left = null, right = null;
-
-    if(props.angle.value < 0 || (props.angle.value > 90 && props.angle.value < 180)) {
-      left = {x: b.x1, y: b.y2}; right = {x: b.x2, y: b.y1}; 
-    } else {
-      left  = {x: b.x1, y: b.y1}; right = {x: b.x2, y: b.y2};
-    } 
-
-    left.pos = 'left'; left.cursor = 'nw-resize'; left.disabled = 0;
-    right.pos = 'right'; right.cursor = 'se-resize'; right.disabled = 0;
+        left = this.connectors.left.coords(item, {disabled: 0}), 
+        right = this.connectors.right.coords(item, {disabled: 0});
 
     return [left, right];
+  };
+
+  prototype.spans = function(item, property) {
+    var props = this.properties,
+        b  = vde.iVis.translatedBounds(item, item.bounds),
+        gb = vde.iVis.translatedBounds(item.mark.group, item.mark.group.bounds),
+        go = 3*geomOffset, io = geomOffset,
+        pt = this.connectors['anchor'].coords(item),
+        dx = item.align == 'center' ? 0 : item.dx,
+        dy = item.baseline == 'middle' ? 0 : item.dy; // offsets   
+
+    switch(property) {
+      case 'x':
+        return [{x: (gb.x1-go), y: (pt.y+io), span: 'x_0'}, {x: pt.x, y: (pt.y+io), span: 'x_0'}];
+      break;
+
+      case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
+        [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
+      :
+        [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
+      break;
+
+      case 'dx':
+        return [{x: pt.x, y: (pt.y+io), span: 'dx_0'}, {x: pt.x + dx, y: (pt.y+io), span: 'dx_0'}];
+      break;
+
+      case 'dy':
+        return [{x: (pt.x+io), y: pt.y, span: 'dy_0'}, {x: (pt.x+io), y: (pt.y+dy), span: 'dy_0'}];
+      break;
+    } 
   };
 
   return text;

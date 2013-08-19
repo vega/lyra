@@ -78,7 +78,7 @@ vde.Vis.marks.Symbol = (function() {
     };
 
     vde.iVis.interactor('handle', this.handles(item), {mousemove: mousemove});
-  };  
+  };
 
   prototype.helper = function(property) {
     var item = this.item(vde.iVis.activeItem);

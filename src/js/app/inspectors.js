@@ -79,7 +79,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
         scope.hideHelper($(this), e, 'helper');
       }) // Clear helpers
       .drop(function(e, dd) {
-        if(element.find('.expr')) return element.find('.expr').drop(e, dd);
+        if(element.find('.expr').length > 0) return element.find('.expr').drop(e, dd);
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         
         var binding = vde.iVis.bindProperty(scope.item, attrs.property);
@@ -176,7 +176,7 @@ vde.App.directive('vdeExpr', function($rootScope, logger) {
           scope.item.properties[scope.property] = strConcat ? '"' + value.text() + '"' : value.text();
           scope.item.properties[scope.property + 'Html'] = html;
 
-          if(strConcat) vde.Vis.parse();
+          scope.$parent.onchange();
         });
       };
 
