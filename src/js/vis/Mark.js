@@ -69,6 +69,7 @@ vde.Vis.Mark = (function() {
 
   prototype.property = function(prop) {
     var p = this.properties[prop], parsed = {};
+    if(!vg.isObject(p)) return;
     if(p.disabled) return;
 
     for(var k in p) {
@@ -118,7 +119,7 @@ vde.Vis.Mark = (function() {
 
     spec.name = this.name;
     spec.type = this.type;
-    spec.from = {};
+    spec.from || (spec.from = {});
 
     if(this.pipeline()) spec.from.data = this.pipeline().name;
 

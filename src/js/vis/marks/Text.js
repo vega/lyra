@@ -8,7 +8,10 @@ vde.Vis.marks.Text = (function() {
       x: {value: 0},
       y: {value: 0},
 
-      text: {value: 'Text'},
+      text: {field: new vde.Vis.Field('vdeTextFormula')},
+      textFormula: '"Text"',
+      textFormulaHtml: 'Text',
+
       align: {value: 'center'},
       baseline: {value: 'middle'},
       dx: {value: 0},
@@ -28,12 +31,22 @@ vde.Vis.marks.Text = (function() {
   text.prototype = new vde.Vis.Mark();
   var prototype  = text.prototype;
 
+  prototype.spec = function() {
+    this._spec.from = {transform: [{
+      type: 'formula', 
+      field: 'vdeTextFormula', 
+      expr: this.properties.textFormula 
+    }]};
+
+    return vde.Vis.Mark.prototype.spec.call(this);
+  };
+
   prototype.productionRules = function(prop, scale, field) {
     switch(prop) {
       case 'text':
         scale = null;
       break;
-    }
+    };
 
     return [scale, field];
   };
