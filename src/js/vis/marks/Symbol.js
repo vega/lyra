@@ -9,7 +9,7 @@ vde.Vis.marks.Symbol = (function() {
       y: {value: 0},
 
       size: {value: 100},
-      shape: {value: 'cross'},
+      shape: {value: 'diamond'},
 
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
@@ -34,9 +34,21 @@ vde.Vis.marks.Symbol = (function() {
           field: field
         }, {range: [50, 1000]}, 'size');
       break;
-    }
+    };
 
     return [scale, field];
+  };
+
+  prototype.defaults = function(prop) {
+    var props = this.properties;
+    if(['x', 'y'].indexOf(prop) == -1) return;
+    var otherProp = (prop == 'x') ? 'y' : 'x';
+    if(!props[otherProp].scale) {
+      this.bindProperty(otherProp, {
+          field: new vde.Vis.Field('index', false, 'ordinal', this.pipelineName),
+          pipelineName: this.pipelineName
+        }, true);
+    }
   };
 
   prototype.selected = function() {
@@ -75,7 +87,64 @@ vde.Vis.marks.Symbol = (function() {
     vde.iVis.interactor('point', [this.connectors['center'].coords(item)]);
     vde.iVis.interactor('span', this.spans(item, property));
     vde.iVis.show(['point', 'span']);
-  }
+  };
+
+  prototype.target = function() {
+    var self = this,
+        item = this.item(vde.iVis.activeItem),
+        spans = [], dropzones = [];
+
+    ['x', 'y', 'size'].forEach(function(p) {
+      var s = self.spans(item, p);
+      if(p == 'size') s = [s[2], s[3]];
+
+      dropzones = dropzones.concat(self.dropzones(s));
+      spans = spans.concat(s);
+    });
+
+    var mouseover = function(e, item) {
+      if(!vde.iVis.dragging) return;
+      if(item.mark.def.name != 'dropzone') return;
+
+      vde.iVis.view.update({
+        props: 'hover',
+        items: item.cousin(-1).items[0].items
+      });
+
+      d3.select('#' + item.property + '.property').classed('drophover', true);
+    };
+
+    var mouseout = function(e, item) { 
+      if(!vde.iVis.dragging) return;
+      if(item.mark.def.name != 'dropzone') return;
+
+      // Clear highlights
+      vde.iVis.view.update({
+        props: 'update',
+        items: item.cousin(-1).items[0].items
+      });
+
+      d3.select('#' + item.property + '.property').classed('drophover', false);
+    };
+
+    var mouseup = function(e, item) {
+      if(!vde.iVis.dragging) return;
+      if(item.mark.def.name != 'dropzone') return;
+
+      if(item.property) vde.iVis.bindProperty(self, item.property, true);
+
+      d3.select('#' + item.property + '.property').classed('drophover', false);
+    };
+
+    vde.iVis.interactor('point', [this.connectors['center'].coords(item)]);
+    vde.iVis.interactor('span', spans);
+    vde.iVis.interactor('dropzone', dropzones, {
+      mouseover: mouseover,
+      mouseout: mouseout,
+      mouseup: mouseup
+    });
+    vde.iVis.show(['point', 'span', 'dropzone'])
+  };
 
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
@@ -114,9 +183,9 @@ vde.Vis.marks.Symbol = (function() {
       break;
 
       case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
-        [{x: (pt.x+io), y: (gb.y2+go)}, {x: (pt.x+io), y: (pt.y)}]
+        [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
       :
-        [{x: (pt.x+io), y: (gb.y1-go)}, {x: (pt.x+io), y: (pt.y)}]
+        [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
       break;
 
       case 'size':

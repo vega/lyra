@@ -223,8 +223,8 @@ vde.iVis = (function() {
       properties: {
         enter: {
           fillOpacity: {value: 0},
-          // stroke: {value: 'black'},
-          // strokeDash: {value: [0.3, 1]}
+          stroke: {value: 'black'},
+          strokeDash: {value: [0.3, 1]}
         },
         update: {
           x: {field: 'data.x'},

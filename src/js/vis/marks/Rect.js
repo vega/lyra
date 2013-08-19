@@ -289,8 +289,8 @@ vde.Vis.marks.Rect = (function() {
       mouseover: mouseover,
       mouseout: mouseout,
       mouseup: mouseup
-    })
-    vde.iVis.show(['point', 'span', 'dropzone']);    
+    });
+    vde.iVis.show(['point', 'span', 'dropzone']);
   };
 
   prototype.coordinates = function(connector, item, def) {
@@ -379,29 +379,6 @@ vde.Vis.marks.Rect = (function() {
 
       case 'height': return [{x: (b.x1-io), y: b.y1, span: 'height_0'}, {x: (b.x1-io), y: b.y2, span: 'height_0'}]; break;
     };
-  };
-
-  prototype.dropzones = function(area) {
-    if(area.connector) {
-      return {
-        x: area.x-geomOffset, x2: area.x+geomOffset,
-        y: area.y-geomOffset, y2: area.y+geomOffset,
-        connector: area.connector
-      }
-    } else {
-      if(area[0].x == area[1].x) 
-        return {
-          x: area[0].x-2*geomOffset, x2: area[0].x,
-          y: area[0].y, y2: area[1].y,
-          property: area[0].span.split('_')[0]
-        }
-      else if(area[0].y == area[1].y)
-        return {
-          x: area[0].x, x2: area[1].x,
-          y: area[0].y-2*geomOffset, y2: area[0].y,
-          property: area[0].span.split('_')[0]
-        }
-    }
   };
 
   return rect;

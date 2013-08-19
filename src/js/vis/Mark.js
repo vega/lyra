@@ -24,6 +24,7 @@ vde.Vis.Mark = (function() {
   };
 
   var prototype = mark.prototype;
+  var geomOffset = 7;
 
   prototype.init = function() {
     var self = this;
@@ -149,7 +150,6 @@ vde.Vis.Mark = (function() {
     if(opts.field) {
       field = opts.field;
       if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
-
       if(!scale || scale.field().name != field.name) {
         switch(prop) {
           case 'x':
@@ -356,6 +356,8 @@ vde.Vis.Mark = (function() {
     return ex;
   };
 
+  prototype.defaults = function(prop) { return null; }
+
   prototype.selected = function() { return null; }
   prototype.helper = function(property) { return null; }
   prototype.target = function(connector) { return null; }
@@ -363,6 +365,29 @@ vde.Vis.Mark = (function() {
   prototype.coordinates = function(connector, item, def) { return null; }
   prototype.handles = function(item) { return null; }
   prototype.spans = function(item, property) { return null; }
+
+  prototype.dropzones = function(area) {
+    if(area.connector) {
+      return {
+        x: area.x-geomOffset, x2: area.x+geomOffset,
+        y: area.y-geomOffset, y2: area.y+geomOffset,
+        connector: area.connector
+      }
+    } else {
+      if(area[0].x == area[1].x) 
+        return {
+          x: area[0].x-2*geomOffset, x2: area[0].x,
+          y: area[0].y, y2: area[1].y,
+          property: area[0].span.split('_')[0]
+        }
+      else if(area[0].y == area[1].y)
+        return {
+          x: area[0].x, x2: area[1].x,
+          y: area[0].y-2*geomOffset, y2: area[0].y,
+          property: area[0].span.split('_')[0]
+        }
+    }
+  };
 
   return mark;
 })();
