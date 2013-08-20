@@ -205,7 +205,8 @@ vde.Vis.Mark = (function() {
       this.defaults(prop);
 
       // Add axes by defaults
-      var aOpts = {scaleName: scale.name, pipelineName: scale.pipelineName};
+      var aOpts = {pipelineName: (scale || field || this).pipelineName};
+      if(scale) aOpts.scaleName = scale.name;
       switch(prop) {
         case 'x':
         case 'x2':

@@ -181,7 +181,7 @@ vde.App.directive('vdeExpr', function($rootScope, logger) {
       };
 
       $(element).find('.expr')
-        .html(scope.$parent.ngModel)
+        // .html(scope.$parent.ngModel)
         .drop(function(e, dd) { 
           var proxy = vde.iVis.dragging;
           var field = $(proxy).data('field') || $(proxy).find('.schema').data('field') || $(proxy).find('.schema').attr('field');
@@ -206,7 +206,13 @@ vde.App.directive('vdeExpr', function($rootScope, logger) {
         }).drop('dropend', function() {
           $(this).parent().css('borderColor', '#aaa');
         })
-        .bind('keyup', function(e) { parse($(this)); })    
+        .bind('keyup', function(e) { parse($(this)); });
+
+      scope.$watch(function($scope) { return $scope.$parent.ngModel }, 
+        function() { 
+          var expr = $(element).find('.expr'), html = scope.$parent.ngModel;
+          if(expr.html() != html) expr.html(html) 
+        }, true); 
     }
   }
 })
