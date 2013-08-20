@@ -177,6 +177,7 @@ vde.App.directive('vdeExpr', function($rootScope, logger) {
           scope.item.properties[scope.property + 'Html'] = html;
 
           scope.$parent.onchange();
+          vde.Vis.parse();
         });
       };
 

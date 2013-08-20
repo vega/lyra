@@ -52,8 +52,8 @@ vde.Vis.transforms.Facet = (function() {
       (opts.item.pipeline() && opts.item.pipeline().name != this.pipeline().name)) return;
     if(this._seen.marks[opts.item.name]) return;
 
-    delete opts.spec.from.data;   // Inherit from the group
     var spec = vg.duplicate(opts.spec);
+    delete spec.from.data;   // Inherit from the group
     if(opts.item.oncePerFork) {
       spec.from.transform || (spec.from.transform = [])
       spec.from.transform.push({

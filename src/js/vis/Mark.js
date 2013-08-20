@@ -133,7 +133,7 @@ vde.Vis.Mark = (function() {
 
     this._def = null;
 
-    return spec;
+    return spec.properties ? spec : null;
   };
 
   prototype.bindProperty = function(prop, opts, defaults) {
