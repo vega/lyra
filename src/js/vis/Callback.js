@@ -1,4 +1,4 @@
-vde.Vis.Callback = (function() {
+vde.Vis.callback = (function() {
 	var callback = {
 		_registered: {
 			// type: [fns]

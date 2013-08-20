@@ -2,7 +2,7 @@ vde.Vis.transforms.Stack = (function() {
   var stack = function() { 
     vde.Vis.Transform.call(this, 'stack', ['point', 'height']);
 
-    vde.Vis.Callback.register('vis.post_spec', this, this.visPostSpec);
+    vde.Vis.callback.register('vis.post_spec', this, this.visPostSpec);
 
     this.scale = null;
     this.requiresFork = true;
@@ -15,7 +15,7 @@ vde.Vis.transforms.Stack = (function() {
   var prototype = stack.prototype;
 
   prototype.destroy = function() {
-    vde.Vis.Callback.deregister('vis.post_spec', this);
+    vde.Vis.callback.deregister('vis.post_spec', this);
   };
 
   prototype.spec = function() {

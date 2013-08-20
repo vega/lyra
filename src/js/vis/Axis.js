@@ -37,7 +37,7 @@ vde.Vis.Axis = (function() {
     var spec = {}, self = this;
     if(!this.properties.scale) return;
 
-    vde.Vis.Callback.run('axis.pre_spec', this, {spec: spec});
+    vde.Vis.callback.run('axis.pre_spec', this, {spec: spec});
 
     vg.keys(this.properties).forEach(function(k) {
       var p = self.properties[k];
@@ -54,7 +54,7 @@ vde.Vis.Axis = (function() {
       axis: vg.duplicate(this.properties.axisStyle)
     };
 
-    vde.Vis.Callback.run('axis.post_spec', this, {spec: spec});
+    vde.Vis.callback.run('axis.post_spec', this, {spec: spec});
 
     return spec;
   };

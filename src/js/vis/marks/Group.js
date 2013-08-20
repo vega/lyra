@@ -59,7 +59,7 @@ vde.Vis.marks.Group = (function() {
     var self = this;
     var spec = vg.duplicate(vde.Vis.Mark.prototype.spec.call(this));
 
-    vde.Vis.Callback.run('group.pre_spec', this, {spec: spec});
+    vde.Vis.callback.run('group.pre_spec', this, {spec: spec});
 
     ['scales', 'axes', 'marks'].forEach(function(t) {
       vg.keys(self[t]).forEach(function(k) {
@@ -69,7 +69,7 @@ vde.Vis.marks.Group = (function() {
       });      
     });
 
-    vde.Vis.Callback.run('group.post_spec', this, {spec: spec});
+    vde.Vis.callback.run('group.post_spec', this, {spec: spec});
 
     return spec;
   };

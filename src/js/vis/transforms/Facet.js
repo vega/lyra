@@ -19,9 +19,9 @@ vde.Vis.transforms.Facet = (function() {
 
     this._seen = {scales: {}, axes: {}, marks: {}};
 
-    vde.Vis.Callback.register('mark.post_spec',  this, this.markPostSpec);
-    // vde.Vis.Callback.register('scale.post_spec', this, this.scalePostSpec);
-    vde.Vis.Callback.register('group.post_spec', this, this.groupPostSpec);
+    vde.Vis.callback.register('mark.post_spec',  this, this.markPostSpec);
+    // vde.Vis.callback.register('scale.post_spec', this, this.scalePostSpec);
+    vde.Vis.callback.register('group.post_spec', this, this.groupPostSpec);
 
     return this;
   };
@@ -30,11 +30,14 @@ vde.Vis.transforms.Facet = (function() {
   var prototype = facet.prototype;
 
   prototype.destroy = function() {
-    vde.Vis.Callback.deregister('mark.post_spec',  this);
-    // vde.Vis.Callback.deregister('scale.post_spec', this);
-    vde.Vis.Callback.deregister('group.post_spec', this);
-    this.pipeline().forkName = null;
-    this.pipeline().forkIdx  = null;
+    vde.Vis.callback.deregister('mark.post_spec',  this);
+    // vde.Vis.callback.deregister('scale.post_spec', this);
+    vde.Vis.callback.deregister('group.post_spec', this);
+
+    if(this.pipeline()) {
+      this.pipeline().forkName = null;
+      this.pipeline().forkIdx  = null;
+    }
   };
 
   prototype.spec = function() {

@@ -26,7 +26,7 @@ vde.Vis.Pipeline = (function() {
       transform: []
     }];
 
-    vde.Vis.Callback.run('pipeline.pre_spec', this, {spec: specs});
+    vde.Vis.callback.run('pipeline.pre_spec', this, {spec: specs});
 
     var spec = 0;
     this.transforms.forEach(function(t, i) {
@@ -46,7 +46,7 @@ vde.Vis.Pipeline = (function() {
       if(s) specs[spec].transform.push(s);
     });
 
-    vde.Vis.Callback.run('pipeline.post_spec', this, {spec: specs});
+    vde.Vis.callback.run('pipeline.post_spec', this, {spec: specs});
 
     return specs;
   };

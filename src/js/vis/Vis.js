@@ -52,7 +52,7 @@ vde.Vis = (function() {
       marks: []
     };
 
-    vde.Vis.Callback.run('vis.pre_spec', this, {spec: spec});
+    vde.Vis.callback.run('vis.pre_spec', this, {spec: spec});
 
     inlinedValues = (inlinedValues == null || inlinedValues == true);
     for(var d in vis._data) {
@@ -68,7 +68,7 @@ vde.Vis = (function() {
 
     for(var g in vis.groups) spec.marks.push(vis.groups[g].spec());
 
-    vde.Vis.Callback.run('vis.post_spec', this, {spec: spec});
+    vde.Vis.callback.run('vis.post_spec', this, {spec: spec});
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#vis').selectAll('*').remove();
