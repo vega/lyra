@@ -121,12 +121,11 @@ vde.Vis.Mark = (function() {
     spec.type = this.type;
     spec.from || (spec.from = {});
 
-    if(this.pipeline()) spec.from.data = this.pipeline().name;
+    if(this.pipeline()) spec.from.data || (spec.from.data = this.pipeline().name);
 
-    var props = {};
-
-    for(var prop in this.properties) props[prop] = this.property(prop);
-
+    var props = {}, enter = spec.properties.enter;
+    for(var prop in this.properties) 
+      props[prop] = enter[prop] ? enter[prop] : this.property(prop);
     spec.properties.enter = props;
 
     vde.Vis.callback.run('mark.post_spec', this, {spec: spec});

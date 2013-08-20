@@ -18,11 +18,20 @@ vde.Vis.marks.Area = (function() {
       strokeWidth: {value: 0}
     };
 
+    vde.Vis.callback.register('vis.post_spec', this, function(opts) {
+      return vde.Vis.marks.Line.prototype.dummyData.call(this, opts);
+    });
+
     return this.init();
   };
 
   area.prototype = new vde.Vis.Mark();
   var prototype  = area.prototype;
+
+  prototype.spec = function() {
+    vde.Vis.marks.Line.prototype.dummySpec.call(this);
+    return vde.Vis.Mark.prototype.spec.call(this);
+  };
 
   prototype.productionRules = function(prop, scale, field) {
     if(!scale) {
@@ -40,7 +49,6 @@ vde.Vis.marks.Area = (function() {
 
     return [scale, field];
   };
-
 
   return area;
 })();

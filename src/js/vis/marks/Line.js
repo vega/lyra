@@ -16,6 +16,8 @@ vde.Vis.marks.Line = (function() {
       strokeWidth: {value: 2}
     };
 
+    vde.Vis.callback.register('vis.post_spec', this, this.dummyData);
+
     return this.init();
   };
 
@@ -33,8 +35,35 @@ vde.Vis.marks.Line = (function() {
         delete this.properties[p];
     }
 
+    this.dummySpec();
+
     return vde.Vis.Mark.prototype.spec.call(this);
-  };  
+  }; 
+
+  prototype.dummySpec = function() {
+    if(!this.properties.x.field && !this.properties.y.field) {
+      this._spec.from = {data: 'vdeDummyData'};
+      this._spec.properties.enter = {
+        x: {field: 'data.x'},
+        y: {field: 'data.y'},
+        y2: {value: this.group().properties.height.value}
+      };
+    } else {
+      this._spec.from = {};
+      this._spec.properties.enter = {};
+    }
+  };
+
+  prototype.dummyData = function(opts) {
+    if(this.properties.x.field || this.properties.y.field) return;
+    var g = this.group().properties;
+
+    opts.spec.data.push({
+      name: 'vdeDummyData',
+      values: [{x: 0, y: (g.height.value / 2) + 50}, 
+        {x: (g.width.value/2) + 50, y: 0}]
+    });
+  };
 
   return line;
 })();
