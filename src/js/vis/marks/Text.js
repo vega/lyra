@@ -26,7 +26,7 @@ vde.Vis.marks.Text = (function() {
     };
 
     this.connectors = {
-      'anchor': {},
+      'text': {},
       'left': {}, 'right': {}
     };
 
@@ -67,11 +67,17 @@ vde.Vis.marks.Text = (function() {
   }
 
   prototype.productionRules = function(prop, scale, field) {
-    switch(prop) {
-      case 'text':
-        scale = null;
-      break;
-    };
+    if(prop == 'text') {
+      var schema = $('<div class="schema" contenteditable="false">' + field.name + '</div>')
+          .attr('field-spec', (field instanceof vde.Vis.Field) ? field.spec() : null)
+          .toggleClass('raw',     field.raw)
+          .toggleClass('derived', !field.raw);
+
+      this.properties.textFormula = 'd.' + field.spec();
+      this.properties.textFormulaHtml = $('<div>').append(schema).html();
+
+      scale = field = null;
+    }
 
     return [scale, field];
   };
@@ -158,16 +164,90 @@ vde.Vis.marks.Text = (function() {
     var item = this.item(vde.iVis.activeItem);
     if(['x', 'y', 'dx', 'dy'].indexOf(property) == -1) return;
 
-    vde.iVis.interactor('point', [this.connectors['anchor'].coords(item)]);
+    vde.iVis.interactor('point', [this.connectors['text'].coords(item)]);
     vde.iVis.interactor('span', this.spans(item, property));
     vde.iVis.show(['point', 'span']);
+  };
+
+  prototype.target = function() {
+    var self = this,
+        item = this.item(vde.iVis.activeItem),
+        spans = [], dropzones = [];
+
+    ['x', 'y'].forEach(function(p) {
+      var s = self.spans(item, p);
+      dropzones = dropzones.concat(self.dropzones(s));
+      spans = spans.concat(s);
+    });
+
+    var connectors = [this.connectors['text'].coords(item)];
+    dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
+
+    var mouseover = function(e, item) {
+      if(!vde.iVis.dragging) return;
+      if(item.mark.def.name != 'dropzone') return;
+
+      // On mouseover, highlight the underlying span/connector.
+      // For points, switch targets after a timeout.
+      if(item.connector) {
+        vde.iVis.view.update({
+          props: 'hover',
+          items: item.mark.group.items[2].items[item.key-2]
+        });
+      } else {
+        vde.iVis.view.update({
+          props: 'hover',
+          items: item.cousin(-1).items[0].items
+        });
+
+        d3.select('#' + item.property + '.property').classed('drophover', true);
+      }
+    };
+
+    var mouseout = function(e, item) { 
+      if(!vde.iVis.dragging) return;
+      if(item.mark.def.name != 'dropzone') return;
+
+      // Clear highlights
+      if(item.connector) {
+        vde.iVis.view.update({
+          props: 'update',
+          items: item.mark.group.items[1].items[item.key-2]
+        });
+      } else {
+        vde.iVis.view.update({
+          props: 'update',
+          items: item.cousin(-1).items[0].items
+        });
+
+        d3.select('#' + item.property + '.property').classed('drophover', false);
+      }
+    };
+
+    var mouseup = function(e, item) {
+      if(!vde.iVis.dragging) return;
+      if(item.mark.def.name != 'dropzone') return;
+
+      if(item.property || item.connector) vde.iVis.bindProperty(self, item.property || item.connector, true);
+
+      d3.select('#' + item.property + '.property').classed('drophover', false);
+    };
+
+    vde.iVis.interactor('point', connectors);
+    vde.iVis.interactor('span', spans);
+    vde.iVis.interactor('dropzone', dropzones, {
+      mouseover: mouseover,
+      mouseout: mouseout,
+      mouseup: mouseup
+    });
+    vde.iVis.show(['point', 'span', 'dropzone']);    
   };
 
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
     var coord = {};
 
-    if(connector == 'anchor') {
+    if(connector == 'text') {
       var b  = vde.iVis.translatedBounds(item, 
           new vg.Bounds({x1: item.x, x2: item.x, y1: item.y, y2: item.y}));
       coord = {x: b.x1, y: b.y1, cursor: 'move'};
@@ -201,7 +281,7 @@ vde.Vis.marks.Text = (function() {
         b  = vde.iVis.translatedBounds(item, item.bounds),
         gb = vde.iVis.translatedBounds(item.mark.group, item.mark.group.bounds),
         go = 3*geomOffset, io = geomOffset,
-        pt = this.connectors['anchor'].coords(item),
+        pt = this.connectors['text'].coords(item),
         dx = item.align == 'center' ? 0 : item.dx,
         dy = item.baseline == 'middle' ? 0 : item.dy; // offsets   
 

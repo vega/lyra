@@ -223,7 +223,7 @@ vde.Vis.marks.Rect = (function() {
 
     // Order is important with dropzones to ensure on overlap, the connector dropzones
     // take precendence. 
-    var dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
+    dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
 
     var mouseover = function(e, item) {
       if(!vde.iVis.dragging) return;
