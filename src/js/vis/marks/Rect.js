@@ -36,7 +36,7 @@ vde.Vis.marks.Rect = (function() {
   var geomOffset = 7; // Offset from rect for the interactive geometry
 
   prototype.productionRules = function(prop, scale, field) {
-    if(!scale || scale.field().name != field.name) {
+    if(!scale) {
       switch(prop) {
         case 'x':
         case 'x2':

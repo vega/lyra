@@ -120,6 +120,7 @@ vde.Vis.Pipeline = (function() {
   // otherwise, assume look at properties to see where to
   // add it
   prototype.addTransform = function(t) {
+    t.pipelineName = this.name;
     if(t.forkPipeline || t.requiresFork) this.transforms.push(t);
     else {
       var pipelineName = this.name;

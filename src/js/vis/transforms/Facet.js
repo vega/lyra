@@ -38,14 +38,15 @@ vde.Vis.transforms.Facet = (function() {
   };
 
   prototype.spec = function() {
-    return {
-      type: 'facet', 
-      keys: [this.properties.keys.spec()]
-    };
+    var spec = {type: 'facet'};
+    if(this.properties.keys) spec.keys = [this.properties.keys.spec()];
+
+    return spec;
   };
 
   prototype.markPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
+    if(!this.properties.keys) return;
     if(opts.item.type == 'group')  return;
     if(!opts.item.pipeline() || 
       (opts.item.pipeline() && opts.item.pipeline().name != this.pipeline().name)) return;
@@ -71,6 +72,7 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.scalePostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
+    if(!this.properties.keys) return;
     if(!opts.item.pipeline() || 
       (opts.item.pipeline() && opts.item.pipeline().name != this.pipeline().name)) return;
     if(this._seen.scales[opts.item.name]) return;
@@ -85,6 +87,7 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.groupPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
+    if(!this.properties.keys) return;
     if(this._group.scales.length == 0 && this._group.axes.length == 0 &&
         this._group.marks.length == 0) return;
 

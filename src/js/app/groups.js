@@ -90,6 +90,25 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     }, true);
   };
 
+  $scope.newTransform = function(type) {
+    var t = new vde.Vis.transforms[type];
+    t.pipelineName = $rootScope.activeVisual.pipelineName;
+    $rootScope.activeVisual.pipeline().transforms.push(t);
+  };
+
+  $scope.removeTransform = function(i) {
+    var cnf = confirm("Are you sure you wish to delete this transformation?")
+    if(!cnf) return;
+
+    $rootScope.activeVisual.pipeline().transforms[i].destroy();
+    $rootScope.activeVisual.pipeline().transforms.splice(i, 1);
+    vde.Vis.parse();
+
+    $('.tooltip').remove();
+
+    logger.log('remove_transform', { idx: i }, false, true);
+  }; 
+
   $scope.toggleFont = function(prop, value) {
     var p = $rootScope.activeVisual.properties[prop];
     if(p.value == value) delete p.value;

@@ -49,3 +49,22 @@
 #groups .scales li {
   padding: 0;
 }
+
+#groups .pipeline { margin-left: 10px; }
+#groups .pipeline>div { 
+  margin: 0 10px 5px 0; 
+  border-radius: 5px;
+}
+
+#groups .pipeline h6 {
+  font-weight: normal;
+  font-style: italic;
+}
+
+#groups .pipeline li, #groups .pipeline li:hover { 
+  border: 0;
+  background-color: transparent;
+  margin: 0;
+}
+
+#groups .pipeline .property .field { width: 135px !important;}

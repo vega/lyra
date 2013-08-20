@@ -151,7 +151,7 @@ vde.Vis.Mark = (function() {
     if(opts.field) {
       field = opts.field;
       if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
-      if(!scale || scale.field().name != field.name) {
+      if(!scale) {
         switch(prop) {
           case 'x':
             scale = this.group().scale(this, {

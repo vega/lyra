@@ -6,6 +6,7 @@ vde.Vis.transforms.Stack = (function() {
 
     this.scale = null;
     this.requiresFork = true;
+    this.isVisual = true;
 
     return this;
   }
@@ -18,6 +19,9 @@ vde.Vis.transforms.Stack = (function() {
   };
 
   prototype.spec = function() {
+    if(!this.pipeline()) return;
+    if(!this.properties.point || !this.properties.height) return;
+
     // Add a scale for the stacking
     this.scale = this.pipeline().scale({
       field: new vde.Vis.Field('sum', false, 'linear', this.pipeline().name + '_stack')
@@ -35,15 +39,29 @@ vde.Vis.transforms.Stack = (function() {
 
   // Inject stats calculation for height scales
   prototype.visPostSpec = function(opts) {
-    var self = this;
-    if(!this.pipeline() || !this.pipeline().forkName) return;
-    
+    if(!this.pipeline()) return;
+
+    if(!this.pipeline().forkName) {
+      var t = this.pipeline().transforms, thisIdx = null;
+      for(var i = 0; i < t.length; i++) {
+        if(t[i] == this) { thisIdx = i; break; }
+      }
+
+      var facet = new vde.Vis.transforms.Facet();
+      facet.pipelineName = this.pipelineName;
+      this.pipeline().transforms.splice(thisIdx, 0, facet);
+
+      vde.Vis.parse();
+    }
+
+    if(!this.properties.point || !this.properties.height) return;
+
     opts.spec.data.push({
-      name: self.pipeline().name + '_stack',
-      source: self.pipeline().source,
+      name: this.pipeline().name + '_stack',
+      source: this.pipeline().source,
       transform: [
-        {type: 'facet', keys: [self.properties.point.spec()]},
-        {type: 'stats', value: self.properties.height.spec()}
+        {type: 'facet', keys: [this.properties.point.spec()]},
+        {type: 'stats', value: this.properties.height.spec()}
       ]
     });
   };

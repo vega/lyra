@@ -37,7 +37,7 @@
                   </select>
                 </vde-property>
 
-                <div class="visual-pipeline" ng-if="activeVisual.pipelineName" ng-init="pipeline = activeVisual.pipeline();">
+                <div class="pipeline" ng-if="activeVisual.pipelineName" ng-init="pipeline = activeVisual.pipeline();">
                   <div ng-if="pipeline.forkName" ng-init="layouts=['Overlap', 'Horizontal', 'Vertical']; transform = pipeline.transforms[pipeline.forkIdx];" ng-animate="{enter: 'yellowfade-show'}">
                     <h6>Groups</h6>
 
@@ -47,6 +47,14 @@
                   </div>
 
                   <h6>Visual Transforms</h6>
+                  <ul>
+                    <li ng-repeat="transform in pipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-show="transform.isVisual">
+                        <vde-pipeline-ctrls></vde-pipeline-ctrls>
+
+                        <ng-include src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></ng-include>
+                    </li>
+                  </ul>
+
                   <div class="shelf icons">
                     <a class="transform-pie" ng-click="newTransform('Pie')" vde-tooltip="Pie">Pie Chart</a>
                     <a class="transform-stack" ng-click="newTransform('Stack')" vde-tooltip="Stack">Stack</a>   
