@@ -141,6 +141,12 @@ fieldset#padding .property {
   margin-right: 15px;
 }
 
+.visual-pipeline { margin-left: 10px; }
+.visual-pipeline>div { 
+  margin: 0 10px 5px 0; 
+  border-radius: 5px;
+}
+
 .expr-container {
   background: #fff;
   border: 1px solid #aaa;

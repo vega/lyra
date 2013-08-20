@@ -334,3 +334,18 @@ textarea#export {
 .fade-hide.fade-hide-active, .fade-show {
   opacity:0;
 }
+
+.yellowfade-show, .yellowfade-hide { 
+    -webkit-transition: 500ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    -moz-transition: 500ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    -ms-transition: 500ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    -o-transition: 500ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+    transition: 500ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
+} 
+
+.yellowfade-hide, .yellowfade-show.yellowfade-show-active {
+  background-color: #a4a4a4;
+}
+.yellowfade-hide.yellowfade-hide-active, .yellowfade-show {
+  background-color: lightgoldenrodyellow;
+}

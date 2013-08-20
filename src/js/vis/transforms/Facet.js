@@ -33,6 +33,8 @@ vde.Vis.transforms.Facet = (function() {
     vde.Vis.Callback.deregister('mark.post_spec',  this);
     // vde.Vis.Callback.deregister('scale.post_spec', this);
     vde.Vis.Callback.deregister('group.post_spec', this);
+    this.pipeline().forkName = null;
+    this.pipeline().forkIdx  = null;
   };
 
   prototype.spec = function() {
