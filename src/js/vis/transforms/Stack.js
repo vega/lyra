@@ -49,6 +49,7 @@ vde.Vis.transforms.Stack = (function() {
 
       var facet = new vde.Vis.transforms.Facet();
       facet.pipelineName = this.pipelineName;
+      facet.properties.layout = 'Overlap';
       this.pipeline().transforms.splice(thisIdx, 0, facet);
 
       vde.Vis.parse();

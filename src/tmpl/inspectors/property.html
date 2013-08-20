@@ -8,7 +8,11 @@
     <div ng-show="!field">
       <span ng-switch-when="text"><input type="text" ng-model="$parent.ngModel" ng-change="onchange()" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" /></span>
 
-      <span ng-switch-when="number"><input type="text" class="number" ng-model="$parent.ngModel" ng-change="onchange()" min="{{min}}" max="{{max}}" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" /></span>
+      <span ng-switch-when="number">
+        <input ng-if="scale" type="text" class="number" ng-model="$parent.$parent.ngModel" ng-change="onchange()" min="{{min}}" max="{{max}}" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" />
+
+        <input ng-if="!scale" type="number" class="number" ng-model="$parent.$parent.ngModel" ng-change="onchange()" min="{{min}}" max="{{max}}" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" />
+      </span>
 
       <span ng-switch-when="range"><input type="range" ng-model="$parent.ngModel" ng-change="onchange()" min="{{min}}" max="{{max}}" step="{{step}}" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" /></span>
 
