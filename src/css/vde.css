@@ -220,7 +220,7 @@ textarea#export {
 #vis-edit {
   position: absolute;
   top: 40px;
-  left: 570px;
+  right: 10px;
   width: 250px;
 }
 

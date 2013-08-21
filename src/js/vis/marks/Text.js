@@ -8,7 +8,7 @@ vde.Vis.marks.Text = (function() {
       x: {value: 0},
       y: {value: 0},
 
-      text: {field: new vde.Vis.Field('vdeTextFormula')},
+      text: null,
       textFormula: '"Text"',
       textFormulaHtml: 'Text',
 
@@ -37,16 +37,21 @@ vde.Vis.marks.Text = (function() {
   var prototype  = text.prototype;
   var geomOffset = 7;
 
+  prototype.formulaName = function() {
+    return 'vdeTextFormula_' + this.group().name + '_' + this.name;
+  };
+
   prototype.from = function() {
     return {transform: [{
       type: 'formula',
-      field: 'vdeTextFormula',
+      field: this.formulaName(),
       expr: this.properties.textFormula
     }]};
   };
 
   prototype.spec = function() {
     this._spec.from = this.from();
+    this.properties.text = {field: new vde.Vis.Field(this.formulaName())};
     return vde.Vis.Mark.prototype.spec.call(this);
   };
 
