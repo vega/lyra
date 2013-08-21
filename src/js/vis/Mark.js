@@ -56,6 +56,35 @@ vde.Vis.Mark = (function() {
       vde.iVis.ngScope().toggleVisual(self, item.vdeKey || item.key || 0);
     });
 
+    // Highlight/unhighlight group
+    vde.Vis.addEventListener('mouseover', function(e, item) {
+      if(!item.mark.def.vdeMdl) return;
+      var m = item.mark.def.vdeMdl;
+      if(!m.group()) return;
+
+      m.group().items().map(function(i) {
+        if(i.strokeWidth != 0) return;
+        i.strokeWidth = 0.5;
+        i.strokeDash = [1.5, 3];
+        i.vdeStroked = true;
+        vde.Vis.view.render();
+      });
+    });
+
+    vde.Vis.addEventListener('mouseout', function(e, item) {
+      if(!item.mark.def.vdeMdl) return;
+      var m = item.mark.def.vdeMdl;
+      if(!m.group()) return;
+
+      m.group().items().map(function(i) {
+        if(!i.vdeStroked) return;
+        i.strokeWidth = 0;
+        delete i.strokeDash;
+        delete i.vdeStroked;
+        vde.Vis.view.render();
+      });
+    })
+
     return this;
   };
 

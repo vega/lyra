@@ -43,6 +43,8 @@ vde.App.directive('vdeMarkDroppable', function($rootScope, $timeout, logger) {
           markGroup: mark.groupName
         }, true);
       });
+
+      $('.tooltip').remove();
     });
   }
 })
