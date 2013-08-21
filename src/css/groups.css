@@ -8,11 +8,13 @@
   overflow: auto;
 }
 
+#groups>div:nth-child(2) { margin-top: 40px; }
+
 #groups h3 {
   font-size: 14px;
   font-weight: normal;
   padding-left: 20px;
-  margin: 5px 10px;
+  margin: 15px 10px;
   cursor: pointer;
   background: url(../imgs/spinner-closed.png) 0 1px no-repeat;
   background-size: 12px 12px;

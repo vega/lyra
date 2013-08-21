@@ -1,6 +1,6 @@
 vde.Vis.marks.Group = (function() {
   var group = function(name) {
-    vde.Vis.Mark.call(this, name || 'group_' + (vg.keys(vde.Vis.groups).length+1));
+    vde.Vis.Mark.call(this, name || 'layer_' + (vg.keys(vde.Vis.groups).length+1));
 
     this.type   = 'group';
     this.layer  = true;  // A psuedo-group exists in the spec, but not in the VDE UI.
@@ -50,7 +50,7 @@ vde.Vis.marks.Group = (function() {
 
     // Because a group could affect sub-marks, re-parse the submarks
     for(var m in this.marks)
-      this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);   
+      this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);
 
     return this;
   }
@@ -66,7 +66,7 @@ vde.Vis.marks.Group = (function() {
         var s = self[t][k].spec();
         if(!s) return;
         spec[t].push(s);
-      });      
+      });
     });
 
     vde.Vis.callback.run('group.post_spec', this, {spec: spec});
@@ -123,8 +123,8 @@ vde.Vis.marks.Group = (function() {
     return vde.Vis.marks.Rect.prototype.coordinates.call(this, connector, item, def);
   };
 
-  prototype.handles = function(item) { 
-    return vde.Vis.marks.Rect.prototype.handles.call(this, item); 
+  prototype.handles = function(item) {
+    return vde.Vis.marks.Rect.prototype.handles.call(this, item);
   };
 
   prototype.spans = function(item, property) {

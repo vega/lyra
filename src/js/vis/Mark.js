@@ -36,7 +36,7 @@ vde.Vis.Mark = (function() {
     if(!this.name)
       this.name = this.type + '_' + (vg.keys(this.group().marks).length+1);
 
-    if(!this.displayName) 
+    if(!this.displayName)
       this.displayName = this.name;
 
     if(this.group() != this)
@@ -47,14 +47,14 @@ vde.Vis.Mark = (function() {
         connections: [],
         coords: function(item, def) { return self.coordinates(c, item, def); }
       };
-    });      
+    });
 
-    vde.Vis.addEventListener('click', function(e, item) { 
+    vde.Vis.addEventListener('click', function(e, item) {
       if(item.mark.def != self.def()) return;
       if(item.items && self.type != 'group') return;
 
       vde.iVis.ngScope().toggleVisual(self, item.vdeKey || item.key || 0);
-    });    
+    });
 
     return this;
   };
@@ -80,9 +80,9 @@ vde.Vis.Mark = (function() {
       else {
         var value = (!isNaN(+p[k])) ? +p[k] : p[k];
         if(value == 'auto') {   // If the value is auto, rangeband
-          if(p.scale.type() == 'ordinal') { 
-            parsed.band = true; 
-            parsed.offset = -1; 
+          if(p.scale.type() == 'ordinal') {
+            parsed.band = true;
+            parsed.offset = -1;
           } else parsed[k] = 0; // If we don't have an ordinal scale, just set value:0
         } else {
           parsed[k] = value;
@@ -96,9 +96,9 @@ vde.Vis.Mark = (function() {
   prototype.update = function(props) {
     var self = this, def  = this.def();
     if(!vg.isArray(props)) props = [props];
-    
+
     var update = props.reduce(function(up, prop) {
-      var p = self.property(prop); 
+      var p = self.property(prop);
       if(p) up[prop] = p;
       return up;
     }, {});
@@ -124,7 +124,7 @@ vde.Vis.Mark = (function() {
     if(this.pipeline()) spec.from.data || (spec.from.data = this.pipeline().name);
 
     var props = {}, enter = spec.properties.enter;
-    for(var prop in this.properties) 
+    for(var prop in this.properties)
       props[prop] = enter[prop] ? enter[prop] : this.property(prop);
     spec.properties.enter = props;
 
@@ -176,7 +176,7 @@ vde.Vis.Mark = (function() {
               type: 'ordinal',
               field: field,
               range: new vde.Vis.Field('category20')
-            }, {}, prop + '_color');          
+            }, {}, prop + '_color');
           break;
 
           case 'fillOpacity':
@@ -188,7 +188,7 @@ vde.Vis.Mark = (function() {
               type: field.type || 'linear'
             }, prop);
           break;
-        }        
+        }
       }
 
       var prules = this.productionRules(prop, scale, field);
@@ -223,7 +223,7 @@ vde.Vis.Mark = (function() {
           var ap = yAxis.properties;
           ap.type = 'y'; ap.orient = 'left';
           yAxis.bindProperty('scale', aOpts);
-        break;        
+        break;
       }
     } else {
       this.checkExtents(prop);
@@ -244,8 +244,8 @@ vde.Vis.Mark = (function() {
       var check = e.fields.reduce(function(c, f) { return (self.properties[f] || {}).scale ? c : c.concat([f]) }, []);
       var hist  = e.history || (e.history = []);
       if(hist.indexOf(prop) != -1) hist.splice(hist.indexOf(prop), 1);
-      delete p.disabled; 
-      
+      delete p.disabled;
+
       // If we've hit the limit based on scales, then disable the rest of the fields
       if(e.fields.length - check.length == e.limit)
         check.forEach(function(f) { self.properties[f].disabled = true; });
@@ -268,7 +268,7 @@ vde.Vis.Mark = (function() {
 
   prototype.def = function() {
     var self  = this,
-        start = this.type == 'group' ? vde.Vis.view.model().defs().marks : this.group().def(); 
+        start = this.type == 'group' ? vde.Vis.view.model().defs().marks : this.group().def();
 
     if(this._def) return this._def;
 
@@ -281,10 +281,10 @@ vde.Vis.Mark = (function() {
     };
 
     var def = visit(start);
-    if(!def && this.groupName) {
+    if(!def && this.groupName && this.group() != this) {
       // If we haven't found the def in the group, there must be
       // some group injection going on. This means that the last
-      // mark in the group def should be another group def. 
+      // mark in the group def should be another group def.
       var marks = this.group().def().marks;
       start = marks[marks.length-1];
       if(start.type == 'group' && start.name.indexOf(this.groupName) != -1)
@@ -306,14 +306,14 @@ vde.Vis.Mark = (function() {
 
     var visit = function(parent, group) {
       var items = [];
-      parent.items.forEach(function(i) { 
+      parent.items.forEach(function(i) {
         if(i.def && (i.def == def || (group && i.marktype == 'group')))
-          items = items.concat(i.items); 
+          items = items.concat(i.items);
       });
       return items;
     };
 
-    for(var p = 0; p < parents.length; p++) 
+    for(var p = 0; p < parents.length; p++)
       this._items = this._items.concat(visit(parents[p]));
 
     if(this._items.length == 0) {
@@ -321,7 +321,7 @@ vde.Vis.Mark = (function() {
       // group injection going on. So first find those groups
       // and use them as parents
       var groups = [];
-      for(var p = 0; p < parents.length; p++) 
+      for(var p = 0; p < parents.length; p++)
         groups = groups.concat(visit(parents[p], true));
 
       for(var g = 0; g < groups.length; g++)
@@ -336,7 +336,7 @@ vde.Vis.Mark = (function() {
 
   prototype.item = function(i) {
     if(i.key) return i;
-    
+
     var items = this.items();
     if(i > items.length) i = 0;
 
@@ -375,7 +375,7 @@ vde.Vis.Mark = (function() {
         connector: area.connector
       }
     } else {
-      if(area[0].x == area[1].x) 
+      if(area[0].x == area[1].x)
         return {
           x: area[0].x-2*geomOffset, x2: area[0].x,
           y: area[0].y, y2: area[1].y,
