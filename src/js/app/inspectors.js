@@ -4,7 +4,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
     scope: {
       label: '@',
       type: '@',
-      max: '@', 
+      max: '@',
       min: '@',
       step: '@',
       item: '=',
@@ -18,7 +18,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
     },
     transclude: true,
     templateUrl: 'tmpl/inspectors/property.html',
-    controller: function($scope, $element, $attrs, $timeout) { 
+    controller: function($scope, $element, $attrs, $timeout) {
       $scope.onchange = function(prop) {
         if($attrs.nochange) return;
         if('checkExtents' in $scope.item)
@@ -29,7 +29,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           else vde.Vis.parse();
 
           vde.iVis.show('handle');
-        }, 1);   
+        }, 1);
 
         logger.log('onchange', {
           item: $scope.item.name,
@@ -56,7 +56,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
 
       $scope.showHelper = function(target, e, helperClass) {
         if($scope.item instanceof vde.Vis.Mark) $scope.item.helper($attrs.property);
-        
+
         target.addClass(helperClass);
       };
 
@@ -64,7 +64,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
         target.removeClass(helperClass);
         if(target.hasClass('helper') || target.hasClass('drophover')) return;
 
-        if(!vde.iVis.dragging) vde.iVis.show('handle'); 
+        if(!vde.iVis.dragging) vde.iVis.show('handle');
         else if($rootScope.activeVisual instanceof vde.Vis.Mark)
           $rootScope.activeVisual.target();
       };
@@ -75,13 +75,13 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       $(element).find('.property').on('mousemove', function(e) {
         scope.showHelper($(this), e, 'helper');
       })
-      .on('mouseleave', function(e) { 
+      .on('mouseleave', function(e) {
         scope.hideHelper($(this), e, 'helper');
       }) // Clear helpers
       .drop(function(e, dd) {
         if(element.find('.expr').length > 0) return element.find('.expr').drop(e, dd);
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
-        
+
         var binding = vde.iVis.bindProperty(scope.item, attrs.property);
 
         logger.log('bind', {
@@ -93,7 +93,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           ngModel: attrs.ngModel,
           scaleName: binding[0],
           field: binding[1]
-        }, true, true);        
+        }, true, true);
       }).drop('dropstart', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         scope.showHelper($(this), e, 'drophover');
@@ -132,13 +132,13 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
           inspector.css('left', (pageX-15) + 'px');
           if(pageY > winHeight / 2) { // If below half-way, position top
             inspector.css('top', (pageY - inspector.height() - 25) + 'px');
-            $('.bubble', inspector).removeClass('top').addClass('bottom');          
+            $('.bubble', inspector).removeClass('top').addClass('bottom');
           } else {
             inspector.css('top', (pageY + 25) + 'px');
-            $('.bubble', inspector).removeClass('bottom').addClass('top');  
-          }  
-         
-          inspector.toggle();        
+            $('.bubble', inspector).removeClass('bottom').addClass('top');
+          }
+
+          inspector.toggle();
         }, 100);
 
         logger.log('edit_scale', { activeScale: $rootScope.activeScale });
@@ -148,7 +148,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
       // if(attrs.draggable) {
         var binding = element.find('.binding');
         element.find('.binding-draggable').append(binding);
-      // }    
+      // }
       $timeout(function() {
         if(scope.field instanceof vde.Vis.Field)
           element.find('.schema').data('field', scope.field);
@@ -160,6 +160,12 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
 vde.App.directive('vdeExpr', function($rootScope, logger) {
   return {
     restrict: 'A',
+    scope: {
+      item: '=',
+      property: '=',
+      ngModel: '=',
+      vdeExpr: '@'
+    },
     template: '<div class="expr" contenteditable="true"></div>',
     link: function(scope, element, attrs) {
       var parse = function(elem) {
@@ -183,14 +189,14 @@ vde.App.directive('vdeExpr', function($rootScope, logger) {
 
       $(element).find('.expr')
         // .html(scope.$parent.ngModel)
-        .drop(function(e, dd) { 
+        .drop(function(e, dd) {
           var proxy = vde.iVis.dragging;
           var field = $(proxy).data('field') || $(proxy).find('.schema').data('field') || $(proxy).find('.schema').attr('field');
 
           if(!field) return;
-          
-          if(scope.item instanceof vde.Vis.Transform && 
-            !scope.item.requiresFork && field instanceof vde.Vis.Field) 
+
+          if(scope.item instanceof vde.Vis.Transform &&
+            !scope.item.requiresFork && field instanceof vde.Vis.Field)
               scope.item.requiresFork = ($rootScope.activePipeline.name != field.pipelineName);
 
           $('<div class="schema" contenteditable="false">' + $(proxy).text() + '</div>')
@@ -209,11 +215,11 @@ vde.App.directive('vdeExpr', function($rootScope, logger) {
         })
         .bind('keyup', function(e) { parse($(this)); });
 
-      scope.$watch(function($scope) { return $scope.$parent.ngModel }, 
-        function() { 
-          var expr = $(element).find('.expr'), html = scope.$parent.ngModel;
-          if(expr.html() != html) expr.html(html) 
-        }, true); 
+      scope.$watch(function($scope) { return $scope.ngModel },
+        function() {
+          var expr = $(element).find('.expr'), html = scope.ngModel;
+          if(expr.html() != html) expr.html(html)
+        }, true);
     }
   }
 })

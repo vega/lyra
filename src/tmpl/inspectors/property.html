@@ -39,15 +39,15 @@
         </select>
       </span>
 
-      <div class="expr-container" ng-switch-when="expr" ng-model="$parent.ngModel" vde-expr></div>
+      <div class="expr-container" ng-switch-when="expr" vde-expr  ng-model="$parent.ngModel" item="item" property="property"></div>
 
-      <div class="expr-container" ng-switch-when="expr-str" ng-model="$parent.ngModel" vde-expr="str"></div>
+      <div class="expr-container" ng-switch-when="expr-str" vde-expr="str" ng-model="$parent.ngModel" item="item" property="property"></div>
     </div>
 
     <div ng-transclude="1"></div>
 
     <a class="unbind" ng-if="scale || field" ng-click="unbind(property)">Unbind</a>
   </div>
-  
+
   <br clear="all" />
 </div>
