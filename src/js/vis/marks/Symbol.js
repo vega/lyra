@@ -134,7 +134,7 @@ vde.Vis.marks.Symbol = (function() {
 
       if(item.property) vde.iVis.bindProperty(self, item.property, true);
 
-      d3.select('#' + item.property + '.property').classed('drophover', false);
+      d3.selectAll('#' + item.property + '.property').classed('drophover', false);
     };
 
     vde.iVis.interactor('point', [this.connectors['point'].coords(item)]);

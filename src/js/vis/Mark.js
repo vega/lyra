@@ -64,7 +64,7 @@ vde.Vis.Mark = (function() {
 
       m.group().items().map(function(i) {
         if(i.strokeWidth != 0) return;
-        i.strokeWidth = 0.5;
+        i.strokeWidth = 1;
         i.strokeDash = [1.5, 3];
         i.vdeStroked = true;
         vde.Vis.view.render();

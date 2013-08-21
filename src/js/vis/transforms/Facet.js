@@ -20,7 +20,6 @@ vde.Vis.transforms.Facet = (function() {
     this._seen = {scales: {}, axes: {}, marks: {}};
 
     vde.Vis.callback.register('mark.post_spec',  this, this.markPostSpec);
-    // vde.Vis.callback.register('scale.post_spec', this, this.scalePostSpec);
     vde.Vis.callback.register('group.post_spec', this, this.groupPostSpec);
 
     return this;
@@ -31,7 +30,6 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.destroy = function() {
     vde.Vis.callback.deregister('mark.post_spec',  this);
-    // vde.Vis.callback.deregister('scale.post_spec', this);
     vde.Vis.callback.deregister('group.post_spec', this);
 
     if(this.pipeline()) {
@@ -73,37 +71,21 @@ vde.Vis.transforms.Facet = (function() {
     delete opts.spec.properties;
   };
 
-  prototype.scalePostSpec = function(opts) {
-    if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(!this.properties.keys) return;
-    if(!opts.item.pipeline() ||
-      (opts.item.pipeline() && opts.item.pipeline().name != this.pipeline().name)) return;
-    if(this._seen.scales[opts.item.name]) return;
-
-    // Shadow this scale if it uses group width/height and we're laying out _groups
-    if((this.properties.layout == 'Horizontal' && opts.spec.range == 'width') ||
-       (this.properties.layout == 'Vertical' && opts.spec.range == 'height'))
-          this._group.scales.push(vg.duplicate(opts.spec));
-
-    this._seen.scales[opts.item.name] = 1;
-  };
-
   prototype.groupPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
     if(!this.properties.keys) return;
     if(this._group.scales.length == 0 && this._group.axes.length == 0 &&
         this._group.marks.length == 0) return;
 
-    var self = this, key = this.properties.keys.spec();
+    var self = this, key = this.properties.keys.spec(), posScale = null;
 
     this._group.name = opts.item.name + '_facet';
     this._group.from = {data: this.pipeline().forkName};
 
     // Inject spec to position groups
     if(this.properties.layout && this.properties.layout != 'Overlap') {
-      var posScale = this.pipeline().name + '_pos';
       var isHoriz  = this.properties.layout == 'Horizontal';
-      var posScale = this.pipeline().scale({
+      posScale = this.pipeline().scale({
         type: 'ordinal',
         padding: 0.2,
         field: this.properties.keys,
@@ -113,6 +95,8 @@ vde.Vis.transforms.Facet = (function() {
 
       opts.spec.scales || (opts.spec.scales = []);
       opts.spec.scales.forEach(function(scale) {
+        if(scale.name == posScale.name) return;
+
         // Shadow this scale if it uses group width/height and we're laying out _groups
         if((self.properties.layout == 'Horizontal' && scale.range == 'width') ||
            (self.properties.layout == 'Vertical' && scale.range == 'height'))
