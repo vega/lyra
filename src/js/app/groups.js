@@ -2,7 +2,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
   $scope.gMdl = { // General catch-all model for scoping
     groups: vde.Vis.groups,
     pipelines: vde.Vis.pipelines
-  }; 
+  };
 
   $rootScope.toggleVisual = function(v, key) {
     $rootScope.activeVisual = v;
@@ -11,9 +11,11 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     $rootScope.activePipeline = v.pipelineName ? v.pipeline() : $rootScope.activePipeline;
     $scope.gMdl.activeVisualPipeline = (v.pipeline() || {}).name;
 
-    vde.iVis.activeMark = v;
-    vde.iVis.activeItem = key || 0;
-    vde.iVis.show('handle');
+    if(vde.iVis.activeMark != v || key != null) {
+      vde.iVis.activeMark = v;
+      vde.iVis.activeItem = key || 0;
+      vde.iVis.show('handle');
+    }
 
     logger.log('toggle_visual', {
       activeVisual: v.name,
@@ -21,7 +23,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
       visualPipeline: v.pipelineName,
       activePipeline: ($rootScope.activePipeline||{}).name
     });
-  };  
+  };
 
   $scope.setPipeline = function() {
     var p = $scope.gMdl.activeVisualPipeline;
@@ -107,7 +109,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     $('.tooltip').remove();
 
     logger.log('remove_transform', { idx: i }, false, true);
-  }; 
+  };
 
   $scope.toggleFont = function(prop, value) {
     var p = $rootScope.activeVisual.properties[prop];
