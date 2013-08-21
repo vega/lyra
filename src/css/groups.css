@@ -1,7 +1,7 @@
 #groups {
   position: absolute;
   width: 300px;
-  left: 300px;
+  right: 0px;
   top: 0;
   bottom: 0;
   border-left: 1px dashed #777;
@@ -24,9 +24,9 @@
   font-weight: bold;
 }
 
-#groups h4 { 
+#groups h4 {
   clear: both;
-  margin: 10px 10px 5px 10px; 
+  margin: 10px 10px 5px 10px;
   font-weight: normal;
   border-bottom: 1px solid #777;
 }
@@ -36,13 +36,13 @@
   text-decoration: none;
 }
 
-#groups li h5 { 
-  font-weight: normal; 
+#groups li h5 {
+  font-weight: normal;
   cursor: pointer;
 }
 
-#groups li.selected h5 { 
-  font-weight: bold; 
+#groups li.selected h5 {
+  font-weight: bold;
   margin-bottom: 10px;
 }
 
@@ -51,8 +51,8 @@
 }
 
 #groups .pipeline { margin-left: 10px; }
-#groups .pipeline>div { 
-  margin: 0 10px 5px 0; 
+#groups .pipeline>div {
+  margin: 0 10px 5px 0;
   border-radius: 5px;
 }
 
@@ -61,7 +61,7 @@
   font-style: italic;
 }
 
-#groups .pipeline li, #groups .pipeline li:hover { 
+#groups .pipeline li, #groups .pipeline li:hover {
   border: 0;
   background-color: transparent;
   margin: 0;

@@ -16,8 +16,8 @@ input,select{vertical-align:middle}
 
 /* VDE */
 
-body { 
-  background: #cdcdcd; 
+body {
+  background: #cdcdcd;
   font: 12px 'Helvetica Neue', sans-serif;
   height: 100%;
   overflow: hidden;
@@ -30,12 +30,12 @@ body {
   user-select: none;
 }
 
-a { 
+a {
   text-decoration: underline;
   cursor: pointer;
 }
 
-.chrome { 
+.chrome {
   background: #939393;
 }
 
@@ -63,7 +63,7 @@ a {
   color: #fff;
 }
 
-.binding:hover { 
+.binding:hover {
   background-color: #777;
   border-left: 1px solid #777;
 }
@@ -83,7 +83,7 @@ a {
   padding: 2px 5px;
   background: #ccc;
   border: 1px solid #888;
-  color: #333;  
+  color: #333;
 }
 
 .schema:hover, .binding:hover .schema {
@@ -115,7 +115,7 @@ a {
   border: 1px solid #939393;
   border-radius: 0;
   border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;  
+  border-bottom-left-radius: 10px;
 }
 
 .binding .scale .edit {
@@ -166,8 +166,8 @@ textarea#export {
 
 #export-link {
   position: absolute;
-  top: 0;
-  right: 0;
+  bottom: 0;
+  right: 300px;
   width: 55px;
   height: 16px;
   padding: 5px;
@@ -178,18 +178,19 @@ textarea#export {
   font-weight: bold;
 }
 
-#export-link:hover { 
+#export-link:hover {
   background-color: #555;
 }
 
 #bug-link {
   position: absolute;
   bottom: 0;
-  right: 0;
-  width: 32px;
-  height: 32px;
-  padding: 3px;
+  right: 375px;
+  width: 16px;
+  height: 16px;
+  padding: 5px;
   background: #333 url(../imgs/bug.png) no-repeat 50%;
+  background-size: 20px;
   text-indent: -999em;
 }
 
@@ -204,8 +205,8 @@ textarea#export {
   color: #ddd;
 }
 
-#bug-report p { 
-  margin-bottom: 10px; 
+#bug-report p {
+  margin-bottom: 10px;
 }
 
 #bug-report input[type=text] { width: 300px !important;}
@@ -232,8 +233,8 @@ textarea#export {
     width: 100%;
 }
 
-.bubble h5 { 
-  margin: 10px 0; 
+.bubble h5 {
+  margin: 10px 0;
   font-size: 13px;
 }
 
@@ -253,7 +254,7 @@ textarea#export {
       -moz-transform:    rotate( 117deg ) skew( -35deg );
       -ms-transform:     rotate( 117deg ) skew( -35deg );
       -o-transform:      rotate( 117deg ) skew( -35deg );
-      -webkit-transform: rotate( 117deg ) skew( -35deg ); 
+      -webkit-transform: rotate( 117deg ) skew( -35deg );
 }
 
 .bottom:before {
@@ -263,17 +264,17 @@ textarea#export {
       -moz-transform:    rotate( -63deg ) skew( -35deg );
       -ms-transform:     rotate( -63deg ) skew( -35deg );
       -o-transform:      rotate( -63deg ) skew( -35deg );
-      -webkit-transform: rotate( -63deg ) skew( -35deg ); 
+      -webkit-transform: rotate( -63deg ) skew( -35deg );
 }
 
 .left:before {
-  left: -9px; 
+  left: -9px;
   top: 11px;
   transform:             rotate( 29deg ) skew( -35deg );
       -moz-transform:    rotate( 29deg ) skew( -35deg );
       -ms-transform:     rotate( 29deg ) skew( -35deg );
       -o-transform:      rotate( 29deg ) skew( -35deg );
-      -webkit-transform: rotate( 29deg ) skew( -35deg );  
+      -webkit-transform: rotate( 29deg ) skew( -35deg );
 }
 
 .right:before {
@@ -283,12 +284,12 @@ textarea#export {
       -moz-transform:    rotate( 29deg ) skew( -35deg );
       -ms-transform:     rotate( 29deg ) skew( -35deg );
       -o-transform:      rotate( 29deg ) skew( -35deg );
-      -webkit-transform: rotate( 29deg ) skew( -35deg );   
+      -webkit-transform: rotate( 29deg ) skew( -35deg );
 }
 
-.slide-enter, 
+.slide-enter,
 .slide-leave
-{ 
+{
     -webkit-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     -moz-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     -ms-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
@@ -296,7 +297,7 @@ textarea#export {
     transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     position: relative;
     display: block;
-} 
+}
 
 .bubble a.close {
   display: inline-block;
@@ -307,26 +308,26 @@ textarea#export {
   background: url(../imgs/close.png) no-repeat;
   background-size: 10px;
 }
- 
-.slide-enter.slide-enter-active, 
+
+.slide-enter.slide-enter-active,
 .slide-leave {
     opacity: 1;
     left: 0;
 }
- 
+
 .slide-leave.slide-leave-active,
 .slide-enter {
     opacity: 0;
     left: -50px;
 }
 
-.fade-show, .fade-hide { 
+.fade-show, .fade-hide {
     -webkit-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     -moz-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     -ms-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     -o-transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     transition: 150ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
-} 
+}
 
 .fade-hide, .fade-show.fade-show-active {
   opacity:1;
@@ -335,13 +336,13 @@ textarea#export {
   opacity:0;
 }
 
-.yellowfade-show, .yellowfade-hide { 
+.yellowfade-show, .yellowfade-hide {
     -webkit-transition: 500ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     -moz-transition: 500ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     -ms-transition: 500ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     -o-transition: 500ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
     transition: 500ms cubic-bezier(0.455, 0.030, 0.515, 0.955) all;
-} 
+}
 
 .yellowfade-hide, .yellowfade-show.yellowfade-show-active {
   background-color: #a4a4a4;
