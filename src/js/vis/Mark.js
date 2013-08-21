@@ -406,14 +406,14 @@ vde.Vis.Mark = (function() {
     } else {
       if(area[0].x == area[1].x)
         return {
-          x: area[0].x-2*geomOffset, x2: area[0].x,
+          x: area[0].x-2*geomOffset, x2: area[0].x+2*geomOffset,
           y: area[0].y, y2: area[1].y,
           property: area[0].span.split('_')[0]
         }
       else if(area[0].y == area[1].y)
         return {
           x: area[0].x, x2: area[1].x,
-          y: area[0].y-2*geomOffset, y2: area[0].y,
+          y: area[0].y-2*geomOffset, y2: area[0].y+2*geomOffset,
           property: area[0].span.split('_')[0]
         }
     }
