@@ -1,14 +1,20 @@
 <div id="groups" class="inspectors chrome" ng-controller="GroupsCtrl">
-  <h2><span>Visual Layers</span> <a class="edit-vis" ng-click="editVisualization()" vde-tooltip="Visualization Properties">Edit Visualization</a> <a class="add" ng-click="addGroup()" vde-tooltip="New Group">New Group</a> </h2> 
+  <h2><span>Visual Layers</span> <a class="edit-vis" ng-click="editVisualization()" vde-tooltip="Visualization Properties">Edit Visualization</a> <a class="add" ng-click="addGroup()" vde-tooltip="New Group">New Group</a> </h2>
 
   <div class="group" ng-repeat="(groupName, group) in gMdl.groups">
     <div ng-if="group.layer">
       <h3 ng-class="{expanded:activeGroup == group}" ng-click="toggleVisual(group)">{{groupName|inflector:'humanize'}} <a ng-click="removeVisual('group', groupName);" class="remove" vde-tooltip="Delete Group">Delete Group</a></h3>
 
+      <div ng-class="{selected:activeVisual==group}" ng-show="activeVisual==group" ng-init="mark = group;">
+        <vde-property label="Name" type="text" item="mark" ng-model="mark.displayName" nodrop="1"></vde-property>
+
+        <ng-include src="'tmpl/inspectors/rect.html'"></ng-include>
+      </div>
+
       <div ng-if="activeGroup == group">
 
         <h4>Axes <a ng-click="addAxis()" class="add" vde-tooltip="New Axis">New Axis</a></h4>
-        
+
         <ul>
           <li ng-repeat="(axisName, axis) in group.axes" ng-class="{selected:activeVisual==axis}" ng-click="toggleVisual(axis)">
             <h5>{{axis.name|inflector:'humanize'}} <a ng-click="removeVisual('axes', axis.name);" class="remove" vde-tooltip="Delete Axis">Delete Axis</a></h5>
@@ -18,7 +24,7 @@
         </ul>
 
         <h4>Marks</h4>
-        
+
         <ul>
           <li ng-repeat="(markName, mark) in group.marks" ng-class="{selected:activeVisual==mark}" ng-click="toggleVisual(mark)">
             <h5>{{mark.displayName|inflector:'humanize'}} <a ng-click="removeVisual('marks', mark.name);" class="remove" vde-tooltip="Delete Mark">Delete Mark</a></h5>
@@ -57,7 +63,7 @@
 
                   <div class="shelf icons">
                     <a class="transform-pie" ng-click="newTransform('Pie')" vde-tooltip="Pie">Pie Chart</a>
-                    <a class="transform-stack" ng-click="newTransform('Stack')" vde-tooltip="Stack">Stack</a>   
+                    <a class="transform-stack" ng-click="newTransform('Stack')" vde-tooltip="Stack">Stack</a>
                     <!-- <a class="transform-wordcloud" ng-click="newTransform('WordCloud')" vde-tooltip="WordCloud">Word Cloud</a>         -->
                     <br clear="all" />
                   </div>

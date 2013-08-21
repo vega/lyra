@@ -1,8 +1,6 @@
 vde.App.controller('MarksCtrl', function($scope, $rootScope, $timeout, logger) {
   // Cardinal sin
   $scope.load = function() {
-    vde.Vis.parse();
-
     if(vg.keys(vde.Vis._rawData).length == 0) {
       vde.Vis.data('medals', 'data/medals.json', 'json');
       vde.Vis.data('olympics', 'data/olympics.json', 'json');
@@ -13,14 +11,11 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope, $timeout, logger) {
       vde.Vis.data('stocks', 'data/stocks.csv', {"type": "csv", "parse": {"price":"number", "date":"date"}});
     }
 
-    $timeout(function() {
-      // Start with a default pipeline and group
-      $rootScope.activePipeline = new vde.Vis.Pipeline();
-
-      var g = new vde.Vis.marks.Group();
-      $rootScope.activeGroup = g;
-      $rootScope.activeVisual = g;
-    }, 100);
+    // Start with a default pipeline and group
+    var g = new vde.Vis.marks.Group();
+    $rootScope.activeGroup = g;
+    $rootScope.activePipeline = new vde.Vis.Pipeline();
+    vde.Vis.parse();
   };
 });
 
