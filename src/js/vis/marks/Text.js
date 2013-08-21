@@ -39,9 +39,9 @@ vde.Vis.marks.Text = (function() {
 
   prototype.from = function() {
     return {transform: [{
-      type: 'formula', 
-      field: 'vdeTextFormula', 
-      expr: this.properties.textFormula 
+      type: 'formula',
+      field: 'vdeTextFormula',
+      expr: this.properties.textFormula
     }]};
   };
 
@@ -93,8 +93,8 @@ vde.Vis.marks.Text = (function() {
   };
 
   prototype.selected = function() {
-    var self = this, 
-        item = this.item(vde.iVis.activeItem), 
+    var self = this,
+        item = this.item(vde.iVis.activeItem),
         props = this.properties;
 
     var mousemove = function() {
@@ -116,7 +116,7 @@ vde.Vis.marks.Text = (function() {
                 cy = b.y1 + b.height()/2;
 
             var rad = Math.atan2(evt.pageX - (o.left + cx), evt.pageY - (o.top + cy));
-            var deg = (rad * (180 / Math.PI) * -1) + 90; 
+            var deg = (rad * (180 / Math.PI) * -1) + 90;
             props.angle.value = Math.round(deg);
             self.update('angle');
           } else {
@@ -154,7 +154,7 @@ vde.Vis.marks.Text = (function() {
         }
 
         self.update(['fontWeight', 'fontStyle']);
-      });      
+      });
     };
 
     vde.iVis.interactor('handle', this.handles(item), {mousemove: mousemove, keydown: keydown});
@@ -200,11 +200,11 @@ vde.Vis.marks.Text = (function() {
           items: item.cousin(-1).items[0].items
         });
 
-        d3.select('#' + item.property + '.property').classed('drophover', true);
+        d3.selectAll('#' + item.property + '.property').classed('drophover', true);
       }
     };
 
-    var mouseout = function(e, item) { 
+    var mouseout = function(e, item) {
       if(!vde.iVis.dragging) return;
       if(item.mark.def.name != 'dropzone') return;
 
@@ -220,7 +220,7 @@ vde.Vis.marks.Text = (function() {
           items: item.cousin(-1).items[0].items
         });
 
-        d3.select('#' + item.property + '.property').classed('drophover', false);
+        d3.selectAll('#' + item.property + '.property').classed('drophover', false);
       }
     };
 
@@ -230,7 +230,7 @@ vde.Vis.marks.Text = (function() {
 
       if(item.property || item.connector) vde.iVis.bindProperty(self, item.property || item.connector, true);
 
-      d3.select('#' + item.property + '.property').classed('drophover', false);
+      d3.selectAll('#' + item.property + '.property').classed('drophover', false);
     };
 
     vde.iVis.interactor('point', connectors);
@@ -240,7 +240,7 @@ vde.Vis.marks.Text = (function() {
       mouseout: mouseout,
       mouseup: mouseup
     });
-    vde.iVis.show(['point', 'span', 'dropzone']);    
+    vde.iVis.show(['point', 'span', 'dropzone']);
   };
 
   prototype.coordinates = function(connector, item, def) {
@@ -248,7 +248,7 @@ vde.Vis.marks.Text = (function() {
     var coord = {};
 
     if(connector == 'text') {
-      var b  = vde.iVis.translatedBounds(item, 
+      var b  = vde.iVis.translatedBounds(item,
           new vg.Bounds({x1: item.x, x2: item.x, y1: item.y, y2: item.y}));
       coord = {x: b.x1, y: b.y1, cursor: 'move'};
     } else {
@@ -257,7 +257,7 @@ vde.Vis.marks.Text = (function() {
       b.rotate(item.angle*Math.PI/180, item.x||0, item.y||0);
       b = vde.iVis.translatedBounds(item, b);
 
-      coord = (connector == 'left') ? 
+      coord = (connector == 'left') ?
         {x: b.x1, y: b.y1, cursor: 'nw-resize'} : {x: b.x2, y: b.y2, cursor: 'se-resize'};
     }
 
@@ -270,7 +270,7 @@ vde.Vis.marks.Text = (function() {
   prototype.handles = function(item) {
     var props = this.properties,
         b = vde.iVis.translatedBounds(item, item.bounds),
-        left = this.connectors.left.coords(item, {disabled: 0}), 
+        left = this.connectors.left.coords(item, {disabled: 0}),
         right = this.connectors.right.coords(item, {disabled: 0});
 
     return [left, right];
@@ -283,7 +283,7 @@ vde.Vis.marks.Text = (function() {
         go = 3*geomOffset, io = geomOffset,
         pt = this.connectors['text'].coords(item),
         dx = item.align == 'center' ? 0 : item.dx,
-        dy = item.baseline == 'middle' ? 0 : item.dy; // offsets   
+        dy = item.baseline == 'middle' ? 0 : item.dy; // offsets
 
     switch(property) {
       case 'x':
@@ -303,7 +303,7 @@ vde.Vis.marks.Text = (function() {
       case 'dy':
         return [{x: (pt.x+io), y: pt.y, span: 'dy_0'}, {x: (pt.x+io), y: (pt.y+dy), span: 'dy_0'}];
       break;
-    } 
+    }
   };
 
   return text;

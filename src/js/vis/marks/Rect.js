@@ -114,11 +114,11 @@ vde.Vis.marks.Rect = (function() {
       if(vde.iVis.activeMark != self) return;
 
       var props = self.properties,
-          dx = Math.ceil(evt.pageX - dragging.prev[0]), 
+          dx = Math.ceil(evt.pageX - dragging.prev[0]),
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
           data = dragging.item.datum.data;
 
-      if(!data || data.disabled) return; 
+      if(!data || data.disabled) return;
 
       // Since we're updating a value, pull the current value from the
       // scenegraph directly rather than properties. This makes it easier
@@ -130,16 +130,16 @@ vde.Vis.marks.Rect = (function() {
       vde.iVis.ngScope().$apply(function() {
         switch(data.connector) {
           case 'top-center':
-            var reverse = (props.y.scale && 
+            var reverse = (props.y.scale &&
               props.y.scale.range().name == 'height') ? -1 : 1;
-            
+
             updateValue('y', dy*reverse);
             updateValue('height', dy*-1);
             self.update(['y', 'y2', 'height']);
           break;
 
           case 'bottom-center':
-            var reverse = (props.y2.scale && 
+            var reverse = (props.y2.scale &&
               props.y2.scale.range().name == 'height') ? -1 : 1;
 
             updateValue('y2', dy*reverse);
@@ -166,7 +166,7 @@ vde.Vis.marks.Rect = (function() {
     };
 
     vde.iVis.interactor('handle', this.handles(item), {mousemove: mousemove});
-  };  
+  };
 
   prototype.helper = function(property) {
     var item = this.item(vde.iVis.activeItem),
@@ -205,8 +205,8 @@ vde.Vis.marks.Rect = (function() {
     props.forEach(function(prop) {
       var span = self.spans(item, prop)
 
-      if(connector != null && connToSpan[connector]) 
-        span = span.reduce(function(acc, s) { 
+      if(connector != null && connToSpan[connector])
+        span = span.reduce(function(acc, s) {
           // Offset dropzones for top-left connector to prevent overlaps
           if(connector == 'top-left' && prop == 'x') s.y += 2*geomOffset;
           if(connector == 'top-left' && prop == 'y') s.x += 2*geomOffset;
@@ -218,11 +218,11 @@ vde.Vis.marks.Rect = (function() {
       dropzones = dropzones.concat(self.dropzones(span));
       spans = spans.concat(span);
     });
-    
+
     var connectors = [this.connectors['top-left'].coords(item), this.connectors['bottom-right'].coords(item)];
 
     // Order is important with dropzones to ensure on overlap, the connector dropzones
-    // take precendence. 
+    // take precendence.
     dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
 
     var mouseover = function(e, item) {
@@ -246,11 +246,11 @@ vde.Vis.marks.Rect = (function() {
           items: item.cousin(-1).items[0].items
         });
 
-        d3.select('#' + item.property + '.property').classed('drophover', true);
+        d3.selectAll('#' + item.property + '.property').classed('drophover', true);
       }
     };
 
-    var mouseout = function(e, item) { 
+    var mouseout = function(e, item) {
       if(!vde.iVis.dragging) return;
       if(item.mark.def.name != 'dropzone') return;
 
@@ -266,11 +266,11 @@ vde.Vis.marks.Rect = (function() {
           items: item.cousin(-1).items[0].items
         });
 
-        d3.select('#' + item.property + '.property').classed('drophover', false);
+        d3.selectAll('#' + item.property + '.property').classed('drophover', false);
       }
 
       // Clear timeout
-      window.clearTimeout(vde.iVis.timeout); 
+      window.clearTimeout(vde.iVis.timeout);
     };
 
     var mouseup = function(e, item) {
@@ -279,8 +279,8 @@ vde.Vis.marks.Rect = (function() {
 
       if(item.property) vde.iVis.bindProperty(self, item.property, true);
 
-      d3.select('#' + item.property + '.property').classed('drophover', false);
-      window.clearTimeout(vde.iVis.timeout); 
+      d3.selectAll('#' + item.property + '.property').classed('drophover', false);
+      window.clearTimeout(vde.iVis.timeout);
     };
 
     vde.iVis.interactor('point', connectors);
@@ -333,14 +333,14 @@ vde.Vis.marks.Rect = (function() {
     if(props.y.field) top.disabled = 1;
     if(props.y2.field) bottom.disabled = 1;
     if(props.width.field) top.disabled = bottom.disabled = 1;
-    
+
     checkExtents(['x', 'x2', 'height'], [left, right]);
     if(props.x.field) left.disabled = 1;
     if(props.x2.field) right.disabled = 1;
     if(props.height.field) left.disabled = right.disabled = 1;
 
-    return [top, bottom, left, right];      
-  }; 
+    return [top, bottom, left, right];
+  };
 
   prototype.spans = function(item, property) {
     var props = this.properties,
@@ -349,12 +349,12 @@ vde.Vis.marks.Rect = (function() {
         go = 3*geomOffset, io = geomOffset; // offsets
 
     switch(property) {
-      case 'x': 
+      case 'x':
         return [{x: (gb.x1-go), y: (b.y1-io), span: 'x_0'}, {x: b.x1, y: (b.y1-io), span: 'x_0'},
          {x: (gb.x1-go), y: (b.y2+io), span: 'x_1'}, {x: b.x1, y: (b.y2+io), span: 'x_1'}];
       break;
 
-      case 'x2': 
+      case 'x2':
         return [{x: (gb.x1-go), y: (b.y1-io), span: 'x2_0'}, {x: b.x2, y: (b.y1-io), span: 'x2_0'},
          {x: (gb.x1-go), y: (b.y2+io), span: 'x2_1'}, {x: b.x2, y: (b.y2+io), span: 'x2_1'}];
       break;

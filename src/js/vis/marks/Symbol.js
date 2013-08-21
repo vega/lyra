@@ -112,7 +112,7 @@ vde.Vis.marks.Symbol = (function() {
         items: item.cousin(-1).items[0].items
       });
 
-      d3.select('#' + item.property + '.property').classed('drophover', true);
+      d3.selectAll('#' + item.property + '.property').classed('drophover', true);
     };
 
     var mouseout = function(e, item) {
@@ -125,7 +125,7 @@ vde.Vis.marks.Symbol = (function() {
         items: item.cousin(-1).items[0].items
       });
 
-      d3.select('#' + item.property + '.property').classed('drophover', false);
+      d3.selectAll('#' + item.property + '.property').classed('drophover', false);
     };
 
     var mouseup = function(e, item) {
