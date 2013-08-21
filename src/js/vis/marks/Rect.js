@@ -94,14 +94,14 @@ vde.Vis.marks.Rect = (function() {
 
       // Check to see if the other property has been assigned
       // if not, assign it to index
-      var scaledOther = false;
-      otherProps.some(function(o) { return (scaledOther = !!props[o].scale); })
-      if(!scaledOther) {
-        this.bindProperty(otherProps[2], {
-          field: new vde.Vis.Field('index', false, 'ordinal', this.pipelineName),
-          pipelineName: this.pipelineName
-        }, true);
-      }
+      // var scaledOther = false;
+      // otherProps.some(function(o) { return (scaledOther = !!props[o].scale); })
+      // if(!scaledOther) {
+      //   this.bindProperty(otherProps[2], {
+      //     field: new vde.Vis.Field('index', false, 'ordinal', this.pipelineName),
+      //     pipelineName: this.pipelineName
+      //   }, true);
+      // }
     }
   };
 

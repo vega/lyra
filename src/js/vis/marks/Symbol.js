@@ -39,17 +39,17 @@ vde.Vis.marks.Symbol = (function() {
     return [scale, field];
   };
 
-  prototype.defaults = function(prop) {
-    var props = this.properties;
-    if(['x', 'y'].indexOf(prop) == -1) return;
-    var otherProp = (prop == 'x') ? 'y' : 'x';
-    if(!props[otherProp].scale) {
-      this.bindProperty(otherProp, {
-          field: new vde.Vis.Field('index', false, 'linear', this.pipelineName),
-          pipelineName: this.pipelineName
-        }, true);
-    }
-  };
+  // prototype.defaults = function(prop) {
+  //   var props = this.properties;
+  //   if(['x', 'y'].indexOf(prop) == -1) return;
+  //   var otherProp = (prop == 'x') ? 'y' : 'x';
+  //   if(!props[otherProp].scale) {
+  //     this.bindProperty(otherProp, {
+  //         field: new vde.Vis.Field('index', false, 'linear', this.pipelineName),
+  //         pipelineName: this.pipelineName
+  //       }, true);
+  //   }
+  // };
 
   prototype.selected = function() {
     var self = this,

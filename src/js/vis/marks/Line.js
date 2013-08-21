@@ -44,7 +44,15 @@ vde.Vis.marks.Line = (function() {
   };
 
   prototype.defaults = function(prop) {
-    return symbol.defaults.call(this, prop);
+    var props = this.properties;
+    if(['x', 'y'].indexOf(prop) == -1) return;
+    var otherProp = (prop == 'x') ? 'y' : 'x';
+    if(!props[otherProp].scale) {
+      this.bindProperty(otherProp, {
+          field: new vde.Vis.Field('index', false, 'linear', this.pipelineName),
+          pipelineName: this.pipelineName
+        }, true);
+    }
   };
 
   prototype.selected = function() {
