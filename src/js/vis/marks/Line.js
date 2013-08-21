@@ -18,11 +18,14 @@ vde.Vis.marks.Line = (function() {
 
     vde.Vis.callback.register('vis.post_spec', this, this.dummyData);
 
+    this.connectors = {'point': {}};
+
     return this.init();
   };
 
   line.prototype = new vde.Vis.Mark();
   var prototype  = line.prototype;
+  var symbol = vde.Vis.marks.Symbol.prototype;
 
   prototype.spec = function() {
     var propsForType = {
@@ -38,7 +41,41 @@ vde.Vis.marks.Line = (function() {
     this.dummySpec();
 
     return vde.Vis.Mark.prototype.spec.call(this);
-  }; 
+  };
+
+  prototype.defaults = function(prop) {
+    return symbol.defaults.call(this, prop);
+  };
+
+  prototype.selected = function() {
+    var self = this, item = this.item(vde.iVis.activeItem);
+    // var points = this.items().map(function(i) { return self.connectors['point'].coords(i, {disabled: 1}) });
+
+    vde.iVis.interactor('handle', [this.connectors.point.coords(item, {disabled: 1})]);
+  };
+
+  prototype.helper = function(property) {
+    return symbol.helper.call(this, property);
+  };
+
+  prototype.target = function() {
+    return symbol.target.call(this);
+  };
+
+  prototype.coordinates = function(connector, item, def) {
+    if(!item) item = this.item(vde.iVis.activeItem);
+    var b = new vg.Bounds().set(item.x, item.y, item.x, item.y);
+    b = vde.iVis.translatedBounds(item, b);
+
+    var coord = {x: b.x1, y: b.y1, connector: connector};
+    for(var k in def) coord[k] = def[k];
+
+    return coord;
+  };
+
+  prototype.spans = function(item, property) {
+    return symbol.spans.call(this, item, property);
+  };
 
   prototype.dummySpec = function() {
     if(!this.properties.x.field && !this.properties.y.field) {
@@ -60,7 +97,7 @@ vde.Vis.marks.Line = (function() {
 
     opts.spec.data.push({
       name: 'vdeDummyData',
-      values: [{x: 0, y: (g.height.value / 2) + 50}, 
+      values: [{x: 0, y: (g.height.value / 2) + 50},
         {x: (g.width.value/2) + 50, y: 0}]
     });
   };

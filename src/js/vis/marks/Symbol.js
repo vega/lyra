@@ -17,7 +17,7 @@ vde.Vis.marks.Symbol = (function() {
       strokeWidth: {value: 0}
     };
 
-    this.connectors = {'center': {}};
+    this.connectors = {'point': {}};
 
     return this.init();
   };
@@ -45,14 +45,14 @@ vde.Vis.marks.Symbol = (function() {
     var otherProp = (prop == 'x') ? 'y' : 'x';
     if(!props[otherProp].scale) {
       this.bindProperty(otherProp, {
-          field: new vde.Vis.Field('index', false, 'ordinal', this.pipelineName),
+          field: new vde.Vis.Field('index', false, 'linear', this.pipelineName),
           pipelineName: this.pipelineName
         }, true);
     }
   };
 
   prototype.selected = function() {
-    var self = this, 
+    var self = this,
         item = this.item(vde.iVis.activeItem),
         props = this.properties;
 
@@ -68,10 +68,10 @@ vde.Vis.marks.Symbol = (function() {
 
       if(!handle) return;
 
-      vde.iVis.ngScope().$apply(function() { 
-        props.size.value += dx*10; 
-        self.update('size'); 
-      }); 
+      vde.iVis.ngScope().$apply(function() {
+        props.size.value += dx*10;
+        self.update('size');
+      });
 
       dragging.prev = [evt.pageX, evt.pageY];
       vde.iVis.show('handle');
@@ -84,7 +84,7 @@ vde.Vis.marks.Symbol = (function() {
     var item = this.item(vde.iVis.activeItem);
     if(['x', 'y', 'size'].indexOf(property) == -1) return;
 
-    vde.iVis.interactor('point', [this.connectors['center'].coords(item)]);
+    vde.iVis.interactor('point', [this.connectors['point'].coords(item)]);
     vde.iVis.interactor('span', this.spans(item, property));
     vde.iVis.show(['point', 'span']);
   };
@@ -96,6 +96,7 @@ vde.Vis.marks.Symbol = (function() {
 
     ['x', 'y', 'size'].forEach(function(p) {
       var s = self.spans(item, p);
+      if(p == 'size' && self.type != 'symbol') return;
       if(p == 'size') s = [s[2], s[3]];
 
       dropzones = dropzones.concat(self.dropzones(s));
@@ -114,7 +115,7 @@ vde.Vis.marks.Symbol = (function() {
       d3.select('#' + item.property + '.property').classed('drophover', true);
     };
 
-    var mouseout = function(e, item) { 
+    var mouseout = function(e, item) {
       if(!vde.iVis.dragging) return;
       if(item.mark.def.name != 'dropzone') return;
 
@@ -136,7 +137,7 @@ vde.Vis.marks.Symbol = (function() {
       d3.select('#' + item.property + '.property').classed('drophover', false);
     };
 
-    vde.iVis.interactor('point', [this.connectors['center'].coords(item)]);
+    vde.iVis.interactor('point', [this.connectors['point'].coords(item)]);
     vde.iVis.interactor('span', spans);
     vde.iVis.interactor('dropzone', dropzones, {
       mouseover: mouseover,
@@ -149,10 +150,10 @@ vde.Vis.marks.Symbol = (function() {
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
     var b = vde.iVis.translatedBounds(item, item.bounds);
-    
+
     var coord = {
-      x: b.x1 + (b.width()/2), 
-      y: b.y1 + (b.height()/2), 
+      x: b.x1 + (b.width()/2),
+      y: b.y1 + (b.height()/2),
       cursor: 'se-resize',
       connector: connector
     };
@@ -163,7 +164,7 @@ vde.Vis.marks.Symbol = (function() {
 
   prototype.handles = function(item) {
     var b = vde.iVis.translatedBounds(item, item.bounds),
-        pt = this.connectors['center'].coords(item, {disabled: 0});
+        pt = this.connectors['point'].coords(item, {disabled: 0});
 
     if(this.properties.size.field) pt.disabled = 1;
 
@@ -175,7 +176,7 @@ vde.Vis.marks.Symbol = (function() {
         b  = vde.iVis.translatedBounds(item, item.bounds),
         gb = vde.iVis.translatedBounds(item.mark.group, item.mark.group.bounds),
         go = 3*geomOffset, io = geomOffset,
-        pt = this.connectors['center'].coords(item); // offsets   
+        pt = this.connectors['point'].coords(item); // offsets
 
     switch(property) {
       case 'x':
@@ -192,7 +193,7 @@ vde.Vis.marks.Symbol = (function() {
         return [{x: b.x1, y: b.y1-io, span: 'size_0'}, {x: b.x2, y: b.y1-io, span: 'size_0'},
         {x: b.x2+io, y: b.y1, span: 'size_1'}, {x: b.x2+io, y: b.y2, span: 'size_1'}];
       break;
-    } 
+    }
   };
 
   return symbol;

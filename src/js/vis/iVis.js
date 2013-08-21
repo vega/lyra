@@ -35,7 +35,7 @@ vde.iVis = (function() {
 
   // We can't keep re-parsing the iVis layer. This triggers false mouseout
   // events as a result of removing all #ivis children. So, we only reparse
-  // when we reparse the Vis, and subsequently only update the datasets. 
+  // when we reparse the Vis, and subsequently only update the datasets.
   ivis.parse = function() {
     var spec = {
       width: vde.Vis.properties.width,
@@ -63,7 +63,7 @@ vde.iVis = (function() {
         var e = d3.event;
         var evt = document.createEvent("MouseEvents");
         evt.initMouseEvent(e.type, e.canBubble, e.cancelable, window,
-          e.detail, e.screenX, e.screenY, e.clientX, e.clientY, 
+          e.detail, e.screenX, e.screenY, e.clientX, e.clientY,
           e.ctrlKey, e.altKey, e.shiftKey, e.metaKey, e.button, e.relatedTarget);
         d3.select('#vis canvas').node().dispatchEvent(evt);
       };
@@ -71,7 +71,7 @@ vde.iVis = (function() {
       var mouseup = function() { vde.iVis.dragging = null; icanvas.style('cursor', 'auto'); };
 
       events.forEach(function(type) {
-        if(type == 'mousemove') { 
+        if(type == 'mousemove') {
           icanvas.on('mousemove', function() {
             dispatchEvent();
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
@@ -90,8 +90,8 @@ vde.iVis = (function() {
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type](e, i);
 
             var cursor = function() {
-              if(i.mark.def.name == 'handle' && i.datum.data && 
-                  i.datum.data.cursor && !i.datum.data.disabled) 
+              if(i.mark.def.name == 'handle' && i.datum.data &&
+                  i.datum.data.cursor && !i.datum.data.disabled)
                 icanvas.style('cursor', i.datum.data.cursor);
             };
 
@@ -110,7 +110,7 @@ vde.iVis = (function() {
       });
 
       ivis.show('handle');
-    });     
+    });
 
     return spec;
   };
@@ -161,7 +161,7 @@ vde.iVis = (function() {
         }
       }
     }
-  };  
+  };
 
   ivis.point = function() {
     return {
@@ -223,8 +223,8 @@ vde.iVis = (function() {
       properties: {
         enter: {
           fillOpacity: {value: 0},
-          stroke: {value: 'black'},
-          strokeDash: {value: [0.3, 1]}
+          // stroke: {value: 'black'},
+          // strokeDash: {value: [0.3, 1]}
         },
         update: {
           x: {field: 'data.x'},
@@ -252,7 +252,7 @@ vde.iVis = (function() {
     rootScope.$apply(function() {
       if(!visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
 
-      visual.bindProperty(property, 
+      visual.bindProperty(property,
         {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
