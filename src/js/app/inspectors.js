@@ -125,19 +125,29 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
         $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
 
         $timeout(function() {
-          var winHeight = $(window).height(),
-              pageX     = evt.pageX,
-              pageY     = evt.pageY;
+          var winHeight = $(window).height(), winWidth = $(window).width(),
+              pageX = evt.pageX, pageY = evt.pageY;
 
           inspector.css('left', (pageX-15) + 'px');
+          $('.bubble', inspector).removeClass('top-left top-right bottom-left bottom-right');
+          var className = '';
           if(pageY > winHeight / 2) { // If below half-way, position top
             inspector.css('top', (pageY - inspector.height() - 25) + 'px');
-            $('.bubble', inspector).removeClass('top').addClass('bottom');
+            className = 'bottom';
           } else {
             inspector.css('top', (pageY + 25) + 'px');
-            $('.bubble', inspector).removeClass('bottom').addClass('top');
+            className = 'top';
           }
 
+          if(pageX > winWidth/2) {
+            inspector.css('left', (pageX - inspector.width()) + 'px');
+            className += '-right';
+          } else {
+            inspector.css('left', (pageX - 10) + 'px');
+            className += '-left';
+          }
+
+          $('.bubble', inspector).addClass(className);
           inspector.toggle();
         }, 100);
 
