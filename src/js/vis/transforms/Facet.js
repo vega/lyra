@@ -72,47 +72,59 @@ vde.Vis.transforms.Facet = (function() {
   };
 
   prototype.groupPostSpec = function(opts) {
+    var self = this,
+        emptyInjection = this._group.scales.length == 0 &&
+          this._group.axes.length == 0 && this._group.marks.length == 0;
+
     if(!this.pipeline() || !this.pipeline().forkName) return;
     if(!this.properties.keys) return;
-    if(this._group.scales.length == 0 && this._group.axes.length == 0 &&
-        this._group.marks.length == 0) return;
+    if(emptyInjection && opts.item.pipeline() != this.pipeline()) return;
 
-    var self = this, key = this.properties.keys.spec(), posScale = null;
+    var layout = (this.properties.layout && this.properties.layout != 'Overlap');
 
-    this._group.name = opts.item.name + '_facet';
-    this._group.from = {data: this.pipeline().forkName};
+    // Add a scale to position the facets
+    if(layout) {
+      var isHoriz = this.properties.layout == 'Horizontal';
+      if(!this._posScale) {
+        this._posScale = this.pipeline().scale({
+          type: 'ordinal',
+          padding: 0.2,
+          field: this.properties.keys
+        }, {}, 'facets');
+      }
 
-    // Inject spec to position groups
-    if(this.properties.layout && this.properties.layout != 'Overlap') {
-      var isHoriz  = this.properties.layout == 'Horizontal';
-      posScale = this.pipeline().scale({
-        type: 'ordinal',
-        padding: 0.2,
-        field: this.properties.keys,
-        range: new vde.Vis.Field(isHoriz ? 'width' : 'height')
-      }, {}, 'facets');
-      posScale.properties.points = false;
-
-      opts.spec.scales || (opts.spec.scales = []);
-      opts.spec.scales.forEach(function(scale) {
-        if(scale.name == posScale.name) return;
-
-        // Shadow this scale if it uses group width/height and we're laying out _groups
-        if((self.properties.layout == 'Horizontal' && scale.range == 'width') ||
-           (self.properties.layout == 'Vertical' && scale.range == 'height'))
-              self._group.scales.push(vg.duplicate(scale));
-      });
-
-      opts.spec.scales.push(posScale.spec());
-
-      var pos =  {scale: posScale.name, field: 'key'};
-      var size = {scale: posScale.name, band: true};
-
-      this._group.properties.enter = isHoriz ?
-        {x: pos, width: size} : {y: pos, height: size};
+      this._posScale.properties.range = new vde.Vis.Field(isHoriz ? 'width' : 'height');
+      this._posScale.properties.points = false;
     }
 
-    opts.spec.marks.push(vg.duplicate(this._group));
+    if(emptyInjection) {  // Facet was applied on the group directly
+
+    } else {              // Facet was applied on marks, so inject a group
+      this._group.name = opts.item.name + '_facet';
+      this._group.from = {data: this.pipeline().forkName};
+
+      if(layout) {
+        opts.spec.scales || (opts.spec.scales = []);
+        opts.spec.scales.forEach(function(scale) {
+          if(scale.name == self._posScale.name) return;
+
+          // Shadow this scale if it uses group width/height and we're laying out _groups
+          if((self.properties.layout == 'Horizontal' && scale.range == 'width') ||
+             (self.properties.layout == 'Vertical' && scale.range == 'height'))
+                self._group.scales.push(vg.duplicate(scale));
+        });
+
+        opts.spec.scales.push(this._posScale.spec());
+
+        var pos =  {scale: this._posScale.name, field: 'key'};
+        var size = {scale: this._posScale.name, band: true};
+
+        this._group.properties.enter = isHoriz ?
+          {x: pos, width: size} : {y: pos, height: size};
+      }
+
+      opts.spec.marks.push(vg.duplicate(this._group));
+    }
 
     // Clear it for the next pass
     this._group.properties = {};
