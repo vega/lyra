@@ -401,7 +401,8 @@ vde.Vis.Mark = (function() {
       return {
         x: area.x-geomOffset, x2: area.x+geomOffset,
         y: area.y-geomOffset, y2: area.y+geomOffset,
-        connector: area.connector
+        connector: area.connector,
+        property: area.property
       }
     } else {
       if(area[0].x == area[1].x)

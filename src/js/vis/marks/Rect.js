@@ -6,7 +6,7 @@ vde.Vis.marks.Rect = (function() {
 
     this.properties = {
       x: {value: 0},
-      width: {value: 15},
+      width: {value: 30},
       x2: {value: 0, disabled: true},
       y: {value: 0},
       height: {value: 150},
@@ -224,60 +224,22 @@ vde.Vis.marks.Rect = (function() {
     dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
 
     var mouseover = function(e, item) {
-      if(!vde.iVis.dragging) return;
-      if(item.mark.def.name != 'dropzone') return;
+      if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
 
-      // On mouseover, highlight the underlying span/connector.
       // For points, switch targets after a timeout.
-      if(item.connector) {
-        vde.iVis.view.update({
-          props: 'hover',
-          items: item.mark.group.items[2].items[item.key-2]
-        });
-
+      if(item.connector)
         vde.iVis.timeout = window.setTimeout(function() {
           self.target((item.connector == connector) ? '' : item.connector);
         }, 750);
-      } else {
-        vde.iVis.view.update({
-          props: 'hover',
-          items: item.cousin(-1).items[0].items
-        });
-
-        d3.selectAll('#' + item.property + '.property').classed('drophover', true);
-      }
     };
 
     var mouseout = function(e, item) {
-      if(!vde.iVis.dragging) return;
-      if(item.mark.def.name != 'dropzone') return;
-
-      // Clear highlights
-      if(item.connector) {
-        vde.iVis.view.update({
-          props: 'update',
-          items: item.mark.group.items[1].items[item.key-2]
-        });
-      } else {
-        vde.iVis.view.update({
-          props: 'update',
-          items: item.cousin(-1).items[0].items
-        });
-
-        d3.selectAll('#' + item.property + '.property').classed('drophover', false);
-      }
-
-      // Clear timeout
+      if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
       window.clearTimeout(vde.iVis.timeout);
     };
 
     var mouseup = function(e, item) {
-      if(!vde.iVis.dragging) return;
-      if(item.mark.def.name != 'dropzone') return;
-
-      if(item.property) vde.iVis.bindProperty(self, item.property, true);
-
-      d3.selectAll('#' + item.property + '.property').classed('drophover', false);
+      if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
       window.clearTimeout(vde.iVis.timeout);
     };
 

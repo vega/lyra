@@ -186,65 +186,12 @@ vde.Vis.marks.Text = (function() {
     });
 
     var connectors = [this.connectors['text'].coords(item)];
+    connectors[0].property = 'text';
     dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
-
-    var mouseover = function(e, item) {
-      if(!vde.iVis.dragging) return;
-      if(item.mark.def.name != 'dropzone') return;
-
-      // On mouseover, highlight the underlying span/connector.
-      // For points, switch targets after a timeout.
-      if(item.connector) {
-        vde.iVis.view.update({
-          props: 'hover',
-          items: item.mark.group.items[2].items[item.key-2]
-        });
-      } else {
-        vde.iVis.view.update({
-          props: 'hover',
-          items: item.cousin(-1).items[0].items
-        });
-
-        d3.selectAll('#' + item.property + '.property').classed('drophover', true);
-      }
-    };
-
-    var mouseout = function(e, item) {
-      if(!vde.iVis.dragging) return;
-      if(item.mark.def.name != 'dropzone') return;
-
-      // Clear highlights
-      if(item.connector) {
-        vde.iVis.view.update({
-          props: 'update',
-          items: item.mark.group.items[1].items[item.key-2]
-        });
-      } else {
-        vde.iVis.view.update({
-          props: 'update',
-          items: item.cousin(-1).items[0].items
-        });
-
-        d3.selectAll('#' + item.property + '.property').classed('drophover', false);
-      }
-    };
-
-    var mouseup = function(e, item) {
-      if(!vde.iVis.dragging) return;
-      if(item.mark.def.name != 'dropzone') return;
-
-      if(item.property || item.connector) vde.iVis.bindProperty(self, item.property || item.connector, true);
-
-      d3.selectAll('#' + item.property + '.property').classed('drophover', false);
-    };
 
     vde.iVis.interactor('point', connectors);
     vde.iVis.interactor('span', spans);
-    vde.iVis.interactor('dropzone', dropzones, {
-      mouseover: mouseover,
-      mouseout: mouseout,
-      mouseup: mouseup
-    });
+    vde.iVis.interactor('dropzone', dropzones);
     vde.iVis.show(['point', 'span', 'dropzone']);
   };
 

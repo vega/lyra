@@ -103,47 +103,9 @@ vde.Vis.marks.Symbol = (function() {
       spans = spans.concat(s);
     });
 
-    var mouseover = function(e, item) {
-      if(!vde.iVis.dragging) return;
-      if(item.mark.def.name != 'dropzone') return;
-
-      vde.iVis.view.update({
-        props: 'hover',
-        items: item.cousin(-1).items[0].items
-      });
-
-      d3.selectAll('#' + item.property + '.property').classed('drophover', true);
-    };
-
-    var mouseout = function(e, item) {
-      if(!vde.iVis.dragging) return;
-      if(item.mark.def.name != 'dropzone') return;
-
-      // Clear highlights
-      vde.iVis.view.update({
-        props: 'update',
-        items: item.cousin(-1).items[0].items
-      });
-
-      d3.selectAll('#' + item.property + '.property').classed('drophover', false);
-    };
-
-    var mouseup = function(e, item) {
-      if(!vde.iVis.dragging) return;
-      if(item.mark.def.name != 'dropzone') return;
-
-      if(item.property) vde.iVis.bindProperty(self, item.property, true);
-
-      d3.selectAll('#' + item.property + '.property').classed('drophover', false);
-    };
-
     vde.iVis.interactor('point', [this.connectors['point'].coords(item)]);
     vde.iVis.interactor('span', spans);
-    vde.iVis.interactor('dropzone', dropzones, {
-      mouseover: mouseover,
-      mouseout: mouseout,
-      mouseup: mouseup
-    });
+    vde.iVis.interactor('dropzone', dropzones);
     vde.iVis.show(['point', 'span', 'dropzone'])
   };
 
