@@ -187,7 +187,7 @@ vde.Vis.marks.Rect = (function() {
       .show(['point', 'span']);
   };
 
-  prototype.target = function(connector) {
+  prototype.propertyTargets = function(connector) {
     var self  = this,
         item  = this.item(vde.iVis.activeItem),
         props = [],
@@ -227,10 +227,10 @@ vde.Vis.marks.Rect = (function() {
     var mouseover = function(e, item) {
       if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
 
-      // For points, switch targets after a timeout.
+      // For points, switch propertyTargets after a timeout.
       if(item.connector)
         vde.iVis.timeout = window.setTimeout(function() {
-          self.target((item.connector == connector) ? '' : item.connector);
+          self.propertyTargets((item.connector == connector) ? '' : item.connector);
         }, 750);
     };
 

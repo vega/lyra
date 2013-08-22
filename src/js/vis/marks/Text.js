@@ -175,7 +175,7 @@ vde.Vis.marks.Text = (function() {
       .show(['point', 'span']);
   };
 
-  prototype.target = function() {
+  prototype.propertyTargets = function() {
     var self = this,
         item = this.item(vde.iVis.activeItem),
         spans = [], dropzones = [];

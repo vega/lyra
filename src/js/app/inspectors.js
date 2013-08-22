@@ -66,7 +66,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
 
         if(!vde.iVis.dragging) vde.iVis.show('handle');
         else if($rootScope.activeVisual instanceof vde.Vis.Mark)
-          $rootScope.activeVisual.target();
+          $rootScope.activeVisual.propertyTargets();
       };
     },
     link: function(scope, element, attrs) {

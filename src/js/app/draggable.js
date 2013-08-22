@@ -1,7 +1,8 @@
 vde.App.factory('draggable', function($rootScope) {
   return {
     dragstart: function(e, dd, proxy) {
-      if(!$(this).hasClass('mark')) {
+      var isMark = proxy.hasClass('mark');
+      if(!isMark) {
         $(dd.available).each(function(i, a) {
           // Only light up properties without nodrop
           if(!$(a).hasClass('property')) return;
@@ -9,9 +10,11 @@ vde.App.factory('draggable', function($rootScope) {
 
           $(a).addClass('available');
         });
+      }
 
-        if($rootScope.activeVisual instanceof vde.Vis.Mark)
-          $rootScope.activeVisual.target();
+      if($rootScope.activeVisual instanceof vde.Vis.Mark) {
+        if(isMark) return proxy;
+        else $rootScope.activeVisual.propertyTargets();
       }
 
       return proxy;
@@ -19,9 +22,9 @@ vde.App.factory('draggable', function($rootScope) {
 
     drag: function(e, dd) {
       vde.iVis.dragging = dd.proxy;
-      $(dd.proxy).css({ 
-        top: e.pageY + 5, 
-        left: e.pageX - $(dd.proxy).width() 
+      $(dd.proxy).css({
+        top: e.pageY + 5,
+        left: e.pageX - $(dd.proxy).width()
       });
     },
 
@@ -29,7 +32,7 @@ vde.App.factory('draggable', function($rootScope) {
       vde.iVis.dragging = null;
       vde.iVis.show('handle');
       $(dd.available).removeClass('available');
-      $( dd.proxy ).remove(); 
+      $( dd.proxy ).remove();
     }
   }
 });

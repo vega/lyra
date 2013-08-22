@@ -66,7 +66,7 @@ vde.Vis.marks.Area = (function() {
 
   prototype.selected = function() { return line.selected.call(this); };
   prototype.helper = function(property) { return line.helper.call(this, property); }
-  prototype.target = function() { return line.target.call(this); }
+  prototype.propertyTargets = function() { return line.propertyTargets.call(this); }
 
   prototype.coordinates = function(connector, item, def) {
     return line.coordinates.call(this, connector, item, def);
