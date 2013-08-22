@@ -1,9 +1,9 @@
 vde.Vis = (function() {
   var vis = {
     properties: {
-      width: 400,
-      height: 300,
-      padding: {top:30, left:30, right:30, bottom:30}
+      width: 500,
+      height: 375,
+      padding: {top:10, left:30, right:30, bottom:30}
     },
 
     _data:   {},
@@ -34,7 +34,7 @@ vde.Vis = (function() {
       var dataModel = vg.parse.data([vis._data[name]], function() {
         vis._data[name].values = dataModel.load[name];
       });
-    }     
+    }
   };
 
   vis.addEventListener = function(type, handler) {
@@ -77,9 +77,9 @@ vde.Vis = (function() {
       for(var g in vis.groups) vis.groups[g].annotate();
 
       for(var type in vis.evtHandlers)
-        vis.evtHandlers[type].forEach(function(h) { 
+        vis.evtHandlers[type].forEach(function(h) {
           if(type.indexOf('key') != -1) d3.select('body').on(type, h);
-          else vde.Vis.view.on(type, h); 
+          else vde.Vis.view.on(type, h);
         });
 
       // Mousedown/up evt listeners to move marks
@@ -87,10 +87,10 @@ vde.Vis = (function() {
         if(!vde.iVis.dragging) vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
       }).on('mouseup', function() { vde.iVis.dragging = null; })
 
-      // If the vis gets reparsed, reparse the interactive layer too to update any 
+      // If the vis gets reparsed, reparse the interactive layer too to update any
       // visible handlers, etc.
       vde.iVis.parse();
-    }); 
+    });
 
     return spec;
   };

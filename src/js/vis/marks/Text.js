@@ -30,7 +30,7 @@ vde.Vis.marks.Text = (function() {
       'left': {}, 'right': {}
     };
 
-    return this.init();
+    return this;
   };
 
   text.prototype = new vde.Vis.Mark();

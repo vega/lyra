@@ -4,6 +4,7 @@ vde.iVis = (function() {
     dragging: null,
     timeout: null,
     _data: {}, _marks: [], _evtHandlers: {},
+    newMark: null,
     activeMark: null,
     activeItem: null
   };
@@ -91,10 +92,7 @@ vde.iVis = (function() {
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
           });
         } else {
-          icanvas.on(type, function(){
-            if(type == 'mouseup') mouseup();
-            dispatchEvent();
-          });
+          icanvas.on(type, dispatchEvent);
 
           vde.iVis.view.on(type, function(e, item) {
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type](e, item);
@@ -336,6 +334,30 @@ vde.iVis = (function() {
     return [scale, field];
   };
 
+  ivis.addMark = function(host) {
+    var mark = ivis.newMark,
+        rootScope = ivis.ngScope();
+
+    if(host instanceof vde.Vis.marks.Group) mark.groupName = host.name;
+
+    rootScope.$apply(function() {
+      mark.init();
+      vde.Vis.parse();
+
+      ivis.ngLogger().log('new_mark', {
+        markType: mark.type,
+        markName: mark.name,
+        activeGroup: (rootScope.activeGroup || {}).name,
+        markGroup: mark.groupName
+      }, true);
+    });
+
+    window.setTimeout(function() {
+      rootScope.$apply(function() { rootScope.toggleVisual(mark); });
+      ivis.newMark = null;
+    }, 1);
+  };
+
   // From vg.canvas.Renderer
   ivis.translatedBounds = function(item, bounds) {
     var b = new vg.Bounds(bounds);
@@ -346,7 +368,11 @@ vde.iVis = (function() {
   };
 
   ivis.ngScope = function() {
-    return angular.element($('body')).scope();
+    return $('html').injector().get('$rootScope')
+  };
+
+  ivis.ngLogger = function() {
+    return $('html').injector().get('logger');
   };
 
   return ivis;

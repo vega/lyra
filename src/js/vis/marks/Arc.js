@@ -19,7 +19,7 @@ vde.Vis.marks.Arc = (function() {
       strokeWidth: {value: 0}
     };
 
-    return this.init();
+    return this;
   };
 
   arc.prototype = new vde.Vis.Mark();

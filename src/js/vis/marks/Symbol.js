@@ -19,7 +19,7 @@ vde.Vis.marks.Symbol = (function() {
 
     this.connectors = {'point': {}};
 
-    return this.init();
+    return this;
   };
 
   symbol.prototype = new vde.Vis.Mark();

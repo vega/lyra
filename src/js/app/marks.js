@@ -18,33 +18,3 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope, $timeout, logger) {
     vde.Vis.parse();
   };
 });
-
-vde.App.directive('vdeMarkDroppable', function($rootScope, $timeout, logger) {
-  return function(scope, element, attrs) {
-    element.drop(function(e, dd) {
-      var markType = $(dd.drag).attr('id');
-      if(!markType) return false;
-
-      scope.$apply(function() {
-        // Add mark to model, then reparse vega spec
-        var groupName = ($rootScope.activeGroup || {}).name;
-        var mark = eval('new vde.Vis.marks["' + markType + '"](undefined, groupName)');
-        mark.pipelineName = ($rootScope.activePipeline || {}).name;
-        vde.Vis.parse();
-
-        // Then route to this mark to load its inspector, but wait until
-        // parsing/annotating is done.
-        $timeout(function() { $rootScope.toggleVisual(mark); }, 100);
-
-        logger.log('new_mark', {
-          markType: markType,
-          markName: mark.name,
-          activeGroup: ($rootScope.activeGroup || {}).name,
-          markGroup: mark.groupName
-        }, true);
-      });
-
-      $('.tooltip').remove();
-    });
-  }
-})

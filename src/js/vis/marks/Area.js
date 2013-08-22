@@ -24,7 +24,7 @@ vde.Vis.marks.Area = (function() {
 
     this.connectors = {'point': {}};
 
-    return this.init();
+    return this;
   };
 
   area.prototype = new vde.Vis.Mark();

@@ -28,7 +28,7 @@ vde.Vis.marks.Rect = (function() {
       'bottom-left': {}, 'bottom-center': {}, 'bottom-right': {}
     };
 
-    return this.init();
+    return this;
   };
 
   rect.prototype = new vde.Vis.Mark();

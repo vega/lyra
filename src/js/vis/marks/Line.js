@@ -20,7 +20,7 @@ vde.Vis.marks.Line = (function() {
 
     this.connectors = {'point': {}};
 
-    return this.init();
+    return this;
   };
 
   line.prototype = new vde.Vis.Mark();

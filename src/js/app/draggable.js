@@ -4,7 +4,10 @@ vde.App.factory('draggable', function($rootScope) {
       var isMark = proxy.hasClass('mark'),
           v = $rootScope.activeVisual;
 
-      if(!isMark) {
+      if(isMark) {
+        var markType = proxy.attr('id');
+        vde.iVis.newMark = eval('new vde.Vis.marks["' + markType + '"]');
+      } else {
         $(dd.available).each(function(i, a) {
           // Only light up properties without nodrop
           if(!$(a).hasClass('property')) return;
@@ -32,9 +35,11 @@ vde.App.factory('draggable', function($rootScope) {
 
     dragend: function(e, dd) {
       vde.iVis.dragging = null;
+      vde.iVis.newMark  = null;
       vde.iVis.show('handle');
       $(dd.available).removeClass('available');
-      $( dd.proxy ).remove();
+      $(dd.proxy).remove();
+      $('.tooltip').remove();
     }
   }
 });

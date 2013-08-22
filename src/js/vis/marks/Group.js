@@ -40,7 +40,15 @@ vde.Vis.marks.Group = (function() {
   var prototype = group.prototype;
 
   prototype.init = function() {
+    var self = this;
     vde.Vis.groups[this.name] = this;
+
+    vde.Vis.addEventListener('mouseup', function(e, item) {
+      if(item.mark.def != self.def()) return;
+      if(!vde.iVis.dragging || !vde.iVis.newMark) return;
+
+      vde.iVis.addMark(self);
+    });
 
     return vde.Vis.Mark.prototype.init.call(this);
   };
@@ -84,6 +92,7 @@ vde.Vis.marks.Group = (function() {
   prototype.annotate = function() {
     this._def = null;
     this._items = [];
+    this.def();
 
     for(var m in this.marks) {
       this.marks[m]._def = null;
