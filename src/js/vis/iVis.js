@@ -15,22 +15,32 @@ vde.iVis = (function() {
 
   var interactors = ['handle', 'connector', 'point', 'span', 'dropzone'];
 
-  ivis.interactor = function(interactor, data, evtHandlers) {
+  ivis.interactor = function(interactor, data) {
     if(!interactor || !data) return;
 
     this._data[interactor] = data;
-    for(var type in evtHandlers) this._evtHandlers[type] = evtHandlers[type];
+    return this;
   };
 
-  ivis.show = function(show) {
+  ivis.show = function(show, evtHandlers) {
     if(!vg.isArray(show)) show = [show];
-    if(this.activeMark) this.activeMark.selected();
+    if(this.activeMark) {
+      var eh = this.activeMark.selected();
+      if(!evtHandlers) evtHandlers = eh;
+    }
 
     var d = {};
     interactors.forEach(function(i) { d[i] = []; });
     show.forEach(function(s) { if(ivis._data[s]) d[s] = ivis._data[s]; });
 
+    // Unregister all evtHandlers and re-register them here
+    if(evtHandlers) {
+      this._evtHandlers = {};
+      for(var type in evtHandlers) this._evtHandlers[type] = evtHandlers[type];
+    }
+
     ivis.view.data(d).update();
+    return this;
   };
 
   // We can't keep re-parsing the iVis layer. This triggers false mouseout

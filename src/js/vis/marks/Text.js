@@ -162,16 +162,17 @@ vde.Vis.marks.Text = (function() {
       });
     };
 
-    vde.iVis.interactor('handle', this.handles(item), {mousemove: mousemove, keydown: keydown});
+    vde.iVis.interactor('handle', this.handles(item));
+    return {mousemove: mousemove, keydown: keydown};
   };
 
   prototype.helper = function(property) {
     var item = this.item(vde.iVis.activeItem);
     if(['x', 'y', 'dx', 'dy'].indexOf(property) == -1) return;
 
-    vde.iVis.interactor('point', [this.connectors['text'].coords(item)]);
-    vde.iVis.interactor('span', this.spans(item, property));
-    vde.iVis.show(['point', 'span']);
+    vde.iVis.interactor('point', [this.connectors['text'].coords(item)])
+      .interactor('span', this.spans(item, property))
+      .show(['point', 'span']);
   };
 
   prototype.target = function() {
@@ -189,10 +190,10 @@ vde.Vis.marks.Text = (function() {
     connectors[0].property = 'text';
     dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
 
-    vde.iVis.interactor('point', connectors);
-    vde.iVis.interactor('span', spans);
-    vde.iVis.interactor('dropzone', dropzones);
-    vde.iVis.show(['point', 'span', 'dropzone']);
+    vde.iVis.interactor('point', connectors)
+      .interactor('span', spans)
+      .interactor('dropzone', dropzones)
+      .show(['point', 'span', 'dropzone']);
   };
 
   prototype.coordinates = function(connector, item, def) {

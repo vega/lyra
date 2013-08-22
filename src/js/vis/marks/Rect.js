@@ -163,7 +163,8 @@ vde.Vis.marks.Rect = (function() {
       vde.iVis.show('handle');
     };
 
-    vde.iVis.interactor('handle', this.handles(item), {mousemove: mousemove});
+    vde.iVis.interactor('handle', this.handles(item));
+    return {mousemove: mousemove};
   };
 
   prototype.helper = function(property) {
@@ -181,9 +182,9 @@ vde.Vis.marks.Rect = (function() {
       case 'height': propConnectors = [c['top-left'].coords(item), c['bottom-left'].coords(item)]; break;
     };
 
-    vde.iVis.interactor('point', propConnectors);
-    vde.iVis.interactor('span', this.spans(item, property));
-    vde.iVis.show(['point', 'span']);
+    vde.iVis.interactor('point', propConnectors)
+      .interactor('span', this.spans(item, property))
+      .show(['point', 'span']);
   };
 
   prototype.target = function(connector) {
@@ -243,14 +244,14 @@ vde.Vis.marks.Rect = (function() {
       window.clearTimeout(vde.iVis.timeout);
     };
 
-    vde.iVis.interactor('point', connectors);
-    vde.iVis.interactor('span', spans);
-    vde.iVis.interactor('dropzone', dropzones, {
-      mouseover: mouseover,
-      mouseout: mouseout,
-      mouseup: mouseup
-    });
-    vde.iVis.show(['point', 'span', 'dropzone']);
+    vde.iVis.interactor('point', connectors)
+      .interactor('span', spans)
+      .interactor('dropzone', dropzones)
+      .show(['point', 'span', 'dropzone'], {
+        mouseover: mouseover,
+        mouseout: mouseout,
+        mouseup: mouseup
+      });
   };
 
   prototype.coordinates = function(connector, item, def) {
