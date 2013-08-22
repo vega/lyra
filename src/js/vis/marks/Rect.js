@@ -128,36 +128,34 @@ vde.Vis.marks.Rect = (function() {
       }
 
       vde.iVis.ngScope().$apply(function() {
-        switch(data.connector) {
-          case 'top-center':
-            var reverse = (props.y.scale &&
+        if(data.connector.indexOf('top') != -1) {
+          var reverse = (props.y.scale &&
               props.y.scale.range().name == 'height') ? -1 : 1;
 
-            updateValue('y', dy*reverse);
-            updateValue('height', dy*-1);
-            self.update(['y', 'y2', 'height']);
-          break;
+          updateValue('y', dy*reverse);
+          updateValue('height', dy*-1);
+          self.update(['y', 'y2', 'height']);
+        }
 
-          case 'bottom-center':
-            var reverse = (props.y2.scale &&
+        if(data.connector.indexOf('bottom') != -1) {
+          var reverse = (props.y2.scale &&
               props.y2.scale.range().name == 'height') ? -1 : 1;
 
-            updateValue('y2', dy*reverse);
-            updateValue('height', dy);
-            self.update(['y', 'y2', 'height']);
-          break;
+          updateValue('y2', dy*reverse);
+          updateValue('height', dy);
+          self.update(['y', 'y2', 'height']);
+        }
 
-          case 'middle-left':
-            updateValue('x', dx);
-            updateValue('width', dx*-1);
-            self.update(['x', 'x2', 'width']);
-          break;
+        if(data.connector.indexOf('left') != -1) {
+          updateValue('x', dx);
+          updateValue('width', dx*-1);
+          self.update(['x', 'x2', 'width']);
+        }
 
-          case 'middle-right':
-            updateValue('x2', dx);
-            updateValue('width', dx);
-            self.update(['x', 'x2', 'width']);
-          break;
+        if(data.connector.indexOf('right') != -1) {
+          updateValue('x2', dx);
+          updateValue('width', dx);
+          self.update(['x', 'x2', 'width']);
         }
       });
 
@@ -317,29 +315,41 @@ vde.Vis.marks.Rect = (function() {
   };
 
   prototype.handles = function(item) {
-    var props = this.properties,
-        top = this.connectors['top-center'].coords(item, {disabled: 0}),
-        bottom = this.connectors['bottom-center'].coords(item, {disabled: 0}),
-        left = this.connectors['middle-left'].coords(item, {disabled: 0}),
-        right = this.connectors['middle-right'].coords(item, {disabled: 0});
+    var self = this,
+        props = this.properties,
+        handles = {};
 
-    var checkExtents = function(extents, handles) {
+    for(var c in this.connectors)
+      handles[c] = this.connectors[c].coords(item, {disabled: 0});
+
+    delete handles['middle-center'];
+
+    var checkExtents = function(extents, hndls) {
       var count = 0;
       extents.forEach(function(e) { if(props[e].field) count++ });
-      if(count > 2) handles.forEach(function(h) { h.disabled = 1; });
+      if(count > 2) hndls.forEach(function(h) { handles[h].disabled = 1; });
     }
 
-    checkExtents(['y', 'y2', 'height'], [top, bottom]);
-    if(props.y.field) top.disabled = 1;
-    if(props.y2.field) bottom.disabled = 1;
-    if(props.width.field) top.disabled = bottom.disabled = 1;
+    checkExtents(['y', 'y2', 'height'], ['top-center', 'bottom-center']);
+    if(props.y.field) handles['top-center'].disabled = 1;
+    if(props.y2.field) handles['bottom-center'].disabled = 1;
+    if(props.width.field)
+      handles['top-center'].disabled = handles['bottom-center'].disabled = 1;
 
-    checkExtents(['x', 'x2', 'height'], [left, right]);
-    if(props.x.field) left.disabled = 1;
-    if(props.x2.field) right.disabled = 1;
-    if(props.height.field) left.disabled = right.disabled = 1;
+    checkExtents(['x', 'x2', 'height'], ['middle-left', 'middle-right']);
+    if(props.x.field) handles['middle-left'].disabled = 1;
+    if(props.x2.field) handles['middle-right'].disabled = 1;
+    if(props.height.field)
+      handles['middle-left'].disabled = handles['middle-right'].disabled = 1;
 
-    return [top, bottom, left, right];
+    // Now figure out the corners
+    ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(function(corner) {
+      var h = corner.split('-');
+      if(handles[h[0] + '-center'].disabled && handles['middle-' + h[1]].disabled)
+        handles[corner].disabled = 1;
+    });
+
+    return vg.keys(handles).map(function(h) { return handles[h]; });
   };
 
   prototype.spans = function(item, property) {
