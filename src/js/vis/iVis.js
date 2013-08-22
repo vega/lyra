@@ -105,6 +105,18 @@ vde.iVis = (function() {
                 icanvas.style('cursor', item.datum.data.cursor);
             };
 
+            var items = function() {  // We need to make this more reliable.
+              var items = [];
+
+              if(item.mark.group.items[1].items.length > 0)       // Connectors
+                items.push(item.mark.group.items[1].items[item.key]);
+
+              if(item.mark.group.items[2].items.length > 0) // Points
+                items.push(item.mark.group.items[2].items[item.key-2]);
+
+              return items;
+            };
+
             // Automatically register events to handle dragging
             switch(type) {
               case 'mouseover':
@@ -115,7 +127,7 @@ vde.iVis = (function() {
                   if(item.connector)
                     ivis.view.update({
                       props: 'hover',
-                      items: item.mark.group.items[2].items[item.key-2]
+                      items: items()
                     });
                   else
                     ivis.view.update({
@@ -134,7 +146,7 @@ vde.iVis = (function() {
                   if(item.connector)
                     ivis.view.update({
                       props: 'update',
-                      items: item.mark.group.items[1].items[item.key-2]
+                      items: items()
                     });
                   else
                     ivis.view.update({

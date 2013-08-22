@@ -389,8 +389,10 @@ vde.Vis.Mark = (function() {
   prototype.defaults = function(prop) { return null; }
 
   prototype.selected = function() { return null; }
-  prototype.helper = function(property) { return null; }
-  prototype.propertyTargets = function(connector) { return null; }
+  prototype.helper   = function(property) { return null; }
+
+  prototype.propertyTargets   = function() { return null; }
+  prototype.connectionTargets = function() { return null; }
 
   prototype.coordinates = function(connector, item, def) { return null; }
   prototype.handles = function(item) { return null; }

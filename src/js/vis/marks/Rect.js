@@ -218,28 +218,20 @@ vde.Vis.marks.Rect = (function() {
       spans = spans.concat(span);
     });
 
-    var connectors = [this.connectors['top-left'].coords(item), this.connectors['bottom-right'].coords(item)];
-
     // Order is important with dropzones to ensure on overlap, the connector dropzones
     // take precendence.
+    var connectors = [this.connectors['top-left'].coords(item), this.connectors['bottom-right'].coords(item)];
     dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
 
     var mouseover = function(e, item) {
       if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
-
-      // For points, switch propertyTargets after a timeout.
-      if(item.connector)
+      if(item.connector)  // For points, switch propertyTargets after a timeout.
         vde.iVis.timeout = window.setTimeout(function() {
           self.propertyTargets((item.connector == connector) ? '' : item.connector);
         }, 750);
     };
 
-    var mouseout = function(e, item) {
-      if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
-      window.clearTimeout(vde.iVis.timeout);
-    };
-
-    var mouseup = function(e, item) {
+    var clearTimeout = function(e, item) {
       if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
       window.clearTimeout(vde.iVis.timeout);
     };
@@ -249,9 +241,21 @@ vde.Vis.marks.Rect = (function() {
       .interactor('dropzone', dropzones)
       .show(['point', 'span', 'dropzone'], {
         mouseover: mouseover,
-        mouseout: mouseout,
-        mouseup: mouseup
+        mouseout: clearTimeout,
+        mouseup: clearTimeout
       });
+  };
+
+  prototype.connectionTargets = function() {
+    var self  = this,
+        item  = this.item(vde.iVis.activeItem);
+
+    var connectors = vg.keys(this.connectors).map(function(c) { return self.connectors[c].coords(item); });
+    var dropzones  = connectors.map(function(c) { return self.dropzones(c); });
+
+    vde.iVis.interactor('connector', connectors)
+      .interactor('dropzone', dropzones)
+      .show(['connector', 'dropzone']);
   };
 
   prototype.coordinates = function(connector, item, def) {

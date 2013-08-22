@@ -1,7 +1,9 @@
 vde.App.factory('draggable', function($rootScope) {
   return {
     dragstart: function(e, dd, proxy) {
-      var isMark = proxy.hasClass('mark');
+      var isMark = proxy.hasClass('mark'),
+          v = $rootScope.activeVisual;
+
       if(!isMark) {
         $(dd.available).each(function(i, a) {
           // Only light up properties without nodrop
@@ -12,9 +14,9 @@ vde.App.factory('draggable', function($rootScope) {
         });
       }
 
-      if($rootScope.activeVisual instanceof vde.Vis.Mark) {
-        if(isMark) return proxy;
-        else $rootScope.activeVisual.propertyTargets();
+      if(v instanceof vde.Vis.Mark) {
+        if(isMark) v.connectionTargets();
+        else v.propertyTargets();
       }
 
       return proxy;
