@@ -77,3 +77,7 @@
 }
 
 #groups .pipeline .property .field { width: 135px !important;}
+
+#groups p.anchor { margin: 0 0 10px 35px; }
+#groups a.connected { background-image: url(../imgs/link.png); }
+#groups a.connected:hover { background-image: url(../imgs/link_break.png); }

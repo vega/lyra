@@ -206,13 +206,26 @@ vde.iVis = (function() {
         {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
-    $('.proxy').remove();
-    ivis.dragging = null;
-    window.clearTimeout(vde.iVis.timeout);
-
     vde.Vis.parse();
 
-    return [scale, field];
+    window.setTimeout(function() {
+      $('.proxy').remove();
+      ivis.dragging = null;
+
+      ivis.ngLogger().log('bind', {
+        item: visual.name,
+        group: visual.groupName,
+        activePipeline: rootScope.activePipeline.name,
+        itemPipeline: visual.pipelineName,
+        property: property,
+        scaleName: scale,
+        field: field
+      }, true, true);
+
+      rootScope.$apply(function() { rootScope.toggleVisual(visual); });
+    }, 1);
+
+    window.clearTimeout(vde.iVis.timeout);
   };
 
   ivis.addMark = function(host, connector) {
@@ -222,7 +235,6 @@ vde.iVis = (function() {
     if(host instanceof vde.Vis.marks.Group) mark.groupName = host.name;
     else if(host.connectors[connector]) {
       mark.groupName    = host.groupName;
-      mark.pipelineName = host.pipelineName;
       mark.connectedTo  = {host: host, connector: connector};
     }
 
@@ -232,7 +244,6 @@ vde.iVis = (function() {
     });
 
     window.setTimeout(function() {
-      rootScope.$apply(function() { rootScope.toggleVisual(mark); });
       ivis.newMark = null;
       $('.proxy').remove();
 
@@ -242,6 +253,8 @@ vde.iVis = (function() {
         activeGroup: (rootScope.activeGroup || {}).name,
         markGroup: mark.groupName
       }, true);
+
+      rootScope.$apply(function() { rootScope.toggleVisual(mark); });
     }, 1);
 
     window.clearTimeout(vde.iVis.timeout);

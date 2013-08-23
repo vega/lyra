@@ -27,16 +27,21 @@
 
         <ul>
           <li ng-repeat="(markName, mark) in group.marks" ng-class="{selected:activeVisual==mark}" ng-click="toggleVisual(mark)">
+
             <h5>{{mark.displayName|inflector:'humanize'}} <a ng-click="removeVisual('marks', mark.name);" class="remove" vde-tooltip="Delete Mark">Delete Mark</a></h5>
 
             <div ng-show="activeVisual==mark" ng-click="gMdl.activeVisualPipeline = activeVisual.pipeline().name || ''">
               <vde-property label="Name" type="text" item="activeVisual" ng-model="activeVisual.displayName" nodrop="1"></vde-property>
 
+              <p ng-hide="!mark.connectedTo.host" class="anchor icons"><a ng-click="mark.disconnect()" class="connected">Disconnected</a> Anchored to <code>{{mark.connectedTo.host.displayName|inflector:'humanize'}}</code></p>
+
               <fieldset>
                 <legend>Pipeline</legend>
 
                 <vde-property label="Name" nodrop="1">
-                  <select ng-model="gMdl.activeVisualPipeline" ng-change="setPipeline()">
+                  <span ng-hide="!mark.connectedTo.host"><code>{{mark.pipelineName|inflector:'humanize'}}</code></span>
+
+                  <select ng-model="gMdl.activeVisualPipeline" ng-change="setPipeline()" ng-show="!mark.connectedTo.host">
                     <option value="">Select...</option>
                     <option ng-repeat="(pipelineName, pipeline) in gMdl.pipelines" value="{{pipelineName}}" ng-selected="gMdl.activeVisualPipeline==pipelineName||activeVisual.pipelineName==pipelineName">{{pipeline.displayName|inflector:'humanize'}}</option>
                     <option value="vdeNewPipeline">New Pipeline</option>

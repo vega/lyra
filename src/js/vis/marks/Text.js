@@ -131,10 +131,17 @@ vde.Vis.marks.Text = (function() {
             self.update('fontSize');
           }
         } else {
-          if(!props.x.field) props.x.value += dx;
-          if(!props.y.field) props.y.value += dy;
+          if(self.connectedTo.host) {
+            props.dx.offset += dx;
+            props.dy.offset += dy;
 
-          self.update(['x', 'y']);
+            self.update(['dx', 'dy']);
+          } else {
+            if(!props.x.field) props.x.value += dx;
+            if(!props.y.field) props.y.value += dy;
+
+            self.update(['x', 'y']);
+          }
         }
       });
 
@@ -180,11 +187,13 @@ vde.Vis.marks.Text = (function() {
         item = this.item(vde.iVis.activeItem),
         spans = [], dropzones = [];
 
-    ['x', 'y'].forEach(function(p) {
-      var s = self.spans(item, p);
-      dropzones = dropzones.concat(self.dropzones(s));
-      spans = spans.concat(s);
-    });
+    if(!this.connectedTo.host) {
+      ['x', 'y'].forEach(function(p) {
+        var s = self.spans(item, p);
+        dropzones = dropzones.concat(self.dropzones(s));
+        spans = spans.concat(s);
+      });
+    }
 
     var connectors = [this.connectors['text'].coords(item)];
     connectors[0].property = 'text';
@@ -203,7 +212,7 @@ vde.Vis.marks.Text = (function() {
     if(connector == 'text') {
       var b  = vde.iVis.translatedBounds(item,
           new vg.Bounds({x1: item.x, x2: item.x, y1: item.y, y2: item.y}));
-      coord = {x: b.x1, y: b.y1, cursor: 'move'};
+      coord = {x: b.x1 + item.dx, y: b.y1 + item.dy, cursor: 'move'};
     } else {
       var b = new vg.Bounds();
       vg.scene.bounds.text(item, b, true);  // Calculate text bounds w/o rotating

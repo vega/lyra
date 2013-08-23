@@ -12,9 +12,9 @@
     </div>
   </vde-property>
 
-  <vde-property label="Color" type="color" item="mark" property="fill" ng-model="mark.properties.fill.value" scale="mark.properties.fill.scale" field="mark.properties.fill.field"></vde-property> 
+  <vde-property label="Color" type="color" item="mark" property="fill" ng-model="mark.properties.fill.value" scale="mark.properties.fill.scale" field="mark.properties.fill.field"></vde-property>
 
-  <fieldset>
+  <fieldset ng-show="!mark.connectedTo.host">
     <legend>Position</legend>
 
     <vde-property label="X" type="number" item="mark" property="x" ng-model="mark.properties.x.value" scale="mark.properties.x.scale" field="mark.properties.x.field"></vde-property>
@@ -37,13 +37,13 @@
 
         <a class="text-middle-align" ng-click="toggleFont('baseline', 'middle');" ng-class="{selected: mark.properties.baseline.value == 'middle'}">Middle Align</a>
 
-        <a class="text-bottom-align" ng-click="toggleFont('baseline', 'bottom');" ng-class="{selected: mark.properties.baseline.value == 'bottom'}">Bottom Align</a>      
+        <a class="text-bottom-align" ng-click="toggleFont('baseline', 'bottom');" ng-class="{selected: mark.properties.baseline.value == 'bottom'}">Bottom Align</a>
       </div>
-    </vde-property> 
+    </vde-property>
 
-    <vde-property label="X" type="number" item="mark" property="dx" ng-model="mark.properties.dx.value" scale="mark.properties.dx.scale" field="mark.properties.dx.field"></vde-property>
+    <vde-property label="X" type="number" item="mark" property="dx" ng-model="mark.properties.dx.offset"></vde-property>
 
-    <vde-property label="Y" type="number" item="mark" property="dy" ng-model="mark.properties.dy.value" scale="mark.properties.dy.scale" field="mark.properties.dy.field"></vde-property>
+    <vde-property label="Y" type="number" item="mark" property="dy" ng-model="mark.properties.dy.offset"></vde-property>
   </fieldset>
 
   <vde-property label="Angle" type="number" item="mark" property="angle" ng-model="mark.properties.angle.value" scale="mark.properties.angle.scale" field="mark.properties.angle.field"></vde-property>

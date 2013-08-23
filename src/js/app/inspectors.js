@@ -82,18 +82,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
         if(element.find('.expr').length > 0) return element.find('.expr').drop(e, dd);
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
 
-        var binding = vde.iVis.bindProperty(scope.item, attrs.property);
-
-        logger.log('bind', {
-          item: scope.item.name,
-          group: scope.item.groupName,
-          activePipeline: $rootScope.activePipeline.name,
-          itemPipeline: scope.item.pipelineName,
-          property: attrs.property,
-          ngModel: attrs.ngModel,
-          scaleName: binding[0],
-          field: binding[1]
-        }, true, true);
+        vde.iVis.bindProperty(scope.item, attrs.property);
       }).drop('dropstart', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         scope.showHelper($(this), e, 'drophover');
