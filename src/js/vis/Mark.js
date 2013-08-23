@@ -300,6 +300,13 @@ vde.Vis.Mark = (function() {
     this.properties[prop] = {value: 0};
   };
 
+  prototype.disconnect = function() {
+    var conn = this.connectedTo;
+    if(conn.host) conn.host.connectors[conn.connector].connect(this);
+
+    this.connectedTo = {};
+  };
+
   prototype.def = function() {
     var self  = this,
         start = this.type == 'group' ? vde.Vis.view.model().defs().marks : this.group().def();
