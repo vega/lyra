@@ -82,10 +82,25 @@ vde.Vis = (function() {
           else vde.Vis.view.on(type, h);
         });
 
-      // Mousedown/up evt listeners to move marks
       vde.Vis.view.on('mousedown', function(e, i) {
         if(!vde.iVis.dragging) vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
-      }).on('mouseup', function() { vde.iVis.dragging = null; })
+      })
+        .on('mouseup', function() { vde.iVis.dragging = null; })
+        .on('mouseover', function(e, i) {
+          var d = vde.iVis.dragging, m = i.mark.def.vdeMdl;
+          if(!d) return;
+          if(!m) return;
+          if(m.type == 'group') return;
+
+          vde.iVis.timeout = window.setTimeout(function() {
+            vde.iVis.activeMark = m;
+            vde.iVis.activeItem = i.vdeKey || i.key;
+
+            if($(d).hasClass('mark')) m.connectionTargets();
+            else m.propertyTargets();
+          }, 750);
+        })
+        .on('mouseout', function() { window.clearTimeout(vde.iVis.timeout); });
 
       // If the vis gets reparsed, reparse the interactive layer too to update any
       // visible handlers, etc.
