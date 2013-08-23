@@ -258,43 +258,46 @@ vde.Vis.marks.Rect = (function() {
       .show(['connector', 'dropzone']);
   };
 
-  prototype.connect = function(connector, props) {
-    var self = this, p = this.properties,
-        ox = props.dx.offset, oy = props.dy.offset;
+  prototype.connect = function(connector, mark) {
+    var self = this,
+        props = this.properties, mProps = mark.properties,
+        ox = mProps.dx.offset, oy = mProps.dy.offset;
 
     var setProp = function(p1, p2) {
-      props[p1] = vg.duplicate(self.property(p2));
+      for(var k in props[p2]) mProps[p1][k] = props[p2][k];
     };
+
+    mark.pipelineName = this.pipelineName;
 
     // TODO: what if x2/width or y2/height are set instead: -ve mult dx/dys
     setProp('x', 'x');
     setProp('y', 'y');
 
     if(connector.indexOf('center') != -1) {
-      setProp('dx', p.width.disabled ? 'x2' : 'width');
-      props.dx.mult = 0.5;
+      setProp('dx', props.width.disabled ? 'x2' : 'width');
+      mProps.dx.mult = 0.5;
     }
 
     if(connector.indexOf('right') != -1)
-      setProp('dx', p.width.disabled ? 'x2' : 'width');
+      setProp('dx', props.width.disabled ? 'x2' : 'width');
 
     if(connector.indexOf('middle') != -1) {
-      if(p.height.disabled) {
+      if(props.height.disabled) {
         setProp('dy', 'y2');
-        props.y.mult = props.dy.mult = 0.5;
+        mProps.y.mult = mProps.dy.mult = 0.5;
       } else {
         setProp('dy', 'height');
-        props.dy.mult = 0.5;
+        mProps.dy.mult = 0.5;
       }
     }
 
     if(connector.indexOf('bottom') != -1) {
-      if(p.height.disabled) setProp('y', 'y2');
+      if(props.height.disabled) setProp('y', 'y2');
       else setProp('dy', 'height');
     }
 
-    props.dx.offset = ox || 0;
-    props.dy.offset = oy || 0;
+    mProps.dx.offset = ox || 0;
+    mProps.dy.offset = oy || 0;
   };
 
   prototype.coordinates = function(connector, item, def) {

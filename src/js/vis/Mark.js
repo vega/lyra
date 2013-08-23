@@ -48,7 +48,7 @@ vde.Vis.Mark = (function() {
     vg.keys(this.connectors).forEach(function(c) {
       self.connectors[c] = {
         coords:  function(item, def) { return self.coordinates(c, item, def); },
-        connect: function(props) { return self.connect(c, props); }
+        connect: function(mark) { return self.connect(c, mark); }
       };
     });
 
@@ -147,6 +147,9 @@ vde.Vis.Mark = (function() {
   prototype.spec = function() {
     var spec = vg.duplicate(this._spec);
 
+    var conn = this.connectedTo;
+    if(conn.host) conn.host.connectors[conn.connector].connect(this);
+
     vde.Vis.callback.run('mark.pre_spec', this, {spec: spec});
 
     spec.name = this.name;
@@ -158,9 +161,6 @@ vde.Vis.Mark = (function() {
     var enter = spec.properties.enter;
     for(var prop in this.properties)
       enter[prop] = enter[prop] ? enter[prop] : this.property(prop);
-
-    var conn = this.connectedTo;
-    if(conn.host) conn.host.connectors[conn.connector].connect(enter);
 
     vde.Vis.callback.run('mark.post_spec', this, {spec: spec});
 
