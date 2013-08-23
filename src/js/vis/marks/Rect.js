@@ -259,34 +259,38 @@ vde.Vis.marks.Rect = (function() {
   };
 
   prototype.connect = function(connector, props) {
-    var p = this.properties,
+    var self = this, p = this.properties,
         ox = props.dx.offset, oy = props.dy.offset;
 
+    var setProp = function(p1, p2) {
+      props[p1] = vg.duplicate(self.property(p2));
+    };
+
     // TODO: what if x2/width or y2/height are set instead: -ve mult dx/dys
-    props.x = vg.duplicate(p.x);
-    props.y = vg.duplicate(p.y);
+    setProp('x', 'x');
+    setProp('y', 'y');
 
     if(connector.indexOf('center') != -1) {
-      props.dx = vg.duplicate(p.width.disabled ? p.x2 : p.width);
+      setProp('dx', p.width.disabled ? 'x2' : 'width');
       props.dx.mult = 0.5;
     }
 
     if(connector.indexOf('right') != -1)
-      props.dx = vg.duplicate(p.width.disabled ? p.x2 : p.width);
+      setProp('dx', p.width.disabled ? 'x2' : 'width');
 
     if(connector.indexOf('middle') != -1) {
       if(p.height.disabled) {
-        props.dy = vg.duplicate(p.y2);
+        setProp('dy', 'y2');
         props.y.mult = props.dy.mult = 0.5;
       } else {
-        props.dy = vg.duplicate(p.height);
+        setProp('dy', 'height');
         props.dy.mult = 0.5;
       }
     }
 
     if(connector.indexOf('bottom') != -1) {
-      if(p.height.disabled) props.y = vg.duplicate(p.y2);
-      else props.dy = vg.duplicate(p.height);
+      if(p.height.disabled) setProp('y', 'y2');
+      else setProp('dy', 'height');
     }
 
     props.dx.offset = ox || 0;
