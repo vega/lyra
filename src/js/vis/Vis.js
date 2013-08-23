@@ -88,8 +88,7 @@ vde.Vis = (function() {
         .on('mouseup', function() { vde.iVis.dragging = null; })
         .on('mouseover', function(e, i) {
           var d = vde.iVis.dragging, m = i.mark.def.vdeMdl;
-          if(!d) return;
-          if(!m) return;
+          if(!d || !m) return;
           if(m.type == 'group') return;
 
           vde.iVis.timeout = window.setTimeout(function() {

@@ -208,6 +208,7 @@ vde.iVis = (function() {
 
     $('.proxy').remove();
     ivis.dragging = null;
+    window.clearTimeout(vde.iVis.timeout);
 
     vde.Vis.parse();
 
@@ -242,6 +243,8 @@ vde.iVis = (function() {
         markGroup: mark.groupName
       }, true);
     }, 1);
+
+    window.clearTimeout(vde.iVis.timeout);
   };
 
   ivis.handle = function() {
