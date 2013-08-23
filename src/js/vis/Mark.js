@@ -410,8 +410,8 @@ vde.Vis.Mark = (function() {
   prototype.dropzones = function(area) {
     if(area.connector) {
       return {
-        x: area.x-geomOffset, x2: area.x+geomOffset,
-        y: area.y-geomOffset, y2: area.y+geomOffset,
+        x: area.x-2*geomOffset, x2: area.x+2*geomOffset,
+        y: area.y-2*geomOffset, y2: area.y+2*geomOffset,
         connector: area.connector,
         property: area.property
       }
