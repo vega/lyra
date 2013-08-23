@@ -20,6 +20,9 @@ vde.Vis.Mark = (function() {
     this._def   = null;
     this._items = [];
 
+    this.connectors = {};
+    this.connectedTo = {};
+
     return this;
   };
 
@@ -44,8 +47,8 @@ vde.Vis.Mark = (function() {
 
     vg.keys(this.connectors).forEach(function(c) {
       self.connectors[c] = {
-        connections: [],
-        coords: function(item, def) { return self.coordinates(c, item, def); }
+        coords:  function(item, def) { return self.coordinates(c, item, def); },
+        connect: function(props) { return self.connect(c, props); }
       };
     });
 
@@ -152,10 +155,12 @@ vde.Vis.Mark = (function() {
 
     if(this.pipeline()) spec.from.data || (spec.from.data = this.pipeline().name);
 
-    var props = {}, enter = spec.properties.enter;
+    var enter = spec.properties.enter;
     for(var prop in this.properties)
-      props[prop] = enter[prop] ? enter[prop] : this.property(prop);
-    spec.properties.enter = props;
+      enter[prop] = enter[prop] ? enter[prop] : this.property(prop);
+
+    var conn = this.connectedTo;
+    if(conn.host) conn.host.connectors[conn.connector].connect(enter);
 
     vde.Vis.callback.run('mark.post_spec', this, {spec: spec});
 
@@ -374,14 +379,18 @@ vde.Vis.Mark = (function() {
 
   prototype.export = function() {
     // Export w/o the circular structure
-    if(!this._def && this._items.length == 0) return vg.duplicate(this);
-    var def = this.def(), items = this.items();
+    if(!this._def && this._items.length == 0 && !this.connectedTo.host)
+        return vg.duplicate(this);
+
+    var def = this.def(), items = this.items(), connectedTo = this.connectedTo.host;
 
     this._def = null;
     this._items = [];
+    delete this.connectedTo.host;
     var ex = vg.duplicate(this);
     this._def = def;
     this._items = items;
+    this.connectedTo.host = connectedTo;
 
     return ex;
   };

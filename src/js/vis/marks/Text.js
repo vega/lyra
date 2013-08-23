@@ -14,8 +14,8 @@ vde.Vis.marks.Text = (function() {
 
       align: {value: 'center'},
       baseline: {value: 'middle'},
-      dx: {value: 0, disabled: 1},
-      dy: {value: 0, disabled: 1},
+      dx: {value: 0},
+      dy: {value: 0},
       angle: {value: 0},
       font: {value: 'Helvetica'},
       fontSize: {value: 12},
@@ -90,11 +90,11 @@ vde.Vis.marks.Text = (function() {
   prototype.checkExtents = function(prop) {
     var p = this.properties;
 
-    if(p.align.value == 'center') p.dx.disabled = true;
-    else delete p.dx.disabled;
+    // if(p.align.value == 'center') p.dx.disabled = true;
+    // else delete p.dx.disabled;
 
-    if(p.baseline.value == 'middle') p.dy.disabled = true;
-    else delete p.dy.disabled;
+    // if(p.baseline.value == 'middle') p.dy.disabled = true;
+    // else delete p.dy.disabled;
   };
 
   prototype.selected = function() {

@@ -166,9 +166,12 @@ vde.iVis = (function() {
 
               case 'mouseup':
                 if(ivis.dragging && item.mark.def.name == 'dropzone') {
-                  if(item.property) {
+                  var isMark = $(ivis.dragging).hasClass('mark');
+                  if(item.property && !isMark) {
                     ivis.bindProperty(ivis.activeMark, item.property, true);
                     d3.selectAll('#' + item.property + '.property').classed('drophover', false);
+                  } else if(item.connector && isMark) {
+                    ivis.addMark(ivis.activeMark, item.connector);
                   }
                 }
 
@@ -183,6 +186,62 @@ vde.iVis = (function() {
     });
 
     return spec;
+  };
+
+  ivis.bindProperty = function(visual, property, defaults) {
+    if(!ivis.dragging) return;
+
+    var rootScope = ivis.ngScope();
+    var field = $(ivis.dragging).data('field') || $(ivis.dragging).find('.schema').data('field') || $(ivis.dragging).find('.schema').attr('field');
+    var scale = $(ivis.dragging).find('.scale').attr('scale');
+    var pipelineName = rootScope.activePipeline.name;
+
+    if(visual.pipelineName && pipelineName != visual.pipelineName)
+      return alert('Pipelines don\'t match');
+
+    rootScope.$apply(function() {
+      if(!visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
+
+      visual.bindProperty(property,
+        {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
+    });
+
+    $('.proxy').remove();
+    ivis.dragging = null;
+
+    vde.Vis.parse();
+
+    return [scale, field];
+  };
+
+  ivis.addMark = function(host, connector) {
+    var mark = ivis.newMark,
+        rootScope = ivis.ngScope();
+
+    if(host instanceof vde.Vis.marks.Group) mark.groupName = host.name;
+    else if(host.connectors[connector]) {
+      mark.groupName    = host.groupName;
+      mark.pipelineName = host.pipelineName;
+      mark.connectedTo  = {host: host, connector: connector};
+    }
+
+    rootScope.$apply(function() {
+      mark.init();
+      vde.Vis.parse();
+    });
+
+    window.setTimeout(function() {
+      rootScope.$apply(function() { rootScope.toggleVisual(mark); });
+      ivis.newMark = null;
+      $('.proxy').remove();
+
+      ivis.ngLogger().log('new_mark', {
+        markType: mark.type,
+        markName: mark.name,
+        activeGroup: (rootScope.activeGroup || {}).name,
+        markGroup: mark.groupName
+      }, true);
+    }, 1);
   };
 
   ivis.handle = function() {
@@ -306,56 +365,6 @@ vde.iVis = (function() {
         }
       }
     }
-  };
-
-  ivis.bindProperty = function(visual, property, defaults) {
-    if(!ivis.dragging) return;
-
-    var rootScope = ivis.ngScope();
-    var field = $(ivis.dragging).data('field') || $(ivis.dragging).find('.schema').data('field') || $(ivis.dragging).find('.schema').attr('field');
-    var scale = $(ivis.dragging).find('.scale').attr('scale');
-    var pipelineName = rootScope.activePipeline.name;
-
-    if(visual.pipelineName && pipelineName != visual.pipelineName)
-      return alert('Pipelines don\'t match');
-
-    rootScope.$apply(function() {
-      if(!visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
-
-      visual.bindProperty(property,
-        {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
-    });
-
-    $('.proxy').remove();
-    ivis.dragging = null;
-
-    vde.Vis.parse();
-
-    return [scale, field];
-  };
-
-  ivis.addMark = function(host) {
-    var mark = ivis.newMark,
-        rootScope = ivis.ngScope();
-
-    if(host instanceof vde.Vis.marks.Group) mark.groupName = host.name;
-
-    rootScope.$apply(function() {
-      mark.init();
-      vde.Vis.parse();
-
-      ivis.ngLogger().log('new_mark', {
-        markType: mark.type,
-        markName: mark.name,
-        activeGroup: (rootScope.activeGroup || {}).name,
-        markGroup: mark.groupName
-      }, true);
-    });
-
-    window.setTimeout(function() {
-      rootScope.$apply(function() { rootScope.toggleVisual(mark); });
-      ivis.newMark = null;
-    }, 1);
   };
 
   // From vg.canvas.Renderer

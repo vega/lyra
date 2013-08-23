@@ -258,6 +258,41 @@ vde.Vis.marks.Rect = (function() {
       .show(['connector', 'dropzone']);
   };
 
+  prototype.connect = function(connector, props) {
+    var p = this.properties,
+        ox = props.dx.offset, oy = props.dy.offset;
+
+    // TODO: what if x2/width or y2/height are set instead: -ve mult dx/dys
+    props.x = vg.duplicate(p.x);
+    props.y = vg.duplicate(p.y);
+
+    if(connector.indexOf('center') != -1) {
+      props.dx = vg.duplicate(p.width.disabled ? p.x2 : p.width);
+      props.dx.mult = 0.5;
+    }
+
+    if(connector.indexOf('right') != -1)
+      props.dx = vg.duplicate(p.width.disabled ? p.x2 : p.width);
+
+    if(connector.indexOf('middle') != -1) {
+      if(p.height.disabled) {
+        props.dy = vg.duplicate(p.y2);
+        props.y.mult = props.dy.mult = 0.5;
+      } else {
+        props.dy = vg.duplicate(p.height);
+        props.dy.mult = 0.5;
+      }
+    }
+
+    if(connector.indexOf('bottom') != -1) {
+      if(p.height.disabled) props.y = vg.duplicate(p.y2);
+      else props.dy = vg.duplicate(p.height);
+    }
+
+    props.dx.offset = ox || 0;
+    props.dy.offset = oy || 0;
+  };
+
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
     var b = vde.iVis.translatedBounds(item, item.bounds),
