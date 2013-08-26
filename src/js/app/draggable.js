@@ -36,7 +36,7 @@ vde.App.factory('draggable', function($rootScope) {
     dragend: function(e, dd) {
       vde.iVis.dragging = null;
       vde.iVis.newMark  = null;
-      vde.iVis.show('handle');
+      vde.iVis.show('selected');
       $(dd.available).removeClass('available');
       $(dd.proxy).remove();
       $('.tooltip').remove();

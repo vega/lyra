@@ -160,11 +160,13 @@ vde.Vis.marks.Rect = (function() {
       });
 
       dragging.prev = [evt.pageX, evt.pageY];
-      vde.iVis.show('handle');
+      vde.iVis.show('selected');
     };
 
-    vde.iVis.interactor('handle', this.handles(item));
-    return {mousemove: mousemove};
+    return {
+      interactors: {handle: this.handles(item)},
+      evtHandlers: {mousemove: mousemove}
+    };
   };
 
   prototype.helper = function(property) {

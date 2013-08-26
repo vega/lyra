@@ -14,7 +14,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     if(vde.iVis.activeMark != v || key != null) {
       vde.iVis.activeMark = v;
       vde.iVis.activeItem = key || 0;
-      vde.iVis.show('handle');
+      vde.iVis.show('selected');
     }
 
     logger.log('toggle_visual', {

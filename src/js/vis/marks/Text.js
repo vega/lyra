@@ -100,7 +100,8 @@ vde.Vis.marks.Text = (function() {
   prototype.selected = function() {
     var self = this,
         item = this.item(vde.iVis.activeItem),
-        props = this.properties;
+        props = this.properties, conn = this.connectedTo,
+        connector = null, connections = [];
 
     var mousemove = function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
@@ -148,7 +149,7 @@ vde.Vis.marks.Text = (function() {
       });
 
       dragging.prev = [evt.pageX, evt.pageY];
-      vde.iVis.show('handle');
+      vde.iVis.show('selected');
     };
 
     var keydown = function() {
@@ -171,8 +172,20 @@ vde.Vis.marks.Text = (function() {
       });
     };
 
-    vde.iVis.interactor('handle', this.handles(item));
-    return {mousemove: mousemove, keydown: keydown};
+    if(conn.host) {
+      // Because they're connected, we should be able to look up the host item
+      var hostItem  = conn.host.item(vde.iVis.activeItem);
+      connector = conn.host.connectors[conn.connector].coords(hostItem, {connected: 1});
+    }
+
+    return {
+      interactors: {
+        handle: this.handles(item),
+        connector: connector ? [connector] : [],
+        connection: this.spans(item, 'connection')
+      },
+      evtHandlers: {mousemove: mousemove, keydown: keydown}
+    };
   };
 
   prototype.helper = function(property) {
@@ -267,6 +280,14 @@ vde.Vis.marks.Text = (function() {
 
       case 'dy':
         return [{x: (pt.x+io), y: pt.y, span: 'dy_0'}, {x: (pt.x+io), y: (pt.y+dy), span: 'dy_0'}];
+      break;
+
+      case 'connection':
+        var conn = this.connectedTo;
+        var hostItem = conn.host.item(vde.iVis.activeItem);
+        var connector = conn.host.connectors[conn.connector].coords(hostItem);
+        var textConnector = this.connectors.text.coords(item);
+        return [{x: connector.x, y: connector.y, span: 'connection_0'}, {x: textConnector.x, y: textConnector.y, span: 'connection_0'}];
       break;
     }
   };

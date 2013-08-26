@@ -28,7 +28,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           if($scope.item.update) $scope.item.update(prop || $attrs.property);
           else vde.Vis.parse();
 
-          vde.iVis.show('handle');
+          vde.iVis.show('selected');
         }, 1);
 
         logger.log('onchange', {
@@ -64,7 +64,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
         target.removeClass(helperClass);
         if(target.hasClass('helper') || target.hasClass('drophover')) return;
 
-        if(!vde.iVis.dragging) vde.iVis.show('handle');
+        if(!vde.iVis.dragging) vde.iVis.show('selected');
         else if($rootScope.activeVisual instanceof vde.Vis.Mark)
           $rootScope.activeVisual.propertyTargets();
       };

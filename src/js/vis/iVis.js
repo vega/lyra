@@ -14,7 +14,7 @@ vde.iVis = (function() {
     "click", "dblclick", "keypress", "keydown", "keyup"
   ];
 
-  var interactors = ['handle', 'connector', 'point', 'span', 'dropzone'];
+  var interactors = ['handle', 'connector', 'connection', 'point', 'span', 'dropzone'];
 
   ivis.interactor = function(interactor, data) {
     if(!interactor || !data) return;
@@ -25,9 +25,11 @@ vde.iVis = (function() {
 
   ivis.show = function(show, evtHandlers) {
     if(!vg.isArray(show)) show = [show];
-    if(this.activeMark) {
-      var eh = this.activeMark.selected();
-      if(!evtHandlers) evtHandlers = eh;
+    if(show == 'selected' && this.activeMark) {
+      var selected = this.activeMark.selected();
+      show = vg.keys(selected.interactors);
+      for(var s in selected.interactors) ivis.interactor(s, selected.interactors[s]);
+      if(!evtHandlers) evtHandlers = selected.evtHandlers;
     }
 
     var d = {};
@@ -59,6 +61,10 @@ vde.iVis = (function() {
       name: 'disabled',
       domain: [0, 1],
       range: ['#fff', '#999']
+    }, {
+      name: 'connection_status',
+      domain: [0, 1],
+      range: ['magenta', 'lime']
     }];
     spec.marks = interactors.map(function(i) { return ivis[i](); });
 
@@ -109,8 +115,8 @@ vde.iVis = (function() {
               if(item.mark.group.items[1].items.length > 0)       // Connectors
                 items.push(item.mark.group.items[1].items[item.key]);
 
-              if(item.mark.group.items[2].items.length > 0) // Points
-                items.push(item.mark.group.items[2].items[item.key-2]);
+              if(item.mark.group.items[3].items.length > 0) // Points
+                items.push(item.mark.group.items[3].items[item.key-2]);
 
               return items;
             };
@@ -182,7 +188,7 @@ vde.iVis = (function() {
         }
       });
 
-      ivis.show('handle');
+      ivis.show('selected');
     });
 
     return spec;
@@ -286,7 +292,14 @@ vde.iVis = (function() {
     return {
       name: 'connector',
       type: 'symbol',
-      from: {data: 'connector'},
+      from: {
+        data: 'connector',
+        transform: [{
+          type: 'formula',
+          field: 'status',
+          expr: '(d.data.connected) ? 1 : 0'
+        }]
+      },
       properties: {
         enter: {
           shape: {value: 'diamond'},
@@ -296,7 +309,7 @@ vde.iVis = (function() {
         update: {
           x: {field: 'data.x'},
           y: {field: 'data.y'},
-          stroke: {value: 'magenta'},
+          stroke: {scale: 'connection_status', field: 'status'},
           strokeWidth: {value: 0.5},
           connector: {field: 'data.connector'}
         },
@@ -305,6 +318,30 @@ vde.iVis = (function() {
           strokeWidth: {value: 1}
         }
       }
+    }
+  };
+
+  ivis.connection = function() {
+    return {
+      name: 'connection_group',
+      type: 'group',
+      from: {
+        data: 'connection',
+        transform: [{type: 'facet', keys:['data.span']}]
+      },
+      marks: [{
+        name: 'connection',
+        type: 'line',
+        properties: {
+          update: {
+            x: {field: 'data.x'},
+            y: {field: 'data.y'},
+            stroke: {value: 'black'},
+            strokeWidth: {value: 0.5},
+            strokeDash: {value: [5, 5]}
+          }
+        }
+      }]
     }
   };
 

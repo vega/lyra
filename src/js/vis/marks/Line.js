@@ -59,7 +59,7 @@ vde.Vis.marks.Line = (function() {
     var self = this, item = this.item(vde.iVis.activeItem);
     // var points = this.items().map(function(i) { return self.connectors['point'].coords(i, {disabled: 1}) });
 
-    vde.iVis.interactor('handle', [this.connectors.point.coords(item, {disabled: 1})]);
+    return {interactors: {handle: [this.connectors.point.coords(item, {disabled: 1})]}};
   };
 
   prototype.helper = function(property) {
