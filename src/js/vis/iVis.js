@@ -112,11 +112,14 @@ vde.iVis = (function() {
             var items = function() {  // We need to make this more reliable.
               var items = [];
 
-              if(item.mark.group.items[1].items.length > 0)       // Connectors
+              if(item.mark.group.items[1].items.length > 0)   // Connectors
                 items.push(item.mark.group.items[1].items[item.key]);
 
-              if(item.mark.group.items[3].items.length > 0) // Points
-                items.push(item.mark.group.items[3].items[item.key-2]);
+              if(item.mark.group.items[3].items.length > 0) { // Points
+                // We need to offset by the number of spans
+                var spans = item.mark.group.items[4].items.length;
+                items.push(item.mark.group.items[3].items[item.key-spans]);
+              }
 
               return items;
             };
