@@ -124,7 +124,7 @@ vde.Vis.marks.Rect = (function() {
       // scenegraph directly rather than properties. This makes it easier
       // to cope with rangeBands and {scale, value} properties.
       var updateValue = function(prop, delta) {
-        if(!props[prop].disabled) props[prop] = {value: item[prop] + delta};
+        if(!props[prop].disabled && !props[prop].field) props[prop] = {value: item[prop] + delta};
       }
 
       vde.iVis.ngScope().$apply(function() {
@@ -354,7 +354,7 @@ vde.Vis.marks.Rect = (function() {
     // Now figure out the corners
     ['top-left', 'top-right', 'bottom-left', 'bottom-right'].forEach(function(corner) {
       var h = corner.split('-');
-      if(handles[h[0] + '-center'].disabled && handles['middle-' + h[1]].disabled)
+      if(handles[h[0] + '-center'].disabled || handles['middle-' + h[1]].disabled)
         handles[corner].disabled = 1;
     });
 
