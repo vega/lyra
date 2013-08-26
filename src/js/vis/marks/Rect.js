@@ -251,6 +251,7 @@ vde.Vis.marks.Rect = (function() {
         item  = this.item(vde.iVis.activeItem);
 
     var connectors = vg.keys(this.connectors).map(function(c) { return self.connectors[c].coords(item); });
+    connectors.sort(function(a, b) { return a.connector.indexOf('center') ? 1 : -1 });
     var dropzones  = connectors.map(function(c) { return self.dropzones(c); });
 
     vde.iVis.interactor('connector', connectors)
