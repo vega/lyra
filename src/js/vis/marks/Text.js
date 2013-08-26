@@ -14,8 +14,8 @@ vde.Vis.marks.Text = (function() {
 
       align: {value: 'center'},
       baseline: {value: 'middle'},
-      dx: {value: 0},
-      dy: {value: 0},
+      dx: {value: 0, offset: 0},
+      dy: {value: 0, offset: 0},
       angle: {value: 0},
       font: {value: 'Helvetica'},
       fontSize: {value: 12},
@@ -125,8 +125,10 @@ vde.Vis.marks.Text = (function() {
             props.angle.value = Math.round(deg);
             self.update('angle');
           } else {
-            if(data.connector == 'left') dx*=-1;
-            props.fontSize.value = Math.round(props.fontSize.value + dx/5);
+            var ds = Math.sqrt(dx*dx + dy*dy);
+            if((data.connector == 'left' && (dx > 0 || dy > 0)) ||
+              (data.connector == 'right' && (dx < 0 || dy < 0))) ds*=-1;
+            props.fontSize.value = Math.round(props.fontSize.value + ds/5);
             if(props.fontSize.value < 1) props.fontSize.value = 1;
             self.update('fontSize');
           }
@@ -212,7 +214,9 @@ vde.Vis.marks.Text = (function() {
     if(connector == 'text') {
       var b  = vde.iVis.translatedBounds(item,
           new vg.Bounds({x1: item.x, x2: item.x, y1: item.y, y2: item.y}));
-      coord = {x: b.x1 + item.dx, y: b.y1 + item.dy, cursor: 'move'};
+      coord = {x: b.x1, y: b.y1, cursor: 'move'};
+
+      if(this.connectedTo.host) { coord.x += item.dx; coord.y += item.dy; }
     } else {
       var b = new vg.Bounds();
       vg.scene.bounds.text(item, b, true);  // Calculate text bounds w/o rotating
@@ -244,8 +248,7 @@ vde.Vis.marks.Text = (function() {
         gb = vde.iVis.translatedBounds(item.mark.group, item.mark.group.bounds),
         go = 3*geomOffset, io = geomOffset,
         pt = this.connectors['text'].coords(item),
-        dx = item.align == 'center' ? 0 : item.dx,
-        dy = item.baseline == 'middle' ? 0 : item.dy; // offsets
+        dx = item.dx, dy = item.dy; // offsets
 
     switch(property) {
       case 'x':
