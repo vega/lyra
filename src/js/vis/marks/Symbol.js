@@ -113,6 +113,33 @@ vde.Vis.marks.Symbol = (function() {
       .show(['point', 'span', 'dropzone']);
   };
 
+  prototype.connectionTargets = function() {
+    var self  = this,
+        item  = this.item(vde.iVis.activeItem);
+
+    var connectors = vg.keys(this.connectors).map(function(c) { return self.connectors[c].coords(item); });
+    var dropzones  = connectors.map(function(c) { return self.dropzones(c); });
+
+    vde.iVis.interactor('connector', connectors)
+      .interactor('dropzone', dropzones)
+      .show(['connector', 'dropzone']);
+  };
+
+  prototype.connect = function(connector, mark) {
+    var self = this,
+        props = this.properties, mProps = mark.properties,
+        ox = mProps.dx.offset, oy = mProps.dy.offset;
+
+    mark.pipelineName = this.pipelineName;
+
+    ['x', 'y'].forEach(function(p) {
+      for(var k in props[p]) mProps[p][k] = props[p][k];
+    });
+
+    mProps.dx.offset = ox || 0;
+    mProps.dy.offset = oy || 0;
+  };
+
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
     var b = vde.iVis.translatedBounds(item, item.bounds);
@@ -126,7 +153,7 @@ vde.Vis.marks.Symbol = (function() {
     for(var k in def) coord[k] = def[k];
 
     return coord;
-  }
+  };
 
   prototype.handles = function(item) {
     var b = vde.iVis.translatedBounds(item, item.bounds),

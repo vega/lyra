@@ -410,6 +410,8 @@ vde.Vis.Mark = (function() {
   prototype.propertyTargets   = function() { return null; }
   prototype.connectionTargets = function() { return null; }
 
+  prototype.connect = function(connector, mark) { return null; }
+
   prototype.coordinates = function(connector, item, def) { return null; }
   prototype.handles = function(item) { return null; }
   prototype.spans = function(item, property) { return null; }
