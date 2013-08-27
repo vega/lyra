@@ -283,6 +283,7 @@ vde.Vis.marks.Text = (function() {
       break;
 
       case 'connection':
+        if(!this.connectedTo.host) return [];
         var conn = this.connectedTo;
         var hostItem = conn.host.item(vde.iVis.activeItem);
         var connector = conn.host.connectors[conn.connector].coords(hostItem);

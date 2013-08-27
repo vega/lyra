@@ -3,7 +3,7 @@ vde.Vis = (function() {
     properties: {
       width: 500,
       height: 375,
-      padding: {top:10, left:30, right:30, bottom:30}
+      padding: {top:30, left:30, right:30, bottom:30}
     },
 
     _data:   {},
@@ -82,9 +82,10 @@ vde.Vis = (function() {
           else vde.Vis.view.on(type, h);
         });
 
-      vde.Vis.view.on('mousedown', function(e, i) {
-        if(!vde.iVis.dragging) vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
-      })
+      vde.Vis.view
+        .on('mousedown', function(e, i) {
+          if(!vde.iVis.dragging) vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
+        })
         .on('mouseup', function() { vde.iVis.dragging = null; })
         .on('mouseover', function(e, i) {
           var d = vde.iVis.dragging, m = i.mark.def.vdeMdl;

@@ -417,23 +417,26 @@ vde.Vis.Mark = (function() {
   prototype.dropzones = function(area) {
     if(area.connector) {
       return {
-        x: area.x-2*geomOffset, x2: area.x+2*geomOffset,
-        y: area.y-2*geomOffset, y2: area.y+2*geomOffset,
+        x: area.x-1.5*geomOffset, x2: area.x+1.5*geomOffset,
+        y: area.y-1.5*geomOffset, y2: area.y+1.5*geomOffset,
         connector: area.connector,
-        property: area.property
+        property: area.property,
+        layout: 'point'
       }
     } else {
       if(area[0].x == area[1].x)
         return {
           x: area[0].x-2*geomOffset, x2: area[0].x+2*geomOffset,
           y: area[0].y, y2: area[1].y,
-          property: area[0].span.split('_')[0]
+          property: area[0].span.split('_')[0],
+          layout: 'vertical'
         }
       else if(area[0].y == area[1].y)
         return {
           x: area[0].x, x2: area[1].x,
           y: area[0].y-2*geomOffset, y2: area[0].y+2*geomOffset,
-          property: area[0].span.split('_')[0]
+          property: area[0].span.split('_')[0],
+          layout: 'horizontal'
         }
     }
   };

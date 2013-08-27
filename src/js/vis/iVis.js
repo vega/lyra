@@ -142,8 +142,10 @@ vde.iVis = (function() {
                       items: item.cousin(-1).items[0].items
                     });
 
-                  if(item.property)
+                  if(item.property) {
                     d3.selectAll('#' + item.property + '.property').classed('drophover', true);
+                    ivis.tooltip(e, item, item.property);
+                  }
                 }
               break;
 
@@ -163,6 +165,7 @@ vde.iVis = (function() {
 
                   if(item.property)
                     d3.selectAll('#' + item.property + '.property').classed('drophover', false);
+                  $('.tooltip').remove();
                 }
 
                 if(!ivis.dragging) mouseup();
@@ -417,10 +420,32 @@ vde.iVis = (function() {
           x2: {field: 'data.x2'},
           y2: {field: 'data.y2'},
           property: {field: 'data.property'},
-          connector: {field: 'data.connector'}
+          connector: {field: 'data.connector'},
+          layout: {field: 'data.layout'}
         }
       }
     }
+  };
+
+  ivis.tooltip = function(evt, dropzone, property) {
+    var tooltip = $('<div class="tooltip fade in">' +
+      '<div class="tooltip-arrow"></div>' +
+      '<div class="tooltip-inner">' + property + '</div></div>');
+    $('body').append(tooltip);
+    var b = ivis.translatedBounds(dropzone, dropzone.bounds);
+
+    if(dropzone.layout == 'horizontal') {
+      coords = ivis.translatedCoords({x: b.x2, y: b.y1 + b.height()/2});
+      coords.y -= tooltip.height()/2;
+      tooltip.addClass('right');
+    } else {
+      coords = ivis.translatedCoords({x: b.x1 + b.width()/2, y: b.y1});
+      coords.x -= tooltip.width()/2;
+      coords.y -= tooltip.height();
+      tooltip.addClass('top');
+    }
+
+    tooltip.css('left', coords.x + 'px').css('top', coords.y + 'px');
   };
 
   // From vg.canvas.Renderer
@@ -430,6 +455,16 @@ vde.iVis = (function() {
       b.translate(item.x || 0, item.y || 0);
     }
     return b;
+  };
+
+  // Translate vega coordinates into global
+  ivis.translatedCoords = function(coords) {
+    var canvas = $('#ivis canvas').offset();
+
+    return {
+      x: coords.x + canvas.left + vde.Vis.properties.padding.left,
+      y: coords.y + canvas.top + vde.Vis.properties.padding.top
+    };
   };
 
   ivis.ngScope = function() {
