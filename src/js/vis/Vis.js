@@ -102,6 +102,11 @@ vde.Vis = (function() {
         })
         .on('mouseout', function() { window.clearTimeout(vde.iVis.timeout); });
 
+      d3.select('#vis canvas').on('mouseup.vis', function() {
+        if(!vde.iVis.dragging || !vde.iVis.newMark) return;
+        vde.iVis.addMark();
+      });
+
       // If the vis gets reparsed, reparse the interactive layer too to update any
       // visible handlers, etc.
       vde.iVis.parse();
