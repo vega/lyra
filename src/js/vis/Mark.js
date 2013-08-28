@@ -404,7 +404,7 @@ vde.Vis.Mark = (function() {
 
   prototype.defaults = function(prop) { return null; }
 
-  prototype.selected = function() { return null; }
+  prototype.selected = function() { return {}; }
   prototype.helper   = function(property) { return null; }
 
   prototype.propertyTargets   = function() { return null; }

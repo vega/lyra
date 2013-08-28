@@ -1,5 +1,5 @@
 <div id="properties" ng-init="types=['x', 'y']; orient=['top', 'bottom', 'left', 'right']">
-  <vde-property label="Name" type="text" item="axis" property="name" ng-model="axis.name" nodrop="1"></vde-property>
+  <vde-property label="Name" type="text" item="axis" property="title" ng-model="axis.properties.title" nodrop="1"></vde-property>
 
   <vde-property label="Type" type="radio" options="types" item="axis" property="type" ng-model="axis.properties.type" nodrop="1"></vde-property>
 
@@ -12,9 +12,19 @@
     <fieldset id="axis">
       <legend>Axis</legend>
 
-      <vde-property label="Color" type="color" item="axis" property="axisStyle.stroke" ng-model="axis.properties.axisStyle.stroke.value" nodrop="1"></vde-property>  
+      <vde-property label="Color" type="color" item="axis" property="axisStyle.stroke" ng-model="axis.properties.axisStyle.stroke.value" nodrop="1"></vde-property>
 
       <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="axis" property="axisStyle.strokeWidth" ng-model="axis.properties.axisStyle.strokeWidth.value" nodrop="1"></vde-property>
+    </fieldset>
+
+    <fieldset id="grid">
+      <legend>Grid Lines</legend>
+
+      <vde-property label="Show" type="checkbox" item="axis" property="grid" ng-model="axis.properties.grid" nodrop="1"></vde-property>
+
+      <vde-property label="Color" type="color" item="axis" property="gridStyle.stroke" ng-model="axis.properties.gridStyle.stroke.value" nodrop="1"></vde-property>
+
+      <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="axis" property="gridStyle.strokeWidth" ng-model="axis.properties.gridStyle.strokeWidth.value" nodrop="1"></vde-property>
     </fieldset>
 
     <fieldset id="ticks">
@@ -24,7 +34,7 @@
 
       <vde-property label="size" type="number" item="axis" property="tickSize" ng-model="axis.properties.tickSize" nodrop="1"></vde-property>
 
-      <vde-property label="Color" type="color" item="axis" property="tickStyle.stroke" ng-model="axis.properties.tickStyle.stroke.value" nodrop="1"></vde-property>  
+      <vde-property label="Color" type="color" item="axis" property="tickStyle.stroke" ng-model="axis.properties.tickStyle.stroke.value" nodrop="1"></vde-property>
 
       <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="axis" property="tickStyle.strokeWidth" ng-model="axis.properties.tickStyle.strokeWidth.value" nodrop="1"></vde-property>
     </fieldset>
@@ -36,9 +46,9 @@
 
       <vde-property label="angle" type="number" min="-360" max="360" item="axis" property="labelStyle.angle" ng-model="axis.properties.labelStyle.angle.value" nodrop="1"></vde-property>
 
-      <vde-property label="Fill" type="color" item="axis" property="labelStyle.fill" ng-model="axis.properties.labelStyle.fill.value" nodrop="1"></vde-property>  
-      
-    </fieldset>  
+      <vde-property label="Fill" type="color" item="axis" property="labelStyle.fill" ng-model="axis.properties.labelStyle.fill.value" nodrop="1"></vde-property>
+
+    </fieldset>
 
   </div>
 

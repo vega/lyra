@@ -17,7 +17,7 @@
 
         <ul>
           <li ng-repeat="(axisName, axis) in group.axes" ng-class="{selected:activeVisual==axis}" ng-click="toggleVisual(axis)">
-            <h5>{{axis.name|inflector:'humanize'}} <a ng-click="removeVisual('axes', axis.name);" class="remove" vde-tooltip="Delete Axis">Delete Axis</a></h5>
+            <h5>{{(axis.properties.title || axis.name)|inflector:'humanize'}} <a ng-click="removeVisual('axes', axis.name);" class="remove" vde-tooltip="Delete Axis">Delete Axis</a></h5>
 
             <ng-include src="'tmpl/inspectors/axis.html'" ng-show="activeVisual==axis"></ng-include>
           </li>

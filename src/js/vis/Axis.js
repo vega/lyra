@@ -6,14 +6,22 @@ vde.Vis.Axis = (function() {
       type: null,
       orient: null,
       scale: null,
+      title: null,
+      layer: 'back',
 
+      ticks: 10,
+      tickSize: 6,
       tickStyle: {},
+
       labelStyle: {
         fontSize: {value: 10},
         font: {value: "Helvetica"},
         angle: {value: 0}
       },
-      axisStyle: {}
+
+      axisStyle: {},
+
+      gridStyle: {}
     };
 
     this.groupName = groupName;
@@ -37,6 +45,11 @@ vde.Vis.Axis = (function() {
     var spec = {}, self = this;
     if(!this.properties.scale) return;
 
+    if(!this.properties.title) {
+      var inflector = vde.iVis.ngFilter()('inflector');
+      this.properties.title = inflector(this.properties.scale.field().name);
+    }
+
     vde.Vis.callback.run('axis.pre_spec', this, {spec: spec});
 
     vg.keys(this.properties).forEach(function(k) {
@@ -51,7 +64,8 @@ vde.Vis.Axis = (function() {
     spec.properties = {
       ticks: vg.duplicate(this.properties.tickStyle),
       labels: vg.duplicate(this.properties.labelStyle),
-      axis: vg.duplicate(this.properties.axisStyle)
+      axis: vg.duplicate(this.properties.axisStyle),
+      grid: vg.duplicate(this.properties.gridStyle)
     };
 
     vde.Vis.callback.run('axis.post_spec', this, {spec: spec});
@@ -86,6 +100,8 @@ vde.Vis.Axis = (function() {
   prototype.unbindProperty = function(prop) {
     delete this.properties[prop];
   };
+
+  prototype.selected = function() { return {}; }
 
   return axis;
 })();

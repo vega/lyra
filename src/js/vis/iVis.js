@@ -478,5 +478,9 @@ vde.iVis = (function() {
     return $('html').injector().get('logger');
   };
 
+  ivis.ngFilter = function() {
+    return $('html').injector().get('$filter');
+  }
+
   return ivis;
 })();

@@ -1,9 +1,9 @@
 vde.Vis = (function() {
   var vis = {
     properties: {
-      width: 500,
-      height: 375,
-      padding: {top:30, left:30, right:30, bottom:30}
+      width: 490,
+      height: 365,
+      padding: {top:30, left:40, right:30, bottom:40}
     },
 
     _data:   {},
