@@ -70,6 +70,8 @@ vde.Vis.Axis = (function() {
 
     vde.Vis.callback.run('axis.post_spec', this, {spec: spec});
 
+    this.properties.scale.hasAxis = true;
+
     return spec;
   };
 

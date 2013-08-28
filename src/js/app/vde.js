@@ -18,6 +18,9 @@ vde.App.directive('vdeClearBubbles', function($rootScope) {
 
       $rootScope.previewTransformIdx = null;
       $rootScope.editVis = false;
+
+      // To clear scale visualizations
+      vde.iVis.parse();
     })
   };
 });
@@ -30,5 +33,5 @@ vde.App.directive('vdeTooltip', function() {
       delay: { show: 300, hide: 150 },
       container: 'body'
     });
-  };  
+  };
 })

@@ -65,4 +65,7 @@
   border: 1px solid #999;
 }
 
-#ivis { background: transparent; }
+#ivis {
+  background: transparent;
+  border: 0;
+}

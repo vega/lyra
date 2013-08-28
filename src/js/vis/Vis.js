@@ -95,8 +95,8 @@ vde.Vis = (function() {
           if(m.type == 'group') return;
 
           vde.iVis.timeout = window.setTimeout(function() {
-            vde.iVis.activeMark = m;
-            vde.iVis.activeItem = i.vdeKey || i.key;
+            var scope = vde.iVis.ngScope();
+            scope.$apply(function() { scope.toggleVisual(m, i.vdeKey || i.key || 0); });
 
             if($(d).hasClass('mark')) m.connectionTargets();
             else m.propertyTargets();

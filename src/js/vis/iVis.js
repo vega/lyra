@@ -49,7 +49,7 @@ vde.iVis = (function() {
   // We can't keep re-parsing the iVis layer. This triggers false mouseout
   // events as a result of removing all #ivis children. So, we only reparse
   // when we reparse the Vis, and subsequently only update the datasets.
-  ivis.parse = function() {
+  ivis.parse = function(scale) {
     var spec = {
       width: vde.Vis.view._width,
       height: vde.Vis.view._height,
@@ -67,6 +67,9 @@ vde.iVis = (function() {
       range: ['magenta', 'lime']
     }];
     spec.marks = interactors.map(function(i) { return ivis[i](); });
+
+    // If we're visualizing a scale, augment our spec
+    if(scale) ivis.scale(scale, spec);
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#ivis').selectAll('*').remove();
@@ -194,7 +197,7 @@ vde.iVis = (function() {
         }
       });
 
-      ivis.show('selected');
+      if(!scale) ivis.show('selected');
     });
 
     return spec;
@@ -427,6 +430,50 @@ vde.iVis = (function() {
           layout: {field: 'data.layout'}
         }
       }
+    }
+  };
+
+  ivis.scale = function(scale, spec) {
+    var props = scale.properties, pipeline = scale.pipeline(),
+        legendTypes = ['size', 'shape', 'fill', 'stroke'];
+
+    // If this scale is already shown on the vis, we don't need to bother
+    if(scale.hasAxis) return;
+
+    // To visualize a scale, we need to pull in the source data and pipeline.
+    var raw = vg.duplicate(vde.Vis._data[pipeline.source]);
+    delete raw.url;
+    spec.data.push(raw);
+    spec.data = spec.data.concat(pipeline.spec());
+    spec.scales.push(scale.spec());
+
+    var inflector = vde.iVis.ngFilter()('inflector');
+    var title = inflector(scale.field().name);
+
+    if(legendTypes.indexOf(scale) != -1) {
+
+    } else {
+      spec.axes || (spec.axes = []);
+      spec.axes.push({
+        type: scale.axisType,
+        orient: scale.axisType == 'x' ? 'bottom' : 'left',
+        offset: -50,
+        scale: scale.name,
+        title: title,
+        layer: 'front',
+        properties: {
+          axis: {
+            stroke: {value: 'cyan'},
+            strokeWidth: {value: 2}
+          },
+          ticks: {
+            stroke: {value: 'cyan'},
+            strokeWidth: {value: 2}
+          },
+          labels: {fill: {value: 'cyan'}},
+          title: {fill: {value: 'cyan'}}
+        }
+      });
     }
   };
 

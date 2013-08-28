@@ -4,6 +4,9 @@ vde.Vis.Scale = (function() {
     this.name  = (name || pipeline.name + '_' + scaleName);
     this.displayName = displayName;
 
+    this.hasAxis  = false;  // Does this scale already have an axis/legend on the vis
+    this.axisType = 'x';    // If not, visualize it on iVis when editing
+
     this.properties = properties;
     this.properties.points || (this.properties.points = true);
 
@@ -17,6 +20,7 @@ vde.Vis.Scale = (function() {
 
   prototype.spec = function() {
     var spec = vg.duplicate(this.properties);
+    this.hasAxis = false;
 
     vde.Vis.callback.run('scale.pre_spec', this, {spec: spec});
 

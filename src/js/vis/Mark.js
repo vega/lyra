@@ -193,6 +193,7 @@ vde.Vis.Mark = (function() {
               type: field.type || 'ordinal',
               range: new vde.Vis.Field('width')
             }, 'x');
+            scale.axisType = 'x';
           break;
 
           case 'y':
@@ -202,6 +203,7 @@ vde.Vis.Mark = (function() {
               type: field.type || 'linear',
               range: new vde.Vis.Field('height')
             }, 'y');
+            scale.axisType = 'y';
           break;
 
           case 'fill':
