@@ -1,9 +1,10 @@
 vde.Vis = (function() {
   var vis = {
     properties: {
-      width: 490,
-      height: 365,
-      padding: {top:30, left:40, right:30, bottom:40}
+      width: 500,
+      height: 375,
+      _autopad: true,
+      // padding: {top:30, left:40, right:30, bottom:40}
     },
 
     _data:   {},
@@ -43,10 +44,11 @@ vde.Vis = (function() {
   };
 
   vis.parse = function(inlinedValues) {
+    var props = vis.properties;
     var spec = {
-      width: vis.properties.width,
-      height: vis.properties.height,
-      padding: vis.properties.padding,
+      width: props.width,
+      height: props.height,
+      padding: props._autopad ? 'auto' : props.padding,
       data: [],
       scales: [],
       marks: []

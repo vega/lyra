@@ -5,10 +5,10 @@ vde.Vis.marks.Rect = (function() {
     this.type = 'rect';
 
     this.properties = {
-      x: {value: 0},
+      x: {value: 25},
       width: {value: 30},
       x2: {value: 0, disabled: true},
-      y: {value: 0},
+      y: {value: 25},
       height: {value: 150},
       y2: {value: 0, disabled: true},
       fill: {value: '#4682b4'},

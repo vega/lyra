@@ -105,8 +105,8 @@ vde.Vis.marks.Line = (function() {
 
     opts.spec.data.push({
       name: 'vdeDummyData',
-      values: [{x: 0, y: (g.height.value / 2) + 50},
-        {x: (g.width.value/2) + 50, y: 0}]
+      values: [{x: 25, y: (g.height.value / 2) + 50},
+        {x: (g.width.value/2) + 50, y: 25}]
     });
   };
 

@@ -11,14 +11,17 @@
 		<fieldset>
 			<legend>Padding</legend>
 
-			<vde-property label="Left" type="number" item="vis" property="padding.left" ng-model="vis.padding.left" nodrop="1"></vde-property>
+			<vde-property label="Auto" type="checkbox" item="vis" property="_autopad" ng-model="vis._autopad" nodrop="1"></vde-property>
 
-			<vde-property label="Right" type="number" item="vis" property="padding.right" ng-model="vis.padding.right" nodrop="1"></vde-property>
+			<div ng-show="!vis._autopad">
+				<vde-property label="Left" type="number" item="vis" property="padding.left" ng-model="vis.padding.left" nodrop="1"></vde-property>
 
-			<vde-property label="Top" type="number" item="vis" property="padding.top" ng-model="vis.padding.top" nodrop="1"></vde-property>
+				<vde-property label="Right" type="number" item="vis" property="padding.right" ng-model="vis.padding.right" nodrop="1"></vde-property>
 
-			<vde-property label="Bottom" type="number" item="vis" property="padding.bottom" ng-model="vis.padding.bottom" nodrop="1"></vde-property>
+				<vde-property label="Top" type="number" item="vis" property="padding.top" ng-model="vis.padding.top" nodrop="1"></vde-property>
 
+				<vde-property label="Bottom" type="number" item="vis" property="padding.bottom" ng-model="vis.padding.bottom" nodrop="1"></vde-property>
+			</div>
 		</fieldset>
 
 	</div>

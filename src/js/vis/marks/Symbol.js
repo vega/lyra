@@ -5,8 +5,8 @@ vde.Vis.marks.Symbol = (function() {
     this.type = 'symbol';
 
     this.properties = {
-      x: {value: 0},
-      y: {value: 0},
+      x: {value: 25},
+      y: {value: 25},
 
       size: {value: 100},
       shape: {value: 'diamond'},

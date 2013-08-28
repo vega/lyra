@@ -51,9 +51,9 @@ vde.iVis = (function() {
   // when we reparse the Vis, and subsequently only update the datasets.
   ivis.parse = function() {
     var spec = {
-      width: vde.Vis.properties.width,
-      height: vde.Vis.properties.height,
-      padding: vde.Vis.properties.padding
+      width: vde.Vis.view._width,
+      height: vde.Vis.view._height,
+      padding: vde.Vis.view._padding
     };
 
     spec.data = interactors.map(function(i) { return {name: i, values: [] }});
@@ -465,8 +465,8 @@ vde.iVis = (function() {
     var canvas = $('#ivis canvas').offset();
 
     return {
-      x: coords.x + canvas.left + vde.Vis.properties.padding.left,
-      y: coords.y + canvas.top + vde.Vis.properties.padding.top
+      x: coords.x + canvas.left + vde.Vis.view._padding.left,
+      y: coords.y + canvas.top + vde.Vis.view._padding.top
     };
   };
 
