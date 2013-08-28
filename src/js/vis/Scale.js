@@ -4,6 +4,12 @@ vde.Vis.Scale = (function() {
     this.name  = (name || pipeline.name + '_' + scaleName);
     this.displayName = displayName;
 
+    this.domainTypes = {from: 'field'};  // Field or Values
+    this.rangeTypes  = {type: 'spatial', from: 'field'};
+
+    this.domainValues = [];
+    this.rangeValues  = [];
+
     this.hasAxis  = false;  // Does this scale already have an axis/legend on the vis
     this.axisType = 'x';    // If not, visualize it on iVis when editing
 
@@ -20,13 +26,17 @@ vde.Vis.Scale = (function() {
 
   prototype.spec = function() {
     var spec = vg.duplicate(this.properties);
-    this.hasAxis = false;
 
     vde.Vis.callback.run('scale.pre_spec', this, {spec: spec});
 
     spec.name = this.name;
-    spec.domain = {data: this.properties.field.pipelineName || this.pipeline().name, field: this.properties.field.spec()};
-    spec.range = (this.properties.range instanceof vde.Vis.Field) ? this.properties.range.spec() : this.properties.range;
+
+    spec.domain = (this.domainTypes.from == 'field') ?
+      { data: this.properties.field.pipelineName || this.pipeline().name,
+        field: this.properties.field.spec() } : this.domainValues;
+
+    spec.range = (this.rangeTypes.from == 'field') ?
+      this.properties.range.spec() : this.rangeValues;
 
     delete spec.pipeline;
     delete spec.field;
@@ -66,6 +76,10 @@ vde.Vis.Scale = (function() {
     if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
 
     this.properties[prop] = field;
+  };
+
+  prototype.unbindProperty = function(prop) {
+    delete this.properties[prop];
   };
 
   return scale;

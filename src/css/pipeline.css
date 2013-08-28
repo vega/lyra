@@ -171,3 +171,8 @@
   max-height: 300px;
   overflow: auto;
 }
+
+#domainType p>span {
+  float: left;
+  margin-right: 5px;
+}

@@ -26,6 +26,9 @@ vde.Vis.Pipeline = (function() {
       transform: []
     }];
 
+    // Clear scales hasAxis flag.
+    for(var s in this.scales) this.scales[s].hasAxis = false;
+
     vde.Vis.callback.run('pipeline.pre_spec', this, {spec: specs});
 
     var spec = 0;
@@ -39,7 +42,7 @@ vde.Vis.Pipeline = (function() {
           name: self.forkName,
           source: self.source,
           transform: vg.duplicate(specs[spec-1].transform || [])
-        }); 
+        });
       }
 
       var s = t.spec();
@@ -63,7 +66,7 @@ vde.Vis.Pipeline = (function() {
   };
 
   prototype.schema = function(sliceBeg, sliceEnd) {
-    var self = this, 
+    var self = this,
         fields = [], seenFields = {};
     var values = vg.duplicate(vde.Vis._data[this.source].values).map(vg.data.ingest);
 
@@ -102,7 +105,7 @@ vde.Vis.Pipeline = (function() {
   };
 
   // Given a spec, find a pre-existing scale that matches,
-  // or if none do, build a new scale. 
+  // or if none do, build a new scale.
   prototype.scale = function(spec, defaultSpec, displayName) {
     for(var scaleName in this.scales) {
       if(this.scales[scaleName].equals(spec))
@@ -134,7 +137,7 @@ vde.Vis.Pipeline = (function() {
       if(pipelineName == this.forkName) this.transforms.push(t);
       else this.transforms.splice(this.forkIdx-1, 0, t);
     }
-  };  
+  };
 
   return pipeline;
 })();

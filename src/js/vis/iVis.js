@@ -434,8 +434,7 @@ vde.iVis = (function() {
   };
 
   ivis.scale = function(scale, spec) {
-    var props = scale.properties, pipeline = scale.pipeline(),
-        legendTypes = ['size', 'shape', 'fill', 'stroke'];
+    var props = scale.properties, pipeline = scale.pipeline();
 
     // If this scale is already shown on the vis, we don't need to bother
     if(scale.hasAxis) return;
@@ -450,9 +449,7 @@ vde.iVis = (function() {
     var inflector = vde.iVis.ngFilter()('inflector');
     var title = inflector(scale.field().name);
 
-    if(legendTypes.indexOf(scale) != -1) {
-
-    } else {
+    if(scale.rangeTypes.type == 'spatial') {
       spec.axes || (spec.axes = []);
       spec.axes.push({
         type: scale.axisType,

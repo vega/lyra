@@ -7,15 +7,15 @@
   border: 1px solid #939393;
 }
 
-.inspectors li.selected { 
+.inspectors li.selected {
   background: #a4a4a4;
-  border: 1px solid #777 !important; 
+  border: 1px solid #777 !important;
   border-radius: 5px;
 }
 
-.inspectors li:hover { 
+.inspectors li:hover {
   background-color: #a4a4a4;
-  border-color: #a4a4a4; 
+  border-color: #a4a4a4;
   border-radius: 5px;
 }
 
@@ -30,25 +30,25 @@ a.add, a.remove, a.edit-vis {
   opacity: 0.4;
 }
 
-a.add { 
-  background-image: url(../imgs/add-black.png); 
+a.add {
+  background-image: url(../imgs/add-black.png);
   margin-top: -3px;
 }
 
-h2 a.add { 
-  background-image: url(../imgs/add-allwhite.png); 
+h2 a.add {
+  background-image: url(../imgs/add-allwhite.png);
   margin: 0;
 }
 
-a.remove { 
-  background-image: url(../imgs/delete-black.png); 
+a.remove {
+  background-image: url(../imgs/delete-black.png);
   visibility: hidden;
 }
 #groups h3:hover a.remove, #groups h5:hover a.remove, #pipelines h3:hover a.remove
 { visibility: visible; }
 
-a.edit-vis { 
-  background-image: url(../imgs/pencil-white.png); 
+a.edit-vis {
+  background-image: url(../imgs/pencil-white.png);
   margin-left: 15px;
 }
 a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
@@ -71,8 +71,8 @@ a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
   text-align: right;
 }
 
-.property .field { 
-  float: left; 
+.property .field {
+  float: left;
   width: 170px;
 }
 
@@ -89,8 +89,8 @@ a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
   float: left;
 }
 
-.property .field .disabled-input { 
-  background: #999; 
+.property .field .disabled-input {
+  background: #999;
   border: 2px solid #888;
 }
 
@@ -112,7 +112,7 @@ a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
 }
 
 .property:hover a.unbind { visibility: visible; }
-.property:hover a.unbind:hover { 
+.property:hover a.unbind:hover {
   opacity: 1;
 }
 
@@ -122,9 +122,9 @@ a.add:hover, a.remove:hover, a.edit-vis:hover { opacity: 1; }
   border: 1px dashed #777;
 }
 
-fieldset { 
+fieldset {
   margin: 0 0 10px 0;
-  border: 1px solid #777; 
+  border: 1px solid #777;
   border-radius: 5px;
   overflow-x: auto;
 }
@@ -136,8 +136,8 @@ legend {
   text-transform: lowercase;
 }
 
-fieldset#padding .property { 
-  float: left; 
+fieldset#padding .property {
+  float: left;
   margin-right: 15px;
 }
 
@@ -163,17 +163,17 @@ fieldset#padding .property {
   display: inline-block;
 }
 
-#properties .binding, #properties .scale, #properties .schema 
+#properties .binding, #properties .scale, #properties .schema
 { cursor: default; }
 
-.inspectors li.selected  .binding .empty { 
-  background: #a4a4a4; 
+.inspectors li.selected  .binding .empty {
+  background: #a4a4a4;
   border-color: #a4a4a4;
 }
 
-.inspector h6 { 
+.inspector h6 {
   color: #333;
-  font-weight: bold;   
+  font-weight: bold;
 }
 
 .shelf {
@@ -196,6 +196,7 @@ fieldset#padding .property {
 }
 
 .hint { margin: 10px;}
+.hint p {margin-bottom: 5px;}
 
 #binding-inspector {
   display: none;
@@ -203,15 +204,15 @@ fieldset#padding .property {
   position: absolute;
 }
 
-.text.inspector .icons a { 
+.text.inspector .icons a {
   width: 18px;
   height: 20px;
   background-position: 50% 50%;
-  opacity: 0.5; 
+  opacity: 0.5;
 }
-.text.inspector .icons a.selected, .text.inspector .icons a:hover { 
+.text.inspector .icons a.selected, .text.inspector .icons a:hover {
   background-color: #fff;
-  opacity: 1; 
+  opacity: 1;
 }
 
 .text-bold { background: url(../imgs/text_bold.png) no-repeat; }
