@@ -67,27 +67,32 @@ vde.Vis.Pipeline = (function() {
         fields = [], seenFields = {};
     var values = vg.duplicate(vde.Vis._data[this.source].values).map(vg.data.ingest);
 
-    var buildFields = function(pipeline) {
+    var buildFields = function(data, pipeline, depth) {
       var parse = vde.Vis._data[self.source].format.parse || {};
-      [(values[0] || {}).data, values[0], (values.values || [])[0]].forEach(function(v, i) {
-        vg.keys(v).forEach(function(k) {
-          if(i != 0 && ['data', 'values', 'keys'].indexOf(k) != -1) return;
-          if(seenFields[k]) return;
 
-          var field = new vde.Vis.Field(k);
-          field.raw = (i == 0);
-          field.pipelineName = pipeline;
-          if(parse[k]) field.type = (parse[k] == 'date') ? 'time' : (parse[k] == 'number') ? 'linear' : 'ordinal';
-          else field.type = vg.isNumber(v[k]) ? 'linear' : 'ordinal';
+      if(data.values) { buildFields(data.values, pipeline, ++depth); }
+      else {
+        [data[0].data, data[0]].forEach(function(v, i) {
+          vg.keys(v).forEach(function(k) {
+            if(i != 0 && ['data', 'values', 'keys'].indexOf(k) != -1) return;
+            if(k == 'key') k += '_' + depth;
+            if(seenFields[k]) return;
 
-          fields.push(field);
-          seenFields[k] = true;
+            var field = new vde.Vis.Field(k);
+            field.raw = (i == 0);
+            field.pipelineName = pipeline;
+            if(parse[k]) field.type = (parse[k] == 'date') ? 'time' : (parse[k] == 'number') ? 'linear' : 'ordinal';
+            else field.type = vg.isNumber(v[k]) ? 'linear' : 'ordinal';
+
+            fields.push(field);
+            seenFields[k] = true;
+          });
         });
-      });
+      }
     };
 
     // Build fields once before we apply any transforms
-    buildFields(this.name);
+    buildFields(values, this.name, 0);
 
     var pipelineName = this.name;
     this.transforms.slice(sliceBeg, sliceEnd).forEach(function(t) {
@@ -95,7 +100,7 @@ vde.Vis.Pipeline = (function() {
       if(t.isVisual) return;
 
       values = t.transform(values);
-      buildFields(pipelineName);
+      buildFields(values, pipelineName, 0);
     });
 
     return [fields, values];

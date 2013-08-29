@@ -89,6 +89,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
       sliceBeg: '&',
       sliceEnd: '&'
     },
+    templateUrl: 'tmpl/inspectors/datatable.html',
     controller: function($scope, $element, $attrs) {
       $scope.buildDataTable = function() {
         if(!$scope.pipeline || !$scope.pipeline.source) return;
@@ -100,24 +101,22 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
 
         var values = schema[1];
 
-        if(!vg.isArray(values) || vg.isArray(values[0].values)) { // Facet
-          values = (values.values || values).reduce(function(vals, v) {
-            return vals.concat(v.values.reduce(function(vs, vv) {
-              vg.keys(v).forEach(function(k) {
-                if(['index', 'values'].indexOf(k) != -1) return;
-                vv[k] = v[k];
-              });
-
-              return vs.concat([vv]);
-            }, []));
-          }, []);
+        function flatten(data, list, parent, depth) {
+          if (data.values) {
+            parent['key_' + depth++] = data.key;
+            for (var i=0, n=data.values.length; i<n; ++i) {
+              flatten(data.values[i], list, parent, depth);
+            }
+          } else {
+            var val = vg.duplicate(parent);
+            for(var k in data) val[k] = data[k]
+            list.push(val);
+          }
+          return list;
         }
 
-        var lastType = ($scope.pipeline.transforms[$scope.pipeline.transforms.length-1] || {}).type;
-
-        $($element).html('<table></table>');
         var oTable = $('table', $element).dataTable({
-          'aaData': values,
+          'aaData': values.values ? flatten(values, [], {}, 0) : values,
           'aoColumns': columns,
           'sScrollX': '250px',
           // 'sScrollInner': '150%',
