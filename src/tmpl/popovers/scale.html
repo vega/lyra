@@ -1,4 +1,4 @@
-<div id="binding-inspector" ng-init="types=['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile', 'quantize', 'threshold', 'utc', 'time', 'ref']; domainTypes = ['field', 'values']; rangeTypes = ['spatial', 'colors', 'shapes', 'sizes', 'other']; axisTypes=['x', 'y'];" >
+<div id="binding-inspector" ng-init="types=['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile', 'quantize', 'threshold', 'utc', 'time', 'ref']; fromTypes = ['field', 'values']; rangeTypes = ['spatial', 'colors', 'shapes', 'sizes', 'other']; axisTypes=['x', 'y'];" >
 	<div class="bubble">
 		<a class="close" vde-clear-bubbles>Close</a>
 		<div class="bubble-inner">
@@ -41,21 +41,27 @@
 	  <fieldset id="domain">
 	  	<legend>Domain</legend>
 
-		  <vde-property label="From" type="radio" options="domainTypes" property="domainTypes.from" ng-model="activeScale.domainTypes.from" nodrop="1"></vde-property>
+		  <vde-property label="From" type="radio" options="fromTypes" property="domainTypes.from" ng-model="activeScale.domainTypes.from" nodrop="1"></vde-property>
 
 	  	<div ng-show="activeScale.domainTypes.from == 'field'"><vde-property label="Field" type="field" item="activeScale" property="field" field="activeScale.properties.field"></vde-property></div>
+
+	  	<div ng-show="activeScale.domainTypes.from == 'values'">
+	  		<vde-property label="Values" transclude="1">
+	  			<vde-scale-values type="number" scale="activeScale" property="domainValues" ng-model="activeScale.domainValues"></vde-scale-values>
+	  		</vde-property>
+	  	</div>
 	  </fieldset>
 
 	  <fieldset id="range">
 	  	<legend>Range</legend>
 
-	  	<vde-property label="Type" type="select" options="rangeTypes" property="rangeTypes.type" ng-model="activeScale.rangeTypes.type" nodrop="1" transclude="1">
+	  	<vde-property label="Type" type="select" options="rangeTypes" item="activeScale" property="rangeTypes.type" ng-model="activeScale.rangeTypes.type" nodrop="1" transclude="1">
 	  		<p ng-show="activeScale.rangeTypes.type == 'spatial'">
 	  			<vde-property label="" type="radio" options="axisTypes" item="activeScale" property="axisType" ng-model="activeScale.axisType" nodrop="1"></vde-property>
 	  		</p>
 	  	</vde-property>
 
-	  	<vde-property label="From" type="radio" options="domainTypes" property="rangeTypes.from" ng-model="activeScale.rangeTypes.from" nodrop="1"></vde-property>
+	  	<vde-property label="From" type="radio" options="fromTypes" item="activeScale" property="rangeTypes.from" ng-model="activeScale.rangeTypes.from" nodrop="1"></vde-property>
 
 	  	<div ng-show="activeScale.rangeTypes.from == 'field'">
 	  		<vde-property label="Field" type="field" item="activeScale" property="range" field="activeScale.properties.range"></vde-property>
@@ -71,6 +77,32 @@
 
 			  	<br clear="all" />
 			  </div>
+	  	</div>
+
+	  	<div ng-show="activeScale.rangeTypes.from == 'values'" ng-init="shapes=['&#9724;', '&#9650;', '&#9660;', '&#11044;', '&#9830;', '&#43;'];" ng-switch on="activeScale.rangeTypes.type">
+	  		<div ng-switch-when="colors">
+	  			<vde-property label="Values" transclude="1">
+	  				<vde-scale-values type="color" scale="activeScale" property="rangeValues" ng-model="activeScale.rangeValues"></vde-scale-values>
+	  			</vde-property>
+	  		</div>
+
+	  		<div ng-switch-when="shapes">
+	  			<vde-property label="Values" transclude="1">
+	  				<vde-scale-values type="select" options="shapes" scale="activeScale" property="rangeValues" ng-model="activeScale.rangeValues"></vde-scale-values>
+	  			</vde-property>
+	  		</div>
+
+	  		<div ng-switch-when="other">
+	  			<vde-property label="Values" transclude="1">
+	  				<vde-scale-values type="text" scale="activeScale" property="rangeValues" ng-model="activeScale.rangeValues"></vde-scale-values>
+	  			</vde-property>
+	  		</div>
+
+	  		<div ng-switch-default>
+	  			<vde-property label="Values" transclude="1">
+	  				<vde-scale-values type="number" scale="activeScale" property="rangeValues" ng-model="activeScale.rangeValues"></vde-scale-values>
+	  			</vde-property>
+	  		</div>
 	  	</div>
 	  </fieldset>
 	</div></div>

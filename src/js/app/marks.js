@@ -1,6 +1,8 @@
 vde.App.controller('MarksCtrl', function($scope, $rootScope, $timeout, logger) {
   // Cardinal sin
   $scope.load = function() {
+    jQuery.migrateMute = true;
+
     if(vg.keys(vde.Vis._rawData).length == 0) {
       vde.Vis.data('medals', 'data/medals.json', 'json');
       vde.Vis.data('olympics', 'data/olympics.json', 'json');

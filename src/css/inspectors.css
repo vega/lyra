@@ -223,3 +223,14 @@ fieldset#padding .property {
 .text-top-align { background: url(../imgs/text_align_top.png) no-repeat; }
 .text-middle-align { background: url(../imgs/text_align_middle.png) no-repeat; }
 .text-bottom-align { background: url(../imgs/text_align_bottom.png) no-repeat; }
+
+.scale-values .icons input {
+  float: left;
+  margin-right: 10px;
+}
+
+.scale-values .current-values { margin-bottom: 10px;}
+.scale-values .current-values * {
+  float: left;
+  margin-right: 5px;
+}

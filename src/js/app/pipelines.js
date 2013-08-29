@@ -1,8 +1,8 @@
-vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams, logger) {
+vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
   $scope.pMdl = { // General catch-all model for scoping
     pipelines: vde.Vis.pipelines,
     dataSources: vde.Vis._data
-  }; 
+  };
 
   $scope.addPipeline = function() {
     $rootScope.activePipeline = new vde.Vis.Pipeline();
@@ -24,7 +24,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams, lo
   $scope.removePipeline = function(p) {
     delete vde.Vis.pipelines[p];
     $('.tooltip').remove();
-    
+
     logger.log('remove_pipeline', { pipelineName: p }, false, true);
   };
 
@@ -70,11 +70,11 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, $routeParams, lo
     $('.tooltip').remove();
 
     logger.log('remove_transform', { idx: i, isNewTransform: isNewTransform }, false, true);
-  }; 
+  };
 
   $scope.addScale = function() {
     var s = new vde.Vis.Scale('', $rootScope.activePipeline, {type: 'ordinal'}, 'new_scale');
-    
+
     logger.log('add_scale', { scale: s.name }, false, true);
 
     return s;
@@ -94,7 +94,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
         if(!$scope.pipeline || !$scope.pipeline.source) return;
 
         var schema  = $scope.pipeline.schema($scope.sliceBeg(), $scope.sliceEnd());
-        var columns = schema[0].reduce(function(c, f) { 
+        var columns = schema[0].reduce(function(c, f) {
           return c.concat([{ sTitle: f.name, mData: f.spec(), headerCssClass: f.raw ? 'raw' : 'derived' }]);
         }, [{ sTitle: 'col', mData: null}]);
 
@@ -106,7 +106,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
               vg.keys(v).forEach(function(k) {
                 if(['index', 'values'].indexOf(k) != -1) return;
                 vv[k] = v[k];
-              }); 
+              });
 
               return vs.concat([vv]);
             }, []));
@@ -138,7 +138,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
             var self = this,
                 thead = oSettings.nTHead,
                 tbody = oSettings.nTBody,
-                start = oSettings._iDisplayStart, 
+                start = oSettings._iDisplayStart,
                 end   = oSettings._iDisplayEnd,
                 data  = oSettings.aoData;
 
@@ -159,10 +159,10 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
             $('.even, .odd', tbody).remove();
           }
         });
-  
+
         new FixedColumns(oTable, {
           fnDrawCallback: function(left, right) {
-            var self = this, 
+            var self = this,
                 oSettings = oTable.fnSettings(),
                 table = oSettings.nTable,
                 tbody = oSettings.nTBody,
@@ -204,7 +204,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
                   return draggable.dragstart(e, dd, proxy);
                 })
                 .drag(draggable.drag)
-                .drag('end', draggable.dragend); 
+                .drag('end', draggable.dragend);
 
                 // Reset the height of its parent
                 $(this).parent().css('height', $('tr:eq(' + i + ')', tbody).css('height'));
@@ -220,21 +220,21 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
               $(this).width(self.s.iLeftWidth - 10)
                 .height($(this).parent().height() - 10)
                 .css('position', 'absolute');
-            });   
+            });
 
             var height = $(table).height() + 15;
-            $(table).parent().height(height > 250 ? 250 : height);      
+            $(table).parent().height(height > 250 ? 250 : height);
           }
         });
       };
 
-      $scope.$watch(function($scope) { 
+      $scope.$watch(function($scope) {
         return {
-          name: $scope.pipeline.name, 
+          name: $scope.pipeline.name,
           source: $scope.pipeline.source,
           transforms: $scope.pipeline.transforms.map(function(t) { return t.properties; })
-        } 
-      }, $scope.buildDataTable, true);     
+        }
+      }, $scope.buildDataTable, true);
     }
   };
 });
