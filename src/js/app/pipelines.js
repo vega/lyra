@@ -89,7 +89,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
       sliceBeg: '&',
       sliceEnd: '&'
     },
-    templateUrl: 'tmpl/inspectors/datatable.html',
+    templateUrl: 'tmpl/inspectors/datasheet.html',
     controller: function($scope, $element, $attrs) {
       $scope.buildDataTable = function() {
         if(!$scope.pipeline || !$scope.pipeline.source) return;
@@ -100,10 +100,24 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
         }, [{ sTitle: 'col', mData: null}]);
 
         var values = schema[1];
+        var facets = ($scope.facets = []), facetedColumns = [];
+        $scope.currentFacets = {};
 
         function flatten(data, list, parent, depth) {
           if (data.values) {
+            facets[depth] || (facets[depth] = {keys:[]});
+            if(data.key) {
+              facets[depth].keys.push(data.key);
+
+              columns.some(function(c, i) {
+                if(c.sTitle == 'key_' + depth) {
+                  facets[depth].colIdx = i;
+                  return true;
+                }
+              });
+            }
             parent['key_' + depth++] = data.key;
+
             for (var i=0, n=data.values.length; i<n; ++i) {
               flatten(data.values[i], list, parent, depth);
             }
@@ -115,7 +129,9 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
           return list;
         }
 
-        var oTable = $('table', $element).dataTable({
+        // WARNING: leaking oTable. How do
+        $('.table', $element).html('<table id="datatable"></table>');
+        var oTable = $('#datatable', $element).dataTable({
           'aaData': values.values ? flatten(values, [], {}, 0) : values,
           'aoColumns': columns,
           'sScrollX': '250px',
@@ -131,7 +147,8 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
           'bDestroy': true,
           'oLanguage': {
             'sInfo': '_START_&ndash;_END_ of _TOTAL_',
-            'oPaginate': {'sPrevious': '', 'sNext': ''}
+            'oPaginate': {'sPrevious': '', 'sNext': ''},
+            'sInfoFiltered': '(from _MAX_)'
           },
           fnDrawCallback: function(oSettings) {
             var self = this,
@@ -141,14 +158,25 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
                 end   = oSettings._iDisplayEnd,
                 data  = oSettings.aoData;
 
+            if(facetedColumns.length == 0) {
+              facets.forEach(function(f) {
+                if(f.colIdx) {
+                  facetedColumns.push(f.colIdx);
+                  $scope.filter(f.colIdx, f.keys[0]);
+                }
+              });
+            }
+
             ///
             // First, transpose the data
             ///
             for(var i = 0; i < columns.length - 1; i++) {
               var colData = [], nTr = $('<tr></tr>');
+              if(facetedColumns.indexOf(i+1) != -1) continue;
 
               for(var j = start; j < end; j++) {
-                var d = data[j];
+                // Use aiDisplay to make sure we get the correct column idices (e.g. on filter)
+                var d = data[oSettings.aiDisplay[j]];
                 nTr.append('<td>' + $('td:eq(' + i + ')', d.nTr).text() + '</td>');
               }
 
@@ -172,6 +200,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
 
             // Ensure that there are as many header rows as there are columns
             var rowHeaders = $('tbody tr td', lbody).length;
+
             if(rowHeaders < columns.length) {
               for(var i = rowHeaders+1; i < columns.length; i++) {
                 var td = $('<td></td>')
@@ -184,6 +213,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
             if(rowHeaders > columns.length)
               $('tbody tr:gt(' + (columns.length-2) + ')', lbody).remove()
 
+            facetedColumns.forEach(function(c) { $('tbody tr:eq(' + (c-1) + ')', lbody).remove() });
             // Now, make them draggable
             $('tbody tr td', lbody).each(function(i) {
               var c = columns[i+1];
@@ -225,6 +255,12 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
             $(table).parent().height(height > 250 ? 250 : height);
           }
         });
+      };
+
+      $scope.filter = function(column, value) {
+        var oTable = $('#datatable').dataTable();
+        oTable.fnFilter(value, column);
+        $scope.currentFacets[column] = value;
       };
 
       $scope.$watch(function($scope) {

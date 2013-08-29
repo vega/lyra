@@ -19,10 +19,10 @@
       </li>
     </ul>
 
-    <div class="datatable" ng-if="pipeline.source" vde-data-grid pipeline="pipeline"></div>
+    <div class="datatable" id="datasheet" ng-if="pipeline.source" vde-data-grid pipeline="pipeline"></div>
 
     <ul>
-      <li ng-repeat="transform in newTransforms" class="transform-{{transform.type|lowercase}} icon" ng-init="isNewTransform = 1"> 
+      <li ng-repeat="transform in newTransforms" class="transform-{{transform.type|lowercase}} icon" ng-init="isNewTransform = 1">
         <ng-include src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></ng-include>
 
         <input type="button" value="Cancel" ng-click="removeTransform($index, isNewTransform)" />
