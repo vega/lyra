@@ -26,9 +26,6 @@ vde.Vis.Pipeline = (function() {
       transform: []
     }];
 
-    // Clear scales hasAxis flag.
-    for(var s in this.scales) this.scales[s].hasAxis = false;
-
     vde.Vis.callback.run('pipeline.pre_spec', this, {spec: specs});
 
     var spec = 0;

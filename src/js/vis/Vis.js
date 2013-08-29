@@ -66,7 +66,12 @@ vde.Vis = (function() {
     };
 
     // Scales are defined within groups. No global scales.
-    for(var p in vis.pipelines) spec.data = spec.data.concat(vis.pipelines[p].spec());
+    for(var p in vis.pipelines) {
+      var pl = vis.pipelines[p];
+      // Clear scales hasAxis flag.
+      for(var s in pl.scales) pl.scales[s].hasAxis = false;
+      spec.data = spec.data.concat(pl.spec());
+    }
 
     for(var g in vis.groups) spec.marks.push(vis.groups[g].spec());
 

@@ -114,7 +114,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
         $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
 
         // Visualize scale
-        vde.iVis.parse($scope.scale);
+        vde.iVis.parse($rootScope.activeScale);
 
         $timeout(function() {
           var winHeight = $(window).height(), winWidth = $(window).width(),
