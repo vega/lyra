@@ -1,36 +1,54 @@
-<div class="inspector" ng-init="interpolation=['linear', 'step-before', 'step-after', 'basis', 'basis-open', 'cardinal', 'cardinal-open', 'monotone']; types=['points', 'path']">
+<div class="inspector" ng-init="interpolation=['linear', 'step-before', 'step-after', 'basis', 'basis-open', 'cardinal', 'cardinal-open', 'monotone']; types=['rule', 'points', 'path']">
 
   <vde-property label="Type" type="select" options="types" item="mark" property="propType" ng-model="mark.propType" nodrop="1"></vde-property>
-    
+
   <fieldset id="points" ng-if="mark.propType == 'points'">
     <legend>Points</legend>
 
-    <vde-property label="X" type="field" item="mark" property="x" ng-model="mark.properties.x.value" scale="mark.properties.x.scale" field="mark.properties.x.field"></vde-property>
+    <vde-property label="y" type="field" item="mark" property="x" ng-model="mark.properties.x.value" scale="mark.properties.x.scale" field="mark.properties.x.field"></vde-property>
 
     <vde-property label="Y" type="field" item="mark" property="y" ng-model="mark.properties.y.value" scale="mark.properties.y.scale" field="mark.properties.y.field"></vde-property>
 
-    <vde-property label="Interpolate" type="select" options="interpolation" item="mark" property="interpolate" ng-model="mark.properties.interpolate.value" scale="mark.properties.interpolate.scale" field="mark.properties.interpolate.field"></vde-property> 
- 
-    <vde-property label="Tension" type="number" item="mark" property="tension" ng-model="mark.properties.tension.value" scale="mark.properties.tension.scale" field="mark.properties.tension.field"></vde-property> 
+    <vde-property label="Interpolate" type="select" options="interpolation" item="mark" property="interpolate" ng-model="mark.properties.interpolate.value" scale="mark.properties.interpolate.scale" field="mark.properties.interpolate.field"></vde-property>
 
-  </fieldset>  
+    <vde-property label="Tension" type="number" item="mark" property="tension" ng-model="mark.properties.tension.value" scale="mark.properties.tension.scale" field="mark.properties.tension.field"></vde-property>
 
-  <vde-property ng-if="mark.propType == 'path'" label="Path" type="field" item="mark" property="path" ng-model="mark.properties.path.value" field="mark.properties.path.field"></vde-property> 
+  </fieldset>
+
+  <fieldset id="points" ng-if="mark.propType == 'rule'">
+    <legend>X</legend>
+
+    <vde-property label="Start" type="number" item="mark" property="x" ng-model="mark.properties.x.value" scale="mark.properties.x.scale" field="mark.properties.x.field"></vde-property>
+
+    <vde-property label="End" type="number" item="mark" property="x2" ng-model="mark.properties.x2.value" scale="mark.properties.x2.scale" field="mark.properties.x2.field"></vde-property>
+
+  </fieldset>
+
+  <fieldset id="points" ng-if="mark.propType == 'rule'">
+    <legend>Y</legend>
+
+    <vde-property label="Start" type="number" item="mark" property="y" ng-model="mark.properties.y.value" scale="mark.properties.y.scale" field="mark.properties.y.field"></vde-property>
+
+    <vde-property label="End" type="number" item="mark" property="y2" ng-model="mark.properties.y2.value" scale="mark.properties.y2.scale" field="mark.properties.y2.field"></vde-property>
+
+  </fieldset>
+
+  <vde-property ng-if="mark.propType == 'path'" label="Path" type="field" item="mark" property="path" ng-model="mark.properties.path.value" field="mark.properties.path.field"></vde-property>
 
   <fieldset id="fill" ng-if="mark.propType == 'path'">
     <legend>Fill</legend>
 
-    <vde-property label="Color" type="color" item="mark" property="fill" ng-model="mark.properties.fill.value" scale="mark.properties.fill.scale" field="mark.properties.fill.field"></vde-property>  
+    <vde-property label="Color" type="color" item="mark" property="fill" ng-model="mark.properties.fill.value" scale="mark.properties.fill.scale" field="mark.properties.fill.field"></vde-property>
 
-    <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" item="mark" property="fillOpacity" ng-model="mark.properties.fillOpacity.value" scale="mark.properties.fillOpacity.scale" field="mark.properties.fillOpacity.field"></vde-property> 
-  </fieldset>    
+    <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" item="mark" property="fillOpacity" ng-model="mark.properties.fillOpacity.value" scale="mark.properties.fillOpacity.scale" field="mark.properties.fillOpacity.field"></vde-property>
+  </fieldset>
 
   <fieldset id="stroke">
     <legend>Stroke</legend>
 
-    <vde-property label="Color" type="color" item="mark" property="stroke" ng-model="mark.properties.stroke.value" scale="mark.properties.stroke.scale" field="mark.properties.stroke.field"></vde-property>  
+    <vde-property label="Color" type="color" item="mark" property="stroke" ng-model="mark.properties.stroke.value" scale="mark.properties.stroke.scale" field="mark.properties.stroke.field"></vde-property>
 
-    <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="mark" property="strokeWidth" ng-model="mark.properties.strokeWidth.value" scale="mark.properties.strokeWidth.scale" field="mark.properties.strokeWidth.field"></vde-property> 
-  </fieldset>  
+    <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="mark" property="strokeWidth" ng-model="mark.properties.strokeWidth.value" scale="mark.properties.strokeWidth.scale" field="mark.properties.strokeWidth.field"></vde-property>
+  </fieldset>
 
 </div>

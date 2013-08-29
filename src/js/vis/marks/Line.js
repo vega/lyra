@@ -2,12 +2,14 @@ vde.Vis.marks.Line = (function() {
   var line = function(name, groupName) {
     vde.Vis.Mark.call(this, name, groupName);
 
-    this.type = 'line';
-    this.propType = 'points';
+    this.type = 'rule';
+    this.propType = 'rule';
 
     this.properties = {
       x: {value: 0},
+      x2: {value: 200},
       y: {value: 0},
+      y2: {value: 200},
 
       interpolate: {value: 'monotone'},
       tension: {value: 0},
@@ -30,15 +32,18 @@ vde.Vis.marks.Line = (function() {
   prototype.spec = function() {
     var propsForType = {
       points: ['x', 'y', 'interpolate', 'tension', 'stroke', 'strokeWidth'],
-      path: ['path', 'fill', 'fillOpacity', 'stroke', 'strokeWidth']
+      path: ['path', 'fill', 'fillOpacity', 'stroke', 'strokeWidth'],
+      rule: ['x', 'x2', 'y', 'y2', 'stroke', 'strokeWidth']
     };
+
+    this.type = this.propType == 'points' ? 'line' : this.propType;
 
     for(var p in this.properties) {
       if(propsForType[this.propType].indexOf(p) == -1)
         delete this.properties[p];
     }
 
-    this.dummySpec();
+    // this.dummySpec();
 
     return vde.Vis.Mark.prototype.spec.call(this);
   };
@@ -56,10 +61,36 @@ vde.Vis.marks.Line = (function() {
   };
 
   prototype.selected = function() {
-    var self = this, item = this.item(vde.iVis.activeItem);
+    var self = this, item = this.item(vde.iVis.activeItem),
+        props = this.properties;
     // var points = this.items().map(function(i) { return self.connectors['point'].coords(i, {disabled: 1}) });
 
-    return {interactors: {handle: [this.connectors.point.coords(item, {disabled: 1})]}};
+    var mousemove = function() {
+      var dragging = vde.iVis.dragging, evt = d3.event;
+      if(!dragging || !dragging.prev) return;
+      if(vde.iVis.activeMark != self) return;
+
+      var dx = Math.ceil(evt.pageX - dragging.prev[0]),
+          dy = Math.ceil(evt.pageY - dragging.prev[1]),
+          data = dragging.item.datum.data;
+
+      if(!data || data.disabled) return;
+
+      vde.iVis.ngScope().$apply(function() {
+        props.x.value += dx;
+        props.y.value += dy;
+        self.update(['x', 'y']);
+      });
+    }
+
+    var enabled = (this.type == 'rule' && !props.x.field && !props.y.field)
+
+    return {
+      interactors: {
+        handle: [this.connectors.point.coords(item, {disabled: !enabled})]
+      },
+      evtHandlers: {mousemove: mousemove}
+    };
   };
 
   prototype.helper = function(property) {

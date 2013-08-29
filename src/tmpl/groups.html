@@ -26,11 +26,11 @@
         <h4>Marks</h4>
 
         <ul>
-          <li ng-repeat="(markName, mark) in group.marks" ng-class="{selected:activeVisual==mark}" ng-click="toggleVisual(mark)">
+          <li ng-repeat="(markName, mark) in group.marks" ng-class="{selected:activeVisual==mark}" ng-click="toggleVisual(mark); gMdl.activeVisualPipeline = mark.pipelineName || ''">
 
             <h5>{{mark.displayName|inflector:'humanize'}} <a ng-click="removeVisual('marks', mark.name);" class="remove" vde-tooltip="Delete Mark">Delete Mark</a></h5>
 
-            <div ng-show="activeVisual==mark" ng-click="gMdl.activeVisualPipeline = activeVisual.pipeline().name || ''">
+            <div ng-show="activeVisual==mark">
               <vde-property label="Name" type="text" item="activeVisual" ng-model="activeVisual.displayName" nodrop="1"></vde-property>
 
               <p ng-hide="!mark.connectedTo.host" class="anchor icons"><a ng-click="mark.disconnect()" class="connected">Disconnected</a> Anchored to <code>{{mark.connectedTo.host.displayName|inflector:'humanize'}}</code></p>
