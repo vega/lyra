@@ -57,10 +57,19 @@
   background-position: 50% 50%;
 }
 
-#vis, #ivis {
+#canvas {
   position: absolute;
   left: 315px;
+  right: 315px;
   top: 40px;
+  bottom: 40px;
+  overflow: auto;
+}
+
+#vis, #ivis {
+  position: absolute;
+  left: 0;
+  top: 0;
   background: #fff;
   border: 1px solid #999;
 }
