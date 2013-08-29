@@ -237,7 +237,7 @@ vde.iVis = (function() {
         field: field
       }, true, true);
 
-      rootScope.$apply(function() { rootScope.toggleVisual(visual); });
+      if(visual.groupName) rootScope.$apply(function() { rootScope.toggleVisual(visual); });
     }, 1);
 
     window.clearTimeout(vde.iVis.timeout);
