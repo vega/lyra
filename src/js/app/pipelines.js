@@ -167,9 +167,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
               });
             }
 
-            ///
-            // First, transpose the data
-            ///
+            // Transpose data
             for(var i = 0; i < columns.length - 1; i++) {
               var colData = [], nTr = $('<tr></tr>');
               if(facetedColumns.indexOf(i+1) != -1) continue;
@@ -177,7 +175,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
               for(var j = start; j < end; j++) {
                 // Use aiDisplay to make sure we get the correct column idices (e.g. on filter)
                 var d = data[oSettings.aiDisplay[j]];
-                nTr.append('<td>' + $('td:eq(' + i + ')', d.nTr).text() + '</td>');
+                if(d) nTr.append('<td>' + $('td:eq(' + i + ')', d.nTr).text() + '</td>');
               }
 
               $(tbody).append(nTr);
