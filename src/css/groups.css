@@ -73,8 +73,10 @@
 #groups .pipeline li, #groups .pipeline li:hover {
   border: 0;
   background-color: transparent;
-  margin: 0;
+  margin: 10px 0 0 0;
 }
+
+#groups .pipeline li.icon span.header { padding-left: 10px; }
 
 #groups .pipeline .property .field { width: 135px !important;}
 

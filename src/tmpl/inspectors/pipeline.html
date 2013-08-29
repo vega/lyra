@@ -1,15 +1,15 @@
 <div class="inspector" ng-controller="PipelineCtrl">
     <ul>
-      <li class="pipeline-name icon">Pipeline name
-        <input type="text" ng-model="pipeline.displayName" />
+      <li class="pipeline-name icon"><span class="header">Pipeline name
+        <input type="text" ng-model="pipeline.displayName" /></span>
       </li>
 
-      <li class="import-data icon">Import data from
+      <li class="import-data icon"><span class="header">Import data from
         <select ng-model="pMdl.activePipelineSource" ng-change="setSource()" vde-pos-new-data="1">
           <option value="">Select...</option>
           <option ng-repeat="(srcName, src) in pMdl.dataSources" value="{{srcName}}" ng-selected="pMdl.activePipelineSource==srcName||pipeline.source==srcName">{{srcName}}</option>
           <option value="vdeNewData">New Data Source</option>
-        </select>
+        </select></span>
       </li>
 
       <li ng-repeat="transform in pipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-show="!transform.isVisual" ng-animate="{enter: 'yellowfade-show'}">

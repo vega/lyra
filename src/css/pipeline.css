@@ -33,7 +33,8 @@
   border-bottom: 1px solid #888;
 }
 
-.pipeline li.icon { padding-left: 25px; }
+/*.pipeline li.icon { padding-left: 25px; }*/
+li.icon span.header { padding-left: 25px; }
 .pipeline-name { background: url(../imgs/pipeline.png) no-repeat;}
 .add-data { background: url(../imgs/table_add.png) no-repeat; }
 .import-data { background: url(../imgs/table_import.png) no-repeat; }
@@ -47,6 +48,7 @@
   background-size: 16px;
 }
 .transform-wordcloud { background: url(../imgs/tag_cloud.png) no-repeat; }
+.transform-geo { background: url(../imgs/geo.png) no-repeat; }
 
 .pipeline .datatable {
   width: 100%;

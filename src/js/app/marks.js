@@ -10,6 +10,7 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope, $timeout, logger) {
       vde.Vis.data('barley', 'data/barley.json', 'json');
       vde.Vis.data('iris', 'data/iris.json', 'json');
       vde.Vis.data('jobs', 'data/jobs.json', 'json');
+      vde.Vis.data('cities', 'data/cities.json', 'json');
       vde.Vis.data('stocks', 'data/stocks.csv', {"type": "csv", "parse": {"price":"number", "date":"date"}});
     }
 
