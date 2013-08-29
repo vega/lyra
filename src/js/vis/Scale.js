@@ -15,6 +15,7 @@ vde.Vis.Scale = (function() {
 
     this.properties = properties;
     this.properties.points || (this.properties.points = true);
+    this.properties.nice || (this.properties.nice = true);
 
     this.pipelineName = pipeline.name;
     pipeline.scales[this.name] = this;
@@ -26,6 +27,7 @@ vde.Vis.Scale = (function() {
 
   prototype.spec = function() {
     var spec = vg.duplicate(this.properties);
+    if(!this.pipeline()) return;
 
     vde.Vis.callback.run('scale.pre_spec', this, {spec: spec});
 

@@ -435,6 +435,7 @@ vde.iVis = (function() {
 
   ivis.scale = function(scale, spec) {
     var props = scale.properties, pipeline = scale.pipeline();
+    if(!pipeline || !pipeline.source) return;
 
     // If this scale is already shown on the vis, we don't need to bother
     if(scale.hasAxis) return;

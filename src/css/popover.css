@@ -9,6 +9,12 @@
     width: 100%;
 }
 
+.bubble-inner {
+  width: 100%;
+  max-height: 500px;
+  overflow: auto;
+}
+
 .bubble h5 {
   margin: 10px 0;
   font-size: 13px;

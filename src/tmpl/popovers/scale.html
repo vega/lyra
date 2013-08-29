@@ -1,12 +1,42 @@
 <div id="binding-inspector" ng-init="types=['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile', 'quantize', 'threshold', 'utc', 'time', 'ref']; domainTypes = ['field', 'values']; rangeTypes = ['spatial', 'colors', 'shapes', 'sizes', 'other']; axisTypes=['x', 'y'];" >
 	<div class="bubble">
 		<a class="close" vde-clear-bubbles>Close</a>
+		<div class="bubble-inner">
 
 		<h5>Scale Definition</h5>
 
 	  <vde-property label="Name" type="text" item="activeScale" property="name" ng-model="activeScale.displayName" nodrop="1"></vde-property>
 
-	  <vde-property label="Type" type="select" options="types" item="activeScale" property="type" ng-model="activeScale.properties.type" nodrop="1"></vde-property>
+	  <fieldset id="type">
+	  	<legend>Type</legend>
+
+	  	<vde-property label="Type" type="select" options="types" item="activeScale" property="type" ng-model="activeScale.properties.type" nodrop="1"></vde-property>
+
+	  	<div ng-show="activeScale.properties.type == 'ordinal'">
+	  		<vde-property label="Uniform" type="checkbox" item="activeScale" property="points" ng-model="activeScale.properties.points"></vde-property>
+
+	  		<vde-property label="Padding" type="range" min="0" max="1" step="0.05" item="activeScale" property="padding" ng-model="activeScale.properties.padding"></vde-property>
+	  	</div>
+
+	  	<div ng-show="activeScale.properties.type == 'time'" ng-init="nice = ['', 'second', 'minute', 'hour', 'day', 'week', 'month', 'year']">
+	  		<vde-property label="Clamp" type="checkbox" item="activeScale" property="clamp" ng-model="activeScale.properties.clamp"></vde-property>
+
+	  		<vde-property label="Nice" type="select" options="nice" item="activeScale" property="nice" ng-model="activeScale.properties.nice"></vde-property>
+	  	</div>
+
+			<div ng-show="['ordinal', 'time', 'utc', 'ref'].indexOf(activeScale.properties.type) == -1">
+				<div ng-show="activeScale.properties.type == 'pow'"><vde-property label="Exponent" type="number" item="activeScale" property="exponent" ng-model="activeScale.properties.exponent"></vde-property></div>
+
+				<vde-property transclude="1">
+		  		<p><label><input type="checkbox" ng-model="activeScale.properties.clamp" onchange="window.setTimeout(function() { vde.Vis.parse()}, 1)" /> Clamp</label>
+
+		  		<label><input type="checkbox" ng-model="activeScale.properties.nice" onchange="window.setTimeout(function() { vde.Vis.parse()}, 1)" /> Nice</label>
+
+		  		<label><input type="checkbox" ng-model="activeScale.properties.zero" onchange="window.setTimeout(function() { vde.Vis.parse()}, 1)" /> Zero</label></p>
+		  	</vde-property>
+	  	</div>
+
+	  </fieldset>
 
 	  <fieldset id="domain">
 	  	<legend>Domain</legend>
@@ -43,7 +73,5 @@
 			  </div>
 	  	</div>
 	  </fieldset>
-
-	  <vde-property ng-if="activeScale.properties.type == 'ordinal'" label="Points" type="checkbox" item="activeScale" property="points" ng-model="activeScale.properties.points"></vde-property>
-	</div>
+	</div></div>
 </div>
