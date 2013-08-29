@@ -1,11 +1,11 @@
 vde.Vis.Transform = (function() {
-  var transform = function(type, input, output) {
+  var transform = function(pipelineName, type, input, output) {
     this.type = type;
 
     this.input = input;
     this.output = output;
 
-    this.pipelineName = null;
+    this.pipelineName = pipelineName;
     this.forkPipeline = false;  // Structural transforms cause a fork
     this.requiresFork = false;
 

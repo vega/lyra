@@ -1,6 +1,6 @@
 vde.Vis.transforms.Formula = (function() {
-  var formula = function() { 
-    vde.Vis.Transform.call(this, 'formula', ['expr', 'field']);
+  var formula = function(pipelineName) {
+    vde.Vis.Transform.call(this, pipelineName, 'formula', ['expr', 'field']);
     return this;
   }
 

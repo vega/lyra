@@ -1,6 +1,6 @@
 vde.Vis.transforms.Geo = (function() {
-  var geo = function() {
-    vde.Vis.Transform.call(this, 'geo', ['lat', 'lon', 'projection', 'center', 'translate', 'scale', 'rotate', 'precision', 'clipAngle']);
+  var geo = function(pipelineName) {
+    vde.Vis.Transform.call(this, pipelineName, 'geo', ['lat', 'lon', 'projection', 'center', 'translate', 'scale', 'rotate', 'precision', 'clipAngle']);
 
     this.isVisual = true;
     this.geoType  = 'Latitude/Longitude';
@@ -18,7 +18,11 @@ vde.Vis.transforms.Geo = (function() {
       clipAngle: 0
     };
 
-    console.log(this.pipelineName);
+    this.output = {
+      x: new vde.Vis.Field('x', false, 'geo', pipelineName),
+      y: new vde.Vis.Field('y', false, 'geo', pipelineName),
+      path: new vde.Vis.Field('path', false, 'geo', pipelineName),
+    };
 
     return this;
   }
@@ -27,10 +31,11 @@ vde.Vis.transforms.Geo = (function() {
   var prototype = geo.prototype;
 
   prototype.spec = function() {
-    var spec = vde.Vis.Transform.prototype.spec.call(this);
+    var spec = vde.Vis.Transform.prototype.spec.call(this),
+        props = this.properties;
     spec.type = (this.geoType == 'GeoJSON') ? 'geopath' : 'geo';
 
-    return spec;
+    return (props.value || (props.lat && props.lon)) ? spec : null;
   };
 
   return geo;

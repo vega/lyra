@@ -1,6 +1,6 @@
 vde.Vis.transforms.Stack = (function() {
-  var stack = function() { 
-    vde.Vis.Transform.call(this, 'stack', ['point', 'height']);
+  var stack = function(pipelineName) {
+    vde.Vis.Transform.call(this, pipelineName, 'stack', ['point', 'height']);
 
     vde.Vis.callback.register('vis.post_spec', this, this.visPostSpec);
 
@@ -26,7 +26,7 @@ vde.Vis.transforms.Stack = (function() {
     this.scale = this.pipeline().scale({
       field: new vde.Vis.Field('sum', false, 'linear', this.pipeline().name + '_stack')
     }, {
-      type: 'linear', 
+      type: 'linear',
       range: new vde.Vis.Field('height')
     }, 'stacks');
 

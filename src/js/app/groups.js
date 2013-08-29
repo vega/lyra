@@ -93,8 +93,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
   };
 
   $scope.newTransform = function(type) {
-    var t = new vde.Vis.transforms[type];
-    t.pipelineName = $rootScope.activeVisual.pipelineName;
+    var t = new vde.Vis.transforms[type]($rootScope.activeVisual.pipelineName);
     $rootScope.activeVisual.pipeline().transforms.push(t);
   };
 
