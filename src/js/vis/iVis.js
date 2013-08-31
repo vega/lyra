@@ -2,7 +2,11 @@ vde.iVis = (function() {
   var ivis = {
     view: null,
     dragging: null,
-    timeout: null,
+
+    timeout: 750,
+    markTimeout: null,
+    dropzoneTimeout: null,
+
     _data: {}, _marks: [], _evtHandlers: {},
     newMark: null,
     activeMark: null,

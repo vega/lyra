@@ -243,14 +243,14 @@ vde.Vis.marks.Rect = (function() {
     var mouseover = function(e, item) {
       if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
       if(item.connector)  // For points, switch propertyTargets after a timeout.
-        vde.iVis.timeout = window.setTimeout(function() {
+        vde.iVis.dropzoneTimeout = window.setTimeout(function() {
           self.propertyTargets((item.connector == connector) ? '' : item.connector);
-        }, 750);
+        }, vde.iVis.timeout);
     };
 
     var clearTimeout = function(e, item) {
       if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
-      window.clearTimeout(vde.iVis.timeout);
+      window.clearTimeout(vde.iVis.dropzoneTimeout);
     };
 
     vde.iVis.interactor('point', connectors)

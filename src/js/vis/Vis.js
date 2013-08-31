@@ -97,17 +97,18 @@ vde.Vis = (function() {
         .on('mouseover', function(e, i) {
           var d = vde.iVis.dragging, m = i.mark.def.vdeMdl;
           if(!d || !$(d).html() || !m) return;
+          if(m == vde.iVis.activeMark && vde.iVis.activeItem == i.vdeKey) return;
           if(m.type == 'group') return;
 
-          vde.iVis.timeout = window.setTimeout(function() {
+          vde.iVis.markTimeout = window.setTimeout(function() {
             var scope = vde.iVis.ngScope();
             scope.$apply(function() { scope.toggleVisual(m, i.vdeKey || i.key || 0); });
 
             if($(d).hasClass('mark')) m.connectionTargets();
             else m.propertyTargets();
-          }, 750);
+          }, vde.iVis.timeout);
         })
-        .on('mouseout', function() { window.clearTimeout(vde.iVis.timeout); });
+        .on('mouseout', function() { window.clearTimeout(vde.iVis.markTimeout); });
 
       d3.select('#vis canvas').on('mouseup.vis', function() {
         if(!vde.iVis.dragging || !vde.iVis.newMark) return;
