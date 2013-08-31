@@ -2,8 +2,8 @@ vde.Vis.marks.Line = (function() {
   var line = function(name, groupName) {
     vde.Vis.Mark.call(this, name, groupName);
 
-    this.type = 'rule';
-    this.propType = 'rule';
+    this.type = 'points';
+    this.propType = 'points';
 
     this.properties = {
       x: {value: 0},
@@ -43,7 +43,7 @@ vde.Vis.marks.Line = (function() {
         delete this.properties[p];
     }
 
-    // this.dummySpec();
+    if(this.type == 'line') this.dummySpec();
 
     return vde.Vis.Mark.prototype.spec.call(this);
   };
@@ -57,6 +57,8 @@ vde.Vis.marks.Line = (function() {
           field: new vde.Vis.Field('index', false, 'linear', this.pipelineName),
           pipelineName: this.pipelineName
         }, true);
+
+      props[otherProp].default = true;
     }
   };
 
