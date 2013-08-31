@@ -1,10 +1,8 @@
 vde.Vis.marks.Line = (function() {
   var line = function(name, groupName) {
-    if(!this.name)
-      this.name = 'line_' + (vg.keys(this.group().marks).length+1);
     vde.Vis.Mark.call(this, name, groupName);
 
-    this.type = 'points';
+    this.type = 'line';
     this.propType = 'points';
 
     this.properties = {

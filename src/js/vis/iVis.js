@@ -430,7 +430,7 @@ vde.iVis = (function() {
       from: {data: 'dropzone'},
       properties: {
         enter: {
-          fillOpacity: {value: 0},
+          fillOpacity: {value: 0.1},
           // stroke: {value: 'black'},
           // strokeDash: {value: [0.3, 1]}
         },
@@ -439,9 +439,13 @@ vde.iVis = (function() {
           y: {field: 'data.y'},
           x2: {field: 'data.x2'},
           y2: {field: 'data.y2'},
+          fill: {value: 'cyan'},
           property: {field: 'data.property'},
           connector: {field: 'data.connector'},
           layout: {field: 'data.layout'}
+        },
+        hover: {
+          fill: {value: 'lightsalmon'}
         }
       }
     }
