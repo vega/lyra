@@ -30,7 +30,7 @@ vde.App.directive('vdeTooltip', function() {
     element.tooltip({
       title: attrs.vdeTooltip,
       placement: 'bottom',
-      delay: { show: 300, hide: 150 },
+      // delay: { show: 300, hide: 150 },
       container: 'body'
     });
   };

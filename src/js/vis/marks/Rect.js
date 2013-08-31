@@ -79,7 +79,8 @@ vde.Vis.marks.Rect = (function() {
 
     props[defaultProp] = {
       scale: props[prop].scale,
-      field: props[prop].field
+      field: props[prop].field,
+      default: true
     };
 
     if(props[prop].scale.type() == 'ordinal') {
@@ -88,7 +89,8 @@ vde.Vis.marks.Rect = (function() {
     } else {
       props[defaultProp+'2'] = {
         scale: props[prop].scale,
-        value: 0
+        value: 0,
+        default: true
       };
 
       this.unbindProperty(prop);

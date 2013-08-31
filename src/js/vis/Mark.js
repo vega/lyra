@@ -170,21 +170,21 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.bindProperty = function(prop, opts, defaults) {
-    this.properties[prop] || (this.properties[prop] = {});
+    var p = this.properties[prop] || (p = {});
     var scale, field;
 
     if(opts.scaleName) {
       scale = this.pipeline().scales[opts.scaleName];
       this.group().scales[opts.scaleName] = scale;
-      this.properties[prop].scale = scale;
+      p.scale = scale;
     } else {
-      scale = this.properties[prop].scale;
+      scale = p.scale;
     }
 
     if(opts.field) {
       field = opts.field;
       if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
-      if(!scale && field.type != 'geo') {
+      if((!scale || p.default)&& field.type != 'geo') {
         switch(prop) {
           case 'x':
             scale = this.group().scale(this, {
@@ -231,9 +231,10 @@ vde.Vis.Mark = (function() {
           scale = prules[0];
           field = prules[1];
 
-      if(scale) this.properties[prop].scale = scale;
-      if(field) this.properties[prop].field = field;
-      delete this.properties[prop].value;
+      if(scale) p.scale = scale;
+      if(field) p.field = field;
+      delete p.value;
+      delete p.default;
     }
 
     if(defaults) {
