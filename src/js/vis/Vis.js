@@ -84,8 +84,8 @@ vde.Vis = (function() {
       for(var g in vis.groups) vis.groups[g].annotate();
 
       for(var type in vis.evtHandlers)
-        vis.evtHandlers[type].forEach(function(h) {
-          if(type.indexOf('key') != -1) d3.select('body').on(type, h);
+        vis.evtHandlers[type].forEach(function(h, i) {
+          if(type.indexOf('key') != -1) d3.select('body').on(type + '.' + i, h);
           else vde.Vis.view.on(type, h);
         });
 
@@ -113,6 +113,27 @@ vde.Vis = (function() {
       d3.select('#vis canvas').on('mouseup.vis', function() {
         if(!vde.iVis.dragging || !vde.iVis.newMark) return;
         vde.iVis.addMark();
+      });
+
+      // Prevent backspace from navigating back and instead delete
+      d3.select('body').on('keydown.vis', function() {
+        var m = vde.iVis.activeMark, evt = d3.event;
+        if(!m && m.type != 'group') return;
+
+        var preventBack = false;
+        if (evt.keyCode == 8) {
+            var d = evt.srcElement || evt.target;
+            if ((d.tagName.toUpperCase() === 'INPUT' && (d.type.toUpperCase() === 'TEXT' || d.type.toUpperCase() === 'PASSWORD' || d.type.toUpperCase() === 'FILE'))
+                 || d.tagName.toUpperCase() === 'TEXTAREA') {
+                preventBack = d.readOnly || d.disabled;
+            }
+            else preventBack = true;
+        }
+
+        if (preventBack) {
+          evt.preventDefault();
+          vde.iVis.ngScope().removeVisual('marks', m.name);
+        }
       });
 
       // If the vis gets reparsed, reparse the interactive layer too to update any

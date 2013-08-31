@@ -74,7 +74,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     }, true);
   };
 
-  $scope.removeVisual = function(type, name) {
+  $rootScope.removeVisual = function(type, name) {
     var cnf = confirm("Are you sure you wish to delete this visual element?")
     if(!cnf) return;
 
