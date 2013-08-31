@@ -36,6 +36,14 @@ vde.Vis.marks.Rect = (function() {
   var geomOffset = 7; // Offset from rect for the interactive geometry
 
   prototype.productionRules = function(prop, scale, field) {
+    var self = this,
+        props = this.extents.horizontal.fields.indexOf(prop) != -1 ?
+          this.extents.horizontal.fields : this.extents.vertical.fields;
+
+    // First check to see if a related property already has a scale, and reuse it
+    if(!scale)
+      props.some(function(p) { if(self.properties[p].scale) { scale = p.scale; return true} });
+
     if(!scale) {
       switch(prop) {
         case 'x':
@@ -75,7 +83,10 @@ vde.Vis.marks.Rect = (function() {
     // If we set the width/height, by default map x/y
     if(['width', 'height'].indexOf(prop) == -1) return;
     var defaultProp = (prop == 'width') ? 'x' : 'y';
-    var otherProps = (prop == 'width') ? ['y', 'y2', 'height'] : ['x', 'x2', 'width'];
+    var otherProps = this.extents[(prop == 'width') ? 'vertical' : 'horizontal'].fields;
+
+    // Only do defaults if x/x2 or y/y2 have not been scaled
+    if(props[defaultProp].scale || props[defaultProp+'2'].scale) return;
 
     props[defaultProp] = {
       scale: props[prop].scale,
