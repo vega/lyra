@@ -241,6 +241,7 @@ vde.Vis.marks.Text = (function() {
     }
 
     coord.connector = connector;
+    coord.small     = false;
     for(var k in def) coord[k] = def[k];
 
     return coord;

@@ -336,6 +336,7 @@ vde.Vis.marks.Rect = (function() {
     }
 
     coord.connector = connector;
+    coord.small = b.width() < 20 || b.height() < 20 ? 1 : 0;
     for(var k in def) coord[k] = def[k];
 
     return coord;

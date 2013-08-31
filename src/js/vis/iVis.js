@@ -62,11 +62,19 @@ vde.iVis = (function() {
 
     spec.data = interactors.map(function(i) { return {name: i, values: [] }});
     spec.scales = [{
+      name: 'size',
+      type: 'quantize',
+      domain: [0, 1],
+      range: [40, 20]
+    },
+    {
       name: 'disabled',
+      type: 'quantize',
       domain: [0, 1],
       range: ['#fff', '#999']
     }, {
       name: 'connection_status',
+      type: 'quantize',
       domain: [0, 1],
       range: ['magenta', 'lime']
     }];
@@ -292,14 +300,14 @@ vde.iVis = (function() {
       properties: {
         enter: {
           shape: {value: 'square'},
-          size: {value: 40},
-          fill: {scale: 'disabled', field: 'data.disabled'},
           stroke: {value: 'black'},
           strokeWidth: {value: 0.5}
         },
         update: {
           x: {field: 'data.x'},
           y: {field: 'data.y'},
+          size: {scale: 'size', field: 'data.small'},
+          fill: {scale: 'disabled', field: 'data.disabled'},
           connector: {field: 'data.connector'}
         }
       }
@@ -321,12 +329,12 @@ vde.iVis = (function() {
       properties: {
         enter: {
           shape: {value: 'diamond'},
-          size: {value: 40},
           fill: {value: 'white'}
         },
         update: {
           x: {field: 'data.x'},
           y: {field: 'data.y'},
+          size: {scale: 'size', field: 'data.small'},
           stroke: {scale: 'connection_status', field: 'status'},
           strokeWidth: {value: 0.5},
           connector: {field: 'data.connector'}
@@ -376,7 +384,7 @@ vde.iVis = (function() {
           x: {field: 'data.x'},
           y: {field: 'data.y'},
           fill: {value: 'cyan'},
-          size: {value: 40},
+          size: {scale: 'size', field: 'data.small'},
           connector: {field: 'data.connector'}
         },
         hover: {

@@ -148,7 +148,8 @@ vde.Vis.marks.Symbol = (function() {
       x: b.x1 + (b.width()/2),
       y: b.y1 + (b.height()/2),
       cursor: 'se-resize',
-      connector: connector
+      connector: connector,
+      small: b.width() < 20 || b.height() < 20
     };
     for(var k in def) coord[k] = def[k];
 

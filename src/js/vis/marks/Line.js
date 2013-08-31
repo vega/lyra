@@ -1,5 +1,7 @@
 vde.Vis.marks.Line = (function() {
   var line = function(name, groupName) {
+    if(!this.name)
+      this.name = 'line_' + (vg.keys(this.group().marks).length+1);
     vde.Vis.Mark.call(this, name, groupName);
 
     this.type = 'points';
@@ -108,7 +110,7 @@ vde.Vis.marks.Line = (function() {
     var b = new vg.Bounds().set(item.x, item.y, item.x, item.y);
     b = vde.iVis.translatedBounds(item, b);
 
-    var coord = {x: b.x1, y: b.y1, connector: connector};
+    var coord = {x: b.x1, y: b.y1, connector: connector, small: b.width() < 20 || b.height() < 20};
     for(var k in def) coord[k] = def[k];
 
     return coord;
