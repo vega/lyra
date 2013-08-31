@@ -360,13 +360,13 @@ vde.Vis.marks.Rect = (function() {
     checkExtents(['y', 'y2', 'height'], ['top-center', 'bottom-center']);
     if(props.y.field) handles['top-center'].disabled = 1;
     if(props.y2.field) handles['bottom-center'].disabled = 1;
-    if(props.width.field)
+    if(props.height.field)
       handles['top-center'].disabled = handles['bottom-center'].disabled = 1;
 
     checkExtents(['x', 'x2', 'height'], ['middle-left', 'middle-right']);
     if(props.x.field) handles['middle-left'].disabled = 1;
     if(props.x2.field) handles['middle-right'].disabled = 1;
-    if(props.height.field)
+    if(props.width.field)
       handles['middle-left'].disabled = handles['middle-right'].disabled = 1;
 
     // Now figure out the corners
