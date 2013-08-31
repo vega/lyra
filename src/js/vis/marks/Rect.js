@@ -42,7 +42,7 @@ vde.Vis.marks.Rect = (function() {
 
     // First check to see if a related property already has a scale, and reuse it
     if(!scale)
-      props.some(function(p) { if(self.properties[p].scale) { scale = p.scale; return true} });
+      props.some(function(p) { if(scale = self.properties[p].scale) return true });
 
     if(!scale) {
       switch(prop) {
