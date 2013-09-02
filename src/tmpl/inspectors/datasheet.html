@@ -1,6 +1,6 @@
 <div class="tabs">
   <ul ng-repeat="f in facets" ng-show="f.colIdx">
-    <li ng-repeat="k in f.keys" ng-class="{selected: currentFacets[f.colIdx] == k}"><a ng-click="filter(f.colIdx, k)">{{k}}</a></li>
+    <li ng-repeat="k in f.keys" ng-class="{selected: currentFacets[f.colIdx] == k}"><a ng-click="filter(pipeline.name, f.colIdx, k)">{{k}}</a></li>
   </ul>
 </div>
 
