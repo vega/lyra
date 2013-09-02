@@ -63,7 +63,7 @@ vde.Vis.transforms.Facet = (function() {
       });
     }
 
-    this._group.marks.push(spec);
+    this._group.marks.unshift(spec);
     this._seen.marks[opts.item.name] = 1;
 
     // Clear the spec because we'll inject it in later
@@ -108,10 +108,13 @@ vde.Vis.transforms.Facet = (function() {
         opts.spec.scales.forEach(function(scale) {
           if(scale.name == self._posScale.name) return;
 
+          var s = vg.duplicate(scale);
+          delete s.domain.data;
+
           // Shadow this scale if it uses group width/height and we're laying out _groups
           if((self.properties.layout == 'Horizontal' && scale.range == 'width') ||
              (self.properties.layout == 'Vertical' && scale.range == 'height'))
-                self._group.scales.push(vg.duplicate(scale));
+                self._group.scales.push(s);
         });
 
         opts.spec.scales.push(this._posScale.spec());
