@@ -329,10 +329,12 @@ vde.Vis.Mark = (function() {
       // If we haven't found the def in the group, there must be
       // some group injection going on. This means that the last
       // mark in the group def should be another group def.
-      var marks = this.group().def().marks;
-      start = marks[marks.length-1];
-      if(start.type == 'group' && start.name.indexOf(this.groupName) != -1)
-        def = visit(start);
+      var marks = this.group().def().marks, start = [];
+      for(var i = 0; i < marks.length; i++)
+        if(marks[i].type == 'group' && marks[i].name.indexOf(this.groupName) != -1)
+          start.push(marks[i]);
+
+      start.some(function(s) { if(def = visit(s)) return true; });
     }
 
     def.vdeMdl = this;
