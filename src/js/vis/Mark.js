@@ -186,7 +186,13 @@ vde.Vis.Mark = (function() {
     if(opts.field) {
       field = opts.field;
       if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
-      if((!scale || p.default)&& field.type != 'geo') {
+
+      // Run mark specific production rules first so that they get first dibs
+      var prules = this.productionRules(prop, scale, field);
+          scale = prules[0];
+          field = prules[1];
+
+      if((!scale || p.default) && field.type != 'geo') {
         switch(prop) {
           case 'x':
             scale = this.group().scale(this, {
@@ -229,10 +235,6 @@ vde.Vis.Mark = (function() {
         }
       }
 
-      var prules = this.productionRules(prop, scale, field);
-          scale = prules[0];
-          field = prules[1];
-
       if(scale) p.scale = scale;
       if(field) p.field = field;
       delete p.value;
@@ -264,9 +266,9 @@ vde.Vis.Mark = (function() {
           yAxis.bindProperty('scale', aOpts);
         break;
       }
-    } else {
-      this.checkExtents(prop);
     }
+
+    this.checkExtents(prop);
   };
 
   prototype.productionRules = function(prop, scale, field) {

@@ -27,13 +27,11 @@ vde.Vis.marks.Symbol = (function() {
   var geomOffset = 7;
 
   prototype.productionRules = function(prop, scale, field) {
-    switch(prop) {
-      case 'size':
-        scale = this.group().scale(this, {
-          type: 'linear',
-          field: field
-        }, {range: [50, 1000]}, 'size');
-      break;
+    if(!scale && prop == 'size') {
+      scale = this.group().scale(this, {
+        type: 'linear',
+        field: field
+      }, {range: [50, 1000]}, 'size');
     };
 
     return [scale, field];
