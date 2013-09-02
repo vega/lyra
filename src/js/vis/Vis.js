@@ -10,6 +10,7 @@ vde.Vis = (function() {
     _data:   {},
     pipelines: {},
     groups: {},
+    groupOrder: [],
 
     view: null,
     evtHandlers: {}
@@ -73,7 +74,8 @@ vde.Vis = (function() {
       spec.data = spec.data.concat(pl.spec());
     }
 
-    for(var g in vis.groups) spec.marks.push(vis.groups[g].spec());
+    // Reverse order of groups: earlier in groupOrder => closer to front
+    vis.groupOrder.forEach(function(g) { spec.marks.unshift(vis.groups[g].spec()); });
 
     vde.Vis.callback.run('vis.post_spec', this, {spec: spec});
 

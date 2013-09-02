@@ -1,6 +1,6 @@
 var vde = {version: '0.0.5'};
 
-vde.App = angular.module('vde', ['ui.inflector']);
+vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable']);
 
 vde.App.controller('ExportCtrl', function($scope, $rootScope) {
   $scope.eMdl = {};

@@ -9,6 +9,7 @@ vde.Vis.marks.Group = (function() {
     this.scales = {};
     this.axes   = {};
     this.marks  = {};
+    this.markOrder = [];
 
     this._spec.scales   = [];
     this._spec.axes   = [];
@@ -42,6 +43,7 @@ vde.Vis.marks.Group = (function() {
   prototype.init = function() {
     var self = this;
     vde.Vis.groups[this.name] = this;
+    vde.Vis.groupOrder.unshift(this.name);
 
     vde.Vis.addEventListener('mouseup', function(e, item) {
       if(item.mark.def != self.def()) return;
@@ -69,12 +71,19 @@ vde.Vis.marks.Group = (function() {
 
     vde.Vis.callback.run('group.pre_spec', this, {spec: spec});
 
-    ['scales', 'axes', 'marks'].forEach(function(t) {
+    ['scales', 'axes'].forEach(function(t) {
       vg.keys(self[t]).forEach(function(k) {
         var s = self[t][k].spec();
         if(!s) return;
         spec[t].push(s);
       });
+    });
+
+    // Reverse order of marks: earlier in markOrder => closer to front
+    this.markOrder.forEach(function(m) {
+      var s = self.marks[m].spec();
+      if(!s) return;
+      spec.marks.unshift(s);
     });
 
     vde.Vis.callback.run('group.post_spec', this, {spec: spec});

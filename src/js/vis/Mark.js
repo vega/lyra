@@ -42,8 +42,10 @@ vde.Vis.Mark = (function() {
     if(!this.displayName)
       this.displayName = this.name;
 
-    if(this.group() != this)
+    if(this.group() != this) {
       this.group().marks[this.name] = this;
+      this.group().markOrder.unshift(this.name);
+    }
 
     vg.keys(this.connectors).forEach(function(c) {
       self.connectors[c] = {

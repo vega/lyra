@@ -1,7 +1,12 @@
 vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) {
   $scope.gMdl = { // General catch-all model for scoping
     groups: vde.Vis.groups,
-    pipelines: vde.Vis.pipelines
+    groupOrder: vde.Vis.groupOrder,
+    pipelines: vde.Vis.pipelines,
+    sortableOpts: {
+      update: function(e, ui) { vde.Vis.parse(); },
+      axis: 'y'
+    }
   };
 
   $rootScope.toggleVisual = function(v, key) {
