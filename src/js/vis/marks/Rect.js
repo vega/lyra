@@ -41,7 +41,7 @@ vde.Vis.marks.Rect = (function() {
           this.extents.horizontal.fields : this.extents.vertical.fields;
 
     // First check to see if a related property already has a scale, and reuse it
-    if(!scale)
+    if(!scale && props.indexOf(prop) != -1)
       props.some(function(p) { if(scale = self.properties[p].scale) return true });
 
     if(!scale) {
@@ -72,7 +72,7 @@ vde.Vis.marks.Rect = (function() {
       }
     }
 
-    if(scale.type() == 'ordinal')
+    if(scale && scale.type() == 'ordinal')
       scale.properties.points = false;
 
     return [scale, field];

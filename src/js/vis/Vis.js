@@ -91,11 +91,16 @@ vde.Vis = (function() {
           else vde.Vis.view.on(type, h);
         });
 
+      var newMark = function() {
+        if(!vde.iVis.dragging || !vde.iVis.newMark) return;
+        vde.iVis.addMark();
+      };
+
       vde.Vis.view
         .on('mousedown', function(e, i) {
           if(!vde.iVis.dragging) vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
         })
-        .on('mouseup', function() { vde.iVis.dragging = null; })
+        .on('mouseup', function() { newMark(); vde.iVis.dragging = null; })
         .on('mouseover', function(e, i) {
           var d = vde.iVis.dragging, m = i.mark.def.vdeMdl;
           if(!d || !$(d).html() || !m) return;
@@ -112,10 +117,7 @@ vde.Vis = (function() {
         })
         .on('mouseout', function() { window.clearTimeout(vde.iVis.markTimeout); });
 
-      d3.select('#vis canvas').on('mouseup.vis', function() {
-        if(!vde.iVis.dragging || !vde.iVis.newMark) return;
-        vde.iVis.addMark();
-      });
+      d3.select('#vis canvas').on('mouseup.vis', newMark);
 
       // Prevent backspace from navigating back and instead delete
       d3.select('body').on('keydown.vis', function() {
@@ -125,8 +127,7 @@ vde.Vis = (function() {
         var preventBack = false;
         if (evt.keyCode == 8) {
             var d = evt.srcElement || evt.target;
-            if ((d.tagName.toUpperCase() === 'INPUT' && (d.type.toUpperCase() === 'TEXT' || d.type.toUpperCase() === 'PASSWORD' || d.type.toUpperCase() === 'FILE'))
-                 || d.tagName.toUpperCase() === 'TEXTAREA') {
+            if ((d.tagName.toUpperCase() === 'INPUT' || d.tagName.toUpperCase() === 'TEXTAREA' || d.contentEditable) {
                 preventBack = d.readOnly || d.disabled;
             }
             else preventBack = true;

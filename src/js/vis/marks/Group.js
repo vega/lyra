@@ -45,23 +45,28 @@ vde.Vis.marks.Group = (function() {
     vde.Vis.groups[this.name] = this;
     vde.Vis.groupOrder.unshift(this.name);
 
-    vde.Vis.addEventListener('mouseup', function(e, item) {
-      if(item.mark.def != self.def()) return;
-      if(!vde.iVis.dragging || !vde.iVis.newMark) return;
+    //////
+    // This is too difficult to get correct w/multiple overlapping
+    // groups. So just follow the photoshop model where things get
+    // added to the current layer.
+    //////
+    // vde.Vis.addEventListener('mouseup', function(e, item) {
+    //   if(item.mark.def != self.def()) return;
+    //   if(!vde.iVis.dragging || !vde.iVis.newMark) return;
 
-      vde.iVis.addMark(self);
-    });
+    //   vde.iVis.addMark(self);
+    // });
 
     return vde.Vis.Mark.prototype.init.call(this);
   };
 
   prototype.update = function(props) {
-    vde.Vis.Mark.prototype.update.call(this, props);
+    // vde.Vis.Mark.prototype.update.call(this, props);
 
-    // Because a group could affect sub-marks, re-parse the submarks
-    for(var m in this.marks)
-      this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);
-
+    // // Because a group could affect sub-marks, re-parse the submarks
+    // for(var m in this.marks)
+    //   this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);
+    vde.Vis.parse();
     return this;
   }
 
