@@ -4,7 +4,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     groupOrder: vde.Vis.groupOrder,
     pipelines: vde.Vis.pipelines,
     sortableOpts: {
-      update: function(e, ui) { vde.Vis.parse(); },
+      update: function(e, ui) { $timeout(function() { vde.Vis.parse(); }, 1); },
       axis: 'y'
     }
   };
