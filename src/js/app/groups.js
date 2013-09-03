@@ -83,8 +83,19 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     var cnf = confirm("Are you sure you wish to delete this visual element?")
     if(!cnf) return;
 
-    if(type == 'group') delete vde.Vis.groups[name];
-    else delete $rootScope.activeGroup[type][name];
+    if(type == 'group') {
+      delete vde.Vis.groups[name];
+      var newOrder = [];
+      vde.Vis.groupOrder.forEach(function(g) { if(vde.Vis.groups[g]) newOrder.push(g) });
+      vde.Vis.groupOrder = newOrder;
+    } else {
+      var g = $rootScope.activeGroup;
+      delete g[type][name];
+      var newOrder = [];
+      g.markOrder.forEach(function(m) { if(g[type][m]) newOrder.push(m) });
+      g.markOrder = newOrder;
+    }
+
     vde.Vis.parse();
 
     $('.tooltip').remove();

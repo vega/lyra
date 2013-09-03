@@ -127,7 +127,7 @@ vde.Vis = (function() {
         var preventBack = false;
         if (evt.keyCode == 8) {
             var d = evt.srcElement || evt.target;
-            if ((d.tagName.toUpperCase() === 'INPUT' || d.tagName.toUpperCase() === 'TEXTAREA' || d.contentEditable) {
+            if (d.tagName.toUpperCase() === 'INPUT' || d.tagName.toUpperCase() === 'TEXTAREA' || d.contentEditable) {
                 preventBack = d.readOnly || d.disabled;
             }
             else preventBack = true;
