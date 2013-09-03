@@ -129,7 +129,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
           return list;
         }
 
-        var dataTableId = $scope.pipeline.name + '_datatable';
+        var dataTableId = $scope.dataTableId = 'datatable_' + Date.now();
 
         // WARNING: leaking oTable. How do
         $('.table', $element).html('<table id="' + dataTableId + '"></table>');
@@ -164,7 +164,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
               facets.forEach(function(f) {
                 if(f.colIdx) {
                   facetedColumns.push(f.colIdx);
-                  $scope.filter($scope.pipeline.name, f.colIdx, f.keys[0]);
+                  $scope.filter(f.colIdx, f.keys[0]);
                 }
               });
             }
@@ -257,8 +257,8 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
         });
       };
 
-      $scope.filter = function(pipelineName, column, value) {
-        var oTable = $('#' + pipelineName + '_datatable').dataTable();
+      $scope.filter = function(column, value) {
+        var oTable = $('#' + $scope.dataTableId).dataTable();
         oTable.fnFilter(value, column);
         $scope.currentFacets[column] = value;
       };

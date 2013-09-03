@@ -126,7 +126,7 @@ vde.Vis.Pipeline = (function() {
   // add it
   prototype.addTransform = function(t) {
     t.pipelineName = this.name;
-    if(t.forkPipeline || t.requiresFork) this.transforms.push(t);
+    if(!this.forkName || t.forkPipeline || t.requiresFork) this.transforms.push(t);
     else {
       var pipelineName = this.name;
       vg.keys(t.properties).some(function(k) {
@@ -136,8 +136,8 @@ vde.Vis.Pipeline = (function() {
         }
       });
 
-      if(pipelineName == this.forkName) this.transforms.push(t);
-      else this.transforms.splice(this.forkIdx-1, 0, t);
+      if(pipelineName == this.forkName) return this.transforms.push(t);
+      else { this.transforms.splice(this.forkIdx, 0, t); return this.forkIdx;}
     }
   };
 

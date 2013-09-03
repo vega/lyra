@@ -122,7 +122,7 @@ vde.Vis = (function() {
       // Prevent backspace from navigating back and instead delete
       d3.select('body').on('keydown.vis', function() {
         var m = vde.iVis.activeMark, evt = d3.event;
-        if(!m && m.type != 'group') return;
+        if(!m || m.type != 'group') return;
 
         var preventBack = false;
         if (evt.keyCode == 8) {

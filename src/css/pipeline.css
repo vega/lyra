@@ -116,20 +116,19 @@ li.icon span.header { padding-left: 25px; }
 }
 
 #datasheet .tabs {
-  padding-top: 5px;
   width: 100%;
   overflow: hidden;
 }
 
 #datasheet .tabs ul {
-  max-width: 9999px;
+  width: 9999px;
   margin-bottom: 5px;
-  padding-bottom: 3px;
   border-bottom: 1px solid #888;
+  overflow: auto;
 }
 
 #datasheet .tabs li {
-  display: inline;
+  display: inline-block;
   border: 0;
   border-radius: 0;
   border-top-left-radius: 5px;
@@ -192,7 +191,7 @@ li.icon span.header { padding-left: 25px; }
   z-index: 10000;
 }
 
-#preview-transform .slickgrid {
+#preview-transform .datatable {
   width: 300px;
   margin: 0;
 }
