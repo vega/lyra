@@ -91,9 +91,12 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     } else {
       var g = $rootScope.activeGroup;
       delete g[type][name];
-      var newOrder = [];
-      g.markOrder.forEach(function(m) { if(g[type][m]) newOrder.push(m) });
-      g.markOrder = newOrder;
+
+      if(type == 'marks') {
+        var newOrder = [];
+        g.markOrder.forEach(function(m) { if(g[type][m]) newOrder.push(m) });
+        g.markOrder = newOrder;
+      }
     }
 
     vde.Vis.parse();

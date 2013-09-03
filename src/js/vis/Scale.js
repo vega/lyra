@@ -42,6 +42,7 @@ vde.Vis.Scale = (function() {
 
     delete spec.pipeline;
     delete spec.field;
+    if(spec.type == 'quantize') delete spec.nice;
 
     vde.Vis.callback.run('scale.post_spec', this, {spec: spec});
 

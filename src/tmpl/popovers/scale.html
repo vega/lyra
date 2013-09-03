@@ -27,7 +27,7 @@
 			<div ng-show="['ordinal', 'time', 'utc', 'ref'].indexOf(activeScale.properties.type) == -1">
 				<div ng-show="activeScale.properties.type == 'pow'"><vde-property label="Exponent" type="number" item="activeScale" property="exponent" ng-model="activeScale.properties.exponent"></vde-property></div>
 
-				<vde-property transclude="1">
+				<vde-property transclude="1" ng-hide="activeScale.properties.type == 'quantize'">
 		  		<p><label><input type="checkbox" ng-model="activeScale.properties.clamp" onchange="window.setTimeout(function() { vde.Vis.parse()}, 1)" /> Clamp</label>
 
 		  		<label><input type="checkbox" ng-model="activeScale.properties.nice" onchange="window.setTimeout(function() { vde.Vis.parse()}, 1)" /> Nice</label>
