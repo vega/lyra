@@ -156,7 +156,7 @@ fieldset#padding .property {
   user-select: text;
 }
 
-.expr { width: 1000px; }
+/*.expr { width: 1000px; }*/
 
 .expr .schema {
   float: none;
