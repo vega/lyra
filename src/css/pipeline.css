@@ -51,6 +51,16 @@ li.icon span.header { padding-left: 25px; }
 .transform-geo { background: url(../imgs/geo.png) no-repeat; }
 .transform-force { background: url(../imgs/force.png) no-repeat; }
 
+#transform-force-pin {
+  display: block;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: url(../imgs/pin.png);
+}
+
+#transform-force-pin.pinned { background: url(../imgs/pin-pushed.png); }
+
 .pipeline .datatable {
   width: 100%;
   font-size: 11px;

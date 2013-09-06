@@ -1,5 +1,6 @@
 vde.Vis.transforms.Force = (function() {
   var force = function(pipelineName) {
+    var self = this;
     vde.Vis.Transform.call(this, pipelineName, 'force');
     this.isVisual = true;
 
@@ -35,12 +36,17 @@ vde.Vis.transforms.Force = (function() {
       weight: new vde.Vis.Field('weight', false, 'linear', pipelineName)
     };
 
-    this._seen = {};
+    this.seen = {};
 
     vde.Vis.callback.register('pipeline.post_spec', this, this.pipelinePostSpec);
     vde.Vis.callback.register('mark.post_spec',  this, this.markPostSpec);
     vde.Vis.callback.register('group.post_spec', this, this.groupPostSpec);
     this.linkFields();
+
+    this.fixedPositions = {};
+    vde.Vis.addEventListener('mouseover', function(e, i) { return self.onMouseOver(e, i); });
+    vde.Vis.addEventListener('mouseout',  function(e, i) { return self.onMouseOut(e, i); });
+    vde.Vis.addEventListener('dblclick',  function(e, i) { return self.onDblClick(e, i); });
 
     return this;
   }
@@ -58,11 +64,12 @@ vde.Vis.transforms.Force = (function() {
     if(!this.pipeline() || !this.links.data || !this.links.source || !this.links.target) return;
     var spec = vde.Vis.Transform.prototype.spec.call(this);
     spec.links = this.pipelineName + '_edges';
-    this._seen = {};
+    this.seen = {};
     return spec;
   };
 
   prototype.pipelinePostSpec = function(opts) {
+    var self = this;
     if(!this.pipeline() || !this.links.data || !this.links.source || !this.links.target) return;
     if(opts.item.name != this.pipelineName) return;
 
@@ -70,25 +77,53 @@ vde.Vis.transforms.Force = (function() {
     opts.spec[0].values = vde.Vis._data[opts.spec[0].source].values;
     delete opts.spec[0].source;
 
+    // For fixed nodes, we inject a new data source with the positioning information
+    // and then zip/copy them over to our pipeline
+    var fixed_nodes = vg.keys(this.fixedPositions).map(function(k) { return self.fixedPositions[k]; });
+    if(fixed_nodes.length > 0) {
+      opts.spec[0].transform.unshift({
+        type: 'copy',
+        from: 'fixed_nodes.data',
+        fields: ['x', 'y', 'fixed']
+      });
+
+      opts.spec[0].transform.unshift({
+        type: 'zip',
+        key: 'index',
+        with: opts.item.name + '_fixed_nodes',
+        withKey: 'data.index',
+        as: 'fixed_nodes',
+        default: {data: {}}
+      });
+
+      opts.spec.unshift({
+        name: opts.item.name + '_fixed_nodes',
+        values: fixed_nodes
+      });
+    }
+
+    // Inject a separate data source for edges
     opts.spec.unshift({
       name: opts.item.name + '_edges',
       source: this.links.data,
       transform: [{type: 'copy', from: 'data', fields: [this.links.source, this.links.target], as: ['source', 'target']}]
     });
+
+
   };
 
   prototype.markPostSpec = function(opts) {
     if(!this.pipeline() || !this.links.data || !this.links.source || !this.links.target) return;
     if(!opts.item.pipeline() ||
       (opts.item.pipeline() && opts.item.pipeline().name != this.pipeline().name)) return;
-    if(this._seen[opts.item.groupName]) return;
+    if(this.seen[opts.item.groupName]) return;
 
-    this._seen[opts.item.groupName] = false;
+    this.seen[opts.item.groupName] = false;
   };
 
   prototype.groupPostSpec = function(opts) {
     if(!this.pipeline()) return;
-    if(this._seen[opts.item.name] != false) return;
+    if(this.seen[opts.item.name] != false) return;
 
     var path = {
       type: 'path',
@@ -103,7 +138,7 @@ vde.Vis.transforms.Force = (function() {
 
     opts.spec.marks.push(path);
 
-    this._seen[opts.item.name] = true;
+    this.seen[opts.item.name] = true;
   };
 
   // This is gross.
@@ -115,6 +150,50 @@ vde.Vis.transforms.Force = (function() {
       return self.links.data
     }, function() { scope.linkFields = fields(); }, true);
 
+  };
+
+  prototype.onMouseOver = function(e, item) {
+    var mark = null;
+    if(!(mark = item.mark.def.vdeMdl)) return;
+    if(mark.pipelineName != this.pipelineName) return;
+
+    var b = vde.iVis.translatedBounds(item, item.bounds),
+        coords = vde.iVis.translatedCoords({ x: b.x1, y: b.y1 - 16 }),
+        fixed = this.fixedPositions[item.datum.index];
+
+    $('<div id="transform-force-pin">&nbsp;</div>')
+      .addClass(fixed ? 'pinned' : '')
+      .css('left', coords.x + 'px')
+      .css('top', coords.y + 'px')
+      .appendTo('body');
+  };
+
+  prototype.onMouseOut = function(e, item) {
+    var mark = null;
+    if(!(mark = item.mark.def.vdeMdl)) return;
+    if(mark.pipelineName != this.pipelineName) return;
+
+    $('#transform-force-pin').remove();
+  };
+
+  prototype.onDblClick = function(e, item) {
+    var mark = null;
+    if(!(mark = item.mark.def.vdeMdl)) return;
+    if(mark.pipelineName != this.pipelineName) return;
+
+    var fixed = item.datum.fixed && item.datum.x && item.datum.y,
+        pin = $('#transform-force-pin');
+
+    if(fixed) delete this.fixedPositions[item.datum.index];
+    else
+      this.fixedPositions[item.datum.index] = {
+        index: item.datum.index,
+        x: item.datum.x,
+        y: item.datum.y,
+        fixed: true
+      };
+
+    pin.toggleClass('pinned');
   };
 
   return force;
