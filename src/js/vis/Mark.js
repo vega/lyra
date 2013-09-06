@@ -199,6 +199,7 @@ vde.Vis.Mark = (function() {
               field: field,
               range: new vde.Vis.Field('category20')
             }, {}, prop + '_color');
+            scale.rangeTypes.type = 'colors';
           break;
 
           case 'fillOpacity':
