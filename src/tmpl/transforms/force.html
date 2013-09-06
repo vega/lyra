@@ -1,0 +1,50 @@
+<div ng-init="shapes=['line', 'curve', 'diagonal', 'diagonalX', 'diagonalY']">
+  <span class="header">Node-Link (Force)</span>
+
+  <br clear="all" />
+
+  <fieldset id="links">
+    <legend>Links</legend>
+
+    <vde-property label="Data" type="select" options="dataSources" item="transform" property="links.data" ng-model="transform.links.data" nodrop="1"></vde-property>
+
+    <vde-property label="Source" type="select" options="linkFields" item="transform" property="links.source" ng-model="transform.links.source" nodrop="1"></vde-property>
+
+    <vde-property label="Target" type="select" options="linkFields" item="transform" property="links.target" ng-model="transform.links.target" nodrop="1"></vde-property>
+
+    <vde-property label="Line Type" type="select" options="shapes" item="transform" property="links.shape" ng-model="transform.links.shape" nodrop="1"></vde-property>
+
+    <fieldset id="stroke">
+      <legend>Stroke</legend>
+
+      <vde-property label="Color" type="color" item="transform" property="links.properties.stroke" ng-model="transform.links.properties.stroke.value" scale="transform.links.properties.stroke.scale" field="transform.links.properties.stroke.field"></vde-property>
+
+      <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="transform" property="links.properties.strokeWidth" ng-model="transform.links.properties.strokeWidth.value" scale="transform.links.properties.strokeWidth.scale" field="transform.properties.strokeWidth.field"></vde-property>
+    </fieldset>
+
+    <vde-property label="Distance" type="number" item="transform" property="linkDistance" ng-model="transform.properties.linkDistance" nodrop="1"></vde-property>
+
+    <vde-property label="Strength" type="number" item="transform" property="linkStrength" ng-model="transform.properties.linkStrength" nodrop="1"></vde-property>
+
+    <vde-property label="Tension" type="number" item="transform" property="links.tension" ng-model="transform.links.tension" nodrop="1"></vde-property>
+  </fieldset>
+
+
+  <fieldset id="nodes">
+    <legend>Nodes</legend>
+
+    <vde-property label="Charge" type="number" item="transform" property="charge" ng-model="transform.properties.charge" step="5" nodrop="1"></vde-property>
+
+    <vde-property label="Friction" type="number" min="0" max="1" step="0.1" item="transform" property="friction" ng-model="transform.properties.friction" nodrop="1"></vde-property>
+
+    <vde-property label="Gravity" type="number" item="transform" property="gravity" ng-model="transform.properties.gravity" step="0.1" nodrop="1"></vde-property>
+
+  </fieldset>
+
+  <vde-property label="Output" ng-if="transform.links.data">
+    <vde-binding field="transform.output.x" draggable="1"></vde-binding>
+    <vde-binding field="transform.output.y" draggable="1"></vde-binding>
+    <vde-binding field="transform.output.weight" draggable="1"></vde-binding>
+  </vde-property>
+
+</div>

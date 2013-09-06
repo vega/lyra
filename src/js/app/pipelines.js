@@ -1,8 +1,13 @@
 vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
   $scope.pMdl = { // General catch-all model for scoping
-    pipelines: vde.Vis.pipelines,
-    dataSources: vde.Vis._data
+    pipelines: vde.Vis.pipelines
   };
+
+  function dataSources() { return vg.keys(vde.Vis._data); }
+
+  $scope.$watch(function($scope) {
+      return dataSources();
+    }, function() { $rootScope.dataSources = dataSources() }, true);
 
   $scope.addPipeline = function() {
     $rootScope.activePipeline = new vde.Vis.Pipeline();

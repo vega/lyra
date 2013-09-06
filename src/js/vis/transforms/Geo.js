@@ -1,6 +1,6 @@
 vde.Vis.transforms.Geo = (function() {
   var geo = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'geo', ['lat', 'lon', 'projection', 'center', 'translate', 'scale', 'rotate', 'precision', 'clipAngle']);
+    vde.Vis.Transform.call(this, pipelineName, 'geo');
 
     this.isVisual = true;
     this.geoType  = 'Latitude/Longitude';
@@ -18,10 +18,11 @@ vde.Vis.transforms.Geo = (function() {
       clipAngle: 0
     };
 
+    this.input = vg.keys(this.properties);
     this.output = {
-      x: new vde.Vis.Field('x', false, 'geo', pipelineName),
-      y: new vde.Vis.Field('y', false, 'geo', pipelineName),
-      path: new vde.Vis.Field('path', false, 'geo', pipelineName),
+      x: new vde.Vis.Field('x', false, 'encoded', pipelineName),
+      y: new vde.Vis.Field('y', false, 'encoded', pipelineName),
+      path: new vde.Vis.Field('path', false, 'encoded', pipelineName),
     };
 
     return this;

@@ -155,7 +155,33 @@ vde.Vis = (function() {
 
     for(var g in vis.groups) ex.groups[g] = vg.duplicate(vis.groups[g].export());
     return ex;
-  }
+  };
+
+  vis.parseProperty = function(props, prop) {
+    var p = props[prop], parsed = {};
+    if(!vg.isObject(p)) return;
+    if(p.disabled) return;
+
+    for(var k in p) {
+      if(p[k] == undefined) return;
+
+      if(k == 'scale') parsed[k] = p[k].name;
+      else if(k == 'field') parsed[k] = p[k].spec();
+      else {
+        var value = (!isNaN(+p[k])) ? +p[k] : p[k];
+        if(value == 'auto') {   // If the value is auto, rangeband
+          if(p.scale.type() == 'ordinal') {
+            parsed.band = true;
+            parsed.offset = -1;
+          } else parsed[k] = 0; // If we don't have an ordinal scale, just set value:0
+        } else {
+          parsed[k] = value;
+        }
+      }
+    };
+
+    return parsed;
+  };
 
   return vis;
 })();

@@ -13,7 +13,9 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope, $timeout, logger) {
       vde.Vis.data('cities', 'data/cities.json', 'json');
       vde.Vis.data('trailers', 'data/trailers.json', 'json');
       vde.Vis.data('movies', 'data/movies.json', 'json');
-      vde.Vis.data('stocks', 'data/stocks.csv', {"type": "csv", "parse": {"price":"number", "date":"date"}});
+      vde.Vis.data('characters', 'data/mis-characters.json', 'json');
+      vde.Vis.data('connections', 'data/mis-connections.json', 'json');
+      // vde.Vis.data('stocks', 'data/stocks.csv', {"type": "csv", "parse": {"price":"number", "date":"date"}});
     }
 
     // Start with a default pipeline and group

@@ -102,29 +102,7 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.property = function(prop) {
-    var p = this.properties[prop], parsed = {};
-    if(!vg.isObject(p)) return;
-    if(p.disabled) return;
-
-    for(var k in p) {
-      if(p[k] == undefined) return;
-
-      if(k == 'scale') parsed[k] = p[k].name;
-      else if(k == 'field') parsed[k] = p[k].spec();
-      else {
-        var value = (!isNaN(+p[k])) ? +p[k] : p[k];
-        if(value == 'auto') {   // If the value is auto, rangeband
-          if(p.scale.type() == 'ordinal') {
-            parsed.band = true;
-            parsed.offset = -1;
-          } else parsed[k] = 0; // If we don't have an ordinal scale, just set value:0
-        } else {
-          parsed[k] = value;
-        }
-      }
-    };
-
-    return parsed;
+    return vde.Vis.parseProperty(this.properties, prop);
   };
 
   prototype.update = function(props) {
@@ -192,7 +170,7 @@ vde.Vis.Mark = (function() {
           scale = prules[0];
           field = prules[1];
 
-      if((!scale || p.default) && field.type != 'geo') {
+      if((!scale || p.default) && field.type != 'encoded') {
         switch(prop) {
           case 'x':
             scale = this.group().scale(this, {
