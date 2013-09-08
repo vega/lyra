@@ -6,7 +6,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     sortableOpts: {
       update: function(e, ui) { $timeout(function() { vde.Vis.parse(); }, 1); },
       axis: 'y'
-    }
+    },
+    fonts: ['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS']
   };
 
   $rootScope.toggleVisual = function(v, key) {

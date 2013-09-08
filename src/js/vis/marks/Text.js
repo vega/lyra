@@ -82,6 +82,27 @@ vde.Vis.marks.Text = (function() {
       this.properties.textFormulaHtml = $('<div>').append(schema).html();
 
       scale = field = null;
+    } else if(!scale && prop == 'fontSize') {
+      scale = this.group().scale(this, {
+        type: 'linear',
+        field: field
+      }, {}, 'fontSize');
+      scale.rangeTypes = {type: 'sizes', from: 'values'};
+      scale.rangeValues = [8, 21];
+    } else if(!scale && prop == 'fontWeight') {
+      scale = this.group().scale(this, {
+        type: 'quantize',
+        field: field
+      }, {}, 'fontSize');
+      scale.rangeTypes = {type: 'other', from: 'values'};
+      scale.rangeValues = ['normal', 'bold'];
+    } else if(!scale && prop == 'fontStyle') {
+      scale = this.group().scale(this, {
+        type: 'quantize',
+        field: field
+      }, {}, 'fontSize');
+      scale.rangeTypes = {type: 'other', from: 'values'};
+      scale.rangeValues = ['normal', 'italic'];
     }
 
     return [scale, field];

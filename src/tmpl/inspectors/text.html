@@ -2,17 +2,21 @@
 
   <vde-property label="Text" type="expr-str" item="mark" property="textFormula" ng-model="mark.properties.textFormulaHtml"></vde-property>
 
-  <vde-property label="Font" type="font" item="mark" property="properties" ng-model="mark.properties" nodrop="1"></vde-property>
+  <fieldset id="font" ng-init="weight=['normal', 'bold']; style=['normal', 'italic'];">
+    <legend>Font</legend>
 
-  <vde-property label="" item="mark" nodrop="1">
-    <div class="icons">
-      <a class="text-bold" ng-click="toggleFont('fontWeight', 'bold');" ng-class="{selected: mark.properties.fontWeight.value == 'bold'}">Bold</a>
+    <vde-property label="Family" type="select" options="gMdl.fonts" item="mark" property="font" ng-model="mark.properties.font.value" scale="mark.properties.font.scale" field="mark.properties.font.field"></vde-property>
 
-      <a class="text-italic" ng-click="toggleFont('fontStyle', 'italic');" ng-class="{selected: mark.properties.fontStyle.value == 'italic'}">Italic</a>
-    </div>
-  </vde-property>
+    <vde-property label="Size" type="number" item="mark" property="fontSize" ng-model="mark.properties.fontSize.value" scale="mark.properties.fontSize.scale" field="mark.properties.fontSize.field"></vde-property>
 
-  <vde-property label="Color" type="color" item="mark" property="fill" ng-model="mark.properties.fill.value" scale="mark.properties.fill.scale" field="mark.properties.fill.field"></vde-property>
+    <vde-property label="Weight" type="select" options="weight" item="mark" property="fontWeight" ng-model="mark.properties.fontWeight.value" scale="mark.properties.fontWeight.scale" field="mark.properties.fontWeight.field"></vde-property>
+
+    <vde-property label="Style" type="select" options="style" item="mark" property="fontStyle" ng-model="mark.properties.fontStyle.value" scale="mark.properties.fontStyle.scale" field="mark.properties.fontStyle.field"></vde-property>
+
+    <vde-property label="Color" type="color" item="mark" property="fill" ng-model="mark.properties.fill.value" scale="mark.properties.fill.scale" field="mark.properties.fill.field"></vde-property>
+
+  </fieldset>
+
 
   <fieldset ng-show="!mark.connectedTo.host">
     <legend>Position</legend>
