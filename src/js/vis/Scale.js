@@ -1,6 +1,6 @@
 vde.Vis.Scale = (function() {
   var scale = function(name, pipeline, defaults, displayName) {
-    var scaleName = 'scale_' + (vg.keys(pipeline.scales).length+1);
+    var scaleName = 'scale_r' + Date.now();
     this.name  = (name || pipeline.name + '_' + scaleName);
     this.displayName = displayName;
 
