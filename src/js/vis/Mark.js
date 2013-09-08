@@ -176,7 +176,7 @@ vde.Vis.Mark = (function() {
           scale = prules[0];
           field = prules[1];
 
-      if((!scale || p.default) && field.type != 'encoded') {
+      if((!scale || p.default) && (field && field.type != 'encoded')) {
         switch(prop) {
           case 'x':
             scale = this.group().scale(this, {

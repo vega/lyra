@@ -140,7 +140,7 @@ vde.Vis.transforms.Force = (function() {
 
     for(var p in this.links.properties) path.properties.enter[p] = vde.Vis.parseProperty(this.links.properties, p);
 
-    opts.spec.marks.push(path);
+    opts.spec.marks.unshift(path);
 
     this.seen[opts.item.name] = true;
   };
@@ -165,6 +165,7 @@ vde.Vis.transforms.Force = (function() {
         coords = vde.iVis.translatedCoords({ x: b.x1, y: b.y1 - 16 }),
         fixed = this.fixedPositions[item.datum.index];
 
+    $('#transform-force-pin').remove();
     $('<div id="transform-force-pin">&nbsp;</div>')
       .addClass(fixed ? 'pinned' : '')
       .css('left', coords.x + 'px')
@@ -199,6 +200,8 @@ vde.Vis.transforms.Force = (function() {
 
     pin.toggleClass('pinned');
   };
+
+  prototype.regenerate = function() { vde.Vis.parse(); };
 
   return force;
 })();
