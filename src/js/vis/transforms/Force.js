@@ -44,9 +44,9 @@ vde.Vis.transforms.Force = (function() {
     this.linkFields();
 
     this.fixedPositions = {};
-    vde.Vis.addEventListener('mouseover', function(e, i) { return self.onMouseOver(e, i); });
-    vde.Vis.addEventListener('mouseout',  function(e, i) { return self.onMouseOut(e, i); });
-    vde.Vis.addEventListener('dblclick',  function(e, i) { return self.onDblClick(e, i); });
+    vde.Vis.addEventListener('mouseover', this, function(e, i) { return self.onMouseOver(e, i); });
+    vde.Vis.addEventListener('mouseout', this,  function(e, i) { return self.onMouseOut(e, i); });
+    vde.Vis.addEventListener('dblclick', this,  function(e, i) { return self.onDblClick(e, i); });
 
     return this;
   }
@@ -58,6 +58,10 @@ vde.Vis.transforms.Force = (function() {
     vde.Vis.callback.deregister('pipeline.post_spec', this);
     vde.Vis.callback.deregister('mark.post_spec',  this);
     vde.Vis.callback.deregister('group.post_spec', this);
+
+    vde.Vis.removeEventListener('mouseover', this);
+    vde.Vis.removeEventListener('mouseout', this);
+    vde.Vis.removeEventListener('dblclick', this);
   };
 
   prototype.spec = function() {
@@ -181,7 +185,7 @@ vde.Vis.transforms.Force = (function() {
     if(!(mark = item.mark.def.vdeMdl)) return;
     if(mark.pipelineName != this.pipelineName) return;
 
-    var fixed = item.datum.fixed && item.datum.x && item.datum.y,
+    var fixed = this.fixedPositions[item.datum.index],
         pin = $('#transform-force-pin');
 
     if(fixed) delete this.fixedPositions[item.datum.index];

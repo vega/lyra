@@ -84,12 +84,16 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     if(!cnf) return;
 
     if(type == 'group') {
+      if(vde.iVis.activeMark == vde.Vis.groups[name]) vde.iVis.activeMark = null;
+      vde.Vis.groups[name].destroy();
       delete vde.Vis.groups[name];
       var newOrder = [];
       vde.Vis.groupOrder.forEach(function(g) { if(vde.Vis.groups[g]) newOrder.push(g) });
       vde.Vis.groupOrder = newOrder;
     } else {
       var g = $rootScope.activeGroup;
+      if(vde.iVis.activeMark == g[type][name]) vde.iVis.activeMark = null;
+      g[type][name].destroy();
       delete g[type][name];
 
       if(type == 'marks') {

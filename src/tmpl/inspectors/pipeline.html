@@ -23,6 +23,8 @@
 
     <ul>
       <li ng-repeat="transform in newTransforms" class="transform-{{transform.type|lowercase}} icon" ng-init="isNewTransform = 1">
+        <vde-pipeline-ctrls></vde-pipeline-ctrls>
+
         <ng-include src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></ng-include>
 
         <input type="button" value="Cancel" ng-click="removeTransform($index, isNewTransform)" />

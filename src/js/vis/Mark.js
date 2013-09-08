@@ -54,7 +54,7 @@ vde.Vis.Mark = (function() {
       };
     });
 
-    vde.Vis.addEventListener('click', function(e, item) {
+    vde.Vis.addEventListener('click', this, function(e, item) {
       if(item.mark.def != self.def()) return;
       if(item.items && self.type != 'group') return;
 
@@ -62,7 +62,7 @@ vde.Vis.Mark = (function() {
     });
 
     // Highlight/unhighlight group
-    vde.Vis.addEventListener('mouseover', function(e, item) {
+    vde.Vis.addEventListener('mouseover', this, function(e, item) {
       if(!item.mark.def.vdeMdl) return;
       var m = item.mark.def.vdeMdl;
       if(!m.group()) return;
@@ -76,7 +76,7 @@ vde.Vis.Mark = (function() {
       });
     });
 
-    vde.Vis.addEventListener('mouseout', function(e, item) {
+    vde.Vis.addEventListener('mouseout', this, function(e, item) {
       if(!item.mark.def.vdeMdl) return;
       var m = item.mark.def.vdeMdl;
       if(!m.group()) return;
@@ -91,6 +91,12 @@ vde.Vis.Mark = (function() {
     })
 
     return this;
+  };
+
+  prototype.destroy = function() {
+    vde.Vis.removeEventListener('click', this);
+    vde.Vis.removeEventListener('mouseover', this);
+    vde.Vis.removeEventListener('mouseout', this);
   };
 
   prototype.pipeline = function() {

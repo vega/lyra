@@ -39,9 +39,21 @@ vde.Vis = (function() {
     }
   };
 
-  vis.addEventListener = function(type, handler) {
+  vis.addEventListener = function(type, caller, handler) {
     vis.evtHandlers[type] || (vis.evtHandlers[type] = []);
-    vis.evtHandlers[type].push(handler);
+    vis.evtHandlers[type].push({
+      caller: caller,
+      handler: handler
+    });
+  };
+
+  vis.removeEventListener = function(type, caller) {
+    var del = [], regd = (vis.evtHandlers[type] || []);
+    regd.forEach(function(r, i) {
+      if(r.caller == caller) del.push(i);
+    });
+
+    del.forEach(function(d) { regd.splice(d, 1); })
   };
 
   vis.parse = function(inlinedValues) {
@@ -87,8 +99,8 @@ vde.Vis = (function() {
 
       for(var type in vis.evtHandlers)
         vis.evtHandlers[type].forEach(function(h, i) {
-          if(type.indexOf('key') != -1) d3.select('body').on(type + '.' + i, h);
-          else vde.Vis.view.on(type, h);
+          if(type.indexOf('key') != -1) d3.select('body').on(type + '.' + i, h.handler);
+          else vde.Vis.view.on(type, h.handler);
         });
 
       var newMark = function() {

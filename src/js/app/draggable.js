@@ -2,7 +2,7 @@ vde.App.factory('draggable', function($rootScope) {
   return {
     dragstart: function(e, dd, proxy) {
       var isMark = proxy.hasClass('mark'),
-          v = $rootScope.activeVisual;
+          v = vde.iVis.activeMark;
 
       if(isMark) {
         var markType = proxy.attr('id');
