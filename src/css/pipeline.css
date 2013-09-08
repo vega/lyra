@@ -57,9 +57,18 @@ li.icon span.header { padding-left: 25px; }
   width: 16px;
   height: 16px;
   background: url(../imgs/pin.png);
+  margin-left: 10px;
 }
 
 #transform-force-pin.pinned { background: url(../imgs/pin-pushed.png); }
+
+.transform-force-regen {
+  float: right;
+  width: 16px;
+  height: 16px;
+  text-indent: -999em;
+  background: url(../imgs/refresh.png) no-repeat;
+}
 
 .pipeline .datatable {
   width: 100%;
