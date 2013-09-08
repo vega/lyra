@@ -112,7 +112,7 @@ vde.Vis.transforms.Facet = (function() {
           domainField: this.properties.keys,
           rangeTypes: {type: 'spatial', from: 'field'}
         }, {
-          properties: {type: 'ordinal', padding: 0.15}
+          properties: {type: 'ordinal', padding: 0.2}
         }, 'groups');
       }
 

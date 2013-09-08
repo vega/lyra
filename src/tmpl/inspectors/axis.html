@@ -7,9 +7,9 @@
 
     <vde-property label="Orient" type="select" options="orient" item="axis" property="orient" ng-model="axis.properties.orient" nodrop="1"></vde-property>
 
-    <vde-property label="Scale" type="scale" item="axis" property="scale" ng-model="axis.properties.scale" scale="axis.properties.scale"></vde-property>
-
-    <p ng-show="axis.pipeline().forkName"><label><input type="checkbox" ng-model="axis.onceAcrossForks" ng-click="reparse" /> Show axis only once</label></p>
+    <vde-property label="Scale" type="scale" item="axis" property="scale" ng-model="axis.properties.scale" scale="axis.properties.scale" transclude="1">
+      <p ng-show="axis.pipeline().forkName" style="margin-top: 5px"><label><input type="checkbox" ng-model="axis.onceAcrossForks" ng-click="reparse()" /> Show axis only once</label></p>
+    </vde-property>
 
     <fieldset id="axis">
       <legend>Axis</legend>
@@ -17,6 +17,16 @@
       <vde-property label="Color" type="color" item="axis" property="axisStyle.stroke" ng-model="axis.properties.axisStyle.stroke.value" nodrop="1"></vde-property>
 
       <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="axis" property="axisStyle.strokeWidth" ng-model="axis.properties.axisStyle.strokeWidth.value" nodrop="1"></vde-property>
+    </fieldset>
+
+    <fieldset id="title">
+      <legend>Title</legend>
+
+      <vde-property label="Show" type="checkbox" item="axis" property="showTitle" ng-model="axis.showTitle" nodrop="1"></vde-property>
+
+      <vde-property label="Offset" type="number" item="axis" property="titleOffset" ng-model="axis.properties.titleOffset" nodrop="1"></vde-property>
+
+      <vde-property label="Color" type="color" item="axis" property="titleStyle.fill" ng-model="axis.properties.titleStyle.fill.value" nodrop="1"></vde-property>
     </fieldset>
 
     <fieldset id="grid">

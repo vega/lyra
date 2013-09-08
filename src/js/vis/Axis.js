@@ -20,10 +20,11 @@ vde.Vis.Axis = (function() {
       },
 
       axisStyle: {},
-
+      titleStyle: {},
       gridStyle: {}
     };
 
+    this.showTitle = true;
     this.onceAcrossForks = false;
 
     this.groupName = groupName;
@@ -63,9 +64,12 @@ vde.Vis.Axis = (function() {
       else spec[k] = p;
     });
 
+    if(!this.showTitle) delete spec.title;
+
     spec.properties = {
       ticks: vg.duplicate(this.properties.tickStyle),
       labels: vg.duplicate(this.properties.labelStyle),
+      title: vg.duplicate(this.properties.titleStyle),
       axis: vg.duplicate(this.properties.axisStyle),
       grid: vg.duplicate(this.properties.gridStyle)
     };
