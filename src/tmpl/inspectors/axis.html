@@ -9,6 +9,8 @@
 
     <vde-property label="Scale" type="scale" item="axis" property="scale" ng-model="axis.properties.scale" scale="axis.properties.scale"></vde-property>
 
+    <p ng-show="axis.pipeline().forkName"><label><input type="checkbox" ng-model="axis.onceAcrossForks" ng-click="reparse" /> Show axis only once</label></p>
+
     <fieldset id="axis">
       <legend>Axis</legend>
 

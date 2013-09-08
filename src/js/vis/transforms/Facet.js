@@ -20,6 +20,7 @@ vde.Vis.transforms.Facet = (function() {
     this._seen = {scales: {}, axes: {}, marks: {}};
 
     vde.Vis.callback.register('mark.post_spec',  this, this.markPostSpec);
+    vde.Vis.callback.register('axis.post_spec',  this, this.axisPostSpec);
     vde.Vis.callback.register('group.post_spec', this, this.groupPostSpec);
 
     return this;
@@ -30,6 +31,7 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.destroy = function() {
     vde.Vis.callback.deregister('mark.post_spec',  this);
+    vde.Vis.callback.deregister('axis.post_spec',  this);
     vde.Vis.callback.deregister('group.post_spec', this);
 
     if(this.pipeline()) {
@@ -71,6 +73,25 @@ vde.Vis.transforms.Facet = (function() {
     delete opts.spec.properties;
   };
 
+  prototype.axisPostSpec = function(opts) {
+    if(!this.pipeline() || !this.pipeline().forkName) return;
+    if(!this.properties.keys) return;
+    if(!opts.item.pipeline() ||
+      (opts.item.pipeline() && opts.item.pipeline().name != this.pipeline().name)) return;
+    if(this._seen.axes[opts.item.name]) return;
+    if(this._posAxis && opts.item == this._posAxis) return;
+
+    var spec = vg.duplicate(opts.spec);
+    if(!opts.item.onceAcrossForks) {
+      this._group.axes.push(spec);
+
+      delete opts.spec.name;
+      delete opts.spec.scale;
+    }
+
+    this._seen.axes[opts.item.name] = 1;
+  };
+
   prototype.groupPostSpec = function(opts) {
     var self = this,
         emptyInjection = this._group.scales.length == 0 &&
@@ -87,14 +108,27 @@ vde.Vis.transforms.Facet = (function() {
       var isHoriz = this.properties.layout == 'Horizontal';
       if(!this._posScale) {
         this._posScale = this.pipeline().scale({
-          type: 'ordinal',
-          padding: 0.2,
-          field: this.properties.keys
-        }, {}, 'facets');
+          domainTypes: {from: 'field'},
+          domainField: this.properties.keys,
+          rangeTypes: {type: 'spatial', from: 'field'}
+        }, {
+          properties: {type: 'ordinal'}
+        }, 'groups');
       }
 
-      this._posScale.properties.range = new vde.Vis.Field(isHoriz ? 'width' : 'height');
+      this._posScale.properties.type = 'ordinal';
+      this._posScale.rangeField = new vde.Vis.Field(isHoriz ? 'width' : 'height');
       this._posScale.properties.points = false;
+      this._posScale.used = true;
+
+      if(!this._posAxis) {
+        this._posAxis = new vde.Vis.Axis('groups_axis', opts.item.name);
+        var ap = this._posAxis.properties;
+        ap.type = isHoriz? 'x' : 'y';
+        ap.orient = isHoriz ? 'top' : 'right';
+        this._posAxis.bindProperty('scale', {pipelineName: this.pipelineName, scaleName: this._posScale.name});
+        opts.spec.axes.push(this._posAxis.spec());
+      }
     }
 
     if(emptyInjection) {  // Facet was applied on the group directly

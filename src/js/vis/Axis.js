@@ -24,6 +24,8 @@ vde.Vis.Axis = (function() {
       gridStyle: {}
     };
 
+    this.onceAcrossForks = false;
+
     this.groupName = groupName;
     this.pipelineName = null;
 
@@ -72,7 +74,7 @@ vde.Vis.Axis = (function() {
 
     this.properties.scale.hasAxis = true;
 
-    return spec;
+    return spec.scale ? spec : null;
   };
 
   prototype.def = function() {

@@ -201,7 +201,5 @@ vde.Vis.transforms.Force = (function() {
     pin.toggleClass('pinned');
   };
 
-  prototype.regenerate = function() { vde.Vis.parse(); };
-
   return force;
 })();

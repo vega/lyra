@@ -10,6 +10,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     fonts: ['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS']
   };
 
+  $rootScope.reparse = function() { vde.Vis.parse(); };
+
   $rootScope.toggleVisual = function(v, key) {
     $rootScope.activeVisual = v;
     $rootScope.activeGroup  = v.group() || v;
