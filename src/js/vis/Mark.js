@@ -177,47 +177,67 @@ vde.Vis.Mark = (function() {
           field = prules[1];
 
       if((!scale || p.default) && (field && field.type != 'encoded')) {
+        var defaultDef = {}, displayName = null,
+            searchDef = {
+              domainTypes: {from: 'field'},
+              domainField: field,
+              rangeTypes: {}
+            };
+
         switch(prop) {
           case 'x':
-            scale = this.group().scale(this, {
-              field: field
-            }, {
-              type: field.type || 'ordinal',
-              range: new vde.Vis.Field('width')
-            }, 'x');
-            scale.axisType = 'x';
+          case 'x2':
+          case 'width':
+            searchDef.rangeTypes.type = 'spatial';
+            defaultDef = {
+              properties: { type: field.type || 'ordinal'},
+              rangeTypes: {type: 'spatial', from: 'field'},
+              rangeField: new vde.Vis.Field('width'),
+              axisType: 'x'
+            };
+            displayName = 'x';
           break;
 
           case 'y':
-            scale = this.group().scale(this, {
-              field: field,
-            }, {
-              type: field.type || 'linear',
-              range: new vde.Vis.Field('height')
-            }, 'y');
-            scale.axisType = 'y';
+          case 'y2':
+          case 'height':
+            searchDef.rangeTypes.type = 'spatial';
+            defaultDef = {
+              properties: { type: field.type || 'linear'},
+              rangeTypes: {type: 'spatial', from: 'field'},
+              rangeField: new vde.Vis.Field('height'),
+              axisType: 'y'
+            };
+            displayName = 'y';
           break;
 
           case 'fill':
           case 'stroke':
-            scale = this.group().scale(this, {
-              type: 'ordinal',
-              field: field,
-              range: new vde.Vis.Field('category20')
-            }, {}, prop + '_color');
-            scale.rangeTypes.type = 'colors';
+            searchDef.rangeTypes.type = 'colors';
+            defaultDef = {
+              properties: { type: 'ordinal'},
+              rangeTypes: {type: 'colors', from: 'field'},
+              rangeField: new vde.Vis.Field('category20')
+            };
+            displayName = prop + '_color';
           break;
 
           case 'fillOpacity':
           case 'strokeWidth':
-            scale = this.group().scale(this, {
-              field: field,
-              range: (prop == 'fillOpacity') ? [0, 1] : [0, 10]
-            }, {
-              type: field.type || 'linear'
-            }, prop);
+            searchDef.rangeTypes = {type: 'other', property: prop};
+            defaultDef = {
+              properties: { type: field.type || 'linear'},
+              rangeTypes: {type: 'other', from: 'values', property: prop},
+              rangeValues: (prop == 'fillOpacity') ? [0, 1] : [0, 10]
+            };
+            displayName = prop;
           break;
         }
+
+        if(this.type == 'rect' && defaultDef.properties.type == 'ordinal')
+          defaultDef.properties.points = false;
+
+        scale = this.group().scale(this, searchDef, defaultDef, displayName);
       }
 
       if(scale) p.scale = scale;

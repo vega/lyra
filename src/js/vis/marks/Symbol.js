@@ -29,11 +29,14 @@ vde.Vis.marks.Symbol = (function() {
   prototype.productionRules = function(prop, scale, field) {
     if(!scale && prop == 'size') {
       scale = this.group().scale(this, {
-        type: 'linear',
-        field: field
-      }, {}, 'size');
-      scale.rangeTypes = {type: 'sizes', from: 'values'};
-      scale.rangeValues = [50, 1000];
+        domainTypes: {from: 'field'},
+        domainField: field,
+        rangeTypes: {type: 'sizes'}
+      }, {
+        properties: {type: 'linear'},
+        rangeTypes: {type: 'sizes', from: 'values'},
+        rangeValues: [50, 1000]
+      }, 'symbol_size');
     };
 
     return [scale, field];

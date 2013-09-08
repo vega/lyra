@@ -1,11 +1,14 @@
 vde.Vis.Scale = (function() {
-  var scale = function(name, pipeline, properties, displayName) {
+  var scale = function(name, pipeline, defaults, displayName) {
     var scaleName = 'scale_' + (vg.keys(pipeline.scales).length+1);
     this.name  = (name || pipeline.name + '_' + scaleName);
     this.displayName = displayName;
 
     this.domainTypes = {from: 'field'};  // Field or Values
-    this.rangeTypes  = {type: 'spatial', from: 'field'};
+    this.rangeTypes  = {type: 'spatial', from: 'field'};  // 'property' key if type is 'other'
+
+    this.domainField = null;
+    this.rangeField  = null;
 
     this.domainValues = [];
     this.rangeValues  = [];
@@ -13,9 +16,22 @@ vde.Vis.Scale = (function() {
     this.hasAxis  = false;  // Does this scale already have an axis/legend on the vis
     this.axisType = 'x';    // If not, visualize it on iVis when editing
 
-    this.properties = properties;
-    this.properties.points || (this.properties.points = true);
-    this.properties.nice || (this.properties.nice = true);
+    this.properties = {
+      type: 'linear',
+      points: true,
+      nice: true,
+      // clamp: false
+      // padding: 0,
+      // exponent: 0,
+      // zero: true
+    };
+
+    for(var d in defaults) {
+      if(d == 'properties') continue;
+      this[d] = defaults[d];
+    }
+
+    for(var d in defaults.properties) this.properties[d] = defaults.properties[d];
 
     this.pipelineName = pipeline.name;
     pipeline.scales[this.name] = this;
@@ -33,12 +49,12 @@ vde.Vis.Scale = (function() {
 
     spec.name = this.name;
 
-    spec.domain = (this.domainTypes.from == 'field' && this.properties.field) ?
-      { data: this.properties.field.pipelineName || this.pipeline().name,
-        field: this.properties.field.spec() } : this.domainValues;
+    spec.domain = (this.domainTypes.from == 'field' && this.domainField) ?
+      { data: this.domainField.pipelineName || this.pipeline().name,
+        field: this.domainField.spec() } : this.domainValues;
 
-    spec.range = (this.rangeTypes.from == 'field' && this.properties.range) ?
-      this.properties.range.spec() : this.rangeValues;
+    spec.range = (this.rangeTypes.from == 'field' && this.rangeField) ?
+      this.rangeField.spec() : this.rangeValues;
 
     delete spec.pipeline;
     delete spec.field;
@@ -57,19 +73,25 @@ vde.Vis.Scale = (function() {
   };
 
   prototype.type  = function() { return this.properties.type; };
-  prototype.field = function() { return this.properties.field; };
-  prototype.range = function() { return this.properties.range; };
+  prototype.field = function() { return this.domainTypes.from == 'field' ? this.domainField : this.domainValues; };
+  prototype.range = function() { return this.rangeTypes.from == 'field'  ? this.rangeField  : this.rangeValues; };
 
   prototype.pipeline = function() {
     return vde.Vis.pipelines[this.pipelineName];
   };
 
   prototype.equals = function(b) {
-    var a = {}, self = this;
+    var a = {};
+    var aFromB = function(a, b, self) {
+      for(var k in b) {
+        var isObj = vg.isObject(b[k]) &&
+          !vg.isArray(b[k]) && !(b[k] instanceof vde.Vis.Field);
+        a[k] = isObj ? {} : self[k];
+        if(isObj) aFromB(a[k], b[k], self[k]);
+      }
+    }
 
-    vg.keys(b).forEach(function(k) {
-      a[k] = self.properties[k];
-    });
+    aFromB(a, b, this);
 
     return JSON.stringify(a) == JSON.stringify(b);
   };
@@ -79,7 +101,7 @@ vde.Vis.Scale = (function() {
     if(!field) return; // Because this makes negatory sense.
     if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
 
-    this.properties[prop] = field;
+    this[prop] = field;
   };
 
   prototype.unbindProperty = function(prop) {

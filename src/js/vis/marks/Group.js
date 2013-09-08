@@ -96,8 +96,8 @@ vde.Vis.marks.Group = (function() {
     return spec;
   };
 
-  prototype.scale = function(mark, spec, defaultSpec, displayName) {
-    var scale = mark.pipeline().scale(spec, defaultSpec, displayName);
+  prototype.scale = function(mark, searchDef, defaultDef, displayName) {
+    var scale = mark.pipeline().scale(searchDef, defaultDef, displayName);
     this.scales[scale.name] = scale;
 
     return scale;

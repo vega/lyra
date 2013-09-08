@@ -44,37 +44,6 @@ vde.Vis.marks.Rect = (function() {
     if(!scale && props.indexOf(prop) != -1)
       props.some(function(p) { if(scale = self.properties[p].scale) return true });
 
-    if(!scale) {
-      switch(prop) {
-        case 'x':
-        case 'x2':
-        case 'width':
-          scale = this.group().scale(this, {
-            field: field
-          }, {
-            type: field.type || 'ordinal',
-            range: new vde.Vis.Field('width')
-          }, 'x');
-          scale.axisType = 'x';
-        break;
-
-        case 'y':
-        case 'y2':
-        case 'height':
-          scale = this.group().scale(this, {
-            field: field
-          }, {
-            type: field.type || 'linear',
-            range: new vde.Vis.Field('height')
-          }, 'y');
-          scale.axisType = 'y';
-        break;
-      }
-    }
-
-    if(scale && scale.type() == 'ordinal')
-      scale.properties.points = false;
-
     return [scale, field];
   };
 

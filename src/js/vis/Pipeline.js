@@ -106,18 +106,18 @@ vde.Vis.Pipeline = (function() {
     return [fields, values];
   };
 
-  // Given a spec, find a pre-existing scale that matches,
+  // Given a definition, find a pre-existing scale that matches,
   // or if none do, build a new scale.
-  prototype.scale = function(spec, defaultSpec, displayName) {
+  prototype.scale = function(searchDef, defaultDef, displayName) {
     for(var scaleName in this.scales) {
-      if(this.scales[scaleName].equals(spec))
+      if(this.scales[scaleName].equals(searchDef))
         return this.scales[scaleName];
     }
 
-    for(var k in defaultSpec)
-      spec[k] = defaultSpec[k];
+    for(var k in defaultDef)
+      searchDef[k] = defaultDef[k];
 
-    return new vde.Vis.Scale('', this, spec, displayName);
+    return new vde.Vis.Scale('', this, searchDef, displayName);
   };
 
   // Figure out where to add the transform:

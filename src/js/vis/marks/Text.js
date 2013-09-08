@@ -82,27 +82,42 @@ vde.Vis.marks.Text = (function() {
       this.properties.textFormulaHtml = $('<div>').append(schema).html();
 
       scale = field = null;
-    } else if(!scale && prop == 'fontSize') {
-      scale = this.group().scale(this, {
-        type: 'linear',
-        field: field
-      }, {}, 'fontSize');
-      scale.rangeTypes = {type: 'sizes', from: 'values'};
-      scale.rangeValues = [8, 21];
-    } else if(!scale && prop == 'fontWeight') {
-      scale = this.group().scale(this, {
-        type: 'quantize',
-        field: field
-      }, {}, 'fontSize');
-      scale.rangeTypes = {type: 'other', from: 'values'};
-      scale.rangeValues = ['normal', 'bold'];
-    } else if(!scale && prop == 'fontStyle') {
-      scale = this.group().scale(this, {
-        type: 'quantize',
-        field: field
-      }, {}, 'fontSize');
-      scale.rangeTypes = {type: 'other', from: 'values'};
-      scale.rangeValues = ['normal', 'italic'];
+    } else if(!scale) {
+      var defaultDef = {},
+          searchDef  = {
+            domainTypes: {from: 'field'},
+            domainField: field,
+            rangeTypes: {type: 'other', property: prop}
+          };
+
+      switch(prop) {
+        case 'fontSize':
+          defaultDef = {
+            properties: {type: 'linear'},
+            rangeTypes: {type: 'other', property: prop, from: 'values'},
+            rangeValues: [8, 21]
+          };
+        break;
+
+        case 'fontWeight':
+          defaultDef = {
+            properties: {type: 'quantize'},
+            rangeTypes: {type: 'other', property: prop, from: 'values'},
+            rangeValues: ['normal', 'bold']
+          };
+        break;
+
+        case 'fontStyle':
+          defaultDef = {
+            properties: {type: 'quantize'},
+            rangeTypes: {type: 'other', property: prop, from: 'values'},
+            rangeValues: ['normal', 'italic']
+          };
+        break;
+      }
+
+      if(vg.keys(defaultDef).length > 0)
+        scale = this.group().scale(this, searchDef, defaultDef, prop);
     }
 
     return [scale, field];

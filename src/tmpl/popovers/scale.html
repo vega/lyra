@@ -43,7 +43,7 @@
 
 		  <vde-property label="From" type="radio" options="fromTypes" property="domainTypes.from" ng-model="activeScale.domainTypes.from" nodrop="1"></vde-property>
 
-	  	<div ng-show="activeScale.domainTypes.from == 'field'"><vde-property label="Field" type="field" item="activeScale" property="field" field="activeScale.properties.field"></vde-property></div>
+	  	<div ng-show="activeScale.domainTypes.from == 'field'"><vde-property label="Field" type="field" item="activeScale" property="domainField" field="activeScale.domainField"></vde-property></div>
 
 	  	<div ng-show="activeScale.domainTypes.from == 'values'">
 	  		<vde-property label="Values" transclude="1">
@@ -64,7 +64,7 @@
 	  	<vde-property label="From" type="radio" options="fromTypes" item="activeScale" property="rangeTypes.from" ng-model="activeScale.rangeTypes.from" nodrop="1"></vde-property>
 
 	  	<div ng-show="activeScale.rangeTypes.from == 'field'">
-	  		<vde-property label="Field" type="field" item="activeScale" property="range" field="activeScale.properties.range"></vde-property>
+	  		<vde-property label="Field" type="field" item="activeScale" property="rangeField" field="activeScale.rangeField"></vde-property>
 
 	  		<div class="hint" ng-show="['sizes', 'other'].indexOf(activeScale.rangeTypes.type) == -1">
 			  	<p>These preset ranges are available; to use one, drag it to <code>field</code> above.</p>
