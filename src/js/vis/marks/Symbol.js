@@ -31,7 +31,9 @@ vde.Vis.marks.Symbol = (function() {
       scale = this.group().scale(this, {
         type: 'linear',
         field: field
-      }, {range: [50, 1000]}, 'size');
+      }, {}, 'size');
+      scale.rangeTypes = {type: 'sizes', from: 'values'};
+      scale.rangeValues = [50, 1000];
     };
 
     return [scale, field];
