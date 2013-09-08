@@ -96,6 +96,11 @@ vde.Vis.marks.Group = (function() {
     return spec;
   };
 
+  prototype.bookkeep = function() {
+    for(var s in this.scales)
+      if(!this.scales[s].used) delete this.scales[s];
+  };
+
   prototype.scale = function(mark, searchDef, defaultDef, displayName) {
     var scale = mark.pipeline().scale(searchDef, defaultDef, displayName);
     this.scales[scale.name] = scale;

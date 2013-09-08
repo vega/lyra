@@ -13,6 +13,8 @@ vde.Vis.Scale = (function() {
     this.domainValues = [];
     this.rangeValues  = [];
 
+    this.used = false;  // Auto-delete unused scales
+
     this.hasAxis  = false;  // Does this scale already have an axis/legend on the vis
     this.axisType = 'x';    // If not, visualize it on iVis when editing
 

@@ -82,7 +82,10 @@ vde.Vis = (function() {
     for(var p in vis.pipelines) {
       var pl = vis.pipelines[p];
       // Clear scales hasAxis flag.
-      for(var s in pl.scales) pl.scales[s].hasAxis = false;
+      for(var s in pl.scales) {
+        pl.scales[s].hasAxis = false;
+        pl.scales[s].used = false;
+      }
       spec.data = spec.data.concat(pl.spec());
     }
 
@@ -90,6 +93,10 @@ vde.Vis = (function() {
     vis.groupOrder.forEach(function(g) { spec.marks.unshift(vis.groups[g].spec()); });
 
     vde.Vis.callback.run('vis.post_spec', this, {spec: spec});
+
+    // Now that the spec has been generated, bookkeep to clean up unused scales
+    for(var p in vis.pipelines) vis.pipelines[p].bookkeep();
+    for(var g in vis.groups) vis.groups[g].bookkeep();
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#vis').selectAll('*').remove();
@@ -177,7 +184,7 @@ vde.Vis = (function() {
     for(var k in p) {
       if(p[k] == undefined) return;
 
-      if(k == 'scale') parsed[k] = p[k].name;
+      if(k == 'scale') { parsed[k] = p[k].name; p[k].used = true; }
       else if(k == 'field') parsed[k] = p[k].spec();
       else {
         var value = (!isNaN(+p[k])) ? +p[k] : p[k];

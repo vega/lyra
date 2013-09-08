@@ -51,6 +51,11 @@ vde.Vis.Pipeline = (function() {
     return specs;
   };
 
+  prototype.bookkeep = function() {
+    for(var s in this.scales)
+      if(!this.scales[s].used) delete this.scales[s];
+  };
+
   prototype.values = function(sliceBeg, sliceEnd) {
     var values = vg.duplicate(vde.Vis._data[this.source].values).map(vg.data.ingest);
     this.transforms.slice(sliceBeg, sliceEnd).forEach(function(t) {

@@ -56,7 +56,7 @@ vde.Vis.Axis = (function() {
       var p = self.properties[k];
       if(p == undefined) return;
 
-      if(k == 'scale') spec[k] = p.name;
+      if(k == 'scale') { spec[k] = p.name; p.used = true; }
       else if(k.indexOf('Style') != -1) return;
       else spec[k] = p;
     });
