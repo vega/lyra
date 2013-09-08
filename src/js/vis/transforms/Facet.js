@@ -112,7 +112,7 @@ vde.Vis.transforms.Facet = (function() {
           domainField: this.properties.keys,
           rangeTypes: {type: 'spatial', from: 'field'}
         }, {
-          properties: {type: 'ordinal'}
+          properties: {type: 'ordinal', padding: 0.15}
         }, 'groups');
       }
 
@@ -155,9 +155,11 @@ vde.Vis.transforms.Facet = (function() {
 
         var pos =  {scale: this._posScale.name, field: 'key'};
         var size = {scale: this._posScale.name, band: true};
+        var enter = opts.spec.properties.enter;
 
         this._group.properties.enter = isHoriz ?
-          {x: pos, width: size} : {y: pos, height: size};
+          {x: pos, width: size,  y: enter.y, height: enter.height} :
+          {y: pos, height: size, x: enter.x, width: enter.width};
       }
 
       opts.spec.marks.push(vg.duplicate(this._group));
