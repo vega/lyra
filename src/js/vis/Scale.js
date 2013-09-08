@@ -33,11 +33,11 @@ vde.Vis.Scale = (function() {
 
     spec.name = this.name;
 
-    spec.domain = (this.domainTypes.from == 'field') ?
+    spec.domain = (this.domainTypes.from == 'field' && this.properties.field) ?
       { data: this.properties.field.pipelineName || this.pipeline().name,
         field: this.properties.field.spec() } : this.domainValues;
 
-    spec.range = (this.rangeTypes.from == 'field') ?
+    spec.range = (this.rangeTypes.from == 'field' && this.properties.range) ?
       this.properties.range.spec() : this.rangeValues;
 
     delete spec.pipeline;
