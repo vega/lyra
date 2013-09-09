@@ -44,6 +44,8 @@ vde.Vis.Axis = (function() {
     return this;
   };
 
+  prototype.destroy = function() { return null; }
+
   prototype.spec = function() {
     var spec = {}, self = this;
     if(!this.properties.scale) return;
