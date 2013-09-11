@@ -1,14 +1,17 @@
-<div>
+<div ng-init="offsets=['zero', 'silhouette', 'wiggle', 'expand']; order=['default', 'reverse', 'inside-out'];">
   <span class="header">Stack</span>
-
 
   <vde-property label="Points" type="field" item="transform" property="point" ng-model="transform.properties.point" field="transform.properties.point"></vde-property>
 
   <vde-property label="Height" type="field" item="transform" property="height" ng-model="transform.properties.height" field="transform.properties.height"></vde-property>
 
-  <vde-property label="Output" ng-if="transform.pipelineName" nodrop="1">
+  <vde-property label="Offset" type="select" options="offsets" item="transform" property="offset" ng-model="transform.properties.offset" nodrop="1"></vde-property>
+
+  <vde-property label="Order" type="select" options="order" item="transform" property="order" ng-model="transform.properties.order" nodrop="1"></vde-property>
+
+  <div ng-show="transform.properties.height"><vde-property label="Output" nodrop="1">
 		<vde-binding scale="transform.scale" field="'y'" draggable="1"></vde-binding>
 		<vde-binding scale="transform.scale" field="'y2'" draggable="1"></vde-binding>
-	</vde-property>
+	</vde-property></div>
 
 </div>

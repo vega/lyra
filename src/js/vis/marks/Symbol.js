@@ -48,7 +48,7 @@ vde.Vis.marks.Symbol = (function() {
   //   var otherProp = (prop == 'x') ? 'y' : 'x';
   //   if(!props[otherProp].scale) {
   //     this.bindProperty(otherProp, {
-  //         field: new vde.Vis.Field('index', false, 'linear', this.pipelineName),
+  //         field: new vde.Vis.Field('index', '', 'linear', this.pipelineName),
   //         pipelineName: this.pipelineName
   //       }, true);
   //   }

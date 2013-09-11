@@ -1,6 +1,6 @@
 vde.Vis.transforms.Stack = (function() {
   var stack = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'stack', ['point', 'height']);
+    vde.Vis.Transform.call(this, pipelineName, 'stack', ['point', 'height', 'offset', 'order']);
 
     vde.Vis.callback.register('vis.post_spec', this, this.visPostSpec);
 
@@ -24,17 +24,18 @@ vde.Vis.transforms.Stack = (function() {
 
     // Add a scale for the stacking
     this.scale = this.pipeline().scale({
-      field: new vde.Vis.Field('sum', false, 'linear', this.pipeline().name + '_stack')
+      domainTypes: {from: 'field'},
+      domainField: new vde.Vis.Field('sum', '', 'linear', this.pipeline().name + '_stack'),
+      rangeTypes: {type: 'spatial'}
     }, {
-      type: 'linear',
-      range: new vde.Vis.Field('height')
+      properties: {type: 'linear'},
+      rangeTypes: {type: 'spatial', from: 'field'},
+      rangeField: new vde.Vis.Field('height'),
+      axisType: 'y'
     }, 'stacks');
+    this.scale.used = true;
 
-    return {
-      type: this.type,
-      point: this.properties.point.spec(),
-      height: this.properties.height.spec()
-    };
+    return vde.Vis.Transform.prototype.spec.call(this);
   };
 
   // Inject stats calculation for height scales

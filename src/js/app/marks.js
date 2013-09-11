@@ -15,6 +15,9 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope, $timeout, logger) {
       vde.Vis.data('movies', 'data/movies.json', 'json');
       vde.Vis.data('characters', 'data/mis-characters.json', 'json');
       vde.Vis.data('connections', 'data/mis-connections.json', 'json');
+      vde.Vis.data('trains', 'data/trains.json', 'json');
+      vde.Vis.data('stations', 'data/stations.json', 'json');
+      vde.Vis.data('unemployment', 'data/unemployment.json', 'json');
       // vde.Vis.data('stocks', 'data/stocks.csv', {"type": "csv", "parse": {"price":"number", "date":"date"}});
     }
 

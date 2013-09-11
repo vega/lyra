@@ -43,7 +43,7 @@ vde.Vis.marks.Line = (function() {
         delete this.properties[p];
     }
 
-    if(this.type == 'line') this.dummySpec();
+    this.dummySpec();
 
     return vde.Vis.Mark.prototype.spec.call(this);
   };
@@ -54,7 +54,7 @@ vde.Vis.marks.Line = (function() {
     var otherProp = (prop == 'x') ? 'y' : 'x';
     if(!props[otherProp].scale) {
       this.bindProperty(otherProp, {
-          field: new vde.Vis.Field('index', false, 'linear', this.pipelineName),
+          field: new vde.Vis.Field('index', '', 'linear', this.pipelineName),
           pipelineName: this.pipelineName
         }, true);
 
@@ -119,7 +119,7 @@ vde.Vis.marks.Line = (function() {
   };
 
   prototype.dummySpec = function() {
-    if(!this.properties.x.field && !this.properties.y.field) {
+    if(this.type == 'line' && !this.properties.x.field && !this.properties.y.field) {
       this._spec.from = {data: 'vdeDummyData'};
       this._spec.properties.enter = {
         x: {field: 'data.x'},

@@ -4,6 +4,11 @@ vde.Vis.transforms.Pie = (function() {
 
     this.isVisual = true;
 
+    this.output = {
+      startAngle: new vde.Vis.Field('startAngle', '', 'encoded', pipelineName),
+      endAngle: new vde.Vis.Field('endAngle', '', 'encoded', pipelineName)
+    };
+
     return this;
   }
 

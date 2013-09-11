@@ -83,8 +83,7 @@ vde.Vis.Pipeline = (function() {
             if(k == 'key') k += '_' + depth;
             if(seenFields[k]) return;
 
-            var field = new vde.Vis.Field(k);
-            field.raw = (i == 0);
+            var field = new vde.Vis.Field(k, (i == 0) ? 'data' : '');
             field.pipelineName = pipeline;
             if(parse[k]) field.type = (parse[k] == 'date') ? 'time' : (parse[k] == 'number') ? 'linear' : 'ordinal';
             else field.type = vg.isNumber(v[k]) ? 'linear' : 'ordinal';

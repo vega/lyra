@@ -20,9 +20,9 @@ vde.Vis.transforms.Geo = (function() {
 
     this.input = vg.keys(this.properties);
     this.output = {
-      x: new vde.Vis.Field('x', false, 'encoded', pipelineName),
-      y: new vde.Vis.Field('y', false, 'encoded', pipelineName),
-      path: new vde.Vis.Field('path', false, 'encoded', pipelineName),
+      x: new vde.Vis.Field('x', '', 'encoded', pipelineName),
+      y: new vde.Vis.Field('y', '', 'encoded', pipelineName),
+      path: new vde.Vis.Field('path', '', 'encoded', pipelineName),
     };
 
     return this;

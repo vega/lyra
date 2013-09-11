@@ -82,7 +82,7 @@ vde.Vis.marks.Rect = (function() {
       // otherProps.some(function(o) { return (scaledOther = !!props[o].scale); })
       // if(!scaledOther) {
       //   this.bindProperty(otherProps[2], {
-      //     field: new vde.Vis.Field('index', false, 'ordinal', this.pipelineName),
+      //     field: new vde.Vis.Field('index', '', 'ordinal', this.pipelineName),
       //     pipelineName: this.pipelineName
       //   }, true);
       // }

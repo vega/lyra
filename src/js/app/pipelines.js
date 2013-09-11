@@ -101,7 +101,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
 
         var schema  = $scope.pipeline.schema($scope.sliceBeg(), $scope.sliceEnd());
         var columns = schema[0].reduce(function(c, f) {
-          return c.concat([{ sTitle: f.name, mData: f.spec(), headerCssClass: f.raw ? 'raw' : 'derived' }]);
+          return c.concat([{ sTitle: f.name, mData: f.spec(), headerCssClass: f.raw() ? 'raw' : 'derived' }]);
         }, [{ sTitle: 'col', mData: null}]);
 
         var values = schema[1];

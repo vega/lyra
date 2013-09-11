@@ -1,7 +1,7 @@
 vde.Vis.Field = (function() {
-  var field = function(name, raw, type, pipelineName) {
+  var field = function(name, accessor, type, pipelineName) {
     this.name = name.replace('data.', '');
-    this.raw = (raw || name.indexOf('data.') != -1);
+    this.accessor = accessor ? accessor+'.' : '';
     this.type = type;
     this.pipelineName = pipelineName;
 
@@ -9,8 +9,16 @@ vde.Vis.Field = (function() {
   };
 
   field.prototype.spec = function() {
-    return (this.raw ? 'data.' : '') + this.name;
+    return this.accessor + this.name;
   };
+
+  field.prototype.pipeline = function() {
+    return vde.Vis.pipelines[this.pipelineName];
+  };
+
+  field.prototype.raw = function() {
+    return this.accessor.indexOf('data') != -1;
+  }
 
   return field;
 })();

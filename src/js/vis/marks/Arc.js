@@ -26,28 +26,40 @@ vde.Vis.marks.Arc = (function() {
   var prototype  = arc.prototype;
 
   prototype.spec = function() {
-    var spec = vde.Vis.Mark.prototype.spec.call(this);
+    var spec = this._spec;
 
     // angles are in radians
-    var props = spec.properties.enter;
-    if(props.startAngle.value)
-      props.startAngle.value = props.startAngle.value / 180 * Math.PI;
+    var props = this.properties;
+    if(!props.startAngle.field) {
+      spec.startAngle || (spec.startAngle = {});
+      spec.startAngle.value = props.startAngle.value / 180 * Math.PI;
+    }
 
-    if(props.endAngle.value)
-    props.endAngle.value = props.endAngle.value / 180 * Math.PI;
+    if(!props.endAngle.field) {
+      spec.endAngle || (spec.endAngle = {});
+      spec.endAngle.value = props.endAngle.value / 180 * Math.PI;
+    }
 
-    return spec;
+    return vde.Vis.Mark.prototype.spec.call(this);
   };
 
   prototype.productionRules = function(prop, scale, field) {
-    switch(prop) {
-      case 'innerRadius':
-      case 'outerRadius':
-        scale = this.group().scale(this, {
-          type: 'sqrt',
-          field: field
-        }, {range: new vde.Vis.Field('width')}, 'radius');
-      break;
+    if(!scale) {
+      switch(prop) {
+        case 'innerRadius':
+        case 'outerRadius':
+          scale = this.group().scale(this, {
+            domainTypes: {from: 'field'},
+            domainField: field,
+            rangeTypes: {type: 'other', property: prop}
+          }, {
+            properties: {type: 'sqrt'},
+            rangeTypes: {type: 'other', from: 'values', property: prop},
+            rangeValues: (prop == 'innerRadius') ? [0, 50] : [0, 100]
+          }, prop);
+
+        break;
+      }
     }
 
     return [scale, field];

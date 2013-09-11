@@ -23,7 +23,7 @@ vde.Vis.transforms.Force = (function() {
       tension: 0,
 
       properties: {
-        path: {field: new vde.Vis.Field('path', false)},
+        path: {field: new vde.Vis.Field('path', '')},
         stroke: {value: '#ccc'},
         strokeWidth: {value: 0.5}
       }
@@ -31,9 +31,9 @@ vde.Vis.transforms.Force = (function() {
 
     this.input = vg.keys(this.properties);
     this.output = {
-      x: new vde.Vis.Field('x', false, 'encoded', pipelineName),
-      y: new vde.Vis.Field('y', false, 'encoded', pipelineName),
-      weight: new vde.Vis.Field('weight', false, 'linear', pipelineName)
+      x: new vde.Vis.Field('x', '', 'encoded', pipelineName),
+      y: new vde.Vis.Field('y', '', 'encoded', pipelineName),
+      weight: new vde.Vis.Field('weight', '', 'linear', pipelineName)
     };
 
     this.seen = {};
