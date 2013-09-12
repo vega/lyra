@@ -136,7 +136,7 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
     logger.log('remove_transform', { idx: i }, false, true);
   };
 
-  $scope.toggleFont = function(prop, value) {
+  $scope.toggleProp = function(prop, value) {
     var p = $rootScope.activeVisual.properties[prop];
     if(p.value == value) delete p.value;
     else p.value = value;

@@ -21,20 +21,44 @@
 
   </fieldset>
 
-  <fieldset id="fill">
+  <fieldset id="fill" ng-init="fillTypes=['color', 'image'];">
     <legend>Fill</legend>
 
-    <vde-property label="Color" type="color" item="mark" property="fill" ng-model="mark.properties.fill.value" scale="mark.properties.fill.scale" field="mark.properties.fill.field"></vde-property>  
+    <vde-property label="With" type="select" options="fillTypes" item="mark" property="fillType" ng-model="mark.fillType" nodrop="1"></vde-property>
 
-    <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" item="mark" property="fillOpacity" ng-model="mark.properties.fillOpacity.value" scale="mark.properties.fillOpacity.scale" field="mark.properties.fillOpacity.field"></vde-property> 
-  </fieldset>  
+    <div ng-show="mark.fillType == 'color'">
+      <vde-property label="Color" type="color" item="mark" property="fill" ng-model="mark.properties.fill.value" scale="mark.properties.fill.scale" field="mark.properties.fill.field"></vde-property>
+
+      <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" item="mark" property="fillOpacity" ng-model="mark.properties.fillOpacity.value" scale="mark.properties.fillOpacity.scale" field="mark.properties.fillOpacity.field"></vde-property>
+    </div>
+
+    <div ng-show="mark.fillType == 'image'">
+      <vde-property label="URL" type="text" item="mark" property="url" ng-model="mark.properties.url.value" scale="mark.properties.url.scale" field="mark.properties.url.field"></vde-property>
+
+      <vde-property label="" item="mark" nodrop="1">
+      <div class="icons">
+        <a class="text-left-align" ng-click="toggleProp('align', 'left');" ng-class="{selected: mark.properties.align.value == 'left'}">Left Align</a>
+
+        <a class="text-center-align" ng-click="toggleProp('align', 'center');" ng-class="{selected: mark.properties.align.value == 'center'}">Center Align</a>
+
+        <a class="text-right-align" ng-click="toggleProp('align', 'right');" ng-class="{selected: mark.properties.align.value == 'right'}">Right Align</a>
+
+        <a class="text-top-align" ng-click="toggleProp('baseline', 'top');" ng-class="{selected: mark.properties.baseline.value == 'top'}">Top Align</a>
+
+        <a class="text-middle-align" ng-click="toggleProp('baseline', 'middle');" ng-class="{selected: mark.properties.baseline.value == 'middle'}">Middle Align</a>
+
+        <a class="text-bottom-align" ng-click="toggleProp('baseline', 'bottom');" ng-class="{selected: mark.properties.baseline.value == 'bottom'}">Bottom Align</a>
+      </div>
+    </vde-property>
+    </div>
+  </fieldset>
 
   <fieldset id="stroke">
     <legend>Stroke</legend>
 
-    <vde-property label="Color" type="color" item="mark" property="stroke" ng-model="mark.properties.stroke.value" scale="mark.properties.stroke.scale" field="mark.properties.stroke.field"></vde-property>  
+    <vde-property label="Color" type="color" item="mark" property="stroke" ng-model="mark.properties.stroke.value" scale="mark.properties.stroke.scale" field="mark.properties.stroke.field"></vde-property>
 
-    <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="mark" property="strokeWidth" ng-model="mark.properties.strokeWidth.value" scale="mark.properties.strokeWidth.scale" field="mark.properties.strokeWidth.field"></vde-property> 
-  </fieldset>  
- 
+    <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="mark" property="strokeWidth" ng-model="mark.properties.strokeWidth.value" scale="mark.properties.strokeWidth.scale" field="mark.properties.strokeWidth.field"></vde-property>
+  </fieldset>
+
 </div>

@@ -3,6 +3,7 @@ vde.Vis.marks.Rect = (function() {
     vde.Vis.Mark.call(this, name, groupName);
 
     this.type = 'rect';
+    this.fillType = 'color'; // color || image
 
     this.properties = {
       x: {value: 25},
@@ -14,7 +15,12 @@ vde.Vis.marks.Rect = (function() {
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
       stroke: {value: '#000000'},
-      strokeWidth: {value: 0}
+      strokeWidth: {value: 0},
+
+      // For image marks
+      url: {},
+      align: {value: 'center'},
+      baseline: {value: 'middle'}
     };
 
     this.extents = {
@@ -35,6 +41,19 @@ vde.Vis.marks.Rect = (function() {
   var prototype  = rect.prototype;
   var geomOffset = 7; // Offset from rect for the interactive geometry
 
+  prototype.spec = function() {
+    var spec = vde.Vis.Mark.prototype.spec.call(this);
+    if(this.fillType != 'image') {
+      delete spec.properties.enter.url;
+      delete spec.properties.enter.align;
+      delete spec.properties.enter.baseline;
+    } else {
+      spec.type = 'image';
+    }
+
+    return spec;
+  };
+
   prototype.productionRules = function(prop, scale, field) {
     var self = this,
         props = this.extents.horizontal.fields.indexOf(prop) != -1 ?
@@ -44,6 +63,7 @@ vde.Vis.marks.Rect = (function() {
     if(!scale && props.indexOf(prop) != -1)
       props.some(function(p) { if(scale = self.properties[p].scale) return true });
 
+    if(prop == 'url') field.type = 'encoded';
     return [scale, field];
   };
 
