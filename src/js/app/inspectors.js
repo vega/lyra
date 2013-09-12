@@ -83,6 +83,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
 
         vde.iVis.bindProperty(scope.item, attrs.property);
+        dd.proxy = null;
       }).drop('dropstart', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         scope.showHelper($(this), e, 'drophover');
@@ -207,6 +208,7 @@ vde.App.directive('vdeExpr', function($rootScope, logger) {
             .toggleClass('derived', $(proxy).hasClass('derived'))
             .appendTo(this);
 
+          dd.proxy = null;
           $('.proxy').remove();
           parse($(this));
           $(this).focus();

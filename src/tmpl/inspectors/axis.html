@@ -1,15 +1,17 @@
-<div id="properties" ng-init="types=['x', 'y']; orient=['top', 'bottom', 'left', 'right']">
+<div id="properties" ng-init="types=['x', 'y']; orient=['top', 'bottom', 'left', 'right']; layer=['front', 'back'];">
   <vde-property label="Title" type="text" item="axis" property="title" ng-model="axis.properties.title" nodrop="1"></vde-property>
 
   <vde-property label="Type" type="radio" options="types" item="axis" property="type" ng-model="axis.properties.type" nodrop="1"></vde-property>
 
   <div ng-show="axis.properties.type">
 
-    <vde-property label="Orient" type="select" options="orient" item="axis" property="orient" ng-model="axis.properties.orient" nodrop="1"></vde-property>
-
     <vde-property label="Scale" type="scale" item="axis" property="scale" ng-model="axis.properties.scale" scale="axis.properties.scale" transclude="1">
       <p ng-show="axis.pipeline().forkName" style="margin-top: 5px"><label><input type="checkbox" ng-model="axis.onceAcrossForks" ng-click="reparse()" /> Show axis only once</label></p>
     </vde-property>
+
+    <vde-property label="Orient" type="select" options="orient" item="axis" property="orient" ng-model="axis.properties.orient" nodrop="1"></vde-property>
+
+    <vde-property label="Layer" type="select" options="layer" item="axis" property="layer" ng-model="axis.properties.layer" nodrop="1"></vde-property>
 
     <fieldset id="axis">
       <legend>Axis</legend>

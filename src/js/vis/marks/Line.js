@@ -29,6 +29,10 @@ vde.Vis.marks.Line = (function() {
   var prototype  = line.prototype;
   var symbol = vde.Vis.marks.Symbol.prototype;
 
+  prototype.destroy = function() {
+    vde.Vis.callback.deregister('vis.post_spec',  this);
+  };
+
   prototype.spec = function() {
     var propsForType = {
       points: ['x', 'y', 'interpolate', 'tension', 'stroke', 'strokeWidth'],
@@ -133,6 +137,7 @@ vde.Vis.marks.Line = (function() {
   };
 
   prototype.dummyData = function(opts) {
+    console.log(this);
     if(this.properties.x.field || this.properties.y.field) return;
     var g = this.group().properties;
 

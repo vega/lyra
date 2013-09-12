@@ -132,10 +132,8 @@ a {
   text-transform: uppercase;
 }
 
-.binding .schema.raw .edit { border-color: #9bc0ef;}
-.binding .schema.derived .edit { border-color: #d1bf94;}
-
-.binding:hover .edit {
+.binding:hover .scale .edit, .binding:hover .schema .aggregate,
+.property:hover .scale .edit, .property:hover .schema .aggregate {
   display: inline-block;
   color: transparent;
   background-image: url(../imgs/pencil-black.png);
@@ -143,8 +141,25 @@ a {
   background-size: 12px;
 }
 
-.binding:hover .edit:hover {
+.binding:hover .scale .edit:hover {
   background-image: url(../imgs/pencil-white.png);
+}
+
+.schema .aggregate {
+  display: none;
+  cursor: pointer;
+  width: 12px;
+  padding-left: 3px;
+  border-left: 1px solid #666;
+  background-position: 3px;
+}
+
+.schema.raw .aggregate { border-color: #9bc0ef;}
+.schema.derived .aggregate { border-color: #d1bf94;}
+
+.binding:hover .schema .aggregate,
+.property:hover .schema .aggregate {
+  background-image: url(../imgs/spinner-open.png);
 }
 
 .overlay {

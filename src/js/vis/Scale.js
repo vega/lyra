@@ -25,7 +25,7 @@ vde.Vis.Scale = (function() {
       // clamp: false
       // padding: 0,
       // exponent: 0,
-      // zero: true
+      zero: true
     };
 
     for(var d in defaults) {

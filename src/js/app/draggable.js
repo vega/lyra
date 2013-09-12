@@ -38,7 +38,8 @@ vde.App.factory('draggable', function($rootScope) {
       vde.iVis.newMark  = null;
       vde.iVis.show('selected');
       $(dd.available).removeClass('available');
-      $(dd.proxy).remove();
+      $(dd.proxy).unbind().empty().remove();
+      dd.proxy = null;
       $('.tooltip').remove();
     }
   }
