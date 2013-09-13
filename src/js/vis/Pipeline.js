@@ -5,6 +5,7 @@ vde.Vis.Pipeline = (function() {
 
     this.source = source;
     this.transforms = [];
+    this.aggregate  = {};
 
     this.forkName = null;
     this.forkIdx  = null;
@@ -17,6 +18,7 @@ vde.Vis.Pipeline = (function() {
   };
 
   var prototype = pipeline.prototype;
+  var stats = ["count", "min", "max", "sum", "mean", "variance", "stdev", "median"];
 
   prototype.spec = function() {
     var self = this;
@@ -45,6 +47,24 @@ vde.Vis.Pipeline = (function() {
       var s = t.spec();
       if(s) specs[spec].transform.push(s);
     });
+
+    // Add stats transforms to the end of the pipeline.
+    for(var a in this.aggregate) {
+      var median = (this.aggregate[a] == 'median'),
+          output = {}, field = a.split('.');
+      stats.forEach(function(s) { output[s] = s+'('+field[field.length-1]+')'; });
+
+      specs[specs.length-1].transform.push({
+        type: 'stats',
+        value: a,
+        median: median,
+        assign: true,
+        output: output
+      });
+    }
+    // Fields repopulate this structure when their specs are called.
+    // Ensures no unnecessary stats are computed.
+    this.aggregate = {};
 
     vde.Vis.callback.run('pipeline.post_spec', this, {spec: specs});
 
@@ -79,7 +99,7 @@ vde.Vis.Pipeline = (function() {
       else {
         [data[0].data, data[0]].forEach(function(v, i) {
           vg.keys(v).forEach(function(k) {
-            if(i != 0 && ['data', 'values', 'keys'].indexOf(k) != -1) return;
+            if(i != 0 && ['data', 'values', 'keys', 'stats'].indexOf(k) != -1) return;
             if(k == 'key') k += '_' + depth;
             if(seenFields[k]) return;
 

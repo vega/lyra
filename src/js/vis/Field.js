@@ -5,11 +5,15 @@ vde.Vis.Field = (function() {
     this.type = type;
     this.pipelineName = pipelineName;
 
+    this.stat = null;
+
     return this;
   };
 
   field.prototype.spec = function() {
-    return this.accessor + this.name;
+    this.aggregate(this.stat);
+    return this.stat ? 'stats.' + this.stat + '(' + this.name + ')' :
+      this.accessor + this.name;
   };
 
   field.prototype.pipeline = function() {
@@ -17,8 +21,16 @@ vde.Vis.Field = (function() {
   };
 
   field.prototype.raw = function() {
-    return this.accessor.indexOf('data') != -1;
-  }
+    return this.accessor.indexOf('data') != -1 && !this.stat;
+  };
+
+  field.prototype.aggregate = function(stat) {
+    if(!stat) return;
+    var a = this.pipeline().aggregate;
+    this.stat = stat;
+    if(a[this.accessor+this.name] != 'median')
+      a[this.accessor+this.name] = stat;
+  };
 
   return field;
 })();

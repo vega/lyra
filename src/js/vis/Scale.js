@@ -51,9 +51,11 @@ vde.Vis.Scale = (function() {
 
     spec.name = this.name;
 
-    spec.domain = (this.domainTypes.from == 'field' && this.domainField) ?
-      { data: this.domainField.pipelineName || this.pipeline().name,
-        field: this.domainField.spec() } : this.domainValues;
+    var field = this.domainField;
+    spec.domain = (this.domainTypes.from == 'field' && field)
+      ? { data:  field.stat ? field.pipeline().forkName : field.pipelineName,
+          field: field.stat ? field.spec().replace('stats.','') : field.spec() }
+      : this.domainValues;
 
     spec.range = (this.rangeTypes.from == 'field' && this.rangeField) ?
       this.rangeField.spec() : this.rangeValues;

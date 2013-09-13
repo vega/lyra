@@ -137,13 +137,13 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
   };
 
   $scope.toggleProp = function(prop, value) {
-    var p = $rootScope.activeVisual.properties[prop];
+    var v = $rootScope.activeVisual,
+        p = v.properties[prop] || (v.properties[prop] = {});
     if(p.value == value) delete p.value;
     else p.value = value;
 
-    $rootScope.activeVisual.checkExtents(prop);
-
-    $rootScope.activeVisual.update(prop);
+    v.checkExtents(prop);
+    v.update(prop);
   };
 
   $scope.editVisualization = function() {

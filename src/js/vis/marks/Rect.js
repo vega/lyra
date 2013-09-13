@@ -42,16 +42,15 @@ vde.Vis.marks.Rect = (function() {
   var geomOffset = 7; // Offset from rect for the interactive geometry
 
   prototype.spec = function() {
-    var spec = vde.Vis.Mark.prototype.spec.call(this);
-    if(this.fillType != 'image') {
-      delete spec.properties.enter.url;
-      delete spec.properties.enter.align;
-      delete spec.properties.enter.baseline;
+    if(this.fillType == 'image') {
+      this._spec.type = 'image';
     } else {
-      spec.type = 'image';
+      delete this.properties.url;
+      delete this.properties.align;
+      delete this.properties.baseline;
     }
 
-    return spec;
+    return vde.Vis.Mark.prototype.spec.call(this);
   };
 
   prototype.productionRules = function(prop, scale, field) {

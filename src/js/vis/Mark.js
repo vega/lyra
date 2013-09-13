@@ -139,7 +139,7 @@ vde.Vis.Mark = (function() {
     vde.Vis.callback.run('mark.pre_spec', this, {spec: spec});
 
     spec.name = this.name;
-    spec.type = this.type;
+    spec.type || (spec.type = this.type);
     spec.from || (spec.from = {});
 
     if(this.pipeline()) spec.from.data || (spec.from.data = this.pipeline().name);
@@ -156,7 +156,7 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.bindProperty = function(prop, opts, defaults) {
-    var p = this.properties[prop] || (p = {});
+    var p = this.properties[prop] || (this.properties[prop] = {});
     var scale, field;
 
     if(opts.scaleName) {
