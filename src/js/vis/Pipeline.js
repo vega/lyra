@@ -30,6 +30,26 @@ vde.Vis.Pipeline = (function() {
 
     vde.Vis.callback.run('pipeline.pre_spec', this, {spec: specs});
 
+    // Add stats transforms to the end of the pipeline.
+    var statsTransforms = [];
+    for(var a in this.aggregate) {
+      var median = (this.aggregate[a] == 'median'),
+          output = {}, field = a.split('.');
+      stats.forEach(function(s) { output[s] = s+'_'+field[field.length-1]; });
+
+      // Splice to allow for use of aggregate fields in later transforms
+      statsTransforms.push({
+        type: 'stats',
+        value: a,
+        median: median,
+        assign: true,
+        output: output
+      });
+    }
+    // Fields repopulate this structure when their specs are called.
+    // Ensures no unnecessary stats are computed.
+    this.aggregate = {};
+
     var spec = 0;
     this.transforms.forEach(function(t, i) {
       if(t.forkPipeline) {
@@ -46,25 +66,9 @@ vde.Vis.Pipeline = (function() {
 
       var s = t.spec();
       if(s) specs[spec].transform.push(s);
+      if(t.forkPipeline && statsTransforms.length > 0)
+        specs[spec].transform = specs[spec].transform.concat(statsTransforms);
     });
-
-    // Add stats transforms to the end of the pipeline.
-    for(var a in this.aggregate) {
-      var median = (this.aggregate[a] == 'median'),
-          output = {}, field = a.split('.');
-      stats.forEach(function(s) { output[s] = s+'('+field[field.length-1]+')'; });
-
-      specs[specs.length-1].transform.push({
-        type: 'stats',
-        value: a,
-        median: median,
-        assign: true,
-        output: output
-      });
-    }
-    // Fields repopulate this structure when their specs are called.
-    // Ensures no unnecessary stats are computed.
-    this.aggregate = {};
 
     vde.Vis.callback.run('pipeline.post_spec', this, {spec: specs});
 
@@ -103,7 +107,7 @@ vde.Vis.Pipeline = (function() {
             if(k == 'key') k += '_' + depth;
             if(seenFields[k]) return;
 
-            var field = new vde.Vis.Field(k, (i == 0) ? 'data' : '');
+            var field = new vde.Vis.Field(k, (i == 0) ? 'data.' : '');
             field.pipelineName = pipeline;
             if(parse[k]) field.type = (parse[k] == 'date') ? 'time' : (parse[k] == 'number') ? 'linear' : 'ordinal';
             else field.type = vg.isNumber(v[k]) ? 'linear' : 'ordinal';
@@ -152,13 +156,21 @@ vde.Vis.Pipeline = (function() {
     t.pipelineName = this.name;
     if(!this.forkName || t.forkPipeline || t.requiresFork) this.transforms.push(t);
     else {
-      var pipelineName = this.name;
-      vg.keys(t.properties).some(function(k) {
-        if(t.properties[k] instanceof vde.Vis.Field) {
-          pipelineName = t.properties[k].pipelineName;
+      var self = this, pipelineName = this.name;
+      var checkField = function(f) {
+        pipelineName = f.pipelineName;
+        if(pipelineName == self.forkName || f.stat) {
+          pipelineName = self.forkName;
           return true;
         }
+        return false;
+      }
+      vg.keys(t.properties).some(function(k) {
+        var f = t.properties[k];
+        if(f instanceof vde.Vis.Field) return checkField(f);
       });
+
+      if(t.exprFields) t.exprFields.some(function(f) { return checkField(f); });
 
       if(pipelineName == this.forkName) return this.transforms.push(t);
       else { this.transforms.splice(this.forkIdx, 0, t); return this.forkIdx;}

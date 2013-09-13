@@ -168,8 +168,8 @@ vde.Vis.Mark = (function() {
     }
 
     if(opts.field) {
-      field = opts.field;
-      if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
+      field = new vde.Vis.Field(opts.field);  // Always create a new Field instance
+      // if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
 
       // Run mark specific production rules first so that they get first dibs
       var prules = this.productionRules(prop, scale, field);

@@ -1,6 +1,9 @@
 vde.Vis.transforms.Formula = (function() {
   var formula = function(pipelineName) {
     vde.Vis.Transform.call(this, pipelineName, 'formula', ['expr', 'field']);
+
+    this.exprFields = [];
+
     return this;
   }
 
@@ -8,6 +11,9 @@ vde.Vis.transforms.Formula = (function() {
   var prototype = formula.prototype;
 
   prototype.spec = function() {
+    // To add aggregates to pipeline
+    this.exprFields.forEach(function(f) { f.spec(); });
+
     return {
       type: this.type,
       field: this.properties.field,

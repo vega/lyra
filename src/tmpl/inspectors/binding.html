@@ -1,6 +1,6 @@
 <div class="binding">
   <div ng-if="scale" class="scale" scale="{{scale.name}}"><div class="edit" ng-click="editBinding($event, 'scale')">{{scale.properties.type.slice(0, 3)}}</div> {{scale.displayName|inflector:'humanize'}}</div>
-  <div ng-if="field" class="schema" ng-class="{'raw': field.raw(), 'derived': !field.raw()}" field="{{field.name || field}}">
+  <div ng-if="field" class="schema" ng-class="{'raw': field.raw(), 'derived': !field.raw()}" field="{{field.name || field}}" field-spec="{{field.spec()}}">
     <span ng-show="field.stat">{{field.stat}}({{field.name || field}})</span>
     <span ng-hide="field.stat">{{field.name || field}}</span>
     <div ng-if="field.pipeline().forkName && field.type != 'ordinal' && field.type != 'encoded'" class="aggregate" ng-click="editBinding($event, 'field');">Aggregate</div>

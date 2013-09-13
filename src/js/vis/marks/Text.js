@@ -25,6 +25,8 @@ vde.Vis.marks.Text = (function() {
       fill: {value: '#4682b4'}
     };
 
+    this.exprFields = [];
+
     this.connectors = {
       'text': {},
       'left': {}, 'right': {}
@@ -52,6 +54,8 @@ vde.Vis.marks.Text = (function() {
   prototype.spec = function() {
     this._spec.from = this.from();
     this.properties.text = {field: new vde.Vis.Field(this.formulaName())};
+    this.exprFields.forEach(function(f) { f.spec(); }); // To add aggregates to pipeline
+
     return vde.Vis.Mark.prototype.spec.call(this);
   };
 

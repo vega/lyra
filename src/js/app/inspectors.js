@@ -168,7 +168,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
   }
 });
 
-vde.App.directive('vdeExpr', function($rootScope, logger) {
+vde.App.directive('vdeExpr', function($rootScope, $compile, logger) {
   return {
     restrict: 'A',
     scope: {
@@ -201,22 +201,25 @@ vde.App.directive('vdeExpr', function($rootScope, logger) {
       $(element).find('.expr')
         // .html(scope.$parent.ngModel)
         .drop(function(e, dd) {
-          var proxy = vde.iVis.dragging;
+          var proxy = vde.iVis.dragging, expr = this;
           var field = $(proxy).data('field') || $(proxy).find('.schema').data('field') || $(proxy).find('.schema').attr('field');
-
           if(!field) return;
 
           if(scope.item instanceof vde.Vis.Transform &&
             !scope.item.requiresFork && field instanceof vde.Vis.Field)
               scope.item.requiresFork = ($rootScope.activePipeline.name != field.pipelineName);
 
-          $('<div class="schema" contenteditable="false">' + $(proxy).text() + '</div>')
-            .attr('field-spec', (field instanceof vde.Vis.Field) ? field.spec() : null)
-            .toggleClass('raw',     $(proxy).hasClass('raw'))
-            .toggleClass('derived', $(proxy).hasClass('derived'))
-            .appendTo(this);
+          var bindingScope = $rootScope.$new();
+          bindingScope.field = new vde.Vis.Field(field);
+          scope.item.exprFields.push(bindingScope.field);
+          var binding = $compile('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope);
+          $(this).append(binding);
+          scope.$apply();
 
-          dd.proxy = null;
+          $(this).append(binding.find('.schema').attr('contenteditable', 'false'));
+          $(this).find('vde-binding').remove();
+
+          if(dd) dd.proxy = null;
           $('.proxy').remove();
           parse($(this));
           $(this).focus();

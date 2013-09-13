@@ -11,6 +11,7 @@ vde.Vis.transforms.Facet = (function() {
     // the pipeline, and rearrange scales, axes, marks.
     this._group = {
       type: "group",
+      from:{},
       scales: [],
       axes: [],
       marks: [],
@@ -18,7 +19,9 @@ vde.Vis.transforms.Facet = (function() {
     };
 
     this._seen = {scales: {}, axes: {}, marks: {}};
+    this._transforms = [];
 
+    vde.Vis.callback.register('pipeline.post_spec', this, this.pipelinePostSpec);
     vde.Vis.callback.register('mark.post_spec',  this, this.markPostSpec);
     vde.Vis.callback.register('axis.post_spec',  this, this.axisPostSpec);
     vde.Vis.callback.register('group.post_spec', this, this.groupPostSpec);
@@ -30,6 +33,7 @@ vde.Vis.transforms.Facet = (function() {
   var prototype = facet.prototype;
 
   prototype.destroy = function() {
+    vde.Vis.callback.deregister('pipeline.post_spec',  this);
     vde.Vis.callback.deregister('mark.post_spec',  this);
     vde.Vis.callback.deregister('axis.post_spec',  this);
     vde.Vis.callback.deregister('group.post_spec', this);
@@ -47,6 +51,18 @@ vde.Vis.transforms.Facet = (function() {
     return spec;
   };
 
+  prototype.pipelinePostSpec = function(opts) {
+    // Grab the transforms that must work within each facet, and them to our group
+    var self = this, spec = opts.spec[opts.spec.length-1];
+    this._transforms = [];
+
+    spec.transform.forEach(function(t, i) {
+      if(t.type == 'facet' || t.type == 'stats') return;
+      self._transforms.push(t);
+      spec.transform.splice(i, 1);
+    });
+  };
+
   prototype.markPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
     if(!this.properties.keys) return;
@@ -57,8 +73,10 @@ vde.Vis.transforms.Facet = (function() {
 
     var spec = vg.duplicate(opts.spec);
     delete spec.from.data;   // Inherit from the group
+    spec.from.transform || (spec.from.transform = []);
+    if(this._transforms.length > 0)
+      spec.from.transform = spec.from.transform.concat(this._transforms);
     if(opts.item.oncePerFork) {
-      spec.from.transform || (spec.from.transform = [])
       spec.from.transform.push({
         type: 'filter',
         test: 'index == 0'
@@ -135,7 +153,7 @@ vde.Vis.transforms.Facet = (function() {
 
     } else {              // Facet was applied on marks, so inject a group
       this._group.name = opts.item.name + '_facet';
-      this._group.from = {data: this.pipeline().forkName};
+      this._group.from.data = this.pipeline().forkName;
 
       if(layout) {
         opts.spec.scales || (opts.spec.scales = []);

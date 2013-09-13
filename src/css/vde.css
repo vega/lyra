@@ -148,6 +148,7 @@ a {
 .schema .aggregate {
   display: none;
   cursor: pointer;
+  text-indent: -999em;
   width: 12px;
   padding-left: 3px;
   border-left: 1px solid #666;

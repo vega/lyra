@@ -466,7 +466,7 @@ vde.iVis = (function() {
     spec.scales.push(scale.spec());
 
     var inflector = vde.iVis.ngFilter()('inflector');
-    var title = inflector(scale.field().name);
+    var title = scale.field() ? inflector(scale.field().name) : scale.displayName;
 
     if(scale.rangeTypes.type == 'spatial') {
       spec.axes || (spec.axes = []);
