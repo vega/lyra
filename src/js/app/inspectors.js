@@ -14,7 +14,8 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
       field: '=',
       options: '=',
       nodrop: '@',
-      nochange: '@'
+      nochange: '@',
+      hint: '@'
     },
     transclude: true,
     templateUrl: 'tmpl/inspectors/property.html',

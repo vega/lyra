@@ -56,11 +56,11 @@ vde.Vis.transforms.Facet = (function() {
     var self = this, spec = opts.spec[opts.spec.length-1];
     this._transforms = [];
 
-    spec.transform.forEach(function(t, i) {
-      if(t.type == 'facet' || t.type == 'stats') return;
-      self._transforms.push(t);
-      spec.transform.splice(i, 1);
-    });
+    // spec.transform.forEach(function(t, i) {
+      // if(t.type == 'facet' || t.type == 'stats') return;
+      // self._transforms.push(t);
+      // spec.transform.splice(i, 1);
+    // });
   };
 
   prototype.markPostSpec = function(opts) {
@@ -135,6 +135,7 @@ vde.Vis.transforms.Facet = (function() {
       }
 
       this._posScale.properties.type = 'ordinal';
+      this._posScale.domainField = this.properties.keys;
       this._posScale.rangeField = new vde.Vis.Field(isHoriz ? 'width' : 'height');
       this._posScale.properties.points = false;
       this._posScale.used = true;
@@ -164,7 +165,7 @@ vde.Vis.transforms.Facet = (function() {
           delete s.domain.data;
 
           // Shadow this scale if it uses group width/height and we're laying out _groups
-          if((self.properties.layout == 'Horizontal' && scale.range == 'width') ||
+          if(scale.shadowInGroup || (self.properties.layout == 'Horizontal' && scale.range == 'width') ||
              (self.properties.layout == 'Vertical' && scale.range == 'height'))
                 self._group.scales.push(s);
         });

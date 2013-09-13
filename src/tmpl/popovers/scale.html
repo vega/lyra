@@ -41,7 +41,7 @@
 	  <fieldset id="domain">
 	  	<legend>Domain</legend>
 
-		  <vde-property label="From" type="radio" options="fromTypes" property="domainTypes.from" ng-model="activeScale.domainTypes.from" nodrop="1"></vde-property>
+		  <vde-property label="From" type="radio" item="activeScale" options="fromTypes" property="domainTypes.from" ng-model="activeScale.domainTypes.from" nodrop="1"></vde-property>
 
 	  	<div ng-show="activeScale.domainTypes.from == 'field'"><vde-property label="Field" type="field" item="activeScale" property="domainField" field="activeScale.domainField"></vde-property></div>
 
@@ -49,6 +49,10 @@
 	  		<vde-property label="Values" transclude="1">
 	  			<vde-scale-values type="number" scale="activeScale" property="domainValues" ng-model="activeScale.domainValues"></vde-scale-values>
 	  		</vde-property>
+	  	</div>
+
+	  	<div ng-show="activeScale.pipeline().forkName">
+	  		<vde-property label="Groups" type="checkbox" item="activeScale" property="shadowInGroup" ng-model="activeScale.shadowInGroup" nodrop="1" hint="Recalculate for each group"></vde-property>
 	  	</div>
 	  </fieldset>
 

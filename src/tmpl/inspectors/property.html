@@ -18,7 +18,7 @@
 
       <span ng-switch-when="color"><input type="color" ng-model="$parent.ngModel" ng-change="onchange()" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" /></span>
 
-      <span ng-switch-when="checkbox"><input type="checkbox" ng-model="$parent.ngModel" ng-change="onchange()" /></span>
+      <span ng-switch-when="checkbox"><input type="checkbox" ng-model="$parent.ngModel" ng-change="onchange()" /> {{hint}}</span>
 
       <span ng-switch-when="select"><select ng-change="onchange()" ng-model="$parent.ngModel" ng-options="opt for opt in $parent.options" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}"></select></span>
 
