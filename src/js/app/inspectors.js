@@ -110,12 +110,22 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
         $element.append(el);
       // }
 
-      $scope.editScale = function(evt) {
-        var inspector = $('#binding-inspector');
-        $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
+      $rootScope.aggregate = function(stat) {
+        $rootScope.activeField.aggregate(stat);
+        $timeout(function() { vde.Vis.parse(); }, 1);
+        $('#aggregate-inspector').hide();
+      };
 
-        // Visualize scale
-        vde.iVis.parse($rootScope.activeScale);
+      $scope.editBinding = function(evt, part) {
+        var inspector = null;
+        if(part == 'scale') {
+          inspector = $('#binding-inspector');
+          $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
+          vde.iVis.parse($rootScope.activeScale); // Visualize scale
+        } else {
+          inspector = $('#aggregate-inspector');
+          $rootScope.activeField = inspector.is(':visible') ? null : $scope.field;
+        }
 
         $timeout(function() {
           var winHeight = $(window).height(), winWidth = $(window).width(),
@@ -143,8 +153,6 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
           $('.bubble', inspector).addClass(className);
           inspector.toggle();
         }, 100);
-
-        logger.log('edit_scale', { activeScale: $rootScope.activeScale });
       };
     },
     link: function(scope, element, attrs) {

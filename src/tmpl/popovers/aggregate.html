@@ -1,0 +1,13 @@
+<div id="aggregate-inspector">
+  <div class="bubble">
+    <a class="close" vde-clear-bubbles>Close</a>
+    <div class="bubble-inner" ng-init="stats = ['count', 'min', 'max', 'sum', 'mean', 'variance', 'stdev', 'median'];">
+
+    <h5>Aggregate</h5>
+
+    <ul>
+      <li ng-repeat="s in stats" ng-class="{'selected': activeField.stat == s}"><a ng-click="aggregate(s);">{{s}}</a></li>
+    </ul>
+
+  </div></div>
+</div>

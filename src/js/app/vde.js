@@ -15,6 +15,7 @@ vde.App.directive('vdeClearBubbles', function($rootScope) {
     element.click(function() {
       $rootScope.activeScale = null;
       $('#binding-inspector').hide();
+      $('#aggregate-inspector').hide();
 
       $rootScope.previewTransformIdx = null;
       $rootScope.editVis = false;

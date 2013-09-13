@@ -204,6 +204,17 @@ fieldset#padding .property {
   position: absolute;
 }
 
+#aggregate-inspector {
+  display: none;
+  width: 75px;
+  position: absolute;
+}
+
+#aggregate-inspector li { padding: 3px; }
+#aggregate-inspector li:hover { background: #ddd; }
+#aggregate-inspector li.selected { background: #bbb;}
+#aggregate-inspector li.selected a { text-decoration: none;}
+
 .text.inspector .icons a {
   width: 18px;
   height: 20px;
