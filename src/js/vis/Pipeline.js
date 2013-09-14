@@ -91,7 +91,14 @@ vde.Vis.Pipeline = (function() {
     var buildFields = function(data, pipeline, depth) {
       var parse = vde.Vis._data[self.source].format.parse || {};
 
-      if(data.values) { buildFields(data.values, pipeline, ++depth); }
+      if(data.values) {
+        if(!seenFields.key) {
+          fields.push(new vde.Vis.Field('key', '', 'ordinal', pipeline));
+          seenFields.key = true;
+        }
+
+        buildFields(data.values, pipeline, ++depth);
+      }
       else {
         [data[0].data, data[0]].forEach(function(v, i) {
           vg.keys(v).forEach(function(k) {

@@ -122,6 +122,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
                 }
               });
             }
+            parent['key'] = data.key;
             parent['key_' + depth++] = data.key;
 
             for (var i=0, n=data.values.length; i<n; ++i) {

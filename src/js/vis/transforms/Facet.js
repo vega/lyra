@@ -127,7 +127,7 @@ vde.Vis.transforms.Facet = (function() {
       if(!this._posScale) {
         this._posScale = this.pipeline().scale({
           domainTypes: {from: 'field'},
-          domainField: this.properties.keys,
+          domainField: new vde.Vis.Field('key', '', 'ordinal', this.pipeline().forkName),
           rangeTypes: {type: 'spatial', from: 'field'}
         }, {
           properties: {type: 'ordinal', padding: 0.2}
@@ -135,7 +135,7 @@ vde.Vis.transforms.Facet = (function() {
       }
 
       this._posScale.properties.type = 'ordinal';
-      this._posScale.domainField = this.properties.keys;
+      this._posScale.domainField = new vde.Vis.Field('key', '', 'ordinal', this.pipeline().forkName);
       this._posScale.rangeField = new vde.Vis.Field(isHoriz ? 'width' : 'height');
       this._posScale.properties.points = false;
       this._posScale.used = true;
@@ -162,11 +162,10 @@ vde.Vis.transforms.Facet = (function() {
           if(scale.name == self._posScale.name) return;
 
           var s = vg.duplicate(scale);
-          delete s.domain.data;
+          if(scale.domain.data == self.pipelineName) delete s.domain.data;
 
           // Shadow this scale if it uses group width/height and we're laying out _groups
-          var shadowScale = (scale.domain.data == self.pipelineName) &&
-            (scale.shadowInGroup || (self.properties.layout == 'Horizontal' && scale.range == 'width') ||
+          var shadowScale = (scale.shadowInGroup || (self.properties.layout == 'Horizontal' && scale.range == 'width') ||
               (self.properties.layout == 'Vertical' && scale.range == 'height'));
 
           if(shadowScale) self._group.scales.push(s);
