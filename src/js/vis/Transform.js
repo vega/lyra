@@ -52,6 +52,11 @@ vde.Vis.Transform = (function() {
     return transform(data);
   };
 
+  // Can this transform work on facets (i.e. can it just be
+  // part of the regular pipeline transform, or must we move it
+  // within the group injection)
+  prototype.onFork = function() { return true; }
+
   return transform;
 })();
 

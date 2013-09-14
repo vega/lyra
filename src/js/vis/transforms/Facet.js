@@ -52,15 +52,12 @@ vde.Vis.transforms.Facet = (function() {
   };
 
   prototype.pipelinePostSpec = function(opts) {
-    // Grab the transforms that must work within each facet, and them to our group
-    var self = this, spec = opts.spec[opts.spec.length-1];
-    this._transforms = [];
+    if(opts.item.name != this.pipelineName) return;
 
-    // spec.transform.forEach(function(t, i) {
-      // if(t.type == 'facet' || t.type == 'stats') return;
-      // self._transforms.push(t);
-      // spec.transform.splice(i, 1);
-    // });
+    // Grab the transforms that must work within each facet, and them to our group
+    var self = this;
+    this._transforms = [];
+    opts.item.transforms.forEach(function(t) { if(!t.onFork()) self._transforms.push(t.spec()); });
   };
 
   prototype.markPostSpec = function(opts) {
@@ -73,9 +70,9 @@ vde.Vis.transforms.Facet = (function() {
 
     var spec = vg.duplicate(opts.spec);
     delete spec.from.data;   // Inherit from the group
+
     spec.from.transform || (spec.from.transform = []);
-    if(this._transforms.length > 0)
-      spec.from.transform = spec.from.transform.concat(this._transforms);
+    spec.from.transform = spec.from.transform.concat(this._transforms);
     if(opts.item.oncePerFork) {
       spec.from.transform.push({
         type: 'filter',

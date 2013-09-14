@@ -31,6 +31,11 @@ vde.Vis.Pipeline = (function() {
 
     var spec = 0;
     this.transforms.forEach(function(t, i) {
+      // If we've forked and the current transform can't deal with
+      // faceted data, don't add it to the regular pipeline but let
+      // group injection deal with it
+      if(spec > 0 && !t.onFork()) return;
+
       if(t.forkPipeline) {
         spec++;
         self.forkName || (self.forkName = self.name + '_' + t.type);
@@ -126,9 +131,16 @@ vde.Vis.Pipeline = (function() {
       if(t.forkPipeline) pipelineName = self.forkName;
       if(t.isVisual) return;
 
-      values = t.transform(values);
       if(t.type == 'stats') t.fields.forEach(function(f) { seenFields[f] = true; });
-      buildFields(values, pipelineName, 0);
+
+      // If this transform can't deal with faceted values
+      if(!t.onFork() && pipelineName != self.name) {
+
+      } else {
+        values = t.transform(values);
+        buildFields(values, pipelineName, 0);
+      }
+
     });
 
     return [fields, values];

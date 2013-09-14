@@ -3,6 +3,7 @@ vde.Vis.transforms.Stats = (function() {
     vde.Vis.Transform.call(this, pipelineName, 'stats', ['value', 'median']);
 
     this.requiresFork = true;
+    this.fields = [];
 
     return this;
   };
