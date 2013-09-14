@@ -21,6 +21,10 @@
 
   </fieldset>
 
+  <div ng-show="mark.type == 'group'">
+    <vde-property label="Clip" type="checkbox" hint="contents to group dimensions" item="mark" property="clip" ng-model="mark.properties.clip.value" field="mark.properties.clip.field"></vde-property>
+  </div>
+
   <fieldset id="fill" ng-init="fillTypes=['color', 'image'];">
     <legend>Fill</legend>
 

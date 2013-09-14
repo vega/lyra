@@ -1,3 +1,4 @@
 data/
 logs/
 js/lib/vega.js
+js/app/marks.js

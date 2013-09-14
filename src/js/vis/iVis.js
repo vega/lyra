@@ -223,8 +223,8 @@ vde.iVis = (function() {
     var scale = $(ivis.dragging).find('.scale').attr('scale');
     var pipelineName = rootScope.activePipeline.name;
 
-    if(visual.pipelineName && pipelineName != visual.pipelineName)
-      return alert('Pipelines don\'t match');
+    // if(visual.pipelineName && pipelineName != visual.pipelineName && field)
+    //   return alert('Pipelines don\'t match');
 
     rootScope.$apply(function() {
       if(!visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;

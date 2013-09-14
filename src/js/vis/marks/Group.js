@@ -22,6 +22,8 @@ vde.Vis.marks.Group = (function() {
       y: {value: 0},
       height: {value: vde.Vis.properties.height},
       y2: {value: 0, disabled: true},
+      clip: {value: false},
+
       fill: {value: '#ffffff'},
       fillOpacity: {value: 0},
       stroke: {value: '#000000'},
@@ -73,6 +75,12 @@ vde.Vis.marks.Group = (function() {
   prototype.spec = function() {
     var self = this;
     var spec = vg.duplicate(vde.Vis.Mark.prototype.spec.call(this));
+
+    // We should be smarter than this.
+    vg.keys(spec.properties.enter).forEach(function(k) {
+      var p = spec.properties.enter[k];
+      if(p.field) p.field = p.field.replace('stats.', '');
+    });
 
     vde.Vis.callback.run('group.pre_spec', this, {spec: spec});
 

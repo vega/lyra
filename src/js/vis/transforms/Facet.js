@@ -165,9 +165,11 @@ vde.Vis.transforms.Facet = (function() {
           delete s.domain.data;
 
           // Shadow this scale if it uses group width/height and we're laying out _groups
-          if(scale.shadowInGroup || (self.properties.layout == 'Horizontal' && scale.range == 'width') ||
-             (self.properties.layout == 'Vertical' && scale.range == 'height'))
-                self._group.scales.push(s);
+          var shadowScale = (scale.domain.data == self.pipelineName) &&
+            (scale.shadowInGroup || (self.properties.layout == 'Horizontal' && scale.range == 'width') ||
+              (self.properties.layout == 'Vertical' && scale.range == 'height'));
+
+          if(shadowScale) self._group.scales.push(s);
         });
 
         opts.spec.scales.push(this._posScale.spec());
@@ -179,6 +181,14 @@ vde.Vis.transforms.Facet = (function() {
         this._group.properties.enter = isHoriz ?
           {x: pos, width: size,  y: enter.y, height: enter.height} :
           {y: pos, height: size, x: enter.x, width: enter.width};
+      } else {
+        this._group.properties = vg.duplicate(opts.spec.properties);
+        opts.spec.from = {};
+        vg.keys(opts.spec.properties.enter).forEach(function(k) {
+          var p = opts.spec.properties.enter[k];
+          if(p.scale || p.field) opts.spec.properties.enter[k] = {value: vde.Vis.properties[k]};
+        });
+        opts.spec.properties.enter.clip = {value: 0};
       }
 
       opts.spec.marks.push(vg.duplicate(this._group));

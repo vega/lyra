@@ -79,8 +79,8 @@ vde.Vis.marks.Text = (function() {
     if(prop == 'text') {
       var schema = $('<div class="schema" contenteditable="false">' + field.name + '</div>')
           .attr('field-spec', (field instanceof vde.Vis.Field) ? field.spec() : null)
-          .toggleClass('raw',     field.raw)
-          .toggleClass('derived', !field.raw);
+          .toggleClass('raw',     field.raw())
+          .toggleClass('derived', !field.raw());
 
       this.properties.textFormula = 'd.' + field.spec();
       this.properties.textFormulaHtml = $('<div>').append(schema).html();

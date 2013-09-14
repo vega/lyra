@@ -134,12 +134,16 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
           return list;
         }
 
+        var flattened = values;
+        if(values.values) flattened = flatten(values, [], {}, 0);
+        else if(values[0].values) flattened = flatten({ values: values, key: "", keys: []}, [], {}, 0);
+
         var dataTableId = $scope.dataTableId = 'datatable_' + Date.now();
 
         // WARNING: leaking oTable. How do
         $('.table', $element).html('<table id="' + dataTableId + '"></table>');
         var oTable = $('#' + dataTableId, $element).dataTable({
-          'aaData': values.values ? flatten(values, [], {}, 0) : values,
+          'aaData': flattened,
           'aoColumns': columns,
           'sScrollX': '250px',
           // 'sScrollInner': '150%',
