@@ -12,7 +12,7 @@
         </select></span>
       </li>
 
-      <li ng-repeat="transform in pipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-show="!transform.isVisual" ng-animate="{enter: 'yellowfade-show'}">
+      <li ng-repeat="transform in pipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-show="!transform.isVisual && transform.type != 'stats'" ng-animate="{enter: 'yellowfade-show'}">
         <vde-pipeline-ctrls></vde-pipeline-ctrls>
 
         <ng-include src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></ng-include>

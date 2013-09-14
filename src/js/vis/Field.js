@@ -17,7 +17,6 @@ vde.Vis.Field = (function() {
   };
 
   field.prototype.spec = function() {
-    this.aggregate(this.stat);
     return this.stat ? 'stats.' + this.stat + '_' + this.name:
       this.accessor + this.name;
   };
@@ -28,14 +27,6 @@ vde.Vis.Field = (function() {
 
   field.prototype.raw = function() {
     return this.accessor.indexOf('data') != -1 && !this.stat;
-  };
-
-  field.prototype.aggregate = function(stat) {
-    if(!stat) return;
-    var a = this.pipeline().aggregate;
-    this.stat = stat;
-    if(a[this.accessor+this.name] != 'median')
-      a[this.accessor+this.name] = stat;
   };
 
   return field;

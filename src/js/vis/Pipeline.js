@@ -5,7 +5,7 @@ vde.Vis.Pipeline = (function() {
 
     this.source = source;
     this.transforms = [];
-    this.aggregate  = {};
+    this._aggregate  = {};
 
     this.forkName = null;
     this.forkIdx  = null;
@@ -18,7 +18,6 @@ vde.Vis.Pipeline = (function() {
   };
 
   var prototype = pipeline.prototype;
-  var stats = ["count", "min", "max", "sum", "mean", "variance", "stdev", "median"];
 
   prototype.spec = function() {
     var self = this;
@@ -29,26 +28,6 @@ vde.Vis.Pipeline = (function() {
     }];
 
     vde.Vis.callback.run('pipeline.pre_spec', this, {spec: specs});
-
-    // Add stats transforms to the end of the pipeline.
-    var statsTransforms = [];
-    for(var a in this.aggregate) {
-      var median = (this.aggregate[a] == 'median'),
-          output = {}, field = a.split('.');
-      stats.forEach(function(s) { output[s] = s+'_'+field[field.length-1]; });
-
-      // Splice to allow for use of aggregate fields in later transforms
-      statsTransforms.push({
-        type: 'stats',
-        value: a,
-        median: median,
-        assign: true,
-        output: output
-      });
-    }
-    // Fields repopulate this structure when their specs are called.
-    // Ensures no unnecessary stats are computed.
-    this.aggregate = {};
 
     var spec = 0;
     this.transforms.forEach(function(t, i) {
@@ -66,8 +45,6 @@ vde.Vis.Pipeline = (function() {
 
       var s = t.spec();
       if(s) specs[spec].transform.push(s);
-      if(t.forkPipeline && statsTransforms.length > 0)
-        specs[spec].transform = specs[spec].transform.concat(statsTransforms);
     });
 
     vde.Vis.callback.run('pipeline.post_spec', this, {spec: specs});
@@ -77,7 +54,22 @@ vde.Vis.Pipeline = (function() {
 
   prototype.bookkeep = function() {
     for(var s in this.scales)
-      if(!this.scales[s].used) delete this.scales[s];
+      if(!this.scales[s].used && !this.scales[s].manual) delete this.scales[s];
+  };
+
+  prototype.aggregate = function(field, stat) {
+    var fieldSpec = field.spec(), median = (stat == 'median');
+    if(!this._aggregate[fieldSpec]) {
+      var stats = new vde.Vis.transforms.Stats(this.name);
+      stats.properties.value = fieldSpec;
+      stats.properties.median = median;
+      this._aggregate[fieldSpec] = this.addTransform(stats);
+    } else if(median) {
+      var idx = this._aggregate[fieldSpec];
+      this.transforms[idx].properties.median = true;
+    }
+
+    field.stat = stat;
   };
 
   prototype.values = function(sliceBeg, sliceEnd) {
@@ -128,6 +120,7 @@ vde.Vis.Pipeline = (function() {
       if(t.isVisual) return;
 
       values = t.transform(values);
+      if(t.type == 'stats') t.fields.forEach(function(f) { seenFields[f] = true; });
       buildFields(values, pipelineName, 0);
     });
 
@@ -154,7 +147,7 @@ vde.Vis.Pipeline = (function() {
   // add it
   prototype.addTransform = function(t) {
     t.pipelineName = this.name;
-    if(!this.forkName || t.forkPipeline || t.requiresFork) this.transforms.push(t);
+    if(!this.forkName || t.forkPipeline || t.requiresFork) return this.transforms.push(t);
     else {
       var self = this, pipelineName = this.name;
       var checkField = function(f) {

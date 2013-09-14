@@ -79,6 +79,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
 
   $scope.addScale = function() {
     var s = new vde.Vis.Scale('', $rootScope.activePipeline, {type: 'ordinal'}, 'new_scale');
+    s.manual = true;
 
     logger.log('add_scale', { scale: s.name }, false, true);
 
