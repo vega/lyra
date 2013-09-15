@@ -31,10 +31,14 @@ vde.Vis.transforms.Geo = (function() {
   geo.prototype = new vde.Vis.Transform();
   var prototype = geo.prototype;
 
+  // prototype.onFork = function() { return false; }
+
   prototype.spec = function() {
     var spec = vde.Vis.Transform.prototype.spec.call(this),
         props = this.properties;
     spec.type = (this.geoType == 'GeoJSON') ? 'geopath' : 'geo';
+
+    if(this.properties.projection == 'albersUsa') delete spec.center;
 
     return (props.value || (props.lat && props.lon)) ? spec : null;
   };

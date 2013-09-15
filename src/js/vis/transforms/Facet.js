@@ -6,6 +6,8 @@ vde.Vis.transforms.Facet = (function() {
     // whatever pipeline this is assigned to.
     this.forkPipeline = true;
 
+    this.properties.keys = [];
+
     // When the facet transform is applied to marks, hook into
     // the spec generation and inject a new group that inherits
     // the pipeline, and rearrange scales, axes, marks.
@@ -46,7 +48,8 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.spec = function() {
     var spec = {type: 'facet'};
-    if(this.properties.keys) spec.keys = [this.properties.keys.spec()];
+    if(this.properties.keys.length)
+      spec.keys = this.properties.keys.map(function(k) { return k.spec(); });
 
     return spec;
   };
@@ -196,6 +199,17 @@ vde.Vis.transforms.Facet = (function() {
     this._group.axes = [];
     this._group.marks = [];
     this._seen = {scales: {}, axes: {}, marks: {}};
+  };
+
+  prototype.bindProperty = function(prop, opts) {
+    var field = opts.field, props = this.properties;
+    if(!field) return; // Because this makes negatory sense.
+    if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
+
+    if(prop == 'keys') {
+      props.keys || (props.keys = []);
+      props.keys.push(field);
+    } else this.properties[prop] = field;
   };
 
   return facet;

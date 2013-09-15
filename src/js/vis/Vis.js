@@ -98,7 +98,7 @@ vde.Vis = (function() {
     for(var p in vis.pipelines) vis.pipelines[p].bookkeep();
     for(var g in vis.groups) vis.groups[g].bookkeep();
 
-    try {
+    // try {
       vg.parse.spec(spec, function(chart) {
         d3.select('#vis').selectAll('*').remove();
         (vde.Vis.view = chart({ el: '#vis' })).update();
@@ -163,9 +163,9 @@ vde.Vis = (function() {
         // visible handlers, etc.
         vde.iVis.parse();
       });
-    } catch (e) {
-      console.error(e);
-    }
+    // } catch (e) {
+      // console.error(e);
+    // }
 
     return spec;
   };

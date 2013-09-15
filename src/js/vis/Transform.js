@@ -28,6 +28,7 @@ vde.Vis.Transform = (function() {
     var spec = {type: this.type};
     for(var i = 0; i < this.input.length; i++) {
       var prop   = this.input[i], value  = this.properties[prop];
+      if(!value) continue;
       spec[prop] = value instanceof vde.Vis.Field ? value.spec() : value;
     }
 
