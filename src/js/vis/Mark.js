@@ -335,16 +335,24 @@ vde.Vis.Mark = (function() {
     };
 
     var def = visit(start);
-    if(!def && this.groupName && this.group() != this) {
-      // If we haven't found the def in the group, there must be
-      // some group injection going on. This means that the last
-      // mark in the group def should be another group def.
-      var marks = this.group().def().marks, start = [];
-      for(var i = 0; i < marks.length; i++)
-        if(marks[i].type == 'group' && marks[i].name.indexOf(this.groupName) != -1)
-          start.push(marks[i]);
+    while(!def && this.groupName && this.group() != this) {
+      if(!vg.isArray(start)) start = [start];
 
-      start.some(function(s) { if(def = visit(s)) return true; });
+      // If we haven't found the def in the group, there must be
+      // some group injection going on. So look for group marks
+      // and look through those.
+      var newStart = [];
+      for(var i = 0; i < start.length; i++) {
+        var marks = start[i].marks;
+        for(var j = 0; j < marks.length; j++) {
+          var m = marks[j];
+          if(m.type == 'group' && m.name.indexOf(this.groupName) != -1)
+          newStart.push(m);
+        }
+      }
+
+      newStart.some(function(s) { if(def = visit(s)) return true; });
+      start = newStart;
     }
 
     def.vdeMdl = this;
@@ -372,7 +380,7 @@ vde.Vis.Mark = (function() {
     for(var p = 0; p < parents.length; p++)
       this._items = this._items.concat(visit(parents[p]));
 
-    if(this._items.length == 0) {
+    while(this._items.length == 0) {
       // If we've found no items in the group, there must be
       // group injection going on. So first find those groups
       // and use them as parents
@@ -382,6 +390,8 @@ vde.Vis.Mark = (function() {
 
       for(var g = 0; g < groups.length; g++)
         this._items = this._items.concat(visit(groups[g]));
+
+      parents = groups;
     }
 
     for(var i = 0; i < this._items.length; i++) this._items[i].vdeKey = i;

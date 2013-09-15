@@ -156,6 +156,8 @@ vde.Vis.transforms.Facet = (function() {
       this._group.name = opts.item.name + '_facet';
       this._group.from.data = this.pipeline().forkName;
 
+      vde.Vis.callback.run('injection.pre_spec', this, {group: this._group});
+
       if(layout) {
         opts.spec.scales || (opts.spec.scales = []);
         opts.spec.scales.forEach(function(scale) {
@@ -189,6 +191,8 @@ vde.Vis.transforms.Facet = (function() {
         });
         opts.spec.properties.enter.clip = {value: 0};
       }
+
+      vde.Vis.callback.run('injection.post_spec', this, {group: this._group});
 
       opts.spec.marks.push(vg.duplicate(this._group));
     }

@@ -15,7 +15,8 @@ vde.Vis.marks.Line = (function() {
       tension: {value: 0},
 
       stroke: {value: '#000000'},
-      strokeWidth: {value: 2}
+      strokeWidth: {value: 2},
+      strokeCap: {value: 'butt'}
     };
 
     vde.Vis.callback.register('vis.post_spec', this, this.dummyData);
@@ -35,9 +36,9 @@ vde.Vis.marks.Line = (function() {
 
   prototype.spec = function() {
     var propsForType = {
-      points: ['x', 'y', 'interpolate', 'tension', 'stroke', 'strokeWidth', 'strokeOpacity'],
-      path: ['path', 'fill', 'fillOpacity', 'stroke', 'strokeWidth'],
-      rule: ['x', 'x2', 'y', 'y2', 'stroke', 'strokeWidth']
+      points: ['x', 'y', 'interpolate', 'tension', 'stroke', 'strokeWidth', 'strokeOpacity', 'strokeCap'],
+      path: ['path', 'fill', 'fillOpacity', 'stroke', 'strokeWidth', 'strokeCap'],
+      rule: ['x', 'x2', 'y', 'y2', 'stroke', 'strokeWidth', 'strokeCap']
     };
 
     this.type = this.propType == 'points' ? 'line' : this.propType;

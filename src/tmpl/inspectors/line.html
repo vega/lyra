@@ -1,4 +1,4 @@
-<div class="inspector" ng-init="interpolation=['linear', 'step-before', 'step-after', 'basis', 'basis-open', 'cardinal', 'cardinal-open', 'monotone']; types=['rule', 'points', 'path']">
+<div class="inspector" ng-init="interpolation=['linear', 'step-before', 'step-after', 'basis', 'basis-open', 'cardinal', 'cardinal-open', 'monotone']; types=['rule', 'points', 'path'];">
 
   <vde-property label="Type" type="select" options="types" item="mark" property="propType" ng-model="mark.propType" nodrop="1"></vde-property>
 
@@ -43,12 +43,14 @@
     <vde-property label="Opacity" type="range" min="0" max="1" step="0.1" item="mark" property="fillOpacity" ng-model="mark.properties.fillOpacity.value" scale="mark.properties.fillOpacity.scale" field="mark.properties.fillOpacity.field"></vde-property>
   </fieldset>
 
-  <fieldset id="stroke">
+  <fieldset id="stroke" ng-init="caps=['butt', 'round', 'square']">
     <legend>Stroke</legend>
 
     <vde-property label="Color" type="color" item="mark" property="stroke" ng-model="mark.properties.stroke.value" scale="mark.properties.stroke.scale" field="mark.properties.stroke.field"></vde-property>
 
     <vde-property label="Width" type="range" min="0" step="0.25" max="10" item="mark" property="strokeWidth" ng-model="mark.properties.strokeWidth.value" scale="mark.properties.strokeWidth.scale" field="mark.properties.strokeWidth.field"></vde-property>
+
+    <vde-property label="Cap" type="select" options="caps" item="mark" property="strokeCap" ng-model="mark.properties.strokeCap.value" nodrop="1"></vde-property>
   </fieldset>
 
 </div>
