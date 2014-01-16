@@ -308,7 +308,11 @@ vde.Vis.marks.Rect = (function() {
 
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
-    var b = vde.iVis.translatedBounds(item, item.bounds),
+    var bounds = item.bounds;
+    // For groups, we can't use item.bounds because that reflects the max bounds of all enclosed elems
+    if(this.type == 'group')
+      bounds = new vg.Bounds().set(item.x, item.y, item.x + item.width, item.y + item.height);
+    var b = vde.iVis.translatedBounds(item, bounds),
         coord = {};
 
     switch(connector) {

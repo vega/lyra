@@ -88,7 +88,7 @@ vde.Vis.Mark = (function() {
         delete i.vdeStroked;
         vde.Vis.view.render();
       });
-    })
+    });
 
     return this;
   };

@@ -63,12 +63,12 @@ vde.Vis.marks.Group = (function() {
   };
 
   prototype.update = function(props) {
-    // vde.Vis.Mark.prototype.update.call(this, props);
+    vde.Vis.Mark.prototype.update.call(this, props);
 
-    // // Because a group could affect sub-marks, re-parse the submarks
-    // for(var m in this.marks)
-    //   this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);
-    vde.Vis.parse();
+    // Because a group could affect sub-marks, re-parse the submarks
+    for(var m in this.marks)
+      this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);
+
     return this;
   }
 
@@ -152,7 +152,13 @@ vde.Vis.marks.Group = (function() {
 
   prototype.selected = function() {
     // Since groups are fancy rects
-    return vde.Vis.marks.Rect.prototype.selected.call(this);
+    var selected = vde.Vis.marks.Rect.prototype.selected.call(this);
+
+    // But we want to reparse the spec on mouseup (i.e. interactive resize)
+    // to get the axes to do the right thing.
+    selected.evtHandlers.mouseup = function() { vde.Vis.parse(); };
+
+    return selected;
   };
 
   prototype.coordinates = function(connector, item, def) {

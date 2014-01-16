@@ -113,7 +113,13 @@ vde.iVis = (function() {
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
           });
         } else {
-          icanvas.on(type, dispatchEvent);
+          icanvas.on(type, function() {
+            dispatchEvent();
+            if(type == 'mouseup') {
+              if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
+              mouseup();
+            }
+          });
 
           vde.iVis.view.on(type, function(e, item) {
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type](e, item);
@@ -201,8 +207,6 @@ vde.iVis = (function() {
                     ivis.addMark(ivis.activeMark, item.connector);
                   }
                 }
-
-                mouseup();
               break;
             }
           });
