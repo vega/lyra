@@ -35,4 +35,4 @@ vde.App.directive('vdeTooltip', function() {
       container: 'body'
     });
   };
-})
+});

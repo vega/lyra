@@ -1,4 +1,4 @@
-vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) {
+vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, $window) {
   $scope.gMdl = { // General catch-all model for scoping
     groups: vde.Vis.groups,
     groupOrder: vde.Vis.groupOrder,
@@ -152,4 +152,10 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger) 
 
     logger.log('edit_vis', {});
   };
+
+  $window.addEventListener("beforeunload", function(e) {
+    var msg = 'You have unsaved changed in Lyra.';
+    (e || $window.event).returnValue = msg;     //Gecko + IE
+    return msg;                                 //Webkit, Safari, Chrome etc.
+  });
 });
