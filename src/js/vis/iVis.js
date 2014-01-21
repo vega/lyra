@@ -279,10 +279,10 @@ vde.iVis = (function() {
       vde.Vis.parse();
     });
 
-    window.setTimeout(function() {
-      ivis.newMark = null;
-      $('.proxy').remove();
+    ivis.newMark = null;
+    $('.proxy').remove();
 
+    window.setTimeout(function() {
       ivis.ngLogger().log('new_mark', {
         markType: mark.type,
         markName: mark.name,
