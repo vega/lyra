@@ -419,12 +419,21 @@ vde.Vis.Mark = (function() {
     this._def = null;
     this._items = [];
     delete this.connectedTo.host;
+    if(connectedTo) this.connectedTo.hostName = connectedTo.name;
+
     var ex = vg.duplicate(this);
     this._def = def;
     this._items = items;
     this.connectedTo.host = connectedTo;
+    delete this.connectedTo.hostName;
 
     return ex;
+  };
+
+  prototype.import = function(imp) {
+    // In export, to prevent circular structure, we export just the connection's hostname
+    if(imp.connectedTo.hostName)
+      this.connectedTo.host = this.group().marks[imp.connectedTo.hostName];
   };
 
   prototype.defaults = function(prop) { return null; }

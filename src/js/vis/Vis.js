@@ -250,6 +250,7 @@ vde.Vis = (function() {
           var m = g.marks[markName];
           var mark = new vde.Vis.marks[className(m.type)](markName, groupName);
           mark.init();
+          mark.import(m);
         };
 
         importProperties(group, g);
