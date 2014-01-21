@@ -192,7 +192,7 @@ vde.Vis = (function() {
         if(vg.isObject(b[k])) {
           if(!vg.isObject(a[k])) {
             if(b[k].hasOwnProperty('accessor') || k == 'field') a[k] = new vde.Vis.Field('');
-            else if(k == 'scale') a[k] = scales[b[k].name];
+            else if(k == 'scale' || b[k].hasOwnProperty('domainTypes')) a[k] = scales[b[k].name];
             else a[k] = {};
           }
           importProperties(a[k], b[k]);
@@ -221,10 +221,8 @@ vde.Vis = (function() {
         var pipeline = new vde.Vis.Pipeline(p.source);
 
         for(var scaleName in p.scales) {
-          console.log('scaleName', scaleName);
           var scale = new vde.Vis.Scale(scaleName, pipeline, {});
           scales[scaleName] = scale; // Keep around for groups
-          console.log(pipeline.scales);
         }
 
         p.transforms.forEach(function(t) {

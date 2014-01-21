@@ -23,7 +23,7 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope, $timeout, logger) {
       // vde.Vis.data('wheat', 'data/wheat.json', 'json');
       // vde.Vis.data('monarchs', 'data/monarchs.json', 'json');
       // vde.Vis.data('hotels', 'data/hotels.json', 'json');
-      // vde.Vis.data('rundown', 'data/rundown.json', 'json');
+      vde.Vis.data('rundown', 'data/rundown.json', 'json');
       // vde.Vis.data('deaths', 'data/curves.json', 'json');
       // vde.Vis.data('zipcodes', 'data/zipcodes.json', 'json');
       // vde.Vis.data('stocks', 'data/stocks.csv', {"type": "csv", "parse": {"price":"number", "date":"date"}});
