@@ -13,9 +13,11 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
   $rootScope.reparse = function() { vde.Vis.parse(); };
 
   $rootScope.toggleVisual = function(v, key) {
+    console.log(v, key);
+
     $rootScope.activeVisual = v;
     $rootScope.activeGroup  = v.group() || v;
-
+    console.log($rootScope.activeGroup.name);
     $rootScope.activePipeline = v.pipelineName ? v.pipeline() : $rootScope.activePipeline;
     $scope.gMdl.activeVisualPipeline = (v.pipeline() || {}).name;
 

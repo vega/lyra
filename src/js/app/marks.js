@@ -32,7 +32,7 @@ vde.App.controller('MarksCtrl', function($scope, $rootScope, $timeout, logger) {
     // Start with a default pipeline and group
     var g = new vde.Vis.marks.Group();
     $rootScope.activeGroup = g;
-    $rootScope.activePipeline = new vde.Vis.Pipeline();
+    $rootScope.addPipeline();
     vde.Vis.parse(); 
   };
 });
