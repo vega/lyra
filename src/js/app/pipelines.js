@@ -22,7 +22,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
     $rootScope.activePipeline = p;
     $scope.pMdl.activePipelineSource = p.source;
 
-    $rootScope.fromSources = [{key: 'Select...', value: ''}];
+    $rootScope.fromSources = [];
     vg.keys(vde.Vis._data).forEach(function(d) { $scope.fromSources.push({key: d, value: d})} );
     $rootScope.fromSources.push({key: 'New Data Source', value: 'vdeNewData'})
 

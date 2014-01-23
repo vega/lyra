@@ -63,6 +63,7 @@ vde.Vis.Pipeline = (function() {
   };
 
   prototype.aggregate = function(field, stat) {
+    field.stat = null;  // Erase the current state so that we get the correct fieldSpec
     var fieldSpec = field.spec(), median = (stat == 'median');
     if(!this._aggregate[fieldSpec]) {
       var stats = new vde.Vis.transforms.Stats(this.name);
