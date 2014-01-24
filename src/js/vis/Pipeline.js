@@ -63,16 +63,16 @@ vde.Vis.Pipeline = (function() {
   };
 
   prototype.aggregate = function(field, stat) {
-    field.stat = null;  // Erase the current state so that we get the correct fieldSpec
+    field.stat = null;  // Erase the current state so that we get a common fieldSpec
     var fieldSpec = field.spec(), median = (stat == 'median');
     if(!this._aggregate[fieldSpec]) {
       var stats = new vde.Vis.transforms.Stats(this.name);
       stats.properties.value = fieldSpec;
       stats.properties.median = median;
-      this._aggregate[fieldSpec] = this.addTransform(stats);
+      this.addTransform(stats);
+      this._aggregate[fieldSpec] = stats;
     } else if(median) {
-      var idx = this._aggregate[fieldSpec];
-      this.transforms[idx].properties.median = true;
+      this._aggregate[fieldSpec].properties.median = true;
     }
 
     field.stat = stat;
@@ -132,7 +132,10 @@ vde.Vis.Pipeline = (function() {
       if(t.forkPipeline) pipelineName = self.forkName;
       if(t.isVisual) return;
 
-      if(t.type == 'stats') t.fields.forEach(function(f) { seenFields[f] = true; });
+      if(t.type == 'stats') {
+        t.spec(); // Build spec to populate fields.
+        t.fields.forEach(function(f) { seenFields[f] = true; });
+      }
 
       // If this transform can't deal with faceted values
       if(!t.onFork() && pipelineName != self.name) {
