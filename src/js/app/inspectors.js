@@ -102,7 +102,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
     scope: {
       scale: '=',
       field: '=',
-      draggable: '@',
+      draggable: '@'
     },
     templateUrl: 'tmpl/inspectors/binding.html',
     controller: function($scope, $element, $attrs) {
@@ -170,7 +170,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
   }
 });
 
-vde.App.directive('vdeExpr', function($rootScope, $compile, logger) {
+vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, logger) {
   return {
     restrict: 'A',
     scope: {
@@ -181,23 +181,32 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, logger) {
     },
     template: '<div class="expr" contenteditable="true"></div>',
     link: function(scope, element, attrs) {
-      var parse = function(elem) {
+      var parse = function() {
+        var elem = $(element).find('.expr');
         var html  = elem.html().replace('<br>','');
         var value = $('<div>' + html + '</div>');
         var strConcat = (attrs.vdeExpr == 'str');
+        var digesting = (scope.$$phase || scope.$root.$$phase);
+
+        // When we add a transform containing an expr to the pipeline, the references
+        // change and this function is called before .expr.html() is rendered correctly.
+        if(digesting && html == "") return;
 
         value.find('.schema').each(function(i, e) {
           if(strConcat) $(e).text('" + d.' + $(e).attr('field-spec') + ' + "');
           else          $(e).text('d.' + $(e).attr('field-spec'));
         });
 
-        scope.$apply(function() {
+        var applyProperties = function() {
           scope.item.properties[scope.property] = strConcat ? '"' + value.text() + '"' : value.text();
           scope.item.properties[scope.property + 'Html'] = html;
 
           scope.$parent.onchange();
           vde.Vis.parse();
-        });
+        };
+
+        // Safe apply in case parse is called from within a watch.
+        digesting ? applyProperties() : scope.$apply(applyProperties);
       };
 
       $(element).find('.expr')
@@ -215,22 +224,24 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, logger) {
           bindingScope.field = new vde.Vis.Field(field);
           scope.item.exprFields.push(bindingScope.field);
           var binding = $compile('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope);
-          $(this).append(binding);
           scope.$apply();
 
           $(this).append(binding.find('.schema').attr('contenteditable', 'false'));
-          $(this).find('vde-binding').remove();
 
           if(dd) dd.proxy = null;
           $('.proxy').remove();
-          parse($(this));
+//          parse();
           $(this).focus();
         }).drop('dropstart', function() {
           $(this).parent().css('borderColor', '#333');
         }).drop('dropend', function() {
           $(this).parent().css('borderColor', '#aaa');
         })
-        .bind('keyup', function(e) { parse($(this)); });
+        .bind('keyup', function(e) { parse(); });
+
+      // This captures any aggregation changes made to the fields used. We need to set it on
+      // a timeout because parse requires the html of element to have been completely rendered.
+      scope.$watch('item.exprFields', function() { $timeout(function() { parse() }, 100) }, true);
 
       scope.$watch(function($scope) { return $scope.ngModel },
         function() {
