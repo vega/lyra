@@ -308,6 +308,8 @@ vde.Vis.marks.Rect = (function() {
 
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
+    if(!item) return {x: 0, y: 0};  // If we've filtered everything out.
+
     var bounds = item.bounds;
     // For groups, we can't use item.bounds because that reflects the max bounds of all enclosed elems
     if(this.type == 'group')

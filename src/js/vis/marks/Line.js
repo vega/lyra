@@ -110,6 +110,8 @@ vde.Vis.marks.Line = (function() {
 
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
+    if(!item) return {x: 0, y: 0};  // If we've filtered everything out.
+
     var b = new vg.Bounds().set(item.x, item.y, item.x, item.y);
     b = vde.iVis.translatedBounds(item, b);
 

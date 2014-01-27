@@ -145,6 +145,8 @@ vde.Vis.marks.Symbol = (function() {
 
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
+    if(!item) return {x: 0, y: 0};  // If we've filtered everything out.
+
     var b = vde.iVis.translatedBounds(item, item.bounds);
 
     var coord = {
