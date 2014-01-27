@@ -59,6 +59,7 @@ vde.Vis.marks.Text = (function() {
   };
 
   prototype.update = function(prop) {
+    if(!prop) prop = "";
     if(prop.indexOf('text') != -1) {
       var def = this.def();
 
@@ -261,6 +262,7 @@ vde.Vis.marks.Text = (function() {
 
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
+    if(!item) return {x: 0, y: 0};  // If we've filtered everything out.
     var coord = {};
 
     if(connector == 'text') {

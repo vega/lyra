@@ -392,6 +392,9 @@ vde.Vis.Mark = (function() {
         this._items = this._items.concat(visit(groups[g]));
 
       parents = groups;
+      // If we've recursed all the way up to the root of the tree
+      // then this mark probably doesn't have any rendered items.
+      if(parents.length == 0) break;
     }
 
     for(var i = 0; i < this._items.length; i++) this._items[i].vdeKey = i;

@@ -15,7 +15,9 @@ vde.Vis.transforms.Filter = (function() {
       type: this.type,
       test: this.properties.test
     };
-  }
+  };
+
+  prototype.onFork = function() { return false; }
 
   return filter;
 })();

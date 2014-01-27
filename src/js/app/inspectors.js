@@ -237,12 +237,15 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, logger) {
         }).drop('dropend', function() {
           $(this).parent().css('borderColor', '#aaa');
         })
-        .bind('keyup', function(e) { parse(); });
+        .bind('keyup', function(e) { parse(); })
+        .bind('click', function() { $(this).focus(); });
 
       // This captures any aggregation changes made to the fields used. We need to set it on
       // a timeout because parse requires the html of element to have been completely rendered.
       scope.$watch('item.exprFields', function() { $timeout(function() { parse() }, 100) }, true);
 
+      // NgModel is registered on the top-level directive. We need this to move the value of
+      // the model into our editable div.
       scope.$watch(function($scope) { return $scope.ngModel },
         function() {
           var expr = $(element).find('.expr'), html = scope.ngModel;
