@@ -237,7 +237,8 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, logger) {
         }).drop('dropend', function() {
           $(this).parent().css('borderColor', '#aaa');
         })
-        .bind('keyup', function(e) { parse(); });
+        .bind('keyup', function(e) { parse(); })
+        .bind('click', function() { $(this).focus(); });
 
       // This captures any aggregation changes made to the fields used. We need to set it on
       // a timeout because parse requires the html of element to have been completely rendered.

@@ -59,6 +59,7 @@ vde.Vis.marks.Text = (function() {
   };
 
   prototype.update = function(prop) {
+    if(!prop) prop = "";
     if(prop.indexOf('text') != -1) {
       var def = this.def();
 
