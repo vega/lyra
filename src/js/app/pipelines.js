@@ -6,6 +6,7 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger, timeline
   $scope.$watch(function($scope) {
       return vg.keys(vde.Vis._data)
     }, function() {
+    $rootScope.dataSources = vg.keys(vde.Vis._data);
     $rootScope.fromSources = [];
     vg.keys(vde.Vis._data).forEach(function(d) { $scope.fromSources.push({key: d, value: d})} );
     $rootScope.fromSources.push({key: 'New Data Source', value: 'vdeNewData'})

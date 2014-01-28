@@ -6,7 +6,7 @@
   <fieldset id="links">
     <legend>Links</legend>
 
-    <vde-property label="Data" type="select" ng-options="f.value as f.key for f in fromSources" item="transform" property="links.data" ng-model="transform.links.data" nodrop="1"></vde-property>
+    <vde-property label="Data" type="select" options="dataSources" item="transform" property="links.data" ng-model="transform.links.data" nodrop="1"></vde-property>
 
     <vde-property label="Source" type="select" options="linkFields" item="transform" property="links.source" ng-model="transform.links.source" nodrop="1"></vde-property>
 
