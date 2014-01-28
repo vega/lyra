@@ -30,6 +30,8 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
           else vde.Vis.parse();
 
           vde.iVis.show('selected');
+
+          timeline.save();
         }, 1);
 
         logger.log('onchange', {
@@ -40,8 +42,6 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
           ngModel: $attrs.ngModel,
           value: $scope.ngModel
         });
-
-        timeline.save();
       };
 
       $scope.unbind = function(property) {

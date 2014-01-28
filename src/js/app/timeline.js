@@ -17,7 +17,9 @@ vde.App.factory('timeline', ["$rootScope", function($rootScope) {
 
     load: function(idx) {
       var t = this.timeline[idx], vis = t.vis, app = t.app;
-      $rootScope.$apply(function() {
+      var digesting = ($rootScope.$$phase || $rootScope.$root.$$phase);
+
+      var f = function() {
         $rootScope.groupOrder = vde.Vis.groupOrder = [];
         vde.Vis.import(vis);
 
@@ -29,7 +31,9 @@ vde.App.factory('timeline', ["$rootScope", function($rootScope) {
 
         if(app.activePipeline)
           $rootScope.togglePipeline(vde.Vis.pipelines[app.activePipeline]);
-      });
+      };
+
+      digesting ? f() : $rootScope.$apply(digesting);
     },
 
     undo: function() {
@@ -45,3 +49,45 @@ vde.App.factory('timeline', ["$rootScope", function($rootScope) {
 
   };
 }]);
+
+vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timeline) {
+  var t = function() {
+    return {
+      length: timeline.timeline.length,
+      idx: timeline.currentIdx
+    };
+  }
+
+  $scope.$watch(function($scope) {
+    return t()
+  }, function() {
+    $scope.timeline = t();
+  }, true);
+
+  $scope.undo = function() { timeline.undo() };
+  $scope.redo = function() { timeline.redo() };
+
+  $window.addEventListener('keydown', function(keyEvent) {
+    var keyCode = keyEvent.keyCode;
+    var d = keyEvent.srcElement || keyEvent.target;
+
+    if (keyEvent.metaKey === true || keyEvent.ctrlKey === true) {
+      if (keyCode === 89) {
+        $scope.$apply(function() { $scope.redo(); });
+        keyEvent.preventDefault();
+        return false;
+      }
+      else if (keyCode === 90) {
+        //special case (CTRL-SHIFT-Z) does a redo (on a mac for example)
+        if (keyEvent.shiftKey === true) {
+          $scope.$apply(function() { $scope.redo(); });
+        }
+        else {
+          $scope.$apply(function() { $scope.undo(); });
+        }
+        keyEvent.preventDefault();
+        return false;
+      }
+    }
+  })
+});

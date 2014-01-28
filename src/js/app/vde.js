@@ -2,7 +2,7 @@ var vde = {version: '0.0.5'};
 
 vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable']);
 
-vde.App.controller('VdeCtrl', function($scope, $rootScope, $timeout) {
+vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, timeline) {
   $scope.load = function() {
     jQuery.migrateMute = true;
 
@@ -41,10 +41,39 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $timeout) {
       $rootScope.activePipeline = p;
 
       vde.Vis.parse();
+
+      timeline.save();
     }, 1)
   };
 
   $scope.marks = ['Rect', 'Symbol', 'Arc', 'Area', 'Line', 'Text'];
+
+  // Prevent backspace from navigating back and instead delete
+  $window.addEventListener('keydown', function(evt) {
+    var m = vde.iVis.activeMark;
+    // if(!m || m.type != 'group') return;
+
+    var preventBack = false;
+    if (evt.keyCode == 8) {
+      var d = evt.srcElement || evt.target;
+      if (d.tagName.toUpperCase() === 'INPUT' || d.tagName.toUpperCase() === 'TEXTAREA' || d.contentEditable == "true") {
+        preventBack = d.readOnly || d.disabled;
+      }
+      else preventBack = true;
+    }
+
+    if (preventBack) {
+      evt.preventDefault();
+      if(m && m.type != 'group') $rootScope.removeVisual('marks', m.name);
+    }
+  });
+
+  // Prompt before unloading
+  $window.addEventListener("beforeunload", function(e) {
+    var msg = 'You have unsaved changed in Lyra.';
+    (e || $window.event).returnValue = msg;     //Gecko + IE
+    return msg;                                 //Webkit, Safari, Chrome etc.
+  });
 });
 
 vde.App.controller('ExportCtrl', function($scope, $rootScope) {

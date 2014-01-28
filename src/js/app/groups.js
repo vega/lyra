@@ -163,12 +163,6 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
 
     logger.log('edit_vis', {});
   };
-
-  $window.addEventListener("beforeunload", function(e) {
-    var msg = 'You have unsaved changed in Lyra.';
-    (e || $window.event).returnValue = msg;     //Gecko + IE
-    return msg;                                 //Webkit, Safari, Chrome etc.
-  });
 });
 
 vde.App.controller('GroupCtrl', function($scope, $rootScope) {

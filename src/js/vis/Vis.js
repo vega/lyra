@@ -139,26 +139,6 @@ vde.Vis = (function() {
 
         d3.select('#vis canvas').on('mouseup.vis', newMark);
 
-        // Prevent backspace from navigating back and instead delete
-        d3.select('body').on('keydown.vis', function() {
-          var m = vde.iVis.activeMark, evt = d3.event;
-          // if(!m || m.type != 'group') return;
-
-          var preventBack = false;
-          if (evt.keyCode == 8) {
-            var d = evt.srcElement || evt.target;
-            if (d.tagName.toUpperCase() === 'INPUT' || d.tagName.toUpperCase() === 'TEXTAREA' || d.contentEditable == "true") {
-                preventBack = d.readOnly || d.disabled;
-            }
-            else preventBack = true;
-          }
-
-          if (preventBack) {
-            evt.preventDefault();
-            if(m && m.type != 'group') vde.iVis.ngScope().removeVisual('marks', m.name);
-          }
-        });
-
         // If the vis gets reparsed, reparse the interactive layer too to update any
         // visible handlers, etc.
         vde.iVis.parse();
