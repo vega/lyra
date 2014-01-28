@@ -1,7 +1,5 @@
-vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, $window, timeline) {
+vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logger, $window, timeline) {
   $scope.gMdl = { // General catch-all model for scoping
-    groups: vde.Vis.groups,
-    groupOrder: vde.Vis.groupOrder,
     pipelines: vde.Vis.pipelines,
     sortableOpts: {
       update: function(e, ui) { $timeout(function() { vde.Vis.parse(); }, 1); },
@@ -9,6 +7,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
     },
     fonts: ['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS']
   };
+
+  $rootScope.groupOrder = vde.Vis.groupOrder;
 
   $rootScope.reparse = function() { vde.Vis.parse(); };
 
@@ -170,3 +170,20 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
     return msg;                                 //Webkit, Safari, Chrome etc.
   });
 });
+
+vde.App.controller('GroupCtrl', function($scope, $rootScope) {
+  $rootScope.$watch('groupOrder', function() {
+    $scope.group = vde.Vis.groups[$scope.groupName];
+  });
+});
+
+vde.App.controller('MarkCtrl', function($scope, $rootScope) {
+  $scope.$watch('group.marks', function() {
+    $scope.mark = $scope.group.marks[$scope.markName];
+  });
+
+  $scope.click = function(mark) {
+    $rootScope.toggleVisual(mark);
+    $scope.gMdl.activeVisualPipeline = $scope.mark.pipelineName || ''
+  };
+})
