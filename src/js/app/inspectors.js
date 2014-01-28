@@ -100,7 +100,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
   }
 });
 
-vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger) {
+vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timeline, logger) {
   return {
     restrict: 'E',
     scope: {
@@ -176,7 +176,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
   }
 });
 
-vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, logger) {
+vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, logger) {
   return {
     restrict: 'A',
     scope: {
