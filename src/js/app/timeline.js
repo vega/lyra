@@ -1,13 +1,13 @@
 vde.App.factory('timeline', ["$rootScope", function($rootScope) {
   return {
     timeline: [],
-    currentIdx: 0,
+    currentIdx: -1,
 
     save: function() {
-      this.timeline[this.currentIdx++] = {
+      this.timeline[++this.currentIdx] = {
         vis: vde.Vis.export(),
         app: {
-          activeVisual: $rootScope.activeVisual.name,
+          activeVisual: ($rootScope.activeVisual || {}).name,
           isMark: $rootScope.activeVisual instanceof vde.Vis.Mark,
           activeGroup: $rootScope.activeGroup.name,
           activePipeline: $rootScope.activePipeline.name
@@ -28,7 +28,7 @@ vde.App.factory('timeline', ["$rootScope", function($rootScope) {
     },
 
     undo: function() { this.load(--this.currentIdx) },
-    redo: function() { this.load(++this.currentIdx) }
+    redo: function() { this.load(++this.currentIdx); }
 
   };
 }]);
