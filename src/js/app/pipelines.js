@@ -1,4 +1,4 @@
-vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
+vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger, timeline) {
   $scope.pMdl = { // General catch-all model for scoping
     pipelines: vde.Vis.pipelines
   };
@@ -16,6 +16,8 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
     logger.log('new_pipeline', {
       activePipeline: $rootScope.activePipeline.name
     }, false, true);
+
+    timeline.save();
   };
 
   $rootScope.togglePipeline = function(p) {
@@ -36,6 +38,8 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
     $('.tooltip').remove();
 
     logger.log('remove_pipeline', { pipelineName: p }, false, true);
+
+    timeline.save();
   };
 
   $scope.setSource = function() {
@@ -45,6 +49,8 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
     else $rootScope.activePipeline.source = src;
 
     logger.log('set_source', { src: src }, false, true);
+
+    timeline.save();
   };
 
   $scope.newTransforms = [];
@@ -62,6 +68,8 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
 
     $scope.newTransforms.splice(i, 1);
     vde.Vis.parse();
+
+    timeline.save();
   };
 
   $scope.removeTransform = function(i, isNewTransform) {
@@ -80,6 +88,8 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
     $('.tooltip').remove();
 
     logger.log('remove_transform', { idx: i, isNewTransform: isNewTransform }, false, true);
+
+    timeline.save();
   };
 
   $scope.addScale = function() {
@@ -87,6 +97,8 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger) {
     s.manual = true;
 
     logger.log('add_scale', { scale: s.name }, false, true);
+
+    timeline.save();
 
     return s;
   };

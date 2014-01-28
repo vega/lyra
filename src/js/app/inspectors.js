@@ -1,4 +1,4 @@
-vde.App.directive('vdeProperty', function($rootScope, logger) {
+vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
   return {
     restrict: 'E',
     scope: {
@@ -40,6 +40,8 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           ngModel: $attrs.ngModel,
           value: $scope.ngModel
         });
+
+        timeline.save();
       };
 
       $scope.unbind = function(property) {
@@ -53,6 +55,8 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           property: $attrs.property,
           ngModel: $attrs.ngModel
         }, true, true);
+
+        timeline.save();
       };
 
       $scope.showHelper = function(target, e, helperClass) {
@@ -116,6 +120,8 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
         field.pipeline().aggregate(field, stat);
         $timeout(function() { vde.Vis.parse(); }, 1);
         $('#aggregate-inspector').hide();
+
+        timeline.save();
       };
 
       $scope.editBinding = function(evt, part) {

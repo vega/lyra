@@ -1,4 +1,4 @@
-vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, $window) {
+vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, $window, timeline) {
   $scope.gMdl = { // General catch-all model for scoping
     groups: vde.Vis.groups,
     groupOrder: vde.Vis.groupOrder,
@@ -54,6 +54,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
       activeVisualPipeline: p,
       activePipeline: $rootScope.activePipeline.name
     }, true, true);
+
+    timeline.save();
   };
 
   $scope.addGroup = function() {
@@ -67,6 +69,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
       visualPipeline: g.pipelineName,
       activePipeline: $rootScope.activePipeline.name
     }, true);
+
+    timeline.save();
   };
 
   $scope.addAxis = function() {
@@ -79,6 +83,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
       visualPipeline: axis.pipelineName,
       activePipeline: $rootScope.activePipeline.name
     }, true);
+
+    timeline.save();
   };
 
   $rootScope.removeVisual = function(type, name) {
@@ -115,11 +121,15 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
       activeGroup: $rootScope.activeGroup.name,
       activePipeline: $rootScope.activePipeline.name
     }, true);
+
+    timeline.save();
   };
 
   $scope.newTransform = function(type) {
     var t = new vde.Vis.transforms[type]($rootScope.activeVisual.pipelineName);
     $rootScope.activeVisual.pipeline().transforms.push(t);
+
+    timeline.save();
   };
 
   $scope.removeTransform = function(i) {
@@ -133,6 +143,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
     $('.tooltip').remove();
 
     logger.log('remove_transform', { idx: i }, false, true);
+
+    timeline.save();
   };
 
   $scope.toggleProp = function(prop, value) {

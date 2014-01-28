@@ -253,6 +253,8 @@ vde.iVis = (function() {
         field: field
       }, true, true);
 
+      ivis.ngTimeline().save();
+
       if(visual.groupName) rootScope.$apply(function() { rootScope.toggleVisual(visual); });
     }, 1);
 
@@ -289,6 +291,8 @@ vde.iVis = (function() {
         activeGroup: (rootScope.activeGroup || {}).name,
         markGroup: mark.groupName
       }, true);
+
+      ivis.ngTimeline().save();
 
       rootScope.$apply(function() { rootScope.toggleVisual(mark); });
     }, 1);
@@ -543,6 +547,10 @@ vde.iVis = (function() {
 
   ivis.ngLogger = function() {
     return $('html').injector().get('logger');
+  };
+
+  ivis.ngTimeline = function() {
+    return $('html').injector().get('timeline');
   };
 
   ivis.ngFilter = function() {
