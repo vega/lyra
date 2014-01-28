@@ -42,8 +42,9 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
 
       vde.Vis.parse();
 
+      // To be able to undo all the way back to a default/clean slate.
       timeline.save();
-    }, 1)
+    }, 500)
   };
 
   $scope.marks = ['Rect', 'Symbol', 'Arc', 'Area', 'Line', 'Text'];
