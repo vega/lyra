@@ -41,7 +41,6 @@
     <script src="js/app/inspectors.js"></script>
     <script src="js/app/pipelines.js"></script>
     <script src="js/app/data.js"></script>
-    <script src="js/app/marks.js"></script>
 
     <script src="js/vis/Vis.js"></script>
     <script src="js/vis/iVis.js"></script>
@@ -70,7 +69,7 @@
     <script src="js/vis/transforms/Stats.js"></script>
     <script src="js/vis/transforms/Window.js"></script>
   </head>
-  <body ng-click="clearBubbles();">
+  <body ng-controller="VdeCtrl" ng-init="load()"  ng-click="clearBubbles();">
 
     <ng-include src="'tmpl/pipelines.html'"></ng-include>
 

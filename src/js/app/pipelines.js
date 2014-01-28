@@ -3,11 +3,13 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger, timeline
     pipelines: vde.Vis.pipelines
   };
 
-  function dataSources() { return vg.keys(vde.Vis._data); }
-
   $scope.$watch(function($scope) {
-      return dataSources();
-    }, function() { $rootScope.dataSources = dataSources() }, true);
+      return vg.keys(vde.Vis._data)
+    }, function() {
+    $rootScope.fromSources = [];
+    vg.keys(vde.Vis._data).forEach(function(d) { $scope.fromSources.push({key: d, value: d})} );
+    $rootScope.fromSources.push({key: 'New Data Source', value: 'vdeNewData'})
+  }, true);
 
   $rootScope.addPipeline = function() {
     var p = new vde.Vis.Pipeline();
@@ -23,10 +25,6 @@ vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger, timeline
   $rootScope.togglePipeline = function(p) {
     $rootScope.activePipeline = p;
     $scope.pMdl.activePipelineSource = p.source;
-
-    $rootScope.fromSources = [];
-    vg.keys(vde.Vis._data).forEach(function(d) { $scope.fromSources.push({key: d, value: d})} );
-    $rootScope.fromSources.push({key: 'New Data Source', value: 'vdeNewData'})
 
     logger.log('toggle_pipeline', {
       activePipeline: $rootScope.activePipeline.name
