@@ -437,6 +437,9 @@ vde.Vis.Mark = (function() {
     // In export, to prevent circular structure, we export just the connection's hostname
     if(imp.connectedTo.hostName)
       this.connectedTo.host = this.group().marks[imp.connectedTo.hostName];
+
+    // We clear out properties, so that we don't get any lingering defaults from re-init'ing
+    this.properties = {};
   };
 
   prototype.defaults = function(prop) { return null; }
