@@ -202,60 +202,52 @@ vde.Vis = (function() {
       }
     };
 
-    var $scope = vde.iVis.ngScope();
+    // Clear existing pipelines and groups. We want to do this in two
+    // apply cycles because pipeline/group names may be the same, and
+    // angular may not pick up the updates otherwise.
+    for(var p in vis.pipelines) { delete vis.pipelines[p]; }
+    for(var g in vis.groups) { delete vis.groups[g]; }
+    vde.Vis.groupOrder.length = 0;
 
-    $scope.activeVisual = null;
-    $scope.activePipeline = null;
-    $scope.$apply(function() {
-      // Clear existing pipelines and groups. We want to do this in two
-      // apply cycles because pipeline/group names may be the same, and
-      // angular may not pick up the updates otherwise.
-      for(var p in vis.pipelines) { delete vis.pipelines[p]; }
-      for(var g in vis.groups) { delete vis.groups[g]; }
-      vis.groupOrder.length = 0;
-    });
+    for(var pipelineName in spec.pipelines) {
+      var p = spec.pipelines[pipelineName];
+      var pipeline = new vde.Vis.Pipeline(p.source);
 
-    $scope.$apply(function() {
-      for(var pipelineName in spec.pipelines) {
-        var p = spec.pipelines[pipelineName];
-        var pipeline = new vde.Vis.Pipeline(p.source);
+      for(var scaleName in p.scales) {
+        var scale = new vde.Vis.Scale(scaleName, pipeline, {});
+        scales[scaleName] = scale; // Keep around for groups
+      }
 
-        for(var scaleName in p.scales) {
-          var scale = new vde.Vis.Scale(scaleName, pipeline, {});
-          scales[scaleName] = scale; // Keep around for groups
-        }
+      p.transforms.forEach(function(t) {
+        var transform = new vde.Vis.transforms[className(t.type)](pipelineName);
+        pipeline.transforms.push(transform);
+      });
 
-        p.transforms.forEach(function(t) {
-          var transform = new vde.Vis.transforms[className(t.type)](pipelineName);
-          pipeline.transforms.push(transform);
-        });
+      importProperties(pipeline, p);
+    };
 
-        importProperties(pipeline, p);
+    for(var groupName in spec.groups) {
+      var g = spec.groups[groupName];
+      var group = new vde.Vis.marks.Group(groupName);
+
+      for(var scaleName in g.scales) {
+        group.scales[scaleName] = scales[scaleName];
+      }
+
+      for(var axisName in g.axes) {
+        var axis = new vde.Vis.Axis(axisName, groupName);
+        axis.init();
       };
 
-      for(var groupName in spec.groups) {
-        var g = spec.groups[groupName];
-        var group = new vde.Vis.marks.Group(groupName);
-
-        for(var scaleName in g.scales) {
-          group.scales[scaleName] = scales[scaleName];
-        }
-
-        for(var axisName in g.axes) {
-          var axis = new vde.Vis.Axis(axisName, groupName);
-          axis.init();
-        };
-
-        for(var markName in g.marks) {
-          var m = g.marks[markName];
-          var mark = new vde.Vis.marks[className(m.type)](markName, groupName);
-          mark.init();
-          mark.import(m);
-        };
-
-        importProperties(group, g);
+      for(var markName in g.marks) {
+        var m = g.marks[markName];
+        var mark = new vde.Vis.marks[className(m.type)](markName, groupName);
+        mark.init();
+        mark.import(m);
       };
-    });
+
+      importProperties(group, g);
+    };
 
     vis.parse();
   };

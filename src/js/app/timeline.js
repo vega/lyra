@@ -17,14 +17,19 @@ vde.App.factory('timeline', ["$rootScope", function($rootScope) {
 
     load: function(idx) {
       var t = this.timeline[idx], vis = t.vis, app = t.app;
-      vde.Vis.import(vis);
+      $rootScope.$apply(function() {
+        $rootScope.groupOrder = vde.Vis.groupOrder = [];
+        vde.Vis.import(vis);
 
-      var g = vde.Vis.groups[app.activeGroup];
-      $rootScope.activeGroup = g;
-      $rootScope.activeVisual = (app.isMark) ?
-          g.marks[app.activeVisual] : g.axes[app.activeVisual];
+        var g = vde.Vis.groups[app.activeGroup];
+        if(app.activeVisual) {
+          $rootScope.toggleVisual((app.isMark) ?
+              g.marks[app.activeVisual] : g.axes[app.activeVisual]);
+        }
 
-      $rootScope.activePipeline = vde.Vis.pipelines[app.activePipeline];
+        if(app.activePipeline)
+          $rootScope.togglePipeline(vde.Vis.pipelines[app.activePipeline]);
+      });
     },
 
     undo: function() { this.load(--this.currentIdx) },
