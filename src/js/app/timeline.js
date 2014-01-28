@@ -32,8 +32,16 @@ vde.App.factory('timeline', ["$rootScope", function($rootScope) {
       });
     },
 
-    undo: function() { this.load(--this.currentIdx) },
-    redo: function() { this.load(++this.currentIdx); }
+    undo: function() {
+      this.currentIdx = (--this.currentIdx < 0) ? 0 : this.currentIdx;
+      this.load(this.currentIdx)
+    },
+
+    redo: function() {
+      this.currentIdx = (++this.currentIdx >= this.timeline.length) ?
+          this.timeline.length - 1 : this.currentIdx;
+      this.load(this.currentIdx);
+    }
 
   };
 }]);
