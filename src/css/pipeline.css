@@ -50,7 +50,10 @@ li.icon span.header { padding-left: 25px; }
 .transform-wordcloud { background: url(../imgs/tag_cloud.png) no-repeat; }
 .transform-geo { background: url(../imgs/geo.png) no-repeat; }
 .transform-window { background: url(../imgs/window.png) no-repeat; }
-.transform-force { background: url(../imgs/force.png) no-repeat; }
+.transform-force {
+  background: url(../imgs/force.png) no-repeat;
+  background-size: 16px;
+}
 
 #transform-force-pin {
   display: block;
