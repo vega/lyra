@@ -26,22 +26,22 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", function($rootScope, $tim
         // Timeout so vis has time to parse, before we switch angular/iVis
         // contexts.
         $timeout(function() {
-        var g = vde.Vis.groups[app.activeGroup];
-        if(app.activeVisual) {
-          $rootScope.toggleVisual((app.isMark) ?
-              g.marks[app.activeVisual] : g.axes[app.activeVisual]);
-        } else {
-          // If we don't have an activeVisual, clear out any interactors
-          vde.iVis.activeMark = null;
-          vde.iVis.show('selected');
-        }
+          var g = vde.Vis.groups[app.activeGroup];
+          if(app.activeVisual) {
+            $rootScope.toggleVisual((app.isMark) ?
+                g.marks[app.activeVisual] : g.axes[app.activeVisual]);
+          } else {
+            // If we don't have an activeVisual, clear out any interactors
+            vde.iVis.activeMark = null;
+            vde.iVis.show('selected');
+          }
+        }, 1);
 
         if(app.activePipeline)
           $rootScope.togglePipeline(vde.Vis.pipelines[app.activePipeline]);
-        }, 1);
       };
 
-      digesting ? f() : $rootScope.$apply(digesting);
+      digesting ? f() : $rootScope.$apply(f);
     },
 
     undo: function() {
