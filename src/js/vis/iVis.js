@@ -47,6 +47,7 @@ vde.iVis = (function() {
     }
 
     ivis.view.data(d).update();
+
     return this;
   };
 
@@ -292,9 +293,11 @@ vde.iVis = (function() {
         markGroup: mark.groupName
       }, true);
 
-      ivis.ngTimeline().save();
+      rootScope.$apply(function() {
+        rootScope.toggleVisual(mark);
 
-      rootScope.$apply(function() { rootScope.toggleVisual(mark); });
+        ivis.ngTimeline().save();
+      });
     }, 1);
 
     window.clearTimeout(vde.iVis.timeout);
