@@ -95,9 +95,9 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
       if(vde.iVis.activeMark == vde.Vis.groups[name]) vde.iVis.activeMark = null;
       vde.Vis.groups[name].destroy();
       delete vde.Vis.groups[name];
-      var newOrder = [];
-      vde.Vis.groupOrder.forEach(function(g) { if(vde.Vis.groups[g]) newOrder.push(g) });
-      vde.Vis.groupOrder = newOrder;
+
+      var go = vde.Vis.groupOrder;
+      go.splice(go.indexOf(name), 1);
     } else {
       var g = $rootScope.activeGroup;
       if(vde.iVis.activeMark == g[type][name]) vde.iVis.activeMark = null;
@@ -105,9 +105,8 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
       delete g[type][name];
 
       if(type == 'marks') {
-        var newOrder = [];
-        g.markOrder.forEach(function(m) { if(g[type][m]) newOrder.push(m) });
-        g.markOrder = newOrder;
+        var mo = g.markOrder;
+        mo.splice(mo.indexOf(name), 1);
       }
     }
 
