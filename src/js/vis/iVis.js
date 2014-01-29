@@ -269,7 +269,7 @@ vde.iVis = (function() {
     if(!host) host = rootScope.activeGroup;
 
     if(host instanceof vde.Vis.marks.Group) mark.groupName = host.name;
-    else if(host.connectors[connector]) {
+    else if(host.connectors[connector] && mark.canConnect) {
       mark.groupName    = host.groupName;
       mark.connectedTo  = {host: host, connector: connector};
     }
@@ -386,7 +386,7 @@ vde.iVis = (function() {
       from: {data: 'point'},
       properties: {
         enter: {
-          shape: {value: 'circle'},
+          shape: {value: 'circle'}
         },
         update: {
           x: {field: 'data.x'},
@@ -438,7 +438,7 @@ vde.iVis = (function() {
       from: {data: 'dropzone'},
       properties: {
         enter: {
-          fillOpacity: {value: 0.1},
+          fillOpacity: {value: 0.1}
           // stroke: {value: 'black'},
           // strokeDash: {value: [0.3, 1]}
         },

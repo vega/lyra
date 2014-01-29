@@ -27,6 +27,7 @@ vde.Vis.marks.Text = (function() {
 
     this.exprFields = [];
 
+    this.canConnect = true;
     this.connectors = {
       'text': {},
       'left': {}, 'right': {}

@@ -131,8 +131,9 @@ vde.Vis = (function() {
               var scope = vde.iVis.ngScope();
               scope.$apply(function() { scope.toggleVisual(m, i.vdeKey || i.key || 0); });
 
-              if($(d).hasClass('mark')) m.connectionTargets();
-              else m.propertyTargets();
+              var isMark = $(d).hasClass('mark');
+              if(isMark && vde.iVis.newMark.canConnect) m.connectionTargets();
+              else if(!isMark) m.propertyTargets();
             }, vde.iVis.timeout);
           })
           .on('mouseout', function() { window.clearTimeout(vde.iVis.markTimeout); });
