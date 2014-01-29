@@ -4,7 +4,8 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", function($rootScope, $tim
     currentIdx: -1,
 
     save: function() {
-      this.timeline[++this.currentIdx] = {
+      this.timeline.length = ++this.currentIdx;
+      this.timeline.push({
         vis: vde.Vis.export(),
         app: {
           activeVisual: ($rootScope.activeVisual || {}).name,
@@ -12,7 +13,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", function($rootScope, $tim
           activeGroup: $rootScope.activeGroup.name,
           activePipeline: $rootScope.activePipeline.name
         }
-      };
+      });
     },
 
     load: function(idx) {

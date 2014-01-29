@@ -80,10 +80,16 @@ vde.Vis.marks.Symbol = (function() {
       vde.iVis.show('selected');
     };
 
+    var mouseup = function() {
+      vde.iVis.ngScope().$apply(function() {
+        vde.iVis.ngTimeline().save();
+      })
+    };
+
     vde.iVis.interactor('handle', this.handles(item));
     return {
       interactors: {handle: this.handles(item)},
-      evtHandlers: {mousemove: mousemove}
+      evtHandlers: {mousemove: mousemove, mouseup: mouseup}
     };
   };
 

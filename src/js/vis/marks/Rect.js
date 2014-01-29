@@ -166,9 +166,15 @@ vde.Vis.marks.Rect = (function() {
       vde.iVis.show('selected');
     };
 
+    var mouseup = function() {
+      vde.iVis.ngScope().$apply(function() {
+        vde.iVis.ngTimeline().save();
+      })
+    };
+
     return {
       interactors: {handle: this.handles(item)},
-      evtHandlers: {mousemove: mousemove}
+      evtHandlers: {mousemove: mousemove, mouseup: mouseup}
     };
   };
 

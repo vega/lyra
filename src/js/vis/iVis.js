@@ -123,7 +123,8 @@ vde.iVis = (function() {
           });
 
           vde.iVis.view.on(type, function(e, item) {
-            if(ivis._evtHandlers[type]) ivis._evtHandlers[type](e, item);
+            if(type != 'mouseup' && ivis._evtHandlers[type])
+              ivis._evtHandlers[type](e, item);
 
             var cursor = function() {
               if(item.mark.def.name == 'handle' && item.datum.data &&
