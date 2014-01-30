@@ -57,7 +57,8 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
     var preventBack = false;
     if (evt.keyCode == 8) {
       var d = evt.srcElement || evt.target;
-      if (d.tagName.toUpperCase() === 'INPUT' || d.tagName.toUpperCase() === 'TEXTAREA' || d.contentEditable == "true") {
+      if (d.tagName.toUpperCase() === 'INPUT' || d.tagName.toUpperCase() === 'TEXTAREA' ||
+          d.contentEditable == "true") {
         preventBack = d.readOnly || d.disabled;
       }
       else preventBack = true;
@@ -65,7 +66,8 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
 
     if (preventBack) {
       evt.preventDefault();
-      if(m && m.type != 'group') $rootScope.removeVisual('marks', m.name);
+      if(m && m.type != 'group')
+        $rootScope.$apply(function() { $rootScope.removeVisual('marks', m.name); });
     }
   });
 

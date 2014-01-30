@@ -171,7 +171,7 @@ vde.App.controller('GroupCtrl', function($scope, $rootScope) {
 });
 
 vde.App.controller('MarkCtrl', function($scope, $rootScope) {
-  $scope.$watch('group.marks', function() {
+  $scope.$watch('group.marksOrder', function() {
     $scope.mark = $scope.group.marks[$scope.markName];
   });
 
