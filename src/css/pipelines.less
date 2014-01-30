@@ -7,3 +7,104 @@
   bottom: 0;
   width: @inspector-width;
 }
+
+.newScale {
+  float: right;
+  opacity: 0.5;
+  cursor: pointer;
+}
+.newScale:hover {
+  font-weight: @demibold-weight;
+  opacity: 1;
+}
+
+.pipeline .datatable .table {
+  margin: @padding-horiz;
+  width: 280px;
+  font-size: 11px;
+}
+
+.dataTables_info {
+  margin-top: 5px;
+  color: #444;
+}
+
+.dataTables_scrollHead thead th {
+  /*display: inline-block;*/
+  padding: 3px 5px 3px 5px !important;
+  border: 1px solid #000;
+}
+
+.pipeline .datatable td { padding: 5px !important; }
+.dataTables_scroll td {
+  background: #fff;
+  border-left: 2px solid silver;
+  border-bottom: 1px dotted silver;
+}
+
+.DTFC_LeftBodyWrapper td {
+  background: #ccc;
+  border: 1px solid #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: url(../imgs/openhand.cur), default !important;
+}
+
+.paginate_enabled_previous {
+  background: url('../imgs/previous-black.png') no-repeat !important;
+  background-size: 14px !important;
+  margin-top: 5px;
+  padding-left: 15px !important;
+  opacity: 0.4;
+}
+.paginate_enabled_previous:hover { opacity: 1; }
+.paginate_disabled_previous {
+  padding-right: 15px !important;
+  visibility: hidden;
+}
+
+.paginate_enabled_next {
+  background: url('../imgs/next-black.png') no-repeat !important;
+  background-size: 14px !important;
+  margin-top: 5px;
+  padding-right: 15px !important;
+  opacity: 0.4;
+}
+.paginate_enabled_next:hover { opacity: 1; }
+.paginate_disabled_next {
+  visibility: hidden;
+  padding-right: 0 !important;
+  padding-left: 15px !important;
+}
+
+#datasheet .tabs {
+  float: right;
+  width: 225px;
+  font-size: 11px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#datasheet .tabs li {
+  display: inline-block;
+  border: 0;
+  border-radius: 0;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  margin: 0 0.5em 0 0;
+  padding: 3px 5px;
+}
+
+#datasheet .tabs li a { text-decoration: none; }
+
+#datasheet .tabs li.selected {
+  background: @light-blue;
+  border-bottom: 5px solid @light-blue !important;
+  font-weight: @demibold-weight;
+}
+
+#datasheet .tabs li:hover {
+  background: @light-blue;
+  border-radius: 5px;
+}

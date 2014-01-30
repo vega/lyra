@@ -1,10 +1,9 @@
 <div id="pipelines-list" ng-controller="PipelinesListCtrl">
-  <div ng-repeat="(pipelineName, pipeline) in pMdl.pipelines"
+  <div class="pipeline" ng-repeat="(pipelineName, pipeline) in pMdl.pipelines"
        ng-class="{selected:activePipeline==pipeline}">
 
     <h3 vde-edit-name ng-model="pipeline.displayName" strip-br="true"
         ng-click="togglePipeline(pipeline)">{{pipeline.displayName}}</h3>
-
 
     <div class="heading">1. From Source:
       <select ng-model="pMdl.activePipelineSource"
@@ -13,25 +12,17 @@
       </select>
     </div>
 
-    <div ng-init="c={c: 1}">
-      <ng-include src="'tmpl/transforms/facet.html'"></ng-include>
-      <ng-include src="'tmpl/transforms/filter.html'"></ng-include>
-      <!--<ng-include ng-repeat="transform in pipeline.transforms"-->
-                  <!--ng-show="!transform.isVisual && transform.type != 'stats'"-->
-                  <!--src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'">-->
-      <!--</ng-include>-->
+    <div ng-init="pMdl.count = 1;">
+      <ng-include ng-repeat="transform in pipeline.transforms"
+                  ng-show="!transform.isVisual && transform.type != 'stats'"
+                  src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'">
+      </ng-include>
     </div>
 
     <div class="addNew">+ New Transform</div>
+
+    <div class="datatable" id="datasheet" ng-if="pipeline.source" vde-data-grid pipeline="pipeline"></div>
+
+    <div class="heading">Scales <span class="newScale">+</span></div>
   </div>
-
-
-
-  <!--<ul>-->
-    <!--<li ng-repeat="(pipelineName, pipeline) in pMdl.pipelines" ng-class="{selected:activePipeline==pipeline}">-->
-      <!--<h3 ng-click="togglePipeline(pipeline)">{{pipeline.displayName|inflector:'humanize'}} <a ng-click="removePipeline(pipelineName);" class="remove" vde-tooltip="Delete Pipeline">Delete Pipeline</a></h3>-->
-
-      <!--<ng-include src="'tmpl/inspectors/pipeline.html'" ng-show="activePipeline == pipeline"></ng-include>-->
-    <!--</li>-->
-  <!--</ul>-->
 </div>

@@ -103,17 +103,6 @@ vde.App.directive('vdeClearBubbles', function($rootScope) {
   };
 });
 
-vde.App.directive('vdeTooltip', function() {
-  return function(scope, element, attrs) {
-    element.tooltip({
-      title: attrs.vdeTooltip,
-      placement: attrs.position ? attrs.position : 'bottom',
-      // delay: { show: 300, hide: 150 },
-      container: 'body'
-    });
-  };
-});
-
 vde.App.directive('vdeCanDropField', function() {
   return {
     restrict: 'E',
@@ -158,6 +147,28 @@ vde.App.directive('vdeEditName', function() {
         }
         ngModel.$setViewValue(html);
       }
+    }
+  };
+});
+
+vde.App.directive('vdeTooltip', function() {
+  return function(scope, element, attrs) {
+    console.log(element.html());
+    element.tooltip({
+      title: attrs.vdeTooltip,
+      placement: attrs.position ? attrs.position : 'bottom',
+      // delay: { show: 300, hide: 150 },
+      container: 'body'
+    });
+  };
+});
+
+vde.App.directive('vdeCarousel', function($timeout) {
+  return {
+    link: function(scope, element, attrs) {
+      $timeout(function() {
+        element.scrollingCarousel({ looped: false })
+      }, 1);
     }
   };
 });

@@ -9,6 +9,10 @@
 
 @font-stack: Avenir, Helvetica Neue, Helvetica, Arial;
 
+@light-weight: 300;
+@medium-weight: 500;
+@demibold-weight: 600;
+
 @import 'http://idl.cs.washington.edu/static/style/fonts.css';
 
 body { font-family: @font-stack; }
@@ -18,7 +22,7 @@ h3 {
 //  height: @inspector-height;
   padding: @padding-horiz @padding-horiz;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: @demibold-weight;
 }
 
 h3:focus {
@@ -40,8 +44,8 @@ div.selected h3 {
 
 .heading {
   display: block;
-  padding: @padding-horiz @padding-horiz;
-  margin: 15px 0;
+  padding: 7px @padding-horiz;
+  margin: 10px 0;
 
   background: rgb(193, 198, 206);
   font-size: 14px;
@@ -55,7 +59,7 @@ div.selected h3 {
   cursor: pointer;
 
   font-size: 14px;
-  font-weight: 300;
+  font-weight: @light-weight;
   text-transform: uppercase;
   text-align: center;
   color: @dark-blue;
@@ -78,7 +82,7 @@ div.selected h3 {
 .canDropField.left  { float: left; }
 .canDropField.right { float: right; }
 
-
 @import 'reset.css';
 @import 'pipelines';
 @import 'inspectors';
+@import 'binding';
