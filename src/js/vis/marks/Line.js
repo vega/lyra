@@ -92,11 +92,17 @@ vde.Vis.marks.Line = (function() {
 
     var enabled = (this.type == 'rule' && !props.x.field && !props.y.field)
 
+    var mouseup = function() {
+      vde.iVis.ngScope().$apply(function() {
+        vde.iVis.ngTimeline().save();
+      })
+    };
+
     return {
       interactors: {
         handle: [this.connectors.point.coords(item, {disabled: !enabled})]
       },
-      evtHandlers: {mousemove: mousemove}
+      evtHandlers: {mousemove: mousemove, mouseup: mouseup}
     };
   };
 

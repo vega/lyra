@@ -52,6 +52,7 @@ vde.iVis = (function() {
     }
 
     ivis.view.data(d).update();
+
     return this;
   };
 
@@ -127,7 +128,8 @@ vde.iVis = (function() {
           });
 
           vde.iVis.view.on(type, function(e, item) {
-            if(ivis._evtHandlers[type]) ivis._evtHandlers[type](e, item);
+            if(type != 'mouseup' && ivis._evtHandlers[type])
+              ivis._evtHandlers[type](e, item);
 
             var cursor = function() {
               if(item.mark.def.name == 'handle' && item.datum.data &&
@@ -258,6 +260,8 @@ vde.iVis = (function() {
         field: field
       }, true, true);
 
+      ivis.ngTimeline().save();
+
       if(visual.groupName) rootScope.$apply(function() { rootScope.toggleVisual(visual); });
     }, 1);
 
@@ -272,7 +276,7 @@ vde.iVis = (function() {
     if(!host) host = rootScope.activeGroup;
 
     if(host instanceof vde.Vis.marks.Group) mark.groupName = host.name;
-    else if(host.connectors[connector]) {
+    else if(host.connectors[connector] && mark.canConnect) {
       mark.groupName    = host.groupName;
       mark.connectedTo  = {host: host, connector: connector};
     }
@@ -295,7 +299,11 @@ vde.iVis = (function() {
         markGroup: mark.groupName
       }, true);
 
-      rootScope.$apply(function() { rootScope.toggleVisual(mark); });
+      rootScope.$apply(function() {
+        rootScope.toggleVisual(mark);
+
+        ivis.ngTimeline().save();
+      });
     }, 1);
 
     window.clearTimeout(vde.iVis.timeout);
@@ -387,7 +395,7 @@ vde.iVis = (function() {
       from: {data: 'point'},
       properties: {
         enter: {
-          shape: {value: 'circle'},
+          shape: {value: 'circle'}
         },
         update: {
           x: {field: 'data.x'},
@@ -439,7 +447,7 @@ vde.iVis = (function() {
       from: {data: 'dropzone'},
       properties: {
         enter: {
-          fillOpacity: {value: 0.1},
+          fillOpacity: {value: 0.1}
           // stroke: {value: 'black'},
           // strokeDash: {value: [0.3, 1]}
         },
@@ -548,6 +556,10 @@ vde.iVis = (function() {
 
   ivis.ngLogger = function() {
     return $('html').injector().get('logger');
+  };
+
+  ivis.ngTimeline = function() {
+    return $('html').injector().get('timeline');
   };
 
   ivis.ngFilter = function() {

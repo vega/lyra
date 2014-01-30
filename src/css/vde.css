@@ -173,6 +173,20 @@ a {
   z-index: 10;
 }
 
+.util-icon {
+  position: absolute;
+  bottom: 0;
+  height: 16px;
+  padding: 5px;
+  background-color: #333;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  text-indent: -999em;
+}
+
+.util-icon:hover { background-color: #555 !important; }
+
 textarea#export {
   position: absolute;
   top: 30%;
@@ -183,36 +197,18 @@ textarea#export {
 }
 
 #export-link {
-  position: absolute;
-  bottom: 0;
-  right: 300px;
+  right: 315px;
   width: 55px;
-  height: 16px;
-  padding: 5px;
   background: #333 url(../imgs/export.png) no-repeat 95% 50%;
-  /*border: 2px solid #333;*/
-  color: #fff;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-#export-link:hover {
-  background-color: #555;
+  text-indent: 0em;
 }
 
 #bug-link {
-  position: absolute;
-  bottom: 0;
-  right: 375px;
+  right: 395px;
   width: 16px;
-  height: 16px;
-  padding: 5px;
   background: #333 url(../imgs/bug.png) no-repeat 50%;
   background-size: 20px;
-  text-indent: -999em;
 }
-
-#bug-link:hover { background-color: #555; }
 
 #bug-report {
   position: absolute;
@@ -232,6 +228,23 @@ textarea#export {
   width: 300px !important;
   height: 100px !important;
 }
+
+#undo-link {
+  background: #333 url(../imgs/undo.png) no-repeat 50%;
+  background-size: 20px;
+  left: 315px;
+  width: 16px;
+}
+
+#redo-link {
+  background: #333 url(../imgs/redo.png) no-repeat 50%;
+  background-size: 20px;
+  left: 355px;
+  width: 16px;
+}
+
+.timeline-disabled { opacity: 0.5; }
+
 
 #vis-edit {
   position: absolute;

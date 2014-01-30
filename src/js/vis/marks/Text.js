@@ -27,6 +27,7 @@ vde.Vis.marks.Text = (function() {
 
     this.exprFields = [];
 
+    this.canConnect = true;
     this.connectors = {
       'text': {},
       'left': {}, 'right': {}
@@ -192,6 +193,12 @@ vde.Vis.marks.Text = (function() {
       vde.iVis.show('selected');
     };
 
+    var mouseup = function() {
+      vde.iVis.ngScope().$apply(function() {
+        vde.iVis.ngTimeline().save();
+      })
+    };
+
     var keydown = function() {
       var e = d3.event;
       if(vde.iVis.activeMark != self) return;
@@ -224,7 +231,7 @@ vde.Vis.marks.Text = (function() {
         connector: connector ? [connector] : [],
         connection: this.spans(item, 'connection')
       },
-      evtHandlers: {mousemove: mousemove, keydown: keydown}
+      evtHandlers: {mousemove: mousemove, mouseup: mouseup, keydown: keydown}
     };
   };
 

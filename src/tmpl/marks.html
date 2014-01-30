@@ -1,13 +1,11 @@
-<div ng-controller="MarksCtrl" ng-init="load()">
-  <div id="marks" class="chrome" ng-init="marks=['Rect', 'Symbol', 'Arc', 'Area', 'Line', 'Text']">
-    <ul>
-      <li ng-repeat="mark in marks" id="{{mark}}" class="mark" draggable="true" vde-draggable vde-tooltip="{{mark}}">{{mark}}</li>
-    </ul>
-  </div>
+<div id="marks" class="chrome">
+  <ul>
+    <li ng-repeat="mark in marks" id="{{mark}}" class="mark" draggable="true" vde-draggable vde-tooltip="{{mark}}">{{mark}}</li>
+  </ul>
+</div>
 
-  <div id="canvas">
-    <div id="vis"></div>
+<div id="canvas">
+  <div id="vis"></div>
 
-    <div id="ivis"></div>
-  </div>
+  <div id="ivis"></div>
 </div>

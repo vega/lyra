@@ -20,6 +20,7 @@ vde.Vis.Mark = (function() {
     this._def   = null;
     this._items = [];
 
+    this.canConnect = false;
     this.connectors = {};
     this.connectedTo = {};
 
@@ -134,7 +135,7 @@ vde.Vis.Mark = (function() {
     var spec = vg.duplicate(this._spec);
 
     var conn = this.connectedTo;
-    if(conn.host) conn.host.connectors[conn.connector].connect(this);
+    if(this.canConnect && conn.host) conn.host.connectors[conn.connector].connect(this);
 
     vde.Vis.callback.run('mark.pre_spec', this, {spec: spec});
 
@@ -437,6 +438,9 @@ vde.Vis.Mark = (function() {
     // In export, to prevent circular structure, we export just the connection's hostname
     if(imp.connectedTo.hostName)
       this.connectedTo.host = this.group().marks[imp.connectedTo.hostName];
+
+    // We clear out properties, so that we don't get any lingering defaults from re-init'ing
+    this.properties = {};
   };
 
   prototype.defaults = function(prop) { return null; }

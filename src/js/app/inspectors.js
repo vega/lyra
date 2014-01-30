@@ -1,4 +1,4 @@
-vde.App.directive('vdeProperty', function($rootScope, logger) {
+vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
   return {
     restrict: 'E',
     scope: {
@@ -30,6 +30,8 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           else vde.Vis.parse();
 
           vde.iVis.show('selected');
+
+          timeline.save();
         }, 1);
 
         logger.log('onchange', {
@@ -53,6 +55,8 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
           property: $attrs.property,
           ngModel: $attrs.ngModel
         }, true, true);
+
+        timeline.save();
       };
 
       $scope.showHelper = function(target, e, helperClass) {
@@ -96,7 +100,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger) {
   }
 });
 
-vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger) {
+vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timeline, logger) {
   return {
     restrict: 'E',
     scope: {
@@ -116,6 +120,8 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
         field.pipeline().aggregate(field, stat);
         $timeout(function() { vde.Vis.parse(); }, 1);
         $('#aggregate-inspector').hide();
+
+        timeline.save();
       };
 
       $scope.editBinding = function(evt, part) {
@@ -170,7 +176,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, logger)
   }
 });
 
-vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, logger) {
+vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, logger) {
   return {
     restrict: 'A',
     scope: {
@@ -201,7 +207,6 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, logger) {
           scope.item.properties[scope.property] = strConcat ? '"' + value.text() + '"' : value.text();
           scope.item.properties[scope.property + 'Html'] = html;
 
-          scope.$parent.onchange();
           vde.Vis.parse();
         };
 

@@ -1,7 +1,5 @@
-vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, $window) {
+vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logger, $window, timeline) {
   $scope.gMdl = { // General catch-all model for scoping
-    groups: vde.Vis.groups,
-    groupOrder: vde.Vis.groupOrder,
     pipelines: vde.Vis.pipelines,
     sortableOpts: {
       update: function(e, ui) { $timeout(function() { vde.Vis.parse(); }, 1); },
@@ -9,6 +7,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
     },
     fonts: ['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS']
   };
+
+  $rootScope.groupOrder = vde.Vis.groupOrder;
 
   $rootScope.reparse = function() { vde.Vis.parse(); };
 
@@ -54,6 +54,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
       activeVisualPipeline: p,
       activePipeline: $rootScope.activePipeline.name
     }, true, true);
+
+    timeline.save();
   };
 
   $scope.addGroup = function() {
@@ -67,6 +69,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
       visualPipeline: g.pipelineName,
       activePipeline: $rootScope.activePipeline.name
     }, true);
+
+    timeline.save();
   };
 
   $scope.addAxis = function() {
@@ -79,6 +83,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
       visualPipeline: axis.pipelineName,
       activePipeline: $rootScope.activePipeline.name
     }, true);
+
+    timeline.save();
   };
 
   $rootScope.removeVisual = function(type, name) {
@@ -89,9 +95,9 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
       if(vde.iVis.activeMark == vde.Vis.groups[name]) vde.iVis.activeMark = null;
       vde.Vis.groups[name].destroy();
       delete vde.Vis.groups[name];
-      var newOrder = [];
-      vde.Vis.groupOrder.forEach(function(g) { if(vde.Vis.groups[g]) newOrder.push(g) });
-      vde.Vis.groupOrder = newOrder;
+
+      var go = vde.Vis.groupOrder;
+      go.splice(go.indexOf(name), 1);
     } else {
       var g = $rootScope.activeGroup;
       if(vde.iVis.activeMark == g[type][name]) vde.iVis.activeMark = null;
@@ -99,9 +105,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
       delete g[type][name];
 
       if(type == 'marks') {
-        var newOrder = [];
-        g.markOrder.forEach(function(m) { if(g[type][m]) newOrder.push(m) });
-        g.markOrder = newOrder;
+        var mo = g.markOrder;
+        mo.splice(mo.indexOf(name), 1);
       }
     }
 
@@ -115,11 +120,15 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
       activeGroup: $rootScope.activeGroup.name,
       activePipeline: $rootScope.activePipeline.name
     }, true);
+
+    timeline.save();
   };
 
   $scope.newTransform = function(type) {
     var t = new vde.Vis.transforms[type]($rootScope.activeVisual.pipelineName);
     $rootScope.activeVisual.pipeline().transforms.push(t);
+
+    timeline.save();
   };
 
   $scope.removeTransform = function(i) {
@@ -133,6 +142,8 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
     $('.tooltip').remove();
 
     logger.log('remove_transform', { idx: i }, false, true);
+
+    timeline.save();
   };
 
   $scope.toggleProp = function(prop, value) {
@@ -151,10 +162,21 @@ vde.App.controller('GroupsCtrl', function($scope, $rootScope, $timeout, logger, 
 
     logger.log('edit_vis', {});
   };
+});
 
-  $window.addEventListener("beforeunload", function(e) {
-    var msg = 'You have unsaved changed in Lyra.';
-    (e || $window.event).returnValue = msg;     //Gecko + IE
-    return msg;                                 //Webkit, Safari, Chrome etc.
+vde.App.controller('GroupCtrl', function($scope, $rootScope) {
+  $rootScope.$watch('groupOrder', function() {
+    $scope.group = vde.Vis.groups[$scope.groupName];
   });
 });
+
+vde.App.controller('MarkCtrl', function($scope, $rootScope) {
+  $scope.$watch('group.marksOrder', function() {
+    $scope.mark = $scope.group.marks[$scope.markName];
+  });
+
+  $scope.click = function(mark) {
+    $rootScope.toggleVisual(mark);
+    $scope.gMdl.activeVisualPipeline = $scope.mark.pipelineName || ''
+  };
+})

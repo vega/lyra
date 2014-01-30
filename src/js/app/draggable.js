@@ -18,8 +18,8 @@ vde.App.factory('draggable', function($rootScope) {
       }
 
       if(v instanceof vde.Vis.Mark) {
-        if(isMark) v.connectionTargets();
-        else v.propertyTargets();
+        if(isMark && vde.iVis.newMark.canConnect) v.connectionTargets();
+        else if(!isMark) v.propertyTargets();
       }
 
       return proxy;

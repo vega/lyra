@@ -1,8 +1,8 @@
-<div id="groups" class="inspectors chrome" ng-controller="GroupsCtrl">
+<div id="groups" class="inspectors chrome" ng-controller="GroupsListCtrl">
   <h2><span>Visual Layers</span> <a class="edit-vis" ng-click="editVisualization()" vde-tooltip="Visualization Properties">Edit Visualization</a> <a class="add" ng-click="addGroup()" vde-tooltip="New Group">New Group</a> </h2>
 
-  <div ui:sortable="gMdl.sortableOpts" ng:model="gMdl.groupOrder">
-  <div class="group" ng-repeat="groupName in gMdl.groupOrder" ng-init="group = gMdl.groups[groupName];">
+  <div ui:sortable="gMdl.sortableOpts" ng:model="groupOrder">
+  <div class="group" ng-repeat="groupName in groupOrder" ng-controller="GroupCtrl">
     <div ng-if="group.layer">
       <h3 ng-class="{expanded:activeGroup == group}" ng-click="toggleVisual(group)">{{group.displayName|inflector:'humanize'}} <a ng-click="removeVisual('group', groupName);" class="remove" vde-tooltip="Delete Group">Delete Group</a></h3>
 
@@ -27,7 +27,7 @@
         <h4>Marks</h4>
 
         <ul ui:sortable="gMdl.sortableOpts" ng:model="group.markOrder">
-          <li ng-repeat="markName in group.markOrder" ng-init="mark = group.marks[markName]" ng-class="{selected:activeVisual==mark}" ng-click="toggleVisual(mark); gMdl.activeVisualPipeline = mark.pipelineName || ''">
+          <li ng-repeat="markName in group.markOrder" ng-controller="MarkCtrl" ng-class="{selected:activeVisual==mark}" ng-click="click(mark)">
 
             <h5>{{mark.displayName|inflector:'humanize'}} <a ng-click="removeVisual('marks', mark.name);" class="remove" vde-tooltip="Delete Mark">Delete Mark</a></h5>
 

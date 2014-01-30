@@ -33,12 +33,12 @@
 
     <script src="js/app/vde.js"></script>
     <script src="js/app/logger.js"></script>
+    <script src="js/app/timeline.js"></script>
     <script src="js/app/draggable.js"></script>
     <script src="js/app/groups.js"></script>
     <script src="js/app/inspectors.js"></script>
     <script src="js/app/pipelines.js"></script>
     <script src="js/app/data.js"></script>
-    <script src="js/app/marks.js"></script>
 
     <script src="js/vis/Vis.js"></script>
     <script src="js/vis/iVis.js"></script>
@@ -67,7 +67,7 @@
     <script src="js/vis/transforms/Stats.js"></script>
     <script src="js/vis/transforms/Window.js"></script>
   </head>
-  <body ng-click="clearBubbles();">
+  <body ng-controller="VdeCtrl" ng-init="load()"  ng-click="clearBubbles();">
 
     <ng-include src="'tmpl/pipelines.html'"></ng-include>
 
@@ -88,5 +88,7 @@
     <ng-include src="'tmpl/popovers/data.html'" ng-controller="DataCtrl"></ng-include>
 
     <ng-include src="'tmpl/bugreport.html'" ng-controller="BugCtrl"></ng-include>
+
+    <ng-include src="'tmpl/timeline.html'" ng-controller="TimelineCtrl"></ng-include>
   </body>
 </html>
