@@ -28,13 +28,14 @@
     float: left;
     width: 50px;
     margin: @margin-top @padding-horiz 0 0;
+    text-align: right;
   }
 
   .field { overflow: hidden; }
   .canDropField { margin-top: @margin-top; }
   .canDropField.right { margin-left: @padding-horiz; }
 
-  input { width: 100%; }
+  input { width: 97%; }
 }
 
 .expr-container {
@@ -51,4 +52,9 @@
   user-select: text;
   
   .canDropField { margin: 0 !important; }
+
+  .schema {
+    float: none;
+    display: inline-block;
+  }
 }

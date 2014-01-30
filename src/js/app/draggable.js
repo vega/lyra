@@ -8,13 +8,14 @@ vde.App.factory('draggable', function($rootScope) {
         var markType = proxy.attr('id');
         vde.iVis.newMark = eval('new vde.Vis.marks["' + markType + '"]');
       } else {
-        $(dd.available).each(function(i, a) {
-          // Only light up properties without nodrop
-          if(!$(a).hasClass('property')) return;
-          if($(a).parent().attr('nodrop')) return;
-
-          $(a).addClass('available');
-        });
+//        $(dd.available).each(function(i, a) {
+//          // Only light up properties without nodrop
+//          if(!$(a).hasClass('property')) return;
+//          if($(a).parent().attr('nodrop')) return;
+//
+//          $(a).addClass('available');
+//        });
+        $('.canDropField').addClass('dragging');
       }
 
       if(v instanceof vde.Vis.Mark) {
@@ -37,9 +38,10 @@ vde.App.factory('draggable', function($rootScope) {
       vde.iVis.dragging = null;
       vde.iVis.newMark  = null;
       vde.iVis.show('selected');
-      $(dd.available).removeClass('available');
+//      $(dd.available).removeClass('available');
       $(dd.proxy).unbind().empty().remove();
       dd.proxy = null;
+      $('.canDropField').removeClass('dragging');
       $('.tooltip').remove();
     }
   }

@@ -15,7 +15,10 @@
 
 @import 'http://idl.cs.washington.edu/static/style/fonts.css';
 
-body { font-family: @font-stack; }
+body {
+  font-family: @font-stack;
+  background: #e0e0e0;
+}
 
 h3 {
   display: block;
@@ -82,8 +85,10 @@ div.selected h3 {
 
 .canDropField.left  { float: left; }
 .canDropField.right { float: right; }
+.canDropField.dragging { opacity: 1; }
 
 @import 'reset.css';
-@import 'pipelines';
 @import 'inspectors';
 @import 'binding';
+@import 'pipelines';
+@import 'center';
