@@ -259,5 +259,16 @@ vde.Vis = (function() {
     return parsed;
   };
 
+  vis.codename = function(count) {
+    var letters = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega'];
+    var codenames = [];
+    if(count == 0) return letters[0];
+    while(count > 0) {
+      codenames.unshift(letters[count % 10]);
+      count = Math.floor(count / 10);
+    }
+    return codenames.join(" ");
+  };
+
   return vis;
 })();

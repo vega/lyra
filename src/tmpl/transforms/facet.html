@@ -1,8 +1,4 @@
-<div>
-  <span class="header">Group</span>
-
-  <vde-property label="By" type="field" item="transform" property="keys" ng-model="transform.properties.keys">
-    <vde-binding ng-repeat="key in transform.properties.keys" field="key"></vde-binding>
-  </vde-property>
-
+<div class="heading" ng-init="c.c=c.c+1">{{c.c}}. Group By <vde-can-drop-field style="right"></vde-can-drop-field></div>
+<div class="inner">
+  <vde-binding ng-repeat="key in transform.properties.keys" field="key"></vde-binding>
 </div>

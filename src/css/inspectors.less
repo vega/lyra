@@ -1,0 +1,36 @@
+.property {
+  font-size: 12px;
+
+  label { font-style: italic; }
+}
+
+.property.single {
+  @margin-top: 4px;
+
+  label {
+    float: left;
+    margin: @margin-top @padding-horiz 0 0;
+  }
+
+  .field { overflow: hidden; }
+  .canDropField { margin-top: @margin-top; }
+  .canDropField.right { margin-left: @padding-horiz; }
+
+  input { width: 100%; }
+}
+
+.expr-container {
+  background: #fff;
+  border: 1px solid #aaa;
+  overflow: hidden;
+  height: 12px;
+  padding: 3px;
+
+  -moz-user-select: -moz-text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  
+  .canDropField { margin: 0 !important; }
+}

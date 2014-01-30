@@ -5,8 +5,7 @@
       </li>
 
       <li class="import-data icon"><span class="header">Import data from
-        <select ng-model="pMdl.activePipelineSource" ng-options="f.value as f.key for f in fromSources" ng-change="setSource()" vde-pos-new-data="1">
-        </select></span>
+        </span>
       </li>
 
       <li ng-repeat="transform in pipeline.transforms" class="transform-{{transform.type|lowercase}} icon" ng-show="!transform.isVisual && transform.type != 'stats'" ng-animate="{enter: 'yellowfade-show'}">

@@ -113,3 +113,51 @@ vde.App.directive('vdeTooltip', function() {
     });
   };
 });
+
+vde.App.directive('vdeCanDropField', function() {
+  return {
+    restrict: 'E',
+    scope: {style: "@"},
+    template: '<div class="canDropField {{style}}" vde-tooltip="Drag a field here">Drop a field here.</div>'
+  }
+})
+
+vde.App.directive('vdeEditName', function() {
+  return {
+    restrict: 'A', // only activate on element attribute
+    require: '?ngModel', // get a hold of NgModelController
+    link: function(scope, element, attrs, ngModel) {
+      if(!ngModel) return; // do nothing if no ng-model
+
+      // Specify how UI should be updated
+      ngModel.$render = function() {
+        element.text(ngModel.$viewValue || '');
+      };
+
+      // Listen for change events to enable binding
+      element.on('blur keyup change', function() {
+        scope.$apply(read);
+      });
+
+      // Only edit on double click
+      element.on('dblclick', function() {
+        element.attr('contentEditable', true);
+        element.focus();
+      });
+      element.on('blur', function() {
+        element.attr('contentEditable', false);
+      })
+
+      // Write data to the model
+      function read() {
+        var html = element.text();
+        // When we clear the content editable the browser leaves a <br> behind
+        // If strip-br attribute is provided then we strip this out
+        if( attrs.stripBr && html == '<br>' ) {
+          html = '';
+        }
+        ngModel.$setViewValue(html);
+      }
+    }
+  };
+});

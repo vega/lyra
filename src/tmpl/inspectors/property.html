@@ -1,4 +1,7 @@
-<div class="property" id="{{property}}">
+<div class="property {{style}}" id="{{property}}">
+  <vde-can-drop-field style="{{canDropStyle}}" ng-if="!noDrop && canDropStyle">
+  </vde-can-drop-field>
+
   <label>{{label}}</label>
   <div class="field" ng-switch on="type">
     <div ng-if="scale || field" style="width: 1000px">

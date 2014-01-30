@@ -2,23 +2,19 @@
 <html ng-app="vde">
   <head>
     <title>Lyra</title>
-    <link rel="stylesheet" type="text/css" href="css/vde.css" />
-    <link rel="stylesheet" type="text/css" href="css/marks.css" />
-    <link rel="stylesheet" type="text/css" href="css/groups.css" />
-    <link rel="stylesheet" type="text/css" href="css/inspectors.css" />
-    <link rel="stylesheet" type="text/css" href="css/pipeline.css" />
-    <link rel="stylesheet" type="text/css" href="css/popover.css" />
+    <link rel="stylesheet/less" type="text/css" href="css/vde.less" />
 
     <link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.10.3.custom.min.css" />
     <link rel="stylesheet" type="text/css" href="css/lib/jquery.dataTables.css">
 
+    <script src="js/lib/less.min-1.6.1.js"></script>
     <script src="js/lib/jquery.min-1.9.0.js"></script>
     <script src="js/lib/jquery-migrate-1.2.1.js"></script>
     <script src="js/lib/jquery.event.drag-2.2.js"></script>
     <script src="js/lib/jquery.event.drop-2.2.js"></script>
     <script src="js/lib/jquery-ui.min-1.9.0.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/lib/bootstrap.min.css" />
     <script src="js/lib/bootstrap.min.js"></script>
     <script src="js/lib/jquery.dataTables-1.9.4.js"></script>
     <script src="js/lib/datatables/FixedColumns.js"></script>
@@ -69,26 +65,26 @@
   </head>
   <body ng-controller="VdeCtrl" ng-init="load()"  ng-click="clearBubbles();">
 
-    <ng-include src="'tmpl/pipelines.html'"></ng-include>
+    <ng-include src="'tmpl/pipelines-list.html'"></ng-include>
 
-    <ng-include src="'tmpl/groups.html'"></ng-include>
+    <!--<ng-include src="'tmpl/groups.html'"></ng-include>-->
 
-    <ng-include src="'tmpl/marks.html'"></ng-include>
+    <!--<ng-include src="'tmpl/marks.html'"></ng-include>-->
 
-    <ng-include src="'tmpl/popovers/scale.html'"></ng-include>
+    <!--<ng-include src="'tmpl/popovers/scale.html'"></ng-include>-->
 
-    <ng-include src="'tmpl/popovers/aggregate.html'"></ng-include>
+    <!--<ng-include src="'tmpl/popovers/aggregate.html'"></ng-include>-->
 
-    <ng-include src="'tmpl/popovers/preview-transform.html'"></ng-include>
+    <!--<ng-include src="'tmpl/popovers/preview-transform.html'"></ng-include>-->
 
-    <ng-include src="'tmpl/popovers/vis.html'"></ng-include>
+    <!--<ng-include src="'tmpl/popovers/vis.html'"></ng-include>-->
 
-    <ng-include src="'tmpl/export.html'" ng-controller="ExportCtrl"></ng-include>
+    <!--<ng-include src="'tmpl/export.html'" ng-controller="ExportCtrl"></ng-include>-->
 
-    <ng-include src="'tmpl/popovers/data.html'" ng-controller="DataCtrl"></ng-include>
+    <!--<ng-include src="'tmpl/popovers/data.html'" ng-controller="DataCtrl"></ng-include>-->
 
-    <ng-include src="'tmpl/bugreport.html'" ng-controller="BugCtrl"></ng-include>
+    <!--<ng-include src="'tmpl/bugreport.html'" ng-controller="BugCtrl"></ng-include>-->
 
-    <ng-include src="'tmpl/timeline.html'" ng-controller="TimelineCtrl"></ng-include>
+    <!--<ng-include src="'tmpl/timeline.html'" ng-controller="TimelineCtrl"></ng-include>-->
   </body>
 </html>

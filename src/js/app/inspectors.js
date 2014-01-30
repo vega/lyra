@@ -14,8 +14,10 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       field: '=',
       options: '=',
       nodrop: '@',
+      canDropStyle: '@',
       nochange: '@',
-      hint: '@'
+      hint: '@',
+      style: '@'
     },
     transclude: true,
     templateUrl: 'tmpl/inspectors/property.html',
@@ -185,7 +187,7 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
       ngModel: '=',
       vdeExpr: '@'
     },
-    template: '<div class="expr" contenteditable="true"></div>',
+    template: '<vde-can-drop-field style="right"></vde-can-drop-field><div class="expr" contenteditable="true"></div>',
     link: function(scope, element, attrs) {
       var parse = function() {
         var elem = $(element).find('.expr');

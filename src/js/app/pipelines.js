@@ -1,4 +1,4 @@
-vde.App.controller('PipelineCtrl', function($scope, $rootScope, logger, timeline) {
+vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, logger, timeline) {
   $scope.pMdl = { // General catch-all model for scoping
     pipelines: vde.Vis.pipelines
   };
