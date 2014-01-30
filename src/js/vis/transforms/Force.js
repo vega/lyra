@@ -1,7 +1,7 @@
 vde.Vis.transforms.Force = (function() {
   var force = function(pipelineName) {
     var self = this;
-    vde.Vis.Transform.call(this, pipelineName, 'force');
+    vde.Vis.Transform.call(this, pipelineName, 'force', 'Force-Directed Layout');
     this.isVisual = true;
 
     this.properties = {

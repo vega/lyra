@@ -27,7 +27,7 @@
 
       <span ng-switch-when="radio"><label ng-repeat="opt in $parent.options"><input type="radio" ng-model="$parent.$parent.ngModel" value="{{opt}}" /> {{opt}}</label> </span>
 
-      <span ng-switch-when="field" class="schema-target">Drop a column here.</span>
+      <span ng-switch-when="field" class="schema-target">Drop a field here.</span>
 
       <span ng-switch-when="font">
         <input type="number" ng-model="$parent.ngModel.fontSize.value" ng-change="onchange('fontSize')" class="fontSize" />

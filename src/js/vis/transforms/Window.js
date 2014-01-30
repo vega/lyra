@@ -1,6 +1,6 @@
 vde.Vis.transforms.Window = (function() {
   var win = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'window', ['size', 'step']);
+    vde.Vis.Transform.call(this, pipelineName, 'window', 'Window', ['size', 'step']);
 
     this.requiresFork = true;
 

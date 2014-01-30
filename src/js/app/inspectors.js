@@ -113,8 +113,8 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
     templateUrl: 'tmpl/inspectors/binding.html',
     controller: function($scope, $element, $attrs) {
       // if($attrs.draggable) {
-        var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
-        $element.append(el);
+//        var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
+//        $element.append(el);
       // }
 
       $rootScope.aggregate = function(stat) {
@@ -292,8 +292,6 @@ vde.App.directive('vdeScaleValues', function() {
         if($scope.values[$index].value == '') $scope.values.splice($index, 1);
         $scope.update();
       }
-
-      $scope.foo = function() { console.log('foo'); }
     }
   }
 })

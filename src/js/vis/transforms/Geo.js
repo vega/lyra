@@ -1,6 +1,6 @@
 vde.Vis.transforms.Geo = (function() {
   var geo = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'geo');
+    vde.Vis.Transform.call(this, pipelineName, 'geo', 'Geographic Projection');
 
     this.isVisual = true;
     this.geoType  = 'Latitude/Longitude';

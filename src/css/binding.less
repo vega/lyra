@@ -1,0 +1,112 @@
+@scale-color: #A9A9A9;
+@scale-hover: #bcbcbc;
+@raw-field-color: #BED9AB;
+@raw-field-hover: #D2E7C3;
+@raw-field-border: #8CA17C;
+@derived-field-color: #EFE8AF;
+@derived-field-hover: #F5F1CC;
+@derived-field-border: #d1bf94;
+
+.binding, .binding .scale, .schema, .binding .empty {
+  float: left;
+  border-radius: 10px;
+  font-size: 11px;
+  cursor: url(../imgs/openhand.cur), default !important;
+}
+
+.binding {
+  background: @scale-color;
+  border-left: 1px solid @scale-color;
+  color: #333;
+
+  .scale {
+    border-top: 1px solid @scale-color;
+    border-bottom: 1px solid @scale-color;
+    padding: 2px 5px;
+  }
+
+  .empty {
+    padding: 2px 5px;
+    background: @light-blue;
+    border: 1px solid @light-blue;
+    border-radius: 0;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
+}
+
+.binding:hover {
+  background-color: @scale-hover;
+  border-left: 1px solid @scale-hover;
+
+  .scale {
+    border-top: 1px solid @scale-hover;
+    border-bottom: 1px solid @scale-hover;
+  }
+}
+
+.binding-draggable .editScale {
+  display: inline-block;
+  float: left;
+  width: 12px;
+  height: 12px;
+  margin: 2px 5px 0 0;
+  cursor: pointer;
+  text-indent: -999em;
+}
+
+.binding-draggable:hover .editScale, .binding:hover .schema .aggregate,
+.property:hover .editScale, .property:hover .schema .aggregate {
+  display: inline-block;
+  color: transparent;
+  background-image: url(../imgs/pencil-black.png);
+  background-repeat: no-repeat;
+  background-size: 12px;
+}
+
+.binding:hover .editScale:hover {
+  background-image: url(../imgs/pencil-white.png);
+}
+
+.schema {
+  padding: 2px 5px;
+  color: #333;
+
+  .aggregate {
+    display: none;
+    cursor: pointer;
+    text-indent: -999em;
+    width: 12px;
+    padding-left: 3px;
+    border-left: 1px solid #666;
+    background-position: 3px;
+  }
+}
+
+.schema.raw, .DTFC_LeftBodyWrapper td.raw {
+  background: @raw-field-color;
+  border-color: @raw-field-border;
+
+  .aggregate { border-color: #9bc0ef;}
+}
+
+.schema.raw:hover, .binding:hover .schema.raw,
+.DTFC_LeftBodyWrapper td.raw:hover
+{ background: @raw-field-hover; }
+
+.schema.derived, .DTFC_LeftBodyWrapper td.derived {
+  background: @derived-field-color;
+  border-color: @derived-field-border;
+
+  .aggregate { border-color: #d1bf94;}
+}
+
+.schema.derived:hover, .binding:hover .schema.derived,
+.DTFC_LeftBodyWrapper td.derived:hover
+{ background: @derived-field-hover; }
+
+
+.binding:hover .schema .aggregate,
+.property:hover .schema .aggregate {
+  background-image: url(../imgs/spinner-open.png);
+}

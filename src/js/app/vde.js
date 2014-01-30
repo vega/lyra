@@ -153,7 +153,6 @@ vde.App.directive('vdeEditName', function() {
 
 vde.App.directive('vdeTooltip', function() {
   return function(scope, element, attrs) {
-    console.log(element.html());
     element.tooltip({
       title: attrs.vdeTooltip,
       placement: attrs.position ? attrs.position : 'bottom',

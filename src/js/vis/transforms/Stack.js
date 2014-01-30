@@ -1,6 +1,6 @@
 vde.Vis.transforms.Stack = (function() {
   var stack = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'stack', ['point', 'height', 'offset', 'order']);
+    vde.Vis.Transform.call(this, pipelineName, 'stack', 'Stacked Layout', ['point', 'height', 'offset', 'order']);
 
     vde.Vis.callback.register('vis.post_spec', this, this.visPostSpec);
 

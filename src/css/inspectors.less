@@ -2,6 +2,23 @@
   font-size: 12px;
 
   label { font-style: italic; }
+
+  a.unbind {
+    display: inline-block;
+    visibility: hidden;
+    width: 16px;
+    height: 16px;
+    background: url(../imgs/remove-black.png) no-repeat;
+    opacity: 0.5;
+    background-size: 16px;
+    text-indent: -999em;
+    margin-left: 5px;
+  }
+}
+
+.property:hover {
+  a.unbind { visibility: visible; }
+  a.unbind:hover { opacity: 1; }
 }
 
 .property.single {
@@ -9,6 +26,7 @@
 
   label {
     float: left;
+    width: 50px;
     margin: @margin-top @padding-horiz 0 0;
   }
 

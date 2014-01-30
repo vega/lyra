@@ -1,6 +1,6 @@
 vde.Vis.transforms.Stats = (function() {
   var stats = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'stats', ['value', 'median']);
+    vde.Vis.Transform.call(this, pipelineName, 'stats', 'Stats', ['value', 'median']);
 
     this.requiresFork = true;
     this.fields = [];

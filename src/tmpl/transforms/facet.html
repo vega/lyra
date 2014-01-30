@@ -1,4 +1,7 @@
-<div class="heading" ng-init="pMdl.count=pMdl.count+1">{{pMdl.count}}. Group By <vde-can-drop-field style="right"></vde-can-drop-field></div>
-<div class="inner">
+<vde-property label="Fields" type="field" item="transform"
+              property="keys" ng-model="transform.properties.keys"
+              can-drop-style="right" style="single">
   <vde-binding ng-repeat="key in transform.properties.keys" field="key"></vde-binding>
-</div>
+</vde-property>
+
+<br clear="all" />

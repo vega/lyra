@@ -1,6 +1,6 @@
 vde.Vis.transforms.Facet = (function() {
   var facet = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'facet', ['keys', 'sort']);
+    vde.Vis.Transform.call(this, pipelineName, 'facet', 'Group By', ['keys', 'sort']);
 
     // Because facets perform structural transformations, fork
     // whatever pipeline this is assigned to.
