@@ -166,15 +166,16 @@ vde.App.controller('GroupCtrl', function($scope, $rootScope) {
   $rootScope.$watch('groupOrder', function() {
     $scope.group = vde.Vis.groups[$scope.groupName];
   });
-});
 
-vde.App.controller('MarkCtrl', function($scope, $rootScope) {
+  $scope.boundExtents = {};
   $scope.xExtents = [{label: 'Start', property: 'x'},
     {label: 'Width', property: 'width'}, {label: 'End', property: 'x2'}];
 
   $scope.yExtents = [{label: 'Start', property: 'y'},
     {label: 'Height', property: 'height'}, {label: 'End', property: 'y2'}];
+});
 
+vde.App.controller('MarkCtrl', function($scope, $rootScope) {
   $scope.$watch('group.marksOrder', function() {
     $scope.mark = $scope.group.marks[$scope.markName];
   });

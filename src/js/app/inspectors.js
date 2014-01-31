@@ -9,19 +9,22 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       step: '@',
       item: '=',
       property: '@',
-      properties: '=',
-      ngModel: '=',
-      scale: '=',
-      field: '=',
-      options: '=',
+      ngModel: '=?',
+      scale: '=?',
+      field: '=?',
+      options: '=?',
       nodrop: '@',
       canDropStyle: '@',
       nochange: '@',
       hint: '@',
-      style: '@'
+      style: '@',
+      extentsProps: '=?',
+      extentsBound: '=?'
     },
     transclude: true,
-    templateUrl: 'tmpl/inspectors/property.html',
+    templateUrl: function(tElement, tAttrs) {
+      return 'tmpl/inspectors/' + (tAttrs.extentsProps ? 'property-extents.html' : 'property.html');
+    },
     controller: function($scope, $element, $attrs, $timeout) {
       $scope.onchange = function(prop) {
         if($attrs.nochange) return;
@@ -76,21 +79,57 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
         else if($rootScope.activeVisual instanceof vde.Vis.Mark)
           $rootScope.activeVisual.propertyTargets();
       };
+
+      // This block of code ensures that the extent selects stay in sync.
+      if($scope.extentsProps) {
+        $scope.$watch(function($scope) {
+          return {p: $scope.property, b: $scope.extentsBound}
+        }, function(newVal, oldVal) {
+          $scope.properties = [];
+
+          if(newVal.p != oldVal.p) {
+            if(newVal.p) {
+              delete $scope.item.properties[newVal.p].disabled;
+              $scope.extentsBound[newVal.p] = 1;
+            }
+
+            if(oldVal.p) {
+              $scope.item.properties[oldVal.p].disabled = true;
+              delete $scope.extentsBound[oldVal.p];
+            }
+          }
+
+          $scope.extentsProps.forEach(function(prop) {
+            var p = prop.property, bind = false;
+            if($scope.item.properties[p].disabled) bind = true;
+            else if(newVal.p == p) bind = true;
+            else {
+              if(!newVal.p && !$scope.property && !(p in $scope.extentsBound)) {
+                $scope.property = p;
+                $scope.extentsBound[p] = 1;
+                bind = true;
+              }
+              if(!(p in $scope.extentsBound)) bind = true;
+            }
+
+            if(bind) $scope.properties.push(prop);
+          });
+        }, true);
+      }
     },
     link: function(scope, element, attrs) {
       if(attrs.nodrop) return;
 
       $(element).find('.property').on('mousemove', function(e) {
         scope.showHelper($(this), e, 'helper');
-      })
-      .on('mouseleave', function(e) {
+      }).on('mouseleave', function(e) {
         scope.hideHelper($(this), e, 'helper');
       }) // Clear helpers
       .drop(function(e, dd) {
         if(element.find('.expr').length > 0) return element.find('.expr').drop(e, dd);
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
 
-        vde.iVis.bindProperty(scope.item, attrs.property);
+        vde.iVis.bindProperty(scope.item, scope.property);
         dd.proxy = null;
       }).drop('dropstart', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
