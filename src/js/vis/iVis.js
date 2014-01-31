@@ -268,7 +268,7 @@ vde.iVis = (function() {
         rootScope = ivis.ngScope();
 
     // If they've dropped on an empty non-group space.
-    if(!host) host = rootScope.activeGroup;
+    if(!host) host = rootScope.activeLayer;
 
     if(host instanceof vde.Vis.marks.Group) mark.groupName = host.name;
     else if(host.connectors[connector] && mark.canConnect) {
@@ -290,7 +290,7 @@ vde.iVis = (function() {
       ivis.ngLogger().log('new_mark', {
         markType: mark.type,
         markName: mark.name,
-        activeGroup: (rootScope.activeGroup || {}).name,
+        activeLayer: (rootScope.activeLayer || {}).name,
         markGroup: mark.groupName
       }, true);
 

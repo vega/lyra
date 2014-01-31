@@ -9,6 +9,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       step: '@',
       item: '=',
       property: '@',
+      properties: '=',
       ngModel: '=',
       scale: '=',
       field: '=',

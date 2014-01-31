@@ -46,7 +46,7 @@ vde.Vis.marks.Group = (function() {
   prototype.init = function() {
     var self = this;
     vde.Vis.groups[this.name] = this;
-    vde.Vis.groupOrder.unshift(this.name);
+    vde.Vis.groupOrder.push(this.name);
 
     //////
     // This is too difficult to get correct w/multiple overlapping

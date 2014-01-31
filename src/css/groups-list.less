@@ -1,3 +1,5 @@
+@indent: 1.5*@padding-horiz;
+
 #groups-list {
   background: @light-blue;
   border-left: 1px solid @medium-blue;
@@ -7,10 +9,17 @@
   bottom: 0;
   right: 0;
   width: @inspector-width;
-}
 
-#groups-list ul:first-child { padding-left: 0px; }
-#groups-list ul {
-  list-style-type: none;
-  padding-left: 2*@padding-horiz;
+  ul { list-style-type: none; }
+  li li h3 { padding-left: 2*@indent; }
+  li li li h3 { padding-left: 4*@indent; }
+  li li li li h3 { padding-left: 6*@indent; }
+
+  h3:before {
+    font-size: 14px;
+    margin-right: 5px;
+    opacity: 0.5;
+  }
+  h3.expanded:before { content: '\25BC'; }
+  h3.contracted:before { content: '\25B6'; }
 }

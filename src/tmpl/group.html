@@ -1,2 +1,17 @@
 <h3 vde-edit-name ng-model="group.displayName" strip-br="true"
+    ng-class="{selected:activeVisual==group,
+    expanded:activeLayer==group, contracted:activeLayer!=group}"
     ng-click="toggleVisual(group)">{{group.displayName}}</h3>
+
+<div class="inspector inner" ng-if="activeVisual==group">
+  <ng-include src="'tmpl/inspectors/rect.html'"></ng-include>
+</div>
+
+
+<h5>Axes</h5>
+
+<ul ng-if="activeLayer==group">
+  <li ng-repeat="(axisName, axis) in group.axes">
+    <h3 vde-edit-name ng-model="axis.dipsly"
+  </li>
+</ul><!-- /if activeLayer==group -->

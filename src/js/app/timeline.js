@@ -10,7 +10,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", function($rootScope, $tim
         app: {
           activeVisual: ($rootScope.activeVisual || {}).name,
           isMark: $rootScope.activeVisual instanceof vde.Vis.Mark,
-          activeGroup: $rootScope.activeGroup.name,
+          activeLayer: $rootScope.activeLayer.name,
           activePipeline: $rootScope.activePipeline.name
         }
       });
@@ -27,7 +27,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", function($rootScope, $tim
         // Timeout so vis has time to parse, before we switch angular/iVis
         // contexts.
         $timeout(function() {
-          var g = vde.Vis.groups[app.activeGroup];
+          var g = vde.Vis.groups[app.activeLayer];
           if(app.activeVisual) {
             $rootScope.toggleVisual((app.isMark) ?
                 g.marks[app.activeVisual] : g.axes[app.activeVisual]);

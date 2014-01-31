@@ -2,7 +2,11 @@
   <vde-can-drop-field style="{{canDropStyle}}" ng-if="!noDrop && canDropStyle">
   </vde-can-drop-field>
 
-  <label>{{label}}</label>
+  <label ng-hide="properties">{{label}}</label>
+  <select ng-if="p.property as p.label for p in properties"
+          ng-model="property" options="properties"
+          ng-change="onchange('properties')"></select>
+
   <div class="field" ng-switch on="type">
     <div ng-if="scale || field" style="width: 1000px">
       <vde-binding scale="scale" field="field"></vde-binding>
