@@ -1,6 +1,7 @@
 vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logger, $window, timeline) {
   $scope.gMdl = { // General catch-all model for scoping
     pipelines: vde.Vis.pipelines,
+    editVis: false,
     sortableOpts: {
       update: function(e, ui) { $timeout(function() { vde.Vis.parse(); }, 1); },
       axis: 'y'
@@ -155,13 +156,10 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
     v.checkExtents(prop);
     v.update(prop);
   };
+});
 
-  $scope.editVisualization = function() {
-    $rootScope.editVis = !$rootScope.editVis;
-    $rootScope.vis = vde.Vis.properties;
-
-    logger.log('edit_vis', {});
-  };
+vde.App.controller('EditVisCtrl', function($scope) {
+  $scope.vis = vde.Vis.properties;
 });
 
 vde.App.controller('GroupCtrl', function($scope, $rootScope) {

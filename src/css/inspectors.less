@@ -1,3 +1,5 @@
+.inspector { border-bottom: 1px solid @medium-blue; }
+
 .property {
   font-size: 12px;
 
@@ -21,7 +23,7 @@
   a.unbind:hover { opacity: 1; }
 }
 
-.property.single {
+.property.full {
   @margin-top: 4px;
 
   label {
@@ -36,6 +38,13 @@
   .canDropField.right { margin-left: @padding-horiz; }
 
   input { width: 97%; }
+}
+
+.property.half {
+  float: left;
+  width: 140px;
+
+  input, select { width: 120px; }
 }
 
 .expr-container {

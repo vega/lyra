@@ -17,7 +17,7 @@
 
 body {
   font-family: @font-stack;
-  background: #e0e0e0;
+  background: #eee;
 }
 
 h3 {
@@ -26,6 +26,7 @@ h3 {
   padding: @padding-horiz @padding-horiz;
   font-size: 16px;
   font-weight: @demibold-weight;
+  cursor: pointer;
 }
 
 h3:focus {
@@ -40,9 +41,22 @@ h3:focus {
   box-shadow: 1px 1px 1px 0 lightgray inset;
 }
 
-div.selected h3 {
+h3.selected  {
     background-color: @medium-blue;
     border: 1px solid @medium-blue;
+}
+
+h3:hover { color: #666; }
+h3.selected:hover { color: #000; }
+
+h4 {
+  font-size: 12px;
+  font-weight: 500;
+  color: @dark-blue;
+  text-transform: uppercase;
+  margin: @padding-horiz 0;
+  padding-bottom: @padding-horiz/2;
+  border-bottom: 1px solid @dark-blue;
 }
 
 .heading {
@@ -90,5 +104,6 @@ div.selected h3 {
 @import 'reset.css';
 @import 'inspectors';
 @import 'binding';
-@import 'pipelines';
+@import 'pipelines-list';
+@import 'groups-list';
 @import 'center';

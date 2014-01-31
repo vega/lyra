@@ -38,10 +38,10 @@ vde.Vis.Mark = (function() {
     }
 
     if(!this.name)
-      this.name = this.type + '_' + (vg.keys(this.group().marks).length+1);
+      this.name = this.type + '_' + this.group().markOrder.length;
 
     if(!this.displayName)
-      this.displayName = this.name;
+      this.displayName = this.type + ' ' + vde.Vis.codename(this.group().markOrder.length);
 
     if(this.group() != this) {
       this.group().marks[this.name] = this;

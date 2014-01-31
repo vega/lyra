@@ -1,0 +1,21 @@
+<div id="groups-list" ng-controller="GroupsListCtrl">
+  <ul>
+    <li>
+      <h3 ng-click="gMdl.editVis = !gMdl.editVis"
+          ng-class="{selected:gMdl.editVis}">Visualization</h3>
+
+      <div class="inspector inner" ng-if="gMdl.editVis" ng-controller="EditVisCtrl">
+        <ng-include src="'tmpl/inspectors/vis.html'"></ng-include>
+      </div>
+
+
+
+      <ul ui:sortable="gMdl.sortableOpts" ng:model="groupOrder">
+        <li ng-repeat="groupName in groupOrder" ng-controller="GroupCtrl"
+            ng-class="{selected:activeVisual==group, expanded:activeGroup==group}">
+          <ng-include src="'tmpl/group.html'"></ng-include>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
