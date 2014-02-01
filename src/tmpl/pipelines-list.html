@@ -1,7 +1,7 @@
 <div id="pipelines-list" ng-controller="PipelinesListCtrl">
   <div class="pipeline" ng-repeat="(pipelineName, pipeline) in pMdl.pipelines">
 
-    <h3 vde-edit-name ng-model="pipeline.displayName" strip-br="true"
+    <h3 vde-edit-name ng-model="pipeline.displayName"
         ng-class="{selected:activePipeline==pipeline}"
         ng-click="togglePipeline(pipeline)">{{pipeline.displayName}}</h3>
 

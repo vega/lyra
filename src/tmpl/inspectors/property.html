@@ -41,9 +41,11 @@
 
       <span ng-switch-when="select"><select ng-change="onchange()" ng-model="$parent.ngModel" ng-options="opt for opt in $parent.options" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}"></select></span>
 
-      <span ng-switch-when="radio"><label ng-repeat="opt in $parent.options"><input type="radio" ng-model="$parent.$parent.ngModel" value="{{opt}}" /> {{opt}}</label> </span>
+      <span ng-switch-when="radio"><label class="option" ng-repeat="opt in $parent.options"><input type="radio" ng-model="$parent.$parent.ngModel" value="{{opt}}" /> {{opt}}</label> </span>
 
-      <span ng-switch-when="field" class="schema-target">Drop a field here.</span>
+      <span ng-switch-when="field" class="hint schema-target">Drop a field here.</span>
+
+      <span ng-switch-when="scale" ng-show="!scale" class="hint schema-target">Drop a scale here.</span>
 
       <span ng-switch-when="font">
         <input type="number" ng-model="$parent.ngModel.fontSize.value" ng-change="onchange('fontSize')" class="fontSize" />

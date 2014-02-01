@@ -1,17 +1,26 @@
-<h3 vde-edit-name ng-model="group.displayName" strip-br="true"
+<h3 vde-edit-name ng-model="group.displayName"
     ng-class="{selected:activeVisual==group,
-    expanded:activeLayer==group, contracted:activeLayer!=group}"
+    expanded:activeLayer==group || activeGroup==group,
+    contracted:activeLayer!=group && activeGroup!=group}"
     ng-click="toggleVisual(group)">{{group.displayName}}</h3>
 
 <div class="inspector inner" ng-if="activeVisual==group">
   <ng-include ng-init="mark = group;" src="'tmpl/inspectors/rect.html'"></ng-include>
 </div>
 
+<div ng-if="activeLayer == group || activeGroup == group">
+  <h5>Axes <a class="close" vde-tooltip="New Axis" ng-click="addAxis()">&plus;</a></h5>
 
-<h5>Axes</h5>
+  <ul>
+    <li ng-repeat="(axisName, axis) in group.axes">
+      <h3 vde-edit-name ng-model="axis.displayName"
+          ng-class="{selected:activeVisual==axis}"
+          ng-click="toggleVisual(axis)">{{axis.displayName}}</h3>
 
-<ul ng-if="activeLayer==group">
-  <li ng-repeat="(axisName, axis) in group.axes">
-    <h3 vde-edit-name ng-model="axis.dipsly"
-  </li>
-</ul><!-- /if activeLayer==group -->
+      <div class="inspector inner" ng-if="activeVisual==axis">
+        <ng-include src="'tmpl/inspectors/axis.html'"></ng-include>
+      </div>
+    </li>
+  </ul>
+</div><!-- /if activeLayer||activeGroup==group -->
+

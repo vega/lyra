@@ -141,10 +141,7 @@ vde.App.directive('vdeEditName', function() {
       function read() {
         var html = element.text();
         // When we clear the content editable the browser leaves a <br> behind
-        // If strip-br attribute is provided then we strip this out
-        if( attrs.stripBr && html == '<br>' ) {
-          html = '';
-        }
+        if(html == '<br>' ) html = '';
         ngModel.$setViewValue(html);
       }
     }

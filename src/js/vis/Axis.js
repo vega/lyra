@@ -1,6 +1,8 @@
 vde.Vis.Axis = (function() {
   var axis = function(name, groupName) {
     this.name  = name;
+    this.displayName = 'Axis ' +
+        vde.Vis.codename(vg.keys(vde.Vis.groups[groupName].axes).length);
 
     this.properties = {
       type: null,

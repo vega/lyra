@@ -9,6 +9,7 @@
   bottom: 0;
   right: 0;
   width: @inspector-width;
+  overflow: auto;
 
   ul { list-style-type: none; }
   li li h3 { padding-left: 2*@indent; }
@@ -17,7 +18,7 @@
 
   h3:before {
     font-size: 14px;
-    margin-right: 5px;
+    margin: 0 5px 0 -10px;
     opacity: 0.5;
   }
   h3.expanded:before { content: '\25BC'; }
