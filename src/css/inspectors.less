@@ -29,15 +29,35 @@
   label {
     float: left;
     width: 50px;
-    margin: @margin-top @padding-horiz 0 0;
-    text-align: right;
+    margin: @margin-top @padding-horiz 0 @padding-horiz;
+//    text-align: right;
   }
 
   .field { overflow: hidden; }
   .canDropField { margin-top: @margin-top; }
   .canDropField.right { margin-left: @padding-horiz; }
 
-  input { width: 97%; }
+  input {
+    width: 97%;
+    float: left;
+  }
+  input[type=checkbox] { width: auto; }
+  input[type=range] {width: 125px;}
+  input[type=color] {
+    float: left;
+    width: 50px;
+  }
+
+  span.editVal {
+    float: left;
+    padding: 5px;
+    margin-left: 10px;
+  }
+
+  span.hint {
+    display: inline-block;
+    margin: @margin-top/2 0 0 @margin-top;
+  }
 }
 
 .property.half {
@@ -50,6 +70,14 @@
 .property.half.property-extents {
   .canDropField { margin: 3px 3px 0 0; }
   select { width: auto; }
+}
+
+.property.full.property-imgfill {
+  .canDropField { margin-right: 3px; }
+  select {
+    float: left;
+    margin-right: 5px;
+  }
 }
 
 .expr-container {

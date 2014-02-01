@@ -19,20 +19,28 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       hint: '@',
       style: '@',
       extentsProps: '=?',
-      extentsBound: '=?'
+      extentsBound: '=?',
+      imgFill: '@'
     },
     transclude: true,
     templateUrl: function(tElement, tAttrs) {
-      return 'tmpl/inspectors/' + (tAttrs.extentsProps ? 'property-extents.html' : 'property.html');
+      var tmpl = 'tmpl/inspectors/property';
+      if(tAttrs.imgFill) return tmpl + '-imgfill.html';
+      if(tAttrs.extentsProps) return tmpl + '-extents.html';
+
+      return tmpl + '.html';
     },
     controller: function($scope, $element, $attrs, $timeout) {
+      $scope.fillTypes = [{label: 'Color', property: 'color'},
+        {label: 'Image', property: 'image'}];
+
       $scope.onchange = function(prop) {
         if($attrs.nochange) return;
         if('checkExtents' in $scope.item)
           $scope.item.checkExtents(prop || $scope.property);
 
         $timeout(function() {
-          if($scope.item.update) $scope.item.update(prop || $attrs.property);
+          if($scope.item.update) $scope.item.update(prop || $scope.property);
           else vde.Vis.parse();
 
           vde.iVis.show('selected');

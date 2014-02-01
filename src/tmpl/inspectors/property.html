@@ -17,11 +17,27 @@
         <input ng-if="!scale" type="number" class="number" ng-model="$parent.$parent.ngModel" ng-change="onchange()" min="{{min}}" max="{{max}}" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" />
       </span>
 
-      <span ng-switch-when="range"><input type="range" ng-model="$parent.ngModel" ng-change="onchange()" min="{{min}}" max="{{max}}" step="{{step}}" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" /></span>
+      <span ng-switch-when="range">
+        <input type="range" ng-model="$parent.ngModel" ng-change="onchange()" min="{{min}}" max="{{max}}" step="{{step}}" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" />
 
-      <span ng-switch-when="color"><input type="color" ng-model="$parent.ngModel" ng-change="onchange()" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" /></span>
+        <span class="editVal" vde-edit-name
+              ng-model="$parent.ngModel" ng-change="onchange()">{{$parent.ngModel || 0}}</span>
+      </span>
 
-      <span ng-switch-when="checkbox"><input type="checkbox" ng-model="$parent.ngModel" ng-change="onchange()" /> {{hint}}</span>
+      <span ng-switch-when="color">
+        <input type="color" ng-model="$parent.ngModel"
+               ng-change="onchange()"
+               ng-class="{'scaled-input': scale != undefined,
+               'disabled-input': item.properties[property].disabled}" />
+
+        <span class="editVal" vde-edit-name
+              ng-model="$parent.ngModel" ng-change="onchange()">{{$parent.ngModel}}</span>
+      </span>
+
+      <span ng-switch-when="checkbox">
+        <input type="checkbox" ng-model="$parent.ngModel" ng-change="onchange()" />
+        <span class="hint">{{hint}}</span>
+      </span>
 
       <span ng-switch-when="select"><select ng-change="onchange()" ng-model="$parent.ngModel" ng-options="opt for opt in $parent.options" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}"></select></span>
 

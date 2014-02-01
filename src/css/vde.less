@@ -29,7 +29,7 @@ h3 {
   cursor: pointer;
 }
 
-h3:focus {
+h3:focus, .editVal:focus {
   -moz-user-select: -moz-text;
   -khtml-user-select: text;
   -webkit-user-select: text;
@@ -49,6 +49,18 @@ h3.selected  {
 h3:hover { color: #666; }
 h3.selected:hover { color: #000; }
 
+.heading {
+  display: block;
+  padding: 7px @padding-horiz;
+  margin: 10px 0;
+
+  background: rgb(193, 198, 206);
+  font-size: 14px;
+
+  select, input { margin: 0 }
+  .close { margin-top: -3px; }
+}
+
 .subheading {
   font-size: 12px;
   font-weight: 500;
@@ -66,18 +78,6 @@ h5 {
   border-bottom: 0;
   font-size: 10px;
   padding-left: @padding-horiz;
-}
-
-.heading {
-  display: block;
-  padding: 7px @padding-horiz;
-  margin: 10px 0;
-
-  background: rgb(193, 198, 206);
-  font-size: 14px;
-
-  select, input { margin: 0 }
-  .close { margin-top: -3px; }
 }
 
 .addNew {
@@ -108,7 +108,10 @@ h5 {
 
 .canDropField.left  { float: left; }
 .canDropField.right { float: right; }
-.canDropField.dragging { opacity: 1; }
+.canDropField.dragging {
+  background: #D9BF8A;
+  opacity: 1;
+}
 
 @import 'reset.css';
 @import 'inspectors';

@@ -1,0 +1,42 @@
+<div class="property-imgfill property full" id="{{property}}">
+  <vde-can-drop-field style="{{canDropStyle}}" ng-if="!noDrop && canDropStyle">
+  </vde-can-drop-field>
+
+  <select ng-options="f.property as f.label for f in fillTypes"
+          ng-model="item.fillType"></select>
+
+  <div class="field">
+    <div ng-if="item.properties.fill.scale || item.properties.fill.field">
+      <vde-binding scale="item.properties[property].scale"
+                   field="item.properties[property].field"></vde-binding>
+    </div>
+
+    <div ng-if="!item.properties.fill.field">
+      <div ng-if="item.fillType == 'color'">
+        <input type="color" ng-model="item.properties.fill.value" />
+        <span class="editVal" vde-edit-name
+              ng-model="item.properties.fill.value">{{item.properties.fill.value}}</span>
+      </div>
+
+      <div ng-if="item.fillType == 'image'">
+        <input type="text" ng-model="item.properties.url.value" />
+
+        <div class="btn-toolbar">
+          <div class="btn-group">
+            <a class="btn-mini btn" href="#"
+               ng-click="toggleProp('align', 'left');"
+               ng-class="{'btn-primary': mark.properties.align.value == 'left'}"><i class="icon-align-left"></i></a>
+            <a class="btn-mini btn" href="#"
+               ng-click="toggleProp('align', 'center');"
+               ng-class="{'btn-primary': mark.properties.align.value == 'center'}"><i class="icon-align-center"></i></a>
+            <a class="btn-mini btn" href="#"
+               ng-click="toggleProp('align', 'right');"
+               ng-class="{'btn-primary': mark.properties.align.value == 'right'}"><i class="icon-align-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <br clear="all" />
+</div>

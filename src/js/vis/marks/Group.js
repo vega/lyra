@@ -16,6 +16,7 @@ vde.Vis.marks.Group = (function() {
     this._spec.axes   = [];
     this._spec.marks  = [];
 
+    this.fillType = 'color';
     this.properties = {
       x: {value: 0},
       width: {value: vde.Vis.properties.width},
