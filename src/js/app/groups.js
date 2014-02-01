@@ -14,16 +14,20 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
   $rootScope.reparse = function() { vde.Vis.parse(); };
 
   $rootScope.toggleVisual = function(v, key) {
-    $rootScope.activeVisual = v;
-    $rootScope.activeLayer  = v.group() || v;
-    $rootScope.activePipeline = v.pipelineName ? v.pipeline() : $rootScope.activePipeline;
-    $scope.gMdl.activeVisualPipeline = (v.pipeline() || {}).name;
+    if($rootScope.activeVisual == v) {
+      $rootScope.activeVisual = null;
+      vde.iVis.activeMark = null;
+    } else {
+      $rootScope.activeVisual = v;
+      $rootScope.activeLayer  = v.group() || v;
+      $rootScope.activePipeline = v.pipelineName ? v.pipeline() : $rootScope.activePipeline;
+      $scope.gMdl.activeVisualPipeline = (v.pipeline() || {}).name;
 
-    if(vde.iVis.activeMark != v || key != null) {
       vde.iVis.activeMark = v;
       vde.iVis.activeItem = key || 0;
-      vde.iVis.show('selected');
     }
+
+    vde.iVis.show('selected');
 
     logger.log('toggle_visual', {
       activeVisual: v.name,
@@ -167,7 +171,12 @@ vde.App.controller('GroupCtrl', function($scope, $rootScope) {
     $scope.group = vde.Vis.groups[$scope.groupName];
   });
 
-  $scope.boundExtents = {};
+  $rootScope.$watch(function($scope) {
+    return $scope.activeVisual == $scope.group
+  }, function() {
+    $scope.boundExtents = {};
+  })
+
   $scope.xExtents = [{label: 'Start', property: 'x'},
     {label: 'Width', property: 'width'}, {label: 'End', property: 'x2'}];
 

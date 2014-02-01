@@ -26,8 +26,13 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, logger, tim
   };
 
   $rootScope.togglePipeline = function(p) {
-    $rootScope.activePipeline = p;
-    $scope.pMdl.activePipelineSource = p.source;
+    if($rootScope.activePipeline == p) {
+      $rootScope.activePipeline = null;
+      $scope.pMdl.activePipelineSource = null;
+    } else {
+      $rootScope.activePipeline = p;
+      $scope.pMdl.activePipelineSource = p.source;
+    }
 
     logger.log('toggle_pipeline', {
       activePipeline: $rootScope.activePipeline.name

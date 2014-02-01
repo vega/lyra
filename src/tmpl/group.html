@@ -3,8 +3,8 @@
     expanded:activeLayer==group, contracted:activeLayer!=group}"
     ng-click="toggleVisual(group)">{{group.displayName}}</h3>
 
-<div class="inspector inner" ng-if="activeVisual==group" ng-init="mark = group;">
-  <ng-include src="'tmpl/inspectors/rect.html'"></ng-include>
+<div class="inspector inner" ng-if="activeVisual==group">
+  <ng-include ng-init="mark = group;" src="'tmpl/inspectors/rect.html'"></ng-include>
 </div>
 
 
