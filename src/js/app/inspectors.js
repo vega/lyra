@@ -128,7 +128,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
     link: function(scope, element, attrs) {
       if(attrs.nodrop) return;
 
-      $(element).find('.property').on('mousemove', function(e) {
+      $(element).find('.property, .canDropField').on('mousemove', function(e) {
         scope.showHelper($(this), e, 'helper');
       }).on('mouseleave', function(e) {
         scope.hideHelper($(this), e, 'helper');

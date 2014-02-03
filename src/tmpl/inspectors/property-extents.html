@@ -14,13 +14,13 @@
     <div ng-show="!item.properties[property].field">
       <input ng-if="item.properties[property].scale" type="text" class="number"
              ng-model="item.properties[property].value" ng-change="onchange()"
-             ng-class="{'scaled-input': scale != undefined,
+             ng-class="{'scaled-input': item.properties[property].scale != undefined,
              'disabled-input': item.properties[property].disabled}" />
 
       <input ng-if="!item.properties[property].scale" type="number" class="number"
              ng-model="item.properties[property].value" ng-change="onchange()"
              min="{{min}}" max="{{max}}"
-             ng-class="{'scaled-input': scale != undefined,
+             ng-class="{'scaled-input': item.properties[property].scale != undefined,
              'disabled-input': item.properties[property].disabled}" />
     </div>
   </div>

@@ -32,6 +32,10 @@ vde.Vis.Mark = (function() {
 
   prototype.init = function() {
     var self = this;
+    var capitaliseFirstLetter = function(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
     if(!this.groupName) {
       var g = new vde.Vis.marks.Group();
       this.groupName = g.name;
@@ -41,7 +45,7 @@ vde.Vis.Mark = (function() {
       this.name = this.type + '_' + this.group().markOrder.length;
 
     if(!this.displayName)
-      this.displayName = this.type + ' ' + vde.Vis.codename(this.group().markOrder.length);
+      this.displayName = capitaliseFirstLetter(this.type) + ' ' + vde.Vis.codename(this.group().markOrder.length);
 
     if(this.group() != this) {
       this.group().marks[this.name] = this;
@@ -59,7 +63,7 @@ vde.Vis.Mark = (function() {
       if(item.mark.def != self.def()) return;
       if(item.items && self.type != 'group') return;
 
-      vde.iVis.ngScope().toggleVisual(self, item.vdeKey || item.key || 0);
+      vde.iVis.ngScope().toggleVisual(self, item.vdeKey || item.key || 0, true);
     });
 
     // Highlight/unhighlight group

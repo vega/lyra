@@ -7,19 +7,19 @@
 
   <div class="field">
     <div ng-if="item.properties.fill.scale || item.properties.fill.field">
-      <vde-binding scale="item.properties[property].scale"
-                   field="item.properties[property].field"></vde-binding>
+      <vde-binding scale="item.properties.fill.scale"
+                   field="item.properties.fill.field"></vde-binding>
     </div>
 
     <div ng-if="!item.properties.fill.field">
       <div ng-if="item.fillType == 'color'">
-        <input type="color" ng-model="item.properties.fill.value" />
-        <span class="editVal" vde-edit-name
+        <input type="color" ng-model="item.properties.fill.value" ng-change="onchange('fill')" />
+        <span class="editVal" vde-edit-name ng-change="onchange('fill')"
               ng-model="item.properties.fill.value">{{item.properties.fill.value}}</span>
       </div>
 
       <div ng-if="item.fillType == 'image'">
-        <input type="text" ng-model="item.properties.url.value" />
+        <input type="text" ng-model="item.properties.url.value" ng-change="onchange()" />
 
         <div class="btn-toolbar">
           <div class="btn-group">

@@ -129,7 +129,7 @@ vde.Vis = (function() {
 
             vde.iVis.markTimeout = window.setTimeout(function() {
               var scope = vde.iVis.ngScope();
-              scope.$apply(function() { scope.toggleVisual(m, i.vdeKey || i.key || 0); });
+              scope.$apply(function() { scope.toggleVisual(m, i.vdeKey || i.key || 0, true); });
 
               var isMark = $(d).hasClass('mark');
               if(isMark && vde.iVis.newMark.canConnect) m.connectionTargets();

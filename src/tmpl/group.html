@@ -15,12 +15,51 @@
     <li ng-repeat="(axisName, axis) in group.axes">
       <h3 vde-edit-name ng-model="axis.displayName"
           ng-class="{selected:activeVisual==axis}"
-          ng-click="toggleVisual(axis)">{{axis.displayName}}</h3>
+          ng-click="toggleVisual(axis)">{{axis.properties.title || axis.displayName}}</h3>
 
       <div class="inspector inner" ng-if="activeVisual==axis">
         <ng-include src="'tmpl/inspectors/axis.html'"></ng-include>
       </div>
     </li>
   </ul>
+
+  <h5>Marks</h5>
+
+  <ul ui:sortable="gMdl.sortableOpts" ng:model="group.markOrder">
+    <li ng-repeat="markName in group.markOrder" ng-controller="MarkCtrl">
+      <h3 vde-edit-name ng-model="mark.displayName"
+          ng-class="{selected:activeVisual==mark}"
+          ng-click="toggleVisual(mark)">{{mark.displayName|inflector:'humanize'}}</h3>
+
+      <div class="inspector" ng-if="activeVisual==mark">
+        <!-- Automatically include pipeline selector -->
+        <div class="heading">Pipeline</div>
+
+        <div class="inner">
+          <vde-property label="" nodrop="1" style="half">
+            <span ng-hide="!mark.connectedTo.host"><code>{{mark.pipelineName|inflector:'humanize'}}</code></span>
+
+            <select ng-model="gMdl.activeVisualPipeline" ng-change="setPipeline()" ng-show="!mark.connectedTo.host">
+              <option value="">Select...</option>
+              <option ng-repeat="(pipelineName, pipeline) in gMdl.pipelines" value="{{pipelineName}}" ng-selected="gMdl.activeVisualPipeline==pipelineName||activeVisual.pipelineName==pipelineName">{{pipeline.displayName|inflector:'humanize'}}</option>
+              <option value="vdeNewPipeline">New Pipeline</option>
+            </select>
+          </vde-property>
+
+          <vde-property label="" nodrop="1" style="half">
+            <h3 class="addNew" ng-click="addGroup()">+ Visual Transforms</h3>
+          </vde-property>
+
+          <br clear="all" />
+        </div>
+
+        <div class="heading">Properties</div>
+        <div class="inner">
+          <ng-include src="'tmpl/inspectors/' + mark.type + '.html'"></ng-include>
+        </div>
+      </div>
+    </li>
+  </ul>
+
 </div><!-- /if activeLayer||activeGroup==group -->
 

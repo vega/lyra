@@ -64,13 +64,17 @@
   background-size: 12px;
 }
 
-.binding:hover .editScale:hover {
-  background-image: url(../imgs/pencil-white.png);
+.binding-draggable:hover .editScale:hover {
+  opacity: 0.3;
 }
 
 .schema {
-  padding: 2px 5px;
+  padding: 3px 5px;
   color: #333;
+
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   .aggregate {
     display: none;

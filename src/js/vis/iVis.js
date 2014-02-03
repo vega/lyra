@@ -257,7 +257,7 @@ vde.iVis = (function() {
 
       ivis.ngTimeline().save();
 
-      if(visual.groupName) rootScope.$apply(function() { rootScope.toggleVisual(visual); });
+      if(visual.groupName) rootScope.$apply(function() { rootScope.toggleVisual(visual, null, true); });
     }, 1);
 
     window.clearTimeout(vde.iVis.timeout);
@@ -295,7 +295,7 @@ vde.iVis = (function() {
       }, true);
 
       rootScope.$apply(function() {
-        rootScope.toggleVisual(mark);
+        rootScope.toggleVisual(mark, null, true);
 
         ivis.ngTimeline().save();
       });

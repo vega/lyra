@@ -5,6 +5,11 @@
 
 .property {
   font-size: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+
+  div { display: inline-block; }
+  div.field { display: block; }
 
   label { font-style: italic; }
   label.option { margin-right: @padding-horiz; }
@@ -22,6 +27,25 @@
   }
 
   input[type=checkbox], input[type=radio] { width: auto !important; }
+
+  .addNew {
+    margin: 5px 0 0 0;
+    padding: 0 !important;
+    font-size: 11px;
+    text-align: left;
+    font-weight: 500;
+  }
+
+  .scaled-input {
+    height: 13px;
+    max-width: 80px;
+    margin: -11px 0 0 -20px;
+    padding-left: 5px;
+    border: 1px solid #888;
+    border-radius: 10px;
+  }
+
+  .binding-draggable { margin-top: @padding-horiz/2; }
 }
 
 .property:hover {

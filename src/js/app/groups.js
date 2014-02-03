@@ -13,8 +13,8 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
 
   $rootScope.reparse = function() { vde.Vis.parse(); };
 
-  $rootScope.toggleVisual = function(v, key) {
-    if($rootScope.activeVisual == v) {
+  $rootScope.toggleVisual = function(v, key, show) {
+    if($rootScope.activeVisual == v && !show) {
       $rootScope.activeVisual = null;
       vde.iVis.activeMark = null;
     } else {
