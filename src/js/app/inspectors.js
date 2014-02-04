@@ -74,7 +74,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       };
 
       $scope.showHelper = function(target, e, helperClass) {
-        if($scope.item instanceof vde.Vis.Mark) $scope.item.helper($attrs.property);
+        if($scope.item instanceof vde.Vis.Mark) $scope.item.helper($scope.property);
 
         target.addClass(helperClass);
       };

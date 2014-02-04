@@ -172,7 +172,7 @@ vde.App.controller('GroupCtrl', function($scope, $rootScope) {
   });
 
   $rootScope.$watch(function($scope) {
-    return $scope.activeVisual == $scope.group
+    return ($scope.activeVisual || {}).name;
   }, function() {
     $scope.boundExtents = {};
   })

@@ -115,9 +115,13 @@ h5 {
 
 .canDropField.left  { float: left; }
 .canDropField.right { float: right; }
-.canDropField.dragging {
-  background: #D9BF8A;
-  opacity: 1;
+.canDropField.dragging, .helper .canDropField {
+  background: cyan;
+  opacity: 0.3;
+}
+.drophover .canDropField {
+  background: lightsalmon;
+  opacity: 0.5;
 }
 
 @import 'reset.css';
