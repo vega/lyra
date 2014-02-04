@@ -1,4 +1,4 @@
-<div ng-init="interpolation=['linear', 'step-before', 'step-after', 'basis', 'basis-open', 'cardinal', 'cardinal-open', 'monotone']; types=['rule', 'points', 'path'];">
+<div ng-init="types=['rule', 'points', 'path'];">
 
   <vde-property label="Line Type" type="select" options="types" item="mark" 
                 property="propType" ng-model="mark.propType" nodrop="1" style="full"></vde-property>
@@ -20,7 +20,7 @@
 
     <br clear="all" />
 
-    <vde-property label="Interpolate" type="select" options="interpolation" 
+    <vde-property label="Interpolate" type="select" options="gMdl.interpolation" 
                   item="mark" property="interpolate" 
                   ng-model="mark.properties.interpolate.value" 
                   scale="mark.properties.interpolate.scale" 

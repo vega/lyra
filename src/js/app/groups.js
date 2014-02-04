@@ -6,7 +6,8 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
       update: function(e, ui) { $timeout(function() { vde.Vis.parse(); }, 1); },
       axis: 'y'
     },
-    fonts: ['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS']
+    fonts: ['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS'],
+    interpolation: ['linear', 'step-before', 'step-after', 'basis', 'basis-open', 'cardinal', 'cardinal-open', 'monotone']
   };
 
   $rootScope.groupOrder = vde.Vis.groupOrder;
