@@ -1,13 +1,19 @@
 <div ng-init="offsets=['zero', 'silhouette', 'wiggle', 'expand']; order=['default', 'reverse', 'inside-out'];">
-  <span class="header">Stack</span>
+  <h4>Position</h4>
 
-  <vde-property label="Points" type="field" item="transform" property="point" ng-model="transform.properties.point" field="transform.properties.point"></vde-property>
+  <vde-property label="X" type="field" item="transform" property="point" ng-model="transform.properties.point" field="transform.properties.point" can-drop-style="left" style="half"></vde-property>
 
-  <vde-property label="Height" type="field" item="transform" property="height" ng-model="transform.properties.height" field="transform.properties.height"></vde-property>
+  <vde-property label="Y/Height" type="field" item="transform" property="height" ng-model="transform.properties.height" field="transform.properties.height" can-drop-style="left" style="half"></vde-property>
 
-  <vde-property label="Offset" type="select" options="offsets" item="transform" property="offset" ng-model="transform.properties.offset" nodrop="1"></vde-property>
+  <br clear="all" />
 
-  <vde-property label="Order" type="select" options="order" item="transform" property="order" ng-model="transform.properties.order" nodrop="1"></vde-property>
+  <h4>Layers</h4>
+
+  <vde-property label="Baseline Offset" type="select" options="offsets" item="transform" property="offset" ng-model="transform.properties.offset" nodrop="1" style="half"></vde-property>
+
+  <vde-property label="Order" type="select" options="order" item="transform" property="order" ng-model="transform.properties.order" nodrop="1" style="half"></vde-property>
+
+  <br clear="all" />
 
   <div ng-show="transform.properties.height"><vde-property label="Output" nodrop="1">
 		<vde-binding scale="transform.scale" field="'y'" draggable="1"></vde-binding>

@@ -99,6 +99,22 @@
   input, select { width: 110px; }
 }
 
+.property.half-float {
+  .property.half;
+
+  div.field {
+    clear: none;
+    float: left;
+  }
+
+  label {
+    float: left;
+    margin: 6px 10px 0 0;
+  }
+
+  input, select { width: 50px; }
+}
+
 .property.half.property-extents {
   .canDropField { margin: 3px 3px 0 0; }
   select { width: auto; }
@@ -110,6 +126,13 @@
     float: left;
     margin-right: 5px;
   }
+}
+
+.property.third {
+  .property.half;
+  width: 85px;
+
+  input, select { width: 70px; }
 }
 
 .expr-container {

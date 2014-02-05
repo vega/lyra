@@ -133,6 +133,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
   $scope.newTransform = function(type) {
     var t = new vde.Vis.transforms[type]($rootScope.activeVisual.pipelineName);
     $rootScope.activeVisual.pipeline().transforms.push(t);
+    $scope.gMdl.showTransforms = false;
 
     timeline.save();
   };
@@ -188,6 +189,10 @@ vde.App.controller('GroupCtrl', function($scope, $rootScope) {
 vde.App.controller('MarkCtrl', function($scope, $rootScope) {
   $scope.$watch('group.marksOrder', function() {
     $scope.mark = $scope.group.marks[$scope.markName];
+  });
+
+  $scope.$watch('mark.pipelineName', function() {
+    $scope.pipeline = $scope.mark.pipeline();
   });
 
   $scope.click = function(mark) {

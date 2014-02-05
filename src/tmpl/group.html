@@ -47,10 +47,35 @@
           </vde-property>
 
           <vde-property label="" nodrop="1" style="half">
-            <h3 class="addNew" ng-click="addGroup()">+ Visual Transforms</h3>
+            <h3 class="addNew" ng-show="gMdl.activeVisualPipeline && !gMdl.showTransforms"
+                ng-click="gMdl.showTransforms = true;">+ Visual Transforms</h3>
           </vde-property>
 
           <br clear="all" />
+        </div>
+
+        <!-- Show Transforms -->
+        <div class="showTransforms" ng-show="gMdl.showTransforms">
+          <div class="heading">
+            New Visual Transform
+            <a class="close" ng-click="gMdl.showTransforms = false">&times;</a>
+          </div>
+
+          <div class="inner">
+            <a class="transform-pie btn btn-small" b ng-click="newTransform('Pie')">Pie Chart</a>
+            <a class="transform-stack btn btn-small" ng-click="newTransform('Stack')">Stacked Layout</a>
+            <a class="transform-geo btn btn-small" ng-click="newTransform('Geo')">Geographic</a>
+            <a class="transform-force btn btn-small" ng-click="newTransform('Force')">Force-Directed Layout</a>
+          </div>
+        </div><!-- /show transforms -->
+
+        <div ng-repeat="transform in pipeline.transforms" ng-if="transform.isVisual" class="inner">
+          <div class="heading">
+            {{transform.displayName}}
+            <a class="close" vde-tooltip="Delete {{transform.displayName}}" ng-click="removeTransform($index)">&minus;</a>
+          </div>
+
+          <ng-include src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></ng-include>
         </div>
 
         <div class="heading">Properties</div>

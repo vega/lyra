@@ -4,6 +4,10 @@ vde.Vis.transforms.Stack = (function() {
 
     vde.Vis.callback.register('vis.post_spec', this, this.visPostSpec);
 
+    // Defaults
+    this.properties.offset = 'zero';
+    this.properties.order = 'default';
+
     this.scale = null;
     this.requiresFork = true;
     this.isVisual = true;

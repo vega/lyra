@@ -1,5 +1,5 @@
 <div class="binding-draggable" vde-draggable>
-  <div class="editScale" ng-click="editBinding($event, 'scale')">Edit Scale</div>
+  <div ng-if="scale" class="editScale" ng-click="editBinding($event, 'scale')">Edit Scale</div>
 
   <div class="binding">
     <div ng-if="scale" class="scale" scale="{{scale.name}}">{{scale.displayName|inflector:'humanize'}}</div>
