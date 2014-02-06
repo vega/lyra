@@ -24,7 +24,7 @@
 
 <h4>Fill</h4>
 
-<div ng-show="mark.type == 'group'">
+<div ng-if="mark.type == 'group'">
   <vde-property label="Clip" type="checkbox"
                 hint="contents to dimensions"
                 item="mark" property="clip"

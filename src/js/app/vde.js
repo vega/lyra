@@ -106,10 +106,21 @@ vde.App.directive('vdeClearBubbles', function($rootScope) {
 vde.App.directive('vdeCanDropField', function() {
   return {
     restrict: 'E',
-    scope: {style: "@"},
-    template: '<div class="canDropField {{style}}" vde-tooltip="Drag a field here">Drop a field here.</div>'
+    templateUrl: 'tmpl/inspectors/can-drop-field.html',
+    link: function(scope, element, attrs) {
+      scope.style = attrs.style;
+      scope.canUnbind = function() {
+        if(scope.$parent.getScale() || scope.$parent.getField()) {
+          scope.$parent.unbind();
+          $('.tooltip').remove();
+          return true;
+        }
+
+        return false;
+      }
+    }
   }
-})
+});
 
 vde.App.directive('vdeEditName', function() {
   return {

@@ -34,6 +34,18 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       $scope.fillTypes = [{label: 'Color', property: 'color'},
         {label: 'Image', property: 'image'}];
 
+      // We can't simply check for $scope.scale or $scope.field because of
+      // the extents properties. So use this instead.
+      $scope.getScale = function() {
+        return $scope.scale ||
+            $scope.property ? $scope.item.properties[$scope.property].scale : false;
+      };
+
+      $scope.getField = function() {
+        return $scope.field ||
+            $scope.property ? $scope.item.properties[$scope.property].field : false;
+      };
+
       $scope.onchange = function(prop) {
         if($attrs.nochange) return;
         if('checkExtents' in $scope.item)
@@ -59,6 +71,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       };
 
       $scope.unbind = function(property) {
+        if(!property) property = $scope.property;
         $scope.item.unbindProperty(property);
         vde.Vis.parse();
 
@@ -91,7 +104,8 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       // This block of code ensures that the extent selects stay in sync.
       if($scope.extentsProps) {
         $scope.$watch(function($scope) {
-          return {p: $scope.property, b: $scope.extentsBound}
+          return {p: $scope.property, b: $scope.extentsBound,
+            v: $scope.extentsProps.map(function(p) { return $scope.item.properties[p.property]; })}
         }, function(newVal, oldVal) {
           $scope.properties = [];
 
@@ -105,6 +119,12 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
               $scope.item.properties[oldVal.p].disabled = true;
               delete $scope.extentsBound[oldVal.p];
             }
+          }
+
+          // This happens if a production rule disables the current property.
+          if(newVal.p && $scope.item.properties[newVal.p].disabled) {
+            newVal.p = null;
+            $scope.property = null;
           }
 
           $scope.extentsProps.forEach(function(prop) {
