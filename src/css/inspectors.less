@@ -37,6 +37,7 @@
   }
 
   .scaled-input {
+    position: relative;
     height: 13px;
     max-width: 80px;
     margin: -11px 0 0 -20px;
@@ -155,6 +156,9 @@
     float: none;
     display: inline-block;
   }
+
+// For .schema.aggregate to position correctly
+  .expr { position: relative; }
 }
 
 .icon-baseline-top { background: url(../imgs/text_align_top.png) !important; }
