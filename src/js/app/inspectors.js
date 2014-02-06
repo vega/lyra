@@ -37,13 +37,13 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       // We can't simply check for $scope.scale or $scope.field because of
       // the extents properties. So use this instead.
       $scope.getScale = function() {
-        return $scope.scale ||
-            $scope.property ? $scope.item.properties[$scope.property].scale : false;
+        var prop = $scope.item.properties[$scope.property];
+        return $scope.scale || prop ? prop.scale : false;
       };
 
       $scope.getField = function() {
-        return $scope.field ||
-            $scope.property ? $scope.item.properties[$scope.property].field : false;
+        var prop = $scope.item.properties[$scope.property];
+        return $scope.field || prop ? prop.field : false;
       };
 
       $scope.onchange = function(prop) {
@@ -330,6 +330,62 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
   }
 });
 
+vde.App.directive('vdeCanDropField', function() {
+  return {
+    restrict: 'E',
+    templateUrl: 'tmpl/inspectors/can-drop-field.html',
+    link: function(scope, element, attrs) {
+      scope.style = attrs.style;
+      scope.canUnbind = function() {
+        if(scope.$parent.getScale() || scope.$parent.getField()) {
+          scope.$parent.unbind();
+          $('.tooltip').remove();
+          return true;
+        }
+
+        return false;
+      }
+    }
+  }
+});
+
+vde.App.directive('vdeEditName', function() {
+  return {
+    restrict: 'A', // only activate on element attribute
+    require: '?ngModel', // get a hold of NgModelController
+    link: function(scope, element, attrs, ngModel) {
+      if(!ngModel) return; // do nothing if no ng-model
+
+      // Specify how UI should be updated
+      ngModel.$render = function() {
+        element.text(ngModel.$viewValue || '');
+      };
+
+      // Listen for change events to enable binding
+      element.on('blur keyup change', function() {
+        scope.$apply(read);
+      });
+
+      // Only edit on double click
+      element.on('dblclick', function() {
+        element.attr('contentEditable', true);
+        element.focus();
+      });
+      element.on('blur', function() {
+        element.attr('contentEditable', false);
+      })
+
+      // Write data to the model
+      function read() {
+        var html = element.text();
+        // When we clear the content editable the browser leaves a <br> behind
+        if(html == '<br>' ) html = '';
+        ngModel.$setViewValue(html);
+      }
+    }
+  };
+});
+
 vde.App.directive('vdeScaleValues', function() {
   return {
     restrict: 'E',
@@ -362,4 +418,5 @@ vde.App.directive('vdeScaleValues', function() {
       }
     }
   }
-})
+});
+
