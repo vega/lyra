@@ -79,27 +79,22 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
   });
 });
 
+vde.App.controller('ScaleCtrl', function($scope, $rootScope) {
+  $scope.types = ['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile',
+                  'quantize', 'threshold', 'utc', 'time', 'ref'];
+
+  $scope.fromTypes = ['field', 'values'];
+  $scope.rangeTypes = ['spatial', 'colors', 'shapes', 'sizes', 'other'];
+  $scope.axisTypes=['x', 'y'];
+  $scope.nice = ['', 'second', 'minute', 'hour', 'day', 'week', 'month', 'year'];
+  $scope.shapes = ['&#9724;', '&#9650;', '&#9660;', '&#11044;', '&#9830;', '&#43;'];
+});
+
 vde.App.controller('ExportCtrl', function($scope, $rootScope) {
   $scope.eMdl = {};
 
   $scope.export = function() {
     $scope.eMdl.spec = JSON.stringify(vde.Vis.parse(false), null, 2);
-  };
-});
-
-vde.App.directive('vdeClearBubbles', function($rootScope) {
-  return function(scope, element, attrs) {
-    element.click(function() {
-      $rootScope.activeScale = null;
-      $('#binding-inspector').hide();
-      $('#aggregate-inspector').hide();
-
-      $rootScope.previewTransformIdx = null;
-      $rootScope.editVis = false;
-
-      // To clear scale visualizations
-      vde.iVis.parse();
-    })
   };
 });
 

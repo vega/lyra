@@ -37,12 +37,12 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       // We can't simply check for $scope.scale or $scope.field because of
       // the extents properties. So use this instead.
       $scope.getScale = function() {
-        var prop = $scope.item.properties[$scope.property];
+        var prop = (($scope.item||{}).properties||{})[$scope.property];
         return $scope.scale || prop ? prop.scale : false;
       };
 
       $scope.getField = function() {
-        var prop = $scope.item.properties[$scope.property];
+        var prop = (($scope.item||{}).properties||{})[$scope.property];
         return $scope.field || prop ? prop.field : false;
       };
 
@@ -194,41 +194,40 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
         timeline.save();
       };
 
-      $scope.editBinding = function(evt, part) {
+      $scope.editBinding = $rootScope.editBinding = function(evt, part) {
         var inspector = null;
-        if(part == 'scale') {
-          inspector = $('#binding-inspector');
-          $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
-          vde.iVis.parse($rootScope.activeScale); // Visualize scale
-        } else {
-          inspector = $('#aggregate-inspector');
-          $rootScope.activeField = inspector.is(':visible') ? null : $scope.field;
-        }
-
         $timeout(function() {
           var winHeight = $(window).height(), winWidth = $(window).width(),
               pageX = evt.pageX, pageY = evt.pageY;
 
-          inspector.css('left', (pageX-15) + 'px');
-          $('.bubble', inspector).removeClass('top-left top-right bottom-left bottom-right');
-          var className = '';
-          if(pageY > winHeight / 2) { // If below half-way, position top
-            inspector.css('top', (pageY - inspector.height() - 25) + 'px');
-            className = 'bottom';
+          if(part == 'scale') {
+            inspector = $('#scale-popover');
+            $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
+            vde.iVis.parse($rootScope.activeScale); // Visualize scale
           } else {
-            inspector.css('top', (pageY + 25) + 'px');
-            className = 'top';
+            inspector = $('#aggregate-popover');
+            $rootScope.activeField = inspector.is(':visible') ? null : $scope.field;
           }
+
+
+          inspector.css('left', (pageX-15) + 'px');
+          inspector.removeClass('top bottom left right');
+          var className = '';
+//          if(pageY > winHeight / 2) { // If below half-way, position top
+//            inspector.css('top', (pageY - inspector.height() - 20) + 'px');
+//          } else {
+            inspector.css('top', pageY - 20 + 'px');
+//          }
 
           if(pageX > winWidth/2) {
-            inspector.css('left', (pageX - inspector.width()) + 'px');
-            className += '-right';
+            inspector.css('left', (pageX - inspector.width() - 60) + 'px');
+            className += 'left';
           } else {
-            inspector.css('left', (pageX - 10) + 'px');
-            className += '-left';
+            inspector.css('left', (pageX + 20) + 'px');
+            className += 'right';
           }
 
-          $('.bubble', inspector).addClass(className);
+          inspector.addClass(className);
           inspector.toggle();
         }, 100);
       };
@@ -314,6 +313,8 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
         })
         .bind('keyup', function(e) { parse(); })
         .bind('click', function() { $(this).focus(); });
+
+      $(element).bind('click', function() { $(this).find('.expr').focus(); });
 
       // This captures any aggregation changes made to the fields used. We need to set it on
       // a timeout because parse requires the html of element to have been completely rendered.

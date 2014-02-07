@@ -7,8 +7,6 @@
 @derived-field-hover: #F5F1CC;
 @derived-field-border: #d1bf94;
 
-.binding-draggable { position: relative; }
-
 .binding, .binding .scale, .schema, .binding .empty {
   float: left;
   border-radius: 10px;
@@ -16,12 +14,11 @@
   cursor: url(../imgs/openhand.cur), default !important;
 }
 
-
-
 .binding {
   background: @scale-color;
   border-left: 1px solid @scale-color;
   color: #333;
+  position: relative;
 
   .scale {
     border-top: 1px solid @scale-color;

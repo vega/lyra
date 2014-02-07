@@ -3,7 +3,7 @@
 
   <div class="binding">
     <div ng-if="scale" class="scale" scale="{{scale.name}}">
-      <div class="editScale" ng-click="editBinding($event, 'scale')" vde-tooltip="Edit Scale">Edit Scale</div>
+      <div class="editScale" ng-click="editBinding($event, 'scale')" vde-tooltip="Edit Scale" ng-click="editBinding($event, 'scale')">Edit Scale</div>
       {{scale.displayName|inflector:'humanize'}}
     </div>
 
@@ -13,7 +13,7 @@
       <span ng-hide="field.stat">{{field.name || field}}</span>
 
       <div ng-if="field.pipeline().forkName && field.type != 'ordinal' && field.type != 'encoded'"
-           class="aggregate" ng-click="editBinding($event, 'field');" vde-tooltip="Aggregate Field">Aggregate</div>
+           class="aggregate" vde-tooltip="Aggregate Field">Aggregate</div>
     </div>
     <div ng-if="!field" class="empty">&nbsp;</div>
   </div>
