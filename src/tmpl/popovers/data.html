@@ -1,33 +1,45 @@
-<div id="new-data" ng-show="newData">
-	<div class="bubble top">
-		<a class="close" vde-clear-bubbles ng-click="cancel()">Close</a>
+<div id="data-popover" class="popover fade bottom in" ng-show="newData" ng-controller="DataCtrl">
+  <div class="arrow"></div>
 
-		<h5>New Data Source</h5>
+  <h3 class="popover-title">
+    New Data Source
+    <a class="close" ng-click="cancel()">×</a>
+  </h3>
 
-		<vde-property label="Name" type="text" item="dMdl.src" property="name" ng-model="dMdl.src.name" nodrop="1" nochange="1"></vde-property>
+  <div class="inner">
+    <vde-property label="Name" type="text" item="dMdl.src" property="name"
+                  ng-model="dMdl.src.name" nodrop="1" nochange="1" style="full"></vde-property>
 
-		<vde-property label="Url" type="text" item="dMdl.src" property="url" ng-model="dMdl.src.url" nodrop="1" nochange="1"></vde-property>
+    <vde-property label="Url" type="text" item="dMdl.src" property="url"
+                  ng-model="dMdl.src.url" nodrop="1" nochange="1" style="full"></vde-property>
 
-		<vde-property label="Format" type="select" options="dMdl.formats" item="dMdl.src" property="format.type" ng-model="dMdl.src.format.type" nodrop="1" nochange="1"></vde-property>
+    <vde-property label="Format" type="select" options="dMdl.formats" item="dMdl.src"
+                  property="format.type" ng-model="dMdl.src.format.type"
+                  nodrop="1" nochange="1" style="full"></vde-property>
 
-		<input type="button" ng-show="!dMdl.src.values" ng-click="cancel()" value="Cancel" />
+    <br clear="all" />
 
-		<input type="button" ng-show="!dMdl.src.values" ng-click="loadValues()" ng-disabled="dMdl.isLoading" value="Load" />
+    <a class="btn btn-mini" ng-show="!dMdl.src.values" ng-click="cancel()">Cancel</a>
 
-		<!-- <vde-property ng-show="dMdl.isObj" label="Property" type="select" options="dMdl.properties" item="dMdl.src" property="property" ng-model="dMdl.src.property" nodrop="1" nochange="1"></vde-property> -->
+    <a class="btn btn-mini" ng-class="{disabled: dMdl.isLoading}" ng-show="!dMdl.src.values" ng-click="loadValues()">Load</a>
 
-		<!-- <p ng-show="dMdl.isObj">This data source contains a JSON object. You may retrieve a sub-property here using JSON syntax: e.g. <code>values.features</code></p> -->
+    <div ng-show="dMdl.src.values">
+      <h4>Parsings</h4>
 
-		<fieldset class="parsings" ng-show="dMdl.src.values">
-			<legend>Parsings</legend>
+      <div ng-repeat="(field, parse) in dMdl.src.format.parse track by $index">
+        <vde-property label="{{field}}" type="select" options="dMdl.parsings"
+                      item="dMdl.src.format.parse[field]"
+                      property="dMdl.src.format.parse[field]"
+                      ng-model="dMdl.src.format.parse[field]"
+                      nodrop="1" nochange="1" style="half"></vde-property>
+      </div>
+    </div>
 
-			<div ng-repeat="(field, parse) in dMdl.src.format.parse track by $index">
-				<vde-property label="{{field}}" type="select" options="dMdl.parsings" item="dMdl.src.format.parse[field]" property="dMdl.src.format.parse[field]" ng-model="dMdl.src.format.parse[field]" nodrop="1" nochange="1"></vde-property>
-			</div>
-		</fieldset>
+    <br clear="all" />
 
-		<input type="button" ng-show="dMdl.src.values" ng-click="cancel()" value="Cancel" />
+    <a class="btn btn-mini" ng-show="dMdl.src.values" ng-click="cancel()">Cancel</a>
 
-		<input type="button" ng-show="dMdl.src.values" ng-click="add()" value="Add Data Source" />
-	</div>
+    <a class="btn btn-mini" ng-show="dMdl.src.values" ng-click="add()">Add Data Source</a>
+
+  </div>
 </div>

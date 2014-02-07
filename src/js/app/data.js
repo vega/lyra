@@ -1,4 +1,4 @@
-vde.App.controller('DataCtrl', function($scope, $rootScope, logger) {
+vde.App.controller('DataCtrl', function($scope, $rootScope, logger, timeline) {
   $scope.dMdl = {
     src: {},
     formats: ['json', 'csv', 'tsv'],
@@ -47,6 +47,8 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, logger) {
     $rootScope.newData = false;
 
     logger.log('add_data', { src: src });
+
+    timeline.save();
   };
 
   $scope.cancel = function() {
@@ -62,7 +64,7 @@ vde.App.directive('vdePosNewData', function () {
   return function(scope, element, attrs) {
     element.on('change', function(evt) {
       var offset = $(evt.target).offset();
-      $('#new-data').css('top', (offset.top+35) + 'px');
+      $('#data-popover').css('top', (offset.top+25) + 'px');
     })
   };
 });
