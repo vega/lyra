@@ -22,8 +22,8 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
         vde.Vis.data('movies', 'data/movies.json', 'json');
         vde.Vis.data('characters', 'data/mis-characters.json', 'json');
         vde.Vis.data('connections', 'data/mis-connections.json', 'json');
-        // vde.Vis.data('trains', 'data/trains.json', 'json');
-        // vde.Vis.data('stations', 'data/stations.json', 'json');
+        vde.Vis.data('trains', 'data/trains.json', 'json');
+        vde.Vis.data('stations', 'data/stations.json', 'json');
         vde.Vis.data('unemployment', 'data/unemployment.json', 'json');
         // vde.Vis.data('wheat', 'data/wheat.json', 'json');
         // vde.Vis.data('monarchs', 'data/monarchs.json', 'json');

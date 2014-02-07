@@ -1,3 +1,8 @@
+/**
+ * Interactive Layer of vde.  All handlers, dropzones, etc.
+ * are drawn on this layer.
+ */
+
 vde.iVis = (function() {
   var ivis = {
     view: null,
