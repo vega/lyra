@@ -189,7 +189,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
         var field = $rootScope.activeField;
         field.pipeline().aggregate(field, stat);
         $timeout(function() { vde.Vis.parse(); }, 1);
-        $('#aggregate-inspector').hide();
+        $('#aggregate-popover').hide();
 
         timeline.save();
       };
