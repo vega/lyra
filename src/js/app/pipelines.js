@@ -308,6 +308,25 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
           transforms: $scope.pipeline.transforms.map(function(t) { return t.properties; })
         }
       }, $scope.buildDataTable, true);
+
+      var carouselInterval;
+      $scope.carousel = function(evt) {
+        var target = $(evt.currentTarget);
+
+        window.clearInterval(carouselInterval);
+        carouselInterval = window.setInterval(function() {
+          var threshold = target.width()/ 5, leftOffset = target.offset().left,
+              left = leftOffset + threshold,
+              right = leftOffset + target.width() - threshold,
+              scroll = evt.pageX < left ? -1 : evt.pageX > right ? 1 : 0;
+
+          target.scrollLeft(target.scrollLeft() + scroll);
+        }, 5);
+      };
+
+      $scope.clearCarousel = function() {
+        window.clearInterval(carouselInterval);
+      };
     }
   };
 });

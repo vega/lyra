@@ -108,13 +108,3 @@ vde.App.directive('vdeTooltip', function() {
     });
   };
 });
-
-vde.App.directive('vdeCarousel', function($timeout) {
-  return {
-    link: function(scope, element, attrs) {
-      $timeout(function() {
-        element.scrollingCarousel({ looped: false })
-      }, 1);
-    }
-  };
-});
