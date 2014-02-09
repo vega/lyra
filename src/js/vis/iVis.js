@@ -299,7 +299,7 @@ vde.iVis = (function() {
 
         ivis.ngTimeline().save();
       });
-    }, 1);
+    }, 100);
 
     window.clearTimeout(vde.iVis.timeout);
   };

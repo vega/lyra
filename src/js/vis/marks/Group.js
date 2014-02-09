@@ -1,11 +1,11 @@
 vde.Vis.marks.Group = (function() {
-  var group = function(name) {
-    vde.Vis.Mark.call(this, name || 'layer_' + vg.keys(vde.Vis.groups).length);
+  var group = function(name, groupName, layerName) {
+    vde.Vis.Mark.call(this, name || 'layer_' + vg.keys(vde.Vis.groups).length, groupName, layerName);
 
     this.displayName = 'Layer ' + vde.Vis.codename(vg.keys(vde.Vis.groups).length);
     this.type   = 'group';
     this.layer  = true;  // A psuedo-group exists in the spec, but not in the VDE UI.
-    this.groupName = this.name;
+    this.groupName = groupName || this.name;
 
     this.scales = {};
     this.axes   = {};
@@ -46,20 +46,10 @@ vde.Vis.marks.Group = (function() {
 
   prototype.init = function() {
     var self = this;
-    vde.Vis.groups[this.name] = this;
-    vde.Vis.groupOrder.push(this.name);
-
-    //////
-    // This is too difficult to get correct w/multiple overlapping
-    // groups. So just follow the photoshop model where things get
-    // added to the current layer.
-    //////
-    // vde.Vis.addEventListener('mouseup', function(e, item) {
-    //   if(item.mark.def != self.def()) return;
-    //   if(!vde.iVis.dragging || !vde.iVis.newMark) return;
-
-    //   vde.iVis.addMark(self);
-    // });
+    if(this.isLayer()) {
+      vde.Vis.groups[this.name] = this;
+      vde.Vis.groupOrder.push(this.name);
+    }
 
     return vde.Vis.Mark.prototype.init.call(this);
   };
@@ -136,13 +126,17 @@ vde.Vis.marks.Group = (function() {
     if(!this._def && this._items.length == 0) return vg.duplicate(this);
     var marks = this.marks, def = this.def(), items = this.items();
 
-    this.marks = {};
+    // We save it to _marks in case of nested groups, which need to stick
+    // around in this.marks
+    this._marks = {};
     for(var m in marks) {
       var ex = marks[m].export();
-      this.marks[ex.name] = ex;
+      this._marks[ex.name] = ex;
     }
     this._def = null;
     this._items = [];
+    this.marks = this._marks;
+    delete this._marks;
 
     var ex = vg.duplicate(this);
     this.marks = marks;
@@ -150,6 +144,10 @@ vde.Vis.marks.Group = (function() {
     this._items = items;
 
     return ex;
+  };
+
+  prototype.isLayer = function() {
+    return this.groupName == this.name;
   };
 
   prototype.selected = function() {

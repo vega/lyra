@@ -1,6 +1,6 @@
 vde.Vis.marks.Line = (function() {
-  var line = function(name, groupName) {
-    vde.Vis.Mark.call(this, name, groupName);
+  var line = function(name, groupName, layerName) {
+    vde.Vis.Mark.call(this, name, groupName, layerName);
 
     this.type = 'line';
     this.propType = 'points';

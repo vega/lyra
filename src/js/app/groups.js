@@ -20,7 +20,16 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
       vde.iVis.activeMark = null;
     } else {
       $rootScope.activeVisual = v;
-      $rootScope.activeLayer  = v.group() || v;
+
+      var group = v.type == 'group' ? v : v.group();
+      if(group.isLayer()) {
+        $rootScope.activeGroup = group;
+        $rootScope.activeLayer = group;
+      } else {
+        $rootScope.activeGroup = group;
+        $rootScope.activeLayer = group.group();
+      }
+
       $rootScope.activePipeline = v.pipelineName ? v.pipeline() : $rootScope.activePipeline;
       $scope.gMdl.activeVisualPipeline = (v.pipeline() || {}).name;
 
@@ -66,17 +75,21 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
 
   $scope.addGroup = function() {
     var g = new vde.Vis.marks.Group();
-    $rootScope.activeLayer = g;
-    $rootScope.activeVisual = g;
+    vde.Vis.parse();
 
-    logger.log('new_group', {
-      activeVisual: g.name,
-      activeLayer: g.groupName || g.name,
-      visualPipeline: g.pipelineName,
-      activePipeline: $rootScope.activePipeline.name
-    }, true);
+    $timeout(function() {
+      $rootScope.activeGroup = $rootScope.activeLayer = g;
+      $rootScope.activeVisual = g;
 
-    timeline.save();
+      logger.log('new_group', {
+        activeVisual: g.name,
+        activeLayer: g.groupName || g.name,
+        visualPipeline: g.pipelineName,
+        activePipeline: $rootScope.activePipeline.name
+      }, true);
+
+      timeline.save();
+    }, 100);
   };
 
   $scope.addAxis = function() {
@@ -189,6 +202,8 @@ vde.App.controller('GroupCtrl', function($scope, $rootScope) {
 vde.App.controller('MarkCtrl', function($scope, $rootScope) {
   $scope.$watch('group.marksOrder', function() {
     $scope.mark = $scope.group.marks[$scope.markName];
+    if($scope.mark.type == 'group') $scope.group = $scope.mark;
+    else $scope.group = $scope.mark.group();
   });
 
   $scope.$watch('mark.pipelineName', function() {

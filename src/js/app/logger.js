@@ -5,13 +5,13 @@ vde.App.factory('logger', ['$http', function(http) {
 
     log: function(eventType, data, showGroup, showPipeline) {
       var e = {event: eventType, data: data};
-      var exp = vde.Vis.export();
-
-      if(showGroup) e.groups = exp.groups;
-      if(showPipeline) e.pipelines = exp.pipelines;
-
-      this.events.push(e);
-      if(this.events.length % 10 == 0) this.save();
+//      var exp = vde.Vis.export();
+//
+//      if(showGroup) e.groups = exp.groups;
+//      if(showPipeline) e.pipelines = exp.pipelines;
+//
+//      this.events.push(e);
+//      if(this.events.length % 10 == 0) this.save();
     },
 
     save: function() {

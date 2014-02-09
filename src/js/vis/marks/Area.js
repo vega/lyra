@@ -1,6 +1,6 @@
 vde.Vis.marks.Area = (function() {
-  var area = function(name, groupName) {
-    vde.Vis.Mark.call(this, name, groupName);
+  var area = function(name, groupName, layerName) {
+    vde.Vis.Mark.call(this, name, groupName, layerName);
 
     this.type = 'area';
 

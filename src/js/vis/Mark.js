@@ -1,8 +1,9 @@
 vde.Vis.Mark = (function() {
-  var mark = function(name, groupName) {
+  var mark = function(name, groupName, layerName) {
     this.name = name;
     this.displayName = name;
 
+    this.layerName    = layerName;
     this.groupName    = groupName;
     this.pipelineName = null;
     this.oncePerFork = false;
@@ -109,7 +110,10 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.group = function() {
-    return vde.Vis.groups[this.groupName];
+    // If layerName exists, then groupName exists underneath it. Otherwise
+    // groupName is a top-level layer.
+    return this.layerName ?
+        vde.Vis.groups[this.layerName].marks[this.groupName] : vde.Vis.groups[this.groupName];
   };
 
   prototype.property = function(prop) {
@@ -156,6 +160,7 @@ vde.Vis.Mark = (function() {
     vde.Vis.callback.run('mark.post_spec', this, {spec: spec});
 
     this._def = null;
+    this._items = [];
 
     return spec.properties ? spec : null;
   };
@@ -327,7 +332,8 @@ vde.Vis.Mark = (function() {
 
   prototype.def = function() {
     var self  = this,
-        start = this.type == 'group' ? vde.Vis.view.model().defs().marks : this.group().def();
+        start = this.type == 'group' && this.isLayer() ?
+            vde.Vis.view.model().defs().marks : this.group().def();
 
     if(this._def) return this._def;
 
@@ -368,7 +374,8 @@ vde.Vis.Mark = (function() {
 
   prototype.items = function() {
     var self = this,
-        parents = this.type == 'group' ? [vde.Vis.view.model().scene().items[0]] : this.group().items(),
+        parents = this.type == 'group' && this.isLayer() ?
+            [vde.Vis.view.model().scene().items[0]] : this.group().items(),
         def = this.def();
 
     if(this._items.length > 0) return this._items;
