@@ -39,7 +39,7 @@ vde.Vis.transforms.Force = (function() {
     this.seen = {};
 
     vde.Vis.callback.register('pipeline.post_spec', this, this.pipelinePostSpec);
-    vde.Vis.callback.register('mark.post_spec',  this, this.markPostSpec);
+    vde.Vis.callback.register('mark.post_spec',  this, this._mark);
     vde.Vis.callback.register('group.post_spec', this, this.groupPostSpec);
     this.linkFields();
 
@@ -116,13 +116,13 @@ vde.Vis.transforms.Force = (function() {
 
   };
 
-  prototype.markPostSpec = function(opts) {
+  prototype._mark = function(opts) {
     if(!this.pipeline() || !this.links.data || !this.links.source || !this.links.target) return;
     if(!opts.item.pipeline() ||
       (opts.item.pipeline() && opts.item.pipeline().name != this.pipeline().name)) return;
-    if(this.seen[opts.item.groupName]) return;
+    if(this.seen[opts.item.layerName]) return;
 
-    this.seen[opts.item.groupName] = false;
+    this.seen[opts.item.layerName] = false;
   };
 
   prototype.groupPostSpec = function(opts) {

@@ -41,7 +41,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
 
     logger.log('toggle_visual', {
       activeVisual: v.name,
-      activeLayer: v.groupName || v.name,
+      activeLayer: v.layerName || v.name,
       visualPipeline: v.pipelineName,
       activePipeline: ($rootScope.activePipeline||{}).name
     });
@@ -83,7 +83,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
 
       logger.log('new_group', {
         activeVisual: g.name,
-        activeLayer: g.groupName || g.name,
+        activeLayer: g.layerName || g.name,
         visualPipeline: g.pipelineName,
         activePipeline: $rootScope.activePipeline.name
       }, true);
@@ -98,7 +98,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
 
     logger.log('new_axis', {
       activeVisual: axis.name,
-      activeLayer: axis.groupName || axis.name,
+      activeLayer: axis.layerName || axis.name,
       visualPipeline: axis.pipelineName,
       activePipeline: $rootScope.activePipeline.name
     }, true);
@@ -183,7 +183,7 @@ vde.App.controller('EditVisCtrl', function($scope) {
 
 vde.App.controller('GroupCtrl', function($scope, $rootScope) {
   $rootScope.$watch('groupOrder', function() {
-    $scope.group = vde.Vis.groups[$scope.groupName];
+    $scope.group = vde.Vis.groups[$scope.layerName];
   });
 
   $rootScope.$watch(function($scope) {

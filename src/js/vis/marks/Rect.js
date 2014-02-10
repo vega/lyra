@@ -1,6 +1,6 @@
 vde.Vis.marks.Rect = (function() {
-  var rect = function(name, groupName, layerName) {
-    vde.Vis.Mark.call(this, name, groupName, layerName);
+  var rect = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name, layerName, groupName);
 
     this.type = 'rect';
     this.fillType = 'color'; // color || image

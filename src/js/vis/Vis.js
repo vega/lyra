@@ -98,6 +98,8 @@ vde.Vis = (function() {
     for(var p in vis.pipelines) vis.pipelines[p].bookkeep();
     for(var g in vis.groups) vis.groups[g].bookkeep();
 
+    JSON.stringify(spec, null, 2);
+
     // try {
       vg.parse.spec(spec, function(chart) {
         d3.select('#vis').selectAll('*').remove();
@@ -207,22 +209,22 @@ vde.Vis = (function() {
       importProperties(pipeline, p);
     };
 
-    for(var groupName in spec.groups) {
-      var g = spec.groups[groupName];
-      var group = new vde.Vis.marks.Group(groupName);
+    for(var layerName in spec.groups) {
+      var g = spec.groups[layerName];
+      var group = new vde.Vis.marks.Group(layerName);
 
       for(var scaleName in g.scales) {
         group.scales[scaleName] = scales[scaleName];
       }
 
       for(var axisName in g.axes) {
-        var axis = new vde.Vis.Axis(axisName, groupName);
+        var axis = new vde.Vis.Axis(axisName, layerName);
         axis.init();
       };
 
       for(var markName in g.marks) {
         var m = g.marks[markName];
-        var mark = new vde.Vis.marks[className(m.type)](markName, groupName);
+        var mark = new vde.Vis.marks[className(m.type)](markName, layerName);
         mark.init();
         mark.import(m);
       };

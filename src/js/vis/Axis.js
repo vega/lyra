@@ -1,5 +1,5 @@
 vde.Vis.Axis = (function() {
-  var axis = function(name, groupName) {
+  var axis = function(name, layerName, groupName) {
     this.name  = name;
 
     this.properties = {
@@ -27,6 +27,7 @@ vde.Vis.Axis = (function() {
     this.showTitle = true;
     this.onceAcrossForks = false;
 
+    this.layerName = layerName;
     this.groupName = groupName;
     this.pipelineName = null;
 
@@ -101,7 +102,8 @@ vde.Vis.Axis = (function() {
   };
 
   prototype.group = function() {
-    return vde.Vis.groups[this.groupName];
+    var layer = vde.Vis.groups[this.layerName];
+    return this.groupName ? layer.marks[this.groupName] : layer;
   };
 
   prototype.bindProperty = function(prop, opts) {

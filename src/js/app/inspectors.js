@@ -62,7 +62,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
 
         logger.log('onchange', {
           item: $scope.item.name,
-          group: $scope.item.groupName,
+          group: $scope.item.layerName,
           pipeline: $scope.item.pipelineName,
           property: $attrs.property,
           ngModel: $attrs.ngModel,
@@ -77,7 +77,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
 
         logger.log('unbind', {
           item: $scope.item.name,
-          group: $scope.item.groupName,
+          group: $scope.item.layerName,
           pipeline: $scope.item.pipelineName,
           property: $attrs.property,
           ngModel: $attrs.ngModel
@@ -196,20 +196,19 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
 
       $scope.editBinding = $rootScope.editBinding = function(evt, part) {
         var inspector = null;
+        var winHeight = $(window).height(), winWidth = $(window).width(),
+            pageX = evt.pageX, pageY = evt.pageY;
+
+        if(part == 'scale') {
+          inspector = $('#scale-popover');
+          $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
+          vde.iVis.parse($rootScope.activeScale); // Visualize scale
+        } else {
+          inspector = $('#aggregate-popover');
+          $rootScope.activeField = inspector.is(':visible') ? null : $scope.field;
+        }
+
         $timeout(function() {
-          var winHeight = $(window).height(), winWidth = $(window).width(),
-              pageX = evt.pageX, pageY = evt.pageY;
-
-          if(part == 'scale') {
-            inspector = $('#scale-popover');
-            $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
-            vde.iVis.parse($rootScope.activeScale); // Visualize scale
-          } else {
-            inspector = $('#aggregate-popover');
-            $rootScope.activeField = inspector.is(':visible') ? null : $scope.field;
-          }
-
-
           inspector.css('left', (pageX-15) + 'px');
           inspector.removeClass('top bottom left right');
           var className = '';

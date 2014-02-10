@@ -247,7 +247,7 @@ vde.iVis = (function() {
 
       ivis.ngLogger().log('bind', {
         item: visual.name,
-        group: visual.groupName,
+        group: visual.layerName,
         activePipeline: rootScope.activePipeline.name,
         itemPipeline: visual.pipelineName,
         property: property,
@@ -257,7 +257,7 @@ vde.iVis = (function() {
 
       ivis.ngTimeline().save();
 
-      if(visual.groupName) rootScope.$apply(function() { rootScope.toggleVisual(visual, null, true); });
+      if(visual.layerName) rootScope.$apply(function() { rootScope.toggleVisual(visual, null, true); });
     }, 1);
 
     window.clearTimeout(vde.iVis.timeout);
@@ -270,9 +270,9 @@ vde.iVis = (function() {
     // If they've dropped on an empty non-group space.
     if(!host) host = rootScope.activeLayer;
 
-    if(host instanceof vde.Vis.marks.Group) mark.groupName = host.name;
+    if(host instanceof vde.Vis.marks.Group) mark.layerName = host.name;
     else if(host.connectors[connector] && mark.canConnect) {
-      mark.groupName    = host.groupName;
+      mark.layerName    = host.layerName;
       mark.connectedTo  = {host: host, connector: connector};
     }
 
@@ -291,7 +291,7 @@ vde.iVis = (function() {
         markType: mark.type,
         markName: mark.name,
         activeLayer: (rootScope.activeLayer || {}).name,
-        markGroup: mark.groupName
+        markGroup: mark.layerName
       }, true);
 
       rootScope.$apply(function() {

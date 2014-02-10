@@ -1,11 +1,11 @@
 vde.Vis.marks.Group = (function() {
-  var group = function(name, groupName, layerName) {
-    vde.Vis.Mark.call(this, name || 'layer_' + vg.keys(vde.Vis.groups).length, groupName, layerName);
+  var group = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name || 'layer_' + vg.keys(vde.Vis.groups).length, layerName, groupName);
 
     this.displayName = 'Layer ' + vde.Vis.codename(vg.keys(vde.Vis.groups).length);
     this.type   = 'group';
     this.layer  = true;  // A psuedo-group exists in the spec, but not in the VDE UI.
-    this.groupName = groupName || this.name;
+    this.layerName = layerName || this.name;
 
     this.scales = {};
     this.axes   = {};
@@ -147,7 +147,32 @@ vde.Vis.marks.Group = (function() {
   };
 
   prototype.isLayer = function() {
-    return this.groupName == this.name;
+    return this.layerName == this.name;
+  };
+
+  prototype.layout = function(layout) {
+    var isHoriz = layout == vde.Vis.transforms.Facet.layout_horiz;
+    var scale = this.group().scale(this, {
+      domainTypes: {from: 'field'},
+      domainField: new vde.Vis.Field('key', '', 'ordinal', this.pipeline().forkName),
+      rangeTypes: {type: 'spatial', from: 'field'},
+      rangeField: new vde.Vis.Field(isHoriz ? 'width' : 'height')
+    }, {
+      properties: {type: 'ordinal', padding: 0.2}
+    }, 'groups');
+    scale.properties.points = false;
+
+    var keyField, bandField, disabledField;
+    if(isHoriz) { keyField = 'x'; bandField = 'width'; disabledField = 'x2'; }
+    else        { keyField = 'y'; bandField = 'height'; disabledField = 'y2'; }
+
+    this.properties[keyField] = {
+      scale: scale,
+      field: new vde.Vis.Field('key', '', 'ordinal', this.pipeline().forkName)
+    };
+
+    this.properties[bandField] = { scale: scale, value: 'auto' };
+    this.properties[disabledField].disabled = true;
   };
 
   prototype.selected = function() {
@@ -177,7 +202,7 @@ vde.Vis.marks.Group = (function() {
 
   prototype.spans = function(item, property) {
     return vde.Vis.marks.Rect.prototype.spans.call(this, item, property);
-  }
+  };
 
   return group;
 })();

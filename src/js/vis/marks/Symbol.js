@@ -1,6 +1,6 @@
 vde.Vis.marks.Symbol = (function() {
-  var symbol = function(name, groupName, layerName) {
-    vde.Vis.Mark.call(this, name, groupName, layerName);
+  var symbol = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name, layerName, groupName);
 
     this.type = 'symbol';
 

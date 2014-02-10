@@ -9,7 +9,7 @@
       </div>
 
       <ul ui:sortable="gMdl.sortableOpts" ng:model="groupOrder">
-        <li ng-repeat="groupName in groupOrder" ng-controller="GroupCtrl">
+        <li ng-repeat="layerName in groupOrder" ng-controller="GroupCtrl">
           <h3 vde-edit-name ng-model="group.displayName"
               ng-class="{selected:activeVisual==group,
               expanded:activeLayer==group, contracted:activeLayer!=group}"

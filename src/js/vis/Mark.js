@@ -1,12 +1,12 @@
 vde.Vis.Mark = (function() {
-  var mark = function(name, groupName, layerName) {
+  var mark = function(name, layerName, groupName) {
     this.name = name;
     this.displayName = name;
 
     this.layerName    = layerName;
     this.groupName    = groupName;
     this.pipelineName = null;
-    this.oncePerFork = false;
+    this.inheritFromGroup = false;
 
     this._spec = {
       properties: {
@@ -37,9 +37,9 @@ vde.Vis.Mark = (function() {
       return string.charAt(0).toUpperCase() + string.slice(1);
     };
 
-    if(!this.groupName) {
+    if(!this.layerName) {
       var g = new vde.Vis.marks.Group();
-      this.groupName = g.name;
+      this.layerName = g.name;
     }
 
     if(!this.name)
@@ -110,10 +110,8 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.group = function() {
-    // If layerName exists, then groupName exists underneath it. Otherwise
-    // groupName is a top-level layer.
-    return this.layerName ?
-        vde.Vis.groups[this.layerName].marks[this.groupName] : vde.Vis.groups[this.groupName];
+    var layer = vde.Vis.groups[this.layerName];
+    return this.groupName ? layer.marks[this.groupName] : layer;
   };
 
   prototype.property = function(prop) {
@@ -151,7 +149,8 @@ vde.Vis.Mark = (function() {
     spec.type || (spec.type = this.type);
     spec.from || (spec.from = {});
 
-    if(this.pipeline()) spec.from.data || (spec.from.data = this.pipeline().name);
+    if(this.pipeline() && !this.inheritFromGroup)
+      spec.from.data || (spec.from.data = this.pipeline().name);
 
     var enter = spec.properties.enter;
     for(var prop in this.properties)
@@ -267,7 +266,7 @@ vde.Vis.Mark = (function() {
         case 'x':
         case 'x2':
         case 'width':
-          var xAxis = new vde.Vis.Axis('x_axis', this.groupName);
+          var xAxis = new vde.Vis.Axis('x_axis', this.layerName, this.groupName);
           var ap = xAxis.properties;
           ap.type = 'x'; ap.orient = 'bottom';
           xAxis.bindProperty('scale', aOpts);
@@ -276,7 +275,7 @@ vde.Vis.Mark = (function() {
         case 'y':
         case 'y2':
         case 'height':
-          var yAxis = new vde.Vis.Axis('y_axis', this.groupName);
+          var yAxis = new vde.Vis.Axis('y_axis', this.layerName, this.groupName);
           var ap = yAxis.properties;
           ap.type = 'y'; ap.orient = 'left';
           yAxis.bindProperty('scale', aOpts);
@@ -346,7 +345,7 @@ vde.Vis.Mark = (function() {
     };
 
     var def = visit(start);
-    while(!def && this.groupName && this.group() != this) {
+    while(!def && this.layerName && this.group() != this) {
       if(!vg.isArray(start)) start = [start];
 
       // If we haven't found the def in the group, there must be
@@ -357,7 +356,7 @@ vde.Vis.Mark = (function() {
         var marks = start[i].marks;
         for(var j = 0; j < marks.length; j++) {
           var m = marks[j];
-          if(m.type == 'group' && m.name.indexOf(this.groupName) != -1)
+          if(m.type == 'group' && m.name.indexOf(this.layerName) != -1)
           newStart.push(m);
         }
       }

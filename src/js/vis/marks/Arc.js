@@ -1,6 +1,6 @@
 vde.Vis.marks.Arc = (function() {
-  var arc = function(name, groupName, layerName) {
-    vde.Vis.Mark.call(this, name, groupName, layerName);
+  var arc = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name, layerName, groupName);
 
     this.type = 'arc';
 
