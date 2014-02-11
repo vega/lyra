@@ -117,6 +117,12 @@ vde.Vis.transforms.Facet = (function() {
       layer.markOrder.splice(layer.markOrder.indexOf(item.name), 1);
       group.markOrder.push(item.name);
     }
+
+    // Since we're re-arranging things, we need to make sure angular's scope is maintained.
+    var scope = vde.iVis.ngScope();
+    if(scope.activeVisual == item) {
+      window.setTimeout(function() { scope.toggleVisual(item, null, true); }, 100);
+    }
   };
   
   prototype._layer = function(layer) {

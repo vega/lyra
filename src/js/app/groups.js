@@ -187,10 +187,14 @@ vde.App.controller('GroupCtrl', function($scope, $rootScope) {
   });
 
   $rootScope.$watch(function($scope) {
-    return ($scope.activeVisual || {}).name;
+    return {
+      activeVisual: ($scope.activeVisual||{}).name,
+      activeGroup: ($scope.activeGroup||{}).name,
+      activeLayer: ($scope.activeLayer||{}).name
+    };
   }, function() {
     $scope.boundExtents = {};
-  })
+  }, true)
 
   $scope.xExtents = [{label: 'Start', property: 'x'},
     {label: 'Width', property: 'width'}, {label: 'End', property: 'x2'}];
