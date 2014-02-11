@@ -152,7 +152,7 @@ vde.Vis.marks.Group = (function() {
     return this.layerName == this.name;
   };
 
-  prototype.layout = function(layout) {
+  prototype.doLayout = function(layout) {
     var isHoriz = layout == vde.Vis.transforms.Facet.layout_horiz;
     var scale = this.group().scale(this, {
       domainTypes: {from: 'field'},
@@ -175,6 +175,7 @@ vde.Vis.marks.Group = (function() {
 
     this.properties[bandField] = { scale: scale, value: 'auto' };
     this.properties[disabledField].disabled = true;
+    this.layout = layout;
   };
 
   prototype.selected = function() {

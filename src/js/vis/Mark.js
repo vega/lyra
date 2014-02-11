@@ -261,12 +261,18 @@ vde.Vis.Mark = (function() {
 
       // Add axes by defaults
       var aOpts = {pipelineName: (scale || field || this).pipelineName};
+
+      // We want to be a little smarter about adding axes to groups with layout.
+      // Add the axis to the layer instead of the group if the axes orientation
+      // matches the group layout.
+      var facet = vde.Vis.transforms.Facet;
       if(scale) aOpts.scaleName = scale.name;
       switch(prop) {
         case 'x':
         case 'x2':
         case 'width':
-          var xAxis = new vde.Vis.Axis('x_axis', this.layerName, this.groupName);
+          var groupName = this.group().layout == facet.layout_horiz ? this.groupName : null;
+          var xAxis = new vde.Vis.Axis('x_axis', this.layerName, groupName);
           var ap = xAxis.properties;
           ap.type = 'x'; ap.orient = 'bottom';
           xAxis.bindProperty('scale', aOpts);
@@ -275,7 +281,8 @@ vde.Vis.Mark = (function() {
         case 'y':
         case 'y2':
         case 'height':
-          var yAxis = new vde.Vis.Axis('y_axis', this.layerName, this.groupName);
+          var groupName = this.group().layout == facet.layout_vert ? this.groupName : null;
+          var yAxis = new vde.Vis.Axis('y_axis', this.layerName, groupName);
           var ap = yAxis.properties;
           ap.type = 'y'; ap.orient = 'left';
           yAxis.bindProperty('scale', aOpts);

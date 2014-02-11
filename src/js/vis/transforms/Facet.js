@@ -99,7 +99,7 @@ vde.Vis.transforms.Facet = (function() {
     if(!group) {
       group = new vde.Vis.marks.Group(facet.groupName, layer.name);
       group.pipelineName = this.pipelineName;
-      group.layout(facet.layout_horiz); // By default split horizontally
+      group.doLayout(facet.layout_horiz); // By default split horizontally
     }
 
     item.inheritFromGroup = (type == 'marks');  // We don't want to automatically recalculate scale domains.
