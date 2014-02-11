@@ -112,7 +112,7 @@ vde.Vis.Scale = (function() {
   };
 
   prototype.unbindProperty = function(prop) {
-    delete this.properties[prop];
+    delete this[prop];
   };
 
   return scale;

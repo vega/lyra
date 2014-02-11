@@ -38,12 +38,12 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       // the extents properties. So use this instead.
       $scope.getScale = function() {
         var prop = (($scope.item||{}).properties||{})[$scope.property];
-        return $scope.scale || prop ? prop.scale : false;
+        return $scope.scale || (prop ? prop.scale : false);
       };
 
       $scope.getField = function() {
         var prop = (($scope.item||{}).properties||{})[$scope.property];
-        return $scope.field || prop ? prop.field : false;
+        return $scope.field || (prop ? prop.field : false);
       };
 
       $scope.onchange = function(prop) {

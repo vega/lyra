@@ -172,7 +172,7 @@ vde.Vis.marks.Group = (function() {
         rangeField: new vde.Vis.Field(isHoriz ? 'width' : 'height')
       }, {
         properties: {type: 'ordinal', padding: 0.2}
-      }, 'groups');
+      }, 'Groups');
       scale.properties.points = false;
 
       var keyField = {
