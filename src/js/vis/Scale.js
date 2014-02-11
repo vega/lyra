@@ -59,7 +59,6 @@ vde.Vis.Scale = (function() {
           field: field.stat ? field.spec().replace('stats.','') : field.spec() }
       : this.domainValues;
     spec.inheritFromGroup = this.inheritFromGroup;  // Easiest way of picking this up in group injection
-    if(spec.inheritFromGroup) delete spec.domain.data;
 
     spec.range = (this.rangeTypes.from == 'field' && this.rangeField) ?
       this.rangeField.spec() : this.rangeValues;

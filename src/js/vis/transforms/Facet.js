@@ -102,12 +102,16 @@ vde.Vis.transforms.Facet = (function() {
       group.layout(facet.layout_horiz); // By default split horizontally
     }
 
-    item.inheritFromGroup = true;
+    item.inheritFromGroup = (type == 'marks');  // We don't want to automatically recalculate scale domains.
     item.layerName = layer.name;
     item.groupName = facet.groupName;
     group[type][item.name] = item;
-    console.log(type, item.name);
-    delete layer[type][item.name];
+
+    // Don't delete scales from their layer because we may want an axis in the layer
+    // rather than the group. Instead, when we get the spec gen the scales within the
+    // group, we just toss out spec.domain.data for the group, and vega automatically
+    // uses the nearest scale.
+    if(type != 'scales') delete layer[type][item.name];
 
     if(type == 'marks') {
       layer.markOrder.splice(layer.markOrder.indexOf(item.name), 1);

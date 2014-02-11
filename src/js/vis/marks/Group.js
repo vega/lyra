@@ -80,6 +80,7 @@ vde.Vis.marks.Group = (function() {
       vg.keys(self[t]).forEach(function(k) {
         var s = self[t][k].spec();
         if(!s) return;
+        if(s.inheritFromGroup && !self.isLayer()) delete s.domain.data;
         spec[t].push(s);
       });
     });
@@ -103,6 +104,7 @@ vde.Vis.marks.Group = (function() {
 
   prototype.scale = function(mark, searchDef, defaultDef, displayName) {
     var scale = mark.pipeline().scale(searchDef, defaultDef, displayName);
+    if(!this.isLayer()) this.group().scales[scale.name] = scale;
     this.scales[scale.name] = scale;
 
     return scale;
