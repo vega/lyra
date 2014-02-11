@@ -42,7 +42,9 @@ vde.Vis.transforms.Facet = (function() {
   facet.layout_vert = 'Vertical';
 
   facet.dropzone_horiz = 'facetLayoutHoriz';
+  facet.hint_horiz     = 'Grouped Horizontally';
   facet.dropzone_vert  = 'facetLayoutVert';
+  facet.hint_vert      = 'Grouped Vertically';
 
   prototype.destroy = function() {
     vde.Vis.callback.deregister('pipeline.post_spec',  this);

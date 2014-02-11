@@ -167,7 +167,7 @@ vde.iVis = (function() {
 
                   if(item.property) {
                     d3.selectAll('#' + item.property + '.property').classed('drophover', true);
-                    ivis.tooltip(e, item, item.property);
+                    ivis.tooltip(e, item, item.hint, item.property);
                   }
                 }
               break;
@@ -243,6 +243,7 @@ vde.iVis = (function() {
       $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
+      if(!visual) visual = {}
       ivis.ngLogger().log('bind', {
         item: visual.name,
         group: visual.layerName,
@@ -452,7 +453,8 @@ vde.iVis = (function() {
           fill: {value: 'cyan'},
           property: {field: 'data.property'},
           connector: {field: 'data.connector'},
-          layout: {field: 'data.layout'}
+          layout: {field: 'data.layout'},
+          hint: {field: 'data.hint'}
         },
         hover: {
           fill: {value: 'lightsalmon'}
@@ -503,10 +505,10 @@ vde.iVis = (function() {
     }
   };
 
-  ivis.tooltip = function(evt, dropzone, property) {
+  ivis.tooltip = function(evt, dropzone, hint, property) {
     var tooltip = $('<div class="tooltip fade in">' +
       '<div class="tooltip-arrow"></div>' +
-      '<div class="tooltip-inner">' + property + '</div></div>');
+      '<div class="tooltip-inner">' + (hint || property) + '</div></div>');
     $('body').append(tooltip);
     var b = ivis.translatedBounds(dropzone, dropzone.bounds);
 

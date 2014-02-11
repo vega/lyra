@@ -254,7 +254,9 @@ vde.Vis.marks.Group = (function() {
     var facet = vde.Vis.transforms.Facet;
     [facet.dropzone_horiz, facet.dropzone_vert].forEach(function(prop) {
       var span = self.spans(item, prop);
-      dropzones = dropzones.concat(self.dropzones(span));
+      var zone = self.dropzones(span);
+      zone.hint = prop == facet.dropzone_horiz ? facet.hint_horiz : facet.hint_vert;
+      dropzones = dropzones.concat(zone);
       spans     = spans.concat(span);
     });
 
