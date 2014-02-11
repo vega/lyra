@@ -47,12 +47,19 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       };
 
       $scope.onchange = function(prop) {
+        if(!prop) prop = $scope.property;
         if($attrs.nochange) return;
         if('checkExtents' in $scope.item)
-          $scope.item.checkExtents(prop || $scope.property);
+          $scope.item.checkExtents(prop);
+
+        // For non-layer groups, if any of the spatial properties are changed
+        // then switch the layout to overlapping.
+        if(['x', 'x2', 'width', 'y', 'y2', 'height'].indexOf(prop) != -1 &&
+            $scope.item.type == 'group' && !$scope.item.isLayer())
+          $scope.item.layout = vde.Vis.transforms.Facet.layout_overlap;
 
         $timeout(function() {
-          if($scope.item.update) $scope.item.update(prop || $scope.property);
+          if($scope.item.update) $scope.item.update(prop);
           else vde.Vis.parse();
 
           vde.iVis.show('selected');

@@ -61,9 +61,14 @@ vde.Vis.marks.Group = (function() {
   prototype.update = function(props) {
     vde.Vis.Mark.prototype.update.call(this, props);
 
+    var layout = props.indexOf('layout') != -1;
+    if(layout) this.doLayout(this.layout);
+
     // Because a group could affect sub-marks, re-parse the submarks
     for(var m in this.marks)
       this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);
+
+    if(layout) vde.Vis.parse();
 
     return this;
   }
@@ -157,28 +162,53 @@ vde.Vis.marks.Group = (function() {
   };
 
   prototype.doLayout = function(layout) {
-    var isHoriz = layout == vde.Vis.transforms.Facet.layout_horiz;
-    var scale = this.group().scale(this, {
-      domainTypes: {from: 'field'},
-      domainField: new vde.Vis.Field('key', '', 'ordinal', this.pipeline().forkName),
-      rangeTypes: {type: 'spatial', from: 'field'},
-      rangeField: new vde.Vis.Field(isHoriz ? 'width' : 'height')
-    }, {
-      properties: {type: 'ordinal', padding: 0.2}
-    }, 'groups');
-    scale.properties.points = false;
+    var facet = vde.Vis.transforms.Facet, self = this;
+    if(layout != facet.layout_overlap) {
+      var isHoriz = layout == facet.layout_horiz;
+      var scale = this.group().scale(this, {
+        domainTypes: {from: 'field'},
+        domainField: new vde.Vis.Field('key', '', 'ordinal', this.pipeline().forkName),
+        rangeTypes: {type: 'spatial', from: 'field'},
+        rangeField: new vde.Vis.Field(isHoriz ? 'width' : 'height')
+      }, {
+        properties: {type: 'ordinal', padding: 0.2}
+      }, 'groups');
+      scale.properties.points = false;
 
-    var keyField, bandField, disabledField;
-    if(isHoriz) { keyField = 'x'; bandField = 'width'; disabledField = 'x2'; }
-    else        { keyField = 'y'; bandField = 'height'; disabledField = 'y2'; }
+      var keyField = {
+        scale: scale,
+        field: new vde.Vis.Field('key', '', 'ordinal', this.pipeline().forkName)
+      };
 
-    this.properties[keyField] = {
-      scale: scale,
-      field: new vde.Vis.Field('key', '', 'ordinal', this.pipeline().forkName)
-    };
+      var bandField = { scale: scale, value: 'auto' };
 
-    this.properties[bandField] = { scale: scale, value: 'auto' };
-    this.properties[disabledField].disabled = true;
+      var copyFromLayer = function(props) {
+        props.forEach(function(prop) {
+          self.properties[prop] = {};
+          var fromProp = self.group().properties[prop];
+          if(fromProp.scale) self.properties[prop].scale = fromProp.scale;
+          if(fromProp.field)
+            self.properties[prop].field = new vde.Vis.Field(fromProp.field.name,
+                fromProp.field.accessor, fromProp.field.type, fromProp.field.pipelineName,
+                fromProp.field.stat);
+          if(fromProp.hasOwnProperty('value')) self.properties[prop].value = fromProp.value;
+          if(fromProp.disabled) self.properties[prop].disabled = fromProp.disabled;
+        });
+      }
+
+      if(isHoriz) {
+        this.properties.x = keyField;
+        this.properties.width = bandField;
+        this.properties.x2.disabled = true;
+        copyFromLayer(['y', 'height', 'y2']);
+      } else {
+        this.properties.y = keyField;
+        this.properties.height = bandField;
+        this.properties.y2.disabled = true;
+        copyFromLayer(['x', 'width', 'x2']);
+      }
+    }
+
     this.layout = layout;
   };
 

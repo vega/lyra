@@ -1,4 +1,10 @@
 <div class="inner">
+  <div ng-if="mark.type == 'group' && !mark.isLayer()"
+       ng-init="layouts = ['Horizontal', 'Vertical', 'Overlap']">
+    <vde-property label="Layout" type="select" options="layouts" item="mark"
+                  property="layout" ng-model="mark.layout" nodrop="1" style="full"></vde-property>
+  </div>
+
   <h4>X Position</h4>
 
   <vde-property extents-props="xExtents" extents-bound="boundExtents"
