@@ -161,6 +161,18 @@ vde.Vis.marks.Group = (function() {
     return this.layerName == this.name;
   };
 
+  prototype.bindProperty = function(prop, opts) {
+    if(!opts.pipelineName || !opts.field) return;
+
+    var pipeline = vde.Vis.pipelines[opts.pipelineName], facet = vde.Vis.transforms.Facet;
+    var transform = new facet();
+    transform.bindProperty('keys', opts);
+    transform.properties.layout =
+        vde.Vis.transforms.Facet[(prop == facet.dropzone_horiz) ? 'layout_horiz' : 'layout_vert'];
+
+    pipeline.addTransform(transform);
+  };
+
   prototype.doLayout = function(layout) {
     var facet = vde.Vis.transforms.Facet, self = this;
     if(layout != facet.layout_overlap) {
@@ -227,6 +239,28 @@ vde.Vis.marks.Group = (function() {
     };
 
     return selected;
+  };
+
+  // A group should only have propertyTargets, if it's a layer so that we can
+  // use it to do grouping+layout.
+  prototype.propertyTargets = function() {
+    var self = this, item = this.item(vde.iVis.activeItem || 0),
+        dropzones = [], spans = [];
+
+    if(!self.isLayer()) return;
+
+    // We want the width/height spans of a rect mark, and then when binding,
+    // we'll interpret them as horizontal/vertical group by layout.
+    var facet = vde.Vis.transforms.Facet;
+    [facet.dropzone_horiz, facet.dropzone_vert].forEach(function(prop) {
+      var span = self.spans(item, prop);
+      dropzones = dropzones.concat(self.dropzones(span));
+      spans     = spans.concat(span);
+    });
+
+    vde.iVis.interactor('span', spans)
+        .interactor('dropzone', dropzones)
+        .show(['span', 'dropzone']);
   };
 
   prototype.coordinates = function(connector, item, def) {

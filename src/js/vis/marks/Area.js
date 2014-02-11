@@ -15,7 +15,7 @@ vde.Vis.marks.Area = (function() {
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
       stroke: {value: '#000000'},
-      strokeWidth: {value: 0}
+      strokeWidth: {value: 0.25}
     };
 
     vde.Vis.callback.register('vis.post_spec', this, function(opts) {

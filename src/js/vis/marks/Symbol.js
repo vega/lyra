@@ -14,7 +14,7 @@ vde.Vis.marks.Symbol = (function() {
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
       stroke: {value: '#000000'},
-      strokeWidth: {value: 0}
+      strokeWidth: {value: 0.25}
     };
 
     this.connectors = {'point': {}};

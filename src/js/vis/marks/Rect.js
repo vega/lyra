@@ -15,7 +15,7 @@ vde.Vis.marks.Rect = (function() {
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
       stroke: {value: '#000000'},
-      strokeWidth: {value: 0},
+      strokeWidth: {value: 0.25},
 
       // For image marks
       url: {},
@@ -386,6 +386,8 @@ vde.Vis.marks.Rect = (function() {
         gb = vde.iVis.translatedBounds(item.mark.group, item.mark.group.bounds),
         go = 3*geomOffset, io = geomOffset; // offsets
 
+    var facet = vde.Vis.transforms.Facet;
+
     switch(property) {
       case 'x':
         return [{x: (gb.x1-go), y: (b.y1-io), span: 'x_0'}, {x: b.x1, y: (b.y1-io), span: 'x_0'},
@@ -397,7 +399,8 @@ vde.Vis.marks.Rect = (function() {
          {x: (gb.x1-go), y: (b.y2+io), span: 'x2_1'}, {x: b.x2, y: (b.y2+io), span: 'x2_1'}];
       break;
 
-      case 'width': return [{x: b.x1, y: (b.y1-io), span: 'width_0'}, {x: b.x2, y: (b.y1-io), span: 'width_0'}]; break;
+      case facet.dropzone_horiz:
+      case 'width': return [{x: b.x1, y: (b.y1-io), span: property + '_0'}, {x: b.x2, y: (b.y1-io), span: property + '_0'}]; break;
 
       case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
         [{x: (b.x1-io), y: (gb.y2+go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
@@ -415,7 +418,8 @@ vde.Vis.marks.Rect = (function() {
          {x: (b.x2+io), y: (gb.y1-go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}];
       break;
 
-      case 'height': return [{x: (b.x1-io), y: b.y1, span: 'height_0'}, {x: (b.x1-io), y: b.y2, span: 'height_0'}]; break;
+      case facet.dropzone_vert:
+      case 'height': return [{x: (b.x1-io), y: b.y1, span: property + '_0'}, {x: (b.x1-io), y: b.y2, span: property + '_0'}]; break;
     };
   };
 

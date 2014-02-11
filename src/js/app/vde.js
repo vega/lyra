@@ -35,7 +35,7 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
       }
 
       var g = new vde.Vis.marks.Group();
-      $rootScope.activeLayer = g;
+      $rootScope.activeGroup = $rootScope.activeLayer = g;
 
       var p = new vde.Vis.Pipeline();
       $rootScope.activePipeline = p;

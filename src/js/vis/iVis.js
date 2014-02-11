@@ -229,20 +229,18 @@ vde.iVis = (function() {
     var scale = $(ivis.dragging).find('.scale').attr('scale');
     var pipelineName = rootScope.activePipeline.name;
 
-    // if(visual.pipelineName && pipelineName != visual.pipelineName && field)
-    //   return alert('Pipelines don\'t match');
-
     rootScope.$apply(function() {
-      if(!visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
+      if(visual && !visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
 
-      visual.bindProperty(property,
+      // If we don't have an activeMark, we're dropping over the layer's facet dropzones
+      (visual || rootScope.activeLayer).bindProperty(property,
         {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
     vde.Vis.parse();
 
     window.setTimeout(function() {
-      $('.proxy').remove();
+      $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
       ivis.ngLogger().log('bind', {

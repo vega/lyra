@@ -41,6 +41,9 @@ vde.Vis.transforms.Facet = (function() {
   facet.layout_horiz = 'Horizontal';
   facet.layout_vert = 'Vertical';
 
+  facet.dropzone_horiz = 'facetLayoutHoriz';
+  facet.dropzone_vert  = 'facetLayoutVert';
+
   prototype.destroy = function() {
     vde.Vis.callback.deregister('pipeline.post_spec',  this);
     vde.Vis.callback.deregister('group.pre_spec', this);
@@ -100,7 +103,7 @@ vde.Vis.transforms.Facet = (function() {
       group.displayName = 'Group By: ' +
           this.properties.keys.map(function(f) { return f.name }).join(", ");
       group.pipelineName = this.pipelineName;
-      group.doLayout(facet.layout_horiz); // By default split horizontally
+      group.doLayout(this.properties.layout || facet.layout_horiz); // By default split horizontally
     }
 
     item.inheritFromGroup = (type == 'marks');  // We don't want to automatically recalculate scale domains.
