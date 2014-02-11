@@ -10,7 +10,9 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", function($rootScope, $tim
         app: {
           activeVisual: ($rootScope.activeVisual || {}).name,
           isMark: $rootScope.activeVisual instanceof vde.Vis.Mark,
+          isGroup: $rootScope.activeVisual instanceof vde.Vis.marks.Group,
           activeLayer: $rootScope.activeLayer.name,
+          activeGroup: $rootScope.activeGroup.name,
           activePipeline: $rootScope.activePipeline.name
         }
       });
@@ -28,8 +30,9 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", function($rootScope, $tim
         // contexts.
         $timeout(function() {
           var g = vde.Vis.groups[app.activeLayer];
+          if(app.activeLayer != app.activeGroup) g = g.marks[app.activeGroup];
           if(app.activeVisual) {
-            $rootScope.toggleVisual((app.isMark) ?
+            $rootScope.toggleVisual(app.isMark ? app.isGroup ? g :
                 g.marks[app.activeVisual] : g.axes[app.activeVisual]);
           } else {
             // If we don't have an activeVisual, clear out any interactors

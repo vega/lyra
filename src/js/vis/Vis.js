@@ -183,6 +183,33 @@ vde.Vis = (function() {
       }
     };
 
+    var importGroups = function(g) {
+      var group = new vde.Vis.marks.Group(g.name, g.layerName, g.groupName);
+      group.import(g);
+
+      for(var scaleName in g.scales) {
+        group.scales[scaleName] = scales[scaleName];
+      }
+
+      for(var axisName in g.axes) {
+        var a = g.axes[axisName];
+        var axis = new vde.Vis.Axis(axisName, a.layerName, a.groupName);
+        axis.init();
+      };
+
+      for(var markName in g.marks) {
+        var m = g.marks[markName];
+        if(m.type == 'group') importGroups(m);
+        else {
+          var mark = new vde.Vis.marks[className(m.type)](markName, m.layerName, m.groupName);
+          mark.init();
+          mark.import(m);
+        }
+      };
+
+      importProperties(group, g);
+    };
+
     // Clear existing pipelines and groups. We want to do this in two
     // apply cycles because pipeline/group names may be the same, and
     // angular may not pick up the updates otherwise.
@@ -208,27 +235,8 @@ vde.Vis = (function() {
     };
 
     for(var layerName in spec.groups) {
-      var g = spec.groups[layerName];
-      var group = new vde.Vis.marks.Group(layerName);
-
-      for(var scaleName in g.scales) {
-        group.scales[scaleName] = scales[scaleName];
-      }
-
-      for(var axisName in g.axes) {
-        var axis = new vde.Vis.Axis(axisName, layerName);
-        axis.init();
-      };
-
-      for(var markName in g.marks) {
-        var m = g.marks[markName];
-        var mark = new vde.Vis.marks[className(m.type)](markName, layerName);
-        mark.init();
-        mark.import(m);
-      };
-
-      importProperties(group, g);
-    };
+      importGroups(spec.groups[layerName]);
+    }
 
     vis.parse();
   };
