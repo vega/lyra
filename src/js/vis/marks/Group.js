@@ -127,8 +127,8 @@ vde.Vis.marks.Group = (function() {
     for(var m in this.marks) {
       this.marks[m]._def = null;
       this.marks[m]._items = [];
-
       this.marks[m].def();
+      if(this.marks[m].type == 'group') this.marks[m].annotate();
     }
   };
 

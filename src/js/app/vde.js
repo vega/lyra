@@ -12,7 +12,7 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
         vde.Vis.data('medals', 'data/medals.json', 'json');
 //        vde.Vis.data('olympics', 'data/olympics.json', 'json');
         // vde.Vis.data('groups', 'data/groups.json', 'json');
-//        vde.Vis.data('barley', 'data/barley.json', 'json');
+        vde.Vis.data('barley', 'data/barley.json', 'json');
         // vde.Vis.data('iris', 'data/iris.json', 'json');
         // vde.Vis.data('jobs', 'data/jobs.json', 'json');
         // vde.Vis.data('cities', 'data/cities.json', 'json');
