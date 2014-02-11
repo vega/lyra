@@ -98,8 +98,6 @@ vde.Vis = (function() {
     for(var p in vis.pipelines) vis.pipelines[p].bookkeep();
     for(var g in vis.groups) vis.groups[g].bookkeep();
 
-    JSON.stringify(spec, null, 2);
-
     // try {
       vg.parse.spec(spec, function(chart) {
         d3.select('#vis').selectAll('*').remove();

@@ -31,11 +31,12 @@ vde.Vis.Mark = (function() {
   var prototype = mark.prototype;
   var geomOffset = 7;
 
+  var capitaliseFirstLetter = function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   prototype.init = function() {
     var self = this;
-    var capitaliseFirstLetter = function(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    };
 
     if(!this.layerName) {
       var g = new vde.Vis.marks.Group();
@@ -45,8 +46,11 @@ vde.Vis.Mark = (function() {
     if(!this.name)
       this.name = this.type + '_' + this.group().markOrder.length;
 
-    if(!this.displayName)
-      this.displayName = capitaliseFirstLetter(this.type) + ' ' + vde.Vis.codename(this.group().markOrder.length);
+    if(!this.displayName) {
+      var count = this.group()._markCount++;
+      if(!this.group().isLayer()) count = this.group().group()._markCount++;
+      this.displayName = capitaliseFirstLetter(this.type) + ' ' + vde.Vis.codename(count);
+    }
 
     if(this.group() != this) {
       this.group().marks[this.name] = this;
@@ -205,7 +209,7 @@ vde.Vis.Mark = (function() {
               rangeField: new vde.Vis.Field('width'),
               axisType: 'x'
             };
-            displayName = 'x';
+            displayName = 'X';
           break;
 
           case 'y':
@@ -218,7 +222,7 @@ vde.Vis.Mark = (function() {
               rangeField: new vde.Vis.Field('height'),
               axisType: 'y'
             };
-            displayName = 'y';
+            displayName = 'Y';
           break;
 
           case 'fill':
@@ -229,7 +233,7 @@ vde.Vis.Mark = (function() {
               rangeTypes: {type: 'colors', from: 'field'},
               rangeField: new vde.Vis.Field('category20')
             };
-            displayName = prop + '_color';
+            displayName = capitaliseFirstLetter(prop) + ' Color';
           break;
 
           case 'fillOpacity':
@@ -240,7 +244,7 @@ vde.Vis.Mark = (function() {
               rangeTypes: {type: 'other', from: 'values', property: prop},
               rangeValues: (prop == 'fillOpacity') ? [0, 1] : [0, 10]
             };
-            displayName = prop;
+            displayName = capitaliseFirstLetter(prop);
           break;
         }
 
@@ -276,6 +280,7 @@ vde.Vis.Mark = (function() {
           var ap = xAxis.properties;
           ap.type = 'x'; ap.orient = 'bottom';
           xAxis.bindProperty('scale', aOpts);
+          xAxis.displayName = capitaliseFirstLetter(scale.displayName) + ' Axis';
         break;
 
         case 'y':
@@ -286,6 +291,7 @@ vde.Vis.Mark = (function() {
           var ap = yAxis.properties;
           ap.type = 'y'; ap.orient = 'left';
           yAxis.bindProperty('scale', aOpts);
+          yAxis.displayName = capitaliseFirstLetter(scale.displayName) + ' Axis';
         break;
       }
     }

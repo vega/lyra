@@ -87,17 +87,18 @@ vde.Vis.transforms.Facet = (function() {
 
     if(opts.item.isLayer()) {
       this._layer(opts.item);
-    } else if(opts.item.name == facet.groupName) {  // We're dealing with our facet group
+    } else if(opts.item.name == facet.groupName) {
       opts.spec.from.data = this.pipeline().forkName;
       opts.spec.from.transforms = this._transforms;
     }
-
   };
 
   prototype._addToGroup = function(type, item, layer) {
     var group = layer.marks[facet.groupName];
     if(!group) {
       group = new vde.Vis.marks.Group(facet.groupName, layer.name);
+      group.displayName = 'Group By: ' +
+          this.properties.keys.map(function(f) { return f.name }).join(", ");
       group.pipelineName = this.pipelineName;
       group.doLayout(facet.layout_horiz); // By default split horizontally
     }

@@ -37,7 +37,8 @@ vde.Vis.Axis = (function() {
   var prototype = axis.prototype;
 
   prototype.init = function() {
-    var count = vg.keys(this.group().axes).length;
+    var count = this.group()._axisCount++;
+    if(!this.group().isLayer()) count = this.group().group()._axisCount++;
 
     if(!this.name)
       this.name = 'axis_' + count;

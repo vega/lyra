@@ -38,6 +38,10 @@ vde.Vis.marks.Group = (function() {
       'bottom-left': {}, 'bottom-center': {}, 'bottom-right': {}
     };
 
+    // Maintain counts at the layer level to properly name marks/axes
+    this._markCount = 0;
+    this._axisCount = 0;
+
     return this.init();
   };
 
