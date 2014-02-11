@@ -344,7 +344,7 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.unbindProperty = function(prop) {
-    this.properties[prop] = {value: 0};
+    this.properties[prop] = {value: prop.match('fill|stroke') ? '#000000' : 0};
   };
 
   prototype.disconnect = function() {
