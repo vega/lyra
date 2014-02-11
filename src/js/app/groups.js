@@ -93,7 +93,8 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
   };
 
   $scope.addAxis = function() {
-    var axis = new vde.Vis.Axis('', $rootScope.activeLayer.name);
+    var axis = new vde.Vis.Axis('', $rootScope.activeLayer.name,
+        (!$rootScope.activeGroup.isLayer()) ? $rootScope.activeGroup.name : null);
     $rootScope.activeVisual = axis;
 
     logger.log('new_axis', {
