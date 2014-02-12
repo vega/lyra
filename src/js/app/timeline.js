@@ -1,95 +1,110 @@
-vde.App.factory('timeline', ["$rootScope", "$timeout", function($rootScope, $timeout) {
-  var localStorageKey = 'lyraFiles';
+vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
+  function($rootScope, $timeout, $indexedDB, $q) {
+    return {
+      timeline: [],
+      currentIdx: -1,
+      fileName: null,
 
-  return {
-    timeline: [],
-    currentIdx: -1,
-    fileName: null,
+      files: function() {
+        return $indexedDB.objectStore('files');
+      },
 
-    files: function() {
-      var files = JSON.parse(localStorage.getItem(localStorageKey));
-      return files || {};
-    },
+      open: function(fileName) {
+        var deferred = $q.defer(), timeline = this;
 
-    open: function(fileName) {
-      var files = this.files();
-      this.timeline = files[fileName] || [];
-      this.fileName = fileName;
-      this.currentIdx = this.timeline.length - 1;
-    },
+        this.files().find(fileName).then(function(file) {
+          timeline.fileName   = file.fileName;
+          timeline.timeline   = file.timeline;
+          timeline.currentIdx = file.currentIdx;
 
-    store: function() {
-      var files = this.files();
-      files[this.fileName] = this.timeline;
-      localStorage.setItem(localStorageKey, JSON.stringify(files));
-    },
+          timeline.redo();
+          deferred.resolve(file);
+        })
 
-    delete: function(name) {
-      var files = this.files();
-      delete files[name];
-      localStorage.setItem(localStorageKey, JSON.stringify(files));
-    },
+        return deferred.promise;
+      },
 
-    save: function() {
-      this.timeline.length = ++this.currentIdx;
-      this.timeline.push({
-        vis: vde.Vis.export(),
-        app: {
-          activeVisual: ($rootScope.activeVisual || {}).name,
-          isMark: $rootScope.activeVisual instanceof vde.Vis.Mark,
-          isGroup: $rootScope.activeVisual instanceof vde.Vis.marks.Group,
-          activeLayer: $rootScope.activeLayer.name,
-          activeGroup: $rootScope.activeGroup.name,
-          activePipeline: $rootScope.activePipeline.name
-        }
-      });
-    },
+      store: function() {
+        var deferred = $q.defer();
 
-    load: function(idx) {
-      var t = this.timeline[idx], vis = t.vis, app = t.app;
-      var digesting = ($rootScope.$$phase || $rootScope.$root.$$phase);
+        this.files().upsert({
+          fileName: this.fileName,
+          timeline: this.timeline,
+          currentIdx: this.currentIdx
+        }).then(function(e) { deferred.resolve(e); });
 
-      var f = function() {
-        $rootScope.groupOrder = vde.Vis.groupOrder = [];
-        vde.Vis.import(vis);
+        return deferred.promise;
+      },
 
-        // Timeout so vis has time to parse, before we switch angular/iVis
-        // contexts.
-        $timeout(function() {
-          var g = vde.Vis.groups[app.activeLayer];
-          if(app.activeLayer != app.activeGroup) g = g.marks[app.activeGroup];
-          if(app.activeVisual) {
-            $rootScope.toggleVisual(app.isMark ? app.isGroup ? g :
-                g.marks[app.activeVisual] : g.axes[app.activeVisual]);
-          } else {
-            // If we don't have an activeVisual, clear out any interactors
-            vde.iVis.activeMark = null;
-            vde.iVis.show('selected');
+      delete: function(name) {
+        var deferred = $q.defer();
+
+        this.files().delete(name)
+            .then(function(e) { deferred.resolve(e); });
+
+        return deferred.promise;
+      },
+
+      save: function() {
+        this.timeline.length = ++this.currentIdx;
+        this.timeline.push({
+          vis: vde.Vis.export(),
+          app: {
+            activeVisual: ($rootScope.activeVisual || {}).name,
+            isMark: $rootScope.activeVisual instanceof vde.Vis.Mark,
+            isGroup: $rootScope.activeVisual instanceof vde.Vis.marks.Group,
+            activeLayer: $rootScope.activeLayer.name,
+            activeGroup: $rootScope.activeGroup.name,
+            activePipeline: $rootScope.activePipeline.name
           }
-        }, 1);
+        });
+      },
 
-        if(app.activePipeline)
-          $rootScope.togglePipeline(vde.Vis.pipelines[app.activePipeline]);
-      };
+      load: function(idx) {
+        var t = this.timeline[idx], vis = t.vis, app = t.app;
+        var digesting = ($rootScope.$$phase || $rootScope.$root.$$phase);
 
-      digesting ? f() : $rootScope.$apply(f);
-    },
+        var f = function() {
+          $rootScope.groupOrder = vde.Vis.groupOrder = [];
+          vde.Vis.import(vis);
 
-    undo: function() {
-      this.currentIdx = (--this.currentIdx < 0) ? 0 : this.currentIdx;
-      this.load(this.currentIdx)
-    },
+          // Timeout so vis has time to parse, before we switch angular/iVis
+          // contexts.
+          $timeout(function() {
+            var g = vde.Vis.groups[app.activeLayer];
+            if(app.activeLayer != app.activeGroup) g = g.marks[app.activeGroup];
+            if(app.activeVisual) {
+              $rootScope.toggleVisual(app.isMark ? app.isGroup ? g :
+                  g.marks[app.activeVisual] : g.axes[app.activeVisual]);
+            } else {
+              // If we don't have an activeVisual, clear out any interactors
+              vde.iVis.activeMark = null;
+              vde.iVis.show('selected');
+            }
+          }, 1);
 
-    redo: function() {
-      this.currentIdx = (++this.currentIdx >= this.timeline.length) ?
-          this.timeline.length - 1 : this.currentIdx;
-      this.load(this.currentIdx);
-    }
+          if(app.activePipeline)
+            $rootScope.togglePipeline(vde.Vis.pipelines[app.activePipeline]);
+        };
 
-  };
+        digesting ? f() : $rootScope.$apply(f);
+      },
+
+      undo: function() {
+        this.currentIdx = (--this.currentIdx < 0) ? 0 : this.currentIdx;
+        this.load(this.currentIdx)
+      },
+
+      redo: function() {
+        this.currentIdx = (++this.currentIdx >= this.timeline.length) ?
+            this.timeline.length - 1 : this.currentIdx;
+        this.load(this.currentIdx);
+      }
+
+    };
 }]);
 
-vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timeline) {
+vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timeline, $timeout) {
   var t = function() {
     return {
       length: timeline.timeline.length,
@@ -104,7 +119,15 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
     $scope.timeline = t();
   }, true);
 
-  $scope.files = Object.keys(timeline.files());
+  var files = function() {
+    $scope.files = [];
+    timeline.files().getAll().then(function(files) {
+      $scope.files = files.map(function(f) { return f.fileName; });
+      console.log($scope.files);
+    })
+  };
+
+  files();
   $scope.tMdl = {fileName: null};
 
   $scope.showOpen = function(evt) {
@@ -114,9 +137,9 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
   };
 
   $scope.open = function(name) {
-    timeline.open(name);
-    timeline.load(timeline.currentIdx);
-    $rootScope.fileOpenPopover = false;
+    timeline.open(name).then(function() {
+      $rootScope.fileOpenPopover = false;
+    });
   };
 
   $scope.save = function(evt) {
@@ -126,9 +149,10 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
       $rootScope.exportPopover   = false;
     } else {
       timeline.fileName = $scope.timeline.fileName;
-      timeline.store();
-      $scope.files = Object.keys(timeline.files());
-      $rootScope.fileSavePopover = false;
+      timeline.store().then(function() {
+        $rootScope.fileSavePopover = false;
+        $timeout(function() { files(); }, 100);
+      });
     }
   };
 
@@ -139,8 +163,9 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
   };
 
   $scope.delete = function(name) {
-    timeline.delete(name);
-    $scope.files = Object.keys(timeline.files());
+    timeline.delete(name).then(function() {
+      $timeout(function() { files() }, 100);
+    });
   };
 
   $scope.undo = function() { timeline.undo() };

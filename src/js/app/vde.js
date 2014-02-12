@@ -1,7 +1,14 @@
-var vde = {version: '0.0.5'};
+var vde = {version: 1};
 
-vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable'], function($compileProvider) {
-  $compileProvider.aHrefSanitizationWhitelist(/^\s*(data|blob|https?|ftp|mailto|file):/);
+vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable', 'xc.indexedDB'],
+    function($compileProvider, $indexedDBProvider) {
+      $compileProvider.aHrefSanitizationWhitelist(/^\s*(data|blob|https?|ftp|mailto|file):/);
+
+      $indexedDBProvider
+        .connection('lyraDB')
+        .upgradeDatabase(vde.version, function(event, db, tx){
+          var objStore = db.createObjectStore('files', {keyPath: 'fileName'});
+        });
 });
 
 vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, timeline) {
