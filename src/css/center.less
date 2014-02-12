@@ -9,12 +9,11 @@
   background-repeat: no-repeat;
 }
 
-#toolbar {
+.toolbar {
   position: absolute;
   height: 16px;
-  top: 0;
-  left: 300px;
-  right: 300px;
+  left: 315px;
+//  right: 315px;
   background: @light-blue;
   padding-bottom: @padding-horiz;
   border-width: 0 1px 1px 1px;
@@ -34,13 +33,11 @@
   #marks {
     float: left;
     padding-right: @padding-horiz;
-    border-right: 1px solid @medium-blue;
     cursor: url(../imgs/openhand.cur), default !important;
   }
 
   .timeline {
     float: left;
-    margin-right: @padding-horiz;
     padding-right: @padding-horiz;
     border-right: 1px solid @medium-blue;
     cursor: pointer;
@@ -51,6 +48,19 @@
       cursor: no-drop;
     }
   }
+
+  .timeline:last-child { border-right: 0; }
+}
+
+#palette {
+  .toolbar;
+  top: 0;
+}
+
+#utils {
+  .toolbar;
+  bottom: 0;
+  border-width: 1px 1px 0 1px;
 }
 
 #Rect {
@@ -89,6 +99,23 @@
 #open  { background: transparent url(../imgs/open.png) no-repeat 50% 50%; }
 #save  { background: transparent url(../imgs/save.png) no-repeat 50% 50%; }
 #share { background: transparent url(../imgs/share.png) no-repeat 50% 50%; }
+
+#logo {
+  display: block;
+  float: left;
+  height: 16px;
+  background: @medium-blue url(../imgs/logo.png) no-repeat;
+  background-size: 22px;
+  background-position: 1px 1px;
+  padding: 8px 10px 2px 25px;
+  font-size: 11px;
+  color: #fff;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-weight: @medium-weight;
+}
+
+#logo:hover { background-color: @dark-blue; }
 
 #canvas {
   position: absolute;
