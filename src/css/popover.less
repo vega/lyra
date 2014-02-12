@@ -1,10 +1,12 @@
 .popover {
+  min-width: 150px !important;
   max-width: 265px !important;
   font-size: 12px;
   padding-bottom: 10px !important;
   z-index: 99 !important; // .proxy draggable has 100
 }
 .popover .inner {
+  min-height: 20px !important;
   max-height: 400px !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
@@ -16,7 +18,8 @@
 
 .popover .property.third { width: 60px; }
 
-#scale-popover, #aggregate-popover { display: none; }
+#scale-popover, #aggregate-popover, #file-open, #file-save { display: none; }
+#file-open, #file-save { top: 28px; }
 #data-popover {
   left: 20px;
 

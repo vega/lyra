@@ -1,7 +1,33 @@
 vde.App.factory('timeline', ["$rootScope", "$timeout", function($rootScope, $timeout) {
+  var localStorageKey = 'lyraFiles';
+
   return {
     timeline: [],
     currentIdx: -1,
+    _fileName: null,
+
+    files: function() {
+      var files = JSON.parse(localStorage.getItem(localStorageKey));
+      return files || {};
+    },
+
+    open: function(fileName) {
+      var files = this.files();
+      this.timeline = files[fileName] || [];
+      this.currentIdx = this.timeline.length - 1;
+    },
+
+    store: function() {
+      var files = this.files();
+      files[this._fileName] = this.timeline;
+      localStorage.setItem(localStorageKey, JSON.stringify(files));
+    },
+
+    delete: function(name) {
+      var files = this.files();
+      delete files[name];
+      localStorage.setItem(localStorageKey, JSON.stringify(files));
+    },
 
     save: function() {
       this.timeline.length = ++this.currentIdx;
@@ -66,7 +92,8 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
   var t = function() {
     return {
       length: timeline.timeline.length,
-      idx: timeline.currentIdx
+      idx: timeline.currentIdx,
+      fileName: timeline._fileName
     };
   }
 
@@ -75,6 +102,40 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
   }, function() {
     $scope.timeline = t();
   }, true);
+
+  $scope.files = Object.keys(timeline.files());
+  $scope.tMdl = {fileName: null};
+
+  $scope.showOpen = function(evt) {
+    $('#file-open').css({ left: (evt.pageX - 85) })
+      .toggle();
+  };
+
+  $scope.open = function(name) {
+    timeline.open(name);
+    timeline.load(timeline.currentIdx);
+    $('#file-open').hide();
+  };
+
+  $scope.save = function(evt) {
+    if(!$scope.timeline.fileName) $('#file-save').css({ left: (evt.pageX - 85) }).show();
+    else {
+      timeline._fileName = $scope.timeline.fileName;
+      timeline.store();
+      $scope.files = Object.keys(timeline.files());
+      $('#file-save').hide();
+    }
+  };
+
+  $scope.close = function() {
+    $('#file-open').hide();
+    $('#file-save').hide();
+  };
+
+  $scope.delete = function(name) {
+    timeline.delete(name);
+    $scope.files = Object.keys(timeline.files());
+  };
 
   $scope.undo = function() { timeline.undo() };
   $scope.redo = function() { timeline.redo() };

@@ -1,23 +1,3 @@
-#toolbar {
-  position: absolute;
-  height: 16px;
-  top: 0;
-  left: 300px;
-  right: 300px;
-  background: @light-blue;
-  padding-bottom: @padding-horiz;
-  border-width: 0 1px 1px 1px;
-  border-style: solid;
-  border-color: @medium-blue;
-}
-
-#toolbar ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  cursor: url(../imgs/openhand.cur), default !important;
-}
-
 .mark {
   float: left;
   display: block;
@@ -29,7 +9,49 @@
   background-repeat: no-repeat;
 }
 
-.mark:hover { background-color: #ddd; }
+#toolbar {
+  position: absolute;
+  height: 16px;
+  top: 0;
+  left: 300px;
+  right: 300px;
+  background: @light-blue;
+  padding-bottom: @padding-horiz;
+  border-width: 0 1px 1px 1px;
+  border-style: solid;
+  border-color: @medium-blue;
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+
+    li { .mark }
+  }
+
+  li:hover { background-color: #eee; }
+
+  #marks {
+    float: left;
+    padding-right: @padding-horiz;
+    border-right: 1px solid @medium-blue;
+    cursor: url(../imgs/openhand.cur), default !important;
+  }
+
+  .timeline {
+    float: left;
+    margin-right: @padding-horiz;
+    padding-right: @padding-horiz;
+    border-right: 1px solid @medium-blue;
+    cursor: pointer;
+    opacity: 0.8;
+
+    .timeline-disabled {
+      opacity: 0.4;
+      cursor: no-drop;
+    }
+  }
+}
 
 #Rect {
   background-image: url(../imgs/rect.png);
@@ -60,6 +82,13 @@
   background-image: url(../imgs/line-2.png);
   background-position: 50% 50%;
 }
+
+#undo { background: transparent url(../imgs/undo.png) no-repeat 50% 50%; }
+#redo { background: transparent url(../imgs/redo.png) no-repeat 50% 50%; }
+
+#open  { background: transparent url(../imgs/open.png) no-repeat 50% 50%; }
+#save  { background: transparent url(../imgs/save.png) no-repeat 50% 50%; }
+#share { background: transparent url(../imgs/share.png) no-repeat 50% 50%; }
 
 #canvas {
   position: absolute;

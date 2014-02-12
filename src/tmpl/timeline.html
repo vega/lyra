@@ -1,4 +1,33 @@
-<a id="undo-link" class="util-icon icon" ng-class="{'timeline-disabled': timeline.idx <= 0}" ng-click="undo()" vde-tooltip="Undo" position="top">Undo</a>
+<div id="file-open" class="popover fade bottom in">
+  <div class="arrow"></div>
 
-<a id="redo-link" class="util-icon icon" ng-class="{'timeline-disabled': timeline.idx >= timeline.length-1}" ng-click="redo()" vde-tooltip="Redo" position="top">Redo</a>
+  <h3 class="popover-title">Open File <a class="close" ng-click="close()">×</a></h3>
 
+  <div class="inner">
+    <p ng-show="files.length <= 0">No Lyra files currently saved!</p>
+    <ul>
+      <li ng-repeat="fileName in files">
+        <a href="#" ng-click="open(fileName)">{{fileName}}</a>
+        &nbsp;&nbsp;
+        [<a href="#" ng-click="delete(fileName)">delete</a>]
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div id="file-save" class="popover fade bottom in">
+  <div class="arrow"></div>
+
+  <h3 class="popover-title">Save File <a class="close" ng-click="close()">×</a></h3>
+
+  <div class="inner">
+    <div class="property half">
+      <label>File Name</label>
+      <div class="field">
+        <input type="text" ng-model="timeline.fileName" />
+      </div>
+    </div>
+
+    <a class="btn btn-small" ng-click="save($event)">Save</a>
+  </div>
+</div>
