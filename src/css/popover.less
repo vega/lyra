@@ -18,8 +18,9 @@
 
 .popover .property.third { width: 60px; }
 
-#scale-popover, #aggregate-popover, #file-open, #file-save { display: none; }
-#file-open, #file-save { top: 28px; }
+#scale-popover, #aggregate-popover, #file-open-popover, #file-save-popover, #export-popover { display: none; }
+#file-open-popover, #file-save-popover, #export-popover { top: 28px; }
+
 #data-popover {
   left: 20px;
 
@@ -27,5 +28,12 @@
     width: 90px;
 
     select { width: 80px; }
+  }
+}
+
+#export-popover {
+  .btn {
+    text-decoration: none;
+    margin-bottom: 5px;
   }
 }

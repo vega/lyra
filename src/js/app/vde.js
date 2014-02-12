@@ -1,6 +1,8 @@
 var vde = {version: '0.0.5'};
 
-vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable']);
+vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable'], function($compileProvider) {
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(blob|https?|ftp|mailto|file):/);
+});
 
 vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, timeline) {
   $scope.load = function() {
@@ -88,14 +90,6 @@ vde.App.controller('ScaleCtrl', function($scope, $rootScope) {
   $scope.axisTypes=['x', 'y'];
   $scope.nice = ['', 'second', 'minute', 'hour', 'day', 'week', 'month', 'year'];
   $scope.shapes = ['&#9724;', '&#9650;', '&#9660;', '&#11044;', '&#9830;', '&#43;'];
-});
-
-vde.App.controller('ExportCtrl', function($scope, $rootScope) {
-  $scope.eMdl = {};
-
-  $scope.export = function() {
-    $scope.eMdl.spec = JSON.stringify(vde.Vis.parse(false), null, 2);
-  };
 });
 
 vde.App.directive('vdeTooltip', function() {
