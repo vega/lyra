@@ -1,0 +1,11 @@
+<div id="export-popover" class="popover fade bottom in">
+  <div class="arrow"></div>
+
+  <h3 class="popover-title">Export Visualization <a class="close" ng-click="close()">×</a></h3>
+
+  <div class="inner">
+    <h4>Vega JSON Specifications</h4>
+    <a class="btn btn-small" download="{{fileName}}.json" href="{{inlinedValues}}">With Inlined Data Values</a>
+    <a class="btn btn-small" download="{{fileName}}.json" href="{{refData}}">Without Inlined Data Values</a>
+  </div>
+</div>

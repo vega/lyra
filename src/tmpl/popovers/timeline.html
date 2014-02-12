@@ -1,0 +1,33 @@
+<div id="file-open-popover" class="popover fade bottom in">
+  <div class="arrow"></div>
+
+  <h3 class="popover-title">Open File <a class="close" ng-click="close()">×</a></h3>
+
+  <div class="inner">
+    <p ng-show="files.length <= 0">No Lyra files currently saved!</p>
+    <ul>
+      <li ng-repeat="fileName in files">
+        <a href="#" ng-click="open(fileName)">{{fileName}}</a>
+        &nbsp;&nbsp;
+        [<a href="#" ng-click="delete(fileName)">delete</a>]
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div id="file-save-popover" class="popover fade bottom in">
+  <div class="arrow"></div>
+
+  <h3 class="popover-title">Save File <a class="close" ng-click="close()">×</a></h3>
+
+  <div class="inner">
+    <div class="property half">
+      <label>File Name</label>
+      <div class="field">
+        <input type="text" ng-model="timeline.fileName" />
+      </div>
+    </div>
+
+    <a class="btn btn-small" ng-click="save($event)">Save</a>
+  </div>
+</div>
