@@ -1,7 +1,7 @@
 var vde = {version: '0.0.5'};
 
 vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable'], function($compileProvider) {
-  $compileProvider.aHrefSanitizationWhitelist(/^\s*(blob|https?|ftp|mailto|file):/);
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(data|blob|https?|ftp|mailto|file):/);
 });
 
 vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, timeline) {
