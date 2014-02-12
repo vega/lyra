@@ -12,7 +12,7 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window)
     // We also want to allow exporting to SVG, so paint that into a dummy SVG.
     var spec = vde.Vis.parse();
     vg.headless.render(
-        {spec: spec, renderer: "svg"},
+        {spec: spec, renderer: "svg", el: "#headless"},
         function(err, data) {
           if (err) throw err;
           $scope.svg = makeFile(data.svg, "image/svg+xml");
@@ -23,7 +23,6 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window)
 
     $scope.inlinedValues = makeFile(JSON.stringify(spec, null, 2), 'text/json');
     $scope.refData = makeFile(JSON.stringify(vde.Vis.parse(false), null, 2), 'text/json');
-
 
     $('#export-popover').css({ left: (evt.pageX - 130) }).toggle();
   };
