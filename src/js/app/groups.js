@@ -61,23 +61,21 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
       $rootScope.activePipeline = vde.Vis.pipelines[p];
     }
 
-    vde.Vis.parse();
+    vde.Vis.parse().then(function() {
+      logger.log('set_pipeline', {
+        activeVisual: $rootScope.activeVisual.name,
+        activeLayer: $rootScope.activeLayer.name,
+        activeVisualPipeline: p,
+        activePipeline: $rootScope.activePipeline.name
+      }, true, true);
 
-    logger.log('set_pipeline', {
-      activeVisual: $rootScope.activeVisual.name,
-      activeLayer: $rootScope.activeLayer.name,
-      activeVisualPipeline: p,
-      activePipeline: $rootScope.activePipeline.name
-    }, true, true);
-
-    timeline.save();
+      timeline.save();
+    });
   };
 
   $scope.addGroup = function() {
     var g = new vde.Vis.marks.Group();
-    vde.Vis.parse();
-
-    $timeout(function() {
+    vde.Vis.parse().then(function() {
       $rootScope.activeGroup = $rootScope.activeLayer = g;
       $rootScope.activeVisual = g;
 
@@ -89,7 +87,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
       }, true);
 
       timeline.save();
-    }, 100);
+    });
   };
 
   $scope.addAxis = function() {
@@ -130,18 +128,18 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
       }
     }
 
-    vde.Vis.parse();
+    vde.Vis.parse().then(function() {
+      $('.tooltip').remove();
 
-    $('.tooltip').remove();
+      logger.log('remove_visual', {
+        type: type,
+        name: name,
+        activeLayer: $rootScope.activeLayer.name,
+        activePipeline: $rootScope.activePipeline.name
+      }, true);
 
-    logger.log('remove_visual', {
-      type: type,
-      name: name,
-      activeLayer: $rootScope.activeLayer.name,
-      activePipeline: $rootScope.activePipeline.name
-    }, true);
-
-    timeline.save();
+      timeline.save();
+    });
   };
 
   $scope.newTransform = function(type) {
@@ -158,13 +156,13 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
 
     $rootScope.activeVisual.pipeline().transforms[i].destroy();
     $rootScope.activeVisual.pipeline().transforms.splice(i, 1);
-    vde.Vis.parse();
+    vde.Vis.parse().then(function() {
+      $('.tooltip').remove();
 
-    $('.tooltip').remove();
+      logger.log('remove_transform', { idx: i }, false, true);
 
-    logger.log('remove_transform', { idx: i }, false, true);
-
-    timeline.save();
+      timeline.save();
+    });
   };
 
   $scope.toggleProp = function(prop, value) {

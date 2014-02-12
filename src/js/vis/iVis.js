@@ -55,6 +55,7 @@ vde.iVis = (function() {
   // events as a result of removing all #ivis children. So, we only reparse
   // when we reparse the Vis, and subsequently only update the datasets.
   ivis.parse = function(scale) {
+    var deferred = ivis.ngQ().defer();
     var spec = {
       width: vde.Vis.view._width,
       height: vde.Vis.view._height,
@@ -216,9 +217,11 @@ vde.iVis = (function() {
       });
 
       if(!scale) ivis.show('selected');
+
+      deferred.resolve(spec);
     });
 
-    return spec;
+    return deferred.promise;
   };
 
   ivis.bindProperty = function(visual, property, defaults) {
@@ -237,9 +240,7 @@ vde.iVis = (function() {
         {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
-    vde.Vis.parse();
-
-    window.setTimeout(function() {
+    vde.Vis.parse().then(function(spec) {
       $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
@@ -256,8 +257,8 @@ vde.iVis = (function() {
 
       ivis.ngTimeline().save();
 
-      if(visual.layerName) rootScope.$apply(function() { rootScope.toggleVisual(visual, null, true); });
-    }, 1);
+      if(visual.layerName) rootScope.toggleVisual(visual, null, true);
+    });
 
     window.clearTimeout(vde.iVis.timeout);
   };
@@ -279,26 +280,21 @@ vde.iVis = (function() {
 
     rootScope.$apply(function() {
       mark.init();
-      vde.Vis.parse();
-    });
+      vde.Vis.parse().then(function(spec) {
+        ivis.newMark = null;
+        $('.proxy').remove();
 
-    ivis.newMark = null;
-    $('.proxy').remove();
+        ivis.ngLogger().log('new_mark', {
+          markType: mark.type,
+          markName: mark.name,
+          activeLayer: (rootScope.activeLayer || {}).name,
+          markGroup: mark.layerName
+        }, true);
 
-    window.setTimeout(function() {
-      ivis.ngLogger().log('new_mark', {
-        markType: mark.type,
-        markName: mark.name,
-        activeLayer: (rootScope.activeLayer || {}).name,
-        markGroup: mark.layerName
-      }, true);
-
-      rootScope.$apply(function() {
         rootScope.toggleVisual(mark, null, true);
-
         ivis.ngTimeline().save();
       });
-    }, 100);
+    });
 
     window.clearTimeout(vde.iVis.timeout);
   };
@@ -559,7 +555,11 @@ vde.iVis = (function() {
 
   ivis.ngFilter = function() {
     return $('html').injector().get('$filter');
-  }
+  };
+
+  ivis.ngQ = function() {
+    return $('html').injector().get('$q');
+  };
 
   return ivis;
 })();

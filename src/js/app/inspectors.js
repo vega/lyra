@@ -59,12 +59,16 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
           $scope.item.layout = vde.Vis.transforms.Facet.layout_overlap;
 
         $timeout(function() {
-          if($scope.item.update) $scope.item.update(prop);
-          else vde.Vis.parse();
-
-          vde.iVis.show('selected');
-
-          timeline.save();
+          if($scope.item.update) {
+            $scope.item.update(prop);
+            vde.iVis.show('selected');
+            timeline.save();
+          } else {
+            vde.Vis.parse().then(function(spec) {
+              vde.iVis.show('selected');
+              timeline.save();
+            });
+          }
         }, 1);
 
         logger.log('onchange', {
@@ -80,17 +84,17 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       $scope.unbind = function(property) {
         if(!property) property = $scope.property;
         $scope.item.unbindProperty(property);
-        vde.Vis.parse();
+        vde.Vis.parse().then(function() {
+          logger.log('unbind', {
+            item: $scope.item.name,
+            group: $scope.item.layerName,
+            pipeline: $scope.item.pipelineName,
+            property: $attrs.property,
+            ngModel: $attrs.ngModel
+          }, true, true);
 
-        logger.log('unbind', {
-          item: $scope.item.name,
-          group: $scope.item.layerName,
-          pipeline: $scope.item.pipelineName,
-          property: $attrs.property,
-          ngModel: $attrs.ngModel
-        }, true, true);
-
-        timeline.save();
+          timeline.save();
+        });
       };
 
       $scope.showHelper = function(target, e, helperClass) {
@@ -195,10 +199,12 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
       $rootScope.aggregate = function(stat) {
         var field = $rootScope.activeField;
         field.pipeline().aggregate(field, stat);
-        $timeout(function() { vde.Vis.parse(); }, 1);
-        $('#aggregate-popover').hide();
-
-        timeline.save();
+        $timeout(function() {
+          vde.Vis.parse().then(function() {
+            $('#aggregate-popover').hide();
+            timeline.save();
+          });
+        }, 1);
       };
 
       $scope.editBinding = $rootScope.editBinding = function(evt, part) {

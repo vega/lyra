@@ -25,8 +25,8 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, logger, tim
     timeline.save();
   };
 
-  $rootScope.togglePipeline = function(p) {
-    if($rootScope.activePipeline == p) {
+  $rootScope.togglePipeline = function(p, show) {
+    if($rootScope.activePipeline == p && !show) {
       $rootScope.activePipeline = null;
       $scope.pMdl.activePipelineSource = null;
     } else {
@@ -73,9 +73,7 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, logger, tim
     logger.log('add_transform', { transform: $scope.pMdl.newTransforms[i] }, false, true);
 
     $scope.pMdl.newTransforms.splice(i, 1);
-    vde.Vis.parse();
-
-    timeline.save();
+    vde.Vis.parse().then(function() { timeline.save(); });
   };
 
   $scope.removeTransform = function(i, isNewTransform) {
@@ -88,9 +86,7 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, logger, tim
 
       $rootScope.activePipeline.transforms[i].destroy();
       $rootScope.activePipeline.transforms.splice(i, 1);
-      vde.Vis.parse();
-
-      timeline.save();
+      vde.Vis.parse().then(function() { timeline.save(); });
     }
 
     $('.tooltip').remove();

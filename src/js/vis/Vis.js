@@ -57,7 +57,7 @@ vde.Vis = (function() {
   };
 
   vis.parse = function(inlinedValues) {
-    var props = vis.properties;
+    var deferred = vde.iVis.ngQ().defer(), props = vis.properties;
     var spec = {
       width: props.width,
       height: props.height,
@@ -105,57 +105,53 @@ vde.Vis = (function() {
     for(var p in vis.pipelines) vis.pipelines[p].bookkeep();
     for(var g in vis.groups) vis.groups[g].bookkeep();
 
-    // try {
-      vg.parse.spec(spec, function(chart) {
-        d3.select('#vis').selectAll('*').remove();
-        (vde.Vis.view = chart({ el: '#vis' })).update();
+    vg.parse.spec(spec, function(chart) {
+      d3.select('#vis').selectAll('*').remove();
+      (vde.Vis.view = chart({ el: '#vis' })).update();
 
-        for(var g in vis.groups) vis.groups[g].annotate();
+      for(var g in vis.groups) vis.groups[g].annotate();
 
-        for(var type in vis.evtHandlers)
-          vis.evtHandlers[type].forEach(function(h, i) {
-            if(type.indexOf('key') != -1) d3.select('body').on(type + '.' + i, h.handler);
-            else vde.Vis.view.on(type, h.handler);
-          });
+      for(var type in vis.evtHandlers)
+        vis.evtHandlers[type].forEach(function(h, i) {
+          if(type.indexOf('key') != -1) d3.select('body').on(type + '.' + i, h.handler);
+          else vde.Vis.view.on(type, h.handler);
+        });
 
-        var newMark = function() {
-          if(!vde.iVis.dragging || !vde.iVis.newMark) return;
-          vde.iVis.addMark();
-        };
+      var newMark = function() {
+        if(!vde.iVis.dragging || !vde.iVis.newMark) return;
+        vde.iVis.addMark();
+      };
 
-        vde.Vis.view
-          .on('mousedown', function(e, i) {
-            if(!vde.iVis.dragging) vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
-          })
-          .on('mouseup', function() { newMark(); vde.iVis.dragging = null; })
-          .on('mouseover', function(e, i) {
-            var d = vde.iVis.dragging, m = i.mark.def.vdeMdl;
-            if(!d || !$(d).html() || !m) return;
-            if(m == vde.iVis.activeMark && vde.iVis.activeItem == i.vdeKey) return;
-            if(m.type == 'group') return;
+      vde.Vis.view
+        .on('mousedown', function(e, i) {
+          if(!vde.iVis.dragging) vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
+        })
+        .on('mouseup', function() { newMark(); vde.iVis.dragging = null; })
+        .on('mouseover', function(e, i) {
+          var d = vde.iVis.dragging, m = i.mark.def.vdeMdl;
+          if(!d || !$(d).html() || !m) return;
+          if(m == vde.iVis.activeMark && vde.iVis.activeItem == i.vdeKey) return;
+          if(m.type == 'group') return;
 
-            vde.iVis.markTimeout = window.setTimeout(function() {
-              var scope = vde.iVis.ngScope();
-              scope.$apply(function() { scope.toggleVisual(m, i.vdeKey || i.key || 0, true); });
+          vde.iVis.markTimeout = window.setTimeout(function() {
+            var scope = vde.iVis.ngScope();
+            scope.$apply(function() { scope.toggleVisual(m, i.vdeKey || i.key || 0, true); });
 
-              var isMark = $(d).hasClass('mark');
-              if(isMark && vde.iVis.newMark.canConnect) m.connectionTargets();
-              else if(!isMark) m.propertyTargets();
-            }, vde.iVis.timeout);
-          })
-          .on('mouseout', function() { window.clearTimeout(vde.iVis.markTimeout); });
+            var isMark = $(d).hasClass('mark');
+            if(isMark && vde.iVis.newMark.canConnect) m.connectionTargets();
+            else if(!isMark) m.propertyTargets();
+          }, vde.iVis.timeout);
+        })
+        .on('mouseout', function() { window.clearTimeout(vde.iVis.markTimeout); });
 
-        d3.select('#vis canvas').on('mouseup.vis', newMark);
+      d3.select('#vis canvas').on('mouseup.vis', newMark);
 
-        // If the vis gets reparsed, reparse the interactive layer too to update any
-        // visible handlers, etc.
-        vde.iVis.parse();
-      });
-    // } catch (e) {
-      // console.error(e);
-    // }
+      // If the vis gets reparsed, reparse the interactive layer too to update any
+      // visible handlers, etc.
+      vde.iVis.parse().then(function(ispec) { deferred.resolve(spec); });
+    });
 
-    return spec;
+    return deferred.promise;
   };
 
   vis.export = function() {
@@ -169,7 +165,7 @@ vde.Vis = (function() {
   };
 
   vis.import = function(spec) {
-    var scales = {};
+    var scales = {}, deferred = vde.iVis.ngQ().defer();
 
     var className = function(n) {
       return n.charAt(0).toUpperCase() + n.slice(1)
@@ -245,7 +241,9 @@ vde.Vis = (function() {
       importGroups(spec.groups[layerName]);
     }
 
-    vis.parse();
+    vis.parse().then(function(spec) { deferred.resolve(spec); });
+
+    return deferred.promise;
   };
 
   vis.parseProperty = function(props, prop) {

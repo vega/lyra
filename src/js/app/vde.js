@@ -19,7 +19,7 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
     $timeout(function() {
       if(vg.keys(vde.Vis._rawData).length == 0) {
         vde.Vis.data('medals', 'data/medals.json', 'json');
-//        vde.Vis.data('olympics', 'data/olympics.json', 'json');
+        vde.Vis.data('olympics', 'data/olympics.json', 'json');
         // vde.Vis.data('groups', 'data/groups.json', 'json');
         vde.Vis.data('barley', 'data/barley.json', 'json');
         // vde.Vis.data('iris', 'data/iris.json', 'json');
@@ -49,10 +49,8 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
       var p = new vde.Vis.Pipeline();
       $rootScope.activePipeline = p;
 
-      vde.Vis.parse();
-
       // To be able to undo all the way back to a default/clean slate.
-      timeline.save();
+      vde.Vis.parse().then(function() { timeline.save(); });
     }, 500)
   };
 

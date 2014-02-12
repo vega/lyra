@@ -66,25 +66,21 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
 
         var f = function() {
           $rootScope.groupOrder = vde.Vis.groupOrder = [];
-          vde.Vis.import(vis);
-
-          // Timeout so vis has time to parse, before we switch angular/iVis
-          // contexts.
-          $timeout(function() {
+          vde.Vis.import(vis).then(function(spec) {
             var g = vde.Vis.groups[app.activeLayer];
             if(app.activeLayer != app.activeGroup) g = g.marks[app.activeGroup];
             if(app.activeVisual) {
               $rootScope.toggleVisual(app.isMark ? app.isGroup ? g :
-                  g.marks[app.activeVisual] : g.axes[app.activeVisual]);
+                  g.marks[app.activeVisual] : g.axes[app.activeVisual], 0, true);
             } else {
               // If we don't have an activeVisual, clear out any interactors
               vde.iVis.activeMark = null;
               vde.iVis.show('selected');
             }
-          }, 1);
 
-          if(app.activePipeline)
-            $rootScope.togglePipeline(vde.Vis.pipelines[app.activePipeline]);
+            if(app.activePipeline)
+              $rootScope.togglePipeline(vde.Vis.pipelines[app.activePipeline], true);
+          });
         };
 
         digesting ? f() : $rootScope.$apply(f);
@@ -123,7 +119,6 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
     $scope.files = [];
     timeline.files().getAll().then(function(files) {
       $scope.files = files.map(function(f) { return f.fileName; });
-      console.log($scope.files);
     })
   };
 
