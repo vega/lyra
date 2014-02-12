@@ -1,7 +1,7 @@
-<div id="file-open-popover" class="popover fade top in">
+<div id="file-open-popover" class="popover fade top in" ng-show="fileOpenPopover">
   <div class="arrow"></div>
 
-  <h3 class="popover-title">Open File <a class="close" ng-click="close()">×</a></h3>
+  <h3 class="popover-title">Open File <a class="close" ng-click="closeTimelinePopovers()">×</a></h3>
 
   <div class="inner">
     <p ng-show="files.length <= 0">No Lyra files currently saved!</p>
@@ -15,10 +15,10 @@
   </div>
 </div>
 
-<div id="file-save-popover" class="popover fade bottom in">
+<div id="file-save-popover" class="popover fade top in" ng-show="fileSavePopover">
   <div class="arrow"></div>
 
-  <h3 class="popover-title">Save File <a class="close" ng-click="close()">×</a></h3>
+  <h3 class="popover-title">Save File <a class="close" ng-click="closeTimelinePopovers()">×</a></h3>
 
   <div class="inner">
     <div class="property half">
@@ -29,5 +29,9 @@
     </div>
 
     <a class="btn btn-small" ng-click="save($event)">Save</a>
+
+    <p>Lyra saves all files locally, within<br/> your web browser.</p>
+
+    <br clear="all" />
   </div>
 </div>

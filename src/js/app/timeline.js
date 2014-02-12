@@ -108,29 +108,34 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
   $scope.tMdl = {fileName: null};
 
   $scope.showOpen = function(evt) {
-    $('#file-open-popover').css({ left: (evt.pageX - 85) })
-      .toggle();
+    $rootScope.fileOpenPopover = !$rootScope.fileOpenPopover;
+    $rootScope.fileSavePopover = false;
+    $rootScope.exportPopover   = false;
   };
 
   $scope.open = function(name) {
     timeline.open(name);
     timeline.load(timeline.currentIdx);
-    $('#file-open-popover').hide();
+    $rootScope.fileOpenPopover = false;
   };
 
   $scope.save = function(evt) {
-    if(!$scope.timeline.fileName) $('#file-save-popover').css({ left: (evt.pageX - 85) }).show();
-    else {
+    if(!$scope.timeline.fileName) {
+      $rootScope.fileOpenPopover = false;
+      $rootScope.fileSavePopover = !$rootScope.fileSavePopover;
+      $rootScope.exportPopover   = false;
+    } else {
       timeline.fileName = $scope.timeline.fileName;
       timeline.store();
       $scope.files = Object.keys(timeline.files());
-      $('#file-save-popover').hide();
+      $rootScope.fileSavePopover = false;
     }
   };
 
-  $scope.close = function() {
-    $('#file-open-popover').hide();
-    $('#file-save-popover').hide();
+  $rootScope.closeTimelinePopovers = function() {
+    $rootScope.fileOpenPopover = false;
+    $rootScope.fileSavePopover = false;
+    $rootScope.exportPopover   = false;
   };
 
   $scope.delete = function(name) {
