@@ -74,7 +74,7 @@ vde.Vis = (function() {
 
     var addRawSource = function(src) {
       if(!src || rawSources[src]) return;
-      
+
       var data = vg.duplicate(vis._data[src]);
       if(data.url)        // Inline values to deal with x-site restrictions
         delete data[inlinedValues ? 'url' : 'values'];

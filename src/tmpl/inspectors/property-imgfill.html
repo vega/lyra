@@ -15,7 +15,7 @@
       <div ng-if="item.fillType == 'color'">
         <input type="color" ng-model="item.properties.fill.value" ng-change="onchange('fill')" />
         <span class="editVal" vde-edit-name ng-change="onchange('fill')"
-              ng-model="item.properties.fill.value">{{item.properties.fill.value}}</span>
+              ng-model="item.properties.fill.value" vde-tooltip="Click to edit">{{item.properties.fill.value}}</span>
       </div>
 
       <div ng-if="item.fillType == 'image'">
