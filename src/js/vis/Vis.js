@@ -70,12 +70,17 @@ vde.Vis = (function() {
     vde.Vis.callback.run('vis.pre_spec', this, {spec: spec});
 
     inlinedValues = (inlinedValues == null || inlinedValues == true);
-    for(var d in vis._data) {
-      var dd = vg.duplicate(vis._data[d]);
-      if(dd.url)        // Inline values to deal with x-site restrictions
-        delete dd[inlinedValues ? 'url' : 'values'];
+    rawSources = {};
 
-      spec.data.push(dd);
+    var addRawSource = function(src) {
+      if(!src || rawSources[src]) return;
+      
+      var data = vg.duplicate(vis._data[src]);
+      if(data.url)        // Inline values to deal with x-site restrictions
+        delete data[inlinedValues ? 'url' : 'values'];
+
+      spec.data.push(data);
+      rawSources[src] = 1;
     };
 
     // Scales are defined within groups. No global scales.
@@ -86,6 +91,8 @@ vde.Vis = (function() {
         pl.scales[s].hasAxis = false;
         pl.scales[s].used = false;
       }
+
+      addRawSource(pl.source);
       spec.data = spec.data.concat(pl.spec());
     }
 
