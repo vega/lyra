@@ -175,7 +175,7 @@ vde.Vis.Mark = (function() {
 
     // bindProperty is always called on the vde.iVis.activeMark (which is usually
     // a specific non-group mark. So we should route the request to the mark's layer
-    // if it's a facet dropzone. In case this mark is a group/layer, this should still
+    // if it's a facet dropzones. In case this mark is a group/layer, this should still
     // be ok.
     var facet = vde.Vis.transforms.Facet;
     if(prop == facet.dropzone_horiz || prop == facet.dropzone_vert) {
@@ -190,7 +190,7 @@ vde.Vis.Mark = (function() {
       if(!scale) scale = vde.Vis.pipelines[opts.pipelineName].scales[opts.scaleName];
       if(scale) this.group().scales[opts.scaleName] = scale;
       p.scale = scale;
-    } else {
+    } else if(!defaults) { 
       scale = p.scale;
     }
 
@@ -199,7 +199,7 @@ vde.Vis.Mark = (function() {
       // if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
 
       // Run mark specific production rules first so that they get first dibs
-      var prules = this.productionRules(prop, scale, field);
+      var prules = this.productionRules(prop, scale, field, defaults);
           scale = prules[0];
           field = prules[1];
 

@@ -29,9 +29,11 @@ h3 {
 
   span {
     display: inline-block;
-    width: 255px;
+    width: 245px;
     cursor: pointer;
   }
+
+  a.delete { visibility: hidden; }
 }
 
 h3 span:focus, .editVal:focus {
@@ -45,15 +47,21 @@ h3 span:focus, .editVal:focus {
   border: 1px solid darkgray !important;
   box-shadow: 1px 1px 1px 0 lightgray inset;
 
-  padding: 0 5px;
+  padding: 5px;
 }
 
 h3.selected  {
     background-color: @medium-blue;
     border: 1px solid @medium-blue;
+
+    a.delete { visibility: visible; }
 }
 
-h3:hover { color: #666; }
+h3:hover { 
+  color: #666; 
+
+  a.delete { visibility: visible}
+}
 h3.selected:hover { color: #000; }
 
 .heading {

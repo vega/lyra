@@ -58,9 +58,13 @@ vde.Vis.marks.Rect = (function() {
         props = this.extents.horizontal.fields.indexOf(prop) != -1 ?
           this.extents.horizontal.fields : this.extents.vertical.fields;
 
-    // First check to see if a related property already has a scale, and reuse it
-    if(!scale && props.indexOf(prop) != -1)
-      props.some(function(p) { if(scale = self.properties[p].scale) return true });
+    // TODO: What is the right thing to infer here? I think it's easier to debug what's
+    // going on if we don't try to infer scales from the other extent properties...
+
+    // First check to see if a related property already has a scale, and reuse it.
+    // But only do this if we're not dropping over the "height" or "width" dropzones.
+    // if(!scale && props.indexOf(prop) != -1 && !(defaults && (prop == 'height' || prop == 'width'))
+      // props.some(function(p) { if(scale = self.properties[p].scale) return true });
 
     if(prop == 'url') field.type = 'encoded';
     return [scale, field];
@@ -72,9 +76,6 @@ vde.Vis.marks.Rect = (function() {
     if(['width', 'height'].indexOf(prop) == -1) return;
     var defaultProp = (prop == 'width') ? 'x' : 'y';
     var otherProps = this.extents[(prop == 'width') ? 'vertical' : 'horizontal'].fields;
-
-    // Only do defaults if x/x2 or y/y2 have not been scaled
-    if(props[defaultProp].scale || props[defaultProp+'2'].scale) return;
 
     props[defaultProp] = {
       scale: props[prop].scale,
