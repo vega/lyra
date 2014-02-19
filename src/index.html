@@ -13,7 +13,6 @@
     <script src="js/lib/jquery.event.drag-2.2.js"></script>
     <script src="js/lib/jquery.event.drop-2.2.js"></script>
     <script src="js/lib/jquery-ui.min-1.9.0.js"></script>
-    <script src="js/lib/scrollingcarousel.2.0.min"></script>
 
     <link rel="stylesheet" type="text/css" href="css/lib/bootstrap.min.css" />
     <script src="js/lib/bootstrap.min.js"></script>
@@ -27,6 +26,7 @@
 
     <script src="js/lib/inflector.js"></script>
     <script src="js/lib/sortable.js"></script>
+    <script src="js/lib/indexeddb.js"></script>
 
     <script src="js/app/vde.js"></script>
     <script src="js/app/logger.js"></script>
@@ -36,6 +36,7 @@
     <script src="js/app/inspectors.js"></script>
     <script src="js/app/pipelines.js"></script>
     <script src="js/app/data.js"></script>
+    <script src="js/app/export.js"></script>
 
     <script src="js/vis/Vis.js"></script>
     <script src="js/vis/iVis.js"></script>
@@ -72,18 +73,14 @@
 
     <ng-include src="'tmpl/center.html'"></ng-include>
 
-    <!--<ng-include src="'tmpl/popovers/scale.html'"></ng-include>-->
+    <ng-include src="'tmpl/popovers/scale.html'"></ng-include>
 
-    <!--<ng-include src="'tmpl/popovers/aggregate.html'"></ng-include>-->
+    <ng-include src="'tmpl/popovers/aggregate.html'"></ng-include>
 
-    <!--<ng-include src="'tmpl/popovers/preview-transform.html'"></ng-include>-->
+    <ng-include src="'tmpl/popovers/data.html'"></ng-include>
 
-    <!--<ng-include src="'tmpl/export.html'" ng-controller="ExportCtrl"></ng-include>-->
+    <ng-include src="'tmpl/popovers/timeline.html'" ng-controller="TimelineCtrl"></ng-include>
 
-    <!--<ng-include src="'tmpl/popovers/data.html'" ng-controller="DataCtrl"></ng-include>-->
-
-    <!--<ng-include src="'tmpl/bugreport.html'" ng-controller="BugCtrl"></ng-include>-->
-
-    <!--<ng-include src="'tmpl/timeline.html'" ng-controller="TimelineCtrl"></ng-include>-->
+    <ng-include src="'tmpl/popovers/export.html'" ng-controller="ExportCtrl"></ng-include>
   </body>
 </html>

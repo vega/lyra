@@ -20,7 +20,17 @@ vde.App.factory('draggable', function($rootScope) {
 
       if(v instanceof vde.Vis.Mark) {
         if(isMark && vde.iVis.newMark.canConnect) v.connectionTargets();
-        else if(!isMark) v.propertyTargets();
+        else if(!isMark)  {
+          // Definitely show any property targets for the active visual
+          v.propertyTargets();
+        }
+      }
+
+      if(!isMark) {
+        // If the pipeline doesn't already have a facet applied to it
+        // show dropzones for grouping
+        if(!$rootScope.activePipeline.forkName)
+          $rootScope.activeLayer.propertyTargets();
       }
 
       return proxy;

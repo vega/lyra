@@ -57,7 +57,7 @@ vde.Vis = (function() {
   };
 
   vis.parse = function(inlinedValues) {
-    var props = vis.properties;
+    var deferred = vde.iVis.ngQ().defer(), props = vis.properties;
     var spec = {
       width: props.width,
       height: props.height,
@@ -70,12 +70,17 @@ vde.Vis = (function() {
     vde.Vis.callback.run('vis.pre_spec', this, {spec: spec});
 
     inlinedValues = (inlinedValues == null || inlinedValues == true);
-    for(var d in vis._data) {
-      var dd = vg.duplicate(vis._data[d]);
-      if(dd.url)        // Inline values to deal with x-site restrictions
-        delete dd[inlinedValues ? 'url' : 'values'];
+    rawSources = {};
 
-      spec.data.push(dd);
+    var addRawSource = function(src) {
+      if(!src || rawSources[src]) return;
+
+      var data = vg.duplicate(vis._data[src]);
+      if(data.url)        // Inline values to deal with x-site restrictions
+        delete data[inlinedValues ? 'url' : 'values'];
+
+      spec.data.push(data);
+      rawSources[src] = 1;
     };
 
     // Scales are defined within groups. No global scales.
@@ -86,6 +91,8 @@ vde.Vis = (function() {
         pl.scales[s].hasAxis = false;
         pl.scales[s].used = false;
       }
+
+      addRawSource(pl.source);
       spec.data = spec.data.concat(pl.spec());
     }
 
@@ -98,57 +105,53 @@ vde.Vis = (function() {
     for(var p in vis.pipelines) vis.pipelines[p].bookkeep();
     for(var g in vis.groups) vis.groups[g].bookkeep();
 
-    // try {
-      vg.parse.spec(spec, function(chart) {
-        d3.select('#vis').selectAll('*').remove();
-        (vde.Vis.view = chart({ el: '#vis' })).update();
+    vg.parse.spec(spec, function(chart) {
+      d3.select('#vis').selectAll('*').remove();
+      (vde.Vis.view = chart({ el: '#vis' })).update();
 
-        for(var g in vis.groups) vis.groups[g].annotate();
+      for(var g in vis.groups) vis.groups[g].annotate();
 
-        for(var type in vis.evtHandlers)
-          vis.evtHandlers[type].forEach(function(h, i) {
-            if(type.indexOf('key') != -1) d3.select('body').on(type + '.' + i, h.handler);
-            else vde.Vis.view.on(type, h.handler);
-          });
+      for(var type in vis.evtHandlers)
+        vis.evtHandlers[type].forEach(function(h, i) {
+          if(type.indexOf('key') != -1) d3.select('body').on(type + '.' + i, h.handler);
+          else vde.Vis.view.on(type, h.handler);
+        });
 
-        var newMark = function() {
-          if(!vde.iVis.dragging || !vde.iVis.newMark) return;
-          vde.iVis.addMark();
-        };
+      var newMark = function() {
+        if(!vde.iVis.dragging || !vde.iVis.newMark) return;
+        vde.iVis.addMark();
+      };
 
-        vde.Vis.view
-          .on('mousedown', function(e, i) {
-            if(!vde.iVis.dragging) vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
-          })
-          .on('mouseup', function() { newMark(); vde.iVis.dragging = null; })
-          .on('mouseover', function(e, i) {
-            var d = vde.iVis.dragging, m = i.mark.def.vdeMdl;
-            if(!d || !$(d).html() || !m) return;
-            if(m == vde.iVis.activeMark && vde.iVis.activeItem == i.vdeKey) return;
-            if(m.type == 'group') return;
+      vde.Vis.view
+        .on('mousedown', function(e, i) {
+          if(!vde.iVis.dragging) vde.iVis.dragging = {item: i, prev: [e.pageX, e.pageY]};
+        })
+        .on('mouseup', function() { newMark(); vde.iVis.dragging = null; })
+        .on('mouseover', function(e, i) {
+          var d = vde.iVis.dragging, m = i.mark.def.vdeMdl;
+          if(!d || !$(d).html() || !m) return;
+          if(m == vde.iVis.activeMark && vde.iVis.activeItem == i.vdeKey) return;
+          if(m.type == 'group') return;
 
-            vde.iVis.markTimeout = window.setTimeout(function() {
-              var scope = vde.iVis.ngScope();
-              scope.$apply(function() { scope.toggleVisual(m, i.vdeKey || i.key || 0, true); });
+          vde.iVis.markTimeout = window.setTimeout(function() {
+            var scope = vde.iVis.ngScope();
+            scope.$apply(function() { scope.toggleVisual(m, i.vdeKey || i.key || 0, true); });
 
-              var isMark = $(d).hasClass('mark');
-              if(isMark && vde.iVis.newMark.canConnect) m.connectionTargets();
-              else if(!isMark) m.propertyTargets();
-            }, vde.iVis.timeout);
-          })
-          .on('mouseout', function() { window.clearTimeout(vde.iVis.markTimeout); });
+            var isMark = $(d).hasClass('mark');
+            if(isMark && vde.iVis.newMark.canConnect) m.connectionTargets();
+            else if(!isMark) m.propertyTargets();
+          }, vde.iVis.timeout);
+        })
+        .on('mouseout', function() { window.clearTimeout(vde.iVis.markTimeout); });
 
-        d3.select('#vis canvas').on('mouseup.vis', newMark);
+      d3.select('#vis canvas').on('mouseup.vis', newMark);
 
-        // If the vis gets reparsed, reparse the interactive layer too to update any
-        // visible handlers, etc.
-        vde.iVis.parse();
-      });
-    // } catch (e) {
-      // console.error(e);
-    // }
+      // If the vis gets reparsed, reparse the interactive layer too to update any
+      // visible handlers, etc.
+      vde.iVis.parse().then(function(ispec) { deferred.resolve(spec); });
+    });
 
-    return spec;
+    return deferred.promise;
   };
 
   vis.export = function() {
@@ -162,7 +165,7 @@ vde.Vis = (function() {
   };
 
   vis.import = function(spec) {
-    var scales = {};
+    var scales = {}, deferred = vde.iVis.ngQ().defer();
 
     var className = function(n) {
       return n.charAt(0).toUpperCase() + n.slice(1)
@@ -181,6 +184,33 @@ vde.Vis = (function() {
           a[k] = b[k];
         }
       }
+    };
+
+    var importGroups = function(g) {
+      var group = new vde.Vis.marks.Group(g.name, g.layerName, g.groupName);
+      group.import(g);
+
+      for(var scaleName in g.scales) {
+        group.scales[scaleName] = scales[scaleName];
+      }
+
+      for(var axisName in g.axes) {
+        var a = g.axes[axisName];
+        var axis = new vde.Vis.Axis(axisName, a.layerName, a.groupName);
+        axis.init();
+      };
+
+      for(var markName in g.marks) {
+        var m = g.marks[markName];
+        if(m.type == 'group') importGroups(m);
+        else {
+          var mark = new vde.Vis.marks[className(m.type)](markName, m.layerName, m.groupName);
+          mark.init();
+          mark.import(m);
+        }
+      };
+
+      importProperties(group, g);
     };
 
     // Clear existing pipelines and groups. We want to do this in two
@@ -207,30 +237,13 @@ vde.Vis = (function() {
       importProperties(pipeline, p);
     };
 
-    for(var groupName in spec.groups) {
-      var g = spec.groups[groupName];
-      var group = new vde.Vis.marks.Group(groupName);
+    for(var layerName in spec.groups) {
+      importGroups(spec.groups[layerName]);
+    }
 
-      for(var scaleName in g.scales) {
-        group.scales[scaleName] = scales[scaleName];
-      }
+    vis.parse().then(function(spec) { deferred.resolve(spec); });
 
-      for(var axisName in g.axes) {
-        var axis = new vde.Vis.Axis(axisName, groupName);
-        axis.init();
-      };
-
-      for(var markName in g.marks) {
-        var m = g.marks[markName];
-        var mark = new vde.Vis.marks[className(m.type)](markName, groupName);
-        mark.init();
-        mark.import(m);
-      };
-
-      importProperties(group, g);
-    };
-
-    vis.parse();
+    return deferred.promise;
   };
 
   vis.parseProperty = function(props, prop) {

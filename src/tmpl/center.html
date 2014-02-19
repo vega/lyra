@@ -1,7 +1,23 @@
-<div id="toolbar">
-  <ul>
+<div class="toolbar" id="palette">
+  <ul id="marks">
     <li ng-repeat="mark in marks" id="{{mark}}" class="mark" draggable="true" vde-draggable vde-tooltip="{{mark}}">{{mark}}</li>
   </ul>
+</div>
+
+<div id="utils" class="toolbar">
+  <a id="logo" href="http://idl.cs.washington.edu/projects/lyra/">The Lyra VDE</a>
+
+  <ul class="timeline" ng-controller="TimelineCtrl">
+    <li id="open" ng-click="showOpen($event)" vde-tooltip="Open" position="top">Open</li>
+    <li id="save" ng-click="save($event)" vde-tooltip="Save" position="top">Save</li>
+    <li id="share" ng-click="export($event)" vde-tooltip="Share/Export" position="top">Share/Export</li>
+  </ul>
+
+  <ul class="timeline" ng-controller="TimelineCtrl">
+    <li id="undo" ng-class="{'timeline-disabled': timeline.idx <= 0}" ng-click="undo()" vde-tooltip="Undo" position="top">Undo</li>
+    <li id="redo" ng-class="{'timeline-disabled': timeline.idx >= timeline.length-1}" ng-click="redo()" vde-tooltip="Redo" position="top">Redo</li>
+  </ul>
+
 </div>
 
 <div id="canvas">

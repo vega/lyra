@@ -18,11 +18,13 @@
   background: @scale-color;
   border-left: 1px solid @scale-color;
   color: #333;
+  position: relative;
 
   .scale {
     border-top: 1px solid @scale-color;
     border-bottom: 1px solid @scale-color;
     padding: 2px 5px;
+    min-width: 14px;
   }
 
   .empty {
@@ -33,6 +35,28 @@
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
   }
+
+  .editScale {
+    .editBinding;
+    left: @padding-horiz/2;
+  }
+}
+
+.editBinding {
+  display: inline-block;
+  position: absolute;
+  visibility: hidden;
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+  text-indent: -999em;
+  color: transparent;
+}
+
+.editBindingHover {
+  visibility: visible;
+  background-repeat: no-repeat;
+  background-size: 12px;
 }
 
 .binding:hover {
@@ -43,29 +67,13 @@
     border-top: 1px solid @scale-hover;
     border-bottom: 1px solid @scale-hover;
   }
-}
 
-.binding-draggable .editScale {
-  display: inline-block;
-  float: left;
-  width: 12px;
-  height: 12px;
-  margin: 2px 5px 0 0;
-  cursor: pointer;
-  text-indent: -999em;
-}
-
-.binding-draggable:hover .editScale, .binding:hover .schema .aggregate,
-.property:hover .editScale, .property:hover .schema .aggregate {
-  display: inline-block;
-  color: transparent;
-  background-image: url(../imgs/pencil-black.png);
-  background-repeat: no-repeat;
-  background-size: 12px;
-}
-
-.binding-draggable:hover .editScale:hover {
-  opacity: 0.3;
+  .editScale {
+    .editBindingHover;
+    background-color: @scale-hover;
+    background-image: url(../imgs/pencil-black.png);
+    padding-right: @padding-horiz/2;
+  }
 }
 
 .schema {
@@ -77,40 +85,42 @@
   text-overflow: ellipsis;
 
   .aggregate {
-    display: none;
-    cursor: pointer;
-    text-indent: -999em;
-    width: 12px;
-    padding-left: 3px;
-    border-left: 1px solid #666;
-    background-position: 3px;
+    .editBinding;
+    right: 0;
+  }
+}
+
+.schema:hover {
+  .aggregate {
+    .editBindingHover;
+    background-image: url(../imgs/spinner-open.png);
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: 2px 1px;
+    padding-left: @padding-horiz/2;
   }
 }
 
 .schema.raw, .DTFC_LeftBodyWrapper td.raw {
   background: @raw-field-color;
   border-color: @raw-field-border;
-
-  .aggregate { border-color: #9bc0ef;}
 }
 
 .schema.raw:hover, .binding:hover .schema.raw,
-.DTFC_LeftBodyWrapper td.raw:hover
-{ background: @raw-field-hover; }
+.DTFC_LeftBodyWrapper td.raw:hover {
+  background: @raw-field-hover;
+
+  .aggregate { background-color: @raw-field-hover;}
+}
 
 .schema.derived, .DTFC_LeftBodyWrapper td.derived {
   background: @derived-field-color;
   border-color: @derived-field-border;
-
-  .aggregate { border-color: #d1bf94;}
 }
 
 .schema.derived:hover, .binding:hover .schema.derived,
-.DTFC_LeftBodyWrapper td.derived:hover
-{ background: @derived-field-hover; }
+.DTFC_LeftBodyWrapper td.derived:hover {
+  background: @derived-field-hover;
 
-
-.binding:hover .schema .aggregate,
-.property:hover .schema .aggregate {
-  background-image: url(../imgs/spinner-open.png);
+  .aggregate { background-color: @derived-field-hover;}
 }

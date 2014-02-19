@@ -1,62 +1,68 @@
-<h4>X Position</h4>
+<div class="inner">
+  <div ng-if="mark.type == 'group' && !mark.isLayer()"
+       ng-init="layouts = ['Horizontal', 'Vertical', 'Overlap']">
+    <vde-property label="Layout" type="select" options="layouts" item="mark"
+                  property="layout" ng-model="mark.layout" nodrop="1" style="full"></vde-property>
+  </div>
 
-<vde-property extents-props="xExtents" extents-bound="boundExtents"
-              type="number" item="mark" style="half" can-drop-style="left">
-</vde-property>
+  <h4>X Position</h4>
 
-<vde-property extents-props="xExtents" extents-bound="boundExtents"
-              type="number" item="mark" style="half" can-drop-style="left">
-</vde-property>
+  <vde-property extents-props="xExtents" extents-bound="boundExtents"
+                type="number" item="mark" style="half" can-drop-style="left">
+  </vde-property>
 
-<br clear="all" />
+  <vde-property extents-props="xExtents" extents-bound="boundExtents"
+                type="number" item="mark" style="half" can-drop-style="left">
+  </vde-property>
 
-<h4>Y Position</h4>
+  <br clear="all" />
 
-<vde-property extents-props="yExtents" extents-bound="boundExtents"
-              type="number" item="mark" style="half" can-drop-style="left">
-</vde-property>
+  <h4>Y Position</h4>
 
-<vde-property extents-props="yExtents" extents-bound="boundExtents"
-              type="number" item="mark" style="half" can-drop-style="left">
-</vde-property>
+  <vde-property extents-props="yExtents" extents-bound="boundExtents"
+                type="number" item="mark" style="half" can-drop-style="left">
+  </vde-property>
 
-<br clear="all" />
+  <vde-property extents-props="yExtents" extents-bound="boundExtents"
+                type="number" item="mark" style="half" can-drop-style="left">
+  </vde-property>
 
-<h4>Fill</h4>
+  <br clear="all" />
 
-<div ng-show="mark.type == 'group'">
-  <vde-property label="Clip" type="checkbox"
-                hint="contents to dimensions"
-                item="mark" property="clip"
-                ng-model="mark.properties.clip.value"
-                field="mark.properties.clip.field"
+  <h4>Fill</h4>
+
+  <div ng-if="mark.type == 'group'">
+    <vde-property label="Clip" type="checkbox"
+                  hint="contents to dimensions"
+                  item="mark" property="clip"
+                  ng-model="mark.properties.clip.value"
+                  field="mark.properties.clip.field"
+                  can-drop-style="left" style="full"></vde-property>
+  </div>
+
+  <vde-property img-fill="1" item="mark" property="fill"
+                style="full" can-drop-style="left">
+  </vde-property>
+
+  <vde-property label="Opacity" type="range" min="0" max="1" step="0.1"
+                item="mark" property="fillOpacity"
+                ng-model="mark.properties.fillOpacity.value"
+                scale="mark.properties.fillOpacity.scale"
+                field="mark.properties.fillOpacity.field"
                 can-drop-style="left" style="full"></vde-property>
-</div>
 
-<vde-property img-fill="1" item="mark" property="fill"
-              style="full" can-drop-style="left">
-</vde-property>
+  <h4>Stroke</h4>
 
-<vde-property label="Opacity" type="range" min="0" max="1" step="0.1"
-              item="mark" property="fillOpacity"
-              ng-model="mark.properties.fillOpacity.value"
-              scale="mark.properties.fillOpacity.scale"
-              field="mark.properties.fillOpacity.field"
-              can-drop-style="left" style="full"></vde-property>
+  <vde-property label="Color" type="color" item="mark" property="stroke"
+                ng-model="mark.properties.stroke.value"
+                scale="mark.properties.stroke.scale"
+                field="mark.properties.stroke.field"
+                can-drop-style="left" style="full"></vde-property>
 
-<h4>Stroke</h4>
-
-<vde-property label="Color" type="color" item="mark" property="stroke"
-              ng-model="mark.properties.stroke.value"
-              scale="mark.properties.stroke.scale"
-              field="mark.properties.stroke.field"
-              can-drop-style="left" style="full"></vde-property>
-
-<vde-property label="Width" type="range" min="0" step="0.25" max="5"
-              item="mark" property="strokeWidth"
-              ng-model="mark.properties.strokeWidth.value"
-              scale="mark.properties.strokeWidth.scale"
-              field="mark.properties.strokeWidth.field"
-              can-drop-style="left" style="full"></vde-property>
-
+  <vde-property label="Width" type="range" min="0" step="0.25" max="5"
+                item="mark" property="strokeWidth"
+                ng-model="mark.properties.strokeWidth.value"
+                scale="mark.properties.strokeWidth.scale"
+                field="mark.properties.strokeWidth.field"
+                can-drop-style="left" style="full"></vde-property>
 </div>

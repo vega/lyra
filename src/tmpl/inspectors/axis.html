@@ -1,4 +1,4 @@
-<div id="properties" ng-init="types=['x', 'y']; orient=['top', 'bottom', 'left', 'right']; layer=['front', 'back'];">
+<div class="inner" id="properties" ng-init="types=['x', 'y']; orient=['top', 'bottom', 'left', 'right']; layer=['front', 'back'];">
   <h4>Axis</h4>
 
   <vde-property label="Scale" type="scale" item="axis" property="scale"
@@ -49,8 +49,8 @@
       <br clear="all" />
 
       <vde-property label="Color" type="color" item="axis"
-                    property="axisStyle.stroke" nodrop="1" style="full"
-                    ng-model="axis.properties.titleStyle.stroke.value" ></vde-property>
+                    property="axisStyle.fill" nodrop="1" style="full"
+                    ng-model="axis.properties.titleStyle.fill.value" ></vde-property>
     </div>
 
     <h4>Labels</h4>

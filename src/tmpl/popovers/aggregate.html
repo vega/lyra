@@ -1,13 +1,12 @@
-<div id="aggregate-inspector">
-  <div class="bubble">
-    <a class="close" vde-clear-bubbles>Close</a>
-    <div class="bubble-inner" ng-init="stats = ['count', 'min', 'max', 'sum', 'mean', 'variance', 'stdev', 'median'];">
+<div id="aggregate-popover" class="popover fade bottom in">
+  <div class="arrow"></div>
 
-    <h5>Aggregate</h5>
+  <h3 class="popover-title">Aggregate <a class="close" ng-click="editBinding($event, 'field')">×</a></h3>
 
-    <ul>
-      <li ng-repeat="s in stats" ng-class="{'selected': activeField.stat == s}"><a ng-click="aggregate(s);">{{s}}</a></li>
-    </ul>
-
-  </div></div>
+  <div class="inner" ng-init="stats = ['count', 'min', 'max', 'sum', 'mean', 'variance', 'stdev', 'median'];">
+    <div class="btn-group">
+      <button ng-repeat="s in stats" class="btn btn-mini"
+              ng-class="{'info': activeField.stat == s}" ng-click="aggregate(s);">{{s}}</button>
+    </div>
+  </div>
 </div>

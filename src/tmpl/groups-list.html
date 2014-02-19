@@ -9,8 +9,13 @@
       </div>
 
       <ul ui:sortable="gMdl.sortableOpts" ng:model="groupOrder">
-        <li ng-repeat="groupName in groupOrder" ng-controller="GroupCtrl">
-          <ng-include src="'tmpl/group.html'"></ng-include>
+        <li ng-repeat="layerName in groupOrder" ng-controller="GroupCtrl">
+          <h3 vde-edit-name ng-model="group.displayName"
+              ng-class="{selected:activeVisual==group,
+              expanded:activeLayer==group, contracted:activeLayer!=group}"
+              ng-click="toggleVisual(group)">{{group.displayName}}</h3>
+
+          <ng-include src="'tmpl/inspectors/group.html'"></ng-include>
         </li>
       </ul>
     </li>

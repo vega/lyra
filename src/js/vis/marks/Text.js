@@ -1,6 +1,6 @@
 vde.Vis.marks.Text = (function() {
-  var text = function(name, groupName) {
-    vde.Vis.Mark.call(this, name, groupName);
+  var text = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name, layerName, groupName);
 
     this.type = 'text';
 

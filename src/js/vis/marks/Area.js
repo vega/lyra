@@ -1,6 +1,6 @@
 vde.Vis.marks.Area = (function() {
-  var area = function(name, groupName) {
-    vde.Vis.Mark.call(this, name, groupName);
+  var area = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name, layerName, groupName);
 
     this.type = 'area';
 
@@ -15,7 +15,7 @@ vde.Vis.marks.Area = (function() {
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
       stroke: {value: '#000000'},
-      strokeWidth: {value: 0}
+      strokeWidth: {value: 0.25}
     };
 
     vde.Vis.callback.register('vis.post_spec', this, function(opts) {

@@ -1,6 +1,6 @@
 vde.Vis.marks.Symbol = (function() {
-  var symbol = function(name, groupName) {
-    vde.Vis.Mark.call(this, name, groupName);
+  var symbol = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name, layerName, groupName);
 
     this.type = 'symbol';
 
@@ -14,7 +14,7 @@ vde.Vis.marks.Symbol = (function() {
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
       stroke: {value: '#000000'},
-      strokeWidth: {value: 0}
+      strokeWidth: {value: 0.25}
     };
 
     this.connectors = {'point': {}};

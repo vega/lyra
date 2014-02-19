@@ -21,7 +21,7 @@
         <input type="range" ng-model="$parent.ngModel" ng-change="onchange()" min="{{min}}" max="{{max}}" step="{{step}}" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" />
 
         <span class="editVal" vde-edit-name
-              ng-model="$parent.ngModel" ng-change="onchange()">{{$parent.ngModel || 0}}</span>
+              ng-model="$parent.ngModel" ng-change="onchange()" vde-tooltip="Click to edit">{{$parent.ngModel || 0}}</span>
       </span>
 
       <span ng-switch-when="color">
@@ -31,7 +31,7 @@
                'disabled-input': item.properties[property].disabled}" />
 
         <span class="editVal" vde-edit-name
-              ng-model="$parent.ngModel" ng-change="onchange()">{{$parent.ngModel}}</span>
+              ng-model="$parent.ngModel" ng-change="onchange()" vde-tooltip="Click to edit">{{$parent.ngModel}}</span>
       </span>
 
       <span ng-switch-when="checkbox">
@@ -65,10 +65,8 @@
       <div class="expr-container" ng-switch-when="expr-str" vde-expr="str" ng-model="$parent.ngModel" item="item" property="property"></div>
     </div>
 
-    <div ng-transclude="1"></div>
-
-    <a class="unbind" ng-if="scale || field" ng-click="unbind(property)">Unbind</a>
+    <div class="transclude" ng-transclude="1"></div>
   </div>
 
-  <br clear="all" />
+  <br ng-if="style != 'full'" clear="all" />
 </div>

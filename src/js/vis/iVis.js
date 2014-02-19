@@ -60,6 +60,7 @@ vde.iVis = (function() {
   // events as a result of removing all #ivis children. So, we only reparse
   // when we reparse the Vis, and subsequently only update the datasets.
   ivis.parse = function(scale) {
+    var deferred = ivis.ngQ().defer();
     var spec = {
       width: vde.Vis.view._width,
       height: vde.Vis.view._height,
@@ -172,7 +173,7 @@ vde.iVis = (function() {
 
                   if(item.property) {
                     d3.selectAll('#' + item.property + '.property').classed('drophover', true);
-                    ivis.tooltip(e, item, item.property);
+                    ivis.tooltip(e, item, item.hint, item.property);
                   }
                 }
               break;
@@ -221,9 +222,11 @@ vde.iVis = (function() {
       });
 
       if(!scale) ivis.show('selected');
+
+      deferred.resolve(spec);
     });
 
-    return spec;
+    return deferred.promise;
   };
 
   ivis.bindProperty = function(visual, property, defaults) {
@@ -234,25 +237,22 @@ vde.iVis = (function() {
     var scale = $(ivis.dragging).find('.scale').attr('scale');
     var pipelineName = rootScope.activePipeline.name;
 
-    // if(visual.pipelineName && pipelineName != visual.pipelineName && field)
-    //   return alert('Pipelines don\'t match');
-
     rootScope.$apply(function() {
-      if(!visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
+      if(visual && !visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
 
-      visual.bindProperty(property,
+      // If we don't have an activeMark, we're dropping over the layer's facet dropzones
+      (visual || rootScope.activeLayer).bindProperty(property,
         {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
-    vde.Vis.parse();
-
-    window.setTimeout(function() {
-      $('.proxy').remove();
+    vde.Vis.parse().then(function(spec) {
+      $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
+      if(!visual) visual = {}
       ivis.ngLogger().log('bind', {
         item: visual.name,
-        group: visual.groupName,
+        group: visual.layerName,
         activePipeline: rootScope.activePipeline.name,
         itemPipeline: visual.pipelineName,
         property: property,
@@ -262,8 +262,8 @@ vde.iVis = (function() {
 
       ivis.ngTimeline().save();
 
-      if(visual.groupName) rootScope.$apply(function() { rootScope.toggleVisual(visual, null, true); });
-    }, 1);
+      if(visual.layerName) rootScope.toggleVisual(visual, null, true);
+    });
 
     window.clearTimeout(vde.iVis.timeout);
   };
@@ -275,9 +275,9 @@ vde.iVis = (function() {
     // If they've dropped on an empty non-group space.
     if(!host) host = rootScope.activeLayer;
 
-    if(host instanceof vde.Vis.marks.Group) mark.groupName = host.name;
+    if(host instanceof vde.Vis.marks.Group) mark.layerName = host.name;
     else if(host.connectors[connector] && mark.canConnect) {
-      mark.groupName    = host.groupName;
+      mark.layerName    = host.layerName;
       mark.connectedTo  = {host: host, connector: connector};
     }
 
@@ -285,26 +285,21 @@ vde.iVis = (function() {
 
     rootScope.$apply(function() {
       mark.init();
-      vde.Vis.parse();
-    });
+      vde.Vis.parse().then(function(spec) {
+        ivis.newMark = null;
+        $('.proxy').remove();
 
-    ivis.newMark = null;
-    $('.proxy').remove();
+        ivis.ngLogger().log('new_mark', {
+          markType: mark.type,
+          markName: mark.name,
+          activeLayer: (rootScope.activeLayer || {}).name,
+          markGroup: mark.layerName
+        }, true);
 
-    window.setTimeout(function() {
-      ivis.ngLogger().log('new_mark', {
-        markType: mark.type,
-        markName: mark.name,
-        activeLayer: (rootScope.activeLayer || {}).name,
-        markGroup: mark.groupName
-      }, true);
-
-      rootScope.$apply(function() {
         rootScope.toggleVisual(mark, null, true);
-
         ivis.ngTimeline().save();
       });
-    }, 1);
+    });
 
     window.clearTimeout(vde.iVis.timeout);
   };
@@ -459,7 +454,8 @@ vde.iVis = (function() {
           fill: {value: 'cyan'},
           property: {field: 'data.property'},
           connector: {field: 'data.connector'},
-          layout: {field: 'data.layout'}
+          layout: {field: 'data.layout'},
+          hint: {field: 'data.hint'}
         },
         hover: {
           fill: {value: 'lightsalmon'}
@@ -510,10 +506,10 @@ vde.iVis = (function() {
     }
   };
 
-  ivis.tooltip = function(evt, dropzone, property) {
+  ivis.tooltip = function(evt, dropzone, hint, property) {
     var tooltip = $('<div class="tooltip fade in">' +
       '<div class="tooltip-arrow"></div>' +
-      '<div class="tooltip-inner">' + property + '</div></div>');
+      '<div class="tooltip-inner">' + (hint || property) + '</div></div>');
     $('body').append(tooltip);
     var b = ivis.translatedBounds(dropzone, dropzone.bounds);
 
@@ -564,7 +560,11 @@ vde.iVis = (function() {
 
   ivis.ngFilter = function() {
     return $('html').injector().get('$filter');
-  }
+  };
+
+  ivis.ngQ = function() {
+    return $('html').injector().get('$q');
+  };
 
   return ivis;
 })();

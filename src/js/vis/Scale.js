@@ -18,14 +18,14 @@ vde.Vis.Scale = (function() {
 
     this.hasAxis  = false;  // Does this scale already have an axis/legend on the vis
     this.axisType = 'x';    // If not, visualize it on iVis when editing
-    this.shadowInGroup = false; // Drawn domain from group's dataset?
+    this.inheritFromGroup = false; // Drawn domain from group's dataset?
 
     this.properties = {
       type: 'linear',
       points: true,
       nice: true,
       // clamp: false
-      // padding: 0,
+      padding: 0,
       // exponent: 0,
       zero: true
     };
@@ -58,7 +58,7 @@ vde.Vis.Scale = (function() {
       ? { data:  field.stat ? field.pipeline().forkName : field.pipelineName,
           field: field.stat ? field.spec().replace('stats.','') : field.spec() }
       : this.domainValues;
-    spec.shadowInGroup = this.shadowInGroup;  // Easiest way of picking this up in group injection
+    spec.inheritFromGroup = this.inheritFromGroup;  // Easiest way of picking this up in group injection
 
     spec.range = (this.rangeTypes.from == 'field' && this.rangeField) ?
       this.rangeField.spec() : this.rangeValues;
@@ -112,7 +112,7 @@ vde.Vis.Scale = (function() {
   };
 
   prototype.unbindProperty = function(prop) {
-    delete this.properties[prop];
+    delete this[prop];
   };
 
   return scale;

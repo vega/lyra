@@ -1,6 +1,15 @@
-var vde = {version: '0.0.5'};
+var vde = {version: 1};
 
-vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable']);
+vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable', 'xc.indexedDB'],
+    function($compileProvider, $indexedDBProvider) {
+      $compileProvider.aHrefSanitizationWhitelist(/^\s*(data|blob|https?|ftp|mailto|file):/);
+
+      $indexedDBProvider
+        .connection('lyraDB')
+        .upgradeDatabase(vde.version, function(event, db, tx){
+          var objStore = db.createObjectStore('files', {keyPath: 'fileName'});
+        });
+});
 
 vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, timeline) {
   $scope.load = function() {
@@ -18,32 +27,30 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
         // vde.Vis.data('cities', 'data/cities.json', 'json');
         // vde.Vis.data('army', 'data/army.json', 'json');
         // vde.Vis.data('temps', 'data/temps.json', 'json');
-        vde.Vis.data('trailers', 'data/trailers.json', 'json');
-        vde.Vis.data('movies', 'data/movies.json', 'json');
-        vde.Vis.data('characters', 'data/mis-characters.json', 'json');
-        vde.Vis.data('connections', 'data/mis-connections.json', 'json');
-        vde.Vis.data('trains', 'data/trains.json', 'json');
-        vde.Vis.data('stations', 'data/stations.json', 'json');
-        vde.Vis.data('unemployment', 'data/unemployment.json', 'json');
+//        vde.Vis.data('trailers', 'data/trailers.json', 'json');
+//        vde.Vis.data('movies', 'data/movies.json', 'json');
+//        vde.Vis.data('characters', 'data/mis-characters.json', 'json');
+//        vde.Vis.data('connections', 'data/mis-connections.json', 'json');
+        // vde.Vis.data('trains', 'data/trains.json', 'json');
+        // vde.Vis.data('stations', 'data/stations.json', 'json');
+//        vde.Vis.data('unemployment', 'data/unemployment.json', 'json');
         // vde.Vis.data('wheat', 'data/wheat.json', 'json');
         // vde.Vis.data('monarchs', 'data/monarchs.json', 'json');
         // vde.Vis.data('hotels', 'data/hotels.json', 'json');
-        vde.Vis.data('rundown', 'data/rundown.json', 'json');
+//        vde.Vis.data('rundown', 'data/rundown.json', 'json');
         // vde.Vis.data('deaths', 'data/curves.json', 'json');
         // vde.Vis.data('zipcodes', 'data/zipcodes.json', 'json');
         // vde.Vis.data('stocks', 'data/stocks.csv', {"type": "csv", "parse": {"price":"number", "date":"date"}});
       }
 
       var g = new vde.Vis.marks.Group();
-      $rootScope.activeLayer = g;
+      $rootScope.activeGroup = $rootScope.activeLayer = g;
 
       var p = new vde.Vis.Pipeline();
       $rootScope.activePipeline = p;
 
-      vde.Vis.parse();
-
       // To be able to undo all the way back to a default/clean slate.
-      timeline.save();
+      vde.Vis.parse().then(function() { timeline.save(); });
     }, 500)
   };
 
@@ -79,73 +86,15 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
   });
 });
 
-vde.App.controller('ExportCtrl', function($scope, $rootScope) {
-  $scope.eMdl = {};
+vde.App.controller('ScaleCtrl', function($scope, $rootScope) {
+  $scope.types = ['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile',
+                  'quantize', 'threshold', 'utc', 'time', 'ref'];
 
-  $scope.export = function() {
-    $scope.eMdl.spec = JSON.stringify(vde.Vis.parse(false), null, 2);
-  };
-});
-
-vde.App.directive('vdeClearBubbles', function($rootScope) {
-  return function(scope, element, attrs) {
-    element.click(function() {
-      $rootScope.activeScale = null;
-      $('#binding-inspector').hide();
-      $('#aggregate-inspector').hide();
-
-      $rootScope.previewTransformIdx = null;
-      $rootScope.editVis = false;
-
-      // To clear scale visualizations
-      vde.iVis.parse();
-    })
-  };
-});
-
-vde.App.directive('vdeCanDropField', function() {
-  return {
-    restrict: 'E',
-    scope: {style: "@"},
-    template: '<div class="canDropField {{style}}" vde-tooltip="Drag a field here">Drop a field here.</div>'
-  }
-})
-
-vde.App.directive('vdeEditName', function() {
-  return {
-    restrict: 'A', // only activate on element attribute
-    require: '?ngModel', // get a hold of NgModelController
-    link: function(scope, element, attrs, ngModel) {
-      if(!ngModel) return; // do nothing if no ng-model
-
-      // Specify how UI should be updated
-      ngModel.$render = function() {
-        element.text(ngModel.$viewValue || '');
-      };
-
-      // Listen for change events to enable binding
-      element.on('blur keyup change', function() {
-        scope.$apply(read);
-      });
-
-      // Only edit on double click
-      element.on('dblclick', function() {
-        element.attr('contentEditable', true);
-        element.focus();
-      });
-      element.on('blur', function() {
-        element.attr('contentEditable', false);
-      })
-
-      // Write data to the model
-      function read() {
-        var html = element.text();
-        // When we clear the content editable the browser leaves a <br> behind
-        if(html == '<br>' ) html = '';
-        ngModel.$setViewValue(html);
-      }
-    }
-  };
+  $scope.fromTypes = ['field', 'values'];
+  $scope.rangeTypes = ['spatial', 'colors', 'shapes', 'sizes', 'other'];
+  $scope.axisTypes=['x', 'y'];
+  $scope.nice = ['', 'second', 'minute', 'hour', 'day', 'week', 'month', 'year'];
+  $scope.shapes = ['&#9724;', '&#9650;', '&#9660;', '&#11044;', '&#9830;', '&#43;'];
 });
 
 vde.App.directive('vdeTooltip', function() {
@@ -156,15 +105,5 @@ vde.App.directive('vdeTooltip', function() {
       // delay: { show: 300, hide: 150 },
       container: 'body'
     });
-  };
-});
-
-vde.App.directive('vdeCarousel', function($timeout) {
-  return {
-    link: function(scope, element, attrs) {
-      $timeout(function() {
-        element.scrollingCarousel({ looped: false })
-      }, 1);
-    }
   };
 });
