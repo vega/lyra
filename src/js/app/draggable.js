@@ -29,8 +29,8 @@ vde.App.factory('draggable', function($rootScope) {
       if(!isMark) {
         // If the pipeline doesn't already have a facet applied to it
         // show dropzones for grouping
-        if(!$rootScope.activePipeline.forkName)
-          $rootScope.activeLayer.propertyTargets();
+//        if(!$rootScope.activePipeline.forkName)
+//          $rootScope.activeLayer.propertyTargets();
       }
 
       return proxy;

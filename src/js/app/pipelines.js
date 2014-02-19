@@ -35,7 +35,7 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, logger, tim
     }
 
     logger.log('toggle_pipeline', {
-      activePipeline: $rootScope.activePipeline.name
+      activePipeline: ($rootScope.activePipeline||{}).name
     });
   };
 

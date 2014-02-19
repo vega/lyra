@@ -381,7 +381,7 @@ vde.App.directive('vdeEditName', function() {
 
       // If we're editing a heading, then make it editable on a double click
       // If it's a property value (e.g. color or slider val), then just a single click
-      element.on(element.prop('tagName') == 'H3' ? 'dblclick' : 'click', function() {
+      element.on(element.parent().prop('tagName') == 'H3' ? 'dblclick' : 'click', function() {
         element.attr('contentEditable', true);
         element.focus();
       });

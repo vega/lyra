@@ -26,10 +26,15 @@ h3 {
   padding: @padding-horiz @padding-horiz;
   font-size: 16px;
   font-weight: @demibold-weight;
-  cursor: pointer;
+
+  span {
+    display: inline-block;
+    width: 255px;
+    cursor: pointer;
+  }
 }
 
-h3:focus, .editVal:focus {
+h3 span:focus, .editVal:focus {
   -moz-user-select: -moz-text;
   -khtml-user-select: text;
   -webkit-user-select: text;
@@ -39,6 +44,8 @@ h3:focus, .editVal:focus {
   background-color: white !important;
   border: 1px solid darkgray !important;
   box-shadow: 1px 1px 1px 0 lightgray inset;
+
+  padding: 0 5px;
 }
 
 h3.selected  {
