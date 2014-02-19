@@ -80,51 +80,80 @@ describe('pipelines panel', function() {
     browser.actions().mouseMove(remove).perform();
     remove.click();
     expect(element.all(by.repeater(pipelineLst)).count()).toEqual(1);
-  })
 
-  it('should select source', function() {
-    element(by.css('#pipelines h3:nth-child(1)')).click();
-
-    element(by.css(visible + '.import-data select')).click();
-    element(by.css(visible + 'option[value="1"]')).click();
-
-    expect(element(by.css(visible + '#datasheet')).isDisplayed()).toBe(true);
-    expect(element(by.css(visible + 'h6:nth-child(1)')).isDisplayed()).toBe(true);
   });
 
-  it('should sort', function() {
-    expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
+  describe("pipelines transformation", function(){
+    it('should select source', function() {
+      element(by.css('#pipelines h3:nth-child(1)')).click();
 
-    element(by.css(visible + '.transform-sort')).click();
-    expect(element.all(by.repeater(newTransformsLst)).count()).toEqual(1);
+      element(by.css(visible + '.import-data select')).click();
+      element(by.css(visible + 'option[value="1"]')).click();
 
-    // Assuming olympics dataset is selected (from the previous test). Drag and drop is
-    var isoCode = element(by.css(visible + '.DTFC_LeftBodyWrapper tbody td:nth-child(1)'));
-    var sortBy = element(by.css(visible + '#by'));
-    vde.dragAndDrop(isoCode, sortBy);
+      expect(element(by.css(visible + '#datasheet')).isDisplayed()).toBe(true);
+      expect(element(by.css(visible + 'h6:nth-child(1)')).isDisplayed()).toBe(true);
+    });
 
-    expect(element(by.css(visible + '#by')).isElementPresent(by.css('.binding'))).toBe(true);
+    it('should sort', function() {
+      expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
 
-    var sortOrder = element(by.model('transform.properties.order'));
-    sortOrder.findElement(by.css('select')).click();
-    sortOrder.findElement(by.css('option[value="1"]')).click();
+      element(by.css(visible + '.transform-sort')).click();
+      expect(element.all(by.repeater(newTransformsLst)).count()).toEqual(1);
 
-    element(by.repeater(newTransformsLst).row(0))
+      // Assuming olympics dataset is selected (from the previous test). Drag and drop is
+      var isoCode = element(by.css(visible + '.DTFC_LeftBodyWrapper tbody td:nth-child(1)'));
+      var sortBy = element(by.css(visible + '#by'));
+      vde.dragAndDrop(isoCode, sortBy);
+
+      expect(element(by.css(visible + '#by')).isElementPresent(by.css('.binding'))).toBe(true);
+
+      var sortOrder = element(by.model('transform.properties.order'));
+      sortOrder.findElement(by.css('select')).click();
+      sortOrder.findElement(by.css('option[value="1"]')).click();
+
+      element(by.repeater(newTransformsLst).row(0))
         .findElement(by.css('input[value="Add to Pipeline"]')).click();
 
-    expect(element.all(by.repeater(transformsLst)).count()).toEqual(1);
-    expect(element.all(by.repeater(newTransformsLst)).count()).toEqual(0);
+      expect(element.all(by.repeater(transformsLst)).count()).toEqual(1);
+      expect(element.all(by.repeater(newTransformsLst)).count()).toEqual(0);
 
-    // Use JSONPath to check the value of keys in the spec
-    // http://goessner.net/articles/JsonPath/
-    vde.checkSpec([{
-      path: "$['data'][?(@.name == 'pipeline_1')].transform[0].type",
-      equal: "sort"
-    }, {
-      path: "$['data'][?(@.name == 'pipeline_1')].transform[0].by",
-      equal: "-data.ISO_country_code"
-    }])
+      // Use JSONPath to check the value of keys in the spec
+      // http://goessner.net/articles/JsonPath/
+      vde.checkSpec([{
+        path: "$['data'][?(@.name == 'pipeline_1')].transform[0].type",
+        equal: "sort"
+      }, {
+        path: "$['data'][?(@.name == 'pipeline_1')].transform[0].by",
+        equal: "-data.ISO_country_code"
+      }])
+    });
+
   });
 
-  // TODO: other transformations.
+  describe("filter transform", function(){
+    it("should filter", function(){
+      //TODO(kanitw): filter
+
+      // d.data.x > 10
+
+      // d.data.x > 10 with drag and drop
+
+      //.length log(d.data.y)/LN10 > 2
+
+      // try bad data
+    });
+  });
+
+
+  it("should transform using formula", function(){
+    //TODO(kanitw): transform
+  });
+
+  it("should group by", function(){
+    //TODO(kanitw): filter
+  });
+
+  it("should window", function(){
+    //TODO(kanitw): filter
+  });
 });
