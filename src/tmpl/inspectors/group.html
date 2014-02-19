@@ -3,13 +3,13 @@
 </div>
 
 <div ng-if="activeLayer == group || activeGroup == group">
-  <h5>Axes <a class="close" vde-tooltip="New Axis" ng-click="addAxis()">&plus;</a></h5>
+  <h5>Axes <a class="close" vde-tooltip="New Axis" ng-click="addAxis(group)">&plus;</a></h5>
 
   <ul>
     <li ng-repeat="(axisName, axis) in group.axes">
       <h3 ng-class="{selected:activeVisual==axis}">
         <span vde-edit-name ng-model="axis.displayName" ng-click="toggleVisual(axis)">{{axis.properties.title || axis.displayName}}</span>
-        <a class="delete close" vde-tooltip="Delete {{axis.displayName}}" ng-click="removeVisual('axes', axis.name)">&minus;</a>
+        <a class="delete close" vde-tooltip="Delete {{axis.displayName}}" ng-click="removeVisual('axes', axis.name, group)">&minus;</a>
       </h3>
 
       <div class="inspector" ng-if="activeVisual==axis">
@@ -26,7 +26,7 @@
           expanded:mark.type == 'group' && activeGroup==group,
           contracted:mark.type == 'group' && activeGroup!=group}">
         <span vde-edit-name ng-model="mark.displayName" ng-click="toggleVisual(mark)">{{mark.displayName|inflector:'humanize'}}</span>
-        <a class="delete close" vde-tooltip="Delete {{mark.displayName}}" ng-click="removeVisual('marks', mark.name)">&minus;</a>
+        <a class="delete close" vde-tooltip="Delete {{mark.displayName}}" ng-click="removeVisual('marks', mark.name, group)">&minus;</a>
       </h3>
 
       <div class="inspector" ng-if="activeVisual==mark || mark.type == 'group' && activeGroup == mark">

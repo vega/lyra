@@ -90,9 +90,9 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
     });
   };
 
-  $scope.addAxis = function() {
-    var axis = new vde.Vis.Axis('', $rootScope.activeLayer.name,
-        (!$rootScope.activeGroup.isLayer()) ? $rootScope.activeGroup.name : null);
+  $scope.addAxis = function(group) {
+    var axis = new vde.Vis.Axis('', group.isLayer() ? group.name : group.group().name,
+        !group.isLayer() ? group.name : null);
     $rootScope.activeVisual = axis;
 
     logger.log('new_axis', {
@@ -105,7 +105,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
     timeline.save();
   };
 
-  $rootScope.removeVisual = function(type, name) {
+  $rootScope.removeVisual = function(type, name, group) {
     var cnf = confirm("Are you sure you wish to delete this visual element?")
     if(!cnf) return;
 
@@ -117,13 +117,12 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, logg
       var go = vde.Vis.groupOrder;
       go.splice(go.indexOf(name), 1);
     } else {
-      var g = $rootScope.activeLayer;
-      if(vde.iVis.activeMark == g[type][name]) vde.iVis.activeMark = null;
-      g[type][name].destroy();
-      delete g[type][name];
+      if(vde.iVis.activeMark == group[type][name]) vde.iVis.activeMark = null;
+      group[type][name].destroy();
+      delete group[type][name];
 
       if(type == 'marks') {
-        var mo = g.markOrder;
+        var mo = group.markOrder;
         mo.splice(mo.indexOf(name), 1);
       }
     }
