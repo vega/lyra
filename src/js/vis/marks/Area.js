@@ -49,7 +49,9 @@ vde.Vis.marks.Area = (function() {
 
   prototype.selected = function() { return line.selected.call(this); };
   prototype.helper = function(property) { return line.helper.call(this, property); }
-  prototype.propertyTargets = function() { return line.propertyTargets.call(this); }
+  prototype.propertyTargets = function(connector, showGroup) {
+    return line.propertyTargets.call(this, connector, showGroup);
+  };
 
   prototype.coordinates = function(connector, item, def) {
     return line.coordinates.call(this, connector, item, def);

@@ -484,7 +484,7 @@ vde.Vis.Mark = (function() {
   prototype.selected = function() { return {}; }
   prototype.helper   = function(property) { return null; }
 
-  prototype.propertyTargets   = function() { return null; }
+  prototype.propertyTargets   = function(connector, showGroup) { return null; }
   prototype.connectionTargets = function() { return null; }
 
   prototype.connect = function(connector, mark) { return null; }

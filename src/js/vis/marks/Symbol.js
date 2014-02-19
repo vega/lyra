@@ -102,7 +102,7 @@ vde.Vis.marks.Symbol = (function() {
       .show(['point', 'span']);
   };
 
-  prototype.propertyTargets = function() {
+  prototype.propertyTargets = function(connector, showGroup) {
     var self = this,
         item = this.item(vde.iVis.activeItem),
         spans = [], dropzones = [];
@@ -115,6 +115,12 @@ vde.Vis.marks.Symbol = (function() {
       dropzones = dropzones.concat(self.dropzones(s));
       spans = spans.concat(s);
     });
+
+    if(showGroup) {
+      var groupInteractors = this.group().propertyTargets();
+      spans = spans.concat(groupInteractors.spans);
+      dropzones = dropzones.concat(groupInteractors.dropzones);
+    }
 
     vde.iVis.interactor('point', [this.connectors['point'].coords(item)])
       .interactor('span', spans)

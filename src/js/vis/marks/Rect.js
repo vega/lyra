@@ -198,7 +198,7 @@ vde.Vis.marks.Rect = (function() {
       .show(['point', 'span']);
   };
 
-  prototype.propertyTargets = function(connector) {
+  prototype.propertyTargets = function(connector, showGroup) {
     var self  = this,
         item  = this.item(vde.iVis.activeItem),
         props = [],
@@ -211,6 +211,12 @@ vde.Vis.marks.Rect = (function() {
 
     if(connector) props = connToSpan[connector].props;
     if(props.length == 0) props = ['width', 'height'];
+
+    if(showGroup) {
+      var groupInteractors = this.group().propertyTargets();
+      spans = spans.concat(groupInteractors.spans);
+      dropzones = dropzones.concat(groupInteractors.dropzones);
+    }
 
     props.forEach(function(prop) {
       var span = self.spans(item, prop)

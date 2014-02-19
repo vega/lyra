@@ -247,7 +247,7 @@ vde.Vis.marks.Group = (function() {
     var self = this, item = this.item(vde.iVis.activeItem || 0),
         dropzones = [], spans = [];
 
-    if(!self.isLayer()) return;
+    if(!self.isLayer()) return {};
 
     // We want the width/height spans of a rect mark, and then when binding,
     // we'll interpret them as horizontal/vertical group by layout.
@@ -257,18 +257,16 @@ vde.Vis.marks.Group = (function() {
       var zone = self.dropzones(span);
       if(prop == facet.dropzone_horiz) {
         zone.hint = facet.hint_horiz;
-        zone.y += 15; zone.y2 += 15;
+//        zone.y += 15; zone.y2 += 15;
       } else {
         zone.hint = facet.hint_vert;
-        zone.x += 15; zone.x2 += 15;
+//        zone.x += 15; zone.x2 += 15;
       }
       dropzones = dropzones.concat(zone);
       spans     = spans.concat(span);
     });
 
-    vde.iVis.interactor('span', spans)
-        .interactor('dropzone', dropzones)
-        .show(['span', 'dropzone']);
+    return {spans: spans, dropzones: dropzones};
   };
 
   prototype.coordinates = function(connector, item, def) {

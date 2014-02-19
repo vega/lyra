@@ -161,10 +161,11 @@ vde.iVis = (function() {
                       items: items()
                     });
                   else
-                    ivis.view.update({
-                      props: 'hover',
-                      items: item.cousin(-1).items[0].items
-                    });
+                    if(item.cousin(-1))
+                      ivis.view.update({
+                        props: 'hover',
+                        items: item.cousin(-1).items[0].items
+                      });
 
                   if(item.property) {
                     d3.selectAll('#' + item.property + '.property').classed('drophover', true);
@@ -182,10 +183,11 @@ vde.iVis = (function() {
                       items: items()
                     });
                   else
-                    ivis.view.update({
-                      props: 'update',
-                      items: item.cousin(-1).items[0].items
-                    });
+                    if(item.cousin(-1))
+                      ivis.view.update({
+                        props: 'update',
+                        items: item.cousin(-1).items[0].items
+                      });
 
                   if(item.property)
                     d3.selectAll('#' + item.property + '.property').classed('drophover', false);

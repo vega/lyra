@@ -22,15 +22,17 @@ vde.App.factory('draggable', function($rootScope) {
         if(isMark && vde.iVis.newMark.canConnect) v.connectionTargets();
         else if(!isMark)  {
           // Definitely show any property targets for the active visual
-          v.propertyTargets();
+          v.propertyTargets(null, !$rootScope.activePipeline.forkName);
         }
-      }
-
-      if(!isMark) {
+      } else if(!isMark && !v) {
         // If the pipeline doesn't already have a facet applied to it
         // show dropzones for grouping
-//        if(!$rootScope.activePipeline.forkName)
-//          $rootScope.activeLayer.propertyTargets();
+        if(!$rootScope.activePipeline.forkName) {
+          var targets = $rootScope.activeLayer.propertyTargets();
+          vde.iVis.interactor('span', targets.spans)
+            .interactor('dropzone', targets.dropzones)
+            .show(['span', 'dropzone']);
+        }
       }
 
       return proxy;

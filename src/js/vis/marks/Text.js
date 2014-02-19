@@ -244,7 +244,7 @@ vde.Vis.marks.Text = (function() {
       .show(['point', 'span']);
   };
 
-  prototype.propertyTargets = function() {
+  prototype.propertyTargets = function(connector, showGroup) {
     var self = this,
         item = this.item(vde.iVis.activeItem),
         spans = [], dropzones = [];
@@ -260,6 +260,12 @@ vde.Vis.marks.Text = (function() {
     var connectors = [this.connectors['text'].coords(item)];
     connectors[0].property = 'text';
     dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
+
+    if(showGroup) {
+      var groupInteractors = this.group().propertyTargets();
+      spans = spans.concat(groupInteractors.spans);
+      dropzones = dropzones.concat(groupInteractors.dropzones);
+    }
 
     vde.iVis.interactor('point', connectors)
       .interactor('span', spans)

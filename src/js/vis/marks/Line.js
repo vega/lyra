@@ -110,8 +110,8 @@ vde.Vis.marks.Line = (function() {
     return symbol.helper.call(this, property);
   };
 
-  prototype.propertyTargets = function() {
-    return symbol.propertyTargets.call(this);
+  prototype.propertyTargets = function(connector, showGroup) {
+    return symbol.propertyTargets.call(this, connector, showGroup);
   };
 
   prototype.coordinates = function(connector, item, def) {
