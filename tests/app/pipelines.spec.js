@@ -14,7 +14,7 @@ describe('pipelines panel', function() {
     var pipelineName = element(by.repeater(pipelineLst)
                 .row(0).column('displayName'));
 
-    expect(pipelineName.getText()).toEqual('Pipeline 1');
+    expect(pipelineName.getText()).toEqual('Pipeline Alpha');
     element.all(by.repeater(scaleLst)).then(function(arr) {
       expect(arr.length).toEqual(0);
     });
@@ -22,7 +22,9 @@ describe('pipelines panel', function() {
 
   it('should rename pipeline', function() {
     var nameIn = element(by.model('pipeline.displayName'));
-    nameIn.clear();
+    nameIn.click();
+    nameIn.click();
+//    nameIn.clear();
     nameIn.sendKeys('protractor_pipeline');
 
     var nameH3 = element(by.binding("{{pipeline.displayName|inflector:'humanize'}}"));
@@ -31,14 +33,14 @@ describe('pipelines panel', function() {
 
   it('should add new pipelines', function() {
     // Click the add button a couple of times
-    element(by.css('#pipelines .add')).click();
-    element(by.css('#pipelines .add')).click();
+    element(by.css('#pipelines-list .addNew')).click();
+    element(by.css('#pipelines-list .addNew')).click();
 
     // Then check we've got three pipelines in the listing
     element.all(by.repeater(pipelineLst)).then(function(arr) {
       expect(arr.length).toEqual(3);
-      expect(arr[1].findElement(by.css('h3')).getText()).toEqual('Pipeline 2');
-      expect(arr[2].findElement(by.css('h3')).getText()).toEqual('Pipeline 3');
+      expect(arr[1].findElement(by.css('h3')).getText()).toEqual('Pipeline Beta');
+      expect(arr[2].findElement(by.css('h3')).getText()).toEqual('Pipeline Gamma');
 
       // And that only the last one was selected
       expect(arr[0].findElement(by.css('.inspector')).isDisplayed()).toBe(false);
