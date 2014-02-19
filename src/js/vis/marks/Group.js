@@ -231,11 +231,13 @@ vde.Vis.marks.Group = (function() {
     // But we want to reparse the spec on mouseup (i.e. interactive resize)
     // to get the axes to do the right thing.
     selected.evtHandlers.mouseup = function() {
-      vde.Vis.parse();
+      if(self.iVisUpdated) {
+        vde.Vis.parse();
 
-      vde.iVis.ngScope().$apply(function() {
-        vde.iVis.ngTimeline().save();
-      })
+        vde.iVis.ngScope().$apply(function() {
+          vde.iVis.ngTimeline().save();
+        })
+      }
     };
 
     return selected;

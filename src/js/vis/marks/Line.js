@@ -87,15 +87,19 @@ vde.Vis.marks.Line = (function() {
         props.x.value += dx;
         props.y.value += dy;
         self.update(['x', 'y']);
+        self.iVisUpdated = true;
       });
     }
 
     var enabled = (this.type == 'rule' && !props.x.field && !props.y.field)
 
     var mouseup = function() {
-      vde.iVis.ngScope().$apply(function() {
-        vde.iVis.ngTimeline().save();
-      })
+      if(self.iVisUpdated)
+        vde.iVis.ngScope().$apply(function() {
+          vde.iVis.ngTimeline().save();
+        })
+
+      delete self.iVisUpdated
     };
 
     return {

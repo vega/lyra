@@ -60,7 +60,7 @@ vde.Vis.marks.Rect = (function() {
 
     // TODO: What is the right thing to infer here? I think it's easier to debug what's
     // going on if we don't try to infer scales from the other extent properties...
-    
+
     // First check to see if a related property already has a scale, and reuse it.
     // But only do this if we're not dropping over the "height" or "width" dropzones.
     // if(!scale && props.indexOf(prop) != -1 && !(defaults && (prop == 'height' || prop == 'width'))
@@ -122,13 +122,18 @@ vde.Vis.marks.Rect = (function() {
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
           data = dragging.item.datum.data;
 
-      if(!data || data.disabled) return;
+      if(!data || data.disabled || !data.connector) return;
+
+      delete self.iVisUpdated
 
       // Since we're updating a value, pull the current value from the
       // scenegraph directly rather than properties. This makes it easier
       // to cope with rangeBands and {scale, value} properties.
       var updateValue = function(prop, delta) {
-        if(!props[prop].disabled && !props[prop].field) props[prop] = {value: item[prop] + delta};
+        if(!props[prop].disabled && !props[prop].field) {
+          props[prop] = {value: item[prop] + delta};
+          self.iVisUpdated = true;
+        }
       }
 
       vde.iVis.ngScope().$apply(function() {
@@ -168,9 +173,10 @@ vde.Vis.marks.Rect = (function() {
     };
 
     var mouseup = function() {
-      vde.iVis.ngScope().$apply(function() {
-        vde.iVis.ngTimeline().save();
-      })
+      if(self.iVisUpdated)
+        vde.iVis.ngScope().$apply(function() {
+          vde.iVis.ngTimeline().save();
+        })
     };
 
     return {

@@ -154,6 +154,8 @@ vde.Vis.marks.Text = (function() {
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
           data = dragging.item.datum.data;
 
+      self.iVisUpdated = true;
+
       vde.iVis.ngScope().$apply(function() {
         if(handle) {
           if(evt.metaKey && !props.angle.field) { // Rotate
@@ -194,9 +196,12 @@ vde.Vis.marks.Text = (function() {
     };
 
     var mouseup = function() {
-      vde.iVis.ngScope().$apply(function() {
-        vde.iVis.ngTimeline().save();
-      })
+      if(self.iVisUpdated)
+        vde.iVis.ngScope().$apply(function() {
+          vde.iVis.ngTimeline().save();
+        })
+
+      delete self.iVisUpdated
     };
 
     var keydown = function() {

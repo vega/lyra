@@ -71,6 +71,8 @@ vde.Vis.marks.Symbol = (function() {
 
       if(!handle) return;
 
+      self.iVisUpdated = true;
+
       vde.iVis.ngScope().$apply(function() {
         props.size.value += dx*10;
         self.update('size');
@@ -81,9 +83,12 @@ vde.Vis.marks.Symbol = (function() {
     };
 
     var mouseup = function() {
-      vde.iVis.ngScope().$apply(function() {
-        vde.iVis.ngTimeline().save();
-      })
+      if(self.iVisUpdated)
+        vde.iVis.ngScope().$apply(function() {
+          vde.iVis.ngTimeline().save();
+        })
+
+      delete self.iVisUpdated
     };
 
     vde.iVis.interactor('handle', this.handles(item));
