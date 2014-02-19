@@ -266,7 +266,7 @@ vde.Vis.marks.Group = (function() {
       spans     = spans.concat(span);
     });
 
-    return {spans: spans, dropzones: dropzones};
+    return {spans: [], dropzones: dropzones};
   };
 
   prototype.coordinates = function(connector, item, def) {

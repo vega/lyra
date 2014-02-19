@@ -53,14 +53,14 @@ vde.Vis.marks.Rect = (function() {
     return vde.Vis.Mark.prototype.spec.call(this);
   };
 
-  prototype.productionRules = function(prop, scale, field) {
+  prototype.productionRules = function(prop, scale, field, defaults) {
     var self = this,
         props = this.extents.horizontal.fields.indexOf(prop) != -1 ?
           this.extents.horizontal.fields : this.extents.vertical.fields;
 
     // TODO: What is the right thing to infer here? I think it's easier to debug what's
     // going on if we don't try to infer scales from the other extent properties...
-
+    
     // First check to see if a related property already has a scale, and reuse it.
     // But only do this if we're not dropping over the "height" or "width" dropzones.
     // if(!scale && props.indexOf(prop) != -1 && !(defaults && (prop == 'height' || prop == 'width'))
@@ -245,7 +245,7 @@ vde.Vis.marks.Rect = (function() {
       if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
       if(item.connector)  // For points, switch propertyTargets after a timeout.
         vde.iVis.dropzoneTimeout = window.setTimeout(function() {
-          self.propertyTargets((item.connector == connector) ? '' : item.connector);
+          self.propertyTargets((item.connector == connector) ? '' : item.connector, showGroup);
         }, vde.iVis.timeout);
     };
 

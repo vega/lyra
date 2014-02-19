@@ -133,16 +133,28 @@ vde.iVis = (function() {
                 icanvas.style('cursor', item.datum.data.cursor);
             };
 
-            var items = function() {  // We need to make this more reliable.
+            var items = function() { 
               var items = [];
 
-              if(item.mark.group.items[1].items.length > 0)   // Connectors
-                items.push(item.mark.group.items[1].items[item.key]);
+              if(item.connector) {  // Point or Connector
+                if(item.mark.group.items[1].items.length > 0)   // Connectors
+                  items.push(item.mark.group.items[1].items[item.key]);
 
-              if(item.mark.group.items[3].items.length > 0) { // Points
-                // We need to offset by the number of spans
-                var spans = item.mark.group.items[4].items.length;
-                items.push(item.mark.group.items[3].items[item.key-spans]);
+                if(item.mark.group.items[3].items.length > 0) { // Points
+                  // We need to offset by the number of spans
+                  item.mark.group.items[3].items.forEach(function(i) {
+                    if(i.connector == item.connector || 
+                       i.connector == item.property) items.push(i);
+                  });
+                }
+              } else { // Span
+                // Iterate over span groups
+                item.mark.group.items[4].items.forEach(function(spanGroup) {
+                  spanGroup.items[0].items.forEach(function(lineSegment) {
+                    if(lineSegment.span.indexOf(item.property + '_') != -1) 
+                      items.push(lineSegment);
+                  });
+                })
               }
 
               return items;
@@ -155,17 +167,7 @@ vde.iVis = (function() {
 
                 if(ivis.dragging && item.mark.def.name == 'dropzone') {
                   // On mouseover, highlight the underlying span/connector.
-                  if(item.connector)
-                    ivis.view.update({
-                      props: 'hover',
-                      items: items()
-                    });
-                  else
-                    if(item.cousin(-1))
-                      ivis.view.update({
-                        props: 'hover',
-                        items: item.cousin(-1).items[0].items
-                      });
+                  ivis.view.update({ props: 'hover', items: items() });
 
                   if(item.property) {
                     d3.selectAll('#' + item.property + '.property').classed('drophover', true);
@@ -177,17 +179,7 @@ vde.iVis = (function() {
               case 'mouseout':
                 if(ivis.dragging && item.mark.def.name == 'dropzone') {
                   // Clear highlights
-                  if(item.connector)
-                    ivis.view.update({
-                      props: 'update',
-                      items: items()
-                    });
-                  else
-                    if(item.cousin(-1))
-                      ivis.view.update({
-                        props: 'update',
-                        items: item.cousin(-1).items[0].items
-                      });
+                  ivis.view.update({ props: 'update', items: items() });
 
                   if(item.property)
                     d3.selectAll('#' + item.property + '.property').classed('drophover', false);
