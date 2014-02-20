@@ -96,6 +96,16 @@ vde.App.controller('ScaleCtrl', function($scope, $rootScope) {
   $scope.axisTypes=['x', 'y'];
   $scope.nice = ['', 'second', 'minute', 'hour', 'day', 'week', 'month', 'year'];
   $scope.shapes = ['&#9724;', '&#9650;', '&#9660;', '&#11044;', '&#9830;', '&#43;'];
+
+  $scope.deleteScale = function() {
+    var scale = $rootScope.activeScale;
+    if(scale.used || !scale.manual) return;
+
+    scale.manual = false;
+    vde.Vis.parse().then(function() {
+      $rootScope.editBinding({}, 'scale');
+    });
+  }
 });
 
 vde.App.directive('vdeTooltip', function() {

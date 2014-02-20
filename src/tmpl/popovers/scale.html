@@ -137,6 +137,10 @@
 
     <vde-property label="Reverse" type="checkbox" item="activeScale" property="reverse" ng-model="activeScale.properties.reverse" style="full"></vde-property>
 
+    <br clear="all" />
+    <h4>Delete Scale</h4>
+    <p><a class="btn-danger btn btn-mini" ng-class="{disabled: activeScale.used}" ng-click="deleteScale()">Delete Scale</a></p>
+    <p ng-if="activeScale.used">This scale cannot be deleted as it is currently bound to a visual property</span></p>
   </div>
 
 </div>
