@@ -91,6 +91,7 @@ vde.App.controller('ScaleCtrl', function($scope, $rootScope) {
                   'quantize', 'threshold', 'utc', 'time', 'ref'];
 
   $scope.fromTypes = ['field', 'values'];
+  $scope.rangeFromTypes = ['preset', 'values'];
   $scope.rangeTypes = ['spatial', 'colors', 'shapes', 'sizes', 'other'];
   $scope.axisTypes=['x', 'y'];
   $scope.nice = ['', 'second', 'minute', 'hour', 'day', 'week', 'month', 'year'];

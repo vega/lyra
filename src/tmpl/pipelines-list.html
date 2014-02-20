@@ -3,7 +3,7 @@
 
     <h3 ng-class="{selected:activePipeline==pipeline}">
       <span vde-edit-name ng-model="pipeline.displayName" ng-click="togglePipeline(pipeline)">{{pipeline.displayName}}</span>
-      <a class="close" vde-tooltip="Delete {{pipeline.displayName}}" ng-click="removePipeline(pipeline.name)">&minus;</a>
+      <a class="delete close" vde-tooltip="Delete {{pipeline.displayName}}" ng-click="removePipeline(pipeline.name)">&minus;</a>
     </h3>
 
     <div class="inspector" ng-if="activePipeline==pipeline">
