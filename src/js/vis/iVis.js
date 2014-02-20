@@ -239,16 +239,6 @@ vde.iVis = (function() {
       ivis.dragging = null;
 
       if(!visual) visual = {}
-      ivis.ngLogger().log('bind', {
-        item: visual.name,
-        group: visual.layerName,
-        activePipeline: rootScope.activePipeline.name,
-        itemPipeline: visual.pipelineName,
-        property: property,
-        scaleName: scale,
-        field: field
-      }, true, true);
-
       if(visual.layerName) rootScope.toggleVisual(visual, null, true);
       ivis.ngTimeline().save();
     });
@@ -276,13 +266,6 @@ vde.iVis = (function() {
       vde.Vis.parse().then(function(spec) {
         ivis.newMark = null;
         $('.proxy').remove();
-
-        ivis.ngLogger().log('new_mark', {
-          markType: mark.type,
-          markName: mark.name,
-          activeLayer: (rootScope.activeLayer || {}).name,
-          markGroup: mark.layerName
-        }, true);
 
         rootScope.toggleVisual(mark, null, true);
         ivis.ngTimeline().save();
@@ -536,10 +519,6 @@ vde.iVis = (function() {
 
   ivis.ngScope = function() {
     return $('html').injector().get('$rootScope')
-  };
-
-  ivis.ngLogger = function() {
-    return $('html').injector().get('logger');
   };
 
   ivis.ngTimeline = function() {

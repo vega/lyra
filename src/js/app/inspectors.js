@@ -1,4 +1,4 @@
-vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
+vde.App.directive('vdeProperty', function($rootScope, timeline) {
   return {
     restrict: 'E',
     scope: {
@@ -70,31 +70,12 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
             });
           }
         }, 1);
-
-        logger.log('onchange', {
-          item: $scope.item.name,
-          group: $scope.item.layerName,
-          pipeline: $scope.item.pipelineName,
-          property: $attrs.property,
-          ngModel: $attrs.ngModel,
-          value: $scope.ngModel
-        });
       };
 
       $scope.unbind = function(property) {
         if(!property) property = $scope.property;
         $scope.item.unbindProperty(property);
-        vde.Vis.parse().then(function() {
-          logger.log('unbind', {
-            item: $scope.item.name,
-            group: $scope.item.layerName,
-            pipeline: $scope.item.pipelineName,
-            property: $attrs.property,
-            ngModel: $attrs.ngModel
-          }, true, true);
-
-          timeline.save();
-        });
+        vde.Vis.parse().then(function() { timeline.save(); });
       };
 
       $scope.showHelper = function(target, e, helperClass) {
@@ -181,7 +162,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
   }
 });
 
-vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timeline, logger) {
+vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timeline) {
   return {
     restrict: 'E',
     scope: {
@@ -257,7 +238,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
   }
 });
 
-vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, logger) {
+vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline) {
   return {
     restrict: 'A',
     scope: {

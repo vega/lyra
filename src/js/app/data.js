@@ -1,4 +1,4 @@
-vde.App.controller('DataCtrl', function($scope, $rootScope, logger, timeline) {
+vde.App.controller('DataCtrl', function($scope, $rootScope, timeline) {
   $scope.dMdl = {
     src: {},
     formats: ['json', 'csv', 'tsv'],
@@ -23,15 +23,8 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, logger, timeline) {
         $scope.dMdl.hasLoaded = true;
         $scope.dMdl.isObj = !vg.isArray(src.values);
         $scope.dMdl.properties = vg.keys(src.values);
-
-        logger.log('loaded_values', { 
-          properties: $scope.dMdl.properties,
-          isObj: $scope.dMdl.isObj
-        });
       })
-    }); 
-
-    logger.log('load_values', { src: $scope.dMdl.src });
+    });
   };
 
   $scope.add = function() {
@@ -45,8 +38,6 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, logger, timeline) {
     $rootScope.activePipeline.source = src.name;
     $scope.dMdl.src = {};
     $rootScope.newData = false;
-
-    logger.log('add_data', { src: src });
 
     timeline.save();
   };
