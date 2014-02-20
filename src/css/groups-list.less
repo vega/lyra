@@ -13,17 +13,23 @@
   overflow-y: auto;
 
   ul { list-style-type: none; }
-  li li h3 { padding-left: 1.5*@indent; }
-  li li li h3 { padding-left: 3*@indent; }
-  li li li li h3 { padding-left: 4.5*@indent; }
+  li li h3, li li h5 { padding-left: 1.5*@indent; }
+  li li li h3, li li li h5 { padding-left: 2.5*@indent; }
+  li li li li h3, li li li li h5 { padding-left: 3.5*@indent; }
 
-  h3 span { width: 200px; }
-
-  h3:before {
+  .spinner {
     font-size: 14px;
-    margin: 0 5px 0 -5px;
+    width: 16px;
     opacity: 0.5;
   }
-  h3.expanded:before { content: '\25BC'; }
-  h3.contracted:before { content: '\25B6'; }
+
+  h3 span.title { width: 200px; }
+  h3 span.spinner-expanded {
+    .spinner;
+    content: '\25BC';
+  }
+  h3 span.spinner-contracted {
+    .spinner;
+    content: '\25B6';
+  }
 }

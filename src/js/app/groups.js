@@ -14,6 +14,29 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
 
   $rootScope.reparse = function() { vde.Vis.parse(); };
 
+  $rootScope.toggleGroup = function(group) {
+    if($rootScope.activeVisual &&
+        $rootScope.activeVisual.type == 'group' && $rootScope.activeVisual != group)
+      $rootScope.activeVisual = null;
+
+    if(group.isLayer()) {
+      if($rootScope.activeLayer == group) {
+//        We always want an activeLayer...
+//        $rootScope.activeLayer = $rootScope.activeGroup = null;
+      } else {
+        $rootScope.activeGroup = group;
+        $rootScope.activeLayer = group;
+      }
+    } else {
+      if($rootScope.activeGroup == group) {
+        $rootScope.activeGroup = null;
+      } else {
+        $rootScope.activeGroup = group;
+        $rootScope.activeLayer = group.group();
+      }
+    }
+  }
+
   $rootScope.toggleVisual = function(v, key, show) {
     if($rootScope.activeVisual == v && !show) {
       $rootScope.activeVisual = null;
