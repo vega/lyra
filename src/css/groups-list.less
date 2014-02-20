@@ -23,13 +23,12 @@
     opacity: 0.5;
   }
 
-  h3 span.title { width: 200px; }
+  h3 span.title { width: 195px; }
   h3 span.spinner-expanded {
-    .spinner;
-    content: '\25BC';
+    cursor: default;
   }
+  h3:hover span.spinner-expanded:hover { color: #000 !important; }
   h3 span.spinner-contracted {
-    .spinner;
-    content: '\25B6';
+    cursor: pointer;
   }
 }
