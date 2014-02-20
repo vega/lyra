@@ -74,7 +74,7 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
     if (preventBack) {
       evt.preventDefault();
       if(m && m.type != 'group')
-        $rootScope.$apply(function() { $rootScope.removeVisual('marks', m.name); });
+        $rootScope.$apply(function() { $rootScope.removeVisual('marks', m.name, m.group()); });
     }
   });
 
