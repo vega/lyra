@@ -477,6 +477,10 @@ vde.Vis.Mark = (function() {
 
     // We clear out properties, so that we don't get any lingering defaults from re-init'ing
     this.properties = {};
+
+    // Also clear out layerName and groupName to ensure we get any of those changes
+    delete this.groupName;
+    delete this.layerName;
   };
 
   prototype.defaults = function(prop) { return null; }

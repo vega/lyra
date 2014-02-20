@@ -249,9 +249,8 @@ vde.iVis = (function() {
         field: field
       }, true, true);
 
-      ivis.ngTimeline().save();
-
       if(visual.layerName) rootScope.toggleVisual(visual, null, true);
+      ivis.ngTimeline().save();
     });
 
     window.clearTimeout(vde.iVis.timeout);

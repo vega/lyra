@@ -218,7 +218,9 @@ vde.Vis = (function() {
     // angular may not pick up the updates otherwise.
     for(var p in vis.pipelines) { delete vis.pipelines[p]; }
     for(var g in vis.groups) { delete vis.groups[g]; }
+    for(var c in vis.callback._registered) { delete vis.callback._registered[c]; }
     vde.Vis.groupOrder.length = 0;
+    vde.iVis.activeMark = null;
 
     for(var pipelineName in spec.pipelines) {
       var p = spec.pipelines[pipelineName];

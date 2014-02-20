@@ -53,9 +53,9 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
             activeVisual: ($rootScope.activeVisual || {}).name,
             isMark: $rootScope.activeVisual instanceof vde.Vis.Mark,
             isGroup: $rootScope.activeVisual instanceof vde.Vis.marks.Group,
-            activeLayer: $rootScope.activeLayer.name,
-            activeGroup: $rootScope.activeGroup.name,
-            activePipeline: $rootScope.activePipeline.name
+            activeLayer: ($rootScope.activeLayer||{}).name,
+            activeGroup: ($rootScope.activeGroup||{}).name,
+            activePipeline: ($rootScope.activePipeline||{}).name
           }
         });
       },
@@ -67,15 +67,19 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
         var f = function() {
           $rootScope.groupOrder = vde.Vis.groupOrder = [];
           vde.Vis.import(vis).then(function(spec) {
-            var g = vde.Vis.groups[app.activeLayer];
-            if(app.activeLayer != app.activeGroup) g = g.marks[app.activeGroup];
-            if(app.activeVisual) {
-              $rootScope.toggleVisual(app.isMark ? app.isGroup ? g :
-                  g.marks[app.activeVisual] : g.axes[app.activeVisual], 0, true);
-            } else {
-              // If we don't have an activeVisual, clear out any interactors
-              vde.iVis.activeMark = null;
-              vde.iVis.show('selected');
+            if(app.activeLayer) {
+              var g = vde.Vis.groups[app.activeLayer];
+              if(app.activeGroup && app.activeLayer != app.activeGroup)
+                g = g.marks[app.activeGroup];
+
+              if(app.activeVisual) {
+                $rootScope.toggleVisual(app.isMark ? app.isGroup ? g :
+                    g.marks[app.activeVisual] : g.axes[app.activeVisual], 0, true);
+              } else {
+                // If we don't have an activeVisual, clear out any interactors
+                vde.iVis.activeMark = null;
+                vde.iVis.show('selected');
+              }
             }
 
             if(app.activePipeline)
