@@ -54,7 +54,7 @@ vde.Vis.Axis = (function() {
 
   prototype.spec = function() {
     var spec = {}, self = this;
-    if(!this.properties.scale) return;
+    if(!this.properties.scale || !this.properties.scale.field()) return;
 
     if(!this.properties.title) {
       var inflector = vde.iVis.ngFilter()('inflector');
