@@ -385,9 +385,11 @@ vde.App.directive('vdeEditName', function() {
         element.attr('contentEditable', true);
         element.focus();
       });
-      element.on('blur', function() {
-        element.attr('contentEditable', false);
-      })
+
+      element.on('blur keydown', function(evt) {
+        if(!evt.keyCode || (evt.keyCode && evt.keyCode == 13))
+          element.attr('contentEditable', false);
+      });
 
       // Write data to the model
       function read() {
