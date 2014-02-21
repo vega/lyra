@@ -36,6 +36,10 @@ h3 {
   a.delete { visibility: hidden; }
 }
 
+.clickable{
+  cursor:pointer;
+}
+
 h3 span:focus, .editVal:focus {
   -moz-user-select: -moz-text;
   -khtml-user-select: text;
@@ -119,6 +123,25 @@ h5 {
 
 .inner { padding: 0 @padding-horiz; }
 
+
+.scale-values{
+ margin-top: -12px; 
+ div.block{
+   display: block;
+   line-height: 23px;
+
+   input[type=color]{height: 23px;}
+ }
+}
+
+.scale-values .unbind{
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  text-indent: -9999em;
+  margin: 3px;
+}
+
 .canDropField {
   display: inline-block;
   width: 14px;
@@ -139,16 +162,17 @@ h5 {
   background: lightsalmon;
   opacity: 0.5;
 }
-.canDropField.unbind {
+
+.canDropField.unbind, .scale-values .unbind {
   background-color: transparent;
   background-image: url(../imgs/remove-black.png);
   background-size: 14px;
   cursor: pointer;
-}
 
-.canDropField.unbind:hover {
-  background-color: transparent;
-  background-image: url(../imgs/remove-white.png);
+  &:hover {
+    background-color: transparent;
+    background-image: url(../imgs/remove-white.png);
+  }
 }
 
 @import 'reset.css';
