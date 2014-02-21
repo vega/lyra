@@ -4,6 +4,22 @@
   padding-bottom: @padding-horiz;
 }
 
+
+a.add {
+  background-image: url(../imgs/add-black.png);
+  margin: 3px;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  text-indent: -9999em;
+  background-size: 14px;
+
+  &:hover {
+    background-color: transparent;
+    background-image: url(../imgs/add-white.png);
+  }
+}
+
 .property {
   font-size: 12px;
   overflow: hidden;
@@ -95,6 +111,11 @@
     display: inline-block;
     margin: @margin-top/2 0 0 @margin-top;
   }
+}
+
+.property.full .scale-values{
+  width: 50%;
+  float: none;
 }
 
 .property.half {
