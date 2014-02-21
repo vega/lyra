@@ -204,20 +204,23 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
 
         $timeout(function() {
           inspector.css('left', (pageX-15) + 'px');
-          inspector.removeClass('top bottom left right');
+          inspector.removeClass('top bottom left right top-left top-right bottom-left bottom-right');
           var className = '';
-//          if(pageY > winHeight / 2) { // If below half-way, position top
-//            inspector.css('top', (pageY - inspector.height() - 20) + 'px');
-//          } else {
+          console.log(pageY > winHeight / 2);
+          if(pageY > winHeight / 2) {
+            inspector.css('top', (pageY - inspector.height() + 15) + 'px');
+            className += 'top-';
+          } else {
             inspector.css('top', pageY - 20 + 'px');
-//          }
+            className += 'bottom-';
+          }
 
           if(pageX > winWidth/2) {
-            inspector.css('left', (pageX - inspector.width() - 60) + 'px');
-            className += 'left';
+            inspector.css('left', (pageX - inspector.width() - 20) + 'px');
+            className += 'left left';
           } else {
             inspector.css('left', (pageX + 20) + 'px');
-            className += 'right';
+            className += 'right right';
           }
 
           inspector.addClass(className);
