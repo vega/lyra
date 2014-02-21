@@ -160,13 +160,6 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
 
 vde.App.controller('EditVisCtrl', function($scope) {
   $scope.vis = vde.Vis.properties;
-
-  // auto add default value to Visualization padding if "auto" is disabled.
-  $scope.$watch("vis._autopad", function(_autopad){
-    if(!_autopad && !$scope.vis.padding){
-      $scope.vis.padding = vde.Vis.defaults.padding;
-    }
-  })
 });
 
 vde.App.controller('GroupCtrl', function($scope, $rootScope) {
