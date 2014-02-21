@@ -1,5 +1,9 @@
 vde.Vis = (function() {
   var vis = {
+    defaults:{
+      padding: {top:30, left:30, right:30, bottom:30}
+    },
+
     properties: {
       width: 500,
       height: 375,
