@@ -4,7 +4,10 @@
       <br clear="all" />
     </p>
 
-    <p class="icons"><input type="{{type}}" ng-model="$parent.newValue" ng-keypress="add($event)" />  <a ng-click="add(null, true)" class="add">Add Value</a></p>
+    <p class="icons">
+        <input type="{{type}}" ng-model="$parent.newValue" ng-keypress="add($event)" />
+        <a ng-click="add(null, true)" class="add">Add Value</a>
+    </p>
   </div>
 
   <div ng-if="type == 'select'">
