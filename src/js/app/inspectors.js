@@ -407,11 +407,16 @@ vde.App.directive('vdeScaleValues', function() {
         $scope.values.push({ value: $scope.newValue });
         $scope.update();
         $scope.newValue = '';
-      }
+      };
 
-      $scope.delete = function($index) {
+      $scope.deleteIfEmpty = function($index) {
         if($scope.values[$index].value == '') $scope.values.splice($index, 1);
         $scope.update();
+      };
+
+      $scope.delete = function($index){
+        $scope.values.splice($index, 1);
+        $scope.update()
       }
     }
   }
