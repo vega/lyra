@@ -9,19 +9,37 @@ vde.Vis.Axis = (function() {
       title: null,
       layer: 'back',
 
-      ticks: 10,
-      tickSize: 6,
-      tickStyle: {},
-
-      labelStyle: {
-        fontSize: {value: 10},
-        font: {value: "Helvetica"},
-        angle: {value: 0}
+      ticks: vg.config.axis.ticks,
+      tickSize: vg.config.axis.tickSize,
+      tickStyle: {
+        stroke: {value: vg.config.axis.tickColor},
+        strokeWidth: {value: vg.config.axis.tickWidth}
       },
 
-      axisStyle: {},
-      titleStyle: {},
-      gridStyle: {}
+      labelStyle: {
+        fontSize: {value: vg.config.axis.tickLabelFontSize},
+        font: {value: "Helvetica"},
+        angle: {value: 0},
+        fill: {value: vg.config.axis.tickLabelColor}
+      },
+
+      axisStyle: {
+        stroke: {value: vg.config.axis.axisColor},
+        strokeWidth: {value: vg.config.axis.axisWidth}
+      },
+
+      titleOffset: vg.config.axis.titleOffset,
+      titleStyle: {
+        font: {value: "Helvetica"},
+        fontSize: {value: vg.config.axis.titleFontSize},
+        fontWeight: {value: vg.config.axis.titleFontWeight},
+        fill: {value: vg.config.axis.titleColor}
+      },
+
+      gridStyle: {
+        stroke: {value: vg.config.axis.gridColor},
+        strokeWidth: {value: 1}
+      }
     };
 
     this.showTitle = true;
