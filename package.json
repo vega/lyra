@@ -1,0 +1,25 @@
+{
+  "name": "Lyra",
+  "version": "1.0.0",
+  "description": "Lyra is an interactive visualization design environment for designing custom visualizations without programming",
+  "keywords": [
+    "lyra",
+    "vega",
+    "visualization",
+    "d3"
+  ],
+  "homepage": "http://idl.cs.washington.edu/projects/lyra/",
+  "author": {
+    "name": "Arvind Satyanarayan",
+    "url": "http://arvindsatya.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/StanfordHCI/vde.git"
+  },
+  "devDependencies": {
+    "less": "1.6.x",
+    "protractor": "0.17.x",
+    "JSONPath": "0.9.x"
+  }
+}
