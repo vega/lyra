@@ -138,5 +138,11 @@ vde.Vis.Axis = (function() {
 
   prototype.selected = function() { return {}; }
 
+  prototype.import = function(imp) {
+    // Force an assignment of these two in case groupName is null.
+    this.groupName = imp.groupName;
+    this.layerName = imp.layerName;
+  };
+
   return axis;
 })();

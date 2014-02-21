@@ -199,6 +199,7 @@ vde.Vis = (function() {
         var a = g.axes[axisName];
         var axis = new vde.Vis.Axis(axisName, a.layerName, a.groupName);
         axis.init();
+        axis.import(a);
       };
 
       for(var markName in g.marks) {

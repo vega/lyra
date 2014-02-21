@@ -226,7 +226,7 @@ vde.Vis.marks.Group = (function() {
 
   prototype.selected = function() {
     // Since groups are fancy rects
-    var selected = vde.Vis.marks.Rect.prototype.selected.call(this);
+    var self = this, selected = vde.Vis.marks.Rect.prototype.selected.call(this);
 
     // But we want to reparse the spec on mouseup (i.e. interactive resize)
     // to get the axes to do the right thing.
