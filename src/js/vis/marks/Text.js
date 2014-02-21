@@ -268,8 +268,8 @@ vde.Vis.marks.Text = (function() {
 
     if(showGroup) {
       var groupInteractors = this.group().propertyTargets();
-      spans = spans.concat(groupInteractors.spans);
-      dropzones = dropzones.concat(groupInteractors.dropzones);
+      if(groupInteractors.spans) spans = spans.concat(groupInteractors.spans);
+      if(groupInteractors.dropzones) dropzones = dropzones.concat(groupInteractors.dropzones);
     }
 
     vde.iVis.interactor('point', connectors)

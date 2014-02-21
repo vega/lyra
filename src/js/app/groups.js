@@ -83,9 +83,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
   $scope.addGroup = function() {
     var g = new vde.Vis.marks.Group();
     vde.Vis.parse().then(function() {
-      $rootScope.activeGroup = $rootScope.activeLayer = g;
-      $rootScope.activeVisual = g;
-
+      $rootScope.toggleVisual(g);
       timeline.save();
     });
   };
