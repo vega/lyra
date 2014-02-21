@@ -218,7 +218,7 @@ vde.Vis.Mark = (function() {
             searchDef.rangeTypes.type = 'spatial';
             defaultDef = {
               properties: { type: field.type || 'ordinal'},
-              rangeTypes: {type: 'spatial', from: 'field'},
+              rangeTypes: {type: 'spatial', from: 'preset'},
               rangeField: new vde.Vis.Field('width'),
               axisType: 'x'
             };
@@ -231,7 +231,7 @@ vde.Vis.Mark = (function() {
             searchDef.rangeTypes.type = 'spatial';
             defaultDef = {
               properties: { type: field.type || 'linear'},
-              rangeTypes: {type: 'spatial', from: 'field'},
+              rangeTypes: {type: 'spatial', from: 'preset'},
               rangeField: new vde.Vis.Field('height'),
               axisType: 'y'
             };
@@ -243,7 +243,7 @@ vde.Vis.Mark = (function() {
             searchDef.rangeTypes.type = 'colors';
             defaultDef = {
               properties: { type: 'ordinal'},
-              rangeTypes: {type: 'colors', from: 'field'},
+              rangeTypes: {type: 'colors', from: 'preset'},
               rangeField: new vde.Vis.Field('category20')
             };
             displayName = capitaliseFirstLetter(prop) + ' Color';

@@ -180,7 +180,7 @@ vde.Vis.marks.Group = (function() {
       var scale = this.group().scale(this, {
         domainTypes: {from: 'field'},
         domainField: new vde.Vis.Field('key', '', 'ordinal', this.pipeline().forkName),
-        rangeTypes: {type: 'spatial', from: 'field'},
+        rangeTypes: {type: 'spatial', from: 'preset'},
         rangeField: new vde.Vis.Field(isHoriz ? 'width' : 'height')
       }, {
         properties: {type: 'ordinal', padding: 0.2}

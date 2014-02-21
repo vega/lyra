@@ -33,7 +33,7 @@ vde.Vis.transforms.Stack = (function() {
       rangeTypes: {type: 'spatial'}
     }, {
       properties: {type: 'linear'},
-      rangeTypes: {type: 'spatial', from: 'field'},
+      rangeTypes: {type: 'spatial', from: 'preset'},
       rangeField: new vde.Vis.Field('height'),
       axisType: 'y'
     }, 'stacks');

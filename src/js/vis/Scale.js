@@ -5,7 +5,7 @@ vde.Vis.Scale = (function() {
     this.displayName = displayName;
 
     this.domainTypes = {from: 'field'};  // Field or Values
-    this.rangeTypes  = {type: 'spatial', from: 'field'};  // 'property' key if type is 'other'
+    this.rangeTypes  = {type: 'spatial', from: 'preset'};  // 'property' key if type is 'other'
 
     this.domainField = null;
     this.rangeField  = null;
@@ -60,7 +60,7 @@ vde.Vis.Scale = (function() {
       : this.domainValues;
     spec.inheritFromGroup = this.inheritFromGroup;  // Easiest way of picking this up in group injection
 
-    spec.range = (this.rangeTypes.from == 'field' && this.rangeField) ?
+    spec.range = (this.rangeTypes.from == 'preset' && this.rangeField) ?
       this.rangeField.spec() : this.rangeValues;
 
     delete spec.pipeline;
@@ -81,7 +81,7 @@ vde.Vis.Scale = (function() {
 
   prototype.type  = function() { return this.properties.type; };
   prototype.field = function() { return this.domainTypes.from == 'field' ? this.domainField : this.domainValues; };
-  prototype.range = function() { return this.rangeTypes.from == 'field'  ? this.rangeField  : this.rangeValues; };
+  prototype.range = function() { return this.rangeTypes.from == 'preset'  ? this.rangeField  : this.rangeValues; };
 
   prototype.pipeline = function() {
     return vde.Vis.pipelines[this.pipelineName];
