@@ -206,7 +206,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
           inspector.css('left', (pageX-15) + 'px');
           inspector.removeClass('top bottom left right top-left top-right bottom-left bottom-right');
           var className = '';
-          console.log(pageY > winHeight / 2);
+
           if(pageY > winHeight / 2) {
             inspector.css('top', (pageY - inspector.height() + 15) + 'px');
             className += 'top-';

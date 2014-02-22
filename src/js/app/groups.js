@@ -3,7 +3,11 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
     pipelines: vde.Vis.pipelines,
     editVis: false,
     sortableOpts: {
-      update: function(e, ui) { $timeout(function() { vde.Vis.parse(); }, 1); },
+      update: function(e, ui) {
+        $timeout(function() {
+          vde.Vis.parse().then(function() { timeline.save(); });
+        }, 1);
+      },
       axis: 'y'
     },
     fonts: ['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS'],

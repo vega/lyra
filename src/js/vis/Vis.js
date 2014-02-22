@@ -158,7 +158,10 @@ vde.Vis = (function() {
   vis.export = function() {
     var ex = {
       groups: {},
-      pipelines: vg.duplicate(vis.pipelines)
+      groupOrder: vg.duplicate(vis.groupOrder),
+      pipelines: vg.duplicate(vis.pipelines),
+      properties: vg.duplicate(vis.properties),
+      _data: vg.duplicate(vis._data)
     };
 
     for(var g in vis.groups) ex.groups[g] = vg.duplicate(vis.groups[g].export());
@@ -244,6 +247,10 @@ vde.Vis = (function() {
     for(var layerName in spec.groups) {
       importGroups(spec.groups[layerName]);
     }
+
+    importProperties(vis.properties, spec.properties);
+    importProperties(vis._data, spec._data);
+    importProperties(vis.groupOrder, spec.groupOrder);
 
     vis.parse().then(function(spec) { deferred.resolve(spec); });
 
