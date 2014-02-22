@@ -1,9 +1,13 @@
 vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
   function($rootScope, $timeout, $indexedDB, $q) {
+    // We can't let the timeline grow too large because it'll all our RAM.
+    var timelineLimit = 25;
+
     return {
       timeline: [],
       currentIdx: -1,
       fileName: null,
+      tutorial: false,  // If in tutorial mode, don't truncate to timelineLimit
 
       files: function() {
         return $indexedDB.objectStore('files');
@@ -58,6 +62,11 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
             activePipeline: ($rootScope.activePipeline||{}).name
           }
         });
+
+        if(this.timeline.length > timelineLimit && !this.timeline.tutorial) {
+          this.timeline.splice(0, this.timeline.length - timelineLimit);
+          this.currentIdx = this.timeline.length - 1;
+        }
       },
 
       load: function(idx) {
