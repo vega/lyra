@@ -275,7 +275,7 @@ vde.iVis = (function() {
       vde.Vis.parse().then(function(spec) {
         rootScope.toggleVisual(mark, null, true);
         ivis.ngTimeline().save();
-        
+
         $('.proxy').remove();
       });
     });

@@ -299,8 +299,13 @@ vde.Vis.marks.Rect = (function() {
     setProp('y', 'y');
 
     if(connector.indexOf('center') != -1) {
-      setProp('dx', props.width.disabled ? 'x2' : 'width');
-      mProps.dx.mult = 0.5;
+      if(props.width.disabled) {
+        setProp('dx', 'x2');
+        mProps.x.mult = mProps.dx.mult = 0.5;
+      } else {
+        setProp('dx', 'width');
+        mProps.dx.mult = 0.5;
+      }
     }
 
     if(connector.indexOf('right') != -1)
