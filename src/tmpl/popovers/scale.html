@@ -42,14 +42,14 @@
       </div>
 
       <div ng-hide="activeScale.properties.type == 'quantize'">
-        <vde-property type="checkbox" label="Clamp" ng-model="activeScale.properties.clamp"
-                      style="third"></vde-property>
+        <vde-property type="checkbox" label="Clamp" item="activeScale" property="clamp"
+                      ng-model="activeScale.properties.clamp" style="third"></vde-property>
 
-        <vde-property type="checkbox" label="Nice" ng-model="activeScale.properties.nice"
-                      style="third"></vde-property>
+        <vde-property type="checkbox" label="Nice" item="activeScale" property="nice"
+                      ng-model="activeScale.properties.nice" style="third"></vde-property>
 
-        <vde-property type="checkbox" label="Zero" ng-model="activeScale.properties.zero"
-                      style="third"></vde-property>
+        <vde-property type="checkbox" label="Zero" item="activeScale" property="clamp"
+                      ng-model="activeScale.properties.zero" style="third"></vde-property>
       </div>
     </div>
 

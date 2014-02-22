@@ -1,10 +1,9 @@
 <div class="inner">
   <vde-property label="X Position" type="field" item="mark" property="x"
                 ng-model="mark.properties.x.value" can-drop-style="left"
-                scale="mark.properties.x.scale" style="half"
+                scale="mark.properties.x.scale" style="full"
                 field="mark.properties.x.field"></vde-property>
 
-  <br clear="all" />
 
   <h4>Y Position</h4>
 
@@ -42,7 +41,7 @@
 
   <h4>Line Strength</h4>
 
-  <vde-property label="Interpolate" type="select" options="interpolation" item="mark"
+  <vde-property label="Interpolate" type="select" options="gMdl.interpolation" item="mark"
                 property="interpolate" ng-model="mark.properties.interpolate.value"
                 scale="mark.properties.interpolate.scale" can-drop-style="left"
                 field="mark.properties.interpolate.field" style="half"></vde-property>

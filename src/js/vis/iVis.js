@@ -255,6 +255,10 @@ vde.iVis = (function() {
     var mark = ivis.newMark,
         rootScope = ivis.ngScope();
 
+    // Mouseup evt will propagate down to Vis and we want to clear this so we
+    // don't double add a mark.
+    ivis.newMark = null;
+
     // If they've dropped on an empty non-group space.
     if(!host) host = rootScope.activeLayer;
 
@@ -269,11 +273,10 @@ vde.iVis = (function() {
     rootScope.$apply(function() {
       mark.init();
       vde.Vis.parse().then(function(spec) {
-        ivis.newMark = null;
-        $('.proxy').remove();
-
         rootScope.toggleVisual(mark, null, true);
         ivis.ngTimeline().save();
+        
+        $('.proxy').remove();
       });
     });
 
