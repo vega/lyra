@@ -15,7 +15,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
         this.files().find(fileName).then(function(file) {
           timeline.fileName   = file.fileName;
           timeline.timeline   = file.timeline;
-          timeline.currentIdx = file.currentIdx;
+          timeline.currentIdx = file.timeline.length - 1;
 
           timeline.redo();
           deferred.resolve(file);
@@ -29,7 +29,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
 
         this.files().upsert({
           fileName: this.fileName,
-          timeline: this.timeline,
+          timeline: this.timeline[this.timeline.length - 1],
           currentIdx: this.currentIdx
         }).then(function(e) { deferred.resolve(e); });
 
