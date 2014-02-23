@@ -6,7 +6,8 @@
     {{label}}
     <a ng-if="hintUrl" href="{{hintUrl}}" class="icon-question-sign" target="_blank"></a>
 
-    <i ng-if="scale && ((!field && values.indexOf(ngModel) == -1) ||
+    <i ng-if="scale && scale.properties.type == 'ordinal' &&
+              ((!field && values.indexOf(ngModel) == -1) ||
               (field && !fieldMatchesDomain))" class="icon-warning-sign"
          vde-tooltip="Warning: The field/value specified was not found in the scale's domain" position="top"></i>
   </label>
