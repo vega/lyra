@@ -37,7 +37,6 @@ vde.Vis.transforms.Facet = (function() {
   facet.prototype = new vde.Vis.Transform();
   var prototype = facet.prototype;
 
-  facet.groupName = 'facet';
   facet.layout_overlap = 'Overlap';
   facet.layout_horiz = 'Horizontal';
   facet.layout_vert = 'Vertical';
@@ -65,6 +64,8 @@ vde.Vis.transforms.Facet = (function() {
 
     return spec;
   };
+
+  prototype.groupName = function() { return this.pipelineName + '_facet'; }
 
   prototype.bindProperty = function(prop, opts) {
     var field = opts.field, props = this.properties;
@@ -94,7 +95,7 @@ vde.Vis.transforms.Facet = (function() {
 
     if(opts.item.isLayer()) {
       this._layer(opts.item);
-    } else if(opts.item.name == facet.groupName) {
+    } else if(opts.item.name == this.groupName()) {
       opts.spec.from.data = this.pipeline().forkName;
     }
   };
@@ -102,6 +103,7 @@ vde.Vis.transforms.Facet = (function() {
   prototype.markPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
     if(!this.properties.keys) return;
+    if(opts.item.pipelineName != this.pipelineName) return;
     if(opts.item.type == 'group') return;
 
     var spec = opts.spec;
@@ -116,9 +118,9 @@ vde.Vis.transforms.Facet = (function() {
   };
 
   prototype._addToGroup = function(type, item, layer) {
-    var group = layer.marks[facet.groupName];
+    var group = layer.marks[this.groupName()];
     if(!group) {
-      group = new vde.Vis.marks.Group(facet.groupName, layer.name);
+      group = new vde.Vis.marks.Group(this.groupName(), layer.name);
       group.displayName = 'Group By: ' +
           this.properties.keys.map(function(f) { return f.name }).join(", ");
       group.pipelineName = this.pipelineName;
@@ -127,7 +129,7 @@ vde.Vis.transforms.Facet = (function() {
 
     item.inheritFromGroup = (type == 'marks');  // We don't want to automatically recalculate scale domains.
     item.layerName = layer.name;
-    item.groupName = facet.groupName;
+    item.groupName = this.groupName();
     group[type][item.name] = item;
 
     // Don't delete scales from their layer because we may want an axis in the layer
@@ -147,11 +149,11 @@ vde.Vis.transforms.Facet = (function() {
       window.setTimeout(function() { scope.toggleVisual(item, null, true); }, 100);
     }
   };
-  
+
   prototype._layer = function(layer) {
     for(var markName in layer.marks) {
       var mark = layer.marks[markName];
-      if(mark.type == 'group' && mark.name == facet.groupName) continue;
+      if(mark.type == 'group' && mark.name == this.groupName()) continue;
       if(!mark.pipeline() ||
           (mark.pipeline() && mark.pipeline().name != this.pipeline().name)) continue;
 
@@ -173,7 +175,7 @@ vde.Vis.transforms.Facet = (function() {
 
     // We want to move any spatial scales from the layer into the group EXCEPT for any
     // scales the group's properties are using.
-    var group = layer.marks[facet.groupName] || {};
+    var group = layer.marks[this.groupName()] || {};
     var groupScales = vg.keys(group.properties).map(function(p) {
       var prop =  group.properties[p];
       return prop.scale ? prop.scale.name : '';

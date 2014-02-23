@@ -61,7 +61,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
           if(field) {
             $scope.fieldMatchesDomain = (domain instanceof vde.Vis.Field) ?
                 field.spec() == domain.spec() : false;
-          } else {
+          } else if(!scale.pipeline().forkName) {
             $scope.values = (domain instanceof vde.Vis.Field) ?
                 scale.pipeline().values().map(vg.accessor(domain.spec())).concat(['auto']) :
                 domain;
