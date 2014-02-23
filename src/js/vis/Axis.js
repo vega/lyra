@@ -17,6 +17,7 @@ vde.Vis.Axis = (function() {
       },
 
       labelStyle: {
+        text: {},
         fontSize: {value: vg.config.axis.tickLabelFontSize},
         font: {value: "Helvetica"},
         angle: {value: 0},
@@ -105,6 +106,9 @@ vde.Vis.Axis = (function() {
       grid: vg.duplicate(this.properties.gridStyle)
     };
 
+    if(spec.properties.labels.text && spec.properties.labels.text.scale)
+      spec.properties.labels.text.scale = spec.properties.labels.text.scale.name;
+
     vde.Vis.callback.run('axis.post_spec', this, {spec: spec});
 
     this.properties.scale.hasAxis = true;
@@ -134,7 +138,16 @@ vde.Vis.Axis = (function() {
     if(!opts.scaleName) return; // Because this makes no sense
 
     this.pipelineName = opts.pipelineName;
-    this.properties[prop] = this.pipeline().scales[opts.scaleName];
+    var p = this.properties, props = prop.split('.');
+    for(var i = 0; i < props.length - 1; i++) p = p[props[i]];
+
+    var s = this.group().scales[opts.scaleName];
+    if(!s) {
+      this.group().scales[opts.scaleName] = this.pipeline().scales[opts.scaleName];
+      s = this.group().scales[opts.scaleName];
+    }
+
+    p[props[props.length-1]] = s;
   };
 
   prototype.unbindProperty = function(prop) {

@@ -106,6 +106,13 @@
 
     <h4>Labels</h4>
 
+      <vde-property label="Custom Text" type="scale" item="axis" property="labelStyle.text.scale"
+                  ng-model="axis.properties.labelStyle.text.scale"
+                  scale="axis.properties.labelStyle.text.scale" transclude="1"
+                  can-drop-style="left" style="full"></vde-property>
+
+      <br clear="all" />
+
       <vde-property label="Font" type="font" item="axis" property="labelStyle"
                   ng-model="axis.properties.labelStyle" nodrop="1" style="full"></vde-property>
 

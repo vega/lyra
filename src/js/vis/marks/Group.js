@@ -108,7 +108,7 @@ vde.Vis.marks.Group = (function() {
 
   prototype.bookkeep = function() {
     for(var s in this.scales)
-      if(!this.scales[s].used) delete this.scales[s];
+      if(!this.scales[s].used && !this.scales[s].manual) delete this.scales[s];
   };
 
   prototype.scale = function(mark, searchDef, defaultDef, displayName) {
