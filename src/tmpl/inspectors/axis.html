@@ -57,6 +57,38 @@
                     property="axisStyle.fill" nodrop="1" style="full"
                     ng-model="axis.properties.titleStyle.fill.value" ></vde-property>
     </div>
+
+    <h4>Ticks</h4>
+
+    <vde-property label="Number of Ticks" type="number" item="axis" property="ticks"
+                  ng-model="axis.properties.ticks" nodrop="1" style="half"></vde-property>
+
+    <vde-property label="Size" type="number" item="axis" property="tickSize"
+                  ng-model="axis.properties.tickSize" nodrop="1" style="half"></vde-property>
+
+    <br clear="all" />
+
+    <vde-property label="" type="checkbox" item="axis" property="tickValues"
+                  ng-model="axis.properties.tickValues" nodrop="1" style="full"
+                  hint="Explicitly set visible tick values"></vde-property>
+
+    <div ng-if="axis.properties.tickValues">
+      <vde-property label="Values" transclude="1" style="full">
+        <vde-scale-values type="text" scale="axis" property="values" ng-model="axis.values"></vde-scale-values>
+      </vde-property>
+    </div>
+
+    <br clear="all" />
+
+    <vde-property label="Color" type="color" item="axis"
+                  property="tickStyle.stroke" nodrop="1"
+                  ng-model="axis.properties.tickStyle.stroke.value" style="full"></vde-property>
+
+    <vde-property label="Width" type="range" min="0" step="0.25" max="10"
+                  item="axis" property="tickStyle.strokeWidth"
+                  ng-model="axis.properties.tickStyle.strokeWidth.value"
+                  nodrop="1" style="full"></vde-property>
+
     <h4>Labels</h4>
 
       <vde-property label="Font" type="font" item="axis" property="labelStyle"
@@ -67,7 +99,11 @@
 
       <vde-property label="Angle" type="number" min="-360" max="360"
                     item="axis" property="labelStyle.angle" nodrop="1"
-                    ng-model="axis.properties.labelStyle.angle.value" style="full"></vde-property>
+                    ng-model="axis.properties.labelStyle.angle.value" style="half"></vde-property>
+
+    <vde-property label="Format" type="text" hint-url="https://github.com/mbostock/d3/wiki/Formatting"
+                  item="axis" property="format" nodrop="1"
+                  ng-model="axis.properties.format" style="half"></vde-property>
 
       <br clear="all" />
 
@@ -97,25 +133,6 @@
                     ng-model="axis.properties.gridStyle.strokeWidth.value"
                     nodrop="1" style="full"></vde-property>
     </div>
-
-    <h4>Ticks</h4>
-
-    <vde-property label="Number of Ticks" type="number" item="axis" property="ticks"
-                  ng-model="axis.properties.ticks" nodrop="1" style="half"></vde-property>
-
-    <vde-property label="Size" type="number" item="axis" property="tickSize"
-                  ng-model="axis.properties.tickSize" nodrop="1" style="half"></vde-property>
-
-    <br clear="all" />
-
-    <vde-property label="Color" type="color" item="axis"
-                  property="tickStyle.stroke" nodrop="1"
-                  ng-model="axis.properties.tickStyle.stroke.value" style="full"></vde-property>
-
-    <vde-property label="Width" type="range" min="0" step="0.25" max="10"
-                  item="axis" property="tickStyle.strokeWidth"
-                  ng-model="axis.properties.tickStyle.strokeWidth.value"
-                  nodrop="1" style="full"></vde-property>
   </div>
 
   <br clear="all" />

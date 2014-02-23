@@ -40,7 +40,7 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
         vde.Vis.data('rundown', 'data/rundown.json', 'json');
         vde.Vis.data('deaths', 'data/curves.json', 'json');
         vde.Vis.data('zipcodes', 'data/zipcodes.json', 'json');
-        vde.Vis.data('stocks', 'data/stocks.csv', {"type": "csv", "parse": {"price":"number", "date":"date"}});
+        vde.Vis.data('gas', 'data/gas.json', 'json');
       }
 
       var g = new vde.Vis.marks.Group();

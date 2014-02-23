@@ -17,6 +17,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
       canDropStyle: '@',
       nochange: '@',
       hint: '@',
+      hintUrl: '@',
       style: '@',
       extentsProps: '=?',
       extentsBound: '=?',

@@ -92,6 +92,11 @@ vde.Vis.Axis = (function() {
 
     if(!this.showTitle) delete spec.title;
 
+    if(spec.tickValues && this.values) {
+      spec.values = vg.duplicate(this.values);
+      delete spec.tickValues;
+    }
+
     spec.properties = {
       ticks: vg.duplicate(this.properties.tickStyle),
       labels: vg.duplicate(this.properties.labelStyle),
