@@ -215,20 +215,20 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
           inspector.removeClass('top bottom left right top-left top-right bottom-left bottom-right');
           var className = '';
 
-          if(pageY > winHeight / 2) {
-            inspector.css('top', (pageY - inspector.height() + 15) + 'px');
-            className += 'top-';
-          } else {
-            inspector.css('top', pageY - 20 + 'px');
-            className += 'bottom-';
-          }
-
           if(pageX > winWidth/2) {
             inspector.css('left', (pageX - inspector.width() - 20) + 'px');
-            className += 'left left';
+            className += 'left left-';
           } else {
             inspector.css('left', (pageX + 20) + 'px');
-            className += 'right right';
+            className += 'right right-';
+          }
+
+          if(pageY > winHeight / 2) {
+            inspector.css('top', (pageY - inspector.height() + 15) + 'px');
+            className += 'top';
+          } else {
+            inspector.css('top', pageY - 20 + 'px');
+            className += 'bottom';
           }
 
           inspector.addClass(className);
@@ -439,9 +439,12 @@ vde.App.directive('vdeInferredPopover', function($timeout) {
     link: function(scope, element, attrs) {
       var canDropField = element.parent().find('.canDropField');
       var dropOffset = canDropField.offset();
+      var threshold = $('#groups-list').offset().left + $('#groups-list').width()/2 - 10;
 
       // Position the popover above the nearest .canDropField
-      element.css({ top: (dropOffset.top - 60), left: 10 });
+      element.removeClass('bottom-left bottom-right')
+          .addClass(dropOffset.left > threshold ? 'bottom-right' : 'bottom-left')
+          .css({ top: (dropOffset.top - 60), left: 10 });
 
       // Fade out the popover after a few seconds, but if the user mouses
       // in/out, restart the fading timer. If we fade out, then that implies
@@ -450,7 +453,7 @@ vde.App.directive('vdeInferredPopover', function($timeout) {
         return $timeout(function() {
           element.fadeOut();
           delete scope.item.properties[scope.property].inferred;
-        }, 2000);
+        }, 3000);
       };
 
       var f = fadeOut();

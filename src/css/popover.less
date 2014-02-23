@@ -11,8 +11,11 @@
   overflow-y: auto !important;
   overflow-x: hidden !important;
 }
-.popover.top-left .arrow, .popover.top-right .arrow { bottom: 18px !important; top: auto !important;}
-.popover.bottom-left .arrow, .popover.bottom-right .arrow { top: 18px !important; bottom: auto !important; }
+.popover.left-top .arrow, .popover.right-top .arrow { bottom: 18px !important; top: auto !important;}
+.popover.left-bottom .arrow, .popover.right-bottom .arrow { top: 18px !important; bottom: auto !important; }
+
+.popover.bottom-left .arrow, .popover.top-left .arrow { left: 30px !important; }
+.popover.bottom-right .arrow, .popover.top-right .arrow { left: 155px !important; }
 
 .popover h3 {
   margin-bottom: @padding-horiz !important;
