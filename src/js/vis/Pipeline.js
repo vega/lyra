@@ -153,9 +153,17 @@ vde.Vis.Pipeline = (function() {
   // Given a definition, find a pre-existing scale that matches,
   // or if none do, build a new scale.
   prototype.scale = function(searchDef, defaultDef, displayName) {
+    var names = {};
     for(var scaleName in this.scales) {
-      if(this.scales[scaleName].equals(searchDef))
-        return this.scales[scaleName];
+      var s = this.scales[scaleName];
+      if(s.equals(searchDef)) return this.scales[scaleName];
+      if(s.displayName.match(displayName)) names[s.displayName] = 1;
+    }
+
+    if(displayName in names) {
+      var count = 2;
+      displayName += count;
+      while(displayName in names) displayName = displayName.replace(count, ++count);
     }
 
     for(var k in defaultDef)
