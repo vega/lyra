@@ -75,6 +75,11 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
         if('checkExtents' in $scope.item)
           $scope.item.checkExtents(prop);
 
+        // X/Y-Axis might be added by default if fields dropped over dropzones.
+        // If the user toggles to them, assume they're going to edit, and delete
+        // default flag to prevent the axis from being overridden by future drops.
+        if($scope.item instanceof vde.Vis.Axis) delete $scope.item.default;
+
         // For non-layer groups, if any of the spatial properties are changed
         // then switch the layout to overlapping.
         if(['x', 'x2', 'width', 'y', 'y2', 'height'].indexOf(prop) != -1 &&

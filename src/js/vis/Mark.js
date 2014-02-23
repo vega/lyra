@@ -288,23 +288,31 @@ vde.Vis.Mark = (function() {
         case 'x':
         case 'x2':
         case 'width':
-          var groupName = this.group().layout == facet.layout_horiz ? this.groupName : null;
-          var xAxis = new vde.Vis.Axis('x_axis', this.layerName, groupName);
-          var ap = xAxis.properties;
-          ap.type = 'x'; ap.orient = 'bottom';
-          xAxis.bindProperty('scale', aOpts);
-          xAxis.displayName = capitaliseFirstLetter(scale.displayName) + ' Axis';
+          var existing = this.group().axes.x_axis;
+          if(!existing || (existing && existing.default)) {
+            var groupName = this.group().layout == facet.layout_horiz ? this.groupName : null;
+            var xAxis = new vde.Vis.Axis('x_axis', this.layerName, groupName);
+            var ap = xAxis.properties;
+            ap.type = 'x'; ap.orient = 'bottom';
+            xAxis.bindProperty('scale', aOpts);
+            xAxis.default = true;
+            xAxis.displayName = capitaliseFirstLetter(scale.displayName) + ' Axis';
+          }
         break;
 
         case 'y':
         case 'y2':
         case 'height':
-          var groupName = this.group().layout == facet.layout_vert ? this.groupName : null;
-          var yAxis = new vde.Vis.Axis('y_axis', this.layerName, groupName);
-          var ap = yAxis.properties;
-          ap.type = 'y'; ap.orient = 'left';
-          yAxis.bindProperty('scale', aOpts);
-          yAxis.displayName = capitaliseFirstLetter(scale.displayName) + ' Axis';
+          var existing = this.group().axes.y_axis;
+          if(!existing || (existing && existing.default)) {
+            var groupName = this.group().layout == facet.layout_vert ? this.groupName : null;
+            var yAxis = new vde.Vis.Axis('y_axis', this.layerName, groupName);
+            var ap = yAxis.properties;
+            ap.type = 'y'; ap.orient = 'left';
+            yAxis.bindProperty('scale', aOpts);
+            yAxis.default = true;
+            yAxis.displayName = capitaliseFirstLetter(scale.displayName) + ' Axis';
+          }
         break;
       }
     }
