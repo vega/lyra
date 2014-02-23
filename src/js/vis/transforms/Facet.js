@@ -29,6 +29,7 @@ vde.Vis.transforms.Facet = (function() {
     // let spec gen run like normal.
     vde.Vis.callback.register('pipeline.post_spec', this, this.pipelinePostSpec);
     vde.Vis.callback.register('group.pre_spec', this, this.groupPreSpec);
+    vde.Vis.callback.register('group.post_spec', this, this.groupPostSpec);
     vde.Vis.callback.register('mark.post_spec', this, this.markPostSpec);
 
     return this;
@@ -49,6 +50,7 @@ vde.Vis.transforms.Facet = (function() {
   prototype.destroy = function() {
     vde.Vis.callback.deregister('pipeline.post_spec',  this);
     vde.Vis.callback.deregister('group.pre_spec', this);
+    vde.Vis.callback.deregister('group.post_spec', this);
     vde.Vis.callback.deregister('mark.post_spec',  this);
 
     if(this.pipeline()) {
@@ -100,6 +102,27 @@ vde.Vis.transforms.Facet = (function() {
     }
   };
 
+  // Once all the specs have been generated, see if any marks/scales have been
+  // marked to inherit their data from the facet group.
+  prototype.groupPostSpec = function(opts) {
+    if(!this.pipeline() || !this.pipeline().forkName) return;
+    if(!this.properties.keys) return;
+    if(opts.item.name != this.groupName()) return;
+
+    for(var i = 0; i < opts.spec.marks.length; i++) {
+      var m = opts.spec.marks[i];
+      if(m.from.data == this.pipelineName) delete m.from.data;
+    }
+
+    for(var i = 0; i < opts.spec.scales.length; i++) {
+      var s = opts.spec.scales[i];
+      if(s.inheritFromGroup) {
+        delete s.domain.from;
+        delete s.inheritFromGroup;
+      }
+    }
+  };
+
   prototype.markPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
     if(!this.properties.keys) return;
@@ -127,7 +150,6 @@ vde.Vis.transforms.Facet = (function() {
       group.doLayout(this.properties.layout || facet.layout_horiz); // By default split horizontally
     }
 
-    item.inheritFromGroup = (type == 'marks');  // We don't want to automatically recalculate scale domains.
     item.layerName = layer.name;
     item.groupName = this.groupName();
     group[type][item.name] = item;

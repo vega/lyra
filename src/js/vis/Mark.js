@@ -6,7 +6,6 @@ vde.Vis.Mark = (function() {
     this.layerName    = layerName;
     this.groupName    = groupName;
     this.pipelineName = null;
-    this.inheritFromGroup = false;
     this.oncePerFork  = false;
 
     this._spec = {
@@ -155,8 +154,7 @@ vde.Vis.Mark = (function() {
     spec.type || (spec.type = this.type);
     spec.from || (spec.from = {});
 
-    if(this.pipeline() && !this.inheritFromGroup)
-      spec.from.data || (spec.from.data = this.pipeline().name);
+    if(this.pipeline()) spec.from.data || (spec.from.data = this.pipeline().name);
 
     var enter = spec.properties.enter;
     for(var prop in this.properties)
