@@ -150,13 +150,18 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
   };
 
   $scope.toggleProp = function(prop, value) {
-    var v = $rootScope.activeVisual,
-        p = v.properties[prop] || (v.properties[prop] = {});
+    var v = $rootScope.activeVisual;
+
+    var props = prop.split('.'), p = v.properties;
+    for(var i = 0; i < props.length; i++)
+      p = p[props[i]] || (p[props[i]] = {});
+
     if(p.value == value) delete p.value;
     else p.value = value;
 
-    v.checkExtents(prop);
-    v.update(prop);
+    if('checkExtents' in v) v.checkExtents(prop);
+    if('update' in v) v.update(prop);
+    else vde.Vis.parse();
   };
 });
 

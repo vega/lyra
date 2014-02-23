@@ -48,8 +48,22 @@
 
       <br clear="all"/>
 
-      <vde-property label="Font" type="font" item="axis" property="labelStyle"
+      <vde-property label="Font" type="font" item="axis" property="titleStyle"
                     ng-model="axis.properties.titleStyle" nodrop="1" style="full"></vde-property>
+
+      <br clear="all" />
+
+      <vde-property label="Weight" item="axis" property="titleStyle"
+                    ng-model="axis.properties.titleStyle.fontWeight.value" style="half">
+        <a class="btn btn-mini" ng-click="toggleProp('titleStyle.fontWeight', 'bold')"
+           ng-class="{'btn-info': axis.properties.titleStyle.fontWeight.value == 'bold'}"><i class="icon-bold"></i></a>
+      </vde-property>
+
+      <vde-property label="Style" item="axis" property="titleStyle"
+                    ng-model="axis.properties.titleStyle.fontStyle.value" style="half">
+        <a class="btn btn-mini" ng-click="toggleProp('titleStyle.fontStyle', 'italic')"
+           ng-class="{'btn-info': axis.properties.titleStyle.fontStyle.value == 'italic'}"><i class="icon-italic"></i></a>
+      </vde-property>
 
       <br clear="all" />
 
@@ -94,6 +108,20 @@
       <vde-property label="Font" type="font" item="axis" property="labelStyle"
                   ng-model="axis.properties.labelStyle" nodrop="1" style="full"></vde-property>
 
+
+      <br clear="all" />
+
+      <vde-property label="Weight" item="axis" property="labelStyle"
+                    ng-model="axis.properties.labelStyle.fontWeight.value" style="half">
+        <a class="btn btn-mini" ng-click="toggleProp('labelStyle.fontWeight', 'bold')"
+           ng-class="{'btn-info': axis.properties.labelStyle.fontWeight.value == 'bold'}"><i class="icon-bold"></i></a>
+      </vde-property>
+
+      <vde-property label="Style" item="axis" property="labelStyle"
+                    ng-model="axis.properties.labelStyle.fontStyle.value" style="half">
+        <a class="btn btn-mini" ng-click="toggleProp('labelStyle.fontStyle', 'italic')"
+           ng-class="{'btn-info': axis.properties.labelStyle.fontStyle.value == 'italic'}"><i class="icon-italic"></i></a>
+      </vde-property>
 
       <br clear="all" />
 
