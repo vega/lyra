@@ -29,6 +29,7 @@ vde.Vis.transforms.Facet = (function() {
     // let spec gen run like normal.
     vde.Vis.callback.register('pipeline.post_spec', this, this.pipelinePostSpec);
     vde.Vis.callback.register('group.pre_spec', this, this.groupPreSpec);
+    vde.Vis.callback.register('mark.post_spec', this, this.markPostSpec);
 
     return this;
   };
@@ -49,6 +50,7 @@ vde.Vis.transforms.Facet = (function() {
   prototype.destroy = function() {
     vde.Vis.callback.deregister('pipeline.post_spec',  this);
     vde.Vis.callback.deregister('group.pre_spec', this);
+    vde.Vis.callback.deregister('mark.post_spec',  this);
 
     if(this.pipeline()) {
       this.pipeline().forkName = null;
@@ -94,7 +96,22 @@ vde.Vis.transforms.Facet = (function() {
       this._layer(opts.item);
     } else if(opts.item.name == facet.groupName) {
       opts.spec.from.data = this.pipeline().forkName;
-      opts.spec.from.transforms = this._transforms;
+    }
+  };
+
+  prototype.markPostSpec = function(opts) {
+    if(!this.pipeline() || !this.pipeline().forkName) return;
+    if(!this.properties.keys) return;
+    if(opts.item.type == 'group') return;
+
+    var spec = opts.spec;
+    spec.from.transform || (spec.from.transform = []);
+    spec.from.transform = spec.from.transform.concat(this._transforms);
+    if(opts.item.oncePerFork) {
+      spec.from.transform.push({
+        type: 'filter',
+        test: 'index == 0'
+      });
     }
   };
 
