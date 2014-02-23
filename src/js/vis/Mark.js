@@ -190,7 +190,7 @@ vde.Vis.Mark = (function() {
       if(!scale) scale = vde.Vis.pipelines[opts.pipelineName].scales[opts.scaleName];
       if(scale) this.group().scales[opts.scaleName] = scale;
       p.scale = scale;
-    } else if(!defaults) { 
+    } else if(!defaults && !p.inferred) {
       scale = p.scale;
     }
 
@@ -478,7 +478,7 @@ vde.Vis.Mark = (function() {
     // We clear out properties, so that we don't get any lingering defaults from re-init'ing
     this.properties = {};
 
-    // Force an assignment of these two in case groupName is null.
+    // Force an assignment of these two in case gorup
     this.groupName = imp.groupName;
     this.layerName = imp.layerName;
   };

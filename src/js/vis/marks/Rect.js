@@ -34,6 +34,16 @@ vde.Vis.marks.Rect = (function() {
       'bottom-left': {}, 'bottom-center': {}, 'bottom-right': {}
     };
 
+    var inferredHintAction = {
+      hint: "Lyra inferred this binding and chose to re-use a scale.",
+      action: "Create a new scale"
+    };
+
+    this.inferredHints = {
+      x: inferredHintAction, x2: inferredHintAction, width: inferredHintAction,
+      y: inferredHintAction, y2: inferredHintAction, height: inferredHintAction
+    };
+
     return this;
   };
 
@@ -58,13 +68,20 @@ vde.Vis.marks.Rect = (function() {
         props = this.extents.horizontal.fields.indexOf(prop) != -1 ?
           this.extents.horizontal.fields : this.extents.vertical.fields;
 
-    // TODO: What is the right thing to infer here? I think it's easier to debug what's
-    // going on if we don't try to infer scales from the other extent properties...
-
-    // First check to see if a related property already has a scale, and reuse it.
-    // But only do this if we're not dropping over the "height" or "width" dropzones.
-    // if(!scale && props.indexOf(prop) != -1 && !(defaults && (prop == 'height' || prop == 'width'))
-      // props.some(function(p) { if(scale = self.properties[p].scale) return true });
+    // To ease construction of extents, we try to infer and reuse a scale from
+    // existing extent bindings. However, the user can choose to override this
+    // inference, in which case bindProperty + productionRules are called again.
+    // So, we check to ensure we only infer a scale if we haven't already for this
+    // property.
+    if(!scale && !this.properties[prop].inferred && props.indexOf(prop) != -1)
+      props.some(function(p) {
+        if(scale = self.properties[p].scale) {
+          self.properties[prop].inferred = true;
+          return true;
+        }
+      });
+    else
+      delete this.properties[prop].inferred;
 
     if(prop == 'url') field.type = 'encoded';
     return [scale, field];
