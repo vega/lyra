@@ -44,7 +44,7 @@ vde.Vis.Mark = (function() {
     }
 
     if(!this.name)
-      this.name = this.type + '_' + this.group().markOrder.length;
+      this.name = this.type + '_' + Date.now();
 
     if(!this.displayName) {
       var count = this.group()._markCount++;

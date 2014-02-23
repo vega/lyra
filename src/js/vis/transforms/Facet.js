@@ -137,10 +137,11 @@ vde.Vis.transforms.Facet = (function() {
     // group, we just toss out spec.domain.data for the group, and vega automatically
     // uses the nearest scale.
     if(type != 'scales') delete layer[type][item.name];
-
+    if(type == 'axes') group._axisCount++;
     if(type == 'marks') {
       layer.markOrder.splice(layer.markOrder.indexOf(item.name), 1);
       group.markOrder.push(item.name);
+      group._markCount++;
     }
 
     // Since we're re-arranging things, we need to make sure angular's scope is maintained.

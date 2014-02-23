@@ -59,7 +59,7 @@ vde.Vis.Axis = (function() {
     if(!this.group().isLayer()) count = this.group().group()._axisCount++;
 
     if(!this.name)
-      this.name = 'axis_' + count;
+      this.name = 'axis_' + Date.now();
 
     this.displayName = 'Axis ' + vde.Vis.codename(count);
 
