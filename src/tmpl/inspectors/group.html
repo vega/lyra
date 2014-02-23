@@ -52,6 +52,12 @@
             </vde-property>
 
             <br clear="all" />
+
+            <div ng-if="pipeline.forkName">
+              <vde-property label="Show" type="checkbox" hint="once per group"
+                          item="mark" property="oncePerFork" ng-model="mark.oncePerFork"
+                          nodrop="1" style="full" ng-click="reparse()"></vde-property>
+            </div>
           </div>
 
           <!-- Show Transforms -->

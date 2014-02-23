@@ -7,6 +7,7 @@ vde.Vis.Mark = (function() {
     this.groupName    = groupName;
     this.pipelineName = null;
     this.inheritFromGroup = false;
+    this.oncePerFork  = false;
 
     this._spec = {
       properties: {
