@@ -331,6 +331,11 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline) 
           var binding = $compile('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope);
           scope.$apply();
 
+          if(scope.item.properties.textFormulaHtml == "Text"){
+            //If the text is currently just the default value, clear text
+            $(this).text("");
+          }
+
           $(this).append(binding.find('.schema').attr('contenteditable', 'false'));
 
           if(dd) dd.proxy = null;
