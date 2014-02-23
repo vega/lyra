@@ -10,7 +10,7 @@ vde.Vis.marks.Rect = (function() {
       width: {value: 30},
       x2: {value: 0, disabled: true},
       y: {value: 25},
-      height: {value: 150},
+      height: {value: 30},
       y2: {value: 0, disabled: true},
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
