@@ -144,7 +144,7 @@ vde.Vis.marks.Rect = (function() {
 
       if(!data || data.disabled || !data.connector) return;
 
-      delete self.iVisUpdated
+      delete self.iVisUpdated;
 
       // Since we're updating a value, pull the current value from the
       // scenegraph directly rather than properties. This makes it easier
