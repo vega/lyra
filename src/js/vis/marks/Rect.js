@@ -34,15 +34,8 @@ vde.Vis.marks.Rect = (function() {
       'bottom-left': {}, 'bottom-center': {}, 'bottom-right': {}
     };
 
-    var inferredHintAction = {
-      hint: "Lyra inferred this binding and chose to re-use a scale.",
-      action: "Create a new scale"
-    };
 
-    this.inferredHints = {
-      x: inferredHintAction, x2: inferredHintAction, width: inferredHintAction,
-      y: inferredHintAction, y2: inferredHintAction, height: inferredHintAction
-    };
+    this.inferredHints = {};
 
     return this;
   };
@@ -68,7 +61,11 @@ vde.Vis.marks.Rect = (function() {
         props = this.extents.horizontal.fields.indexOf(prop) != -1 ?
           this.extents.horizontal.fields : this.extents.vertical.fields;
 
-    if(defaults && (prop == 'width' || prop == 'height')) return [scale, field];
+    // If we're not dropping over a dropzone, don't ever do inference.
+    // If we're dropping over a width/height dropzone, wait to infer
+    // later on in the bind process.
+    if(!defaults || (defaults && (prop == 'width' || prop == 'height')))
+      return [scale, field];
 
     // To ease construction of extents, we try to infer and reuse a scale from
     // existing extent bindings. However, the user can choose to override this
@@ -79,6 +76,10 @@ vde.Vis.marks.Rect = (function() {
       props.some(function(p) {
         if(scale = self.properties[p].scale) {
           self.properties[prop].inferred = true;
+          self.inferredHints[prop] = {
+            hint: "Lyra inferred this binding and chose to re-use a scale.",
+            action: "Create a new scale"
+          };
           return true;
         }
       });

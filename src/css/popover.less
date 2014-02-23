@@ -65,3 +65,20 @@
     margin-bottom: 5px;
   }
 }
+
+.yellow-fade {
+  -webkit-animation: target-fade 3s 1;
+  -moz-animation: target-fade 3s 1;
+}
+
+.yellow-fade-start { background-color: #ffffb3; }
+.yellow-fade-end { background-color: #ffffff; }
+
+@-webkit-keyframes target-fade {
+  0% { .yellow-fade-start }
+  100% { .yellow-fade-end }
+}
+@-moz-keyframes target-fade {
+  0% { .yellow-fade-start }
+  100% { .yellow-fade-end }
+}
