@@ -16,6 +16,11 @@
   <select ng-options="p.property as p.label for p in properties"
           ng-model="property"></select>
 
+  <i ng-if="item.properties[property].scale &&
+            ((!item.properties[property].field && values.indexOf(item.properties[property].value) == -1) ||
+              (item.properties[property].field && !fieldMatchesDomain))" class="icon-warning-sign"
+     vde-tooltip="Warning: The field/value specified was not found in the scale's domain"></i>
+
   <div class="field">
     <div ng-if="item.properties[property].scale || item.properties[property].field">
       <vde-binding scale="item.properties[property].scale"

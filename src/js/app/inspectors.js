@@ -47,6 +47,28 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
         return $scope.field || (prop ? prop.field : false);
       };
 
+      $scope.$watch(function($scope) {
+        return {
+          property: $scope.property,
+          scale: $scope.getScale(),
+          field: $scope.getField()
+        }
+      }, function() {
+        var scale = $scope.getScale();
+        if(scale && scale.properties.type == 'ordinal') {
+          var domain = scale.field(), field = $scope.getField();
+
+          if(field) {
+            $scope.fieldMatchesDomain = (domain instanceof vde.Vis.Field) ?
+                field.spec() == domain.spec() : false;
+          } else {
+            $scope.values = (domain instanceof vde.Vis.Field) ?
+                scale.pipeline().values().map(vg.accessor(domain.spec())).concat(['auto']) :
+                domain;
+          }
+        }
+      }, true);
+
       $scope.onchange = function(prop) {
         if(!prop) prop = $scope.property;
         if($attrs.nochange) return;

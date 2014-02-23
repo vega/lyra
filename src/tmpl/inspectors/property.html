@@ -2,7 +2,15 @@
   <vde-can-drop-field style="{{canDropStyle}}" ng-if="!noDrop && canDropStyle">
   </vde-can-drop-field>
 
-  <label>{{label}} <a ng-if="hintUrl" href="{{hintUrl}}" class="icon-question-sign" target="_blank"></a></label>
+  <label>
+    {{label}}
+    <a ng-if="hintUrl" href="{{hintUrl}}" class="icon-question-sign" target="_blank"></a>
+
+    <i ng-if="scale && ((!field && values.indexOf(ngModel) == -1) ||
+              (field && !fieldMatchesDomain))" class="icon-warning-sign"
+         vde-tooltip="Warning: The field/value specified was not found in the scale's domain"></i>
+  </label>
+
   <div class="field" ng-switch on="type">
     <div ng-if="scale || field">
       <vde-binding scale="scale" field="field"></vde-binding>
