@@ -27,7 +27,9 @@ vde.Vis.marks.Symbol = (function() {
   var geomOffset = 7;
 
   prototype.productionRules = function(prop, scale, field) {
-    if(!scale && prop == 'size') {
+    if(scale) return [scale, field];
+
+    if(prop == 'size') {
       scale = this.group().scale(this, {
         domainTypes: {from: 'field'},
         domainField: field,
@@ -36,8 +38,18 @@ vde.Vis.marks.Symbol = (function() {
         properties: {type: 'linear'},
         rangeTypes: {type: 'sizes', from: 'values'},
         rangeValues: [50, 1000]
-      }, 'symbol_size');
-    };
+      }, 'Size');
+    } else if(prop == 'shape') {
+      scale = this.group().scale(this, {
+        domainTypes: {from: 'field'},
+        domainField: field,
+        rangeTypes: {type: 'shapes'}
+      }, {
+        properties: {type: 'ordinal'},
+        rangeTypes: {type: 'shapes', from: 'preset'},
+        rangeField: new vde.Vis.Field('shapes')
+      }, 'Shape');
+    }
 
     return [scale, field];
   };
