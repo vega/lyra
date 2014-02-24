@@ -72,9 +72,6 @@ a.add {
 }
 
 
-.colorpicker .dropdown-menu {
-  background-color: white;
-}
 
 .property.full {
   @margin-top: 4px;
@@ -204,6 +201,22 @@ a.add {
   .expr {
 //    display: block !important;
     position: relative;
+  }
+}
+
+
+.colorpicker.dropdown {
+  background-color: white;
+  .dropdown-menu{
+    min-width: 120px;
+  }
+  colorpicker-preview{
+    height: 0px;
+  }
+  .close{
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0.8;
   }
 }
 
