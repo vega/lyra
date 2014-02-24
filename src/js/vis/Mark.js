@@ -389,8 +389,9 @@ vde.Vis.Mark = (function() {
         var marks = start[i].marks;
         for(var j = 0; j < marks.length; j++) {
           var m = marks[j];
-          if(m.type == 'group' && m.name.indexOf(this.layerName) != -1)
-          newStart.push(m);
+          if(m.type == 'group' && (m.name.indexOf(this.layerName) != -1 ||
+              m.name.indexOf(this.groupName) != -1))
+            newStart.push(m);
         }
       }
 
