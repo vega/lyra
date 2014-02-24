@@ -71,6 +71,8 @@ a.add {
   a.unbind:hover { opacity: 1; }
 }
 
+
+
 .property.full {
   @margin-top: 4px;
 
@@ -96,15 +98,24 @@ a.add {
     width: 50px;
   }
 
+  input.color-property{
+    width: 30px;
+    text-indent: -9999px;
+    border: 3px solid white;
+    box-shadow: 0px 0px 1px 2px #cccccc, 0 0 0 1px #e6e6e6;
+    margin-left: 2px;
+  }
+
   input.fontSize {
     width: 40px;
   }
 
   span.editVal {
-    float: left;
     padding: 5px;
     margin-left: 10px;
     border-bottom: 1px dashed @medium-blue;
+    line-height: 22px;
+    padding-bottom: 2px;
   }
 
   span.hint {
@@ -191,6 +202,22 @@ a.add {
   .expr {
 //    display: block !important;
     position: relative;
+  }
+}
+
+
+.colorpicker.dropdown {
+  background-color: white;
+  .dropdown-menu{
+    min-width: 120px;
+  }
+  colorpicker-preview{
+    height: 0px;
+  }
+  .close{
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0.8;
   }
 }
 

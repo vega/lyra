@@ -2,13 +2,38 @@
   <div ng-if="type != 'select'">
     <p class="current-values" ng-show="values.length > 0">
       <div ng-repeat="val in values" class="block">
-        <input type="{{type}}" ng-model="val.value" ng-blur="deleteIfEmpty($index)" ng-change="update($index)" />
+        <input type="{{type}}" ng-model="val.value"
+               ng-blur="deleteIfEmpty($index)"
+               ng-change="update($index)"
+               ng-show="type!='color'"/>
+        <input colorpicker type="text" class="color-property"
+             style="background-color: {{ val.value }};"
+             ng-model="val.value"
+             ng-blur="deleteIfEmpty($index)"
+             ng-change="update($index)"
+             ng-show="type=='color'"/>
+        <span class="editVal" vde-edit-name
+              ng-model="val.value" ng-change="update($index)" vde-tooltip="Click to edit"
+              ng-show="type=='color'">
+            {{val.value}}
+        </span>
         <div class="unbind" ng-click="delete($index)">Remove Value</div>
       </div>
     </p>
     <br clear="all" />
     <p class="icons">
-        <input type="{{type}}" ng-model="$parent.newValue" ng-keypress="add($event)" placeholder="Add Value"/>
+        <input type="{{type}}" ng-model="$parent.newValue"
+               ng-keypress="add($event)" placeholder="Add Value"
+               ng-show="type!='color'"/>
+        <input colorpicker
+               type="text" class="color-property"
+               style="background-color: {{ $parent.newValue }};"
+               ng-model="$parent.newValue"
+               ng-show="type=='color'"/>
+        <span class="editVal" vde-edit-name
+              ng-model="$parent.newValue" vde-tooltip="Click to edit">
+            {{$parent.newValue}}
+        </span>
         <a ng-click="add(null, true)" class="add clickable">Add Value</a>
     </p>
   </div>
