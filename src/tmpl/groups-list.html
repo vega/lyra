@@ -1,8 +1,8 @@
 <div id="groups-list" ng-controller="GroupsListCtrl">
   <ul>
     <li>
-      <h3 ng-click="gMdl.editVis = !gMdl.editVis"
-          ng-class="{selected:gMdl.editVis}"><span>Visualization</span></h3>
+      <h2 ng-click="gMdl.editVis = !gMdl.editVis"
+          ng-class="{selected:gMdl.editVis}"><span>Visualization</span></h2>
 
       <div class="inspector inner" ng-if="gMdl.editVis" ng-controller="EditVisCtrl">
         <ng-include src="'tmpl/inspectors/vis.html'"></ng-include>
