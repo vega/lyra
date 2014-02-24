@@ -175,6 +175,31 @@ h5 {
   }
 }
 
+
+h3.editable-header, #groups-list h3.editable-header{
+  span.title{
+    width:auto;
+  }
+
+  .rename{
+    display: inline-block;
+    visibility: hidden;
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+    text-indent: -999em;
+    color: transparent;
+    padding: 3px;
+  }
+  &:hover .rename{
+    visibility: visible;
+    background-repeat: no-repeat;
+    background-size: 12px;
+    background-position: center center;
+    background-image: url(http://localhost/lyra/imgs/pencil-black.png);
+  }
+}
+
 @import 'reset.css';
 @import 'inspectors';
 @import 'binding';

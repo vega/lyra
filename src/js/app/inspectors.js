@@ -403,12 +403,22 @@ vde.App.directive('vdeEditName', function() {
         scope.$apply(read);
       });
 
-      // If we're editing a heading, then make it editable on a double click
-      // If it's a property value (e.g. color or slider val), then just a single click
-      element.on(element.parent().prop('tagName') == 'H3' ? 'dblclick' : 'click', function() {
+      //Editing
+
+      //For heading, user need to click the edit icon (in the template html file), which will call edit() on click.
+      scope.edit = function() {
         element.attr('contentEditable', true);
         element.focus();
-      });
+      };
+
+      // If it's a property value (e.g. color or slider val), then just a single click
+      if(element.parent().prop('tagName') != 'H3'){
+        element.on('click',scope.edit);
+      }
+
+
+
+
 
       element.on('blur keydown', function(evt) {
         if(!evt.keyCode || (evt.keyCode && evt.keyCode == 13))
