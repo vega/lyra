@@ -31,7 +31,8 @@
                ng-model="$parent.newValue"
                ng-show="type=='color'"/>
         <span class="editVal" vde-edit-name
-              ng-model="$parent.newValue" vde-tooltip="Click to edit">
+              ng-model="$parent.newValue" vde-tooltip="Click to edit"
+              ng-show="type=='color'">
             {{$parent.newValue}}
         </span>
         <a ng-click="add(null, true)" class="add clickable">Add Value</a>
