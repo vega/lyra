@@ -465,7 +465,6 @@ angular.module('colorpicker.module', [])
         };
 
         elem.on('click', function (event) {
-          console.log("click");
           update();
           colorpickerTemplate
             .addClass('colorpicker-visible')
