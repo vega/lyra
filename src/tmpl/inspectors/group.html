@@ -9,7 +9,7 @@
     <li ng-repeat="(axisName, axis) in group.axes">
       <h3 ng-class="{selected:activeVisual==axis}" class="editable-header">
         <span class="title" vde-edit-name ng-model="axis.displayName" ng-click="toggleVisual(axis)">{{axis.properties.title || axis.displayName}}</span>
-        <a class="rename" ng-click="edit()">Edit</a>
+        <a class="rename" ng-click="edit()"  vde-tooltip="Rename">Rename</a>
         <a class="delete close" vde-tooltip="Delete {{axis.displayName}}" ng-click="removeVisual('axes', axis.name, group)">&minus;</a>
       </h3>
 
@@ -29,7 +29,7 @@
         <span class="spinner" ng-if="mark.type == 'group' && activeGroup!=group" ng-click="toggleGroup(mark)">&#9654;</span>
 
         <span class="title" vde-edit-name ng-model="mark.displayName" ng-click="toggleVisual(mark)">{{mark.displayName|inflector:'humanize'}}</span>
-        <a class="rename" ng-click="edit()">Edit</a>
+        <a class="rename" ng-click="edit()" vde-tooltip="Rename">Rename</a>
         <a class="delete close" vde-tooltip="Delete {{mark.displayName}}" ng-click="removeVisual('marks', mark.name, group)">&minus;</a>
       </h3>
 
