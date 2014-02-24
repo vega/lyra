@@ -36,10 +36,13 @@
       </span>
 
       <span ng-switch-when="color">
-        <input type="color" ng-model="$parent.ngModel"
+
+        <input colorpicker type="text" class="color-property"
+               style="background-color: {{ $parent.ngModel }};"
+               ng-model="$parent.ngModel"
                ng-change="onchange()"
                ng-class="{'scaled-input': scale != undefined,
-               'disabled-input': item.properties[property].disabled}" />
+               'disabled-input': item.properties[property].disabled}"/>
 
         <span class="editVal" vde-edit-name
               ng-model="$parent.ngModel" ng-change="onchange()" vde-tooltip="Click to edit">{{$parent.ngModel}}</span>

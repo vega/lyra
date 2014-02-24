@@ -71,6 +71,11 @@ a.add {
   a.unbind:hover { opacity: 1; }
 }
 
+
+.colorpicker .dropdown-menu {
+  background-color: white;
+}
+
 .property.full {
   @margin-top: 4px;
 
@@ -94,6 +99,14 @@ a.add {
   input[type=color] {
     float: left;
     width: 50px;
+  }
+
+  input.color-property{
+    width: 30px;
+    text-indent: -9999px;
+    border: 3px solid white;
+    box-shadow: 0px 0px 1px 2px #cccccc, 0 0 0 1px #e6e6e6;
+    margin-left: 2px;
   }
 
   input.fontSize {
