@@ -54,6 +54,29 @@ vde.Vis.transforms.Facet = (function() {
     vde.Vis.callback.deregister('mark.post_spec',  this);
 
     if(this.pipeline()) {
+      for(var layerName in vde.Vis.groups) {
+        var layer = vde.Vis.groups[layerName];
+        if(this.groupName() in layer.marks) {
+          var group = layer.marks[this.groupName()];
+          for(var markName in group.marks) {
+            group.marks[markName].groupName = null;
+            layer.marks[markName] = group.marks[markName];
+            layer.markOrder.push(markName);
+          }
+
+          for(var axisName in group.axes) {
+            group.axes[axisName].groupName = null;
+            layer.axes[axisName] = group.axes[axisName];
+          }
+
+          for(var scaleName in group.scales)
+            if(!(scaleName in layer.scales)) layer.scales[scaleName] = group.scales[scaleName];
+
+          delete layer.marks[this.groupName()];
+          layer.markOrder.splice(layer.markOrder.indexOf(this.groupName()), 1);
+        }
+      }
+
       this.pipeline().forkName = null;
       this.pipeline().forkIdx  = null;
     }
