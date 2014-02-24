@@ -411,7 +411,7 @@ vde.App.directive('vdeEditName', function() {
         element.focus();
       };
 
-      // If it's a property value (e.g. color or slider val), then just a single click
+      // If it's a property value (e.g. color or slider val), click on the property span
       if(element.parent().prop('tagName') != 'H3'){
         element.on('click',scope.edit);
       }
