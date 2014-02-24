@@ -30,10 +30,12 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
 
       store: function() {
         var deferred = $q.defer();
+        var vis = vde.Vis.export(true);
+        var app = this.timeline[this.timeline.length - 1].app;
 
         this.files().upsert({
           fileName: this.fileName,
-          timeline: this.timeline[this.timeline.length - 1],
+          timeline: { vis: vis, app: app },
           currentIdx: this.currentIdx
         }).then(function(e) { deferred.resolve(e); });
 
@@ -50,9 +52,12 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
       },
 
       save: function() {
+        var vis = vde.Vis.export(false);
+        delete vis._data;
+
         this.timeline.length = ++this.currentIdx;
         this.timeline.push({
-          vis: vde.Vis.export(),
+          vis: vis,
           app: {
             activeVisual: ($rootScope.activeVisual || {}).name,
             isMark: $rootScope.activeVisual instanceof vde.Vis.Mark,

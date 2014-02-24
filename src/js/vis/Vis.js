@@ -155,13 +155,13 @@ vde.Vis = (function() {
     return deferred.promise;
   };
 
-  vis.export = function() {
+  vis.export = function(data) {
     var ex = {
       groups: {},
       groupOrder: vg.duplicate(vis.groupOrder),
       pipelines: vg.duplicate(vis.pipelines),
       properties: vg.duplicate(vis.properties),
-      _data: vg.duplicate(vis._data)
+      _data: data ? vg.duplicate(vis._data) : {}
     };
 
     for(var g in vis.groups) ex.groups[g] = vg.duplicate(vis.groups[g].export());
@@ -249,7 +249,7 @@ vde.Vis = (function() {
     }
 
     importProperties(vis.properties, spec.properties);
-    importProperties(vis._data, spec._data);
+    if(spec._data) importProperties(vis._data, spec._data);
     importProperties(vis.groupOrder, spec.groupOrder);
 
     vis.parse().then(function(spec) { deferred.resolve(spec); });
