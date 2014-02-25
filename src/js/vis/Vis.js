@@ -181,6 +181,7 @@ vde.Vis = (function() {
           if(!vg.isObject(a[k])) {
             if(b[k].hasOwnProperty('accessor') || k == 'field') a[k] = new vde.Vis.Field('');
             else if(k == 'scale' || b[k].hasOwnProperty('domainTypes')) a[k] = scales[b[k].name];
+            else if(vg.isArray(b[k])) a[k] = [];
             else a[k] = {};
           }
           importProperties(a[k], b[k]);
