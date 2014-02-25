@@ -3,9 +3,18 @@
 
   <div class="pipeline" ng-repeat="(pipelineName, pipeline) in pMdl.pipelines">
 
-    <h3 ng-class="{selected:activePipeline==pipeline}">
-      <span vde-edit-name ng-model="pipeline.displayName" ng-click="togglePipeline(pipeline)">{{pipeline.displayName}}</span>
-      <a class="delete close" vde-tooltip="Delete {{pipeline.displayName}}" ng-click="removePipeline(pipeline.name)">&minus;</a>
+    <h3 ng-class="{selected:activePipeline==pipeline}" class="editable-header">
+      <span class="title" vde-edit-name ng-model="pipeline.displayName" ng-click="togglePipeline(pipeline)">
+        {{pipeline.displayName}}
+
+      </span>
+      <a class="rename" ng-click="edit()" vde-tooltip="Rename">Rename</a>
+
+      <a class="delete close"
+         vde-tooltip="Delete {{pipeline.displayName}}"
+         ng-click="removePipeline(pipeline.name)">
+          &minus;
+      </a>
     </h3>
 
     <div class="inspector" ng-if="activePipeline==pipeline">
