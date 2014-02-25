@@ -4710,7 +4710,7 @@
 			{
 				if ( DataTable.ext.sErrMode == 'alert' )
 				{
-					alert( sAlert );
+					console.log( sAlert );
 				}
 				else
 				{
