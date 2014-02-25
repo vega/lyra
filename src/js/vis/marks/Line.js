@@ -136,7 +136,8 @@ vde.Vis.marks.Line = (function() {
   };
 
   prototype.dummySpec = function() {
-    if(this.type == 'line' && !this.properties.x.field && !this.properties.y.field) {
+    if((this.type == 'line' || this.type == 'area') &&
+        !this.properties.x.field && !this.properties.y.field) {
       this._spec.from = {data: 'vdeDummyData'};
       this._spec.properties.enter = {
         x: {field: 'data.x'},
