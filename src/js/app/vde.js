@@ -11,7 +11,8 @@ vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable', 'xc.indexedDB', 
         });
 });
 
-vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, timeline) {
+vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
+                                       $location, $http, timeline) {
   $scope.load = function() {
     jQuery.migrateMute = true;
 
@@ -50,8 +51,21 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
       $rootScope.activePipeline = p;
 
       // To be able to undo all the way back to a default/clean slate.
-      vde.Vis.parse().then(function() { timeline.save(); });
-    }, 500)
+      vde.Vis.parse().then(function() {
+        timeline.save();
+
+        $scope.$watch(function() { return $location.search() }, function() {
+          var ex = $location.search().example;
+          if(ex) {
+            $http.get('examples/' + ex + '.json').then(function(d) {
+              console.log(d);
+              timeline.timeline = d.data;
+              timeline.redo();
+            })
+          }
+        }, true);
+      });
+    }, 500);
   };
 
   $scope.marks = ['Rect', 'Symbol', 'Arc', 'Area', 'Line', 'Text'];
