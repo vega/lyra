@@ -105,7 +105,7 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.pipelinePostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(!this.properties.keys) return;
+    if(this.properties.keys.length == 0) return;
     if(opts.item.name != this.pipelineName) return;
 
     // Grab the transforms that must work within each facet, and them to our group
@@ -116,7 +116,7 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.groupPreSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(!this.properties.keys) return;
+    if(this.properties.keys.length == 0) return;
 
     if(opts.item.isLayer()) {
       this._layer(opts.item);
@@ -129,7 +129,7 @@ vde.Vis.transforms.Facet = (function() {
   // marked to inherit their data from the facet group.
   prototype.groupPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(!this.properties.keys) return;
+    if(this.properties.keys.length == 0) return;
     if(opts.item.name != this.groupName()) return;
 
     for(var i = 0; i < opts.spec.marks.length; i++) {
@@ -148,7 +148,7 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.markPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(!this.properties.keys) return;
+    if(this.properties.keys.length == 0) return;
     if(opts.item.pipelineName != this.pipelineName) return;
     if(opts.item.type == 'group') return;
 
