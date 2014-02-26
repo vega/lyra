@@ -175,7 +175,24 @@ vde.Vis.marks.Group = (function() {
 
   prototype.doLayout = function(layout) {
     var facet = vde.Vis.transforms.Facet, self = this;
-    if(layout != facet.layout_overlap) {
+
+    var copyFromLayer = function(props) {
+      props.forEach(function(prop) {
+        self.properties[prop] = {};
+        var fromProp = self.group().properties[prop];
+        if(fromProp.scale) self.properties[prop].scale = fromProp.scale;
+        if(fromProp.field)
+          self.properties[prop].field = new vde.Vis.Field(fromProp.field.name,
+              fromProp.field.accessor, fromProp.field.type, fromProp.field.pipelineName,
+              fromProp.field.stat);
+        if(fromProp.hasOwnProperty('value')) self.properties[prop].value = fromProp.value;
+        if(fromProp.disabled) self.properties[prop].disabled = fromProp.disabled;
+      });
+    }
+
+    if(layout == facet.layout_overlap) {
+      copyFromLayer(['x', 'width', 'x2', 'y', 'height', 'y2']);
+    } else {
       var isHoriz = layout == facet.layout_horiz;
       var scale = this.group().scale(this, {
         domainTypes: {from: 'field'},
@@ -193,20 +210,6 @@ vde.Vis.marks.Group = (function() {
       };
 
       var bandField = { scale: scale, value: 'auto' };
-
-      var copyFromLayer = function(props) {
-        props.forEach(function(prop) {
-          self.properties[prop] = {};
-          var fromProp = self.group().properties[prop];
-          if(fromProp.scale) self.properties[prop].scale = fromProp.scale;
-          if(fromProp.field)
-            self.properties[prop].field = new vde.Vis.Field(fromProp.field.name,
-                fromProp.field.accessor, fromProp.field.type, fromProp.field.pipelineName,
-                fromProp.field.stat);
-          if(fromProp.hasOwnProperty('value')) self.properties[prop].value = fromProp.value;
-          if(fromProp.disabled) self.properties[prop].disabled = fromProp.disabled;
-        });
-      }
 
       if(isHoriz) {
         this.properties.x = keyField;
