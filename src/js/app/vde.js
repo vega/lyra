@@ -58,7 +58,6 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
           var ex = $location.search().example;
           if(ex) {
             $http.get('examples/' + ex + '.json').then(function(d) {
-              console.log(d);
               timeline.timeline = d.data;
               timeline.redo();
             })

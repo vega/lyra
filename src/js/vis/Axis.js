@@ -17,7 +17,7 @@ vde.Vis.Axis = (function() {
       },
 
       labelStyle: {
-        text: {},
+//        text: {},
         fontSize: {value: vg.config.axis.tickLabelFontSize},
         font: {value: "Helvetica"},
         angle: {value: 0},
@@ -105,6 +105,10 @@ vde.Vis.Axis = (function() {
       axis: vg.duplicate(this.properties.axisStyle),
       grid: vg.duplicate(this.properties.gridStyle)
     };
+
+    if(spec.properties.labels.text &&
+        Object.keys(spec.properties.labels.text).length == 0)
+      delete spec.properties.labels.text;
 
     if(spec.properties.labels.text && spec.properties.labels.text.scale)
       spec.properties.labels.text.scale = spec.properties.labels.text.scale.name;
