@@ -108,12 +108,15 @@ vde.Vis.transforms.Force = (function() {
 
     // Inject a separate data source for edges
     opts.spec.unshift({
+      name: this.links.data,
+      values: vde.Vis._data[this.links.data].values
+    });
+
+    opts.spec.unshift({
       name: opts.item.name + '_edges',
       source: this.links.data,
       transform: [{type: 'copy', from: 'data', fields: [this.links.source, this.links.target], as: ['source', 'target']}]
     });
-
-
   };
 
   prototype._mark = function(opts) {
