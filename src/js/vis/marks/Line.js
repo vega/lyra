@@ -1,6 +1,6 @@
 vde.Vis.marks.Line = (function() {
-  var line = function(name, groupName) {
-    vde.Vis.Mark.call(this, name, groupName);
+  var line = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name, layerName, groupName);
 
     this.type = 'line';
     this.propType = 'points';
@@ -87,15 +87,19 @@ vde.Vis.marks.Line = (function() {
         props.x.value += dx;
         props.y.value += dy;
         self.update(['x', 'y']);
+        self.iVisUpdated = true;
       });
     }
 
     var enabled = (this.type == 'rule' && !props.x.field && !props.y.field)
 
     var mouseup = function() {
-      vde.iVis.ngScope().$apply(function() {
-        vde.iVis.ngTimeline().save();
-      })
+      if(self.iVisUpdated)
+        vde.iVis.ngScope().$apply(function() {
+          vde.iVis.ngTimeline().save();
+        })
+
+      delete self.iVisUpdated
     };
 
     return {
@@ -110,8 +114,8 @@ vde.Vis.marks.Line = (function() {
     return symbol.helper.call(this, property);
   };
 
-  prototype.propertyTargets = function() {
-    return symbol.propertyTargets.call(this);
+  prototype.propertyTargets = function(connector, showGroup) {
+    return symbol.propertyTargets.call(this, connector, showGroup);
   };
 
   prototype.coordinates = function(connector, item, def) {
@@ -132,7 +136,8 @@ vde.Vis.marks.Line = (function() {
   };
 
   prototype.dummySpec = function() {
-    if(this.type == 'line' && !this.properties.x.field && !this.properties.y.field) {
+    if((this.type == 'line' || this.type == 'area') &&
+        !this.properties.x.field && !this.properties.y.field) {
       this._spec.from = {data: 'vdeDummyData'};
       this._spec.properties.enter = {
         x: {field: 'data.x'},

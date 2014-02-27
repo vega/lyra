@@ -1,4 +1,4 @@
-vde.App.controller('DataCtrl', function($scope, $rootScope, logger) {
+vde.App.controller('DataCtrl', function($scope, $rootScope, timeline) {
   $scope.dMdl = {
     src: {},
     formats: ['json', 'csv', 'tsv'],
@@ -23,15 +23,8 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, logger) {
         $scope.dMdl.hasLoaded = true;
         $scope.dMdl.isObj = !vg.isArray(src.values);
         $scope.dMdl.properties = vg.keys(src.values);
-
-        logger.log('loaded_values', { 
-          properties: $scope.dMdl.properties,
-          isObj: $scope.dMdl.isObj
-        });
       })
-    }); 
-
-    logger.log('load_values', { src: $scope.dMdl.src });
+    });
   };
 
   $scope.add = function() {
@@ -46,7 +39,7 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, logger) {
     $scope.dMdl.src = {};
     $rootScope.newData = false;
 
-    logger.log('add_data', { src: src });
+    timeline.save();
   };
 
   $scope.cancel = function() {
@@ -62,7 +55,7 @@ vde.App.directive('vdePosNewData', function () {
   return function(scope, element, attrs) {
     element.on('change', function(evt) {
       var offset = $(evt.target).offset();
-      $('#new-data').css('top', (offset.top+35) + 'px');
+      $('#data-popover').css('top', (offset.top+25) + 'px');
     })
   };
 });

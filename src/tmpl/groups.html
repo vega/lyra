@@ -2,9 +2,9 @@
   <h2><span>Visual Layers</span> <a class="edit-vis" ng-click="editVisualization()" vde-tooltip="Visualization Properties">Edit Visualization</a> <a class="add" ng-click="addGroup()" vde-tooltip="New Group">New Group</a> </h2>
 
   <div ui:sortable="gMdl.sortableOpts" ng:model="groupOrder">
-  <div class="group" ng-repeat="groupName in groupOrder" ng-controller="GroupCtrl">
+  <div class="group" ng-repeat="layerName in groupOrder" ng-controller="GroupCtrl">
     <div ng-if="group.layer">
-      <h3 ng-class="{expanded:activeGroup == group}" ng-click="toggleVisual(group)">{{group.displayName|inflector:'humanize'}} <a ng-click="removeVisual('group', groupName);" class="remove" vde-tooltip="Delete Group">Delete Group</a></h3>
+      <h3 ng-class="{expanded:activeLayer == group}" ng-click="toggleVisual(group)">{{group.displayName|inflector:'humanize'}} <a ng-click="removeVisual('group', layerName);" class="remove" vde-tooltip="Delete Group">Delete Group</a></h3>
 
       <div ng-class="{selected:activeVisual==group}" ng-show="activeVisual==group" ng-init="mark = group;">
         <vde-property label="Name" type="text" item="mark" ng-model="mark.displayName" nodrop="1"></vde-property>
@@ -12,7 +12,7 @@
         <ng-include src="'tmpl/inspectors/rect.html'"></ng-include>
       </div>
 
-      <div ng-if="activeGroup == group">
+      <div ng-if="activeLayer == group">
 
         <h4>Axes <a ng-click="addAxis()" class="add" vde-tooltip="New Axis">New Axis</a></h4>
 

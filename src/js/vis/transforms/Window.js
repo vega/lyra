@@ -1,10 +1,10 @@
 vde.Vis.transforms.Window = (function() {
   var win = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'window', ['size', 'step']);
+    vde.Vis.Transform.call(this, pipelineName, 'window', 'Window', ['size', 'step']);
 
     this.requiresFork = true;
 
-    vde.Vis.callback.register('injection.post_spec', this, this.injectionPostSpec);
+    vde.Vis.callback.register('group.post_spec', this, this.groupPostSpec);
 
     return this;
   }
@@ -13,19 +13,21 @@ vde.Vis.transforms.Window = (function() {
   var prototype = win.prototype;
 
   prototype.destroy = function() {
-    vde.Vis.callback.deregister('injection.post_spec',  this);
+    vde.Vis.callback.deregister('group.post_spec',  this);
   };
 
   prototype.spec = function() { return null; };
 
-  // TODO: Holy hack Batman. Fix this Post-CHI.
-  prototype.injectionPostSpec = function(opts) {
+  prototype.groupPostSpec = function(opts) {
     if(!this.properties.size || !this.properties.step) return;
     if(opts.item.pipelineName != this.pipelineName) return;
+    if(opts.item.isLayer()) return;
 
-    var wGrp = {
+    var marks = vg.duplicate(opts.spec.marks);
+
+    opts.spec.marks = [{
       type: 'group',
-      name: opts.group.name + '_window',
+      name: opts.item.name + '_window',
       from: {
         transform: [{
           type: 'window',
@@ -33,10 +35,8 @@ vde.Vis.transforms.Window = (function() {
           step: this.properties.step
         }]
       },
-      marks: vg.duplicate(opts.group.marks)
-    };
-
-    opts.group.marks = [wGrp];
+      marks: marks
+    }];
   };
 
   return win;

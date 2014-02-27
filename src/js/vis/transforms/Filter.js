@@ -1,6 +1,6 @@
 vde.Vis.transforms.Filter = (function() {
   var filter = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'filter', ['test']);
+    vde.Vis.Transform.call(this, pipelineName, 'filter', 'Filter', ['test']);
 
     this.exprFields = [];
 

@@ -1,8 +1,12 @@
 vde.Vis.transforms.Stack = (function() {
   var stack = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'stack', ['point', 'height', 'offset', 'order']);
+    vde.Vis.Transform.call(this, pipelineName, 'stack', 'Stacked Layout', ['point', 'height', 'offset', 'order']);
 
     vde.Vis.callback.register('vis.post_spec', this, this.visPostSpec);
+
+    // Defaults
+    this.properties.offset = 'zero';
+    this.properties.order = 'default';
 
     this.scale = null;
     this.requiresFork = true;
@@ -29,7 +33,7 @@ vde.Vis.transforms.Stack = (function() {
       rangeTypes: {type: 'spatial'}
     }, {
       properties: {type: 'linear'},
-      rangeTypes: {type: 'spatial', from: 'field'},
+      rangeTypes: {type: 'spatial', from: 'preset'},
       rangeField: new vde.Vis.Field('height'),
       axisType: 'y'
     }, 'stacks');

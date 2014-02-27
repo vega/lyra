@@ -1,6 +1,6 @@
 vde.Vis.transforms.Sort = (function() {
   var sort = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'sort', ['by', 'order']);
+    vde.Vis.Transform.call(this, pipelineName, 'sort', 'Sort', ['by', 'order']);
     return this;
   }
 

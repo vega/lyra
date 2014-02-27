@@ -2,43 +2,42 @@
 <html ng-app="vde">
   <head>
     <title>Lyra</title>
-    <link rel="stylesheet" type="text/css" href="css/vde.css" />
-    <link rel="stylesheet" type="text/css" href="css/marks.css" />
-    <link rel="stylesheet" type="text/css" href="css/groups.css" />
-    <link rel="stylesheet" type="text/css" href="css/inspectors.css" />
-    <link rel="stylesheet" type="text/css" href="css/pipeline.css" />
-    <link rel="stylesheet" type="text/css" href="css/popover.css" />
+    <link rel="stylesheet/less" type="text/css" href="css/vde.less" />
 
     <link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.10.3.custom.min.css" />
     <link rel="stylesheet" type="text/css" href="css/lib/jquery.dataTables.css">
+      <link rel="stylesheet" type="text/css" href="css/lib/colorpicker.css">
 
+    <script src="js/lib/less.min-1.6.1.js"></script>
     <script src="js/lib/jquery.min-1.9.0.js"></script>
     <script src="js/lib/jquery-migrate-1.2.1.js"></script>
     <script src="js/lib/jquery.event.drag-2.2.js"></script>
     <script src="js/lib/jquery.event.drop-2.2.js"></script>
     <script src="js/lib/jquery-ui.min-1.9.0.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/lib/bootstrap.min.css" />
     <script src="js/lib/bootstrap.min.js"></script>
     <script src="js/lib/jquery.dataTables-1.9.4.js"></script>
     <script src="js/lib/datatables/FixedColumns.js"></script>
     <script src="js/lib/d3.v3.min.js"></script>
     <script src="js/lib/vega-1.3.3.js"></script>
+
     <!-- <script src="js/lib/vega.js"></script> -->
 
-    <script src="js/lib/angular-1.1.5.js"></script>
-
+    <script src="js/lib/angular-1.2.10.min.js"></script>
+    <script src="js/lib/bootstrap-colorpicker-module.js"></script>
     <script src="js/lib/inflector.js"></script>
     <script src="js/lib/sortable.js"></script>
+    <script src="js/lib/indexeddb.js"></script>
 
     <script src="js/app/vde.js"></script>
-    <script src="js/app/logger.js"></script>
     <script src="js/app/timeline.js"></script>
     <script src="js/app/draggable.js"></script>
     <script src="js/app/groups.js"></script>
     <script src="js/app/inspectors.js"></script>
     <script src="js/app/pipelines.js"></script>
     <script src="js/app/data.js"></script>
+    <script src="js/app/export.js"></script>
 
     <script src="js/vis/Vis.js"></script>
     <script src="js/vis/iVis.js"></script>
@@ -69,26 +68,20 @@
   </head>
   <body ng-controller="VdeCtrl" ng-init="load()"  ng-click="clearBubbles();">
 
-    <ng-include src="'tmpl/pipelines.html'"></ng-include>
+    <ng-include src="'tmpl/pipelines-list.html'"></ng-include>
 
-    <ng-include src="'tmpl/groups.html'"></ng-include>
+    <ng-include src="'tmpl/groups-list.html'"></ng-include>
 
-    <ng-include src="'tmpl/marks.html'"></ng-include>
+    <ng-include src="'tmpl/center.html'"></ng-include>
 
     <ng-include src="'tmpl/popovers/scale.html'"></ng-include>
 
     <ng-include src="'tmpl/popovers/aggregate.html'"></ng-include>
 
-    <ng-include src="'tmpl/popovers/preview-transform.html'"></ng-include>
+    <ng-include src="'tmpl/popovers/data.html'"></ng-include>
 
-    <ng-include src="'tmpl/popovers/vis.html'"></ng-include>
+    <ng-include src="'tmpl/popovers/timeline.html'" ng-controller="TimelineCtrl"></ng-include>
 
-    <ng-include src="'tmpl/export.html'" ng-controller="ExportCtrl"></ng-include>
-
-    <ng-include src="'tmpl/popovers/data.html'" ng-controller="DataCtrl"></ng-include>
-
-    <ng-include src="'tmpl/bugreport.html'" ng-controller="BugCtrl"></ng-include>
-
-    <ng-include src="'tmpl/timeline.html'" ng-controller="TimelineCtrl"></ng-include>
+    <ng-include src="'tmpl/popovers/export.html'" ng-controller="ExportCtrl"></ng-include>
   </body>
 </html>

@@ -5,7 +5,7 @@ vde.Vis.Scale = (function() {
     this.displayName = displayName;
 
     this.domainTypes = {from: 'field'};  // Field or Values
-    this.rangeTypes  = {type: 'spatial', from: 'field'};  // 'property' key if type is 'other'
+    this.rangeTypes  = {type: 'spatial', from: 'preset'};  // 'property' key if type is 'other'
 
     this.domainField = null;
     this.rangeField  = null;
@@ -18,14 +18,14 @@ vde.Vis.Scale = (function() {
 
     this.hasAxis  = false;  // Does this scale already have an axis/legend on the vis
     this.axisType = 'x';    // If not, visualize it on iVis when editing
-    this.shadowInGroup = false; // Drawn domain from group's dataset?
+    this.inheritFromGroup = false; // Drawn domain from group's dataset?
 
     this.properties = {
       type: 'linear',
       points: true,
       nice: true,
       // clamp: false
-      // padding: 0,
+      padding: 0,
       // exponent: 0,
       zero: true
     };
@@ -58,9 +58,9 @@ vde.Vis.Scale = (function() {
       ? { data:  field.stat ? field.pipeline().forkName : field.pipelineName,
           field: field.stat ? field.spec().replace('stats.','') : field.spec() }
       : this.domainValues;
-    spec.shadowInGroup = this.shadowInGroup;  // Easiest way of picking this up in group injection
+    spec.inheritFromGroup = this.inheritFromGroup;  // Easiest way of picking this up in group injection
 
-    spec.range = (this.rangeTypes.from == 'field' && this.rangeField) ?
+    spec.range = (this.rangeTypes.from == 'preset' && this.rangeField) ?
       this.rangeField.spec() : this.rangeValues;
 
     delete spec.pipeline;
@@ -81,7 +81,7 @@ vde.Vis.Scale = (function() {
 
   prototype.type  = function() { return this.properties.type; };
   prototype.field = function() { return this.domainTypes.from == 'field' ? this.domainField : this.domainValues; };
-  prototype.range = function() { return this.rangeTypes.from == 'field'  ? this.rangeField  : this.rangeValues; };
+  prototype.range = function() { return this.rangeTypes.from == 'preset'  ? this.rangeField  : this.rangeValues; };
 
   prototype.pipeline = function() {
     return vde.Vis.pipelines[this.pipelineName];
@@ -112,7 +112,7 @@ vde.Vis.Scale = (function() {
   };
 
   prototype.unbindProperty = function(prop) {
-    delete this.properties[prop];
+    delete this[prop];
   };
 
   return scale;

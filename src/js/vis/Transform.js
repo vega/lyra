@@ -1,6 +1,7 @@
 vde.Vis.Transform = (function() {
-  var transform = function(pipelineName, type, input, output) {
+  var transform = function(pipelineName, type, displayName, input, output) {
     this.type = type;
+    this.displayName = displayName;
 
     this.input = input;
     this.output = output;

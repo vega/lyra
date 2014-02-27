@@ -1,6 +1,6 @@
 vde.Vis.marks.Symbol = (function() {
-  var symbol = function(name, groupName) {
-    vde.Vis.Mark.call(this, name, groupName);
+  var symbol = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name, layerName, groupName);
 
     this.type = 'symbol';
 
@@ -14,7 +14,7 @@ vde.Vis.marks.Symbol = (function() {
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
       stroke: {value: '#000000'},
-      strokeWidth: {value: 0}
+      strokeWidth: {value: 0.25}
     };
 
     this.connectors = {'point': {}};
@@ -27,7 +27,9 @@ vde.Vis.marks.Symbol = (function() {
   var geomOffset = 7;
 
   prototype.productionRules = function(prop, scale, field) {
-    if(!scale && prop == 'size') {
+    if(scale) return [scale, field];
+
+    if(prop == 'size') {
       scale = this.group().scale(this, {
         domainTypes: {from: 'field'},
         domainField: field,
@@ -36,8 +38,18 @@ vde.Vis.marks.Symbol = (function() {
         properties: {type: 'linear'},
         rangeTypes: {type: 'sizes', from: 'values'},
         rangeValues: [50, 1000]
-      }, 'symbol_size');
-    };
+      }, 'Size');
+    } else if(prop == 'shape') {
+      scale = this.group().scale(this, {
+        domainTypes: {from: 'field'},
+        domainField: field,
+        rangeTypes: {type: 'shapes'}
+      }, {
+        properties: {type: 'ordinal'},
+        rangeTypes: {type: 'shapes', from: 'preset'},
+        rangeField: new vde.Vis.Field('shapes')
+      }, 'Shape');
+    }
 
     return [scale, field];
   };
@@ -71,6 +83,8 @@ vde.Vis.marks.Symbol = (function() {
 
       if(!handle) return;
 
+      self.iVisUpdated = true;
+
       vde.iVis.ngScope().$apply(function() {
         props.size.value += dx*10;
         self.update('size');
@@ -81,9 +95,12 @@ vde.Vis.marks.Symbol = (function() {
     };
 
     var mouseup = function() {
-      vde.iVis.ngScope().$apply(function() {
-        vde.iVis.ngTimeline().save();
-      })
+      if(self.iVisUpdated)
+        vde.iVis.ngScope().$apply(function() {
+          vde.iVis.ngTimeline().save();
+        })
+
+      delete self.iVisUpdated
     };
 
     vde.iVis.interactor('handle', this.handles(item));
@@ -102,7 +119,7 @@ vde.Vis.marks.Symbol = (function() {
       .show(['point', 'span']);
   };
 
-  prototype.propertyTargets = function() {
+  prototype.propertyTargets = function(connector, showGroup) {
     var self = this,
         item = this.item(vde.iVis.activeItem),
         spans = [], dropzones = [];
@@ -115,6 +132,12 @@ vde.Vis.marks.Symbol = (function() {
       dropzones = dropzones.concat(self.dropzones(s));
       spans = spans.concat(s);
     });
+
+    if(showGroup) {
+      var groupInteractors = this.group().propertyTargets();
+      if(groupInteractors.spans) spans = spans.concat(groupInteractors.spans);
+      if(groupInteractors.dropzones) dropzones = dropzones.concat(groupInteractors.dropzones);
+    }
 
     vde.iVis.interactor('point', [this.connectors['point'].coords(item)])
       .interactor('span', spans)

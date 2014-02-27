@@ -1,11 +1,12 @@
 vde.Vis.Mark = (function() {
-  var mark = function(name, groupName) {
+  var mark = function(name, layerName, groupName) {
     this.name = name;
     this.displayName = name;
 
+    this.layerName    = layerName;
     this.groupName    = groupName;
     this.pipelineName = null;
-    this.oncePerFork = false;
+    this.oncePerFork  = false;
 
     this._spec = {
       properties: {
@@ -30,18 +31,26 @@ vde.Vis.Mark = (function() {
   var prototype = mark.prototype;
   var geomOffset = 7;
 
+  var capitaliseFirstLetter = function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   prototype.init = function() {
     var self = this;
-    if(!this.groupName) {
+
+    if(!this.layerName) {
       var g = new vde.Vis.marks.Group();
-      this.groupName = g.name;
+      this.layerName = g.name;
     }
 
     if(!this.name)
-      this.name = this.type + '_' + (vg.keys(this.group().marks).length+1);
+      this.name = this.type + '_' + Date.now();
 
-    if(!this.displayName)
-      this.displayName = this.name;
+    if(!this.displayName) {
+      var count = this.group()._markCount++;
+      if(!this.group().isLayer()) count = this.group().group()._markCount++;
+      this.displayName = capitaliseFirstLetter(this.type) + ' ' + vde.Vis.codename(count);
+    }
 
     if(this.group() != this) {
       this.group().marks[this.name] = this;
@@ -59,7 +68,7 @@ vde.Vis.Mark = (function() {
       if(item.mark.def != self.def()) return;
       if(item.items && self.type != 'group') return;
 
-      vde.iVis.ngScope().toggleVisual(self, item.vdeKey || item.key || 0);
+      vde.iVis.ngScope().toggleVisual(self, item.vdeKey || item.key || 0, true);
     });
 
     // Highlight/unhighlight group
@@ -70,6 +79,7 @@ vde.Vis.Mark = (function() {
 
       m.group().items().map(function(i) {
         if(i.strokeWidth != 0) return;
+        i.stroke = '#aaaaaa';
         i.strokeWidth = 1;
         i.strokeDash = [1.5, 3];
         i.vdeStroked = true;
@@ -105,7 +115,8 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.group = function() {
-    return vde.Vis.groups[this.groupName];
+    var layer = vde.Vis.groups[this.layerName];
+    return this.groupName ? layer.marks[this.groupName] : layer;
   };
 
   prototype.property = function(prop) {
@@ -152,6 +163,7 @@ vde.Vis.Mark = (function() {
     vde.Vis.callback.run('mark.post_spec', this, {spec: spec});
 
     this._def = null;
+    this._items = [];
 
     return spec.properties ? spec : null;
   };
@@ -160,12 +172,24 @@ vde.Vis.Mark = (function() {
     var p = this.properties[prop] || (this.properties[prop] = {});
     var scale, field;
 
+    // bindProperty is always called on the vde.iVis.activeMark (which is usually
+    // a specific non-group mark. So we should route the request to the mark's layer
+    // if it's a facet dropzones. In case this mark is a group/layer, this should still
+    // be ok.
+    var facet = vde.Vis.transforms.Facet;
+    if(prop == facet.dropzone_horiz || prop == facet.dropzone_vert) {
+      var layer = this.group();
+      if(!layer.isLayer()) layer = layer.group();
+
+      return layer.bindProperty(prop, opts, defaults);
+    }
+
     if(opts.scaleName) {
       scale = this.pipeline().scales[opts.scaleName];
       if(!scale) scale = vde.Vis.pipelines[opts.pipelineName].scales[opts.scaleName];
       if(scale) this.group().scales[opts.scaleName] = scale;
       p.scale = scale;
-    } else {
+    } else if(!defaults && !p.inferred) {
       scale = p.scale;
     }
 
@@ -174,7 +198,7 @@ vde.Vis.Mark = (function() {
       // if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
 
       // Run mark specific production rules first so that they get first dibs
-      var prules = this.productionRules(prop, scale, field);
+      var prules = this.productionRules(prop, scale, field, defaults);
           scale = prules[0];
           field = prules[1];
 
@@ -193,11 +217,11 @@ vde.Vis.Mark = (function() {
             searchDef.rangeTypes.type = 'spatial';
             defaultDef = {
               properties: { type: field.type || 'ordinal'},
-              rangeTypes: {type: 'spatial', from: 'field'},
+              rangeTypes: {type: 'spatial', from: 'preset'},
               rangeField: new vde.Vis.Field('width'),
               axisType: 'x'
             };
-            displayName = 'x';
+            displayName = 'X';
           break;
 
           case 'y':
@@ -206,11 +230,11 @@ vde.Vis.Mark = (function() {
             searchDef.rangeTypes.type = 'spatial';
             defaultDef = {
               properties: { type: field.type || 'linear'},
-              rangeTypes: {type: 'spatial', from: 'field'},
+              rangeTypes: {type: 'spatial', from: 'preset'},
               rangeField: new vde.Vis.Field('height'),
               axisType: 'y'
             };
-            displayName = 'y';
+            displayName = 'Y';
           break;
 
           case 'fill':
@@ -218,10 +242,10 @@ vde.Vis.Mark = (function() {
             searchDef.rangeTypes.type = 'colors';
             defaultDef = {
               properties: { type: 'ordinal'},
-              rangeTypes: {type: 'colors', from: 'field'},
+              rangeTypes: {type: 'colors', from: 'preset'},
               rangeField: new vde.Vis.Field('category20')
             };
-            displayName = prop + '_color';
+            displayName = capitaliseFirstLetter(prop) + ' Color';
           break;
 
           case 'fillOpacity':
@@ -232,7 +256,7 @@ vde.Vis.Mark = (function() {
               rangeTypes: {type: 'other', from: 'values', property: prop},
               rangeValues: (prop == 'fillOpacity') ? [0, 1] : [0, 10]
             };
-            displayName = prop;
+            displayName = capitaliseFirstLetter(prop);
           break;
         }
 
@@ -253,24 +277,41 @@ vde.Vis.Mark = (function() {
 
       // Add axes by defaults
       var aOpts = {pipelineName: (scale || field || this).pipelineName};
+
+      // We want to be a little smarter about adding axes to groups with layout.
+      // Add the axis to the layer instead of the group if the axes orientation
+      // matches the group layout.
+      var facet = vde.Vis.transforms.Facet;
       if(scale) aOpts.scaleName = scale.name;
       switch(prop) {
         case 'x':
         case 'x2':
         case 'width':
-          var xAxis = new vde.Vis.Axis('x_axis', this.groupName);
-          var ap = xAxis.properties;
-          ap.type = 'x'; ap.orient = 'bottom';
-          xAxis.bindProperty('scale', aOpts);
+          var existing = this.group().axes.x_axis;
+          if(!existing || (existing && existing.default)) {
+            var groupName = this.group().layout == facet.layout_horiz ? this.groupName : null;
+            var xAxis = new vde.Vis.Axis('x_axis', this.layerName, groupName);
+            var ap = xAxis.properties;
+            ap.type = 'x'; ap.orient = 'bottom';
+            xAxis.bindProperty('scale', aOpts);
+            xAxis.default = true;
+            xAxis.displayName = capitaliseFirstLetter(scale.displayName) + ' Axis';
+          }
         break;
 
         case 'y':
         case 'y2':
         case 'height':
-          var yAxis = new vde.Vis.Axis('y_axis', this.groupName);
-          var ap = yAxis.properties;
-          ap.type = 'y'; ap.orient = 'left';
-          yAxis.bindProperty('scale', aOpts);
+          var existing = this.group().axes.y_axis;
+          if(!existing || (existing && existing.default)) {
+            var groupName = this.group().layout == facet.layout_vert ? this.groupName : null;
+            var yAxis = new vde.Vis.Axis('y_axis', this.layerName, groupName);
+            var ap = yAxis.properties;
+            ap.type = 'y'; ap.orient = 'left';
+            yAxis.bindProperty('scale', aOpts);
+            yAxis.default = true;
+            yAxis.displayName = capitaliseFirstLetter(scale.displayName) + ' Axis';
+          }
         break;
       }
     }
@@ -311,7 +352,7 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.unbindProperty = function(prop) {
-    this.properties[prop] = {value: 0};
+    this.properties[prop] = {value: prop.match('fill|stroke') ? '#000000' : 0};
   };
 
   prototype.disconnect = function() {
@@ -323,7 +364,8 @@ vde.Vis.Mark = (function() {
 
   prototype.def = function() {
     var self  = this,
-        start = this.type == 'group' ? vde.Vis.view.model().defs().marks : this.group().def();
+        start = this.type == 'group' && this.isLayer() ?
+            vde.Vis.view.model().defs().marks : this.group().def();
 
     if(this._def) return this._def;
 
@@ -336,7 +378,7 @@ vde.Vis.Mark = (function() {
     };
 
     var def = visit(start);
-    while(!def && this.groupName && this.group() != this) {
+    while(!def && this.layerName && this.group() != this) {
       if(!vg.isArray(start)) start = [start];
 
       // If we haven't found the def in the group, there must be
@@ -347,8 +389,9 @@ vde.Vis.Mark = (function() {
         var marks = start[i].marks;
         for(var j = 0; j < marks.length; j++) {
           var m = marks[j];
-          if(m.type == 'group' && m.name.indexOf(this.groupName) != -1)
-          newStart.push(m);
+          if(m.type == 'group' && (m.name.indexOf(this.layerName) != -1 ||
+              m.name.indexOf(this.groupName) != -1))
+            newStart.push(m);
         }
       }
 
@@ -364,7 +407,8 @@ vde.Vis.Mark = (function() {
 
   prototype.items = function() {
     var self = this,
-        parents = this.type == 'group' ? [vde.Vis.view.model().scene().items[0]] : this.group().items(),
+        parents = this.type == 'group' && this.isLayer() ?
+            [vde.Vis.view.model().scene().items[0]] : this.group().items(),
         def = this.def();
 
     if(this._items.length > 0) return this._items;
@@ -441,6 +485,10 @@ vde.Vis.Mark = (function() {
 
     // We clear out properties, so that we don't get any lingering defaults from re-init'ing
     this.properties = {};
+
+    // Force an assignment of these two in case gorup
+    this.groupName = imp.groupName;
+    this.layerName = imp.layerName;
   };
 
   prototype.defaults = function(prop) { return null; }
@@ -448,7 +496,7 @@ vde.Vis.Mark = (function() {
   prototype.selected = function() { return {}; }
   prototype.helper   = function(property) { return null; }
 
-  prototype.propertyTargets   = function() { return null; }
+  prototype.propertyTargets   = function(connector, showGroup) { return null; }
   prototype.connectionTargets = function() { return null; }
 
   prototype.connect = function(connector, mark) { return null; }

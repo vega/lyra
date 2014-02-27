@@ -1,6 +1,6 @@
 vde.Vis.marks.Rect = (function() {
-  var rect = function(name, groupName) {
-    vde.Vis.Mark.call(this, name, groupName);
+  var rect = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name, layerName, groupName);
 
     this.type = 'rect';
     this.fillType = 'color'; // color || image
@@ -10,12 +10,12 @@ vde.Vis.marks.Rect = (function() {
       width: {value: 30},
       x2: {value: 0, disabled: true},
       y: {value: 25},
-      height: {value: 150},
+      height: {value: 30},
       y2: {value: 0, disabled: true},
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
       stroke: {value: '#000000'},
-      strokeWidth: {value: 0},
+      strokeWidth: {value: 0.25},
 
       // For image marks
       url: {},
@@ -33,6 +33,9 @@ vde.Vis.marks.Rect = (function() {
       'middle-left' : {}, 'middle-center': {}, 'middle-right': {},
       'bottom-left': {}, 'bottom-center': {}, 'bottom-right': {}
     };
+
+
+    this.inferredHints = {};
 
     return this;
   };
@@ -53,40 +56,58 @@ vde.Vis.marks.Rect = (function() {
     return vde.Vis.Mark.prototype.spec.call(this);
   };
 
-  prototype.productionRules = function(prop, scale, field) {
+  prototype.productionRules = function(prop, scale, field, defaults) {
     var self = this,
         props = this.extents.horizontal.fields.indexOf(prop) != -1 ?
           this.extents.horizontal.fields : this.extents.vertical.fields;
 
-    // First check to see if a related property already has a scale, and reuse it
-    if(!scale && props.indexOf(prop) != -1)
-      props.some(function(p) { if(scale = self.properties[p].scale) return true });
+    // If we're not dropping over a dropzone, don't ever do inference.
+    // If we're dropping over a width/height dropzone, wait to infer
+    // later on in the bind process.
+    if(!defaults || (defaults && (prop == 'width' || prop == 'height')))
+      return [scale, field];
+
+    // To ease construction of extents, we try to infer and reuse a scale from
+    // existing extent bindings. However, the user can choose to override this
+    // inference, in which case bindProperty + productionRules are called again.
+    // So, we check to ensure we only infer a scale if we haven't already for this
+    // property.
+    if(!scale && !this.properties[prop].inferred && props.indexOf(prop) != -1)
+      props.some(function(p) {
+        if(scale = self.properties[p].scale) {
+          self.properties[prop].inferred = true;
+          self.inferredHints[prop] = {
+            hint: "Lyra inferred this binding and chose to re-use a scale.",
+            action: "Create a new scale"
+          };
+          return true;
+        }
+      });
+    else
+      delete this.properties[prop].inferred;
 
     if(prop == 'url') field.type = 'encoded';
     return [scale, field];
   };
 
   prototype.defaults = function(prop) {
-    var props = this.properties;
+    var props = this.properties, isOrd = props[prop].scale.type() == 'ordinal';
     // If we set the width/height, by default map x/y
     if(['width', 'height'].indexOf(prop) == -1) return;
-    var defaultProp = (prop == 'width') ? 'x' : 'y';
-    var otherProps = this.extents[(prop == 'width') ? 'vertical' : 'horizontal'].fields;
+    var scaledProp = (prop == 'width') ? isOrd ? 'x' : 'x2' : 'y';
+    var zeroProp   = (prop == 'width') ? isOrd ? 'x2' : 'x' : 'y2';
 
-    // Only do defaults if x/x2 or y/y2 have not been scaled
-    if(props[defaultProp].scale || props[defaultProp+'2'].scale) return;
-
-    props[defaultProp] = {
+    props[scaledProp] = {
       scale: props[prop].scale,
       field: props[prop].field,
       default: true
     };
 
-    if(props[prop].scale.type() == 'ordinal') {
+    if(isOrd) {
       delete props[prop].field;
       props[prop].value = 'auto';
     } else {
-      props[defaultProp+'2'] = {
+      props[zeroProp] = {
         scale: props[prop].scale,
         value: 0,
         default: true
@@ -121,13 +142,18 @@ vde.Vis.marks.Rect = (function() {
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
           data = dragging.item.datum.data;
 
-      if(!data || data.disabled) return;
+      if(!data || data.disabled || !data.connector) return;
+
+      delete self.iVisUpdated;
 
       // Since we're updating a value, pull the current value from the
       // scenegraph directly rather than properties. This makes it easier
       // to cope with rangeBands and {scale, value} properties.
       var updateValue = function(prop, delta) {
-        if(!props[prop].disabled && !props[prop].field) props[prop] = {value: item[prop] + delta};
+        if(!props[prop].disabled && !props[prop].field) {
+          props[prop] = {value: item[prop] + delta};
+          self.iVisUpdated = true;
+        }
       }
 
       vde.iVis.ngScope().$apply(function() {
@@ -167,9 +193,10 @@ vde.Vis.marks.Rect = (function() {
     };
 
     var mouseup = function() {
-      vde.iVis.ngScope().$apply(function() {
-        vde.iVis.ngTimeline().save();
-      })
+      if(self.iVisUpdated)
+        vde.iVis.ngScope().$apply(function() {
+          vde.iVis.ngTimeline().save();
+        })
     };
 
     return {
@@ -198,7 +225,7 @@ vde.Vis.marks.Rect = (function() {
       .show(['point', 'span']);
   };
 
-  prototype.propertyTargets = function(connector) {
+  prototype.propertyTargets = function(connector, showGroup) {
     var self  = this,
         item  = this.item(vde.iVis.activeItem),
         props = [],
@@ -211,6 +238,12 @@ vde.Vis.marks.Rect = (function() {
 
     if(connector) props = connToSpan[connector].props;
     if(props.length == 0) props = ['width', 'height'];
+
+    if(showGroup) {
+      var groupInteractors = this.group().propertyTargets();
+      if(groupInteractors.spans) spans = spans.concat(groupInteractors.spans);
+      if(groupInteractors.dropzones) dropzones = dropzones.concat(groupInteractors.dropzones);
+    }
 
     props.forEach(function(prop) {
       var span = self.spans(item, prop)
@@ -238,7 +271,7 @@ vde.Vis.marks.Rect = (function() {
       if(!vde.iVis.dragging || item.mark.def.name != 'dropzone') return;
       if(item.connector)  // For points, switch propertyTargets after a timeout.
         vde.iVis.dropzoneTimeout = window.setTimeout(function() {
-          self.propertyTargets((item.connector == connector) ? '' : item.connector);
+          self.propertyTargets((item.connector == connector) ? '' : item.connector, showGroup);
         }, vde.iVis.timeout);
     };
 
@@ -286,8 +319,13 @@ vde.Vis.marks.Rect = (function() {
     setProp('y', 'y');
 
     if(connector.indexOf('center') != -1) {
-      setProp('dx', props.width.disabled ? 'x2' : 'width');
-      mProps.dx.mult = 0.5;
+      if(props.width.disabled) {
+        setProp('dx', 'x2');
+        mProps.x.mult = mProps.dx.mult = 0.5;
+      } else {
+        setProp('dx', 'width');
+        mProps.dx.mult = 0.5;
+      }
     }
 
     if(connector.indexOf('right') != -1)
@@ -386,6 +424,8 @@ vde.Vis.marks.Rect = (function() {
         gb = vde.iVis.translatedBounds(item.mark.group, item.mark.group.bounds),
         go = 3*geomOffset, io = geomOffset; // offsets
 
+    var facet = vde.Vis.transforms.Facet;
+
     switch(property) {
       case 'x':
         return [{x: (gb.x1-go), y: (b.y1-io), span: 'x_0'}, {x: b.x1, y: (b.y1-io), span: 'x_0'},
@@ -397,7 +437,8 @@ vde.Vis.marks.Rect = (function() {
          {x: (gb.x1-go), y: (b.y2+io), span: 'x2_1'}, {x: b.x2, y: (b.y2+io), span: 'x2_1'}];
       break;
 
-      case 'width': return [{x: b.x1, y: (b.y1-io), span: 'width_0'}, {x: b.x2, y: (b.y1-io), span: 'width_0'}]; break;
+      case facet.dropzone_horiz:
+      case 'width': return [{x: b.x1, y: (b.y1-io), span: property + '_0'}, {x: b.x2, y: (b.y1-io), span: property + '_0'}]; break;
 
       case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
         [{x: (b.x1-io), y: (gb.y2+go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
@@ -415,7 +456,8 @@ vde.Vis.marks.Rect = (function() {
          {x: (b.x2+io), y: (gb.y1-go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}];
       break;
 
-      case 'height': return [{x: (b.x1-io), y: b.y1, span: 'height_0'}, {x: (b.x1-io), y: b.y2, span: 'height_0'}]; break;
+      case facet.dropzone_vert:
+      case 'height': return [{x: (b.x1-io), y: b.y1, span: property + '_0'}, {x: (b.x1-io), y: b.y2, span: property + '_0'}]; break;
     };
   };
 

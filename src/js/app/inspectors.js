@@ -1,4 +1,4 @@
-vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
+vde.App.directive('vdeProperty', function($rootScope, timeline) {
   return {
     restrict: 'E',
     scope: {
@@ -9,58 +9,112 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
       step: '@',
       item: '=',
       property: '@',
-      ngModel: '=',
-      scale: '=',
-      field: '=',
-      options: '=',
+      ngModel: '=?',
+      scale: '=?',
+      field: '=?',
+      options: '=?',
       nodrop: '@',
+      canDropStyle: '@',
       nochange: '@',
-      hint: '@'
+      hint: '@',
+      hintUrl: '@',
+      style: '@',
+      extentsProps: '=?',
+      extentsBound: '=?',
+      imgFill: '@'
     },
     transclude: true,
-    templateUrl: 'tmpl/inspectors/property.html',
+    templateUrl: function(tElement, tAttrs) {
+      var tmpl = 'tmpl/inspectors/property';
+      if(tAttrs.imgFill) return tmpl + '-imgfill.html';
+      if(tAttrs.extentsProps) return tmpl + '-extents.html';
+
+      return tmpl + '.html';
+    },
     controller: function($scope, $element, $attrs, $timeout) {
+      $scope.fillTypes = [{label: 'Color', property: 'color'},
+        {label: 'Image', property: 'image'}];
+
+      // We can't simply check for $scope.scale or $scope.field because of
+      // the extents properties. So use this instead.
+      $scope.getScale = function() {
+        var prop = (($scope.item||{}).properties||{})[$scope.property];
+        return $scope.scale || (prop ? prop.scale : false);
+      };
+
+      $scope.getField = function() {
+        var prop = (($scope.item||{}).properties||{})[$scope.property];
+        return $scope.field || (prop ? prop.field : false);
+      };
+
+      $scope.$watch(function($scope) {
+        return {
+          property: $scope.property,
+          scale: $scope.getScale(),
+          field: $scope.getField()
+        }
+      }, function() {
+        var scale = $scope.getScale();
+        if(scale && scale.properties.type == 'ordinal') {
+          var domain = scale.field(), field = $scope.getField();
+
+          if(field) {
+            $scope.fieldMatchesDomain = (domain instanceof vde.Vis.Field) ?
+                field.spec() == domain.spec() : false;
+          } else if(!scale.pipeline().forkName) {
+            $scope.values = (domain instanceof vde.Vis.Field) ?
+                scale.pipeline().values().map(vg.accessor(domain.spec())).concat(['auto']) :
+                domain;
+          }
+        }
+      }, true);
+
       $scope.onchange = function(prop) {
+        if(!prop) prop = $scope.property;
         if($attrs.nochange) return;
         if('checkExtents' in $scope.item)
-          $scope.item.checkExtents(prop || $scope.property);
+          $scope.item.checkExtents(prop);
+
+        // X/Y-Axis might be added by default if fields dropped over dropzones.
+        // If the user toggles to them, assume they're going to edit, and delete
+        // default flag to prevent the axis from being overridden by future drops.
+        if($scope.item instanceof vde.Vis.Axis) delete $scope.item.default;
+
+        // For non-layer groups, if any of the spatial properties are changed
+        // then switch the layout to overlapping.
+        if(['x', 'x2', 'width', 'y', 'y2', 'height'].indexOf(prop) != -1 &&
+            $scope.item.type == 'group' && !$scope.item.isLayer())
+          $scope.item.layout = vde.Vis.transforms.Facet.layout_overlap;
 
         $timeout(function() {
-          if($scope.item.update) $scope.item.update(prop || $attrs.property);
-          else vde.Vis.parse();
-
-          vde.iVis.show('selected');
-
-          timeline.save();
+          if($scope.item.update) {
+            $scope.item.update(prop);
+            vde.iVis.show('selected');
+            timeline.save();
+          } else {
+            vde.Vis.parse().then(function(spec) {
+              vde.iVis.show('selected');
+              timeline.save();
+            });
+          }
         }, 1);
-
-        logger.log('onchange', {
-          item: $scope.item.name,
-          group: $scope.item.groupName,
-          pipeline: $scope.item.pipelineName,
-          property: $attrs.property,
-          ngModel: $attrs.ngModel,
-          value: $scope.ngModel
-        });
       };
 
       $scope.unbind = function(property) {
+        if(!property) property = $scope.property;
         $scope.item.unbindProperty(property);
-        vde.Vis.parse();
+        vde.Vis.parse().then(function() { timeline.save(); });
+      };
 
-        logger.log('unbind', {
-          item: $scope.item.name,
-          group: $scope.item.groupName,
-          pipeline: $scope.item.pipelineName,
-          property: $attrs.property,
-          ngModel: $attrs.ngModel
-        }, true, true);
-
-        timeline.save();
+      $scope.unInferProperty = function(property, field) {
+        $scope.item.bindProperty(property, {
+          field: field,
+          pipelineName: field.pipelineName
+        });
       };
 
       $scope.showHelper = function(target, e, helperClass) {
-        if($scope.item instanceof vde.Vis.Mark) $scope.item.helper($attrs.property);
+        if($scope.item instanceof vde.Vis.Mark) $scope.item.helper($scope.property);
 
         target.addClass(helperClass);
       };
@@ -73,21 +127,64 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
         else if($rootScope.activeVisual instanceof vde.Vis.Mark)
           $rootScope.activeVisual.propertyTargets();
       };
+
+      // This block of code ensures that the extent selects stay in sync.
+      if($scope.extentsProps) {
+        $scope.$watch(function($scope) {
+          return {p: $scope.property, b: $scope.extentsBound,
+            v: $scope.extentsProps.map(function(p) { return $scope.item.properties[p.property]; })}
+        }, function(newVal, oldVal) {
+          $scope.properties = [];
+
+          if(newVal.p != oldVal.p) {
+            if(newVal.p) {
+              delete $scope.item.properties[newVal.p].disabled;
+              $scope.extentsBound[newVal.p] = 1;
+            }
+
+            if(oldVal.p) {
+              $scope.item.properties[oldVal.p].disabled = true;
+              delete $scope.extentsBound[oldVal.p];
+            }
+          }
+
+          // This happens if a production rule disables the current property.
+          if(newVal.p && $scope.item.properties[newVal.p].disabled) {
+            newVal.p = null;
+            $scope.property = null;
+          }
+
+          $scope.extentsProps.forEach(function(prop) {
+            var p = prop.property, bind = false;
+            if($scope.item.properties[p].disabled) bind = true;
+            else if(newVal.p == p) bind = true;
+            else {
+              if(!newVal.p && !$scope.property && !(p in $scope.extentsBound)) {
+                $scope.property = p;
+                $scope.extentsBound[p] = 1;
+                bind = true;
+              }
+              if(!(p in $scope.extentsBound)) bind = true;
+            }
+
+            if(bind) $scope.properties.push(prop);
+          });
+        }, true);
+      }
     },
     link: function(scope, element, attrs) {
       if(attrs.nodrop) return;
 
-      $(element).find('.property').on('mousemove', function(e) {
+      $(element).find('.property, .canDropField').on('mousemove', function(e) {
         scope.showHelper($(this), e, 'helper');
-      })
-      .on('mouseleave', function(e) {
+      }).on('mouseleave', function(e) {
         scope.hideHelper($(this), e, 'helper');
       }) // Clear helpers
       .drop(function(e, dd) {
         if(element.find('.expr').length > 0) return element.find('.expr').drop(e, dd);
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
 
-        vde.iVis.bindProperty(scope.item, attrs.property);
+        vde.iVis.bindProperty(scope.item, scope.property);
         dd.proxy = null;
       }).drop('dropstart', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
@@ -100,7 +197,7 @@ vde.App.directive('vdeProperty', function($rootScope, logger, timeline) {
   }
 });
 
-vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timeline, logger) {
+vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timeline) {
   return {
     restrict: 'E',
     scope: {
@@ -111,54 +208,57 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
     templateUrl: 'tmpl/inspectors/binding.html',
     controller: function($scope, $element, $attrs) {
       // if($attrs.draggable) {
-        var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
-        $element.append(el);
+//        var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
+//        $element.append(el);
       // }
 
       $rootScope.aggregate = function(stat) {
         var field = $rootScope.activeField;
         field.pipeline().aggregate(field, stat);
-        $timeout(function() { vde.Vis.parse(); }, 1);
-        $('#aggregate-inspector').hide();
-
-        timeline.save();
+        $timeout(function() {
+          vde.Vis.parse().then(function() {
+            $('#aggregate-popover').hide();
+            timeline.save();
+          });
+        }, 1);
       };
 
-      $scope.editBinding = function(evt, part) {
+      $scope.editBinding = $rootScope.editBinding = function(evt, part) {
         var inspector = null;
+        var winHeight = $(window).height(), winWidth = $(window).width(),
+            pageX = evt.pageX, pageY = evt.pageY;
+
         if(part == 'scale') {
-          inspector = $('#binding-inspector');
+          inspector = $('#scale-popover');
           $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
           vde.iVis.parse($rootScope.activeScale); // Visualize scale
         } else {
-          inspector = $('#aggregate-inspector');
+          inspector = $('#aggregate-popover');
           $rootScope.activeField = inspector.is(':visible') ? null : $scope.field;
         }
 
         $timeout(function() {
-          var winHeight = $(window).height(), winWidth = $(window).width(),
-              pageX = evt.pageX, pageY = evt.pageY;
-
           inspector.css('left', (pageX-15) + 'px');
-          $('.bubble', inspector).removeClass('top-left top-right bottom-left bottom-right');
+          inspector.removeClass('top bottom left right top-left top-right bottom-left bottom-right');
           var className = '';
-          if(pageY > winHeight / 2) { // If below half-way, position top
-            inspector.css('top', (pageY - inspector.height() - 25) + 'px');
-            className = 'bottom';
-          } else {
-            inspector.css('top', (pageY + 25) + 'px');
-            className = 'top';
-          }
 
           if(pageX > winWidth/2) {
-            inspector.css('left', (pageX - inspector.width()) + 'px');
-            className += '-right';
+            inspector.css('left', (pageX - inspector.width() - 20) + 'px');
+            className += 'left left-';
           } else {
-            inspector.css('left', (pageX - 10) + 'px');
-            className += '-left';
+            inspector.css('left', (pageX + 20) + 'px');
+            className += 'right right-';
           }
 
-          $('.bubble', inspector).addClass(className);
+          if(pageY > winHeight / 2) {
+            inspector.css('top', (pageY - inspector.height() + 15) + 'px');
+            className += 'top';
+          } else {
+            inspector.css('top', pageY - 20 + 'px');
+            className += 'bottom';
+          }
+
+          inspector.addClass(className);
           inspector.toggle();
         }, 100);
       };
@@ -176,7 +276,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
   }
 });
 
-vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, logger) {
+vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline) {
   return {
     restrict: 'A',
     scope: {
@@ -185,7 +285,7 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
       ngModel: '=',
       vdeExpr: '@'
     },
-    template: '<div class="expr" contenteditable="true"></div>',
+    template: '<vde-can-drop-field style="right"></vde-can-drop-field><div class="expr" contenteditable="true"></div>',
     link: function(scope, element, attrs) {
       var parse = function() {
         var elem = $(element).find('.expr');
@@ -231,6 +331,11 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
           var binding = $compile('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope);
           scope.$apply();
 
+          if(scope.item.properties.textFormulaHtml == "Text"){
+            //If the text is currently just the default value, clear text
+            $(this).text("");
+          }
+
           $(this).append(binding.find('.schema').attr('contenteditable', 'false'));
 
           if(dd) dd.proxy = null;
@@ -245,6 +350,8 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
         .bind('keyup', function(e) { parse(); })
         .bind('click', function() { $(this).focus(); });
 
+      $(element).bind('click', function() { $(this).find('.expr').focus(); });
+
       // This captures any aggregation changes made to the fields used. We need to set it on
       // a timeout because parse requires the html of element to have been completely rendered.
       scope.$watch('item.exprFields', function() { $timeout(function() { parse() }, 100) }, true);
@@ -258,6 +365,75 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
         }, true);
     }
   }
+});
+
+vde.App.directive('vdeCanDropField', function() {
+  return {
+    restrict: 'E',
+    templateUrl: 'tmpl/inspectors/can-drop-field.html',
+    link: function(scope, element, attrs) {
+      scope.style = attrs.style;
+      scope.canUnbind = function() {
+        if(scope.$parent.getScale() || scope.$parent.getField()) {
+          scope.$parent.unbind();
+          $('.tooltip').remove();
+          return true;
+        }
+
+        return false;
+      }
+    }
+  }
+});
+
+vde.App.directive('vdeEditName', function() {
+  return {
+    restrict: 'A', // only activate on element attribute
+    require: '?ngModel', // get a hold of NgModelController
+    link: function(scope, element, attrs, ngModel) {
+      if(!ngModel) return; // do nothing if no ng-model
+
+      // Specify how UI should be updated
+      ngModel.$render = function() {
+        element.text(ngModel.$viewValue || '');
+      };
+
+      // Listen for change events to enable binding
+      element.on('blur keyup change', function() {
+        scope.$apply(read);
+      });
+
+      //Editing
+
+      //For heading, user need to click the edit icon (in the template html file), which will call edit() on click.
+      scope.edit = function() {
+        element.attr('contentEditable', true);
+        element.focus();
+      };
+
+      // If it's a property value (e.g. color or slider val), click on the property span
+      if(element.parent().prop('tagName') != 'H3'){
+        element.on('click',scope.edit);
+      }
+
+
+
+
+
+      element.on('blur keydown', function(evt) {
+        if(!evt.keyCode || (evt.keyCode && evt.keyCode == 13))
+          element.attr('contentEditable', false);
+      });
+
+      // Write data to the model
+      function read() {
+        var html = element.text();
+        // When we clear the content editable the browser leaves a <br> behind
+        if(html == '<br>' ) html = '';
+        ngModel.$setViewValue(html);
+      }
+    }
+  };
 });
 
 vde.App.directive('vdeScaleValues', function() {
@@ -284,14 +460,47 @@ vde.App.directive('vdeScaleValues', function() {
         $scope.values.push({ value: $scope.newValue });
         $scope.update();
         $scope.newValue = '';
-      }
+      };
 
-      $scope.delete = function($index) {
+      $scope.deleteIfEmpty = function($index) {
         if($scope.values[$index].value == '') $scope.values.splice($index, 1);
         $scope.update();
-      }
+      };
 
-      $scope.foo = function() { console.log('foo'); }
+      $scope.delete = function($index){
+        $scope.values.splice($index, 1);
+        $scope.update()
+      }
+    }
+  }
+});
+
+vde.App.directive('vdeInferredPopover', function($timeout) {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attrs) {
+      var canDropField = element.parent().find('.canDropField');
+      var dropOffset = canDropField.offset();
+      var threshold = $('#groups-list').offset().left + $('#groups-list').width()/2 - 10;
+
+      // Position the popover above the nearest .canDropField
+      element.removeClass('bottom-left bottom-right')
+          .addClass(dropOffset.left > threshold ? 'bottom-right' : 'bottom-left')
+          .css({ top: (dropOffset.top - 60), left: 10 });
+
+      // Fade out the popover after a few seconds, but if the user mouses
+      // in/out, restart the fading timer. If we fade out, then that implies
+      // the user is ok with the inference, so clear out the inference flag.
+      var fadeOut = function() {
+        return $timeout(function() {
+          element.fadeOut();
+          delete scope.item.properties[scope.property].inferred;
+        }, 3000);
+      };
+
+      var f = fadeOut();
+      element.on('click mouseover', function() { $timeout.cancel(f); })
+        .on('mouseleave', function() { f = fadeOut(); });
     }
   }
 })

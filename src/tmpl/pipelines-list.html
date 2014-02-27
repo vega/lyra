@@ -1,0 +1,99 @@
+<div id="pipelines-list" ng-controller="PipelinesListCtrl">
+  <h2>Data Pipelines</h2>
+
+  <div class="pipeline" ng-repeat="(pipelineName, pipeline) in pMdl.pipelines">
+
+    <h3 ng-class="{selected:activePipeline==pipeline}" class="editable-header">
+      <span class="title" vde-edit-name ng-model="pipeline.displayName" ng-click="togglePipeline(pipeline)">
+        {{pipeline.displayName}}
+
+      </span>
+      <a class="rename" ng-click="edit()" vde-tooltip="Rename">Rename</a>
+
+      <a class="delete close"
+         vde-tooltip="Delete {{pipeline.displayName}}"
+         ng-click="removePipeline(pipeline.name)">
+          &minus;
+      </a>
+    </h3>
+
+    <div class="inspector" ng-if="activePipeline==pipeline">
+      <div class="heading">From Source:
+        <select ng-model="pMdl.activePipelineSource"
+                ng-options="f.value as f.key for f in fromSources"
+                ng-change="setSource()" vde-pos-new-data="1">
+        </select>
+      </div>
+
+      <!-- Existing transforms -->
+      <div class="existing-transforms" ng-repeat="transform in pipeline.transforms"
+           ng-show="!transform.isVisual && transform.type != 'stats'">
+
+        <div class="heading">
+          {{transform.displayName}}
+          <a class="delete close" vde-tooltip="Delete {{transform.displayName}}" ng-click="removeTransform($index)">&minus;</a>
+        </div>
+
+        <div class="inner">
+          <ng-include src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'"></ng-include>
+        </div>
+      </div> <!-- /existing transforms -->
+
+      <div class="datatable" id="datasheet" ng-if="pipeline.source" vde-data-grid pipeline="pipeline"></div>
+
+      <div class="addNew" ng-show="pipeline.source && !pMdl.showTransforms && pMdl.newTransforms.length == 0"
+           ng-click="pMdl.showTransforms = true;">+ New Transform</div>
+
+      <!-- Show Transforms -->
+      <div class="showTransforms" ng-show="pMdl.showTransforms">
+        <div class="heading">
+          New Transform
+          <a class="close" ng-click="pMdl.showTransforms = false">&times;</a>
+        </div>
+
+        <div class="inner">
+          <a class="transform-filter btn btn-small" b ng-click="newTransform('Filter')">Filter</a>
+          <a class="transform-sort btn btn-small" ng-click="newTransform('Sort')">Sort</a>
+          <a class="transform-formula btn btn-small" ng-click="newTransform('Formula')">Formula</a>
+          <a class="transform-facet btn btn-small" ng-click="newTransform('Facet')">Group By</a>
+          <a class="transform-window btn btn-small" ng-click="newTransform('Window')">Window</a>
+        </div>
+      </div><!-- /show transforms -->
+
+      <!-- New Transforms -->
+      <div ng-repeat="transform in pMdl.newTransforms">
+        <div class="heading">{{transform.displayName}}</div>
+
+        <div class="inner">
+          <ng-include ng-show="!transform.isVisual && transform.type != 'stats'"
+                      src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'">
+          </ng-include>
+
+          <input type="button" value="Cancel" ng-click="removeTransform($index, true)" />
+
+          <input type="button" value="Add to Pipeline" ng-click="addTransform($index)" />
+        </div>
+      </div> <!-- /new transforms -->
+
+      <!-- Scales -->
+      <div class="scales">
+        <div class="heading">
+          Scales
+          <a class="close" vde-tooltip="New Scale" ng-click="addScale()">&plus;</a>
+        </div>
+
+        <div class="inner">
+          <vde-binding ng-repeat="(scaleName, scale) in pipeline.scales" scale="scale" draggable="1"></vde-binding>
+
+          <br clear="all" />
+        </div>
+
+        <br clear="all" />
+      </div>
+    </div> <!-- /ng-if activePipeline == pipeline -->
+
+    <br clear="all" />
+  </div> <!-- /div.pipeline -->
+
+  <h3 class="addNew" ng-click="addPipeline()">+ New Pipeline</h3>
+</div>

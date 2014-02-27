@@ -1,54 +1,110 @@
-<div class="text inspector">
+<div class="inner">
+  <vde-property label="Text" type="expr-str" item="mark" property="textFormula"
+                ng-model="mark.properties.textFormulaHtml" style="full"></vde-property>
 
-  <vde-property label="Text" type="expr-str" item="mark" property="textFormula" ng-model="mark.properties.textFormulaHtml"></vde-property>
+  <h4>Font</h4>
 
-  <fieldset id="font" ng-init="weight=['normal', 'bold']; style=['normal', 'italic'];">
-    <legend>Font</legend>
-
-    <vde-property label="Family" type="select" options="gMdl.fonts" item="mark" property="font" ng-model="mark.properties.font.value" scale="mark.properties.font.scale" field="mark.properties.font.field"></vde-property>
-
-    <vde-property label="Size" type="number" item="mark" property="fontSize" ng-model="mark.properties.fontSize.value" scale="mark.properties.fontSize.scale" field="mark.properties.fontSize.field"></vde-property>
-
-    <vde-property label="Weight" type="select" options="weight" item="mark" property="fontWeight" ng-model="mark.properties.fontWeight.value" scale="mark.properties.fontWeight.scale" field="mark.properties.fontWeight.field"></vde-property>
-
-    <vde-property label="Style" type="select" options="style" item="mark" property="fontStyle" ng-model="mark.properties.fontStyle.value" scale="mark.properties.fontStyle.scale" field="mark.properties.fontStyle.field"></vde-property>
-
-    <vde-property label="Color" type="color" item="mark" property="fill" ng-model="mark.properties.fill.value" scale="mark.properties.fill.scale" field="mark.properties.fill.field"></vde-property>
-
-  </fieldset>
+  <vde-property label="Size" type="number" item="mark" property="fontSize"
+                ng-model="mark.properties.fontSize.value"
+                scale="mark.properties.fontSize.scale"
+                field="mark.properties.fontSize.field"
+                can-drop-style="left" style="half"></vde-property>
 
 
-  <fieldset ng-show="!mark.connectedTo.host">
-    <legend>Position</legend>
+  <vde-property label="Family" type="select" options="gMdl.fonts" item="mark"
+                property="font" ng-model="mark.properties.font.value"
+                scale="mark.properties.font.scale" can-drop-style="left"
+                field="mark.properties.font.field" style="half"></vde-property>
 
-    <vde-property label="X" type="number" item="mark" property="x" ng-model="mark.properties.x.value" scale="mark.properties.x.scale" field="mark.properties.x.field"></vde-property>
+  <br clear="all" />
 
-    <vde-property label="Y" type="number" item="mark" property="y" ng-model="mark.properties.y.value" scale="mark.properties.y.scale" field="mark.properties.y.field"></vde-property>
-  </fieldset>
+  <vde-property label="Weight" item="mark" property="fontWeight"
+                ng-model="mark.properties.fontWeight.value"
+                scale="mark.properties.fontWeight.scale" can-drop-style="left"
+                field="mark.properties.fontWeight.field" style="half">
+    <a ng-hide="mark.properties.fontWeight.scale || mark.properties.fontWeight.field" class="btn btn-mini" ng-click="toggleProp('fontWeight', 'bold')" ng-class="{'btn-info': mark.properties.fontWeight.value == 'bold'}"><i class="icon-bold"></i></a>
+  </vde-property>
 
-  <fieldset>
-    <legend>Align</legend>
+  <vde-property label="Style" item="mark" property="fontStyle"
+                ng-model="mark.properties.fontStyle.value"
+                scale="mark.properties.fontStyle.scale" can-drop-style="left"
+                field="mark.properties.fontStyle.field" style="half">
+    <a ng-hide="mark.properties.fontStyle.scale || mark.properties.fontStyle.field" class="btn btn-mini" ng-click="toggleProp('fontStyle', 'italic')" ng-class="{'btn-info': mark.properties.fontStyle.value == 'italic'}"><i class="icon-italic"></i></a>
+  </vde-property>
 
-    <vde-property label="" item="mark" nodrop="1">
-      <div class="icons">
-        <a class="text-left-align" ng-click="toggleProp('align', 'left');" ng-class="{selected: mark.properties.align.value == 'left'}">Left Align</a>
+  <br clear="all" />
 
-        <a class="text-center-align" ng-click="toggleProp('align', 'center');" ng-class="{selected: mark.properties.align.value == 'center'}">Center Align</a>
+  <vde-property label="Color" type="color" item="mark" property="fill"
+                ng-model="mark.properties.fill.value"
+                scale="mark.properties.fill.scale" can-drop-style="left"
+                field="mark.properties.fill.field" style="full"></vde-property>
 
-        <a class="text-right-align" ng-click="toggleProp('align', 'right');" ng-class="{selected: mark.properties.align.value == 'right'}">Right Align</a>
+  <div ng-show="!mark.connectedTo.host">
+    <h4>Position</h4>
 
-        <a class="text-top-align" ng-click="toggleProp('baseline', 'top');" ng-class="{selected: mark.properties.baseline.value == 'top'}">Top Align</a>
+    <vde-property label="X" type="number" item="mark" property="x"
+                  ng-model="mark.properties.x.value" can-drop-style="left"
+                  scale="mark.properties.x.scale" style="half"
+                  field="mark.properties.x.field"></vde-property>
 
-        <a class="text-middle-align" ng-click="toggleProp('baseline', 'middle');" ng-class="{selected: mark.properties.baseline.value == 'middle'}">Middle Align</a>
+    <vde-property label="Y" type="number" item="mark" property="y"
+                  ng-model="mark.properties.y.value" can-drop-style="left"
+                  scale="mark.properties.y.scale" style="half"
+                  field="mark.properties.y.field"></vde-property>
+  </div>
 
-        <a class="text-bottom-align" ng-click="toggleProp('baseline', 'bottom');" ng-class="{selected: mark.properties.baseline.value == 'bottom'}">Bottom Align</a>
+  <h4>Offset</h4>
+
+  <vde-property label="X" type="number" item="mark" property="dx"
+                ng-model="mark.properties.dx.offset" can-drop-style="left"
+                scale="mark.properties.dx.scale" style="half"
+                field="mark.properties.dx.field"></vde-property>
+
+  <vde-property label="Y" type="number" item="mark" property="dy"
+                ng-model="mark.properties.dy.offset" can-drop-style="left"
+                scale="mark.properties.dy.scale" style="half"
+                field="mark.properties.dy.field"></vde-property>
+
+  <h4>Align</h4>
+
+  <vde-property label="Horizontal" item="mark" can-drop-style="left" style="half"
+                scale="mark.properties.align.scale" field="mark.properties.align.field">
+    <div class="btn-toolbar" ng-hide="mark.properties.align.scale || mark.properties.align.field">
+      <div class="btn-group">
+        <a class="btn-mini btn" href="#"
+           ng-click="toggleProp('align', 'left');"
+           ng-class="{'btn-info': mark.properties.align.value == 'left'}"><i class="icon-align-left"></i></a>
+        <a class="btn-mini btn" href="#"
+           ng-click="toggleProp('align', 'center');"
+           ng-class="{'btn-info': mark.properties.align.value == 'center'}"><i class="icon-align-center"></i></a>
+        <a class="btn-mini btn" href="#"
+           ng-click="toggleProp('align', 'right');"
+           ng-class="{'btn-info': mark.properties.align.value == 'right'}"><i class="icon-align-right"></i></a>
       </div>
-    </vde-property>
+    </div>
+  </vde-property>
 
-    <vde-property label="X" type="number" item="mark" property="dx" ng-model="mark.properties.dx.offset"></vde-property>
+  <vde-property label="Vertical" item="mark" can-drop-style="left" style="half"
+                scale="mark.properties.baseline.scale" field="mark.properties.baseline.field">
+    <div class="btn-toolbar" ng-hide="mark.properties.baseline.scale || mark.properties.baseline.field">
+      <div class="btn-group">
+        <a class="btn-mini btn" href="#"
+           ng-click="toggleProp('baseline', 'top');"
+           ng-class="{'btn-info': mark.properties.baseline.value == 'top'}"><i class="icon-baseline-top"></i></a>
+        <a class="btn-mini btn" href="#"
+           ng-click="toggleProp('baseline', 'middle');"
+           ng-class="{'btn-info': mark.properties.baseline.value == 'middle'}"><i class="icon-baseline-middle"></i></a>
+        <a class="btn-mini btn" href="#"
+           ng-click="toggleProp('baseline', 'bottom');"
+           ng-class="{'btn-info': mark.properties.baseline.value == 'bottom'}"><i class="icon-baseline-bottom"></i></a>
+      </div>
+    </div>
+  </vde-property>
 
-    <vde-property label="Y" type="number" item="mark" property="dy" ng-model="mark.properties.dy.offset"></vde-property>
-  </fieldset>
+  <vde-property label="Angle" type="number" item="mark" property="angle"
+                ng-model="mark.properties.angle.value" can-drop-style="left"
+                scale="mark.properties.angle.scale" style="half"
+                field="mark.properties.angle.field"></vde-property>
 
-  <vde-property label="Angle" type="number" item="mark" property="angle" ng-model="mark.properties.angle.value" scale="mark.properties.angle.scale" field="mark.properties.angle.field"></vde-property>
+  <br clear="all" />
 </div>

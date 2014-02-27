@@ -1,8 +1,18 @@
-var vde = {version: '0.0.5'};
+var vde = {version: 1};
 
-vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable']);
+vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable', 'xc.indexedDB', 'colorpicker.module'],
+    function($compileProvider, $indexedDBProvider) {
+      $compileProvider.aHrefSanitizationWhitelist(/^\s*(data|blob|https?|ftp|mailto|file):/);
 
-vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, timeline) {
+      $indexedDBProvider
+        .connection('lyraDB')
+        .upgradeDatabase(vde.version, function(event, db, tx){
+          var objStore = db.createObjectStore('files', {keyPath: 'fileName'});
+        });
+});
+
+vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
+                                       $location, $http, timeline) {
   $scope.load = function() {
     jQuery.migrateMute = true;
 
@@ -11,13 +21,13 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
       if(vg.keys(vde.Vis._rawData).length == 0) {
         vde.Vis.data('medals', 'data/medals.json', 'json');
         vde.Vis.data('olympics', 'data/olympics.json', 'json');
-        // vde.Vis.data('groups', 'data/groups.json', 'json');
+        vde.Vis.data('groups', 'data/groups.json', 'json');
         vde.Vis.data('barley', 'data/barley.json', 'json');
-        // vde.Vis.data('iris', 'data/iris.json', 'json');
-        // vde.Vis.data('jobs', 'data/jobs.json', 'json');
-        // vde.Vis.data('cities', 'data/cities.json', 'json');
-        // vde.Vis.data('army', 'data/army.json', 'json');
-        // vde.Vis.data('temps', 'data/temps.json', 'json');
+        vde.Vis.data('iris', 'data/iris.json', 'json');
+        vde.Vis.data('jobs', 'data/jobs.json', 'json');
+        vde.Vis.data('cities', 'data/cities.json', 'json');
+        vde.Vis.data('army', 'data/army.json', 'json');
+        vde.Vis.data('temps', 'data/temps.json', 'json');
         vde.Vis.data('trailers', 'data/trailers.json', 'json');
         vde.Vis.data('movies', 'data/movies.json', 'json');
         vde.Vis.data('characters', 'data/mis-characters.json', 'json');
@@ -25,26 +35,36 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
         vde.Vis.data('trains', 'data/trains.json', 'json');
         vde.Vis.data('stations', 'data/stations.json', 'json');
         vde.Vis.data('unemployment', 'data/unemployment.json', 'json');
-        // vde.Vis.data('wheat', 'data/wheat.json', 'json');
-        // vde.Vis.data('monarchs', 'data/monarchs.json', 'json');
-        // vde.Vis.data('hotels', 'data/hotels.json', 'json');
+        vde.Vis.data('wheat', 'data/wheat.json', 'json');
+        vde.Vis.data('monarchs', 'data/monarchs.json', 'json');
+        vde.Vis.data('hotels', 'data/hotels.json', 'json');
         vde.Vis.data('rundown', 'data/rundown.json', 'json');
-        // vde.Vis.data('deaths', 'data/curves.json', 'json');
-        // vde.Vis.data('zipcodes', 'data/zipcodes.json', 'json');
-        // vde.Vis.data('stocks', 'data/stocks.csv', {"type": "csv", "parse": {"price":"number", "date":"date"}});
+        vde.Vis.data('deaths', 'data/curves.json', 'json');
+        vde.Vis.data('zipcodes', 'data/zipcodes.json', 'json');
+        vde.Vis.data('gas', 'data/gas.json', 'json');
       }
 
       var g = new vde.Vis.marks.Group();
-      $rootScope.activeGroup = g;
+      $rootScope.activeGroup = $rootScope.activeLayer = g;
 
       var p = new vde.Vis.Pipeline();
       $rootScope.activePipeline = p;
 
-      vde.Vis.parse();
-
       // To be able to undo all the way back to a default/clean slate.
-      timeline.save();
-    }, 500)
+      vde.Vis.parse().then(function() {
+        timeline.save();
+
+        $scope.$watch(function() { return $location.search() }, function() {
+          var ex = $location.search().example;
+          if(ex) {
+            $http.get('examples/' + ex + '.json').then(function(d) {
+              timeline.timeline = d.data;
+              timeline.redo();
+            })
+          }
+        }, true);
+      });
+    }, 500);
   };
 
   $scope.marks = ['Rect', 'Symbol', 'Arc', 'Area', 'Line', 'Text'];
@@ -67,7 +87,7 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
     if (preventBack) {
       evt.preventDefault();
       if(m && m.type != 'group')
-        $rootScope.$apply(function() { $rootScope.removeVisual('marks', m.name); });
+        $rootScope.$apply(function() { $rootScope.removeVisual('marks', m.name, m.group()); });
     }
   });
 
@@ -79,28 +99,26 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout, ti
   });
 });
 
-vde.App.controller('ExportCtrl', function($scope, $rootScope) {
-  $scope.eMdl = {};
+vde.App.controller('ScaleCtrl', function($scope, $rootScope) {
+  $scope.types = ['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile',
+                  'quantize', 'threshold', 'utc', 'time', 'ref'];
 
-  $scope.export = function() {
-    $scope.eMdl.spec = JSON.stringify(vde.Vis.parse(false), null, 2);
-  };
-});
+  $scope.fromTypes = ['field', 'values'];
+  $scope.rangeFromTypes = ['preset', 'values'];
+  $scope.rangeTypes = ['spatial', 'colors', 'shapes', 'sizes', 'other'];
+  $scope.axisTypes=['x', 'y'];
+  $scope.nice = ['', 'second', 'minute', 'hour', 'day', 'week', 'month', 'year'];
+  $scope.shapes = ['&#9724;', '&#9650;', '&#9660;', '&#11044;', '&#9830;', '&#43;'];
 
-vde.App.directive('vdeClearBubbles', function($rootScope) {
-  return function(scope, element, attrs) {
-    element.click(function() {
-      $rootScope.activeScale = null;
-      $('#binding-inspector').hide();
-      $('#aggregate-inspector').hide();
+  $scope.deleteScale = function() {
+    var scale = $rootScope.activeScale;
+    if(scale.used || !scale.manual) return;
 
-      $rootScope.previewTransformIdx = null;
-      $rootScope.editVis = false;
-
-      // To clear scale visualizations
-      vde.iVis.parse();
-    })
-  };
+    scale.manual = false;
+    vde.Vis.parse().then(function() {
+      $rootScope.editBinding({}, 'scale');
+    });
+  }
 });
 
 vde.App.directive('vdeTooltip', function() {

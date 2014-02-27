@@ -1,6 +1,6 @@
 vde.Vis.marks.Text = (function() {
-  var text = function(name, groupName) {
-    vde.Vis.Mark.call(this, name, groupName);
+  var text = function(name, layerName, groupName) {
+    vde.Vis.Mark.call(this, name, layerName, groupName);
 
     this.type = 'text';
 
@@ -154,6 +154,8 @@ vde.Vis.marks.Text = (function() {
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
           data = dragging.item.datum.data;
 
+      self.iVisUpdated = true;
+
       vde.iVis.ngScope().$apply(function() {
         if(handle) {
           if(evt.metaKey && !props.angle.field) { // Rotate
@@ -194,9 +196,12 @@ vde.Vis.marks.Text = (function() {
     };
 
     var mouseup = function() {
-      vde.iVis.ngScope().$apply(function() {
-        vde.iVis.ngTimeline().save();
-      })
+      if(self.iVisUpdated)
+        vde.iVis.ngScope().$apply(function() {
+          vde.iVis.ngTimeline().save();
+        })
+
+      delete self.iVisUpdated
     };
 
     var keydown = function() {
@@ -244,7 +249,7 @@ vde.Vis.marks.Text = (function() {
       .show(['point', 'span']);
   };
 
-  prototype.propertyTargets = function() {
+  prototype.propertyTargets = function(connector, showGroup) {
     var self = this,
         item = this.item(vde.iVis.activeItem),
         spans = [], dropzones = [];
@@ -260,6 +265,12 @@ vde.Vis.marks.Text = (function() {
     var connectors = [this.connectors['text'].coords(item)];
     connectors[0].property = 'text';
     dropzones = dropzones.concat(connectors.map(function(c) { return self.dropzones(c); }));
+
+    if(showGroup) {
+      var groupInteractors = this.group().propertyTargets();
+      if(groupInteractors.spans) spans = spans.concat(groupInteractors.spans);
+      if(groupInteractors.dropzones) dropzones = dropzones.concat(groupInteractors.dropzones);
+    }
 
     vde.iVis.interactor('point', connectors)
       .interactor('span', spans)

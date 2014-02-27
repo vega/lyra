@@ -1,0 +1,226 @@
+.inspector {
+  border-bottom: 1px solid @medium-blue;
+  margin-bottom: 1.5*@padding-horiz;
+  padding-bottom: @padding-horiz;
+}
+
+
+a.add {
+  background-image: url(../imgs/add-black.png);
+  margin: 3px;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  text-indent: -9999em;
+  background-size: 14px;
+
+  &:hover {
+    background-color: transparent;
+    background-image: url(../imgs/add-white.png);
+  }
+}
+
+.property {
+  font-size: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+
+  div { display: inline-block; }
+  div.field, div.transclude { display: block; }
+
+  label { font-style: italic; }
+  label.option { margin-right: @padding-horiz; }
+
+  a.unbind {
+    display: inline-block;
+    visibility: hidden;
+    width: 16px;
+    height: 16px;
+    background: url(../imgs/remove-black.png) no-repeat;
+    opacity: 0.5;
+    background-size: 16px;
+    text-indent: -999em;
+    margin-left: 5px;
+  }
+
+  input[type=checkbox], input[type=radio] { width: auto !important; }
+
+  .addNew {
+    margin: 5px 0 0 0;
+    padding: 0 !important;
+//    font-size: 11px;
+    text-align: left;
+//    font-weight: 500;
+  }
+
+  .scaled-input {
+    position: relative;
+    height: 13px;
+    max-width: 80px;
+    margin: -11px 0 0 -20px;
+    padding-left: 5px;
+    border: 1px solid @scale-color;
+    border-radius: 10px;
+  }
+
+  .binding-draggable { margin-top: @padding-horiz/2; }
+}
+
+.property:hover {
+  a.unbind { visibility: visible; }
+  a.unbind:hover { opacity: 1; }
+}
+
+
+
+.property.full {
+  @margin-top: 4px;
+
+  label {
+    float: left;
+    width: 50px;
+    margin: @margin-top @padding-horiz 0 0;
+//    text-align: right;
+  }
+
+  .field { overflow: hidden; }
+  .canDropField { margin-top: @margin-top; }
+  .canDropField.right { margin-left: @padding-horiz; }
+  .canDropField.left { margin-right: @padding-horiz; }
+
+  input {
+    width: 97%;
+    float: left;
+  }
+  input[type=range] {width: 125px;}
+  input[type=color] {
+    float: left;
+    width: 50px;
+  }
+
+  input.color-property{
+    width: 30px;
+    text-indent: -9999px;
+    border: 3px solid white;
+    box-shadow: 0px 0px 1px 2px #cccccc, 0 0 0 1px #e6e6e6;
+    margin-left: 2px;
+  }
+
+  input.fontSize {
+    width: 40px;
+  }
+
+  span.editVal {
+    padding: 5px;
+    margin-left: 10px;
+    border-bottom: 1px dashed @medium-blue;
+    line-height: 22px;
+    padding-bottom: 2px;
+  }
+
+  span.hint {
+    display: inline-block;
+    margin: @margin-top/2 0 0 @margin-top;
+  }
+}
+
+.property.full .scale-values{
+  width: 50%;
+  float: none;
+}
+
+.property.half {
+  float: left;
+  width: 130px;
+
+  .canDropField { margin: 0 5px 3px 0; }
+  div.field { clear: both; }
+  input, select { width: 110px; }
+}
+
+.property.half-float {
+  .property.half;
+
+  div.field {
+    clear: none;
+    float: left;
+  }
+
+  label {
+    float: left;
+    margin: 6px 10px 0 0;
+  }
+
+  input, select { width: 50px; }
+}
+
+.property.half.property-extents {
+  .canDropField { margin: 3px 3px 0 0; }
+  select { width: auto; }
+}
+
+.property.full.property-imgfill {
+  .canDropField { margin-right: 3px; }
+  select {
+    float: left;
+    margin-right: 5px;
+  }
+}
+
+.property.third {
+  .property.half;
+  width: 85px;
+
+  input, select { width: 70px; }
+}
+
+.expr-container {
+  display: block !important;
+  background: #fff;
+  border: 1px solid #aaa;
+  overflow: hidden;
+  height: 12px;
+  padding: 3px;
+  width: 195px;
+
+  -moz-user-select: -moz-text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  
+  .canDropField { margin: 0 !important; }
+
+  .schema {
+    float: none;
+    display: inline-block;
+    position: relative;
+    cursor: default !important;
+  }
+
+// For .schema.aggregate to position correctly
+  .expr {
+//    display: block !important;
+    position: relative;
+  }
+}
+
+
+.colorpicker.dropdown {
+  background-color: white;
+  .dropdown-menu{
+    min-width: 120px;
+  }
+  .colorpicker-preview{
+    height: 0px;
+  }
+  .close{
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0.8;
+  }
+}
+
+.icon-baseline-top { background: url(../imgs/text_align_top.png) !important; }
+.icon-baseline-middle { background: url(../imgs/text_align_middle.png) !important; }
+.icon-baseline-bottom { background: url(../imgs/text_align_bottom.png) !important; }

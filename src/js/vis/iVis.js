@@ -60,6 +60,7 @@ vde.iVis = (function() {
   // events as a result of removing all #ivis children. So, we only reparse
   // when we reparse the Vis, and subsequently only update the datasets.
   ivis.parse = function(scale) {
+    var deferred = ivis.ngQ().defer();
     var spec = {
       width: vde.Vis.view._width,
       height: vde.Vis.view._height,
@@ -137,16 +138,28 @@ vde.iVis = (function() {
                 icanvas.style('cursor', item.datum.data.cursor);
             };
 
-            var items = function() {  // We need to make this more reliable.
+            var items = function() { 
               var items = [];
 
-              if(item.mark.group.items[1].items.length > 0)   // Connectors
-                items.push(item.mark.group.items[1].items[item.key]);
+              if(item.connector) {  // Point or Connector
+                if(item.mark.group.items[1].items.length > 0)   // Connectors
+                  items.push(item.mark.group.items[1].items[item.key]);
 
-              if(item.mark.group.items[3].items.length > 0) { // Points
-                // We need to offset by the number of spans
-                var spans = item.mark.group.items[4].items.length;
-                items.push(item.mark.group.items[3].items[item.key-spans]);
+                if(item.mark.group.items[3].items.length > 0) { // Points
+                  // We need to offset by the number of spans
+                  item.mark.group.items[3].items.forEach(function(i) {
+                    if(i.connector == item.connector || 
+                       i.connector == item.property) items.push(i);
+                  });
+                }
+              } else { // Span
+                // Iterate over span groups
+                item.mark.group.items[4].items.forEach(function(spanGroup) {
+                  spanGroup.items[0].items.forEach(function(lineSegment) {
+                    if(lineSegment.span.indexOf(item.property + '_') != -1) 
+                      items.push(lineSegment);
+                  });
+                })
               }
 
               return items;
@@ -159,20 +172,11 @@ vde.iVis = (function() {
 
                 if(ivis.dragging && item.mark.def.name == 'dropzone') {
                   // On mouseover, highlight the underlying span/connector.
-                  if(item.connector)
-                    ivis.view.update({
-                      props: 'hover',
-                      items: items()
-                    });
-                  else
-                    ivis.view.update({
-                      props: 'hover',
-                      items: item.cousin(-1).items[0].items
-                    });
+                  ivis.view.update({ props: 'hover', items: items() });
 
                   if(item.property) {
                     d3.selectAll('#' + item.property + '.property').classed('drophover', true);
-                    ivis.tooltip(e, item, item.property);
+                    ivis.tooltip(e, item, item.hint, item.property);
                   }
                 }
               break;
@@ -180,16 +184,7 @@ vde.iVis = (function() {
               case 'mouseout':
                 if(ivis.dragging && item.mark.def.name == 'dropzone') {
                   // Clear highlights
-                  if(item.connector)
-                    ivis.view.update({
-                      props: 'update',
-                      items: items()
-                    });
-                  else
-                    ivis.view.update({
-                      props: 'update',
-                      items: item.cousin(-1).items[0].items
-                    });
+                  ivis.view.update({ props: 'update', items: items() });
 
                   if(item.property)
                     d3.selectAll('#' + item.property + '.property').classed('drophover', false);
@@ -221,9 +216,11 @@ vde.iVis = (function() {
       });
 
       if(!scale) ivis.show('selected');
+
+      deferred.resolve(spec);
     });
 
-    return spec;
+    return deferred.promise;
   };
 
   ivis.bindProperty = function(visual, property, defaults) {
@@ -234,36 +231,22 @@ vde.iVis = (function() {
     var scale = $(ivis.dragging).find('.scale').attr('scale');
     var pipelineName = rootScope.activePipeline.name;
 
-    // if(visual.pipelineName && pipelineName != visual.pipelineName && field)
-    //   return alert('Pipelines don\'t match');
-
     rootScope.$apply(function() {
-      if(!visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
+      if(visual && !visual.pipelineName && !(visual instanceof vde.Vis.Transform)) visual.pipelineName = pipelineName;
 
-      visual.bindProperty(property,
+      // If we don't have an activeMark, we're dropping over the layer's facet dropzones
+      (visual || rootScope.activeLayer).bindProperty(property,
         {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
-    vde.Vis.parse();
-
-    window.setTimeout(function() {
-      $('.proxy').remove();
+    vde.Vis.parse().then(function(spec) {
+      $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
-      ivis.ngLogger().log('bind', {
-        item: visual.name,
-        group: visual.groupName,
-        activePipeline: rootScope.activePipeline.name,
-        itemPipeline: visual.pipelineName,
-        property: property,
-        scaleName: scale,
-        field: field
-      }, true, true);
-
+      if(!visual) visual = {}
+      if(visual.layerName) rootScope.toggleVisual(visual, null, true);
       ivis.ngTimeline().save();
-
-      if(visual.groupName) rootScope.$apply(function() { rootScope.toggleVisual(visual); });
-    }, 1);
+    });
 
     window.clearTimeout(vde.iVis.timeout);
   };
@@ -272,12 +255,16 @@ vde.iVis = (function() {
     var mark = ivis.newMark,
         rootScope = ivis.ngScope();
 
-    // If they've dropped on an empty non-group space.
-    if(!host) host = rootScope.activeGroup;
+    // Mouseup evt will propagate down to Vis and we want to clear this so we
+    // don't double add a mark.
+    ivis.newMark = null;
 
-    if(host instanceof vde.Vis.marks.Group) mark.groupName = host.name;
+    // If they've dropped on an empty non-group space.
+    if(!host) host = rootScope.activeLayer;
+
+    if(host instanceof vde.Vis.marks.Group) mark.layerName = host.name;
     else if(host.connectors[connector] && mark.canConnect) {
-      mark.groupName    = host.groupName;
+      mark.layerName    = host.layerName;
       mark.connectedTo  = {host: host, connector: connector};
     }
 
@@ -285,26 +272,13 @@ vde.iVis = (function() {
 
     rootScope.$apply(function() {
       mark.init();
-      vde.Vis.parse();
-    });
-
-    ivis.newMark = null;
-    $('.proxy').remove();
-
-    window.setTimeout(function() {
-      ivis.ngLogger().log('new_mark', {
-        markType: mark.type,
-        markName: mark.name,
-        activeGroup: (rootScope.activeGroup || {}).name,
-        markGroup: mark.groupName
-      }, true);
-
-      rootScope.$apply(function() {
-        rootScope.toggleVisual(mark);
-
+      vde.Vis.parse().then(function(spec) {
+        rootScope.toggleVisual(mark, null, true);
         ivis.ngTimeline().save();
+
+        $('.proxy').remove();
       });
-    }, 1);
+    });
 
     window.clearTimeout(vde.iVis.timeout);
   };
@@ -459,7 +433,8 @@ vde.iVis = (function() {
           fill: {value: 'cyan'},
           property: {field: 'data.property'},
           connector: {field: 'data.connector'},
-          layout: {field: 'data.layout'}
+          layout: {field: 'data.layout'},
+          hint: {field: 'data.hint'}
         },
         hover: {
           fill: {value: 'lightsalmon'}
@@ -510,10 +485,10 @@ vde.iVis = (function() {
     }
   };
 
-  ivis.tooltip = function(evt, dropzone, property) {
+  ivis.tooltip = function(evt, dropzone, hint, property) {
     var tooltip = $('<div class="tooltip fade in">' +
       '<div class="tooltip-arrow"></div>' +
-      '<div class="tooltip-inner">' + property + '</div></div>');
+      '<div class="tooltip-inner">' + (hint || property) + '</div></div>');
     $('body').append(tooltip);
     var b = ivis.translatedBounds(dropzone, dropzone.bounds);
 
@@ -554,17 +529,17 @@ vde.iVis = (function() {
     return $('html').injector().get('$rootScope')
   };
 
-  ivis.ngLogger = function() {
-    return $('html').injector().get('logger');
-  };
-
   ivis.ngTimeline = function() {
     return $('html').injector().get('timeline');
   };
 
   ivis.ngFilter = function() {
     return $('html').injector().get('$filter');
-  }
+  };
+
+  ivis.ngQ = function() {
+    return $('html').injector().get('$q');
+  };
 
   return ivis;
 })();

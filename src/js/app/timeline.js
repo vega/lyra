@@ -1,69 +1,129 @@
-vde.App.factory('timeline', ["$rootScope", "$timeout", function($rootScope, $timeout) {
-  return {
-    timeline: [],
-    currentIdx: -1,
+vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
+  function($rootScope, $timeout, $indexedDB, $q) {
+    // We can't let the timeline grow too large because it'll all our RAM.
+    var timelineLimit = 25;
 
-    save: function() {
-      this.timeline.length = ++this.currentIdx;
-      this.timeline.push({
-        vis: vde.Vis.export(),
-        app: {
-          activeVisual: ($rootScope.activeVisual || {}).name,
-          isMark: $rootScope.activeVisual instanceof vde.Vis.Mark,
-          activeGroup: $rootScope.activeGroup.name,
-          activePipeline: $rootScope.activePipeline.name
-        }
-      });
-    },
+    return {
+      timeline: [],
+      currentIdx: -1,
+      fileName: null,
+      tutorial: false,  // If in tutorial mode, don't truncate to timelineLimit
 
-    load: function(idx) {
-      var t = this.timeline[idx], vis = t.vis, app = t.app;
-      var digesting = ($rootScope.$$phase || $rootScope.$root.$$phase);
+      files: function() {
+        return $indexedDB.objectStore('files');
+      },
 
-      var f = function() {
-        $rootScope.groupOrder = vde.Vis.groupOrder = [];
-        vde.Vis.import(vis);
+      open: function(fileName) {
+        var deferred = $q.defer(), timeline = this;
 
-        // Timeout so vis has time to parse, before we switch angular/iVis
-        // contexts.
-        $timeout(function() {
-          var g = vde.Vis.groups[app.activeGroup];
-          if(app.activeVisual) {
-            $rootScope.toggleVisual((app.isMark) ?
-                g.marks[app.activeVisual] : g.axes[app.activeVisual]);
-          } else {
-            // If we don't have an activeVisual, clear out any interactors
-            vde.iVis.activeMark = null;
-            vde.iVis.show('selected');
+        this.files().find(fileName).then(function(file) {
+          timeline.fileName   = file.fileName;
+          timeline.timeline   = file.timeline;
+          timeline.currentIdx = file.timeline.length - 1;
+
+          timeline.redo();
+          deferred.resolve(file);
+        })
+
+        return deferred.promise;
+      },
+
+      store: function() {
+        var deferred = $q.defer();
+        var vis = vde.Vis.export(true);
+        var app = this.timeline[this.timeline.length - 1].app;
+
+        this.files().upsert({
+          fileName: this.fileName,
+          timeline: { vis: vis, app: app },
+          currentIdx: this.currentIdx
+        }).then(function(e) { deferred.resolve(e); });
+
+        return deferred.promise;
+      },
+
+      delete: function(name) {
+        var deferred = $q.defer();
+
+        this.files().delete(name)
+            .then(function(e) { deferred.resolve(e); });
+
+        return deferred.promise;
+      },
+
+      save: function() {
+        var vis = vde.Vis.export(false);
+        delete vis._data;
+
+        this.timeline.length = ++this.currentIdx;
+        this.timeline.push({
+          vis: vis,
+          app: {
+            activeVisual: ($rootScope.activeVisual || {}).name,
+            isMark: $rootScope.activeVisual instanceof vde.Vis.Mark,
+            isGroup: $rootScope.activeVisual instanceof vde.Vis.marks.Group,
+            activeLayer: ($rootScope.activeLayer||{}).name,
+            activeGroup: ($rootScope.activeGroup||{}).name,
+            activePipeline: ($rootScope.activePipeline||{}).name
           }
-        }, 1);
+        });
 
-        if(app.activePipeline)
-          $rootScope.togglePipeline(vde.Vis.pipelines[app.activePipeline]);
-      };
+        if(this.timeline.length > timelineLimit && !this.timeline.tutorial) {
+          this.timeline.splice(0, this.timeline.length - timelineLimit);
+          this.currentIdx = this.timeline.length - 1;
+        }
+      },
 
-      digesting ? f() : $rootScope.$apply(f);
-    },
+      load: function(idx) {
+        var t = this.timeline[idx], vis = t.vis, app = t.app;
+        var digesting = ($rootScope.$$phase || $rootScope.$root.$$phase);
 
-    undo: function() {
-      this.currentIdx = (--this.currentIdx < 0) ? 0 : this.currentIdx;
-      this.load(this.currentIdx)
-    },
+        var f = function() {
+          $rootScope.groupOrder = vde.Vis.groupOrder = [];
+          vde.Vis.import(vis).then(function(spec) {
+            if(app.activeLayer) {
+              var g = vde.Vis.groups[app.activeLayer];
+              if(app.activeGroup && app.activeLayer != app.activeGroup)
+                g = g.marks[app.activeGroup];
 
-    redo: function() {
-      this.currentIdx = (++this.currentIdx >= this.timeline.length) ?
-          this.timeline.length - 1 : this.currentIdx;
-      this.load(this.currentIdx);
-    }
+              if(app.activeVisual) {
+                $rootScope.toggleVisual(app.isMark ? app.isGroup ? g :
+                    g.marks[app.activeVisual] : g.axes[app.activeVisual], 0, true);
+              } else {
+                // If we don't have an activeVisual, clear out any interactors
+                vde.iVis.activeMark = null;
+                vde.iVis.show('selected');
+              }
+            }
 
-  };
+            if(app.activePipeline)
+              $rootScope.togglePipeline(vde.Vis.pipelines[app.activePipeline], true);
+          });
+        };
+
+        digesting ? f() : $rootScope.$apply(f);
+      },
+
+      undo: function() {
+        this.currentIdx = (--this.currentIdx < 0) ? 0 : this.currentIdx;
+        this.load(this.currentIdx)
+      },
+
+      redo: function() {
+        this.currentIdx = (++this.currentIdx >= this.timeline.length) ?
+            this.timeline.length - 1 : this.currentIdx;
+        this.load(this.currentIdx);
+      }
+
+    };
 }]);
 
-vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timeline) {
+vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timeline, $timeout) {
   var t = function() {
     return {
       length: timeline.timeline.length,
-      idx: timeline.currentIdx
+      idx: timeline.currentIdx,
+      fileName: timeline.fileName
     };
   }
 
@@ -72,6 +132,54 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
   }, function() {
     $scope.timeline = t();
   }, true);
+
+  var files = function() {
+    $scope.files = [];
+    timeline.files().getAll().then(function(files) {
+      $scope.files = files.map(function(f) { return f.fileName; });
+    })
+  };
+
+  files();
+  $scope.tMdl = {fileName: null};
+
+  $scope.showOpen = function(evt) {
+    $rootScope.fileOpenPopover = !$rootScope.fileOpenPopover;
+    $rootScope.fileSavePopover = false;
+    $rootScope.exportPopover   = false;
+  };
+
+  $scope.open = function(name) {
+    timeline.open(name).then(function() {
+      $rootScope.fileOpenPopover = false;
+    });
+  };
+
+  $scope.save = function(evt) {
+    if(!$scope.timeline.fileName) {
+      $rootScope.fileOpenPopover = false;
+      $rootScope.fileSavePopover = !$rootScope.fileSavePopover;
+      $rootScope.exportPopover   = false;
+    } else {
+      timeline.fileName = $scope.timeline.fileName;
+      timeline.store().then(function() {
+        $rootScope.fileSavePopover = false;
+        $timeout(function() { files(); }, 100);
+      });
+    }
+  };
+
+  $rootScope.closeTimelinePopovers = function() {
+    $rootScope.fileOpenPopover = false;
+    $rootScope.fileSavePopover = false;
+    $rootScope.exportPopover   = false;
+  };
+
+  $scope.delete = function(name) {
+    timeline.delete(name).then(function() {
+      $timeout(function() { files() }, 100);
+    });
+  };
 
   $scope.undo = function() { timeline.undo() };
   $scope.redo = function() { timeline.redo() };
