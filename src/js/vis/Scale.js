@@ -4,13 +4,13 @@ vde.Vis.Scale = (function() {
     this.name  = (name || pipeline.name + '_' + scaleName);
     this.displayName = displayName;
 
-    this.domainTypes = {from: 'field'};  // Field or Values
+    this.domainTypes = {from: 'values'};  // Field or Values
     this.rangeTypes  = {type: 'spatial', from: 'preset'};  // 'property' key if type is 'other'
 
     this.domainField = null;
     this.rangeField  = null;
 
-    this.domainValues = [];
+    this.domainValues = [0, 100]; //set [0, 100] as default value - works for all of quantitative, ordinal, categorical
     this.rangeValues  = [];
 
     this.used = false;    // Auto-delete unused scales
