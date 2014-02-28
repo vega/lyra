@@ -10,8 +10,20 @@
     <vde-property label="Name" type="text" item="dMdl.src" property="name"
                   ng-model="dMdl.src.name" nodrop="1" nochange="1" style="full"></vde-property>
 
-    <vde-property label="Url" type="text" item="dMdl.src" property="url"
+    <vde-property label="From" style="full" transclude="1" nochange="1">
+      <label><input type="radio" ng-model="dMdl.from" value="url" /> URL</label>
+
+      <label><input type="radio" ng-model="dMdl.from" value="values" /> Raw Values</label>
+    </vde-property>
+
+    <vde-property label="Url" type="text" item="dMdl.src" property="url" ng-show="dMdl.from == 'url'"
                   ng-model="dMdl.src.url" nodrop="1" nochange="1" style="full"></vde-property>
+
+    <vde-property label="Values" ng-show="dMdl.from == 'values'" nodrop="1"
+                  nochange="1" style="full" transclude="1">
+
+      <textarea ng-model="dMdl.values"></textarea>
+    </vde-property>
 
     <vde-property label="Format" type="select" options="dMdl.formats" item="dMdl.src"
                   property="format.type" ng-model="dMdl.src.format.type"

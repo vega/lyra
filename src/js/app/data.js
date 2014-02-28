@@ -5,26 +5,43 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, timeline) {
     parsings: ['string', 'number', 'boolean', 'date']
   };
 
+  $scope.finishedLoading = function() {
+    var src = $scope.dMdl.src;
+    src.format.parse = {};
+
+    if(vg.isArray(src.values)) {
+      for(var k in src.values[0])
+        src.format.parse[k] = vg.isNumber(src.values[0][k]) ? 'number' : 'string';
+    }
+
+    $scope.dMdl.isLoading = false;
+    $scope.dMdl.hasLoaded = true;
+    $scope.dMdl.isObj = !vg.isArray(src.values);
+    $scope.dMdl.properties = vg.keys(src.values);
+  };
+
   $scope.loadValues = function() {
     var src = $scope.dMdl.src, req = vg.duplicate(src);
-    req.url = 'proxy.php?url=' + req.url;
-    $scope.dMdl.isLoading = true;
-    var dataModel = vg.parse.data([req], function() {
-      $scope.$apply(function() {
-        src.values = dataModel.load[src.name];
-        src.format.parse = {};
+    if($scope.dMdl.from == 'url') {
+      $scope.dMdl.isLoading = true;
+      var dataModel = vg.parse.data([req], function() {
+        $scope.$apply(function() {
+          src.values = dataModel.load[src.name];
+          $scope.finishedLoading();
+        })
+      });
+    } else {
+      var type = $scope.dMdl.src.format.type;
 
-        if(vg.isArray(src.values)) {
-          for(var k in src.values[0])
-            src.format.parse[k] = vg.isNumber(src.values[0][k]) ? 'number' : 'string';
-        }
-
-        $scope.dMdl.isLoading = false;
-        $scope.dMdl.hasLoaded = true;
-        $scope.dMdl.isObj = !vg.isArray(src.values);
-        $scope.dMdl.properties = vg.keys(src.values);
-      })
-    });
+      if(type == 'json') {
+        $scope.dMdl.src.values = JSON.parse($scope.dMdl.values)
+        $scope.finishedLoading();
+      }
+      else {
+        $scope.dMdl.src.values = d3[type].parse($scope.dMdl.values);
+        $scope.finishedLoading();
+      }
+    }
   };
 
   $scope.add = function() {
