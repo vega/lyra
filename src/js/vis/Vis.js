@@ -77,6 +77,16 @@ vde.Vis = (function() {
       if(!src || rawSources[src]) return;
 
       var data = vg.duplicate(vis._data[src]);
+      // If we're inlining the data values, we don't want vega to load + format
+      // from URL.
+      if(inlinedValues) { 
+        delete data.url;
+        delete data.format;
+      } else {
+        delete data.values;
+      }
+
+
       if(data.url)        // Inline values to deal with x-site restrictions
         delete data[inlinedValues ? 'url' : 'values'];
 
