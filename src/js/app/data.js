@@ -1,4 +1,4 @@
-vde.App.controller('DataCtrl', function($scope, $rootScope, timeline) {
+vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline) {
   $scope.dMdl = {
     src: {},
     formats: ['json', 'csv', 'tsv'],
@@ -23,6 +23,7 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, timeline) {
   $scope.loadValues = function() {
     var src = $scope.dMdl.src, req = vg.duplicate(src);
     if($scope.dMdl.from == 'url') {
+      req.url = 'proxy.php?url=' + req.url;
       $scope.dMdl.isLoading = true;
       var dataModel = vg.parse.data([req], function() {
         $scope.$apply(function() {
