@@ -1,10 +1,13 @@
 vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window) {
+
+  $rootScope.makeFile = function(data, type) {
+    var blob = new Blob([data], {type: type});
+    var url = $window.webkitURL || $window.URL;
+    return url.createObjectURL(blob);
+  };
+
   $rootScope.export = function(evt) {
-    var makeFile = function(data, type) {
-      var blob = new Blob([data], {type: type});
-      var url = $window.webkitURL || $window.URL;
-      return url.createObjectURL(blob);
-    };
+    var makeFile = $rootScope.makeFile;
 
     $scope.fileName = timeline.fileName || 'lyra';
 
