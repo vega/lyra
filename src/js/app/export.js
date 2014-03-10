@@ -34,4 +34,8 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window)
       $rootScope.exportPopover   = !$rootScope.exportPopover;
     });
   };
+
+  $rootScope.sendVega = function(url) {
+      console.log("hello");
+  };
 });

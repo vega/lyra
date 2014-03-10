@@ -66,7 +66,7 @@
     <script src="js/vis/transforms/Stats.js"></script>
     <script src="js/vis/transforms/Window.js"></script>
   </head>
-  <body ng-controller="VdeCtrl" ng-init="load(false)"  ng-click="clearBubbles();">
+  <body ng-controller="VdeCtrl" ng-init="load(true)"  ng-click="clearBubbles();">
 
     <ng-include src="'tmpl/pipelines-list.html'"></ng-include>
 
@@ -82,6 +82,6 @@
 
     <ng-include src="'tmpl/popovers/timeline.html'" ng-controller="TimelineCtrl"></ng-include>
 
-    <ng-include src="'tmpl/popovers/export.html'" ng-controller="ExportCtrl"></ng-include>
+    <ng-include src="'tmpl/popovers/editor-export.html'" ng-controller="ExportCtrl"></ng-include>
   </body>
 </html>

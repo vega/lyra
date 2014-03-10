@@ -13,7 +13,13 @@ vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable', 'xc.indexedDB', 
 
 vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
                                        $location, $http, timeline) {
-  $scope.load = function() {
+  $scope.load = function(editorMode) {
+    if (editorMode && !window.opener) {
+        document.write("Sorry, you can't use this page as a standalone application<br>");
+        document.write("Try <a href=index.html>this</a> instead.");
+        return;
+    }
+
     jQuery.migrateMute = true;
 
     // Load defaults on a timeout to allow everything else to load.
