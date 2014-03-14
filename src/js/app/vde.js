@@ -13,11 +13,34 @@ vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable', 'xc.indexedDB', 
 
 vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
                                        $location, $http, timeline) {
-  $scope.load = function(editorMode) {
-    if (editorMode && !window.opener) {
+  $scope.load = function() {
+    // Get the query arguments to decide how to proceed.
+    var qargs = (function () {
+      var oGetVars = {},
+          aItKey,
+          nKeyId,
+          aCouples;
+
+      if (window.location.search.length > 1) {
+          for (nKeyId = 0, aCouples = window.location.search.substr(1).split("&"); nKeyId < aCouples.length; nKeyId += 1) {
+              aItKey = aCouples[nKeyId].split("=");
+              oGetVars[decodeURI(aItKey[0])] = aItKey.length > 1 ? decodeURI(aItKey[1]) : "";
+          }
+      }
+
+      return oGetVars;
+    }());
+
+    if (qargs.editor && !window.opener) {
         document.write("Sorry, you can't use this page as a standalone application<br>");
         document.write("Try <a href=index.html>this</a> instead.");
         return;
+    }
+
+    if (qargs.filename) {
+        console.log(qargs.filename);
+        console.log(timeline.files());
+        timeline.open(qargs.filename);
     }
 
     jQuery.migrateMute = true;

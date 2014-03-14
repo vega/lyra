@@ -36,6 +36,22 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window)
   };
 
   $rootScope.sendVega = function(url) {
-      console.log("hello");
+      vde.Vis.parse().then(function (spec) {
+          var msg,
+              filename = "testfile";
+
+          timeline.fileName = filename;
+          timeline.save();
+
+          window.setTimeout(function () {
+              msg = {
+                  vega: spec,
+                  filename: filename
+              };
+
+              $window.opener.postMessage(msg, $window.location.origin);
+              $window.close();
+          }, 500);
+      });
   };
 });
