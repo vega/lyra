@@ -35,7 +35,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
 
         this.files().upsert({
           fileName: this.fileName,
-          timeline: { vis: vis, app: app },
+          timeline: [{ vis: vis, app: app }],
           currentIdx: this.currentIdx
         }).then(function(e) { deferred.resolve(e); });
 
