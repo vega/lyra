@@ -37,9 +37,6 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
         return;
     }
 
-    $rootScope.savefile = qargs.savefile ? decodeURIComponent(qargs.savefile) : qargs.savefile;
-    console.log("Default save file: " + ($rootScope.savefile || "[none]"));
-
     jQuery.migrateMute = true;
 
     // Load defaults on a timeout to allow everything else to load.
@@ -90,9 +87,8 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
           }
         }, true);
 
-        if (qargs.loadfile) {
-            console.log("requested to load file: " + decodeURIComponent(qargs.loadfile));
-            timeline.open(decodeURIComponent(qargs.loadfile));
+        if (qargs.timeline) {
+            timeline.openRaw(JSON.parse(decodeURIComponent(qargs.timeline)));
         }
       });
     }, 500);

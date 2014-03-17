@@ -1,13 +1,10 @@
 vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window) {
-
-  $rootScope.makeFile = function(data, type) {
-    var blob = new Blob([data], {type: type});
-    var url = $window.webkitURL || $window.URL;
-    return url.createObjectURL(blob);
-  };
-
   $rootScope.export = function(evt) {
-    var makeFile = $rootScope.makeFile;
+    var makeFile = function(data, type) {
+      var blob = new Blob([data], {type: type});
+      var url = $window.webkitURL || $window.URL;
+      return url.createObjectURL(blob);
+    };
 
     $scope.fileName = timeline.fileName || 'lyra';
 
@@ -47,7 +44,7 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window)
           window.setTimeout(function () {
               msg = {
                   vega: spec,
-                  filename: timeline.fileName
+                  timeline: timeline.timeline
               };
 
               $window.opener.postMessage(msg, $window.location.origin);

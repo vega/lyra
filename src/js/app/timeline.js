@@ -28,6 +28,13 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
         return deferred.promise;
       },
 
+      openRaw: function(timeline) {
+        this.timeline = timeline
+        this.currentIdx = timeline.length - 1;
+
+        this.redo();
+      },
+
       store: function() {
         var deferred = $q.defer();
         var vis = vde.Vis.export(true);
