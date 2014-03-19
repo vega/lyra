@@ -98,6 +98,15 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
             timeline.openRaw(JSON.parse(decodeURIComponent(qargs.timeline)));
         }
       });
+
+      // Prompt before unloading if not in editor mode.
+      if (!qargs.editor) {
+          $window.addEventListener("beforeunload", function(e) {
+            var msg = 'You have unsaved changed in Lyra.';
+            (e || $window.event).returnValue = msg;     //Gecko + IE
+            return msg;                                 //Webkit, Safari, Chrome etc.
+          });
+      }
     }, 500);
   };
 
@@ -125,12 +134,6 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
     }
   });
 
-  // Prompt before unloading
-  $window.addEventListener("beforeunload", function(e) {
-    var msg = 'You have unsaved changed in Lyra.';
-    (e || $window.event).returnValue = msg;     //Gecko + IE
-    return msg;                                 //Webkit, Safari, Chrome etc.
-  });
 });
 
 vde.App.controller('ScaleCtrl', function($scope, $rootScope) {
