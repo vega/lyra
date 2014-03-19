@@ -41,7 +41,11 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
 
     // Load defaults on a timeout to allow everything else to load.
     $timeout(function() {
-      if(vg.keys(vde.Vis._rawData).length == 0) {
+      var data = qargs.data ? JSON.parse(decodeURIComponent(qargs.data)) : null;
+
+      if (data) {
+        vde.Vis.data('editor', data);
+      } else if(vg.keys(vde.Vis._rawData).length == 0) {
         vde.Vis.data('medals', 'data/medals.json', 'json');
         vde.Vis.data('olympics', 'data/olympics.json', 'json');
         vde.Vis.data('groups', 'data/groups.json', 'json');
@@ -72,6 +76,9 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
 
       var p = new vde.Vis.Pipeline();
       $rootScope.activePipeline = p;
+      if (data) {
+        p.source = 'editor';
+      }
 
       // To be able to undo all the way back to a default/clean slate.
       vde.Vis.parse().then(function() {

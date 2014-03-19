@@ -95,7 +95,8 @@ vde.Vis.Pipeline = (function() {
     var values = vg.duplicate(vde.Vis._data[this.source].values).map(vg.data.ingest);
 
     var buildFields = function(data, pipeline, depth) {
-      var parse = vde.Vis._data[self.source].format.parse || {};
+      var parse = vde.Vis._data[self.source].format;
+      parse = parse ? parse.parse || {} : {}
 
       if(data.values) {
         if(!seenFields.key) {
