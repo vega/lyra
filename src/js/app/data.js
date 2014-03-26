@@ -23,7 +23,7 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline) {
   $scope.loadValues = function() {
     var src = $scope.dMdl.src, req = vg.duplicate(src);
     if($scope.dMdl.from == 'url') {
-      req.url = 'proxy.php?url=' + req.url;
+      req.url = 'proxy.php?url=' + encodeURIComponent(req.url);
       $scope.dMdl.isLoading = true;
       var dataModel = vg.parse.data([req], function() {
         $scope.$apply(function() {
