@@ -39,8 +39,12 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
 
     jQuery.migrateMute = true;
 
-    // Load defaults on a timeout to allow everything else to load.
-    $timeout(function() {
+    var receiveMessage = function (e) {
+        window.removeEventListener("message", receiveMessage, false);
+
+        qargs = e.data;
+        qargs.editor = true;
+
       var data = qargs.data ? JSON.parse(decodeURIComponent(qargs.data)) : null;
 
       if (data) {
@@ -107,6 +111,11 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
             return msg;                                 //Webkit, Safari, Chrome etc.
           });
       }
+    };
+
+    window.addEventListener("message", receiveMessage, false);
+
+    $timeout(function() {
     }, 500);
   };
 
