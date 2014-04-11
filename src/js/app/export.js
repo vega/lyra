@@ -43,6 +43,7 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window)
 
           window.setTimeout(function () {
               msg = {
+                  new: $rootScope.qargs.new,
                   vega: spec,
                   timeline: timeline.timeline
               };

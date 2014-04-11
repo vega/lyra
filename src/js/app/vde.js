@@ -45,6 +45,8 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
         qargs = e.data;
         qargs.editor = true;
 
+        $rootScope.qargs = qargs;
+
       var data = qargs.data ? JSON.parse(decodeURIComponent(qargs.data)) : null;
 
       if (data) {
