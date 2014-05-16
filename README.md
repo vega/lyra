@@ -1,30 +1,5 @@
-vde
-===
+![The Lyra Visualization Design Environment](http://idl.cs.washington.edu/static/images/projects/lyra/playfair-new.png)
 
-An interactive, graphical Visualization Design Environment (VDE)
+Lyra is an interactive environment that enables custom visualization design without writing any code. Graphical “marks” can be bound to data fields using property drop zones; dynamically positioned using connectors; and directly moved, rotated, and resized using handles. Lyra also provides a data pipeline interface for iterative visual specification of data transformations and layout algorithms. Lyra is more expressive than interactive systems like Tableau, allowing designers to create custom visualizations comparable to hand-coded visualizations built with D3 or Processing. These visualizations can then be easily published and reused on the Web.
 
-
-Testing
-=======
-
-First, install node dependencies in the top-level lyra folder.
-```
-npm install
-```
-
-Install *chrome-driver* using
-
-```
-./node_modules/protractor/bin/webdriver-manager update
-```
-
-The current test setup assumes that you have lyra running at *http://localhost/lyra/*.
-
-The easiest way to do is to symlink your *vde/src* folder to */Library/WebServer/Documents/Lyra*
-(Your default apache root folder in Mac).
-
-Then run the test by
-
-```./node_modules/protractor/bin/protractor debug tests```
-or
-```./node_modules/protractor/bin/protractor tests```
+For more information, check out the [Lyra wiki.](https://github.com/uwdata/lyra/wiki)
