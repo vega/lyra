@@ -4,7 +4,6 @@ module.exports = function(grunt) {
     less: {
       options: {
         paths: "src/css",
-        sourceMap:true
       },
       dev: {
         files: {
