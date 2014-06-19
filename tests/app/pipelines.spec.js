@@ -11,7 +11,7 @@ describe('pipelines panel', function() {
   var visible = '#pipelines .inspector:nth-child(1) ';
 
   it('should load default pipeline', function() {
-    browser.get('http://localhost/lyra/');
+    browser.get('http://localhost:8080/');
 
     var pipelineName = element(by.repeater(pipelineLst)
                 .row(0).column('displayName'));

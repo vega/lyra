@@ -20,6 +20,9 @@
   "devDependencies": {
     "less": "1.6.x",
     "protractor": "0.17.x",
-    "JSONPath": "0.9.x"
+    "JSONPath": "0.9.x",
+    "grunt": "~0.4.5",
+    "grunt-protractor-runner": "~1.0.0",
+    "grunt-http-server": "0.0.5"
   }
 }
