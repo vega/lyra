@@ -1,6 +1,18 @@
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    less: {
+      options: {
+        paths: "src/css",
+        sourceMap:true
+      },
+      dev: {
+        files: {
+          "src/css/vde.css": "src/css/vde.less"
+        }
+      }
+    },
+
     protractor: {
       options: {
         configFile: "node_modules/protractor/referenceConf.js", // Default config file
@@ -32,12 +44,27 @@ module.exports = function(grunt) {
 
         // run in parallel with other tasks
         runInBackground: true
+      },
+      'stay-open': {
+        root: "src",
+        port: 8080,
+        host: 'localhost',
+
+        cache: 1,
+        showDir: true,
+        autoIndex: true,
+        defaultExt: "html",
+
+        runInBackground: false
       }
     }
   });
 
+  grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-protractor-runner');
   grunt.loadNpmTasks('grunt-http-server');
 
-  grunt.registerTask('test', ['http-server', 'protractor']);
+  grunt.registerTask('test', ['build', 'http-server', 'protractor']);
+  grunt.registerTask('build', ['less']);
+  grunt.registerTask('serve', ['build', 'http-server:stay-open'])
 };

@@ -23,6 +23,7 @@
     "JSONPath": "0.9.x",
     "grunt": "~0.4.5",
     "grunt-protractor-runner": "~1.0.0",
-    "grunt-http-server": "0.0.5"
+    "grunt-http-server": "0.0.5",
+    "grunt-contrib-less": "~0.11.2"
   }
 }
