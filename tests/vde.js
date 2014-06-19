@@ -1,4 +1,4 @@
-var jsonpath = require('jsonpath');
+var jsonpath = require('JSONPath');
 
 exports.dragAndDrop = function(elem, to) {
   var e = elem.find();
