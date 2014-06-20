@@ -10,7 +10,7 @@
       </span>
       <a class="rename" ng-click="edit()" vde-tooltip="Rename">Rename</a>
 
-      <a class="delete close"
+      <a class="deletePipeline delete close"
          vde-tooltip="Delete {{pipeline.displayName}}"
          ng-click="removePipeline(pipeline.name)">
           &minus;
@@ -19,7 +19,7 @@
 
     <div class="inspector" ng-if="activePipeline==pipeline">
       <div class="heading">From Source:
-        <select ng-model="pMdl.activePipelineSource"
+        <select class="sourceSelect" ng-model="pMdl.activePipelineSource"
                 ng-options="f.value as f.key for f in fromSources"
                 ng-change="setSource()" vde-pos-new-data="1">
         </select>
@@ -41,7 +41,7 @@
 
       <div class="datatable" id="datasheet" ng-if="pipeline.source" vde-data-grid pipeline="pipeline"></div>
 
-      <div class="addNew" ng-show="pipeline.source && !pMdl.showTransforms && pMdl.newTransforms.length == 0"
+      <div class="addNew addTransform" ng-show="pipeline.source && !pMdl.showTransforms && pMdl.newTransforms.length == 0"
            ng-click="pMdl.showTransforms = true;">+ New Transform</div>
 
       <!-- Show Transforms -->
@@ -95,5 +95,5 @@
     <br clear="all" />
   </div> <!-- /div.pipeline -->
 
-  <h3 class="addNew" ng-click="addPipeline()">+ New Pipeline</h3>
+  <h3 id="addPipeline" class="addNew" ng-click="addPipeline()">+ New Pipeline</h3>
 </div>

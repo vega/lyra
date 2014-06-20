@@ -1,0 +1,26 @@
+--------------------------------
+Things to test:
+--------------------------------
+
+Pipelines:
+	x load the default pipeline
+	x rename a pipeline
+	x add a new pipeline
+	x toggle pipelines open/closed
+	x delete a pipeline
+	x add transforms
+	x delete transforms
+
+Source:
+	x select a source in a pipeline
+	- navigate pages in data table
+
+Scales:
+	- add a scale
+	- remove a scale
+	- edit a scale
+
+Visualization:
+	- dragging controls
+
+Undo/Redo

@@ -14,7 +14,7 @@ module.exports = function(grunt) {
 
     protractor: {
       options: {
-        configFile: "node_modules/protractor/referenceConf.js", // Default config file
+        configFile: "tests.js", // Default config file
         keepAlive: true, // If false, the grunt process stops when the test fails.
         noColor: false, // If true, protractor will not use colors in its output.
         args: {
@@ -63,7 +63,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-protractor-runner');
   grunt.loadNpmTasks('grunt-http-server');
 
-  grunt.registerTask('test', ['build', 'http-server', 'protractor']);
+  grunt.registerTask('test', ['build', 'http-server:dev', 'protractor']);
   grunt.registerTask('build', ['less']);
   grunt.registerTask('serve', ['build', 'http-server:stay-open'])
 };
