@@ -10,7 +10,7 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window)
 
     // By default, this populates in our HTML 5 canvas element in Lyra.
     // We also want to allow exporting to SVG, so paint that into a dummy SVG.
-    vde.Vis.parse().then(function(spec) {
+    return vde.Vis.parse().then(function(spec) {
       vg.headless.render(
           {spec: spec, renderer: "svg", el: "#headless"},
           function(err, data) {
