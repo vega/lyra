@@ -1,6 +1,6 @@
 describe('Export controller', function() {
   //TODO: ExportCtrl uses jQuery to get an element to render a png. This causes these tests to fail.
-  var $scope, $originalRootScope, rootScopeMock, ctrl, timelineMock, vdeVis, originalVg;
+  var $scope, $originalRootScope, rootScopeMock, ctrl, timelineMock, VisMock, vgMock;
   beforeEach(function () {
       module('vde');
   });
@@ -13,18 +13,15 @@ describe('Export controller', function() {
 
     $scope = rootScopeMock.$new();
 
-    originalVg = vg;
-    vg = {headless: {render: jasmine.createSpy('')}};
-    vg.headless.render.and.callFake(function(opts, callback) {
+    vgMock = {headless: {render: jasmine.createSpy('')}};
+    vgMock.headless.render.and.callFake(function(opts, callback) {
       callback(null, {
         svg: "Fake svg data"
       });
     });
 
-    //monkey patch vde.Vis with a mock.
-    vdeVis = vde.Vis;
-    vde.Vis = jasmine.createSpyObj('Vis',['parse'])
-    vde.Vis.parse.and.returnValue($q.when({
+    VisMock = jasmine.createSpyObj('Vis',['parse'])
+    VisMock.parse.and.returnValue($q.when({
       //fake vega scene data
     }));
 
@@ -33,15 +30,11 @@ describe('Export controller', function() {
     ctrl = $controller('ExportCtrl', {
       $scope: $scope,
       $rootScope: rootScopeMock,
-      timeline: timelineMock
+      timeline: timelineMock,
+      Vis: VisMock,
+      vg: vgMock
     });
   }));
-
-  afterEach(function() {
-    //restore vde.Vis and vg
-    vde.Vis = vdeVis;
-    vg = originalVg;
-  })
 
   it('should render to image formats', function(done) {
     rootScopeMock.export().then(function() {
@@ -49,11 +42,10 @@ describe('Export controller', function() {
       done();
     }).catch(function(err){ throw err; });
 
+    expect(VisMock.parse).toHaveBeenCalled();
+
     //necessary for the asynchronous code to run.
     $scope.$digest();
-
-    expect(vde.Vis.parse).toHaveBeenCalled();
-
   });
 
   it('should hide the other dialogs', function(done) {
@@ -65,9 +57,9 @@ describe('Export controller', function() {
       done();
     }).catch(function(err){ throw err; });
 
+    expect(VisMock.parse).toHaveBeenCalled();
+
     //necessary for the asynchronous code to run.
     $scope.$digest();
-
-    expect(vde.Vis.parse).toHaveBeenCalled();
   })
 }); 

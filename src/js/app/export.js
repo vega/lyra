@@ -1,4 +1,5 @@
-vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window) {
+vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window', 'Vis', 'vg',
+  function($scope, $rootScope, timeline, $window, Vis, vg) {
   $rootScope.export = function(evt) {
     var makeFile = function(data, type) {
       var blob = new Blob([data], {type: type});
@@ -10,7 +11,7 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window)
 
     // By default, this populates in our HTML 5 canvas element in Lyra.
     // We also want to allow exporting to SVG, so paint that into a dummy SVG.
-    return vde.Vis.parse().then(function(spec) {
+    return Vis.parse().then(function(spec) {
       vg.headless.render(
           {spec: spec, renderer: "svg", el: "#headless"},
           function(err, data) {
@@ -31,4 +32,4 @@ vde.App.controller('ExportCtrl', function($scope, $rootScope, timeline, $window)
       $rootScope.exportPopover   = !$rootScope.exportPopover;
     });
   };
-});
+}]);
