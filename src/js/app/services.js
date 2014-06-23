@@ -9,3 +9,7 @@ vde.App.factory('Vis', function() {
 vde.App.factory('vg', function() {
 	return vg;
 });
+
+vde.App.factory('iVis', function() {
+	return vde.iVis;
+});

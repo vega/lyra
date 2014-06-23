@@ -13,7 +13,7 @@ describe('Export controller', function() {
 
     $scope = rootScopeMock.$new();
 
-    vgMock = {headless: {render: jasmine.createSpy('')}};
+    vgMock = {headless: {render: jasmine.createSpy()}};
     vgMock.headless.render.and.callFake(function(opts, callback) {
       callback(null, {
         svg: "Fake svg data"
