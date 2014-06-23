@@ -1,5 +1,5 @@
- describe('Data Controller', function() {
-  var $scope, rootScopeMock, ctrl;
+describe('Data Controller', function() {
+  var $scope, rootScopeMock, ctrl, timelineMock;
   beforeEach(function () {
       module('vde');
       timelineMock = jasmine.createSpyObj('timeline', ['save']);
@@ -33,5 +33,15 @@
     expect(rootScopeMock.activePipeline.source).toEqual('testSource');
     //we want the pop-up to hide
     expect(rootScopeMock.newData).toBeFalsy();
+  });
+
+  it('should allow cancelling', function() {
+    rootScopeMock.activePipeline.source = "test"
+    rootScopeMock.newData = true;
+
+    $scope.cancel();
+
+    expect(rootScopeMock.newData).toBeFalsy();
+    expect(rootScopeMock.activePipeline.source).toEqual("test");
   });
 });
