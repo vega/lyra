@@ -101,6 +101,11 @@ module.exports = function(grunt) {
 
         runInBackground: false
       }
+    },
+    jshint: {
+      dev: {
+        src: ["src/js/app/*.js"]
+      }
     }
   });
 
@@ -108,8 +113,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-protractor-runner');
   grunt.loadNpmTasks('grunt-http-server');
   grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
 
-  grunt.registerTask('test', ['build', 'http-server:dev', 'protractor']);
+  grunt.registerTask('test', ['build', 'http-server:dev', 'protractor', 'jshint']);
   grunt.registerTask('build', ['less']);
   grunt.registerTask('serve', ['build', 'http-server:stay-open'])
 };
