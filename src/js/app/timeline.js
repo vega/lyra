@@ -101,7 +101,11 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q", "Vis"
           });
         };
 
-        digesting ? f() : $rootScope.$apply(f);
+        if(digesting) {
+          f();
+        } else {
+          $rootScope.$apply(f);
+        }
       },
 
       undo: function() {

@@ -109,7 +109,9 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
 
         function flatten(data, list, parent, depth) {
           if (data.values) {
-            facets[depth] || (facets[depth] = {keys:[]});
+            if(!facets[depth]) {
+              facets[depth] = {keys:[]};
+            }
             if(data.key) {
               facets[depth].keys.push(data.key);
 

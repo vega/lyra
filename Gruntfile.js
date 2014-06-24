@@ -115,7 +115,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-contrib-jshint');
 
-  grunt.registerTask('test', ['build', 'http-server:dev', 'protractor', 'jshint']);
+  grunt.registerTask('test', ['build', 'http-server:dev', 'protractor', 'jshint:dev', 'karma']);
   grunt.registerTask('build', ['less']);
   grunt.registerTask('serve', ['build', 'http-server:stay-open'])
 };

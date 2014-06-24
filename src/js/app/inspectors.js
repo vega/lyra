@@ -311,7 +311,11 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
         };
 
         // Safe apply in case parse is called from within a watch.
-        digesting ? applyProperties() : scope.$apply(applyProperties);
+        if(digesting) {
+          applyProperties();
+        } else {
+          scope.$apply(applyProperties);
+        }
       };
 
       $(element).find('.expr')
