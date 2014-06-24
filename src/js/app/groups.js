@@ -142,7 +142,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, time
 
     $rootScope.activeVisual.pipeline().transforms[i].destroy();
     $rootScope.activeVisual.pipeline().transforms.splice(i, 1);
-    Vis.parse().then(function() {
+    return Vis.parse().then(function() {
       $('.tooltip').remove();
 
       timeline.save();

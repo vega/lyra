@@ -34,7 +34,8 @@ describe('GroupsList Controller', function() {
     group1.isLayer.and.returnValue(false);
     group1.group.and.returnValue(layerGroup1);
     group1.pipeline.and.returnValue({
-      name: 'fakePipeline'
+      name: 'fakePipeline',
+      transforms: []
     });
 
     Vis.marks = {Group: jasmine.createSpy()};
@@ -201,12 +202,61 @@ describe('GroupsList Controller', function() {
       confirm = _confirm;
     });
 
-    it('should remove the visual element', function() {
+    xit('should remove the visual element', function() {
       var _confirm = confirm; confirm = function(){return true;};
 
-      
+      //TODO
 
       confirm = _confirm;
     })
+  });
+
+  describe('new transform', function() {
+    it('should add a new tranform to the current visual', function() {
+      var t = {}
+      Vis.transforms = {test: function() {
+        return t; 
+      }};
+      rootScope.activeVisual = group1;
+      scope.newTransform('test');
+
+      expect(group1.pipeline().transforms[0]).toBe(t);
+      expect(scope.gMdl.showTransforms).toBe(false);
+      expect(timeline.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('remove transform', function(done) {
+    var transform;
+    beforeEach(function() {
+      rootScope.activeVisual = group1;
+      transform = jasmine.createSpyObj('transform', ['destroy']);
+      group1.pipeline().transforms.push(transform);
+    });
+    it('should remove the current transform', function(done) {
+      var _confirm = confirm; confirm = function() {return true;};
+
+      scope.removeTransform(0).then(function() {
+        expect(timeline.save).toHaveBeenCalled();
+        done();
+      });
+
+      expect(transform.destroy).toHaveBeenCalled();
+      expect(group1.pipeline().transforms.length).toBe(0);
+
+      rootScope.$digest();
+      confirm = _confirm;
+    });
+
+    it('should do nothing on cancel', function() {
+      var _confirm = confirm; confirm = function() {return false;};
+
+      scope.removeTransform(0);
+
+      expect(transform.destroy).not.toHaveBeenCalled();
+      expect(group1.pipeline().transforms.length).toBe(1);
+
+      confirm = _confirm;
+    });
   });
 });
