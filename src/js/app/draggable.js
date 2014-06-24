@@ -6,7 +6,7 @@ vde.App.factory('draggable', function($rootScope, Vis, iVis) {
 
       if(isMark) {
         var markType = proxy.attr('id');
-        iVis.newMark = eval('new Vis.marks["' + markType + '"]');
+        iVis.newMark = new Vis.marks[markType]();
       } else {
 //        $(dd.available).each(function(i, a) {
 //          // Only light up properties without nodrop
@@ -56,11 +56,11 @@ vde.App.factory('draggable', function($rootScope, Vis, iVis) {
       $('.canDropField').removeClass('dragging');
       $('.tooltip').remove();
     }
-  }
+  };
 });
 
 vde.App.directive('vdeDraggable', function($rootScope, draggable) {
-  return function(scope, element, attrs) {
+  return function(scope, element) {
     element
       .drag('start', function(e, dd) {
         var proxy = $(this).clone(true, true)
@@ -74,5 +74,5 @@ vde.App.directive('vdeDraggable', function($rootScope, draggable) {
       })
       .drag(draggable.drag)
       .drag('end', draggable.dragend);
-  }
+  };
 });

@@ -3,7 +3,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
     pipelines: Vis.pipelines,
     editVis: false,
     sortableOpts: {
-      update: function(e, ui) {
+      update: function() {
         $timeout(function() {
           Vis.parse().then(function() { timeline.save(); });
         }, 1);
@@ -39,7 +39,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
         $rootScope.activeLayer = group.group();
       }
     }
-  }
+  };
 
   $rootScope.toggleVisual = function(v, key, show) {
     if($rootScope.activeVisual == v && !show) {
@@ -72,7 +72,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
     if(p == '') $scope.activeVisual.pipelineName = null;
     else if(p == 'vdeNewPipeline') {
       var pipeline = new Vis.Pipeline();
-      $scope.activeVisual.pipelineName = pipeline.name
+      $scope.activeVisual.pipelineName = pipeline.name;
       $rootScope.activePipeline = pipeline;
       $scope.gMdl.activeVisualPipeline = pipeline.name;
     }
@@ -101,7 +101,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
   };
 
   $rootScope.removeVisual = function(type, name, group) {
-    var cnf = confirm("Are you sure you wish to delete this visual element?")
+    var cnf = confirm("Are you sure you wish to delete this visual element?");
     if(!cnf) return;
 
     if(type == 'group') {
@@ -137,7 +137,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
   };
 
   $scope.removeTransform = function(i) {
-    var cnf = confirm("Are you sure you wish to delete this transformation?")
+    var cnf = confirm("Are you sure you wish to delete this transformation?");
     if(!cnf) return;
 
     $rootScope.activeVisual.pipeline().transforms[i].destroy();
@@ -169,7 +169,7 @@ vde.App.controller('EditVisCtrl', function($scope, Vis) {
   $scope.vis = Vis.properties;
 });
 
-vde.App.controller('GroupCtrl', function($scope, $rootScope) {
+vde.App.controller('GroupCtrl', function($scope, $rootScope, Vis) {
   $rootScope.$watch('groupOrder', function() {
     $scope.group = Vis.groups[$scope.layerName];
   });
@@ -182,7 +182,7 @@ vde.App.controller('GroupCtrl', function($scope, $rootScope) {
     };
   }, function() {
     $scope.boundExtents = {};
-  }, true)
+  }, true);
 
   $scope.xExtents = [{label: 'Start', property: 'x'},
     {label: 'Width', property: 'width'}, {label: 'End', property: 'x2'}];
@@ -204,6 +204,6 @@ vde.App.controller('MarkCtrl', function($scope, $rootScope) {
 
   $scope.click = function(mark) {
     $rootScope.toggleVisual(mark);
-    $scope.gMdl.activeVisualPipeline = $scope.mark.pipelineName || ''
+    $scope.gMdl.activeVisualPipeline = $scope.mark.pipelineName || '';
   };
-})
+});

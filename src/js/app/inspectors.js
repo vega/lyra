@@ -52,7 +52,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
           property: $scope.property,
           scale: $scope.getScale(),
           field: $scope.getField()
-        }
+        };
       }, function() {
         var scale = $scope.getScale();
         if(scale && scale.properties.type == 'ordinal') {
@@ -92,7 +92,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
             iVis.show('selected');
             timeline.save();
           } else {
-            Vis.parse().then(function(spec) {
+            Vis.parse().then(function() {
               iVis.show('selected');
               timeline.save();
             });
@@ -132,7 +132,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
       if($scope.extentsProps) {
         $scope.$watch(function($scope) {
           return {p: $scope.property, b: $scope.extentsBound,
-            v: $scope.extentsProps.map(function(p) { return $scope.item.properties[p.property]; })}
+            v: $scope.extentsProps.map(function(p) { return $scope.item.properties[p.property]; })};
         }, function(newVal, oldVal) {
           $scope.properties = [];
 
@@ -192,9 +192,9 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
       }).drop('dropend', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         scope.hideHelper($(this), e, 'drophover');
-      })
+      });
     }
-  }
+  };
 });
 
 vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timeline, Vis, iVis) {
@@ -206,7 +206,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
       draggable: '@'
     },
     templateUrl: 'tmpl/inspectors/binding.html',
-    controller: function($scope, $element, $attrs) {
+    controller: function($scope) {
       // if($attrs.draggable) {
 //        var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
 //        $element.append(el);
@@ -263,7 +263,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
         }, 100);
       };
     },
-    link: function(scope, element, attrs) {
+    link: function(scope, element) {
       // if(attrs.draggable) {
         var binding = element.find('.binding');
         element.find('.binding-draggable').append(binding);
@@ -271,12 +271,12 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
       $timeout(function() {
         if(scope.field instanceof Vis.Field)
           element.find('.schema').data('field', scope.field);
-      }, 100)
+      }, 100);
     }
-  }
+  };
 });
 
-vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, Vis) {
+vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, Vis, iVis) {
   return {
     restrict: 'A',
     scope: {
@@ -317,7 +317,7 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
       $(element).find('.expr')
         // .html(scope.$parent.ngModel)
         .drop(function(e, dd) {
-          var proxy = iVis.dragging, expr = this;
+          var proxy = iVis.dragging;
           var field = $(proxy).data('field') || $(proxy).find('.schema').data('field') || $(proxy).find('.schema').attr('field');
           if(!field) return;
 
@@ -347,24 +347,24 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
         }).drop('dropend', function() {
           $(this).parent().css('borderColor', '#aaa');
         })
-        .bind('keyup', function(e) { parse(); })
+        .bind('keyup', function() { parse(); })
         .bind('click', function() { $(this).focus(); });
 
       $(element).bind('click', function() { $(this).find('.expr').focus(); });
 
       // This captures any aggregation changes made to the fields used. We need to set it on
       // a timeout because parse requires the html of element to have been completely rendered.
-      scope.$watch('item.exprFields', function() { $timeout(function() { parse() }, 100) }, true);
+      scope.$watch('item.exprFields', function() { $timeout(function() { parse(); }, 100); }, true);
 
       // NgModel is registered on the top-level directive. We need this to move the value of
       // the model into our editable div.
-      scope.$watch(function($scope) { return $scope.ngModel },
+      scope.$watch(function($scope) { return $scope.ngModel; },
         function() {
           var expr = $(element).find('.expr'), html = scope.ngModel;
-          if(expr.html() != html) expr.html(html)
+          if(expr.html() != html) expr.html(html);
         }, true);
     }
-  }
+  };
 });
 
 vde.App.directive('vdeCanDropField', function() {
@@ -381,9 +381,9 @@ vde.App.directive('vdeCanDropField', function() {
         }
 
         return false;
-      }
+      };
     }
-  }
+  };
 });
 
 vde.App.directive('vdeEditName', function() {
@@ -447,13 +447,13 @@ vde.App.directive('vdeScaleValues', function(Vis, vg) {
       ngModel: '='
     },
     templateUrl: 'tmpl/inspectors/scale-values.html',
-    controller: function($scope, $element, $attrs) {
-      $scope.values = (($scope.scale || {})[$scope.property] || []).map(function(v) { return {value: v} });
+    controller: function($scope) {
+      $scope.values = (($scope.scale || {})[$scope.property] || []).map(function(v) { return {value: v}; });
 
       $scope.update = function() {
         $scope.scale[$scope.property] = vg.keys($scope.values).map(function(k) { return $scope.values[k].value; });
         Vis.parse();
-      }
+      };
 
       $scope.add = function(evt, button) {
         if((evt && evt.keyCode != 13) && !button) return;
@@ -469,16 +469,16 @@ vde.App.directive('vdeScaleValues', function(Vis, vg) {
 
       $scope.delete = function($index){
         $scope.values.splice($index, 1);
-        $scope.update()
-      }
+        $scope.update();
+      };
     }
-  }
+  };
 });
 
 vde.App.directive('vdeInferredPopover', function($timeout) {
   return {
     restrict: 'A',
-    link: function(scope, element, attrs) {
+    link: function(scope, element) {
       var canDropField = element.parent().find('.canDropField');
       var dropOffset = canDropField.offset();
       var threshold = $('#groups-list').offset().left + $('#groups-list').width()/2 - 10;
@@ -502,5 +502,5 @@ vde.App.directive('vdeInferredPopover', function($timeout) {
       element.on('click mouseover', function() { $timeout.cancel(f); })
         .on('mouseleave', function() { f = fadeOut(); });
     }
-  }
-})
+  };
+});

@@ -1,3 +1,4 @@
+/* global jQuery */
 var vde = {version: 1};
 
 vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable', 'xc.indexedDB', 'colorpicker.module'],
@@ -6,8 +7,8 @@ vde.App = angular.module('vde', ['ui.inflector', 'ui.sortable', 'xc.indexedDB', 
 
       $indexedDBProvider
         .connection('lyraDB')
-        .upgradeDatabase(vde.version, function(event, db, tx){
-          var objStore = db.createObjectStore('files', {keyPath: 'fileName'});
+        .upgradeDatabase(vde.version, function(event, db){
+          db.createObjectStore('files', {keyPath: 'fileName'});
         });
 });
 
@@ -54,13 +55,13 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
       Vis.parse().then(function() {
         timeline.save();
 
-        $scope.$watch(function() { return $location.search() }, function() {
+        $scope.$watch(function() { return $location.search(); }, function() {
           var ex = $location.search().example;
           if(ex) {
             $http.get('examples/' + ex + '.json').then(function(d) {
               timeline.timeline = d.data;
               timeline.redo();
-            })
+            });
           }
         }, true);
       });
@@ -118,7 +119,7 @@ vde.App.controller('ScaleCtrl', function($scope, $rootScope, Vis) {
     Vis.parse().then(function() {
       $rootScope.editBinding({}, 'scale');
     });
-  }
+  };
 });
 
 vde.App.directive('vdeTooltip', function() {

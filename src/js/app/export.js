@@ -1,6 +1,6 @@
 vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window', 'Vis', 'vg',
   function($scope, $rootScope, timeline, $window, Vis, vg) {
-  $rootScope.export = function(evt) {
+  $rootScope.export = function() {
     var makeFile = function(data, type) {
       var blob = new Blob([data], {type: type});
       var url = $window.webkitURL || $window.URL;
@@ -20,7 +20,7 @@ vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window',
           }
       );
 
-      $scope.png = $('#vis canvas')[0].toDataURL("image/png")
+      $scope.png = $('#vis canvas')[0].toDataURL("image/png");
 
       $scope.inlinedValues = makeFile(JSON.stringify(spec, null, 2), 'text/json');
       vde.Vis.parse(false).then(function(spec) {

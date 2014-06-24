@@ -5,13 +5,13 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline, v
     newTransforms: []
   };
 
-  $scope.$watch(function($scope) {
-      return vg.keys(Vis._data)
+  $scope.$watch(function() {
+      return vg.keys(Vis._data);
     }, function() {
     $rootScope.dataSources = vg.keys(Vis._data);
     $rootScope.fromSources = [];
-    vg.keys(Vis._data).forEach(function(d) { $scope.fromSources.push({key: d, value: d})} );
-    $rootScope.fromSources.push({key: 'New Data Source', value: 'vdeNewData'})
+    vg.keys(Vis._data).forEach(function(d) { $scope.fromSources.push({key: d, value: d}); });
+    $rootScope.fromSources.push({key: 'New Data Source', value: 'vdeNewData'});
   }, true);
 
   $rootScope.addPipeline = function() {
@@ -48,7 +48,7 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline, v
   };
 
   $scope.newTransform = function(type) {
-    $scope.pMdl.newTransforms.push(new Vis.transforms[type]);
+    $scope.pMdl.newTransforms.push(new Vis.transforms[type]());
     $scope.pMdl.showTransforms = false;
   };
 
@@ -65,7 +65,7 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline, v
       $scope.pMdl.newTransforms[i].destroy();
       $scope.pMdl.newTransforms.splice(i, 1);
     } else {
-      var cnf = confirm("Are you sure you wish to delete this transformation?")
+      var cnf = confirm("Are you sure you wish to delete this transformation?");
       if(!cnf) return;
 
       $rootScope.activePipeline.transforms[i].destroy();
@@ -94,7 +94,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
       sliceEnd: '&'
     },
     templateUrl: 'tmpl/inspectors/datasheet.html',
-    controller: function($scope, $element, $attrs) {
+    controller: function($scope, $element) {
       $scope.buildDataTable = function() {
         if(!$scope.pipeline || !$scope.pipeline.source) return;
 
@@ -120,7 +120,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
                 }
               });
             }
-            parent['key'] = data.key;
+            parent.key = data.key;
             parent['key_' + depth++] = data.key;
 
             for (var i=0, n=data.values.length; i<n; ++i) {
@@ -128,7 +128,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
             }
           } else {
             var val = vg.duplicate(parent);
-            for(var k in data) val[k] = data[k]
+            for(var k in data) val[k] = data[k];
             list.push(val);
           }
           return list;
@@ -162,8 +162,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
             'sInfoFiltered': '(from _MAX_)'
           },
           fnDrawCallback: function(oSettings) {
-            var self = this,
-                thead = oSettings.nTHead,
+            var thead = oSettings.nTHead,
                 tbody = oSettings.nTBody,
                 start = oSettings._iDisplayStart,
                 end   = oSettings._iDisplayEnd,
@@ -180,7 +179,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
 
             // Transpose data
             for(var i = 0; i < columns.length - 1; i++) {
-              var colData = [], nTr = $('<tr></tr>');
+              var nTr = $('<tr></tr>');
               if(facetedColumns.indexOf(i+1) != -1) continue;
 
               for(var j = start; j < end; j++) {
@@ -197,7 +196,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
         });
 
         new FixedColumns(oTable, {
-          fnDrawCallback: function(left, right) {
+          fnDrawCallback: function(left) {
             var self = this,
                 oSettings = oTable.fnSettings(),
                 table = oSettings.nTable,
@@ -220,9 +219,9 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
               }
             }
             if(rowHeaders > columns.length)
-              $('tbody tr:gt(' + (columns.length-2) + ')', lbody).remove()
+              $('tbody tr:gt(' + (columns.length-2) + ')', lbody).remove();
 
-            facetedColumns.forEach(function(c) { $('tbody tr:eq(' + (c-1) + ')', lbody).remove() });
+            facetedColumns.forEach(function(c) { $('tbody tr:eq(' + (c-1) + ')', lbody).remove(); });
             // Now, make them draggable
             $('tbody tr td', lbody).each(function(i) {
               var c = columns[i+1];
@@ -281,7 +280,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
           name: $scope.pipeline.name,
           source: $scope.pipeline.source,
           transforms: $scope.pipeline.transforms.map(function(t) { return t.properties; })
-        }
+        };
       }, $scope.buildDataTable, true);
 
       var carouselInterval;

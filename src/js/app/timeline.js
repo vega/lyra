@@ -23,7 +23,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q", "Vis"
 
           timeline.redo();
           deferred.resolve(file);
-        })
+        });
 
         return deferred.promise;
       },
@@ -80,7 +80,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q", "Vis"
 
         var f = function() {
           $rootScope.groupOrder = Vis.groupOrder = [];
-          Vis.import(vis).then(function(spec) {
+          Vis.import(vis).then(function() {
             if(app.activeLayer) {
               var g = Vis.groups[app.activeLayer];
               if(app.activeGroup && app.activeLayer != app.activeGroup)
@@ -106,7 +106,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q", "Vis"
 
       undo: function() {
         this.currentIdx = (--this.currentIdx < 0) ? 0 : this.currentIdx;
-        this.load(this.currentIdx)
+        this.load(this.currentIdx);
       },
 
       redo: function() {
@@ -125,10 +125,10 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
       idx: timeline.currentIdx,
       fileName: timeline.fileName
     };
-  }
+  };
 
-  $scope.$watch(function($scope) {
-    return t()
+  $scope.$watch(function() {
+    return t();
   }, function() {
     $scope.timeline = t();
   }, true);
@@ -137,13 +137,13 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
     $scope.files = [];
     timeline.files().getAll().then(function(files) {
       $scope.files = files.map(function(f) { return f.fileName; });
-    })
+    });
   };
 
   files();
   $scope.tMdl = {fileName: null};
 
-  $scope.showOpen = function(evt) {
+  $scope.showOpen = function() {
     $rootScope.fileOpenPopover = !$rootScope.fileOpenPopover;
     $rootScope.fileSavePopover = false;
     $rootScope.exportPopover   = false;
@@ -155,7 +155,7 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
     });
   };
 
-  $scope.save = function(evt) {
+  $scope.save = function() {
     if(!$scope.timeline.fileName) {
       $rootScope.fileOpenPopover = false;
       $rootScope.fileSavePopover = !$rootScope.fileSavePopover;
@@ -177,16 +177,15 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
 
   $scope.delete = function(name) {
     timeline.delete(name).then(function() {
-      $timeout(function() { files() }, 100);
+      $timeout(function() { files(); }, 100);
     });
   };
 
-  $scope.undo = function() { timeline.undo() };
-  $scope.redo = function() { timeline.redo() };
+  $scope.undo = function() { timeline.undo(); };
+  $scope.redo = function() { timeline.redo(); };
 
   $window.addEventListener('keydown', function(keyEvent) {
     var keyCode = keyEvent.keyCode;
-    var d = keyEvent.srcElement || keyEvent.target;
 
     if (keyEvent.metaKey === true || keyEvent.ctrlKey === true) {
       if (keyCode === 89) {
@@ -206,5 +205,5 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
         return false;
       }
     }
-  })
+  });
 });

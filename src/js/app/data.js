@@ -1,4 +1,4 @@
-vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis, vg) {
+vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis, vg, d3) {
   $scope.dMdl = {
     src: {},
     formats: ['json', 'csv', 'tsv'],
@@ -29,13 +29,13 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis
         $scope.$apply(function() {
           src.values = dataModel.load[src.name];
           $scope.finishedLoading();
-        })
+        });
       });
     } else {
       var type = $scope.dMdl.src.format.type;
 
       if(type == 'json') {
-        $scope.dMdl.src.values = JSON.parse($scope.dMdl.values)
+        $scope.dMdl.src.values = JSON.parse($scope.dMdl.values);
         $scope.finishedLoading();
       }
       else {
@@ -51,7 +51,7 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis
       if(src.format.parse[p] == 'string') delete src.format.parse[p];
 
     Vis._data[src.name] = vg.duplicate(src);
-    delete Vis._data[src.name]['$$hashKey'];  // AngularJS pollution
+    delete Vis._data[src.name].$$hashKey;  // AngularJS pollution
 
     $rootScope.activePipeline.source = src.name;
     $scope.dMdl.src = {};
@@ -70,10 +70,10 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis
 });
 
 vde.App.directive('vdePosNewData', function () {
-  return function(scope, element, attrs) {
+  return function(scope, element) {
     element.on('change', function(evt) {
       var offset = $(evt.target).offset();
       $('#data-popover').css('top', (offset.top+25) + 'px');
-    })
+    });
   };
 });
