@@ -1,11 +1,5 @@
 var util = require('util');
 var vde = require('../vde.js');
-var chai = require('chai');
-
-require('jasmine-expect');
-var chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
-chai.should();
 
 describe('pipelines panel', function() {
   beforeEach(function() {
