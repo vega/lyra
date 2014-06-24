@@ -9,7 +9,7 @@ describe('Pipelines List Controller', function() {
     scope = rootScope.$new();
 
     scale = {mockScale: true};
-    pipeline = {mockPipeline:true, name: 'pipeline', addTransform: jasmine.createSpy(), transforms: []};
+    pipeline = {mockPipeline:true, name: 'pipeline', source:'source', addTransform: jasmine.createSpy(), transforms: []};
     transform = {mockTransform: true, destroy: jasmine.createSpy()};
 
     rootScope.activePipeline = pipeline;
@@ -19,9 +19,11 @@ describe('Pipelines List Controller', function() {
     vg = window.vg;
     Vis = jasmine.createSpyObj('Vis', ['Pipeline', 'Scale', 'parse']);
     Vis.Scale.and.returnValue(scale);
+    Vis.Pipeline.and.returnValue(pipeline);
     Vis.transforms = {test: jasmine.createSpy()};
     Vis.transforms.test.and.returnValue(transform);
     Vis.parse.and.returnValue($q.when({}));
+    Vis.pipelines = {pipeline: pipeline};
 
     ctrl = $controller('PipelinesListCtrl', {
       $rootScope: rootScope,
@@ -32,12 +34,52 @@ describe('Pipelines List Controller', function() {
     });
   }));
 
-  describe('add pipeline', function() {
-    xit('should add a new pipeline', function() {
-      //TODO
-      rootScope.addPipeline();
+  describe('toggle pipeline', function() {
+    it('should hide the current pipeline', function() {
+      rootScope.togglePipeline(pipeline);
+
+      expect(rootScope.activePipeline).toBeFalsy();
+      expect(scope.pMdl.activePipelineSource).toBeFalsy();
+    });
+
+    it('should always show if show is true', function() {
+      rootScope.togglePipeline(pipeline, true);
+
+      expect(rootScope.activePipeline).toBe(pipeline);
+      expect(scope.pMdl.activePipelineSource).toBe(pipeline.source);
+    });
+
+    it('should show a new pipeline', function() {
+      var pipeline2 = {source: 'new'};
+      rootScope.togglePipeline(pipeline2);
+
+      expect(rootScope.activePipeline).toBe(pipeline2);
+      expect(scope.pMdl.activePipelineSource).toBe(pipeline2.source);
     });
   });
+
+  describe('add pipeline', function() {
+    it('should add a new pipeline', function() {
+      rootScope.activePipeline = null;
+      scope.pMdl.activePipelineSource = null;
+
+      rootScope.addPipeline();
+
+      expect(rootScope.activePipeline).toBe(pipeline);
+      expect(scope.pMdl.activePipelineSource).toBe(pipeline.source);
+      expect(timeline.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('remove pipeline', function() {
+    it('should remove a pipeline', function() {
+      scope.removePipeline('pipeline');
+
+      expect(Vis.pipelines.pipeline).toBeFalsy();
+    });
+  });
+
+
 
   describe('add scale', function() {
     it('should add a new scale', function() {
@@ -117,6 +159,33 @@ describe('Pipelines List Controller', function() {
       expect(scope.activePipeline.transforms[0]).toBe(transform);
       expect(transform.destroy).not.toHaveBeenCalled();
       confirm = _confirm;
+    });
+  });
+
+  describe('set source', function() {
+    it('should remove source if empty', function() {
+      expect(rootScope.activePipeline.source).toBe(pipeline.source);
+      scope.pMdl.activePipelineSource = '';
+
+      scope.setSource();
+
+      expect(rootScope.activePipeline.source).toBe(null);
+    });
+
+    it('should add new sources', function() {
+      scope.pMdl.activePipelineSource = 'vdeNewData';
+
+      scope.setSource();
+
+      expect(rootScope.newData).toBe(true);
+    });
+
+    it('should set the current pipeline source', function() {
+      scope.pMdl.activePipelineSource = 'foo';
+
+      scope.setSource();
+
+      expect(rootScope.activePipeline.source).toBe('foo');
     });
   });
 });
