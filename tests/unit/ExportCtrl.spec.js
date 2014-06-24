@@ -1,6 +1,6 @@
 describe('Export controller', function() {
   //TODO: ExportCtrl uses jQuery to get an element to render a png. This causes these tests to fail.
-  var $scope, $originalRootScope, rootScopeMock, ctrl, timelineMock, VisMock, vgMock;
+  var $scope, $originalRootScope, rootScopeMock, ctrl, timelineMock, VisMock, vgMock, pngMock;
   beforeEach(function () {
       module('vde');
   });
@@ -20,6 +20,9 @@ describe('Export controller', function() {
       });
     });
 
+    pngMock = jasmine.createSpyObj('PngExporter', ['get']);
+    pngMock.get.and.returnValue('dummy png url');
+
     VisMock = jasmine.createSpyObj('Vis',['parse'])
     VisMock.parse.and.returnValue($q.when({
       //fake vega scene data
@@ -32,13 +35,14 @@ describe('Export controller', function() {
       $rootScope: rootScopeMock,
       timeline: timelineMock,
       Vis: VisMock,
-      vg: vgMock
+      vg: vgMock,
+      PngExporter: pngMock
     });
   }));
 
   it('should render to image formats', function(done) {
     rootScopeMock.export().then(function() {
-      expect($scope.png).toContain("data:");
+      expect($scope.png).toEqual("dummy png url");
       done();
     }).catch(function(err){ throw err; });
 

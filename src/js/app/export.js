@@ -1,5 +1,5 @@
-vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window', 'Vis', 'vg',
-  function($scope, $rootScope, timeline, $window, Vis, vg) {
+vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window', 'Vis', 'vg', 'PngExporter',
+  function($scope, $rootScope, timeline, $window, Vis, vg, PngExporter) {
   $rootScope.export = function() {
     var makeFile = function(data, type) {
       var blob = new Blob([data], {type: type});
@@ -20,10 +20,10 @@ vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window',
           }
       );
 
-      $scope.png = $('#vis canvas')[0].toDataURL("image/png");
+      $scope.png = PngExporter.get();
 
       $scope.inlinedValues = makeFile(JSON.stringify(spec, null, 2), 'text/json');
-      vde.Vis.parse(false).then(function(spec) {
+      Vis.parse(false).then(function(spec) {
         $scope.refData = makeFile(JSON.stringify(spec, null, 2), 'text/json');
       });
 
@@ -33,3 +33,11 @@ vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window',
     });
   };
 }]);
+
+vde.App.factory('PngExporter', function() {
+  return {
+    get: function() {
+      return $('#vis canvas')[0].toDataURL("image/png");
+    }
+  };
+});

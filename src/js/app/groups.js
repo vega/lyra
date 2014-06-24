@@ -1,4 +1,4 @@
-vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $window, timeline, Vis, iVis) {
+vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, timeline, Vis, iVis) {
   $scope.gMdl = { // General catch-all model for scoping
     pipelines: Vis.pipelines,
     editVis: false,
@@ -25,8 +25,8 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
 
     if(group.isLayer()) {
       if($rootScope.activeLayer == group) {
-//        We always want an activeLayer...
-//        $rootScope.activeLayer = $rootScope.activeGroup = null;
+        //We always want an activeLayer...
+        //$rootScope.activeLayer = $rootScope.activeGroup = null;
       } else {
         $rootScope.activeGroup = group;
         $rootScope.activeLayer = group;
@@ -69,7 +69,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
 
   $scope.setPipeline = function() {
     var p = $scope.gMdl.activeVisualPipeline;
-    if(p == '') $scope.activeVisual.pipelineName = null;
+    if(p === '') $scope.activeVisual.pipelineName = null;
     else if(p == 'vdeNewPipeline') {
       var pipeline = new Vis.Pipeline();
       $scope.activeVisual.pipelineName = pipeline.name;
@@ -81,12 +81,12 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
       $rootScope.activePipeline = Vis.pipelines[p];
     }
 
-    Vis.parse().then(function() { timeline.save(); });
+    return Vis.parse().then(function() { timeline.save(); });
   };
 
   $scope.addGroup = function() {
     var g = new Vis.marks.Group();
-    Vis.parse().then(function() {
+    return Vis.parse().then(function() {
       $rootScope.toggleVisual(g);
       timeline.save();
     });
@@ -122,7 +122,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, $win
       }
     }
 
-    Vis.parse().then(function() {
+    return Vis.parse().then(function() {
       $('.tooltip').remove();
       timeline.save();
     });
