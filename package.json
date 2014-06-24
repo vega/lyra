@@ -25,9 +25,6 @@
     "grunt-protractor-runner": "~1.0.0",
     "grunt-http-server": "0.0.5",
     "grunt-contrib-less": "~0.11.2",
-    "chai-as-promised": "~4.1.1",
-    "chai": "~1.9.1",
-    "jasmine-expect": "~1.21.0",
     "karma": "~0.12.16",
     "grunt-karma": "~0.8.3",
     "karma-jasmine": "~0.2.0"
