@@ -40,7 +40,7 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline, v
 
   $scope.setSource = function() {
     var src = $scope.pMdl.activePipelineSource;
-    if(src == '') $rootScope.activePipeline.source = null;
+    if(src === '') $rootScope.activePipeline.source = null;
     else if(src == 'vdeNewData') $rootScope.newData = true;
     else $rootScope.activePipeline.source = src;
 
@@ -170,7 +170,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
                 end   = oSettings._iDisplayEnd,
                 data  = oSettings.aoData;
 
-            if(facetedColumns.length == 0) {
+            if(facetedColumns.length === 0) {
               facets.forEach(function(f) {
                 if(f.colIdx) {
                   facetedColumns.push(f.colIdx);

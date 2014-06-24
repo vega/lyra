@@ -19,7 +19,7 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
 
     // Load defaults on a timeout to allow everything else to load.
     $timeout(function() {
-      if(vg.keys(Vis._rawData).length == 0) {
+      if(vg.keys(Vis._rawData).length === 0) {
         Vis.data('medals', 'data/medals.json', 'json');
         Vis.data('olympics', 'data/olympics.json', 'json');
         Vis.data('groups', 'data/groups.json', 'json');

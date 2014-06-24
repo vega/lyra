@@ -296,7 +296,7 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
 
         // When we add a transform containing an expr to the pipeline, the references
         // change and this function is called before .expr.html() is rendered correctly.
-        if(digesting && html == "") return;
+        if(digesting && html === "") return;
 
         value.find('.schema').each(function(i, e) {
           if(strConcat) $(e).text('" + d.' + $(e).attr('field-spec') + ' + "');
@@ -467,7 +467,7 @@ vde.App.directive('vdeScaleValues', function(Vis, vg) {
       };
 
       $scope.deleteIfEmpty = function($index) {
-        if($scope.values[$index].value == '') $scope.values.splice($index, 1);
+        if($scope.values[$index].value === '') $scope.values.splice($index, 1);
         $scope.update();
       };
 
