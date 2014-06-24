@@ -259,4 +259,47 @@ describe('GroupsList Controller', function() {
       confirm = _confirm;
     });
   });
+
+  describe('toggle property', function() {
+    it('should create new properties', function() {
+      var props = {};
+      rootScope.activeVisual = {properties: props};
+      scope.toggleProp('foo.bar.baz', 'test');
+
+      expect(props.foo.bar.baz.value).toEqual('test');
+      expect(Vis.parse).toHaveBeenCalled();
+    });
+
+    it('should remove existing properties', function() {
+      var props = {foo: {value: 'test'}};
+      rootScope.activeVisual = {properties: props};
+      scope.toggleProp('foo', 'test');
+
+      expect(props.foo.value).toBeUndefined();
+      expect(Vis.parse).toHaveBeenCalled();
+    });
+
+    it('should called check extents if present', function() {
+      var props = {};
+      var checkExtents = jasmine.createSpy();
+      rootScope.activeVisual = {properties: props, checkExtents: checkExtents};
+      scope.toggleProp('foo', 'test');
+
+      expect(props.foo.value).toEqual('test');
+      expect(Vis.parse).toHaveBeenCalled();
+      expect(checkExtents).toHaveBeenCalledWith('foo');
+    });
+
+    it('should call update instead of parse if present', function() {
+      var props = {};
+      var update = jasmine.createSpy();
+      rootScope.activeVisual = {properties: props, update: update};
+
+      scope.toggleProp('foo.bar', 'test');
+
+      expect(props.foo.bar.value).toEqual('test');
+      expect(Vis.parse).not.toHaveBeenCalled();
+      expect(update).toHaveBeenCalledWith('foo.bar');
+    });
+  });
 });

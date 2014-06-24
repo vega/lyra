@@ -160,6 +160,7 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, time
     else p.value = value;
 
     if('checkExtents' in v) v.checkExtents(prop);
+
     if('update' in v) v.update(prop);
     else Vis.parse();
   };
