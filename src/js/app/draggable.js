@@ -1,12 +1,12 @@
-vde.App.factory('draggable', function($rootScope) {
+vde.App.factory('draggable', function($rootScope, Vis, iVis) {
   return {
     dragstart: function(e, dd, proxy) {
       var isMark = proxy.hasClass('mark'),
-          v = vde.iVis.activeMark;
+          v = iVis.activeMark;
 
       if(isMark) {
         var markType = proxy.attr('id');
-        vde.iVis.newMark = eval('new vde.Vis.marks["' + markType + '"]');
+        iVis.newMark = eval('new Vis.marks["' + markType + '"]');
       } else {
 //        $(dd.available).each(function(i, a) {
 //          // Only light up properties without nodrop
@@ -18,8 +18,8 @@ vde.App.factory('draggable', function($rootScope) {
         $('.canDropField').addClass('dragging');
       }
 
-      if(v instanceof vde.Vis.Mark) {
-        if(isMark && vde.iVis.newMark.canConnect) v.connectionTargets();
+      if(v instanceof Vis.Mark) {
+        if(isMark && iVis.newMark.canConnect) v.connectionTargets();
         else if(!isMark)  {
           // Definitely show any property targets for the active visual
           v.propertyTargets(null, !$rootScope.activePipeline.forkName);
@@ -29,7 +29,7 @@ vde.App.factory('draggable', function($rootScope) {
         // show dropzones for grouping
         if(!$rootScope.activePipeline.forkName) {
           var targets = $rootScope.activeLayer.propertyTargets();
-          vde.iVis.interactor('span', targets.spans)
+          iVis.interactor('span', targets.spans)
             .interactor('dropzone', targets.dropzones)
             .show(['span', 'dropzone']);
         }
@@ -39,7 +39,7 @@ vde.App.factory('draggable', function($rootScope) {
     },
 
     drag: function(e, dd) {
-      vde.iVis.dragging = dd.proxy;
+      iVis.dragging = dd.proxy;
       $(dd.proxy).css({
         top: e.pageY + 5,
         left: e.pageX - $(dd.proxy).width()
@@ -47,9 +47,9 @@ vde.App.factory('draggable', function($rootScope) {
     },
 
     dragend: function(e, dd) {
-      vde.iVis.dragging = null;
-      vde.iVis.newMark  = null;
-      vde.iVis.show('selected');
+      iVis.dragging = null;
+      iVis.newMark  = null;
+      iVis.show('selected');
 //      $(dd.available).removeClass('available');
       $(dd.proxy).unbind().empty().remove();
       dd.proxy = null;

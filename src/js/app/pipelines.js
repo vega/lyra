@@ -1,21 +1,21 @@
-vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline) {
+vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline, vg, Vis) {
   $scope.pMdl = { // General catch-all model for scoping
-    pipelines: vde.Vis.pipelines,
+    pipelines: Vis.pipelines,
     showTransforms: false,
     newTransforms: []
   };
 
   $scope.$watch(function($scope) {
-      return vg.keys(vde.Vis._data)
+      return vg.keys(Vis._data)
     }, function() {
-    $rootScope.dataSources = vg.keys(vde.Vis._data);
+    $rootScope.dataSources = vg.keys(Vis._data);
     $rootScope.fromSources = [];
-    vg.keys(vde.Vis._data).forEach(function(d) { $scope.fromSources.push({key: d, value: d})} );
+    vg.keys(Vis._data).forEach(function(d) { $scope.fromSources.push({key: d, value: d})} );
     $rootScope.fromSources.push({key: 'New Data Source', value: 'vdeNewData'})
   }, true);
 
   $rootScope.addPipeline = function() {
-    var p = new vde.Vis.Pipeline();
+    var p = new Vis.Pipeline();
     $rootScope.togglePipeline(p);
 
     timeline.save();
@@ -32,7 +32,7 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline) {
   };
 
   $scope.removePipeline = function(p) {
-    delete vde.Vis.pipelines[p];
+    delete Vis.pipelines[p];
     $('.tooltip').remove();
 
     timeline.save();
@@ -48,7 +48,7 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline) {
   };
 
   $scope.newTransform = function(type) {
-    $scope.pMdl.newTransforms.push(new vde.Vis.transforms[type]);
+    $scope.pMdl.newTransforms.push(new Vis.transforms[type]);
     $scope.pMdl.showTransforms = false;
   };
 
@@ -57,7 +57,7 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline) {
     $rootScope.activePipeline.addTransform($scope.pMdl.newTransforms[i]);
 
     $scope.pMdl.newTransforms.splice(i, 1);
-    vde.Vis.parse().then(function() { timeline.save(); });
+    Vis.parse().then(function() { timeline.save(); });
   };
 
   $scope.removeTransform = function(i, isNewTransform) {
@@ -70,14 +70,14 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline) {
 
       $rootScope.activePipeline.transforms[i].destroy();
       $rootScope.activePipeline.transforms.splice(i, 1);
-      vde.Vis.parse().then(function() { timeline.save(); });
+      Vis.parse().then(function() { timeline.save(); });
     }
 
     $('.tooltip').remove();
   };
 
   $scope.addScale = function() {
-    var s = new vde.Vis.Scale('', $rootScope.activePipeline, {type: 'ordinal'}, 'new_scale');
+    var s = new Vis.Scale('', $rootScope.activePipeline, {type: 'ordinal'}, 'new_scale');
     s.manual = true;
     timeline.save();
 
@@ -85,7 +85,7 @@ vde.App.controller('PipelinesListCtrl', function($scope, $rootScope, timeline) {
   };
 });
 
-vde.App.directive('vdeDataGrid', function ($rootScope, draggable) {
+vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
   return {
     restrict: 'A',
     scope: {

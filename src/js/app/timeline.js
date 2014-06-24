@@ -1,5 +1,5 @@
-vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
-  function($rootScope, $timeout, $indexedDB, $q) {
+vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q", "Vis", "iVis",
+  function($rootScope, $timeout, $indexedDB, $q, Vis, iVis) {
     // We can't let the timeline grow too large because it'll all our RAM.
     var timelineLimit = 25;
 
@@ -30,7 +30,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
 
       store: function() {
         var deferred = $q.defer();
-        var vis = vde.Vis.export(true);
+        var vis = Vis.export(true);
         var app = this.timeline[this.timeline.length - 1].app;
 
         this.files().upsert({
@@ -52,7 +52,7 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
       },
 
       save: function() {
-        var vis = vde.Vis.export(false);
+        var vis = Vis.export(false);
         delete vis._data;
 
         this.timeline.length = ++this.currentIdx;
@@ -60,8 +60,8 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
           vis: vis,
           app: {
             activeVisual: ($rootScope.activeVisual || {}).name,
-            isMark: $rootScope.activeVisual instanceof vde.Vis.Mark,
-            isGroup: $rootScope.activeVisual instanceof vde.Vis.marks.Group,
+            isMark: $rootScope.activeVisual instanceof Vis.Mark,
+            isGroup: $rootScope.activeVisual instanceof Vis.marks.Group,
             activeLayer: ($rootScope.activeLayer||{}).name,
             activeGroup: ($rootScope.activeGroup||{}).name,
             activePipeline: ($rootScope.activePipeline||{}).name
@@ -79,10 +79,10 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
         var digesting = ($rootScope.$$phase || $rootScope.$root.$$phase);
 
         var f = function() {
-          $rootScope.groupOrder = vde.Vis.groupOrder = [];
-          vde.Vis.import(vis).then(function(spec) {
+          $rootScope.groupOrder = Vis.groupOrder = [];
+          Vis.import(vis).then(function(spec) {
             if(app.activeLayer) {
-              var g = vde.Vis.groups[app.activeLayer];
+              var g = Vis.groups[app.activeLayer];
               if(app.activeGroup && app.activeLayer != app.activeGroup)
                 g = g.marks[app.activeGroup];
 
@@ -91,13 +91,13 @@ vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q",
                     g.marks[app.activeVisual] : g.axes[app.activeVisual], 0, true);
               } else {
                 // If we don't have an activeVisual, clear out any interactors
-                vde.iVis.activeMark = null;
-                vde.iVis.show('selected');
+                iVis.activeMark = null;
+                iVis.show('selected');
               }
             }
 
             if(app.activePipeline)
-              $rootScope.togglePipeline(vde.Vis.pipelines[app.activePipeline], true);
+              $rootScope.togglePipeline(Vis.pipelines[app.activePipeline], true);
           });
         };
 

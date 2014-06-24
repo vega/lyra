@@ -1,4 +1,4 @@
-vde.App.directive('vdeProperty', function($rootScope, timeline) {
+vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
   return {
     restrict: 'E',
     scope: {
@@ -59,10 +59,10 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
           var domain = scale.field(), field = $scope.getField();
 
           if(field) {
-            $scope.fieldMatchesDomain = (domain instanceof vde.Vis.Field) ?
+            $scope.fieldMatchesDomain = (domain instanceof Vis.Field) ?
                 field.spec() == domain.spec() : false;
           } else if(!scale.pipeline().forkName) {
-            $scope.values = (domain instanceof vde.Vis.Field) ?
+            $scope.values = (domain instanceof Vis.Field) ?
                 scale.pipeline().values().map(vg.accessor(domain.spec())).concat(['auto']) :
                 domain;
           }
@@ -78,22 +78,22 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
         // X/Y-Axis might be added by default if fields dropped over dropzones.
         // If the user toggles to them, assume they're going to edit, and delete
         // default flag to prevent the axis from being overridden by future drops.
-        if($scope.item instanceof vde.Vis.Axis) delete $scope.item.default;
+        if($scope.item instanceof Vis.Axis) delete $scope.item.default;
 
         // For non-layer groups, if any of the spatial properties are changed
         // then switch the layout to overlapping.
         if(['x', 'x2', 'width', 'y', 'y2', 'height'].indexOf(prop) != -1 &&
             $scope.item.type == 'group' && !$scope.item.isLayer())
-          $scope.item.layout = vde.Vis.transforms.Facet.layout_overlap;
+          $scope.item.layout = Vis.transforms.Facet.layout_overlap;
 
         $timeout(function() {
           if($scope.item.update) {
             $scope.item.update(prop);
-            vde.iVis.show('selected');
+            iVis.show('selected');
             timeline.save();
           } else {
-            vde.Vis.parse().then(function(spec) {
-              vde.iVis.show('selected');
+            Vis.parse().then(function(spec) {
+              iVis.show('selected');
               timeline.save();
             });
           }
@@ -103,7 +103,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
       $scope.unbind = function(property) {
         if(!property) property = $scope.property;
         $scope.item.unbindProperty(property);
-        vde.Vis.parse().then(function() { timeline.save(); });
+        Vis.parse().then(function() { timeline.save(); });
       };
 
       $scope.unInferProperty = function(property, field) {
@@ -114,7 +114,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
       };
 
       $scope.showHelper = function(target, e, helperClass) {
-        if($scope.item instanceof vde.Vis.Mark) $scope.item.helper($scope.property);
+        if($scope.item instanceof Vis.Mark) $scope.item.helper($scope.property);
 
         target.addClass(helperClass);
       };
@@ -123,8 +123,8 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
         target.removeClass(helperClass);
         if(target.hasClass('helper') || target.hasClass('drophover')) return;
 
-        if(!vde.iVis.dragging) vde.iVis.show('selected');
-        else if($rootScope.activeVisual instanceof vde.Vis.Mark)
+        if(!iVis.dragging) iVis.show('selected');
+        else if($rootScope.activeVisual instanceof Vis.Mark)
           $rootScope.activeVisual.propertyTargets();
       };
 
@@ -184,7 +184,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
         if(element.find('.expr').length > 0) return element.find('.expr').drop(e, dd);
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
 
-        vde.iVis.bindProperty(scope.item, scope.property);
+        iVis.bindProperty(scope.item, scope.property);
         dd.proxy = null;
       }).drop('dropstart', function(e) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
@@ -197,7 +197,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline) {
   }
 });
 
-vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timeline) {
+vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timeline, Vis, iVis) {
   return {
     restrict: 'E',
     scope: {
@@ -216,7 +216,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
         var field = $rootScope.activeField;
         field.pipeline().aggregate(field, stat);
         $timeout(function() {
-          vde.Vis.parse().then(function() {
+          Vis.parse().then(function() {
             $('#aggregate-popover').hide();
             timeline.save();
           });
@@ -231,7 +231,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
         if(part == 'scale') {
           inspector = $('#scale-popover');
           $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
-          vde.iVis.parse($rootScope.activeScale); // Visualize scale
+          iVis.parse($rootScope.activeScale); // Visualize scale
         } else {
           inspector = $('#aggregate-popover');
           $rootScope.activeField = inspector.is(':visible') ? null : $scope.field;
@@ -269,14 +269,14 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
         element.find('.binding-draggable').append(binding);
       // }
       $timeout(function() {
-        if(scope.field instanceof vde.Vis.Field)
+        if(scope.field instanceof Vis.Field)
           element.find('.schema').data('field', scope.field);
       }, 100)
     }
   }
 });
 
-vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline) {
+vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, Vis) {
   return {
     restrict: 'A',
     scope: {
@@ -307,7 +307,7 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline) 
           scope.item.properties[scope.property] = strConcat ? '"' + value.text() + '"' : value.text();
           scope.item.properties[scope.property + 'Html'] = html;
 
-          vde.Vis.parse();
+          Vis.parse();
         };
 
         // Safe apply in case parse is called from within a watch.
@@ -317,16 +317,16 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline) 
       $(element).find('.expr')
         // .html(scope.$parent.ngModel)
         .drop(function(e, dd) {
-          var proxy = vde.iVis.dragging, expr = this;
+          var proxy = iVis.dragging, expr = this;
           var field = $(proxy).data('field') || $(proxy).find('.schema').data('field') || $(proxy).find('.schema').attr('field');
           if(!field) return;
 
-          if(scope.item instanceof vde.Vis.Transform &&
-            !scope.item.requiresFork && field instanceof vde.Vis.Field)
+          if(scope.item instanceof Vis.Transform &&
+            !scope.item.requiresFork && field instanceof Vis.Field)
               scope.item.requiresFork = ($rootScope.activePipeline.name != field.pipelineName);
 
           var bindingScope = $rootScope.$new();
-          bindingScope.field = new vde.Vis.Field(field);
+          bindingScope.field = new Vis.Field(field);
           scope.item.exprFields.push(bindingScope.field);
           var binding = $compile('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope);
           scope.$apply();
@@ -436,7 +436,7 @@ vde.App.directive('vdeEditName', function() {
   };
 });
 
-vde.App.directive('vdeScaleValues', function() {
+vde.App.directive('vdeScaleValues', function(Vis, vg) {
   return {
     restrict: 'E',
     scope: {
@@ -452,7 +452,7 @@ vde.App.directive('vdeScaleValues', function() {
 
       $scope.update = function() {
         $scope.scale[$scope.property] = vg.keys($scope.values).map(function(k) { return $scope.values[k].value; });
-        vde.Vis.parse();
+        Vis.parse();
       }
 
       $scope.add = function(evt, button) {

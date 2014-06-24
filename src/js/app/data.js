@@ -1,4 +1,4 @@
-vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline) {
+vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis, vg) {
   $scope.dMdl = {
     src: {},
     formats: ['json', 'csv', 'tsv'],
@@ -50,8 +50,8 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline) {
     for(var p in src.format.parse) 
       if(src.format.parse[p] == 'string') delete src.format.parse[p];
 
-    vde.Vis._data[src.name] = vg.duplicate(src);
-    delete vde.Vis._data[src.name]['$$hashKey'];  // AngularJS pollution
+    Vis._data[src.name] = vg.duplicate(src);
+    delete Vis._data[src.name]['$$hashKey'];  // AngularJS pollution
 
     $rootScope.activePipeline.source = src.name;
     $scope.dMdl.src = {};
