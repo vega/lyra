@@ -605,11 +605,6 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
     },
     templateUrl: 'tmpl/inspectors/binding.html',
     controller: function($scope) {
-      // if($attrs.draggable) {
-//        var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
-//        $element.append(el);
-      // }
-
       $rootScope.aggregate = function(stat) {
         var field = $rootScope.activeField;
         field.pipeline().aggregate(field, stat);
@@ -660,16 +655,6 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
           inspector.toggle();
         }, 100);
       };
-    },
-    link: function(scope, element) {
-      // if(attrs.draggable) {
-        var binding = element.find('.binding');
-        element.find('.binding-draggable').append(binding);
-      // }
-      $timeout(function() {
-        if(scope.field instanceof Vis.Field)
-          element.find('.schema').data('field', scope.field);
-      }, 100);
     }
   };
 });
@@ -691,7 +676,7 @@ vde.App.directive('vdeCanDropField', function() {
     }
   };
 });
-vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
+vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg, $timeout) {
   return {
     restrict: 'A',
     scope: {
@@ -701,187 +686,59 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
     },
     templateUrl: 'tmpl/inspectors/datasheet.html',
     controller: function($scope, $element) {
-      $scope.buildDataTable = function() {
-        if(!$scope.pipeline || !$scope.pipeline.source) return;
+      var columns = [], fullData = [];
 
-        var schema  = $scope.pipeline.schema($scope.sliceBeg(), $scope.sliceEnd());
-        var columns = schema[0].reduce(function(c, f) {
-          return c.concat([{ sTitle: f.name, mData: f.spec(), headerCssClass: f.raw() ? 'raw' : 'derived' }]);
-        }, [{ sTitle: 'col', mData: null}]);
+      function getSchema() { 
+        var schema = $scope.pipeline.schema($scope.sliceBeg(), $scope.sliceEnd());
+        columns  = schema[0];
+        fullData = schema[1];
 
-        var values = schema[1];
-        var facets = ($scope.facets = []), facetedColumns = [];
-        $scope.currentFacets = {};
-
-        function flatten(data, list, parent, depth) {
-          if (data.values) {
-            if(!facets[depth]) {
-              facets[depth] = {keys:[]};
-            }
-            if(data.key) {
-              facets[depth].keys.push(data.key);
-
-              columns.some(function(c, i) {
-                if(c.sTitle == 'key_' + depth) {
-                  facets[depth].colIdx = i;
-                  return true;
-                }
-              });
-            }
-            parent.key = data.key;
-            parent['key_' + depth++] = data.key;
-
-            for (var i=0, n=data.values.length; i<n; ++i) {
-              flatten(data.values[i], list, parent, depth);
-            }
-          } else {
-            var val = vg.duplicate(parent);
-            for(var k in data) val[k] = data[k];
-            list.push(val);
-          }
-          return list;
+        // Hierarchical data (which is always nested under fullData.values)
+        if(vg.isObject(fullData) && !vg.isArray(fullData)) {
+          $scope.facets = fullData.values.map(function(v) { return v.key });
+          $scope.facet = $scope.facets[0];
+          $scope.fullSize = fullData.values.reduce(function(acc, v) { 
+            return acc+v.values.length }, 0);
+        } else {
+          $scope.facets = [];
+          $scope.facet = null;
+          $scope.fullSize = fullData.length;
         }
 
-        var flattened = values;
-        if(values.values) flattened = flatten(values, [], {}, 0);
-        else if(values[0].values) flattened = flatten({ values: values, key: "", keys: []}, [], {}, 0);
+        $scope.limit = 20;
+        $scope.page  = 0;
+      };
 
-        var dataTableId = $scope.dataTableId = 'datatable_' + Date.now();
-
-        // WARNING: leaking oTable. How do
-        $('.table', $element).html('<table id="' + dataTableId + '"></table>');
-        var oTable = $('#' + dataTableId, $element).dataTable({
-          'aaData': flattened,
-          'aoColumns': columns,
-          'sScrollX': '250px',
-          // 'sScrollInner': '150%',
-          'sScrollY': '250px',
-          // 'bScrollCollapse': true,
-          'sDom': 'rtip',
-          'iDisplayLength': 20,
-          // 'bAutoWidth': false,
-          // 'bJQueryUI': true,
-          'bDeferRender': true,
-          'bSort': false,
-          'bDestroy': true,
-          'oLanguage': {
-            'sInfo': '_START_&ndash;_END_ of _TOTAL_',
-            'oPaginate': {'sPrevious': '', 'sNext': ''},
-            'sInfoFiltered': '(from _MAX_)'
-          },
-          fnDrawCallback: function(oSettings) {
-            var thead = oSettings.nTHead,
-                tbody = oSettings.nTBody,
-                start = oSettings._iDisplayStart,
-                end   = oSettings._iDisplayEnd,
-                data  = oSettings.aoData;
-
-            if(facetedColumns.length === 0) {
-              facets.forEach(function(f) {
-                if(f.colIdx) {
-                  facetedColumns.push(f.colIdx);
-                  $scope.showFacet(f.colIdx, f.keys[0]);
-                }
-              });
+      function transposeData() {
+        var data = fullData, transpose = [];
+        if($scope.facet) {
+          for(var i = 0; i < fullData.values.length; i++) {
+            if(fullData.values[i].key == $scope.facet) {
+              data = fullData.values[i].values;
+              break;
             }
-
-            // Transpose data
-            for(var i = 0; i < columns.length - 1; i++) {
-              var nTr = $('<tr></tr>');
-              if(facetedColumns.indexOf(i+1) != -1) continue;
-
-              for(var j = start; j < end; j++) {
-                // Use aiDisplay to make sure we get the correct column idices (e.g. on filter)
-                var d = data[oSettings.aiDisplay[j]];
-                if(d) nTr.append('<td>' + $('td:eq(' + i + ')', d.nTr).text() + '</td>');
-              }
-
-              $(tbody).append(nTr);
-            }
-            $(thead).hide();
-            $('.even, .odd', tbody).remove();
           }
-        });
+        }
 
-        new FixedColumns(oTable, {
-          fnDrawCallback: function(left) {
-            var self = this,
-                oSettings = oTable.fnSettings(),
-                table = oSettings.nTable,
-                tbody = oSettings.nTBody,
-                lbody = left.body;
+        $scope.size = data.length;
+        data = data.slice($scope.page*$scope.limit, $scope.page*$scope.limit + $scope.limit);
 
-            // Clear out the fixed column header (columns[0])
-            $('thead tr th', left.header).text('');
+        for(var i = 0; i < columns.length; i++) {
+          var row = [columns[i]];
 
-            // Ensure that there are as many header rows as there are columns
-            var rowHeaders = $('tbody tr td', lbody).length;
+          for(var j = 0; j < data.length; j++)
+            row.push(columns[i].spec() == "key" ? $scope.facet : 
+              eval("data[j]." + columns[i].spec()))
 
-            if(rowHeaders < columns.length) {
-              for(var i = rowHeaders+1; i < columns.length; i++) {
-                var td = $('<td></td>')
-                  .text(columns[i].sTitle)
-                  .css('width', $('tbody tr td:eq(0)', lbody).css('width'));
+          transpose.push(row);
+        }
 
-                $('tbody tr:eq(' + (i-1) + ')', lbody).append(td);
-              }
-            }
-            if(rowHeaders > columns.length)
-              $('tbody tr:gt(' + (columns.length-2) + ')', lbody).remove();
-
-            facetedColumns.forEach(function(c) { $('tbody tr:eq(' + (c-1) + ')', lbody).remove(); });
-            // Now, make them draggable
-            $('tbody tr td', lbody).each(function(i) {
-              var c = columns[i+1];
-              var f = schema[0][i];
-              if(!c) return;
-
-              $(this).text(c.sTitle)
-                .addClass(c.headerCssClass)
-                .drag('start', function(e, dd) {
-                  var proxy = $('<div></div>')
-                    .text($(this).text())
-                    .addClass('schema proxy ' + c.headerCssClass)
-                    .data('field', f)
-                    .css({ opacity: 0.75, position: 'absolute', 'z-index': 100 })
-                    .appendTo(document.body);
-
-                  return draggable.dragstart(e, dd, proxy);
-                })
-                .drag(draggable.drag)
-                .drag('end', draggable.dragend);
-
-                // Reset the height of its parent
-                $(this).parent().css('height', $('tr:eq(' + i + ')', tbody).css('height'));
-            });
-
-            // Widths/Heights get screwy after the transpose, so reset them.
-            var lWrap = $(lbody).parent().parent().width('auto');
-            this.s.iLeftWidth  = lWrap.width() > 75 ? 75 : lWrap.width();
-            this.s.iRightWidth = 0;
-            this._fnGridLayout();
-
-            $('tbody tr td', lbody).each(function() {
-              $(this).width(self.s.iLeftWidth - 10)
-                .height($(this).parent().height() - 10)
-                .css('position', 'absolute');
-            });
-
-            var height = $(table).height() + 15;
-            $(table).parent().height(height > 250 ? 250 : height);
-          }
-        });
+        $scope.transposedData = transpose;
       };
 
-      $scope.filterFacets = function(f) {
-        return f.keys && f.keys.length > 0;
-      };
-
-      $scope.showFacet = function(column, value) {
-        var oTable = $('#' + $scope.dataTableId).dataTable();
-        oTable.fnFilter(value, column);
-        $scope.currentFacets[column] = value;
-      };
+      $scope.prevPage = function()  { --$scope.page; }
+      $scope.nextPage = function()  { ++$scope.page; }
+      $scope.setFacet = function(f) { $scope.facet = f; } 
 
       $scope.$watch(function($scope) {
         return {
@@ -889,7 +746,11 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg) {
           source: $scope.pipeline.source,
           transforms: $scope.pipeline.transforms.map(function(t) { return t.properties; })
         };
-      }, $scope.buildDataTable, true);
+      }, function() { getSchema(); transposeData(); }, true);
+
+      $scope.$watch(function($scope) {
+        return {page: $scope.page, facet: $scope.facet}
+      }, transposeData, true);
 
       var carouselInterval;
       $scope.carousel = function(evt) {
@@ -1071,6 +932,17 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
         }, true);
     }
   };
+});
+vde.App.directive('vdeField', function(Vis) {
+  return {
+    scope: { vdeField: '=' },
+    link: function(scope, element, attrs) {
+      scope.$watch('vdeField', function() {
+        if(scope.vdeField instanceof Vis.Field)
+          element.data('field', scope.vdeField);
+      });
+    }
+  }
 });
 vde.App.directive('vdeInferredPopover', function($timeout) {
   return {
@@ -1343,6 +1215,16 @@ vde.App.directive('vdeScaleValues', function(Vis, vg) {
         $scope.update();
       };
     }
+  };
+});
+vde.App.directive('vdeTooltip', function() {
+  return function(scope, element, attrs) {
+    element.tooltip({
+      title: attrs.vdeTooltip,
+      placement: attrs.position ? attrs.position : 'bottom',
+      // delay: { show: 300, hide: 150 },
+      container: 'body'
+    });
   };
 });
 vde.App.factory('draggable', function($rootScope, Vis, iVis) {

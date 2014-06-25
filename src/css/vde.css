@@ -612,65 +612,6 @@ a.add:hover {
 .existing-transforms .aggregate {
   visibility: hidden !important;
 }
-.pipeline .datatable .table {
-  margin: 10px;
-  width: 280px;
-  font-size: 11px;
-}
-.dataTables_info {
-  margin-top: 5px;
-  color: #444;
-}
-.dataTables_scrollHead thead th {
-  /*display: inline-block;*/
-  padding: 3px 5px 3px 5px !important;
-  border: 1px solid #000;
-}
-.pipeline .datatable td {
-  padding: 5px !important;
-}
-.dataTables_scroll td {
-  background: #fff;
-  border-left: 2px solid silver;
-  border-bottom: 1px dotted silver;
-}
-.DTFC_LeftBodyWrapper td {
-  background: #ccc;
-  border: 1px solid #888;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: url(../imgs/openhand.cur), default !important;
-}
-.paginate_enabled_previous {
-  background: url('../imgs/previous-black.png') no-repeat !important;
-  background-size: 14px !important;
-  margin-top: 5px;
-  padding-left: 15px !important;
-  opacity: 0.4;
-}
-.paginate_enabled_previous:hover {
-  opacity: 1;
-}
-.paginate_disabled_previous {
-  padding-right: 15px !important;
-  visibility: hidden;
-}
-.paginate_enabled_next {
-  background: url('../imgs/next-black.png') no-repeat !important;
-  background-size: 14px !important;
-  margin-top: 5px;
-  padding-right: 15px !important;
-  opacity: 0.4;
-}
-.paginate_enabled_next:hover {
-  opacity: 1;
-}
-.paginate_disabled_next {
-  visibility: hidden;
-  padding-right: 0 !important;
-  padding-left: 15px !important;
-}
 #datasheet .tabs {
   float: right;
   width: 225px;
@@ -699,6 +640,66 @@ a.add:hover {
 #datasheet .tabs li:hover {
   background: #d5dbe1;
   border-radius: 5px;
+}
+#datasheet .dataTable {
+  margin: 10px;
+  margin-left: 95px;
+  font-size: 11px;
+  overflow: auto;
+}
+#datasheet .dataTable tr.even {
+  background: #fff;
+}
+#datasheet .dataTable tr.odd {
+  background: #ddd;
+}
+#datasheet .dataTable td {
+  max-width: 75px;
+  padding: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#datasheet .dataTable td.schema {
+  position: absolute;
+  left: 10px;
+  top: auto;
+  min-width: 75px;
+  border-radius: 0;
+  border-width: 1px;
+  border-style: solid;
+}
+#datasheet .dataTable td:not(.schema) {
+  border-left: 1px solid #bbb;
+}
+#datasheet .paging {
+  font-size: 11px;
+}
+#datasheet .paging .buttons {
+  float: right;
+}
+#datasheet .paging .buttons a {
+  display: inline-block;
+  width: 14px;
+  height: 19px;
+  background-size: 14px !important;
+  opacity: 0.4;
+  text-indent: -999em;
+  visibility: hidden;
+  cursor: pointer;
+}
+#datasheet .paging .buttons a:hover {
+  opacity: 1;
+}
+#datasheet .paging .buttons a.enabled {
+  visibility: visible;
+}
+#datasheet .paging .buttons a.prev {
+  background: url('../imgs/previous-black.png') no-repeat;
+  padding-right: 10px;
+}
+#datasheet .paging .buttons a.next {
+  background: url('../imgs/next-black.png') no-repeat;
 }
 #groups-list {
   background: #d5dbe1;

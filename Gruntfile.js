@@ -107,6 +107,20 @@ module.exports = function(grunt) {
           'src/js/vis/**/*.js'],
         dest: 'src/js/vis.js'
       }
+    },
+    watch: {
+      app: {
+        files: ['src/js/app/**/*.js'],
+        tasks: ['concat:app']
+      },
+      vis: {
+        files: ['src/js/vis/**/*.js'],
+        tasks: ['concat:vis']
+      },
+      less: {
+        files: ['src/css/*.less'],
+        tasks: ['less']
+      }
     }
   });
 
@@ -117,6 +131,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-githooks');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask('test', ['build', 'http-server:dev', 'protractor', 'jshint:dev', 'karma']);
   grunt.registerTask('build', ['less', 'concat']);

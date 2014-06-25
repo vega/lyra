@@ -227,7 +227,7 @@ vde.iVis = (function() {
     if(!ivis.dragging) return;
 
     var rootScope = ivis.ngScope();
-    var field = $(ivis.dragging).data('field') || $(ivis.dragging).find('.schema').data('field') || $(ivis.dragging).find('.schema').attr('field');
+    var field = $(ivis.dragging).data('field') || $(ivis.dragging).find('.schema').data('field');
     var scale = $(ivis.dragging).find('.scale').attr('scale');
     var pipelineName = rootScope.activePipeline.name;
 

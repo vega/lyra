@@ -3,7 +3,7 @@
 $headers = getallheaders();
 $url = $_GET['url'];
 
-if(strpos($headers['Referer'], 'http://idl.cs.washington.edu/projects/lyra/') === false) {
+if(strpos($headers['Referer'], 'http://localhost/lyra/') === false) {
   echo '[{ "error": "Error proxying script, did not originate from a Lyra URL" }]';
   return;
 }
