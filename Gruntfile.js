@@ -102,8 +102,9 @@ module.exports = function(grunt) {
       },
       vis: {
         // Order is important
-        src: ['src/js/vis/Vis.js', 'src/js/vis/Mark.js', 'src/js/vis/Transform.js', 
-          'src/js/vis/marks/Symbol.js', 'src/js/vis/marks/Line.js', 'src/js/vis/**/*.js'],
+        src: ['src/js/vis/Vis.js', 'src/js/vis/iVis.js', 'src/js/vis/Mark.js', 
+          'src/js/vis/Transform.js', 'src/js/vis/marks/Symbol.js', 'src/js/vis/marks/Line.js', 
+          'src/js/vis/**/*.js'],
         dest: 'src/js/vis.js'
       }
     }
