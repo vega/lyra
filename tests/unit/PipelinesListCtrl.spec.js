@@ -1,4 +1,4 @@
-describe('Pipelines List Controller', function() {
+describe('Pipelines Controller', function() {
   var scope, rootScope, timeline, vg, Vis, scale, pipeline, transform, ctrl;
 
   beforeEach(function() {
@@ -25,7 +25,7 @@ describe('Pipelines List Controller', function() {
     Vis.parse.and.returnValue($q.when({}));
     Vis.pipelines = {pipeline: pipeline};
 
-    ctrl = $controller('PipelinesListCtrl', {
+    ctrl = $controller('PipelinesCtrl', {
       $rootScope: rootScope,
       $scope: scope,
       timeline: timeline,

@@ -1,4 +1,4 @@
-vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, timeline, Vis, iVis) {
+vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline, Vis, iVis) {
   $scope.gMdl = { // General catch-all model for scoping
     pipelines: Vis.pipelines,
     editVis: false,
@@ -163,48 +163,5 @@ vde.App.controller('GroupsListCtrl', function($scope, $rootScope, $timeout, time
 
     if('update' in v) v.update(prop);
     else Vis.parse();
-  };
-});
-
-vde.App.controller('EditVisCtrl', function($scope, Vis) {
-  $scope.vis = Vis.properties;
-});
-
-vde.App.controller('GroupCtrl', function($scope, $rootScope, Vis) {
-  $rootScope.$watch('groupOrder', function() {
-    $scope.group = Vis.groups[$scope.layerName];
-  });
-
-  $rootScope.$watch(function($scope) {
-    return {
-      activeVisual: ($scope.activeVisual||{}).name,
-      activeGroup: ($scope.activeGroup||{}).name,
-      activeLayer: ($scope.activeLayer||{}).name
-    };
-  }, function() {
-    $scope.boundExtents = {};
-  }, true);
-
-  $scope.xExtents = [{label: 'Start', property: 'x'},
-    {label: 'Width', property: 'width'}, {label: 'End', property: 'x2'}];
-
-  $scope.yExtents = [{label: 'Start', property: 'y'},
-    {label: 'Height', property: 'height'}, {label: 'End', property: 'y2'}];
-});
-
-vde.App.controller('MarkCtrl', function($scope, $rootScope) {
-  $scope.$watch('group.marksOrder', function() {
-    $scope.mark = $scope.group.marks[$scope.markName];
-    if($scope.mark.type == 'group') $scope.group = $scope.mark;
-    else $scope.group = $scope.mark.group();
-  });
-
-  $scope.$watch('mark.pipelineName', function() {
-    $scope.pipeline = $scope.mark.pipeline();
-  });
-
-  $scope.click = function(mark) {
-    $rootScope.toggleVisual(mark);
-    $scope.gMdl.activeVisualPipeline = $scope.mark.pipelineName || '';
   };
 });

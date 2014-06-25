@@ -6,7 +6,7 @@
 
     <link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.10.3.custom.min.css" />
     <link rel="stylesheet" type="text/css" href="css/lib/jquery.dataTables.css">
-      <link rel="stylesheet" type="text/css" href="css/lib/colorpicker.css">
+    <link rel="stylesheet" type="text/css" href="css/lib/colorpicker.css">
 
     <script src="js/lib/jquery.min-1.9.0.js"></script>
     <script src="js/lib/jquery-migrate-1.2.1.js"></script>
@@ -21,56 +21,23 @@
     <script src="js/lib/d3.v3.min.js"></script>
     <script src="js/lib/vega-1.3.3.js"></script>
 
-    <!-- <script src="js/lib/vega.js"></script> -->
-
     <script src="js/lib/angular-1.2.10.min.js"></script>
     <script src="js/lib/bootstrap-colorpicker-module.js"></script>
     <script src="js/lib/inflector.js"></script>
     <script src="js/lib/sortable.js"></script>
     <script src="js/lib/indexeddb.js"></script>
 
-    <script src="js/app/vde.js"></script>
-    <script src="js/app/timeline.js"></script>
-    <script src="js/app/draggable.js"></script>
-    <script src="js/app/groups.js"></script>
-    <script src="js/app/inspectors.js"></script>
-    <script src="js/app/pipelines.js"></script>
-    <script src="js/app/data.js"></script>
-    <script src="js/app/export.js"></script>
-    <script src="js/app/services.js"></script>
-
-    <script src="js/vis/Vis.js"></script>
-    <script src="js/vis/iVis.js"></script>
-    <script src="js/vis/Callback.js"></script>
-    <script src="js/vis/Pipeline.js"></script>
-    <script src="js/vis/Field.js"></script>
-    <script src="js/vis/Mark.js"></script>
-    <script src="js/vis/marks/Group.js"></script>
-    <script src="js/vis/marks/Rect.js"></script>
-    <script src="js/vis/marks/Symbol.js"></script>
-    <script src="js/vis/marks/Arc.js"></script>
-    <script src="js/vis/marks/Line.js"></script>
+    <script src="js/vde.js"></script>
+    <script src="js/vis.js"></script>
+    <script src="js/app.js"></script>
     <script src="js/vis/marks/Area.js"></script>
-    <script src="js/vis/marks/Text.js"></script>
-    <script src="js/vis/Scale.js"></script>
-    <script src="js/vis/Axis.js"></script>
-    <script src="js/vis/Transform.js"></script>
-    <script src="js/vis/transforms/Sort.js"></script>
-    <script src="js/vis/transforms/Filter.js"></script>
-    <script src="js/vis/transforms/Formula.js"></script>
-    <script src="js/vis/transforms/Pie.js"></script>
-    <script src="js/vis/transforms/Facet.js"></script>
-    <script src="js/vis/transforms/Stack.js"></script>
-    <script src="js/vis/transforms/Geo.js"></script>
-    <script src="js/vis/transforms/Force.js"></script>
-    <script src="js/vis/transforms/Stats.js"></script>
-    <script src="js/vis/transforms/Window.js"></script>
+
   </head>
   <body ng-controller="VdeCtrl" ng-init="load()"  ng-click="clearBubbles();">
 
-    <ng-include src="'tmpl/pipelines-list.html'"></ng-include>
+    <ng-include src="'tmpl/pipelines.html'"></ng-include>
 
-    <ng-include src="'tmpl/groups-list.html'"></ng-include>
+    <ng-include src="'tmpl/layers.html'"></ng-include>
 
     <ng-include src="'tmpl/center.html'"></ng-include>
 

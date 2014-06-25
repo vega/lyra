@@ -109,7 +109,19 @@ module.exports = function(grunt) {
     },
     githooks: {
       all: {
-        'pre-commit': 'less'
+        'pre-commit': 'build'
+      }
+    },
+    concat: {
+      app: {
+        src: ['src/js/app/**/*.js'],
+        dest: 'src/js/app.js'
+      },
+      vis: {
+        // Order is important
+        src: ['src/js/vis/Vis.js', 'src/js/vis/Mark.js', 'src/js/vis/Transform.js', 
+          'src/js/vis/marks/Symbol.js', 'src/js/vis/marks/Line.js', 'src/js/vis/**/*.js'],
+        dest: 'src/js/vis.js'
       }
     }
   });
@@ -120,8 +132,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-githooks');
+  grunt.loadNpmTasks('grunt-contrib-concat');
 
   grunt.registerTask('test', ['build', 'http-server:dev', 'protractor', 'jshint:dev', 'karma']);
-  grunt.registerTask('build', ['less']);
+  grunt.registerTask('build', ['less', 'concat']);
   grunt.registerTask('serve', ['build', 'http-server:stay-open'])
 };

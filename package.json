@@ -29,7 +29,8 @@
     "grunt-karma": "~0.8.3",
     "karma-jasmine": "~0.2.0",
     "grunt-contrib-jshint": "~0.10.0",
-    "grunt-githooks": "~0.3.1"
+    "grunt-githooks": "~0.3.1",
+    "grunt-contrib-concat": "~0.4.0"
   },
   "jshintConfig": {
     "undef": true,
@@ -46,6 +47,6 @@
     ]
   },
   "scripts": {
-     "postinstall": "grunt githooks"
+    "postinstall": "grunt githooks"
   }
 }

@@ -1,4 +1,4 @@
-describe('GroupsList Controller', function() {
+describe('Layers Controller', function() {
   var rootScope, scope, timeout, timeline, Vis, iVis, ctrl;
 
   var layerGroup1, layerGroup2, group1, visual1;
@@ -41,7 +41,7 @@ describe('GroupsList Controller', function() {
     Vis.marks = {Group: jasmine.createSpy()};
     Vis.marks.Group.and.returnValue(layerGroup1);
 
-    ctrl = $controller('GroupsListCtrl', {
+    ctrl = $controller('LayersCtrl', {
       $rootScope: rootScope,
       $scope: scope,
       $timeout: timeout,
