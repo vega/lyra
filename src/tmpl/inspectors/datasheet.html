@@ -28,7 +28,7 @@
     <a ng-click="nextPage()" ng-class="{enabled: page+1 < size/limit}" class="next">Next</a>
   </p>
 
-  <p>{{page*limit+1 | number:0}}–{{ (size > page*limit+limit) ? page*limit+limit : size | number:0}} of {{size | number:0}}</p>
+  <p>{{page*limit+1 | number:0}}–{{ (size > page*limit+limit) ? page*limit+limit : size | number:0}} of {{size | number:0}} <span ng-show="facet">(from {{fullSize | number:0}})</span></p>
 </div>
 
 <br clear="all" />
