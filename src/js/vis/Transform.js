@@ -19,7 +19,7 @@ vde.Vis.Transform = (function() {
 
   var prototype = transform.prototype;
 
-  prototype.destroy = function() { return; }
+  prototype.destroy = function() { return; };
 
   prototype.pipeline = function() {
     return vde.Vis.pipelines[this.pipelineName];
@@ -53,14 +53,14 @@ vde.Vis.Transform = (function() {
     var spec = this.spec();
     if(!spec) return data;
 
-    var transform = vg.parse.dataflow({transform: [spec]})
+    var transform = vg.parse.dataflow({transform: [spec]});
     return transform(data);
   };
 
   // Can this transform work on facets (i.e. can it just be
   // part of the regular pipeline transform, or must we move it
   // within the group injection)
-  prototype.onFork = function() { return true; }
+  prototype.onFork = function() { return true; };
 
   return transform;
 })();

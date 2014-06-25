@@ -41,7 +41,7 @@ vde.Vis = (function() {
   };
 
   vis.addEventListener = function(type, caller, handler) {
-    vis.evtHandlers[type] || (vis.evtHandlers[type] = []);
+    if(!vis.evtHandlers[type]) vis.evtHandlers[type] = [];
     vis.evtHandlers[type].push({
       caller: caller,
       handler: handler
@@ -54,7 +54,7 @@ vde.Vis = (function() {
       if(r.caller == caller) del.push(i);
     });
 
-    del.forEach(function(d) { regd.splice(d, 1); })
+    del.forEach(function(d) { regd.splice(d, 1); });
   };
 
   vis.parse = function(inlinedValues) {
@@ -70,8 +70,8 @@ vde.Vis = (function() {
 
     vde.Vis.callback.run('vis.pre_spec', this, {spec: spec});
 
-    inlinedValues = (inlinedValues == null || inlinedValues == true);
-    rawSources = {};
+    inlinedValues = (inlinedValues === null || inlinedValues === undefined || inlinedValues === true);
+    var rawSources = {};
 
     var addRawSource = function(src) {
       if(!src || rawSources[src]) return;
@@ -182,7 +182,7 @@ vde.Vis = (function() {
     var scales = {}, deferred = vde.iVis.ngQ().defer();
 
     var className = function(n) {
-      return n.charAt(0).toUpperCase() + n.slice(1)
+      return n.charAt(0).toUpperCase() + n.slice(1);
     };
 
     var importProperties = function(a, b) {
@@ -214,7 +214,7 @@ vde.Vis = (function() {
         var axis = new vde.Vis.Axis(axisName, a.layerName, a.groupName);
         axis.init();
         axis.import(a);
-      };
+      }
 
       for(var markName in g.marks) {
         var m = g.marks[markName];
@@ -224,7 +224,7 @@ vde.Vis = (function() {
           mark.init();
           mark.import(m);
         }
-      };
+      }
 
       importProperties(group, g);
     };
@@ -253,7 +253,7 @@ vde.Vis = (function() {
       });
 
       importProperties(pipeline, p);
-    };
+    }
 
     for(var layerName in spec.groups) {
       importGroups(spec.groups[layerName]);
@@ -274,7 +274,7 @@ vde.Vis = (function() {
     if(p.disabled) return;
 
     for(var k in p) {
-      if(p[k] == undefined) return;
+      if(p[k] === undefined || p[k] === null) return;
 
       if(k == 'scale') { parsed[k] = p[k].name; p[k].used = true; }
       else if(k == 'field') parsed[k] = p[k].spec();
@@ -289,7 +289,7 @@ vde.Vis = (function() {
           parsed[k] = value;
         }
       }
-    };
+    }
 
     return parsed;
   };
@@ -370,7 +370,7 @@ vde.iVis = (function() {
       padding: vde.Vis.view._padding
     };
 
-    spec.data = interactors.map(function(i) { return {name: i, values: [] }});
+    spec.data = interactors.map(function(i) { return {name: i, values: [] }; });
     spec.scales = [{
       name: 'size',
       type: 'quantize',
@@ -417,7 +417,7 @@ vde.iVis = (function() {
           icanvas.on('mousemove', function() {
             dispatchEvent();
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
-          })
+          });
         } else if(type.indexOf('key') != -1) {
           d3.select('body').on(type, function() {
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
@@ -462,7 +462,7 @@ vde.iVis = (function() {
                     if(lineSegment.span.indexOf(item.property + '_') != -1) 
                       items.push(lineSegment);
                   });
-                })
+                });
               }
 
               return items;
@@ -546,7 +546,7 @@ vde.iVis = (function() {
       $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
-      if(!visual) visual = {}
+      if(!visual) visual = {};
       if(visual.layerName) rootScope.toggleVisual(visual, null, true);
       ivis.ngTimeline().save();
     });
@@ -605,7 +605,7 @@ vde.iVis = (function() {
           connector: {field: 'data.connector'}
         }
       }
-    }
+    };
   };
 
   ivis.connector = function() {
@@ -638,7 +638,7 @@ vde.iVis = (function() {
           strokeWidth: {value: 1}
         }
       }
-    }
+    };
   };
 
   ivis.connection = function() {
@@ -662,7 +662,7 @@ vde.iVis = (function() {
           }
         }
       }]
-    }
+    };
   };
 
   ivis.point = function() {
@@ -714,7 +714,7 @@ vde.iVis = (function() {
           }
         }
       }]
-    }
+    };
   };
 
   ivis.dropzone = function() {
@@ -743,7 +743,7 @@ vde.iVis = (function() {
           fill: {value: 'lightsalmon'}
         }
       }
-    }
+    };
   };
 
   ivis.scale = function(scale, spec) {
@@ -764,7 +764,7 @@ vde.iVis = (function() {
     var title = scale.field() ? inflector(scale.field().name) : scale.displayName;
 
     if(scale.rangeTypes.type == 'spatial') {
-      spec.axes || (spec.axes = []);
+      if(!spec.axes) spec.axes = [];
       spec.axes.push({
         type: scale.axisType,
         orient: scale.axisType == 'x' ? 'bottom' : 'left',
@@ -794,7 +794,7 @@ vde.iVis = (function() {
       '<div class="tooltip-inner">' + (hint || property) + '</div></div>');
     $('body').append(tooltip);
     var b = ivis.translatedBounds(dropzone, dropzone.bounds);
-
+    var coords;
     if(dropzone.layout == 'horizontal') {
       coords = ivis.translatedCoords({x: b.x2, y: b.y1 + b.height()/2});
       coords.y -= tooltip.height()/2;
@@ -812,7 +812,7 @@ vde.iVis = (function() {
   // From vg.canvas.Renderer
   ivis.translatedBounds = function(item, bounds) {
     var b = new vg.Bounds(bounds);
-    while ((item = item.mark.group) != null) {
+    while ((item = item.mark.group) !== null && item !== undefined) {
       b.translate(item.x || 0, item.y || 0);
     }
     return b;
@@ -829,7 +829,7 @@ vde.iVis = (function() {
   };
 
   ivis.ngScope = function() {
-    return $('html').injector().get('$rootScope')
+    return $('html').injector().get('$rootScope');
   };
 
   ivis.ngTimeline = function() {
@@ -927,7 +927,7 @@ vde.Vis.Mark = (function() {
       if(!m.group()) return;
 
       m.group().items().map(function(i) {
-        if(i.strokeWidth != 0) return;
+        if(i.strokeWidth !== 0) return;
         i.stroke = '#aaaaaa';
         i.strokeWidth = 1;
         i.strokeDash = [1.5, 3];
@@ -1000,10 +1000,12 @@ vde.Vis.Mark = (function() {
     vde.Vis.callback.run('mark.pre_spec', this, {spec: spec});
 
     spec.name = this.name;
-    spec.type || (spec.type = this.type);
-    spec.from || (spec.from = {});
+    if(!spec.type) spec.type = this.type;
+    if(!spec.from) spec.from = {};
 
-    if(this.pipeline()) spec.from.data || (spec.from.data = this.pipeline().name);
+    if(this.pipeline()) {
+       if(!spec.from.data) spec.from.data = this.pipeline().name;
+    }
 
     var enter = spec.properties.enter;
     for(var prop in this.properties)
@@ -1179,7 +1181,7 @@ vde.Vis.Mark = (function() {
       var e = this.extents[ext], p = this.properties[prop];
       if(e.fields.indexOf(prop) == -1) continue;
 
-      var check = e.fields.reduce(function(c, f) { return (self.properties[f] || {}).scale ? c : c.concat([f]) }, []);
+      var check = e.fields.reduce(function(c, f) { return (self.properties[f] || {}).scale ? c : c.concat([f]); }, []);
       var hist  = e.history || (e.history = []);
       if(hist.indexOf(prop) != -1) hist.splice(hist.indexOf(prop), 1);
       delete p.disabled;
@@ -1274,7 +1276,7 @@ vde.Vis.Mark = (function() {
     for(var p = 0; p < parents.length; p++)
       this._items = this._items.concat(visit(parents[p]));
 
-    while(this._items.length == 0) {
+    while(this._items.length === 0) {
       // If we've found no items in the group, there must be
       // group injection going on. So first find those groups
       // and use them as parents
@@ -1288,7 +1290,7 @@ vde.Vis.Mark = (function() {
       parents = groups;
       // If we've recursed all the way up to the root of the tree
       // then this mark probably doesn't have any rendered items.
-      if(parents.length == 0) break;
+      if(parents.length === 0) break;
     }
 
     for(var i = 0; i < this._items.length; i++) this._items[i].vdeKey = i;
@@ -1308,7 +1310,7 @@ vde.Vis.Mark = (function() {
 
   prototype.export = function() {
     // Export w/o the circular structure
-    if(!this._def && this._items.length == 0 && !this.connectedTo.host)
+    if(!this._def && this._items.length === 0 && !this.connectedTo.host)
         return vg.duplicate(this);
 
     var def = this.def(), items = this.items(), connectedTo = this.connectedTo.host;
@@ -1340,19 +1342,19 @@ vde.Vis.Mark = (function() {
     this.layerName = imp.layerName;
   };
 
-  prototype.defaults = function(prop) { return null; }
+  prototype.defaults = function(prop) { return null; };
 
-  prototype.selected = function() { return {}; }
-  prototype.helper   = function(property) { return null; }
+  prototype.selected = function() { return {}; };
+  prototype.helper   = function(property) { return null; };
 
-  prototype.propertyTargets   = function(connector, showGroup) { return null; }
-  prototype.connectionTargets = function() { return null; }
+  prototype.propertyTargets   = function(connector, showGroup) { return null; };
+  prototype.connectionTargets = function() { return null; };
 
-  prototype.connect = function(connector, mark) { return null; }
+  prototype.connect = function(connector, mark) { return null; };
 
-  prototype.coordinates = function(connector, item, def) { return null; }
-  prototype.handles = function(item) { return null; }
-  prototype.spans = function(item, property) { return null; }
+  prototype.coordinates = function(connector, item, def) { return null; };
+  prototype.handles = function(item) { return null; };
+  prototype.spans = function(item, property) { return null; };
 
   prototype.dropzones = function(area) {
     if(area.connector) {
@@ -1362,7 +1364,7 @@ vde.Vis.Mark = (function() {
         connector: area.connector,
         property: area.property,
         layout: 'point'
-      }
+      };
     } else {
       if(area[0].x == area[1].x)
         return {
@@ -1370,14 +1372,14 @@ vde.Vis.Mark = (function() {
           y: area[0].y, y2: area[1].y,
           property: area[0].span.split('_')[0],
           layout: 'vertical'
-        }
+        };
       else if(area[0].y == area[1].y)
         return {
           x: area[0].x, x2: area[1].x,
           y: area[0].y-2*geomOffset, y2: area[0].y+2*geomOffset,
           property: area[0].span.split('_')[0],
           layout: 'horizontal'
-        }
+        };
     }
   };
 
@@ -1406,7 +1408,7 @@ vde.Vis.Transform = (function() {
 
   var prototype = transform.prototype;
 
-  prototype.destroy = function() { return; }
+  prototype.destroy = function() { return; };
 
   prototype.pipeline = function() {
     return vde.Vis.pipelines[this.pipelineName];
@@ -1440,14 +1442,14 @@ vde.Vis.Transform = (function() {
     var spec = this.spec();
     if(!spec) return data;
 
-    var transform = vg.parse.dataflow({transform: [spec]})
+    var transform = vg.parse.dataflow({transform: [spec]});
     return transform(data);
   };
 
   // Can this transform work on facets (i.e. can it just be
   // part of the regular pipeline transform, or must we move it
   // within the group injection)
-  prototype.onFork = function() { return true; }
+  prototype.onFork = function() { return true; };
 
   return transform;
 })();
@@ -1533,9 +1535,9 @@ vde.Vis.marks.Symbol = (function() {
       if(vde.iVis.activeMark != self) return;
 
       var handle = (dragging.item.mark.def.name == 'handle'),
-          dx = Math.ceil(evt.pageX - dragging.prev[0]),
-          dy = Math.ceil(evt.pageY - dragging.prev[1]),
-          data = dragging.item.datum.data;
+          dx = Math.ceil(evt.pageX - dragging.prev[0]);
+          //dy = Math.ceil(evt.pageY - dragging.prev[1]),
+          //data = dragging.item.datum.data;
 
       if(!handle) return;
 
@@ -1554,9 +1556,9 @@ vde.Vis.marks.Symbol = (function() {
       if(self.iVisUpdated)
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();
-        })
+        });
 
-      delete self.iVisUpdated
+      delete self.iVisUpdated;
     };
 
     vde.iVis.interactor('handle', this.handles(item));
@@ -1614,8 +1616,7 @@ vde.Vis.marks.Symbol = (function() {
   };
 
   prototype.connect = function(connector, mark) {
-    var self = this,
-        props = this.properties, mProps = mark.properties,
+    var props = this.properties, mProps = mark.properties,
         ox = mProps.dx.offset, oy = mProps.dy.offset;
 
     mark.pipelineName = this.pipelineName;
@@ -1647,8 +1648,7 @@ vde.Vis.marks.Symbol = (function() {
   };
 
   prototype.handles = function(item) {
-    var b = vde.iVis.translatedBounds(item, item.bounds),
-        pt = this.connectors['point'].coords(item, {disabled: 0});
+    var pt = this.connectors['point'].coords(item, {disabled: 0});
 
     if(this.properties.size.field) pt.disabled = 1;
 
@@ -1665,18 +1665,16 @@ vde.Vis.marks.Symbol = (function() {
     switch(property) {
       case 'x':
         return [{x: (gb.x1-go), y: (pt.y+io), span: 'x_0'}, {x: pt.x, y: (pt.y+io), span: 'x_0'}];
-      break;
 
-      case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
-        [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
-      :
-        [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
-      break;
+      case 'y':
+        return (props.y.scale && props.y.scale.range().name == 'height') ?
+          [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
+        :
+          [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}];
 
       case 'size':
         return [{x: b.x1, y: b.y1-io, span: 'size_0'}, {x: b.x2, y: b.y1-io, span: 'size_0'},
         {x: b.x2+io, y: b.y1, span: 'size_1'}, {x: b.x2+io, y: b.y2, span: 'size_1'}];
-      break;
     }
   };
 
@@ -1774,17 +1772,17 @@ vde.Vis.marks.Line = (function() {
         self.update(['x', 'y']);
         self.iVisUpdated = true;
       });
-    }
+    };
 
-    var enabled = (this.type == 'rule' && !props.x.field && !props.y.field)
+    var enabled = (this.type == 'rule' && !props.x.field && !props.y.field);
 
     var mouseup = function() {
       if(self.iVisUpdated)
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();
-        })
+        });
 
-      delete self.iVisUpdated
+      delete self.iVisUpdated;
     };
 
     return {
@@ -1920,7 +1918,7 @@ vde.Vis.Axis = (function() {
     return this;
   };
 
-  prototype.destroy = function() { return null; }
+  prototype.destroy = function() { return null; };
 
   prototype.spec = function() {
     var spec = {}, self = this;
@@ -1935,7 +1933,7 @@ vde.Vis.Axis = (function() {
 
     vg.keys(this.properties).forEach(function(k) {
       var p = self.properties[k];
-      if(p == undefined) return;
+      if(p === undefined || p === null) return;
 
       if(k == 'scale') { spec[k] = p.name; p.used = true; }
       else if(k.indexOf('Style') != -1) return;
@@ -1958,7 +1956,7 @@ vde.Vis.Axis = (function() {
     };
 
     if(spec.properties.labels.text &&
-        Object.keys(spec.properties.labels.text).length == 0)
+        Object.keys(spec.properties.labels.text).length === 0)
       delete spec.properties.labels.text;
 
     if(spec.properties.labels.text && spec.properties.labels.text.scale)
@@ -2009,7 +2007,7 @@ vde.Vis.Axis = (function() {
     delete this.properties[prop];
   };
 
-  prototype.selected = function() { return {}; }
+  prototype.selected = function() { return {}; };
 
   prototype.import = function(imp) {
     // Force an assignment of these two in case groupName is null.
@@ -2028,7 +2026,7 @@ vde.Vis.callback = (function() {
 	};
 
 	callback.register = function(type, caller, cb) {
-		this._registered[type] || (this._registered[type] = []);
+		if(!this._registered[type]) this._registered[type] = [];
 		this._registered[type].push({
 			caller: caller,
 			callback: cb
@@ -2041,7 +2039,7 @@ vde.Vis.callback = (function() {
 			if(r.caller == caller) del.push(i);
 		});
 
-		del.forEach(function(d) { regd.splice(d, 1); })
+		del.forEach(function(d) { regd.splice(d, 1); });
 	};
 
 	callback.run = function(type, item, opts) {
@@ -2128,7 +2126,7 @@ vde.Vis.Pipeline = (function() {
 
       if(t.forkPipeline) {
         spec++;
-        self.forkName || (self.forkName = self.name + '_' + t.type);
+        if(!self.forkName) self.forkName = self.name + '_' + t.type;
         self.forkIdx = i;
 
         specs.push({
@@ -2198,11 +2196,11 @@ vde.Vis.Pipeline = (function() {
       else {
         [data[0].data, data[0]].forEach(function(v, i) {
           vg.keys(v).forEach(function(k) {
-            if(i != 0 && ['data', 'values', 'keys', 'stats'].indexOf(k) != -1) return;
+            if(i !== 0 && ['data', 'values', 'keys', 'stats'].indexOf(k) != -1) return;
             if(k == 'key') k += '_' + depth;
             if(seenFields[k]) return;
 
-            var field = new vde.Vis.Field(k, (i == 0) ? 'data.' : '');
+            var field = new vde.Vis.Field(k, (i === 0) ? 'data.' : '');
             field.pipelineName = pipeline;
             if(parse[k]) field.type = (parse[k] == 'date') ? 'time' : (parse[k] == 'number') ? 'linear' : 'ordinal';
             else field.type = vg.isNumber(v[k]) ? 'linear' : 'ordinal';
@@ -2278,7 +2276,7 @@ vde.Vis.Pipeline = (function() {
           return true;
         }
         return false;
-      }
+      };
       vg.keys(t.properties).some(function(k) {
         var f = t.properties[k];
         if(f instanceof vde.Vis.Field) return checkField(f);
@@ -2350,8 +2348,8 @@ vde.Vis.Scale = (function() {
     spec.name = this.name;
 
     var field = this.domainField;
-    spec.domain = (this.domainTypes.from == 'field' && field)
-      ? { data:  field.stat ? field.pipeline().forkName : field.pipelineName,
+    spec.domain = (this.domainTypes.from == 'field' && field) ? 
+      { data:  field.stat ? field.pipeline().forkName : field.pipelineName,
           field: field.stat ? field.spec().replace('stats.','') : field.spec() }
       : this.domainValues;
     spec.inheritFromGroup = this.inheritFromGroup;  // Easiest way of picking this up in group injection
@@ -2392,7 +2390,7 @@ vde.Vis.Scale = (function() {
         a[k] = isObj ? {} : self[k];
         if(isObj) aFromB(a[k], b[k], self[k]);
       }
-    }
+    };
 
     aFromB(a, b, this);
 
@@ -2447,12 +2445,12 @@ vde.Vis.marks.Arc = (function() {
     // angles are in radians
     var props = this.properties;
     if(!props.startAngle.field) {
-      spec.startAngle || (spec.startAngle = {});
+      if(!spec.startAngle) spec.startAngle = {};
       spec.startAngle.value = props.startAngle.value / 180 * Math.PI;
     }
 
     if(!props.endAngle.field) {
-      spec.endAngle || (spec.endAngle = {});
+      if(!spec.endAngle) spec.endAngle = {};
       spec.endAngle.value = props.endAngle.value / 180 * Math.PI;
     }
 
@@ -2534,7 +2532,7 @@ vde.Vis.marks.Area = (function() {
   };
 
   prototype.selected = function() { return line.selected.call(this); };
-  prototype.helper = function(property) { return line.helper.call(this, property); }
+  prototype.helper = function(property) { return line.helper.call(this, property); };
   prototype.propertyTargets = function(connector, showGroup) {
     return line.propertyTargets.call(this, connector, showGroup);
   };
@@ -2543,7 +2541,7 @@ vde.Vis.marks.Area = (function() {
     return line.coordinates.call(this, connector, item, def);
   };
 
-  prototype.spans = function(item, property) { return line.spans.call(this, item, property); }
+  prototype.spans = function(item, property) { return line.spans.call(this, item, property); };
 
   return area;
 })();
@@ -2599,7 +2597,6 @@ vde.Vis.marks.Group = (function() {
   var prototype = group.prototype;
 
   prototype.init = function() {
-    var self = this;
     if(this.isLayer()) {
       vde.Vis.groups[this.name] = this;
       vde.Vis.groupOrder.push(this.name);
@@ -2621,7 +2618,7 @@ vde.Vis.marks.Group = (function() {
     if(layout) vde.Vis.parse();
 
     return this;
-  }
+  };
 
   prototype.spec = function() {
     var self = this;
@@ -2684,7 +2681,7 @@ vde.Vis.marks.Group = (function() {
 
   prototype.export = function() {
     // Export w/o circular structure in marks
-    if(!this._def && this._items.length == 0) return vg.duplicate(this);
+    if(!this._def && this._items.length === 0) return vg.duplicate(this);
     var marks = this.marks, def = this.def(), items = this.items();
 
     // We save it to _marks in case of nested groups, which need to stick
@@ -2699,12 +2696,12 @@ vde.Vis.marks.Group = (function() {
     this.marks = this._marks;
     delete this._marks;
 
-    var ex = vg.duplicate(this);
+    var exported = vg.duplicate(this);
     this.marks = marks;
     this._def = def;
     this._items = items;
 
-    return ex;
+    return exported;
   };
 
   prototype.isLayer = function() {
@@ -2738,7 +2735,7 @@ vde.Vis.marks.Group = (function() {
         if(fromProp.hasOwnProperty('value')) self.properties[prop].value = fromProp.value;
         if(fromProp.disabled) self.properties[prop].disabled = fromProp.disabled;
       });
-    }
+    };
 
     if(layout == facet.layout_overlap) {
       copyFromLayer(['x', 'width', 'x2', 'y', 'height', 'y2']);
@@ -2789,7 +2786,7 @@ vde.Vis.marks.Group = (function() {
 
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();
-        })
+        });
       }
     };
 
@@ -2915,7 +2912,7 @@ vde.Vis.marks.Rect = (function() {
     // property.
     if(!scale && !this.properties[prop].inferred && props.indexOf(prop) != -1)
       props.some(function(p) {
-        if(scale = self.properties[p].scale) {
+        if( (scale = self.properties[p].scale) ) {
           self.properties[prop].inferred = true;
           self.inferredHints[prop] = {
             hint: "Lyra inferred this binding and chose to re-use a scale.",
@@ -2995,11 +2992,12 @@ vde.Vis.marks.Rect = (function() {
           props[prop] = {value: item[prop] + delta};
           self.iVisUpdated = true;
         }
-      }
+      };
 
       vde.iVis.ngScope().$apply(function() {
+        var reverse;
         if(data.connector.indexOf('top') != -1) {
-          var reverse = (props.y.scale &&
+          reverse = (props.y.scale &&
               props.y.scale.range().name == 'height') ? -1 : 1;
 
           updateValue('y', dy*reverse);
@@ -3008,7 +3006,7 @@ vde.Vis.marks.Rect = (function() {
         }
 
         if(data.connector.indexOf('bottom') != -1) {
-          var reverse = (props.y2.scale &&
+          reverse = (props.y2.scale &&
               props.y2.scale.range().name == 'height') ? -1 : 1;
 
           updateValue('y2', dy*reverse);
@@ -3037,7 +3035,7 @@ vde.Vis.marks.Rect = (function() {
       if(self.iVisUpdated)
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();
-        })
+        });
     };
 
     return {
@@ -3059,7 +3057,7 @@ vde.Vis.marks.Rect = (function() {
       case 'y': propConnectors = [c['top-left'].coords(item), c['top-right'].coords(item)]; break;
       case 'y2': propConnectors = [c['bottom-left'].coords(item), c['bottom-right'].coords(item)]; break;
       case 'height': propConnectors = [c['top-left'].coords(item), c['bottom-left'].coords(item)]; break;
-    };
+    }
 
     vde.iVis.interactor('point', propConnectors)
       .interactor('span', this.spans(item, property))
@@ -3078,7 +3076,7 @@ vde.Vis.marks.Rect = (function() {
     };
 
     if(connector) props = connToSpan[connector].props;
-    if(props.length == 0) props = ['width', 'height'];
+    if(props.length === 0) props = ['width', 'height'];
 
     if(showGroup) {
       var groupInteractors = this.group().propertyTargets();
@@ -3087,9 +3085,9 @@ vde.Vis.marks.Rect = (function() {
     }
 
     props.forEach(function(prop) {
-      var span = self.spans(item, prop)
+      var span = self.spans(item, prop);
 
-      if(connector != null && connToSpan[connector])
+      if(connector !== null && connector !== undefined && connToSpan[connector])
         span = span.reduce(function(acc, s) {
           // Offset dropzones for top-left connector to prevent overlaps
           if(connector == 'top-left' && prop == 'x') s.y += 2*geomOffset;
@@ -3136,7 +3134,7 @@ vde.Vis.marks.Rect = (function() {
         item  = this.item(vde.iVis.activeItem);
 
     var connectors = vg.keys(this.connectors).map(function(c) { return self.connectors[c].coords(item); });
-    connectors.sort(function(a, b) { return a.connector.indexOf('center') ? 1 : -1 });
+    connectors.sort(function(a) { return a.connector.indexOf('center') ? 1 : -1; });
     var dropzones  = connectors.map(function(c) { return self.dropzones(c); });
 
     vde.iVis.interactor('connector', connectors)
@@ -3145,8 +3143,7 @@ vde.Vis.marks.Rect = (function() {
   };
 
   prototype.connect = function(connector, mark) {
-    var self = this,
-        props = this.properties, mProps = mark.properties,
+    var props = this.properties, mProps = mark.properties,
         ox = mProps.dx.offset, oy = mProps.dy.offset;
 
     var setProp = function(p1, p2) {
@@ -3222,8 +3219,7 @@ vde.Vis.marks.Rect = (function() {
   };
 
   prototype.handles = function(item) {
-    var self = this,
-        props = this.properties,
+    var props = this.properties,
         handles = {};
 
     for(var c in this.connectors)
@@ -3233,9 +3229,9 @@ vde.Vis.marks.Rect = (function() {
 
     var checkExtents = function(extents, hndls) {
       var count = 0;
-      extents.forEach(function(e) { if(props[e].field) count++ });
+      extents.forEach(function(e) { if(props[e].field) count++; });
       if(count > 2) hndls.forEach(function(h) { handles[h].disabled = 1; });
-    }
+    };
 
     checkExtents(['y', 'y2', 'height'], ['top-center', 'bottom-center']);
     if(props.y.field) handles['top-center'].disabled = 1;
@@ -3271,35 +3267,33 @@ vde.Vis.marks.Rect = (function() {
       case 'x':
         return [{x: (gb.x1-go), y: (b.y1-io), span: 'x_0'}, {x: b.x1, y: (b.y1-io), span: 'x_0'},
          {x: (gb.x1-go), y: (b.y2+io), span: 'x_1'}, {x: b.x1, y: (b.y2+io), span: 'x_1'}];
-      break;
 
       case 'x2':
         return [{x: (gb.x1-go), y: (b.y1-io), span: 'x2_0'}, {x: b.x2, y: (b.y1-io), span: 'x2_0'},
          {x: (gb.x1-go), y: (b.y2+io), span: 'x2_1'}, {x: b.x2, y: (b.y2+io), span: 'x2_1'}];
-      break;
 
-      case facet.dropzone_horiz:
-      case 'width': return [{x: b.x1, y: (b.y1-io), span: property + '_0'}, {x: b.x2, y: (b.y1-io), span: property + '_0'}]; break;
+      case facet.dropzone_horiz: /* falls through */
+      case 'width': return [{x: b.x1, y: (b.y1-io), span: property + '_0'}, {x: b.x2, y: (b.y1-io), span: property + '_0'}];
 
-      case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
-        [{x: (b.x1-io), y: (gb.y2+go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
-         {x: (b.x2+io), y: (gb.y2+go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}]
-      :
+      case 'y':
+        return (props.y.scale && props.y.scale.range().name == 'height') ?
+          [{x: (b.x1-io), y: (gb.y2+go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
+           {x: (b.x2+io), y: (gb.y2+go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}]
+        :
         [{x: (b.x1-io), y: (gb.y1-go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
          {x: (b.x2+io), y: (gb.y1-go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}];
-      break;
 
-      case 'y2': return (props.y2.scale && props.y2.scale.range().name == 'height') ?
-        [{x: (b.x1-io), y: (gb.y2+go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
-         {x: (b.x2+io), y: (gb.y2+go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}]
-      :
-        [{x: (b.x1-io), y: (gb.y1-go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
-         {x: (b.x2+io), y: (gb.y1-go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}];
-      break;
+      case 'y2': 
+        return (props.y2.scale && props.y2.scale.range().name == 'height') ?
+          [{x: (b.x1-io), y: (gb.y2+go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
+           {x: (b.x2+io), y: (gb.y2+go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}]
+        :
+          [{x: (b.x1-io), y: (gb.y1-go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
+           {x: (b.x2+io), y: (gb.y1-go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}];
 
-      case facet.dropzone_vert:
-      case 'height': return [{x: (b.x1-io), y: b.y1, span: property + '_0'}, {x: (b.x1-io), y: b.y2, span: property + '_0'}]; break;
-    };
+      case facet.dropzone_vert: /* falls through */
+      case 'height': return [{x: (b.x1-io), y: b.y1, span: property + '_0'}, {x: (b.x1-io), y: b.y2, span: property + '_0'}];
+    }
   };
 
   return rect;
@@ -3381,7 +3375,7 @@ vde.Vis.marks.Text = (function() {
     }
 
     return vde.Vis.Mark.prototype.update.call(this, prop);
-  }
+  };
 
   prototype.productionRules = function(prop, scale, field) {
     if(prop == 'text') {
@@ -3435,7 +3429,7 @@ vde.Vis.marks.Text = (function() {
     return [scale, field];
   };
 
-  prototype.checkExtents = function(prop) {
+  /* prototype.checkExtents = function(prop) {
     var p = this.properties;
 
     // if(p.align.value == 'center') p.dx.disabled = true;
@@ -3443,13 +3437,13 @@ vde.Vis.marks.Text = (function() {
 
     // if(p.baseline.value == 'middle') p.dy.disabled = true;
     // else delete p.dy.disabled;
-  };
+  }; */
 
   prototype.selected = function() {
     var self = this,
         item = this.item(vde.iVis.activeItem),
         props = this.properties, conn = this.connectedTo,
-        connector = null, connections = [];
+        connector = null;
 
     var mousemove = function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
@@ -3506,9 +3500,9 @@ vde.Vis.marks.Text = (function() {
       if(self.iVisUpdated)
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();
-        })
+        });
 
-      delete self.iVisUpdated
+      delete self.iVisUpdated;
     };
 
     var keydown = function() {
@@ -3588,16 +3582,16 @@ vde.Vis.marks.Text = (function() {
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
     if(!item) return {x: 0, y: 0};  // If we've filtered everything out.
-    var coord = {};
+    var coord = {}, b;
 
     if(connector == 'text') {
-      var b  = vde.iVis.translatedBounds(item,
+      b  = vde.iVis.translatedBounds(item,
           new vg.Bounds({x1: item.x, x2: item.x, y1: item.y, y2: item.y}));
       coord = {x: b.x1, y: b.y1, cursor: 'move'};
 
       if(this.connectedTo.host) { coord.x += item.dx; coord.y += item.dy; }
     } else {
-      var b = new vg.Bounds();
+      b = new vg.Bounds();
       vg.scene.bounds.text(item, b, true);  // Calculate text bounds w/o rotating
       b.rotate(item.angle*Math.PI/180, item.x||0, item.y||0);
       b = vde.iVis.translatedBounds(item, b);
@@ -3614,9 +3608,7 @@ vde.Vis.marks.Text = (function() {
   };
 
   prototype.handles = function(item) {
-    var props = this.properties,
-        b = vde.iVis.translatedBounds(item, item.bounds),
-        left = this.connectors.left.coords(item, {disabled: 0}),
+    var left = this.connectors.left.coords(item, {disabled: 0}),
         right = this.connectors.right.coords(item, {disabled: 0});
 
     return [left, right];
@@ -3624,7 +3616,6 @@ vde.Vis.marks.Text = (function() {
 
   prototype.spans = function(item, property) {
     var props = this.properties,
-        b  = vde.iVis.translatedBounds(item, item.bounds),
         gb = vde.iVis.translatedBounds(item.mark.group, item.mark.group.bounds),
         go = 3*geomOffset, io = geomOffset,
         pt = this.connectors['text'].coords(item),
@@ -3633,21 +3624,17 @@ vde.Vis.marks.Text = (function() {
     switch(property) {
       case 'x':
         return [{x: (gb.x1-go), y: (pt.y+io), span: 'x_0'}, {x: pt.x, y: (pt.y+io), span: 'x_0'}];
-      break;
 
-      case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
-        [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
-      :
-        [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
-      break;
-
+      case 'y': 
+        return (props.y.scale && props.y.scale.range().name == 'height') ?
+          [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
+        :
+          [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}];
       case 'dx':
         return [{x: pt.x, y: (pt.y+io), span: 'dx_0'}, {x: pt.x + dx, y: (pt.y+io), span: 'dx_0'}];
-      break;
 
       case 'dy':
         return [{x: (pt.x+io), y: pt.y, span: 'dy_0'}, {x: (pt.x+io), y: (pt.y+dy), span: 'dy_0'}];
-      break;
 
       case 'connection':
         if(!this.connectedTo.host) return [];
@@ -3656,7 +3643,6 @@ vde.Vis.marks.Text = (function() {
         var connector = conn.host.connectors[conn.connector].coords(hostItem);
         var textConnector = this.connectors.text.coords(item);
         return [{x: connector.x, y: connector.y, span: 'connection_0'}, {x: textConnector.x, y: textConnector.y, span: 'connection_0'}];
-      break;
     }
   };
 
@@ -3755,7 +3741,7 @@ vde.Vis.transforms.Facet = (function() {
     return spec;
   };
 
-  prototype.groupName = function() { return this.pipelineName + '_facet'; }
+  prototype.groupName = function() { return this.pipelineName + '_facet'; };
 
   prototype.bindProperty = function(prop, opts) {
     var field = opts.field, props = this.properties;
@@ -3763,14 +3749,14 @@ vde.Vis.transforms.Facet = (function() {
     if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
 
     if(prop == 'keys') {
-      props.keys || (props.keys = []);
+      if(!props.keys) props.keys = [];
       props.keys.push(field);
     } else this.properties[prop] = field;
   };
 
   prototype.pipelinePostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(this.properties.keys.length == 0) return;
+    if(this.properties.keys.length === 0) return;
     if(opts.item.name != this.pipelineName) return;
 
     // Grab the transforms that must work within each facet, and them to our group
@@ -3781,7 +3767,7 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.groupPreSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(this.properties.keys.length == 0) return;
+    if(this.properties.keys.length === 0) return;
 
     if(opts.item.isLayer()) {
       this._layer(opts.item);
@@ -3794,15 +3780,16 @@ vde.Vis.transforms.Facet = (function() {
   // marked to inherit their data from the facet group.
   prototype.groupPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(this.properties.keys.length == 0) return;
+    if(this.properties.keys.length === 0) return;
     if(opts.item.name != this.groupName()) return;
 
-    for(var i = 0; i < opts.spec.marks.length; i++) {
+    var i;
+    for(i = 0; i < opts.spec.marks.length; i++) {
       var m = opts.spec.marks[i];
       if(m.from.data == this.pipelineName) delete m.from.data;
     }
 
-    for(var i = 0; i < opts.spec.scales.length; i++) {
+    for(i = 0; i < opts.spec.scales.length; i++) {
       var s = opts.spec.scales[i];
       if(s.inheritFromGroup) {
         delete s.domain.from;
@@ -3813,12 +3800,12 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.markPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(this.properties.keys.length == 0) return;
+    if(this.properties.keys.length === 0) return;
     if(opts.item.pipelineName != this.pipelineName) return;
     if(opts.item.type == 'group') return;
 
     var spec = opts.spec;
-    spec.from.transform || (spec.from.transform = []);
+    if(!spec.from.transform) spec.from.transform = [];
     spec.from.transform = spec.from.transform.concat(this._transforms);
     if(opts.item.oncePerFork) {
       spec.from.transform.push({
@@ -3833,7 +3820,7 @@ vde.Vis.transforms.Facet = (function() {
     if(!group) {
       group = new vde.Vis.marks.Group(this.groupName(), layer.name);
       group.displayName = 'Group By: ' +
-          this.properties.keys.map(function(f) { return f.name }).join(", ");
+          this.properties.keys.map(function(f) { return f.name; }).join(", ");
       group.pipelineName = this.pipelineName;
       group.doLayout(this.properties.layout || facet.layout_horiz); // By default split horizontally
     }
@@ -3899,7 +3886,7 @@ vde.Vis.transforms.Facet = (function() {
       if(scale.range().name == 'width' || scale.range().name == 'height')
         this._addToGroup('scales', scale, layer);
     }
-  }
+  };
 
   return facet;
 })();
@@ -3910,7 +3897,7 @@ vde.Vis.transforms.Filter = (function() {
     this.exprFields = [];
 
     return this;
-  }
+  };
 
   filter.prototype = new vde.Vis.Transform();
   var prototype = filter.prototype;
@@ -3922,7 +3909,7 @@ vde.Vis.transforms.Filter = (function() {
     };
   };
 
-  prototype.onFork = function() { return false; }
+  prototype.onFork = function() { return false; };
 
   return filter;
 })();
@@ -3978,7 +3965,7 @@ vde.Vis.transforms.Force = (function() {
     vde.Vis.addEventListener('dblclick', this,  function(e, i) { return self.onDblClick(e, i); });
 
     return this;
-  }
+  };
 
   force.prototype = new vde.Vis.Transform();
   var prototype = force.prototype;
@@ -4059,7 +4046,7 @@ vde.Vis.transforms.Force = (function() {
 
   prototype.groupPostSpec = function(opts) {
     if(!this.pipeline()) return;
-    if(this.seen[opts.item.name] != false) return;
+    if(this.seen[opts.item.name] !== false) return;
 
     var path = {
       type: 'path',
@@ -4082,8 +4069,8 @@ vde.Vis.transforms.Force = (function() {
     var self = this, scope = vde.iVis.ngScope();
     var fields = function() { return self.links.data ? vg.keys(vde.Vis._data[self.links.data].values[0]) : []; };
 
-    scope.$watch(function($scope) {
-      return self.links.data
+    scope.$watch(function() {
+      return self.links.data;
     }, function() { scope.linkFields = fields(); }, true);
 
   };
@@ -4146,7 +4133,7 @@ vde.Vis.transforms.Formula = (function() {
     };
 
     return this;
-  }
+  };
 
   formula.prototype = new vde.Vis.Transform();
   var prototype = formula.prototype;
@@ -4166,7 +4153,7 @@ vde.Vis.transforms.Formula = (function() {
     this.output = [this.properties.field];
   };
 
-  prototype.onFork = function() { return false; }
+  prototype.onFork = function() { return false; };
 
   return formula;
 })();
@@ -4199,12 +4186,12 @@ vde.Vis.transforms.Geo = (function() {
     };
 
     return this;
-  }
+  };
 
   geo.prototype = new vde.Vis.Transform();
   var prototype = geo.prototype;
 
-  prototype.onFork = function() { return false; }
+  prototype.onFork = function() { return false; };
 
   prototype.spec = function() {
     var spec = vde.Vis.Transform.prototype.spec.call(this),
@@ -4231,7 +4218,7 @@ vde.Vis.transforms.Pie = (function() {
     };
 
     return this;
-  }
+  };
 
   pie.prototype = new vde.Vis.Transform();
   var prototype = pie.prototype;
@@ -4259,7 +4246,7 @@ vde.Vis.transforms.Sort = (function() {
   var sort = function(pipelineName) {
     vde.Vis.Transform.call(this, pipelineName, 'sort', 'Sort', ['by', 'order']);
     return this;
-  }
+  };
 
   sort.prototype = new vde.Vis.Transform();
   var prototype = sort.prototype;
@@ -4269,7 +4256,7 @@ vde.Vis.transforms.Sort = (function() {
       type: this.type,
       by: (this.properties.order == 'Descending' ? '-' : '') + this.properties.by.spec().replace('stats.', '')
     };
-  }
+  };
 
   return sort;
 })();
@@ -4289,7 +4276,7 @@ vde.Vis.transforms.Stack = (function() {
     this.isVisual = true;
 
     return this;
-  }
+  };
 
   stack.prototype = new vde.Vis.Transform();
   var prototype = stack.prototype;
@@ -4396,7 +4383,7 @@ vde.Vis.transforms.Window = (function() {
     vde.Vis.callback.register('group.post_spec', this, this.groupPostSpec);
 
     return this;
-  }
+  };
 
   win.prototype = new vde.Vis.Transform();
   var prototype = win.prototype;

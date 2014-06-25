@@ -49,7 +49,7 @@ vde.Vis.transforms.Force = (function() {
     vde.Vis.addEventListener('dblclick', this,  function(e, i) { return self.onDblClick(e, i); });
 
     return this;
-  }
+  };
 
   force.prototype = new vde.Vis.Transform();
   var prototype = force.prototype;
@@ -130,7 +130,7 @@ vde.Vis.transforms.Force = (function() {
 
   prototype.groupPostSpec = function(opts) {
     if(!this.pipeline()) return;
-    if(this.seen[opts.item.name] != false) return;
+    if(this.seen[opts.item.name] !== false) return;
 
     var path = {
       type: 'path',
@@ -153,8 +153,8 @@ vde.Vis.transforms.Force = (function() {
     var self = this, scope = vde.iVis.ngScope();
     var fields = function() { return self.links.data ? vg.keys(vde.Vis._data[self.links.data].values[0]) : []; };
 
-    scope.$watch(function($scope) {
-      return self.links.data
+    scope.$watch(function() {
+      return self.links.data;
     }, function() { scope.linkFields = fields(); }, true);
 
   };

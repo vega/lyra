@@ -5,7 +5,7 @@ vde.Vis.transforms.Filter = (function() {
     this.exprFields = [];
 
     return this;
-  }
+  };
 
   filter.prototype = new vde.Vis.Transform();
   var prototype = filter.prototype;
@@ -17,7 +17,7 @@ vde.Vis.transforms.Filter = (function() {
     };
   };
 
-  prototype.onFork = function() { return false; }
+  prototype.onFork = function() { return false; };
 
   return filter;
 })();

@@ -78,7 +78,7 @@ vde.Vis.Mark = (function() {
       if(!m.group()) return;
 
       m.group().items().map(function(i) {
-        if(i.strokeWidth != 0) return;
+        if(i.strokeWidth !== 0) return;
         i.stroke = '#aaaaaa';
         i.strokeWidth = 1;
         i.strokeDash = [1.5, 3];
@@ -151,10 +151,12 @@ vde.Vis.Mark = (function() {
     vde.Vis.callback.run('mark.pre_spec', this, {spec: spec});
 
     spec.name = this.name;
-    spec.type || (spec.type = this.type);
-    spec.from || (spec.from = {});
+    if(!spec.type) spec.type = this.type;
+    if(!spec.from) spec.from = {};
 
-    if(this.pipeline()) spec.from.data || (spec.from.data = this.pipeline().name);
+    if(this.pipeline()) {
+       if(!spec.from.data) spec.from.data = this.pipeline().name;
+    }
 
     var enter = spec.properties.enter;
     for(var prop in this.properties)
@@ -330,7 +332,7 @@ vde.Vis.Mark = (function() {
       var e = this.extents[ext], p = this.properties[prop];
       if(e.fields.indexOf(prop) == -1) continue;
 
-      var check = e.fields.reduce(function(c, f) { return (self.properties[f] || {}).scale ? c : c.concat([f]) }, []);
+      var check = e.fields.reduce(function(c, f) { return (self.properties[f] || {}).scale ? c : c.concat([f]); }, []);
       var hist  = e.history || (e.history = []);
       if(hist.indexOf(prop) != -1) hist.splice(hist.indexOf(prop), 1);
       delete p.disabled;
@@ -425,7 +427,7 @@ vde.Vis.Mark = (function() {
     for(var p = 0; p < parents.length; p++)
       this._items = this._items.concat(visit(parents[p]));
 
-    while(this._items.length == 0) {
+    while(this._items.length === 0) {
       // If we've found no items in the group, there must be
       // group injection going on. So first find those groups
       // and use them as parents
@@ -439,7 +441,7 @@ vde.Vis.Mark = (function() {
       parents = groups;
       // If we've recursed all the way up to the root of the tree
       // then this mark probably doesn't have any rendered items.
-      if(parents.length == 0) break;
+      if(parents.length === 0) break;
     }
 
     for(var i = 0; i < this._items.length; i++) this._items[i].vdeKey = i;
@@ -459,7 +461,7 @@ vde.Vis.Mark = (function() {
 
   prototype.export = function() {
     // Export w/o the circular structure
-    if(!this._def && this._items.length == 0 && !this.connectedTo.host)
+    if(!this._def && this._items.length === 0 && !this.connectedTo.host)
         return vg.duplicate(this);
 
     var def = this.def(), items = this.items(), connectedTo = this.connectedTo.host;
@@ -491,19 +493,19 @@ vde.Vis.Mark = (function() {
     this.layerName = imp.layerName;
   };
 
-  prototype.defaults = function(prop) { return null; }
+  prototype.defaults = function(prop) { return null; };
 
-  prototype.selected = function() { return {}; }
-  prototype.helper   = function(property) { return null; }
+  prototype.selected = function() { return {}; };
+  prototype.helper   = function(property) { return null; };
 
-  prototype.propertyTargets   = function(connector, showGroup) { return null; }
-  prototype.connectionTargets = function() { return null; }
+  prototype.propertyTargets   = function(connector, showGroup) { return null; };
+  prototype.connectionTargets = function() { return null; };
 
-  prototype.connect = function(connector, mark) { return null; }
+  prototype.connect = function(connector, mark) { return null; };
 
-  prototype.coordinates = function(connector, item, def) { return null; }
-  prototype.handles = function(item) { return null; }
-  prototype.spans = function(item, property) { return null; }
+  prototype.coordinates = function(connector, item, def) { return null; };
+  prototype.handles = function(item) { return null; };
+  prototype.spans = function(item, property) { return null; };
 
   prototype.dropzones = function(area) {
     if(area.connector) {
@@ -513,7 +515,7 @@ vde.Vis.Mark = (function() {
         connector: area.connector,
         property: area.property,
         layout: 'point'
-      }
+      };
     } else {
       if(area[0].x == area[1].x)
         return {
@@ -521,14 +523,14 @@ vde.Vis.Mark = (function() {
           y: area[0].y, y2: area[1].y,
           property: area[0].span.split('_')[0],
           layout: 'vertical'
-        }
+        };
       else if(area[0].y == area[1].y)
         return {
           x: area[0].x, x2: area[1].x,
           y: area[0].y-2*geomOffset, y2: area[0].y+2*geomOffset,
           property: area[0].span.split('_')[0],
           layout: 'horizontal'
-        }
+        };
     }
   };
 

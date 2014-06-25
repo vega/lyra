@@ -508,6 +508,7 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
     }
   });
 });
+/* global jQuery */
 vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
                                        $location, $http, timeline, Vis, iVis, vg) {
   $scope.load = function() {

@@ -74,7 +74,7 @@ vde.Vis.marks.Rect = (function() {
     // property.
     if(!scale && !this.properties[prop].inferred && props.indexOf(prop) != -1)
       props.some(function(p) {
-        if(scale = self.properties[p].scale) {
+        if( (scale = self.properties[p].scale) ) {
           self.properties[prop].inferred = true;
           self.inferredHints[prop] = {
             hint: "Lyra inferred this binding and chose to re-use a scale.",
@@ -154,11 +154,12 @@ vde.Vis.marks.Rect = (function() {
           props[prop] = {value: item[prop] + delta};
           self.iVisUpdated = true;
         }
-      }
+      };
 
       vde.iVis.ngScope().$apply(function() {
+        var reverse;
         if(data.connector.indexOf('top') != -1) {
-          var reverse = (props.y.scale &&
+          reverse = (props.y.scale &&
               props.y.scale.range().name == 'height') ? -1 : 1;
 
           updateValue('y', dy*reverse);
@@ -167,7 +168,7 @@ vde.Vis.marks.Rect = (function() {
         }
 
         if(data.connector.indexOf('bottom') != -1) {
-          var reverse = (props.y2.scale &&
+          reverse = (props.y2.scale &&
               props.y2.scale.range().name == 'height') ? -1 : 1;
 
           updateValue('y2', dy*reverse);
@@ -196,7 +197,7 @@ vde.Vis.marks.Rect = (function() {
       if(self.iVisUpdated)
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();
-        })
+        });
     };
 
     return {
@@ -218,7 +219,7 @@ vde.Vis.marks.Rect = (function() {
       case 'y': propConnectors = [c['top-left'].coords(item), c['top-right'].coords(item)]; break;
       case 'y2': propConnectors = [c['bottom-left'].coords(item), c['bottom-right'].coords(item)]; break;
       case 'height': propConnectors = [c['top-left'].coords(item), c['bottom-left'].coords(item)]; break;
-    };
+    }
 
     vde.iVis.interactor('point', propConnectors)
       .interactor('span', this.spans(item, property))
@@ -237,7 +238,7 @@ vde.Vis.marks.Rect = (function() {
     };
 
     if(connector) props = connToSpan[connector].props;
-    if(props.length == 0) props = ['width', 'height'];
+    if(props.length === 0) props = ['width', 'height'];
 
     if(showGroup) {
       var groupInteractors = this.group().propertyTargets();
@@ -246,9 +247,9 @@ vde.Vis.marks.Rect = (function() {
     }
 
     props.forEach(function(prop) {
-      var span = self.spans(item, prop)
+      var span = self.spans(item, prop);
 
-      if(connector != null && connToSpan[connector])
+      if(connector !== null && connector !== undefined && connToSpan[connector])
         span = span.reduce(function(acc, s) {
           // Offset dropzones for top-left connector to prevent overlaps
           if(connector == 'top-left' && prop == 'x') s.y += 2*geomOffset;
@@ -295,7 +296,7 @@ vde.Vis.marks.Rect = (function() {
         item  = this.item(vde.iVis.activeItem);
 
     var connectors = vg.keys(this.connectors).map(function(c) { return self.connectors[c].coords(item); });
-    connectors.sort(function(a, b) { return a.connector.indexOf('center') ? 1 : -1 });
+    connectors.sort(function(a) { return a.connector.indexOf('center') ? 1 : -1; });
     var dropzones  = connectors.map(function(c) { return self.dropzones(c); });
 
     vde.iVis.interactor('connector', connectors)
@@ -304,8 +305,7 @@ vde.Vis.marks.Rect = (function() {
   };
 
   prototype.connect = function(connector, mark) {
-    var self = this,
-        props = this.properties, mProps = mark.properties,
+    var props = this.properties, mProps = mark.properties,
         ox = mProps.dx.offset, oy = mProps.dy.offset;
 
     var setProp = function(p1, p2) {
@@ -381,8 +381,7 @@ vde.Vis.marks.Rect = (function() {
   };
 
   prototype.handles = function(item) {
-    var self = this,
-        props = this.properties,
+    var props = this.properties,
         handles = {};
 
     for(var c in this.connectors)
@@ -392,9 +391,9 @@ vde.Vis.marks.Rect = (function() {
 
     var checkExtents = function(extents, hndls) {
       var count = 0;
-      extents.forEach(function(e) { if(props[e].field) count++ });
+      extents.forEach(function(e) { if(props[e].field) count++; });
       if(count > 2) hndls.forEach(function(h) { handles[h].disabled = 1; });
-    }
+    };
 
     checkExtents(['y', 'y2', 'height'], ['top-center', 'bottom-center']);
     if(props.y.field) handles['top-center'].disabled = 1;
@@ -430,35 +429,33 @@ vde.Vis.marks.Rect = (function() {
       case 'x':
         return [{x: (gb.x1-go), y: (b.y1-io), span: 'x_0'}, {x: b.x1, y: (b.y1-io), span: 'x_0'},
          {x: (gb.x1-go), y: (b.y2+io), span: 'x_1'}, {x: b.x1, y: (b.y2+io), span: 'x_1'}];
-      break;
 
       case 'x2':
         return [{x: (gb.x1-go), y: (b.y1-io), span: 'x2_0'}, {x: b.x2, y: (b.y1-io), span: 'x2_0'},
          {x: (gb.x1-go), y: (b.y2+io), span: 'x2_1'}, {x: b.x2, y: (b.y2+io), span: 'x2_1'}];
-      break;
 
-      case facet.dropzone_horiz:
-      case 'width': return [{x: b.x1, y: (b.y1-io), span: property + '_0'}, {x: b.x2, y: (b.y1-io), span: property + '_0'}]; break;
+      case facet.dropzone_horiz: /* falls through */
+      case 'width': return [{x: b.x1, y: (b.y1-io), span: property + '_0'}, {x: b.x2, y: (b.y1-io), span: property + '_0'}];
 
-      case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
-        [{x: (b.x1-io), y: (gb.y2+go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
-         {x: (b.x2+io), y: (gb.y2+go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}]
-      :
+      case 'y':
+        return (props.y.scale && props.y.scale.range().name == 'height') ?
+          [{x: (b.x1-io), y: (gb.y2+go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
+           {x: (b.x2+io), y: (gb.y2+go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}]
+        :
         [{x: (b.x1-io), y: (gb.y1-go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
          {x: (b.x2+io), y: (gb.y1-go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}];
-      break;
 
-      case 'y2': return (props.y2.scale && props.y2.scale.range().name == 'height') ?
-        [{x: (b.x1-io), y: (gb.y2+go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
-         {x: (b.x2+io), y: (gb.y2+go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}]
-      :
-        [{x: (b.x1-io), y: (gb.y1-go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
-         {x: (b.x2+io), y: (gb.y1-go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}];
-      break;
+      case 'y2': 
+        return (props.y2.scale && props.y2.scale.range().name == 'height') ?
+          [{x: (b.x1-io), y: (gb.y2+go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
+           {x: (b.x2+io), y: (gb.y2+go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}]
+        :
+          [{x: (b.x1-io), y: (gb.y1-go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
+           {x: (b.x2+io), y: (gb.y1-go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}];
 
-      case facet.dropzone_vert:
-      case 'height': return [{x: (b.x1-io), y: b.y1, span: property + '_0'}, {x: (b.x1-io), y: b.y2, span: property + '_0'}]; break;
-    };
+      case facet.dropzone_vert: /* falls through */
+      case 'height': return [{x: (b.x1-io), y: b.y1, span: property + '_0'}, {x: (b.x1-io), y: b.y2, span: property + '_0'}];
+    }
   };
 
   return rect;

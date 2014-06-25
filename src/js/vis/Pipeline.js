@@ -38,7 +38,7 @@ vde.Vis.Pipeline = (function() {
 
       if(t.forkPipeline) {
         spec++;
-        self.forkName || (self.forkName = self.name + '_' + t.type);
+        if(!self.forkName) self.forkName = self.name + '_' + t.type;
         self.forkIdx = i;
 
         specs.push({
@@ -108,11 +108,11 @@ vde.Vis.Pipeline = (function() {
       else {
         [data[0].data, data[0]].forEach(function(v, i) {
           vg.keys(v).forEach(function(k) {
-            if(i != 0 && ['data', 'values', 'keys', 'stats'].indexOf(k) != -1) return;
+            if(i !== 0 && ['data', 'values', 'keys', 'stats'].indexOf(k) != -1) return;
             if(k == 'key') k += '_' + depth;
             if(seenFields[k]) return;
 
-            var field = new vde.Vis.Field(k, (i == 0) ? 'data.' : '');
+            var field = new vde.Vis.Field(k, (i === 0) ? 'data.' : '');
             field.pipelineName = pipeline;
             if(parse[k]) field.type = (parse[k] == 'date') ? 'time' : (parse[k] == 'number') ? 'linear' : 'ordinal';
             else field.type = vg.isNumber(v[k]) ? 'linear' : 'ordinal';
@@ -188,7 +188,7 @@ vde.Vis.Pipeline = (function() {
           return true;
         }
         return false;
-      }
+      };
       vg.keys(t.properties).some(function(k) {
         var f = t.properties[k];
         if(f instanceof vde.Vis.Field) return checkField(f);

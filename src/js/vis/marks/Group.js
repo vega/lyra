@@ -49,7 +49,6 @@ vde.Vis.marks.Group = (function() {
   var prototype = group.prototype;
 
   prototype.init = function() {
-    var self = this;
     if(this.isLayer()) {
       vde.Vis.groups[this.name] = this;
       vde.Vis.groupOrder.push(this.name);
@@ -71,7 +70,7 @@ vde.Vis.marks.Group = (function() {
     if(layout) vde.Vis.parse();
 
     return this;
-  }
+  };
 
   prototype.spec = function() {
     var self = this;
@@ -134,7 +133,7 @@ vde.Vis.marks.Group = (function() {
 
   prototype.export = function() {
     // Export w/o circular structure in marks
-    if(!this._def && this._items.length == 0) return vg.duplicate(this);
+    if(!this._def && this._items.length === 0) return vg.duplicate(this);
     var marks = this.marks, def = this.def(), items = this.items();
 
     // We save it to _marks in case of nested groups, which need to stick
@@ -149,12 +148,12 @@ vde.Vis.marks.Group = (function() {
     this.marks = this._marks;
     delete this._marks;
 
-    var ex = vg.duplicate(this);
+    var exported = vg.duplicate(this);
     this.marks = marks;
     this._def = def;
     this._items = items;
 
-    return ex;
+    return exported;
   };
 
   prototype.isLayer = function() {
@@ -188,7 +187,7 @@ vde.Vis.marks.Group = (function() {
         if(fromProp.hasOwnProperty('value')) self.properties[prop].value = fromProp.value;
         if(fromProp.disabled) self.properties[prop].disabled = fromProp.disabled;
       });
-    }
+    };
 
     if(layout == facet.layout_overlap) {
       copyFromLayer(['x', 'width', 'x2', 'y', 'height', 'y2']);
@@ -239,7 +238,7 @@ vde.Vis.marks.Group = (function() {
 
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();
-        })
+        });
       }
     };
 

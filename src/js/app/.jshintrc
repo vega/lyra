@@ -1,0 +1,14 @@
+{
+  "undef": true,
+  "unused": true,
+  "latedef": "nofunc",
+  "browser": true,
+  "devel": true,
+  "predef": [
+    "vde",
+    "$",
+    "Blob",
+    "FixedColumns",
+    "angular"
+  ]
+}

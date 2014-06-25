@@ -41,7 +41,7 @@ vde.Vis = (function() {
   };
 
   vis.addEventListener = function(type, caller, handler) {
-    vis.evtHandlers[type] || (vis.evtHandlers[type] = []);
+    if(!vis.evtHandlers[type]) vis.evtHandlers[type] = [];
     vis.evtHandlers[type].push({
       caller: caller,
       handler: handler
@@ -54,7 +54,7 @@ vde.Vis = (function() {
       if(r.caller == caller) del.push(i);
     });
 
-    del.forEach(function(d) { regd.splice(d, 1); })
+    del.forEach(function(d) { regd.splice(d, 1); });
   };
 
   vis.parse = function(inlinedValues) {
@@ -70,8 +70,8 @@ vde.Vis = (function() {
 
     vde.Vis.callback.run('vis.pre_spec', this, {spec: spec});
 
-    inlinedValues = (inlinedValues == null || inlinedValues == true);
-    rawSources = {};
+    inlinedValues = (inlinedValues === null || inlinedValues === undefined || inlinedValues === true);
+    var rawSources = {};
 
     var addRawSource = function(src) {
       if(!src || rawSources[src]) return;
@@ -182,7 +182,7 @@ vde.Vis = (function() {
     var scales = {}, deferred = vde.iVis.ngQ().defer();
 
     var className = function(n) {
-      return n.charAt(0).toUpperCase() + n.slice(1)
+      return n.charAt(0).toUpperCase() + n.slice(1);
     };
 
     var importProperties = function(a, b) {
@@ -214,7 +214,7 @@ vde.Vis = (function() {
         var axis = new vde.Vis.Axis(axisName, a.layerName, a.groupName);
         axis.init();
         axis.import(a);
-      };
+      }
 
       for(var markName in g.marks) {
         var m = g.marks[markName];
@@ -224,7 +224,7 @@ vde.Vis = (function() {
           mark.init();
           mark.import(m);
         }
-      };
+      }
 
       importProperties(group, g);
     };
@@ -253,7 +253,7 @@ vde.Vis = (function() {
       });
 
       importProperties(pipeline, p);
-    };
+    }
 
     for(var layerName in spec.groups) {
       importGroups(spec.groups[layerName]);
@@ -274,7 +274,7 @@ vde.Vis = (function() {
     if(p.disabled) return;
 
     for(var k in p) {
-      if(p[k] == undefined) return;
+      if(p[k] === undefined || p[k] === null) return;
 
       if(k == 'scale') { parsed[k] = p[k].name; p[k].used = true; }
       else if(k == 'field') parsed[k] = p[k].spec();
@@ -289,7 +289,7 @@ vde.Vis = (function() {
           parsed[k] = value;
         }
       }
-    };
+    }
 
     return parsed;
   };

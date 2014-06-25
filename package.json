@@ -31,21 +31,8 @@
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-githooks": "~0.3.1",
     "grunt-contrib-concat": "~0.4.0",
-    "karma-chrome-launcher": "~0.1.4"
-  },
-  "jshintConfig": {
-    "undef": true,
-    "unused": true,
-    "latedef": "nofunc",
-    "browser": true,
-    "devel": true,
-    "predef": [
-      "vde",
-      "$",
-      "Blob",
-      "FixedColumns",
-      "angular"
-    ]
+    "karma-chrome-launcher": "~0.1.4",
+    "grunt-shell": "~0.7.0"
   },
   "scripts": {
     "postinstall": "grunt githooks"

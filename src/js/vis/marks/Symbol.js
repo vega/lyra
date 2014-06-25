@@ -77,9 +77,9 @@ vde.Vis.marks.Symbol = (function() {
       if(vde.iVis.activeMark != self) return;
 
       var handle = (dragging.item.mark.def.name == 'handle'),
-          dx = Math.ceil(evt.pageX - dragging.prev[0]),
-          dy = Math.ceil(evt.pageY - dragging.prev[1]),
-          data = dragging.item.datum.data;
+          dx = Math.ceil(evt.pageX - dragging.prev[0]);
+          //dy = Math.ceil(evt.pageY - dragging.prev[1]),
+          //data = dragging.item.datum.data;
 
       if(!handle) return;
 
@@ -98,9 +98,9 @@ vde.Vis.marks.Symbol = (function() {
       if(self.iVisUpdated)
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();
-        })
+        });
 
-      delete self.iVisUpdated
+      delete self.iVisUpdated;
     };
 
     vde.iVis.interactor('handle', this.handles(item));
@@ -158,8 +158,7 @@ vde.Vis.marks.Symbol = (function() {
   };
 
   prototype.connect = function(connector, mark) {
-    var self = this,
-        props = this.properties, mProps = mark.properties,
+    var props = this.properties, mProps = mark.properties,
         ox = mProps.dx.offset, oy = mProps.dy.offset;
 
     mark.pipelineName = this.pipelineName;
@@ -191,8 +190,7 @@ vde.Vis.marks.Symbol = (function() {
   };
 
   prototype.handles = function(item) {
-    var b = vde.iVis.translatedBounds(item, item.bounds),
-        pt = this.connectors['point'].coords(item, {disabled: 0});
+    var pt = this.connectors['point'].coords(item, {disabled: 0});
 
     if(this.properties.size.field) pt.disabled = 1;
 
@@ -209,18 +207,16 @@ vde.Vis.marks.Symbol = (function() {
     switch(property) {
       case 'x':
         return [{x: (gb.x1-go), y: (pt.y+io), span: 'x_0'}, {x: pt.x, y: (pt.y+io), span: 'x_0'}];
-      break;
 
-      case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
-        [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
-      :
-        [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
-      break;
+      case 'y':
+        return (props.y.scale && props.y.scale.range().name == 'height') ?
+          [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
+        :
+          [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}];
 
       case 'size':
         return [{x: b.x1, y: b.y1-io, span: 'size_0'}, {x: b.x2, y: b.y1-io, span: 'size_0'},
         {x: b.x2+io, y: b.y1, span: 'size_1'}, {x: b.x2+io, y: b.y2, span: 'size_1'}];
-      break;
     }
   };
 
