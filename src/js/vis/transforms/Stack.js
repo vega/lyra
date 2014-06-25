@@ -13,7 +13,7 @@ vde.Vis.transforms.Stack = (function() {
     this.isVisual = true;
 
     return this;
-  }
+  };
 
   stack.prototype = new vde.Vis.Transform();
   var prototype = stack.prototype;

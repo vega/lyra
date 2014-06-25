@@ -48,7 +48,7 @@ vde.Vis.marks.Area = (function() {
   };
 
   prototype.selected = function() { return line.selected.call(this); };
-  prototype.helper = function(property) { return line.helper.call(this, property); }
+  prototype.helper = function(property) { return line.helper.call(this, property); };
   prototype.propertyTargets = function(connector, showGroup) {
     return line.propertyTargets.call(this, connector, showGroup);
   };
@@ -57,7 +57,7 @@ vde.Vis.marks.Area = (function() {
     return line.coordinates.call(this, connector, item, def);
   };
 
-  prototype.spans = function(item, property) { return line.spans.call(this, item, property); }
+  prototype.spans = function(item, property) { return line.spans.call(this, item, property); };
 
   return area;
 })();

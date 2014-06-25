@@ -67,7 +67,7 @@ vde.iVis = (function() {
       padding: vde.Vis.view._padding
     };
 
-    spec.data = interactors.map(function(i) { return {name: i, values: [] }});
+    spec.data = interactors.map(function(i) { return {name: i, values: [] }; });
     spec.scales = [{
       name: 'size',
       type: 'quantize',
@@ -114,7 +114,7 @@ vde.iVis = (function() {
           icanvas.on('mousemove', function() {
             dispatchEvent();
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
-          })
+          });
         } else if(type.indexOf('key') != -1) {
           d3.select('body').on(type, function() {
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
@@ -159,7 +159,7 @@ vde.iVis = (function() {
                     if(lineSegment.span.indexOf(item.property + '_') != -1) 
                       items.push(lineSegment);
                   });
-                })
+                });
               }
 
               return items;
@@ -243,7 +243,7 @@ vde.iVis = (function() {
       $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
-      if(!visual) visual = {}
+      if(!visual) visual = {};
       if(visual.layerName) rootScope.toggleVisual(visual, null, true);
       ivis.ngTimeline().save();
     });
@@ -302,7 +302,7 @@ vde.iVis = (function() {
           connector: {field: 'data.connector'}
         }
       }
-    }
+    };
   };
 
   ivis.connector = function() {
@@ -335,7 +335,7 @@ vde.iVis = (function() {
           strokeWidth: {value: 1}
         }
       }
-    }
+    };
   };
 
   ivis.connection = function() {
@@ -359,7 +359,7 @@ vde.iVis = (function() {
           }
         }
       }]
-    }
+    };
   };
 
   ivis.point = function() {
@@ -411,7 +411,7 @@ vde.iVis = (function() {
           }
         }
       }]
-    }
+    };
   };
 
   ivis.dropzone = function() {
@@ -440,7 +440,7 @@ vde.iVis = (function() {
           fill: {value: 'lightsalmon'}
         }
       }
-    }
+    };
   };
 
   ivis.scale = function(scale, spec) {
@@ -461,7 +461,7 @@ vde.iVis = (function() {
     var title = scale.field() ? inflector(scale.field().name) : scale.displayName;
 
     if(scale.rangeTypes.type == 'spatial') {
-      spec.axes || (spec.axes = []);
+      if(!spec.axes) spec.axes = [];
       spec.axes.push({
         type: scale.axisType,
         orient: scale.axisType == 'x' ? 'bottom' : 'left',
@@ -491,7 +491,7 @@ vde.iVis = (function() {
       '<div class="tooltip-inner">' + (hint || property) + '</div></div>');
     $('body').append(tooltip);
     var b = ivis.translatedBounds(dropzone, dropzone.bounds);
-
+    var coords;
     if(dropzone.layout == 'horizontal') {
       coords = ivis.translatedCoords({x: b.x2, y: b.y1 + b.height()/2});
       coords.y -= tooltip.height()/2;
@@ -509,7 +509,7 @@ vde.iVis = (function() {
   // From vg.canvas.Renderer
   ivis.translatedBounds = function(item, bounds) {
     var b = new vg.Bounds(bounds);
-    while ((item = item.mark.group) != null) {
+    while ((item = item.mark.group) !== null && item !== undefined) {
       b.translate(item.x || 0, item.y || 0);
     }
     return b;
@@ -526,7 +526,7 @@ vde.iVis = (function() {
   };
 
   ivis.ngScope = function() {
-    return $('html').injector().get('$rootScope')
+    return $('html').injector().get('$rootScope');
   };
 
   ivis.ngTimeline = function() {

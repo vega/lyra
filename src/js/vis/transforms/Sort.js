@@ -2,7 +2,7 @@ vde.Vis.transforms.Sort = (function() {
   var sort = function(pipelineName) {
     vde.Vis.Transform.call(this, pipelineName, 'sort', 'Sort', ['by', 'order']);
     return this;
-  }
+  };
 
   sort.prototype = new vde.Vis.Transform();
   var prototype = sort.prototype;
@@ -12,7 +12,7 @@ vde.Vis.transforms.Sort = (function() {
       type: this.type,
       by: (this.properties.order == 'Descending' ? '-' : '') + this.properties.by.spec().replace('stats.', '')
     };
-  }
+  };
 
   return sort;
 })();

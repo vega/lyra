@@ -6,7 +6,7 @@ vde.Vis.callback = (function() {
 	};
 
 	callback.register = function(type, caller, cb) {
-		this._registered[type] || (this._registered[type] = []);
+		if(!this._registered[type]) this._registered[type] = [];
 		this._registered[type].push({
 			caller: caller,
 			callback: cb
@@ -19,7 +19,7 @@ vde.Vis.callback = (function() {
 			if(r.caller == caller) del.push(i);
 		});
 
-		del.forEach(function(d) { regd.splice(d, 1); })
+		del.forEach(function(d) { regd.splice(d, 1); });
 	};
 
 	callback.run = function(type, item, opts) {

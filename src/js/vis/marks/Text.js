@@ -74,7 +74,7 @@ vde.Vis.marks.Text = (function() {
     }
 
     return vde.Vis.Mark.prototype.update.call(this, prop);
-  }
+  };
 
   prototype.productionRules = function(prop, scale, field) {
     if(prop == 'text') {
@@ -128,7 +128,7 @@ vde.Vis.marks.Text = (function() {
     return [scale, field];
   };
 
-  prototype.checkExtents = function(prop) {
+  /* prototype.checkExtents = function(prop) {
     var p = this.properties;
 
     // if(p.align.value == 'center') p.dx.disabled = true;
@@ -136,13 +136,13 @@ vde.Vis.marks.Text = (function() {
 
     // if(p.baseline.value == 'middle') p.dy.disabled = true;
     // else delete p.dy.disabled;
-  };
+  }; */
 
   prototype.selected = function() {
     var self = this,
         item = this.item(vde.iVis.activeItem),
         props = this.properties, conn = this.connectedTo,
-        connector = null, connections = [];
+        connector = null;
 
     var mousemove = function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
@@ -199,9 +199,9 @@ vde.Vis.marks.Text = (function() {
       if(self.iVisUpdated)
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();
-        })
+        });
 
-      delete self.iVisUpdated
+      delete self.iVisUpdated;
     };
 
     var keydown = function() {
@@ -281,16 +281,16 @@ vde.Vis.marks.Text = (function() {
   prototype.coordinates = function(connector, item, def) {
     if(!item) item = this.item(vde.iVis.activeItem);
     if(!item) return {x: 0, y: 0};  // If we've filtered everything out.
-    var coord = {};
+    var coord = {}, b;
 
     if(connector == 'text') {
-      var b  = vde.iVis.translatedBounds(item,
+      b  = vde.iVis.translatedBounds(item,
           new vg.Bounds({x1: item.x, x2: item.x, y1: item.y, y2: item.y}));
       coord = {x: b.x1, y: b.y1, cursor: 'move'};
 
       if(this.connectedTo.host) { coord.x += item.dx; coord.y += item.dy; }
     } else {
-      var b = new vg.Bounds();
+      b = new vg.Bounds();
       vg.scene.bounds.text(item, b, true);  // Calculate text bounds w/o rotating
       b.rotate(item.angle*Math.PI/180, item.x||0, item.y||0);
       b = vde.iVis.translatedBounds(item, b);
@@ -307,9 +307,7 @@ vde.Vis.marks.Text = (function() {
   };
 
   prototype.handles = function(item) {
-    var props = this.properties,
-        b = vde.iVis.translatedBounds(item, item.bounds),
-        left = this.connectors.left.coords(item, {disabled: 0}),
+    var left = this.connectors.left.coords(item, {disabled: 0}),
         right = this.connectors.right.coords(item, {disabled: 0});
 
     return [left, right];
@@ -317,7 +315,6 @@ vde.Vis.marks.Text = (function() {
 
   prototype.spans = function(item, property) {
     var props = this.properties,
-        b  = vde.iVis.translatedBounds(item, item.bounds),
         gb = vde.iVis.translatedBounds(item.mark.group, item.mark.group.bounds),
         go = 3*geomOffset, io = geomOffset,
         pt = this.connectors['text'].coords(item),
@@ -326,21 +323,17 @@ vde.Vis.marks.Text = (function() {
     switch(property) {
       case 'x':
         return [{x: (gb.x1-go), y: (pt.y+io), span: 'x_0'}, {x: pt.x, y: (pt.y+io), span: 'x_0'}];
-      break;
 
-      case 'y': return (props.y.scale && props.y.scale.range().name == 'height') ?
-        [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
-      :
-        [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
-      break;
-
+      case 'y': 
+        return (props.y.scale && props.y.scale.range().name == 'height') ?
+          [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
+        :
+          [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}];
       case 'dx':
         return [{x: pt.x, y: (pt.y+io), span: 'dx_0'}, {x: pt.x + dx, y: (pt.y+io), span: 'dx_0'}];
-      break;
 
       case 'dy':
         return [{x: (pt.x+io), y: pt.y, span: 'dy_0'}, {x: (pt.x+io), y: (pt.y+dy), span: 'dy_0'}];
-      break;
 
       case 'connection':
         if(!this.connectedTo.host) return [];
@@ -349,7 +342,6 @@ vde.Vis.marks.Text = (function() {
         var connector = conn.host.connectors[conn.connector].coords(hostItem);
         var textConnector = this.connectors.text.coords(item);
         return [{x: connector.x, y: connector.y, span: 'connection_0'}, {x: textConnector.x, y: textConnector.y, span: 'connection_0'}];
-      break;
     }
   };
 

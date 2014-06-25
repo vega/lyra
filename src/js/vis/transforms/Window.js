@@ -7,7 +7,7 @@ vde.Vis.transforms.Window = (function() {
     vde.Vis.callback.register('group.post_spec', this, this.groupPostSpec);
 
     return this;
-  }
+  };
 
   win.prototype = new vde.Vis.Transform();
   var prototype = win.prototype;

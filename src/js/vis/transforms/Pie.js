@@ -10,7 +10,7 @@ vde.Vis.transforms.Pie = (function() {
     };
 
     return this;
-  }
+  };
 
   pie.prototype = new vde.Vis.Transform();
   var prototype = pie.prototype;

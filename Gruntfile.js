@@ -63,7 +63,7 @@ module.exports = function(grunt) {
         // the server root directory
         root: "src",
 
-        port: 8080,
+        port: 8081,
         host: "localhost",
 
         cache: 1,
@@ -88,8 +88,12 @@ module.exports = function(grunt) {
       }
     },
     jshint: {
+      options: {
+        jshintrc: true,
+        force:true
+      },
       dev: {
-        src: ["src/js/app/**/*.js"]
+        src: ["src/js/app/**/*.js", "src/js/vis/**/*.js"]
       }
     },
     githooks: {

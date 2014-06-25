@@ -90,7 +90,7 @@ vde.Vis.transforms.Facet = (function() {
     return spec;
   };
 
-  prototype.groupName = function() { return this.pipelineName + '_facet'; }
+  prototype.groupName = function() { return this.pipelineName + '_facet'; };
 
   prototype.bindProperty = function(prop, opts) {
     var field = opts.field, props = this.properties;
@@ -98,14 +98,14 @@ vde.Vis.transforms.Facet = (function() {
     if(!(field instanceof vde.Vis.Field)) field = new vde.Vis.Field(field);
 
     if(prop == 'keys') {
-      props.keys || (props.keys = []);
+      if(!props.keys) props.keys = [];
       props.keys.push(field);
     } else this.properties[prop] = field;
   };
 
   prototype.pipelinePostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(this.properties.keys.length == 0) return;
+    if(this.properties.keys.length === 0) return;
     if(opts.item.name != this.pipelineName) return;
 
     // Grab the transforms that must work within each facet, and them to our group
@@ -116,7 +116,7 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.groupPreSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(this.properties.keys.length == 0) return;
+    if(this.properties.keys.length === 0) return;
 
     if(opts.item.isLayer()) {
       this._layer(opts.item);
@@ -129,15 +129,16 @@ vde.Vis.transforms.Facet = (function() {
   // marked to inherit their data from the facet group.
   prototype.groupPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(this.properties.keys.length == 0) return;
+    if(this.properties.keys.length === 0) return;
     if(opts.item.name != this.groupName()) return;
 
-    for(var i = 0; i < opts.spec.marks.length; i++) {
+    var i;
+    for(i = 0; i < opts.spec.marks.length; i++) {
       var m = opts.spec.marks[i];
       if(m.from.data == this.pipelineName) delete m.from.data;
     }
 
-    for(var i = 0; i < opts.spec.scales.length; i++) {
+    for(i = 0; i < opts.spec.scales.length; i++) {
       var s = opts.spec.scales[i];
       if(s.inheritFromGroup) {
         delete s.domain.from;
@@ -148,12 +149,12 @@ vde.Vis.transforms.Facet = (function() {
 
   prototype.markPostSpec = function(opts) {
     if(!this.pipeline() || !this.pipeline().forkName) return;
-    if(this.properties.keys.length == 0) return;
+    if(this.properties.keys.length === 0) return;
     if(opts.item.pipelineName != this.pipelineName) return;
     if(opts.item.type == 'group') return;
 
     var spec = opts.spec;
-    spec.from.transform || (spec.from.transform = []);
+    if(!spec.from.transform) spec.from.transform = [];
     spec.from.transform = spec.from.transform.concat(this._transforms);
     if(opts.item.oncePerFork) {
       spec.from.transform.push({
@@ -168,7 +169,7 @@ vde.Vis.transforms.Facet = (function() {
     if(!group) {
       group = new vde.Vis.marks.Group(this.groupName(), layer.name);
       group.displayName = 'Group By: ' +
-          this.properties.keys.map(function(f) { return f.name }).join(", ");
+          this.properties.keys.map(function(f) { return f.name; }).join(", ");
       group.pipelineName = this.pipelineName;
       group.doLayout(this.properties.layout || facet.layout_horiz); // By default split horizontally
     }
@@ -234,7 +235,7 @@ vde.Vis.transforms.Facet = (function() {
       if(scale.range().name == 'width' || scale.range().name == 'height')
         this._addToGroup('scales', scale, layer);
     }
-  }
+  };
 
   return facet;
 })();

@@ -31,12 +31,12 @@ vde.Vis.marks.Arc = (function() {
     // angles are in radians
     var props = this.properties;
     if(!props.startAngle.field) {
-      spec.startAngle || (spec.startAngle = {});
+      if(!spec.startAngle) spec.startAngle = {};
       spec.startAngle.value = props.startAngle.value / 180 * Math.PI;
     }
 
     if(!props.endAngle.field) {
-      spec.endAngle || (spec.endAngle = {});
+      if(!spec.endAngle) spec.endAngle = {};
       spec.endAngle.value = props.endAngle.value / 180 * Math.PI;
     }
 
