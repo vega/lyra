@@ -89,7 +89,7 @@ module.exports = function(grunt) {
     },
     jshint: {
       dev: {
-        src: ["src/js/app/*.js"]
+        src: ["src/js/app/**/*.js"]
       }
     },
     githooks: {
