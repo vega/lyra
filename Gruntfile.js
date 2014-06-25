@@ -31,26 +31,9 @@ module.exports = function(grunt) {
             "src/js/lib/sortable.js",
             "src/js/lib/indexeddb.js",
 
-            "src/js/app/vde.js",
-            "src/js/app/**/*.js",
-
-            "src/js/vis/Vis.js",
-            "src/js/vis/iVis.js",
-            "src/js/vis/Callback.js",
-            "src/js/vis/Pipeline.js",
-            "src/js/vis/Field.js",
-            "src/js/vis/Mark.js",
-            "src/js/vis/marks/Group.js",
-            "src/js/vis/marks/Rect.js",
-            "src/js/vis/marks/Symbol.js",
-            "src/js/vis/marks/Arc.js",
-            "src/js/vis/marks/Line.js",
-            "src/js/vis/marks/Area.js",
-            "src/js/vis/marks/Text.js",
-            "src/js/vis/Scale.js",
-            "src/js/vis/Axis.js",
-            "src/js/vis/Transform.js",
-            "src/js/vis/transforms/**/*.js",
+            "src/js/vde.js",
+            "src/js/app.js",
+            "src/js/vis.js",
 
             "tests/unit/**/*.js"
           ]
