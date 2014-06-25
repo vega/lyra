@@ -130,7 +130,7 @@ describe('pipelines panel', function() {
       element(by.css('.transform-sort')).click();
 
       // Assuming olympics dataset is selected (from the previous test). Drag and drop is
-      var isoCode = element(by.css('.DTFC_LeftBodyWrapper tbody td:nth-child(1)'));
+      var isoCode = element(by.css('.dataTable tbody td:nth-child(1)'));
       var sortBy = element(by.css('#by'));
       vde.dragAndDrop(isoCode, sortBy);
 
