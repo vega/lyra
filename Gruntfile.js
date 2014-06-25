@@ -14,6 +14,8 @@ module.exports = function(grunt) {
     karma: {
       unit: {
         options: {
+          singleRun: true,
+          browsers: ['Chrome'],
           frameworks: ['jasmine'],
           //All of the files that the app needs. The order is important --
           //many files depend on others.
