@@ -106,6 +106,11 @@ module.exports = function(grunt) {
       dev: {
         src: ["src/js/app/*.js"]
       }
+    },
+    githooks: {
+      all: {
+        'pre-commit': 'less'
+      }
     }
   });
 
@@ -114,6 +119,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-http-server');
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-githooks');
 
   grunt.registerTask('test', ['build', 'http-server:dev', 'protractor', 'jshint:dev', 'karma']);
   grunt.registerTask('build', ['less']);
