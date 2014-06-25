@@ -50,7 +50,10 @@ vde.Vis.Transform = (function() {
 
   // Assumes data is already ingested
   prototype.transform = function(data) {
-    var transform = vg.parse.dataflow({transform: [this.spec()]})
+    var spec = this.spec();
+    if(!spec) return data;
+
+    var transform = vg.parse.dataflow({transform: [spec]})
     return transform(data);
   };
 
