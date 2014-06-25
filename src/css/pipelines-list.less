@@ -126,9 +126,6 @@
   font-size: 11px;
   overflow: auto;
 
-  tr.even { background: #fff; }
-  tr.odd { background: #ddd; }
-
   td {
     max-width: @column-width;
     padding: 5px;
@@ -146,7 +143,15 @@
       border-style: solid;
     }
 
-    &:not(.schema) { border-left: 1px solid #bbb; }
+    &:not(.schema).even { 
+      background: #eee; 
+      border-bottom: 1px dotted #ddd;
+    }
+
+    &:not(.schema).odd  { 
+      background: #fff; 
+      border-bottom: 1px dotted #eee;
+    }
   }
 }
 

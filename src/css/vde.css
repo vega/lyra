@@ -557,34 +557,28 @@ a.add:hover {
   background-position: 2px 1px;
   padding-left: 5px;
 }
-.schema.raw,
-.DTFC_LeftBodyWrapper td.raw {
+.schema.raw {
   background: #bed9ab;
-  border-color: #8ca17c;
+  border-color: rgba(140, 161, 124, 0.5);
 }
 .schema.raw:hover,
-.binding:hover .schema.raw,
-.DTFC_LeftBodyWrapper td.raw:hover {
+.binding:hover .schema.raw {
   background: #d2e7c3;
 }
 .schema.raw:hover .aggregate,
-.binding:hover .schema.raw .aggregate,
-.DTFC_LeftBodyWrapper td.raw:hover .aggregate {
+.binding:hover .schema.raw .aggregate {
   background-color: #d2e7c3;
 }
-.schema.derived,
-.DTFC_LeftBodyWrapper td.derived {
+.schema.derived {
   background: #efe8af;
-  border-color: #d1bf94;
+  border-color: rgba(209, 191, 148, 0.65);
 }
 .schema.derived:hover,
-.binding:hover .schema.derived,
-.DTFC_LeftBodyWrapper td.derived:hover {
+.binding:hover .schema.derived {
   background: #f5f1cc;
 }
 .schema.derived:hover .aggregate,
-.binding:hover .schema.derived .aggregate,
-.DTFC_LeftBodyWrapper td.derived:hover .aggregate {
+.binding:hover .schema.derived .aggregate {
   background-color: #f5f1cc;
 }
 #pipelines-list {
@@ -647,12 +641,6 @@ a.add:hover {
   font-size: 11px;
   overflow: auto;
 }
-#datasheet .dataTable tr.even {
-  background: #fff;
-}
-#datasheet .dataTable tr.odd {
-  background: #ddd;
-}
 #datasheet .dataTable td {
   max-width: 75px;
   padding: 5px;
@@ -669,8 +657,13 @@ a.add:hover {
   border-width: 1px;
   border-style: solid;
 }
-#datasheet .dataTable td:not(.schema) {
-  border-left: 1px solid #bbb;
+#datasheet .dataTable td:not(.schema).even {
+  background: #eee;
+  border-bottom: 1px dotted #ddd;
+}
+#datasheet .dataTable td:not(.schema).odd {
+  background: #fff;
+  border-bottom: 1px dotted #eee;
 }
 #datasheet .paging {
   font-size: 11px;

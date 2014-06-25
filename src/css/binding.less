@@ -2,10 +2,10 @@
 @scale-hover: #bcbcbc;
 @raw-field-color: #BED9AB;
 @raw-field-hover: #D2E7C3;
-@raw-field-border: #8CA17C;
+@raw-field-border: rgba(140, 161, 124, 0.5);;
 @derived-field-color: #EFE8AF;
 @derived-field-hover: #F5F1CC;
-@derived-field-border: #d1bf94;
+@derived-field-border: rgba(209, 191, 148, 0.65);
 
 .binding, .binding .scale, .schema, .binding .empty {
   float: left;
@@ -101,25 +101,23 @@
   }
 }
 
-.schema.raw, .DTFC_LeftBodyWrapper td.raw {
+.schema.raw {
   background: @raw-field-color;
   border-color: @raw-field-border;
 }
 
-.schema.raw:hover, .binding:hover .schema.raw,
-.DTFC_LeftBodyWrapper td.raw:hover {
+.schema.raw:hover, .binding:hover .schema.raw {
   background: @raw-field-hover;
 
   .aggregate { background-color: @raw-field-hover;}
 }
 
-.schema.derived, .DTFC_LeftBodyWrapper td.derived {
+.schema.derived {
   background: @derived-field-color;
   border-color: @derived-field-border;
 }
 
-.schema.derived:hover, .binding:hover .schema.derived,
-.DTFC_LeftBodyWrapper td.derived:hover {
+.schema.derived:hover, .binding:hover .schema.derived {
   background: @derived-field-hover;
 
   .aggregate { background-color: @derived-field-hover;}

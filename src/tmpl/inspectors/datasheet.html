@@ -13,8 +13,8 @@
 <div class="dataTable">
   <table>
     <tbody>
-      <tr ng-repeat="column in transposedData track by $index" ng-class="{odd: $odd, even: $even}">
-        <td ng-repeat="row in column track by $index" ng-class="{schema: $index == 0, raw: row.raw(), derived: !row.raw()}" vde-draggable vde-field="row">
+      <tr ng-repeat="column in transposedData track by $index">
+        <td ng-repeat="row in column track by $index" ng-class="{schema: $index == 0, raw: row.raw(), derived: !row.raw(), odd: $odd && $index > 0, even: $even && $index > 0}" vde-draggable vde-field="row">
           {{row.name || row}}
         </td>
       </tr>
