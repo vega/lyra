@@ -1,15 +1,34 @@
 <div class="heading">Data
   <div ng-if="facets" id="facet-tabs" class="tabs"
        ng-mouseover="carousel($event);" ng-mouseleave="clearCarousel();">
-    <ul ng-repeat="f in facets | filter: filterFacets">
-      <li ng-repeat="k in f.keys"
-          ng-class="{selected: currentFacets[f.colIdx] == k}">
-        <a ng-click="showFacet(f.colIdx, k)" href="">{{k}}</a>
+    <ul>
+      <li ng-repeat="f in facets"
+          ng-class="{selected: facet == f}">
+        <a ng-click="setFacet(f)" href="">{{f}}</a>
       </li>
     </ul>
   </div>
 </div>
 
-<div class="table"></div>
+<div class="dataTable">
+  <table>
+    <tbody>
+      <tr ng-repeat="column in transposedData track by $index" ng-class="{odd: $odd, even: $even}">
+        <td ng-repeat="row in column track by $index" ng-class="{schema: $index == 0, raw: row.raw(), derived: !row.raw()}" vde-draggable vde-field="row">
+          {{row.name || row}}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="inner paging">
+  <p class="buttons">
+    <a ng-click="prevPage()" ng-class="{enabled: page > 0}" class="prev">Previous</a>
+    <a ng-click="nextPage()" ng-class="{enabled: page+1 < size/limit}" class="next">Next</a>
+  </p>
+
+  <p>{{page*limit+1 | number:0}}–{{ (size > page*limit+limit) ? page*limit+limit : size | number:0}} of {{size | number:0}}</p>
+</div>
 
 <br clear="all" />

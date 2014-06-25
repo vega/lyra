@@ -98,7 +98,7 @@ module.exports = function(grunt) {
     },
     githooks: {
       all: {
-        'pre-commit': 'build shell:build'
+        'pre-commit': 'build'
       }
     },
     concat: {
@@ -114,13 +114,18 @@ module.exports = function(grunt) {
         dest: 'src/js/vis.js'
       }
     },
-    shell: {
-      build: {
-        command: [
-          "git add src/js/vde.js",
-          "git add src/js/app.js",
-          "git add src/js/vis.js"
-        ].join(' && ')
+    watch: {
+      app: {
+        files: ['src/js/app/**/*.js'],
+        tasks: ['concat:app']
+      },
+      vis: {
+        files: ['src/js/vis/**/*.js'],
+        tasks: ['concat:vis']
+      },
+      less: {
+        files: ['src/css/*.less'],
+        tasks: ['less']
       }
     }
   });
@@ -132,7 +137,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-githooks');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask('test', ['build', 'http-server:dev', 'protractor', 'jshint:dev', 'karma']);
   grunt.registerTask('build', ['less', 'concat']);

@@ -530,7 +530,7 @@ vde.iVis = (function() {
     if(!ivis.dragging) return;
 
     var rootScope = ivis.ngScope();
-    var field = $(ivis.dragging).data('field') || $(ivis.dragging).find('.schema').data('field') || $(ivis.dragging).find('.schema').attr('field');
+    var field = $(ivis.dragging).data('field') || $(ivis.dragging).find('.schema').data('field');
     var scale = $(ivis.dragging).find('.scale').attr('scale');
     var pipelineName = rootScope.activePipeline.name;
 
@@ -2197,7 +2197,7 @@ vde.Vis.Pipeline = (function() {
         [data[0].data, data[0]].forEach(function(v, i) {
           vg.keys(v).forEach(function(k) {
             if(i !== 0 && ['data', 'values', 'keys', 'stats'].indexOf(k) != -1) return;
-            if(k == 'key') k += '_' + depth;
+            // if(k == 'key') k += '_' + depth;
             if(seenFields[k]) return;
 
             var field = new vde.Vis.Field(k, (i === 0) ? 'data.' : '');

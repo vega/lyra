@@ -8,7 +8,7 @@
     </div>
 
 
-    <div ng-if="field" class="schema" ng-class="{'raw': field.raw(), 'derived': !field.raw()}" field="{{field.name || field}}" field-spec="{{field.spec()}}">
+    <div ng-if="field" class="schema" ng-class="{'raw': field.raw(), 'derived': !field.raw()}" vde-field="field">
       <span ng-show="field.stat">{{field.stat}}({{field.name || field}})</span>
       <span ng-hide="field.stat">{{field.name || field}}</span>
 

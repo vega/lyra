@@ -8,11 +8,6 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
     },
     templateUrl: 'tmpl/inspectors/binding.html',
     controller: function($scope) {
-      // if($attrs.draggable) {
-//        var el = $compile("<div class=\"binding-draggable\" vde-draggable></div>")($scope);
-//        $element.append(el);
-      // }
-
       $rootScope.aggregate = function(stat) {
         var field = $rootScope.activeField;
         field.pipeline().aggregate(field, stat);
@@ -63,16 +58,6 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
           inspector.toggle();
         }, 100);
       };
-    },
-    link: function(scope, element) {
-      // if(attrs.draggable) {
-        var binding = element.find('.binding');
-        element.find('.binding-draggable').append(binding);
-      // }
-      $timeout(function() {
-        if(scope.field instanceof Vis.Field)
-          element.find('.schema').data('field', scope.field);
-      }, 100);
     }
   };
 });
