@@ -430,12 +430,13 @@ a.add:hover {
 }
 .expr-container .schema {
   float: none;
-  display: inline-block;
+  display: inline;
   position: relative;
   cursor: default !important;
+  padding: 1px 5px;
 }
 .expr-container .expr {
-  position: relative;
+  display: block !important;
 }
 .colorpicker.dropdown {
   background-color: white;

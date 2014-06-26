@@ -875,18 +875,14 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
         };
 
         // Safe apply in case parse is called from within a watch.
-        if(digesting) {
-          applyProperties();
-        } else {
-          scope.$apply(applyProperties);
-        }
+        if(digesting) applyProperties();
+        else          scope.$apply(applyProperties);
       };
 
       $(element).find('.expr')
         // .html(scope.$parent.ngModel)
         .drop(function(e, dd) {
-          var proxy = iVis.dragging;
-          var field = $(proxy).data('field') || $(proxy).find('.schema').data('field') || $(proxy).find('.schema').attr('field');
+          var field = $(iVis.dragging).data('field') || $(iVis.dragging).find('.schema').data('field');
           if(!field) return;
 
           if(scope.item instanceof Vis.Transform &&
@@ -939,8 +935,9 @@ vde.App.directive('vdeField', function(Vis) {
     scope: { vdeField: '=' },
     link: function(scope, element, attrs) {
       scope.$watch('vdeField', function() {
-        if(scope.vdeField instanceof Vis.Field)
-          element.data('field', scope.vdeField);
+        if(scope.vdeField instanceof Vis.Field) 
+          element.data('field', scope.vdeField)
+            .attr('field-spec', scope.vdeField.spec());
       });
     }
   }
