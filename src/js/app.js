@@ -695,10 +695,11 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg, $timeout) 
         fullData = schema[1];
 
         // Hierarchical data (which is always nested under fullData.values)
-        if(vg.isObject(fullData) && !vg.isArray(fullData)) {
-          $scope.facets = fullData.values.map(function(v) { return v.key });
+        if(fullData.values || fullData[0].values) {
+          var values = fullData.values || fullData;
+          $scope.facets = values.map(function(v) { return v.key });
           $scope.facet = $scope.facets[0];
-          $scope.fullSize = fullData.values.reduce(function(acc, v) { 
+          $scope.fullSize = values.reduce(function(acc, v) { 
             return acc+v.values.length }, 0);
         } else {
           $scope.facets = [];
@@ -713,9 +714,10 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg, $timeout) 
       function transposeData() {
         var data = fullData, transpose = [];
         if($scope.facet) {
-          for(var i = 0; i < fullData.values.length; i++) {
-            if(fullData.values[i].key == $scope.facet) {
-              data = fullData.values[i].values;
+          var values = fullData.values || fullData;
+          for(var i = 0; i < values.length; i++) {
+            if(values[i].key == $scope.facet) {
+              data = values[i].values;
               break;
             }
           }
