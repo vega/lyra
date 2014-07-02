@@ -140,5 +140,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', ['build', 'http-server:dev', 'protractor', 'jshint:dev', 'karma']);
   grunt.registerTask('build', ['less', 'concat']);
-  grunt.registerTask('serve', ['build', 'http-server:stay-open'])
+  grunt.registerTask('serve', ['build', 'http-server:stay-open']);
+  grunt.registerTask('unit', ['build', 'karma']);
 };
