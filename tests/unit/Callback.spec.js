@@ -43,7 +43,7 @@ describe('Callback', function() {
     callback.register('test', null, cb);
     callback.clearAll();
     callback.run('test', null, {});
-    
+
     expect(cb).not.toHaveBeenCalled();
   });
 
@@ -60,16 +60,19 @@ describe('Callback', function() {
 
   it('should pass the correct values to the callback', function() {
     var cb = jasmine.createSpy();
-    cb.and.callFake(function(opts) {
+    cb.and.callFake(function(options) {
       expect(this.correct).toBe(true);
     });
 
+    var opts = {options: true};
+
     callback.register('test', {correct: true}, cb);
-    callback.run('test', 'item', {options: true});
+    callback.run('test', 'item', opts);
   
     expect(cb).toHaveBeenCalledWith({
       options: true,
       item: 'item'
     });
+    expect(opts.item).toBe('item');
   });
 });
