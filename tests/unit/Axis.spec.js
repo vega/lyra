@@ -4,36 +4,13 @@ describe("Axis", function() {
   var axis;
 
   beforeEach(function() {
+    test_util.jasmineMatchers();
     vde.Vis.groups = {mylayer: {
       _axisCount: 0,
       isLayer: function() { return true; },
       axes: {}
     }};
     axis = new Axis('myaxis', 'mylayer');
-
-    jasmine.addMatchers({
-      toHaveProperties: function(tab) {
-        return {
-          compare: function match(actual, tab) {
-            var result = {pass: true};
-            for(var k in tab) {
-              if(tab.hasOwnProperty(k)) {
-                var value = actual[k];
-                if(typeof value === 'object' && typeof tab[k] === 'object') {
-                  result = match.call(null, value, tab[k]);
-                } else {
-                  if(value !== tab[k]) {
-                    result.pass = false;
-                    break;
-                  }
-                }
-              }
-            }
-            return result;
-          }
-        }
-      }
-    });
   });
 
   afterEach(function() {
