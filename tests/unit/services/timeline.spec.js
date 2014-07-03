@@ -44,7 +44,7 @@ describe('timeline', function() {
     }
   });
 
-  describe('undo', function() {
+  xdescribe('undo', function() {
     it('should ', function() {
       var time = timeline.timeline;
       expect(time[time.length-1].vis.VisVersion).toBe(24);
