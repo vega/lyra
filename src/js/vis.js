@@ -159,7 +159,7 @@ vde.Vis = (function() {
 
       // If the vis gets reparsed, reparse the interactive layer too to update any
       // visible handlers, etc.
-      vde.iVis.parse().then(function(ispec) { deferred.resolve(spec); });
+      vde.iVis.parse().then(function() { deferred.resolve(spec); });
     });
 
     return deferred.promise;
@@ -542,7 +542,7 @@ vde.iVis = (function() {
         {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
-    vde.Vis.parse().then(function(spec) {
+    vde.Vis.parse().then(function() {
       $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
@@ -575,7 +575,7 @@ vde.iVis = (function() {
 
     rootScope.$apply(function() {
       mark.init();
-      vde.Vis.parse().then(function(spec) {
+      vde.Vis.parse().then(function() {
         rootScope.toggleVisual(mark, null, true);
         ivis.ngTimeline().save();
 
@@ -747,7 +747,7 @@ vde.iVis = (function() {
   };
 
   ivis.scale = function(scale, spec) {
-    var props = scale.properties, pipeline = scale.pipeline();
+    var pipeline = scale.pipeline();
     if(!pipeline || !pipeline.source) return;
 
     // If this scale is already shown on the vis, we don't need to bother
@@ -1246,7 +1246,7 @@ vde.Vis.Mark = (function() {
         }
       }
 
-      newStart.some(function(s) { if(def = visit(s)) return true; });
+      newStart.some(function(s) { if( (def = visit(s)) ) return true; });
       start = newStart;
     }
 
@@ -1257,8 +1257,7 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.items = function() {
-    var self = this,
-        parents = this.type == 'group' && this.isLayer() ?
+    var parents = this.type == 'group' && this.isLayer() ?
             [vde.Vis.view.model().scene().items[0]] : this.group().items(),
         def = this.def();
 
@@ -1342,19 +1341,19 @@ vde.Vis.Mark = (function() {
     this.layerName = imp.layerName;
   };
 
-  prototype.defaults = function(prop) { return null; };
+  prototype.defaults = function(/* prop */) { return null; };
 
   prototype.selected = function() { return {}; };
-  prototype.helper   = function(property) { return null; };
+  prototype.helper   = function(/* property */) { return null; };
 
-  prototype.propertyTargets   = function(connector, showGroup) { return null; };
+  prototype.propertyTargets   = function(/* connector, showGroup */) { return null; };
   prototype.connectionTargets = function() { return null; };
 
-  prototype.connect = function(connector, mark) { return null; };
+  prototype.connect = function(/* connector, mark */) { return null; };
 
-  prototype.coordinates = function(connector, item, def) { return null; };
-  prototype.handles = function(item) { return null; };
-  prototype.spans = function(item, property) { return null; };
+  prototype.coordinates = function(/* connector, item, def */) { return null; };
+  prototype.handles = function(/* item */) { return null; };
+  prototype.spans = function(/* item, property */) { return null; };
 
   prototype.dropzones = function(area) {
     if(area.connector) {
@@ -2051,7 +2050,7 @@ vde.Vis.callback = (function() {
 	};
 
 	callback.clearAll = function() {
-		this._registered = {}
+		this._registered = {};
 	};
 
 	return callback;
