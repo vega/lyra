@@ -1,19 +1,20 @@
 describe('Vde Controller', function() {
   var scope, rootScope, window, timeout, location, http,
-      timeline, Vis, iVis, vg, ctrl;
+      timeline, Vis, iVis, vg, searchQuery, ctrl;
 
   beforeEach(module('vde'));
 
   beforeEach(inject(function($rootScope, $timeout, $controller, $httpBackend, $q, vg) {
+    searchQuery = {};
     test_util.jasmineMatchers();
     rootScope = $rootScope.$new();
     scope = rootScope.$new();
     window = jasmine.createSpyObj('window', ['addEventListener']);
     timeout = $timeout;
     location = jasmine.createSpyObj('location', ['search']);
-    location.search.and.returnValue({search:'search string'})
+    location.search.and.returnValue(searchQuery);
     http = $httpBackend;
-    timeline = jasmine.createSpyObj('timeline', ['save']);
+    timeline = jasmine.createSpyObj('timeline', ['save', 'redo']);
     Vis = jasmine.createSpyObj('Vis', ['data', 'parse', 'Pipeline']);
     Vis.parse.and.returnValue($q.when());
     Vis._rawData = {};
@@ -25,7 +26,6 @@ describe('Vde Controller', function() {
       $window: window,
       $timeout: timeout,
       $location: location,
-      $http: http,
       timeline: timeline,
       Vis: Vis,
       iVis: iVis,
@@ -52,6 +52,18 @@ describe('Vde Controller', function() {
       expect(rootScope.activeGroup).toBeTruthy();
       expect(rootScope.activeLayer).toBeTruthy();
       expect(rootScope.activePipeline).toBeTruthy();
+    });
+
+    it('should watch the search', function() {
+      http.expectGET('examples/test.json')
+      .respond('test data');
+      searchQuery.example = 'test';
+      scope.$digest();
+      http.flush();
+
+      expect(timeline.timeline).toBe('test data');
+
+      delete searchQuery.example;
     });
   });
 });
