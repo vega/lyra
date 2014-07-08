@@ -44,20 +44,51 @@ describe('timeline', function() {
     }
   });
 
-  xdescribe('undo', function() {
-    it('should ', function() {
-      var time = timeline.timeline;
-      expect(time[time.length-1].vis.VisVersion).toBe(24);
-
-      timeline.undo();
-
-      expect(rootScope.activeVisual.name).toBe("Visual 23");
+  describe('undo/redo', function() {
+    beforeEach(function() {
+      timeline.load = jasmine.createSpy();
     });
-  });
 
-  describe('redo', function() {
-    it('should', function() {
+    it('should undo several times', function() {
+      timeline.undo();
+      expect(timeline.load).toHaveBeenCalledWith(23);
+      timeline.undo();
+      expect(timeline.load).toHaveBeenCalledWith(22);
+    });
 
+    it('should undo then redo', function() {
+      timeline.undo();
+      expect(timeline.load).toHaveBeenCalledWith(23);
+
+      timeline.redo();
+      expect(timeline.load).toHaveBeenCalledWith(24);
+    });
+
+    it('should do not redo past the end', function() {
+      timeline.redo();
+      expect(timeline.load).toHaveBeenCalledWith(24);
+    });
+
+    it('should not undo past the end', function() {
+      for(var i = 0; i < 27; i++) {
+        timeline.undo();
+        expect(timeline.load).toHaveBeenCalledWith(Math.max(23 - i, 0))
+      }
+      expect(timeline.load).not.toHaveBeenCalledWith(-1);
+    });
+
+    it('should erase future on save', function() {
+      timeline.undo();
+      timeline.undo();
+      timeline.save();
+
+      expect(timeline.load).toHaveBeenCalledWith(23);
+      expect(timeline.load).toHaveBeenCalledWith(22);
+
+      timeline.redo();
+      timeline.redo();
+      expect(timeline.load).toHaveBeenCalledWith(23);
+      expect(timeline.load).not.toHaveBeenCalledWith(24);
     });
   });
 });
