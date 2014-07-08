@@ -31,7 +31,7 @@ vde.Vis.callback = (function() {
 	};
 
 	callback.clearAll = function() {
-		this._registered = {}
+		this._registered = {};
 	};
 
 	return callback;
