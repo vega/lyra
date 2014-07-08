@@ -80,7 +80,7 @@ describe('timeline', function() {
     it('should erase future on save', function() {
       timeline.undo();
       timeline.undo();
-      timeline.save();
+      timeline.save(); //now the two state we un-did should be gone
 
       expect(timeline.load).toHaveBeenCalledWith(23);
       expect(timeline.load).toHaveBeenCalledWith(22);
