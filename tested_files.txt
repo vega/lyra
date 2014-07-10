@@ -39,7 +39,7 @@ Vis
 	u Field.js
 	Mark.js
 	Pipeline.js
-	Scale.js
+	u Scale.js
 	u Transform.js
 	Vis.js
 	iVis.js

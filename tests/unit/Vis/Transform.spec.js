@@ -92,7 +92,7 @@ describe('Transform', function() {
 
       transform.unbindProperty('testProp');
 
-      expect('testProp' in transform).toBe(false);
+      expect('testProp' in transform.properties).toBe(false);
     });
   });
 
