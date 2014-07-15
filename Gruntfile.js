@@ -24,7 +24,7 @@ module.exports = function(grunt) {
             "src/js/lib/**/jquery*.js",
             "src/js/lib/bootstrap.min.js",
             "src/js/lib/d3.v3.min.js",
-            "src/js/lib/vega-1.3.3.js",
+            "src/js/lib/vega-1.4.1.js",
             "src/js/lib/angular-1.2.10.min.js",
             "src/js/lib/angular-1.2.12-mocks.js",
             "src/js/lib/bootstrap-colorpicker-module.js",
