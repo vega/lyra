@@ -171,8 +171,17 @@ vde.Vis = (function() {
       groupOrder: vg.duplicate(vis.groupOrder),
       pipelines: vg.duplicate(vis.pipelines),
       properties: vg.duplicate(vis.properties),
-      _data: data ? vg.duplicate(vis._data) : {}
     };
+
+    // Only store used raw data
+    if(data) {
+      ex._data = {};
+      for(var p in vis.pipelines) {
+        var src = vis.pipelines[p].source;
+        if(!src) continue;
+        ex._data[src] = vg.duplicate(vis._data[src]);
+      }
+    }
 
     for(var g in vis.groups) ex.groups[g] = vg.duplicate(vis.groups[g].export());
     return ex;
