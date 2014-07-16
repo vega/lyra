@@ -1,4 +1,4 @@
-vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timeline, $timeout) {
+vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timeline, $timeout, Vis) {
   var t = function() {
     return {
       length: timeline.timeline.length,
@@ -47,6 +47,16 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
         $timeout(function() { files(); }, 100);
       });
     }
+  };
+
+  $scope.finishEditing = function() {
+    Vis.parse().then(function(spec) {
+      $window.opener.postMessage({
+        timeline: timeline.timeline,
+        spec: spec
+      }, $window.location.origin);
+      $window.close();
+    });
   };
 
   $rootScope.closeTimelinePopovers = function() {

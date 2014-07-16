@@ -930,6 +930,9 @@ a.add:hover {
 #save {
   background: transparent url(../imgs/save.png) no-repeat 50% 50%;
 }
+#finishEditing {
+  background: transparent url(../imgs/export.png) no-repeat 50% 50%;
+}
 #share {
   background: transparent url(../imgs/share.png) no-repeat 50% 50%;
 }
