@@ -1,6 +1,6 @@
 vde.Vis.Field = (function() {
   var field = function(name, accessor, type, pipelineName, stat) {
-    if(arguments[0] instanceof vde.Vis.Field) {
+    if(typeof arguments[0] === 'object') {
       var f = arguments[0]; name = f.name;
       accessor = f.accessor; type = f.type;
       pipelineName = f.pipelineName; stat = f.stat;

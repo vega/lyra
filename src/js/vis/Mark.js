@@ -397,7 +397,7 @@ vde.Vis.Mark = (function() {
         }
       }
 
-      newStart.some(function(s) { if(def = visit(s)) return true; });
+      newStart.some(function(s) { if( (def = visit(s)) ) return true; });
       start = newStart;
     }
 
@@ -408,8 +408,7 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.items = function() {
-    var self = this,
-        parents = this.type == 'group' && this.isLayer() ?
+    var parents = this.type == 'group' && this.isLayer() ?
             [vde.Vis.view.model().scene().items[0]] : this.group().items(),
         def = this.def();
 
@@ -493,19 +492,19 @@ vde.Vis.Mark = (function() {
     this.layerName = imp.layerName;
   };
 
-  prototype.defaults = function(prop) { return null; };
+  prototype.defaults = function(/* prop */) { return null; };
 
   prototype.selected = function() { return {}; };
-  prototype.helper   = function(property) { return null; };
+  prototype.helper   = function(/* property */) { return null; };
 
-  prototype.propertyTargets   = function(connector, showGroup) { return null; };
+  prototype.propertyTargets   = function(/* connector, showGroup */) { return null; };
   prototype.connectionTargets = function() { return null; };
 
-  prototype.connect = function(connector, mark) { return null; };
+  prototype.connect = function(/* connector, mark */) { return null; };
 
-  prototype.coordinates = function(connector, item, def) { return null; };
-  prototype.handles = function(item) { return null; };
-  prototype.spans = function(item, property) { return null; };
+  prototype.coordinates = function(/* connector, item, def */) { return null; };
+  prototype.handles = function(/* item */) { return null; };
+  prototype.spans = function(/* item, property */) { return null; };
 
   prototype.dropzones = function(area) {
     if(area.connector) {

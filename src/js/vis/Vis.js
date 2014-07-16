@@ -159,7 +159,7 @@ vde.Vis = (function() {
 
       // If the vis gets reparsed, reparse the interactive layer too to update any
       // visible handlers, etc.
-      vde.iVis.parse().then(function(ispec) { deferred.resolve(spec); });
+      vde.iVis.parse().then(function() { deferred.resolve(spec); });
     });
 
     return deferred.promise;

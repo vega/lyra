@@ -239,7 +239,7 @@ vde.iVis = (function() {
         {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
-    vde.Vis.parse().then(function(spec) {
+    vde.Vis.parse().then(function() {
       $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
@@ -272,7 +272,7 @@ vde.iVis = (function() {
 
     rootScope.$apply(function() {
       mark.init();
-      vde.Vis.parse().then(function(spec) {
+      vde.Vis.parse().then(function() {
         rootScope.toggleVisual(mark, null, true);
         ivis.ngTimeline().save();
 
@@ -444,7 +444,7 @@ vde.iVis = (function() {
   };
 
   ivis.scale = function(scale, spec) {
-    var props = scale.properties, pipeline = scale.pipeline();
+    var pipeline = scale.pipeline();
     if(!pipeline || !pipeline.source) return;
 
     // If this scale is already shown on the vis, we don't need to bother

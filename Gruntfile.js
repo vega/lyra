@@ -23,7 +23,6 @@ module.exports = function(grunt) {
             "src/js/lib/jquery.min-1.9.0.js",
             "src/js/lib/**/jquery*.js",
             "src/js/lib/bootstrap.min.js",
-            "src/js/lib/datatables/FixedColumns.js",
             "src/js/lib/d3.v3.min.js",
             "src/js/lib/vega-1.3.3.js",
             "src/js/lib/angular-1.2.10.min.js",
@@ -141,5 +140,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', ['build', 'http-server:dev', 'protractor', 'jshint:dev', 'karma']);
   grunt.registerTask('build', ['less', 'concat']);
-  grunt.registerTask('serve', ['build', 'http-server:stay-open'])
+  grunt.registerTask('serve', ['build', 'http-server:stay-open']);
+  grunt.registerTask('unit', ['build', 'karma']);
 };

@@ -677,7 +677,7 @@ vde.App.directive('vdeCanDropField', function() {
     }
   };
 });
-vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg, $timeout) {
+vde.App.directive('vdeDataGrid', function () {
   return {
     restrict: 'A',
     scope: {
@@ -686,7 +686,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg, $timeout) 
       sliceEnd: '&'
     },
     templateUrl: 'tmpl/inspectors/datasheet.html',
-    controller: function($scope, $element) {
+    controller: function($scope) {
       var columns = [], fullData = [];
 
       function getSchema() { 
@@ -697,10 +697,10 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg, $timeout) 
         // Hierarchical data (which is always nested under fullData.values)
         if(fullData.values || fullData[0].values) {
           var values = fullData.values || fullData;
-          $scope.facets = values.map(function(v) { return v.key });
+          $scope.facets = values.map(function(v) { return v.key; });
           $scope.facet = $scope.facets[0];
           $scope.fullSize = values.reduce(function(acc, v) { 
-            return acc+v.values.length }, 0);
+            return acc+v.values.length; }, 0);
         } else {
           $scope.facets = [];
           $scope.facet = null;
@@ -709,13 +709,14 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg, $timeout) 
 
         $scope.limit = 20;
         $scope.page  = 0;
-      };
+      }
 
       function transposeData() {
         var data = fullData, transpose = [];
+        var i;
         if($scope.facet) {
           var values = fullData.values || fullData;
-          for(var i = 0; i < values.length; i++) {
+          for(i = 0; i < values.length; i++) {
             if(values[i].key == $scope.facet) {
               data = values[i].values;
               break;
@@ -726,22 +727,22 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg, $timeout) 
         $scope.size = data.length;
         data = data.slice($scope.page*$scope.limit, $scope.page*$scope.limit + $scope.limit);
 
-        for(var i = 0; i < columns.length; i++) {
+        for(i = 0; i < columns.length; i++) {
           var row = [columns[i]];
 
           for(var j = 0; j < data.length; j++)
             row.push(columns[i].spec() == "key" ? $scope.facet : 
-              eval("data[j]." + columns[i].spec()))
+              eval("data[j]." + columns[i].spec()));
 
           transpose.push(row);
         }
 
         $scope.transposedData = transpose;
-      };
+      }
 
-      $scope.prevPage = function()  { --$scope.page; }
-      $scope.nextPage = function()  { ++$scope.page; }
-      $scope.setFacet = function(f) { $scope.facet = f; } 
+      $scope.prevPage = function()  { --$scope.page; };
+      $scope.nextPage = function()  { ++$scope.page; };
+      $scope.setFacet = function(f) { $scope.facet = f; };
 
       $scope.$watch(function($scope) {
         return {
@@ -752,7 +753,7 @@ vde.App.directive('vdeDataGrid', function ($rootScope, draggable, vg, $timeout) 
       }, function() { getSchema(); transposeData(); }, true);
 
       $scope.$watch(function($scope) {
-        return {page: $scope.page, facet: $scope.facet}
+        return {page: $scope.page, facet: $scope.facet};
       }, transposeData, true);
 
       var carouselInterval;
@@ -935,7 +936,7 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
 vde.App.directive('vdeField', function(Vis) {
   return {
     scope: { vdeField: '=' },
-    link: function(scope, element, attrs) {
+    link: function(scope, element) {
       var isField = scope.vdeField instanceof Vis.Field;
 
       scope.$watch(function(scope) { 
@@ -946,7 +947,7 @@ vde.App.directive('vdeField', function(Vis) {
             .attr('field-spec', scope.vdeField.spec());
       });
     }
-  }
+  };
 });
 vde.App.directive('vdeInferredPopover', function($timeout) {
   return {
