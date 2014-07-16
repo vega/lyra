@@ -419,7 +419,7 @@ vde.App.controller('ScaleCtrl', function($scope, $rootScope, Vis) {
     });
   };
 });
-vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timeline, $timeout) {
+vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timeline, $timeout, Vis) {
   var t = function() {
     return {
       length: timeline.timeline.length,
@@ -470,6 +470,16 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
     }
   };
 
+  $scope.finishEditing = function() {
+    Vis.parse().then(function(spec) {
+      $window.opener.postMessage({
+        timeline: timeline.timeline,
+        spec: spec
+      }, $window.location.origin);
+      $window.close();
+    });
+  };
+
   $rootScope.closeTimelinePopovers = function() {
     $rootScope.fileOpenPopover = false;
     $rootScope.fileSavePopover = false;
@@ -516,42 +526,17 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
 
     // Load defaults on a timeout to allow everything else to load.
     $timeout(function() {
-      if(vg.keys(Vis._rawData).length === 0) {
-        Vis.data('medals', 'data/medals.json', 'json');
-        Vis.data('olympics', 'data/olympics.json', 'json');
-        Vis.data('groups', 'data/groups.json', 'json');
-        Vis.data('barley', 'data/barley.json', 'json');
-        Vis.data('iris', 'data/iris.json', 'json');
-        Vis.data('jobs', 'data/jobs.json', 'json');
-        Vis.data('cities', 'data/cities.json', 'json');
-        Vis.data('army', 'data/army.json', 'json');
-        Vis.data('temps', 'data/temps.json', 'json');
-        Vis.data('trailers', 'data/trailers.json', 'json');
-        Vis.data('movies', 'data/movies.json', 'json');
-        Vis.data('characters', 'data/mis-characters.json', 'json');
-        Vis.data('connections', 'data/mis-connections.json', 'json');
-        Vis.data('trains', 'data/trains.json', 'json');
-        Vis.data('stations', 'data/stations.json', 'json');
-        Vis.data('unemployment', 'data/unemployment.json', 'json');
-        Vis.data('wheat', 'data/wheat.json', 'json');
-        Vis.data('monarchs', 'data/monarchs.json', 'json');
-        Vis.data('hotels', 'data/hotels.json', 'json');
-        Vis.data('rundown', 'data/rundown.json', 'json');
-        Vis.data('deaths', 'data/curves.json', 'json');
-        Vis.data('zipcodes', 'data/zipcodes.json', 'json');
-        Vis.data('gas', 'data/gas.json', 'json');
-      }
-
       var g = new Vis.marks.Group();
       $rootScope.activeGroup = $rootScope.activeLayer = g;
 
       var p = new Vis.Pipeline();
       $rootScope.activePipeline = p;
 
-      // To be able to undo all the way back to a default/clean slate.
       Vis.parse().then(function() {
+        // Add an initial blank slate state to the timeline.
         timeline.save();
 
+        // Watch to load example visualizations from #?example= query str 
         $scope.$watch(function() { return $location.search(); }, function() {
           var ex = $location.search().example;
           if(ex) {
@@ -561,11 +546,63 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
             });
           }
         }, true);
+
+        // Only load default datasets if we've not received it elsewhere.
+        if(vg.keys(Vis._rawData).length === 0) {
+          Vis.data('medals', 'data/medals.json', 'json');
+          Vis.data('olympics', 'data/olympics.json', 'json');
+          Vis.data('groups', 'data/groups.json', 'json');
+          Vis.data('barley', 'data/barley.json', 'json');
+          Vis.data('iris', 'data/iris.json', 'json');
+          Vis.data('jobs', 'data/jobs.json', 'json');
+          Vis.data('cities', 'data/cities.json', 'json');
+          Vis.data('army', 'data/army.json', 'json');
+          Vis.data('temps', 'data/temps.json', 'json');
+          Vis.data('trailers', 'data/trailers.json', 'json');
+          Vis.data('movies', 'data/movies.json', 'json');
+          Vis.data('characters', 'data/mis-characters.json', 'json');
+          Vis.data('connections', 'data/mis-connections.json', 'json');
+          Vis.data('trains', 'data/trains.json', 'json');
+          Vis.data('stations', 'data/stations.json', 'json');
+          Vis.data('unemployment', 'data/unemployment.json', 'json');
+          Vis.data('wheat', 'data/wheat.json', 'json');
+          Vis.data('monarchs', 'data/monarchs.json', 'json');
+          Vis.data('hotels', 'data/hotels.json', 'json');
+          Vis.data('rundown', 'data/rundown.json', 'json');
+          Vis.data('deaths', 'data/curves.json', 'json');
+          Vis.data('zipcodes', 'data/zipcodes.json', 'json');
+          Vis.data('gas', 'data/gas.json', 'json');
+        }
       });
     }, 500);
   };
 
   $scope.marks = ['Rect', 'Symbol', 'Arc', 'Area', 'Line', 'Text'];
+
+  // Listen for messages from other applications (editor mode)
+  $rootScope.editorMode = false;
+  $window.addEventListener('message', function(evt) {
+    // evt.data = {timeline: {}, data: {name: '', values: []}}
+    var d = evt.data;
+    if(!d) return;
+
+    $rootScope.editorMode = true;
+
+    $scope.$apply(function() {
+      if(d.data) {
+        Vis.data(d.data.name, d.data.values);
+        $rootScope.activePipeline.source = d.data.name;
+      }
+
+      if(d.timeline) {
+        timeline.timeline = d.timeline;
+        timeline.currentIdx = d.timeline.length - 1
+        timeline.redo();
+      } else { 
+        timeline.save();
+      }
+    });
+  });
 
   // Prevent backspace from navigating back and instead delete
   $window.addEventListener('keydown', function(evt) {
@@ -589,8 +626,12 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
     }
   });
 
-  // Prompt before unloading
+  // Prompt before unloading, only if not in editor mode.
   $window.addEventListener("beforeunload", function(e) {
+    // Don't prompt if we're in editor mode because, presumably, this is
+    // non-destructive. 
+    if($rootScope.editorMode) return; 
+
     var msg = 'You have unsaved changed in Lyra.';
     (e || $window.event).returnValue = msg;     //Gecko + IE
     return msg;                                 //Webkit, Safari, Chrome etc.

@@ -23,7 +23,8 @@ vde.Vis = (function() {
     if(vg.isObject(data)) {
       vis._data[name] = {
         name: name,
-        values: data
+        values: data,
+        format: {}
       };
     }
 
