@@ -328,6 +328,15 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
     $rootScope.fromSources.push({key: 'New Data Source', value: 'vdeNewData'});
   }, true);
 
+  // We track the active pipeline's source via pMdl.activePipelineSource to
+  // allow showing the new data source popover. Watch the activePipeline.source
+  // in case that's set independently.
+  $scope.$watch(function() {
+    return ($rootScope.activePipeline || {}).source
+  }, function() { 
+    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source 
+  });
+
   $rootScope.addPipeline = function() {
     var p = new Vis.Pipeline();
     $rootScope.togglePipeline(p);
