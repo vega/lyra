@@ -72,8 +72,6 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
       $scope.onchange = function(prop) {
         if(!prop) prop = $scope.property;
         if($attrs.nochange) return;
-        if('checkExtents' in $scope.item)
-          $scope.item.checkExtents(prop);
 
         // X/Y-Axis might be added by default if fields dropped over dropzones.
         // If the user toggles to them, assume they're going to edit, and delete
@@ -131,8 +129,13 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
       // This block of code ensures that the extent selects stay in sync.
       if($scope.extentsProps) {
         $scope.$watch(function($scope) {
-          return {p: $scope.property, b: $scope.extentsBound,
-            v: $scope.extentsProps.map(function(p) { return $scope.item.properties[p.property]; })};
+          return {
+            p: $scope.property, 
+            b: $scope.extentsBound,
+            v: $scope.extentsProps.map(function(p) { 
+              return $scope.item.properties[p.property]; 
+            })
+          };
         }, function(newVal, oldVal) {
           $scope.properties = [];
 
@@ -146,6 +149,8 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
               $scope.item.properties[oldVal.p].disabled = true;
               delete $scope.extentsBound[oldVal.p];
             }
+
+            Vis.parse();
           }
 
           // This happens if a production rule disables the current property.

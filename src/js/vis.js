@@ -1184,34 +1184,6 @@ vde.Vis.Mark = (function() {
     return [scale, field];
   };
 
-  prototype.checkExtents = function(prop) {
-    var self = this;
-
-    for(var ext in this.extents) {
-      var e = this.extents[ext], p = this.properties[prop];
-      if(e.fields.indexOf(prop) == -1) continue;
-
-      var check = e.fields.reduce(function(c, f) { return (self.properties[f] || {}).scale ? c : c.concat([f]); }, []);
-      var hist  = e.history || (e.history = []);
-      if(hist.indexOf(prop) != -1) hist.splice(hist.indexOf(prop), 1);
-      delete p.disabled;
-
-      // If we've hit the limit based on scales, then disable the rest of the fields
-      if(e.fields.length - check.length == e.limit)
-        check.forEach(function(f) { self.properties[f].disabled = true; });
-      else {  // Otherwise, check the history
-        var remaining = e.limit - (e.fields.length - check.length);
-        if(!p.scale) hist.push(prop);
-
-        if(hist.length > remaining) {
-          var pOld = hist.shift();
-          if(pOld != prop && check.indexOf(pOld) != -1) this.properties[pOld].disabled = true;
-          this.update(pOld);
-        }
-      }
-    }
-  };
-
   prototype.unbindProperty = function(prop) {
     this.properties[prop] = {value: prop.match('fill|stroke') ? '#000000' : 0};
   };
