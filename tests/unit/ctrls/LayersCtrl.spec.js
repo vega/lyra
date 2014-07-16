@@ -279,17 +279,6 @@ describe('Layers Controller', function() {
       expect(Vis.parse).toHaveBeenCalled();
     });
 
-    it('should called check extents if present', function() {
-      var props = {};
-      var checkExtents = jasmine.createSpy();
-      rootScope.activeVisual = {properties: props, checkExtents: checkExtents};
-      scope.toggleProp('foo', 'test');
-
-      expect(props.foo.value).toEqual('test');
-      expect(Vis.parse).toHaveBeenCalled();
-      expect(checkExtents).toHaveBeenCalledWith('foo');
-    });
-
     it('should call update instead of parse if present', function() {
       var props = {};
       var update = jasmine.createSpy();
