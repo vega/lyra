@@ -27,7 +27,7 @@
 
       <!-- Existing transforms -->
       <div class="existing-transforms" ng-repeat="transform in pipeline.transforms"
-           ng-show="!transform.isVisual && transform.type != 'stats'">
+           ng-show="!transform.isVisual">
 
         <div class="heading">
           {{transform.displayName}}
@@ -57,6 +57,7 @@
           <a class="transform-formula btn btn-small" ng-click="newTransform('Formula')">Formula</a>
           <a class="transform-facet btn btn-small" ng-click="newTransform('Facet')">Group By</a>
           <a class="transform-window btn btn-small" ng-click="newTransform('Window')">Window</a>
+          <a class="transform-window btn btn-small" ng-click="newTransform('Stats')">Stats</a>
         </div>
       </div><!-- /show transforms -->
 
@@ -65,7 +66,7 @@
         <div class="heading">{{transform.displayName}}</div>
 
         <div class="inner">
-          <ng-include ng-show="!transform.isVisual && transform.type != 'stats'"
+          <ng-include ng-show="!transform.isVisual"
                       src="'tmpl/transforms/' + (transform.type|lowercase) + '.html'">
           </ng-include>
 

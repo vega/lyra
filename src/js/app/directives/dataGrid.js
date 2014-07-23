@@ -22,6 +22,30 @@ vde.App.directive('vdeDataGrid', function () {
           $scope.facet = $scope.facets[0];
           $scope.fullSize = values.reduce(function(acc, v) { 
             return acc+v.values.length; }, 0);
+        } else if(vg.isArray(fullData) && fullData[0] && vg.isArray(fullData[0])) {
+          var facetFields;
+          var newFullData = {values: []};
+          $scope.pipeline.transforms.some(function(transform) {
+            if(transform.type === 'facet') {
+              facetFields = transform.properties.keys;
+              return true;
+            }
+          });
+          $scope.facets = [];
+          for(var i = 0; i < fullData.length; i++) {
+            var facetValues = [];
+            for(var j = 0; j < facetFields.length; j++) {
+              facetValues.push(eval('fullData[i][0].' + facetFields[j].spec()));
+            }
+            $scope.facets.push(facetValues.join('|'));
+            newFullData.values.push({
+              keys: facetValues,
+              key: facetValues.join('|'),
+              values: fullData[i]
+            });
+          }
+          fullData = newFullData;
+          $scope.facet = $scope.facets[0];
         } else {
           $scope.facets = [];
           $scope.facet = null;
@@ -45,20 +69,35 @@ vde.App.directive('vdeDataGrid', function () {
           }
         }
 
+        $scope.statsTransforms = {};
+        $scope.pipeline.transforms.filter($scope.isStatsTransform).forEach(function(transform) {
+          var name = transform.properties.field.name;
+          var stats = {};
+          $scope.statsTransforms[name] = stats;
+          Object.keys(data[0].stats).forEach(function(statName) {
+            var key = statName.split('_')[0];
+            stats[key] = {
+              value: data[0].stats[statName],
+              field: new vde.Vis.Field(name, 'data.', '', $scope.pipeline.name, key)
+            };
+          });
+        });
+
         $scope.size = data.length;
         data = data.slice($scope.page*$scope.limit, $scope.page*$scope.limit + $scope.limit);
 
         for(i = 0; i < columns.length; i++) {
           var row = [columns[i]];
-
-          for(var j = 0; j < data.length; j++)
+          for(var j = 0; j < data.length; j++) {
             row.push(columns[i].spec() == "key" ? $scope.facet : 
               eval("data[j]." + columns[i].spec()));
+          }
 
           transpose.push(row);
         }
 
         $scope.transposedData = transpose;
+        $scope.data = data;
       }
 
       $scope.prevPage = function()  { --$scope.page; };
@@ -94,6 +133,10 @@ vde.App.directive('vdeDataGrid', function () {
 
       $scope.clearCarousel = function() {
         window.clearInterval(carouselInterval);
+      };
+
+      $scope.isStatsTransform = function(transform) {
+        return transform.type === 'stats';
       };
     }
   };

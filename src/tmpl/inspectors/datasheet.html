@@ -32,3 +32,16 @@
 </div>
 
 <br clear="all" />
+
+<div class="dataTable">
+  <table ng-repeat="(name, stats) in statsTransforms">
+    <tr>
+      <th>{{name}}</th>
+    </tr>
+    <tr ng-repeat="(statName, statInfo) in stats">
+      <td class="schema derived" vde-draggable vde-field="statInfo.field">{{statName}}</td><td class="odd">{{statInfo.value}}</td>
+    </tr>
+  </table>
+</div>
+
+<br clear="all" />
