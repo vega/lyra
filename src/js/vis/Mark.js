@@ -318,7 +318,6 @@ vde.Vis.Mark = (function() {
       }
     }
 
-    this.checkExtents(prop);
   };
 
   prototype.productionRules = function(prop, scale, field) {

@@ -22,30 +22,6 @@ vde.App.directive('vdeDataGrid', function () {
           $scope.facet = $scope.facets[0];
           $scope.fullSize = values.reduce(function(acc, v) { 
             return acc+v.values.length; }, 0);
-        } else if(vg.isArray(fullData) && fullData[0] && vg.isArray(fullData[0])) {
-          var facetFields;
-          var newFullData = {values: []};
-          $scope.pipeline.transforms.some(function(transform) {
-            if(transform.type === 'facet') {
-              facetFields = transform.properties.keys;
-              return true;
-            }
-          });
-          $scope.facets = [];
-          for(var i = 0; i < fullData.length; i++) {
-            var facetValues = [];
-            for(var j = 0; j < facetFields.length; j++) {
-              facetValues.push(eval('fullData[i][0].' + facetFields[j].spec()));
-            }
-            $scope.facets.push(facetValues.join('|'));
-            newFullData.values.push({
-              keys: facetValues,
-              key: facetValues.join('|'),
-              values: fullData[i]
-            });
-          }
-          fullData = newFullData;
-          $scope.facet = $scope.facets[0];
         } else {
           $scope.facets = [];
           $scope.facet = null;

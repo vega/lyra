@@ -1177,7 +1177,6 @@ vde.Vis.Mark = (function() {
       }
     }
 
-    this.checkExtents(prop);
   };
 
   prototype.productionRules = function(prop, scale, field) {
@@ -2180,10 +2179,10 @@ vde.Vis.Pipeline = (function() {
       }
       else {
         [data[0].data, data[0]].forEach(function(v, i) {
-          vg.keys(v).forEach(function(k) {
+          vg.keys(v).forEach(function(k, j) {
             if(i !== 0 && ['data', 'values', 'keys', 'stats'].indexOf(k) != -1) return;
             // if(k == 'key') k += '_' + depth;
-            if(seenFields[k]) return;
+            if(seenFields[k] || +k === j) return;
 
             var field = new vde.Vis.Field(k, (i === 0) ? 'data.' : '');
             field.pipelineName = pipeline;
@@ -3414,16 +3413,6 @@ vde.Vis.marks.Text = (function() {
     return [scale, field];
   };
 
-  /* prototype.checkExtents = function(prop) {
-    var p = this.properties;
-
-    // if(p.align.value == 'center') p.dx.disabled = true;
-    // else delete p.dx.disabled;
-
-    // if(p.baseline.value == 'middle') p.dy.disabled = true;
-    // else delete p.dy.disabled;
-  }; */
-
   prototype.selected = function() {
     var self = this,
         item = this.item(vde.iVis.activeItem),
@@ -4338,6 +4327,8 @@ vde.Vis.transforms.Stats = (function() {
   var fields = ["count", "min", "max", "sum", "mean", "variance", "stdev", "median"];
 
   prototype.spec = function() {
+    if(!this.properties.field) return;
+    this.properties.value = this.properties.field.spec()
     var self = this, value = this.properties.value.split('.'),
         output = {};
     this.fields = [];
@@ -4349,7 +4340,7 @@ vde.Vis.transforms.Stats = (function() {
 
     return {
       type: 'stats',
-      value: this.properties.value,
+      value: this.properties.field.spec(),
       median: this.properties.median,
       assign: true,
       output: output

@@ -128,16 +128,6 @@ vde.Vis.marks.Text = (function() {
     return [scale, field];
   };
 
-  /* prototype.checkExtents = function(prop) {
-    var p = this.properties;
-
-    // if(p.align.value == 'center') p.dx.disabled = true;
-    // else delete p.dx.disabled;
-
-    // if(p.baseline.value == 'middle') p.dy.disabled = true;
-    // else delete p.dy.disabled;
-  }; */
-
   prototype.selected = function() {
     var self = this,
         item = this.item(vde.iVis.activeItem),
