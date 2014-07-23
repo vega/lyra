@@ -33,15 +33,17 @@
 
 <br clear="all" />
 
-<div class="dataTable">
-  <table ng-repeat="(name, stats) in statsTransforms">
-    <tr>
-      <th>{{name}}</th>
-    </tr>
-    <tr ng-repeat="(statName, statInfo) in stats">
-      <td class="schema derived" vde-draggable vde-field="statInfo.field">{{statName}}</td><td class="odd">{{statInfo.value}}</td>
-    </tr>
-  </table>
+<div ng-repeat="(name, stats) in statsTransforms">
+  <div class="inner paging">
+    Stats: {{name}}
+  </div>
+  <div class="dataTable">
+    <table>
+      <tr ng-repeat="(statName, statInfo) in stats">
+        <td class="schema derived" vde-draggable vde-field="statInfo.field">{{statName}}</td><td class="odd">{{statInfo.value}}</td>
+      </tr>
+    </table>
+  </div>
 </div>
 
 <br clear="all" />
