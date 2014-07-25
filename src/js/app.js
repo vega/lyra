@@ -1268,7 +1268,10 @@ vde.App.directive('vdeScaleValues', function(Vis, vg) {
     },
     templateUrl: 'tmpl/inspectors/scale-values.html',
     controller: function($scope) {
-      $scope.values = (($scope.scale || {})[$scope.property] || []).map(function(v) { return {value: v}; });
+      $scope.$watch('scale', function() {
+        $scope.values = (($scope.scale || {})[$scope.property] || [])
+          .map(function(v) { return {value: v}; });
+      });
 
       $scope.update = function() {
         $scope.scale[$scope.property] = vg.keys($scope.values).map(function(k) { return $scope.values[k].value; });
