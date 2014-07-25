@@ -648,6 +648,7 @@ a.add:hover {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: top;
 }
 #datasheet .dataTable td.schema {
   position: absolute;
