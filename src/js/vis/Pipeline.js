@@ -23,6 +23,7 @@ vde.Vis.Pipeline = (function() {
     var self = this;
     var specs = [{
       name: this.name,
+      "lyra.displayName": this.displayName,
       source: this.source,
       transform: []
     }];

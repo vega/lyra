@@ -13,6 +13,7 @@ vde.Vis.importVega = function(spec) {
       sourceNames = {},
       SUPPORTED_TRANSFORMS = {facet:1, filter:1, formula:1, sort:1, stats:1, window:1, force:1, geo:1, geopath:1, pie:1, stack:1},
       DEFAULT_STAT_NAMES = {count:"count", min:"min", max:"max", sum:"sum", mean:"mean", variance:"variance", stdev:"stdev", median: "median"},
+      SHARED_MARK_PROPERTIES = ['x','x2','y','y2','width','height','opacity','fill','fillOpacity','stroke','strokeWidth','strokeOpacity','strokeDash','strokeDashOffset'],
       renamedStatsFields = {}
   ;
   pipelines._default = new vis.Pipeline();
@@ -31,6 +32,7 @@ vde.Vis.importVega = function(spec) {
     });
     topLevel.data.forEach(parseDataSource);
     topLevel.scales.forEach(parseScale);
+    topLevel.marks.forEach(parseMark);
 
     vis.properties.width = spec.width;
     vis.properties.height = spec.height;
@@ -63,7 +65,7 @@ vde.Vis.importVega = function(spec) {
       vis.data(ds.name, ds.url || ds.values, ds.format);
     }
     pipeline = new vis.Pipeline(ds.source || ds.name);
-    pipeline.displayName = ds.name;
+    pipeline.displayName = ds["lyra.displayName"] || ds.name;
     //Lyra renames the pipelines, keep track of the new names.
     sourceNames[ds.name] = pipeline.name;
     untangleSource(ds);
@@ -103,7 +105,7 @@ vde.Vis.importVega = function(spec) {
         transform.properties.test = tr.test;
         transform.properties.testHtml = tr.test.replace(/d\.[\w\.]+/g, function(match) {
           var bindingScope = vde.iVis.ngScope().$new(),
-          binding;
+              binding;
           bindingScope.field = parseField(pipeline, match);
           transform.exprFields.push(bindingScope.field);
           binding = vde.iVis.ngCompile()('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope);
@@ -117,7 +119,7 @@ vde.Vis.importVega = function(spec) {
         transform.properties.field = tr.field;
         transform.properties.exprHtml = tr.expr.replace(/d\.[\w\.]+/g, function(match) {
           var bindingScope = vde.iVis.ngScope().$new(),
-          binding;
+              binding;
           bindingScope.field = parseField(pipeline, match);
           transform.exprFields.push(bindingScope.field);
           binding = vde.iVis.ngCompile()('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope);
@@ -215,8 +217,48 @@ vde.Vis.importVega = function(spec) {
 
   }
 
-  function parseMark(mark) {
+  function parseMark(mk) {
+    var mark;
+    switch(mark.type) {
+    case "rect":
+      mark = new vis.marks.Rect();
+      break;
+    case "image":
+      mark = new vis.marks.Rect();
+      mark.fillStyle = 'image';
+      ['url','align','baseline'].forEach(copyProp);
+      break;
+    case "symbol":
+      mark = new vis.marks.Symbol();
+      ['size','shape'].forEach(copyProp);
+      break;
+    case "path":
+      fail("Unsupported mark 'path'");
+      break;
+    case "arc":
+      mark = new vis.marks.Arc();
+      ['innerRadius','outerRadius','startAngle','endAngle'].forEach(copyProp);
+      break;
+    case "area":
+      break;
+    case "line":
+      break;
+    case "text":
+      break;
+    case "group":
+      break;
+    }
+    SHARED_MARK_PROPERTIES.forEach(copyProp);
 
+    function copyProp(prop) {
+      var valueRef = mk[prop],
+          result;
+      if(valueRef.field) {
+
+      } else if(valueRef.value) {
+
+      }
+    }
   }
 
   function parseField(pipeline, fieldText) {
