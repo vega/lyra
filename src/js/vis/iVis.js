@@ -541,5 +541,9 @@ vde.iVis = (function() {
     return $('html').injector().get('$q');
   };
 
+  ivis.ngCompile = function() {
+    return $('html').injector().get('$compile');
+  };
+
   return ivis;
 })();

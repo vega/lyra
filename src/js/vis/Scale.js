@@ -56,8 +56,8 @@ vde.Vis.Scale = (function() {
     var field = this.domainField;
     spec.domain = (this.domainTypes.from == 'field' && field) ? 
       { data:  field.stat ? field.pipeline().forkName : field.pipelineName,
-          field: field.stat ? field.spec().replace('stats.','') : field.spec() }
-      : this.domainValues;
+        field: field.stat ? field.spec().replace('stats.','') : field.spec() 
+      } : this.domainValues;
     spec.inheritFromGroup = this.inheritFromGroup;  // Easiest way of picking this up in group injection
 
     spec.range = (this.rangeTypes.from == 'preset' && this.rangeField) ?
