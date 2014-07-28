@@ -225,7 +225,7 @@ vde.Vis.importVega = function(spec) {
         accessor = tokens.join('.').replace(/^d\./,'') + '.',
         field, newStatName;
     if(accessor === 'stats') {
-      newStatName = renamedStatsFields[pipeline.name][name[0]];
+      newStatName = renamedStatsFields[pipeline.name][name];
       field = new vis.Field(name, 'stats.', null, pipeline.name, newStatName.stat);
     } else {
       field = new vis.Field(name, accessor, null, pipeline.name);
