@@ -100,12 +100,16 @@ vde.Vis.importVega = function(spec) {
         break;
       case "filter":
         transform = new vis.transforms.Filter(pipeline.name);
-        console.log(tr.test.replace(/d\.[\w\.]+/g, function(match) {
-          var bindingScope = vde.iVis.ngScope().$new();
-          console.log("Matched:", match);
+        transform.properties.test = tr.test;
+        transform.properties.testHtml = tr.test.replace(/d\.[\w\.]+/g, function(match) {
+          var bindingScope = vde.iVis.ngScope().$new(),
+          binding;
           bindingScope.field = parseField(pipeline, match);
-          return vde.iVis.ngCompile()('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope).wrap('<p>').parent().html();
-        }));
+          transform.exprFields.push(bindingScope.field);
+          binding = vde.iVis.ngCompile()('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope);
+          bindingScope.$apply();
+          return binding.find('.schema').attr('contenteditable', 'false').wrap('<p>').parent().html();
+        });
         break;
       case "formula":
         transform = new vis.transforms.Formula(pipeline.name);
@@ -226,7 +230,6 @@ vde.Vis.importVega = function(spec) {
     } else {
       field = new vis.Field(name, accessor, null, pipeline.name);
     }
-    console.log("made field", field);
     return field;
   }
 
