@@ -137,6 +137,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
             })
           };
         }, function(newVal, oldVal) {
+          console.log("vals", vg.duplicate(newVal), vg.duplicate(oldVal));
           $scope.properties = [];
 
           if(newVal.p != oldVal.p) {
