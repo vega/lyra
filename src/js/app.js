@@ -1112,10 +1112,9 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
         var scale = $scope.getScale();
         if(scale && scale.properties.type == 'ordinal') {
           var domain = scale.field(), field = $scope.getField();
-
           if(field) {
             $scope.fieldMatchesDomain = (domain instanceof Vis.Field) ?
-                field.spec() == domain.spec() : false;
+                (field.spec()) == domain.spec() : false;
           } else if(!scale.pipeline().forkName) {
             $scope.values = (domain instanceof Vis.Field) ?
                 scale.pipeline().values().map(vg.accessor(domain.spec())).concat(['auto']) :
@@ -1192,7 +1191,6 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
             })
           };
         }, function(newVal, oldVal) {
-          console.log("vals", vg.duplicate(newVal), vg.duplicate(oldVal));
           $scope.properties = [];
 
           if(newVal.p != oldVal.p) {

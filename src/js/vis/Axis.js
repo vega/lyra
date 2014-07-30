@@ -17,7 +17,6 @@ vde.Vis.Axis = (function() {
       },
 
       labelStyle: {
-//        text: {},
         fontSize: {value: vg.config.axis.tickLabelFontSize},
         font: {value: "Helvetica"},
         angle: {value: 0},
@@ -60,7 +59,7 @@ vde.Vis.Axis = (function() {
     if(!this.group().isLayer()) count = this.group().group()._axisCount++;
 
     if(!this.name)
-      this.name = 'axis_' + Date.now();
+      this.name = 'axis_' + Date.now() + count;
 
     this.displayName = 'Axis ' + vde.Vis.codename(count);
 

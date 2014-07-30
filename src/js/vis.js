@@ -1850,7 +1850,6 @@ vde.Vis.Axis = (function() {
       },
 
       labelStyle: {
-//        text: {},
         fontSize: {value: vg.config.axis.tickLabelFontSize},
         font: {value: "Helvetica"},
         angle: {value: 0},
@@ -1893,7 +1892,7 @@ vde.Vis.Axis = (function() {
     if(!this.group().isLayer()) count = this.group().group()._axisCount++;
 
     if(!this.name)
-      this.name = 'axis_' + Date.now();
+      this.name = 'axis_' + Date.now() + count;
 
     this.displayName = 'Axis ' + vde.Vis.codename(count);
 
@@ -2094,47 +2093,44 @@ vde.Vis.importVega = function(spec) {
       SCALE_PRESETS = {width:1, height:1, shapes:1, category10:1, category20:1},
       renamedStatsFields = {}
   ;
+
+  vis.properties.width = spec.width;
+  vis.properties.height = spec.height;
+  if(typeof spec.padding === 'number') {
+    vis.properties._autopad = false;
+    vis.properties.padding = {
+      top: spec.padding,
+      bottom: spec.padding,
+      left: spec.padding,
+      right: spec.padding,
+    };
+  } else if(typeof spec.padding === 'object') {
+    vis.properties.padding = spec.padding;
+    vis.properties._autopad = false;
+  } else if(spec.padding === 'auto'){
+    vis.properties.padding = {};
+    vis.properties._autopad = true;
+  } else {
+    vis.properties.padding = {top:30, left:30, right:30, bottom:30};
+    vis.properties._autopad = true;
+    warn('unknown padding "' + spec.padding + '". Using "auto"');
+  }
+
   pipelines._default = new vis.Pipeline();
   pipelines._default.displayName = "Default Pipeline";
-  layers._default = vis.groups.layer_0;
+  layers._default = vis.groups.layer_0 = new vis.marks.Group();
   layers._default.displayName = "Default Group";
   spec = vg.duplicate(spec);
 
-  parseTop(spec);
+  spec.data.forEach(function(d) {
+    dataSources[d.name] = d;
+  });
+  spec.data.forEach(parseDataSource);
+  spec.scales.forEach(parseScale);
+  spec.marks.forEach(parseMark);
+  spec.axes.forEach(parseAxis);
 
   return vis.parse().then(function() { return messages });
-
-  function parseTop(topLevel) {
-    //Call sub categories before dealing with top-level properties.
-    topLevel.data.forEach(function(d) {
-      dataSources[d.name] = d;
-    });
-    topLevel.data.forEach(parseDataSource);
-    topLevel.scales.forEach(parseScale);
-    topLevel.marks.forEach(parseMark);
-
-    vis.properties.width = spec.width;
-    vis.properties.height = spec.height;
-    if(typeof spec.padding === 'number') {
-      vis.properties._autopad = false;
-      vis.properties.padding = {
-        top: spec.padding,
-        bottom: spec.padding,
-        left: spec.padding,
-        right: spec.padding,
-      };
-    } else if(typeof spec.padding === 'object') {
-      vis.properties.padding = spec.padding;
-      vis.properties._autopad = false;
-    } else if(spec.padding === 'auto'){
-      vis.properties.padding = {};
-      vis.properties._autopad = true;
-    } else {
-      vis.properties.padding = {top:30, left:30, right:30, bottom:30};
-      vis.properties._autopad = true;
-      warn('unknown padding "' + spec.padding + '". Using "auto"');
-    }
-  }
   
   function parseDataSource(ds) {
     var pipeline;
@@ -2285,13 +2281,17 @@ vde.Vis.importVega = function(spec) {
       obj.rangeField = parseField(pipeline, scale.range.field);
     } else if(SCALE_PRESETS[scale.range]){
       obj.rangeTypes.from = 'preset';
-      obj.rangeField = new vis.Field(scale.range, '', '', pipeline);
+      obj.rangeField = new vis.Field(scale.range, '', '', pipeline.name);
     } else {
       obj.rangeTypes.from = 'values';
       obj.rangeValues = scale.range;
     }
 
     obj.properties.type = scale.type;
+    obj.properties.zero = scale.zero;
+    obj.properties.nice = scale.nice;
+    obj.properties.padding = scale.padding;
+    obj.properties.points = scale.points;
 
     function parseDomain(domain) {
       return (domain && domain.data) ? pipelines[sourceNames[domain.data]] : pipelines._default;
@@ -2299,8 +2299,11 @@ vde.Vis.importVega = function(spec) {
   }
 
   function parseAxis(ax) {
-    var axis = new vis.Axis(ax.name);
-
+    var axis = new vis.Axis(ax.name, layers._default.name);
+    axis.pipelineName = pipelines._default.name;
+    vg.extend(axis.properties, ax);
+    axis.properties.scale = layers._default.scales[axis.properties.scale];
+    console.log(axis.properties.scale);
   }
 
   function parseMark(mk, parent) {
@@ -2328,6 +2331,8 @@ vde.Vis.importVega = function(spec) {
       ['innerRadius','outerRadius','startAngle','endAngle'].forEach(copyProp);
       break;
     case "area":
+      mark = new vis.marks.Area(null, layers._default.name);
+      ['interpolate', 'tension'].forEach(copyProp);
       break;
     case "line":
       break;
@@ -2341,8 +2346,9 @@ vde.Vis.importVega = function(spec) {
     mark.init();
 
     function copyProp(prop) {
-      if(mk.properties.enter[prop]) {
+      if(mk.properties.enter[prop] || mk.properties.update[prop]) {
         mark.properties[prop] = parseValueRef(pipeline, mark, mk.properties.enter[prop]);
+        mark.properties[prop] = parseValueRef(pipeline, mark, mk.properties.update[prop]);
       } else {
         mark.properties[prop] && (mark.properties[prop].disabled = true);
       }
@@ -2364,6 +2370,7 @@ vde.Vis.importVega = function(spec) {
   }
 
   function parseValueRef(pipeline, mark, ref) {
+    if(!ref) return;
     ref = vg.duplicate(ref);
     if(ref.group || ref.mult) {
       fail("Unsupported ValueRef " + JSON.stringify(ref));
@@ -2373,10 +2380,11 @@ vde.Vis.importVega = function(spec) {
     }
     if(ref.scale) {
       ref.scale = pipeline.scales[ref.scale];
-      console.log(ref.scale);
       mark.group().scales[ref.scale.name] = ref.scale;
     }
-    console.log("    result", ref);
+    if(ref.band) {
+      ref.value = 'auto';
+    }
     return ref;
   }
 
