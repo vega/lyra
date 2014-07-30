@@ -2303,7 +2303,6 @@ vde.Vis.importVega = function(spec) {
     axis.pipelineName = pipelines._default.name;
     vg.extend(axis.properties, ax);
     axis.properties.scale = layers._default.scales[axis.properties.scale];
-    console.log(axis.properties.scale);
   }
 
   function parseMark(mk, parent) {
