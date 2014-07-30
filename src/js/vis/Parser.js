@@ -272,8 +272,10 @@ vde.Vis.importVega = function(spec) {
 
     function copyProp(prop) {
       if(mk.properties.enter[prop] || mk.properties.update[prop]) {
-        mark.properties[prop] = parseValueRef(pipeline, mark, mk.properties.enter[prop]);
-        mark.properties[prop] = parseValueRef(pipeline, mark, mk.properties.update[prop]);
+        if(mk.properties.enter[prop])
+          mark.properties[prop] = parseValueRef(pipeline, mark, mk.properties.enter[prop]);
+        if(mk.properties.update[prop])
+          mark.properties[prop] = parseValueRef(pipeline, mark, mk.properties.update[prop]);
       } else {
         mark.properties[prop] && (mark.properties[prop].disabled = true);
       }
