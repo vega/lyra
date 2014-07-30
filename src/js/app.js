@@ -1109,9 +1109,9 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
           field: $scope.getField()
         };
       }, function() {
-        var scale = $scope.getScale();
-        if(scale && scale.properties.type == 'ordinal') {
-          var domain = scale.field(), field = $scope.getField();
+        var scale = $scope.getScale(), field = $scope.getField();
+        if(scale && scale.properties.type == 'ordinal' && field instanceof Vis.Field) {
+          var domain = scale.field();
 
           if(field) {
             $scope.fieldMatchesDomain = (domain instanceof Vis.Field) ?
