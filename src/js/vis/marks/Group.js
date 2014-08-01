@@ -1,8 +1,9 @@
 vde.Vis.marks.Group = (function() {
+  var nameCount = -1;
   var group = function(name, layerName, groupName) {
-    vde.Vis.Mark.call(this, name || 'layer_' + vg.keys(vde.Vis.groups).length, layerName, groupName);
+    vde.Vis.Mark.call(this, name || 'layer_' + (++nameCount), layerName, groupName);
 
-    this.displayName = 'Layer ' + vde.Vis.codename(vg.keys(vde.Vis.groups).length);
+    this.displayName = 'Layer ' + vde.Vis.codename(nameCount);
     this.type   = 'group';
     this.layer  = true;  // A psuedo-group exists in the spec, but not in the VDE UI.
     this.layerName = layerName || this.name;
