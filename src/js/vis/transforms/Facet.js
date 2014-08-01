@@ -8,18 +8,6 @@ vde.Vis.transforms.Facet = (function() {
 
     this.properties.keys = [];
 
-    // When the facet transform is applied to marks, hook into
-    // the spec generation and inject a new group that inherits
-    // the pipeline, and rearrange scales, axes, marks.
-    this._group = {
-      type: "group",
-      from:{},
-      scales: [],
-      axes: [],
-      marks: [],
-      properties: {}
-    };
-
     this._groups = {};
     this._transforms = [];
 
@@ -164,7 +152,7 @@ vde.Vis.transforms.Facet = (function() {
     }
   };
 
-  prototype._addToGroup = function(type, item, layer) {
+  prototype.group = function(layer) {
     var group = layer.marks[this.groupName()];
     if(!group) {
       group = new vde.Vis.marks.Group(this.groupName(), layer.name);
@@ -173,6 +161,12 @@ vde.Vis.transforms.Facet = (function() {
       group.pipelineName = this.pipelineName;
       group.doLayout(this.properties.layout || facet.layout_horiz); // By default split horizontally
     }
+
+    return group;
+  }
+
+  prototype._addToGroup = function(type, item, layer) {
+    var group = this.group(layer);
 
     item.layerName = layer.name;
     item.groupName = this.groupName();

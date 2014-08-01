@@ -5,12 +5,21 @@
   of major issues, throws an error with a message explaining the unsupported
   feature.
 */
+
+vde.Vis.importVegaErr = function(spec) {
+  try {
+    vde.Vis.importVega(spec);
+  } catch(e) {
+    console.error(e);
+  }
+}
 vde.Vis.importVega = function(spec) {
   var vis = vde.Vis,
       messages = [],
       pipelines = {},
       dataSources = {},
       sourceNames = {},
+      scales = {},
       layers = {},
       SUPPORTED_TRANSFORMS = {facet:1, filter:1, formula:1, sort:1, stats:1, window:1, force:1, geo:1, geopath:1, pie:1, stack:1},
       DEFAULT_STAT_NAMES = {count:"count", min:"min", max:"max", sum:"sum", mean:"mean", variance:"variance", stdev:"stdev", median: "median"},
@@ -45,15 +54,20 @@ vde.Vis.importVega = function(spec) {
   pipelines._default.displayName = "Default Pipeline";
   layers._default = vis.groups.layer_0 = new vis.marks.Group();
   layers._default.displayName = "Default Group";
+  vis.groupOrder.shift();
+  delete vis.groups.layer_0;
   spec = vg.duplicate(spec);
 
-  spec.data.forEach(function(d) {
+  (spec.data || []).forEach(function(d) {
     dataSources[d.name] = d;
   });
-  spec.data.forEach(parseDataSource);
-  spec.scales.forEach(parseScale);
-  spec.marks.forEach(parseMark);
-  spec.axes.forEach(parseAxis);
+  (spec.data || []).forEach(parseDataSource);
+  (spec.scales || []).forEach(parseScale);
+  (spec.marks || []).forEach(parseMark);
+  (spec.axes || []).forEach(parseAxis);
+  if(spec.legends && spec.legends.length) {
+    warn("Lyra does not support legend marks");
+  }
 
   return vis.parse().then(function() { return messages });
   
@@ -218,6 +232,7 @@ vde.Vis.importVega = function(spec) {
     obj.properties.padding = scale.padding;
     obj.properties.points = scale.points;
 
+    scales[scale.name] = obj;
     function parseDomain(domain) {
       return (domain && domain.data) ? pipelines[sourceNames[domain.data]] : pipelines._default;
     }
@@ -230,9 +245,9 @@ vde.Vis.importVega = function(spec) {
     axis.properties.scale = layers._default.scales[axis.properties.scale];
   }
 
-  function parseMark(mk, parent) {
-    var pipeline = parseDataRef(mk.from, parent && parent.pipeline()),
-        mark;
+  function parseMark(mk) {
+    var pipeline = parseDataRef(mk.from, this),
+        mark, facetTransform;
 
     switch(mk.type) {
     case "rect":
@@ -259,24 +274,56 @@ vde.Vis.importVega = function(spec) {
       ['interpolate', 'tension'].forEach(copyProp);
       break;
     case "line":
+      mark = new vis.marks.Line(null, layers._default.name);
+      ['interpolate','tension'].forEach(copyProp);
       break;
     case "text":
+      mark = new vis.marks.Text(null, layers._default.name);
+      ['text','align','baseline','dx','dy','radius','theta','angle','font','fontSize','fontWeight','fontStyle'].forEach(copyProp);
+      console.log(mark);
+      mark.properties.textFormula = 'd.' + mark.properties.text.field.spec();
+      mark.properties.textFormulaHtml = mark.properties.textFormula.replace(/d\.[\w\.]+/g, function(match) {
+        var bindingScope = vde.iVis.ngScope().$new(),
+            binding;
+        bindingScope.field = parseField(pipeline, match);
+        mark.exprFields.push(bindingScope.field);
+        binding = vde.iVis.ngCompile()('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope);
+        bindingScope.$apply();
+        return binding.find('.schema').attr('contenteditable', 'false').wrap('<p>').parent().html();
+      });
       break;
     case "group":
+      if(pipeline.transforms.some(function(tr){
+        if(tr.type === 'facet') {
+          facetTransform = tr;
+          return true;
+        }
+      })) {
+        mark = facetTransform.group(layers._default);
+        (mk.scales||[]).forEach(parseScale, pipeline);
+        (mk.marks||[]).forEach(parseMark, pipeline);
+        (mk.axes||[]).forEach(parseAxis, pipeline);
+      } else {
+        fail("Groups have only limited support");
+      }
       break;
     }
     SHARED_MARK_PROPERTIES.forEach(copyProp);
-    mark.pipelineName = pipeline.name;
-    mark.init();
+    if(mark) {
+      mark.pipelineName = pipeline.name;
+      if(mark.type !== group) mark.init();
+    }
+
 
     function copyProp(prop) {
-      if(mk.properties.enter[prop] || mk.properties.update[prop]) {
-        if(mk.properties.enter[prop])
+      if(!mark) return;
+      if(mk.properties && ((mk.properties.enter && mk.properties.enter[prop]) || (mk.properties.update && mk.properties.update[prop]))) {
+        if(mk.properties.enter && mk.properties.enter[prop])
           mark.properties[prop] = parseValueRef(pipeline, mark, mk.properties.enter[prop]);
-        if(mk.properties.update[prop])
+        if(mk.properties.update && mk.properties.update[prop])
           mark.properties[prop] = parseValueRef(pipeline, mark, mk.properties.update[prop]);
       } else {
-        mark.properties[prop] && (mark.properties[prop].disabled = true);
+        mark && mark.properties[prop] && (mark.properties[prop].disabled = true);
       }
     }
   }
@@ -284,7 +331,7 @@ vde.Vis.importVega = function(spec) {
   function parseField(pipeline, fieldText) {
     var tokens = fieldText.split('.'),
         name = tokens.pop(),
-        accessor = tokens.join('.').replace(/^d\./,'') + '.',
+        accessor = tokens.length > 0 ? tokens.join('.').replace(/^d\./,'') + '.' : '',
         field, newStatName;
     if(accessor === 'stats') {
       newStatName = renamedStatsFields[pipeline.name][name];
@@ -305,7 +352,7 @@ vde.Vis.importVega = function(spec) {
       ref.field = parseField(pipeline, ref.field);
     }
     if(ref.scale) {
-      ref.scale = pipeline.scales[ref.scale];
+      ref.scale = scales[ref.scale];
       mark.group().scales[ref.scale.name] = ref.scale;
     }
     if(ref.band) {
@@ -315,6 +362,7 @@ vde.Vis.importVega = function(spec) {
   }
 
   function parseDataRef(ref, pipeline) {
+    if(!ref) return pipeline || pipelines._default;
     if(ref.data) {
       pipeline = pipelines[sourceNames[ref.data]];
     }
@@ -330,6 +378,6 @@ vde.Vis.importVega = function(spec) {
     messages.push(msg);
   }
   function fail(msg) {
-    throw msg;
+    throw new Error(msg);
   }
 };
