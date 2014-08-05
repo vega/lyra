@@ -2151,9 +2151,9 @@ vde.Vis.importVega = function(spec) {
   }
 
   return Q.all(dataLoaded)
-    .then(vis.parse.bind(vis))
+    .then(vis.parse.bind(vis, true))
     .then(function() { groupUpdates.forEach(function(f){ f(); }); })
-    .then(vis.parse.bind(vis))
+    .then(vis.parse.bind(vis, true))
     .then(function(){
       return messages;
     });
