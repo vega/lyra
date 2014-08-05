@@ -96,6 +96,7 @@ vde.Vis = (function() {
       if(data.url)        // Inline values to deal with x-site restrictions
         delete data[inlinedValues ? 'url' : 'values'];
 
+      data["lyra.role"] = 'data_source';
       spec.data.push(data);
       rawSources[src] = 1;
     };
@@ -1034,6 +1035,8 @@ vde.Vis.Mark = (function() {
 
     this._def = null;
     this._items = [];
+
+    spec["lyra.displayName"] = this.displayName;
 
     return spec.properties ? spec : null;
   };
@@ -2133,10 +2136,10 @@ vde.Vis.importVega = function(spec) {
     warn('unknown padding "' + spec.padding + '". Using "auto"');
   }
 
-  layers._default = vis.groups.layer_0 = new vis.marks.Group();
-  layers._default.displayName = "Default Group";
-  vis.groupOrder.shift();
-  delete vis.groups.layer_0;
+  vis.groupOrder = [];
+  vis.groups = {};
+  vis.pipelines = {};
+
   spec = vg.duplicate(spec);
 
   (spec.data || []).forEach(function(d) {
@@ -2144,7 +2147,7 @@ vde.Vis.importVega = function(spec) {
   });
   (spec.data || []).forEach(parseDataSource);
   (spec.scales || []).forEach(parseScale);
-  (spec.marks || []).reverse().forEach(parseMark);
+  (spec.marks || []).reverse().forEach(parseMark, {transforms:[]});
   (spec.axes || []).forEach(parseAxis);
   if(spec.legends && spec.legends.length) {
     warn("Lyra does not support legend marks");
@@ -2159,7 +2162,7 @@ vde.Vis.importVega = function(spec) {
     });
   
   function parseDataSource(ds) {
-    var pipeline, deferred;
+    var pipeline, deferred, idx;
     ds.transform = ds.transform || [];
     if(ds.url || ds.values) {
       //This data object defines some data. We need to load it.
@@ -2167,11 +2170,19 @@ vde.Vis.importVega = function(spec) {
       dataLoaded.push(deferred.promise);
       vis.data(ds.name, ds.url || ds.values, ds.format || 'json').then(deferred.resolve.bind(deferred));
     }
-    pipeline = new vis.Pipeline(ds.source || ds.name);
-    pipeline.displayName = ds["lyra.displayName"] || ds.name;
-    //Lyra renames the pipelines, keep track of the new names.
+    if(ds["lyra.role"] === 'facet' || ds["lyra.role"] === 'stack') {
+      pipeline = pipelines[sourceNames[ds["lyra.for"]]];
+      ds.transform.splice(0, pipeline.transforms.length);
+    } else if(ds["lyra.role"] === 'data_source') {
+      return;
+    } else if(!ds["lyra.role"]) {
+      pipeline = new vis.Pipeline(ds.source || ds.name);
+      pipeline.displayName = ds["lyra.displayName"] || ds.name;
+      //Lyra renames the pipelines, keep track of the new names.
+      pipelines[pipeline.name] = pipeline;
+    }
+
     sourceNames[ds.name] = pipeline.name;
-    pipelines[pipeline.name] = pipeline;
     untangleSource(ds);
     ds.transform.forEach(parseTransform, pipeline);
 
@@ -2290,7 +2301,7 @@ vde.Vis.importVega = function(spec) {
   
   function parseScale(scale) {
     var pipeline = parseDomain(scale.domain),
-        obj = new vis.Scale(scale.name, pipeline, {}, scale.name);
+        obj = new vis.Scale(scale.name, pipeline, {}, scale["lyra.displayName"] || scale.name);
     obj.used = true;
     obj.manual = true;
     if(!scale.domain) {
@@ -2338,38 +2349,39 @@ vde.Vis.importVega = function(spec) {
 
   function parseMark(mk) {
     var pipeline = parseDataRef(mk.from, this),
-        mark, facetTransform;
+        layer = defaultLayer(),
+        mark, facetTransform; 
 
     switch(mk.type) {
     case "rect":
-      mark = new vis.marks.Rect(null, layers._default.name);
+      mark = new vis.marks.Rect(null, layer.name);
       break;
     case "image":
-      mark = new vis.marks.Rect(null, layers._default.name);
+      mark = new vis.marks.Rect(null, layer.name);
       mark.fillStyle = 'image';
       ['url','align','baseline'].forEach(copyProp);
       break;
     case "symbol":
-      mark = new vis.marks.Symbol(null, layers._default.name);
+      mark = new vis.marks.Symbol(null, layer.name);
       ['size','shape'].forEach(copyProp);
       break;
     case "path":
       fail("Unsupported mark 'path'");
       break;
     case "arc":
-      mark = new vis.marks.Arc(null, layers._default.name);
+      mark = new vis.marks.Arc(null, layer.name);
       ['innerRadius','outerRadius','startAngle','endAngle'].forEach(copyProp);
       break;
     case "area":
-      mark = new vis.marks.Area(null, layers._default.name);
+      mark = new vis.marks.Area(null, layer.name);
       ['interpolate', 'tension'].forEach(copyProp);
       break;
     case "line":
-      mark = new vis.marks.Line(null, layers._default.name);
+      mark = new vis.marks.Line(null, layer.name);
       ['interpolate','tension'].forEach(copyProp);
       break;
     case "text":
-      mark = new vis.marks.Text(null, layers._default.name);
+      mark = new vis.marks.Text(null, layer.name);
       ['text','align','baseline','dx','dy','radius','theta','angle','font','fontSize','fontWeight','fontStyle'].forEach(copyProp);
       mark.properties.textFormula = 'd.' + mark.properties.text.field.spec();
       mark.properties.textFormulaHtml = mark.properties.textFormula.replace(/d\.[\w\.]+/g, function(match) {
@@ -2416,17 +2428,19 @@ vde.Vis.importVega = function(spec) {
             }
           });
         });
+      } else if(mk["lyra.groupType"] === 'layer'){
+        fail("Layers are not yet implemented");
       } else {
-        fail("Groups have only limited support");
+        fail("Groups only have limited support");
       }
       break;
     }
     SHARED_MARK_PROPERTIES.forEach(copyProp);
-    if(mark) {
-      mark.pipelineName = pipeline.name;
-      if(mark.type !== 'group') {
-        mark.init();
-      }
+    mark.pipelineName = pipeline.name;
+    mark.displayName = mk["lyra.displayName"] || mark.displayName;
+
+    if(mark.type !== 'group') {
+      mark.init();
     }
 
 
@@ -2506,6 +2520,14 @@ vde.Vis.importVega = function(spec) {
     return pipelines._default;
   }
 
+  function defaultLayer() {
+    if(!layers._default) {
+      layers._default = new vis.marks.Group();
+      layers._default.displayName = "Default Layer";
+    }
+    return layers._default;
+  }
+
   function warn(msg) {
     messages.push(msg);
   }
@@ -2561,6 +2583,8 @@ vde.Vis.Pipeline = (function() {
         specs.push({
           name: self.forkName,
           source: self.source,
+          "lyra.role": t.type, 
+          "lyra.for": self.name,
           transform: vg.duplicate(specs[spec-1].transform || [])
         });
       }
@@ -2786,6 +2810,7 @@ vde.Vis.Scale = (function() {
     spec.range = (this.rangeTypes.from == 'preset' && this.rangeField) ?
       this.rangeField.spec() : this.rangeValues;
 
+    spec["lyra.displayName"] = this.displayName;
     delete spec.pipeline;
     delete spec.field;
     if(spec.type == 'quantize') delete spec.nice;
@@ -3077,6 +3102,8 @@ vde.Vis.marks.Group = (function() {
       if(!s) return;
       spec.marks.unshift(s);
     });
+
+    spec["lyra.groupType"] = this.isLayer() ? 'layer' : 'group';
 
     vde.Vis.callback.run('group.post_spec', this, {spec: spec});
 

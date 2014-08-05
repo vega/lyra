@@ -101,6 +101,8 @@ vde.Vis.marks.Group = (function() {
       spec.marks.unshift(s);
     });
 
+    spec["lyra.groupType"] = this.isLayer() ? 'layer' : 'group';
+
     vde.Vis.callback.run('group.post_spec', this, {spec: spec});
 
     return spec;

@@ -63,6 +63,7 @@ vde.Vis.Scale = (function() {
     spec.range = (this.rangeTypes.from == 'preset' && this.rangeField) ?
       this.rangeField.spec() : this.rangeValues;
 
+    spec["lyra.displayName"] = this.displayName;
     delete spec.pipeline;
     delete spec.field;
     if(spec.type == 'quantize') delete spec.nice;

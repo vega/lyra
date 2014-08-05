@@ -96,6 +96,7 @@ vde.Vis = (function() {
       if(data.url)        // Inline values to deal with x-site restrictions
         delete data[inlinedValues ? 'url' : 'values'];
 
+      data["lyra.role"] = 'data_source';
       spec.data.push(data);
       rawSources[src] = 1;
     };

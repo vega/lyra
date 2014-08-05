@@ -167,6 +167,8 @@ vde.Vis.Mark = (function() {
     this._def = null;
     this._items = [];
 
+    spec["lyra.displayName"] = this.displayName;
+
     return spec.properties ? spec : null;
   };
 
