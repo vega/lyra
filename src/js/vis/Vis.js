@@ -18,6 +18,7 @@ vde.Vis = (function() {
   };
 
   vis.data = function(name, data, type) {
+    var deferred = vde.iVis.ngQ().defer();
     if(!data) return vis._data[name];
 
     if(vg.isObject(data)) {
@@ -26,6 +27,7 @@ vde.Vis = (function() {
         values: data,
         format: {}
       };
+      deferred.resolve(vis._data[name]);
     }
 
     if(vg.isString(data)) {
@@ -37,8 +39,11 @@ vde.Vis = (function() {
 
       var dataModel = vg.parse.data([vis._data[name]], function() {
         vis._data[name].values = dataModel.load[name];
+        deferred.resolve(vis._data[name]);
       });
     }
+
+    return deferred.promise;
   };
 
   vis.addEventListener = function(type, caller, handler) {

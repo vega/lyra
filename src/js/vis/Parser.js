@@ -21,6 +21,9 @@ vde.Vis.importVega = function(spec) {
       sourceNames = {},
       scales = {},
       layers = {},
+      Q = vde.iVis.ngQ(),
+      groupUpdates = [],
+      dataLoaded = [],
       SUPPORTED_TRANSFORMS = {facet:1, filter:1, formula:1, sort:1, stats:1, window:1, force:1, geo:1, geopath:1, pie:1, stack:1},
       DEFAULT_STAT_NAMES = {count:"count", min:"min", max:"max", sum:"sum", mean:"mean", variance:"variance", stdev:"stdev", median: "median"},
       SHARED_MARK_PROPERTIES = ['x','x2','y','y2','width','height','opacity','fill','fillOpacity','stroke','strokeWidth','strokeOpacity','strokeDash','strokeDashOffset'],
@@ -50,8 +53,6 @@ vde.Vis.importVega = function(spec) {
     warn('unknown padding "' + spec.padding + '". Using "auto"');
   }
 
-  pipelines._default = new vis.Pipeline();
-  pipelines._default.displayName = "Default Pipeline";
   layers._default = vis.groups.layer_0 = new vis.marks.Group();
   layers._default.displayName = "Default Group";
   vis.groupOrder.shift();
@@ -63,20 +64,28 @@ vde.Vis.importVega = function(spec) {
   });
   (spec.data || []).forEach(parseDataSource);
   (spec.scales || []).forEach(parseScale);
-  (spec.marks || []).forEach(parseMark);
+  (spec.marks || []).reverse().forEach(parseMark);
   (spec.axes || []).forEach(parseAxis);
   if(spec.legends && spec.legends.length) {
     warn("Lyra does not support legend marks");
   }
 
-  return vis.parse().then(function() { return messages });
+  return Q.all(dataLoaded)
+    .then(vis.parse.bind(vis))
+    .then(function() { groupUpdates.forEach(function(f){ f(); }); })
+    .then(vis.parse.bind(vis))
+    .then(function(){
+      return messages;
+    });
   
   function parseDataSource(ds) {
-    var pipeline;
+    var pipeline, deferred;
     ds.transform = ds.transform || [];
     if(ds.url || ds.values) {
       //This data object defines some data. We need to load it.
-      vis.data(ds.name, ds.url || ds.values, ds.format);
+      deferred = Q.defer();
+      dataLoaded.push(deferred.promise);
+      vis.data(ds.name, ds.url || ds.values, ds.format || 'json').then(deferred.resolve.bind(deferred));
     }
     pipeline = new vis.Pipeline(ds.source || ds.name);
     pipeline.displayName = ds["lyra.displayName"] || ds.name;
@@ -85,6 +94,8 @@ vde.Vis.importVega = function(spec) {
     pipelines[pipeline.name] = pipeline;
     untangleSource(ds);
     ds.transform.forEach(parseTransform, pipeline);
+
+    return pipeline;
 
     function untangleSource(ds) {
       var source = ds.source,
@@ -104,7 +115,7 @@ vde.Vis.importVega = function(spec) {
 
   function parseTransform(tr) {
     var pipeline = this,
-        transform, k, renamed, spec;
+        transform, k, renamed;
     if(!SUPPORTED_TRANSFORMS[tr.type]) {
       fail("Unsupported transform type '" + tr.type + "'");
     } else {
@@ -151,7 +162,6 @@ vde.Vis.importVega = function(spec) {
         transform = new vis.transforms.Stats(pipeline.name);
         transform.properties.field = parseField(pipeline, tr.value);
         transform.properties.median = tr.median;
-        spec = transform.spec();
         tr.output = tr.output || DEFAULT_STAT_NAMES;
         for(k in tr.output) {
           renamed = renamedStatsFields[pipeline.name] = renamedStatsFields[pipeline.name] || {};
@@ -234,13 +244,14 @@ vde.Vis.importVega = function(spec) {
 
     scales[scale.name] = obj;
     function parseDomain(domain) {
-      return (domain && domain.data) ? pipelines[sourceNames[domain.data]] : pipelines._default;
+      return (domain && domain.data) ? pipelines[sourceNames[domain.data]] : defaultPipeline();
     }
   }
 
   function parseAxis(ax) {
+    var pipeline = this;
     var axis = new vis.Axis(ax.name, layers._default.name);
-    axis.pipelineName = pipelines._default.name;
+    axis.pipelineName = pipeline && pipeline.name || defaultPipeline().name;
     vg.extend(axis.properties, ax);
     axis.properties.scale = layers._default.scales[axis.properties.scale];
   }
@@ -280,7 +291,6 @@ vde.Vis.importVega = function(spec) {
     case "text":
       mark = new vis.marks.Text(null, layers._default.name);
       ['text','align','baseline','dx','dy','radius','theta','angle','font','fontSize','fontWeight','fontStyle'].forEach(copyProp);
-      console.log(mark);
       mark.properties.textFormula = 'd.' + mark.properties.text.field.spec();
       mark.properties.textFormulaHtml = mark.properties.textFormula.replace(/d\.[\w\.]+/g, function(match) {
         var bindingScope = vde.iVis.ngScope().$new(),
@@ -299,10 +309,33 @@ vde.Vis.importVega = function(spec) {
           return true;
         }
       })) {
+        facetTransform.properties.layout = vis.transforms.Facet.layout_overlap;
         mark = facetTransform.group(layers._default);
+        mark.layout = vis.transforms.Facet.layout_overlap;
         (mk.scales||[]).forEach(parseScale, pipeline);
-        (mk.marks||[]).forEach(parseMark, pipeline);
+        (mk.marks||[]).reverse().forEach(parseMark, pipeline);
         (mk.axes||[]).forEach(parseAxis, pipeline);
+        groupUpdates.push(function() {
+          mark.update(['layout']);
+          mk.properties = mk.properties || {};
+          SHARED_MARK_PROPERTIES.forEach(function(prop){
+            mark.properties[prop] = {};
+            if(mk.properties.enter && mk.properties.enter[prop]) {
+              mark.properties[prop] = parseValueRef(pipeline, mark, mk.properties.enter[prop]);
+              mark.properties[prop].disabled = false;
+            } else {
+              var fromProp = mark.group().properties[prop];
+              if(!fromProp) return mark.properties[prop].disabled = true;
+              if(fromProp.scale) mark.properties[prop].scale = fromProp.scale;
+              if(fromProp.field)
+                mark.properties[prop].field = new vde.Vis.Field(fromProp.field.name,
+                    fromProp.field.accessor, fromProp.field.type, fromProp.field.pipelineName,
+                    fromProp.field.stat);
+              if(fromProp.hasOwnProperty('value')) mark.properties[prop].value = fromProp.value;
+              if(fromProp.disabled) mark.properties[prop].disabled = fromProp.disabled;
+            }
+          });
+        });
       } else {
         fail("Groups have only limited support");
       }
@@ -311,7 +344,9 @@ vde.Vis.importVega = function(spec) {
     SHARED_MARK_PROPERTIES.forEach(copyProp);
     if(mark) {
       mark.pipelineName = pipeline.name;
-      if(mark.type !== group) mark.init();
+      if(mark.type !== 'group') {
+        mark.init();
+      }
     }
 
 
@@ -332,10 +367,16 @@ vde.Vis.importVega = function(spec) {
     var tokens = fieldText.split('.'),
         name = tokens.pop(),
         accessor = tokens.length > 0 ? tokens.join('.').replace(/^d\./,'') + '.' : '',
-        field, newStatName;
-    if(accessor === 'stats') {
-      newStatName = renamedStatsFields[pipeline.name][name];
-      field = new vis.Field(name, 'stats.', null, pipeline.name, newStatName.stat);
+        field, newStatName, statsTransform, k;
+    if(accessor === 'stats' || accessor === '') {
+      if(pipeline.transforms.some(function(a){
+        return statsTransform = a, a.type === 'stats';
+      })) {
+        newStatName = renamedStatsFields[pipeline.name][name];
+        field = new vis.Field(statsTransform.properties.field.name, 'stats.', null, pipeline.name, newStatName);
+      } else {
+        field = new vis.Field(name, accessor, null, pipeline.name);
+      }
     } else {
       field = new vis.Field(name, accessor, null, pipeline.name);
     }
@@ -362,16 +403,27 @@ vde.Vis.importVega = function(spec) {
   }
 
   function parseDataRef(ref, pipeline) {
-    if(!ref) return pipeline || pipelines._default;
+    if(!ref) return pipeline || defaultPipeline();
     if(ref.data) {
       pipeline = pipelines[sourceNames[ref.data]];
     }
 
     if(ref.transform) {
+      var spec = pipeline.spec()[0];
+      delete spec["lyra.displayName"];
+      pipeline = parseDataSource(spec);
       ref.transform.forEach(parseTransform, pipeline);
     }
 
     return pipeline;
+  }
+
+  function defaultPipeline() {
+    if(!pipelines._default) {
+      pipelines._default = new vis.Pipeline();
+      pipelines._default.displayName = "Default Pipeline";
+    }
+    return pipelines._default;
   }
 
   function warn(msg) {
