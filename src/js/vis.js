@@ -2096,6 +2096,7 @@ vde.Vis.importVegaErr = function(spec) {
     console.error(e);
   }
 }
+
 vde.Vis.importVega = function(spec) {
   var vis = vde.Vis,
       messages = [],
@@ -2170,10 +2171,11 @@ vde.Vis.importVega = function(spec) {
       dataLoaded.push(deferred.promise);
       vis.data(ds.name, ds.url || ds.values, ds.format || 'json').then(deferred.resolve.bind(deferred));
     }
-    if(ds["lyra.role"] === 'facet' || ds["lyra.role"] === 'stack') {
+    if(ds["lyra.role"] === 'fork') {
       pipeline = pipelines[sourceNames[ds["lyra.for"]]];
       ds.transform.splice(0, pipeline.transforms.length);
     } else if(ds["lyra.role"] === 'data_source') {
+      //Pure data sources don't create pipelines.
       return;
     } else if(!ds["lyra.role"]) {
       pipeline = new vis.Pipeline(ds.source || ds.name);
@@ -2431,7 +2433,7 @@ vde.Vis.importVega = function(spec) {
       } else if(mk["lyra.groupType"] === 'layer'){
         fail("Layers are not yet implemented");
       } else {
-        fail("Groups only have limited support");
+        fail("Groups only have limited support. Use 'lyra.groupType': 'layer' for layers.");
       }
       break;
     }
@@ -2583,7 +2585,7 @@ vde.Vis.Pipeline = (function() {
         specs.push({
           name: self.forkName,
           source: self.source,
-          "lyra.role": t.type, 
+          "lyra.role": "fork", 
           "lyra.for": self.name,
           transform: vg.duplicate(specs[spec-1].transform || [])
         });

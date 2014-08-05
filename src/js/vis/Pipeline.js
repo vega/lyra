@@ -46,7 +46,7 @@ vde.Vis.Pipeline = (function() {
         specs.push({
           name: self.forkName,
           source: self.source,
-          "lyra.role": t.type, 
+          "lyra.role": "fork", 
           "lyra.for": self.name,
           transform: vg.duplicate(specs[spec-1].transform || [])
         });
