@@ -34,7 +34,6 @@ vde.Vis.marks.Rect = (function() {
       'bottom-left': {}, 'bottom-center': {}, 'bottom-right': {}
     };
 
-
     this.inferredHints = {};
 
     return this;

@@ -290,6 +290,8 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     if(p.value == value) delete p.value;
     else p.value = value;
 
+    if('checkExtents' in v) v.checkExtents(prop);
+
     if('update' in v) v.update(prop);
     else Vis.render();
   };
