@@ -402,7 +402,7 @@ vde.iVis = (function() {
             x: {field: 'data.x'},
             y: {field: 'data.y'},
             stroke: {value: 'cyan'},
-            strokeWidth: {value: 1},
+            strokeWidth: {value: 2},
             span: {field: 'data.span'}
           },
           hover: {

@@ -454,7 +454,10 @@ vde.Vis.marks.Rect = (function() {
            {x: (b.x2+io), y: (gb.y1-go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}];
 
       case facet.dropzone_vert: /* falls through */
-      case 'height': return [{x: (b.x1-io), y: b.y1, span: property + '_0'}, {x: (b.x1-io), y: b.y2, span: property + '_0'}];
+      case 'height': 
+        // Show the vertical group by dropzone on the LHS (x1) but the rect height dropzone on the RHS (x2)
+        var x = this.type == 'group' ? b.x1-io : b.x2+io;
+        return [{x: x, y: b.y1, span: property + '_0'}, {x: x, y: b.y2, span: property + '_0'}];
     }
   };
 
