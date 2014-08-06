@@ -85,7 +85,7 @@ vde.Vis.parse = (function() {
       } else if(ds["lyra.role"] === 'data_source') {
         return;
       } else if(!ds["lyra.role"]) {
-        pipeline = new vis.Pipeline(ds.source || ds.name);
+        pipeline = new vis.Pipeline(null, ds.source || ds.name);
         pipeline.displayName = ds["lyra.displayName"] || ds.name;
         //Lyra renames the pipelines, keep track of the new names.
         pipelines[pipeline.name] = pipeline;

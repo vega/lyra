@@ -255,7 +255,7 @@ vde.Vis = (function() {
 
     for(var pipelineName in spec.pipelines) {
       var p = spec.pipelines[pipelineName];
-      var pipeline = new vde.Vis.Pipeline(p.source);
+      var pipeline = new vde.Vis.Pipeline(pipelineName, p.source);
 
       for(var scaleName in p.scales) {
         var scale = new vde.Vis.Scale(scaleName, pipeline, {});
@@ -2093,8 +2093,8 @@ vde.Vis.Field = (function() {
 
 vde.Vis.Pipeline = (function() {
   var nameCount = -1;
-  var pipeline = function(source) {
-    this.name = 'pipeline_' + (++nameCount);
+  var pipeline = function(pipelineName, source) {
+    this.name = pipelineName || 'pipeline_' + (++nameCount);
     this.displayName = 'Pipeline ' + vde.Vis.codename(nameCount);
 
     this.source = source;
@@ -3742,7 +3742,7 @@ vde.Vis.parse = (function() {
       } else if(ds["lyra.role"] === 'data_source') {
         return;
       } else if(!ds["lyra.role"]) {
-        pipeline = new vis.Pipeline(ds.source || ds.name);
+        pipeline = new vis.Pipeline(null, ds.source || ds.name);
         pipeline.displayName = ds["lyra.displayName"] || ds.name;
         //Lyra renames the pipelines, keep track of the new names.
         pipelines[pipeline.name] = pipeline;

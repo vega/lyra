@@ -255,7 +255,7 @@ vde.Vis = (function() {
 
     for(var pipelineName in spec.pipelines) {
       var p = spec.pipelines[pipelineName];
-      var pipeline = new vde.Vis.Pipeline(p.source);
+      var pipeline = new vde.Vis.Pipeline(pipelineName, p.source);
 
       for(var scaleName in p.scales) {
         var scale = new vde.Vis.Scale(scaleName, pipeline, {});
