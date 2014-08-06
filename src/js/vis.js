@@ -2461,8 +2461,8 @@ vde.Vis.marks.Arc = (function() {
       x: {value: 0},
       y: {value: 0},
 
-      startAngle: {value: 0},
-      endAngle: {value: 360},
+      startAngle: {value: -30},
+      endAngle: {value: 60},
       innerRadius: {value: 0},
       outerRadius: {value: 100},
 
@@ -2478,22 +2478,15 @@ vde.Vis.marks.Arc = (function() {
   arc.prototype = new vde.Vis.Mark();
   var prototype  = arc.prototype;
 
-  prototype.spec = function() {
-    var spec = this._spec;
-
-    // angles are in radians
-    var props = this.properties;
-    if(!props.startAngle.field) {
-      if(!spec.startAngle) spec.startAngle = {};
-      spec.startAngle.value = props.startAngle.value / 180 * Math.PI;
+  prototype.property = function(prop) {
+    if(prop == 'startAngle' || prop == 'endAngle') {
+      var prop = vg.duplicate(this.properties[prop]);
+      if(prop.field) return vde.Vis.parseProperty(this.properties, prop);
+      prop.value = prop.value / 180 * Math.PI;
+      return prop;
     }
 
-    if(!props.endAngle.field) {
-      if(!spec.endAngle) spec.endAngle = {};
-      spec.endAngle.value = props.endAngle.value / 180 * Math.PI;
-    }
-
-    return vde.Vis.Mark.prototype.spec.call(this);
+    return vde.Vis.parseProperty(this.properties, prop);
   };
 
   prototype.productionRules = function(prop, scale, field) {
