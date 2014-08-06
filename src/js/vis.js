@@ -1458,8 +1458,8 @@ vde.Vis.marks.Symbol = (function() {
       x: {value: 25},
       y: {value: 25},
 
-      size: {value: 100},
-      shape: {value: 'diamond'},
+      size: {value: 300},
+      shape: {value: 'cross'},
 
       fill: {value: '#4682b4'},
       fillOpacity: {value: 1},
@@ -1574,7 +1574,7 @@ vde.Vis.marks.Symbol = (function() {
         item = this.item(vde.iVis.activeItem),
         spans = [], dropzones = [];
 
-    ['x', 'y', 'size'].forEach(function(p) {
+    ['x', 'y', /* 'size' */].forEach(function(p) {
       var s = self.spans(item, p);
       if(p == 'size' && self.type != 'symbol') return;
       if(p == 'size') s = [s[2], s[3]];
