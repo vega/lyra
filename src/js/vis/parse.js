@@ -47,9 +47,7 @@ vde.Vis.parse = (function() {
       warn('unknown padding "' + spec.padding + '". Using "auto"');
     }
 
-    vis.groupOrder = [];
-    vis.groups = {};
-    vis.pipelines = {};
+    vis.reset();
 
     spec = vg.duplicate(spec);
 
