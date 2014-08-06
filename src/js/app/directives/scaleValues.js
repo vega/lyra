@@ -17,7 +17,7 @@ vde.App.directive('vdeScaleValues', function(Vis, vg) {
 
       $scope.update = function() {
         $scope.scale[$scope.property] = vg.keys($scope.values).map(function(k) { return $scope.values[k].value; });
-        Vis.parse();
+        Vis.render();
       };
 
       $scope.add = function(evt, button) {

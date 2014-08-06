@@ -12,7 +12,7 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
       var p = new Vis.Pipeline();
       $rootScope.activePipeline = p;
 
-      Vis.parse().then(function() {
+      Vis.render().then(function() {
         // Add an initial blank slate state to the timeline.
         timeline.save();
 

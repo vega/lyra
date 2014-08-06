@@ -66,7 +66,7 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
     $rootScope.activePipeline.addTransform($scope.pMdl.newTransforms[i]);
 
     $scope.pMdl.newTransforms.splice(i, 1);
-    Vis.parse().then(function() { timeline.save(); });
+    Vis.render().then(function() { timeline.save(); });
   };
 
   $scope.removeTransform = function(i, isNewTransform) {
@@ -79,7 +79,7 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
 
       $rootScope.activePipeline.transforms[i].destroy();
       $rootScope.activePipeline.transforms.splice(i, 1);
-      Vis.parse().then(function() { timeline.save(); });
+      Vis.render().then(function() { timeline.save(); });
     }
 
     $('.tooltip').remove();

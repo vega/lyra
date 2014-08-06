@@ -50,7 +50,7 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
   };
 
   $scope.finishEditing = function() {
-    Vis.parse().then(function(spec) {
+    Vis.render().then(function(spec) {
       $window.opener.postMessage({
         timeline: timeline.timeline,
         spec: spec

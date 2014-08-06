@@ -14,7 +14,7 @@ vde.App.controller('ScaleCtrl', function($scope, $rootScope, Vis) {
     if(scale.used || !scale.manual) return;
 
     scale.manual = false;
-    Vis.parse().then(function() {
+    Vis.render().then(function() {
       $rootScope.editBinding({}, 'scale');
     });
   };

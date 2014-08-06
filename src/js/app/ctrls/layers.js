@@ -5,7 +5,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     sortableOpts: {
       update: function() {
         $timeout(function() {
-          Vis.parse().then(function() { timeline.save(); });
+          Vis.render().then(function() { timeline.save(); });
         }, 1);
       },
       axis: 'y'
@@ -16,7 +16,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
 
   $rootScope.groupOrder = Vis.groupOrder;
 
-  $rootScope.reparse = function() { Vis.parse(); };
+  $rootScope.reparse = function() { Vis.render(); };
 
   $rootScope.toggleGroup = function(group) {
     if($rootScope.activeVisual &&
@@ -81,12 +81,12 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
       $rootScope.activePipeline = Vis.pipelines[p];
     }
 
-    return Vis.parse().then(function() { timeline.save(); });
+    return Vis.render().then(function() { timeline.save(); });
   };
 
   $scope.addGroup = function() {
     var g = new Vis.marks.Group();
-    return Vis.parse().then(function() {
+    return Vis.render().then(function() {
       $rootScope.toggleVisual(g);
       timeline.save();
     });
@@ -122,7 +122,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
       }
     }
 
-    return Vis.parse().then(function() {
+    return Vis.render().then(function() {
       $('.tooltip').remove();
       timeline.save();
     });
@@ -142,7 +142,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
 
     $rootScope.activeVisual.pipeline().transforms[i].destroy();
     $rootScope.activeVisual.pipeline().transforms.splice(i, 1);
-    return Vis.parse().then(function() {
+    return Vis.render().then(function() {
       $('.tooltip').remove();
 
       timeline.save();
@@ -160,6 +160,6 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     else p.value = value;
 
     if('update' in v) v.update(prop);
-    else Vis.parse();
+    else Vis.render();
   };
 });

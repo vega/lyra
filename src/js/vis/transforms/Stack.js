@@ -57,7 +57,7 @@ vde.Vis.transforms.Stack = (function() {
       facet.properties.layout = 'Overlap';
       this.pipeline().transforms.splice(thisIdx, 0, facet);
 
-      vde.Vis.parse();
+      vde.Vis.render();
     }
 
     if(!this.properties.point || !this.properties.height) return;

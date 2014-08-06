@@ -133,7 +133,7 @@ vde.Vis.Mark = (function() {
       return up;
     }, {});
 
-    // if(update[prop].scale) vde.Vis.parse();
+    // if(update[prop].scale) vde.Vis.render();
     // else {
       def.properties.update = vg.parse.properties(this.type, update);
       vde.Vis.view.update();

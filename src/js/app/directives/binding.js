@@ -12,7 +12,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
         var field = $rootScope.activeField;
         field.pipeline().aggregate(field, stat);
         $timeout(function() {
-          Vis.parse().then(function() {
+          Vis.render().then(function() {
             $('#aggregate-popover').hide();
             timeline.save();
           });
@@ -27,7 +27,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
         if(part == 'scale') {
           inspector = $('#scale-popover');
           $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
-          iVis.parse($rootScope.activeScale); // Visualize scale
+          iVis.render($rootScope.activeScale); // Visualize scale
         } else {
           inspector = $('#aggregate-popover');
           $rootScope.activeField = inspector.is(':visible') ? null : $scope.field;

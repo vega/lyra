@@ -11,7 +11,7 @@ vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window',
 
     // By default, this populates in our HTML 5 canvas element in Lyra.
     // We also want to allow exporting to SVG, so paint that into a dummy SVG.
-    return Vis.parse().then(function(spec) {
+    return Vis.render().then(function(spec) {
       vg.headless.render(
           {spec: spec, renderer: "svg", el: "#headless"},
           function(err, data) {
@@ -23,7 +23,7 @@ vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window',
       $scope.png = PngExporter.get();
 
       $scope.inlinedValues = makeFile(JSON.stringify(spec, null, 2), 'text/json');
-      Vis.parse(false).then(function(spec) {
+      Vis.render(false).then(function(spec) {
         $scope.refData = makeFile(JSON.stringify(spec, null, 2), 'text/json');
       });
 

@@ -89,7 +89,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
             iVis.show('selected');
             timeline.save();
           } else {
-            Vis.parse().then(function() {
+            Vis.render().then(function() {
               iVis.show('selected');
               timeline.save();
             });
@@ -100,7 +100,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
       $scope.unbind = function(property) {
         if(!property) property = $scope.property;
         $scope.item.unbindProperty(property);
-        Vis.parse().then(function() { timeline.save(); });
+        Vis.render().then(function() { timeline.save(); });
       };
 
       $scope.unInferProperty = function(property, field) {
@@ -149,7 +149,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
               delete $scope.extentsBound[oldVal.p];
             }
 
-            Vis.parse();
+            Vis.render();
           }
 
           // This happens if a production rule disables the current property.
