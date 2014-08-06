@@ -453,6 +453,21 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
   files();
   $scope.tMdl = {fileName: null};
 
+  $scope.new = function() { 
+    vde.Vis.reset(); 
+
+    // Allow angular to detect the reset, before new blank layer/pipeline is added
+    $timeout(function() {
+      var g = new Vis.marks.Group("layer_0");
+      $rootScope.activeGroup = $rootScope.activeLayer = g;
+
+      var p = new Vis.Pipeline("pipeline_0");
+      $rootScope.activePipeline = p;
+
+      vde.Vis.render();
+    }, 1)
+  };
+
   $scope.showOpen = function() {
     $rootScope.fileOpenPopover = !$rootScope.fileOpenPopover;
     $rootScope.fileSavePopover = false;
