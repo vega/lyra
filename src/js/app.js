@@ -622,6 +622,8 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
         timeline.timeline = d.timeline;
         timeline.currentIdx = d.timeline.length - 1
         timeline.redo();
+      } else if(d.spec) {
+        Vis.parse(d.spec);
       } else { 
         timeline.save();
       }
