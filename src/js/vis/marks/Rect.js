@@ -136,15 +136,11 @@ vde.Vis.marks.Rect = (function() {
       var dragging = vde.iVis.dragging, evt = d3.event;
       if(!dragging || !dragging.prev) return;
       if(vde.iVis.activeMark != self) return;
-
       var props = self.properties,
           dx = Math.ceil(evt.pageX - dragging.prev[0]),
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
-          data = dragging.item.datum.data;
-
-      if(!data || data.disabled || !data.connector) return;
-
-      delete self.iVisUpdated;
+          data = dragging.item.datum.data,
+          handle = (dragging.item.mark.def.name == 'handle');
 
       // Since we're updating a value, pull the current value from the
       // scenegraph directly rather than properties. This makes it easier
@@ -156,36 +152,44 @@ vde.Vis.marks.Rect = (function() {
         }
       };
 
+      delete self.iVisUpdated;
+
       vde.iVis.ngScope().$apply(function() {
         var reverse;
-        if(data.connector.indexOf('top') != -1) {
-          reverse = (props.y.scale &&
-              props.y.scale.range().name == 'height') ? -1 : 1;
-
-          updateValue('y', dy*reverse);
-          updateValue('height', dy*-1);
-          self.update(['y', 'y2', 'height']);
-        }
-
-        if(data.connector.indexOf('bottom') != -1) {
-          reverse = (props.y2.scale &&
-              props.y2.scale.range().name == 'height') ? -1 : 1;
-
-          updateValue('y2', dy*reverse);
-          updateValue('height', dy);
-          self.update(['y', 'y2', 'height']);
-        }
-
-        if(data.connector.indexOf('left') != -1) {
+        if(!handle && !data) {
+          updateValue('y', dy);
           updateValue('x', dx);
-          updateValue('width', dx*-1);
-          self.update(['x', 'x2', 'width']);
-        }
+          self.update(['y', 'x']);
+        } else {
+          if(data.connector.indexOf('top') != -1) {
+            reverse = (props.y.scale &&
+                props.y.scale.range().name == 'height') ? -1 : 1;
 
-        if(data.connector.indexOf('right') != -1) {
-          updateValue('x2', dx);
-          updateValue('width', dx);
-          self.update(['x', 'x2', 'width']);
+            updateValue('y', dy*reverse);
+            updateValue('height', dy*-1);
+            self.update(['y', 'y2', 'height']);
+          }
+
+          if(data.connector.indexOf('bottom') != -1) {
+            reverse = (props.y2.scale &&
+                props.y2.scale.range().name == 'height') ? -1 : 1;
+
+            updateValue('y2', dy*reverse);
+            updateValue('height', dy);
+            self.update(['y', 'y2', 'height']);
+          }
+
+          if(data.connector.indexOf('left') != -1) {
+            updateValue('x', dx);
+            updateValue('width', dx*-1);
+            self.update(['x', 'x2', 'width']);
+          }
+
+          if(data.connector.indexOf('right') != -1) {
+            updateValue('x2', dx);
+            updateValue('width', dx);
+            self.update(['x', 'x2', 'width']);
+          }
         }
       });
 
