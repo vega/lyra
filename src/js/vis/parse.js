@@ -125,7 +125,7 @@ vde.Vis.parse = (function() {
     };
 
     (spec.scales || []).forEach(parseScale, info);
-    (spec.marks || []).reverse().forEach(parseMark, info);
+    (spec.marks || []).forEach(parseMark, info);
     (spec.axes || []).forEach(parseAxis, info);
 
     if(spec.legends && spec.legends.length) {
@@ -214,7 +214,8 @@ vde.Vis.parse = (function() {
   
   function parseScale(scale) {
     var info = this,
-        pipeline = parseDomain(scale.domain) || info.group.pipeline() || defaultPipeline(),
+        layer = info.layer || defaultLayer(),
+        pipeline = parseDomain(scale.domain) || info.group && info.group.pipeline() || defaultPipeline(),
         obj = new vis.Scale(scale.name, pipeline, {}, scale["lyra.displayName"] || scale.name);
     obj.used = true;
     obj.manual = true;
@@ -247,7 +248,7 @@ vde.Vis.parse = (function() {
     obj.properties.padding = scale.padding;
     obj.properties.points = scale.points;
 
-    scales[scale.name] = obj;
+    layer.scales[scale.name] = scales[scale.name] = obj;
     function parseDomain(domain) {
       return (domain && domain.data) ? pipelines[sourceNames[domain.data]] : null;
     }
@@ -259,6 +260,7 @@ vde.Vis.parse = (function() {
         groupName = info.group && info.group.name || null;
     var axis = new vis.Axis(ax.name, layer.name, groupName);
     vg.extend(axis.properties, ax);
+    console.log(axis.properties.scale);
     axis.properties.scale = layer.scales[axis.properties.scale];
     axis.pipelineName = axis.properties.scale.pipeline().name;
   }
@@ -440,9 +442,7 @@ vde.Vis.parse = (function() {
   }
 
   function htmlExprGenerator(expr, object, pipeline) {
-    console.log(expr, object, pipeline);
     return expr.replace(/d\.([\w\.]+)/g, function(match2, match) {
-      console.log(match);
       var bindingScope = vde.iVis.ngScope().$new(),
           binding;
       bindingScope.field = parseField(pipeline, match);
