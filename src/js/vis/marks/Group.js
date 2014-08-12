@@ -68,7 +68,7 @@ vde.Vis.marks.Group = (function() {
     for(var m in this.marks)
       this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);
 
-    if(layout) vde.Vis.parse();
+    if(layout) vde.Vis.render();
 
     return this;
   };
@@ -237,7 +237,7 @@ vde.Vis.marks.Group = (function() {
     // to get the axes to do the right thing.
     selected.evtHandlers.mouseup = function() {
       if(self.iVisUpdated) {
-        vde.Vis.parse();
+        vde.Vis.render();
 
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();

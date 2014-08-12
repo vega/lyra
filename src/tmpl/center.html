@@ -8,6 +8,7 @@
   <a id="logo" href="http://idl.cs.washington.edu/projects/lyra/">The Lyra VDE <sup>alpha</sup></sup></a>
 
   <ul class="timeline" ng-controller="TimelineCtrl">
+    <li id="new" ng-hide="editorMode" ng-click="new()" vde-tooltip="New" position="top">New</li>
     <li id="open" ng-hide="editorMode" ng-click="showOpen($event)" vde-tooltip="Open" position="top">Open</li>
     <li id="save" ng-hide="editorMode" ng-click="save($event)" vde-tooltip="Save" position="top">Save</li>
     <li id="finishEditing" ng-show="editorMode" ng-click="finishEditing($event)" vde-tooltip="Finish Editing" position="top">Finish Editing</li>

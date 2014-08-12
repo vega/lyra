@@ -63,21 +63,10 @@ vde.Vis = (function() {
     del.forEach(function(d) { regd.splice(d, 1); });
   };
 
-  vis.parse = function(inlinedValues) {
-    var deferred = vde.iVis.ngQ().defer(), props = vis.properties;
-    var spec = {
-      width: props.width,
-      height: props.height,
-      padding: props._autopad ? 'auto' : props.padding,
-      data: [],
-      scales: [],
-      marks: []
-    };
-
-    vde.Vis.callback.run('vis.pre_spec', this, {spec: spec});
-
-    inlinedValues = (inlinedValues === null || inlinedValues === undefined || inlinedValues === true);
-    var rawSources = {};
+  vis.spec = function(inlinedValues) {
+    var props = vis.properties, rawSources = {};
+    inlinedValues = (inlinedValues === null || inlinedValues === undefined || 
+      inlinedValues === true);
 
     var addRawSource = function(src) {
       if(!src || rawSources[src]) return;
@@ -92,14 +81,24 @@ vde.Vis = (function() {
         delete data.values;
       }
 
-
-      if(data.url)        // Inline values to deal with x-site restrictions
-        delete data[inlinedValues ? 'url' : 'values'];
+      // Inline values to deal with x-site restrictions
+      if(data.url) delete data[inlinedValues ? 'url' : 'values'];
 
       data["lyra.role"] = 'data_source';
       spec.data.push(data);
       rawSources[src] = 1;
     };
+
+    var spec = {
+      width: props.width,
+      height: props.height,
+      padding: props._autopad ? 'auto' : props.padding,
+      data: [],
+      scales: [],
+      marks: []
+    };
+
+    vde.Vis.callback.run('vis.pre_spec', this, {spec: spec}); 
 
     // Scales are defined within groups. No global scales.
     for(var p in vis.pipelines) {
@@ -122,6 +121,13 @@ vde.Vis = (function() {
     // Now that the spec has been generated, bookkeep to clean up unused scales
     for(var p in vis.pipelines) vis.pipelines[p].bookkeep();
     for(var g in vis.groups) vis.groups[g].bookkeep();
+
+    return spec;
+  };
+
+  vis.render = function(inlinedValues) {
+    var deferred = vde.iVis.ngQ().defer(),
+        spec = vis.spec(inlinedValues);
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#vis').selectAll('*').remove();
@@ -166,7 +172,7 @@ vde.Vis = (function() {
 
       // If the vis gets reparsed, reparse the interactive layer too to update any
       // visible handlers, etc.
-      vde.iVis.parse().then(function() { deferred.resolve(spec); });
+      vde.iVis.render().then(function() { deferred.resolve(spec); });
     });
 
     return deferred.promise;
@@ -245,18 +251,11 @@ vde.Vis = (function() {
       importProperties(group, g);
     };
 
-    // Clear existing pipelines and groups. We want to do this in two
-    // apply cycles because pipeline/group names may be the same, and
-    // angular may not pick up the updates otherwise.
-    for(var p in vis.pipelines) { delete vis.pipelines[p]; }
-    for(var g in vis.groups) { delete vis.groups[g]; }
-    for(var c in vis.callback._registered) { delete vis.callback._registered[c]; }
-    vde.Vis.groupOrder.length = 0;
-    vde.iVis.activeMark = null;
+    vis.reset();
 
     for(var pipelineName in spec.pipelines) {
       var p = spec.pipelines[pipelineName];
-      var pipeline = new vde.Vis.Pipeline(p.source);
+      var pipeline = new vde.Vis.Pipeline(pipelineName, p.source);
 
       for(var scaleName in p.scales) {
         var scale = new vde.Vis.Scale(scaleName, pipeline, {});
@@ -279,9 +278,20 @@ vde.Vis = (function() {
     if(spec._data) importProperties(vis._data, spec._data);
     importProperties(vis.groupOrder, spec.groupOrder);
 
-    vis.parse().then(function(spec) { deferred.resolve(spec); });
+    vis.render().then(function(spec) { deferred.resolve(spec); });
 
     return deferred.promise;
+  };
+
+  vis.reset = function() {
+    // Clear existing pipelines and groups. We want to do this in two
+    // apply cycles because pipeline/group names may be the same, and
+    // angular may not pick up the updates otherwise.
+    for(var p in vis.pipelines) { delete vis.pipelines[p]; }
+    for(var g in vis.groups) { delete vis.groups[g]; }
+    for(var c in vis.callback._registered) { delete vis.callback._registered[c]; }
+    vde.Vis.groupOrder.length = 0;
+    vde.iVis.activeMark = null;
   };
 
   vis.parseProperty = function(props, prop) {

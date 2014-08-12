@@ -29,7 +29,7 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
           scope.item.properties[scope.property] = strConcat ? '"' + value.text() + '"' : value.text();
           scope.item.properties[scope.property + 'Html'] = html;
 
-          Vis.parse();
+          Vis.render();
         };
 
         // Safe apply in case parse is called from within a watch.

@@ -84,7 +84,7 @@ vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window',
 
     // By default, this populates in our HTML 5 canvas element in Lyra.
     // We also want to allow exporting to SVG, so paint that into a dummy SVG.
-    return Vis.parse().then(function(spec) {
+    return Vis.render().then(function(spec) {
       vg.headless.render(
           {spec: spec, renderer: "svg", el: "#headless"},
           function(err, data) {
@@ -96,7 +96,7 @@ vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window',
       $scope.png = PngExporter.get();
 
       $scope.inlinedValues = makeFile(JSON.stringify(spec, null, 2), 'text/json');
-      Vis.parse(false).then(function(spec) {
+      Vis.render(false).then(function(spec) {
         $scope.refData = makeFile(JSON.stringify(spec, null, 2), 'text/json');
       });
 
@@ -136,7 +136,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     sortableOpts: {
       update: function() {
         $timeout(function() {
-          Vis.parse().then(function() { timeline.save(); });
+          Vis.render().then(function() { timeline.save(); });
         }, 1);
       },
       axis: 'y'
@@ -147,7 +147,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
 
   $rootScope.groupOrder = Vis.groupOrder;
 
-  $rootScope.reparse = function() { Vis.parse(); };
+  $rootScope.reparse = function() { Vis.render(); };
 
   $rootScope.toggleGroup = function(group) {
     if($rootScope.activeVisual &&
@@ -212,12 +212,12 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
       $rootScope.activePipeline = Vis.pipelines[p];
     }
 
-    return Vis.parse().then(function() { timeline.save(); });
+    return Vis.render().then(function() { timeline.save(); });
   };
 
   $scope.addGroup = function() {
     var g = new Vis.marks.Group();
-    return Vis.parse().then(function() {
+    return Vis.render().then(function() {
       $rootScope.toggleVisual(g);
       timeline.save();
     });
@@ -253,7 +253,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
       }
     }
 
-    return Vis.parse().then(function() {
+    return Vis.render().then(function() {
       $('.tooltip').remove();
       timeline.save();
     });
@@ -273,7 +273,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
 
     $rootScope.activeVisual.pipeline().transforms[i].destroy();
     $rootScope.activeVisual.pipeline().transforms.splice(i, 1);
-    return Vis.parse().then(function() {
+    return Vis.render().then(function() {
       $('.tooltip').remove();
 
       timeline.save();
@@ -290,8 +290,10 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     if(p.value == value) delete p.value;
     else p.value = value;
 
+    if('checkExtents' in v) v.checkExtents(prop);
+
     if('update' in v) v.update(prop);
-    else Vis.parse();
+    else Vis.render();
   };
 });
 vde.App.controller('MarkCtrl', function($scope, $rootScope) {
@@ -378,7 +380,7 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
     $rootScope.activePipeline.addTransform($scope.pMdl.newTransforms[i]);
 
     $scope.pMdl.newTransforms.splice(i, 1);
-    Vis.parse().then(function() { timeline.save(); });
+    Vis.render().then(function() { timeline.save(); });
   };
 
   $scope.removeTransform = function(i, isNewTransform) {
@@ -391,7 +393,7 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
 
       $rootScope.activePipeline.transforms[i].destroy();
       $rootScope.activePipeline.transforms.splice(i, 1);
-      Vis.parse().then(function() { timeline.save(); });
+      Vis.render().then(function() { timeline.save(); });
     }
 
     $('.tooltip').remove();
@@ -421,7 +423,7 @@ vde.App.controller('ScaleCtrl', function($scope, $rootScope, Vis) {
     if(scale.used || !scale.manual) return;
 
     scale.manual = false;
-    Vis.parse().then(function() {
+    Vis.render().then(function() {
       $rootScope.editBinding({}, 'scale');
     });
   };
@@ -451,6 +453,21 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
   files();
   $scope.tMdl = {fileName: null};
 
+  $scope.new = function() { 
+    vde.Vis.reset(); 
+
+    // Allow angular to detect the reset, before new blank layer/pipeline is added
+    $timeout(function() {
+      var g = new Vis.marks.Group("layer_0");
+      $rootScope.activeGroup = $rootScope.activeLayer = g;
+
+      var p = new Vis.Pipeline("pipeline_0");
+      $rootScope.activePipeline = p;
+
+      vde.Vis.render();
+    }, 1)
+  };
+
   $scope.showOpen = function() {
     $rootScope.fileOpenPopover = !$rootScope.fileOpenPopover;
     $rootScope.fileSavePopover = false;
@@ -478,7 +495,7 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
   };
 
   $scope.finishEditing = function() {
-    Vis.parse().then(function(spec) {
+    Vis.render().then(function(spec) {
       $window.opener.postMessage({
         timeline: timeline.timeline,
         spec: spec
@@ -539,7 +556,7 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
       var p = new Vis.Pipeline();
       $rootScope.activePipeline = p;
 
-      Vis.parse().then(function() {
+      Vis.render().then(function() {
         // Add an initial blank slate state to the timeline.
         timeline.save();
 
@@ -605,6 +622,8 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
         timeline.timeline = d.timeline;
         timeline.currentIdx = d.timeline.length - 1
         timeline.redo();
+      } else if(d.spec) {
+        Vis.parse(d.spec);
       } else { 
         timeline.save();
       }
@@ -658,7 +677,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
         var field = $rootScope.activeField;
         field.pipeline().aggregate(field, stat);
         $timeout(function() {
-          Vis.parse().then(function() {
+          Vis.render().then(function() {
             $('#aggregate-popover').hide();
             timeline.save();
           });
@@ -673,7 +692,7 @@ vde.App.directive('vdeBinding', function($compile, $rootScope, $timeout, timelin
         if(part == 'scale') {
           inspector = $('#scale-popover');
           $rootScope.activeScale = inspector.is(':visible') ? null : $scope.scale;
-          iVis.parse($rootScope.activeScale); // Visualize scale
+          iVis.render($rootScope.activeScale); // Visualize scale
         } else {
           inspector = $('#aggregate-popover');
           $rootScope.activeField = inspector.is(':visible') ? null : $scope.field;
@@ -941,7 +960,7 @@ vde.App.directive('vdeExpr', function($rootScope, $compile, $timeout, timeline, 
           scope.item.properties[scope.property] = strConcat ? '"' + value.text() + '"' : value.text();
           scope.item.properties[scope.property + 'Html'] = html;
 
-          Vis.parse();
+          Vis.render();
         };
 
         // Safe apply in case parse is called from within a watch.
@@ -1144,7 +1163,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
             iVis.show('selected');
             timeline.save();
           } else {
-            Vis.parse().then(function() {
+            Vis.render().then(function() {
               iVis.show('selected');
               timeline.save();
             });
@@ -1155,7 +1174,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
       $scope.unbind = function(property) {
         if(!property) property = $scope.property;
         $scope.item.unbindProperty(property);
-        Vis.parse().then(function() { timeline.save(); });
+        Vis.render().then(function() { timeline.save(); });
       };
 
       $scope.unInferProperty = function(property, field) {
@@ -1204,7 +1223,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
               delete $scope.extentsBound[oldVal.p];
             }
 
-            Vis.parse();
+            Vis.render();
           }
 
           // This happens if a production rule disables the current property.
@@ -1274,7 +1293,7 @@ vde.App.directive('vdeScaleValues', function(Vis, vg) {
 
       $scope.update = function() {
         $scope.scale[$scope.property] = vg.keys($scope.values).map(function(k) { return $scope.values[k].value; });
-        Vis.parse();
+        Vis.render();
       };
 
       $scope.add = function(evt, button) {

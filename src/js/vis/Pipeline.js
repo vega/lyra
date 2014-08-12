@@ -1,7 +1,7 @@
 vde.Vis.Pipeline = (function() {
   var nameCount = -1;
-  var pipeline = function(source) {
-    this.name = 'pipeline_' + (++nameCount);
+  var pipeline = function(pipelineName, source) {
+    this.name = pipelineName || 'pipeline_' + (++nameCount);
     this.displayName = 'Pipeline ' + vde.Vis.codename(nameCount);
 
     this.source = source;

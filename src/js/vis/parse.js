@@ -6,85 +6,75 @@
   feature.
 */
 
-vde.Vis.importVegaErr = function(spec) {
-  try {
-    vde.Vis.importVega(spec);
-  } catch(e) {
-    console.error(e);
-  }
-}
-
-vde.Vis.importVega = function(spec) {
+vde.Vis.parse = (function() {
   var vis = vde.Vis,
-      messages = [],
-      pipelines = {},
-      dataSources = {},
-      sourceNames = {},
-      scales = {},
-      layers = {},
-      Q = vde.iVis.ngQ(),
-      groupUpdates = [],
-      dataLoaded = [],
-      SUPPORTED_TRANSFORMS = {facet:1, filter:1, formula:1, sort:1, stats:1, window:1, force:1, geo:1, geopath:1, pie:1, stack:1},
-      DEFAULT_STAT_NAMES = {count:"count", min:"min", max:"max", sum:"sum", mean:"mean", variance:"variance", stdev:"stdev", median: "median"},
-      SHARED_MARK_PROPERTIES = ['x','x2','y','y2','width','height','opacity','fill','fillOpacity','stroke','strokeWidth','strokeOpacity','strokeDash','strokeDashOffset'],
-      SCALE_PRESETS = {width:1, height:1, shapes:1, category10:1, category20:1},
-      renamedStatsFields = {}
-  ;
+    messages = [],
+    pipelines = {},
+    dataSources = {},
+    sourceNames = {},
+    scales = {},
+    layers = {},
+    groupUpdates = [],
+    dataLoaded = [],
+    SUPPORTED_TRANSFORMS = {facet:1, filter:1, formula:1, sort:1, stats:1, window:1, force:1, geo:1, geopath:1, pie:1, stack:1},
+    DEFAULT_STAT_NAMES = {count:"count", min:"min", max:"max", sum:"sum", mean:"mean", variance:"variance", stdev:"stdev", median: "median"},
+    SHARED_MARK_PROPERTIES = ['x','x2','y','y2','width','height','opacity','fill','fillOpacity','stroke','strokeWidth','strokeOpacity','strokeDash','strokeDashOffset'],
+    SCALE_PRESETS = {width:1, height:1, shapes:1, category10:1, category20:1},
+    renamedStatsFields = {};
 
-  vis.properties.width = spec.width;
-  vis.properties.height = spec.height;
-  if(typeof spec.padding === 'number') {
-    vis.properties._autopad = false;
-    vis.properties.padding = {
-      top: spec.padding,
-      bottom: spec.padding,
-      left: spec.padding,
-      right: spec.padding,
-    };
-  } else if(typeof spec.padding === 'object') {
-    vis.properties.padding = spec.padding;
-    vis.properties._autopad = false;
-  } else if(spec.padding === 'auto'){
-    vis.properties.padding = {};
-    vis.properties._autopad = true;
-  } else {
-    vis.properties.padding = {top:30, left:30, right:30, bottom:30};
-    vis.properties._autopad = true;
-    warn('unknown padding "' + spec.padding + '". Using "auto"');
-  }
+  function parse(spec) {
+    vis.properties.width = spec.width;
+    vis.properties.height = spec.height;
+    if(typeof spec.padding === 'number') {
+      vis.properties._autopad = false;
+      vis.properties.padding = {
+        top: spec.padding,
+        bottom: spec.padding,
+        left: spec.padding,
+        right: spec.padding,
+      };
+    } else if(typeof spec.padding === 'object') {
+      vis.properties.padding = spec.padding;
+      vis.properties._autopad = false;
+    } else if(spec.padding === 'auto'){
+      vis.properties.padding = {};
+      vis.properties._autopad = true;
+    } else {
+      vis.properties.padding = {top:30, left:30, right:30, bottom:30};
+      vis.properties._autopad = true;
+      warn('unknown padding "' + spec.padding + '". Using "auto"');
+    }
 
-  vis.groupOrder = [];
-  vis.groups = {};
-  vis.pipelines = {};
+    vis.reset();
 
-  spec = vg.duplicate(spec);
+    spec = vg.duplicate(spec);
 
-  (spec.data || []).forEach(function(d) {
-    dataSources[d.name] = d;
-  });
-  (spec.data || []).forEach(parseDataSource);
-  (spec.scales || []).forEach(parseScale);
-  (spec.marks || []).reverse().forEach(parseMark, {transforms:[]});
-  (spec.axes || []).forEach(parseAxis);
-  if(spec.legends && spec.legends.length) {
-    warn("Lyra does not support legend marks");
-  }
-
-  return Q.all(dataLoaded)
-    .then(vis.parse.bind(vis, true))
-    .then(function() { groupUpdates.forEach(function(f){ f(); }); })
-    .then(vis.parse.bind(vis, true))
-    .then(function(){
-      return messages;
+    (spec.data || []).forEach(function(d) {
+      dataSources[d.name] = d;
     });
+    (spec.data || []).forEach(parseDataSource);
+    (spec.scales || []).forEach(parseScale);
+    (spec.marks || []).reverse().forEach(parseMark, {transforms:[]});
+    (spec.axes || []).forEach(parseAxis);
+    if(spec.legends && spec.legends.length) {
+      warn("Lyra does not support legend marks");
+    }
+
+    return vde.iVis.ngQ().all(dataLoaded)
+      .then(vis.render.bind(vis, true))
+      .then(function() { groupUpdates.forEach(function(f){ f(); }); })
+      .then(vis.render.bind(vis, true))
+      .then(function(){
+        return messages;
+      });
+  }
   
   function parseDataSource(ds) {
     var pipeline, deferred, idx;
     ds.transform = ds.transform || [];
     if(ds.url || ds.values) {
       //This data object defines some data. We need to load it.
-      deferred = Q.defer();
+      deferred = vde.iVis.ngQ().defer();
       dataLoaded.push(deferred.promise);
       vis.data(ds.name, ds.url || ds.values, ds.format || 'json').then(deferred.resolve.bind(deferred));
     }
@@ -95,7 +85,7 @@ vde.Vis.importVega = function(spec) {
       //Pure data sources don't create pipelines.
       return;
     } else if(!ds["lyra.role"]) {
-      pipeline = new vis.Pipeline(ds.source || ds.name);
+      pipeline = new vis.Pipeline(null, ds.source || ds.name);
       pipeline.displayName = ds["lyra.displayName"] || ds.name;
       //Lyra renames the pipelines, keep track of the new names.
       pipelines[pipeline.name] = pipeline;
@@ -453,4 +443,6 @@ vde.Vis.importVega = function(spec) {
   function fail(msg) {
     throw new Error(msg);
   }
-};
+
+  return parse;
+})();

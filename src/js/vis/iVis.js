@@ -59,7 +59,7 @@ vde.iVis = (function() {
   // We can't keep re-parsing the iVis layer. This triggers false mouseout
   // events as a result of removing all #ivis children. So, we only reparse
   // when we reparse the Vis, and subsequently only update the datasets.
-  ivis.parse = function(scale) {
+  ivis.render = function(scale) {
     var deferred = ivis.ngQ().defer();
     var spec = {
       width: vde.Vis.view._width,
@@ -239,7 +239,7 @@ vde.iVis = (function() {
         {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
-    vde.Vis.parse().then(function() {
+    vde.Vis.render().then(function() {
       $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
@@ -272,7 +272,7 @@ vde.iVis = (function() {
 
     rootScope.$apply(function() {
       mark.init();
-      vde.Vis.parse().then(function() {
+      vde.Vis.render().then(function() {
         rootScope.toggleVisual(mark, null, true);
         ivis.ngTimeline().save();
 
@@ -402,7 +402,7 @@ vde.iVis = (function() {
             x: {field: 'data.x'},
             y: {field: 'data.y'},
             stroke: {value: 'cyan'},
-            strokeWidth: {value: 1},
+            strokeWidth: {value: 2},
             span: {field: 'data.span'}
           },
           hover: {

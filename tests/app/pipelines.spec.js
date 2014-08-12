@@ -40,6 +40,7 @@ describe('pipelines panel', function() {
   var newTransformsLst = 'transform in pMdl.newTransforms';
   var visible = '#pipelines .inspector:nth-child(1) ';
 
+
   it('should load default pipeline', function() {
     browser.get('index.html');
 
@@ -158,11 +159,55 @@ describe('pipelines panel', function() {
       }])
     });
 
+    it("should delete transform", function(){
+        element(by.css('div.existing-transforms a.delete.close')).click();
+
+        //dismisses confirmation alert
+        protractor.getInstance().driver.switchTo().alert().then(
+          function(alert) {
+            alert.accept();
+          }, function(error) {
+          }
+        );
+
+        //check count of transforms list
+        expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
+
+        //check original order is restored
+        //NOTE: Might want to use more precise css selector
+        expect(element(by.css('.dataTable tbody td:nth-child(2)')).getText()).toBe("USA");
+
+    });
+
   });
 
-  xdescribe("filter transform", function(){
-    xit("should filter", function(){
-      //TODO(kanitw): filter
+  describe("filter transform", function(){
+    it("should filter", function(){
+      expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
+
+      element(by.css('.addTransform')).click();
+      element(by.css('.transform-filter')).click();
+
+      //assume Olympic data set is still open from previous tests
+      var goldCount = element(by.css('.dataTable tbody td:nth-child(1)'));
+      var dropArea = element(by.css('.canDropField'));
+      vde.dragAndDrop(goldCount, dropArea);
+
+      //expect(inputArea.isElementPresent(by.css('.binding'))).toBe(true);
+
+      var expressionArea = element(by.css('.expr'));
+      expressionArea.click();
+      expressionArea.sendKeys(protractor.Key.RIGHT, '==\"USA\"');
+
+      element(by.css('.inner input[value="Add to Pipeline"]')).click();
+
+      expect(element.all(by.repeater(transformsLst)).count()).toEqual(1);
+      expect(element.all(by.repeater(newTransformsLst)).count()).toEqual(0);
+
+      vde.checkSpec([{
+        path: "$.data[?(@.name == 'pipeline_2')].transform[0].type",
+        equal: "filter"
+      }])
 
       // d.data.x > 10
 
