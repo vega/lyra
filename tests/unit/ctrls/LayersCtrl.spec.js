@@ -11,7 +11,7 @@ describe('Layers Controller', function() {
     timeout = _$timeout_;
 
     timeline = jasmine.createSpyObj('timeline', ['save']);
-    Vis = jasmine.createSpyObj('Vis', ['parse', 'Pipeline', 'Axis']);
+    Vis = jasmine.createSpyObj('Vis', ['render', 'Pipeline', 'Axis']);
     Vis.render.and.returnValue($q.when({
       //fake spec
     }));

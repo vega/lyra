@@ -23,8 +23,8 @@ describe('Export controller', function() {
     pngMock = jasmine.createSpyObj('PngExporter', ['get']);
     pngMock.get.and.returnValue('dummy png url');
 
-    VisMock = jasmine.createSpyObj('Vis',['parse'])
-    VisMock.parse.and.returnValue($q.when({
+    VisMock = jasmine.createSpyObj('Vis',['render'])
+    VisMock.render.and.returnValue($q.when({
       //fake vega scene data
     }));
 
@@ -46,7 +46,7 @@ describe('Export controller', function() {
       done();
     }).catch(function(err){ throw err; });
 
-    expect(VisMock.parse).toHaveBeenCalled();
+    expect(VisMock.render).toHaveBeenCalled();
 
     //necessary for the asynchronous code to run.
     $scope.$digest();
@@ -61,7 +61,7 @@ describe('Export controller', function() {
       done();
     }).catch(function(err){ throw err; });
 
-    expect(VisMock.parse).toHaveBeenCalled();
+    expect(VisMock.render).toHaveBeenCalled();
 
     //necessary for the asynchronous code to run.
     $scope.$digest();

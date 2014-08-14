@@ -17,7 +17,7 @@ describe('Pipelines Controller', function() {
     timeline = jasmine.createSpyObj('timeline', ['save']);
     spyOn(window.vg, 'keys').and.callThrough();
     vg = window.vg;
-    Vis = jasmine.createSpyObj('Vis', ['Pipeline', 'Scale', 'parse']);
+    Vis = jasmine.createSpyObj('Vis', ['Pipeline', 'Scale', 'render']);
     Vis.Scale.and.returnValue(scale);
     Vis.Pipeline.and.returnValue(pipeline);
     Vis.transforms = {test: jasmine.createSpy()};

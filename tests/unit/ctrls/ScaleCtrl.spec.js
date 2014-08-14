@@ -7,7 +7,7 @@ describe('Scale Controller', function() {
     rootScope.editBinding = jasmine.createSpy();
 
     scope = rootScope.$new();
-    Vis = jasmine.createSpyObj('Vis', ['parse']);
+    Vis = jasmine.createSpyObj('Vis', ['render']);
     Vis.render.and.returnValue($q.when());
 
     ctrl = $controller('ScaleCtrl', {
