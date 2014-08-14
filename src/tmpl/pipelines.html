@@ -39,7 +39,7 @@
         </div>
       </div> <!-- /existing transforms -->
 
-      <div class="datatable" id="datasheet" ng-if="pipeline.source" vde-data-grid pipeline="pipeline"></div>
+      <div id="datasheet" ng-if="pipeline.source" vde-data-grid pipeline="pipeline"></div>
 
       <div class="addNew addTransform" ng-show="pipeline.source && !pMdl.showTransforms && pMdl.newTransforms.length == 0"
            ng-click="pMdl.showTransforms = true;">+ New Transform</div>
@@ -57,7 +57,7 @@
           <a class="transform-formula btn btn-small" ng-click="newTransform('Formula')">Formula</a>
           <a class="transform-facet btn btn-small" ng-click="newTransform('Facet')">Group By</a>
           <a class="transform-window btn btn-small" ng-click="newTransform('Window')">Window</a>
-          <a class="transform-window btn btn-small" ng-click="newTransform('Stats')">Stats</a>
+          <a class="transform-stats btn btn-small" ng-click="newTransform('Stats')">Stats</a>
         </div>
       </div><!-- /show transforms -->
 

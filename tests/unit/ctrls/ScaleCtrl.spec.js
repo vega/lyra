@@ -8,7 +8,7 @@ describe('Scale Controller', function() {
 
     scope = rootScope.$new();
     Vis = jasmine.createSpyObj('Vis', ['parse']);
-    Vis.parse.and.returnValue($q.when());
+    Vis.render.and.returnValue($q.when());
 
     ctrl = $controller('ScaleCtrl', {
       $rootScope: rootScope,
@@ -22,13 +22,13 @@ describe('Scale Controller', function() {
 
     scope.deleteScale();
 
-    expect(Vis.parse).not.toHaveBeenCalled();
+    expect(Vis.render).not.toHaveBeenCalled();
 
     rootScope.activeScale = {manual: false};
 
     scope.deleteScale();
 
-    expect(Vis.parse).not.toHaveBeenCalled();
+    expect(Vis.render).not.toHaveBeenCalled();
   });
 
   it('should delete scales', function() {
@@ -37,7 +37,7 @@ describe('Scale Controller', function() {
     scope.deleteScale();
 
     scope.$digest();
-    expect(Vis.parse).toHaveBeenCalled();
+    expect(Vis.render).toHaveBeenCalled();
     expect(rootScope.editBinding).toHaveBeenCalled();
   });
 });

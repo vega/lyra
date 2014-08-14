@@ -22,7 +22,7 @@ describe('Pipelines Controller', function() {
     Vis.Pipeline.and.returnValue(pipeline);
     Vis.transforms = {test: jasmine.createSpy()};
     Vis.transforms.test.and.returnValue(transform);
-    Vis.parse.and.returnValue($q.when({}));
+    Vis.render.and.returnValue($q.when({}));
     Vis.pipelines = {pipeline: pipeline};
 
     ctrl = $controller('PipelinesCtrl', {

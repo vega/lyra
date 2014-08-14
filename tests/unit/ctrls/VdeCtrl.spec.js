@@ -16,7 +16,7 @@ describe('Vde Controller', function() {
     http = $httpBackend;
     timeline = jasmine.createSpyObj('timeline', ['save', 'redo']);
     Vis = jasmine.createSpyObj('Vis', ['data', 'parse', 'Pipeline']);
-    Vis.parse.and.returnValue($q.when());
+    Vis.render.and.returnValue($q.when());
     Vis._rawData = {};
     Vis.marks = {Group: jasmine.createSpy()};
 

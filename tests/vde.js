@@ -12,7 +12,7 @@ var util = require("util")
 
 exports.checkSpec = function(conds) {
   browser.executeAsyncScript(function(cb){
-    vde.Vis.parse(false).then(cb);
+    vde.Vis.render(false).then(cb);
   }).then(function(spec) {
     conds.forEach(function(c) {
       expect(jsonpath.eval(spec, c.path)[0]).toEqual(c.equal);

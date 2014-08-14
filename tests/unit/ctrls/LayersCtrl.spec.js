@@ -12,7 +12,7 @@ describe('Layers Controller', function() {
 
     timeline = jasmine.createSpyObj('timeline', ['save']);
     Vis = jasmine.createSpyObj('Vis', ['parse', 'Pipeline', 'Axis']);
-    Vis.parse.and.returnValue($q.when({
+    Vis.render.and.returnValue($q.when({
       //fake spec
     }));
     Vis.Pipeline.and.returnValue({
@@ -54,7 +54,7 @@ describe('Layers Controller', function() {
   it('should reparse the vega spec', function() {
     rootScope.reparse();
 
-    expect(Vis.parse).toHaveBeenCalled();
+    expect(Vis.render).toHaveBeenCalled();
   });
 
   describe('toggling groups', function() {
@@ -267,7 +267,7 @@ describe('Layers Controller', function() {
       scope.toggleProp('foo.bar.baz', 'test');
 
       expect(props.foo.bar.baz.value).toEqual('test');
-      expect(Vis.parse).toHaveBeenCalled();
+      expect(Vis.render).toHaveBeenCalled();
     });
 
     it('should remove existing properties', function() {
@@ -276,7 +276,7 @@ describe('Layers Controller', function() {
       scope.toggleProp('foo', 'test');
 
       expect(props.foo.value).toBeUndefined();
-      expect(Vis.parse).toHaveBeenCalled();
+      expect(Vis.render).toHaveBeenCalled();
     });
 
     it('should call update instead of parse if present', function() {
@@ -287,7 +287,7 @@ describe('Layers Controller', function() {
       scope.toggleProp('foo.bar', 'test');
 
       expect(props.foo.bar.value).toEqual('test');
-      expect(Vis.parse).not.toHaveBeenCalled();
+      expect(Vis.render).not.toHaveBeenCalled();
       expect(update).toHaveBeenCalledWith('foo.bar');
     });
   });
