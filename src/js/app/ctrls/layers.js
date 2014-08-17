@@ -126,7 +126,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
 
     return Vis.render().then(function() {
       $('.tooltip').remove();
-      timeline.save();
+      if(!noCnf) timeline.save();
     });
   };
 
@@ -186,6 +186,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     $scope.removeVisual('marks', oldMark.name, oldMark.group(), true); 
     Vis.render().then(function() {
       $scope.toggleVisual(newMark);
+      timeline.save();
     });
   };
 });
