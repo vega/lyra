@@ -18,23 +18,24 @@ vde.App.directive('vdeEditName', function() {
       //Editing
 
       //For heading, user need to click the edit icon (in the template html file), which will call edit() on click.
-      scope.edit = function() {
+      scope.edit = function(evt) {
+        element.on('click', function(e) { 
+          if(element.attr('contentEditable') === "true") e.stopPropagation();
+        });
         element.attr('contentEditable', true);
         element.focus();
+        if(evt) evt.stopPropagation();
       };
 
       // If it's a property value (e.g. color or slider val), click on the property span
       if(element.parent().prop('tagName') != 'H3'){
-        element.on('click',scope.edit);
+        element.on('click', scope.edit);
       }
 
-
-
-
-
       element.on('blur keydown', function(evt) {
-        if(!evt.keyCode || (evt.keyCode && evt.keyCode == 13))
+        if(!evt.keyCode || (evt.keyCode && evt.keyCode == 13)) {
           element.attr('contentEditable', false);
+        }
       });
 
       // Write data to the model

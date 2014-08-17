@@ -461,6 +461,26 @@ a.add:hover {
 .icon-baseline-bottom {
   background: url(../imgs/text_align_bottom.png) !important;
 }
+.icon-mark {
+  text-indent: -999em;
+  background-repeat: no-repeat;
+  width: 17px !important;
+  height: 17px !important;
+  background-position: 0 !important;
+}
+.icon-Rect {
+  background-position: 0 !important;
+}
+.icon-Symbol {
+  background-position: -2px -3px !important;
+}
+.icon-Arc {
+  background-position: -8px 0px !important;
+  background-size: 28px !important;
+}
+.icon-Area {
+  background-size: 19px;
+}
 .binding,
 .binding .scale,
 .schema,
@@ -894,29 +914,35 @@ a.add:hover {
 #utils .timeline:last-child {
   border-right: 0;
 }
-#Rect {
-  background-image: url(../imgs/rect.png);
+#Rect,
+.icon-Rect {
+  background-image: url(../imgs/rect.png) !important;
   background-position: 50% 50%;
 }
-#Arc {
-  background-image: url(../imgs/arc.png);
+#Arc,
+.icon-Arc {
+  background-image: url(../imgs/arc.png) !important;
   background-position: -5px 3px;
 }
-#Symbol {
-  background-image: url(../imgs/symbol.png);
+#Symbol,
+.icon-Symbol {
+  background-image: url(../imgs/symbol.png) !important;
   background-position: 3px 1px;
 }
-#Area {
-  background-image: url(../imgs/area-2.png);
+#Area,
+.icon-Area {
+  background-image: url(../imgs/area-2.png) !important;
   background-position: 3px 1px;
 }
-#Text {
-  background-image: url(../imgs/text.png);
+#Text,
+.icon-Text {
+  background-image: url(../imgs/text.png) !important;
   background-position: 50% 50%;
   margin-left: 5px;
 }
-#Line {
-  background-image: url(../imgs/line-2.png);
+#Line,
+.icon-Line {
+  background-image: url(../imgs/line-2.png) !important;
   background-position: 50% 50%;
 }
 #undo {

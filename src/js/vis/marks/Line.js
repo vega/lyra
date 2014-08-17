@@ -43,6 +43,7 @@ vde.Vis.marks.Line = (function() {
 
     this.type = this.propType == 'points' ? 'line' : this.propType;
 
+    // Vega improperly renders lines if there are extraneous properties in there.
     for(var p in this.properties) {
       if(propsForType[this.propType].indexOf(p) == -1)
         delete this.properties[p];
