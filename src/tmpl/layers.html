@@ -10,12 +10,12 @@
 
       <ul ui:sortable="gMdl.sortableOpts" ng:model="groupOrder">
         <li ng-repeat="layerName in groupOrder" ng-controller="GroupCtrl">
-          <h3 ng-class="{selected:activeVisual==group}" class="editable-header">
+          <h3 ng-class="{selected:activeVisual==group}" class="editable-header" ng-click="toggleVisual(group)">
             <span class="spinner-expanded spinner" ng-if="activeLayer==group" ng-click="toggleGroup(group)">&#9660;</span>
             <span class="spinner-contracted spinner" ng-if="activeLayer!=group" ng-click="toggleGroup(group)">&#9654;</span>
 
-            <span class="title" vde-edit-name ng-model="group.displayName" ng-click="toggleVisual(group)">{{group.displayName}}</span>
-            <a class="rename" ng-click="edit()"  vde-tooltip="Rename">Rename</a>
+            <span class="title" vde-edit-name ng-model="group.displayName">{{group.displayName}}</span>
+            <a class="rename" ng-click="edit($event)"  vde-tooltip="Rename">Rename</a>
 
             <a class="delete close" vde-tooltip="Delete {{group.displayName}}" ng-click="removeVisual('group', group.name)">&minus;</a>
           </h3>
