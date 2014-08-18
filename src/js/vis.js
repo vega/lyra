@@ -1253,6 +1253,7 @@ vde.Vis.Mark = (function() {
     if(this._def) return this._def;
 
     var visit = function(node, name) {
+      if(!node.marks) return null;
       if(!name) name = self.name;
       for(var i = 0; i < node.marks.length; i++)
         if(node.marks[i].name == name) return node.marks[i];
@@ -1263,6 +1264,7 @@ vde.Vis.Mark = (function() {
     var def = visit(start);
     while(!def && this.layerName && this.group() != this) {
       if(!vg.isArray(start)) start = [start];
+      if(!start.length) return {};
 
       // If we haven't found the def in the group, there must be
       // some group injection going on. So look for group marks
@@ -1270,6 +1272,8 @@ vde.Vis.Mark = (function() {
       var newStart = [];
       for(var i = 0; i < start.length; i++) {
         var marks = start[i].marks;
+        if(!marks) continue; 
+
         for(var j = 0; j < marks.length; j++) {
           var m = marks[j];
           if(m.type == 'group' && (m.name.indexOf(this.layerName) != -1 ||

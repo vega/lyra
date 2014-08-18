@@ -49,8 +49,7 @@ vde.App.factory('draggable', function($rootScope, Vis, iVis) {
     dragend: function(e, dd) {
       iVis.dragging = null;
       iVis.newMark  = null;
-      iVis.show('selected');
-//      $(dd.available).removeClass('available');
+      
       $(dd.proxy).unbind().empty().remove();
       dd.proxy = null;
       $('.canDropField').removeClass('dragging');
