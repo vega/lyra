@@ -136,31 +136,34 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
             })
           };
         }, function(newVal, oldVal) {
+          var item = $scope.item.properties, render = false;
           $scope.properties = [];
 
           if(newVal.p != oldVal.p) {
             if(newVal.p) {
-              delete $scope.item.properties[newVal.p].disabled;
+              render = render || ('disabled' in item[newVal.p]);
+              delete item[newVal.p].disabled;
               $scope.extentsBound[newVal.p] = 1;
             }
 
             if(oldVal.p) {
-              $scope.item.properties[oldVal.p].disabled = true;
+              render = render || item[oldVal.p].disabled === false;
+              item[oldVal.p].disabled = true;
               delete $scope.extentsBound[oldVal.p];
             }
 
-            Vis.render();
+            if(render) Vis.render();
           }
 
           // This happens if a production rule disables the current property.
-          if(newVal.p && $scope.item.properties[newVal.p].disabled) {
+          if(newVal.p && item[newVal.p].disabled) {
             newVal.p = null;
             $scope.property = null;
           }
 
           $scope.extentsProps.forEach(function(prop) {
             var p = prop.property, bind = false;
-            if($scope.item.properties[p].disabled) bind = true;
+            if(item[p].disabled) bind = true;
             else if(newVal.p == p) bind = true;
             else {
               if(!newVal.p && !$scope.property && !(p in $scope.extentsBound)) {
