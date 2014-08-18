@@ -9,28 +9,31 @@ vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window',
 
     $scope.fileName = timeline.fileName || 'lyra';
 
-    // By default, this populates in our HTML 5 canvas element in Lyra.
-    // We also want to allow exporting to SVG, so paint that into a dummy SVG.
-    return Vis.render().then(function(spec) {
-      vg.headless.render(
-          {spec: spec, renderer: "svg", el: "#headless"},
-          function(err, data) {
-            if (err) throw err;
-            $scope.svg = makeFile(data.svg, "image/svg+xml");
-          }
-      );
+    var spec = Vis.spec();
 
-      $scope.png = PngExporter.get();
+    vg.headless.render(
+        {spec: spec, renderer: "svg", el: "#headless"},
+        function(err, data) {
+          if (err) throw err;
+          $scope.svg = makeFile(data.svg, "image/svg+xml");
+        }
+    );
 
-      $scope.inlinedValues = makeFile(JSON.stringify(spec, null, 2), 'text/json');
-      Vis.render(false).then(function(spec) {
-        $scope.refData = makeFile(JSON.stringify(spec, null, 2), 'text/json');
-      });
+    $scope.png = PngExporter.get();
 
-      $rootScope.fileOpenPopover = false;
-      $rootScope.fileSavePopover = false;
-      $rootScope.exportPopover   = !$rootScope.exportPopover;
-    });
+    $scope.inlinedValues = makeFile(JSON.stringify(spec, null, 2), 'text/json');
+    $scope.refData = makeFile(JSON.stringify(Vis.spec(false), null, 2), 'text/json');
+
+    $rootScope.fileOpenPopover = false;
+    $rootScope.fileSavePopover = false;
+    $rootScope.exportPopover   = !$rootScope.exportPopover;
   };
 }]);
 
+vde.App.factory('PngExporter', function() {
+  return {
+    get: function() {
+      return $('#vis canvas')[0].toDataURL("image/png");
+    }
+  };
+});
