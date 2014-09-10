@@ -82,31 +82,34 @@ vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window',
 
     $scope.fileName = timeline.fileName || 'lyra';
 
-    // By default, this populates in our HTML 5 canvas element in Lyra.
-    // We also want to allow exporting to SVG, so paint that into a dummy SVG.
-    return Vis.render().then(function(spec) {
-      vg.headless.render(
-          {spec: spec, renderer: "svg", el: "#headless"},
-          function(err, data) {
-            if (err) throw err;
-            $scope.svg = makeFile(data.svg, "image/svg+xml");
-          }
-      );
+    var spec = Vis.spec();
 
-      $scope.png = PngExporter.get();
+    vg.headless.render(
+        {spec: spec, renderer: "svg", el: "#headless"},
+        function(err, data) {
+          if (err) throw err;
+          $scope.svg = makeFile(data.svg, "image/svg+xml");
+        }
+    );
 
-      $scope.inlinedValues = makeFile(JSON.stringify(spec, null, 2), 'text/json');
-      Vis.render(false).then(function(spec) {
-        $scope.refData = makeFile(JSON.stringify(spec, null, 2), 'text/json');
-      });
+    $scope.png = PngExporter.get();
 
-      $rootScope.fileOpenPopover = false;
-      $rootScope.fileSavePopover = false;
-      $rootScope.exportPopover   = !$rootScope.exportPopover;
-    });
+    $scope.inlinedValues = makeFile(JSON.stringify(spec, null, 2), 'text/json');
+    $scope.refData = makeFile(JSON.stringify(Vis.spec(false), null, 2), 'text/json');
+
+    $rootScope.fileOpenPopover = false;
+    $rootScope.fileSavePopover = false;
+    $rootScope.exportPopover   = !$rootScope.exportPopover;
   };
 }]);
 
+vde.App.factory('PngExporter', function() {
+  return {
+    get: function() {
+      return $('#vis canvas')[0].toDataURL("image/png");
+    }
+  };
+});
 
 vde.App.controller('GroupCtrl', function($scope, $rootScope, Vis) {
   $rootScope.$watch('groupOrder', function() {
@@ -129,7 +132,7 @@ vde.App.controller('GroupCtrl', function($scope, $rootScope, Vis) {
   $scope.yExtents = [{label: 'Start', property: 'y'},
     {label: 'Height', property: 'height'}, {label: 'End', property: 'y2'}];
 });
-vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline, Vis, iVis) {
+vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline, Vis, iVis, $filter) {
   $scope.gMdl = { // General catch-all model for scoping
     pipelines: Vis.pipelines,
     editVis: false,
@@ -231,9 +234,11 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     timeline.save();
   };
 
-  $rootScope.removeVisual = function(type, name, group) {
-    var cnf = confirm("Are you sure you wish to delete this visual element?");
-    if(!cnf) return;
+  $rootScope.removeVisual = function(type, name, group, noCnf) {
+    if(!noCnf) {
+      var cnf = confirm("Are you sure you wish to delete this visual element?");
+      if(!cnf) return;
+    }    
 
     if(type == 'group') {
       if(iVis.activeMark == Vis.groups[name]) iVis.activeMark = null;
@@ -255,7 +260,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
 
     return Vis.render().then(function() {
       $('.tooltip').remove();
-      timeline.save();
+      if(!noCnf) timeline.save();
     });
   };
 
@@ -294,6 +299,29 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
 
     if('update' in v) v.update(prop);
     else Vis.render();
+  };
+
+  $scope.changeMark = function(oldMark, type) {
+    var newMark = new Vis.marks[type](), 
+        name = $filter('inflector')(oldMark.type, 'humanize');
+
+    newMark.displayName  = oldMark.displayName.replace(name, type); 
+    newMark.layerName    = oldMark.layerName;
+    newMark.pipelineName = oldMark.pipelineName;
+    newMark.init(); 
+
+    for(var p in oldMark.properties) {
+      // We don't have to check for matching properties, Vega will ignore 
+      // properties it doesn't understand. But doing this allows us to flip 
+      // back and forth between mark types losslessly.
+      newMark.properties[p] = oldMark.properties[p];
+    }
+
+    $scope.removeVisual('marks', oldMark.name, oldMark.group(), true); 
+    Vis.render().then(function() {
+      $scope.toggleVisual(newMark);
+      timeline.save();
+    });
   };
 });
 vde.App.controller('MarkCtrl', function($scope, $rootScope) {
@@ -900,23 +928,24 @@ vde.App.directive('vdeEditName', function() {
       //Editing
 
       //For heading, user need to click the edit icon (in the template html file), which will call edit() on click.
-      scope.edit = function() {
+      scope.edit = function(evt) {
+        element.on('click', function(e) { 
+          if(element.attr('contentEditable') === "true") e.stopPropagation();
+        });
         element.attr('contentEditable', true);
         element.focus();
+        if(evt) evt.stopPropagation();
       };
 
       // If it's a property value (e.g. color or slider val), click on the property span
       if(element.parent().prop('tagName') != 'H3'){
-        element.on('click',scope.edit);
+        element.on('click', scope.edit);
       }
 
-
-
-
-
       element.on('blur keydown', function(evt) {
-        if(!evt.keyCode || (evt.keyCode && evt.keyCode == 13))
+        if(!evt.keyCode || (evt.keyCode && evt.keyCode == 13)) {
           element.attr('contentEditable', false);
+        }
       });
 
       // Write data to the model
@@ -1210,31 +1239,34 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
             })
           };
         }, function(newVal, oldVal) {
+          var item = $scope.item.properties, render = false;
           $scope.properties = [];
 
           if(newVal.p != oldVal.p) {
             if(newVal.p) {
-              delete $scope.item.properties[newVal.p].disabled;
+              render = render || ('disabled' in item[newVal.p]);
+              delete item[newVal.p].disabled;
               $scope.extentsBound[newVal.p] = 1;
             }
 
             if(oldVal.p) {
-              $scope.item.properties[oldVal.p].disabled = true;
+              render = render || item[oldVal.p].disabled === false;
+              item[oldVal.p].disabled = true;
               delete $scope.extentsBound[oldVal.p];
             }
 
-            Vis.render();
+            if(render) Vis.render();
           }
 
           // This happens if a production rule disables the current property.
-          if(newVal.p && $scope.item.properties[newVal.p].disabled) {
+          if(newVal.p && item[newVal.p].disabled) {
             newVal.p = null;
             $scope.property = null;
           }
 
           $scope.extentsProps.forEach(function(prop) {
             var p = prop.property, bind = false;
-            if($scope.item.properties[p].disabled) bind = true;
+            if(item[p].disabled) bind = true;
             else if(newVal.p == p) bind = true;
             else {
               if(!newVal.p && !$scope.property && !(p in $scope.extentsBound)) {
@@ -1377,7 +1409,7 @@ vde.App.factory('draggable', function($rootScope, Vis, iVis) {
       iVis.dragging = null;
       iVis.newMark  = null;
       iVis.show('selected');
-//      $(dd.available).removeClass('available');
+      
       $(dd.proxy).unbind().empty().remove();
       dd.proxy = null;
       $('.canDropField').removeClass('dragging');
@@ -1406,13 +1438,6 @@ vde.App.factory('iVis', function() {
 
 vde.App.factory('d3', function() {
 	return d3;
-});
-vde.App.factory('PngExporter', function() {
-  return {
-    get: function() {
-      return $('#vis canvas')[0].toDataURL("image/png");
-    }
-  };
 });
 vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q", "Vis", "iVis",
   function($rootScope, $timeout, $indexedDB, $q, Vis, iVis) {

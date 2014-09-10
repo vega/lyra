@@ -12,6 +12,11 @@ vde.Vis.transforms.Stack = (function() {
     this.requiresFork = true;
     this.isVisual = true;
 
+    this.output = {
+      y: new vde.Vis.Field('y', '', 'encoded', pipelineName),
+      y2: new vde.Vis.Field('y2', '', 'encoded', pipelineName),
+    };
+
     return this;
   };
 

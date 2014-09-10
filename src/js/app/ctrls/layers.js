@@ -1,4 +1,4 @@
-vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline, Vis, iVis) {
+vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline, Vis, iVis, $filter) {
   $scope.gMdl = { // General catch-all model for scoping
     pipelines: Vis.pipelines,
     editVis: false,
@@ -100,9 +100,11 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     timeline.save();
   };
 
-  $rootScope.removeVisual = function(type, name, group) {
-    var cnf = confirm("Are you sure you wish to delete this visual element?");
-    if(!cnf) return;
+  $rootScope.removeVisual = function(type, name, group, noCnf) {
+    if(!noCnf) {
+      var cnf = confirm("Are you sure you wish to delete this visual element?");
+      if(!cnf) return;
+    }    
 
     if(type == 'group') {
       if(iVis.activeMark == Vis.groups[name]) iVis.activeMark = null;
@@ -124,7 +126,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
 
     return Vis.render().then(function() {
       $('.tooltip').remove();
-      timeline.save();
+      if(!noCnf) timeline.save();
     });
   };
 
@@ -163,5 +165,28 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
 
     if('update' in v) v.update(prop);
     else Vis.render();
+  };
+
+  $scope.changeMark = function(oldMark, type) {
+    var newMark = new Vis.marks[type](), 
+        name = $filter('inflector')(oldMark.type, 'humanize');
+
+    newMark.displayName  = oldMark.displayName.replace(name, type); 
+    newMark.layerName    = oldMark.layerName;
+    newMark.pipelineName = oldMark.pipelineName;
+    newMark.init(); 
+
+    for(var p in oldMark.properties) {
+      // We don't have to check for matching properties, Vega will ignore 
+      // properties it doesn't understand. But doing this allows us to flip 
+      // back and forth between mark types losslessly.
+      newMark.properties[p] = oldMark.properties[p];
+    }
+
+    $scope.removeVisual('marks', oldMark.name, oldMark.group(), true); 
+    Vis.render().then(function() {
+      $scope.toggleVisual(newMark);
+      timeline.save();
+    });
   };
 });
