@@ -144,6 +144,8 @@ vde.Vis.transforms.Facet = (function() {
     var spec = opts.spec;
     if(!spec.from.transform) spec.from.transform = [];
     spec.from.transform = spec.from.transform.concat(this._transforms);
+    spec.from['lyra.role'] = 'fork';
+    spec.from['lyra.for'] = this.pipelineName;
     if(opts.item.oncePerFork) {
       spec.from.transform.push({
         type: 'filter',

@@ -27,10 +27,10 @@ vde.Vis.marks.Arc = (function() {
 
   prototype.property = function(prop) {
     if(prop == 'startAngle' || prop == 'endAngle') {
-      var prop = vg.duplicate(this.properties[prop]);
-      if(prop.field) return vde.Vis.parseProperty(this.properties, prop);
-      prop.value = prop.value / 180 * Math.PI;
-      return prop;
+      var newProp = vg.duplicate(this.properties[prop]);
+      if(newProp.field) return vde.Vis.parseProperty(this.properties, prop);
+      newProp.value = newProp.value / 180 * Math.PI;
+      return newProp;
     }
 
     return vde.Vis.parseProperty(this.properties, prop);

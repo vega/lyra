@@ -111,7 +111,11 @@ vde.Vis.Pipeline = (function() {
       }
       else {
         [data[0].data, data[0]].forEach(function(v, i) {
-          vg.keys(v).forEach(function(k, j) {
+          if(typeof v !== 'object') {
+            var field = new vde.Vis.Field('data', '');
+            field.pipelineName = pipeline;
+            fields.push(field);
+          } else vg.keys(v).forEach(function(k, j) {
             if(i !== 0 && ['data', 'values', 'keys', 'stats'].indexOf(k) != -1) return;
             // if(k == 'key') k += '_' + depth;
             if(seenFields[k] || +k === j) return;
