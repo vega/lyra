@@ -3711,11 +3711,15 @@ vde.Vis.parse = (function() {
         return unique_id;
       })();
 
-  function parse(spec) {
+  parse.init = function() {
     dataSources = {};
     dataToLoad = [];
     pipelines = {};
     warnings = [];
+  };
+
+  function parse(spec) {
+    parse.init();
 
     spec = vg.duplicate(spec);
     vis.reset();
@@ -3742,15 +3746,21 @@ vde.Vis.parse = (function() {
       warn('unknown padding "' + spec.padding + '". Using "auto"');
     }
 
-    moveObjectsIntoLayers(spec);
-    processDataSources(spec);
-    processLayers(spec);
+    parse.moveObjectsIntoLayers(spec);
+    parse.dataSources(spec);
+    parse.makePipelines(spec);
+    parse.layers(spec);
 
-    return vde.iVis.ngQ().all(dataToLoad).then(vis.render.bind(vis, true));
+    return vde.iVis.ngQ()
+      .all(dataToLoad)
+      .then(vis.render.bind(vis, true))
+      .then(function() {
+        return warnings;
+      });
   }
 
 
-  function moveObjectsIntoLayers(spec) {
+  parse.moveObjectsIntoLayers = function (spec) {
     var defaultLayer;
     //the only allowed top-level objects are layers.
     ['marks', 'axes', 'scales'].forEach(function(prop) {
@@ -3792,7 +3802,7 @@ vde.Vis.parse = (function() {
     }
   }
 
-  function processDataSources(spec) {
+  parse.dataSources = function(spec) {
     //Find inline data sources
     (spec.marks || []).forEach(function hoistInlineDataSource(m) {
       var parent = this,
@@ -3847,7 +3857,7 @@ vde.Vis.parse = (function() {
           sourceObj = source && dataSources[source],
           k, transforms;
 
-      if(source && sourceObj.source) {
+      if(source && (sourceObj.source || sourceObj.transform && sourceObj.transform.length)) {
         untangleSource(sourceObj);
         transforms = d.transform;
         for(k in sourceObj) {
@@ -3870,6 +3880,10 @@ vde.Vis.parse = (function() {
       });
     });
 
+    return spec;
+  }
+
+  parse.makePipelines = function(spec) {
     //now, we can make the pipelines
     spec.data.forEach(function makePipeline(d) {
       var pipeline;
@@ -3886,7 +3900,7 @@ vde.Vis.parse = (function() {
           defaultPipeline = pipeline;
         }
         d.transform.forEach(function(tr) {
-          pipeline.addTransform(processTransform(tr, pipeline));
+          pipeline.addTransform(parse.transform(tr, pipeline));
         });
       }
     });
@@ -3897,7 +3911,7 @@ vde.Vis.parse = (function() {
   TRANSFORM_PROPERTIES = {
     keys: function(keys, tr, transform) { 
       return keys.map(function(key) {
-        return parseField(key, transform.pipeline());
+        return parse.field(key, transform.pipeline());
       });
     },
     test: function(expr, tr, transform) {
@@ -3914,12 +3928,12 @@ vde.Vis.parse = (function() {
     field: function(field, tr, transform) {
       if(tr.type === 'formula') return field;
       else {
-        return parseField(field, transform.pipeline());
+        return parse.field(field, transform.pipeline());
       }
     },
     order: function(_, tr) { return /^\-/.test(tr.by) ? 'Descending' : 'Ascending'; },
     by: function(by, tr, transform) {
-      return parseField(by.replace(/^\-/,''), transform.pipeline());
+      return parse.field(by.replace(/^\-/,''), transform.pipeline());
     },
     output: function(output, tr, transform) {
       for(var k in output) {
@@ -3935,24 +3949,24 @@ vde.Vis.parse = (function() {
       return projection;
     },
     value: function(field, tr, transform) {
-      field = parseField(field, transform.pipeline());
+      field = parse.field(field, transform.pipeline());
       if(tr.type === 'stats') {
         transform.properties.field = field;
       } else {
         return field;
       }
     },
-    point: function(field, tr, transform) { return parseField(field, transform.pipeline()); },
-    height: function(field, tr, transform) { return parseField(field, transform.pipeline()); }
+    point: function(field, tr, transform) { return parse.field(field, transform.pipeline()); },
+    height: function(field, tr, transform) { return parse.field(field, transform.pipeline()); }
   };
 
   SUPPORTED_TRANSFORMS = {facet:'Facet', filter:'Filter', formula:'Formula', sort:'Sort', stats:'Stats', window:'Window', force:'Force', geo:'Geo', geopath:'Geo', pie:'Pie', stack:'Stack'};
-  function processTransform(tr, pipeline) {
+  parse.transform = function(tr, pipeline) {
     var conName = SUPPORTED_TRANSFORMS[tr.type],
         constructor = conName && vis.transforms[conName],
         transform;
 
-    if(!constructor) fail("Unsupported transform: " + tr.type);
+    if(!constructor) parse.fail("Unsupported transform: " + tr.type);
     transform = new constructor(pipeline.name);
     //Parse all of the input properties of the transform. 
     transform.input.forEach(function parseProperty(k) {
@@ -3969,7 +3983,7 @@ vde.Vis.parse = (function() {
     return transform;
   }
 
-  function parseField(text, pipeline) {
+  parse.field = function(text, pipeline) {
     var tokens = text.split('.'),
         name = tokens.pop(),
         accessor = tokens.length > 0 ? tokens.join('.').replace(/^d\./,'') + '.' : '',
@@ -3979,7 +3993,10 @@ vde.Vis.parse = (function() {
         return statsTransform = a, a.type === 'stats';
       })) {
         newStatName = pipeline.renamedStatsFields[name];
-        field = new vis.Field(statsTransform.properties.field.name, 'stats.', null, pipeline.name, newStatName);
+        if(newStatName)
+          field = new vis.Field(statsTransform.properties.field.name, 'stats.', null, pipeline.name, newStatName);
+        else
+          field = new vis.Field(name, accessor, null, pipeline.name);
       } else {
         field = new vis.Field(name, accessor, null, pipeline.name);
       }
@@ -3990,7 +4007,7 @@ vde.Vis.parse = (function() {
   }
 
   SHARED_MARK_PROPERTIES = ['x','x2','y','y2','width','height','opacity','fill','fillOpacity','stroke','strokeWidth','strokeOpacity','strokeDash','strokeDashOffset'];
-  function processLayers(spec) {
+  parse.layers = function(spec) {
     spec.marks.forEach(function(layerSpec) {
       var layerObj = new vis.marks.Group(layerSpec.name);
 
@@ -4004,19 +4021,19 @@ vde.Vis.parse = (function() {
         copyProp(prop, layerSpec, layerObj);
       });
 
-      parseContainer(layerSpec, layerObj);
+      parse.container(layerSpec, layerObj);
     });
   }
 
-  function parseContainer(spec, layer, group) {
+  parse.container = function(spec, layer, group) {
     var info = {
       layer: layer,
       group: group
     };
 
-    (spec.scales || []).forEach(parseScale, info);
-    (spec.marks || []).forEach(parseMark, info);
-    (spec.axes || []).forEach(parseAxis, info);
+    (spec.scales || []).forEach(parse.scale, info);
+    (spec.marks || []).forEach(parse.mark, info);
+    (spec.axes || []).forEach(parse.axis, info);
 
     if(spec.legends && spec.legends.length) {
       warn("Lyra does not support legends");
@@ -4044,11 +4061,11 @@ vde.Vis.parse = (function() {
     },
     group: {
       fn: function(info, mark, markObj) {
-        parseContainer(mark, info.layer, markObj);
+        parse.container(mark, info.layer, markObj);
       }
     }
   }
-  function parseMark(mark) {
+  parse.mark = function(mark) {
     mark.properties = mark.properties || {};
     mark.properties.enter = mark.properties.enter || {};
     mark.properties.update = mark.properties.update || {};
@@ -4058,14 +4075,14 @@ vde.Vis.parse = (function() {
         handler = MARK_HANDLERS[mark.type] || {},
         pipeline = pipelines[mark.from.data],
         markObj, facetTransform, props;
-    if(!constructor) { fail("Unsupported mark type: " + mark.type); }
+    if(!constructor) { parse.fail("Unsupported mark type: " + mark.type); }
 
     if(mark.type === 'group') {
       if(!pipeline.transforms.some(function(transform) {
         facetTransform = transform;
         return transform.type === 'facet';
       })) {
-        fail("Group marks must be layers or derive from facet transforms. Use 'lyra.groupType': 'layer' for layers.")
+        parse.fail("Group marks must be layers or derive from facet transforms. Use 'lyra.groupType': 'layer' for layers.")
       }
       markObj = facetTransform.group(info.layer);
       props = mark.properties.enter;
@@ -4088,41 +4105,38 @@ vde.Vis.parse = (function() {
       copyProp(prop, mark, markObj);
     });
     handler.props && handler.props.forEach(function(prop) {
-      console.log(mark.name, prop);
       copyProp(prop, mark, markObj);
     });
     handler.fn && handler.fn(info, mark, markObj);
 
     if(mark.type !== 'group') markObj.init();
 
-    console.log(markObj);
   }
 
   function copyProp(prop, spec, obj) {
     var any = false;
     if(spec.properties.enter[prop]) {
       any = true;
-      obj.properties[prop] = parseValueRef(spec.properties.enter[prop], obj);
+      obj.properties[prop] = parse.valueRef(spec.properties.enter[prop], obj);
     }
     if(spec.properties.update[prop]) {
       any = true;
-      obj.properties[prop] = parseValueRef(spec.properties.update[prop], obj);
+      obj.properties[prop] = parse.valueRef(spec.properties.update[prop], obj);
     }
     if(!any) {
       obj.properties[prop] && (obj.properties[prop].disabled = true);
     }
   }
 
-  function parseValueRef(ref, mark) {
+  parse.valueRef = function(ref, mark) {
     ref = vg.duplicate(ref);
     if(ref.group || ref.mult) {
-      fail("Unsupported ValueRef " + JSON.stringify(ref));
+      return parse.fail("Unsupported ValueRef " + JSON.stringify(ref));
     }
     if(!('value' in ref || 'field' in ref)) {
       ref.field = 'data';
     }
-    console.log(ref, mark)
-    if(ref.field) { ref.field = parseField(ref.field, mark.pipeline()); }
+    if(ref.field) { ref.field = parse.field(ref.field, mark.pipeline()); }
     if(ref.scale) {
       ref.scale = mark.group().scales[ref.scale] || mark.group().group().scales[ref.scale];
     }
@@ -4134,7 +4148,7 @@ vde.Vis.parse = (function() {
     return expr.replace(/d\.([\w\.]+)/g, function(match2, match) {
       var bindingScope = vde.iVis.ngScope().$new(),
           binding;
-      bindingScope.field = parseField(match, pipeline);
+      bindingScope.field = parse.field(match, pipeline);
       object.exprFields.push(bindingScope.field);
       binding = vde.iVis.ngCompile()('<vde-binding style="display: none" field="field"></vde-binding>')(bindingScope);
       bindingScope.$apply();
@@ -4142,7 +4156,7 @@ vde.Vis.parse = (function() {
     });
   }
 
-  function parseAxis(ax) {
+  parse.axis = function(ax) {
     var info = this,
         layer = info.layer,
         groupName = info.group && info.group.name || null;
@@ -4153,7 +4167,7 @@ vde.Vis.parse = (function() {
   }
 
   SCALE_PRESETS = {width:1, height:1, shapes:1, category10:1, category20:1};
-  function parseScale(scale) {
+  parse.scale = function(scale) {
     var info = this,
         layer = info.layer,
         pipeline = parseDomain(scale.domain) || info.group && info.group.pipeline() || defaultPipeline,
@@ -4164,7 +4178,7 @@ vde.Vis.parse = (function() {
       obj.domainTypes.from = 'field';
     } else if(scale.domain.data) {
       obj.domainTypes.from = 'field';
-      obj.domainField = parseField(scale.domain.field, pipeline);
+      obj.domainField = parse.field(scale.domain.field, pipeline);
     } else {
       obj.domainTypes.from = 'values';
       obj.domainValues = scale.domain;
@@ -4174,7 +4188,7 @@ vde.Vis.parse = (function() {
       obj.rangeTypes.from = 'field';
     } else if(scale.range.from) {
       obj.rangeTypes.from = 'field';
-      obj.rangeField = parseField(scale.range.field, pipeline);
+      obj.rangeField = parse.field(scale.range.field, pipeline);
     } else if(SCALE_PRESETS[scale.range]){
       obj.rangeTypes.from = 'preset';
       obj.rangeField = new vis.Field(scale.range, '', '', pipeline.name);
@@ -4199,7 +4213,7 @@ vde.Vis.parse = (function() {
     warnings.push(msg);
   }
 
-  function fail(msg) {
+  parse.fail = function(msg) {
     throw new Error("Unable to import Vega spec: " + msg + ". Fix errors and try again.");
   }
 

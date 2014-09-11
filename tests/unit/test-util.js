@@ -10,6 +10,7 @@ test_util = {
                 var value = actual[k];
                 if(typeof value === 'object' && typeof tab[k] === 'object') {
                   result = match.call(null, value, tab[k]);
+                  if(!result.pass) break;
                 } else {
                   if(value !== tab[k]) {
                     result.pass = false;
