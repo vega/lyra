@@ -3761,22 +3761,6 @@ vde.Vis.parse = (function() {
 
 
   parse.moveObjectsIntoLayers = function (spec) {
-    var defaultLayer;
-    //the only allowed top-level objects are layers.
-    ['marks', 'axes', 'scales'].forEach(function(prop) {
-      spec[prop] = spec[prop] || [];
-      //move all elements into a layer.
-      spec[prop].forEach(function(obj, i, arr) {
-        if(obj['lyra.groupType'] !== 'layer') {
-          //move object into default layer.
-          arr[i] = null;
-          makeDefaultLayer()[prop].push(obj);
-        }
-      });
-      //filter out removed elements
-      spec[prop] = spec[prop].filter(function(a) { return a; });
-    });
-
     function makeDefaultLayer() {
       if(!defaultLayer) {
         defaultLayer = {
@@ -3800,6 +3784,24 @@ vde.Vis.parse = (function() {
       }
       return defaultLayer;
     }
+
+    var defaultLayer;
+    //the only allowed top-level objects are layers.
+    ['marks', 'axes', 'scales'].forEach(function(prop) {
+      spec[prop] = spec[prop] || [];
+      //move all elements into a layer.
+      spec[prop].forEach(function(obj, i, arr) {
+        if(obj['lyra.groupType'] !== 'layer') {
+          //move object into default layer.
+          arr[i] = null;
+          makeDefaultLayer()[prop].push(obj);
+        }
+      });
+      //filter out removed elements
+      spec[prop] = spec[prop].filter(function(a) { return a; });
+    });
+
+    return spec;
   }
 
   parse.dataSources = function(spec) {

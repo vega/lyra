@@ -114,6 +114,7 @@ describe("Parser", function() {
 
     describe('unsupported properties', function() {
       var oldFail, fail;
+
       beforeEach(function() {
         oldFail = parse.fail;
         parse.fail = fail = jasmine.createSpy();
@@ -236,5 +237,46 @@ describe("Parser", function() {
         ]
       })
     })
+  });
+
+  describe("Move objects into layers", function() {
+    var example_spec = {
+      scales: ['scale1'],
+      marks: ['mark1'],
+      axes: ['axis1']
+    };
+
+    it("should make a default layer for top-level objects", function() {
+      expect(parse.moveObjectsIntoLayers(example_spec)).toHaveProperties({
+        marks: [
+          {type: 'group', scales:['scale1'], marks:['mark1'], axes:['axis1']}
+        ],
+        axes: {length: 0},
+        scales: {length: 0}
+      });
+    });
+
+    it("shouldn't affect layers", function() {
+      var several_groups = {
+        scales: ['scale1'],
+        marks: [
+          {'lyra.groupType': 'layer', name: 'layer1'},
+          {'lyra.groupType': 'layer', name: 'layer2'}
+        ]
+      };
+
+      expect(parse.moveObjectsIntoLayers(several_groups)).toHaveProperties({
+        scales: {length: 0},
+        marks: [
+          {name: 'layer1'},
+          {name: 'layer2'},
+          {type: 'group', scales: ['scale1']}
+        ]
+      });
+    });
+  });
+
+  describe("Transforms", function() {
+    
   });
 });
