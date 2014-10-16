@@ -352,7 +352,7 @@ vde.iVis = (function() {
     "click", "dblclick", "keypress", "keydown", "keyup"
   ];
 
-  var interactors = ['handle', 'connector', 'connection', 'point', 'span', 'dropzone'];
+  var interactors = ['handle', 'connector', 'connection', 'point', 'span', 'dropzone', 'pie'];
 
   ivis.interactor = function(interactor, data) {
     if(!interactor || !data) return;
@@ -743,6 +743,38 @@ vde.iVis = (function() {
     };
   };
 
+  ivis.pie = function() {
+    return {
+      name: 'dropzone',
+      type: 'arc',
+      from: {data: 'pie'},
+      properties: {
+        enter: {
+          shape: {value: 'circle'}
+        },
+        update: {
+          x: {field: 'data.x'},
+          y: {field: 'data.y'},
+          outerRadius: {field: 'data.outerRadius'},
+          innerRadius: {field: 'data.outerRadius', offset: -10},
+          startAngle: {field: 'data.startAngle'},
+          endAngle: {field: 'data.endAngle'},
+          fill: {value: 'cyan'},
+          stroke: {value: 'cyan'},
+          strokeWidth: {value: 10},
+          strokeOpacity: {value: 0.1},
+          property: {field: 'data.property'},
+          connector: {field: 'data.connector'},
+          hint: {value: 'Pie Layout'}
+        },
+        hover: {
+          fill: {value: 'lightsalmon'},
+          stroke: {value: 'lightsalmon'},
+        }
+      }
+    };
+  };
+
   ivis.dropzone = function() {
     return {
       name: 'dropzone',
@@ -763,10 +795,10 @@ vde.iVis = (function() {
           property: {field: 'data.property'},
           connector: {field: 'data.connector'},
           layout: {field: 'data.layout'},
-          hint: {field: 'data.hint'}
+          hint: {field: 'data.hint'},
         },
         hover: {
-          fill: {value: 'lightsalmon'}
+          fill: {value: 'lightsalmon'},
         }
       }
     };
@@ -2481,6 +2513,10 @@ vde.Vis.marks.Arc = (function() {
       strokeWidth: {value: 0.25}
     };
 
+    this.connectors = {
+      'point': {}, 'pie': {}
+    };
+
     return this;
   };
 
@@ -2518,6 +2554,138 @@ vde.Vis.marks.Arc = (function() {
     }
 
     return [scale, field];
+  };
+
+  prototype.bindProperty = function(prop, opts, defaults) {
+    if(prop !== 'pie') {
+      return vde.Vis.Mark.prototype.bindProperty.call(this, prop, opts, defaults);
+    } else {
+
+      if(!opts.pipelineName || !opts.field) return;
+      var pipeline = vde.Vis.pipelines[opts.pipelineName];
+      var transform = new vde.Vis.transforms.Pie(opts.pipelineName);
+      transform.bindProperty('value', opts);
+      pipeline.addTransform(transform);
+
+      this.bindProperty('startAngle', {field:transform.output.startAngle});
+      this.bindProperty('endAngle', {field:transform.output.endAngle});
+    }
+
+  };
+
+  var geomOffset = 7;
+  prototype.spans = function(item, property) {
+    var props = this.properties,
+        b  = vde.iVis.translatedBounds(item, item.bounds),
+        gb = vde.iVis.translatedBounds(item.mark.group, item.mark.group.bounds),
+        go = 3*geomOffset, io = geomOffset,
+        pt = this.connectors['point'].coords(item); // offsets
+
+    switch(property) {
+      case 'x':
+        return [{x: (gb.x1-go), y: (pt.y+io), span: 'x_0'}, {x: pt.x, y: (pt.y+io), span: 'x_0'}];
+
+      case 'y':
+        return (props.y.scale && props.y.scale.range().name == 'height') ?
+          [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
+        :
+          [{x: (pt.x+io), y: (gb.y1-go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}];
+    }
+  };
+
+  prototype.propertyTargets = function(connector, showGroup) {
+    var self = this,
+        item = this.item(vde.iVis.activeItem),
+        spans = [], dropzones = [];
+
+    ['x', 'y'].forEach(function(p) {
+      var s = self.spans(item, p);
+
+      dropzones = dropzones.concat(self.dropzones(s));
+      spans = spans.concat(s);
+    });
+
+    if(showGroup) {
+      var groupInteractors = this.group().propertyTargets();
+      if(groupInteractors.spans) spans = spans.concat(groupInteractors.spans);
+      if(groupInteractors.dropzones) dropzones = dropzones.concat(groupInteractors.dropzones);
+    }
+
+    var pie = this.connectors['pie'].coords(item);
+    pie.startAngle = item.startAngle;
+    pie.endAngle = item.endAngle;
+    pie.outerRadius = item.outerRadius;
+    pie.property = 'pie';
+
+    vde.iVis.interactor('pie', [pie])
+      .interactor('span', spans)
+      .interactor('dropzone', dropzones)
+      .show(['point', 'span', 'dropzone', 'pie']);
+  };
+
+
+  prototype.selected = function() {
+    /*var startPoint = {
+      x: item.outerRadius * Math.sin(item.startAngle),
+      y: -item.outerRadius * Math.cos(item.startAngle)
+    };
+    var endPoint = {
+      x: item.outerRadius * Math.sin(item.endAngle),
+      y: -item.outerRadius * Math.cos(item.endAngle)
+    };*/
+
+    var self = this, item = this.item(vde.iVis.activeItem),
+        props = this.properties;
+
+    var mousemove = function() {
+      var dragging = vde.iVis.dragging, evt = d3.event;
+      if(!dragging || !dragging.prev) return;
+      if(vde.iVis.activeMark != self) return;
+
+      var dx = Math.ceil(evt.pageX - dragging.prev[0]),
+          dy = Math.ceil(evt.pageY - dragging.prev[1]),
+          data = dragging.item.datum.data;
+
+      if(!data || data.disabled) return;
+
+      vde.iVis.ngScope().$apply(function() {
+        props.x.value += dx;
+        props.y.value += dy;
+        self.update(['x', 'y']);
+        self.iVisUpdated = true;
+      });
+
+      dragging.prev = [evt.pageX, evt.pageY];
+      vde.iVis.show('selected');
+    };
+
+    var mouseup = function() {
+      if(self.iVisUpdated) {
+        vde.iVis.ngScope().$apply(function() {
+          vde.iVis.ngTimeline().save();
+        });
+      }
+    };
+
+    return {
+      interactors: {
+        handle: [this.connectors.point.coords(item, {})]
+      },
+      evtHandlers: {mousemove: mousemove, mouseup: mouseup}
+    };
+  };
+
+  prototype.coordinates = function(connector, item, def) {
+    if(!item) item = this.item(vde.iVis.activeItem);
+    if(!item) return {x: 0, y: 0};  // If we've filtered everything out.
+    var b = new vg.Bounds().set(item.x, item.y, item.x, item.y);
+    b = vde.iVis.translatedBounds(item, b);
+
+    var coord = {x: b.x1, y: b.y1, connector: connector, small: b.width() < 20 || b.height() < 20};
+
+    for(var k in def) coord[k] = def[k];
+
+    return coord;
   };
 
   return arc;
@@ -2861,7 +3029,6 @@ vde.Vis.marks.Group = (function() {
       dropzones = dropzones.concat(zone);
       spans     = spans.concat(span);
     });
-
     return {spans: [], dropzones: dropzones};
   };
 

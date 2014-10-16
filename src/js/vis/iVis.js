@@ -23,7 +23,7 @@ vde.iVis = (function() {
     "click", "dblclick", "keypress", "keydown", "keyup"
   ];
 
-  var interactors = ['handle', 'connector', 'connection', 'point', 'span', 'dropzone'];
+  var interactors = ['handle', 'connector', 'connection', 'point', 'span', 'dropzone', 'pie'];
 
   ivis.interactor = function(interactor, data) {
     if(!interactor || !data) return;
@@ -414,6 +414,38 @@ vde.iVis = (function() {
     };
   };
 
+  ivis.pie = function() {
+    return {
+      name: 'dropzone',
+      type: 'arc',
+      from: {data: 'pie'},
+      properties: {
+        enter: {
+          shape: {value: 'circle'}
+        },
+        update: {
+          x: {field: 'data.x'},
+          y: {field: 'data.y'},
+          outerRadius: {field: 'data.outerRadius'},
+          innerRadius: {field: 'data.outerRadius', offset: -10},
+          startAngle: {field: 'data.startAngle'},
+          endAngle: {field: 'data.endAngle'},
+          fill: {value: 'cyan'},
+          stroke: {value: 'cyan'},
+          strokeWidth: {value: 10},
+          strokeOpacity: {value: 0.1},
+          property: {field: 'data.property'},
+          connector: {field: 'data.connector'},
+          hint: {value: 'Pie Layout'}
+        },
+        hover: {
+          fill: {value: 'lightsalmon'},
+          stroke: {value: 'lightsalmon'},
+        }
+      }
+    };
+  };
+
   ivis.dropzone = function() {
     return {
       name: 'dropzone',
@@ -434,10 +466,10 @@ vde.iVis = (function() {
           property: {field: 'data.property'},
           connector: {field: 'data.connector'},
           layout: {field: 'data.layout'},
-          hint: {field: 'data.hint'}
+          hint: {field: 'data.hint'},
         },
         hover: {
-          fill: {value: 'lightsalmon'}
+          fill: {value: 'lightsalmon'},
         }
       }
     };

@@ -272,7 +272,6 @@ vde.Vis.marks.Group = (function() {
       dropzones = dropzones.concat(zone);
       spans     = spans.concat(span);
     });
-
     return {spans: [], dropzones: dropzones};
   };
 
