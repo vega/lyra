@@ -2560,15 +2560,24 @@ vde.Vis.marks.Arc = (function() {
     if(prop !== 'pie') {
       return vde.Vis.Mark.prototype.bindProperty.call(this, prop, opts, defaults);
     } else {
-
       if(!opts.pipelineName || !opts.field) return;
-      var pipeline = vde.Vis.pipelines[opts.pipelineName];
-      var transform = new vde.Vis.transforms.Pie(opts.pipelineName);
-      transform.bindProperty('value', opts);
-      pipeline.addTransform(transform);
+      var pipeline = vde.Vis.pipelines[opts.pipelineName],
+          pie = null;
 
-      this.bindProperty('startAngle', {field:transform.output.startAngle});
-      this.bindProperty('endAngle', {field:transform.output.endAngle});
+      // TODO: replace with Harmony [].find?
+      pipeline.transforms.some(function(t) {
+        if(t.type === 'pie') return pie = t;
+        return false;
+      });
+
+      if(!pie) {
+        pie = new vde.Vis.transforms.Pie(opts.pipelineName);
+        pipeline.addTransform(pie);
+      }
+
+      pie.bindProperty('value', opts);
+      this.bindProperty('startAngle', {field:pie.output.startAngle});
+      this.bindProperty('endAngle', {field:pie.output.endAngle});
     }
 
   };
