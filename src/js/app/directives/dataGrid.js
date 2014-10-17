@@ -16,8 +16,9 @@ vde.App.directive('vdeDataGrid', function () {
         fullData = schema[1];
 
         // Hierarchical data (which is always nested under fullData.values)
-        if(fullData.values || fullData[0].values) {
-          var values = fullData.values || fullData;
+        var values = fullData.values || fullData[0].values;
+        if(values && !vg.isFunction(values)) {
+          values = fullData.values || fullData;
           $scope.facets = values.map(function(v) { return v.key; });
           $scope.facet = $scope.facets[0];
           $scope.fullSize = values.reduce(function(acc, v) { 

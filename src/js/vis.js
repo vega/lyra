@@ -2260,7 +2260,7 @@ vde.Vis.Pipeline = (function() {
     var buildFields = function(data, pipeline, depth) {
       var parse = vde.Vis._data[self.source].format.parse || {};
 
-      if(data.values) {
+      if(data.values && !vg.isFunction(data.values)) {
         if(!seenFields.key) {
           fields.push(new vde.Vis.Field('key', '', 'ordinal', pipeline));
           seenFields.key = true;
