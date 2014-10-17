@@ -54,15 +54,16 @@ vde.Vis.Scale = (function() {
     spec.name = this.name;
 
     var field = this.domainField;
-    spec.domain = (this.domainTypes.from == 'field' && field)
-      ? { data:  field.stat ? field.pipeline().forkName : field.pipelineName,
-          field: field.stat ? field.spec().replace('stats.','') : field.spec() }
-      : this.domainValues;
+    spec.domain = (this.domainTypes.from == 'field' && field) ? 
+      { data:  field.stat ? field.pipeline().forkName : field.pipelineName,
+        field: field.stat ? field.spec().replace('stats.','') : field.spec() 
+      } : this.domainValues;
     spec.inheritFromGroup = this.inheritFromGroup;  // Easiest way of picking this up in group injection
 
     spec.range = (this.rangeTypes.from == 'preset' && this.rangeField) ?
       this.rangeField.spec() : this.rangeValues;
 
+    spec["lyra.displayName"] = this.displayName;
     delete spec.pipeline;
     delete spec.field;
     if(spec.type == 'quantize') delete spec.nice;
@@ -96,7 +97,7 @@ vde.Vis.Scale = (function() {
         a[k] = isObj ? {} : self[k];
         if(isObj) aFromB(a[k], b[k], self[k]);
       }
-    }
+    };
 
     aFromB(a, b, this);
 

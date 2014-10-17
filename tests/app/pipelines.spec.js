@@ -40,6 +40,7 @@ describe('pipelines panel', function() {
   var newTransformsLst = 'transform in pMdl.newTransforms';
   var visible = '#pipelines .inspector:nth-child(1) ';
 
+
   it('should load default pipeline', function() {
     browser.get('index.html');
 
@@ -121,6 +122,7 @@ describe('pipelines panel', function() {
       selectElement.element(by.css('[value="1"]')).click();
 
       expect(element(by.css('#datasheet')).isDisplayed()).toBe(true);
+
     });
 
     it('should sort', function() {
@@ -130,7 +132,7 @@ describe('pipelines panel', function() {
       element(by.css('.transform-sort')).click();
 
       // Assuming olympics dataset is selected (from the previous test). Drag and drop is
-      var isoCode = element(by.css('.DTFC_LeftBodyWrapper tbody td:nth-child(1)'));
+      var isoCode = element(by.css('.dataTable tbody td:nth-child(1)'));
       var sortBy = element(by.css('#by'));
       vde.dragAndDrop(isoCode, sortBy);
 
@@ -158,32 +160,229 @@ describe('pipelines panel', function() {
       }])
     });
 
-  });
+    it("should delete transform", function(){
+        element(by.css('div.existing-transforms a.delete.close')).click();
 
-  xdescribe("filter transform", function(){
-    xit("should filter", function(){
-      //TODO(kanitw): filter
+        //dismisses confirmation alert
+        protractor.getInstance().driver.switchTo().alert().then(
+          function(alert) {
+            alert.accept();
+          }, function(error) {
+          }
+        );
 
-      // d.data.x > 10
+        //check count of transforms list
+        expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
 
-      // d.data.x > 10 with drag and drop
-
-      //.length log(d.data.y)/LN10 > 2
-
-      // try bad data
+        //check original order is restored
+        //NOTE: Might want to use more precise css selector
+        expect(element(by.css('.dataTable tbody td:nth-child(2)')).getText()).toBe("USA");
     });
   });
 
+  describe("filter transform", function(){
+    it("should filter", function(){
+      expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
 
-  xit("should transform using formula", function(){
-    //TODO(kanitw): transform
+      element(by.css('.addTransform')).click();
+      element(by.css('.transform-filter')).click();
+
+      //assume Olympic data set is still open from previous tests
+      var isoCode = element(by.css('.dataTable tbody td:nth-child(1)'));
+      var dropArea = element(by.css('.canDropField'));
+      vde.dragAndDrop(isoCode, dropArea);
+
+      //expect(inputArea.isElementPresent(by.css('.binding'))).toBe(true);
+
+      var expressionArea = element(by.css('.expr'));
+      expressionArea.click();
+      expressionArea.sendKeys(protractor.Key.RIGHT, '==\"USA\"');
+
+      element(by.css('.inner input[value="Add to Pipeline"]')).click();
+
+      expect(element.all(by.repeater(transformsLst)).count()).toEqual(1);
+      expect(element.all(by.repeater(newTransformsLst)).count()).toEqual(0);
+
+      vde.checkSpec([{
+        path: "$.data[?(@.name == 'pipeline_2')].transform[0].type",
+        equal: "filter"
+      }]);
+    });
+
+    it("should delete transform", function(){
+        element(by.css('div.existing-transforms a.delete.close')).click();
+
+        //dismisses confirmation alert
+        protractor.getInstance().driver.switchTo().alert().then(
+          function(alert) {
+            alert.accept();
+          }, function(error) {
+          }
+        );
+
+        //check count of transforms list
+        expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
+
+        //ADD check for data in table
+    });
+  });
+  
+  //NOT WORKING - Cannot find right drop area
+  xdescribe("stats transform", function(){
+    xit("should display stats", function(){
+        element(by.css('div.addTransform')).click();
+        element(by.css('a.transform-stats')).click();
+
+        //Index the rows of the data table
+        var rows = element.all(by.css('tr'));
+        var gdp = rows.get(2).element(by.css('td:nth-child(1)'));
+        console.log(rows.count());
+        //console.log(gdp.getText());
+        //drop area must be on label??
+        var dropArea = element(by.css('div#field'));
+
+        vde.dragAndDrop(gdp, dropArea);
+        //select Median option
+        element(by.css('input[type="checkbox"]')).click();
+        element(by.css('input[value="Add to Pipeline"]')).click();
+
+        //check that the stats table is visible
+        expect(element(by.css('div[ng-repeat="(name, stats) in statsTransforms"]')).isDisplayed()).toBe(true);
+    });
+
+    it("should delete transform", function(){
+        element(by.css('div.existing-transforms a.delete.close')).click();
+
+        //dismisses confirmation alert
+        protractor.getInstance().driver.switchTo().alert().then(
+          function(alert) {
+            alert.accept();
+          }, function(error) {
+          }
+        );
+
+        //check count of transforms list
+        expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
+
+        //ADD check for data in table
+    });
   });
 
-  xit("should group by", function(){
-    //TODO(kanitw): filter
-  });
+  describe("formula transform", function(){
+      it("should transform using formula", function(){
+          element(by.css('div.addTransform')).click();
+          element(by.css('a.transform-formula')).click();
 
-  xit("should window", function(){
-    //TODO(kanitw): filter
+          //Index the rows of the data table
+          var rows = element.all(by.css('tr'));
+          var gdp = rows.get(2).element(by.css('td:nth-child(1)'));
+          var population = rows.get(3).element(by.css('td:nth-child(1)'));
+          var expressionArea = element(by.css('div.expr'));
+
+          vde.dragAndDrop(gdp, expressionArea);
+          expressionArea.click();
+          expressionArea.sendKeys(protractor.Key.RIGHT, '/');
+          vde.dragAndDrop(population, expressionArea);
+          var as = element(by.css('input[type="text"]'));
+          as.click();
+          as.sendKeys('GDP per capita');
+
+          element(by.css('input[value="Add to Pipeline"]')).click();
+
+          //check data
+          rows = element.all(by.css('tr'));
+          expect(rows.count()).toEqual(11);
+
+          //
+          vde.checkSpec([{
+          path: "$.data[?(@.name == 'pipeline_2')].transform[0].type",
+          equal: "formula"
+          }]);
+
+      });
+
+      it("should delete transform", function(){
+        element(by.css('div.existing-transforms a.delete.close')).click();
+
+        //dismisses confirmation alert
+        protractor.getInstance().driver.switchTo().alert().then(
+          function(alert) {
+            alert.accept();
+          }, function(error) {
+          }
+        );
+
+        //check count of transforms list
+        expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
+
+        //ADD check for data in table
+        //var rows = element(by.css('tr'));
+        //expect(rows.count()).toEqual(10);
+     });
+  });
+  
+  describe("group by transform", function(){
+    it("should group by", function(){
+      element(by.css('div.addTransform')).click();
+      element(by.css('a.transform-stats')).click();
+
+      var rows = element.all(by.css('tr'));
+      var iso = rows.get(0).element(by.css('td:nth-child(1)'));
+      var dropArea = element(by.css('div.canDropField'));
+
+      vde.dragAndDrop(iso, dropArea);
+      element(by.css('input[value="Add to Pipeline"]')).click();
+    });
+
+    it("should delete transform", function(){
+      element(by.css('div.existing-transforms a.delete.close')).click();
+
+      //dismisses confirmation alert
+      protractor.getInstance().driver.switchTo().alert().then(
+        function(alert) {
+          alert.accept();
+        }, function(error) {
+        }
+      );
+
+      //check count of transforms list
+      expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
+     });
+  });
+  
+  describe("window transform", function(){
+    it("should window", function(){
+      element(by.css('div.addTransform')).click();
+      element(by.css('a.transform-stats')).click();
+
+      var size = element(by.css('input:nth-child(1)'));
+      var step = element(by.css('input:nth-child(2)'));
+
+      size.sendKeys('7');
+      step.sendKeys('3');
+      element(by.css('input[value="Add to Pipeline"]')).click();
+      
+      /*
+      vde.checkSpec([{
+          path: "$.data[?(@.name == 'pipeline_2')].transform[0].type",
+          equal: "window"
+      }]);
+      */
+    });
+
+    it("should delete transform", function(){
+        element(by.css('div.existing-transforms a.delete.close')).click();
+
+        //dismisses confirmation alert
+        protractor.getInstance().driver.switchTo().alert().then(
+          function(alert) {
+            alert.accept();
+          }, function(error) {
+          }
+        );
+
+        //check count of transforms list
+        expect(element.all(by.repeater(transformsLst)).count()).toEqual(0);
+    });
   });
 });

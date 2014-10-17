@@ -12,8 +12,13 @@ vde.Vis.transforms.Stack = (function() {
     this.requiresFork = true;
     this.isVisual = true;
 
+    this.output = {
+      y: new vde.Vis.Field('y', '', 'encoded', pipelineName),
+      y2: new vde.Vis.Field('y2', '', 'encoded', pipelineName),
+    };
+
     return this;
-  }
+  };
 
   stack.prototype = new vde.Vis.Transform();
   var prototype = stack.prototype;
@@ -57,7 +62,7 @@ vde.Vis.transforms.Stack = (function() {
       facet.properties.layout = 'Overlap';
       this.pipeline().transforms.splice(thisIdx, 0, facet);
 
-      vde.Vis.parse();
+      vde.Vis.render();
     }
 
     if(!this.properties.point || !this.properties.height) return;

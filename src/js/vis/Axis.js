@@ -17,7 +17,6 @@ vde.Vis.Axis = (function() {
       },
 
       labelStyle: {
-//        text: {},
         fontSize: {value: vg.config.axis.tickLabelFontSize},
         font: {value: "Helvetica"},
         angle: {value: 0},
@@ -60,7 +59,7 @@ vde.Vis.Axis = (function() {
     if(!this.group().isLayer()) count = this.group().group()._axisCount++;
 
     if(!this.name)
-      this.name = 'axis_' + Date.now();
+      this.name = 'axis_' + Date.now() + count;
 
     this.displayName = 'Axis ' + vde.Vis.codename(count);
 
@@ -69,7 +68,7 @@ vde.Vis.Axis = (function() {
     return this;
   };
 
-  prototype.destroy = function() { return null; }
+  prototype.destroy = function() { return null; };
 
   prototype.spec = function() {
     var spec = {}, self = this;
@@ -84,7 +83,7 @@ vde.Vis.Axis = (function() {
 
     vg.keys(this.properties).forEach(function(k) {
       var p = self.properties[k];
-      if(p == undefined) return;
+      if(p === undefined || p === null) return;
 
       if(k == 'scale') { spec[k] = p.name; p.used = true; }
       else if(k.indexOf('Style') != -1) return;
@@ -107,7 +106,7 @@ vde.Vis.Axis = (function() {
     };
 
     if(spec.properties.labels.text &&
-        Object.keys(spec.properties.labels.text).length == 0)
+        Object.keys(spec.properties.labels.text).length === 0)
       delete spec.properties.labels.text;
 
     if(spec.properties.labels.text && spec.properties.labels.text.scale)
@@ -158,7 +157,7 @@ vde.Vis.Axis = (function() {
     delete this.properties[prop];
   };
 
-  prototype.selected = function() { return {}; }
+  prototype.selected = function() { return {}; };
 
   prototype.import = function(imp) {
     // Force an assignment of these two in case groupName is null.

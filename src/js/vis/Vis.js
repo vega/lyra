@@ -18,13 +18,16 @@ vde.Vis = (function() {
   };
 
   vis.data = function(name, data, type) {
+    var deferred = vde.iVis.ngQ().defer();
     if(!data) return vis._data[name];
 
     if(vg.isObject(data)) {
       vis._data[name] = {
         name: name,
-        values: data
+        values: data,
+        format: {}
       };
+      deferred.resolve(vis._data[name]);
     }
 
     if(vg.isString(data)) {
@@ -36,12 +39,15 @@ vde.Vis = (function() {
 
       var dataModel = vg.parse.data([vis._data[name]], function() {
         vis._data[name].values = dataModel.load[name];
+        deferred.resolve(vis._data[name]);
       });
     }
+
+    return deferred.promise;
   };
 
   vis.addEventListener = function(type, caller, handler) {
-    vis.evtHandlers[type] || (vis.evtHandlers[type] = []);
+    if(!vis.evtHandlers[type]) vis.evtHandlers[type] = [];
     vis.evtHandlers[type].push({
       caller: caller,
       handler: handler
@@ -54,24 +60,13 @@ vde.Vis = (function() {
       if(r.caller == caller) del.push(i);
     });
 
-    del.forEach(function(d) { regd.splice(d, 1); })
+    del.forEach(function(d) { regd.splice(d, 1); });
   };
 
-  vis.parse = function(inlinedValues) {
-    var deferred = vde.iVis.ngQ().defer(), props = vis.properties;
-    var spec = {
-      width: props.width,
-      height: props.height,
-      padding: props._autopad ? 'auto' : props.padding,
-      data: [],
-      scales: [],
-      marks: []
-    };
-
-    vde.Vis.callback.run('vis.pre_spec', this, {spec: spec});
-
-    inlinedValues = (inlinedValues == null || inlinedValues == true);
-    rawSources = {};
+  vis.spec = function(inlinedValues) {
+    var props = vis.properties, rawSources = {};
+    inlinedValues = (inlinedValues === null || inlinedValues === undefined || 
+      inlinedValues === true);
 
     var addRawSource = function(src) {
       if(!src || rawSources[src]) return;
@@ -86,13 +81,24 @@ vde.Vis = (function() {
         delete data.values;
       }
 
+      // Inline values to deal with x-site restrictions
+      if(data.url) delete data[inlinedValues ? 'url' : 'values'];
 
-      if(data.url)        // Inline values to deal with x-site restrictions
-        delete data[inlinedValues ? 'url' : 'values'];
-
+      data["lyra.role"] = 'data_source';
       spec.data.push(data);
       rawSources[src] = 1;
     };
+
+    var spec = {
+      width: props.width,
+      height: props.height,
+      padding: props._autopad ? 'auto' : props.padding,
+      data: [],
+      scales: [],
+      marks: []
+    };
+
+    vde.Vis.callback.run('vis.pre_spec', this, {spec: spec}); 
 
     // Scales are defined within groups. No global scales.
     for(var p in vis.pipelines) {
@@ -115,6 +121,13 @@ vde.Vis = (function() {
     // Now that the spec has been generated, bookkeep to clean up unused scales
     for(var p in vis.pipelines) vis.pipelines[p].bookkeep();
     for(var g in vis.groups) vis.groups[g].bookkeep();
+
+    return spec;
+  };
+
+  vis.render = function(inlinedValues) {
+    var deferred = vde.iVis.ngQ().defer(),
+        spec = vis.spec(inlinedValues);
 
     vg.parse.spec(spec, function(chart) {
       d3.select('#vis').selectAll('*').remove();
@@ -159,7 +172,7 @@ vde.Vis = (function() {
 
       // If the vis gets reparsed, reparse the interactive layer too to update any
       // visible handlers, etc.
-      vde.iVis.parse().then(function(ispec) { deferred.resolve(spec); });
+      vde.iVis.render().then(function() { deferred.resolve(spec); });
     });
 
     return deferred.promise;
@@ -171,8 +184,17 @@ vde.Vis = (function() {
       groupOrder: vg.duplicate(vis.groupOrder),
       pipelines: vg.duplicate(vis.pipelines),
       properties: vg.duplicate(vis.properties),
-      _data: data ? vg.duplicate(vis._data) : {}
     };
+
+    // Only store used raw data
+    if(data) {
+      ex._data = {};
+      for(var p in vis.pipelines) {
+        var src = vis.pipelines[p].source;
+        if(!src) continue;
+        ex._data[src] = vg.duplicate(vis._data[src]);
+      }
+    }
 
     for(var g in vis.groups) ex.groups[g] = vg.duplicate(vis.groups[g].export());
     return ex;
@@ -182,7 +204,7 @@ vde.Vis = (function() {
     var scales = {}, deferred = vde.iVis.ngQ().defer();
 
     var className = function(n) {
-      return n.charAt(0).toUpperCase() + n.slice(1)
+      return n.charAt(0).toUpperCase() + n.slice(1);
     };
 
     var importProperties = function(a, b) {
@@ -214,7 +236,7 @@ vde.Vis = (function() {
         var axis = new vde.Vis.Axis(axisName, a.layerName, a.groupName);
         axis.init();
         axis.import(a);
-      };
+      }
 
       for(var markName in g.marks) {
         var m = g.marks[markName];
@@ -224,23 +246,16 @@ vde.Vis = (function() {
           mark.init();
           mark.import(m);
         }
-      };
+      }
 
       importProperties(group, g);
     };
 
-    // Clear existing pipelines and groups. We want to do this in two
-    // apply cycles because pipeline/group names may be the same, and
-    // angular may not pick up the updates otherwise.
-    for(var p in vis.pipelines) { delete vis.pipelines[p]; }
-    for(var g in vis.groups) { delete vis.groups[g]; }
-    for(var c in vis.callback._registered) { delete vis.callback._registered[c]; }
-    vde.Vis.groupOrder.length = 0;
-    vde.iVis.activeMark = null;
+    vis.reset();
 
     for(var pipelineName in spec.pipelines) {
       var p = spec.pipelines[pipelineName];
-      var pipeline = new vde.Vis.Pipeline(p.source);
+      var pipeline = new vde.Vis.Pipeline(pipelineName, p.source);
 
       for(var scaleName in p.scales) {
         var scale = new vde.Vis.Scale(scaleName, pipeline, {});
@@ -253,7 +268,7 @@ vde.Vis = (function() {
       });
 
       importProperties(pipeline, p);
-    };
+    }
 
     for(var layerName in spec.groups) {
       importGroups(spec.groups[layerName]);
@@ -263,9 +278,20 @@ vde.Vis = (function() {
     if(spec._data) importProperties(vis._data, spec._data);
     importProperties(vis.groupOrder, spec.groupOrder);
 
-    vis.parse().then(function(spec) { deferred.resolve(spec); });
+    vis.render().then(function(spec) { deferred.resolve(spec); });
 
     return deferred.promise;
+  };
+
+  vis.reset = function() {
+    // Clear existing pipelines and groups. We want to do this in two
+    // apply cycles because pipeline/group names may be the same, and
+    // angular may not pick up the updates otherwise.
+    for(var p in vis.pipelines) { delete vis.pipelines[p]; }
+    for(var g in vis.groups) { delete vis.groups[g]; }
+    for(var c in vis.callback._registered) { delete vis.callback._registered[c]; }
+    vde.Vis.groupOrder.length = 0;
+    vde.iVis.activeMark = null;
   };
 
   vis.parseProperty = function(props, prop) {
@@ -274,7 +300,7 @@ vde.Vis = (function() {
     if(p.disabled) return;
 
     for(var k in p) {
-      if(p[k] == undefined) return;
+      if(p[k] === undefined || p[k] === null) return;
 
       if(k == 'scale') { parsed[k] = p[k].name; p[k].used = true; }
       else if(k == 'field') parsed[k] = p[k].spec();
@@ -289,7 +315,7 @@ vde.Vis = (function() {
           parsed[k] = value;
         }
       }
-    };
+    }
 
     return parsed;
   };

@@ -1,8 +1,9 @@
 vde.Vis.marks.Group = (function() {
+  var nameCount = -1;
   var group = function(name, layerName, groupName) {
-    vde.Vis.Mark.call(this, name || 'layer_' + vg.keys(vde.Vis.groups).length, layerName, groupName);
+    vde.Vis.Mark.call(this, name || 'layer_' + (++nameCount), layerName, groupName);
 
-    this.displayName = 'Layer ' + vde.Vis.codename(vg.keys(vde.Vis.groups).length);
+    this.displayName = 'Layer ' + vde.Vis.codename(nameCount);
     this.type   = 'group';
     this.layer  = true;  // A psuedo-group exists in the spec, but not in the VDE UI.
     this.layerName = layerName || this.name;
@@ -49,7 +50,6 @@ vde.Vis.marks.Group = (function() {
   var prototype = group.prototype;
 
   prototype.init = function() {
-    var self = this;
     if(this.isLayer()) {
       vde.Vis.groups[this.name] = this;
       vde.Vis.groupOrder.push(this.name);
@@ -68,10 +68,10 @@ vde.Vis.marks.Group = (function() {
     for(var m in this.marks)
       this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);
 
-    if(layout) vde.Vis.parse();
+    if(layout) vde.Vis.render();
 
     return this;
-  }
+  };
 
   prototype.spec = function() {
     var self = this;
@@ -100,6 +100,8 @@ vde.Vis.marks.Group = (function() {
       if(!s) return;
       spec.marks.unshift(s);
     });
+
+    spec["lyra.groupType"] = this.isLayer() ? 'layer' : 'group';
 
     vde.Vis.callback.run('group.post_spec', this, {spec: spec});
 
@@ -134,7 +136,7 @@ vde.Vis.marks.Group = (function() {
 
   prototype.export = function() {
     // Export w/o circular structure in marks
-    if(!this._def && this._items.length == 0) return vg.duplicate(this);
+    if(!this._def && this._items.length === 0) return vg.duplicate(this);
     var marks = this.marks, def = this.def(), items = this.items();
 
     // We save it to _marks in case of nested groups, which need to stick
@@ -149,12 +151,12 @@ vde.Vis.marks.Group = (function() {
     this.marks = this._marks;
     delete this._marks;
 
-    var ex = vg.duplicate(this);
+    var exported = vg.duplicate(this);
     this.marks = marks;
     this._def = def;
     this._items = items;
 
-    return ex;
+    return exported;
   };
 
   prototype.isLayer = function() {
@@ -188,7 +190,7 @@ vde.Vis.marks.Group = (function() {
         if(fromProp.hasOwnProperty('value')) self.properties[prop].value = fromProp.value;
         if(fromProp.disabled) self.properties[prop].disabled = fromProp.disabled;
       });
-    }
+    };
 
     if(layout == facet.layout_overlap) {
       copyFromLayer(['x', 'width', 'x2', 'y', 'height', 'y2']);
@@ -235,11 +237,11 @@ vde.Vis.marks.Group = (function() {
     // to get the axes to do the right thing.
     selected.evtHandlers.mouseup = function() {
       if(self.iVisUpdated) {
-        vde.Vis.parse();
+        vde.Vis.render();
 
         vde.iVis.ngScope().$apply(function() {
           vde.iVis.ngTimeline().save();
-        })
+        });
       }
     };
 
@@ -270,7 +272,6 @@ vde.Vis.marks.Group = (function() {
       dropzones = dropzones.concat(zone);
       spans     = spans.concat(span);
     });
-
     return {spans: [], dropzones: dropzones};
   };
 

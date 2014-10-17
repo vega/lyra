@@ -1,6 +1,6 @@
 vde.Vis.transforms.Stats = (function() {
   var stats = function(pipelineName) {
-    vde.Vis.Transform.call(this, pipelineName, 'stats', 'Stats', ['value', 'median']);
+    vde.Vis.Transform.call(this, pipelineName, 'stats', 'Stats', ['value', 'median', 'output']);
 
     this.requiresFork = true;
     this.fields = [];
@@ -13,6 +13,8 @@ vde.Vis.transforms.Stats = (function() {
   var fields = ["count", "min", "max", "sum", "mean", "variance", "stdev", "median"];
 
   prototype.spec = function() {
+    if(!this.properties.field) return;
+    this.properties.value = this.properties.field.spec()
     var self = this, value = this.properties.value.split('.'),
         output = {};
     this.fields = [];
@@ -24,7 +26,7 @@ vde.Vis.transforms.Stats = (function() {
 
     return {
       type: 'stats',
-      value: this.properties.value,
+      value: this.properties.field.spec(),
       median: this.properties.median,
       assign: true,
       output: output

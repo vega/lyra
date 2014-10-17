@@ -8,7 +8,7 @@ vde.Vis.transforms.Formula = (function() {
     };
 
     return this;
-  }
+  };
 
   formula.prototype = new vde.Vis.Transform();
   var prototype = formula.prototype;
@@ -28,7 +28,7 @@ vde.Vis.transforms.Formula = (function() {
     this.output = [this.properties.field];
   };
 
-  prototype.onFork = function() { return false; }
+  prototype.onFork = function() { return false; };
 
   return formula;
 })();

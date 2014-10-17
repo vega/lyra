@@ -23,7 +23,7 @@ vde.iVis = (function() {
     "click", "dblclick", "keypress", "keydown", "keyup"
   ];
 
-  var interactors = ['handle', 'connector', 'connection', 'point', 'span', 'dropzone'];
+  var interactors = ['handle', 'connector', 'connection', 'point', 'span', 'dropzone', 'pie'];
 
   ivis.interactor = function(interactor, data) {
     if(!interactor || !data) return;
@@ -59,7 +59,7 @@ vde.iVis = (function() {
   // We can't keep re-parsing the iVis layer. This triggers false mouseout
   // events as a result of removing all #ivis children. So, we only reparse
   // when we reparse the Vis, and subsequently only update the datasets.
-  ivis.parse = function(scale) {
+  ivis.render = function(scale) {
     var deferred = ivis.ngQ().defer();
     var spec = {
       width: vde.Vis.view._width,
@@ -67,7 +67,7 @@ vde.iVis = (function() {
       padding: vde.Vis.view._padding
     };
 
-    spec.data = interactors.map(function(i) { return {name: i, values: [] }});
+    spec.data = interactors.map(function(i) { return {name: i, values: [] }; });
     spec.scales = [{
       name: 'size',
       type: 'quantize',
@@ -114,7 +114,7 @@ vde.iVis = (function() {
           icanvas.on('mousemove', function() {
             dispatchEvent();
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
-          })
+          });
         } else if(type.indexOf('key') != -1) {
           d3.select('body').on(type, function() {
             if(ivis._evtHandlers[type]) ivis._evtHandlers[type]();
@@ -159,7 +159,7 @@ vde.iVis = (function() {
                     if(lineSegment.span.indexOf(item.property + '_') != -1) 
                       items.push(lineSegment);
                   });
-                })
+                });
               }
 
               return items;
@@ -227,7 +227,7 @@ vde.iVis = (function() {
     if(!ivis.dragging) return;
 
     var rootScope = ivis.ngScope();
-    var field = $(ivis.dragging).data('field') || $(ivis.dragging).find('.schema').data('field') || $(ivis.dragging).find('.schema').attr('field');
+    var field = $(ivis.dragging).data('field') || $(ivis.dragging).find('.schema').data('field');
     var scale = $(ivis.dragging).find('.scale').attr('scale');
     var pipelineName = rootScope.activePipeline.name;
 
@@ -239,11 +239,11 @@ vde.iVis = (function() {
         {field: field, scaleName: scale, pipelineName: pipelineName}, defaults);
     });
 
-    vde.Vis.parse().then(function(spec) {
+    vde.Vis.render().then(function() {
       $('.proxy, .tooltip').remove();
       ivis.dragging = null;
 
-      if(!visual) visual = {}
+      if(!visual) visual = {};
       if(visual.layerName) rootScope.toggleVisual(visual, null, true);
       ivis.ngTimeline().save();
     });
@@ -272,7 +272,7 @@ vde.iVis = (function() {
 
     rootScope.$apply(function() {
       mark.init();
-      vde.Vis.parse().then(function(spec) {
+      vde.Vis.render().then(function() {
         rootScope.toggleVisual(mark, null, true);
         ivis.ngTimeline().save();
 
@@ -302,7 +302,7 @@ vde.iVis = (function() {
           connector: {field: 'data.connector'}
         }
       }
-    }
+    };
   };
 
   ivis.connector = function() {
@@ -335,7 +335,7 @@ vde.iVis = (function() {
           strokeWidth: {value: 1}
         }
       }
-    }
+    };
   };
 
   ivis.connection = function() {
@@ -359,7 +359,7 @@ vde.iVis = (function() {
           }
         }
       }]
-    }
+    };
   };
 
   ivis.point = function() {
@@ -402,7 +402,7 @@ vde.iVis = (function() {
             x: {field: 'data.x'},
             y: {field: 'data.y'},
             stroke: {value: 'cyan'},
-            strokeWidth: {value: 1},
+            strokeWidth: {value: 2},
             span: {field: 'data.span'}
           },
           hover: {
@@ -411,7 +411,39 @@ vde.iVis = (function() {
           }
         }
       }]
-    }
+    };
+  };
+
+  ivis.pie = function() {
+    return {
+      name: 'dropzone',
+      type: 'arc',
+      from: {data: 'pie'},
+      properties: {
+        enter: {
+          shape: {value: 'circle'}
+        },
+        update: {
+          x: {field: 'data.x'},
+          y: {field: 'data.y'},
+          outerRadius: {field: 'data.outerRadius'},
+          innerRadius: {field: 'data.outerRadius', offset: -10},
+          startAngle: {field: 'data.startAngle'},
+          endAngle: {field: 'data.endAngle'},
+          fill: {value: 'cyan'},
+          stroke: {value: 'cyan'},
+          strokeWidth: {value: 10},
+          strokeOpacity: {value: 0.1},
+          property: {field: 'data.property'},
+          connector: {field: 'data.connector'},
+          hint: {value: 'Pie Layout'}
+        },
+        hover: {
+          fill: {value: 'lightsalmon'},
+          stroke: {value: 'lightsalmon'},
+        }
+      }
+    };
   };
 
   ivis.dropzone = function() {
@@ -434,17 +466,17 @@ vde.iVis = (function() {
           property: {field: 'data.property'},
           connector: {field: 'data.connector'},
           layout: {field: 'data.layout'},
-          hint: {field: 'data.hint'}
+          hint: {field: 'data.hint'},
         },
         hover: {
-          fill: {value: 'lightsalmon'}
+          fill: {value: 'lightsalmon'},
         }
       }
-    }
+    };
   };
 
   ivis.scale = function(scale, spec) {
-    var props = scale.properties, pipeline = scale.pipeline();
+    var pipeline = scale.pipeline();
     if(!pipeline || !pipeline.source) return;
 
     // If this scale is already shown on the vis, we don't need to bother
@@ -461,7 +493,7 @@ vde.iVis = (function() {
     var title = scale.field() ? inflector(scale.field().name) : scale.displayName;
 
     if(scale.rangeTypes.type == 'spatial') {
-      spec.axes || (spec.axes = []);
+      if(!spec.axes) spec.axes = [];
       spec.axes.push({
         type: scale.axisType,
         orient: scale.axisType == 'x' ? 'bottom' : 'left',
@@ -491,7 +523,7 @@ vde.iVis = (function() {
       '<div class="tooltip-inner">' + (hint || property) + '</div></div>');
     $('body').append(tooltip);
     var b = ivis.translatedBounds(dropzone, dropzone.bounds);
-
+    var coords;
     if(dropzone.layout == 'horizontal') {
       coords = ivis.translatedCoords({x: b.x2, y: b.y1 + b.height()/2});
       coords.y -= tooltip.height()/2;
@@ -509,7 +541,7 @@ vde.iVis = (function() {
   // From vg.canvas.Renderer
   ivis.translatedBounds = function(item, bounds) {
     var b = new vg.Bounds(bounds);
-    while ((item = item.mark.group) != null) {
+    while ((item = item.mark.group) !== null && item !== undefined) {
       b.translate(item.x || 0, item.y || 0);
     }
     return b;
@@ -526,7 +558,7 @@ vde.iVis = (function() {
   };
 
   ivis.ngScope = function() {
-    return $('html').injector().get('$rootScope')
+    return $('html').injector().get('$rootScope');
   };
 
   ivis.ngTimeline = function() {
@@ -539,6 +571,10 @@ vde.iVis = (function() {
 
   ivis.ngQ = function() {
     return $('html').injector().get('$q');
+  };
+
+  ivis.ngCompile = function() {
+    return $('html').injector().get('$compile');
   };
 
   return ivis;

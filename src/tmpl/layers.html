@@ -1,0 +1,32 @@
+<div id="groups-list" ng-controller="LayersCtrl">
+  <ul>
+    <li>
+      <h2 ng-click="gMdl.editVis = !gMdl.editVis"
+          ng-class="{selected:gMdl.editVis}"><span>Visualization</span></h2>
+
+      <div class="inspector inner" ng-if="gMdl.editVis" ng-controller="EditVisCtrl">
+        <ng-include src="'tmpl/inspectors/vis.html'"></ng-include>
+      </div>
+
+      <ul ui:sortable="gMdl.sortableOpts" ng:model="groupOrder">
+        <li ng-repeat="layerName in groupOrder" ng-controller="GroupCtrl">
+          <h3 ng-class="{selected:activeVisual==group}" class="editable-header" ng-click="toggleVisual(group)">
+            <span class="spinner-expanded spinner" ng-if="activeLayer==group" ng-click="toggleGroup(group)">&#9660;</span>
+            <span class="spinner-contracted spinner" ng-if="activeLayer!=group" ng-click="toggleGroup(group)">&#9654;</span>
+
+            <span class="title" vde-edit-name ng-model="group.displayName">{{group.displayName}}</span>
+            <a class="rename" ng-click="edit($event)"  vde-tooltip="Rename">Rename</a>
+
+            <a class="delete close" vde-tooltip="Delete {{group.displayName}}" ng-click="removeVisual('group', group.name)">&minus;</a>
+          </h3>
+
+          <ng-include src="'tmpl/inspectors/group.html'"></ng-include>
+        </li>
+      </ul>
+    </li>
+
+    <li>
+      <h3 class="addNew" ng-click="addGroup()">+ New Layer</h3>
+    </li>
+  </ul>
+</div>

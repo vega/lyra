@@ -9,10 +9,9 @@
     <li ng-repeat="(axisName, axis) in group.axes">
       <h3 ng-class="{selected:activeVisual==axis}" class="editable-header">
         <span class="title" vde-edit-name ng-model="axis.displayName" ng-click="toggleVisual(axis)">{{axis.properties.title || axis.displayName}}</span>
-        <a class="rename" ng-click="edit()"  vde-tooltip="Rename">Rename</a>
+        <a class="rename" ng-click="edit($event)"  vde-tooltip="Rename">Rename</a>
         <a class="delete close" vde-tooltip="Delete {{axis.displayName}}" ng-click="removeVisual('axes', axis.name, group)">&minus;</a>
       </h3>
-
 
       <div class="inspector" ng-if="activeVisual==axis">
         <ng-include src="'tmpl/inspectors/axis.html'"></ng-include>
@@ -24,17 +23,28 @@
 
   <ul ui:sortable="gMdl.sortableOpts" ng:model="group.markOrder">
     <li ng-repeat="markName in group.markOrder" ng-controller="MarkCtrl">
-      <h3 ng-class="{selected:activeVisual==mark}" class="editable-header">
+      <h3 ng-click="toggleVisual(mark)" ng-class="{selected:activeVisual==mark}" class="editable-header">
         <span class="spinner" ng-if="mark.type == 'group' && activeGroup==group" ng-click="toggleGroup(mark)">&#9660;</span>
         <span class="spinner" ng-if="mark.type == 'group' && activeGroup!=group" ng-click="toggleGroup(mark)">&#9654;</span>
 
-        <span class="title" vde-edit-name ng-model="mark.displayName" ng-click="toggleVisual(mark)">{{mark.displayName|inflector:'humanize'}}</span>
-        <a class="rename" ng-click="edit()" vde-tooltip="Rename">Rename</a>
+        <span class="title" vde-edit-name ng-model="mark.displayName">{{mark.displayName|inflector:'humanize'}}</span>
+        <a class="rename" ng-click="edit($event)" vde-tooltip="Rename">Rename</a>
         <a class="delete close" vde-tooltip="Delete {{mark.displayName}}" ng-click="removeVisual('marks', mark.name, group)">&minus;</a>
       </h3>
 
       <div ng-class="{inspector: mark.type != 'group'}" ng-if="activeVisual==mark || mark.type == 'group' && activeGroup == mark">
         <div ng-if="activeVisual==mark">
+
+          <div class="inner" ng-if="mark.type != 'group'">
+            <br clear="all" />
+            <vde-property label="Type" item="mark" style="full">
+              <div class="btn-toolbar"><div class="btn-group">
+                  <a ng-repeat="m in marks" class="btn-mini btn" href="#"
+                      ng-class="{'btn-info': mark.type == m.toLowerCase()}"><i class="icon-mark icon-{{m}}" ng-click="changeMark(mark, m);">{{m}}</i></a>
+              </div></div>
+            </vde-property>
+          </div>
+
           <!-- Automatically include pipeline selector -->
           <div class="heading">Pipeline</div>
 

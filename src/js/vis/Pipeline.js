@@ -1,7 +1,8 @@
 vde.Vis.Pipeline = (function() {
-  var pipeline = function(source) {
-    this.name = 'pipeline_' + vg.keys(vde.Vis.pipelines).length;
-    this.displayName = 'Pipeline ' + vde.Vis.codename(vg.keys(vde.Vis.pipelines).length);
+  var nameCount = -1;
+  var pipeline = function(pipelineName, source) {
+    this.name = pipelineName || 'pipeline_' + (++nameCount);
+    this.displayName = 'Pipeline ' + vde.Vis.codename(nameCount);
 
     this.source = source;
     this.transforms = [];
@@ -23,6 +24,7 @@ vde.Vis.Pipeline = (function() {
     var self = this;
     var specs = [{
       name: this.name,
+      "lyra.displayName": this.displayName,
       source: this.source,
       transform: []
     }];
@@ -38,12 +40,14 @@ vde.Vis.Pipeline = (function() {
 
       if(t.forkPipeline) {
         spec++;
-        self.forkName || (self.forkName = self.name + '_' + t.type);
+        if(!self.forkName) self.forkName = self.name + '_' + t.type;
         self.forkIdx = i;
 
         specs.push({
           name: self.forkName,
           source: self.source,
+          "lyra.role": "fork", 
+          "lyra.for": self.name,
           transform: vg.duplicate(specs[spec-1].transform || [])
         });
       }
@@ -97,7 +101,7 @@ vde.Vis.Pipeline = (function() {
     var buildFields = function(data, pipeline, depth) {
       var parse = vde.Vis._data[self.source].format.parse || {};
 
-      if(data.values) {
+      if(data.values && !vg.isFunction(data.values)) {
         if(!seenFields.key) {
           fields.push(new vde.Vis.Field('key', '', 'ordinal', pipeline));
           seenFields.key = true;
@@ -107,12 +111,16 @@ vde.Vis.Pipeline = (function() {
       }
       else {
         [data[0].data, data[0]].forEach(function(v, i) {
-          vg.keys(v).forEach(function(k) {
-            if(i != 0 && ['data', 'values', 'keys', 'stats'].indexOf(k) != -1) return;
-            if(k == 'key') k += '_' + depth;
-            if(seenFields[k]) return;
+          if(typeof v !== 'object') {
+            var field = new vde.Vis.Field('data', '');
+            field.pipelineName = pipeline;
+            fields.push(field);
+          } else vg.keys(v).forEach(function(k, j) {
+            if(i !== 0 && ['data', 'values', 'keys', 'stats'].indexOf(k) != -1) return;
+            // if(k == 'key') k += '_' + depth;
+            if(seenFields[k] || +k === j) return;
 
-            var field = new vde.Vis.Field(k, (i == 0) ? 'data.' : '');
+            var field = new vde.Vis.Field(k, (i === 0) ? 'data.' : '');
             field.pipelineName = pipeline;
             if(parse[k]) field.type = (parse[k] == 'date') ? 'time' : (parse[k] == 'number') ? 'linear' : 'ordinal';
             else field.type = vg.isNumber(v[k]) ? 'linear' : 'ordinal';
@@ -188,7 +196,7 @@ vde.Vis.Pipeline = (function() {
           return true;
         }
         return false;
-      }
+      };
       vg.keys(t.properties).some(function(k) {
         var f = t.properties[k];
         if(f instanceof vde.Vis.Field) return checkField(f);
