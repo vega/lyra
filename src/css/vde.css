@@ -1078,13 +1078,13 @@ canvas.vega_hidden {
   bottom: 40px;
 }
 #file-open-popover {
-  left: 360px;
+  left: 415px;
 }
 #file-save-popover {
-  left: 385px;
+  left: 440px;
 }
 #export-popover {
-  left: 387px;
+  left: 440px;
 }
 #export-popover h3 {
   margin-bottom: 0 !important;
