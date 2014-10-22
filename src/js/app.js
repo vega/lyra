@@ -1233,10 +1233,10 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
       if($scope.extentsProps) {
         $scope.$watch(function($scope) {
           return {
-            p: $scope.property, 
+            p: $scope.property,
             b: $scope.extentsBound,
-            v: $scope.extentsProps.map(function(p) { 
-              return $scope.item.properties[p.property]; 
+            v: $scope.extentsProps.map(function(p) {
+              return $scope.item.properties[p.property];
             })
           };
         }, function(newVal, oldVal) {
@@ -1304,9 +1304,11 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         scope.hideHelper($(this), e, 'drophover');
       });
+      $.drop({ mode:true });
     }
   };
 });
+
 vde.App.directive('vdeScaleValues', function(Vis, vg) {
   return {
     restrict: 'E',
