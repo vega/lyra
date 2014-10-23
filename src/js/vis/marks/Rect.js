@@ -155,11 +155,11 @@ vde.Vis.marks.Rect = (function() {
 
       vde.iVis.ngScope().$apply(function() {
         var reverse;
-        if(!handle && !data) {
+        if(!handle) {
           updateValue('y', dy);
           updateValue('x', dx);
           self.update(['y', 'x']);
-        } else {
+        } else if(data.connector) {
           if(data.connector.indexOf('top') != -1) {
             reverse = (props.y.scale &&
                 props.y.scale.range().name == 'height') ? -1 : 1;
