@@ -71,10 +71,22 @@ h3.selected  {
     a.delete { visibility: visible; }
 }
 
-h3:hover { 
+h3:hover {
   span:hover { color: #666; }
 
-  a.delete { visibility: visible}
+  a {
+    &.delete {
+      visibility: visible;
+      &.inactive {
+        opacity: 0;
+        &:hover {
+          opacity: 0.1;
+          cursor: default;
+        }
+      }
+    }
+  }
+
 }
 h3.selected:hover { color: #000; }
 
@@ -135,7 +147,7 @@ h5 {
 
 
 .scale-values{
- margin-top: -12px; 
+ margin-top: -12px;
  div.block{
    display: block;
    line-height: 23px;

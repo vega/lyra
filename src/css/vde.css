@@ -55,6 +55,13 @@ h3:hover span:hover {
 h3:hover a.delete {
   visibility: visible;
 }
+h3:hover a.delete.inactive {
+  opacity: 0;
+}
+h3:hover a.delete.inactive:hover {
+  opacity: 0.1;
+  cursor: default;
+}
 h3.selected:hover {
   color: #000;
 }
