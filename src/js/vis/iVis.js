@@ -260,7 +260,9 @@ vde.iVis = (function() {
     ivis.newMark = null;
 
     // If they've dropped on an empty non-group space.
-    if(!host) host = rootScope.activeLayer;
+    if(!host) {
+      host = rootScope.activeLayer || (new vde.Vis.marks.Group());
+    }
 
     if(host instanceof vde.Vis.marks.Group) mark.layerName = host.name;
     else if(host.connectors[connector] && mark.canConnect) {

@@ -241,15 +241,24 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     }
 
     if(type == 'group') {
-      if(iVis.activeMark == Vis.groups[name]) iVis.activeMark = null;
-      Vis.groups[name].destroy();
+      group = Vis.groups[name];
+      if($rootScope.activeGroup == group) $rootScope.activeGroup = null;
+      if($rootScope.activeLayer == group) $rootScope.activeLayer = null;
+      if($rootScope.activeVisual == group) $rootScope.activeVisual = null;
+      if(iVis.activeMark == group || iVis.activeMark.group() == group) 
+        iVis.activeMark = null;
+
+      group.destroy();
       delete Vis.groups[name];
 
       var go = Vis.groupOrder;
       go.splice(go.indexOf(name), 1);
     } else {
-      if(iVis.activeMark == group[type][name]) iVis.activeMark = null;
-      group[type][name].destroy();
+      var mark = group[type][name];
+      if($rootScope.activeVisual == mark) $rootScope.activeVisual = null;
+      if(iVis.activeMark == mark) iVis.activeMark = null;
+
+      mark.destroy();
       delete group[type][name];
 
       if(type == 'marks') {
@@ -405,13 +414,6 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
   };
 
   $scope.addTransform = function(i) {
-
-    var thisTransform = $scope.pMdl.newTransforms[i]
-    if(thisTransform.exprFields.length == 0 || thisTransform.properties.field == undefined) {
-      alert('Please fill both the fields!!');
-      return
-    }
-
     $scope.pMdl.newTransforms[i].pipelineName = $rootScope.activePipeline.name;
     $rootScope.activePipeline.addTransform($scope.pMdl.newTransforms[i]);
 
@@ -1185,13 +1187,6 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
         if(!prop) prop = $scope.property;
         if($attrs.nochange) return;
 
-        if(prop == 'field') {
-          str = $scope.item.properties.field
-          if(str.split(' ').length != 0) {
-            $scope.item.properties.field = str.split(' ').join('_')
-          }
-        }
-
         // X/Y-Axis might be added by default if fields dropped over dropzones.
         // If the user toggles to them, assume they're going to edit, and delete
         // default flag to prevent the axis from being overridden by future drops.
@@ -1204,6 +1199,14 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
           $scope.item.layout = Vis.transforms.Facet.layout_overlap;
 
         $timeout(function() {
+          if($scope.item instanceof Vis.Transform && $scope.item.type == 'formula'
+              && prop == 'field') {
+            str = $scope.item.properties.field;
+            if(str.indexOf(' ') !== -1) {
+              $scope.item.properties.field = str.replace(' ', '_');
+            }
+          }
+          
           if($scope.item.update) {
             $scope.item.update(prop);
             iVis.show('selected');

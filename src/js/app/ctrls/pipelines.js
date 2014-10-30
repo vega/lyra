@@ -62,13 +62,6 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
   };
 
   $scope.addTransform = function(i) {
-
-    var thisTransform = $scope.pMdl.newTransforms[i]
-    if(thisTransform.exprFields.length == 0 || thisTransform.properties.field == undefined) {
-      alert('Please fill both the fields!!');
-      return
-    }
-
     $scope.pMdl.newTransforms[i].pipelineName = $rootScope.activePipeline.name;
     $rootScope.activePipeline.addTransform($scope.pMdl.newTransforms[i]);
 
