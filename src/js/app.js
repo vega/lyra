@@ -238,7 +238,7 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     if(!noCnf) {
       var cnf = confirm("Are you sure you wish to delete this visual element?");
       if(!cnf) return;
-    }    
+    }
 
     if(type == 'group') {
       if(iVis.activeMark == Vis.groups[name]) iVis.activeMark = null;
@@ -302,28 +302,29 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
   };
 
   $scope.changeMark = function(oldMark, type) {
-    var newMark = new Vis.marks[type](), 
+    var newMark = new Vis.marks[type](),
         name = $filter('inflector')(oldMark.type, 'humanize');
 
-    newMark.displayName  = oldMark.displayName.replace(name, type); 
+    newMark.displayName  = oldMark.displayName.replace(name, type);
     newMark.layerName    = oldMark.layerName;
     newMark.pipelineName = oldMark.pipelineName;
-    newMark.init(); 
+    newMark.init();
 
     for(var p in oldMark.properties) {
-      // We don't have to check for matching properties, Vega will ignore 
-      // properties it doesn't understand. But doing this allows us to flip 
+      // We don't have to check for matching properties, Vega will ignore
+      // properties it doesn't understand. But doing this allows us to flip
       // back and forth between mark types losslessly.
       newMark.properties[p] = oldMark.properties[p];
     }
 
-    $scope.removeVisual('marks', oldMark.name, oldMark.group(), true); 
+    $scope.removeVisual('marks', oldMark.name, oldMark.group(), true);
     Vis.render().then(function() {
       $scope.toggleVisual(newMark);
       timeline.save();
     });
   };
 });
+
 vde.App.controller('MarkCtrl', function($scope, $rootScope) {
   $scope.$watch('group.marksOrder', function() {
     $scope.mark = $scope.group.marks[$scope.markName];
@@ -361,8 +362,8 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
   // in case that's set independently.
   $scope.$watch(function() {
     return ($rootScope.activePipeline || {}).source
-  }, function() { 
-    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source 
+  }, function() {
+    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source
   });
 
   $rootScope.addPipeline = function() {
@@ -404,6 +405,13 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
   };
 
   $scope.addTransform = function(i) {
+
+    var thisTransform = $scope.pMdl.newTransforms[i]
+    if(thisTransform.exprFields.length == 0 || thisTransform.properties.field == undefined) {
+      alert('Please fill both the fields!!');
+      return
+    }
+
     $scope.pMdl.newTransforms[i].pipelineName = $rootScope.activePipeline.name;
     $rootScope.activePipeline.addTransform($scope.pMdl.newTransforms[i]);
 
@@ -435,6 +443,7 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
     return s;
   };
 });
+
 vde.App.controller('ScaleCtrl', function($scope, $rootScope, Vis) {
   $scope.types = ['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile',
                   'quantize', 'threshold', 'utc', 'time', 'ref'];
@@ -1175,6 +1184,13 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
       $scope.onchange = function(prop) {
         if(!prop) prop = $scope.property;
         if($attrs.nochange) return;
+
+        if(prop == 'field') {
+          str = $scope.item.properties.field
+          if(str.split(' ').length != 0) {
+            $scope.item.properties.field = str.split(' ').join('_')
+          }
+        }
 
         // X/Y-Axis might be added by default if fields dropped over dropzones.
         // If the user toggles to them, assume they're going to edit, and delete

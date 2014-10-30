@@ -716,6 +716,12 @@ a.add:hover {
 #datasheet .paging .buttons a.next {
   background: url('../imgs/next-black.png') no-repeat;
 }
+.muted {
+  color: #888;
+}
+.small {
+  font-size: 10px;
+}
 #groups-list {
   background: #d5dbe1;
   border-left: 1px solid #a3b3bf;
