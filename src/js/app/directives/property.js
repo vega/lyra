@@ -200,6 +200,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         scope.hideHelper($(this), e, 'drophover');
       });
+      $.drop({ mode: "intersect" })
     }
   };
 });

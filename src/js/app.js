@@ -1318,6 +1318,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         scope.hideHelper($(this), e, 'drophover');
       });
+      $.drop({ mode: "intersect" })
     }
   };
 });
@@ -1417,7 +1418,7 @@ vde.App.factory('draggable', function($rootScope, Vis, iVis) {
       iVis.dragging = dd.proxy;
       $(dd.proxy).css({
         top: e.pageY + 5,
-        left: e.pageX - $(dd.proxy).width()/2
+        left: e.pageX - $(dd.proxy).width()
       });
     },
 
