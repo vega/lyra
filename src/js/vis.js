@@ -2272,6 +2272,7 @@ vde.Vis.Pipeline = (function() {
       }
       else {
         [data[0].data, data[0]].forEach(function(v, i) {
+          if(v === undefined) return;
           if(typeof v !== 'object') {
             var field = new vde.Vis.Field('data', '');
             field.pipelineName = pipeline;
