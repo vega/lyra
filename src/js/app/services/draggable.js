@@ -42,7 +42,7 @@ vde.App.factory('draggable', function($rootScope, Vis, iVis) {
       iVis.dragging = dd.proxy;
       $(dd.proxy).css({
         top: e.pageY + 5,
-        left: e.pageX - $(dd.proxy).width()
+        left: e.pageX - $(dd.proxy).width()/2
       });
     },
 

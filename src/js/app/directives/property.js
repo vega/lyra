@@ -91,7 +91,7 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
               $scope.item.properties.field = str.replace(' ', '_');
             }
           }
-          
+
           if($scope.item.update) {
             $scope.item.update(prop);
             iVis.show('selected');
@@ -208,7 +208,6 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         scope.hideHelper($(this), e, 'drophover');
       });
-      $.drop({ mode:true });
     }
   };
 });
