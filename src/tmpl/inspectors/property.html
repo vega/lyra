@@ -19,7 +19,7 @@
 
     <div ng-show="!field && type">
       <span ng-switch-when="text">
-          <input type="text" ng-model="$parent.ngModel" ng-change="onchange()" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" /> &nbsp; <i class="muted small" vde-tooltip="Spaces will be replaced by underscores" ng-if="type=='text'">(?)</i>
+          <input type="text" ng-model="$parent.ngModel" ng-change="onchange()" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" />
       </span>
 
 

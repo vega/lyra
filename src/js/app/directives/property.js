@@ -84,14 +84,6 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
           $scope.item.layout = Vis.transforms.Facet.layout_overlap;
 
         $timeout(function() {
-          if($scope.item instanceof Vis.Transform && $scope.item.type == 'formula'
-              && prop == 'field') {
-            str = $scope.item.properties.field;
-            if(str.indexOf(' ') !== -1) {
-              $scope.item.properties.field = str.replace(' ', '_');
-            }
-          }
-
           if($scope.item.update) {
             $scope.item.update(prop);
             iVis.show('selected');
