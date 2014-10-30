@@ -5,7 +5,7 @@ vde.Vis = (function() {
       width: 500,
       height: 375,
       _autopad: true,
-      padding: {top:30, left:30, right:30, bottom:30} //default values when _autopad is disabled 
+      padding: {top:30, left:30, right:30, bottom:30} //default values when _autopad is disabled
     },
 
     _data:   {},
@@ -65,7 +65,7 @@ vde.Vis = (function() {
 
   vis.spec = function(inlinedValues) {
     var props = vis.properties, rawSources = {};
-    inlinedValues = (inlinedValues === null || inlinedValues === undefined || 
+    inlinedValues = (inlinedValues === null || inlinedValues === undefined ||
       inlinedValues === true);
 
     var addRawSource = function(src) {
@@ -74,7 +74,7 @@ vde.Vis = (function() {
       var data = vg.duplicate(vis._data[src]);
       // If we're inlining the data values, we don't want vega to load + format
       // from URL.
-      if(inlinedValues) { 
+      if(inlinedValues) {
         delete data.url;
         delete data.format;
       } else {
@@ -98,7 +98,7 @@ vde.Vis = (function() {
       marks: []
     };
 
-    vde.Vis.callback.run('vis.pre_spec', this, {spec: spec}); 
+    vde.Vis.callback.run('vis.pre_spec', this, {spec: spec});
 
     // Scales are defined within groups. No global scales.
     for(var p in vis.pipelines) {
@@ -467,7 +467,7 @@ vde.iVis = (function() {
                 icanvas.style('cursor', item.datum.data.cursor);
             };
 
-            var items = function() { 
+            var items = function() {
               var items = [];
 
               if(item.connector) {  // Point or Connector
@@ -477,7 +477,7 @@ vde.iVis = (function() {
                 if(item.mark.group.items[3].items.length > 0) { // Points
                   // We need to offset by the number of spans
                   item.mark.group.items[3].items.forEach(function(i) {
-                    if(i.connector == item.connector || 
+                    if(i.connector == item.connector ||
                        i.connector == item.property) items.push(i);
                   });
                 }
@@ -485,7 +485,7 @@ vde.iVis = (function() {
                 // Iterate over span groups
                 item.mark.group.items[4].items.forEach(function(spanGroup) {
                   spanGroup.items[0].items.forEach(function(lineSegment) {
-                    if(lineSegment.span.indexOf(item.property + '_') != -1) 
+                    if(lineSegment.span.indexOf(item.property + '_') != -1)
                       items.push(lineSegment);
                   });
                 });
@@ -949,7 +949,7 @@ vde.Vis.Mark = (function() {
   prototype.init = function() {
     var self = this;
 
-    if(!this.layerName) {
+    if(!this.layerName || this.group() == undefined) {
       var g = new vde.Vis.marks.Group();
       this.layerName = g.name;
     }
@@ -957,7 +957,7 @@ vde.Vis.Mark = (function() {
     if(!this.name)
       this.name = this.type + '_' + Date.now();
 
-    if(!this.displayName) {
+    if(!this.displayName && this.group() != undefined ){
       var count = this.group()._markCount++;
       if(!this.group().isLayer()) count = this.group().group()._markCount++;
       this.displayName = capitaliseFirstLetter(this.type) + ' ' + vde.Vis.codename(count);
@@ -1304,7 +1304,7 @@ vde.Vis.Mark = (function() {
       var newStart = [];
       for(var i = 0; i < start.length; i++) {
         var marks = start[i].marks;
-        if(!marks) continue; 
+        if(!marks) continue;
 
         for(var j = 0; j < marks.length; j++) {
           var m = marks[j];
@@ -1325,6 +1325,9 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.items = function() {
+
+    if(this.group() == undefined) return;
+
     var parents = this.type == 'group' && this.isLayer() ?
             [vde.Vis.view.model().scene().items[0]] : this.group().items(),
         def = this.def();
@@ -1367,7 +1370,8 @@ vde.Vis.Mark = (function() {
   };
 
   prototype.item = function(i) {
-    if(i.key) return i;
+
+    if(i.key || this.items() == undefined) return i;
 
     var items = this.items();
     if(i > items.length) i = 0;
@@ -1902,7 +1906,8 @@ vde.Vis.marks.Line = (function() {
   };
 
   prototype.dummyData = function(opts) {
-    if(this.properties.x.field || this.properties.y.field) return;
+    if(this.properties.x.field || this.properties.y.field || this.group() == undefined) return;
+
     var g = this.group().properties;
 
     opts.spec.data.push({
@@ -2205,7 +2210,7 @@ vde.Vis.Pipeline = (function() {
         specs.push({
           name: self.forkName,
           source: self.source,
-          "lyra.role": "fork", 
+          "lyra.role": "fork",
           "lyra.for": self.name,
           transform: vg.duplicate(specs[spec-1].transform || [])
         });
@@ -2427,9 +2432,9 @@ vde.Vis.Scale = (function() {
     spec.name = this.name;
 
     var field = this.domainField;
-    spec.domain = (this.domainTypes.from == 'field' && field) ? 
+    spec.domain = (this.domainTypes.from == 'field' && field) ?
       { data:  field.stat ? field.pipeline().forkName : field.pipelineName,
-        field: field.stat ? field.spec().replace('stats.','') : field.spec() 
+        field: field.stat ? field.spec().replace('stats.','') : field.spec()
       } : this.domainValues;
     spec.inheritFromGroup = this.inheritFromGroup;  // Easiest way of picking this up in group injection
 
@@ -3504,7 +3509,7 @@ vde.Vis.marks.Rect = (function() {
         [{x: (b.x1-io), y: (gb.y1-go), span: 'y_0'}, {x: (b.x1-io), y: b.y1, span: 'y_0'},
          {x: (b.x2+io), y: (gb.y1-go), span: 'y_1'}, {x: (b.x2+io), y: b.y1, span: 'y_1'}];
 
-      case 'y2': 
+      case 'y2':
         return (props.y2.scale && props.y2.scale.range().name == 'height') ?
           [{x: (b.x1-io), y: (gb.y2+go), span: 'y2_0'}, {x: (b.x1-io), y: b.y2, span: 'y2_0'},
            {x: (b.x2+io), y: (gb.y2+go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}]
@@ -3513,7 +3518,7 @@ vde.Vis.marks.Rect = (function() {
            {x: (b.x2+io), y: (gb.y1-go), span: 'y2_1'}, {x: (b.x2+io), y: b.y2, span: 'y2_1'}];
 
       case facet.dropzone_vert: /* falls through */
-      case 'height': 
+      case 'height':
         // Show the vertical group by dropzone on the LHS (x1) but the rect height dropzone on the RHS (x2)
         var x = this.type == 'group' ? b.x1-io : b.x2+io;
         return [{x: x, y: b.y1, span: property + '_0'}, {x: x, y: b.y2, span: property + '_0'}];
@@ -3839,7 +3844,7 @@ vde.Vis.marks.Text = (function() {
       case 'x':
         return [{x: (gb.x1-go), y: (pt.y+io), span: 'x_0'}, {x: pt.x, y: (pt.y+io), span: 'x_0'}];
 
-      case 'y': 
+      case 'y':
         return (props.y.scale && props.y.scale.range().name == 'height') ?
           [{x: (pt.x+io), y: (gb.y2+go), span: 'y_0'}, {x: (pt.x+io), y: (pt.y), span: 'y_0'}]
         :
@@ -3999,7 +4004,7 @@ vde.Vis.parse = (function() {
           'lyra.role' : m.from['lyra.role'],
           'lyra.for': m.from['lyra.for'],
           'lyra.start': true,
-          'lyra.displayName': '(Inline ' + id + ': ' + markName + ')' 
+          'lyra.displayName': '(Inline ' + id + ': ' + markName + ')'
         });
         m.from.data = name;
         delete m.from.transform;
@@ -4085,7 +4090,7 @@ vde.Vis.parse = (function() {
 
   //Transform properties that require special handling.
   TRANSFORM_PROPERTIES = {
-    keys: function(keys, tr, transform) { 
+    keys: function(keys, tr, transform) {
       return keys.map(function(key) {
         return parse.field(key, transform.pipeline());
       });
@@ -4144,7 +4149,7 @@ vde.Vis.parse = (function() {
 
     if(!constructor) parse.fail("Unsupported transform: " + tr.type);
     transform = new constructor(pipeline.name);
-    //Parse all of the input properties of the transform. 
+    //Parse all of the input properties of the transform.
     transform.input.forEach(function parseProperty(k) {
       var result;
       if(TRANSFORM_PROPERTIES[k]) {
