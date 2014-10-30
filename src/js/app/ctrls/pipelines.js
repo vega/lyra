@@ -19,8 +19,8 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
   // in case that's set independently.
   $scope.$watch(function() {
     return ($rootScope.activePipeline || {}).source
-  }, function() { 
-    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source 
+  }, function() {
+    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source
   });
 
   $rootScope.addPipeline = function() {
@@ -62,6 +62,13 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
   };
 
   $scope.addTransform = function(i) {
+
+    var thisTransform = $scope.pMdl.newTransforms[i]
+    if(thisTransform.exprFields.length == 0 || thisTransform.properties.field == undefined) {
+      alert('Please fill both the fields!!');
+      return
+    }
+
     $scope.pMdl.newTransforms[i].pipelineName = $rootScope.activePipeline.name;
     $rootScope.activePipeline.addTransform($scope.pMdl.newTransforms[i]);
 

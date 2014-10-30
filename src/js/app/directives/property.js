@@ -72,6 +72,13 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
         if(!prop) prop = $scope.property;
         if($attrs.nochange) return;
 
+        if(prop == 'field') {
+          str = $scope.item.properties.field
+          if(str.split(' ').length != 0) {
+            $scope.item.properties.field = str.split(' ').join('_')
+          }
+        }
+
         // X/Y-Axis might be added by default if fields dropped over dropzones.
         // If the user toggles to them, assume they're going to edit, and delete
         // default flag to prevent the axis from being overridden by future drops.

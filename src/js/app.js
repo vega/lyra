@@ -362,8 +362,8 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
   // in case that's set independently.
   $scope.$watch(function() {
     return ($rootScope.activePipeline || {}).source
-  }, function() { 
-    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source 
+  }, function() {
+    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source
   });
 
   $rootScope.addPipeline = function() {
@@ -405,6 +405,13 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
   };
 
   $scope.addTransform = function(i) {
+
+    var thisTransform = $scope.pMdl.newTransforms[i]
+    if(thisTransform.exprFields.length == 0 || thisTransform.properties.field == undefined) {
+      alert('Please fill both the fields!!');
+      return
+    }
+
     $scope.pMdl.newTransforms[i].pipelineName = $rootScope.activePipeline.name;
     $rootScope.activePipeline.addTransform($scope.pMdl.newTransforms[i]);
 
@@ -436,6 +443,7 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
     return s;
   };
 });
+
 vde.App.controller('ScaleCtrl', function($scope, $rootScope, Vis) {
   $scope.types = ['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile',
                   'quantize', 'threshold', 'utc', 'time', 'ref'];
@@ -1176,6 +1184,13 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
       $scope.onchange = function(prop) {
         if(!prop) prop = $scope.property;
         if($attrs.nochange) return;
+
+        if(prop == 'field') {
+          str = $scope.item.properties.field
+          if(str.split(' ').length != 0) {
+            $scope.item.properties.field = str.split(' ').join('_')
+          }
+        }
 
         // X/Y-Axis might be added by default if fields dropped over dropzones.
         // If the user toggles to them, assume they're going to edit, and delete
