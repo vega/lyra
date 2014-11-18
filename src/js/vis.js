@@ -3120,10 +3120,7 @@ vde.Vis.marks.Rect = (function() {
           this.extents.horizontal.fields : this.extents.vertical.fields;
 
     // If we're not dropping over a dropzone, don't ever do inference.
-    // If we're dropping over a width/height dropzone, wait to infer
-    // later on in the bind process.
-    if(!defaults || (defaults && (prop == 'width' || prop == 'height')))
-      return [scale, field];
+    if(!defaults) return [scale, field];
 
     // To ease construction of extents, we try to infer and reuse a scale from
     // existing extent bindings. However, the user can choose to override this
@@ -3150,8 +3147,11 @@ vde.Vis.marks.Rect = (function() {
 
   prototype.defaults = function(prop) {
     var props = this.properties, isOrd = props[prop].scale.type() == 'ordinal';
-    // If we set the width/height, by default map x/y
-    if(['width', 'height'].indexOf(prop) == -1) return;
+    // Only determine another extent when using the width/height dropzones.
+    // If width/height scale has been inferred, that's because another extent has
+    // already been set, so no further action is needed.
+    if(['width', 'height'].indexOf(prop) == -1) return; 
+    if(props[prop].inferred) return; 
     var scaledProp = (prop == 'width') ? isOrd ? 'x' : 'x2' : 'y';
     var zeroProp   = (prop == 'width') ? isOrd ? 'x2' : 'x' : 'y2';
 
