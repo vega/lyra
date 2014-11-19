@@ -4616,9 +4616,11 @@ vde.Vis.transforms.Facet = (function() {
       if(addToGroup) this._addToGroup('axes', axis, layer);
     }
 
+    var group = layer.marks[this.groupName()] || {};
+    if(!group.marks && !group.axes) return;
+
     // We want to move any spatial scales from the layer into the group EXCEPT for any
     // scales the group's properties are using.
-    var group = layer.marks[this.groupName()] || {};
     var groupScales = vg.keys(group.properties).map(function(p) {
       var prop =  group.properties[p];
       return prop.scale ? prop.scale.name : '';
