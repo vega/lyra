@@ -76,7 +76,7 @@ vde.Vis = (function() {
       // from URL.
       if(inlinedValues) { 
         delete data.url;
-        delete data.format;
+        delete data.format.type;
       } else {
         delete data.values;
       }
@@ -192,7 +192,7 @@ vde.Vis = (function() {
 
         if(p.x.default && p.width.default && p.x2.default)  
           p.width.value  = vis.properties.width;
-        
+
         if(p.y.default && p.height.default && p.y2.default) 
           p.height.value = vis.properties.height;
       }
