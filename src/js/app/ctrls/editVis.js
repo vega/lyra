@@ -1,3 +1,4 @@
 vde.App.controller('EditVisCtrl', function($scope, Vis) {
-  $scope.vis = Vis.properties;
+  $scope.vis = Vis;
+  $scope.props = Vis.properties;
 });

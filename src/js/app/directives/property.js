@@ -85,7 +85,8 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
 
         $timeout(function() {
           if($scope.item.update) {
-            $scope.item.update(prop);
+            // update properties and only re-render if it's a Group mark.
+            $scope.item.update(prop, $scope.item instanceof Vis.marks.Group);
             iVis.show('selected');
             timeline.save();
           } else {

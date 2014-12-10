@@ -69,7 +69,8 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis
 
 });
 vde.App.controller('EditVisCtrl', function($scope, Vis) {
-  $scope.vis = Vis.properties;
+  $scope.vis = Vis;
+  $scope.props = Vis.properties;
 });
 vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window', 'Vis', 'vg', 'PngExporter',
   function($scope, $rootScope, timeline, $window, Vis, vg, PngExporter) {
@@ -1203,7 +1204,8 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
 
         $timeout(function() {
           if($scope.item.update) {
-            $scope.item.update(prop);
+            // update properties and only re-render if it's a Group mark.
+            $scope.item.update(prop, $scope.item instanceof Vis.marks.Group);
             iVis.show('selected');
             timeline.save();
           } else {

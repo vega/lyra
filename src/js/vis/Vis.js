@@ -178,6 +178,29 @@ vde.Vis = (function() {
     return deferred.promise;
   };
 
+  vis.update = function(props) {
+    // If the visualization's width/height is modified, update the width/height
+    // of any empty layers.
+    var updateLayers = [],
+        groupName, g, p;
+
+    props = vg.array(props);
+    if(props.indexOf('width') !== -1 || props.indexOf('height') !== -1) {
+      for(groupName in vis.groups) {
+        g = vis.groups[groupName], p = g.properties;
+        if(vg.keys(g.axes).length !== 0 || vg.keys(g.marks).length !== 0) continue;
+
+        if(p.x.default && p.width.default && p.x2.default)  
+          p.width.value  = vis.properties.width;
+        
+        if(p.y.default && p.height.default && p.y2.default) 
+          p.height.value = vis.properties.height;
+      }
+    }
+
+    vis.render();
+  };
+
   vis.export = function(data) {
     var ex = {
       groups: {},

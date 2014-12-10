@@ -178,6 +178,29 @@ vde.Vis = (function() {
     return deferred.promise;
   };
 
+  vis.update = function(props) {
+    // If the visualization's width/height is modified, update the width/height
+    // of any empty layers.
+    var updateLayers = [],
+        groupName, g, p;
+
+    props = vg.array(props);
+    if(props.indexOf('width') !== -1 || props.indexOf('height') !== -1) {
+      for(groupName in vis.groups) {
+        g = vis.groups[groupName], p = g.properties;
+        if(vg.keys(g.axes).length !== 0 || vg.keys(g.marks).length !== 0) continue;
+
+        if(p.x.default && p.width.default && p.x2.default)  
+          p.width.value  = vis.properties.width;
+        
+        if(p.y.default && p.height.default && p.y2.default) 
+          p.height.value = vis.properties.height;
+      }
+    }
+
+    vis.render();
+  };
+
   vis.export = function(data) {
     var ex = {
       groups: {},
@@ -1039,11 +1062,14 @@ vde.Vis.Mark = (function() {
 
   prototype.update = function(props) {
     var self = this, def  = this.def();
-    if(!vg.isArray(props)) props = [props];
+    props = vg.array(props);
 
     var update = props.reduce(function(up, prop) {
       var p = self.property(prop);
-      if(p) up[prop] = p;
+      if(p) {
+        up[prop] = p;
+        delete self.properties[prop].default;
+      }
       return up;
     }, {});
 
@@ -2788,12 +2814,12 @@ vde.Vis.marks.Group = (function() {
 
     this.fillType = 'color';
     this.properties = {
-      x: {value: 0},
-      width: {value: vde.Vis.properties.width},
-      x2: {value: 0, disabled: true},
-      y: {value: 0},
-      height: {value: vde.Vis.properties.height},
-      y2: {value: 0, disabled: true},
+      x: {value: 0, default: true},
+      width: {value: vde.Vis.properties.width, default: true},
+      x2: {value: 0, disabled: true, default: true},
+      y: {value: 0, default: true},
+      height: {value: vde.Vis.properties.height, default: true},
+      y2: {value: 0, disabled: true, default: true},
       clip: {value: false},
 
       fill: {value: '#ffffff'},
@@ -2827,7 +2853,7 @@ vde.Vis.marks.Group = (function() {
     return vde.Vis.Mark.prototype.init.call(this);
   };
 
-  prototype.update = function(props) {
+  prototype.update = function(props, rerender) {
     vde.Vis.Mark.prototype.update.call(this, props);
 
     var layout = props.indexOf('layout') != -1;
@@ -2837,7 +2863,7 @@ vde.Vis.marks.Group = (function() {
     for(var m in this.marks)
       this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);
 
-    if(layout) vde.Vis.render();
+    if(layout || rerender) vde.Vis.render();
 
     return this;
   };

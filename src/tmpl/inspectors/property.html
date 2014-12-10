@@ -2,7 +2,7 @@
   <vde-can-drop-field style="{{canDropStyle}}" ng-if="!noDrop && canDropStyle">
   </vde-can-drop-field>
 
-  <label>
+  <label ng-show="label">
     {{label}}
     <a ng-if="hintUrl" href="{{hintUrl}}" class="icon-question-sign" target="_blank"></a>
 

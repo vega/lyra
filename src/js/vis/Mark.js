@@ -126,11 +126,14 @@ vde.Vis.Mark = (function() {
 
   prototype.update = function(props) {
     var self = this, def  = this.def();
-    if(!vg.isArray(props)) props = [props];
+    props = vg.array(props);
 
     var update = props.reduce(function(up, prop) {
       var p = self.property(prop);
-      if(p) up[prop] = p;
+      if(p) {
+        up[prop] = p;
+        delete self.properties[prop].default;
+      }
       return up;
     }, {});
 
