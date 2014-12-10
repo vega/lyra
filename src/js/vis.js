@@ -912,6 +912,7 @@ vde.iVis = (function() {
 })();
 
 vde.Vis.Mark = (function() {
+  var nameCount = -1;
   var mark = function(name, layerName, groupName) {
     this.name = name;
     this.displayName = name;
@@ -957,7 +958,7 @@ vde.Vis.Mark = (function() {
     }
 
     if(!this.name)
-      this.name = this.type + '_' + Date.now();
+      this.name = this.type + '_' + (++nameCount);
 
     if(!this.displayName) {
       var count = this.group()._markCount++;
@@ -2375,8 +2376,9 @@ vde.Vis.Pipeline = (function() {
 })();
 
 vde.Vis.Scale = (function() {
+  var nameCount = -1;
   var scale = function(name, pipeline, defaults, displayName) {
-    var scaleName = 'scale_r' + Date.now();
+    var scaleName = 'scale_' + (++nameCount);
     this.name  = (name || pipeline.name + '_' + scaleName);
     this.displayName = displayName;
 

@@ -1,4 +1,5 @@
 vde.Vis.Mark = (function() {
+  var nameCount = -1;
   var mark = function(name, layerName, groupName) {
     this.name = name;
     this.displayName = name;
@@ -44,7 +45,7 @@ vde.Vis.Mark = (function() {
     }
 
     if(!this.name)
-      this.name = this.type + '_' + Date.now();
+      this.name = this.type + '_' + (++nameCount);
 
     if(!this.displayName) {
       var count = this.group()._markCount++;
