@@ -487,6 +487,7 @@ vde.iVis = (function() {
     // To visualize a scale, we need to pull in the source data and pipeline.
     var raw = vg.duplicate(vde.Vis._data[pipeline.source]);
     delete raw.url;
+    delete raw.format.type;
     spec.data.push(raw);
     spec.data = spec.data.concat(pipeline.spec());
     spec.scales.push(scale.spec());

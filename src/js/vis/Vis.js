@@ -2,8 +2,8 @@ vde.Vis = (function() {
   var vis = {
 
     properties: {
-      width: 500,
-      height: 375,
+      width: 800,
+      height: 700,
       _autopad: true,
       padding: {top:30, left:30, right:30, bottom:30} //default values when _autopad is disabled 
     },

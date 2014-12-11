@@ -2,8 +2,8 @@ vde.Vis = (function() {
   var vis = {
 
     properties: {
-      width: 500,
-      height: 375,
+      width: 800,
+      height: 700,
       _autopad: true,
       padding: {top:30, left:30, right:30, bottom:30} //default values when _autopad is disabled 
     },
@@ -839,6 +839,7 @@ vde.iVis = (function() {
     // To visualize a scale, we need to pull in the source data and pipeline.
     var raw = vg.duplicate(vde.Vis._data[pipeline.source]);
     delete raw.url;
+    delete raw.format.type;
     spec.data.push(raw);
     spec.data = spec.data.concat(pipeline.spec());
     spec.scales.push(scale.spec());
