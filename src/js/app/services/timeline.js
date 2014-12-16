@@ -1,6 +1,6 @@
 vde.App.factory('timeline', ["$rootScope", "$timeout", "$indexedDB", "$q", "Vis", "iVis",
   function($rootScope, $timeout, $indexedDB, $q, Vis, iVis) {
-    // We can't let the timeline grow too large because it'll all our RAM.
+    // We can't let the timeline grow too large because it'll consume all our RAM.
     var timelineLimit = 25;
 
     return {
