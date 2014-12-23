@@ -37,7 +37,7 @@
 
           <div class="inner" ng-if="mark.type != 'group'">
             <br clear="all" />
-            <vde-property label="Type" item="mark" style="full">
+            <vde-property label="Type" item="mark" style="full mark-type">
               <div class="btn-toolbar"><div class="btn-group">
                   <a ng-repeat="m in marks" class="btn-mini btn" href="#"
                       ng-class="{'btn-info': mark.type == m.toLowerCase()}"><i class="icon-mark icon-{{m}}" ng-click="changeMark(mark, m);">{{m}}</i></a>
@@ -49,7 +49,7 @@
           <div class="heading">Pipeline</div>
 
           <div class="inner">
-            <vde-property label="" nodrop="1" style="half">
+            <vde-property label="" nodrop="1" style="half mark-pipeline">
               <span ng-hide="!mark.connectedTo.host"><code>{{mark.pipelineName|inflector:'humanize'}}</code></span>
 
               <select ng-model="gMdl.activeVisualPipeline" ng-change="setPipeline()" ng-show="!mark.connectedTo.host">
@@ -59,7 +59,7 @@
               </select>
             </vde-property>
 
-            <vde-property label="" nodrop="1" style="half">
+            <vde-property label="" nodrop="1" style="half visual-layouts">
               <h3 class="addNew" ng-show="gMdl.activeVisualPipeline && !gMdl.showTransforms"
                   ng-click="gMdl.showTransforms = true;">+ Visual Layouts</h3>
             </vde-property>

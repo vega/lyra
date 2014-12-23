@@ -3,6 +3,8 @@
 
 	<vde-property label="Type" type="select" options="types" item="transform" property="geoType" ng-model="transform.geoType" nodrop="1" style="full"></vde-property>
 
+	<br clear="all" />
+
 	<div ng-show="transform.geoType != 'GeoJSON'">
 		<vde-property label="Latitude" type="field" item="transform" property="lat" ng-model="transform.properties.lat" field="transform.properties.lat" can-drop-style="left" style="half"></vde-property>
 
@@ -17,6 +19,8 @@
 	<h4>Projection</h4>
 
 	<vde-property label="Type" type="select" options="projection" item="transform" property="projection" ng-model="transform.properties.projection" nodrop="1" style="full"></vde-property>
+
+	<br clear="all" />
 
 	<vde-property label="Scale" type="number" item="transform" property="scale" ng-model="transform.properties.scale" nodrop="1" style="half-float"></vde-property>
 
@@ -42,9 +46,9 @@
 
 	<h4>Advanced</h4>
 
-	<vde-property label="Precision" type="number" item="transform" property="precision" ng-model="transform.properties.precision" nodrop="1" style="half-float"></vde-property>
+	<vde-property label="Precision" type="number" item="transform" property="precision" ng-model="transform.properties.precision" nodrop="1" style="half"></vde-property>
 
-	<vde-property label="Clip Angle" type="number" item="transform" property="clipAngle" ng-model="transform.properties.clipAngle" nodrop="1" style="half-float"></vde-property>
+	<vde-property label="Clip Angle" type="number" item="transform" property="clipAngle" ng-model="transform.properties.clipAngle" nodrop="1" style="half"></vde-property>
 
 	<br clear="all" />
 

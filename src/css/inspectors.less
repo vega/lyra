@@ -56,7 +56,7 @@ a.add {
   .scaled-input {
     position: relative;
     height: 13px;
-    max-width: 80px;
+    max-width: 60px;
     margin: -11px 0 0 -20px;
     padding-left: 5px;
     border: 1px solid @scale-color;
@@ -70,8 +70,6 @@ a.add {
   a.unbind { visibility: visible; }
   a.unbind:hover { opacity: 1; }
 }
-
-
 
 .property.full {
   @margin-top: 4px;
@@ -92,7 +90,7 @@ a.add {
     width: 97%;
     float: left;
   }
-  input[type=range] {width: 125px;}
+  input[type=range] {width: 100px;}
   input[type=color] {
     float: left;
     width: 50px;
@@ -131,11 +129,11 @@ a.add {
 
 .property.half {
   float: left;
-  width: 130px;
+  width: 115px;
 
   .canDropField { margin: 0 5px 3px 0; }
   div.field { clear: both; }
-  input, select { width: 110px; }
+  input, select { width: 80px; }
 }
 
 .property.half-float {
@@ -169,10 +167,17 @@ a.add {
 
 .property.third {
   .property.half;
-  width: 85px;
+  width: 75px;
 
-  input, select { width: 70px; }
+  input, select { width: 60px; }
 }
+
+.property.mark-type label { width: 29px; }
+.property.mark-pipeline {
+  width: auto;
+  margin-right: 15px;
+}
+.property.visual-layouts { width: auto; }
 
 .expr-container {
   display: block !important;
@@ -181,7 +186,7 @@ a.add {
   overflow: hidden;
   height: 12px;
   padding: 3px;
-  width: 195px;
+  width: 160px;
 
   -moz-user-select: -moz-text;
   -khtml-user-select: text;
