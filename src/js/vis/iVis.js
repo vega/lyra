@@ -260,7 +260,9 @@ vde.iVis = (function() {
     ivis.newMark = null;
 
     // If they've dropped on an empty non-group space.
-    if(!host) host = rootScope.activeLayer;
+    if(!host) {
+      host = rootScope.activeLayer || (new vde.Vis.marks.Group());
+    }
 
     if(host instanceof vde.Vis.marks.Group) mark.layerName = host.name;
     else if(host.connectors[connector] && mark.canConnect) {
@@ -485,6 +487,7 @@ vde.iVis = (function() {
     // To visualize a scale, we need to pull in the source data and pipeline.
     var raw = vg.duplicate(vde.Vis._data[pipeline.source]);
     delete raw.url;
+    delete raw.format.type;
     spec.data.push(raw);
     spec.data = spec.data.concat(pipeline.spec());
     spec.scales.push(scale.spec());

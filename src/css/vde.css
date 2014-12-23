@@ -271,7 +271,7 @@ a.add:hover {
 .property .scaled-input {
   position: relative;
   height: 13px;
-  max-width: 80px;
+  max-width: 60px;
   margin: -11px 0 0 -20px;
   padding-left: 5px;
   border: 1px solid #a9a9a9;
@@ -308,7 +308,7 @@ a.add:hover {
   float: left;
 }
 .property.full input[type=range] {
-  width: 125px;
+  width: 100px;
 }
 .property.full input[type=color] {
   float: left;
@@ -341,7 +341,7 @@ a.add:hover {
 }
 .property.half {
   float: left;
-  width: 130px;
+  width: 115px;
 }
 .property.half .canDropField {
   margin: 0 5px 3px 0;
@@ -351,11 +351,11 @@ a.add:hover {
 }
 .property.half input,
 .property.half select {
-  width: 110px;
+  width: 80px;
 }
 .property.half-float {
   float: left;
-  width: 130px;
+  width: 115px;
 }
 .property.half-float .canDropField {
   margin: 0 5px 3px 0;
@@ -365,7 +365,7 @@ a.add:hover {
 }
 .property.half-float input,
 .property.half-float select {
-  width: 110px;
+  width: 80px;
 }
 .property.half-float div.field {
   clear: none;
@@ -394,8 +394,8 @@ a.add:hover {
 }
 .property.third {
   float: left;
-  width: 130px;
-  width: 85px;
+  width: 115px;
+  width: 75px;
 }
 .property.third .canDropField {
   margin: 0 5px 3px 0;
@@ -405,11 +405,21 @@ a.add:hover {
 }
 .property.third input,
 .property.third select {
-  width: 110px;
+  width: 80px;
 }
 .property.third input,
 .property.third select {
-  width: 70px;
+  width: 60px;
+}
+.property.mark-type label {
+  width: 29px;
+}
+.property.mark-pipeline {
+  width: auto;
+  margin-right: 15px;
+}
+.property.visual-layouts {
+  width: auto;
 }
 .expr-container {
   display: block !important;
@@ -418,7 +428,7 @@ a.add:hover {
   overflow: hidden;
   height: 12px;
   padding: 3px;
-  width: 195px;
+  width: 160px;
   -moz-user-select: -moz-text;
   -khtml-user-select: text;
   -webkit-user-select: text;
@@ -608,7 +618,7 @@ a.add:hover {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 300px;
+  width: 250px;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -716,6 +726,12 @@ a.add:hover {
 #datasheet .paging .buttons a.next {
   background: url('../imgs/next-black.png') no-repeat;
 }
+.muted {
+  color: #888;
+}
+.small {
+  font-size: 10px;
+}
 #groups-list {
   background: #d5dbe1;
   border-left: 1px solid #a3b3bf;
@@ -723,7 +739,7 @@ a.add:hover {
   top: 0;
   bottom: 0;
   right: 0;
-  width: 300px;
+  width: 250px;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -773,7 +789,7 @@ a.add:hover {
 .toolbar {
   position: absolute;
   height: 16px;
-  left: 315px;
+  left: 265px;
   background: #d5dbe1;
   padding-bottom: 10px;
   border-width: 0 1px 1px 1px;
@@ -820,7 +836,7 @@ a.add:hover {
 #palette {
   position: absolute;
   height: 16px;
-  left: 315px;
+  left: 265px;
   background: #d5dbe1;
   padding-bottom: 10px;
   border-width: 0 1px 1px 1px;
@@ -868,7 +884,7 @@ a.add:hover {
 #utils {
   position: absolute;
   height: 16px;
-  left: 315px;
+  left: 265px;
   background: #d5dbe1;
   padding-bottom: 10px;
   border-width: 0 1px 1px 1px;
@@ -991,8 +1007,8 @@ a.add:hover {
 }
 #canvas {
   position: absolute;
-  left: 315px;
-  right: 315px;
+  left: 265px;
+  right: 265px;
   top: 40px;
   bottom: 40px;
   overflow: auto;
@@ -1078,13 +1094,13 @@ canvas.vega_hidden {
   bottom: 40px;
 }
 #file-open-popover {
-  left: 360px;
+  left: 415px;
 }
 #file-save-popover {
-  left: 385px;
+  left: 440px;
 }
 #export-popover {
-  left: 387px;
+  left: 440px;
 }
 #export-popover h3 {
   margin-bottom: 0 !important;

@@ -46,7 +46,7 @@ vde.Vis.Pipeline = (function() {
         specs.push({
           name: self.forkName,
           source: self.source,
-          "lyra.role": "fork", 
+          "lyra.role": "fork",
           "lyra.for": self.name,
           transform: vg.duplicate(specs[spec-1].transform || [])
         });
@@ -111,6 +111,7 @@ vde.Vis.Pipeline = (function() {
       }
       else {
         [data[0].data, data[0]].forEach(function(v, i) {
+          if(v === undefined) return;
           if(typeof v !== 'object') {
             var field = new vde.Vis.Field('data', '');
             field.pipelineName = pipeline;

@@ -2,8 +2,8 @@ vde.Vis = (function() {
   var vis = {
 
     properties: {
-      width: 500,
-      height: 375,
+      width: 800,
+      height: 700,
       _autopad: true,
       padding: {top:30, left:30, right:30, bottom:30} //default values when _autopad is disabled 
     },
@@ -76,7 +76,7 @@ vde.Vis = (function() {
       // from URL.
       if(inlinedValues) { 
         delete data.url;
-        delete data.format;
+        delete data.format.type;
       } else {
         delete data.values;
       }
@@ -176,6 +176,29 @@ vde.Vis = (function() {
     });
 
     return deferred.promise;
+  };
+
+  vis.update = function(props) {
+    // If the visualization's width/height is modified, update the width/height
+    // of any empty layers.
+    var updateLayers = [],
+        groupName, g, p;
+
+    props = vg.array(props);
+    if(props.indexOf('width') !== -1 || props.indexOf('height') !== -1) {
+      for(groupName in vis.groups) {
+        g = vis.groups[groupName], p = g.properties;
+        if(vg.keys(g.axes).length !== 0 || vg.keys(g.marks).length !== 0) continue;
+
+        if(p.x.default && p.width.default && p.x2.default)  
+          p.width.value  = vis.properties.width;
+
+        if(p.y.default && p.height.default && p.y2.default) 
+          p.height.value = vis.properties.height;
+      }
+    }
+
+    vis.render();
   };
 
   vis.export = function(data) {
@@ -589,7 +612,9 @@ vde.iVis = (function() {
     ivis.newMark = null;
 
     // If they've dropped on an empty non-group space.
-    if(!host) host = rootScope.activeLayer;
+    if(!host) {
+      host = rootScope.activeLayer || (new vde.Vis.marks.Group());
+    }
 
     if(host instanceof vde.Vis.marks.Group) mark.layerName = host.name;
     else if(host.connectors[connector] && mark.canConnect) {
@@ -814,6 +839,7 @@ vde.iVis = (function() {
     // To visualize a scale, we need to pull in the source data and pipeline.
     var raw = vg.duplicate(vde.Vis._data[pipeline.source]);
     delete raw.url;
+    delete raw.format.type;
     spec.data.push(raw);
     spec.data = spec.data.concat(pipeline.spec());
     spec.scales.push(scale.spec());
@@ -910,6 +936,7 @@ vde.iVis = (function() {
 })();
 
 vde.Vis.Mark = (function() {
+  var nameCount = -1;
   var mark = function(name, layerName, groupName) {
     this.name = name;
     this.displayName = name;
@@ -955,7 +982,7 @@ vde.Vis.Mark = (function() {
     }
 
     if(!this.name)
-      this.name = this.type + '_' + Date.now();
+      this.name = this.type + '_' + (++nameCount);
 
     if(!this.displayName) {
       var count = this.group()._markCount++;
@@ -1036,11 +1063,14 @@ vde.Vis.Mark = (function() {
 
   prototype.update = function(props) {
     var self = this, def  = this.def();
-    if(!vg.isArray(props)) props = [props];
+    props = vg.array(props);
 
     var update = props.reduce(function(up, prop) {
       var p = self.property(prop);
-      if(p) up[prop] = p;
+      if(p) {
+        up[prop] = p;
+        delete self.properties[prop].default;
+      }
       return up;
     }, {});
 
@@ -1991,7 +2021,7 @@ vde.Vis.Axis = (function() {
     var spec = {}, self = this;
     if(!this.properties.scale || !this.properties.scale.field()) return;
 
-    if(!this.properties.title) {
+    if(this.properties.title === null) {
       var inflector = vde.iVis.ngFilter()('inflector');
       this.properties.title = inflector(this.properties.scale.field().name);
     }
@@ -2205,7 +2235,7 @@ vde.Vis.Pipeline = (function() {
         specs.push({
           name: self.forkName,
           source: self.source,
-          "lyra.role": "fork", 
+          "lyra.role": "fork",
           "lyra.for": self.name,
           transform: vg.duplicate(specs[spec-1].transform || [])
         });
@@ -2270,6 +2300,7 @@ vde.Vis.Pipeline = (function() {
       }
       else {
         [data[0].data, data[0]].forEach(function(v, i) {
+          if(v === undefined) return;
           if(typeof v !== 'object') {
             var field = new vde.Vis.Field('data', '');
             field.pipelineName = pipeline;
@@ -2372,8 +2403,9 @@ vde.Vis.Pipeline = (function() {
 })();
 
 vde.Vis.Scale = (function() {
+  var nameCount = -1;
   var scale = function(name, pipeline, defaults, displayName) {
-    var scaleName = 'scale_r' + Date.now();
+    var scaleName = 'scale_' + (++nameCount);
     this.name  = (name || pipeline.name + '_' + scaleName);
     this.displayName = displayName;
 
@@ -2655,8 +2687,6 @@ vde.Vis.marks.Arc = (function() {
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
           data = dragging.item.datum.data;
 
-      if(!data || data.disabled) return;
-
       vde.iVis.ngScope().$apply(function() {
         props.x.value += dx;
         props.y.value += dy;
@@ -2785,12 +2815,12 @@ vde.Vis.marks.Group = (function() {
 
     this.fillType = 'color';
     this.properties = {
-      x: {value: 0},
-      width: {value: vde.Vis.properties.width},
-      x2: {value: 0, disabled: true},
-      y: {value: 0},
-      height: {value: vde.Vis.properties.height},
-      y2: {value: 0, disabled: true},
+      x: {value: 0, default: true},
+      width: {value: vde.Vis.properties.width, default: true},
+      x2: {value: 0, disabled: true, default: true},
+      y: {value: 0, default: true},
+      height: {value: vde.Vis.properties.height, default: true},
+      y2: {value: 0, disabled: true, default: true},
       clip: {value: false},
 
       fill: {value: '#ffffff'},
@@ -2824,7 +2854,7 @@ vde.Vis.marks.Group = (function() {
     return vde.Vis.Mark.prototype.init.call(this);
   };
 
-  prototype.update = function(props) {
+  prototype.update = function(props, rerender) {
     vde.Vis.Mark.prototype.update.call(this, props);
 
     var layout = props.indexOf('layout') != -1;
@@ -2834,7 +2864,7 @@ vde.Vis.marks.Group = (function() {
     for(var m in this.marks)
       this.marks[m].update(['x', 'x2', 'width', 'y', 'y2', 'height']);
 
-    if(layout) vde.Vis.render();
+    if(layout || rerender) vde.Vis.render();
 
     return this;
   };
@@ -3119,10 +3149,7 @@ vde.Vis.marks.Rect = (function() {
           this.extents.horizontal.fields : this.extents.vertical.fields;
 
     // If we're not dropping over a dropzone, don't ever do inference.
-    // If we're dropping over a width/height dropzone, wait to infer
-    // later on in the bind process.
-    if(!defaults || (defaults && (prop == 'width' || prop == 'height')))
-      return [scale, field];
+    if(!defaults) return [scale, field];
 
     // To ease construction of extents, we try to infer and reuse a scale from
     // existing extent bindings. However, the user can choose to override this
@@ -3149,8 +3176,11 @@ vde.Vis.marks.Rect = (function() {
 
   prototype.defaults = function(prop) {
     var props = this.properties, isOrd = props[prop].scale.type() == 'ordinal';
-    // If we set the width/height, by default map x/y
-    if(['width', 'height'].indexOf(prop) == -1) return;
+    // Only determine another extent when using the width/height dropzones.
+    // If width/height scale has been inferred, that's because another extent has
+    // already been set, so no further action is needed.
+    if(['width', 'height'].indexOf(prop) == -1) return; 
+    if(props[prop].inferred) return; 
     var scaledProp = (prop == 'width') ? isOrd ? 'x' : 'x2' : 'y';
     var zeroProp   = (prop == 'width') ? isOrd ? 'x2' : 'x' : 'y2';
 
@@ -3213,11 +3243,11 @@ vde.Vis.marks.Rect = (function() {
 
       vde.iVis.ngScope().$apply(function() {
         var reverse;
-        if(!handle && !data) {
+        if(!handle) {
           updateValue('y', dy);
           updateValue('x', dx);
           self.update(['y', 'x']);
-        } else {
+        } else if(data.connector) {
           if(data.connector.indexOf('top') != -1) {
             reverse = (props.y.scale &&
                 props.y.scale.range().name == 'height') ? -1 : 1;
@@ -4615,9 +4645,11 @@ vde.Vis.transforms.Facet = (function() {
       if(addToGroup) this._addToGroup('axes', axis, layer);
     }
 
+    var group = layer.marks[this.groupName()] || {};
+    if(!group.marks && !group.axes) return;
+
     // We want to move any spatial scales from the layer into the group EXCEPT for any
     // scales the group's properties are using.
-    var group = layer.marks[this.groupName()] || {};
     var groupScales = vg.keys(group.properties).map(function(p) {
       var prop =  group.properties[p];
       return prop.scale ? prop.scale.name : '';

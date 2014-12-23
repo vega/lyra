@@ -2,8 +2,8 @@ vde.Vis = (function() {
   var vis = {
 
     properties: {
-      width: 500,
-      height: 375,
+      width: 800,
+      height: 700,
       _autopad: true,
       padding: {top:30, left:30, right:30, bottom:30} //default values when _autopad is disabled 
     },
@@ -76,7 +76,7 @@ vde.Vis = (function() {
       // from URL.
       if(inlinedValues) { 
         delete data.url;
-        delete data.format;
+        delete data.format.type;
       } else {
         delete data.values;
       }
@@ -176,6 +176,29 @@ vde.Vis = (function() {
     });
 
     return deferred.promise;
+  };
+
+  vis.update = function(props) {
+    // If the visualization's width/height is modified, update the width/height
+    // of any empty layers.
+    var updateLayers = [],
+        groupName, g, p;
+
+    props = vg.array(props);
+    if(props.indexOf('width') !== -1 || props.indexOf('height') !== -1) {
+      for(groupName in vis.groups) {
+        g = vis.groups[groupName], p = g.properties;
+        if(vg.keys(g.axes).length !== 0 || vg.keys(g.marks).length !== 0) continue;
+
+        if(p.x.default && p.width.default && p.x2.default)  
+          p.width.value  = vis.properties.width;
+
+        if(p.y.default && p.height.default && p.y2.default) 
+          p.height.value = vis.properties.height;
+      }
+    }
+
+    vis.render();
   };
 
   vis.export = function(data) {

@@ -2,7 +2,7 @@
   <vde-can-drop-field style="{{canDropStyle}}" ng-if="!noDrop && canDropStyle">
   </vde-can-drop-field>
 
-  <label>
+  <label ng-show="label">
     {{label}}
     <a ng-if="hintUrl" href="{{hintUrl}}" class="icon-question-sign" target="_blank"></a>
 
@@ -21,6 +21,7 @@
       <span ng-switch-when="text">
           <input type="text" ng-model="$parent.ngModel" ng-change="onchange()" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" />
       </span>
+
 
       <span ng-switch-when="number">
         <input ng-if="scale" type="text" class="number" ng-model="$parent.$parent.ngModel" ng-change="onchange()" min="{{min}}" max="{{max}}" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}" />
@@ -55,7 +56,7 @@
 
       <span ng-switch-when="select"><select ng-change="onchange()" ng-model="$parent.ngModel" ng-options="opt for opt in $parent.options" ng-class="{'scaled-input': scale != undefined, 'disabled-input': item.properties[property].disabled}"></select></span>
 
-      <span ng-switch-when="radio"><label class="option" ng-repeat="opt in $parent.options"><input type="radio" ng-model="$parent.$parent.ngModel" value="{{opt}}" /> {{opt}}</label> </span>
+      <span ng-switch-when="radio"><label class="option" ng-repeat="opt in $parent.options"><input type="radio" ng-model="$parent.$parent.ngModel" value="{{opt}}" ng-click="onchange()" /> {{opt}}</label> </span>
 
       <span ng-switch-when="field" class="hint schema-target">Drop a field here.</span>
 

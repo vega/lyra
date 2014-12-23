@@ -104,18 +104,27 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     if(!noCnf) {
       var cnf = confirm("Are you sure you wish to delete this visual element?");
       if(!cnf) return;
-    }    
+    }
 
     if(type == 'group') {
-      if(iVis.activeMark == Vis.groups[name]) iVis.activeMark = null;
-      Vis.groups[name].destroy();
+      group = Vis.groups[name];
+      if($rootScope.activeGroup == group) $rootScope.activeGroup = null;
+      if($rootScope.activeLayer == group) $rootScope.activeLayer = null;
+      if($rootScope.activeVisual == group) $rootScope.activeVisual = null;
+      if(iVis.activeMark == group || iVis.activeMark.group() == group) 
+        iVis.activeMark = null;
+
+      group.destroy();
       delete Vis.groups[name];
 
       var go = Vis.groupOrder;
       go.splice(go.indexOf(name), 1);
     } else {
-      if(iVis.activeMark == group[type][name]) iVis.activeMark = null;
-      group[type][name].destroy();
+      var mark = group[type][name];
+      if($rootScope.activeVisual == mark) $rootScope.activeVisual = null;
+      if(iVis.activeMark == mark) iVis.activeMark = null;
+
+      mark.destroy();
       delete group[type][name];
 
       if(type == 'marks') {
@@ -168,22 +177,22 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
   };
 
   $scope.changeMark = function(oldMark, type) {
-    var newMark = new Vis.marks[type](), 
+    var newMark = new Vis.marks[type](),
         name = $filter('inflector')(oldMark.type, 'humanize');
 
-    newMark.displayName  = oldMark.displayName.replace(name, type); 
+    newMark.displayName  = oldMark.displayName.replace(name, type);
     newMark.layerName    = oldMark.layerName;
     newMark.pipelineName = oldMark.pipelineName;
-    newMark.init(); 
+    newMark.init();
 
     for(var p in oldMark.properties) {
-      // We don't have to check for matching properties, Vega will ignore 
-      // properties it doesn't understand. But doing this allows us to flip 
+      // We don't have to check for matching properties, Vega will ignore
+      // properties it doesn't understand. But doing this allows us to flip
       // back and forth between mark types losslessly.
       newMark.properties[p] = oldMark.properties[p];
     }
 
-    $scope.removeVisual('marks', oldMark.name, oldMark.group(), true); 
+    $scope.removeVisual('marks', oldMark.name, oldMark.group(), true);
     Vis.render().then(function() {
       $scope.toggleVisual(newMark);
       timeline.save();

@@ -11,7 +11,7 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis
 
     if(vg.isArray(src.values)) {
       for(var k in src.values[0])
-        src.format.parse[k] = vg.isNumber(src.values[0][k]) ? 'number' : 'string';
+        src.format.parse[k] = !isNaN(src.values[0][k]) ? 'number' : 'string';
     }
 
     $scope.dMdl.isLoading = false;
@@ -50,11 +50,12 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis
     for(var p in src.format.parse) 
       if(src.format.parse[p] == 'string') delete src.format.parse[p];
 
-    Vis._data[src.name] = vg.duplicate(src);
-    delete Vis._data[src.name].$$hashKey;  // AngularJS pollution
+    Vis._data[src.name] = angular.copy(src);
 
     $rootScope.activePipeline.source = src.name;
     $scope.dMdl.src = {};
+    $scope.dMdl.from = null;
+    $scope.dMdl.values = null;
     $rootScope.newData = false;
 
     timeline.save();

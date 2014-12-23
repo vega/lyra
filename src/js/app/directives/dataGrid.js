@@ -64,10 +64,13 @@ vde.App.directive('vdeDataGrid', function () {
         data = data.slice($scope.page*$scope.limit, $scope.page*$scope.limit + $scope.limit);
 
         for(i = 0; i < columns.length; i++) {
-          var row = [columns[i]];
+          var row = [columns[i]], 
+              spec = columns[i].spec(),
+              f = vg.field(spec);
+
           for(var j = 0; j < data.length; j++) {
-            row.push(columns[i].spec() == "key" ? $scope.facet : 
-              eval("data[j]." + columns[i].spec()));
+            if(spec == "key") row.push($scope.facet);
+            else row.push(eval("data[j]["+f.map(vg.str).join("][")+"]"));
           }
 
           transpose.push(row);

@@ -11,7 +11,7 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis
 
     if(vg.isArray(src.values)) {
       for(var k in src.values[0])
-        src.format.parse[k] = vg.isNumber(src.values[0][k]) ? 'number' : 'string';
+        src.format.parse[k] = !isNaN(src.values[0][k]) ? 'number' : 'string';
     }
 
     $scope.dMdl.isLoading = false;
@@ -50,11 +50,12 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis
     for(var p in src.format.parse) 
       if(src.format.parse[p] == 'string') delete src.format.parse[p];
 
-    Vis._data[src.name] = vg.duplicate(src);
-    delete Vis._data[src.name].$$hashKey;  // AngularJS pollution
+    Vis._data[src.name] = angular.copy(src);
 
     $rootScope.activePipeline.source = src.name;
     $scope.dMdl.src = {};
+    $scope.dMdl.from = null;
+    $scope.dMdl.values = null;
     $rootScope.newData = false;
 
     timeline.save();
@@ -69,7 +70,8 @@ vde.App.controller('DataCtrl', function($scope, $rootScope, $http, timeline, Vis
 
 });
 vde.App.controller('EditVisCtrl', function($scope, Vis) {
-  $scope.vis = Vis.properties;
+  $scope.vis = Vis;
+  $scope.props = Vis.properties;
 });
 vde.App.controller('ExportCtrl', ['$scope', '$rootScope', 'timeline', '$window', 'Vis', 'vg', 'PngExporter',
   function($scope, $rootScope, timeline, $window, Vis, vg, PngExporter) {
@@ -238,18 +240,27 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
     if(!noCnf) {
       var cnf = confirm("Are you sure you wish to delete this visual element?");
       if(!cnf) return;
-    }    
+    }
 
     if(type == 'group') {
-      if(iVis.activeMark == Vis.groups[name]) iVis.activeMark = null;
-      Vis.groups[name].destroy();
+      group = Vis.groups[name];
+      if($rootScope.activeGroup == group) $rootScope.activeGroup = null;
+      if($rootScope.activeLayer == group) $rootScope.activeLayer = null;
+      if($rootScope.activeVisual == group) $rootScope.activeVisual = null;
+      if(iVis.activeMark == group || iVis.activeMark.group() == group) 
+        iVis.activeMark = null;
+
+      group.destroy();
       delete Vis.groups[name];
 
       var go = Vis.groupOrder;
       go.splice(go.indexOf(name), 1);
     } else {
-      if(iVis.activeMark == group[type][name]) iVis.activeMark = null;
-      group[type][name].destroy();
+      var mark = group[type][name];
+      if($rootScope.activeVisual == mark) $rootScope.activeVisual = null;
+      if(iVis.activeMark == mark) iVis.activeMark = null;
+
+      mark.destroy();
       delete group[type][name];
 
       if(type == 'marks') {
@@ -302,28 +313,29 @@ vde.App.controller('LayersCtrl', function($scope, $rootScope, $timeout, timeline
   };
 
   $scope.changeMark = function(oldMark, type) {
-    var newMark = new Vis.marks[type](), 
+    var newMark = new Vis.marks[type](),
         name = $filter('inflector')(oldMark.type, 'humanize');
 
-    newMark.displayName  = oldMark.displayName.replace(name, type); 
+    newMark.displayName  = oldMark.displayName.replace(name, type);
     newMark.layerName    = oldMark.layerName;
     newMark.pipelineName = oldMark.pipelineName;
-    newMark.init(); 
+    newMark.init();
 
     for(var p in oldMark.properties) {
-      // We don't have to check for matching properties, Vega will ignore 
-      // properties it doesn't understand. But doing this allows us to flip 
+      // We don't have to check for matching properties, Vega will ignore
+      // properties it doesn't understand. But doing this allows us to flip
       // back and forth between mark types losslessly.
       newMark.properties[p] = oldMark.properties[p];
     }
 
-    $scope.removeVisual('marks', oldMark.name, oldMark.group(), true); 
+    $scope.removeVisual('marks', oldMark.name, oldMark.group(), true);
     Vis.render().then(function() {
       $scope.toggleVisual(newMark);
       timeline.save();
     });
   };
 });
+
 vde.App.controller('MarkCtrl', function($scope, $rootScope) {
   $scope.$watch('group.marksOrder', function() {
     $scope.mark = $scope.group.marks[$scope.markName];
@@ -361,8 +373,8 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
   // in case that's set independently.
   $scope.$watch(function() {
     return ($rootScope.activePipeline || {}).source
-  }, function() { 
-    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source 
+  }, function() {
+    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source
   });
 
   $rootScope.addPipeline = function() {
@@ -435,6 +447,7 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
     return s;
   };
 });
+
 vde.App.controller('ScaleCtrl', function($scope, $rootScope, Vis) {
   $scope.types = ['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile',
                   'quantize', 'threshold', 'utc', 'time', 'ref'];
@@ -838,10 +851,13 @@ vde.App.directive('vdeDataGrid', function () {
         data = data.slice($scope.page*$scope.limit, $scope.page*$scope.limit + $scope.limit);
 
         for(i = 0; i < columns.length; i++) {
-          var row = [columns[i]];
+          var row = [columns[i]], 
+              spec = columns[i].spec(),
+              f = vg.field(spec);
+
           for(var j = 0; j < data.length; j++) {
-            row.push(columns[i].spec() == "key" ? $scope.facet : 
-              eval("data[j]." + columns[i].spec()));
+            if(spec == "key") row.push($scope.facet);
+            else row.push(eval("data[j]["+f.map(vg.str).join("][")+"]"));
           }
 
           transpose.push(row);
@@ -1189,7 +1205,8 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
 
         $timeout(function() {
           if($scope.item.update) {
-            $scope.item.update(prop);
+            // update properties and only re-render if it's a Group mark.
+            $scope.item.update(prop, $scope.item instanceof Vis.marks.Group);
             iVis.show('selected');
             timeline.save();
           } else {
@@ -1233,10 +1250,10 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
       if($scope.extentsProps) {
         $scope.$watch(function($scope) {
           return {
-            p: $scope.property, 
+            p: $scope.property,
             b: $scope.extentsBound,
-            v: $scope.extentsProps.map(function(p) { 
-              return $scope.item.properties[p.property]; 
+            v: $scope.extentsProps.map(function(p) {
+              return $scope.item.properties[p.property];
             })
           };
         }, function(newVal, oldVal) {
@@ -1304,9 +1321,11 @@ vde.App.directive('vdeProperty', function($rootScope, timeline, Vis, iVis, vg) {
         if($rootScope.activeScale && $rootScope.activeScale != scope.item) return;
         scope.hideHelper($(this), e, 'drophover');
       });
+      $.drop({ mode: "intersect" })
     }
   };
 });
+
 vde.App.directive('vdeScaleValues', function(Vis, vg) {
   return {
     restrict: 'E',
@@ -1402,7 +1421,7 @@ vde.App.factory('draggable', function($rootScope, Vis, iVis) {
       iVis.dragging = dd.proxy;
       $(dd.proxy).css({
         top: e.pageY + 5,
-        left: e.pageX - $(dd.proxy).width()
+        left: e.pageX - $(dd.proxy).width()/2
       });
     },
 

@@ -161,8 +161,6 @@ vde.Vis.marks.Arc = (function() {
           dy = Math.ceil(evt.pageY - dragging.prev[1]),
           data = dragging.item.datum.data;
 
-      if(!data || data.disabled) return;
-
       vde.iVis.ngScope().$apply(function() {
         props.x.value += dx;
         props.y.value += dy;

@@ -1,4 +1,5 @@
 vde.Vis.Mark = (function() {
+  var nameCount = -1;
   var mark = function(name, layerName, groupName) {
     this.name = name;
     this.displayName = name;
@@ -44,7 +45,7 @@ vde.Vis.Mark = (function() {
     }
 
     if(!this.name)
-      this.name = this.type + '_' + Date.now();
+      this.name = this.type + '_' + (++nameCount);
 
     if(!this.displayName) {
       var count = this.group()._markCount++;
@@ -125,11 +126,14 @@ vde.Vis.Mark = (function() {
 
   prototype.update = function(props) {
     var self = this, def  = this.def();
-    if(!vg.isArray(props)) props = [props];
+    props = vg.array(props);
 
     var update = props.reduce(function(up, prop) {
       var p = self.property(prop);
-      if(p) up[prop] = p;
+      if(p) {
+        up[prop] = p;
+        delete self.properties[prop].default;
+      }
       return up;
     }, {});
 

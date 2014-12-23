@@ -19,8 +19,8 @@ vde.App.controller('PipelinesCtrl', function($scope, $rootScope, timeline, vg, V
   // in case that's set independently.
   $scope.$watch(function() {
     return ($rootScope.activePipeline || {}).source
-  }, function() { 
-    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source 
+  }, function() {
+    $scope.pMdl.activePipelineSource = ($rootScope.activePipeline || {}).source
   });
 
   $rootScope.addPipeline = function() {
