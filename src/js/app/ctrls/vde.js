@@ -106,10 +106,10 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
 
   // Look for editor mode data passed in local storage; if not found there,
   // install an event listener for messages to arrive via postMessage().
-  var tag = queryArguments.editormode;
-  if(tag) {
+  $rootScope.tag = queryArguments.editormode;
+  if($rootScope.tag) {
     var msg = {
-      data: JSON.parse(localStorage.getItem(tag))
+      data: JSON.parse(localStorage.getItem($rootScope.tag))
     };
 
     window.setTimeout(editorModeBootstrap, 1000, msg);

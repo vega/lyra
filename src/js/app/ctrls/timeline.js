@@ -66,10 +66,17 @@ vde.App.controller('TimelineCtrl', function($scope, $rootScope, $window, timelin
 
   $scope.finishEditing = function() {
     Vis.render().then(function(spec) {
-      $window.opener.postMessage({
+      var msg = {
         timeline: timeline.timeline,
         spec: spec
-      }, $window.location.origin);
+      };
+
+      if($rootScope.tag) {
+        localStorage.setItem($rootScope.tag, JSON.stringify(msg));
+      } else {
+        $window.opener.postMessage(msg, $window.location.origin);
+      }
+
       $window.close();
     });
   };
