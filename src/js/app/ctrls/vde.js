@@ -61,7 +61,8 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
 
   // Listen for messages from other applications (editor mode)
   $rootScope.editorMode = false;
-  $window.addEventListener('message', function(evt) {
+
+  var editorModeBootstrap = function(evt) {
     // evt.data = {timeline: {}, data: {name: '', values: []}}
     var d = evt.data;
     if(!d) return;
@@ -76,15 +77,45 @@ vde.App.controller('VdeCtrl', function($scope, $rootScope, $window, $timeout,
 
       if(d.timeline) {
         timeline.timeline = d.timeline;
-        timeline.currentIdx = d.timeline.length - 1
+        timeline.currentIdx = d.timeline.length - 1;
         timeline.redo();
       } else if(d.spec) {
         Vis.parse(d.spec);
-      } else { 
+      } else {
         timeline.save();
       }
     });
-  });
+  };
+
+  // Grab the query arguments.
+  var queryArguments = (function () {
+    var oGetVars = {},
+        aItKey,
+        nKeyId,
+        aCouples;
+
+    if (window.location.search.length > 1) {
+      for (nKeyId = 0, aCouples = window.location.search.substr(1).split("&"); nKeyId < aCouples.length; nKeyId += 1) {
+        aItKey = aCouples[nKeyId].split("=");
+        oGetVars[decodeURI(aItKey[0])] = aItKey.length > 1 ? decodeURI(aItKey[1]) : "";
+      }
+    }
+
+    return oGetVars;
+  }());
+
+  // Look for editor mode data passed in local storage; if not found there,
+  // install an event listener for messages to arrive via postMessage().
+  var tag = queryArguments.editormode;
+  if(tag) {
+    var msg = {
+      data: JSON.parse(localStorage.getItem(tag))
+    };
+
+    window.setTimeout(editorModeBootstrap, 1000, msg);
+  } else {
+    $window.addEventListener('message', editorModeBootstrap);
+  }
 
   // Prevent backspace from navigating back and instead delete
   $window.addEventListener('keydown', function(evt) {
