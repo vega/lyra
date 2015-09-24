@@ -1,41 +1,66 @@
 {
-  "name": "Lyra",
-  "version": "1.0.0",
-  "description": "Lyra is an interactive visualization design environment for designing custom visualizations without programming",
+  "name": "lyra",
+  "version": "2.0.0",
+  "main": true,
+  "description": "A direct manipulation visualization design environment.",
   "keywords": [
     "lyra",
     "vega",
+    "data",
     "visualization",
-    "d3"
+    "direct manipulation",
+    "interface",
+    "graphical interface"
   ],
-  "homepage": "http://idl.cs.washington.edu/projects/lyra/",
-  "author": {
-    "name": "Arvind Satyanarayan",
-    "url": "http://arvindsatya.com"
-  },
   "repository": {
     "type": "git",
     "url": "http://github.com/uwdata/lyra.git"
   },
+  "author": {
+    "name": "Arvind Satyanarayan",
+    "url": "http://arvindsatya.com"
+  },
+  "license": "BSD-3-Clause",
   "devDependencies": {
-    "less": "1.6.x",
-    "protractor": "~0.24.2",
-    "JSONPath": "0.9.x",
-    "grunt": "~0.4.5",
-    "grunt-protractor-runner": "~1.0.0",
-    "grunt-http-server": "0.0.5",
-    "grunt-contrib-less": "~0.11.2",
-    "karma": "~0.12.16",
-    "grunt-karma": "~0.8.3",
-    "karma-jasmine": "~0.2.0",
-    "grunt-contrib-jshint": "~0.10.0",
-    "grunt-githooks": "~0.3.1",
-    "grunt-contrib-concat": "~0.4.0",
-    "karma-chrome-launcher": "~0.1.4",
-    "grunt-contrib-watch": "~0.6.1",
-    "karma-chrome-launcher": "~0.1.4"
+    "browserify": "^10.2.6",
+    "browserify-shim": "^3.8.9",
+    "chai": "^3.0.0",
+    "d3": "^3.5.6",
+    "d3-geo-projection": "^0.2.15",
+    "datalib": "^1.4.6",
+    "es6-promise": "^3.0.2",
+    "exorcist": "^0.4.0",
+    "jshint": "^2.8.0",
+    "mocha": "^2.2.5",
+    "topojson": "^1.6.19",
+    "tv4": "^1.1.12",
+    "uglify-js": "^2.4.24",
+    "vega": "^2.2.0",
+    "watchify": "^3.2.3"
   },
   "scripts": {
-    "postinstall": "grunt githooks"
+    "lint": "jshint src/",
+    "build": "browserify src/js/state/index.js -d -s lyra > vendor/js/lyra.js",
+    "postbuild": "uglifyjs vendor/js/lyra.js -cm > vendor/js/lyra.min.js",
+    "watch": "watchify src/js/state/index.js -v -d -s lyra -o 'exorcist vendor/js/lyra.js.map > vendor/js/lyra.js'"
+  },
+  "browser": {
+    "buffer": false,
+    "canvas": false,
+    "fs": false,
+    "http": false,
+    "request": false,
+    "sync-request": false,
+    "url": false
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "d3": "global:d3",
+    "datalib": "global:vg.util",
+    "vega": "global:vg"
   }
 }
