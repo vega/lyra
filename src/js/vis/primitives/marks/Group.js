@@ -15,46 +15,43 @@ function Group() {
   this.legends = [];
   this.axes  = [];
   this.marks = [];
+
+  return this;
 }
 
 var prototype = (Group.prototype = Object.create(Mark.prototype));
 prototype.constructor = Group;
 
-function childExport(x) { return x.export(); }
-function childManips(x) { return x.manipulators(); }
-
-prototype.export = function() {
+prototype.export = function(resolve) {
   var self = this, 
-      spec = Mark.prototype.export.call(this);
-  CHILD_TYPES.forEach(function(c) {
-    spec[c] = self[c].map(childExport);
-  });
+      spec = Mark.prototype.export.call(this, resolve),
+      fn = function(x) { return x.export(resolve); };
+
+  CHILD_TYPES.forEach(function(c) { spec[c] = self[c].map(fn); });
   return spec;
 };
 
 prototype.manipulators = function() {
   var self  = this,
       spec  = Mark.prototype.manipulators.call(this),
-      group = spec.marks[0];
-  CHILD_TYPES.forEach(function(c) {
-    group[c] = self[c].map(childManips);
-  });
+      group = spec.marks[0],
+      fn = function(x) { return x.manipulators(); };
+
+  CHILD_TYPES.forEach(function(c) { group[c] = self[c].map(fn); });
   return spec;
 };
 
 // Get or create a child element. 
-prototype.child = function(type) {
-  var mark = arguments[1],
-      name = MARK_TYPES.indexOf(mark) >= 0 ? arguments[2] : mark,
-      child;
+prototype.child = function(type, name) {
+  var markType = type === 'marks' && MARK_TYPES.indexOf(name) >= 0;
 
-  if (name) { 
+  if (name && !markType) { 
     child = this[type].filter(function(c) {
       return c.name === name;
     })[0];
   } else {
-    child = new CHILDREN[mark || type]();
-    this[type].push(child);
+    child = new CHILDREN[markType ? name : type]();
+    this[type].push(child.init());
   }
 
   return child;

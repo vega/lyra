@@ -20,7 +20,7 @@ function coords(item) {
     bottomCenter: {x: b.x1 + (b.width()/2), y: b.y2, cursor: 's-resize'},
     bottomRIght:  {x: b.x2, y: b.y2, cursor: 'se-resize'}
   };
-};
+}
 
 prototype.handles = function(item) {
   var c = coords(item);
@@ -28,5 +28,6 @@ prototype.handles = function(item) {
   return vg.util.vals(c);
 };
 
-vg.transforms['lyra.Manipulators.rect'] = RectManipulators;
+vg.transforms['lyra.Manipulators.rect']  = RectManipulators;
+vg.transforms['lyra.Manipulators.group'] = RectManipulators;
 module.exports = RectManipulators;

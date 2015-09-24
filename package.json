@@ -39,10 +39,10 @@
     "watchify": "^3.2.3"
   },
   "scripts": {
-    "lint": "jshint src/",
-    "build": "browserify src/js/state/index.js -d -s lyra > vendor/js/lyra.js",
+    "lint": "jshint src/js/",
+    "build": "browserify src/js/index.js -d -s lyra > vendor/js/lyra.js",
     "postbuild": "uglifyjs vendor/js/lyra.js -cm > vendor/js/lyra.min.js",
-    "watch": "watchify src/js/state/index.js -v -d -s lyra -o 'exorcist vendor/js/lyra.js.map > vendor/js/lyra.js'"
+    "watch": "watchify src/js/index.js -v -d -s lyra -o 'exorcist vendor/js/lyra.js.map > vendor/js/lyra.js'"
   },
   "browser": {
     "buffer": false,
@@ -53,14 +53,5 @@
     "sync-request": false,
     "url": false
   },
-  "browserify": {
-    "transform": [
-      "browserify-shim"
-    ]
-  },
-  "browserify-shim": {
-    "d3": "global:d3",
-    "datalib": "global:vg.util",
-    "vega": "global:vg"
-  }
+  "browserify-shim": {}
 }

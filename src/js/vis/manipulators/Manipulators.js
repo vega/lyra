@@ -3,7 +3,8 @@ var vg = require('vega'),
     ChangeSet = df.ChangeSet,
     Tuple = df.Tuple,
     Deps = df.Dependencies,
-    Transform = vg.transforms.Transform;    
+    Transform = vg.transforms.Transform,
+    sg = require('../../state/signals');    
 
 function Manipulators(graph) {
   Transform.prototype.init.call(this, graph);
@@ -12,11 +13,11 @@ function Manipulators(graph) {
     kind: {type: 'value'}
   });
 
-  this._cacheID  = null;
-  this._cache    = [];
+  this._cacheID = null;
+  this._cache   = [];
 
   return this.router(true).produces(true)
-    .dependency(Deps.SIGNALS, ['lyra.selected', 'lyra.manipulators']);
+    .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MANIPULATORS]);
 }
 
 var prototype = (Manipulators.prototype = Object.create(Transform.prototype));
@@ -25,8 +26,8 @@ prototype.constructor = Manipulators;
 prototype.transform = function(input) {
   var self = this,
       g = this._graph,
-      sel = g.signal('lyra.selected').value(),
-      manip = g.signal('lyra.manipulators').value(),
+      sel = g.signal(sg.SELECTED).value(),
+      manip = g.signal(sg.MANIPULATORS).value(),
       name = this.param('name'),
       kind = this.param('kind'),
       output = ChangeSet.create(input),
@@ -46,8 +47,7 @@ prototype.transform = function(input) {
   // Manipulators should only be called on items that already exist
   // on the scenegraph. 
   var items = input.mod,
-      out   = output.add,
-      x, i, len;
+      out   = output.add;
 
 
   for (i=0, len=items.length, x; i<len; ++i) {
