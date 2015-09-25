@@ -18,14 +18,17 @@ function coords(item) {
     midRight:  {x: b.x2, y: b.y1 + (b.height()/2), cursor: 'e-resize'},
     bottomLeft:   {x: b.x1, y: b.y2, cursor: 'sw-resize'},
     bottomCenter: {x: b.x1 + (b.width()/2), y: b.y2, cursor: 's-resize'},
-    bottomRIght:  {x: b.x2, y: b.y2, cursor: 'se-resize'}
+    bottomRight:  {x: b.x2, y: b.y2, cursor: 'se-resize'}
   };
 }
 
 prototype.handles = function(item) {
-  var c = coords(item);
-  delete c.midCenter;
-  return vg.util.vals(c);
+  var c = coords(item), data = [];
+  for (var k in c) {
+    if (k === 'midCenter') continue;
+    data.push(dl.extend(c[k], {key: k}));
+  }
+  return data;
 };
 
 vg.transforms['lyra.Manipulators.rect']  = RectManipulators;

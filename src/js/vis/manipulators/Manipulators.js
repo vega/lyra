@@ -1,4 +1,5 @@
-var vg = require('vega'),
+var dl = require('datalib'),
+    vg = require('vega'),
     df = vg.dataflow,
     ChangeSet = df.ChangeSet,
     Tuple = df.Tuple,
@@ -30,13 +31,14 @@ prototype.transform = function(input) {
       manip = g.signal(sg.MANIPULATORS).value(),
       name = this.param('name'),
       kind = this.param('kind'),
-      output = ChangeSet.create(input),
-      i, len, x;
+      cache   = this._cache,
+      cacheID = this._cacheID,
+      output = ChangeSet.create(input);
 
-  // If we've selected another scene graph item or changed the manipulator state, 
+  // If we've selected another scenegraph item or changed the manipulator state, 
   // remove any manipulators we added here.
-  if (this._cache.length && (this._cacheID !== sel._id || kind !== manip)) {
-    output.rem = this._cache.splice(0);
+  if (cache.length && (cacheID !== sel._id || kind !== manip)) {
+    output.rem = cache.splice(0);
   }
 
   // If we don't correspond to the current selection, early exit
@@ -45,19 +47,24 @@ prototype.transform = function(input) {
   }
 
   // Manipulators should only be called on items that already exist
-  // on the scenegraph. 
-  var items = input.mod,
-      out   = output.add;
+  // on the scenegraph. Fetch the currently selected scenegraph item.
+  var item = input.mod.filter(function(x) {
+    return sel && x._id === sel._id;
+  })[0];
 
+  var tpls = this[kind](item).map(function(t) {
+    t.name = name;
+    t.kind = kind;
+    return t;
+  });
 
-  for (i=0, len=items.length, x; i<len; ++i) {
-    x = items[i];
-    if (sel && x._id !== sel._id) continue;
-
-    this._cacheID = x._id;
-    this._cache = this[kind](x).map(Tuple.ingest);
-    out.push.apply(out, this._cache);
-    break;
+  if (cache.length && cacheID === item._id) {
+    tpls.forEach(function(d, i) { dl.extend(cache[i], d); });
+    output.mod.push.apply(output.mod, cache);
+  } else {
+    this._cacheID = item._id;
+    cache.push.apply(cache, tpls.map(Tuple.ingest));
+    output.add.push.apply(output.add, cache);
   }
 
   return output;

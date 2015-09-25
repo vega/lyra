@@ -10,15 +10,17 @@ function init() {
   parse();
 }
 
-function spec() {
-  var s = state.Vis.manipulators(),
-      signals = s.signals || (s.signals = []);
-  signals.push.apply(signals, dl.vals(sg()));
-  return s;
+function manipulators() {
+  var spec = state.Vis.manipulators(),
+      signals = spec.signals || (spec.signals = []),
+      idx = dl.comparator('_idx');
+
+  signals.push.apply(signals, dl.vals(sg.stash()).sort(idx));
+  return spec;
 }
 
 function parse() {
-  vg.parse.spec(spec(), function(chart) {
+  vg.parse.spec(manipulators(), function(chart) {
     state.view = chart({ el: '#vis' }).update();
   });
 }
@@ -30,7 +32,7 @@ function update() {
 module.exports = (state = {
   Vis:  null,
   view: null,
-  
+
   signals: sg,
   signal: function() {
     var ret = sg.value.apply(sg, arguments);

@@ -8,5 +8,8 @@
   <body>
     <div id="vis"></div>
   </body>
-  <script>lyra.init();</script>
+  <script>
+    lyra.init();
+    var r = lyra.Vis.child('marks', 'rect'); lyra.parse();
+  </script>
 </html>

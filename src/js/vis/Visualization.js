@@ -18,8 +18,8 @@ var prototype = (Visualization.prototype = Object.create(Group.prototype));
 prototype.constructor = Visualization;
 
 prototype.init = function() {
-  this.width  = sg.def(SG_WIDTH, this.width);
-  this.height = sg.def(SG_HEIGHT, this.height);
+  this.width  = sg.init(SG_WIDTH, this.width);
+  this.height = sg.init(SG_HEIGHT, this.height);
   return Group.prototype.init.call(this);
 };
 
