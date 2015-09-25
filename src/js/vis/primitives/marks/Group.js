@@ -46,9 +46,9 @@ prototype.child = function(type, name) {
   var markType = type === 'marks' && MARK_TYPES.indexOf(name) >= 0;
 
   if (name && !markType) { 
-    child = this[type].filter(function(c) {
+    child = this[type].find(function(c) {
       return c.name === name;
-    })[0];
+    });
   } else {
     child = new CHILDREN[markType ? name : type]();
     this[type].push(child.init());

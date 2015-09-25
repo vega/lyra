@@ -6,10 +6,7 @@ var dl = require('datalib'),
 function ns(name) { return name.startsWith(NS) ? name : NS+name; }
 
 function init(name, val) {
-  name = ns(name);
-  if (arguments.length === 1) return signals[name];
-
-  signals[name] = {
+  signals[name=ns(name)] = {
     name: name, 
     init: val, 
     _idx: dl.keys(signals).length 
@@ -31,11 +28,10 @@ function value(name, val) {
   // or signal hasn't been registered yet with the view.
   try { 
     val = view.signal.apply(view, arguments); 
+    return set ? api : val;
   } catch (e) {
-    val = sg.init;
+    return set ? (sg.init=val, api) : sg.init;
   }
-
-  return set ? api : val;
 }
 
 // Stash current signal values from the view into our model

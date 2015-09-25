@@ -6,7 +6,9 @@ dl = vg.util;
 
 // Additional requires to polyfill + browserify package.
 require('es6-promise').polyfill();
-require('./vis/manipulators');
+require('array.prototype.find');
+require('string.prototype.startswith');
+require('./vis/transforms');
 
 // The Lyra State is our main API. 
 module.exports = require('./state');

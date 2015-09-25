@@ -31,6 +31,4 @@ prototype.handles = function(item) {
   return data;
 };
 
-vg.transforms['lyra.Manipulators.rect']  = RectManipulators;
-vg.transforms['lyra.Manipulators.group'] = RectManipulators;
 module.exports = RectManipulators;

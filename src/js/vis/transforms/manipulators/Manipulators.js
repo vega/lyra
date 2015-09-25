@@ -5,7 +5,7 @@ var dl = require('datalib'),
     Tuple = df.Tuple,
     Deps = df.Dependencies,
     Transform = vg.transforms.Transform,
-    sg = require('../../state/signals');    
+    sg = require('../../../state/signals');    
 
 function Manipulators(graph) {
   Transform.prototype.init.call(this, graph);
@@ -48,9 +48,9 @@ prototype.transform = function(input) {
 
   // Manipulators should only be called on items that already exist
   // on the scenegraph. Fetch the currently selected scenegraph item.
-  var item = input.mod.filter(function(x) {
+  var item = input.mod.find(function(x) {
     return sel && x._id === sel._id;
-  })[0];
+  });
 
   var tpls = this[kind](item).map(function(t) {
     t.name = name;

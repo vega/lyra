@@ -89,7 +89,7 @@ prototype.manipulators = function() {
         from: {
           mark: self.name,
           transform: [{
-            type: 'lyra.Manipulators.'+self.type,
+            type: 'lyra_manipulators_'+self.type,
             name: self.name,
             kind: m.kind
           }]

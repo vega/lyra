@@ -22,16 +22,20 @@
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
+    "array.prototype.find": "^1.0.0",
     "browserify": "^10.2.6",
     "browserify-shim": "^3.8.9",
     "chai": "^3.0.0",
+    "chai-spies": "^0.7.1",
     "d3": "^3.5.6",
     "d3-geo-projection": "^0.2.15",
     "datalib": "^1.4.6",
     "es6-promise": "^3.0.2",
     "exorcist": "^0.4.0",
+    "istanbul": "^0.3.21",
     "jshint": "^2.8.0",
     "mocha": "^2.2.5",
+    "string.prototype.startswith": "^0.2.0",
     "topojson": "^1.6.19",
     "tv4": "^1.1.12",
     "uglify-js": "^2.4.24",
@@ -42,7 +46,9 @@
     "lint": "jshint src/js/",
     "build": "browserify src/js/index.js -d -s lyra > vendor/js/lyra.js",
     "postbuild": "uglifyjs vendor/js/lyra.js -cm > vendor/js/lyra.min.js",
-    "watch": "watchify src/js/index.js -v -d -s lyra -o 'exorcist vendor/js/lyra.js.map > vendor/js/lyra.js'"
+    "watch": "watchify src/js/index.js -v -d -s lyra -o 'exorcist vendor/js/lyra.js.map > vendor/js/lyra.js'",
+    "test": "mocha --timeout 30000 --recursive test/",
+    "cover": "istanbul cover _mocha -- --timeout 30000 --recursive test/"
   },
   "browser": {
     "buffer": false,

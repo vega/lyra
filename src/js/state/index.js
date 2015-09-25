@@ -19,9 +19,13 @@ function manipulators() {
   return spec;
 }
 
-function parse() {
-  vg.parse.spec(manipulators(), function(chart) {
-    state.view = chart({ el: '#vis' }).update();
+function parse(el) {
+  el = (el === undefined) ? '#vis' : el;
+  return new Promise(function(resolve, reject) {
+    vg.parse.spec(manipulators(), function(chart) {
+      state.view = chart({ el: el }).update();
+      resolve('Parsed!');
+    });
   });
 }
 

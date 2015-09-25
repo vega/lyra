@@ -1,4 +1,39 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.lyra = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// Array.prototype.find - MIT License (c) 2013 Paul Miller <http://paulmillr.com>
+// For all details and docs: https://github.com/paulmillr/array.prototype.find
+// Fixes and tests supplied by Duncan Hall <http://duncanhall.net> 
+(function(globals){
+  if (Array.prototype.find) return;
+
+  var find = function(predicate) {
+    var list = Object(this);
+    var length = list.length < 0 ? 0 : list.length >>> 0; // ES.ToUint32;
+    if (length === 0) return undefined;
+    if (typeof predicate !== 'function' || Object.prototype.toString.call(predicate) !== '[object Function]') {
+      throw new TypeError('Array#find: predicate must be a function');
+    }
+    var thisArg = arguments[1];
+    for (var i = 0, value; i < length; i++) {
+      value = list[i];
+      if (predicate.call(thisArg, value, i, list)) return value;
+    }
+    return undefined;
+  };
+
+  if (Object.defineProperty) {
+    try {
+      Object.defineProperty(Array.prototype, 'find', {
+        value: find, configurable: true, enumerable: false, writable: true
+      });
+    } catch(e) {}
+  }
+
+  if (!Array.prototype.find) {
+    Array.prototype.find = find;
+  }
+})(this);
+
+},{}],2:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.5.6"
@@ -9503,7 +9538,7 @@
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -9632,7 +9667,7 @@
   exports.dsv = dsv;
 
 }));
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 if (typeof Map === "undefined") {
   Map = function() { this.clear(); };
   Map.prototype = {
@@ -10100,7 +10135,7 @@ if (typeof Map === "undefined") {
   exports.precisionRound = precisionRound;
 
 }));
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 if (typeof Map === "undefined") {
   Map = function() { this.clear(); };
   Map.prototype = {
@@ -11020,7 +11055,7 @@ if (typeof Map === "undefined") {
   exports.isoFormat = isoFormat;
 
 }));
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -11310,7 +11345,7 @@ if (typeof Map === "undefined") {
   exports.utcYear = utcYear;
 
 }));
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var util = require('../util'),
     Measures = require('./measures'),
     Collector = require('./collector');
@@ -11618,7 +11653,7 @@ proto._consolidate = function() {
 };
 
 module.exports = Aggregator;
-},{"../util":28,"./collector":7,"./measures":9}],7:[function(require,module,exports){
+},{"../util":29,"./collector":8,"./measures":10}],8:[function(require,module,exports){
 var util = require('../util');
 var stats = require('../stats');
 
@@ -11736,7 +11771,7 @@ proto.q3 = function(get) {
 
 module.exports = Collector;
 
-},{"../stats":25,"../util":28}],8:[function(require,module,exports){
+},{"../stats":26,"../util":29}],9:[function(require,module,exports){
 var util = require('../util');
 var Aggregator = require('./aggregator');
 
@@ -11751,7 +11786,7 @@ module.exports = function() {
     .summarize({'*':'values'});
 };
 
-},{"../util":28,"./aggregator":6}],9:[function(require,module,exports){
+},{"../util":29,"./aggregator":7}],10:[function(require,module,exports){
 var util = require('../util');
 
 var types = {
@@ -11933,7 +11968,7 @@ function create(agg, stream, accessor, mutator) {
 
 types.create = create;
 module.exports = types;
-},{"../stats":25,"../util":28}],10:[function(require,module,exports){
+},{"../stats":26,"../util":29}],11:[function(require,module,exports){
 var util = require('../util'),
     time = require('../time'),
     EPSILON = 1e-15;
@@ -12048,7 +12083,7 @@ bins.date = function(opt) {
 
 module.exports = bins;
 
-},{"../time":27,"../util":28}],11:[function(require,module,exports){
+},{"../time":28,"../util":29}],12:[function(require,module,exports){
 var bins = require('./bins'),
     gen  = require('../generate'),
     type = require('../import/type'),
@@ -12133,7 +12168,7 @@ module.exports = {
   $bin: $bin,
   histogram: histogram
 };
-},{"../generate":13,"../import/type":22,"../stats":25,"../util":28,"./bins":10}],12:[function(require,module,exports){
+},{"../generate":14,"../import/type":23,"../stats":26,"../util":29,"./bins":11}],13:[function(require,module,exports){
 var d3_time = require('d3-time'),
     d3_timeF = require('d3-time-format'),
     d3_numberF = require('d3-format'),
@@ -12283,7 +12318,7 @@ function utcAutoFormat() {
   };
 }
 
-},{"d3-format":3,"d3-time":5,"d3-time-format":4}],13:[function(require,module,exports){
+},{"d3-format":4,"d3-time":6,"d3-time-format":5}],14:[function(require,module,exports){
 var gen = module.exports = {};
 
 gen.repeat = function(val, n) {
@@ -12362,7 +12397,7 @@ gen.random.normal = function(mean, stdev) {
   f.samples = function(n) { return gen.zeros(n).map(f); };
   return f;
 };
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var util = require('../../util');
 var d3_dsv = require('d3-dsv');
 
@@ -12382,7 +12417,7 @@ dsv.delimiter = function(delim) {
 };
 
 module.exports = dsv;
-},{"../../util":28,"d3-dsv":2}],15:[function(require,module,exports){
+},{"../../util":29,"d3-dsv":3}],16:[function(require,module,exports){
 var dsv = require('./dsv');
 
 module.exports = {
@@ -12393,7 +12428,7 @@ module.exports = {
   csv: dsv.delimiter(','),
   tsv: dsv.delimiter('\t')
 };
-},{"./dsv":14,"./json":16,"./topojson":17,"./treejson":18}],16:[function(require,module,exports){
+},{"./dsv":15,"./json":17,"./topojson":18,"./treejson":19}],17:[function(require,module,exports){
 var util = require('../../util');
 
 module.exports = function(data, format) {
@@ -12405,7 +12440,7 @@ module.exports = function(data, format) {
   return d;
 };
 
-},{"../../util":28}],17:[function(require,module,exports){
+},{"../../util":29}],18:[function(require,module,exports){
 (function (global){
 var json = require('./json');
 
@@ -12436,7 +12471,7 @@ reader.topojson = (typeof window !== "undefined" ? window['topojson'] : typeof g
 module.exports = reader;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./json":16}],18:[function(require,module,exports){
+},{"./json":17}],19:[function(require,module,exports){
 var json = require('./json');
 
 module.exports = function(data, format) {
@@ -12461,7 +12496,7 @@ function toTable(root, childrenField) {
   visit(root, null);
   return (table.root = root, table);
 }
-},{"./json":16}],19:[function(require,module,exports){
+},{"./json":17}],20:[function(require,module,exports){
 // Matches absolute URLs with optional protocol
 //   https://...    file://...    //...
 var protocol_re = /^([A-Za-z]+:)?\/\//;
@@ -12629,7 +12664,7 @@ load.useXHR = (typeof XMLHttpRequest !== 'undefined');
 
 module.exports = load;
 
-},{"fs":30,"request":30,"sync-request":30,"url":30}],20:[function(require,module,exports){
+},{"fs":32,"request":32,"sync-request":32,"url":32}],21:[function(require,module,exports){
 var util = require('../util');
 var type = require('./type');
 var formats = require('./formats');
@@ -12660,7 +12695,7 @@ function parse(data, types) {
 read.formats = formats;
 module.exports = read;
 
-},{"../util":28,"./formats":15,"./type":22}],21:[function(require,module,exports){
+},{"../util":29,"./formats":16,"./type":23}],22:[function(require,module,exports){
 var util = require('../util');
 var load = require('./load');
 var read = require('./read');
@@ -12698,7 +12733,7 @@ module.exports = util
     return out;
   }, {});
 
-},{"../util":28,"./load":19,"./read":20}],22:[function(require,module,exports){
+},{"../util":29,"./load":20,"./read":21}],23:[function(require,module,exports){
 var util = require('../util');
 
 var TYPES = '__types__';
@@ -12789,7 +12824,7 @@ type.infer = infer;
 type.inferAll = inferAll;
 type.parsers = PARSERS;
 module.exports = type;
-},{"../util":28}],23:[function(require,module,exports){
+},{"../util":29}],24:[function(require,module,exports){
 var util = require('./util');
 
 var dl = {
@@ -12814,7 +12849,7 @@ util.extend(dl, require('./stats'));
 util.extend(dl, require('./import/readers'));
 
 module.exports = dl;
-},{"./aggregate/aggregator":6,"./aggregate/groupby":8,"./bins/bins":10,"./bins/histogram":11,"./format":12,"./generate":13,"./import/load":19,"./import/read":20,"./import/readers":21,"./import/type":22,"./print":24,"./stats":25,"./template":26,"./time":27,"./util":28}],24:[function(require,module,exports){
+},{"./aggregate/aggregator":7,"./aggregate/groupby":9,"./bins/bins":11,"./bins/histogram":12,"./format":13,"./generate":14,"./import/load":20,"./import/read":21,"./import/readers":22,"./import/type":23,"./print":25,"./stats":26,"./template":27,"./time":28,"./util":29}],25:[function(require,module,exports){
 var util = require('./util');
 var type = require('./import/type');
 var stats = require('./stats');
@@ -12913,7 +12948,7 @@ function printCategoricalProfile(p) {
     .map(function(v) { return ' \'' + v + '\' (' + u[v] + ')'; });
   return list.concat(top).join('\n');
 }
-},{"./import/type":22,"./stats":25,"./template":26,"./util":28}],25:[function(require,module,exports){
+},{"./import/type":23,"./stats":26,"./template":27,"./util":29}],26:[function(require,module,exports){
 var util = require('./util');
 var type = require('./import/type');
 var gen = require('./generate');
@@ -13402,7 +13437,7 @@ stats.summary = function(data, fields) {
 };
 
 module.exports = stats;
-},{"./generate":13,"./import/type":22,"./util":28}],26:[function(require,module,exports){
+},{"./generate":14,"./import/type":23,"./util":29}],27:[function(require,module,exports){
 var util = require('./util'),
     format = require('./format');
 
@@ -13620,7 +13655,7 @@ function template_format(pattern, key, fmt) {
   return context.format_map[key];
 }
 
-},{"./format":12,"./util":28}],27:[function(require,module,exports){
+},{"./format":13,"./util":29}],28:[function(require,module,exports){
 var d3_time = require('d3-time');
 
 var tempDate = new Date(),
@@ -13791,7 +13826,7 @@ function toUnitMap(units) {
 module.exports = toUnitMap(locale);
 module.exports.utc = toUnitMap(utc);
 
-},{"d3-time":5}],28:[function(require,module,exports){
+},{"d3-time":6}],29:[function(require,module,exports){
 var buffer = require('buffer'),
     time = require('./time'),
     utc = time.utc;
@@ -14109,7 +14144,7 @@ function truncateOnWord(s, len, rev) {
 
 var truncate_word_re = /([\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u2028\u2029\u3000\uFEFF])/;
 
-},{"./time":27,"buffer":30}],29:[function(require,module,exports){
+},{"./time":28,"buffer":32}],30:[function(require,module,exports){
 (function (process,global){
 /*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
@@ -15081,9 +15116,66 @@ var truncate_word_re = /([\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"_process":31}],30:[function(require,module,exports){
+},{"_process":33}],31:[function(require,module,exports){
+/*! http://mths.be/startswith v0.2.0 by @mathias */
+if (!String.prototype.startsWith) {
+	(function() {
+		'use strict'; // needed to support `apply`/`call` with `undefined`/`null`
+		var defineProperty = (function() {
+			// IE 8 only supports `Object.defineProperty` on DOM elements
+			try {
+				var object = {};
+				var $defineProperty = Object.defineProperty;
+				var result = $defineProperty(object, object, object) && $defineProperty;
+			} catch(error) {}
+			return result;
+		}());
+		var toString = {}.toString;
+		var startsWith = function(search) {
+			if (this == null) {
+				throw TypeError();
+			}
+			var string = String(this);
+			if (search && toString.call(search) == '[object RegExp]') {
+				throw TypeError();
+			}
+			var stringLength = string.length;
+			var searchString = String(search);
+			var searchLength = searchString.length;
+			var position = arguments.length > 1 ? arguments[1] : undefined;
+			// `ToInteger`
+			var pos = position ? Number(position) : 0;
+			if (pos != pos) { // better `isNaN`
+				pos = 0;
+			}
+			var start = Math.min(Math.max(pos, 0), stringLength);
+			// Avoid the `indexOf` call if no match is possible
+			if (searchLength + start > stringLength) {
+				return false;
+			}
+			var index = -1;
+			while (++index < searchLength) {
+				if (string.charCodeAt(start + index) != searchString.charCodeAt(index)) {
+					return false;
+				}
+			}
+			return true;
+		};
+		if (defineProperty) {
+			defineProperty(String.prototype, 'startsWith', {
+				'value': startsWith,
+				'configurable': true,
+				'writable': true
+			});
+		} else {
+			String.prototype.startsWith = startsWith;
+		}
+	}());
+}
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
+
+},{}],33:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -15176,7 +15268,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 // We package all external dependencies together, so re-expose them
 // for use from the js console.
 d3 = require('d3');
@@ -15185,11 +15277,13 @@ dl = vg.util;
 
 // Additional requires to polyfill + browserify package.
 require('es6-promise').polyfill();
-require('./vis/manipulators');
+require('array.prototype.find');
+require('string.prototype.startswith');
+require('./vis/transforms');
 
 // The Lyra State is our main API. 
 module.exports = require('./state');
-},{"./state":33,"./vis/manipulators":41,"d3":1,"es6-promise":29,"vega":46}],33:[function(require,module,exports){
+},{"./state":35,"./vis/transforms":45,"array.prototype.find":1,"d3":2,"es6-promise":30,"string.prototype.startswith":31,"vega":48}],35:[function(require,module,exports){
 var dl = require('datalib'),
     vg = require('vega'),
     Vis = require('../vis/Visualization'),
@@ -15211,9 +15305,13 @@ function manipulators() {
   return spec;
 }
 
-function parse() {
-  vg.parse.spec(manipulators(), function(chart) {
-    state.view = chart({ el: '#vis' }).update();
+function parse(el) {
+  el = (el === undefined) ? '#vis' : el;
+  return new Promise(function(resolve, reject) {
+    vg.parse.spec(manipulators(), function(chart) {
+      state.view = chart({ el: el }).update();
+      resolve('Parsed!');
+    });
   });
 }
 
@@ -15237,7 +15335,7 @@ module.exports = (state = {
 
   schema: require('./schema')
 });
-},{"../vis/Visualization":38,"./schema":34,"./signals":36,"datalib":23,"vega":46}],34:[function(require,module,exports){
+},{"../vis/Visualization":40,"./schema":36,"./signals":38,"datalib":24,"vega":48}],36:[function(require,module,exports){
 var vg = require('vega'),
     _schema = null;
 
@@ -15246,7 +15344,7 @@ module.exports = function() {
     url: 'http://vega.github.io/vega/vega-schema.json'
   })); 
 };
-},{"vega":46}],35:[function(require,module,exports){
+},{"vega":48}],37:[function(require,module,exports){
 var ns = require('./').ns,
     signals = {};
 
@@ -15302,7 +15400,7 @@ module.exports = {
   ANCHOR: ANCHOR,
   DELTA: DELTA
 };
-},{"./":36}],36:[function(require,module,exports){
+},{"./":38}],38:[function(require,module,exports){
 var dl = require('datalib'),
     NS = 'lyra_',
     signals, defaults;
@@ -15311,10 +15409,7 @@ var dl = require('datalib'),
 function ns(name) { return name.startsWith(NS) ? name : NS+name; }
 
 function init(name, val) {
-  name = ns(name);
-  if (arguments.length === 1) return signals[name];
-
-  signals[name] = {
+  signals[name=ns(name)] = {
     name: name, 
     init: val, 
     _idx: dl.keys(signals).length 
@@ -15336,11 +15431,10 @@ function value(name, val) {
   // or signal hasn't been registered yet with the view.
   try { 
     val = view.signal.apply(view, arguments); 
+    return set ? api : val;
   } catch (e) {
-    val = sg.init;
+    return set ? (sg.init=val, api) : sg.init;
   }
-
-  return set ? api : val;
 }
 
 // Stash current signal values from the view into our model
@@ -15377,7 +15471,7 @@ dl.extend(api, defaults=require('./defaults'));
 signals = api.signals;
 delete api.signals;
 delete api.names;
-},{"../":33,"./defaults":35,"datalib":23}],37:[function(require,module,exports){
+},{"../":35,"./defaults":37,"datalib":24}],39:[function(require,module,exports){
 var dl = require('datalib'),
     sg = require('./state/signals');
 
@@ -15406,7 +15500,7 @@ module.exports = {
     return 'if('+cond+','+t+','+f+')';
   }
 };
-},{"./state/signals":36,"datalib":23}],38:[function(require,module,exports){
+},{"./state/signals":38,"datalib":24}],40:[function(require,module,exports){
 var vg = require('vega'),
     sg = require('../state/signals'),
     Group = require('./primitives/marks/Group');
@@ -15451,125 +15545,7 @@ prototype.manipulators = function() {
 };
 
 module.exports = Visualization;
-},{"../state/signals":36,"./primitives/marks/Group":43,"vega":46}],39:[function(require,module,exports){
-var dl = require('datalib'),
-    vg = require('vega'),
-    df = vg.dataflow,
-    ChangeSet = df.ChangeSet,
-    Tuple = df.Tuple,
-    Deps = df.Dependencies,
-    Transform = vg.transforms.Transform,
-    sg = require('../../state/signals');    
-
-function Manipulators(graph) {
-  Transform.prototype.init.call(this, graph);
-  Transform.addParameters(this, {
-    name: {type: 'value'},
-    kind: {type: 'value'}
-  });
-
-  this._cacheID = null;
-  this._cache   = [];
-
-  return this.router(true).produces(true)
-    .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MANIPULATORS]);
-}
-
-var prototype = (Manipulators.prototype = Object.create(Transform.prototype));
-prototype.constructor = Manipulators;
-
-prototype.transform = function(input) {
-  var self = this,
-      g = this._graph,
-      sel = g.signal(sg.SELECTED).value(),
-      manip = g.signal(sg.MANIPULATORS).value(),
-      name = this.param('name'),
-      kind = this.param('kind'),
-      cache   = this._cache,
-      cacheID = this._cacheID,
-      output = ChangeSet.create(input);
-
-  // If we've selected another scenegraph item or changed the manipulator state, 
-  // remove any manipulators we added here.
-  if (cache.length && (cacheID !== sel._id || kind !== manip)) {
-    output.rem = cache.splice(0);
-  }
-
-  // If we don't correspond to the current selection, early exit
-  if ((sel && name !== sel.mark.name) || kind !== manip) {
-    return output;
-  }
-
-  // Manipulators should only be called on items that already exist
-  // on the scenegraph. Fetch the currently selected scenegraph item.
-  var item = input.mod.filter(function(x) {
-    return sel && x._id === sel._id;
-  })[0];
-
-  var tpls = this[kind](item).map(function(t) {
-    t.name = name;
-    t.kind = kind;
-    return t;
-  });
-
-  if (cache.length && cacheID === item._id) {
-    tpls.forEach(function(d, i) { dl.extend(cache[i], d); });
-    output.mod.push.apply(output.mod, cache);
-  } else {
-    this._cacheID = item._id;
-    cache.push.apply(cache, tpls.map(Tuple.ingest));
-    output.add.push.apply(output.add, cache);
-  }
-
-  return output;
-};
-
-prototype.handles = function(item) { return []; };
-
-module.exports = Manipulators;
-},{"../../state/signals":36,"datalib":23,"vega":46}],40:[function(require,module,exports){
-var Base = require('./Manipulators');
-
-function RectManipulators(graph) {
-  return Base.call(this, graph);
-}
-
-var prototype = (RectManipulators.prototype = Object.create(Base.prototype));
-prototype.constructor = RectManipulators;
-
-function coords(item) {
-  var b = item.bounds;
-  return {
-    topLeft:   {x: b.x1, y: b.y1, cursor: 'nw-resize'},
-    topCenter: {x: b.x1 + (b.width()/2), y: b.y1, cursor: 'n-resize'},
-    topRight:  {x: b.x2, y: b.y1, cursor: 'ne-resize'},
-    midLeft:   {x: b.x1, y: b.y1 + (b.height()/2), cursor: 'w-resize'},
-    midCenter: {x: b.x1 + (b.width()/2), y: b.y1 + (b.height()/2), cursor: 'move'},
-    midRight:  {x: b.x2, y: b.y1 + (b.height()/2), cursor: 'e-resize'},
-    bottomLeft:   {x: b.x1, y: b.y2, cursor: 'sw-resize'},
-    bottomCenter: {x: b.x1 + (b.width()/2), y: b.y2, cursor: 's-resize'},
-    bottomRight:  {x: b.x2, y: b.y2, cursor: 'se-resize'}
-  };
-}
-
-prototype.handles = function(item) {
-  var c = coords(item), data = [];
-  for (var k in c) {
-    if (k === 'midCenter') continue;
-    data.push(dl.extend(c[k], {key: k}));
-  }
-  return data;
-};
-
-vg.transforms['lyra.Manipulators.rect']  = RectManipulators;
-vg.transforms['lyra.Manipulators.group'] = RectManipulators;
-module.exports = RectManipulators;
-},{"./Manipulators":39}],41:[function(require,module,exports){
-module.exports = {
-  Rect:  require('./Rect'),
-  Group: require('./Rect')
-};
-},{"./Rect":40}],42:[function(require,module,exports){
+},{"../state/signals":38,"./primitives/marks/Group":42,"vega":48}],41:[function(require,module,exports){
 var dl = require('datalib'),
     vg = require('vega'),
     sg = require('../../state/signals');
@@ -15603,7 +15579,7 @@ prototype.export = function(resolve) {
 };
 
 module.exports = Primitive;
-},{"../../state/signals":36,"datalib":23,"vega":46}],43:[function(require,module,exports){
+},{"../../state/signals":38,"datalib":24,"vega":48}],42:[function(require,module,exports){
 var vg = require('vega'),
     Mark = require('./Mark');
 
@@ -15652,9 +15628,9 @@ prototype.child = function(type, name) {
   var markType = type === 'marks' && MARK_TYPES.indexOf(name) >= 0;
 
   if (name && !markType) { 
-    child = this[type].filter(function(c) {
+    child = this[type].find(function(c) {
       return c.name === name;
-    })[0];
+    });
   } else {
     child = new CHILDREN[markType ? name : type]();
     this[type].push(child.init());
@@ -15664,7 +15640,7 @@ prototype.child = function(type, name) {
 };
 
 module.exports = Group;
-},{"./Mark":44,"./Rect":45,"vega":46}],44:[function(require,module,exports){
+},{"./Mark":43,"./Rect":44,"vega":48}],43:[function(require,module,exports){
 var dl = require('datalib'),
     sg = require('../../../state/signals'),
     Primitive = require('../Primitive'),
@@ -15756,7 +15732,7 @@ prototype.manipulators = function() {
         from: {
           mark: self.name,
           transform: [{
-            type: 'lyra.Manipulators.'+self.type,
+            type: 'lyra_manipulators_'+self.type,
             name: self.name,
             kind: m.kind
           }]
@@ -15783,7 +15759,7 @@ prototype.manipulators = function() {
 prototype.handles = function() {};
 
 module.exports = Mark;
-},{"../../../state/signals":36,"../../../util":37,"../Primitive":42,"datalib":23}],45:[function(require,module,exports){
+},{"../../../state/signals":38,"../../../util":39,"../Primitive":41,"datalib":24}],44:[function(require,module,exports){
 var dl = require('datalib'),
     sg = require('../../../state/signals'),
     Mark = require('./Mark'),
@@ -15848,7 +15824,128 @@ prototype.handles = function() {
 };
 
 module.exports = Rect;
-},{"../../../state/signals":36,"../../../util":37,"./Mark":44,"datalib":23}],46:[function(require,module,exports){
+},{"../../../state/signals":38,"../../../util":39,"./Mark":43,"datalib":24}],45:[function(require,module,exports){
+var dl = require('datalib'),
+    vg = require('vega'),
+    t = module.exports = {};
+
+var MANIPULATORS = 'lyra_manipulators_';
+
+t[MANIPULATORS + 'rect']  = require('./manipulators/Rect');
+t[MANIPULATORS + 'group'] = require('./manipulators/Rect');
+dl.extend(vg.transforms, t);
+},{"./manipulators/Rect":47,"datalib":24,"vega":48}],46:[function(require,module,exports){
+var dl = require('datalib'),
+    vg = require('vega'),
+    df = vg.dataflow,
+    ChangeSet = df.ChangeSet,
+    Tuple = df.Tuple,
+    Deps = df.Dependencies,
+    Transform = vg.transforms.Transform,
+    sg = require('../../../state/signals');    
+
+function Manipulators(graph) {
+  Transform.prototype.init.call(this, graph);
+  Transform.addParameters(this, {
+    name: {type: 'value'},
+    kind: {type: 'value'}
+  });
+
+  this._cacheID = null;
+  this._cache   = [];
+
+  return this.router(true).produces(true)
+    .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MANIPULATORS]);
+}
+
+var prototype = (Manipulators.prototype = Object.create(Transform.prototype));
+prototype.constructor = Manipulators;
+
+prototype.transform = function(input) {
+  var self = this,
+      g = this._graph,
+      sel = g.signal(sg.SELECTED).value(),
+      manip = g.signal(sg.MANIPULATORS).value(),
+      name = this.param('name'),
+      kind = this.param('kind'),
+      cache   = this._cache,
+      cacheID = this._cacheID,
+      output = ChangeSet.create(input);
+
+  // If we've selected another scenegraph item or changed the manipulator state, 
+  // remove any manipulators we added here.
+  if (cache.length && (cacheID !== sel._id || kind !== manip)) {
+    output.rem = cache.splice(0);
+  }
+
+  // If we don't correspond to the current selection, early exit
+  if ((sel && name !== sel.mark.name) || kind !== manip) {
+    return output;
+  }
+
+  // Manipulators should only be called on items that already exist
+  // on the scenegraph. Fetch the currently selected scenegraph item.
+  var item = input.mod.find(function(x) {
+    return sel && x._id === sel._id;
+  });
+
+  var tpls = this[kind](item).map(function(t) {
+    t.name = name;
+    t.kind = kind;
+    return t;
+  });
+
+  if (cache.length && cacheID === item._id) {
+    tpls.forEach(function(d, i) { dl.extend(cache[i], d); });
+    output.mod.push.apply(output.mod, cache);
+  } else {
+    this._cacheID = item._id;
+    cache.push.apply(cache, tpls.map(Tuple.ingest));
+    output.add.push.apply(output.add, cache);
+  }
+
+  return output;
+};
+
+prototype.handles = function(item) { return []; };
+
+module.exports = Manipulators;
+},{"../../../state/signals":38,"datalib":24,"vega":48}],47:[function(require,module,exports){
+var Base = require('./Manipulators');
+
+function RectManipulators(graph) {
+  return Base.call(this, graph);
+}
+
+var prototype = (RectManipulators.prototype = Object.create(Base.prototype));
+prototype.constructor = RectManipulators;
+
+function coords(item) {
+  var b = item.bounds;
+  return {
+    topLeft:   {x: b.x1, y: b.y1, cursor: 'nw-resize'},
+    topCenter: {x: b.x1 + (b.width()/2), y: b.y1, cursor: 'n-resize'},
+    topRight:  {x: b.x2, y: b.y1, cursor: 'ne-resize'},
+    midLeft:   {x: b.x1, y: b.y1 + (b.height()/2), cursor: 'w-resize'},
+    midCenter: {x: b.x1 + (b.width()/2), y: b.y1 + (b.height()/2), cursor: 'move'},
+    midRight:  {x: b.x2, y: b.y1 + (b.height()/2), cursor: 'e-resize'},
+    bottomLeft:   {x: b.x1, y: b.y2, cursor: 'sw-resize'},
+    bottomCenter: {x: b.x1 + (b.width()/2), y: b.y2, cursor: 's-resize'},
+    bottomRight:  {x: b.x2, y: b.y2, cursor: 'se-resize'}
+  };
+}
+
+prototype.handles = function(item) {
+  var c = coords(item), data = [];
+  for (var k in c) {
+    if (k === 'midCenter') continue;
+    data.push(dl.extend(c[k], {key: k}));
+  }
+  return data;
+};
+
+module.exports = RectManipulators;
+},{"./Manipulators":46}],48:[function(require,module,exports){
 module.exports = {
   version: '2.2.6',
   dataflow: require('vega-dataflow'),
@@ -15865,37 +15962,37 @@ module.exports = {
   util:  require('datalib'),
   debug: require('vega-logging').debug
 };
-},{"./src/core/config":132,"./src/core/schema":133,"./src/parse/":139,"./src/scene/Bounder":151,"./src/scene/Builder":152,"./src/scene/Encoder":153,"./src/scene/GroupBuilder":154,"./src/transforms":183,"datalib":68,"vega-dataflow":83,"vega-logging":89}],47:[function(require,module,exports){
-arguments[4][2][0].apply(exports,arguments)
-},{"dup":2}],48:[function(require,module,exports){
+},{"./src/core/config":134,"./src/core/schema":135,"./src/parse/":141,"./src/scene/Bounder":153,"./src/scene/Builder":154,"./src/scene/Encoder":155,"./src/scene/GroupBuilder":156,"./src/transforms":185,"datalib":70,"vega-dataflow":85,"vega-logging":91}],49:[function(require,module,exports){
 arguments[4][3][0].apply(exports,arguments)
-},{"dup":3}],49:[function(require,module,exports){
+},{"dup":3}],50:[function(require,module,exports){
 arguments[4][4][0].apply(exports,arguments)
-},{"dup":4}],50:[function(require,module,exports){
+},{"dup":4}],51:[function(require,module,exports){
 arguments[4][5][0].apply(exports,arguments)
-},{"dup":5}],51:[function(require,module,exports){
+},{"dup":5}],52:[function(require,module,exports){
 arguments[4][6][0].apply(exports,arguments)
-},{"../util":73,"./collector":52,"./measures":54,"dup":6}],52:[function(require,module,exports){
+},{"dup":6}],53:[function(require,module,exports){
 arguments[4][7][0].apply(exports,arguments)
-},{"../stats":70,"../util":73,"dup":7}],53:[function(require,module,exports){
+},{"../util":75,"./collector":54,"./measures":56,"dup":7}],54:[function(require,module,exports){
 arguments[4][8][0].apply(exports,arguments)
-},{"../util":73,"./aggregator":51,"dup":8}],54:[function(require,module,exports){
+},{"../stats":72,"../util":75,"dup":8}],55:[function(require,module,exports){
 arguments[4][9][0].apply(exports,arguments)
-},{"../stats":70,"../util":73,"dup":9}],55:[function(require,module,exports){
+},{"../util":75,"./aggregator":53,"dup":9}],56:[function(require,module,exports){
 arguments[4][10][0].apply(exports,arguments)
-},{"../time":72,"../util":73,"dup":10}],56:[function(require,module,exports){
+},{"../stats":72,"../util":75,"dup":10}],57:[function(require,module,exports){
 arguments[4][11][0].apply(exports,arguments)
-},{"../generate":58,"../import/type":67,"../stats":70,"../util":73,"./bins":55,"dup":11}],57:[function(require,module,exports){
+},{"../time":74,"../util":75,"dup":11}],58:[function(require,module,exports){
 arguments[4][12][0].apply(exports,arguments)
-},{"d3-format":48,"d3-time":50,"d3-time-format":49,"dup":12}],58:[function(require,module,exports){
+},{"../generate":60,"../import/type":69,"../stats":72,"../util":75,"./bins":57,"dup":12}],59:[function(require,module,exports){
 arguments[4][13][0].apply(exports,arguments)
-},{"dup":13}],59:[function(require,module,exports){
+},{"d3-format":50,"d3-time":52,"d3-time-format":51,"dup":13}],60:[function(require,module,exports){
 arguments[4][14][0].apply(exports,arguments)
-},{"../../util":73,"d3-dsv":47,"dup":14}],60:[function(require,module,exports){
+},{"dup":14}],61:[function(require,module,exports){
 arguments[4][15][0].apply(exports,arguments)
-},{"./dsv":59,"./json":61,"./topojson":62,"./treejson":63,"dup":15}],61:[function(require,module,exports){
+},{"../../util":75,"d3-dsv":49,"dup":15}],62:[function(require,module,exports){
 arguments[4][16][0].apply(exports,arguments)
-},{"../../util":73,"dup":16}],62:[function(require,module,exports){
+},{"./dsv":61,"./json":63,"./topojson":64,"./treejson":65,"dup":16}],63:[function(require,module,exports){
+arguments[4][17][0].apply(exports,arguments)
+},{"../../util":75,"dup":17}],64:[function(require,module,exports){
 (function (global){
 var json = require('./json');
 
@@ -15926,29 +16023,29 @@ reader.topojson = (typeof window !== "undefined" ? window['topojson'] : typeof g
 module.exports = reader;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./json":61}],63:[function(require,module,exports){
-arguments[4][18][0].apply(exports,arguments)
-},{"./json":61,"dup":18}],64:[function(require,module,exports){
+},{"./json":63}],65:[function(require,module,exports){
 arguments[4][19][0].apply(exports,arguments)
-},{"dup":19,"fs":30,"request":30,"sync-request":30,"url":30}],65:[function(require,module,exports){
+},{"./json":63,"dup":19}],66:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"../util":73,"./formats":60,"./type":67,"dup":20}],66:[function(require,module,exports){
+},{"dup":20,"fs":32,"request":32,"sync-request":32,"url":32}],67:[function(require,module,exports){
 arguments[4][21][0].apply(exports,arguments)
-},{"../util":73,"./load":64,"./read":65,"dup":21}],67:[function(require,module,exports){
+},{"../util":75,"./formats":62,"./type":69,"dup":21}],68:[function(require,module,exports){
 arguments[4][22][0].apply(exports,arguments)
-},{"../util":73,"dup":22}],68:[function(require,module,exports){
+},{"../util":75,"./load":66,"./read":67,"dup":22}],69:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"./aggregate/aggregator":51,"./aggregate/groupby":53,"./bins/bins":55,"./bins/histogram":56,"./format":57,"./generate":58,"./import/load":64,"./import/read":65,"./import/readers":66,"./import/type":67,"./print":69,"./stats":70,"./template":71,"./time":72,"./util":73,"dup":23}],69:[function(require,module,exports){
+},{"../util":75,"dup":23}],70:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"./import/type":67,"./stats":70,"./template":71,"./util":73,"dup":24}],70:[function(require,module,exports){
+},{"./aggregate/aggregator":53,"./aggregate/groupby":55,"./bins/bins":57,"./bins/histogram":58,"./format":59,"./generate":60,"./import/load":66,"./import/read":67,"./import/readers":68,"./import/type":69,"./print":71,"./stats":72,"./template":73,"./time":74,"./util":75,"dup":24}],71:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./generate":58,"./import/type":67,"./util":73,"dup":25}],71:[function(require,module,exports){
+},{"./import/type":69,"./stats":72,"./template":73,"./util":75,"dup":25}],72:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"./format":57,"./util":73,"dup":26}],72:[function(require,module,exports){
+},{"./generate":60,"./import/type":69,"./util":75,"dup":26}],73:[function(require,module,exports){
 arguments[4][27][0].apply(exports,arguments)
-},{"d3-time":50,"dup":27}],73:[function(require,module,exports){
+},{"./format":59,"./util":75,"dup":27}],74:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"./time":72,"buffer":30,"dup":28}],74:[function(require,module,exports){
+},{"d3-time":52,"dup":28}],75:[function(require,module,exports){
+arguments[4][29][0].apply(exports,arguments)
+},{"./time":74,"buffer":32,"dup":29}],76:[function(require,module,exports){
 var DEPS = require('./Dependencies').ALL;
 
 function create(cs, reflow) {
@@ -15980,7 +16077,7 @@ module.exports = {
   create: create,
   copy: copy
 };
-},{"./Dependencies":77}],75:[function(require,module,exports){
+},{"./Dependencies":79}],77:[function(require,module,exports){
 var log = require('vega-logging'),
     Tuple = require('./Tuple'),
     Base = require('./Node').prototype;
@@ -16023,7 +16120,7 @@ prototype.evaluate = function(input) {
 };
 
 module.exports = Collector;
-},{"./Node":80,"./Tuple":82,"vega-logging":89}],76:[function(require,module,exports){
+},{"./Node":82,"./Tuple":84,"vega-logging":91}],78:[function(require,module,exports){
 var log = require('vega-logging'),
     ChangeSet = require('./ChangeSet'), 
     Collector = require('./Collector'),
@@ -16277,13 +16374,13 @@ function DataSourceListener(ds) {
 
 module.exports = DataSource;
 
-},{"./ChangeSet":74,"./Collector":75,"./Node":80,"./Tuple":82,"vega-logging":89}],77:[function(require,module,exports){
+},{"./ChangeSet":76,"./Collector":77,"./Node":82,"./Tuple":84,"vega-logging":91}],79:[function(require,module,exports){
 var deps = module.exports = {
   ALL: ['data', 'fields', 'scales', 'signals']
 };
 deps.ALL.forEach(function(k) { deps[k.toUpperCase()] = k; });
 
-},{}],78:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 var dl = require('datalib'),
     Heap = require('./Heap'),
     ChangeSet = require('./ChangeSet'),
@@ -16566,7 +16663,7 @@ prototype.evaluate = function(pulse, node) {
 
 module.exports = Graph;
 
-},{"./ChangeSet":74,"./Collector":75,"./DataSource":76,"./Dependencies":77,"./Heap":79,"./Signal":81,"./Tuple":82,"datalib":68}],79:[function(require,module,exports){
+},{"./ChangeSet":76,"./Collector":77,"./DataSource":78,"./Dependencies":79,"./Heap":81,"./Signal":83,"./Tuple":84,"datalib":70}],81:[function(require,module,exports){
 function Heap(comparator) {
   this.cmp = comparator;
   this.nodes = [];
@@ -16663,7 +16760,7 @@ function _siftup(array, idx, cmp) {
 
 module.exports = Heap;
 
-},{}],80:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 var DEPS = require('./Dependencies').ALL,
     nodeID = 0;
 
@@ -16854,7 +16951,7 @@ Node.reset = function() { nodeID = 0; };
 
 module.exports = Node;
 
-},{"./Dependencies":77}],81:[function(require,module,exports){
+},{"./Dependencies":79}],83:[function(require,module,exports){
 var ChangeSet = require('./ChangeSet'),
     Node = require('./Node'), // jshint ignore:line
     Base = Node.prototype;
@@ -16930,7 +17027,7 @@ prototype.off = function(handler) {
 
 module.exports = Signal;
 
-},{"./ChangeSet":74,"./Node":80}],82:[function(require,module,exports){
+},{"./ChangeSet":76,"./Node":82}],84:[function(require,module,exports){
 var tupleID = 0;
 
 function ingest(datum) {
@@ -17000,7 +17097,7 @@ module.exports = {
   }
 };
 
-},{}],83:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 module.exports = {
   ChangeSet:    require('./ChangeSet'),
   Collector:    require('./Collector'),
@@ -17013,7 +17110,7 @@ module.exports = {
   debug:        require('vega-logging').debug
 };
 
-},{"./ChangeSet":74,"./Collector":75,"./DataSource":76,"./Dependencies":77,"./Graph":78,"./Node":80,"./Signal":81,"./Tuple":82,"vega-logging":89}],84:[function(require,module,exports){
+},{"./ChangeSet":76,"./Collector":77,"./DataSource":78,"./Dependencies":79,"./Graph":80,"./Node":82,"./Signal":83,"./Tuple":84,"vega-logging":91}],86:[function(require,module,exports){
 function toMap(list) {
   var map = {}, i, n;
   for (i=0, n=list.length; i<n; ++i) map[list[i]] = 1;
@@ -17148,7 +17245,7 @@ module.exports = function(opt) {
   return codegen_wrap;
 };
 
-},{"./constants":85,"./functions":86}],85:[function(require,module,exports){
+},{"./constants":87,"./functions":88}],87:[function(require,module,exports){
 module.exports = {
   'NaN':     'NaN',
   'E':       'Math.E',
@@ -17160,7 +17257,7 @@ module.exports = {
   'SQRT1_2': 'Math.SQRT1_2',
   'SQRT2':   'Math.SQRT2'
 };
-},{}],86:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 module.exports = function(codegen) {
 
   function fncall(name, args, cast, type) {
@@ -17266,7 +17363,7 @@ module.exports = function(codegen) {
       }
   };
 };
-},{}],87:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 var parser = require('./parser'),
     codegen = require('./codegen');
     
@@ -17294,7 +17391,7 @@ var expr = module.exports = {
   constants: require('./constants')
 };
 
-},{"./codegen":84,"./constants":85,"./functions":86,"./parser":88}],88:[function(require,module,exports){
+},{"./codegen":86,"./constants":87,"./functions":88,"./parser":90}],90:[function(require,module,exports){
 /*
   The following expression parser is based on Esprima (http://esprima.org/).
   Original header comment and license for Esprima is included here:
@@ -19622,7 +19719,7 @@ module.exports = (function() {
   };
 
 })();
-},{}],89:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 var ts = Date.now();
 
 function write(msg) {
@@ -19660,7 +19757,7 @@ module.exports = {
   debug: (debug.enable = false, debug)
 };
 
-},{}],90:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 module.exports = {
   path:       require('./path'),
   render:     require('./render'),
@@ -19671,7 +19768,7 @@ module.exports = {
   toJSON:     require('./util/scene').toJSON,
   fromJSON:   require('./util/scene').fromJSON
 };
-},{"./path":92,"./render":112,"./util/Bounds":118,"./util/Gradient":120,"./util/Item":122,"./util/bound":123,"./util/scene":126}],91:[function(require,module,exports){
+},{"./path":94,"./render":114,"./util/Bounds":120,"./util/Gradient":122,"./util/Item":124,"./util/bound":125,"./util/scene":128}],93:[function(require,module,exports){
 var segmentCache = {},
     bezierCache = {},
     join = [].join;
@@ -19786,13 +19883,13 @@ module.exports = {
   }
 };
 
-},{}],92:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 module.exports = {
   parse:  require('./parse'),
   render: require('./render')
 };
 
-},{"./parse":93,"./render":94}],93:[function(require,module,exports){
+},{"./parse":95,"./render":96}],95:[function(require,module,exports){
 // Path parsing and rendering code adapted from fabric.js -- Thanks!
 var cmdlen = { m:2, l:2, h:1, v:1, c:6, s:4, q:4, t:2, a:7 },
     regexp = [/([MLHVCSQTAZmlhvcsqtaz])/g, /###/, /(\d)([-+])/g, /\s|,|###/];
@@ -19843,7 +19940,7 @@ module.exports = function(pathstr) {
   return result;
 };
 
-},{}],94:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 var arc = require('./arc');
 
 module.exports = function(g, path, l, t) {
@@ -20139,7 +20236,7 @@ function drawArc(g, x, y, coords) {
   }
 }
 
-},{"./arc":91}],95:[function(require,module,exports){
+},{"./arc":93}],97:[function(require,module,exports){
 function Handler() {
   this._active = null;
   this._handlers = {};
@@ -20189,7 +20286,7 @@ prototype.eventName = function(name) {
 };
 
 module.exports = Handler;
-},{}],96:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 function Renderer() {
   this._el = null;
   this._bgcolor = null;
@@ -20231,7 +20328,7 @@ prototype.render = function(/*scene, items*/) {
 };
 
 module.exports = Renderer;
-},{}],97:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 var DOM = require('../../util/dom'),
     Handler = require('../Handler'),
     marks = require('./marks');
@@ -20405,7 +20502,7 @@ prototype.pick = function(scene, x, y, gx, gy) {
 
 module.exports = CanvasHandler;
 
-},{"../../util/dom":125,"../Handler":95,"./marks":104}],98:[function(require,module,exports){
+},{"../../util/dom":127,"../Handler":97,"./marks":106}],100:[function(require,module,exports){
 var DOM = require('../../util/dom'),
     Bounds = require('../../util/Bounds'),
     ImageLoader = require('../../util/ImageLoader'),
@@ -20543,12 +20640,12 @@ prototype.renderAsync = function(scene) {
 
 module.exports = CanvasRenderer;
 
-},{"../../util/Bounds":118,"../../util/ImageLoader":121,"../../util/canvas":124,"../../util/dom":125,"../Renderer":96,"./marks":104}],99:[function(require,module,exports){
+},{"../../util/Bounds":120,"../../util/ImageLoader":123,"../../util/canvas":126,"../../util/dom":127,"../Renderer":98,"./marks":106}],101:[function(require,module,exports){
 module.exports = {
   Handler:  require('./CanvasHandler'),
   Renderer: require('./CanvasRenderer')
 };
-},{"./CanvasHandler":97,"./CanvasRenderer":98}],100:[function(require,module,exports){
+},{"./CanvasHandler":99,"./CanvasRenderer":100}],102:[function(require,module,exports){
 var util = require('./util');
 var halfpi = Math.PI / 2;
 
@@ -20570,7 +20667,7 @@ module.exports = {
   draw: util.drawAll(path),
   pick: util.pickPath(path)
 };
-},{"./util":111}],101:[function(require,module,exports){
+},{"./util":113}],103:[function(require,module,exports){
 var util = require('./util'),
     parse = require('../../../path/parse'),
     render = require('../../../path/render'),
@@ -20605,7 +20702,7 @@ module.exports = {
   nested: true
 };
 
-},{"../../../path/parse":93,"../../../path/render":94,"../../../util/svg":127,"./util":111}],102:[function(require,module,exports){
+},{"../../../path/parse":95,"../../../path/render":96,"../../../util/svg":129,"./util":113}],104:[function(require,module,exports){
 var util = require('./util'),
     rect = require('./rect');
 
@@ -20699,7 +20796,7 @@ module.exports = {
   pick: pick
 };
 
-},{"./rect":107,"./util":111}],103:[function(require,module,exports){
+},{"./rect":109,"./util":113}],105:[function(require,module,exports){
 var util = require('./util');
 
 function draw(g, scene, bounds) {
@@ -20737,7 +20834,7 @@ module.exports = {
   draw: draw,
   pick: util.pick()
 };
-},{"./util":111}],104:[function(require,module,exports){
+},{"./util":113}],106:[function(require,module,exports){
 module.exports = {
   arc:    require('./arc'),
   area:   require('./area'),
@@ -20751,7 +20848,7 @@ module.exports = {
   text:   require('./text')
 };
 
-},{"./arc":100,"./area":101,"./group":102,"./image":103,"./line":105,"./path":106,"./rect":107,"./rule":108,"./symbol":109,"./text":110}],105:[function(require,module,exports){
+},{"./arc":102,"./area":103,"./group":104,"./image":105,"./line":107,"./path":108,"./rect":109,"./rule":110,"./symbol":111,"./text":112}],107:[function(require,module,exports){
 var util = require('./util'),
     parse = require('../../../path/parse'),
     render = require('../../../path/render'),
@@ -20786,7 +20883,7 @@ module.exports = {
   nested: true
 };
 
-},{"../../../path/parse":93,"../../../path/render":94,"../../../util/svg":127,"./util":111}],106:[function(require,module,exports){
+},{"../../../path/parse":95,"../../../path/render":96,"../../../util/svg":129,"./util":113}],108:[function(require,module,exports){
 var util = require('./util'),
     parse = require('../../../path/parse'),
     render = require('../../../path/render');
@@ -20802,7 +20899,7 @@ module.exports = {
   pick: util.pickPath(path)
 };
 
-},{"../../../path/parse":93,"../../../path/render":94,"./util":111}],107:[function(require,module,exports){
+},{"../../../path/parse":95,"../../../path/render":96,"./util":113}],109:[function(require,module,exports){
 var util = require('./util');
 
 function draw(g, scene, bounds) {
@@ -20837,7 +20934,7 @@ module.exports = {
   draw: draw,
   pick: util.pick()
 };
-},{"./util":111}],108:[function(require,module,exports){
+},{"./util":113}],110:[function(require,module,exports){
 var util = require('./util');
 
 function draw(g, scene, bounds) {
@@ -20894,7 +20991,7 @@ module.exports = {
   pick: util.pick(hit)
 };
 
-},{"./util":111}],109:[function(require,module,exports){
+},{"./util":113}],111:[function(require,module,exports){
 var util = require('./util');
 
 var sqrt3 = Math.sqrt(3),
@@ -20968,7 +21065,7 @@ module.exports = {
   draw: util.drawAll(path),
   pick: util.pickPath(path)
 };
-},{"./util":111}],110:[function(require,module,exports){
+},{"./util":113}],112:[function(require,module,exports){
 var Bounds = require('../../../util/Bounds'),
     textBounds = require('../../../util/bound').text,
     text = require('../../../util/text'),
@@ -21043,7 +21140,7 @@ module.exports = {
   pick: util.pick(hit)
 };
 
-},{"../../../util/Bounds":118,"../../../util/bound":123,"../../../util/text":128,"./util":111}],111:[function(require,module,exports){
+},{"../../../util/Bounds":120,"../../../util/bound":125,"../../../util/text":130,"./util":113}],113:[function(require,module,exports){
 function drawPathOne(path, g, o, items) {
   if (path(g, items)) return;
 
@@ -21192,13 +21289,13 @@ module.exports = {
   gradient: gradient
 };
 
-},{}],112:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 module.exports = {
   'canvas': require('./canvas'),
   'svg':    require('./svg')
 };
 
-},{"./canvas":99,"./svg":116}],113:[function(require,module,exports){
+},{"./canvas":101,"./svg":118}],115:[function(require,module,exports){
 var DOM = require('../../util/dom'),
     Handler = require('../Handler');
 
@@ -21264,7 +21361,7 @@ prototype.off = function(type, handler) {
 
 module.exports = SVGHandler;
 
-},{"../../util/dom":125,"../Handler":95}],114:[function(require,module,exports){
+},{"../../util/dom":127,"../Handler":97}],116:[function(require,module,exports){
 var ImageLoader = require('../../util/ImageLoader'),
     Renderer = require('../Renderer'),
     text = require('../../util/text'),
@@ -21687,7 +21784,7 @@ prototype.style = function(el, o) {
 
 module.exports = SVGRenderer;
 
-},{"../../util/ImageLoader":121,"../../util/dom":125,"../../util/svg":127,"../../util/text":128,"../Renderer":96,"./marks":117}],115:[function(require,module,exports){
+},{"../../util/ImageLoader":123,"../../util/dom":127,"../../util/svg":129,"../../util/text":130,"../Renderer":98,"./marks":119}],117:[function(require,module,exports){
 var Renderer = require('../Renderer'),
     ImageLoader = require('../../util/ImageLoader'),
     SVG = require('../../util/svg'),
@@ -21931,7 +22028,7 @@ function escape_text(s) {
 
 module.exports = SVGStringRenderer;
 
-},{"../../util/ImageLoader":121,"../../util/dom":125,"../../util/svg":127,"../../util/text":128,"../Renderer":96,"./marks":117}],116:[function(require,module,exports){
+},{"../../util/ImageLoader":123,"../../util/dom":127,"../../util/svg":129,"../../util/text":130,"../Renderer":98,"./marks":119}],118:[function(require,module,exports){
 module.exports = {
   Handler:  require('./SVGHandler'),
   Renderer: require('./SVGRenderer'),
@@ -21939,7 +22036,7 @@ module.exports = {
     Renderer : require('./SVGStringRenderer')
   }
 };
-},{"./SVGHandler":113,"./SVGRenderer":114,"./SVGStringRenderer":115}],117:[function(require,module,exports){
+},{"./SVGHandler":115,"./SVGRenderer":116,"./SVGStringRenderer":117}],119:[function(require,module,exports){
 var text = require('../../util/text'),
     SVG = require('../../util/svg'),
     textAlign = SVG.textAlign,
@@ -22086,7 +22183,7 @@ module.exports = {
   }
 };
 
-},{"../../util/svg":127,"../../util/text":128}],118:[function(require,module,exports){
+},{"../../util/svg":129,"../../util/text":130}],120:[function(require,module,exports){
 function Bounds(b) {
   this.clear();
   if (b) this.union(b);
@@ -22206,7 +22303,7 @@ prototype.height = function() {
 
 module.exports = Bounds;
 
-},{}],119:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 module.exports = function(b) {
   function noop() { }
   function add(x,y) { b.add(x, y); }
@@ -22232,7 +22329,7 @@ module.exports = function(b) {
   };
 };
 
-},{}],120:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 var gradient_id = 0;
 
 function Gradient(type) {
@@ -22256,7 +22353,7 @@ prototype.stop = function(offset, color) {
 };
 
 module.exports = Gradient;
-},{}],121:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 (function (global){
 var load = require('datalib/src/import/load');
 
@@ -22336,7 +22433,7 @@ module.exports = ImageLoader;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"datalib/src/import/load":64}],122:[function(require,module,exports){
+},{"datalib/src/import/load":66}],124:[function(require,module,exports){
 function Item(mark) {
   this.mark = mark;
 }
@@ -22385,7 +22482,7 @@ prototype.touch = function() {
 };
 
 module.exports = Item;
-},{}],123:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 var BoundsContext = require('./BoundsContext'),
     Bounds = require('./Bounds'),
     canvas = require('./canvas'),
@@ -22680,7 +22777,7 @@ module.exports = {
   group: group
 };
 
-},{"../path":92,"./Bounds":118,"./BoundsContext":119,"./canvas":124,"./svg":127,"./text":128}],124:[function(require,module,exports){
+},{"../path":94,"./Bounds":120,"./BoundsContext":121,"./canvas":126,"./svg":129,"./text":130}],126:[function(require,module,exports){
 (function (global){
 function instance(w, h) {
   w = w || 1;
@@ -22774,7 +22871,7 @@ module.exports = {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],125:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 // create a new DOM element
 function create(doc, tag, ns) {
   return ns ? doc.createElementNS(ns, tag) : doc.createElement(tag);
@@ -22852,7 +22949,7 @@ module.exports = {
   }
 };
 
-},{}],126:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 var bound = require('../util/bound');
 
 var sets = [
@@ -22910,7 +23007,7 @@ module.exports = {
   toJSON:   toJSON,
   fromJSON: fromJSON
 };
-},{"../util/bound":123}],127:[function(require,module,exports){
+},{"../util/bound":125}],129:[function(require,module,exports){
 (function (global){
 var d3_svg = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null).svg;
 
@@ -22985,7 +23082,7 @@ module.exports = {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],128:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 function size(item) {
   return item.fontSize != null ? item.fontSize : 11;
 }
@@ -23020,7 +23117,7 @@ module.exports = {
   }
 };
 
-},{}],129:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 var sg = require('vega-scenegraph').render,
     canvas = sg.canvas,
     svg = sg.svg.string,
@@ -23084,7 +23181,7 @@ prototype.initialize = function() {
 };
 
 module.exports = HeadlessView;
-},{"./View":131,"vega-scenegraph":90}],130:[function(require,module,exports){
+},{"./View":133,"vega-scenegraph":92}],132:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     ChangeSet = df.ChangeSet,
@@ -23220,7 +23317,7 @@ prototype.fire = function(cs) {
 };
 
 module.exports = Model;
-},{"../scene/GroupBuilder":154,"../scene/visit":159,"./config":132,"datalib":68,"vega-dataflow":83}],131:[function(require,module,exports){
+},{"../scene/GroupBuilder":156,"../scene/visit":161,"./config":134,"datalib":70,"vega-dataflow":85}],133:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -23666,7 +23763,7 @@ View.factory = function(model) {
 module.exports = View;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"../parse/streams":149,"../scene/Encoder":153,"../scene/Transition":156,"./HeadlessView":129,"datalib":68,"vega-dataflow":83,"vega-logging":89,"vega-scenegraph":90}],132:[function(require,module,exports){
+},{"../parse/streams":151,"../scene/Encoder":155,"../scene/Transition":158,"./HeadlessView":131,"datalib":70,"vega-dataflow":85,"vega-logging":91,"vega-scenegraph":92}],134:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     config = {};
@@ -23770,7 +23867,7 @@ config.range = {
 module.exports = config;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],133:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 var dl = require('datalib'),
     parse = require('../parse'),
     Scale = require('../scene/Scale'),
@@ -23817,7 +23914,7 @@ module.exports = function(opt) {
 
   return schema;
 };
-},{"../parse":139,"../scene/Scale":155,"./config":132,"datalib":68}],134:[function(require,module,exports){
+},{"../parse":141,"../scene/Scale":157,"./config":134,"datalib":70}],136:[function(require,module,exports){
 var dl = require('datalib'),
     axs = require('../scene/axis');
 
@@ -23903,7 +24000,7 @@ function parseAxis(config, def, index, axis, group) {
 }
 
 module.exports = parseAxes;
-},{"../scene/axis":157,"datalib":68}],135:[function(require,module,exports){
+},{"../scene/axis":159,"datalib":70}],137:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null);
 
@@ -23917,7 +24014,7 @@ function parseBg(bg) {
 module.exports = parseBg;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],136:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     parseTransforms = require('./transforms'),
@@ -23972,7 +24069,7 @@ parseData.datasource = function(model, d) {
 };
 
 module.exports = parseData;
-},{"./modify":143,"./transforms":150,"datalib":68,"vega-logging":89}],137:[function(require,module,exports){
+},{"./modify":145,"./transforms":152,"datalib":70,"vega-logging":91}],139:[function(require,module,exports){
 module.exports = (function() {
   /*
    * Generated by PEG.js 0.8.0.
@@ -25082,7 +25179,7 @@ module.exports = (function() {
     parse:       parse
   };
 })();
-},{}],138:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 var expr = require('vega-expression'),
     args = ['datum', 'event', 'signals'];
 
@@ -25100,7 +25197,7 @@ module.exports = expr.compiler(args, {
     return fn;
   }
 });
-},{"vega-expression":87}],139:[function(require,module,exports){
+},{"vega-expression":89}],141:[function(require,module,exports){
 module.exports = {
   axes: require('./axes'),
   background: require('./background'),
@@ -25119,7 +25216,7 @@ module.exports = {
   streams: require('./streams'),
   transforms: require('./transforms')
 };
-},{"./axes":134,"./background":135,"./data":136,"./events":137,"./expr":138,"./legends":140,"./mark":141,"./marks":142,"./modify":143,"./padding":144,"./predicates":145,"./properties":146,"./signals":147,"./spec":148,"./streams":149,"./transforms":150}],140:[function(require,module,exports){
+},{"./axes":136,"./background":137,"./data":138,"./events":139,"./expr":140,"./legends":142,"./mark":143,"./marks":144,"./modify":145,"./padding":146,"./predicates":147,"./properties":148,"./signals":149,"./spec":150,"./streams":151,"./transforms":152}],142:[function(require,module,exports){
 var lgnd = require('../scene/legend');
 
 function parseLegends(model, spec, legends, group) {
@@ -25161,7 +25258,7 @@ function parseLegend(def, index, legend, group) {
 }
 
 module.exports = parseLegends;
-},{"../scene/legend":158}],141:[function(require,module,exports){
+},{"../scene/legend":160}],143:[function(require,module,exports){
 var dl = require('datalib'),
     parseProperties = require('./properties');
 
@@ -25188,7 +25285,7 @@ function parseMark(model, mark) {
 }
 
 module.exports = parseMark;
-},{"./properties":146,"datalib":68}],142:[function(require,module,exports){
+},{"./properties":148,"datalib":70}],144:[function(require,module,exports){
 var parseMark = require('./mark');
 
 function parseRootMark(model, spec, width, height) {
@@ -25204,7 +25301,7 @@ function parseRootMark(model, spec, width, height) {
 }
 
 module.exports = parseRootMark;
-},{"./mark":141}],143:[function(require,module,exports){
+},{"./mark":143}],145:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     df = require('vega-dataflow'),
@@ -25297,7 +25394,7 @@ function parseModify(model, def, ds) {
 }
 
 module.exports = parseModify;
-},{"datalib":68,"vega-dataflow":83,"vega-logging":89}],144:[function(require,module,exports){
+},{"datalib":70,"vega-dataflow":85,"vega-logging":91}],146:[function(require,module,exports){
 var dl = require('datalib');
 
 function parsePadding(pad) {
@@ -25309,7 +25406,7 @@ function parsePadding(pad) {
 }
 
 module.exports = parsePadding;
-},{"datalib":68}],145:[function(require,module,exports){
+},{"datalib":70}],147:[function(require,module,exports){
 var dl = require('datalib');
 
 var types = {
@@ -25504,7 +25601,7 @@ function parseScale(spec, ops) {
 }
 
 module.exports = parsePredicates;
-},{"datalib":68}],146:[function(require,module,exports){
+},{"datalib":70}],148:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -25868,7 +25965,7 @@ function scaleRef(ref) {
 module.exports = properties;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"datalib":68,"vega-dataflow":83,"vega-logging":89}],147:[function(require,module,exports){
+},{"datalib":70,"vega-dataflow":85,"vega-logging":91}],149:[function(require,module,exports){
 var dl = require('datalib'),
     SIGNALS = require('vega-dataflow').Dependencies.SIGNALS,
     expr = require('./expr');
@@ -25942,7 +26039,7 @@ parseSignals.scale = function scale(model, spec, value, datum, evt) {
 };
 
 module.exports = parseSignals;
-},{"./expr":138,"datalib":68,"vega-dataflow":83}],148:[function(require,module,exports){
+},{"./expr":140,"datalib":70,"vega-dataflow":85}],150:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     Model = require('../core/Model'),
@@ -25999,7 +26096,7 @@ function parseSpec(spec, callback) {
 }
 
 module.exports = parseSpec;
-},{"../core/Model":130,"../core/View":131,"./":139,"datalib":68,"vega-logging":89}],149:[function(require,module,exports){
+},{"../core/Model":132,"../core/View":133,"./":141,"datalib":70,"vega-logging":91}],151:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -26232,7 +26329,7 @@ function parseStreams(view) {
 module.exports = parseStreams;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./events":137,"./expr":138,"./signals":147,"datalib":68,"vega-dataflow":83}],150:[function(require,module,exports){
+},{"./events":139,"./expr":140,"./signals":149,"datalib":70,"vega-dataflow":85}],152:[function(require,module,exports){
 var dl = require('datalib'),
     transforms = require('../transforms/index');
 
@@ -26252,7 +26349,7 @@ function parseTransforms(model, def) {
 }
 
 module.exports = parseTransforms;
-},{"../transforms/index":183,"datalib":68}],151:[function(require,module,exports){
+},{"../transforms/index":185,"datalib":70}],153:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     Node = df.Node, // jshint ignore:line
@@ -26305,7 +26402,7 @@ proto.evaluate = function(input) {
 };
 
 module.exports = Bounder;
-},{"./Encoder":153,"datalib":68,"vega-dataflow":83,"vega-logging":89,"vega-scenegraph":90}],152:[function(require,module,exports){
+},{"./Encoder":155,"datalib":70,"vega-dataflow":85,"vega-logging":91,"vega-scenegraph":92}],154:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     Item = require('vega-scenegraph').Item,
@@ -26614,7 +26711,7 @@ function keyFunction(key) {
 }
 
 module.exports = Builder;
-},{"../parse/data":136,"./Bounder":151,"./Encoder":153,"datalib":68,"vega-dataflow":83,"vega-logging":89,"vega-scenegraph":90}],153:[function(require,module,exports){
+},{"../parse/data":138,"./Bounder":153,"./Encoder":155,"datalib":70,"vega-dataflow":85,"vega-logging":91,"vega-scenegraph":92}],155:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     df = require('vega-dataflow'),
@@ -26801,7 +26898,7 @@ Encoder.update = function(graph, trans, request, items, dirty) {
 };
 
 module.exports = Encoder;
-},{"./Builder":152,"datalib":68,"vega-dataflow":83,"vega-logging":89,"vega-scenegraph":90}],154:[function(require,module,exports){
+},{"./Builder":154,"datalib":70,"vega-dataflow":85,"vega-logging":91,"vega-scenegraph":92}],156:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     Node = df.Node, // jshint ignore:line
@@ -27071,7 +27168,7 @@ function buildLegends(input, group) {
 }
 
 module.exports = GroupBuilder;
-},{"../parse/axes":134,"../parse/legends":140,"./Builder":152,"./Scale":155,"datalib":68,"vega-dataflow":83,"vega-logging":89}],155:[function(require,module,exports){
+},{"../parse/axes":136,"../parse/legends":142,"./Builder":154,"./Scale":157,"datalib":70,"vega-dataflow":85,"vega-logging":91}],157:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -27569,7 +27666,7 @@ function range(group) {
 module.exports = Scale;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"../transforms/Aggregate":160,"datalib":68,"vega-dataflow":83,"vega-logging":89}],156:[function(require,module,exports){
+},{"../transforms/Aggregate":162,"datalib":70,"vega-dataflow":85,"vega-logging":91}],158:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     bound = require('vega-scenegraph').bound,
@@ -27676,7 +27773,7 @@ function step(elapsed) {
 module.exports = Transition;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Builder":152,"vega-dataflow":83,"vega-scenegraph":90}],157:[function(require,module,exports){
+},{"./Builder":154,"vega-dataflow":85,"vega-scenegraph":92}],159:[function(require,module,exports){
 var dl = require('datalib'),
     Tuple = require('vega-dataflow').Tuple,
     parseMark = require('../parse/mark');
@@ -28278,7 +28375,7 @@ function axisDomain(config) {
 }
 
 module.exports = axs;
-},{"../parse/mark":141,"datalib":68,"vega-dataflow":83}],158:[function(require,module,exports){
+},{"../parse/mark":143,"datalib":70,"vega-dataflow":85}],160:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -28825,7 +28922,7 @@ function vg_hLegendLabels(config) {
 module.exports = lgnd;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"../parse/mark":141,"../parse/properties":146,"datalib":68,"vega-scenegraph":90}],159:[function(require,module,exports){
+},{"../parse/mark":143,"../parse/properties":148,"datalib":70,"vega-scenegraph":92}],161:[function(require,module,exports){
 module.exports = function visit(node, func) {
   var i, n, s, m, items;
   if (func(node)) return true;
@@ -28839,7 +28936,7 @@ module.exports = function visit(node, func) {
     }
   }
 };
-},{}],160:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     log = require('vega-logging'),
@@ -29051,7 +29148,7 @@ prototype.transform = function(input, reset) {
 };
 
 module.exports = Aggregate;
-},{"./Facetor":166,"./Transform":179,"datalib":68,"vega-dataflow":83,"vega-logging":89}],161:[function(require,module,exports){
+},{"./Facetor":168,"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],163:[function(require,module,exports){
 var Base = require('./Transform').prototype;
 
 function BatchTransform() {
@@ -29076,7 +29173,7 @@ prototype.batchTransform = function(/* input, data */) {
 };
 
 module.exports = BatchTransform;
-},{"./Transform":179}],162:[function(require,module,exports){
+},{"./Transform":181}],164:[function(require,module,exports){
 var bins = require('datalib').bins,
     Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
@@ -29139,7 +29236,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Bin;
-},{"./Transform":179,"datalib":68,"vega-dataflow":83,"vega-logging":89}],163:[function(require,module,exports){
+},{"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],165:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Tuple = df.Tuple,
     log = require('vega-logging'),
@@ -29264,7 +29361,7 @@ prototype._rem = function(tuples, get) {
 };
 
 module.exports = CountPattern;
-},{"./Transform":179,"vega-dataflow":83,"vega-logging":89}],164:[function(require,module,exports){
+},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],166:[function(require,module,exports){
 var df = require('vega-dataflow'),
     ChangeSet = df.ChangeSet,
     Tuple = df.Tuple,
@@ -29385,7 +29482,7 @@ prototype.batchTransform = function(input, data) {
 };
 
 module.exports = Cross;
-},{"./BatchTransform":161,"./Transform":179,"vega-dataflow":83,"vega-logging":89}],165:[function(require,module,exports){
+},{"./BatchTransform":163,"./Transform":181,"vega-dataflow":85,"vega-logging":91}],167:[function(require,module,exports){
 var Transform = require('./Transform'),
     Aggregate = require('./Aggregate');
 
@@ -29418,7 +29515,7 @@ prototype.aggr = function() {
 };
 
 module.exports = Facet;
-},{"../parse/transforms":150,"./Aggregate":160,"./Transform":179}],166:[function(require,module,exports){
+},{"../parse/transforms":152,"./Aggregate":162,"./Transform":181}],168:[function(require,module,exports){
 var dl = require('datalib'),
     Aggregator = dl.Aggregator,
     Base = Aggregator.prototype,
@@ -29517,7 +29614,7 @@ prototype._on_keep = function(cell) {
 };
 
 module.exports = Facetor;
-},{"datalib":68,"vega-dataflow":83,"vega-logging":89}],167:[function(require,module,exports){
+},{"datalib":70,"vega-dataflow":85,"vega-logging":91}],169:[function(require,module,exports){
 var df = require('vega-dataflow'),
     SIGNALS = df.Dependencies.SIGNALS,
     log = require('vega-logging'),
@@ -29573,7 +29670,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Filter;
-},{"./Transform":179,"vega-dataflow":83,"vega-logging":89}],168:[function(require,module,exports){
+},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],170:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Tuple = df.Tuple,
     log = require('vega-logging'),
@@ -29645,7 +29742,7 @@ prototype.transform = function(input, reset) {
 };
 
 module.exports = Fold;
-},{"./Transform":179,"vega-dataflow":83,"vega-logging":89}],169:[function(require,module,exports){
+},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],171:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     df = require('vega-dataflow'),
@@ -29855,7 +29952,7 @@ prototype.update = function(active) {
 module.exports = Force;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Transform":179,"vega-dataflow":83,"vega-logging":89}],170:[function(require,module,exports){
+},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],172:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Tuple = df.Tuple,
     SIGNALS = df.Dependencies.SIGNALS,
@@ -29898,7 +29995,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Formula;
-},{"./Transform":179,"vega-dataflow":83,"vega-logging":89}],171:[function(require,module,exports){
+},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],173:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -29989,7 +30086,7 @@ prototype.transform = function(input) {
 module.exports = Geo;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Transform":179,"datalib":68,"vega-dataflow":83,"vega-logging":89}],172:[function(require,module,exports){
+},{"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],174:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -30039,7 +30136,7 @@ prototype.transform = function(input) {
 module.exports = GeoPath;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Geo":171,"./Transform":179,"datalib":68,"vega-dataflow":83,"vega-logging":89}],173:[function(require,module,exports){
+},{"./Geo":173,"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],175:[function(require,module,exports){
 var Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
     Transform = require('./Transform');
@@ -30129,7 +30226,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = LinkPath;
-},{"./Transform":179,"vega-dataflow":83,"vega-logging":89}],174:[function(require,module,exports){
+},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],176:[function(require,module,exports){
 var Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
     Transform = require('./Transform');
@@ -30201,7 +30298,7 @@ prototype.transform = function(input, reset) {
 };
 
 module.exports = Lookup;
-},{"./Transform":179,"vega-dataflow":83,"vega-logging":89}],175:[function(require,module,exports){
+},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],177:[function(require,module,exports){
 var dl = require('datalib'),
     Deps = require('vega-dataflow').Dependencies,
     expr = require('../parse/expr');
@@ -30313,7 +30410,7 @@ prototype.set = function(value) {
 };
 
 module.exports = Parameter;
-},{"../parse/expr":138,"datalib":68,"vega-dataflow":83}],176:[function(require,module,exports){
+},{"../parse/expr":140,"datalib":70,"vega-dataflow":85}],178:[function(require,module,exports){
 var dl = require('datalib'),
     Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
@@ -30379,7 +30476,7 @@ prototype.batchTransform = function(input, data) {
 };
 
 module.exports = Pie;
-},{"./BatchTransform":161,"./Transform":179,"datalib":68,"vega-dataflow":83,"vega-logging":89}],177:[function(require,module,exports){
+},{"./BatchTransform":163,"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],179:[function(require,module,exports){
 var dl = require('datalib'),
     log  = require('vega-logging'),
     Transform = require('./Transform');
@@ -30403,7 +30500,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Sort;
-},{"./Transform":179,"datalib":68,"vega-logging":89}],178:[function(require,module,exports){
+},{"./Transform":181,"datalib":70,"vega-logging":91}],180:[function(require,module,exports){
 var dl = require('datalib'),
     Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
@@ -30501,7 +30598,7 @@ function partition(data, groupby, sortby, field) {
 }
 
 module.exports = Stack;
-},{"./BatchTransform":161,"./Transform":179,"datalib":68,"vega-dataflow":83,"vega-logging":89}],179:[function(require,module,exports){
+},{"./BatchTransform":163,"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],181:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Base = df.Node.prototype, // jshint ignore:line
     Deps = df.Dependencies,
@@ -30562,7 +30659,7 @@ prototype.output = function(map) {
 };
 
 module.exports = Transform;
-},{"./Parameter":175,"vega-dataflow":83}],180:[function(require,module,exports){
+},{"./Parameter":177,"vega-dataflow":85}],182:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -30644,7 +30741,7 @@ prototype.batchTransform = function(input, data) {
 module.exports = Treemap;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./BatchTransform":161,"./Transform":179,"datalib":68,"vega-dataflow":83,"vega-logging":89}],181:[function(require,module,exports){
+},{"./BatchTransform":163,"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],183:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     Tuple = require('vega-dataflow/src/Tuple'),
@@ -30695,7 +30792,7 @@ prototype.batchTransform = function(input, data) {
 module.exports = Voronoi;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./BatchTransform":161,"./Transform":179,"vega-dataflow/src/Tuple":82,"vega-logging":89}],182:[function(require,module,exports){
+},{"./BatchTransform":163,"./Transform":181,"vega-dataflow/src/Tuple":84,"vega-logging":91}],184:[function(require,module,exports){
 (function (global){
 var dl = require('datalib'),
     d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
@@ -30807,7 +30904,7 @@ prototype.batchTransform = function(input, data) {
 module.exports = Wordcloud;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./BatchTransform":161,"./Transform":179,"datalib":68,"vega-dataflow/src/Tuple":82,"vega-logging":89}],183:[function(require,module,exports){
+},{"./BatchTransform":163,"./Transform":181,"datalib":70,"vega-dataflow/src/Tuple":84,"vega-logging":91}],185:[function(require,module,exports){
 module.exports = {
   aggregate:    require('./Aggregate'),
   bin:          require('./Bin'),
@@ -30830,6 +30927,6 @@ module.exports = {
   voronoi:      require('./Voronoi'),
   wordcloud:    require('./Wordcloud')
 };
-},{"./Aggregate":160,"./Bin":162,"./CountPattern":163,"./Cross":164,"./Facet":165,"./Filter":167,"./Fold":168,"./Force":169,"./Formula":170,"./Geo":171,"./GeoPath":172,"./LinkPath":173,"./Lookup":174,"./Pie":176,"./Sort":177,"./Stack":178,"./Transform":179,"./Treemap":180,"./Voronoi":181,"./Wordcloud":182}]},{},[32])(32)
+},{"./Aggregate":162,"./Bin":164,"./CountPattern":165,"./Cross":166,"./Facet":167,"./Filter":169,"./Fold":170,"./Force":171,"./Formula":172,"./Geo":173,"./GeoPath":174,"./LinkPath":175,"./Lookup":176,"./Pie":178,"./Sort":179,"./Stack":180,"./Transform":181,"./Treemap":182,"./Voronoi":183,"./Wordcloud":184}]},{},[34])(34)
 });
 //# sourceMappingURL=lyra.js.map
