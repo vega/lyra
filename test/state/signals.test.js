@@ -1,6 +1,5 @@
 describe('Lyra Signals', function() {
-    var Vis = require('../'+lyraPath+'vis/Visualization'),
-        sg = require('../'+lyraPath+'state/signals'),
+    var sg = require('../'+lyraPath+'state/signals'),
         signals = sg();
 
   beforeEach(function() { lyra.view = null; });

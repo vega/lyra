@@ -1,6 +1,7 @@
 var dl = require('datalib'),
     sg = require('../../../state/signals'),
     Mark = require('./Mark'),
+    manips = require('./manipulators'),
     util = require('../../../util');
 
 var DELTA  = sg.DELTA,
@@ -26,7 +27,13 @@ function Rect(type) {
 var prototype = (Rect.prototype = Object.create(Mark.prototype));
 prototype.constructor = Rect;
 
-prototype.handles = function() {
+prototype.manipulators = function(types) {
+  return Mark.prototype.manipulators.call(this, [
+    manips.HANDLES, manips.CONNECTORS, manips.ARROWS, manips.SPANS
+  ]);
+};
+
+prototype.initHandles = function() {
   var prop = util.propSg,
       test = util.test,
       at = util.anchorTarget.bind(util, this),

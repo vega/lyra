@@ -1,6 +1,7 @@
 var dl = require('datalib'),
     sg = require('../../../state/signals'),
     Primitive = require('../Primitive'),
+    manips = require('./manipulators'),
     util = require('../../../util'),
     markID = 0;
 
@@ -41,10 +42,13 @@ prototype.init = function() {
     }
   }
 
-  this.handles();
+  this.initHandles();
 
   return this;
 };
+
+// Interaction logic for handle manipulators.
+prototype.initHandles = function() {};
 
 // Convert signalRefs to valueRefs unless resolve === false.
 prototype.export = function(resolve) {
@@ -63,56 +67,8 @@ prototype.export = function(resolve) {
   return spec;
 };
 
-// Vega spec that includes the current mark + its manipulators. We
-// group them together within a group mark to keep things clean.
-var MANIPULATORS = [{
-  kind: 'handles',
-  properties: {
-    update: {
-      x: {field: 'x'},
-      y: {field: 'y'},
-      shape: {value: 'square'},
-      size: {value: 40},
-      fill: {value: 'white'},
-      stroke: {value: 'black'},
-      strokeWidth: {value: 0.5}
-    }
-  }
-}];
-
-prototype.manipulators = function() {
-  var self  = this;
-  var marks = [this.export(false)]
-    .concat(MANIPULATORS.map(function(m) {
-      return {
-        type: 'symbol',
-        from: {
-          mark: self.name,
-          transform: [{
-            type: 'lyra_manipulators_'+self.type,
-            name: self.name,
-            kind: m.kind
-          }]
-        },
-        properties: m.properties
-      };
-    }));
-
-  return {
-    type: 'group',
-    properties: {
-      update: {
-        x: {value: 0},
-        y: {value: 0},
-        width: {field: {group: 'width'}},
-        height: {field: {group: 'height'}}
-      }
-    },
-    marks: marks
-  };
+prototype.manipulators = function(types) {
+  return manips.call(this, types || [manips.HANDLES]);
 };
-
-// Interaction logic for handle manipulators.
-prototype.handles = function() {};
 
 module.exports = Mark;

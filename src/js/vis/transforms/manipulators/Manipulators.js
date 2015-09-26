@@ -5,7 +5,10 @@ var dl = require('datalib'),
     Tuple = df.Tuple,
     Deps = df.Dependencies,
     Transform = vg.transforms.Transform,
-    sg = require('../../../state/signals');    
+    Voronoi = vg.transforms.voronoi,
+    sg = require('../../../state/signals');
+
+var $x = dl.$('x'), $y = dl.$('y');
 
 function Manipulators(graph) {
   Transform.prototype.init.call(this, graph);
@@ -16,6 +19,7 @@ function Manipulators(graph) {
 
   this._cacheID = null;
   this._cache   = [];
+  this._voronoi = new Voronoi(graph);
 
   return this.router(true).produces(true)
     .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MANIPULATORS]);
@@ -67,9 +71,21 @@ prototype.transform = function(input) {
     output.add.push.apply(output.add, cache);
   }
 
-  return output;
+  var clip = [
+    [dl.min(cache, $x)-25, dl.min(cache, $y)-25],
+    [dl.max(cache, $x)+25, dl.max(cache, $y)+25]
+  ];
+
+  return this._voronoi
+    .param('x', 'x')
+    .param('y', 'y')
+    .param('clipExtent', clip)
+    .batchTransform(output, cache);
 };
 
 prototype.handles = function(item) { return []; };
+prototype.connectors = function(item) { return []; };
+prototype.arrows = function(item) { return []; };
+prototype.spans = function(item) { return []; };
 
 module.exports = Manipulators;

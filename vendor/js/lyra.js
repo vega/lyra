@@ -1,4 +1,172 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.lyra = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// Matches absolute URLs with optional protocol
+//   https://...    file://...    //...
+var protocol_re = /^([A-Za-z]+:)?\/\//;
+
+// Special treatment in node.js for the file: protocol
+var fileProtocol = 'file://';
+
+// Validate and cleanup URL to ensure that it is allowed to be accessed
+// Returns cleaned up URL, or false if access is not allowed
+function sanitizeUrl(opt) {
+  var url = opt.url;
+  if (!url && opt.file) { return fileProtocol + opt.file; }
+
+  // In case this is a relative url (has no host), prepend opt.baseURL
+  if (opt.baseURL && !protocol_re.test(url)) {
+    if (!startsWith(url, '/') && opt.baseURL[opt.baseURL.length-1] !== '/') {
+      url = '/' + url; // Ensure that there is a slash between the baseURL (e.g. hostname) and url
+    }
+    url = opt.baseURL + url;
+  }
+  // relative protocol, starts with '//'
+  if (!load.useXHR && startsWith(url, '//')) {
+    url = (opt.defaultProtocol || 'http') + ':' + url;
+  }
+  // If opt.domainWhiteList is set, only allows url, whose hostname
+  // * Is the same as the origin (window.location.hostname)
+  // * Equals one of the values in the whitelist
+  // * Is a proper subdomain of one of the values in the whitelist
+  if (opt.domainWhiteList) {
+    var domain, origin;
+    if (load.useXHR) {
+      var a = document.createElement('a');
+      a.href = url;
+      // From http://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+      // IE doesn't populate all link properties when setting .href with a relative URL,
+      // however .href will return an absolute URL which then can be used on itself
+      // to populate these additional fields.
+      if (a.host === '') {
+        a.href = a.href;
+      }
+      domain = a.hostname.toLowerCase();
+      origin = window.location.hostname;
+    } else {
+      // relative protocol is broken: https://github.com/defunctzombie/node-url/issues/5
+      var parts = require('url').parse(url);
+      domain = parts.hostname;
+      origin = null;
+    }
+
+    if (origin !== domain) {
+      var whiteListed = opt.domainWhiteList.some(function(d) {
+        var idx = domain.length - d.length;
+        return d === domain ||
+          (idx > 1 && domain[idx-1] === '.' && domain.lastIndexOf(d) === idx);
+      });
+      if (!whiteListed) {
+        throw 'URL is not whitelisted: ' + url;
+      }
+    }
+  }
+  return url;
+}
+
+function load(opt, callback) {
+  var error = callback || function(e) { throw e; }, url;
+
+  try {
+    url = load.sanitizeUrl(opt); // enable override
+  } catch (err) {
+    error(err);
+    return;
+  }
+
+  if (!url) {
+    error('Invalid URL: ' + opt.url);
+  } else if (load.useXHR) {
+    // on client, use xhr
+    return xhr(url, callback);
+  } else if (startsWith(url, fileProtocol)) {
+    // on server, if url starts with 'file://', strip it and load from file
+    return file(url.slice(fileProtocol.length), callback);
+  } else if (url.indexOf('://') < 0) { // TODO better protocol check?
+    // on server, if no protocol assume file
+    return file(url, callback);
+  } else {
+    // for regular URLs on server
+    return http(url, callback);
+  }
+}
+
+function xhrHasResponse(request) {
+  var type = request.responseType;
+  return type && type !== 'text' ?
+    request.response : // null on error
+    request.responseText; // '' on error
+}
+
+function xhr(url, callback) {
+  var async = !!callback;
+  var request = new XMLHttpRequest();
+  // If IE does not support CORS, use XDomainRequest (copied from d3.xhr)
+  if (this.XDomainRequest &&
+      !('withCredentials' in request) &&
+      /^(http(s)?:)?\/\//.test(url)) request = new XDomainRequest();
+
+  function respond() {
+    var status = request.status;
+    if (!status && xhrHasResponse(request) || status >= 200 && status < 300 || status === 304) {
+      callback(null, request.responseText);
+    } else {
+      callback(request, null);
+    }
+  }
+
+  if (async) {
+    if ('onload' in request) {
+      request.onload = request.onerror = respond;
+    } else {
+      request.onreadystatechange = function() {
+        if (request.readyState > 3) respond();
+      };
+    }
+  }
+  
+  request.open('GET', url, async);
+  request.send();
+  
+  if (!async && xhrHasResponse(request)) {
+    return request.responseText;
+  }
+}
+
+function file(filename, callback) {
+  var fs = require('fs');
+  if (!callback) {
+    return fs.readFileSync(filename, 'utf8');
+  }
+  fs.readFile(filename, callback);
+}
+
+function http(url, callback) {
+  if (!callback) {
+    return require('sync-request')('GET', url).getBody();
+  }
+  
+  var options = {url: url, encoding: null, gzip: true};
+  require('request')(options, function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+      callback(null, body);
+    } else {
+      error = error ||
+        'Load failed with response code ' + response.statusCode + '.';
+      callback(error, null);
+    }
+  });
+}
+
+function startsWith(string, searchString) {
+  return string == null ? false : string.lastIndexOf(searchString, 0) === 0;
+}
+
+load.sanitizeUrl = sanitizeUrl;
+
+load.useXHR = (typeof XMLHttpRequest !== 'undefined');
+
+module.exports = load;
+
+},{"fs":33,"request":33,"sync-request":33,"url":33}],2:[function(require,module,exports){
 // Array.prototype.find - MIT License (c) 2013 Paul Miller <http://paulmillr.com>
 // For all details and docs: https://github.com/paulmillr/array.prototype.find
 // Fixes and tests supplied by Duncan Hall <http://duncanhall.net> 
@@ -33,7 +201,7 @@
   }
 })(this);
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.5.6"
@@ -9538,7 +9706,7 @@
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -9667,7 +9835,7 @@
   exports.dsv = dsv;
 
 }));
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 if (typeof Map === "undefined") {
   Map = function() { this.clear(); };
   Map.prototype = {
@@ -10135,7 +10303,7 @@ if (typeof Map === "undefined") {
   exports.precisionRound = precisionRound;
 
 }));
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 if (typeof Map === "undefined") {
   Map = function() { this.clear(); };
   Map.prototype = {
@@ -11055,7 +11223,7 @@ if (typeof Map === "undefined") {
   exports.isoFormat = isoFormat;
 
 }));
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -11345,7 +11513,7 @@ if (typeof Map === "undefined") {
   exports.utcYear = utcYear;
 
 }));
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var util = require('../util'),
     Measures = require('./measures'),
     Collector = require('./collector');
@@ -11653,7 +11821,7 @@ proto._consolidate = function() {
 };
 
 module.exports = Aggregator;
-},{"../util":29,"./collector":8,"./measures":10}],8:[function(require,module,exports){
+},{"../util":30,"./collector":9,"./measures":11}],9:[function(require,module,exports){
 var util = require('../util');
 var stats = require('../stats');
 
@@ -11771,7 +11939,7 @@ proto.q3 = function(get) {
 
 module.exports = Collector;
 
-},{"../stats":26,"../util":29}],9:[function(require,module,exports){
+},{"../stats":27,"../util":30}],10:[function(require,module,exports){
 var util = require('../util');
 var Aggregator = require('./aggregator');
 
@@ -11786,7 +11954,7 @@ module.exports = function() {
     .summarize({'*':'values'});
 };
 
-},{"../util":29,"./aggregator":7}],10:[function(require,module,exports){
+},{"../util":30,"./aggregator":8}],11:[function(require,module,exports){
 var util = require('../util');
 
 var types = {
@@ -11968,7 +12136,7 @@ function create(agg, stream, accessor, mutator) {
 
 types.create = create;
 module.exports = types;
-},{"../stats":26,"../util":29}],11:[function(require,module,exports){
+},{"../stats":27,"../util":30}],12:[function(require,module,exports){
 var util = require('../util'),
     time = require('../time'),
     EPSILON = 1e-15;
@@ -12083,7 +12251,7 @@ bins.date = function(opt) {
 
 module.exports = bins;
 
-},{"../time":28,"../util":29}],12:[function(require,module,exports){
+},{"../time":29,"../util":30}],13:[function(require,module,exports){
 var bins = require('./bins'),
     gen  = require('../generate'),
     type = require('../import/type'),
@@ -12168,7 +12336,7 @@ module.exports = {
   $bin: $bin,
   histogram: histogram
 };
-},{"../generate":14,"../import/type":23,"../stats":26,"../util":29,"./bins":11}],13:[function(require,module,exports){
+},{"../generate":15,"../import/type":24,"../stats":27,"../util":30,"./bins":12}],14:[function(require,module,exports){
 var d3_time = require('d3-time'),
     d3_timeF = require('d3-time-format'),
     d3_numberF = require('d3-format'),
@@ -12318,7 +12486,7 @@ function utcAutoFormat() {
   };
 }
 
-},{"d3-format":4,"d3-time":6,"d3-time-format":5}],14:[function(require,module,exports){
+},{"d3-format":5,"d3-time":7,"d3-time-format":6}],15:[function(require,module,exports){
 var gen = module.exports = {};
 
 gen.repeat = function(val, n) {
@@ -12397,7 +12565,7 @@ gen.random.normal = function(mean, stdev) {
   f.samples = function(n) { return gen.zeros(n).map(f); };
   return f;
 };
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var util = require('../../util');
 var d3_dsv = require('d3-dsv');
 
@@ -12417,7 +12585,7 @@ dsv.delimiter = function(delim) {
 };
 
 module.exports = dsv;
-},{"../../util":29,"d3-dsv":3}],16:[function(require,module,exports){
+},{"../../util":30,"d3-dsv":4}],17:[function(require,module,exports){
 var dsv = require('./dsv');
 
 module.exports = {
@@ -12428,7 +12596,7 @@ module.exports = {
   csv: dsv.delimiter(','),
   tsv: dsv.delimiter('\t')
 };
-},{"./dsv":15,"./json":17,"./topojson":18,"./treejson":19}],17:[function(require,module,exports){
+},{"./dsv":16,"./json":18,"./topojson":19,"./treejson":20}],18:[function(require,module,exports){
 var util = require('../../util');
 
 module.exports = function(data, format) {
@@ -12440,7 +12608,7 @@ module.exports = function(data, format) {
   return d;
 };
 
-},{"../../util":29}],18:[function(require,module,exports){
+},{"../../util":30}],19:[function(require,module,exports){
 (function (global){
 var json = require('./json');
 
@@ -12471,7 +12639,7 @@ reader.topojson = (typeof window !== "undefined" ? window['topojson'] : typeof g
 module.exports = reader;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./json":17}],19:[function(require,module,exports){
+},{"./json":18}],20:[function(require,module,exports){
 var json = require('./json');
 
 module.exports = function(data, format) {
@@ -12496,175 +12664,9 @@ function toTable(root, childrenField) {
   visit(root, null);
   return (table.root = root, table);
 }
-},{"./json":17}],20:[function(require,module,exports){
-// Matches absolute URLs with optional protocol
-//   https://...    file://...    //...
-var protocol_re = /^([A-Za-z]+:)?\/\//;
-
-// Special treatment in node.js for the file: protocol
-var fileProtocol = 'file://';
-
-// Validate and cleanup URL to ensure that it is allowed to be accessed
-// Returns cleaned up URL, or false if access is not allowed
-function sanitizeUrl(opt) {
-  var url = opt.url;
-  if (!url && opt.file) { return fileProtocol + opt.file; }
-
-  // In case this is a relative url (has no host), prepend opt.baseURL
-  if (opt.baseURL && !protocol_re.test(url)) {
-    if (!startsWith(url, '/') && opt.baseURL[opt.baseURL.length-1] !== '/') {
-      url = '/' + url; // Ensure that there is a slash between the baseURL (e.g. hostname) and url
-    }
-    url = opt.baseURL + url;
-  }
-  // relative protocol, starts with '//'
-  if (!load.useXHR && startsWith(url, '//')) {
-    url = (opt.defaultProtocol || 'http') + ':' + url;
-  }
-  // If opt.domainWhiteList is set, only allows url, whose hostname
-  // * Is the same as the origin (window.location.hostname)
-  // * Equals one of the values in the whitelist
-  // * Is a proper subdomain of one of the values in the whitelist
-  if (opt.domainWhiteList) {
-    var domain, origin;
-    if (load.useXHR) {
-      var a = document.createElement('a');
-      a.href = url;
-      // From http://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
-      // IE doesn't populate all link properties when setting .href with a relative URL,
-      // however .href will return an absolute URL which then can be used on itself
-      // to populate these additional fields.
-      if (a.host === '') {
-        a.href = a.href;
-      }
-      domain = a.hostname.toLowerCase();
-      origin = window.location.hostname;
-    } else {
-      // relative protocol is broken: https://github.com/defunctzombie/node-url/issues/5
-      var parts = require('url').parse(url);
-      domain = parts.hostname;
-      origin = null;
-    }
-
-    if (origin !== domain) {
-      var whiteListed = opt.domainWhiteList.some(function(d) {
-        var idx = domain.length - d.length;
-        return d === domain ||
-          (idx > 1 && domain[idx-1] === '.' && domain.lastIndexOf(d) === idx);
-      });
-      if (!whiteListed) {
-        throw 'URL is not whitelisted: ' + url;
-      }
-    }
-  }
-  return url;
-}
-
-function load(opt, callback) {
-  var error = callback || function(e) { throw e; }, url;
-
-  try {
-    url = load.sanitizeUrl(opt); // enable override
-  } catch (err) {
-    error(err);
-    return;
-  }
-
-  if (!url) {
-    error('Invalid URL: ' + opt.url);
-  } else if (load.useXHR) {
-    // on client, use xhr
-    return xhr(url, callback);
-  } else if (startsWith(url, fileProtocol)) {
-    // on server, if url starts with 'file://', strip it and load from file
-    return file(url.slice(fileProtocol.length), callback);
-  } else if (url.indexOf('://') < 0) { // TODO better protocol check?
-    // on server, if no protocol assume file
-    return file(url, callback);
-  } else {
-    // for regular URLs on server
-    return http(url, callback);
-  }
-}
-
-function xhrHasResponse(request) {
-  var type = request.responseType;
-  return type && type !== 'text' ?
-    request.response : // null on error
-    request.responseText; // '' on error
-}
-
-function xhr(url, callback) {
-  var async = !!callback;
-  var request = new XMLHttpRequest();
-  // If IE does not support CORS, use XDomainRequest (copied from d3.xhr)
-  if (this.XDomainRequest &&
-      !('withCredentials' in request) &&
-      /^(http(s)?:)?\/\//.test(url)) request = new XDomainRequest();
-
-  function respond() {
-    var status = request.status;
-    if (!status && xhrHasResponse(request) || status >= 200 && status < 300 || status === 304) {
-      callback(null, request.responseText);
-    } else {
-      callback(request, null);
-    }
-  }
-
-  if (async) {
-    if ('onload' in request) {
-      request.onload = request.onerror = respond;
-    } else {
-      request.onreadystatechange = function() {
-        if (request.readyState > 3) respond();
-      };
-    }
-  }
-  
-  request.open('GET', url, async);
-  request.send();
-  
-  if (!async && xhrHasResponse(request)) {
-    return request.responseText;
-  }
-}
-
-function file(filename, callback) {
-  var fs = require('fs');
-  if (!callback) {
-    return fs.readFileSync(filename, 'utf8');
-  }
-  fs.readFile(filename, callback);
-}
-
-function http(url, callback) {
-  if (!callback) {
-    return require('sync-request')('GET', url).getBody();
-  }
-  
-  var options = {url: url, encoding: null, gzip: true};
-  require('request')(options, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-      callback(null, body);
-    } else {
-      error = error ||
-        'Load failed with response code ' + response.statusCode + '.';
-      callback(error, null);
-    }
-  });
-}
-
-function startsWith(string, searchString) {
-  return string == null ? false : string.lastIndexOf(searchString, 0) === 0;
-}
-
-load.sanitizeUrl = sanitizeUrl;
-
-load.useXHR = (typeof XMLHttpRequest !== 'undefined');
-
-module.exports = load;
-
-},{"fs":32,"request":32,"sync-request":32,"url":32}],21:[function(require,module,exports){
+},{"./json":18}],21:[function(require,module,exports){
+arguments[4][1][0].apply(exports,arguments)
+},{"dup":1,"fs":33,"request":33,"sync-request":33,"url":33}],22:[function(require,module,exports){
 var util = require('../util');
 var type = require('./type');
 var formats = require('./formats');
@@ -12695,7 +12697,7 @@ function parse(data, types) {
 read.formats = formats;
 module.exports = read;
 
-},{"../util":29,"./formats":16,"./type":23}],22:[function(require,module,exports){
+},{"../util":30,"./formats":17,"./type":24}],23:[function(require,module,exports){
 var util = require('../util');
 var load = require('./load');
 var read = require('./read');
@@ -12733,7 +12735,7 @@ module.exports = util
     return out;
   }, {});
 
-},{"../util":29,"./load":20,"./read":21}],23:[function(require,module,exports){
+},{"../util":30,"./load":21,"./read":22}],24:[function(require,module,exports){
 var util = require('../util');
 
 var TYPES = '__types__';
@@ -12824,7 +12826,7 @@ type.infer = infer;
 type.inferAll = inferAll;
 type.parsers = PARSERS;
 module.exports = type;
-},{"../util":29}],24:[function(require,module,exports){
+},{"../util":30}],25:[function(require,module,exports){
 var util = require('./util');
 
 var dl = {
@@ -12849,7 +12851,7 @@ util.extend(dl, require('./stats'));
 util.extend(dl, require('./import/readers'));
 
 module.exports = dl;
-},{"./aggregate/aggregator":7,"./aggregate/groupby":9,"./bins/bins":11,"./bins/histogram":12,"./format":13,"./generate":14,"./import/load":20,"./import/read":21,"./import/readers":22,"./import/type":23,"./print":25,"./stats":26,"./template":27,"./time":28,"./util":29}],25:[function(require,module,exports){
+},{"./aggregate/aggregator":8,"./aggregate/groupby":10,"./bins/bins":12,"./bins/histogram":13,"./format":14,"./generate":15,"./import/load":21,"./import/read":22,"./import/readers":23,"./import/type":24,"./print":26,"./stats":27,"./template":28,"./time":29,"./util":30}],26:[function(require,module,exports){
 var util = require('./util');
 var type = require('./import/type');
 var stats = require('./stats');
@@ -12948,7 +12950,7 @@ function printCategoricalProfile(p) {
     .map(function(v) { return ' \'' + v + '\' (' + u[v] + ')'; });
   return list.concat(top).join('\n');
 }
-},{"./import/type":23,"./stats":26,"./template":27,"./util":29}],26:[function(require,module,exports){
+},{"./import/type":24,"./stats":27,"./template":28,"./util":30}],27:[function(require,module,exports){
 var util = require('./util');
 var type = require('./import/type');
 var gen = require('./generate');
@@ -13437,7 +13439,7 @@ stats.summary = function(data, fields) {
 };
 
 module.exports = stats;
-},{"./generate":14,"./import/type":23,"./util":29}],27:[function(require,module,exports){
+},{"./generate":15,"./import/type":24,"./util":30}],28:[function(require,module,exports){
 var util = require('./util'),
     format = require('./format');
 
@@ -13655,7 +13657,7 @@ function template_format(pattern, key, fmt) {
   return context.format_map[key];
 }
 
-},{"./format":13,"./util":29}],28:[function(require,module,exports){
+},{"./format":14,"./util":30}],29:[function(require,module,exports){
 var d3_time = require('d3-time');
 
 var tempDate = new Date(),
@@ -13826,7 +13828,7 @@ function toUnitMap(units) {
 module.exports = toUnitMap(locale);
 module.exports.utc = toUnitMap(utc);
 
-},{"d3-time":6}],29:[function(require,module,exports){
+},{"d3-time":7}],30:[function(require,module,exports){
 var buffer = require('buffer'),
     time = require('./time'),
     utc = time.utc;
@@ -14144,7 +14146,7 @@ function truncateOnWord(s, len, rev) {
 
 var truncate_word_re = /([\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u2028\u2029\u3000\uFEFF])/;
 
-},{"./time":28,"buffer":32}],30:[function(require,module,exports){
+},{"./time":29,"buffer":33}],31:[function(require,module,exports){
 (function (process,global){
 /*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
@@ -15116,7 +15118,7 @@ var truncate_word_re = /([\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"_process":33}],31:[function(require,module,exports){
+},{"_process":34}],32:[function(require,module,exports){
 /*! http://mths.be/startswith v0.2.0 by @mathias */
 if (!String.prototype.startsWith) {
 	(function() {
@@ -15173,9 +15175,9 @@ if (!String.prototype.startsWith) {
 	}());
 }
 
-},{}],32:[function(require,module,exports){
-
 },{}],33:[function(require,module,exports){
+
+},{}],34:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -15268,12 +15270,12 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 // We package all external dependencies together, so re-expose them
 // for use from the js console.
 d3 = require('d3');
 vg = require('vega');
-dl = vg.util;
+dl = require('datalib');
 
 // Additional requires to polyfill + browserify package.
 require('es6-promise').polyfill();
@@ -15283,7 +15285,7 @@ require('./vis/transforms');
 
 // The Lyra State is our main API. 
 module.exports = require('./state');
-},{"./state":35,"./vis/transforms":45,"array.prototype.find":1,"d3":2,"es6-promise":30,"string.prototype.startswith":31,"vega":48}],35:[function(require,module,exports){
+},{"./state":36,"./vis/transforms":47,"array.prototype.find":2,"d3":3,"datalib":25,"es6-promise":31,"string.prototype.startswith":32,"vega":89}],36:[function(require,module,exports){
 var dl = require('datalib'),
     vg = require('vega'),
     Vis = require('../vis/Visualization'),
@@ -15335,7 +15337,7 @@ module.exports = (state = {
 
   schema: require('./schema')
 });
-},{"../vis/Visualization":40,"./schema":36,"./signals":38,"datalib":24,"vega":48}],36:[function(require,module,exports){
+},{"../vis/Visualization":41,"./schema":37,"./signals":39,"datalib":25,"vega":89}],37:[function(require,module,exports){
 var vg = require('vega'),
     _schema = null;
 
@@ -15344,7 +15346,7 @@ module.exports = function() {
     url: 'http://vega.github.io/vega/vega-schema.json'
   })); 
 };
-},{"vega":48}],37:[function(require,module,exports){
+},{"vega":89}],38:[function(require,module,exports){
 var ns = require('./').ns,
     signals = {};
 
@@ -15400,7 +15402,7 @@ module.exports = {
   ANCHOR: ANCHOR,
   DELTA: DELTA
 };
-},{"./":38}],38:[function(require,module,exports){
+},{"./":39}],39:[function(require,module,exports){
 var dl = require('datalib'),
     NS = 'lyra_',
     signals, defaults;
@@ -15471,7 +15473,7 @@ dl.extend(api, defaults=require('./defaults'));
 signals = api.signals;
 delete api.signals;
 delete api.names;
-},{"../":35,"./defaults":37,"datalib":24}],39:[function(require,module,exports){
+},{"../":36,"./defaults":38,"datalib":25}],40:[function(require,module,exports){
 var dl = require('datalib'),
     sg = require('./state/signals');
 
@@ -15500,7 +15502,7 @@ module.exports = {
     return 'if('+cond+','+t+','+f+')';
   }
 };
-},{"./state/signals":38,"datalib":24}],40:[function(require,module,exports){
+},{"./state/signals":39,"datalib":25}],41:[function(require,module,exports){
 var vg = require('vega'),
     sg = require('../state/signals'),
     Group = require('./primitives/marks/Group');
@@ -15545,7 +15547,7 @@ prototype.manipulators = function() {
 };
 
 module.exports = Visualization;
-},{"../state/signals":38,"./primitives/marks/Group":42,"vega":48}],41:[function(require,module,exports){
+},{"../state/signals":39,"./primitives/marks/Group":43,"vega":89}],42:[function(require,module,exports){
 var dl = require('datalib'),
     vg = require('vega'),
     sg = require('../../state/signals');
@@ -15579,7 +15581,7 @@ prototype.export = function(resolve) {
 };
 
 module.exports = Primitive;
-},{"../../state/signals":38,"datalib":24,"vega":48}],42:[function(require,module,exports){
+},{"../../state/signals":39,"datalib":25,"vega":89}],43:[function(require,module,exports){
 var vg = require('vega'),
     Mark = require('./Mark');
 
@@ -15640,10 +15642,11 @@ prototype.child = function(type, name) {
 };
 
 module.exports = Group;
-},{"./Mark":43,"./Rect":44,"vega":48}],43:[function(require,module,exports){
+},{"./Mark":44,"./Rect":45,"vega":89}],44:[function(require,module,exports){
 var dl = require('datalib'),
     sg = require('../../../state/signals'),
     Primitive = require('../Primitive'),
+    manips = require('./manipulators'),
     util = require('../../../util'),
     markID = 0;
 
@@ -15684,10 +15687,13 @@ prototype.init = function() {
     }
   }
 
-  this.handles();
+  this.initHandles();
 
   return this;
 };
+
+// Interaction logic for handle manipulators.
+prototype.initHandles = function() {};
 
 // Convert signalRefs to valueRefs unless resolve === false.
 prototype.export = function(resolve) {
@@ -15706,63 +15712,16 @@ prototype.export = function(resolve) {
   return spec;
 };
 
-// Vega spec that includes the current mark + its manipulators. We
-// group them together within a group mark to keep things clean.
-var MANIPULATORS = [{
-  kind: 'handles',
-  properties: {
-    update: {
-      x: {field: 'x'},
-      y: {field: 'y'},
-      shape: {value: 'square'},
-      size: {value: 40},
-      fill: {value: 'white'},
-      stroke: {value: 'black'},
-      strokeWidth: {value: 0.5}
-    }
-  }
-}];
-
-prototype.manipulators = function() {
-  var self  = this;
-  var marks = [this.export(false)]
-    .concat(MANIPULATORS.map(function(m) {
-      return {
-        type: 'symbol',
-        from: {
-          mark: self.name,
-          transform: [{
-            type: 'lyra_manipulators_'+self.type,
-            name: self.name,
-            kind: m.kind
-          }]
-        },
-        properties: m.properties
-      };
-    }));
-
-  return {
-    type: 'group',
-    properties: {
-      update: {
-        x: {value: 0},
-        y: {value: 0},
-        width: {field: {group: 'width'}},
-        height: {field: {group: 'height'}}
-      }
-    },
-    marks: marks
-  };
+prototype.manipulators = function(types) {
+  return manips.call(this, types || [manips.HANDLES]);
 };
 
-// Interaction logic for handle manipulators.
-prototype.handles = function() {};
-
 module.exports = Mark;
-},{"../../../state/signals":38,"../../../util":39,"../Primitive":41,"datalib":24}],44:[function(require,module,exports){
+},{"../../../state/signals":39,"../../../util":40,"../Primitive":42,"./manipulators":46,"datalib":25}],45:[function(require,module,exports){
 var dl = require('datalib'),
     sg = require('../../../state/signals'),
     Mark = require('./Mark'),
+    manips = require('./manipulators'),
     util = require('../../../util');
 
 var DELTA  = sg.DELTA,
@@ -15788,7 +15747,13 @@ function Rect(type) {
 var prototype = (Rect.prototype = Object.create(Mark.prototype));
 prototype.constructor = Rect;
 
-prototype.handles = function() {
+prototype.manipulators = function(types) {
+  return Mark.prototype.manipulators.call(this, [
+    manips.HANDLES, manips.CONNECTORS, manips.ARROWS, manips.SPANS
+  ]);
+};
+
+prototype.initHandles = function() {
   var prop = util.propSg,
       test = util.test,
       at = util.anchorTarget.bind(util, this),
@@ -15824,7 +15789,120 @@ prototype.handles = function() {
 };
 
 module.exports = Rect;
-},{"../../../state/signals":38,"../../../util":39,"./Mark":43,"datalib":24}],45:[function(require,module,exports){
+},{"../../../state/signals":39,"../../../util":40,"./Mark":44,"./manipulators":46,"datalib":25}],46:[function(require,module,exports){
+var dl = require('datalib');
+
+// Vega specs for each of the manipulators type. We export a method
+// that compiles them together within a group mark. This method 
+// corresponds to the `manipulators` method of Mark classes. 
+function compile(manipulators) {
+  var mark  = this,
+      marks = [mark.export(false)];
+  
+  marks = marks.concat((manipulators||[]).map(function(m) {
+    var k = m.kind, n = mark.name;
+    var transforms =[{
+      type: 'lyra_manipulators_'+mark.type,
+      name: n,
+      kind: k
+    }];
+
+    if (m.type === 'group' && (k === 'arrows' || k === 'spans')) {
+      transforms.push({ type: 'facet', groupby: ['key'] });
+    }
+
+    return dl.extend(m, {
+      from: {mark: n, transform: transforms}
+    });
+  }));
+
+  return {
+    type: 'group',
+    properties: {
+      update: {
+        x: {value: 0},
+        y: {value: 0},
+        width: {field: {group: 'width'}},
+        height: {field: {group: 'height'}}
+      }
+    },
+    marks: marks
+  };
+}
+
+module.exports = compile;
+
+compile.SIZES = {LARGE: 40, SMALL: 20};
+
+compile.VORONOI = function(path) {
+  return {
+    type: 'path',
+    name: 'cell',
+    properties: {
+      update: {
+        fill: {value: 'transparent'},
+        strokeWidth: {value: 0.35},
+        path: {field: path || 'layout_path'},
+        stroke: {value: 'brown'}
+      }
+    }
+  };
+}
+
+compile.HANDLES = {
+  kind: 'handles',
+  type: 'symbol',
+  properties: {
+    update: {
+      x: {field: 'x'},
+      y: {field: 'y'},
+      shape: {value: 'square'},
+      size: {field: 'size'},
+      fill: {value: 'white'},
+      stroke: {value: 'black'},
+      strokeWidth: {value: 0.5}
+    }
+  }
+};
+
+compile.CONNECTORS = {
+  kind: 'connectors',
+  type: 'group',
+  marks: [{
+    type: 'symbol',
+    properties: {
+      update: {
+        x: {field: {parent: 'x'}},
+        y: {field: {parent: 'y'}},
+        shape: {value: 'diamond'},
+        size: {field: {parent: 'size'}},
+        fill: {value: 'white'},
+        stroke: {value: 'magenta'},
+        strokeWidth: {value: 0.5}
+      }
+    }
+  }, compile.VORONOI({parent: 'layout_path'})]
+};
+
+compile.ARROWS = {
+  kind: 'arrows',
+  type: 'group',
+  marks: [{
+    type: 'line',
+    properties: {
+      update: {
+        x: {field: 'x'},
+        y: {field: 'y'},
+        fill: {value: 'cyan'},
+        stroke: {value: 'cyan'},
+        strokeWidth: {value: 3}
+      }
+    }
+  }, compile.VORONOI()]
+};
+
+compile.SPANS = dl.extend({}, compile.ARROWS, {kind: 'spans'});
+},{"datalib":25}],47:[function(require,module,exports){
 var dl = require('datalib'),
     vg = require('vega'),
     t = module.exports = {};
@@ -15834,7 +15912,7 @@ var MANIPULATORS = 'lyra_manipulators_';
 t[MANIPULATORS + 'rect']  = require('./manipulators/Rect');
 t[MANIPULATORS + 'group'] = require('./manipulators/Rect');
 dl.extend(vg.transforms, t);
-},{"./manipulators/Rect":47,"datalib":24,"vega":48}],46:[function(require,module,exports){
+},{"./manipulators/Rect":49,"datalib":25,"vega":89}],48:[function(require,module,exports){
 var dl = require('datalib'),
     vg = require('vega'),
     df = vg.dataflow,
@@ -15842,7 +15920,10 @@ var dl = require('datalib'),
     Tuple = df.Tuple,
     Deps = df.Dependencies,
     Transform = vg.transforms.Transform,
-    sg = require('../../../state/signals');    
+    Voronoi = vg.transforms.voronoi,
+    sg = require('../../../state/signals');
+
+var $x = dl.$('x'), $y = dl.$('y');
 
 function Manipulators(graph) {
   Transform.prototype.init.call(this, graph);
@@ -15853,6 +15934,7 @@ function Manipulators(graph) {
 
   this._cacheID = null;
   this._cache   = [];
+  this._voronoi = new Voronoi(graph);
 
   return this.router(true).produces(true)
     .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MANIPULATORS]);
@@ -15904,14 +15986,28 @@ prototype.transform = function(input) {
     output.add.push.apply(output.add, cache);
   }
 
-  return output;
+  var clip = [
+    [dl.min(cache, $x)-25, dl.min(cache, $y)-25],
+    [dl.max(cache, $x)+25, dl.max(cache, $y)+25]
+  ];
+
+  return this._voronoi
+    .param('x', 'x')
+    .param('y', 'y')
+    .param('clipExtent', clip)
+    .batchTransform(output, cache);
 };
 
 prototype.handles = function(item) { return []; };
+prototype.connectors = function(item) { return []; };
+prototype.arrows = function(item) { return []; };
+prototype.spans = function(item) { return []; };
 
 module.exports = Manipulators;
-},{"../../../state/signals":38,"datalib":24,"vega":48}],47:[function(require,module,exports){
-var Base = require('./Manipulators');
+},{"../../../state/signals":39,"datalib":25,"vega":89}],49:[function(require,module,exports){
+var Base = require('./Manipulators'),
+    spec = require('../../primitives/marks/manipulators'),
+    SIZES = spec.SIZES;
 
 function RectManipulators(graph) {
   return Base.call(this, graph);
@@ -15935,17 +16031,3447 @@ function coords(item) {
   };
 }
 
-prototype.handles = function(item) {
-  var c = coords(item), data = [];
+function compile(kind, item) {
+  var b = item.bounds,
+      c = coords(item), 
+      data = [],
+      size = b.width() < 20 || b.height() < 20 ? SIZES.SMALL : SIZES.LARGE;
+
   for (var k in c) {
-    if (k === 'midCenter') continue;
-    data.push(dl.extend(c[k], {key: k}));
+    if (kind === 'handles' && k === 'midCenter') continue;
+    data.push(dl.extend(c[k], {key: k, size: size}));
   }
   return data;
+}
+
+prototype.handles = compile.bind(null, 'handles');
+prototype.connectors = compile.bind(null, 'connectors');
+
+// padding, stroke-padding, arrowhead
+var px = 5, sp = 7, a = 7;  
+function key(k) {
+  return function(d) { return (d.key = k, d); }
+}
+
+prototype.arrows = function(item) {
+  var b = item.bounds,
+      c = coords(item),
+      tl = c.topLeft,
+      tr = c.topRight,
+      br = c.bottomRight,
+      w = b.width(), h = b.height();
+
+  return []
+    // Width/horizontal arrow stem
+    .concat([ 
+      {x: tl.x, y: tl.y-sp}, {x: tr.x, y: tr.y-sp}, {x: tr.x+w, y: tr.y-sp},
+      {x: tr.x+w-a, y: tr.y-2*sp}, {x: tr.x+w-a, y: tr.y},
+      {x: tr.x+w, y: tr.y-sp+0.1}
+    ].map(key('rx')))
+    // Height/vertical arrow stem
+    .concat([ 
+      {x: tr.x+px, y: tr.y}, {x: br.x+px, y: br.y}, {x: br.x+px, y: br.y+h},
+      {x: br.x+2*px, y: br.y+h-a}, {x: br.x, y: br.y+h-a}, 
+      {x: br.x+px, y: br.y+h+0.1}
+    ].map(key('ry')));
+};
+
+prototype.spans = function(item) {
+  var b  = item.bounds,
+      gb = item.mark.group.bounds,
+      c  = coords(item),
+      tl = c.topLeft, tc = c.topCenter, tr = c.topRight,
+      ml = c.midLeft, mr = c.midRight, 
+      bl = c.bottomLeft, bc = c.bottomCenter, br = c.bottomRight;
+
+  return []
+    // x
+    .concat([ 
+      {x: gb.x1, y: tl.y}, {x: tl.x-px, y: tl.y}      
+    ].map(key('rx')))
+    // x2
+    .concat([ 
+      {x: gb.x1, y: br.y+sp}, {x: bl.x, y: br.y+sp},  
+      {x: br.x, y: br.y+sp}
+    ].map(key('rx2')))
+    // y
+    .concat([ 
+      {x: tl.x, y: gb.y1}, {x: tl.x, y: tl.y-sp}      
+    ].map(key('ry')))
+    // y2
+    .concat([ 
+      {x: br.x+sp, y: gb.y1}, {x: br.x+sp, y: tr.y},  
+      {x: br.x+sp, y: br.y}
+    ].map(key('ry2')))
+    // width
+    .concat([ml, mr].map(key('rw')))  
+    // height
+    .concat([tc, bc].map(key('rh'))); 
 };
 
 module.exports = RectManipulators;
-},{"./Manipulators":46}],48:[function(require,module,exports){
+},{"../../primitives/marks/manipulators":46,"./Manipulators":48}],50:[function(require,module,exports){
+module.exports = {
+  path:       require('./path'),
+  render:     require('./render'),
+  Item:       require('./util/Item'),
+  bound:      require('./util/bound'),
+  Bounds:     require('./util/Bounds'),
+  canvas:     require('./util/canvas'),
+  Gradient:   require('./util/Gradient'),
+  toJSON:     require('./util/scene').toJSON,
+  fromJSON:   require('./util/scene').fromJSON
+};
+},{"./path":52,"./render":72,"./util/Bounds":78,"./util/Gradient":80,"./util/Item":82,"./util/bound":83,"./util/canvas":84,"./util/scene":86}],51:[function(require,module,exports){
+var segmentCache = {},
+    bezierCache = {},
+    join = [].join;
+
+// Copied from Inkscape svgtopdf, thanks!
+function segments(x, y, rx, ry, large, sweep, rotateX, ox, oy) {
+  var key = join.call(arguments);
+  if (segmentCache[key]) {
+    return segmentCache[key];
+  }
+
+  var th = rotateX * (Math.PI/180);
+  var sin_th = Math.sin(th);
+  var cos_th = Math.cos(th);
+  rx = Math.abs(rx);
+  ry = Math.abs(ry);
+  var px = cos_th * (ox - x) * 0.5 + sin_th * (oy - y) * 0.5;
+  var py = cos_th * (oy - y) * 0.5 - sin_th * (ox - x) * 0.5;
+  var pl = (px*px) / (rx*rx) + (py*py) / (ry*ry);
+  if (pl > 1) {
+    pl = Math.sqrt(pl);
+    rx *= pl;
+    ry *= pl;
+  }
+
+  var a00 = cos_th / rx;
+  var a01 = sin_th / rx;
+  var a10 = (-sin_th) / ry;
+  var a11 = (cos_th) / ry;
+  var x0 = a00 * ox + a01 * oy;
+  var y0 = a10 * ox + a11 * oy;
+  var x1 = a00 * x + a01 * y;
+  var y1 = a10 * x + a11 * y;
+
+  var d = (x1-x0) * (x1-x0) + (y1-y0) * (y1-y0);
+  var sfactor_sq = 1 / d - 0.25;
+  if (sfactor_sq < 0) sfactor_sq = 0;
+  var sfactor = Math.sqrt(sfactor_sq);
+  if (sweep == large) sfactor = -sfactor;
+  var xc = 0.5 * (x0 + x1) - sfactor * (y1-y0);
+  var yc = 0.5 * (y0 + y1) + sfactor * (x1-x0);
+
+  var th0 = Math.atan2(y0-yc, x0-xc);
+  var th1 = Math.atan2(y1-yc, x1-xc);
+
+  var th_arc = th1-th0;
+  if (th_arc < 0 && sweep === 1){
+    th_arc += 2 * Math.PI;
+  } else if (th_arc > 0 && sweep === 0) {
+    th_arc -= 2 * Math.PI;
+  }
+
+  var segs = Math.ceil(Math.abs(th_arc / (Math.PI * 0.5 + 0.001)));
+  var result = [];
+  for (var i=0; i<segs; ++i) {
+    var th2 = th0 + i * th_arc / segs;
+    var th3 = th0 + (i+1) * th_arc / segs;
+    result[i] = [xc, yc, th2, th3, rx, ry, sin_th, cos_th];
+  }
+
+  return (segmentCache[key] = result);
+}
+
+function bezier(params) {
+  var key = join.call(params);
+  if (bezierCache[key]) {
+    return bezierCache[key];
+  }
+  
+  var cx = params[0],
+      cy = params[1],
+      th0 = params[2],
+      th1 = params[3],
+      rx = params[4],
+      ry = params[5],
+      sin_th = params[6],
+      cos_th = params[7];
+
+  var a00 = cos_th * rx;
+  var a01 = -sin_th * ry;
+  var a10 = sin_th * rx;
+  var a11 = cos_th * ry;
+
+  var cos_th0 = Math.cos(th0);
+  var sin_th0 = Math.sin(th0);
+  var cos_th1 = Math.cos(th1);
+  var sin_th1 = Math.sin(th1);
+
+  var th_half = 0.5 * (th1 - th0);
+  var sin_th_h2 = Math.sin(th_half * 0.5);
+  var t = (8/3) * sin_th_h2 * sin_th_h2 / Math.sin(th_half);
+  var x1 = cx + cos_th0 - t * sin_th0;
+  var y1 = cy + sin_th0 + t * cos_th0;
+  var x3 = cx + cos_th1;
+  var y3 = cy + sin_th1;
+  var x2 = x3 + t * sin_th1;
+  var y2 = y3 - t * cos_th1;
+
+  return (bezierCache[key] = [
+    a00 * x1 + a01 * y1,  a10 * x1 + a11 * y1,
+    a00 * x2 + a01 * y2,  a10 * x2 + a11 * y2,
+    a00 * x3 + a01 * y3,  a10 * x3 + a11 * y3
+  ]);
+}
+
+module.exports = {
+  segments: segments,
+  bezier: bezier,
+  cache: {
+    segments: segmentCache,
+    bezier: bezierCache
+  }
+};
+
+},{}],52:[function(require,module,exports){
+module.exports = {
+  parse:  require('./parse'),
+  render: require('./render')
+};
+
+},{"./parse":53,"./render":54}],53:[function(require,module,exports){
+// Path parsing and rendering code adapted from fabric.js -- Thanks!
+var cmdlen = { m:2, l:2, h:1, v:1, c:6, s:4, q:4, t:2, a:7 },
+    regexp = [/([MLHVCSQTAZmlhvcsqtaz])/g, /###/, /(\d)([-+])/g, /\s|,|###/];
+
+module.exports = function(pathstr) {
+  var result = [],
+      path,
+      curr,
+      chunks,
+      parsed, param,
+      cmd, len, i, j, n, m;
+
+  // First, break path into command sequence
+  path = pathstr
+    .slice()
+    .replace(regexp[0], '###$1')
+    .split(regexp[1])
+    .slice(1);
+
+  // Next, parse each command in turn
+  for (i=0, n=path.length; i<n; ++i) {
+    curr = path[i];
+    chunks = curr
+      .slice(1)
+      .trim()
+      .replace(regexp[2],'$1###$2')
+      .split(regexp[3]);
+    cmd = curr.charAt(0);
+
+    parsed = [cmd];
+    for (j=0, m=chunks.length; j<m; ++j) {
+      if ((param = +chunks[j]) === param) { // not NaN
+        parsed.push(param);
+      }
+    }
+
+    len = cmdlen[cmd.toLowerCase()];
+    if (parsed.length-1 > len) {
+      for (j=1, m=parsed.length; j<m; j+=len) {
+        result.push([cmd].concat(parsed.slice(j, j+len)));
+      }
+    }
+    else {
+      result.push(parsed);
+    }
+  }
+
+  return result;
+};
+
+},{}],54:[function(require,module,exports){
+var arc = require('./arc');
+
+module.exports = function(g, path, l, t) {
+  var current, // current instruction
+      previous = null,
+      x = 0, // current x
+      y = 0, // current y
+      controlX = 0, // current control point x
+      controlY = 0, // current control point y
+      tempX,
+      tempY,
+      tempControlX,
+      tempControlY;
+
+  if (l == null) l = 0;
+  if (t == null) t = 0;
+
+  g.beginPath();
+
+  for (var i=0, len=path.length; i<len; ++i) {
+    current = path[i];
+
+    switch (current[0]) { // first letter
+
+      case 'l': // lineto, relative
+        x += current[1];
+        y += current[2];
+        g.lineTo(x + l, y + t);
+        break;
+
+      case 'L': // lineto, absolute
+        x = current[1];
+        y = current[2];
+        g.lineTo(x + l, y + t);
+        break;
+
+      case 'h': // horizontal lineto, relative
+        x += current[1];
+        g.lineTo(x + l, y + t);
+        break;
+
+      case 'H': // horizontal lineto, absolute
+        x = current[1];
+        g.lineTo(x + l, y + t);
+        break;
+
+      case 'v': // vertical lineto, relative
+        y += current[1];
+        g.lineTo(x + l, y + t);
+        break;
+
+      case 'V': // verical lineto, absolute
+        y = current[1];
+        g.lineTo(x + l, y + t);
+        break;
+
+      case 'm': // moveTo, relative
+        x += current[1];
+        y += current[2];
+        g.moveTo(x + l, y + t);
+        break;
+
+      case 'M': // moveTo, absolute
+        x = current[1];
+        y = current[2];
+        g.moveTo(x + l, y + t);
+        break;
+
+      case 'c': // bezierCurveTo, relative
+        tempX = x + current[5];
+        tempY = y + current[6];
+        controlX = x + current[3];
+        controlY = y + current[4];
+        g.bezierCurveTo(
+          x + current[1] + l, // x1
+          y + current[2] + t, // y1
+          controlX + l, // x2
+          controlY + t, // y2
+          tempX + l,
+          tempY + t
+        );
+        x = tempX;
+        y = tempY;
+        break;
+
+      case 'C': // bezierCurveTo, absolute
+        x = current[5];
+        y = current[6];
+        controlX = current[3];
+        controlY = current[4];
+        g.bezierCurveTo(
+          current[1] + l,
+          current[2] + t,
+          controlX + l,
+          controlY + t,
+          x + l,
+          y + t
+        );
+        break;
+
+      case 's': // shorthand cubic bezierCurveTo, relative
+        // transform to absolute x,y
+        tempX = x + current[3];
+        tempY = y + current[4];
+        // calculate reflection of previous control points
+        controlX = 2 * x - controlX;
+        controlY = 2 * y - controlY;
+        g.bezierCurveTo(
+          controlX + l,
+          controlY + t,
+          x + current[1] + l,
+          y + current[2] + t,
+          tempX + l,
+          tempY + t
+        );
+
+        // set control point to 2nd one of this command
+        // the first control point is assumed to be the reflection of
+        // the second control point on the previous command relative
+        // to the current point.
+        controlX = x + current[1];
+        controlY = y + current[2];
+
+        x = tempX;
+        y = tempY;
+        break;
+
+      case 'S': // shorthand cubic bezierCurveTo, absolute
+        tempX = current[3];
+        tempY = current[4];
+        // calculate reflection of previous control points
+        controlX = 2*x - controlX;
+        controlY = 2*y - controlY;
+        g.bezierCurveTo(
+          controlX + l,
+          controlY + t,
+          current[1] + l,
+          current[2] + t,
+          tempX + l,
+          tempY + t
+        );
+        x = tempX;
+        y = tempY;
+        // set control point to 2nd one of this command
+        // the first control point is assumed to be the reflection of
+        // the second control point on the previous command relative
+        // to the current point.
+        controlX = current[1];
+        controlY = current[2];
+
+        break;
+
+      case 'q': // quadraticCurveTo, relative
+        // transform to absolute x,y
+        tempX = x + current[3];
+        tempY = y + current[4];
+
+        controlX = x + current[1];
+        controlY = y + current[2];
+
+        g.quadraticCurveTo(
+          controlX + l,
+          controlY + t,
+          tempX + l,
+          tempY + t
+        );
+        x = tempX;
+        y = tempY;
+        break;
+
+      case 'Q': // quadraticCurveTo, absolute
+        tempX = current[3];
+        tempY = current[4];
+
+        g.quadraticCurveTo(
+          current[1] + l,
+          current[2] + t,
+          tempX + l,
+          tempY + t
+        );
+        x = tempX;
+        y = tempY;
+        controlX = current[1];
+        controlY = current[2];
+        break;
+
+      case 't': // shorthand quadraticCurveTo, relative
+
+        // transform to absolute x,y
+        tempX = x + current[1];
+        tempY = y + current[2];
+
+        if (previous[0].match(/[QqTt]/) === null) {
+          // If there is no previous command or if the previous command was not a Q, q, T or t,
+          // assume the control point is coincident with the current point
+          controlX = x;
+          controlY = y;
+        }
+        else if (previous[0] === 't') {
+          // calculate reflection of previous control points for t
+          controlX = 2 * x - tempControlX;
+          controlY = 2 * y - tempControlY;
+        }
+        else if (previous[0] === 'q') {
+          // calculate reflection of previous control points for q
+          controlX = 2 * x - controlX;
+          controlY = 2 * y - controlY;
+        }
+
+        tempControlX = controlX;
+        tempControlY = controlY;
+
+        g.quadraticCurveTo(
+          controlX + l,
+          controlY + t,
+          tempX + l,
+          tempY + t
+        );
+        x = tempX;
+        y = tempY;
+        controlX = x + current[1];
+        controlY = y + current[2];
+        break;
+
+      case 'T':
+        tempX = current[1];
+        tempY = current[2];
+
+        // calculate reflection of previous control points
+        controlX = 2 * x - controlX;
+        controlY = 2 * y - controlY;
+        g.quadraticCurveTo(
+          controlX + l,
+          controlY + t,
+          tempX + l,
+          tempY + t
+        );
+        x = tempX;
+        y = tempY;
+        break;
+
+      case 'a':
+        drawArc(g, x + l, y + t, [
+          current[1],
+          current[2],
+          current[3],
+          current[4],
+          current[5],
+          current[6] + x + l,
+          current[7] + y + t
+        ]);
+        x += current[6];
+        y += current[7];
+        break;
+
+      case 'A':
+        drawArc(g, x + l, y + t, [
+          current[1],
+          current[2],
+          current[3],
+          current[4],
+          current[5],
+          current[6] + l,
+          current[7] + t
+        ]);
+        x = current[6];
+        y = current[7];
+        break;
+
+      case 'z':
+      case 'Z':
+        g.closePath();
+        break;
+    }
+    previous = current;
+  }
+};
+
+function drawArc(g, x, y, coords) {
+  var seg = arc.segments(
+    coords[5], // end x
+    coords[6], // end y
+    coords[0], // radius x
+    coords[1], // radius y
+    coords[3], // large flag
+    coords[4], // sweep flag
+    coords[2], // rotation
+    x, y
+  );
+  for (var i=0; i<seg.length; ++i) {
+    var bez = arc.bezier(seg[i]);
+    g.bezierCurveTo.apply(g, bez);
+  }
+}
+
+},{"./arc":51}],55:[function(require,module,exports){
+function Handler() {
+  this._active = null;
+  this._handlers = {};
+}
+
+var prototype = Handler.prototype;
+
+prototype.initialize = function(el, pad, obj) {
+  this._el = el;
+  this._obj = obj || null;
+  return this.padding(pad);
+};
+
+prototype.element = function() {
+  return this._el;
+};
+
+prototype.padding = function(pad) {
+  this._padding = pad || {top:0, left:0, bottom:0, right:0};
+  return this;
+};
+
+prototype.scene = function(scene) {
+  if (!arguments.length) return this._scene;
+  this._scene = scene;
+  return this;
+};
+
+// add an event handler
+// subclasses should override
+prototype.on = function(/*type, handler*/) {};
+
+// remove an event handler
+// subclasses should override
+prototype.off = function(/*type, handler*/) {};
+
+// return an array with all registered event handlers
+prototype.handlers = function() {
+  var h = this._handlers, a = [], k;
+  for (k in h) { a.push.apply(a, h[k]); }
+  return a;
+};
+
+prototype.eventName = function(name) {
+  var i = name.indexOf('.');
+  return i < 0 ? name : name.slice(0,i);
+};
+
+module.exports = Handler;
+},{}],56:[function(require,module,exports){
+function Renderer() {
+  this._el = null;
+  this._bgcolor = null;
+}
+
+var prototype = Renderer.prototype;
+
+prototype.initialize = function(el, width, height, padding) {
+  this._el = el;
+  return this.resize(width, height, padding);
+};
+
+// Returns the parent container element for a visualization
+prototype.element = function() {
+  return this._el;
+};
+
+// Returns the scene element (e.g., canvas or SVG) of the visualization
+// Subclasses must override if the first child is not the scene element
+prototype.scene = function() {
+  return this._el && this._el.firstChild;
+};
+
+prototype.background = function(bgcolor) {
+  if (arguments.length === 0) return this._bgcolor;
+  this._bgcolor = bgcolor;
+  return this;
+};
+
+prototype.resize = function(width, height, padding) {
+  this._width = width;
+  this._height = height;
+  this._padding = padding || {top:0, left:0, bottom:0, right:0};
+  return this;
+};
+
+prototype.render = function(/*scene, items*/) {
+  return this;
+};
+
+module.exports = Renderer;
+},{}],57:[function(require,module,exports){
+var DOM = require('../../util/dom'),
+    Handler = require('../Handler'),
+    marks = require('./marks');
+
+function CanvasHandler() {
+  Handler.call(this);
+  this._down = null;
+  this._touch = null;
+  this._first = true;
+}
+
+var base = Handler.prototype;
+var prototype = (CanvasHandler.prototype = Object.create(base));
+prototype.constructor = CanvasHandler;
+
+prototype.initialize = function(el, pad, obj) {
+  // add event listeners
+  var canvas = this._canvas = DOM.find(el, 'canvas'),
+      that = this;
+  this.events.forEach(function(type) {
+    canvas.addEventListener(type, function(evt) {
+      if (prototype[type]) {
+        prototype[type].call(that, evt);
+      } else {
+        that.fire(type, evt);
+      }
+    });
+  });
+
+  return base.initialize.call(this, el, pad, obj);
+};
+
+prototype.canvas = function() {
+  return this._canvas;
+};
+
+// retrieve the current canvas context
+prototype.context = function() {
+  return this._canvas.getContext('2d');
+};
+
+// supported events
+prototype.events = [
+  'keydown',
+  'keypress',
+  'keyup',
+  'mousedown',
+  'mouseup',
+  'mousemove',
+  'mouseout',
+  'mouseover',
+  'click',
+  'dblclick',
+  'wheel',
+  'mousewheel',
+  'touchstart',
+  'touchmove',
+  'touchend'
+];
+
+// to keep firefox happy
+prototype.DOMMouseScroll = function(evt) {
+  this.fire('mousewheel', evt);
+};
+
+prototype.mousemove = function(evt) {
+  var a = this._active,
+      p = this.pickEvent(evt);
+
+  if (p === a) {
+    // active item and picked item are the same
+    this.fire('mousemove', evt); // fire move
+  } else {
+    // active item and picked item are different
+    this.fire('mouseout', evt);  // fire out for prior active item
+    this._active = p;            // set new active item
+    this.fire('mouseover', evt); // fire over for new active item
+    this.fire('mousemove', evt); // fire move for new active item
+  }
+};
+
+prototype.mouseout = function(evt) {
+  this.fire('mouseout', evt);
+  this._active = null;
+};
+
+prototype.mousedown = function(evt) {
+  this._down = this._active;
+  this.fire('mousedown', evt);
+};
+
+prototype.click = function(evt) {
+  if (this._down === this._active) {
+    this.fire('click', evt);
+    this._down = null;
+  }
+};
+
+prototype.touchstart = function(evt) {
+  this._touch = this.pickEvent(evt.changedTouches[0]);
+
+  if (this._first) {
+    this._active = this._touch;
+    this._first = false;
+  }
+
+  this.fire('touchstart', evt, true);
+};
+
+prototype.touchmove = function(evt) {
+  this.fire('touchmove', evt, true);
+};
+
+prototype.touchend = function(evt) {
+  this.fire('touchend', evt, true);
+  this._touch = null;
+};
+
+// fire an event
+prototype.fire = function(type, evt, touch) {
+  var a = touch ? this._touch : this._active,
+      h = this._handlers[type], i, len;
+  if (h) {
+    evt.vegaType = type;
+    for (i=0, len=h.length; i<len; ++i) {
+      h[i].handler.call(this._obj, evt, a);
+    }
+  }
+};
+
+// add an event handler
+prototype.on = function(type, handler) {
+  var name = this.eventName(type),
+      h = this._handlers;
+  (h[name] || (h[name] = [])).push({
+    type: type,
+    handler: handler
+  });
+  return this;
+};
+
+// remove an event handler
+prototype.off = function(type, handler) {
+  var name = this.eventName(type),
+      h = this._handlers[name], i;
+  if (!h) return;
+  for (i=h.length; --i>=0;) {
+    if (h[i].type !== type) continue;
+    if (!handler || h[i].handler === handler) h.splice(i, 1);
+  }
+  return this;
+};
+
+prototype.pickEvent = function(evt) {
+  var rect = this._canvas.getBoundingClientRect(),
+      pad = this._padding, x, y;
+  return this.pick(this._scene,
+    x = (evt.clientX - rect.left),
+    y = (evt.clientY - rect.top),
+    x - pad.left, y - pad.top);
+};
+
+// find the scenegraph item at the current mouse position
+// x, y -- the absolute x, y mouse coordinates on the canvas element
+// gx, gy -- the relative coordinates within the current group
+prototype.pick = function(scene, x, y, gx, gy) {
+  var g = this.context(),
+      mark = marks[scene.marktype];
+  return mark.pick.call(this, g, scene, x, y, gx, gy);
+};
+
+module.exports = CanvasHandler;
+
+},{"../../util/dom":85,"../Handler":55,"./marks":64}],58:[function(require,module,exports){
+var DOM = require('../../util/dom'),
+    Bounds = require('../../util/Bounds'),
+    ImageLoader = require('../../util/ImageLoader'),
+    Canvas = require('../../util/canvas'),
+    Renderer = require('../Renderer'),
+    marks = require('./marks');
+
+function CanvasRenderer(loadConfig) {
+  Renderer.call(this);
+  this._loader = new ImageLoader(loadConfig);
+}
+
+CanvasRenderer.RETINA = true;
+
+var base = Renderer.prototype;
+var prototype = (CanvasRenderer.prototype = Object.create(base));
+prototype.constructor = CanvasRenderer;
+
+prototype.initialize = function(el, width, height, padding) {
+  this._canvas = Canvas.instance(width, height);
+  if (el) {
+    DOM.clear(el, 0).appendChild(this._canvas);
+    this._canvas.setAttribute('class', 'marks');
+  }
+  return base.initialize.call(this, el, width, height, padding);
+};
+
+prototype.resize = function(width, height, padding) {
+  base.resize.call(this, width, height, padding);
+  Canvas.resize(this._canvas, this._width, this._height,
+    this._padding, CanvasRenderer.RETINA);
+  return this;
+};
+
+prototype.canvas = function() {
+  return this._canvas;
+};
+
+prototype.context = function() {
+  return this._canvas ? this._canvas.getContext('2d') : null;
+};
+
+prototype.pendingImages = function() {
+  return this._loader.pending();
+};
+
+function clipToBounds(g, items) {
+  if (!items) return null;
+
+  var b = new Bounds(), i, n, item, mark, group;
+  for (i=0, n=items.length; i<n; ++i) {
+    item = items[i];
+    mark = item.mark;
+    group = mark.group;
+    item = marks[mark.marktype].nested ? mark : item;
+    b.union(translate(item.bounds, group));
+    if (item['bounds:prev']) {
+      b.union(translate(item['bounds:prev'], group));
+    }
+  }
+  b.round();
+
+  g.beginPath();
+  g.rect(b.x1, b.y1, b.width(), b.height());
+  g.clip();
+
+  return b;
+}
+
+function translate(bounds, group) {
+  if (group == null) return bounds;
+  var b = bounds.clone();
+  for (; group != null; group = group.mark.group) {
+    b.translate(group.x || 0, group.y || 0);
+  }
+  return b;
+}
+
+prototype.render = function(scene, items) {
+  var g = this.context(),
+      p = this._padding,
+      w = this._width + p.left + p.right,
+      h = this._height + p.top + p.bottom,
+      b;
+
+  // setup
+  this._scene = scene; // cache scene for async redraw
+  g.save();
+  b = clipToBounds(g, items);
+  this.clear(-p.left, -p.top, w, h);
+
+  // render
+  this.draw(g, scene, b);
+  
+  // takedown
+  g.restore();
+  this._scene = null; // clear scene cache
+
+  return this;
+};
+
+prototype.draw = function(ctx, scene, bounds) {
+  var mark = marks[scene.marktype];
+  mark.draw.call(this, ctx, scene, bounds);
+};
+
+prototype.clear = function(x, y, w, h) {
+  var g = this.context();
+  g.clearRect(x, y, w, h);
+  if (this._bgcolor != null) {
+    g.fillStyle = this._bgcolor;
+    g.fillRect(x, y, w, h); 
+  }
+};
+
+prototype.loadImage = function(uri) {
+  var renderer = this,
+      scene = this._scene;
+  return this._loader.loadImage(uri, function() {
+    renderer.renderAsync(scene);
+  });
+};
+
+prototype.renderAsync = function(scene) {
+  // TODO make safe for multiple scene rendering?
+  var renderer = this;
+  if (renderer._async_id) {
+    clearTimeout(renderer._async_id);
+  }
+  renderer._async_id = setTimeout(function() {
+    renderer.render(scene);
+    delete renderer._async_id;
+  }, 10);
+};
+
+module.exports = CanvasRenderer;
+
+},{"../../util/Bounds":78,"../../util/ImageLoader":81,"../../util/canvas":84,"../../util/dom":85,"../Renderer":56,"./marks":64}],59:[function(require,module,exports){
+module.exports = {
+  Handler:  require('./CanvasHandler'),
+  Renderer: require('./CanvasRenderer')
+};
+},{"./CanvasHandler":57,"./CanvasRenderer":58}],60:[function(require,module,exports){
+var util = require('./util');
+var halfpi = Math.PI / 2;
+
+function path(g, o) {
+  var x = o.x || 0,
+      y = o.y || 0,
+      ir = o.innerRadius || 0,
+      or = o.outerRadius || 0,
+      sa = (o.startAngle || 0) - halfpi,
+      ea = (o.endAngle || 0) - halfpi;
+  g.beginPath();
+  if (ir === 0) g.moveTo(x, y);
+  else g.arc(x, y, ir, sa, ea, 0);
+  g.arc(x, y, or, ea, sa, 1);
+  g.closePath();
+}
+
+module.exports = {
+  draw: util.drawAll(path),
+  pick: util.pickPath(path)
+};
+},{"./util":71}],61:[function(require,module,exports){
+var util = require('./util'),
+    parse = require('../../../path/parse'),
+    render = require('../../../path/render'),
+    areaPath = require('../../../util/svg').path.area;
+
+function path(g, items) {
+  var o = items[0],
+      p = o.pathCache || (o.pathCache = parse(areaPath(items)));
+  render(g, p);
+}
+
+function pick(g, scene, x, y, gx, gy) {
+  var items = scene.items,
+      b = scene.bounds;
+
+  if (!items || !items.length || b && !b.contains(gx, gy)) {
+    return null;
+  }
+
+  if (g.pixelratio != null && g.pixelratio !== 1) {
+    x *= g.pixelratio;
+    y *= g.pixelratio;
+  }
+  return hit(g, items, x, y) ? items[0] : null;
+}
+
+var hit = util.testPath(path);
+
+module.exports = {
+  draw: util.drawOne(path),
+  pick: pick,
+  nested: true
+};
+
+},{"../../../path/parse":53,"../../../path/render":54,"../../../util/svg":87,"./util":71}],62:[function(require,module,exports){
+var util = require('./util'),
+    rect = require('./rect');
+
+function draw(g, scene, bounds) {
+  if (!scene.items || !scene.items.length) return;
+
+  var groups = scene.items,
+      renderer = this,
+      group, items, axes, legends, gx, gy, i, n, j, m;
+
+  rect.draw.call(renderer, g, scene, bounds);
+
+  for (i=0, n=groups.length; i<n; ++i) {
+    group = groups[i];
+    axes = group.axisItems || [];
+    items = group.items || [];
+    legends = group.legendItems || [];
+    gx = group.x || 0;
+    gy = group.y || 0;
+
+    // render group contents
+    g.save();
+    g.translate(gx, gy);
+    if (group.clip) {
+      g.beginPath();
+      g.rect(0, 0, group.width || 0, group.height || 0);
+      g.clip();
+    }
+
+    if (bounds) bounds.translate(-gx, -gy);
+
+    for (j=0, m=axes.length; j<m; ++j) {
+      if (axes[j].layer === 'back') {
+        renderer.draw(g, axes[j], bounds);
+      }
+    }
+    for (j=0, m=items.length; j<m; ++j) {
+      renderer.draw(g, items[j], bounds);
+    }
+    for (j=0, m=axes.length; j<m; ++j) {
+      if (axes[j].layer !== 'back') {
+        renderer.draw(g, axes[j], bounds);
+      }
+    }
+    for (j=0, m=legends.length; j<m; ++j) {
+      renderer.draw(g, legends[j], bounds);
+    }
+    
+    if (bounds) bounds.translate(gx, gy);
+    g.restore();
+  }    
+}
+
+function hit(g, o) {
+  return o.fill || o.stroke;
+}
+
+function pick(g, scene, x, y, gx, gy) {
+  if (scene.bounds && !scene.bounds.contains(gx, gy)) {
+    return null;
+  }
+  var items = scene.items || [],
+      subscene, group, hits, dx, dy, i, j;
+
+  for (i=items.length; --i>=0;) {
+    group = items[i];
+    dx = group.x || 0;
+    dy = group.y || 0;
+
+    g.save();
+    g.translate(dx, dy);
+    for (j=group.items.length; --j >= 0;) {
+      subscene = group.items[j];
+      if (subscene.interactive === false) continue;
+      hits = this.pick(subscene, x, y, gx-dx, gy-dy);
+      if (hits) {
+        g.restore();
+        return hits;
+      }
+    }
+    g.restore();
+  }
+
+  return scene.interactive !== false ? pickSelf(g, scene, x, y, gx, gy) : null;
+}
+
+var pickSelf = util.pick(hit);
+
+module.exports = {
+  draw: draw,
+  pick: pick
+};
+
+},{"./rect":67,"./util":71}],63:[function(require,module,exports){
+var util = require('./util');
+
+function draw(g, scene, bounds) {
+  if (!scene.items || !scene.items.length) return;
+
+  var renderer = this,
+      items = scene.items, o;
+
+  for (var i=0, len=items.length; i<len; ++i) {
+    o = items[i];
+    if (bounds && !bounds.intersects(o.bounds))
+      continue; // bounds check
+
+    if (!(o.image && o.image.url === o.url)) {
+      o.image = renderer.loadImage(o.url);
+      o.image.url = o.url;
+    }
+
+    var x = o.x || 0,
+        y = o.y || 0,
+        w = o.width || (o.image && o.image.width) || 0,
+        h = o.height || (o.image && o.image.height) || 0,
+        opac;
+    x = x - (o.align==='center' ? w/2 : o.align==='right' ? w : 0);
+    y = y - (o.baseline==='middle' ? h/2 : o.baseline==='bottom' ? h : 0);
+
+    if (o.image.loaded) {
+      g.globalAlpha = (opac = o.opacity) != null ? opac : 1;
+      g.drawImage(o.image, x, y, w, h);
+    }
+  }
+}
+
+module.exports = {
+  draw: draw,
+  pick: util.pick()
+};
+},{"./util":71}],64:[function(require,module,exports){
+module.exports = {
+  arc:    require('./arc'),
+  area:   require('./area'),
+  group:  require('./group'),
+  image:  require('./image'),
+  line:   require('./line'),
+  path:   require('./path'),
+  rect:   require('./rect'),
+  rule:   require('./rule'),
+  symbol: require('./symbol'),
+  text:   require('./text')
+};
+
+},{"./arc":60,"./area":61,"./group":62,"./image":63,"./line":65,"./path":66,"./rect":67,"./rule":68,"./symbol":69,"./text":70}],65:[function(require,module,exports){
+var util = require('./util'),
+    parse = require('../../../path/parse'),
+    render = require('../../../path/render'),
+    linePath = require('../../../util/svg').path.line;
+    
+function path(g, items) {
+  var o = items[0],
+      p = o.pathCache || (o.pathCache = parse(linePath(items)));
+  render(g, p);
+}
+
+function pick(g, scene, x, y, gx, gy) {
+  var items = scene.items,
+      b = scene.bounds;
+
+  if (!items || !items.length || b && !b.contains(gx, gy)) {
+    return null;
+  }
+
+  if (g.pixelratio != null && g.pixelratio !== 1) {
+    x *= g.pixelratio;
+    y *= g.pixelratio;
+  }
+  return hit(g, items, x, y) ? items[0] : null;
+}
+
+var hit = util.testPath(path, false);
+
+module.exports = {
+  draw: util.drawOne(path),
+  pick: pick,
+  nested: true
+};
+
+},{"../../../path/parse":53,"../../../path/render":54,"../../../util/svg":87,"./util":71}],66:[function(require,module,exports){
+var util = require('./util'),
+    parse = require('../../../path/parse'),
+    render = require('../../../path/render');
+
+function path(g, o) {
+  if (o.path == null) return true;
+  var p = o.pathCache || (o.pathCache = parse(o.path));
+  render(g, p, o.x, o.y);
+}
+
+module.exports = {
+  draw: util.drawAll(path),
+  pick: util.pickPath(path)
+};
+
+},{"../../../path/parse":53,"../../../path/render":54,"./util":71}],67:[function(require,module,exports){
+var util = require('./util');
+
+function draw(g, scene, bounds) {
+  if (!scene.items || !scene.items.length) return;
+
+  var items = scene.items,
+      o, opac, x, y, w, h;
+
+  for (var i=0, len=items.length; i<len; ++i) {
+    o = items[i];
+    if (bounds && !bounds.intersects(o.bounds))
+      continue; // bounds check
+
+    opac = o.opacity == null ? 1 : o.opacity;
+    if (opac === 0) continue;
+
+    x = o.x || 0;
+    y = o.y || 0;
+    w = o.width || 0;
+    h = o.height || 0;
+
+    if (o.fill && util.fill(g, o, opac)) {
+      g.fillRect(x, y, w, h);
+    }
+    if (o.stroke && util.stroke(g, o, opac)) {
+      g.strokeRect(x, y, w, h);
+    }
+  }
+}
+
+module.exports = {
+  draw: draw,
+  pick: util.pick()
+};
+},{"./util":71}],68:[function(require,module,exports){
+var util = require('./util');
+
+function draw(g, scene, bounds) {
+  if (!scene.items || !scene.items.length) return;
+
+  var items = scene.items,
+      o, opac, x1, y1, x2, y2;
+
+  for (var i=0, len=items.length; i<len; ++i) {
+    o = items[i];
+    if (bounds && !bounds.intersects(o.bounds))
+      continue; // bounds check
+
+    opac = o.opacity == null ? 1 : o.opacity;
+    if (opac === 0) continue;
+      
+    x1 = o.x || 0;
+    y1 = o.y || 0;
+    x2 = o.x2 != null ? o.x2 : x1;
+    y2 = o.y2 != null ? o.y2 : y1;
+
+    if (o.stroke && util.stroke(g, o, opac)) {
+      g.beginPath();
+      g.moveTo(x1, y1);
+      g.lineTo(x2, y2);
+      g.stroke();
+    }
+  }
+}
+
+function stroke(g, o) {
+  var x1 = o.x || 0,
+      y1 = o.y || 0,
+      x2 = o.x2 != null ? o.x2 : x1,
+      y2 = o.y2 != null ? o.y2 : y1,
+      lw = o.strokeWidth,
+      lc = o.strokeCap;
+
+  g.lineWidth = lw != null ? lw : 1;
+  g.lineCap   = lc != null ? lc : 'butt';
+  g.beginPath();
+  g.moveTo(x1, y1);
+  g.lineTo(x2, y2);
+}
+
+function hit(g, o, x, y) {
+  if (!g.isPointInStroke) return false;
+  stroke(g, o);
+  return g.isPointInStroke(x, y);
+}
+
+module.exports = {
+  draw: draw,
+  pick: util.pick(hit)
+};
+
+},{"./util":71}],69:[function(require,module,exports){
+var util = require('./util');
+
+var sqrt3 = Math.sqrt(3),
+    tan30 = Math.tan(30 * Math.PI / 180);
+
+function path(g, o) {
+  var size = o.size != null ? o.size : 100,
+      x = o.x, y = o.y, r, t, rx, ry;
+
+  g.beginPath();
+
+  if (o.shape == null || o.shape === 'circle') {
+    r = Math.sqrt(size / Math.PI);
+    g.arc(x, y, r, 0, 2*Math.PI, 0);
+    g.closePath();
+    return;
+  }
+
+  switch (o.shape) {
+    case 'cross':
+      r = Math.sqrt(size / 5) / 2;
+      t = 3*r;
+      g.moveTo(x-t, y-r);
+      g.lineTo(x-r, y-r);
+      g.lineTo(x-r, y-t);
+      g.lineTo(x+r, y-t);
+      g.lineTo(x+r, y-r);
+      g.lineTo(x+t, y-r);
+      g.lineTo(x+t, y+r);
+      g.lineTo(x+r, y+r);
+      g.lineTo(x+r, y+t);
+      g.lineTo(x-r, y+t);
+      g.lineTo(x-r, y+r);
+      g.lineTo(x-t, y+r);
+      break;
+
+    case 'diamond':
+      ry = Math.sqrt(size / (2 * tan30));
+      rx = ry * tan30;
+      g.moveTo(x, y-ry);
+      g.lineTo(x+rx, y);
+      g.lineTo(x, y+ry);
+      g.lineTo(x-rx, y);
+      break;
+
+    case 'square':
+      t = Math.sqrt(size);
+      r = t / 2;
+      g.rect(x-r, y-r, t, t);
+      break;
+
+    case 'triangle-down':
+      rx = Math.sqrt(size / sqrt3);
+      ry = rx * sqrt3 / 2;
+      g.moveTo(x, y+ry);
+      g.lineTo(x+rx, y-ry);
+      g.lineTo(x-rx, y-ry);
+      break;
+
+    case 'triangle-up':
+      rx = Math.sqrt(size / sqrt3);
+      ry = rx * sqrt3 / 2;
+      g.moveTo(x, y-ry);
+      g.lineTo(x+rx, y+ry);
+      g.lineTo(x-rx, y+ry);
+  }
+  g.closePath();
+}
+
+module.exports = {
+  draw: util.drawAll(path),
+  pick: util.pickPath(path)
+};
+},{"./util":71}],70:[function(require,module,exports){
+var Bounds = require('../../../util/Bounds'),
+    textBounds = require('../../../util/bound').text,
+    text = require('../../../util/text'),
+    util = require('./util'),
+    tempBounds = new Bounds();
+
+function draw(g, scene, bounds) {
+  if (!scene.items || !scene.items.length) return;
+
+  var items = scene.items,
+      o, opac, x, y, r, t, str;
+
+  for (var i=0, len=items.length; i<len; ++i) {
+    o = items[i];
+    if (bounds && !bounds.intersects(o.bounds))
+      continue; // bounds check
+
+    str = text.value(o.text);
+    if (!str) continue;
+    opac = o.opacity == null ? 1 : o.opacity;
+    if (opac === 0) continue;
+
+    g.font = text.font(o);
+    g.textAlign = o.align || 'left';
+
+    x = (o.x || 0);
+    y = (o.y || 0);
+    if ((r = o.radius)) {
+      t = (o.theta || 0) - Math.PI/2;
+      x += r * Math.cos(t);
+      y += r * Math.sin(t);
+    }
+
+    if (o.angle) {
+      g.save();
+      g.translate(x, y);
+      g.rotate(o.angle * Math.PI/180);
+      x = y = 0; // reset x, y
+    }
+    x += (o.dx || 0);
+    y += (o.dy || 0) + text.offset(o);
+
+    if (o.fill && util.fill(g, o, opac)) {
+      g.fillText(str, x, y);
+    }
+    if (o.stroke && util.stroke(g, o, opac)) {
+      g.strokeText(str, x, y);
+    }
+    if (o.angle) g.restore();
+  }
+}
+
+function hit(g, o, x, y, gx, gy) {
+  if (o.fontSize <= 0) return false;
+  if (!o.angle) return true; // bounds sufficient if no rotation
+
+  // project point into space of unrotated bounds
+  var b = textBounds(o, tempBounds, true),
+      a = -o.angle * Math.PI / 180,
+      cos = Math.cos(a),
+      sin = Math.sin(a),
+      ox = o.x,
+      oy = o.y,
+      px = cos*gx - sin*gy + (ox - ox*cos + oy*sin),
+      py = sin*gx + cos*gy + (oy - ox*sin - oy*cos);
+
+  return b.contains(px, py);
+}
+
+module.exports = {
+  draw: draw,
+  pick: util.pick(hit)
+};
+
+},{"../../../util/Bounds":78,"../../../util/bound":83,"../../../util/text":88,"./util":71}],71:[function(require,module,exports){
+function drawPathOne(path, g, o, items) {
+  if (path(g, items)) return;
+
+  var opac = o.opacity == null ? 1 : o.opacity;
+  if (opac===0) return;
+
+  if (o.fill && fill(g, o, opac)) { g.fill(); }
+  if (o.stroke && stroke(g, o, opac)) { g.stroke(); }
+}
+
+function drawPathAll(path, g, scene, bounds) {
+  var i, len, item;
+  for (i=0, len=scene.items.length; i<len; ++i) {
+    item = scene.items[i];
+    if (!bounds || bounds.intersects(item.bounds)) {
+      drawPathOne(path, g, item, item);
+    }
+  }
+}
+
+function drawAll(pathFunc) {
+  return function(g, scene, bounds) {
+    drawPathAll(pathFunc, g, scene, bounds);
+  };
+}
+
+function drawOne(pathFunc) {
+  return function(g, scene, bounds) {
+    if (!scene.items.length) return;
+    if (!bounds || bounds.intersects(scene.bounds)) {
+      drawPathOne(pathFunc, g, scene.items[0], scene.items);
+    }
+  };
+}
+
+var trueFunc = function() { return true; };
+
+function pick(test) {
+  if (!test) test = trueFunc;
+
+  return function(g, scene, x, y, gx, gy) {
+    if (!scene.items.length) return null;
+
+    var o, b, i;
+
+    if (g.pixelratio != null && g.pixelratio !== 1) {
+      x *= g.pixelratio;
+      y *= g.pixelratio;
+    }
+
+    for (i=scene.items.length; --i >= 0;) {
+      o = scene.items[i]; b = o.bounds;
+      // first hit test against bounding box
+      if ((b && !b.contains(gx, gy)) || !b) continue;
+      // if in bounding box, perform more careful test
+      if (test(g, o, x, y, gx, gy)) return o;
+    }
+    return null;
+  };
+}
+
+function testPath(path, filled) {
+  return function(g, o, x, y) {
+    var item = Array.isArray(o) ? o[0] : o,
+        fill = (filled == null) ? item.fill : filled,
+        stroke = item.stroke && g.isPointInStroke, lw, lc;
+
+    if (stroke) {
+      lw = item.strokeWidth;
+      lc = item.strokeCap;
+      g.lineWidth = lw != null ? lw : 1;
+      g.lineCap   = lc != null ? lc : 'butt';
+    }
+
+    return path(g, o) ? false :
+      (fill && g.isPointInPath(x, y)) ||
+      (stroke && g.isPointInStroke(x, y));
+  };
+}
+
+function pickPath(path) {
+  return pick(testPath(path));
+}
+
+function fill(g, o, opacity) {
+  opacity *= (o.fillOpacity==null ? 1 : o.fillOpacity);
+  if (opacity > 0) {
+    g.globalAlpha = opacity;
+    g.fillStyle = color(g, o, o.fill);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function stroke(g, o, opacity) {
+  var lw = (lw = o.strokeWidth) != null ? lw : 1, lc;
+  if (lw <= 0) return false;
+
+  opacity *= (o.strokeOpacity==null ? 1 : o.strokeOpacity);
+  if (opacity > 0) {
+    g.globalAlpha = opacity;
+    g.strokeStyle = color(g, o, o.stroke);
+    g.lineWidth = lw;
+    g.lineCap = (lc = o.strokeCap) != null ? lc : 'butt';
+    g.vgLineDash(o.strokeDash || null);
+    g.vgLineDashOffset(o.strokeDashOffset || 0);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function color(g, o, value) {
+  return (value.id) ?
+    gradient(g, value, o.bounds) :
+    value;
+}
+
+function gradient(g, p, b) {
+  var w = b.width(),
+      h = b.height(),
+      x1 = b.x1 + p.x1 * w,
+      y1 = b.y1 + p.y1 * h,
+      x2 = b.x1 + p.x2 * w,
+      y2 = b.y1 + p.y2 * h,
+      grad = g.createLinearGradient(x1, y1, x2, y2),
+      stop = p.stops,
+      i, n;
+
+  for (i=0, n=stop.length; i<n; ++i) {
+    grad.addColorStop(stop[i].offset, stop[i].color);
+  }
+  return grad;
+}
+
+module.exports = {
+  drawOne:  drawOne,
+  drawAll:  drawAll,
+  pick:     pick,
+  pickPath: pickPath,
+  testPath: testPath,
+  stroke:   stroke,
+  fill:     fill,
+  color:    color,
+  gradient: gradient
+};
+
+},{}],72:[function(require,module,exports){
+module.exports = {
+  'canvas': require('./canvas'),
+  'svg':    require('./svg')
+};
+
+},{"./canvas":59,"./svg":76}],73:[function(require,module,exports){
+var DOM = require('../../util/dom'),
+    Handler = require('../Handler');
+
+function SVGHandler() {
+  Handler.call(this);
+}
+
+var base = Handler.prototype;
+var prototype = (SVGHandler.prototype = Object.create(base));
+prototype.constructor = SVGHandler;
+
+prototype.initialize = function(el, pad, obj) {
+  this._svg = DOM.find(el, 'svg');
+  return base.initialize.call(this, el, pad, obj);
+};
+
+prototype.svg = function() {
+  return this._svg;
+};
+
+// wrap an event listener for the SVG DOM
+prototype.listener = function(handler) {
+  var that = this;
+  return function(evt) {
+    var target = evt.target,
+        item = target.__data__;
+    evt.vegaType = evt.type;
+    item = Array.isArray(item) ? item[0] : item;
+    handler.call(that._obj, evt, item);
+  };
+};
+
+// add an event handler
+prototype.on = function(type, handler) {
+  var name = this.eventName(type),
+      svg = this._svg,
+      h = this._handlers,
+      x = {
+        type:     type,
+        handler:  handler,
+        listener: this.listener(handler)
+      };
+
+  (h[name] || (h[name] = [])).push(x);
+  svg.addEventListener(name, x.listener);
+  return this;
+};
+
+// remove an event handler
+prototype.off = function(type, handler) {
+  var name = this.eventName(type),
+      svg = this._svg,
+      h = this._handlers[name], i;
+  if (!h) return;
+  for (i=h.length; --i>=0;) {
+    if (h[i].type === type && !handler || h[i].handler === handler) {
+      svg.removeEventListener(name, h[i].listener);
+      h.splice(i, 1);
+    }
+  }
+  return this;
+};
+
+module.exports = SVGHandler;
+
+},{"../../util/dom":85,"../Handler":55}],74:[function(require,module,exports){
+var ImageLoader = require('../../util/ImageLoader'),
+    Renderer = require('../Renderer'),
+    text = require('../../util/text'),
+    DOM = require('../../util/dom'),
+    SVG = require('../../util/svg'),
+    ns = SVG.metadata.xmlns,
+    marks = require('./marks');
+
+function SVGRenderer(loadConfig) {
+  Renderer.call(this);
+  this._loader = new ImageLoader(loadConfig);
+  this._dirtyID = 0;
+}
+
+var base = Renderer.prototype;
+var prototype = (SVGRenderer.prototype = Object.create(base));
+prototype.constructor = SVGRenderer;
+
+prototype.initialize = function(el, width, height, padding) {
+  if (el) {
+    this._svg = DOM.child(el, 0, 'svg', ns, 'marks');
+    DOM.clear(el, 1);
+    // set the svg root group
+    this._root = DOM.child(this._svg, 0, 'g', ns);
+    DOM.clear(this._svg, 1);
+  }
+
+  // create the svg definitions cache
+  this._defs = {
+    clip_id:  1,
+    gradient: {},
+    clipping: {}
+  };
+
+  // set background color if defined
+  this.background(this._bgcolor);
+
+  return base.initialize.call(this, el, width, height, padding);
+};
+
+prototype.background = function(bgcolor) {
+  if (arguments.length && this._svg) {
+    this._svg.style.setProperty('background-color', bgcolor);
+  }
+  return base.background.apply(this, arguments);
+};
+
+prototype.resize = function(width, height, padding) {
+  base.resize.call(this, width, height, padding);
+  
+  if (this._svg) {
+    var w = this._width,
+        h = this._height,
+        p = this._padding;
+  
+    this._svg.setAttribute('width', w + p.left + p.right);
+    this._svg.setAttribute('height', h + p.top + p.bottom);
+    
+    this._root.setAttribute('transform', 'translate('+p.left+','+p.top+')');
+  }
+
+  return this;
+};
+
+prototype.svg = function() {
+  if (!this._svg) return null;
+
+  var attr = {
+    'class':  'marks',
+    'width':  this._width + this._padding.left + this._padding.right,
+    'height': this._height + this._padding.top + this._padding.bottom,
+  };
+  for (var key in SVG.metadata) {
+    attr[key] = SVG.metadata[key];
+  }
+
+  return DOM.openTag('svg', attr) + this._svg.innerHTML + DOM.closeTag('svg');
+};
+
+prototype.imageURL = function(url) {
+  return this._loader.imageURL(url);
+};
+
+
+// -- Render entry point --
+
+prototype.render = function(scene, items) {
+  if (this._dirtyCheck(items)) {
+    if (this._dirtyAll) this._resetDefs();
+    this.draw(this._root, scene, -1);
+    DOM.clear(this._root, 1);
+  }
+  this.updateDefs();
+  return this;
+};
+
+prototype.draw = function(el, scene, index) {
+  this.drawMark(el, scene, index, marks[scene.marktype]);
+};
+
+
+// -- Manage SVG definitions ('defs') block --
+
+prototype.updateDefs = function() {
+  var svg = this._svg,
+      defs = this._defs,
+      el = defs.el,
+      index = 0, id;
+
+  for (id in defs.gradient) {
+    if (!el) el = (defs.el = DOM.child(svg, 0, 'defs', ns));
+    updateGradient(el, defs.gradient[id], index++);
+  }
+
+  for (id in defs.clipping) {
+    if (!el) el = (defs.el = DOM.child(svg, 0, 'defs', ns));
+    updateClipping(el, defs.clipping[id], index++);
+  }
+
+  // clean-up
+  if (el) {
+    if (index === 0) {
+      svg.removeChild(el);
+      defs.el = null;
+    } else {
+      DOM.clear(el, index);      
+    }
+  }
+};
+
+function updateGradient(el, grad, index) {
+  var i, n, stop;
+
+  el = DOM.child(el, index, 'linearGradient', ns);
+  el.setAttribute('id', grad.id);
+  el.setAttribute('x1', grad.x1);
+  el.setAttribute('x2', grad.x2);
+  el.setAttribute('y1', grad.y1);
+  el.setAttribute('y2', grad.y2);
+  
+  for (i=0, n=grad.stops.length; i<n; ++i) {
+    stop = DOM.child(el, i, 'stop', ns);
+    stop.setAttribute('offset', grad.stops[i].offset);
+    stop.setAttribute('stop-color', grad.stops[i].color);
+  }
+  DOM.clear(el, i);
+}
+
+function updateClipping(el, clip, index) {
+  var rect;
+
+  el = DOM.child(el, index, 'clipPath', ns);
+  el.setAttribute('id', clip.id);
+  rect = DOM.child(el, 0, 'rect', ns);
+  rect.setAttribute('x', 0);
+  rect.setAttribute('y', 0);
+  rect.setAttribute('width', clip.width);
+  rect.setAttribute('height', clip.height);
+}
+
+prototype._resetDefs = function() {
+  var def = this._defs;
+  def.clip_id = 1;
+  def.gradient = {};
+  def.clipping = {};
+};
+
+
+// -- Manage rendering of items marked as dirty --
+
+prototype.isDirty = function(item) {
+  return this._dirtyAll || item.dirty === this._dirtyID;
+};
+
+prototype._dirtyCheck = function(items) {
+  this._dirtyAll = true;
+  if (!items) return true;
+
+  var id = ++this._dirtyID,
+      item, mark, type, mdef, i, n, o;
+
+  for (i=0, n=items.length; i<n; ++i) {
+    item = items[i];
+    mark = item.mark;
+    if (mark.marktype !== type) {
+      // memoize mark instance lookup
+      type = mark.marktype;
+      mdef = marks[type];
+    }
+
+    if (item.status === 'exit') { // EXIT
+      if (item._svg) {
+        if (mdef.nest && item.mark.items.length) {
+          // if nested mark with remaining points, update instead
+          this._update(mdef, item._svg, item.mark.items[0]);
+          o = item.mark.items[0];
+          o._svg = item._svg;
+          o._update = id;
+        } else {
+          // otherwise remove from DOM
+          DOM.remove(item._svg);
+        }
+        item._svg = null;
+      }
+      continue;
+    }
+
+    item = (mdef.nest ? mark.items[0] : item);
+    if (item._update === id) { // Already processed
+      continue;
+    } else if (item._svg) { // UPDATE
+      this._update(mdef, item._svg, item);
+    } else { // ENTER
+      this._dirtyAll = false;
+      dirtyParents(item, id);
+    }
+    item._update = id;
+  }
+  return !this._dirtyAll;
+};
+
+function dirtyParents(item, id) {
+  for (; item && item.dirty !== id; item=item.mark.group) {
+    item.dirty = id;
+    if (item.mark && item.mark.dirty !== id) {
+      item.mark.dirty = id;
+    } else return;
+  }
+}
+
+
+// -- Construct & maintain scenegraph to SVG mapping ---
+
+// Draw a mark container.
+prototype.drawMark = function(el, scene, index, mdef) {
+  if (!this.isDirty(scene)) return;
+
+  var items = mdef.nest ?
+        (scene.items && scene.items.length ? [scene.items[0]] : []) :
+        scene.items || [],
+      events = scene.interactive === false ? 'none' : null,
+      isGroup = (mdef.tag === 'g'),
+      className = DOM.cssClass(scene),
+      p, i, n, c, d, insert;
+
+  p = DOM.child(el, index+1, 'g', ns, className);
+  p.setAttribute('class', className);
+  scene._svg = p;
+  if (!isGroup && events) {
+    p.style.setProperty('pointer-events', events);
+  }
+
+  for (i=0, n=items.length; i<n; ++i) {
+    if (this.isDirty(d = items[i])) {
+      insert = !(this._dirtyAll || d._svg);
+      c = insert ? bind(p, mdef, d, i, true)
+        : (p.childNodes[i] || bind(p, mdef, d, i));
+      this._update(mdef, c, d);
+      if (isGroup) {
+        if (insert) this._dirtyAll = true;
+        this._recurse(c, d);
+        if (insert) this._dirtyAll = false;
+      }
+    }
+  }
+  DOM.clear(p, i);
+  return p;
+};
+
+// Recursively process group contents.
+prototype._recurse = function(el, group) {
+  var items = group.items || [],
+      legends = group.legendItems || [],
+      axes = group.axisItems || [],
+      idx = 0, j, m;
+
+  for (j=0, m=axes.length; j<m; ++j) {
+    if (axes[j].layer === 'back') {
+      this.drawMark(el, axes[j], idx++, marks.group);
+    }
+  }
+  for (j=0, m=items.length; j<m; ++j) {
+    this.draw(el, items[j], idx++);
+  }
+  for (j=0, m=axes.length; j<m; ++j) {
+    if (axes[j].layer !== 'back') {
+      this.drawMark(el, axes[j], idx++, marks.group);
+    }
+  }
+  for (j=0, m=legends.length; j<m; ++j) {
+    this.drawMark(el, legends[j], idx++, marks.group);
+  }
+
+  // remove any extraneous DOM elements
+  DOM.clear(el, 1 + idx);
+};
+
+// Bind a scenegraph item to an SVG DOM element.
+// Create new SVG elements as needed.
+function bind(el, mdef, item, index, insert) {
+  // create svg element, bind item data for D3 compatibility
+  var node = DOM.child(el, index, mdef.tag, ns, null, insert);
+  node.__data__ = item;
+  node.__values__ = {fill: 'default'};
+
+  // create background rect
+  if (mdef.tag === 'g') {
+    var bg = DOM.child(node, 0, 'rect', ns, 'background');
+    bg.__data__ = item;
+  }
+
+  // add pointer from scenegraph item to svg element
+  return (item._svg = node);
+}
+
+
+// -- Set attributes & styles on SVG elements ---
+
+var href = (typeof window !== 'undefined' ? window.location.href : ''),
+    element = null, // temp var for current SVG element
+    values = null;  // temp var for current values hash
+
+// Extra configuration for certain mark types
+var mark_extras = {
+  group: function(mdef, el, item) {
+    element = el.childNodes[0];
+    values = el.__values__; // use parent's values hash
+    mdef.background(emit, item, this);
+
+    var value = item.mark.interactive === false ? 'none' : null;
+    if (value !== values.events) {
+      element.style.setProperty('pointer-events', value);
+      values.events = value;
+    }
+  },
+  text: function(mdef, el, item) {
+    var str = text.value(item.text);
+    if (str !== values.text) {
+      el.textContent = str;
+      values.text = str;
+    }
+    str = text.font(item);
+    if (str !== values.font) {
+      el.style.setProperty('font', str);
+      values.font = str;
+    }
+  }
+};
+
+prototype._update = function(mdef, el, item) {
+  // set dom element and values cache
+  // provides access to emit method
+  element = el;
+  values = el.__values__;
+
+  // apply svg attributes
+  mdef.attr(emit, item, this);
+
+  // some marks need special treatment
+  var extra = mark_extras[mdef.type];
+  if (extra) extra(mdef, el, item);
+
+  // apply svg css styles
+  // note: element may be modified by 'extra' method
+  this.style(element, item);
+};
+
+function emit(name, value, ns) {
+  // early exit if value is unchanged
+  if (value === values[name]) return;
+
+  if (value != null) {
+    // if value is provided, update DOM attribute
+    if (ns) {
+      element.setAttributeNS(ns, name, value);
+    } else {
+      element.setAttribute(name, value);
+    }
+  } else {
+    // else remove DOM attribute
+    if (ns) {
+      element.removeAttributeNS(ns, name);
+    } else {
+      element.removeAttribute(name);
+    }
+  }
+
+  // note current value for future comparison
+  values[name] = value;
+}
+
+prototype.style = function(el, o) {
+  if (o == null) return;
+  var i, n, prop, name, value;
+
+  for (i=0, n=SVG.styleProperties.length; i<n; ++i) {
+    prop = SVG.styleProperties[i];
+    value = o[prop];
+    if (value === values[prop]) continue;
+
+    name = SVG.styles[prop];
+    if (value == null) {
+      if (name === 'fill') {
+        el.style.setProperty(name, 'none');
+      } else {
+        el.style.removeProperty(name);
+      }
+    } else {
+      if (value.id) {
+        // ensure definition is included
+        this._defs.gradient[value.id] = value;
+        value = 'url(' + href + '#' + value.id + ')';
+      }
+      el.style.setProperty(name, value+'');
+    }
+
+    values[prop] = value;
+  }
+};
+
+module.exports = SVGRenderer;
+
+},{"../../util/ImageLoader":81,"../../util/dom":85,"../../util/svg":87,"../../util/text":88,"../Renderer":56,"./marks":77}],75:[function(require,module,exports){
+var Renderer = require('../Renderer'),
+    ImageLoader = require('../../util/ImageLoader'),
+    SVG = require('../../util/svg'),
+    text = require('../../util/text'),
+    DOM = require('../../util/dom'),
+    openTag = DOM.openTag,
+    closeTag = DOM.closeTag,
+    MARKS = require('./marks');
+
+function SVGStringRenderer(loadConfig) {
+  Renderer.call(this);
+
+  this._loader = new ImageLoader(loadConfig);
+
+  this._text = {
+    head: '',
+    root: '',
+    foot: '',
+    defs: '',
+    body: ''
+  };
+
+  this._defs = {
+    clip_id:  1,
+    gradient: {},
+    clipping: {}
+  };
+}
+
+var base = Renderer.prototype;
+var prototype = (SVGStringRenderer.prototype = Object.create(base));
+prototype.constructor = SVGStringRenderer;
+
+prototype.resize = function(width, height, padding) {
+  base.resize.call(this, width, height, padding);
+  var p = this._padding,
+      t = this._text;
+
+  var attr = {
+    'class':  'marks',
+    'width':  this._width + p.left + p.right,
+    'height': this._height + p.top + p.bottom,
+  };
+  for (var key in SVG.metadata) {
+    attr[key] = SVG.metadata[key];
+  }
+
+  t.head = openTag('svg', attr);
+  t.root = openTag('g', {
+    transform: 'translate(' + p.left + ',' + p.top + ')'
+  });
+  t.foot = closeTag('g') + closeTag('svg');
+
+  return this;
+};
+
+prototype.svg = function() {
+  var t = this._text;
+  return t.head + t.defs + t.root + t.body + t.foot;
+};
+
+prototype.render = function(scene) {
+  this._text.body = this.mark(scene);
+  this._text.defs = this.buildDefs();
+  return this;
+};
+
+prototype.reset = function() {
+  this._defs.clip_id = 0;
+  return this;
+};
+
+prototype.buildDefs = function() {
+  var all = this._defs,
+      defs = '',
+      i, id, def, stops;
+
+  for (id in all.gradient) {
+    def = all.gradient[id];
+    stops = def.stops;
+
+    defs += openTag('linearGradient', {
+      id: id,
+      x1: def.x1,
+      x2: def.x2,
+      y1: def.y1,
+      y2: def.y2
+    });
+    
+    for (i=0; i<stops.length; ++i) {
+      defs += openTag('stop', {
+        offset: stops[i].offset,
+        'stop-color': stops[i].color
+      }) + closeTag('stop');
+    }
+    
+    defs += closeTag('linearGradient');
+  }
+  
+  for (id in all.clipping) {
+    def = all.clipping[id];
+
+    defs += openTag('clipPath', {id: id});
+
+    defs += openTag('rect', {
+      x: 0,
+      y: 0,
+      width: def.width,
+      height: def.height
+    }) + closeTag('rect');
+
+    defs += closeTag('clipPath');
+  }
+  
+  return (defs.length > 0) ? openTag('defs') + defs + closeTag('defs') : '';
+};
+
+prototype.imageURL = function(url) {
+  return this._loader.imageURL(url);
+};
+
+var object;
+
+function emit(name, value, ns, prefixed) {
+  object[prefixed || name] = value;
+}
+
+prototype.attributes = function(attr, item) {
+  object = {};
+  attr(emit, item, this);
+  return object;
+};
+
+prototype.mark = function(scene) {
+  var mdef = MARKS[scene.marktype],
+      tag  = mdef.tag,
+      attr = mdef.attr,
+      nest = mdef.nest || false,
+      data = nest ?
+          (scene.items && scene.items.length ? [scene.items[0]] : []) :
+          (scene.items || []),
+      defs = this._defs,
+      str = '',
+      style, i, item;
+
+  if (tag !== 'g' && scene.interactive === false) {
+    style = 'style="pointer-events: none;"';
+  }
+
+  // render opening group tag
+  str += openTag('g', {
+    'class': DOM.cssClass(scene)
+  }, style);
+
+  // render contained elements
+  for (i=0; i<data.length; ++i) {
+    item = data[i];
+    style = (tag !== 'g') ? styles(item, scene, tag, defs) : null;
+    str += openTag(tag, this.attributes(attr, item), style);
+    if (tag === 'text') {
+      str += escape_text(text.value(item.text));
+    } else if (tag === 'g') {
+      str += openTag('rect',
+        this.attributes(mdef.background, item),
+        styles(item, scene, 'bgrect', defs)) + closeTag('rect');
+      str += this.markGroup(item);
+    }
+    str += closeTag(tag);
+  }
+
+  // render closing group tag
+  return str + closeTag('g');
+};
+
+prototype.markGroup = function(scene) {
+  var str = '',
+      axes = scene.axisItems || [],
+      items = scene.items || [],
+      legends = scene.legendItems || [],
+      j, m;
+
+  for (j=0, m=axes.length; j<m; ++j) {
+    if (axes[j].layer === 'back') {
+      str += this.mark(axes[j]);
+    }
+  }
+  for (j=0, m=items.length; j<m; ++j) {
+    str += this.mark(items[j]);
+  }
+  for (j=0, m=axes.length; j<m; ++j) {
+    if (axes[j].layer !== 'back') {
+      str += this.mark(axes[j]);
+    }
+  }
+  for (j=0, m=legends.length; j<m; ++j) {
+    str += this.mark(legends[j]);
+  }
+
+  return str;
+};
+
+function styles(o, mark, tag, defs) {
+  if (o == null) return '';
+  var i, n, prop, name, value, s = '';
+
+  if (tag === 'bgrect' && mark.interactive === false) {
+    s += 'pointer-events: none;';
+  }
+
+  if (tag === 'text') {
+    s += 'font: ' + text.font(o) + ';';
+  }
+
+  for (i=0, n=SVG.styleProperties.length; i<n; ++i) {
+    prop = SVG.styleProperties[i];
+    name = SVG.styles[prop];
+    value = o[prop];
+
+    if (value == null) {
+      if (name === 'fill') {
+        s += (s.length ? ' ' : '') + 'fill: none;';
+      }
+    } else {
+      if (value.id) {
+        // ensure definition is included
+        defs.gradient[value.id] = value;
+        value = 'url(#' + value.id + ')';
+      }
+      s += (s.length ? ' ' : '') + name + ': ' + value + ';';
+    }
+  }
+
+  return s ? 'style="' + s + '"' : null;
+}
+
+function escape_text(s) {
+  return s.replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+}
+
+module.exports = SVGStringRenderer;
+
+},{"../../util/ImageLoader":81,"../../util/dom":85,"../../util/svg":87,"../../util/text":88,"../Renderer":56,"./marks":77}],76:[function(require,module,exports){
+module.exports = {
+  Handler:  require('./SVGHandler'),
+  Renderer: require('./SVGRenderer'),
+  string: {
+    Renderer : require('./SVGStringRenderer')
+  }
+};
+},{"./SVGHandler":73,"./SVGRenderer":74,"./SVGStringRenderer":75}],77:[function(require,module,exports){
+var text = require('../../util/text'),
+    SVG = require('../../util/svg'),
+    textAlign = SVG.textAlign,
+    path = SVG.path;
+
+function translateItem(o) {
+  return translate(o.x || 0, o.y || 0);
+}
+
+function translate(x, y) {
+  return 'translate(' + x + ',' + y + ')';
+}
+
+module.exports = {
+  arc: {
+    tag:  'path',
+    type: 'arc',
+    attr: function(emit, o) {
+      emit('transform', translateItem(o));
+      emit('d', path.arc(o));
+    }
+  },
+  area: {
+    tag:  'path',
+    type: 'area',
+    nest: true,
+    attr: function(emit, o) {
+      var items = o.mark.items;
+      if (items.length) emit('d', path.area(items));
+    }
+  },
+  group: {
+    tag:  'g',
+    type: 'group',
+    attr: function(emit, o, renderer) {
+      var id = null, defs, c;
+      emit('transform', translateItem(o));
+      if (o.clip) {
+        defs = renderer._defs;
+        id = o.clip_id || (o.clip_id = 'clip' + defs.clip_id++);
+        c = defs.clipping[id] || (defs.clipping[id] = {id: id});
+        c.width = o.width || 0;
+        c.height = o.height || 0;
+      }
+      emit('clip-path', id ? ('url(#' + id + ')') : null);
+    },
+    background: function(emit, o) {
+      emit('class', 'background');
+      emit('width', o.width || 0);
+      emit('height', o.height || 0);
+    }
+  },
+  image: {
+    tag:  'image',
+    type: 'image',
+    attr: function(emit, o, renderer) {
+      var x = o.x || 0,
+          y = o.y || 0,
+          w = o.width || 0,
+          h = o.height || 0,
+          url = renderer.imageURL(o.url);
+
+      x = x - (o.align === 'center' ? w/2 : o.align === 'right' ? w : 0);
+      y = y - (o.baseline === 'middle' ? h/2 : o.baseline === 'bottom' ? h : 0);
+
+      emit('href', url, 'http://www.w3.org/1999/xlink', 'xlink:href');
+      emit('transform', translate(x, y));
+      emit('width', w);
+      emit('height', h);
+    }
+  },
+  line: {
+    tag:  'path',
+    type: 'line',
+    nest: true,
+    attr: function(emit, o) {
+      var items = o.mark.items;
+      if (items.length) emit('d', path.line(items));
+    }
+  },
+  path: {
+    tag:  'path',
+    type: 'path',
+    attr: function(emit, o) {
+      emit('transform', translateItem(o));
+      emit('d', o.path);
+    }
+  },
+  rect: {
+    tag:  'rect',
+    type: 'rect',
+    nest: false,
+    attr: function(emit, o) {
+      emit('transform', translateItem(o));
+      emit('width', o.width || 0);
+      emit('height', o.height || 0);
+    }
+  },
+  rule: {
+    tag:  'line',
+    type: 'rule',
+    attr: function(emit, o) {
+      emit('transform', translateItem(o));
+      emit('x2', o.x2 != null ? o.x2 - (o.x||0) : 0);
+      emit('y2', o.y2 != null ? o.y2 - (o.y||0) : 0);
+    }
+  },
+  symbol: {
+    tag:  'path',
+    type: 'symbol',
+    attr: function(emit, o) {
+      emit('transform', translateItem(o));
+      emit('d', path.symbol(o));
+    }
+  },
+  text: {
+    tag:  'text',
+    type: 'text',
+    nest: false,
+    attr: function(emit, o) {
+      var dx = (o.dx || 0),
+          dy = (o.dy || 0) + text.offset(o),
+          x = (o.x || 0),
+          y = (o.y || 0),
+          a = o.angle || 0,
+          r = o.radius || 0, t;
+
+      if (r) {
+        t = (o.theta || 0) - Math.PI/2;
+        x += r * Math.cos(t);
+        y += r * Math.sin(t);
+      }
+
+      emit('text-anchor', textAlign[o.align] || 'start');
+      
+      if (a) {
+        t = translate(x, y) + ' rotate('+a+')';
+        if (dx || dy) t += ' ' + translate(dx, dy);
+      } else {
+        t = translate(x+dx, y+dy);
+      }
+      emit('transform', t);
+    }
+  }
+};
+
+},{"../../util/svg":87,"../../util/text":88}],78:[function(require,module,exports){
+function Bounds(b) {
+  this.clear();
+  if (b) this.union(b);
+}
+
+var prototype = Bounds.prototype;
+
+prototype.clone = function() {
+  return new Bounds(this);
+};
+
+prototype.clear = function() {
+  this.x1 = +Number.MAX_VALUE;
+  this.y1 = +Number.MAX_VALUE;
+  this.x2 = -Number.MAX_VALUE;
+  this.y2 = -Number.MAX_VALUE;
+  return this;
+};
+
+prototype.set = function(x1, y1, x2, y2) {
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+  this.y2 = y2;
+  return this;
+};
+
+prototype.add = function(x, y) {
+  if (x < this.x1) this.x1 = x;
+  if (y < this.y1) this.y1 = y;
+  if (x > this.x2) this.x2 = x;
+  if (y > this.y2) this.y2 = y;
+  return this;
+};
+
+prototype.expand = function(d) {
+  this.x1 -= d;
+  this.y1 -= d;
+  this.x2 += d;
+  this.y2 += d;
+  return this;
+};
+
+prototype.round = function() {
+  this.x1 = Math.floor(this.x1);
+  this.y1 = Math.floor(this.y1);
+  this.x2 = Math.ceil(this.x2);
+  this.y2 = Math.ceil(this.y2);
+  return this;
+};
+
+prototype.translate = function(dx, dy) {
+  this.x1 += dx;
+  this.x2 += dx;
+  this.y1 += dy;
+  this.y2 += dy;
+  return this;
+};
+
+prototype.rotate = function(angle, x, y) {
+  var cos = Math.cos(angle),
+      sin = Math.sin(angle),
+      cx = x - x*cos + y*sin,
+      cy = y - x*sin - y*cos,
+      x1 = this.x1, x2 = this.x2,
+      y1 = this.y1, y2 = this.y2;
+
+  return this.clear()
+    .add(cos*x1 - sin*y1 + cx,  sin*x1 + cos*y1 + cy)
+    .add(cos*x1 - sin*y2 + cx,  sin*x1 + cos*y2 + cy)
+    .add(cos*x2 - sin*y1 + cx,  sin*x2 + cos*y1 + cy)
+    .add(cos*x2 - sin*y2 + cx,  sin*x2 + cos*y2 + cy);
+};
+
+prototype.union = function(b) {
+  if (b.x1 < this.x1) this.x1 = b.x1;
+  if (b.y1 < this.y1) this.y1 = b.y1;
+  if (b.x2 > this.x2) this.x2 = b.x2;
+  if (b.y2 > this.y2) this.y2 = b.y2;
+  return this;
+};
+
+prototype.encloses = function(b) {
+  return b && (
+    this.x1 <= b.x1 &&
+    this.x2 >= b.x2 &&
+    this.y1 <= b.y1 &&
+    this.y2 >= b.y2
+  );
+};
+
+prototype.intersects = function(b) {
+  return b && !(
+    this.x2 < b.x1 ||
+    this.x1 > b.x2 ||
+    this.y2 < b.y1 ||
+    this.y1 > b.y2
+  );
+};
+
+prototype.contains = function(x, y) {
+  return !(
+    x < this.x1 ||
+    x > this.x2 ||
+    y < this.y1 ||
+    y > this.y2
+  );
+};
+
+prototype.width = function() {
+  return this.x2 - this.x1;
+};
+
+prototype.height = function() {
+  return this.y2 - this.y1;
+};
+
+module.exports = Bounds;
+
+},{}],79:[function(require,module,exports){
+module.exports = function(b) {
+  function noop() { }
+  function add(x,y) { b.add(x, y); }
+
+  return {
+    bounds: function(_) {
+      if (!arguments.length) return b;
+      return (b = _, this);
+    },
+    beginPath: noop,
+    closePath: noop,
+    moveTo: add,
+    lineTo: add,
+    quadraticCurveTo: function(x1, y1, x2, y2) {
+      b.add(x1, y1);
+      b.add(x2, y2);
+    },
+    bezierCurveTo: function(x1, y1, x2, y2, x3, y3) {
+      b.add(x1, y1);
+      b.add(x2, y2);
+      b.add(x3, y3);
+    }
+  };
+};
+
+},{}],80:[function(require,module,exports){
+var gradient_id = 0;
+
+function Gradient(type) {
+  this.id = 'gradient_' + (gradient_id++);
+  this.type = type || 'linear';
+  this.stops = [];
+  this.x1 = 0;
+  this.x2 = 1;
+  this.y1 = 0;
+  this.y2 = 0;
+}
+
+var prototype = Gradient.prototype;
+
+prototype.stop = function(offset, color) {
+  this.stops.push({
+    offset: offset,
+    color: color
+  });
+  return this;
+};
+
+module.exports = Gradient;
+},{}],81:[function(require,module,exports){
+(function (global){
+var load = require('datalib/src/import/load');
+
+function ImageLoader(loadConfig) {
+  this._pending = 0;
+  this._config = loadConfig || ImageLoader.Config; 
+}
+
+// Overridable global default load configuration
+ImageLoader.Config = null;
+
+var prototype = ImageLoader.prototype;
+
+prototype.pending = function() {
+  return this._pending;
+};
+
+prototype.params = function(uri) {
+  var p = {url: uri}, k;
+  for (k in this._config) { p[k] = this._config[k]; }
+  return p;
+};
+
+prototype.imageURL = function(uri) {
+  return load.sanitizeUrl(this.params(uri));
+};
+
+function browser(uri, callback) {
+  var url = load.sanitizeUrl(this.params(uri));
+  if (!url) { // error
+    if (callback) callback(uri, null);
+    return null;
+  }
+
+  var loader = this,
+      image = new Image();
+
+  loader._pending += 1;
+
+  image.onload = function() {
+    loader._pending -= 1;
+    image.loaded = true;
+    if (callback) callback(null, image);
+  };
+  image.src = url;
+
+  return image;
+}
+
+function server(uri, callback) {
+  var loader = this,
+      image = new ((typeof window !== "undefined" ? window.canvas : typeof global !== "undefined" ? global.canvas : null).Image)();
+
+  loader._pending += 1;
+
+  load(this.params(uri), function(err, data) {
+    loader._pending -= 1;
+    if (err) {
+      if (callback) callback(err, null);
+      return null;
+    }
+    image.src = data;
+    image.loaded = true;
+    if (callback) callback(null, image);
+  });
+
+  return image;
+}
+
+prototype.loadImage = function(uri, callback) {
+  return load.useXHR ?
+    browser.call(this, uri, callback) :
+    server.call(this, uri, callback);
+};
+
+module.exports = ImageLoader;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
+},{"datalib/src/import/load":1}],82:[function(require,module,exports){
+function Item(mark) {
+  this.mark = mark;
+}
+
+var prototype = Item.prototype;
+
+prototype.hasPropertySet = function(name) {
+  var props = this.mark.def.properties;
+  return props && props[name] != null;
+};
+
+prototype.cousin = function(offset, index) {
+  if (offset === 0) return this;
+  offset = offset || -1;
+  var mark = this.mark,
+      group = mark.group,
+      iidx = index==null ? mark.items.indexOf(this) : index,
+      midx = group.items.indexOf(mark) + offset;
+  return group.items[midx].items[iidx];
+};
+
+prototype.sibling = function(offset) {
+  if (offset === 0) return this;
+  offset = offset || -1;
+  var mark = this.mark,
+      iidx = mark.items.indexOf(this) + offset;
+  return mark.items[iidx];
+};
+
+prototype.remove = function() {
+  var item = this,
+      list = item.mark.items,
+      i = list.indexOf(item);
+  if (i >= 0) {
+    if (i===list.length-1) {
+      list.pop();
+    } else {
+      list.splice(i, 1);
+    }
+  }
+  return item;
+};
+
+prototype.touch = function() {
+  if (this.pathCache) this.pathCache = null;
+};
+
+module.exports = Item;
+},{}],83:[function(require,module,exports){
+var BoundsContext = require('./BoundsContext'),
+    Bounds = require('./Bounds'),
+    canvas = require('./canvas'),
+    svg = require('./svg'),
+    text = require('./text'),
+    paths = require('../path'),
+    parse = paths.parse,
+    drawPath = paths.render,
+    areaPath = svg.path.area,
+    linePath = svg.path.line,
+    halfpi = Math.PI / 2,
+    sqrt3 = Math.sqrt(3),
+    tan30 = Math.tan(30 * Math.PI / 180),
+    g2D = null,
+    bc = BoundsContext();
+
+function context() {
+  return g2D || (g2D = canvas.instance(1,1).getContext('2d'));
+}
+
+function strokeBounds(o, bounds) {
+  if (o.stroke && o.opacity !== 0 && o.stokeOpacity !== 0) {
+    bounds.expand(o.strokeWidth != null ? o.strokeWidth : 1);
+  }
+  return bounds;
+}
+
+function pathBounds(o, path, bounds, x, y) {
+  if (path == null) {
+    bounds.set(0, 0, 0, 0);
+  } else {
+    drawPath(bc.bounds(bounds), path, x, y);
+    strokeBounds(o, bounds);
+  }
+  return bounds;
+}
+
+function path(o, bounds) {
+  var p = o.path ? o.pathCache || (o.pathCache = parse(o.path)) : null;
+  return pathBounds(o, p, bounds, o.x, o.y);
+}
+
+function area(mark, bounds) {
+  if (mark.items.length === 0) return bounds;
+  var items = mark.items,
+      item = items[0],
+      p = item.pathCache || (item.pathCache = parse(areaPath(items)));
+  return pathBounds(item, p, bounds);
+}
+
+function line(mark, bounds) {
+  if (mark.items.length === 0) return bounds;
+  var items = mark.items,
+      item = items[0],
+      p = item.pathCache || (item.pathCache = parse(linePath(items)));
+  return pathBounds(item, p, bounds);
+}
+
+function rect(o, bounds) {
+  var x, y;
+  return strokeBounds(o, bounds.set(
+    x = o.x || 0,
+    y = o.y || 0,
+    (x + o.width) || 0,
+    (y + o.height) || 0
+  ));
+}
+
+function image(o, bounds) {
+  var x = o.x || 0,
+      y = o.y || 0,
+      w = o.width || 0,
+      h = o.height || 0;
+  x = x - (o.align === 'center' ? w/2 : (o.align === 'right' ? w : 0));
+  y = y - (o.baseline === 'middle' ? h/2 : (o.baseline === 'bottom' ? h : 0));
+  return bounds.set(x, y, x+w, y+h);
+}
+
+function rule(o, bounds) {
+  var x1, y1;
+  return strokeBounds(o, bounds.set(
+    x1 = o.x || 0,
+    y1 = o.y || 0,
+    o.x2 != null ? o.x2 : x1,
+    o.y2 != null ? o.y2 : y1
+  ));
+}
+
+function arc(o, bounds) {
+  var cx = o.x || 0,
+      cy = o.y || 0,
+      ir = o.innerRadius || 0,
+      or = o.outerRadius || 0,
+      sa = (o.startAngle || 0) - halfpi,
+      ea = (o.endAngle || 0) - halfpi,
+      xmin = Infinity, xmax = -Infinity,
+      ymin = Infinity, ymax = -Infinity,
+      a, i, n, x, y, ix, iy, ox, oy;
+
+  var angles = [sa, ea],
+      s = sa - (sa % halfpi);
+  for (i=0; i<4 && s<ea; ++i, s+=halfpi) {
+    angles.push(s);
+  }
+
+  for (i=0, n=angles.length; i<n; ++i) {
+    a = angles[i];
+    x = Math.cos(a); ix = ir*x; ox = or*x;
+    y = Math.sin(a); iy = ir*y; oy = or*y;
+    xmin = Math.min(xmin, ix, ox);
+    xmax = Math.max(xmax, ix, ox);
+    ymin = Math.min(ymin, iy, oy);
+    ymax = Math.max(ymax, iy, oy);
+  }
+
+  return strokeBounds(o, bounds.set(
+    cx + xmin,
+    cy + ymin,
+    cx + xmax,
+    cy + ymax
+  ));
+}
+
+function symbol(o, bounds) {
+  var size = o.size != null ? o.size : 100,
+      x = o.x || 0,
+      y = o.y || 0,
+      r, t, rx, ry;
+
+  switch (o.shape) {
+    case 'cross':
+      t = 3 * Math.sqrt(size / 5) / 2;
+      bounds.set(x-t, y-t, x+t, y+t);
+      break;
+
+    case 'diamond':
+      ry = Math.sqrt(size / (2 * tan30));
+      rx = ry * tan30;
+      bounds.set(x-rx, y-ry, x+rx, y+ry);
+      break;
+
+    case 'square':
+      t = Math.sqrt(size);
+      r = t / 2;
+      bounds.set(x-r, y-r, x+r, y+r);
+      break;
+
+    case 'triangle-down':
+      rx = Math.sqrt(size / sqrt3);
+      ry = rx * sqrt3 / 2;
+      bounds.set(x-rx, y-ry, x+rx, y+ry);
+      break;
+
+    case 'triangle-up':
+      rx = Math.sqrt(size / sqrt3);
+      ry = rx * sqrt3 / 2;
+      bounds.set(x-rx, y-ry, x+rx, y+ry);
+      break;
+
+    default:
+      r = Math.sqrt(size/Math.PI);
+      bounds.set(x-r, y-r, x+r, y+r);
+  }
+
+  return strokeBounds(o, bounds);
+}
+
+function textMark(o, bounds, noRotate) {
+  var g = context(),
+      h = text.size(o),
+      a = o.align,
+      r = o.radius || 0,
+      x = (o.x || 0),
+      y = (o.y || 0),
+      dx = (o.dx || 0),
+      dy = (o.dy || 0) + text.offset(o) - Math.round(0.8*h), // use 4/5 offset
+      w, t;
+
+  if (r) {
+    t = (o.theta || 0) - Math.PI/2;
+    x += r * Math.cos(t);
+    y += r * Math.sin(t);
+  }
+
+  // horizontal alignment
+  g.font = text.font(o);
+  w = g.measureText(text.value(o.text)).width;
+  if (a === 'center') {
+    dx -= (w / 2);
+  } else if (a === 'right') {
+    dx -= w;
+  } else {
+    // left by default, do nothing
+  }
+
+  bounds.set(dx+=x, dy+=y, dx+w, dy+h);
+  if (o.angle && !noRotate) {
+    bounds.rotate(o.angle*Math.PI/180, x, y);
+  }
+  return bounds.expand(noRotate ? 0 : 1);
+}
+
+function group(g, bounds, includeLegends) {
+  var axes = g.axisItems || [],
+      items = g.items || [],
+      legends = g.legendItems || [],
+      j, m;
+
+  for (j=0, m=axes.length; j<m; ++j) {
+    bounds.union(axes[j].bounds);
+  }
+  for (j=0, m=items.length; j<m; ++j) {
+    bounds.union(items[j].bounds);
+  }
+  if (includeLegends) {
+    for (j=0, m=legends.length; j<m; ++j) {
+      bounds.union(legends[j].bounds);
+    }
+  }
+  if (g.width || g.height) {
+    strokeBounds(g, bounds
+      .add(0, 0)
+      .add(g.width || 0, g.height || 0));
+  }
+  return bounds.translate(g.x || 0, g.y || 0);
+}
+
+var methods = {
+  group:  group,
+  symbol: symbol,
+  image:  image,
+  rect:   rect,
+  rule:   rule,
+  arc:    arc,
+  text:   textMark,
+  path:   path,
+  area:   area,
+  line:   line
+};
+methods.area.nest = true;
+methods.line.nest = true;
+
+function itemBounds(item, func, opt) {
+  var type = item.mark.marktype;
+  func = func || methods[type];
+  if (func.nest) item = item.mark;
+
+  var curr = item.bounds,
+      prev = item['bounds:prev'] || (item['bounds:prev'] = new Bounds());
+
+  if (curr) {
+    prev.clear().union(curr);
+    curr.clear();
+  } else {
+    item.bounds = new Bounds();
+  }
+  func(item, item.bounds, opt);
+  if (!curr) prev.clear().union(item.bounds);
+  return item.bounds;
+}
+
+var DUMMY_ITEM = {mark: null};
+
+function markBounds(mark, bounds, opt) {
+  var type  = mark.marktype,
+      func  = methods[type],
+      items = mark.items,
+      hasi  = items && items.length,
+      i, n, o, b;
+
+  if (func.nest) {
+    o = hasi ? items[0]
+      : (DUMMY_ITEM.mark = mark, DUMMY_ITEM); // no items, so fake it
+    b = itemBounds(o, func, opt);
+    bounds = bounds && bounds.union(b) || b;
+    return bounds;
+  }
+
+  bounds = bounds || mark.bounds && mark.bounds.clear() || new Bounds();
+  if (hasi) {  
+    for (i=0, n=items.length; i<n; ++i) {
+      bounds.union(itemBounds(items[i], func, opt));
+    }
+  }
+  return (mark.bounds = bounds);
+}
+
+module.exports = {
+  mark:  markBounds,
+  item:  itemBounds,
+  text:  textMark,
+  group: group
+};
+
+},{"../path":52,"./Bounds":78,"./BoundsContext":79,"./canvas":84,"./svg":87,"./text":88}],84:[function(require,module,exports){
+(function (global){
+function instance(w, h) {
+  w = w || 1;
+  h = h || 1;
+  var canvas;
+
+  if (typeof document !== 'undefined' && document.createElement) {
+    canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+  } else {
+    var Canvas = (typeof window !== "undefined" ? window.canvas : typeof global !== "undefined" ? global.canvas : null);
+    if (!Canvas.prototype) return null;
+    canvas = new Canvas(w, h);
+  }
+  return lineDash(canvas);
+}
+
+function resize(canvas, w, h, p, retina) {
+  var g = this._ctx = canvas.getContext('2d'), 
+      s = 1;
+
+  canvas.width = w + p.left + p.right;
+  canvas.height = h + p.top + p.bottom;
+
+  // if browser canvas, attempt to modify for retina display
+  if (retina && typeof HTMLElement !== 'undefined' &&
+      canvas instanceof HTMLElement)
+  {
+    g.pixelratio = (s = pixelRatio(canvas) || 1);
+  }
+
+  g.setTransform(s, 0, 0, s, s*p.left, s*p.top);
+  return canvas;
+}
+
+function pixelRatio(canvas) {
+  var g = canvas.getContext('2d');
+
+  // get canvas pixel data
+  var devicePixelRatio = window && window.devicePixelRatio || 1,
+      backingStoreRatio = (
+        g.webkitBackingStorePixelRatio ||
+        g.mozBackingStorePixelRatio ||
+        g.msBackingStorePixelRatio ||
+        g.oBackingStorePixelRatio ||
+        g.backingStorePixelRatio) || 1,
+      ratio = devicePixelRatio / backingStoreRatio;
+
+  if (devicePixelRatio !== backingStoreRatio) {
+    // set actual and visible canvas size
+    var w = canvas.width,
+        h = canvas.height;
+    canvas.width = w * ratio;
+    canvas.height = h * ratio;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+  }
+
+  return ratio;
+}
+
+function lineDash(canvas) {
+  var g = canvas.getContext('2d');
+  if (g.vgLineDash) return; // already initialized!
+
+  var NOOP = function() {},
+      NODASH = [];
+  
+  if (g.setLineDash) {
+    g.vgLineDash = function(dash) { this.setLineDash(dash || NODASH); };
+    g.vgLineDashOffset = function(off) { this.lineDashOffset = off; };
+  } else if (g.webkitLineDash !== undefined) {
+  	g.vgLineDash = function(dash) { this.webkitLineDash = dash || NODASH; };
+    g.vgLineDashOffset = function(off) { this.webkitLineDashOffset = off; };
+  } else if (g.mozDash !== undefined) {
+    g.vgLineDash = function(dash) { this.mozDash = dash; };
+    g.vgLineDashOffset = NOOP;
+  } else {
+    g.vgLineDash = NOOP;
+    g.vgLineDashOffset = NOOP;
+  }
+  return canvas;
+}
+
+module.exports = {
+  instance:   instance,
+  resize:     resize,
+  lineDash:   lineDash
+};
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
+},{}],85:[function(require,module,exports){
+// create a new DOM element
+function create(doc, tag, ns) {
+  return ns ? doc.createElementNS(ns, tag) : doc.createElement(tag);
+}
+
+// remove element from DOM
+// recursively remove parent elements if empty
+function remove(el) {
+  if (!el) return;
+  var p = el.parentNode;
+  if (p) {
+    p.removeChild(el);
+    if (!p.childNodes || !p.childNodes.length) remove(p);
+  }
+}
+
+module.exports = {
+  // find first child element with matching tag
+  find: function(el, tag) {
+    tag = tag.toLowerCase();
+    for (var i=0, n=el.childNodes.length; i<n; ++i) {
+      if (el.childNodes[i].tagName.toLowerCase() === tag) {
+        return el.childNodes[i];
+      }
+    }
+  },
+  // retrieve child element at given index
+  // create & insert if doesn't exist or if tag/className do not match
+  child: function(el, index, tag, ns, className, insert) {
+    var a, b;
+    a = b = el.childNodes[index];
+    if (!a || insert ||
+        a.tagName.toLowerCase() !== tag.toLowerCase() ||
+        className && a.getAttribute('class') != className) {
+      a = create(el.ownerDocument, tag, ns);
+      el.insertBefore(a, b);
+      if (className) a.setAttribute('class', className);
+    }
+    return a;
+  },
+  // remove all child elements at or above the given index
+  clear: function(el, index) {
+    var curr = el.childNodes.length;
+    while (curr > index) {
+      el.removeChild(el.childNodes[--curr]);
+    }
+    return el;
+  },
+  remove: remove,
+  // generate css class name for mark
+  cssClass: function(mark) {
+    return 'mark-' + mark.marktype + (mark.name ? ' '+mark.name : '');
+  },
+  // generate string for an opening xml tag
+  // tag: the name of the xml tag
+  // attr: hash of attribute name-value pairs to include
+  // raw: additional raw string to include in tag markup
+  openTag: function(tag, attr, raw) {
+    var s = '<' + tag, key, val;
+    if (attr) {
+      for (key in attr) {
+        val = attr[key];
+        if (val != null) {
+          s += ' ' + key + '="' + val + '"';
+        }
+      }
+    }
+    if (raw) s += ' ' + raw;
+    return s + '>';
+  },
+  // generate string for closing xml tag
+  // tag: the name of the xml tag
+  closeTag: function(tag) {
+    return '</' + tag + '>';
+  }
+};
+
+},{}],86:[function(require,module,exports){
+var bound = require('../util/bound');
+
+var sets = [
+  'items',
+  'axisItems',
+  'legendItems'
+];
+
+var keys = [
+  'marktype', 'name', 'interactive', 'clip',
+  'items', 'axisItems', 'legendItems', 'layer',
+  'x', 'y', 'width', 'height', 'align', 'baseline',             // layout
+  'fill', 'fillOpacity', 'opacity',                             // fill
+  'stroke', 'strokeOpacity', 'strokeWidth', 'strokeCap',        // stroke
+  'strokeDash', 'strokeDashOffset',                             // stroke dash
+  'startAngle', 'endAngle', 'innerRadius', 'outerRadius',       // arc
+  'interpolate', 'tension', 'orient',                           // area, line
+  'url',                                                        // image
+  'path',                                                       // path
+  'x2', 'y2',                                                   // rule
+  'size', 'shape',                                              // symbol
+  'text', 'angle', 'theta', 'radius', 'dx', 'dy',               // text
+  'font', 'fontSize', 'fontWeight', 'fontStyle', 'fontVariant'  // font
+];
+
+function toJSON(scene, indent) {
+  return JSON.stringify(scene, keys, indent);
+}
+
+function fromJSON(json) {
+  var scene = (typeof json === 'string' ? JSON.parse(json) : json);
+  return initialize(scene);
+}
+
+function initialize(scene) {
+  var type = scene.marktype,
+      i, n, s, m, items;
+
+  for (s=0, m=sets.length; s<m; ++s) {
+    if ((items = scene[sets[s]])) {
+      for (i=0, n=items.length; i<n; ++i) {
+        items[i][type ? 'mark' : 'group'] = scene;
+        if (!type || type === 'group') {
+          initialize(items[i]);
+        }
+      }
+    }
+  }
+
+  if (type) bound.mark(scene);
+  return scene;
+}
+
+module.exports = {
+  toJSON:   toJSON,
+  fromJSON: fromJSON
+};
+},{"../util/bound":83}],87:[function(require,module,exports){
+(function (global){
+var d3_svg = (typeof window !== "undefined" ? window.d3 : typeof global !== "undefined" ? global.d3 : null).svg;
+
+function x(o)     { return o.x || 0; }
+function y(o)     { return o.y || 0; }
+function xw(o)    { return (o.x || 0) + (o.width || 0); }
+function yh(o)    { return (o.y || 0) + (o.height || 0); }
+function size(o)  { return o.size == null ? 100 : o.size; }
+function shape(o) { return o.shape || 'circle'; }
+
+var areav = d3_svg.area().x(x).y1(y).y0(yh),
+    areah = d3_svg.area().y(y).x1(x).x0(xw),
+    line  = d3_svg.line().x(x).y(y);
+
+module.exports = {
+  metadata: {
+    'version': '1.1',
+    'xmlns': 'http://www.w3.org/2000/svg',
+    'xmlns:xlink': 'http://www.w3.org/1999/xlink'
+  },
+  path: {
+    arc: d3_svg.arc(),
+    symbol: d3_svg.symbol().type(shape).size(size),
+    area: function(items) {
+      var o = items[0];
+      return (o.orient === 'horizontal' ? areah : areav)
+        .interpolate(o.interpolate || 'linear')
+        .tension(o.tension || 0.7)
+        (items);
+    },
+    line: function(items) {
+      var o = items[0];
+      return line
+        .interpolate(o.interpolate || 'linear')
+        .tension(o.tension || 0.7)
+        (items);
+    }
+  },
+  textAlign: {
+    'left':   'start',
+    'center': 'middle',
+    'right':  'end'
+  },
+  textBaseline: {
+    'top':    'before-edge',
+    'bottom': 'after-edge',
+    'middle': 'central'
+  },
+  styles: {
+    'fill':             'fill',
+    'fillOpacity':      'fill-opacity',
+    'stroke':           'stroke',
+    'strokeWidth':      'stroke-width',
+    'strokeOpacity':    'stroke-opacity',
+    'strokeCap':        'stroke-linecap',
+    'strokeDash':       'stroke-dasharray',
+    'strokeDashOffset': 'stroke-dashoffset',
+    'opacity':          'opacity'
+  },
+  styleProperties: [
+    'fill',
+    'fillOpacity',
+    'stroke',
+    'strokeWidth',
+    'strokeOpacity',
+    'strokeCap',
+    'strokeDash',
+    'strokeDashOffset',
+    'opacity'
+  ]
+};
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
+},{}],88:[function(require,module,exports){
+function size(item) {
+  return item.fontSize != null ? item.fontSize : 11;
+}
+
+module.exports = {
+  size: size,
+  value: function(s) {
+    return s != null ? String(s) : '';
+  },
+  font: function(item, quote) {
+    var font = item.font;
+    if (quote && font) {
+      font = String(font).replace(/\"/g, '\'');
+    }
+    return '' +
+      (item.fontStyle ? item.fontStyle + ' ' : '') +
+      (item.fontVariant ? item.fontVariant + ' ' : '') +
+      (item.fontWeight ? item.fontWeight + ' ' : '') +
+      size(item) + 'px ' +
+      (font || 'sans-serif');
+  },
+  offset: function(item) {
+    // perform our own font baseline calculation
+    // why? not all browsers support SVG 1.1 'alignment-baseline' :(
+    var baseline = item.baseline,
+        h = size(item);
+    return Math.round(
+      baseline === 'top'    ?  0.93*h :
+      baseline === 'middle' ?  0.30*h :
+      baseline === 'bottom' ? -0.21*h : 0
+    );
+  }
+};
+
+},{}],89:[function(require,module,exports){
 module.exports = {
   version: '2.2.6',
   dataflow: require('vega-dataflow'),
@@ -15962,37 +19488,540 @@ module.exports = {
   util:  require('datalib'),
   debug: require('vega-logging').debug
 };
-},{"./src/core/config":134,"./src/core/schema":135,"./src/parse/":141,"./src/scene/Bounder":153,"./src/scene/Builder":154,"./src/scene/Encoder":155,"./src/scene/GroupBuilder":156,"./src/transforms":185,"datalib":70,"vega-dataflow":85,"vega-logging":91}],49:[function(require,module,exports){
-arguments[4][3][0].apply(exports,arguments)
-},{"dup":3}],50:[function(require,module,exports){
+},{"./src/core/config":139,"./src/core/schema":140,"./src/parse/":146,"./src/scene/Bounder":158,"./src/scene/Builder":159,"./src/scene/Encoder":160,"./src/scene/GroupBuilder":161,"./src/transforms":190,"datalib":113,"vega-dataflow":128,"vega-logging":134}],90:[function(require,module,exports){
+// Word cloud layout by Jason Davies, https://www.jasondavies.com/wordcloud/
+// Algorithm due to Jonathan Feinberg, http://static.mrfeinberg.com/bv_ch03.pdf
+
+var dispatch = require("d3-dispatch").dispatch;
+
+var cloudRadians = Math.PI / 180,
+    cw = 1 << 11 >> 5,
+    ch = 1 << 11;
+
+module.exports = function() {
+  var size = [256, 256],
+      text = cloudText,
+      font = cloudFont,
+      fontSize = cloudFontSize,
+      fontStyle = cloudFontNormal,
+      fontWeight = cloudFontNormal,
+      rotate = cloudRotate,
+      padding = cloudPadding,
+      spiral = archimedeanSpiral,
+      words = [],
+      timeInterval = Infinity,
+      event = dispatch("word", "end"),
+      timer = null,
+      random = Math.random,
+      cloud = {},
+      canvas = cloudCanvas;
+
+  cloud.canvas = function(_) {
+    return arguments.length ? (canvas = functor(_), cloud) : canvas;
+  };
+
+  cloud.start = function() {
+    var contextAndRatio = getContext(canvas()),
+        board = zeroArray((size[0] >> 5) * size[1]),
+        bounds = null,
+        n = words.length,
+        i = -1,
+        tags = [],
+        data = words.map(function(d, i) {
+          d.text = text.call(this, d, i);
+          d.font = font.call(this, d, i);
+          d.style = fontStyle.call(this, d, i);
+          d.weight = fontWeight.call(this, d, i);
+          d.rotate = rotate.call(this, d, i);
+          d.size = ~~fontSize.call(this, d, i);
+          d.padding = padding.call(this, d, i);
+          return d;
+        }).sort(function(a, b) { return b.size - a.size; });
+
+    if (timer) clearInterval(timer);
+    timer = setInterval(step, 0);
+    step();
+
+    return cloud;
+
+    function step() {
+      var start = Date.now();
+      while (Date.now() - start < timeInterval && ++i < n && timer) {
+        var d = data[i];
+        d.x = (size[0] * (random() + .5)) >> 1;
+        d.y = (size[1] * (random() + .5)) >> 1;
+        cloudSprite(contextAndRatio, d, data, i);
+        if (d.hasText && place(board, d, bounds)) {
+          tags.push(d);
+          event.word(d);
+          if (bounds) cloudBounds(bounds, d);
+          else bounds = [{x: d.x + d.x0, y: d.y + d.y0}, {x: d.x + d.x1, y: d.y + d.y1}];
+          // Temporary hack
+          d.x -= size[0] >> 1;
+          d.y -= size[1] >> 1;
+        }
+      }
+      if (i >= n) {
+        cloud.stop();
+        event.end(tags, bounds);
+      }
+    }
+  }
+
+  cloud.stop = function() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    return cloud;
+  };
+
+  function getContext(canvas) {
+    canvas.width = canvas.height = 1;
+    var ratio = Math.sqrt(canvas.getContext("2d").getImageData(0, 0, 1, 1).data.length >> 2);
+    canvas.width = (cw << 5) / ratio;
+    canvas.height = ch / ratio;
+
+    var context = canvas.getContext("2d");
+    context.fillStyle = context.strokeStyle = "red";
+    context.textAlign = "center";
+
+    return {context: context, ratio: ratio};
+  }
+
+  function place(board, tag, bounds) {
+    var perimeter = [{x: 0, y: 0}, {x: size[0], y: size[1]}],
+        startX = tag.x,
+        startY = tag.y,
+        maxDelta = Math.sqrt(size[0] * size[0] + size[1] * size[1]),
+        s = spiral(size),
+        dt = random() < .5 ? 1 : -1,
+        t = -dt,
+        dxdy,
+        dx,
+        dy;
+
+    while (dxdy = s(t += dt)) {
+      dx = ~~dxdy[0];
+      dy = ~~dxdy[1];
+
+      if (Math.min(Math.abs(dx), Math.abs(dy)) >= maxDelta) break;
+
+      tag.x = startX + dx;
+      tag.y = startY + dy;
+
+      if (tag.x + tag.x0 < 0 || tag.y + tag.y0 < 0 ||
+          tag.x + tag.x1 > size[0] || tag.y + tag.y1 > size[1]) continue;
+      // TODO only check for collisions within current bounds.
+      if (!bounds || !cloudCollide(tag, board, size[0])) {
+        if (!bounds || collideRects(tag, bounds)) {
+          var sprite = tag.sprite,
+              w = tag.width >> 5,
+              sw = size[0] >> 5,
+              lx = tag.x - (w << 4),
+              sx = lx & 0x7f,
+              msx = 32 - sx,
+              h = tag.y1 - tag.y0,
+              x = (tag.y + tag.y0) * sw + (lx >> 5),
+              last;
+          for (var j = 0; j < h; j++) {
+            last = 0;
+            for (var i = 0; i <= w; i++) {
+              board[x + i] |= (last << msx) | (i < w ? (last = sprite[j * w + i]) >>> sx : 0);
+            }
+            x += sw;
+          }
+          delete tag.sprite;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  cloud.timeInterval = function(_) {
+    return arguments.length ? (timeInterval = _ == null ? Infinity : _, cloud) : timeInterval;
+  };
+
+  cloud.words = function(_) {
+    return arguments.length ? (words = _, cloud) : words;
+  };
+
+  cloud.size = function(_) {
+    return arguments.length ? (size = [+_[0], +_[1]], cloud) : size;
+  };
+
+  cloud.font = function(_) {
+    return arguments.length ? (font = functor(_), cloud) : font;
+  };
+
+  cloud.fontStyle = function(_) {
+    return arguments.length ? (fontStyle = functor(_), cloud) : fontStyle;
+  };
+
+  cloud.fontWeight = function(_) {
+    return arguments.length ? (fontWeight = functor(_), cloud) : fontWeight;
+  };
+
+  cloud.rotate = function(_) {
+    return arguments.length ? (rotate = functor(_), cloud) : rotate;
+  };
+
+  cloud.text = function(_) {
+    return arguments.length ? (text = functor(_), cloud) : text;
+  };
+
+  cloud.spiral = function(_) {
+    return arguments.length ? (spiral = spirals[_] || _, cloud) : spiral;
+  };
+
+  cloud.fontSize = function(_) {
+    return arguments.length ? (fontSize = functor(_), cloud) : fontSize;
+  };
+
+  cloud.padding = function(_) {
+    return arguments.length ? (padding = functor(_), cloud) : padding;
+  };
+
+  cloud.random = function(_) {
+    return arguments.length ? (random = _, cloud) : random;
+  };
+
+  cloud.on = function() {
+    var value = event.on.apply(event, arguments);
+    return value === event ? cloud : value;
+  };
+
+  return cloud;
+};
+
+function cloudText(d) {
+  return d.text;
+}
+
+function cloudFont() {
+  return "serif";
+}
+
+function cloudFontNormal() {
+  return "normal";
+}
+
+function cloudFontSize(d) {
+  return Math.sqrt(d.value);
+}
+
+function cloudRotate() {
+  return (~~(Math.random() * 6) - 3) * 30;
+}
+
+function cloudPadding() {
+  return 1;
+}
+
+// Fetches a monochrome sprite bitmap for the specified text.
+// Load in batches for speed.
+function cloudSprite(contextAndRatio, d, data, di) {
+  if (d.sprite) return;
+  var c = contextAndRatio.context,
+      ratio = contextAndRatio.ratio;
+
+  c.clearRect(0, 0, (cw << 5) / ratio, ch / ratio);
+  var x = 0,
+      y = 0,
+      maxh = 0,
+      n = data.length;
+  --di;
+  while (++di < n) {
+    d = data[di];
+    c.save();
+    c.font = d.style + " " + d.weight + " " + ~~((d.size + 1) / ratio) + "px " + d.font;
+    var w = c.measureText(d.text + "m").width * ratio,
+        h = d.size << 1;
+    if (d.rotate) {
+      var sr = Math.sin(d.rotate * cloudRadians),
+          cr = Math.cos(d.rotate * cloudRadians),
+          wcr = w * cr,
+          wsr = w * sr,
+          hcr = h * cr,
+          hsr = h * sr;
+      w = (Math.max(Math.abs(wcr + hsr), Math.abs(wcr - hsr)) + 0x1f) >> 5 << 5;
+      h = ~~Math.max(Math.abs(wsr + hcr), Math.abs(wsr - hcr));
+    } else {
+      w = (w + 0x1f) >> 5 << 5;
+    }
+    if (h > maxh) maxh = h;
+    if (x + w >= (cw << 5)) {
+      x = 0;
+      y += maxh;
+      maxh = 0;
+    }
+    if (y + h >= ch) break;
+    c.translate((x + (w >> 1)) / ratio, (y + (h >> 1)) / ratio);
+    if (d.rotate) c.rotate(d.rotate * cloudRadians);
+    c.fillText(d.text, 0, 0);
+    if (d.padding) c.lineWidth = 2 * d.padding, c.strokeText(d.text, 0, 0);
+    c.restore();
+    d.width = w;
+    d.height = h;
+    d.xoff = x;
+    d.yoff = y;
+    d.x1 = w >> 1;
+    d.y1 = h >> 1;
+    d.x0 = -d.x1;
+    d.y0 = -d.y1;
+    d.hasText = true;
+    x += w;
+  }
+  var pixels = c.getImageData(0, 0, (cw << 5) / ratio, ch / ratio).data,
+      sprite = [];
+  while (--di >= 0) {
+    d = data[di];
+    if (!d.hasText) continue;
+    var w = d.width,
+        w32 = w >> 5,
+        h = d.y1 - d.y0;
+    // Zero the buffer
+    for (var i = 0; i < h * w32; i++) sprite[i] = 0;
+    x = d.xoff;
+    if (x == null) return;
+    y = d.yoff;
+    var seen = 0,
+        seenRow = -1;
+    for (var j = 0; j < h; j++) {
+      for (var i = 0; i < w; i++) {
+        var k = w32 * j + (i >> 5),
+            m = pixels[((y + j) * (cw << 5) + (x + i)) << 2] ? 1 << (31 - (i % 32)) : 0;
+        sprite[k] |= m;
+        seen |= m;
+      }
+      if (seen) seenRow = j;
+      else {
+        d.y0++;
+        h--;
+        j--;
+        y++;
+      }
+    }
+    d.y1 = d.y0 + seenRow;
+    d.sprite = sprite.slice(0, (d.y1 - d.y0) * w32);
+  }
+}
+
+// Use mask-based collision detection.
+function cloudCollide(tag, board, sw) {
+  sw >>= 5;
+  var sprite = tag.sprite,
+      w = tag.width >> 5,
+      lx = tag.x - (w << 4),
+      sx = lx & 0x7f,
+      msx = 32 - sx,
+      h = tag.y1 - tag.y0,
+      x = (tag.y + tag.y0) * sw + (lx >> 5),
+      last;
+  for (var j = 0; j < h; j++) {
+    last = 0;
+    for (var i = 0; i <= w; i++) {
+      if (((last << msx) | (i < w ? (last = sprite[j * w + i]) >>> sx : 0))
+          & board[x + i]) return true;
+    }
+    x += sw;
+  }
+  return false;
+}
+
+function cloudBounds(bounds, d) {
+  var b0 = bounds[0],
+      b1 = bounds[1];
+  if (d.x + d.x0 < b0.x) b0.x = d.x + d.x0;
+  if (d.y + d.y0 < b0.y) b0.y = d.y + d.y0;
+  if (d.x + d.x1 > b1.x) b1.x = d.x + d.x1;
+  if (d.y + d.y1 > b1.y) b1.y = d.y + d.y1;
+}
+
+function collideRects(a, b) {
+  return a.x + a.x1 > b[0].x && a.x + a.x0 < b[1].x && a.y + a.y1 > b[0].y && a.y + a.y0 < b[1].y;
+}
+
+function archimedeanSpiral(size) {
+  var e = size[0] / size[1];
+  return function(t) {
+    return [e * (t *= .1) * Math.cos(t), t * Math.sin(t)];
+  };
+}
+
+function rectangularSpiral(size) {
+  var dy = 4,
+      dx = dy * size[0] / size[1],
+      x = 0,
+      y = 0;
+  return function(t) {
+    var sign = t < 0 ? -1 : 1;
+    // See triangular numbers: T_n = n * (n + 1) / 2.
+    switch ((Math.sqrt(1 + 4 * sign * t) - sign) & 3) {
+      case 0:  x += dx; break;
+      case 1:  y += dy; break;
+      case 2:  x -= dx; break;
+      default: y -= dy; break;
+    }
+    return [x, y];
+  };
+}
+
+// TODO reuse arrays?
+function zeroArray(n) {
+  var a = [],
+      i = -1;
+  while (++i < n) a[i] = 0;
+  return a;
+}
+
+function cloudCanvas() {
+  return document.createElement("canvas");
+}
+
+function functor(d) {
+  return typeof d === "function" ? d : function() { return d; };
+}
+
+var spirals = {
+  archimedean: archimedeanSpiral,
+  rectangular: rectangularSpiral
+};
+
+},{"d3-dispatch":91}],91:[function(require,module,exports){
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  factory((global.dispatch = {}));
+}(this, function (exports) { 'use strict';
+
+  function Dispatch(types) {
+    var i = -1,
+        n = types.length,
+        callbacksByType = {},
+        callbackByName = {},
+        type,
+        that = this;
+
+    that.on = function(type, callback) {
+      type = parseType(type);
+
+      // Return the current callback, if any.
+      if (arguments.length < 2) {
+        return (callback = callbackByName[type.name]) && callback.value;
+      }
+
+      // If a type was specified…
+      if (type.type) {
+        var callbacks = callbacksByType[type.type],
+            callback0 = callbackByName[type.name],
+            i;
+
+        // Remove the current callback, if any, using copy-on-remove.
+        if (callback0) {
+          callback0.value = null;
+          i = callbacks.indexOf(callback0);
+          callbacksByType[type.type] = callbacks = callbacks.slice(0, i).concat(callbacks.slice(i + 1));
+          delete callbackByName[type.name];
+        }
+
+        // Add the new callback, if any.
+        if (callback) {
+          callback = {value: callback};
+          callbackByName[type.name] = callback;
+          callbacks.push(callback);
+        }
+      }
+
+      // Otherwise, if a null callback was specified, remove all callbacks with the given name.
+      else if (callback == null) {
+        for (var otherType in callbacksByType) {
+          if (callback = callbackByName[otherType + type.name]) {
+            callback.value = null;
+            var callbacks = callbacksByType[otherType], i = callbacks.indexOf(callback);
+            callbacksByType[otherType] = callbacks.slice(0, i).concat(callbacks.slice(i + 1));
+            delete callbackByName[callback.name];
+          }
+        }
+      }
+
+      return that;
+    };
+
+    while (++i < n) {
+      type = types[i] + "";
+      if (!type || (type in that)) throw new Error("illegal or duplicate type: " + type);
+      callbacksByType[type] = [];
+      that[type] = applier(type);
+    }
+
+    function parseType(type) {
+      var i = (type += "").indexOf("."), name = type;
+      if (i >= 0) type = type.slice(0, i); else name += ".";
+      if (type && !callbacksByType.hasOwnProperty(type)) throw new Error("unknown type: " + type);
+      return {type: type, name: name};
+    }
+
+    function applier(type) {
+      return function() {
+        var callbacks = callbacksByType[type], // Defensive reference; copy-on-remove.
+            callback,
+            callbackValue,
+            i = -1,
+            n = callbacks.length;
+
+        while (++i < n) {
+          if (callbackValue = (callback = callbacks[i]).value) {
+            callbackValue.apply(this, arguments);
+          }
+        }
+
+        return that;
+      };
+    }
+  }
+
+  function dispatch() {
+    return new Dispatch(arguments);
+  }
+
+  dispatch.prototype = Dispatch.prototype; // allow instanceof
+
+  exports.dispatch = dispatch;
+
+}));
+},{}],92:[function(require,module,exports){
 arguments[4][4][0].apply(exports,arguments)
-},{"dup":4}],51:[function(require,module,exports){
+},{"dup":4}],93:[function(require,module,exports){
 arguments[4][5][0].apply(exports,arguments)
-},{"dup":5}],52:[function(require,module,exports){
+},{"dup":5}],94:[function(require,module,exports){
 arguments[4][6][0].apply(exports,arguments)
-},{"dup":6}],53:[function(require,module,exports){
+},{"dup":6}],95:[function(require,module,exports){
 arguments[4][7][0].apply(exports,arguments)
-},{"../util":75,"./collector":54,"./measures":56,"dup":7}],54:[function(require,module,exports){
+},{"dup":7}],96:[function(require,module,exports){
 arguments[4][8][0].apply(exports,arguments)
-},{"../stats":72,"../util":75,"dup":8}],55:[function(require,module,exports){
+},{"../util":118,"./collector":97,"./measures":99,"dup":8}],97:[function(require,module,exports){
 arguments[4][9][0].apply(exports,arguments)
-},{"../util":75,"./aggregator":53,"dup":9}],56:[function(require,module,exports){
+},{"../stats":115,"../util":118,"dup":9}],98:[function(require,module,exports){
 arguments[4][10][0].apply(exports,arguments)
-},{"../stats":72,"../util":75,"dup":10}],57:[function(require,module,exports){
+},{"../util":118,"./aggregator":96,"dup":10}],99:[function(require,module,exports){
 arguments[4][11][0].apply(exports,arguments)
-},{"../time":74,"../util":75,"dup":11}],58:[function(require,module,exports){
+},{"../stats":115,"../util":118,"dup":11}],100:[function(require,module,exports){
 arguments[4][12][0].apply(exports,arguments)
-},{"../generate":60,"../import/type":69,"../stats":72,"../util":75,"./bins":57,"dup":12}],59:[function(require,module,exports){
+},{"../time":117,"../util":118,"dup":12}],101:[function(require,module,exports){
 arguments[4][13][0].apply(exports,arguments)
-},{"d3-format":50,"d3-time":52,"d3-time-format":51,"dup":13}],60:[function(require,module,exports){
+},{"../generate":103,"../import/type":112,"../stats":115,"../util":118,"./bins":100,"dup":13}],102:[function(require,module,exports){
 arguments[4][14][0].apply(exports,arguments)
-},{"dup":14}],61:[function(require,module,exports){
+},{"d3-format":93,"d3-time":95,"d3-time-format":94,"dup":14}],103:[function(require,module,exports){
 arguments[4][15][0].apply(exports,arguments)
-},{"../../util":75,"d3-dsv":49,"dup":15}],62:[function(require,module,exports){
+},{"dup":15}],104:[function(require,module,exports){
 arguments[4][16][0].apply(exports,arguments)
-},{"./dsv":61,"./json":63,"./topojson":64,"./treejson":65,"dup":16}],63:[function(require,module,exports){
+},{"../../util":118,"d3-dsv":92,"dup":16}],105:[function(require,module,exports){
 arguments[4][17][0].apply(exports,arguments)
-},{"../../util":75,"dup":17}],64:[function(require,module,exports){
+},{"./dsv":104,"./json":106,"./topojson":107,"./treejson":108,"dup":17}],106:[function(require,module,exports){
+arguments[4][18][0].apply(exports,arguments)
+},{"../../util":118,"dup":18}],107:[function(require,module,exports){
 (function (global){
 var json = require('./json');
 
@@ -16023,29 +20052,29 @@ reader.topojson = (typeof window !== "undefined" ? window['topojson'] : typeof g
 module.exports = reader;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./json":63}],65:[function(require,module,exports){
-arguments[4][19][0].apply(exports,arguments)
-},{"./json":63,"dup":19}],66:[function(require,module,exports){
+},{"./json":106}],108:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"dup":20,"fs":32,"request":32,"sync-request":32,"url":32}],67:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"../util":75,"./formats":62,"./type":69,"dup":21}],68:[function(require,module,exports){
+},{"./json":106,"dup":20}],109:[function(require,module,exports){
+arguments[4][1][0].apply(exports,arguments)
+},{"dup":1,"fs":33,"request":33,"sync-request":33,"url":33}],110:[function(require,module,exports){
 arguments[4][22][0].apply(exports,arguments)
-},{"../util":75,"./load":66,"./read":67,"dup":22}],69:[function(require,module,exports){
+},{"../util":118,"./formats":105,"./type":112,"dup":22}],111:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"../util":75,"dup":23}],70:[function(require,module,exports){
+},{"../util":118,"./load":109,"./read":110,"dup":23}],112:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"./aggregate/aggregator":53,"./aggregate/groupby":55,"./bins/bins":57,"./bins/histogram":58,"./format":59,"./generate":60,"./import/load":66,"./import/read":67,"./import/readers":68,"./import/type":69,"./print":71,"./stats":72,"./template":73,"./time":74,"./util":75,"dup":24}],71:[function(require,module,exports){
+},{"../util":118,"dup":24}],113:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./import/type":69,"./stats":72,"./template":73,"./util":75,"dup":25}],72:[function(require,module,exports){
+},{"./aggregate/aggregator":96,"./aggregate/groupby":98,"./bins/bins":100,"./bins/histogram":101,"./format":102,"./generate":103,"./import/load":109,"./import/read":110,"./import/readers":111,"./import/type":112,"./print":114,"./stats":115,"./template":116,"./time":117,"./util":118,"dup":25}],114:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"./generate":60,"./import/type":69,"./util":75,"dup":26}],73:[function(require,module,exports){
+},{"./import/type":112,"./stats":115,"./template":116,"./util":118,"dup":26}],115:[function(require,module,exports){
 arguments[4][27][0].apply(exports,arguments)
-},{"./format":59,"./util":75,"dup":27}],74:[function(require,module,exports){
+},{"./generate":103,"./import/type":112,"./util":118,"dup":27}],116:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"d3-time":52,"dup":28}],75:[function(require,module,exports){
+},{"./format":102,"./util":118,"dup":28}],117:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"./time":74,"buffer":32,"dup":29}],76:[function(require,module,exports){
+},{"d3-time":95,"dup":29}],118:[function(require,module,exports){
+arguments[4][30][0].apply(exports,arguments)
+},{"./time":117,"buffer":33,"dup":30}],119:[function(require,module,exports){
 var DEPS = require('./Dependencies').ALL;
 
 function create(cs, reflow) {
@@ -16077,7 +20106,7 @@ module.exports = {
   create: create,
   copy: copy
 };
-},{"./Dependencies":79}],77:[function(require,module,exports){
+},{"./Dependencies":122}],120:[function(require,module,exports){
 var log = require('vega-logging'),
     Tuple = require('./Tuple'),
     Base = require('./Node').prototype;
@@ -16120,7 +20149,7 @@ prototype.evaluate = function(input) {
 };
 
 module.exports = Collector;
-},{"./Node":82,"./Tuple":84,"vega-logging":91}],78:[function(require,module,exports){
+},{"./Node":125,"./Tuple":127,"vega-logging":134}],121:[function(require,module,exports){
 var log = require('vega-logging'),
     ChangeSet = require('./ChangeSet'), 
     Collector = require('./Collector'),
@@ -16374,13 +20403,13 @@ function DataSourceListener(ds) {
 
 module.exports = DataSource;
 
-},{"./ChangeSet":76,"./Collector":77,"./Node":82,"./Tuple":84,"vega-logging":91}],79:[function(require,module,exports){
+},{"./ChangeSet":119,"./Collector":120,"./Node":125,"./Tuple":127,"vega-logging":134}],122:[function(require,module,exports){
 var deps = module.exports = {
   ALL: ['data', 'fields', 'scales', 'signals']
 };
 deps.ALL.forEach(function(k) { deps[k.toUpperCase()] = k; });
 
-},{}],80:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 var dl = require('datalib'),
     Heap = require('./Heap'),
     ChangeSet = require('./ChangeSet'),
@@ -16663,7 +20692,7 @@ prototype.evaluate = function(pulse, node) {
 
 module.exports = Graph;
 
-},{"./ChangeSet":76,"./Collector":77,"./DataSource":78,"./Dependencies":79,"./Heap":81,"./Signal":83,"./Tuple":84,"datalib":70}],81:[function(require,module,exports){
+},{"./ChangeSet":119,"./Collector":120,"./DataSource":121,"./Dependencies":122,"./Heap":124,"./Signal":126,"./Tuple":127,"datalib":113}],124:[function(require,module,exports){
 function Heap(comparator) {
   this.cmp = comparator;
   this.nodes = [];
@@ -16760,7 +20789,7 @@ function _siftup(array, idx, cmp) {
 
 module.exports = Heap;
 
-},{}],82:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 var DEPS = require('./Dependencies').ALL,
     nodeID = 0;
 
@@ -16951,7 +20980,7 @@ Node.reset = function() { nodeID = 0; };
 
 module.exports = Node;
 
-},{"./Dependencies":79}],83:[function(require,module,exports){
+},{"./Dependencies":122}],126:[function(require,module,exports){
 var ChangeSet = require('./ChangeSet'),
     Node = require('./Node'), // jshint ignore:line
     Base = Node.prototype;
@@ -17027,7 +21056,7 @@ prototype.off = function(handler) {
 
 module.exports = Signal;
 
-},{"./ChangeSet":76,"./Node":82}],84:[function(require,module,exports){
+},{"./ChangeSet":119,"./Node":125}],127:[function(require,module,exports){
 var tupleID = 0;
 
 function ingest(datum) {
@@ -17097,7 +21126,7 @@ module.exports = {
   }
 };
 
-},{}],85:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 module.exports = {
   ChangeSet:    require('./ChangeSet'),
   Collector:    require('./Collector'),
@@ -17110,7 +21139,7 @@ module.exports = {
   debug:        require('vega-logging').debug
 };
 
-},{"./ChangeSet":76,"./Collector":77,"./DataSource":78,"./Dependencies":79,"./Graph":80,"./Node":82,"./Signal":83,"./Tuple":84,"vega-logging":91}],86:[function(require,module,exports){
+},{"./ChangeSet":119,"./Collector":120,"./DataSource":121,"./Dependencies":122,"./Graph":123,"./Node":125,"./Signal":126,"./Tuple":127,"vega-logging":134}],129:[function(require,module,exports){
 function toMap(list) {
   var map = {}, i, n;
   for (i=0, n=list.length; i<n; ++i) map[list[i]] = 1;
@@ -17245,7 +21274,7 @@ module.exports = function(opt) {
   return codegen_wrap;
 };
 
-},{"./constants":87,"./functions":88}],87:[function(require,module,exports){
+},{"./constants":130,"./functions":131}],130:[function(require,module,exports){
 module.exports = {
   'NaN':     'NaN',
   'E':       'Math.E',
@@ -17257,7 +21286,7 @@ module.exports = {
   'SQRT1_2': 'Math.SQRT1_2',
   'SQRT2':   'Math.SQRT2'
 };
-},{}],88:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 module.exports = function(codegen) {
 
   function fncall(name, args, cast, type) {
@@ -17363,7 +21392,7 @@ module.exports = function(codegen) {
       }
   };
 };
-},{}],89:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 var parser = require('./parser'),
     codegen = require('./codegen');
     
@@ -17391,7 +21420,7 @@ var expr = module.exports = {
   constants: require('./constants')
 };
 
-},{"./codegen":86,"./constants":87,"./functions":88,"./parser":90}],90:[function(require,module,exports){
+},{"./codegen":129,"./constants":130,"./functions":131,"./parser":133}],133:[function(require,module,exports){
 /*
   The following expression parser is based on Esprima (http://esprima.org/).
   Original header comment and license for Esprima is included here:
@@ -19719,7 +23748,7 @@ module.exports = (function() {
   };
 
 })();
-},{}],91:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 var ts = Date.now();
 
 function write(msg) {
@@ -19757,3367 +23786,9 @@ module.exports = {
   debug: (debug.enable = false, debug)
 };
 
-},{}],92:[function(require,module,exports){
-module.exports = {
-  path:       require('./path'),
-  render:     require('./render'),
-  Item:       require('./util/Item'),
-  bound:      require('./util/bound'),
-  Bounds:     require('./util/Bounds'),
-  Gradient:   require('./util/Gradient'),
-  toJSON:     require('./util/scene').toJSON,
-  fromJSON:   require('./util/scene').fromJSON
-};
-},{"./path":94,"./render":114,"./util/Bounds":120,"./util/Gradient":122,"./util/Item":124,"./util/bound":125,"./util/scene":128}],93:[function(require,module,exports){
-var segmentCache = {},
-    bezierCache = {},
-    join = [].join;
-
-// Copied from Inkscape svgtopdf, thanks!
-function segments(x, y, rx, ry, large, sweep, rotateX, ox, oy) {
-  var key = join.call(arguments);
-  if (segmentCache[key]) {
-    return segmentCache[key];
-  }
-
-  var th = rotateX * (Math.PI/180);
-  var sin_th = Math.sin(th);
-  var cos_th = Math.cos(th);
-  rx = Math.abs(rx);
-  ry = Math.abs(ry);
-  var px = cos_th * (ox - x) * 0.5 + sin_th * (oy - y) * 0.5;
-  var py = cos_th * (oy - y) * 0.5 - sin_th * (ox - x) * 0.5;
-  var pl = (px*px) / (rx*rx) + (py*py) / (ry*ry);
-  if (pl > 1) {
-    pl = Math.sqrt(pl);
-    rx *= pl;
-    ry *= pl;
-  }
-
-  var a00 = cos_th / rx;
-  var a01 = sin_th / rx;
-  var a10 = (-sin_th) / ry;
-  var a11 = (cos_th) / ry;
-  var x0 = a00 * ox + a01 * oy;
-  var y0 = a10 * ox + a11 * oy;
-  var x1 = a00 * x + a01 * y;
-  var y1 = a10 * x + a11 * y;
-
-  var d = (x1-x0) * (x1-x0) + (y1-y0) * (y1-y0);
-  var sfactor_sq = 1 / d - 0.25;
-  if (sfactor_sq < 0) sfactor_sq = 0;
-  var sfactor = Math.sqrt(sfactor_sq);
-  if (sweep == large) sfactor = -sfactor;
-  var xc = 0.5 * (x0 + x1) - sfactor * (y1-y0);
-  var yc = 0.5 * (y0 + y1) + sfactor * (x1-x0);
-
-  var th0 = Math.atan2(y0-yc, x0-xc);
-  var th1 = Math.atan2(y1-yc, x1-xc);
-
-  var th_arc = th1-th0;
-  if (th_arc < 0 && sweep === 1){
-    th_arc += 2 * Math.PI;
-  } else if (th_arc > 0 && sweep === 0) {
-    th_arc -= 2 * Math.PI;
-  }
-
-  var segs = Math.ceil(Math.abs(th_arc / (Math.PI * 0.5 + 0.001)));
-  var result = [];
-  for (var i=0; i<segs; ++i) {
-    var th2 = th0 + i * th_arc / segs;
-    var th3 = th0 + (i+1) * th_arc / segs;
-    result[i] = [xc, yc, th2, th3, rx, ry, sin_th, cos_th];
-  }
-
-  return (segmentCache[key] = result);
-}
-
-function bezier(params) {
-  var key = join.call(params);
-  if (bezierCache[key]) {
-    return bezierCache[key];
-  }
-  
-  var cx = params[0],
-      cy = params[1],
-      th0 = params[2],
-      th1 = params[3],
-      rx = params[4],
-      ry = params[5],
-      sin_th = params[6],
-      cos_th = params[7];
-
-  var a00 = cos_th * rx;
-  var a01 = -sin_th * ry;
-  var a10 = sin_th * rx;
-  var a11 = cos_th * ry;
-
-  var cos_th0 = Math.cos(th0);
-  var sin_th0 = Math.sin(th0);
-  var cos_th1 = Math.cos(th1);
-  var sin_th1 = Math.sin(th1);
-
-  var th_half = 0.5 * (th1 - th0);
-  var sin_th_h2 = Math.sin(th_half * 0.5);
-  var t = (8/3) * sin_th_h2 * sin_th_h2 / Math.sin(th_half);
-  var x1 = cx + cos_th0 - t * sin_th0;
-  var y1 = cy + sin_th0 + t * cos_th0;
-  var x3 = cx + cos_th1;
-  var y3 = cy + sin_th1;
-  var x2 = x3 + t * sin_th1;
-  var y2 = y3 - t * cos_th1;
-
-  return (bezierCache[key] = [
-    a00 * x1 + a01 * y1,  a10 * x1 + a11 * y1,
-    a00 * x2 + a01 * y2,  a10 * x2 + a11 * y2,
-    a00 * x3 + a01 * y3,  a10 * x3 + a11 * y3
-  ]);
-}
-
-module.exports = {
-  segments: segments,
-  bezier: bezier,
-  cache: {
-    segments: segmentCache,
-    bezier: bezierCache
-  }
-};
-
-},{}],94:[function(require,module,exports){
-module.exports = {
-  parse:  require('./parse'),
-  render: require('./render')
-};
-
-},{"./parse":95,"./render":96}],95:[function(require,module,exports){
-// Path parsing and rendering code adapted from fabric.js -- Thanks!
-var cmdlen = { m:2, l:2, h:1, v:1, c:6, s:4, q:4, t:2, a:7 },
-    regexp = [/([MLHVCSQTAZmlhvcsqtaz])/g, /###/, /(\d)([-+])/g, /\s|,|###/];
-
-module.exports = function(pathstr) {
-  var result = [],
-      path,
-      curr,
-      chunks,
-      parsed, param,
-      cmd, len, i, j, n, m;
-
-  // First, break path into command sequence
-  path = pathstr
-    .slice()
-    .replace(regexp[0], '###$1')
-    .split(regexp[1])
-    .slice(1);
-
-  // Next, parse each command in turn
-  for (i=0, n=path.length; i<n; ++i) {
-    curr = path[i];
-    chunks = curr
-      .slice(1)
-      .trim()
-      .replace(regexp[2],'$1###$2')
-      .split(regexp[3]);
-    cmd = curr.charAt(0);
-
-    parsed = [cmd];
-    for (j=0, m=chunks.length; j<m; ++j) {
-      if ((param = +chunks[j]) === param) { // not NaN
-        parsed.push(param);
-      }
-    }
-
-    len = cmdlen[cmd.toLowerCase()];
-    if (parsed.length-1 > len) {
-      for (j=1, m=parsed.length; j<m; j+=len) {
-        result.push([cmd].concat(parsed.slice(j, j+len)));
-      }
-    }
-    else {
-      result.push(parsed);
-    }
-  }
-
-  return result;
-};
-
-},{}],96:[function(require,module,exports){
-var arc = require('./arc');
-
-module.exports = function(g, path, l, t) {
-  var current, // current instruction
-      previous = null,
-      x = 0, // current x
-      y = 0, // current y
-      controlX = 0, // current control point x
-      controlY = 0, // current control point y
-      tempX,
-      tempY,
-      tempControlX,
-      tempControlY;
-
-  if (l == null) l = 0;
-  if (t == null) t = 0;
-
-  g.beginPath();
-
-  for (var i=0, len=path.length; i<len; ++i) {
-    current = path[i];
-
-    switch (current[0]) { // first letter
-
-      case 'l': // lineto, relative
-        x += current[1];
-        y += current[2];
-        g.lineTo(x + l, y + t);
-        break;
-
-      case 'L': // lineto, absolute
-        x = current[1];
-        y = current[2];
-        g.lineTo(x + l, y + t);
-        break;
-
-      case 'h': // horizontal lineto, relative
-        x += current[1];
-        g.lineTo(x + l, y + t);
-        break;
-
-      case 'H': // horizontal lineto, absolute
-        x = current[1];
-        g.lineTo(x + l, y + t);
-        break;
-
-      case 'v': // vertical lineto, relative
-        y += current[1];
-        g.lineTo(x + l, y + t);
-        break;
-
-      case 'V': // verical lineto, absolute
-        y = current[1];
-        g.lineTo(x + l, y + t);
-        break;
-
-      case 'm': // moveTo, relative
-        x += current[1];
-        y += current[2];
-        g.moveTo(x + l, y + t);
-        break;
-
-      case 'M': // moveTo, absolute
-        x = current[1];
-        y = current[2];
-        g.moveTo(x + l, y + t);
-        break;
-
-      case 'c': // bezierCurveTo, relative
-        tempX = x + current[5];
-        tempY = y + current[6];
-        controlX = x + current[3];
-        controlY = y + current[4];
-        g.bezierCurveTo(
-          x + current[1] + l, // x1
-          y + current[2] + t, // y1
-          controlX + l, // x2
-          controlY + t, // y2
-          tempX + l,
-          tempY + t
-        );
-        x = tempX;
-        y = tempY;
-        break;
-
-      case 'C': // bezierCurveTo, absolute
-        x = current[5];
-        y = current[6];
-        controlX = current[3];
-        controlY = current[4];
-        g.bezierCurveTo(
-          current[1] + l,
-          current[2] + t,
-          controlX + l,
-          controlY + t,
-          x + l,
-          y + t
-        );
-        break;
-
-      case 's': // shorthand cubic bezierCurveTo, relative
-        // transform to absolute x,y
-        tempX = x + current[3];
-        tempY = y + current[4];
-        // calculate reflection of previous control points
-        controlX = 2 * x - controlX;
-        controlY = 2 * y - controlY;
-        g.bezierCurveTo(
-          controlX + l,
-          controlY + t,
-          x + current[1] + l,
-          y + current[2] + t,
-          tempX + l,
-          tempY + t
-        );
-
-        // set control point to 2nd one of this command
-        // the first control point is assumed to be the reflection of
-        // the second control point on the previous command relative
-        // to the current point.
-        controlX = x + current[1];
-        controlY = y + current[2];
-
-        x = tempX;
-        y = tempY;
-        break;
-
-      case 'S': // shorthand cubic bezierCurveTo, absolute
-        tempX = current[3];
-        tempY = current[4];
-        // calculate reflection of previous control points
-        controlX = 2*x - controlX;
-        controlY = 2*y - controlY;
-        g.bezierCurveTo(
-          controlX + l,
-          controlY + t,
-          current[1] + l,
-          current[2] + t,
-          tempX + l,
-          tempY + t
-        );
-        x = tempX;
-        y = tempY;
-        // set control point to 2nd one of this command
-        // the first control point is assumed to be the reflection of
-        // the second control point on the previous command relative
-        // to the current point.
-        controlX = current[1];
-        controlY = current[2];
-
-        break;
-
-      case 'q': // quadraticCurveTo, relative
-        // transform to absolute x,y
-        tempX = x + current[3];
-        tempY = y + current[4];
-
-        controlX = x + current[1];
-        controlY = y + current[2];
-
-        g.quadraticCurveTo(
-          controlX + l,
-          controlY + t,
-          tempX + l,
-          tempY + t
-        );
-        x = tempX;
-        y = tempY;
-        break;
-
-      case 'Q': // quadraticCurveTo, absolute
-        tempX = current[3];
-        tempY = current[4];
-
-        g.quadraticCurveTo(
-          current[1] + l,
-          current[2] + t,
-          tempX + l,
-          tempY + t
-        );
-        x = tempX;
-        y = tempY;
-        controlX = current[1];
-        controlY = current[2];
-        break;
-
-      case 't': // shorthand quadraticCurveTo, relative
-
-        // transform to absolute x,y
-        tempX = x + current[1];
-        tempY = y + current[2];
-
-        if (previous[0].match(/[QqTt]/) === null) {
-          // If there is no previous command or if the previous command was not a Q, q, T or t,
-          // assume the control point is coincident with the current point
-          controlX = x;
-          controlY = y;
-        }
-        else if (previous[0] === 't') {
-          // calculate reflection of previous control points for t
-          controlX = 2 * x - tempControlX;
-          controlY = 2 * y - tempControlY;
-        }
-        else if (previous[0] === 'q') {
-          // calculate reflection of previous control points for q
-          controlX = 2 * x - controlX;
-          controlY = 2 * y - controlY;
-        }
-
-        tempControlX = controlX;
-        tempControlY = controlY;
-
-        g.quadraticCurveTo(
-          controlX + l,
-          controlY + t,
-          tempX + l,
-          tempY + t
-        );
-        x = tempX;
-        y = tempY;
-        controlX = x + current[1];
-        controlY = y + current[2];
-        break;
-
-      case 'T':
-        tempX = current[1];
-        tempY = current[2];
-
-        // calculate reflection of previous control points
-        controlX = 2 * x - controlX;
-        controlY = 2 * y - controlY;
-        g.quadraticCurveTo(
-          controlX + l,
-          controlY + t,
-          tempX + l,
-          tempY + t
-        );
-        x = tempX;
-        y = tempY;
-        break;
-
-      case 'a':
-        drawArc(g, x + l, y + t, [
-          current[1],
-          current[2],
-          current[3],
-          current[4],
-          current[5],
-          current[6] + x + l,
-          current[7] + y + t
-        ]);
-        x += current[6];
-        y += current[7];
-        break;
-
-      case 'A':
-        drawArc(g, x + l, y + t, [
-          current[1],
-          current[2],
-          current[3],
-          current[4],
-          current[5],
-          current[6] + l,
-          current[7] + t
-        ]);
-        x = current[6];
-        y = current[7];
-        break;
-
-      case 'z':
-      case 'Z':
-        g.closePath();
-        break;
-    }
-    previous = current;
-  }
-};
-
-function drawArc(g, x, y, coords) {
-  var seg = arc.segments(
-    coords[5], // end x
-    coords[6], // end y
-    coords[0], // radius x
-    coords[1], // radius y
-    coords[3], // large flag
-    coords[4], // sweep flag
-    coords[2], // rotation
-    x, y
-  );
-  for (var i=0; i<seg.length; ++i) {
-    var bez = arc.bezier(seg[i]);
-    g.bezierCurveTo.apply(g, bez);
-  }
-}
-
-},{"./arc":93}],97:[function(require,module,exports){
-function Handler() {
-  this._active = null;
-  this._handlers = {};
-}
-
-var prototype = Handler.prototype;
-
-prototype.initialize = function(el, pad, obj) {
-  this._el = el;
-  this._obj = obj || null;
-  return this.padding(pad);
-};
-
-prototype.element = function() {
-  return this._el;
-};
-
-prototype.padding = function(pad) {
-  this._padding = pad || {top:0, left:0, bottom:0, right:0};
-  return this;
-};
-
-prototype.scene = function(scene) {
-  if (!arguments.length) return this._scene;
-  this._scene = scene;
-  return this;
-};
-
-// add an event handler
-// subclasses should override
-prototype.on = function(/*type, handler*/) {};
-
-// remove an event handler
-// subclasses should override
-prototype.off = function(/*type, handler*/) {};
-
-// return an array with all registered event handlers
-prototype.handlers = function() {
-  var h = this._handlers, a = [], k;
-  for (k in h) { a.push.apply(a, h[k]); }
-  return a;
-};
-
-prototype.eventName = function(name) {
-  var i = name.indexOf('.');
-  return i < 0 ? name : name.slice(0,i);
-};
-
-module.exports = Handler;
-},{}],98:[function(require,module,exports){
-function Renderer() {
-  this._el = null;
-  this._bgcolor = null;
-}
-
-var prototype = Renderer.prototype;
-
-prototype.initialize = function(el, width, height, padding) {
-  this._el = el;
-  return this.resize(width, height, padding);
-};
-
-// Returns the parent container element for a visualization
-prototype.element = function() {
-  return this._el;
-};
-
-// Returns the scene element (e.g., canvas or SVG) of the visualization
-// Subclasses must override if the first child is not the scene element
-prototype.scene = function() {
-  return this._el && this._el.firstChild;
-};
-
-prototype.background = function(bgcolor) {
-  if (arguments.length === 0) return this._bgcolor;
-  this._bgcolor = bgcolor;
-  return this;
-};
-
-prototype.resize = function(width, height, padding) {
-  this._width = width;
-  this._height = height;
-  this._padding = padding || {top:0, left:0, bottom:0, right:0};
-  return this;
-};
-
-prototype.render = function(/*scene, items*/) {
-  return this;
-};
-
-module.exports = Renderer;
-},{}],99:[function(require,module,exports){
-var DOM = require('../../util/dom'),
-    Handler = require('../Handler'),
-    marks = require('./marks');
-
-function CanvasHandler() {
-  Handler.call(this);
-  this._down = null;
-  this._touch = null;
-  this._first = true;
-}
-
-var base = Handler.prototype;
-var prototype = (CanvasHandler.prototype = Object.create(base));
-prototype.constructor = CanvasHandler;
-
-prototype.initialize = function(el, pad, obj) {
-  // add event listeners
-  var canvas = this._canvas = DOM.find(el, 'canvas'),
-      that = this;
-  this.events.forEach(function(type) {
-    canvas.addEventListener(type, function(evt) {
-      if (prototype[type]) {
-        prototype[type].call(that, evt);
-      } else {
-        that.fire(type, evt);
-      }
-    });
-  });
-
-  return base.initialize.call(this, el, pad, obj);
-};
-
-prototype.canvas = function() {
-  return this._canvas;
-};
-
-// retrieve the current canvas context
-prototype.context = function() {
-  return this._canvas.getContext('2d');
-};
-
-// supported events
-prototype.events = [
-  'keydown',
-  'keypress',
-  'keyup',
-  'mousedown',
-  'mouseup',
-  'mousemove',
-  'mouseout',
-  'mouseover',
-  'click',
-  'dblclick',
-  'wheel',
-  'mousewheel',
-  'touchstart',
-  'touchmove',
-  'touchend'
-];
-
-// to keep firefox happy
-prototype.DOMMouseScroll = function(evt) {
-  this.fire('mousewheel', evt);
-};
-
-prototype.mousemove = function(evt) {
-  var a = this._active,
-      p = this.pickEvent(evt);
-
-  if (p === a) {
-    // active item and picked item are the same
-    this.fire('mousemove', evt); // fire move
-  } else {
-    // active item and picked item are different
-    this.fire('mouseout', evt);  // fire out for prior active item
-    this._active = p;            // set new active item
-    this.fire('mouseover', evt); // fire over for new active item
-    this.fire('mousemove', evt); // fire move for new active item
-  }
-};
-
-prototype.mouseout = function(evt) {
-  this.fire('mouseout', evt);
-  this._active = null;
-};
-
-prototype.mousedown = function(evt) {
-  this._down = this._active;
-  this.fire('mousedown', evt);
-};
-
-prototype.click = function(evt) {
-  if (this._down === this._active) {
-    this.fire('click', evt);
-    this._down = null;
-  }
-};
-
-prototype.touchstart = function(evt) {
-  this._touch = this.pickEvent(evt.changedTouches[0]);
-
-  if (this._first) {
-    this._active = this._touch;
-    this._first = false;
-  }
-
-  this.fire('touchstart', evt, true);
-};
-
-prototype.touchmove = function(evt) {
-  this.fire('touchmove', evt, true);
-};
-
-prototype.touchend = function(evt) {
-  this.fire('touchend', evt, true);
-  this._touch = null;
-};
-
-// fire an event
-prototype.fire = function(type, evt, touch) {
-  var a = touch ? this._touch : this._active,
-      h = this._handlers[type], i, len;
-  if (h) {
-    evt.vegaType = type;
-    for (i=0, len=h.length; i<len; ++i) {
-      h[i].handler.call(this._obj, evt, a);
-    }
-  }
-};
-
-// add an event handler
-prototype.on = function(type, handler) {
-  var name = this.eventName(type),
-      h = this._handlers;
-  (h[name] || (h[name] = [])).push({
-    type: type,
-    handler: handler
-  });
-  return this;
-};
-
-// remove an event handler
-prototype.off = function(type, handler) {
-  var name = this.eventName(type),
-      h = this._handlers[name], i;
-  if (!h) return;
-  for (i=h.length; --i>=0;) {
-    if (h[i].type !== type) continue;
-    if (!handler || h[i].handler === handler) h.splice(i, 1);
-  }
-  return this;
-};
-
-prototype.pickEvent = function(evt) {
-  var rect = this._canvas.getBoundingClientRect(),
-      pad = this._padding, x, y;
-  return this.pick(this._scene,
-    x = (evt.clientX - rect.left),
-    y = (evt.clientY - rect.top),
-    x - pad.left, y - pad.top);
-};
-
-// find the scenegraph item at the current mouse position
-// x, y -- the absolute x, y mouse coordinates on the canvas element
-// gx, gy -- the relative coordinates within the current group
-prototype.pick = function(scene, x, y, gx, gy) {
-  var g = this.context(),
-      mark = marks[scene.marktype];
-  return mark.pick.call(this, g, scene, x, y, gx, gy);
-};
-
-module.exports = CanvasHandler;
-
-},{"../../util/dom":127,"../Handler":97,"./marks":106}],100:[function(require,module,exports){
-var DOM = require('../../util/dom'),
-    Bounds = require('../../util/Bounds'),
-    ImageLoader = require('../../util/ImageLoader'),
-    Canvas = require('../../util/canvas'),
-    Renderer = require('../Renderer'),
-    marks = require('./marks');
-
-function CanvasRenderer(loadConfig) {
-  Renderer.call(this);
-  this._loader = new ImageLoader(loadConfig);
-}
-
-CanvasRenderer.RETINA = true;
-
-var base = Renderer.prototype;
-var prototype = (CanvasRenderer.prototype = Object.create(base));
-prototype.constructor = CanvasRenderer;
-
-prototype.initialize = function(el, width, height, padding) {
-  this._canvas = Canvas.instance(width, height);
-  if (el) {
-    DOM.clear(el, 0).appendChild(this._canvas);
-    this._canvas.setAttribute('class', 'marks');
-  }
-  return base.initialize.call(this, el, width, height, padding);
-};
-
-prototype.resize = function(width, height, padding) {
-  base.resize.call(this, width, height, padding);
-  Canvas.resize(this._canvas, this._width, this._height,
-    this._padding, CanvasRenderer.RETINA);
-  return this;
-};
-
-prototype.canvas = function() {
-  return this._canvas;
-};
-
-prototype.context = function() {
-  return this._canvas ? this._canvas.getContext('2d') : null;
-};
-
-prototype.pendingImages = function() {
-  return this._loader.pending();
-};
-
-function clipToBounds(g, items) {
-  if (!items) return null;
-
-  var b = new Bounds(), i, n, item, mark, group;
-  for (i=0, n=items.length; i<n; ++i) {
-    item = items[i];
-    mark = item.mark;
-    group = mark.group;
-    item = marks[mark.marktype].nested ? mark : item;
-    b.union(translate(item.bounds, group));
-    if (item['bounds:prev']) {
-      b.union(translate(item['bounds:prev'], group));
-    }
-  }
-  b.round();
-
-  g.beginPath();
-  g.rect(b.x1, b.y1, b.width(), b.height());
-  g.clip();
-
-  return b;
-}
-
-function translate(bounds, group) {
-  if (group == null) return bounds;
-  var b = bounds.clone();
-  for (; group != null; group = group.mark.group) {
-    b.translate(group.x || 0, group.y || 0);
-  }
-  return b;
-}
-
-prototype.render = function(scene, items) {
-  var g = this.context(),
-      p = this._padding,
-      w = this._width + p.left + p.right,
-      h = this._height + p.top + p.bottom,
-      b;
-
-  // setup
-  this._scene = scene; // cache scene for async redraw
-  g.save();
-  b = clipToBounds(g, items);
-  this.clear(-p.left, -p.top, w, h);
-
-  // render
-  this.draw(g, scene, b);
-  
-  // takedown
-  g.restore();
-  this._scene = null; // clear scene cache
-
-  return this;
-};
-
-prototype.draw = function(ctx, scene, bounds) {
-  var mark = marks[scene.marktype];
-  mark.draw.call(this, ctx, scene, bounds);
-};
-
-prototype.clear = function(x, y, w, h) {
-  var g = this.context();
-  g.clearRect(x, y, w, h);
-  if (this._bgcolor != null) {
-    g.fillStyle = this._bgcolor;
-    g.fillRect(x, y, w, h); 
-  }
-};
-
-prototype.loadImage = function(uri) {
-  var renderer = this,
-      scene = this._scene;
-  return this._loader.loadImage(uri, function() {
-    renderer.renderAsync(scene);
-  });
-};
-
-prototype.renderAsync = function(scene) {
-  // TODO make safe for multiple scene rendering?
-  var renderer = this;
-  if (renderer._async_id) {
-    clearTimeout(renderer._async_id);
-  }
-  renderer._async_id = setTimeout(function() {
-    renderer.render(scene);
-    delete renderer._async_id;
-  }, 10);
-};
-
-module.exports = CanvasRenderer;
-
-},{"../../util/Bounds":120,"../../util/ImageLoader":123,"../../util/canvas":126,"../../util/dom":127,"../Renderer":98,"./marks":106}],101:[function(require,module,exports){
-module.exports = {
-  Handler:  require('./CanvasHandler'),
-  Renderer: require('./CanvasRenderer')
-};
-},{"./CanvasHandler":99,"./CanvasRenderer":100}],102:[function(require,module,exports){
-var util = require('./util');
-var halfpi = Math.PI / 2;
-
-function path(g, o) {
-  var x = o.x || 0,
-      y = o.y || 0,
-      ir = o.innerRadius || 0,
-      or = o.outerRadius || 0,
-      sa = (o.startAngle || 0) - halfpi,
-      ea = (o.endAngle || 0) - halfpi;
-  g.beginPath();
-  if (ir === 0) g.moveTo(x, y);
-  else g.arc(x, y, ir, sa, ea, 0);
-  g.arc(x, y, or, ea, sa, 1);
-  g.closePath();
-}
-
-module.exports = {
-  draw: util.drawAll(path),
-  pick: util.pickPath(path)
-};
-},{"./util":113}],103:[function(require,module,exports){
-var util = require('./util'),
-    parse = require('../../../path/parse'),
-    render = require('../../../path/render'),
-    areaPath = require('../../../util/svg').path.area;
-
-function path(g, items) {
-  var o = items[0],
-      p = o.pathCache || (o.pathCache = parse(areaPath(items)));
-  render(g, p);
-}
-
-function pick(g, scene, x, y, gx, gy) {
-  var items = scene.items,
-      b = scene.bounds;
-
-  if (!items || !items.length || b && !b.contains(gx, gy)) {
-    return null;
-  }
-
-  if (g.pixelratio != null && g.pixelratio !== 1) {
-    x *= g.pixelratio;
-    y *= g.pixelratio;
-  }
-  return hit(g, items, x, y) ? items[0] : null;
-}
-
-var hit = util.testPath(path);
-
-module.exports = {
-  draw: util.drawOne(path),
-  pick: pick,
-  nested: true
-};
-
-},{"../../../path/parse":95,"../../../path/render":96,"../../../util/svg":129,"./util":113}],104:[function(require,module,exports){
-var util = require('./util'),
-    rect = require('./rect');
-
-function draw(g, scene, bounds) {
-  if (!scene.items || !scene.items.length) return;
-
-  var groups = scene.items,
-      renderer = this,
-      group, items, axes, legends, gx, gy, i, n, j, m;
-
-  rect.draw.call(renderer, g, scene, bounds);
-
-  for (i=0, n=groups.length; i<n; ++i) {
-    group = groups[i];
-    axes = group.axisItems || [];
-    items = group.items || [];
-    legends = group.legendItems || [];
-    gx = group.x || 0;
-    gy = group.y || 0;
-
-    // render group contents
-    g.save();
-    g.translate(gx, gy);
-    if (group.clip) {
-      g.beginPath();
-      g.rect(0, 0, group.width || 0, group.height || 0);
-      g.clip();
-    }
-
-    if (bounds) bounds.translate(-gx, -gy);
-
-    for (j=0, m=axes.length; j<m; ++j) {
-      if (axes[j].layer === 'back') {
-        renderer.draw(g, axes[j], bounds);
-      }
-    }
-    for (j=0, m=items.length; j<m; ++j) {
-      renderer.draw(g, items[j], bounds);
-    }
-    for (j=0, m=axes.length; j<m; ++j) {
-      if (axes[j].layer !== 'back') {
-        renderer.draw(g, axes[j], bounds);
-      }
-    }
-    for (j=0, m=legends.length; j<m; ++j) {
-      renderer.draw(g, legends[j], bounds);
-    }
-    
-    if (bounds) bounds.translate(gx, gy);
-    g.restore();
-  }    
-}
-
-function hit(g, o) {
-  return o.fill || o.stroke;
-}
-
-function pick(g, scene, x, y, gx, gy) {
-  if (scene.bounds && !scene.bounds.contains(gx, gy)) {
-    return null;
-  }
-  var items = scene.items || [],
-      subscene, group, hits, dx, dy, i, j;
-
-  for (i=items.length; --i>=0;) {
-    group = items[i];
-    dx = group.x || 0;
-    dy = group.y || 0;
-
-    g.save();
-    g.translate(dx, dy);
-    for (j=group.items.length; --j >= 0;) {
-      subscene = group.items[j];
-      if (subscene.interactive === false) continue;
-      hits = this.pick(subscene, x, y, gx-dx, gy-dy);
-      if (hits) {
-        g.restore();
-        return hits;
-      }
-    }
-    g.restore();
-  }
-
-  return scene.interactive !== false ? pickSelf(g, scene, x, y, gx, gy) : null;
-}
-
-var pickSelf = util.pick(hit);
-
-module.exports = {
-  draw: draw,
-  pick: pick
-};
-
-},{"./rect":109,"./util":113}],105:[function(require,module,exports){
-var util = require('./util');
-
-function draw(g, scene, bounds) {
-  if (!scene.items || !scene.items.length) return;
-
-  var renderer = this,
-      items = scene.items, o;
-
-  for (var i=0, len=items.length; i<len; ++i) {
-    o = items[i];
-    if (bounds && !bounds.intersects(o.bounds))
-      continue; // bounds check
-
-    if (!(o.image && o.image.url === o.url)) {
-      o.image = renderer.loadImage(o.url);
-      o.image.url = o.url;
-    }
-
-    var x = o.x || 0,
-        y = o.y || 0,
-        w = o.width || (o.image && o.image.width) || 0,
-        h = o.height || (o.image && o.image.height) || 0,
-        opac;
-    x = x - (o.align==='center' ? w/2 : o.align==='right' ? w : 0);
-    y = y - (o.baseline==='middle' ? h/2 : o.baseline==='bottom' ? h : 0);
-
-    if (o.image.loaded) {
-      g.globalAlpha = (opac = o.opacity) != null ? opac : 1;
-      g.drawImage(o.image, x, y, w, h);
-    }
-  }
-}
-
-module.exports = {
-  draw: draw,
-  pick: util.pick()
-};
-},{"./util":113}],106:[function(require,module,exports){
-module.exports = {
-  arc:    require('./arc'),
-  area:   require('./area'),
-  group:  require('./group'),
-  image:  require('./image'),
-  line:   require('./line'),
-  path:   require('./path'),
-  rect:   require('./rect'),
-  rule:   require('./rule'),
-  symbol: require('./symbol'),
-  text:   require('./text')
-};
-
-},{"./arc":102,"./area":103,"./group":104,"./image":105,"./line":107,"./path":108,"./rect":109,"./rule":110,"./symbol":111,"./text":112}],107:[function(require,module,exports){
-var util = require('./util'),
-    parse = require('../../../path/parse'),
-    render = require('../../../path/render'),
-    linePath = require('../../../util/svg').path.line;
-    
-function path(g, items) {
-  var o = items[0],
-      p = o.pathCache || (o.pathCache = parse(linePath(items)));
-  render(g, p);
-}
-
-function pick(g, scene, x, y, gx, gy) {
-  var items = scene.items,
-      b = scene.bounds;
-
-  if (!items || !items.length || b && !b.contains(gx, gy)) {
-    return null;
-  }
-
-  if (g.pixelratio != null && g.pixelratio !== 1) {
-    x *= g.pixelratio;
-    y *= g.pixelratio;
-  }
-  return hit(g, items, x, y) ? items[0] : null;
-}
-
-var hit = util.testPath(path, false);
-
-module.exports = {
-  draw: util.drawOne(path),
-  pick: pick,
-  nested: true
-};
-
-},{"../../../path/parse":95,"../../../path/render":96,"../../../util/svg":129,"./util":113}],108:[function(require,module,exports){
-var util = require('./util'),
-    parse = require('../../../path/parse'),
-    render = require('../../../path/render');
-
-function path(g, o) {
-  if (o.path == null) return true;
-  var p = o.pathCache || (o.pathCache = parse(o.path));
-  render(g, p, o.x, o.y);
-}
-
-module.exports = {
-  draw: util.drawAll(path),
-  pick: util.pickPath(path)
-};
-
-},{"../../../path/parse":95,"../../../path/render":96,"./util":113}],109:[function(require,module,exports){
-var util = require('./util');
-
-function draw(g, scene, bounds) {
-  if (!scene.items || !scene.items.length) return;
-
-  var items = scene.items,
-      o, opac, x, y, w, h;
-
-  for (var i=0, len=items.length; i<len; ++i) {
-    o = items[i];
-    if (bounds && !bounds.intersects(o.bounds))
-      continue; // bounds check
-
-    opac = o.opacity == null ? 1 : o.opacity;
-    if (opac === 0) continue;
-
-    x = o.x || 0;
-    y = o.y || 0;
-    w = o.width || 0;
-    h = o.height || 0;
-
-    if (o.fill && util.fill(g, o, opac)) {
-      g.fillRect(x, y, w, h);
-    }
-    if (o.stroke && util.stroke(g, o, opac)) {
-      g.strokeRect(x, y, w, h);
-    }
-  }
-}
-
-module.exports = {
-  draw: draw,
-  pick: util.pick()
-};
-},{"./util":113}],110:[function(require,module,exports){
-var util = require('./util');
-
-function draw(g, scene, bounds) {
-  if (!scene.items || !scene.items.length) return;
-
-  var items = scene.items,
-      o, opac, x1, y1, x2, y2;
-
-  for (var i=0, len=items.length; i<len; ++i) {
-    o = items[i];
-    if (bounds && !bounds.intersects(o.bounds))
-      continue; // bounds check
-
-    opac = o.opacity == null ? 1 : o.opacity;
-    if (opac === 0) continue;
-      
-    x1 = o.x || 0;
-    y1 = o.y || 0;
-    x2 = o.x2 != null ? o.x2 : x1;
-    y2 = o.y2 != null ? o.y2 : y1;
-
-    if (o.stroke && util.stroke(g, o, opac)) {
-      g.beginPath();
-      g.moveTo(x1, y1);
-      g.lineTo(x2, y2);
-      g.stroke();
-    }
-  }
-}
-
-function stroke(g, o) {
-  var x1 = o.x || 0,
-      y1 = o.y || 0,
-      x2 = o.x2 != null ? o.x2 : x1,
-      y2 = o.y2 != null ? o.y2 : y1,
-      lw = o.strokeWidth,
-      lc = o.strokeCap;
-
-  g.lineWidth = lw != null ? lw : 1;
-  g.lineCap   = lc != null ? lc : 'butt';
-  g.beginPath();
-  g.moveTo(x1, y1);
-  g.lineTo(x2, y2);
-}
-
-function hit(g, o, x, y) {
-  if (!g.isPointInStroke) return false;
-  stroke(g, o);
-  return g.isPointInStroke(x, y);
-}
-
-module.exports = {
-  draw: draw,
-  pick: util.pick(hit)
-};
-
-},{"./util":113}],111:[function(require,module,exports){
-var util = require('./util');
-
-var sqrt3 = Math.sqrt(3),
-    tan30 = Math.tan(30 * Math.PI / 180);
-
-function path(g, o) {
-  var size = o.size != null ? o.size : 100,
-      x = o.x, y = o.y, r, t, rx, ry;
-
-  g.beginPath();
-
-  if (o.shape == null || o.shape === 'circle') {
-    r = Math.sqrt(size / Math.PI);
-    g.arc(x, y, r, 0, 2*Math.PI, 0);
-    g.closePath();
-    return;
-  }
-
-  switch (o.shape) {
-    case 'cross':
-      r = Math.sqrt(size / 5) / 2;
-      t = 3*r;
-      g.moveTo(x-t, y-r);
-      g.lineTo(x-r, y-r);
-      g.lineTo(x-r, y-t);
-      g.lineTo(x+r, y-t);
-      g.lineTo(x+r, y-r);
-      g.lineTo(x+t, y-r);
-      g.lineTo(x+t, y+r);
-      g.lineTo(x+r, y+r);
-      g.lineTo(x+r, y+t);
-      g.lineTo(x-r, y+t);
-      g.lineTo(x-r, y+r);
-      g.lineTo(x-t, y+r);
-      break;
-
-    case 'diamond':
-      ry = Math.sqrt(size / (2 * tan30));
-      rx = ry * tan30;
-      g.moveTo(x, y-ry);
-      g.lineTo(x+rx, y);
-      g.lineTo(x, y+ry);
-      g.lineTo(x-rx, y);
-      break;
-
-    case 'square':
-      t = Math.sqrt(size);
-      r = t / 2;
-      g.rect(x-r, y-r, t, t);
-      break;
-
-    case 'triangle-down':
-      rx = Math.sqrt(size / sqrt3);
-      ry = rx * sqrt3 / 2;
-      g.moveTo(x, y+ry);
-      g.lineTo(x+rx, y-ry);
-      g.lineTo(x-rx, y-ry);
-      break;
-
-    case 'triangle-up':
-      rx = Math.sqrt(size / sqrt3);
-      ry = rx * sqrt3 / 2;
-      g.moveTo(x, y-ry);
-      g.lineTo(x+rx, y+ry);
-      g.lineTo(x-rx, y+ry);
-  }
-  g.closePath();
-}
-
-module.exports = {
-  draw: util.drawAll(path),
-  pick: util.pickPath(path)
-};
-},{"./util":113}],112:[function(require,module,exports){
-var Bounds = require('../../../util/Bounds'),
-    textBounds = require('../../../util/bound').text,
-    text = require('../../../util/text'),
-    util = require('./util'),
-    tempBounds = new Bounds();
-
-function draw(g, scene, bounds) {
-  if (!scene.items || !scene.items.length) return;
-
-  var items = scene.items,
-      o, opac, x, y, r, t, str;
-
-  for (var i=0, len=items.length; i<len; ++i) {
-    o = items[i];
-    if (bounds && !bounds.intersects(o.bounds))
-      continue; // bounds check
-
-    str = text.value(o.text);
-    if (!str) continue;
-    opac = o.opacity == null ? 1 : o.opacity;
-    if (opac === 0) continue;
-
-    g.font = text.font(o);
-    g.textAlign = o.align || 'left';
-
-    x = (o.x || 0);
-    y = (o.y || 0);
-    if ((r = o.radius)) {
-      t = (o.theta || 0) - Math.PI/2;
-      x += r * Math.cos(t);
-      y += r * Math.sin(t);
-    }
-
-    if (o.angle) {
-      g.save();
-      g.translate(x, y);
-      g.rotate(o.angle * Math.PI/180);
-      x = y = 0; // reset x, y
-    }
-    x += (o.dx || 0);
-    y += (o.dy || 0) + text.offset(o);
-
-    if (o.fill && util.fill(g, o, opac)) {
-      g.fillText(str, x, y);
-    }
-    if (o.stroke && util.stroke(g, o, opac)) {
-      g.strokeText(str, x, y);
-    }
-    if (o.angle) g.restore();
-  }
-}
-
-function hit(g, o, x, y, gx, gy) {
-  if (o.fontSize <= 0) return false;
-  if (!o.angle) return true; // bounds sufficient if no rotation
-
-  // project point into space of unrotated bounds
-  var b = textBounds(o, tempBounds, true),
-      a = -o.angle * Math.PI / 180,
-      cos = Math.cos(a),
-      sin = Math.sin(a),
-      ox = o.x,
-      oy = o.y,
-      px = cos*gx - sin*gy + (ox - ox*cos + oy*sin),
-      py = sin*gx + cos*gy + (oy - ox*sin - oy*cos);
-
-  return b.contains(px, py);
-}
-
-module.exports = {
-  draw: draw,
-  pick: util.pick(hit)
-};
-
-},{"../../../util/Bounds":120,"../../../util/bound":125,"../../../util/text":130,"./util":113}],113:[function(require,module,exports){
-function drawPathOne(path, g, o, items) {
-  if (path(g, items)) return;
-
-  var opac = o.opacity == null ? 1 : o.opacity;
-  if (opac===0) return;
-
-  if (o.fill && fill(g, o, opac)) { g.fill(); }
-  if (o.stroke && stroke(g, o, opac)) { g.stroke(); }
-}
-
-function drawPathAll(path, g, scene, bounds) {
-  var i, len, item;
-  for (i=0, len=scene.items.length; i<len; ++i) {
-    item = scene.items[i];
-    if (!bounds || bounds.intersects(item.bounds)) {
-      drawPathOne(path, g, item, item);
-    }
-  }
-}
-
-function drawAll(pathFunc) {
-  return function(g, scene, bounds) {
-    drawPathAll(pathFunc, g, scene, bounds);
-  };
-}
-
-function drawOne(pathFunc) {
-  return function(g, scene, bounds) {
-    if (!scene.items.length) return;
-    if (!bounds || bounds.intersects(scene.bounds)) {
-      drawPathOne(pathFunc, g, scene.items[0], scene.items);
-    }
-  };
-}
-
-var trueFunc = function() { return true; };
-
-function pick(test) {
-  if (!test) test = trueFunc;
-
-  return function(g, scene, x, y, gx, gy) {
-    if (!scene.items.length) return null;
-
-    var o, b, i;
-
-    if (g.pixelratio != null && g.pixelratio !== 1) {
-      x *= g.pixelratio;
-      y *= g.pixelratio;
-    }
-
-    for (i=scene.items.length; --i >= 0;) {
-      o = scene.items[i]; b = o.bounds;
-      // first hit test against bounding box
-      if ((b && !b.contains(gx, gy)) || !b) continue;
-      // if in bounding box, perform more careful test
-      if (test(g, o, x, y, gx, gy)) return o;
-    }
-    return null;
-  };
-}
-
-function testPath(path, filled) {
-  return function(g, o, x, y) {
-    var item = Array.isArray(o) ? o[0] : o,
-        fill = (filled == null) ? item.fill : filled,
-        stroke = item.stroke && g.isPointInStroke, lw, lc;
-
-    if (stroke) {
-      lw = item.strokeWidth;
-      lc = item.strokeCap;
-      g.lineWidth = lw != null ? lw : 1;
-      g.lineCap   = lc != null ? lc : 'butt';
-    }
-
-    return path(g, o) ? false :
-      (fill && g.isPointInPath(x, y)) ||
-      (stroke && g.isPointInStroke(x, y));
-  };
-}
-
-function pickPath(path) {
-  return pick(testPath(path));
-}
-
-function fill(g, o, opacity) {
-  opacity *= (o.fillOpacity==null ? 1 : o.fillOpacity);
-  if (opacity > 0) {
-    g.globalAlpha = opacity;
-    g.fillStyle = color(g, o, o.fill);
-    return true;
-  } else {
-    return false;
-  }
-}
-
-function stroke(g, o, opacity) {
-  var lw = (lw = o.strokeWidth) != null ? lw : 1, lc;
-  if (lw <= 0) return false;
-
-  opacity *= (o.strokeOpacity==null ? 1 : o.strokeOpacity);
-  if (opacity > 0) {
-    g.globalAlpha = opacity;
-    g.strokeStyle = color(g, o, o.stroke);
-    g.lineWidth = lw;
-    g.lineCap = (lc = o.strokeCap) != null ? lc : 'butt';
-    g.vgLineDash(o.strokeDash || null);
-    g.vgLineDashOffset(o.strokeDashOffset || 0);
-    return true;
-  } else {
-    return false;
-  }
-}
-
-function color(g, o, value) {
-  return (value.id) ?
-    gradient(g, value, o.bounds) :
-    value;
-}
-
-function gradient(g, p, b) {
-  var w = b.width(),
-      h = b.height(),
-      x1 = b.x1 + p.x1 * w,
-      y1 = b.y1 + p.y1 * h,
-      x2 = b.x1 + p.x2 * w,
-      y2 = b.y1 + p.y2 * h,
-      grad = g.createLinearGradient(x1, y1, x2, y2),
-      stop = p.stops,
-      i, n;
-
-  for (i=0, n=stop.length; i<n; ++i) {
-    grad.addColorStop(stop[i].offset, stop[i].color);
-  }
-  return grad;
-}
-
-module.exports = {
-  drawOne:  drawOne,
-  drawAll:  drawAll,
-  pick:     pick,
-  pickPath: pickPath,
-  testPath: testPath,
-  stroke:   stroke,
-  fill:     fill,
-  color:    color,
-  gradient: gradient
-};
-
-},{}],114:[function(require,module,exports){
-module.exports = {
-  'canvas': require('./canvas'),
-  'svg':    require('./svg')
-};
-
-},{"./canvas":101,"./svg":118}],115:[function(require,module,exports){
-var DOM = require('../../util/dom'),
-    Handler = require('../Handler');
-
-function SVGHandler() {
-  Handler.call(this);
-}
-
-var base = Handler.prototype;
-var prototype = (SVGHandler.prototype = Object.create(base));
-prototype.constructor = SVGHandler;
-
-prototype.initialize = function(el, pad, obj) {
-  this._svg = DOM.find(el, 'svg');
-  return base.initialize.call(this, el, pad, obj);
-};
-
-prototype.svg = function() {
-  return this._svg;
-};
-
-// wrap an event listener for the SVG DOM
-prototype.listener = function(handler) {
-  var that = this;
-  return function(evt) {
-    var target = evt.target,
-        item = target.__data__;
-    evt.vegaType = evt.type;
-    item = Array.isArray(item) ? item[0] : item;
-    handler.call(that._obj, evt, item);
-  };
-};
-
-// add an event handler
-prototype.on = function(type, handler) {
-  var name = this.eventName(type),
-      svg = this._svg,
-      h = this._handlers,
-      x = {
-        type:     type,
-        handler:  handler,
-        listener: this.listener(handler)
-      };
-
-  (h[name] || (h[name] = [])).push(x);
-  svg.addEventListener(name, x.listener);
-  return this;
-};
-
-// remove an event handler
-prototype.off = function(type, handler) {
-  var name = this.eventName(type),
-      svg = this._svg,
-      h = this._handlers[name], i;
-  if (!h) return;
-  for (i=h.length; --i>=0;) {
-    if (h[i].type === type && !handler || h[i].handler === handler) {
-      svg.removeEventListener(name, h[i].listener);
-      h.splice(i, 1);
-    }
-  }
-  return this;
-};
-
-module.exports = SVGHandler;
-
-},{"../../util/dom":127,"../Handler":97}],116:[function(require,module,exports){
-var ImageLoader = require('../../util/ImageLoader'),
-    Renderer = require('../Renderer'),
-    text = require('../../util/text'),
-    DOM = require('../../util/dom'),
-    SVG = require('../../util/svg'),
-    ns = SVG.metadata.xmlns,
-    marks = require('./marks');
-
-function SVGRenderer(loadConfig) {
-  Renderer.call(this);
-  this._loader = new ImageLoader(loadConfig);
-  this._dirtyID = 0;
-}
-
-var base = Renderer.prototype;
-var prototype = (SVGRenderer.prototype = Object.create(base));
-prototype.constructor = SVGRenderer;
-
-prototype.initialize = function(el, width, height, padding) {
-  if (el) {
-    this._svg = DOM.child(el, 0, 'svg', ns, 'marks');
-    DOM.clear(el, 1);
-    // set the svg root group
-    this._root = DOM.child(this._svg, 0, 'g', ns);
-    DOM.clear(this._svg, 1);
-  }
-
-  // create the svg definitions cache
-  this._defs = {
-    clip_id:  1,
-    gradient: {},
-    clipping: {}
-  };
-
-  // set background color if defined
-  this.background(this._bgcolor);
-
-  return base.initialize.call(this, el, width, height, padding);
-};
-
-prototype.background = function(bgcolor) {
-  if (arguments.length && this._svg) {
-    this._svg.style.setProperty('background-color', bgcolor);
-  }
-  return base.background.apply(this, arguments);
-};
-
-prototype.resize = function(width, height, padding) {
-  base.resize.call(this, width, height, padding);
-  
-  if (this._svg) {
-    var w = this._width,
-        h = this._height,
-        p = this._padding;
-  
-    this._svg.setAttribute('width', w + p.left + p.right);
-    this._svg.setAttribute('height', h + p.top + p.bottom);
-    
-    this._root.setAttribute('transform', 'translate('+p.left+','+p.top+')');
-  }
-
-  return this;
-};
-
-prototype.svg = function() {
-  if (!this._svg) return null;
-
-  var attr = {
-    'class':  'marks',
-    'width':  this._width + this._padding.left + this._padding.right,
-    'height': this._height + this._padding.top + this._padding.bottom,
-  };
-  for (var key in SVG.metadata) {
-    attr[key] = SVG.metadata[key];
-  }
-
-  return DOM.openTag('svg', attr) + this._svg.innerHTML + DOM.closeTag('svg');
-};
-
-prototype.imageURL = function(url) {
-  return this._loader.imageURL(url);
-};
-
-
-// -- Render entry point --
-
-prototype.render = function(scene, items) {
-  if (this._dirtyCheck(items)) {
-    if (this._dirtyAll) this._resetDefs();
-    this.draw(this._root, scene, -1);
-    DOM.clear(this._root, 1);
-  }
-  this.updateDefs();
-  return this;
-};
-
-prototype.draw = function(el, scene, index) {
-  this.drawMark(el, scene, index, marks[scene.marktype]);
-};
-
-
-// -- Manage SVG definitions ('defs') block --
-
-prototype.updateDefs = function() {
-  var svg = this._svg,
-      defs = this._defs,
-      el = defs.el,
-      index = 0, id;
-
-  for (id in defs.gradient) {
-    if (!el) el = (defs.el = DOM.child(svg, 0, 'defs', ns));
-    updateGradient(el, defs.gradient[id], index++);
-  }
-
-  for (id in defs.clipping) {
-    if (!el) el = (defs.el = DOM.child(svg, 0, 'defs', ns));
-    updateClipping(el, defs.clipping[id], index++);
-  }
-
-  // clean-up
-  if (el) {
-    if (index === 0) {
-      svg.removeChild(el);
-      defs.el = null;
-    } else {
-      DOM.clear(el, index);      
-    }
-  }
-};
-
-function updateGradient(el, grad, index) {
-  var i, n, stop;
-
-  el = DOM.child(el, index, 'linearGradient', ns);
-  el.setAttribute('id', grad.id);
-  el.setAttribute('x1', grad.x1);
-  el.setAttribute('x2', grad.x2);
-  el.setAttribute('y1', grad.y1);
-  el.setAttribute('y2', grad.y2);
-  
-  for (i=0, n=grad.stops.length; i<n; ++i) {
-    stop = DOM.child(el, i, 'stop', ns);
-    stop.setAttribute('offset', grad.stops[i].offset);
-    stop.setAttribute('stop-color', grad.stops[i].color);
-  }
-  DOM.clear(el, i);
-}
-
-function updateClipping(el, clip, index) {
-  var rect;
-
-  el = DOM.child(el, index, 'clipPath', ns);
-  el.setAttribute('id', clip.id);
-  rect = DOM.child(el, 0, 'rect', ns);
-  rect.setAttribute('x', 0);
-  rect.setAttribute('y', 0);
-  rect.setAttribute('width', clip.width);
-  rect.setAttribute('height', clip.height);
-}
-
-prototype._resetDefs = function() {
-  var def = this._defs;
-  def.clip_id = 1;
-  def.gradient = {};
-  def.clipping = {};
-};
-
-
-// -- Manage rendering of items marked as dirty --
-
-prototype.isDirty = function(item) {
-  return this._dirtyAll || item.dirty === this._dirtyID;
-};
-
-prototype._dirtyCheck = function(items) {
-  this._dirtyAll = true;
-  if (!items) return true;
-
-  var id = ++this._dirtyID,
-      item, mark, type, mdef, i, n, o;
-
-  for (i=0, n=items.length; i<n; ++i) {
-    item = items[i];
-    mark = item.mark;
-    if (mark.marktype !== type) {
-      // memoize mark instance lookup
-      type = mark.marktype;
-      mdef = marks[type];
-    }
-
-    if (item.status === 'exit') { // EXIT
-      if (item._svg) {
-        if (mdef.nest && item.mark.items.length) {
-          // if nested mark with remaining points, update instead
-          this._update(mdef, item._svg, item.mark.items[0]);
-          o = item.mark.items[0];
-          o._svg = item._svg;
-          o._update = id;
-        } else {
-          // otherwise remove from DOM
-          DOM.remove(item._svg);
-        }
-        item._svg = null;
-      }
-      continue;
-    }
-
-    item = (mdef.nest ? mark.items[0] : item);
-    if (item._update === id) { // Already processed
-      continue;
-    } else if (item._svg) { // UPDATE
-      this._update(mdef, item._svg, item);
-    } else { // ENTER
-      this._dirtyAll = false;
-      dirtyParents(item, id);
-    }
-    item._update = id;
-  }
-  return !this._dirtyAll;
-};
-
-function dirtyParents(item, id) {
-  for (; item && item.dirty !== id; item=item.mark.group) {
-    item.dirty = id;
-    if (item.mark && item.mark.dirty !== id) {
-      item.mark.dirty = id;
-    } else return;
-  }
-}
-
-
-// -- Construct & maintain scenegraph to SVG mapping ---
-
-// Draw a mark container.
-prototype.drawMark = function(el, scene, index, mdef) {
-  if (!this.isDirty(scene)) return;
-
-  var items = mdef.nest ?
-        (scene.items && scene.items.length ? [scene.items[0]] : []) :
-        scene.items || [],
-      events = scene.interactive === false ? 'none' : null,
-      isGroup = (mdef.tag === 'g'),
-      className = DOM.cssClass(scene),
-      p, i, n, c, d, insert;
-
-  p = DOM.child(el, index+1, 'g', ns, className);
-  p.setAttribute('class', className);
-  scene._svg = p;
-  if (!isGroup && events) {
-    p.style.setProperty('pointer-events', events);
-  }
-
-  for (i=0, n=items.length; i<n; ++i) {
-    if (this.isDirty(d = items[i])) {
-      insert = !(this._dirtyAll || d._svg);
-      c = insert ? bind(p, mdef, d, i, true)
-        : (p.childNodes[i] || bind(p, mdef, d, i));
-      this._update(mdef, c, d);
-      if (isGroup) {
-        if (insert) this._dirtyAll = true;
-        this._recurse(c, d);
-        if (insert) this._dirtyAll = false;
-      }
-    }
-  }
-  DOM.clear(p, i);
-  return p;
-};
-
-// Recursively process group contents.
-prototype._recurse = function(el, group) {
-  var items = group.items || [],
-      legends = group.legendItems || [],
-      axes = group.axisItems || [],
-      idx = 0, j, m;
-
-  for (j=0, m=axes.length; j<m; ++j) {
-    if (axes[j].layer === 'back') {
-      this.drawMark(el, axes[j], idx++, marks.group);
-    }
-  }
-  for (j=0, m=items.length; j<m; ++j) {
-    this.draw(el, items[j], idx++);
-  }
-  for (j=0, m=axes.length; j<m; ++j) {
-    if (axes[j].layer !== 'back') {
-      this.drawMark(el, axes[j], idx++, marks.group);
-    }
-  }
-  for (j=0, m=legends.length; j<m; ++j) {
-    this.drawMark(el, legends[j], idx++, marks.group);
-  }
-
-  // remove any extraneous DOM elements
-  DOM.clear(el, 1 + idx);
-};
-
-// Bind a scenegraph item to an SVG DOM element.
-// Create new SVG elements as needed.
-function bind(el, mdef, item, index, insert) {
-  // create svg element, bind item data for D3 compatibility
-  var node = DOM.child(el, index, mdef.tag, ns, null, insert);
-  node.__data__ = item;
-  node.__values__ = {fill: 'default'};
-
-  // create background rect
-  if (mdef.tag === 'g') {
-    var bg = DOM.child(node, 0, 'rect', ns, 'background');
-    bg.__data__ = item;
-  }
-
-  // add pointer from scenegraph item to svg element
-  return (item._svg = node);
-}
-
-
-// -- Set attributes & styles on SVG elements ---
-
-var href = (typeof window !== 'undefined' ? window.location.href : ''),
-    element = null, // temp var for current SVG element
-    values = null;  // temp var for current values hash
-
-// Extra configuration for certain mark types
-var mark_extras = {
-  group: function(mdef, el, item) {
-    element = el.childNodes[0];
-    values = el.__values__; // use parent's values hash
-    mdef.background(emit, item, this);
-
-    var value = item.mark.interactive === false ? 'none' : null;
-    if (value !== values.events) {
-      element.style.setProperty('pointer-events', value);
-      values.events = value;
-    }
-  },
-  text: function(mdef, el, item) {
-    var str = text.value(item.text);
-    if (str !== values.text) {
-      el.textContent = str;
-      values.text = str;
-    }
-    str = text.font(item);
-    if (str !== values.font) {
-      el.style.setProperty('font', str);
-      values.font = str;
-    }
-  }
-};
-
-prototype._update = function(mdef, el, item) {
-  // set dom element and values cache
-  // provides access to emit method
-  element = el;
-  values = el.__values__;
-
-  // apply svg attributes
-  mdef.attr(emit, item, this);
-
-  // some marks need special treatment
-  var extra = mark_extras[mdef.type];
-  if (extra) extra(mdef, el, item);
-
-  // apply svg css styles
-  // note: element may be modified by 'extra' method
-  this.style(element, item);
-};
-
-function emit(name, value, ns) {
-  // early exit if value is unchanged
-  if (value === values[name]) return;
-
-  if (value != null) {
-    // if value is provided, update DOM attribute
-    if (ns) {
-      element.setAttributeNS(ns, name, value);
-    } else {
-      element.setAttribute(name, value);
-    }
-  } else {
-    // else remove DOM attribute
-    if (ns) {
-      element.removeAttributeNS(ns, name);
-    } else {
-      element.removeAttribute(name);
-    }
-  }
-
-  // note current value for future comparison
-  values[name] = value;
-}
-
-prototype.style = function(el, o) {
-  if (o == null) return;
-  var i, n, prop, name, value;
-
-  for (i=0, n=SVG.styleProperties.length; i<n; ++i) {
-    prop = SVG.styleProperties[i];
-    value = o[prop];
-    if (value === values[prop]) continue;
-
-    name = SVG.styles[prop];
-    if (value == null) {
-      if (name === 'fill') {
-        el.style.setProperty(name, 'none');
-      } else {
-        el.style.removeProperty(name);
-      }
-    } else {
-      if (value.id) {
-        // ensure definition is included
-        this._defs.gradient[value.id] = value;
-        value = 'url(' + href + '#' + value.id + ')';
-      }
-      el.style.setProperty(name, value+'');
-    }
-
-    values[prop] = value;
-  }
-};
-
-module.exports = SVGRenderer;
-
-},{"../../util/ImageLoader":123,"../../util/dom":127,"../../util/svg":129,"../../util/text":130,"../Renderer":98,"./marks":119}],117:[function(require,module,exports){
-var Renderer = require('../Renderer'),
-    ImageLoader = require('../../util/ImageLoader'),
-    SVG = require('../../util/svg'),
-    text = require('../../util/text'),
-    DOM = require('../../util/dom'),
-    openTag = DOM.openTag,
-    closeTag = DOM.closeTag,
-    MARKS = require('./marks');
-
-function SVGStringRenderer(loadConfig) {
-  Renderer.call(this);
-
-  this._loader = new ImageLoader(loadConfig);
-
-  this._text = {
-    head: '',
-    root: '',
-    foot: '',
-    defs: '',
-    body: ''
-  };
-
-  this._defs = {
-    clip_id:  1,
-    gradient: {},
-    clipping: {}
-  };
-}
-
-var base = Renderer.prototype;
-var prototype = (SVGStringRenderer.prototype = Object.create(base));
-prototype.constructor = SVGStringRenderer;
-
-prototype.resize = function(width, height, padding) {
-  base.resize.call(this, width, height, padding);
-  var p = this._padding,
-      t = this._text;
-
-  var attr = {
-    'class':  'marks',
-    'width':  this._width + p.left + p.right,
-    'height': this._height + p.top + p.bottom,
-  };
-  for (var key in SVG.metadata) {
-    attr[key] = SVG.metadata[key];
-  }
-
-  t.head = openTag('svg', attr);
-  t.root = openTag('g', {
-    transform: 'translate(' + p.left + ',' + p.top + ')'
-  });
-  t.foot = closeTag('g') + closeTag('svg');
-
-  return this;
-};
-
-prototype.svg = function() {
-  var t = this._text;
-  return t.head + t.defs + t.root + t.body + t.foot;
-};
-
-prototype.render = function(scene) {
-  this._text.body = this.mark(scene);
-  this._text.defs = this.buildDefs();
-  return this;
-};
-
-prototype.reset = function() {
-  this._defs.clip_id = 0;
-  return this;
-};
-
-prototype.buildDefs = function() {
-  var all = this._defs,
-      defs = '',
-      i, id, def, stops;
-
-  for (id in all.gradient) {
-    def = all.gradient[id];
-    stops = def.stops;
-
-    defs += openTag('linearGradient', {
-      id: id,
-      x1: def.x1,
-      x2: def.x2,
-      y1: def.y1,
-      y2: def.y2
-    });
-    
-    for (i=0; i<stops.length; ++i) {
-      defs += openTag('stop', {
-        offset: stops[i].offset,
-        'stop-color': stops[i].color
-      }) + closeTag('stop');
-    }
-    
-    defs += closeTag('linearGradient');
-  }
-  
-  for (id in all.clipping) {
-    def = all.clipping[id];
-
-    defs += openTag('clipPath', {id: id});
-
-    defs += openTag('rect', {
-      x: 0,
-      y: 0,
-      width: def.width,
-      height: def.height
-    }) + closeTag('rect');
-
-    defs += closeTag('clipPath');
-  }
-  
-  return (defs.length > 0) ? openTag('defs') + defs + closeTag('defs') : '';
-};
-
-prototype.imageURL = function(url) {
-  return this._loader.imageURL(url);
-};
-
-var object;
-
-function emit(name, value, ns, prefixed) {
-  object[prefixed || name] = value;
-}
-
-prototype.attributes = function(attr, item) {
-  object = {};
-  attr(emit, item, this);
-  return object;
-};
-
-prototype.mark = function(scene) {
-  var mdef = MARKS[scene.marktype],
-      tag  = mdef.tag,
-      attr = mdef.attr,
-      nest = mdef.nest || false,
-      data = nest ?
-          (scene.items && scene.items.length ? [scene.items[0]] : []) :
-          (scene.items || []),
-      defs = this._defs,
-      str = '',
-      style, i, item;
-
-  if (tag !== 'g' && scene.interactive === false) {
-    style = 'style="pointer-events: none;"';
-  }
-
-  // render opening group tag
-  str += openTag('g', {
-    'class': DOM.cssClass(scene)
-  }, style);
-
-  // render contained elements
-  for (i=0; i<data.length; ++i) {
-    item = data[i];
-    style = (tag !== 'g') ? styles(item, scene, tag, defs) : null;
-    str += openTag(tag, this.attributes(attr, item), style);
-    if (tag === 'text') {
-      str += escape_text(text.value(item.text));
-    } else if (tag === 'g') {
-      str += openTag('rect',
-        this.attributes(mdef.background, item),
-        styles(item, scene, 'bgrect', defs)) + closeTag('rect');
-      str += this.markGroup(item);
-    }
-    str += closeTag(tag);
-  }
-
-  // render closing group tag
-  return str + closeTag('g');
-};
-
-prototype.markGroup = function(scene) {
-  var str = '',
-      axes = scene.axisItems || [],
-      items = scene.items || [],
-      legends = scene.legendItems || [],
-      j, m;
-
-  for (j=0, m=axes.length; j<m; ++j) {
-    if (axes[j].layer === 'back') {
-      str += this.mark(axes[j]);
-    }
-  }
-  for (j=0, m=items.length; j<m; ++j) {
-    str += this.mark(items[j]);
-  }
-  for (j=0, m=axes.length; j<m; ++j) {
-    if (axes[j].layer !== 'back') {
-      str += this.mark(axes[j]);
-    }
-  }
-  for (j=0, m=legends.length; j<m; ++j) {
-    str += this.mark(legends[j]);
-  }
-
-  return str;
-};
-
-function styles(o, mark, tag, defs) {
-  if (o == null) return '';
-  var i, n, prop, name, value, s = '';
-
-  if (tag === 'bgrect' && mark.interactive === false) {
-    s += 'pointer-events: none;';
-  }
-
-  if (tag === 'text') {
-    s += 'font: ' + text.font(o) + ';';
-  }
-
-  for (i=0, n=SVG.styleProperties.length; i<n; ++i) {
-    prop = SVG.styleProperties[i];
-    name = SVG.styles[prop];
-    value = o[prop];
-
-    if (value == null) {
-      if (name === 'fill') {
-        s += (s.length ? ' ' : '') + 'fill: none;';
-      }
-    } else {
-      if (value.id) {
-        // ensure definition is included
-        defs.gradient[value.id] = value;
-        value = 'url(#' + value.id + ')';
-      }
-      s += (s.length ? ' ' : '') + name + ': ' + value + ';';
-    }
-  }
-
-  return s ? 'style="' + s + '"' : null;
-}
-
-function escape_text(s) {
-  return s.replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;');
-}
-
-module.exports = SVGStringRenderer;
-
-},{"../../util/ImageLoader":123,"../../util/dom":127,"../../util/svg":129,"../../util/text":130,"../Renderer":98,"./marks":119}],118:[function(require,module,exports){
-module.exports = {
-  Handler:  require('./SVGHandler'),
-  Renderer: require('./SVGRenderer'),
-  string: {
-    Renderer : require('./SVGStringRenderer')
-  }
-};
-},{"./SVGHandler":115,"./SVGRenderer":116,"./SVGStringRenderer":117}],119:[function(require,module,exports){
-var text = require('../../util/text'),
-    SVG = require('../../util/svg'),
-    textAlign = SVG.textAlign,
-    path = SVG.path;
-
-function translateItem(o) {
-  return translate(o.x || 0, o.y || 0);
-}
-
-function translate(x, y) {
-  return 'translate(' + x + ',' + y + ')';
-}
-
-module.exports = {
-  arc: {
-    tag:  'path',
-    type: 'arc',
-    attr: function(emit, o) {
-      emit('transform', translateItem(o));
-      emit('d', path.arc(o));
-    }
-  },
-  area: {
-    tag:  'path',
-    type: 'area',
-    nest: true,
-    attr: function(emit, o) {
-      var items = o.mark.items;
-      if (items.length) emit('d', path.area(items));
-    }
-  },
-  group: {
-    tag:  'g',
-    type: 'group',
-    attr: function(emit, o, renderer) {
-      var id = null, defs, c;
-      emit('transform', translateItem(o));
-      if (o.clip) {
-        defs = renderer._defs;
-        id = o.clip_id || (o.clip_id = 'clip' + defs.clip_id++);
-        c = defs.clipping[id] || (defs.clipping[id] = {id: id});
-        c.width = o.width || 0;
-        c.height = o.height || 0;
-      }
-      emit('clip-path', id ? ('url(#' + id + ')') : null);
-    },
-    background: function(emit, o) {
-      emit('class', 'background');
-      emit('width', o.width || 0);
-      emit('height', o.height || 0);
-    }
-  },
-  image: {
-    tag:  'image',
-    type: 'image',
-    attr: function(emit, o, renderer) {
-      var x = o.x || 0,
-          y = o.y || 0,
-          w = o.width || 0,
-          h = o.height || 0,
-          url = renderer.imageURL(o.url);
-
-      x = x - (o.align === 'center' ? w/2 : o.align === 'right' ? w : 0);
-      y = y - (o.baseline === 'middle' ? h/2 : o.baseline === 'bottom' ? h : 0);
-
-      emit('href', url, 'http://www.w3.org/1999/xlink', 'xlink:href');
-      emit('transform', translate(x, y));
-      emit('width', w);
-      emit('height', h);
-    }
-  },
-  line: {
-    tag:  'path',
-    type: 'line',
-    nest: true,
-    attr: function(emit, o) {
-      var items = o.mark.items;
-      if (items.length) emit('d', path.line(items));
-    }
-  },
-  path: {
-    tag:  'path',
-    type: 'path',
-    attr: function(emit, o) {
-      emit('transform', translateItem(o));
-      emit('d', o.path);
-    }
-  },
-  rect: {
-    tag:  'rect',
-    type: 'rect',
-    nest: false,
-    attr: function(emit, o) {
-      emit('transform', translateItem(o));
-      emit('width', o.width || 0);
-      emit('height', o.height || 0);
-    }
-  },
-  rule: {
-    tag:  'line',
-    type: 'rule',
-    attr: function(emit, o) {
-      emit('transform', translateItem(o));
-      emit('x2', o.x2 != null ? o.x2 - (o.x||0) : 0);
-      emit('y2', o.y2 != null ? o.y2 - (o.y||0) : 0);
-    }
-  },
-  symbol: {
-    tag:  'path',
-    type: 'symbol',
-    attr: function(emit, o) {
-      emit('transform', translateItem(o));
-      emit('d', path.symbol(o));
-    }
-  },
-  text: {
-    tag:  'text',
-    type: 'text',
-    nest: false,
-    attr: function(emit, o) {
-      var dx = (o.dx || 0),
-          dy = (o.dy || 0) + text.offset(o),
-          x = (o.x || 0),
-          y = (o.y || 0),
-          a = o.angle || 0,
-          r = o.radius || 0, t;
-
-      if (r) {
-        t = (o.theta || 0) - Math.PI/2;
-        x += r * Math.cos(t);
-        y += r * Math.sin(t);
-      }
-
-      emit('text-anchor', textAlign[o.align] || 'start');
-      
-      if (a) {
-        t = translate(x, y) + ' rotate('+a+')';
-        if (dx || dy) t += ' ' + translate(dx, dy);
-      } else {
-        t = translate(x+dx, y+dy);
-      }
-      emit('transform', t);
-    }
-  }
-};
-
-},{"../../util/svg":129,"../../util/text":130}],120:[function(require,module,exports){
-function Bounds(b) {
-  this.clear();
-  if (b) this.union(b);
-}
-
-var prototype = Bounds.prototype;
-
-prototype.clone = function() {
-  return new Bounds(this);
-};
-
-prototype.clear = function() {
-  this.x1 = +Number.MAX_VALUE;
-  this.y1 = +Number.MAX_VALUE;
-  this.x2 = -Number.MAX_VALUE;
-  this.y2 = -Number.MAX_VALUE;
-  return this;
-};
-
-prototype.set = function(x1, y1, x2, y2) {
-  this.x1 = x1;
-  this.y1 = y1;
-  this.x2 = x2;
-  this.y2 = y2;
-  return this;
-};
-
-prototype.add = function(x, y) {
-  if (x < this.x1) this.x1 = x;
-  if (y < this.y1) this.y1 = y;
-  if (x > this.x2) this.x2 = x;
-  if (y > this.y2) this.y2 = y;
-  return this;
-};
-
-prototype.expand = function(d) {
-  this.x1 -= d;
-  this.y1 -= d;
-  this.x2 += d;
-  this.y2 += d;
-  return this;
-};
-
-prototype.round = function() {
-  this.x1 = Math.floor(this.x1);
-  this.y1 = Math.floor(this.y1);
-  this.x2 = Math.ceil(this.x2);
-  this.y2 = Math.ceil(this.y2);
-  return this;
-};
-
-prototype.translate = function(dx, dy) {
-  this.x1 += dx;
-  this.x2 += dx;
-  this.y1 += dy;
-  this.y2 += dy;
-  return this;
-};
-
-prototype.rotate = function(angle, x, y) {
-  var cos = Math.cos(angle),
-      sin = Math.sin(angle),
-      cx = x - x*cos + y*sin,
-      cy = y - x*sin - y*cos,
-      x1 = this.x1, x2 = this.x2,
-      y1 = this.y1, y2 = this.y2;
-
-  return this.clear()
-    .add(cos*x1 - sin*y1 + cx,  sin*x1 + cos*y1 + cy)
-    .add(cos*x1 - sin*y2 + cx,  sin*x1 + cos*y2 + cy)
-    .add(cos*x2 - sin*y1 + cx,  sin*x2 + cos*y1 + cy)
-    .add(cos*x2 - sin*y2 + cx,  sin*x2 + cos*y2 + cy);
-};
-
-prototype.union = function(b) {
-  if (b.x1 < this.x1) this.x1 = b.x1;
-  if (b.y1 < this.y1) this.y1 = b.y1;
-  if (b.x2 > this.x2) this.x2 = b.x2;
-  if (b.y2 > this.y2) this.y2 = b.y2;
-  return this;
-};
-
-prototype.encloses = function(b) {
-  return b && (
-    this.x1 <= b.x1 &&
-    this.x2 >= b.x2 &&
-    this.y1 <= b.y1 &&
-    this.y2 >= b.y2
-  );
-};
-
-prototype.intersects = function(b) {
-  return b && !(
-    this.x2 < b.x1 ||
-    this.x1 > b.x2 ||
-    this.y2 < b.y1 ||
-    this.y1 > b.y2
-  );
-};
-
-prototype.contains = function(x, y) {
-  return !(
-    x < this.x1 ||
-    x > this.x2 ||
-    y < this.y1 ||
-    y > this.y2
-  );
-};
-
-prototype.width = function() {
-  return this.x2 - this.x1;
-};
-
-prototype.height = function() {
-  return this.y2 - this.y1;
-};
-
-module.exports = Bounds;
-
-},{}],121:[function(require,module,exports){
-module.exports = function(b) {
-  function noop() { }
-  function add(x,y) { b.add(x, y); }
-
-  return {
-    bounds: function(_) {
-      if (!arguments.length) return b;
-      return (b = _, this);
-    },
-    beginPath: noop,
-    closePath: noop,
-    moveTo: add,
-    lineTo: add,
-    quadraticCurveTo: function(x1, y1, x2, y2) {
-      b.add(x1, y1);
-      b.add(x2, y2);
-    },
-    bezierCurveTo: function(x1, y1, x2, y2, x3, y3) {
-      b.add(x1, y1);
-      b.add(x2, y2);
-      b.add(x3, y3);
-    }
-  };
-};
-
-},{}],122:[function(require,module,exports){
-var gradient_id = 0;
-
-function Gradient(type) {
-  this.id = 'gradient_' + (gradient_id++);
-  this.type = type || 'linear';
-  this.stops = [];
-  this.x1 = 0;
-  this.x2 = 1;
-  this.y1 = 0;
-  this.y2 = 0;
-}
-
-var prototype = Gradient.prototype;
-
-prototype.stop = function(offset, color) {
-  this.stops.push({
-    offset: offset,
-    color: color
-  });
-  return this;
-};
-
-module.exports = Gradient;
-},{}],123:[function(require,module,exports){
-(function (global){
-var load = require('datalib/src/import/load');
-
-function ImageLoader(loadConfig) {
-  this._pending = 0;
-  this._config = loadConfig || ImageLoader.Config; 
-}
-
-// Overridable global default load configuration
-ImageLoader.Config = null;
-
-var prototype = ImageLoader.prototype;
-
-prototype.pending = function() {
-  return this._pending;
-};
-
-prototype.params = function(uri) {
-  var p = {url: uri}, k;
-  for (k in this._config) { p[k] = this._config[k]; }
-  return p;
-};
-
-prototype.imageURL = function(uri) {
-  return load.sanitizeUrl(this.params(uri));
-};
-
-function browser(uri, callback) {
-  var url = load.sanitizeUrl(this.params(uri));
-  if (!url) { // error
-    if (callback) callback(uri, null);
-    return null;
-  }
-
-  var loader = this,
-      image = new Image();
-
-  loader._pending += 1;
-
-  image.onload = function() {
-    loader._pending -= 1;
-    image.loaded = true;
-    if (callback) callback(null, image);
-  };
-  image.src = url;
-
-  return image;
-}
-
-function server(uri, callback) {
-  var loader = this,
-      image = new ((typeof window !== "undefined" ? window['canvas'] : typeof global !== "undefined" ? global['canvas'] : null).Image)();
-
-  loader._pending += 1;
-
-  load(this.params(uri), function(err, data) {
-    loader._pending -= 1;
-    if (err) {
-      if (callback) callback(err, null);
-      return null;
-    }
-    image.src = data;
-    image.loaded = true;
-    if (callback) callback(null, image);
-  });
-
-  return image;
-}
-
-prototype.loadImage = function(uri, callback) {
-  return load.useXHR ?
-    browser.call(this, uri, callback) :
-    server.call(this, uri, callback);
-};
-
-module.exports = ImageLoader;
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{"datalib/src/import/load":66}],124:[function(require,module,exports){
-function Item(mark) {
-  this.mark = mark;
-}
-
-var prototype = Item.prototype;
-
-prototype.hasPropertySet = function(name) {
-  var props = this.mark.def.properties;
-  return props && props[name] != null;
-};
-
-prototype.cousin = function(offset, index) {
-  if (offset === 0) return this;
-  offset = offset || -1;
-  var mark = this.mark,
-      group = mark.group,
-      iidx = index==null ? mark.items.indexOf(this) : index,
-      midx = group.items.indexOf(mark) + offset;
-  return group.items[midx].items[iidx];
-};
-
-prototype.sibling = function(offset) {
-  if (offset === 0) return this;
-  offset = offset || -1;
-  var mark = this.mark,
-      iidx = mark.items.indexOf(this) + offset;
-  return mark.items[iidx];
-};
-
-prototype.remove = function() {
-  var item = this,
-      list = item.mark.items,
-      i = list.indexOf(item);
-  if (i >= 0) {
-    if (i===list.length-1) {
-      list.pop();
-    } else {
-      list.splice(i, 1);
-    }
-  }
-  return item;
-};
-
-prototype.touch = function() {
-  if (this.pathCache) this.pathCache = null;
-};
-
-module.exports = Item;
-},{}],125:[function(require,module,exports){
-var BoundsContext = require('./BoundsContext'),
-    Bounds = require('./Bounds'),
-    canvas = require('./canvas'),
-    svg = require('./svg'),
-    text = require('./text'),
-    paths = require('../path'),
-    parse = paths.parse,
-    drawPath = paths.render,
-    areaPath = svg.path.area,
-    linePath = svg.path.line,
-    halfpi = Math.PI / 2,
-    sqrt3 = Math.sqrt(3),
-    tan30 = Math.tan(30 * Math.PI / 180),
-    g2D = null,
-    bc = BoundsContext();
-
-function context() {
-  return g2D || (g2D = canvas.instance(1,1).getContext('2d'));
-}
-
-function strokeBounds(o, bounds) {
-  if (o.stroke && o.opacity !== 0 && o.stokeOpacity !== 0) {
-    bounds.expand(o.strokeWidth != null ? o.strokeWidth : 1);
-  }
-  return bounds;
-}
-
-function pathBounds(o, path, bounds, x, y) {
-  if (path == null) {
-    bounds.set(0, 0, 0, 0);
-  } else {
-    drawPath(bc.bounds(bounds), path, x, y);
-    strokeBounds(o, bounds);
-  }
-  return bounds;
-}
-
-function path(o, bounds) {
-  var p = o.path ? o.pathCache || (o.pathCache = parse(o.path)) : null;
-  return pathBounds(o, p, bounds, o.x, o.y);
-}
-
-function area(mark, bounds) {
-  if (mark.items.length === 0) return bounds;
-  var items = mark.items,
-      item = items[0],
-      p = item.pathCache || (item.pathCache = parse(areaPath(items)));
-  return pathBounds(item, p, bounds);
-}
-
-function line(mark, bounds) {
-  if (mark.items.length === 0) return bounds;
-  var items = mark.items,
-      item = items[0],
-      p = item.pathCache || (item.pathCache = parse(linePath(items)));
-  return pathBounds(item, p, bounds);
-}
-
-function rect(o, bounds) {
-  var x, y;
-  return strokeBounds(o, bounds.set(
-    x = o.x || 0,
-    y = o.y || 0,
-    (x + o.width) || 0,
-    (y + o.height) || 0
-  ));
-}
-
-function image(o, bounds) {
-  var x = o.x || 0,
-      y = o.y || 0,
-      w = o.width || 0,
-      h = o.height || 0;
-  x = x - (o.align === 'center' ? w/2 : (o.align === 'right' ? w : 0));
-  y = y - (o.baseline === 'middle' ? h/2 : (o.baseline === 'bottom' ? h : 0));
-  return bounds.set(x, y, x+w, y+h);
-}
-
-function rule(o, bounds) {
-  var x1, y1;
-  return strokeBounds(o, bounds.set(
-    x1 = o.x || 0,
-    y1 = o.y || 0,
-    o.x2 != null ? o.x2 : x1,
-    o.y2 != null ? o.y2 : y1
-  ));
-}
-
-function arc(o, bounds) {
-  var cx = o.x || 0,
-      cy = o.y || 0,
-      ir = o.innerRadius || 0,
-      or = o.outerRadius || 0,
-      sa = (o.startAngle || 0) - halfpi,
-      ea = (o.endAngle || 0) - halfpi,
-      xmin = Infinity, xmax = -Infinity,
-      ymin = Infinity, ymax = -Infinity,
-      a, i, n, x, y, ix, iy, ox, oy;
-
-  var angles = [sa, ea],
-      s = sa - (sa % halfpi);
-  for (i=0; i<4 && s<ea; ++i, s+=halfpi) {
-    angles.push(s);
-  }
-
-  for (i=0, n=angles.length; i<n; ++i) {
-    a = angles[i];
-    x = Math.cos(a); ix = ir*x; ox = or*x;
-    y = Math.sin(a); iy = ir*y; oy = or*y;
-    xmin = Math.min(xmin, ix, ox);
-    xmax = Math.max(xmax, ix, ox);
-    ymin = Math.min(ymin, iy, oy);
-    ymax = Math.max(ymax, iy, oy);
-  }
-
-  return strokeBounds(o, bounds.set(
-    cx + xmin,
-    cy + ymin,
-    cx + xmax,
-    cy + ymax
-  ));
-}
-
-function symbol(o, bounds) {
-  var size = o.size != null ? o.size : 100,
-      x = o.x || 0,
-      y = o.y || 0,
-      r, t, rx, ry;
-
-  switch (o.shape) {
-    case 'cross':
-      t = 3 * Math.sqrt(size / 5) / 2;
-      bounds.set(x-t, y-t, x+t, y+t);
-      break;
-
-    case 'diamond':
-      ry = Math.sqrt(size / (2 * tan30));
-      rx = ry * tan30;
-      bounds.set(x-rx, y-ry, x+rx, y+ry);
-      break;
-
-    case 'square':
-      t = Math.sqrt(size);
-      r = t / 2;
-      bounds.set(x-r, y-r, x+r, y+r);
-      break;
-
-    case 'triangle-down':
-      rx = Math.sqrt(size / sqrt3);
-      ry = rx * sqrt3 / 2;
-      bounds.set(x-rx, y-ry, x+rx, y+ry);
-      break;
-
-    case 'triangle-up':
-      rx = Math.sqrt(size / sqrt3);
-      ry = rx * sqrt3 / 2;
-      bounds.set(x-rx, y-ry, x+rx, y+ry);
-      break;
-
-    default:
-      r = Math.sqrt(size/Math.PI);
-      bounds.set(x-r, y-r, x+r, y+r);
-  }
-
-  return strokeBounds(o, bounds);
-}
-
-function textMark(o, bounds, noRotate) {
-  var g = context(),
-      h = text.size(o),
-      a = o.align,
-      r = o.radius || 0,
-      x = (o.x || 0),
-      y = (o.y || 0),
-      dx = (o.dx || 0),
-      dy = (o.dy || 0) + text.offset(o) - Math.round(0.8*h), // use 4/5 offset
-      w, t;
-
-  if (r) {
-    t = (o.theta || 0) - Math.PI/2;
-    x += r * Math.cos(t);
-    y += r * Math.sin(t);
-  }
-
-  // horizontal alignment
-  g.font = text.font(o);
-  w = g.measureText(text.value(o.text)).width;
-  if (a === 'center') {
-    dx -= (w / 2);
-  } else if (a === 'right') {
-    dx -= w;
-  } else {
-    // left by default, do nothing
-  }
-
-  bounds.set(dx+=x, dy+=y, dx+w, dy+h);
-  if (o.angle && !noRotate) {
-    bounds.rotate(o.angle*Math.PI/180, x, y);
-  }
-  return bounds.expand(noRotate ? 0 : 1);
-}
-
-function group(g, bounds, includeLegends) {
-  var axes = g.axisItems || [],
-      items = g.items || [],
-      legends = g.legendItems || [],
-      j, m;
-
-  for (j=0, m=axes.length; j<m; ++j) {
-    bounds.union(axes[j].bounds);
-  }
-  for (j=0, m=items.length; j<m; ++j) {
-    bounds.union(items[j].bounds);
-  }
-  if (includeLegends) {
-    for (j=0, m=legends.length; j<m; ++j) {
-      bounds.union(legends[j].bounds);
-    }
-  }
-  if (g.width || g.height) {
-    strokeBounds(g, bounds
-      .add(0, 0)
-      .add(g.width || 0, g.height || 0));
-  }
-  return bounds.translate(g.x || 0, g.y || 0);
-}
-
-var methods = {
-  group:  group,
-  symbol: symbol,
-  image:  image,
-  rect:   rect,
-  rule:   rule,
-  arc:    arc,
-  text:   textMark,
-  path:   path,
-  area:   area,
-  line:   line
-};
-methods.area.nest = true;
-methods.line.nest = true;
-
-function itemBounds(item, func, opt) {
-  var type = item.mark.marktype;
-  func = func || methods[type];
-  if (func.nest) item = item.mark;
-
-  var curr = item.bounds,
-      prev = item['bounds:prev'] || (item['bounds:prev'] = new Bounds());
-
-  if (curr) {
-    prev.clear().union(curr);
-    curr.clear();
-  } else {
-    item.bounds = new Bounds();
-  }
-  func(item, item.bounds, opt);
-  if (!curr) prev.clear().union(item.bounds);
-  return item.bounds;
-}
-
-var DUMMY_ITEM = {mark: null};
-
-function markBounds(mark, bounds, opt) {
-  var type  = mark.marktype,
-      func  = methods[type],
-      items = mark.items,
-      hasi  = items && items.length,
-      i, n, o, b;
-
-  if (func.nest) {
-    o = hasi ? items[0]
-      : (DUMMY_ITEM.mark = mark, DUMMY_ITEM); // no items, so fake it
-    b = itemBounds(o, func, opt);
-    bounds = bounds && bounds.union(b) || b;
-    return bounds;
-  }
-
-  bounds = bounds || mark.bounds && mark.bounds.clear() || new Bounds();
-  if (hasi) {  
-    for (i=0, n=items.length; i<n; ++i) {
-      bounds.union(itemBounds(items[i], func, opt));
-    }
-  }
-  return (mark.bounds = bounds);
-}
-
-module.exports = {
-  mark:  markBounds,
-  item:  itemBounds,
-  text:  textMark,
-  group: group
-};
-
-},{"../path":94,"./Bounds":120,"./BoundsContext":121,"./canvas":126,"./svg":129,"./text":130}],126:[function(require,module,exports){
-(function (global){
-function instance(w, h) {
-  w = w || 1;
-  h = h || 1;
-  var canvas;
-
-  if (typeof document !== 'undefined' && document.createElement) {
-    canvas = document.createElement('canvas');
-    canvas.width = w;
-    canvas.height = h;
-  } else {
-    var Canvas = (typeof window !== "undefined" ? window['canvas'] : typeof global !== "undefined" ? global['canvas'] : null);
-    if (!Canvas.prototype) return null;
-    canvas = new Canvas(w, h);
-  }
-  return lineDash(canvas);
-}
-
-function resize(canvas, w, h, p, retina) {
-  var g = this._ctx = canvas.getContext('2d'), 
-      s = 1;
-
-  canvas.width = w + p.left + p.right;
-  canvas.height = h + p.top + p.bottom;
-
-  // if browser canvas, attempt to modify for retina display
-  if (retina && typeof HTMLElement !== 'undefined' &&
-      canvas instanceof HTMLElement)
-  {
-    g.pixelratio = (s = pixelRatio(canvas) || 1);
-  }
-
-  g.setTransform(s, 0, 0, s, s*p.left, s*p.top);
-  return canvas;
-}
-
-function pixelRatio(canvas) {
-  var g = canvas.getContext('2d');
-
-  // get canvas pixel data
-  var devicePixelRatio = window && window.devicePixelRatio || 1,
-      backingStoreRatio = (
-        g.webkitBackingStorePixelRatio ||
-        g.mozBackingStorePixelRatio ||
-        g.msBackingStorePixelRatio ||
-        g.oBackingStorePixelRatio ||
-        g.backingStorePixelRatio) || 1,
-      ratio = devicePixelRatio / backingStoreRatio;
-
-  if (devicePixelRatio !== backingStoreRatio) {
-    // set actual and visible canvas size
-    var w = canvas.width,
-        h = canvas.height;
-    canvas.width = w * ratio;
-    canvas.height = h * ratio;
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
-  }
-
-  return ratio;
-}
-
-function lineDash(canvas) {
-  var g = canvas.getContext('2d');
-  if (g.vgLineDash) return; // already initialized!
-
-  var NOOP = function() {},
-      NODASH = [];
-  
-  if (g.setLineDash) {
-    g.vgLineDash = function(dash) { this.setLineDash(dash || NODASH); };
-    g.vgLineDashOffset = function(off) { this.lineDashOffset = off; };
-  } else if (g.webkitLineDash !== undefined) {
-  	g.vgLineDash = function(dash) { this.webkitLineDash = dash || NODASH; };
-    g.vgLineDashOffset = function(off) { this.webkitLineDashOffset = off; };
-  } else if (g.mozDash !== undefined) {
-    g.vgLineDash = function(dash) { this.mozDash = dash; };
-    g.vgLineDashOffset = NOOP;
-  } else {
-    g.vgLineDash = NOOP;
-    g.vgLineDashOffset = NOOP;
-  }
-  return canvas;
-}
-
-module.exports = {
-  instance:   instance,
-  resize:     resize,
-  lineDash:   lineDash
-};
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{}],127:[function(require,module,exports){
-// create a new DOM element
-function create(doc, tag, ns) {
-  return ns ? doc.createElementNS(ns, tag) : doc.createElement(tag);
-}
-
-// remove element from DOM
-// recursively remove parent elements if empty
-function remove(el) {
-  if (!el) return;
-  var p = el.parentNode;
-  if (p) {
-    p.removeChild(el);
-    if (!p.childNodes || !p.childNodes.length) remove(p);
-  }
-}
-
-module.exports = {
-  // find first child element with matching tag
-  find: function(el, tag) {
-    tag = tag.toLowerCase();
-    for (var i=0, n=el.childNodes.length; i<n; ++i) {
-      if (el.childNodes[i].tagName.toLowerCase() === tag) {
-        return el.childNodes[i];
-      }
-    }
-  },
-  // retrieve child element at given index
-  // create & insert if doesn't exist or if tag/className do not match
-  child: function(el, index, tag, ns, className, insert) {
-    var a, b;
-    a = b = el.childNodes[index];
-    if (!a || insert ||
-        a.tagName.toLowerCase() !== tag.toLowerCase() ||
-        className && a.getAttribute('class') != className) {
-      a = create(el.ownerDocument, tag, ns);
-      el.insertBefore(a, b);
-      if (className) a.setAttribute('class', className);
-    }
-    return a;
-  },
-  // remove all child elements at or above the given index
-  clear: function(el, index) {
-    var curr = el.childNodes.length;
-    while (curr > index) {
-      el.removeChild(el.childNodes[--curr]);
-    }
-    return el;
-  },
-  remove: remove,
-  // generate css class name for mark
-  cssClass: function(mark) {
-    return 'mark-' + mark.marktype + (mark.name ? ' '+mark.name : '');
-  },
-  // generate string for an opening xml tag
-  // tag: the name of the xml tag
-  // attr: hash of attribute name-value pairs to include
-  // raw: additional raw string to include in tag markup
-  openTag: function(tag, attr, raw) {
-    var s = '<' + tag, key, val;
-    if (attr) {
-      for (key in attr) {
-        val = attr[key];
-        if (val != null) {
-          s += ' ' + key + '="' + val + '"';
-        }
-      }
-    }
-    if (raw) s += ' ' + raw;
-    return s + '>';
-  },
-  // generate string for closing xml tag
-  // tag: the name of the xml tag
-  closeTag: function(tag) {
-    return '</' + tag + '>';
-  }
-};
-
-},{}],128:[function(require,module,exports){
-var bound = require('../util/bound');
-
-var sets = [
-  'items',
-  'axisItems',
-  'legendItems'
-];
-
-var keys = [
-  'marktype', 'name', 'interactive', 'clip',
-  'items', 'axisItems', 'legendItems', 'layer',
-  'x', 'y', 'width', 'height', 'align', 'baseline',             // layout
-  'fill', 'fillOpacity', 'opacity',                             // fill
-  'stroke', 'strokeOpacity', 'strokeWidth', 'strokeCap',        // stroke
-  'strokeDash', 'strokeDashOffset',                             // stroke dash
-  'startAngle', 'endAngle', 'innerRadius', 'outerRadius',       // arc
-  'interpolate', 'tension', 'orient',                           // area, line
-  'url',                                                        // image
-  'path',                                                       // path
-  'x2', 'y2',                                                   // rule
-  'size', 'shape',                                              // symbol
-  'text', 'angle', 'theta', 'radius', 'dx', 'dy',               // text
-  'font', 'fontSize', 'fontWeight', 'fontStyle', 'fontVariant'  // font
-];
-
-function toJSON(scene, indent) {
-  return JSON.stringify(scene, keys, indent);
-}
-
-function fromJSON(json) {
-  var scene = (typeof json === 'string' ? JSON.parse(json) : json);
-  return initialize(scene);
-}
-
-function initialize(scene) {
-  var type = scene.marktype,
-      i, n, s, m, items;
-
-  for (s=0, m=sets.length; s<m; ++s) {
-    if ((items = scene[sets[s]])) {
-      for (i=0, n=items.length; i<n; ++i) {
-        items[i][type ? 'mark' : 'group'] = scene;
-        if (!type || type === 'group') {
-          initialize(items[i]);
-        }
-      }
-    }
-  }
-
-  if (type) bound.mark(scene);
-  return scene;
-}
-
-module.exports = {
-  toJSON:   toJSON,
-  fromJSON: fromJSON
-};
-},{"../util/bound":125}],129:[function(require,module,exports){
-(function (global){
-var d3_svg = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null).svg;
-
-function x(o)     { return o.x || 0; }
-function y(o)     { return o.y || 0; }
-function xw(o)    { return (o.x || 0) + (o.width || 0); }
-function yh(o)    { return (o.y || 0) + (o.height || 0); }
-function size(o)  { return o.size == null ? 100 : o.size; }
-function shape(o) { return o.shape || 'circle'; }
-
-var areav = d3_svg.area().x(x).y1(y).y0(yh),
-    areah = d3_svg.area().y(y).x1(x).x0(xw),
-    line  = d3_svg.line().x(x).y(y);
-
-module.exports = {
-  metadata: {
-    'version': '1.1',
-    'xmlns': 'http://www.w3.org/2000/svg',
-    'xmlns:xlink': 'http://www.w3.org/1999/xlink'
-  },
-  path: {
-    arc: d3_svg.arc(),
-    symbol: d3_svg.symbol().type(shape).size(size),
-    area: function(items) {
-      var o = items[0];
-      return (o.orient === 'horizontal' ? areah : areav)
-        .interpolate(o.interpolate || 'linear')
-        .tension(o.tension || 0.7)
-        (items);
-    },
-    line: function(items) {
-      var o = items[0];
-      return line
-        .interpolate(o.interpolate || 'linear')
-        .tension(o.tension || 0.7)
-        (items);
-    }
-  },
-  textAlign: {
-    'left':   'start',
-    'center': 'middle',
-    'right':  'end'
-  },
-  textBaseline: {
-    'top':    'before-edge',
-    'bottom': 'after-edge',
-    'middle': 'central'
-  },
-  styles: {
-    'fill':             'fill',
-    'fillOpacity':      'fill-opacity',
-    'stroke':           'stroke',
-    'strokeWidth':      'stroke-width',
-    'strokeOpacity':    'stroke-opacity',
-    'strokeCap':        'stroke-linecap',
-    'strokeDash':       'stroke-dasharray',
-    'strokeDashOffset': 'stroke-dashoffset',
-    'opacity':          'opacity'
-  },
-  styleProperties: [
-    'fill',
-    'fillOpacity',
-    'stroke',
-    'strokeWidth',
-    'strokeOpacity',
-    'strokeCap',
-    'strokeDash',
-    'strokeDashOffset',
-    'opacity'
-  ]
-};
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{}],130:[function(require,module,exports){
-function size(item) {
-  return item.fontSize != null ? item.fontSize : 11;
-}
-
-module.exports = {
-  size: size,
-  value: function(s) {
-    return s != null ? String(s) : '';
-  },
-  font: function(item, quote) {
-    var font = item.font;
-    if (quote && font) {
-      font = String(font).replace(/\"/g, '\'');
-    }
-    return '' +
-      (item.fontStyle ? item.fontStyle + ' ' : '') +
-      (item.fontVariant ? item.fontVariant + ' ' : '') +
-      (item.fontWeight ? item.fontWeight + ' ' : '') +
-      size(item) + 'px ' +
-      (font || 'sans-serif');
-  },
-  offset: function(item) {
-    // perform our own font baseline calculation
-    // why? not all browsers support SVG 1.1 'alignment-baseline' :(
-    var baseline = item.baseline,
-        h = size(item);
-    return Math.round(
-      baseline === 'top'    ?  0.93*h :
-      baseline === 'middle' ?  0.30*h :
-      baseline === 'bottom' ? -0.21*h : 0
-    );
-  }
-};
-
-},{}],131:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
+arguments[4][50][0].apply(exports,arguments)
+},{"./path":52,"./render":72,"./util/Bounds":78,"./util/Gradient":80,"./util/Item":82,"./util/bound":83,"./util/canvas":84,"./util/scene":86,"dup":50}],136:[function(require,module,exports){
 var sg = require('vega-scenegraph').render,
     canvas = sg.canvas,
     svg = sg.svg.string,
@@ -23181,7 +23852,7 @@ prototype.initialize = function() {
 };
 
 module.exports = HeadlessView;
-},{"./View":133,"vega-scenegraph":92}],132:[function(require,module,exports){
+},{"./View":138,"vega-scenegraph":135}],137:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     ChangeSet = df.ChangeSet,
@@ -23317,7 +23988,7 @@ prototype.fire = function(cs) {
 };
 
 module.exports = Model;
-},{"../scene/GroupBuilder":156,"../scene/visit":161,"./config":134,"datalib":70,"vega-dataflow":85}],133:[function(require,module,exports){
+},{"../scene/GroupBuilder":161,"../scene/visit":166,"./config":139,"datalib":113,"vega-dataflow":128}],138:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -23763,7 +24434,7 @@ View.factory = function(model) {
 module.exports = View;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"../parse/streams":151,"../scene/Encoder":155,"../scene/Transition":158,"./HeadlessView":131,"datalib":70,"vega-dataflow":85,"vega-logging":91,"vega-scenegraph":92}],134:[function(require,module,exports){
+},{"../parse/streams":156,"../scene/Encoder":160,"../scene/Transition":163,"./HeadlessView":136,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":135}],139:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     config = {};
@@ -23867,7 +24538,7 @@ config.range = {
 module.exports = config;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],135:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 var dl = require('datalib'),
     parse = require('../parse'),
     Scale = require('../scene/Scale'),
@@ -23914,7 +24585,7 @@ module.exports = function(opt) {
 
   return schema;
 };
-},{"../parse":141,"../scene/Scale":157,"./config":134,"datalib":70}],136:[function(require,module,exports){
+},{"../parse":146,"../scene/Scale":162,"./config":139,"datalib":113}],141:[function(require,module,exports){
 var dl = require('datalib'),
     axs = require('../scene/axis');
 
@@ -24000,7 +24671,7 @@ function parseAxis(config, def, index, axis, group) {
 }
 
 module.exports = parseAxes;
-},{"../scene/axis":159,"datalib":70}],137:[function(require,module,exports){
+},{"../scene/axis":164,"datalib":113}],142:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null);
 
@@ -24014,7 +24685,7 @@ function parseBg(bg) {
 module.exports = parseBg;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],138:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     parseTransforms = require('./transforms'),
@@ -24069,7 +24740,7 @@ parseData.datasource = function(model, d) {
 };
 
 module.exports = parseData;
-},{"./modify":145,"./transforms":152,"datalib":70,"vega-logging":91}],139:[function(require,module,exports){
+},{"./modify":150,"./transforms":157,"datalib":113,"vega-logging":134}],144:[function(require,module,exports){
 module.exports = (function() {
   /*
    * Generated by PEG.js 0.8.0.
@@ -25179,7 +25850,7 @@ module.exports = (function() {
     parse:       parse
   };
 })();
-},{}],140:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 var expr = require('vega-expression'),
     args = ['datum', 'event', 'signals'];
 
@@ -25197,7 +25868,7 @@ module.exports = expr.compiler(args, {
     return fn;
   }
 });
-},{"vega-expression":89}],141:[function(require,module,exports){
+},{"vega-expression":132}],146:[function(require,module,exports){
 module.exports = {
   axes: require('./axes'),
   background: require('./background'),
@@ -25216,7 +25887,7 @@ module.exports = {
   streams: require('./streams'),
   transforms: require('./transforms')
 };
-},{"./axes":136,"./background":137,"./data":138,"./events":139,"./expr":140,"./legends":142,"./mark":143,"./marks":144,"./modify":145,"./padding":146,"./predicates":147,"./properties":148,"./signals":149,"./spec":150,"./streams":151,"./transforms":152}],142:[function(require,module,exports){
+},{"./axes":141,"./background":142,"./data":143,"./events":144,"./expr":145,"./legends":147,"./mark":148,"./marks":149,"./modify":150,"./padding":151,"./predicates":152,"./properties":153,"./signals":154,"./spec":155,"./streams":156,"./transforms":157}],147:[function(require,module,exports){
 var lgnd = require('../scene/legend');
 
 function parseLegends(model, spec, legends, group) {
@@ -25258,7 +25929,7 @@ function parseLegend(def, index, legend, group) {
 }
 
 module.exports = parseLegends;
-},{"../scene/legend":160}],143:[function(require,module,exports){
+},{"../scene/legend":165}],148:[function(require,module,exports){
 var dl = require('datalib'),
     parseProperties = require('./properties');
 
@@ -25285,7 +25956,7 @@ function parseMark(model, mark) {
 }
 
 module.exports = parseMark;
-},{"./properties":148,"datalib":70}],144:[function(require,module,exports){
+},{"./properties":153,"datalib":113}],149:[function(require,module,exports){
 var parseMark = require('./mark');
 
 function parseRootMark(model, spec, width, height) {
@@ -25301,7 +25972,7 @@ function parseRootMark(model, spec, width, height) {
 }
 
 module.exports = parseRootMark;
-},{"./mark":143}],145:[function(require,module,exports){
+},{"./mark":148}],150:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     df = require('vega-dataflow'),
@@ -25394,7 +26065,7 @@ function parseModify(model, def, ds) {
 }
 
 module.exports = parseModify;
-},{"datalib":70,"vega-dataflow":85,"vega-logging":91}],146:[function(require,module,exports){
+},{"datalib":113,"vega-dataflow":128,"vega-logging":134}],151:[function(require,module,exports){
 var dl = require('datalib');
 
 function parsePadding(pad) {
@@ -25406,7 +26077,7 @@ function parsePadding(pad) {
 }
 
 module.exports = parsePadding;
-},{"datalib":70}],147:[function(require,module,exports){
+},{"datalib":113}],152:[function(require,module,exports){
 var dl = require('datalib');
 
 var types = {
@@ -25601,7 +26272,7 @@ function parseScale(spec, ops) {
 }
 
 module.exports = parsePredicates;
-},{"datalib":70}],148:[function(require,module,exports){
+},{"datalib":113}],153:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -25965,7 +26636,7 @@ function scaleRef(ref) {
 module.exports = properties;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"datalib":70,"vega-dataflow":85,"vega-logging":91}],149:[function(require,module,exports){
+},{"datalib":113,"vega-dataflow":128,"vega-logging":134}],154:[function(require,module,exports){
 var dl = require('datalib'),
     SIGNALS = require('vega-dataflow').Dependencies.SIGNALS,
     expr = require('./expr');
@@ -26039,7 +26710,7 @@ parseSignals.scale = function scale(model, spec, value, datum, evt) {
 };
 
 module.exports = parseSignals;
-},{"./expr":140,"datalib":70,"vega-dataflow":85}],150:[function(require,module,exports){
+},{"./expr":145,"datalib":113,"vega-dataflow":128}],155:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     Model = require('../core/Model'),
@@ -26096,7 +26767,7 @@ function parseSpec(spec, callback) {
 }
 
 module.exports = parseSpec;
-},{"../core/Model":132,"../core/View":133,"./":141,"datalib":70,"vega-logging":91}],151:[function(require,module,exports){
+},{"../core/Model":137,"../core/View":138,"./":146,"datalib":113,"vega-logging":134}],156:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -26329,7 +27000,7 @@ function parseStreams(view) {
 module.exports = parseStreams;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./events":139,"./expr":140,"./signals":149,"datalib":70,"vega-dataflow":85}],152:[function(require,module,exports){
+},{"./events":144,"./expr":145,"./signals":154,"datalib":113,"vega-dataflow":128}],157:[function(require,module,exports){
 var dl = require('datalib'),
     transforms = require('../transforms/index');
 
@@ -26349,7 +27020,7 @@ function parseTransforms(model, def) {
 }
 
 module.exports = parseTransforms;
-},{"../transforms/index":185,"datalib":70}],153:[function(require,module,exports){
+},{"../transforms/index":190,"datalib":113}],158:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     Node = df.Node, // jshint ignore:line
@@ -26402,7 +27073,7 @@ proto.evaluate = function(input) {
 };
 
 module.exports = Bounder;
-},{"./Encoder":155,"datalib":70,"vega-dataflow":85,"vega-logging":91,"vega-scenegraph":92}],154:[function(require,module,exports){
+},{"./Encoder":160,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":135}],159:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     Item = require('vega-scenegraph').Item,
@@ -26711,7 +27382,7 @@ function keyFunction(key) {
 }
 
 module.exports = Builder;
-},{"../parse/data":138,"./Bounder":153,"./Encoder":155,"datalib":70,"vega-dataflow":85,"vega-logging":91,"vega-scenegraph":92}],155:[function(require,module,exports){
+},{"../parse/data":143,"./Bounder":158,"./Encoder":160,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":135}],160:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     df = require('vega-dataflow'),
@@ -26898,7 +27569,7 @@ Encoder.update = function(graph, trans, request, items, dirty) {
 };
 
 module.exports = Encoder;
-},{"./Builder":154,"datalib":70,"vega-dataflow":85,"vega-logging":91,"vega-scenegraph":92}],156:[function(require,module,exports){
+},{"./Builder":159,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":135}],161:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     Node = df.Node, // jshint ignore:line
@@ -27168,7 +27839,7 @@ function buildLegends(input, group) {
 }
 
 module.exports = GroupBuilder;
-},{"../parse/axes":136,"../parse/legends":142,"./Builder":154,"./Scale":157,"datalib":70,"vega-dataflow":85,"vega-logging":91}],157:[function(require,module,exports){
+},{"../parse/axes":141,"../parse/legends":147,"./Builder":159,"./Scale":162,"datalib":113,"vega-dataflow":128,"vega-logging":134}],162:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -27666,7 +28337,7 @@ function range(group) {
 module.exports = Scale;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"../transforms/Aggregate":162,"datalib":70,"vega-dataflow":85,"vega-logging":91}],158:[function(require,module,exports){
+},{"../transforms/Aggregate":167,"datalib":113,"vega-dataflow":128,"vega-logging":134}],163:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     bound = require('vega-scenegraph').bound,
@@ -27773,7 +28444,7 @@ function step(elapsed) {
 module.exports = Transition;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Builder":154,"vega-dataflow":85,"vega-scenegraph":92}],159:[function(require,module,exports){
+},{"./Builder":159,"vega-dataflow":128,"vega-scenegraph":135}],164:[function(require,module,exports){
 var dl = require('datalib'),
     Tuple = require('vega-dataflow').Tuple,
     parseMark = require('../parse/mark');
@@ -28375,7 +29046,7 @@ function axisDomain(config) {
 }
 
 module.exports = axs;
-},{"../parse/mark":143,"datalib":70,"vega-dataflow":85}],160:[function(require,module,exports){
+},{"../parse/mark":148,"datalib":113,"vega-dataflow":128}],165:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -28922,7 +29593,7 @@ function vg_hLegendLabels(config) {
 module.exports = lgnd;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"../parse/mark":143,"../parse/properties":148,"datalib":70,"vega-scenegraph":92}],161:[function(require,module,exports){
+},{"../parse/mark":148,"../parse/properties":153,"datalib":113,"vega-scenegraph":135}],166:[function(require,module,exports){
 module.exports = function visit(node, func) {
   var i, n, s, m, items;
   if (func(node)) return true;
@@ -28936,7 +29607,7 @@ module.exports = function visit(node, func) {
     }
   }
 };
-},{}],162:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     log = require('vega-logging'),
@@ -29148,7 +29819,7 @@ prototype.transform = function(input, reset) {
 };
 
 module.exports = Aggregate;
-},{"./Facetor":168,"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],163:[function(require,module,exports){
+},{"./Facetor":173,"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],168:[function(require,module,exports){
 var Base = require('./Transform').prototype;
 
 function BatchTransform() {
@@ -29173,7 +29844,7 @@ prototype.batchTransform = function(/* input, data */) {
 };
 
 module.exports = BatchTransform;
-},{"./Transform":181}],164:[function(require,module,exports){
+},{"./Transform":186}],169:[function(require,module,exports){
 var bins = require('datalib').bins,
     Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
@@ -29236,7 +29907,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Bin;
-},{"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],165:[function(require,module,exports){
+},{"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],170:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Tuple = df.Tuple,
     log = require('vega-logging'),
@@ -29361,7 +30032,7 @@ prototype._rem = function(tuples, get) {
 };
 
 module.exports = CountPattern;
-},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],166:[function(require,module,exports){
+},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],171:[function(require,module,exports){
 var df = require('vega-dataflow'),
     ChangeSet = df.ChangeSet,
     Tuple = df.Tuple,
@@ -29482,7 +30153,7 @@ prototype.batchTransform = function(input, data) {
 };
 
 module.exports = Cross;
-},{"./BatchTransform":163,"./Transform":181,"vega-dataflow":85,"vega-logging":91}],167:[function(require,module,exports){
+},{"./BatchTransform":168,"./Transform":186,"vega-dataflow":128,"vega-logging":134}],172:[function(require,module,exports){
 var Transform = require('./Transform'),
     Aggregate = require('./Aggregate');
 
@@ -29515,7 +30186,7 @@ prototype.aggr = function() {
 };
 
 module.exports = Facet;
-},{"../parse/transforms":152,"./Aggregate":162,"./Transform":181}],168:[function(require,module,exports){
+},{"../parse/transforms":157,"./Aggregate":167,"./Transform":186}],173:[function(require,module,exports){
 var dl = require('datalib'),
     Aggregator = dl.Aggregator,
     Base = Aggregator.prototype,
@@ -29614,7 +30285,7 @@ prototype._on_keep = function(cell) {
 };
 
 module.exports = Facetor;
-},{"datalib":70,"vega-dataflow":85,"vega-logging":91}],169:[function(require,module,exports){
+},{"datalib":113,"vega-dataflow":128,"vega-logging":134}],174:[function(require,module,exports){
 var df = require('vega-dataflow'),
     SIGNALS = df.Dependencies.SIGNALS,
     log = require('vega-logging'),
@@ -29670,7 +30341,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Filter;
-},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],170:[function(require,module,exports){
+},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],175:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Tuple = df.Tuple,
     log = require('vega-logging'),
@@ -29742,7 +30413,7 @@ prototype.transform = function(input, reset) {
 };
 
 module.exports = Fold;
-},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],171:[function(require,module,exports){
+},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],176:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     df = require('vega-dataflow'),
@@ -29952,7 +30623,7 @@ prototype.update = function(active) {
 module.exports = Force;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],172:[function(require,module,exports){
+},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],177:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Tuple = df.Tuple,
     SIGNALS = df.Dependencies.SIGNALS,
@@ -29995,7 +30666,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Formula;
-},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],173:[function(require,module,exports){
+},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],178:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -30086,7 +30757,7 @@ prototype.transform = function(input) {
 module.exports = Geo;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],174:[function(require,module,exports){
+},{"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],179:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -30136,7 +30807,7 @@ prototype.transform = function(input) {
 module.exports = GeoPath;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Geo":173,"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],175:[function(require,module,exports){
+},{"./Geo":178,"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],180:[function(require,module,exports){
 var Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
     Transform = require('./Transform');
@@ -30226,7 +30897,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = LinkPath;
-},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],176:[function(require,module,exports){
+},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],181:[function(require,module,exports){
 var Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
     Transform = require('./Transform');
@@ -30298,7 +30969,7 @@ prototype.transform = function(input, reset) {
 };
 
 module.exports = Lookup;
-},{"./Transform":181,"vega-dataflow":85,"vega-logging":91}],177:[function(require,module,exports){
+},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],182:[function(require,module,exports){
 var dl = require('datalib'),
     Deps = require('vega-dataflow').Dependencies,
     expr = require('../parse/expr');
@@ -30410,7 +31081,7 @@ prototype.set = function(value) {
 };
 
 module.exports = Parameter;
-},{"../parse/expr":140,"datalib":70,"vega-dataflow":85}],178:[function(require,module,exports){
+},{"../parse/expr":145,"datalib":113,"vega-dataflow":128}],183:[function(require,module,exports){
 var dl = require('datalib'),
     Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
@@ -30476,7 +31147,7 @@ prototype.batchTransform = function(input, data) {
 };
 
 module.exports = Pie;
-},{"./BatchTransform":163,"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],179:[function(require,module,exports){
+},{"./BatchTransform":168,"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],184:[function(require,module,exports){
 var dl = require('datalib'),
     log  = require('vega-logging'),
     Transform = require('./Transform');
@@ -30500,7 +31171,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Sort;
-},{"./Transform":181,"datalib":70,"vega-logging":91}],180:[function(require,module,exports){
+},{"./Transform":186,"datalib":113,"vega-logging":134}],185:[function(require,module,exports){
 var dl = require('datalib'),
     Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
@@ -30598,7 +31269,7 @@ function partition(data, groupby, sortby, field) {
 }
 
 module.exports = Stack;
-},{"./BatchTransform":163,"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],181:[function(require,module,exports){
+},{"./BatchTransform":168,"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],186:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Base = df.Node.prototype, // jshint ignore:line
     Deps = df.Dependencies,
@@ -30659,7 +31330,7 @@ prototype.output = function(map) {
 };
 
 module.exports = Transform;
-},{"./Parameter":177,"vega-dataflow":85}],182:[function(require,module,exports){
+},{"./Parameter":182,"vega-dataflow":128}],187:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -30741,7 +31412,7 @@ prototype.batchTransform = function(input, data) {
 module.exports = Treemap;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./BatchTransform":163,"./Transform":181,"datalib":70,"vega-dataflow":85,"vega-logging":91}],183:[function(require,module,exports){
+},{"./BatchTransform":168,"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],188:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     Tuple = require('vega-dataflow/src/Tuple'),
@@ -30792,11 +31463,12 @@ prototype.batchTransform = function(input, data) {
 module.exports = Voronoi;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./BatchTransform":163,"./Transform":181,"vega-dataflow/src/Tuple":84,"vega-logging":91}],184:[function(require,module,exports){
+},{"./BatchTransform":168,"./Transform":186,"vega-dataflow/src/Tuple":127,"vega-logging":134}],189:[function(require,module,exports){
 (function (global){
 var dl = require('datalib'),
     d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
-    d3_cloud = (typeof window !== "undefined" ? window['d3']['layout']['cloud'] : typeof global !== "undefined" ? global['d3']['layout']['cloud'] : null),
+    d3_cloud = require('d3-cloud'),
+    canvas = require('vega-scenegraph').canvas,
     Tuple = require('vega-dataflow/src/Tuple'),
     log = require('vega-logging'),
     Transform = require('./Transform'),
@@ -30817,7 +31489,7 @@ function Wordcloud(graph) {
     spiral: {type: 'value', default: 'archimedean'}
   });
 
-  this._layout = d3_cloud();
+  this._layout = d3_cloud().canvas(canvas.instance);
 
   this._output = {
     'x':          'layout_x',
@@ -30904,7 +31576,7 @@ prototype.batchTransform = function(input, data) {
 module.exports = Wordcloud;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./BatchTransform":163,"./Transform":181,"datalib":70,"vega-dataflow/src/Tuple":84,"vega-logging":91}],185:[function(require,module,exports){
+},{"./BatchTransform":168,"./Transform":186,"d3-cloud":90,"datalib":113,"vega-dataflow/src/Tuple":127,"vega-logging":134,"vega-scenegraph":50}],190:[function(require,module,exports){
 module.exports = {
   aggregate:    require('./Aggregate'),
   bin:          require('./Bin'),
@@ -30927,6 +31599,6 @@ module.exports = {
   voronoi:      require('./Voronoi'),
   wordcloud:    require('./Wordcloud')
 };
-},{"./Aggregate":162,"./Bin":164,"./CountPattern":165,"./Cross":166,"./Facet":167,"./Filter":169,"./Fold":170,"./Force":171,"./Formula":172,"./Geo":173,"./GeoPath":174,"./LinkPath":175,"./Lookup":176,"./Pie":178,"./Sort":179,"./Stack":180,"./Transform":181,"./Treemap":182,"./Voronoi":183,"./Wordcloud":184}]},{},[34])(34)
+},{"./Aggregate":167,"./Bin":169,"./CountPattern":170,"./Cross":171,"./Facet":172,"./Filter":174,"./Fold":175,"./Force":176,"./Formula":177,"./Geo":178,"./GeoPath":179,"./LinkPath":180,"./Lookup":181,"./Pie":183,"./Sort":184,"./Stack":185,"./Transform":186,"./Treemap":187,"./Voronoi":188,"./Wordcloud":189}]},{},[35])(35)
 });
 //# sourceMappingURL=lyra.js.map
