@@ -13,9 +13,16 @@ function init() {
 function manipulators() {
   var spec = state.Vis.manipulators(),
       signals = spec.signals || (spec.signals = []),
+      predicates = spec.predicates || (spec.predicates = []),
       idx = dl.comparator('_idx');
 
   signals.push.apply(signals, dl.vals(sg.stash()).sort(idx));
+  predicates.push({
+    name: sg.CELL,
+    type: '==',
+    operands: [{signal: sg.CELL}, {arg: 'key'}]
+  });
+
   return spec;
 }
 

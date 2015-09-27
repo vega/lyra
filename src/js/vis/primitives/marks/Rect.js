@@ -27,11 +27,9 @@ function Rect(type) {
 var prototype = (Rect.prototype = Object.create(Mark.prototype));
 prototype.constructor = Rect;
 
-prototype.manipulators = function(types) {
-  return Mark.prototype.manipulators.call(this, [
-    manips.HANDLES, manips.CONNECTORS, manips.ARROWS, manips.SPANS
-  ]);
-};
+prototype.manipulators = manips([
+  manips.HANDLES, manips.CONNECTORS, manips.ARROWS, manips.SPANS
+]);
 
 prototype.initHandles = function() {
   var prop = util.propSg,

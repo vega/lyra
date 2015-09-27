@@ -24,21 +24,23 @@ function coords(item) {
   };
 }
 
-function compile(kind, item) {
-  var b = item.bounds,
-      c = coords(item), 
-      data = [],
-      size = b.width() < 20 || b.height() < 20 ? SIZES.SMALL : SIZES.LARGE;
+function compile(kind) {
+  return function(item) {
+    var b = item.bounds,
+        c = coords(item), 
+        data = [],
+        size = b.width() < 20 || b.height() < 20 ? SIZES.SMALL : SIZES.LARGE;
 
-  for (var k in c) {
-    if (kind === 'handles' && k === 'midCenter') continue;
-    data.push(dl.extend(c[k], {key: k, size: size}));
+    for (var k in c) {
+      if (kind === 'handles' && k === 'midCenter') continue;
+      data.push(dl.extend(c[k], {key: k, size: size}));
+    }
+    return data;
   }
-  return data;
 }
 
-prototype.handles = compile.bind(null, 'handles');
-prototype.connectors = compile.bind(null, 'connectors');
+prototype.handles = compile('handles');
+prototype.connectors = compile('connectors');
 
 // padding, stroke-padding, arrowhead
 var px = 5, sp = 7, a = 7;  

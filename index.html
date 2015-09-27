@@ -10,6 +10,7 @@
   </body>
   <script>
     lyra.init();
-    var r = lyra.Vis.child('marks', 'rect'); lyra.parse();
+    var r = lyra.Vis.child('marks', 'rect'); 
+    lyra.parse().catch(function(err) { console.error(err); });
   </script>
 </html>

@@ -1,61 +1,79 @@
-var dl = require('datalib');
+var dl = require('datalib'),
+    sg = require('../../../state/signals');
 
 // Vega specs for each of the manipulators type. We export a method
 // that compiles them together within a group mark. This method 
 // corresponds to the `manipulators` method of Mark classes. 
 function compile(manipulators) {
-  var mark  = this,
-      marks = [mark.export(false)];
-  
-  marks = marks.concat((manipulators||[]).map(function(m) {
-    var k = m.kind, n = mark.name;
-    var transforms =[{
-      type: 'lyra_manipulators_'+mark.type,
-      name: n,
-      kind: k
-    }];
+  manipulators = dl.array(manipulators);
+  return function() {
+    var mark  = this,
+        marks = [mark.export(false)];
+    
+    marks.push.apply(marks, manipulators.map(function(m) {
+      var k = m.kind, n = mark.name;
+      var transforms =[{
+        type: 'lyra_manipulators_'+mark.type,
+        name: n,
+        kind: k
+      }];
 
-    if (m.type === 'group' && (k === 'arrows' || k === 'spans')) {
-      transforms.push({ type: 'facet', groupby: ['key'] });
-    }
-
-    return dl.extend(m, {
-      from: {mark: n, transform: transforms}
-    });
-  }));
-
-  return {
-    type: 'group',
-    properties: {
-      update: {
-        x: {value: 0},
-        y: {value: 0},
-        width: {field: {group: 'width'}},
-        height: {field: {group: 'height'}}
+      if (m.type === 'group' && (k === 'arrows' || k === 'spans')) {
+        transforms.push({ type: 'facet', groupby: ['key'] });
       }
-    },
-    marks: marks
-  };
+
+      return dl.extend(m, {
+        from: {mark: n, transform: transforms}
+      });
+    }));
+
+    return {
+      type: 'group',
+      properties: {
+        update: {
+          x: {value: 0},
+          y: {value: 0},
+          width: {field: {group: 'width'}},
+          height: {field: {group: 'height'}}
+        }
+      },
+      marks: marks
+    };
+  }
 }
 
 module.exports = compile;
 
-compile.SIZES = {LARGE: 40, SMALL: 20};
-
-compile.VORONOI = function(path) {
+function voronoi(parent) {
   return {
     type: 'path',
-    name: 'cell',
+    name: sg.CELL,
     properties: {
       update: {
+        key: {field: parent ? {parent: 'key'} : 'key'},
         fill: {value: 'transparent'},
         strokeWidth: {value: 0.35},
-        path: {field: path || 'layout_path'},
-        stroke: {value: 'brown'}
+        path: {field: parent ? {parent: 'layout_path'} : 'layout_path'},
+        stroke: {value: 'transparent'}
       }
     }
   };
 }
+
+function hoverCell(t, f, parent) {
+  var rule = [{
+    predicate: {
+      name: sg.CELL, 
+      key: {field: parent ? {parent: 'key'} : 'key'}
+    }
+  }];
+
+  dl.extend(rule[0], t);
+  rule.push(f);
+  return {rule: rule};
+}
+
+compile.SIZES = {LARGE: 40, SMALL: 20};
 
 compile.HANDLES = {
   kind: 'handles',
@@ -85,11 +103,11 @@ compile.CONNECTORS = {
         shape: {value: 'diamond'},
         size: {field: {parent: 'size'}},
         fill: {value: 'white'},
-        stroke: {value: 'magenta'},
+        stroke: hoverCell({value: 'limegreen'}, {value: 'magenta'}, true),
         strokeWidth: {value: 0.5}
       }
     }
-  }, compile.VORONOI({parent: 'layout_path'})]
+  }, voronoi(true)]
 };
 
 compile.ARROWS = {
@@ -101,12 +119,12 @@ compile.ARROWS = {
       update: {
         x: {field: 'x'},
         y: {field: 'y'},
-        fill: {value: 'cyan'},
-        stroke: {value: 'cyan'},
+        fill: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}),
+        stroke: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}),
         strokeWidth: {value: 3}
       }
     }
-  }, compile.VORONOI()]
+  }, voronoi()]
 };
 
 compile.SPANS = dl.extend({}, compile.ARROWS, {kind: 'spans'});

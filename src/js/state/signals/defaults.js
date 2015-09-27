@@ -4,7 +4,8 @@ var ns = require('./').ns,
 var SELECTED = ns('selected'),
     MANIPULATORS = ns('manipulators'),
     ANCHOR = ns('anchor'),
-    DELTA = ns('delta');
+    DELTA  = ns('delta'),
+    CELL = ns('cell');
 
 signals[SELECTED] = {
   name: SELECTED,
@@ -45,11 +46,22 @@ signals[ANCHOR] = {
   _idx: 3
 };
 
+signals[CELL] = {
+  name: CELL,
+  init: null,
+  streams: [
+    {type: '@'+CELL+':mouseover', expr: 'eventItem().key'},
+    {type: '@'+CELL+':mouseout',  expr: 'null'}
+  ],
+  _idx: 4
+};
+
 module.exports = {
   signals: signals,
   names: [SELECTED, MANIPULATORS, ANCHOR, DELTA],
   SELECTED: SELECTED,
   MANIPULATORS: MANIPULATORS,
   ANCHOR: ANCHOR,
-  DELTA: DELTA
+  DELTA:  DELTA,
+  CELL: CELL
 };

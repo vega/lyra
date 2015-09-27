@@ -67,8 +67,6 @@ prototype.export = function(resolve) {
   return spec;
 };
 
-prototype.manipulators = function(types) {
-  return manips.call(this, types || [manips.HANDLES]);
-};
+prototype.manipulators = manips([manips.HANDLES]);
 
 module.exports = Mark;

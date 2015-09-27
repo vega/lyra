@@ -1,172 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.lyra = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// Matches absolute URLs with optional protocol
-//   https://...    file://...    //...
-var protocol_re = /^([A-Za-z]+:)?\/\//;
-
-// Special treatment in node.js for the file: protocol
-var fileProtocol = 'file://';
-
-// Validate and cleanup URL to ensure that it is allowed to be accessed
-// Returns cleaned up URL, or false if access is not allowed
-function sanitizeUrl(opt) {
-  var url = opt.url;
-  if (!url && opt.file) { return fileProtocol + opt.file; }
-
-  // In case this is a relative url (has no host), prepend opt.baseURL
-  if (opt.baseURL && !protocol_re.test(url)) {
-    if (!startsWith(url, '/') && opt.baseURL[opt.baseURL.length-1] !== '/') {
-      url = '/' + url; // Ensure that there is a slash between the baseURL (e.g. hostname) and url
-    }
-    url = opt.baseURL + url;
-  }
-  // relative protocol, starts with '//'
-  if (!load.useXHR && startsWith(url, '//')) {
-    url = (opt.defaultProtocol || 'http') + ':' + url;
-  }
-  // If opt.domainWhiteList is set, only allows url, whose hostname
-  // * Is the same as the origin (window.location.hostname)
-  // * Equals one of the values in the whitelist
-  // * Is a proper subdomain of one of the values in the whitelist
-  if (opt.domainWhiteList) {
-    var domain, origin;
-    if (load.useXHR) {
-      var a = document.createElement('a');
-      a.href = url;
-      // From http://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
-      // IE doesn't populate all link properties when setting .href with a relative URL,
-      // however .href will return an absolute URL which then can be used on itself
-      // to populate these additional fields.
-      if (a.host === '') {
-        a.href = a.href;
-      }
-      domain = a.hostname.toLowerCase();
-      origin = window.location.hostname;
-    } else {
-      // relative protocol is broken: https://github.com/defunctzombie/node-url/issues/5
-      var parts = require('url').parse(url);
-      domain = parts.hostname;
-      origin = null;
-    }
-
-    if (origin !== domain) {
-      var whiteListed = opt.domainWhiteList.some(function(d) {
-        var idx = domain.length - d.length;
-        return d === domain ||
-          (idx > 1 && domain[idx-1] === '.' && domain.lastIndexOf(d) === idx);
-      });
-      if (!whiteListed) {
-        throw 'URL is not whitelisted: ' + url;
-      }
-    }
-  }
-  return url;
-}
-
-function load(opt, callback) {
-  var error = callback || function(e) { throw e; }, url;
-
-  try {
-    url = load.sanitizeUrl(opt); // enable override
-  } catch (err) {
-    error(err);
-    return;
-  }
-
-  if (!url) {
-    error('Invalid URL: ' + opt.url);
-  } else if (load.useXHR) {
-    // on client, use xhr
-    return xhr(url, callback);
-  } else if (startsWith(url, fileProtocol)) {
-    // on server, if url starts with 'file://', strip it and load from file
-    return file(url.slice(fileProtocol.length), callback);
-  } else if (url.indexOf('://') < 0) { // TODO better protocol check?
-    // on server, if no protocol assume file
-    return file(url, callback);
-  } else {
-    // for regular URLs on server
-    return http(url, callback);
-  }
-}
-
-function xhrHasResponse(request) {
-  var type = request.responseType;
-  return type && type !== 'text' ?
-    request.response : // null on error
-    request.responseText; // '' on error
-}
-
-function xhr(url, callback) {
-  var async = !!callback;
-  var request = new XMLHttpRequest();
-  // If IE does not support CORS, use XDomainRequest (copied from d3.xhr)
-  if (this.XDomainRequest &&
-      !('withCredentials' in request) &&
-      /^(http(s)?:)?\/\//.test(url)) request = new XDomainRequest();
-
-  function respond() {
-    var status = request.status;
-    if (!status && xhrHasResponse(request) || status >= 200 && status < 300 || status === 304) {
-      callback(null, request.responseText);
-    } else {
-      callback(request, null);
-    }
-  }
-
-  if (async) {
-    if ('onload' in request) {
-      request.onload = request.onerror = respond;
-    } else {
-      request.onreadystatechange = function() {
-        if (request.readyState > 3) respond();
-      };
-    }
-  }
-  
-  request.open('GET', url, async);
-  request.send();
-  
-  if (!async && xhrHasResponse(request)) {
-    return request.responseText;
-  }
-}
-
-function file(filename, callback) {
-  var fs = require('fs');
-  if (!callback) {
-    return fs.readFileSync(filename, 'utf8');
-  }
-  fs.readFile(filename, callback);
-}
-
-function http(url, callback) {
-  if (!callback) {
-    return require('sync-request')('GET', url).getBody();
-  }
-  
-  var options = {url: url, encoding: null, gzip: true};
-  require('request')(options, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-      callback(null, body);
-    } else {
-      error = error ||
-        'Load failed with response code ' + response.statusCode + '.';
-      callback(error, null);
-    }
-  });
-}
-
-function startsWith(string, searchString) {
-  return string == null ? false : string.lastIndexOf(searchString, 0) === 0;
-}
-
-load.sanitizeUrl = sanitizeUrl;
-
-load.useXHR = (typeof XMLHttpRequest !== 'undefined');
-
-module.exports = load;
-
-},{"fs":33,"request":33,"sync-request":33,"url":33}],2:[function(require,module,exports){
 // Array.prototype.find - MIT License (c) 2013 Paul Miller <http://paulmillr.com>
 // For all details and docs: https://github.com/paulmillr/array.prototype.find
 // Fixes and tests supplied by Duncan Hall <http://duncanhall.net> 
@@ -201,7 +33,7 @@ module.exports = load;
   }
 })(this);
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.5.6"
@@ -9706,7 +9538,7 @@ module.exports = load;
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -9835,7 +9667,7 @@ module.exports = load;
   exports.dsv = dsv;
 
 }));
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 if (typeof Map === "undefined") {
   Map = function() { this.clear(); };
   Map.prototype = {
@@ -10303,7 +10135,7 @@ if (typeof Map === "undefined") {
   exports.precisionRound = precisionRound;
 
 }));
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 if (typeof Map === "undefined") {
   Map = function() { this.clear(); };
   Map.prototype = {
@@ -11223,7 +11055,7 @@ if (typeof Map === "undefined") {
   exports.isoFormat = isoFormat;
 
 }));
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -11513,7 +11345,7 @@ if (typeof Map === "undefined") {
   exports.utcYear = utcYear;
 
 }));
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var util = require('../util'),
     Measures = require('./measures'),
     Collector = require('./collector');
@@ -11821,7 +11653,7 @@ proto._consolidate = function() {
 };
 
 module.exports = Aggregator;
-},{"../util":30,"./collector":9,"./measures":11}],9:[function(require,module,exports){
+},{"../util":29,"./collector":8,"./measures":10}],8:[function(require,module,exports){
 var util = require('../util');
 var stats = require('../stats');
 
@@ -11939,7 +11771,7 @@ proto.q3 = function(get) {
 
 module.exports = Collector;
 
-},{"../stats":27,"../util":30}],10:[function(require,module,exports){
+},{"../stats":26,"../util":29}],9:[function(require,module,exports){
 var util = require('../util');
 var Aggregator = require('./aggregator');
 
@@ -11954,7 +11786,7 @@ module.exports = function() {
     .summarize({'*':'values'});
 };
 
-},{"../util":30,"./aggregator":8}],11:[function(require,module,exports){
+},{"../util":29,"./aggregator":7}],10:[function(require,module,exports){
 var util = require('../util');
 
 var types = {
@@ -12136,7 +11968,7 @@ function create(agg, stream, accessor, mutator) {
 
 types.create = create;
 module.exports = types;
-},{"../stats":27,"../util":30}],12:[function(require,module,exports){
+},{"../stats":26,"../util":29}],11:[function(require,module,exports){
 var util = require('../util'),
     time = require('../time'),
     EPSILON = 1e-15;
@@ -12251,7 +12083,7 @@ bins.date = function(opt) {
 
 module.exports = bins;
 
-},{"../time":29,"../util":30}],13:[function(require,module,exports){
+},{"../time":28,"../util":29}],12:[function(require,module,exports){
 var bins = require('./bins'),
     gen  = require('../generate'),
     type = require('../import/type'),
@@ -12336,7 +12168,7 @@ module.exports = {
   $bin: $bin,
   histogram: histogram
 };
-},{"../generate":15,"../import/type":24,"../stats":27,"../util":30,"./bins":12}],14:[function(require,module,exports){
+},{"../generate":14,"../import/type":23,"../stats":26,"../util":29,"./bins":11}],13:[function(require,module,exports){
 var d3_time = require('d3-time'),
     d3_timeF = require('d3-time-format'),
     d3_numberF = require('d3-format'),
@@ -12486,7 +12318,7 @@ function utcAutoFormat() {
   };
 }
 
-},{"d3-format":5,"d3-time":7,"d3-time-format":6}],15:[function(require,module,exports){
+},{"d3-format":4,"d3-time":6,"d3-time-format":5}],14:[function(require,module,exports){
 var gen = module.exports = {};
 
 gen.repeat = function(val, n) {
@@ -12565,7 +12397,7 @@ gen.random.normal = function(mean, stdev) {
   f.samples = function(n) { return gen.zeros(n).map(f); };
   return f;
 };
-},{}],16:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var util = require('../../util');
 var d3_dsv = require('d3-dsv');
 
@@ -12585,7 +12417,7 @@ dsv.delimiter = function(delim) {
 };
 
 module.exports = dsv;
-},{"../../util":30,"d3-dsv":4}],17:[function(require,module,exports){
+},{"../../util":29,"d3-dsv":3}],16:[function(require,module,exports){
 var dsv = require('./dsv');
 
 module.exports = {
@@ -12596,7 +12428,7 @@ module.exports = {
   csv: dsv.delimiter(','),
   tsv: dsv.delimiter('\t')
 };
-},{"./dsv":16,"./json":18,"./topojson":19,"./treejson":20}],18:[function(require,module,exports){
+},{"./dsv":15,"./json":17,"./topojson":18,"./treejson":19}],17:[function(require,module,exports){
 var util = require('../../util');
 
 module.exports = function(data, format) {
@@ -12608,7 +12440,7 @@ module.exports = function(data, format) {
   return d;
 };
 
-},{"../../util":30}],19:[function(require,module,exports){
+},{"../../util":29}],18:[function(require,module,exports){
 (function (global){
 var json = require('./json');
 
@@ -12639,7 +12471,7 @@ reader.topojson = (typeof window !== "undefined" ? window['topojson'] : typeof g
 module.exports = reader;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./json":18}],20:[function(require,module,exports){
+},{"./json":17}],19:[function(require,module,exports){
 var json = require('./json');
 
 module.exports = function(data, format) {
@@ -12664,9 +12496,175 @@ function toTable(root, childrenField) {
   visit(root, null);
   return (table.root = root, table);
 }
-},{"./json":18}],21:[function(require,module,exports){
-arguments[4][1][0].apply(exports,arguments)
-},{"dup":1,"fs":33,"request":33,"sync-request":33,"url":33}],22:[function(require,module,exports){
+},{"./json":17}],20:[function(require,module,exports){
+// Matches absolute URLs with optional protocol
+//   https://...    file://...    //...
+var protocol_re = /^([A-Za-z]+:)?\/\//;
+
+// Special treatment in node.js for the file: protocol
+var fileProtocol = 'file://';
+
+// Validate and cleanup URL to ensure that it is allowed to be accessed
+// Returns cleaned up URL, or false if access is not allowed
+function sanitizeUrl(opt) {
+  var url = opt.url;
+  if (!url && opt.file) { return fileProtocol + opt.file; }
+
+  // In case this is a relative url (has no host), prepend opt.baseURL
+  if (opt.baseURL && !protocol_re.test(url)) {
+    if (!startsWith(url, '/') && opt.baseURL[opt.baseURL.length-1] !== '/') {
+      url = '/' + url; // Ensure that there is a slash between the baseURL (e.g. hostname) and url
+    }
+    url = opt.baseURL + url;
+  }
+  // relative protocol, starts with '//'
+  if (!load.useXHR && startsWith(url, '//')) {
+    url = (opt.defaultProtocol || 'http') + ':' + url;
+  }
+  // If opt.domainWhiteList is set, only allows url, whose hostname
+  // * Is the same as the origin (window.location.hostname)
+  // * Equals one of the values in the whitelist
+  // * Is a proper subdomain of one of the values in the whitelist
+  if (opt.domainWhiteList) {
+    var domain, origin;
+    if (load.useXHR) {
+      var a = document.createElement('a');
+      a.href = url;
+      // From http://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+      // IE doesn't populate all link properties when setting .href with a relative URL,
+      // however .href will return an absolute URL which then can be used on itself
+      // to populate these additional fields.
+      if (a.host === '') {
+        a.href = a.href;
+      }
+      domain = a.hostname.toLowerCase();
+      origin = window.location.hostname;
+    } else {
+      // relative protocol is broken: https://github.com/defunctzombie/node-url/issues/5
+      var parts = require('url').parse(url);
+      domain = parts.hostname;
+      origin = null;
+    }
+
+    if (origin !== domain) {
+      var whiteListed = opt.domainWhiteList.some(function(d) {
+        var idx = domain.length - d.length;
+        return d === domain ||
+          (idx > 1 && domain[idx-1] === '.' && domain.lastIndexOf(d) === idx);
+      });
+      if (!whiteListed) {
+        throw 'URL is not whitelisted: ' + url;
+      }
+    }
+  }
+  return url;
+}
+
+function load(opt, callback) {
+  var error = callback || function(e) { throw e; }, url;
+
+  try {
+    url = load.sanitizeUrl(opt); // enable override
+  } catch (err) {
+    error(err);
+    return;
+  }
+
+  if (!url) {
+    error('Invalid URL: ' + opt.url);
+  } else if (load.useXHR) {
+    // on client, use xhr
+    return xhr(url, callback);
+  } else if (startsWith(url, fileProtocol)) {
+    // on server, if url starts with 'file://', strip it and load from file
+    return file(url.slice(fileProtocol.length), callback);
+  } else if (url.indexOf('://') < 0) { // TODO better protocol check?
+    // on server, if no protocol assume file
+    return file(url, callback);
+  } else {
+    // for regular URLs on server
+    return http(url, callback);
+  }
+}
+
+function xhrHasResponse(request) {
+  var type = request.responseType;
+  return type && type !== 'text' ?
+    request.response : // null on error
+    request.responseText; // '' on error
+}
+
+function xhr(url, callback) {
+  var async = !!callback;
+  var request = new XMLHttpRequest();
+  // If IE does not support CORS, use XDomainRequest (copied from d3.xhr)
+  if (this.XDomainRequest &&
+      !('withCredentials' in request) &&
+      /^(http(s)?:)?\/\//.test(url)) request = new XDomainRequest();
+
+  function respond() {
+    var status = request.status;
+    if (!status && xhrHasResponse(request) || status >= 200 && status < 300 || status === 304) {
+      callback(null, request.responseText);
+    } else {
+      callback(request, null);
+    }
+  }
+
+  if (async) {
+    if ('onload' in request) {
+      request.onload = request.onerror = respond;
+    } else {
+      request.onreadystatechange = function() {
+        if (request.readyState > 3) respond();
+      };
+    }
+  }
+  
+  request.open('GET', url, async);
+  request.send();
+  
+  if (!async && xhrHasResponse(request)) {
+    return request.responseText;
+  }
+}
+
+function file(filename, callback) {
+  var fs = require('fs');
+  if (!callback) {
+    return fs.readFileSync(filename, 'utf8');
+  }
+  fs.readFile(filename, callback);
+}
+
+function http(url, callback) {
+  if (!callback) {
+    return require('sync-request')('GET', url).getBody();
+  }
+  
+  var options = {url: url, encoding: null, gzip: true};
+  require('request')(options, function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+      callback(null, body);
+    } else {
+      error = error ||
+        'Load failed with response code ' + response.statusCode + '.';
+      callback(error, null);
+    }
+  });
+}
+
+function startsWith(string, searchString) {
+  return string == null ? false : string.lastIndexOf(searchString, 0) === 0;
+}
+
+load.sanitizeUrl = sanitizeUrl;
+
+load.useXHR = (typeof XMLHttpRequest !== 'undefined');
+
+module.exports = load;
+
+},{"fs":32,"request":32,"sync-request":32,"url":32}],21:[function(require,module,exports){
 var util = require('../util');
 var type = require('./type');
 var formats = require('./formats');
@@ -12697,7 +12695,7 @@ function parse(data, types) {
 read.formats = formats;
 module.exports = read;
 
-},{"../util":30,"./formats":17,"./type":24}],23:[function(require,module,exports){
+},{"../util":29,"./formats":16,"./type":23}],22:[function(require,module,exports){
 var util = require('../util');
 var load = require('./load');
 var read = require('./read');
@@ -12735,7 +12733,7 @@ module.exports = util
     return out;
   }, {});
 
-},{"../util":30,"./load":21,"./read":22}],24:[function(require,module,exports){
+},{"../util":29,"./load":20,"./read":21}],23:[function(require,module,exports){
 var util = require('../util');
 
 var TYPES = '__types__';
@@ -12826,7 +12824,7 @@ type.infer = infer;
 type.inferAll = inferAll;
 type.parsers = PARSERS;
 module.exports = type;
-},{"../util":30}],25:[function(require,module,exports){
+},{"../util":29}],24:[function(require,module,exports){
 var util = require('./util');
 
 var dl = {
@@ -12851,7 +12849,7 @@ util.extend(dl, require('./stats'));
 util.extend(dl, require('./import/readers'));
 
 module.exports = dl;
-},{"./aggregate/aggregator":8,"./aggregate/groupby":10,"./bins/bins":12,"./bins/histogram":13,"./format":14,"./generate":15,"./import/load":21,"./import/read":22,"./import/readers":23,"./import/type":24,"./print":26,"./stats":27,"./template":28,"./time":29,"./util":30}],26:[function(require,module,exports){
+},{"./aggregate/aggregator":7,"./aggregate/groupby":9,"./bins/bins":11,"./bins/histogram":12,"./format":13,"./generate":14,"./import/load":20,"./import/read":21,"./import/readers":22,"./import/type":23,"./print":25,"./stats":26,"./template":27,"./time":28,"./util":29}],25:[function(require,module,exports){
 var util = require('./util');
 var type = require('./import/type');
 var stats = require('./stats');
@@ -12950,7 +12948,7 @@ function printCategoricalProfile(p) {
     .map(function(v) { return ' \'' + v + '\' (' + u[v] + ')'; });
   return list.concat(top).join('\n');
 }
-},{"./import/type":24,"./stats":27,"./template":28,"./util":30}],27:[function(require,module,exports){
+},{"./import/type":23,"./stats":26,"./template":27,"./util":29}],26:[function(require,module,exports){
 var util = require('./util');
 var type = require('./import/type');
 var gen = require('./generate');
@@ -13439,7 +13437,7 @@ stats.summary = function(data, fields) {
 };
 
 module.exports = stats;
-},{"./generate":15,"./import/type":24,"./util":30}],28:[function(require,module,exports){
+},{"./generate":14,"./import/type":23,"./util":29}],27:[function(require,module,exports){
 var util = require('./util'),
     format = require('./format');
 
@@ -13657,7 +13655,7 @@ function template_format(pattern, key, fmt) {
   return context.format_map[key];
 }
 
-},{"./format":14,"./util":30}],29:[function(require,module,exports){
+},{"./format":13,"./util":29}],28:[function(require,module,exports){
 var d3_time = require('d3-time');
 
 var tempDate = new Date(),
@@ -13828,7 +13826,7 @@ function toUnitMap(units) {
 module.exports = toUnitMap(locale);
 module.exports.utc = toUnitMap(utc);
 
-},{"d3-time":7}],30:[function(require,module,exports){
+},{"d3-time":6}],29:[function(require,module,exports){
 var buffer = require('buffer'),
     time = require('./time'),
     utc = time.utc;
@@ -14146,7 +14144,7 @@ function truncateOnWord(s, len, rev) {
 
 var truncate_word_re = /([\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u2028\u2029\u3000\uFEFF])/;
 
-},{"./time":29,"buffer":33}],31:[function(require,module,exports){
+},{"./time":28,"buffer":32}],30:[function(require,module,exports){
 (function (process,global){
 /*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
@@ -15118,7 +15116,7 @@ var truncate_word_re = /([\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"_process":34}],32:[function(require,module,exports){
+},{"_process":33}],31:[function(require,module,exports){
 /*! http://mths.be/startswith v0.2.0 by @mathias */
 if (!String.prototype.startsWith) {
 	(function() {
@@ -15175,9 +15173,9 @@ if (!String.prototype.startsWith) {
 	}());
 }
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 
-},{}],34:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -15270,7 +15268,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],35:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 // We package all external dependencies together, so re-expose them
 // for use from the js console.
 d3 = require('d3');
@@ -15285,7 +15283,7 @@ require('./vis/transforms');
 
 // The Lyra State is our main API. 
 module.exports = require('./state');
-},{"./state":36,"./vis/transforms":47,"array.prototype.find":2,"d3":3,"datalib":25,"es6-promise":31,"string.prototype.startswith":32,"vega":89}],36:[function(require,module,exports){
+},{"./state":35,"./vis/transforms":46,"array.prototype.find":1,"d3":2,"datalib":24,"es6-promise":30,"string.prototype.startswith":31,"vega":89}],35:[function(require,module,exports){
 var dl = require('datalib'),
     vg = require('vega'),
     Vis = require('../vis/Visualization'),
@@ -15301,9 +15299,16 @@ function init() {
 function manipulators() {
   var spec = state.Vis.manipulators(),
       signals = spec.signals || (spec.signals = []),
+      predicates = spec.predicates || (spec.predicates = []),
       idx = dl.comparator('_idx');
 
   signals.push.apply(signals, dl.vals(sg.stash()).sort(idx));
+  predicates.push({
+    name: sg.CELL,
+    type: '==',
+    operands: [{signal: sg.CELL}, {arg: 'key'}]
+  });
+
   return spec;
 }
 
@@ -15337,7 +15342,7 @@ module.exports = (state = {
 
   schema: require('./schema')
 });
-},{"../vis/Visualization":41,"./schema":37,"./signals":39,"datalib":25,"vega":89}],37:[function(require,module,exports){
+},{"../vis/Visualization":40,"./schema":36,"./signals":38,"datalib":24,"vega":89}],36:[function(require,module,exports){
 var vg = require('vega'),
     _schema = null;
 
@@ -15346,14 +15351,15 @@ module.exports = function() {
     url: 'http://vega.github.io/vega/vega-schema.json'
   })); 
 };
-},{"vega":89}],38:[function(require,module,exports){
+},{"vega":89}],37:[function(require,module,exports){
 var ns = require('./').ns,
     signals = {};
 
 var SELECTED = ns('selected'),
     MANIPULATORS = ns('manipulators'),
     ANCHOR = ns('anchor'),
-    DELTA = ns('delta');
+    DELTA  = ns('delta'),
+    CELL = ns('cell');
 
 signals[SELECTED] = {
   name: SELECTED,
@@ -15394,15 +15400,26 @@ signals[ANCHOR] = {
   _idx: 3
 };
 
+signals[CELL] = {
+  name: CELL,
+  init: null,
+  streams: [
+    {type: '@'+CELL+':mouseover', expr: 'eventItem().key'},
+    {type: '@'+CELL+':mouseout',  expr: 'null'}
+  ],
+  _idx: 4
+};
+
 module.exports = {
   signals: signals,
   names: [SELECTED, MANIPULATORS, ANCHOR, DELTA],
   SELECTED: SELECTED,
   MANIPULATORS: MANIPULATORS,
   ANCHOR: ANCHOR,
-  DELTA: DELTA
+  DELTA:  DELTA,
+  CELL: CELL
 };
-},{"./":39}],39:[function(require,module,exports){
+},{"./":38}],38:[function(require,module,exports){
 var dl = require('datalib'),
     NS = 'lyra_',
     signals, defaults;
@@ -15473,7 +15490,7 @@ dl.extend(api, defaults=require('./defaults'));
 signals = api.signals;
 delete api.signals;
 delete api.names;
-},{"../":36,"./defaults":38,"datalib":25}],40:[function(require,module,exports){
+},{"../":35,"./defaults":37,"datalib":24}],39:[function(require,module,exports){
 var dl = require('datalib'),
     sg = require('./state/signals');
 
@@ -15502,7 +15519,7 @@ module.exports = {
     return 'if('+cond+','+t+','+f+')';
   }
 };
-},{"./state/signals":39,"datalib":25}],41:[function(require,module,exports){
+},{"./state/signals":38,"datalib":24}],40:[function(require,module,exports){
 var vg = require('vega'),
     sg = require('../state/signals'),
     Group = require('./primitives/marks/Group');
@@ -15547,7 +15564,7 @@ prototype.manipulators = function() {
 };
 
 module.exports = Visualization;
-},{"../state/signals":39,"./primitives/marks/Group":43,"vega":89}],42:[function(require,module,exports){
+},{"../state/signals":38,"./primitives/marks/Group":42,"vega":89}],41:[function(require,module,exports){
 var dl = require('datalib'),
     vg = require('vega'),
     sg = require('../../state/signals');
@@ -15581,7 +15598,7 @@ prototype.export = function(resolve) {
 };
 
 module.exports = Primitive;
-},{"../../state/signals":39,"datalib":25,"vega":89}],43:[function(require,module,exports){
+},{"../../state/signals":38,"datalib":24,"vega":89}],42:[function(require,module,exports){
 var vg = require('vega'),
     Mark = require('./Mark');
 
@@ -15642,7 +15659,7 @@ prototype.child = function(type, name) {
 };
 
 module.exports = Group;
-},{"./Mark":44,"./Rect":45,"vega":89}],44:[function(require,module,exports){
+},{"./Mark":43,"./Rect":44,"vega":89}],43:[function(require,module,exports){
 var dl = require('datalib'),
     sg = require('../../../state/signals'),
     Primitive = require('../Primitive'),
@@ -15712,12 +15729,10 @@ prototype.export = function(resolve) {
   return spec;
 };
 
-prototype.manipulators = function(types) {
-  return manips.call(this, types || [manips.HANDLES]);
-};
+prototype.manipulators = manips([manips.HANDLES]);
 
 module.exports = Mark;
-},{"../../../state/signals":39,"../../../util":40,"../Primitive":42,"./manipulators":46,"datalib":25}],45:[function(require,module,exports){
+},{"../../../state/signals":38,"../../../util":39,"../Primitive":41,"./manipulators":45,"datalib":24}],44:[function(require,module,exports){
 var dl = require('datalib'),
     sg = require('../../../state/signals'),
     Mark = require('./Mark'),
@@ -15747,11 +15762,9 @@ function Rect(type) {
 var prototype = (Rect.prototype = Object.create(Mark.prototype));
 prototype.constructor = Rect;
 
-prototype.manipulators = function(types) {
-  return Mark.prototype.manipulators.call(this, [
-    manips.HANDLES, manips.CONNECTORS, manips.ARROWS, manips.SPANS
-  ]);
-};
+prototype.manipulators = manips([
+  manips.HANDLES, manips.CONNECTORS, manips.ARROWS, manips.SPANS
+]);
 
 prototype.initHandles = function() {
   var prop = util.propSg,
@@ -15789,65 +15802,83 @@ prototype.initHandles = function() {
 };
 
 module.exports = Rect;
-},{"../../../state/signals":39,"../../../util":40,"./Mark":44,"./manipulators":46,"datalib":25}],46:[function(require,module,exports){
-var dl = require('datalib');
+},{"../../../state/signals":38,"../../../util":39,"./Mark":43,"./manipulators":45,"datalib":24}],45:[function(require,module,exports){
+var dl = require('datalib'),
+    sg = require('../../../state/signals');
 
 // Vega specs for each of the manipulators type. We export a method
 // that compiles them together within a group mark. This method 
 // corresponds to the `manipulators` method of Mark classes. 
 function compile(manipulators) {
-  var mark  = this,
-      marks = [mark.export(false)];
-  
-  marks = marks.concat((manipulators||[]).map(function(m) {
-    var k = m.kind, n = mark.name;
-    var transforms =[{
-      type: 'lyra_manipulators_'+mark.type,
-      name: n,
-      kind: k
-    }];
+  manipulators = dl.array(manipulators);
+  return function() {
+    var mark  = this,
+        marks = [mark.export(false)];
+    
+    marks.push.apply(marks, manipulators.map(function(m) {
+      var k = m.kind, n = mark.name;
+      var transforms =[{
+        type: 'lyra_manipulators_'+mark.type,
+        name: n,
+        kind: k
+      }];
 
-    if (m.type === 'group' && (k === 'arrows' || k === 'spans')) {
-      transforms.push({ type: 'facet', groupby: ['key'] });
-    }
-
-    return dl.extend(m, {
-      from: {mark: n, transform: transforms}
-    });
-  }));
-
-  return {
-    type: 'group',
-    properties: {
-      update: {
-        x: {value: 0},
-        y: {value: 0},
-        width: {field: {group: 'width'}},
-        height: {field: {group: 'height'}}
+      if (m.type === 'group' && (k === 'arrows' || k === 'spans')) {
+        transforms.push({ type: 'facet', groupby: ['key'] });
       }
-    },
-    marks: marks
-  };
+
+      return dl.extend(m, {
+        from: {mark: n, transform: transforms}
+      });
+    }));
+
+    return {
+      type: 'group',
+      properties: {
+        update: {
+          x: {value: 0},
+          y: {value: 0},
+          width: {field: {group: 'width'}},
+          height: {field: {group: 'height'}}
+        }
+      },
+      marks: marks
+    };
+  }
 }
 
 module.exports = compile;
 
-compile.SIZES = {LARGE: 40, SMALL: 20};
-
-compile.VORONOI = function(path) {
+function voronoi(parent) {
   return {
     type: 'path',
-    name: 'cell',
+    name: sg.CELL,
     properties: {
       update: {
+        key: {field: parent ? {parent: 'key'} : 'key'},
         fill: {value: 'transparent'},
         strokeWidth: {value: 0.35},
-        path: {field: path || 'layout_path'},
-        stroke: {value: 'brown'}
+        path: {field: parent ? {parent: 'layout_path'} : 'layout_path'},
+        stroke: {value: 'transparent'}
       }
     }
   };
 }
+
+function hoverCell(t, f, parent) {
+  var rule = [{
+    predicate: {
+      name: sg.CELL, 
+      key: {field: parent ? {parent: 'key'} : 'key'}
+    }
+  }];
+
+  dl.extend(rule[0], t);
+  rule.push(f);
+  return {rule: rule};
+}
+
+compile.SIZES = {LARGE: 40, SMALL: 20};
 
 compile.HANDLES = {
   kind: 'handles',
@@ -15877,11 +15908,11 @@ compile.CONNECTORS = {
         shape: {value: 'diamond'},
         size: {field: {parent: 'size'}},
         fill: {value: 'white'},
-        stroke: {value: 'magenta'},
+        stroke: hoverCell({value: 'limegreen'}, {value: 'magenta'}, true),
         strokeWidth: {value: 0.5}
       }
     }
-  }, compile.VORONOI({parent: 'layout_path'})]
+  }, voronoi(true)]
 };
 
 compile.ARROWS = {
@@ -15893,16 +15924,16 @@ compile.ARROWS = {
       update: {
         x: {field: 'x'},
         y: {field: 'y'},
-        fill: {value: 'cyan'},
-        stroke: {value: 'cyan'},
+        fill: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}),
+        stroke: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}),
         strokeWidth: {value: 3}
       }
     }
-  }, compile.VORONOI()]
+  }, voronoi()]
 };
 
 compile.SPANS = dl.extend({}, compile.ARROWS, {kind: 'spans'});
-},{"datalib":25}],47:[function(require,module,exports){
+},{"../../../state/signals":38,"datalib":24}],46:[function(require,module,exports){
 var dl = require('datalib'),
     vg = require('vega'),
     t = module.exports = {};
@@ -15912,7 +15943,7 @@ var MANIPULATORS = 'lyra_manipulators_';
 t[MANIPULATORS + 'rect']  = require('./manipulators/Rect');
 t[MANIPULATORS + 'group'] = require('./manipulators/Rect');
 dl.extend(vg.transforms, t);
-},{"./manipulators/Rect":49,"datalib":25,"vega":89}],48:[function(require,module,exports){
+},{"./manipulators/Rect":48,"datalib":24,"vega":89}],47:[function(require,module,exports){
 var dl = require('datalib'),
     vg = require('vega'),
     df = vg.dataflow,
@@ -16004,7 +16035,7 @@ prototype.arrows = function(item) { return []; };
 prototype.spans = function(item) { return []; };
 
 module.exports = Manipulators;
-},{"../../../state/signals":39,"datalib":25,"vega":89}],49:[function(require,module,exports){
+},{"../../../state/signals":38,"datalib":24,"vega":89}],48:[function(require,module,exports){
 var Base = require('./Manipulators'),
     spec = require('../../primitives/marks/manipulators'),
     SIZES = spec.SIZES;
@@ -16031,21 +16062,23 @@ function coords(item) {
   };
 }
 
-function compile(kind, item) {
-  var b = item.bounds,
-      c = coords(item), 
-      data = [],
-      size = b.width() < 20 || b.height() < 20 ? SIZES.SMALL : SIZES.LARGE;
+function compile(kind) {
+  return function(item) {
+    var b = item.bounds,
+        c = coords(item), 
+        data = [],
+        size = b.width() < 20 || b.height() < 20 ? SIZES.SMALL : SIZES.LARGE;
 
-  for (var k in c) {
-    if (kind === 'handles' && k === 'midCenter') continue;
-    data.push(dl.extend(c[k], {key: k, size: size}));
+    for (var k in c) {
+      if (kind === 'handles' && k === 'midCenter') continue;
+      data.push(dl.extend(c[k], {key: k, size: size}));
+    }
+    return data;
   }
-  return data;
 }
 
-prototype.handles = compile.bind(null, 'handles');
-prototype.connectors = compile.bind(null, 'connectors');
+prototype.handles = compile('handles');
+prototype.connectors = compile('connectors');
 
 // padding, stroke-padding, arrowhead
 var px = 5, sp = 7, a = 7;  
@@ -16110,7 +16143,9 @@ prototype.spans = function(item) {
 };
 
 module.exports = RectManipulators;
-},{"../../primitives/marks/manipulators":46,"./Manipulators":48}],50:[function(require,module,exports){
+},{"../../primitives/marks/manipulators":45,"./Manipulators":47}],49:[function(require,module,exports){
+arguments[4][20][0].apply(exports,arguments)
+},{"dup":20,"fs":32,"request":32,"sync-request":32,"url":32}],50:[function(require,module,exports){
 module.exports = {
   path:       require('./path'),
   render:     require('./render'),
@@ -18759,7 +18794,7 @@ function browser(uri, callback) {
 
 function server(uri, callback) {
   var loader = this,
-      image = new ((typeof window !== "undefined" ? window.canvas : typeof global !== "undefined" ? global.canvas : null).Image)();
+      image = new ((typeof window !== "undefined" ? window['canvas'] : typeof global !== "undefined" ? global['canvas'] : null).Image)();
 
   loader._pending += 1;
 
@@ -18787,7 +18822,7 @@ module.exports = ImageLoader;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"datalib/src/import/load":1}],82:[function(require,module,exports){
+},{"datalib/src/import/load":49}],82:[function(require,module,exports){
 function Item(mark) {
   this.mark = mark;
 }
@@ -19143,7 +19178,7 @@ function instance(w, h) {
     canvas.width = w;
     canvas.height = h;
   } else {
-    var Canvas = (typeof window !== "undefined" ? window.canvas : typeof global !== "undefined" ? global.canvas : null);
+    var Canvas = (typeof window !== "undefined" ? window['canvas'] : typeof global !== "undefined" ? global['canvas'] : null);
     if (!Canvas.prototype) return null;
     canvas = new Canvas(w, h);
   }
@@ -19363,7 +19398,7 @@ module.exports = {
 };
 },{"../util/bound":83}],87:[function(require,module,exports){
 (function (global){
-var d3_svg = (typeof window !== "undefined" ? window.d3 : typeof global !== "undefined" ? global.d3 : null).svg;
+var d3_svg = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null).svg;
 
 function x(o)     { return o.x || 0; }
 function y(o)     { return o.y || 0; }
@@ -19488,7 +19523,7 @@ module.exports = {
   util:  require('datalib'),
   debug: require('vega-logging').debug
 };
-},{"./src/core/config":139,"./src/core/schema":140,"./src/parse/":146,"./src/scene/Bounder":158,"./src/scene/Builder":159,"./src/scene/Encoder":160,"./src/scene/GroupBuilder":161,"./src/transforms":190,"datalib":113,"vega-dataflow":128,"vega-logging":134}],90:[function(require,module,exports){
+},{"./src/core/config":138,"./src/core/schema":139,"./src/parse/":145,"./src/scene/Bounder":157,"./src/scene/Builder":158,"./src/scene/Encoder":159,"./src/scene/GroupBuilder":160,"./src/transforms":189,"datalib":113,"vega-dataflow":128,"vega-logging":134}],90:[function(require,module,exports){
 // Word cloud layout by Jason Davies, https://www.jasondavies.com/wordcloud/
 // Algorithm due to Jonathan Feinberg, http://static.mrfeinberg.com/bv_ch03.pdf
 
@@ -19992,36 +20027,36 @@ var spirals = {
 
 }));
 },{}],92:[function(require,module,exports){
+arguments[4][3][0].apply(exports,arguments)
+},{"dup":3}],93:[function(require,module,exports){
 arguments[4][4][0].apply(exports,arguments)
-},{"dup":4}],93:[function(require,module,exports){
+},{"dup":4}],94:[function(require,module,exports){
 arguments[4][5][0].apply(exports,arguments)
-},{"dup":5}],94:[function(require,module,exports){
+},{"dup":5}],95:[function(require,module,exports){
 arguments[4][6][0].apply(exports,arguments)
-},{"dup":6}],95:[function(require,module,exports){
+},{"dup":6}],96:[function(require,module,exports){
 arguments[4][7][0].apply(exports,arguments)
-},{"dup":7}],96:[function(require,module,exports){
+},{"../util":118,"./collector":97,"./measures":99,"dup":7}],97:[function(require,module,exports){
 arguments[4][8][0].apply(exports,arguments)
-},{"../util":118,"./collector":97,"./measures":99,"dup":8}],97:[function(require,module,exports){
+},{"../stats":115,"../util":118,"dup":8}],98:[function(require,module,exports){
 arguments[4][9][0].apply(exports,arguments)
-},{"../stats":115,"../util":118,"dup":9}],98:[function(require,module,exports){
+},{"../util":118,"./aggregator":96,"dup":9}],99:[function(require,module,exports){
 arguments[4][10][0].apply(exports,arguments)
-},{"../util":118,"./aggregator":96,"dup":10}],99:[function(require,module,exports){
+},{"../stats":115,"../util":118,"dup":10}],100:[function(require,module,exports){
 arguments[4][11][0].apply(exports,arguments)
-},{"../stats":115,"../util":118,"dup":11}],100:[function(require,module,exports){
+},{"../time":117,"../util":118,"dup":11}],101:[function(require,module,exports){
 arguments[4][12][0].apply(exports,arguments)
-},{"../time":117,"../util":118,"dup":12}],101:[function(require,module,exports){
+},{"../generate":103,"../import/type":112,"../stats":115,"../util":118,"./bins":100,"dup":12}],102:[function(require,module,exports){
 arguments[4][13][0].apply(exports,arguments)
-},{"../generate":103,"../import/type":112,"../stats":115,"../util":118,"./bins":100,"dup":13}],102:[function(require,module,exports){
+},{"d3-format":93,"d3-time":95,"d3-time-format":94,"dup":13}],103:[function(require,module,exports){
 arguments[4][14][0].apply(exports,arguments)
-},{"d3-format":93,"d3-time":95,"d3-time-format":94,"dup":14}],103:[function(require,module,exports){
+},{"dup":14}],104:[function(require,module,exports){
 arguments[4][15][0].apply(exports,arguments)
-},{"dup":15}],104:[function(require,module,exports){
+},{"../../util":118,"d3-dsv":92,"dup":15}],105:[function(require,module,exports){
 arguments[4][16][0].apply(exports,arguments)
-},{"../../util":118,"d3-dsv":92,"dup":16}],105:[function(require,module,exports){
+},{"./dsv":104,"./json":106,"./topojson":107,"./treejson":108,"dup":16}],106:[function(require,module,exports){
 arguments[4][17][0].apply(exports,arguments)
-},{"./dsv":104,"./json":106,"./topojson":107,"./treejson":108,"dup":17}],106:[function(require,module,exports){
-arguments[4][18][0].apply(exports,arguments)
-},{"../../util":118,"dup":18}],107:[function(require,module,exports){
+},{"../../util":118,"dup":17}],107:[function(require,module,exports){
 (function (global){
 var json = require('./json');
 
@@ -20053,28 +20088,28 @@ module.exports = reader;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
 },{"./json":106}],108:[function(require,module,exports){
+arguments[4][19][0].apply(exports,arguments)
+},{"./json":106,"dup":19}],109:[function(require,module,exports){
 arguments[4][20][0].apply(exports,arguments)
-},{"./json":106,"dup":20}],109:[function(require,module,exports){
-arguments[4][1][0].apply(exports,arguments)
-},{"dup":1,"fs":33,"request":33,"sync-request":33,"url":33}],110:[function(require,module,exports){
+},{"dup":20,"fs":32,"request":32,"sync-request":32,"url":32}],110:[function(require,module,exports){
+arguments[4][21][0].apply(exports,arguments)
+},{"../util":118,"./formats":105,"./type":112,"dup":21}],111:[function(require,module,exports){
 arguments[4][22][0].apply(exports,arguments)
-},{"../util":118,"./formats":105,"./type":112,"dup":22}],111:[function(require,module,exports){
+},{"../util":118,"./load":109,"./read":110,"dup":22}],112:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"../util":118,"./load":109,"./read":110,"dup":23}],112:[function(require,module,exports){
+},{"../util":118,"dup":23}],113:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"../util":118,"dup":24}],113:[function(require,module,exports){
+},{"./aggregate/aggregator":96,"./aggregate/groupby":98,"./bins/bins":100,"./bins/histogram":101,"./format":102,"./generate":103,"./import/load":109,"./import/read":110,"./import/readers":111,"./import/type":112,"./print":114,"./stats":115,"./template":116,"./time":117,"./util":118,"dup":24}],114:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"./aggregate/aggregator":96,"./aggregate/groupby":98,"./bins/bins":100,"./bins/histogram":101,"./format":102,"./generate":103,"./import/load":109,"./import/read":110,"./import/readers":111,"./import/type":112,"./print":114,"./stats":115,"./template":116,"./time":117,"./util":118,"dup":25}],114:[function(require,module,exports){
+},{"./import/type":112,"./stats":115,"./template":116,"./util":118,"dup":25}],115:[function(require,module,exports){
 arguments[4][26][0].apply(exports,arguments)
-},{"./import/type":112,"./stats":115,"./template":116,"./util":118,"dup":26}],115:[function(require,module,exports){
+},{"./generate":103,"./import/type":112,"./util":118,"dup":26}],116:[function(require,module,exports){
 arguments[4][27][0].apply(exports,arguments)
-},{"./generate":103,"./import/type":112,"./util":118,"dup":27}],116:[function(require,module,exports){
+},{"./format":102,"./util":118,"dup":27}],117:[function(require,module,exports){
 arguments[4][28][0].apply(exports,arguments)
-},{"./format":102,"./util":118,"dup":28}],117:[function(require,module,exports){
+},{"d3-time":95,"dup":28}],118:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
-},{"d3-time":95,"dup":29}],118:[function(require,module,exports){
-arguments[4][30][0].apply(exports,arguments)
-},{"./time":117,"buffer":33,"dup":30}],119:[function(require,module,exports){
+},{"./time":117,"buffer":32,"dup":29}],119:[function(require,module,exports){
 var DEPS = require('./Dependencies').ALL;
 
 function create(cs, reflow) {
@@ -23787,8 +23822,6 @@ module.exports = {
 };
 
 },{}],135:[function(require,module,exports){
-arguments[4][50][0].apply(exports,arguments)
-},{"./path":52,"./render":72,"./util/Bounds":78,"./util/Gradient":80,"./util/Item":82,"./util/bound":83,"./util/canvas":84,"./util/scene":86,"dup":50}],136:[function(require,module,exports){
 var sg = require('vega-scenegraph').render,
     canvas = sg.canvas,
     svg = sg.svg.string,
@@ -23852,7 +23885,7 @@ prototype.initialize = function() {
 };
 
 module.exports = HeadlessView;
-},{"./View":138,"vega-scenegraph":135}],137:[function(require,module,exports){
+},{"./View":137,"vega-scenegraph":50}],136:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     ChangeSet = df.ChangeSet,
@@ -23988,7 +24021,7 @@ prototype.fire = function(cs) {
 };
 
 module.exports = Model;
-},{"../scene/GroupBuilder":161,"../scene/visit":166,"./config":139,"datalib":113,"vega-dataflow":128}],138:[function(require,module,exports){
+},{"../scene/GroupBuilder":160,"../scene/visit":165,"./config":138,"datalib":113,"vega-dataflow":128}],137:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -24434,7 +24467,7 @@ View.factory = function(model) {
 module.exports = View;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"../parse/streams":156,"../scene/Encoder":160,"../scene/Transition":163,"./HeadlessView":136,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":135}],139:[function(require,module,exports){
+},{"../parse/streams":155,"../scene/Encoder":159,"../scene/Transition":162,"./HeadlessView":135,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":50}],138:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     config = {};
@@ -24538,7 +24571,7 @@ config.range = {
 module.exports = config;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],140:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 var dl = require('datalib'),
     parse = require('../parse'),
     Scale = require('../scene/Scale'),
@@ -24585,7 +24618,7 @@ module.exports = function(opt) {
 
   return schema;
 };
-},{"../parse":146,"../scene/Scale":162,"./config":139,"datalib":113}],141:[function(require,module,exports){
+},{"../parse":145,"../scene/Scale":161,"./config":138,"datalib":113}],140:[function(require,module,exports){
 var dl = require('datalib'),
     axs = require('../scene/axis');
 
@@ -24671,7 +24704,7 @@ function parseAxis(config, def, index, axis, group) {
 }
 
 module.exports = parseAxes;
-},{"../scene/axis":164,"datalib":113}],142:[function(require,module,exports){
+},{"../scene/axis":163,"datalib":113}],141:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null);
 
@@ -24685,7 +24718,7 @@ function parseBg(bg) {
 module.exports = parseBg;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],143:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     parseTransforms = require('./transforms'),
@@ -24740,7 +24773,7 @@ parseData.datasource = function(model, d) {
 };
 
 module.exports = parseData;
-},{"./modify":150,"./transforms":157,"datalib":113,"vega-logging":134}],144:[function(require,module,exports){
+},{"./modify":149,"./transforms":156,"datalib":113,"vega-logging":134}],143:[function(require,module,exports){
 module.exports = (function() {
   /*
    * Generated by PEG.js 0.8.0.
@@ -25850,7 +25883,7 @@ module.exports = (function() {
     parse:       parse
   };
 })();
-},{}],145:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 var expr = require('vega-expression'),
     args = ['datum', 'event', 'signals'];
 
@@ -25868,7 +25901,7 @@ module.exports = expr.compiler(args, {
     return fn;
   }
 });
-},{"vega-expression":132}],146:[function(require,module,exports){
+},{"vega-expression":132}],145:[function(require,module,exports){
 module.exports = {
   axes: require('./axes'),
   background: require('./background'),
@@ -25887,7 +25920,7 @@ module.exports = {
   streams: require('./streams'),
   transforms: require('./transforms')
 };
-},{"./axes":141,"./background":142,"./data":143,"./events":144,"./expr":145,"./legends":147,"./mark":148,"./marks":149,"./modify":150,"./padding":151,"./predicates":152,"./properties":153,"./signals":154,"./spec":155,"./streams":156,"./transforms":157}],147:[function(require,module,exports){
+},{"./axes":140,"./background":141,"./data":142,"./events":143,"./expr":144,"./legends":146,"./mark":147,"./marks":148,"./modify":149,"./padding":150,"./predicates":151,"./properties":152,"./signals":153,"./spec":154,"./streams":155,"./transforms":156}],146:[function(require,module,exports){
 var lgnd = require('../scene/legend');
 
 function parseLegends(model, spec, legends, group) {
@@ -25929,7 +25962,7 @@ function parseLegend(def, index, legend, group) {
 }
 
 module.exports = parseLegends;
-},{"../scene/legend":165}],148:[function(require,module,exports){
+},{"../scene/legend":164}],147:[function(require,module,exports){
 var dl = require('datalib'),
     parseProperties = require('./properties');
 
@@ -25956,7 +25989,7 @@ function parseMark(model, mark) {
 }
 
 module.exports = parseMark;
-},{"./properties":153,"datalib":113}],149:[function(require,module,exports){
+},{"./properties":152,"datalib":113}],148:[function(require,module,exports){
 var parseMark = require('./mark');
 
 function parseRootMark(model, spec, width, height) {
@@ -25972,7 +26005,7 @@ function parseRootMark(model, spec, width, height) {
 }
 
 module.exports = parseRootMark;
-},{"./mark":148}],150:[function(require,module,exports){
+},{"./mark":147}],149:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     df = require('vega-dataflow'),
@@ -26065,7 +26098,7 @@ function parseModify(model, def, ds) {
 }
 
 module.exports = parseModify;
-},{"datalib":113,"vega-dataflow":128,"vega-logging":134}],151:[function(require,module,exports){
+},{"datalib":113,"vega-dataflow":128,"vega-logging":134}],150:[function(require,module,exports){
 var dl = require('datalib');
 
 function parsePadding(pad) {
@@ -26077,7 +26110,7 @@ function parsePadding(pad) {
 }
 
 module.exports = parsePadding;
-},{"datalib":113}],152:[function(require,module,exports){
+},{"datalib":113}],151:[function(require,module,exports){
 var dl = require('datalib');
 
 var types = {
@@ -26272,7 +26305,7 @@ function parseScale(spec, ops) {
 }
 
 module.exports = parsePredicates;
-},{"datalib":113}],153:[function(require,module,exports){
+},{"datalib":113}],152:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -26636,7 +26669,7 @@ function scaleRef(ref) {
 module.exports = properties;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"datalib":113,"vega-dataflow":128,"vega-logging":134}],154:[function(require,module,exports){
+},{"datalib":113,"vega-dataflow":128,"vega-logging":134}],153:[function(require,module,exports){
 var dl = require('datalib'),
     SIGNALS = require('vega-dataflow').Dependencies.SIGNALS,
     expr = require('./expr');
@@ -26710,7 +26743,7 @@ parseSignals.scale = function scale(model, spec, value, datum, evt) {
 };
 
 module.exports = parseSignals;
-},{"./expr":145,"datalib":113,"vega-dataflow":128}],155:[function(require,module,exports){
+},{"./expr":144,"datalib":113,"vega-dataflow":128}],154:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     Model = require('../core/Model'),
@@ -26767,7 +26800,7 @@ function parseSpec(spec, callback) {
 }
 
 module.exports = parseSpec;
-},{"../core/Model":137,"../core/View":138,"./":146,"datalib":113,"vega-logging":134}],156:[function(require,module,exports){
+},{"../core/Model":136,"../core/View":137,"./":145,"datalib":113,"vega-logging":134}],155:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -27000,7 +27033,7 @@ function parseStreams(view) {
 module.exports = parseStreams;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./events":144,"./expr":145,"./signals":154,"datalib":113,"vega-dataflow":128}],157:[function(require,module,exports){
+},{"./events":143,"./expr":144,"./signals":153,"datalib":113,"vega-dataflow":128}],156:[function(require,module,exports){
 var dl = require('datalib'),
     transforms = require('../transforms/index');
 
@@ -27020,7 +27053,7 @@ function parseTransforms(model, def) {
 }
 
 module.exports = parseTransforms;
-},{"../transforms/index":190,"datalib":113}],158:[function(require,module,exports){
+},{"../transforms/index":189,"datalib":113}],157:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     Node = df.Node, // jshint ignore:line
@@ -27073,7 +27106,7 @@ proto.evaluate = function(input) {
 };
 
 module.exports = Bounder;
-},{"./Encoder":160,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":135}],159:[function(require,module,exports){
+},{"./Encoder":159,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":50}],158:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     Item = require('vega-scenegraph').Item,
@@ -27382,7 +27415,7 @@ function keyFunction(key) {
 }
 
 module.exports = Builder;
-},{"../parse/data":143,"./Bounder":158,"./Encoder":160,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":135}],160:[function(require,module,exports){
+},{"../parse/data":142,"./Bounder":157,"./Encoder":159,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":50}],159:[function(require,module,exports){
 var dl = require('datalib'),
     log = require('vega-logging'),
     df = require('vega-dataflow'),
@@ -27569,7 +27602,7 @@ Encoder.update = function(graph, trans, request, items, dirty) {
 };
 
 module.exports = Encoder;
-},{"./Builder":159,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":135}],161:[function(require,module,exports){
+},{"./Builder":158,"datalib":113,"vega-dataflow":128,"vega-logging":134,"vega-scenegraph":50}],160:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     Node = df.Node, // jshint ignore:line
@@ -27839,7 +27872,7 @@ function buildLegends(input, group) {
 }
 
 module.exports = GroupBuilder;
-},{"../parse/axes":141,"../parse/legends":147,"./Builder":159,"./Scale":162,"datalib":113,"vega-dataflow":128,"vega-logging":134}],162:[function(require,module,exports){
+},{"../parse/axes":140,"../parse/legends":146,"./Builder":158,"./Scale":161,"datalib":113,"vega-dataflow":128,"vega-logging":134}],161:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -28337,7 +28370,7 @@ function range(group) {
 module.exports = Scale;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"../transforms/Aggregate":167,"datalib":113,"vega-dataflow":128,"vega-logging":134}],163:[function(require,module,exports){
+},{"../transforms/Aggregate":166,"datalib":113,"vega-dataflow":128,"vega-logging":134}],162:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     bound = require('vega-scenegraph').bound,
@@ -28444,7 +28477,7 @@ function step(elapsed) {
 module.exports = Transition;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Builder":159,"vega-dataflow":128,"vega-scenegraph":135}],164:[function(require,module,exports){
+},{"./Builder":158,"vega-dataflow":128,"vega-scenegraph":50}],163:[function(require,module,exports){
 var dl = require('datalib'),
     Tuple = require('vega-dataflow').Tuple,
     parseMark = require('../parse/mark');
@@ -29046,7 +29079,7 @@ function axisDomain(config) {
 }
 
 module.exports = axs;
-},{"../parse/mark":148,"datalib":113,"vega-dataflow":128}],165:[function(require,module,exports){
+},{"../parse/mark":147,"datalib":113,"vega-dataflow":128}],164:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -29593,7 +29626,7 @@ function vg_hLegendLabels(config) {
 module.exports = lgnd;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"../parse/mark":148,"../parse/properties":153,"datalib":113,"vega-scenegraph":135}],166:[function(require,module,exports){
+},{"../parse/mark":147,"../parse/properties":152,"datalib":113,"vega-scenegraph":50}],165:[function(require,module,exports){
 module.exports = function visit(node, func) {
   var i, n, s, m, items;
   if (func(node)) return true;
@@ -29607,7 +29640,7 @@ module.exports = function visit(node, func) {
     }
   }
 };
-},{}],167:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 var dl = require('datalib'),
     df = require('vega-dataflow'),
     log = require('vega-logging'),
@@ -29819,7 +29852,7 @@ prototype.transform = function(input, reset) {
 };
 
 module.exports = Aggregate;
-},{"./Facetor":173,"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],168:[function(require,module,exports){
+},{"./Facetor":172,"./Transform":185,"datalib":113,"vega-dataflow":128,"vega-logging":134}],167:[function(require,module,exports){
 var Base = require('./Transform').prototype;
 
 function BatchTransform() {
@@ -29844,7 +29877,7 @@ prototype.batchTransform = function(/* input, data */) {
 };
 
 module.exports = BatchTransform;
-},{"./Transform":186}],169:[function(require,module,exports){
+},{"./Transform":185}],168:[function(require,module,exports){
 var bins = require('datalib').bins,
     Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
@@ -29907,7 +29940,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Bin;
-},{"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],170:[function(require,module,exports){
+},{"./Transform":185,"datalib":113,"vega-dataflow":128,"vega-logging":134}],169:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Tuple = df.Tuple,
     log = require('vega-logging'),
@@ -30032,7 +30065,7 @@ prototype._rem = function(tuples, get) {
 };
 
 module.exports = CountPattern;
-},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],171:[function(require,module,exports){
+},{"./Transform":185,"vega-dataflow":128,"vega-logging":134}],170:[function(require,module,exports){
 var df = require('vega-dataflow'),
     ChangeSet = df.ChangeSet,
     Tuple = df.Tuple,
@@ -30153,7 +30186,7 @@ prototype.batchTransform = function(input, data) {
 };
 
 module.exports = Cross;
-},{"./BatchTransform":168,"./Transform":186,"vega-dataflow":128,"vega-logging":134}],172:[function(require,module,exports){
+},{"./BatchTransform":167,"./Transform":185,"vega-dataflow":128,"vega-logging":134}],171:[function(require,module,exports){
 var Transform = require('./Transform'),
     Aggregate = require('./Aggregate');
 
@@ -30186,7 +30219,7 @@ prototype.aggr = function() {
 };
 
 module.exports = Facet;
-},{"../parse/transforms":157,"./Aggregate":167,"./Transform":186}],173:[function(require,module,exports){
+},{"../parse/transforms":156,"./Aggregate":166,"./Transform":185}],172:[function(require,module,exports){
 var dl = require('datalib'),
     Aggregator = dl.Aggregator,
     Base = Aggregator.prototype,
@@ -30285,7 +30318,7 @@ prototype._on_keep = function(cell) {
 };
 
 module.exports = Facetor;
-},{"datalib":113,"vega-dataflow":128,"vega-logging":134}],174:[function(require,module,exports){
+},{"datalib":113,"vega-dataflow":128,"vega-logging":134}],173:[function(require,module,exports){
 var df = require('vega-dataflow'),
     SIGNALS = df.Dependencies.SIGNALS,
     log = require('vega-logging'),
@@ -30341,7 +30374,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Filter;
-},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],175:[function(require,module,exports){
+},{"./Transform":185,"vega-dataflow":128,"vega-logging":134}],174:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Tuple = df.Tuple,
     log = require('vega-logging'),
@@ -30413,7 +30446,7 @@ prototype.transform = function(input, reset) {
 };
 
 module.exports = Fold;
-},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],176:[function(require,module,exports){
+},{"./Transform":185,"vega-dataflow":128,"vega-logging":134}],175:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     df = require('vega-dataflow'),
@@ -30623,7 +30656,7 @@ prototype.update = function(active) {
 module.exports = Force;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],177:[function(require,module,exports){
+},{"./Transform":185,"vega-dataflow":128,"vega-logging":134}],176:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Tuple = df.Tuple,
     SIGNALS = df.Dependencies.SIGNALS,
@@ -30666,7 +30699,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Formula;
-},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],178:[function(require,module,exports){
+},{"./Transform":185,"vega-dataflow":128,"vega-logging":134}],177:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -30757,7 +30790,7 @@ prototype.transform = function(input) {
 module.exports = Geo;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],179:[function(require,module,exports){
+},{"./Transform":185,"datalib":113,"vega-dataflow":128,"vega-logging":134}],178:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -30807,7 +30840,7 @@ prototype.transform = function(input) {
 module.exports = GeoPath;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./Geo":178,"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],180:[function(require,module,exports){
+},{"./Geo":177,"./Transform":185,"datalib":113,"vega-dataflow":128,"vega-logging":134}],179:[function(require,module,exports){
 var Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
     Transform = require('./Transform');
@@ -30897,7 +30930,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = LinkPath;
-},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],181:[function(require,module,exports){
+},{"./Transform":185,"vega-dataflow":128,"vega-logging":134}],180:[function(require,module,exports){
 var Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
     Transform = require('./Transform');
@@ -30969,7 +31002,7 @@ prototype.transform = function(input, reset) {
 };
 
 module.exports = Lookup;
-},{"./Transform":186,"vega-dataflow":128,"vega-logging":134}],182:[function(require,module,exports){
+},{"./Transform":185,"vega-dataflow":128,"vega-logging":134}],181:[function(require,module,exports){
 var dl = require('datalib'),
     Deps = require('vega-dataflow').Dependencies,
     expr = require('../parse/expr');
@@ -31081,7 +31114,7 @@ prototype.set = function(value) {
 };
 
 module.exports = Parameter;
-},{"../parse/expr":145,"datalib":113,"vega-dataflow":128}],183:[function(require,module,exports){
+},{"../parse/expr":144,"datalib":113,"vega-dataflow":128}],182:[function(require,module,exports){
 var dl = require('datalib'),
     Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
@@ -31147,7 +31180,7 @@ prototype.batchTransform = function(input, data) {
 };
 
 module.exports = Pie;
-},{"./BatchTransform":168,"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],184:[function(require,module,exports){
+},{"./BatchTransform":167,"./Transform":185,"datalib":113,"vega-dataflow":128,"vega-logging":134}],183:[function(require,module,exports){
 var dl = require('datalib'),
     log  = require('vega-logging'),
     Transform = require('./Transform');
@@ -31171,7 +31204,7 @@ prototype.transform = function(input) {
 };
 
 module.exports = Sort;
-},{"./Transform":186,"datalib":113,"vega-logging":134}],185:[function(require,module,exports){
+},{"./Transform":185,"datalib":113,"vega-logging":134}],184:[function(require,module,exports){
 var dl = require('datalib'),
     Tuple = require('vega-dataflow').Tuple,
     log = require('vega-logging'),
@@ -31269,7 +31302,7 @@ function partition(data, groupby, sortby, field) {
 }
 
 module.exports = Stack;
-},{"./BatchTransform":168,"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],186:[function(require,module,exports){
+},{"./BatchTransform":167,"./Transform":185,"datalib":113,"vega-dataflow":128,"vega-logging":134}],185:[function(require,module,exports){
 var df = require('vega-dataflow'),
     Base = df.Node.prototype, // jshint ignore:line
     Deps = df.Dependencies,
@@ -31330,7 +31363,7 @@ prototype.output = function(map) {
 };
 
 module.exports = Transform;
-},{"./Parameter":182,"vega-dataflow":128}],187:[function(require,module,exports){
+},{"./Parameter":181,"vega-dataflow":128}],186:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     dl = require('datalib'),
@@ -31412,7 +31445,7 @@ prototype.batchTransform = function(input, data) {
 module.exports = Treemap;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./BatchTransform":168,"./Transform":186,"datalib":113,"vega-dataflow":128,"vega-logging":134}],188:[function(require,module,exports){
+},{"./BatchTransform":167,"./Transform":185,"datalib":113,"vega-dataflow":128,"vega-logging":134}],187:[function(require,module,exports){
 (function (global){
 var d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
     Tuple = require('vega-dataflow/src/Tuple'),
@@ -31463,7 +31496,7 @@ prototype.batchTransform = function(input, data) {
 module.exports = Voronoi;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./BatchTransform":168,"./Transform":186,"vega-dataflow/src/Tuple":127,"vega-logging":134}],189:[function(require,module,exports){
+},{"./BatchTransform":167,"./Transform":185,"vega-dataflow/src/Tuple":127,"vega-logging":134}],188:[function(require,module,exports){
 (function (global){
 var dl = require('datalib'),
     d3 = (typeof window !== "undefined" ? window['d3'] : typeof global !== "undefined" ? global['d3'] : null),
@@ -31576,7 +31609,7 @@ prototype.batchTransform = function(input, data) {
 module.exports = Wordcloud;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./BatchTransform":168,"./Transform":186,"d3-cloud":90,"datalib":113,"vega-dataflow/src/Tuple":127,"vega-logging":134,"vega-scenegraph":50}],190:[function(require,module,exports){
+},{"./BatchTransform":167,"./Transform":185,"d3-cloud":90,"datalib":113,"vega-dataflow/src/Tuple":127,"vega-logging":134,"vega-scenegraph":50}],189:[function(require,module,exports){
 module.exports = {
   aggregate:    require('./Aggregate'),
   bin:          require('./Bin'),
@@ -31599,6 +31632,6 @@ module.exports = {
   voronoi:      require('./Voronoi'),
   wordcloud:    require('./Wordcloud')
 };
-},{"./Aggregate":167,"./Bin":169,"./CountPattern":170,"./Cross":171,"./Facet":172,"./Filter":174,"./Fold":175,"./Force":176,"./Formula":177,"./Geo":178,"./GeoPath":179,"./LinkPath":180,"./Lookup":181,"./Pie":183,"./Sort":184,"./Stack":185,"./Transform":186,"./Treemap":187,"./Voronoi":188,"./Wordcloud":189}]},{},[35])(35)
+},{"./Aggregate":166,"./Bin":168,"./CountPattern":169,"./Cross":170,"./Facet":171,"./Filter":173,"./Fold":174,"./Force":175,"./Formula":176,"./Geo":177,"./GeoPath":178,"./LinkPath":179,"./Lookup":180,"./Pie":182,"./Sort":183,"./Stack":184,"./Transform":185,"./Treemap":186,"./Voronoi":187,"./Wordcloud":188}]},{},[34])(34)
 });
 //# sourceMappingURL=lyra.js.map
