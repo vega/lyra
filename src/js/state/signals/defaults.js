@@ -1,17 +1,20 @@
-var ns = require('./').ns,
+var dl = require('datalib'),
+    ns = require('./').ns,
     signals = {};
 
 var SELECTED = ns('selected'),
     MANIPULATORS = ns('manipulators'),
     ANCHOR = ns('anchor'),
     DELTA  = ns('delta'),
-    CELL = ns('cell');
+    CELL  = ns('cell'),
+    MOUSE = ns('mouse');
 
 signals[SELECTED] = {
   name: SELECTED,
   init: {mark: {}},
   streams: [
-    { type: 'mousedown[eventItem().mark && eventItem().mark.name]', 
+    { type: 'mousedown[eventItem().mark && eventItem().mark.name &&'+
+        'eventItem().mark.name !== '+dl.str(CELL)+']', 
       expr: 'eventItem()' },
     { type: 'mousedown[!eventItem().mark]', expr: '{mark: {}}' }
   ],
@@ -48,12 +51,21 @@ signals[ANCHOR] = {
 
 signals[CELL] = {
   name: CELL,
-  init: null,
+  init: {},
   streams: [
-    {type: '@'+CELL+':mouseover', expr: 'eventItem().key'},
-    {type: '@'+CELL+':mouseout',  expr: 'null'}
+    {type: '@'+CELL+':mouseover', expr: 'eventItem()'},
+    {type: '@'+CELL+':mouseout',  expr: '{}'}
   ],
   _idx: 4
+};
+
+signals[MOUSE] = {
+  name: MOUSE,
+  init: {},
+  streams: [
+    {type: 'window:mousemove', expr: '{x: eventX(), y: eventY()}'}
+  ],
+  _idx: 5
 };
 
 module.exports = {
@@ -63,5 +75,6 @@ module.exports = {
   MANIPULATORS: MANIPULATORS,
   ANCHOR: ANCHOR,
   DELTA:  DELTA,
-  CELL: CELL
+  CELL:  CELL,
+  MOUSE: MOUSE
 };

@@ -13,7 +13,7 @@ function compile(manipulators) {
     marks.push.apply(marks, manipulators.map(function(m) {
       var k = m.kind, n = mark.name;
       var transforms =[{
-        type: 'lyra_manipulators_'+mark.type,
+        type: sg.ns('manipulators_'+mark.type),
         name: n,
         kind: k
       }];
@@ -103,7 +103,7 @@ compile.CONNECTORS = {
         shape: {value: 'diamond'},
         size: {field: {parent: 'size'}},
         fill: {value: 'white'},
-        stroke: hoverCell({value: 'limegreen'}, {value: 'magenta'}, true),
+        stroke: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}, true),
         strokeWidth: {value: 0.5}
       }
     }
@@ -128,3 +128,16 @@ compile.ARROWS = {
 };
 
 compile.SPANS = dl.extend({}, compile.ARROWS, {kind: 'spans'});
+
+compile.DROPZONE = {
+  type: 'line',
+  from: {data: 'dropzone'},
+  properties: {
+    update: {
+      x: {field: 'x'},
+      y: {field: 'y'},
+      fill: {value: 'lightsalmon'},
+      fillOpacity: {value: 0.2}
+    }
+  }
+};

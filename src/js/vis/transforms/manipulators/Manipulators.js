@@ -72,8 +72,8 @@ prototype.transform = function(input) {
   }
 
   var clip = [
-    [dl.min(cache, $x)-25, dl.min(cache, $y)-25],
-    [dl.max(cache, $x)+25, dl.max(cache, $y)+25]
+    [dl.min(cache, $x)-100, dl.min(cache, $y)-50],
+    [dl.max(cache, $x)+50, dl.max(cache, $y)+50]
   ];
 
   return this._voronoi

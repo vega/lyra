@@ -1,7 +1,8 @@
 var dl = require('datalib'),
     vg = require('vega'),
-    Vis = require('../vis/Visualization'),
     sg  = require('./signals'),
+    Vis = require('../vis/Visualization'),
+    manips = require('../vis/primitives/marks/manipulators'),
     state = null;
 
 function init() {
@@ -12,16 +13,25 @@ function init() {
 
 function manipulators() {
   var spec = state.Vis.manipulators(),
+      data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       predicates = spec.predicates || (spec.predicates = []),
+      marks = spec.marks || (spec.marks = []),
       idx = dl.comparator('_idx');
 
   signals.push.apply(signals, dl.vals(sg.stash()).sort(idx));
   predicates.push({
     name: sg.CELL,
     type: '==',
-    operands: [{signal: sg.CELL}, {arg: 'key'}]
+    operands: [{signal: sg.CELL+'.key'}, {arg: 'key'}]
   });
+
+  data.push({
+    name: 'dropzone',
+    transform: [{type: sg.ns('dropzone')}]
+  });
+
+  marks.push(manips.DROPZONE);
 
   return spec;
 }
