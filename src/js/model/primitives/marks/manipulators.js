@@ -1,5 +1,6 @@
 var dl = require('datalib'),
-    sg = require('../../../model/signals');
+    sg = require('../../signals'),
+    util = require('../../../util');
 
 // Vega specs for each of the manipulators type. We export a method
 // that compiles them together within a group mark. This method 
@@ -13,7 +14,7 @@ function compile(manipulators) {
     marks.push.apply(marks, manipulators.map(function(m) {
       var k = m.kind, n = mark.name;
       var transforms =[{
-        type: sg.ns('manipulators_'+mark.type),
+        type: util.ns('manipulators_'+mark.type),
         name: n,
         kind: k
       }];
@@ -39,7 +40,7 @@ function compile(manipulators) {
       },
       marks: marks
     };
-  }
+  };
 }
 
 module.exports = compile;

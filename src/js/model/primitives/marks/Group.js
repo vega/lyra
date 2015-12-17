@@ -1,4 +1,5 @@
-var vg = require('vega'),
+var dl = require('datalib'),
+    vg = require('vega'),
     Mark = require('./Mark');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'],
@@ -11,6 +12,13 @@ var CHILDREN = {
 function Group() {
   Mark.call(this, 'group');
 
+  // For fast lookups.
+  this._scales  = {};
+  this._legends = {};
+  this._axes  = {};
+  this._marks = {};
+
+  // For ordered specs.
   this.scales  = [];
   this.legends = [];
   this.axes  = [];
@@ -41,20 +49,20 @@ prototype.manipulators = function() {
   return spec;
 };
 
-// Get or create a child element. 
-prototype.child = function(type, name) {
-  var markType = type === 'marks' && MARK_TYPES.indexOf(name) >= 0;
+// Get, insert or create a child element. 
+prototype.child = function(type, child) {
+  var mark = type === 'marks',
+      ctor = arguments[mark ? 2 : 1] === undefined,
+      lookup = '_'+type;
 
-  if (name && !markType) { 
-    child = this[type].find(function(c) {
-      return c.name === name;
-    });
-  } else {
-    child = new CHILDREN[markType ? name : type]();
-    this[type].push(child.init());
+  if (dl.isNumber(child)) {
+    return this[lookup][child];
+  } else if (ctor) {
+    child = new CHILDREN[mark ? child : type]().init();
   }
 
-  return child;
+  this[type].push(child);
+  return (this[lookup][child._id] = child);
 };
 
 module.exports = Group;

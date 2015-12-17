@@ -1,5 +1,5 @@
 var Base = require('./Manipulators'),
-    spec = require('../../primitives/marks/manipulators'),
+    spec = require('../../model/primitives/marks/manipulators'),
     SIZES = spec.SIZES;
 
 function RectManipulators(graph) {
@@ -36,7 +36,7 @@ function compile(kind) {
       data.push(dl.extend(c[k], {key: k, size: size}));
     }
     return data;
-  }
+  };
 }
 
 prototype.handles = compile('handles');
@@ -45,7 +45,7 @@ prototype.connectors = compile('connectors');
 // padding, stroke-padding, arrowhead
 var px = 5, sp = 7, a = 7;  
 function key(k) {
-  return function(d) { return (d.key = k, d); }
+  return function(d) { return (d.key = k, d); };
 }
 
 prototype.arrows = function(item) {

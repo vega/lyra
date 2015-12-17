@@ -8,7 +8,7 @@ dl = require('datalib');
 require('es6-promise').polyfill();
 require('array.prototype.find');
 require('string.prototype.startswith');
-require('./vis/transforms');
+require('./transforms');
 
 // The Lyra Model is our main API. 
 module.exports = require('./model');

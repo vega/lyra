@@ -1,8 +1,11 @@
 var dl = require('datalib'),
     vg = require('vega'),
-    sg = require('../../model/signals');
+    sg = require('../signals'),
+    id = 0;
 
 function Primitive() {
+  this._id = ++id;
+  return this;
 }
 
 var prototype = Primitive.prototype;
@@ -15,7 +18,7 @@ function clean(spec, resolve) {
   for (k in spec) {
     p = spec[k];
     c = k.startsWith('_');
-    c = c || p._disabled;
+    c = c || p._disabled || p === undefined;
     if (c) {
       delete spec[k];
     } else if (dl.isObject(p)) {

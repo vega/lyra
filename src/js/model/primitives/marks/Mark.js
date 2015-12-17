@@ -21,7 +21,7 @@ function Mark(type) {
     }
   };
 
-  return this;
+  return Primitive.call(this);
 }
 
 var prototype = (Mark.prototype = Object.create(Primitive.prototype));

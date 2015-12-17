@@ -4,9 +4,9 @@ var dl = require('datalib'),
     ChangeSet = df.ChangeSet,
     Tuple = df.Tuple,
     Deps = df.Dependencies,
-    Transform = vg.transforms.Transform,
+    Transform = vg.Transform,
     Voronoi = vg.transforms.voronoi,
-    sg = require('../../../model/signals');
+    sg = require('../../model/signals');
 
 var $x = dl.$('x'), $y = dl.$('y');
 

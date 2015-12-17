@@ -1,17 +1,21 @@
 var dl = require('datalib'),
     vg = require('vega'),
     sg  = require('./signals'),
-    Vis = require('../vis/Visualization'),
-    manips = require('../vis/primitives/marks/manipulators'),
-    model = null;
+    Vis = require('./primitives/Visualization'),
+    manips = require('./primitives/marks/manipulators'),
+    util  = require('../util');
 
-function init() {
-  model.Vis = new Vis()
-    .init();
-  parse();
-}
+var model = module.exports = {
+  Vis:  null,
+  view: null
+};
 
-function manipulators() {
+model.init = function() {
+  model.Vis = new Vis().init();
+  model.parse();
+};
+
+model.manipulators = function() {
   var spec = model.Vis.manipulators(),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
@@ -28,41 +32,35 @@ function manipulators() {
 
   data.push({
     name: 'dropzone',
-    transform: [{type: sg.ns('dropzone')}]
+    transform: [{type: util.ns('dropzone')}]
   });
 
   marks.push(manips.DROPZONE);
 
   return spec;
-}
+};
 
-function parse(el) {
+model.parse = function(el) {
   el = (el === undefined) ? '#vis' : el;
   return new Promise(function(resolve, reject) {
-    vg.parse.spec(manipulators(), function(chart) {
-      model.view = chart({ el: el }).update();
-      resolve('Parsed!');
+    vg.parse.spec(model.manipulators(), function(err, chart) {
+      if (err) reject(err);
+      else resolve(model.view = chart({ el: el }));
     });
-  });
-}
+  })
+    .then(model.update)
+    .catch(function(err) { console.error(err); });
+};
 
-function update() {
-  model.view.update();
-}
+model.update = function() { 
+  return model.view.update(); 
+};
 
-module.exports = (model = {
-  Vis:  null,
-  view: null,
+model.signal = function() {
+  var ret = sg.value.apply(sg, arguments);
+  return ret === sg ? model : ret;
+};
 
-  signals: sg,
-  signal: function() {
-    var ret = sg.value.apply(sg, arguments);
-    return ret === sg ? model : ret;
-  },
-
-  init:   init,
-  parse:  parse,
-  update: update,
-
-  schema: require('./schema')
-});
+model.export = function() {
+  return model.Vis.export(true);
+};

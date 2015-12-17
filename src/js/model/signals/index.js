@@ -1,9 +1,7 @@
 var dl = require('datalib'),
-    NS = 'lyra_',
+    util = require('../../util'),
+    ns = util.ns,
     signals, defaults;
-
-// Namespace Lyra model signals
-function ns(name) { return name.startsWith(NS) ? name : NS+name; }
 
 function init(name, val) {
   signals[name=ns(name)] = {
@@ -57,7 +55,6 @@ function streams(name, def) {
 }
 
 var api = module.exports = function() { return signals; };
-api.ns  = ns;
 api.init  = init;
 api.ref   = ref;
 api.value = value;

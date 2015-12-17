@@ -4,8 +4,8 @@ var dl = require('datalib'),
     ChangeSet = df.ChangeSet,
     Tuple = df.Tuple,
     Deps = df.Dependencies,
-    Transform = vg.transforms.Transform,
-    sg = require('../../model/signals');
+    Transform = vg.Transform,
+    sg = require('../model/signals');
 
 function DropZone(graph) {
   Transform.prototype.init.call(this, graph);

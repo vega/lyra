@@ -1,16 +1,21 @@
 var dl = require('datalib'),
-    sg = require('./model/signals');
+    NS = 'lyra_';
 
-var ANCHOR = sg.ANCHOR, TARGET = ANCHOR+'.target';
+function ns(name) { return name.startsWith(NS) ? name : NS+name; }
 
 module.exports = {
+  ns: ns,
+
   propSg: function(mark, p) {
-    return sg.ns(mark.name+'_'+p);
+    return ns(mark.name+'_'+p);
   },
 
   // Returns an expr str condition that tests whether the anchor target
   // has a particular key or is a scenegraph item itself.
   anchorTarget: function(mark, key) {
+    var sg = require('./model/signals'),
+        ANCHOR = sg.ANCHOR, TARGET = ANCHOR+'.target';
+        
     var c = '(' + ANCHOR + '&&' + TARGET + '&&' + TARGET+'.datum &&';
     if (key) {  // Manipulator
       c += TARGET + '.datum.kind === "handles" &&' +

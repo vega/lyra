@@ -1,5 +1,5 @@
 var dl = require('datalib'),
-    ns = require('./').ns,
+    ns = require('../../util').ns,
     signals = {};
 
 var SELECTED = ns('selected'),
