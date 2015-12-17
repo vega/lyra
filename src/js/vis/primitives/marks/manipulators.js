@@ -1,5 +1,5 @@
 var dl = require('datalib'),
-    sg = require('../../../state/signals');
+    sg = require('../../../model/signals');
 
 // Vega specs for each of the manipulators type. We export a method
 // that compiles them together within a group mark. This method 

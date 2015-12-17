@@ -1,5 +1,5 @@
 var dl = require('datalib'),
-    sg = require('../../../state/signals'),
+    sg = require('../../../model/signals'),
     Primitive = require('../Primitive'),
     manips = require('./manipulators'),
     util = require('../../../util'),

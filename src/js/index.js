@@ -10,5 +10,5 @@ require('array.prototype.find');
 require('string.prototype.startswith');
 require('./vis/transforms');
 
-// The Lyra State is our main API. 
-module.exports = require('./state');
+// The Lyra Model is our main API. 
+module.exports = require('./model');

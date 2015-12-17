@@ -1,5 +1,5 @@
 var dl = require('datalib'),
-    sg = require('./state/signals');
+    sg = require('./model/signals');
 
 var ANCHOR = sg.ANCHOR, TARGET = ANCHOR+'.target';
 

@@ -2,7 +2,7 @@ var dl = require('datalib'),
     NS = 'lyra_',
     signals, defaults;
 
-// Namespace Lyra state signals
+// Namespace Lyra model signals
 function ns(name) { return name.startsWith(NS) ? name : NS+name; }
 
 function init(name, val) {
@@ -19,8 +19,8 @@ function ref(name) {
 }
 
 function value(name, val) {
-  var state = require('../'),
-      view  = state.view,
+  var model = require('../'),
+      view  = model.view,
       sg  = signals[name=ns(name)],
       set = arguments.length === 2;
 
@@ -37,8 +37,8 @@ function value(name, val) {
 // Stash current signal values from the view into our model
 // to allow seamless re-renders. 
 function stash() {
-  var state = require('../'),
-      view  = state.view;
+  var model = require('../'),
+      view  = model.view;
   if (!view) return signals;
 
   for (var k in signals) {

@@ -1,6 +1,6 @@
 var dl = require('datalib'),
     vg = require('vega'),
-    sg = require('../../state/signals');
+    sg = require('../../model/signals');
 
 function Primitive() {
 }

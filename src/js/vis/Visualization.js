@@ -1,5 +1,5 @@
 var vg = require('vega'),
-    sg = require('../state/signals'),
+    sg = require('../model/signals'),
     Group = require('./primitives/marks/Group');
 
 var SG_WIDTH = 'vis_width', SG_HEIGHT = 'vis_height';

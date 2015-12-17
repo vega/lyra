@@ -3,16 +3,16 @@ var dl = require('datalib'),
     sg  = require('./signals'),
     Vis = require('../vis/Visualization'),
     manips = require('../vis/primitives/marks/manipulators'),
-    state = null;
+    model = null;
 
 function init() {
-  state.Vis = new Vis()
+  model.Vis = new Vis()
     .init();
   parse();
 }
 
 function manipulators() {
-  var spec = state.Vis.manipulators(),
+  var spec = model.Vis.manipulators(),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       predicates = spec.predicates || (spec.predicates = []),
@@ -40,24 +40,24 @@ function parse(el) {
   el = (el === undefined) ? '#vis' : el;
   return new Promise(function(resolve, reject) {
     vg.parse.spec(manipulators(), function(chart) {
-      state.view = chart({ el: el }).update();
+      model.view = chart({ el: el }).update();
       resolve('Parsed!');
     });
   });
 }
 
 function update() {
-  state.view.update();
+  model.view.update();
 }
 
-module.exports = (state = {
+module.exports = (model = {
   Vis:  null,
   view: null,
 
   signals: sg,
   signal: function() {
     var ret = sg.value.apply(sg, arguments);
-    return ret === sg ? state : ret;
+    return ret === sg ? model : ret;
   },
 
   init:   init,
