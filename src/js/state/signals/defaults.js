@@ -24,6 +24,11 @@ signals[SELECTED] = {
 signals[MANIPULATORS] = {
   name: MANIPULATORS, 
   init: 'handles',
+  streams: [
+    { type: 'window:keydown, window:keyup', 
+      expr: 'if(lyra_manipulators === "arrows" || lyra_manipulators === "spans", ' + 
+        'if(event.shiftKey && lyra_manipulators === "arrows", "spans", "arrows"), lyra_manipulators)'}
+  ],
   _idx: 1
 };
 
