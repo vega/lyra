@@ -2,6 +2,7 @@
 // for use from the js console.
 d3 = require('d3');
 vg = require('vega');
+vl = require('vega-lite');
 dl = require('datalib');
 
 // Additional requires to polyfill + browserify package.

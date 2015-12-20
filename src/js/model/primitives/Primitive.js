@@ -1,10 +1,12 @@
 var dl = require('datalib'),
     vg = require('vega'),
     sg = require('../signals'),
+    model  = require('../'),
+    lookup = model.primitive,
     id = 0;
 
 function Primitive() {
-  this._id = ++id;
+  model.primitive(this._id=++id, this);
   return this;
 }
 
@@ -31,6 +33,11 @@ function clean(spec, resolve) {
 
 prototype.export = function(resolve) {
   return clean(dl.duplicate(this), resolve);
+};
+
+prototype.parent = function(pid) {
+  if (!arguments.length) return lookup(pid);
+  return (this._parentID = +pid, this);
 };
 
 module.exports = Primitive;

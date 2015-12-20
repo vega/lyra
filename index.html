@@ -8,11 +8,11 @@
   </body>
   <script>
     lyra.init();
-    var r = lyra.Vis.child('marks', 'rect');
-    var p = lyra.Vis.pipeline('cars');
-    p.init({ url: 'http://vega.github.io/vega-editor/app/data/cars.json' })
+    var r = lyra.Scene.child('marks.rect');
+    var p = lyra.pipeline('cars');
+    p._source.init({ url: 'http://vega.github.io/vega-editor/app/data/cars.json' })
       .then(function(pipeline) {
-        console.log(pipeline.values());
+        r._pipeline = p;
         lyra.parse();
       })
       .catch(function(err) { console.error(err); });

@@ -31,6 +31,7 @@
     "d3": "^3.5.6",
     "d3-geo-projection": "^0.2.15",
     "datalib": "^1.4.6",
+    "deep-diff": "^0.3.3",
     "es6-promise": "^3.0.2",
     "es6-promisify": "^3.0.0",
     "exorcist": "^0.4.0",
@@ -44,10 +45,11 @@
     "tv4": "^1.1.12",
     "uglify-js": "^2.4.24",
     "vega": "^2.4.2",
+    "vega-lite": "^0.9.2",
     "watchify": "^3.2.3"
   },
   "scripts": {
-    "lint": "jshint src/js/",
+    "lint": "jshint --verbose src/js/",
     "build": "browserify src/js/index.js -d -s lyra > vendor/js/lyra.js",
     "postbuild": "uglifyjs vendor/js/lyra.js -cm > vendor/js/lyra.min.js",
     "watch": "watchify src/js/index.js -v -d -s lyra -o 'vendor/js/lyra.js'",

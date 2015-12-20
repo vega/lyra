@@ -1,26 +1,23 @@
 var dl = require('datalib'),
     vg = require('vega'),
-    sg = require('../signals'),
-    Group = require('./marks/Group'),
-    Pipeline = require('./data/Pipeline');
+    sg = require('../../signals'),
+    Group = require('./Group');
 
 var SG_WIDTH = 'vis_width', SG_HEIGHT = 'vis_height';
 
-function Visualization() {
+function Scene() {
   Group.call(this);
 
   this.width  = 500;
   this.height = 500;
   this.padding = 'auto';
 
-  this._data = {};
-  this.data  = [];
-
   return this;
 }
 
-var prototype = (Visualization.prototype = Object.create(Group.prototype));
-prototype.constructor = Visualization;
+var prototype = (Scene.prototype = Object.create(Group.prototype));
+prototype.constructor = Scene;
+prototype.parent = null;
 
 prototype.init = function() {
   this.width  = sg.init(SG_WIDTH, this.width);
@@ -30,8 +27,6 @@ prototype.init = function() {
 
 prototype.export = function(resolve) {
   var spec = Group.prototype.export.call(this, resolve);
-
-  spec.data = this.data.map(function(d) { return d.export(resolve); });
 
   // Always resolve width/height signals.
   spec.width  = spec.width.signal  ? sg.value(SG_WIDTH)  : spec.width;
@@ -48,11 +43,4 @@ prototype.manipulators = function() {
   return Group.prototype.manipulators.call(this).marks[0];
 };
 
-prototype.pipeline = function(id) {
-  if (dl.isNumber(id)) return this._data[id];
-  var p = dl.isString(id) ? new Pipeline(id) : id;
-  this.data.push(p);
-  return (this._data[p._id] = p);
-};
-
-module.exports = Visualization;
+module.exports = Scene;

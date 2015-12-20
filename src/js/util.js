@@ -1,5 +1,8 @@
 var dl = require('datalib'),
-    NS = 'lyra_';
+    vg = require('vega'),
+    vl = require('vega-lite'),
+    NS = 'lyra_', 
+    vgSchema, vlSchema;
 
 function ns(name) { return name.startsWith(NS) ? name : NS+name; }
 
@@ -7,7 +10,7 @@ module.exports = {
   ns: ns,
 
   propSg: function(mark, p) {
-    return ns(mark.name+'_'+p);
+    return ns(mark.type+'_'+mark._id+'_'+p);
   },
 
   // Returns an expr str condition that tests whether the anchor target
@@ -29,5 +32,16 @@ module.exports = {
 
   test: function(cond, t, f) {
     return 'if('+cond+','+t+','+f+')';
+  },
+
+  schema: {
+    vg: function() {
+      return vgSchema || (vgSchema = vg.schema({
+        url: 'http://vega.github.io/vega/vega-schema.json'
+      }));
+    },
+    vl: function() {
+      return vlSchema || (vlSchema = vl.schema.instantiate());
+    }
   }
 };

@@ -1,22 +1,62 @@
 var dl = require('datalib'),
     vg = require('vega'),
     sg  = require('./signals'),
-    Vis = require('./primitives/Visualization'),
     manips = require('./primitives/marks/manipulators'),
     util  = require('../util');
 
 var model = module.exports = {
-  Vis:  null,
-  view: null
+  view:  null,
+  Scene: null
 };
 
+var pipelines = [], scales = [],
+    primitives = {};
+
 model.init = function() {
-  model.Vis = new Vis().init();
+  var Scene = require('./primitives/marks/Scene');
+  model.Scene = new Scene().init();
   model.parse();
 };
 
+// To prevent memory leaks, primitives do not directly reference other
+// primitives. Instead, they lookup against the primitives hash.
+var lookup = model.primitive = function(id, primitive) {
+  if (arguments.length === 1) return primitives[id];
+  return (primitives[id] = primitive, model);
+};
+
+function getset(cache, id, type) {
+  if (id === undefined) return cache.map(lookup);
+  else if (dl.isNumber(id)) return lookup(id);
+  var obj = dl.isString(id) ? new type(id) : id;
+  return (cache.push(obj._id), obj);
+}
+
+model.pipeline = function(id) {
+  return getset(pipelines, id, require('./primitives/data/Pipeline'));
+};
+
+model.scale = function(id) {
+  return getset(scales, id, require('./primitives/Scale'));
+};
+
+model.signal = function() {
+  var ret = sg.value.apply(sg, arguments);
+  return ret === sg ? model : ret;
+};
+
+model.export = function(scene) {
+  var spec = scene || model.Scene.export(true);
+  
+  spec.data = pipelines.reduce(function(arr, id) { 
+    return (arr.push.apply(arr, lookup(id).export(true)), arr); 
+  }, []);
+
+  return spec;
+};
+
 model.manipulators = function() {
-  var spec = model.Vis.manipulators(),
+  var spec = model.export(model.Scene.manipulators()),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       predicates = spec.predicates || (spec.predicates = []),
@@ -47,20 +87,9 @@ model.parse = function(el) {
       if (err) reject(err);
       else resolve(model.view = chart({ el: el }));
     });
-  })
-    .then(model.update)
-    .catch(function(err) { console.error(err); });
+  }).then(model.update);
 };
 
 model.update = function() { 
   return model.view.update(); 
-};
-
-model.signal = function() {
-  var ret = sg.value.apply(sg, arguments);
-  return ret === sg ? model : ret;
-};
-
-model.export = function() {
-  return model.Vis.export(true);
 };

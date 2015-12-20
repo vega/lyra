@@ -1,6 +1,7 @@
 var dl = require('datalib'),
     promisify = require('es6-promisify'),
-    Primitive = require('../Primitive');
+    Primitive = require('../Primitive'),
+    Field = require('./Field');
 
 function Dataset(name) {
   this.name = name;
@@ -31,28 +32,37 @@ prototype.init = function(opt) {
           .then(function(data) { 
             self._vals = dl.read(data, self.format); 
             return self;
-          })
-          .catch(function(err) { console.error(err); }));
+          }));
       }
     }
   });
 };
 
-// TODO: values from source. Read from parsed vg model?
-prototype.values = function() {
+prototype.input = function() {
   return this._values || this._vals;
+};
+
+prototype.output = function() {
+  var view = require('../../').view;
+  return view ? view.data(this.name).values() : this.input();
 };
 
 prototype.schema = function() {
   if (this._schema) return this._schema;
-  return (this._schema = dl.type.inferAll(this.values()));
+  var self = this, types  = dl.type.inferAll(this.output());
+  var schema = dl.keys(types).reduce(function(s, k) {
+    s[k] = new Field(k, types[k]).parent(self._id);
+    return s;
+  }, {});
+
+  return (this._schema = schema);
 };
 
 prototype.summary = function() {
-  if (this._summary) return this._summary;
-  return (this._summary = dl.summary(this.values()).reduce(function(s, p) {
-    return (s[p.field] = p, s);
-  }, {}));
+  var s = this.schema();
+  return dl.summary(this.output()).map(function(p) {
+    return s[p.field].profile(p);
+  });
 };
 
 // Values are cached. Export them only if we're not resolving. 

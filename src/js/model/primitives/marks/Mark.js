@@ -1,8 +1,11 @@
 var dl = require('datalib'),
-    sg = require('../../../model/signals'),
+    sg = require('../../signals'),
     Primitive = require('../Primitive'),
     manips = require('./manipulators'),
-    util = require('../../../util'),
+    rules  = require('../../rules'),
+    util   = require('../../../util'),
+    model  = require('../../'),
+    lookup = model.primitive,
     markID = 0;
 
 function Mark(type) {
@@ -20,6 +23,8 @@ function Mark(type) {
       strokeWidth: {value: 0.25}
     }
   };
+
+  this._rule = new rules.VLSingle(type);
 
   return Primitive.call(this);
 }
@@ -55,13 +60,23 @@ prototype.export = function(resolve) {
   var spec = Primitive.prototype.export.call(this, resolve),
       props  = spec.properties,
       update = props.update,
-      k, v;
+      from = this._from && lookup(this._from),
+      keys = dl.keys(update),
+      k, v, i, len, s, f;
 
-  if (resolve === false) return spec;
-  for (k in update) {
-    if (!dl.isObject(v=update[k])) {
+  if (from) {
+    spec.from = (from instanceof Mark) ? {mark: from.name} :
+      {data: from.name};
+  }
+
+  for (i=0, len=keys.length; i<len; ++i) {
+    v = update[k=keys[i]];
+    if (!dl.isObject(v)) {  // signalRef resolved to literal
       update[k] = {value: v};
     }
+
+    if (v.scale) v.scale = (s=lookup(v.scale)) && s.name;
+    if (v.field) v.field = (f=lookup(v.field)) && f._name;
   }
 
   return spec;
