@@ -5,7 +5,7 @@ var dl = require('datalib'),
     names  = {};
 
 function Scale(name, type, domain, range) {
-  this.name = name;
+  this.name = rename(name);
   this.type = type;
 
   // Literal domain/ranges. 
@@ -25,12 +25,11 @@ prototype.constructor = Scale;
 prototype.parent = null;
 
 // To prevent name collisions.
-prototype.name = function(name) {
+function rename(name) {
   var count = 0;
   while (names[name]) name += ++count;
-  this.name = name;
-  return (names[name] = 1, this);
-};
+  return (names[name] = 1, name);
+}
 
 // Exports FieldIDs to DataRefs. We don't default to the last option as the
 // structure has performance implications in Vega. Most-least performant:
@@ -73,8 +72,8 @@ function dataRef(ref) {
   }
 }
 
-prototype.export = function(resolve) {
-  var spec = Primitive.prototype.call(this, resolve);
+prototype.export = prototype.manipulators = function(resolve) {
+  var spec = Primitive.prototype.export.call(this, resolve);
 
   if (!this.domain && this._domain.length) {
     spec.domain = dataRef(this._domain);

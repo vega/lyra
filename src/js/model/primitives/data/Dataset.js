@@ -35,7 +35,7 @@ prototype.init = function(opt) {
           }));
       }
     }
-  });
+  }).then(function(self) { return self.schema(); });
 };
 
 prototype.input = function() {

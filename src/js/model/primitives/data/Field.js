@@ -13,7 +13,7 @@ function Field(name, ptype) {
 
   this.$ = dl.$(name);
 
-  return this;
+  return Primitive.call(this);
 }
 
 var prototype = (Field.prototype = Object.create(Primitive.prototype));

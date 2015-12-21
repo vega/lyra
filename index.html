@@ -11,8 +11,8 @@
     var r = lyra.Scene.child('marks.rect');
     var p = lyra.pipeline('cars');
     p._source.init({ url: 'http://vega.github.io/vega-editor/app/data/cars.json' })
-      .then(function(pipeline) {
-        r._pipeline = p;
+      .then(function(schema) {
+        console.log(schema);
         lyra.parse();
       })
       .catch(function(err) { console.error(err); });

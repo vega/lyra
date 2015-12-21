@@ -26,7 +26,7 @@ var lookup = model.primitive = function(id, primitive) {
 };
 
 function getset(cache, id, type) {
-  if (id === undefined) return cache.map(lookup);
+  if (id === undefined) return cache.map(function(x) { return lookup(x); });
   else if (dl.isNumber(id)) return lookup(id);
   var obj = dl.isString(id) ? new type(id) : id;
   return (cache.push(obj._id), obj);

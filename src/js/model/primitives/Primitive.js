@@ -36,8 +36,8 @@ prototype.export = function(resolve) {
 };
 
 prototype.parent = function(pid) {
-  if (!arguments.length) return lookup(pid);
-  return (this._parentID = +pid, this);
+  if (!arguments.length) return lookup(this._parent);
+  return (this._parent = +pid, this);
 };
 
 module.exports = Primitive;

@@ -21,17 +21,18 @@ function rules(prototype) {
     } 
 
     // obj instanceof Field
-    if (from && from.parent() !== field.parent().parent()) {
+    if (from && from.parent() !== obj.parent().parent()) {
       throw Error("Mark's backing pipeline differs from field's.");
     }
 
     rule.encoding[c=channel(property)] = fieldRef(obj);
-    from = from || field.parent();
+    from = from || obj.parent();
 
-    var parsed = compile.call(this, rule, from);
+    var parsed = compile.call(this, rule, property, from);
     rules.data.call(this, parsed, from);
     rules.scales.call(this, parsed);
     rules.marks.call(this, parsed, property, c);
+    return this;
   };
 
 }
@@ -49,6 +50,8 @@ function channel(name) {
       case 'y2':
       case 'height':
         return 'y';
+      case 'fill':
+        return 'color';
     }
   }
 }
@@ -75,7 +78,7 @@ function fieldRef(field) {
   return (ref.field = res ? res[2] : name, ref); 
 }
 
-function compile(rule, from) {
+function compile(rule, property, from) {
   rule = dl.duplicate(rule.export()); 
 
   // Always drive the Vega-Lite spec by a pipeline's source dataset.
@@ -88,6 +91,12 @@ function compile(rule, from) {
   // Hack the config to be able to differentiate height/width for
   // hardcoded scale ranges.
   rule.config.cell = {width: rules.CELLW, height: rules.CELLH};
+
+  // Hack the config to force marks to be filled, if we're binding
+  // to the fill color property.
+  if (property === 'fill') {
+    rule.config.marks = {filled: true};
+  }
 
   return {rule: rule, spec: vl.compile(rule).spec};
 }

@@ -4,7 +4,7 @@ var util   = require('../../util'),
 
 module.exports = function(parsed, property, channel) {
   var map = this._rule._map,
-      def = parse.spec.marks[0].marks[0],
+      def = parsed.spec.marks[0].marks[0],
       props  = this.properties.update,
       dprops = def.properties.update,
       from;
@@ -14,7 +14,7 @@ module.exports = function(parsed, property, channel) {
     from = lookup(this.from);
   }
 
-  if (this.type === 'rect' && channel === 'x' || channel === 'y') {
+  if (this.type === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial(map, property, channel, props, dprops, from);
   } else {
     bindProperty(map, property, props, dprops, from);
@@ -33,6 +33,7 @@ function bindProperty(map, property, props, def, from) {
     p.signal = {signal: sg};
   }
 
+  p.band   = d.band;
   p.offset = d.offset;
 }
 
@@ -46,9 +47,17 @@ function rectSpatial(map, property, channel, props, def, from) {
       cntr = channel+'c',
       span = RECT_SPANS[channel];
 
+  // If we're binding to a literal spatial property (i.e., span
+  // manipulators not arrows), bind only that property.
+  if (property !== channel+'+') {
+    def[property] = def[property] || def[channel] || def[cntr];
+    return bindProperty(map, property, props, def, from);
+  }
+
   if (def[bind]) {
     bindProperty(map, channel, props, def, from);
     bindProperty(map, bind, props, def, from);
+    props[span]._disabled = true;
   } else {
     def[channel] = def[cntr]; // Map xc/yc => x/y for binding.
     bindProperty(map, channel, props, def, from);
@@ -56,5 +65,7 @@ function rectSpatial(map, property, channel, props, def, from) {
     // Width/height should use bandWidth
     def[span] = {scale: def[channel].scale, band: true, offset: -1};
     bindProperty(map, span, props, def, from);
+
+    props[bind]._disabled = true;
   }
 }

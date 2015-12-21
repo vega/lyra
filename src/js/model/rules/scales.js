@@ -31,23 +31,26 @@ module.exports = function(parsed) {
 // and produce a Lyra-compatible Scale object. 
 function parse(def) {
   if (!def) return null;
-  var data = this._rule._map.data,
+  var map = this._rule._map.data,
       domain = def.domain,
-      rangeMax = def.rangeMax;
+      range = def.rangeMin || def.rangeMax,
+      data;
 
   if (!dl.isArray(domain)) {
-    def._domain = [data[domain.data].schema()[domain.field]._id];
+    data = lookup(map[domain.data]);
+    def._domain = [data.schema()[domain.field]._id];
   }
 
-  if (rangeMax === rules.CELLW || dl.equal(rangeMax, REF_CELLW)) {
+  if (range === rules.CELLW || dl.equal(range, REF_CELLW)) {
     def.range = 'width';
-  } else if (rangeMax === rules.CELLH || dl.equal(rangeMax, REF_CELLH)) {
+  } else if (range === rules.CELLH || dl.equal(range, REF_CELLH)) {
     def.range = 'height';
   }
 
   delete def.rangeMin;
   delete def.rangeMax;
   delete def.bandWidth;
+  return def;
 }
 
 // Vega-Lite always produces ordinal scales with points. However, Lyra
@@ -66,17 +69,18 @@ function scale(def) {
   var markType = this.type,
       points = def.type === 'ordinal' && markType !== 'rect', 
       scales = model.scale(),
-      s = scales.find(equals.bind(def));
+      s = scales.find(equals.bind(this, def));
 
   if (!s) {
-    s = model.scale(new Scale(null, def.type, null, def.range)
-      .name(def.name));
+    s = model.scale(new Scale(def.name, def.type, undefined, def.range));
     s._domain = def._domain;
     s.points  = points;
+    if (points) s.padding = def.padding;
   }
 
   s.nice  = def.nice;
   s.round = def.round;
 
-  this._rule.map.scales[def.name] = s._id;
+  this._rule._map.scales[def.name] = s._id;
+  return this.parent().child('scales', s);
 }

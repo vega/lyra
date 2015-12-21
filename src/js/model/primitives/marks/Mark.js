@@ -11,7 +11,7 @@ var dl = require('datalib'),
 function Mark(type) {
   this.name = type+'_'+(++markID);
   this.type = type;
-  this.from = {};
+  this.from = undefined;
 
   this.properties = {
     update: {
@@ -60,7 +60,7 @@ prototype.export = function(resolve) {
   var spec = Primitive.prototype.export.call(this, resolve),
       props  = spec.properties,
       update = props.update,
-      from = this._from && lookup(this._from),
+      from = this.from && lookup(this.from),
       keys = dl.keys(update),
       k, v, i, len, s, f;
 
@@ -83,5 +83,6 @@ prototype.export = function(resolve) {
 };
 
 prototype.manipulators = manips([manips.HANDLES]);
+rules(prototype);
 
 module.exports = Mark;

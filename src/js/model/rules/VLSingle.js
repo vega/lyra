@@ -7,8 +7,11 @@ var TYPES = {
 };
 
 function VLSingle(type) {
-  this.type = TYPES[type];
+  this.mark = TYPES[type];
+  this.data = {};
   this.encoding = {};
+  this.config = {};
+
   this._map = {
     data: {},
     scales: {},

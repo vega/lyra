@@ -45,16 +45,15 @@ prototype.manipulators = function() {
   return spec;
 };
 
-// Get, insert or create a child element.
+// Insert or create a child element.
 prototype.child = function(type, child) {
-  if (dl.isNumber(child)) {
-    return lookup(child);
-  } else {
-    type  = type.split('.');
-    child = child || (new CHILDREN[type[1] || type[0]]().init());
-    this[type[0]].push(child._id);
-    return child.parent ? child.parent(this._id) : child;
-  }
+  type  = type.split('.');
+  child = (child === undefined) ? new CHILDREN[type[1] || type[0]]().init() : 
+    dl.isNumber(child) ? lookup(child) : child;
+
+  var id = child._id, types = this[type[0]];
+  if (types.indexOf(id) < 0) types.push(id);
+  return child.parent ? child.parent(this._id) : child;
 };
 
 module.exports = Group;
