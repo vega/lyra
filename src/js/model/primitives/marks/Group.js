@@ -9,6 +9,7 @@ var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'],
 
 var CHILDREN = {
   rect:   require('./Rect'),
+  symbol: require('./Symbol'),
   scales: require('../Scale'),
 };
 

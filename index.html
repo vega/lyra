@@ -8,7 +8,7 @@
   </body>
   <script>
     lyra.init();
-    var r = lyra.Scene.child('marks.rect');
+    var r = lyra.Scene.child('marks.symbol');
     var p = lyra.pipeline('cars');
     p._source.init({ url: 'http://vega.github.io/vega-editor/app/data/cars.json' })
       .then(function(schema) {
@@ -16,5 +16,6 @@
         lyra.parse();
       })
       .catch(function(err) { console.error(err); });
+    function f(name) { return p._source.schema()[name]._id; }
   </script>
 </html>

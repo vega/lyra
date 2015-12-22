@@ -32,6 +32,7 @@ function rules(prototype) {
     rules.data.call(this, parsed, from);
     rules.scales.call(this, parsed);
     rules.marks.call(this, parsed, property, c);
+    rules.guides.call(this, parsed, property, c);
     return this;
   };
 
@@ -106,5 +107,6 @@ rules.VLSingle = require('./VLSingle');
 rules.data = require('./data');
 rules.scales = require('./scales');
 rules.marks  = require('./marks');
+rules.guides = require('./guides');
 rules.CELLW  = 500;
 rules.CELLH  = 200;
