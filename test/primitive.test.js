@@ -1,5 +1,5 @@
 describe('Primitive', function() {
-  var Primitive = require('../'+lyraPath+'vis/primitives/Primitive'),
+  var Primitive = require(src+'model/primitives/Primitive'),
       prim;
 
   beforeEach('new Primitives', function() {
@@ -99,17 +99,19 @@ describe('Primitive', function() {
 
       dl.extend(prim, props);
 
-      var ex = prim.export();
+      var ex = prim.export(),
+          manipulators = model.signal('lyra_manipulators'),
+          selected = model.signal('lyra_selected');
       expect(ex).to.have.keys(['a', 'c']);
-      expect(ex.a).to.equal('handles');
+      expect(ex.a).to.equal(manipulators);
       expect(ex.c).to.have.keys(['d']);
-      expect(ex.c.d).to.deep.equal({mark: {}});
+      expect(ex.c.d).to.deep.equal(selected);
 
       var ex = prim.export(true);
       expect(ex).to.have.keys(['a', 'c']);
-      expect(ex.a).to.equal('handles');
+      expect(ex.a).to.equal(manipulators);
       expect(ex.c).to.have.keys(['d']);
-      expect(ex.c.d).to.deep.equal({mark: {}});
+      expect(ex.c.d).to.deep.equal(selected);
 
       var ex = prim.export(false);
       expect(ex).to.have.keys(['a', 'c']);

@@ -1,17 +1,8 @@
 describe('Lyra Signals', function() {
-    var sg = require('../'+lyraPath+'state/signals'),
+    var sg = require(src+'model/signals'),
         signals = sg();
 
-  beforeEach(function() { lyra.view = null; });
-
-  it('should be namespaced', function() {
-    for (var k in signals) {
-      expect(k).to.match(/^lyra_/);
-    }
-
-    expect(sg.ns('foobar')).to.equal('lyra_foobar');
-    expect(sg.ns('lyra_foobar')).to.equal('lyra_foobar');
-  });
+  beforeEach(function() { model.view = null; });
 
   it('should initialize', function() {
     var ref = sg.init('foobar', 'helloworld');
@@ -27,13 +18,11 @@ describe('Lyra Signals', function() {
     expect(sg.value('foobar', 1)).to.equal(sg);
     expect(sg.value('foobar')).to.equal(1);
 
-    // Add a view
-    lyra.Vis = new Vis().init();
-    lyra.parse(null).then(function() {
+    model.parse(null).then(function() {
       // Lyra signal interface should set view.
       expect(sg.value('foobar')).to.equal(1);
       expect(sg.value('foobar', 5)).to.equal(sg);
-      expect(lyra.view.signal('lyra_foobar')).to.equal(5);
+      expect(model.view.signal('lyra_foobar')).to.equal(5);
 
       done();
     });
@@ -41,15 +30,14 @@ describe('Lyra Signals', function() {
 
   it('should stash values from the view', function(done) {
     sg.init('foobar', 'helloworld');
-    lyra.Vis = new Vis().init();
-    lyra.parse(null).then(function() {
+    model.parse(null).then(function() {
       expect(sg.value('foobar')).to.equal('helloworld');
-      expect(lyra.view.signal('lyra_foobar')).to.equal('helloworld');
-      lyra.view.signal('lyra_foobar', 1);
-      return lyra.parse(null);
+      expect(model.view.signal('lyra_foobar')).to.equal('helloworld');
+      model.view.signal('lyra_foobar', 1);
+      return model.parse(null);
     }).then(function() {
       expect(sg.value('foobar')).to.equal(1);
-      expect(lyra.view.signal('lyra_foobar')).to.equal(1);
+      expect(model.view.signal('lyra_foobar')).to.equal(1);
       done();
     }).catch(function(err) { 
       done(err); 
@@ -62,6 +50,4 @@ describe('Lyra Signals', function() {
       sg.SELECTED, sg.MANIPULATORS, sg.DELTA, sg.ANCHOR
     ]);
   });
-
-
 });

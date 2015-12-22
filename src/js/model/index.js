@@ -15,7 +15,7 @@ var pipelines = [], scales = [],
 model.init = function() {
   var Scene = require('./primitives/marks/Scene');
   model.Scene = new Scene().init();
-  model.parse();
+  return this;
 };
 
 // To prevent memory leaks, primitives do not directly reference other
