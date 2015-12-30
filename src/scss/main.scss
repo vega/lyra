@@ -1,0 +1,89 @@
+$dblue-bg: #7B8B9D;
+$mblue-bg: #92A3B2;
+$lblue-bg: #CBD2DA;
+$blue-font: #7B8B9D;
+
+$dgrey-bg: #939393;
+$lgrey-bg: #BFBFBF;
+$dgrey-border: #6B6B6B;
+$lgrey-border: #989CA5;
+$grey-font: #E5E5E5;
+
+$outer-padding: 10px;
+$inner-padding: 5px;
+$margin: $outer-padding;
+
+$border-radius: 5px;
+
+$toolbar-height: 16px;
+
+@import 'http://idl.cs.washington.edu/static/style/fonts.css';
+@import 'reset';
+
+body {
+  background: #eee;
+  font-family: Avenir, Helvetica Neue, Helvetica, Arial;
+  font-size: 12px;
+}
+
+h2 {
+  font-size: 16px;
+  text-transform: uppercase;
+  margin-bottom: $margin;
+}
+
+h3, div.header {
+  font-size: 14px;
+  font-weight: bolder;
+  text-align: center;
+}
+
+@mixin editable() {
+  -moz-user-select: -moz-text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  background-color: white !important;
+  border: 1px solid darkgray !important;
+  box-shadow: 1px 1px 1px 0 lightgray inset;
+  padding: 5px;
+}
+
+@import 'pipelines';
+
+#vis {
+  position: absolute;
+  top: 40px;
+  left: $pipeline-list-width + 20px;
+
+  canvas {
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 17px 0px rgba(0,0,0,0.15)
+  }
+
+}
+
+.field {
+  border: 1px solid;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+
+  &.source {
+    background: #bed9ab;
+    border-color: rgba(140, 161, 124, 0.5);
+
+    &:hover {
+      background: #d2e7c3;
+    }
+  }
+
+  &.derived {
+    background: #efe8af;
+    border-color: rgba(209, 191, 148, 0.65);
+
+    &:hover {
+      background: #f5f1cc;
+    }
+  }
+}

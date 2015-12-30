@@ -49,7 +49,9 @@ prototype.output = function() {
 
 prototype.schema = function() {
   if (this._schema) return this._schema;
-  var self = this, types  = dl.type.inferAll(this.output());
+  var self  = this, 
+      types = dl.type.inferAll(this.output());
+
   var schema = dl.keys(types).reduce(function(s, k) {
     s[k] = new Field(k, types[k]).parent(self._id);
     return s;

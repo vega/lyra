@@ -11,6 +11,7 @@ function Scene() {
   this.width  = 500;
   this.height = 500;
   this.padding = 'auto';
+  this.background = 'white';
 
   return this;
 }

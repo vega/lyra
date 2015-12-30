@@ -1,4 +1,5 @@
-var Base = require('./Manipulators'),
+var dl = require('datalib'),
+    Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
     SIZES = spec.SIZES;
 

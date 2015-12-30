@@ -1,0 +1,142 @@
+$pipeline-list-width: 200px !global;
+$pipeline-width: 180px;
+
+#pipeline-list {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: $pipeline-list-width - 2*$outer-padding;
+  padding: $outer-padding;
+  background-color: $dblue-bg;
+
+  h2 {
+    color: #fff;
+  }
+}
+
+.pipeline {
+  position: relative; /* For the datatable header column */
+  background-color: $lblue-bg;
+  width: $pipeline-width - 2*$inner-padding;
+  padding: $inner-padding;
+  margin-bottom: $margin;
+
+  border-radius: $border-radius;
+
+  div.header {
+    font-weight: normal;
+    cursor: pointer;
+
+    &:focus {
+      @include editable();
+    }
+  }
+
+  p.source {
+    margin: $margin (-$inner-padding);
+    padding: $inner-padding;
+    background: $lgrey-bg;
+    border-top: 1px solid $lgrey-border;
+    border-bottom: 1px solid $lgrey-border;
+
+    i { margin-right: $inner-padding; }
+  }
+
+  &.selected {
+    div.header {
+      font-weight: 900;
+    }
+  }
+
+}
+
+.datatable {
+  $cell-width: 55px;
+  $cell-padding: 3px;
+  $mw: $cell-width - $cell-padding;
+
+  /* Req'd to prevent Chrome scrolling .field for some reason */
+  $padding-hack: 2px; 
+
+  margin-left: $cell-width + 2*$cell-padding - $padding-hack;
+  padding-left: $padding-hack;
+  overflow: auto;
+  
+  td {
+    min-width: $mw;
+    max-width: $mw;
+    padding: $cell-padding;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    font-size: 11px;
+
+    &.field {
+      position: absolute;
+      left: $inner-padding;
+      top: auto;
+    }
+  }
+
+  .odd {
+    background: #fff;
+    border-bottom: 1px solid;
+    border-color: #eee;
+  }
+
+  .even {
+    background: #eee;
+    border-bottom: 1px solid;
+    border-color: #ddd;
+  }
+
+  .full {
+    display: none;
+    position: absolute;
+    min-width: $mw;
+    width: auto;
+    padding: 5px $cell-padding;
+    font-size: 11px;
+    vertical-align: middle;
+
+    &.field {
+      left: $inner-padding;
+
+      i {
+        margin-right: $inner-padding;
+      }
+    }
+
+    &.value {
+      border-width: 1px;
+      border-style: solid;
+      border-left: 1px solid transparent;
+      pointer-events: none;
+    }
+  }
+}
+
+.paging {
+  margin-top: $inner-padding;
+  font-size: 11px;
+  display: flex;
+
+  span {
+    flex: 1 100%;
+
+    &.pager {
+      text-align: right;
+    }
+  }
+
+  i {
+    cursor: pointer;
+    opacity: 0.6;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

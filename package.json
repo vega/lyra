@@ -23,11 +23,14 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "array.prototype.find": "^1.0.0",
+    "babel-preset-react": "^6.3.13",
+    "babelify": "^7.2.0",
     "browserify": "^10.2.6",
     "browserify-shim": "^3.8.9",
     "browserify-versionify": "^1.0.6",
     "chai": "^3.0.0",
     "chai-spies": "^0.7.1",
+    "clean-css": "^3.4.8",
     "d3": "^3.5.6",
     "d3-geo-projection": "^0.2.15",
     "datalib": "^1.4.6",
@@ -38,7 +41,12 @@
     "istanbul": "^0.3.21",
     "jshint": "^2.8.0",
     "jstransform": "^11.0.3",
+    "mkdirp": "^0.5.1",
     "mocha": "^2.2.5",
+    "node-sass": "^3.4.2",
+    "nodemon": "^1.8.1",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
     "string.prototype.startswith": "^0.2.0",
     "through": "^2.3.8",
     "topojson": "^1.6.19",
@@ -49,12 +57,21 @@
     "watchify": "^3.2.3"
   },
   "scripts": {
-    "lint": "jshint --verbose src/js/",
-    "build": "browserify src/js/index.js -d -s lyra > vendor/js/lyra.js",
-    "postbuild": "uglifyjs vendor/js/lyra.js -cm > vendor/js/lyra.min.js",
-    "watch": "watchify src/js/index.js -v -d -s lyra -o 'vendor/js/lyra.js'",
-    "test": "mocha --timeout 30000 --recursive test/",
-    "cover": "istanbul cover _mocha -- --timeout 30000 --recursive test/"
+    "linkt": "npm run lint",
+    "lint:js": "jshint --verbose src/js/",
+    "vendor": "node ./scripts/vendor.js",
+    "build": "npm run build:js && npm run build:scss",
+    "build:js": "browserify src/js/index.js -d -o vendor/js/lyra.js",
+    "postbuild:js": "uglifyjs vendor/js/lyra.js -cm > vendor/js/lyra.min.js",
+    "build:scss": "node-sass --include-path src/scss src/scss/main.scss vendor/css/main.css",
+    "postbuild:scss": "cleancss -o vendor/css/main.min.css vendor/css/main.css",
+    "watch": "npm run watch:js & npm run watch:scss",
+    "watch:js": "watchify src/js/index.js -v -d -o 'vendor/js/lyra.js'",
+    "watch:scss": "nodemon -e src/scss -x \"npm run build:scss\"",
+    "test": "npm run test",
+    "test:js": "mocha --timeout 30000 --recursive test/",
+    "cover": "npm run cover",
+    "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/"
   },
   "browser": {
     "buffer": false,
@@ -65,5 +82,25 @@
     "sync-request": false,
     "url": false
   },
-  "browserify-shim": {}
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "react"
+          ]
+        }
+      ],
+      ["browserify-shim"]
+    ]
+  },
+  "browserify-shim": {
+    "d3": "global:d3",
+    "vega": "global:vg",
+    "vega-lite": "global:vl",
+    "datalib": "global:vg.util",
+    "react": "global:React",
+    "react-dom": "global:ReactDOM"
+  }
 }
