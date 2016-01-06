@@ -3,7 +3,7 @@ var dl = require('datalib'),
     signals = {};
 
 var SELECTED = ns('selected'),
-    MANIPULATORS = ns('manipulators'),
+    MODE = ns('mode'),
     ANCHOR = ns('anchor'),
     DELTA  = ns('delta'),
     CELL  = ns('cell'),
@@ -21,8 +21,8 @@ signals[SELECTED] = {
   _idx: 0
 };
 
-signals[MANIPULATORS] = {
-  name: MANIPULATORS, 
+signals[MODE] = {
+  name: MODE, 
   init: 'handles',
   _idx: 1
 };
@@ -72,9 +72,9 @@ signals[MOUSE] = {
 
 module.exports = {
   signals: signals,
-  names: [SELECTED, MANIPULATORS, ANCHOR, DELTA],
+  names: [SELECTED, MODE, ANCHOR, DELTA],
   SELECTED: SELECTED,
-  MANIPULATORS: MANIPULATORS,
+  MODE: MODE,
   ANCHOR: ANCHOR,
   DELTA:  DELTA,
   CELL:  CELL,

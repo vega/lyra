@@ -86,7 +86,7 @@ prototype.export = function(resolve) {
   return spec;
 };
 
-prototype.manipulators = manips([manips.HANDLES]);
+manips(prototype);
 rules(prototype);
 
 module.exports = Mark;

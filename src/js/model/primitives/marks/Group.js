@@ -39,10 +39,15 @@ prototype.export = function(resolve) {
 prototype.manipulators = function() {
   var self  = this,
       spec  = Mark.prototype.manipulators.call(this),
-      group = spec.marks[0],
-      fn = function(id) { return lookup(id).manipulators(); };
+      group = spec[0],
+      map = function(id) { return lookup(id).manipulators(); },
+      red = function(children, child) { 
+        return ((dl.isArray(child) ? 
+          children.push.apply(children, child) : children.push(child)), 
+        children);
+      };
 
-  CHILD_TYPES.forEach(function(c) { group[c] = self[c].map(fn); });
+  CHILD_TYPES.forEach(function(c) { group[c] = self[c].map(map).reduce(red, []); });
   return spec;
 };
 

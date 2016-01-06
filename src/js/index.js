@@ -10,18 +10,18 @@ model.init();
 
 r  = model.Scene.child('marks.rect');
 p  = model.pipeline('cars');
-p2 = model.pipeline('jobs');
-p3 = model.pipeline('gapminder');
+// p2 = model.pipeline('jobs');
+// p3 = model.pipeline('gapminder');
 
 Promise.all([
   p._source.init({ url: 'http://vega.github.io/vega-editor/app/data/cars.json' }),
-  p2._source.init({ url: 'http://vega.github.io/vega-editor/app/data/jobs.json' }),
-  p3._source.init({ url: 'http://vega.github.io/vega-editor/app/data/gapminder.json' })
+  // p2._source.init({ url: 'http://vega.github.io/vega-editor/app/data/jobs.json' }),
+  // p3._source.init({ url: 'http://vega.github.io/vega-editor/app/data/gapminder.json' })
 ]).then(function() {
   return model.parse();
 }).then(function() {
-  console.log('lyraselected', model.view.model().scene().items[0].items[0].items[0].items[0].items[0]._id);
-  model.signal('lyra_selected', model.view.model().scene().items[0].items[0].items[0].items[0].items[0])
+  console.log('lyraselected', model.view.model().scene().items[0].items[0].items[0]._id);
+  model.signal('lyra_selected', model.view.model().scene().items[0].items[0].items[0])
     .update();
 })
 

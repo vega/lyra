@@ -25,31 +25,39 @@ function coords(item) {
   };
 }
 
-function compile(kind) {
+function compile(manipulator) {
   return function(item) {
     var b = item.bounds,
         c = coords(item), 
         data = [],
-        size = b.width() < 20 || b.height() < 20 ? SIZES.SMALL : SIZES.LARGE;
+        size = b.width() < 20 || b.height() < 20 ? SIZES.SMALL : SIZES.LARGE,
+        d;
 
     for (var k in c) {
-      if (kind === 'handles' && k === 'midCenter') continue;
-      data.push(dl.extend(c[k], {key: k, size: size}));
+      if (manipulator === 'handle' && k === 'midCenter') continue;
+      data.push(d=c[k]);
+      d.size = size;
+      d.key  = k;
+      d.manipulator = manipulator;
     }
     return data;
   };
 }
 
-prototype.handles = compile('handles');
-prototype.connectors = compile('connectors');
+prototype.handles = compile('handle');
+prototype.connectors = compile('connector');
 
 // padding, stroke-padding, arrowhead
 var px = 5, sp = 7, a = 7;  
-function key(k) {
-  return function(d) { return (d.key = k, d); };
+function map(key, manipulator) {
+  return function(d) { 
+    d.key = key;
+    d.manipulator = manipulator;
+    return d;
+  };
 }
 
-prototype.arrows = function(item) {
+prototype.channels = function(item) {
   var b = item.bounds,
       c = coords(item),
       tl = c.topLeft,
@@ -63,16 +71,16 @@ prototype.arrows = function(item) {
       {x: tl.x, y: tl.y-sp}, {x: tr.x, y: tr.y-sp}, {x: tr.x+w, y: tr.y-sp},
       {x: tr.x+w-a, y: tr.y-2*sp}, {x: tr.x+w-a, y: tr.y},
       {x: tr.x+w, y: tr.y-sp+0.1}
-    ].map(key('x+')))
+    ].map(map('x+', 'arrow')))
     // Height/vertical arrow stem
     .concat([ 
       {x: tr.x+px, y: tr.y}, {x: br.x+px, y: br.y}, {x: br.x+px, y: br.y+h},
       {x: br.x+2*px, y: br.y+h-a}, {x: br.x, y: br.y+h-a}, 
       {x: br.x+px, y: br.y+h+0.1}
-    ].map(key('y+')));
+    ].map(map('y+', 'arrow')));
 };
 
-prototype.spans = function(item) {
+prototype.altchannels = function(item) {
   var b  = item.bounds,
       gb = item.mark.group.bounds,
       c  = coords(item),
@@ -84,25 +92,25 @@ prototype.spans = function(item) {
     // x
     .concat([ 
       {x: gb.x1, y: tl.y}, {x: tl.x-px, y: tl.y}      
-    ].map(key('x')))
+    ].map(map('x', 'span')))
     // x2
     .concat([ 
       {x: gb.x1, y: br.y+sp}, {x: bl.x, y: br.y+sp},  
       {x: br.x, y: br.y+sp}
-    ].map(key('x2')))
+    ].map(map('x2', 'span')))
     // y
     .concat([ 
       {x: tl.x, y: gb.y1}, {x: tl.x, y: tl.y-sp}      
-    ].map(key('y')))
+    ].map(map('y', 'span')))
     // y2
     .concat([ 
       {x: br.x+sp, y: gb.y1}, {x: br.x+sp, y: tr.y},  
       {x: br.x+sp, y: br.y}
-    ].map(key('y2')))
+    ].map(map('y2', 'span')))
     // width
-    .concat([ml, mr].map(key('width')))  
+    .concat([ml, mr].map(map('width', 'span')))  
     // height
-    .concat([tc, bc].map(key('height'))); 
+    .concat([tc, bc].map(map('height', 'span'))); 
 };
 
 module.exports = RectManipulators;

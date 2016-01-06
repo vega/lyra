@@ -27,14 +27,10 @@ function Rect(type) {
 var prototype = (Rect.prototype = Object.create(Mark.prototype));
 prototype.constructor = Rect;
 
-prototype.manipulators = manips([
-  manips.HANDLES, manips.CONNECTORS, manips.ARROWS, manips.SPANS
-]);
-
 prototype.initHandles = function() {
   var prop = util.propSg,
       test = util.test,
-      at = util.anchorTarget.bind(util, this),
+      at = util.anchorTarget.bind(util, this, 'handles'),
       x = prop(this, 'x'), x2 = prop(this, 'x2'), 
       y = prop(this, 'y'), y2 = prop(this, 'y2'),
       w = prop(this, 'width'), h = prop(this, 'height');

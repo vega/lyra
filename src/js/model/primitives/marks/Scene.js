@@ -41,7 +41,7 @@ prototype.export = function(resolve) {
 };
 
 prototype.manipulators = function() { 
-  return Group.prototype.manipulators.call(this).marks[0];
+  return Group.prototype.manipulators.call(this)[0];
 };
 
 module.exports = Scene;

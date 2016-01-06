@@ -2,48 +2,35 @@ var dl = require('datalib'),
     sg = require('../../signals'),
     util = require('../../../util');
 
+var TYPES = [];
+
 // Vega specs for each of the manipulators type. We export a method
 // that compiles them together within a group mark. This method 
 // corresponds to the `manipulators` method of Mark classes. 
-function compile(manipulators) {
-  manipulators = dl.array(manipulators);
-  return function() {
-    var mark  = this,
-        marks = [mark.export(false)];
-    
-    marks.push.apply(marks, manipulators.map(function(m) {
-      var k = m.kind, n = mark.name;
-      var transforms =[{
-        type: util.ns('manipulators_'+mark.type),
-        name: n,
-        kind: k
-      }];
+// Mode   = handles | connectors | channels | altchannels
+// Manipulators = handle | connector | arrow | span | point
+// This differentiation is needed because channels and altchannels
+// display multiple manipulators. 
+function manipulators(prototype) {
 
-      if (m.type === 'group' && (k === 'arrows' || k === 'spans')) {
-        transforms.push({ type: 'facet', groupby: ['key'] });
-      }
-
-      return dl.extend(m, {
-        from: {mark: n, transform: transforms}
-      });
-    }));
-
-    return {
+  prototype.manipulators = function() {
+    return [this.export(false), {
       type: 'group',
-      properties: {
-        update: {
-          x: {value: 0},
-          y: {value: 0},
-          width: {field: {group: 'width'}},
-          height: {field: {group: 'height'}}
-        }
+      from: {
+        mark: this.name, 
+        transform: [
+          {type: util.ns('manipulators_'+this.type), lyra_id: this._id},
+          {type: 'facet', groupby: ['manipulator']}
+        ]
       },
-      marks: marks
-    };
+      marks: TYPES
+    }];
   };
-}
 
-module.exports = compile;
+};
+
+module.exports = manipulators;
+manipulators.SIZES = {LARGE: 40, SMALL: 20};
 
 function voronoi(parent) {
   return {
@@ -74,11 +61,11 @@ function hoverCell(t, f, parent) {
   return {rule: rule};
 }
 
-compile.SIZES = {LARGE: 40, SMALL: 20};
-
-compile.HANDLES = {
-  kind: 'handles',
+TYPES.push(manipulators.HANDLE={
   type: 'symbol',
+  from: {
+    transform: [{type: 'filter', test: 'datum.manipulator === "handle"'}]
+  },
   properties: {
     update: {
       x: {field: 'x'},
@@ -90,11 +77,13 @@ compile.HANDLES = {
       strokeWidth: {value: 0.5}
     }
   }
-};
+});
 
-compile.CONNECTORS = {
-  kind: 'connectors',
+TYPES.push(manipulators.CONNECTOR={
   type: 'group',
+  from: {
+    transform: [{type: 'filter', test: 'datum.manipulator === "connector"'}]
+  },
   marks: [{
     type: 'symbol',
     properties: {
@@ -109,11 +98,16 @@ compile.CONNECTORS = {
       }
     }
   }, voronoi(true)]
-};
+});
 
-compile.ARROWS = {
-  kind: 'arrows',
+TYPES.push(manipulators.ARROW={
   type: 'group',
+  from: {
+    transform: [
+      {type: 'filter', test: 'datum.manipulator === "arrow"'},
+      {type: 'facet', groupby: ['key']}
+    ]
+  },
   marks: [{
     type: 'line',
     properties: {
@@ -126,11 +120,18 @@ compile.ARROWS = {
       }
     }
   }, voronoi()]
-};
+});
 
-compile.SPANS = dl.extend({}, compile.ARROWS, {kind: 'spans'});
+TYPES.push(manipulators.SPAN=dl.extend({}, manipulators.ARROW, {
+  from: {
+    transform: [
+      {type: 'filter', test: 'datum.manipulator === "span"'},
+      {type: 'facet', groupby: ['key']}
+    ]
+  }
+}));
 
-compile.DROPZONE = {
+manipulators.DROPZONE = {
   type: 'line',
   from: {data: 'dropzone'},
   properties: {

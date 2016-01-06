@@ -13,16 +13,16 @@ var $x = dl.$('x'), $y = dl.$('y');
 function Manipulators(graph) {
   Transform.prototype.init.call(this, graph);
   Transform.addParameters(this, {
-    name: {type: 'value'},
-    kind: {type: 'value'}
+    lyra_id: {type: 'value'}
   });
 
-  this._cacheID = null;
+  this._cacheID   = null;
+  this._cacheMode = null;
   this._cache   = [];
   this._voronoi = new Voronoi(graph);
 
   return this.router(true).produces(true)
-    .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MANIPULATORS]);
+    .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MODE]);
 }
 
 var prototype = (Manipulators.prototype = Object.create(Transform.prototype));
@@ -31,34 +31,34 @@ prototype.constructor = Manipulators;
 prototype.transform = function(input) {
   var self = this,
       g = this._graph,
-      sel = g.signal(sg.SELECTED).value(),
-      manip = g.signal(sg.MANIPULATORS).value(),
-      name = this.param('name'),
-      kind = this.param('kind'),
+      item = g.signal(sg.SELECTED).value(),
+      mode = g.signal(sg.MODE).value(),
+      def = item.mark.def, 
+      lyra_id = this.param('lyra_id'),
       cache   = this._cache,
       cacheID = this._cacheID,
+      cacheMode = this._cacheMode,
       output = ChangeSet.create(input);
 
   // If we've selected another scenegraph item or changed the manipulator state, 
   // remove any manipulators we added here.
-  if (cache.length && (cacheID !== sel._id || kind !== manip)) {
+  if (cache.length && (cacheID !== item._id || cacheMode !== mode)) {
     output.rem = cache.splice(0);
   }
 
   // If we don't correspond to the current selection, early exit
-  if ((sel && name !== sel.mark.name) || kind !== manip) {
-    return output;
-  }
+  if (!def || (def && lyra_id !== def.lyra_id)) return output;
 
   // Manipulators should only be called on items that already exist
   // on the scenegraph. Fetch the currently selected scenegraph item.
-  var item = input.mod.find(function(x) {
-    return sel && x._id === sel._id;
-  });
+  // TOO EXPENSIVE: assume that item is a valid scene graph element.
+  // var item = input.mod.find(function(x) {
+  //   return item && x._id === item._id;
+  // });
 
-  var tpls = this[kind](item).map(function(t) {
-    t.name = name;
-    t.kind = kind;
+  var tpls = this[mode](item).map(function(t) {
+    t.mode = mode;
+    t.lyra_id = lyra_id;
     return t;
   });
 
@@ -66,7 +66,8 @@ prototype.transform = function(input) {
     tpls.forEach(function(d, i) { dl.extend(cache[i], d); });
     output.mod.push.apply(output.mod, cache);
   } else {
-    this._cacheID = item._id;
+    this._cacheID   = item._id;
+    this._cacheMode = mode;
     cache.push.apply(cache, tpls.map(Tuple.ingest));
     output.add.push.apply(output.add, cache);
   }
@@ -85,7 +86,7 @@ prototype.transform = function(input) {
 
 prototype.handles = function(item) { return []; };
 prototype.connectors = function(item) { return []; };
-prototype.arrows = function(item) { return []; };
-prototype.spans = function(item) { return []; };
+prototype.channels = function(item) { return []; };
+prototype.altchannels = function(item) { return []; };
 
 module.exports = Manipulators;

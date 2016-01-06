@@ -28,16 +28,16 @@ var DataTable = React.createClass({
 
     if (!win.on(type)) {
       win.on(type, function() {
-        var manip = model.signal(sg.MANIPULATORS),
+        var mode = model.signal(sg.MODE),
             shiftKey = d3.event.shiftKey,
             prevKey  = !!this._lyraShiftKey;
         
         if (prevKey === shiftKey) return;
         this._lyraShiftKey = shiftKey;
 
-        model.signal(sg.MANIPULATORS,
-            manip === 'arrows' ? 'spans' :
-              manip === 'spans' ? 'arrows' : m).update();
+        model.signal(sg.MODE,
+            mode === 'channels' ? 'altchannels' :
+              mode === 'altchannels' ? 'channels' : m).update();
       });
     }
   },
@@ -89,7 +89,7 @@ var DataTable = React.createClass({
   },
 
   handleDragStart: function(evt) {
-    model.signal(sg.MANIPULATORS, 'arrows').update();
+    model.signal(sg.MODE, 'channels').update();
   },
 
   handleDragOver: function(evt) {
@@ -114,7 +114,7 @@ var DataTable = React.createClass({
       }
     } catch(e) {};
 
-    model.signal(sg.MANIPULATORS, 'handles')
+    model.signal(sg.MODE, 'handles')
       .signal(sg.CELL, {});
 
     return dropped ? model.parse() : model.update();

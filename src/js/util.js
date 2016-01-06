@@ -15,14 +15,14 @@ module.exports = {
 
   // Returns an expr str condition that tests whether the anchor target
   // has a particular key or is a scenegraph item itself.
-  anchorTarget: function(mark, key) {
+  anchorTarget: function(mark, mode, key) {
     var sg = require('./model/signals'),
         ANCHOR = sg.ANCHOR, TARGET = ANCHOR+'.target';
         
     var c = '(' + ANCHOR + '&&' + TARGET + '&&' + TARGET+'.datum &&';
     if (key) {  // Manipulator
-      c += TARGET + '.datum.kind === "handles" &&' +
-        TARGET + '.datum.name === ' + dl.str(mark.name) + '&&' +
+      c += TARGET + '.datum.mode === ' + dl.str(mode) + ' &&' +
+        TARGET + '.datum.lyra_id === ' + dl.str(mark._id) + '&&' +
         'test(regexp('+ dl.str(key) + ', "i"), ' + TARGET + '.datum.key)';
     } else {  // Mark
       c += TARGET+ '.mark && ' + TARGET + '.mark.name === ' + dl.str(mark.name);
