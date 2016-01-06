@@ -1,6 +1,8 @@
 var d3 = require('d3'),
     dl = require('datalib'),
-    React = require('react');
+    React = require('react'),
+    model = require('../../model'),
+    sg = require('../../model/signals');
 
 var DataTable = React.createClass({
   getInitialState: function() {
@@ -14,9 +16,30 @@ var DataTable = React.createClass({
 
   componentDidMount: function() {
     var el = this._el = d3.select(ReactDOM.findDOMNode(this));
+
     this._table = el.select('.datatable');
     this._fullField = el.select('.full.field');
     this._fullValue = el.select('.full.value');
+
+    // Register a window dragover event handler to detect shiftKey
+    // presses for alternate channel manipulators.
+    var win  = d3.select(window),
+        type = 'dragover.altchan';
+
+    if (!win.on(type)) {
+      win.on(type, function() {
+        var manip = model.signal(sg.MANIPULATORS),
+            shiftKey = d3.event.shiftKey,
+            prevKey  = !!this._lyraShiftKey;
+        
+        if (prevKey === shiftKey) return;
+        this._lyraShiftKey = shiftKey;
+
+        model.signal(sg.MANIPULATORS,
+            manip === 'arrows' ? 'spans' :
+              manip === 'spans' ? 'arrows' : m).update();
+      });
+    }
   },
 
   prevPage: function() {
@@ -63,6 +86,46 @@ var DataTable = React.createClass({
     this.setState({ fullField: null, fullValue: null });
     this._fullField.style('display', 'none');
     this._fullValue.style('display', 'none');
+  },
+
+  handleDragStart: function(evt) {
+    model.signal(sg.MANIPULATORS, 'arrows').update();
+  },
+
+  handleDragOver: function(evt) {
+    if (evt.preventDefault) {
+      evt.preventDefault(); // Necessary. Allows us to drop.
+    }
+
+    return false;
+  },
+
+  handleDragEnd: function(evt) {
+    var sel  = model.signal(sg.SELECTED),
+        cell = model.signal(sg.CELL),
+        fullField = this.state.fullField,
+        dropped = sel._id && cell._id,
+        prim;
+
+    try {
+      if (dropped) {
+        prim = model.primitive(sel.mark.def.lyra_id);
+        prim.bind(cell.key, fullField._id);
+      }
+    } catch(e) {};
+
+    model.signal(sg.MANIPULATORS, 'handles')
+      .signal(sg.CELL, {});
+
+    return dropped ? model.parse() : model.update();
+  },
+
+  handleDrop: function(evt) {
+    if (evt.preventDefault) {
+      evt.preventDefault(); // Necessary. Allows us to drop.
+    }
+
+    return false;
   },
 
   render: function() {
@@ -119,7 +182,12 @@ var DataTable = React.createClass({
             }, this)}
           </tbody></table>
 
-          <div className={'full field ' + props.className}>{fullField}</div>
+          <div className={'full field ' + props.className}
+            draggable={true}
+            onDragStart={this.handleDragStart}
+            onDragOver={this.handleDragOver}
+            onDragEnd={this.handleDragEnd}
+            onDrop={this.handleDrop}>{fullField}</div>
 
           <div className="full value">{fullValue}</div>
         </div>

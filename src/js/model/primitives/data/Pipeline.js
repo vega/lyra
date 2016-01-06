@@ -2,10 +2,11 @@ var Primitive = require('../Primitive'),
     Dataset = require('./Dataset');
 
 function Pipeline(name) {
+  Primitive.call(this);
   this.name = name;
   this._source = new Dataset(name).parent(this._id);
   this._aggregates = [];
-  return Primitive.call(this);
+  return this;
 }
 
 var prototype = (Pipeline.prototype = Object.create(Primitive.prototype));

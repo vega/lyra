@@ -79,6 +79,10 @@ prototype.export = function(resolve) {
     if (v.field) v.field = (f=lookup(v.field)) && f._name;
   }
 
+  if (!resolve) {
+    spec.lyra_id = this._id;
+  }
+
   return spec;
 };
 

@@ -83,6 +83,7 @@ model.manipulators = function() {
 model.parse = function(el) {
   el = (el === undefined) ? '#vis' : el;
   return new Promise(function(resolve, reject) {
+    vg.dataflow.Tuple.reset();
     vg.parse.spec(model.manipulators(), function(err, chart) {
       if (err) reject(err);
       else resolve(model.view = chart({ el: el }));

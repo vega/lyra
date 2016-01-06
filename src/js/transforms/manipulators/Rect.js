@@ -63,13 +63,13 @@ prototype.arrows = function(item) {
       {x: tl.x, y: tl.y-sp}, {x: tr.x, y: tr.y-sp}, {x: tr.x+w, y: tr.y-sp},
       {x: tr.x+w-a, y: tr.y-2*sp}, {x: tr.x+w-a, y: tr.y},
       {x: tr.x+w, y: tr.y-sp+0.1}
-    ].map(key('rx')))
+    ].map(key('x+')))
     // Height/vertical arrow stem
     .concat([ 
       {x: tr.x+px, y: tr.y}, {x: br.x+px, y: br.y}, {x: br.x+px, y: br.y+h},
       {x: br.x+2*px, y: br.y+h-a}, {x: br.x, y: br.y+h-a}, 
       {x: br.x+px, y: br.y+h+0.1}
-    ].map(key('ry')));
+    ].map(key('y+')));
 };
 
 prototype.spans = function(item) {
@@ -84,25 +84,25 @@ prototype.spans = function(item) {
     // x
     .concat([ 
       {x: gb.x1, y: tl.y}, {x: tl.x-px, y: tl.y}      
-    ].map(key('rx')))
+    ].map(key('x')))
     // x2
     .concat([ 
       {x: gb.x1, y: br.y+sp}, {x: bl.x, y: br.y+sp},  
       {x: br.x, y: br.y+sp}
-    ].map(key('rx2')))
+    ].map(key('x2')))
     // y
     .concat([ 
       {x: tl.x, y: gb.y1}, {x: tl.x, y: tl.y-sp}      
-    ].map(key('ry')))
+    ].map(key('y')))
     // y2
     .concat([ 
       {x: br.x+sp, y: gb.y1}, {x: br.x+sp, y: tr.y},  
       {x: br.x+sp, y: br.y}
-    ].map(key('ry2')))
+    ].map(key('y2')))
     // width
-    .concat([ml, mr].map(key('rw')))  
+    .concat([ml, mr].map(key('width')))  
     // height
-    .concat([tc, bc].map(key('rh'))); 
+    .concat([tc, bc].map(key('height'))); 
 };
 
 module.exports = RectManipulators;

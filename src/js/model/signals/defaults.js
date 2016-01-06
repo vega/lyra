@@ -24,11 +24,6 @@ signals[SELECTED] = {
 signals[MANIPULATORS] = {
   name: MANIPULATORS, 
   init: 'handles',
-  streams: [
-    { type: 'window:keydown, window:keyup', 
-      expr: 'if(lyra_manipulators === "arrows" || lyra_manipulators === "spans", ' + 
-        'if(event.shiftKey && lyra_manipulators === "arrows", "spans", "arrows"), lyra_manipulators)'}
-  ],
   _idx: 1
 };
 
@@ -58,6 +53,8 @@ signals[CELL] = {
   name: CELL,
   init: {},
   streams: [
+    {type: '@'+CELL+':dragover', expr: 'eventItem()'},
+    {type: '@'+CELL+':dragleave',  expr: '{}'},
     {type: '@'+CELL+':mouseover', expr: 'eventItem()'},
     {type: '@'+CELL+':mouseout',  expr: '{}'}
   ],
@@ -68,7 +65,7 @@ signals[MOUSE] = {
   name: MOUSE,
   init: {},
   streams: [
-    {type: 'window:mousemove', expr: '{x: eventX(), y: eventY()}'}
+    {type: 'window:mousemove, window:dragover', expr: '{x: eventX(), y: eventY()}'}
   ],
   _idx: 5
 };
