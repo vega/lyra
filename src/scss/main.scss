@@ -7,7 +7,7 @@ $dgrey-bg: #939393;
 $lgrey-bg: #BFBFBF;
 $dgrey-border: #6B6B6B;
 $lgrey-border: #989CA5;
-$grey-font: #E5E5E5;
+$grey-font: #808080;
 
 $outer-padding: 10px;
 $inner-padding: 5px;
@@ -16,6 +16,15 @@ $margin: $outer-padding;
 $border-radius: 5px;
 
 $toolbar-height: 16px;
+
+$scale-list-width: 90px;
+$layer-list-width: 140px;
+$pipeline-list-width: 200px;
+$inspector-height: 33%;
+$inspector-width: $scale-list-width + $layer-list-width;
+$inspectors-width: $inspector-width + $pipeline-list-width;
+
+$header-font-size: 15px;
 
 @import 'http://idl.cs.washington.edu/static/style/fonts.css';
 @import 'reset';
@@ -27,15 +36,14 @@ body {
 }
 
 h2 {
-  font-size: 16px;
+  font-size: $header-font-size;
   text-transform: uppercase;
   margin-bottom: $margin;
-}
 
-h3, div.header {
-  font-size: 14px;
-  font-weight: bolder;
-  text-align: center;
+  i.fa-plus {
+    margin-left: $inner-padding;
+    cursor: pointer;
+  }
 }
 
 @mixin editable() {
@@ -50,18 +58,69 @@ h3, div.header {
   padding: 5px;
 }
 
+#inspectors {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: $inspectors-width;
+}
+
 @import 'pipelines';
+@import 'layers';
+
+#scale-list {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: $inspector-height;
+  width: $scale-list-width - 2*$inner-padding;
+  padding: $outer-padding $inner-padding;
+  overflow: auto;
+  background-color: $lgrey-bg;
+  text-align: center;
+
+  h2 {
+    color: $grey-font;
+  }
+
+  li {
+    list-style-type: none;
+    margin: $inner-padding/2 (-$inner-padding);
+    padding: $inner-padding/2 0;
+    cursor: pointer;
+
+    &.selected {
+      background-color: $dgrey-bg;
+    }
+  }
+
+  .scale {
+
+  }
+}
 
 #vis {
   position: absolute;
   top: 40px;
-  left: $pipeline-list-width + 20px;
+  left: $inspectors-width + 20px;
 
   canvas {
     border: 1px solid #ccc;
     box-shadow: 2px 2px 17px 0px rgba(0,0,0,0.15)
   }
 
+}
+
+.scale {
+  display: inline-block;
+  min-width: 20px;
+  padding: $inner-padding;
+  background-color: $dgrey-bg;
+  border: 1px solid $dgrey-border;
+  border-radius: 2*$border-radius;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
 }
 
 .field {

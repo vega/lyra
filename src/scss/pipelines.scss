@@ -1,13 +1,13 @@
-$pipeline-list-width: 200px !global;
 $pipeline-width: 180px;
 
 #pipeline-list {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 0;
+  left: $inspector-width;
   width: $pipeline-list-width - 2*$outer-padding;
   padding: $outer-padding;
+  overflow: auto;
   background-color: $dblue-bg;
 
   h2 {
@@ -25,6 +25,9 @@ $pipeline-width: 180px;
   border-radius: $border-radius;
 
   div.header {
+    font-size: $header-font-size;
+    font-weight: bolder;
+    text-align: center;
     font-weight: normal;
     cursor: pointer;
 
@@ -71,7 +74,6 @@ $pipeline-width: 180px;
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: middle;
-    font-size: 11px;
 
     &.field {
       position: absolute;
@@ -98,7 +100,6 @@ $pipeline-width: 180px;
     min-width: $mw;
     width: auto;
     padding: 5px $cell-padding;
-    font-size: 11px;
     vertical-align: middle;
 
     &.field {
@@ -120,7 +121,7 @@ $pipeline-width: 180px;
 
 .paging {
   margin-top: $inner-padding;
-  font-size: 11px;
+  font-size: 10px;
   display: flex;
 
   span {

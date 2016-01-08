@@ -1,18 +1,10 @@
 var d3 = require('d3'),
     React = require('react'),
-    PipelineInspector = require('./PipelineInspector.jsx'),
-    model = require('../../model');
+    PipelineInspector = require('./PipelineInspector.jsx');
 
 var PipelineList = React.createClass({
   getInitialState: function() {
-    return {
-      selected:  0,
-      pipelines: model.pipeline()
-    };
-  },
-
-  pipelines: function() {
-    this.setState({ pipelines: model.pipeline() });
+    return {selected: 0};
   },
 
   select: function(id) {
@@ -21,9 +13,9 @@ var PipelineList = React.createClass({
 
   render: function() {
     return (
-      <div>
-        <h2>Data Pipelines &nbsp;<i className="fa fa-plus"></i></h2>
-        {this.state.pipelines.map(function(p) {
+      <div id="pipeline-list">
+        <h2>Data Pipelines <i className="fa fa-plus"></i></h2>
+        {this.props.pipelines.map(function(p) {
           return (
             <PipelineInspector 
               key={p._id} 

@@ -4,13 +4,11 @@ var dl = require('datalib'),
 
 var TYPES = [];
 
-// Vega specs for each of the manipulators type. We export a method
-// that compiles them together within a group mark. This method 
-// corresponds to the `manipulators` method of Mark classes. 
-// Mode   = handles | connectors | channels | altchannels
+// Mode = handles | connectors | channels | altchannels
 // Manipulators = handle | connector | arrow | span | point
 // This differentiation is needed because channels and altchannels
 // display multiple manipulators. 
+
 function manipulators(prototype) {
 
   prototype.manipulators = function() {

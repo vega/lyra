@@ -2,12 +2,14 @@ var dl = require('datalib'),
     vg = require('vega'),
     model  = require('../../'),
     lookup = model.primitive,
-    Mark = require('./Mark');
+    Mark = require('./Mark'),
+    util = require('../../../util');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'],
-    MARK_TYPES  = ['rect', 'symbol', 'arc', 'area', 'line', 'text'];
+    MARK_TYPES  = ['group', 'rect', 'symbol', 'arc', 'area', 'line', 'text'];
 
 var CHILDREN = {
+  group:  Group,
   rect:   require('./Rect'),
   symbol: require('./Symbol'),
   scales: require('../Scale'),
@@ -20,6 +22,15 @@ function Group() {
   this.legends = [];
   this.axes  = [];
   this.marks = [];
+
+  // By default, make groups full width/height. 
+  this.properties.update = {
+    x: {value: 0},
+    y: {value: 0},
+    width: {signal: util.ns('vis_width')},
+    height: {signal: util.ns('vis_height')},
+    fill: {value: 'transparent'}
+  };
 
   return this;
 }

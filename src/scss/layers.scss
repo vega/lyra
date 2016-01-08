@@ -1,0 +1,52 @@
+#layer-list {
+  position: absolute;
+  top: 0;
+  left: $scale-list-width;
+  height: $inspector-height;
+  width: $layer-list-width - 2*$outer-padding;
+  padding: $outer-padding;
+  overflow: auto;
+  background-color: $lblue-bg;
+
+  h2 {
+    color: $blue-font;
+
+    span.edit {
+      float: right;
+      text-align: right;
+      font-size: 10px;
+      cursor: pointer;
+    }
+  }
+
+  li {
+    list-style-type: none;
+    font-size: $header-font-size;
+
+    .name {
+      cursor: pointer;
+      margin: 0 (-$outer-padding);
+      padding: $inner-padding $outer-padding;
+
+      &.selected {
+        background-color: $mblue-bg;
+      }
+    }
+  }
+
+  ul.group {
+    white-space: nowrap;
+
+    li.header {
+      margin: $inner-padding 0;
+      font-size: 10px;
+      color: $blue-font;
+      font-weight: bold;
+      text-transform: uppercase;
+
+      i.fa-plus {
+        float: right;
+      }
+    }
+  }
+}

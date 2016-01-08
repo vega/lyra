@@ -55,8 +55,8 @@ signals[CELL] = {
   streams: [
     {type: '@'+CELL+':dragover', expr: 'eventItem()'},
     {type: '@'+CELL+':dragleave',  expr: '{}'},
-    {type: '@'+CELL+':mouseover', expr: 'eventItem()'},
-    {type: '@'+CELL+':mouseout',  expr: '{}'}
+    // {type: '@'+CELL+':mouseover', expr: 'eventItem()'},
+    // {type: '@'+CELL+':mouseout',  expr: '{}'}
   ],
   _idx: 4
 };
@@ -65,7 +65,7 @@ signals[MOUSE] = {
   name: MOUSE,
   init: {},
   streams: [
-    {type: 'window:mousemove, window:dragover', expr: '{x: eventX(), y: eventY()}'}
+    {type: 'mousemove, dragover', expr: '{x: eventX(), y: eventY()}'}
   ],
   _idx: 5
 };

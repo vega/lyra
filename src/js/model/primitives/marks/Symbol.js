@@ -1,7 +1,6 @@
 var dl = require('datalib'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
-    manips = require('./manipulators'),
     util = require('../../../util');
 
 var DELTA  = sg.DELTA,
@@ -15,7 +14,5 @@ function Symbol(type) {
 
 var prototype = (Symbol.prototype = Object.create(Mark.prototype));
 prototype.constructor = Symbol;
-
-prototype.manipulators = manips([]);
 
 module.exports = Symbol;

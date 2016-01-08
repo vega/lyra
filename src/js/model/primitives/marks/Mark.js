@@ -6,10 +6,11 @@ var dl = require('datalib'),
     util   = require('../../../util'),
     model  = require('../../'),
     lookup = model.primitive,
-    markID = 0;
+    count  = {group: -1};
 
 function Mark(type) {
-  this.name = type+'_'+(++markID);
+  var cnt   = count[type] || (count[type] = 0);
+  this.name = type+'_'+(++count[type]);
   this.type = type;
   this.from = undefined;
 

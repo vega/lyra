@@ -20,26 +20,6 @@ var DataTable = React.createClass({
     this._table = el.select('.datatable');
     this._fullField = el.select('.full.field');
     this._fullValue = el.select('.full.value');
-
-    // Register a window dragover event handler to detect shiftKey
-    // presses for alternate channel manipulators.
-    var win  = d3.select(window),
-        type = 'dragover.altchan';
-
-    if (!win.on(type)) {
-      win.on(type, function() {
-        var mode = model.signal(sg.MODE),
-            shiftKey = d3.event.shiftKey,
-            prevKey  = !!this._lyraShiftKey;
-        
-        if (prevKey === shiftKey) return;
-        this._lyraShiftKey = shiftKey;
-
-        model.signal(sg.MODE,
-            mode === 'channels' ? 'altchannels' :
-              mode === 'altchannels' ? 'channels' : m).update();
-      });
-    }
   },
 
   prevPage: function() {
@@ -117,7 +97,14 @@ var DataTable = React.createClass({
     model.signal(sg.MODE, 'handles')
       .signal(sg.CELL, {});
 
-    return dropped ? model.parse() : model.update();
+    if (dropped) {
+      model.parse().then(function() {
+        var Inspectors = require('../');
+        Inspectors.select(prim._id);
+      });
+    } else {
+      model.update();
+    }
   },
 
   handleDrop: function(evt) {

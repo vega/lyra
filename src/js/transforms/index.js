@@ -6,6 +6,7 @@ var dl = require('datalib'),
 var MANIPULATORS = util.ns('manipulators_');
 t[MANIPULATORS + 'rect']  = require('./manipulators/Rect');
 t[MANIPULATORS + 'group'] = require('./manipulators/Rect');
+t[MANIPULATORS + 'symbol'] = require('./manipulators/Rect');
 
 t[util.ns('dropzone')] = require('./DropZone');
 

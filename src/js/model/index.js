@@ -82,11 +82,17 @@ model.manipulators = function() {
 
 model.parse = function(el) {
   el = (el === undefined) ? '#vis' : el;
+  if (model.view) model.view.destroy();
   return new Promise(function(resolve, reject) {
     vg.dataflow.Tuple.reset();
     vg.parse.spec(model.manipulators(), function(err, chart) {
-      if (err) reject(err);
-      else resolve(model.view = chart({ el: el }));
+      if (err) {
+        reject(err);
+      } else {
+        model.view = chart({ el: el });
+        listeners();
+        resolve(model.view);
+      }
     });
   }).then(model.update);
 };
@@ -94,3 +100,32 @@ model.parse = function(el) {
 model.update = function() { 
   return model.view.update(); 
 };
+
+function listeners() {
+  var components = require('../components'),
+      win = d3.select(window),
+      dragover = 'dragover.altchan';
+
+  // Register a window dragover event handler to detect shiftKey
+  // presses for alternate channel manipulators.
+  if (!win.on(dragover)) {
+    win.on(dragover, function() {
+      var mode = model.signal(sg.MODE),
+          shiftKey = d3.event.shiftKey,
+          prevKey  = !!model._shiftKey;
+      
+      if (prevKey === shiftKey) return;
+      model._shiftKey = shiftKey;
+
+      model.signal(sg.MODE,
+          mode === 'channels' ? 'altchannels' :
+            mode === 'altchannels' ? 'channels' : m).update();
+    });
+  }
+
+  model.view.onSignal(sg.SELECTED, function(name, selected) {
+    var def = selected.mark.def,
+        id  = def && def.lyra_id;
+    if (id) components.select(id, false);
+  });
+}

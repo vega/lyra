@@ -37,6 +37,7 @@ prototype.export = function(resolve) {
   delete spec.type;
   delete spec.from;
   delete spec.properties;
+
   return spec;
 };
 
