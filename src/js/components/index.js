@@ -1,7 +1,7 @@
 var ReactDOM = require('react-dom'),
-    Inspectors = require('./Inspectors.jsx');
+    Sidebars = require('./Sidebars.jsx');
 
 module.exports = ReactDOM.render(
-  <Inspectors />,
-  d3.select('#inspectors').node()
+  <Sidebars />,
+  d3.select('#sidebars').node()
 );

@@ -1,0 +1,70 @@
+#inspector {
+  position: absolute;
+  left: 0;
+  top: $inspector-height;
+  bottom: 0;
+  width: $inspector-width;
+  background-color: $lblue-bg;
+
+  h2 {
+    padding: $outer-padding 0;
+    background-color: $mblue-bg;
+    text-transform: none;
+    text-align: center;
+  }
+
+  .inner {
+    padding: 0 $outer-padding;
+
+    h3 {
+      margin-top: 2*$outer-padding;
+      font-size: 12px;
+      color: $blue-font;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+  }
+}
+
+.property {
+  $can-drop-size: 14px;
+
+  display: flex;
+  align-items: center;
+  margin: $inner-padding 0;
+
+  & > .indicator {
+    width: $can-drop-size;
+    height: $can-drop-size;
+    border-radius: 10px;
+  }
+
+  &.can-drop > .indicator {
+    background-color: $mblue-bg;
+    opacity: 0.7;
+  }
+
+  &.can-drop:hover > .indicator {
+    background-color: cyan;
+  }
+
+  & > label, & > .label {
+    width: $scale-list-width - $outer-padding - $inner-padding - $can-drop-size;
+    padding-left: $outer-padding;
+  }
+
+  & > .control {
+    flex: 1;
+    padding-left: $inner-padding;
+  }
+
+  input[type=range] {
+    width: 75px;
+  }
+
+  .content-editable {
+    display: inline-block;
+    margin-left: $inner-padding;
+    border-bottom: 1px dashed #777;
+  }
+}

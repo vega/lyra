@@ -1,25 +1,26 @@
 var dl = require('datalib'),
     React = require('react'),
-    ReactDOM = require('react-dom');
+    ReactDOM = require('react-dom'),
+    SignalValueMixin = require('./mixins/SignalValue.jsx'),
+    model = require('../model');
 
 var ContentEditable = React.createClass({
+  mixins: [SignalValueMixin],
+
   getInitialState: function() {
     return {edit: false};
   },
 
   componentDidMount: function() {
     this._el = ReactDOM.findDOMNode(this);
-    this._$  = dl.mutator(this.props.field);
+  },
+
+  componentWillUnmount: function() {
+    this._el = null;
   },
 
   componentDidUpdate: function() {
     if (this.state.edit) this._el.focus();
-  },
-
-  componentWillReceiveProps: function(nextProps) {
-    if (nextProps.field !== this.props.field) {
-      this._$ = dl.mutator(nextProps.field);
-    }
   },
 
   start: function() {
@@ -28,10 +29,17 @@ var ContentEditable = React.createClass({
 
   stop: function() {
     this.setState({ edit: false });
+    var obj = this.props.obj;
+    if (!obj) return;
+    
+    var Sidebars = require('./');
+    if (Sidebars.state.selected === obj._id) {
+      Sidebars.refs.inspector.forceUpdate();
+    }
   },
 
   handleInput: function() {
-    this._$(this.props.obj, this._el.textContent.trim());
+    this.setValue(this._el.textContent.trim());
   },
 
   handleEnter: function(evt) {
@@ -43,14 +51,15 @@ var ContentEditable = React.createClass({
   render: function() {
     var props = this.props;
     return (
-      <div className={props.className}
+      <div style={props.style}
+        className={(props.className||'') + ' content-editable'}
         contentEditable={this.state.edit}
         onClick={props.onClick || this.start}
         onDoubleClick={props.onDoubleClick || this.start}
         onInput={this.handleInput}
         onBlur={this.stop}
         onKeyDown={this.handleEnter}>
-          {props.obj[props.field]}
+          {this.state.value}
       </div>
     )
   }

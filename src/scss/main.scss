@@ -22,7 +22,7 @@ $layer-list-width: 140px;
 $pipeline-list-width: 200px;
 $inspector-height: 33%;
 $inspector-width: $scale-list-width + $layer-list-width;
-$inspectors-width: $inspector-width + $pipeline-list-width;
+$sidebars-width: $inspector-width + $pipeline-list-width;
 
 $header-font-size: 15px;
 
@@ -32,7 +32,7 @@ $header-font-size: 15px;
 body {
   background: #eee;
   font-family: Avenir, Helvetica Neue, Helvetica, Arial;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 h2 {
@@ -46,7 +46,7 @@ h2 {
   }
 }
 
-@mixin editable() {
+.content-editable:focus {
   -moz-user-select: -moz-text;
   -khtml-user-select: text;
   -webkit-user-select: text;
@@ -58,16 +58,17 @@ h2 {
   padding: 5px;
 }
 
-#inspectors {
+#sidebars {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
-  width: $inspectors-width;
+  width: $sidebars-width;
 }
 
 @import 'pipelines';
 @import 'layers';
+@import 'inspector';
 
 #scale-list {
   position: absolute;
@@ -103,7 +104,7 @@ h2 {
 #vis {
   position: absolute;
   top: 40px;
-  left: $inspectors-width + 20px;
+  left: $sidebars-width + 20px;
 
   canvas {
     border: 1px solid #ccc;

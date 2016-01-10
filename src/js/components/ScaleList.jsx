@@ -1,4 +1,5 @@
-var React = require('react');
+var React = require('react'),
+    ContentEditable = require('./ContentEditable.jsx');
 
 var ScaleList = React.createClass({
   select: function(id) {
@@ -13,11 +14,16 @@ var ScaleList = React.createClass({
         <h2>Scales <i className="fa fa-plus"></i></h2>
         <ul>
           {props.scales.map(function(scale) {
-            var id = scale._id;
+            var id = scale._id,
+                select = this.select.bind(this, id);
             return (
               <li key={id} className={selected === id ? 'selected' : ''}
-                onClick={this.select.bind(this, id)}>
-                <div className="scale">{scale.name}</div>
+                onClick={select}>
+                <div className="scale">
+                  <ContentEditable obj={scale} prop="name"
+                    value={scale.name}
+                    onClick={select} />
+                </div>
               </li>
             )
           }, this)}

@@ -10,7 +10,8 @@ var model = module.exports = {
 };
 
 var pipelines = [], scales = [],
-    primitives = {};
+    primitives = {}, 
+    listeners  = {};
 
 model.init = function() {
   var Scene = require('./primitives/marks/Scene');
@@ -90,7 +91,7 @@ model.parse = function(el) {
         reject(err);
       } else {
         model.view = chart({ el: el });
-        listeners();
+        register();
         resolve(model.view);
       }
     });
@@ -101,10 +102,27 @@ model.update = function() {
   return model.view.update(); 
 };
 
-function listeners() {
+model.onSignal = function(name, handler) {
+  var listener = listeners[name] || (listeners[name] = []);
+  listener.push(handler);
+  if (model.view) model.view.onSignal(name, handler);
+};
+
+model.offSignal = function(name, handler) {
+  var listener = listeners[name] || (listeners[name] = []);
+  for (var i=listener.length; --i>=0;) {
+    if (!handler || listener[i] === handler) {
+      listener.splice(i, 1);
+    }
+  }
+  if (model.view) model.view.offSignal(name, handler);
+};
+
+function register() {
   var components = require('../components'),
       win = d3.select(window),
-      dragover = 'dragover.altchan';
+      dragover = 'dragover.altchan',
+      signalName, handlers, i, len;
 
   // Register a window dragover event handler to detect shiftKey
   // presses for alternate channel manipulators.
@@ -128,4 +146,11 @@ function listeners() {
         id  = def && def.lyra_id;
     if (id) components.select(id, false);
   });
+
+  for (signalName in listeners) {
+    handlers = listeners[signalName];
+    for (i=0, len=handlers.length; i<len; ++i) {
+      model.view.onSignal(signalName, handlers[i]);
+    }
+  }
 }

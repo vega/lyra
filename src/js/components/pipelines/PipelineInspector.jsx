@@ -21,7 +21,8 @@ var PipelineInspector = React.createClass({
 
     return (
       <div className={'pipeline' + (props.isSelected ? ' selected' : '')}>
-        <ContentEditable className="header" obj={props.pipeline} field="name"
+        <ContentEditable className="header" 
+          obj={props.pipeline} prop="name" value={props.pipeline.name}
           onClick={!props.isSelected && props.select} />
         {inner}
       </div>

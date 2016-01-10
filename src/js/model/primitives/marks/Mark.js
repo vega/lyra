@@ -1,6 +1,8 @@
 var dl = require('datalib'),
     sg = require('../../signals'),
     Primitive = require('../Primitive'),
+    Pipeline = require('../data/Pipeline'),
+    Dataset  = require('../data/Dataset'),
     manips = require('./manipulators'),
     rules  = require('../../rules'),
     util   = require('../../../util'),
@@ -52,6 +54,26 @@ prototype.init = function() {
 
   return this;
 };
+
+// Get/set a mark's pipeline. This method determines which of a
+// pipeline's datasets the mark draws from.
+prototype.pipeline = function(id) {
+  var from;
+  if (!arguments.length) {
+    from = lookup(this.from);
+    return from && from.parent()._id;
+  } else if ((from=lookup(id)) instanceof Dataset) {
+    this.from = id;
+    return this;
+  } else if (from instanceof Pipeline) {
+    // TODO
+    this.from = from._source._id;
+    return this;
+  } else {
+    this.from = undefined;
+    return this;
+  }
+}
 
 // Interaction logic for handle manipulators.
 prototype.initHandles = function() {};

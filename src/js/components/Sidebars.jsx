@@ -3,13 +3,14 @@ var dl = require('datalib'),
     PipelineList = require('./pipelines/PipelineList.jsx'),
     ScaleList = require('./ScaleList.jsx'),
     LayerList = require('./LayerList.jsx'),
+    Inspector = require('./Inspector.jsx'),
     model = require('../model'),
     sg = require('../model/signals'),
     lookup = model.primitive;
 
-var Inspectors = React.createClass({
+var Sidebars = React.createClass({
   getInitialState: function() {
-    return {selected: 0, expandedLayers: {}};
+    return {selected: model.Scene._id, expandedLayers: {}};
   },
 
   // TODO: Selecting in the inspector should set lyra_selected. 
@@ -49,22 +50,30 @@ var Inspectors = React.createClass({
   },
 
   render: function() {
+    var pipelines = model.pipeline();
+
     return (
       <div>
-        <ScaleList 
+        <ScaleList ref="scaleList"
           scales={model.scale()} 
           select={this.select}
           selected={this.state.selected} />
-        <LayerList 
+
+        <LayerList ref="layerList"
           layers={model.Scene.marks}
           select={this.select}
           selected={this.state.selected}
           expanded={this.state.expandedLayers} 
           toggle={this.toggleLayer} />
-        <PipelineList pipelines={model.pipeline()} />
+
+        <Inspector ref="inspector"
+          id={this.state.selected}
+          pipelines={pipelines} />
+
+        <PipelineList pipelines={pipelines} />
       </div>
     )
   }
 });
 
-module.exports = Inspectors;
+module.exports = Sidebars;

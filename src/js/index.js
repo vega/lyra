@@ -8,6 +8,9 @@ require('./transforms');
 model = require('./model');
 model.init();
 
+// Initialize components
+Sidebars = require('./components')
+
 g = model.Scene.child('marks.group');
 // g2 = g.child('marks.group');
 // g3 = model.Scene.child('marks.group');
@@ -24,6 +27,7 @@ Promise.all([
 ]).then(function() {
   return model.parse();
 }).then(function() {
+  Sidebars.forceUpdate();
   // console.log('lyraselected', model.view.model().scene().items[0].items[0].items[0].items[0].items[0]._id);
   // model.signal('lyra_selected', model.view.model().scene().items[0].items[0].items[0].items[0].items[0])
   //   .update();

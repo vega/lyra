@@ -30,10 +30,6 @@ $pipeline-width: 180px;
     text-align: center;
     font-weight: normal;
     cursor: pointer;
-
-    &:focus {
-      @include editable();
-    }
   }
 
   p.source {
@@ -65,6 +61,7 @@ $pipeline-width: 180px;
   margin-left: $cell-width + 2*$cell-padding - $padding-hack;
   padding-left: $padding-hack;
   overflow: auto;
+  font-size: 11px;
   
   td {
     min-width: $mw;

@@ -10,7 +10,7 @@ module.exports = function(parsed, property, channel) {
       from;
 
   if (def.from && def.from.data) {
-    this.from = map.data[def.from.data];
+    this.pipeline(map.data[def.from.data]);
     from = lookup(this.from);
   }
 

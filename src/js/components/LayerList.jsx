@@ -1,4 +1,5 @@
 var React = require('react'),
+    ContentEditable = require('./ContentEditable.jsx'),
     model = require('../model'),
     lookup = model.primitive;
 
@@ -36,7 +37,8 @@ var Group = React.createClass({
           <li className="header">Marks <i className="fa fa-plus"></i></li>
           {group.marks.map(function(id) {
             var mark = lookup(id),
-                type = mark.type;
+                type = mark.type,
+                select = this.select.bind(this, id);
 
             return type === 'group' ? (
               <Group key={id} {...props} id={id} level={level+1} />
@@ -44,7 +46,12 @@ var Group = React.createClass({
               <li key={id}>
                 <div style={childStyle} 
                   className={'name' + (selected === id ? ' selected' : '')}
-                  onClick={this.select.bind(this, id)}>{mark.name}</div>
+                  onClick={select}>
+
+                  <ContentEditable obj={mark} prop="name"
+                    value={mark.name}
+                    onClick={select} />
+                </div>
               </li>
             );
           }, this)}
@@ -55,11 +62,19 @@ var Group = React.createClass({
       (<i className="fa fa-caret-down" onClick={this.toggle}></i>) :
       (<i className="fa fa-caret-right" onClick={this.toggle}></i>);
 
+    var select = this.select.bind(this, group_id);
+
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
         <div style={style} 
           className={'name' + (selected === group_id ? ' selected' : '')} 
-          onClick={this.select.bind(this, group_id)}>{spinner} {group.name}</div>
+          onClick={select}>
+            {spinner} 
+
+            <ContentEditable obj={group} prop="name"
+              value={group.name}
+              onClick={select} />
+        </div>
         {contents}
       </li>
     );

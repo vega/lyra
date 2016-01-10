@@ -21,16 +21,23 @@
 
   li {
     list-style-type: none;
-    font-size: $header-font-size;
 
     .name {
       cursor: pointer;
       margin: 0 (-$outer-padding);
       padding: $inner-padding $outer-padding;
 
+      i {
+        padding: 0 $inner-padding;
+      }
+
       &.selected {
         background-color: $mblue-bg;
       }
+    }
+
+    .content-editable {
+      display: inline-block;
     }
   }
 
