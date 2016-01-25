@@ -35,3 +35,4 @@ var Inspector = React.createClass({
 
 module.exports = Inspector;
 Inspector.Rect = require('./inspectors/Rect.jsx');
+Inspector.Symbol = require('./inspectors/Symbol.jsx');

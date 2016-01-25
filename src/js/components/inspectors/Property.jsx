@@ -69,6 +69,16 @@ var Property = React.createClass({
             </div>
           );
         break;
+
+        case 'select':
+          controlEl = (
+            <select value={value} onChange={this.handleChange}>
+              {props.opts.map(function(o) {
+                return (<option key={o} value={o}>{o}</option>)
+              }, this)}
+            </select>
+          )
+        break;
       }
     }
 

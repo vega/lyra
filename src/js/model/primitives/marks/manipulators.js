@@ -28,7 +28,43 @@ function manipulators(prototype) {
 };
 
 module.exports = manipulators;
-manipulators.SIZES = {LARGE: 40, SMALL: 20};
+
+manipulators.CONST = {
+  LARGE: 40,
+  SMALL: 20,
+  PADDING: 7,
+  STROKE_PADDING: 7,
+  ARROWHEAD: 7
+};
+
+manipulators.size = function(b) {
+  var c = this.CONST;
+  return b.width() < c.SMALL || b.height() < c.SMALL ? 
+    c.SMALL : c.LARGE;
+};
+
+manipulators.coords = function(b, m) {
+  var c = {
+    topLeft:   {x: b.x1, y: b.y1, cursor: 'nw-resize'},
+    topCenter: {x: b.x1 + (b.width()/2), y: b.y1, cursor: 'n-resize'},
+    topRight:  {x: b.x2, y: b.y1, cursor: 'ne-resize'},
+    midLeft:   {x: b.x1, y: b.y1 + (b.height()/2), cursor: 'w-resize'},
+    midCenter: {x: b.x1 + (b.width()/2), y: b.y1 + (b.height()/2), cursor: 'move'},
+    midRight:  {x: b.x2, y: b.y1 + (b.height()/2), cursor: 'e-resize'},
+    bottomLeft:   {x: b.x1, y: b.y2, cursor: 'sw-resize'},
+    bottomCenter: {x: b.x1 + (b.width()/2), y: b.y2, cursor: 's-resize'},
+    bottomRight:  {x: b.x2, y: b.y2, cursor: 'se-resize'}
+  };
+
+  if (m) for (var k in c) {
+    var d  = c[k];
+    d.size = this.size(b);
+    d.key  = k;
+    d.manipulator = m;
+  }
+
+  return c;
+};
 
 function voronoi(parent) {
   return {

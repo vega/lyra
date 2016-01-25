@@ -1,7 +1,8 @@
 var dl = require('datalib'),
     Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
-    SIZES = spec.SIZES;
+    CONST = spec.CONST,
+    PX = CONST.PADDING, SP = CONST.STROKE_PADDING, A = CONST.ARROWHEAD;
 
 function RectManipulators(graph) {
   return Base.call(this, graph);
@@ -10,28 +11,12 @@ function RectManipulators(graph) {
 var prototype = (RectManipulators.prototype = Object.create(Base.prototype));
 prototype.constructor = RectManipulators;
 
-function coords(item) {
-  var b = item.bounds;
-  return {
-    topLeft:   {x: b.x1, y: b.y1, cursor: 'nw-resize'},
-    topCenter: {x: b.x1 + (b.width()/2), y: b.y1, cursor: 'n-resize'},
-    topRight:  {x: b.x2, y: b.y1, cursor: 'ne-resize'},
-    midLeft:   {x: b.x1, y: b.y1 + (b.height()/2), cursor: 'w-resize'},
-    midCenter: {x: b.x1 + (b.width()/2), y: b.y1 + (b.height()/2), cursor: 'move'},
-    midRight:  {x: b.x2, y: b.y1 + (b.height()/2), cursor: 'e-resize'},
-    bottomLeft:   {x: b.x1, y: b.y2, cursor: 'sw-resize'},
-    bottomCenter: {x: b.x1 + (b.width()/2), y: b.y2, cursor: 's-resize'},
-    bottomRight:  {x: b.x2, y: b.y2, cursor: 'se-resize'}
-  };
-}
-
 function compile(manipulator) {
   return function(item) {
     var b = item.bounds,
-        c = coords(item), 
-        data = [],
-        size = b.width() < 20 || b.height() < 20 ? SIZES.SMALL : SIZES.LARGE,
-        d;
+        c = spec.coords(b), 
+        size = spec.size(b),
+        data = [], d;
 
     for (var k in c) {
       if (manipulator === 'handle' && k === 'midCenter') continue;
@@ -44,11 +29,15 @@ function compile(manipulator) {
   };
 }
 
-prototype.handles = compile('handle');
-prototype.connectors = compile('connector');
+prototype.handles = function(item) {
+  var c = spec.coords(item.bounds, 'handle');
+  return dl.vals(c).filter(function(x) { return x.key !== 'midCenter' });
+};
 
-// padding, stroke-padding, arrowhead
-var px = 5, sp = 7, a = 7;  
+prototype.connectors = function(item) {
+  return dl.vals(spec.coords(item.bounds, 'connector'));
+};
+
 function map(key, manipulator) {
   return function(d) { 
     d.key = key;
@@ -58,32 +47,32 @@ function map(key, manipulator) {
 }
 
 prototype.channels = function(item) {
-  var b = item.bounds,
-      c = coords(item),
+  var b  = item.bounds,
+      c  = spec.coords(b),
       tl = c.topLeft,
       tr = c.topRight,
       br = c.bottomRight,
-      w = b.width(), h = b.height();
+      w  = b.width(), h = b.height();
 
   return []
     // Width/horizontal arrow stem
     .concat([ 
-      {x: tl.x, y: tl.y-sp}, {x: tr.x, y: tr.y-sp}, {x: tr.x+w, y: tr.y-sp},
-      {x: tr.x+w-a, y: tr.y-2*sp}, {x: tr.x+w-a, y: tr.y},
-      {x: tr.x+w, y: tr.y-sp+0.1}
+      {x: tl.x, y: tl.y-SP}, {x: tr.x, y: tr.y-SP}, {x: tr.x+w, y: tr.y-SP},
+      {x: tr.x+w-A, y: tr.y-2*SP}, {x: tr.x+w-A, y: tr.y},
+      {x: tr.x+w, y: tr.y-SP+0.1}
     ].map(map('x+', 'arrow')))
     // Height/vertical arrow stem
     .concat([ 
-      {x: tr.x+px, y: tr.y}, {x: br.x+px, y: br.y}, {x: br.x+px, y: br.y+h},
-      {x: br.x+2*px, y: br.y+h-a}, {x: br.x, y: br.y+h-a}, 
-      {x: br.x+px, y: br.y+h+0.1}
+      {x: tr.x+PX, y: tr.y}, {x: br.x+PX, y: br.y}, {x: br.x+PX, y: br.y+h},
+      {x: br.x+2*PX, y: br.y+h-A}, {x: br.x, y: br.y+h-A}, 
+      {x: br.x+PX, y: br.y+h+0.1}
     ].map(map('y+', 'arrow')));
 };
 
 prototype.altchannels = function(item) {
   var b  = item.bounds,
       gb = item.mark.group.bounds,
-      c  = coords(item),
+      c  = spec.coords(b),
       tl = c.topLeft, tc = c.topCenter, tr = c.topRight,
       ml = c.midLeft, mr = c.midRight, 
       bl = c.bottomLeft, bc = c.bottomCenter, br = c.bottomRight;
@@ -91,21 +80,21 @@ prototype.altchannels = function(item) {
   return []
     // x
     .concat([ 
-      {x: gb.x1, y: tl.y}, {x: tl.x-px, y: tl.y}      
+      {x: gb.x1, y: tl.y}, {x: tl.x-PX, y: tl.y}      
     ].map(map('x', 'span')))
     // x2
     .concat([ 
-      {x: gb.x1, y: br.y+sp}, {x: bl.x, y: br.y+sp},  
-      {x: br.x, y: br.y+sp}
+      {x: gb.x1, y: br.y+SP}, {x: bl.x, y: br.y+SP},  
+      {x: br.x, y: br.y+SP}
     ].map(map('x2', 'span')))
     // y
     .concat([ 
-      {x: tl.x, y: gb.y1}, {x: tl.x, y: tl.y-sp}      
+      {x: tl.x, y: gb.y1}, {x: tl.x, y: tl.y-SP}      
     ].map(map('y', 'span')))
     // y2
     .concat([ 
-      {x: br.x+sp, y: gb.y1}, {x: br.x+sp, y: tr.y},  
-      {x: br.x+sp, y: br.y}
+      {x: br.x+SP, y: gb.y1}, {x: br.x+SP, y: tr.y},  
+      {x: br.x+SP, y: br.y}
     ].map(map('y2', 'span')))
     // width
     .concat([ml, mr].map(map('width', 'span')))  
