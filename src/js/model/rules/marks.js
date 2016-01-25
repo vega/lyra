@@ -1,4 +1,5 @@
-var util   = require('../../util'),
+var dl = require('datalib'),
+    util   = require('../../util'),
     model  = require('../'),
     lookup = model.primitive;
 
@@ -15,26 +16,30 @@ module.exports = function(parsed, property, channel) {
   }
 
   if (this.type === 'rect' && (channel === 'x' || channel === 'y')) {
-    rectSpatial(map, property, channel, props, dprops, from);
+    rectSpatial.call(this, map, property, channel, props, dprops, from);
   } else {
-    bindProperty(map, property, props, dprops, from);
+    bindProperty.call(this, map, property, props, dprops, from);
   }
 };
 
 function bindProperty(map, property, props, def, from) {
   var d = def[property],
-      p = (props[property] = {}),
-      sg;
+      p = (props[property] = {});
 
-  if (d.scale) p.scale = map.scales[d.scale];
-  if (d.field) p.field = from.schema()[d.field]._id;
-  if (d.value) {
-    model.signal(sg=util.propSg(this, property), d.value);
-    p.signal = {signal: sg};
+  if (d.scale !== undefined) p.scale = map.scales[d.scale];
+  if (d.field !== undefined) {
+    if (d.field.group) {
+      p.group = d.field.group;
+    } else {
+      p.field = from.schema()[d.field]._id;
+    }
+  }
+  if (d.value !== undefined) {
+    model.signal(p.signal=util.propSg(this, property), d.value);
   }
 
-  p.band   = d.band;
-  p.offset = d.offset;
+  if (d.band !== undefined)   p.band   = d.band;
+  if (d.offset !== undefined) p.offset = d.offset;
 }
 
 // Spatial properties for rect marks require more parsing before binding.
@@ -51,20 +56,20 @@ function rectSpatial(map, property, channel, props, def, from) {
   // manipulators not arrows), bind only that property.
   if (property !== channel+'+') {
     def[property] = def[property] || def[channel] || def[cntr];
-    return bindProperty(map, property, props, def, from);
+    return bindProperty.call(this, map, property, props, def, from);
   }
 
   if (def[bind]) {
-    bindProperty(map, channel, props, def, from);
-    bindProperty(map, bind, props, def, from);
+    bindProperty.call(this, map, channel, props, def, from);
+    bindProperty.call(this, map, bind, props, def, from);
     props[span]._disabled = true;
   } else {
     def[channel] = def[cntr]; // Map xc/yc => x/y for binding.
-    bindProperty(map, channel, props, def, from);
+    bindProperty.call(this, map, channel, props, def, from);
 
     // Width/height should use bandWidth
     def[span] = {scale: def[channel].scale, band: true, offset: -1};
-    bindProperty(map, span, props, def, from);
+    bindProperty.call(this, map, span, props, def, from);
 
     props[bind]._disabled = true;
   }

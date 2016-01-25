@@ -1,17 +1,22 @@
 var React = require('react'),
-    Property = require('./Property.jsx');
+    Property = require('./Property.jsx'),
+    ExtentProperty = require('./ExtentProperty.jsx');
 
 var Rect = React.createClass({
   render: function() {
-    var primitive = this.props.primitive,
+    var props = this.props,
+        primitive = props.primitive,
         update = primitive.properties.update;
 
     return (
       <div>
         <h3>X Position</h3>
 
+        <ExtentProperty type="x" {...props} />
 
+        <h3>Y Position</h3>
 
+        <ExtentProperty type="y" {...props} />
 
         <h3>Fill</h3>
 

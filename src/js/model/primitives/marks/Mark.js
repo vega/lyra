@@ -100,6 +100,7 @@ prototype.export = function(resolve) {
 
     if (v.scale) v.scale = (s=lookup(v.scale)) && s.name;
     if (v.field) v.field = (f=lookup(v.field)) && f._name;
+    if (v.group) v.field = {group: v.group};
   }
 
   if (!resolve) {

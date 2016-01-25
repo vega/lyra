@@ -46,18 +46,19 @@ model.signal = function() {
   return ret === sg ? model : ret;
 };
 
-model.export = function(scene) {
-  var spec = scene || model.Scene.export(true);
+model.export = function(scene, resolve) {
+  resolve  = resolve || resolve === undefined;
+  var spec = scene || model.Scene.export(resolve);
   
   spec.data = pipelines.reduce(function(arr, id) { 
-    return (arr.push.apply(arr, lookup(id).export(true)), arr); 
+    return (arr.push.apply(arr, lookup(id).export(resolve)), arr); 
   }, []);
 
   return spec;
 };
 
 model.manipulators = function() {
-  var spec = model.export(model.Scene.manipulators()),
+  var spec = model.export(model.Scene.manipulators(), false),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       predicates = spec.predicates || (spec.predicates = []),

@@ -51,14 +51,52 @@
   & > label, & > .label {
     width: $scale-list-width - $outer-padding - $inner-padding - $can-drop-size;
     padding-left: $outer-padding;
+
+    select {
+      margin-left: -$inner-padding;
+    }
   }
 
   & > .control {
+    display: flex;
     flex: 1;
+    align-items: center;
     padding-left: $inner-padding;
+
+    .scale {
+      padding: 3px ($outer-padding+$inner-padding) 2px $inner-padding;
+      min-width: auto;
+      border: 0;
+
+      & + .field {
+        margin-left: (-$outer-padding);
+      }
+
+      & + input {
+        margin-left: (-$outer-padding);
+        padding: 3px $inner-padding;
+        border: 1px solid #ddd;
+        border-radius: $outer-padding;
+      }
+    }
+
+    .field {
+      padding: 3px $inner-padding;
+      background: #bed9ab;
+      border: 0;
+      border-radius: $outer-padding;
+    }
   }
 
-  input[type=range] {
+  &.extra {
+    align-items: baseline;
+
+    & > .control {
+      flex-wrap: wrap;
+    }
+  }
+
+  input[type=range], input[type=number] {
     width: 75px;
   }
 

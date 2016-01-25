@@ -70,8 +70,13 @@ prototype.summary = function() {
 // Values are cached. Export them only if we're not resolving. 
 prototype.export = function(resolve) {
   var spec = Primitive.prototype.export.call(this, resolve);
-  if (this._values) spec.values = this._values;
-  else if (this._vals && !resolve) spec.values = this._vals;
+  if (this._values) {
+    spec.values = this._values;
+  } else if (this._vals && !resolve) {
+    spec.values = this._vals;
+    delete spec.url;
+  }
+  
   return spec;
 };
 

@@ -17,6 +17,8 @@ function Rect(type) {
   dl.extend(update, {
     x2: {value: 60},
     y2: {value: 60},
+    xc: {value: 60, _disabled: true},
+    yc: {value: 60, _disabled: true},
     width:  {value: 30, _disabled: true},
     height: {value: 30, _disabled: true}
   });
@@ -31,12 +33,16 @@ prototype.initHandles = function() {
   var prop = util.propSg,
       test = util.test,
       at = util.anchorTarget.bind(util, this, 'handles'),
-      x = prop(this, 'x'), x2 = prop(this, 'x2'), 
-      y = prop(this, 'y'), y2 = prop(this, 'y2'),
+      x = prop(this, 'x'), xc = prop(this, 'xc'), x2 = prop(this, 'x2'),
+      y = prop(this, 'y'), yc = prop(this, 'yc'), y2 = prop(this, 'y2'),
       w = prop(this, 'width'), h = prop(this, 'height');
 
   sg.streams(x, [{
     type: DELTA, expr: test(at()+'||'+at('left'), x+'+'+DX, x)
+  }]);
+
+  sg.streams(xc, [{
+    type: DELTA, expr: test(at()+'||'+at('left'), xc+'+'+DX, xc)
   }]);
 
   sg.streams(x2, [{
@@ -45,6 +51,10 @@ prototype.initHandles = function() {
 
   sg.streams(y, [{
     type: DELTA, expr: test(at()+'||'+at('top'), y+'+'+DY, y)
+  }]);
+
+  sg.streams(yc, [{
+    type: DELTA, expr: test(at()+'||'+at('top'), yc+'+'+DY, yc)
   }]);
 
   sg.streams(y2, [{

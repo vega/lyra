@@ -1,12 +1,12 @@
 var dl = require('datalib'),
     React  = require('react'),
-    SignalValueMixin = require('../mixins/SignalValue.jsx'),
+    SignalValue = require('../mixins/SignalValue.jsx'),
     ContentEditable  = require('../ContentEditable.jsx'),
     model  = require('../../model'),
     lookup = model.primitive;
 
 var Property = React.createClass({
-  mixins: [SignalValueMixin],  
+  mixins: [SignalValue],  
 
   render: function() {
     var state = this.state,
@@ -17,14 +17,18 @@ var Property = React.createClass({
         scale = props.scale,
         field = props.field,
         value = state.value,
-        labelEl, scaleEl, fieldEl, controlEl;
+        disabled = props.disabled,
+        labelEl, scaleEl, fieldEl, controlEl, extraEl;
 
     React.Children.forEach(props.children, function(child) {
-      var className = child.props.className;
-      if (child.type === 'label' || className === 'label') {
-        labelEl = child;
+      var className = child && child.props.className,
+          type = child && child.type;
+      if (className === 'extra') {
+        extraEl = child;
       } else if (className === 'control') {
         controlEl = child;
+      } else if (type === 'label' || className === 'label') {
+        labelEl = child;
       }
     });
 
@@ -39,17 +43,17 @@ var Property = React.createClass({
       switch (type) {
         case 'number':
           controlEl = (
-            <div className="control">
-              <input type="number" value={value} onChange={this.handleChange} />
-            </div>
+            <input type="number" value={!disabled && value} disabled={disabled}
+              onChange={this.handleChange} />
           );
         break;
 
         case 'range':
           controlEl = (
-            <div className="control">
-              <input type="range" value={value} onChange={this.handleChange}
-                min={props.min} max={props.max} step={props.step} />
+            <div>
+              <input type="range" value={!disabled && value} disabled={disabled}
+                min={props.min} max={props.max} step={props.step}
+                onChange={this.handleChange} />
 
               <ContentEditable {...props} />
             </div>
@@ -58,9 +62,9 @@ var Property = React.createClass({
 
         case 'color':
           controlEl = (
-            <div className="control">
-              <input type="color" value={value} onChange={this.handleChange} />
-
+            <div>
+              <input type="color" value={!disabled && value} disabled={disabled}
+                onChange={this.handleChange} />
               <ContentEditable {...props} />
             </div>
           );
@@ -68,11 +72,19 @@ var Property = React.createClass({
       }
     }
 
+    var className = 'property';
+    if (props.canDrop) className += ' can-drop';
+    if (extraEl) className += ' extra';
+
     return (
-      <div className={(props.canDrop ? 'can-drop ' : '') + 'property'}>
+      <div className={className}>
         <div className="indicator"></div>
         {labelEl}
-        {controlEl}
+        <div className="control">
+          {scaleEl}
+          {controlEl}
+          {extraEl}
+        </div>
       </div>
     )
   }
