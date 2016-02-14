@@ -1,9 +1,12 @@
 var React = require('react'),
+    Parse = require('../mixins/Parse.jsx'),
     util = require('../../util'),
     model  = require('../../model'),
     lookup = model.primitive;
 
 var SpatialPreset = React.createClass({
+  mixins: [Parse],
+
   handleChange: function(evt) {
     var props = this.props,
         primitive = props.primitive,
@@ -21,7 +24,7 @@ var SpatialPreset = React.createClass({
       update[name] = {signal: util.propSg(primitive, name)};
     }
 
-    props.reparse();
+    this.parse(primitive);
   },
 
   render: function() {

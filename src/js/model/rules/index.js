@@ -10,19 +10,29 @@ var dl = require('datalib'),
 
 function rules(prototype) {
 
-  prototype.bind = function(property, id) {
+  prototype.bind = function(property, id, manual) {
     var rule = this._rule,
         from = this._from && lookup(this._from),
-        obj  = lookup(id),
+        obj  = lookup(id), 
+        update = this.properties.update, 
         c;
 
+    if (id === undefined) {
+      update[property] = {signal: util.propSg(this, property)};
+      return this;
+    }
+
     if (obj instanceof Scale) {
-      return; // TODO
+      return (update[property].scale = id, this);
     } 
 
     // obj instanceof Field
     if (from && from.parent() !== obj.parent().parent()) {
       throw Error("Mark's backing pipeline differs from field's.");
+    }
+
+    if (manual) {
+      return (update[property].field = id, this);
     }
 
     rule.encoding[c=channel(property)] = fieldRef(obj);

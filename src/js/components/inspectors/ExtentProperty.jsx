@@ -2,6 +2,7 @@ var dl = require('datalib'),
     React = require('react'),
     Property = require('./Property.jsx'),
     SpatialPreset = require('./SpatialPreset.jsx'),
+    Parse = require('../mixins/Parse.jsx'),
     util = require('../../util'),
     model  = require('../../model'),
     lookup = model.primitive;
@@ -22,23 +23,14 @@ var EXTENTS = {
 };
 
 var ExtentProperty = React.createClass({
+  mixins: [Parse],
+
   getInitialState: function() {
     return this.extents();
   },
 
   componentWillReceiveProps: function() {
     this.setState(this.extents());
-  },
-
-  reparse: function(_) {
-    var component = this,
-        state = _ || this.extents(),
-        primitive = this.props.primitive;
-
-    model.parse().then(function() {
-      component.setState(state);
-      require('../').select(primitive._id);
-    });
   },
 
   extents: function() {
@@ -83,7 +75,7 @@ var ExtentProperty = React.createClass({
       state.end = span;
     }
 
-    this.reparse(state);
+    this.parse(primitive);
   },
 
   render: function() {
@@ -100,7 +92,7 @@ var ExtentProperty = React.createClass({
     return (
       <div>
 
-        <Property name="start" type="number" canDrop={true}
+        <Property name={start} type="number" primitive={primitive} canDrop={true}
           scale={update[start].scale} field={update[start].field}
           signal={update[start].signal} disabled={update[start].band||update[start].group}>
 
@@ -113,10 +105,10 @@ var ExtentProperty = React.createClass({
             </select>
           </div>
 
-          <SpatialPreset className="extra" name={start} reparse={this.reparse} {...props} />
+          <SpatialPreset className="extra" name={start} {...props} />
         </Property>
 
-        <Property name="end" type="number" canDrop={true}
+        <Property name={end} type="number" primitive={primitive} canDrop={true}
           scale={update[end].scale} field={update[end].field}
           signal={update[end].signal} disabled={update[end].band||update[end].group}>
 
@@ -135,7 +127,7 @@ var ExtentProperty = React.createClass({
             }
           </div>
 
-          <SpatialPreset className="extra" name={end} reparse={this.reparse} {...props} />
+          <SpatialPreset className="extra" name={end} {...props} />
         </Property>
       </div>
     )

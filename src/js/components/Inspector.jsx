@@ -10,18 +10,18 @@ var Inspector = React.createClass({
         primitive = lookup(props.id),
         from = lookup(primitive.from),
         ctor = primitive.__proto__.constructor.name,
-        CtorType = Inspector[ctor],
-        isMark   = primitive instanceof Mark;
+        InspectorType = Inspector[ctor],
+        isMark = primitive instanceof Mark;
 
     var pipeline = isMark ? (
       <From {...props} primitive={primitive} from={primitive.pipeline()} />
     ) : null;
 
-    var inner = CtorType ? (
+    var inner = InspectorType ? (
       <div className="inner">
         {pipeline}
 
-        <CtorType primitive={primitive} />
+        <InspectorType primitive={primitive} />
       </div>) : null;
 
     return (

@@ -1,12 +1,18 @@
 var dl = require('datalib'),
-    React  = require('react'),
+    React = require('react'),
+    Parse = require('../mixins/Parse.jsx'),
     SignalValue = require('../mixins/SignalValue.jsx'),
     ContentEditable  = require('../ContentEditable.jsx'),
     model  = require('../../model'),
     lookup = model.primitive;
 
 var Property = React.createClass({
-  mixins: [SignalValue],  
+  mixins: [SignalValue, Parse],
+
+  unbind: function() {
+    var props = this.props;
+    this.parse(props.primitive.bind(props.name, undefined));
+  },
 
   render: function() {
     var state = this.state,
@@ -86,9 +92,12 @@ var Property = React.createClass({
     if (props.canDrop) className += ' can-drop';
     if (extraEl) className += ' extra';
 
+    var indicatorClass = 'indicator';
+    if (scale || field) indicatorClass += ' fa fa-times';
+
     return (
       <div className={className}>
-        <div className="indicator"></div>
+        <div className={indicatorClass} onClick={this.unbind}></div>
         {labelEl}
         <div className="control">
           {scaleEl}

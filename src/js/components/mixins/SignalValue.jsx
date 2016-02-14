@@ -1,4 +1,5 @@
-var dl = require('datalib');
+var dl = require('datalib'),
+    model = require('../../model');
 
 module.exports = {
   getInitialState: function() {

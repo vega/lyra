@@ -1,10 +1,13 @@
 var d3 = require('d3'),
     dl = require('datalib'),
     React = require('react'),
+    Parse = require('../mixins/Parse.jsx'),
     model = require('../../model'),
     sg = require('../../model/signals');
 
 var DataTable = React.createClass({
+  mixins: [Parse],
+
   getInitialState: function() {
     return {
       limit: 20,
@@ -98,10 +101,7 @@ var DataTable = React.createClass({
       .signal(sg.CELL, {});
 
     if (dropped) {
-      model.parse().then(function() {
-        var Inspectors = require('../');
-        Inspectors.select(prim._id);
-      });
+      this.parse(prim);
     } else {
       model.update();
     }
