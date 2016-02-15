@@ -9,16 +9,16 @@ var dl = require('datalib'),
 
 var EXTENTS = {
   x: {
-    start:  {name: 'x', label: 'Start'}, 
+    start:  {name: 'x', label: 'Left'},
     center: {name: 'xc', label: 'Center'},
     span: {name: 'width', label: 'Width'},
-    end:  {name: 'x2', label: 'End'}
+    end:  {name: 'x2', label: 'Right'}
   },
   y: {
-    start:  {name: 'y', label: 'Start'}, 
-    center: {name: 'yc', label: 'Center'},
+    start:  {name: 'y', label: 'Top'},
+    center: {name: 'yc', label: 'Middle'},
     span: {name: 'height', label: 'Height'},
-    end:  {name: 'y2', label: 'End'}
+    end:  {name: 'y2', label: 'Bottom'}
   }
 };
 
@@ -86,6 +86,7 @@ var ExtentProperty = React.createClass({
         update  = primitive.properties.update,
         extents = EXTENTS[type],
         center = extents.center.name,
+        span  = extents.span.label,
         opts  = dl.vals(extents),
         start = state.start, end = state.end;
 
@@ -114,7 +115,7 @@ var ExtentProperty = React.createClass({
 
           <div className="label">
             {start === center ?
-              (<label htmlFor="end">Width</label>) :
+              (<label htmlFor="end">{span}</label>) :
               (
                 <select name="end" value={end} onChange={this.handleChange}>
                   {opts
