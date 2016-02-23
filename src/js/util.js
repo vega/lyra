@@ -1,8 +1,8 @@
 var dl = require('datalib'),
     vg = require('vega'),
     vl = require('vega-lite'),
-    NS = 'lyra_', 
-    vgSchema, vlSchema;
+    NS = 'lyra_',
+    vgSchema;
 
 function ns(name) { return name.startsWith(NS) ? name : NS+name; }
 
@@ -18,7 +18,7 @@ module.exports = {
   anchorTarget: function(mark, mode, key) {
     var sg = require('./model/signals'),
         ANCHOR = sg.ANCHOR, TARGET = ANCHOR+'.target';
-        
+
     var c = '(' + ANCHOR + '&&' + TARGET + '&&' + TARGET+'.datum &&';
     if (key) {  // Manipulator
       c += TARGET + '.datum.mode === ' + dl.str(mode) + ' &&' +
@@ -34,14 +34,9 @@ module.exports = {
     return 'if('+cond+','+t+','+f+')';
   },
 
-  schema: {
-    vg: function() {
-      return vgSchema || (vgSchema = vg.schema({
-        url: 'http://vega.github.io/vega/vega-schema.json'
-      }));
-    },
-    vl: function() {
-      return vlSchema || (vlSchema = vl.schema.instantiate());
-    }
+  schema: function() {
+    return vgSchema || (vgSchema = vg.schema({
+      url: 'http://vega.github.io/vega/vega-schema.json'
+    }));
   }
 };

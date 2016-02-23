@@ -52,8 +52,8 @@
     "topojson": "^1.6.19",
     "tv4": "^1.1.12",
     "uglify-js": "^2.4.24",
-    "vega": "^2.4.2",
-    "vega-lite": "^0.9.2",
+    "vega": "^2.5.0",
+    "vega-lite": "^1.0.1",
     "watchify": "^3.2.3"
   },
   "scripts": {

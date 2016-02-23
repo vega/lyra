@@ -13,8 +13,8 @@ function rules(prototype) {
   prototype.bind = function(property, id, manual) {
     var rule = this._rule,
         from = this._from && lookup(this._from),
-        obj  = lookup(id), 
-        update = this.properties.update, 
+        obj  = lookup(id),
+        update = this.properties.update,
         c;
 
     if (id === undefined) {
@@ -24,7 +24,7 @@ function rules(prototype) {
 
     if (obj instanceof Scale) {
       return (update[property].scale = id, this);
-    } 
+    }
 
     // obj instanceof Field
     if (from && from.parent() !== obj.parent().parent()) {
@@ -49,7 +49,7 @@ function rules(prototype) {
 }
 
 function channel(name) {
-  if (util.schema.vl().encoding[name]) {
+  if (vl.channel.CHANNELS.indexOf(name) >= 0) {
     return name;
   } else {
     switch (name) {
@@ -74,8 +74,8 @@ var re = {
 
 function fieldRef(field) {
   var name = field._name,
-      agg  = field._aggregate, 
-      bin  = field._bin, 
+      agg  = field._aggregate,
+      bin  = field._bin,
       ref  = {type: field._type}, res;
 
   if (agg) {
@@ -86,11 +86,11 @@ function fieldRef(field) {
     ref.bin = true;
   }
 
-  return (ref.field = res ? res[2] : name, ref); 
+  return (ref.field = res ? res[2] : name, ref);
 }
 
 function compile(rule, property, from) {
-  rule = dl.duplicate(rule.export()); 
+  rule = dl.duplicate(rule.export());
 
   // Always drive the Vega-Lite spec by a pipeline's source dataset.
   // We analyze the resultant Vega spec to understand what this mark's
@@ -106,7 +106,7 @@ function compile(rule, property, from) {
   // Hack the config to force marks to be filled, if we're binding
   // to the fill color property.
   if (property === 'fill') {
-    rule.config.marks = {filled: true};
+    rule.config.mark = {filled: true};
   }
 
   return {rule: rule, spec: vl.compile(rule).spec};

@@ -12,7 +12,7 @@ module.exports = function(parsed) {
       channels = dl.keys(parsed.rule.encoding),
       scales = parsed.spec.marks[0].scales,
       find = function(x) { return x.name === name; },
-      i = 0, len = channels.length, 
+      i = 0, len = channels.length,
       name, def, curr;
 
   // Vega-Lite names scales by the channel they're used for.
@@ -28,7 +28,7 @@ module.exports = function(parsed) {
 };
 
 // Parse a Vega scale definition (produced by Vega-Lite)
-// and produce a Lyra-compatible Scale object. 
+// and produce a Lyra-compatible Scale object.
 function parse(def) {
   if (!def) return null;
   var map = this._rule._map.data,
@@ -41,15 +41,16 @@ function parse(def) {
     def._domain = [data.schema()[domain.field]._id];
   }
 
-  if (range === rules.CELLW || dl.equal(range, REF_CELLW)) {
+  // TODO: Use bandSize initially?
+  if (def.name === 'x' || range === rules.CELLW || dl.equal(range, REF_CELLW)) {
     def.range = 'width';
-  } else if (range === rules.CELLH || dl.equal(range, REF_CELLH)) {
+  } else if (def.name === 'y' || range === rules.CELLH || dl.equal(range, REF_CELLH)) {
     def.range = 'height';
   }
 
   delete def.rangeMin;
   delete def.rangeMax;
-  delete def.bandWidth;
+  delete def.bandSize;
   return def;
 }
 
@@ -67,7 +68,7 @@ function equals(def, scale) {
 
 function scale(def) {
   var markType = this.type,
-      points = def.type === 'ordinal' && markType !== 'rect', 
+      points = def.type === 'ordinal' && markType !== 'rect',
       scales = model.scale(),
       s = scales.find(equals.bind(this, def));
 
