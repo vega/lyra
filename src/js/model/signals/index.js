@@ -5,9 +5,9 @@ var dl = require('datalib'),
 
 function init(name, val) {
   signals[name=ns(name)] = {
-    name: name, 
-    init: val, 
-    _idx: dl.keys(signals).length 
+    name: name,
+    init: val,
+    _idx: dl.keys(signals).length
   };
   return ref(name);
 }
@@ -24,8 +24,8 @@ function value(name, val) {
 
   // Wrap signal accessors in a try/catch in case view doesn't exist,
   // or signal hasn't been registered yet with the view.
-  try { 
-    val = view.signal.apply(view, arguments); 
+  try {
+    val = view.signal.apply(view, arguments);
     return set ? api : val;
   } catch (e) {
     return set ? (sg.init=val, api) : sg.init;
@@ -33,7 +33,7 @@ function value(name, val) {
 }
 
 // Stash current signal values from the view into our model
-// to allow seamless re-renders. 
+// to allow seamless re-renders.
 function stash() {
   var model = require('../'),
       view  = model.view;

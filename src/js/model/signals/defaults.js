@@ -6,6 +6,7 @@ var SELECTED = ns('selected'),
     MODE = ns('mode'),
     ANCHOR = ns('anchor'),
     DELTA  = ns('delta'),
+    CURSOR = 'cursor',  // Special vega signal, don't namespace.
     CELL  = ns('cell'),
     MOUSE = ns('mouse');
 
@@ -14,7 +15,7 @@ signals[SELECTED] = {
   init: {mark: {}},
   streams: [
     { type: 'mousedown[eventItem().mark && eventItem().mark.name &&'+
-        'eventItem().mark.name !== '+dl.str(CELL)+']', 
+        'eventItem().mark.name !== '+dl.str(CELL)+']',
       expr: 'eventItem()' },
     { type: 'mousedown[!eventItem().mark]', expr: '{mark: {}}' }
   ],
@@ -22,7 +23,7 @@ signals[SELECTED] = {
 };
 
 signals[MODE] = {
-  name: MODE, 
+  name: MODE,
   init: 'handles',
   _idx: 1
 };
@@ -41,9 +42,9 @@ signals[ANCHOR] = {
   name: ANCHOR,
   init: 0,
   streams: [
-    { type: 'mousedown', 
+    { type: 'mousedown',
       expr: '{x: eventX(), y: eventY(), target: eventItem()}' },
-    { type: '[mousedown, window:mouseup] > window:mousemove', 
+    { type: '[mousedown, window:mouseup] > window:mousemove',
       expr: '{x: eventX(), y: eventY(), target: lyra_anchor.target}' }
   ],
   _idx: 3
@@ -70,13 +71,22 @@ signals[MOUSE] = {
   _idx: 5
 };
 
+signals[CURSOR] = {
+  name: CURSOR,
+  streams: [
+    {"type": "mousedown", "expr": "eventItem() && eventItem().cursor || 'default'"},
+    {"type": "mouseup", "expr": "'default'"}
+  ]
+};
+
 module.exports = {
   signals: signals,
-  names: [SELECTED, MODE, ANCHOR, DELTA],
+  names: [SELECTED, MODE, ANCHOR, DELTA, CELL, MOUSE, CURSOR],
   SELECTED: SELECTED,
   MODE: MODE,
   ANCHOR: ANCHOR,
   DELTA:  DELTA,
+  CURSOR: CURSOR,
   CELL:  CELL,
   MOUSE: MOUSE
 };

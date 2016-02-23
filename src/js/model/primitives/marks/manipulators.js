@@ -7,7 +7,7 @@ var TYPES = [];
 // Mode = handles | connectors | channels | altchannels
 // Manipulators = handle | connector | arrow | span | point
 // This differentiation is needed because channels and altchannels
-// display multiple manipulators. 
+// display multiple manipulators.
 
 function manipulators(prototype) {
 
@@ -15,7 +15,7 @@ function manipulators(prototype) {
     return [this.export(false), {
       type: 'group',
       from: {
-        mark: this.name, 
+        mark: this.name,
         transform: [
           {type: util.ns('manipulators_'+this.type), lyra_id: this._id},
           {type: 'facet', groupby: ['manipulator']}
@@ -39,7 +39,7 @@ manipulators.CONST = {
 
 manipulators.size = function(b) {
   var c = this.CONST;
-  return b.width() < c.SMALL || b.height() < c.SMALL ? 
+  return b.width() < c.SMALL || b.height() < c.SMALL ?
     c.SMALL : c.LARGE;
 };
 
@@ -85,7 +85,7 @@ function voronoi(parent) {
 function hoverCell(t, f, parent) {
   var rule = [{
     predicate: {
-      name: sg.CELL, 
+      name: sg.CELL,
       key: {field: parent ? {parent: 'key'} : 'key'}
     }
   }];
@@ -109,6 +109,9 @@ TYPES.push(manipulators.HANDLE={
       fill: {value: 'white'},
       stroke: {value: 'black'},
       strokeWidth: {value: 0.5}
+    },
+    hover: {
+      cursor: {field: 'cursor'}
     }
   }
 });
