@@ -39,7 +39,6 @@
     "istanbul": "^0.3.21",
     "jshint": "^2.8.0",
     "jstransform": "^11.0.3",
-    "mkdirp": "^0.5.1",
     "mocha": "^2.2.5",
     "node-sass": "^3.4.2",
     "nodemon": "^1.8.1",
@@ -55,29 +54,17 @@
     "webpack": "^1.12.14"
   },
   "scripts": {
-    "linkt": "npm run lint",
-    "lint:js": "jshint --verbose src/js/",
-    "vendor": "node ./scripts/vendor.js",
     "build": "npm run build:js && npm run build:scss",
-    "build:js": "browserify src/js/index.js -d -o vendor/js/lyra.js",
-    "postbuild:js": "uglifyjs vendor/js/lyra.js -cm > vendor/js/lyra.min.js",
+    "build:js": "webpack -d",
+    "postbuild:js": "uglifyjs build/js/lyra.js -cm > build/js/lyra.min.js",
     "build:scss": "node-sass --include-path src/scss src/scss/main.scss build/css/main.css",
     "postbuild:scss": "cleancss -o build/css/main.min.css build/css/main.css",
     "watch": "npm run watch:js & npm run watch:scss",
-    "watch:js": "watchify src/js/index.js -v -d -o 'vendor/js/lyra.js'",
+    "watch:js": "webpack -d --watch",
     "watch:scss": "nodemon -e src/scss -x \"npm run build:scss\"",
     "test": "npm run test",
     "test:js": "mocha --timeout 30000 --recursive test/",
     "cover": "npm run cover",
     "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/"
-  },
-  "browser": {
-    "buffer": false,
-    "canvas": false,
-    "fs": false,
-    "http": false,
-    "request": false,
-    "sync-request": false,
-    "url": false
   }
 }

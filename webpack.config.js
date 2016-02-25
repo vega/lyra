@@ -3,9 +3,9 @@ var path = require( 'path' );
 
 module.exports = {
   entry: {
-    app: path.resolve( __dirname, 'src/js/index.js' ),
+    lyra: path.resolve( __dirname, 'src/js/index.js' ),
     // By specifying "vendor" dependencies we can render those vendor files
-    // into a separate JS bundle
+    // into a separate JS bundle; see the CommonsChunkPlugin usage below
     vendor: [
       'd3',
       'datalib',
@@ -16,7 +16,7 @@ module.exports = {
     ],
   },
   output: {
-    filename: 'build/js/lyra.js'
+    filename: path.resolve( __dirname, 'build/js/lyra.js' )
   },
   module: {
     loaders: [
@@ -32,7 +32,12 @@ module.exports = {
       }
     ]
   },
+  resolve: {
+    // Permits `require( 'file' )` instead of `require( 'file.jsx' )`
+    extensions: [ '', '.js', '.jsx' ]
+  },
   plugins: [
+    // Extract the "vendor" code into
     new webpack.optimize.CommonsChunkPlugin(
       'vendor', // chunk name
       path.resolve( __dirname, 'build/js/vendor.js' ) // filename

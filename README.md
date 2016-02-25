@@ -22,10 +22,9 @@ npm install
 
 to install the project's code dependencies.
 
-To build the application itself, run these two commands:
+To build the application itself, execute the build command:
 
 ```sh
-npm run vendor
 npm run build
 ```
 
