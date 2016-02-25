@@ -1,0 +1,38 @@
+<div id="footerwrap">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h4>About</h4>
+                <div class="hline-w"></div>
+                <p>{{ site.about }}</p>
+            </div>
+            <div class="col-lg-4">
+                <h4>Links</h4>
+                <div class="hline-w"></div>
+                <p>
+                    {% for network in site.social %}
+                        <a href="{{ network.url }}" class="btn-social btn-outline"><i class="fa fa-{{ network.title }}"></i> {{network.title}}</a>
+                    {% endfor %}
+                </p>
+                <p>
+                    <a href="/docs">
+                        <i class="fa fa-book"></i>
+                        Documentation
+                    </a>
+                </p>
+                <p>
+                    <a href="https://github.com/vega/lyra/blob/lyra2/CONTRIBUTING.MD">
+                    <i class="fa fa-heart"></i>
+                    Contributing
+                    </a>
+                </p>
+                <p class="logo-idl">
+                  <a href="http://idl.cs.washington.edu/">
+                    <img src="{{ "/assets/img/idl-logo.png" | prepend: site.baseurl }}"/>
+                  </a>
+                </p>
+            </div>
+
+        </div><! --/row -->
+    </div><! --/container -->
+</div><! --/footerwrap -->

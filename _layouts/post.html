@@ -1,0 +1,31 @@
+---
+layout: default
+---
+
+{% include wrap.html %}
+
+<div class="container mtb">
+    <div class="row">
+        <! -- SINGLE POST -->
+        <div class="col-lg-8">
+            <! -- tutorial Post  -->
+            {% if page.img != null %}
+                <p><img class="img-responsive" src="{{ "/assets/img/" | prepend: site.baseurl }}{{ page.img }}"></p>
+            {% endif %}
+            <a href="{{ page.url | prepend: site.baseurl }}"><h3 class="ctitle">{{ page.title }}</h3></a>
+            {% if page.author != null %}
+                <p><csmall>{{ page.date | date: "%b %-d, %Y" }}. | By: {{ page.author }}</csmall></p>
+            {% endif %}
+
+            {{ content }}
+
+            <div class="spacing"></div>
+        </div><! --/col-lg-8 -->
+        {% if page.type == 'design' %}
+            {% include design-sidebar.html %}
+        {% else if %}
+            {% include sidebar.html %}
+        {% endif %}
+
+    </div><! --/row -->
+</div><! --/container -->
