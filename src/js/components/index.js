@@ -1,5 +1,6 @@
 var ReactDOM = require('react-dom'),
-    Sidebars = require('./Sidebars.jsx');
+    Sidebars = require('./Sidebars.jsx'),
+    React = require('react');
 
 module.exports = ReactDOM.render(
   <Sidebars />,

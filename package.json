@@ -23,11 +23,9 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "array.prototype.find": "^1.0.0",
-    "babel-preset-react": "^6.3.13",
-    "babelify": "^7.2.0",
-    "browserify": "^10.2.6",
-    "browserify-shim": "^3.8.9",
-    "browserify-versionify": "^1.0.6",
+    "babel-core": "^6.5.2",
+    "babel-loader": "^6.2.3",
+    "babel-preset-react": "^6.5.0",
     "chai": "^3.0.0",
     "chai-spies": "^0.7.1",
     "clean-css": "^3.4.8",
@@ -54,7 +52,7 @@
     "uglify-js": "^2.4.24",
     "vega": "^2.5.0",
     "vega-lite": "^1.0.1",
-    "watchify": "^3.2.3"
+    "webpack": "^1.12.14"
   },
   "scripts": {
     "linkt": "npm run lint",
@@ -63,8 +61,8 @@
     "build": "npm run build:js && npm run build:scss",
     "build:js": "browserify src/js/index.js -d -o vendor/js/lyra.js",
     "postbuild:js": "uglifyjs vendor/js/lyra.js -cm > vendor/js/lyra.min.js",
-    "build:scss": "node-sass --include-path src/scss src/scss/main.scss vendor/css/main.css",
-    "postbuild:scss": "cleancss -o vendor/css/main.min.css vendor/css/main.css",
+    "build:scss": "node-sass --include-path src/scss src/scss/main.scss build/css/main.css",
+    "postbuild:scss": "cleancss -o build/css/main.min.css build/css/main.css",
     "watch": "npm run watch:js & npm run watch:scss",
     "watch:js": "watchify src/js/index.js -v -d -o 'vendor/js/lyra.js'",
     "watch:scss": "nodemon -e src/scss -x \"npm run build:scss\"",
@@ -81,26 +79,5 @@
     "request": false,
     "sync-request": false,
     "url": false
-  },
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "react"
-          ]
-        }
-      ],
-      ["browserify-shim"]
-    ]
-  },
-  "browserify-shim": {
-    "d3": "global:d3",
-    "vega": "global:vg",
-    "vega-lite": "global:vl",
-    "datalib": "global:vg.util",
-    "react": "global:React",
-    "react-dom": "global:ReactDOM"
   }
 }

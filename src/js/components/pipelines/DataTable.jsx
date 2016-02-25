@@ -1,6 +1,7 @@
 var d3 = require('d3'),
     dl = require('datalib'),
     React = require('react'),
+    ReactDOM = require('react-dom'),
     Parse = require('../mixins/Parse.jsx'),
     model = require('../../model'),
     sg = require('../../model/signals');
@@ -38,7 +39,7 @@ var DataTable = React.createClass({
   },
 
   showFullField: function(evt) {
-    var target = evt.target, 
+    var target = evt.target,
         name   = target.textContent,
         schema = this.props.dataset.schema();
 
@@ -133,13 +134,13 @@ var DataTable = React.createClass({
         fullValue = state.fullValue;
 
     var typeIcons = {
-      nominal: 'font', ordinal: 'font', 
+      nominal: 'font', ordinal: 'font',
       quantitative: 'hashtag', temporal: 'calendar'
     };
 
-    var prev = page > 0 ? 
+    var prev = page > 0 ?
           <i className="fa fa-arrow-left" onClick={this.prevPage}></i> : null,
-        next = page+1 < max/limit ? 
+        next = page+1 < max/limit ?
           <i className="fa fa-arrow-right" onClick={this.nextPage}></i> : null;
 
     fullField = fullField ? (
@@ -150,13 +151,13 @@ var DataTable = React.createClass({
 
     return (
       <div>
-        <div className="datatable" 
+        <div className="datatable"
           onMouseLeave={this.hideFull} onScroll={this.hideFull}>
           <table><tbody>
             {keys.map(function(k) {
               return (
                 <tr key={k}>
-                  <td className={'field ' + props.className} 
+                  <td className={'field ' + props.className}
                     onMouseOver={this.showFullField}>{k}</td>
                   {values.map(function(v, i) {
                     return (
