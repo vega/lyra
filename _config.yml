@@ -4,7 +4,7 @@
 title: Lyra v2.0
 description: "An interactive, graphical Visualization Design Environment (VDE)"
 analytics: #Google analytics code in the format XX-nnnnnnnn-n
-baseurl: "" #important: start with /
+baseurl: "/lyra" #important: start with /
 url: "http://vega.github.io/lyra"
 
 # Build settings
