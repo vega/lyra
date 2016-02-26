@@ -5,6 +5,10 @@ var dl = require('datalib'),
     lookup = model.primitive,
     id = 0;
 
+/**
+ * Represents a Primitive.
+ * @constructor
+ */
 function Primitive() {
   model.primitive(this._id = ++id, this);
   return this;

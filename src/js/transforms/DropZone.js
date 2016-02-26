@@ -7,6 +7,11 @@ var dl = require('datalib'),
     Transform = vg.Transform,
     sg = require('../model/signals');
 
+/**
+ * Represents a DropZone.
+ * @constructor
+ * @param {string} graph - model
+ */
 function DropZone(graph) {
   Transform.prototype.init.call(this, graph);
 

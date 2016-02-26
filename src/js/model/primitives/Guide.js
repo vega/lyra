@@ -1,9 +1,18 @@
+
 var Primitive = require('./Primitive'),
     model = require('../'),
     lookup = model.primitive;
 
 var GTYPES = {AXIS: 1, LEGEND: 2},
     ORIENT = {x: 'bottom', y: 'left'};
+/**
+* Guide
+* @constructor
+* @param {string} gtype
+* @param {string} type
+* @param {string} scale
+*
+*/
 function Guide(gtype, type, scale) {
   this._gtype = gtype;
 
