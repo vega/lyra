@@ -10,7 +10,7 @@ var model = module.exports = {
 };
 
 var pipelines = [], scales = [],
-    primitives = {}, 
+    primitives = {},
     listeners  = {};
 
 model.init = function() {
@@ -49,9 +49,9 @@ model.signal = function() {
 model.export = function(scene, resolve) {
   resolve  = resolve || resolve === undefined;
   var spec = scene || model.Scene.export(resolve);
-  
-  spec.data = pipelines.reduce(function(arr, id) { 
-    return (arr.push.apply(arr, lookup(id).export(resolve)), arr); 
+
+  spec.data = pipelines.reduce(function(arr, id) {
+    return (arr.push.apply(arr, lookup(id).export(resolve)), arr);
   }, []);
 
   return spec;
@@ -99,8 +99,8 @@ model.parse = function(el) {
   }).then(model.update);
 };
 
-model.update = function() { 
-  return model.view.update(); 
+model.update = function() {
+  return model.view.update();
 };
 
 model.onSignal = function(name, handler) {
@@ -132,7 +132,7 @@ function register() {
       var mode = model.signal(sg.MODE),
           shiftKey = d3.event.shiftKey,
           prevKey  = !!model._shiftKey;
-      
+
       if (prevKey === shiftKey) return;
       model._shiftKey = shiftKey;
 
