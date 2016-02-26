@@ -1,0 +1,8 @@
+---
+extends:
+  - "../eslint/eslint-defaults.yml"
+  - "../eslint/eslint-jsx.yml"
+env:
+  browser: true
+globals:
+  require: true
