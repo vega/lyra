@@ -4,7 +4,7 @@ var dl = require('datalib'),
     util = require('../../../util');
 
 var DELTA  = sg.DELTA,
-    DX = DELTA+'.x', 
+    DX = DELTA+'.x',
     DY = DELTA+'.y';
 
 function Symbol(type) {
@@ -28,8 +28,8 @@ prototype.initHandles = function() {
   var prop = util.propSg,
       test = util.test,
       at = util.anchorTarget.bind(util, this, 'handles'),
-      x  = prop(this, 'x'), 
-      y  = prop(this, 'y'), 
+      x  = prop(this, 'x'),
+      y  = prop(this, 'y'),
       size = prop(this, 'size');
 
   sg.streams(x, [{
@@ -47,5 +47,5 @@ prototype.initHandles = function() {
 };
 
 module.exports = Symbol;
-Symbol.SHAPES  = ['circle', 'square', 'cross', 
+Symbol.SHAPES  = ['circle', 'square', 'cross',
   'diamond', 'triangle-up', 'triangle-down'];

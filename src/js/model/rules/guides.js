@@ -19,8 +19,8 @@ module.exports = function(parsed, property, channel) {
       scale = prop.scale && lookup(prop.scale);
   if (!scale) return;
 
-  return ctype === TYPES.AXIS ? 
-    axis.call(this, scale, group.axes) : 
+  return ctype === TYPES.AXIS ?
+    axis.call(this, scale, group.axes) :
     legend.call(this, scale, group.legends, property);
 };
 

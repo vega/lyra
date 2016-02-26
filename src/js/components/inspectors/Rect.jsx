@@ -20,7 +20,7 @@ var Rect = React.createClass({
 
         <h3>Fill</h3>
 
-        <Property name="fill" label="Color" 
+        <Property name="fill" label="Color"
           type="color" primitive={primitive} canDrop={true}
           scale={update.fill.scale} field={update.fill.field}
           signal={update.fill.signal} />
@@ -32,12 +32,12 @@ var Rect = React.createClass({
 
         <h3>Stroke</h3>
 
-        <Property name="stroke" label="Color" 
+        <Property name="stroke" label="Color"
           type="color" primitive={primitive} canDrop={true}
           scale={update.stroke.scale} field={update.stroke.field}
           signal={update.stroke.signal} />
 
-        <Property name="strokeWidth" label="Width" primitive={primitive} 
+        <Property name="strokeWidth" label="Width" primitive={primitive}
           type="range" canDrop={true} min="0" max="10" step="0.25"
           scale={update.strokeWidth.scale} field={update.strokeWidth.field}
           signal={update.strokeWidth.signal} />

@@ -29,8 +29,8 @@ prototype.init = function(opt) {
         resolve((self._values = dl.read(opt.values, self.format), self));
       } else if (opt.url) {
         resolve(promisify(dl.load)({ url: (self.url=opt.url) })
-          .then(function(data) { 
-            self._vals = dl.read(data, self.format); 
+          .then(function(data) {
+            self._vals = dl.read(data, self.format);
             return self;
           }));
       }
@@ -49,7 +49,7 @@ prototype.output = function() {
 
 prototype.schema = function() {
   if (this._schema) return this._schema;
-  var self  = this, 
+  var self  = this,
       types = dl.type.inferAll(this.output());
 
   var schema = dl.keys(types).reduce(function(s, k) {
@@ -67,7 +67,7 @@ prototype.summary = function() {
   });
 };
 
-// Values are cached. Export them only if we're not resolving. 
+// Values are cached. Export them only if we're not resolving.
 prototype.export = function(resolve) {
   var spec = Primitive.prototype.export.call(this, resolve);
   if (this._values) {
@@ -76,7 +76,7 @@ prototype.export = function(resolve) {
     spec.values = this._vals;
     delete spec.url;
   }
-  
+
   return spec;
 };
 

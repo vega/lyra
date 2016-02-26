@@ -33,14 +33,14 @@ prototype.transform = function(input) {
       g = this._graph,
       item = g.signal(sg.SELECTED).value(),
       mode = g.signal(sg.MODE).value(),
-      def = item.mark.def, 
+      def = item.mark.def,
       lyra_id = this.param('lyra_id'),
       cache   = this._cache,
       cacheID = this._cacheID,
       cacheMode = this._cacheMode,
       output = ChangeSet.create(input);
 
-  // If we've selected another scenegraph item or changed the manipulator state, 
+  // If we've selected another scenegraph item or changed the manipulator state,
   // remove any manipulators we added here.
   if (cache.length && (cacheID !== item._id || cacheMode !== mode)) {
     output.rem = cache.splice(0);

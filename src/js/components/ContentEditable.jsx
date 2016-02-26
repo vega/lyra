@@ -31,7 +31,7 @@ var ContentEditable = React.createClass({
     this.setState({ edit: false });
     var obj = this.props.obj;
     if (!obj) return;
-    
+
     var Sidebars = require('./');
     if (Sidebars.state.selected === obj._id) {
       Sidebars.refs.inspector.forceUpdate();

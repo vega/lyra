@@ -13,12 +13,12 @@ var Sidebars = React.createClass({
     return {selected: model.Scene._id, expandedLayers: {}};
   },
 
-  // TODO: Selecting in the inspector should set lyra_selected. 
+  // TODO: Selecting in the inspector should set lyra_selected.
   select: function(id, signal) {
     var ex = this.state.expandedLayers,
         primitive = lookup(id),
         path = [id],
-        item = model.view.model().scene().items[0], 
+        item = model.view.model().scene().items[0],
         items, i, j, len;
 
     for (; primitive; primitive = primitive.parent && primitive.parent()) {
@@ -55,7 +55,7 @@ var Sidebars = React.createClass({
     return (
       <div>
         <ScaleList ref="scaleList"
-          scales={model.scale()} 
+          scales={model.scale()}
           select={this.select}
           selected={this.state.selected} />
 
@@ -63,7 +63,7 @@ var Sidebars = React.createClass({
           layers={model.Scene.marks}
           select={this.select}
           selected={this.state.selected}
-          expanded={this.state.expandedLayers} 
+          expanded={this.state.expandedLayers}
           toggle={this.toggleLayer} />
 
         <Inspector ref="inspector"

@@ -37,17 +37,17 @@ prototype.transform = function(input) {
     output.rem = cache.splice(0);
   }
 
-  if (!cell._id) {  
+  if (!cell._id) {
     return output;
   }
 
-  // Voronoi cells always come after their manipulator. 
+  // Voronoi cells always come after their manipulator.
   var cousins = cell.cousin(-1).mark.items,
       offset  = {x: 0, y: 0},
       item    = cousins[0].mark.group;
 
   // If we're still in the same cell, we only need to update
-  // the mouse points. 
+  // the mouse points.
   if (cache.length && (mouseCache.x !== mouse.x || mouseCache.y !== mouse.y)) {
     output.mod.push(dl.extend(start, mouse));
     output.mod.push(dl.extend(end, mouse));
@@ -60,8 +60,8 @@ prototype.transform = function(input) {
     }
 
     // If backing data has coords, use those. Otherwise, use the cousin's bounds.
-    if (dl.isValid(cousins[0].datum.x)) { 
-      cache.push.apply(cache, cousins.map(function(i) { 
+    if (dl.isValid(cousins[0].datum.x)) {
+      cache.push.apply(cache, cousins.map(function(i) {
         var d = i.datum;
         d.x += offset.x;
         d.y += offset.y;

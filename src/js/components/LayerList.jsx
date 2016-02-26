@@ -23,7 +23,7 @@ var Group = React.createClass({
         selected = props.selected,
         expanded = props.expanded[group_id];
 
-    var style = { 
+    var style = {
       marginLeft: -(level+1)*MARGIN_LEFT,
       paddingLeft: (level+1)*MARGIN_LEFT
     }, childStyle = {
@@ -44,7 +44,7 @@ var Group = React.createClass({
               <Group key={id} {...props} id={id} level={level+1} />
             ) : (
               <li key={id}>
-                <div style={childStyle} 
+                <div style={childStyle}
                   className={'name' + (selected === id ? ' selected' : '')}
                   onClick={select}>
 
@@ -58,7 +58,7 @@ var Group = React.createClass({
         </ul>
       ) : null;
 
-    var spinner = expanded ? 
+    var spinner = expanded ?
       (<i className="fa fa-caret-down" onClick={this.toggle}></i>) :
       (<i className="fa fa-caret-right" onClick={this.toggle}></i>);
 
@@ -66,10 +66,10 @@ var Group = React.createClass({
 
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
-        <div style={style} 
-          className={'name' + (selected === group_id ? ' selected' : '')} 
+        <div style={style}
+          className={'name' + (selected === group_id ? ' selected' : '')}
           onClick={select}>
-            {spinner} 
+            {spinner}
 
             <ContentEditable obj={group} prop="name"
               value={group.name}
