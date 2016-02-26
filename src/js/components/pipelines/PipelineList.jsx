@@ -17,8 +17,8 @@ var PipelineList = React.createClass({
         <h2>Data Pipelines <i className="fa fa-plus"></i></h2>
         {this.props.pipelines.map(function(p) {
           return (
-            <PipelineInspector 
-              key={p._id} 
+            <PipelineInspector
+              key={p._id}
               pipeline={p}
               select={this.select.bind(this, p._id)}
               isSelected={this.state.selected === p._id} />

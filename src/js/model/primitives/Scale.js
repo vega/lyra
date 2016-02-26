@@ -8,7 +8,7 @@ function Scale(name, type, domain, range) {
   this.name = rename(name);
   this.type = type;
 
-  // Literal domain/ranges. 
+  // Literal domain/ranges.
   this.domain = domain;
   this.range  = range;
 

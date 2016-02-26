@@ -20,8 +20,8 @@ describe('Manipulators', function() {
 
         expect(img).to.deep.equal(test);
         done();
-      }).catch(function(err) { 
-        done(err); 
+      }).catch(function(err) {
+        done(err);
       });
     });
   }

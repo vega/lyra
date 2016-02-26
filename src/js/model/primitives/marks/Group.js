@@ -23,7 +23,7 @@ function Group() {
   this.axes  = [];
   this.marks = [];
 
-  // By default, make groups full width/height. 
+  // By default, make groups full width/height.
   this.properties.update = {
     x: {value: 0},
     y: {value: 0},
@@ -52,9 +52,9 @@ prototype.manipulators = function() {
       spec  = Mark.prototype.manipulators.call(this),
       group = spec[0],
       map = function(id) { return lookup(id).manipulators(); },
-      red = function(children, child) { 
-        return ((dl.isArray(child) ? 
-          children.push.apply(children, child) : children.push(child)), 
+      red = function(children, child) {
+        return ((dl.isArray(child) ?
+          children.push.apply(children, child) : children.push(child)),
         children);
       };
 
@@ -65,7 +65,7 @@ prototype.manipulators = function() {
 // Insert or create a child element.
 prototype.child = function(type, child) {
   type  = type.split('.');
-  child = (child === undefined) ? new CHILDREN[type[1] || type[0]]().init() : 
+  child = (child === undefined) ? new CHILDREN[type[1] || type[0]]().init() :
     dl.isNumber(child) ? lookup(child) : child;
 
   var id = child._id, types = this[type[0]];

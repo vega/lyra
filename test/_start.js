@@ -30,8 +30,8 @@ global.image.save = false;
 
 before(function() {
   var cars = global.cars = model.pipeline('cars');
-  cars._source.init({ 
-    values: JSON.parse(fs.readFileSync(res + 'cars.json')) 
+  cars._source.init({
+    values: JSON.parse(fs.readFileSync(res + 'cars.json'))
   });
   cars.f = function(name) { return cars._source.schema()[name]._id; };
 });

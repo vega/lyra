@@ -31,7 +31,7 @@ prototype.export = function(resolve) {
 
   // Always resolve width/height signals.
   spec.width  = spec.width.signal  ? sg.value(SG_WIDTH)  : spec.width;
-  spec.height = spec.height.signal ? sg.value(SG_HEIGHT) : spec.height; 
+  spec.height = spec.height.signal ? sg.value(SG_HEIGHT) : spec.height;
 
   // Remove mark-specific properties
   delete spec.type;
@@ -41,7 +41,7 @@ prototype.export = function(resolve) {
   return spec;
 };
 
-prototype.manipulators = function() { 
+prototype.manipulators = function() {
   return Group.prototype.manipulators.call(this)[0];
 };
 

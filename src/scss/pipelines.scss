@@ -56,13 +56,13 @@ $pipeline-width: 180px;
   $mw: $cell-width - $cell-padding;
 
   /* Req'd to prevent Chrome scrolling .field for some reason */
-  $padding-hack: 2px; 
+  $padding-hack: 2px;
 
   margin-left: $cell-width + 2*$cell-padding - $padding-hack;
   padding-left: $padding-hack;
   overflow: auto;
   font-size: 11px;
-  
+
   td {
     min-width: $mw;
     max-width: $mw;

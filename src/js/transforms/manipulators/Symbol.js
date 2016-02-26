@@ -25,7 +25,7 @@ prototype.connectors = function(item) {
 };
 
 function map(key, manipulator) {
-  return function(d) { 
+  return function(d) {
     d.key = key;
     d.manipulator = manipulator;
     return d;
@@ -40,12 +40,12 @@ prototype.channels = prototype.altchannels = function(item) {
 
   return []
     // x
-    .concat([ 
-      {x: gb.x1, y: m.y}, {x: m.x-PX, y: m.y}      
+    .concat([
+      {x: gb.x1, y: m.y}, {x: m.x-PX, y: m.y}
     ].map(map('x', 'span')))
     // y
-    .concat([ 
-      {x: m.x, y: gb.y1}, {x: m.x, y: m.y-SP}      
+    .concat([
+      {x: m.x, y: gb.y1}, {x: m.x, y: m.y-SP}
     ].map(map('y', 'span')));
 };
 

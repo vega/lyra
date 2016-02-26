@@ -39,8 +39,8 @@ describe('Lyra Signals', function() {
       expect(sg.value('foobar')).to.equal(1);
       expect(model.view.signal('lyra_foobar')).to.equal(1);
       done();
-    }).catch(function(err) { 
-      done(err); 
+    }).catch(function(err) {
+      done(err);
     });
   })
 

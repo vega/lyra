@@ -45,7 +45,7 @@ function bindProperty(map, property, props, def, from) {
 // Spatial properties for rect marks require more parsing before binding.
 // Vega-Lite produces center/span (e.g., xc/width) properties when using
 // an ordinal scale as "points": true. However, Lyra hews closer to the
-// Vega representation (start/span). 
+// Vega representation (start/span).
 var RECT_SPANS = {x: 'width', y: 'height'};
 function rectSpatial(map, property, channel, props, def, from) {
   var bind = channel+'2',

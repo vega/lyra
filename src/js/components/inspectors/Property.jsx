@@ -42,7 +42,7 @@ var Property = React.createClass({
     scaleEl = scale && (scale=lookup(scale)) ?
       (<div className="scale">{scale.name}</div>) : null;
 
-    controlEl = field && (field=lookup(field)) ? 
+    controlEl = field && (field=lookup(field)) ?
       (<div className="field">{field._name}</div>) : controlEl;
 
     if (!controlEl) {

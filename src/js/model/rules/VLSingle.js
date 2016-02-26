@@ -1,6 +1,6 @@
 var Primitive = require('../primitives/Primitive');
 
-// Map from Vega to Vega-Lite 
+// Map from Vega to Vega-Lite
 var TYPES = {
   rect: 'bar',
   symbol: 'point'

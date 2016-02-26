@@ -5,7 +5,7 @@ var dl = require('datalib'),
     util = require('../../../util');
 
 var DELTA  = sg.DELTA,
-    DX = DELTA+'.x', 
+    DX = DELTA+'.x',
     DY = DELTA+'.y';
 
 function Rect(type) {
