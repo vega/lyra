@@ -9,11 +9,14 @@
             <div class="col-lg-4">
                 <h4>Links</h4>
                 <div class="hline-w"></div>
-                <p>
-                    {% for network in site.social %}
-                        <a href="{{ network.url }}" class="btn-social btn-outline"><i class="fa fa-{{ network.title }}"></i> {{network.title}}</a>
-                    {% endfor %}
-                </p>
+                {% for network in site.social %}
+                    <p>
+                        <a href="{{ network.url }}" class="btn-social btn-outline">
+                            <i class="fa fa-{{ network.title }}"></i>
+                            {{network.title}}
+                        </a>
+                    </p>
+                {% endfor %}
                 <p>
                     <a href="/docs">
                         <i class="fa fa-book"></i>
