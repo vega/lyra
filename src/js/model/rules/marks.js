@@ -1,12 +1,12 @@
 var dl = require('datalib'),
-    util   = require('../../util'),
-    model  = require('../'),
+    util = require('../../util'),
+    model = require('../'),
     lookup = model.primitive;
 
 module.exports = function(parsed, property, channel) {
   var map = this._rule._map,
       def = parsed.spec.marks[0].marks[0],
-      props  = this.properties.update,
+      props = this.properties.update,
       dprops = def.properties.update,
       from;
 
@@ -35,10 +35,10 @@ function bindProperty(map, property, props, def, from) {
     }
   }
   if (d.value !== undefined) {
-    model.signal(p.signal=util.propSg(this, property), d.value);
+    model.signal(p.signal = util.propSg(this, property), d.value);
   }
 
-  if (d.band !== undefined)   p.band   = d.band;
+  if (d.band !== undefined) p.band = d.band;
   if (d.offset !== undefined) p.offset = d.offset;
 }
 
@@ -48,13 +48,13 @@ function bindProperty(map, property, props, def, from) {
 // Vega representation (start/span).
 var RECT_SPANS = {x: 'width', y: 'height'};
 function rectSpatial(map, property, channel, props, def, from) {
-  var bind = channel+'2',
-      cntr = channel+'c',
+  var bind = channel + '2',
+      cntr = channel + 'c',
       span = RECT_SPANS[channel];
 
   // If we're binding to a literal spatial property (i.e., span
   // manipulators not arrows), bind only that property.
-  if (property !== channel+'+') {
+  if (property !== channel + '+') {
     def[property] = def[property] || def[channel] || def[cntr];
     return bindProperty.call(this, map, property, props, def, from);
   }

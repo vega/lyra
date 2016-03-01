@@ -23,8 +23,8 @@ module.exports = {
     if (prevProps.signal) this.offSignal(prevProps.signal);
     if (nextProps.signal) this.onSignal(nextProps.signal);
     if (nextProps.signal || nextProps.value !== prevProps.value) {
-      this.setState({ value: nextProps.signal ?
-        model.signal(nextProps.signal) : nextProps.value });
+      this.setState({value: nextProps.signal ?
+        model.signal(nextProps.signal) : nextProps.value});
     }
   },
 
@@ -39,7 +39,7 @@ module.exports = {
   },
 
   signal: function(_, value) {
-    this.setState({ value: value });
+    this.setState({value: value});
   },
 
   handleChange: function(evt) {
@@ -47,7 +47,7 @@ module.exports = {
   },
 
   setValue: function(value) {
-    var props  = this.props,
+    var props = this.props,
         signal = props.signal,
         type = props.type;
 
@@ -57,7 +57,7 @@ module.exports = {
       model.signal(signal, value).update();
     } else {
       this._set(props.obj, value);
-      this.setState({ value: value });
+      this.setState({value: value});
     }
   }
 };

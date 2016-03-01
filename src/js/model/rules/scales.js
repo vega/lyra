@@ -1,11 +1,11 @@
 var dl = require('datalib'),
-    Scale  = require('../primitives/Scale'),
-    rules  = require('./'),
-    model  = require('../'),
+    Scale = require('../primitives/Scale'),
+    rules = require('./'),
+    model = require('../'),
     lookup = model.primitive;
 
-var REF_CELLW = {"data": "layout", "field": "cellWidth"},
-    REF_CELLH = {"data": "layout", "field": "cellHeight"};
+var REF_CELLW = {'data': 'layout', 'field': 'cellWidth'},
+    REF_CELLH = {'data': 'layout', 'field': 'cellHeight'};
 
 module.exports = function(parsed) {
   var map = this._rule._map.scales,
@@ -16,10 +16,10 @@ module.exports = function(parsed) {
       name, def, curr;
 
   // Vega-Lite names scales by the channel they're used for.
-  for(; i<len; ++i) {
+  for (; i < len; ++i) {
     name = channels[i];
     curr = lookup(map[name]);
-    def  = parse.call(this, scales.find(find));
+    def = parse.call(this, scales.find(find));
     if (!def) continue;
     if (!curr || !equals(def, curr)) {
       scale.call(this, def);
@@ -75,11 +75,11 @@ function scale(def) {
   if (!s) {
     s = model.scale(new Scale(def.name, def.type, undefined, def.range));
     s._domain = def._domain;
-    s.points  = points;
+    s.points = points;
     if (points) s.padding = def.padding;
   }
 
-  s.nice  = def.nice;
+  s.nice = def.nice;
   s.round = def.round;
 
   this._rule._map.scales[def.name] = s._id;

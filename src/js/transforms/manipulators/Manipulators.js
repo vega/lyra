@@ -16,9 +16,9 @@ function Manipulators(graph) {
     lyra_id: {type: 'value'}
   });
 
-  this._cacheID   = null;
+  this._cacheID = null;
   this._cacheMode = null;
-  this._cache   = [];
+  this._cache = [];
   this._voronoi = new Voronoi(graph);
 
   return this.router(true).produces(true)
@@ -35,7 +35,7 @@ prototype.transform = function(input) {
       mode = g.signal(sg.MODE).value(),
       def = item.mark.def,
       lyra_id = this.param('lyra_id'),
-      cache   = this._cache,
+      cache = this._cache,
       cacheID = this._cacheID,
       cacheMode = this._cacheMode,
       output = ChangeSet.create(input);
@@ -66,15 +66,15 @@ prototype.transform = function(input) {
     tpls.forEach(function(d, i) { dl.extend(cache[i], d); });
     output.mod.push.apply(output.mod, cache);
   } else {
-    this._cacheID   = item._id;
+    this._cacheID = item._id;
     this._cacheMode = mode;
     cache.push.apply(cache, tpls.map(Tuple.ingest));
     output.add.push.apply(output.add, cache);
   }
 
   var clip = [
-    [dl.min(cache, $x)-100, dl.min(cache, $y)-50],
-    [dl.max(cache, $x)+50, dl.max(cache, $y)+50]
+    [dl.min(cache, $x) - 100, dl.min(cache, $y) - 50],
+    [dl.max(cache, $x) + 50, dl.max(cache, $y) + 50]
   ];
 
   return this._voronoi

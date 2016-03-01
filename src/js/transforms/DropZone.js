@@ -11,10 +11,10 @@ function DropZone(graph) {
   Transform.prototype.init.call(this, graph);
 
   this._cellID = null;
-  this._cache  = [];
-  this._start  = Tuple.ingest({});
-  this._end    = Tuple.ingest({});
-  this._mouse  = {x: -1, y: -1};
+  this._cache = [];
+  this._start = Tuple.ingest({});
+  this._end = Tuple.ingest({});
+  this._mouse = {x: -1, y: -1};
   return this.router(true).produces(true)
     .dependency(Deps.SIGNALS, [sg.CELL, sg.MOUSE]);
 }
@@ -24,13 +24,13 @@ prototype.constructor = DropZone;
 
 prototype.transform = function(input) {
   var g = this._graph,
-      cell  = g.signal(sg.CELL).value(),
+      cell = g.signal(sg.CELL).value(),
       mouse = g.signal(sg.MOUSE).value(),
       mouseCache = this._mouse,
       cellID = this._cellID,
-      cache  = this._cache,
-      start  = this._start,
-      end    = this._end,
+      cache = this._cache,
+      start = this._start,
+      end = this._end,
       output = ChangeSet.create(input);
 
   if (cache.length && cellID !== cell._id) {
@@ -43,8 +43,8 @@ prototype.transform = function(input) {
 
   // Voronoi cells always come after their manipulator.
   var cousins = cell.cousin(-1).mark.items,
-      offset  = {x: 0, y: 0},
-      item    = cousins[0].mark.group;
+      offset = {x: 0, y: 0},
+      item = cousins[0].mark.group;
 
   // If we're still in the same cell, we only need to update
   // the mouse points.

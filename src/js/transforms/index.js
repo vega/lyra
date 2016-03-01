@@ -4,7 +4,7 @@ var dl = require('datalib'),
     t = module.exports = {};
 
 var MANIPULATORS = util.ns('manipulators_');
-t[MANIPULATORS + 'rect']  = require('./manipulators/Rect');
+t[MANIPULATORS + 'rect'] = require('./manipulators/Rect');
 t[MANIPULATORS + 'group'] = require('./manipulators/Rect');
 t[MANIPULATORS + 'symbol'] = require('./manipulators/Symbol');
 

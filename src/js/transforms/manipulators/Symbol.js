@@ -17,7 +17,7 @@ prototype.handles = function(item) {
     c.topLeft, c.topRight,
     c.bottomLeft, c.bottomRight
   ];
-}
+};
 
 prototype.connectors = function(item) {
   var c = spec.coords(item.bounds, 'connector');
@@ -33,19 +33,19 @@ function map(key, manipulator) {
 }
 
 prototype.channels = prototype.altchannels = function(item) {
-  var b  = item.bounds,
+  var b = item.bounds,
       gb = item.mark.group.bounds,
-      c  = spec.coords(b),
-      m  = c.midCenter;
+      c = spec.coords(b),
+      m = c.midCenter;
 
   return []
     // x
     .concat([
-      {x: gb.x1, y: m.y}, {x: m.x-PX, y: m.y}
+      {x: gb.x1, y: m.y}, {x: m.x - PX, y: m.y}
     ].map(map('x', 'span')))
     // y
     .concat([
-      {x: m.x, y: gb.y1}, {x: m.x, y: m.y-SP}
+      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - SP}
     ].map(map('y', 'span')));
 };
 

@@ -1,12 +1,12 @@
 var dl = require('datalib'),
     vg = require('vega'),
     sg = require('../signals'),
-    model  = require('../'),
+    model = require('../'),
     lookup = model.primitive,
     id = 0;
 
 function Primitive() {
-  model.primitive(this._id=++id, this);
+  model.primitive(this._id = ++id, this);
   return this;
 }
 

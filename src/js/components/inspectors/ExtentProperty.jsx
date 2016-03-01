@@ -4,7 +4,7 @@ var dl = require('datalib'),
     SpatialPreset = require('./SpatialPreset.jsx'),
     Parse = require('../mixins/Parse.jsx'),
     util = require('../../util'),
-    model  = require('../../model'),
+    model = require('../../model'),
     lookup = model.primitive;
 
 var EXTENTS = {
@@ -35,9 +35,9 @@ var ExtentProperty = React.createClass({
 
   extents: function() {
     var props = this.props,
-        type  = props.type,
+        type = props.type,
         primitive = props.primitive,
-        update  = primitive.properties.update,
+        update = primitive.properties.update,
         extents = dl.vals(EXTENTS[type]),
         start, end, i, len;
 
@@ -54,16 +54,16 @@ var ExtentProperty = React.createClass({
   handleChange: function(evt) {
     var props = this.props,
         state = this.state,
-        type  = props.type,
+        type = props.type,
         primitive = props.primitive,
         update = primitive.properties.update,
         target = evt.target,
-        name   = target.name,
-        value  = target.value,
+        name = target.name,
+        value = target.value,
         extents = EXTENTS[type],
-        center  = extents.center.name,
+        center = extents.center.name,
         span = extents.span.name,
-        old  = state[name];
+        old = state[name];
 
     update[old]._disabled = true;
     update[value]._disabled = false;
@@ -81,13 +81,13 @@ var ExtentProperty = React.createClass({
   render: function() {
     var state = this.state,
         props = this.props,
-        type  = props.type,
+        type = props.type,
         primitive = props.primitive,
-        update  = primitive.properties.update,
+        update = primitive.properties.update,
         extents = EXTENTS[type],
         center = extents.center.name,
-        span  = extents.span.label,
-        opts  = dl.vals(extents),
+        span = extents.span.label,
+        opts = dl.vals(extents),
         start = state.start, end = state.end;
 
     return (
@@ -95,13 +95,13 @@ var ExtentProperty = React.createClass({
 
         <Property name={start} type="number" primitive={primitive} canDrop={true}
           scale={update[start].scale} field={update[start].field}
-          signal={update[start].signal} disabled={update[start].band||update[start].group}>
+          signal={update[start].signal} disabled={update[start].band || update[start].group}>
 
           <div className="label">
             <select name="start" value={start} onChange={this.handleChange}>
               {opts.filter(function(x) { return x.name !== end; })
                 .map(function(x) {
-                  return (<option key={x.name} value={x.name}>{x.label}</option>)
+                  return (<option key={x.name} value={x.name}>{x.label}</option>);
                 })}
             </select>
           </div>
@@ -111,7 +111,7 @@ var ExtentProperty = React.createClass({
 
         <Property name={end} type="number" primitive={primitive} canDrop={true}
           scale={update[end].scale} field={update[end].field}
-          signal={update[end].signal} disabled={update[end].band||update[end].group}>
+          signal={update[end].signal} disabled={update[end].band || update[end].group}>
 
           <div className="label">
             {start === center ?
@@ -119,9 +119,9 @@ var ExtentProperty = React.createClass({
               (
                 <select name="end" value={end} onChange={this.handleChange}>
                   {opts
-                    .filter(function(x) { return x.name !== start && x.name != center; })
+                    .filter(function(x) { return x.name !== start && x.name !== center; })
                     .map(function(x) {
-                      return (<option key={x.name} value={x.name}>{x.label}</option>)
+                      return (<option key={x.name} value={x.name}>{x.label}</option>);
                     })}
                 </select>
               )
@@ -131,7 +131,7 @@ var ExtentProperty = React.createClass({
           <SpatialPreset className="extra" name={end} {...props} />
         </Property>
       </div>
-    )
+    );
   }
 });
 

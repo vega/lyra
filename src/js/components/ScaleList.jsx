@@ -25,7 +25,7 @@ var ScaleList = React.createClass({
                     onClick={select} />
                 </div>
               </li>
-            )
+            );
           }, this)}
         </ul>
       </div>

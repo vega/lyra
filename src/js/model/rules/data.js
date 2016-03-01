@@ -1,4 +1,4 @@
-var model  = require('../'),
+var model = require('../'),
     lookup = model.primitive;
 
 module.exports = function(parsed, from) {

@@ -3,18 +3,18 @@ var dl = require('datalib'),
     Primitive = require('../Primitive'),
     Scale = require('../Scale'),
     Pipeline = require('../data/Pipeline'),
-    Dataset  = require('../data/Dataset'),
-    Field  = require('../data/Field'),
+    Dataset = require('../data/Dataset'),
+    Field = require('../data/Field'),
     manips = require('./manipulators'),
-    rules  = require('../../rules'),
-    util   = require('../../../util'),
-    model  = require('../../'),
+    rules = require('../../rules'),
+    util = require('../../../util'),
+    model = require('../../'),
     lookup = model.primitive,
-    count  = {group: -1};
+    count = {group: -1};
 
 function Mark(type) {
-  var cnt   = count[type] || (count[type] = 0);
-  this.name = type+'_'+(++count[type]);
+  var cnt = count[type] || (count[type] = 0);
+  this.name = type + '_' + (++count[type]);
   this.type = type;
   this.from = undefined;
 
@@ -40,7 +40,7 @@ prototype.constructor = Mark;
 // Convert all registered visual properties w/literal values to signals.
 // Subclasses will register the necessary streams to change the signal values.
 prototype.init = function() {
-  var props  = this.properties,
+  var props = this.properties,
       update = props.update,
       k, p;
 
@@ -64,7 +64,7 @@ prototype.pipeline = function(id) {
   if (!arguments.length) {
     from = lookup(this.from);
     return from && from.parent()._id;
-  } else if ((from=lookup(id)) instanceof Dataset) {
+  } else if ((from = lookup(id)) instanceof Dataset) {
     this.from = id;
     return this;
   } else if (from instanceof Pipeline) {
@@ -75,7 +75,7 @@ prototype.pipeline = function(id) {
     this.from = undefined;
     return this;
   }
-}
+};
 
 // Interaction logic for handle manipulators.
 prototype.initHandles = function() {};
@@ -83,7 +83,7 @@ prototype.initHandles = function() {};
 // Convert signalRefs to valueRefs unless resolve === false.
 prototype.export = function(resolve) {
   var spec = Primitive.prototype.export.call(this, resolve),
-      props  = spec.properties,
+      props = spec.properties,
       update = props.update,
       from = this.from && lookup(this.from),
       keys = dl.keys(update),
@@ -94,14 +94,14 @@ prototype.export = function(resolve) {
       {data: from.name};
   }
 
-  for (i=0, len=keys.length; i<len; ++i) {
-    v = update[k=keys[i]];
+  for (i = 0, len = keys.length; i < len; ++i) {
+    v = update[k = keys[i]];
     if (!dl.isObject(v)) {  // signalRef resolved to literal
       update[k] = {value: v};
     }
 
-    if (v.scale) v.scale = (s=lookup(v.scale)) && s.name;
-    if (v.field) v.field = (f=lookup(v.field)) && f._name;
+    if (v.scale) v.scale = (s = lookup(v.scale)) && s.name;
+    if (v.field) v.field = (f = lookup(v.field)) && f._name;
     if (v.group) v.field = {group: v.group};
   }
 

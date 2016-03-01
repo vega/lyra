@@ -26,7 +26,7 @@ var PipelineInspector = React.createClass({
           onClick={!props.isSelected && props.select} />
         {inner}
       </div>
-    )
+    );
   }
 });
 

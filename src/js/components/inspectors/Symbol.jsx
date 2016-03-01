@@ -61,7 +61,7 @@ var Symbol = React.createClass({
           scale={update.strokeWidth.scale} field={update.strokeWidth.field}
           signal={update.strokeWidth.signal} />
       </div>
-    )
+    );
   }
 });
 

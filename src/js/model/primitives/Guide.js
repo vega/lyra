@@ -1,5 +1,5 @@
 var Primitive = require('./Primitive'),
-    model  = require('../'),
+    model = require('../'),
     lookup = model.primitive;
 
 var GTYPES = {AXIS: 1, LEGEND: 2},
@@ -8,7 +8,7 @@ function Guide(gtype, type, scale) {
   this._gtype = gtype;
 
   if (gtype === GTYPES.AXIS) {
-    this.type  = type;
+    this.type = type;
     this.scale = +scale || scale._id;
     this.orient = ORIENT[type];
     this.properties = {
@@ -44,9 +44,9 @@ prototype.init = function() {
 };
 
 prototype.export = prototype.manipulators = function(resolve) {
-  var spec  = Primitive.prototype.export.call(this, resolve),
+  var spec = Primitive.prototype.export.call(this, resolve),
       gtype = this._gtype,
-      type  = this._type;
+      type = this._type;
 
   if (gtype === GTYPES.AXIS) {
     spec.scale = lookup(spec.scale).name;

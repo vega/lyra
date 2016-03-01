@@ -4,9 +4,9 @@ var dl = require('datalib'),
     TYPES = vl.data.types;
 
 function Field(name, ptype) {
-  this._name  = name;
+  this._name = name;
   this._ptype = ptype;         // primitive type (boolean/string/etc.)
-  this._type  = TYPES[ptype];  // nominal, ordinal, etc.
+  this._type = TYPES[ptype];  // nominal, ordinal, etc.
 
   this._aggregate = null;
   this._bin = null;

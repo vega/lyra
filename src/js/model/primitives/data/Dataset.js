@@ -7,7 +7,7 @@ function Dataset(name) {
   this.name = name;
 
   this.source = undefined;
-  this.url    = undefined;
+  this.url = undefined;
   this.format = undefined;
 
   return Primitive.call(this);
@@ -28,7 +28,7 @@ prototype.init = function(opt) {
       if (opt.values) {
         resolve((self._values = dl.read(opt.values, self.format), self));
       } else if (opt.url) {
-        resolve(promisify(dl.load)({ url: (self.url=opt.url) })
+        resolve(promisify(dl.load)({url: (self.url = opt.url)})
           .then(function(data) {
             self._vals = dl.read(data, self.format);
             return self;
@@ -49,7 +49,7 @@ prototype.output = function() {
 
 prototype.schema = function() {
   if (this._schema) return this._schema;
-  var self  = this,
+  var self = this,
       types = dl.type.inferAll(this.output());
 
   var schema = dl.keys(types).reduce(function(s, k) {

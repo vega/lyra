@@ -24,11 +24,11 @@ var ContentEditable = React.createClass({
   },
 
   start: function() {
-    this.setState({ edit: true });
+    this.setState({edit: true});
   },
 
   stop: function() {
-    this.setState({ edit: false });
+    this.setState({edit: false});
     var obj = this.props.obj;
     if (!obj) return;
 
@@ -43,7 +43,7 @@ var ContentEditable = React.createClass({
   },
 
   handleEnter: function(evt) {
-    if(!evt.keyCode || (evt.keyCode && evt.keyCode == 13)) {
+    if (!evt.keyCode || (evt.keyCode && evt.keyCode === 13)) {
       this.stop();
     }
   },
@@ -52,7 +52,7 @@ var ContentEditable = React.createClass({
     var props = this.props;
     return (
       <div style={props.style}
-        className={(props.className||'') + ' content-editable'}
+        className={(props.className || '') + ' content-editable'}
         contentEditable={this.state.edit}
         onClick={props.onClick || this.start}
         onDoubleClick={props.onDoubleClick || this.start}
@@ -61,7 +61,7 @@ var ContentEditable = React.createClass({
         onKeyDown={this.handleEnter}>
           {this.state.value}
       </div>
-    )
+    );
   }
 
 });

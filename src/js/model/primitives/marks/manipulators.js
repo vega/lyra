@@ -17,7 +17,7 @@ function manipulators(prototype) {
       from: {
         mark: this.name,
         transform: [
-          {type: util.ns('manipulators_'+this.type), lyra_id: this._id},
+          {type: util.ns('manipulators_' + this.type), lyra_id: this._id},
           {type: 'facet', groupby: ['manipulator']}
         ]
       },
@@ -25,7 +25,7 @@ function manipulators(prototype) {
     }];
   };
 
-};
+}
 
 module.exports = manipulators;
 
@@ -46,20 +46,20 @@ manipulators.size = function(b) {
 manipulators.coords = function(b, m) {
   var c = {
     topLeft:   {x: b.x1, y: b.y1, cursor: 'nw-resize'},
-    topCenter: {x: b.x1 + (b.width()/2), y: b.y1, cursor: 'n-resize'},
+    topCenter: {x: b.x1 + (b.width() / 2), y: b.y1, cursor: 'n-resize'},
     topRight:  {x: b.x2, y: b.y1, cursor: 'ne-resize'},
-    midLeft:   {x: b.x1, y: b.y1 + (b.height()/2), cursor: 'w-resize'},
-    midCenter: {x: b.x1 + (b.width()/2), y: b.y1 + (b.height()/2), cursor: 'move'},
-    midRight:  {x: b.x2, y: b.y1 + (b.height()/2), cursor: 'e-resize'},
+    midLeft:   {x: b.x1, y: b.y1 + (b.height() / 2), cursor: 'w-resize'},
+    midCenter: {x: b.x1 + (b.width() / 2), y: b.y1 + (b.height() / 2), cursor: 'move'},
+    midRight:  {x: b.x2, y: b.y1 + (b.height() / 2), cursor: 'e-resize'},
     bottomLeft:   {x: b.x1, y: b.y2, cursor: 'sw-resize'},
-    bottomCenter: {x: b.x1 + (b.width()/2), y: b.y2, cursor: 's-resize'},
+    bottomCenter: {x: b.x1 + (b.width() / 2), y: b.y2, cursor: 's-resize'},
     bottomRight:  {x: b.x2, y: b.y2, cursor: 'se-resize'}
   };
 
   if (m) for (var k in c) {
-    var d  = c[k];
+    var d = c[k];
     d.size = this.size(b);
-    d.key  = k;
+    d.key = k;
     d.manipulator = m;
   }
 
@@ -95,7 +95,7 @@ function hoverCell(t, f, parent) {
   return {rule: rule};
 }
 
-TYPES.push(manipulators.HANDLE={
+TYPES.push(manipulators.HANDLE = {
   type: 'symbol',
   from: {
     transform: [{type: 'filter', test: 'datum.manipulator === "handle"'}]
@@ -116,7 +116,7 @@ TYPES.push(manipulators.HANDLE={
   }
 });
 
-TYPES.push(manipulators.CONNECTOR={
+TYPES.push(manipulators.CONNECTOR = {
   type: 'group',
   from: {
     transform: [{type: 'filter', test: 'datum.manipulator === "connector"'}]
@@ -137,7 +137,7 @@ TYPES.push(manipulators.CONNECTOR={
   }, voronoi(true)]
 });
 
-TYPES.push(manipulators.ARROW={
+TYPES.push(manipulators.ARROW = {
   type: 'group',
   from: {
     transform: [
@@ -159,7 +159,7 @@ TYPES.push(manipulators.ARROW={
   }, voronoi()]
 });
 
-TYPES.push(manipulators.SPAN=dl.extend({}, manipulators.ARROW, {
+TYPES.push(manipulators.SPAN = dl.extend({}, manipulators.ARROW, {
   from: {
     transform: [
       {type: 'filter', test: 'datum.manipulator === "span"'},

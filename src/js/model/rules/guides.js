@@ -1,6 +1,6 @@
 var dl = require('datalib'),
-    Guide  = require('../primitives/Guide'),
-    model  = require('../'),
+    Guide = require('../primitives/Guide'),
+    model = require('../'),
     lookup = model.primitive;
 
 var TYPES = Guide.TYPES,
@@ -15,7 +15,7 @@ module.exports = function(parsed, property, channel) {
 
   var group = parsed.spec.marks[0],
       props = this.properties.update,
-      prop  = props[property] || props[channel],
+      prop = props[property] || props[channel],
       scale = prop.scale && lookup(prop.scale);
   if (!scale) return;
 
@@ -30,9 +30,9 @@ var SWAP_ORIENT = {
 };
 
 function axis(scale, defs) {
-  var map  = this._rule._map.scales,
+  var map = this._rule._map.scales,
       axes = this.parent().axes,
-      def  = defs.find(function(d) {
+      def = defs.find(function(d) {
         return map[d.scale] === scale._id;
       }),
       axis, count = 0;
@@ -45,9 +45,9 @@ function axis(scale, defs) {
 
   if (!axis && count < 2) {
     axis = new Guide(TYPES.AXIS, def.type, scale._id);
-    axis.title  = def.title;
-    axis.layer  = def.layer;
-    axis.grid   = def.grid;
+    axis.title = def.title;
+    axis.layer = def.layer;
+    axis.grid = def.grid;
     axis.orient = def.orient || axis.orient;
     if (count === 1) axis.orient = SWAP_ORIENT[axis.orient];
     dl.extend(axis.properties, def.properties);

@@ -8,7 +8,7 @@ var PipelineList = React.createClass({
   },
 
   select: function(id) {
-    this.setState({ selected: id });
+    this.setState({selected: id});
   },
 
   render: function() {
@@ -25,7 +25,7 @@ var PipelineList = React.createClass({
           );
         }, this)}
       </div>
-    )
+    );
   }
 });
 

@@ -1,8 +1,8 @@
 var dl = require('datalib'),
     vg = require('vega'),
-    sg  = require('./signals'),
+    sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
-    util  = require('../util');
+    util = require('../util');
 
 var model = module.exports = {
   view:  null,
@@ -11,7 +11,7 @@ var model = module.exports = {
 
 var pipelines = [], scales = [],
     primitives = {},
-    listeners  = {};
+    listeners = {};
 
 model.init = function() {
   var Scene = require('./primitives/marks/Scene');
@@ -47,7 +47,7 @@ model.signal = function() {
 };
 
 model.export = function(scene, resolve) {
-  resolve  = resolve || resolve === undefined;
+  resolve = resolve || resolve === undefined;
   var spec = scene || model.Scene.export(resolve);
 
   spec.data = pipelines.reduce(function(arr, id) {
@@ -69,7 +69,7 @@ model.manipulators = function() {
   predicates.push({
     name: sg.CELL,
     type: '==',
-    operands: [{signal: sg.CELL+'.key'}, {arg: 'key'}]
+    operands: [{signal: sg.CELL + '.key'}, {arg: 'key'}]
   });
 
   data.push({
@@ -91,7 +91,7 @@ model.parse = function(el) {
       if (err) {
         reject(err);
       } else {
-        model.view = chart({ el: el });
+        model.view = chart({el: el});
         register();
         resolve(model.view);
       }
@@ -111,7 +111,7 @@ model.onSignal = function(name, handler) {
 
 model.offSignal = function(name, handler) {
   var listener = listeners[name] || (listeners[name] = []);
-  for (var i=listener.length; --i>=0;) {
+  for (var i = listener.length; --i >= 0;) {
     if (!handler || listener[i] === handler) {
       listener.splice(i, 1);
     }
@@ -131,7 +131,7 @@ function register() {
     win.on(dragover, function() {
       var mode = model.signal(sg.MODE),
           shiftKey = d3.event.shiftKey,
-          prevKey  = !!model._shiftKey;
+          prevKey = !!model._shiftKey;
 
       if (prevKey === shiftKey) return;
       model._shiftKey = shiftKey;
@@ -144,13 +144,13 @@ function register() {
 
   model.view.onSignal(sg.SELECTED, function(name, selected) {
     var def = selected.mark.def,
-        id  = def && def.lyra_id;
+        id = def && def.lyra_id;
     if (id) components.select(id, false);
   });
 
   for (signalName in listeners) {
     handlers = listeners[signalName];
-    for (i=0, len=handlers.length; i<len; ++i) {
+    for (i = 0, len = handlers.length; i < len; ++i) {
       model.view.onSignal(signalName, handlers[i]);
     }
   }

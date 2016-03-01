@@ -110,7 +110,7 @@ rules:
 
   strict:
     - 2
-    - function
+    - global
 
   # Variables
 
