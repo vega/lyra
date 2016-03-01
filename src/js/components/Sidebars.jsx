@@ -26,7 +26,9 @@ var Sidebars = React.createClass({
         items, i, j, len;
 
     for (; primitive; primitive = primitive.parent && primitive.parent()) {
-      if (primitive.type !== 'group' || primitive._id === id) continue;
+      if (primitive.type !== 'group' || primitive._id === id) {
+        continue;
+      }
       ex[primitive._id] = true;
       path.push(primitive._id);
     }
@@ -34,18 +36,26 @@ var Sidebars = React.createClass({
     this.setState({selected: id, expandedLayers: ex});
 
     // Synchronize component state and signal state.
-    if (signal === false) return;
+    if (signal === false) {
+      return;
+    }
     for (i = path.length - 2; i >= 0; --i) {
       id = path[i];
       for (items = item.items, j = 0, len = items.length; j < len; ++j) {
         item = items[j].def.lyra_id === id ? items[j].items[0] : null;
-        if (item !== null) break;
+        if (item !== null) {
+          break;
+        }
       }
 
-      if (item === null) break;
+      if (item === null) {
+        break;
+      }
     }
 
-    if (item !== null) model.signal(sg.SELECTED, item).update();
+    if (item !== null) {
+      model.signal(sg.SELECTED, item).update();
+    }
   },
 
   toggleLayer: function(id) {

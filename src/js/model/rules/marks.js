@@ -33,7 +33,8 @@ function bindProperty(map, property, props, def, from) {
   if (d.field !== undefined) {
     if (d.field.group) {
       p.group = d.field.group;
-    } else {
+    }
+    else {
       p.field = from.schema()[d.field]._id;
     }
   }

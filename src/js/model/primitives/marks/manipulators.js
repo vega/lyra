@@ -17,8 +17,14 @@ function manipulators(prototype) {
       from: {
         mark: this.name,
         transform: [
-          {type: util.ns('manipulators_' + this.type), lyra_id: this._id},
-          {type: 'facet', groupby: ['manipulator']}
+          {
+            type: util.ns('manipulators_' + this.type),
+            lyra_id: this._id
+          },
+          {
+            type: 'facet',
+            groupby: ['manipulator']
+          }
         ]
       },
       marks: TYPES
@@ -45,22 +51,24 @@ manipulators.size = function(b) {
 
 manipulators.coords = function(b, m) {
   var c = {
-    topLeft:   {x: b.x1, y: b.y1, cursor: 'nw-resize'},
+    topLeft: {x: b.x1, y: b.y1, cursor: 'nw-resize'},
     topCenter: {x: b.x1 + (b.width() / 2), y: b.y1, cursor: 'n-resize'},
-    topRight:  {x: b.x2, y: b.y1, cursor: 'ne-resize'},
-    midLeft:   {x: b.x1, y: b.y1 + (b.height() / 2), cursor: 'w-resize'},
+    topRight: {x: b.x2, y: b.y1, cursor: 'ne-resize'},
+    midLeft: {x: b.x1, y: b.y1 + (b.height() / 2), cursor: 'w-resize'},
     midCenter: {x: b.x1 + (b.width() / 2), y: b.y1 + (b.height() / 2), cursor: 'move'},
-    midRight:  {x: b.x2, y: b.y1 + (b.height() / 2), cursor: 'e-resize'},
-    bottomLeft:   {x: b.x1, y: b.y2, cursor: 'sw-resize'},
+    midRight: {x: b.x2, y: b.y1 + (b.height() / 2), cursor: 'e-resize'},
+    bottomLeft: {x: b.x1, y: b.y2, cursor: 'sw-resize'},
     bottomCenter: {x: b.x1 + (b.width() / 2), y: b.y2, cursor: 's-resize'},
-    bottomRight:  {x: b.x2, y: b.y2, cursor: 'se-resize'}
+    bottomRight: {x: b.x2, y: b.y2, cursor: 'se-resize'}
   };
 
-  if (m) for (var k in c) {
-    var d = c[k];
-    d.size = this.size(b);
-    d.key = k;
-    d.manipulator = m;
+  if (m) {
+    for (var k in c) {
+      var d = c[k];
+      d.size = this.size(b);
+      d.key = k;
+      d.manipulator = m;
+    }
   }
 
   return c;

@@ -52,8 +52,8 @@ prototype.output = function() {
 
 prototype.schema = function() {
   if (this._schema) {
-    return this._schema
-  };
+    return this._schema;
+  }
   var self = this,
       types = dl.type.inferAll(this.output());
 

@@ -7,3 +7,4 @@ env:
   node: true
 globals:
   require: true
+  d3: true
