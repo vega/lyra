@@ -1,3 +1,4 @@
+'use strict';
 var React = require('react'),
     ContentEditable = require('./ContentEditable.jsx'),
     model = require('../model'),

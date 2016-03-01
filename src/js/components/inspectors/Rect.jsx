@@ -1,3 +1,4 @@
+'use strict';
 var React = require('react'),
     Property = require('./Property.jsx'),
     ExtentProperty = require('./ExtentProperty.jsx');

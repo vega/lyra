@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
     df = vg.dataflow,
@@ -6,9 +7,9 @@ var dl = require('datalib'),
     Deps = df.Dependencies,
     Transform = vg.Transform,
     Voronoi = vg.transforms.voronoi,
-    sg = require('../../model/signals');
-
-var $x = dl.$('x'), $y = dl.$('y');
+    sg = require('../../model/signals'),
+    $x = dl.$('x'),
+    $y = dl.$('y');
 
 function Manipulators(graph) {
   Transform.prototype.init.call(this, graph);
@@ -47,7 +48,9 @@ prototype.transform = function(input) {
   }
 
   // If we don't correspond to the current selection, early exit
-  if (!def || (def && lyra_id !== def.lyra_id)) return output;
+  if (!def || (def && lyra_id !== def.lyra_id)) {
+    return output;
+  }
 
   // Manipulators should only be called on items that already exist
   // on the scenegraph. Fetch the currently selected scenegraph item.
@@ -65,7 +68,8 @@ prototype.transform = function(input) {
   if (cache.length && cacheID === item._id) {
     tpls.forEach(function(d, i) { dl.extend(cache[i], d); });
     output.mod.push.apply(output.mod, cache);
-  } else {
+  }
+  else {
     this._cacheID = item._id;
     this._cacheMode = mode;
     cache.push.apply(cache, tpls.map(Tuple.ingest));

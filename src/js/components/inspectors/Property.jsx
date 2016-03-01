@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     React = require('react'),
     Parse = require('../mixins/Parse.jsx'),
@@ -31,9 +32,11 @@ var Property = React.createClass({
           type = child && child.type;
       if (className === 'extra') {
         extraEl = child;
-      } else if (className === 'control') {
+      }
+      else if (className === 'control') {
         controlEl = child;
-      } else if (type === 'label' || className === 'label') {
+      }
+      else if (type === 'label' || className === 'label') {
         labelEl = child;
       }
     });

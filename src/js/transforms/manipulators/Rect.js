@@ -1,8 +1,11 @@
+'use strict';
 var dl = require('datalib'),
     Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
     CONST = spec.CONST,
-    PX = CONST.PADDING, SP = CONST.STROKE_PADDING, A = CONST.ARROWHEAD;
+    PX = CONST.PADDING,
+    SP = CONST.STROKE_PADDING,
+    A = CONST.ARROWHEAD;
 
 function RectManipulators(graph) {
   return Base.call(this, graph);
@@ -19,7 +22,9 @@ function compile(manipulator) {
         data = [], d;
 
     for (var k in c) {
-      if (manipulator === 'handle' && k === 'midCenter') continue;
+      if (manipulator === 'handle' && k === 'midCenter') {
+        continue;
+      }
       data.push(d = c[k]);
       d.size = size;
       d.key = k;

@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     React = require('react'),
     Property = require('./Property.jsx'),

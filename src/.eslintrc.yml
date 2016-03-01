@@ -4,5 +4,6 @@ extends:
   - "../eslint/eslint-jsx.yml"
 env:
   browser: true
+  node: true
 globals:
   require: true

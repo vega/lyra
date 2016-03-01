@@ -1,8 +1,10 @@
+'use strict';
 var dl = require('datalib'),
     Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
     CONST = spec.CONST,
-    PX = CONST.PADDING, SP = CONST.STROKE_PADDING;
+    PX = CONST.PADDING,
+    SP = CONST.STROKE_PADDING;
 
 function SymbolManipulators(graph) {
   return Base.call(this, graph);

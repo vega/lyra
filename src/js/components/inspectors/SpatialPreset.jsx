@@ -1,3 +1,4 @@
+'use strict';
 var React = require('react'),
     Parse = require('../mixins/Parse.jsx'),
     util = require('../../util'),
@@ -20,7 +21,8 @@ var SpatialPreset = React.createClass({
     if (evt.target.checked) {
       update[name] = (name === 'width' || name === 'height') ?
         {scale: prop.scale, band: true} : {group: preset};
-    } else {
+    }
+    else {
       update[name] = {signal: util.propSg(primitive, name)};
     }
 
@@ -45,7 +47,8 @@ var SpatialPreset = React.createClass({
             onChange={this.handleChange} /> Automatic
         </label>
       ) : null;
-    } else {
+    }
+    else {
       return (
         <label>
           <input type="checkbox" name={name} checked={prop.group}

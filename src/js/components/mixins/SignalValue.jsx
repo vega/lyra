@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     model = require('../../model');
 
@@ -30,12 +31,16 @@ module.exports = {
 
   onSignal: function(signal) {
     signal = signal || this.props.signal;
-    if (signal) model.onSignal(signal, this.signal);
+    if (signal) {
+      model.onSignal(signal, this.signal);
+    }
   },
 
   offSignal: function(signal) {
     signal = signal || this.props.signal;
-    if (signal) model.offSignal(signal, this.signal);
+    if (signal) {
+      model.offSignal(signal, this.signal);
+    }
   },
 
   signal: function(_, value) {
@@ -55,7 +60,8 @@ module.exports = {
 
     if (signal) {
       model.signal(signal, value).update();
-    } else {
+    }
+    else {
       this._set(props.obj, value);
       this.setState({value: value});
     }

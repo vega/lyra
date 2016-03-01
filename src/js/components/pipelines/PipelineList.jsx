@@ -1,3 +1,4 @@
+'use strict';
 var d3 = require('d3'),
     React = require('react'),
     PipelineInspector = require('./PipelineInspector.jsx');

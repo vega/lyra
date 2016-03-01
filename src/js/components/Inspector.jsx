@@ -1,3 +1,4 @@
+'use strict';
 var React = require('react'),
     Mark = require('../model/primitives/marks/Mark'),
     model = require('../model'),
