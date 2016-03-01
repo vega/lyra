@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     model = require('../../model');
 
@@ -23,23 +24,27 @@ module.exports = {
     if (prevProps.signal) this.offSignal(prevProps.signal);
     if (nextProps.signal) this.onSignal(nextProps.signal);
     if (nextProps.signal || nextProps.value !== prevProps.value) {
-      this.setState({ value: nextProps.signal ?
-        model.signal(nextProps.signal) : nextProps.value });
+      this.setState({value: nextProps.signal ?
+        model.signal(nextProps.signal) : nextProps.value});
     }
   },
 
   onSignal: function(signal) {
     signal = signal || this.props.signal;
-    if (signal) model.onSignal(signal, this.signal);
+    if (signal) {
+      model.onSignal(signal, this.signal);
+    }
   },
 
   offSignal: function(signal) {
     signal = signal || this.props.signal;
-    if (signal) model.offSignal(signal, this.signal);
+    if (signal) {
+      model.offSignal(signal, this.signal);
+    }
   },
 
   signal: function(_, value) {
-    this.setState({ value: value });
+    this.setState({value: value});
   },
 
   handleChange: function(evt) {
@@ -47,7 +52,7 @@ module.exports = {
   },
 
   setValue: function(value) {
-    var props  = this.props,
+    var props = this.props,
         signal = props.signal,
         type = props.type;
 
@@ -55,9 +60,10 @@ module.exports = {
 
     if (signal) {
       model.signal(signal, value).update();
-    } else {
+    }
+    else {
       this._set(props.obj, value);
-      this.setState({ value: value });
+      this.setState({value: value});
     }
   }
 };

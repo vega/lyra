@@ -1,3 +1,4 @@
+'use strict';
 var React = require('react'),
     Property = require('./Property.jsx'),
     ExtentProperty = require('./ExtentProperty.jsx');
@@ -42,7 +43,7 @@ var Rect = React.createClass({
           scale={update.strokeWidth.scale} field={update.strokeWidth.field}
           signal={update.strokeWidth.signal} />
       </div>
-    )
+    );
   }
 });
 

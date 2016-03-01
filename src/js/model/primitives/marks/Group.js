@@ -1,12 +1,12 @@
 var dl = require('datalib'),
     vg = require('vega'),
-    model  = require('../../'),
+    model = require('../../'),
     lookup = model.primitive,
     Mark = require('./Mark'),
     util = require('../../../util');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'],
-    MARK_TYPES  = ['group', 'rect', 'symbol', 'arc', 'area', 'line', 'text'];
+    MARK_TYPES = ['group', 'rect', 'symbol', 'arc', 'area', 'line', 'text'];
 
 var CHILDREN = {
   group:  Group,
@@ -18,9 +18,9 @@ var CHILDREN = {
 function Group() {
   Mark.call(this, 'group');
 
-  this.scales  = [];
+  this.scales = [];
   this.legends = [];
-  this.axes  = [];
+  this.axes = [];
   this.marks = [];
 
   // By default, make groups full width/height.
@@ -48,8 +48,8 @@ prototype.export = function(resolve) {
 };
 
 prototype.manipulators = function() {
-  var self  = this,
-      spec  = Mark.prototype.manipulators.call(this),
+  var self = this,
+      spec = Mark.prototype.manipulators.call(this),
       group = spec[0],
       map = function(id) { return lookup(id).manipulators(); },
       red = function(children, child) {
@@ -64,12 +64,14 @@ prototype.manipulators = function() {
 
 // Insert or create a child element.
 prototype.child = function(type, child) {
-  type  = type.split('.');
+  type = type.split('.');
   child = (child === undefined) ? new CHILDREN[type[1] || type[0]]().init() :
     dl.isNumber(child) ? lookup(child) : child;
 
   var id = child._id, types = this[type[0]];
-  if (types.indexOf(id) < 0) types.push(id);
+  if (types.indexOf(id) < 0) {
+    types.push(id);
+  }
   return child.parent ? child.parent(this._id) : child;
 };
 

@@ -1,3 +1,4 @@
+'use strict';
 var React = require('react'),
     Property = require('./Property.jsx'),
     Base = require('../../model/primitives/marks/Symbol');
@@ -61,7 +62,7 @@ var Symbol = React.createClass({
           scale={update.strokeWidth.scale} field={update.strokeWidth.field}
           signal={update.strokeWidth.signal} />
       </div>
-    )
+    );
   }
 });
 

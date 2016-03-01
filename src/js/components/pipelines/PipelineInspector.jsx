@@ -1,3 +1,4 @@
+'use strict';
 var d3 = require('d3'),
     React = require('react'),
     ReactDOM = require('react-dom'),
@@ -26,7 +27,7 @@ var PipelineInspector = React.createClass({
           onClick={!props.isSelected && props.select} />
         {inner}
       </div>
-    )
+    );
   }
 });
 

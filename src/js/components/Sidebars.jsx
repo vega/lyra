@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     React = require('react'),
     PipelineList = require('./pipelines/PipelineList.jsx'),
@@ -10,7 +11,10 @@ var dl = require('datalib'),
 
 var Sidebars = React.createClass({
   getInitialState: function() {
-    return {selected: model.Scene._id, expandedLayers: {}};
+    return {
+      selected: model.Scene._id,
+      expandedLayers: {}
+    };
   },
 
   // TODO: Selecting in the inspector should set lyra_selected.
@@ -22,31 +26,41 @@ var Sidebars = React.createClass({
         items, i, j, len;
 
     for (; primitive; primitive = primitive.parent && primitive.parent()) {
-      if (primitive.type !== 'group' || primitive._id === id) continue;
+      if (primitive.type !== 'group' || primitive._id === id) {
+        continue;
+      }
       ex[primitive._id] = true;
       path.push(primitive._id);
     }
 
-    this.setState({ selected: id, expandedLayers: ex });
+    this.setState({selected: id, expandedLayers: ex});
 
     // Synchronize component state and signal state.
-    if (signal === false) return;
-    for (i=path.length-2; i >= 0; --i) {
+    if (signal === false) {
+      return;
+    }
+    for (i = path.length - 2; i >= 0; --i) {
       id = path[i];
-      for (items=item.items, j=0, len=items.length; j<len; ++j) {
+      for (items = item.items, j = 0, len = items.length; j < len; ++j) {
         item = items[j].def.lyra_id === id ? items[j].items[0] : null;
-        if (item !== null) break;
+        if (item !== null) {
+          break;
+        }
       }
 
-      if (item === null) break;
+      if (item === null) {
+        break;
+      }
     }
 
-    if (item !== null) model.signal(sg.SELECTED, item).update();
+    if (item !== null) {
+      model.signal(sg.SELECTED, item).update();
+    }
   },
 
   toggleLayer: function(id) {
     var ex = this.state.expandedLayers;
-    this.setState({ expandedLayers: (ex[id] = !ex[id], ex) });
+    this.setState({expandedLayers: (ex[id] = !ex[id], ex)});
   },
 
   render: function() {
@@ -72,7 +86,7 @@ var Sidebars = React.createClass({
 
         <PipelineList pipelines={pipelines} />
       </div>
-    )
+    );
   }
 });
 

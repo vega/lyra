@@ -1,9 +1,10 @@
+'use strict';
 var dl = require('datalib'),
     React = require('react'),
     Parse = require('../mixins/Parse.jsx'),
     SignalValue = require('../mixins/SignalValue.jsx'),
-    ContentEditable  = require('../ContentEditable.jsx'),
-    model  = require('../../model'),
+    ContentEditable = require('../ContentEditable.jsx'),
+    model = require('../../model'),
     lookup = model.primitive;
 
 var Property = React.createClass({
@@ -17,9 +18,9 @@ var Property = React.createClass({
   render: function() {
     var state = this.state,
         props = this.props,
-        name  = props.name,
+        name = props.name,
         label = props.label,
-        type  = props.type,
+        type = props.type,
         scale = props.scale,
         field = props.field,
         value = state.value,
@@ -31,18 +32,20 @@ var Property = React.createClass({
           type = child && child.type;
       if (className === 'extra') {
         extraEl = child;
-      } else if (className === 'control') {
+      }
+      else if (className === 'control') {
         controlEl = child;
-      } else if (type === 'label' || className === 'label') {
+      }
+      else if (type === 'label' || className === 'label') {
         labelEl = child;
       }
     });
 
     labelEl = labelEl || (<label htmlFor={name}>{label}</label>);
-    scaleEl = scale && (scale=lookup(scale)) ?
+    scaleEl = scale && (scale = lookup(scale)) ?
       (<div className="scale">{scale.name}</div>) : null;
 
-    controlEl = field && (field=lookup(field)) ?
+    controlEl = field && (field = lookup(field)) ?
       (<div className="field">{field._name}</div>) : controlEl;
 
     if (!controlEl) {
@@ -52,7 +55,7 @@ var Property = React.createClass({
             <input type="number" value={!disabled && value} disabled={disabled}
               onChange={this.handleChange} />
           );
-        break;
+          break;
 
         case 'range':
           controlEl = (
@@ -63,8 +66,8 @@ var Property = React.createClass({
 
               <ContentEditable {...props} />
             </div>
-          )
-        break;
+          );
+          break;
 
         case 'color':
           controlEl = (
@@ -74,17 +77,17 @@ var Property = React.createClass({
               <ContentEditable {...props} />
             </div>
           );
-        break;
+          break;
 
         case 'select':
           controlEl = (
             <select value={value} onChange={this.handleChange}>
               {props.opts.map(function(o) {
-                return (<option key={o} value={o}>{o}</option>)
+                return (<option key={o} value={o}>{o}</option>);
               }, this)}
             </select>
-          )
-        break;
+          );
+          break;
       }
     }
 
@@ -105,7 +108,7 @@ var Property = React.createClass({
           {extraEl}
         </div>
       </div>
-    )
+    );
   }
 });
 

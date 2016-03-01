@@ -1,11 +1,11 @@
 var dl = require('datalib'),
-    Scale  = require('../primitives/Scale'),
-    rules  = require('./'),
-    model  = require('../'),
+    Scale = require('../primitives/Scale'),
+    rules = require('./'),
+    model = require('../'),
     lookup = model.primitive;
 
-var REF_CELLW = {"data": "layout", "field": "cellWidth"},
-    REF_CELLH = {"data": "layout", "field": "cellHeight"};
+var REF_CELLW = {'data': 'layout', 'field': 'cellWidth'},
+    REF_CELLH = {'data': 'layout', 'field': 'cellHeight'};
 
 module.exports = function(parsed) {
   var map = this._rule._map.scales,
@@ -16,11 +16,13 @@ module.exports = function(parsed) {
       name, def, curr;
 
   // Vega-Lite names scales by the channel they're used for.
-  for(; i<len; ++i) {
+  for (; i < len; ++i) {
     name = channels[i];
     curr = lookup(map[name]);
-    def  = parse.call(this, scales.find(find));
-    if (!def) continue;
+    def = parse.call(this, scales.find(find));
+    if (!def) {
+      continue;
+    }
     if (!curr || !equals(def, curr)) {
       scale.call(this, def);
     }
@@ -30,7 +32,9 @@ module.exports = function(parsed) {
 // Parse a Vega scale definition (produced by Vega-Lite)
 // and produce a Lyra-compatible Scale object.
 function parse(def) {
-  if (!def) return null;
+  if (!def) {
+    return null;
+  }
   var map = this._rule._map.data,
       domain = def.domain,
       range = def.rangeMin || def.rangeMax,
@@ -44,7 +48,8 @@ function parse(def) {
   // TODO: Use bandSize initially?
   if (def.name === 'x' || range === rules.CELLW || dl.equal(range, REF_CELLW)) {
     def.range = 'width';
-  } else if (def.name === 'y' || range === rules.CELLH || dl.equal(range, REF_CELLH)) {
+  }
+  else if (def.name === 'y' || range === rules.CELLH || dl.equal(range, REF_CELLH)) {
     def.range = 'height';
   }
 
@@ -75,11 +80,13 @@ function scale(def) {
   if (!s) {
     s = model.scale(new Scale(def.name, def.type, undefined, def.range));
     s._domain = def._domain;
-    s.points  = points;
-    if (points) s.padding = def.padding;
+    s.points = points;
+    if (points) {
+      s.padding = def.padding;
+    }
   }
 
-  s.nice  = def.nice;
+  s.nice = def.nice;
   s.round = def.round;
 
   this._rule._map.scales[def.name] = s._id;

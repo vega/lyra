@@ -4,9 +4,9 @@ var dl = require('datalib'),
     TYPES = vl.data.types;
 
 function Field(name, ptype) {
-  this._name  = name;
+  this._name = name;
   this._ptype = ptype;         // primitive type (boolean/string/etc.)
-  this._type  = TYPES[ptype];  // nominal, ordinal, etc.
+  this._type = TYPES[ptype];  // nominal, ordinal, etc.
 
   this._aggregate = null;
   this._bin = null;
@@ -22,9 +22,11 @@ prototype.constructor = Field;
 prototype.profile = function(p) {
   if (p !== undefined) {
     return (this._profile = p, this);
-  } else if (this._profile) {
+  }
+  else if (this._profile) {
     return this._profile;
-  } else {
+  }
+  else {
     return (this.parent().summary(), this._profile);
   }
 };

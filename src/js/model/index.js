@@ -1,8 +1,8 @@
 var dl = require('datalib'),
     vg = require('vega'),
-    sg  = require('./signals'),
+    sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
-    util  = require('../util');
+    util = require('../util');
 
 var model = module.exports = {
   view:  null,
@@ -11,7 +11,7 @@ var model = module.exports = {
 
 var pipelines = [], scales = [],
     primitives = {},
-    listeners  = {};
+    listeners = {};
 
 model.init = function() {
   var Scene = require('./primitives/marks/Scene');
@@ -22,13 +22,19 @@ model.init = function() {
 // To prevent memory leaks, primitives do not directly reference other
 // primitives. Instead, they lookup against the primitives hash.
 var lookup = model.primitive = function(id, primitive) {
-  if (arguments.length === 1) return primitives[id];
+  if (arguments.length === 1) {
+    return primitives[id];
+  }
   return (primitives[id] = primitive, model);
 };
 
 function getset(cache, id, type) {
-  if (id === undefined) return cache.map(function(x) { return lookup(x); });
-  else if (dl.isNumber(id)) return lookup(id);
+  if (id === undefined) {
+    return cache.map(function(x) { return lookup(x); });
+  }
+  else if (dl.isNumber(id)){
+    return lookup(id);
+  }
   var obj = dl.isString(id) ? new type(id) : id;
   return (cache.push(obj._id), obj);
 }
@@ -47,7 +53,7 @@ model.signal = function() {
 };
 
 model.export = function(scene, resolve) {
-  resolve  = resolve || resolve === undefined;
+  resolve = resolve || resolve === undefined;
   var spec = scene || model.Scene.export(resolve);
 
   spec.data = pipelines.reduce(function(arr, id) {
@@ -69,7 +75,7 @@ model.manipulators = function() {
   predicates.push({
     name: sg.CELL,
     type: '==',
-    operands: [{signal: sg.CELL+'.key'}, {arg: 'key'}]
+    operands: [{signal: sg.CELL + '.key'}, {arg: 'key'}]
   });
 
   data.push({
@@ -84,14 +90,17 @@ model.manipulators = function() {
 
 model.parse = function(el) {
   el = (el === undefined) ? '#vis' : el;
-  if (model.view) model.view.destroy();
+  if (model.view) {
+    model.view.destroy();
+  }
   return new Promise(function(resolve, reject) {
     vg.dataflow.Tuple.reset();
     vg.parse.spec(model.manipulators(), function(err, chart) {
       if (err) {
         reject(err);
-      } else {
-        model.view = chart({ el: el });
+      }
+      else {
+        model.view = chart({el: el});
         register();
         resolve(model.view);
       }
@@ -106,17 +115,21 @@ model.update = function() {
 model.onSignal = function(name, handler) {
   var listener = listeners[name] || (listeners[name] = []);
   listener.push(handler);
-  if (model.view) model.view.onSignal(name, handler);
+  if (model.view) {
+    model.view.onSignal(name, handler);
+  }
 };
 
 model.offSignal = function(name, handler) {
   var listener = listeners[name] || (listeners[name] = []);
-  for (var i=listener.length; --i>=0;) {
+  for (var i = listener.length; --i >= 0;) {
     if (!handler || listener[i] === handler) {
       listener.splice(i, 1);
     }
   }
-  if (model.view) model.view.offSignal(name, handler);
+  if (model.view) {
+    model.view.offSignal(name, handler);
+  }
 };
 
 function register() {
@@ -131,9 +144,11 @@ function register() {
     win.on(dragover, function() {
       var mode = model.signal(sg.MODE),
           shiftKey = d3.event.shiftKey,
-          prevKey  = !!model._shiftKey;
+          prevKey = !!model._shiftKey;
 
-      if (prevKey === shiftKey) return;
+      if (prevKey === shiftKey) {
+        return;
+      }
       model._shiftKey = shiftKey;
 
       model.signal(sg.MODE,
@@ -144,13 +159,15 @@ function register() {
 
   model.view.onSignal(sg.SELECTED, function(name, selected) {
     var def = selected.mark.def,
-        id  = def && def.lyra_id;
-    if (id) components.select(id, false);
+        id = def && def.lyra_id;
+    if (id) {
+      components.select(id, false);
+    }
   });
 
   for (signalName in listeners) {
     handlers = listeners[signalName];
-    for (i=0, len=handlers.length; i<len; ++i) {
+    for (i = 0, len = handlers.length; i < len; ++i) {
       model.view.onSignal(signalName, handlers[i]);
     }
   }

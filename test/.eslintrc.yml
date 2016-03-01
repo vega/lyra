@@ -1,0 +1,9 @@
+---
+extends:
+  - "../eslint/eslint-defaults.yml"
+env:
+  browser: true
+  mocha: true
+globals:
+  expect: true
+  require: true

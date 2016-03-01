@@ -3,8 +3,8 @@ var dl = require('datalib'),
     vl = require('vega-lite'),
     Scale = require('../primitives/Scale'),
     Field = require('../primitives/data/Field'),
-    util  = require('../../util'),
-    model  = require('../'),
+    util = require('../../util'),
+    model = require('../'),
     lookup = model.primitive,
     AGG_OPS = vg.transforms.aggregate.VALID_OPS;
 
@@ -13,7 +13,7 @@ function rules(prototype) {
   prototype.bind = function(property, id, manual) {
     var rule = this._rule,
         from = this._from && lookup(this._from),
-        obj  = lookup(id),
+        obj = lookup(id),
         update = this.properties.update,
         c;
 
@@ -35,7 +35,7 @@ function rules(prototype) {
       return (update[property].field = id, this);
     }
 
-    rule.encoding[c=channel(property)] = fieldRef(obj);
+    rule.encoding[c = channel(property)] = fieldRef(obj);
     from = from || obj.parent();
 
     var parsed = compile.call(this, rule, property, from);
@@ -51,7 +51,8 @@ function rules(prototype) {
 function channel(name) {
   if (vl.channel.CHANNELS.indexOf(name) >= 0) {
     return name;
-  } else {
+  }
+  else {
     switch (name) {
       case 'x+':
       case 'x2':
@@ -68,20 +69,21 @@ function channel(name) {
 }
 
 var re = {
-  agg: new RegExp('^('+AGG_OPS.join('|')+')_(.*?)$'),
+  agg: new RegExp('^(' + AGG_OPS.join('|') + ')_(.*?)$'),
   bin: new RegExp('^(bin)_(.*?)(_start|_mid|_end)$')
 };
 
 function fieldRef(field) {
   var name = field._name,
-      agg  = field._aggregate,
-      bin  = field._bin,
-      ref  = {type: field._type}, res;
+      agg = field._aggregate,
+      bin = field._bin,
+      ref = {type: field._type}, res;
 
   if (agg) {
     res = re.agg.exec(name);
     ref.aggregate = res[1];
-  } else if (bin) {
+  }
+  else if (bin) {
     res = re.bin.exec(name);
     ref.bin = true;
   }
@@ -116,7 +118,7 @@ module.exports = rules;
 rules.VLSingle = require('./VLSingle');
 rules.data = require('./data');
 rules.scales = require('./scales');
-rules.marks  = require('./marks');
+rules.marks = require('./marks');
 rules.guides = require('./guides');
-rules.CELLW  = 500;
-rules.CELLH  = 200;
+rules.CELLW = 500;
+rules.CELLH = 200;

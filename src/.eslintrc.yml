@@ -1,0 +1,10 @@
+---
+extends:
+  - "../eslint/eslint-defaults.yml"
+  - "../eslint/eslint-jsx.yml"
+env:
+  browser: true
+  node: true
+globals:
+  require: true
+  d3: true

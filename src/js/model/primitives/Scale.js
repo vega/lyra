@@ -1,8 +1,8 @@
 var dl = require('datalib'),
     Primitive = require('./Primitive'),
-    model  = require('../'),
+    model = require('../'),
     lookup = model.primitive,
-    names  = {};
+    names = {};
 
 function Scale(name, type, domain, range) {
   this.name = rename(name);
@@ -10,12 +10,12 @@ function Scale(name, type, domain, range) {
 
   // Literal domain/ranges.
   this.domain = domain;
-  this.range  = range;
+  this.range = range;
 
   // DataRefs, which get compiled from id -> json
   // when exported.
   this._domain = [];
-  this._range  = [];
+  this._range = [];
 
   return Primitive.call(this);
 }
@@ -42,13 +42,14 @@ function dataRef(ref) {
   var sets = {},
       data, field, i, len, keys, fields;
 
-  if (ref.length === 1 && (ref=ref[0])) {
+  if (ref.length === 1 && (ref = ref[0])) {
     field = lookup(ref);
     return {data: field.parent().name, field: field._name};
-  } else {
-    for (i=0, len=ref.length; i<len; ++i) {
+  }
+  else {
+    for (i = 0, len = ref.length; i < len; ++i) {
       field = lookup(ref[i]);
-      data  = field.parent();
+      data = field.parent();
       sets[data._id] = sets[data._id] || (sets[data._id] = []);
       sets[data._id].push(field);
     }
@@ -59,9 +60,10 @@ function dataRef(ref) {
         data: data.name,
         field: sets[data._id].map(fmap)
       };
-    } else {
+    }
+    else {
       ref = {fields: []};
-      for (i=0, len=keys.length; i<len; ++i) {
+      for (i = 0, len = keys.length; i < len; ++i) {
         data = lookup(keys[i]);
         ref.fields.push({
           data: data.name,

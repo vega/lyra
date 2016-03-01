@@ -1,3 +1,4 @@
+'use strict';
 var React = require('react'),
     ContentEditable = require('./ContentEditable.jsx'),
     model = require('../model'),
@@ -24,12 +25,12 @@ var Group = React.createClass({
         expanded = props.expanded[group_id];
 
     var style = {
-      marginLeft: -(level+1)*MARGIN_LEFT,
-      paddingLeft: (level+1)*MARGIN_LEFT
-    }, childStyle = {
-      marginLeft: -(level+2)*MARGIN_LEFT,
-      paddingLeft: (level+2)*MARGIN_LEFT
-    };
+          marginLeft: -(level + 1) * MARGIN_LEFT,
+          paddingLeft: (level + 1) * MARGIN_LEFT
+        }, childStyle = {
+          marginLeft: -(level + 2) * MARGIN_LEFT,
+          paddingLeft: (level + 2) * MARGIN_LEFT
+        };
 
     var contents = expanded ? (
         <ul className="group" style={{marginLeft: MARGIN_LEFT}}>
@@ -41,7 +42,7 @@ var Group = React.createClass({
                 select = this.select.bind(this, id);
 
             return type === 'group' ? (
-              <Group key={id} {...props} id={id} level={level+1} />
+              <Group key={id} {...props} id={id} level={level + 1} />
             ) : (
               <li key={id}>
                 <div style={childStyle}
@@ -83,7 +84,7 @@ var Group = React.createClass({
 
 var LayerList = React.createClass({
   render: function() {
-    var props  = this.props,
+    var props = this.props,
         toggle = props.toggle,
         expanded = props.expanded;
     return (

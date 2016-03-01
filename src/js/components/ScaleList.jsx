@@ -1,3 +1,4 @@
+'use strict';
 var React = require('react'),
     ContentEditable = require('./ContentEditable.jsx');
 
@@ -25,7 +26,7 @@ var ScaleList = React.createClass({
                     onClick={select} />
                 </div>
               </li>
-            )
+            );
           }, this)}
         </ul>
       </div>

@@ -1,6 +1,7 @@
-var React  = require('react'),
-    Mark   = require('../model/primitives/marks/Mark'),
-    model  = require('../model'),
+'use strict';
+var React = require('react'),
+    Mark = require('../model/primitives/marks/Mark'),
+    model = require('../model'),
     lookup = model.primitive,
     From = require('./inspectors/From.jsx');
 
@@ -29,7 +30,7 @@ var Inspector = React.createClass({
         <h2>{primitive.name} Properties</h2>
         {inner}
       </div>
-    )
+    );
   }
 });
 

@@ -4,7 +4,7 @@ var dl = require('datalib'),
     signals, defaults;
 
 function init(name, val) {
-  signals[name=ns(name)] = {
+  signals[name = ns(name)] = {
     name: name,
     init: val,
     _idx: dl.keys(signals).length
@@ -18,8 +18,8 @@ function ref(name) {
 
 function value(name, val) {
   var model = require('../'),
-      view  = model.view,
-      sg  = signals[name=ns(name)],
+      view = model.view,
+      sg = signals[name = ns(name)],
       set = arguments.length === 2;
 
   // Wrap signal accessors in a try/catch in case view doesn't exist,
@@ -28,7 +28,7 @@ function value(name, val) {
     val = view.signal.apply(view, arguments);
     return set ? api : val;
   } catch (e) {
-    return set ? (sg.init=val, api) : sg.init;
+    return set ? (sg.init = val, api) : sg.init;
   }
 }
 
@@ -36,11 +36,15 @@ function value(name, val) {
 // to allow seamless re-renders.
 function stash() {
   var model = require('../'),
-      view  = model.view;
-  if (!view) return signals;
+      view = model.view;
+  if (!view) {
+    return signals;
+  }
 
   for (var k in signals) {
-    if (defaults.names.indexOf(k) >= 0) continue;
+    if (defaults.names.indexOf(k) >= 0) {
+      continue;
+    }
     try { signals[k].init = view.signal(k); }
     catch (e) {}
   }
@@ -50,18 +54,20 @@ function stash() {
 
 function streams(name, def) {
   var sg = signals[ns(name)];
-  if (arguments.length === 1) return sg.streams;
+  if (arguments.length === 1) {
+    return sg.streams;
+  }
   return (sg.streams = def, api);
 }
 
 var api = module.exports = function() { return signals; };
-api.init  = init;
-api.ref   = ref;
+api.init = init;
+api.ref = ref;
 api.value = value;
 api.stash = stash;
 api.streams = streams;
 
-dl.extend(api, defaults=require('./defaults'));
+dl.extend(api, defaults = require('./defaults'));
 signals = api.signals;
 delete api.signals;
 delete api.names;

@@ -35,6 +35,9 @@
     "deep-diff": "^0.3.3",
     "es6-promise": "^3.0.2",
     "es6-promisify": "^3.0.0",
+    "eslint": "^1.10.3",
+    "eslint-loader": "^1.2.1",
+    "eslint-plugin-react": "^3.16.1",
     "exorcist": "^0.4.0",
     "istanbul": "^0.3.21",
     "jshint": "^2.8.0",
@@ -54,6 +57,7 @@
     "webpack": "^1.12.14"
   },
   "scripts": {
+    "lint": "eslint --ext .js,.jsx src",
     "build": "npm run build:js && npm run build:scss",
     "build:js": "webpack -d",
     "postbuild:js": "uglifyjs build/js/lyra.js -cm > build/js/lyra.min.js",

@@ -4,14 +4,14 @@ var dl = require('datalib'),
     manips = require('./manipulators'),
     util = require('../../../util');
 
-var DELTA  = sg.DELTA,
-    DX = DELTA+'.x',
-    DY = DELTA+'.y';
+var DELTA = sg.DELTA,
+    DX = DELTA + '.x',
+    DY = DELTA + '.y';
 
 function Rect(type) {
   Mark.call(this, 'rect');
 
-  var props  = this.properties,
+  var props = this.properties,
       update = props.update;
 
   dl.extend(update, {
@@ -38,37 +38,37 @@ prototype.initHandles = function() {
       w = prop(this, 'width'), h = prop(this, 'height');
 
   sg.streams(x, [{
-    type: DELTA, expr: test(at()+'||'+at('left'), x+'+'+DX, x)
+    type: DELTA, expr: test(at() + '||' + at('left'), x + '+' + DX, x)
   }]);
 
   sg.streams(xc, [{
-    type: DELTA, expr: test(at()+'||'+at('left'), xc+'+'+DX, xc)
+    type: DELTA, expr: test(at() + '||' + at('left'), xc + '+' + DX, xc)
   }]);
 
   sg.streams(x2, [{
-    type: DELTA, expr: test(at()+'||'+at('right'), x2+'+'+DX, x2)
+    type: DELTA, expr: test(at() + '||' + at('right'), x2 + '+' + DX, x2)
   }]);
 
   sg.streams(y, [{
-    type: DELTA, expr: test(at()+'||'+at('top'), y+'+'+DY, y)
+    type: DELTA, expr: test(at() + '||' + at('top'), y + '+' + DY, y)
   }]);
 
   sg.streams(yc, [{
-    type: DELTA, expr: test(at()+'||'+at('top'), yc+'+'+DY, yc)
+    type: DELTA, expr: test(at() + '||' + at('top'), yc + '+' + DY, yc)
   }]);
 
   sg.streams(y2, [{
-    type: DELTA, expr: test(at()+'||'+at('bottom'), y2+'+'+DY, y2)
+    type: DELTA, expr: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
   }]);
 
   sg.streams(w, [
-    {type: DELTA, expr: test(at('left'),  w+'-'+DX, w)},
-    {type: DELTA, expr: test(at('right'), w+'+'+DX, w)}
+    {type: DELTA, expr: test(at('left'), w + '-' + DX, w)},
+    {type: DELTA, expr: test(at('right'), w + '+' + DX, w)}
   ]);
 
   sg.streams(h, [
-    {type: DELTA, expr: test(at('top'),    h+'-'+DY, h)},
-    {type: DELTA, expr: test(at('bottom'), h+'+'+DY, h)}
+    {type: DELTA, expr: test(at('top'), h + '-' + DY, h)},
+    {type: DELTA, expr: test(at('bottom'), h + '+' + DY, h)}
   ]);
 };
 
