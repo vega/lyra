@@ -57,7 +57,7 @@
     "webpack": "^1.12.14"
   },
   "scripts": {
-    "lint": "eslint --ext .js,.jsx src --fix",
+    "lint": "eslint --ext .js,.jsx src",
     "build": "npm run build:js && npm run build:scss",
     "build:js": "webpack -d",
     "postbuild:js": "uglifyjs build/js/lyra.js -cm > build/js/lyra.min.js",
