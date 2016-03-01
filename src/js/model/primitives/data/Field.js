@@ -22,9 +22,11 @@ prototype.constructor = Field;
 prototype.profile = function(p) {
   if (p !== undefined) {
     return (this._profile = p, this);
-  } else if (this._profile) {
+  }
+  else if (this._profile) {
     return this._profile;
-  } else {
+  }
+  else {
     return (this.parent().summary(), this._profile);
   }
 };

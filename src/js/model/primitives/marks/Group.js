@@ -69,7 +69,9 @@ prototype.child = function(type, child) {
     dl.isNumber(child) ? lookup(child) : child;
 
   var id = child._id, types = this[type[0]];
-  if (types.indexOf(id) < 0) types.push(id);
+  if (types.indexOf(id) < 0) {
+    types.push(id);
+  }
   return child.parent ? child.parent(this._id) : child;
 };
 

@@ -19,7 +19,8 @@ function Guide(gtype, type, scale) {
       labels: {},
       axis: {}
     };
-  } else if (gtype === GTYPES.LEGEND) {
+  }
+  else if (gtype === GTYPES.LEGEND) {
     this._type = type;
     this[type] = +scale || scale._id;
     this.properties = {
@@ -50,7 +51,8 @@ prototype.export = prototype.manipulators = function(resolve) {
 
   if (gtype === GTYPES.AXIS) {
     spec.scale = lookup(spec.scale).name;
-  } else if (gtype === GTYPES.LEGEND) {
+  }
+  else if (gtype === GTYPES.LEGEND) {
     spec[type] = lookup(spec[type]).name;
   }
 

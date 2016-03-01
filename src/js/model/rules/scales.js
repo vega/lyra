@@ -20,7 +20,9 @@ module.exports = function(parsed) {
     name = channels[i];
     curr = lookup(map[name]);
     def = parse.call(this, scales.find(find));
-    if (!def) continue;
+    if (!def) {
+      continue;
+    }
     if (!curr || !equals(def, curr)) {
       scale.call(this, def);
     }
@@ -30,7 +32,9 @@ module.exports = function(parsed) {
 // Parse a Vega scale definition (produced by Vega-Lite)
 // and produce a Lyra-compatible Scale object.
 function parse(def) {
-  if (!def) return null;
+  if (!def) {
+    return null;
+  }
   var map = this._rule._map.data,
       domain = def.domain,
       range = def.rangeMin || def.rangeMax,
@@ -44,7 +48,8 @@ function parse(def) {
   // TODO: Use bandSize initially?
   if (def.name === 'x' || range === rules.CELLW || dl.equal(range, REF_CELLW)) {
     def.range = 'width';
-  } else if (def.name === 'y' || range === rules.CELLH || dl.equal(range, REF_CELLH)) {
+  }
+  else if (def.name === 'y' || range === rules.CELLH || dl.equal(range, REF_CELLH)) {
     def.range = 'height';
   }
 
@@ -76,7 +81,9 @@ function scale(def) {
     s = model.scale(new Scale(def.name, def.type, undefined, def.range));
     s._domain = def._domain;
     s.points = points;
-    if (points) s.padding = def.padding;
+    if (points) {
+      s.padding = def.padding;
+    }
   }
 
   s.nice = def.nice;

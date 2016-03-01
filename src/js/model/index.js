@@ -22,13 +22,19 @@ model.init = function() {
 // To prevent memory leaks, primitives do not directly reference other
 // primitives. Instead, they lookup against the primitives hash.
 var lookup = model.primitive = function(id, primitive) {
-  if (arguments.length === 1) return primitives[id];
+  if (arguments.length === 1) {
+    return primitives[id];
+  }
   return (primitives[id] = primitive, model);
 };
 
 function getset(cache, id, type) {
-  if (id === undefined) return cache.map(function(x) { return lookup(x); });
-  else if (dl.isNumber(id)) return lookup(id);
+  if (id === undefined) {
+    return cache.map(function(x) { return lookup(x); });
+  }
+  else if (dl.isNumber(id)){
+    return lookup(id);
+  }
   var obj = dl.isString(id) ? new type(id) : id;
   return (cache.push(obj._id), obj);
 }
@@ -84,13 +90,16 @@ model.manipulators = function() {
 
 model.parse = function(el) {
   el = (el === undefined) ? '#vis' : el;
-  if (model.view) model.view.destroy();
+  if (model.view) {
+    model.view.destroy();
+  }
   return new Promise(function(resolve, reject) {
     vg.dataflow.Tuple.reset();
     vg.parse.spec(model.manipulators(), function(err, chart) {
       if (err) {
         reject(err);
-      } else {
+      }
+      else {
         model.view = chart({el: el});
         register();
         resolve(model.view);
@@ -106,7 +115,9 @@ model.update = function() {
 model.onSignal = function(name, handler) {
   var listener = listeners[name] || (listeners[name] = []);
   listener.push(handler);
-  if (model.view) model.view.onSignal(name, handler);
+  if (model.view) {
+    model.view.onSignal(name, handler);
+  }
 };
 
 model.offSignal = function(name, handler) {
@@ -116,7 +127,9 @@ model.offSignal = function(name, handler) {
       listener.splice(i, 1);
     }
   }
-  if (model.view) model.view.offSignal(name, handler);
+  if (model.view) {
+    model.view.offSignal(name, handler);
+  }
 };
 
 function register() {
@@ -133,7 +146,9 @@ function register() {
           shiftKey = d3.event.shiftKey,
           prevKey = !!model._shiftKey;
 
-      if (prevKey === shiftKey) return;
+      if (prevKey === shiftKey) {
+        return;
+      }
       model._shiftKey = shiftKey;
 
       model.signal(sg.MODE,
@@ -145,7 +160,9 @@ function register() {
   model.view.onSignal(sg.SELECTED, function(name, selected) {
     var def = selected.mark.def,
         id = def && def.lyra_id;
-    if (id) components.select(id, false);
+    if (id) {
+      components.select(id, false);
+    }
   });
 
   for (signalName in listeners) {

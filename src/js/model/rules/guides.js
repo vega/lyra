@@ -11,13 +11,17 @@ var TYPES = Guide.TYPES,
 
 module.exports = function(parsed, property, channel) {
   var ctype = CTYPE[channel];
-  if (!ctype) return;
+  if (!ctype) {
+    return;
+  }
 
   var group = parsed.spec.marks[0],
       props = this.properties.update,
       prop = props[property] || props[channel],
       scale = prop.scale && lookup(prop.scale);
-  if (!scale) return;
+  if (!scale) {
+    return;
+  }
 
   return ctype === TYPES.AXIS ?
     axis.call(this, scale, group.axes) :
@@ -39,8 +43,12 @@ function axis(scale, defs) {
 
   axes.forEach(function(a) {
     a = lookup(a);
-    if (a.type === def.type) ++count;
-    if (a.scale === scale._id) axis = a;
+    if (a.type === def.type) {
+      ++count;
+    }
+    if (a.scale === scale._id) {
+      axis = a;
+    }
   });
 
   if (!axis && count < 2) {
@@ -49,7 +57,9 @@ function axis(scale, defs) {
     axis.layer = def.layer;
     axis.grid = def.grid;
     axis.orient = def.orient || axis.orient;
-    if (count === 1) axis.orient = SWAP_ORIENT[axis.orient];
+    if (count === 1) {
+      axis.orient = SWAP_ORIENT[axis.orient];
+    }
     dl.extend(axis.properties, def.properties);
     this.parent().child('axes', axis);
   }

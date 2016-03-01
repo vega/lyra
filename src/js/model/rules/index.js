@@ -51,7 +51,8 @@ function rules(prototype) {
 function channel(name) {
   if (vl.channel.CHANNELS.indexOf(name) >= 0) {
     return name;
-  } else {
+  }
+  else {
     switch (name) {
       case 'x+':
       case 'x2':
@@ -81,7 +82,8 @@ function fieldRef(field) {
   if (agg) {
     res = re.agg.exec(name);
     ref.aggregate = res[1];
-  } else if (bin) {
+  }
+  else if (bin) {
     res = re.bin.exec(name);
     ref.bin = true;
   }

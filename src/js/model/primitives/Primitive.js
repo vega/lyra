@@ -23,7 +23,8 @@ function clean(spec, resolve) {
     c = c || p._disabled || p === undefined;
     if (c) {
       delete spec[k];
-    } else if (dl.isObject(p)) {
+    }
+    else if (dl.isObject(p)) {
       spec[k] = p.signal && res ? sg.value(p.signal) : clean(spec[k], resolve);
     }
   }
@@ -36,7 +37,9 @@ prototype.export = function(resolve) {
 };
 
 prototype.parent = function(pid) {
-  if (!arguments.length) return lookup(this._parent);
+  if (!arguments.length) {
+    return lookup(this._parent);
+  }
   return (this._parent = +pid, this);
 };
 

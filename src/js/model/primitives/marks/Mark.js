@@ -64,14 +64,17 @@ prototype.pipeline = function(id) {
   if (!arguments.length) {
     from = lookup(this.from);
     return from && from.parent()._id;
-  } else if ((from = lookup(id)) instanceof Dataset) {
+  }
+  else if ((from = lookup(id)) instanceof Dataset) {
     this.from = id;
     return this;
-  } else if (from instanceof Pipeline) {
+  }
+  else if (from instanceof Pipeline) {
     // TODO
     this.from = from._source._id;
     return this;
-  } else {
+  }
+  else {
     this.from = undefined;
     return this;
   }
@@ -100,9 +103,15 @@ prototype.export = function(resolve) {
       update[k] = {value: v};
     }
 
-    if (v.scale) v.scale = (s = lookup(v.scale)) && s.name;
-    if (v.field) v.field = (f = lookup(v.field)) && f._name;
-    if (v.group) v.field = {group: v.group};
+    if (v.scale){
+      v.scale = (s = lookup(v.scale)) && s.name;
+    }
+    if (v.field) {
+      v.field = (f = lookup(v.field)) && f._name;
+    }
+    if (v.group) {
+      v.field = {group: v.group};
+    }
   }
 
   if (!resolve) {

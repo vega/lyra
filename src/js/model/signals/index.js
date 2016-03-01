@@ -37,10 +37,14 @@ function value(name, val) {
 function stash() {
   var model = require('../'),
       view = model.view;
-  if (!view) return signals;
+  if (!view) {
+    return signals;
+  }
 
   for (var k in signals) {
-    if (defaults.names.indexOf(k) >= 0) continue;
+    if (defaults.names.indexOf(k) >= 0) {
+      continue;
+    }
     try { signals[k].init = view.signal(k); }
     catch (e) {}
   }
@@ -50,7 +54,9 @@ function stash() {
 
 function streams(name, def) {
   var sg = signals[ns(name)];
-  if (arguments.length === 1) return sg.streams;
+  if (arguments.length === 1) {
+    return sg.streams;
+  }
   return (sg.streams = def, api);
 }
 
