@@ -3,7 +3,7 @@ var React = require('react'),
     Mark = require('../model/primitives/marks/Mark'),
     model = require('../model'),
     lookup = model.primitive,
-    From = require('./inspectors/From.jsx');
+    From = require('./inspectors/From');
 
 var Inspector = React.createClass({
   render: function() {
@@ -35,5 +35,5 @@ var Inspector = React.createClass({
 });
 
 module.exports = Inspector;
-Inspector.Rect = require('./inspectors/Rect.jsx');
-Inspector.Symbol = require('./inspectors/Symbol.jsx');
+Inspector.Rect = require('./inspectors/Rect');
+Inspector.Symbol = require('./inspectors/Symbol');

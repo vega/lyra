@@ -1,6 +1,6 @@
 'use strict';
 var React = require('react'),
-    Property = require('./Property.jsx'),
+    Property = require('./Property'),
     Base = require('../../model/primitives/marks/Symbol');
 
 var Symbol = React.createClass({

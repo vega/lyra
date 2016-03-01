@@ -1,9 +1,9 @@
 'use strict';
 var dl = require('datalib'),
     React = require('react'),
-    Property = require('./Property.jsx'),
-    SpatialPreset = require('./SpatialPreset.jsx'),
-    Parse = require('../mixins/Parse.jsx'),
+    Property = require('./Property'),
+    SpatialPreset = require('./SpatialPreset'),
+    Parse = require('../mixins/Parse'),
     util = require('../../util'),
     model = require('../../model'),
     lookup = model.primitive;

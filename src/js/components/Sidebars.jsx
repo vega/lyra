@@ -1,10 +1,10 @@
 'use strict';
 var dl = require('datalib'),
     React = require('react'),
-    PipelineList = require('./pipelines/PipelineList.jsx'),
-    ScaleList = require('./ScaleList.jsx'),
-    LayerList = require('./LayerList.jsx'),
-    Inspector = require('./Inspector.jsx'),
+    PipelineList = require('./pipelines/PipelineList'),
+    ScaleList = require('./ScaleList'),
+    LayerList = require('./LayerList'),
+    Inspector = require('./Inspector'),
     model = require('../model'),
     sg = require('../model/signals'),
     lookup = model.primitive;
