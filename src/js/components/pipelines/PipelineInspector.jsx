@@ -2,8 +2,8 @@
 var d3 = require('d3'),
     React = require('react'),
     ReactDOM = require('react-dom'),
-    ContentEditable = require('../ContentEditable.jsx'),
-    DataTable = require('./DataTable.jsx');
+    ContentEditable = require('../ContentEditable'),
+    DataTable = require('./DataTable');
 
 var PipelineInspector = React.createClass({
   render: function() {

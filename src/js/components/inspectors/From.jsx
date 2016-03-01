@@ -1,6 +1,6 @@
 'use strict';
 var React = require('react'),
-    Property = require('./Property.jsx'),
+    Property = require('./Property'),
     model = require('../../model'),
     lookup = model.primitive;
 

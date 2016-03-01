@@ -1,6 +1,6 @@
 'use strict';
 var React = require('react'),
-    Parse = require('../mixins/Parse.jsx'),
+    Parse = require('../mixins/Parse'),
     util = require('../../util'),
     model = require('../../model'),
     lookup = model.primitive;

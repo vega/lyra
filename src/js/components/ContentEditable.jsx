@@ -2,7 +2,7 @@
 var dl = require('datalib'),
     React = require('react'),
     ReactDOM = require('react-dom'),
-    SignalValueMixin = require('./mixins/SignalValue.jsx'),
+    SignalValueMixin = require('./mixins/SignalValue'),
     model = require('../model');
 
 var ContentEditable = React.createClass({

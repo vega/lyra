@@ -1,7 +1,7 @@
 'use strict';
 var d3 = require('d3'),
     React = require('react'),
-    PipelineInspector = require('./PipelineInspector.jsx');
+    PipelineInspector = require('./PipelineInspector');
 
 var PipelineList = React.createClass({
   getInitialState: function() {

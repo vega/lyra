@@ -1,6 +1,6 @@
 'use strict';
 var React = require('react'),
-    ContentEditable = require('./ContentEditable.jsx'),
+    ContentEditable = require('./ContentEditable'),
     model = require('../model'),
     lookup = model.primitive;
 

@@ -1,7 +1,7 @@
 'use strict';
 var React = require('react'),
-    Property = require('./Property.jsx'),
-    ExtentProperty = require('./ExtentProperty.jsx');
+    Property = require('./Property'),
+    ExtentProperty = require('./ExtentProperty');
 
 var Rect = React.createClass({
   render: function() {

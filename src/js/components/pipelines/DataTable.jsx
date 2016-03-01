@@ -3,7 +3,7 @@ var d3 = require('d3'),
     dl = require('datalib'),
     React = require('react'),
     ReactDOM = require('react-dom'),
-    Parse = require('../mixins/Parse.jsx'),
+    Parse = require('../mixins/Parse'),
     model = require('../../model'),
     sg = require('../../model/signals');
 

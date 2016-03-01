@@ -1,9 +1,9 @@
 'use strict';
 var dl = require('datalib'),
     React = require('react'),
-    Parse = require('../mixins/Parse.jsx'),
-    SignalValue = require('../mixins/SignalValue.jsx'),
-    ContentEditable = require('../ContentEditable.jsx'),
+    Parse = require('../mixins/Parse'),
+    SignalValue = require('../mixins/SignalValue'),
+    ContentEditable = require('../ContentEditable'),
     model = require('../../model'),
     lookup = model.primitive;
 
