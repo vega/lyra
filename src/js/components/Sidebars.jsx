@@ -1,6 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    React = require('react'),
+var React = require('react'),
     PipelineList = require('./pipelines/PipelineList'),
     ScaleList = require('./ScaleList'),
     LayerList = require('./LayerList'),

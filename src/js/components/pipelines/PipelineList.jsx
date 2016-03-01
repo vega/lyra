@@ -1,6 +1,5 @@
 'use strict';
-var d3 = require('d3'),
-    React = require('react'),
+var React = require('react'),
     PipelineInspector = require('./PipelineInspector');
 
 var PipelineList = React.createClass({

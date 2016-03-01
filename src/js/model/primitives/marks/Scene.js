@@ -1,6 +1,4 @@
-var dl = require('datalib'),
-    vg = require('vega'),
-    sg = require('../../signals'),
+var sg = require('../../signals'),
     Group = require('./Group');
 
 var SG_WIDTH = 'vis_width', SG_HEIGHT = 'vis_height';

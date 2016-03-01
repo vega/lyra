@@ -84,9 +84,7 @@ var Group = React.createClass({
 
 var LayerList = React.createClass({
   render: function() {
-    var props = this.props,
-        toggle = props.toggle,
-        expanded = props.expanded;
+    var props = this.props;
     return (
       <div id="layer-list">
         <h2>Layers <i className="fa fa-plus"></i> <span className="edit">Edit<br />Scene</span></h2>

@@ -30,8 +30,7 @@ var prototype = (Manipulators.prototype = Object.create(Transform.prototype));
 prototype.constructor = Manipulators;
 
 prototype.transform = function(input) {
-  var self = this,
-      g = this._graph,
+  var g = this._graph,
       item = g.signal(sg.SELECTED).value(),
       mode = g.signal(sg.MODE).value(),
       def = item.mark.def,

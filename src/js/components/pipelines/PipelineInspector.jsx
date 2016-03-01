@@ -1,7 +1,5 @@
 'use strict';
-var d3 = require('d3'),
-    React = require('react'),
-    ReactDOM = require('react-dom'),
+var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     DataTable = require('./DataTable');
 

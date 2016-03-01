@@ -1,5 +1,4 @@
 var dl = require('datalib'),
-    vg = require('vega'),
     sg = require('../signals'),
     model = require('../'),
     lookup = model.primitive,

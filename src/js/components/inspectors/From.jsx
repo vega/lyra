@@ -1,8 +1,6 @@
 'use strict';
 var React = require('react'),
-    Property = require('./Property'),
-    model = require('../../model'),
-    lookup = model.primitive;
+    Property = require('./Property');
 
 var From = React.createClass({
   handleChange: function(evt) {

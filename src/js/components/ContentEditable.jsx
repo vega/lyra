@@ -1,9 +1,7 @@
 'use strict';
-var dl = require('datalib'),
-    React = require('react'),
+var React = require('react'),
     ReactDOM = require('react-dom'),
-    SignalValueMixin = require('./mixins/SignalValue'),
-    model = require('../model');
+    SignalValueMixin = require('./mixins/SignalValue');
 
 var ContentEditable = React.createClass({
   mixins: [SignalValueMixin],

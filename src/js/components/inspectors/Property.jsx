@@ -1,6 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    React = require('react'),
+var React = require('react'),
     Parse = require('../mixins/Parse'),
     SignalValue = require('../mixins/SignalValue'),
     ContentEditable = require('../ContentEditable'),
@@ -25,7 +24,7 @@ var Property = React.createClass({
         field = props.field,
         value = state.value,
         disabled = props.disabled,
-        labelEl, scaleEl, fieldEl, controlEl, extraEl;
+        labelEl, scaleEl, controlEl, extraEl;
 
     React.Children.forEach(props.children, function(child) {
       var className = child && child.props.className,

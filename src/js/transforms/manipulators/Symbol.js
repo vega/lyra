@@ -1,6 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    Base = require('./Manipulators'),
+var Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
     CONST = spec.CONST,
     PX = CONST.PADDING,

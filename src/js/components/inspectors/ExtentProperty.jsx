@@ -3,10 +3,7 @@ var dl = require('datalib'),
     React = require('react'),
     Property = require('./Property'),
     SpatialPreset = require('./SpatialPreset'),
-    Parse = require('../mixins/Parse'),
-    util = require('../../util'),
-    model = require('../../model'),
-    lookup = model.primitive;
+    Parse = require('../mixins/Parse');
 
 var EXTENTS = {
   x: {
@@ -40,7 +37,7 @@ var ExtentProperty = React.createClass({
         primitive = props.primitive,
         update = primitive.properties.update,
         extents = dl.vals(EXTENTS[type]),
-        start, end, i, len;
+        start, end;
 
     extents.forEach(function(x) {
       var name = x.name, prop = update[name];

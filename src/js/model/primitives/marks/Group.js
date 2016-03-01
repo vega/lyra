@@ -1,12 +1,11 @@
 var dl = require('datalib'),
-    vg = require('vega'),
     model = require('../../'),
     lookup = model.primitive,
     Mark = require('./Mark'),
     util = require('../../../util');
 
-var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'],
-    MARK_TYPES = ['group', 'rect', 'symbol', 'arc', 'area', 'line', 'text'];
+var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];
+// MARK_TYPES = ['group', 'rect', 'symbol', 'arc', 'area', 'line', 'text'];
 
 var CHILDREN = {
   group:  Group,

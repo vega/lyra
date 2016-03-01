@@ -1,5 +1,4 @@
-var dl = require('datalib'),
-    util = require('../../util'),
+var util = require('../../util'),
     model = require('../'),
     lookup = model.primitive;
 

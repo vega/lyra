@@ -1,10 +1,8 @@
 var dl = require('datalib'),
     sg = require('../../signals'),
     Primitive = require('../Primitive'),
-    Scale = require('../Scale'),
     Pipeline = require('../data/Pipeline'),
     Dataset = require('../data/Dataset'),
-    Field = require('../data/Field'),
     manips = require('./manipulators'),
     rules = require('../../rules'),
     util = require('../../../util'),
@@ -13,7 +11,6 @@ var dl = require('datalib'),
     count = {group: -1};
 
 function Mark(type) {
-  var cnt = count[type] || (count[type] = 0);
   this.name = type + '_' + (++count[type]);
   this.type = type;
   this.from = undefined;

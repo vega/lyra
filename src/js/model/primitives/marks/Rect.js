@@ -1,7 +1,6 @@
 var dl = require('datalib'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
-    manips = require('./manipulators'),
     util = require('../../../util');
 
 var DELTA = sg.DELTA,
