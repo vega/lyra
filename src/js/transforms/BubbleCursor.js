@@ -8,17 +8,22 @@ var dl = require('datalib'),
     sg = require('../model/signals');
 
 /**
- * @classdesc Represents a BubbleCursor.
+ * @classdesc Represents the BubbleCursor, a Vega data transformation operator.
  *
- * @description Creates a new drop zone
- * @param {string} graph - model
- * @returns  router ?
+ * @description The BubbleCursor transform uses the user's mouse position
+ * and a voronoi tessellation computed for the current Lyra manipulator type to
+ * indicate which manipulator is currently selected. This is indicated on the
+ * visualization with a salmon shaded region.
  *
- * @property {string} _cellID
- * @property {string} _cache
- * @property {string} _start
- * @property {string} _end
- * @property {string} _mouse
+ * @param {string} graph - A Vega model.
+ * @returns {Object} A Vega-Dataflow Node.
+ *
+ * @property {number} _cellID - The ID of voronoi cell the mouse is over.
+ * @property {Object[]} _cache - A cache of previously calculated bubble cursor
+ * coordinates which is reused if the transform is reevaluated for the same cell.
+ * @property {Object} _start - The first coordinate of the bubble cursor region.
+ * @property {Object} _end - The last coordinate of the bubble cursor region.
+ * @property {Object} _mouse - The user's current mouse position.
  *
  * @constructor
  */
@@ -37,9 +42,10 @@ BubbleCursor.prototype = Object.create(Transform.prototype);
 BubbleCursor.prototype.constructor = BubbleCursor;
 
 /**
- * transform BubbleCursor
- * @param {string} input - todo.
- * @return {object} output - todo
+ * The transform method is automatically called by Vega whenever the bubble
+ * cursor region needs to be recalculated (e.g., when the user moves the mouse).
+ * @param {Object} input - A Vega-Dataflow ChangeSet.
+ * @return {Object} output - A Vega-Dataflow ChangeSet.
  */
 BubbleCursor.prototype.transform = function(input) {
   var g = this._graph,
