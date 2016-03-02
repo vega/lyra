@@ -15,7 +15,7 @@ var Inspector = React.createClass({
         isMark = primitive instanceof Mark;
 
     var pipeline = isMark ? (
-      <From {...props} primitive={primitive} from={primitive.pipeline()} />
+      <From {...props} primitive={primitive} from={primitive.dataset()} />
     ) : null;
 
     var inner = InspectorType ? (

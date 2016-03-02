@@ -4,13 +4,13 @@ var React = require('react'),
 
 var From = React.createClass({
   handleChange: function(evt) {
-    this.props.primitive.pipeline(+evt.target.value);
+    this.props.primitive.dataset(+evt.target.value);
   },
 
   render: function() {
     var props = this.props,
         pipelines = props.pipelines,
-        from = props.from;
+        from = props.from && props.from._id;
 
     return (
       <Property name="pipeline" label="Pipeline">

@@ -7,7 +7,13 @@ var DELTA = sg.DELTA,
     DX = DELTA + '.x',
     DY = DELTA + '.y';
 
-function Symbol(type) {
+/**
+ * @classdesc A Lyra Symbol Mark Primitive.
+ * @extends {Mark}
+ *
+ * @constructor
+ */
+function Symbol() {
   Mark.call(this, 'symbol');
 
   var props = this.properties,
@@ -21,10 +27,10 @@ function Symbol(type) {
   return this;
 }
 
-var prototype = (Symbol.prototype = Object.create(Mark.prototype));
-prototype.constructor = Symbol;
+Symbol.prototype = Object.create(Mark.prototype);
+Symbol.prototype.constructor = Symbol;
 
-prototype.initHandles = function() {
+Symbol.prototype.initHandles = function() {
   var prop = util.propSg,
       test = util.test,
       at = util.anchorTarget.bind(util, this, 'handles'),
