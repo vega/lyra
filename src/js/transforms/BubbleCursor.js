@@ -7,12 +7,8 @@ var dl = require('datalib'),
     Transform = vg.Transform,
     sg = require('../model/signals');
 
-
-DropZone.prototype = Object.create(Transform.prototype);
-DropZone.prototype.constructor = DropZone;
-
 /**
- * @classdesc Represents a DropZone.
+ * @classdesc Represents a BubbleCursor.
  *
  * @description Creates a new drop zone
  * @param {string} graph - model
@@ -26,7 +22,7 @@ DropZone.prototype.constructor = DropZone;
  *
  * @constructor
  */
-function DropZone(graph) {
+function BubbleCursor(graph) {
   Transform.prototype.init.call(this, graph);
   this._cellID = null;
   this._cache = [];
@@ -37,12 +33,15 @@ function DropZone(graph) {
     .dependency(Deps.SIGNALS, [sg.CELL, sg.MOUSE]);
 }
 
+BubbleCursor.prototype = Object.create(Transform.prototype);
+BubbleCursor.prototype.constructor = BubbleCursor;
+
 /**
- * transform dropzone
+ * transform BubbleCursor
  * @param {string} input - todo.
  * @return {object} output - todo
  */
-DropZone.prototype.transform = function(input) {
+BubbleCursor.prototype.transform = function(input) {
   var g = this._graph,
       cell = g.signal(sg.CELL).value(),
       mouse = g.signal(sg.MOUSE).value(),
@@ -108,4 +107,4 @@ DropZone.prototype.transform = function(input) {
   return output;
 };
 
-module.exports = DropZone;
+module.exports = BubbleCursor;

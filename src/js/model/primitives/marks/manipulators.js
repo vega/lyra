@@ -176,9 +176,9 @@ TYPES.push(manipulators.SPAN = dl.extend({}, manipulators.ARROW, {
   }
 }));
 
-manipulators.DROPZONE = {
+manipulators.BUBBLE_CURSOR = {
   type: 'line',
-  from: {data: 'dropzone'},
+  from: {data: 'bubble_cursor'},
   properties: {
     update: {
       x: {field: 'x'},

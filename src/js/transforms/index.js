@@ -9,6 +9,6 @@ t[MANIPULATORS + 'rect'] = require('./manipulators/Rect');
 t[MANIPULATORS + 'group'] = require('./manipulators/Rect');
 t[MANIPULATORS + 'symbol'] = require('./manipulators/Symbol');
 
-t[util.ns('dropzone')] = require('./DropZone');
+t[util.ns('bubble_cursor')] = require('./BubbleCursor');
 
 dl.extend(vg.transforms, t);

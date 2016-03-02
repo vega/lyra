@@ -127,11 +127,11 @@ model.manipulators = function() {
   });
 
   data.push({
-    name: 'dropzone',
-    transform: [{type: util.ns('dropzone')}]
+    name: 'bubble_cursor',
+    transform: [{type: util.ns('bubble_cursor')}]
   });
 
-  marks.push(manips.DROPZONE);
+  marks.push(manips.BUBBLE_CURSOR);
 
   return spec;
 };
