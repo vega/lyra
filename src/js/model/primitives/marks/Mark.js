@@ -11,6 +11,7 @@ var dl = require('datalib'),
     count = {group: -1};
 
 function Mark(type) {
+  count[type] = count[type] || 0;
   this.name = type + '_' + (++count[type]);
   this.type = type;
   this.from = undefined;
