@@ -7,9 +7,27 @@ var dl = require('datalib'),
     Transform = vg.Transform,
     sg = require('../model/signals');
 
+
+DropZone.prototype = Object.create(Transform.prototype);
+DropZone.prototype.constructor = DropZone;
+
+/**
+ * @classdesc Represents a DropZone.
+ *
+ * @description Creates a new drop zone
+ * @param {string} graph - model
+ * @returns  router ?
+ *
+ * @property {string} _cellID
+ * @property {string} _cache
+ * @property {string} _start
+ * @property {string} _end
+ * @property {string} _mouse
+ *
+ * @constructor
+ */
 function DropZone(graph) {
   Transform.prototype.init.call(this, graph);
-
   this._cellID = null;
   this._cache = [];
   this._start = Tuple.ingest({});
@@ -19,10 +37,12 @@ function DropZone(graph) {
     .dependency(Deps.SIGNALS, [sg.CELL, sg.MOUSE]);
 }
 
-var prototype = (DropZone.prototype = Object.create(Transform.prototype));
-prototype.constructor = DropZone;
-
-prototype.transform = function(input) {
+/**
+ * transform dropzone
+ * @param {string} input - todo.
+ * @return {object} output - todo
+ */
+DropZone.prototype.transform = function(input) {
   var g = this._graph,
       cell = g.signal(sg.CELL).value(),
       mouse = g.signal(sg.MOUSE).value(),

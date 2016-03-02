@@ -42,6 +42,7 @@
     "istanbul": "^0.3.21",
     "jshint": "^2.8.0",
     "jstransform": "^11.0.3",
+    "minami": "^1.1.1",
     "mocha": "^2.2.5",
     "node-sass": "^3.4.2",
     "nodemon": "^1.8.1",
@@ -69,6 +70,10 @@
     "test": "npm run test",
     "test:js": "mocha --timeout 30000 --recursive test/",
     "cover": "npm run cover",
-    "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/"
+    "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/",
+    "docs": "./node_modules/.bin/jsdoc --configure .jsdoc.json"
+  },
+  "dependencies": {
+    "jsdoc": "^3.4.0"
   }
 }

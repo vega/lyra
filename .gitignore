@@ -8,3 +8,5 @@ node_modules
 output
 temp
 build
+Gemfile.lock
+docs
