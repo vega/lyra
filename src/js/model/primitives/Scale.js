@@ -4,6 +4,27 @@ var dl = require('datalib'),
     lookup = model.primitive,
     names = {};
 
+/**
+ * @classdesc A Lyra Scale Primitive.
+ *
+ * @description The Scale Primitive corresponds to a definition for a Vega scale.
+ * @extends {Primitive}
+ *
+ * @param {string} name - The initial name of the scale. It may be renamed to
+ * prevent scale name collisions.
+ * @param {string} type - The scale type (e.g., `ordinal`, `linear`, etc.).
+ * @param {*} domain - The scale domain (values in data space).
+ * @param {*} range - The scale range (values in visual space, e.g., `width`).
+ *
+ * @property {number[]} _domain - An array of primitive IDs if the scale's
+ * domain is a set of fields (a Vega {@link https://github.com/vega/vega/wiki/Scales#scale-domains|DataRef}).
+ * @property {number[]} _range - An array of primitive IDs if the scale's
+ * range is a set of fields (a Vega {@link https://github.com/vega/vega/wiki/Scales#scale-domains|DataRef}).
+ * @see Vega's {@link https://github.com/vega/vega/wiki/Scales|Scales}
+ * documentation for more information on this class' "public" properties.
+ *
+ * @constructor
+ */
 function Scale(name, type, domain, range) {
   this.name = rename(name);
   this.type = type;
@@ -20,9 +41,9 @@ function Scale(name, type, domain, range) {
   return Primitive.call(this);
 }
 
-var prototype = (Scale.prototype = Object.create(Primitive.prototype));
-prototype.constructor = Scale;
-prototype.parent = null;
+Scale.prototype = Object.create(Primitive.prototype);
+Scale.prototype.constructor = Scale;
+Scale.prototype.parent = null;
 
 // To prevent name collisions.
 function rename(name) {
@@ -74,7 +95,7 @@ function dataRef(ref) {
   }
 }
 
-prototype.export = prototype.manipulators = function(resolve) {
+Scale.prototype.export = Scale.prototype.manipulators = function(resolve) {
   var spec = Primitive.prototype.export.call(this, resolve);
 
   if (!this.domain && this._domain.length) {

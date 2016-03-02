@@ -90,7 +90,7 @@ model.signal = function() {
 /**
  * Exports the model as a complete Vega specification.
  * @param  {Object}  [scene] - An exported specification of the Scene.
- * @param  {boolean} [clean=true] - Should Lyra-specific definitions be removed
+ * @param  {boolean} [clean=true] - Should Lyra-specific properties be removed
  * or resolved (e.g., converting property signal references to actual values).
  * @return {Object} A Vega specification.
  */
