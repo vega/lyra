@@ -7,19 +7,28 @@ var dl = require('datalib'),
     SP = CONST.STROKE_PADDING,
     A = CONST.ARROWHEAD;
 
+/**
+ * @classdesc Represents the RectManipulators, a Vega data transformation operator.
+ *
+ * @description The RectManipulators calculates manipulators when a rect mark
+ * instance is selected.
+ * @extends Manipulators
+ *
+ * @constructor
+ */
 function RectManipulators(graph) {
   return Base.call(this, graph);
 }
 
-var prototype = (RectManipulators.prototype = Object.create(Base.prototype));
-prototype.constructor = RectManipulators;
+RectManipulators.prototype = Object.create(Base.prototype);
+RectManipulators.prototype.constructor = RectManipulators;
 
-prototype.handles = function(item) {
+RectManipulators.prototype.handles = function(item) {
   var c = spec.coords(item.bounds, 'handle');
   return dl.vals(c).filter(function(x) { return x.key !== 'midCenter'; });
 };
 
-prototype.connectors = function(item) {
+RectManipulators.prototype.connectors = function(item) {
   return dl.vals(spec.coords(item.bounds, 'connector'));
 };
 
@@ -31,7 +40,7 @@ function map(key, manipulator) {
   };
 }
 
-prototype.channels = function(item) {
+RectManipulators.prototype.channels = function(item) {
   var b = item.bounds,
       c = spec.coords(b),
       tl = c.topLeft,
@@ -54,7 +63,7 @@ prototype.channels = function(item) {
     ].map(map('y+', 'arrow')));
 };
 
-prototype.altchannels = function(item) {
+RectManipulators.prototype.altchannels = function(item) {
   var b = item.bounds,
       gb = item.mark.group.bounds,
       c = spec.coords(b),
