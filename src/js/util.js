@@ -4,37 +4,35 @@ var dl = require('datalib'),
     NS = 'lyra_',
     vgSchema;
 
-function ns (name) {
+function ns(name) {
   return name.startsWith(NS) ? name : NS+name;
 };
 
 /** @namespace */
 var util = {
 /**
- * ns
- * add description
- * @param {string} name - todo.
+ * Ensure an input string is in the Lyra namespace.
+ * @param {string} name - Input string to namespace.
  */
   ns: ns,
 
 /**
- * Util#propSq
- * add description
- * @param {string} mark - todo.
- * @param {string} p - todo.
+ * Returns the signal name corresponding to the given mark and property.
+ * @param {Object} mark - A Mark object.
+ * @param {string} property - The name of the property.
+ * @return {string} The name of the signal for the given mark's property.
  */
-  propSg: function(mark, p) {
-    return ns(mark.type + '_' + mark._id + '_' + p);
+  propSg: function(mark, property) {
+    return ns(mark.type + '_' + mark._id + '_' + property);
   },
 
 /**
- * Util#anchorTarget
- * Returns an expr str condition that tests whether the anchor target
+ * Returns a Vega expression string that tests whether the anchor target
  * has a particular key or is a scenegraph item itself.
- * @constructor
- * @param {string} mark - todo.
- * @param {string} mode - todo.
- * @param {string} key - todo.
+ * @param {Object} mark - A Mark object.
+ * @param {string} mode - The Lyra manipulator mode.
+ * @param {string} [key] - The key of a specific manipulator instance.
+ * @return {string} A Vega expression string.
  */
   anchorTarget: function(mark, mode, key) {
     var sg = require('./model/signals'),
@@ -53,19 +51,18 @@ var util = {
   },
 
 /**
- * Util#test
- * Returns ...
- * @param {string} condition - todo.
- * @param {string} t - todo.
- * @param {string} f - todo.
+ * Returns a Vega if-expression string.
+ * @param {string} pred - The predicate string.
+ * @param {string} t - The true condition string.
+ * @param {string} f - The false condition string.
+ * @return {string} A Vega if-expression string.
  */
-  test: function(cond, t, f) {
-    return 'if(' + cond + ',' + t + ',' + f + ')';
+  test: function(pred, t, f) {
+    return 'if(' + pred + ',' + t + ',' + f + ')';
   },
 
 /**
- * Util#schema
- * Returns vega-schema
+ * @return {Object} The Vega JSON schema.
  */
   schema: function() {
     return vgSchema || (vgSchema = vg.schema({
