@@ -1,5 +1,4 @@
 // Additional requires to polyfill + browserify package.
-// require('es6-promise').polyfill();
 require('array.prototype.find');
 require('string.prototype.startswith');
 require('./transforms');
