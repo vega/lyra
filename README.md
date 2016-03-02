@@ -28,18 +28,10 @@ To build the application itself, execute the build command:
 npm run build
 ```
 
-Lyra is now ready to run. Start a local webserver in the project directory. Example web server commands:
+Lyra is now ready to run. Start the local webserver with the command:
 
 ```sh
-# If you have Python installed,
-python -m SimpleHTTPServer 8001
-
-# PHP
-php -S 127.0.0.1:8001
-
-# Node "serve" package
-npm install -g serve # only needs to be run once
-serve . -p 8001
+npm start
 ```
 
-Lyra can now be loaded in your web browser at http://localhost:8001
+Lyra should now be running at [http://localhost:8080](http://localhost:8080)! This web server will auto-reload when you change the JavaScript code; manually re-building with `npm run build` should only be necessary if you update the SCSS stylesheets.

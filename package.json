@@ -47,7 +47,8 @@
     "string.prototype.startswith": "^0.2.0",
     "vega": "^2.5.0",
     "vega-lite": "^1.0.1",
-    "webpack": "^1.12.14"
+    "webpack": "^1.12.14",
+    "webpack-dev-server": "^1.14.1"
   },
   "scripts": {
     "lint": "eslint --ext .js,.jsx src",
@@ -60,7 +61,8 @@
     "test:js": "mocha --timeout 30000 --recursive test/",
     "cover": "npm run cover",
     "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/",
-    "docs": "./node_modules/.bin/jsdoc --configure .jsdoc.json"
+    "docs": "./node_modules/.bin/jsdoc --configure .jsdoc.json",
+    "start": "webpack-dev-server --inline"
   },
   "dependencies": {
     "jsdoc": "^3.4.0"

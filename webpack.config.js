@@ -16,7 +16,9 @@ module.exports = {
     ],
   },
   output: {
-    filename: path.resolve( __dirname, 'build/js/lyra.js' )
+    path: path.resolve( __dirname, 'build' ),
+    publicPath: '/build/',
+    filename: 'js/lyra.js'
   },
   module: {
     loaders: [
@@ -40,7 +42,7 @@ module.exports = {
     // Extract the "vendor" code into
     new webpack.optimize.CommonsChunkPlugin(
       'vendor', // chunk name
-      path.resolve( __dirname, 'build/js/vendor.js' ) // filename
+      'js/vendor.js' // filename
     )
   ]
 };
