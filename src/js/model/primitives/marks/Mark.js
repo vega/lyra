@@ -10,6 +10,22 @@ var dl = require('datalib'),
     lookup = model.primitive,
     count = {group: -1};
 
+/**
+ * @classdesc A Lyra Mark Primitive.
+ *
+ * @description The Mark Primitive is an abstract base class. Each mark type
+ * that Lyra supports should subclass it.
+ * @extends {Primitive}
+ *
+ * @param {string} type - The mark type (e.g., `rect`, `symbol`, etc.).
+ *
+ * @property {Object} _rule - A {@link http://vega.github.io/vega-lite/docs/#spec|Vega-Lite specification}
+ * that is compiled each time a data field is dropped over channel manipulators.
+ * @see Vega's {@link https://github.com/vega/vega/wiki/Marks|Marks}
+ * documentation for more information on this class' "public" properties.
+ *
+ * @constructor
+ */
 function Mark(type) {
   count[type] = count[type] || 0;
   this.name = type + '_' + (++count[type]);
@@ -32,12 +48,17 @@ function Mark(type) {
   return Primitive.call(this);
 }
 
-var prototype = (Mark.prototype = Object.create(Primitive.prototype));
-prototype.constructor = Mark;
+Mark.prototype = Object.create(Primitive.prototype);
+Mark.prototype.constructor = Mark;
 
-// Convert all registered visual properties w/literal values to signals.
-// Subclasses will register the necessary streams to change the signal values.
-prototype.init = function() {
+/**
+ * Initializes the Lyra Mark Primitive by converting all registered visual
+ * properties with literal values to Lyra-specific signals. Each mark subclass
+ * will register the necessary streams to change the signal values
+ * (e.g., `initHandlers`).
+ * @return {Object} The Mark.
+ */
+Mark.prototype.init = function() {
   var props = this.properties,
       update = props.update,
       k, p;
@@ -55,13 +76,19 @@ prototype.init = function() {
   return this;
 };
 
-// Get/set a mark's pipeline. This method determines which of a
-// pipeline's datasets the mark draws from.
-prototype.pipeline = function(id) {
+/**
+ * Get/set a mark's backing dataset.
+ * @todo  Rename to `from`? A mark can be backed by another mark when connected.
+ * @param  {number} [id] - The ID of a Dataset or Pipeline Primitive. If
+ * Pipeline, then the source Dataset is used.
+ * @return {Object} If no ID is specified, the backing Dataset primitive if any.
+ * If an ID is specified, the Mark is returned.
+ */
+Mark.prototype.dataset = function(id) {
   var from;
   if (!arguments.length) {
     from = lookup(this.from);
-    return from && from.parent()._id;
+    return from && lookup(from.parent()._id);
   }
   else if ((from = lookup(id)) instanceof Dataset) {
     this.from = id;
@@ -78,12 +105,16 @@ prototype.pipeline = function(id) {
   }
 };
 
-// Interaction logic for handle manipulators.
-prototype.initHandles = function() {};
+/**
+ * Initializes the interaction logic for the mark's handle manipulators. This
+ * involves setting {@link https://github.com/vega/vega/wiki/Signals|the streams}
+ * of the mark's property signals.
+ * @return {Object} The Mark.
+ */
+Mark.prototype.initHandles = function() {};
 
-// Convert signalRefs to valueRefs unless resolve === false.
-prototype.export = function(resolve) {
-  var spec = Primitive.prototype.export.call(this, resolve),
+Mark.prototype.export = function(clean) {
+  var spec = Primitive.prototype.export.call(this, clean),
       props = spec.properties,
       update = props.update,
       from = this.from && lookup(this.from),
@@ -112,14 +143,14 @@ prototype.export = function(resolve) {
     }
   }
 
-  if (!resolve) {
+  if (!clean) {
     spec.lyra_id = this._id;
   }
 
   return spec;
 };
 
-manips(prototype);
-rules(prototype);
+manips(Mark.prototype);
+rules(Mark.prototype);
 
 module.exports = Mark;

@@ -61,7 +61,7 @@
     "test:js": "mocha --timeout 30000 --recursive test/",
     "cover": "npm run cover",
     "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/",
-    "docs": "./node_modules/.bin/jsdoc --configure .jsdoc.json",
+    "docs": "jsdoc --configure .jsdoc.json",
     "start": "webpack-dev-server --inline"
   },
   "dependencies": {

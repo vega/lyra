@@ -12,8 +12,18 @@ var CHILDREN = {
   rect:   require('./Rect'),
   symbol: require('./Symbol'),
   scales: require('../Scale'),
+  legends: require('../Guide'),
+  axes: require('../Guide')
 };
 
+/**
+ * @classdesc A Lyra Group Mark Primitive.
+ * @extends {Mark}
+ * @see  Vega's {@link https://github.com/vega/vega/wiki/Group-Marks|Group Marks}
+ * documentation for more information on this class' "public" properties.
+ *
+ * @constructor
+ */
 function Group() {
   Mark.call(this, 'group');
 
@@ -34,10 +44,10 @@ function Group() {
   return this;
 }
 
-var prototype = (Group.prototype = Object.create(Mark.prototype));
-prototype.constructor = Group;
+Group.prototype = Object.create(Mark.prototype);
+Group.prototype.constructor = Group;
 
-prototype.export = function(resolve) {
+Group.prototype.export = function(resolve) {
   var self = this,
       spec = Mark.prototype.export.call(this, resolve),
       fn = function(id) { return lookup(id).export(resolve); };
@@ -46,7 +56,7 @@ prototype.export = function(resolve) {
   return spec;
 };
 
-prototype.manipulators = function() {
+Group.prototype.manipulators = function() {
   var self = this,
       spec = Mark.prototype.manipulators.call(this),
       group = spec[0],
@@ -61,8 +71,16 @@ prototype.manipulators = function() {
   return spec;
 };
 
-// Insert or create a child element.
-prototype.child = function(type, child) {
+/**
+ * Insert or create a child Primitive.
+ * @param  {string} type - The type of the child (`scales`, `axes`, `legends`).
+ * For marks, this should also include the mark type (e.g., `marks.rect`).
+ * @param  {number|Object} [child] - The ID or Primitive corresponding to the
+ * child to be inserted into the Group. If no child is specified, a new one
+ * is created and initialized.
+ * @return {Object} The child Primitive.
+ */
+Group.prototype.child = function(type, child) {
   type = type.split('.');
   child = (child === undefined) ? new CHILDREN[type[1] || type[0]]().init() :
     dl.isNumber(child) ? lookup(child) : child;

@@ -11,6 +11,27 @@ var dl = require('datalib'),
     $x = dl.$('x'),
     $y = dl.$('y');
 
+/**
+ * @classdesc Represents the Manipulators, a Vega data transformation operator.
+ *
+ * @description The Manipulators transform is a base class that should be
+ * subclassed for each mark type. It provides the base transform methods that
+ * compute the data to drive the manipulator mark specifications when in a
+ * particular manipulator mode for a selected visualization mark item.
+ *
+ * @param {string} graph - A Vega model.
+ * @returns {Object} A Vega-Dataflow Node.
+ *
+ * @property {number} _cacheID - The ID the selected mark item from the previous
+ * evaluation.
+ * @property {string} _cacheMode - The manipulator mode from the previous
+ * evaluation.
+ * @property {Object[]} _cache - A cache of previously calculated coordinates
+ * for the corresponding _cacheID and _cacheMode.
+ * @property {Object} _voronoi - A Vega Voronoi data transformation.
+ *
+ * @constructor
+ */
 function Manipulators(graph) {
   Transform.prototype.init.call(this, graph);
   Transform.addParameters(this, {
@@ -26,10 +47,16 @@ function Manipulators(graph) {
     .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MODE]);
 }
 
-var prototype = (Manipulators.prototype = Object.create(Transform.prototype));
-prototype.constructor = Manipulators;
+Manipulators.prototype = Object.create(Transform.prototype);
+Manipulators.prototype.constructor = Manipulators;
 
-prototype.transform = function(input) {
+/**
+ * The transform method is automatically called by Vega whenever the manipulator
+ * coordinates need to be recalculated (e.g., when a new mark item is selected).
+ * @param {Object} input - A Vega-Dataflow ChangeSet.
+ * @return {Object} output - A Vega-Dataflow ChangeSet.
+ */
+Manipulators.prototype.transform = function(input) {
   var g = this._graph,
       item = g.signal(sg.SELECTED).value(),
       mode = g.signal(sg.MODE).value(),
@@ -87,9 +114,40 @@ prototype.transform = function(input) {
     .batchTransform(output, cache);
 };
 
-prototype.handles = function(item) { return []; };
-prototype.connectors = function(item) { return []; };
-prototype.channels = function(item) { return []; };
-prototype.altchannels = function(item) { return []; };
+/**
+ * Calculates the coordinates when in the `handles` manipulators mode.
+ * @param  {Object} item - The Vega-Scenegraph Item corresponding to the
+ * currently selected visualization mark instance.
+ * @return {Object[]} An array of objects, containing the coordinates and other
+ * metadata for downstream manipulator mark specifications.
+ */
+Manipulators.prototype.handles = function(item) { return []; };
+
+/**
+ * Calculates the coordinates when in the `connectors` manipulators mode.
+ * @param  {Object} item - The Vega-Scenegraph Item corresponding to the
+ * currently selected visualization mark instance.
+ * @return {Object[]} An array of objects, containing the coordinates and other
+ * metadata for downstream manipulator mark specifications.
+ */
+Manipulators.prototype.connectors = function(item) { return []; };
+
+/**
+ * Calculates the coordinates when in the `channels` manipulators mode.
+ * @param  {Object} item - The Vega-Scenegraph Item corresponding to the
+ * currently selected visualization mark instance.
+ * @return {Object[]} An array of objects, containing the coordinates and other
+ * metadata for downstream manipulator mark specifications.
+ */
+Manipulators.prototype.channels = function(item) { return []; };
+
+/**
+ * Calculates the coordinates when in the `altchannels` manipulators mode.
+ * @param  {Object} item - The Vega-Scenegraph Item corresponding to the
+ * currently selected visualization mark instance.
+ * @return {Object[]} An array of objects, containing the coordinates and other
+ * metadata for downstream manipulator mark specifications.
+ */
+Manipulators.prototype.altchannels = function(item) { return []; };
 
 module.exports = Manipulators;

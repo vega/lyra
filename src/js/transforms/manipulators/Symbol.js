@@ -5,14 +5,23 @@ var Base = require('./Manipulators'),
     PX = CONST.PADDING,
     SP = CONST.STROKE_PADDING;
 
+/**
+ * @classdesc Represents the SymbolManipulators, a Vega data transformation operator.
+ *
+ * @description The SymbolManipulators calculates manipulators when a symbol
+ * mark instance is selected.
+ * @extends Manipulators
+ *
+ * @constructor
+ */
 function SymbolManipulators(graph) {
   return Base.call(this, graph);
 }
 
-var prototype = (SymbolManipulators.prototype = Object.create(Base.prototype));
-prototype.constructor = SymbolManipulators;
+SymbolManipulators.prototype = Object.create(Base.prototype);
+SymbolManipulators.prototype.constructor = SymbolManipulators;
 
-prototype.handles = function(item) {
+SymbolManipulators.prototype.handles = function(item) {
   var c = spec.coords(item.bounds, 'handle');
   return [
     c.topLeft, c.topRight,
@@ -20,7 +29,7 @@ prototype.handles = function(item) {
   ];
 };
 
-prototype.connectors = function(item) {
+SymbolManipulators.prototype.connectors = function(item) {
   var c = spec.coords(item.bounds, 'connector');
   return [c.midCenter];
 };
@@ -33,7 +42,7 @@ function map(key, manipulator) {
   };
 }
 
-prototype.channels = prototype.altchannels = function(item) {
+SymbolManipulators.prototype.channels = function(item) {
   var b = item.bounds,
       gb = item.mark.group.bounds,
       c = spec.coords(b),
@@ -50,4 +59,5 @@ prototype.channels = prototype.altchannels = function(item) {
     ].map(map('y', 'span')));
 };
 
+SymbolManipulators.prototype.altchannels = SymbolManipulators.prototype.channels;
 module.exports = SymbolManipulators;

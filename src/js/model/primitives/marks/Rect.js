@@ -7,7 +7,13 @@ var DELTA = sg.DELTA,
     DX = DELTA + '.x',
     DY = DELTA + '.y';
 
-function Rect(type) {
+/**
+ * @classdesc A Lyra Rect Mark Primitive.
+ * @extends {Mark}
+ *
+ * @constructor
+ */
+function Rect() {
   Mark.call(this, 'rect');
 
   var props = this.properties,
@@ -25,10 +31,10 @@ function Rect(type) {
   return this;
 }
 
-var prototype = (Rect.prototype = Object.create(Mark.prototype));
-prototype.constructor = Rect;
+Rect.prototype = Object.create(Mark.prototype);
+Rect.prototype.constructor = Rect;
 
-prototype.initHandles = function() {
+Rect.prototype.initHandles = function() {
   var prop = util.propSg,
       test = util.test,
       at = util.anchorTarget.bind(util, this, 'handles'),

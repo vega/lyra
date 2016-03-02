@@ -3,6 +3,17 @@ var sg = require('../../signals'),
 
 var SG_WIDTH = 'vis_width', SG_HEIGHT = 'vis_height';
 
+/**
+ * @classdesc A Lyra Scene Primitive.
+ * @description  This class corresponds to the root of a Vega specification.
+ * @extends {Mark}
+ *
+ * @see  Vega's {@link https://github.com/vega/vega/wiki/Visualization|top-level
+ * Visualization} documentation for more information on this class' "public"
+ * properties.
+ *
+ * @constructor
+ */
 function Scene() {
   Group.call(this);
 
@@ -14,17 +25,17 @@ function Scene() {
   return this;
 }
 
-var prototype = (Scene.prototype = Object.create(Group.prototype));
-prototype.constructor = Scene;
-prototype.parent = null;
+Scene.prototype = Object.create(Group.prototype);
+Scene.prototype.constructor = Scene;
+Scene.prototype.parent = null;
 
-prototype.init = function() {
+Scene.prototype.init = function() {
   this.width = sg.init(SG_WIDTH, this.width);
   this.height = sg.init(SG_HEIGHT, this.height);
   return Group.prototype.init.call(this);
 };
 
-prototype.export = function(resolve) {
+Scene.prototype.export = function(resolve) {
   var spec = Group.prototype.export.call(this, resolve);
 
   // Always resolve width/height signals.
@@ -39,7 +50,7 @@ prototype.export = function(resolve) {
   return spec;
 };
 
-prototype.manipulators = function() {
+Scene.prototype.manipulators = function() {
   return Group.prototype.manipulators.call(this)[0];
 };
 

@@ -3,6 +3,18 @@ var dl = require('datalib'),
     Primitive = require('../Primitive'),
     Field = require('./Field');
 
+/**
+ * @classdesc A Lyra Dataset Primitive.
+ * @description  This class corresponds to a single definition of a data source
+ * in Vega.
+ * @extends {Primitive}
+ *
+ * @param {string} name - The name of the dataset.
+ * @see  Vega's {@link https://github.com/vega/vega/wiki/Data|Data source}
+ * documentation for more information on this class' "public" properties.
+ *
+ * @constructor
+ */
 function Dataset(name) {
   this.name = name;
 
@@ -13,10 +25,10 @@ function Dataset(name) {
   return Primitive.call(this);
 }
 
-var prototype = (Dataset.prototype = Object.create(Primitive.prototype));
-prototype.constructor = Dataset;
+Dataset.prototype = Object.create(Primitive.prototype);
+Dataset.prototype.constructor = Dataset;
 
-prototype.init = function(opt) {
+Dataset.prototype.init = function(opt) {
   var self = this;
   return new Promise(function(resolve, reject) {
     if (dl.isString(opt)) {
@@ -41,16 +53,32 @@ prototype.init = function(opt) {
   }).then(function(self) { return self.schema(); });
 };
 
-prototype.input = function() {
+/**
+ * Gets the dataset's input tuples (i.e., prior to any transformations being
+ * applied).
+ * @return {Object[]} An array of objects.
+ */
+Dataset.prototype.input = function() {
   return this._values || this._vals;
 };
 
-prototype.output = function() {
+/**
+ * Gets the dataset's output tuples (i.e., after all transformations have been
+ * applied). This requires a visualization to have been parsed. If no
+ * visualization has been parsed, returns the input tuples.
+ * @return {Object[]} An array of objects.
+ */
+Dataset.prototype.output = function() {
   var view = require('../../').view;
   return view ? view.data(this.name).values() : this.input();
 };
 
-prototype.schema = function() {
+/**
+ * Gets the schema of the Dataset -- an object where the keys correspond to the
+ * names of the dataset's fields, and the values are {@link Field|Field Primitives}.
+ * @return {Object} The Dataset's schema.
+ */
+Dataset.prototype.schema = function() {
   if (this._schema) {
     return this._schema;
   }
@@ -65,15 +93,20 @@ prototype.schema = function() {
   return (this._schema = schema);
 };
 
-prototype.summary = function() {
+/**
+ * Calculates a profile of summary statistics of every field in the Dataset.
+ * @see  {@link https://github.com/vega/datalib/wiki/Statistics#dl_summary|datalib's}
+ * documentation for more information.
+ * @return {Object} The Dataset's summary profile.
+ */
+Dataset.prototype.summary = function() {
   var s = this.schema();
-  return dl.summary(this.output()).map(function(p) {
-    return s[p.field].profile(p);
-  });
+  return dl.summary(this.output())
+    .filter(function(p) { return p.field !== '_id'; })
+    .map(function(p) { return (s[p.field].profile(p), p); });
 };
 
-// Values are cached. Export them only if we're not resolving.
-prototype.export = function(resolve) {
+Dataset.prototype.export = function(resolve) {
   var spec = Primitive.prototype.export.call(this, resolve);
   if (this._values) {
     spec.values = this._values;

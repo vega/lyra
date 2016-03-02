@@ -7,26 +7,27 @@ var dl = require('datalib'),
     Transform = vg.Transform,
     sg = require('../model/signals');
 
-
-DropZone.prototype = Object.create(Transform.prototype);
-DropZone.prototype.constructor = DropZone;
-
 /**
- * @classdesc Represents a DropZone.
+ * @classdesc Represents the BubbleCursor, a Vega data transformation operator.
  *
- * @description Creates a new drop zone
- * @param {string} graph - model
- * @returns  router ?
+ * @description The BubbleCursor transform uses the user's mouse position
+ * and a voronoi tessellation computed for the current Lyra manipulator type to
+ * indicate which manipulator is currently selected. This is indicated on the
+ * visualization with a salmon shaded region.
  *
- * @property {string} _cellID
- * @property {string} _cache
- * @property {string} _start
- * @property {string} _end
- * @property {string} _mouse
+ * @param {string} graph - A Vega model.
+ * @returns {Object} A Vega-Dataflow Node.
+ *
+ * @property {number} _cellID - The ID of voronoi cell the mouse is over.
+ * @property {Object[]} _cache - A cache of previously calculated bubble cursor
+ * coordinates which is reused if the transform is reevaluated for the same cell.
+ * @property {Object} _start - The first coordinate of the bubble cursor region.
+ * @property {Object} _end - The last coordinate of the bubble cursor region.
+ * @property {Object} _mouse - The user's current mouse position.
  *
  * @constructor
  */
-function DropZone(graph) {
+function BubbleCursor(graph) {
   Transform.prototype.init.call(this, graph);
   this._cellID = null;
   this._cache = [];
@@ -37,12 +38,16 @@ function DropZone(graph) {
     .dependency(Deps.SIGNALS, [sg.CELL, sg.MOUSE]);
 }
 
+BubbleCursor.prototype = Object.create(Transform.prototype);
+BubbleCursor.prototype.constructor = BubbleCursor;
+
 /**
- * transform dropzone
- * @param {string} input - todo.
- * @return {object} output - todo
+ * The transform method is automatically called by Vega whenever the bubble
+ * cursor region needs to be recalculated (e.g., when the user moves the mouse).
+ * @param {Object} input - A Vega-Dataflow ChangeSet.
+ * @return {Object} output - A Vega-Dataflow ChangeSet.
  */
-DropZone.prototype.transform = function(input) {
+BubbleCursor.prototype.transform = function(input) {
   var g = this._graph,
       cell = g.signal(sg.CELL).value(),
       mouse = g.signal(sg.MOUSE).value(),
@@ -108,4 +113,4 @@ DropZone.prototype.transform = function(input) {
   return output;
 };
 
-module.exports = DropZone;
+module.exports = BubbleCursor;
