@@ -14,26 +14,6 @@ function RectManipulators(graph) {
 var prototype = (RectManipulators.prototype = Object.create(Base.prototype));
 prototype.constructor = RectManipulators;
 
-function compile(manipulator) {
-  return function(item) {
-    var b = item.bounds,
-        c = spec.coords(b),
-        size = spec.size(b),
-        data = [], d;
-
-    for (var k in c) {
-      if (manipulator === 'handle' && k === 'midCenter') {
-        continue;
-      }
-      data.push(d = c[k]);
-      d.size = size;
-      d.key = k;
-      d.manipulator = manipulator;
-    }
-    return data;
-  };
-}
-
 prototype.handles = function(item) {
   var c = spec.coords(item.bounds, 'handle');
   return dl.vals(c).filter(function(x) { return x.key !== 'midCenter'; });

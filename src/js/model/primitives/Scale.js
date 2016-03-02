@@ -40,7 +40,7 @@ function fmap(f) { return f._name; }
 
 function dataRef(ref) {
   var sets = {},
-      data, field, i, len, keys, fields;
+      data, field, i, len, keys;
 
   if (ref.length === 1 && (ref = ref[0])) {
     field = lookup(ref);
