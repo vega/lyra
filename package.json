@@ -62,7 +62,7 @@
     "cover": "npm run cover",
     "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/",
     "docs": "jsdoc --configure .jsdoc.json",
-    "start": "webpack-dev-server --inline"
+    "start": "webpack-dev-server --devtool=cheap-module-source-map --inline"
   },
   "dependencies": {
     "jsdoc": "^3.4.0"
