@@ -1,6 +1,7 @@
 var dl = require('datalib'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
+    inherits = require('inherits'),
     util = require('../../../util');
 
 var DELTA = sg.DELTA,
@@ -31,8 +32,7 @@ function Rect() {
   return this;
 }
 
-Rect.prototype = Object.create(Mark.prototype);
-Rect.prototype.constructor = Rect;
+inherits(Rect, Mark);
 
 Rect.prototype.initHandles = function() {
   var prop = util.propSg,

@@ -7,6 +7,7 @@ var dl = require('datalib'),
     Deps = df.Dependencies,
     Transform = vg.Transform,
     Voronoi = vg.transforms.voronoi,
+    inherits = require('inherits'),
     sg = require('../../model/signals'),
     $x = dl.$('x'),
     $y = dl.$('y');
@@ -47,8 +48,7 @@ function Manipulators(graph) {
     .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MODE]);
 }
 
-Manipulators.prototype = Object.create(Transform.prototype);
-Manipulators.prototype.constructor = Manipulators;
+inherits(Manipulators, Transform);
 
 /**
  * The transform method is automatically called by Vega whenever the manipulator

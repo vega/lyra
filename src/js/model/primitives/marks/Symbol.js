@@ -1,6 +1,7 @@
 var dl = require('datalib'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
+    inherits = require('inherits'),
     util = require('../../../util');
 
 var DELTA = sg.DELTA,
@@ -27,8 +28,7 @@ function Symbol() {
   return this;
 }
 
-Symbol.prototype = Object.create(Mark.prototype);
-Symbol.prototype.constructor = Symbol;
+inherits(Symbol, Mark);
 
 Symbol.prototype.initHandles = function() {
   var prop = util.propSg,

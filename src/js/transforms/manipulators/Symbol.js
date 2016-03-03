@@ -1,6 +1,7 @@
 'use strict';
 var Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
+    inherits = require('inherits'),
     CONST = spec.CONST,
     PX = CONST.PADDING,
     SP = CONST.STROKE_PADDING;
@@ -18,8 +19,7 @@ function SymbolManipulators(graph) {
   return Base.call(this, graph);
 }
 
-SymbolManipulators.prototype = Object.create(Base.prototype);
-SymbolManipulators.prototype.constructor = SymbolManipulators;
+inherits(SymbolManipulators, Base);
 
 SymbolManipulators.prototype.handles = function(item) {
   var c = spec.coords(item.bounds, 'handle');

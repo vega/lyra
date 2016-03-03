@@ -1,5 +1,6 @@
 var dl = require('datalib'),
     vl = require('vega-lite'),
+    inherits = require('inherits'),
     Primitive = require('../Primitive'),
     TYPES = vl.data.types;
 
@@ -37,8 +38,7 @@ function Field(name, ptype) {
   return Primitive.call(this);
 }
 
-Field.prototype = Object.create(Primitive.prototype);
-Field.prototype.constructor = Field;
+inherits(Field, Primitive);
 
 /**
  * Gets/sets the Field's statistical profile. If one does not exist, calls

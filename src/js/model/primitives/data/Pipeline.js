@@ -1,4 +1,5 @@
 var Primitive = require('../Primitive'),
+    inherits = require('inherits'),
     Dataset = require('./Dataset');
 
 /**
@@ -24,8 +25,7 @@ function Pipeline(name) {
   return this;
 }
 
-Pipeline.prototype = Object.create(Primitive.prototype);
-Pipeline.prototype.constructor = Pipeline;
+inherits(Pipeline, Primitive);
 Pipeline.prototype.parent = null;
 
 /**

@@ -1,4 +1,5 @@
 var sg = require('../../signals'),
+    inherits = require('inherits'),
     Group = require('./Group');
 
 var SG_WIDTH = 'vis_width', SG_HEIGHT = 'vis_height';
@@ -25,8 +26,8 @@ function Scene() {
   return this;
 }
 
-Scene.prototype = Object.create(Group.prototype);
-Scene.prototype.constructor = Scene;
+
+inherits(Scene, Group);
 Scene.prototype.parent = null;
 
 Scene.prototype.init = function() {
