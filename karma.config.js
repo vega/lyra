@@ -43,7 +43,14 @@ module.exports = function(config) {
         ],
         // run babel loader for our tests
         loaders: [
-          { test: /\.jsx?$/, exclude: /node_modules/, loader: 'babel' },
+          {
+            test: /\.jsx?$/,
+            exclude: /node_modules/,
+            loader: 'babel',
+            query: {
+              presets:['react']
+            }
+          },
         ],
       },
       // required for enzyme to work properly
