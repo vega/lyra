@@ -119,6 +119,7 @@ model.manipulators = function() {
       marks = spec.marks || (spec.marks = []),
       idx = dl.comparator('_idx');
 
+
   signals.push.apply(signals, dl.vals(sg.stash()).sort(idx));
   predicates.push({
     name: sg.CELL,
@@ -132,6 +133,22 @@ model.manipulators = function() {
   });
 
   marks.push(manips.BUBBLE_CURSOR);
+  var HEIGHT = util.ns('lyra_vis_height');
+
+  //add dummy data here.
+  data.push({
+    name: 'dummy_data',
+    values: [
+      {
+        foo: 100,
+        bar: 100
+      },
+      {
+        foo: 200,
+        bar: 200
+      }
+    ]
+  });
 
   return spec;
 };

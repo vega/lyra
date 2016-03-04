@@ -2,6 +2,7 @@
 var inherits = require('inherits'),
     Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
+    map = require('../../util/map-manipulator'),
     CONST = spec.CONST,
     PX = CONST.PADDING,
     SP = CONST.STROKE_PADDING;
@@ -13,6 +14,8 @@ var inherits = require('inherits'),
  * mark instance is selected.
  * @extends Manipulators
  *
+ * @param {Model} graph - A Vega model.
+ *
  * @constructor
  */
 function LineManipulators(graph) {
@@ -21,24 +24,36 @@ function LineManipulators(graph) {
 
 inherits(LineManipulators, Base);
 
-// lines probably have only 2 handles
 LineManipulators.prototype.handles = function(item) {
+  var bounds = item.mark.bounds;
+  var c = spec.coords(bounds, 'handle');
+  return [
+    c.topLeft, c.topRight,
+    c.bottomLeft, c.bottomRight
+  ];
 };
 
-// connectors?
 LineManipulators.prototype.connectors = function(item) {
+  var bounds = item.mark.bounds;
+  var c = spec.coords(bounds, 'connector');
+  return [c.midCenter];
 };
 
-// Map should get moved out into it's own function
-function map(key, manipulator) {
-  return function(d) {
-    d.key = key;
-    d.manipulator = manipulator;
-    return d;
-  };
-}
-//channels
 LineManipulators.prototype.channels = function(item) {
+  var b = item.mark.bounds,
+      gb = item.mark.group.bounds,
+      c = spec.coords(b),
+      m = c.midCenter;
+
+  return []
+    // x
+    .concat([
+      {x: gb.x1, y: m.y}, {x: m.x - PX, y: m.y}
+    ].map(map('x', 'span')))
+    // y
+    .concat([
+      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - SP}
+    ].map(map('y', 'span')));
 };
 
 LineManipulators.prototype.altchannels = LineManipulators.prototype.channels;

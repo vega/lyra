@@ -3,6 +3,7 @@ var dl = require('datalib'),
     inherits = require('inherits'),
     Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
+    map = require('../../util/map-manipulator.js'),
     CONST = spec.CONST,
     PX = CONST.PADDING,
     SP = CONST.STROKE_PADDING,
@@ -31,14 +32,6 @@ RectManipulators.prototype.handles = function(item) {
 RectManipulators.prototype.connectors = function(item) {
   return dl.vals(spec.coords(item.bounds, 'connector'));
 };
-
-function map(key, manipulator) {
-  return function(d) {
-    d.key = key;
-    d.manipulator = manipulator;
-    return d;
-  };
-}
 
 RectManipulators.prototype.channels = function(item) {
   var b = item.bounds,

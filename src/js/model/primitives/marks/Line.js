@@ -1,6 +1,12 @@
 var dl = require('datalib'),
-  Mark = require('./Mark'),
-  inherits = require('inherits');
+    inherits = require('inherits'),
+    sg = require('../../../model/signals'),
+    Mark = require('./Mark'),
+    util = require('../../../util');
+
+var DELTA = sg.DELTA,
+    DX = DELTA + '.x',
+    DY = DELTA + '.y';
 
 /**
  * @classdesc A Lyra Line Mark Primitive.
@@ -10,28 +16,13 @@ var dl = require('datalib'),
  * @constructor
  */
 function Line() {
-  // These properties are set by calling Mark
-  // {
-  //   "type": "line",
-  //   "properties": {
-  //     "update": {
-  //       "x": {"scale": "x", "field": "date"},
-  //       "y": {"scale": "y", "field": "indexed_price"},
-  //       "stroke": {"scale": "color", "field": "symbol"},
-  //       "strokeWidth": {"value": 2}
-  //     }
-  //   }
-  // },
-
   Mark.call(this, 'line');
 
   var props = this.properties,
       update = props.update,
       defaults = {
-        "x": {"scale": "x", "field": "date"},
-        "y": {"scale": "y", "field": "indexed_price"},
-        "stroke": {"scale": "color", "field": "symbol"},
-        "strokeWidth": {"value": 2}
+        stroke: { value: '#000000' },
+        strokeWidth: { value: 3 }
       };
 
   dl.extend(update, defaults);
@@ -42,6 +33,41 @@ function Line() {
 // inherit Mark class' prototype
 inherits(Line, Mark);
 
+Line.prototype.initHandles = function() {
+  var prop = util.propSg,
+      test = util.test,
+      at = util.anchorTarget.bind(util, this, 'handles'),
+      x = prop(this, 'x'),
+      y = prop(this, 'y');
 
+  sg.streams(x, [{
+    type: DELTA, expr: test(at(), x + '+' + DX, x)
+  }]);
+
+  sg.streams(y, [{
+    type: DELTA, expr: test(at(), y + '+' + DY, y)
+  }]);
+
+};
+
+Line.prototype.export = function(resolve) {
+  var spec = Mark.prototype.export.call(this, resolve);
+  if (!spec.from){
+    spec.from = {
+      data: 'dummy_data'
+    };
+    spec.properties.update.x = {
+      "field": "foo"
+    };
+    spec.properties.update.y = {
+      "field": "bar"
+    };
+  }
+
+  delete spec.properties.update.fill;
+  delete spec.properties.update.fillOpacity;
+
+  return spec;
+};
 
 module.exports = Line;

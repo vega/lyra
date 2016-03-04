@@ -9,6 +9,7 @@ var dl = require('datalib'),
     Transform = vg.Transform,
     Voronoi = vg.transforms.voronoi,
     sg = require('../../model/signals'),
+    map = require('../../util/map-manipulator.js'),
     $x = dl.$('x'),
     $y = dl.$('y');
 
