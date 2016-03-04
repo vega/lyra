@@ -19,7 +19,7 @@ module.exports = function(config) {
     preprocessors: {
       // these files we want to be precompiled with webpack
       // also run tests through sourcemap for easier debugging
-      ['./test/**/*.js']: ['webpack', 'sourcemap']
+      './test/**/*.js': ['webpack', 'sourcemap']
     },
     webpack: {
        devtool: 'inline-source-map',
