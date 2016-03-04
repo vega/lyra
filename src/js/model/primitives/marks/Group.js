@@ -14,7 +14,8 @@ var CHILDREN = {
   symbol: require('./Symbol'),
   scales: require('../Scale'),
   legends: require('../Guide'),
-  axes: require('../Guide')
+  axes: require('../Guide'),
+  line: require('./Line')
 };
 
 /**

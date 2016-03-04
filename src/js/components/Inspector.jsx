@@ -35,5 +35,6 @@ var Inspector = React.createClass({
 });
 
 module.exports = Inspector;
+Inspector.Line = require('./inspectors/Line');
 Inspector.Rect = require('./inspectors/Rect');
 Inspector.Symbol = require('./inspectors/Symbol');

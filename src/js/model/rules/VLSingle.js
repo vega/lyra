@@ -2,9 +2,11 @@ var inherits = require('inherits'),
     Primitive = require('../primitives/Primitive');
 
 // Map from Vega to Vega-Lite
+// note line is the same in both
 var TYPES = {
   rect: 'bar',
-  symbol: 'point'
+  symbol: 'point',
+  line: 'line'
 };
 
 function VLSingle(type) {
