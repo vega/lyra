@@ -1,5 +1,6 @@
 'use strict';
 var dl = require('datalib'),
+    inherits = require('inherits'),
     Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
     CONST = spec.CONST,
@@ -20,8 +21,7 @@ function RectManipulators(graph) {
   return Base.call(this, graph);
 }
 
-RectManipulators.prototype = Object.create(Base.prototype);
-RectManipulators.prototype.constructor = RectManipulators;
+inherits(RectManipulators, Base);
 
 RectManipulators.prototype.handles = function(item) {
   var c = spec.coords(item.bounds, 'handle');

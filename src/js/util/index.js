@@ -35,7 +35,8 @@ var util = {
  * @return {string} A Vega expression string.
  */
   anchorTarget: function(mark, mode, key) {
-    var sg = require('./model/signals'),
+    // sg is required here to prevent a circular reference
+    var sg = require('../model/signals'),
         ANCHOR = sg.ANCHOR, TARGET = ANCHOR + '.target',
         c = '(' + ANCHOR + '&&' + TARGET + '&&' + TARGET + '.datum &&';
 

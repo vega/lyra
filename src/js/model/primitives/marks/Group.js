@@ -1,4 +1,5 @@
 var dl = require('datalib'),
+    inherits = require('inherits'),
     model = require('../../'),
     lookup = model.primitive,
     Mark = require('./Mark'),
@@ -44,8 +45,7 @@ function Group() {
   return this;
 }
 
-Group.prototype = Object.create(Mark.prototype);
-Group.prototype.constructor = Group;
+inherits(Group, Mark);
 
 Group.prototype.export = function(resolve) {
   var self = this,

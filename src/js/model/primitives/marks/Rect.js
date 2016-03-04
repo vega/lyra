@@ -1,4 +1,5 @@
 var dl = require('datalib'),
+    inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     util = require('../../../util');
@@ -31,8 +32,7 @@ function Rect() {
   return this;
 }
 
-Rect.prototype = Object.create(Mark.prototype);
-Rect.prototype.constructor = Rect;
+inherits(Rect, Mark);
 
 Rect.prototype.initHandles = function() {
   var prop = util.propSg,

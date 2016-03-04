@@ -1,4 +1,5 @@
-var Primitive = require('../primitives/Primitive');
+var inherits = require('inherits'),
+    Primitive = require('../primitives/Primitive');
 
 // Map from Vega to Vega-Lite
 var TYPES = {
@@ -21,7 +22,6 @@ function VLSingle(type) {
   return Primitive.call(this);
 }
 
-var prototype = (VLSingle.prototype = Object.create(Primitive.prototype));
-prototype.constructor = VLSingle;
+inherits(VLSingle, Primitive);
 
 module.exports = VLSingle;

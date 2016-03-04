@@ -1,4 +1,5 @@
 var dl = require('datalib'),
+    inherits = require('inherits'),
     Primitive = require('./Primitive'),
     model = require('../'),
     lookup = model.primitive,
@@ -41,8 +42,7 @@ function Scale(name, type, domain, range) {
   return Primitive.call(this);
 }
 
-Scale.prototype = Object.create(Primitive.prototype);
-Scale.prototype.constructor = Scale;
+inherits(Scale, Primitive);
 Scale.prototype.parent = null;
 
 // To prevent name collisions.

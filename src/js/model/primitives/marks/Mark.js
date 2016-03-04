@@ -1,4 +1,5 @@
 var dl = require('datalib'),
+    inherits = require('inherits'),
     sg = require('../../signals'),
     Primitive = require('../Primitive'),
     Pipeline = require('../data/Pipeline'),
@@ -48,8 +49,7 @@ function Mark(type) {
   return Primitive.call(this);
 }
 
-Mark.prototype = Object.create(Primitive.prototype);
-Mark.prototype.constructor = Mark;
+inherits(Mark, Primitive);
 
 /**
  * Initializes the Lyra Mark Primitive by converting all registered visual

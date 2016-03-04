@@ -1,4 +1,5 @@
 var dl = require('datalib'),
+    inherits = require('inherits'),
     vg = require('vega'),
     df = vg.dataflow,
     ChangeSet = df.ChangeSet,
@@ -38,8 +39,7 @@ function BubbleCursor(graph) {
     .dependency(Deps.SIGNALS, [sg.CELL, sg.MOUSE]);
 }
 
-BubbleCursor.prototype = Object.create(Transform.prototype);
-BubbleCursor.prototype.constructor = BubbleCursor;
+inherits(BubbleCursor, Transform);
 
 /**
  * The transform method is automatically called by Vega whenever the bubble

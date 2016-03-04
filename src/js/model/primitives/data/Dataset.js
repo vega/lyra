@@ -1,4 +1,5 @@
 var dl = require('datalib'),
+    inherits = require('inherits'),
     promisify = require('es6-promisify'),
     Primitive = require('../Primitive'),
     Field = require('./Field');
@@ -25,8 +26,7 @@ function Dataset(name) {
   return Primitive.call(this);
 }
 
-Dataset.prototype = Object.create(Primitive.prototype);
-Dataset.prototype.constructor = Dataset;
+inherits(Dataset, Primitive);
 
 Dataset.prototype.init = function(opt) {
   var self = this;

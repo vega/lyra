@@ -1,6 +1,7 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
+    inherits = require('inherits'),
     df = vg.dataflow,
     ChangeSet = df.ChangeSet,
     Tuple = df.Tuple,
@@ -47,8 +48,7 @@ function Manipulators(graph) {
     .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MODE]);
 }
 
-Manipulators.prototype = Object.create(Transform.prototype);
-Manipulators.prototype.constructor = Manipulators;
+inherits(Manipulators, Transform);
 
 /**
  * The transform method is automatically called by Vega whenever the manipulator

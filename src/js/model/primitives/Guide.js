@@ -1,4 +1,5 @@
-var Primitive = require('./Primitive'),
+var inherits = require('inherits'),
+    Primitive = require('./Primitive'),
     model = require('../'),
     lookup = model.primitive;
 
@@ -57,8 +58,7 @@ function Guide(gtype, type, scale) {
   return Primitive.call(this);
 }
 
-Guide.prototype = Object.create(Primitive.prototype);
-Guide.prototype.constructor = Guide;
+inherits(Guide, Primitive);
 
 // TODO: Map guide properties to signals.
 Guide.prototype.init = function() {
