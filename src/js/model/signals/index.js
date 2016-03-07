@@ -27,7 +27,8 @@ function value(name, val) {
   try {
     val = view.signal.apply(view, arguments);
     return set ? api : val;
-  } catch (e) {
+  }
+  catch (e) {
     return set ? (sg.init = val, api) : sg.init;
   }
 }

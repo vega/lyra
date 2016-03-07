@@ -48,7 +48,9 @@ Scale.prototype.parent = null;
 // To prevent name collisions.
 function rename(name) {
   var count = 0;
-  while (names[name]) name += ++count;
+  while (names[name]) {
+    name += ++count;
+  }
   return (names[name] = 1, name);
 }
 

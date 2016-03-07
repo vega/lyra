@@ -91,11 +91,17 @@ var Property = React.createClass({
     }
 
     var className = 'property';
-    if (props.canDrop) className += ' can-drop';
-    if (extraEl) className += ' extra';
+    if (props.canDrop) {
+      className += ' can-drop';
+    }
+    if (extraEl) {
+      className += ' extra';
+    }
 
     var indicatorClass = 'indicator';
-    if (scale || field) indicatorClass += ' fa fa-times';
+    if (scale || field) {
+      indicatorClass += ' fa fa-times';
+    }
 
     return (
       <div className={className}>

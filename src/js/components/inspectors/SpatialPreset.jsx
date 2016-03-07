@@ -38,7 +38,9 @@ var SpatialPreset = React.createClass({
         scale = prop.scale && lookup(prop.scale),
         preset = name.indexOf('x') >= 0 ? 'Width' : 'Height';
 
-    if (prop.field) return null;
+    if (prop.field) {
+      return null;
+    }
 
     if (name === 'width' || name === 'height') {
       return (scale && scale.type === 'ordinal' && !scale.points) ? (
