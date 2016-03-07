@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 /* eslint no-unused-expressions:0 */
 'use strict';
 

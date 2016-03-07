@@ -1,0 +1,5 @@
+---
+# Globally permitting mocha constructs reduces the eslint configuration
+# needed within test files
+env:
+  mocha: true
