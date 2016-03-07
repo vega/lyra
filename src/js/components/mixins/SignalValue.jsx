@@ -21,8 +21,12 @@ module.exports = {
 
   componentWillReceiveProps: function(nextProps) {
     var prevProps = this.props;
-    if (prevProps.signal) this.offSignal(prevProps.signal);
-    if (nextProps.signal) this.onSignal(nextProps.signal);
+    if (prevProps.signal) {
+      this.offSignal(prevProps.signal);
+    }
+    if (nextProps.signal) {
+      this.onSignal(nextProps.signal);
+    }
     if (nextProps.signal || nextProps.value !== prevProps.value) {
       this.setState({value: nextProps.signal ?
         model.signal(nextProps.signal) : nextProps.value});

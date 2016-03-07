@@ -41,9 +41,15 @@ var ExtentProperty = React.createClass({
 
     extents.forEach(function(x) {
       var name = x.name, prop = update[name];
-      if (prop._disabled) return;
-      else if (!start) start = name;
-      else if (start !== name) end = name;
+      if (prop._disabled) {
+        return;
+      }
+      else if (!start) {
+        start = name;
+      }
+      else if (start !== name) {
+        end = name;
+      }
     });
 
     return {start: start, end: end};

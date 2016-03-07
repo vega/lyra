@@ -19,7 +19,9 @@ var ContentEditable = React.createClass({
   },
 
   componentDidUpdate: function() {
-    if (this.state.edit) this._el.focus();
+    if (this.state.edit) {
+      this._el.focus();
+    }
   },
 
   start: function() {
@@ -29,7 +31,9 @@ var ContentEditable = React.createClass({
   stop: function() {
     this.setState({edit: false});
     var obj = this.props.obj;
-    if (!obj) return;
+    if (!obj) {
+      return;
+    }
 
     var Sidebars = require('./');
     if (Sidebars.state.selected === obj._id) {
