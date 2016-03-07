@@ -14,14 +14,14 @@ model.init();
 // Initialize components
 Sidebars = require('./components');
 
-g = model.Scene.child('marks.group');
-// g2 = g.child('marks.group');
-// g3 = model.Scene.child('marks.group');
-r = g.child('marks.rect');
-s = g.child('marks.symbol');
-p = model.pipeline('cars');
-p2 = model.pipeline('jobs');
-p3 = model.pipeline('gapminder');
+var g = model.Scene.child('marks.group'),
+    p = model.pipeline('cars'),
+    p2 = model.pipeline('jobs'),
+    p3 = model.pipeline('gapminder');
+
+// Pre-populate state with one rect and one symbol mark
+g.child('marks.rect'),
+g.child('marks.symbol');
 
 Promise.all([
   p._source.init({url: 'http://vega.github.io/vega-editor/app/data/cars.json'}),
@@ -31,11 +31,4 @@ Promise.all([
   return model.parse();
 }).then(function() {
   Sidebars.forceUpdate();
-  // console.log('lyraselected', model.view.model().scene().items[0].items[0].items[0].items[0].items[0]._id);
-  // model.signal('lyra_selected', model.view.model().scene().items[0].items[0].items[0].items[0].items[0])
-  //   .update();
 });
-
-f = function(name) { return p._source.schema()[name]._id; };
-f2 = function(name) { return p2._source.schema()[name]._id; };
-f3 = function(name) { return p3._source.schema()[name]._id; };
