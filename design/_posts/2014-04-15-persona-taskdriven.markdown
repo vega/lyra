@@ -5,8 +5,7 @@ date: 2014-04-25 16:54:46
 author: Admin
 type: design
 img: design/persona-task-oriented.png
-asset-type:
-- personas
+assettype: personas
 ---
 
 **Role:**  Task Oriented

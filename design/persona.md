@@ -15,3 +15,4 @@ It might seem obvious that Contributors should be considered in an open source p
 New personas can be added as the project matures. If you are interested in created new personas use this [markdown template](/persona-template).
 
 Read more about: [Personas](https://www.smashingmagazine.com/2014/08/a-closer-look-at-personas-part-1/) and [interviewing users to collect data](http://www.talkingtohumans.com/).
+
