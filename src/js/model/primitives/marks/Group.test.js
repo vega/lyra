@@ -1,7 +1,8 @@
-var chai = require('chai');
-chai.use(require('sinon-chai'));
-var expect = chai.expect;
-var sinon = require('sinon');
+/* eslint-env mocha */
+/* eslint no-unused-expressions:0 */
+'use strict';
+
+var expect = require('chai').expect;
 
 var Group = require('./Group');
 var Mark = require('./Mark');
