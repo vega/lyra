@@ -14,11 +14,13 @@ module.exports = function(config) {
     files: [
       'node_modules/babel-polyfill/dist/polyfill.js',
       './node_modules/phantomjs-polyfill/bind-polyfill.js',
+      './src/**/*.test.js', // test files may be alongside source code
       './test/**/*.js' // specify files to watch for tests
     ],
     preprocessors: {
       // these files we want to be precompiled with webpack
       // also run tests through sourcemap for easier debugging
+      './src/**/*.test.js': ['webpack', 'sourcemap'],
       './test/**/*.js': ['webpack', 'sourcemap']
     },
     webpack: {
