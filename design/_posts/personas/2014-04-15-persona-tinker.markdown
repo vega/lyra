@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "Persona: Tinkerer"
+title: "Tinkerer"
 date: 2014-04-25 16:54:46
 author: Admin
 type: design
 img: design/persona-tinkerer.png
-asset-type:
+categories:
 - personas
 ---
 
@@ -43,15 +43,18 @@ asset-type:
 
 ### TECH KNOWLEDGE
 ██████████████████████████░░░░░░░░░░░░░░░░░░░░<br>
-Hello World                                                                                         expert
+Hello World 
+                                                                                       expert
 
 ### OPEN SOURCE CONTRIBUTIONS
 █████████████████████████████░░░░░░░░░░░░░░░<br>
-What's github?                                                                                Constantly Contributing
+What's github?  
+                                                                              Constantly Contributing
 
 ### DATA VIS KNOWLEDGE
 ████████████████████████████████░░░░░░░░░░░<br>
-pie chart?                                                                                      invented charts
+pie chart?    
+                                                                                  invented charts
 
 
 ##About

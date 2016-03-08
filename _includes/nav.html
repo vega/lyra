@@ -13,7 +13,7 @@
     <div class="navbar-collapse collapse navbar-right">
       <ul class="nav navbar-nav">
         <li {% if page.title == "Home" %}class="active"{% endif %}><a href="{{"/" | prepend: site.baseurl }}">HOME</a></li>
-        <li><a href="/docs">DOCS</a></li>
+        <li><a href="{{"/docs/" | prepend: site.baseurl}}"">DOCS</a></li>
         <li {% if page.title == "Tutorials" %}class="active"{% endif %}><a href="{{"/tutorial/" | prepend: site.baseurl }}">TUTORIALS</a></li>
         <li {% if page.title == "Examples" %}class="active"{% endif %}><a href="{{"/example/" | prepend: site.baseurl }}">EXAMPLES</a></li>
         <li {% if page.title == "Design Assets" %}class="active"{% endif %}><a href="{{"/design/" | prepend: site.baseurl }}">DESIGN</a></li>
