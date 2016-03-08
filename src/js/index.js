@@ -21,10 +21,11 @@ var g = model.Scene.child('marks.group'),
     p2 = model.pipeline('jobs'),
     p3 = model.pipeline('gapminder');
 
-// Pre-populate state with one rect, one symbol & one line mark
+// Pre-populate state with one rect, one symbol, one text & one line mark
 g.child('marks.rect');
 g.child('marks.symbol');
 g.child('marks.line');
+g.child('marks.text');
 
 Promise.all([
   p._source.init({url: 'http://vega.github.io/vega-editor/app/data/cars.json'}),

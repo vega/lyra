@@ -43,6 +43,7 @@ var CHILDREN = {
   group: Group,
   rect: require('./Rect'),
   symbol: require('./Symbol'),
+  text: require('./Text'),
   scales: require('../Scale'),
   legends: require('../Guide'),
   axes: require('../Guide'),
