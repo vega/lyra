@@ -1,3 +1,4 @@
 ---
 extends:
   - "./eslint/eslint-defaults.yml"
+  - "./eslint/eslint-mocha.yml"

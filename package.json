@@ -60,6 +60,7 @@
     "react-addons-test-utils": "^0.14.6",
     "react-dom": "^0.14.3",
     "sinon": "^1.17.2",
+    "sinon-chai": "^2.8.0",
     "string.prototype.startswith": "^0.2.0",
     "vega": "^2.5.0",
     "vega-lite": "^1.0.1",
