@@ -61,9 +61,6 @@ describe('Group Mark', function() {
 
     it('is a function', function() {
       expect(group).to.have.property('child');
-    });
-
-    it('is a function', function() {
       expect(group.child).to.be.a('function');
     });
 
