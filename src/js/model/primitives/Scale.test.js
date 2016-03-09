@@ -1,4 +1,8 @@
-var Scale = require('./Scale.js');
+/* eslint no-unused-expressions:0 */
+'use strict';
+var expect = require('chai').expect;
+
+var Scale = require('./Scale');
 var scaleA,
     scaleB,
     specA,
