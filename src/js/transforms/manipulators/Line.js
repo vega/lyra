@@ -8,34 +8,39 @@ var inherits = require('inherits'),
     SP = CONST.STROKE_PADDING;
 
 /**
- * @classdesc Represents the SymbolManipulators, a Vega data transformation operator.
- * @param {Model} graph - A Vega model.
- * @description The SymbolManipulators calculates manipulators when a symbol
+ * @classdesc Represents the LineManipulators, a Vega data transformation operator.
+ *
+ * @description The LineManipulators calculates manipulators when a Line
  * mark instance is selected.
  * @extends Manipulators
+ *
+ * @param {Model} graph - A Vega model.
+ *
  * @constructor
  */
-function SymbolManipulators(graph) {
+function LineManipulators(graph) {
   return Base.call(this, graph);
 }
 
-inherits(SymbolManipulators, Base);
+inherits(LineManipulators, Base);
 
-SymbolManipulators.prototype.handles = function(item) {
-  var c = spec.coords(item.bounds, 'handle');
+LineManipulators.prototype.handles = function(item) {
+  var bounds = item.mark.bounds;
+  var c = spec.coords(bounds, 'handle');
   return [
     c.topLeft, c.topRight,
     c.bottomLeft, c.bottomRight
   ];
 };
 
-SymbolManipulators.prototype.connectors = function(item) {
-  var c = spec.coords(item.bounds, 'connector');
+LineManipulators.prototype.connectors = function(item) {
+  var bounds = item.mark.bounds;
+  var c = spec.coords(bounds, 'connector');
   return [c.midCenter];
 };
 
-SymbolManipulators.prototype.channels = function(item) {
-  var b = item.bounds,
+LineManipulators.prototype.channels = function(item) {
+  var b = item.mark.bounds,
       gb = item.mark.group.bounds,
       c = spec.coords(b),
       m = c.midCenter;
@@ -51,5 +56,5 @@ SymbolManipulators.prototype.channels = function(item) {
     ].map(map('y', 'span')));
 };
 
-SymbolManipulators.prototype.altchannels = SymbolManipulators.prototype.channels;
-module.exports = SymbolManipulators;
+LineManipulators.prototype.altchannels = LineManipulators.prototype.channels;
+module.exports = LineManipulators;

@@ -1,3 +1,5 @@
+/* eslint no-unused-vars:0 */
+// From is being used
 'use strict';
 var React = require('react'),
     Mark = require('../model/primitives/marks/Mark'),
@@ -10,7 +12,7 @@ var Inspector = React.createClass({
     var props = this.props,
         primitive = lookup(props.id),
         from = lookup(primitive.from),
-        ctor = primitive.__proto__.constructor.name,
+        ctor = primitive.getName(),
         InspectorType = Inspector[ctor],
         isMark = primitive instanceof Mark;
 
@@ -35,5 +37,6 @@ var Inspector = React.createClass({
 });
 
 module.exports = Inspector;
+Inspector.Line = require('./inspectors/Line');
 Inspector.Rect = require('./inspectors/Rect');
 Inspector.Symbol = require('./inspectors/Symbol');
