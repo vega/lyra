@@ -2,6 +2,7 @@
 var inherits = require('inherits'),
     Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
+    map = require('../../util/map-manipulator'),
     CONST = spec.CONST,
     PX = CONST.PADDING,
     SP = CONST.STROKE_PADDING,
@@ -34,14 +35,6 @@ TextManipulators.prototype.connectors = function(item) {
   var c = spec.coords(item.bounds, 'connector');
   return [c.midCenter];
 };
-
-function map(key, manipulator) {
-  return function(d) {
-    d.key = key;
-    d.manipulator = manipulator;
-    return d;
-  };
-}
 
 TextManipulators.prototype.channels = function(item) {
   var b = item.bounds,
