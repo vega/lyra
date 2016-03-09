@@ -23,11 +23,18 @@ var Text = React.createClass({
 
         <h3>Font</h3>
 
+        <Property name="font" label="Style"
+          primitive={primitive}
+          type="select"
+          opts={['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS']}
+          canDrop={true}
+          field={update.font.field}
+          signal={update.font.signal} />
+
         <Property name="fontSize" label="Size"
           type="number"
           primitive={primitive}
           canDrop={true}
-          scale={update.fontSize.scale}
           field={update.fontSize.field}
           signal={update.fontSize.signal} />
 
@@ -36,7 +43,6 @@ var Text = React.createClass({
           type="select"
           opts={['normal', 'bold']}
           canDrop={true}
-          scale={update.fontWeight.scale}
           field={update.fontWeight.field}
           signal={update.fontWeight.signal} />
 
@@ -45,7 +51,6 @@ var Text = React.createClass({
           type="select"
           opts={['normal', 'italic']}
           canDrop={true}
-          scale={update.fontStyle.scale}
           field={update.fontStyle.field}
           signal={update.fontStyle.signal} />
 
@@ -102,7 +107,6 @@ var Text = React.createClass({
           type="select"
           opts={['left', 'center', 'right']}
           canDrop={true}
-          scale={update.align.scale}
           field={update.align.field}
           signal={update.align.signal} />
 
@@ -111,7 +115,6 @@ var Text = React.createClass({
           type="select"
           opts={['top', 'middle', 'bottom']}
           canDrop={true}
-          scale={update.baseline.scale}
           field={update.baseline.field}
           signal={update.baseline.signal} />
 
