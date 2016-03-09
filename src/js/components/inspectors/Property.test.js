@@ -9,7 +9,7 @@ var Property = require('./Property');
 var wrapper;
 
 describe('Property Inspector <Property/>', function() {
-  describe('Property Inspector <Property/ type="color"> (shallow)', function() {
+  describe('Property Inspector <Property type="color"/> (shallow)', function() {
     beforeEach(function() {
       wrapper = enzyme.shallow(<Property
         name = "stroke"
@@ -22,7 +22,7 @@ describe('Property Inspector <Property/>', function() {
     });
   });
 
-  describe('Property Inspector <Property/ type="number"> (shallow)', function() {
+  describe('Property Inspector <Property type="number"/> (shallow)', function() {
     beforeEach(function() {
       wrapper = enzyme.shallow(<Property
         name="y"
@@ -36,7 +36,7 @@ describe('Property Inspector <Property/>', function() {
     });
   });
 
-  describe('Property Inspector <Property/ type="range"> (MOUNT)', function() {
+  describe('Property Inspector <Property type="range"/> (MOUNT)', function() {
     var inputNode;
     beforeEach(function() {
       var primitive = new Rect();
@@ -69,7 +69,7 @@ describe('Property Inspector <Property/>', function() {
     });
   });
 
-  describe('Property Inspector <Property/ type="select"> (mount)', function() {
+  describe('Property Inspector <Property type="select"/> (mount)', function() {
     beforeEach(function() {
       var shapes = ['circle', 'square', 'cross', 'diamond', 'triangle-up', 'triangle-down'];
       wrapper = enzyme.mount(<Property

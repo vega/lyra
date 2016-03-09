@@ -1,3 +1,5 @@
+/* eslint no-undefined: 0 */
+'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
     sg = require('./signals'),
@@ -6,7 +8,7 @@ var dl = require('datalib'),
 
 /** @namespace */
 var model = module.exports = {
-  view:  null,
+  view: null,
   Scene: null
 };
 
@@ -16,7 +18,7 @@ var pipelines = [], scales = [],
 
 /**
  * Initializes the Lyra model with a new Scene primitive.
- * @return {Object}
+ * @returns {Object} The Lyra Model
  */
 model.init = function() {
   var Scene = require('./primitives/marks/Scene');
@@ -25,14 +27,14 @@ model.init = function() {
 };
 
 /**
- * A getter and setter for primitives based on IDs. To prevent memory leaks,
+ * @description A getter and setter for primitives based on IDs. To prevent memory leaks,
  * primitives do not directly store references to other primitives. Instead,
  * they store IDs and use this method as a lookup. When a new primitive is
  * created, it calls this function to store itself in the model.
  * @param  {number} id - The numeric ID of a specific primitives.
  * @param  {Object} [primitive] - If specified, stores this primitive with
  * the given ID in the Lyra model.
- * @return {Object} The Lyra model.
+ * @returns {Object} The Lyra model.
  */
 var lookup = model.primitive = function(id, primitive) {
   if (arguments.length === 1) {
@@ -41,15 +43,56 @@ var lookup = model.primitive = function(id, primitive) {
   return (primitives[id] = primitive, model);
 };
 
-function getset(cache, id, type) {
+function getset(cache, id, Type) {
   if (id === undefined) {
-    return cache.map(function(x) { return lookup(x); });
-  }
-  else if (dl.isNumber(id)){
+    return cache.map(function(x) {
+      return lookup(x);
+    });
+  } else if (dl.isNumber(id)) {
     return lookup(id);
   }
-  var obj = dl.isString(id) ? new type(id) : id;
+  var obj = dl.isString(id) ? new Type(id) : id;
   return (cache.push(obj._id), obj);
+}
+
+
+function register() {
+  var components = require('../components'),
+      win = d3.select(window),
+      dragover = 'dragover.altchan',
+      signalName, handlers, i, len;
+
+  // Register a window dragover event handler to detect shiftKey
+  // presses for alternate channel manipulators.
+  if (!win.on(dragover)) {
+    win.on(dragover, function() {
+      var mode = model.signal(sg.MODE),
+          shiftKey = d3.event.shiftKey,
+          prevKey = Boolean(model._shiftKey);
+
+      if (prevKey === shiftKey) {
+        return;
+      }
+      model._shiftKey = shiftKey;
+      var setAltChan = mode === 'altchannels' ? 'channels' : mode;
+      model.signal(sg.MODE, mode === 'channels' ? 'altchannels' : setAltChan).update();
+    });
+  }
+
+  model.view.onSignal(sg.SELECTED, function(name, selected) {
+    var def = selected.mark.def,
+        id = def && def.lyra_id;
+    if (id) {
+      components.select(id, false);
+    }
+  });
+
+  for (signalName in listeners) {
+    handlers = listeners[signalName];
+    for (i = 0, len = handlers.length; i < len; ++i) {
+      model.view.onSignal(signalName, handlers[i]);
+    }
+  }
 }
 
 /**
@@ -57,7 +100,7 @@ function getset(cache, id, type) {
  * @param  {number|string} [id] - The numeric ID of an existing Pipeline to retrieve
  * or the name of a new Pipeline to instantiate. If no id is given, returns all
  * Pipelines.
- * @return {Object|Object[]} A Pipeline or array of Pipelines.
+ * @returns {Object|Object[]} A Pipeline or array of Pipelines.
  */
 model.pipeline = function(id) {
   return getset(pipelines, id, require('./primitives/data/Pipeline'));
@@ -68,7 +111,7 @@ model.pipeline = function(id) {
  * @param  {number|string} [id] - The numeric ID of an existing Scale to retrieve
  * or the name of a new Scale to instantiate. If no id is given, returns all
  * Scales.
- * @return {Object|Object[]} A Scale or array of Scales.
+ * @returns {Object|Object[]} A Scale or array of Scales.
  */
 model.scale = function(id) {
   return getset(scales, id, require('./primitives/Scale'));
@@ -79,7 +122,7 @@ model.scale = function(id) {
  * Vega view (if available).
  * @param  {string} name - The name of a signal.
  * @param  {*} [value] The signal value to be set.
- * @return {*} The signal value if called as a getter, the model if called as
+ * @returns {*} The signal value if called as a getter, the model if called as
  * a setter.
  */
 model.signal = function() {
@@ -92,7 +135,7 @@ model.signal = function() {
  * @param  {Object}  [scene] - An exported specification of the Scene.
  * @param  {boolean} [clean=true] - Should Lyra-specific properties be removed
  * or resolved (e.g., converting property signal references to actual values).
- * @return {Object} A Vega specification.
+ * @returns {Object} A Vega specification.
  */
 model.export = function(scene, clean) {
   clean = clean || clean === undefined;
@@ -109,7 +152,7 @@ model.export = function(scene, clean) {
  * Exports the model as a complete Vega specification with extra definitions
  * to power Lyra-specific interaction. In particular, this includes definitions
  * of all the Lyra-specific signals and manipulators (handles, channels, etc.).
- * @return {Object} A Vega specification.
+ * @returns {Object} A Vega specification.
  */
 model.manipulators = function() {
   var spec = model.export(model.Scene.manipulators(), false),
@@ -133,9 +176,6 @@ model.manipulators = function() {
   });
 
   marks.push(manips.BUBBLE_CURSOR);
-  var HEIGHT = util.ns('lyra_vis_height');
-
-  //add dummy data here.
   data.push({
     name: 'dummy_data',
     values: [
@@ -157,7 +197,7 @@ model.manipulators = function() {
  * Parses the model's `manipulators` spec and renders the visualization.
  * @param  {string} [el] - A CSS selector corresponding to the DOM element
  * to render the visualization in.
- * @return {Object} A Promise that resolves once the spec has been successfully
+ * @returns {Object} A Promise that resolves once the spec has been successfully
  * parsed and rendered.
  */
 model.parse = function(el) {
@@ -170,8 +210,7 @@ model.parse = function(el) {
     vg.parse.spec(model.manipulators(), function(err, chart) {
       if (err) {
         reject(err);
-      }
-      else {
+      } else {
         model.view = chart({el: el});
         register();
         resolve(model.view);
@@ -182,7 +221,7 @@ model.parse = function(el) {
 
 /**
  * Re-renders the current spec (e.g., to account for new signal values).
- * @return {Object} The Lyra model.
+ * @returns {Object} The Lyra model.
  */
 model.update = function() {
   return (model.view.update(), model);
@@ -193,7 +232,7 @@ model.update = function() {
  * @param  {string} name - The name of a signal.
  * @param  {Function} handler - The function to call when the value of the
  * named signal changes.
- * @return {Object} The Lyra model.
+ * @returns {Object} The Lyra model.
  */
 model.onSignal = function(name, handler) {
   var listener = listeners[name] || (listeners[name] = []);
@@ -209,7 +248,7 @@ model.onSignal = function(name, handler) {
  * @param  {string} name - The name of a signal.
  * @param  {Function} handler - The function to unregister; this function
  * should have previously been registered for this signal using `onSignal`.
- * @return {Object} The Lyra model.
+ * @returns {Object} The Lyra model.
  */
 model.offSignal = function(name, handler) {
   var listener = listeners[name] || (listeners[name] = []);
@@ -223,44 +262,3 @@ model.offSignal = function(name, handler) {
   }
   return model;
 };
-
-function register() {
-  var components = require('../components'),
-      win = d3.select(window),
-      dragover = 'dragover.altchan',
-      signalName, handlers, i, len;
-
-  // Register a window dragover event handler to detect shiftKey
-  // presses for alternate channel manipulators.
-  if (!win.on(dragover)) {
-    win.on(dragover, function() {
-      var mode = model.signal(sg.MODE),
-          shiftKey = d3.event.shiftKey,
-          prevKey = !!model._shiftKey;
-
-      if (prevKey === shiftKey) {
-        return;
-      }
-      model._shiftKey = shiftKey;
-
-      model.signal(sg.MODE,
-          mode === 'channels' ? 'altchannels' :
-            mode === 'altchannels' ? 'channels' : m).update();
-    });
-  }
-
-  model.view.onSignal(sg.SELECTED, function(name, selected) {
-    var def = selected.mark.def,
-        id = def && def.lyra_id;
-    if (id) {
-      components.select(id, false);
-    }
-  });
-
-  for (signalName in listeners) {
-    handlers = listeners[signalName];
-    for (i = 0, len = handlers.length; i < len; ++i) {
-      model.view.onSignal(signalName, handlers[i]);
-    }
-  }
-}

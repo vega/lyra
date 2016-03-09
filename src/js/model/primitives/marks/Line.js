@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
     sg = require('../../../model/signals'),
@@ -21,8 +22,8 @@ function Line() {
   var props = this.properties,
       update = props.update,
       defaults = {
-        stroke: { value: '#000000' },
-        strokeWidth: { value: 3 }
+        stroke: {value: '#000000'},
+        strokeWidth: {value: 3}
       };
 
   dl.extend(update, defaults);
@@ -52,15 +53,15 @@ Line.prototype.initHandles = function() {
 
 Line.prototype.export = function(resolve) {
   var spec = Mark.prototype.export.call(this, resolve);
-  if (!spec.from){
+  if (!spec.from) {
     spec.from = {
       data: 'dummy_data'
     };
     spec.properties.update.x = {
-      "field": "foo"
+      field: 'foo'
     };
     spec.properties.update.y = {
-      "field": "bar"
+      field: 'bar'
     };
   }
 

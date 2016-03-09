@@ -1,3 +1,6 @@
+/* eslint no-undefined:0 */
+'use strict';
+
 var dl = require('datalib'),
     sg = require('../signals'),
     model = require('../'),
@@ -28,8 +31,7 @@ function _clean(spec, clean) {
     c = c || p._disabled || p === undefined;
     if (c) {
       delete spec[k];
-    }
-    else if (dl.isObject(p)) {
+    } else if (dl.isObject(p)) {
       spec[k] = p.signal && cln ? sg.value(p.signal) : _clean(spec[k], clean);
     }
   }
@@ -40,7 +42,7 @@ function _clean(spec, clean) {
 /**
  * Initializes the Primitive. This is often where properties will be replaced
  * with Lyra-specific signals to drive reactive updates.
- * @return {Object} The Primitive.
+ * @returns {Object} The Primitive.
  */
 Primitive.prototype.init = function() {
   return this;
@@ -50,16 +52,22 @@ Primitive.prototype.init = function() {
  * Exports the primitive as a complete Vega specification.
  * @param  {boolean} [clean=true] - Should Lyra-specific properties be removed
  * or resolved (e.g., converting property signal references to actual values).
- * @return {Object} A Vega specification.
+ * @returns {Object} A Vega specification.
  */
 Primitive.prototype.export = function(clean) {
   return _clean(dl.duplicate(this), clean);
 };
 
+
+Primitive.prototype.getName = function() {
+  return this.name || '';
+};
+
+
 /**
  * Exports the primitive as a complete Vega specification with extra definitions
  * to power Lyra-specific interaction (e.g., extra manipulator mark definitions).
- * @return {Object} A Vega specification.
+ * @returns {Object} A Vega specification.
  */
 Primitive.prototype.manipulators = Primitive.prototype.export;
 
@@ -68,14 +76,14 @@ Primitive.prototype.manipulators = Primitive.prototype.export;
  * "contains" relationship. Thus, a Primitive may have only one parent but a
  * single parent may have many children.
  * @param  {number} [pid] - The ID of the parent to set.
- * @return {Object} The parent Primitive, if called as a getter, otherwise the
+ * @returns {Object} The parent Primitive, if called as a getter, otherwise the
  * current Primitive.
  */
 Primitive.prototype.parent = function(pid) {
   if (!arguments.length) {
     return lookup(this._parent);
   }
-  return (this._parent = +pid, this);
+  return (this._parent = Number(pid), this);
 };
 
 module.exports = Primitive;

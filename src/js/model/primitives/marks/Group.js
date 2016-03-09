@@ -1,3 +1,5 @@
+/* eslint consistent-this:0, no-undefined:0*/
+'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
     model = require('../../'),
@@ -7,16 +9,6 @@ var dl = require('datalib'),
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];
 // MARK_TYPES = ['group', 'rect', 'symbol', 'arc', 'area', 'line', 'text'];
-
-var CHILDREN = {
-  group:  Group,
-  rect:   require('./Rect'),
-  symbol: require('./Symbol'),
-  scales: require('../Scale'),
-  legends: require('../Guide'),
-  axes: require('../Guide'),
-  line: require('./Line')
-};
 
 /**
  * @classdesc A Lyra Group Mark Primitive.
@@ -46,14 +38,30 @@ function Group() {
   return this;
 }
 
+
+var CHILDREN = {
+  group: Group,
+  rect: require('./Rect'),
+  symbol: require('./Symbol'),
+  scales: require('../Scale'),
+  legends: require('../Guide'),
+  axes: require('../Guide'),
+  line: require('./Line')
+};
+
+
 inherits(Group, Mark);
 
 Group.prototype.export = function(resolve) {
   var self = this,
       spec = Mark.prototype.export.call(this, resolve),
-      fn = function(id) { return lookup(id).export(resolve); };
+      fn = function(id) {
+        return lookup(id).export(resolve);
+      };
 
-  CHILD_TYPES.forEach(function(c) { spec[c] = self[c].map(fn); });
+  CHILD_TYPES.forEach(function(c) {
+    spec[c] = self[c].map(fn);
+  });
   return spec;
 };
 
@@ -61,14 +69,18 @@ Group.prototype.manipulators = function() {
   var self = this,
       spec = Mark.prototype.manipulators.call(this),
       group = spec[0],
-      map = function(id) { return lookup(id).manipulators(); },
+      map = function(id) {
+        return lookup(id).manipulators();
+      },
       red = function(children, child) {
         return ((dl.isArray(child) ?
           children.push.apply(children, child) : children.push(child)),
         children);
       };
 
-  CHILD_TYPES.forEach(function(c) { group[c] = self[c].map(map).reduce(red, []); });
+  CHILD_TYPES.forEach(function(c) {
+    group[c] = self[c].map(map).reduce(red, []);
+  });
   return spec;
 };
 
@@ -79,12 +91,12 @@ Group.prototype.manipulators = function() {
  * @param  {number|Object} [child] - The ID or Primitive corresponding to the
  * child to be inserted into the Group. If no child is specified, a new one
  * is created and initialized.
- * @return {Object} The child Primitive.
+ * @returns {Object} The child Primitive.
  */
 Group.prototype.child = function(type, child) {
   type = type.split('.');
-  child = (child === undefined) ? new CHILDREN[type[1] || type[0]]().init() :
-    dl.isNumber(child) ? lookup(child) : child;
+  var lookupChild = dl.isNumber(child) ? lookup(child) : child;
+  child = (child === undefined) ? new CHILDREN[type[1] || type[0]]().init() : lookupChild;
 
   var id = child._id, types = this[type[0]];
   if (types.indexOf(id) < 0) {

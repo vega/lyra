@@ -1,7 +1,6 @@
 'use strict';
 var React = require('react'),
-    Property = require('./Property'),
-    Base = require('../../model/primitives/marks/Line');
+    Property = require('./Property');
 
 var Line = React.createClass({
   render: function() {

@@ -3,7 +3,7 @@ var dl = require('datalib'),
     inherits = require('inherits'),
     Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
-    map = require('../../util/map-manipulator.js'),
+    map = require('../../util/map-manipulator'),
     CONST = spec.CONST,
     PX = CONST.PADDING,
     SP = CONST.STROKE_PADDING,
@@ -15,7 +15,7 @@ var dl = require('datalib'),
  * @description The RectManipulators calculates manipulators when a rect mark
  * instance is selected.
  * @extends Manipulators
- *
+ * @param {Model} graph - A Vega model.
  * @constructor
  */
 function RectManipulators(graph) {
@@ -26,7 +26,9 @@ inherits(RectManipulators, Base);
 
 RectManipulators.prototype.handles = function(item) {
   var c = spec.coords(item.bounds, 'handle');
-  return dl.vals(c).filter(function(x) { return x.key !== 'midCenter'; });
+  return dl.vals(c).filter(function(x) {
+    return x.key !== 'midCenter';
+  });
 };
 
 RectManipulators.prototype.connectors = function(item) {

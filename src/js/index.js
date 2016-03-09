@@ -1,3 +1,5 @@
+/* eslint strict: 0, no-undef: 0, no-unused-expressions: 0 */
+
 // Additional requires to polyfill + browserify package.
 require('array.prototype.find');
 require('string.prototype.startswith');
@@ -20,7 +22,7 @@ var g = model.Scene.child('marks.group'),
     p3 = model.pipeline('gapminder');
 
 // Pre-populate state with one rect, one symbol & one line mark
-g.child('marks.rect'),
+g.child('marks.rect');
 g.child('marks.symbol');
 g.child('marks.line');
 

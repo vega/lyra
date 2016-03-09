@@ -1,3 +1,4 @@
+'use strict';
 var inherits = require('inherits'),
     Primitive = require('../primitives/Primitive');
 

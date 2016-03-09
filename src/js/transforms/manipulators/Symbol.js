@@ -2,18 +2,17 @@
 var inherits = require('inherits'),
     Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
-    map = require('../../util/map-manipulator.js'),
+    map = require('../../util/map-manipulator'),
     CONST = spec.CONST,
     PX = CONST.PADDING,
     SP = CONST.STROKE_PADDING;
 
 /**
  * @classdesc Represents the SymbolManipulators, a Vega data transformation operator.
- *
+ * @param {Model} graph - A Vega model.
  * @description The SymbolManipulators calculates manipulators when a symbol
  * mark instance is selected.
  * @extends Manipulators
- *
  * @constructor
  */
 function SymbolManipulators(graph) {
