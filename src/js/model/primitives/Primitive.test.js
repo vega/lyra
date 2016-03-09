@@ -1,10 +1,10 @@
 /* eslint no-unused-expressions:0 */
+'use strict';
 var expect = require('chai').expect;
 
 describe('Primitive', function() {
   var Primitive = require('./Primitive'),
       dl = require('datalib'),
-      model = require('../'),
       prim;
 
   describe('Export', function() {
