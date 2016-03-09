@@ -18,8 +18,8 @@ function Text() {
   Mark.call(this, 'text');
 
   dl.extend(this.properties.update, {
-    text: 'Text',
-    align: 'left',
+    text: {value: 'Text'},
+    align: {value: 'left'},
     x: {value: 70},
     x2: {value: 105},
     y2: {value: 60},
@@ -48,7 +48,7 @@ Text.prototype.initHandles = function() {
       y = prop(this, 'y'),
       yc = prop(this, 'yc'),
       y2 = prop(this, 'y2'),
-      size = prop(this, 'fontSize'),
+      fontSize = prop(this, 'fontSize'),
       w = prop(this, 'width'),
       h = prop(this, 'height');
 
@@ -76,14 +76,19 @@ Text.prototype.initHandles = function() {
     type: DELTA, expr: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
   }]);
 
-  sg.streams(w, [
-    {type: DELTA, expr: test(at('left'), w + '-' + DX, w)},
-    {type: DELTA, expr: test(at('right'), w + '+' + DX, w)}
-  ]);
+  // sg.streams(w, [
+  //   {type: DELTA, expr: test(at('left'), w + '-' + DX, w)},
+  //   {type: DELTA, expr: test(at('right'), w + '+' + DX, w)}
+  // ]);
 
-  sg.streams(h, [
-    {type: DELTA, expr: test(at('top'), h + '-' + DY, h)},
-    {type: DELTA, expr: test(at('bottom'), h + '+' + DY, h)}
+  // sg.streams(h, [
+  //   {type: DELTA, expr: test(at('top'), h + '-' + DY, h)},
+  //   {type: DELTA, expr: test(at('bottom'), h + '+' + DY, h)}
+  // ]);
+
+  sg.streams(fontSize, [
+    {type: DELTA, expr: test(at('left'), fontSize + '-' + DX, fontSize)},
+    {type: DELTA, expr: test(at('right'), fontSize + '+' + DX, fontSize)}
   ]);
 };
 
