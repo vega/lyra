@@ -70,6 +70,7 @@
   },
   "scripts": {
     "lint": "eslint --ext .js,.jsx src",
+    "lint:branch": "eslint $(git diff --name-only --diff-filter=ACMRTUXB $(git merge-base head lyra2) | grep '.jsx*$') || true",
     "build": "npm run build:js && npm run build:scss",
     "build:js": "webpack -d",
     "build:scss": "node-sass --include-path src/scss src/scss/main.scss build/css/main.css",
