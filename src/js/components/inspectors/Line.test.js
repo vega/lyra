@@ -1,10 +1,12 @@
 /* eslint no-unused-expressions:0 */
+'use strict';
+
 var expect = require('chai').expect;
 var React = require('react');
 var enzyme = require('enzyme');
-var Line = require('./Line.jsx');
-var Property = require('./Property.jsx');
-var wrapper, mountWrapper;
+var Line = require('./Line');
+var Property = require('./Property');
+var wrapper;
 
 // this is shallow rendered tested since all the work is done in property.js
 describe('Line Inspector <Line/> (shallow)', function() {

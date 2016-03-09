@@ -36,12 +36,8 @@ describe('Line Mark Primitive', function() {
     it('is initialized with strokeWidth', function() {
       var strokeWidth = {value: 3};
       expect(line.properties.update).to.have.property('strokeWidth');
-      assert.deepEqual(line.properties.update.strokeWidth,strokeWidth);
+      assert.deepEqual(line.properties.update.strokeWidth, strokeWidth);
     });
-
-  });
-
-  describe('initHandles method', function() {
 
   });
 
@@ -51,7 +47,7 @@ describe('Line Mark Primitive', function() {
     it('lines initialized w/ dummy data', function() {
       var exported = line.export(false);
       expect(exported).to.have.property('from');
-      assert.deepEqual(exported.from, { data: 'dummy_data' });
+      assert.deepEqual(exported.from, {data: 'dummy_data'});
     });
 
     it('lines spec does not have fill property', function() {

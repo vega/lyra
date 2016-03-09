@@ -15,7 +15,7 @@ beforeEach(function() {
     round: true,
     type: 'ordinal'
   };
-  scale = new Scale(def.name, def.type, undefined, def.range);
+  scale = new Scale(def.name, def.type, null, def.range);
   axisGuide = new Guide(1, 'x', scale._id);
   legendGuide = new Guide(2, 'x', scale._id);
 });
