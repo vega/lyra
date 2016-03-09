@@ -43,9 +43,21 @@ var Text = React.createClass({
 
         <h3>Position</h3>
 
-        <ExtentProperty type="x" {...props} />
+        <Property name="dx" label="X"
+          type="number"
+          primitive={primitive}
+          canDrop={true}
+          scale={update.dx.scale}
+          field={update.dx.field}
+          signal={update.dx.signal} />
 
-        <ExtentProperty type="y" {...props} />
+        <Property name="dy" label="Y"
+          type="number"
+          primitive={primitive}
+          canDrop={true}
+          scale={update.dy.scale}
+          field={update.dy.field}
+          signal={update.dy.signal} />
 
         <h3>Align</h3>
 

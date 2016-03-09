@@ -44,20 +44,7 @@ function map(key, manipulator) {
 }
 
 TextManipulators.prototype.channels = function(item) {
-  var b = item.bounds,
-      gb = item.mark.group.bounds,
-      c = spec.coords(b),
-      m = c.midCenter;
-
-  return []
-    // x
-    .concat([
-      {x: gb.x1, y: m.y}, {x: m.x - PX, y: m.y}
-    ].map(map('x', 'span')))
-    // y
-    .concat([
-      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - SP}
-    ].map(map('y', 'span')));
+  // @TODO!
 };
 
 TextManipulators.prototype.altchannels = TextManipulators.prototype.channels;

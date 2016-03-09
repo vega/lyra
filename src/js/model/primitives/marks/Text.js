@@ -18,19 +18,19 @@ function Text() {
   Mark.call(this, 'text');
 
   dl.extend(this.properties.update, {
+    strokeWidth: {value: 0},
+    // Position text simply with dx/dy
+    x: {value: 0},
+    y: {value: 0},
+    dx: {value: 0, offset: 0},
+    dy: {value: 0, offset: 0},
+    // Text-specific properties
     text: {value: 'Text'},
-    align: {value: 'left'},
-    x: {value: 70},
-    x2: {value: 105},
-    y2: {value: 60},
-    xc: {value: 60, _disabled: true},
-    yc: {value: 60, _disabled: true},
-    width: {value: 35, _disabled: true},
-    height: {value: 35, _disabled: true},
-    angle: {value: 0},
+    align: {value: 'center'},
+    baseline: {value: 'middle'},
     font: {value: 'Helvetica'},
     fontSize: {value: 12},
-    strokeWidth: {value: 0}
+    angle: {value: 0}
   });
 
   return this;
@@ -42,29 +42,16 @@ Text.prototype.initHandles = function() {
   var prop = util.propSg,
       test = util.test,
       at = util.anchorTarget.bind(util, this, 'handles'),
-      x = prop(this, 'x'),
-      xc = prop(this, 'xc'),
-      x2 = prop(this, 'x2'),
-      y = prop(this, 'y'),
-      yc = prop(this, 'yc'),
-      y2 = prop(this, 'y2'),
+      dx = prop(this, 'dx'),
+      dy = prop(this, 'dy'),
       fontSize = prop(this, 'fontSize');
 
-  // This iteration accomplishes the same end as enumerating a `sg.streams`
-  // call for `x`, `x2`, etc to handle all x/y position properties
-  [{
-    delta: DX,
-    props: [x, x2, xc]
-  }, {
-    delta: DY,
-    props: [y, y2, yc]
-  }].forEach(function(propGroup) {
-    propGroup.props.forEach(function(prop) {
-      sg.streams(prop, [{
-        type: DELTA, expr: test(at(), prop + '+' + propGroup.delta, prop)
-      }]);
-    });
-  });
+  sg.streams(dx, [{
+    type: DELTA, expr: test(at(), dx + '+' + DX, dx)
+  }]);
+  sg.streams(dy, [{
+    type: DELTA, expr: test(at(), dy + '+' + DY, dy)
+  }]);
 
   // Allow upper-left and lower-right handles to control font size
   sg.streams(fontSize, [
