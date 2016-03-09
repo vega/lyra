@@ -63,4 +63,29 @@ Text.prototype.initHandles = function() {
   ]);
 };
 
+/**
+ * @property alignments {string[]} Valid align properties for vega text marks
+ */
+Text.alignments = ['left', 'center', 'right'];
+
+/**
+ * @property baselines {string[]} Valid baseline properties for vega text marks
+ */
+Text.baselines = ['top', 'middle', 'bottom'];
+
+/**
+ * @property fonts {string[]} Valid fonts for vega text marks
+ */
+Text.fonts = ['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS'];
+
+/**
+ * @property fontWeights {string[]} Valid font weights for vega text marks
+ */
+Text.fontWeights = ['normal', 'bold'];
+
+/**
+ * @property fontStyles {string[]} Valid font styles for vega text marks
+ */
+Text.fontStyles = ['normal', 'italic'];
+
 module.exports = Text;

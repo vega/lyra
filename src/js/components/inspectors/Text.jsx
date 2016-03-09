@@ -1,7 +1,7 @@
 'use strict';
 var React = require('react'),
     Property = require('./Property'),
-    ExtentProperty = require('./ExtentProperty');
+    Base = require('../../model/primitives/marks/Text');
 
 var Text = React.createClass({
   render: function() {
@@ -26,7 +26,7 @@ var Text = React.createClass({
         <Property name="font" label="Style"
           primitive={primitive}
           type="select"
-          opts={['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS']}
+          opts={Base.fonts}
           canDrop={true}
           field={update.font.field}
           signal={update.font.signal} />
@@ -41,7 +41,7 @@ var Text = React.createClass({
         <Property name="fontWeight" label="Weight"
           primitive={primitive}
           type="select"
-          opts={['normal', 'bold']}
+          opts={Base.fontWeights}
           canDrop={true}
           field={update.fontWeight.field}
           signal={update.fontWeight.signal} />
@@ -49,7 +49,7 @@ var Text = React.createClass({
         <Property name="fontStyle" label="Style"
           primitive={primitive}
           type="select"
-          opts={['normal', 'italic']}
+          opts={Base.fontStyles}
           canDrop={true}
           field={update.fontStyle.field}
           signal={update.fontStyle.signal} />
@@ -105,7 +105,7 @@ var Text = React.createClass({
         <Property name="align" label="Horizontal"
           primitive={primitive}
           type="select"
-          opts={['left', 'center', 'right']}
+          opts={Base.alignments}
           canDrop={true}
           field={update.align.field}
           signal={update.align.signal} />
@@ -113,7 +113,7 @@ var Text = React.createClass({
         <Property name="baseline" label="Vertical"
           primitive={primitive}
           type="select"
-          opts={['top', 'middle', 'bottom']}
+          opts={Base.baselines}
           canDrop={true}
           field={update.baseline.field}
           signal={update.baseline.signal} />
