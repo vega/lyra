@@ -16,7 +16,7 @@ var Text = React.createClass({
         <Property name="text" label="Text"
           type="text"
           primitive={primitive}
-          canDrop={false}
+          canDrop={true}
           field={update.text.field}
           scale={update.text.scale}
           signal={update.text.signal} />
@@ -31,6 +31,24 @@ var Text = React.createClass({
           field={update.fontSize.field}
           signal={update.fontSize.signal} />
 
+        <Property name="fontWeight" label="Weight"
+          primitive={primitive}
+          type="select"
+          opts={['normal', 'bold']}
+          canDrop={true}
+          scale={update.fontWeight.scale}
+          field={update.fontWeight.field}
+          signal={update.fontWeight.signal} />
+
+        <Property name="fontStyle" label="Style"
+          primitive={primitive}
+          type="select"
+          opts={['normal', 'italic']}
+          canDrop={true}
+          scale={update.fontStyle.scale}
+          field={update.fontStyle.field}
+          signal={update.fontStyle.signal} />
+
         <Property name="fill" label="Color"
           type="color" primitive={primitive} canDrop={true}
           scale={update.fill.scale} field={update.fill.field}
@@ -42,6 +60,24 @@ var Text = React.createClass({
           signal={update.fillOpacity.signal} />
 
         <h3>Position</h3>
+
+        <Property name="x" label="X"
+          type="number"
+          primitive={primitive}
+          canDrop={true}
+          scale={update.x.scale}
+          field={update.x.field}
+          signal={update.x.signal} />
+
+        <Property name="y" label="Y"
+          type="number"
+          primitive={primitive}
+          canDrop={true}
+          scale={update.y.scale}
+          field={update.y.field}
+          signal={update.y.signal} />
+
+        <h3>Offset</h3>
 
         <Property name="dx" label="X"
           type="number"
@@ -60,6 +96,24 @@ var Text = React.createClass({
           signal={update.dy.signal} />
 
         <h3>Align</h3>
+
+        <Property name="align" label="Horizontal"
+          primitive={primitive}
+          type="select"
+          opts={['left', 'center', 'right']}
+          canDrop={true}
+          scale={update.align.scale}
+          field={update.align.field}
+          signal={update.align.signal} />
+
+        <Property name="baseline" label="Vertical"
+          primitive={primitive}
+          type="select"
+          opts={['top', 'middle', 'bottom']}
+          canDrop={true}
+          scale={update.baseline.scale}
+          field={update.baseline.field}
+          signal={update.baseline.signal} />
 
         <Property name="angle" label="Rotation"
           type="number"
