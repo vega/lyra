@@ -12,7 +12,7 @@ var Inspector = React.createClass({
     var props = this.props,
         primitive = lookup(props.id),
         from = lookup(primitive.from),
-        ctor = primitive.getName(),
+        ctor = primitive.constructor.name,
         InspectorType = Inspector[ctor],
         isMark = primitive instanceof Mark;
 

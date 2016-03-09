@@ -58,12 +58,6 @@ Primitive.prototype.export = function(clean) {
   return _clean(dl.duplicate(this), clean);
 };
 
-
-Primitive.prototype.getName = function() {
-  return this.name || '';
-};
-
-
 /**
  * Exports the primitive as a complete Vega specification with extra definitions
  * to power Lyra-specific interaction (e.g., extra manipulator mark definitions).
