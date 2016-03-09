@@ -1,23 +1,29 @@
-var Scale = require('../src/js/model/primitives/Scale.js');
-var scale, domain, def, multipleDomains, spec;
+var Scale = require('./Scale.js');
+var scaleA,
+    scaleB,
+    specA,
+    specB,
+    domain,
+    def,
+    multipleDomains;
 
 beforeEach(function() {
   def = {
-    name: "x",
+    name: 'x',
     padding: 1,
     points: true,
-    range: "width",
+    range: 'width',
     round: true,
-    type: "ordinal"
+    type: 'ordinal'
   };
 
   domain = {
-    data: "source",
-    field: "year"
+    data: 'source',
+    field: 'year'
   };
   multipleDomains = [
-    {"data": "table1", "field": "price"},
-    {"data": "table2", "field": "cost"}
+    {data: 'table1', field: 'price'},
+    {data: 'table2', field: 'cost'}
   ];
 
   scaleA = new Scale(def.name, def.type, domain, def.range);
@@ -26,7 +32,7 @@ beforeEach(function() {
   specB = scaleB.export(false);
 });
 
-describe('Scale primative', function(){
+describe('Scale primative', function() {
   it('Scale primitive initializes with name, type, domain, range', function() {
     expect(scaleA.name).to.exist;
     expect(scaleA.type).to.equal(def.type);
@@ -40,7 +46,7 @@ describe('Scale primative', function(){
 
 });
 
-describe('dataRef in scale', function(){
+describe('dataRef in scale', function() {
   it('Range returns as string when single range exists, single dataset', function() {
     expect(specA.domain).to.be.an('object');
     expect(specA.domain).to.not.have.ownProperty('length');
