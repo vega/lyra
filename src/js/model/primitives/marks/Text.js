@@ -1,3 +1,5 @@
+'use strict';
+
 var dl = require('datalib'),
     inherits = require('inherits'),
     sg = require('../../../model/signals'),
@@ -79,13 +81,13 @@ Text.baselines = ['top', 'middle', 'bottom'];
 Text.fonts = ['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS'];
 
 /**
- * @property fontWeights {string[]} Valid font weights for vega text marks
- */
-Text.fontWeights = ['normal', 'bold'];
-
-/**
  * @property fontStyles {string[]} Valid font styles for vega text marks
  */
 Text.fontStyles = ['normal', 'italic'];
+
+/**
+ * @property fontWeights {string[]} Valid font weights for vega text marks
+ */
+Text.fontWeights = ['normal', 'bold'];
 
 module.exports = Text;

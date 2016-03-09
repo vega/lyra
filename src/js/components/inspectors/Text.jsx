@@ -17,17 +17,18 @@ var Text = React.createClass({
           type="text"
           primitive={primitive}
           canDrop={true}
-          field={update.text.field}
           scale={update.text.scale}
+          field={update.text.field}
           signal={update.text.signal} />
 
         <h3>Font</h3>
 
-        <Property name="font" label="Style"
+        <Property name="font" label="Font"
           primitive={primitive}
           type="select"
           opts={Base.fonts}
           canDrop={true}
+          scale={update.font.scale}
           field={update.font.field}
           signal={update.font.signal} />
 
@@ -35,6 +36,7 @@ var Text = React.createClass({
           type="number"
           primitive={primitive}
           canDrop={true}
+          scale={update.fontSize.scale}
           field={update.fontSize.field}
           signal={update.fontSize.signal} />
 
@@ -43,6 +45,7 @@ var Text = React.createClass({
           type="select"
           opts={Base.fontWeights}
           canDrop={true}
+          scale={update.fontWeight.scale}
           field={update.fontWeight.field}
           signal={update.fontWeight.signal} />
 
@@ -51,17 +54,25 @@ var Text = React.createClass({
           type="select"
           opts={Base.fontStyles}
           canDrop={true}
+          scale={update.fontStyle.scale}
           field={update.fontStyle.field}
           signal={update.fontStyle.signal} />
 
         <Property name="fill" label="Color"
-          type="color" primitive={primitive} canDrop={true}
-          scale={update.fill.scale} field={update.fill.field}
+          type="color"
+          primitive={primitive}
+          canDrop={true}
+          scale={update.fill.scale}
+          field={update.fill.field}
           signal={update.fill.signal} />
 
-        <Property name="fillOpacity" label="Opacity" primitive={primitive}
-          type="range" canDrop={true} min="0" max="1" step="0.05"
-          scale={update.fillOpacity.scale} field={update.fillOpacity.field}
+        <Property name="fillOpacity" label="Opacity"
+          type="range"
+          primitive={primitive}
+          canDrop={true}
+          min="0" max="1" step="0.05"
+          scale={update.fillOpacity.scale}
+          field={update.fillOpacity.field}
           signal={update.fillOpacity.signal} />
 
         <h3>Position</h3>
@@ -107,6 +118,7 @@ var Text = React.createClass({
           type="select"
           opts={Base.alignments}
           canDrop={true}
+          scale={update.align.scale}
           field={update.align.field}
           signal={update.align.signal} />
 
@@ -115,6 +127,7 @@ var Text = React.createClass({
           type="select"
           opts={Base.baselines}
           canDrop={true}
+          scale={update.baseline.scale}
           field={update.baseline.field}
           signal={update.baseline.signal} />
 

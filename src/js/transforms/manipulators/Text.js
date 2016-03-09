@@ -1,6 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    inherits = require('inherits'),
+var inherits = require('inherits'),
     Base = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
     CONST = spec.CONST,
@@ -32,7 +31,8 @@ TextManipulators.prototype.handles = function(item) {
 };
 
 TextManipulators.prototype.connectors = function(item) {
-  // @TODO!
+  var c = spec.coords(item.bounds, 'connector');
+  return [c.midCenter];
 };
 
 function map(key, manipulator) {
@@ -44,7 +44,20 @@ function map(key, manipulator) {
 }
 
 TextManipulators.prototype.channels = function(item) {
-  // @TODO!
+  var b = item.bounds,
+      gb = item.mark.group.bounds,
+      c = spec.coords(b),
+      m = c.midCenter;
+
+  return []
+    // x
+    .concat([
+      {x: gb.x1, y: m.y}, {x: m.x - PX, y: m.y}
+    ].map(map('x', 'arrow')))
+    // y
+    .concat([
+      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - SP}
+    ].map(map('y', 'arrow')));
 };
 
 TextManipulators.prototype.altchannels = TextManipulators.prototype.channels;
