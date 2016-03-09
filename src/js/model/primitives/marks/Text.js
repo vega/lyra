@@ -48,47 +48,30 @@ Text.prototype.initHandles = function() {
       y = prop(this, 'y'),
       yc = prop(this, 'yc'),
       y2 = prop(this, 'y2'),
-      fontSize = prop(this, 'fontSize'),
-      w = prop(this, 'width'),
-      h = prop(this, 'height');
+      fontSize = prop(this, 'fontSize');
 
-  sg.streams(x, [{
-    type: DELTA, expr: test(at() + '||' + at('left'), x + '+' + DX, x)
-  }]);
+  // This iteration accomplishes the same end as enumerating a `sg.streams`
+  // call for `x`, `x2`, etc to handle all x/y position properties
+  [{
+    delta: DX,
+    props: [x, x2, xc]
+  }, {
+    delta: DY,
+    props: [y, y2, yc]
+  }].forEach(function(propGroup) {
+    propGroup.props.forEach(function(prop) {
+      sg.streams(prop, [{
+        type: DELTA, expr: test(at(), prop + '+' + propGroup.delta, prop)
+      }]);
+    });
+  });
 
-  sg.streams(xc, [{
-    type: DELTA, expr: test(at() + '||' + at('left'), xc + '+' + DX, xc)
-  }]);
-
-  sg.streams(x2, [{
-    type: DELTA, expr: test(at() + '||' + at('right'), x2 + '+' + DX, x2)
-  }]);
-
-  sg.streams(y, [{
-    type: DELTA, expr: test(at() + '||' + at('top'), y + '+' + DY, y)
-  }]);
-
-  sg.streams(yc, [{
-    type: DELTA, expr: test(at() + '||' + at('top'), yc + '+' + DY, yc)
-  }]);
-
-  sg.streams(y2, [{
-    type: DELTA, expr: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
-  }]);
-
-  // sg.streams(w, [
-  //   {type: DELTA, expr: test(at('left'), w + '-' + DX, w)},
-  //   {type: DELTA, expr: test(at('right'), w + '+' + DX, w)}
-  // ]);
-
-  // sg.streams(h, [
-  //   {type: DELTA, expr: test(at('top'), h + '-' + DY, h)},
-  //   {type: DELTA, expr: test(at('bottom'), h + '+' + DY, h)}
-  // ]);
-
+  // Allow upper-left and lower-right handles to control font size
   sg.streams(fontSize, [
-    {type: DELTA, expr: test(at('left'), fontSize + '-' + DX, fontSize)},
-    {type: DELTA, expr: test(at('right'), fontSize + '+' + DX, fontSize)}
+    {type: DELTA, expr: test(at('left') + '&&' + at('top'), fontSize + '-' + DX, fontSize)},
+    {type: DELTA, expr: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DX, fontSize)},
+    {type: DELTA, expr: test(at('left') + '&&' + at('top'), fontSize + '-' + DY, fontSize)},
+    {type: DELTA, expr: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DY, fontSize)}
   ]);
 };
 
