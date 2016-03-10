@@ -177,7 +177,7 @@ model.manipulators = function() {
 
   marks.push(manips.BUBBLE_CURSOR);
   data.push({
-    name: 'dummy_data',
+    name: 'dummy_data_line',
     values: [
       {
         foo: 100,
@@ -187,6 +187,15 @@ model.manipulators = function() {
         foo: 200,
         bar: 200
       }
+    ]
+  });
+  // I don't want line and area to overlap. When we have the option to drag onto the scene,
+  // I would change this
+  data.push({
+    name: 'dummy_data_area',
+    values: [
+      {x: 100, y: 28},
+      {x: 200, y: 55},
     ]
   });
 

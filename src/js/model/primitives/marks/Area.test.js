@@ -28,17 +28,28 @@ describe('Area Mark Primitive', function() {
   describe('default properties', function() {
 
     it('is initialized with stroke', function() {
-      var stroke = {value: '#000000'};
+      var stroke = {value: '#55498D'};
       expect(area.properties.update).to.have.property('stroke');
       assert.deepEqual(area.properties.update.stroke, stroke);
     });
 
-    it('is initialized with strokeWidth', function() {
-      var strokeWidth = {value: 3};
-      expect(area.properties.update).to.have.property('strokeWidth');
-      assert.deepEqual(area.properties.update.strokeWidth, strokeWidth);
+    it('is initialized with fill', function() {
+      var fill = {value: '#55498D'};
+      expect(area.properties.update).to.have.property('fill');
+      assert.deepEqual(area.properties.update.fill, fill);
     });
 
+    it('is initialized with interpolate', function() {
+      var interpolate = {value: 'monotone'};
+      expect(area.properties.update).to.have.property('interpolate');
+      assert.deepEqual(area.properties.update.interpolate, interpolate);
+    });
+
+    it('is initialized with orient', function() {
+      var orient = {value: 'vertical'};
+      expect(area.properties.update).to.have.property('orient');
+      assert.deepEqual(area.properties.update.orient, orient);
+    });
   });
 
 
@@ -47,19 +58,30 @@ describe('Area Mark Primitive', function() {
     it('areas initialized w/ dummy data', function() {
       var exported = area.export(false);
       expect(exported).to.have.property('from');
-      assert.deepEqual(exported.from, {data: 'dummy_data'});
+      assert.deepEqual(exported.from, {data: 'dummy_data_area'});
     });
 
-    it('areas spec does not have fill property', function() {
-      var exported = area.export(false);
-      expect(exported.properties.update).to.not.have.property('fill');
-    });
+  });
 
-    it('areas spec does not have fillOpacity property', function() {
-      var exported = area.export(false);
-      expect(exported.properties.update).to.not.have.property('fillOpacity');
+  describe('static property options lists', function() {
+    it('exposes a static property defining interpolate options', function() {
+      expect(Area).to.have.property('INTERPOLATE');
+      var interpolate = [
+        'linear',
+        'step-before',
+        'step-after',
+        'basis',
+        'basis-open',
+        'cardinal',
+        'cardinal-open',
+        'monotone'
+      ];
+      expect(Area.INTERPOLATE).to.deep.equal(interpolate);
     });
-
+    it('exposes a static property defining orient options', function() {
+      expect(Area).to.have.property('ORIENT');
+      expect(Area.ORIENT).to.deep.equal(['horizontal', 'vertical']);
+    });
   });
 
 });
