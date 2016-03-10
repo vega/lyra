@@ -21,27 +21,57 @@ var Area = React.createClass({
 
         <h3>Fill</h3>
 
-        <Property name="fill" label="Color"
-          type="color" primitive={primitive} canDrop={true}
-          scale={update.fill.scale} field={update.fill.field}
-          signal={update.fill.signal} />
+        <Property
+          name="fill"
+          label="Color"
+          type="color"
+          primitive={primitive}
+          canDrop={true}
+          scale={update.fill.scale}
+          field={update.fill.field}
+          signal={update.fill.signal}
+        />
 
-        <Property name="fillOpacity" label="Opacity" primitive={primitive}
-          type="range" canDrop={true} min="0" max="1" step="0.05"
-          scale={update.fillOpacity.scale} field={update.fillOpacity.field}
-          signal={update.fillOpacity.signal} />
+        <Property
+          name="fillOpacity"
+          label="Opacity"
+          primitive={primitive}
+          type="range"
+          canDrop={true}
+          min="0"
+          max="1"
+          step="0.05"
+          scale={update.fillOpacity.scale}
+          field={update.fillOpacity.field}
+          signal={update.fillOpacity.signal}
+        />
 
         <h3>Stroke</h3>
 
-        <Property name="stroke" label="Color"
-          type="color" primitive={primitive} canDrop={true}
-          scale={update.stroke.scale} field={update.stroke.field}
-          signal={update.stroke.signal} />
+        <Property
+          name="stroke"
+          label="Color"
+          type="color"
+          primitive={primitive}
+          canDrop={true}
+          scale={update.stroke.scale}
+          field={update.stroke.field}
+          signal={update.stroke.signal}
+        />
 
-        <Property name="strokeWidth" label="Width" primitive={primitive}
-          type="range" canDrop={true} min="0" max="10" step="0.25"
-          scale={update.strokeWidth.scale} field={update.strokeWidth.field}
-          signal={update.strokeWidth.signal} />
+        <Property
+          name="strokeWidth"
+          label="Width"
+          primitive={primitive}
+          type="range"
+          canDrop={true}
+          min="0"
+          max="10"
+          step="0.25"
+          scale={update.strokeWidth.scale}
+          field={update.strokeWidth.field}
+          signal={update.strokeWidth.signal}
+        />
       </div>
     );
   }

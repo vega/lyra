@@ -8,7 +8,8 @@ var TYPES = {
   rect: 'bar',
   symbol: 'point',
   text: 'text',
-  line: 'line'
+  line: 'line',
+  area: 'area'
 };
 
 function VLSingle(type) {
