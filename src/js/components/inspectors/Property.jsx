@@ -87,6 +87,15 @@ var Property = React.createClass({
             </select>
           );
           break;
+
+        case 'text':
+          controlEl = (
+            <input type="text"
+              value={value}
+              onChange={this.handleChange}
+            />
+          );
+          break;
       }
     }
 

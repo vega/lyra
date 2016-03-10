@@ -7,6 +7,7 @@ var inherits = require('inherits'),
 var TYPES = {
   rect: 'bar',
   symbol: 'point',
+  text: 'text',
   line: 'line'
 };
 

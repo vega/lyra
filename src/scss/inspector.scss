@@ -5,6 +5,7 @@
   bottom: 0;
   width: $inspector-width;
   background-color: $lblue-bg;
+  overflow-y: scroll;
 
   h2 {
     padding: $outer-padding 0;

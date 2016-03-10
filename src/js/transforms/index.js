@@ -9,6 +9,7 @@ t[MANIPULATORS + 'rect'] = require('./manipulators/Rect');
 t[MANIPULATORS + 'group'] = require('./manipulators/Rect');
 t[MANIPULATORS + 'symbol'] = require('./manipulators/Symbol');
 t[MANIPULATORS + 'line'] = require('./manipulators/Line');
+t[MANIPULATORS + 'text'] = require('./manipulators/Text');
 
 t[util.ns('bubble_cursor')] = require('./BubbleCursor');
 
