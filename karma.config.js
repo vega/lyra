@@ -10,9 +10,10 @@ module.exports = function(config) {
     // displays tests in a nice readable format
     reporters: ['spec'],
 
-    // include some polyfills for babel and phantomjs
     files: [
+      // Polyfill for Babel/ES6
       'node_modules/babel-polyfill/dist/polyfill.js',
+      // Polyfill to add Function.prototype.bind in PhantomJS
       './node_modules/phantomjs-polyfill/bind-polyfill.js',
       // Test files live alongside source code
       './src/**/*.test.js',
@@ -51,10 +52,10 @@ module.exports = function(config) {
             exclude: /node_modules/,
             loader: 'babel',
             query: {
-              presets:['react']
+              presets: ['react']
             }
-          },
-        ],
+          }
+        ]
       },
       // required for enzyme to work properly
       externals: {
@@ -72,6 +73,7 @@ module.exports = function(config) {
       'karma-mocha',
       'karma-chai',
       'karma-webpack',
+      'karma-chrome-launcher',
       'karma-phantomjs-launcher',
       'karma-spec-reporter',
       'karma-sourcemap-loader'
