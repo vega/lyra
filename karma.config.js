@@ -15,15 +15,13 @@ module.exports = function(config) {
       'node_modules/babel-polyfill/dist/polyfill.js',
       // Polyfill to add Function.prototype.bind in PhantomJS
       './node_modules/phantomjs-polyfill/bind-polyfill.js',
-      // Test files live alongside source code
-      './src/**/*.test.js',
-      './src/**/*.test.jsx'
+      // Test files live alongside source code, but all are loaded from tests.js
+      './tests.js'
     ],
     preprocessors: {
-      // these files we want to be precompiled with webpack
-      // also run tests through sourcemap for easier debugging
-      './src/**/*.test.js': ['webpack', 'sourcemap'],
-      './src/**/*.test.jsx': ['webpack', 'sourcemap']
+      // As the tests loader utilizes Webpack's `require.context()`, run it
+      // through the Webpack build and instrument the output with sourcemaps
+      './tests.js': ['webpack', 'sourcemap']
     },
     webpack: {
        devtool: 'inline-source-map',
