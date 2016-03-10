@@ -8,7 +8,7 @@ module.exports = function(config) {
     frameworks: ['mocha', 'chai'],
     // npm i karma-spec-reporter --save-dev
     // displays tests in a nice readable format
-    reporters: ['spec'],
+    reporters: ['spec', 'coverage'],
 
     files: [
       // Polyfill for Babel/ES6
@@ -53,6 +53,14 @@ module.exports = function(config) {
               presets: ['react']
             }
           }
+        ],
+        // Generate coverage after tests have run
+        postLoaders: [
+          {
+            test: /\.jsx?$/,
+            exclude: /(test|node_modules)/,
+            loader: 'istanbul-instrumenter'
+          }
         ]
       },
       // required for enzyme to work properly
@@ -71,10 +79,16 @@ module.exports = function(config) {
       'karma-mocha',
       'karma-chai',
       'karma-webpack',
+      'karma-coverage',
       'karma-chrome-launcher',
       'karma-phantomjs-launcher',
       'karma-spec-reporter',
       'karma-sourcemap-loader'
-    ]
+    ],
+    coverageReporter: {
+      // Render coverage report in HTML format into coverage/
+      type: 'html',
+      dir: 'coverage/'
+    }
   });
 };
