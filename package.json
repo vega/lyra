@@ -42,6 +42,7 @@
     "inherits": "^2.0.1",
     "istanbul": "^0.3.21",
     "istanbul-instrumenter-loader": "^0.2.0",
+    "istanbul-react": "^1.1.0",
     "jshint": "^2.8.0",
     "json-loader": "^0.5.4",
     "karma": "^0.13.19",
@@ -82,7 +83,7 @@
     "watch:scss": "nodemon -e src/scss -x \"npm run build:scss\"",
     "test": "karma start karma.config.js",
     "test:dev": "npm run test -- --watch",
-    "cover": "npm run cover",
+    "cover": "npm run test -- --reporter=coverage",
     "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/",
     "docs": "jsdoc --configure .jsdoc.json",
     "start": "webpack-dev-server --devtool=cheap-module-source-map --inline"
