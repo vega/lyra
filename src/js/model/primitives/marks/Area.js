@@ -99,6 +99,10 @@ Area.prototype.export = function(resolve) {
     spec.properties.update.y = {
       field: 'y'
     };
+  }
+  if (spec.properties.update.orient.value == 'horizontal') {
+    delete spec.properties.update.y2;
+  } else {
     delete spec.properties.update.x2;
   }
   return spec;
