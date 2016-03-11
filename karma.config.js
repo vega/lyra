@@ -4,32 +4,32 @@ var path = require('path');
 module.exports = function(config) {
   config.set({
     browsers: ['PhantomJS'],
+
     singleRun: !argv.watch, // just run once by default
-    frameworks: ['mocha', 'chai'],
+
+    frameworks: ['mocha'],
+
     // npm i karma-spec-reporter --save-dev
     // displays tests in a nice readable format
-    reporters: ['spec'],
+    reporters: ['spec', 'coverage'],
 
-    // include some polyfills for babel and phantomjs
     files: [
+      // Polyfill for Babel/ES6
       'node_modules/babel-polyfill/dist/polyfill.js',
+      // Polyfill to add Function.prototype.bind in PhantomJS
       './node_modules/phantomjs-polyfill/bind-polyfill.js',
-      './src/**/*.test.js', // test files may be alongside source code
-      './test/**/*.js' // specify files to watch for tests
+      // Test files live alongside source code, but all are loaded from test_index.js
+      './test_index.js'
     ],
+
     preprocessors: {
-      // these files we want to be precompiled with webpack
-      // also run tests through sourcemap for easier debugging
-      './src/**/*.test.js': ['webpack', 'sourcemap'],
-      './test/**/*.js': ['webpack', 'sourcemap']
+      // Run our tests enty point through Webpack and sourcemap the output
+      './test_index.js': ['webpack', 'sourcemap']
     },
+
     webpack: {
        devtool: 'inline-source-map',
        resolve: {
-        // allow us to import components in tests like:
-        // import Example from 'components/Example';
-        root: path.resolve(__dirname, './src'),
-
         // allow us to avoid including extension name
         extensions: ['', '.js', '.jsx'],
 
@@ -39,7 +39,7 @@ module.exports = function(config) {
         }
       },
       module: {
-        // don't run babel-loader through the sinon module
+        // don't run the sinon module through babel-loader
         noParse: [
           /node_modules\/sinon\//
         ],
@@ -50,11 +50,21 @@ module.exports = function(config) {
             exclude: /node_modules/,
             loader: 'babel',
             query: {
-              presets:['react']
+              presets: ['react']
             }
-          },
+          }
         ],
+        // instrument only testing sources with Istanbul
+        postLoaders: [
+          {
+            test: /\.jsx?$/,
+            include: path.resolve('./src/js'),
+            exclude: /(node_modules|\.test\.js)/,
+            loader: 'istanbul-instrumenter'
+          }
+        ]
       },
+
       // required for enzyme to work properly
       externals: {
         'jsdom': 'window',
@@ -63,17 +73,43 @@ module.exports = function(config) {
         'react/lib/ReactContext': 'window'
       },
     },
+
     webpackMiddleware: {
       noInfo: true
     },
+
     // tell karma all the plugins we're going to be using
     plugins: [
       'karma-mocha',
-      'karma-chai',
       'karma-webpack',
+      'karma-coverage',
+      'karma-chrome-launcher',
       'karma-phantomjs-launcher',
       'karma-spec-reporter',
       'karma-sourcemap-loader'
-    ]
+    ],
+
+    coverageReporter: {
+      // This instrumentor isn't "required," per se, since Webpack handles the
+      // JSX parsing; but including it somehow fixes the coverage report bar
+      // graph width rendering bug, so why not.
+      instrumenters: {
+        'istanbul-react' : require('istanbul-react')
+      },
+      instrumenter: {
+        '**/*.jsx': 'istanbul-react'
+      },
+
+      // Don't omit a file from the report just because it has no associated tests
+      includeAllSources: true,
+
+      // Render coverage report in HTML format into coverage/
+      type: 'html',
+      dir: 'coverage/',
+      subdir: function(browser) {
+        // normalize browser name in coverage output
+        return browser.toLowerCase().split(/[ /-]/)[0];
+      }
+    }
   });
 };
