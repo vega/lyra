@@ -1,12 +1,8 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
-    NS = 'lyra_',
+    ns = require('./ns'),
     vgSchema;
-
-function ns(name) {
-  return name.startsWith(NS) ? name : NS+name;
-};
 
 /** @namespace */
 var util = {

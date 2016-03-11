@@ -1,6 +1,6 @@
 var dl = require('datalib'),
     sg = require('../../signals'),
-    util = require('../../../util');
+    ns = require('../../../util/ns');
 
 var TYPES = [];
 
@@ -18,7 +18,7 @@ function manipulators(prototype) {
         mark: this.name,
         transform: [
           {
-            type: util.ns('manipulators_' + this.type),
+            type: ns('manipulators_' + this.type),
             lyra_id: this._id
           },
           {

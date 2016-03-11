@@ -5,7 +5,7 @@ var dl = require('datalib'),
     model = require('../../'),
     lookup = model.primitive,
     Mark = require('./Mark'),
-    util = require('../../../util');
+    ns = require('../../../util/ns');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];
 // MARK_TYPES = ['group', 'rect', 'symbol', 'arc', 'area', 'line', 'text'];
@@ -30,8 +30,8 @@ function Group() {
   this.properties.update = {
     x: {value: 0},
     y: {value: 0},
-    width: {signal: util.ns('vis_width')},
-    height: {signal: util.ns('vis_height')},
+    width: {signal: ns('vis_width')},
+    height: {signal: ns('vis_height')},
     fill: {value: 'transparent'}
   };
 
