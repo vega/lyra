@@ -41,7 +41,7 @@ module.exports = function(config) {
       module: {
         // don't run the sinon module through babel-loader
         noParse: [
-          /node_modules\/sinon\//
+          /sinon/
         ],
         // run babel loader for our tests
         loaders: [
@@ -84,10 +84,26 @@ module.exports = function(config) {
       'karma-webpack',
       'karma-coverage',
       'karma-chrome-launcher',
+      'karma-firefox-launcher',
+      'karma-ie-launcher',
       'karma-phantomjs-launcher',
+      'karma-safari-launcher',
       'karma-spec-reporter',
       'karma-sourcemap-loader'
     ],
+
+    customLaunchers: {
+      IE10: {
+        base: 'IE',
+        'x-ua-compatible': 'IE=EmulateIE10',
+        flags: ['-extoff']
+      },
+      IE9: {
+        base: 'IE',
+        'x-ua-compatible': 'IE=EmulateIE9',
+        flags: ['-extoff']
+      }
+    },
 
     coverageReporter: {
       // This instrumentor isn't "required," per se, since Webpack handles the
