@@ -41,7 +41,7 @@ module.exports = function(config) {
       module: {
         // don't run the sinon module through babel-loader
         noParse: [
-          /node_modules\/sinon\//
+          /sinon/
         ],
         // run babel loader for our tests
         loaders: [
