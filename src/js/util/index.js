@@ -1,21 +1,10 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
-    ns = require('./ns'),
     vgSchema;
 
 /** @namespace */
 var util = {
-
-/**
- * Returns the signal name corresponding to the given mark and property.
- * @param {Object} mark - A Mark object.
- * @param {string} property - The name of the property.
- * @return {string} The name of the signal for the given mark's property.
- */
-  propSg: function(mark, property) {
-    return ns(mark.type + '_' + mark._id + '_' + property);
-  },
 
 /**
  * Returns a Vega expression string that tests whether the anchor target

@@ -7,6 +7,7 @@ var dl = require('datalib'),
     manips = require('./manipulators'),
     rules = require('../../rules'),
     util = require('../../../util'),
+    propSg = require('../../../util/prop-signal'),
     model = require('../../'),
     lookup = model.primitive,
     count = {group: -1};
@@ -66,7 +67,7 @@ Mark.prototype.init = function() {
   for (k in update) {
     p = update[k];
     if (p.value !== undefined) {
-      update[k] = dl.extend(sg.init(util.propSg(this, k), p.value),
+      update[k] = dl.extend(sg.init(propSg(this, k), p.value),
         p._disabled ? {_disabled: true} : {});
     }
   }

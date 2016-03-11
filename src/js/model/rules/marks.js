@@ -1,4 +1,5 @@
 var util = require('../../util'),
+    propSg = require('../../util/prop-signal'),
     model = require('../'),
     lookup = model.primitive;
 
@@ -38,7 +39,7 @@ function bindProperty(map, property, props, def, from) {
     }
   }
   if (d.value !== undefined) {
-    model.signal(p.signal = util.propSg(this, property), d.value);
+    model.signal(p.signal = propSg(this, property), d.value);
   }
 
   if (d.band !== undefined) {

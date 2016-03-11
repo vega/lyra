@@ -3,6 +3,7 @@ var dl = require('datalib'),
     vl = require('vega-lite'),
     Scale = require('../primitives/Scale'),
     util = require('../../util'),
+    propSg = require('../../util/prop-signal'),
     model = require('../'),
     lookup = model.primitive,
     AGG_OPS = vg.transforms.aggregate.VALID_OPS;
@@ -17,7 +18,7 @@ function rules(prototype) {
         c;
 
     if (id === undefined) {
-      update[property] = {signal: util.propSg(this, property)};
+      update[property] = {signal: propSg(this, property)};
       return this;
     }
 
