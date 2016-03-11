@@ -6,11 +6,6 @@ var dl = require('datalib'),
 
 /** @namespace */
 var util = {
-/**
- * Ensure an input string is in the Lyra namespace.
- * @param {string} name - Input string to namespace.
- */
-  ns: ns,
 
 /**
  * Returns the signal name corresponding to the given mark and property.
