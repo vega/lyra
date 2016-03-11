@@ -84,7 +84,10 @@ module.exports = function(config) {
       'karma-webpack',
       'karma-coverage',
       'karma-chrome-launcher',
+      'karma-firefox-launcher',
+      'karma-ie-launcher',
       'karma-phantomjs-launcher',
+      'karma-safari-launcher',
       'karma-spec-reporter',
       'karma-sourcemap-loader'
     ],
