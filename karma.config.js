@@ -92,6 +92,19 @@ module.exports = function(config) {
       'karma-sourcemap-loader'
     ],
 
+    customLaunchers: {
+      IE10: {
+        base: 'IE',
+        'x-ua-compatible': 'IE=EmulateIE10',
+        flags: ['-extoff']
+      },
+      IE9: {
+        base: 'IE',
+        'x-ua-compatible': 'IE=EmulateIE9',
+        flags: ['-extoff']
+      }
+    },
+
     coverageReporter: {
       // This instrumentor isn't "required," per se, since Webpack handles the
       // JSX parsing; but including it somehow fixes the coverage report bar

@@ -87,7 +87,7 @@
     "test:dev": "npm run test -- --watch",
     "test:chrome": "npm run test -- --watch --browsers Chrome",
     "test:osx": "npm run test -- --browsers PhantomJS,Chrome,Firefox,Safari",
-    "test:win": "npm run test -- --browsers PhantomJS,Chrome,Firefox,IE",
+    "test:win": "npm run test -- --browsers PhantomJS,Chrome,Firefox,IE,IE9,IE10",
     "cover": "npm run test -- --reporter=coverage",
     "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/",
     "docs": "jsdoc --configure .jsdoc.json",
