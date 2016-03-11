@@ -47,7 +47,8 @@ var CHILDREN = {
   scales: require('../Scale'),
   legends: require('../Guide'),
   axes: require('../Guide'),
-  line: require('./Line')
+  line: require('./Line'),
+  area: require('./Area')
 };
 
 

@@ -55,7 +55,7 @@ Line.prototype.export = function(resolve) {
   var spec = Mark.prototype.export.call(this, resolve);
   if (!spec.from) {
     spec.from = {
-      data: 'dummy_data'
+      data: 'dummy_data_line'
     };
     spec.properties.update.x = {
       field: 'foo'

@@ -47,7 +47,7 @@ describe('Line Mark Primitive', function() {
     it('lines initialized w/ dummy data', function() {
       var exported = line.export(false);
       expect(exported).to.have.property('from');
-      assert.deepEqual(exported.from, {data: 'dummy_data'});
+      assert.deepEqual(exported.from, {data: 'dummy_data_line'});
     });
 
     it('lines spec does not have fill property', function() {

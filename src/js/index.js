@@ -26,6 +26,7 @@ g.child('marks.rect');
 g.child('marks.symbol');
 g.child('marks.line');
 g.child('marks.text');
+g.child('marks.area');
 
 Promise.all([
   p._source.init({url: 'http://vega.github.io/vega-editor/app/data/cars.json'}),
