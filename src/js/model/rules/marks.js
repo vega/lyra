@@ -1,6 +1,5 @@
-var util = require('../../util'),
+var model = require('../'),
     propSg = require('../../util/prop-signal'),
-    model = require('../'),
     lookup = model.primitive;
 
 module.exports = function(parsed, property, channel) {

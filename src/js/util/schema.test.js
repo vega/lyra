@@ -8,7 +8,7 @@ var expect = chai.expect;
 var vg = require('vega');
 var schema = require('./schema');
 
-describe.only('vega schema utility', function() {
+describe('vega schema utility', function() {
   var mockVegaSchema;
 
   before(function() {
@@ -32,7 +32,6 @@ describe.only('vega schema utility', function() {
 
   it('downloads the vega JSON schema', function() {
     var result = schema();
-    console.log(result);
     expect(result).to.be.an('object');
     expect(result).to.equal(mockVegaSchema);
     expect(vg.schema).to.have.been.calledOnce;

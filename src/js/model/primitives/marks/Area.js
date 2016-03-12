@@ -3,7 +3,7 @@ var dl = require('datalib'),
     inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
-    util = require('../../../util'),
+    anchorTarget = require('../../../util/anchor-target'),
     test = require('../../../util/test-if'),
     propSg = require('../../../util/prop-signal');
 
@@ -46,7 +46,7 @@ inherits(Area, Mark);
 
 
 Area.prototype.initHandles = function() {
-  var at = util.anchorTarget.bind(util, this, 'handles'),
+  var at = anchorTarget.bind(null, this, 'handles'),
       x = propSg(this, 'x'),
       xc = propSg(this, 'xc'),
       x2 = propSg(this, 'x2'),
