@@ -5,6 +5,7 @@ var dl = require('datalib'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     util = require('../../../util'),
+    test = require('../../../util/test-if'),
     propSg = require('../../../util/prop-signal');
 
 var DELTA = sg.DELTA,
@@ -43,8 +44,7 @@ function Text() {
 inherits(Text, Mark);
 
 Text.prototype.initHandles = function() {
-  var test = util.test,
-      at = util.anchorTarget.bind(util, this, 'handles'),
+  var at = util.anchorTarget.bind(util, this, 'handles'),
       x = propSg(this, 'x'),
       y = propSg(this, 'y'),
       fontSize = propSg(this, 'fontSize');

@@ -3,6 +3,7 @@ var dl = require('datalib'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     util = require('../../../util'),
+    test = require('../../../util/test-if'),
     propSg = require('../../../util/prop-signal');
 
 var DELTA = sg.DELTA,
@@ -36,8 +37,7 @@ function Rect() {
 inherits(Rect, Mark);
 
 Rect.prototype.initHandles = function() {
-  var test = util.test,
-      at = util.anchorTarget.bind(util, this, 'handles'),
+  var at = util.anchorTarget.bind(util, this, 'handles'),
       x = propSg(this, 'x'),
       xc = propSg(this, 'xc'),
       x2 = propSg(this, 'x2'),

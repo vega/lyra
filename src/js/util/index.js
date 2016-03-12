@@ -32,17 +32,6 @@ var util = {
   },
 
 /**
- * Returns a Vega if-expression string.
- * @param {string} pred - The predicate string.
- * @param {string} t - The true condition string.
- * @param {string} f - The false condition string.
- * @return {string} A Vega if-expression string.
- */
-  test: function(pred, t, f) {
-    return 'if(' + pred + ',' + t + ',' + f + ')';
-  },
-
-/**
  * @return {Object} The Vega JSON schema.
  */
   schema: function() {
