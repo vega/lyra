@@ -1,7 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    vg = require('vega'),
-    vgSchema;
+var dl = require('datalib');
 
 /** @namespace */
 var util = {
@@ -29,15 +27,6 @@ var util = {
       c += TARGET + '.mark && ' + TARGET + '.mark.name === ' + dl.str(mark.name);
     }
     return c + ')';
-  },
-
-/**
- * @return {Object} The Vega JSON schema.
- */
-  schema: function() {
-    return vgSchema || (vgSchema = vg.schema({
-      url: 'http://vega.github.io/vega/vega-schema.json'
-    }));
   }
 };
 
