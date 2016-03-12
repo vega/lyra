@@ -4,7 +4,7 @@ var vg = require('vega'),
 
 /**
  * Return the Vega JSON schema, fetching it via XHR if it is not yet available
- * @return {Object} The Vega JSON schema.
+ * @returns {Object} The Vega JSON schema.
  */
 module.exports = function() {
   return vgSchema || (vgSchema = vg.schema({

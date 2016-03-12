@@ -9,7 +9,7 @@ var dl = require('datalib'),
  * @param {Object} mark - A Mark object.
  * @param {string} mode - The Lyra manipulator mode.
  * @param {string} [key] - The key of a specific manipulator instance.
- * @return {string} A Vega expression string.
+ * @returns {string} A Vega expression string.
  */
 module.exports = function(mark, mode, key) {
   // sg is required here to prevent a circular reference
