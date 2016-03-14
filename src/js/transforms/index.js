@@ -1,9 +1,9 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
-    util = require('../util'),
+    ns = require('../util/ns'),
     t = module.exports = {},
-    MANIPULATORS = util.ns('manipulators_');
+    MANIPULATORS = ns('manipulators_');
 
 t[MANIPULATORS + 'rect'] = require('./manipulators/Rect');
 t[MANIPULATORS + 'group'] = require('./manipulators/Rect');
@@ -13,6 +13,6 @@ t[MANIPULATORS + 'text'] = require('./manipulators/Text');
 t[MANIPULATORS + 'area'] = require('./manipulators/Area');
 
 
-t[util.ns('bubble_cursor')] = require('./BubbleCursor');
+t[ns('bubble_cursor')] = require('./BubbleCursor');
 
 dl.extend(vg.transforms, t);

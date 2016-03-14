@@ -1,7 +1,7 @@
 'use strict';
 var React = require('react'),
     Parse = require('../mixins/Parse'),
-    util = require('../../util'),
+    propSg = require('../../util/prop-signal'),
     model = require('../../model'),
     lookup = model.primitive;
 
@@ -23,7 +23,7 @@ var SpatialPreset = React.createClass({
         {scale: prop.scale, band: true} : {group: preset};
     }
     else {
-      update[name] = {signal: util.propSg(primitive, name)};
+      update[name] = {signal: propSg(primitive, name)};
     }
 
     this.parse(primitive);

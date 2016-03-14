@@ -3,7 +3,9 @@ var dl = require('datalib'),
     inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
-    util = require('../../../util');
+    anchorTarget = require('../../../util/anchor-target'),
+    test = require('../../../util/test-if'),
+    propSg = require('../../../util/prop-signal');
 
 var DELTA = sg.DELTA,
     DX = DELTA + '.x',
@@ -35,11 +37,9 @@ function Line() {
 inherits(Line, Mark);
 
 Line.prototype.initHandles = function() {
-  var prop = util.propSg,
-      test = util.test,
-      at = util.anchorTarget.bind(util, this, 'handles'),
-      x = prop(this, 'x'),
-      y = prop(this, 'y');
+  var at = anchorTarget.bind(null, this, 'handles'),
+      x = propSg(this, 'x'),
+      y = propSg(this, 'y');
 
   sg.streams(x, [{
     type: DELTA, expr: test(at(), x + '+' + DX, x)

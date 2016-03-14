@@ -1,6 +1,5 @@
 var dl = require('datalib'),
-    util = require('../../util'),
-    ns = util.ns,
+    ns = require('../../util/ns'),
     signals, defaults;
 
 function init(name, val) {

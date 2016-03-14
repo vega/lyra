@@ -1,5 +1,5 @@
-var util = require('../../util'),
-    model = require('../'),
+var model = require('../'),
+    propSg = require('../../util/prop-signal'),
     lookup = model.primitive;
 
 module.exports = function(parsed, property, channel) {
@@ -38,7 +38,7 @@ function bindProperty(map, property, props, def, from) {
     }
   }
   if (d.value !== undefined) {
-    model.signal(p.signal = util.propSg(this, property), d.value);
+    model.signal(p.signal = propSg(this, property), d.value);
   }
 
   if (d.band !== undefined) {

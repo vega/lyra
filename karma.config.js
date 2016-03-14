@@ -41,7 +41,8 @@ module.exports = function(config) {
       module: {
         // don't run the sinon module through babel-loader
         noParse: [
-          /sinon/
+          // Use negative lookahead to avoid incorrectly noParse'ing sinon-chai
+          /sinon(?!-chai)/
         ],
         // run babel loader for our tests
         loaders: [

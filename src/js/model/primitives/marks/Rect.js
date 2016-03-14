@@ -2,7 +2,9 @@ var dl = require('datalib'),
     inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
-    util = require('../../../util');
+    anchorTarget = require('../../../util/anchor-target'),
+    test = require('../../../util/test-if'),
+    propSg = require('../../../util/prop-signal');
 
 var DELTA = sg.DELTA,
     DX = DELTA + '.x',
@@ -35,12 +37,15 @@ function Rect() {
 inherits(Rect, Mark);
 
 Rect.prototype.initHandles = function() {
-  var prop = util.propSg,
-      test = util.test,
-      at = util.anchorTarget.bind(util, this, 'handles'),
-      x = prop(this, 'x'), xc = prop(this, 'xc'), x2 = prop(this, 'x2'),
-      y = prop(this, 'y'), yc = prop(this, 'yc'), y2 = prop(this, 'y2'),
-      w = prop(this, 'width'), h = prop(this, 'height');
+  var at = anchorTarget.bind(null, this, 'handles'),
+      x = propSg(this, 'x'),
+      xc = propSg(this, 'xc'),
+      x2 = propSg(this, 'x2'),
+      y = propSg(this, 'y'),
+      yc = propSg(this, 'yc'),
+      y2 = propSg(this, 'y2'),
+      w = propSg(this, 'width'),
+      h = propSg(this, 'height');
 
   sg.streams(x, [{
     type: DELTA, expr: test(at() + '||' + at('left'), x + '+' + DX, x)

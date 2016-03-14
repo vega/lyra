@@ -4,7 +4,7 @@ var dl = require('datalib'),
     vg = require('vega'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
-    util = require('../util');
+    ns = require('../util/ns');
 
 /** @namespace */
 var model = module.exports = {
@@ -172,7 +172,7 @@ model.manipulators = function() {
 
   data.push({
     name: 'bubble_cursor',
-    transform: [{type: util.ns('bubble_cursor')}]
+    transform: [{type: ns('bubble_cursor')}]
   });
 
   marks.push(manips.BUBBLE_CURSOR);
