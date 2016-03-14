@@ -3,47 +3,28 @@ var model = require('../'),
     propSg = require('../../util/prop-signal'),
     lookup = model.primitive;
 
-module.exports = function(parsed, property, channel) {
-  var map = this._rule._map,
-      def = parsed.spec.marks[0].marks[0],
-      props = this.properties.update,
-      dprops = def.properties.update,
-      from;
-
-  if (def.from && def.from.data) {
-    this.dataset(map.data[def.from.data]);
-    from = lookup(this.from);
-  }
-
-  if (this.type === 'rect' && (channel === 'x' || channel === 'y')) {
-    rectSpatial.call(this, map, property, channel, props, dprops, from);
-  } else {
-    bindProperty.call(this, map, property, props, dprops, from);
-  }
-};
-
 function bindProperty(map, property, props, def, from) {
   var d = def[property],
       p = (props[property] = {});
 
-  if (d.scale !== undefined) {
+  if (typeof d.scale !== 'undefined') {
     p.scale = map.scales[d.scale];
   }
-  if (d.field !== undefined) {
+  if (typeof d.field !== 'undefined') {
     if (d.field.group) {
       p.group = d.field.group;
     } else {
       p.field = from.schema()[d.field]._id;
     }
   }
-  if (d.value !== undefined) {
+  if (typeof d.value !== 'undefined') {
     model.signal(p.signal = propSg(this, property), d.value);
   }
 
-  if (d.band !== undefined) {
+  if (typeof d.band !== 'undefined') {
     p.band = d.band;
   }
-  if (d.offset !== undefined) {
+  if (typeof d.offset !== 'undefined') {
     p.offset = d.offset;
   }
 }
@@ -80,3 +61,22 @@ function rectSpatial(map, property, channel, props, def, from) {
     props[bind]._disabled = true;
   }
 }
+
+module.exports = function(parsed, property, channel) {
+  var map = this._rule._map,
+      def = parsed.spec.marks[0].marks[0],
+      props = this.properties.update,
+      dprops = def.properties.update,
+      from;
+
+  if (def.from && def.from.data) {
+    this.dataset(map.data[def.from.data]);
+    from = lookup(this.from);
+  }
+
+  if (this.type === 'rect' && (channel === 'x' || channel === 'y')) {
+    rectSpatial.call(this, map, property, channel, props, dprops, from);
+  } else {
+    bindProperty.call(this, map, property, props, dprops, from);
+  }
+};

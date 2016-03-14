@@ -105,7 +105,7 @@ Area.prototype.export = function(resolve) {
       field: 'y'
     };
   }
-  if (spec.properties.update.orient.value == 'horizontal') {
+  if (spec.properties.update.orient.value === 'horizontal') {
     delete spec.properties.update.y2;
   } else {
     delete spec.properties.update.x2;

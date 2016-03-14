@@ -19,10 +19,16 @@ var SpatialPreset = React.createClass({
         preset = name.indexOf('x') >= 0 ? 'width' : 'height';
 
     if (evt.target.checked) {
-      update[name] = (name === 'width' || name === 'height') ?
-        {scale: prop.scale, band: true} : {group: preset};
+      update[name] = (name === 'width' || name === 'height') ? {
+        scale: scale,
+        band: true
+      } : {
+        group: preset
+      };
     } else {
-      update[name] = {signal: propSg(primitive, name)};
+      update[name] = {
+        signal: propSg(primitive, name)
+      };
     }
 
     this.parse(primitive);
@@ -48,14 +54,14 @@ var SpatialPreset = React.createClass({
             onChange={this.handleChange} /> Automatic
         </label>
       ) : null;
-    } else {
-      return (
-        <label>
-          <input type="checkbox" name={name} checked={prop.group}
-            onChange={this.handleChange} /> Group {preset}
-        </label>
-      );
     }
+
+    return (
+      <label>
+        <input type="checkbox" name={name} checked={prop.group}
+          onChange={this.handleChange} /> Group {preset}
+      </label>
+    );
   }
 });
 

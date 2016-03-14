@@ -51,19 +51,18 @@ function rules(prototype) {
 function channel(name) {
   if (vl.channel.CHANNELS.indexOf(name) >= 0) {
     return name;
-  } else {
-    switch (name) {
-      case 'x+':
-      case 'x2':
-      case 'width':
-        return 'x';
-      case 'y+':
-      case 'y2':
-      case 'height':
-        return 'y';
-      case 'fill':
-        return 'color';
-    }
+  }
+  switch (name) {
+    case 'x+':
+    case 'x2':
+    case 'width':
+      return 'x';
+    case 'y+':
+    case 'y2':
+    case 'height':
+      return 'y';
+    case 'fill':
+      return 'color';
   }
 }
 

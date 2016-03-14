@@ -57,7 +57,7 @@ inherits(Mark, Primitive);
  * properties with literal values to Lyra-specific signals. Each mark subclass
  * will register the necessary streams to change the signal values
  * (e.g., `initHandlers`).
- * @return {Object} The Mark.
+ * @returns {Object} The Mark.
  */
 Mark.prototype.init = function() {
   var props = this.properties,
@@ -82,7 +82,7 @@ Mark.prototype.init = function() {
  * @todo  Rename to `from`? A mark can be backed by another mark when connected.
  * @param  {number} [id] - The ID of a Dataset or Pipeline Primitive. If
  * Pipeline, then the source Dataset is used.
- * @return {Object} If no ID is specified, the backing Dataset primitive if any.
+ * @returns {Object} If no ID is specified, the backing Dataset primitive if any.
  * If an ID is specified, the Mark is returned.
  */
 Mark.prototype.dataset = function(id) {
@@ -97,17 +97,17 @@ Mark.prototype.dataset = function(id) {
     // TODO
     this.from = from._source._id;
     return this;
-  } else {
-    this.from = undefined;
-    return this;
   }
+
+  this.from = undefined;
+  return this;
 };
 
 /**
  * Initializes the interaction logic for the mark's handle manipulators. This
  * involves setting {@link https://github.com/vega/vega/wiki/Signals|the streams}
  * of the mark's property signals.
- * @return {Object} The Mark.
+ * @returns {Object} The Mark.
  */
 Mark.prototype.initHandles = function() {};
 

@@ -75,8 +75,8 @@ signals[MOUSE] = {
 signals[CURSOR] = {
   name: CURSOR,
   streams: [
-    {'type': 'mousedown', 'expr': "eventItem() && eventItem().cursor || 'default'"},
-    {'type': 'mouseup', 'expr': "'default'"}
+    {type: 'mousedown', expr: "eventItem() && eventItem().cursor || 'default'"},
+    {type: 'mouseup', expr: "'default'"}
   ]
 };
 
@@ -86,8 +86,8 @@ module.exports = {
   SELECTED: SELECTED,
   MODE: MODE,
   ANCHOR: ANCHOR,
-  DELTA:  DELTA,
+  DELTA: DELTA,
   CURSOR: CURSOR,
-  CELL:  CELL,
+  CELL: CELL,
   MOUSE: MOUSE
 };

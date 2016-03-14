@@ -3,6 +3,14 @@ var dl = require('datalib'),
     ns = require('../../util/ns'),
     signals, defaults;
 
+var api = module.exports = function() {
+  return signals;
+};
+
+function ref(name) {
+  return {signal: ns(name)};
+}
+
 function init(name, val) {
   signals[name = ns(name)] = {
     name: name,
@@ -10,10 +18,6 @@ function init(name, val) {
     _idx: dl.keys(signals).length
   };
   return ref(name);
-}
-
-function ref(name) {
-  return {signal: ns(name)};
 }
 
 function value(name, val) {
@@ -61,9 +65,6 @@ function streams(name, def) {
   return (sg.streams = def, api);
 }
 
-var api = module.exports = function() {
-  return signals;
-};
 api.init = init;
 api.ref = ref;
 api.value = value;

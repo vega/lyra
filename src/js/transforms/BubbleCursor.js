@@ -46,7 +46,7 @@ inherits(BubbleCursor, Transform);
  * The transform method is automatically called by Vega whenever the bubble
  * cursor region needs to be recalculated (e.g., when the user moves the mouse).
  * @param {Object} input - A Vega-Dataflow ChangeSet.
- * @return {Object} output - A Vega-Dataflow ChangeSet.
+ * @returns {Object} output - A Vega-Dataflow ChangeSet.
  */
 BubbleCursor.prototype.transform = function(input) {
   var g = this._graph,

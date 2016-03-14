@@ -44,7 +44,7 @@ inherits(Field, Primitive);
 /**
  * Gets/sets the Field's statistical profile. If one does not exist, calls
  * its {@link Dataset#summary|Dataset's profiler} first.
- * @return {Object} The Field's summary profile.
+ * @returns {Object} The Field's summary profile.
  */
 Field.prototype.profile = function(p) {
   if (p !== undefined) {
