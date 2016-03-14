@@ -1,3 +1,6 @@
+/* eslint-env node */
+/* eslint quote-props:0 */
+'use strict';
 var argv = require('yargs').argv;
 var path = require('path');
 
@@ -28,8 +31,8 @@ module.exports = function(config) {
     },
 
     webpack: {
-       devtool: 'inline-source-map',
-       resolve: {
+      devtool: 'inline-source-map',
+      resolve: {
         // allow us to avoid including extension name
         extensions: ['', '.js', '.jsx'],
 
@@ -111,7 +114,7 @@ module.exports = function(config) {
       // JSX parsing; but including it somehow fixes the coverage report bar
       // graph width rendering bug, so why not.
       instrumenters: {
-        'istanbul-react' : require('istanbul-react')
+        'istanbul-react': require('istanbul-react')
       },
       instrumenter: {
         '**/*.jsx': 'istanbul-react'
