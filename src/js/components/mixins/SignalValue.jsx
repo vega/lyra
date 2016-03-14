@@ -64,8 +64,7 @@ module.exports = {
 
     if (signal) {
       model.signal(signal, value).update();
-    }
-    else {
+    } else {
       this._set(props.obj, value);
       this.setState({value: value});
     }

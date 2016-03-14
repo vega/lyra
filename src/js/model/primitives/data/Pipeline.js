@@ -37,7 +37,9 @@ Pipeline.prototype.parent = null;
  */
 Pipeline.prototype.export = function(clean) {
   return [this._source.export(clean)]
-    .concat(this._aggregates.map(function(a) { return a.export(clean); }));
+    .concat(this._aggregates.map(function(a) {
+      return a.export(clean);
+    }));
 };
 
 module.exports = Pipeline;

@@ -34,16 +34,13 @@ Dataset.prototype.init = function(opt) {
   return new Promise(function(resolve, reject) {
     if (dl.isString(opt)) {
       resolve((self.source = opt, self));
-    }
-    else if (dl.isArray(opt)) {
+    } else if (dl.isArray(opt)) {
       resolve((self._values = opt, self));
-    }
-    else {  // opt is an object
+    } else {  // opt is an object
       self.format = opt.format;
       if (opt.values) {
         resolve((self._values = dl.read(opt.values, self.format), self));
-      }
-      else if (opt.url) {
+      } else if (opt.url) {
         resolve(promisify(dl.load)({url: (self.url = opt.url)})
           .then(function(data) {
             self._vals = dl.read(data, self.format);
@@ -51,7 +48,9 @@ Dataset.prototype.init = function(opt) {
           }));
       }
     }
-  }).then(function(self) { return self.schema(); });
+  }).then(function(self) {
+    return self.schema();
+  });
 };
 
 /**
@@ -103,16 +102,19 @@ Dataset.prototype.schema = function() {
 Dataset.prototype.summary = function() {
   var s = this.schema();
   return dl.summary(this.output())
-    .filter(function(p) { return p.field !== '_id'; })
-    .map(function(p) { return (s[p.field].profile(p), p); });
+    .filter(function(p) {
+      return p.field !== '_id';
+    })
+    .map(function(p) {
+      return (s[p.field].profile(p), p);
+    });
 };
 
 Dataset.prototype.export = function(resolve) {
   var spec = Primitive.prototype.export.call(this, resolve);
   if (this._values) {
     spec.values = this._values;
-  }
-  else if (this._vals && !resolve) {
+  } else if (this._vals && !resolve) {
     spec.values = this._vals;
     delete spec.url;
   }

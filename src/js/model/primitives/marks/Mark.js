@@ -90,17 +90,14 @@ Mark.prototype.dataset = function(id) {
   if (!arguments.length) {
     from = lookup(this.from);
     return from && lookup(from.parent()._id);
-  }
-  else if ((from = lookup(id)) instanceof Dataset) {
+  } else if ((from = lookup(id)) instanceof Dataset) {
     this.from = id;
     return this;
-  }
-  else if (from instanceof Pipeline) {
+  } else if (from instanceof Pipeline) {
     // TODO
     this.from = from._source._id;
     return this;
-  }
-  else {
+  } else {
     this.from = undefined;
     return this;
   }
@@ -133,7 +130,7 @@ Mark.prototype.export = function(clean) {
       update[k] = {value: v};
     }
 
-    if (v.scale){
+    if (v.scale) {
       v.scale = (s = lookup(v.scale)) && s.name;
     }
     if (v.field) {

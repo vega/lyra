@@ -17,8 +17,7 @@ module.exports = function(parsed, property, channel) {
 
   if (this.type === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial.call(this, map, property, channel, props, dprops, from);
-  }
-  else {
+  } else {
     bindProperty.call(this, map, property, props, dprops, from);
   }
 };
@@ -33,8 +32,7 @@ function bindProperty(map, property, props, def, from) {
   if (d.field !== undefined) {
     if (d.field.group) {
       p.group = d.field.group;
-    }
-    else {
+    } else {
       p.field = from.schema()[d.field]._id;
     }
   }
@@ -71,8 +69,7 @@ function rectSpatial(map, property, channel, props, def, from) {
     bindProperty.call(this, map, channel, props, def, from);
     bindProperty.call(this, map, bind, props, def, from);
     props[span]._disabled = true;
-  }
-  else {
+  } else {
     def[channel] = def[cntr]; // Map xc/yc => x/y for binding.
     bindProperty.call(this, map, channel, props, def, from);
 

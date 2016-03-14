@@ -11,7 +11,9 @@ module.exports = function(parsed) {
   var map = this._rule._map.scales,
       channels = dl.keys(parsed.rule.encoding),
       scales = parsed.spec.marks[0].scales,
-      find = function(x) { return x.name === name; },
+      find = function(x) {
+        return x.name === name;
+      },
       i = 0, len = channels.length,
       name, def, curr;
 
@@ -48,8 +50,7 @@ function parse(def) {
   // TODO: Use bandSize initially?
   if (def.name === 'x' || range === rules.CELLW || dl.equal(range, REF_CELLW)) {
     def.range = 'width';
-  }
-  else if (def.name === 'y' || range === rules.CELLH || dl.equal(range, REF_CELLH)) {
+  } else if (def.name === 'y' || range === rules.CELLH || dl.equal(range, REF_CELLH)) {
     def.range = 'height';
   }
 

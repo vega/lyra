@@ -43,11 +43,9 @@ var ExtentProperty = React.createClass({
       var name = x.name, prop = update[name];
       if (prop._disabled) {
         return;
-      }
-      else if (!start) {
+      } else if (!start) {
         start = name;
-      }
-      else if (start !== name) {
+      } else if (start !== name) {
         end = name;
       }
     });
@@ -103,7 +101,10 @@ var ExtentProperty = React.createClass({
 
           <div className="label">
             <select name="start" value={start} onChange={this.handleChange}>
-              {opts.filter(function(x) { return x.name !== end; })
+              {opts
+                .filter(function(x) {
+                  return x.name !== end;
+                })
                 .map(function(x) {
                   return (<option key={x.name} value={x.name}>{x.label}</option>);
                 })}
@@ -123,7 +124,9 @@ var ExtentProperty = React.createClass({
               (
                 <select name="end" value={end} onChange={this.handleChange}>
                   {opts
-                    .filter(function(x) { return x.name !== start && x.name !== center; })
+                    .filter(function(x) {
+                      return x.name !== start && x.name !== center;
+                    })
                     .map(function(x) {
                       return (<option key={x.name} value={x.name}>{x.label}</option>);
                     })}
