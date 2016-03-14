@@ -5,10 +5,6 @@ require('array.prototype.find');
 require('string.prototype.startswith');
 require('./transforms');
 
-String.prototype.capitalize = function() {
-  return this.charAt(0).toUpperCase() + this.slice(1);
-};
-
 // Initialize the Model.
 model = require('./model');
 model.init();
