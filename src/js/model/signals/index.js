@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     ns = require('../../util/ns'),
     signals, defaults;

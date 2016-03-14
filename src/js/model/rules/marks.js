@@ -1,3 +1,4 @@
+'use strict';
 var model = require('../'),
     propSg = require('../../util/prop-signal'),
     lookup = model.primitive;

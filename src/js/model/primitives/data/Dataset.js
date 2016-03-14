@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
     promisify = require('es6-promisify'),

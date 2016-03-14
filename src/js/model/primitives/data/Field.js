@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     vl = require('vega-lite'),
     inherits = require('inherits'),
