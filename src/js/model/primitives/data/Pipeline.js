@@ -1,3 +1,4 @@
+'use strict';
 var inherits = require('inherits'),
     Primitive = require('../Primitive'),
     Dataset = require('./Dataset');
@@ -32,11 +33,13 @@ Pipeline.prototype.parent = null;
  * Exports each of the constituent {@link Dataset|Datasets}.
  * @param  {boolean} [clean=true] - Should Lyra-specific properties be removed
  * or resolved (e.g., converting property signal references to actual values).
- * @return {Object[]} An array of Vega data source specifications.
+ * @returns {Object[]} An array of Vega data source specifications.
  */
 Pipeline.prototype.export = function(clean) {
   return [this._source.export(clean)]
-    .concat(this._aggregates.map(function(a) { return a.export(clean); }));
+    .concat(this._aggregates.map(function(a) {
+      return a.export(clean);
+    }));
 };
 
 module.exports = Pipeline;

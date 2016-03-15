@@ -1,3 +1,4 @@
+'use strict';
 var inherits = require('inherits'),
     Primitive = require('./Primitive'),
     model = require('../'),
@@ -41,8 +42,7 @@ function Guide(gtype, type, scale) {
       labels: {},
       axis: {}
     };
-  }
-  else if (gtype === GTYPES.LEGEND) {
+  } else if (gtype === GTYPES.LEGEND) {
     this._type = type;
     this[type] = +scale || scale._id;
     this.properties = {
@@ -72,8 +72,7 @@ Guide.prototype.export = Guide.prototype.manipulators = function(clean) {
 
   if (gtype === GTYPES.AXIS) {
     spec.scale = lookup(spec.scale).name;
-  }
-  else if (gtype === GTYPES.LEGEND) {
+  } else if (gtype === GTYPES.LEGEND) {
     spec[type] = lookup(spec[type]).name;
   }
 

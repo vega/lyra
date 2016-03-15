@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
     sg = require('../../../model/signals'),
@@ -27,7 +28,7 @@ function Rect() {
     y2: {value: 60},
     xc: {value: 60, _disabled: true},
     yc: {value: 60, _disabled: true},
-    width:  {value: 30, _disabled: true},
+    width: {value: 30, _disabled: true},
     height: {value: 30, _disabled: true}
   });
 

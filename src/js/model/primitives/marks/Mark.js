@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
     sg = require('../../signals'),
@@ -56,7 +57,7 @@ inherits(Mark, Primitive);
  * properties with literal values to Lyra-specific signals. Each mark subclass
  * will register the necessary streams to change the signal values
  * (e.g., `initHandlers`).
- * @return {Object} The Mark.
+ * @returns {Object} The Mark.
  */
 Mark.prototype.init = function() {
   var props = this.properties,
@@ -81,7 +82,7 @@ Mark.prototype.init = function() {
  * @todo  Rename to `from`? A mark can be backed by another mark when connected.
  * @param  {number} [id] - The ID of a Dataset or Pipeline Primitive. If
  * Pipeline, then the source Dataset is used.
- * @return {Object} If no ID is specified, the backing Dataset primitive if any.
+ * @returns {Object} If no ID is specified, the backing Dataset primitive if any.
  * If an ID is specified, the Mark is returned.
  */
 Mark.prototype.dataset = function(id) {
@@ -89,27 +90,24 @@ Mark.prototype.dataset = function(id) {
   if (!arguments.length) {
     from = lookup(this.from);
     return from && lookup(from.parent()._id);
-  }
-  else if ((from = lookup(id)) instanceof Dataset) {
+  } else if ((from = lookup(id)) instanceof Dataset) {
     this.from = id;
     return this;
-  }
-  else if (from instanceof Pipeline) {
+  } else if (from instanceof Pipeline) {
     // TODO
     this.from = from._source._id;
     return this;
   }
-  else {
-    this.from = undefined;
-    return this;
-  }
+
+  this.from = undefined;
+  return this;
 };
 
 /**
  * Initializes the interaction logic for the mark's handle manipulators. This
  * involves setting {@link https://github.com/vega/vega/wiki/Signals|the streams}
  * of the mark's property signals.
- * @return {Object} The Mark.
+ * @returns {Object} The Mark.
  */
 Mark.prototype.initHandles = function() {};
 
@@ -132,7 +130,7 @@ Mark.prototype.export = function(clean) {
       update[k] = {value: v};
     }
 
-    if (v.scale){
+    if (v.scale) {
       v.scale = (s = lookup(v.scale)) && s.name;
     }
     if (v.field) {

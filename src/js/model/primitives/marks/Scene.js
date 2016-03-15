@@ -1,3 +1,4 @@
+'use strict';
 var inherits = require('inherits'),
     sg = require('../../signals'),
     Group = require('./Group');

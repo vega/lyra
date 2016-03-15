@@ -97,16 +97,14 @@ var DataTable = React.createClass({
         prim = model.primitive(sel.mark.def.lyra_id);
         prim.bind(cell.key, fullField._id);
       }
-    }
-    catch (e) {}
+    } catch (e) {}
 
     model.signal(sg.MODE, 'handles')
       .signal(sg.CELL, {});
 
     if (dropped) {
       this.parse(prim);
-    }
-    else {
+    } else {
       model.update();
     }
   },

@@ -1,6 +1,15 @@
+'use strict';
 var dl = require('datalib'),
     ns = require('../../util/ns'),
     signals, defaults;
+
+var api = module.exports = function() {
+  return signals;
+};
+
+function ref(name) {
+  return {signal: ns(name)};
+}
 
 function init(name, val) {
   signals[name = ns(name)] = {
@@ -9,10 +18,6 @@ function init(name, val) {
     _idx: dl.keys(signals).length
   };
   return ref(name);
-}
-
-function ref(name) {
-  return {signal: ns(name)};
 }
 
 function value(name, val) {
@@ -26,8 +31,7 @@ function value(name, val) {
   try {
     val = view.signal.apply(view, arguments);
     return set ? api : val;
-  }
-  catch (e) {
+  } catch (e) {
     return set ? (sg.init = val, api) : sg.init;
   }
 }
@@ -45,8 +49,9 @@ function stash() {
     if (defaults.names.indexOf(k) >= 0) {
       continue;
     }
-    try { signals[k].init = view.signal(k); }
-    catch (e) {}
+    try {
+      signals[k].init = view.signal(k);
+    } catch (e) {}
   }
 
   return signals;
@@ -60,7 +65,6 @@ function streams(name, def) {
   return (sg.streams = def, api);
 }
 
-var api = module.exports = function() { return signals; };
 api.init = init;
 api.ref = ref;
 api.value = value;

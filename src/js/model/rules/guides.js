@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     Guide = require('../primitives/Guide'),
     model = require('../'),

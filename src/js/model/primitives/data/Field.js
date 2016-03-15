@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     vl = require('vega-lite'),
     inherits = require('inherits'),
@@ -43,18 +44,16 @@ inherits(Field, Primitive);
 /**
  * Gets/sets the Field's statistical profile. If one does not exist, calls
  * its {@link Dataset#summary|Dataset's profiler} first.
- * @return {Object} The Field's summary profile.
+ * @returns {Object} The Field's summary profile.
  */
 Field.prototype.profile = function(p) {
   if (p !== undefined) {
     return (this._profile = p, this);
-  }
-  else if (this._profile) {
+  } else if (this._profile) {
     return this._profile;
   }
-  else {
-    return (this.parent().summary(), this._profile);
-  }
+
+  return (this.parent().summary(), this._profile);
 };
 
 module.exports = Field;

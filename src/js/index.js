@@ -1,4 +1,5 @@
-/* eslint strict: 0, no-undef: 0, no-unused-expressions: 0 */
+/* eslint no-unused-expressions: 0 */
+'use strict';
 
 // Additional requires to polyfill + browserify package.
 require('array.prototype.find');
@@ -6,11 +7,11 @@ require('string.prototype.startswith');
 require('./transforms');
 
 // Initialize the Model.
-model = require('./model');
+var model = require('./model');
 model.init();
 
 // Initialize components
-Sidebars = require('./components');
+var Sidebars = require('./components');
 
 var g = model.Scene.child('marks.group'),
     p = model.pipeline('cars'),
@@ -33,3 +34,7 @@ Promise.all([
 }).then(function() {
   Sidebars.forceUpdate();
 });
+
+// Expose model and Sidebars globally (via `window`)
+global.model = model;
+global.Sidebars = Sidebars;

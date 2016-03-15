@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
     vl = require('vega-lite'),
@@ -51,19 +52,17 @@ function channel(name) {
   if (vl.channel.CHANNELS.indexOf(name) >= 0) {
     return name;
   }
-  else {
-    switch (name) {
-      case 'x+':
-      case 'x2':
-      case 'width':
-        return 'x';
-      case 'y+':
-      case 'y2':
-      case 'height':
-        return 'y';
-      case 'fill':
-        return 'color';
-    }
+  switch (name) {
+    case 'x+':
+    case 'x2':
+    case 'width':
+      return 'x';
+    case 'y+':
+    case 'y2':
+    case 'height':
+      return 'y';
+    case 'fill':
+      return 'color';
   }
 }
 
@@ -81,8 +80,7 @@ function fieldRef(field) {
   if (agg) {
     res = re.agg.exec(name);
     ref.aggregate = res[1];
-  }
-  else if (bin) {
+  } else if (bin) {
     res = re.bin.exec(name);
     ref.bin = true;
   }

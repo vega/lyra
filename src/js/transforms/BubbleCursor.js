@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
     vg = require('vega'),
@@ -45,7 +46,7 @@ inherits(BubbleCursor, Transform);
  * The transform method is automatically called by Vega whenever the bubble
  * cursor region needs to be recalculated (e.g., when the user moves the mouse).
  * @param {Object} input - A Vega-Dataflow ChangeSet.
- * @return {Object} output - A Vega-Dataflow ChangeSet.
+ * @returns {Object} output - A Vega-Dataflow ChangeSet.
  */
 BubbleCursor.prototype.transform = function(input) {
   var g = this._graph,
@@ -76,8 +77,7 @@ BubbleCursor.prototype.transform = function(input) {
   if (cache.length && (mouseCache.x !== mouse.x || mouseCache.y !== mouse.y)) {
     output.mod.push(dl.extend(start, mouse));
     output.mod.push(dl.extend(end, mouse));
-  }
-  else if (!cache.length) {
+  } else if (!cache.length) {
     cache.push(dl.extend(start, mouse));
 
     for (; item; item = item.mark && item.mark.group) {
@@ -93,8 +93,7 @@ BubbleCursor.prototype.transform = function(input) {
         d.y += offset.y;
         return d;
       }));
-    }
-    else {
+    } else {
       cache.push.apply(cache, cousins.reduce(function(acc, i) {
         var b = i.bounds || i.mark.bounds;
         return acc.concat([

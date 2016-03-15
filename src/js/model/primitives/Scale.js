@@ -1,3 +1,4 @@
+'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
     Primitive = require('./Primitive'),
@@ -59,7 +60,9 @@ function rename(name) {
 //   {"data": ..., "field": ...} for a single field
 //   {"data": ..., "field": [...]} for multiple fields from the same dataset.
 //   {"fields": [...]} for multiple fields from distinct datasets.
-function fmap(f) { return f._name; }
+function fmap(f) {
+  return f._name;
+}
 
 function dataRef(ref) {
   var sets = {},
@@ -68,8 +71,7 @@ function dataRef(ref) {
   if (ref.length === 1 && (ref = ref[0])) {
     field = lookup(ref);
     return {data: field.parent().name, field: field._name};
-  }
-  else {
+  } else {
     for (i = 0, len = ref.length; i < len; ++i) {
       field = lookup(ref[i]);
       data = field.parent();
@@ -83,8 +85,7 @@ function dataRef(ref) {
         data: data.name,
         field: sets[data._id].map(fmap)
       };
-    }
-    else {
+    } else {
       ref = {fields: []};
       for (i = 0, len = keys.length; i < len; ++i) {
         data = lookup(keys[i]);
