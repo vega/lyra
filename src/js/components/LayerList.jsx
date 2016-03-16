@@ -1,12 +1,29 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
     ContentEditable = require('./ContentEditable'),
     model = require('../model'),
     lookup = model.lookup;
+var selectMark = require('../actions/select-mark');
 
 var MARGIN_LEFT = 10;
 
-var Group = React.createClass({
+
+function mapStateToProps() {
+  return {};
+}
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    select: function(id) {
+      dispatch(selectMark(id));
+    }
+  }
+}
+
+var Group = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(React.createClass({
   select: function(id, evt) {
     this.props.select(id);
   },
@@ -38,8 +55,7 @@ var Group = React.createClass({
           <li className="header">Marks <i className="fa fa-plus"></i></li>
           {group.marks.map(function(id) {
             var mark = lookup(id),
-                type = mark.type,
-                select = this.select.bind(this, id);
+                type = mark.type;
 
             return type === 'group' ? (
               <Group key={id} {...props} id={id} level={level + 1} />
@@ -47,11 +63,11 @@ var Group = React.createClass({
               <li key={id}>
                 <div style={childStyle}
                   className={'name' + (selected === id ? ' selected' : '')}
-                  onClick={select}>
+                  onClick={this.props.select(id)}>
 
                   <ContentEditable obj={mark} prop="name"
                     value={mark.name}
-                    onClick={select} />
+                    onClick={this.props.select(id)} />
                 </div>
               </li>
             );
@@ -63,24 +79,22 @@ var Group = React.createClass({
       (<i className="fa fa-caret-down" onClick={this.toggle}></i>) :
       (<i className="fa fa-caret-right" onClick={this.toggle}></i>);
 
-    var select = this.select.bind(this, group_id);
-
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
         <div style={style}
           className={'name' + (selected === group_id ? ' selected' : '')}
-          onClick={select}>
+          onClick={this.props.select(group_id)}>
             {spinner}
 
             <ContentEditable obj={group} prop="name"
               value={group.name}
-              onClick={select} />
+              onClick={this.props.select(group_id)} />
         </div>
         {contents}
       </li>
     );
   }
-});
+}));
 
 var LayerList = React.createClass({
   render: function() {

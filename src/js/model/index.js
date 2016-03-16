@@ -4,7 +4,9 @@ var dl = require('datalib'),
     vg = require('vega'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
-    ns = require('../util/ns');
+    ns = require('../util/ns'),
+    store = require('../store/configured-store'),
+    selectMark = require('../actions/select-mark');
 
 /** @namespace */
 var model = module.exports = {
@@ -93,7 +95,8 @@ function register() {
     var def = selected.mark.def,
         id = def && def.lyra_id;
     if (id) {
-      components.select(id, false);
+      // components.select(id, false);
+      store.dispatch(selectMark(id));
     }
   });
 

@@ -1,7 +1,7 @@
 'use strict';
 var combineReducers = require('redux-immutable').combineReducers;
-var example = require('./example');
+var selectedMark = require('./selectedMark');
 
 module.exports = combineReducers({
-  example: example
+  selectedMark: require('./selectedMark')
 });

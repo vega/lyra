@@ -14,14 +14,16 @@ model.init();
 var Sidebars = require('./components');
 
 var g = model.Scene.child('marks.group'),
+    g2 = g.child('marks.group'),
+    g3 = g2.child('marks.group'),
     p = model.pipeline('cars'),
     p2 = model.pipeline('jobs'),
     p3 = model.pipeline('gapminder');
 
 // Pre-populate state with one rect, one symbol, one text & one line mark
-g.child('marks.rect');
+g3.child('marks.rect');
 g.child('marks.symbol');
-g.child('marks.line');
+g2.child('marks.line');
 g.child('marks.text');
 g.child('marks.area');
 
