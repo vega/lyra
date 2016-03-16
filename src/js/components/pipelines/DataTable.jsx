@@ -5,6 +5,7 @@ var d3 = require('d3'),
     ReactDOM = require('react-dom'),
     Parse = require('../mixins/Parse'),
     model = require('../../model'),
+    lookup = model.lookup,
     sg = require('../../model/signals');
 
 var DataTable = React.createClass({
@@ -94,7 +95,7 @@ var DataTable = React.createClass({
 
     try {
       if (dropped) {
-        prim = model.primitive(sel.mark.def.lyra_id);
+        prim = lookup(sel.mark.def.lyra_id);
         prim.bind(cell.key, fullField._id);
       }
     } catch (e) {}

@@ -3,7 +3,7 @@ var React = require('react'),
     Parse = require('../mixins/Parse'),
     propSg = require('../../util/prop-signal'),
     model = require('../../model'),
-    lookup = model.primitive;
+    lookup = model.lookup;
 
 var SpatialPreset = React.createClass({
   mixins: [Parse],

@@ -3,7 +3,7 @@
 var dl = require('datalib'),
     inherits = require('inherits'),
     model = require('../../'),
-    lookup = model.primitive,
+    lookup = model.lookup,
     Mark = require('./Mark'),
     ns = require('../../../util/ns');
 

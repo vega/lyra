@@ -2,7 +2,7 @@
 var inherits = require('inherits'),
     Primitive = require('./Primitive'),
     model = require('../'),
-    lookup = model.primitive;
+    lookup = model.lookup;
 
 
 var GTYPES = {AXIS: 1, LEGEND: 2},

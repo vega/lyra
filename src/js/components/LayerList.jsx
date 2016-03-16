@@ -2,7 +2,7 @@
 var React = require('react'),
     ContentEditable = require('./ContentEditable'),
     model = require('../model'),
-    lookup = model.primitive;
+    lookup = model.lookup;
 
 var MARGIN_LEFT = 10;
 

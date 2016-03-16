@@ -4,7 +4,7 @@
 var dl = require('datalib'),
     sg = require('../signals'),
     model = require('../'),
-    lookup = model.primitive,
+    lookup = model.lookup,
     id = 0;
 
 /**

@@ -9,7 +9,7 @@ var dl = require('datalib'),
     rules = require('../../rules'),
     propSg = require('../../../util/prop-signal'),
     model = require('../../'),
-    lookup = model.primitive,
+    lookup = model.lookup,
     count = {group: -1};
 
 /**

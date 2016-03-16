@@ -6,7 +6,7 @@ var React = require('react'),
     Inspector = require('./Inspector'),
     model = require('../model'),
     sg = require('../model/signals'),
-    lookup = model.primitive;
+    lookup = model.lookup;
 
 var Sidebars = React.createClass({
   getInitialState: function() {

@@ -2,7 +2,7 @@ var dl = require('datalib'),
     Scale = require('../primitives/Scale'),
     rules = require('./'),
     model = require('../'),
-    lookup = model.primitive;
+    lookup = model.lookup;
 
 var REF_CELLW = {'data': 'layout', 'field': 'cellWidth'},
     REF_CELLH = {'data': 'layout', 'field': 'cellHeight'};
