@@ -1,4 +1,8 @@
+// THIS IS AN EXAMPLE
+// NOT USED FOR REAL IN THE APPLICATION
+
 'use strict';
+var assign = require('object-assign');
 
 var types = {
   ADD_TODO: 'ADD_TODO',
@@ -10,55 +14,45 @@ var types = {
 };
 
 function todos(state, action) {
-  if (!state){
-    state = {};
-  }
+  state = state || initialState
   switch (action.type) {
-    case types.ADD_TODO:
-      return [
-        {
-          id: state.reduce(function (maxId, todo) { Math.max(todo.id, maxId), -1}) + 1,
-          completed: false,
-          text: action.text
-        },
-        ...state
-      ]
+  case types.ADD_TODO:
+    return [{
+      id: (state.length === 0) ? 0 : state[0].id + 1,
+      marked: false,
+      text: action.text
+    }].concat(state);
 
-    case types.DELETE_TODO:
-      return state.filter(function(todo) {
-        todo.id !== action.id
-      })
+  case types.DELETE_TODO:
+    return state.filter(function(todo) {
+      return todo.id !== action.id
+    });
 
-    case types.EDIT_TODO:
-      return state.map(function(todo) {
-        todo.id === action.id ?
-          Object.assign({}, todo, { text: action.text }) :
-          todo
-      })
+  case types.EDIT_TODO:
+    return state.map(function(todo) {
+      return todo.id === action.id ?
+        assign({}, todo, { text: action.text }) :
+        todo
+    });
 
-    case types.COMPLETE_TODO:
-      return state.map(function(todo) {
-        todo.id === action.id ?
-          Object.assign({}, todo, { completed: !todo.completed }) :
-          todo
-      })
+  case types.MARK_TODO:
+    return state.map(function(todo) {
+      return todo.id === action.id ?
+        assign({}, todo, { marked: !todo.marked }) :
+        todo
+    });
 
-    case types.COMPLETE_ALL:
-      var areAllMarked = state.every(function(todo) {
-        todo.completed
-      });
+  case types.MARK_ALL:
+    var areAllMarked = state.every(function(todo) { return todo.marked });
+    return state.map(function(todo) {
+      return assign({}, todo, { marked: !areAllMarked })
+    });
 
-      return state.map(function(todo) {
-        Object.assign({}, todo, {
-          completed: !areAllMarked
-        })
-      })
+  case types.CLEAR_MARKED:
+    return state.filter(function(todo) { return todo.marked === false });
 
-    case types.CLEAR_COMPLETED:
-      return state.filter(function(todo) {todo.completed === false})
-
-    default:
-      return state
+  default:
+    return state;
   }
 }
 
