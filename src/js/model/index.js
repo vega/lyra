@@ -27,20 +27,30 @@ model.init = function() {
 };
 
 /**
- * @description A getter and setter for primitives based on IDs. To prevent memory leaks,
+ * @description A setter for primitives based on IDs. To prevent memory leaks,
  * primitives do not directly store references to other primitives. Instead,
- * they store IDs and use this method as a lookup. When a new primitive is
+ * they store IDs and use model.lookup as a lookup. When a new primitive is
  * created, it calls this function to store itself in the model.
- * @param  {number} id - The numeric ID of a specific primitives.
- * @param  {Object} [primitive] - If specified, stores this primitive with
- * the given ID in the Lyra model.
+ *
+ * @param {number} id - The numeric ID of the primitive to set.
+ * @param {Object} primitive - Store the provided primitive in the lyra model,
+ * keyed by the given ID.
  * @returns {Object} The Lyra model.
  */
-var lookup = model.primitive = function(id, primitive) {
-  if (arguments.length === 1) {
-    return primitives[id];
-  }
-  return (primitives[id] = primitive, model);
+model.primitive = function(id, primitive) {
+  primitives[id] = primitive;
+  return model;
+};
+
+/**
+ * @description A getter for primitives based on IDs. Primitives store their IDs
+ * in the model and use this method as a lookup.
+ *
+ * @param {number} id - The numeric ID of a specific primitive to look up.
+ * @returns {Object} The Lyra model.
+ */
+var lookup = model.lookup = function(id) {
+  return primitives[id];
 };
 
 function getset(cache, id, Type) {

@@ -4,7 +4,7 @@
 var React = require('react'),
     Mark = require('../model/primitives/marks/Mark'),
     model = require('../model'),
-    lookup = model.primitive,
+    lookup = model.lookup,
     From = require('./inspectors/From');
 
 var Inspector = React.createClass({

@@ -2,7 +2,7 @@
 var dl = require('datalib'),
     Guide = require('../primitives/Guide'),
     model = require('../'),
-    lookup = model.primitive;
+    lookup = model.lookup;
 
 var TYPES = Guide.TYPES,
     CTYPE = {

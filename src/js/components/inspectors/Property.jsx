@@ -4,7 +4,7 @@ var React = require('react'),
     SignalValue = require('../mixins/SignalValue'),
     ContentEditable = require('../ContentEditable'),
     model = require('../../model'),
-    lookup = model.primitive;
+    lookup = model.lookup;
 
 var Property = React.createClass({
   mixins: [SignalValue, Parse],

@@ -5,7 +5,7 @@ var dl = require('datalib'),
     Scale = require('../primitives/Scale'),
     propSg = require('../../util/prop-signal'),
     model = require('../'),
-    lookup = model.primitive,
+    lookup = model.lookup,
     AGG_OPS = vg.transforms.aggregate.VALID_OPS;
 
 function rules(prototype) {

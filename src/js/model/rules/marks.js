@@ -1,7 +1,7 @@
 'use strict';
 var model = require('../'),
     propSg = require('../../util/prop-signal'),
-    lookup = model.primitive;
+    lookup = model.lookup;
 
 function bindProperty(map, property, props, def, from) {
   var d = def[property],
