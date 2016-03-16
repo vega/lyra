@@ -5,7 +5,7 @@ var ReactDOM = require('react-dom'),
     Provider = require('react-redux').Provider,
     configureStore = require('../store/configureStore');
 
-var store = configureStore();
+var store = configureStore;
 
 module.exports = ReactDOM.render(
   <Provider store={store}>

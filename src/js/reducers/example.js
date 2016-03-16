@@ -1,58 +1,31 @@
 // THIS IS AN EXAMPLE
 // NOT USED FOR REAL IN THE APPLICATION
-
+/* eslint new-cap:0 */
 'use strict';
-var assign = require('object-assign');
+var types = require('../constants/sampleTypes');
+var Immutable = require('immutable');
 
-var types = {
-  ADD_TODO: 'ADD_TODO',
-  DELETE_TODO: 'DELETE_TODO',
-  EDIT_TODO: 'EDIT_TODO',
-  COMPLETE_TODO: 'COMPLETE_TODO',
-  COMPLETE_ALL: 'COMPLETE_ALL',
-  CLEAR_COMPLETED: 'CLEAR_COMPLETED'
-};
+var initialState = Immutable.List([
+    {
+      text: 'Use Redux',
+      completed: false,
+      id: 0
+    }
+]);
 
 function todos(state, action) {
-  state = state || initialState
+  state = state || initialState;
   switch (action.type) {
-  case types.ADD_TODO:
-    return [{
-      id: (state.length === 0) ? 0 : state[0].id + 1,
-      marked: false,
-      text: action.text
-    }].concat(state);
-
-  case types.DELETE_TODO:
-    return state.filter(function(todo) {
-      return todo.id !== action.id
-    });
-
-  case types.EDIT_TODO:
-    return state.map(function(todo) {
-      return todo.id === action.id ?
-        assign({}, todo, { text: action.text }) :
-        todo
-    });
-
-  case types.MARK_TODO:
-    return state.map(function(todo) {
-      return todo.id === action.id ?
-        assign({}, todo, { marked: !todo.marked }) :
-        todo
-    });
-
-  case types.MARK_ALL:
-    var areAllMarked = state.every(function(todo) { return todo.marked });
-    return state.map(function(todo) {
-      return assign({}, todo, { marked: !areAllMarked })
-    });
-
-  case types.CLEAR_MARKED:
-    return state.filter(function(todo) { return todo.marked === false });
-
-  default:
-    return state;
+    case types.ADD_TODO:
+      var item = Immutable.List[{
+        id: (state.length === 0) ? 0 : state[0].id + 1,
+        marked: false,
+        text: action.text
+      }];
+      // this will return an immutable
+      return state.merge(item);
+    default:
+      return state;
   }
 }
 

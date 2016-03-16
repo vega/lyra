@@ -1,9 +1,11 @@
-var createStore  = require('redux').createStore;
+/* eslint new-cap:0 */
+'use strict';
+var createStore = require('redux').createStore;
+var Immutable = require('immutable');
+
+// reducer/index.js returns combinedReducers();
 var rootReducer = require('../reducers');
 
-var configureStore = function(initialState) {
-  var store = createStore(rootReducer, initialState);
-  return store;
-}
-
-module.exports = configureStore;
+// Create immutable state
+var initialState = Immutable.Map();
+module.exports = createStore(rootReducer, initialState);
