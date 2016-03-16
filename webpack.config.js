@@ -39,7 +39,6 @@ module.exports = {
     extensions: [ '', '.js', '.jsx' ]
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     // Extract the "vendor" code into
     new webpack.optimize.CommonsChunkPlugin(
       'vendor', // chunk name

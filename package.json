@@ -75,7 +75,6 @@
     "vega-lite": "^1.0.1",
     "webpack": "^1.12.14",
     "webpack-dev-server": "^1.14.1",
-    "webpack-hot-middleware": "^2.10.0",
     "yargs": "^4.2.0"
   },
   "scripts": {

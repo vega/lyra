@@ -1,3 +1,5 @@
+'use strict';
+
 var types = {
   ADD_TODO: 'ADD_TODO',
   DELETE_TODO: 'DELETE_TODO',
@@ -7,8 +9,7 @@ var types = {
   CLEAR_COMPLETED: 'CLEAR_COMPLETED'
 };
 
-
-module.exports = function todos(state, action) {
+function todos(state, action) {
   if (!state){
     state = {};
   }
@@ -60,3 +61,5 @@ module.exports = function todos(state, action) {
       return state
   }
 }
+
+module.exports = todos;
