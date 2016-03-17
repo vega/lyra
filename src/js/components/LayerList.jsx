@@ -79,11 +79,11 @@ var Group = connect(
               <li key={id}>
                 <div style={childStyle}
                   className={'name' + (selected === id ? ' selected' : '')}
-                  onClick={this.props.select(id)}>
+                  onClick={this.props.select.bind(null,id)}>
 
                   <ContentEditable obj={mark} prop="name"
                     value={mark.name}
-                    onClick={this.props.select(id)} />
+                    onClick={this.props.select.bind(null, id)} />
                 </div>
               </li>
             );
@@ -92,19 +92,19 @@ var Group = connect(
       ) : null;
 
     var spinner = expanded ?
-      (<i className="fa fa-caret-down" onClick={this.props.toggle(this.props.id)}></i>) :
-      (<i className="fa fa-caret-right" onClick={this.props.toggle(this.props.id)}></i>);
+      (<i className="fa fa-caret-down" onClick={this.props.toggle.bind(null,this.props.id)}></i>) :
+      (<i className="fa fa-caret-right" onClick={this.props.toggle.bind(null,this.props.id)}></i>);
 
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
         <div style={style}
           className={'name' + (selected === group_id ? ' selected' : '')}
-          onClick={this.props.select(group_id)}>
+          onClick={this.props.select.bind(null, group_id)}>
             {spinner}
 
             <ContentEditable obj={group} prop="name"
               value={group.name}
-              onClick={this.props.select(group_id)} />
+              onClick={this.props.select.bind(null, group_id)} />
         </div>
         {contents}
       </li>
