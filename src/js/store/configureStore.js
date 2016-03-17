@@ -1,4 +1,3 @@
-/* eslint new-cap:0 */
 'use strict';
 var createStore = require('redux').createStore;
 

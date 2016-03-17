@@ -3,12 +3,9 @@ var React = require('react'),
     connect = require('react-redux').connect,
     ContentEditable = require('./ContentEditable');
 
-var hierarchy = require('../util/hierarchy');
-var findInItemTree = hierarchy.findInItemTree;
-
 function mapStateToProps(reduxState, ownProps) {
   return {
-    selected: reduxState.selectedMark
+    selected: reduxState.get('selectedMark')
   };
 }
 

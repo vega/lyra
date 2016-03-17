@@ -71,8 +71,7 @@ function getset(cache, id, Type) {
 
 
 function register() {
-  var components = require('../components'),
-      win = d3.select(window),
+  var win = d3.select(window),
       dragover = 'dragover.altchan',
       signalName, handlers, i, len;
 
@@ -97,7 +96,6 @@ function register() {
     var def = selected.mark.def,
         id = def && def.lyra_id;
     if (id) {
-      // components.select(id, false);
       store.dispatch(selectMark(id));
     }
   });

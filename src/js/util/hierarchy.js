@@ -7,7 +7,7 @@ var assign = require('object-assign');
  * groups which may be considered to be ancestors of the provided primitive.
  *
  * @param  {Primitive} primitive - The primitive for which to return ancestors.
- * @return {Primitive[]} An array of primitives.
+ * @returns {Primitive[]} An array of primitives.
  */
 function getParents(primitive) {
   var current = primitive.parent && primitive.parent();
@@ -26,7 +26,7 @@ function getParents(primitive) {
  * Pluck the IDs from any group layers within the provided array of primitives.
  *
  * @param {Primitive[]} primitives - An array of primitives
- * @return {Array} Array of group mark IDs
+ * @returns {Array} Array of group mark IDs
  */
 function getGroupIds(primitives) {
   return primitives.reduce(function(groupIds, primitive) {
@@ -46,7 +46,7 @@ function getGroupIds(primitives) {
  * in the expanded state.
  * @param {Primitive[]} parentPrimitives - An array of primitives representing
  * groups that should now also be expanded in the hierarchy inspector.
- * @return {Object} A (new) object containing expanded flags for all previously-
+ * @returns {Object} A (new) object containing expanded flags for all previously-
  * expanded layers, and for any layers that are parents of the selected mark.
  */
 function getExpandedLayers(expandedLayers, parentPrimitives) {
@@ -66,7 +66,7 @@ function getExpandedLayers(expandedLayers, parentPrimitives) {
  *
  * @param  {[type]} item [description]
  * @param  {[type]} path [description]
- * @return {Object|null} The matched item, or null;
+ * @returns {Object|null} The matched item, or null;
  */
 function findInItemTree(item, path) {
   var id, items, i, j, len;

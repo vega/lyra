@@ -4,6 +4,7 @@ var React = require('react'),
     ContentEditable = require('./ContentEditable'),
     model = require('../model'),
     lookup = model.lookup,
+    sg = require('../model/signals'),
     hierarchy = require('../util/hierarchy'),
     selectMark = require('../actions/selectMark'),
     expandLayers = require('../actions/expandLayers'),
@@ -32,7 +33,22 @@ function mapDispatchToProps(dispatch, ownProps) {
       // Select the mark,
       dispatch(selectMark(id));
       // And expand the hierarchy so that it is visible
-      expandLayers(parentLayerIds)
+      dispatch(expandLayers(parentLayerIds));
+
+      // BEGIN unwanted side-effect-y code
+      // @TODO: find a way to avoid needing to interact with the model like we do
+      // here, and accomplish the end of sg.SELECTED via Redux reducers/actions.
+      var item;
+
+      // Create a path array of group layer IDs (inclusive of the selected layer),
+      // then walk down the rendered Lyra scene to find a corresponding item.
+      item = hierarchy.findInItemTree(model.view.model().scene().items[0], [id].concat(parentLayerIds));
+      // If an item was found, set the Lyra mode signal so that the handles appear.
+      // As noted above, this logic should probably not exist here!
+      if (item !== null) {
+        model.signal(sg.SELECTED, item).update();
+      }
+      // END unwanted side-effect-y code
     },
     toggle: function(layerId) {
       dispatch(toggleLayers([layerId]));

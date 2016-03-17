@@ -4,7 +4,7 @@
  * Return an object for the action to expand a set of layers.
  *
  * @param {number[]} layerIds - Array of layer IDs to expand
- * @return {Object} Redux action
+ * @returns {Object} Redux action
  */
 module.exports = function(layerIds) {
   return {
