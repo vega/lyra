@@ -2,12 +2,25 @@
 // From is being used
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
     Mark = require('../model/primitives/marks/Mark'),
     model = require('../model'),
     lookup = model.lookup,
     From = require('./inspectors/From');
 
-var Inspector = React.createClass({
+var hierarchy = require('../util/hierarchy');
+var findInItemTree = hierarchy.findInItemTree;
+var getExpandedLayers = hierarchy.getExpandedLayers;
+
+function mapStateToProps(reduxState, ownProps) {
+  return {
+    id: reduxState.get('selectedMark')
+  };
+}
+
+var Inspector = connect(
+  mapStateToProps
+)(React.createClass({
   render: function() {
     var props = this.props,
         primitive = lookup(props.id),
@@ -34,7 +47,7 @@ var Inspector = React.createClass({
       </div>
     );
   }
-});
+}));
 
 module.exports = Inspector;
 Inspector.Line = require('./inspectors/Line');

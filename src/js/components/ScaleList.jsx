@@ -1,8 +1,21 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
     ContentEditable = require('./ContentEditable');
 
-var ScaleList = React.createClass({
+var hierarchy = require('../util/hierarchy');
+var findInItemTree = hierarchy.findInItemTree;
+var getExpandedLayers = hierarchy.getExpandedLayers;
+
+function mapStateToProps(reduxState, ownProps) {
+  return {
+    selected: reduxState.selectedMark
+  };
+}
+
+var ScaleList = connect(
+  mapStateToProps
+)(React.createClass({
   select: function(id) {
     this.props.select(id);
   },
@@ -32,6 +45,6 @@ var ScaleList = React.createClass({
       </div>
     );
   }
-});
+}));
 
 module.exports = ScaleList;

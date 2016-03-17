@@ -3,6 +3,7 @@
 var Immutable = require('immutable');
 
 // Create immutable state
-module.exports = Immutable.Map({
-  selectedMark: 1
+module.exports = Immutable.fromJS({
+  selectedMark: 1,
+  expandedLayers: {}
 });

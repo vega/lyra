@@ -5,17 +5,38 @@ var React = require('react'),
     model = require('../model'),
     lookup = model.lookup;
 var selectMark = require('../actions/select-mark');
+var toggleLayers = require('../actions/toggle-layers');
 
 var MARGIN_LEFT = 10;
 
+var hierarchy = require('../util/hierarchy');
+var findInItemTree = hierarchy.findInItemTree;
+var getExpandedLayers = hierarchy.getExpandedLayers;
 
-function mapStateToProps() {
-  return {};
+function mapStateToProps(reduxState, ownProps) {
+  var selectedMarkId = reduxState.get('selectedMark'),
+      expandedLayers = reduxState.get('expandedLayers'),
+      primitive = lookup(selectedMarkId),
+      // Walk up from the selected primitive to create an array of all of its
+      // ancestral groups (aka layers).
+      parents = hierarchy.getParents(primitive),
+      // Create a path array of group layer IDs involved in the selected tree.
+      path = [selectedMarkId].concat(hierarchy.getGroupIds(parents)),
+      ex = getExpandedLayers(expandedLayers.toJS ? expandedLayers.toJS() : {}, parents);
+
+  return {
+    selected: selectedMarkId,
+    expanded: ex
+  }
 }
+
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     select: function(id) {
       dispatch(selectMark(id));
+    },
+    toggle: function(layerId) {
+      dispatch(toggleLayers([layerId]));
     }
   }
 }
@@ -26,11 +47,6 @@ var Group = connect(
 )(React.createClass({
   select: function(id, evt) {
     this.props.select(id);
-  },
-
-  toggle: function(evt) {
-    this.props.toggle(this.props.id);
-    evt.stopPropagation();
   },
 
   render: function() {
@@ -76,8 +92,8 @@ var Group = connect(
       ) : null;
 
     var spinner = expanded ?
-      (<i className="fa fa-caret-down" onClick={this.toggle}></i>) :
-      (<i className="fa fa-caret-right" onClick={this.toggle}></i>);
+      (<i className="fa fa-caret-down" onClick={this.props.toggle(this.props.id)}></i>) :
+      (<i className="fa fa-caret-right" onClick={this.props.toggle(this.props.id)}></i>);
 
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
