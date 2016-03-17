@@ -1,9 +1,9 @@
 'use strict';
 var combineReducers = require('redux-immutable').combineReducers;
 var selectedMark = require('./selectedMark');
-var expandedLayers = require('./expanded-layers');
+var expandedLayers = require('./expandedLayers');
 
 module.exports = combineReducers({
-  expandedLayers: require('./expanded-layers'),
+  expandedLayers: require('./expandedLayers'),
   selectedMark: require('./selectedMark')
 });

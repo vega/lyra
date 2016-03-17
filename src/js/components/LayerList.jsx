@@ -3,37 +3,36 @@ var React = require('react'),
     connect = require('react-redux').connect,
     ContentEditable = require('./ContentEditable'),
     model = require('../model'),
-    lookup = model.lookup;
-var selectMark = require('../actions/select-mark');
-var toggleLayers = require('../actions/toggle-layers');
+    lookup = model.lookup,
+    hierarchy = require('../util/hierarchy'),
+    selectMark = require('../actions/selectMark'),
+    expandLayers = require('../actions/expandLayers'),
+    toggleLayers = require('../actions/toggleLayers');
 
 var MARGIN_LEFT = 10;
 
-var hierarchy = require('../util/hierarchy');
-var findInItemTree = hierarchy.findInItemTree;
-var getExpandedLayers = hierarchy.getExpandedLayers;
-
 function mapStateToProps(reduxState, ownProps) {
   var selectedMarkId = reduxState.get('selectedMark'),
-      expandedLayers = reduxState.get('expandedLayers'),
-      primitive = lookup(selectedMarkId),
-      // Walk up from the selected primitive to create an array of all of its
-      // ancestral groups (aka layers).
-      parents = hierarchy.getParents(primitive),
-      // Create a path array of group layer IDs involved in the selected tree.
-      path = [selectedMarkId].concat(hierarchy.getGroupIds(parents)),
-      ex = getExpandedLayers(expandedLayers.toJS ? expandedLayers.toJS() : {}, parents);
+      expandedLayers = reduxState.get('expandedLayers');
 
   return {
     selected: selectedMarkId,
-    expanded: ex
+    expanded: expandedLayers
   }
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     select: function(id) {
+      // Walk up from the selected primitive to create an array of its parent groups
+      var parents = hierarchy.getParents(lookup(id)),
+          // Create a path array of those group layer's IDs
+          parentLayerIds = hierarchy.getGroupIds(parents);
+
+      // Select the mark,
       dispatch(selectMark(id));
+      // And expand the hierarchy so that it is visible
+      expandLayers(parentLayerIds)
     },
     toggle: function(layerId) {
       dispatch(toggleLayers([layerId]));
@@ -52,10 +51,10 @@ var Group = connect(
   render: function() {
     var props = this.props,
         level = +props.level,
-        group_id = props.id,
-        group = lookup(group_id),
+        groupId = props.id,
+        group = lookup(groupId),
         selected = props.selected,
-        expanded = props.expanded[group_id];
+        expanded = props.expanded[groupId];
 
     var style = {
           marginLeft: -(level + 1) * MARGIN_LEFT,
@@ -98,13 +97,13 @@ var Group = connect(
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
         <div style={style}
-          className={'name' + (selected === group_id ? ' selected' : '')}
-          onClick={this.props.select.bind(null, group_id)}>
+          className={'name' + (selected === groupId ? ' selected' : '')}
+          onClick={this.props.select.bind(null, groupId)}>
             {spinner}
 
             <ContentEditable obj={group} prop="name"
               value={group.name}
-              onClick={this.props.select.bind(null, group_id)} />
+              onClick={this.props.select.bind(null, groupId)} />
         </div>
         {contents}
       </li>

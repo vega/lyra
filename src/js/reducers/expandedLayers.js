@@ -5,7 +5,7 @@ var assign = require('object-assign');
 function selectedMarkReducer(state, action) {
   var newState;
   if (typeof state === 'undefined') {
-    return {};
+    return Immutable.Map();
   }
   if (action.type === 'EXPAND_LAYERS') {
     newState = action.layerIds.reduce(function(layers, layerId) {

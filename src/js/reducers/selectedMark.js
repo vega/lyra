@@ -1,7 +1,5 @@
 'use strict';
 
-var assign = require('object-assign');
-
 function selectedMarkReducer(state, action) {
   if (typeof state === 'undefined') {
     return null;

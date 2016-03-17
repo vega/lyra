@@ -7,4 +7,4 @@ var configureStore = require('./configureStore');
  * from anywhere in Lyra
  * @type {Store}
  */
-module.exports = configureStore(require('./default-state'));
+module.exports = window.store = configureStore(require('./defaultState'));

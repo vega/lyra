@@ -5,8 +5,9 @@ var dl = require('datalib'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
     ns = require('../util/ns'),
-    store = require('../store/configured-store'),
-    selectMark = require('../actions/select-mark');
+    store = require('../store'),
+    selectMark = require('../actions/selectMark'),
+    expandLayers = require('../actions/expandLayers');
 
 /** @namespace */
 var model = module.exports = {
@@ -25,6 +26,7 @@ var pipelines = [], scales = [],
 model.init = function() {
   var Scene = require('./primitives/marks/Scene');
   model.Scene = new Scene().init();
+  store.dispatch(expandLayers([model.Scene._id]));
   return this;
 };
 
