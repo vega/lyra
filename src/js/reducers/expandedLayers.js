@@ -1,6 +1,8 @@
+/* eslint new-cap:0 */
 'use strict';
 
 var assign = require('object-assign');
+var Immutable = require('immutable');
 
 function selectedMarkReducer(state, action) {
   var newState;

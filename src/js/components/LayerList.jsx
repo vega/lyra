@@ -19,7 +19,7 @@ function mapStateToProps(reduxState, ownProps) {
   return {
     selected: selectedMarkId,
     expanded: expandedLayers
-  }
+  };
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
@@ -53,15 +53,20 @@ function mapDispatchToProps(dispatch, ownProps) {
     toggle: function(layerId) {
       dispatch(toggleLayers([layerId]));
     }
-  }
+  };
 }
 
 var Group = connect(
   mapStateToProps,
   mapDispatchToProps
 )(React.createClass({
-  select: function(id, evt) {
-    this.props.select(id);
+  propTypes: {
+    expanded: React.PropTypes.object,
+    id: React.PropTypes.number,
+    level: React.PropTypes.number,
+    select: React.PropTypes.func,
+    selected: React.PropTypes.number,
+    toggle: React.PropTypes.func
   },
 
   render: function() {
@@ -89,12 +94,15 @@ var Group = connect(
                 type = mark.type;
 
             return type === 'group' ? (
-              <Group key={id} {...props} id={id} level={level + 1} />
+              <Group key={id}
+                {...props}
+                id={id}
+                level={level + 1} />
             ) : (
               <li key={id}>
                 <div style={childStyle}
                   className={'name' + (selected === id ? ' selected' : '')}
-                  onClick={this.props.select.bind(null,id)}>
+                  onClick={this.props.select.bind(null, id)}>
 
                   <ContentEditable obj={mark} prop="name"
                     value={mark.name}
@@ -107,8 +115,8 @@ var Group = connect(
       ) : null;
 
     var spinner = expanded ?
-      (<i className="fa fa-caret-down" onClick={this.props.toggle.bind(null,this.props.id)}></i>) :
-      (<i className="fa fa-caret-right" onClick={this.props.toggle.bind(null,this.props.id)}></i>);
+      (<i className="fa fa-caret-down" onClick={this.props.toggle.bind(null, this.props.id)}></i>) :
+      (<i className="fa fa-caret-right" onClick={this.props.toggle.bind(null, this.props.id)}></i>);
 
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
@@ -128,6 +136,10 @@ var Group = connect(
 }));
 
 var LayerList = React.createClass({
+  propTypes: {
+    layers: React.PropTypes.array
+  },
+
   render: function() {
     var props = this.props;
     return (
@@ -137,7 +149,10 @@ var LayerList = React.createClass({
         <ul>
         {this.props.layers.map(function(id) {
           return (
-            <Group key={id} id={id} level={0} {...props} />
+            <Group key={id}
+              {...props}
+              id={id}
+              level={0} />
           );
         }, this)}
         </ul>

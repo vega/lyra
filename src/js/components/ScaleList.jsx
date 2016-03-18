@@ -12,6 +12,11 @@ function mapStateToProps(reduxState, ownProps) {
 var ScaleList = connect(
   mapStateToProps
 )(React.createClass({
+  propTypes: {
+    select: React.PropTypes.func,
+    selected: React.PropTypes.number
+  },
+
   select: function(id) {
     this.props.select(id);
   },

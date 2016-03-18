@@ -6,4 +6,4 @@ var rootReducer = require('../reducers');
 
 module.exports = function configureStore(initialState) {
   return createStore(rootReducer, initialState);
-}
+};
