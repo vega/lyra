@@ -26,9 +26,9 @@ g.child('marks.text');
 g.child('marks.area');
 
 Promise.all([
-  p._source.init({url: 'http://vega.github.io/vega-editor/app/data/cars.json'}),
-  p2._source.init({url: 'http://vega.github.io/vega-editor/app/data/jobs.json'}),
-  p3._source.init({url: 'http://vega.github.io/vega-editor/app/data/gapminder.json'})
+  p._source.init({url: '/data/cars.json'}),
+  p2._source.init({url: '/data/jobs.json'}),
+  p3._source.init({url: '/data/gapminder.json'})
 ]).then(function() {
   return model.parse();
 }).then(function() {
