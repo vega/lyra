@@ -4,7 +4,11 @@ var dl = require('datalib'),
     vg = require('vega'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
-    ns = require('../util/ns');
+    ns = require('../util/ns'),
+    hierarchy = require('../util/hierarchy'),
+    store = require('../store'),
+    selectMark = require('../actions/selectMark'),
+    expandLayers = require('../actions/expandLayers');
 
 /** @namespace */
 var model = module.exports = {
@@ -23,6 +27,7 @@ var pipelines = [], scales = [],
 model.init = function() {
   var Scene = require('./primitives/marks/Scene');
   model.Scene = new Scene().init();
+  store.dispatch(expandLayers([model.Scene._id]));
   return this;
 };
 
@@ -67,8 +72,7 @@ function getset(cache, id, Type) {
 
 
 function register() {
-  var components = require('../components'),
-      win = d3.select(window),
+  var win = d3.select(window),
       dragover = 'dragover.altchan',
       signalName, handlers, i, len;
 
@@ -91,9 +95,15 @@ function register() {
 
   model.view.onSignal(sg.SELECTED, function(name, selected) {
     var def = selected.mark.def,
-        id = def && def.lyra_id;
+        id = def && def.lyra_id,
+        // Walk up from the selected primitive to create an array of its parent groups' IDs
+        parentLayerIds = hierarchy.getParentGroupIds(lookup(id));
+
     if (id) {
-      components.select(id, false);
+      // Select the mark,
+      store.dispatch(selectMark(id));
+      // And expand the hierarchy so that it is visible
+      store.dispatch(expandLayers(parentLayerIds));
     }
   });
 

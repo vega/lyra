@@ -1,8 +1,22 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
     ContentEditable = require('./ContentEditable');
 
-var ScaleList = React.createClass({
+function mapStateToProps(reduxState, ownProps) {
+  return {
+    selected: reduxState.get('selectedMark')
+  };
+}
+
+var ScaleList = connect(
+  mapStateToProps
+)(React.createClass({
+  propTypes: {
+    select: React.PropTypes.func,
+    selected: React.PropTypes.number
+  },
+
   select: function(id) {
     this.props.select(id);
   },
@@ -32,6 +46,6 @@ var ScaleList = React.createClass({
       </div>
     );
   }
-});
+}));
 
 module.exports = ScaleList;
