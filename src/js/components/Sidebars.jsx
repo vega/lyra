@@ -8,7 +8,6 @@ var React = require('react'),
 
 var Sidebars = React.createClass({
   getInitialState: function() {
-    window.sidebar = this;
     return {
       selected: model.Scene._id,
       expandedLayers: {}

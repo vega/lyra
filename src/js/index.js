@@ -11,7 +11,7 @@ var model = require('./model');
 model.init();
 
 // Initialize components
-var Sidebars = require('./components');
+var ui = require('./components');
 
 var g = model.Scene.child('marks.group'),
     g2 = g.child('marks.group'),
@@ -34,9 +34,9 @@ Promise.all([
 ]).then(function() {
   return model.parse();
 }).then(function() {
-  Sidebars.forceUpdate();
+  ui.forceUpdate();
 });
 
-// Expose model and Sidebars globally (via `window`)
+// Expose model, store and Sidebars globally (via `window`) for debugging
 global.model = model;
-global.Sidebars = Sidebars;
+global.store = require('./store');

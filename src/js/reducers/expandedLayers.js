@@ -1,7 +1,7 @@
 /* eslint new-cap:0 */
 'use strict';
 
-var Immutable = window.Immutable = require('immutable');
+var Immutable = require('immutable');
 
 function selectedMarkReducer(state, action) {
   if (typeof state === 'undefined') {
