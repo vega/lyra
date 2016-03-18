@@ -3,6 +3,10 @@
 
 var expect = require('chai').expect;
 
+// Pull in a fresh signals module so we can clean-initialize values used in tests
+delete require.cache[require.resolve('../../../model/signals')];
+var sg = require('../../../model/signals');
+
 var Group = require('./Group');
 var Mark = require('./Mark');
 
@@ -94,6 +98,24 @@ describe('Group Mark', function() {
       expect(otherGroup.parent()).not.to.equal(group);
       group.child('marks.group', otherGroup);
       expect(otherGroup.parent()).to.equal(group);
+    });
+
+  });
+
+  describe('export method', function() {
+
+    it('is a function', function() {
+      expect(group).to.have.property('export');
+      expect(group.export).to.be.a('function');
+    });
+
+    it('renders the group to a vega spec object', function() {
+      // Group initializes with signals for width and height that depend on the
+      // overall visualization's dimensions having been set
+      sg.init('vis_width', 500);
+      sg.init('vis_height', 500);
+      var result = group.export();
+      expect(result).to.be.an('object');
     });
 
   });

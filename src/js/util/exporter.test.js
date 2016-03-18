@@ -3,6 +3,10 @@
 var expect = require('chai').expect;
 var exporter = require('./exporter');
 
+// Pull in a fresh signals module so we can clean-initialize values used in tests
+delete require.cache[require.resolve('../model/signals')];
+var sg = require('../model/signals');
+
 var Area = require('../model/primitives/marks/Area');
 var Group = require('../model/primitives/marks/Group');
 var Guide = require('../model/primitives/Guide');
@@ -16,6 +20,11 @@ var Symbol = require('../model/primitives/marks/Symbol');
 var Text = require('../model/primitives/marks/Text');
 
 describe('exporter utility', function() {
+
+  before(function() {
+    sg.init('vis_width', 500);
+    sg.init('vis_height', 500);
+  });
 
   [
     // { Ctor: Area, name: 'area' },

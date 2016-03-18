@@ -49,8 +49,7 @@ function exportGroup(group, shouldClean) {
 
   // Recursively clean children
   Group.CHILD_TYPES.forEach(function(childType) {
-    console.log(childType);
-    spec[childType] = mark[childType].map(cleanChild);
+    spec[childType] = group[childType].map(cleanChild);
   });
   return spec;
 }
