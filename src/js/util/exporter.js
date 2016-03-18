@@ -40,7 +40,7 @@ function exportGuide(guide, shouldClean) {
 
   if (guideType === Guide.TYPES.AXIS) {
     spec.scale = model.lookup(spec.scale).name;
-  } else if (gtype === Guide.TYPES.LEGEND) {
+  } else if (guideType === Guide.TYPES.LEGEND) {
     spec[type] = model.lookup(spec[type]).name;
   }
 
