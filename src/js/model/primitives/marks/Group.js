@@ -38,7 +38,6 @@ function Group() {
   return this;
 }
 
-
 var CHILDREN = {
   group: Group,
   rect: require('./Rect'),
@@ -106,5 +105,7 @@ Group.prototype.child = function(type, child) {
   }
   return child.parent ? child.parent(this._id) : child;
 };
+
+Group.CHILD_TYPES = CHILD_TYPES;
 
 module.exports = Group;

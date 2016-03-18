@@ -1,7 +1,12 @@
 'use strict';
 
+// Ensure startsWith polyfill has loaded, to maintain IE compatibility
+require('string.prototype.startswith');
+
 var dl = require('datalib'),
+    lookup = require('../model').lookup,
     sg = require('../model/signals'),
+    Group = require('../model/primitives/marks/Group'),
     Guide = require('../model/primitives/Guide'),
     Mark = require('../model/primitives/marks/Mark');
 
@@ -33,15 +38,32 @@ function _clean(spec, shouldClean) {
   return spec;
 }
 
+function exportGroup(group, shouldClean) {
+  var spec = exportMark(group, shouldClean);
+
+  function cleanChild(id) {
+    // @TODO: That this uses .export() is a fundamental blocker to this approach:
+    // find a workaround! Keying against module.exports by type...?
+    return lookup(id).export(shouldClean);
+  }
+
+  // Recursively clean children
+  Group.CHILD_TYPES.forEach(function(childType) {
+    console.log(childType);
+    spec[childType] = mark[childType].map(cleanChild);
+  });
+  return spec;
+}
+
 function exportGuide(guide, shouldClean) {
   var spec = exportPrimitive(guide, shouldClean),
       guideType = guide._gtype,
       type = guide._type;
 
   if (guideType === Guide.TYPES.AXIS) {
-    spec.scale = model.lookup(spec.scale).name;
+    spec.scale = lookup(spec.scale).name;
   } else if (guideType === Guide.TYPES.LEGEND) {
-    spec[type] = model.lookup(spec[type]).name;
+    spec[type] = lookup(spec[type]).name;
   }
 
   return spec;
@@ -97,7 +119,10 @@ function exportPrimitive(primitive, shouldClean) {
 
 module.exports = {
   _clean: _clean,
+  group: exportGroup,
   guide: exportGuide,
   mark: exportMark,
-  primitive: exportPrimitive
+  primitive: exportPrimitive,
+  symbol: exportMark,
+  text: exportMark
 };
