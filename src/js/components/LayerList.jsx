@@ -25,15 +25,13 @@ function mapStateToProps(reduxState, ownProps) {
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     select: function(id) {
-      // Walk up from the selected primitive to create an array of its parent groups
-      var parents = hierarchy.getParents(lookup(id)),
-          // Create a path array of those group layer's IDs
-          parentLayerIds = hierarchy.getGroupIds(parents);
+      // Walk up from the selected primitive to create an array of its parent groups' IDs
+      var parentGroupIds = hierarchy.getParentGroupIds(lookup(id));
 
       // Select the mark,
       dispatch(selectMark(id));
       // And expand the hierarchy so that it is visible
-      dispatch(expandLayers(parentLayerIds));
+      dispatch(expandLayers(parentGroupIds));
 
       // BEGIN unwanted side-effect-y code
       // @TODO: find a way to avoid needing to interact with the model like we do
@@ -42,7 +40,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 
       // Create a path array of group layer IDs (inclusive of the selected layer),
       // then walk down the rendered Lyra scene to find a corresponding item.
-      item = hierarchy.findInItemTree(model.view.model().scene().items[0], [id].concat(parentLayerIds));
+      item = hierarchy.findInItemTree(model.view.model().scene().items[0], [id].concat(parentGroupIds));
       // If an item was found, set the Lyra mode signal so that the handles appear.
       // As noted above, this logic should probably not exist here!
       if (item !== null) {

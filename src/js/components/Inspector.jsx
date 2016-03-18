@@ -10,7 +10,6 @@ var React = require('react'),
 
 var hierarchy = require('../util/hierarchy');
 var findInItemTree = hierarchy.findInItemTree;
-var getExpandedLayers = hierarchy.getExpandedLayers;
 
 function mapStateToProps(reduxState, ownProps) {
   return {

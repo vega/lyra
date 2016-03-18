@@ -5,6 +5,7 @@ var dl = require('datalib'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
     ns = require('../util/ns'),
+    hierarchy = require('../util/hierarchy'),
     store = require('../store'),
     selectMark = require('../actions/selectMark'),
     expandLayers = require('../actions/expandLayers');
@@ -94,9 +95,15 @@ function register() {
 
   model.view.onSignal(sg.SELECTED, function(name, selected) {
     var def = selected.mark.def,
-        id = def && def.lyra_id;
+        id = def && def.lyra_id,
+        // Walk up from the selected primitive to create an array of its parent groups' IDs
+        parentLayerIds = hierarchy.getParentGroupIds(lookup(id));
+
     if (id) {
+      // Select the mark,
       store.dispatch(selectMark(id));
+      // And expand the hierarchy so that it is visible
+      store.dispatch(expandLayers(parentLayerIds));
     }
   });
 

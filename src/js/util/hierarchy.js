@@ -1,7 +1,5 @@
 'use strict';
 
-var assign = require('object-assign');
-
 /**
  * Get all parent nodes for a given primitive in the Lyra hierarchy, i.e. all
  * groups which may be considered to be ancestors of the provided primitive.
@@ -38,23 +36,14 @@ function getGroupIds(primitives) {
 }
 
 /**
- * Augment an object representing expanded layers by adding the IDs of all
- * primitives in the provided array: this list can be used e.g. to set those
- * layers to "expanded" in the sidebar hierarchy inspector view.
+ * Wrap a commonly chained sequence of hierarchy inquiries: take a primitive,
+ * find all its parents, and return an array of those parents' IDs.
  *
- * @param {Object} expandedLayers - An object of group IDs that are currently
- * in the expanded state.
- * @param {Primitive[]} parentPrimitives - An array of primitives representing
- * groups that should now also be expanded in the hierarchy inspector.
- * @returns {Object} A (new) object containing expanded flags for all previously-
- * expanded layers, and for any layers that are parents of the selected mark.
+ * @param {Object} primitive - A primitive for which to return parent layer IDs.
+ * @returns {number[]} An array of the (lyra) IDs of the primitive's parent layers.
  */
-function getExpandedLayers(expandedLayers, parentPrimitives) {
-  var parentIds = parentPrimitives.reduce(function(parents, id) {
-    parents[id] = true;
-    return parents;
-  }, {});
-  return assign({}, parentIds, expandedLayers);
+function getParentGroupIds(primitive) {
+  return getGroupIds(getParents(primitive));
 }
 
 /**
@@ -91,7 +80,7 @@ function findInItemTree(item, path) {
 }
 
 module.exports = {
-  getExpandedLayers: getExpandedLayers,
+  getParentGroupIds: getParentGroupIds,
   getParents: getParents,
   getGroupIds: getGroupIds,
   findInItemTree: findInItemTree
