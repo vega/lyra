@@ -79,4 +79,56 @@ describe('exporter utility', function() {
     });
   });
 
+  describe('for nested groups', function() {
+    var group1, group2;
+
+    beforeEach(function() {
+      group1 = new Group();
+      group1.child('marks.rect');
+      group2 = group1.child('marks.group');
+      group2.child('marks.rect');
+      group2.child('scales');
+    });
+
+    it('is equivalent to Group.prototype.export(true)', function() {
+      var utilityFnExportResult = exporter.group(group1, true);
+      var prototypeExportResult = group1.export(true);
+      expect(utilityFnExportResult).not.to.equal(prototypeExportResult);
+      expect(utilityFnExportResult).to.deep.equal(prototypeExportResult);
+      console.log(utilityFnExportResult);
+    });
+
+    it('exports a well-formed result', function() {
+      var result = exporter.group(group1, true);
+      expect(result).to.be.an('object');
+      expect(result).to.have.property('type');
+      expect(result.type).to.equal('group');
+
+      expect(result).to.have.property('marks');
+      expect(result.marks).to.be.an('array');
+      expect(result.marks.length).to.equal(2);
+
+      var child1 = result.marks[0];
+      expect(child1).to.be.an('object');
+      expect(child1).to.have.property('type');
+      expect(child1.type).to.equal('rect');
+
+      var child2 = result.marks[1];
+      expect(child2).to.be.an('object');
+      expect(child2).to.have.property('type');
+      expect(child2.type).to.equal('group');
+
+      expect(child2).to.have.property('marks');
+      expect(child2.marks).to.be.an('array');
+      expect(child2.marks.length).to.equal(1);
+      expect(child2.marks[0]).to.have.property('type');
+      expect(child2.marks[0].type).to.equal('rect');
+
+      expect(child2).to.have.property('scales');
+      expect(child2.scales).to.be.an('array');
+      expect(child2.scales.length).to.equal(1);
+    });
+
+  });
+
 });

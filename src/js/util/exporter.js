@@ -10,6 +10,15 @@ var dl = require('datalib'),
     Guide = require('../model/primitives/Guide'),
     Mark = require('../model/primitives/marks/Mark');
 
+// This object will be assigned the various exporter methods as function
+// properties, keyed by the string type (e.g. "rect") of the primitive that
+// exporter function is for. All types are declared, even if there is no
+// custom exporter for that mark (many just use exportMark with no further
+// modifications). This is done so that nested marks, like groups, can use
+// `exporters[type]` as a way to get the export function for a specific
+// primitive instance. (`exporters` also serves as the base for module.exports)
+var exporters = {};
+
 /**
  * Utility method to clean a spec object
  * @param {Object} spec - A Lyra representation of a Vega spec
@@ -172,9 +181,11 @@ function exportGroup(group, shouldClean) {
   var spec = exportMark(group, shouldClean);
 
   function cleanChild(id) {
-    // @TODO: That this uses .export() is a fundamental blocker to this approach:
-    // find a workaround! Keying against module.exports by type...?
-    return lookup(id).export(shouldClean);
+    var child = lookup(id);
+    if (child.type && typeof exporters[child.type] === 'function') {
+      return exporters[child.type](child, shouldClean);
+    }
+    return exportPrimitive(child, shouldClean);
   }
 
   // Recursively clean children
@@ -250,18 +261,19 @@ function exportScene(scene, shouldClean) {
   return spec;
 }
 
-module.exports = {
-  _clean: _clean,
-  _dataRef: _dataRef,
-  area: exportArea,
-  group: exportGroup,
-  guide: exportGuide,
-  line: exportLine,
-  mark: exportMark,
-  primitive: exportPrimitive,
-  rect: exportMark,
-  scale: exportScale,
-  scene: exportScene,
-  symbol: exportMark,
-  text: exportMark
-};
+exporters.area = exportArea;
+exporters.group = exportGroup;
+exporters.guide = exportGuide;
+exporters.line = exportLine;
+exporters.mark = exportMark;
+exporters.primitive = exportPrimitive;
+exporters.rect = exportMark;
+exporters.scale = exportScale;
+exporters.scene = exportScene;
+exporters.symbol = exportMark;
+exporters.text = exportMark;
+
+// Export the exporters, plus their utility methods
+module.exports = exporters;
+module.exports._clean = _clean;
+module.exports._dataRef = _dataRef;
