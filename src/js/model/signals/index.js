@@ -1,9 +1,10 @@
 'use strict';
 var dl = require('datalib'),
     ns = require('../../util/ns'),
-    signals, defaults;
+    defaults = require('./defaults'),
+    signals = defaults.signals;
 
-var api = module.exports = function() {
+function api() {
   return signals;
 };
 
@@ -71,7 +72,9 @@ api.value = value;
 api.stash = stash;
 api.streams = streams;
 
-dl.extend(api, defaults = require('./defaults'));
-signals = api.signals;
+// Extend the signals API with defaults, excepting the names & signals properties
+dl.extend(api, defaults);
 delete api.signals;
 delete api.names;
+
+module.exports = api;
