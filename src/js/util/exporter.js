@@ -14,14 +14,14 @@ var dl = require('datalib'),
  * Utility method to clean a spec object
  * @param {Object} spec - A Lyra representation of a Vega spec
  * @param {Boolean} shouldClean - Whether to clean Lyra-specific values
- * @return {Object} A cleaned spec object
+ * @returns {Object} A cleaned spec object
  */
 function _clean(spec, shouldClean) {
   var key, prop, cleanKey;
   for (key in spec) {
     prop = spec[key];
     cleanKey = key.startsWith('_');
-    cleanKey = cleanKey || prop._disabled || prop === undefined;
+    cleanKey = cleanKey || prop._disabled || typeof prop === 'undefined';
     if (cleanKey) {
       delete spec[key];
     } else if (dl.isObject(prop)) {
@@ -33,6 +33,136 @@ function _clean(spec, shouldClean) {
         spec[key] = _clean(spec[key], shouldClean);
       }
     }
+  }
+
+  return spec;
+}
+
+// Exports FieldIDs to DataRefs. We don't default to the last option as the
+// structure has performance implications in Vega. Most-least performant:
+//   {"data": ..., "field": ...} for a single field
+//   {"data": ..., "field": [...]} for multiple fields from the same dataset.
+//   {"fields": [...]} for multiple fields from distinct datasets.
+function getFieldName(field) {
+  return field._name;
+}
+
+/**
+ * Export a data reference object. From most to least performant, these are the
+ * output object signatures:
+ * - Single field: {"data": ..., "field": ...}
+//   {"data": ..., "field": [...]} for multiple fields from the same dataset.
+//   {"fields": [...]} for multiple fields from distinct datasets.
+ * @param  {Array} ref - A data reference
+ * @returns {Object} A data reference object
+ */
+function _dataRef(ref) {
+  var sets = {},
+      data, field, i, len, keys;
+
+  if (ref.length === 1 && (ref = ref[0])) {
+    field = lookup(ref);
+    ref = {
+      data: field.parent().name,
+      field: field._name
+    };
+  } else {
+    for (i = 0, len = ref.length; i < len; ++i) {
+      field = lookup(ref[i]);
+      data = field.parent();
+      sets[data._id] = sets[data._id] || (sets[data._id] = []);
+      sets[data._id].push(field);
+    }
+
+    keys = dl.keys(sets);
+    if (keys.length === 1) {
+      ref = {
+        data: data.name,
+        field: sets[data._id].map(getFieldName)
+      };
+    } else {
+      ref = {
+        fields: keys.map(function(key) {
+          data = lookup(keys[i]);
+          return {
+            data: data.name,
+            field: sets[data._id].map(getFieldName)
+          };
+        })
+      };
+    }
+  }
+  return ref;
+}
+
+function exportPrimitive(primitive, shouldClean) {
+  return _clean(dl.duplicate(primitive), shouldClean);
+}
+
+function exportMark(mark, shouldClean) {
+  var spec = exportPrimitive(mark, shouldClean),
+      props = spec.properties,
+      update = props.update,
+      from = mark.from && lookup(mark.from),
+      keys = dl.keys(update);
+
+  if (from) {
+    spec.from = from instanceof Mark ?
+      {mark: from.name} :
+      {data: from.name};
+  }
+
+  keys.forEach(function(key) {
+    var val = update[key];
+
+    // signalRef resolved to literal
+    if (!dl.isObject(val)) {
+      update[key] = {
+        value: val
+      };
+    }
+
+    // Parse reference values out to their associated primitive's name
+    if (val.scale) {
+      val.scale = lookup(val.scale).name;
+    }
+    if (val.field) {
+      val.field = lookup(val.field)._name;
+    }
+    if (val.group) {
+      val.field = {
+        group: val.group
+      };
+    }
+  });
+
+  if (!shouldClean) {
+    spec.lyra_id = mark._id;
+  }
+
+  return spec;
+}
+
+function exportArea(area, shouldClean) {
+  var spec = exportMark(area, shouldClean);
+
+  // Handle exporting with the dummy data needed to render the placeholder area mark
+  if (!spec.from) {
+    spec.from = {
+      data: 'dummy_data_area'
+    };
+    spec.properties.update.x = {
+      field: 'x'
+    };
+    spec.properties.update.y = {
+      field: 'y'
+    };
+  }
+
+  if (spec.properties.update.orient.value === 'horizontal') {
+    delete spec.properties.update.y2;
+  } else {
+    delete spec.properties.update.x2;
   }
 
   return spec;
@@ -68,60 +198,70 @@ function exportGuide(guide, shouldClean) {
   return spec;
 }
 
-function exportMark(mark, shouldClean) {
-  var spec = exportPrimitive(mark, shouldClean),
-      props = spec.properties,
-      update = props.update,
-      from = mark.from && model.lookup(mark.from),
-      keys = dl.keys(update);
+function exportLine(line, shouldClean) {
+  var spec = exportMark(line, shouldClean);
 
-  if (from) {
-    spec.from = (from instanceof Mark) ?
-      { mark: from.name } :
-      { data: from.name };
+  // Handle exporting with the dummy data needed to render the placeholder line mark
+  if (!spec.from) {
+    spec.from = {
+      data: 'dummy_data_line'
+    };
+    spec.properties.update.x = {
+      field: 'foo'
+    };
+    spec.properties.update.y = {
+      field: 'bar'
+    };
   }
 
-  keys.forEach(function(key) {
-    var val = update[key];
+  // Remove mark properties that are not relevant to lines
+  delete spec.properties.update.fill;
+  delete spec.properties.update.fillOpacity;
 
-    // signalRef resolved to literal
-    if (!dl.isObject(val)) {
-      update[key] = {
-        value: val
-      };
-    }
+  return spec;
+}
 
-    // Parse reference values out to their associated primitive's name
-    if (val.scale) {
-      val.scale = lookup(val.scale).name;
-    }
-    if (val.field) {
-      val.field = lookup(val.field)._name;
-    }
-    if (val.group) {
-      val.field = {
-        group: val.group
-      };
-    }
-  });
+function exportScale(scale, shouldClean) {
+  var spec = exportPrimitive(scale, shouldClean);
 
-  if (!shouldClean) {
-    spec.lyra_id = mark._id;
+  if (!scale.domain && scale._domain.length) {
+    spec.domain = _dataRef(scale._domain);
+  }
+
+  if (!scale.range && scale._range.length) {
+    scale.range = _dataRef(scale._range);
   }
 
   return spec;
 }
 
-function exportPrimitive(primitive, shouldClean) {
-  return _clean(dl.duplicate(primitive), shouldClean);
+function exportScene(scene, shouldClean) {
+  var spec = exportGroup(scene, shouldClean);
+
+  // Always resolve width/height signals
+  spec.width = spec.width.signal ? sg.value('vis_width') : spec.width;
+  spec.height = spec.height.signal ? sg.value('vis_height') : spec.height;
+
+  // Remove mark-specific properties that do not apply to scenes
+  delete spec.type;
+  delete spec.from;
+  delete spec.properties;
+
+  return spec;
 }
 
 module.exports = {
   _clean: _clean,
+  _dataRef: _dataRef,
+  area: exportArea,
   group: exportGroup,
   guide: exportGuide,
+  line: exportLine,
   mark: exportMark,
   primitive: exportPrimitive,
+  rect: exportMark,
+  scale: exportScale,
+  scene: exportScene,
   symbol: exportMark,
   text: exportMark
 };

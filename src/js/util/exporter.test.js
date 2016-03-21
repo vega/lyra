@@ -27,17 +27,17 @@ describe('exporter utility', function() {
   });
 
   [
-    // { Ctor: Area, name: 'area' },
-    { Ctor: Group, name: 'group' },
-    { Ctor: Guide, name: 'guide' },
-    // { Ctor: Line, name: 'line' },
-    { Ctor: Mark, name: 'mark' },
-    { Ctor: Primitive, name: 'primitive' },
-    // { Ctor: Rect, name: 'rect' },
-    // { Ctor: Scale, name: 'scale' },
-    // { Ctor: Scene, name: 'scene' },
-    { Ctor: Symbol, name: 'symbol' },
-    { Ctor: Text, name: 'text' }
+    {Ctor: Area, name: 'area'},
+    {Ctor: Group, name: 'group'},
+    {Ctor: Guide, name: 'guide'},
+    {Ctor: Line, name: 'line'},
+    {Ctor: Mark, name: 'mark'},
+    {Ctor: Primitive, name: 'primitive'},
+    {Ctor: Rect, name: 'rect'},
+    {Ctor: Scale, name: 'scale'},
+    {Ctor: Scene, name: 'scene'},
+    {Ctor: Symbol, name: 'symbol'},
+    {Ctor: Text, name: 'text'}
   ].forEach(function(primitive) {
     var name = primitive.name;
     var upperName = name[0].toUpperCase() + name.slice(1);
