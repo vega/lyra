@@ -11,7 +11,7 @@ module.exports = function(config) {
 
     singleRun: !argv.watch, // just run once by default
 
-    frameworks: ['mocha'],
+    frameworks: ['mocha', 'source-map-support'],
 
     // npm i karma-spec-reporter --save-dev
     // displays tests in a nice readable format
@@ -108,8 +108,9 @@ module.exports = function(config) {
       'karma-ie-launcher',
       'karma-phantomjs-launcher',
       'karma-safari-launcher',
-      'karma-spec-reporter',
-      'karma-sourcemap-loader'
+      'karma-source-map-support',
+      'karma-sourcemap-loader',
+      'karma-spec-reporter'
     ],
 
     customLaunchers: {
