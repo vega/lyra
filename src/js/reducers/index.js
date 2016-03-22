@@ -1,10 +1,11 @@
 'use strict';
 var combineReducers = require('redux-immutable').combineReducers;
+var undoable = require('redux-undo').default;
 
 module.exports = combineReducers({
   scene: require('./scene'),
   vega: require('./vega'),
-  inspector: require('./inspector'),
+  inspector: undoable(require('./inspector')),
   primitives: require('./primitives'),
-  signals: require('./signals')
+  signals: undoable(require('./signals'))
 });
