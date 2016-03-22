@@ -145,7 +145,10 @@ model.scale = function(id) {
  * @returns {*} The signal value if called as a getter, the model if called as
  * a setter.
  */
-model.signal = function() {
+model.signal = function(name, val) {
+  if (typeof val === 'undefined') {
+    return sg.getValue(name);
+  }
   var ret = sg.value.apply(sg, arguments);
   return ret === sg ? model : ret;
 };

@@ -26,10 +26,26 @@ api.init = function(name, val) {
   return ref(name);
 }
 
+api.getValue = function(name) {
+  var model = require('../'),
+      // `view` is a vega runtime component; view.signal is a getter/setter
+      view = model.view,
+      signalObj = signals[ns(name)];
+
+  // Wrap signal accessors in a try/catch in case view doesn't exist,
+  // or signal hasn't been registered yet with the view.
+  try {
+    return view.signal(name);
+  } catch (e) {
+    return signalObj.init;
+  }
+}
+
 api.value = function(name, val) {
   var model = require('../'),
+      // `view` is a vega runtime component; view.signal is a getter/setter
       view = model.view,
-      signalObj = signals[name = ns(name)],
+      signalObj = signals[ns(name)],
       calledAsSetter = arguments.length === 2;
 
   // Wrap signal accessors in a try/catch in case view doesn't exist,

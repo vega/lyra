@@ -32,7 +32,7 @@ function _clean(spec, clean) {
     if (c) {
       delete spec[k];
     } else if (dl.isObject(p)) {
-      spec[k] = p.signal && cln ? sg.value(p.signal) : _clean(spec[k], clean);
+      spec[k] = p.signal && cln ? sg.getValue(p.signal) : _clean(spec[k], clean);
     }
   }
 
