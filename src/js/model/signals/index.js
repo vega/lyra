@@ -8,12 +8,17 @@ function api() {
   return signals;
 };
 
+// Augment the signals API with properties like SELECTED that define the
+// strings used to identify and trigger a given signal
+dl.extend(api, defaults.signalNames);
+
 function ref(name) {
   return {signal: ns(name)};
 }
 
-function init(name, val) {
-  signals[name = ns(name)] = {
+api.init = function(name, val) {
+  name = ns(name);
+  signals[name] = {
     name: name,
     init: val,
     _idx: dl.keys(signals).length
@@ -21,25 +26,28 @@ function init(name, val) {
   return ref(name);
 }
 
-function value(name, val) {
+api.value = function(name, val) {
   var model = require('../'),
       view = model.view,
-      sg = signals[name = ns(name)],
-      set = arguments.length === 2;
+      signalObj = signals[name = ns(name)],
+      calledAsSetter = arguments.length === 2;
 
   // Wrap signal accessors in a try/catch in case view doesn't exist,
   // or signal hasn't been registered yet with the view.
   try {
     val = view.signal.apply(view, arguments);
-    return set ? api : val;
+    return calledAsSetter ? api : val;
   } catch (e) {
-    return set ? (sg.init = val, api) : sg.init;
+    if (calledAsSetter) {
+      signalObj.init = val;
+    }
+    return calledAsSetter ? api : signalObj.init;
   }
 }
 
 // Stash current signal values from the view into our model
 // to allow seamless re-renders.
-function stash() {
+api.stash = function() {
   var model = require('../'),
       view = model.view;
   if (!view) {
@@ -58,23 +66,13 @@ function stash() {
   return signals;
 }
 
-function streams(name, def) {
+api.streams = function(name, def) {
   var sg = signals[ns(name)];
   if (arguments.length === 1) {
     return sg.streams;
   }
-  return (sg.streams = def, api);
+  sg.streams = def;
+  return api;
 }
-
-api.init = init;
-api.ref = ref;
-api.value = value;
-api.stash = stash;
-api.streams = streams;
-
-// Extend the signals API with defaults, excepting the names & signals properties
-dl.extend(api, defaults);
-delete api.signals;
-delete api.names;
 
 module.exports = api;

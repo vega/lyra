@@ -83,11 +83,13 @@ signals[CURSOR] = {
 module.exports = {
   signals: signals,
   names: [SELECTED, MODE, ANCHOR, DELTA, CELL, MOUSE, CURSOR],
-  SELECTED: SELECTED,
-  MODE: MODE,
-  ANCHOR: ANCHOR,
-  DELTA: DELTA,
-  CURSOR: CURSOR,
-  CELL: CELL,
-  MOUSE: MOUSE
+  signalNames: {
+    SELECTED: SELECTED,
+    MODE: MODE,
+    ANCHOR: ANCHOR,
+    DELTA: DELTA,
+    CURSOR: CURSOR,
+    CELL: CELL,
+    MOUSE: MOUSE
+  }
 };
