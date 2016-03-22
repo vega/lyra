@@ -4,11 +4,10 @@
 var Immutable = require('immutable');
 
 var actions = require('../constants/actions');
+var getIn = require('../util/immutable-utils').getIn;
+var setIn = require('../util/immutable-utils').setIn;
 
 function inspectorReducer(state, action) {
-  // Throwaway object
-  var tempState;
-
   if (typeof state === 'undefined') {
     return Immutable.fromJS({
       selected: null,
@@ -21,20 +20,16 @@ function inspectorReducer(state, action) {
   }
 
   if (action.type === actions.EXPAND_LAYERS) {
-    tempState = state.get('expandedLayers').merge(action.layerIds.reduce(function(layers, layerId) {
-      // .get and .set do not coerce numbers to strings, so we do that ourselves
-      var id = '' + layerId;
-      return layers.set(id, true);
-    }, Immutable.Map()));
-    return state.set('expandedLayers', tempState);
+    return action.layerIds.reduce(function(newState, layerId) {
+      return setIn(newState, 'expandedLayers.' + layerId, true);
+    }, state);
   }
 
   if (action.type === actions.TOGGLE_LAYERS) {
-    tempState = state.get('expandedLayers').merge(action.layerIds.reduce(function(layers, layerId) {
-      var id = '' + layerId;
-      return layers.set(id, !state.get('expandedLayers').get(id));
-    }, Immutable.Map()));
-    return state.set('expandedLayers', tempState);
+    return action.layerIds.reduce(function(newState, layerId) {
+      var key = 'expandedLayers.' + layerId;
+      return setIn(newState, key, !getIn(newState, key));
+    }, state);
   }
 
   return state;
