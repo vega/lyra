@@ -6,6 +6,7 @@ var React = require('react'),
     Mark = require('../model/primitives/marks/Mark'),
     model = require('../model'),
     lookup = model.lookup,
+    getIn = require('../util/immutable-utils').getIn,
     From = require('./inspectors/From');
 
 var hierarchy = require('../util/hierarchy');
@@ -13,7 +14,7 @@ var findInItemTree = hierarchy.findInItemTree;
 
 function mapStateToProps(reduxState, ownProps) {
   return {
-    id: reduxState.get('selectedMark')
+    id: getIn(reduxState, 'inspector.selected')
   };
 }
 
@@ -22,7 +23,8 @@ var Inspector = connect(
 )(React.createClass({
   render: function() {
     var props = this.props,
-        primitive = lookup(props.id),
+        // props.id existence check handles the initial application render
+        primitive = props.id ? lookup(props.id) : {},
         from = lookup(primitive.from),
         ctor = primitive.constructor.name,
         InspectorType = Inspector[ctor],

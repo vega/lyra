@@ -6,6 +6,7 @@ var React = require('react'),
     lookup = model.lookup,
     sg = require('../model/signals'),
     hierarchy = require('../util/hierarchy'),
+    getIn = require('../util/immutable-utils').getIn,
     selectMark = require('../actions/selectMark'),
     expandLayers = require('../actions/expandLayers'),
     toggleLayers = require('../actions/toggleLayers');
@@ -13,8 +14,8 @@ var React = require('react'),
 var MARGIN_LEFT = 10;
 
 function mapStateToProps(reduxState, ownProps) {
-  var selectedMarkId = reduxState.get('selectedMark'),
-      expandedLayers = reduxState.get('expandedLayers').toJS();
+  var selectedMarkId = getIn(reduxState, 'inspector.selected'),
+      expandedLayers = getIn(reduxState, 'inspector.expandedLayers').toJS();
 
   return {
     selected: selectedMarkId,

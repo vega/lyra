@@ -1,9 +1,7 @@
+/* eslint new-cap:0 */
 'use strict';
 
 var Immutable = require('immutable');
 
 // Create immutable state
-module.exports = Immutable.fromJS({
-  selectedMark: 1,
-  expandedLayers: {}
-});
+module.exports = Immutable.Map();
