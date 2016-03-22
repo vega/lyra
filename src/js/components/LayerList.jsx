@@ -13,8 +13,9 @@ var React = require('react'),
 var MARGIN_LEFT = 10;
 
 function mapStateToProps(reduxState, ownProps) {
-  var selectedMarkId = reduxState.get('selectedMark'),
-      expandedLayers = reduxState.get('expandedLayers').toJS();
+  var inspectorState = reduxState.get('inspector'),
+      selectedMarkId = inspectorState.get('selected'),
+      expandedLayers = inspectorState.get('expandedLayers').toJS();
 
   return {
     selected: selectedMarkId,

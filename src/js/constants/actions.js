@@ -1,0 +1,7 @@
+'use strict';
+
+module.exports = {
+  EXPAND_LAYERS: 'EXPAND_LAYERS',
+  SELECT_MARK: 'SELECT_MARK',
+  TOGGLE_LAYERS: 'TOGGLE_LAYERS'
+};
