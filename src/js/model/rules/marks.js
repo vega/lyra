@@ -18,7 +18,8 @@ function bindProperty(map, property, props, def, from) {
     }
   }
   if (typeof d.value !== 'undefined') {
-    model.signal(p.signal = propSg(this, property), d.value);
+    p.signal = propSg(this, property);
+    model.signal(p.signal, d.value);
   }
 
   if (typeof d.band !== 'undefined') {

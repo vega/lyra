@@ -1,12 +1,13 @@
 'use strict';
 var dl = require('datalib'),
+    signals = require('../../model/signals'),
     model = require('../../model');
 
 module.exports = {
   getInitialState: function() {
     var props = this.props;
     return {
-      value: props.signal ? model.signal(props.signal) : props.value
+      value: props.signal ? signals.getValue(props.signal) : props.value
     };
   },
 
@@ -29,7 +30,7 @@ module.exports = {
     }
     if (nextProps.signal || nextProps.value !== prevProps.value) {
       this.setState({value: nextProps.signal ?
-        model.signal(nextProps.signal) : nextProps.value});
+        signals.getValue(nextProps.signal) : nextProps.value});
     }
   },
 
@@ -60,13 +61,19 @@ module.exports = {
         signal = props.signal,
         type = props.type;
 
-    value = (type === 'number' || type === 'range') ? +value : value;
+    if (type === 'number' || type === 'range') {
+      // Ensure value is a number
+      value = +value;
+    }
 
     if (signal) {
-      model.signal(signal, value).update();
+      model.signal(signal, value);
+      model.update();
     } else {
       this._set(props.obj, value);
-      this.setState({value: value});
+      this.setState({
+        value: value
+      });
     }
   }
 };

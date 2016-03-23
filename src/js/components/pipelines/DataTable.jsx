@@ -75,7 +75,8 @@ var DataTable = React.createClass({
   },
 
   handleDragStart: function(evt) {
-    model.signal(sg.MODE, 'channels').update();
+    model.signal(sg.MODE, 'channels');
+    model.update();
   },
 
   handleDragOver: function(evt) {

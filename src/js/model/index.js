@@ -89,7 +89,8 @@ function register() {
       }
       model._shiftKey = shiftKey;
       var setAltChan = mode === 'altchannels' ? 'channels' : mode;
-      model.signal(sg.MODE, mode === 'channels' ? 'altchannels' : setAltChan).update();
+      model.signal(sg.MODE, mode === 'channels' ? 'altchannels' : setAltChan);
+      model.update();
     });
   }
 
@@ -253,10 +254,11 @@ model.parse = function(el) {
 
 /**
  * Re-renders the current spec (e.g., to account for new signal values).
- * @returns {Object} The Lyra model.
  */
 model.update = function() {
-  return (model.view.update(), model);
+  if (model.view && model.view.update && typeof model.view.update === 'function') {
+    model.view.update();
+  }
 };
 
 /**
@@ -267,7 +269,8 @@ model.update = function() {
  * @returns {Object} The Lyra model.
  */
 model.onSignal = function(name, handler) {
-  var listener = listeners[name] || (listeners[name] = []);
+  listeners[name] = listeners[name] || [];
+  var listener = listeners[name];
   listener.push(handler);
   if (model.view) {
     model.view.onSignal(name, handler);
@@ -283,7 +286,8 @@ model.onSignal = function(name, handler) {
  * @returns {Object} The Lyra model.
  */
 model.offSignal = function(name, handler) {
-  var listener = listeners[name] || (listeners[name] = []);
+  listeners[name] = listeners[name] || [];
+  var listener = listeners[name];
   for (var i = listener.length; --i >= 0;) {
     if (!handler || listener[i] === handler) {
       listener.splice(i, 1);
