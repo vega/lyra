@@ -146,8 +146,8 @@ model.scale = function(id) {
  * @returns {*} The signal value if called as a getter, the model if called as
  * a setter.
  */
-model.signal = function(name, val) {
-  if (typeof val === 'undefined') {
+model.signal = function(name, value) {
+  if (typeof value === 'undefined') {
     return sg.getValue(name);
   }
   var ret = sg.value.apply(sg, arguments);
@@ -254,6 +254,7 @@ model.parse = function(el) {
 
 /**
  * Re-renders the current spec (e.g., to account for new signal values).
+ * @returns {void}
  */
 model.update = function() {
   if (model.view && model.view.update && typeof model.view.update === 'function') {

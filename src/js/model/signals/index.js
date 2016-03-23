@@ -6,7 +6,7 @@ var dl = require('datalib'),
 
 function api() {
   return signals;
-};
+}
 
 // Augment the signals API with properties like SELECTED that define the
 // strings used to identify and trigger a given signal
@@ -24,7 +24,7 @@ api.init = function(name, val) {
     _idx: dl.keys(signals).length
   };
   return ref(name);
-}
+};
 
 api.getValue = function(name) {
   var model = require('../'),
@@ -39,7 +39,7 @@ api.getValue = function(name) {
   } catch (e) {
     return signalObj.init;
   }
-}
+};
 
 api.value = function(name, val) {
   var model = require('../'),
@@ -59,7 +59,7 @@ api.value = function(name, val) {
     }
     return calledAsSetter ? api : signalObj.init;
   }
-}
+};
 
 // Stash current signal values from the view into our model
 // to allow seamless re-renders.
@@ -70,17 +70,17 @@ api.stash = function() {
     return signals;
   }
 
-  for (var k in signals) {
-    if (defaults.names.indexOf(k) >= 0) {
+  for (var key in signals) {
+    if (defaults.names.indexOf(key) >= 0) {
       continue;
     }
-    try {
-      signals[k].init = view.signal(k);
-    } catch (e) {}
+    if (view && typeof view.signal === 'function') {
+      signals[key].init = view.signal(key);
+    }
   }
 
   return signals;
-}
+};
 
 api.streams = function(name, def) {
   var sg = signals[ns(name)];
@@ -89,6 +89,6 @@ api.streams = function(name, def) {
   }
   sg.streams = def;
   return api;
-}
+};
 
 module.exports = api;
