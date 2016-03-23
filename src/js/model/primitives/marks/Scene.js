@@ -41,8 +41,8 @@ Scene.prototype.export = function(resolve) {
   var spec = Group.prototype.export.call(this, resolve);
 
   // Always resolve width/height signals.
-  spec.width = spec.width.signal ? sg.value(SG_WIDTH) : spec.width;
-  spec.height = spec.height.signal ? sg.value(SG_HEIGHT) : spec.height;
+  spec.width = spec.width.signal ? sg.getValue(SG_WIDTH) : spec.width;
+  spec.height = spec.height.signal ? sg.getValue(SG_HEIGHT) : spec.height;
 
   // Remove mark-specific properties
   delete spec.type;
