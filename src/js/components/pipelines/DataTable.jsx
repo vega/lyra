@@ -75,7 +75,7 @@ var DataTable = React.createClass({
   },
 
   handleDragStart: function(evt) {
-    model.signal(sg.MODE, 'channels');
+    sg.set(sg.MODE, 'channels');
     model.update();
   },
 
@@ -87,9 +87,12 @@ var DataTable = React.createClass({
     return false;
   },
 
+  // This makes use of the bubble cursor, which corresponds to the cell signal;
+  // we're using that to figure out which channel we are closest to. The
+  // SELECTED signal indicates the mark to bind the data to.
   handleDragEnd: function(evt) {
-    var sel = model.signal(sg.SELECTED),
-        cell = model.signal(sg.CELL),
+    var sel = sg.get(sg.SELECTED),
+        cell = sg.get(sg.CELL),
         fullField = this.state.fullField,
         dropped = sel._id && cell._id,
         prim;
@@ -97,12 +100,16 @@ var DataTable = React.createClass({
     try {
       if (dropped) {
         prim = lookup(sel.mark.def.lyra_id);
+        // The bind function on the primitive takes our input, parses it into
+        // vega-lite (see the rules index file) -- looks up what channel we're
+        // on, finds a vega-lite property, puts that in the rules object,
+        // calls vega lite compile, then iterates through each part of the rule.
         prim.bind(cell.key, fullField._id);
       }
     } catch (e) {}
 
-    model.signal(sg.MODE, 'handles')
-      .signal(sg.CELL, {});
+    sg.set(sg.MODE, 'handles');
+    sg.set(sg.CELL, {});
 
     if (dropped) {
       this.parse(prim);

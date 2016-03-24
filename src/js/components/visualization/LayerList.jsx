@@ -45,7 +45,7 @@ function mapDispatchToProps(dispatch, ownProps) {
       // If an item was found, set the Lyra mode signal so that the handles appear.
       // As noted above, this logic should probably not exist here!
       if (item !== null) {
-        model.signal(sg.SELECTED, item);
+        sg.set(sg.SELECTED, item);
         model.update();
       }
       // END unwanted side-effect-y code

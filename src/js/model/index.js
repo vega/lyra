@@ -73,14 +73,13 @@ function getset(cache, id, Type) {
 
 function register() {
   var win = d3.select(window),
-      dragover = 'dragover.altchan',
-      signalName, handlers, i, len;
+      dragover = 'dragover.altchan';
 
   // Register a window dragover event handler to detect shiftKey
   // presses for alternate channel manipulators.
   if (!win.on(dragover)) {
     win.on(dragover, function() {
-      var mode = model.signal(sg.MODE),
+      var mode = sg.get(sg.MODE),
           shiftKey = d3.event.shiftKey,
           prevKey = Boolean(model._shiftKey);
 
@@ -89,7 +88,7 @@ function register() {
       }
       model._shiftKey = shiftKey;
       var setAltChan = mode === 'altchannels' ? 'channels' : mode;
-      model.signal(sg.MODE, mode === 'channels' ? 'altchannels' : setAltChan);
+      sg.set(sg.MODE, mode === 'channels' ? 'altchannels' : setAltChan);
       model.update();
     });
   }
@@ -108,12 +107,12 @@ function register() {
     }
   });
 
-  for (signalName in listeners) {
-    handlers = listeners[signalName];
-    for (i = 0, len = handlers.length; i < len; ++i) {
-      model.view.onSignal(signalName, handlers[i]);
-    }
-  }
+  Object.keys(listeners).forEach(function(signalName) {
+    var handlers = listeners[signalName];
+    listeners[signalName].forEach(function(handlerFn) {
+      model.view.onSignal(signalName, handlerFn);
+    });
+  });
 }
 
 /**
@@ -148,10 +147,9 @@ model.scale = function(id) {
  */
 model.signal = function(name, value) {
   if (typeof value === 'undefined') {
-    return sg.getValue(name);
+    return sg.get(name);
   }
-  var ret = sg.value.apply(sg, arguments);
-  return ret === sg ? model : ret;
+  var ret = sg.set(name, value);
 };
 
 /**
@@ -186,7 +184,8 @@ model.manipulators = function() {
       marks = spec.marks || (spec.marks = []),
       idx = dl.comparator('_idx');
 
-
+  // Stash signals from vega into the lyra model, in preparation for seamlessly
+  // destroying & recreating the vega view
   signals.push.apply(signals, dl.vals(sg.stash()).sort(idx));
   predicates.push({
     name: sg.CELL,
@@ -227,14 +226,14 @@ model.manipulators = function() {
 };
 
 /**
- * Parses the model's `manipulators` spec and renders the visualization.
+ * Parses the model's `manipulators` spec and (re)renders the visualization.
  * @param  {string} [el] - A CSS selector corresponding to the DOM element
  * to render the visualization in.
  * @returns {Object} A Promise that resolves once the spec has been successfully
  * parsed and rendered.
  */
 model.parse = function(el) {
-  el = (el === undefined) ? '#vis' : el;
+  el = el || '#vis';
   if (model.view) {
     model.view.destroy();
   }
@@ -271,8 +270,7 @@ model.update = function() {
  */
 model.onSignal = function(name, handler) {
   listeners[name] = listeners[name] || [];
-  var listener = listeners[name];
-  listener.push(handler);
+  listeners[name].push(handler);
   if (model.view) {
     model.view.onSignal(name, handler);
   }
