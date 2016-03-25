@@ -1,11 +1,7 @@
 /* eslint no-unused-expressions:0 */
 'use strict';
 var expect = require('chai').expect;
-var Immutable = require('immutable');
 
-// Pull in a fresh signals module so we can clean-initialize values used in tests
-delete require.cache[require.resolve('../model/signals')];
-var sg = require('../model/signals');
 var Group = require('../model/primitives/marks/Group');
 var Rect = require('../model/primitives/marks/Rect');
 

@@ -18,10 +18,10 @@ function getSignal(name) {
  * to access the internal signals store.
  *
  * @module signals
- * @return {Object} The signal store object
+ * @returns {Object} The signal store object
  */
 function api() {
-  return signals;
+  return store.getState().get('signals').toJS();
 }
 
 // Augment the signals API with properties like SELECTED that define the
@@ -43,7 +43,7 @@ api.init = function(name, val) {
  * Get a signal reference object for the provided vega signal ID.
  *
  * @param {string} name - The name of the signal to reference
- * @return {Object} A signal reference object with a string .signal property
+ * @returns {Object} A signal reference object with a string .signal property
  */
 api.reference = function(name) {
   return {
@@ -53,7 +53,7 @@ api.reference = function(name) {
 
 function isDefault(name) {
   return defaults.names.indexOf(name) >= 0;
-};
+}
 api.isDefault = isDefault;
 
 /**
@@ -86,7 +86,7 @@ api.get = function(name) {
  *
  * @param {string} name - The name of the signal to set
  * @param {*} val - The value to set, often an object or a number
- * @return {Object} The Signals API object
+ * @returns {Object} The Signals API object
  */
 api.set = function(name, val) {
   var model = require('../'),
@@ -94,46 +94,12 @@ api.set = function(name, val) {
 
   if (!isDefault(name)) {
     store.dispatch(setSignal(name, val));
-  } else {
+  } else if (view && typeof view.signal === 'function') {
     // The default signals do not get saved in the store, but they need to be passed
     // through to vega in order for channels, etc to work. Check for view because
     // it may not have been initialized yet.
-    if (view && typeof view.signal === 'function') {
-      view.signal(ns(name), val);
-    }
+    view.signal(ns(name), val);
   }
-};
-
-/**
- * Stash current signal values from the view into our model to allow seamless
- * re-renders.
- *
- * @returns {void}
- */
-api.stash = function() {
-  var model = require('../'),
-      view = model.view;
-
-  if (!view) {
-    return signals;
-  }
-
-  Object.keys(signals).forEach(function(key) {
-    // Default signals relate to things like selected mark, which can either change
-    // when the vega spec is re-generated (invalidating any data we may have at this
-    // stage), or in the case of selected mark specifically may contain nested refs
-    // to parents and other scene graph nodes, leading to circular references or
-    // unnecessarily-inflated signals stash sizes. It is easier all around to omit
-    // these values and re-compute selected after the new vega view renders.
-    if (isDefault(key)) {
-      return;
-    }
-    if (typeof view.signal === 'function') {
-      signals[key].init = view.signal(key);
-    }
-  });
-
-  return signals;
 };
 
 /**

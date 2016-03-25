@@ -5,9 +5,8 @@ var Immutable = require('immutable');
 var assign = require('object-assign');
 
 var actions = require('../constants/actions');
-var getIn = require('../util/immutable-utils').getIn;
-var setIn = require('../util/immutable-utils').setIn;
 
+// @TODO: members of the state.signals map are not actually immutable
 function signalsReducer(state, action) {
   if (typeof state === 'undefined') {
     return Immutable.Map();

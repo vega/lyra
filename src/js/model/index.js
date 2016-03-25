@@ -192,8 +192,8 @@ model.manipulators = function() {
 
   // Stash signals from vega into the lyra model, in preparation for seamlessly
   // destroying & recreating the vega view
-  var signalsFromStore = store.getState().get('signals').toJS();
-  signals.push.apply(signals, dl.vals(signalsFromStore).sort(idx));
+  // sg() is a function that returns all registered signals
+  signals.push.apply(signals, dl.vals(sg()).sort(idx));
   predicates.push({
     name: sg.CELL,
     type: '==',
@@ -255,7 +255,11 @@ model.parse = function(el) {
         resolve(model.view);
       }
     });
-  }).then(model.update).then(updateSelectedMarkInVega).then(model.update);
+  })
+    // View has to update once before scene is ready
+    .then(model.update)
+    // Persist the selected item from before we destroyed the scene
+    .then(updateSelectedMarkInVega).then(model.update);
 };
 
 /**
