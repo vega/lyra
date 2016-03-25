@@ -1,11 +1,11 @@
 'use strict';
 var React = require('react'),
-    PipelineList = require('./pipelines/PipelineList'),
-    ScaleList = require('./ScaleList'),
-    LayerList = require('./LayerList'),
-    Inspector = require('./Inspector'),
+    InspectorSidebar = require('./InspectorSidebar'),
+    VisualSidebar = require('./VisualSidebar'),
+    PipelinesSidebar = require('./PipelinesSidebar'),
     model = require('../model');
 
+// Splitting each sidebar into it's column
 var Sidebars = React.createClass({
   getInitialState: function() {
     return {
@@ -13,22 +13,14 @@ var Sidebars = React.createClass({
       expandedLayers: {}
     };
   },
-
   render: function() {
-    var pipelines = model.pipeline();
-
+     var pipelines = model.pipeline();
     return (
       <div>
-        <ScaleList ref="scaleList"
-          scales={model.scale()} />
-
-        <LayerList ref="layerList"
-          layers={model.Scene.marks} />
-
-        <Inspector ref="inspector"
+        <VisualSidebar/>
+        <InspectorSidebar ref="inspector"
           pipelines={pipelines} />
-
-        <PipelineList pipelines={pipelines} />
+        <PipelinesSidebar/>
       </div>
     );
   }

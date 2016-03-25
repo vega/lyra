@@ -1,15 +1,15 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    ContentEditable = require('./ContentEditable'),
-    model = require('../model'),
+    ContentEditable = require('../ContentEditable'),
+    model = require('../../model'),
     lookup = model.lookup,
-    sg = require('../model/signals'),
-    hierarchy = require('../util/hierarchy'),
-    getIn = require('../util/immutable-utils').getIn,
-    selectMark = require('../actions/selectMark'),
-    expandLayers = require('../actions/expandLayers'),
-    toggleLayers = require('../actions/toggleLayers');
+    sg = require('../../model/signals'),
+    hierarchy = require('../../util/hierarchy'),
+    getIn = require('../../util/immutable-utils').getIn,
+    selectMark = require('../../actions/selectMark'),
+    expandLayers = require('../../actions/expandLayers'),
+    toggleLayers = require('../../actions/toggleLayers');
 
 var MARGIN_LEFT = 10;
 
