@@ -8,6 +8,9 @@
  * @returns {Primitive[]} An array of primitives.
  */
 function getParents(primitive) {
+  if (!primitive) {
+    return [];
+  }
   var current = primitive.parent && primitive.parent();
   if (!current) {
     return [];

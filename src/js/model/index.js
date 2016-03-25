@@ -7,6 +7,7 @@ var dl = require('datalib'),
     ns = require('../util/ns'),
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
+    getIn = require('../util/immutable-utils').getIn,
     selectMark = require('../actions/selectMark'),
     expandLayers = require('../actions/expandLayers');
 
@@ -95,9 +96,14 @@ function register() {
 
   model.view.onSignal(sg.SELECTED, function(name, selected) {
     var def = selected.mark.def,
-        id = def && def.lyra_id,
-        // Walk up from the selected primitive to create an array of its parent groups' IDs
-        parentLayerIds = hierarchy.getParentGroupIds(lookup(id));
+        id = def && def.lyra_id;
+
+    if (getIn(store.getState(), 'inspector.selected') === id) {
+      return;
+    }
+
+    // Walk up from the selected primitive to create an array of its parent groups' IDs
+    var parentLayerIds = hierarchy.getParentGroupIds(lookup(id));
 
     if (id) {
       // Select the mark,
@@ -248,7 +254,7 @@ model.parse = function(el) {
         resolve(model.view);
       }
     });
-  }).then(model.update);
+  }).then(updateSelectedMarkInVega).then(model.update);
 };
 
 /**
@@ -297,3 +303,34 @@ model.offSignal = function(name, handler) {
   }
   return model;
 };
+
+function updateSelectedMarkInVega() {
+  var storeSelectedId = getIn(store.getState(), 'inspector.selected');
+  // If no item is marked selected in the store, or if the view is not ready,
+  // take no action
+  if (!storeSelectedId || !model.view) {
+    return;
+  }
+  var def = sg.get(sg.SELECTED).mark.def,
+      vegaSelectedId = def && def.lyra_id;
+
+  // If the store and the Vega scene graph are in sync, take no action
+  if (storeSelectedId === vegaSelectedId) {
+    return;
+  }
+
+  var selectedMark = lookup(storeSelectedId),
+      // Walk up from the selected primitive to find all parent groups and create
+      // an array of all relevant [lyra] IDs
+      markIds = [storeSelectedId].concat(hierarchy.getParentGroupIds(selectedMark)),
+      // then walk down the rendered Vega scene graph to find a corresponding item.
+      item = hierarchy.findInItemTree(model.view.model().scene().items[0], markIds);
+
+  // If an item was found, set the Lyra mode signal so that the handles appear.
+  if (item !== null) {
+    sg.set(sg.SELECTED, item);
+  }
+}
+
+store.subscribe(updateSelectedMarkInVega);
+store.subscribe(model.update);
