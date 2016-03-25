@@ -18,7 +18,9 @@ function getParents(primitive) {
   var parents = [current];
   while (current && current.parent && typeof current.parent === 'function') {
     current = current.parent();
-    parents.push(current);
+    if (current) {
+      parents.push(current);
+    }
   }
   return parents;
 }
