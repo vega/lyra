@@ -5,9 +5,10 @@ var ReactDOM = require('react-dom'),
     Provider = require('react-redux').Provider,
     store = require('../store');
 
+// React requires you only have one wrapper element called in your provider
 module.exports = ReactDOM.render(
   <Provider store={store}>
-    <Sidebars />
+    <Sidebars/>
   </Provider>,
   d3.select('#sidebars').node()
 );

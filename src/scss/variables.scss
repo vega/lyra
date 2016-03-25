@@ -1,0 +1,28 @@
+$dblue-bg: #7B8B9D;
+$mblue-bg: #92A3B2;
+$lblue-bg: #CBD2DA;
+$blue-font: #7B8B9D;
+
+$dgrey-bg: #939393;
+$lgrey-bg: #BFBFBF;
+$dgrey-border: #6B6B6B;
+$lgrey-border: #989CA5;
+$grey-font: #808080;
+
+$outer-padding: 10px;
+$inner-padding: 5px;
+$margin: $outer-padding;
+
+$border-radius: 5px;
+
+$toolbar-height: 16px;
+
+$scale-list-width: 90px;
+$layer-list-width: 140px;
+$pipeline-list-width: 200px;
+$inspector-height: 33%;
+$inspector-width: $scale-list-width + $layer-list-width;
+$sidebars-width: $inspector-width + $pipeline-list-width;
+
+$header-font-size: 15px;
+

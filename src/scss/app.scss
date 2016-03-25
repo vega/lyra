@@ -1,0 +1,12 @@
+@import 'reset';
+@import 'variables';
+@import 'scaffold';
+@import 'grid';
+@import 'typography';
+@import 'pipelines';
+@import 'layers';
+@import 'inspector';
+
+body {
+  background: url('../assets/checkers.png') repeat !important;
+}
