@@ -193,10 +193,7 @@ model.manipulators = function() {
   // Stash signals from vega into the lyra model, in preparation for seamlessly
   // destroying & recreating the vega view
   var signalsFromStore = store.getState().get('signals').toJS();
-  console.log('from store', Object.keys(signalsFromStore));
-  console.log('from stash', Object.keys(sg.stash()));
   signals.push.apply(signals, dl.vals(signalsFromStore).sort(idx));
-  // signals.push.apply(signals, dl.vals(sg.stash()).sort(idx));
   predicates.push({
     name: sg.CELL,
     type: '==',
@@ -245,7 +242,6 @@ model.manipulators = function() {
 model.parse = function(el) {
   el = el || '#vis';
   if (model.view) {
-    console.log('destroying view');
     model.view.destroy();
   }
   return new Promise(function(resolve, reject) {
@@ -254,14 +250,12 @@ model.parse = function(el) {
       if (err) {
         reject(err);
       } else {
-        console.log('recreating view');
         model.view = chart({el: el});
-        console.log('re-registering');
         register();
         resolve(model.view);
       }
     });
-  }).then(model.update);
+  }).then(model.update).then(updateSelectedMarkInVega).then(model.update);
 };
 
 /**
@@ -311,11 +305,16 @@ model.offSignal = function(name, handler) {
   return model;
 };
 
+/**
+ * When vega re-renders we use the stored ID of the selected mark to re-select
+ * that mark in the new vega instance
+ * @return {void}
+ */
 function updateSelectedMarkInVega() {
   var storeSelectedId = getIn(store.getState(), 'inspector.selected');
   // If no item is marked selected in the store, or if the view is not ready,
   // take no action
-  if (!storeSelectedId || !model.view) {
+  if (!storeSelectedId || !model.view || !model.view.model || !model.view.model().scene()) {
     return;
   }
   var def = sg.get(sg.SELECTED).mark.def,
@@ -334,17 +333,19 @@ function updateSelectedMarkInVega() {
       item = hierarchy.findInItemTree(model.view.model().scene().items[0], markIds);
 
   // If an item was found, set the Lyra mode signal so that the handles appear.
-  if (item !== null && model.view) {
-    try {
-      model.view.signal(sg.SELECTED, item);
-    } catch (e) {
-      // The signal isn't properly registered...
-    }
+  if (item !== null) {
+    sg.set(sg.SELECTED, item);
   }
 }
 
-store.subscribe(updateSelectedMarkInVega);
-store.subscribe(function() {
+/**
+ * Setting the same value on a signal twice should have no effect, so  we
+ * naively set all signals on each store update to ensure store and Vega
+ * stay in sync. Altering this to be smarter is one area to investigate should
+ * any performance issues crop up later on, but signal writes are pretty fast.
+ * @return {void}
+ */
+function updateAllSignals() {
   // Nothing to do here if the view is not ready
   if (!model.view || typeof model.view.signal !== 'function') {
     return;
@@ -355,14 +356,13 @@ store.subscribe(function() {
     if (sg.isDefault(name)) {
       return;
     }
-    // Persist any signals to the model, if available
-    try {
-      view.signal(name, value.init);
-    } catch (e) {
-      // The signal isn't properly registered...
-    }
+    // Persist any signals from the store to the view
+    model.view.signal(name, value.init);
   });
-});
+}
+
+store.subscribe(updateSelectedMarkInVega);
+store.subscribe(updateAllSignals);
 store.subscribe(model.update);
 
 window.store = store;

@@ -14,7 +14,6 @@ function signalsReducer(state, action) {
   }
 
   if (action.type === actions.INIT_SIGNAL) {
-    console.log('setting ' + action.signal, action.value);
     return state.set(action.signal, {
       name: action.signal,
       init: action.value,
@@ -28,9 +27,11 @@ function signalsReducer(state, action) {
     }));
   }
 
-  // if (action.type === actions.STASH_SIGNALS) {
-  //   return ...
-  // }
+  if (action.type === actions.SET_SIGNAL_STREAMS) {
+    return state.set(action.signal, assign({}, state.get(action.signal), {
+      streams: action.value
+    }));
+  }
 
   return state;
 }

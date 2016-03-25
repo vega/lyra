@@ -5,8 +5,13 @@ var dl = require('datalib'),
     getIn = require('../../util/immutable-utils').getIn,
     initSignal = require('../../actions/initSignal'),
     setSignal = require('../../actions/setSignal'),
-    defaults = require('./defaults'),
-    signals = defaults.signals;
+    setSignalStreams = require('../../actions/setSignalStreams'),
+    defaults = require('./defaults');
+
+// Utility method to get a signal from the store
+function getSignal(name) {
+  return getIn(store.getState(), 'signals.' + ns(name));
+}
 
 /**
  * The signals module object, which doubles as a function which can be called
@@ -31,16 +36,7 @@ dl.extend(api, defaults.signalNames);
  * @returns {Object} An object representing a link to this signal
  */
 api.init = function(name, val) {
-  name = ns(name);
-  // signals[name] = {
-  //   name: name,
-  //   init: val,
-  //   _idx: dl.keys(signals).length
-  // };
   store.dispatch(initSignal(name, val));
-  // return {
-  //   signal: ns(name)
-  // };
 };
 
 /**
@@ -71,14 +67,12 @@ api.get = function(name) {
   var model = require('../'),
       // `view` is a vega runtime component; view.signal is a getter/setter
       view = model.view,
-      name = ns(name),
-      signalObj = getIn(store.getState(), 'signals.' + name),
-      // signalObj = signals[name],
+      signalObj = getSignal(name),
       signalVal;
 
   // Wrap signal accessors in case view doesn't yet exist,
   if (view && typeof view.signal === 'function') {
-    signalVal = view.signal(name);
+    signalVal = view.signal(ns(name));
   }
 
   // and handle case where signal hasn't been registered yet with the view.
@@ -96,23 +90,16 @@ api.get = function(name) {
  */
 api.set = function(name, val) {
   var model = require('../'),
-      // `view` is a vega runtime component; view.signal is a getter/setter
-      view = model.view,
-      name = ns(name);
-      // signalObj = signals[name];
+      view = model.view;
 
   if (!isDefault(name)) {
     store.dispatch(setSignal(name, val));
   } else {
     // The default signals do not get saved in the store, but they need to be passed
-    // through to vega in order for channels, etc to work.
-    // Wrap signal setter call in a try/catch in case view doesn't exist or the
-    // signal hasn't been registered yet with the view (`view.signal` will throw
-    // if it gets a bad signal value).
-    try {
-      view.signal(name, val);
-    } catch (e) {
-      // No real action to take
+    // through to vega in order for channels, etc to work. Check for view because
+    // it may not have been initialized yet.
+    if (view && typeof view.signal === 'function') {
+      view.signal(ns(name), val);
     }
   }
 };
@@ -158,15 +145,7 @@ api.stash = function() {
  * if called as a setter
  */
 api.streams = function(name, def) {
-  var name = ns(name),
-      sg = getIn(store.getState(), 'signals.' + name);
-      // sg = signals[name];
-
-  if (arguments.length === 1) {
-    return sg.streams;
-  }
-  sg.streams = def;
-  return api;
+  store.dispatch(setSignalStreams(name, def));
 };
 
 module.exports = api;
