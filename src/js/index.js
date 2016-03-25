@@ -1,7 +1,7 @@
 /* eslint no-unused-expressions: 0 */
 'use strict';
 
-// require('../scss/app.scss');
+require('../scss/app.scss');
 
 // Additional requires to polyfill + browserify package.
 require('array.prototype.find');

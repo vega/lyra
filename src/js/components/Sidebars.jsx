@@ -5,7 +5,7 @@ var React = require('react'),
     PipelinesSidebar = require('./PipelinesSidebar'),
     model = require('../model');
 
-// Splitting each sidebar into it's column
+// Splitting each sidebar into its column
 var Sidebars = React.createClass({
   getInitialState: function() {
     return {
@@ -14,7 +14,7 @@ var Sidebars = React.createClass({
     };
   },
   render: function() {
-     var pipelines = model.pipeline();
+    var pipelines = model.pipeline();
     return (
       <div>
         <VisualSidebar/>

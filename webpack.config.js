@@ -1,5 +1,8 @@
+/* eslint-disable */
+
 var webpack = require( 'webpack' );
 var path = require( 'path' );
+var HtmlWepbackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -16,9 +19,9 @@ module.exports = {
     ],
   },
   output: {
-    path: path.resolve( __dirname, 'build' ),
+    path: path.resolve(__dirname, 'build'),
     publicPath: '/build/',
-    filename: 'js/lyra.js'
+    filename: 'js/[name].js'
   },
   module: {
     loaders: [
@@ -31,18 +34,28 @@ module.exports = {
             'react'
           ]
         }
+      },
+      {
+        test: /\.scss$/,
+        loaders: ['style', 'css', 'sass']
+      },
+      {
+        test: /\.png$/,
+        loader: 'file-loader'
       }
     ]
   },
   resolve: {
     // Permits `require( 'file' )` instead of `require( 'file.jsx' )`
-    extensions: [ '', '.js', '.jsx' ]
+    extensions: ['', '.js', '.jsx']
   },
   plugins: [
     // Extract the "vendor" code into
-    new webpack.optimize.CommonsChunkPlugin(
-      'vendor', // chunk name
-      'js/vendor.js' // filename
-    )
+    new HtmlWepbackPlugin({
+      filename: './index.html',
+      template: './index.html',
+      inject: 'body',
+      version: require('./package.json').version
+    })
   ]
 };

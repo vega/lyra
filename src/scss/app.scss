@@ -1,4 +1,3 @@
-@import "~/susy/sass/susy";
 @import 'reset';
 @import 'variables';
 @import 'scaffold';
@@ -7,3 +6,7 @@
 @import 'pipelines';
 @import 'layers';
 @import 'inspector';
+
+body {
+  background: url('../assets/checkers.png') repeat !important;
+}
