@@ -1,45 +1,6 @@
 #layer-list {
-  position: absolute;
-  top: 0;
-  left: $scale-list-width;
-  height: $inspector-height;
-  width: $layer-list-width - 2*$outer-padding;
-  padding: $outer-padding;
-  overflow: auto;
-  background-color: $lblue-bg;
+  min-height: 60%;
 
-  h2 {
-    color: $blue-font;
-
-    span.edit {
-      float: right;
-      text-align: right;
-      font-size: 10px;
-      cursor: pointer;
-    }
-  }
-
-  li {
-    list-style-type: none;
-
-    .name {
-      cursor: pointer;
-      margin: 0 (-$outer-padding);
-      padding: $inner-padding $outer-padding;
-
-      i {
-        padding: 0 $inner-padding;
-      }
-
-      &.selected {
-        background-color: $mblue-bg;
-      }
-    }
-
-    .content-editable {
-      display: inline-block;
-    }
-  }
 
   ul.group {
     white-space: nowrap;

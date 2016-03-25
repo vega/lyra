@@ -1,117 +1,116 @@
+// container for the grid
+.app {
+  @include container();
+  margin: 0;
+  overflow-y: hidden;
+}
 
+// grid helper classes
+@include generate_helper_classes();
+
+
+// media query breaks
+
+$tablet-width: 768px;
+$desktop-width: 1024px;
+$breaking-width: 1100px;
+
+@mixin tablet {
+  @media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$desktop-width}) {
+    @content;
+  }
+}
+
+@mixin breakingMenus {
+  @media (max-width: #{$breaking-width}) {
+    @content;
+  }
+}
+
+
+
+// Body
 
 body {
-  background: #eee;
+  background: $bg-color;
   font-family: Avenir, Helvetica Neue, Helvetica, Arial;
   font-size: 13px;
+  overflow-y: hidden;
 }
 
-h2 {
-  font-size: $header-font-size;
-  text-transform: uppercase;
-  margin-bottom: $margin;
-
-  i.fa-plus {
-    margin-left: $inner-padding;
-    cursor: pointer;
+// The two main sections of our app
+// Sidebar is where the react components are placed
+.sidebar-container{
+  @include breakingMenus {
+    width: 505px;
   }
 }
 
-.content-editable:focus {
-  -moz-user-select: -moz-text;
-  -khtml-user-select: text;
-  -webkit-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
-  background-color: white !important;
-  border: 1px solid darkgray !important;
-  box-shadow: 1px 1px 1px 0 lightgray inset;
-  padding: 5px;
-}
-
-#sidebars {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: $sidebars-width;
-}
-
-
-#scale-list {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: $inspector-height;
-  width: $scale-list-width - 2*$inner-padding;
-  padding: $outer-padding $inner-padding;
-  overflow: auto;
-  background-color: $lgrey-bg;
-  text-align: center;
-
-  h2 {
-    color: $grey-font;
-  }
-
-  li {
-    list-style-type: none;
-    margin: $inner-padding/2 (-$inner-padding);
-    padding: $inner-padding/2 0;
-    cursor: pointer;
-
-    &.selected {
-      background-color: $dgrey-bg;
-    }
-  }
-
-  .scale {
-
-  }
-}
-
-#vis {
-  position: absolute;
-  top: 40px;
-  left: $sidebars-width + 20px;
-
+// Vis-container is where vega is placed
+.vis-container {
+  background:$dgrey-bg;
+  padding: 5%;
   canvas {
-    border: 1px solid #ccc;
-    box-shadow: 2px 2px 17px 0px rgba(0,0,0,0.15)
+    border: 1px solid $lgrey-bg;
   }
-
+  @include breakingMenus {
+    width: 500px;
+    margin-left:505px;
+  }
 }
 
-.scale {
-  display: inline-block;
-  min-width: 20px;
-  padding: $inner-padding;
-  background-color: $dgrey-bg;
-  border: 1px solid $dgrey-border;
-  border-radius: 2*$border-radius;
-  cursor: -webkit-grab;
-  cursor: -moz-grab;
+
+// each vertical sidebar
+.sidebar {
+  header {
+    padding: 10px;
+  }
+  position: relative;
+  z-index: 999;
+  border-right: 1px solid $lgrey-bg;
+  height: 100%;
+  overflow-y: scroll;
+  box-sizing: border-box;
+  background-color: $bg-color;
 }
 
-.field {
-  border: 1px solid;
-  cursor: -webkit-grab;
-  cursor: -moz-grab;
 
-  &.source {
-    background: #bed9ab;
-    border-color: rgba(140, 161, 124, 0.5);
+.expandingMenu {
+  >ul>li{
+    border-bottom: 1px solid $lgrey-bg;
+  }
+  ul {
+    li {
+      list-style-type: none;
+      .name {
+        padding: 10px;
+        cursor: pointer;
+        i {
+          padding: 0 $inner-padding;
+        }
 
-    &:hover {
-      background: #d2e7c3;
+        &.selected {
+          background-color: $mblue-bg;
+          color: #fff;
+          font-weight: bold;
+        }
+      }
+      .content-editable {
+        display: inline-block;
+      }
     }
   }
-
-  &.derived {
-    background: #efe8af;
-    border-color: rgba(209, 191, 148, 0.65);
-
-    &:hover {
-      background: #f5f1cc;
-    }
+  .expanded {
+    background-color: #fff;
+  }
+  .header {
+    padding:10px;
   }
 }
+

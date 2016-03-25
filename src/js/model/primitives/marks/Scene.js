@@ -18,9 +18,8 @@ var SG_WIDTH = 'vis_width', SG_HEIGHT = 'vis_height';
  */
 function Scene() {
   Group.call(this);
-
-  this.width = 500;
-  this.height = 500;
+  this.width = 610;
+  this.height = 610;
   this.padding = 'auto';
   this.background = 'white';
 

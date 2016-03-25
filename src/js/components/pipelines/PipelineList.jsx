@@ -14,7 +14,7 @@ var PipelineList = React.createClass({
   render: function() {
     return (
       <div id="pipeline-list">
-        <h2>Data Pipelines <i className="fa fa-plus"></i></h2>
+        <h4>Data <i className="fa fa-plus"></i></h4>
         {this.props.pipelines.map(function(p) {
           return (
             <PipelineInspector

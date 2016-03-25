@@ -1,0 +1,18 @@
+.toolbar {
+  background-color: $lgrey-bg;
+  position: absolute;
+  left: 5%;
+  top: 15px;
+  ul {
+    margin: 0;
+    li {
+      padding: 10px;
+      display: inline-block;
+    }
+  }
+  @include breakingMenus {
+    width: 500px;
+    margin-left:505px;
+  }
+}
+

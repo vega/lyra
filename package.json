@@ -79,7 +79,6 @@
     "sinon-chai": "^2.8.0",
     "string.prototype.startswith": "^0.2.0",
     "style-loader": "^0.13.1",
-    "susy": "^2.2.12",
     "vega": "^2.5.0",
     "vega-lite": "^1.0.1",
     "webpack": "^1.12.14",

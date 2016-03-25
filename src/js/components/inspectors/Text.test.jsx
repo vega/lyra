@@ -68,6 +68,6 @@ describe('Text Inspector <Text/> (shallow)', function() {
   });
 
   it('it should render headers for each group', function() {
-    expect(wrapper.find('h3')).to.have.length(5);
+    expect(wrapper.find('h4')).to.have.length(5);
   });
 });

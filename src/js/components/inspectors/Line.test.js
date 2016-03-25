@@ -37,8 +37,8 @@ describe('Line Inspector <Line/> (shallow)', function() {
     expect(wrapper.find(Property)).to.have.length(4);
   });
 
-  it('it should render 2 h3 tags', function() {
-    expect(wrapper.find('h3')).to.have.length(2);
+  it('it should render 2 h4 tags', function() {
+    expect(wrapper.find('h4')).to.have.length(2);
   });
 });
 

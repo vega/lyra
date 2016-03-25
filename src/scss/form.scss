@@ -1,0 +1,51 @@
+
+.content-editable:focus {
+  -moz-user-select: -moz-text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  background-color: white !important;
+  border: 1px solid darkgray !important;
+  box-shadow: 1px 1px 1px 0 lightgray inset;
+  padding: 5px;
+}
+
+.field {
+  border: 1px solid;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+
+  &.source {
+    background: #bed9ab;
+    border-color: rgba(140, 161, 124, 0.5);
+
+    &:hover {
+      background: #d2e7c3;
+    }
+  }
+
+  &.derived {
+    background: #efe8af;
+    border-color: rgba(209, 191, 148, 0.65);
+
+    &:hover {
+      background: #f5f1cc;
+    }
+  }
+}
+
+.button {
+  padding: 6px;
+  margin: 6px 8px 6px 8px;
+  min-width: 88px;
+  border-radius: 2px;
+  font-size: 14px;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration:none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  background-color: #fff;
+}
