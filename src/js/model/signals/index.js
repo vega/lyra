@@ -1,6 +1,10 @@
 'use strict';
 var dl = require('datalib'),
     ns = require('../../util/ns'),
+    store = require('../../store'),
+    getIn = require('../../util/immutable-utils').getIn,
+    initSignal = require('../../actions/initSignal'),
+    setSignal = require('../../actions/setSignal'),
     defaults = require('./defaults'),
     signals = defaults.signals;
 
@@ -28,15 +32,33 @@ dl.extend(api, defaults.signalNames);
  */
 api.init = function(name, val) {
   name = ns(name);
-  signals[name] = {
-    name: name,
-    init: val,
-    _idx: dl.keys(signals).length
-  };
+  // signals[name] = {
+  //   name: name,
+  //   init: val,
+  //   _idx: dl.keys(signals).length
+  // };
+  store.dispatch(initSignal(name, val));
+  // return {
+  //   signal: ns(name)
+  // };
+};
+
+/**
+ * Get a signal reference object for the provided vega signal ID.
+ *
+ * @param {string} name - The name of the signal to reference
+ * @return {Object} A signal reference object with a string .signal property
+ */
+api.reference = function(name) {
   return {
     signal: ns(name)
   };
 };
+
+function isDefault(name) {
+  return defaults.names.indexOf(name) >= 0;
+};
+api.isDefault = isDefault;
 
 /**
  * Get a signal value from the view (if the view is ready), or from the internal
@@ -50,7 +72,8 @@ api.get = function(name) {
       // `view` is a vega runtime component; view.signal is a getter/setter
       view = model.view,
       name = ns(name),
-      signalObj = signals[name],
+      signalObj = getIn(store.getState(), 'signals.' + name),
+      // signalObj = signals[name],
       signalVal;
 
   // Wrap signal accessors in case view doesn't yet exist,
@@ -75,18 +98,23 @@ api.set = function(name, val) {
   var model = require('../'),
       // `view` is a vega runtime component; view.signal is a getter/setter
       view = model.view,
-      name = ns(name),
-      signalObj = signals[name];
+      name = ns(name);
+      // signalObj = signals[name];
 
-  // Wrap signal setter call in a try/catch in case view doesn't exist or the
-  // signal hasn't been registered yet with the view (`view.signal` will throw
-  // if it gets a bad signal value).
-  try {
-    view.signal(name, val);
-  } catch (e) {
-    signalObj.init = val;
+  if (!isDefault(name)) {
+    store.dispatch(setSignal(name, val));
+  } else {
+    // The default signals do not get saved in the store, but they need to be passed
+    // through to vega in order for channels, etc to work.
+    // Wrap signal setter call in a try/catch in case view doesn't exist or the
+    // signal hasn't been registered yet with the view (`view.signal` will throw
+    // if it gets a bad signal value).
+    try {
+      view.signal(name, val);
+    } catch (e) {
+      // No real action to take
+    }
   }
-  return api;
 };
 
 /**
@@ -110,7 +138,7 @@ api.stash = function() {
     // to parents and other scene graph nodes, leading to circular references or
     // unnecessarily-inflated signals stash sizes. It is easier all around to omit
     // these values and re-compute selected after the new vega view renders.
-    if (defaults.names.indexOf(key) >= 0) {
+    if (isDefault(key)) {
       return;
     }
     if (typeof view.signal === 'function') {
@@ -131,7 +159,8 @@ api.stash = function() {
  */
 api.streams = function(name, def) {
   var name = ns(name),
-      sg = signals[name];
+      sg = getIn(store.getState(), 'signals.' + name);
+      // sg = signals[name];
 
   if (arguments.length === 1) {
     return sg.streams;

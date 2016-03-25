@@ -32,8 +32,10 @@ inherits(Scene, Group);
 Scene.prototype.parent = null;
 
 Scene.prototype.init = function() {
-  this.width = sg.init(SG_WIDTH, this.width);
-  this.height = sg.init(SG_HEIGHT, this.height);
+  sg.init(SG_WIDTH, this.width);
+  sg.init(SG_HEIGHT, this.height)
+  this.width = sg.reference(SG_WIDTH);
+  this.height = sg.reference(SG_HEIGHT);
   return Group.prototype.init.call(this);
 };
 

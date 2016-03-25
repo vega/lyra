@@ -66,8 +66,9 @@ Mark.prototype.init = function() {
 
   for (k in update) {
     p = update[k];
-    if (p.value !== undefined) {
-      update[k] = dl.extend(sg.init(propSg(this, k), p.value),
+    if (typeof p.value !== 'undefined') {
+      sg.init(propSg(this, k), p.value);
+      update[k] = dl.extend(sg.reference(propSg(this, k)),
         p._disabled ? {_disabled: true} : {});
     }
   }

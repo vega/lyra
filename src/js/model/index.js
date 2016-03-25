@@ -192,7 +192,11 @@ model.manipulators = function() {
 
   // Stash signals from vega into the lyra model, in preparation for seamlessly
   // destroying & recreating the vega view
-  signals.push.apply(signals, dl.vals(sg.stash()).sort(idx));
+  var signalsFromStore = store.getState().get('signals').toJS();
+  console.log('from store', Object.keys(signalsFromStore));
+  console.log('from stash', Object.keys(sg.stash()));
+  signals.push.apply(signals, dl.vals(signalsFromStore).sort(idx));
+  // signals.push.apply(signals, dl.vals(sg.stash()).sort(idx));
   predicates.push({
     name: sg.CELL,
     type: '==',
@@ -241,6 +245,7 @@ model.manipulators = function() {
 model.parse = function(el) {
   el = el || '#vis';
   if (model.view) {
+    console.log('destroying view');
     model.view.destroy();
   }
   return new Promise(function(resolve, reject) {
@@ -249,12 +254,14 @@ model.parse = function(el) {
       if (err) {
         reject(err);
       } else {
+        console.log('recreating view');
         model.view = chart({el: el});
+        console.log('re-registering');
         register();
         resolve(model.view);
       }
     });
-  }).then(updateSelectedMarkInVega).then(model.update);
+  }).then(model.update);
 };
 
 /**
@@ -327,10 +334,35 @@ function updateSelectedMarkInVega() {
       item = hierarchy.findInItemTree(model.view.model().scene().items[0], markIds);
 
   // If an item was found, set the Lyra mode signal so that the handles appear.
-  if (item !== null) {
-    sg.set(sg.SELECTED, item);
+  if (item !== null && model.view) {
+    try {
+      model.view.signal(sg.SELECTED, item);
+    } catch (e) {
+      // The signal isn't properly registered...
+    }
   }
 }
 
 store.subscribe(updateSelectedMarkInVega);
+store.subscribe(function() {
+  // Nothing to do here if the view is not ready
+  if (!model.view || typeof model.view.signal !== 'function') {
+    return;
+  }
+  var signals = getIn(store.getState(), 'signals');
+  signals.forEach(function(value, name) {
+    // Skip any signal from the defaults
+    if (sg.isDefault(name)) {
+      return;
+    }
+    // Persist any signals to the model, if available
+    try {
+      view.signal(name, value.init);
+    } catch (e) {
+      // The signal isn't properly registered...
+    }
+  });
+});
 store.subscribe(model.update);
+
+window.store = store;
