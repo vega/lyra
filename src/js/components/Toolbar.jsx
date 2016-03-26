@@ -1,8 +1,16 @@
 'use strict';
-var React = require('react');
-
+var React = require('react'),
+    AddMarksTool = require('./tools/AddMarksTool');
 // Splitting each sidebar into its column
-var Toolbar = React.createClass({
+
+function mapStateToProps(reduxState, ownProps) {
+  return {
+    selected: reduxState.get('selectedMark')
+  };
+}
+var Toolbar = connect(
+  mapStateToProps
+)(React.createClass({
   classNames: 'toolbar',
   render: function() {
     return (
@@ -14,12 +22,10 @@ var Toolbar = React.createClass({
           </label>
           <div className="menu">
             <ul>
-              <li>RECT</li>
-              <li>SYMBOL</li>
-              <li>AREA</li>
-              <li>LINE</li>
-              <li>TEXT</li>
+              <AddMarksTool/>
+              <li>|</li>
               <li>EXPORT</li>
+              <li>|</li>
               <li><i className="fa fa-file-o"></i> CLEAR</li>
               <li><i className="fa fa-undo"></i> UNDO</li>
               <li><i className="fa fa-repeat"></i> REDO</li>

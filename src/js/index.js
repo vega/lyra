@@ -22,11 +22,11 @@ var g = model.Scene.child('marks.group'),
     p3 = model.pipeline('gapminder');
 
 // Pre-populate state with one rect, one symbol, one text & one line mark
-g2.child('marks.rect');
-g2.child('marks.symbol');
 g2.child('marks.line');
-g2.child('marks.text');
-g.child('marks.area');
+// g2.child('marks.symbol');
+// g2.child('marks.line');
+// g2.child('marks.text');
+// g.child('marks.area');
 
 Promise.all([
   p._source.init({url: '/data/cars.json'}),
