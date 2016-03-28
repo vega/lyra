@@ -1,5 +1,6 @@
 'use strict';
 var model = require('../'),
+    sg = require('../signals'),
     propSg = require('../../util/prop-signal'),
     lookup = model.lookup;
 
@@ -19,7 +20,7 @@ function bindProperty(map, property, props, def, from) {
   }
   if (typeof d.value !== 'undefined') {
     p.signal = propSg(this, property);
-    model.signal(p.signal, d.value);
+    sg.set(p.signal, d.value);
   }
 
   if (typeof d.band !== 'undefined') {

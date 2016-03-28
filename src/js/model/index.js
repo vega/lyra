@@ -7,6 +7,7 @@ var dl = require('datalib'),
     ns = require('../util/ns'),
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
+    getIn = require('../util/immutable-utils').getIn,
     selectMark = require('../actions/selectMark'),
     expandLayers = require('../actions/expandLayers');
 
@@ -73,14 +74,13 @@ function getset(cache, id, Type) {
 
 function register() {
   var win = d3.select(window),
-      dragover = 'dragover.altchan',
-      signalName, handlers, i, len;
+      dragover = 'dragover.altchan';
 
   // Register a window dragover event handler to detect shiftKey
   // presses for alternate channel manipulators.
   if (!win.on(dragover)) {
     win.on(dragover, function() {
-      var mode = model.signal(sg.MODE),
+      var mode = sg.get(sg.MODE),
           shiftKey = d3.event.shiftKey,
           prevKey = Boolean(model._shiftKey);
 
@@ -89,16 +89,21 @@ function register() {
       }
       model._shiftKey = shiftKey;
       var setAltChan = mode === 'altchannels' ? 'channels' : mode;
-      model.signal(sg.MODE, mode === 'channels' ? 'altchannels' : setAltChan);
+      sg.set(sg.MODE, mode === 'channels' ? 'altchannels' : setAltChan);
       model.update();
     });
   }
 
   model.view.onSignal(sg.SELECTED, function(name, selected) {
     var def = selected.mark.def,
-        id = def && def.lyra_id,
-        // Walk up from the selected primitive to create an array of its parent groups' IDs
-        parentLayerIds = hierarchy.getParentGroupIds(lookup(id));
+        id = def && def.lyra_id;
+
+    if (getIn(store.getState(), 'inspector.selected') === id) {
+      return;
+    }
+
+    // Walk up from the selected primitive to create an array of its parent groups' IDs
+    var parentLayerIds = hierarchy.getParentGroupIds(lookup(id));
 
     if (id) {
       // Select the mark,
@@ -108,12 +113,11 @@ function register() {
     }
   });
 
-  for (signalName in listeners) {
-    handlers = listeners[signalName];
-    for (i = 0, len = handlers.length; i < len; ++i) {
-      model.view.onSignal(signalName, handlers[i]);
-    }
-  }
+  Object.keys(listeners).forEach(function(signalName) {
+    listeners[signalName].forEach(function(handlerFn) {
+      model.view.onSignal(signalName, handlerFn);
+    });
+  });
 }
 
 /**
@@ -136,22 +140,6 @@ model.pipeline = function(id) {
  */
 model.scale = function(id) {
   return getset(scales, id, require('./primitives/Scale'));
-};
-
-/**
- * Gets or sets the value of a signal both within the model and with the parsed
- * Vega view (if available).
- * @param  {string} name - The name of a signal.
- * @param  {*} [value] The signal value to be set.
- * @returns {*} The signal value if called as a getter, the model if called as
- * a setter.
- */
-model.signal = function(name, value) {
-  if (typeof value === 'undefined') {
-    return sg.getValue(name);
-  }
-  var ret = sg.value.apply(sg, arguments);
-  return ret === sg ? model : ret;
 };
 
 /**
@@ -186,8 +174,10 @@ model.manipulators = function() {
       marks = spec.marks || (spec.marks = []),
       idx = dl.comparator('_idx');
 
-
-  signals.push.apply(signals, dl.vals(sg.stash()).sort(idx));
+  // Stash signals from vega into the lyra model, in preparation for seamlessly
+  // destroying & recreating the vega view
+  // sg() is a function that returns all registered signals
+  signals.push.apply(signals, dl.vals(sg()).sort(idx));
   predicates.push({
     name: sg.CELL,
     type: '==',
@@ -227,14 +217,14 @@ model.manipulators = function() {
 };
 
 /**
- * Parses the model's `manipulators` spec and renders the visualization.
+ * Parses the model's `manipulators` spec and (re)renders the visualization.
  * @param  {string} [el] - A CSS selector corresponding to the DOM element
  * to render the visualization in.
  * @returns {Object} A Promise that resolves once the spec has been successfully
  * parsed and rendered.
  */
 model.parse = function(el) {
-  el = (el === undefined) ? '#vis' : el;
+  el = el || '#vis';
   if (model.view) {
     model.view.destroy();
   }
@@ -249,7 +239,11 @@ model.parse = function(el) {
         resolve(model.view);
       }
     });
-  }).then(model.update);
+  })
+    // View has to update once before scene is ready
+    .then(model.update)
+    // Persist the selected item from before we destroyed the scene
+    .then(updateSelectedMarkInVega).then(model.update);
 };
 
 /**
@@ -271,8 +265,7 @@ model.update = function() {
  */
 model.onSignal = function(name, handler) {
   listeners[name] = listeners[name] || [];
-  var listener = listeners[name];
-  listener.push(handler);
+  listeners[name].push(handler);
   if (model.view) {
     model.view.onSignal(name, handler);
   }
@@ -299,3 +292,65 @@ model.offSignal = function(name, handler) {
   }
   return model;
 };
+
+/**
+ * When vega re-renders we use the stored ID of the selected mark to re-select
+ * that mark in the new vega instance
+ * @returns {void}
+ */
+function updateSelectedMarkInVega() {
+  var storeSelectedId = getIn(store.getState(), 'inspector.selected');
+  // If no item is marked selected in the store, or if the view is not ready,
+  // take no action
+  if (!storeSelectedId || !model.view || !model.view.model || !model.view.model().scene()) {
+    return;
+  }
+  var def = sg.get(sg.SELECTED).mark.def,
+      vegaSelectedId = def && def.lyra_id;
+
+  // If the store and the Vega scene graph are in sync, take no action
+  if (storeSelectedId === vegaSelectedId) {
+    return;
+  }
+
+  var selectedMark = lookup(storeSelectedId),
+      // Walk up from the selected primitive to find all parent groups and create
+      // an array of all relevant [lyra] IDs
+      markIds = [storeSelectedId].concat(hierarchy.getParentGroupIds(selectedMark)),
+      // then walk down the rendered Vega scene graph to find a corresponding item.
+      item = hierarchy.findInItemTree(model.view.model().scene().items[0], markIds);
+
+  // If an item was found, set the Lyra mode signal so that the handles appear.
+  if (item !== null) {
+    sg.set(sg.SELECTED, item);
+  }
+}
+
+/**
+ * Setting the same value on a signal twice should have no effect, so  we
+ * naively set all signals on each store update to ensure store and Vega
+ * stay in sync. Altering this to be smarter is one area to investigate should
+ * any performance issues crop up later on, but signal writes are pretty fast.
+ * @returns {void}
+ */
+function updateAllSignals() {
+  // Nothing to do here if the view is not ready
+  if (!model.view || typeof model.view.signal !== 'function') {
+    return;
+  }
+  var signals = getIn(store.getState(), 'signals');
+  signals.forEach(function(value, name) {
+    // Skip any signal from the defaults
+    if (sg.isDefault(name)) {
+      return;
+    }
+    // Persist any signals from the store to the view
+    model.view.signal(name, value.init);
+  });
+}
+
+store.subscribe(updateSelectedMarkInVega);
+store.subscribe(updateAllSignals);
+store.subscribe(model.update);
+
+window.store = store;

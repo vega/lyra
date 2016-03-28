@@ -32,8 +32,11 @@ inherits(Scene, Group);
 Scene.prototype.parent = null;
 
 Scene.prototype.init = function() {
-  this.width = sg.init(SG_WIDTH, this.width);
-  this.height = sg.init(SG_HEIGHT, this.height);
+  sg.init(SG_WIDTH, this.width);
+  sg.init(SG_HEIGHT, this.height);
+  // Update internal properties to point at signal values
+  this.width = sg.reference(SG_WIDTH);
+  this.height = sg.reference(SG_HEIGHT);
   return Group.prototype.init.call(this);
 };
 
@@ -41,8 +44,8 @@ Scene.prototype.export = function(resolve) {
   var spec = Group.prototype.export.call(this, resolve);
 
   // Always resolve width/height signals.
-  spec.width = spec.width.signal ? sg.getValue(SG_WIDTH) : spec.width;
-  spec.height = spec.height.signal ? sg.getValue(SG_HEIGHT) : spec.height;
+  spec.width = spec.width.signal ? sg.get(SG_WIDTH) : spec.width;
+  spec.height = spec.height.signal ? sg.get(SG_HEIGHT) : spec.height;
 
   // Remove mark-specific properties
   delete spec.type;

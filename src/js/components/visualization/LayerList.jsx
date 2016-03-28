@@ -2,9 +2,7 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     ContentEditable = require('../ContentEditable'),
-    model = require('../../model'),
-    lookup = model.lookup,
-    sg = require('../../model/signals'),
+    lookup = require('../../model').lookup,
     hierarchy = require('../../util/hierarchy'),
     getIn = require('../../util/immutable-utils').getIn,
     selectMark = require('../../actions/selectMark'),
@@ -33,22 +31,6 @@ function mapDispatchToProps(dispatch, ownProps) {
       dispatch(selectMark(id));
       // And expand the hierarchy so that it is visible
       dispatch(expandLayers(parentGroupIds));
-
-      // BEGIN unwanted side-effect-y code
-      // @TODO: find a way to avoid needing to interact with the model like we do
-      // here, and accomplish the end of sg.SELECTED via Redux reducers/actions.
-      var item;
-
-      // Create a path array of group layer IDs (inclusive of the selected layer),
-      // then walk down the rendered Lyra scene to find a corresponding item.
-      item = hierarchy.findInItemTree(model.view.model().scene().items[0], [id].concat(parentGroupIds));
-      // If an item was found, set the Lyra mode signal so that the handles appear.
-      // As noted above, this logic should probably not exist here!
-      if (item !== null) {
-        model.signal(sg.SELECTED, item);
-        model.update();
-      }
-      // END unwanted side-effect-y code
     },
     toggle: function(layerId) {
       dispatch(toggleLayers([layerId]));
@@ -106,7 +88,7 @@ var Group = connect(
 
                   <ContentEditable obj={mark} prop="name"
                     value={mark.name}
-                    onClick={this.props.select.bind(null, id)} />
+                    onClick={props.select.bind(null, id)} />
                 </div>
               </li>
             );
@@ -127,7 +109,7 @@ var Group = connect(
 
             <ContentEditable obj={group} prop="name"
               value={group.name}
-              onClick={this.props.select.bind(null, groupId)} />
+              onClick={props.select.bind(null, groupId)} />
         </div>
         {contents}
       </li>

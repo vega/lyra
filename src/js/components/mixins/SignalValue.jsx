@@ -1,13 +1,13 @@
 'use strict';
 var dl = require('datalib'),
-    signals = require('../../model/signals'),
+    sg = require('../../model/signals'),
     model = require('../../model');
 
 module.exports = {
   getInitialState: function() {
     var props = this.props;
     return {
-      value: props.signal ? signals.getValue(props.signal) : props.value
+      value: props.signal ? sg.get(props.signal) : props.value
     };
   },
 
@@ -30,7 +30,7 @@ module.exports = {
     }
     if (nextProps.signal || nextProps.value !== prevProps.value) {
       this.setState({value: nextProps.signal ?
-        signals.getValue(nextProps.signal) : nextProps.value});
+        sg.get(nextProps.signal) : nextProps.value});
     }
   },
 
@@ -67,7 +67,7 @@ module.exports = {
     }
 
     if (signal) {
-      model.signal(signal, value);
+      sg.set(signal, value);
       model.update();
     } else {
       this._set(props.obj, value);
