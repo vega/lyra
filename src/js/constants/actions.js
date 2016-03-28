@@ -8,3 +8,5 @@ module.exports = {
   SELECT_MARK: 'SELECT_MARK',
   TOGGLE_LAYERS: 'TOGGLE_LAYERS'
 };
+
+Object.freeze(module.exports);

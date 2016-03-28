@@ -9,12 +9,17 @@ var d3 = require('d3'),
     sg = require('../../model/signals');
 
 var DataTable = React.createClass({
+  propTypes: {
+    dataset: React.PropTypes.object,
+    'dataset.schema': React.PropTypes.object
+  },
+
   mixins: [Parse],
 
   getInitialState: function() {
     return {
       limit: 20,
-      page:  0,
+      page: 0,
       fullField: null,
       fullValue: null
     };
@@ -106,7 +111,10 @@ var DataTable = React.createClass({
         // calls vega lite compile, then iterates through each part of the rule.
         prim.bind(cell.key, fullField._id);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Unable to bind primitive');
+      console.warn(e);
+    }
 
     sg.set(sg.MODE, 'handles');
     sg.set(sg.CELL, {});

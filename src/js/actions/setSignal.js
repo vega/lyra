@@ -5,8 +5,8 @@ var ns = require('../util/ns');
 /**
  * Action creator to configure the initial value of a signal.
  *
- * @param  {string} name - Name of the signal to modify
- * @param  {*} value - The value to set as the signal's initial value
+ * @param {string} signal - Name of the signal to modify
+ * @param {*} value - The value to set as the signal's initial value
  * @returns {Object} An action object
  */
 module.exports = function(signal, value) {

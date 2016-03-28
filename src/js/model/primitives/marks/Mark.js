@@ -62,14 +62,17 @@ inherits(Mark, Primitive);
 Mark.prototype.init = function() {
   var props = this.properties,
       update = props.update,
-      k, p;
+      key, updateProp;
 
-  for (k in update) {
-    p = update[k];
-    if (typeof p.value !== 'undefined') {
-      sg.init(propSg(this, k), p.value);
-      update[k] = dl.extend(sg.reference(propSg(this, k)),
-        p._disabled ? {_disabled: true} : {});
+  // Walk through each of the specified visual properties for this mark, create
+  // and register signals to represent those values, and update the mark's
+  // properties to contain references to those new vega signals.
+  for (key in update) {
+    updateProp = update[key];
+    if (typeof updateProp.value !== 'undefined') {
+      sg.init(propSg(this, key), updateProp.value);
+      update[key] = dl.extend(sg.reference(propSg(this, key)),
+        updateProp._disabled ? {_disabled: true} : {});
     }
   }
 
@@ -100,7 +103,7 @@ Mark.prototype.dataset = function(id) {
     return this;
   }
 
-  this.from = undefined;
+  delete this.from;
   return this;
 };
 

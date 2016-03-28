@@ -114,7 +114,6 @@ function register() {
   });
 
   Object.keys(listeners).forEach(function(signalName) {
-    var handlers = listeners[signalName];
     listeners[signalName].forEach(function(handlerFn) {
       model.view.onSignal(signalName, handlerFn);
     });
@@ -141,21 +140,6 @@ model.pipeline = function(id) {
  */
 model.scale = function(id) {
   return getset(scales, id, require('./primitives/Scale'));
-};
-
-/**
- * Gets or sets the value of a signal both within the model and with the parsed
- * Vega view (if available).
- * @param  {string} name - The name of a signal.
- * @param  {*} [value] The signal value to be set.
- * @returns {*} The signal value if called as a getter, the model if called as
- * a setter.
- */
-model.signal = function(name, value) {
-  if (typeof value === 'undefined') {
-    return sg.get(name);
-  }
-  var ret = sg.set(name, value);
 };
 
 /**
@@ -312,7 +296,7 @@ model.offSignal = function(name, handler) {
 /**
  * When vega re-renders we use the stored ID of the selected mark to re-select
  * that mark in the new vega instance
- * @return {void}
+ * @returns {void}
  */
 function updateSelectedMarkInVega() {
   var storeSelectedId = getIn(store.getState(), 'inspector.selected');
@@ -347,7 +331,7 @@ function updateSelectedMarkInVega() {
  * naively set all signals on each store update to ensure store and Vega
  * stay in sync. Altering this to be smarter is one area to investigate should
  * any performance issues crop up later on, but signal writes are pretty fast.
- * @return {void}
+ * @returns {void}
  */
 function updateAllSignals() {
   // Nothing to do here if the view is not ready

@@ -5,7 +5,7 @@ var ns = require('../util/ns');
 /**
  * Action creator to configure a property to update based on a stream.
  *
- * @param {string} name - Name of a signal to connect to a stream
+ * @param {string} signal - Name of a signal to connect to a stream
  * @param {Object[]} streams - Array of stream configuration objects
  * @returns {Object} An action object
  */
