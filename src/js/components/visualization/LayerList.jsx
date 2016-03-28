@@ -50,7 +50,10 @@ var Group = connect(
     selected: React.PropTypes.number,
     toggle: React.PropTypes.func
   },
-
+  toggleFolder: function(id){
+    this.props.select(id);
+    this.props.toggle(id);
+  },
   render: function() {
     var props = this.props,
         level = +props.level,
@@ -89,19 +92,19 @@ var Group = connect(
       ) : null;
 
     var spinner = expanded ?
-      (<i className="fa fa-folder-open" onClick={this.props.toggle.bind(null, this.props.id)}></i>) :
-      (<i className="fa fa-folder" onClick={this.props.toggle.bind(null, this.props.id)}></i>);
+      (<i className="fa fa-folder-open" onClick={this.toggleFolder.bind(null, this.props.id)}></i>) :
+      (<i className="fa fa-folder" onClick={this.toggleFolder.bind(null, this.props.id)}></i>);
 
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
         <div
           className={'name' + (selected === groupId ? ' selected' : '')}
-          onClick={this.props.select.bind(null, groupId)}>
+          onClick={this.toggleFolder.bind(null, groupId)}>
             {spinner}
 
             <ContentEditable obj={group} prop="name"
               value={group.name}
-              onClick={props.select.bind(null, groupId)} />
+              onClick={this.toggleFolder.bind(null, groupId)} />
         </div>
         {contents}
       </li>
