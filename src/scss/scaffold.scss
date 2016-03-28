@@ -38,7 +38,7 @@ $breaking-width: 1222px;
 // Body
 
 body {
-  background: $bg-color;
+  background:$vdgrey-bg;
   font-family: Avenir, Helvetica Neue, Helvetica, Arial;
   font-size: 13px;
   overflow-y: hidden;
@@ -48,17 +48,20 @@ body {
 // Sidebar is where the react components are placed
 .sidebar-container{
   width: $sidebar-width;
+  position: relative;
 }
 
 // Vis-container is where vega is placed
 .vis-container {
-  background:$vdgrey-bg;
-  padding: 5%;
-  height: 100%;
-  canvas {
-    border: 1px solid $dgrey-bg;
+  left: $visualization-offset;
+  overflow: auto;
+  display: block;
+  position: absolute;
+  bottom: 0;
+  top: 60px;
+  #vis {
+    margin: 0 50px 50px;
   }
-  margin-left: $sidebar-width;
 }
 
 

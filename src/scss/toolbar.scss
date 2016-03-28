@@ -1,11 +1,19 @@
 .toolbar {
   background-color: $lgrey-bg;
   position: absolute;
-  left: 5%;
+  left: 70px;
+  @include breakingMenus {
+    left: 60px;
+  }
   top: 15px;
   ul {
+    min-width: 600px;
+    @include breakingMenus {
+      min-width: auto;
+    }
     margin: 0;
     li {
+      width: auto;
       padding: 10px;
       display: inline-block;
       cursor: pointer;
@@ -18,17 +26,14 @@
   .nav-trigger,
   label {
     display: none;
-  }
-  @include breakingMenus {
-    .nav-trigger,
-    label
-    {
+    @include breakingMenus {
       display: block;
     }
+  }
+  @include breakingMenus {
     .menu {
       position: absolute;
       top: -600px;
-      left: 0px;
       overflow-x: hidden;
       overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
@@ -36,9 +41,12 @@
       z-index: 9999;
       border: 1px solid #eee;
     }
-    ul li {
-      display: block;
-      width: 100px;
+    ul {
+
+      li {
+        display: block;
+        width: 100px;
+      }
     }
   }
 }
