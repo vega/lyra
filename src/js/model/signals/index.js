@@ -91,7 +91,6 @@ api.get = function(name) {
 api.set = function(name, val) {
   var model = require('../'),
       view = model.view;
-
   if (!isDefault(name)) {
     store.dispatch(setSignal(name, val));
   } else if (view && typeof view.signal === 'function') {

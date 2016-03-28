@@ -33,19 +33,18 @@ var NewMarksTool = connect(
   },
   addMark: function(type) {
     var group = this.getCurrentGroup();
-    group.child('marks.text');
-    model.manipulators();
+    group.child('marks.'+type);
+    model.parse();
     model.update();
   },
   render: function() {
-    var boundClick = this.addMark.bind(null, 'rect');
     return (
       <ul className={this.classNames}>
-        <li onClick={boundClick} >RECT</li>
-        <li>SYMBOL</li>
-        <li>AREA</li>
-        <li>LINE</li>
-        <li>TEXT</li>
+        <li onClick={this.addMark.bind(null, 'rect')} >RECT</li>
+        <li onClick={this.addMark.bind(null, 'symbol')}>SYMBOL</li>
+        <li onClick={this.addMark.bind(null, 'area')}>AREA</li>
+        <li onClick={this.addMark.bind(null, 'line')}>LINE</li>
+        <li onClick={this.addMark.bind(null, 'text')}>TEXT</li>
       </ul>
     );
   }

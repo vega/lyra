@@ -178,6 +178,7 @@ model.manipulators = function() {
   // destroying & recreating the vega view
   // sg() is a function that returns all registered signals
   signals.push.apply(signals, dl.vals(sg()).sort(idx));
+
   predicates.push({
     name: sg.CELL,
     type: '==',
