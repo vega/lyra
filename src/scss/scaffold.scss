@@ -47,22 +47,17 @@ body {
 // The two main sections of our app
 // Sidebar is where the react components are placed
 .sidebar-container{
-  @include breakingMenus {
-    width: 505px;
-  }
+  width: $sidebar-width;
 }
 
 // Vis-container is where vega is placed
 .vis-container {
-  background:$dgrey-bg;
+  background:$vdgrey-bg;
   padding: 5%;
   canvas {
-    border: 1px solid $lgrey-bg;
+    border: 1px solid $dgrey-bg;
   }
-  @include breakingMenus {
-    width: 500px;
-    margin-left:505px;
-  }
+  margin-left: $sidebar-width;
 }
 
 
@@ -80,37 +75,14 @@ body {
   background-color: $bg-color;
 }
 
-
-.expandingMenu {
-  >ul>li{
-    border-bottom: 1px solid $lgrey-bg;
-  }
-  ul {
-    li {
-      list-style-type: none;
-      .name {
-        padding: 10px;
-        cursor: pointer;
-        i {
-          padding: 0 $inner-padding;
-        }
-
-        &.selected {
-          background-color: $mblue-bg;
-          color: #fff;
-          font-weight: bold;
-        }
-      }
-      .content-editable {
-        display: inline-block;
-      }
-    }
-  }
-  .expanded {
-    background-color: #fff;
-  }
-  .header {
-    padding:10px;
-  }
+.lt-blue-bg {
+  background-color: $vlgrey-bg;
 }
+.md-blue-bg{
+  background-color: $lblue-bg;
+}
+.dk-blue-bg{
+  background-color: $dblue-bg;
+}
+
 

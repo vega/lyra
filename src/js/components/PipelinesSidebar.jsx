@@ -4,7 +4,7 @@ var React = require('react'),
     model = require('../model');
 
 var PipelineSidebar = React.createClass({
-  classNames: 'sidebar col5 push9 pipeline-grid-break',
+  classNames: 'sidebar col5 push9 pipeline-grid-break dk-blue-bg',
   getInitialState: function() {
     return {
       selected: model.Scene._id,
@@ -17,7 +17,7 @@ var PipelineSidebar = React.createClass({
     return (
       <div className={this.classNames}>
         <header>
-          <h2>
+          <h2 className="header2">
             Data Pipelines
           </h2>
         </header>

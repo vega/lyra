@@ -11,15 +11,15 @@ var Rect = React.createClass({
 
     return (
       <div>
-        <h4>X Position</h4>
+        <h4 className="header4">X Position</h4>
 
         <ExtentProperty type="x" {...props} />
 
-        <h4>Y Position</h4>
+        <h4 className="header4">Y Position</h4>
 
         <ExtentProperty type="y" {...props} />
 
-        <h4>Fill</h4>
+        <h4 className="header4">Fill</h4>
 
         <Property name="fill" label="Color"
           type="color" primitive={primitive} canDrop={true}
@@ -31,7 +31,7 @@ var Rect = React.createClass({
           scale={update.fillOpacity.scale} field={update.fillOpacity.field}
           signal={update.fillOpacity.signal} />
 
-        <h4>Stroke</h4>
+        <h4 className="header4">Stroke</h4>
 
         <Property name="stroke" label="Color"
           type="color" primitive={primitive} canDrop={true}

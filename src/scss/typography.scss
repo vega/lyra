@@ -1,4 +1,4 @@
-h2 {
+.header2 {
   font-size: $header-font-size;
   text-transform: uppercase;
   margin-bottom: $margin;
@@ -11,14 +11,15 @@ h2 {
   }
 }
 
-h3 {
+.header3 {
   font-size: 15px;
   text-transform: uppercase;
   padding: 10px;
-  background-color: $lblue-bg;
+  background-color: $mblue-bg;
+  color: #fff;
 }
 
-h4 {
+.header4 {
   padding:10px;
 }
 
@@ -27,4 +28,10 @@ header {
   border-bottom: 1px solid $lgrey-bg;
   margin-right: 1px;
   margin-left: 1px;
+}
+
+.hint-header {
+  font-size: 15px;
+  text-transform: uppercase;
+  padding: 10px;
 }

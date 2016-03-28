@@ -5,7 +5,7 @@ var React = require('react'),
     model = require('../model');
 
 var VisualSidebar = React.createClass({
-  classNames: 'sidebar col4',
+  classNames: 'sidebar col4 lt-blue-bg',
   getInitialState: function() {
     return {
       selected: model.Scene._id,
@@ -17,7 +17,7 @@ var VisualSidebar = React.createClass({
     return (
       <div className={this.classNames}>
         <header>
-          <h2>
+          <h2 className="header2">
             Visualization
           </h2>
         </header>

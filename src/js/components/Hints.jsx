@@ -3,11 +3,11 @@ var React = require('react');
 
 // Splitting each sidebar into its column
 var Hints = React.createClass({
-  classNames: 'hints push6',
+  classNames: 'hints',
   render: function() {
     return (
       <div className={this.classNames}>
-        <h3>HINT! Looks like you're... </h3>
+        <h3 className="hint-header">HINT! Looks like you're... </h3>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas posuere ipsum urna, id ultricies arcu hendrerit ut.</p>
         <i className="close-hint fa fa-times"></i>
       </div>

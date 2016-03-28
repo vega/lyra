@@ -3,7 +3,7 @@ var React = require('react');
 
 // Splitting each sidebar into its column
 var Tools = React.createClass({
-  classNames: 'toolbar push6',
+  classNames: 'toolbar',
   render: function() {
     return (
       <div className={this.classNames}>

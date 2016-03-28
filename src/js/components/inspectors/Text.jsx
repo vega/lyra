@@ -11,7 +11,7 @@ var Text = React.createClass({
 
     return (
       <div>
-        <h4>Text</h4>
+        <h4 className="header4">Text</h4>
 
         <Property name="text" label="Text"
           type="text"
@@ -21,7 +21,7 @@ var Text = React.createClass({
           field={update.text.field}
           signal={update.text.signal} />
 
-        <h4>Font</h4>
+        <h4 className="header4">Font</h4>
 
         <Property name="font" label="Font"
           primitive={primitive}
@@ -75,7 +75,7 @@ var Text = React.createClass({
           field={update.fillOpacity.field}
           signal={update.fillOpacity.signal} />
 
-        <h4>Position</h4>
+        <h4 className="header4">Position</h4>
 
         <Property name="x" label="X"
           type="number"
@@ -93,7 +93,7 @@ var Text = React.createClass({
           field={update.y.field}
           signal={update.y.signal} />
 
-        <h4>Offset</h4>
+        <h4 className="header4">Offset</h4>
 
         <Property name="dx" label="X"
           type="number"
@@ -111,7 +111,7 @@ var Text = React.createClass({
           field={update.dy.field}
           signal={update.dy.signal} />
 
-        <h4>Align</h4>
+        <h4 className="header4">Align</h4>
 
         <Property name="align" label="Horizontal"
           primitive={primitive}

@@ -1,0 +1,32 @@
+.expandingMenu {
+  >ul>li{
+    border-bottom: 1px solid $lgrey-bg;
+  }
+  ul {
+    li {
+      list-style-type: none;
+      .name {
+        padding: 10px;
+        cursor: pointer;
+        i {
+          padding: 0 $inner-padding;
+        }
+
+        &.selected {
+          background-color: $mblue-bg;
+          color: #fff;
+          font-weight: bold;
+        }
+      }
+      .content-editable {
+        display: inline-block;
+      }
+    }
+  }
+  .expanded {
+    background-color: #fff;
+  }
+  .header {
+    padding:10px;
+  }
+}
