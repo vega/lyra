@@ -121,7 +121,7 @@ var LayerList = React.createClass({
     var props = this.props;
     return (
       <div id="layer-list" className="expandingMenu">
-        <h4 className="header4">Groups <i className="fa fa-plus"></i></h4>
+        <h4 className="hed-tertiary">Groups <i className="fa fa-plus"></i></h4>
         <ul>
         {this.props.layers.map(function(id) {
           return (

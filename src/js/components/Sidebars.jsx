@@ -3,7 +3,7 @@ var React = require('react'),
     InspectorSidebar = require('./InspectorSidebar'),
     VisualSidebar = require('./VisualSidebar'),
     PipelinesSidebar = require('./PipelinesSidebar'),
-    Toolbar = require('./Tools'),
+    Toolbar = require('./Toolbar'),
     Hints = require('./Hints'),
     model = require('../model');
 

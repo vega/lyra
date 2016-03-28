@@ -12,7 +12,7 @@ var Symbol = React.createClass({
     return (
       <div>
 
-        <h4 className="header4">Position</h4>
+        <h4 className="hed-tertiary">Position</h4>
 
         <Property name="x" label="X" type="number"
           primitive={primitive} canDrop={true}
@@ -24,7 +24,7 @@ var Symbol = React.createClass({
           scale={update.y.scale} field={update.y.field}
           signal={update.y.signal} />
 
-        <h4 className="header4">Geometry</h4>
+        <h4 className="hed-tertiary">Geometry</h4>
 
         <Property name="size" label="Size" type="number"
           primitive={primitive} canDrop={true}
@@ -36,7 +36,7 @@ var Symbol = React.createClass({
           scale={update.shape.scale} field={update.shape.field}
           signal={update.shape.signal} />
 
-        <h4 className="header4">Fill</h4>
+        <h4 className="hed-tertiary">Fill</h4>
 
         <Property name="fill" label="Color" type="color"
           primitive={primitive} canDrop={true}
@@ -49,7 +49,7 @@ var Symbol = React.createClass({
           scale={update.fillOpacity.scale} field={update.fillOpacity.field}
           signal={update.fillOpacity.signal} />
 
-        <h4 className="header4">Stroke</h4>
+        <h4 className="hed-tertiary">Stroke</h4>
 
         <Property name="stroke" label="Color" type="color"
           primitive={primitive} canDrop={true}

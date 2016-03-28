@@ -12,15 +12,15 @@ var Area = React.createClass({
 
     return (
       <div>
-        <h4 className="header4">X Position</h4>
+        <h4 className="hed-tertiary">X Position</h4>
 
         <AreaProperty type="x" {...props} />
 
-        <h4 className="header4">Y Position</h4>
+        <h4 className="hed-tertiary">Y Position</h4>
 
         <AreaProperty type="y" {...props} />
 
-        <h4 className="header4">Fill</h4>
+        <h4 className="hed-tertiary">Fill</h4>
 
         <Property
           name="fill"
@@ -44,7 +44,7 @@ var Area = React.createClass({
           field={update.fillOpacity.field}
           signal={update.fillOpacity.signal} />
 
-        <h4 className="header4">Stroke</h4>
+        <h4 className="hed-tertiary">Stroke</h4>
 
         <Property
           name="stroke"
@@ -94,7 +94,7 @@ var Area = React.createClass({
           field={update.tension.field}
           signal={update.tension.signal}
           />
-        <h4 className="header4">Orientation</h4>
+        <h4 className="hed-tertiary">Orientation</h4>
         <Property
           name="orient"
           label="Orient"

@@ -1,4 +1,6 @@
-.header2 {
+.primary-header {}
+
+.hed {
   font-size: $header-font-size;
   text-transform: uppercase;
   margin-bottom: $margin;
@@ -11,7 +13,7 @@
   }
 }
 
-.header3 {
+.hed-secondary{
   font-size: 15px;
   text-transform: uppercase;
   padding: 10px;
@@ -19,7 +21,7 @@
   color: #fff;
 }
 
-.header4 {
+.hed-tertiary {
   padding:10px;
 }
 

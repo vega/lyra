@@ -45,13 +45,13 @@ var Inspector = connect(
     // if property is selected show the header
     var propHeader;
     if (primitive.name){
-      var propHeader = <h3 className="header3">{primitive.name}</h3>;
+      propHeader = <h3 className="hed-secondary">{primitive.name}</h3>;
     }
 
     return (
       <div className={this.classNames} id="inspector">
         <header>
-          <h2 className="header2">
+          <h2 className="hed">
             Properties
           </h2>
         </header>

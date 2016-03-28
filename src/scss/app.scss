@@ -2,15 +2,16 @@
 @import 'variables';
 
 // globals
-@import 'grid';
+@import 'vendor/grid';
 @import 'typography';
 @import 'scaffold';
 @import 'form';
 @import 'expandingmenu';
-@import 'tools';
-@import 'hints';
+
 
 // components
+@import 'toolbar';
+@import 'hints';
 @import 'pipelines';
 @import 'layers';
 @import 'inspector';

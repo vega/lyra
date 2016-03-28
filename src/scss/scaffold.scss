@@ -13,7 +13,7 @@
 
 $tablet-width: 768px;
 $desktop-width: 1024px;
-$breaking-width: 1100px;
+$breaking-width: 1222px;
 
 @mixin tablet {
   @media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 1px}) {
@@ -54,6 +54,7 @@ body {
 .vis-container {
   background:$vdgrey-bg;
   padding: 5%;
+  height: 100%;
   canvas {
     border: 1px solid $dgrey-bg;
   }

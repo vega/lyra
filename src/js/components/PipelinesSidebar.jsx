@@ -17,7 +17,7 @@ var PipelineSidebar = React.createClass({
     return (
       <div className={this.classNames}>
         <header>
-          <h2 className="header2">
+          <h2 className="hed">
             Data Pipelines
           </h2>
         </header>
