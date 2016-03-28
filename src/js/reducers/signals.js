@@ -32,6 +32,11 @@ function signalsReducer(state, action) {
     }));
   }
 
+  if (action.type === actions.UNSET_SIGNAL) {
+    return state.delete(action.signal);
+  }
+
+
   return state;
 }
 

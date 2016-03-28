@@ -9,6 +9,7 @@ var dl = require('datalib'),
     rules = require('../../rules'),
     propSg = require('../../../util/prop-signal'),
     model = require('../../'),
+    ns = require('../../../util/ns'),
     lookup = model.lookup,
     counter = require('../../../util/counter');
 
@@ -204,6 +205,25 @@ Mark.prototype.export = function(clean) {
 
   return spec;
 };
+
+/**
+ * Unsets the signals initialized in Mark.init() in the redux store for the model properties.
+ * @returns {void}
+ */
+Mark.prototype.remove = function(){
+  var props = this.properties,
+    update = props.update,
+    key;
+  for (key in update) {
+    var signalName = update[key].signal;
+    // currently width and height are set on groups to use the full width of the scene
+    // they use the same signal name
+    if (signalName !== ns('vis_width') && signalName !== ns('vis_height')) {
+      sg.delete(signalName);
+    }
+  }
+  model.removeListeners();
+}
 
 manips(Mark.prototype);
 rules(Mark.prototype);

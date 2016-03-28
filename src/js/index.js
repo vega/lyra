@@ -42,7 +42,8 @@ var g = model.Scene.child('marks.group'),
 
 // Pre-populate state with one rect, one symbol, one text & one line mark
 g2.child('marks.line');
-// g2.child('marks.symbol');
+g2.child('marks.symbol');
+g2.child('marks.group');
 // g2.child('marks.line');
 // g2.child('marks.text');
 // g.child('marks.area');
