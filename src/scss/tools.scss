@@ -1,0 +1,16 @@
+.toolbar {
+  background-color: $lgrey-bg;
+  position: absolute;
+  left: 5%;
+  top: 15px;
+  ul {
+    display: inline-block;
+    margin: 0;
+    li {
+      padding: 10px;
+      display: inline-block;
+    }
+  }
+  margin-left: $sidebar-width;
+}
+

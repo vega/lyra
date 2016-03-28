@@ -98,7 +98,13 @@ Group.prototype.manipulators = function() {
 Group.prototype.child = function(type, child) {
   type = type.split('.');
   var lookupChild = dl.isNumber(child) ? lookup(child) : child;
-  child = (child === undefined) ? new CHILDREN[type[1] || type[0]]().init() : lookupChild;
+  var newChild = new CHILDREN[type[1] || type[0]]();
+  if (child === undefined) {
+    child = newChild;
+    child.init();
+  } else {
+    child = lookupChild;
+  }
 
   var id = child._id;
   var types = this[type[0]];
