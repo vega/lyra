@@ -103,7 +103,7 @@ Mark.prototype.dataset = function(id) {
     return this;
   }
 
-  delete this.from;
+  this.from = undefined;
   return this;
 };
 
