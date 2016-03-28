@@ -50,7 +50,10 @@ var Group = connect(
     selected: React.PropTypes.number,
     toggle: React.PropTypes.func
   },
-
+  toggleFolder: function(id){
+    this.props.select(id);
+    this.props.toggle(id);
+  },
   render: function() {
     var props = this.props,
         level = +props.level,
@@ -59,16 +62,8 @@ var Group = connect(
         selected = props.selected,
         expanded = props.expanded[groupId];
 
-    var style = {
-          marginLeft: -(level + 1) * MARGIN_LEFT,
-          paddingLeft: (level + 1) * MARGIN_LEFT
-        }, childStyle = {
-          marginLeft: -(level + 2) * MARGIN_LEFT,
-          paddingLeft: (level + 2) * MARGIN_LEFT
-        };
-
     var contents = expanded ? (
-        <ul className="group" style={{marginLeft: MARGIN_LEFT}}>
+        <ul className="group">
           <li className="header">Guides <i className="fa fa-plus"></i></li>
           <li className="header">Marks <i className="fa fa-plus"></i></li>
           {group.marks.map(function(id) {
@@ -82,7 +77,7 @@ var Group = connect(
                 level={level + 1} />
             ) : (
               <li key={id}>
-                <div style={childStyle}
+                <div
                   className={'name' + (selected === id ? ' selected' : '')}
                   onClick={this.props.select.bind(null, id)}>
 
@@ -97,19 +92,19 @@ var Group = connect(
       ) : null;
 
     var spinner = expanded ?
-      (<i className="fa fa-caret-down" onClick={this.props.toggle.bind(null, this.props.id)}></i>) :
-      (<i className="fa fa-caret-right" onClick={this.props.toggle.bind(null, this.props.id)}></i>);
+      (<i className="fa fa-folder-open" onClick={this.toggleFolder.bind(null, this.props.id)}></i>) :
+      (<i className="fa fa-folder" onClick={this.toggleFolder.bind(null, this.props.id)}></i>);
 
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
-        <div style={style}
+        <div
           className={'name' + (selected === groupId ? ' selected' : '')}
-          onClick={this.props.select.bind(null, groupId)}>
+          onClick={this.toggleFolder.bind(null, groupId)}>
             {spinner}
 
             <ContentEditable obj={group} prop="name"
               value={group.name}
-              onClick={props.select.bind(null, groupId)} />
+              onClick={this.toggleFolder.bind(null, groupId)} />
         </div>
         {contents}
       </li>
@@ -125,9 +120,8 @@ var LayerList = React.createClass({
   render: function() {
     var props = this.props;
     return (
-      <div id="layer-list">
-        <h2>Layers <i className="fa fa-plus"></i> <span className="edit">Edit<br />Scene</span></h2>
-
+      <div id="layer-list" className="expandingMenu">
+        <h4 className="hed-tertiary">Groups <i className="fa fa-plus"></i></h4>
         <ul>
         {this.props.layers.map(function(id) {
           return (
@@ -137,6 +131,11 @@ var LayerList = React.createClass({
               level={0} />
           );
         }, this)}
+        <li>
+          <div className="name edit">
+            Edit Scene
+          </div>
+        </li>
         </ul>
 
       </div>

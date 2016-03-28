@@ -3,7 +3,8 @@ var React = require('react'),
     PipelineList = require('./pipelines/PipelineList'),
     model = require('../model');
 
-var Sidebars = React.createClass({
+var PipelineSidebar = React.createClass({
+  classNames: 'sidebar col5 push9 pipeline-grid-break dk-blue-bg',
   getInitialState: function() {
     return {
       selected: model.Scene._id,
@@ -14,11 +15,16 @@ var Sidebars = React.createClass({
   render: function() {
     var pipelines = model.pipeline();
     return (
-      <div>
+      <div className={this.classNames}>
+        <header>
+          <h2 className="hed">
+            Data Pipelines
+          </h2>
+        </header>
         <PipelineList pipelines={pipelines} />
       </div>
     );
   }
 });
 
-module.exports = Sidebars;
+module.exports = PipelineSidebar;

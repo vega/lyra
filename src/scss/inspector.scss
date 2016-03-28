@@ -1,35 +1,6 @@
-#inspector {
-  position: absolute;
-  left: 0;
-  top: $inspector-height;
-  bottom: 0;
-  width: $inspector-width;
-  background-color: $lblue-bg;
-  overflow-y: scroll;
-
-  h2 {
-    padding: $outer-padding 0;
-    background-color: $mblue-bg;
-    text-transform: none;
-    text-align: center;
-  }
-
-  .inner {
-    padding: 0 $outer-padding;
-
-    h3 {
-      margin-top: 2*$outer-padding;
-      font-size: 12px;
-      color: $blue-font;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-  }
-}
-
 .property {
   $can-drop-size: 14px;
-
+  padding:10px;
   display: flex;
   align-items: center;
   margin: $inner-padding 0;

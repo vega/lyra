@@ -10,7 +10,7 @@ var Line = React.createClass({
 
     return (
       <div>
-        <h3>Position</h3>
+        <h4 className="hed-tertiary">Position</h4>
 
         <Property
           name="x"
@@ -34,7 +34,7 @@ var Line = React.createClass({
           signal={update.y.signal}
         />
 
-        <h3>Stroke</h3>
+        <h4 className="hed-tertiary">Stroke</h4>
 
         <Property
           name="stroke"

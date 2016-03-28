@@ -1,0 +1,39 @@
+.primary-header {}
+
+.hed {
+  font-size: $header-font-size;
+  text-transform: uppercase;
+  margin-bottom: $margin;
+  vertical-align: bottom;
+  text-align: center;
+  margin-bottom: 0;
+  i.fa-plus {
+    margin-left: $inner-padding;
+    cursor: pointer;
+  }
+}
+
+.hed-secondary{
+  font-size: 15px;
+  text-transform: uppercase;
+  padding: 10px;
+  background-color: $mblue-bg;
+  color: #fff;
+}
+
+.hed-tertiary {
+  padding:10px;
+}
+
+header {
+  background-color: #fff;
+  border-bottom: 1px solid $lgrey-bg;
+  margin-right: 1px;
+  margin-left: 1px;
+}
+
+.hint-header {
+  font-size: 15px;
+  text-transform: uppercase;
+  padding: 10px;
+}

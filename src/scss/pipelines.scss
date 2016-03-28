@@ -1,20 +1,12 @@
 $pipeline-width: 180px;
 
-#pipeline-list {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: $inspector-width;
-  width: $pipeline-list-width - 2*$outer-padding;
-  padding: $outer-padding;
-  overflow: auto;
-  background-color: $dblue-bg;
-
-  h2 {
-    color: #fff;
-  }
+.pipeline-grid-break {
+  min-width: 220px;
 }
-
+#pipeline-list{
+  padding: 0 8%;
+  display: block;
+}
 .pipeline {
   position: relative; /* For the datatable header column */
   background-color: $lblue-bg;

@@ -1,0 +1,79 @@
+.toolbar {
+  background-color: $lgrey-bg;
+  position: absolute;
+  left: 70px;
+  @include breakingMenus {
+    left: 60px;
+  }
+  top: 15px;
+  ul {
+    min-width: 600px;
+    @include breakingMenus {
+      min-width: auto;
+    }
+    margin: 0;
+    li {
+      width: auto;
+      padding: 10px;
+      display: inline-block;
+      cursor: pointer;
+      &:hover {
+        background-color: $lblue-bg;
+      }
+    }
+  }
+  margin-left: $sidebar-width;
+  .nav-trigger,
+  label {
+    display: none;
+    @include breakingMenus {
+      display: block;
+    }
+  }
+  @include breakingMenus {
+    .menu {
+      position: absolute;
+      top: -600px;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      background-color: $lgrey-bg;
+      z-index: 9999;
+      border: 1px solid #eee;
+    }
+    ul {
+
+      li {
+        display: block;
+        width: 100px;
+      }
+    }
+  }
+}
+
+.nav-trigger {
+  /* critical styles - hide the checkbox input */
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+}
+
+label[for="nav-trigger"] {
+  /* critical positioning styles */
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  z-index: 2;
+  cursor: pointer;
+  padding: 10px;
+  color: #fff;
+  font-size: 20px;
+}
+
+
+.menu {
+  transition: top 0.2s;
+}
+
+.nav-trigger:checked ~ .menu{
+  top: 45px;
+}

@@ -3,10 +3,13 @@ var React = require('react'),
     InspectorSidebar = require('./InspectorSidebar'),
     VisualSidebar = require('./VisualSidebar'),
     PipelinesSidebar = require('./PipelinesSidebar'),
+    Toolbar = require('./Toolbar'),
+    Hints = require('./Hints'),
     model = require('../model');
 
 // Splitting each sidebar into its column
 var Sidebars = React.createClass({
+  classNames: 'row',
   getInitialState: function() {
     return {
       selected: model.Scene._id,
@@ -16,11 +19,13 @@ var Sidebars = React.createClass({
   render: function() {
     var pipelines = model.pipeline();
     return (
-      <div>
-        <VisualSidebar/>
+      <div className={this.classNames}>
+        <VisualSidebar />
         <InspectorSidebar ref="inspector"
           pipelines={pipelines} />
-        <PipelinesSidebar/>
+        <PipelinesSidebar />
+        <Toolbar/>
+        <Hints/>
       </div>
     );
   }

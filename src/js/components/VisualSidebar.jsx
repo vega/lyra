@@ -4,17 +4,23 @@ var React = require('react'),
     LayerList = require('./visualization/LayerList'),
     model = require('../model');
 
-var Sidebars = React.createClass({
+var VisualSidebar = React.createClass({
+  classNames: 'sidebar col4 lt-blue-bg',
   getInitialState: function() {
     return {
       selected: model.Scene._id,
-      expandedLayers: {}
+      expandedLayers: {},
+      classes: 'col2'
     };
   },
-
   render: function() {
     return (
-      <div>
+      <div className={this.classNames}>
+        <header>
+          <h2 className="hed">
+            Visualization
+          </h2>
+        </header>
         <LayerList ref="layerList"
           layers={model.Scene.marks} />
 
@@ -25,4 +31,4 @@ var Sidebars = React.createClass({
   }
 });
 
-module.exports = Sidebars;
+module.exports = VisualSidebar;

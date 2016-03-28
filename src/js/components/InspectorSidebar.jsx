@@ -21,6 +21,7 @@ function mapStateToProps(reduxState, ownProps) {
 var Inspector = connect(
   mapStateToProps
 )(React.createClass({
+  classNames: 'sidebar col5 push4 md-blue-bg',
   render: function() {
     var props = this.props,
         // props.id existence check handles the initial application render
@@ -41,9 +42,20 @@ var Inspector = connect(
         <InspectorType primitive={primitive} />
       </div>) : null;
 
+    // if property is selected show the header
+    var propHeader;
+    if (primitive.name){
+      propHeader = <h3 className="hed-secondary">{primitive.name}</h3>;
+    }
+
     return (
-      <div id="inspector">
-        <h2>{primitive.name} Properties</h2>
+      <div className={this.classNames} id="inspector">
+        <header>
+          <h2 className="hed">
+            Properties
+          </h2>
+        </header>
+        {propHeader}
         {inner}
       </div>
     );
