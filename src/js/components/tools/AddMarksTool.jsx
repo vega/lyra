@@ -14,7 +14,7 @@ function mapStateToProps(reduxState, ownProps) {
 }
 
 // Splitting each sidebar into its column
-var NewMarksTool = connect(
+var AddMarksTool = connect(
   mapStateToProps
 )(React.createClass({
   classNames: 'new Marks',
@@ -33,8 +33,6 @@ var NewMarksTool = connect(
   addMark: function(type) {
     var scene = this.getCurrentGroup() || model.Scene;
     scene.child('marks.'+type);
-    model.parse();
-    model.update();
   },
   render: function() {
     return (
@@ -49,4 +47,4 @@ var NewMarksTool = connect(
   }
 }));
 
-module.exports = NewMarksTool;
+module.exports = AddMarksTool;

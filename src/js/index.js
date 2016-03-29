@@ -8,6 +8,10 @@ require('array.prototype.find');
 require('string.prototype.startswith');
 require('./transforms');
 
+// Initialize the Redux store
+var store = require('./store');
+var reparse = require('./actions/reparse');
+
 // Initialize the Model.
 var model = require('./model');
 model.init();
@@ -33,11 +37,12 @@ Promise.all([
   p2._source.init({url: '/data/jobs.json'}),
   p3._source.init({url: '/data/gapminder.json'})
 ]).then(function() {
-  return model.parse();
+  // Parse the model to initialize and render the Vega view
+  store.dispatch(reparse(true));
 }).then(function() {
   ui.forceUpdate();
 });
 
 // Expose model, store and Sidebars globally (via `window`) for debugging
 global.model = model;
-global.store = require('./store');
+global.store = store;
