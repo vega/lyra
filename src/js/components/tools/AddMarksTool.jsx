@@ -19,6 +19,7 @@ var NewMarksTool = connect(
 )(React.createClass({
   classNames: 'new Marks',
   getCurrentGroup: function(){
+    // ghetto: will be replaced with utility to find parents
     var selected = lookup(this.props.selected);
     if (selected && selected.type == 'group'){
       return selected;
@@ -27,13 +28,11 @@ var NewMarksTool = connect(
       if (parent.type == 'group') {
         return parent;
       }
-    } else {
-      console.log('bleh');
     }
   },
   addMark: function(type) {
-    var group = this.getCurrentGroup();
-    group.child('marks.'+type);
+    var scene = this.getCurrentGroup() || model.Scene;
+    scene.child('marks.'+type);
     model.parse();
     model.update();
   },
