@@ -1,5 +1,6 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
     AddMarksTool = require('./tools/AddMarksTool');
 // Splitting each sidebar into its column
 
@@ -21,11 +22,9 @@ var Toolbar = connect(
             <i className="fa fa-bars"></i>
           </label>
           <div className="menu">
+            <AddMarksTool/>
             <ul>
-              <AddMarksTool/>
-              <li>|</li>
               <li>EXPORT</li>
-              <li>|</li>
               <li><i className="fa fa-file-o"></i> CLEAR</li>
               <li><i className="fa fa-undo"></i> UNDO</li>
               <li><i className="fa fa-repeat"></i> REDO</li>
@@ -35,6 +34,6 @@ var Toolbar = connect(
       </div>
     );
   }
-});
+}));
 
 module.exports = Toolbar;
