@@ -20,6 +20,7 @@ function reparseModelReducer(state, action) {
   }
 
   if (action.type === actions.REPARSE_MODEL && typeof action.value === 'boolean') {
+    console.log('requested a reparse, setting value as ' + action.value);
     return action.value;
   }
 

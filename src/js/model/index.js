@@ -10,6 +10,7 @@ var dl = require('datalib'),
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
     getIn = require('../util/immutable-utils').getIn,
+    CancellablePromise = require('../util/simple-cancellable-promise'),
     selectMark = require('../actions/selectMark'),
     expandLayers = require('../actions/expandLayers'),
     reparse = require('../actions/reparse');
@@ -220,23 +221,7 @@ model.manipulators = function() {
   return spec;
 };
 
-var parsePromise;
-function parse(spec, el) {
-  if (model.view) {
-    model.view.destroy();
-  }
-  vg.dataflow.Tuple.reset();
-  return new Promise(function(resolve, reject) {
-    vg.parse.spec(spec, function(err, chart) {
-      if (err) {
-        return reject(err);
-      }
-      model.view = chart({el: el});
-      register();
-      resolve(model.view);
-    });
-  })
-}
+var parsePromise = null;
 /**
  * Parses the model's `manipulators` spec and (re)renders the visualization.
  * @param  {string} [el] - A CSS selector corresponding to the DOM element
@@ -247,36 +232,42 @@ function parse(spec, el) {
 model.parse = function(el) {
   el = el || '#vis';
   if (parsePromise) {
-    // A parse is already in progress; chain another onto it so that whatever
-    // update initiated this re-parse is accounted for before the view is rendered
-    parsePromise = parsePromise.then(function() {
-      return parse(model.manipulators(), el);
-    });
-    // .then(function() {
-    //   parsePromise = null;
-    // });
-  } else {
-    parsePromise = parse(model.manipulators(), el).then(function() {
-      parsePromise = null;
-    });
+    console.log('cancelling in-flight reparse');
+    // A parse is already in progress; cancel that parse's callbacks
+    parsePromise.cancel();
   }
-  return parsePromise;
-  // return new Promise(function(resolve, reject) {
-  //   vg.dataflow.Tuple.reset();
-  //   vg.parse.spec(model.manipulators(), function(err, chart) {
-  //     if (err) {
-  //       reject(err);
-  //     } else {
-  //       model.view = chart({el: el});
-  //       register();
-  //       resolve(model.view);
-  //     }
-  //   });
-  // })
-  //   // View has to update once before scene is ready
-  //   .then(model.update);
-  //   // Persist the selected item from before we destroyed the scene
-  //   // .then(updateSelectedMarkInVega).then(model.update);
+
+  // Start the newly-requested parse within a cancellable promise
+  console.log('starting new reparse');
+  if (model.view) {
+    // Clear out the outdated vega spec
+    model.view.destroy();
+  }
+  vg.dataflow.Tuple.reset();
+  parsePromise = new CancellablePromise(function(resolve, reject) {
+
+    // Recreate the vega spec
+    vg.parse.spec(model.manipulators(), function(err, chart) {
+      if (err) {
+        return reject(err);
+      }
+      model.view = chart({
+        el: el
+      });
+      register();
+      resolve(model.view);
+    });
+  });
+
+  return parsePromise.then(function(view) {
+    // model.view = view;
+    // Register all event listeners to the new view
+    register();
+    // the update() method initiates visual encoding and rendering
+    view.update();
+    // Re-parse complete: null out the completed promise
+    parsePromise = null;
+  });
 };
 
 /**
