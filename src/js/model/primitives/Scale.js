@@ -6,6 +6,18 @@ var dl = require('datalib'),
     lookup = model.lookup,
     names = {};
 
+// To prevent name collisions.
+function rename(name) {
+  if (!name) {
+    name = '';
+  }
+  var count = 0;
+  while (names[name]) {
+    name += ++count;
+  }
+  return (names[name] = 1, name);
+}
+
 /**
  * @classdesc A Lyra Scale Primitive.
  *
@@ -46,15 +58,6 @@ function Scale(name, type, domain, range) {
 inherits(Scale, Primitive);
 Scale.prototype.parent = null;
 
-// To prevent name collisions.
-function rename(name) {
-  var count = 0;
-  while (names[name]) {
-    name += ++count;
-  }
-  return (names[name] = 1, name);
-}
-
 // Exports FieldIDs to DataRefs. We don't default to the last option as the
 // structure has performance implications in Vega. Most-least performant:
 //   {"data": ..., "field": ...} for a single field
@@ -65,12 +68,13 @@ function fmap(f) {
 }
 
 function dataRef(ref) {
+  console.log(ref);
   var sets = {},
       data, field, i, len, keys;
 
   if (ref.length === 1 && (ref = ref[0])) {
     field = lookup(ref);
-    return {data: field.parent().name, field: field._name};
+    ref = {data: field.parent().name, field: field._name};
   } else {
     for (i = 0, len = ref.length; i < len; ++i) {
       field = lookup(ref[i]);
@@ -96,6 +100,7 @@ function dataRef(ref) {
       }
     }
   }
+  return ref;
 }
 
 Scale.prototype.export = Scale.prototype.manipulators = function(resolve) {
