@@ -1,19 +1,18 @@
+<!-- Feature request template -->
 - [ ] I am requesting a new feature
 
-<!-- Feature request -->
-### Description of requested feature
+**Description of requested feature**
 
-
-### Why this feature is important to you
-
+**Why this feature is important to you**
 
 
 
-- [ ] I am reporting a bug
 
 <!-- Reporting an issue template -->
-###Expected Behavior
+- [ ] I am reporting a bug
 
-###Actual Behavior
+**Expected Behavior**
 
-###Steps to reproduce behavior
+**Actual Behavior**
+
+**Steps to reproduce behavior**
