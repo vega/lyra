@@ -3,18 +3,29 @@ var d3 = require('d3'),
     dl = require('datalib'),
     React = require('react'),
     ReactDOM = require('react-dom'),
-    Parse = require('../mixins/Parse'),
+    connect = require('react-redux').connect,
     model = require('../../model'),
     lookup = model.lookup,
+    reparse = require('../../actions/reparse'),
     sg = require('../../model/signals');
+
+function mapStateToProps(state, ownProps) {
+  return {};
+}
+
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    reparse: function() {
+      dispatch(reparse(true));
+    }
+  };
+}
 
 var DataTable = React.createClass({
   propTypes: {
     dataset: React.PropTypes.object,
     'dataset.schema': React.PropTypes.object
   },
-
-  mixins: [Parse],
 
   getInitialState: function() {
     return {
@@ -120,9 +131,7 @@ var DataTable = React.createClass({
     sg.set(sg.CELL, {});
 
     if (dropped) {
-      this.parse(prim);
-    } else {
-      model.update();
+      this.props.reparse();
     }
   },
 
@@ -208,4 +217,4 @@ var DataTable = React.createClass({
 
 });
 
-module.exports = DataTable;
+module.exports = connect(mapStateToProps, mapDispatchToProps)(DataTable);

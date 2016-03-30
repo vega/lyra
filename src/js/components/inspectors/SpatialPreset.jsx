@@ -1,12 +1,24 @@
 'use strict';
 var React = require('react'),
-    Parse = require('../mixins/Parse'),
+    connect = require('react-redux').connect,
     propSg = require('../../util/prop-signal'),
     model = require('../../model'),
-    lookup = model.lookup;
+    lookup = model.lookup,
+    reparse = require('../../actions/reparse');
+
+function mapStateToProps(state, ownProps) {
+  return {};
+}
+
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    reparse: function() {
+      dispatch(reparse(true));
+    }
+  };
+}
 
 var SpatialPreset = React.createClass({
-  mixins: [Parse],
 
   handleChange: function(evt) {
     var props = this.props,
@@ -31,7 +43,7 @@ var SpatialPreset = React.createClass({
       };
     }
 
-    this.parse(primitive);
+    this.props.reparse();
   },
 
   render: function() {
@@ -65,4 +77,4 @@ var SpatialPreset = React.createClass({
   }
 });
 
-module.exports = SpatialPreset;
+module.exports = connect(mapStateToProps, mapDispatchToProps)(SpatialPreset);

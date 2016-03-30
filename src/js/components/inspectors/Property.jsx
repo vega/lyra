@@ -1,17 +1,31 @@
 'use strict';
 var React = require('react'),
-    Parse = require('../mixins/Parse'),
+    connect = require('react-redux').connect,
     SignalValue = require('../mixins/SignalValue'),
     ContentEditable = require('../ContentEditable'),
     model = require('../../model'),
-    lookup = model.lookup;
+    lookup = model.lookup,
+    reparse = require('../../actions/reparse');
+
+function mapStateToProps(state, ownProps) {
+  return {};
+}
+
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    reparse: function() {
+      dispatch(reparse(true));
+    }
+  };
+}
 
 var Property = React.createClass({
-  mixins: [SignalValue, Parse],
+  mixins: [SignalValue],
 
   unbind: function() {
     var props = this.props;
-    this.parse(props.primitive.bind(props.name, undefined));
+    props.primitive.bind(props.name, undefined);
+    props.reparse();
   },
 
   render: function() {
@@ -124,4 +138,4 @@ var Property = React.createClass({
   }
 });
 
-module.exports = Property;
+module.exports = connect(mapStateToProps, mapDispatchToProps)(Property);

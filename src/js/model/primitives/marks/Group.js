@@ -5,6 +5,8 @@ var dl = require('datalib'),
     model = require('../../'),
     lookup = model.lookup,
     Mark = require('./Mark'),
+    store = require('../../../store'),
+    reparse = require('../../../actions/reparse'),
     ns = require('../../../util/ns');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];
@@ -97,10 +99,22 @@ Group.prototype.manipulators = function() {
  */
 Group.prototype.child = function(type, child) {
   type = type.split('.');
+  var primitiveType = type[0];
   var lookupChild = dl.isNumber(child) ? lookup(child) : child;
-  child = (child === undefined) ? new CHILDREN[type[1] || type[0]]().init() : lookupChild;
+  if (lookupChild) {
+    child = lookupChild;
+  } else {
+    child = new CHILDREN[type[1] || primitiveType]();
+    // We've added a primitive, so re-parse the model to add it to vega
+    store.dispatch(reparse(true));
+    child.init();
+    // store.dispatch(reparse(true));
+  }
 
-  var id = child._id, types = this[type[0]];
+  var id = child._id;
+  // Get reference to the group's marks, scales, legends, or axes collection
+  var types = this[primitiveType];
+
   if (types.indexOf(id) < 0) {
     types.push(id);
   }

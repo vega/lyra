@@ -7,10 +7,14 @@
   }
   top: 15px;
   ul {
-    min-width: 600px;
+    &:first-child {
+      border: none;
+    }
+    border-left: solid 1px #000;
     @include breakingMenus {
       min-width: auto;
     }
+    display: inline-block;
     margin: 0;
     li {
       width: auto;
@@ -20,18 +24,14 @@
       &:hover {
         background-color: $lblue-bg;
       }
+      @include breakingMenus {
+        display: block;
+      }
     }
   }
-  margin-left: $sidebar-width;
-  .nav-trigger,
-  label {
-    display: none;
+  .menu {
+    min-width: 600px;
     @include breakingMenus {
-      display: block;
-    }
-  }
-  @include breakingMenus {
-    .menu {
       position: absolute;
       top: -600px;
       overflow-x: hidden;
@@ -40,13 +40,15 @@
       background-color: $lgrey-bg;
       z-index: 9999;
       border: 1px solid #eee;
+      min-width: 100px;
     }
-    ul {
-
-      li {
-        display: block;
-        width: 100px;
-      }
+  }
+  margin-left: $sidebar-width;
+  .nav-trigger,
+  label {
+    display: none;
+    @include breakingMenus {
+      display: block;
     }
   }
 }
