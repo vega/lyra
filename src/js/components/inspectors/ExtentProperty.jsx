@@ -4,7 +4,7 @@ var dl = require('datalib'),
     connect = require('react-redux').connect,
     Property = require('./Property'),
     SpatialPreset = require('./SpatialPreset'),
-    reparse = require('../../actions/reparse');
+    reparse = require('../../actions/reparseModel');
 
 var EXTENTS = {
   x: {

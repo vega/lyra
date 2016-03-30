@@ -6,7 +6,7 @@ var d3 = require('d3'),
     connect = require('react-redux').connect,
     model = require('../../model'),
     lookup = model.lookup,
-    reparse = require('../../actions/reparse'),
+    reparse = require('../../actions/reparseModel'),
     sg = require('../../model/signals');
 
 function mapStateToProps(state, ownProps) {

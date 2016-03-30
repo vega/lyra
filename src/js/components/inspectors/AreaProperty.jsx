@@ -3,7 +3,7 @@ var dl = require('datalib'),
     React = require('react'),
     connect = require('react-redux').connect,
     Property = require('./Property'),
-    reparse = require('../../actions/reparse');
+    reparse = require('../../actions/reparseModel');
 
 var EXTENTS = {
   x: {

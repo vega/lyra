@@ -6,7 +6,7 @@ var dl = require('datalib'),
     lookup = model.lookup,
     Mark = require('./Mark'),
     store = require('../../../store'),
-    reparse = require('../../../actions/reparse'),
+    reparse = require('../../../actions/reparseModel'),
     ns = require('../../../util/ns');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];

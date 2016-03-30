@@ -5,7 +5,7 @@ var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     model = require('../../model'),
     lookup = model.lookup,
-    reparse = require('../../actions/reparse');
+    reparse = require('../../actions/reparseModel');
 
 function mapStateToProps(state, ownProps) {
   return {};

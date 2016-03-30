@@ -4,7 +4,7 @@ var React = require('react'),
     propSg = require('../../util/prop-signal'),
     model = require('../../model'),
     lookup = model.lookup,
-    reparse = require('../../actions/reparse');
+    reparse = require('../../actions/reparseModel');
 
 function mapStateToProps(state, ownProps) {
   return {};

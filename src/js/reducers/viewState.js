@@ -4,8 +4,6 @@
 var Immutable = require('immutable');
 
 var actions = require('../constants/actions');
-var getIn = require('../util/immutable-utils').getIn;
-var setIn = require('../util/immutable-utils').setIn;
 
 /**
  * This reducer handles whether to recreate the view from the lyra model.
@@ -16,12 +14,26 @@ var setIn = require('../util/immutable-utils').setIn;
  */
 function reparseModelReducer(state, action) {
   if (typeof state === 'undefined') {
-    return false;
+    return Immutable.Map({
+      reparseModel: false,
+      isParsing: false,
+    });
   }
 
-  if (action.type === actions.REPARSE_MODEL && typeof action.value === 'boolean') {
-    console.log('requested a reparse, setting value as ' + action.value);
-    return action.value;
+  if (action.type === actions.REPARSE_MODEL) {
+    return state.set('reparseModel', action.value);
+  }
+
+  if (action.type === actions.PARSE_START) {
+    return state.merge({
+      isParsing: true,
+      // Toggle this back to false now that the parse is in progress
+      reparseModel: false
+    });
+  }
+
+  if (action.type === actions.PARSE_COMPLETE) {
+    return state.set('isParsing', false);
   }
 
   return state;

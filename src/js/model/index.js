@@ -13,7 +13,8 @@ var dl = require('datalib'),
     CancellablePromise = require('../util/simple-cancellable-promise'),
     selectMark = require('../actions/selectMark'),
     expandLayers = require('../actions/expandLayers'),
-    reparse = require('../actions/reparse');
+    parseStart = require('../actions/parseStart'),
+    parseComplete = require('../actions/parseComplete');
 
 /** @namespace */
 var model = module.exports = {
@@ -362,11 +363,12 @@ function updateAllSignals() {
   if (!model.view || typeof model.view.signal !== 'function') {
     return;
   }
-  if (getIn(store.getState(), 'reparse')) {
+  var state = store.getState();
+  if (getIn(state, 'viewState.reparseModel') || getIn(state, 'viewState.isParsing')) {
     // Do not update signals if a reparse is in progress
     return;
   }
-  var signals = getIn(store.getState(), 'signals');
+  var signals = getIn(state, 'signals');
   signals.forEach(function(value, name) {
     // Skip any signal from the defaults
     if (sg.isDefault(name)) {
@@ -383,18 +385,20 @@ function updateAllSignals() {
 }
 
 store.subscribe(debounce(function() {
-  var shouldReparse = getIn(store.getState(), 'reparse');
+  var shouldReparse = getIn(store.getState(), 'viewState.reparseModel');
   console.log('should reparse?', shouldReparse);
   if (shouldReparse) {
+    store.dispatch(parseStart());
     model.parse().then(function() {
-      store.dispatch(reparse(false));
+      console.log('\n Done with parse');
+      store.dispatch(parseComplete());
       // View has to update once before scene is ready
       // model.update();
     });
   }
 }, 16));
-store.subscribe(updateSelectedMarkInVega);
-store.subscribe(updateAllSignals);
+store.subscribe(debounce(updateSelectedMarkInVega, 16));
+store.subscribe(throttle(updateAllSignals));
 store.subscribe(model.update);
 
 window.store = store;
