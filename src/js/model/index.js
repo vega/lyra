@@ -223,6 +223,7 @@ model.manipulators = function() {
 };
 
 var parsePromise = null;
+var counter = 0;
 /**
  * Parses the model's `manipulators` spec and (re)renders the visualization.
  * @param  {string} [el] - A CSS selector corresponding to the DOM element
@@ -233,39 +234,37 @@ var parsePromise = null;
 model.parse = function(el) {
   el = el || '#vis';
   if (parsePromise) {
-    console.log('cancelling in-flight reparse');
+    console.log('\n-- cancelling in-flight reparse\n');
     // A parse is already in progress; cancel that parse's callbacks
     parsePromise.cancel();
   }
 
   // Start the newly-requested parse within a cancellable promise
-  console.log('starting new reparse');
-  if (model.view) {
-    // Clear out the outdated vega spec
-    model.view.destroy();
-  }
-  vg.dataflow.Tuple.reset();
+  console.log('\n\n-- starting new reparse\n');
   parsePromise = new CancellablePromise(function(resolve, reject) {
+    var thisCounter = ++counter;
 
     // Recreate the vega spec
+    console.log('   render beginning (counter #' + thisCounter + ')');
     vg.parse.spec(model.manipulators(), function(err, chart) {
+      console.log('   render complete');
       if (err) {
         return reject(err);
       }
-      model.view = chart({
-        el: el
-      });
-      register();
-      resolve(model.view);
+      chart.num = thisCounter;
+      resolve(chart);
     });
   });
 
-  return parsePromise.then(function(view) {
-    // model.view = view;
+  return parsePromise.then(function(chart) {
+    console.log('\n\n-- render promise callback (counter #' + chart.num + ')\n');
+    model.view = chart({
+      el: el
+    });
     // Register all event listeners to the new view
     register();
     // the update() method initiates visual encoding and rendering
-    view.update();
+    model.update();
     // Re-parse complete: null out the completed promise
     parsePromise = null;
   });
@@ -276,6 +275,7 @@ model.parse = function(el) {
  * @returns {void}
  */
 model.update = function() {
+  console.log('                update')
   if (model.view && model.view.update && typeof model.view.update === 'function') {
     model.view.update();
   }
@@ -318,16 +318,25 @@ model.offSignal = function(name, handler) {
   return model;
 };
 
+function isReparseInProgress() {
+  var state = store.getState();
+  return getIn(state, 'viewState.reparseModel') || getIn(state, 'viewState.isParsing');
+}
+
 /**
  * When vega re-renders we use the stored ID of the selected mark to re-select
  * that mark in the new vega instance
  * @returns {void}
  */
 function updateSelectedMarkInVega() {
+  // console.log('                uSMIV')
+  if (isReparseInProgress()) {
+    return;
+  }
   var storeSelectedId = getIn(store.getState(), 'inspector.selected');
   // If no item is marked selected in the store, or if the view is not ready,
   // take no action
-  if (!storeSelectedId || !model.view || !model.view.model || !model.view.model().scene()) {
+  if (!storeSelectedId || !model.view || !model.view.model) {
     return;
   }
   var def = sg.get(sg.SELECTED).mark.def,
@@ -359,16 +368,18 @@ function updateSelectedMarkInVega() {
  * @returns {void}
  */
 function updateAllSignals() {
+  // console.log('                uAS')
+  // Do not update signals if a reparse is in progress
+  if (isReparseInProgress()) {
+    return;
+  }
+
   // Nothing to do here if the view is not ready
   if (!model.view || typeof model.view.signal !== 'function') {
     return;
   }
-  var state = store.getState();
-  if (getIn(state, 'viewState.reparseModel') || getIn(state, 'viewState.isParsing')) {
-    // Do not update signals if a reparse is in progress
-    return;
-  }
-  var signals = getIn(state, 'signals');
+
+  var signals = getIn(store.getState(), 'signals');
   signals.forEach(function(value, name) {
     // Skip any signal from the defaults
     if (sg.isDefault(name)) {
@@ -384,21 +395,49 @@ function updateAllSignals() {
   });
 }
 
-store.subscribe(debounce(function() {
+function initiateReparse() {
+  // console.log('                iR')
+  model.parse().then(function() {
+    console.log('\n-- Done with parse\n');
+    store.dispatch(parseComplete());
+    // View has to update once before scene is ready
+    // model.update();
+  });
+}
+var debouncedInitiateReparse = debounce(initiateReparse, 16);
+
+function recreateVegaIfNecessary() {
+  // console.log('                rVIN')
   var shouldReparse = getIn(store.getState(), 'viewState.reparseModel');
   console.log('should reparse?', shouldReparse);
+  var isParsing = getIn(store.getState(), 'viewState.isParsing');
+
   if (shouldReparse) {
+    if (model.view) {
+      // Clear out the outdated vega spec: iterate through all registered
+      // signal streams and remove their event listeners
+      model.view.destroy();
+      model.view = null;
+    }
     store.dispatch(parseStart());
-    model.parse().then(function() {
-      console.log('\n Done with parse');
-      store.dispatch(parseComplete());
-      // View has to update once before scene is ready
-      // model.update();
-    });
+    // Don't start a reparse more often than 60 times a second
+    // debouncedInitiateReparse();
+    initiateReparse();
   }
-}, 16));
-store.subscribe(debounce(updateSelectedMarkInVega, 16));
-store.subscribe(throttle(updateAllSignals));
+  return shouldReparse;
+}
+
+store.subscribe(recreateVegaIfNecessary);
+store.subscribe(updateSelectedMarkInVega);
+store.subscribe(updateAllSignals);
 store.subscribe(model.update);
+// store.subscribe(function() {
+//   var state = store.getState();
+//   var reparseNeeded = recreateVegaIfNecessary(state);
+//   if (reparseNeeded) {
+//     // All subsequent actions are only relevant if the
+//     return;
+//   }
+// })
 
 window.store = store;

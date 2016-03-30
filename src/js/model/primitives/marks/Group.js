@@ -106,9 +106,16 @@ Group.prototype.child = function(type, child) {
   } else {
     child = new CHILDREN[type[1] || primitiveType]();
     // We've added a primitive, so re-parse the model to add it to vega
+    // This is sort of objectionable: We need to tell vega that we're about to
+    // need to re-parse, in order to suppress any attempts to write the about-
+    // to-be-initialized signals to a view that does not yet know about this
+    // new primitive. But we have to then call reparse again immediately after
+    // those signals are in the store in order to render vega WITH the newly-
+    // added signals. This should be cleaned up a bit when we handle mark
+    // creation and initialization through the store.
     store.dispatch(reparse(true));
     child.init();
-    // store.dispatch(reparse(true));
+    store.dispatch(reparse(true));
   }
 
   var id = child._id;
