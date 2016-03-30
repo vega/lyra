@@ -1,9 +1,10 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
     getIn = require('../../util/immutable-utils').getIn,
     model = require('../../model'),
     lookup = model.lookup,
-    connect = require('react-redux').connect;
+    selectMark = require('../../actions/selectMark');
 
 function mapStateToProps(reduxState, ownProps) {
   var selectedMarkId = getIn(reduxState, 'inspector.selected');
@@ -13,9 +14,18 @@ function mapStateToProps(reduxState, ownProps) {
   };
 }
 
+function mapDispatchToProps(dispatch) {
+  return {
+    selectMark: function(id) {
+      dispatch(selectMark(id));
+    }
+  };
+}
+
 // Splitting each sidebar into its column
 var AddMarksTool = connect(
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(React.createClass({
   classNames: 'new Marks',
   getCurrentGroup: function(){
@@ -32,7 +42,11 @@ var AddMarksTool = connect(
   },
   addMark: function(type) {
     var scene = this.getCurrentGroup() || model.Scene;
-    scene.child('marks.'+type);
+    var newMark = scene.child('marks.' + type);
+    // Auto-select the newly added mark
+    // (There is no race condition here because the addition of a mark will
+    // have already dispatched a Vega re-render request)
+    this.props.selectMark(newMark._id);
   },
   render: function() {
     return (

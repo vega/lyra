@@ -6,7 +6,7 @@ var dl = require('datalib'),
     lookup = model.lookup,
     Mark = require('./Mark'),
     store = require('../../../store'),
-    reparse = require('../../../actions/reparseModel'),
+    reparseModel = require('../../../actions/reparseModel'),
     ns = require('../../../util/ns');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];
@@ -113,9 +113,9 @@ Group.prototype.child = function(type, child) {
     // those signals are in the store in order to render vega WITH the newly-
     // added signals. This should be cleaned up a bit when we handle mark
     // creation and initialization through the store.
-    store.dispatch(reparse(true));
+    store.dispatch(reparseModel(true));
     child.init();
-    store.dispatch(reparse(true));
+    store.dispatch(reparseModel(true));
   }
 
   var id = child._id;
