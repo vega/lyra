@@ -1,8 +1,9 @@
 'use strict';
 var dl = require('datalib'),
     React = require('react'),
+    connect = require('react-redux').connect,
     Property = require('./Property'),
-    Parse = require('../mixins/Parse');
+    reparse = require('../../actions/reparse');
 
 var EXTENTS = {
   x: {
@@ -19,8 +20,15 @@ var EXTENTS = {
   }
 };
 
-var ExtentProperty = React.createClass({
-  mixins: [Parse],
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    reparse: function() {
+      dispatch(reparse(true));
+    }
+  };
+}
+
+var AreaProperty = React.createClass({
 
   getInitialState: function() {
     return this.extents();
@@ -78,7 +86,7 @@ var ExtentProperty = React.createClass({
       state.end = span;
     }
 
-    this.parse(primitive);
+    this.props.reparse();
   },
 
   render: function() {
@@ -124,4 +132,4 @@ var ExtentProperty = React.createClass({
   }
 });
 
-module.exports = ExtentProperty;
+module.exports = connect(function() {}, mapDispatchToProps)(AreaProperty);

@@ -2,6 +2,8 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
+    debounce = require('lodash.debounce'),
+    throttle = require('lodash.throttle'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
     ns = require('../util/ns'),
@@ -9,7 +11,8 @@ var dl = require('datalib'),
     store = require('../store'),
     getIn = require('../util/immutable-utils').getIn,
     selectMark = require('../actions/selectMark'),
-    expandLayers = require('../actions/expandLayers');
+    expandLayers = require('../actions/expandLayers'),
+    reparse = require('../actions/reparse');
 
 /** @namespace */
 var model = module.exports = {
@@ -217,6 +220,23 @@ model.manipulators = function() {
   return spec;
 };
 
+var parsePromise;
+function parse(spec, el) {
+  if (model.view) {
+    model.view.destroy();
+  }
+  vg.dataflow.Tuple.reset();
+  return new Promise(function(resolve, reject) {
+    vg.parse.spec(spec, function(err, chart) {
+      if (err) {
+        return reject(err);
+      }
+      model.view = chart({el: el});
+      register();
+      resolve(model.view);
+    });
+  })
+}
 /**
  * Parses the model's `manipulators` spec and (re)renders the visualization.
  * @param  {string} [el] - A CSS selector corresponding to the DOM element
@@ -226,25 +246,37 @@ model.manipulators = function() {
  */
 model.parse = function(el) {
   el = el || '#vis';
-  if (model.view) {
-    model.view.destroy();
-  }
-  return new Promise(function(resolve, reject) {
-    vg.dataflow.Tuple.reset();
-    vg.parse.spec(model.manipulators(), function(err, chart) {
-      if (err) {
-        reject(err);
-      } else {
-        model.view = chart({el: el});
-        register();
-        resolve(model.view);
-      }
+  if (parsePromise) {
+    // A parse is already in progress; chain another onto it so that whatever
+    // update initiated this re-parse is accounted for before the view is rendered
+    parsePromise = parsePromise.then(function() {
+      return parse(model.manipulators(), el);
     });
-  })
-    // View has to update once before scene is ready
-    .then(model.update)
-    // Persist the selected item from before we destroyed the scene
-    .then(updateSelectedMarkInVega).then(model.update);
+    // .then(function() {
+    //   parsePromise = null;
+    // });
+  } else {
+    parsePromise = parse(model.manipulators(), el).then(function() {
+      parsePromise = null;
+    });
+  }
+  return parsePromise;
+  // return new Promise(function(resolve, reject) {
+  //   vg.dataflow.Tuple.reset();
+  //   vg.parse.spec(model.manipulators(), function(err, chart) {
+  //     if (err) {
+  //       reject(err);
+  //     } else {
+  //       model.view = chart({el: el});
+  //       register();
+  //       resolve(model.view);
+  //     }
+  //   });
+  // })
+  //   // View has to update once before scene is ready
+  //   .then(model.update);
+  //   // Persist the selected item from before we destroyed the scene
+  //   // .then(updateSelectedMarkInVega).then(model.update);
 };
 
 /**
@@ -339,17 +371,37 @@ function updateAllSignals() {
   if (!model.view || typeof model.view.signal !== 'function') {
     return;
   }
+  if (getIn(store.getState(), 'reparse')) {
+    // Do not update signals if a reparse is in progress
+    return;
+  }
   var signals = getIn(store.getState(), 'signals');
   signals.forEach(function(value, name) {
     // Skip any signal from the defaults
     if (sg.isDefault(name)) {
       return;
     }
-    // Persist any signals from the store to the view
-    model.view.signal(name, value.init);
+    // Persist any signals from the store to the view: wrap this in a try/catch
+    // to handle situations where the update fires while we are registering
+    // signals for new marks before a reparse has actually injected those marks
+    // into the vega view itself.
+    try {
+      model.view.signal(name, value.init);
+    } catch (e) { /* This is ok */ }
   });
 }
 
+store.subscribe(debounce(function() {
+  var shouldReparse = getIn(store.getState(), 'reparse');
+  console.log('should reparse?', shouldReparse);
+  if (shouldReparse) {
+    model.parse().then(function() {
+      store.dispatch(reparse(false));
+      // View has to update once before scene is ready
+      // model.update();
+    });
+  }
+}, 16));
 store.subscribe(updateSelectedMarkInVega);
 store.subscribe(updateAllSignals);
 store.subscribe(model.update);
