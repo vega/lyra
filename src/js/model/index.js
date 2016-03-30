@@ -421,8 +421,8 @@ function recreateVegaIfNecessary() {
     }
     store.dispatch(parseStart());
     // Don't start a reparse more often than 60 times a second
-    // debouncedInitiateReparse();
-    initiateReparse();
+    debouncedInitiateReparse();
+    // initiateReparse();
   }
   return shouldReparse;
 }

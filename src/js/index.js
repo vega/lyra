@@ -37,10 +37,10 @@ Promise.all([
   p2._source.init({url: '/data/jobs.json'}),
   p3._source.init({url: '/data/gapminder.json'})
 ]).then(function() {
-  // Parse the model to initialize and render the Vega view
-  store.dispatch(reparse(true));
-}).then(function() {
-  ui.forceUpdate();
+  ui.forceUpdate(function() {
+    // Parse the model to initialize and render the Vega view
+    store.dispatch(reparse(true));
+  });
 });
 
 // Expose model, store and Sidebars globally (via `window`) for debugging
