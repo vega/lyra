@@ -5,6 +5,7 @@ var React = require('react'),
     lookup = require('../../model').lookup,
     hierarchy = require('../../util/hierarchy'),
     getIn = require('../../util/immutable-utils').getIn,
+    markUtil = require('../../util/mark-add-delete'),
     selectMark = require('../../actions/selectMark'),
     expandLayers = require('../../actions/expandLayers'),
     toggleLayers = require('../../actions/toggleLayers');
@@ -42,6 +43,7 @@ var Group = connect(
   mapStateToProps,
   mapDispatchToProps
 )(React.createClass({
+  mixins: [markUtil],
   propTypes: {
     expanded: React.PropTypes.object,
     id: React.PropTypes.number,
@@ -69,7 +71,6 @@ var Group = connect(
           {group.marks.map(function(id) {
             var mark = lookup(id),
                 type = mark.type;
-
             return type === 'group' ? (
               <Group key={id}
                 {...props}
@@ -78,12 +79,13 @@ var Group = connect(
             ) : (
               <li key={id}>
                 <div
-                  className={'name' + (selected === id ? ' selected' : '')}
-                  onClick={this.props.select.bind(null, id)}>
-
-                  <ContentEditable obj={mark} prop="name"
-                    value={mark.name}
-                    onClick={props.select.bind(null, id)} />
+                  className={'name' + (selected === id ? ' selected' : '')}>
+                  <div onClick={this.props.select.bind(null, id)}>
+                    <ContentEditable obj={mark} prop="name"
+                      value={mark.name}
+                      onClick={props.select.bind(null, id)} />
+                    </div>
+                  <i className="delete-sidebar fa fa-trash" onClick={this.deleteMark.bind(null, id)}></i>
                 </div>
               </li>
             );
@@ -98,13 +100,14 @@ var Group = connect(
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
         <div
-          className={'name' + (selected === groupId ? ' selected' : '')}
-          onClick={this.toggleFolder.bind(null, groupId)}>
+          className={'name' + (selected === groupId ? ' selected' : '')}>
+          <div onClick={this.toggleFolder.bind(null, groupId)}>
             {spinner}
-
             <ContentEditable obj={group} prop="name"
               value={group.name}
               onClick={this.toggleFolder.bind(null, groupId)} />
+          </div>
+          <i className="delete-sidebar fa fa-trash" onClick={this.deleteMark.bind(null, groupId)}></i>
         </div>
         {contents}
       </li>
@@ -113,15 +116,17 @@ var Group = connect(
 }));
 
 var LayerList = React.createClass({
+  mixins: [markUtil],
   propTypes: {
     layers: React.PropTypes.array
   },
 
   render: function() {
     var props = this.props;
+    var layers
     return (
       <div id="layer-list" className="expandingMenu">
-        <h4 className="hed-tertiary">Groups <i className="fa fa-plus"></i></h4>
+        <h4 className="hed-tertiary" onClick={this.addMark.bind(null, 'group')}>Groups <i className="fa fa-plus"></i></h4>
         <ul>
         {this.props.layers.map(function(id) {
           return (

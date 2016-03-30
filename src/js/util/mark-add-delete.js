@@ -30,18 +30,19 @@ var model = require('../model'),
    */
   addMark: function(type) {
     var scene = this.getParent(true) || model.Scene;
-    return scene.child('marks.'+type);
+    scene.child('marks.'+type);
+    this.updateSidebar();
   },
 
   /**
    * Delete a mark from the current group or scene
    * @returns {Group|Scene} returns the parent of the deleted Mark
    */
-  deleteMark: function(){
-    var id = this.props.selected;
+  deleteMark: function(id){
     var scene = this.getParent(false) || model.Scene;
     scene.removeChild(id);
     store.dispatch(selectMark(null));
+    this.updateSidebar();
   },
   /**
    * Reorder mark in the current group or scene
@@ -57,6 +58,10 @@ var model = require('../model'),
   clearMarks: function(){
     console.log('boo');
     model.Scene.removeChildren();
+  },
+  updateSidebar: function(){
+    var Sidebars = require('../components');
+    Sidebars.forceUpdate();
   }
 };
 

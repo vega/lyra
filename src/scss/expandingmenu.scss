@@ -6,16 +6,30 @@
     li {
       list-style-type: none;
       .name {
+        position: relative;
         padding: 10px;
         cursor: pointer;
         i {
           padding: 0 $inner-padding;
         }
-
+        .delete-sidebar {
+          position: absolute;
+          right: 10px;
+          top: 10px;
+          cursor: pointer;
+          opacity: 0.5;
+          display: none;
+          &:hover {
+            opacity: 1;
+          }
+        }
         &.selected {
           background-color: $mblue-bg;
           color: #fff;
           font-weight: bold;
+          .delete-sidebar {
+            display: block;
+          }
         }
       }
       .content-editable {
