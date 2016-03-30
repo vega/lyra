@@ -35,6 +35,48 @@ describe('hierarchy utilities', function() {
 
   });
 
+  describe('getChildren', function() {
+    var getChildren;
+
+    beforeEach(function() {
+      getChildren = hierarchy.getChildren;
+    });
+
+    it('is a function', function() {
+      expect(getChildren).to.be.a('function');
+    });
+
+    it('returns an empty array for childless groups', function() {
+      var group = new Group(),
+          result = getChildren(group);
+      expect(result).to.deep.equal([]);
+    });
+
+    it('returns an array of all children of the provided group', function() {
+      var group = new Group(),
+          child1 = group.child('scales'),
+          child2 = group.child('axes'),
+          child3 = group.child('marks.group'),
+          child4 = group.child('marks.rect'),
+          result = getChildren(group);
+      expect(result).to.deep.equal([child1, child2, child3, child4]);
+    });
+
+    it('omits invalid IDs from the returned array', function() {
+      var group = new Group();
+      group.marks.push('invalidID1', 'invalidID2');
+      var result = getChildren(group);
+      expect(result).to.deep.equal([]);
+    });
+
+    it('returns an empty array for non-group marks', function() {
+      var rect = new Rect(),
+          result = getChildren(rect);
+      expect(result).to.deep.equal([]);
+    });
+
+  });
+
   describe('getParents', function() {
     var getParents;
 
