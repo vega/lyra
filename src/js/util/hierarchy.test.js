@@ -9,11 +9,83 @@ var hierarchy = require('./hierarchy');
 
 describe('hierarchy utilities', function() {
 
+  describe('getParent', function() {
+    var getParent;
+
+    beforeEach(function() {
+      getParent = hierarchy.getParent;
+    });
+
+    it('is a function', function() {
+      expect(getParent).to.be.a('function');
+    });
+
+    it('returns the parent of a provided mark', function() {
+      var parent = new Group(),
+          rect = parent.child('marks.rect'),
+          result = getParent(rect);
+      expect(result).to.equal(parent);
+    });
+
+    it('returns null if a mark was not found', function() {
+      var parentlessMark = new Rect(),
+          result = getParent(parentlessMark);
+      expect(result).to.be.null;
+    });
+
+  });
+
+  describe('getChildren', function() {
+    var getChildren;
+
+    beforeEach(function() {
+      getChildren = hierarchy.getChildren;
+    });
+
+    it('is a function', function() {
+      expect(getChildren).to.be.a('function');
+    });
+
+    it('returns an empty array for childless groups', function() {
+      var group = new Group(),
+          result = getChildren(group);
+      expect(result).to.deep.equal([]);
+    });
+
+    it('returns an array of all children of the provided group', function() {
+      var group = new Group(),
+          child1 = group.child('scales'),
+          child2 = group.child('axes'),
+          child3 = group.child('marks.group'),
+          child4 = group.child('marks.rect'),
+          result = getChildren(group);
+      expect(result).to.deep.equal([child1, child2, child3, child4]);
+    });
+
+    it('omits invalid IDs from the returned array', function() {
+      var group = new Group();
+      group.marks.push('invalidID1', 'invalidID2');
+      var result = getChildren(group);
+      expect(result).to.deep.equal([]);
+    });
+
+    it('returns an empty array for non-group marks', function() {
+      var rect = new Rect(),
+          result = getChildren(rect);
+      expect(result).to.deep.equal([]);
+    });
+
+  });
+
   describe('getParents', function() {
     var getParents;
 
     beforeEach(function() {
       getParents = hierarchy.getParents;
+    });
+
+    it('is a function', function() {
+      expect(getParents).to.be.a('function');
     });
 
     it('returns an empty array when called with no arguments', function() {
@@ -54,6 +126,10 @@ describe('hierarchy utilities', function() {
       getGroupIds = hierarchy.getGroupIds;
     });
 
+    it('is a function', function() {
+      expect(getGroupIds).to.be.a('function');
+    });
+
     it('returns an array', function() {
       expect(getGroupIds([])).to.be.an('array');
     });
@@ -75,6 +151,10 @@ describe('hierarchy utilities', function() {
 
     beforeEach(function() {
       getParentGroupIds = hierarchy.getParentGroupIds;
+    });
+
+    it('is a function', function() {
+      expect(getParentGroupIds).to.be.a('function');
     });
 
     it('returns an array when called with no arguments', function() {

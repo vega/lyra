@@ -1,6 +1,41 @@
 'use strict';
 
 /**
+ * Find the parent item for a given mark.
+ *
+ * @param {Primitive} mark - A mark for which to return the parent mark
+ * @returns {Primitive|null} The requested mark, if present, else null
+ */
+function getParent(mark) {
+  // Require model in here to sidestep circular dependency issue
+  return require('../model').lookup(mark._parent) || null;
+}
+
+/**
+ * Return all child primitives of the provided group.
+ *
+ * @param {Group} groupMark - The group for which to return children
+ * @returns {Object[]} Array of instantiated primitive objects that are children
+ * of the provided group mark
+ */
+function getChildren(groupMark) {
+  // Require model in here to sidestep circular dependency issue
+  var lookup = require('../model').lookup;
+
+  return ['scales', 'legends', 'axes', 'marks'].reduce(function(allChildren, childType) {
+    if (!groupMark[childType]) {
+      return allChildren;
+    }
+    return allChildren.concat(groupMark[childType].map(function(childId) {
+      return lookup(childId);
+    }));
+  }, []).filter(function(mark) {
+    // Filter out any null or undefined results, in case an invalid ID is present
+    return !!mark;
+  });
+}
+
+/**
  * Get all parent nodes for a given primitive in the Lyra hierarchy, i.e. all
  * groups which may be considered to be ancestors of the provided primitive.
  *
@@ -11,13 +46,13 @@ function getParents(primitive) {
   if (!primitive) {
     return [];
   }
-  var current = primitive.parent && primitive.parent();
+  var current = primitive._parent && getParent(primitive);
   if (!current) {
     return [];
   }
   var parents = [current];
-  while (current && current.parent && typeof current.parent === 'function') {
-    current = current.parent();
+  while (current && current._parent) {
+    current = getParent(current);
     if (current) {
       parents.push(current);
     }
@@ -85,6 +120,8 @@ function findInItemTree(item, path) {
 }
 
 module.exports = {
+  getParent: getParent,
+  getChildren: getChildren,
   getParentGroupIds: getParentGroupIds,
   getParents: getParents,
   getGroupIds: getGroupIds,
