@@ -1,22 +1,9 @@
 'use strict';
 var React = require('react'),
-    connect = require('react-redux').connect,
     propSg = require('../../util/prop-signal'),
     model = require('../../model'),
     lookup = model.lookup,
-    reparse = require('../../actions/reparseModel');
-
-function mapStateToProps(state, ownProps) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    reparse: function() {
-      dispatch(reparse(true));
-    }
-  };
-}
+    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
 
 var SpatialPreset = React.createClass({
 
@@ -43,7 +30,7 @@ var SpatialPreset = React.createClass({
       };
     }
 
-    this.props.reparse();
+    this.requestVegaReparse();
   },
 
   render: function() {
@@ -77,4 +64,4 @@ var SpatialPreset = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(SpatialPreset);
+module.exports = addVegaReparseRequest(SpatialPreset);

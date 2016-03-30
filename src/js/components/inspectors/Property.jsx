@@ -1,23 +1,10 @@
 'use strict';
 var React = require('react'),
-    connect = require('react-redux').connect,
     SignalValue = require('../mixins/SignalValue'),
     ContentEditable = require('../ContentEditable'),
     model = require('../../model'),
     lookup = model.lookup,
-    reparse = require('../../actions/reparseModel');
-
-function mapStateToProps(state, ownProps) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    reparse: function() {
-      dispatch(reparse(true));
-    }
-  };
-}
+    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
 
 var Property = React.createClass({
   mixins: [SignalValue],
@@ -138,4 +125,4 @@ var Property = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(Property);
+module.exports = addVegaReparseRequest(Property);

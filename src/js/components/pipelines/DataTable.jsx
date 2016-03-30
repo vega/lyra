@@ -3,23 +3,10 @@ var d3 = require('d3'),
     dl = require('datalib'),
     React = require('react'),
     ReactDOM = require('react-dom'),
-    connect = require('react-redux').connect,
     model = require('../../model'),
     lookup = model.lookup,
-    reparse = require('../../actions/reparseModel'),
+    addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
     sg = require('../../model/signals');
-
-function mapStateToProps(state, ownProps) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    reparse: function() {
-      dispatch(reparse(true));
-    }
-  };
-}
 
 var DataTable = React.createClass({
   propTypes: {
@@ -131,7 +118,7 @@ var DataTable = React.createClass({
     sg.set(sg.CELL, {});
 
     if (dropped) {
-      this.props.reparse();
+      this.requestVegaReparse();
     }
   },
 
@@ -217,4 +204,4 @@ var DataTable = React.createClass({
 
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(DataTable);
+module.exports = addVegaReparseRequest(DataTable);

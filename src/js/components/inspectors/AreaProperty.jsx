@@ -1,9 +1,8 @@
 'use strict';
 var dl = require('datalib'),
     React = require('react'),
-    connect = require('react-redux').connect,
     Property = require('./Property'),
-    reparse = require('../../actions/reparseModel');
+    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
 
 var EXTENTS = {
   x: {
@@ -19,14 +18,6 @@ var EXTENTS = {
     end: {name: 'y2', label: 'Bottom'}
   }
 };
-
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    reparse: function() {
-      dispatch(reparse(true));
-    }
-  };
-}
 
 var AreaProperty = React.createClass({
 
@@ -86,7 +77,7 @@ var AreaProperty = React.createClass({
       state.end = span;
     }
 
-    this.props.reparse();
+    this.requestVegaReparse();
   },
 
   render: function() {
@@ -132,4 +123,4 @@ var AreaProperty = React.createClass({
   }
 });
 
-module.exports = connect(function() {}, mapDispatchToProps)(AreaProperty);
+module.exports = addVegaReparseRequest(AreaProperty);
