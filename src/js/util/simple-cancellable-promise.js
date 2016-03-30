@@ -1,12 +1,10 @@
 'use strict';
 
-/**
- * PromiseLikeObject exposes the .catch and .then methods of a regular Promise,
- * with none of the underlying functionality: this is what gets returned from
- * the CancellablePromise in the event that the CancellablePromise has, in fact,
- * been cancelled. PLO's can be chained ad infinitum but no callbacks will ever
- * fire.
- */
+// PromiseLikeObject exposes the .catch and .then methods of a regular Promise,
+// with none of the underlying functionality: this is what gets returned from
+// the CancellablePromise in the event that the CancellablePromise has, in fact,
+// been cancelled. PLO's can be chained ad infinitum but no callbacks will ever
+// fire.
 function PromiseLikeObject() {}
 
 PromiseLikeObject.prototype.catch = PromiseLikeObject.prototype.then = function() {
@@ -21,7 +19,7 @@ PromiseLikeObject.prototype.catch = PromiseLikeObject.prototype.then = function(
  * @constructor
  * @param {Function} executorFn - A normal Promise executor function,
  * accepting "resolve" and "reject" callback function properties.
- * @returns {CancellablePromise}
+ * @returns {CancellablePromise} The CancellablePromise instance
  */
 function CancellablePromise(executorFn) {
   this.promise = new Promise(executorFn);
@@ -30,7 +28,7 @@ function CancellablePromise(executorFn) {
 
 /**
  * Cancel this Promise's callbacks
- * @return {void}
+ * @returns {void}
  */
 CancellablePromise.prototype.cancel = function() {
   this.cancelled = true;
@@ -42,15 +40,15 @@ CancellablePromise.prototype.cancel = function() {
  *
  * @param {Function} onFulfilled - A promise success callback
  * @param {Function} onRejected - A promise rejection callback
- * @return {Object} A successful Promise, or a cancelled Promise-like object
+ * @returns {Object} A successful Promise, or a cancelled Promise-like object
  */
 CancellablePromise.prototype.then = function(onFulfilled, onRejected) {
   if (this.cancelled) {
     return new PromiseLikeObject();
   }
-  var self = this;
+  var that = this;
   return this.promise.then(function(result) {
-    if (!self.cancelled) {
+    if (!that.cancelled) {
       return onFulfilled(result);
     }
     return new PromiseLikeObject();
@@ -61,7 +59,7 @@ CancellablePromise.prototype.then = function(onFulfilled, onRejected) {
  * Chain a failure callback onto this promise
  *
  * @param {Function} onRejected - A promise rejection callback
- * @return {Promise}
+ * @returns {Promise} The actual promise, with this catch chained onto it
  */
 CancellablePromise.prototype.catch = function(onRejected) {
   return this.promise.catch(onRejected);

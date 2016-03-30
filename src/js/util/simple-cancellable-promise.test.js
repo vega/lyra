@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 var CancellablePromise = require('./simple-cancellable-promise');
 
-describe.only('CancellablePromise utility', function() {
+describe('CancellablePromise utility', function() {
 
   it('is a function', function() {
     expect(CancellablePromise).to.be.a('function');
@@ -58,11 +58,11 @@ describe.only('CancellablePromise utility', function() {
       resolve('success!');
     });
     expect(prom.then(function(result) {
-      throw 'BAM';
+      throw new Error('BAM');
     }).then(function(result) {
       return 'success';
     }, function(err) {
-      return err;
+      return err.message;
     })).to.eventually.equal('BAM');
   });
 
@@ -71,11 +71,11 @@ describe.only('CancellablePromise utility', function() {
       resolve('success!');
     });
     expect(prom.then(function(result) {
-      throw 'BAM';
+      throw new Error('BAM');
     }).then(function(result) {
-      throw 'POW';
+      throw new Error('POW');
     }).catch(function(err) {
-      return err;
+      return err.message;
     })).to.eventually.equal('BAM');
   });
 
