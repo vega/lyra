@@ -27,22 +27,38 @@ var dl = require('datalib'),
  * documentation for more information on this class' "public" properties.
  *
  * @constructor
+ * @param {Object} config - Configuration options
+ * @param {string} config.type - The type of mark, e.g. "rect"
+ * @param {name}   [config.name] - The name of the mark (set based on type
+ * if not provided in config object)
+ * @param {Object} [config.properties] - Mark properties object (initialized
+ * to reasonable defaults if not provided in config object)
  */
-function Mark(type) {
+function Mark(config) {
+  var type = config.type;
+  this.type = type;
   this.name = type + '_' + counter.type(type);
   this.type = type;
   this.from = undefined;
 
-  this.properties = {
-    update: {
-      x: {value: 25},
-      y: {value: 25},
-      fill: {value: '#4682b4'},
-      fillOpacity: {value: 1},
-      stroke: {value: '#000000'},
-      strokeWidth: {value: 0.25}
-    }
+  var updateDefault = {
+    x: {value: 25},
+    y: {value: 25},
+    fill: {value: '#4682b4'},
+    fillOpacity: {value: 1},
+    stroke: {value: '#000000'},
+    strokeWidth: {value: 0.25}
   };
+
+  // Pick up any passed-in properties from the provided configuration
+  this.properties = dl.extend({
+    update: {}
+  }, config.properties);
+
+  // dl.extend does not operate as a deep extender, so call it again for
+  // the .update property specifically to ensure any properties passed in
+  // via the configuration argument get set correctly
+  this.properties.update = dl.extend(updateDefault, config.properties.update);
 
   this._rule = new rules.VLSingle(type);
 

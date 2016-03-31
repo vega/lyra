@@ -18,14 +18,14 @@ var DELTA = sg.DELTA,
  * @constructor
  */
 function Symbol() {
-  Mark.call(this, 'symbol');
-
-  var props = this.properties,
-      update = props.update;
-
-  dl.extend(update, {
-    size: {value: 100},
-    shape: {value: 'circle'}
+  Mark.call(this, {
+    type: 'symbol',
+    properties: {
+      update: {
+        size: {value: 100},
+        shape: {value: 'circle'}
+      }
+    }
   });
 
   return this;

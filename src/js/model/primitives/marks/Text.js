@@ -19,23 +19,26 @@ var DELTA = sg.DELTA,
  * @constructor
  */
 function Text() {
-  Mark.call(this, 'text');
-
-  dl.extend(this.properties.update, {
-    strokeWidth: {value: 0},
-    x: {value: 80},
-    y: {value: 30},
-    dx: {value: 0, offset: 0},
-    dy: {value: 0, offset: 0},
-    // Text-specific properties
-    text: {value: 'Text'},
-    align: {value: 'center'},
-    baseline: {value: 'middle'},
-    font: {value: 'Helvetica'},
-    fontSize: {value: 14},
-    fontStyle: {value: 'normal'},
-    fontWeight: {value: 'normal'},
-    angle: {value: 0}
+  Mark.call(this, {
+    type: 'text',
+    properties: {
+      update: {
+        strokeWidth: {value: 0},
+        x: {value: 80},
+        y: {value: 30},
+        dx: {value: 0, offset: 0},
+        dy: {value: 0, offset: 0},
+        // Text-specific properties
+        text: {value: 'Text'},
+        align: {value: 'center'},
+        baseline: {value: 'middle'},
+        font: {value: 'Helvetica'},
+        fontSize: {value: 14},
+        fontStyle: {value: 'normal'},
+        fontWeight: {value: 'normal'},
+        angle: {value: 0}
+      }
+    }
   });
 
   return this;

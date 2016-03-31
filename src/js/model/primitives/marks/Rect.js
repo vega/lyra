@@ -18,18 +18,19 @@ var DELTA = sg.DELTA,
  * @constructor
  */
 function Rect() {
-  Mark.call(this, 'rect');
-
-  var props = this.properties,
-      update = props.update;
-
-  dl.extend(update, {
-    x2: {value: 60},
-    y2: {value: 60},
-    xc: {value: 60, _disabled: true},
-    yc: {value: 60, _disabled: true},
-    width: {value: 30, _disabled: true},
-    height: {value: 30, _disabled: true}
+  Mark.call(this, {
+    type: 'rect',
+    properties: {
+      // defaults
+      update: {
+        x2: {value: 60},
+        y2: {value: 60},
+        xc: {value: 60, _disabled: true},
+        yc: {value: 60, _disabled: true},
+        width: {value: 30, _disabled: true},
+        height: {value: 30, _disabled: true}
+      }
+    }
   });
 
   return this;

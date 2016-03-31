@@ -19,16 +19,16 @@ var DELTA = sg.DELTA,
  * @constructor
  */
 function Line() {
-  Mark.call(this, 'line');
-
-  var props = this.properties,
-      update = props.update,
-      defaults = {
+  Mark.call(this, {
+    type: 'line',
+    properties: {
+      // Defaults
+      update: {
         stroke: {value: '#000000'},
         strokeWidth: {value: 3}
-      };
-
-  dl.extend(update, defaults);
+      }
+    }
+  });
 
   return this;
 }

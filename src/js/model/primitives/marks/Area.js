@@ -19,11 +19,11 @@ var DELTA = sg.DELTA,
  * @constructor
  */
 function Area() {
-  Mark.call(this, 'area');
-
-  var props = this.properties,
-      update = props.update,
-      defaults = {
+  Mark.call(this, {
+    type: 'area',
+    properties: {
+      update: {
+        // Defaults
         x2: {value: 0},
         y2: {value: 0},
         xc: {value: 60, _disabled: true},
@@ -35,8 +35,9 @@ function Area() {
         orient: {value: 'vertical'},
         width: {value: 30, _disabled: true},
         height: {value: 30, _disabled: true}
-      };
-  dl.extend(update, defaults);
+      }
+    }
+  });
 
   return this;
 }

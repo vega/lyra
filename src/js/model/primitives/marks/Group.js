@@ -21,21 +21,24 @@ var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];
  * @constructor
  */
 function Group() {
-  Mark.call(this, 'group');
+  Mark.call(this, {
+    type: 'group',
+    properties: {
+      // By default, make groups full width/height.
+      update: {
+        x: {value: 0},
+        y: {value: 0},
+        width: {signal: ns('vis_width')},
+        height: {signal: ns('vis_height')},
+        fill: {value: 'transparent'}
+      }
+    }
+  });
 
   this.scales = [];
   this.legends = [];
   this.axes = [];
   this.marks = [];
-
-  // By default, make groups full width/height.
-  this.properties.update = {
-    x: {value: 0},
-    y: {value: 0},
-    width: {signal: ns('vis_width')},
-    height: {signal: ns('vis_height')},
-    fill: {value: 'transparent'}
-  };
 
   return this;
 }
