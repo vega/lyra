@@ -5,7 +5,7 @@ var dl = require('datalib'),
     sg = require('../signals'),
     model = require('../'),
     lookup = model.lookup,
-    id = 0;
+    counter = require('../../util/counter');
 
 /**
  * @classdesc A Lyra Primitive.
@@ -19,7 +19,8 @@ var dl = require('datalib'),
  * @constructor
  */
 function Primitive() {
-  model.primitive(this._id = ++id, this);
+  this._id = counter.global();
+  model.primitive(this._id, this);
   return this;
 }
 
