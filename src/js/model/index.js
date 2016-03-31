@@ -13,8 +13,7 @@ var dl = require('datalib'),
     CancellablePromise = require('../util/simple-cancellable-promise'),
     selectMark = require('../actions/selectMark'),
     expandLayers = require('../actions/expandLayers'),
-    parseStart = require('../actions/parseStart'),
-    parseComplete = require('../actions/parseComplete');
+    parseInProgress = require('../actions/vegaParse');
 
 /** @namespace */
 var model = module.exports = {
@@ -366,13 +365,13 @@ function updateAllSignals(state) {
 
 function initiateReparse() {
   model.parse().then(function() {
-    store.dispatch(parseComplete());
+    store.dispatch(parseInProgress(false));
   });
 }
 var debouncedInitiateReparse = debounce(initiateReparse, 16);
 
 function recreateVegaIfNecessary(state) {
-  var shouldReparse = getIn(state, 'viewState.reparseModel');
+  var shouldReparse = getIn(state, 'vega.invalid');
 
   if (shouldReparse) {
     if (model.view) {
@@ -381,7 +380,7 @@ function recreateVegaIfNecessary(state) {
       model.view.destroy();
       model.view = null;
     }
-    store.dispatch(parseStart());
+    store.dispatch(parseInProgress(true));
     // Don't start a reparse more often than 60 times a second
     debouncedInitiateReparse();
     // initiateReparse();
@@ -395,7 +394,7 @@ function recreateVegaIfNecessary(state) {
 store.subscribe(function() {
   var state = store.getState(),
       reparseNeeded = recreateVegaIfNecessary(state),
-      reparseInProgress = getIn(state, 'viewState.isParsing');
+      reparseInProgress = getIn(state, 'vega.isParsing');
 
   // All subsequent actions are only relevant if the view is _not_ about to be
   // destroyed and recreated

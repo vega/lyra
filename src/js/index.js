@@ -10,7 +10,7 @@ require('./transforms');
 
 // Initialize the Redux store
 var store = require('./store');
-var reparse = require('./actions/reparseModel');
+var reparse = require('./actions/vegaInvalidate');
 
 // Initialize the Model.
 var model = require('./model');

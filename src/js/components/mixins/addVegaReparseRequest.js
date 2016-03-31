@@ -1,7 +1,7 @@
 'use strict';
 
 var store = require('../../store'),
-    reparseModel = require('../../actions/reparseModel');
+    vegaInvalidate = require('../../actions/vegaInvalidate');
 
 /**
  * Augment any react component with a prototype property that can be called to
@@ -13,7 +13,7 @@ var store = require('../../store'),
  */
 module.exports = function(Component) {
   Component.prototype.requestVegaReparse = function() {
-    store.dispatch(reparseModel(true));
+    store.dispatch(vegaInvalidate(true));
   };
   return Component;
 };

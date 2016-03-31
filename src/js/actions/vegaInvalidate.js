@@ -1,5 +1,5 @@
 'use strict';
-var REPARSE_MODEL = require('../constants/actions').REPARSE_MODEL;
+var VEGA_INVALIDATE = require('../constants/actions').VEGA_INVALIDATE;
 
 /**
  * Action creator to set a flag which will be used to reparse (destroy and
@@ -11,7 +11,7 @@ var REPARSE_MODEL = require('../constants/actions').REPARSE_MODEL;
  */
 module.exports = function(shouldReparse) {
   return {
-    type: REPARSE_MODEL,
-    value: shouldReparse
+    type: VEGA_INVALIDATE,
+    value: !!shouldReparse
   };
 };
