@@ -1,9 +1,9 @@
 'use strict';
 var React = require('react'),
     Property = require('./Property'),
-    Base = require('../../model/primitives/marks/Symbol');
+    Symbol = require('../../model/primitives/marks/Symbol');
 
-var Symbol = React.createClass({
+var SymbolInspector = React.createClass({
   render: function() {
     var props = this.props,
         primitive = props.primitive,
@@ -32,7 +32,7 @@ var Symbol = React.createClass({
           signal={update.size.signal} />
 
         <Property name="shape" label="Shape" primitive={primitive}
-          type="select" opts={Base.SHAPES} canDrop={true}
+          type="select" opts={Symbol.SHAPES} canDrop={true}
           scale={update.shape.scale} field={update.shape.field}
           signal={update.shape.signal} />
 
@@ -66,4 +66,4 @@ var Symbol = React.createClass({
   }
 });
 
-module.exports = Symbol;
+module.exports = SymbolInspector;

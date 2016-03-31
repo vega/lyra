@@ -2,9 +2,9 @@
 var React = require('react'),
     Property = require('./Property'),
     AreaProperty = require('./AreaProperty'),
-    Base = require('../../model/primitives/marks/Area');
+    Area = require('../../model/primitives/marks/Area');
 
-var Area = React.createClass({
+var AreaInspector = React.createClass({
   render: function() {
     var props = this.props,
         primitive = props.primitive,
@@ -77,7 +77,7 @@ var Area = React.createClass({
           label="Interpolate"
           primitive={primitive}
           type="select"
-          opts={Base.INTERPOLATE}
+          opts={Area.INTERPOLATE}
           canDrop={true}
           scale={update.interpolate.scale}
           field={update.interpolate.field}
@@ -100,7 +100,7 @@ var Area = React.createClass({
           label="Orient"
           primitive={primitive}
           type="select"
-          opts={Base.ORIENT}
+          opts={Area.ORIENT}
           canDrop={true}
           scale={update.orient.scale}
           field={update.orient.field}
@@ -111,4 +111,4 @@ var Area = React.createClass({
   }
 });
 
-module.exports = Area;
+module.exports = AreaInspector;

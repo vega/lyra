@@ -3,7 +3,7 @@ var React = require('react'),
     Property = require('./Property'),
     ExtentProperty = require('./ExtentProperty');
 
-var Rect = React.createClass({
+var RectInspector = React.createClass({
   render: function() {
     var props = this.props,
         primitive = props.primitive,
@@ -47,4 +47,4 @@ var Rect = React.createClass({
   }
 });
 
-module.exports = Rect;
+module.exports = RectInspector;
