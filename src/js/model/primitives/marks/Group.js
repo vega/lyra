@@ -149,9 +149,9 @@ Group.prototype.child = function(type, child) {
  * Remove a single child mark from this group
  * @param  {number|Object} [child] The ID or Primitive corresponding to the
  * child to be removed from the Group.
- * @return {void}
+ * @returns {void}
  */
-Group.prototype.removeChild = function(child){
+Group.prototype.removeChild = function(child) {
   var lookupChild = dl.isNumber(child) ? lookup(child) : child;
   if (lookupChild) {
     child = lookupChild;
@@ -161,26 +161,37 @@ Group.prototype.removeChild = function(child){
   var id = child._id;
   var types = this.marks;
   var childIndex = types.indexOf(id);
-  if (childIndex != -1) {
-    if (child.type == 'group'){
-      for (var x= 0; x < child.marks.length; x++){
+  if (childIndex !== -1) {
+    if (child.type === 'group') {
+      for (var x = 0; x < child.marks.length; x++) {
         child.removeChild(child.marks[x]);
       }
     }
     child.remove();
-    types.splice(childIndex,1);
-    store.dispatch(reparse(true));
+    types.splice(childIndex, 1);
   }
-  return this;
 };
 
 /**
- * Remove all children from this group
- * @param  {string} type Which children should be cleared 'marks', 'axis', 'legends', 'scales'
- * @return {void}
+ * Remove all children and children's children from group
+ * @param {string} type - Marks, scales, legends, axes
+ * @returns {void}
  */
-Group.prototype.removeChildren = function(type){
-
+Group.prototype.removeChildren = function(type) {
+  var types = this[type];
+  if (type === 'marks') {
+    for (var i = 0; i < types.length; i++) {
+      var child = lookup(types[i]);
+      if (child.type === 'group') {
+        for (var x = 0; x < child.marks.length; x++) {
+          child.removeChild(child.marks[x]);
+        }
+      }
+      child.remove();
+    }
+    this.marks = [];
+  }
+  store.dispatch(vegaInvalidate(true));
 };
 
 module.exports = Group;

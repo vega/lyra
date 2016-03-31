@@ -36,7 +36,6 @@ function signalsReducer(state, action) {
     return state.delete(action.signal);
   }
 
-
   return state;
 }
 

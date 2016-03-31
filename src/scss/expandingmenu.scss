@@ -1,4 +1,7 @@
 .expandingMenu {
+  .hed-tertiary i{
+    cursor: pointer;
+  }
   >ul>li{
     border-bottom: 1px solid $lgrey-bg;
   }
@@ -39,6 +42,10 @@
   }
   .expanded {
     background-color: #fff;
+    .expanded {
+      background-color: $innerMenu;
+      color: #555;
+    }
   }
   .header {
     padding:10px;

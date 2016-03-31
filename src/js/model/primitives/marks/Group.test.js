@@ -9,7 +9,7 @@ var ns = require('../../../util/ns');
 var VLSingle = require('../../rules/VLSingle');
 
 describe('Group Mark', function() {
-  var group;
+  var group, subgroup;
 
   describe('defaultProperties static method', function() {
 
@@ -215,4 +215,57 @@ describe('Group Mark', function() {
 
   });
 
+  describe('remove child method', function() {
+    beforeEach(function() {
+      subgroup = group.child('marks.group');
+    });
+
+    it('is a function', function() {
+      expect(group).to.have.property('removeChild');
+      expect(group.child).to.be.a('function');
+    });
+
+    it('it removes the mark id from this.marks array', function() {
+      // delete group
+      var subgroupId = subgroup._id;
+      group.removeChild(subgroupId);
+
+      var groupMarks = group.marks;
+      expect(group.marks.length).to.equal(0);
+    });
+
+    it('if child mark is a group, it recursively removes the grandchildren', function() {
+      var subsub = subgroup.child('marks.group');
+      var subgroupId = subgroup._id;
+      // make sure these are being instantiated and exist
+      expect(group.marks.length).to.equal(1);
+      expect(subgroup.marks.length).to.equal(1);
+      // remove parent group
+      group.removeChild(subgroupId);
+      // make sure they are removed
+      expect(group.marks.length).to.equal(0);
+      expect(subgroup.marks.length).to.equal(0);
+    });
+
+  });
+  describe('remove children method', function() {
+    beforeEach(function() {
+      subgroup = group.child('marks.group');
+      group.child('marks.group');
+      group.child('marks.group');
+      group.child('marks.group');
+    });
+
+    it('is a function', function() {
+      expect(group).to.have.property('removeChildren');
+      expect(group.child).to.be.a('function');
+    });
+
+    it('if type is "marks" removes all references of children ids', function() {
+      // make sure children are being instantiated and exist
+      expect(group.marks.length).to.to.equal(4);
+      group.removeChildren('marks');
+      expect(group.marks.length).to.to.equal(0);
+    });
+  });
 });

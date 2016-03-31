@@ -2,6 +2,7 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
+    debounce = require('lodash.debounce'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
     ns = require('../util/ns'),
@@ -18,7 +19,8 @@ var model = module.exports = {
   Scene: null
 };
 
-var pipelines = [], scales = [],
+var pipelines = [],
+    scales = [],
     primitives = {},
     listeners = {};
 
@@ -140,7 +142,8 @@ model.pipeline = function(id) {
  * @returns {Object|Object[]} A Scale or array of Scales.
  */
 model.scale = function(id) {
-  return getset(scales, id, require('./primitives/Scale'));
+  var scalesArray = getset(scales, id, require('./primitives/Scale'));
+  return scalesArray;
 };
 
 /**
@@ -317,14 +320,14 @@ model.offSignal = function(name, handler) {
   return model;
 };
 
+
 /**
  * Remove listeners
  * when unsetting values, clean up the model by resetting the listener object
  */
-
 model.removeListeners = function(name){
   listeners = {};
-}
+};
 
 /**
  * When vega re-renders we use the stored ID of the selected mark to re-select
@@ -361,7 +364,7 @@ function updateSelectedMarkInVega(storeSelectedId) {
  * naively set all signals on each store update to ensure store and Vega
  * stay in sync. Altering this to be smarter is one area to investigate should
  * any performance issues crop up later on, but signal writes are pretty fast.
- *
+ * @param {Object} state - redux state
  * @returns {void}
  */
 function updateAllSignals(state) {

@@ -1,7 +1,8 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    AddMarksTool = require('./tools/AddMarksTool');
+    AddMarksTool = require('./tools/AddMarksTool'),
+    UndoRedoClearTool = require('./tools/UndoRedoClearTool');
 // Splitting each sidebar into its column
 
 function mapStateToProps(reduxState, ownProps) {
@@ -25,10 +26,8 @@ var Toolbar = connect(
             <AddMarksTool/>
             <ul>
               <li>EXPORT</li>
-              <li><i className="fa fa-file-o"></i> CLEAR</li>
-              <li><i className="fa fa-undo"></i> UNDO</li>
-              <li><i className="fa fa-repeat"></i> REDO</li>
             </ul>
+            <UndoRedoClearTool/>
           </div>
         </div>
       </div>

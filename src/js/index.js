@@ -34,19 +34,12 @@ store.subscribe(throttle(model.update, 16));
 // Initialize components
 var ui = require('./components');
 
-var g = model.Scene.child('marks.group'),
-    g2 = model.Scene.child('marks.group'),
-    p = model.pipeline('cars'),
+// name model Scene
+model.Scene.name = 'Scene';
+
+var p = model.pipeline('cars'),
     p2 = model.pipeline('jobs'),
     p3 = model.pipeline('gapminder');
-
-// Pre-populate state with one rect, one symbol, one text & one line mark
-g2.child('marks.line');
-g2.child('marks.symbol');
-var g3 = g2.child('marks.group');
-g3.child('marks.area');
-// g2.child('marks.text');
-// g.child('marks.area');
 
 Promise.all([
   p._source.init({url: '/data/cars.json'}),

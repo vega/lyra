@@ -108,9 +108,9 @@ api.set = function(name, val) {
  * @param {string} name - The name of the signal to set
  * @returns {void}
  */
-api.delete = function(name){
+api.delete = function(name) {
   store.dispatch(unsetSignal(name));
-}
+};
 
 /**
  * Configure a property to update based on a stream.

@@ -16,28 +16,20 @@ var ScaleList = connect(
     select: React.PropTypes.func,
     selected: React.PropTypes.number
   },
-
-  select: function(id) {
-    this.props.select(id);
-  },
-
   render: function() {
     var props = this.props,
         selected = props.selected;
     return (
-      <div id="scale-list">
+      <div id="scale-list" className="expandingMenu">
         <h4 className="hed-tertiary">Scales <i className="fa fa-plus"></i></h4>
         <ul>
           {props.scales.map(function(scale) {
-            var id = scale._id,
-                select = this.select.bind(this, id);
+            var id = scale._id;
             return (
-              <li key={id} className={selected === id ? 'selected' : ''}
-                onClick={select}>
-                <div className="scale">
+              <li key={id} className={selected === id ? 'selected' : ''}>
+                <div className="scale name">
                   <ContentEditable obj={scale} prop="name"
-                    value={scale.name}
-                    onClick={select} />
+                    value={scale.name}/>
                 </div>
               </li>
             );

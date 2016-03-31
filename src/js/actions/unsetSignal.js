@@ -8,7 +8,7 @@ var ns = require('../util/ns');
  * @param {string} signal - Name of the signal to modify
  * @returns {Object} An action object
  */
-module.exports = function(signal, value) {
+module.exports = function(signal) {
   return {
     type: UNSET_SIGNAL,
     signal: ns(signal)

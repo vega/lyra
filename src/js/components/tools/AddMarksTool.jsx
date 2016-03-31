@@ -2,10 +2,8 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     getIn = require('../../util/immutable-utils').getIn,
-    model = require('../../model'),
-    selectMark = require('../../actions/selectMark')
-    markUtil = require('../../util/mark-add-delete'),
-    connect = require('react-redux').connect;
+    selectMark = require('../../actions/selectMark'),
+    markUtil = require('../../util/mark-add-delete');
 
 function mapStateToProps(reduxState, ownProps) {
   var selectedMarkId = getIn(reduxState, 'inspector.selected');
@@ -22,30 +20,36 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-// Splitting each sidebar into its column
+// Currently supported mark types
+var marksArray = ['rect', 'symbol', 'area', 'text', 'line'];
+
 var AddMarksTool = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(React.createClass({
-  mixins: [markUtil],
-  classNames: 'new Marks',
-  addAndSelectMark: function(type) {
-    var newMark = this.addMark(type);
-    this.props.selectMark(newMark._id);
-  },
-  render: function() {
-    return (
-      <ul className={this.classNames}>
-        <li onClick={this.addAndSelectMark.bind(null, 'rect')} >RECT</li>
-        <li onClick={this.addAndSelectMark.bind(null, 'symbol')}>SYMBOL</li>
-        <li onClick={this.addAndSelectMark.bind(null, 'area')}>AREA</li>
-        <li onClick={this.addAndSelectMark.bind(null, 'line')}>LINE</li>
-        <li onClick={this.addAndSelectMark.bind(null, 'text')}>TEXT</li>
-        <li onClick={this.clearMarks.bind(null, '')}>clear</li>
-        <li onClick={this.deleteMark.bind(null, '')}>delete</li>
-      </ul>
-    );
+    mapStateToProps,
+    mapDispatchToProps
+  )(React.createClass({
+    propTypes: {
+      selectMark: React.PropTypes.func,
+      selected: React.PropTypes.number
+    },
+    mixins: [markUtil],
+    classNames: 'new-marks',
+    addAndSelectMark: function(type) {
+      var newMark = this.addMark(type, this.props.selected);
+      // force update the sidebar
+      this.updateSidebar();
+      // set new mark as selected
+      this.props.selectMark(newMark._id);
+    },
+    render: function() {
+      return (
+        <ul className={this.classNames}>
+          {marksArray.map(function(mark, i) {
+            return (<li key={mark} onClick={this.addAndSelectMark.bind(null, mark)}>{mark}</li>);
+          }, this)}
+        </ul>
+      );
+    }
   }
-}));
+  ));
 
 module.exports = AddMarksTool;

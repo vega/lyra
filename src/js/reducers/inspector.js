@@ -27,7 +27,7 @@ function inspectorReducer(state, action) {
 
   if (action.type === actions.REMOVE_LAYERS) {
     return action.layerIds.reduce(function(newState, layerId) {
-      return newState.delete(layerId);;
+      return newState.delete(layerId);
     }, state);
   }
 

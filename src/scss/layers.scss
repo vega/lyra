@@ -3,6 +3,7 @@
 
   ul.group {
     white-space: nowrap;
+    border-bottom: 1px solid $lgrey-bg;
 
     li.header {
       margin: $inner-padding 0;

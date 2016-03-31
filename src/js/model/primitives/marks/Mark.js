@@ -1,3 +1,4 @@
+/* eslint no-undefined:0 */
 'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
@@ -152,7 +153,6 @@ Mark.prototype.dataset = function(id) {
     this.from = id;
     return this;
   } else if (from instanceof Pipeline) {
-    // TODO
     this.from = from._source._id;
     return this;
   }
@@ -210,10 +210,10 @@ Mark.prototype.export = function(clean) {
  * Unsets the signals initialized in Mark.init() in the redux store for the model properties.
  * @returns {void}
  */
-Mark.prototype.remove = function(){
+Mark.prototype.remove = function() {
   var props = this.properties,
-    update = props.update,
-    key;
+      update = props.update,
+      key;
   for (key in update) {
     var signalName = update[key].signal;
     // Currently width and height are set on Groups to use the full width of the scene
@@ -223,7 +223,7 @@ Mark.prototype.remove = function(){
     }
   }
   model.removeListeners();
-}
+};
 
 manips(Mark.prototype);
 rules(Mark.prototype);
