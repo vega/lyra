@@ -1,9 +1,9 @@
 'use strict';
 var React = require('react'),
     Property = require('./Property'),
-    Base = require('../../model/primitives/marks/Text');
+    Text = require('../../model/primitives/marks/Text');
 
-var Text = React.createClass({
+var TextInspector = React.createClass({
   render: function() {
     var props = this.props,
         primitive = props.primitive,
@@ -26,7 +26,7 @@ var Text = React.createClass({
         <Property name="font" label="Font"
           primitive={primitive}
           type="select"
-          opts={Base.fonts}
+          opts={Text.fonts}
           canDrop={true}
           scale={update.font.scale}
           field={update.font.field}
@@ -43,7 +43,7 @@ var Text = React.createClass({
         <Property name="fontWeight" label="Weight"
           primitive={primitive}
           type="select"
-          opts={Base.fontWeights}
+          opts={Text.fontWeights}
           canDrop={true}
           scale={update.fontWeight.scale}
           field={update.fontWeight.field}
@@ -52,7 +52,7 @@ var Text = React.createClass({
         <Property name="fontStyle" label="Style"
           primitive={primitive}
           type="select"
-          opts={Base.fontStyles}
+          opts={Text.fontStyles}
           canDrop={true}
           scale={update.fontStyle.scale}
           field={update.fontStyle.field}
@@ -116,7 +116,7 @@ var Text = React.createClass({
         <Property name="align" label="Horizontal"
           primitive={primitive}
           type="select"
-          opts={Base.alignments}
+          opts={Text.alignments}
           canDrop={true}
           scale={update.align.scale}
           field={update.align.field}
@@ -125,7 +125,7 @@ var Text = React.createClass({
         <Property name="baseline" label="Vertical"
           primitive={primitive}
           type="select"
-          opts={Base.baselines}
+          opts={Text.baselines}
           canDrop={true}
           scale={update.baseline.scale}
           field={update.baseline.field}
@@ -143,4 +143,4 @@ var Text = React.createClass({
   }
 });
 
-module.exports = Text;
+module.exports = TextInspector;

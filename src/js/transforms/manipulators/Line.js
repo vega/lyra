@@ -1,6 +1,6 @@
 'use strict';
 var inherits = require('inherits'),
-    Base = require('./Manipulators'),
+    Manipulators = require('./Manipulators'),
     spec = require('../../model/primitives/marks/manipulators'),
     map = require('../../util/map-manipulator'),
     CONST = spec.CONST,
@@ -19,10 +19,10 @@ var inherits = require('inherits'),
  * @constructor
  */
 function LineManipulators(graph) {
-  return Base.call(this, graph);
+  return Manipulators.call(this, graph);
 }
 
-inherits(LineManipulators, Base);
+inherits(LineManipulators, Manipulators);
 
 LineManipulators.prototype.handles = function(item) {
   var bounds = item.mark.bounds;
