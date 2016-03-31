@@ -24,8 +24,8 @@ describe('counter utility', function() {
     });
 
     it('counts up by 1 on each subsequent call', function() {
-      var results = [];
-      for (var i = 0; i < 10; i++) {
+      var results = [], i;
+      for (i = 0; i < 10; i++) {
         results.push(counter.global());
       }
       expect(results).to.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -51,8 +51,8 @@ describe('counter utility', function() {
     });
 
     it('counts up by 1 on each subsequent call for groups', function() {
-      var results = [];
-      for (var i = 0; i < 10; i++) {
+      var results = [], i;
+      for (i = 0; i < 10; i++) {
         results.push(counter.type('group'));
       }
       expect(results).to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
@@ -64,16 +64,17 @@ describe('counter utility', function() {
     });
 
     it('counts up by 1 on each subsequent call for a given type', function() {
-      var groupResults = [];
-      var rectResults = [];
-      var scaleResults = [];
-      for (var i = 0; i < 10; i++) {
+      var groupResults = [],
+          rectResults = [],
+          scaleResults = [],
+          i;
+      for (i = 0; i < 10; i++) {
         groupResults.push(counter.type('group'));
       }
-      for (var i = 0; i < 5; i++) {
+      for (i = 0; i < 5; i++) {
         rectResults.push(counter.type('rect'));
       }
-      for (var i = 0; i < 7; i++) {
+      for (i = 0; i < 7; i++) {
         scaleResults.push(counter.type('scale'));
       }
       expect(groupResults).to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
