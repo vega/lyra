@@ -3,9 +3,9 @@ var d3 = require('d3'),
     dl = require('datalib'),
     React = require('react'),
     ReactDOM = require('react-dom'),
-    Parse = require('../mixins/Parse'),
     model = require('../../model'),
     lookup = model.lookup,
+    addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
     sg = require('../../model/signals');
 
 var DataTable = React.createClass({
@@ -13,8 +13,6 @@ var DataTable = React.createClass({
     dataset: React.PropTypes.object,
     'dataset.schema': React.PropTypes.object
   },
-
-  mixins: [Parse],
 
   getInitialState: function() {
     return {
@@ -120,9 +118,7 @@ var DataTable = React.createClass({
     sg.set(sg.CELL, {});
 
     if (dropped) {
-      this.parse(prim);
-    } else {
-      model.update();
+      this.requestVegaReparse();
     }
   },
 
@@ -208,4 +204,4 @@ var DataTable = React.createClass({
 
 });
 
-module.exports = DataTable;
+module.exports = addVegaReparseRequest(DataTable);

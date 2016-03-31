@@ -1,12 +1,11 @@
 'use strict';
 var React = require('react'),
-    Parse = require('../mixins/Parse'),
     propSg = require('../../util/prop-signal'),
     model = require('../../model'),
-    lookup = model.lookup;
+    lookup = model.lookup,
+    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
 
 var SpatialPreset = React.createClass({
-  mixins: [Parse],
 
   handleChange: function(evt) {
     var props = this.props,
@@ -31,7 +30,7 @@ var SpatialPreset = React.createClass({
       };
     }
 
-    this.parse(primitive);
+    this.requestVegaReparse();
   },
 
   render: function() {
@@ -65,4 +64,4 @@ var SpatialPreset = React.createClass({
   }
 });
 
-module.exports = SpatialPreset;
+module.exports = addVegaReparseRequest(SpatialPreset);

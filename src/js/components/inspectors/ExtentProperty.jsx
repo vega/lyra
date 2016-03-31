@@ -3,7 +3,7 @@ var dl = require('datalib'),
     React = require('react'),
     Property = require('./Property'),
     SpatialPreset = require('./SpatialPreset'),
-    Parse = require('../mixins/Parse');
+    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
 
 var EXTENTS = {
   x: {
@@ -21,7 +21,6 @@ var EXTENTS = {
 };
 
 var ExtentProperty = React.createClass({
-  mixins: [Parse],
 
   getInitialState: function() {
     return this.extents();
@@ -77,7 +76,7 @@ var ExtentProperty = React.createClass({
       state.end = span;
     }
 
-    this.parse(primitive);
+    this.requestVegaReparse();
   },
 
   render: function() {
@@ -142,4 +141,4 @@ var ExtentProperty = React.createClass({
   }
 });
 
-module.exports = ExtentProperty;
+module.exports = addVegaReparseRequest(ExtentProperty);

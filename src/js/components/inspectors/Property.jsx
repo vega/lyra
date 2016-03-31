@@ -1,17 +1,18 @@
 'use strict';
 var React = require('react'),
-    Parse = require('../mixins/Parse'),
     SignalValue = require('../mixins/SignalValue'),
     ContentEditable = require('../ContentEditable'),
     model = require('../../model'),
-    lookup = model.lookup;
+    lookup = model.lookup,
+    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
 
 var Property = React.createClass({
-  mixins: [SignalValue, Parse],
+  mixins: [SignalValue],
 
   unbind: function() {
     var props = this.props;
-    this.parse(props.primitive.bind(props.name, undefined));
+    props.primitive.bind(props.name, undefined);
+    props.reparse();
   },
 
   render: function() {
@@ -124,4 +125,4 @@ var Property = React.createClass({
   }
 });
 
-module.exports = Property;
+module.exports = addVegaReparseRequest(Property);

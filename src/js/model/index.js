@@ -2,14 +2,18 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
+    debounce = require('lodash.debounce'),
+    throttle = require('lodash.throttle'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
     ns = require('../util/ns'),
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
     getIn = require('../util/immutable-utils').getIn,
+    CancellablePromise = require('../util/simple-cancellable-promise'),
     selectMark = require('../actions/selectMark'),
-    expandLayers = require('../actions/expandLayers');
+    expandLayers = require('../actions/expandLayers'),
+    parseInProgress = require('../actions/vegaParse');
 
 /** @namespace */
 var model = module.exports = {
@@ -178,6 +182,7 @@ model.manipulators = function() {
   // destroying & recreating the vega view
   // sg() is a function that returns all registered signals
   signals.push.apply(signals, dl.vals(sg()).sort(idx));
+
   predicates.push({
     name: sg.CELL,
     type: '==',
@@ -216,6 +221,7 @@ model.manipulators = function() {
   return spec;
 };
 
+var parsePromise = null;
 /**
  * Parses the model's `manipulators` spec and (re)renders the visualization.
  * @param  {string} [el] - A CSS selector corresponding to the DOM element
@@ -225,25 +231,35 @@ model.manipulators = function() {
  */
 model.parse = function(el) {
   el = el || '#vis';
-  if (model.view) {
-    model.view.destroy();
+  if (parsePromise) {
+    // A parse is already in progress; cancel that parse's callbacks
+    parsePromise.cancel();
   }
-  return new Promise(function(resolve, reject) {
-    vg.dataflow.Tuple.reset();
+
+  // Start the newly-requested parse within a cancellable promise
+  parsePromise = new CancellablePromise(function(resolve, reject) {
+
+    // Recreate the vega spec
     vg.parse.spec(model.manipulators(), function(err, chart) {
       if (err) {
-        reject(err);
-      } else {
-        model.view = chart({el: el});
-        register();
-        resolve(model.view);
+        return reject(err);
       }
+      resolve(chart);
     });
-  })
+  });
+
+  return parsePromise.then(function(chart) {
+    model.view = chart({
+      el: el
+    });
+    // Register all event listeners to the new view
+    register();
+    // the update() method initiates visual encoding and rendering:
     // View has to update once before scene is ready
-    .then(model.update)
-    // Persist the selected item from before we destroyed the scene
-    .then(updateSelectedMarkInVega).then(model.update);
+    model.update();
+    // Re-parse complete: null out the completed promise
+    parsePromise = null;
+  });
 };
 
 /**
@@ -295,16 +311,13 @@ model.offSignal = function(name, handler) {
 
 /**
  * When vega re-renders we use the stored ID of the selected mark to re-select
- * that mark in the new vega instance
+ * that mark in the new vega instance. This method should only be called if we
+ * know that the view is ready and that a selected mark ID is present in the store.
+ *
+ * @param {number} storeSelectedId - The ID of the selected primitive
  * @returns {void}
  */
-function updateSelectedMarkInVega() {
-  var storeSelectedId = getIn(store.getState(), 'inspector.selected');
-  // If no item is marked selected in the store, or if the view is not ready,
-  // take no action
-  if (!storeSelectedId || !model.view || !model.view.model || !model.view.model().scene()) {
-    return;
-  }
+function updateSelectedMarkInVega(storeSelectedId) {
   var def = sg.get(sg.SELECTED).mark.def,
       vegaSelectedId = def && def.lyra_id;
 
@@ -331,26 +344,78 @@ function updateSelectedMarkInVega() {
  * naively set all signals on each store update to ensure store and Vega
  * stay in sync. Altering this to be smarter is one area to investigate should
  * any performance issues crop up later on, but signal writes are pretty fast.
+ *
  * @returns {void}
  */
-function updateAllSignals() {
-  // Nothing to do here if the view is not ready
-  if (!model.view || typeof model.view.signal !== 'function') {
-    return;
-  }
-  var signals = getIn(store.getState(), 'signals');
-  signals.forEach(function(value, name) {
+function updateAllSignals(state) {
+  getIn(state, 'signals').forEach(function(value, name) {
     // Skip any signal from the defaults
     if (sg.isDefault(name)) {
       return;
     }
-    // Persist any signals from the store to the view
-    model.view.signal(name, value.init);
+    // Persist any signals from the store to the view: wrap this in a try/catch
+    // to handle situations where the update fires while we are registering
+    // signals for new marks before a reparse has actually injected those marks
+    // into the vega view itself.
+    try {
+      model.view.signal(name, value.init);
+    } catch (e) { /* This is ok */ }
   });
 }
 
-store.subscribe(updateSelectedMarkInVega);
-store.subscribe(updateAllSignals);
-store.subscribe(model.update);
+function initiateReparse() {
+  model.parse().then(function() {
+    store.dispatch(parseInProgress(false));
+  });
+}
+var debouncedInitiateReparse = debounce(initiateReparse, 16);
 
-window.store = store;
+function recreateVegaIfNecessary(state) {
+  var shouldReparse = getIn(state, 'vega.invalid');
+
+  if (shouldReparse) {
+    if (model.view) {
+      // Clear out the outdated vega spec: iterate through all registered
+      // signal streams and remove their event listeners
+      model.view.destroy();
+      model.view = null;
+    }
+    store.dispatch(parseInProgress(true));
+    // Don't start a reparse more often than 60 times a second
+    debouncedInitiateReparse();
+    // initiateReparse();
+  }
+  return shouldReparse;
+}
+
+// This store listener handles all of the data-flow FROM the Redux store TO the
+// Vega view: very little code outside of this method should be interacting with
+// the view directly.
+store.subscribe(function() {
+  var state = store.getState(),
+      reparseNeeded = recreateVegaIfNecessary(state),
+      reparseInProgress = getIn(state, 'vega.isParsing');
+
+  // All subsequent actions are only relevant if the view is _not_ about to be
+  // destroyed and recreated
+  if (reparseNeeded || reparseInProgress) {
+    return;
+  }
+
+  // Similarly, there is nothing further to do here if the view is not ready
+  if (!model.view || !model.view.signal || typeof model.view.signal !== 'function' || !model.view.model) {
+    return;
+  }
+
+  // If an item is marked selected in the store, pass that on to Vega
+  var storeSelectedId = getIn(state, 'inspector.selected');
+  if (storeSelectedId) {
+    updateSelectedMarkInVega(storeSelectedId);
+  }
+
+  // Synchronize the Vega view with the signals within redux
+  updateAllSignals(state);
+
+  // Update the view to reflect any changes that occurred in the above methods
+  model.update();
+});

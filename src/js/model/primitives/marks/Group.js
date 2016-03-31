@@ -5,6 +5,8 @@ var dl = require('datalib'),
     model = require('../../'),
     lookup = model.lookup,
     Mark = require('./Mark'),
+    store = require('../../../store'),
+    vegaInvalidate = require('../../../actions/vegaInvalidate'),
     ns = require('../../../util/ns');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];
@@ -97,10 +99,29 @@ Group.prototype.manipulators = function() {
  */
 Group.prototype.child = function(type, child) {
   type = type.split('.');
+  var primitiveType = type[0];
   var lookupChild = dl.isNumber(child) ? lookup(child) : child;
-  child = (child === undefined) ? new CHILDREN[type[1] || type[0]]().init() : lookupChild;
+  if (lookupChild) {
+    child = lookupChild;
+  } else {
+    child = new CHILDREN[type[1] || primitiveType]();
+    // We've added a primitive, so re-parse the model to add it to vega
+    // This is sort of objectionable: We need to tell vega that we're about to
+    // need to re-parse, in order to suppress any attempts to write the about-
+    // to-be-initialized signals to a view that does not yet know about this
+    // new primitive. But we have to then call reparse again immediately after
+    // those signals are in the store in order to render vega WITH the newly-
+    // added signals. This should be cleaned up a bit when we handle mark
+    // creation and initialization through the store.
+    store.dispatch(vegaInvalidate(true));
+    child.init();
+    store.dispatch(vegaInvalidate(true));
+  }
 
-  var id = child._id, types = this[type[0]];
+  var id = child._id;
+  // Get reference to the group's marks, scales, legends, or axes collection
+  var types = this[primitiveType];
+
   if (types.indexOf(id) < 0) {
     types.push(id);
   }
