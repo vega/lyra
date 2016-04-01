@@ -19,9 +19,8 @@ var dl = require('datalib'),
  * @constructor
  */
 function Primitive() {
-  this._id = counter.global();
+  this._id = this._id || counter.global();
   model.primitive(this._id, this);
-  return this;
 }
 
 function _clean(spec, clean) {

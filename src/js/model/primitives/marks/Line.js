@@ -1,6 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    inherits = require('inherits'),
+var inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
@@ -17,24 +16,43 @@ var DELTA = sg.DELTA,
  * @extends {Mark}
  *
  * @constructor
+ * @param {Object} [props] - An object defining this mark's properties
+ * @param {string} props.type - The type of mark (should be 'line')
+ * @param {Object} props.properties - A Vega mark properties object
+ * @param {string} [props.name] - The name of the mark
+ * @param {number} [props._id] - A unique mark ID
  */
-function Line() {
-  Mark.call(this, {
-    type: 'line',
-    properties: {
-      // Defaults
-      update: {
-        stroke: {value: '#000000'},
-        strokeWidth: {value: 3}
-      }
-    }
-  });
-
-  return this;
+function Line(props) {
+  Mark.call(this, props || Line.defaultProperties());
 }
 
 // inherit Mark class' prototype
 inherits(Line, Mark);
+
+/**
+ * Returns an object representing the default values for a rect mark, containing
+ * a type string and a Vega mark properties object.
+ *
+ * @static
+ * @returns {Object} The default mark properties
+ */
+Line.defaultProperties = function() {
+  var defaults = {
+    type: 'line',
+    // name: 'line' + '_' + counter.type('line'); // Assign name in the reducer
+    // _id: assign ID in the reducer
+    properties: Mark.mergeProperties(Mark.defaultProperties(), {
+      update: {
+        stroke: {value: '#000000'},
+        strokeWidth: {value: 3}
+      }
+    })
+  };
+  // Mark gives us two defaults we do not want
+  delete defaults.properties.update.fill;
+  delete defaults.properties.update.fillOpacity;
+  return defaults;
+};
 
 Line.prototype.initHandles = function() {
   var at = anchorTarget.bind(null, this, 'handles'),
@@ -64,9 +82,6 @@ Line.prototype.export = function(resolve) {
       field: 'bar'
     };
   }
-
-  delete spec.properties.update.fill;
-  delete spec.properties.update.fillOpacity;
 
   return spec;
 };

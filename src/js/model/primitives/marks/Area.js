@@ -1,6 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    inherits = require('inherits'),
+var inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
@@ -17,13 +16,33 @@ var DELTA = sg.DELTA,
  * @extends {Mark}
  *
  * @constructor
+ * @param {Object} [props] - An object defining this mark's properties
+ * @param {string} props.type - The type of mark (should be 'area')
+ * @param {Object} props.properties - A Vega mark properties object
+ * @param {string} [props.name] - The name of the mark
+ * @param {number} [props._id] - A unique mark ID
  */
-function Area() {
-  Mark.call(this, {
+function Area(props) {
+  Mark.call(this, props || Area.defaultProperties());
+}
+
+// inherit Mark class' prototype
+inherits(Area, Mark);
+
+/**
+ * Returns an object representing the default values for an area mark,
+ * containing a type string and a Vega mark properties object.
+ *
+ * @static
+ * @returns {Object} The default mark properties
+ */
+Area.defaultProperties = function() {
+  return {
     type: 'area',
-    properties: {
+    // name: 'area' + '_' + counter.type('area'); // Assign name in the reducer
+    // _id: assign ID in the reducer
+    properties: Mark.mergeProperties(Mark.defaultProperties(), {
       update: {
-        // Defaults
         x2: {value: 0},
         y2: {value: 0},
         xc: {value: 60, _disabled: true},
@@ -36,15 +55,9 @@ function Area() {
         width: {value: 30, _disabled: true},
         height: {value: 30, _disabled: true}
       }
-    }
-  });
-
-  return this;
-}
-
-// inherit Mark class' prototype
-inherits(Area, Mark);
-
+    })
+  };
+};
 
 Area.prototype.initHandles = function() {
   var at = anchorTarget.bind(null, this, 'handles'),

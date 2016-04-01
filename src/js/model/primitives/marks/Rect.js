@@ -1,6 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    inherits = require('inherits'),
+var inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
@@ -16,12 +15,31 @@ var DELTA = sg.DELTA,
  * @extends {Mark}
  *
  * @constructor
+ * @param {Object} [props] - An object defining this mark's properties
+ * @param {string} props.type - The type of mark (should be 'rect')
+ * @param {Object} props.properties - A Vega mark properties object
+ * @param {string} [props.name] - The name of the mark
+ * @param {number} [props._id] - A unique mark ID
  */
-function Rect() {
-  Mark.call(this, {
+function Rect(props) {
+  Mark.call(this, props || Rect.defaultProperties());
+}
+
+inherits(Rect, Mark);
+
+/**
+ * Returns an object representing the default values for a rect mark, containing
+ * a type string and a Vega mark properties object.
+ *
+ * @static
+ * @returns {Object} The default mark properties
+ */
+Rect.defaultProperties = function() {
+  return {
     type: 'rect',
-    properties: {
-      // defaults
+    // name: 'rect' + '_' + counter.type('rect'); // Assign name in the reducer
+    // _id: assign ID in the reducer
+    properties: Mark.mergeProperties(Mark.defaultProperties(), {
       update: {
         x2: {value: 60},
         y2: {value: 60},
@@ -30,13 +48,9 @@ function Rect() {
         width: {value: 30, _disabled: true},
         height: {value: 30, _disabled: true}
       }
-    }
-  });
-
-  return this;
-}
-
-inherits(Rect, Mark);
+    })
+  };
+};
 
 Rect.prototype.initHandles = function() {
   var at = anchorTarget.bind(null, this, 'handles'),
