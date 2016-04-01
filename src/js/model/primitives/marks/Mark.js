@@ -75,21 +75,23 @@ inherits(Mark, Primitive);
  * @returns {Object} The Mark.
  */
 Mark.prototype.init = function() {
-  var props = this.properties,
-      update = props.update,
-      key, updateProp;
+  // Partial application to avoid needing access to `this` inside the loop below
+  var signalName = function(mark, key) {
+    return propSg(mark, key);
+  }.bind(null, this);
 
   // Walk through each of the specified visual properties for this mark, create
   // and register signals to represent those values, and update the mark's
   // properties to contain references to those new vega signals.
-  for (key in update) {
-    updateProp = update[key];
+  this.properties.update = Object.keys(this.properties.update).reduce(function(update, key) {
+    var updateProp = update[key],
+        sgName = signalName(key);
     if (typeof updateProp.value !== 'undefined') {
-      sg.init(propSg(this, key), updateProp.value);
-      update[key] = dl.extend(sg.reference(propSg(this, key)),
-        updateProp._disabled ? {_disabled: true} : {});
+      sg.init(sgName, updateProp.value);
+      update[key] = dl.extend(sg.reference(sgName), updateProp._disabled ? {_disabled: true} : {});
     }
-  }
+    return update;
+  }, this.properties.update);
 
   this.initHandles();
 
