@@ -2,7 +2,6 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
-    debounce = require('lodash.debounce'),
     throttle = require('lodash.throttle'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
@@ -239,13 +238,22 @@ model.parse = function(el) {
   // Start the newly-requested parse within a cancellable promise
   parsePromise = new CancellablePromise(function(resolve, reject) {
 
-    // Recreate the vega spec
-    vg.parse.spec(model.manipulators(), function(err, chart) {
-      if (err) {
-        return reject(err);
+    // Debounce parse initiation very slightly to handle re-starts on subsequent
+    // store listener digest cycles: CancellablePromise exposes its state through
+    // this.cancel.
+    var that = this;
+    setTimeout(function() {
+      if (that.cancelled) {
+        return;
       }
-      resolve(chart);
-    });
+      // Recreate the vega spec
+      vg.parse.spec(model.manipulators(), function(err, chart) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(chart);
+      });
+  }, 10);
   });
 
   return parsePromise.then(function(chart) {
@@ -363,13 +371,6 @@ function updateAllSignals(state) {
   });
 }
 
-function initiateReparse() {
-  model.parse().then(function() {
-    store.dispatch(parseInProgress(false));
-  });
-}
-var debouncedInitiateReparse = debounce(initiateReparse, 16);
-
 function recreateVegaIfNecessary(state) {
   var shouldReparse = getIn(state, 'vega.invalid');
 
@@ -381,10 +382,11 @@ function recreateVegaIfNecessary(state) {
       model.view = null;
     }
     store.dispatch(parseInProgress(true));
-    // Don't start a reparse more often than 60 times a second
-    debouncedInitiateReparse();
-    // initiateReparse();
+    model.parse().then(function() {
+      store.dispatch(parseInProgress(false));
+    });
   }
+
   return shouldReparse;
 }
 
@@ -415,7 +417,10 @@ store.subscribe(function() {
 
   // Synchronize the Vega view with the signals within redux
   updateAllSignals(state);
-
-  // Update the view to reflect any changes that occurred in the above methods
-  model.update();
 });
+
+// Bind a throttled model update onto the store so that we can be sure any
+// changes will be reflected in Vega, without incurring the rendering overhead
+// that we would be hit with were we to react to every single store dispatch
+// cycle (as many of those cycles will be intermediate states).
+store.subscribe(throttle(model.update, 16));

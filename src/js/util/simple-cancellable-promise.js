@@ -22,8 +22,8 @@ PromiseLikeObject.prototype.catch = PromiseLikeObject.prototype.then = function(
  * @returns {CancellablePromise} The CancellablePromise instance
  */
 function CancellablePromise(executorFn) {
-  this.promise = new Promise(executorFn);
   this.cancelled = false;
+  this.promise = new Promise(executorFn.bind(this));
 }
 
 /**

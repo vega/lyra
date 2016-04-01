@@ -2,7 +2,9 @@
 'use strict';
 var chai = require('chai');
 chai.use(require('chai-as-promised'));
+chai.use(require('sinon-chai'));
 var expect = chai.expect;
+var sinon = require('sinon');
 
 var CancellablePromise = require('./simple-cancellable-promise');
 
@@ -46,7 +48,7 @@ describe('CancellablePromise utility', function() {
     var prom = new CancellablePromise(function(resolve, reject) {
       resolve('success!');
     });
-    expect(prom.then(function(result) {
+    return expect(prom.then(function(result) {
       return result.toUpperCase();
     }).then(function(result) {
       return result + '!?';
@@ -57,7 +59,7 @@ describe('CancellablePromise utility', function() {
     var prom = new CancellablePromise(function(resolve, reject) {
       resolve('success!');
     });
-    expect(prom.then(function(result) {
+    return expect(prom.then(function(result) {
       throw new Error('BAM');
     }).then(function(result) {
       return 'success';
@@ -70,7 +72,7 @@ describe('CancellablePromise utility', function() {
     var prom = new CancellablePromise(function(resolve, reject) {
       resolve('success!');
     });
-    expect(prom.then(function(result) {
+    return expect(prom.then(function(result) {
       throw new Error('BAM');
     }).then(function(result) {
       throw new Error('POW');
@@ -81,8 +83,10 @@ describe('CancellablePromise utility', function() {
 
   // This "canary" test must succeed in order to prove that the next test fails
   it('can be used to cancel the callbacks for a promise (canary)', function(done) {
-    var didComplete = false;
+    var didComplete = false,
+        ran = false;
     var prom = new CancellablePromise(function(resolve, reject) {
+      ran = true;
       resolve();
     });
     prom.then(function() {
@@ -91,14 +95,17 @@ describe('CancellablePromise utility', function() {
     expect(didComplete).to.equal(false);
     setTimeout(function() {
       // Clumsy way to validate that promise did complete
+      expect(ran).to.equal(true);
       expect(didComplete).to.equal(true);
       done();
-    }, 200);
+    }, 50);
   });
 
   it('can be used to cancel registered callbacks for a promise', function(done) {
-    var didComplete = false;
+    var didComplete = false,
+        ran = false;
     var prom = new CancellablePromise(function(resolve, reject) {
+      ran = true;
       resolve();
     });
     prom.then(function() {
@@ -108,14 +115,17 @@ describe('CancellablePromise utility', function() {
     expect(didComplete).to.equal(false);
     setTimeout(function() {
       // Clumsy way to validate that promise did complete
+      expect(ran).to.equal(true);
       expect(didComplete).to.equal(false);
       done();
-    }, 200);
+    }, 50);
   });
 
   it('can be used to cancel yet-to-be-registered callbacks for a promise', function(done) {
-    var didComplete = false;
+    var didComplete = false,
+        ran = false;
     var prom = new CancellablePromise(function(resolve, reject) {
+      ran = true;
       resolve();
     });
     prom.cancel();
@@ -125,14 +135,17 @@ describe('CancellablePromise utility', function() {
     expect(didComplete).to.equal(false);
     setTimeout(function() {
       // Clumsy way to validate that promise did complete
+      expect(ran).to.equal(true);
       expect(didComplete).to.equal(false);
       done();
-    }, 200);
+    }, 50);
   });
 
   it('can be used to cancel a chain of registered promise callbacks (canary)', function(done) {
-    var didComplete = false;
+    var didComplete = false,
+        ran = false;
     var prom = new CancellablePromise(function(resolve, reject) {
+      ran = true;
       resolve();
     });
     prom.then(function() {
@@ -145,14 +158,17 @@ describe('CancellablePromise utility', function() {
     expect(didComplete).to.equal(false);
     setTimeout(function() {
       // Clumsy way to validate that promise did complete
+      expect(ran).to.equal(true);
       expect(didComplete).to.equal(true);
       done();
-    }, 200);
+    }, 50);
   });
 
   it('can be used to cancel a chain of registered promise callbacks', function(done) {
-    var didComplete = false;
+    var didComplete = false,
+        ran = false;
     var prom = new CancellablePromise(function(resolve, reject) {
+      ran = true;
       resolve();
     });
     prom.then(function() {
@@ -166,14 +182,17 @@ describe('CancellablePromise utility', function() {
     expect(didComplete).to.equal(false);
     setTimeout(function() {
       // Clumsy way to validate that promise did complete
+      expect(ran).to.equal(true);
       expect(didComplete).to.equal(false);
       done();
-    }, 200);
+    }, 50);
   });
 
   it('can be used to cancel a chain of to-be-registered promise callbacks (canary)', function(done) {
-    var didComplete = false;
+    var didComplete = false,
+        ran = false;
     var prom = new CancellablePromise(function(resolve, reject) {
+      ran = true;
       resolve();
     });
     prom.cancel();
@@ -187,9 +206,10 @@ describe('CancellablePromise utility', function() {
     expect(didComplete).to.equal(false);
     setTimeout(function() {
       // Clumsy way to validate that promise did complete
+      expect(ran).to.equal(true);
       expect(didComplete).to.equal(false);
       done();
-    }, 200);
+    }, 50);
   });
 
   it('cannot, however, be used to cancel in-progress callbacks', function() {
@@ -211,10 +231,54 @@ describe('CancellablePromise utility', function() {
       throw new Error('BAM');
     });
     prom.cancel();
-    expect(prom.catch(function(err) {
+    return expect(prom.catch(function(err) {
       expect(err).to.be.an.instanceOf(Error);
       throw err;
     })).to.eventually.be.rejectedWith('BAM');
+  });
+
+  it('binds the executor function to expose cancelled state', function(done) {
+    var cancelledVisibleWithinPromise = false,
+        ran = false;
+    var prom = new CancellablePromise(function(resolve, reject) {
+      ran = true;
+      expect(this.cancelled).to.equal(false);
+      var that = this;
+      // Introduce asynchronicity to allow a two-state initial promise action
+      setTimeout(function() {
+        if (that.cancelled) {
+          cancelledVisibleWithinPromise = true;
+        }
+      }, 10);
+    });
+    var spy = sinon.spy();
+    prom.then(spy);
+    prom.cancel();
+    setTimeout(function() {
+      // Clumsy way to validate that promise did what we want
+      expect(ran).to.equal(true);
+      expect(cancelledVisibleWithinPromise).to.equal(true);
+      expect(spy).not.to.have.been.called;
+      done();
+    }, 50);
+  });
+
+  it('can use function context to manipulate cancelled status within executor', function(done) {
+    var ran = false;
+    var prom = new CancellablePromise(function(resolve, reject) {
+      ran = true;
+      expect(this.cancelled).to.equal(false);
+      this.cancel();
+      resolve(this);
+    });
+    var spy = sinon.spy();
+    prom.then(spy);
+    setTimeout(function() {
+      // Clumsy way to validate that promise did what we want
+      expect(ran).to.equal(true);
+      expect(spy).not.to.have.been.called;
+      done();
+    }, 50);
   });
 
 });
