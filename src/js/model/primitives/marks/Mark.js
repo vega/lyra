@@ -10,7 +10,7 @@ var dl = require('datalib'),
     propSg = require('../../../util/prop-signal'),
     model = require('../../'),
     lookup = model.lookup,
-    count = {group: -1};
+    counter = require('../../../util/counter');
 
 /**
  * @classdesc A Lyra Mark Primitive.
@@ -29,8 +29,7 @@ var dl = require('datalib'),
  * @constructor
  */
 function Mark(type) {
-  count[type] = count[type] || 0;
-  this.name = type + '_' + (++count[type]);
+  this.name = type + '_' + counter.type(type);
   this.type = type;
   this.from = undefined;
 
