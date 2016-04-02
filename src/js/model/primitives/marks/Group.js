@@ -7,6 +7,7 @@ var dl = require('datalib'),
     Mark = require('./Mark'),
     store = require('../../../store'),
     vegaInvalidate = require('../../../actions/vegaInvalidate'),
+    primitiveActions = require('../../../actions/primitiveActions'),
     ns = require('../../../util/ns');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];
@@ -118,7 +119,16 @@ Group.prototype.manipulators = function() {
 Group.prototype.child = function(type, child) {
   type = type.split('.');
   var primitiveType = type[0];
+  var PrimitiveCtor = CHILDREN[type[1] || primitiveType];
   var lookupChild = dl.isNumber(child) ? lookup(child) : child;
+
+  if (!lookupChild && primitiveType === 'marks') {
+    store.dispatch(primitiveActions.addMark(PrimitiveCtor.defaultProperties({
+      _parent: this._id
+    })));
+    // return;
+  }
+
   if (lookupChild) {
     child = lookupChild;
   } else {
@@ -196,3 +206,4 @@ Group.prototype.removeChildren = function(type) {
 };
 
 module.exports = Group;
+

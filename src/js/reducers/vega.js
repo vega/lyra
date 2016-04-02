@@ -20,7 +20,13 @@ function vegaInvalidateReducer(state, action) {
     });
   }
 
-  if (action.type === actions.VEGA_INVALIDATE) {
+  // Any of these actions should invalidate the view
+  var invalidatingActions = [
+    actions.VEGA_INVALIDATE,
+    actions.PRIMITIVE_ADD_MARK
+  ];
+
+  if (invalidatingActions.indexOf(action.type) >= 0) {
     return state.set('invalid', action.value);
   }
 
