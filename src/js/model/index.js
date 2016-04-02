@@ -2,7 +2,6 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
-    throttle = require('lodash.throttle'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
     ns = require('../util/ns'),
@@ -11,8 +10,7 @@ var dl = require('datalib'),
     getIn = require('../util/immutable-utils').getIn,
     CancellablePromise = require('../util/simple-cancellable-promise'),
     selectMark = require('../actions/selectMark'),
-    expandLayers = require('../actions/expandLayers'),
-    parseInProgress = require('../actions/vegaParse');
+    expandLayers = require('../actions/expandLayers');
 
 /** @namespace */
 var model = module.exports = {
@@ -220,7 +218,9 @@ model.manipulators = function() {
   return spec;
 };
 
+// Local variable used to hold the last-initiated Vega model reparse
 var parsePromise = null;
+
 /**
  * Parses the model's `manipulators` spec and (re)renders the visualization.
  * @param  {string} [el] - A CSS selector corresponding to the DOM element
@@ -253,7 +253,7 @@ model.parse = function(el) {
         }
         resolve(chart);
       });
-  }, 10);
+    }, 10);
   });
 
   return parsePromise.then(function(chart) {
@@ -316,111 +316,3 @@ model.offSignal = function(name, handler) {
   }
   return model;
 };
-
-/**
- * When vega re-renders we use the stored ID of the selected mark to re-select
- * that mark in the new vega instance. This method should only be called if we
- * know that the view is ready and that a selected mark ID is present in the store.
- *
- * @param {number} storeSelectedId - The ID of the selected primitive
- * @returns {void}
- */
-function updateSelectedMarkInVega(storeSelectedId) {
-  var def = sg.get(sg.SELECTED).mark.def,
-      vegaSelectedId = def && def.lyra_id;
-
-  // If the store and the Vega scene graph are in sync, take no action
-  if (storeSelectedId === vegaSelectedId) {
-    return;
-  }
-
-  var selectedMark = lookup(storeSelectedId),
-      // Walk up from the selected primitive to find all parent groups and create
-      // an array of all relevant [lyra] IDs
-      markIds = [storeSelectedId].concat(hierarchy.getParentGroupIds(selectedMark)),
-      // then walk down the rendered Vega scene graph to find a corresponding item.
-      item = hierarchy.findInItemTree(model.view.model().scene().items[0], markIds);
-
-  // If an item was found, set the Lyra mode signal so that the handles appear.
-  if (item !== null) {
-    sg.set(sg.SELECTED, item);
-  }
-}
-
-/**
- * Setting the same value on a signal twice should have no effect, so  we
- * naively set all signals on each store update to ensure store and Vega
- * stay in sync. Altering this to be smarter is one area to investigate should
- * any performance issues crop up later on, but signal writes are pretty fast.
- *
- * @returns {void}
- */
-function updateAllSignals(state) {
-  getIn(state, 'signals').forEach(function(value, name) {
-    // Skip any signal from the defaults
-    if (sg.isDefault(name)) {
-      return;
-    }
-    // Persist any signals from the store to the view: wrap this in a try/catch
-    // to handle situations where the update fires while we are registering
-    // signals for new marks before a reparse has actually injected those marks
-    // into the vega view itself.
-    try {
-      model.view.signal(name, value.init);
-    } catch (e) { /* This is ok */ }
-  });
-}
-
-function recreateVegaIfNecessary(state) {
-  var shouldReparse = getIn(state, 'vega.invalid');
-
-  if (shouldReparse) {
-    if (model.view) {
-      // Clear out the outdated vega spec: iterate through all registered
-      // signal streams and remove their event listeners
-      model.view.destroy();
-      model.view = null;
-    }
-    store.dispatch(parseInProgress(true));
-    model.parse().then(function() {
-      store.dispatch(parseInProgress(false));
-    });
-  }
-
-  return shouldReparse;
-}
-
-// This store listener handles all of the data-flow FROM the Redux store TO the
-// Vega view: very little code outside of this method should be interacting with
-// the view directly.
-store.subscribe(function() {
-  var state = store.getState(),
-      reparseNeeded = recreateVegaIfNecessary(state),
-      reparseInProgress = getIn(state, 'vega.isParsing');
-
-  // All subsequent actions are only relevant if the view is _not_ about to be
-  // destroyed and recreated
-  if (reparseNeeded || reparseInProgress) {
-    return;
-  }
-
-  // Similarly, there is nothing further to do here if the view is not ready
-  if (!model.view || !model.view.signal || typeof model.view.signal !== 'function' || !model.view.model) {
-    return;
-  }
-
-  // If an item is marked selected in the store, pass that on to Vega
-  var storeSelectedId = getIn(state, 'inspector.selected');
-  if (storeSelectedId) {
-    updateSelectedMarkInVega(storeSelectedId);
-  }
-
-  // Synchronize the Vega view with the signals within redux
-  updateAllSignals(state);
-});
-
-// Bind a throttled model update onto the store so that we can be sure any
-// changes will be reflected in Vega, without incurring the rendering overhead
-// that we would be hit with were we to react to every single store dispatch
-// cycle (as many of those cycles will be intermediate states).
-store.subscribe(throttle(model.update, 16));

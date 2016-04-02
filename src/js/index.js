@@ -3,6 +3,8 @@
 
 require('../scss/app.scss');
 
+var throttle = require('lodash.throttle');
+
 // Additional requires to polyfill + browserify package.
 require('array.prototype.find');
 require('string.prototype.startswith');
@@ -15,6 +17,25 @@ var reparse = require('./actions/vegaInvalidate');
 // Initialize the Model.
 var model = require('./model');
 model.init();
+
+// Set up the listeners that connect the model to the store
+var listeners = require('./store/listeners');
+
+// Bind the listener that will flow changes from the redux store into Vega
+store.subscribe(listeners.createStoreListener(
+  store,
+  model,
+  listeners.recreateVegaIfNecessary,
+  listeners.updateSelectedMarkInVega,
+  listeners.updateAllSignals
+));
+
+// Bind a throttled model update onto the store so that we can be sure any
+// of those changes will be reflected in Vega, without incurring the rendering
+// overhead that we would be hit with were we to react to every single store
+// dispatch cycle (as many of those cycles will be intermediate states).
+// (16 is derived from 1000ms / 60fps)
+store.subscribe(throttle(model.update, 16));
 
 // Initialize components
 var ui = require('./components');
