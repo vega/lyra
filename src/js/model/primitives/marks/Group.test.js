@@ -195,11 +195,9 @@ describe('Group Mark', function() {
         expect(child).to.be.an('object');
         expect(child.parent()).to.equal(group);
       });
-    });
-
-    it('creates a scale but does not assign itself as parent', function() {
-      var scale = group.child('scales');
-      expect(scale.parent).to.be.null;
+      expect(group.marks.length).to.equal(3);
+      expect(group.axes.length).to.equal(1);
+      expect(group.legends.length).to.equal(1);
     });
 
     it('throws an error if provided an invalid type', function() {
