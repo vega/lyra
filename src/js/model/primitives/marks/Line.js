@@ -1,5 +1,6 @@
 'use strict';
-var inherits = require('inherits'),
+var dl = require('datalib'),
+    inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
@@ -34,9 +35,10 @@ inherits(Line, Mark);
  * a type string and a Vega mark properties object.
  *
  * @static
+ * @param {Object} [props] - Props to merge into the returned default properties object
  * @returns {Object} The default mark properties
  */
-Line.defaultProperties = function() {
+Line.defaultProperties = function(props) {
   var defaults = {
     type: 'line',
     // name: 'line' + '_' + counter.type('line'); // Assign name in the reducer
@@ -51,7 +53,7 @@ Line.defaultProperties = function() {
   // Mark gives us two defaults we do not want
   delete defaults.properties.update.fill;
   delete defaults.properties.update.fillOpacity;
-  return defaults;
+  return dl.extend(defaults, props);
 };
 
 Line.prototype.initHandles = function() {

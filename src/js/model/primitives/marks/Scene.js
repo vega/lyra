@@ -1,5 +1,6 @@
 'use strict';
-var inherits = require('inherits'),
+var dl = require('datalib'),
+    inherits = require('inherits'),
     sg = require('../../signals'),
     Group = require('./Group');
 
@@ -33,11 +34,12 @@ Scene.prototype.parent = null;
  * containing a type string and a Vega mark properties object.
  *
  * @static
+ * @param {Object} [props] - Props to merge into the returned default properties object
  * @returns {Object} The default mark properties
  */
-Scene.defaultProperties = function() {
+Scene.defaultProperties = function(props) {
   // Note that scene has no "properties" property
-  return {
+  return dl.extend({
     // Containers for child marks
     scales: [],
     legends: [],
@@ -57,7 +59,7 @@ Scene.defaultProperties = function() {
     background: 'white'
     // name: 'group' + '_' + counter.type('group'); // Assign name in the reducer
     // _id: assign ID in the reducer
-  };
+  }, props);
 };
 
 Scene.prototype.init = function() {

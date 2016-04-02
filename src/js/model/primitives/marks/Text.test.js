@@ -45,6 +45,29 @@ describe('Text Mark Primitive', function() {
       });
     });
 
+    it('merged any provided options into the returned properties object', function() {
+      var result = Text.defaultProperties({
+        _parent: 15
+      });
+      expect(result).to.have.property('_parent');
+      expect(result._parent).to.equal(15);
+    });
+
+    it('overwrites default properties with those in the provided props object', function() {
+      var result = Text.defaultProperties({
+        properties: {
+          update: {
+            x: {value: 500}
+          }
+        }
+      });
+      expect(result.properties).to.deep.equal({
+        update: {
+          x: {value: 500}
+        }
+      });
+    });
+
   });
 
   describe('constructor', function() {
