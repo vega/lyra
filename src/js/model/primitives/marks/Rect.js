@@ -1,5 +1,6 @@
 'use strict';
-var inherits = require('inherits'),
+var dl = require('datalib'),
+    inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
@@ -32,10 +33,11 @@ inherits(Rect, Mark);
  * a type string and a Vega mark properties object.
  *
  * @static
+ * @param {Object} [props] - Props to merge into the returned default properties object
  * @returns {Object} The default mark properties
  */
-Rect.defaultProperties = function() {
-  return {
+Rect.defaultProperties = function(props) {
+  return dl.extend({
     type: 'rect',
     // name: 'rect' + '_' + counter.type('rect'); // Assign name in the reducer
     // _id: assign ID in the reducer
@@ -49,7 +51,7 @@ Rect.defaultProperties = function() {
         height: {value: 30, _disabled: true}
       }
     })
-  };
+  }, props);
 };
 
 Rect.prototype.initHandles = function() {

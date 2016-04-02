@@ -49,10 +49,11 @@ inherits(Group, Mark);
  * containing a type string and a Vega mark properties object.
  *
  * @static
+ * @param {Object} [props] - Props to merge into the returned default properties object
  * @returns {Object} The default mark properties
  */
-Group.defaultProperties = function() {
-  return {
+Group.defaultProperties = function(props) {
+  return dl.extend({
     type: 'group',
     // name: 'group' + '_' + counter.type('group'); // Assign name in the reducer
     // _id: assign ID in the reducer
@@ -70,7 +71,7 @@ Group.defaultProperties = function() {
     legends: [],
     axes: [],
     marks: []
-  };
+  }, props);
 };
 
 Group.prototype.export = function(resolve) {

@@ -1,5 +1,6 @@
 'use strict';
-var inherits = require('inherits'),
+var dl = require('datalib'),
+    inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
@@ -32,10 +33,11 @@ inherits(Symbol, Mark);
  * containing a type string and a Vega mark properties object.
  *
  * @static
+ * @param {Object} [props] - Props to merge into the returned default properties object
  * @returns {Object} The default mark properties
  */
-Symbol.defaultProperties = function() {
-  return {
+Symbol.defaultProperties = function(props) {
+  return dl.extend({
     type: 'symbol',
     // name: 'symbol' + '_' + counter.type('symbol'); // Assign name in the reducer
     // _id: assign ID in the reducer
@@ -45,7 +47,7 @@ Symbol.defaultProperties = function() {
         shape: {value: 'circle'}
       }
     })
-  };
+  }, props);
 };
 
 Symbol.prototype.initHandles = function() {
