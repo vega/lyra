@@ -12,6 +12,7 @@ var dl = require('datalib'),
     model = require('../../'),
     ns = require('../../../util/ns'),
     lookup = model.lookup,
+    ns = require('../../../util/ns'),
     counter = require('../../../util/counter');
 
 /**
