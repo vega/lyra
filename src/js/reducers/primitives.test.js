@@ -1,4 +1,4 @@
-/* eslint no-unused-expressions:0 */
+/* eslint no-unused-expressions:0, new-cap:0 */
 'use strict';
 var expect = require('chai').expect;
 var Immutable = require('immutable');

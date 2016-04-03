@@ -2,7 +2,6 @@
 var actions = require('../constants/actions');
 var PRIMITIVE_ADD_MARK = actions.PRIMITIVE_ADD_MARK;
 var PRIMITIVE_SET_PARENT = actions.PRIMITIVE_SET_PARENT;
-var ns = require('../util/ns');
 var counter = require('../util/counter');
 var markName = require('../util/markName');
 
@@ -20,7 +19,7 @@ function addMark(primitiveProps) {
     props: primitiveProps
   };
   return action;
-};
+}
 
 /**
  * Action creator to mark one existing primitive as the child of another.

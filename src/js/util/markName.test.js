@@ -11,7 +11,7 @@ describe('markName utility', function() {
     // Reset counters module so that we can have predictable IDs for our names
     counter.reset();
     markName = require('./markName');
-  })
+  });
 
   it('is a function', function() {
     expect(markName).to.be.a('function');
