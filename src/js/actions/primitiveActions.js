@@ -13,7 +13,7 @@ var markName = require('../util/markName');
  */
 function addMark(primitiveProps) {
   var action = {
-    id: primitiveProps.id || counter.global(),
+    id: primitiveProps._id || counter.global(),
     name: primitiveProps.name || markName(primitiveProps.type),
     type: PRIMITIVE_ADD_MARK,
     props: primitiveProps
