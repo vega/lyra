@@ -3,7 +3,8 @@ var inherits = require('inherits'),
     sg = require('../../signals'),
     Group = require('./Group');
 
-var SG_WIDTH = 'vis_width', SG_HEIGHT = 'vis_height';
+var SG_WIDTH = 'vis_width',
+    SG_HEIGHT = 'vis_height';
 
 /**
  * @classdesc A Lyra Scene Primitive.
@@ -15,20 +16,49 @@ var SG_WIDTH = 'vis_width', SG_HEIGHT = 'vis_height';
  * properties.
  *
  * @constructor
+ * @param {Object} [props] - An object defining this mark's properties
+ * @param {string} [props.name] - The name of the mark
+ * @param {number} [props._id] - A unique mark ID
  */
-function Scene() {
-  Group.call(this);
-  this.width = 610;
-  this.height = 610;
-  this.padding = 'auto';
-  this.background = 'white';
-
-  return this;
+function Scene(props) {
+  Group.call(this, props || Scene.defaultProperties());
 }
 
-
 inherits(Scene, Group);
+// The scene is the top level of hierarchy
 Scene.prototype.parent = null;
+
+/**
+ * Returns an object representing the default values for a scene mark,
+ * containing a type string and a Vega mark properties object.
+ *
+ * @static
+ * @returns {Object} The default mark properties
+ */
+Scene.defaultProperties = function() {
+  // Note that scene has no "properties" property
+  return {
+    // Containers for child marks
+    scales: [],
+    legends: [],
+    axes: [],
+    marks: [],
+    // type will be removed later on, but is used to generate an appropriate name
+    type: 'group',
+    // Scene has no Vega properties object, but we mock it for now to avoid
+    // distrupting the export functionality
+    properties: {
+      update: {}
+    },
+    // Scene-specific visual properties
+    width: 610,
+    height: 610,
+    padding: 'auto',
+    background: 'white'
+    // name: 'group' + '_' + counter.type('group'); // Assign name in the reducer
+    // _id: assign ID in the reducer
+  };
+};
 
 Scene.prototype.init = function() {
   sg.init(SG_WIDTH, this.width);

@@ -19,30 +19,31 @@ var dl = require('datalib'),
  * that Lyra supports should subclass it.
  * @extends {Primitive}
  *
- * @param {string} type - The mark type (e.g., `rect`, `symbol`, etc.).
- *
  * @property {Object} _rule - A {@link http://vega.github.io/vega-lite/docs/#spec|Vega-Lite specification}
  * that is compiled each time a data field is dropped over channel manipulators.
  * @see Vega's {@link https://github.com/vega/vega/wiki/Marks|Marks}
  * documentation for more information on this class' "public" properties.
  *
  * @constructor
+ * @param {Object} props - Configuration options
+ * @param {string} props.type - The type of mark, e.g. "rect"
+ * @param {name}   [props.name] - The name of the mark (set based on type
+ * if not provided in props object)
+ * @param {number} [props._id] - The ID of the mark (set as a unique number
+ * if not provided in props object)
+ * @param {Object} [props.properties] - Mark properties object (initialized
+ * to reasonable defaults if not provided in props object)
  */
-function Mark(type) {
-  this.name = type + '_' + counter.type(type);
-  this.type = type;
-  this.from = undefined;
-
-  this.properties = {
-    update: {
-      x: {value: 25},
-      y: {value: 25},
-      fill: {value: '#4682b4'},
-      fillOpacity: {value: 1},
-      stroke: {value: '#000000'},
-      strokeWidth: {value: 0.25}
-    }
-  };
+function Mark(props) {
+  var type = props.type,
+      key;
+  // Copy properties off of provided configuration
+  for (key in props) {
+    this[key] = props[key];
+  }
+  // Provide a default for name if it was not provided
+  this.name = this.name || (type + '_' + counter.type(type));
+  // this.from; // Should start as undefined
 
   this._rule = new rules.VLSingle(type);
 
@@ -52,6 +53,57 @@ function Mark(type) {
 inherits(Mark, Primitive);
 
 /**
+ * Return an object of the default properties for any mark
+ * @static
+ * @returns {Object} An object specifying the default .properties value for
+ * basic marks
+ */
+Mark.defaultProperties = function() {
+  return {
+    update: {
+      x: {value: 25},
+      y: {value: 25},
+      fill: {value: '#4682b4'},
+      fillOpacity: {value: 1},
+      stroke: {value: '#000000'},
+      strokeWidth: {value: 0.25}
+    }
+  };
+};
+
+/**
+ * Intelligently merge (one level deep) a custom properties object with a
+ * default properties object.
+ *
+ * @static
+ * @param {Object} defaults The default properties for a mark
+ * @param {Object} [overrides] - An optional object of property overrides to
+ * combine with the provided defaults
+ * @returns {Object} The merged properties object
+ */
+Mark.mergeProperties = function(defaults, overrides) {
+  if (typeof overrides !== 'object') {
+    return defaults;
+  }
+
+  // Merge all properties from the provided overrides into the defaults
+  return Object.keys(overrides).reduce(function(props, key) {
+
+    if (typeof props[key] !== 'object') {
+      // No merge necessary if defaults does not have a property matching the
+      // provided overrides, or that prop is not an object: overwrite normally
+      props[key] = overrides[key];
+    } else {
+      // Merge all of the [vega mark] properties object's [js object] properties
+      // (`.update`, `.enter`, etcetera)
+      props[key] = dl.extend(props[key], overrides[key]);
+    }
+
+    return props;
+  }, defaults);
+};
+
+/**
  * Initializes the Lyra Mark Primitive by converting all registered visual
  * properties with literal values to Lyra-specific signals. Each mark subclass
  * will register the necessary streams to change the signal values
@@ -59,21 +111,23 @@ inherits(Mark, Primitive);
  * @returns {Object} The Mark.
  */
 Mark.prototype.init = function() {
-  var props = this.properties,
-      update = props.update,
-      key, updateProp;
+  // Partial application to avoid needing access to `this` inside the loop below
+  var signalName = function(mark, key) {
+    return propSg(mark, key);
+  }.bind(null, this);
 
   // Walk through each of the specified visual properties for this mark, create
   // and register signals to represent those values, and update the mark's
   // properties to contain references to those new vega signals.
-  for (key in update) {
-    updateProp = update[key];
+  this.properties.update = Object.keys(this.properties.update).reduce(function(update, key) {
+    var updateProp = update[key],
+        sgName = signalName(key);
     if (typeof updateProp.value !== 'undefined') {
-      sg.init(propSg(this, key), updateProp.value);
-      update[key] = dl.extend(sg.reference(propSg(this, key)),
-        updateProp._disabled ? {_disabled: true} : {});
+      sg.init(sgName, updateProp.value);
+      update[key] = dl.extend(sg.reference(sgName), updateProp._disabled ? {_disabled: true} : {});
     }
-  }
+    return update;
+  }, this.properties.update);
 
   this.initHandles();
 

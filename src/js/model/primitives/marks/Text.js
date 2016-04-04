@@ -1,7 +1,6 @@
 'use strict';
 
-var dl = require('datalib'),
-    inherits = require('inherits'),
+var inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
@@ -17,31 +16,50 @@ var DELTA = sg.DELTA,
  * @extends {Mark}
  *
  * @constructor
+ * @param {Object} [props] - An object defining this mark's properties
+ * @param {string} props.type - The type of mark (should be 'text')
+ * @param {Object} props.properties - A Vega mark properties object
+ * @param {string} [props.name] - The name of the mark
+ * @param {number} [props._id] - A unique mark ID
  */
-function Text() {
-  Mark.call(this, 'text');
-
-  dl.extend(this.properties.update, {
-    strokeWidth: {value: 0},
-    x: {value: 80},
-    y: {value: 30},
-    dx: {value: 0, offset: 0},
-    dy: {value: 0, offset: 0},
-    // Text-specific properties
-    text: {value: 'Text'},
-    align: {value: 'center'},
-    baseline: {value: 'middle'},
-    font: {value: 'Helvetica'},
-    fontSize: {value: 14},
-    fontStyle: {value: 'normal'},
-    fontWeight: {value: 'normal'},
-    angle: {value: 0}
-  });
-
-  return this;
+function Text(props) {
+  Mark.call(this, props || Text.defaultProperties());
 }
 
 inherits(Text, Mark);
+
+/**
+ * Returns an object representing the default values for a rect text, containing
+ * a type string and a Vega mark properties object.
+ *
+ * @static
+ * @returns {Object} The default mark properties
+ */
+Text.defaultProperties = function() {
+  return {
+    type: 'text',
+    // name: 'text' + '_' + counter.type('text'); // Assign name in the reducer
+    // _id: assign ID in the reducer
+    properties: Mark.mergeProperties(Mark.defaultProperties(), {
+      update: {
+        strokeWidth: {value: 0},
+        x: {value: 80},
+        y: {value: 30},
+        dx: {value: 0, offset: 0},
+        dy: {value: 0, offset: 0},
+        // Text-specific properties
+        text: {value: 'Text'},
+        align: {value: 'center'},
+        baseline: {value: 'middle'},
+        font: {value: 'Helvetica'},
+        fontSize: {value: 14},
+        fontStyle: {value: 'normal'},
+        fontWeight: {value: 'normal'},
+        angle: {value: 0}
+      }
+    })
+  };
+};
 
 Text.prototype.initHandles = function() {
   var at = anchorTarget.bind(null, this, 'handles'),
