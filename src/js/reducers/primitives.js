@@ -133,6 +133,16 @@ function primitivesReducer(state, action) {
     });
   }
 
+  if (action.type === actions.CREATE_SCENE) {
+    // Set the scene, converting its width and height into their signal equivalents
+    return set(state, action.id, makeMark(assign(action, {
+      props: assign(action.props, {
+        width: {signal: 'vis_width'},
+        height: {signal: 'vis_height'}
+      })
+    })));
+  }
+
   if (action.type === actions.PRIMITIVE_SET_PARENT) {
     return setParentMark(state, action);
   }

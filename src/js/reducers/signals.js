@@ -48,6 +48,17 @@ function signalsReducer(state, action) {
     return initSignalsForMark(state, action);
   }
 
+  if (action.type === actions.CREATE_SCENE) {
+    // Initialize the visualization width & height from the scene
+    return initSignal(initSignal(state, {
+      signal: 'vis_width',
+      value: action.props.width
+    }), {
+      signal: 'vis_height',
+      value: action.props.height
+    });
+  }
+
   if (action.type === actions.INIT_SIGNAL) {
     return initSignal(state, action);
   }

@@ -5,10 +5,16 @@ var Immutable = require('immutable');
 
 var signalsReducer = require('./signals');
 var primitiveActions = require('../actions/primitiveActions');
+var createScene = require('../actions/createScene');
 var initSignal = require('../actions/initSignal');
 var counter = require('../util/counter');
 
 describe('signals reducer', function() {
+  var initialState;
+
+  beforeEach(function() {
+    initialState = Immutable.Map();
+  });
 
   it('is a function', function() {
     expect(signalsReducer).to.be.a('function');
@@ -21,11 +27,10 @@ describe('signals reducer', function() {
   });
 
   it('does not mutate the state if an unrelated action is passed in', function() {
-    var state = Immutable.Map();
-    var result = signalsReducer(state, {
+    var result = signalsReducer(initialState, {
       type: 'NOT_A_RELEVANT_ACTION'
     });
-    expect(state).to.equal(result);
+    expect(initialState).to.equal(result);
   });
 
   describe('init signal action', function() {
@@ -77,7 +82,6 @@ describe('signals reducer', function() {
     });
 
     it('initializes all relevant signals for the mark being created', function() {
-      var initialState = Immutable.Map();
       var result = signalsReducer(initialState, addMark({
         type: 'rect',
         properties: {
@@ -114,6 +118,31 @@ describe('signals reducer', function() {
           _idx: 3
         }
       });
+    });
+
+  });
+
+  describe('create scene action', function() {
+    beforeEach(function() {
+      // Reset counters module so that we can have predictable IDs for our new marks
+      counter.reset();
+    });
+
+    it('initializes the scene width & height signals', function() {
+      var result = signalsReducer(initialState, createScene());
+      expect(result.toJS()).to.deep.equal({
+        vis_width: {
+          name: 'vis_width',
+          init: 610,
+          _idx: 0
+        },
+        vis_height: {
+          name: 'vis_height',
+          init: 610,
+          _idx: 1
+        }
+      });
+
     });
 
   });

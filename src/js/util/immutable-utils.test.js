@@ -1,4 +1,4 @@
-/* eslint no-unused-expressions:0 */
+/* eslint new-cap:0, no-unused-expressions:0 */
 'use strict';
 var expect = require('chai').expect;
 var Immutable = require('immutable');
@@ -16,7 +16,7 @@ describe('immutable utilities', function() {
             structure: 'of some sort'
           }
         },
-        arrOfNums: [1,2,3,5,8],
+        arrOfNums: [1, 2, 3, 5, 8],
         arrOfStrs: ['kookaburra', 'numbat', 'bobcat', 'photocopier']
       }
     });
@@ -103,7 +103,7 @@ describe('immutable utilities', function() {
               structure: 'of another sort'
             }
           },
-          arrOfNums: [1,2,3,5,8],
+          arrOfNums: [1, 2, 3, 5, 8],
           arrOfStrs: ['kookaburra', 'numbat', 'bobcat', 'photocopier']
         }
       });
@@ -129,7 +129,7 @@ describe('immutable utilities', function() {
               }
             }
           },
-          arrOfNums: [1,2,3,5,8],
+          arrOfNums: [1, 2, 3, 5, 8],
           arrOfStrs: ['kookaburra', 'numbat', 'bobcat', 'photocopier']
         }
       });
@@ -151,7 +151,7 @@ describe('immutable utilities', function() {
 
     it('can be used to add a number into an array within a nested Map', function() {
       var result = ensureValuePresent(map, 'some.arrOfNums', 13);
-      expect(getIn(result, 'some.arrOfNums').toJS()).to.deep.equal([1,2,3,5,8,13]);
+      expect(getIn(result, 'some.arrOfNums').toJS()).to.deep.equal([1, 2, 3, 5, 8, 13]);
     });
 
     it('will not duplicate a number that is already present', function() {

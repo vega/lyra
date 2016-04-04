@@ -51,7 +51,7 @@ function getTypeCounter(type) {
 /**
  * Reset the counters to their initial values (useful for starting a test suite
  * with a clean slate).
- * @return {void}
+ * @returns {void}
  */
 function reset() {
   globalCounter = 1;
