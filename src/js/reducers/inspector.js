@@ -7,9 +7,24 @@ var actions = require('../constants/actions');
 var getIn = require('../util/immutable-utils').getIn;
 var setIn = require('../util/immutable-utils').setIn;
 
+function selectPipeline(state, action) {
+  var selectedPipelineId = getIn(state, 'pipelines.selected');
+
+  // If the pipeline that was selected is already open, close it
+  if (action.id === selectedPipelineId) {
+    return setIn(state, 'pipelines.selected', null);
+  }
+
+  // otherwise, switch to the newly-selected pipeline
+  return setIn(state, 'pipelines.selected', action.id);
+}
+
 function inspectorReducer(state, action) {
   if (typeof state === 'undefined') {
     return Immutable.fromJS({
+      pipelines: {
+        selected: null
+      },
       selected: null,
       expandedLayers: {}
     });
@@ -36,6 +51,10 @@ function inspectorReducer(state, action) {
       var key = 'expandedLayers.' + layerId;
       return setIn(newState, key, !getIn(newState, key));
     }, state);
+  }
+
+  if (action.type === actions.PIPELINE_SELECT) {
+    return selectPipeline(state, action);
   }
 
   return state;
