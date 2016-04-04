@@ -22,13 +22,7 @@ model.init();
 var listeners = require('./store/listeners');
 
 // Bind the listener that will flow changes from the redux store into Vega
-store.subscribe(listeners.createStoreListener(
-  store,
-  model,
-  listeners.recreateVegaIfNecessary,
-  listeners.updateSelectedMarkInVega,
-  listeners.updateAllSignals
-));
+store.subscribe(listeners.createStoreListener(store, model));
 
 // Bind a throttled model update onto the store so that we can be sure any
 // of those changes will be reflected in Vega, without incurring the rendering

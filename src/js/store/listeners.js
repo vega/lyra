@@ -116,18 +116,17 @@ function updateAllSignals(state, vegaView) {
 }
 
 /**
- * Return a master syncStoreToVega method created from the provided dependencies.
+ * Return a master syncStoreToVega method created using the granular update
+ * methods and an injected model and store. `recreateVegaIfNecessary`,
+ * `updateSelectedMarkInVega`, and `updateAllSignals` are all consumed by local
+ * reference, but the store and model to modify are injected as arguments
+ * and this method returns the fully-formed store listener function.
  *
- * @param {Object} store - The Redux store
- * @param {Object} model - The Lyra model
- * @param {Function} recreateVegaIfNecessary - The function to destroy & recreate Vega
- * @param {Function} updateSelectedMarkInVega - The function to update the selected mark after a re-render
- * @param {Function} updateAllSignals - The function to sync signals from Redux to Vega
- * @returns {Function} The store listener combining all of the above
+ * @param {Object} store - The Redux store to inject
+ * @param {Object} model - The Lyra model to inject
+ * @returns {Function} The complete store listener
  */
-function createStoreListener(
-  store, model, recreateVegaIfNecessary, updateSelectedMarkInVega, updateAllSignals
-) {
+function createStoreListener(store, model) {
 
   /**
    * This store listener handles all of the data-flow FROM the Redux store TO the
@@ -164,14 +163,14 @@ function createStoreListener(
   };
 }
 
-
 module.exports = {
   // Expose the method used to create the primary store listener
   createStoreListener: createStoreListener,
 
-  // Expose that listener's constituent functions (which must be injected into
-  // createStoreListener to manufacture the `syncStoreToVega` listener function)
-  recreateVegaIfNecessary: recreateVegaIfNecessary,
-  updateSelectedMarkInVega: updateSelectedMarkInVega,
-  updateAllSignals: updateAllSignals
+  // Expose that listener's constituent functions for individual testing: we
+  // normally wouldn't expose or test "internal" implementation details like
+  // this, but doing so can give us added peace of mind with important code.
+  _recreateVegaIfNecessary: recreateVegaIfNecessary,
+  _updateSelectedMarkInVega: updateSelectedMarkInVega,
+  _updateAllSignals: updateAllSignals
 };
