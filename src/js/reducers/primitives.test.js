@@ -5,6 +5,7 @@ var Immutable = require('immutable');
 
 var primitivesReducer = require('./primitives');
 var primitiveActions = require('../actions/primitiveActions');
+var createScene = require('../actions/createScene');
 var counter = require('../util/counter');
 
 describe('primitives reducer', function() {
@@ -133,6 +134,36 @@ describe('primitives reducer', function() {
         expect(parentGroup.marks).to.deep.equal([61]);
       });
 
+    });
+
+  });
+
+  describe('create scene action', function() {
+
+    beforeEach(function() {
+      // Reset counters module so that we can have predictable IDs for our new marks
+      counter.reset();
+    });
+
+    it('registers the scene as a primitive and initializes defaults', function() {
+      var result = primitivesReducer(initialState, createScene()).get('1').toJS();
+      expect(result).to.exist;
+      expect(result).to.have.property('_id');
+      expect(result._id).to.equal(1);
+      expect(result).to.have.property('name');
+      expect(result.name).to.equal('Scene');
+      expect(result.type).to.equal('group');
+    });
+
+    it('converts the scene height and width to signal references', function() {
+      var result = primitivesReducer(initialState, createScene());
+      console.log(result.toJS());
+      expect(result.get('1').get('height')).to.deep.equal({
+        signal: 'vis_height'
+      });
+      expect(result.get('1').get('width')).to.deep.equal({
+        signal: 'vis_width'
+      });
     });
 
   });
