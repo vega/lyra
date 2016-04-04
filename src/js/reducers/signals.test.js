@@ -8,7 +8,7 @@ var primitiveActions = require('../actions/primitiveActions');
 var initSignal = require('../actions/initSignal');
 var counter = require('../util/counter');
 
-describe.only('signals reducer', function() {
+describe('signals reducer', function() {
 
   it('is a function', function() {
     expect(signalsReducer).to.be.a('function');

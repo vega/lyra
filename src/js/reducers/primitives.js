@@ -5,6 +5,12 @@ var Immutable = require('immutable');
 
 var actions = require('../constants/actions');
 var signalRef = require('../util/signal-reference');
+var immutableUtils = require('../util/immutable-utils');
+var get = immutableUtils.get;
+var set = immutableUtils.set;
+var setIn = immutableUtils.setIn;
+var ensureValuePresent = immutableUtils.ensureValuePresent;
+var ensureValueAbsent = immutableUtils.ensureValueAbsent;
 var assign = require('object-assign');
 
 // Helper function to iterate over a mark's .properties hash and convert any .value-
@@ -42,13 +48,73 @@ function convertValuesToSignals(properties, type, id) {
 function makeMark(action) {
   return Object.keys(action.props).reduce(function(mark, key) {
     if (key === 'properties') {
-      return mark.set(key, convertValuesToSignals(action.props[key], action.props.type, action.id));
+      return mark.set(key, Immutable.fromJS(
+        convertValuesToSignals(action.props[key], action.props.type, action.id))
+      );
     }
-    return mark.set(key, action.props[key]);
+    return set(mark, key, action.props[key]);
   }, Immutable.Map({
-    id: action.id,
+    _id: action.id,
     name: action.name
   }));
+}
+
+// @TODO: This does not yet handle the case of UN-setting a parent
+function setParentMark(state, action) {
+  // Nothing to do if no child is provided
+  if (typeof action.childId === 'undefined') {
+    return state;
+  }
+  var child = get(state, action.childId);
+  if (!child) {
+    return state;
+  }
+
+  var existingParentId = child.get('_parent');
+
+  // If we're deleting a parent but there isn't one to begin with, do nothing
+  // (`== null` is used to catch both `undefined` and explicitly `null`)
+  if (existingParentId == null && !action.parentId) {
+    return state;
+  }
+
+  var existingParent = get(state, existingParentId);
+  var newParent = get(state, action.parentId);
+
+  // Clearing a mark's parent reference
+  if (newParent === null) {
+    // Second, ensure the child ID has been removed from
+    return ensureValueAbsent(
+      // First, null out the child's parent reference
+      set(state, action.childId, setIn(child, '_parent', null)),
+      existingParentId + '.marks',
+      action.childId
+    );
+  }
+
+  // Moving a mark from one parent to another
+  if (existingParent && newParent) {
+    // Finally, make sure the child ID is present in the new parent's marks array
+    return ensureValuePresent(
+      // Next, remove the child ID from the old parent's marks
+      ensureValueAbsent(
+        // First, update the child's _parent pointer to target the new parent
+        set(state, action.childId, setIn(child, '_parent', action.parentId)),
+        existingParentId + '.marks',
+        action.childId
+      ),
+      action.parentId + '.marks',
+      action.childId
+    );
+  }
+
+  // Setting a parent of a previously-parentless mark
+  return ensureValuePresent(
+    // First, update the child's _parent pointer to target the new parent
+    setIn(state, action.childId + '._parent', action.parentId),
+    action.parentId + '.marks',
+    action.childId
+  );
 }
 
 function primitivesReducer(state, action) {
@@ -57,7 +123,18 @@ function primitivesReducer(state, action) {
   }
 
   if (action.type === actions.PRIMITIVE_ADD_MARK) {
-    return state.set(action.id, makeMark(action));
+    // Make the mark and .set it at the provided ID, then pass it through a
+    // method that will check to see whether the mark needs to be added as
+    // a child of another mark
+    return setParentMark(set(state, action.id, makeMark(action)), {
+      type: actions.PRIMITIVE_SET_PARENT,
+      parentId: action.props ? action.props._parent : null,
+      childId: action.id
+    });
+  }
+
+  if (action.type === actions.PRIMITIVE_SET_PARENT) {
+    return setParentMark(state, action);
   }
 
   return state;
