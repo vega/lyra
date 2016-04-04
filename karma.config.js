@@ -3,6 +3,7 @@
 'use strict';
 var argv = require('yargs').argv;
 var path = require('path');
+var webpack = require('webpack');
 
 module.exports = function(config) {
   config.set({
@@ -56,6 +57,15 @@ module.exports = function(config) {
             query: {
               presets: ['react']
             }
+          },
+          // Do not parse images or SCSS in the test bundle
+          {
+            test: /\.scss$/,
+            loader: 'raw-loader'
+          },
+          {
+            test: /\.png$/,
+            loader: 'raw-loader'
           }
         ],
         // instrument only testing sources with Istanbul
@@ -68,6 +78,12 @@ module.exports = function(config) {
           }
         ]
       },
+
+      plugins: [
+        // Do not pull the root index file into the test bundle: it is designed
+        // to kick off the app, which isn't relevant in a testing context
+        new webpack.IgnorePlugin(/js\/index.js$/)
+      ],
 
       // required for enzyme to work properly
       externals: {
