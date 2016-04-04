@@ -67,7 +67,7 @@ describe('Mark Utilities', function() {
   describe('selectScene', function() {
     it('store will set selected mark to scene id', function() {
       var sceneId = markUtils.getSceneId();
-      expect(sceneId).to.equal(mode.Scene._id);
+      expect(sceneId).to.equal(model.Scene._id);
     });
   });
 });
