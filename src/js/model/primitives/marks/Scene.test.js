@@ -6,7 +6,6 @@ var expect = require('chai').expect;
 var Scene = require('./Scene');
 var Group = require('./Group');
 var Mark = require('./Mark');
-var ns = require('../../../util/ns');
 var VLSingle = require('../../rules/VLSingle');
 
 describe('Scene Mark', function() {

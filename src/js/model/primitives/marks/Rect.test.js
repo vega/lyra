@@ -1,7 +1,6 @@
 /* eslint no-unused-expressions:0 */
 'use strict';
 var expect = require('chai').expect;
-var assert = require('chai').assert;
 var Rect = require('./Rect');
 var Mark = require('./Mark');
 var VLSingle = require('../../rules/VLSingle');

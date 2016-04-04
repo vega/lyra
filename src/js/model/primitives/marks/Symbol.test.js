@@ -73,14 +73,14 @@ describe('Symbol Mark Primitive', function() {
       expect(symbol.properties).to.be.an('object');
       expect(symbol.properties).to.deep.equal({
         update: {
-            x: {value: 25},
-            y: {value: 25},
-            fill: {value: '#4682b4'},
-            fillOpacity: {value: 1},
-            stroke: {value: '#000000'},
-            strokeWidth: {value: 0.25},
-            size: {value: 100},
-            shape: {value: 'circle'}
+          x: {value: 25},
+          y: {value: 25},
+          fill: {value: '#4682b4'},
+          fillOpacity: {value: 1},
+          stroke: {value: '#000000'},
+          strokeWidth: {value: 0.25},
+          size: {value: 100},
+          shape: {value: 'circle'}
         }
       });
     });
