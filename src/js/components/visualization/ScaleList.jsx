@@ -21,7 +21,13 @@ var ScaleList = connect(
         selected = props.selected;
     return (
       <div id="scale-list" className="expandingMenu">
-        <h4 className="hed-tertiary">Scales <i className="fa fa-plus"></i></h4>
+        <h4 className="hed-tertiary">
+          Scales
+          <i className="fa fa-plus"
+            data-tip="Add a new scale."
+            data-place="right"
+          ></i>
+        </h4>
         <ul>
           {props.scales.map(function(scale) {
             var id = scale._id;

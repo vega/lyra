@@ -71,7 +71,7 @@ var Group = connect(
     }
     return iconMarkup;
   },
-  deleteUpdate: function(id){
+  deleteUpdate: function(id) {
     this.deleteMark(id);
     // set selected to null
     this.props.select(null);
@@ -110,7 +110,10 @@ var Group = connect(
                       value={mark.name}
                       onClick={props.select.bind(null, id)} />
                     </div>
-                  <i className="delete-sidebar fa fa-trash" onClick={this.deleteUpdate.bind(null, id)}></i>
+                  <i className="delete-sidebar fa fa-trash"
+                    onClick={this.deleteUpdate.bind(null, id)}
+                    data-tip="Delete this"
+                    data-place="right"></i>
                 </div>
               </li>
             );
@@ -129,7 +132,11 @@ var Group = connect(
               value={group.name}
               onClick={this.toggleFolder.bind(null, groupId)} />
           </div>
-          <i className="delete-sidebar fa fa-trash" onClick={this.deleteUpdate.bind(null, groupId)}></i>
+          <i className="delete-sidebar fa fa-trash"
+            onClick={this.deleteUpdate.bind(null, groupId)}
+            data-html={true}
+            data-tip="Delete this group <br> and everything inside it."
+            data-place="right"></i>
         </div>
         {contents}
       </li>
