@@ -99,7 +99,7 @@ module.exports = function(parsed) {
     if (!def) {
       continue;
     }
-    if (!curr || !equals(def, curr)) {
+    if (!curr || !equals.call(this, def, curr)) {
       scale.call(this, def);
     }
   }

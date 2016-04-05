@@ -49,7 +49,12 @@ var DataTable = React.createClass({
         schema = this.props.dataset.schema();
 
     this.hideFull(evt);
-    this.setState({fullField: schema[name]});
+    this.setState({
+      // fullField is used for rendering
+      fullField: schema[name],
+      // selectedField is used to pass data around while dragging
+      selectedField: schema[name]
+    });
     this._fullField.style('display', 'block')
       .style('top', target.offsetTop);
   },
@@ -96,7 +101,7 @@ var DataTable = React.createClass({
   handleDragEnd: function(evt) {
     var sel = sg.get(sg.SELECTED),
         cell = sg.get(sg.CELL),
-        fullField = this.state.fullField,
+        selectedField = this.state.selectedField,
         dropped = sel._id && cell._id,
         prim;
 
