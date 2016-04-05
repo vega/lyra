@@ -14,14 +14,14 @@ var ContentEditable = React.createClass({
     this._el = ReactDOM.findDOMNode(this);
   },
 
-  componentWillUnmount: function() {
-    this._el = null;
-  },
-
   componentDidUpdate: function() {
     if (this.state.edit) {
       this._el.focus();
     }
+  },
+
+  componentWillUnmount: function() {
+    this._el = null;
   },
 
   start: function() {
@@ -36,9 +36,7 @@ var ContentEditable = React.createClass({
     }
 
     var Sidebars = require('./');
-    if (Sidebars.state.selected === obj._id) {
-      Sidebars.refs.inspector.forceUpdate();
-    }
+    Sidebars.forceUpdate();
   },
 
   handleInput: function() {

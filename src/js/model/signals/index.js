@@ -6,6 +6,7 @@ var dl = require('datalib'),
     initSignal = require('../../actions/initSignal'),
     setSignal = require('../../actions/setSignal'),
     setSignalStreams = require('../../actions/setSignalStreams'),
+    unsetSignal = require('../../actions/unsetSignal'),
     defaults = require('./defaults');
 
 // Utility method to get a signal from the store
@@ -99,6 +100,16 @@ api.set = function(name, val) {
     // it may not have been initialized yet.
     view.signal(ns(name), val);
   }
+};
+
+/**
+ * Unset a signal value from the store
+ *
+ * @param {string} name - The name of the signal to set
+ * @returns {void}
+ */
+api.delete = function(name) {
+  store.dispatch(unsetSignal(name));
 };
 
 /**

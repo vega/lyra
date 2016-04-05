@@ -5,7 +5,6 @@ var React = require('react'),
     model = require('../model');
 
 var VisualSidebar = React.createClass({
-  classNames: 'sidebar col4 lt-blue-bg',
   getInitialState: function() {
     return {
       selected: model.Scene._id,
@@ -13,7 +12,9 @@ var VisualSidebar = React.createClass({
       classes: 'col2'
     };
   },
+  classNames: 'sidebar visualization col4 lt-blue-bg',
   render: function() {
+    var scales = model.scale();
     return (
       <div className={this.classNames}>
         <header>
@@ -25,7 +26,7 @@ var VisualSidebar = React.createClass({
           layers={model.Scene.marks} />
 
         <ScaleList ref="scaleList"
-          scales={model.scale()} />
+          scales={scales} />
       </div>
     );
   }

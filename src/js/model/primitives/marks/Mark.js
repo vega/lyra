@@ -1,3 +1,4 @@
+/* eslint no-undefined:0 */
 'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
@@ -9,6 +10,7 @@ var dl = require('datalib'),
     rules = require('../../rules'),
     propSg = require('../../../util/prop-signal'),
     model = require('../../'),
+    ns = require('../../../util/ns'),
     lookup = model.lookup,
     counter = require('../../../util/counter');
 
@@ -151,7 +153,6 @@ Mark.prototype.dataset = function(id) {
     this.from = id;
     return this;
   } else if (from instanceof Pipeline) {
-    // TODO
     this.from = from._source._id;
     return this;
   }
@@ -203,6 +204,25 @@ Mark.prototype.export = function(clean) {
   }
 
   return spec;
+};
+
+/**
+ * Unsets the signals initialized in Mark.init() in the redux store for the model properties.
+ * @returns {void}
+ */
+Mark.prototype.remove = function() {
+  var props = this.properties,
+      update = props.update,
+      key;
+  for (key in update) {
+    var signalName = update[key].signal;
+    // Currently width and height are set on Groups to use the full width of the scene
+    // they use the same signal name
+    if (signalName !== ns('vis_width') && signalName !== ns('vis_height')) {
+      sg.delete(signalName);
+    }
+  }
+  model.removeListeners();
 };
 
 manips(Mark.prototype);

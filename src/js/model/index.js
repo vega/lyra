@@ -2,6 +2,7 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
+    debounce = require('lodash.debounce'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
     ns = require('../util/ns'),
@@ -18,7 +19,8 @@ var model = module.exports = {
   Scene: null
 };
 
-var pipelines = [], scales = [],
+var pipelines = [],
+    scales = [],
     primitives = {},
     listeners = {};
 
@@ -140,7 +142,8 @@ model.pipeline = function(id) {
  * @returns {Object|Object[]} A Scale or array of Scales.
  */
 model.scale = function(id) {
-  return getset(scales, id, require('./primitives/Scale'));
+  var scalesArray = getset(scales, id, require('./primitives/Scale'));
+  return scalesArray;
 };
 
 /**
@@ -315,4 +318,13 @@ model.offSignal = function(name, handler) {
     model.view.offSignal(name, handler);
   }
   return model;
+};
+
+
+/**
+ * Remove listeners
+ * when unsetting values, clean up the model by resetting the listener object
+ */
+model.removeListeners = function(name){
+  listeners = {};
 };

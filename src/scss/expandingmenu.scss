@@ -1,4 +1,7 @@
 .expandingMenu {
+  .hed-tertiary i{
+    cursor: pointer;
+  }
   >ul>li{
     border-bottom: 1px solid $lgrey-bg;
   }
@@ -6,16 +9,30 @@
     li {
       list-style-type: none;
       .name {
+        position: relative;
         padding: 10px;
         cursor: pointer;
         i {
           padding: 0 $inner-padding;
         }
-
+        .delete-sidebar {
+          position: absolute;
+          right: 10px;
+          top: 10px;
+          cursor: pointer;
+          opacity: 0.5;
+          display: none;
+          &:hover {
+            opacity: 1;
+          }
+        }
         &.selected {
           background-color: $mblue-bg;
           color: #fff;
           font-weight: bold;
+          .delete-sidebar {
+            display: block;
+          }
         }
       }
       .content-editable {
@@ -25,6 +42,10 @@
   }
   .expanded {
     background-color: #fff;
+    .expanded {
+      background-color: $innerMenu;
+      color: #555;
+    }
   }
   .header {
     padding:10px;

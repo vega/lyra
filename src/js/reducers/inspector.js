@@ -25,6 +25,12 @@ function inspectorReducer(state, action) {
     }, state);
   }
 
+  if (action.type === actions.REMOVE_LAYERS) {
+    return action.layerIds.reduce(function(newState, layerId) {
+      return newState.delete(layerId);
+    }, state);
+  }
+
   if (action.type === actions.TOGGLE_LAYERS) {
     return action.layerIds.reduce(function(newState, layerId) {
       var key = 'expandedLayers.' + layerId;
