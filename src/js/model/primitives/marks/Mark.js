@@ -216,10 +216,11 @@ Mark.prototype.remove = function() {
       key;
   for (key in update) {
     var signalName = update[key].signal;
-    // Currently width and height are set on Groups to use the full width of the scene
-    // they use the same signal name
     if (signalName && signalName !== ns('vis_width') && signalName !== ns('vis_height')) {
-      sg.delete(signalName);
+      // get the namespace and do cleanup using that.
+      var signalsNamespace = signalName.match(/^(.*[_])/);
+      sg.deleteAll(signalsNamespace[0]);
+      break;
     }
   }
   model.removeListeners();
