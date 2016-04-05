@@ -4,6 +4,7 @@
 var Immutable = require('immutable');
 
 var actions = require('../constants/actions');
+var ns = require('../util/ns');
 var signalRef = require('../util/signal-reference');
 var immutableUtils = require('../util/immutable-utils');
 var get = immutableUtils.get;
@@ -135,10 +136,12 @@ function primitivesReducer(state, action) {
 
   if (action.type === actions.CREATE_SCENE) {
     // Set the scene, converting its width and height into their signal equivalents
-    return set(state, action.id, makeMark(assign(action, {
-      props: assign(action.props, {
-        width: {signal: 'vis_width'},
-        height: {signal: 'vis_height'}
+    // `assign()` is used to avoid mutating the action object, which may be utilized
+    // in other reducers as well.
+    return set(state, action.id, makeMark(assign({}, action, {
+      props: assign({}, action.props, {
+        width: {signal: ns('vis_width')},
+        height: {signal: ns('vis_height')}
       })
     })));
   }

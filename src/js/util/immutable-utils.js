@@ -16,6 +16,9 @@ function pathToArr(pathStr) {
 }
 
 function getIn(structure, pathStr) {
+  if (!structure) {
+    return;
+  }
   return structure.getIn(pathToArr(pathStr));
 }
 
@@ -24,6 +27,9 @@ function setIn(structure, pathStr, value) {
 }
 
 function get(structure, key) {
+  if (!structure) {
+    return;
+  }
   return structure.get(toStr(key));
 }
 

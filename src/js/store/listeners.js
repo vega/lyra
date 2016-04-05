@@ -26,6 +26,15 @@ var sg = require('../model/signals'),
     getIn = require('../util/immutable-utils').getIn,
     parseInProgress = require('../actions/vegaParse');
 
+function instantiatePrimitivesFromStore(store, model) {
+  var primitives = store.getState().get('primitives');
+  primitives.forEach(function(primitive, id) {
+    // if (!model.lookup(id)) {
+    //   model.mark(id, primitive.toJS());
+    // }
+  });
+}
+
 /**
  * Identify whether the redux model has changed in a way that invalidates the
  * rendered Vega view, and if so, kick off a destroy/recreate cycle to build
@@ -112,6 +121,9 @@ function createStoreListener(store, model) {
    * @returns {void}
    */
   return function syncStoreToVega() {
+    // First, ensure that all marks have been properly instantiated from the store
+    instantiatePrimitivesFromStore(store, model);
+
     var reparseNeeded = recreateVegaIfNecessary(store, model),
         state = store.getState(),
         reparseInProgress = getIn(state, 'vega.isParsing');

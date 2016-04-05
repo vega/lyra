@@ -1,10 +1,27 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
     ScaleList = require('./visualization/ScaleList'),
     LayerList = require('./visualization/LayerList'),
+    getIn = require('../util/immutable-utils').getIn,
+    get = require('../util/immutable-utils').get,
     model = require('../model');
 
+function mapStateToProps(state) {
+  var sceneId = getIn(state, 'scene.id'),
+      primitives = state.get('primitives'),
+      sceneProps = primitives && get(primitives, sceneId),
+      marks = sceneProps && sceneProps.marks;
+
+  return {
+    marks: marks || []
+  };
+}
+
 var VisualSidebar = React.createClass({
+  propTypes: {
+    marks: React.PropTypes.array
+  },
   getInitialState: function() {
     return {
       classes: 'col2'
@@ -21,7 +38,7 @@ var VisualSidebar = React.createClass({
           </h2>
         </header>
         <LayerList ref="layerList"
-          layers={model.Scene.marks} />
+          layers={this.props.marks} />
 
         <ScaleList ref="scaleList"
           scales={scales} />
@@ -30,4 +47,4 @@ var VisualSidebar = React.createClass({
   }
 });
 
-module.exports = VisualSidebar;
+module.exports = connect(mapStateToProps)(VisualSidebar);
