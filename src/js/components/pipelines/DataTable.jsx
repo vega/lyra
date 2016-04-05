@@ -49,7 +49,12 @@ var DataTable = React.createClass({
         schema = this.props.dataset.schema();
 
     this.hideFull(evt);
-    this.setState({fullField: schema[name]});
+    this.setState({
+      // fullField is used for rendering
+      fullField: schema[name],
+      // selectedField is used to pass data around while dragging
+      selectedField: schema[name]
+    });
     this._fullField.style('display', 'block')
       .style('top', target.offsetTop);
   },
@@ -96,7 +101,7 @@ var DataTable = React.createClass({
   handleDragEnd: function(evt) {
     var sel = sg.get(sg.SELECTED),
         cell = sg.get(sg.CELL),
-        fullField = this.state.fullField,
+        selectedField = this.state.selectedField,
         dropped = sel._id && cell._id,
         prim;
 
@@ -107,7 +112,7 @@ var DataTable = React.createClass({
         // vega-lite (see the rules index file) -- looks up what channel we're
         // on, finds a vega-lite property, puts that in the rules object,
         // calls vega lite compile, then iterates through each part of the rule.
-        prim.bind(cell.key, fullField._id);
+        prim.bindProp(cell.key, selectedField._id);
       }
     } catch (e) {
       console.warn('Unable to bind primitive');
@@ -175,7 +180,7 @@ var DataTable = React.createClass({
                     onMouseOver={this.showFullField}>{k}</td>
                   {values.map(function(v, i) {
                     return (
-                      <td key={v._id} className={i % 2 ? 'even' : 'odd'}
+                      <td key={k + i} className={i % 2 ? 'even' : 'odd'}
                         onMouseOver={this.showFullValue}>{v[k]}</td>
                     );
                   }, this)}

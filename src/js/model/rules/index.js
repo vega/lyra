@@ -10,7 +10,7 @@ var dl = require('datalib'),
 
 function rules(prototype) {
 
-  prototype.bind = function(property, id, manual) {
+  prototype.bindProp = function(property, id, manual) {
     var rule = this._rule,
         from = this._from && lookup(this._from),
         obj = lookup(id),
