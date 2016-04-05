@@ -180,7 +180,7 @@ var DataTable = React.createClass({
                     onMouseOver={this.showFullField}>{k}</td>
                   {values.map(function(v, i) {
                     return (
-                      <td key={v._id} className={i % 2 ? 'even' : 'odd'}
+                      <td key={k + i} className={i % 2 ? 'even' : 'odd'}
                         onMouseOver={this.showFullValue}>{v[k]}</td>
                     );
                   }, this)}
