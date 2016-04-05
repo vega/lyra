@@ -34,6 +34,9 @@ store.subscribe(throttle(model.update, 16));
 var createScene = require('./actions/createScene');
 store.dispatch(createScene());
 
+// Initialize components
+var ui = require('./components');
+
 // var p = model.pipeline('cars'),
 //     p2 = model.pipeline('jobs'),
 //     p3 = model.pipeline('gapminder');
@@ -43,11 +46,9 @@ store.dispatch(createScene());
 //   p2._source.init({url: '/data/jobs.json'}),
 //   p3._source.init({url: '/data/gapminder.json'})
 // ]).then(function() {
-  // Initialize components
-  var ui = require('./components');
   ui.forceUpdate(function() {
     // Parse the model to initialize and render the Vega view
-    store.dispatch(reparse(true));
+    // store.dispatch(reparse(true));
   });
 // });
 

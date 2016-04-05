@@ -30,7 +30,7 @@ function instantiatePrimitivesFromStore(store, model) {
   var primitives = store.getState().get('primitives');
   primitives.forEach(function(primitive, id) {
     // if (!model.lookup(id)) {
-    //   model.mark(id, primitive.toJS());
+      model.mark(id, primitive.toJS());
     // }
   });
 }
@@ -48,6 +48,17 @@ function recreateVegaIfNecessary(store, model) {
   var shouldReparse = getIn(store.getState(), 'vega.invalid');
 
   if (shouldReparse) {
+    console.log('reparse needed');
+    // First, ensure that all marks have been properly instantiated from the store
+    instantiatePrimitivesFromStore(store, model);
+
+    if (!model.Scene) {
+      // If the initial Scene is not ready after primitive instantiaton, then we
+      // do not yet have anything to render: exit out and wait for the next cycle,
+      // returning "true" to preempt further action
+      return true;
+    }
+
     if (model.view) {
       // Clear out the outdated vega spec: iterate through all registered
       // signal streams and remove their event listeners
@@ -121,8 +132,6 @@ function createStoreListener(store, model) {
    * @returns {void}
    */
   return function syncStoreToVega() {
-    // First, ensure that all marks have been properly instantiated from the store
-    instantiatePrimitivesFromStore(store, model);
 
     var reparseNeeded = recreateVegaIfNecessary(store, model),
         state = store.getState(),

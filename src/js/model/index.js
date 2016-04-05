@@ -31,36 +31,57 @@ Object.defineProperty(model, 'Scene', {
   enumerable: true,
   get: function() {
     var state = store.getState(),
-        sceneId = getIn(state, 'scene.id'),
-        primitives = state.get('primitives'),
-        Scene,
-        sceneInstance,
-        sceneProps;
+        sceneId = getIn(state, 'scene.id');
 
-    // No ID, so definitely no scene yet
-    if (typeof sceneId === 'undefined') {
-      return;
+    if (sceneId) {
+      return lookup(sceneId);
     }
-
-    // Check the primitive instance directory first
-    sceneInstance = lookup(sceneId)
-    if (sceneInstance) {
-      return sceneInstance;
-    }
-
-    // No instance was found! Do we have properties?
-    sceneProps = get(primitives, sceneId);
-    if (!sceneProps) {
-      return;
-    }
-
-    Scene = require('./primitives/marks/Scene');
-
-    // Instantiate & return
-    model.primitive(sceneId, new Scene(sceneProps.toJS()));
-    return lookup(sceneId);
   }
 });
+
+model.mark = function(id, props) {
+  // var existingMark = lookup(id);
+  // if (existingMark) {
+  //   // Mark exists; for now, do not re-create it
+  //   return existingMark;
+  // }
+
+  if (!props.type) {
+    console.warn('warning: no type!', props);
+    return model;
+  }
+
+  var Area = require('./primitives/marks/Area'),
+      Group = require('./primitives/marks/Group'),
+      Line = require('./primitives/marks/Line'),
+      Rect = require('./primitives/marks/Rect'),
+      Scene = require('./primitives/marks/Scene'),
+      Symbol = require('./primitives/marks/Symbol'),
+      Text = require('./primitives/marks/Text');
+
+  switch (props.type) {
+    case 'area':
+      return model.primitive(id, new Area(props));
+    case 'group':
+      return model.primitive(id, new Group(props));
+    case 'line':
+      return model.primitive(id, new Line(props));
+    case 'rect':
+      return model.primitive(id, new Rect(props));
+    case 'scene':
+      // If we have more than one of these something is wrong, but we need to
+      // account for it the same as any other mark so that we can recreate the
+      // entire primitives dictionary at will
+      return model.primitive(id, new Scene(props));
+    case 'symbol':
+      return model.primitive(id, new Symbol(props));
+    case 'text':
+      return model.primitive(id, new Text(props));
+    default:
+      console.warn('unrecognized type "' + type + '"');
+      return model;
+  }
+}
 
 /**
  * @description A setter for primitives based on IDs. To prevent memory leaks,
@@ -74,6 +95,7 @@ Object.defineProperty(model, 'Scene', {
  * @returns {Object} The Lyra model.
  */
 model.primitive = function(id, primitive) {
+  console.log('being invoked!', id, primitive.type);
   primitives[id] = primitive;
   return model;
 };
@@ -198,9 +220,7 @@ model.export = function(scene, clean) {
  * @returns {Object} A Vega specification.
  */
 model.manipulators = function() {
-  var Scene = model.Scene,
-      scene = Scene && Scene.manipulators() || {},
-      spec = model.export(scene, false),
+  var spec = model.export(model.Scene.manipulators(), false),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       predicates = spec.predicates || (spec.predicates = []),
@@ -247,6 +267,9 @@ model.manipulators = function() {
     ]
   });
 
+  console.log(spec.signals.map(function(signal) {
+    return signal.name
+  }));
   return spec;
 };
 

@@ -74,6 +74,7 @@ Group.defaultProperties = function(props) {
     marks: []
   }, props);
 };
+window.gdp = Group.defaultProperties;
 
 Group.prototype.export = function(resolve) {
   var self = this,
