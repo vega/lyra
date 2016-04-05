@@ -218,7 +218,7 @@ Mark.prototype.remove = function() {
     var signalName = update[key].signal;
     // Currently width and height are set on Groups to use the full width of the scene
     // they use the same signal name
-    if (signalName !== ns('vis_width') && signalName !== ns('vis_height')) {
+    if (signalName && signalName !== ns('vis_width') && signalName !== ns('vis_height')) {
       sg.delete(signalName);
     }
   }
