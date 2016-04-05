@@ -107,7 +107,7 @@ var DataTable = React.createClass({
         // vega-lite (see the rules index file) -- looks up what channel we're
         // on, finds a vega-lite property, puts that in the rules object,
         // calls vega lite compile, then iterates through each part of the rule.
-        prim.bind(cell.key, fullField._id);
+        prim.bindProp(cell.key, selectedField._id);
       }
     } catch (e) {
       console.warn('Unable to bind primitive');

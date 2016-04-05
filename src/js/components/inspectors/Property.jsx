@@ -11,7 +11,7 @@ var Property = React.createClass({
 
   unbind: function() {
     var props = this.props;
-    props.primitive.bind(props.name, undefined);
+    props.primitive.bindProp(props.name, undefined);
     props.reparse();
   },
 
