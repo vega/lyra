@@ -4,14 +4,16 @@ var React = require('react'),
     model = require('../model');
 
 var PipelineSidebar = React.createClass({
-  classNames: 'sidebar col5 push9 pipeline-grid-break dk-blue-bg',
+  propTypes: {
+    pipelines: React.PropTypes.array
+  },
   getInitialState: function() {
     return {
       selected: model.Scene._id,
       expandedLayers: {}
     };
   },
-
+  classNames: 'sidebar col5 push9 pipeline-grid-break dk-blue-bg',
   render: function() {
     var pipelines = model.pipeline();
     return (

@@ -68,7 +68,11 @@ var LayerList = connect(
           </ul>
           <h4 className="hed-tertiary">
             <span>Groups </span>
-            <i className="fa fa-plus" onClick={this.addAndSelectMark.bind(null, 'group')}></i>
+            <i className="fa fa-plus"
+              data-html={true}
+              data-tip="Add a new group to the scene <br> or create a subgroup."
+              data-place="right"
+              onClick={this.addAndSelectMark.bind(null, 'group')}></i>
           </h4>
           <ul>
           {this.props.layers.map(function(id) {
