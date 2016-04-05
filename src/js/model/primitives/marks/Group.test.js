@@ -216,7 +216,9 @@ describe('Group Mark', function() {
   });
 
   describe('remove child method', function() {
+
     beforeEach(function() {
+      group = new Group();
       subgroup = group.child('marks.group');
     });
 
@@ -248,8 +250,11 @@ describe('Group Mark', function() {
     });
 
   });
+
   describe('remove children method', function() {
+
     beforeEach(function() {
+      group = new Group();
       subgroup = group.child('marks.group');
       group.child('marks.group');
       group.child('marks.group');

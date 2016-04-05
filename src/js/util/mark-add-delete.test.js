@@ -18,7 +18,7 @@ describe('Mark Utilities', function() {
       expect(parent).to.equal(g);
     });
 
-    it('if current selection is not a group, return it\'s parent', function() {
+    it('if current selection is not a group, return its parent', function() {
       var parent = markUtils.getParent(true, mark._id);
       expect(parent).to.equal(g);
     });
@@ -50,7 +50,7 @@ describe('Mark Utilities', function() {
   });
 
   describe('deleteMark', function() {
-    it('deleting a mark removes it from it\'s parent', function() {
+    it('deleting a mark removes it from its parent', function() {
       markUtils.deleteMark(g._id);
       expect(model.Scene.marks.length).to.equal(0);
       expect(model.Scene.marks).to.not.contain(g._id);

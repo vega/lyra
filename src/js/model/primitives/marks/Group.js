@@ -180,15 +180,15 @@ Group.prototype.removeChild = function(child) {
 Group.prototype.removeChildren = function(type) {
   var types = this[type];
   if (type === 'marks') {
-    for (var i = 0; i < types.length; i++) {
-      var child = lookup(types[i]);
+    this.marks.forEach(function(childId) {
+      var child = lookup(childId);
       if (child.type === 'group') {
         for (var x = 0; x < child.marks.length; x++) {
           child.removeChild(child.marks[x]);
         }
       }
       child.remove();
-    }
+    });
     this.marks = [];
   }
   store.dispatch(vegaInvalidate(true));

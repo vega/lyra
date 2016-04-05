@@ -9,11 +9,15 @@ var Mark = require('./Mark'),
 describe('Mark', function() {
   var newMark;
   describe('remove method', function() {
+
     beforeEach(function() {
-      newMark = new Mark();
+      newMark = new Mark({
+        type: 'group'
+      });
       newMark.init();
     });
-    it('removes it\'s signals from the store', function() {
+
+    it.skip('removes its signals from the store', function() {
       // first check that that they exist
       var update = newMark.properties.update,
           signalName,
