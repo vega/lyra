@@ -8,6 +8,7 @@ var dl = require('datalib'),
     ns = require('../util/ns'),
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
+    get = require('../util/immutable-utils').get,
     getIn = require('../util/immutable-utils').getIn,
     CancellablePromise = require('../util/simple-cancellable-promise'),
     selectMark = require('../actions/selectMark'),
@@ -24,16 +25,42 @@ var pipelines = [],
     primitives = {},
     listeners = {};
 
-/**
- * Initializes the Lyra model with a new Scene primitive.
- * @returns {Object} The Lyra Model
- */
-model.init = function() {
-  var Scene = require('./primitives/marks/Scene');
-  model.Scene = new Scene().init();
-  store.dispatch(expandLayers([model.Scene._id]));
-  return this;
-};
+window.primitives = primitives;
+
+Object.defineProperty(model, 'Scene', {
+  enumerable: true,
+  get: function() {
+    var state = store.getState(),
+        sceneId = getIn(state, 'scene.id'),
+        primitives = state.get('primitives'),
+        Scene,
+        sceneInstance,
+        sceneProps;
+
+    // No ID, so definitely no scene yet
+    if (typeof sceneId === 'undefined') {
+      return;
+    }
+
+    // Check the primitive instance directory first
+    sceneInstance = lookup(sceneId)
+    if (sceneInstance) {
+      return sceneInstance;
+    }
+
+    // No instance was found! Do we have properties?
+    sceneProps = get(primitives, sceneId);
+    if (!sceneProps) {
+      return;
+    }
+
+    Scene = require('./primitives/marks/Scene');
+
+    // Instantiate & return
+    model.primitive(sceneId, new Scene(sceneProps.toJS()));
+    return lookup(sceneId);
+  }
+});
 
 /**
  * @description A setter for primitives based on IDs. To prevent memory leaks,
@@ -171,7 +198,9 @@ model.export = function(scene, clean) {
  * @returns {Object} A Vega specification.
  */
 model.manipulators = function() {
-  var spec = model.export(model.Scene.manipulators(), false),
+  var Scene = model.Scene,
+      scene = Scene && Scene.manipulators() || {},
+      spec = model.export(scene, false),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       predicates = spec.predicates || (spec.predicates = []),

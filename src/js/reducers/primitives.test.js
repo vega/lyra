@@ -157,7 +157,6 @@ describe('primitives reducer', function() {
 
     it('converts the scene height and width to signal references', function() {
       var result = primitivesReducer(initialState, createScene());
-      console.log(result.toJS());
       expect(result.get('1').get('height')).to.deep.equal({
         signal: 'vis_height'
       });

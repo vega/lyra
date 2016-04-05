@@ -4,6 +4,7 @@
 var Immutable = require('immutable');
 var assign = require('object-assign');
 
+var ns = require('../util/ns');
 var actions = require('../constants/actions');
 var signalRef = require('../util/signal-reference');
 
@@ -51,10 +52,10 @@ function signalsReducer(state, action) {
   if (action.type === actions.CREATE_SCENE) {
     // Initialize the visualization width & height from the scene
     return initSignal(initSignal(state, {
-      signal: 'vis_width',
+      signal: ns('vis_width'),
       value: action.props.width
     }), {
-      signal: 'vis_height',
+      signal: ns('vis_height'),
       value: action.props.height
     });
   }

@@ -16,7 +16,6 @@ var reparse = require('./actions/vegaInvalidate');
 
 // Initialize the Model.
 var model = require('./model');
-model.init();
 
 // Set up the listeners that connect the model to the store
 var listeners = require('./store/listeners');
@@ -31,11 +30,9 @@ store.subscribe(listeners.createStoreListener(store, model));
 // (16 is derived from 1000ms / 60fps)
 store.subscribe(throttle(model.update, 16));
 
-// Initialize components
-var ui = require('./components');
-
-// name model Scene
-model.Scene.name = 'Scene';
+// Initializes the Lyra model with a new Scene primitive.
+var createScene = require('./actions/createScene');
+store.dispatch(createScene());
 
 var p = model.pipeline('cars'),
     p2 = model.pipeline('jobs'),
@@ -46,6 +43,8 @@ Promise.all([
   p2._source.init({url: '/data/jobs.json'}),
   p3._source.init({url: '/data/gapminder.json'})
 ]).then(function() {
+  // Initialize components
+  var ui = require('./components');
   ui.forceUpdate(function() {
     // Parse the model to initialize and render the Vega view
     store.dispatch(reparse(true));

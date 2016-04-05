@@ -42,6 +42,11 @@ describe('immutable utilities', function() {
       expect(get(map, '1')).to.equal('string');
     });
 
+    it('returns undefined if called with no arguments', function() {
+      var result = get();
+      expect(result).to.be.undefined;
+    });
+
   });
 
   describe('set', function() {
@@ -78,6 +83,11 @@ describe('immutable utilities', function() {
     it('returns a nested value from an Immutable structure', function() {
       var result = getIn(map, 'some.deep.nested.structure');
       expect(result).to.equal('of some sort');
+    });
+
+    it('returns undefined if a non-existant path is supplied', function() {
+      var result = getIn(map, 'some.non.existant.path');
+      expect(result).to.be.undefined;
     });
 
   });
