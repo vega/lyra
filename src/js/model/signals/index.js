@@ -92,9 +92,13 @@ api.get = function(name) {
 api.set = function(name, val) {
   var model = require('../'),
       view = model.view;
+  // Always flow signals up to the store,
   if (!isDefault(name)) {
     store.dispatch(setSignal(name, val));
-  } else if (view && typeof view.signal === 'function') {
+  }
+
+  // and if we have a Vega view, flow signals down to Vega as well.
+  if (view && typeof view.signal === 'function') {
     // The default signals do not get saved in the store, but they need to be passed
     // through to vega in order for channels, etc to work. Check for view because
     // it may not have been initialized yet.

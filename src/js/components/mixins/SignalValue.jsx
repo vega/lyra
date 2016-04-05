@@ -1,6 +1,8 @@
 'use strict';
 var dl = require('datalib'),
     sg = require('../../model/signals'),
+    store = require('../../store'),
+    setSignal = require('../../actions/setSignal'),
     model = require('../../model');
 
 module.exports = {
@@ -49,6 +51,11 @@ module.exports = {
   },
 
   signal: function(_, value) {
+    // Flow changes from Vega back up to the store
+    var signal = this.props.signal;
+    if (signal) {
+      store.dispatch(setSignal(signal, value));
+    }
     this.setState({value: value});
   },
 

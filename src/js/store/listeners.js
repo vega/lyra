@@ -91,31 +91,6 @@ function updateSelectedMarkInVega(selectedMark, vegaView) {
 }
 
 /**
- * Setting the same value on a signal twice should have no effect, so  we
- * naively set all signals on each store update to ensure store and Vega
- * stay in sync. Altering this to be smarter is one area to investigate should
- * any performance issues crop up later on, but signal writes are pretty fast.
- *
- * @param {Object} state - An Immutable state object
- * @param {Object} vegaView - A vega view instance to update with the selected mark
- * @returns {void}
- */
-function updateAllSignals(state, vegaView) {
-  getIn(state, 'signals').forEach(function(value, name) {
-    // Skip any signal from the defaults
-    if (sg.isDefault(name)) {
-      return;
-    }
-
-    // Persist any signals from the store to the view: wrap this in a try/catch
-    // to handle situations where the update fires while we are registering
-    // signals for new marks before a reparse has actually injected those marks
-    // into the vega view itself.
-    vegaView.signal(name, value.init);
-  });
-}
-
-/**
  * Return a master syncStoreToVega method created using the granular update
  * methods and an injected model and store. `recreateVegaIfNecessary`,
  * `updateSelectedMarkInVega`, and `updateAllSignals` are all consumed by local
@@ -157,9 +132,6 @@ function createStoreListener(store, model) {
     if (storeSelectedId) {
       updateSelectedMarkInVega(model.lookup(storeSelectedId), model.view);
     }
-
-    // Synchronize the Vega view with the signals within redux
-    updateAllSignals(state, model.view);
   };
 }
 
@@ -171,6 +143,5 @@ module.exports = {
   // normally wouldn't expose or test "internal" implementation details like
   // this, but doing so can give us added peace of mind with important code.
   _recreateVegaIfNecessary: recreateVegaIfNecessary,
-  _updateSelectedMarkInVega: updateSelectedMarkInVega,
-  _updateAllSignals: updateAllSignals
+  _updateSelectedMarkInVega: updateSelectedMarkInVega
 };
