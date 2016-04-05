@@ -20,15 +20,18 @@ function vegaInvalidateReducer(state, action) {
     });
   }
 
-  // Any of these actions should invalidate the view
+  if (action.type === actions.VEGA_INVALIDATE) {
+    return state.set('invalid', action.value);
+  }
+
+  // All of these actions implicitly invalidate the view
   var invalidatingActions = [
-    actions.VEGA_INVALIDATE,
     actions.CREATE_SCENE,
+    actions.INIT_SIGNAL,
     actions.PRIMITIVE_ADD_MARK
   ];
-
   if (invalidatingActions.indexOf(action.type) >= 0) {
-    return state.set('invalid', action.value);
+    return state.set('invalid', true);
   }
 
   if (action.type === actions.VEGA_PARSE) {

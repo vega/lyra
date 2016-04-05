@@ -21,7 +21,7 @@ describe('Scene Mark', function() {
     it('returns the expected default properties object', function() {
       var result = Scene.defaultProperties();
       expect(result).to.deep.equal({
-        type: 'group',
+        type: 'scene',
         properties: {
           update: {}
         },

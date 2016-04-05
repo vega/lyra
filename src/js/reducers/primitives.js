@@ -135,7 +135,7 @@ function primitivesReducer(state, action) {
   }
 
   if (action.type === actions.CREATE_SCENE) {
-    // Set the scene, converting its width and height into their signal equivalents
+    // Set the scene, converting its width and height into their signal equivalents.
     // `assign()` is used to avoid mutating the action object, which may be utilized
     // in other reducers as well.
     return set(state, action.id, makeMark(assign({}, action, {

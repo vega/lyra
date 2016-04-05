@@ -46,7 +46,7 @@ Scene.defaultProperties = function(props) {
     axes: [],
     marks: [],
     // type will be removed later on, but is used to generate an appropriate name
-    type: 'group',
+    type: 'scene',
     // Scene has no Vega properties object, but we mock it for now to avoid
     // distrupting the export functionality
     properties: {

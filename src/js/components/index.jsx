@@ -12,3 +12,4 @@ module.exports = ReactDOM.render(
   </Provider>,
   d3.select('#sidebars').node()
 );
+window.ui = module.exports;
