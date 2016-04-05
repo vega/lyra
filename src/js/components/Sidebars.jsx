@@ -1,5 +1,6 @@
 'use strict';
 var React = require('react'),
+    ReactTooltip = require('react-tooltip'),
     InspectorSidebar = require('./InspectorSidebar'),
     VisualSidebar = require('./VisualSidebar'),
     PipelinesSidebar = require('./PipelinesSidebar'),
@@ -9,13 +10,13 @@ var React = require('react'),
 
 // Splitting each sidebar into its column
 var Sidebars = React.createClass({
-  classNames: 'row',
   getInitialState: function() {
     return {
       selected: model.Scene._id,
       expandedLayers: {}
     };
   },
+  classNames: 'row',
   render: function() {
     var pipelines = model.pipeline();
     return (
@@ -26,6 +27,7 @@ var Sidebars = React.createClass({
         <PipelinesSidebar />
         <Toolbar/>
         <Hints/>
+        <ReactTooltip effect="solid"/>
       </div>
     );
   }
