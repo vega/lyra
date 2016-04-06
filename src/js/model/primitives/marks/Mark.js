@@ -138,6 +138,23 @@ Mark.prototype.init = function() {
 };
 
 /**
+ * Overwrite the properties of a mark with values from a provided configuration
+ * object.
+ *
+ * @param {Object} newProps - An object of properties to assign to the mark
+ * @chainable
+ * @returns {void}
+ */
+Mark.prototype.update = function(newProps) {
+  // Copy properties off of provided configuration
+  for (var key in newProps) {
+    // Assignment is safe b/c this will primarily be used to set values derived
+    // from the store via .toJS, which does not generate consistent references
+    this[key] = newProps[key];
+  }
+};
+
+/**
  * Get/set a mark's backing dataset.
  * @todo  Rename to `from`? A mark can be backed by another mark when connected.
  * @param  {number} [id] - The ID of a Dataset or Pipeline Primitive. If

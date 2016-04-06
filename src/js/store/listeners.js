@@ -27,11 +27,8 @@ var sg = require('../model/signals'),
     parseInProgress = require('../actions/vegaParse');
 
 function instantiatePrimitivesFromStore(store, model) {
-  var primitives = store.getState().get('primitives');
-  primitives.forEach(function(primitive, id) {
-    // if (!model.lookup(id)) {
-      model.mark(id, primitive.toJS());
-    // }
+  store.getState().get('primitives').forEach(function(props, markId) {
+    model.createOrUpdateMark(markId, props.toJS());
   });
 }
 

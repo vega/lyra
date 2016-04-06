@@ -39,49 +39,26 @@ Object.defineProperty(model, 'Scene', {
   }
 });
 
-model.mark = function(id, props) {
-  // var existingMark = lookup(id);
-  // if (existingMark) {
-  //   // Mark exists; for now, do not re-create it
-  //   return existingMark;
-  // }
+/**
+ * From a mark ID and properties hash, either update an existing mark or
+ * instantiate a new mark with the provided state.
+ *
+ * @param {number} id - The unique ID of a mark
+ * @param {Object} props - A vanilla JS object of mark properties
+ * @return {void}
+ */
+model.createOrUpdateMark = function(id, props) {
+  var existingMark = lookup(id),
+      MarkCtor = require('./primitives/marks').getConstructor(props.type);
 
-  if (!props.type) {
-    console.warn('warning: no type!', props);
-    return model;
+  if (existingMark) {
+    console.log('ID #' + id + ': updating');
+    existingMark.update(props);
+  } else if (MarkCtor) {
+    console.log('ID #' + id + ': constructing');
+    model.primitive(id, new MarkCtor(props));
   }
-
-  var Area = require('./primitives/marks/Area'),
-      Group = require('./primitives/marks/Group'),
-      Line = require('./primitives/marks/Line'),
-      Rect = require('./primitives/marks/Rect'),
-      Scene = require('./primitives/marks/Scene'),
-      Symbol = require('./primitives/marks/Symbol'),
-      Text = require('./primitives/marks/Text');
-
-  switch (props.type) {
-    case 'area':
-      return model.primitive(id, new Area(props));
-    case 'group':
-      return model.primitive(id, new Group(props));
-    case 'line':
-      return model.primitive(id, new Line(props));
-    case 'rect':
-      return model.primitive(id, new Rect(props));
-    case 'scene':
-      // If we have more than one of these something is wrong, but we need to
-      // account for it the same as any other mark so that we can recreate the
-      // entire primitives dictionary at will
-      return model.primitive(id, new Scene(props));
-    case 'symbol':
-      return model.primitive(id, new Symbol(props));
-    case 'text':
-      return model.primitive(id, new Text(props));
-    default:
-      console.warn('unrecognized type "' + type + '"');
-      return model;
-  }
-}
+};
 
 /**
  * @description A setter for primitives based on IDs. To prevent memory leaks,
@@ -95,7 +72,7 @@ model.mark = function(id, props) {
  * @returns {Object} The Lyra model.
  */
 model.primitive = function(id, primitive) {
-  console.log('being invoked!', id, primitive.type);
+  console.log('model.primitive: registering', id, '(.type is ' + primitive.type + ')');
   primitives[id] = primitive;
   return model;
 };
