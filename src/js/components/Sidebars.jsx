@@ -10,12 +10,6 @@ var React = require('react'),
 
 // Splitting each sidebar into its column
 var Sidebars = React.createClass({
-  getInitialState: function() {
-    return {
-      selected: model.Scene._id,
-      expandedLayers: {}
-    };
-  },
   classNames: 'row',
   render: function() {
     var pipelines = model.pipeline();

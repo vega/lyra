@@ -7,8 +7,6 @@ var React = require('react'),
 var VisualSidebar = React.createClass({
   getInitialState: function() {
     return {
-      selected: model.Scene._id,
-      expandedLayers: {},
       classes: 'col2'
     };
   },
