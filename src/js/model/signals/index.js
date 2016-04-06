@@ -117,6 +117,20 @@ api.delete = function(name) {
 };
 
 /**
+ * Unset all primative's signals given it's namespace
+ * @param {string} namespace - usually looks like lyra_primative_#_
+ * @returns {void}
+ */
+api.deleteAll = function(namespace){
+  var allSignals = this.call();
+  for (var key in allSignals){
+    if (key.match(namespace)){
+      this.delete(key);
+    }
+  }
+}
+
+/**
  * Configure a property to update based on a stream.
  *
  * @param  {string} name - Name of a property to connect to a stream
