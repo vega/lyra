@@ -7,7 +7,7 @@ describe('counter utility', function() {
 
   beforeEach(function() {
     // Pull in a fresh module so that its internal counter caches are reset
-    delete require.cache[require.resolve('./counter')];
+    +delete require.cache[require.resolve('./counter')];
     counter = require('./counter');
   });
 
@@ -45,21 +45,10 @@ describe('counter utility', function() {
       expect(next).not.to.be.defined;
     });
 
-    it('starts groups at 0', function() {
-      var next = counter.type('group');
-      expect(next).to.equal(0);
-    });
-
-    it('counts up by 1 on each subsequent call for groups', function() {
-      var results = [], i;
-      for (i = 0; i < 10; i++) {
-        results.push(counter.type('group'));
-      }
-      expect(results).to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    });
-
-    it('starts other marks at 1', function() {
+    it('starts marks at 1', function() {
       var next = counter.type('rect');
+      expect(next).to.equal(1);
+      next = counter.type('group');
       expect(next).to.equal(1);
     });
 
@@ -85,40 +74,6 @@ describe('counter utility', function() {
 
       expect(scaleResults).to.deep.equal([1, 2, 3, 4, 5, 6, 7]);
       expect(counter.type('scale')).to.equal(8);
-    });
-
-  });
-
-  describe('reset() method', function() {
-
-    it('is a function', function() {
-      expect(counter).to.have.property('reset');
-      expect(counter.reset).to.be.a('function');
-    });
-
-    it('resets the global counter', function() {
-      expect(counter.global()).to.equal(1);
-      expect(counter.global()).to.equal(2);
-      counter.reset();
-      expect(counter.global()).to.equal(1);
-      expect(counter.global()).to.equal(2);
-      counter.reset();
-      expect(counter.global()).to.equal(1);
-    });
-
-    it('resets type counters', function() {
-      expect(counter.type('group')).to.equal(0);
-      expect(counter.type('group')).to.equal(1);
-      expect(counter.type('rect')).to.equal(1);
-      expect(counter.type('rect')).to.equal(2);
-      counter.reset();
-      expect(counter.type('group')).to.equal(0);
-      expect(counter.type('group')).to.equal(1);
-      expect(counter.type('rect')).to.equal(1);
-      expect(counter.type('rect')).to.equal(2);
-      counter.reset();
-      expect(counter.type('group')).to.equal(0);
-      expect(counter.type('rect')).to.equal(1);
     });
 
   });
