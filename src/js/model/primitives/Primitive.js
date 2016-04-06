@@ -20,6 +20,7 @@ var dl = require('datalib'),
  */
 function Primitive() {
   this._id = this._id || counter.global();
+  console.log('registering from Primitive constructor');
   model.primitive(this._id, this);
 }
 
