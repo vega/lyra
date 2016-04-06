@@ -46,7 +46,20 @@ function getTypeCounter(type) {
   return typeCounters[type]++;
 }
 
+/**
+ * Reset the counters to their initial values (useful for starting a test suite
+ * with a clean slate).
+ * @returns {void}
+ */
+function reset() {
+  globalCounter = 1;
+  Object.keys(typeCounters).forEach(function(key) {
+    typeCounters[key] = 1;
+  });
+}
+
 module.exports = {
   global: getGlobalCounter,
-  type: getTypeCounter
+  type: getTypeCounter,
+  reset: reset
 };
