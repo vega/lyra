@@ -4,7 +4,10 @@ var React = require('react'),
     lookup = require('../../model').lookup,
     hierarchy = require('../../util/hierarchy'),
     getIn = require('../../util/immutable-utils').getIn,
-    markUtil = require('../../util/mark-add-delete'),
+    get = require('../../util/immutable-utils').get,
+    getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
+    marks = require('../../model/primitives/marks'),
+    addMark = require('../../actions/primitiveActions').addMark,
     selectMark = require('../../actions/selectMark'),
     expandLayers = require('../../actions/expandLayers'),
     toggleLayers = require('../../actions/toggleLayers'),
@@ -12,9 +15,25 @@ var React = require('react'),
 
 function mapStateToProps(reduxState, ownProps) {
   var selectedMarkId = getIn(reduxState, 'inspector.selected'),
-      expandedLayers = getIn(reduxState, 'inspector.expandedLayers').toJS();
+      expandedLayers = getIn(reduxState, 'inspector.expandedLayers').toJS(),
+      // Get the list of selected marks so that this view will update when
+      // marks are added or removed
+      sceneId = getIn(reduxState, 'scene.id'),
+      primitives = reduxState.get('primitives'),
+      sceneProps = primitives && get(primitives, sceneId),
+      marks = sceneProps && sceneProps.toJS().marks,
+      closestContainerId;
+
+  // Closest container is determined by walking up from the selected mark,
+  // otherwise it defaults to the scene itself
+  closestContainerId = selectedMarkId ?
+    getClosestGroupId(reduxState, selectedMarkId) :
+    sceneId;
 
   return {
+    container: closestContainerId,
+    layers: marks || [],
+    sceneId: sceneId,
     selected: selectedMarkId,
     expanded: expandedLayers
   };
@@ -22,7 +41,13 @@ function mapStateToProps(reduxState, ownProps) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    select: function(id) {
+    addMark: function(type, parentId) {
+      var newMarkProps = marks.getDefaults(type, {
+        _parent: parentId
+      });
+      dispatch(addMark(newMarkProps));
+    },
+    selectMark: function(id) {
       // Walk up from the selected primitive to create an array of its parent groups' IDs
       var parentGroupIds = hierarchy.getParentGroupIds(lookup(id));
 
@@ -37,43 +62,37 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var LayerList = connect(
-  mapStateToProps,
-  mapDispatchToProps
-  )(React.createClass({
+var LayerList = React.createClass({
     propTypes: {
       layers: React.PropTypes.array,
-      select: React.PropTypes.func,
-    },
-    mixins: [markUtil],
-    addAndSelectMark: function(type) {
-      var newMark = this.addMark(type);
-      this.updateSidebar();
-      this.props.select(newMark._id);
+      selectMark: React.PropTypes.func,
     },
     render: function() {
       var props = this.props,
           selected = props.selected,
-          sceneId = this.getSceneId();
+          sceneId = props.sceneId,
+          parentId = props.container;
       return (
         <div id="layer-list" className="expandingMenu">
           <ul>
             <li>
               <div
                 className={'edit name' + (selected === sceneId ? ' selected' : '')}
-                onClick={this.selectScene.bind(null, '')}>
+                onClick={this.props.selectMark.bind(null, sceneId)}>
                 Edit Scene
               </div>
             </li>
           </ul>
+
           <h4 className="hed-tertiary">
             <span>Groups </span>
             <i className="fa fa-plus"
               data-html={true}
               data-tip="Add a new group to the scene <br> or create a subgroup."
               data-place="right"
-              onClick={this.addAndSelectMark.bind(null, 'group')}></i>
+              onClick={this.props.addMark.bind(null, 'group', parentId)}></i>
           </h4>
+
           <ul>
           {this.props.layers.map(function(id) {
             return (
@@ -87,7 +106,6 @@ var LayerList = connect(
         </div>
       );
     }
-  }
-));
+});
 
-module.exports = LayerList;
+module.exports = connect(mapStateToProps, mapDispatchToProps)(LayerList);

@@ -52,10 +52,10 @@ model.createOrUpdateMark = function(id, props) {
       MarkCtor = require('./primitives/marks').getConstructor(props.type);
 
   if (existingMark) {
-    console.log('ID #' + id + ': updating');
+    // console.log('ID #' + id + ': updating');
     existingMark.update(props);
   } else if (MarkCtor) {
-    console.log('ID #' + id + ': constructing');
+    // console.log('ID #' + id + ': constructing');
     model.primitive(id, new MarkCtor(props));
   }
 };
@@ -72,7 +72,7 @@ model.createOrUpdateMark = function(id, props) {
  * @returns {Object} The Lyra model.
  */
 model.primitive = function(id, primitive) {
-  console.log('model.primitive: registering', id, '(.type is ' + primitive.type + ')');
+  // console.log('model.primitive: registering', id, '(.type is ' + primitive.type + ')');
   primitives[id] = primitive;
   return model;
 };
@@ -244,9 +244,6 @@ model.manipulators = function() {
     ]
   });
 
-  console.log(spec.signals.map(function(signal) {
-    return signal.name
-  }));
   return spec;
 };
 

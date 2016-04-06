@@ -50,7 +50,7 @@ function Mark(props) {
 
   this._rule = new rules.VLSingle(type);
 
-  return Primitive.call(this);
+  // return Primitive.call(this);
 }
 
 inherits(Mark, Primitive);
