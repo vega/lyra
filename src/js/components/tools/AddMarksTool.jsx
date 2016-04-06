@@ -2,18 +2,37 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     getIn = require('../../util/immutable-utils').getIn,
+    getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
+    marks = require('../../model/primitives/marks'),
     selectMark = require('../../actions/selectMark'),
+    addMark = require('../../actions/primitiveActions').addMark,
     markUtil = require('../../util/mark-add-delete');
 
 function mapStateToProps(reduxState, ownProps) {
-  var selectedMarkId = getIn(reduxState, 'inspector.selected');
+  var selectedMarkId = getIn(reduxState, 'inspector.selected'),
+      sceneId = getIn(reduxState, 'scene.id'),
+      closestContainerId;
+
+  // Closest container is determined by walking up from the selected mark,
+  // otherwise it defaults to the scene itself
+  closestContainerId = selectedMarkId ?
+    getClosestGroupId(reduxState, selectedMarkId) :
+    sceneId;
+
   return {
-    selected: selectedMarkId
+    selected: selectedMarkId,
+    container: closestContainerId
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
+    addMark: function(type, parentId) {
+      var newMarkProps = marks.getDefaults(type, {
+        _parent: parentId
+      });
+      dispatch(addMark(newMarkProps));
+    },
     selectMark: function(id) {
       dispatch(selectMark(id));
     }
@@ -23,33 +42,26 @@ function mapDispatchToProps(dispatch) {
 // Currently supported mark types
 var marksArray = ['rect', 'symbol', 'area', 'text', 'line'];
 
-var AddMarksTool = connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(React.createClass({
+var AddMarksTool = React.createClass({
     propTypes: {
       selectMark: React.PropTypes.func,
       selected: React.PropTypes.number
     },
-    mixins: [markUtil],
     classNames: 'new-marks',
-    addAndSelectMark: function(type) {
-      var newMark = this.addMark(type, this.props.selected);
-      // force update the sidebar
-      this.updateSidebar();
-      // set new mark as selected
-      this.props.selectMark(newMark._id);
-    },
     render: function() {
+      var parentId = this.props.container;
       return (
         <ul className={this.classNames}>
-          {marksArray.map(function(mark, i) {
-            return (<li key={mark} onClick={this.addAndSelectMark.bind(null, mark)}>{mark}</li>);
+          {marksArray.map(function(markType, i) {
+            return (
+              <li key={markType} onClick={this.props.addMark.bind(null, markType, parentId)}>
+                {markType}
+              </li>
+            );
           }, this)}
         </ul>
       );
     }
-  }
-  ));
+  });
 
-module.exports = AddMarksTool;
+module.exports = connect(mapStateToProps, mapDispatchToProps)(AddMarksTool);

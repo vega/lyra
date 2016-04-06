@@ -30,6 +30,11 @@ function inspectorReducer(state, action) {
     });
   }
 
+  // Auto-select new marks
+  if (action.type === actions.PRIMITIVE_ADD_MARK) {
+    return state.set('selected', action.id);
+  }
+
   if (action.type === actions.SELECT_MARK) {
     return state.set('selected', action.markId);
   }

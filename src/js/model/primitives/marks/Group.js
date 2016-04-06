@@ -127,7 +127,7 @@ Group.prototype.child = function(type, child) {
     store.dispatch(primitiveActions.addMark(PrimitiveCtor.defaultProperties({
       _parent: this._id
     })));
-    // return;
+    return;
   }
 
   if (lookupChild) {
