@@ -3,6 +3,7 @@
 var expect = require('chai').expect;
 var Immutable = require('immutable');
 
+var actions = require('../constants/actions');
 var signalsReducer = require('./signals');
 var primitiveActions = require('../actions/primitiveActions');
 var createScene = require('../actions/createScene');
@@ -153,6 +154,76 @@ describe('signals reducer', function() {
         'lyra_rect_1_fillOpacity',
         'lyra_rect_1_x',
         'lyra_rect_1_y'
+      ]);
+    });
+
+  });
+
+  describe('delete primitive action', function() {
+
+    beforeEach(function() {
+      // Reset counters module so that we can have predictable IDs for our marks
+      counter.reset();
+      initialState = signalsReducer(signalsReducer(initialState, primitiveActions.addMark({
+        type: 'symbol',
+        properties: {
+          update: {
+            size: {value: 100},
+            x: {value: 25},
+            y: {value: 30}
+          }
+        }
+      })), primitiveActions.addMark({
+        type: 'rect',
+        properties: {
+          update: {
+            x: {value: 25},
+            y: {value: 250},
+            fill: {value: '#4682b4'},
+            fillOpacity: {value: 1}
+          }
+        }
+      }));
+      // Assert that the state is set up correctly
+      expect(Object.keys(initialState.toJS()).sort()).to.deep.equal([
+        'lyra_rect_2_fill',
+        'lyra_rect_2_fillOpacity',
+        'lyra_rect_2_x',
+        'lyra_rect_2_y',
+        'lyra_symbol_1_size',
+        'lyra_symbol_1_x',
+        'lyra_symbol_1_y'
+      ]);
+    });
+
+    it('removes all signals matching the provided mark type and ID', function() {
+      var result = signalsReducer(initialState, {
+        type: actions.PRIMITIVE_DELETE_MARK,
+        markId: 1,
+        markType: 'symbol'
+      });
+      expect(Object.keys(result.toJS()).sort()).to.deep.equal([
+        'lyra_rect_2_fill',
+        'lyra_rect_2_fillOpacity',
+        'lyra_rect_2_x',
+        'lyra_rect_2_y'
+      ]);
+    });
+
+    it('does not remove any signals if no matching signal names are found', function() {
+      var result = signalsReducer(initialState, {
+        type: actions.PRIMITIVE_DELETE_MARK,
+        markId: 1000,
+        markType: 'snake'
+      });
+      expect(Object.keys(result.toJS()).sort()).to.deep.equal([
+        'lyra_rect_2_fill',
+        'lyra_rect_2_fillOpacity',
+        'lyra_rect_2_x',
+        'lyra_rect_2_y',
+        'lyra_symbol_1_size',
+        'lyra_symbol_1_x',
+        'lyra_symbol_1_y'
       ]);
     });
 
