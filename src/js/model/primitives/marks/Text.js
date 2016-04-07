@@ -63,26 +63,39 @@ Text.defaultProperties = function(props) {
   }, props);
 };
 
-Text.prototype.initHandles = function() {
-  var at = anchorTarget.bind(null, this, 'handles'),
-      x = propSg(this, 'x'),
-      y = propSg(this, 'y'),
-      fontSize = propSg(this, 'fontSize');
+/**
+ * Return an array of handle signal stream definitions to be instantiated.
+ *
+ * The returned object is used to initialize the interaction logic for the mark's
+ * handle manipulators. This involves setting the mark's property signals
+ * {@link https://github.com/vega/vega/wiki/Signals|streams}.
+ *
+ * @param {Object} text - A text properties object or instantiated text mark
+ * @param {number} text._id - A numeric mark ID
+ * @param {string} text.type - A mark type, presumably "text"
+ * @returns {Object} A dictionary of stream definitions keyed by signal name
+ */
+Text.getHandleStreams = function(text) {
+  var at = anchorTarget.bind(null, text, 'handles'),
+      x = propSg(text, 'x'),
+      y = propSg(text, 'y'),
+      fontSize = propSg(text, 'fontSize'),
+      streamSignals = {};
 
-  sg.streams(x, [{
+  streamSignals[x] = [{
     type: DELTA, expr: test(at(), x + '+' + DX, x)
-  }]);
-  sg.streams(y, [{
+  }];
+  streamSignals[y] = [{
     type: DELTA, expr: test(at(), y + '+' + DY, y)
-  }]);
-
+  }];
   // Allow upper-left and lower-right handles to control font size
-  sg.streams(fontSize, [
+  streamSignals[fontSize] = [
     {type: DELTA, expr: test(at('left') + '&&' + at('top'), fontSize + '-' + DX, fontSize)},
     {type: DELTA, expr: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DX, fontSize)},
     {type: DELTA, expr: test(at('left') + '&&' + at('top'), fontSize + '-' + DY, fontSize)},
     {type: DELTA, expr: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DY, fontSize)}
-  ]);
+  ];
+  return streamSignals;
 };
 
 /**

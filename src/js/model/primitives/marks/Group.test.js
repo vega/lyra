@@ -124,9 +124,8 @@ describe('Group Mark', function() {
       expect(group.name.startsWith('group_')).to.be.true;
     });
 
-    it('initializes instance with a numeric _id', function() {
-      expect(group).to.have.property('_id');
-      expect(group._id).to.be.a('number');
+    it('does not initialize instance with a numeric _id by default', function() {
+      expect(group).not.to.have.property('_id');
     });
 
     it('does not initialize instance with a .from property', function() {
@@ -266,7 +265,6 @@ describe('Group Mark', function() {
       var subgroupId = subgroup._id;
       group.removeChild(subgroupId);
 
-      var groupMarks = group.marks;
       expect(group.marks.length).to.equal(0);
     });
 

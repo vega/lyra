@@ -7,7 +7,6 @@ var dl = require('datalib'),
     Mark = require('./Mark'),
     store = require('../../../store'),
     vegaInvalidate = require('../../../actions/vegaInvalidate'),
-    primitiveActions = require('../../../actions/primitiveActions'),
     ns = require('../../../util/ns');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];
@@ -109,6 +108,9 @@ Group.prototype.manipulators = function() {
 
 /**
  * Insert or create a child Primitive.
+ *
+ * @deprecated Use actions like PRIMITIVE_ADD_MARK or PRIMITIVE_SET_PARENT instead
+ *
  * @param  {string} type - The type of the child (`scales`, `axes`, `legends`).
  * For marks, this should also include the mark type (e.g., `marks.rect`).
  * @param  {number|Object} [child] - The ID or Primitive corresponding to the
@@ -183,7 +185,6 @@ Group.prototype.removeChild = function(child) {
  * @returns {void}
  */
 Group.prototype.removeChildren = function(type) {
-  var types = this[type];
   if (type === 'marks') {
     this.marks.forEach(function(childId) {
       var child = lookup(childId);

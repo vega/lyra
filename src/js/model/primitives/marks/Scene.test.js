@@ -118,12 +118,11 @@ describe('Scene Mark', function() {
     it('initializes instance with an appropriate .name property', function() {
       expect(scene).to.have.property('name');
       expect(scene.name).to.be.a('string');
-      expect(scene.name.startsWith('group_')).to.be.true;
+      expect(scene.name.startsWith('scene_')).to.be.true;
     });
 
-    it('initializes instance with a numeric _id', function() {
-      expect(scene).to.have.property('_id');
-      expect(scene._id).to.be.a('number');
+    it('does not initialize instance with a numeric _id by default', function() {
+      expect(scene).not.to.have.property('_id');
     });
 
     it('does not initialize instance with a .from property', function() {

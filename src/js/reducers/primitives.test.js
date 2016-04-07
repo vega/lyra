@@ -152,16 +152,16 @@ describe('primitives reducer', function() {
       expect(result._id).to.equal(1);
       expect(result).to.have.property('name');
       expect(result.name).to.equal('Scene');
-      expect(result.type).to.equal('group');
+      expect(result.type).to.equal('scene');
     });
 
     it('converts the scene height and width to signal references', function() {
       var result = primitivesReducer(initialState, createScene());
       expect(result.get('1').get('height')).to.deep.equal({
-        signal: 'vis_height'
+        signal: 'lyra_vis_height'
       });
       expect(result.get('1').get('width')).to.deep.equal({
-        signal: 'vis_width'
+        signal: 'lyra_vis_width'
       });
     });
 

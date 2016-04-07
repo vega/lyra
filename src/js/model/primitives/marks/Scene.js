@@ -62,15 +62,6 @@ Scene.defaultProperties = function(props) {
   }, props);
 };
 
-Scene.prototype.init = function() {
-  sg.init(SG_WIDTH, this.width);
-  sg.init(SG_HEIGHT, this.height);
-  // Update internal properties to point at signal values
-  this.width = sg.reference(SG_WIDTH);
-  this.height = sg.reference(SG_HEIGHT);
-  return Group.prototype.init.call(this);
-};
-
 Scene.prototype.export = function(resolve) {
   var spec = Group.prototype.export.call(this, resolve);
 

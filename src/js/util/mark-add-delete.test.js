@@ -4,23 +4,23 @@ var expect = require('chai').expect;
 var model = require('../model'),
     markUtils = require('./mark-add-delete');
 
-describe('Mark Utilities', function() {
-  var g, mark;
+describe.skip('Mark Utilities', function() {
+  var group, mark;
   beforeEach(function(){
-    model.init();
-    g = model.Scene.child('marks.group');
-    mark = g.child('marks.text');
+    // model.init();
+    group = model.Scene.child('marks.group');
+    mark = group.child('marks.text');
   });
   describe('getParent', function() {
 
     it('if current selection is a group and you are adding to it, return selected', function() {
-      var parent = markUtils.getParent(true, g._id);
-      expect(parent).to.equal(g);
+      var parent = markUtils.getParent(true, group._id);
+      expect(parent).to.equal(group);
     });
 
     it('if current selection is not a group, return its parent', function() {
       var parent = markUtils.getParent(true, mark._id);
-      expect(parent).to.equal(g);
+      expect(parent).to.equal(group);
     });
 
     it('if selected id does not exist, default to model.Scene', function() {
@@ -31,15 +31,15 @@ describe('Mark Utilities', function() {
 
   describe('addMark', function() {
     it('adding a mark to a selected group adds it to the group', function() {
-      var newMark = markUtils.addMark('text', g._id);
-      expect(g.marks).to.contain(newMark._id);
+      var newMark = markUtils.addMark('text', group._id);
+      expect(group.marks).to.contain(newMark._id);
     });
 
     it('adding a mark to a selected mark adds it to the mark\'s parent', function() {
-      var testMark = g.child('marks.text');
+      var testMark = group.child('marks.text');
       var newMark = markUtils.addMark('text', testMark._id);
-      expect(g.marks.length).to.equal(3);
-      expect(g.marks).to.contain(newMark._id);
+      expect(group.marks.length).to.equal(3);
+      expect(group.marks).to.contain(newMark._id);
     });
 
     it('adding a mark when nothing is selected adds it to the model.scene by default', function() {
@@ -51,9 +51,9 @@ describe('Mark Utilities', function() {
 
   describe('deleteMark', function() {
     it('deleting a mark removes it from its parent', function() {
-      markUtils.deleteMark(g._id);
+      markUtils.deleteMark(group._id);
       expect(model.Scene.marks.length).to.equal(0);
-      expect(model.Scene.marks).to.not.contain(g._id);
+      expect(model.Scene.marks).to.not.contain(group._id);
     });
   });
 
