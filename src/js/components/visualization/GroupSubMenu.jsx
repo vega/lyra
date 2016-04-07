@@ -8,6 +8,7 @@ var React = require('react'),
     getIn = require('../../util/immutable-utils').getIn,
     markUtil = require('../../util/mark-add-delete'),
     selectMark = require('../../actions/selectMark'),
+    markDelete = require('../../actions/markDelete'),
     expandLayers = require('../../actions/expandLayers'),
     toggleLayers = require('../../actions/toggleLayers');
 
@@ -41,6 +42,9 @@ function mapDispatchToProps(dispatch, ownProps) {
       // And expand the hierarchy so that it is visible
       dispatch(expandLayers(parentGroupIds));
     },
+    deleteMark: function(id) {
+      dispatch(markDelete(id));
+    },
     toggle: function(layerId) {
       dispatch(toggleLayers([layerId]));
     }
@@ -59,7 +63,7 @@ var Group = connect(
     selected: React.PropTypes.number,
     toggle: React.PropTypes.func
   },
-  mixins: [markUtil],
+  // mixins: [markUtil],
   toggleFolder: function(id) {
     this.props.select(id);
     this.props.toggle(id);
@@ -100,6 +104,8 @@ var Group = connect(
             var mark = lookup(id),
                 type = mark.type,
                 spinner = this.iconMenuRow(type, expanded);
+
+            // onClick={this.deleteUpdate.bind(null, id)}
             return type === 'group' ? (
               <Group key={id}
                 {...props}
@@ -116,7 +122,7 @@ var Group = connect(
                       onClick={props.select.bind(null, id)} />
                     </div>
                   <i className="delete-sidebar fa fa-trash"
-                    onClick={this.deleteUpdate.bind(null, id)}
+                    onClick={this.props.deleteMark.bind(null, id)}
                     data-tip="Delete this"
                     data-place="right"></i>
                 </div>
@@ -127,6 +133,7 @@ var Group = connect(
       ) : null;
 
     var spinner = this.iconMenuRow(groupType, expanded);
+    // onClick={this.deleteUpdate.bind(null, groupId)}
     return (
       <li className={expanded ? 'expanded' : 'contracted'}>
         <div
@@ -138,7 +145,7 @@ var Group = connect(
               onClick={this.toggleFolder.bind(null, groupId)} />
           </div>
           <i className="delete-sidebar fa fa-trash"
-            onClick={this.deleteUpdate.bind(null, groupId)}
+            onClick={this.props.deleteMark.bind(null, groupId)}
             data-html={true}
             data-tip="Delete this group <br> and everything inside it."
             data-place="right"></i>

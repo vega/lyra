@@ -52,6 +52,17 @@ function initSignalsForMark(state, action) {
   }, state);
 }
 
+// Action has two non-type properties, markId and markType
+function deleteSignalsForMark(state, action) {
+  // Create a regular expression which will match any signal that was created
+  // for this mark (this works because signal names take a predictable form,
+  // using the prop-signal module)
+  var markSignalRegex = new RegExp('^' + ns(action.markType + '_' + action.markId));
+  return state.filter(function(value, key) {
+    return !markSignalRegex.test(key);
+  });
+}
+
 // @TODO: members of the state.signals map are not actually immutable
 function signalsReducer(state, action) {
   if (typeof state === 'undefined') {
@@ -87,6 +98,10 @@ function signalsReducer(state, action) {
 
   if (action.type === actions.SIGNAL_UNSET) {
     return state.delete(action.signal);
+  }
+
+  if (action.type === actions.PRIMITIVE_DELETE_MARK) {
+    return deleteSignalsForMark(state, action);
   }
 
   return state;
