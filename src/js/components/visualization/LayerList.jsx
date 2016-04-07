@@ -10,10 +10,9 @@ var React = require('react'),
     addMark = require('../../actions/primitiveActions').addMark,
     selectMark = require('../../actions/selectMark'),
     expandLayers = require('../../actions/expandLayers'),
-    toggleLayers = require('../../actions/toggleLayers'),
     Group = require('./GroupSubMenu');
 
-function mapStateToProps(reduxState, ownProps) {
+function mapStateToProps(reduxState) {
   var selectedMarkId = getIn(reduxState, 'inspector.selected'),
       expandedLayers = getIn(reduxState, 'inspector.expandedLayers').toJS(),
       // Get the list of selected marks so that this view will update when
@@ -21,7 +20,7 @@ function mapStateToProps(reduxState, ownProps) {
       sceneId = getIn(reduxState, 'scene.id'),
       primitives = reduxState.get('primitives'),
       sceneProps = primitives && get(primitives, sceneId),
-      marks = sceneProps && sceneProps.toJS().marks,
+      sceneMarks = sceneProps && sceneProps.toJS().marks,
       closestContainerId;
 
   // Closest container is determined by walking up from the selected mark,
@@ -32,14 +31,14 @@ function mapStateToProps(reduxState, ownProps) {
 
   return {
     container: closestContainerId,
-    layers: marks || [],
+    layers: sceneMarks || [],
     sceneId: sceneId,
     selected: selectedMarkId,
     expanded: expandedLayers
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
+function mapDispatchToProps(dispatch) {
   return {
     addMark: function(type, parentId) {
       var newMarkProps = marks.getDefaults(type, {
@@ -55,57 +54,55 @@ function mapDispatchToProps(dispatch, ownProps) {
       dispatch(selectMark(id));
       // And expand the hierarchy so that it is visible
       dispatch(expandLayers(parentGroupIds));
-    },
-    toggle: function(layerId) {
-      dispatch(toggleLayers([layerId]));
     }
   };
 }
 
 var LayerList = React.createClass({
-    propTypes: {
-      layers: React.PropTypes.array,
-      selectMark: React.PropTypes.func,
-    },
-    render: function() {
-      var props = this.props,
-          selected = props.selected,
-          sceneId = props.sceneId,
-          parentId = props.container;
-      return (
-        <div id="layer-list" className="expandingMenu">
-          <ul>
-            <li>
-              <div
-                className={'edit name' + (selected === sceneId ? ' selected' : '')}
-                onClick={this.props.selectMark.bind(null, sceneId)}>
-                Edit Scene
-              </div>
-            </li>
-          </ul>
+  propTypes: {
+    addMark: React.PropTypes.func,
+    layers: React.PropTypes.array,
+    selectMark: React.PropTypes.func,
+  },
+  render: function() {
+    var props = this.props,
+        selected = props.selected,
+        sceneId = props.sceneId,
+        parentId = props.container;
+    return (
+      <div id="layer-list" className="expandingMenu">
+        <ul>
+          <li>
+            <div
+              className={'edit name' + (selected === sceneId ? ' selected' : '')}
+              onClick={this.props.selectMark.bind(null, sceneId)}>
+              Edit Scene
+            </div>
+          </li>
+        </ul>
 
-          <h4 className="hed-tertiary">
-            <span>Groups </span>
-            <i className="fa fa-plus"
-              data-html={true}
-              data-tip="Add a new group to the scene <br> or create a subgroup."
-              data-place="right"
-              onClick={this.props.addMark.bind(null, 'group', parentId)}></i>
-          </h4>
+        <h4 className="hed-tertiary">
+          <span>Groups </span>
+          <i className="fa fa-plus"
+            data-html={true}
+            data-tip="Add a new group to the scene <br> or create a subgroup."
+            data-place="right"
+            onClick={this.props.addMark.bind(null, 'group', parentId)}></i>
+        </h4>
 
-          <ul>
-          {this.props.layers.map(function(id) {
-            return (
-              <Group key={id}
-                {...props}
-                id={id}
-                level={0} />
-            );
-          }, this)}
-          </ul>
-        </div>
-      );
-    }
+        <ul>
+        {this.props.layers.map(function(id) {
+          return (
+            <Group key={id}
+              {...props}
+              id={id}
+              level={0} />
+          );
+        }, this)}
+        </ul>
+      </div>
+    );
+  }
 });
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(LayerList);

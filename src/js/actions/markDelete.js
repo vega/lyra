@@ -29,6 +29,6 @@ function deleteMark(id) {
       markType: mark.type
     });
   };
-};
+}
 
 module.exports = deleteMark;

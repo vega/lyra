@@ -16,6 +16,9 @@ function mapDispatchToProps(dispatch) {
 
 // Split out into each section
 var UndoRedoClear = React.createClass({
+  propTypes: {
+    clearScene: React.PropTypes.func
+  },
   classNames: 'undo-redo-clear',
   render: function() {
     return (

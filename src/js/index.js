@@ -12,7 +12,6 @@ require('./transforms');
 
 // Initialize the Redux store
 var store = require('./store');
-var reparse = require('./actions/vegaInvalidate');
 
 // Initialize the Model.
 var model = require('./model');
@@ -43,10 +42,7 @@ Promise.all([
   p2._source.init({url: '/data/jobs.json'}),
   p3._source.init({url: '/data/gapminder.json'})
 ]).then(function() {
-  ui.forceUpdate(function() {
-    // Parse the model to initialize and render the Vega view
-    // store.dispatch(reparse(true));
-  });
+  ui.forceUpdate();
 });
 
 // Expose model, store and Sidebars globally (via `window`) for debugging

@@ -57,6 +57,7 @@ var Group = connect(
   mapDispatchToProps
 )(React.createClass({
   propTypes: {
+    deleteMark: React.PropTypes.func,
     expanded: React.PropTypes.object,
     id: React.PropTypes.number,
     level: React.PropTypes.number,

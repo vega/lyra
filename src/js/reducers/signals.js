@@ -2,7 +2,6 @@
 'use strict';
 
 var Immutable = require('immutable');
-var assign = require('object-assign');
 
 var ns = require('../util/ns');
 var actions = require('../constants/actions');
