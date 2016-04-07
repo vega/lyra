@@ -74,7 +74,6 @@ Group.defaultProperties = function(props) {
     marks: []
   }, props);
 };
-window.gdp = Group.defaultProperties;
 
 Group.prototype.export = function(resolve) {
   var self = this,
@@ -123,17 +122,10 @@ Group.prototype.child = function(type, child) {
   var PrimitiveCtor = CHILDREN[type[1] || primitiveType];
   var lookupChild = dl.isNumber(child) ? lookup(child) : child;
 
-  if (!lookupChild && primitiveType === 'marks') {
-    store.dispatch(primitiveActions.addMark(PrimitiveCtor.defaultProperties({
-      _parent: this._id
-    })));
-    return;
-  }
-
   if (lookupChild) {
     child = lookupChild;
   } else {
-    child = new CHILDREN[type[1] || primitiveType]();
+    child = new PrimitiveCtor();
     // We've added a primitive, so re-parse the model to add it to vega
     // This is sort of objectionable: We need to tell vega that we're about to
     // need to re-parse, in order to suppress any attempts to write the about-
@@ -179,6 +171,7 @@ Group.prototype.removeChild = function(child) {
         child.removeChild(child.marks[x]);
       }
     }
+    console.log(childIndex, child, child.remove);
     child.remove();
     types.splice(childIndex, 1);
   }
