@@ -23,7 +23,8 @@ function rules(prototype) {
     }
 
     if (obj instanceof Scale) {
-      return (update[property].scale = id, this);
+      update[property].scale = id;
+      return this;
     }
 
     // obj instanceof Field
@@ -32,13 +33,17 @@ function rules(prototype) {
     }
 
     if (manual) {
-      return (update[property].field = id, this);
+      update[property].field = id;
+      return this;
     }
 
     rule.encoding[c = channel(property)] = fieldRef(obj);
     from = from || obj.parent();
 
+    // Hand off to VL to compile
     var parsed = compile.call(this, rule, property, from);
+    // Each of constituent properties under rules parses that vega spec and merges
+    // it into the current lyra model
     rules.data.call(this, parsed, from);
     rules.scales.call(this, parsed);
     rules.marks.call(this, parsed, property, c);
@@ -48,6 +53,12 @@ function rules(prototype) {
 
 }
 
+/**
+ * This is to figure out -- we've dropped data over some particular Lyra channel,
+ * what does that map to in Vega Lite? Lyra's Fill is VL's Color, e.g.
+ * @param  {[type]} name [description]
+ * @return {[type]}      [description]
+ */
 function channel(name) {
   if (vl.channel.CHANNELS.indexOf(name) >= 0) {
     return name;

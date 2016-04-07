@@ -11,6 +11,13 @@ var REF_CELLW = {data: 'layout', field: 'cellWidth'},
 
 // Parse a Vega scale definition (produced by Vega-Lite)
 // and produce a Lyra-compatible Scale object.
+//
+// This works around VL idiosyncracies: domain or range may be hard-coded, use
+// lyra primitive IDs instead e.g., in the vega output VL produces, you have
+// scales, each scale has an object, that object has a name, type, and domain,
+// with a range; we want to parse the domain to correspond to our lyra primitives.
+//
+// Map from VL -> Vega -> Lyra
 function parse(def) {
   if (!def) {
     return null;
@@ -79,8 +86,12 @@ function scale(def) {
   return this.parent().child('scales', s);
 }
 
+/**
+ * Find or produce a lyra scale object for the channel that we just dropped
+ */
 module.exports = function(parsed) {
   var map = this._rule._map.scales,
+      // Figure out defined channels
       channels = dl.keys(parsed.rule.encoding),
       scales = parsed.spec.marks[0].scales,
       name,
@@ -93,13 +104,17 @@ module.exports = function(parsed) {
 
   // Vega-Lite names scales by the channel they're used for.
   for (var i = 0; i < len; ++i) {
+    // See if the channel exists in the mapping we've built
     name = channels[i];
     curr = lookup(map[name]);
+    // This uses the map to start to construct a lyra scale
     def = parse.call(this, scales.find(find));
     if (!def) {
       continue;
     }
     if (!curr || !equals.call(this, def, curr)) {
+      // If we find something, pass it off to scale to make a Lyra scale and
+      // add it to our primitive registry
       scale.call(this, def);
     }
   }

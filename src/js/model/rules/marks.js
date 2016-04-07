@@ -64,6 +64,12 @@ function rectSpatial(map, property, channel, props, def, from) {
   }
 }
 
+// If we have a this.from, analyze some output VL produced for mark: map from
+// the properties in VL to something in Lyra, then call either rectSpatial to
+// set spatial properties, or the normal bindProperty call.
+//
+// (For rectangles we need to do some additional work to account for X+, Width
+// and X2 properties, where VL only has X and Y)
 module.exports = function(parsed, property, channel) {
   var map = this._rule._map,
       def = parsed.spec.marks[0].marks[0],
