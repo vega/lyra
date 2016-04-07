@@ -23,6 +23,7 @@ var pipelines = [],
     primitives = {},
     listeners = {};
 
+window.listeners = listeners;
 window.primitives = primitives;
 
 /**
@@ -37,7 +38,6 @@ window.primitives = primitives;
  * @returns {Object} The Lyra model.
  */
 model.primitive = function(id, primitive) {
-  // console.log('model.primitive: registering', id, '(.type is ' + primitive.type + ')');
   primitives[id] = primitive;
   return model;
 };
@@ -73,15 +73,19 @@ Object.defineProperty(model, 'Scene', {
  * @param {Object} props - A vanilla JS object of mark properties
  * @returns {void}
  */
-model.createOrUpdateMark = function(id, props) {
+model.syncMark = function(id, props) {
   var existingMark = lookup(id),
-      MarkCtor = require('./primitives/marks').getConstructor(props.type);
+      MarkCtor = props && require('./primitives/marks').getConstructor(props.type);
+
+  if (existingMark && !props) {
+    // Remove the mark and its VLSingle from the primitives store
+    existingMark.remove();
+    return;
+  }
 
   if (existingMark) {
-    // console.log('ID #' + id + ': updating');
     existingMark.update(props);
   } else if (MarkCtor) {
-    // console.log('ID #' + id + ': constructing');
     model.primitive(id, new MarkCtor(props));
   }
 };
@@ -346,11 +350,28 @@ model.offSignal = function(name, handler) {
 
 
 /**
- * Remove listeners
- * when unsetting values, clean up the model by resetting the listener object
+ * Remove all listeners or just those for a specific mark (determined
+ * by the ID and Type of the mark, which are utilized in the listener
+ * key) to clean up the listener store when removing one or many marks.
  *
+ * @param {Object} mark - A mark descriptor object or mark instance
+ * @param {number} mark._id - A numeric mark ID
+ * @param {string} mark.type - A mark type e.g. "rect"
  * @returns {void}
  */
-model.removeListeners = function() {
-  listeners = {};
+model.removeListeners = function(mark) {
+  // Remove all listeners
+  if (!mark) {
+    listeners = {};
+    return;
+  }
+
+  // Remove a specific mark's listeners
+  var listenerForMarkRegex = new RegExp('^' + ns(mark.type + '_' + mark._id));
+  listeners = Object.keys(listeners).reduce(function(filteredListeners, key) {
+    if (!listenerForMarkRegex.test(key)) {
+      filteredListeners[key] = listeners[key];
+    }
+    return filteredListeners;
+  }, {});
 };

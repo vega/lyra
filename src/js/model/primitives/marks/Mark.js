@@ -215,22 +215,22 @@ Mark.prototype.export = function(clean) {
 };
 
 /**
- * Unsets the signals initialized in Mark.init() in the redux store for the model properties.
+ * Unsets the mark and its VLSingle _rule from the model primitives store.
+ * Signals are not impacted by this method; they are cleaned up via the
+ * PRIMITIVE_DELETE_MARK action within the signals reducer.
+ *
  * @returns {void}
  */
 Mark.prototype.remove = function() {
-  var props = this.properties,
-      update = props.update,
-      key;
-  for (key in update) {
-    var signalName = update[key].signal;
-    // Currently width and height are set on Groups to use the full width of the scene
-    // they use the same signal name
-    if (signalName && signalName !== ns('vis_width') && signalName !== ns('vis_height')) {
-      sg.delete(signalName);
-    }
-  }
-  model.removeListeners();
+  // Clear this mark's VLSingle
+  model.primitive(this._rule._id, null);
+
+  // Clear this mark itself
+  model.primitive(this._id, null);
+
+  // Clean out stale listener properties for this object from the listeners
+  // array in the model
+  model.removeListeners(this);
 };
 
 manips(Mark.prototype);

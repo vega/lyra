@@ -20,15 +20,12 @@ var model = require('./model');
 // Set up the listeners that connect the model to the store
 var listeners = require('./store/listeners');
 
-// Bind the listener that will flow changes from the redux store into Vega
-store.subscribe(listeners.createStoreListener(store, model));
-
-// Bind a throttled model update onto the store so that we can be sure any
-// of those changes will be reflected in Vega, without incurring the rendering
-// overhead that we would be hit with were we to react to every single store
-// dispatch cycle (as many of those cycles will be intermediate states).
-// (16 is derived from 1000ms / 60fps)
-store.subscribe(throttle(model.update, 16));
+// Bind the listener that will flow changes from the redux store into Vega.
+// Throttle the listener to avoid the rendering overhead of re-computing
+// certain properties from the store dispatch cycle more frequently than
+// 60fps (16 is derived from 1000ms / 60fps). This listener calls model.update
+// when it completes if the view is viable.
+store.subscribe(throttle(listeners.createStoreListener(store, model), 16));
 
 // Initializes the Lyra model with a new Scene primitive.
 var createScene = require('./actions/createScene');

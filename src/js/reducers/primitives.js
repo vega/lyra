@@ -147,11 +147,12 @@ function primitivesReducer(state, action) {
   }
 
   if (action.type === actions.PRIMITIVE_DELETE_MARK) {
+    console.log('going to null out mark', action.markType, action.markId);
     // primitive store is keyed with strings: ensure ID is a string
     return setParentMark(state, {
       childId: action.markId,
       parentId: null
-    }).delete('' + action.markId);
+    }).set('' + action.markId, null);
   }
 
   if (action.type === actions.PRIMITIVE_SET_PARENT) {

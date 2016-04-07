@@ -15,9 +15,11 @@ function deleteMark(id) {
   return function(dispatch, getState) {
     var mark = getIn(getState(), 'primitives.' + id).toJS();
 
-   if (mark.marks && mark.marks.length) {
-    mark.marks.forEach(deleteMark);
-   }
+    if (mark.marks && mark.marks.length) {
+      mark.marks.forEach(function(childId) {
+        dispatch(deleteMark(childId));
+      });
+    }
 
     dispatch({
       type: PRIMITIVE_DELETE_MARK,
