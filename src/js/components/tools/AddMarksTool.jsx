@@ -5,8 +5,7 @@ var React = require('react'),
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
     marks = require('../../model/primitives/marks'),
     selectMark = require('../../actions/selectMark'),
-    addMark = require('../../actions/primitiveActions').addMark,
-    markUtil = require('../../util/mark-add-delete');
+    addMark = require('../../actions/primitiveActions').addMark;
 
 function mapStateToProps(reduxState, ownProps) {
   var selectedMarkId = getIn(reduxState, 'inspector.selected'),
