@@ -4,6 +4,7 @@ var expect = require('chai').expect;
 
 var actions = require('../constants/actions');
 var primitiveActions = require('./primitiveActions');
+var counter = require('../util/counter');
 
 describe('primitiveActions', function() {
 
@@ -12,6 +13,7 @@ describe('primitiveActions', function() {
 
     beforeEach(function() {
       addMark = primitiveActions.addMark;
+      counter.reset();
     });
 
     it('is a function', function() {
@@ -51,13 +53,19 @@ describe('primitiveActions', function() {
       expect(result.name).to.equal('special_rect');
     });
 
-    it('passes through the provided primitive properties', function() {
+    it('passes through and augments the provided primitive properties', function() {
       var props = {
         type: 'line'
       };
       var result = addMark(props);
       expect(result).to.have.property('props');
-      expect(result.props).to.deep.equal(props);
+      expect(result.props).not.to.equal(props);
+      console.log(result.props);
+      expect(result.props).to.deep.equal({
+        _id: 1,
+        name: 'line_1',
+        type: 'line'
+      });
     });
 
     it('sets a relevant streams object on the returned object', function() {

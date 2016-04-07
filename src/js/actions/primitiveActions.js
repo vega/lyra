@@ -28,7 +28,6 @@ function addMark(primitiveProps) {
     props: props,
     streams: marks.getHandleStreams(props)
   };
-  console.log(action.id);
   return action;
 }
 

@@ -2,13 +2,11 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
-    debounce = require('lodash.debounce'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
     ns = require('../util/ns'),
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
-    get = require('../util/immutable-utils').get,
     getIn = require('../util/immutable-utils').getIn,
     CancellablePromise = require('../util/simple-cancellable-promise'),
     selectMark = require('../actions/selectMark'),
@@ -26,39 +24,6 @@ var pipelines = [],
     listeners = {};
 
 window.primitives = primitives;
-
-Object.defineProperty(model, 'Scene', {
-  enumerable: true,
-  get: function() {
-    var state = store.getState(),
-        sceneId = getIn(state, 'scene.id');
-
-    if (sceneId) {
-      return lookup(sceneId);
-    }
-  }
-});
-
-/**
- * From a mark ID and properties hash, either update an existing mark or
- * instantiate a new mark with the provided state.
- *
- * @param {number} id - The unique ID of a mark
- * @param {Object} props - A vanilla JS object of mark properties
- * @return {void}
- */
-model.createOrUpdateMark = function(id, props) {
-  var existingMark = lookup(id),
-      MarkCtor = require('./primitives/marks').getConstructor(props.type);
-
-  if (existingMark) {
-    // console.log('ID #' + id + ': updating');
-    existingMark.update(props);
-  } else if (MarkCtor) {
-    // console.log('ID #' + id + ': constructing');
-    model.primitive(id, new MarkCtor(props));
-  }
-};
 
 /**
  * @description A setter for primitives based on IDs. To prevent memory leaks,
@@ -86,6 +51,39 @@ model.primitive = function(id, primitive) {
  */
 var lookup = model.lookup = function(id) {
   return primitives[id];
+};
+
+Object.defineProperty(model, 'Scene', {
+  enumerable: true,
+  get: function() {
+    var state = store.getState(),
+        sceneId = getIn(state, 'scene.id');
+
+    if (sceneId) {
+      return lookup(sceneId);
+    }
+  }
+});
+
+/**
+ * From a mark ID and properties hash, either update an existing mark or
+ * instantiate a new mark with the provided state.
+ *
+ * @param {number} id - The unique ID of a mark
+ * @param {Object} props - A vanilla JS object of mark properties
+ * @returns {void}
+ */
+model.createOrUpdateMark = function(id, props) {
+  var existingMark = lookup(id),
+      MarkCtor = require('./primitives/marks').getConstructor(props.type);
+
+  if (existingMark) {
+    // console.log('ID #' + id + ': updating');
+    existingMark.update(props);
+  } else if (MarkCtor) {
+    // console.log('ID #' + id + ': constructing');
+    model.primitive(id, new MarkCtor(props));
+  }
 };
 
 function getset(cache, id, Type) {
@@ -350,7 +348,9 @@ model.offSignal = function(name, handler) {
 /**
  * Remove listeners
  * when unsetting values, clean up the model by resetting the listener object
+ *
+ * @returns {void}
  */
-model.removeListeners = function(name){
+model.removeListeners = function() {
   listeners = {};
 };
