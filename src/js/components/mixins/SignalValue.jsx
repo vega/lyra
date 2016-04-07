@@ -2,7 +2,7 @@
 var dl = require('datalib'),
     sg = require('../../model/signals'),
     store = require('../../store'),
-    setSignal = require('../../actions/setSignal'),
+    signalSet = require('../../actions/signalSet'),
     model = require('../../model');
 
 module.exports = {
@@ -54,7 +54,7 @@ module.exports = {
     // Flow changes from Vega back up to the store
     var signal = this.props.signal;
     if (signal) {
-      store.dispatch(setSignal(signal, value));
+      store.dispatch(signalSet(signal, value));
     }
     this.setState({value: value});
   },

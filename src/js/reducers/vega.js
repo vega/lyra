@@ -27,7 +27,7 @@ function vegaInvalidateReducer(state, action) {
   // All of these actions implicitly invalidate the view
   var invalidatingActions = [
     actions.CREATE_SCENE,
-    actions.INIT_SIGNAL,
+    actions.SIGNAL_INIT,
     actions.PRIMITIVE_ADD_MARK
   ];
   if (invalidatingActions.indexOf(action.type) >= 0) {

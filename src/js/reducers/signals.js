@@ -10,7 +10,7 @@ var signalRef = require('../util/signal-reference');
 var setIn = require('../util/immutable-utils').setIn;
 
 // Initialize a signal to a specific value
-function initSignal(state, action) {
+function signalInit(state, action) {
   return state.set(action.signal, Immutable.Map({
     name: action.signal,
     init: action.value,
@@ -40,7 +40,7 @@ function initSignalsForMark(state, action) {
     }
 
     var signalName = signalRef(action.props.type, action.id, propName);
-    var intermediateState = initSignal(state, {
+    var intermediateState = signalInit(state, {
       signal: signalName,
       value: updateProps[propName].value
     });
@@ -64,7 +64,7 @@ function signalsReducer(state, action) {
 
   if (action.type === actions.CREATE_SCENE) {
     // Initialize the visualization width & height from the scene
-    return initSignal(initSignal(state, {
+    return signalInit(signalInit(state, {
       signal: ns('vis_width'),
       value: action.props.width
     }), {
@@ -73,21 +73,19 @@ function signalsReducer(state, action) {
     });
   }
 
-  if (action.type === actions.INIT_SIGNAL) {
-    return initSignal(state, action);
+  if (action.type === actions.SIGNAL_INIT) {
+    return signalInit(state, action);
   }
 
-  if (action.type === actions.SET_SIGNAL) {
-    return state.set(action.signal, assign({}, state.get(action.signal), {
-      init: action.value
-    }));
+  if (action.type === actions.SIGNAL_SET) {
+    return setIn(state, action.signal + '.init', action.value);
   }
 
-  if (action.type === actions.SET_SIGNAL_STREAMS) {
+  if (action.type === actions.SIGNAL_SET_STREAMS) {
     return setStreams(state, action);
   }
 
-  if (action.type === actions.UNSET_SIGNAL) {
+  if (action.type === actions.SIGNAL_UNSET) {
     return state.delete(action.signal);
   }
 
