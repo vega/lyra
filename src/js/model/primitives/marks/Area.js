@@ -61,50 +61,58 @@ Area.defaultProperties = function(props) {
   }, props);
 };
 
-Area.prototype.initHandles = function() {
-  var at = anchorTarget.bind(null, this, 'handles'),
-      x = propSg(this, 'x'),
-      xc = propSg(this, 'xc'),
-      x2 = propSg(this, 'x2'),
-      y = propSg(this, 'y'),
-      yc = propSg(this, 'yc'),
-      y2 = propSg(this, 'y2'),
-      w = propSg(this, 'width'),
-      h = propSg(this, 'height');
 
-  sg.streams(x, [{
+/**
+ * Return an array of handle signal stream definitions to be instantiated.
+ *
+ * The returned object is used to initialize the interaction logic for the mark's
+ * handle manipulators. This involves setting the mark's property signals
+ * {@link https://github.com/vega/vega/wiki/Signals|streams}.
+ *
+ * @param {Object} area - A area properties object or instantiated area mark
+ * @param {number} area._id - A numeric mark ID
+ * @param {string} area.type - A mark type, presumably "area"
+ * @returns {Object} A dictionary of stream definitions keyed by signal name
+ */
+Area.getHandleStreams = function(area) {
+  var at = anchorTarget.bind(null, area, 'handles'),
+      x = propSg(area, 'x'),
+      xc = propSg(area, 'xc'),
+      x2 = propSg(area, 'x2'),
+      y = propSg(area, 'y'),
+      yc = propSg(area, 'yc'),
+      y2 = propSg(area, 'y2'),
+      w = propSg(area, 'width'),
+      h = propSg(area, 'height'),
+      streamSignals = {};
+
+  streamSignals[x] = [{
     type: DELTA, expr: test(at() + '||' + at('left'), x + '+' + DX, x)
-  }]);
-
-  sg.streams(xc, [{
+  }];
+  streamSignals[xc] = [{
     type: DELTA, expr: test(at() + '||' + at('left'), xc + '+' + DX, xc)
-  }]);
-
-  sg.streams(x2, [{
+  }];
+  streamSignals[x2] = [{
     type: DELTA, expr: test(at() + '||' + at('right'), x2 + '+' + DX, x2)
-  }]);
-
-  sg.streams(y, [{
+  }];
+  streamSignals[y] = [{
     type: DELTA, expr: test(at() + '||' + at('top'), y + '+' + DY, y)
-  }]);
-
-  sg.streams(yc, [{
+  }];
+  streamSignals[yc] = [{
     type: DELTA, expr: test(at() + '||' + at('top'), yc + '+' + DY, yc)
-  }]);
-
-  sg.streams(y2, [{
+  }];
+  streamSignals[y2] = [{
     type: DELTA, expr: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
-  }]);
-
-  sg.streams(w, [
+  }];
+  streamSignals[w] = [
     {type: DELTA, expr: test(at('left'), w + '-' + DX, w)},
     {type: DELTA, expr: test(at('right'), w + '+' + DX, w)}
-  ]);
-
-  sg.streams(h, [
+  ];
+  streamSignals[h] = [
     {type: DELTA, expr: test(at('top'), h + '-' + DY, h)},
     {type: DELTA, expr: test(at('bottom'), h + '+' + DY, h)}
-  ]);
+  ];
+  return streamSignals;
 };
 
 

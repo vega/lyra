@@ -60,6 +60,19 @@ describe('primitiveActions', function() {
       expect(result.props).to.deep.equal(props);
     });
 
+    it('sets a relevant streams object on the returned object', function() {
+      var result = addMark({
+        type: 'line',
+        _id: 2501
+      });
+      expect(result).to.have.property('streams');
+      expect(result.streams).to.be.an('object');
+      expect(Object.keys(result.streams).sort()).to.deep.equal([
+        'lyra_line_2501_x',
+        'lyra_line_2501_y'
+      ]);
+    });
+
   });
 
 });

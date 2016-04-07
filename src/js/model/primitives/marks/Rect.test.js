@@ -114,9 +114,8 @@ describe('Rect Mark Primitive', function() {
       });
     });
 
-    it('initializes instance with a numeric _id', function() {
-      expect(rect).to.have.property('_id');
-      expect(rect._id).to.be.a('number');
+    it('does not initialize instance with a numeric _id by default', function() {
+      expect(rect).not.to.have.property('_id');
     });
 
     it('does not initialize instance with a .from property', function() {
@@ -170,6 +169,60 @@ describe('Rect Mark Primitive', function() {
       expect(rect).to.have.property('_rule');
       expect(rect._rule).to.be.an('object');
       expect(rect._rule).to.be.an.instanceOf(VLSingle);
+    });
+
+  });
+
+  describe('getHandleStreams static method', function() {
+    var getHandleStreams;
+
+    beforeEach(function() {
+      getHandleStreams = Rect.getHandleStreams;
+    });
+
+    it('is a function', function() {
+      expect(getHandleStreams).to.be.a('function');
+    });
+
+    it('returns a stream signal definitions dictionary object', function() {
+      var result = getHandleStreams({
+        _id: 2501,
+        type: 'rect'
+      });
+      expect(result).to.be.an('object');
+    });
+
+    it('keys the stream signal definitions dictionary object by signal name', function() {
+      var result = getHandleStreams({
+        _id: 2501,
+        type: 'rect'
+      });
+      expect(Object.keys(result).sort()).to.deep.equal([
+        'lyra_rect_2501_height',
+        'lyra_rect_2501_width',
+        'lyra_rect_2501_x',
+        'lyra_rect_2501_x2',
+        'lyra_rect_2501_xc',
+        'lyra_rect_2501_y',
+        'lyra_rect_2501_y2',
+        'lyra_rect_2501_yc'
+      ]);
+    });
+
+    it('sets each value to an array of signal objects', function() {
+      var result = getHandleStreams({
+        _id: 2501,
+        type: 'rect'
+      });
+      Object.keys(result).forEach(function(key) {
+        expect(result[key]).to.be.an('array');
+        result[key].forEach(function(def) {
+          expect(def).to.have.property('type');
+          expect(def.type).to.equal('lyra_delta');
+          expect(def).to.have.property('expr');
+          expect(def.expr).to.be.a('string');
+        });
+      });
     });
 
   });

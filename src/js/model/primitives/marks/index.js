@@ -9,6 +9,7 @@ var ctors = {
   symbol: require('./Symbol'),
   text: require('./Text')
 };
+console.log(ctors);
 
 // Helper method
 function warnIfInvalidType(type) {
@@ -21,10 +22,11 @@ function warnIfInvalidType(type) {
  * Return the constructor for a provided type.
  *
  * @param {string} type - The mark type, e.g. "rect" or "line"
- * @return {Function|void} A constructor function, or undefined if no
+ * @returns {Function|void} A constructor function, or undefined if no
  * constructor is available for that type.
  */
-function getConstructor(type ) {
+function getConstructor(type) {
+  console.log(type, ctors[type]);
   warnIfInvalidType(type);
   return ctors[type];
 }
@@ -34,14 +36,33 @@ function getConstructor(type ) {
  *
  * @param {string} type - The mark type, e.g. "rect" or "line"
  * @param {Object} [overrides] - An optional property overrides object
- * @return {Object} A properties hash
+ * @returns {Object} A properties hash
  */
 function getDefaults(type, overrides) {
   warnIfInvalidType(type);
   return ctors[type] && ctors[type].defaultProperties(overrides);
 }
 
+/**
+ * Return an object of handle stream signal definitions for the specified
+ * primitive object.
+ *
+ * @param {Object} props - A mark properties object or instantiated mark
+ * @param {number} props._id - A numeric mark ID
+ * @param {string} props.type - A mark type, such as "text" or "rect"
+ * @returns {Object} A dictionary of stream signal definitions
+ */
+function getHandleStreams(props) {
+  var type = props.type;
+  warnIfInvalidType(type);
+  if (ctors[type] && typeof ctors[type].getHandleStreams === 'function') {
+    return ctors[type].getHandleStreams(props);
+  }
+  return {};
+}
+
 module.exports = {
   getConstructor: getConstructor,
-  getDefaults: getDefaults
+  getDefaults: getDefaults,
+  getHandleStreams: getHandleStreams
 };

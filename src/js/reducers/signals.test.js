@@ -131,13 +131,13 @@ describe('signals reducer', function() {
     it('initializes the scene width & height signals', function() {
       var result = signalsReducer(initialState, createScene());
       expect(result.toJS()).to.deep.equal({
-        vis_width: {
-          name: 'vis_width',
+        lyra_vis_width: {
+          name: 'lyra_vis_width',
           init: 610,
           _idx: 0
         },
-        vis_height: {
-          name: 'vis_height',
+        lyra_vis_height: {
+          name: 'lyra_vis_height',
           init: 610,
           _idx: 1
         }

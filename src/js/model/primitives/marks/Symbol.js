@@ -50,24 +50,36 @@ Symbol.defaultProperties = function(props) {
   }, props);
 };
 
-Symbol.prototype.initHandles = function() {
-  var at = anchorTarget.bind(null, this, 'handles'),
-      x = propSg(this, 'x'),
-      y = propSg(this, 'y'),
-      size = propSg(this, 'size');
+/**
+ * Return an array of handle signal stream definitions to be instantiated.
+ *
+ * The returned object is used to initialize the interaction logic for the mark's
+ * handle manipulators. This involves setting the mark's property signals
+ * {@link https://github.com/vega/vega/wiki/Signals|streams}.
+ *
+ * @param {Object} symbol - A symbol properties object or instantiated symbol mark
+ * @param {number} symbol._id - A numeric mark ID
+ * @param {string} symbol.type - A mark type, presumably "symbol"
+ * @returns {Object} A dictionary of stream definitions keyed by signal name
+ */
+Symbol.getHandleStreams = function(symbol) {
+  var at = anchorTarget.bind(null, symbol, 'handles'),
+      x = propSg(symbol, 'x'),
+      y = propSg(symbol, 'y'),
+      size = propSg(symbol, 'size'),
+      streamSignals = {};
 
-  sg.streams(x, [{
+  streamSignals[x] = [{
     type: DELTA, expr: test(at(), x + '+' + DX, x)
-  }]);
-
-  sg.streams(y, [{
+  }];
+  streamSignals[y] = [{
     type: DELTA, expr: test(at(), y + '+' + DY, y)
-  }]);
-
-  sg.streams(size, [
+  }];
+  streamSignals[size] = [
     {type: DELTA, expr: test(at('top'), size + '-(' + DY + '<<5)', size)},
     {type: DELTA, expr: test(at('bottom'), size + '+(' + DY + '<<5)', size)}
-  ]);
+  ];
+  return streamSignals;
 };
 
 Symbol.SHAPES = [

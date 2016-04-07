@@ -132,8 +132,6 @@ Mark.prototype.init = function() {
     return update;
   }, this.properties.update);
 
-  this.initHandles();
-
   return this;
 };
 
@@ -178,14 +176,6 @@ Mark.prototype.dataset = function(id) {
   this.from = undefined;
   return this;
 };
-
-/**
- * Initializes the interaction logic for the mark's handle manipulators. This
- * involves setting {@link https://github.com/vega/vega/wiki/Signals|the streams}
- * of the mark's property signals.
- * @returns {Object} The Mark.
- */
-Mark.prototype.initHandles = function() {};
 
 Mark.prototype.export = function(clean) {
   var spec = Primitive.prototype.export.call(this, clean),
