@@ -3,6 +3,7 @@
 var expect = require('chai').expect;
 var Immutable = require('immutable');
 
+var actions = require('../constants/actions');
 var primitivesReducer = require('./primitives');
 var primitiveActions = require('../actions/primitiveActions');
 var createScene = require('../actions/createScene');
@@ -138,6 +139,60 @@ describe('primitives reducer', function() {
 
   });
 
+  describe('delete primitive action', function() {
+
+    beforeEach(function() {
+      // Reset counters module so that we can have predictable IDs for our new marks
+      counter.reset();
+      initialState = initialState
+        .set('1', Immutable.Map({
+          _id: 1,
+          type: 'group',
+          name: 'parent group',
+          marks: [2,3]
+        }))
+        .set('2', Immutable.Map({
+          _id: 2,
+          _parent: 1,
+          type: 'group',
+          name: 'branch group',
+          marks: [4]
+        }))
+        .set('3', Immutable.Map({
+          _id: 3,
+          _parent: 1,
+          type: 'rect',
+          name: 'child of group 1'
+        }))
+        .set('4', Immutable.Map({
+          _id: 4,
+          _parent: 2,
+          type: 'symbol',
+          name: 'child of group 2'
+        }));
+    });
+
+    it('deletes a primitive from the store', function() {
+      var result = primitivesReducer(initialState, {
+        type: actions.PRIMITIVE_DELETE_MARK,
+        markId: 4,
+        markType: 'symbol'
+      });
+      expect(result.get('4')).to.be.undefined;
+      expect(Object.keys(result.toJS())).to.deep.equal(['1', '2', '3']);
+    });
+
+    it('removes the primitive from its parent\'s marks array', function() {
+      var result = primitivesReducer(initialState, {
+        type: actions.PRIMITIVE_DELETE_MARK,
+        markId: 4,
+        markType: 'symbol'
+      });
+      expect(result.get('2').toJS().marks).to.deep.equal([]);
+    });
+
+  });
+
   describe('create scene action', function() {
 
     beforeEach(function() {
@@ -212,6 +267,19 @@ describe('primitives reducer', function() {
       expect(group1.marks).to.deep.equal([]);
       expect(group2.marks).to.deep.equal([61]);
       expect(symbol._parent).to.equal(22);
+    });
+
+    it('can remove a mark from its parent', function() {
+      // Start with the symbol in group_1
+      initialState = primitivesReducer(initialState, setParent(61, 15));
+      // Clear symbol's parent
+      var result = primitivesReducer(initialState, setParent(61, null)),
+          symbol = result.get('61').toJS(),
+          group1 = result.get('15').toJS(),
+          group2 = result.get('22').toJS();
+      expect(group1.marks).to.deep.equal([]);
+      expect(group2.marks).to.deep.equal([]);
+      expect(symbol._parent).to.equal(null);
     });
 
   });

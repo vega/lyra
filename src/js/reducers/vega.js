@@ -28,7 +28,8 @@ function vegaInvalidateReducer(state, action) {
   var invalidatingActions = [
     actions.CREATE_SCENE,
     actions.SIGNAL_INIT,
-    actions.PRIMITIVE_ADD_MARK
+    actions.PRIMITIVE_ADD_MARK,
+    actions.PRIMITIVE_DELETE_MARK
   ];
   if (invalidatingActions.indexOf(action.type) >= 0) {
     return state.set('invalid', true);

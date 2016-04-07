@@ -80,11 +80,11 @@ function setParentMark(state, action) {
   }
 
   var existingParent = get(state, existingParentId);
-  var newParent = get(state, action.parentId);
+  var newParent = action.parentId ? get(state, action.parentId) : action.parentId;
 
   // Clearing a mark's parent reference
   if (newParent === null) {
-    // Second, ensure the child ID has been removed from
+    // Second, ensure the child ID has been removed from the parent's marks
     return ensureValueAbsent(
       // First, null out the child's parent reference
       set(state, action.childId, setIn(child, '_parent', null)),
@@ -144,6 +144,14 @@ function primitivesReducer(state, action) {
         height: {signal: ns('vis_height')}
       })
     })));
+  }
+
+  if (action.type === actions.PRIMITIVE_DELETE_MARK) {
+    // primitive store is keyed with strings: ensure ID is a string
+    return setParentMark(state, {
+      childId: action.markId,
+      parentId: null
+    }).delete('' + action.markId);
   }
 
   if (action.type === actions.PRIMITIVE_SET_PARENT) {
