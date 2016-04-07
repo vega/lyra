@@ -37,20 +37,20 @@ store.dispatch(createScene());
 // Initialize components
 var ui = require('./components');
 
-// var p = model.pipeline('cars'),
-//     p2 = model.pipeline('jobs'),
-//     p3 = model.pipeline('gapminder');
+var p = model.pipeline('cars'),
+    p2 = model.pipeline('jobs'),
+    p3 = model.pipeline('gapminder');
 
-// Promise.all([
-//   p._source.init({url: '/data/cars.json'}),
-//   p2._source.init({url: '/data/jobs.json'}),
-//   p3._source.init({url: '/data/gapminder.json'})
-// ]).then(function() {
+Promise.all([
+  p._source.init({url: '/data/cars.json'}),
+  p2._source.init({url: '/data/jobs.json'}),
+  p3._source.init({url: '/data/gapminder.json'})
+]).then(function() {
   ui.forceUpdate(function() {
     // Parse the model to initialize and render the Vega view
     // store.dispatch(reparse(true));
   });
-// });
+});
 
 // Expose model, store and Sidebars globally (via `window`) for debugging
 global.model = model;
