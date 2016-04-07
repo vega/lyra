@@ -45,7 +45,6 @@ function recreateVegaIfNecessary(store, model) {
   var shouldReparse = getIn(store.getState(), 'vega.invalid');
 
   if (shouldReparse) {
-    console.log('reparse needed');
     // First, ensure that all marks have been properly instantiated from the store
     instantiatePrimitivesFromStore(store, model);
 

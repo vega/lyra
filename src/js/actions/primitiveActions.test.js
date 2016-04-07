@@ -60,7 +60,6 @@ describe('primitiveActions', function() {
       var result = addMark(props);
       expect(result).to.have.property('props');
       expect(result.props).not.to.equal(props);
-      console.log(result.props);
       expect(result.props).to.deep.equal({
         _id: 1,
         name: 'line_1',

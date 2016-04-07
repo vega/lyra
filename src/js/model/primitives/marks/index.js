@@ -9,7 +9,6 @@ var ctors = {
   symbol: require('./Symbol'),
   text: require('./Text')
 };
-console.log(ctors);
 
 // Helper method
 function warnIfInvalidType(type) {
@@ -26,7 +25,6 @@ function warnIfInvalidType(type) {
  * constructor is available for that type.
  */
 function getConstructor(type) {
-  console.log(type, ctors[type]);
   warnIfInvalidType(type);
   return ctors[type];
 }
