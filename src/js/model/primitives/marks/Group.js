@@ -173,7 +173,6 @@ Group.prototype.removeChild = function(child) {
         child.removeChild(child.marks[x]);
       }
     }
-    console.log(childIndex, child, child.remove);
     child.remove();
     types.splice(childIndex, 1);
   }

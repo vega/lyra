@@ -7,14 +7,20 @@ var assign = require('object-assign');
 var ns = require('../util/ns');
 var actions = require('../constants/actions');
 var signalRef = require('../util/signal-reference');
+var setIn = require('../util/immutable-utils').setIn;
 
 // Initialize a signal to a specific value
 function initSignal(state, action) {
-  return state.set(action.signal, {
+  return state.set(action.signal, Immutable.Map({
     name: action.signal,
     init: action.value,
     _idx: state.size
-  });
+  }));
+}
+
+// Set the streams on a signal
+function setStreams(state, action) {
+  return setIn(state, action.signal + '.streams', action.value);
 }
 
 // Initialize signals for any of the mark's properties that are defined with a .value
@@ -32,10 +38,17 @@ function initSignalsForMark(state, action) {
     if (typeof updateProps[propName].value === 'undefined') {
       return state;
     }
-    return initSignal(state, {
-      signal: signalRef(action.props.type, action.id, propName),
+
+    var signalName = signalRef(action.props.type, action.id, propName);
+    var intermediateState = initSignal(state, {
+      signal: signalName,
       value: updateProps[propName].value
     });
+
+    return action.streams[signalName] ? setStreams(intermediateState, {
+      signal: signalName,
+      value: action.streams[signalName]
+    }) : intermediateState;
   }, state);
 }
 
@@ -71,9 +84,7 @@ function signalsReducer(state, action) {
   }
 
   if (action.type === actions.SET_SIGNAL_STREAMS) {
-    return state.set(action.signal, assign({}, state.get(action.signal), {
-      streams: action.value
-    }));
+    return setStreams(state, action);
   }
 
   if (action.type === actions.UNSET_SIGNAL) {

@@ -15,7 +15,7 @@ var getIn = require('./immutable-utils').getIn;
  *
  * @param {Object} state - An immutable state object
  * @param {number} id - A numeric primitive ID
- * @return {number|null} The ID of the nearest group or scene, if found, or null
+ * @returns {number|null} The ID of the nearest group or scene, if found, or null
  * if the mark is invalid or there was no group or scene ancestor available
  */
 function getClosestGroupId(state, id) {

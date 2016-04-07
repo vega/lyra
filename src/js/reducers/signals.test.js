@@ -1,4 +1,4 @@
-/* eslint no-unused-expressions:0 */
+/* eslint new-cap:0, no-unused-expressions:0 */
 'use strict';
 var expect = require('chai').expect;
 var Immutable = require('immutable');
@@ -6,6 +6,7 @@ var Immutable = require('immutable');
 var signalsReducer = require('./signals');
 var primitiveActions = require('../actions/primitiveActions');
 var createScene = require('../actions/createScene');
+var setSignalStreams = require('../actions/setSignalStreams');
 var initSignal = require('../actions/initSignal');
 var counter = require('../util/counter');
 
@@ -36,8 +37,7 @@ describe('signals reducer', function() {
   describe('init signal action', function() {
 
     it('initializes a signal within the signals store state object', function() {
-      var initialState = Immutable.Map(),
-          result = signalsReducer(initialState, initSignal('lyra_rect_1_x', 50));
+      var result = signalsReducer(initialState, initSignal('lyra_rect_1_x', 50));
       expect(initialState.size).to.equal(0);
       expect(result.size).to.equal(1);
       expect(result.toJS()).to.deep.equal({
@@ -50,8 +50,7 @@ describe('signals reducer', function() {
     });
 
     it('gives signals an incrementing _idx', function() {
-      var initialState = Immutable.Map(),
-          initAction1 = initSignal('lyra_rect_1_x', 5),
+      var initAction1 = initSignal('lyra_rect_1_x', 5),
           initAction2 = initSignal('lyra_another_signal_name', 'some value'),
           result = signalsReducer(signalsReducer(initialState, initAction1), initAction2);
       expect(initialState.size).to.equal(0);
@@ -72,6 +71,32 @@ describe('signals reducer', function() {
 
   });
 
+  describe('set stream action', function() {
+
+    beforeEach(function() {
+      initialState = signalsReducer(initialState, initSignal('lyra_rect_1_x', 5));
+    });
+
+    it('Adds a stream property to the specified signal', function() {
+      var result = signalsReducer(initialState, setSignalStreams('lyra_rect_1_x', [{
+        type: 'lyra_delta',
+        expr: '(some)(vega)(expression)'
+      }])).toJS();
+      expect(result).to.have.property('lyra_rect_1_x');
+      expect(result.lyra_rect_1_x).to.have.property('streams');
+      expect(result.lyra_rect_1_x).to.deep.equal({
+        name: 'lyra_rect_1_x',
+        init: 5,
+        _idx: 0,
+        streams: [{
+          type: 'lyra_delta',
+          expr: '(some)(vega)(expression)'
+        }]
+      });
+    });
+
+  });
+
   describe('add primitive action', function() {
     var addMark;
 
@@ -79,6 +104,33 @@ describe('signals reducer', function() {
       // Reset counters module so that we can have predictable IDs for our new marks
       counter.reset();
       addMark = primitiveActions.addMark;
+    });
+
+    it('creates stream signals for the mark being created', function() {
+      var result = signalsReducer(initialState, addMark({
+        type: 'symbol',
+        properties: {
+          update: {
+            size: {value: 100},
+            x: {value: 25},
+            y: {value: 30}
+          }
+        }
+      })).toJS();
+      expect(Object.keys(result).sort()).to.deep.equal([
+        'lyra_symbol_1_size',
+        'lyra_symbol_1_x',
+        'lyra_symbol_1_y'
+      ]);
+      Object.keys(result).forEach(function(name) {
+        var streams = result[name].streams;
+        streams.forEach(function(signal) {
+          expect(signal).to.have.property('type');
+          expect(signal.type).to.equal('lyra_delta');
+          expect(signal).to.have.property('expr');
+          expect(signal.expr).to.be.a('string');
+        });
+      });
     });
 
     it('initializes all relevant signals for the mark being created', function() {
@@ -96,28 +148,12 @@ describe('signals reducer', function() {
       }));
       expect(initialState.size).to.equal(0);
       expect(result.size).to.equal(4);
-      expect(result.toJS()).to.deep.equal({
-        lyra_rect_1_x: {
-          name: 'lyra_rect_1_x',
-          init: 25,
-          _idx: 0
-        },
-        lyra_rect_1_y: {
-          name: 'lyra_rect_1_y',
-          init: 250,
-          _idx: 1
-        },
-        lyra_rect_1_fill: {
-          name: 'lyra_rect_1_fill',
-          init: '#4682b4',
-          _idx: 2
-        },
-        lyra_rect_1_fillOpacity: {
-          name: 'lyra_rect_1_fillOpacity',
-          init: 1,
-          _idx: 3
-        }
-      });
+      expect(Object.keys(result.toJS()).sort()).to.deep.equal([
+        'lyra_rect_1_fill',
+        'lyra_rect_1_fillOpacity',
+        'lyra_rect_1_x',
+        'lyra_rect_1_y'
+      ]);
     });
 
   });
