@@ -1,5 +1,5 @@
 'use strict';
-var SET_SIGNAL = require('../constants/actions').SET_SIGNAL;
+var SIGNAL_SET = require('../constants/actions').SIGNAL_SET;
 var ns = require('../util/ns');
 
 /**
@@ -11,7 +11,7 @@ var ns = require('../util/ns');
  */
 module.exports = function(signal, value) {
   return {
-    type: SET_SIGNAL,
+    type: SIGNAL_SET,
     signal: ns(signal),
     value: value
   };
