@@ -43,6 +43,9 @@ function mapDispatchToProps(dispatch, ownProps) {
       dispatch(expandLayers(parentGroupIds));
     },
     deleteMark: function(id) {
+      if (ownProps.selected === id) {
+        dispatch(selectMark(null));
+      }
       dispatch(markDelete(id));
     },
     toggle: function(layerId) {

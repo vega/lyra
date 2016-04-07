@@ -172,14 +172,13 @@ describe('primitives reducer', function() {
         }));
     });
 
-    it('deletes a primitive from the store', function() {
+    it('nulls out the primitive in the store', function() {
       var result = primitivesReducer(initialState, {
         type: actions.PRIMITIVE_DELETE_MARK,
         markId: 4,
         markType: 'symbol'
       });
-      expect(result.get('4')).to.be.undefined;
-      expect(Object.keys(result.toJS())).to.deep.equal(['1', '2', '3']);
+      expect(result.get('4')).to.equal(null);
     });
 
     it('removes the primitive from its parent\'s marks array', function() {

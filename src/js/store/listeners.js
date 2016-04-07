@@ -28,7 +28,9 @@ var sg = require('../model/signals'),
 
 function instantiatePrimitivesFromStore(store, model) {
   store.getState().get('primitives').forEach(function(props, markId) {
-    model.createOrUpdateMark(markId, props.toJS());
+    // props will be an immutable iterable if the mark exists, or null if it has
+    // been deleted
+    model.syncMark(markId, props ? props.toJS() : props);
   });
 }
 
@@ -149,6 +151,8 @@ function createStoreListener(store, model) {
     if (storeSelectedId) {
       updateSelectedMarkInVega(model.lookup(storeSelectedId), model.view);
     }
+
+    model.update();
   };
 }
 

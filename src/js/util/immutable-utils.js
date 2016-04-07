@@ -54,7 +54,6 @@ function set(structure, key, value) {
  * provided value
  */
 function ensureValuePresent(state, arrPathStr, valToAdd) {
-  console.log('ensuring', arrPathStr, valToAdd);
   var arr = getIn(state, arrPathStr);
   var vals = typeof arr.toJS === 'function' ? arr.toJS() : arr;
   return vals.indexOf(valToAdd) < 0 ?
@@ -78,7 +77,6 @@ function ensureValuePresent(state, arrPathStr, valToAdd) {
  * contain the provided value
  */
 function ensureValueAbsent(state, arrPathStr, valToRemove) {
-  console.log('ensuring absent', arrPathStr, valToRemove);
   var arr = getIn(state, arrPathStr);
   var vals = typeof arr.toJS === 'function' ? arr.toJS() : arr;
   return vals.indexOf(valToRemove) >= 0 ?
