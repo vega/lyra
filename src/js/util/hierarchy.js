@@ -97,7 +97,7 @@ function getParentGroupIds(primitive) {
  */
 function findInItemTree(item, path) {
   var id, items, i, j, len;
-  for (i = path.length - 2; i >= 0; --i) {
+  for (i = path.length - 1; i >= 0; --i) {
     id = path[i];
 
     for (items = item.items, j = 0, len = items.length; j < len; ++j) {
