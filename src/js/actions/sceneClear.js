@@ -1,7 +1,5 @@
 'use strict';
 
-var actions = require('../constants/actions');
-var PRIMITIVE_DELETE_MARK = actions.PRIMITIVE_DELETE_MARK;
 var getIn = require('../util/immutable-utils').getIn;
 var markDelete = require('./markDelete');
 
@@ -22,6 +20,6 @@ function sceneClear() {
       dispatch(markDelete(childId));
     });
   };
-};
+}
 
 module.exports = sceneClear;

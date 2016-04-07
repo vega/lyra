@@ -15,7 +15,10 @@ var ensureValueAbsent = immutableUtils.ensureValueAbsent;
 var assign = require('object-assign');
 
 // Helper function to iterate over a mark's .properties hash and convert any .value-
-// based property definitions into appropriate signal references
+// based property definitions into appropriate signal references.
+// "properties" is the properties hash from the dispatched action; "type" is a string
+// type; and "id" is a numeric mark ID (type and ID are used to create the name of
+// the signal that will be referenced in place of values in the properties hash).
 function convertValuesToSignals(properties, type, id) {
   var updateProps = properties && properties.update;
 
@@ -46,6 +49,11 @@ function convertValuesToSignals(properties, type, id) {
   });
 }
 
+// Helper reducer to add a mark to the store. Runs the mark through a method to
+// convert property values into signal references before setting the primitive
+// within the store.
+// "state" is the primitives store state; "action" is an object with a numeric
+// `._id`, string `.name`, and object `.props` defining the mark to be created.
 function makeMark(action) {
   return Object.keys(action.props).reduce(function(mark, key) {
     if (key === 'properties') {
@@ -60,7 +68,10 @@ function makeMark(action) {
   }));
 }
 
-// @TODO: This does not yet handle the case of UN-setting a parent
+// Helper reducer to configure a parent-child relationship between two marks.
+// "state" is the primitives store state; "action" is an object with a numeric
+// `.childId` and either a numeric `.parentId` (for setting a parent) or `null`
+// (for clearing a parent, e.g. when removing a mark).
 function setParentMark(state, action) {
   // Nothing to do if no child is provided
   if (typeof action.childId === 'undefined') {

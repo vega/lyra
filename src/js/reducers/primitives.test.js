@@ -149,7 +149,7 @@ describe('primitives reducer', function() {
           _id: 1,
           type: 'group',
           name: 'parent group',
-          marks: [2,3]
+          marks: [2, 3]
         }))
         .set('2', Immutable.Map({
           _id: 2,

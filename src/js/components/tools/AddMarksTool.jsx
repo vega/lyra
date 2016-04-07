@@ -42,25 +42,27 @@ function mapDispatchToProps(dispatch) {
 var marksArray = ['rect', 'symbol', 'area', 'text', 'line'];
 
 var AddMarksTool = React.createClass({
-    propTypes: {
-      selectMark: React.PropTypes.func,
-      selected: React.PropTypes.number
-    },
-    classNames: 'new-marks',
-    render: function() {
-      var parentId = this.props.container;
-      return (
-        <ul className={this.classNames}>
-          {marksArray.map(function(markType, i) {
-            return (
-              <li key={markType} onClick={this.props.addMark.bind(null, markType, parentId)}>
-                {markType}
-              </li>
-            );
-          }, this)}
-        </ul>
-      );
-    }
-  });
+  propTypes: {
+    addMark: React.PropTypes.func,
+    container: React.PropTypes.number,
+    selectMark: React.PropTypes.func,
+    selected: React.PropTypes.number
+  },
+  classNames: 'new-marks',
+  render: function() {
+    var parentId = this.props.container;
+    return (
+      <ul className={this.classNames}>
+        {marksArray.map(function(markType, i) {
+          return (
+            <li key={markType} onClick={this.props.addMark.bind(null, markType, parentId)}>
+              {markType}
+            </li>
+          );
+        }, this)}
+      </ul>
+    );
+  }
+});
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(AddMarksTool);
