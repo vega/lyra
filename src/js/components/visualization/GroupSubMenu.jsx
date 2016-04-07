@@ -6,7 +6,6 @@ var React = require('react'),
     lookup = require('../../model').lookup,
     hierarchy = require('../../util/hierarchy'),
     getIn = require('../../util/immutable-utils').getIn,
-    markUtil = require('../../util/mark-add-delete'),
     selectMark = require('../../actions/selectMark'),
     markDelete = require('../../actions/markDelete'),
     expandLayers = require('../../actions/expandLayers'),
@@ -66,7 +65,6 @@ var Group = connect(
     selected: React.PropTypes.number,
     toggle: React.PropTypes.func
   },
-  // mixins: [markUtil],
   toggleFolder: function(id) {
     this.props.select(id);
     this.props.toggle(id);
