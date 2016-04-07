@@ -27,6 +27,7 @@ store.dispatch(createScene({
   height: 600
 }));
 
+
 // Initialize components
 var ui = require('./components');
 

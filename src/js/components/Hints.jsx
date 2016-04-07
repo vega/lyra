@@ -3,7 +3,6 @@ var React = require('react'),
     assets = require('../util/assets'),
     Icon = require('./Icon');
 
-// Splitting each sidebar into its column
 var Hints = React.createClass({
   classNames: 'hints',
   render: function() {

@@ -1,11 +1,11 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    Modal = require('react-modal');
+    Modal = require('react-modal'),
+    Walkthroughs = require('./walkthrough/Menu');
 
 
 var Footer = connect()(React.createClass({
-  classNames: 'site-footer',
   getInitialState: function() {
     return { modalIsOpen: false };
   },
@@ -17,13 +17,16 @@ var Footer = connect()(React.createClass({
   closeModal: function() {
     this.setState({modalIsOpen: false});
   },
+  classNames: 'site-footer',
   render: function() {
     return (
       <footer className={this.classNames}>
         <ul>
           <li onClick={this.openModal}>About</li>
           <li>Github</li>
-          <li>Walkthroughs</li>
+          <li>
+            <Walkthroughs/>
+          </li>
           <li>Settings</li>
         </ul>
         <Modal

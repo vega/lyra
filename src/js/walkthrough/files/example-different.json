@@ -1,0 +1,31 @@
+{
+  "title": "Cool times",
+  "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
+  "alt_text": "an image",
+  "steps":[
+    {
+      "id": 1,
+      "title": "Step 1: Add a symbol",
+      "text": "Click on the SYMBOL button in the toolbar to add a new Rect to the canvas",
+      "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
+      "alt_text": "an image",
+      "lyra_state": {}
+    },
+    {
+      "id": 2,
+      "title": "Step 2: Change Geometry Shape",
+      "text": "Select the new mark and change it's shape in the property inspector to 'triangle up' which is under Geometry.",
+      "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
+      "alt_text": "an image",
+      "lyra_state": {}
+    },
+    {
+      "id": 3,
+      "title": "Step 2: Change color",
+      "text": "Select the new mark and then change it's color to #bbCCaa in the property inspector",
+      "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
+      "alt_text": "an image",
+      "lyra_state": {}
+    }
+  ]
+}

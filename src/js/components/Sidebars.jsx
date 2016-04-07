@@ -34,7 +34,6 @@ var Sidebars = React.createClass({
         <InspectorSidebar ref="inspector"
           pipelines={pipelines} />
         <PipelinesSidebar />
-        </div>
         <Toolbar/>
         <Hints/>
         <Footer/>

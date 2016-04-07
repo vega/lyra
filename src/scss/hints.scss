@@ -5,18 +5,20 @@
   bottom: 40px;
   z-index: 999;
   border: 1px solid;
-  left: 0;
-  width: 54%;
-  margin-left: $sidebars-width;
+  left: 25px;
+  width: 100%;
+  margin-left: $sidebar-width;
   h3 {
     background-color: transparent;
   }
   @include breakingMenus {
     width: 500px;
-    margin-left:505px;
+    margin-left: 555px;
+  }
+  &.hidden {
+    bottom: -200px;
   }
 }
-
 .close-hint {
   position: absolute;
   top: 10px;
@@ -24,3 +26,4 @@
   cursor: pointer;
   font-size: 20px;
 }
+

@@ -6,5 +6,6 @@ module.exports = combineReducers({
   vega: require('./vega'),
   inspector: require('./inspector'),
   marks: require('./marks'),
-  signals: require('./signals')
+  signals: require('./signals'),
+  walkthrough: require('./walkthrough')
 });
