@@ -7,6 +7,7 @@ var Scene = require('./Scene');
 var Group = require('./Group');
 var Mark = require('./Mark');
 var VLSingle = require('../../rules/VLSingle');
+var model = require('../../');
 
 describe('Scene Mark', function() {
   var scene;
@@ -190,6 +191,9 @@ describe('Scene Mark', function() {
 
     beforeEach(function() {
       scene = new Scene();
+      // Shim to handle the ID binding that no longer occurs in Mark instances
+      scene._id = 1;
+      model.primitive(scene._id, scene);
     });
 
     it('is a function', function() {

@@ -75,10 +75,11 @@ Primitive.prototype.manipulators = Primitive.prototype.export;
  * current Primitive.
  */
 Primitive.prototype.parent = function(pid) {
-  if (!arguments.length) {
+  if (!pid) {
     return lookup(this._parent);
   }
-  return (this._parent = Number(pid), this);
+  this._parent = Number(pid);
+  return this;
 };
 
 module.exports = Primitive;
