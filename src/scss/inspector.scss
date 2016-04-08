@@ -1,49 +1,35 @@
+$label-width: 60px;
+$long-label-width: $label-width + 10px;
+
 #inspector {
   h2 {
     background-color: $mblue-bg;
     color: #fff;
   }
+
+  .inner {
+    padding: 0 $outer-padding;
+  }
+}
+
+.property-group {
+  padding: $outer-padding 0;
+  border-bottom: 1px solid $lgrey-bg;
+
+  &.property {
+    margin-bottom: 0;
+  }
 }
 
 .property {
-  $can-drop-size: 14px;
-  padding:10px;
   display: flex;
   align-items: center;
-  margin: $inner-padding 0;
+  margin: $outer-padding 0;
 
-  & > .indicator {
-    width: $can-drop-size;
-    height: $can-drop-size;
-    border-radius: 10px;
-  }
+  label, .label { width: $label-width; }
+  h3, .label-long { width: $long-label-width; }
 
-  &.can-drop > .indicator {
-    background-color: $mblue-bg;
-    opacity: 0.7;
-
-    &.fa {
-      text-align: center;
-      color: #333;
-      cursor: pointer;
-
-      &:hover {
-        background-color: $dgrey-border;
-        color: $lgrey-bg;
-      }
-    }
-  }
-
-  & > label, & > .label {
-    width: $scale-list-width - $outer-padding - $inner-padding - $can-drop-size;
-    padding-left: $outer-padding;
-
-    select {
-      margin-left: -$inner-padding;
-    }
-  }
-
-  & > .control {
+  .control {
     display: flex;
     flex: 1;
     align-items: center;
@@ -77,7 +63,7 @@
   &.extra {
     align-items: baseline;
 
-    & > .control {
+    .control {
       flex-wrap: wrap;
     }
   }

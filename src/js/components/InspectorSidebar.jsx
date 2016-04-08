@@ -4,10 +4,10 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     Mark = require('../model/primitives/marks/Mark'),
+    Property = require('./inspectors/Property'),
     model = require('../model'),
     lookup = model.lookup,
-    getIn = require('../util/immutable-utils').getIn,
-    From = require('./inspectors/From');
+    getIn = require('../util/immutable-utils').getIn;
 
 var hierarchy = require('../util/hierarchy');
 var findInItemTree = hierarchy.findInItemTree;
@@ -36,7 +36,10 @@ var Inspector = React.createClass({
         isMark = primitive instanceof Mark;
 
     var pipeline = isMark ? (
-      <From {...props} primitive={primitive} from={primitive.dataset()} />
+      <div className="property-group property">
+        <h3 className="label-long">Pipeline</h3>
+        <div className="control">{from && from.name || 'None'}</div>
+      </div>
     ) : null;
 
     var inner = InspectorType ? (

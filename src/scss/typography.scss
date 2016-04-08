@@ -11,29 +11,11 @@ h2 {
   }
 }
 
-.hed-secondary{
-  font-size: 15px;
+h3 {
+  margin: $inner-padding 0;
+  color: $blue-font;
+  font-weight: bold;
   text-transform: uppercase;
-  padding: 10px;
-  background-color: $mblue-bg;
-  color: #fff;
-  .fa {
-    margin-left: 5px;
-  }
-}
-
-.hed-tertiary {
-  padding:10px;
-  .fa {
-    margin-left: 5px;
-  }
-}
-
-header {
-  background-color: #fff;
-  border-bottom: 1px solid $lgrey-bg;
-  margin-right: 1px;
-  margin-left: 1px;
 }
 
 .hint-header {

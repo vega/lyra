@@ -10,91 +10,103 @@ var TextInspector = React.createClass({
 
     return (
       <div>
-        <h4 className="hed-tertiary">Text</h4>
+        <div className="property-group">
+          <Property name="text"
+            type="text"
+            primitive={primitive}
+            canDrop={true}>
 
-        <Property name="text" label="Text"
-          type="text"
-          primitive={primitive}
-          canDrop={true} />
+            <h3 className="label">Text</h3>
+          </Property>
+        </div>
 
-        <h4 className="hed-tertiary">Font</h4>
+        <div className="property-group">
+          <h3>Font</h3>
 
-        <Property name="font" label="Font"
-          primitive={primitive}
-          type="select"
-          opts={Text.fonts}
-          canDrop={true} />
+          <Property name="font" label="Face"
+            type="select"
+            opts={Text.fonts}
+            primitive={primitive}
+            canDrop={true} />
 
-        <Property name="fontSize" label="Size"
-          type="number"
-          primitive={primitive}
-          canDrop={true} />
+          <Property name="fontSize" label="Size"
+            type="number"
+            primitive={primitive}
+            canDrop={true} />
 
-        <Property name="fontWeight" label="Weight"
-          primitive={primitive}
-          type="select"
-          opts={Text.fontWeights}
-          canDrop={true} />
+          <Property name="fontWeight" label="Weight"
+            primitive={primitive}
+            type="select"
+            opts={Text.fontWeights}
+            canDrop={true} />
 
-        <Property name="fontStyle" label="Style"
-          primitive={primitive}
-          type="select"
-          opts={Text.fontStyles}
-          canDrop={true} />
+          <Property name="fontStyle" label="Style"
+            primitive={primitive}
+            type="select"
+            opts={Text.fontStyles}
+            canDrop={true} />
 
-        <Property name="fill" label="Color"
-          type="color"
-          primitive={primitive}
-          canDrop={true} />
+          <Property name="fill" label="Color"
+            type="color"
+            primitive={primitive}
+            canDrop={true} />
 
-        <Property name="fillOpacity" label="Opacity"
-          type="range"
-          primitive={primitive}
-          canDrop={true}
-          min="0" max="1" step="0.05" />
+          <Property name="fillOpacity" label="Opacity"
+            type="range"
+            primitive={primitive}
+            canDrop={true}
+            min="0" max="1" step="0.05" />
+        </div>
 
-        <h4 className="hed-tertiary">Position</h4>
+        <div className="property-group">
+          <h3>Position</h3>
 
-        <Property name="x" label="X"
-          type="number"
-          primitive={primitive}
-          canDrop={true} />
+          <Property name="x" label="X"
+            type="number"
+            primitive={primitive}
+            canDrop={true} />
 
-        <Property name="y" label="Y"
-          type="number"
-          primitive={primitive}
-          canDrop={true} />
+          <Property name="y" label="Y"
+            type="number"
+            primitive={primitive}
+            canDrop={true} />
+        </div>
 
-        <h4 className="hed-tertiary">Offset</h4>
+        <div className="property-group">
+          <h3>Offset</h3>
 
-        <Property name="dx" label="X"
-          type="number"
-          primitive={primitive}
-          canDrop={true} />
+          <Property name="dx" label="X"
+            type="number"
+            primitive={primitive}
+            canDrop={true} />
 
-        <Property name="dy" label="Y"
-          type="number"
-          primitive={primitive}
-          canDrop={true} />
+          <Property name="dy" label="Y"
+            type="number"
+            primitive={primitive}
+            canDrop={true} />
 
-        <h4 className="hed-tertiary">Align</h4>
+        </div>
 
-        <Property name="align" label="Horizontal"
-          primitive={primitive}
-          type="select"
-          opts={Text.alignments}
-          canDrop={true} />
+        <div className="property-group">
+          <h3>Align</h3>
 
-        <Property name="baseline" label="Vertical"
-          primitive={primitive}
-          type="select"
-          opts={Text.baselines}
-          canDrop={true} />
+          <Property name="align" label="Horizontal"
+            primitive={primitive}
+            type="select"
+            opts={Text.alignments}
+            canDrop={true} />
 
-        <Property name="angle" label="Rotation"
-          type="number"
-          primitive={primitive}
-          canDrop={true} />
+          <Property name="baseline" label="Vertical"
+            primitive={primitive}
+            type="select"
+            opts={Text.baselines}
+            canDrop={true} />
+
+          <Property name="angle" label="Rotation"
+            type="number"
+            primitive={primitive}
+            canDrop={true} />
+        </div>
       </div>
     );
   }

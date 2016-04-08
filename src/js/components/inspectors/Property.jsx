@@ -67,7 +67,7 @@ var Property = React.createClass({
         extraEl = child;
       } else if (className === 'control') {
         controlEl = child;
-      } else if (childType === 'label' || className === 'label') {
+      } else if (type === 'label' || className.indexOf('label') !== -1) {
         labelEl = child;
       }
     });
@@ -139,14 +139,8 @@ var Property = React.createClass({
       className += ' extra';
     }
 
-    var indicatorClass = 'indicator';
-    if (scale || field) {
-      indicatorClass += ' fa fa-times';
-    }
-
     return (
       <div className={className}>
-        <div className={indicatorClass} onClick={this.unbind}></div>
         {labelEl}
         <div className="control">
           {scaleEl}

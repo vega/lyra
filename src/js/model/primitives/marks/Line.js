@@ -5,7 +5,8 @@ var dl = require('datalib'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
     test = require('../../../util/test-if'),
-    propSg = require('../../../util/prop-signal');
+    propSg = require('../../../util/prop-signal'),
+    INTERPOLATE = require('../../../constants/interpolate');
 
 var DELTA = sg.DELTA,
     DX = DELTA + '.x',
@@ -46,7 +47,9 @@ Line.defaultProperties = function(props) {
     properties: Mark.mergeProperties(Mark.defaultProperties(), {
       update: {
         stroke: {value: '#000000'},
-        strokeWidth: {value: 3}
+        strokeWidth: {value: 3},
+        tension: {value: 13},
+        interpolate: {value: 'monotone'},
       }
     })
   };
@@ -99,5 +102,8 @@ Line.prototype.export = function(resolve) {
 
   return spec;
 };
+
+// Parameters you can set on Line
+Line.INTERPOLATE = INTERPOLATE;
 
 module.exports = Line;
