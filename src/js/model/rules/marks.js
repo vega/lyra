@@ -4,6 +4,17 @@ var model = require('../'),
     propSg = require('../../util/prop-signal'),
     lookup = model.lookup;
 
+/**
+ * Updates a Lyra mark property using a parsed Vega property definition.
+ *
+ * @param  {Object} map      The rule map which associates names found in the
+ * parsed Vega spec to Lyra Primitive IDs.
+ * @param  {string} property The Lyra mark property to update.
+ * @param  {Object} props    The Lyra mark properties.update object.
+ * @param  {Object} def      The parsed Vega mark property definition.
+ * @param  {DataSet} from    The backing Lyra Dataset primitive.
+ * @return {void}
+ */
 function bindProperty(map, property, props, def, from) {
   var d = def[property],
       p = (props[property] = {});
@@ -31,13 +42,24 @@ function bindProperty(map, property, props, def, from) {
   }
 }
 
-// Spatial properties for rect marks require more parsing before binding.
-// Vega-Lite produces center/span (e.g., xc/width) properties when using
-// an ordinal scale as "points": true. However, Lyra hews closer to the
-// Vega representation (start/span).
+
+/**
+ * Binding a spatial channel of a rect mark requires binding two properties.
+ * For example, Vega-Lite produces center/span (e.g., xc/width) properties when
+ * using an ordinal-point scale. However, Lyra prefers using start/span.
+ *
+ * @param  {Object} map      The rule map which associates names found in the
+ * parsed Vega spec to Lyra Primitive IDs.
+ * @param  {string} property The Lyra mark property to update.
+ * @param  {string} channel  The corresponding Vega-Lite channel.
+ * @param  {Object} props    The Lyra mark properties.update object.
+ * @param  {Object} def      The parsed Vega mark property definition.
+ * @param  {Dataset} from    The backing Lyra Dataset primitive.
+ * @return {void}
+ */
 var RECT_SPANS = {x: 'width', y: 'height'};
 function rectSpatial(map, property, channel, props, def, from) {
-  var bind = channel + '2',
+  var max  = channel + '2',
       cntr = channel + 'c',
       span = RECT_SPANS[channel];
 
@@ -48,9 +70,9 @@ function rectSpatial(map, property, channel, props, def, from) {
     return bindProperty.call(this, map, property, props, def, from);
   }
 
-  if (def[bind]) {
+  if (def[max]) {
     bindProperty.call(this, map, channel, props, def, from);
-    bindProperty.call(this, map, bind, props, def, from);
+    bindProperty.call(this, map, max, props, def, from);
     props[span]._disabled = true;
   } else {
     def[channel] = def[cntr]; // Map xc/yc => x/y for binding.
@@ -60,16 +82,19 @@ function rectSpatial(map, property, channel, props, def, from) {
     def[span] = {scale: def[channel].scale, band: true, offset: -1};
     bindProperty.call(this, map, span, props, def, from);
 
-    props[bind]._disabled = true;
+    props[max]._disabled = true;
   }
 }
 
-// If we have a this.from, analyze some output VL produced for mark: map from
-// the properties in VL to something in Lyra, then call either rectSpatial to
-// set spatial properties, or the normal bindProperty call.
-//
-// (For rectangles we need to do some additional work to account for X+, Width
-// and X2 properties, where VL only has X and Y)
+/**
+ * Parses the mark definition in the resultant Vega specification to determine
+ * how to update the Lyra mark primitive.
+ *
+ * @param  {Object} parsed   An object containing the parsed rule and output Vega spec.
+ * @param  {string} property The Lyra mark's property that was just bound.
+ * @param  {string} channel  The corresponding Vega-Lite channel
+ * @return {void}
+ */
 module.exports = function(parsed, property, channel) {
   var map = this._rule._map,
       def = parsed.spec.marks[0].marks[0],
@@ -82,6 +107,8 @@ module.exports = function(parsed, property, channel) {
     from = lookup(this.from);
   }
 
+  // Rect mark's spatial properties are handled separately as we need to account
+  // for the four extent properties (x/x2/xc/width, y/y2/yc/height).
   if (this.type === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial.call(this, map, property, channel, props, dprops, from);
   } else {

@@ -1,12 +1,14 @@
 'use strict';
+
 /**
- * Pretty basic: as we walk through the vega output generated from vega lite,
- * we want to map things we see there to things we have in our lyra model.
+ * Parse the data source definitions in the resultant Vega specification.
+ * For now, as we do not yet support transforms, we only add an entry to the
+ * rule's `map` to identify the data source named "source" as our backing Lyra
+ * Dataset primitive.
  *
- * i.e. Build mappings between things in the vega output and things in the Lyra model.
- * @param  {[type]} parsed [description]
- * @param  {[type]} from   [description]
- * @return {[type]}        [description]
+ * @param  {Object} parsed An object containing the parsed rule and output Vega spec.
+ * @param  {Dataset} from  The Lyra Dataset primitive that backs the current mark.
+ * @return {void}
  */
 module.exports = function(parsed, from) {
   var map = this._rule._map.data;

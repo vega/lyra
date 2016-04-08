@@ -9,15 +9,17 @@ var dl = require('datalib'),
 var REF_CELLW = {data: 'layout', field: 'cellWidth'},
     REF_CELLH = {data: 'layout', field: 'cellHeight'};
 
-// Parse a Vega scale definition (produced by Vega-Lite)
-// and produce a Lyra-compatible Scale object.
-//
-// This works around VL idiosyncracies: domain or range may be hard-coded, use
-// lyra primitive IDs instead e.g., in the vega output VL produces, you have
-// scales, each scale has an object, that object has a name, type, and domain,
-// with a range; we want to parse the domain to correspond to our lyra primitives.
-//
-// Map from VL -> Vega -> Lyra
+/**
+ * Parse a Vega scale definition (produced by Vega-Lite) and return an object
+ * that mimics Lyra's Scale primitive. Note: this does not construct a Lyra Scale
+ * primitive, but instead produces an object to compare existing Scale
+ * primitives against. We map from Vega scale DataRefs to Lyra Primitive
+ * IDs, and account for Vega-Lite idiosyncracies such as hardcoded ranges and
+ * band sizes.
+ *
+ * @param  {Object} def A Vega scale definition.
+ * @return {Object} An object that mimics a Lyra Scale primitive.
+ */
 function parse(def) {
   if (!def) {
     return null;
@@ -44,20 +46,35 @@ function parse(def) {
   return def;
 }
 
-// Vega-Lite always produces ordinal scales with points. However, Lyra
-// prefers to not use point-ordinals for rect marks to simplify encoding
-// specification (i.e., not exposing xc/yc and resizing groups).
-function equals(def, s) {
+/**
+ * Tests whether a Lyra Scale primitive is equal to a parsed Vega scale
+ * definition. Accounts for idiosyncracies with how Vega-Lite outputs scales.
+ * For example, Vega-Lite always produces ordinal "point" scales but Lyra
+ * prefers to use ordinal "band" scales for rect marks to simplify encoding
+ * specification. TODO: revisit?
+ *
+ * @param  {Object} def   A parsed Vega scale definition.
+ * @param  {Scale}  scale A Lyra Scale primitive
+ * @return {boolean} Returns true or false based on if the given Lyra scale
+ * matches the parsed Vega definition.
+ */
+function equals(def, scale) {
   var markType = this.type,
       points = def.type === 'ordinal' && markType !== 'rect';
 
   /* jshint -W018 */
-  return s.type === def.type && !!s.points === points &&
-    dl.equal(s._domain, def._domain) && s.range === def.range;
-
+  return scale.type === def.type && !!scale.points === points &&
+    dl.equal(scale._domain, def._domain) && scale.range === def.range;
   /* jshint +W018 */
 }
 
+/**
+ * Constructs a new Lyra Scale primitive, or updates an existing one, based on
+ * the given parsed Vega scale definition.
+ *
+ * @param  {Object} def A parsed Vega scale definition
+ * @return {Scale} A Lyra Scale primitive.
+ */
 function scale(def) {
   var markType = this.type,
       points = def.type === 'ordinal' && markType !== 'rect',
@@ -87,34 +104,38 @@ function scale(def) {
 }
 
 /**
- * Find or produce a lyra scale object for the channel that we just dropped
+ * Parse the scale definitions in the resultant Vega specification to determine
+ * if new Lyra scale primitives should be constructed, or existing ones updated.
+ * @todo Why do we not pass `channel` so that only scales for the bound channel
+ * are evaluated?
+ *
+ * @param  {Object} parsed An object containing the parsed rule and output Vega spec.
+ * @return {void}
  */
 module.exports = function(parsed) {
   var map = this._rule._map.scales,
-      // Figure out defined channels
-      channels = dl.keys(parsed.rule.encoding),
-      scales = parsed.spec.marks[0].scales,
-      name,
-      find = function(x) {
-        return x.name === name;
-      },
+      channels = dl.keys(parsed.rule.encoding), // Only account for channels defined in the rule.
+      scales = parsed.spec.marks[0].scales, // For a VLSingle, all scales are defined within the first group mark.
       len = channels.length,
-      def,
-      curr;
+      name, def, curr, find = function(x) {
+        return x.name === name;
+      };
 
-  // Vega-Lite names scales by the channel they're used for.
   for (var i = 0; i < len; ++i) {
-    // See if the channel exists in the mapping we've built
+    // Vega-Lite names scales by the channel they're used for. If we've previously
+    // parsed a scale for a channel, it will exist within the rule's map.
     name = channels[i];
     curr = lookup(map[name]);
-    // This uses the map to start to construct a lyra scale
+
+    // Find a corresponding definition within the compiled Vega spec, and parse
+    // it so that we can test to see if we should update an existing scale or
+    // create a new one.
     def = parse.call(this, scales.find(find));
-    if (!def) {
-      continue;
-    }
+    if (!def) continue;
+
+    // If no current scale exists for this channel, or if there's a mismatch in
+    // definitions, construct or update the Lyra model.
     if (!curr || !equals.call(this, def, curr)) {
-      // If we find something, pass it off to scale to make a Lyra scale and
-      // add it to our primitive registry
       scale.call(this, def);
     }
   }
