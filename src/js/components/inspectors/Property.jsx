@@ -18,6 +18,7 @@ function mapStateToProps(state, ownProps) {
 
   return {
     field: getIn(markState, updatePropsPath + '.field'),
+    group: getIn(markState, updatePropsPath + '.group'),
     scale: getIn(markState, updatePropsPath + '.scale'),
     signal: getIn(markState, updatePropsPath + '.signal')
   };
@@ -36,6 +37,7 @@ var Property = React.createClass({
     name: React.PropTypes.string.isRequired,
     label: React.PropTypes.string,
     field: React.PropTypes.number,
+    group: React.PropTypes.number,
     scale: React.PropTypes.number,
     signal: React.PropTypes.string,
     resetProperty: React.PropTypes.func
@@ -57,7 +59,7 @@ var Property = React.createClass({
         scale = props.scale,
         field = props.field,
         value = state.value,
-        disabled = props.disabled,
+        disabled = props.disabled || props.group,
         labelEl, scaleEl, controlEl, extraEl;
 
     React.Children.forEach(props.children, function(child) {
@@ -134,6 +136,9 @@ var Property = React.createClass({
     var className = 'property';
     if (props.canDrop) {
       className += ' can-drop';
+    }
+    if (props.firstChild) {
+      className += ' first-child';
     }
     if (extraEl) {
       extraEl = (<div className="extra">{extraEl}</div>)

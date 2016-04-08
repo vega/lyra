@@ -93,11 +93,11 @@ var ExtentProperty = React.createClass({
 
     return (
       <div>
-
         <Property name={start}
           type="number"
           primitive={primitive}
           canDrop={true}
+          firstChild={true}
           disabled={update[start].band || update[start].group}>
 
           <div className="label-long label">
@@ -119,7 +119,10 @@ var ExtentProperty = React.createClass({
           type="number"
           primitive={primitive}
           canDrop={true}
+          firstChild={true}
           disabled={update[end].band || update[end].group}>
+
+          <br />
 
           <div className="label-long label">
             {start === center ?

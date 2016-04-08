@@ -30,6 +30,8 @@ $long-label-width: $label-width + 10px;
   label, .label { width: $label-width; }
   h3, .label-long { width: $long-label-width; }
 
+  &.first-child { margin-bottom: 0; }
+
   .control {
     display: flex;
     flex: 1;

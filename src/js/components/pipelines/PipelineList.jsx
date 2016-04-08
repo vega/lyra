@@ -18,10 +18,6 @@ var PipelineList = React.createClass({
   render: function() {
     return (
       <div id="pipeline-list">
-        <h4 className="hed-tertiary">
-          Data
-          <i className="fa fa-plus" data-tip="Add a new dataset" data-place="right"></i>
-        </h4>
         {this.props.pipelines.map(function(p) {
           return (
             <PipelineInspector
@@ -31,6 +27,8 @@ var PipelineList = React.createClass({
               isSelected={this.state.selected === p._id} />
           );
         }, this)}
+
+        <h3><i className="fa fa-plus"></i> New Pipeline</h3>
       </div>
     );
   }

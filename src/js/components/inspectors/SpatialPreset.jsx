@@ -43,7 +43,7 @@ var SpatialPreset = React.createClass({
         update = primitive.properties.update,
         prop = update[name],
         scale = prop.scale && lookup(prop.scale),
-        preset = name.indexOf('x') >= 0 ? 'Width' : 'Height';
+        preset = name.indexOf('x') >= 0 ? 'width' : 'height';
 
     if (prop.field) {
       return null;
@@ -61,7 +61,7 @@ var SpatialPreset = React.createClass({
     return (
       <label>
         <input type="checkbox" name={name} checked={prop.group}
-          onChange={this.handleChange} /> Group {preset}
+          onChange={this.handleChange} /> Set to group {preset}
       </label>
     );
   }
