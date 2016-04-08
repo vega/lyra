@@ -10,7 +10,7 @@ var actions = require('../constants/actions');
  * @param {boolean} state - The existing model reparse value from the store
  * @param {Object} action - The dispatched action indicating how to modify
  * the reparse flag within the store.
- * @return {boolean} The new state of the reparse flag
+ * @returns {boolean} The new state of the reparse flag
  */
 function vegaInvalidateReducer(state, action) {
   if (typeof state === 'undefined') {

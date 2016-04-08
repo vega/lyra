@@ -18,7 +18,7 @@ var REF_CELLW = {data: 'layout', field: 'cellWidth'},
  * @namespace  rules.scales
  * @memberOf rules
  * @param  {Object} parsed An object containing the parsed rule and output Vega spec.
- * @return {void}
+ * @returns {void}
  */
 function scales(parsed) {
   var map = this._rule._map.scales,
@@ -59,7 +59,7 @@ function scales(parsed) {
  *
  * @memberOf rules.scales
  * @param  {Object} def A Vega scale definition.
- * @return {Object} An object that mimics a Lyra Scale primitive.
+ * @returns {Object} An object that mimics a Lyra Scale primitive.
  */
 function parse(def) {
   if (!def) {
@@ -97,7 +97,7 @@ function parse(def) {
  * @memberOf rules.scales
  * @param  {Object} def   A parsed Vega scale definition.
  * @param  {Scale}  scale A Lyra Scale primitive
- * @return {boolean} Returns true or false based on if the given Lyra scale
+ * @returns {boolean} Returns true or false based on if the given Lyra scale
  * matches the parsed Vega definition.
  */
 function equals(def, scale) {
@@ -116,7 +116,7 @@ function equals(def, scale) {
  *
  * @memberOf rules.scales
  * @param  {Object} def A parsed Vega scale definition
- * @return {Scale} A Lyra Scale primitive.
+ * @returns {Scale} A Lyra Scale primitive.
  */
 function scale(def) {
   var markType = this.type,

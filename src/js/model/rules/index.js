@@ -24,7 +24,7 @@ function rules(prototype) {
    * @param  {boolean} manual   If true, and the given primitive is a Lyra field
    * primitive, circumvents the rule compilation/parsing and simply assigns it
    * as a field reference.
-   * @return {Mark} The Lyra mark primitive whose property was bound/unbound.
+   * @returns {Mark} The Lyra mark primitive whose property was bound/unbound.
    */
   prototype.bindProp = function(property, id, manual) {
     var rule = this._rule,
@@ -75,7 +75,7 @@ function rules(prototype) {
  *
  * @memberOf rules
  * @param  {string} name The name of a Lyra channel
- * @return {string} A Vega-Lite channel
+ * @returns {string} A Vega-Lite channel
  */
 function channelName(name) {
   if (vl.channel.CHANNELS.indexOf(name) >= 0) {
@@ -108,7 +108,7 @@ var re = {
  *
  * @memberOf rules
  * @param  {Field} field A Lyra data field primitive.
- * @return {Object} A Vega-Lite channel definition.
+ * @returns {Object} A Vega-Lite channel definition.
  */
 function channelDef(field) {
   var name = field._name,
@@ -137,7 +137,7 @@ function channelDef(field) {
  * @param  {VLSingle} rule   A Vega-Lite specification
  * @param  {string} property The Lyra channel being bound.
  * @param  {Dataset} from    A Lyra Dataset primitive that backs the current mark.
- * @return {Object}  An object containing the complete rule definition and
+ * @returns {Object}  An object containing the complete rule definition and
  * output Vega specification
  */
 function compile(rule, property, from) {

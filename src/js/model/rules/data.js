@@ -10,7 +10,7 @@
  * @memberOf rules
  * @param  {Object} parsed An object containing the parsed rule and output Vega spec.
  * @param  {Dataset} from  The Lyra Dataset primitive that backs the current mark.
- * @return {void}
+ * @returns {void}
  */
 function data(parsed, from) {
   var map = this._rule._map.data;

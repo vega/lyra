@@ -20,7 +20,7 @@ var TYPES = Guide.TYPES,
  * @param  {Object} parsed   An object containing the parsed rule and output Vega spec.
  * @param  {string} property The Lyra mark's property that was just bound.
  * @param  {string} channel  The corresponding Vega-Lite channel
- * @return {void}
+ * @returns {void}
  */
 function guides(parsed, property, channel) {
   var ctype = CTYPE[channel];
@@ -50,7 +50,7 @@ var SWAP_ORIENT = {
  * @memberOf rules.guides
  * @param  {Scale}  scale A Lyra Scale primitive.
  * @param  {Object} defs  A parsed Vega axis definition.
- * @return {void}
+ * @returns {void}
  */
 function axis(scale, defs) {
   var map = this._rule._map.scales,
@@ -92,7 +92,7 @@ function axis(scale, defs) {
  * @param  {Scale}  scale A Lyra Scale primitive.
  * @param  {Object} defs  A parsed Vega legend definition.
  * @param  {string} property The Lyra mark's property that was just bound.
- * @return {void}
+ * @returns {void}
  */
 function legend(scale, defs, property) {
   var map = this._rule._map.scales,

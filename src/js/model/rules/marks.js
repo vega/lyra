@@ -13,7 +13,7 @@ var model = require('../'),
  * @param  {Object} parsed   An object containing the parsed rule and output Vega spec.
  * @param  {string} property The Lyra mark's property that was just bound.
  * @param  {string} channel  The corresponding Vega-Lite channel
- * @return {void}
+ * @returns {void}
  */
 function marks(parsed, property, channel) {
   var map = this._rule._map,
@@ -46,7 +46,7 @@ function marks(parsed, property, channel) {
  * @param  {Object} props    The Lyra mark properties.update object.
  * @param  {Object} def      The parsed Vega mark property definition.
  * @param  {DataSet} from    The backing Lyra Dataset primitive.
- * @return {void}
+ * @returns {void}
  */
 function bindProperty(map, property, props, def, from) {
   var d = def[property],
@@ -89,7 +89,7 @@ function bindProperty(map, property, props, def, from) {
  * @param  {Object} props    The Lyra mark properties.update object.
  * @param  {Object} def      The parsed Vega mark property definition.
  * @param  {Dataset} from    The backing Lyra Dataset primitive.
- * @return {void}
+ * @returns {void}
  */
 var RECT_SPANS = {x: 'width', y: 'height'};
 function rectSpatial(map, property, channel, props, def, from) {
