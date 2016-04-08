@@ -5,22 +5,14 @@ var React = require('react'),
     model = require('../model');
 
 var VisualSidebar = React.createClass({
-  getInitialState: function() {
-    return {
-      classes: 'col2'
-    };
-  },
-  classNames: 'sidebar visualization col4 lt-blue-bg',
   render: function() {
     var scales = model.scale();
     return (
-      <div className={this.classNames}>
-        <header>
-          <h2 className="hed">
-            Visualization
-          </h2>
-        </header>
-        <LayerList ref="layerList" />
+      <div className="sidebar" id="visual-sidebar">
+        <h2>Visualization</h2>
+
+        <LayerList ref="layerList"
+          layers={model.Scene.marks} />
 
         <ScaleList ref="scaleList"
           scales={scales} />

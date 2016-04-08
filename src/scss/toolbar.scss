@@ -1,37 +1,44 @@
 .toolbar {
   background-color: $lgrey-bg;
   position: absolute;
-  left: 70px;
-  @include breakingMenus {
-    left: 60px;
-  }
-  top: 15px;
+  top: $outer-padding;
+  left: 2*$outer-padding;
+  margin-left: $sidebars-width;
+  border: 1px solid #aaa;
+
   ul {
+    display: inline;
+    margin: 0;
+    border-left: solid 1px #666;
+
     &:first-child {
       border: none;
     }
-    border-left: solid 1px #000;
+
     @include breakingMenus {
       min-width: auto;
     }
-    display: inline-block;
-    margin: 0;
+
     li {
       text-transform: uppercase;
       width: auto;
       padding: 10px;
       display: inline-block;
       cursor: pointer;
+
       &:hover {
         background-color: $lblue-bg;
       }
+
       @include breakingMenus {
         display: block;
       }
     }
   }
+
   .menu {
-    min-width: 600px;
+    min-width: 580px;
+
     @include breakingMenus {
       position: absolute;
       top: -600px;
@@ -44,9 +51,8 @@
       min-width: 100px;
     }
   }
-  margin-left: $sidebar-width;
-  .nav-trigger,
-  label {
+
+  .nav-trigger, label {
     display: none;
     @include breakingMenus {
       display: block;
@@ -68,10 +74,10 @@ label[for="nav-trigger"] {
   z-index: 2;
   cursor: pointer;
   padding: 10px;
-  color: #fff;
   font-size: 20px;
+  background-color: $lgrey-bg;
+  border: 1px solid #aaa;
 }
-
 
 .menu {
   transition: top 0.2s;

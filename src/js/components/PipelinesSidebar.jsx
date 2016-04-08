@@ -4,16 +4,12 @@ var React = require('react'),
     model = require('../model');
 
 var PipelineSidebar = React.createClass({
-  classNames: 'sidebar col5 push9 pipeline-grid-break dk-blue-bg',
   render: function() {
     var pipelines = model.pipeline();
     return (
-      <div className={this.classNames}>
-        <header>
-          <h2 className="hed">
-            Data Pipelines
-          </h2>
-        </header>
+      <div className="sidebar" id="pipeline-sidebar">
+        <h2>Data Pipelines</h2>
+
         <PipelineList pipelines={pipelines} />
       </div>
     );

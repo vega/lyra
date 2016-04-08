@@ -25,11 +25,10 @@ var Sidebars = React.createClass({
   propTypes: {
     arbitraryPropToTriggerUpdate: React.PropTypes.bool
   },
-  classNames: 'row',
   render: function() {
     var pipelines = model.pipeline();
     return (
-      <div className={this.classNames}>
+      <div>
         <VisualSidebar />
         <InspectorSidebar ref="inspector"
           pipelines={pipelines} />

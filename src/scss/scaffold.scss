@@ -1,31 +1,5 @@
-// container for the grid
-.app {
-  @include container();
-  margin: 0;
-  overflow-y: hidden;
-}
-
-// grid helper classes
-@include generate_helper_classes();
-
-
 // media query breaks
-
-$tablet-width: 768px;
-$desktop-width: 1024px;
 $breaking-width: 1222px;
-
-@mixin tablet {
-  @media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 1px}) {
-    @content;
-  }
-}
-
-@mixin desktop {
-  @media (min-width: #{$desktop-width}) {
-    @content;
-  }
-}
 
 @mixin breakingMenus {
   @media (max-width: #{$breaking-width}) {
@@ -33,12 +7,10 @@ $breaking-width: 1222px;
   }
 }
 
-
-
 // Body
 
 body {
-  background:$vdgrey-bg;
+  background: $bg-color;
   font-family: Avenir, Helvetica Neue, Helvetica, Arial;
   font-size: 13px;
   overflow-y: hidden;
@@ -47,50 +19,56 @@ body {
 // The two main sections of our app
 // Sidebar is where the react components are placed
 .sidebar-container{
-  width: $sidebar-width;
+  width: $sidebars-width;
   position: relative;
 }
 
 // Vis-container is where vega is placed
 .vis-container {
-  left: $visualization-offset;
+  left: $sidebars-width;
   overflow: auto;
   display: block;
   position: absolute;
   bottom: 0;
   top: 60px;
+
   #vis {
-    margin: 0 50px 50px;
+    margin: 0 2*$outer-padding 2*$outer-padding;
+
+    canvas {
+      border: 1px solid #ccc;
+      box-shadow: 2px 2px 17px 0px rgba(0,0,0,0.15)
+    }
   }
 }
-
 
 // each vertical sidebar
 .sidebar {
-  header {
-    padding: 10px;
-  }
+  display: inline-block;
   position: relative;
   z-index: 999;
-  border-right: 1px solid $lgrey-bg;
   height: 100%;
   overflow-y: scroll;
-  box-sizing: border-box;
   background-color: $bg-color;
+  box-sizing: border-box;
+
+  h2 {
+    padding: 10px;
+  }
 }
 
-.lt-blue-bg {
+#visual-sidebar {
+  width: $visual-sidebar-width;
   background-color: $vlgrey-bg;
+  border-right: 1px solid $lgrey-bg;
 }
-.md-blue-bg{
+
+#inspector {
+  width: $inspector-width;
   background-color: $lblue-bg;
 }
-.dk-blue-bg{
-  background-color: $dblue-bg;
-}
 
-.visualization {
-  .hed-tertiary {
-    background-color: #fff;
-  }
+#pipeline-sidebar {
+  width: $pipeline-sidebar-width;
+  background-color: $dblue-bg;
 }

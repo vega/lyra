@@ -1,3 +1,10 @@
+#inspector {
+  h2 {
+    background-color: $mblue-bg;
+    color: #fff;
+  }
+}
+
 .property {
   $can-drop-size: 14px;
   padding:10px;

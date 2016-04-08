@@ -1,11 +1,6 @@
-$sidebar-width: 550px;
-$visualization-offset: 570px;
+// Colors
 
-$class_container: 'row';
-$class_column: 'col';
-$class_push: 'push';
-
-$bg-color: #eee;
+$bg-color: #ddd;
 
 $dblue-bg: #7B8B9D;
 $mblue-bg: #92A3B2;
@@ -22,20 +17,21 @@ $vdgrey-bg: #5F5D5D;
 
 $innerMenu: #FCFCFC;
 
-$outer-padding: 10px;
-$inner-padding: 5px;
-$margin: $outer-padding;
-
 $border-radius: 5px;
 
 $toolbar-height: 16px;
 
-$scale-list-width: 90px;
-$layer-list-width: 140px;
-$pipeline-list-width: 200px;
-$inspector-height: 33%;
-$inspector-width: $scale-list-width + $layer-list-width;
-$sidebars-width: $inspector-width + $pipeline-list-width;
+// Grid
+$visual-sidebar-width: 150px;
+$scale-list-width: $visual-sidebar-width;
+$inspector-width: 200px;
+$pipeline-sidebar-width: 200px;
+$sidebars-width: $visual-sidebar-width + $inspector-width + $pipeline-sidebar-width;
 
 $header-font-size: 15px;
 
+// Paddings
+
+$outer-padding: 10px;
+$inner-padding: 5px;
+$margin: $outer-padding;
