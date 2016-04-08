@@ -136,7 +136,7 @@ var Property = React.createClass({
       className += ' can-drop';
     }
     if (extraEl) {
-      className += ' extra';
+      extraEl = (<div className="extra">{extraEl}</div>)
     }
 
     return (
@@ -145,8 +145,8 @@ var Property = React.createClass({
         <div className="control">
           {scaleEl}
           {controlEl}
-          {extraEl}
         </div>
+        {extraEl}
       </div>
     );
   }
