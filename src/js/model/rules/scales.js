@@ -10,6 +10,46 @@ var REF_CELLW = {data: 'layout', field: 'cellWidth'},
     REF_CELLH = {data: 'layout', field: 'cellHeight'};
 
 /**
+ * Parse the scale definitions in the resultant Vega specification to determine
+ * if new Lyra scale primitives should be constructed, or existing ones updated.
+ * @todo Why do we not pass `channel` so that only scales for the bound channel
+ * are evaluated?
+ *
+ * @namespace  rules.scales
+ * @memberOf rules
+ * @param  {Object} parsed An object containing the parsed rule and output Vega spec.
+ * @return {void}
+ */
+function scales(parsed) {
+  var map = this._rule._map.scales,
+      channels = dl.keys(parsed.rule.encoding), // Only account for channels defined in the rule.
+      scales = parsed.spec.marks[0].scales, // For a VLSingle, all scales are defined within the first group mark.
+      len = channels.length,
+      name, def, curr, find = function(x) {
+        return x.name === name;
+      };
+
+  for (var i = 0; i < len; ++i) {
+    // Vega-Lite names scales by the channel they're used for. If we've previously
+    // parsed a scale for a channel, it will exist within the rule's map.
+    name = channels[i];
+    curr = lookup(map[name]);
+
+    // Find a corresponding definition within the compiled Vega spec, and parse
+    // it so that we can test to see if we should update an existing scale or
+    // create a new one.
+    def = parse.call(this, scales.find(find));
+    if (!def) continue;
+
+    // If no current scale exists for this channel, or if there's a mismatch in
+    // definitions, construct or update the Lyra model.
+    if (!curr || !equals.call(this, def, curr)) {
+      scale.call(this, def);
+    }
+  }
+}
+
+/**
  * Parse a Vega scale definition (produced by Vega-Lite) and return an object
  * that mimics Lyra's Scale primitive. Note: this does not construct a Lyra Scale
  * primitive, but instead produces an object to compare existing Scale
@@ -17,6 +57,7 @@ var REF_CELLW = {data: 'layout', field: 'cellWidth'},
  * IDs, and account for Vega-Lite idiosyncracies such as hardcoded ranges and
  * band sizes.
  *
+ * @memberOf rules.scales
  * @param  {Object} def A Vega scale definition.
  * @return {Object} An object that mimics a Lyra Scale primitive.
  */
@@ -53,6 +94,7 @@ function parse(def) {
  * prefers to use ordinal "band" scales for rect marks to simplify encoding
  * specification. TODO: revisit?
  *
+ * @memberOf rules.scales
  * @param  {Object} def   A parsed Vega scale definition.
  * @param  {Scale}  scale A Lyra Scale primitive
  * @return {boolean} Returns true or false based on if the given Lyra scale
@@ -72,6 +114,7 @@ function equals(def, scale) {
  * Constructs a new Lyra Scale primitive, or updates an existing one, based on
  * the given parsed Vega scale definition.
  *
+ * @memberOf rules.scales
  * @param  {Object} def A parsed Vega scale definition
  * @return {Scale} A Lyra Scale primitive.
  */
@@ -103,40 +146,4 @@ function scale(def) {
   return this.parent().child('scales', s);
 }
 
-/**
- * Parse the scale definitions in the resultant Vega specification to determine
- * if new Lyra scale primitives should be constructed, or existing ones updated.
- * @todo Why do we not pass `channel` so that only scales for the bound channel
- * are evaluated?
- *
- * @param  {Object} parsed An object containing the parsed rule and output Vega spec.
- * @return {void}
- */
-module.exports = function(parsed) {
-  var map = this._rule._map.scales,
-      channels = dl.keys(parsed.rule.encoding), // Only account for channels defined in the rule.
-      scales = parsed.spec.marks[0].scales, // For a VLSingle, all scales are defined within the first group mark.
-      len = channels.length,
-      name, def, curr, find = function(x) {
-        return x.name === name;
-      };
-
-  for (var i = 0; i < len; ++i) {
-    // Vega-Lite names scales by the channel they're used for. If we've previously
-    // parsed a scale for a channel, it will exist within the rule's map.
-    name = channels[i];
-    curr = lookup(map[name]);
-
-    // Find a corresponding definition within the compiled Vega spec, and parse
-    // it so that we can test to see if we should update an existing scale or
-    // create a new one.
-    def = parse.call(this, scales.find(find));
-    if (!def) continue;
-
-    // If no current scale exists for this channel, or if there's a mismatch in
-    // definitions, construct or update the Lyra model.
-    if (!curr || !equals.call(this, def, curr)) {
-      scale.call(this, def);
-    }
-  }
-};
+module.exports = scales;

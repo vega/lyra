@@ -6,13 +6,17 @@
  * rule's `map` to identify the data source named "source" as our backing Lyra
  * Dataset primitive.
  *
+ * @namespace  rules.data
+ * @memberOf rules
  * @param  {Object} parsed An object containing the parsed rule and output Vega spec.
  * @param  {Dataset} from  The Lyra Dataset primitive that backs the current mark.
  * @return {void}
  */
-module.exports = function(parsed, from) {
+function data(parsed, from) {
   var map = this._rule._map.data;
   // This is a super-simple map to map b/w names in the vega output
   // VL's data[0].name.source maps to something in lyra e.g.
   map.source = from.parent()._source._id;
-};
+}
+
+module.exports = data;

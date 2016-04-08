@@ -15,12 +15,14 @@ var TYPES = Guide.TYPES,
  * specification to determine if new Lyra Guide primitives should be
  * constructed, or existing ones updated.
  *
+ * @namespace rules.guides
+ * @memberOf rules
  * @param  {Object} parsed   An object containing the parsed rule and output Vega spec.
  * @param  {string} property The Lyra mark's property that was just bound.
  * @param  {string} channel  The corresponding Vega-Lite channel
  * @return {void}
  */
-module.exports = function(parsed, property, channel) {
+function guides(parsed, property, channel) {
   var ctype = CTYPE[channel];
   if (!ctype) return;
 
@@ -33,7 +35,7 @@ module.exports = function(parsed, property, channel) {
   return ctype === TYPES.AXIS ?
     axis.call(this, scale, group.axes) :
     legend.call(this, scale, group.legends, property);
-};
+}
 
 var SWAP_ORIENT = {
   left: 'right', right: 'left',
@@ -45,6 +47,7 @@ var SWAP_ORIENT = {
  * enclosing group does not already have two axes of the same type (i.e., two
  * x-axes or two y-axes), a new Lyra axis Guide primitive is constructed.
  *
+ * @memberOf rules.guides
  * @param  {Scale}  scale A Lyra Scale primitive.
  * @param  {Object} defs  A parsed Vega axis definition.
  * @return {void}
@@ -85,6 +88,7 @@ function axis(scale, defs) {
  * Attempts to find a legend for the given scale. If one is not found, a new
  * Lyra legend Guide primitive is constructed.
  *
+ * @memberOf rules.guides
  * @param  {Scale}  scale A Lyra Scale primitive.
  * @param  {Object} defs  A parsed Vega legend definition.
  * @param  {string} property The Lyra mark's property that was just bound.
@@ -106,3 +110,5 @@ function legend(scale, defs, property) {
     this.parent().child('legends', legend);
   }
 }
+
+module.exports = guides;

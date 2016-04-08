@@ -73,6 +73,7 @@ function rules(prototype) {
  * There isn't a 1-1 correspondance between Lyra and Vega-Lite channels.
  * This function returns the most suitable Vega-Lite channel for a Lyra one.
  *
+ * @memberOf rules
  * @param  {string} name The name of a Lyra channel
  * @return {string} A Vega-Lite channel
  */
@@ -105,6 +106,7 @@ var re = {
  * the corresponding aggregate/bin prefix via a RegExp, and instead set
  * the `aggregate` or `bin` keywords necessary for Vega-Lite.
  *
+ * @memberOf rules
  * @param  {Field} field A Lyra data field primitive.
  * @return {Object} A Vega-Lite channel definition.
  */
@@ -131,6 +133,7 @@ function channelDef(field) {
  * source is embedded in the VL spec, and config values are supplied
  * to be able to account for VL idiosyncracies during static analysis.
  *
+ * @memberOf rules
  * @param  {VLSingle} rule   A Vega-Lite specification
  * @param  {string} property The Lyra channel being bound.
  * @param  {Dataset} from    A Lyra Dataset primitive that backs the current mark.
