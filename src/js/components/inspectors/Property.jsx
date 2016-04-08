@@ -74,10 +74,10 @@ var Property = React.createClass({
 
     labelEl = labelEl || (<label htmlFor={name}>{label}</label>);
     scaleEl = scale && (scale = lookup(scale)) ?
-      (<div className="scale">{scale.name}</div>) : null;
+      (<div className="scale" onClick={this.unbind}>{scale.name}</div>) : null;
 
     controlEl = field && (field = lookup(field)) ?
-      (<div className="field">{field._name}</div>) : controlEl;
+      (<div className="field" onClick={this.unbind}>{field._name}</div>) : controlEl;
 
     if (!controlEl) {
       switch (type) {

@@ -59,6 +59,13 @@ $long-label-width: $label-width + 10px;
       border: 0;
       border-radius: $outer-padding;
     }
+
+    &:hover {
+      .scale, .field {
+        cursor: pointer;
+        text-decoration: line-through;
+      }
+    }
   }
 
   .extra {
