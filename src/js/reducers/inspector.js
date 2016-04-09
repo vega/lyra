@@ -8,14 +8,6 @@ var getIn = require('../util/immutable-utils').getIn;
 var setIn = require('../util/immutable-utils').setIn;
 
 function selectPipeline(state, action) {
-  var selectedPipelineId = getIn(state, 'pipelines.selected');
-
-  // If the pipeline that was selected is already open, close it
-  if (action.id === selectedPipelineId) {
-    return setIn(state, 'pipelines.selected', null);
-  }
-
-  // otherwise, switch to the newly-selected pipeline
   return setIn(state, 'pipelines.selected', action.id);
 }
 
