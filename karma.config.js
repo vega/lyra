@@ -68,7 +68,9 @@ module.exports = function(config) {
             loader: 'raw-loader'
           },
           {
-            test: /\.svg$/,
+            include: [
+              path.resolve(__dirname, 'src/assets')
+            ],
             loader: 'raw-loader'
           }
         ],
