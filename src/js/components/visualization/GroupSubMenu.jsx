@@ -77,14 +77,10 @@ var Group = React.createClass({
     ReactTooltip.hide();
   },
 
-  toggleFolder: function(id) {
-    this.props.select(id);
-    this.props.toggle(id);
-  },
-
   icon: function(type, expanded) {
     var icon = iconMap[type] + (type === 'group' && expanded ? '-open' : ''),
-        iconMarkup = (<i className={'fa ' + icon} onClick={this.props.toggle.bind(null, this.props.id)}></i>);
+        click = type === 'group' ? this.props.toggle.bind(null, this.props.id) : null,
+        iconMarkup = (<i className={'fa ' + icon} onClick={click}></i>);
     return iconMarkup;
   },
 
@@ -123,13 +119,12 @@ var Group = React.createClass({
               level={level + 1} />
           ) : (
             <li key={id}>
-              <div
-                className={'name' + (selectedId === id ? ' selected' : '')}>
-                <div onClick={this.props.select.bind(null, id)}>
-                  <ContentEditable value={name}
-                    save={props.updateProperty.bind(null, id, 'name')}
-                    onClick={props.select.bind(null, id)} />
-                  </div>
+              <div className={'name' + (selectedId === id ? ' selected' : '')}
+                onClick={this.props.select.bind(null, id)}>
+                {icon}
+                <ContentEditable value={name}
+                  save={props.updateProperty.bind(null, id, 'name')}
+                  onClick={props.select.bind(null, id)} />
                 <i className="delete-sidebar fa fa-trash"
                   onClick={this.deleteUpdate.bind(null, id)}
                   data-tip={'Delete ' + name}
@@ -146,14 +141,13 @@ var Group = React.createClass({
 
     return (
       <li className={isExpanded ? 'expanded' : 'contracted'}>
-        <div
-          className={'name' + (selectedId === groupId ? ' selected' : '')}>
-          <div onClick={props.select.bind(null, groupId)}>
-            {icon}
-            <ContentEditable value={name}
-              save={this.props.updateProperty.bind(null, groupId, 'name')}
-              onClick={this.toggleFolder.bind(null, groupId)} />
-          </div>
+        <div className={'name' + (selectedId === groupId ? ' selected' : '')}
+          onClick={props.select.bind(null, groupId)}>
+          {icon}
+          <ContentEditable value={name}
+            save={this.props.updateProperty.bind(null, groupId, 'name')}
+            onClick={props.select.bind(null, groupId)} />
+
           <i className="delete-sidebar fa fa-trash"
             onClick={this.props.deleteMark.bind(null, groupId)}
             data-html={true}

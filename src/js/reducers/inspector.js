@@ -6,9 +6,12 @@ var Immutable = require('immutable');
 var actions = require('../constants/actions');
 var getIn = require('../util/immutable-utils').getIn;
 var setIn = require('../util/immutable-utils').setIn;
+var hierarchy = require('../util/hierarchy');
 
-function selectPipeline(state, action) {
-  return setIn(state, 'pipelines.selected', action.id);
+function expandLayers(state, layerIds) {
+  return layerIds.reduce(function(newState, layerId) {
+    return setIn(newState, 'expandedLayers.' + layerId, true);
+  }, state);
 }
 
 function inspectorReducer(state, action) {
@@ -37,13 +40,14 @@ function inspectorReducer(state, action) {
   }
 
   if (action.type === actions.SELECT_MARK) {
-    return state.set('selected', action.markId);
+    var lookup = require('../model').lookup,
+        parentGroupIds = hierarchy.getParentGroupIds(lookup(action.markId));
+
+    return expandLayers(state.set('selected', action.markId), parentGroupIds);
   }
 
   if (action.type === actions.EXPAND_LAYERS) {
-    return action.layerIds.reduce(function(newState, layerId) {
-      return setIn(newState, 'expandedLayers.' + layerId, true);
-    }, state);
+    return expandLayers(state, action.layerIds);
   }
 
   if (action.type === actions.REMOVE_LAYERS) {
@@ -60,7 +64,7 @@ function inspectorReducer(state, action) {
   }
 
   if (action.type === actions.PIPELINE_SELECT) {
-    return selectPipeline(state, action);
+    return setIn(state, 'pipelines.selected', action.id);
   }
 
   return state;
