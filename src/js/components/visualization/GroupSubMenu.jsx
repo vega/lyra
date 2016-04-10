@@ -11,16 +11,9 @@ var React = require('react'),
     markDelete = require('../../actions/markDelete'),
     updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
     expandLayers = require('../../actions/expandLayers'),
-    toggleLayers = require('../../actions/toggleLayers');
-
-var iconMap = {
-  rect: 'fa-square-o',
-  line: 'fa-line-chart',
-  group: 'fa-folder',
-  area: 'fa-area-chart',
-  text: 'fa-file-text-o',
-  symbol: 'fa-moon-o'
-};
+    toggleLayers = require('../../actions/toggleLayers'),
+    Icon = require('../Icon'),
+    assets = require('../../util/assets');
 
 function mapStateToProps(reduxState) {
   return {
@@ -78,9 +71,10 @@ var Group = React.createClass({
   },
 
   icon: function(type, expanded) {
-    var icon = iconMap[type] + (type === 'group' && expanded ? '-open' : ''),
+    var gtype = type + (type === 'group' ? expanded ? '-open' : '-closed' : ''),
+        glyph = assets[gtype],
         click = type === 'group' ? this.props.toggle.bind(null, this.props.id) : null,
-        iconMarkup = (<i className={'fa ' + icon} onClick={click}></i>);
+        iconMarkup = (<Icon glyph={glyph} onClick={click} />);
     return iconMarkup;
   },
 
@@ -125,10 +119,10 @@ var Group = React.createClass({
                 <ContentEditable value={name}
                   save={props.updateProperty.bind(null, id, 'name')}
                   onClick={props.select.bind(null, id)} />
-                <i className="delete-sidebar fa fa-trash"
+                <Icon glyph={assets.trash} className="delete"
                   onClick={this.deleteUpdate.bind(null, id)}
                   data-tip={'Delete ' + name}
-                  data-place="right"></i>
+                  data-place="right" />
               </div>
             </li>
           );
@@ -148,11 +142,11 @@ var Group = React.createClass({
             save={this.props.updateProperty.bind(null, groupId, 'name')}
             onClick={props.select.bind(null, groupId)} />
 
-          <i className="delete-sidebar fa fa-trash"
+          <Icon glyph={assets.trash} className="delete"
             onClick={this.props.deleteMark.bind(null, groupId)}
             data-html={true}
             data-tip={'Delete ' + name + ' and <br> everything inside it'}
-            data-place="right"></i>
+            data-place="right" />
         </div>
         {contents}
       </li>

@@ -11,6 +11,8 @@ $long-label-width: $label-width + 10px;
     margin: $inner-padding 0;
     color: $blue-font;
     font-weight: bold;
+    cursor: default;
+    text-align: left;
     text-transform: uppercase;
   }
 
