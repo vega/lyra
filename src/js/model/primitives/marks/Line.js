@@ -49,7 +49,7 @@ Line.defaultProperties = function(props) {
         stroke: {value: '#000000'},
         strokeWidth: {value: 3},
         tension: {value: 13},
-        interpolate: {value: 'monotone'},
+        interpolate: {value: 'monotone'}
       }
     })
   };

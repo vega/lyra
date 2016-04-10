@@ -49,8 +49,8 @@ describe('Area Inspector <Area/> (shallow)', function() {
     expect(wrapper.find(Property)).to.have.length(7);
   });
 
-  it('it should render 6 h4 tags', function() {
-    expect(wrapper.find('h4')).to.have.length(6);
+  it('it should render 6 h3 tags', function() {
+    expect(wrapper.find('h3')).to.have.length(6);
   });
 });
 

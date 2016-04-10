@@ -66,6 +66,10 @@ module.exports = function(config) {
           {
             test: /\.png$/,
             loader: 'raw-loader'
+          },
+          {
+            test: /\.svg$/,
+            loader: 'raw-loader'
           }
         ],
         // instrument only testing sources with Istanbul
