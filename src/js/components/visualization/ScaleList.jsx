@@ -22,12 +22,7 @@ var ScaleList = React.createClass({
         selectedId = props.selectedId;
     return (
       <div id="scale-list" className="expandingMenu">
-        <h4 className="hed-tertiary">
-          Scales
-          <Icon glyph={assets.plus}
-            data-tip="Add a new scale."
-            data-place="right" />
-        </h4>
+        <h2>Scales</h2>
         <ul>
           {props.scales.map(function(scale) {
             function updateScaleName(val) {
