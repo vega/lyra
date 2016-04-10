@@ -69,7 +69,7 @@ var Property = React.createClass({
         extraEl = child;
       } else if (className === 'control') {
         controlEl = child;
-      } else if (type === 'label' || className.indexOf('label') !== -1) {
+      } else if (type === 'label' || (className && className.indexOf('label') !== -1)) {
         labelEl = child;
       }
     });

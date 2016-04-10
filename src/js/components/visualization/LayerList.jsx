@@ -81,15 +81,6 @@ var LayerList = React.createClass({
           </li>
         </ul>
 
-        <h4 className="hed-tertiary">
-          <span>Groups </span>
-          <i className="fa fa-plus"
-            data-html={true}
-            data-tip="Add a new group to the scene <br> or create a subgroup."
-            data-place="right"
-            onClick={this.props.addMark.bind(null, 'group', containerId)}></i>
-        </h4>
-
         <ul>
         {layers.map(function(id) {
           return (
@@ -100,6 +91,9 @@ var LayerList = React.createClass({
           );
         }, this)}
         </ul>
+
+        <h3 onClick={this.props.addMark.bind(null, 'group', containerId)}>
+            <i className="fa fa-plus"></i> New Group</h3>
       </div>
     );
   }

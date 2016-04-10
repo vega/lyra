@@ -82,12 +82,9 @@ var Group = React.createClass({
     this.props.toggle(id);
   },
 
-  iconMenuRow: function(type, expanded) {
-    var icon = iconMap[type],
-        iconMarkup = (<i className={'fa ' + icon} onClick={this.toggleFolder.bind(null, this.props.id)}></i>);
-    if (type === 'group' && expanded) {
-      iconMarkup = (<i className={'fa ' + icon + '-open'} onClick={this.toggleFolder.bind(null, this.props.id)}></i>);
-    }
+  icon: function(type, expanded) {
+    var icon = iconMap[type] + (type === 'group' && expanded ? '-open' : ''),
+        iconMarkup = (<i className={'fa ' + icon} onClick={this.props.toggle.bind(null, this.props.id)}></i>);
     return iconMarkup;
   },
 
@@ -109,60 +106,58 @@ var Group = React.createClass({
         groupType = group.type,
         isExpanded = get(props.expandedLayers, groupId);
 
-    var contents = isExpanded && group.marks ?
-      (
-        <ul className="group">
-          <li className="header">Guides <i className="fa fa-plus"></i></li>
-          <li className="header">Marks <i className="fa fa-plus"></i></li>
-          {group.marks.map(function(id) {
-            var mark = lookup(id),
-                type = mark.type,
-                spinner = this.iconMenuRow(type, isExpanded);
+    var contents = isExpanded && group.marks ? (
+      <ul className="group">
+        <li className="header">Guides <i className="fa fa-plus"></i></li>
+        <li className="header">Marks <i className="fa fa-plus"></i></li>
+        {group.marks.map(function(id) {
+          var mark = lookup(id),
+              type = mark.type,
+              name = mark.name,
+              icon = this.icon(type, isExpanded);
 
-            // onClick={this.deleteUpdate.bind(null, id)}
-            return type === 'group' ? (
-              <Group key={id}
-                {...props}
-                id={id}
-                level={level + 1} />
-            ) : (
-              <li key={id}>
-                <div
-                  className={'name' + (selectedId === id ? ' selected' : '')}>
-                  <div onClick={this.props.select.bind(null, id)}>
-                    {spinner}
-                    <ContentEditable value={mark.name}
-                      save={props.updateProperty.bind(null, id, 'name')}
-                      onClick={props.select.bind(null, id)} />
-                    </div>
-                  <i className="delete-sidebar fa fa-trash"
-                    onClick={this.props.deleteMark.bind(null, id)}
-                    data-tip="Delete this"
-                    data-place="right"></i>
-                </div>
-              </li>
-            );
-          }, this)}
-        </ul>
-      ) :
-      null;
+          return type === 'group' ? (
+            <Group key={id}
+              {...props}
+              id={id}
+              level={level + 1} />
+          ) : (
+            <li key={id}>
+              <div
+                className={'name' + (selectedId === id ? ' selected' : '')}>
+                <div onClick={this.props.select.bind(null, id)}>
+                  <ContentEditable value={name}
+                    save={props.updateProperty.bind(null, id, 'name')}
+                    onClick={props.select.bind(null, id)} />
+                  </div>
+                <i className="delete-sidebar fa fa-trash"
+                  onClick={this.deleteUpdate.bind(null, id)}
+                  data-tip={'Delete ' + name}
+                  data-place="right"></i>
+              </div>
+            </li>
+          );
+        }, this)}
+      </ul>
+    ) : null;
 
-    var spinner = this.iconMenuRow(groupType, isExpanded);
-    // onClick={this.deleteUpdate.bind(null, groupId)}
+    var icon = this.icon(groupType, isExpanded),
+        name = group.name;
+
     return (
       <li className={isExpanded ? 'expanded' : 'contracted'}>
         <div
           className={'name' + (selectedId === groupId ? ' selected' : '')}>
-          <div onClick={this.toggleFolder.bind(null, groupId)}>
-            {spinner}
-            <ContentEditable value={group.name}
+          <div onClick={props.select.bind(null, groupId)}>
+            {icon}
+            <ContentEditable value={name}
               save={this.props.updateProperty.bind(null, groupId, 'name')}
               onClick={this.toggleFolder.bind(null, groupId)} />
           </div>
           <i className="delete-sidebar fa fa-trash"
             onClick={this.props.deleteMark.bind(null, groupId)}
             data-html={true}
-            data-tip="Delete this group <br> and everything inside it."
+            data-tip={'Delete ' + name + ' and <br> everything inside it'}
             data-place="right"></i>
         </div>
         {contents}

@@ -7,6 +7,13 @@ $long-label-width: $label-width + 10px;
     color: #fff;
   }
 
+  h3 {
+    margin: $inner-padding 0;
+    color: $blue-font;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
   .inner {
     padding: 0 $outer-padding;
   }
