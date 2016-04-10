@@ -167,8 +167,8 @@ Mark.prototype.export = function(clean) {
       v = upspec[k] = {value: v};
     }
 
-    if (v.scale) {
-      v.scale = (s = lookup(v.scale)) && s.name;
+    if (u.scale) {
+      v.scale = (s = lookup(u.scale)) && s.name;
     }
     if (u.field) {
       v.field = (f = lookup(u.field)) && f._name;
