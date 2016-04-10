@@ -8,10 +8,17 @@ h2 {
 }
 
 h3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 2*$outer-padding;
   text-align: center;
   color: #000;
   cursor: pointer;
+
+  .icon {
+    padding-right: $inner-padding;
+  }
 }
 
 .hint-header {

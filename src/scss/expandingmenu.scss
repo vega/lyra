@@ -10,18 +10,17 @@
       .name {
         position: relative;
         display: flex;
+        align-items: center;
         padding: 10px;
         cursor: pointer;
 
         .icon {
-          width: 13px;
-          height: 13px;
           padding-right: $inner-padding;
         }
 
         .delete {
           margin-left: auto;
-          margin-right: -4px;
+          margin-right: -3px;
           padding: 0;
           cursor: pointer;
           visibility: hidden;
@@ -55,6 +54,10 @@
   }
   .expanded {
     background-color: #fff;
+
+    > .name {
+      font-weight: bold;
+    }
 
     .expanded {
       background-color: $innerMenu;

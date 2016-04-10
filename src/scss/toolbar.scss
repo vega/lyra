@@ -7,7 +7,7 @@
   border: 1px solid #aaa;
 
   ul {
-    display: inline;
+    display: flex;
     margin: 0;
     border-left: solid 1px #666;
 
@@ -22,9 +22,15 @@
     li {
       text-transform: uppercase;
       width: auto;
-      padding: 10px;
-      display: inline-block;
+      padding: 7px;
+      display: flex;
       cursor: pointer;
+
+      .icon {
+        padding-right: $inner-padding;
+
+        &.undo, &.redo { padding-right: 0; }
+      }
 
       &:hover {
         background-color: $lblue-bg;
@@ -37,6 +43,7 @@
   }
 
   .menu {
+    display: flex;
     min-width: 580px;
 
     @include breakingMenus {

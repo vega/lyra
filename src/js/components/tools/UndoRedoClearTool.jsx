@@ -2,7 +2,9 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     selectMark = require('../../actions/selectMark'),
-    sceneClear = require('../../actions/sceneClear');
+    sceneClear = require('../../actions/sceneClear'),
+    assets = require('../../util/assets'),
+    Icon = require('../Icon');
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -23,8 +25,8 @@ var UndoRedoClear = React.createClass({
     return (
       <ul className={this.classNames}>
         <li onClick={this.props.clearScene}>Clear All</li>
-        <li><i className="fa fa-undo"></i> UNDO</li>
-        <li><i className="fa fa-repeat"></i> REDO</li>
+        <li><Icon glyph={assets.undo} className="undo" /></li>
+        <li><Icon glyph={assets.redo} className="redo" /></li>
       </ul>
     );
   }

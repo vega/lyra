@@ -12,8 +12,9 @@
       font-weight: bold;
       text-transform: uppercase;
 
-      i.fa-plus {
+      .icon {
         float: right;
+        fill: $blue-font;
       }
     }
   }

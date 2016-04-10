@@ -1,5 +1,7 @@
 'use strict';
-var React = require('react');
+var React = require('react'),
+    assets = require('../util/assets'),
+    Icon = require('./Icon');
 
 // Splitting each sidebar into its column
 var Hints = React.createClass({
@@ -12,7 +14,7 @@ var Hints = React.createClass({
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas posuere ipsum urna,
           id ultricies arcu hendrerit ut.
         </p>
-        <i className="close-hint fa fa-times"></i>
+        <Icon glyph={assets.close} />
       </div>
     );
   }

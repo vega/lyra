@@ -9,7 +9,9 @@ var React = require('react'),
     addMark = require('../../actions/markActions').addMark,
     selectMark = require('../../actions/selectMark'),
     expandLayers = require('../../actions/expandLayers'),
-    Group = require('./GroupSubMenu');
+    Group = require('./GroupSubMenu'),
+    assets = require('../../util/assets'),
+    Icon = require('../Icon');
 
 function mapStateToProps(reduxState) {
   var selectedMarkId = getIn(reduxState, 'inspector.selected'),
@@ -93,7 +95,7 @@ var LayerList = React.createClass({
         </ul>
 
         <h3 onClick={this.props.addMark.bind(null, 'group', containerId)}>
-            <i className="fa fa-plus"></i> New Group</h3>
+            <Icon glyph={assets.plus} /> New Group</h3>
       </div>
     );
   }

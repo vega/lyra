@@ -4,7 +4,9 @@ var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     DataTable = require('./DataTable'),
     selectPipeline = require('../../actions/selectPipeline'),
-    getIn = require('../../util/immutable-utils').getIn;
+    getIn = require('../../util/immutable-utils').getIn,
+    assets = require('../../util/assets'),
+    Icon = require('../Icon');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -38,7 +40,7 @@ var PipelineInspector = React.createClass({
     if (props.isSelected) {
       inner = (
         <div className="inner">
-          <p className="source"><i className="fa fa-database"></i> {pipeline._source.name}</p>
+          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {pipeline._source.name}</p>
           <DataTable dataset={pipeline._source} className="source" />
         </div>
       );

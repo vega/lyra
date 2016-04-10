@@ -6,5 +6,17 @@ module.exports = {
   area: require('../../assets/mark-area.svg'),
   text: require('../../assets/mark-text.svg'),
   symbol: require('../../assets/mark-symbol.svg'),
-  trash: require('../../assets/trash.svg')
+  trash: require('../../assets/trash.svg'),
+  plus: require('../../assets/plus.svg'),
+  undo: require('../../assets/undo.svg'),
+  redo: require('../../assets/redo.svg'),
+  database: require('../../assets/database.svg'),
+  nominal: require('../../assets/type-nominal.svg'),
+  ordinal: require('../../assets/type-ordinal.svg'),
+  quantitative: require('../../assets/type-quantitative.svg'),
+  temporal: require('../../assets/type-temporal.svg'),
+  prev: require('../../assets/prev.svg'),
+  next: require('../../assets/next.svg'),
+  close: require('../../assets/close.svg'),
+  hamburger: require('../../assets/hamburger.svg')
 };

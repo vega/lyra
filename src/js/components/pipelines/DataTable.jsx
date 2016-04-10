@@ -6,7 +6,9 @@ var d3 = require('d3'),
     model = require('../../model'),
     lookup = model.lookup,
     addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
-    sg = require('../../model/signals');
+    sg = require('../../model/signals'),
+    assets = require('../../util/assets'),
+    Icon = require('../Icon');
 
 var DataTable = React.createClass({
   propTypes: {
@@ -152,19 +154,14 @@ var DataTable = React.createClass({
         fullField = state.fullField,
         fullValue = state.fullValue;
 
-    var typeIcons = {
-      nominal: 'font', ordinal: 'font',
-      quantitative: 'hashtag', temporal: 'calendar'
-    };
-
     var prev = page > 0 ?
-          <i className="fa fa-arrow-left" onClick={this.prevPage}></i> : null,
+          <Icon glyph={assets.prev} width="10" height="10" onClick={this.prevPage} /> : null,
         next = page + 1 < max / limit ?
-          <i className="fa fa-arrow-right" onClick={this.nextPage}></i> : null;
+          <Icon glyph={assets.next} width="10" height="10" onClick={this.nextPage} /> : null;
 
     fullField = fullField ? (
       <span>
-        <i className={'fa fa-' + typeIcons[fullField._type]}></i> {fullField._name}
+        <Icon glyph={assets[fullField._type]} width="10" height="10" /> {fullField._name}
       </span>
       ) : null;
 

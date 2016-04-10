@@ -12,6 +12,7 @@ $long-label-width: $label-width + 10px;
     color: $blue-font;
     font-weight: bold;
     cursor: default;
+    justify-content: flex-start;
     text-align: left;
     text-transform: uppercase;
   }

@@ -1,25 +1,26 @@
 'use strict';
 var React = require('react'),
     AddMarksTool = require('./tools/AddMarksTool'),
-    UndoRedoClearTool = require('./tools/UndoRedoClearTool');
+    UndoRedoClearTool = require('./tools/UndoRedoClearTool'),
+    assets = require('../util/assets'),
+    Icon = require('./Icon');
 
 // Splitting each sidebar into its column
 var Toolbar = React.createClass({
-  classNames: 'toolbar',
   render: function() {
     return (
-      <div className={this.classNames}>
+      <div className="toolbar">
         <div className="toolbar-menu">
           <input type="checkbox" id="nav-trigger" className="nav-trigger" />
           <label htmlFor="nav-trigger">
-            <i className="fa fa-bars"></i>
+            <Icon glyph={assets.hamburger} />
           </label>
           <div className="menu">
             <AddMarksTool/>
+            <UndoRedoClearTool/>
             <ul>
               <li>EXPORT</li>
             </ul>
-            <UndoRedoClearTool/>
           </div>
         </div>
       </div>

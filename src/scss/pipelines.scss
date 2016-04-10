@@ -22,13 +22,15 @@ $pipeline-width: 180px;
   }
 
   p.source {
+    display: flex;
+    align-items: center;
     margin: $margin (-$inner-padding);
     padding: $inner-padding;
     background: $lgrey-bg;
     border-top: 1px solid $lgrey-border;
     border-bottom: 1px solid $lgrey-border;
 
-    i { margin-right: $inner-padding; }
+    .icon { margin-right: $inner-padding; }
   }
 
   &.selected {
@@ -90,10 +92,6 @@ $pipeline-width: 180px;
 
     &.field {
       left: $inner-padding;
-
-      i {
-        margin-right: $inner-padding;
-      }
     }
 
     &.value {
@@ -118,7 +116,7 @@ $pipeline-width: 180px;
     }
   }
 
-  i {
+  .icon {
     cursor: pointer;
     opacity: 0.6;
 

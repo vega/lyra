@@ -98,8 +98,8 @@ var Group = React.createClass({
 
     var contents = isExpanded && group.marks ? (
       <ul className="group">
-        <li className="header">Guides <i className="fa fa-plus"></i></li>
-        <li className="header">Marks <i className="fa fa-plus"></i></li>
+        <li className="header">Guides <Icon glyph={assets.plus} width="10" height="10" /></li>
+          <li className="header">Marks <Icon glyph={assets.plus} width="10" height="10" /></li>
         {group.marks.map(function(id) {
           var mark = lookup(id),
               type = mark.type,
