@@ -9,7 +9,7 @@ var VisualSidebar = React.createClass({
     var scales = model.scale();
     return (
       <div className="sidebar" id="visual-sidebar">
-        <h2>Visuals</h2>
+        <h2>Groups</h2>
 
         <LayerList ref="layerList"
           layers={model.Scene.marks} />
