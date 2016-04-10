@@ -50,7 +50,7 @@ var AddMarksTool = React.createClass({
       this.props.sceneId;
 
     return (
-      <ul className={this.classNames}>
+      <ul>
         {marksArray.map(function(markType, i) {
           return (
             <li key={markType}

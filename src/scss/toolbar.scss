@@ -20,6 +20,7 @@
     }
 
     li {
+      position: relative;
       text-transform: uppercase;
       width: auto;
       padding: 7px;
@@ -32,8 +33,27 @@
         &.undo, &.redo { padding-right: 0; }
       }
 
+      ul {
+        visibility: hidden;
+        position: absolute;
+        flex-flow: row wrap;
+        z-index: 9999;
+        top: 27px;
+        left: 0px;
+        background-color: #BFBFBF;
+        border: 1px solid #aaa;
+        box-shadow: 2px 2px 17px 0px rgba(0,0,0,0.15);
+
+        li {
+          display: block;
+          width: 100%;
+        }
+      }
+
       &:hover {
         background-color: $lblue-bg;
+
+        ul { visibility: visible; }
       }
 
       @include breakingMenus {

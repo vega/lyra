@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title>Vega Scaffold</title>
+    <script src="https://vega.github.io/vega-editor/vendor/d3.min.js"></script>
+    <script src="https://vega.github.io/vega/vega.min.js"></script>
+  </head>
+  <body>
+    <div id="vis"></div>
+  </body>
+  <script type="text/javascript">
+  // parse a spec and create a visualization view
+  function parse(spec) {
+    vg.parse.spec(spec, function(error, chart) {
+      chart({el:"#vis"}).update();
+    });
+  }
+  parse(INJECT_SPEC);
+  </script>
+</html>
