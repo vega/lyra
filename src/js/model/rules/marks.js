@@ -5,38 +5,6 @@ var model = require('../'),
     lookup = model.lookup;
 
 /**
- * Parses the mark definition in the resultant Vega specification to determine
- * how to update the Lyra mark primitive.
- *
- * @namespace rules.marks
- * @memberOf rules
- * @param  {Object} parsed   An object containing the parsed rule and output Vega spec.
- * @param  {string} property The Lyra mark's property that was just bound.
- * @param  {string} channel  The corresponding Vega-Lite channel
- * @returns {void}
- */
-function marks(parsed, property, channel) {
-  var map = this._rule._map,
-      def = parsed.spec.marks[0].marks[0],
-      props = this.properties.update,
-      dprops = def.properties.update,
-      from;
-
-  if (def.from && def.from.data) {
-    this.dataset(map.data[def.from.data]);
-    from = lookup(this.from);
-  }
-
-  // Rect mark's spatial properties are handled separately as we need to account
-  // for the four extent properties (x/x2/xc/width, y/y2/yc/height).
-  if (this.type === 'rect' && (channel === 'x' || channel === 'y')) {
-    rectSpatial.call(this, map, property, channel, props, dprops, from);
-  } else {
-    bindProperty.call(this, map, property, props, dprops, from);
-  }
-}
-
-/**
  * Updates a Lyra mark property using a parsed Vega property definition.
  *
  * @memberOf rules.marks
@@ -75,7 +43,6 @@ function bindProperty(map, property, props, def, from) {
   }
 }
 
-
 /**
  * Binding a spatial channel of a rect mark requires binding two properties.
  * For example, Vega-Lite produces center/span (e.g., xc/width) properties when
@@ -93,7 +60,7 @@ function bindProperty(map, property, props, def, from) {
  */
 var RECT_SPANS = {x: 'width', y: 'height'};
 function rectSpatial(map, property, channel, props, def, from) {
-  var max  = channel + '2',
+  var max = channel + '2',
       cntr = channel + 'c',
       span = RECT_SPANS[channel];
 
@@ -117,6 +84,38 @@ function rectSpatial(map, property, channel, props, def, from) {
     bindProperty.call(this, map, span, props, def, from);
 
     props[max]._disabled = true;
+  }
+}
+
+/**
+ * Parses the mark definition in the resultant Vega specification to determine
+ * how to update the Lyra mark primitive.
+ *
+ * @namespace rules.marks
+ * @memberOf rules
+ * @param  {Object} parsed   An object containing the parsed rule and output Vega spec.
+ * @param  {string} property The Lyra mark's property that was just bound.
+ * @param  {string} channel  The corresponding Vega-Lite channel
+ * @returns {void}
+ */
+function marks(parsed, property, channel) {
+  var map = this._rule._map,
+      def = parsed.spec.marks[0].marks[0],
+      props = this.properties.update,
+      dprops = def.properties.update,
+      from;
+
+  if (def.from && def.from.data) {
+    this.dataset(map.data[def.from.data]);
+    from = lookup(this.from);
+  }
+
+  // Rect mark's spatial properties are handled separately as we need to account
+  // for the four extent properties (x/x2/xc/width, y/y2/yc/height).
+  if (this.type === 'rect' && (channel === 'x' || channel === 'y')) {
+    rectSpatial.call(this, map, property, channel, props, dprops, from);
+  } else {
+    bindProperty.call(this, map, property, props, dprops, from);
   }
 }
 
