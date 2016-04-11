@@ -184,6 +184,11 @@ describe('immutable utilities', function() {
       ]);
     });
 
+    it('does nothing if the provided path does not resolve to an array', function() {
+      var result = ensureValuePresent(map, 'some.bad.path', 1);
+      expect(result).to.equal(map);
+    });
+
   });
 
   describe('ensureValueAbsent', function() {
@@ -218,6 +223,11 @@ describe('immutable utilities', function() {
       var result = ensureValueAbsent(map, 'some.arrOfStrs', 'echidna');
       expect(result).to.equal(map);
       expect(getIn(result, 'some.arrOfStrs').toJS()).to.deep.equal(['kookaburra', 'numbat', 'bobcat', 'photocopier']);
+    });
+
+    it('does nothing if the provided path does not resolve to an array', function() {
+      var result = ensureValueAbsent(map, 'some.bad.path', 1);
+      expect(result).to.equal(map);
     });
 
   });

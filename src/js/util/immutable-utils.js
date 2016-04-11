@@ -45,6 +45,8 @@ function set(structure, key, value) {
  * custom function is advised, because this method relies on object equality
  * to determine equivalence.
  *
+ * If the provided path string does not resolve to an array, nothing is changed.
+ *
  * @param  {Object} state - An Immutable iterable object (map, list, etc)
  * @param  {string} arrPathStr - A path designating the location of the array to
  * modify, e.g. 'prop.child.arr'
@@ -55,6 +57,9 @@ function set(structure, key, value) {
  */
 function ensureValuePresent(state, arrPathStr, valToAdd) {
   var arr = getIn(state, arrPathStr);
+  if (!arr) {
+    return state;
+  }
   var vals = typeof arr.toJS === 'function' ? arr.toJS() : arr;
   return vals.indexOf(valToAdd) < 0 ?
     setIn(state, arrPathStr, Immutable.fromJS(vals.concat([valToAdd]))) :
@@ -69,6 +74,8 @@ function ensureValuePresent(state, arrPathStr, valToAdd) {
  * function is advised, because this method relies on object equality to
  * determine equivalence.
  *
+ * If the provided path string does not resolve to an array, nothing is changed.
+ *
  * @param  {Object} state - An Immutable iterable object (map, list, etc)
  * @param  {string} arrPathStr - A path designating the location of the array to
  * modify, e.g. 'prop.child.arr'
@@ -78,6 +85,9 @@ function ensureValuePresent(state, arrPathStr, valToAdd) {
  */
 function ensureValueAbsent(state, arrPathStr, valToRemove) {
   var arr = getIn(state, arrPathStr);
+  if (!arr) {
+    return state;
+  }
   var vals = typeof arr.toJS === 'function' ? arr.toJS() : arr;
   return vals.indexOf(valToRemove) >= 0 ?
     setIn(state, arrPathStr, Immutable.fromJS(vals.filter(function(val) {
