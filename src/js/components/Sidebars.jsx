@@ -8,6 +8,7 @@ var React = require('react'),
     PipelinesSidebar = require('./PipelinesSidebar'),
     Toolbar = require('./Toolbar'),
     Hints = require('./Hints'),
+    Footer = require('./Footer'),
     model = require('../model');
 
 // Use mapDispatchToProps to force sidebar to update when the user makes any
@@ -28,13 +29,15 @@ var Sidebars = React.createClass({
   render: function() {
     var pipelines = model.pipeline();
     return (
-      <div>
+      <div className="sidebar-container">
         <VisualSidebar />
         <InspectorSidebar ref="inspector"
           pipelines={pipelines} />
         <PipelinesSidebar />
+        </div>
         <Toolbar/>
         <Hints/>
+        <Footer/>
         <ReactTooltip effect="solid"/>
       </div>
     );
