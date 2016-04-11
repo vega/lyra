@@ -8,7 +8,7 @@ var actions = require('../constants/actions');
 function walkthroughReducer(state, action) {
   if (typeof state === 'undefined') {
     return Immutable.fromJS({
-      data: {},
+      data: require('../walkthrough'),
       activeStep: null,
       activeWalkthrough: null,
       walkthroughMode: false

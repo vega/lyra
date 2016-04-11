@@ -2,11 +2,12 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     Modal = require('react-modal'),
+    getIn = require('../../util/immutable-utils').getIn,
     WActions = require('../../actions/walkthrough');
 
 
 function mapStateToProps(reduxState, ownProps) {
-  var walkD = require('../../walkthrough');
+  var walkD = getIn(reduxState, 'walkthrough.data').toJS();
   return {
     walkthroughs: function(){
       var walkthroughs = [];
