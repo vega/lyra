@@ -91,10 +91,8 @@ function getParentGroupIds(primitive) {
  * desired item, walk the scene graph to find that desired item and return its
  * Vega scene graph representation.
  *
- * Backlog: this method is opaque and could use a re-write to improve readability.
- *
- * @param  {[type]} item [description]
- * @param  {[type]} path [description]
+ * @param  {Object} item The root vega-scenegraph Item.
+ * @param  {number[]} path An array of Lyra Primitive IDs to walk down.
  * @returns {Object|null} The matched item, or null;
  */
 function findInItemTree(item, path) {
