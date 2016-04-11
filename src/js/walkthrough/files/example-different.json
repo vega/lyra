@@ -2,30 +2,76 @@
   "title": "Cool times",
   "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
   "alt_text": "an image",
-  "steps":[
-    {
-      "id": 1,
-      "title": "Step 1: Add a symbol",
-      "text": "Click on the SYMBOL button in the toolbar to add a new Rect to the canvas",
-      "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
-      "alt_text": "an image",
-      "lyra_state": {}
+  "steps": [{
+    "id": 1,
+    "title": "Step 1: Add a SYMBOL",
+    "text": "Click on the SYMBOL button in the toolbar to add a new Rect to the canvas",
+    "image": "http://fillmurray.com/g/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "help": "If you are stuck, try clearing the scene."
+  }, {
+    "id": 2,
+    "title": "Step 2: Change symbol shape",
+    "text": "Select the SYMBOL and change it's SHAPE to CROSS",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {
+      "marks": [{
+        "type": "symbol"
+      }]
     },
-    {
-      "id": 2,
-      "title": "Step 2: Change Geometry Shape",
-      "text": "Select the new mark and change it's shape in the property inspector to 'triangle up' which is under Geometry.",
-      "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
-      "alt_text": "an image",
-      "lyra_state": {}
+    "help": "If you are stuck, try clearing the scene."
+  }, {
+    "id": 3,
+    "title": "Step 3: Change color and add RECT",
+    "text": "Select the SYMBOL mark and then change it's stroke color to #ffffff, then add a RECT mark and change it's fill to #000000",
+    "image": "http://fillmurray.com/g/150/150",
+    "alt_text": "an image",
+    "lyra_state": {
+      "marks": [{
+        "type": "symbol",
+        "properties": {
+          "update": {
+            "shape": {
+              "value": "cross"
+            }
+          }
+        }
+      }]
     },
-    {
-      "id": 3,
-      "title": "Step 2: Change color",
-      "text": "Select the new mark and then change it's color to #bbCCaa in the property inspector",
-      "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
-      "alt_text": "an image",
-      "lyra_state": {}
+    "help": "If you are stuck, try clearing the scene."
+  }, {
+    "id": 4,
+    "title": "Walkthrough complete!",
+    "text": "You did it!",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {
+      "marks": [
+      {
+        "type": "symbol",
+        "properties": {
+          "update": {
+            "shape": {
+              "value": "cross"
+            },
+            "stroke": {
+              "value": "#ffffff"
+            }
+          }
+        }
+      },
+      {
+        "type": "rect",
+        "properties": {
+          "update": {
+            "fill": {
+              "value": "#000000"
+            }
+          }
+        }
+      }]
     }
-  ]
+  }]
 }

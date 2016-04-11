@@ -4,6 +4,6 @@
 'use strict';
 
 module.exports = {
-  example: require("json!./files/example.json"),
-  barChart: require("json!./files/example-different.json")
-}
+  example: require('json!./files/example.json'),
+  barChart: require('json!./files/example-different.json')
+};

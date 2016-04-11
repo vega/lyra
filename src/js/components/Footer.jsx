@@ -1,13 +1,12 @@
 'use strict';
 var React = require('react'),
-    connect = require('react-redux').connect,
     Modal = require('react-modal'),
     Walkthroughs = require('./walkthrough/Menu');
 
 
-var Footer = connect()(React.createClass({
+var Footer = React.createClass({
   getInitialState: function() {
-    return { modalIsOpen: false };
+    return {modalIsOpen: false};
   },
 
   openModal: function() {
@@ -23,7 +22,7 @@ var Footer = connect()(React.createClass({
       <footer className={this.classNames}>
         <ul>
           <li onClick={this.openModal}>About</li>
-          <li>Github</li>
+          <li><a href="https://github.com/vega/lyra">Github</a></li>
           <li>
             <Walkthroughs/>
           </li>
@@ -42,6 +41,6 @@ var Footer = connect()(React.createClass({
       </footer>
     );
   }
-}));
+});
 
 module.exports = Footer;

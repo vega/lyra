@@ -9,9 +9,8 @@ function walkthroughReducer(state, action) {
   if (typeof state === 'undefined') {
     return Immutable.fromJS({
       data: require('../walkthrough'),
-      activeStep: null,
-      activeWalkthrough: null,
-      walkthroughMode: false
+      activeStep: 1,
+      activeWalkthrough: null
     });
   }
 
@@ -25,10 +24,6 @@ function walkthroughReducer(state, action) {
 
   if (action.type === actions.SET_WALKTHROUGH) {
     return state.set(action.key, assign({}, state.get(action.key), action.data));
-  }
-
-  if (action.type === actions.SET_WALKTHROUGH_ON) {
-    return state.set('walkthroughMode', action.on);
   }
 
   return state;

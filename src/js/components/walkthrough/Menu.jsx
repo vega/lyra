@@ -6,35 +6,37 @@ var React = require('react'),
     WActions = require('../../actions/walkthrough');
 
 
-function mapStateToProps(reduxState, ownProps) {
-  var walkD = getIn(reduxState, 'walkthrough.data').toJS();
+function mapStateToProps(reduxState) {
   return {
-    walkthroughs: function(){
-      var walkthroughs = [];
-      for (var key in walkD){
-        walkD[key].key = key;
-        walkthroughs.push(walkD[key]);
-      }
-      return walkthroughs;
-    }
+    walkthroughs: getIn(reduxState, 'walkthrough.data')
   };
 }
+
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     select: function(key) {
       dispatch(WActions.setActiveWalkthrough(key));
-      dispatch(WActions.setWalkthroughOn(true));
-      this.closeModal();
     }
   };
 }
 
 var WalkthroughMenu = React.createClass({
+  propTypes: {
+    walkthroughs: React.PropTypes.object,
+    select: React.PropTypes.func
+  },
+
   getInitialState: function() {
     return {
       modalIsOpen: false
     };
   },
+
+  selectWalkthrough: function(key) {
+    this.props.select(key);
+    this.closeModal();
+  },
+
   openModal: function() {
     this.setState({modalIsOpen: true});
   },
@@ -42,6 +44,17 @@ var WalkthroughMenu = React.createClass({
   closeModal: function() {
     this.setState({modalIsOpen: false});
   },
+
+  getWalkthroughDetails: function() {
+    var walkD = this.props.walkthroughs.toJS();
+    var walkthroughs = [];
+    for (var key in walkD) {
+      walkD[key].key = key;
+      walkthroughs.push(walkD[key]);
+    }
+    return walkthroughs;
+  },
+
   classNames: 'hints walkthroughMenu ',
 
   render: function() {
@@ -59,10 +72,10 @@ var WalkthroughMenu = React.createClass({
                 You can quit them at any time to explore on your own.
               </p>
               <ul>
-                {this.props.walkthroughs().map(function(wk, i) {
-                  var thumbnail = wk.image ? (<img src={wk.image}/>):null;
+                {this.getWalkthroughDetails().map(function(wk, i) {
+                  var thumbnail = wk.image ? (<img src={wk.image}/>) : null;
                   return (
-                    <li key={i} onClick={this.props.select.bind(this, wk.key)}>
+                    <li key={i} onClick={this.selectWalkthrough.bind(this, wk.key)}>
                       {thumbnail}
                       <span>{wk.title}</span>
                     </li>
