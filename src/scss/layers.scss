@@ -1,6 +1,6 @@
 #layer-list {
-  min-height: 60%;
-
+  height: 60%;
+  overflow-y: scroll;
   ul.group {
     white-space: nowrap;
     border-bottom: 1px solid $lgrey-bg;

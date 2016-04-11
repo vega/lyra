@@ -6,6 +6,7 @@ var React = require('react'),
     PipelinesSidebar = require('./PipelinesSidebar'),
     Toolbar = require('./Toolbar'),
     Hints = require('./Hints'),
+    Footer = require('./Footer'),
     model = require('../model');
 
 // Splitting each sidebar into its column
@@ -14,13 +15,16 @@ var Sidebars = React.createClass({
   render: function() {
     var pipelines = model.pipeline();
     return (
-      <div className={this.classNames}>
-        <VisualSidebar />
-        <InspectorSidebar ref="inspector"
-          pipelines={pipelines} />
-        <PipelinesSidebar />
+      <div>
+        <div className="sidebar-container">
+          <VisualSidebar />
+          <InspectorSidebar ref="inspector"
+            pipelines={pipelines} />
+          <PipelinesSidebar />
+        </div>
         <Toolbar/>
         <Hints/>
+        <Footer/>
         <ReactTooltip effect="solid"/>
       </div>
     );

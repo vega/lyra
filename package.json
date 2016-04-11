@@ -74,6 +74,7 @@
     "react": "^0.14.3",
     "react-addons-test-utils": "^0.14.6",
     "react-dom": "^0.14.3",
+    "react-modal": "^1.0.0",
     "react-redux": "^4.4.1",
     "react-tooltip": "^1.1.4",
     "redux": "^3.3.1",
