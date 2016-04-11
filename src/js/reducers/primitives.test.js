@@ -8,8 +8,9 @@ var primitivesReducer = require('./primitives');
 var primitiveActions = require('../actions/primitiveActions');
 var createScene = require('../actions/createScene');
 var counter = require('../util/counter');
+var setIn = require('../util/immutable-utils').setIn;
 
-describe('primitives reducer', function() {
+describe.only('primitives reducer', function() {
   var initialState;
 
   beforeEach(function() {
@@ -279,6 +280,52 @@ describe('primitives reducer', function() {
       expect(group1.marks).to.deep.equal([]);
       expect(group2.marks).to.deep.equal([]);
       expect(symbol._parent).to.equal(null);
+    });
+
+  });
+
+  describe('add scale to group action', function() {
+    var setParent;
+
+    beforeEach(function() {
+      var addMark = primitiveActions.addMark;
+      // Start out with a store already containing two groups and a symbol
+      initialState = primitivesReducer(Immutable.Map(), addMark({
+        _id: 15,
+        name: 'group_1',
+        type: 'group',
+        marks: [],
+        scales: []
+      }));
+    });
+
+    it('has no effect if the provided parent ID is not present in the store', function() {
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_SCALE_TO_GROUP,
+        parentId: 51,
+        scaleId: 222
+      });
+      expect(result).to.equal(initialState);
+    });
+
+    it('adds the specified scale ID to the specified group\'s scales array', function() {
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_SCALE_TO_GROUP,
+        parentId: 15,
+        scaleId: 222
+      });
+      expect(result.get('15').toJS().scales).to.deep.equal([222]);
+    });
+
+    it('does not overwrite any preexisting scale IDs in the group\'s scales array', function() {
+      initialState = setIn(initialState, '15.scales', [111]);
+      expect(initialState.get('15').toJS().scales).to.deep.equal([111]);
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_SCALE_TO_GROUP,
+        parentId: 15,
+        scaleId: 222
+      });
+      expect(result.get('15').toJS().scales).to.deep.equal([111, 222]);
     });
 
   });

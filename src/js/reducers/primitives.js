@@ -129,6 +129,15 @@ function setParentMark(state, action) {
   );
 }
 
+/**
+ * Main primitives reducer function, which generates a new state for the
+ * primitives (marks) property store based on the changes specified by the
+ * dispatched action object.
+ *
+ * @param {Object} state - An Immutable.Map state object
+ * @param {Object} action - A redux action object
+ * @returns {Object} A new Immutable.Map with the changes specified by the action
+ */
 function primitivesReducer(state, action) {
   if (typeof state === 'undefined') {
     return new Immutable.Map();
@@ -167,6 +176,10 @@ function primitivesReducer(state, action) {
 
   if (action.type === actions.PRIMITIVE_SET_PARENT) {
     return setParentMark(state, action);
+  }
+
+  if (action.type === actions.RULES_ADD_SCALE_TO_GROUP) {
+    return ensureValuePresent(state, action.parentId + '.scales', action.scaleId);
   }
 
   return state;
