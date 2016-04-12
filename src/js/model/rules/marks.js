@@ -1,6 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    model = require('../'),
+var model = require('../'),
     sg = require('../signals'),
     propSg = require('../../util/prop-signal'),
     lookup = model.lookup;
