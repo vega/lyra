@@ -33,6 +33,25 @@ function getClosestGroupId(state, id) {
   return mark ? getClosestGroupId(state, mark._parent) : null;
 }
 
+/**
+ * Helper method to locate a scale corresponding to a provided property or
+ * channel for a given mark
+ *
+ * @param {Object} state - An immutable state object
+ * @param {number} id - The ID of the primitive being bound
+ * @param {string} property - The Lyra mark's property that was just bound.
+ * @param {string} channel - The corresponding Vega-Lite channel
+ * @returns {number|void} The ID of the matched scale, or undefined
+ */
+function getGuideScale(state, id, property, channel) {
+  console.log(getIn(state, 'primitives.' + id + '.properties.update'));
+  var updateProps = getIn(state, 'primitives.' + id + '.properties.update').toJS(),
+      prop = updateProps[property] || updateProps[channel];
+
+  return prop.scale;
+}
+
 module.exports = {
-  getClosestGroupId: getClosestGroupId
+  getClosestGroupId: getClosestGroupId,
+  getGuideScale: getGuideScale
 };

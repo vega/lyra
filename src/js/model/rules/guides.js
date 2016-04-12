@@ -1,6 +1,10 @@
 'use strict';
 var dl = require('datalib'),
     Guide = require('../primitives/Guide'),
+    store = require('../../store'),
+    getGuideScale = require('../../util/store-utils').getGuideScale,
+    addAxisToGroup = require('../../actions/ruleActions').addAxisToGroup,
+    addLegendToGroup = require('../../actions/ruleActions').addLegendToGroup,
     model = require('../'),
     lookup = model.lookup;
 
@@ -55,8 +59,7 @@ function findOrCreateAxis(scale, defs) {
     }
     dl.extend(axis.properties, axisDef.properties);
 
-    // store.dispatch(addLegendToGroup(scale, this._parent));
-    this.parent().child('axes', axis);
+    store.dispatch(addAxisToGroup(axis, this._parent));
   }
 }
 
@@ -85,8 +88,7 @@ function findOrCreateLegend(scale, defs, property) {
     legend = new Guide(TYPES.LEGEND, property, scale._id);
     legend.title = legendDef.title;
 
-    // store.dispatch(addLegendToGroup(scale, this._parent));
-    this.parent().child('legends', legend);
+    store.dispatch(addLegendToGroup(legend, this._parent));
   }
 }
 
@@ -109,9 +111,10 @@ function guides(parsed, property, channel) {
   }
 
   var group = parsed.spec.marks[0],
-      props = this.properties.update,
-      prop = props[property] || props[channel],
-      scale = prop.scale && lookup(prop.scale);
+      state = store.getState(),
+      scaleId = getGuideScale(state, this._id, property, channel),
+      scale = scaleId && lookup(scaleId);
+
   if (!scale) {
     return;
   }

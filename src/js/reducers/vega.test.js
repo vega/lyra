@@ -84,6 +84,48 @@ describe('vega reducer', function() {
       expect(result.get('invalid')).to.equal(true);
     });
 
+    it('flags the store as invalid when a scale is added', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.RULES_ADD_SCALE_TO_GROUP
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when a legend is added', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.RULES_ADD_LEGEND_TO_GROUP
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when an axis is added', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.RULES_ADD_AXIS_TO_GROUP
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when a property is added', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.RULES_SET_PROPERTY
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when a property is disabled', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.RULES_DISABLE_PROPERTY
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when a property is reset to a signal', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.RULES_RESET_PROPERTY
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
   });
 
   describe('parse action', function() {

@@ -7,7 +7,6 @@ var React = require('react'),
 function mapDispatchToProps(dispatch) {
   return {
     clearScene: function() {
-      console.log('here');
       dispatch(selectMark(null));
       dispatch(sceneClear());
     }

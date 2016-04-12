@@ -131,6 +131,35 @@ function setParentMark(state, action) {
 }
 
 /**
+ * Move an Axis or Legend from one group to another
+ *
+ * @param {Object} state - An Immutable state object
+ * @param {Object} action - An action object
+ * @param {number} action.id - The ID of the Axis or Legend to move
+ * @param {number} [action.oldGroupId] - The ID of the group to move it from
+ * @param {number} action.groupId - The ID of the group to move it to
+ * @param {string} collection - The collection to which this primitive belongs,
+ * either "legends" or "axes"
+ * @returns {Object} A new Immutable state with the requested changes
+ */
+function moveChildToGroup(state, action, collection) {
+  var oldGroupCollectionPath = action.oldGroupId + '.' + collection,
+      newGroupCollectionPath = action.groupId + '.' + collection;
+
+  // Simple case: add to the new
+  if (!action.oldGroupId) {
+    return ensureValuePresent(state, newGroupCollectionPath, action.id);
+  }
+
+  // Remove from the old and add to the new
+  return ensureValuePresent(
+    ensureValueAbsent(state, oldGroupCollectionPath, action.id),
+    newGroupCollectionPath,
+    action.id
+  );
+}
+
+/**
  * Set a property value in the store, overwriting any prior value that had
  * been held by that property.
  *
@@ -215,7 +244,15 @@ function primitivesReducer(state, action) {
   }
 
   if (action.type === actions.RULES_ADD_SCALE_TO_GROUP) {
-    return ensureValuePresent(state, action.parentId + '.scales', action.scaleId);
+    return ensureValuePresent(state, action.groupId + '.scales', action.id);
+  }
+
+  if (action.type === actions.RULES_ADD_AXIS_TO_GROUP) {
+    return moveChildToGroup(state, action, 'axes');
+  }
+
+  if (action.type === actions.RULES_ADD_LEGEND_TO_GROUP) {
+    return moveChildToGroup(state, action, 'legends');
   }
 
   if (action.type === actions.RULES_SET_PROPERTY) {
