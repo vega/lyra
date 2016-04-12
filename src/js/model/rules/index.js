@@ -3,7 +3,6 @@ var dl = require('datalib'),
     vg = require('vega'),
     vl = require('vega-lite'),
     Scale = require('../primitives/Scale'),
-    propSg = require('../../util/prop-signal'),
     model = require('../'),
     lookup = model.lookup,
     AGG_OPS = vg.transforms.aggregate.VALID_OPS;

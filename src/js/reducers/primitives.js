@@ -130,16 +130,39 @@ function setParentMark(state, action) {
   );
 }
 
-function resetProperty(state, id, property) {
-  var markType = getIn(state, id + '.type'),
-      propPath = id + '.properties.update.' + property,
-      currentProp = getIn(state, propPath),
-      isDisabled = currentProp.get('_disabled'),
-      signalName = signalRef(markType, id, property);
+/**
+ * Set a property value in the store, overwriting any prior value that had
+ * been held by that property.
+ *
+ * @private
+ * @param {Object} state - An immutable state object
+ * @param {number} id - A numeric primitive ID
+ * @param {string} property - A string property key (to be set on the mark's
+ * properties.update selection)
+ * @param {Object} value - The new property value to set
+ * @returns {Object} A new immutable state with the requested changes
+ */
+function setProperty(state, id, property, value) {
+  var propPath = id + '.properties.update.' + property;
 
-  return setIn(state, propPath, assign({
-    signal: signalName
-  }, isDisabled ? {_disabled: true} : {}));
+  return setIn(state, propPath, assign({}, value));
+}
+
+function disableProperty(state, id, property) {
+  var propPath = id + '.properties.update.' + property,
+      currentPropValue = getIn(state, propPath).toJS();
+
+  return setIn(state, propPath, assign({}, currentPropValue, {
+    _disabled: true
+  }));
+}
+
+function resetProperty(state, id, property) {
+  var markType = getIn(state, id + '.type');
+
+  return setProperty(state, id, property, {
+    signal: signalRef(markType, id, property)
+  });
 }
 
 /**
@@ -193,6 +216,14 @@ function primitivesReducer(state, action) {
 
   if (action.type === actions.RULES_ADD_SCALE_TO_GROUP) {
     return ensureValuePresent(state, action.parentId + '.scales', action.scaleId);
+  }
+
+  if (action.type === actions.RULES_SET_PROPERTY) {
+    return setProperty(state, action.id, action.property, action.value);
+  }
+
+  if (action.type === actions.RULES_DISABLE_PROPERTY) {
+    return disableProperty(state, action.id, action.property);
   }
 
   if (action.type === actions.RULES_RESET_PROPERTY) {
