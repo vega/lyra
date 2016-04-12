@@ -285,7 +285,6 @@ describe.only('primitives reducer', function() {
   });
 
   describe('add scale to group action', function() {
-    var setParent;
 
     beforeEach(function() {
       var addMark = primitiveActions.addMark;
@@ -326,6 +325,69 @@ describe.only('primitives reducer', function() {
         scaleId: 222
       });
       expect(result.get('15').toJS().scales).to.deep.equal([111, 222]);
+    });
+
+  });
+
+  describe('reset property action', function() {
+
+    beforeEach(function() {
+      var addMark = primitiveActions.addMark;
+      // Start out with a store already containing two groups and a symbol
+      initialState = primitivesReducer(Immutable.Map(), addMark({
+        _id: 15,
+        name: 'rect_1',
+        type: 'rect',
+        properties: {
+          update: {
+            height: {
+              scale: 'height',
+              field: 'price'
+            }
+          }
+        }
+      }));
+    });
+
+    it('resets a property to its corresponding signal reference', function() {
+      expect(initialState.get('15').toJS().properties.update).to.deep.equal({
+        height: {
+          scale: 'height',
+          field: 'price'
+        }
+      });
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_RESET_PROPERTY,
+        id: 15,
+        property: 'height'
+      });
+      expect(result.get('15').toJS().properties.update).to.deep.equal({
+        height: {
+          signal: 'lyra_rect_15_height'
+        }
+      });
+    });
+
+    it('preserves property disabled state', function() {
+      initialState = setIn(initialState, '15.properties.update.height._disabled', true);
+      expect(initialState.get('15').toJS().properties.update).to.deep.equal({
+        height: {
+          scale: 'height',
+          field: 'price',
+          _disabled: true
+        }
+      });
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_RESET_PROPERTY,
+        id: 15,
+        property: 'height'
+      });
+      expect(result.get('15').toJS().properties.update).to.deep.equal({
+        height: {
+          signal: 'lyra_rect_15_height',
+          _disabled: true
+        }
+      });
     });
 
   });

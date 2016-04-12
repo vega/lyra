@@ -1,18 +1,38 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
     SignalValue = require('../mixins/SignalValue'),
     ContentEditable = require('../ContentEditable'),
     model = require('../../model'),
     lookup = model.lookup,
+    resetProperty = require('../../actions/ruleActions').resetProperty,
+    vegaInvalidate = require('../../actions/vegaInvalidate'),
     addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
 
+function mapDispatchToProps(dispatch) {
+  return {
+    resetProperty: function(id, property) {
+      dispatch(resetProperty(id, property));
+    },
+    requestReparse: function() {
+      dispatch(vegaInvalidate(true));
+    }
+  };
+}
+
 var Property = React.createClass({
+  propTypes: {
+    resetProperty: React.PropTypes.func,
+    requestReparse: React.PropTypes.func
+  },
+
   mixins: [SignalValue],
 
   unbind: function() {
     var props = this.props;
-    props.primitive.bindProp(props.name, undefined);
-    props.reparse();
+    props.resetProperty(props.primitive._id, props.name);
+    // props.primitive.bindProp(props.name, undefined);
+    props.requestReparse();
   },
 
   render: function() {
@@ -125,4 +145,4 @@ var Property = React.createClass({
   }
 });
 
-module.exports = addVegaReparseRequest(Property);
+module.exports = connect(null, mapDispatchToProps)(Property);

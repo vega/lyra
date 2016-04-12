@@ -25,6 +25,23 @@ function addScaleToGroup(scale, parentId) {
   };
 }
 
+/**
+ * Return an action object instructing the reducer to reset the provided
+ * property to its corresponding signal reference
+ *
+ * @param {number} markId - The primitive ID for which to reset the property
+ * @param {string} property - The property to reset to a signal
+ * @returns {Object} A redux action object
+ */
+function resetProperty(markId, property) {
+  return {
+    type: actions.RULES_RESET_PROPERTY,
+    id: markId,
+    property: property
+  };
+}
+
 module.exports = {
-  addScaleToGroup: addScaleToGroup
+  addScaleToGroup: addScaleToGroup,
+  resetProperty: resetProperty
 };
