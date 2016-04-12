@@ -57,10 +57,13 @@ function set(structure, key, value) {
  */
 function ensureValuePresent(state, arrPathStr, valToAdd) {
   var arr = getIn(state, arrPathStr);
-  if (!arr) {
+  if (!arr || !arr.toJS) {
     return state;
   }
-  var vals = typeof arr.toJS === 'function' ? arr.toJS() : arr;
+  var vals = arr.toJS();
+  if (!Array.isArray(vals)) {
+    return state;
+  }
   return vals.indexOf(valToAdd) < 0 ?
     setIn(state, arrPathStr, Immutable.fromJS(vals.concat([valToAdd]))) :
     state;
@@ -85,10 +88,13 @@ function ensureValuePresent(state, arrPathStr, valToAdd) {
  */
 function ensureValueAbsent(state, arrPathStr, valToRemove) {
   var arr = getIn(state, arrPathStr);
-  if (!arr) {
+  if (!arr || !arr.toJS) {
     return state;
   }
-  var vals = typeof arr.toJS === 'function' ? arr.toJS() : arr;
+  var vals = arr.toJS();
+  if (!Array.isArray(vals)) {
+    return state;
+  }
   return vals.indexOf(valToRemove) >= 0 ?
     setIn(state, arrPathStr, Immutable.fromJS(vals.filter(function(val) {
       return val !== valToRemove;

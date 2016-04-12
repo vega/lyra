@@ -184,8 +184,13 @@ describe('immutable utilities', function() {
       ]);
     });
 
-    it('does nothing if the provided path does not resolve to an array', function() {
+    it('does nothing if the provided path does not resolve to a value', function() {
       var result = ensureValuePresent(map, 'some.bad.path', 1);
+      expect(result).to.equal(map);
+    });
+
+    it('does nothing if the provided path does not resolve to an array', function() {
+      var result = ensureValuePresent(map, 'some.deep.nested.structure', 1);
       expect(result).to.equal(map);
     });
 
@@ -225,8 +230,13 @@ describe('immutable utilities', function() {
       expect(getIn(result, 'some.arrOfStrs').toJS()).to.deep.equal(['kookaburra', 'numbat', 'bobcat', 'photocopier']);
     });
 
-    it('does nothing if the provided path does not resolve to an array', function() {
+    it('does nothing if the provided path does not resolve to a value', function() {
       var result = ensureValueAbsent(map, 'some.bad.path', 1);
+      expect(result).to.equal(map);
+    });
+
+    it('does nothing if the provided path does not resolve to an array', function() {
+      var result = ensureValueAbsent(map, 'some.deep.nested.structure', 1);
       expect(result).to.equal(map);
     });
 

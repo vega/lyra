@@ -63,4 +63,43 @@ describe('store utilities', function() {
 
   });
 
+  describe('getGuideScale', function() {
+    var getGuideScale, state;
+
+    beforeEach(function() {
+      getGuideScale = storeUtils.getGuideScale;
+      state = Immutable.fromJS({
+        primitives: {
+          '1': {
+            _id: 1,
+            type: 'rect',
+            properties: {
+              update: {x: {scale: 50}}
+            }
+          }
+        }
+      });
+    });
+
+    it('is a function', function() {
+      expect(getGuideScale).to.be.a('function');
+    });
+
+    it('returns undefined if the provided primitive is not available', function() {
+      var result = getGuideScale(state, 2, 'x+', 'x');
+      expect(result).to.be.undefined;
+    });
+
+    it('returns the scale for the provided property if property is available', function() {
+      var result = getGuideScale(state, 1, 'x', '???');
+      expect(result).to.equal(50);
+    });
+
+    it('returns the scale for the provided channel if property is not available', function() {
+      var result = getGuideScale(state, 1, 'x+', 'x');
+      expect(result).to.equal(50);
+    });
+
+  });
+
 });

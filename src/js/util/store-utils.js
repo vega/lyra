@@ -19,18 +19,20 @@ var getIn = require('./immutable-utils').getIn;
  * if the mark is invalid or there was no group or scene ancestor available
  */
 function getClosestGroupId(state, id) {
-  var mark = getIn(state, 'primitives.' + id);
-  // If `mark` exists it should be a state itself, but just in case guard the
-  // `.toJS()` call with a check
-  mark = mark && typeof mark.toJS === 'function' ? mark.toJS() : mark;
+  var markState = getIn(state, 'primitives.' + id),
+      mark = markState && markState.toJS();
+
+  if (!mark) {
+    return null;
+  }
 
   // If mark is a group or scene, return it as-is
-  if (mark && (mark.type === 'group' || mark.type === 'scene')) {
+  if (mark.type === 'group' || mark.type === 'scene') {
     return mark._id;
   }
 
   // If mark is not a group or scene, but exists, check its parents
-  return mark ? getClosestGroupId(state, mark._parent) : null;
+  return getClosestGroupId(state, mark._parent);
 }
 
 /**
@@ -44,8 +46,13 @@ function getClosestGroupId(state, id) {
  * @returns {number|void} The ID of the matched scale, or undefined
  */
 function getGuideScale(state, id, property, channel) {
-  console.log(getIn(state, 'primitives.' + id + '.properties.update'));
-  var updateProps = getIn(state, 'primitives.' + id + '.properties.update').toJS(),
+  var updatePropsState = getIn(state, 'primitives.' + id + '.properties.update');
+
+  if (!updatePropsState) {
+    return;
+  }
+
+  var updateProps = updatePropsState.toJS(),
       prop = updateProps[property] || updateProps[channel];
 
   return prop.scale;
