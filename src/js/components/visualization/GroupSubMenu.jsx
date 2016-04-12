@@ -1,6 +1,7 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
+    ReactTooltip = require('react-tooltip'),
     ContentEditable = require('../ContentEditable'),
     lookup = require('../../model').lookup,
     hierarchy = require('../../util/hierarchy'),
@@ -72,11 +73,15 @@ var Group = connect(
     return iconMarkup;
   },
   deleteUpdate: function(id) {
+    ReactTooltip.hide();
     this.deleteMark(id);
     // set selected to null
     this.props.select(null);
     // redraw sidebar
     this.updateSidebar();
+  },
+  componentWillUnmount: function(){
+    ReactTooltip.hide();
   },
   render: function() {
     var props = this.props,
