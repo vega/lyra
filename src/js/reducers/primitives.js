@@ -8,6 +8,7 @@ var ns = require('../util/ns');
 var signalRef = require('../util/signal-reference');
 var immutableUtils = require('../util/immutable-utils');
 var get = immutableUtils.get;
+var getIn = immutableUtils.getIn;
 var set = immutableUtils.set;
 var setIn = immutableUtils.setIn;
 var ensureValuePresent = immutableUtils.ensureValuePresent;
@@ -129,6 +130,18 @@ function setParentMark(state, action) {
   );
 }
 
+function resetProperty(state, id, property) {
+  var markType = getIn(state, id + '.type'),
+      propPath = id + '.properties.update.' + property,
+      currentProp = getIn(state, propPath),
+      isDisabled = currentProp.get('_disabled'),
+      signalName = signalRef(markType, id, property);
+
+  return setIn(state, propPath, assign({
+    signal: signalName
+  }, isDisabled ? {_disabled: true} : {}));
+}
+
 /**
  * Main primitives reducer function, which generates a new state for the
  * primitives (marks) property store based on the changes specified by the
@@ -180,6 +193,10 @@ function primitivesReducer(state, action) {
 
   if (action.type === actions.RULES_ADD_SCALE_TO_GROUP) {
     return ensureValuePresent(state, action.parentId + '.scales', action.scaleId);
+  }
+
+  if (action.type === actions.RULES_RESET_PROPERTY) {
+    return resetProperty(state, action.id, action.property);
   }
 
   return state;
