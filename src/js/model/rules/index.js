@@ -3,7 +3,6 @@ var dl = require('datalib'),
     vg = require('vega'),
     vl = require('vega-lite'),
     Scale = require('../primitives/Scale'),
-    propSg = require('../../util/prop-signal'),
     model = require('../'),
     lookup = model.lookup,
     AGG_OPS = vg.transforms.aggregate.VALID_OPS;
@@ -152,14 +151,12 @@ function rules(prototype) {
         from = this._from && lookup(this._from),
         obj = lookup(id),
         update = this.properties.update,
-        c;
-
-    if (id === undefined) {
-      update[property] = {signal: propSg(this, property)};
-      return this;
-    }
+        c = channelName(property);
 
     if (obj instanceof Scale) {
+      // store.dispatch(setPropertyScale(this._id, property, id));
+      // It would be better to move this to wherever .bindProp is being called
+      // from; this code path could then be removed from bindProp entirely
       update[property].scale = id;
       return this;
     }
@@ -170,11 +167,14 @@ function rules(prototype) {
     }
 
     if (manual) {
+      // store.dispatch(setPropertyField(this._id, property, id));
+      // It would be better to move this to wherever .bindProp is being called
+      // from; this code path could then be removed from bindProp entirely
       update[property].field = id;
       return this;
     }
 
-    rule.encoding[c = channelName(property)] = channelDef(obj);
+    rule.encoding[c] = channelDef(obj);
     from = from || obj.parent();
 
     // Hand off to VL to compile

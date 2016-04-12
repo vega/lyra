@@ -1,5 +1,6 @@
 'use strict';
-var inherits = require('inherits'),
+var dl = require('datalib'),
+    inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
@@ -32,10 +33,11 @@ inherits(Rect, Mark);
  * a type string and a Vega mark properties object.
  *
  * @static
+ * @param {Object} [props] - Props to merge into the returned default properties object
  * @returns {Object} The default mark properties
  */
-Rect.defaultProperties = function() {
-  return {
+Rect.defaultProperties = function(props) {
+  return dl.extend({
     type: 'rect',
     // name: 'rect' + '_' + counter.type('rect'); // Assign name in the reducer
     // _id: assign ID in the reducer
@@ -49,53 +51,61 @@ Rect.defaultProperties = function() {
         height: {value: 30, _disabled: true}
       }
     })
-  };
+  }, props);
 };
 
-Rect.prototype.initHandles = function() {
-  var at = anchorTarget.bind(null, this, 'handles'),
-      x = propSg(this, 'x'),
-      xc = propSg(this, 'xc'),
-      x2 = propSg(this, 'x2'),
-      y = propSg(this, 'y'),
-      yc = propSg(this, 'yc'),
-      y2 = propSg(this, 'y2'),
-      w = propSg(this, 'width'),
-      h = propSg(this, 'height');
+/**
+ * Return an array of handle signal stream definitions to be instantiated.
+ *
+ * The returned object is used to initialize the interaction logic for the mark's
+ * handle manipulators. This involves setting the mark's property signals
+ * {@link https://github.com/vega/vega/wiki/Signals|streams}.
+ *
+ * @param {Object} rect - A rect properties object or instantiated Rect mark
+ * @param {number} rect._id - A numeric mark ID
+ * @param {string} rect.type - A mark type, presumably "rect"
+ * @returns {Object} A dictionary of stream definitions keyed by signal name
+ */
+Rect.getHandleStreams = function(rect) {
+  var at = anchorTarget.bind(null, rect, 'handles'),
+      x = propSg(rect, 'x'),
+      xc = propSg(rect, 'xc'),
+      x2 = propSg(rect, 'x2'),
+      y = propSg(rect, 'y'),
+      yc = propSg(rect, 'yc'),
+      y2 = propSg(rect, 'y2'),
+      w = propSg(rect, 'width'),
+      h = propSg(rect, 'height'),
+      streamSignals = {};
 
-  sg.streams(x, [{
+  streamSignals[x] = [{
     type: DELTA, expr: test(at() + '||' + at('left'), x + '+' + DX, x)
-  }]);
-
-  sg.streams(xc, [{
+  }];
+  streamSignals[xc] = [{
     type: DELTA, expr: test(at() + '||' + at('left'), xc + '+' + DX, xc)
-  }]);
-
-  sg.streams(x2, [{
+  }];
+  streamSignals[x2] = [{
     type: DELTA, expr: test(at() + '||' + at('right'), x2 + '+' + DX, x2)
-  }]);
-
-  sg.streams(y, [{
+  }];
+  streamSignals[y] = [{
     type: DELTA, expr: test(at() + '||' + at('top'), y + '+' + DY, y)
-  }]);
-
-  sg.streams(yc, [{
+  }];
+  streamSignals[yc] = [{
     type: DELTA, expr: test(at() + '||' + at('top'), yc + '+' + DY, yc)
-  }]);
-
-  sg.streams(y2, [{
+  }];
+  streamSignals[y2] = [{
     type: DELTA, expr: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
-  }]);
-
-  sg.streams(w, [
+  }];
+  streamSignals[w] = [
     {type: DELTA, expr: test(at('left'), w + '-' + DX, w)},
     {type: DELTA, expr: test(at('right'), w + '+' + DX, w)}
-  ]);
-
-  sg.streams(h, [
+  ];
+  streamSignals[h] = [
     {type: DELTA, expr: test(at('top'), h + '-' + DY, h)},
     {type: DELTA, expr: test(at('bottom'), h + '+' + DY, h)}
-  ]);
+  ];
+
+  return streamSignals;
 };
 
 module.exports = Rect;

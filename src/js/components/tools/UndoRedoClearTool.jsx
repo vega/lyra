@@ -1,21 +1,28 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    model = require('../../model'),
-    markUtil = require('../../util/mark-add-delete');
+    selectMark = require('../../actions/selectMark'),
+    sceneClear = require('../../actions/sceneClear');
+
+function mapDispatchToProps(dispatch) {
+  return {
+    clearScene: function() {
+      dispatch(selectMark(null));
+      dispatch(sceneClear());
+    }
+  };
+}
 
 // Split out into each section
 var UndoRedoClear = React.createClass({
-  mixins: [markUtil],
-  classNames: 'undo-redo-clear',
-  clearAndUpdate: function(){
-    this.clearMarks();
-    this.updateSidebar();
+  propTypes: {
+    clearScene: React.PropTypes.func
   },
+  classNames: 'undo-redo-clear',
   render: function() {
     return (
       <ul className={this.classNames}>
-        <li onClick={this.clearAndUpdate.bind(null, '')}>CLEAR ALL</li>
+        <li onClick={this.props.clearScene}>Clear All</li>
         <li><i className="fa fa-undo"></i> UNDO</li>
         <li><i className="fa fa-repeat"></i> REDO</li>
       </ul>
@@ -23,4 +30,4 @@ var UndoRedoClear = React.createClass({
   }
 });
 
-module.exports = UndoRedoClear;
+module.exports = connect(null, mapDispatchToProps)(UndoRedoClear);

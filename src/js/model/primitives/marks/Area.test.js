@@ -41,6 +41,29 @@ describe('Area Mark Primitive', function() {
       });
     });
 
+    it('merged any provided options into the returned properties object', function() {
+      var result = Area.defaultProperties({
+        _parent: 15
+      });
+      expect(result).to.have.property('_parent');
+      expect(result._parent).to.equal(15);
+    });
+
+    it('overwrites default properties with those in the provided props object', function() {
+      var result = Area.defaultProperties({
+        properties: {
+          update: {
+            x: {value: 500}
+          }
+        }
+      });
+      expect(result.properties).to.deep.equal({
+        update: {
+          x: {value: 500}
+        }
+      });
+    });
+
   });
 
   describe('constructor', function() {
@@ -80,9 +103,8 @@ describe('Area Mark Primitive', function() {
       expect(area.properties).to.deep.equal(defaults);
     });
 
-    it('initializes instance with a numeric _id', function() {
-      expect(area).to.have.property('_id');
-      expect(area._id).to.be.a('number');
+    it('does not initialize instance with a numeric _id by default', function() {
+      expect(area).not.to.have.property('_id');
     });
 
     it('does not initialize instance with a .from property', function() {
@@ -174,6 +196,60 @@ describe('Area Mark Primitive', function() {
     it('exposes a static property defining orient options', function() {
       expect(Area).to.have.property('ORIENT');
       expect(Area.ORIENT).to.deep.equal(['horizontal', 'vertical']);
+    });
+
+  });
+
+  describe('getHandleStreams static method', function() {
+    var getHandleStreams;
+
+    beforeEach(function() {
+      getHandleStreams = Area.getHandleStreams;
+    });
+
+    it('is a function', function() {
+      expect(getHandleStreams).to.be.a('function');
+    });
+
+    it('returns a stream signal definitions dictionary object', function() {
+      var result = getHandleStreams({
+        _id: 2501,
+        type: 'area'
+      });
+      expect(result).to.be.an('object');
+    });
+
+    it('keys the stream signal definitions dictionary object by signal name', function() {
+      var result = getHandleStreams({
+        _id: 2501,
+        type: 'area'
+      });
+      expect(Object.keys(result).sort()).to.deep.equal([
+        'lyra_area_2501_height',
+        'lyra_area_2501_width',
+        'lyra_area_2501_x',
+        'lyra_area_2501_x2',
+        'lyra_area_2501_xc',
+        'lyra_area_2501_y',
+        'lyra_area_2501_y2',
+        'lyra_area_2501_yc'
+      ]);
+    });
+
+    it('sets each value to an array of signal objects', function() {
+      var result = getHandleStreams({
+        _id: 2501,
+        type: 'area'
+      });
+      Object.keys(result).forEach(function(key) {
+        expect(result[key]).to.be.an('array');
+        result[key].forEach(function(def) {
+          expect(def).to.have.property('type');
+          expect(def.type).to.equal('lyra_delta');
+          expect(def).to.have.property('expr');
+          expect(def.expr).to.be.a('string');
+        });
+      });
     });
 
   });

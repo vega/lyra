@@ -1,5 +1,6 @@
 'use strict';
-var inherits = require('inherits'),
+var dl = require('datalib'),
+    inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
@@ -34,9 +35,10 @@ inherits(Line, Mark);
  * a type string and a Vega mark properties object.
  *
  * @static
+ * @param {Object} [props] - Props to merge into the returned default properties object
  * @returns {Object} The default mark properties
  */
-Line.defaultProperties = function() {
+Line.defaultProperties = function(props) {
   var defaults = {
     type: 'line',
     // name: 'line' + '_' + counter.type('line'); // Assign name in the reducer
@@ -51,22 +53,34 @@ Line.defaultProperties = function() {
   // Mark gives us two defaults we do not want
   delete defaults.properties.update.fill;
   delete defaults.properties.update.fillOpacity;
-  return defaults;
+  return dl.extend(defaults, props);
 };
 
-Line.prototype.initHandles = function() {
-  var at = anchorTarget.bind(null, this, 'handles'),
-      x = propSg(this, 'x'),
-      y = propSg(this, 'y');
+/**
+ * Return an array of handle signal stream definitions to be instantiated.
+ *
+ * The returned object is used to initialize the interaction logic for the mark's
+ * handle manipulators. This involves setting the mark's property signals
+ * {@link https://github.com/vega/vega/wiki/Signals|streams}.
+ *
+ * @param {Object} line - A line properties object or instantiated line mark
+ * @param {number} line._id - A numeric mark ID
+ * @param {string} line.type - A mark type, presumably "line"
+ * @returns {Object} A dictionary of stream definitions keyed by signal name
+ */
+Line.getHandleStreams = function(line) {
+  var at = anchorTarget.bind(null, line, 'handles'),
+      x = propSg(line, 'x'),
+      y = propSg(line, 'y'),
+      streamSignals = {};
 
-  sg.streams(x, [{
+  streamSignals[x] = [{
     type: DELTA, expr: test(at(), x + '+' + DX, x)
-  }]);
-
-  sg.streams(y, [{
+  }];
+  streamSignals[y] = [{
     type: DELTA, expr: test(at(), y + '+' + DY, y)
-  }]);
-
+  }];
+  return streamSignals;
 };
 
 Line.prototype.export = function(resolve) {

@@ -1,18 +1,52 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
     SignalValue = require('../mixins/SignalValue'),
     ContentEditable = require('../ContentEditable'),
+    getIn = require('../../util/immutable-utils').getIn,
     model = require('../../model'),
     lookup = model.lookup,
-    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
+    resetProperty = require('../../actions/ruleActions').resetProperty;
+
+function mapStateToProps(state, ownProps) {
+  // This is also used with Pipelines, which have no primitive property
+  if (!ownProps.primitive) {
+    return {};
+  }
+
+  var primitiveState = getIn(state, 'primitives.' + ownProps.primitive._id),
+      updatePropsPath = 'properties.update.' + ownProps.name;
+
+  return {
+    field: getIn(primitiveState, updatePropsPath + '.field'),
+    scale: getIn(primitiveState, updatePropsPath + '.scale'),
+    signal: getIn(primitiveState, updatePropsPath + '.signal')
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    resetProperty: function(id, property) {
+      dispatch(resetProperty(id, property));
+    }
+  };
+}
 
 var Property = React.createClass({
+  propTypes: {
+    name: React.PropTypes.string.isRequired,
+    label: React.PropTypes.string,
+    field: React.PropTypes.number,
+    scale: React.PropTypes.number,
+    signal: React.PropTypes.string,
+    resetProperty: React.PropTypes.func
+  },
+
   mixins: [SignalValue],
 
   unbind: function() {
     var props = this.props;
-    props.primitive.bindProp(props.name, undefined);
-    props.reparse();
+    props.resetProperty(props.primitive._id, props.name);
   },
 
   render: function() {
@@ -29,12 +63,12 @@ var Property = React.createClass({
 
     React.Children.forEach(props.children, function(child) {
       var className = child && child.props.className,
-          type = child && child.type;
+          childType = child && child.type;
       if (className === 'extra') {
         extraEl = child;
       } else if (className === 'control') {
         controlEl = child;
-      } else if (type === 'label' || className === 'label') {
+      } else if (childType === 'label' || className === 'label') {
         labelEl = child;
       }
     });
@@ -95,6 +129,9 @@ var Property = React.createClass({
             />
           );
           break;
+
+        default:
+          controlEl = null;
       }
     }
 
@@ -125,4 +162,4 @@ var Property = React.createClass({
   }
 });
 
-module.exports = addVegaReparseRequest(Property);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(Property);

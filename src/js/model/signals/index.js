@@ -3,10 +3,10 @@ var dl = require('datalib'),
     ns = require('../../util/ns'),
     store = require('../../store'),
     getIn = require('../../util/immutable-utils').getIn,
-    initSignal = require('../../actions/initSignal'),
-    setSignal = require('../../actions/setSignal'),
-    setSignalStreams = require('../../actions/setSignalStreams'),
-    unsetSignal = require('../../actions/unsetSignal'),
+    signalInit = require('../../actions/signalInit'),
+    signalSet = require('../../actions/signalSet'),
+    signalSetStreams = require('../../actions/signalSetStreams'),
+    signalUnset = require('../../actions/signalUnset'),
     defaults = require('./defaults');
 
 // Utility method to get a signal from the store
@@ -37,7 +37,7 @@ dl.extend(api, defaults.signalNames);
  * @returns {Object} An object representing a link to this signal
  */
 api.init = function(name, val) {
-  store.dispatch(initSignal(name, val));
+  store.dispatch(signalInit(name, val));
 };
 
 /**
@@ -87,14 +87,15 @@ api.get = function(name) {
  *
  * @param {string} name - The name of the signal to set
  * @param {*} val - The value to set, often an object or a number
+ * @param {boolean} [dispatch=true] - Whether to dispatch the signal to the store
  * @returns {Object} The Signals API object
  */
-api.set = function(name, val) {
+api.set = function(name, val, dispatch) {
   var model = require('../'),
       view = model.view;
   // Always flow signals up to the store,
-  if (!isDefault(name)) {
-    store.dispatch(setSignal(name, val));
+  if (!isDefault(name) && dispatch !== false) {
+    store.dispatch(signalSet(name, val));
   }
 
   // and if we have a Vega view, flow signals down to Vega as well.
@@ -113,7 +114,7 @@ api.set = function(name, val) {
  * @returns {void}
  */
 api.delete = function(name) {
-  store.dispatch(unsetSignal(name));
+  store.dispatch(signalUnset(name));
 };
 
 /**
@@ -125,7 +126,8 @@ api.delete = function(name) {
  * if called as a setter
  */
 api.streams = function(name, def) {
-  store.dispatch(setSignalStreams(name, def));
+  store.dispatch(signalSetStreams(name, def));
 };
 
 module.exports = api;
+window.sg = api;

@@ -85,7 +85,8 @@ var AreaProperty = React.createClass({
         props = this.props,
         primitive = props.primitive,
         update = primitive.properties.update,
-        start = state.start, end = state.end;
+        start = state.start,
+        end = state.end;
 
     return (
       <div>
@@ -94,9 +95,6 @@ var AreaProperty = React.createClass({
           type="number"
           primitive={primitive}
           canDrop={true}
-          scale={update[start].scale}
-          field={update[start].field}
-          signal={update[start].signal}
           disabled={update[start].band || update[start].group}
           >
           <div className="label">
@@ -109,9 +107,6 @@ var AreaProperty = React.createClass({
           type="number"
           primitive={primitive}
           canDrop={true}
-          scale={update[end].scale}
-          field={update[end].field}
-          signal={update[end].signal}
           disabled={update[end].band || update[end].group}
           >
           <div className="label">

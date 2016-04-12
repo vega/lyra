@@ -1,5 +1,6 @@
 'use strict';
-var inherits = require('inherits'),
+var dl = require('datalib'),
+    inherits = require('inherits'),
     sg = require('../../../model/signals'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
@@ -32,10 +33,11 @@ inherits(Symbol, Mark);
  * containing a type string and a Vega mark properties object.
  *
  * @static
+ * @param {Object} [props] - Props to merge into the returned default properties object
  * @returns {Object} The default mark properties
  */
-Symbol.defaultProperties = function() {
-  return {
+Symbol.defaultProperties = function(props) {
+  return dl.extend({
     type: 'symbol',
     // name: 'symbol' + '_' + counter.type('symbol'); // Assign name in the reducer
     // _id: assign ID in the reducer
@@ -45,27 +47,39 @@ Symbol.defaultProperties = function() {
         shape: {value: 'circle'}
       }
     })
-  };
+  }, props);
 };
 
-Symbol.prototype.initHandles = function() {
-  var at = anchorTarget.bind(null, this, 'handles'),
-      x = propSg(this, 'x'),
-      y = propSg(this, 'y'),
-      size = propSg(this, 'size');
+/**
+ * Return an array of handle signal stream definitions to be instantiated.
+ *
+ * The returned object is used to initialize the interaction logic for the mark's
+ * handle manipulators. This involves setting the mark's property signals
+ * {@link https://github.com/vega/vega/wiki/Signals|streams}.
+ *
+ * @param {Object} symbol - A symbol properties object or instantiated symbol mark
+ * @param {number} symbol._id - A numeric mark ID
+ * @param {string} symbol.type - A mark type, presumably "symbol"
+ * @returns {Object} A dictionary of stream definitions keyed by signal name
+ */
+Symbol.getHandleStreams = function(symbol) {
+  var at = anchorTarget.bind(null, symbol, 'handles'),
+      x = propSg(symbol, 'x'),
+      y = propSg(symbol, 'y'),
+      size = propSg(symbol, 'size'),
+      streamSignals = {};
 
-  sg.streams(x, [{
+  streamSignals[x] = [{
     type: DELTA, expr: test(at(), x + '+' + DX, x)
-  }]);
-
-  sg.streams(y, [{
+  }];
+  streamSignals[y] = [{
     type: DELTA, expr: test(at(), y + '+' + DY, y)
-  }]);
-
-  sg.streams(size, [
+  }];
+  streamSignals[size] = [
     {type: DELTA, expr: test(at('top'), size + '-(' + DY + '<<5)', size)},
     {type: DELTA, expr: test(at('bottom'), size + '+(' + DY + '<<5)', size)}
-  ]);
+  ];
+  return streamSignals;
 };
 
 Symbol.SHAPES = [

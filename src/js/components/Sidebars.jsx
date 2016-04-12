@@ -1,5 +1,6 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
     ReactTooltip = require('react-tooltip'),
     InspectorSidebar = require('./InspectorSidebar'),
     VisualSidebar = require('./VisualSidebar'),
@@ -7,6 +8,15 @@ var React = require('react'),
     Toolbar = require('./Toolbar'),
     Hints = require('./Hints'),
     model = require('../model');
+
+// Use mapDispatchToProps to force sidebar to update as marks are added or
+// removed; this prop isn't actually used at this level yet.
+function mapStateToProps(reduxState) {
+  var markIds = Object.keys(reduxState.get('primitives').toJS());
+  return {
+    marks: markIds
+  };
+}
 
 // Splitting each sidebar into its column
 var Sidebars = React.createClass({
@@ -27,4 +37,4 @@ var Sidebars = React.createClass({
   }
 });
 
-module.exports = Sidebars;
+module.exports = connect(mapStateToProps)(Sidebars);

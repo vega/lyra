@@ -2,14 +2,18 @@
 var dl = require('datalib'),
     sg = require('../../model/signals'),
     store = require('../../store'),
-    setSignal = require('../../actions/setSignal'),
+    getIn = require('../../util/immutable-utils').getIn,
+    signalSet = require('../../actions/signalSet'),
     model = require('../../model');
 
 module.exports = {
   getInitialState: function() {
-    var props = this.props;
+    var state = store.getState(),
+        props = this.props,
+        signalValue = props.signal && getIn(state, 'signals.' + props.signal + '.init');
+
     return {
-      value: props.signal ? sg.get(props.signal) : props.value
+      value: props.signal ? signalValue : props.value
     };
   },
 
@@ -31,8 +35,9 @@ module.exports = {
       this.onSignal(nextProps.signal);
     }
     if (nextProps.signal || nextProps.value !== prevProps.value) {
-      this.setState({value: nextProps.signal ?
-        sg.get(nextProps.signal) : nextProps.value});
+      this.setState({
+        value: nextProps.signal ? sg.get(nextProps.signal) : nextProps.value
+      });
     }
   },
 
@@ -54,7 +59,7 @@ module.exports = {
     // Flow changes from Vega back up to the store
     var signal = this.props.signal;
     if (signal) {
-      store.dispatch(setSignal(signal, value));
+      store.dispatch(signalSet(signal, value));
     }
     this.setState({value: value});
   },
@@ -74,7 +79,9 @@ module.exports = {
     }
 
     if (signal) {
-      sg.set(signal, value);
+      // Set the signal on the view but do not dispatch: the `.signal` listener
+      // above will dispatch the action to synchronize Redux with Vega.
+      sg.set(signal, value, false);
       model.update();
     } else {
       this._set(props.obj, value);

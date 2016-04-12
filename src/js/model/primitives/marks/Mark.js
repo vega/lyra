@@ -10,7 +10,6 @@ var dl = require('datalib'),
     rules = require('../../rules'),
     propSg = require('../../../util/prop-signal'),
     model = require('../../'),
-    ns = require('../../../util/ns'),
     lookup = model.lookup,
     counter = require('../../../util/counter');
 
@@ -49,7 +48,7 @@ function Mark(props) {
 
   this._rule = new rules.VLSingle(type);
 
-  return Primitive.call(this);
+  // return Primitive.call(this);
 }
 
 inherits(Mark, Primitive);
@@ -131,9 +130,24 @@ Mark.prototype.init = function() {
     return update;
   }, this.properties.update);
 
-  this.initHandles();
-
   return this;
+};
+
+/**
+ * Overwrite the properties of a mark with values from a provided configuration
+ * object.
+ *
+ * @param {Object} newProps - An object of properties to assign to the mark
+ * @chainable
+ * @returns {void}
+ */
+Mark.prototype.update = function(newProps) {
+  // Copy properties off of provided configuration
+  for (var key in newProps) {
+    // Assignment is safe b/c this will primarily be used to set values derived
+    // from the store via .toJS, which does not generate consistent references
+    this[key] = newProps[key];
+  }
 };
 
 /**
@@ -160,14 +174,6 @@ Mark.prototype.dataset = function(id) {
   this.from = undefined;
   return this;
 };
-
-/**
- * Initializes the interaction logic for the mark's handle manipulators. This
- * involves setting {@link https://github.com/vega/vega/wiki/Signals|the streams}
- * of the mark's property signals.
- * @returns {Object} The Mark.
- */
-Mark.prototype.initHandles = function() {};
 
 Mark.prototype.export = function(clean) {
   var spec = Primitive.prototype.export.call(this, clean),
@@ -207,22 +213,22 @@ Mark.prototype.export = function(clean) {
 };
 
 /**
- * Unsets the signals initialized in Mark.init() in the redux store for the model properties.
+ * Unsets the mark and its VLSingle _rule from the model primitives store.
+ * Signals are not impacted by this method; they are cleaned up via the
+ * PRIMITIVE_DELETE_MARK action within the signals reducer.
+ *
  * @returns {void}
  */
 Mark.prototype.remove = function() {
-  var props = this.properties,
-      update = props.update,
-      key;
-  for (key in update) {
-    var signalName = update[key].signal;
-    // Currently width and height are set on Groups to use the full width of the scene
-    // they use the same signal name
-    if (signalName && signalName !== ns('vis_width') && signalName !== ns('vis_height')) {
-      sg.delete(signalName);
-    }
-  }
-  model.removeListeners();
+  // Clear this mark's VLSingle
+  model.primitive(this._rule._id, null);
+
+  // Clear this mark itself
+  model.primitive(this._id, null);
+
+  // Clean out stale listener properties for this object from the listeners
+  // array in the model
+  model.removeListeners(this);
 };
 
 manips(Mark.prototype);

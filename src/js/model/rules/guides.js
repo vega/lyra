@@ -1,6 +1,10 @@
 'use strict';
 var dl = require('datalib'),
     Guide = require('../primitives/Guide'),
+    store = require('../../store'),
+    getGuideScale = require('../../util/store-utils').getGuideScale,
+    addAxisToGroup = require('../../actions/ruleActions').addAxisToGroup,
+    addLegendToGroup = require('../../actions/ruleActions').addLegendToGroup,
     model = require('../'),
     lookup = model.lookup;
 
@@ -29,14 +33,14 @@ var SWAP_ORIENT = {
 function findOrCreateAxis(scale, defs) {
   var map = this._rule._map.scales,
       axes = this.parent().axes,
-      def = defs.find(function(d) {
-        return map[d.scale] === scale._id;
+      axisDef = defs.find(function(def) {
+        return map[def.scale] === scale._id;
       }),
       axis, count = 0;
 
   axes.forEach(function(a) {
     a = lookup(a);
-    if (a.type === def.type) {
+    if (a.type === axisDef.type) {
       ++count;
     }
     if (a.scale === scale._id) {
@@ -45,16 +49,17 @@ function findOrCreateAxis(scale, defs) {
   });
 
   if (!axis && count < 2) {
-    axis = new Guide(TYPES.AXIS, def.type, scale._id);
-    axis.title = def.title;
-    axis.layer = def.layer;
-    axis.grid = def.grid;
-    axis.orient = def.orient || axis.orient;
+    axis = new Guide(TYPES.AXIS, axisDef.type, scale._id);
+    axis.title = axisDef.title;
+    axis.layer = axisDef.layer;
+    axis.grid = axisDef.grid;
+    axis.orient = axisDef.orient || axis.orient;
     if (count === 1) {
       axis.orient = SWAP_ORIENT[axis.orient];
     }
-    dl.extend(axis.properties, def.properties);
-    this.parent().child('axes', axis);
+    dl.extend(axis.properties, axisDef.properties);
+
+    store.dispatch(addAxisToGroup(axis, this._parent));
   }
 }
 
@@ -72,7 +77,7 @@ function findOrCreateAxis(scale, defs) {
 function findOrCreateLegend(scale, defs, property) {
   var map = this._rule._map.scales,
       legends = this.parent().legends,
-      def = defs.find(function(d) {
+      legendDef = defs.find(function(d) {
         return map[d[property]] === scale._id;
       }),
       legend = legends.find(function(l) {
@@ -81,8 +86,9 @@ function findOrCreateLegend(scale, defs, property) {
 
   if (!legend) {
     legend = new Guide(TYPES.LEGEND, property, scale._id);
-    legend.title = def.title;
-    this.parent().child('legends', legend);
+    legend.title = legendDef.title;
+
+    store.dispatch(addLegendToGroup(legend, this._parent));
   }
 }
 
@@ -105,9 +111,10 @@ function guides(parsed, property, channel) {
   }
 
   var group = parsed.spec.marks[0],
-      props = this.properties.update,
-      prop = props[property] || props[channel],
-      scale = prop.scale && lookup(prop.scale);
+      state = store.getState(),
+      scaleId = getGuideScale(state, this._id, property, channel),
+      scale = scaleId && lookup(scaleId);
+
   if (!scale) {
     return;
   }

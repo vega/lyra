@@ -2,7 +2,6 @@
 'use strict';
 var dl = require('datalib'),
     vg = require('vega'),
-    debounce = require('lodash.debounce'),
     sg = require('./signals'),
     manips = require('./primitives/marks/manipulators'),
     ns = require('../util/ns'),
@@ -24,16 +23,8 @@ var pipelines = [],
     primitives = {},
     listeners = {};
 
-/**
- * Initializes the Lyra model with a new Scene primitive.
- * @returns {Object} The Lyra Model
- */
-model.init = function() {
-  var Scene = require('./primitives/marks/Scene');
-  model.Scene = new Scene().init();
-  store.dispatch(expandLayers([model.Scene._id]));
-  return this;
-};
+window.listeners = listeners;
+window.primitives = primitives;
 
 /**
  * @description A setter for primitives based on IDs. To prevent memory leaks,
@@ -60,6 +51,43 @@ model.primitive = function(id, primitive) {
  */
 var lookup = model.lookup = function(id) {
   return primitives[id];
+};
+
+Object.defineProperty(model, 'Scene', {
+  enumerable: true,
+  get: function() {
+    var state = store.getState(),
+        sceneId = getIn(state, 'scene.id');
+
+    if (sceneId) {
+      return lookup(sceneId);
+    }
+  }
+});
+
+/**
+ * From a mark ID and properties hash, either update an existing mark or
+ * instantiate a new mark with the provided state.
+ *
+ * @param {number} id - The unique ID of a mark
+ * @param {Object} props - A vanilla JS object of mark properties
+ * @returns {void}
+ */
+model.syncMark = function(id, props) {
+  var existingMark = lookup(id),
+      MarkCtor = props && require('./primitives/marks').getConstructor(props.type);
+
+  if (existingMark && !props) {
+    // Remove the mark and its VLSingle from the primitives store
+    existingMark.remove();
+    return;
+  }
+
+  if (existingMark) {
+    existingMark.update(props);
+  } else if (MarkCtor) {
+    model.primitive(id, new MarkCtor(props));
+  }
 };
 
 function getset(cache, id, Type) {
@@ -322,9 +350,28 @@ model.offSignal = function(name, handler) {
 
 
 /**
- * Remove listeners
- * when unsetting values, clean up the model by resetting the listener object
+ * Remove all listeners or just those for a specific mark (determined
+ * by the ID and Type of the mark, which are utilized in the listener
+ * key) to clean up the listener store when removing one or many marks.
+ *
+ * @param {Object} mark - A mark descriptor object or mark instance
+ * @param {number} mark._id - A numeric mark ID
+ * @param {string} mark.type - A mark type e.g. "rect"
+ * @returns {void}
  */
-model.removeListeners = function(name){
-  listeners = {};
+model.removeListeners = function(mark) {
+  // Remove all listeners
+  if (!mark) {
+    listeners = {};
+    return;
+  }
+
+  // Remove a specific mark's listeners
+  var listenerForMarkRegex = new RegExp('^' + ns(mark.type + '_' + mark._id));
+  listeners = Object.keys(listeners).reduce(function(filteredListeners, key) {
+    if (!listenerForMarkRegex.test(key)) {
+      filteredListeners[key] = listeners[key];
+    }
+    return filteredListeners;
+  }, {});
 };

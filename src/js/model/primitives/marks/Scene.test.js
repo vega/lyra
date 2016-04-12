@@ -7,6 +7,7 @@ var Scene = require('./Scene');
 var Group = require('./Group');
 var Mark = require('./Mark');
 var VLSingle = require('../../rules/VLSingle');
+var model = require('../../');
 
 describe('Scene Mark', function() {
   var scene;
@@ -21,7 +22,7 @@ describe('Scene Mark', function() {
     it('returns the expected default properties object', function() {
       var result = Scene.defaultProperties();
       expect(result).to.deep.equal({
-        type: 'group',
+        type: 'scene',
         properties: {
           update: {}
         },
@@ -33,6 +34,29 @@ describe('Scene Mark', function() {
         legends: [],
         axes: [],
         marks: []
+      });
+    });
+
+    it('merged any provided options into the returned properties object', function() {
+      var result = Scene.defaultProperties({
+        _parent: 15
+      });
+      expect(result).to.have.property('_parent');
+      expect(result._parent).to.equal(15);
+    });
+
+    it('overwrites default properties with those in the provided props object', function() {
+      var result = Scene.defaultProperties({
+        properties: {
+          update: {
+            x: {value: 500}
+          }
+        }
+      });
+      expect(result.properties).to.deep.equal({
+        update: {
+          x: {value: 500}
+        }
       });
     });
 
@@ -94,12 +118,11 @@ describe('Scene Mark', function() {
     it('initializes instance with an appropriate .name property', function() {
       expect(scene).to.have.property('name');
       expect(scene.name).to.be.a('string');
-      expect(scene.name.startsWith('group_')).to.be.true;
+      expect(scene.name.startsWith('scene_')).to.be.true;
     });
 
-    it('initializes instance with a numeric _id', function() {
-      expect(scene).to.have.property('_id');
-      expect(scene._id).to.be.a('number');
+    it('does not initialize instance with a numeric _id by default', function() {
+      expect(scene).not.to.have.property('_id');
     });
 
     it('does not initialize instance with a .from property', function() {
@@ -167,6 +190,9 @@ describe('Scene Mark', function() {
 
     beforeEach(function() {
       scene = new Scene();
+      // Shim to handle the ID binding that no longer occurs in Mark instances
+      scene._id = 1;
+      model.primitive(scene._id, scene);
     });
 
     it('is a function', function() {

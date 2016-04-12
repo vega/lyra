@@ -4,10 +4,25 @@ var dl = require('datalib'),
     Scale = require('../primitives/Scale'),
     rules = require('./'),
     model = require('../'),
-    lookup = model.lookup;
+    lookup = model.lookup,
+    store = require('../../store'),
+    addScaleToGroup = require('../../actions/ruleActions').addScaleToGroup;
 
 var REF_CELLW = {data: 'layout', field: 'cellWidth'},
     REF_CELLH = {data: 'layout', field: 'cellHeight'};
+
+/**
+ * Helper function to determine how to set the points property of a vega scale,
+ * depending on the mark to which that scale is applied
+ *
+ * @private
+ * @param {string} defType - The type of scale
+ * @param {string} markType - The type of mark
+ * @returns {boolean} The value of the "points" property of the Vega scale
+ */
+function usePoints(defType, markType) {
+  return defType === 'ordinal' && markType !== 'rect';
+}
 
 /**
  * Tests whether a Lyra Scale primitive is equal to a parsed Vega scale
@@ -16,6 +31,7 @@ var REF_CELLW = {data: 'layout', field: 'cellWidth'},
  * prefers to use ordinal "band" scales for rect marks to simplify encoding
  * specification. TODO: revisit?
  *
+ * @private
  * @memberOf rules.scales
  * @param  {Object} def   A parsed Vega scale definition.
  * @param  {Scale}  scale A Lyra Scale primitive
@@ -23,8 +39,7 @@ var REF_CELLW = {data: 'layout', field: 'cellWidth'},
  * matches the parsed Vega definition.
  */
 function equals(def, scale) {
-  var markType = this.type,
-      points = def.type === 'ordinal' && markType !== 'rect';
+  var points = usePoints(def.type, this.type);
 
   return scale.type === def.type && !!scale.points === points &&
     dl.equal(scale._domain, def._domain) && scale.range === def.range;
@@ -34,36 +49,36 @@ function equals(def, scale) {
  * Constructs a new Lyra Scale primitive, or updates an existing one, based on
  * the given parsed Vega scale definition.
  *
+ * @private
  * @memberOf rules.scales
  * @param  {Object} def A parsed Vega scale definition
- * @returns {Scale} A Lyra Scale primitive.
+ * @returns {void}
  */
 function findOrCreateScale(def) {
-  var markType = this.type,
-      points = def.type === 'ordinal' && markType !== 'rect',
+  var points = usePoints(def.type, this.type),
       allScales = model.scale(),
-      s = allScales.find(equals.bind(this, def));
+      scale = allScales.find(equals.bind(this, def));
 
-  if (!s) {
-    s = model.scale(new Scale(def.name, def.type, undefined, def.range));
-    s._domain = def._domain;
-    s.points = points;
+  if (!scale) {
+    scale = model.scale(new Scale(def.name, def.type, undefined, def.range));
+    scale._domain = def._domain;
+    scale.points = points;
     if (points) {
-      s.padding = def.padding;
+      scale.padding = def.padding;
     }
   }
 
-  s.nice = def.nice;
-  s.round = def.round;
+  scale.nice = def.nice;
+  scale.round = def.round;
 
-  this._rule._map.scales[def.name] = s._id;
+  this._rule._map.scales[def.name] = scale._id;
 
   // hacky fix: rerender ui ---------------------
   var Sidebars = require('../../components');
   Sidebars.forceUpdate();
   // --------------------------------------------
 
-  return this.parent().child('scales', s);
+  store.dispatch(addScaleToGroup(scale, this._parent));
 }
 
 /**
@@ -74,6 +89,7 @@ function findOrCreateScale(def) {
  * IDs, and account for Vega-Lite idiosyncracies such as hardcoded ranges and
  * band sizes.
  *
+ * @private
  * @memberOf rules.scales
  * @param  {Object} def A Vega scale definition.
  * @returns {Object} An object that mimics a Lyra Scale primitive.
@@ -110,9 +126,9 @@ function parse(def) {
  * @todo Why do we not pass `channel` so that only scales for the bound channel
  * are evaluated?
  *
- * @namespace  rules.scales
+ * @namespace rules.scales
  * @memberOf rules
- * @param  {Object} parsed An object containing the parsed rule and output Vega spec.
+ * @param {Object} parsed - An object containing the parsed rule and output Vega spec.
  * @returns {void}
  */
 function scales(parsed) {

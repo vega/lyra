@@ -9,10 +9,8 @@
 // Global counter starts at 1
 var globalCounter = 1;
 
-// Group starts at 0 so that the scene is group0; other types start at 1
-var typeCounters = {
-  group: 0
-};
+// All types start at 1
+var typeCounters = {};
 
 /**
  * Get the next value from a globally incrementing counter, useful for generating
@@ -48,7 +46,20 @@ function getTypeCounter(type) {
   return typeCounters[type]++;
 }
 
+/**
+ * Reset the counters to their initial values (useful for starting a test suite
+ * with a clean slate).
+ * @returns {void}
+ */
+function reset() {
+  globalCounter = 1;
+  Object.keys(typeCounters).forEach(function(key) {
+    typeCounters[key] = 1;
+  });
+}
+
 module.exports = {
   global: getGlobalCounter,
-  type: getTypeCounter
+  type: getTypeCounter,
+  reset: reset
 };

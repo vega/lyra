@@ -26,6 +26,14 @@ var sg = require('../model/signals'),
     getIn = require('../util/immutable-utils').getIn,
     parseInProgress = require('../actions/vegaParse');
 
+function instantiatePrimitivesFromStore(store, model) {
+  store.getState().get('primitives').forEach(function(props, markId) {
+    // props will be an immutable iterable if the mark exists, or null if it has
+    // been deleted
+    model.syncMark(markId, props ? props.toJS() : props);
+  });
+}
+
 /**
  * Identify whether the redux model has changed in a way that invalidates the
  * rendered Vega view, and if so, kick off a destroy/recreate cycle to build
@@ -39,6 +47,16 @@ function recreateVegaIfNecessary(store, model) {
   var shouldReparse = getIn(store.getState(), 'vega.invalid');
 
   if (shouldReparse) {
+    // First, ensure that all marks have been properly instantiated from the store
+    instantiatePrimitivesFromStore(store, model);
+
+    if (!model.Scene) {
+      // If the initial Scene is not ready after primitive instantiaton, then we
+      // do not yet have anything to render: exit out and wait for the next cycle,
+      // returning "true" to preempt further action
+      return true;
+    }
+
     if (model.view) {
       // Clear out the outdated vega spec: iterate through all registered
       // signal streams and remove their event listeners
@@ -87,6 +105,7 @@ function updateSelectedMarkInVega(selectedMark, vegaView) {
   // If an item was found, set the Lyra mode signal so that the handles appear.
   if (item !== null) {
     vegaView.signal(sg.SELECTED, item);
+    vegaView.update();
   }
 }
 
@@ -112,6 +131,7 @@ function createStoreListener(store, model) {
    * @returns {void}
    */
   return function syncStoreToVega() {
+
     var reparseNeeded = recreateVegaIfNecessary(store, model),
         state = store.getState(),
         reparseInProgress = getIn(state, 'vega.isParsing');

@@ -49,10 +49,11 @@ inherits(Group, Mark);
  * containing a type string and a Vega mark properties object.
  *
  * @static
+ * @param {Object} [props] - Props to merge into the returned default properties object
  * @returns {Object} The default mark properties
  */
-Group.defaultProperties = function() {
-  return {
+Group.defaultProperties = function(props) {
+  return dl.extend({
     type: 'group',
     // name: 'group' + '_' + counter.type('group'); // Assign name in the reducer
     // _id: assign ID in the reducer
@@ -70,7 +71,7 @@ Group.defaultProperties = function() {
     legends: [],
     axes: [],
     marks: []
-  };
+  }, props);
 };
 
 Group.prototype.export = function(resolve) {
@@ -107,6 +108,9 @@ Group.prototype.manipulators = function() {
 
 /**
  * Insert or create a child Primitive.
+ *
+ * @deprecated Use actions like PRIMITIVE_ADD_MARK or PRIMITIVE_SET_PARENT instead
+ *
  * @param  {string} type - The type of the child (`scales`, `axes`, `legends`).
  * For marks, this should also include the mark type (e.g., `marks.rect`).
  * @param  {number|Object} [child] - The ID or Primitive corresponding to the
@@ -117,11 +121,13 @@ Group.prototype.manipulators = function() {
 Group.prototype.child = function(type, child) {
   type = type.split('.');
   var primitiveType = type[0];
+  var PrimitiveCtor = CHILDREN[type[1] || primitiveType];
   var lookupChild = dl.isNumber(child) ? lookup(child) : child;
+
   if (lookupChild) {
     child = lookupChild;
   } else {
-    child = new CHILDREN[type[1] || primitiveType]();
+    child = new PrimitiveCtor();
     // We've added a primitive, so re-parse the model to add it to vega
     // This is sort of objectionable: We need to tell vega that we're about to
     // need to re-parse, in order to suppress any attempts to write the about-
@@ -178,7 +184,6 @@ Group.prototype.removeChild = function(child) {
  * @returns {void}
  */
 Group.prototype.removeChildren = function(type) {
-  var types = this[type];
   if (type === 'marks') {
     this.marks.forEach(function(childId) {
       var child = lookup(childId);
@@ -195,3 +200,4 @@ Group.prototype.removeChildren = function(type) {
 };
 
 module.exports = Group;
+

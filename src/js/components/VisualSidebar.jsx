@@ -20,8 +20,7 @@ var VisualSidebar = React.createClass({
             Visualization
           </h2>
         </header>
-        <LayerList ref="layerList"
-          layers={model.Scene.marks} />
+        <LayerList ref="layerList" />
 
         <ScaleList ref="scaleList"
           scales={scales} />

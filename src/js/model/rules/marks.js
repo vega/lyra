@@ -1,46 +1,54 @@
 'use strict';
 var model = require('../'),
-    sg = require('../signals'),
     propSg = require('../../util/prop-signal'),
+    store = require('../../store'),
+    signalSet = require('../../actions/signalSet'),
+    setProperty = require('../../actions/ruleActions').setProperty,
+    disableProperty = require('../../actions/ruleActions').disableProperty,
     lookup = model.lookup;
 
 /**
  * Updates a Lyra mark property using a parsed Vega property definition.
  *
  * @memberOf rules.marks
+ * @param  {string} property The Lyra mark property to update.
+ * @param  {Object} def      The parsed Vega mark property definition.
  * @param  {Object} map      The rule map which associates names found in the
  * parsed Vega spec to Lyra Primitive IDs.
- * @param  {string} property The Lyra mark property to update.
- * @param  {Object} props    The Lyra mark properties.update object.
- * @param  {Object} def      The parsed Vega mark property definition.
  * @param  {DataSet} from    The backing Lyra Dataset primitive.
  * @returns {void}
  */
-function bindProperty(map, property, props, def, from) {
-  var d = def[property],
-      p = (props[property] = {});
+function bindProperty(property, def, map, from) {
+  var defProp = def[property],
+      prop = {};
 
-  if (typeof d.scale !== 'undefined') {
-    p.scale = map.scales[d.scale];
+  if (typeof defProp.scale !== 'undefined') {
+    prop.scale = map.scales[defProp.scale];
   }
-  if (typeof d.field !== 'undefined') {
-    if (d.field.group) {
-      p.group = d.field.group;
+
+  if (typeof defProp.field !== 'undefined') {
+    if (defProp.field.group) {
+      prop.group = defProp.field.group;
     } else {
-      p.field = from.schema()[d.field]._id;
+      prop.field = from.schema()[defProp.field]._id;
     }
   }
-  if (typeof d.value !== 'undefined') {
-    p.signal = propSg(this, property);
-    sg.set(p.signal, d.value);
+
+  if (typeof defProp.value !== 'undefined') {
+    prop.signal = propSg(this, property);
+    store.dispatch(signalSet(prop.signal, defProp.value));
   }
 
-  if (typeof d.band !== 'undefined') {
-    p.band = d.band;
+  if (typeof defProp.band !== 'undefined') {
+    prop.band = defProp.band;
   }
-  if (typeof d.offset !== 'undefined') {
-    p.offset = d.offset;
+
+  if (typeof defProp.offset !== 'undefined') {
+    prop.offset = defProp.offset;
   }
+
+  // Set the updated/bound property object on the mark instance
+  store.dispatch(setProperty(this._id, property, prop));
 }
 
 /**
@@ -49,17 +57,16 @@ function bindProperty(map, property, props, def, from) {
  * using an ordinal-point scale. However, Lyra prefers using start/span.
  *
  * @memberOf rules.marks
- * @param  {Object} map      The rule map which associates names found in the
- * parsed Vega spec to Lyra Primitive IDs.
  * @param  {string} property The Lyra mark property to update.
  * @param  {string} channel  The corresponding Vega-Lite channel.
- * @param  {Object} props    The Lyra mark properties.update object.
  * @param  {Object} def      The parsed Vega mark property definition.
+ * @param  {Object} map      The rule map which associates names found in the
+ * parsed Vega spec to Lyra Primitive IDs.
  * @param  {Dataset} from    The backing Lyra Dataset primitive.
  * @returns {void}
  */
 var RECT_SPANS = {x: 'width', y: 'height'};
-function rectSpatial(map, property, channel, props, def, from) {
+function rectSpatial(property, channel, def, map, from) {
   var max = channel + '2',
       cntr = channel + 'c',
       span = RECT_SPANS[channel];
@@ -68,22 +75,28 @@ function rectSpatial(map, property, channel, props, def, from) {
   // manipulators not arrows), bind only that property.
   if (property !== channel + '+') {
     def[property] = def[property] || def[channel] || def[cntr];
-    return bindProperty.call(this, map, property, props, def, from);
+    return bindProperty.call(this, property, def, map, from);
   }
 
   if (def[max]) {
-    bindProperty.call(this, map, channel, props, def, from);
-    bindProperty.call(this, map, max, props, def, from);
-    props[span]._disabled = true;
+    bindProperty.call(this, channel, def, map, from);
+    bindProperty.call(this, max, def, map, from);
+    // updateProps[span]._disabled = true;
+    store.dispatch(disableProperty(this._id, span));
   } else {
     def[channel] = def[cntr]; // Map xc/yc => x/y for binding.
-    bindProperty.call(this, map, channel, props, def, from);
+    bindProperty.call(this, channel, def, map, from);
 
     // Width/height should use bandWidth
-    def[span] = {scale: def[channel].scale, band: true, offset: -1};
-    bindProperty.call(this, map, span, props, def, from);
+    def[span] = {
+      scale: def[channel].scale,
+      band: true,
+      offset: -1
+    };
+    bindProperty.call(this, span, def, map, from);
 
-    props[max]._disabled = true;
+    // updateProps[max]._disabled = true;
+    store.dispatch(disableProperty(this._id, max));
   }
 }
 
@@ -101,7 +114,6 @@ function rectSpatial(map, property, channel, props, def, from) {
 function marks(parsed, property, channel) {
   var map = this._rule._map,
       def = parsed.spec.marks[0].marks[0],
-      props = this.properties.update,
       dprops = def.properties.update,
       from;
 
@@ -113,9 +125,9 @@ function marks(parsed, property, channel) {
   // Rect mark's spatial properties are handled separately as we need to account
   // for the four extent properties (x/x2/xc/width, y/y2/yc/height).
   if (this.type === 'rect' && (channel === 'x' || channel === 'y')) {
-    rectSpatial.call(this, map, property, channel, props, dprops, from);
+    rectSpatial.call(this, property, channel, dprops, map, from);
   } else {
-    bindProperty.call(this, map, property, props, dprops, from);
+    bindProperty.call(this, property, dprops, map, from);
   }
 }
 
