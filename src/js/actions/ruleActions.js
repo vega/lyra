@@ -14,14 +14,62 @@ var actions = require('../constants/actions');
  *
  * @param {Object} scale - A Scale primitive instance
  * @param {number} scale._id - The ID of the scale primitive
- * @param {number} parentId [description]
+ * @param {number} groupId [description]
  * @returns {Object} A redux action object
  */
-function addScaleToGroup(scale, parentId) {
+function addScaleToGroup(scale, groupId) {
   return {
     type: actions.RULES_ADD_SCALE_TO_GROUP,
-    parentId: parentId,
-    scaleId: scale._id
+    groupId: groupId,
+    id: scale._id
+  };
+}
+
+/**
+ * Return an action object instructing the reducer to add the provided axis
+ * to the specified group
+ *
+ * @param {Object} axis - An Axis primitive instance
+ * @param {number} axis._id - The ID of the Axis primitive
+ * @param {number} groupId - The ID of the mark to which the axis should be added
+ * @returns {Object} A redux action object
+ */
+function addAxisToGroup(axis, groupId) {
+  // Side effect: update the axis's parent. Since axes are not yet deduced from
+  // the store, the reducer has no ability to make this change. Store the old
+  // parent (which may be undefined) so that it can be passed in (the reducer
+  // must be able to move the axis from the old parent to the new).
+  var oldGroupId = axis._parent;
+  axis._parent = groupId;
+  return {
+    type: actions.RULES_ADD_AXIS_TO_GROUP,
+    oldGroupId: oldGroupId,
+    groupId: groupId,
+    id: axis._id
+  };
+}
+
+/**
+ * Return an action object instructing the reducer to add the provided legend
+ * to the specified group
+ *
+ * @param {Object} legend - A Legend primitive instance
+ * @param {number} legend._id - The ID of the Legend primitive
+ * @param {number} groupId - The ID of the mark to which the legend should be added
+ * @returns {Object} A redux action object
+ */
+function addLegendToGroup(legend, groupId) {
+  // Side effect: update the legend's parent. Since axes are not yet deduced from
+  // the store, the reducer has no ability to make this change. Store the old
+  // parent (which may be undefined) so that it can be passed in (the reducer
+  // must be able to move the legend from the old parent to the new).
+  var oldGroupId = legend._parent;
+  legend._parent = groupId;
+  return {
+    type: actions.RULES_ADD_LEGEND_TO_GROUP,
+    oldGroupId: oldGroupId,
+    groupId: groupId,
+    id: legend._id
   };
 }
 
@@ -77,6 +125,8 @@ function resetProperty(markId, property) {
 
 module.exports = {
   addScaleToGroup: addScaleToGroup,
+  addAxisToGroup: addAxisToGroup,
+  addLegendToGroup: addLegendToGroup,
   setProperty: setProperty,
   disableProperty: disableProperty,
   resetProperty: resetProperty

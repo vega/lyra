@@ -29,7 +29,13 @@ function vegaInvalidateReducer(state, action) {
     actions.CREATE_SCENE,
     actions.SIGNAL_INIT,
     actions.PRIMITIVE_ADD_MARK,
-    actions.PRIMITIVE_DELETE_MARK
+    actions.PRIMITIVE_DELETE_MARK,
+    actions.RULES_ADD_SCALE_TO_GROUP,
+    actions.RULES_ADD_LEGEND_TO_GROUP,
+    actions.RULES_ADD_AXIS_TO_GROUP,
+    actions.RULES_SET_PROPERTY,
+    actions.RULES_DISABLE_PROPERTY,
+    actions.RULES_RESET_PROPERTY
   ];
   if (invalidatingActions.indexOf(action.type) >= 0) {
     return state.set('invalid', true);

@@ -11,10 +11,11 @@ var counter = require('../util/counter');
 var setIn = require('../util/immutable-utils').setIn;
 
 describe('primitives reducer', function() {
-  var initialState;
+  var initialState, addMark;
 
   beforeEach(function() {
     initialState = Immutable.Map();
+    addMark = primitiveActions.addMark;
   });
 
   it('is a function', function() {
@@ -35,12 +36,10 @@ describe('primitives reducer', function() {
   });
 
   describe('add primitive action', function() {
-    var addMark;
 
     beforeEach(function() {
       // Reset counters module so that we can have predictable IDs for our new marks
       counter.reset();
-      addMark = primitiveActions.addMark;
     });
 
     it('registers a primitive in the store keyed by primitive _id', function() {
@@ -226,7 +225,6 @@ describe('primitives reducer', function() {
     var setParent;
 
     beforeEach(function() {
-      var addMark = primitiveActions.addMark;
       // Start out with a store already containing two groups and a symbol
       initialState = primitivesReducer(primitivesReducer(primitivesReducer(Immutable.Map(), addMark({
         _id: 15,
@@ -287,7 +285,6 @@ describe('primitives reducer', function() {
   describe('add scale to group action', function() {
 
     beforeEach(function() {
-      var addMark = primitiveActions.addMark;
       // Start out with a store already containing two groups and a symbol
       initialState = primitivesReducer(Immutable.Map(), addMark({
         _id: 15,
@@ -301,8 +298,8 @@ describe('primitives reducer', function() {
     it('has no effect if the provided parent ID is not present in the store', function() {
       var result = primitivesReducer(initialState, {
         type: actions.RULES_ADD_SCALE_TO_GROUP,
-        parentId: 51,
-        scaleId: 222
+        groupId: 51,
+        id: 222
       });
       expect(result).to.equal(initialState);
     });
@@ -310,8 +307,8 @@ describe('primitives reducer', function() {
     it('adds the specified scale ID to the specified group\'s scales array', function() {
       var result = primitivesReducer(initialState, {
         type: actions.RULES_ADD_SCALE_TO_GROUP,
-        parentId: 15,
-        scaleId: 222
+        groupId: 15,
+        id: 222
       });
       expect(result.get('15').toJS().scales).to.deep.equal([222]);
     });
@@ -321,10 +318,138 @@ describe('primitives reducer', function() {
       expect(initialState.get('15').toJS().scales).to.deep.equal([111]);
       var result = primitivesReducer(initialState, {
         type: actions.RULES_ADD_SCALE_TO_GROUP,
-        parentId: 15,
-        scaleId: 222
+        groupId: 15,
+        id: 222
       });
       expect(result.get('15').toJS().scales).to.deep.equal([111, 222]);
+    });
+
+  });
+
+  describe('add axis to group action', function() {
+
+    beforeEach(function() {
+      // Start out with a store already containing two groups and a symbol
+      initialState = primitivesReducer(Immutable.Map(), addMark({
+        _id: 15,
+        name: 'group_1',
+        type: 'group',
+        marks: [],
+        axes: []
+      }));
+    });
+
+    it('has no effect if the provided parent ID is not present in the store', function() {
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_AXIS_TO_GROUP,
+        groupId: 51,
+        id: 222
+      });
+      expect(result).to.equal(initialState);
+    });
+
+    it('adds the specified axis ID to the specified group\'s axes array', function() {
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_AXIS_TO_GROUP,
+        groupId: 15,
+        id: 222
+      });
+      expect(result.get('15').toJS().axes).to.deep.equal([222]);
+    });
+
+    it('does not overwrite any preexisting axis IDs in the group\'s axes array', function() {
+      initialState = setIn(initialState, '15.axes', [111]);
+      expect(initialState.get('15').toJS().axes).to.deep.equal([111]);
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_AXIS_TO_GROUP,
+        groupId: 15,
+        id: 222
+      });
+      expect(result.get('15').toJS().axes).to.deep.equal([111, 222]);
+    });
+
+    it('can move an axis from one group to another', function() {
+      initialState = primitivesReducer(initialState, addMark({
+        _id: 30,
+        name: 'group_2',
+        type: 'group',
+        marks: [],
+        axes: [111]
+      }));
+      expect(initialState.get('15').toJS().axes).to.deep.equal([]);
+      expect(initialState.get('30').toJS().axes).to.deep.equal([111]);
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_AXIS_TO_GROUP,
+        oldGroupId: 30,
+        groupId: 15,
+        id: 111
+      });
+      expect(result.get('15').toJS().axes).to.deep.equal([111]);
+      expect(result.get('30').toJS().axes).to.deep.equal([]);
+    });
+
+  });
+
+  describe('add legend to group action', function() {
+
+    beforeEach(function() {
+      // Start out with a store already containing two groups and a symbol
+      initialState = primitivesReducer(Immutable.Map(), addMark({
+        _id: 15,
+        name: 'group_1',
+        type: 'group',
+        marks: [],
+        legends: []
+      }));
+    });
+
+    it('has no effect if the provided parent ID is not present in the store', function() {
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_LEGEND_TO_GROUP,
+        groupId: 51,
+        id: 222
+      });
+      expect(result).to.equal(initialState);
+    });
+
+    it('adds the specified legend ID to the specified group\'s legends array', function() {
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_LEGEND_TO_GROUP,
+        groupId: 15,
+        id: 222
+      });
+      expect(result.get('15').toJS().legends).to.deep.equal([222]);
+    });
+
+    it('does not overwrite any preexisting legend IDs in the group\'s legends array', function() {
+      initialState = setIn(initialState, '15.legends', [111]);
+      expect(initialState.get('15').toJS().legends).to.deep.equal([111]);
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_LEGEND_TO_GROUP,
+        groupId: 15,
+        id: 222
+      });
+      expect(result.get('15').toJS().legends).to.deep.equal([111, 222]);
+    });
+
+    it('can move an legend from one group to another', function() {
+      initialState = primitivesReducer(initialState, addMark({
+        _id: 30,
+        name: 'group_2',
+        type: 'group',
+        marks: [],
+        legends: [111]
+      }));
+      expect(initialState.get('15').toJS().legends).to.deep.equal([]);
+      expect(initialState.get('30').toJS().legends).to.deep.equal([111]);
+      var result = primitivesReducer(initialState, {
+        type: actions.RULES_ADD_LEGEND_TO_GROUP,
+        oldGroupId: 30,
+        groupId: 15,
+        id: 111
+      });
+      expect(result.get('15').toJS().legends).to.deep.equal([111]);
+      expect(result.get('30').toJS().legends).to.deep.equal([]);
     });
 
   });
@@ -332,7 +457,6 @@ describe('primitives reducer', function() {
   describe('property mutators', function() {
 
     beforeEach(function() {
-      var addMark = primitiveActions.addMark;
       // Start out with a store already containing two groups and a symbol
       initialState = primitivesReducer(Immutable.Map(), addMark({
         _id: 15,
