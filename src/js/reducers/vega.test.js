@@ -112,6 +112,13 @@ describe('vega reducer', function() {
       expect(result.get('invalid')).to.equal(true);
     });
 
+    it('flags the store as invalid when a property is enabled', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.RULES_ENABLE_PROPERTY
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
     it('flags the store as invalid when a property is disabled', function() {
       var result = vegaReducer(initialState, {
         type: actions.RULES_DISABLE_PROPERTY

@@ -34,6 +34,7 @@ function vegaInvalidateReducer(state, action) {
     actions.RULES_ADD_LEGEND_TO_GROUP,
     actions.RULES_ADD_AXIS_TO_GROUP,
     actions.RULES_SET_PROPERTY,
+    actions.RULES_ENABLE_PROPERTY,
     actions.RULES_DISABLE_PROPERTY,
     actions.RULES_RESET_PROPERTY
   ];

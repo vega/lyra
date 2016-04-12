@@ -53,33 +53,6 @@ var AreaProperty = React.createClass({
     return {start: start, end: end};
   },
 
-  handleChange: function(evt) {
-    var props = this.props,
-        state = this.state,
-        type = props.type,
-        primitive = props.primitive,
-        update = primitive.properties.update,
-        target = evt.target,
-        name = target.name,
-        value = target.value,
-        extents = EXTENTS[type],
-        center = extents.center.name,
-        span = extents.span.name,
-        old = state[name];
-
-    update[old]._disabled = true;
-    update[value]._disabled = false;
-    state[name] = value;
-
-    if (value === center && state.end !== span) {
-      update[state.end]._disabled = true;
-      update[span]._disabled = false;
-      state.end = span;
-    }
-
-    this.requestVegaReparse();
-  },
-
   render: function() {
     var state = this.state,
         props = this.props,

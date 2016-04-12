@@ -177,6 +177,12 @@ function setProperty(state, id, property, value) {
   return setIn(state, propPath, Immutable.fromJS(value));
 }
 
+function enableProperty(state, id, property) {
+  var propPath = id + '.properties.update.' + property;
+
+  return setIn(state, propPath + '._disabled', false);
+}
+
 function disableProperty(state, id, property) {
   var propPath = id + '.properties.update.' + property;
 
@@ -258,6 +264,10 @@ function primitivesReducer(state, action) {
 
   if (action.type === actions.RULES_SET_PROPERTY) {
     return setProperty(state, action.id, action.property, action.value);
+  }
+
+  if (action.type === actions.RULES_ENABLE_PROPERTY) {
+    return enableProperty(state, action.id, action.property);
   }
 
   if (action.type === actions.RULES_DISABLE_PROPERTY) {
