@@ -74,7 +74,9 @@ module.exports = {
     }
 
     if (signal) {
-      sg.set(signal, value);
+      // Set the signal on the view but do not dispatch: the `.signal` listener
+      // above will dispatch the action to synchronize Redux with Vega.
+      sg.set(signal, value, false);
       model.update();
     } else {
       this._set(props.obj, value);

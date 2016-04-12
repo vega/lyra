@@ -3,8 +3,6 @@
 
 require('../scss/app.scss');
 
-var throttle = require('lodash.throttle');
-
 // Additional requires to polyfill + browserify package.
 require('array.prototype.find');
 require('string.prototype.startswith');
@@ -20,11 +18,7 @@ var model = require('./model');
 var listeners = require('./store/listeners');
 
 // Bind the listener that will flow changes from the redux store into Vega.
-// Throttle the listener to avoid the rendering overhead of re-computing
-// certain properties from the store dispatch cycle more frequently than
-// 60fps (16 is derived from 1000ms / 60fps). This listener calls model.update
-// when it completes if the view is viable.
-store.subscribe(throttle(listeners.createStoreListener(store, model), 16));
+store.subscribe(listeners.createStoreListener(store, model));
 
 // Initializes the Lyra model with a new Scene primitive.
 var createScene = require('./actions/createScene');
