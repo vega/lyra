@@ -58,11 +58,11 @@ function convertValuesToSignals(properties, type, id) {
 function makeMark(action) {
   return Object.keys(action.props).reduce(function(mark, key) {
     if (key === 'properties') {
-      return mark.set(key, Immutable.fromJS(
+      return set(mark, key, Immutable.fromJS(
         convertValuesToSignals(action.props[key], action.props.type, action.id))
       );
     }
-    return set(mark, key, action.props[key]);
+    return set(mark, key, Immutable.fromJS(action.props[key]));
   }, Immutable.Map({
     _id: action.id,
     name: action.name
@@ -174,16 +174,13 @@ function moveChildToGroup(state, action, collection) {
 function setProperty(state, id, property, value) {
   var propPath = id + '.properties.update.' + property;
 
-  return setIn(state, propPath, assign({}, value));
+  return setIn(state, propPath, Immutable.fromJS(value));
 }
 
 function disableProperty(state, id, property) {
-  var propPath = id + '.properties.update.' + property,
-      currentPropValue = getIn(state, propPath).toJS();
+  var propPath = id + '.properties.update.' + property;
 
-  return setIn(state, propPath, assign({}, currentPropValue, {
-    _disabled: true
-  }));
+  return setIn(state, propPath + '._disabled', true);
 }
 
 function resetProperty(state, id, property) {

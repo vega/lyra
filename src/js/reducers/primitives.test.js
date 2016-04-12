@@ -145,26 +145,26 @@ describe('primitives reducer', function() {
       // Reset counters module so that we can have predictable IDs for our new marks
       counter.reset();
       initialState = initialState
-        .set('1', Immutable.Map({
+        .set('1', Immutable.fromJS({
           _id: 1,
           type: 'group',
           name: 'parent group',
           marks: [2, 3]
         }))
-        .set('2', Immutable.Map({
+        .set('2', Immutable.fromJS({
           _id: 2,
           _parent: 1,
           type: 'group',
           name: 'branch group',
           marks: [4]
         }))
-        .set('3', Immutable.Map({
+        .set('3', Immutable.fromJS({
           _id: 3,
           _parent: 1,
           type: 'rect',
           name: 'child of group 1'
         }))
-        .set('4', Immutable.Map({
+        .set('4', Immutable.fromJS({
           _id: 4,
           _parent: 2,
           type: 'symbol',
@@ -211,10 +211,10 @@ describe('primitives reducer', function() {
 
     it('converts the scene height and width to signal references', function() {
       var result = primitivesReducer(initialState, createScene());
-      expect(result.get('1').get('height')).to.deep.equal({
+      expect(result.get('1').get('height').toJS()).to.deep.equal({
         signal: 'lyra_vis_height'
       });
-      expect(result.get('1').get('width')).to.deep.equal({
+      expect(result.get('1').get('width').toJS()).to.deep.equal({
         signal: 'lyra_vis_width'
       });
     });
@@ -314,7 +314,7 @@ describe('primitives reducer', function() {
     });
 
     it('does not overwrite any preexisting scale IDs in the group\'s scales array', function() {
-      initialState = setIn(initialState, '15.scales', [111]);
+      initialState = setIn(initialState, '15.scales', Immutable.fromJS([111]));
       expect(initialState.get('15').toJS().scales).to.deep.equal([111]);
       var result = primitivesReducer(initialState, {
         type: actions.RULES_ADD_SCALE_TO_GROUP,
@@ -358,7 +358,7 @@ describe('primitives reducer', function() {
     });
 
     it('does not overwrite any preexisting axis IDs in the group\'s axes array', function() {
-      initialState = setIn(initialState, '15.axes', [111]);
+      initialState = setIn(initialState, '15.axes', Immutable.fromJS([111]));
       expect(initialState.get('15').toJS().axes).to.deep.equal([111]);
       var result = primitivesReducer(initialState, {
         type: actions.RULES_ADD_AXIS_TO_GROUP,
@@ -422,7 +422,7 @@ describe('primitives reducer', function() {
     });
 
     it('does not overwrite any preexisting legend IDs in the group\'s legends array', function() {
-      initialState = setIn(initialState, '15.legends', [111]);
+      initialState = setIn(initialState, '15.legends', Immutable.fromJS([111]));
       expect(initialState.get('15').toJS().legends).to.deep.equal([111]);
       var result = primitivesReducer(initialState, {
         type: actions.RULES_ADD_LEGEND_TO_GROUP,
