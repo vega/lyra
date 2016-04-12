@@ -1,6 +1,5 @@
 'use strict';
 var model = require('../'),
-    sg = require('../signals'),
     propSg = require('../../util/prop-signal'),
     store = require('../../store'),
     signalSet = require('../../actions/signalSet'),

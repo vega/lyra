@@ -6,8 +6,7 @@ var React = require('react'),
 var TextInspector = React.createClass({
   render: function() {
     var props = this.props,
-        primitive = props.primitive,
-        update = primitive.properties.update;
+        primitive = props.primitive;
 
     return (
       <div>
@@ -16,10 +15,7 @@ var TextInspector = React.createClass({
         <Property name="text" label="Text"
           type="text"
           primitive={primitive}
-          canDrop={true}
-          scale={update.text.scale}
-          field={update.text.field}
-          signal={update.text.signal} />
+          canDrop={true} />
 
         <h4 className="hed-tertiary">Font</h4>
 
@@ -27,89 +23,59 @@ var TextInspector = React.createClass({
           primitive={primitive}
           type="select"
           opts={Text.fonts}
-          canDrop={true}
-          scale={update.font.scale}
-          field={update.font.field}
-          signal={update.font.signal} />
+          canDrop={true} />
 
         <Property name="fontSize" label="Size"
           type="number"
           primitive={primitive}
-          canDrop={true}
-          scale={update.fontSize.scale}
-          field={update.fontSize.field}
-          signal={update.fontSize.signal} />
+          canDrop={true} />
 
         <Property name="fontWeight" label="Weight"
           primitive={primitive}
           type="select"
           opts={Text.fontWeights}
-          canDrop={true}
-          scale={update.fontWeight.scale}
-          field={update.fontWeight.field}
-          signal={update.fontWeight.signal} />
+          canDrop={true} />
 
         <Property name="fontStyle" label="Style"
           primitive={primitive}
           type="select"
           opts={Text.fontStyles}
-          canDrop={true}
-          scale={update.fontStyle.scale}
-          field={update.fontStyle.field}
-          signal={update.fontStyle.signal} />
+          canDrop={true} />
 
         <Property name="fill" label="Color"
           type="color"
           primitive={primitive}
-          canDrop={true}
-          scale={update.fill.scale}
-          field={update.fill.field}
-          signal={update.fill.signal} />
+          canDrop={true} />
 
         <Property name="fillOpacity" label="Opacity"
           type="range"
           primitive={primitive}
           canDrop={true}
-          min="0" max="1" step="0.05"
-          scale={update.fillOpacity.scale}
-          field={update.fillOpacity.field}
-          signal={update.fillOpacity.signal} />
+          min="0" max="1" step="0.05" />
 
         <h4 className="hed-tertiary">Position</h4>
 
         <Property name="x" label="X"
           type="number"
           primitive={primitive}
-          canDrop={true}
-          scale={update.x.scale}
-          field={update.x.field}
-          signal={update.x.signal} />
+          canDrop={true} />
 
         <Property name="y" label="Y"
           type="number"
           primitive={primitive}
-          canDrop={true}
-          scale={update.y.scale}
-          field={update.y.field}
-          signal={update.y.signal} />
+          canDrop={true} />
 
         <h4 className="hed-tertiary">Offset</h4>
 
         <Property name="dx" label="X"
           type="number"
           primitive={primitive}
-          canDrop={true}
-          scale={update.dx.scale}
-          field={update.dx.field}
-          signal={update.dx.signal} />
+          canDrop={true} />
 
         <Property name="dy" label="Y"
           type="number"
           primitive={primitive}
-          canDrop={true}
-          scale={update.dy.scale}
-          field={update.dy.field}
-          signal={update.dy.signal} />
+          canDrop={true} />
 
         <h4 className="hed-tertiary">Align</h4>
 
@@ -117,27 +83,18 @@ var TextInspector = React.createClass({
           primitive={primitive}
           type="select"
           opts={Text.alignments}
-          canDrop={true}
-          scale={update.align.scale}
-          field={update.align.field}
-          signal={update.align.signal} />
+          canDrop={true} />
 
         <Property name="baseline" label="Vertical"
           primitive={primitive}
           type="select"
           opts={Text.baselines}
-          canDrop={true}
-          scale={update.baseline.scale}
-          field={update.baseline.field}
-          signal={update.baseline.signal} />
+          canDrop={true} />
 
         <Property name="angle" label="Rotation"
           type="number"
           primitive={primitive}
-          canDrop={true}
-          scale={update.angle.scale}
-          field={update.angle.field}
-          signal={update.angle.signal} />
+          canDrop={true} />
       </div>
     );
   }

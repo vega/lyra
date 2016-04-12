@@ -2,14 +2,18 @@
 var dl = require('datalib'),
     sg = require('../../model/signals'),
     store = require('../../store'),
+    getIn = require('../../util/immutable-utils').getIn,
     signalSet = require('../../actions/signalSet'),
     model = require('../../model');
 
 module.exports = {
   getInitialState: function() {
-    var props = this.props;
+    var state = store.getState(),
+        props = this.props,
+        signalValue = props.signal && getIn(state, 'signals.' + props.signal + '.init');
+
     return {
-      value: props.signal ? sg.get(props.signal) : props.value
+      value: props.signal ? signalValue : props.value
     };
   },
 
@@ -31,8 +35,9 @@ module.exports = {
       this.onSignal(nextProps.signal);
     }
     if (nextProps.signal || nextProps.value !== prevProps.value) {
-      this.setState({value: nextProps.signal ?
-        sg.get(nextProps.signal) : nextProps.value});
+      this.setState({
+        value: nextProps.signal ? sg.get(nextProps.signal) : nextProps.value
+      });
     }
   },
 

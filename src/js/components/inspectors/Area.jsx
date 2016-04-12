@@ -7,8 +7,7 @@ var React = require('react'),
 var AreaInspector = React.createClass({
   render: function() {
     var props = this.props,
-        primitive = props.primitive,
-        update = primitive.properties.update;
+        primitive = props.primitive;
 
     return (
       <div>
@@ -27,10 +26,7 @@ var AreaInspector = React.createClass({
           label="Color"
           type="color"
           primitive={primitive}
-          canDrop={true}
-          scale={update.fill.scale}
-          field={update.fill.field}
-          signal={update.fill.signal} />
+          canDrop={true} />
 
         <Property
           name="fillOpacity"
@@ -39,10 +35,7 @@ var AreaInspector = React.createClass({
           type="range"
           canDrop={true}
           min="0" max="1"
-          step="0.05"
-          scale={update.fillOpacity.scale}
-          field={update.fillOpacity.field}
-          signal={update.fillOpacity.signal} />
+          step="0.05" />
 
         <h4 className="hed-tertiary">Stroke</h4>
 
@@ -51,11 +44,7 @@ var AreaInspector = React.createClass({
           label="Color"
           type="color"
           primitive={primitive}
-          canDrop={true}
-          scale={update.stroke.scale}
-          field={update.stroke.field}
-          signal={update.stroke.signal}
-        />
+          canDrop={true} />
 
         <Property
           name="strokeWidth"
@@ -65,11 +54,7 @@ var AreaInspector = React.createClass({
           canDrop={true}
           min="0"
           max="10"
-          step="0.25"
-          scale={update.strokeWidth.scale}
-          field={update.strokeWidth.field}
-          signal={update.strokeWidth.signal}
-        />
+          step="0.25" />
 
         <h4>Line Strength</h4>
         <Property
@@ -78,22 +63,14 @@ var AreaInspector = React.createClass({
           primitive={primitive}
           type="select"
           opts={Area.INTERPOLATE}
-          canDrop={true}
-          scale={update.interpolate.scale}
-          field={update.interpolate.field}
-          signal={update.interpolate.signal}
-        />
+          canDrop={true} />
 
         <Property
           name="tension"
           label="Tension"
           type="number"
           primitive={primitive}
-          canDrop={true}
-          scale={update.tension.scale}
-          field={update.tension.field}
-          signal={update.tension.signal}
-          />
+          canDrop={true} />
         <h4 className="hed-tertiary">Orientation</h4>
         <Property
           name="orient"
@@ -101,11 +78,7 @@ var AreaInspector = React.createClass({
           primitive={primitive}
           type="select"
           opts={Area.ORIENT}
-          canDrop={true}
-          scale={update.orient.scale}
-          field={update.orient.field}
-          signal={update.orient.signal}
-        />
+          canDrop={true} />
       </div>
     );
   }

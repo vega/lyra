@@ -5,8 +5,7 @@ var React = require('react'),
 var Line = React.createClass({
   render: function() {
     var props = this.props,
-        primitive = props.primitive,
-        update = primitive.properties.update;
+        primitive = props.primitive;
 
     return (
       <div>
@@ -17,22 +16,14 @@ var Line = React.createClass({
           label="X"
           type="number"
           primitive={primitive}
-          canDrop={true}
-          scale={update.x.scale}
-          field={update.x.field}
-          signal={update.x.signal}
-          />
+          canDrop={true} />
 
         <Property
           name="y"
           label="Y"
           type="number"
           primitive={primitive}
-          canDrop={true}
-          scale={update.y.scale}
-          field={update.y.field}
-          signal={update.y.signal}
-        />
+          canDrop={true} />
 
         <h4 className="hed-tertiary">Stroke</h4>
 
@@ -41,11 +32,7 @@ var Line = React.createClass({
           label="Color"
           type="color"
           primitive={primitive}
-          canDrop={true}
-          scale={update.stroke.scale}
-          field={update.stroke.field}
-          signal={update.stroke.signal}
-          />
+          canDrop={true} />
 
         <Property
           name="strokeWidth"
@@ -55,11 +42,7 @@ var Line = React.createClass({
           max="10"
           step="0.25"
           primitive={primitive}
-          canDrop={true}
-          scale={update.strokeWidth.scale}
-          field={update.strokeWidth.field}
-          signal={update.strokeWidth.signal}
-          />
+          canDrop={true} />
       </div>
     );
   }

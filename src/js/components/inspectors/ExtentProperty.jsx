@@ -7,16 +7,16 @@ var dl = require('datalib'),
 
 var EXTENTS = {
   x: {
-    start:  {name: 'x', label: 'Left'},
+    start: {name: 'x', label: 'Left'},
     center: {name: 'xc', label: 'Center'},
     span: {name: 'width', label: 'Width'},
-    end:  {name: 'x2', label: 'Right'}
+    end: {name: 'x2', label: 'Right'}
   },
   y: {
-    start:  {name: 'y', label: 'Top'},
+    start: {name: 'y', label: 'Top'},
     center: {name: 'yc', label: 'Middle'},
     span: {name: 'height', label: 'Height'},
-    end:  {name: 'y2', label: 'Bottom'}
+    end: {name: 'y2', label: 'Bottom'}
   }
 };
 
@@ -94,9 +94,11 @@ var ExtentProperty = React.createClass({
     return (
       <div>
 
-        <Property name={start} type="number" primitive={primitive} canDrop={true}
-          scale={update[start].scale} field={update[start].field}
-          signal={update[start].signal} disabled={update[start].band || update[start].group}>
+        <Property name={start}
+          type="number"
+          primitive={primitive}
+          canDrop={true}
+          disabled={update[start].band || update[start].group}>
 
           <div className="label">
             <select name="start" value={start} onChange={this.handleChange}>
@@ -113,9 +115,11 @@ var ExtentProperty = React.createClass({
           <SpatialPreset className="extra" name={start} {...props} />
         </Property>
 
-        <Property name={end} type="number" primitive={primitive} canDrop={true}
-          scale={update[end].scale} field={update[end].field}
-          signal={update[end].signal} disabled={update[end].band || update[end].group}>
+        <Property name={end}
+          type="number"
+          primitive={primitive}
+          canDrop={true}
+          disabled={update[end].band || update[end].group}>
 
           <div className="label">
             {start === center ?

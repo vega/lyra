@@ -1,9 +1,10 @@
-/* eslint no-unused-expressions:0 */
+/* eslint no-unused-expressions:0,new-cap:0 */
 'use strict';
 
 var expect = require('chai').expect;
 var React = require('react');
 var configureMockStore = require('redux-mock-store');
+var Immutable = require('immutable');
 var enzyme = require('enzyme');
 var Rect = require('../../model/primitives/marks/Rect');
 var Property = require('./Property');
@@ -72,7 +73,7 @@ describe('Property Inspector <Property/>', function() {
         primitive={primitive}
       />, {
         context: {
-          store: mockStore({})
+          store: mockStore(Immutable.Map())
         }
       });
       inputNode = wrapper.find('input[type="range"]').node;
