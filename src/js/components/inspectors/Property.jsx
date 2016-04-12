@@ -34,6 +34,11 @@ function mapDispatchToProps(dispatch) {
 
 var Property = React.createClass({
   propTypes: {
+    name: React.PropTypes.string.isRequired,
+    label: React.PropTypes.string,
+    field: React.PropTypes.number,
+    scale: React.PropTypes.number,
+    signal: React.PropTypes.string,
     resetProperty: React.PropTypes.func
   },
 
