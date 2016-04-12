@@ -2,6 +2,9 @@
 var model = require('../'),
     sg = require('../signals'),
     propSg = require('../../util/prop-signal'),
+    store = require('../../store'),
+    setProperty = require('../../actions/ruleActions').setProperty,
+    disableProperty = require('../../actions/ruleActions').disableProperty,
     lookup = model.lookup;
 
 /**
@@ -16,8 +19,7 @@ var model = require('../'),
  * @returns {void}
  */
 function bindProperty(property, def, map, from) {
-  var updateProps = this.properties.update,
-      defProp = def[property],
+  var defProp = def[property],
       prop = {};
 
   if (typeof defProp.scale !== 'undefined') {
@@ -46,7 +48,7 @@ function bindProperty(property, def, map, from) {
   }
 
   // Set the updated/bound property object on the mark instance
-  updateProps[property] = prop;
+  store.dispatch(setProperty(this._id, property, prop));
 }
 
 /**
@@ -65,8 +67,7 @@ function bindProperty(property, def, map, from) {
  */
 var RECT_SPANS = {x: 'width', y: 'height'};
 function rectSpatial(property, channel, def, map, from) {
-  var updateProps = this.properties.update,
-      max = channel + '2',
+  var max = channel + '2',
       cntr = channel + 'c',
       span = RECT_SPANS[channel];
 
@@ -80,7 +81,8 @@ function rectSpatial(property, channel, def, map, from) {
   if (def[max]) {
     bindProperty.call(this, channel, def, map, from);
     bindProperty.call(this, max, def, map, from);
-    updateProps[span]._disabled = true;
+    // updateProps[span]._disabled = true;
+    store.dispatch(disableProperty(this._id, span));
   } else {
     def[channel] = def[cntr]; // Map xc/yc => x/y for binding.
     bindProperty.call(this, channel, def, map, from);
@@ -93,7 +95,8 @@ function rectSpatial(property, channel, def, map, from) {
     };
     bindProperty.call(this, span, def, map, from);
 
-    updateProps[max]._disabled = true;
+    // updateProps[max]._disabled = true;
+    store.dispatch(disableProperty(this._id, max));
   }
 }
 

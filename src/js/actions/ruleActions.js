@@ -26,6 +26,40 @@ function addScaleToGroup(scale, parentId) {
 }
 
 /**
+ * Return an action object instructing the reducer to set a mark property to
+ * the provided value
+ *
+ * @param {number} markId - The primitive ID for which to set the value
+ * @param {string} property - The property on that primitive to overwrite
+ * @param {Object} value - The property value object to set
+ * @returns {Object} A redux action object
+ */
+function setProperty(markId, property, value) {
+  return {
+    type: actions.RULES_SET_PROPERTY,
+    id: markId,
+    property: property,
+    value: value
+  };
+}
+
+/**
+ * Return an action object instructing the reducer to flag a mark property
+ * as _disabled
+ *
+ * @param {number} markId - The primitive ID for which to alter the property
+ * @param {string} property - The property on that primitive to flag as disabled
+ * @returns {Object} A redux action object
+ */
+function disableProperty(markId, property) {
+  return {
+    type: actions.RULES_DISABLE_PROPERTY,
+    id: markId,
+    property: property
+  };
+}
+
+/**
  * Return an action object instructing the reducer to reset the provided
  * property to its corresponding signal reference
  *
@@ -43,5 +77,7 @@ function resetProperty(markId, property) {
 
 module.exports = {
   addScaleToGroup: addScaleToGroup,
+  setProperty: setProperty,
+  disableProperty: disableProperty,
   resetProperty: resetProperty
 };

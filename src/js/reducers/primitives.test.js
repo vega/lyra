@@ -10,7 +10,7 @@ var createScene = require('../actions/createScene');
 var counter = require('../util/counter');
 var setIn = require('../util/immutable-utils').setIn;
 
-describe.only('primitives reducer', function() {
+describe('primitives reducer', function() {
   var initialState;
 
   beforeEach(function() {
@@ -329,7 +329,7 @@ describe.only('primitives reducer', function() {
 
   });
 
-  describe('reset property action', function() {
+  describe('property mutators', function() {
 
     beforeEach(function() {
       var addMark = primitiveActions.addMark;
@@ -347,47 +347,117 @@ describe.only('primitives reducer', function() {
           }
         }
       }));
-    });
-
-    it('resets a property to its corresponding signal reference', function() {
+      // Validate initial state
       expect(initialState.get('15').toJS().properties.update).to.deep.equal({
         height: {
           scale: 'height',
           field: 'price'
         }
       });
-      var result = primitivesReducer(initialState, {
-        type: actions.RULES_RESET_PROPERTY,
-        id: 15,
-        property: 'height'
-      });
-      expect(result.get('15').toJS().properties.update).to.deep.equal({
-        height: {
-          signal: 'lyra_rect_15_height'
-        }
-      });
     });
 
-    it('preserves property disabled state', function() {
-      initialState = setIn(initialState, '15.properties.update.height._disabled', true);
-      expect(initialState.get('15').toJS().properties.update).to.deep.equal({
-        height: {
-          scale: 'height',
-          field: 'price',
-          _disabled: true
-        }
+    describe('set property action', function() {
+
+      it('overwrites a property with the provided object', function() {
+        var result = primitivesReducer(initialState, {
+          type: actions.RULES_SET_PROPERTY,
+          id: 15,
+          property: 'height',
+          value: {
+            value: 155
+          }
+        });
+        expect(result.get('15').toJS().properties.update).to.deep.equal({
+          height: {
+            value: 155
+          }
+        });
       });
-      var result = primitivesReducer(initialState, {
-        type: actions.RULES_RESET_PROPERTY,
-        id: 15,
-        property: 'height'
+
+      it('does not set the provided value object by reference', function() {
+        var value = {
+          signal: 'lyra_rect_15_height'
+        };
+        var result = primitivesReducer(initialState, {
+          type: actions.RULES_SET_PROPERTY,
+          id: 15,
+          property: 'height',
+          value: value
+        });
+        value.otherProp = 'something new';
+        expect(result.get('15').toJS().properties.update).to.deep.equal({
+          height: {
+            signal: 'lyra_rect_15_height'
+          }
+        });
       });
-      expect(result.get('15').toJS().properties.update).to.deep.equal({
-        height: {
-          signal: 'lyra_rect_15_height',
-          _disabled: true
-        }
+
+    });
+
+    describe('disable property action', function() {
+
+      it('flags a property as _disabled', function() {
+        var result = primitivesReducer(initialState, {
+          type: actions.RULES_DISABLE_PROPERTY,
+          id: 15,
+          property: 'height'
+        });
+        expect(result.get('15').toJS().properties.update).to.deep.equal({
+          height: {
+            scale: 'height',
+            field: 'price',
+            _disabled: true
+          }
+        });
       });
+
+    });
+
+    describe('reset property action', function() {
+
+      it('resets a property to its corresponding signal reference', function() {
+        expect(initialState.get('15').toJS().properties.update).to.deep.equal({
+          height: {
+            scale: 'height',
+            field: 'price'
+          }
+        });
+        var result = primitivesReducer(initialState, {
+          type: actions.RULES_RESET_PROPERTY,
+          id: 15,
+          property: 'height'
+        });
+        expect(result.get('15').toJS().properties.update).to.deep.equal({
+          height: {
+            signal: 'lyra_rect_15_height'
+          }
+        });
+      });
+
+      // @TODO: Is this desireable behavior? It seems in keeping with the currently
+      // existing functionality but once a property has been disconnected, the
+      // disabled state can never be recovered.
+      it('overwrites property disabled state', function() {
+        initialState = setIn(initialState, '15.properties.update.height._disabled', true);
+        expect(initialState.get('15').toJS().properties.update).to.deep.equal({
+          height: {
+            scale: 'height',
+            field: 'price',
+            _disabled: true
+          }
+        });
+        var result = primitivesReducer(initialState, {
+          type: actions.RULES_RESET_PROPERTY,
+          id: 15,
+          property: 'height'
+        });
+        expect(result.get('15').toJS().properties.update).to.deep.equal({
+          height: {
+            signal: 'lyra_rect_15_height'
+          }
+        });
+      });
+
     });
 
   });
