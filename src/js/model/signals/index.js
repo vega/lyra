@@ -87,13 +87,14 @@ api.get = function(name) {
  *
  * @param {string} name - The name of the signal to set
  * @param {*} val - The value to set, often an object or a number
+ * @param {boolean} [dispatch=true] - Whether to dispatch the signal to the store
  * @returns {Object} The Signals API object
  */
-api.set = function(name, val) {
+api.set = function(name, val, dispatch) {
   var model = require('../'),
       view = model.view;
   // Always flow signals up to the store,
-  if (!isDefault(name)) {
+  if (!isDefault(name) && dispatch !== false) {
     store.dispatch(signalSet(name, val));
   }
 

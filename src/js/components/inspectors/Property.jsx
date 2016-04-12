@@ -5,25 +5,19 @@ var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     model = require('../../model'),
     lookup = model.lookup,
-    resetProperty = require('../../actions/ruleActions').resetProperty,
-    vegaInvalidate = require('../../actions/vegaInvalidate'),
-    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
+    resetProperty = require('../../actions/ruleActions').resetProperty;
 
 function mapDispatchToProps(dispatch) {
   return {
     resetProperty: function(id, property) {
       dispatch(resetProperty(id, property));
-    },
-    requestReparse: function() {
-      dispatch(vegaInvalidate(true));
     }
   };
 }
 
 var Property = React.createClass({
   propTypes: {
-    resetProperty: React.PropTypes.func,
-    requestReparse: React.PropTypes.func
+    resetProperty: React.PropTypes.func
   },
 
   mixins: [SignalValue],
@@ -31,8 +25,6 @@ var Property = React.createClass({
   unbind: function() {
     var props = this.props;
     props.resetProperty(props.primitive._id, props.name);
-    // props.primitive.bindProp(props.name, undefined);
-    props.requestReparse();
   },
 
   render: function() {

@@ -105,6 +105,7 @@ function updateSelectedMarkInVega(selectedMark, vegaView) {
   // If an item was found, set the Lyra mode signal so that the handles appear.
   if (item !== null) {
     vegaView.signal(sg.SELECTED, item);
+    vegaView.update();
   }
 }
 
@@ -151,8 +152,6 @@ function createStoreListener(store, model) {
     if (storeSelectedId) {
       updateSelectedMarkInVega(model.lookup(storeSelectedId), model.view);
     }
-
-    model.update();
   };
 }
 
