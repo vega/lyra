@@ -44,7 +44,7 @@ var Inspector = connect(
 
     // if property is selected show the header
     var propHeader;
-    if (primitive.name){
+    if (primitive.name) {
       propHeader = <h3 className="hed-secondary">{primitive.name}</h3>;
     }
 

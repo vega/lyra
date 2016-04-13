@@ -4,6 +4,10 @@ var React = require('react'),
     SignalValueMixin = require('./mixins/SignalValue');
 
 var ContentEditable = React.createClass({
+  propTypes: {
+    obj: React.PropTypes.object
+  },
+
   mixins: [SignalValueMixin],
 
   getInitialState: function() {

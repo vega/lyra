@@ -53,10 +53,7 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var Group = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(React.createClass({
+var Group = React.createClass({
   propTypes: {
     deleteMark: React.PropTypes.func,
     expanded: React.PropTypes.object,
@@ -66,10 +63,16 @@ var Group = connect(
     selected: React.PropTypes.number,
     toggle: React.PropTypes.func
   },
+
+  componentWillUnmount: function() {
+    ReactTooltip.hide();
+  },
+
   toggleFolder: function(id) {
     this.props.select(id);
     this.props.toggle(id);
   },
+
   iconMenuRow: function(type, expanded) {
     var icon = iconMap[type],
         iconMarkup = (<i className={'fa ' + icon} onClick={this.toggleFolder.bind(null, this.props.id)}></i>);
@@ -78,6 +81,7 @@ var Group = connect(
     }
     return iconMarkup;
   },
+
   deleteUpdate: function(id) {
     ReactTooltip.hide();
     this.deleteMark(id);
@@ -86,9 +90,7 @@ var Group = connect(
     // redraw sidebar
     this.updateSidebar();
   },
-  componentWillUnmount: function(){
-    ReactTooltip.hide();
-  },
+
   render: function() {
     var props = this.props,
         level = +props.level,
@@ -156,6 +158,6 @@ var Group = connect(
       </li>
     );
   }
-}));
+});
 
-module.exports = Group;
+module.exports = connect(mapStateToProps, mapDispatchToProps)(Group);

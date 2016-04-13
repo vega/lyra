@@ -60,7 +60,7 @@ function Guide(gtype, type, scale) {
 
 inherits(Guide, Primitive);
 
-// TODO: Map guide properties to signals.
+// @TODO: Map guide properties to signals.
 Guide.prototype.init = function() {
   return this;
 };

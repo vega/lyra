@@ -3,6 +3,10 @@ var React = require('react'),
     Property = require('./Property');
 
 var From = React.createClass({
+  propTypes: {
+    primitive: React.PropTypes.object
+  },
+
   handleChange: function(evt) {
     this.props.primitive.dataset(+evt.target.value);
   },

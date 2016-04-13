@@ -30,26 +30,26 @@ function Dataset(name) {
 inherits(Dataset, Primitive);
 
 Dataset.prototype.init = function(opt) {
-  var self = this;
+  var that = this;
   return new Promise(function(resolve, reject) {
     if (dl.isString(opt)) {
-      resolve((self.source = opt, self));
+      resolve((that.source = opt, that));
     } else if (dl.isArray(opt)) {
-      resolve((self._values = opt, self));
+      resolve((that._values = opt, that));
     } else {  // opt is an object
-      self.format = opt.format;
+      that.format = opt.format;
       if (opt.values) {
-        resolve((self._values = dl.read(opt.values, self.format), self));
+        resolve((that._values = dl.read(opt.values, that.format), that));
       } else if (opt.url) {
-        resolve(promisify(dl.load)({url: (self.url = opt.url)})
+        resolve(promisify(dl.load)({url: (that.url = opt.url)})
           .then(function(data) {
-            self._vals = dl.read(data, self.format);
-            return self;
+            that._vals = dl.read(data, that.format);
+            return that;
           }));
       }
     }
-  }).then(function(self) {
-    return self.schema();
+  }).then(function(result) {
+    return result.schema();
   });
 };
 
@@ -82,11 +82,11 @@ Dataset.prototype.schema = function() {
   if (this._schema) {
     return this._schema;
   }
-  var self = this,
+  var that = this,
       types = dl.type.inferAll(this.output());
 
   var schema = dl.keys(types).reduce(function(s, k) {
-    s[k] = new Field(k, types[k]).parent(self._id);
+    s[k] = new Field(k, types[k]).parent(that._id);
     return s;
   }, {});
 

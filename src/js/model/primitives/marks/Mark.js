@@ -44,11 +44,10 @@ function Mark(props) {
   }
   // Provide a default for name if it was not provided
   this.name = this.name || (type + '_' + counter.type(type));
-  // this.from; // Should start as undefined
+
+  // this.from starts as undefined
 
   this._rule = new rules.VLSingle(type);
-
-  // return Primitive.call(this);
 }
 
 inherits(Mark, Primitive);
