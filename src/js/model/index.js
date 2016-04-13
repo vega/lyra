@@ -23,7 +23,6 @@ var pipelines = [],
     primitives = {},
     listeners = {};
 
-window.listeners = listeners;
 window.primitives = primitives;
 
 /**

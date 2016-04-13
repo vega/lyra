@@ -1,11 +1,12 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
+    getIn = require('../../util/immutable-utils').getIn,
     ContentEditable = require('../ContentEditable');
 
 function mapStateToProps(reduxState, ownProps) {
   return {
-    selected: reduxState.get('selectedMark')
+    selected: getIn(reduxState, 'selectedMark')
   };
 }
 

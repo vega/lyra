@@ -27,7 +27,7 @@ var sg = require('../model/signals'),
     parseInProgress = require('../actions/vegaParse');
 
 function instantiatePrimitivesFromStore(store, model) {
-  store.getState().get('primitives').forEach(function(props, markId) {
+  getIn(store.getState(), 'primitives').forEach(function(props, markId) {
     // props will be an immutable iterable if the mark exists, or null if it has
     // been deleted
     model.syncMark(markId, props ? props.toJS() : props);

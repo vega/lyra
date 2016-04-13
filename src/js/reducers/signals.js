@@ -62,10 +62,9 @@ function deleteSignalsForMark(state, action) {
   });
 }
 
-// @TODO: members of the state.signals map are not actually immutable
 function signalsReducer(state, action) {
   if (typeof state === 'undefined') {
-    return Immutable.Map();
+    return Immutable.fromJS(require('../model/signals/defaults').signals);
   }
 
   if (action.type === actions.PRIMITIVE_ADD_MARK) {

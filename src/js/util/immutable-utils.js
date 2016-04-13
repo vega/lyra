@@ -38,13 +38,10 @@ function getIn(structure, pathStr) {
   }
   var pathArr = pathToArr(pathStr);
   return pathArr.reduce(function(substructure, pathKey) {
-    if (typeof substructure.get !== 'function') {
+    if (!substructure || typeof substructure.get !== 'function') {
       return substructure;
     }
     var val = substructure.get(pathKey);
-    if (!val) {
-      return val;
-    }
     if (val && val.present) {
       // This state is structured for history: return the present value
       return val.present;

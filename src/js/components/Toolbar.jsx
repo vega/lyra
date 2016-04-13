@@ -1,13 +1,14 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
+    getIn = require('../util/immutable-utils').getIn,
     AddMarksTool = require('./tools/AddMarksTool'),
     UndoRedoClearTool = require('./tools/UndoRedoClearTool');
 // Splitting each sidebar into its column
 
 function mapStateToProps(reduxState, ownProps) {
   return {
-    selected: reduxState.get('selectedMark')
+    selected: getIn(reduxState, 'selectedMark')
   };
 }
 var Toolbar = connect(

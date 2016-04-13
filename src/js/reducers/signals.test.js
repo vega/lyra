@@ -22,10 +22,16 @@ describe('signals reducer', function() {
     expect(signalsReducer).to.be.a('function');
   });
 
-  it('returns an immutable map if state is not defined', function() {
+  it('returns an immutable map of default signals if state is not defined', function() {
     var result = signalsReducer();
     expect(Immutable.Map.isMap(result)).to.be.true;
-    expect(result.size).to.equal(0);
+    expect(result.size).to.equal(7);
+    result.forEach(function(signalMap, key) {
+      expect(signalMap.get('name')).to.equal(key);
+      if (key !== 'cursor') {
+        expect(signalMap.get('init')).to.exist;
+      }
+    });
   });
 
   it('does not mutate the state if an unrelated action is passed in', function() {

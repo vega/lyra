@@ -90,6 +90,36 @@ describe('immutable utilities', function() {
       expect(result).to.be.undefined;
     });
 
+    it('works with stores implementing undo history at the property level', function() {
+      var stateWithHistory = Immutable.Map().set('primitives', {
+        present: Immutable.fromJS({
+          '1': {
+            _id: 1,
+            name: 'rect_1',
+            type: 'rect'
+          }
+        })
+      });
+      var result = getIn(stateWithHistory, 'primitives.1.name');
+      expect(result).to.equal('rect_1');
+    });
+
+    it('works with stores implementing undo history at the top level', function() {
+      var stateWithHistory = {
+        present: Immutable.fromJS({
+          primitives: {
+            '1': {
+              _id: 1,
+              name: 'rect_1',
+              type: 'rect'
+            }
+          }
+        })
+      };
+      var result = getIn(stateWithHistory, 'primitives.1.name');
+      expect(result).to.equal('rect_1');
+    });
+
   });
 
   describe('setIn', function() {
