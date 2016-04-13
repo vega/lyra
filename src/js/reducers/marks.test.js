@@ -4,43 +4,43 @@ var expect = require('chai').expect;
 var Immutable = require('immutable');
 
 var actions = require('../constants/actions');
-var primitivesReducer = require('./primitives');
-var primitiveActions = require('../actions/primitiveActions');
+var marksReducer = require('./marks');
+var markActions = require('../actions/markActions');
 var createScene = require('../actions/createScene');
 var counter = require('../util/counter');
 var setIn = require('../util/immutable-utils').setIn;
 
-describe('primitives reducer', function() {
+describe('marks reducer', function() {
   var initialState, addMark;
 
   beforeEach(function() {
     initialState = Immutable.Map();
-    addMark = primitiveActions.addMark;
+    addMark = markActions.addMark;
     // Reset counters module so that we can have predictable IDs for our new marks
     counter.reset();
   });
 
   it('is a function', function() {
-    expect(primitivesReducer).to.be.a('function');
+    expect(marksReducer).to.be.a('function');
   });
 
   it('returns an immutable map if state is not defined', function() {
-    var result = primitivesReducer();
+    var result = marksReducer();
     expect(Immutable.Map.isMap(result)).to.be.true;
     expect(result.size).to.equal(0);
   });
 
   it('does not mutate the state if an unrelated action is passed in', function() {
-    var result = primitivesReducer(initialState, {
+    var result = marksReducer(initialState, {
       type: 'NOT_A_RELEVANT_ACTION'
     });
     expect(initialState).to.equal(result);
   });
 
-  describe('add primitive action', function() {
+  describe('add mark action', function() {
 
-    it('registers a primitive in the store keyed by primitive _id', function() {
-      var result = primitivesReducer(initialState, addMark({
+    it('registers a mark in the store keyed by mark _id', function() {
+      var result = marksReducer(initialState, addMark({
         type: 'rect'
       }));
       expect(result.size).to.equal(1);
@@ -51,8 +51,8 @@ describe('primitives reducer', function() {
       });
     });
 
-    it('registers multiple primitives on successive calls', function() {
-      var result = primitivesReducer(primitivesReducer(primitivesReducer(initialState, addMark({
+    it('registers multiple marks on successive calls', function() {
+      var result = marksReducer(marksReducer(marksReducer(initialState, addMark({
         type: 'rect'
       })), addMark({
         type: 'line'
@@ -78,7 +78,7 @@ describe('primitives reducer', function() {
     });
 
     it('stores vega property values as lyra signal references', function() {
-      var result = primitivesReducer(initialState, addMark({
+      var result = marksReducer(initialState, addMark({
         type: 'symbol',
         properties: {
           update: {
@@ -107,13 +107,13 @@ describe('primitives reducer', function() {
 
       beforeEach(function() {
         // Start out with a store already containing a group mark
-        initialState = primitivesReducer(Immutable.Map(), addMark({
+        initialState = marksReducer(Immutable.Map(), addMark({
           _id: 15,
           name: 'group_1',
           type: 'group',
           marks: []
         }));
-        result = primitivesReducer(initialState, addMark({
+        result = marksReducer(initialState, addMark({
           type: 'symbol',
           _id: 61,
           _parent: 15
@@ -136,7 +136,7 @@ describe('primitives reducer', function() {
 
   });
 
-  describe('delete primitive action', function() {
+  describe('delete mark action', function() {
 
     beforeEach(function() {
       initialState = initialState
@@ -167,18 +167,18 @@ describe('primitives reducer', function() {
         }));
     });
 
-    it('nulls out the primitive in the store', function() {
-      var result = primitivesReducer(initialState, {
-        type: actions.PRIMITIVE_DELETE_MARK,
+    it('nulls out the mark in the store', function() {
+      var result = marksReducer(initialState, {
+        type: actions.MARK_DELETE,
         markId: 4,
         markType: 'symbol'
       });
       expect(result.get('4')).to.equal(null);
     });
 
-    it('removes the primitive from its parent\'s marks array', function() {
-      var result = primitivesReducer(initialState, {
-        type: actions.PRIMITIVE_DELETE_MARK,
+    it('removes the mark from its parent\'s marks array', function() {
+      var result = marksReducer(initialState, {
+        type: actions.MARK_DELETE,
         markId: 4,
         markType: 'symbol'
       });
@@ -189,8 +189,8 @@ describe('primitives reducer', function() {
 
   describe('create scene action', function() {
 
-    it('registers the scene as a primitive and initializes defaults', function() {
-      var result = primitivesReducer(initialState, createScene()).get('1').toJS();
+    it('registers the scene as a mark and initializes defaults', function() {
+      var result = marksReducer(initialState, createScene()).get('1').toJS();
       expect(result).to.exist;
       expect(result).to.have.property('_id');
       expect(result._id).to.equal(1);
@@ -200,7 +200,7 @@ describe('primitives reducer', function() {
     });
 
     it('converts the scene height and width to signal references', function() {
-      var result = primitivesReducer(initialState, createScene());
+      var result = marksReducer(initialState, createScene());
       expect(result.get('1').get('height').toJS()).to.deep.equal({
         signal: 'lyra_vis_height'
       });
@@ -216,7 +216,7 @@ describe('primitives reducer', function() {
 
     beforeEach(function() {
       // Start out with a store already containing two groups and a symbol
-      initialState = primitivesReducer(primitivesReducer(primitivesReducer(Immutable.Map(), addMark({
+      initialState = marksReducer(marksReducer(marksReducer(Immutable.Map(), addMark({
         _id: 15,
         name: 'group_1',
         type: 'group',
@@ -231,11 +231,11 @@ describe('primitives reducer', function() {
         name: 'symbol_1',
         _id: 61
       }));
-      setParent = primitiveActions.setParent;
+      setParent = markActions.setParent;
     });
 
     it('establishes a parent-child relationship between the provided marks', function() {
-      var result = primitivesReducer(initialState, setParent(61, 15)),
+      var result = marksReducer(initialState, setParent(61, 15)),
           symbol = result.get('61').toJS(),
           group1 = result.get('15').toJS();
       expect(symbol).to.have.property('_parent');
@@ -246,9 +246,9 @@ describe('primitives reducer', function() {
 
     it('can move a mark from one group to another', function() {
       // Start with the symbol in group_1
-      initialState = primitivesReducer(initialState, setParent(61, 15));
+      initialState = marksReducer(initialState, setParent(61, 15));
       // Move symbol to group_2
-      var result = primitivesReducer(initialState, setParent(61, 22)),
+      var result = marksReducer(initialState, setParent(61, 22)),
           symbol = result.get('61').toJS(),
           group1 = result.get('15').toJS(),
           group2 = result.get('22').toJS();
@@ -259,9 +259,9 @@ describe('primitives reducer', function() {
 
     it('can remove a mark from its parent', function() {
       // Start with the symbol in group_1
-      initialState = primitivesReducer(initialState, setParent(61, 15));
+      initialState = marksReducer(initialState, setParent(61, 15));
       // Clear symbol's parent
-      var result = primitivesReducer(initialState, setParent(61, null)),
+      var result = marksReducer(initialState, setParent(61, null)),
           symbol = result.get('61').toJS(),
           group1 = result.get('15').toJS(),
           group2 = result.get('22').toJS();
@@ -276,7 +276,7 @@ describe('primitives reducer', function() {
 
     beforeEach(function() {
       // Start out with a store already containing a group
-      initialState = primitivesReducer(Immutable.Map(), addMark({
+      initialState = marksReducer(Immutable.Map(), addMark({
         _id: 15,
         name: 'group_1',
         type: 'group',
@@ -286,7 +286,7 @@ describe('primitives reducer', function() {
     });
 
     it('has no effect if the provided parent ID is not present in the store', function() {
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_SCALE_TO_GROUP,
         groupId: 51,
         id: 222
@@ -295,7 +295,7 @@ describe('primitives reducer', function() {
     });
 
     it('adds the specified scale ID to the specified group\'s scales array', function() {
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_SCALE_TO_GROUP,
         groupId: 15,
         id: 222
@@ -306,7 +306,7 @@ describe('primitives reducer', function() {
     it('does not overwrite any preexisting scale IDs in the group\'s scales array', function() {
       initialState = setIn(initialState, '15.scales', Immutable.fromJS([111]));
       expect(initialState.get('15').toJS().scales).to.deep.equal([111]);
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_SCALE_TO_GROUP,
         groupId: 15,
         id: 222
@@ -320,7 +320,7 @@ describe('primitives reducer', function() {
 
     beforeEach(function() {
       // Start out with a store already containing a group
-      initialState = primitivesReducer(Immutable.Map(), addMark({
+      initialState = marksReducer(Immutable.Map(), addMark({
         _id: 15,
         name: 'group_1',
         type: 'group',
@@ -330,7 +330,7 @@ describe('primitives reducer', function() {
     });
 
     it('has no effect if the provided parent ID is not present in the store', function() {
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_AXIS_TO_GROUP,
         groupId: 51,
         id: 222
@@ -339,7 +339,7 @@ describe('primitives reducer', function() {
     });
 
     it('adds the specified axis ID to the specified group\'s axes array', function() {
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_AXIS_TO_GROUP,
         groupId: 15,
         id: 222
@@ -350,7 +350,7 @@ describe('primitives reducer', function() {
     it('does not overwrite any preexisting axis IDs in the group\'s axes array', function() {
       initialState = setIn(initialState, '15.axes', Immutable.fromJS([111]));
       expect(initialState.get('15').toJS().axes).to.deep.equal([111]);
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_AXIS_TO_GROUP,
         groupId: 15,
         id: 222
@@ -359,7 +359,7 @@ describe('primitives reducer', function() {
     });
 
     it('can move an axis from one group to another', function() {
-      initialState = primitivesReducer(initialState, addMark({
+      initialState = marksReducer(initialState, addMark({
         _id: 30,
         name: 'group_2',
         type: 'group',
@@ -368,7 +368,7 @@ describe('primitives reducer', function() {
       }));
       expect(initialState.get('15').toJS().axes).to.deep.equal([]);
       expect(initialState.get('30').toJS().axes).to.deep.equal([111]);
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_AXIS_TO_GROUP,
         oldGroupId: 30,
         groupId: 15,
@@ -384,7 +384,7 @@ describe('primitives reducer', function() {
 
     beforeEach(function() {
       // Start out with a store already containing a group
-      initialState = primitivesReducer(Immutable.Map(), addMark({
+      initialState = marksReducer(Immutable.Map(), addMark({
         _id: 15,
         name: 'group_1',
         type: 'group',
@@ -394,7 +394,7 @@ describe('primitives reducer', function() {
     });
 
     it('has no effect if the provided parent ID is not present in the store', function() {
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_LEGEND_TO_GROUP,
         groupId: 51,
         id: 222
@@ -403,7 +403,7 @@ describe('primitives reducer', function() {
     });
 
     it('adds the specified legend ID to the specified group\'s legends array', function() {
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_LEGEND_TO_GROUP,
         groupId: 15,
         id: 222
@@ -414,7 +414,7 @@ describe('primitives reducer', function() {
     it('does not overwrite any preexisting legend IDs in the group\'s legends array', function() {
       initialState = setIn(initialState, '15.legends', Immutable.fromJS([111]));
       expect(initialState.get('15').toJS().legends).to.deep.equal([111]);
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_LEGEND_TO_GROUP,
         groupId: 15,
         id: 222
@@ -423,7 +423,7 @@ describe('primitives reducer', function() {
     });
 
     it('can move an legend from one group to another', function() {
-      initialState = primitivesReducer(initialState, addMark({
+      initialState = marksReducer(initialState, addMark({
         _id: 30,
         name: 'group_2',
         type: 'group',
@@ -432,7 +432,7 @@ describe('primitives reducer', function() {
       }));
       expect(initialState.get('15').toJS().legends).to.deep.equal([]);
       expect(initialState.get('30').toJS().legends).to.deep.equal([111]);
-      var result = primitivesReducer(initialState, {
+      var result = marksReducer(initialState, {
         type: actions.RULES_ADD_LEGEND_TO_GROUP,
         oldGroupId: 30,
         groupId: 15,
@@ -448,7 +448,7 @@ describe('primitives reducer', function() {
 
     beforeEach(function() {
       // Start out with a store already containing a rect
-      initialState = primitivesReducer(Immutable.Map(), addMark({
+      initialState = marksReducer(Immutable.Map(), addMark({
         _id: 15,
         name: 'rect_1',
         type: 'rect',
@@ -473,7 +473,7 @@ describe('primitives reducer', function() {
     describe('set property action', function() {
 
       it('overwrites a property with the provided object', function() {
-        var result = primitivesReducer(initialState, {
+        var result = marksReducer(initialState, {
           type: actions.RULES_SET_PROPERTY,
           id: 15,
           property: 'height',
@@ -492,7 +492,7 @@ describe('primitives reducer', function() {
         var value = {
           signal: 'lyra_rect_15_height'
         };
-        var result = primitivesReducer(initialState, {
+        var result = marksReducer(initialState, {
           type: actions.RULES_SET_PROPERTY,
           id: 15,
           property: 'height',
@@ -511,7 +511,7 @@ describe('primitives reducer', function() {
     describe('disable property action', function() {
 
       it('flags a property as _disabled', function() {
-        var result = primitivesReducer(initialState, {
+        var result = marksReducer(initialState, {
           type: actions.RULES_DISABLE_PROPERTY,
           id: 15,
           property: 'height'
@@ -536,7 +536,7 @@ describe('primitives reducer', function() {
             field: 'price'
           }
         });
-        var result = primitivesReducer(initialState, {
+        var result = marksReducer(initialState, {
           type: actions.RULES_RESET_PROPERTY,
           id: 15,
           property: 'height'
@@ -560,7 +560,7 @@ describe('primitives reducer', function() {
             _disabled: true
           }
         });
-        var result = primitivesReducer(initialState, {
+        var result = marksReducer(initialState, {
           type: actions.RULES_RESET_PROPERTY,
           id: 15,
           property: 'height'
@@ -580,7 +580,7 @@ describe('primitives reducer', function() {
 
     beforeEach(function() {
       // Start out with a store already containing a rect
-      initialState = primitivesReducer(Immutable.Map(), addMark({
+      initialState = marksReducer(Immutable.Map(), addMark({
         _id: 15,
         name: 'rect_1',
         type: 'rect',
@@ -596,9 +596,9 @@ describe('primitives reducer', function() {
       expect(initialState.get('15').get('name')).to.equal('rect_1');
     });
 
-    it('updates values on the relevant primitive in the store', function() {
-      var result = primitivesReducer(initialState, {
-        type: actions.PRIMITIVE_UPDATE_PROPERTY,
+    it('updates values on the relevant mark in the store', function() {
+      var result = marksReducer(initialState, {
+        type: actions.MARK_UPDATE_PROPERTY,
         id: 15,
         property: 'name',
         value: 'awesome_rectangle'
@@ -608,9 +608,9 @@ describe('primitives reducer', function() {
 
   });
 
-  describe('remove primitive action', function() {
+  describe('remove mark action', function() {
 
-    it('removes the primitive from the store');
+    it('removes the mark from the store');
 
   });
 

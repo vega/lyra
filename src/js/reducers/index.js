@@ -5,6 +5,6 @@ module.exports = combineReducers({
   scene: require('./scene'),
   vega: require('./vega'),
   inspector: require('./inspector'),
-  primitives: require('./primitives'),
+  marks: require('./marks'),
   signals: require('./signals')
 });

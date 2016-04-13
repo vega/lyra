@@ -3,16 +3,16 @@
 var expect = require('chai').expect;
 
 var actions = require('../constants/actions');
-var primitiveActions = require('./primitiveActions');
+var markActions = require('./markActions');
 var counter = require('../util/counter');
 
-describe('primitiveActions', function() {
+describe('markActions', function() {
 
   describe('addMark action creator', function() {
     var addMark;
 
     beforeEach(function() {
-      addMark = primitiveActions.addMark;
+      addMark = markActions.addMark;
       counter.reset();
     });
 
@@ -25,7 +25,7 @@ describe('primitiveActions', function() {
       expect(result).to.be.an('object');
       expect(result).to.have.property('type');
       expect(result.type).to.be.a('string');
-      expect(result.type).to.equal(actions.PRIMITIVE_ADD_MARK);
+      expect(result.type).to.equal(actions.MARK_ADD);
     });
 
     it('sets a numeric ID on the returned object', function() {
@@ -53,7 +53,7 @@ describe('primitiveActions', function() {
       expect(result.name).to.equal('special_rect');
     });
 
-    it('passes through and augments the provided primitive properties', function() {
+    it('passes through and augments the provided mark properties', function() {
       var props = {
         type: 'line'
       };

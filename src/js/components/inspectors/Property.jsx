@@ -13,13 +13,13 @@ function mapStateToProps(state, ownProps) {
     return {};
   }
 
-  var primitiveState = getIn(state, 'primitives.' + ownProps.primitive._id),
+  var markState = getIn(state, 'marks.' + ownProps.primitive._id),
       updatePropsPath = 'properties.update.' + ownProps.name;
 
   return {
-    field: getIn(primitiveState, updatePropsPath + '.field'),
-    scale: getIn(primitiveState, updatePropsPath + '.scale'),
-    signal: getIn(primitiveState, updatePropsPath + '.signal')
+    field: getIn(markState, updatePropsPath + '.field'),
+    scale: getIn(markState, updatePropsPath + '.scale'),
+    signal: getIn(markState, updatePropsPath + '.signal')
   };
 }
 

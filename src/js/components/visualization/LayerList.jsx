@@ -6,7 +6,7 @@ var React = require('react'),
     getIn = require('../../util/immutable-utils').getIn,
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
     getMarkDefaults = require('../../model/primitives/marks').getDefaults,
-    addMark = require('../../actions/primitiveActions').addMark,
+    addMark = require('../../actions/markActions').addMark,
     selectMark = require('../../actions/selectMark'),
     expandLayers = require('../../actions/expandLayers'),
     Group = require('./GroupSubMenu');
@@ -28,7 +28,7 @@ function mapStateToProps(reduxState) {
     sceneId: sceneId,
     containerId: closestContainerId,
     // Immutable constructs
-    marks: getIn(reduxState, 'primitives.' + sceneId + '.marks')
+    marks: getIn(reduxState, 'marks.' + sceneId + '.marks')
   };
 }
 

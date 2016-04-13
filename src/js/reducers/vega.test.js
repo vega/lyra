@@ -58,14 +58,14 @@ describe('vega reducer', function() {
 
     it('flags the store as invalid when a mark is added', function() {
       var result = vegaReducer(initialState, {
-        type: actions.PRIMITIVE_ADD_MARK
+        type: actions.MARK_ADD
       });
       expect(result.get('invalid')).to.equal(true);
     });
 
     it('flags the store as invalid when a mark is removed', function() {
       var result = vegaReducer(initialState, {
-        type: actions.PRIMITIVE_DELETE_MARK
+        type: actions.MARK_DELETE
       });
       expect(result.get('invalid')).to.equal(true);
     });
