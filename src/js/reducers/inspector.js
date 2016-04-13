@@ -32,7 +32,16 @@ function inspectorReducer(state, action) {
 
   // Auto-select new marks
   if (action.type === actions.PRIMITIVE_ADD_MARK) {
-    return state.set('selected', action.id);
+    // Select the mark, then attempt to auto-expand it (and its specified parent)
+    return setIn(
+      setIn(
+        state.set('selected', action.id),
+        'expandedLayers.' + action.id,
+        true
+      ),
+      'expandedLayers.' + action.props._parent,
+      true
+    );
   }
 
   if (action.type === actions.SELECT_MARK) {
