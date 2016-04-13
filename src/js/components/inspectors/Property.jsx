@@ -2,7 +2,6 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     SignalValue = require('../mixins/SignalValue'),
-    ContentEditable = require('../ContentEditable'),
     getIn = require('../../util/immutable-utils').getIn,
     model = require('../../model'),
     lookup = model.lookup,
@@ -95,8 +94,6 @@ var Property = React.createClass({
               <input type="range" value={!disabled && value} disabled={disabled}
                 min={props.min} max={props.max} step={props.step}
                 onChange={this.handleChange} />
-
-              <ContentEditable {...props} />
             </div>
           );
           break;
@@ -106,7 +103,6 @@ var Property = React.createClass({
             <div>
               <input type="color" value={!disabled && value} disabled={disabled}
                 onChange={this.handleChange} />
-              <ContentEditable {...props} />
             </div>
           );
           break;

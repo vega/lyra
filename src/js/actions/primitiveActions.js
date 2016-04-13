@@ -2,6 +2,7 @@
 var actions = require('../constants/actions');
 var PRIMITIVE_ADD_MARK = actions.PRIMITIVE_ADD_MARK;
 var PRIMITIVE_SET_PARENT = actions.PRIMITIVE_SET_PARENT;
+var PRIMITIVE_UPDATE_PROPERTY = actions.PRIMITIVE_UPDATE_PROPERTY;
 var counter = require('../util/counter');
 var markName = require('../util/markName');
 var assign = require('object-assign');
@@ -31,6 +32,15 @@ function addMark(primitiveProps) {
   return action;
 }
 
+function updateMarkProperty(markId, property, value) {
+  return {
+    type: PRIMITIVE_UPDATE_PROPERTY,
+    id: markId,
+    property: property,
+    value: value
+  };
+}
+
 /**
  * Action creator to mark one existing primitive as the child of another.
  * @param {number} childId - The child primitive's ID
@@ -47,5 +57,6 @@ function setParent(childId, parentId) {
 
 module.exports = {
   addMark: addMark,
+  updateMarkProperty: updateMarkProperty,
   setParent: setParent
 };

@@ -31,6 +31,10 @@ var PipelineInspector = React.createClass({
         pipeline = props.pipeline,
         inner = (<span></span>);
 
+    function updatePipelineName(val) {
+      pipeline.name = val;
+    }
+
     if (props.isSelected) {
       inner = (
         <div className="inner">
@@ -43,7 +47,8 @@ var PipelineInspector = React.createClass({
     return (
       <div className={'pipeline' + (props.isSelected ? ' selected' : '')}>
         <ContentEditable className="header"
-          obj={pipeline} prop="name" value={pipeline.name}
+          value={pipeline.name}
+          save={updatePipelineName}
           onClick={props.selectPipeline.bind(null, pipeline._id)} />
         {inner}
       </div>

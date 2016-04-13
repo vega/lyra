@@ -16,6 +16,8 @@ describe('primitives reducer', function() {
   beforeEach(function() {
     initialState = Immutable.Map();
     addMark = primitiveActions.addMark;
+    // Reset counters module so that we can have predictable IDs for our new marks
+    counter.reset();
   });
 
   it('is a function', function() {
@@ -36,11 +38,6 @@ describe('primitives reducer', function() {
   });
 
   describe('add primitive action', function() {
-
-    beforeEach(function() {
-      // Reset counters module so that we can have predictable IDs for our new marks
-      counter.reset();
-    });
 
     it('registers a primitive in the store keyed by primitive _id', function() {
       var result = primitivesReducer(initialState, addMark({
@@ -142,8 +139,6 @@ describe('primitives reducer', function() {
   describe('delete primitive action', function() {
 
     beforeEach(function() {
-      // Reset counters module so that we can have predictable IDs for our new marks
-      counter.reset();
       initialState = initialState
         .set('1', Immutable.fromJS({
           _id: 1,
@@ -193,11 +188,6 @@ describe('primitives reducer', function() {
   });
 
   describe('create scene action', function() {
-
-    beforeEach(function() {
-      // Reset counters module so that we can have predictable IDs for our new marks
-      counter.reset();
-    });
 
     it('registers the scene as a primitive and initializes defaults', function() {
       var result = primitivesReducer(initialState, createScene()).get('1').toJS();
@@ -285,7 +275,7 @@ describe('primitives reducer', function() {
   describe('add scale to group action', function() {
 
     beforeEach(function() {
-      // Start out with a store already containing two groups and a symbol
+      // Start out with a store already containing a group
       initialState = primitivesReducer(Immutable.Map(), addMark({
         _id: 15,
         name: 'group_1',
@@ -329,7 +319,7 @@ describe('primitives reducer', function() {
   describe('add axis to group action', function() {
 
     beforeEach(function() {
-      // Start out with a store already containing two groups and a symbol
+      // Start out with a store already containing a group
       initialState = primitivesReducer(Immutable.Map(), addMark({
         _id: 15,
         name: 'group_1',
@@ -393,7 +383,7 @@ describe('primitives reducer', function() {
   describe('add legend to group action', function() {
 
     beforeEach(function() {
-      // Start out with a store already containing two groups and a symbol
+      // Start out with a store already containing a group
       initialState = primitivesReducer(Immutable.Map(), addMark({
         _id: 15,
         name: 'group_1',
@@ -457,7 +447,7 @@ describe('primitives reducer', function() {
   describe('property mutators', function() {
 
     beforeEach(function() {
-      // Start out with a store already containing two groups and a symbol
+      // Start out with a store already containing a rect
       initialState = primitivesReducer(Immutable.Map(), addMark({
         _id: 15,
         name: 'rect_1',
@@ -586,9 +576,35 @@ describe('primitives reducer', function() {
 
   });
 
-  describe('update primitive action', function() {
+  describe('update property action', function() {
 
-    it('updates values on the relevant primitive in the store');
+    beforeEach(function() {
+      // Start out with a store already containing a rect
+      initialState = primitivesReducer(Immutable.Map(), addMark({
+        _id: 15,
+        name: 'rect_1',
+        type: 'rect',
+        properties: {
+          update: {
+            height: {
+              signal: 'lyra_rect_15_height'
+            }
+          }
+        }
+      }));
+      // Validate initial state
+      expect(initialState.get('15').get('name')).to.equal('rect_1');
+    });
+
+    it('updates values on the relevant primitive in the store', function() {
+      var result = primitivesReducer(initialState, {
+        type: actions.PRIMITIVE_UPDATE_PROPERTY,
+        id: 15,
+        property: 'name',
+        value: 'awesome_rectangle'
+      });
+      expect(result.get('15').get('name')).to.equal('awesome_rectangle');
+    });
 
   });
 

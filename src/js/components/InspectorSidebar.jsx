@@ -13,12 +13,19 @@ var hierarchy = require('../util/hierarchy');
 var findInItemTree = hierarchy.findInItemTree;
 
 function mapStateToProps(reduxState, ownProps) {
+  var selectedMarkId = getIn(reduxState, 'inspector.selected');
   return {
-    id: getIn(reduxState, 'inspector.selected')
+    id: selectedMarkId,
+    // This will need to be refactored slightly once scale or guide inspectors exist
+    name: getIn(reduxState, 'primitives.' + selectedMarkId + '.name')
   };
 }
 
 var Inspector = React.createClass({
+  propTypes: {
+    id: React.PropTypes.number,
+    name: React.PropTypes.string
+  },
   classNames: 'sidebar col5 push4 md-blue-bg',
   render: function() {
     var props = this.props,
@@ -42,8 +49,8 @@ var Inspector = React.createClass({
 
     // if property is selected show the header
     var propHeader;
-    if (primitive.name) {
-      propHeader = <h3 className="hed-secondary">{primitive.name}</h3>;
+    if (this.props.name) {
+      propHeader = <h3 className="hed-secondary">{this.props.name}</h3>;
     }
 
     return (
