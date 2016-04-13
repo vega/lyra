@@ -240,6 +240,10 @@ function primitivesReducer(state, action) {
     return setParentMark(state, action);
   }
 
+  if (action.type === actions.PRIMITIVE_UPDATE_PROPERTY) {
+    return setIn(state, action.id + '.' + action.property, action.value);
+  }
+
   if (action.type === actions.RULES_ADD_SCALE_TO_GROUP) {
     return ensureValuePresent(state, action.groupId + '.scales', action.id);
   }

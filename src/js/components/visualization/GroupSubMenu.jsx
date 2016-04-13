@@ -9,6 +9,7 @@ var React = require('react'),
     getIn = require('../../util/immutable-utils').getIn,
     selectMark = require('../../actions/selectMark'),
     markDelete = require('../../actions/markDelete'),
+    updateMarkProperty = require('../../actions/primitiveActions').updateMarkProperty,
     expandLayers = require('../../actions/expandLayers'),
     toggleLayers = require('../../actions/toggleLayers');
 
@@ -45,6 +46,15 @@ function mapDispatchToProps(dispatch, ownProps) {
       }
       dispatch(markDelete(id));
     },
+    updateProperty: function(id, property, value) {
+      // Update in the primitives dictionary
+      var mark = lookup(id);
+      if (mark) {
+        mark[property] = value;
+      }
+      // Update in the global store
+      dispatch(updateMarkProperty(id, property, value));
+    },
     toggle: function(layerId) {
       dispatch(toggleLayers([layerId]));
     }
@@ -59,6 +69,7 @@ var Group = React.createClass({
     expandedLayers: React.PropTypes.object,
     select: React.PropTypes.func,
     deleteMark: React.PropTypes.func,
+    updateProperty: React.PropTypes.func,
     toggle: React.PropTypes.func
   },
 
@@ -120,8 +131,8 @@ var Group = React.createClass({
                   className={'name' + (selectedId === id ? ' selected' : '')}>
                   <div onClick={this.props.select.bind(null, id)}>
                     {spinner}
-                    <ContentEditable obj={mark} prop="name"
-                      value={mark.name}
+                    <ContentEditable value={mark.name}
+                      save={props.updateProperty.bind(null, id, 'name')}
                       onClick={props.select.bind(null, id)} />
                     </div>
                   <i className="delete-sidebar fa fa-trash"
@@ -144,8 +155,8 @@ var Group = React.createClass({
           className={'name' + (selectedId === groupId ? ' selected' : '')}>
           <div onClick={this.toggleFolder.bind(null, groupId)}>
             {spinner}
-            <ContentEditable obj={group} prop="name"
-              value={group.name}
+            <ContentEditable value={group.name}
+              save={this.props.updateProperty.bind(null, groupId, 'name')}
               onClick={this.toggleFolder.bind(null, groupId)} />
           </div>
           <i className="delete-sidebar fa fa-trash"

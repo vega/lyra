@@ -1,6 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    sg = require('../../model/signals'),
+var sg = require('../../model/signals'),
     store = require('../../store'),
     getIn = require('../../util/immutable-utils').getIn,
     signalSet = require('../../actions/signalSet'),
@@ -19,7 +18,6 @@ module.exports = {
 
   componentWillMount: function() {
     this.onSignal();
-    this._set = dl.mutator(this.props.prop);
   },
 
   componentWillUnmount: function() {
@@ -84,7 +82,6 @@ module.exports = {
       sg.set(signal, value, false);
       model.update();
     } else {
-      this._set(props.obj, value);
       this.setState({
         value: value
       });

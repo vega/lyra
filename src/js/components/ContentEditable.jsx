@@ -1,17 +1,18 @@
 'use strict';
 var React = require('react'),
-    ReactDOM = require('react-dom'),
-    SignalValueMixin = require('./mixins/SignalValue');
+    ReactDOM = require('react-dom');
 
 var ContentEditable = React.createClass({
   propTypes: {
-    obj: React.PropTypes.object
+    value: React.PropTypes.string,
+    save: React.PropTypes.func
   },
 
-  mixins: [SignalValueMixin],
-
   getInitialState: function() {
-    return {edit: false};
+    return {
+      edit: false,
+      value: this.props.value
+    };
   },
 
   componentDidMount: function() {
@@ -34,22 +35,21 @@ var ContentEditable = React.createClass({
 
   stop: function() {
     this.setState({edit: false});
-    var obj = this.props.obj;
-    if (!obj) {
-      return;
+    if (this.props.save) {
+      this.props.save(this.state.value);
     }
-
-    var Sidebars = require('./');
-    Sidebars.forceUpdate();
   },
 
   handleInput: function() {
-    this.setValue(this._el.textContent.trim());
+    this.setState({
+      value: this._el.textContent.trim()
+    });
   },
 
   handleEnter: function(evt) {
     if (!evt.keyCode || (evt.keyCode && evt.keyCode === 13)) {
-      this.stop();
+      // Commit the change (triggers the blur that fires this.stop callback)
+      this.setState({edit: false});
     }
   },
 
