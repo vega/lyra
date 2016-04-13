@@ -1,5 +1,7 @@
 'use strict';
 
+var getParent = require('../../util/hierarchy').getParent;
+
 /**
  * Parse the data source definitions in the resultant Vega specification.
  * For now, as we do not yet support transforms, we only add an entry to the
@@ -16,7 +18,7 @@ function data(parsed, from) {
   var map = this._rule._map.data;
   // This is a super-simple map to map b/w names in the vega output
   // VL's data[0].name.source maps to something in lyra e.g.
-  map.source = from.parent()._source._id;
+  map.source = getParent(from)._source._id;
 }
 
 module.exports = data;

@@ -12,30 +12,6 @@ function getParent(mark) {
 }
 
 /**
- * Return all child primitives of the provided group.
- *
- * @param {Group} groupMark - The group for which to return children
- * @returns {Object[]} Array of instantiated primitive objects that are children
- * of the provided group mark
- */
-function getChildren(groupMark) {
-  // Require model in here to sidestep circular dependency issue
-  var lookup = require('../model').lookup;
-
-  return ['scales', 'legends', 'axes', 'marks'].reduce(function(allChildren, childType) {
-    if (!groupMark[childType]) {
-      return allChildren;
-    }
-    return allChildren.concat(groupMark[childType].map(function(childId) {
-      return lookup(childId);
-    }));
-  }, []).filter(function(mark) {
-    // Filter out any null or undefined results, in case an invalid ID is present
-    return !!mark;
-  });
-}
-
-/**
  * Get all parent nodes for a given primitive in the Lyra hierarchy, i.e. all
  * groups which may be considered to be ancestors of the provided primitive.
  *
@@ -119,7 +95,6 @@ function findInItemTree(item, path) {
 
 module.exports = {
   getParent: getParent,
-  getChildren: getChildren,
   getParentGroupIds: getParentGroupIds,
   getParents: getParents,
   getGroupIds: getGroupIds,

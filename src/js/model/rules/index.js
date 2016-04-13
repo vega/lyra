@@ -5,6 +5,7 @@ var dl = require('datalib'),
     Scale = require('../primitives/Scale'),
     model = require('../'),
     lookup = model.lookup,
+    getParent = require('../../util/hierarchy').getParent,
     AGG_OPS = vg.transforms.aggregate.VALID_OPS;
 
 // Pull in the modules which will be assembled into the rules namespace
@@ -100,7 +101,7 @@ function compile(rule, property, from) {
   // We analyze the resultant Vega spec to understand what this mark's
   // backing dataset should actually be (source, aggregate, etc.).
   if (from) {
-    rule.data.values = from.parent()._source.output();
+    rule.data.values = getParent(from)._source.output();
   }
 
   // Hack the config to be able to differentiate height/width for
@@ -162,7 +163,7 @@ function rules(prototype) {
     }
 
     // obj instanceof Field
-    if (from && from.parent() !== obj.parent().parent()) {
+    if (from && getParent(from) !== getParent(getParent(obj))) {
       throw Error("Mark's backing pipeline differs from field's.");
     }
 
@@ -175,7 +176,7 @@ function rules(prototype) {
     }
 
     rule.encoding[c] = channelDef(obj);
-    from = from || obj.parent();
+    from = from || getParent(obj);
 
     // Hand off to VL to compile
     var parsed = compile.call(this, rule, property, from);

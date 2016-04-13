@@ -7,7 +7,6 @@ var Scene = require('./Scene');
 var Group = require('./Group');
 var Mark = require('./Mark');
 var VLSingle = require('../../rules/VLSingle');
-var model = require('../../');
 
 describe('Scene Mark', function() {
   var scene;
@@ -182,54 +181,6 @@ describe('Scene Mark', function() {
       expect(scene).to.have.property('_rule');
       expect(scene._rule).to.be.an('object');
       expect(scene._rule).to.be.an.instanceOf(VLSingle);
-    });
-
-  });
-
-  describe('child method', function() {
-
-    beforeEach(function() {
-      scene = new Scene();
-      // Shim to handle the ID binding that no longer occurs in Mark instances
-      scene._id = 1;
-      model.primitive(scene._id, scene);
-    });
-
-    it('is a function', function() {
-      expect(scene).to.have.property('child');
-      expect(scene.child).to.be.a('function');
-    });
-
-    it('creates and returns child primitives within the scene', function() {
-      [
-        'axes',
-        'legends',
-        'marks.group',
-        'marks.rect',
-        'marks.symbol'
-      ].forEach(function(primitiveType) {
-        var child = scene.child(primitiveType);
-        expect(child).to.be.an('object');
-        expect(child.parent()).to.equal(scene);
-      });
-    });
-
-    it('creates a scale but does not assign itself as parent', function() {
-      var scale = scene.child('scales');
-      expect(scale.parent).to.be.null;
-    });
-
-    it('throws an error if provided an invalid type', function() {
-      expect(function() {
-        scene.child('unsupported primitive');
-      }).to.throw;
-    });
-
-    it('can insert a pre-existing primitive into a scene', function() {
-      var otherGroup = new Group();
-      expect(otherGroup.parent()).not.to.equal(scene);
-      scene.child('marks.scene', otherGroup);
-      expect(otherGroup.parent()).to.equal(scene);
     });
 
   });

@@ -4,6 +4,7 @@ var dl = require('datalib'),
     Primitive = require('./Primitive'),
     model = require('../'),
     lookup = model.lookup,
+    getParent = require('../../util/hierarchy').getParent,
     names = {};
 
 // To prevent name collisions.
@@ -71,13 +72,16 @@ function dataRef(ref) {
   // One ref
   if (ref.length === 1 && (ref = ref[0])) {
     field = lookup(ref);
-    return {data: field.parent().name, field: field._name};
+    return {
+      data: getParent(field).name,
+      field: field._name
+    };
   }
 
   // More than one ref
   for (i = 0, len = ref.length; i < len; ++i) {
     field = lookup(ref[i]);
-    data = field.parent();
+    data = getParent(field);
     sets[data._id] = sets[data._id] || (sets[data._id] = []);
     sets[data._id].push(field);
   }

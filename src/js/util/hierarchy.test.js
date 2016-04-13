@@ -23,10 +23,12 @@ describe('hierarchy utilities', function() {
 
     it('returns the parent of a provided mark', function() {
       var parent = new Group();
-      // Shim to handle the ID binding that no longer occurs in Mark instances
+      // Set up a parent hierarchy to test
       parent._id = 1;
       model.primitive(parent._id, parent);
-      var rect = parent.child('marks.rect');
+      var rect = new Rect();
+      rect._parent = parent._id;
+      parent.marks.push(rect._id);
       expect(getParent(rect)).to.equal(parent);
     });
 
@@ -34,53 +36,6 @@ describe('hierarchy utilities', function() {
       var parentlessMark = new Rect(),
           result = getParent(parentlessMark);
       expect(result).to.be.null;
-    });
-
-  });
-
-  describe('getChildren', function() {
-    var getChildren, group;
-
-    beforeEach(function() {
-      getChildren = hierarchy.getChildren;
-      group = new Group();
-      group._id = 1;
-      model.primitive(group._id, group);
-    });
-
-    it('is a function', function() {
-      expect(getChildren).to.be.a('function');
-    });
-
-    it('returns an empty array for childless groups', function() {
-      var result = getChildren(group);
-      expect(result).to.deep.equal([]);
-    });
-
-    it('returns an array of all children of the provided group', function() {
-      var child1 = group.child('scales'),
-          child2 = group.child('axes'),
-          child3 = group.child('marks.group'),
-          child4 = group.child('marks.rect');
-      [child3, child4].forEach(function(mark, idx) {
-        // Shim to handle the ID binding that no longer occurs in Mark instances
-        mark._id = idx;
-        model.primitive(idx, mark);
-        group.marks.push(mark._id);
-      });
-      expect(getChildren(group)).to.deep.equal([child1, child2, child3, child4]);
-    });
-
-    it('omits invalid IDs from the returned array', function() {
-      group.marks.push('invalidID1', 'invalidID2');
-      var result = getChildren(group);
-      expect(result).to.deep.equal([]);
-    });
-
-    it('returns an empty array for non-group marks', function() {
-      var rect = new Rect(),
-          result = getChildren(rect);
-      expect(result).to.deep.equal([]);
     });
 
   });
@@ -121,13 +76,18 @@ describe('hierarchy utilities', function() {
           g3 = new Group(),
           rect = new Rect(),
           result;
-      // Shim to handle the ID binding that no longer occurs in Mark instances
+      // Set up a parent hierarchy to test
       [g1, g2, g3, rect].reduce(function(parentMark, childMark, idx) {
-        // Set up the child mark propertly
+        // Set up the child mark
         childMark._id = idx + 1;
         model.primitive(childMark._id, childMark);
-        // Set this mark a child of the last; then child is the new parent
-        return parentMark ? parentMark.child('marks', childMark) : childMark;
+        // Set this mark a child of the last;
+        if (parentMark) {
+          childMark._parent = parentMark._id;
+          parentMark.marks.push(childMark._id);
+        }
+        // then child is the new parent
+        return childMark;
       }, null);
 
       result = getParents(rect);
@@ -187,13 +147,18 @@ describe('hierarchy utilities', function() {
           g3 = new Group(),
           rect = new Rect(),
           result;
-      // Shim to handle the ID binding that no longer occurs in Mark instances
+      // Set up a parent hierarchy to test
       [g1, g2, g3, rect].reduce(function(parentMark, childMark, idx) {
-        // Set up the child mark propertly
+        // Set up the child mark
         childMark._id = idx + 1;
         model.primitive(childMark._id, childMark);
-        // Set this mark a child of the last; then child is the new parent
-        return parentMark ? parentMark.child('marks', childMark) : childMark;
+        // Set this mark a child of the last;
+        if (parentMark) {
+          childMark._parent = parentMark._id;
+          parentMark.marks.push(childMark._id);
+        }
+        // then child is the new parent
+        return childMark;
       }, null);
 
       result = getParentGroupIds(rect);

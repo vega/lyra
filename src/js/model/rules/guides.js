@@ -5,6 +5,7 @@ var dl = require('datalib'),
     getGuideScale = require('../../util/store-utils').getGuideScale,
     addAxisToGroup = require('../../actions/ruleActions').addAxisToGroup,
     addLegendToGroup = require('../../actions/ruleActions').addLegendToGroup,
+    getParent = require('../../util/hierarchy').getParent,
     model = require('../'),
     lookup = model.lookup;
 
@@ -32,7 +33,7 @@ var SWAP_ORIENT = {
  */
 function findOrCreateAxis(scale, defs) {
   var map = this._rule._map.scales,
-      axes = this.parent().axes,
+      axes = getParent(this).axes,
       axisDef = defs.find(function(def) {
         return map[def.scale] === scale._id;
       }),
@@ -76,7 +77,7 @@ function findOrCreateAxis(scale, defs) {
  */
 function findOrCreateLegend(scale, defs, property) {
   var map = this._rule._map.scales,
-      legends = this.parent().legends,
+      legends = getParent(this).legends,
       legendDef = defs.find(function(d) {
         return map[d[property]] === scale._id;
       }),

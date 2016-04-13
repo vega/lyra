@@ -21,7 +21,7 @@ var inherits = require('inherits'),
 function Pipeline(name) {
   Primitive.call(this);
   this.name = name;
-  this._source = new Dataset(name).parent(this._id);
+  this._source = new Dataset(name, this._id);
   this._aggregates = [];
   return this;
 }

@@ -3,6 +3,7 @@ var dl = require('datalib'),
     vl = require('vega-lite'),
     inherits = require('inherits'),
     Primitive = require('../Primitive'),
+    getParent = require('../../../util/hierarchy').getParent,
     TYPES = vl.data.types;
 
 /**
@@ -15,6 +16,7 @@ var dl = require('datalib'),
  * @param {string} name - The name of the field.
  * @param {string} ptype - The JavaScript primitive type of the field
  * (boolean, string, etc.).
+ * @param {number} [_parent] - The ID of the field's parent datasource
  *
  * @property {string} _name - The name of the field.
  * @property {string} _ptype - The JavaScript primitive type of the field
@@ -26,7 +28,7 @@ var dl = require('datalib'),
  *
  * @constructor
  */
-function Field(name, ptype) {
+function Field(name, ptype, _parent) {
   this._name = name;
   this._ptype = ptype;         // primitive type (boolean/string/etc.)
   this._type = TYPES[ptype];  // nominal, ordinal, etc.
@@ -35,6 +37,10 @@ function Field(name, ptype) {
   this._bin = null;
 
   this.$ = dl.$(name);
+
+  if (_parent) {
+    this._parent = _parent;
+  }
 
   return Primitive.call(this);
 }
@@ -56,7 +62,7 @@ Field.prototype.profile = function(p) {
     return this._profile;
   }
 
-  return (this.parent().summary(), this._profile);
+  return (getParent(this).summary(), this._profile);
 };
 
 module.exports = Field;
