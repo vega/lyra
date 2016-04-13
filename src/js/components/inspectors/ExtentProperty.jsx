@@ -1,9 +1,11 @@
 'use strict';
 var dl = require('datalib'),
     React = require('react'),
+    connect = require('react-redux').connect,
     Property = require('./Property'),
     SpatialPreset = require('./SpatialPreset'),
-    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
+    enableProperty = require('../../actions/ruleActions').enableProperty,
+    disableProperty = require('../../actions/ruleActions').disableProperty;
 
 var EXTENTS = {
   x: {
@@ -20,7 +22,22 @@ var EXTENTS = {
   }
 };
 
+function mapDispatchToProps(dispatch) {
+  return {
+    enableProperty: function(id, property) {
+      dispatch(enableProperty(id, property));
+    },
+    disableProperty: function(id, property) {
+      dispatch(disableProperty(id, property));
+    }
+  };
+}
+
 var ExtentProperty = React.createClass({
+  propTypes: {
+    enableProperty: React.PropTypes.func,
+    disableProperty: React.PropTypes.func
+  },
 
   getInitialState: function() {
     return this.extents();
@@ -57,7 +74,7 @@ var ExtentProperty = React.createClass({
         state = this.state,
         type = props.type,
         primitive = props.primitive,
-        update = primitive.properties.update,
+        id = primitive._id,
         target = evt.target,
         name = target.name,
         value = target.value,
@@ -66,17 +83,16 @@ var ExtentProperty = React.createClass({
         span = extents.span.name,
         old = state[name];
 
-    update[old]._disabled = true;
-    update[value]._disabled = false;
+    this.props.disableProperty(id, old);
+    this.props.enableProperty(id, value);
     state[name] = value;
 
     if (value === center && state.end !== span) {
-      update[state.end]._disabled = true;
-      update[span]._disabled = false;
+      this.props.disableProperty(id, state.end);
+      this.props.enableProperty(id, span);
       state.end = span;
     }
-
-    this.requestVegaReparse();
+    this.forceUpdate();
   },
 
   render: function() {
@@ -145,4 +161,4 @@ var ExtentProperty = React.createClass({
   }
 });
 
-module.exports = addVegaReparseRequest(ExtentProperty);
+module.exports = connect(null, mapDispatchToProps)(ExtentProperty);

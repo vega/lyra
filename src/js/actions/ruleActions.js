@@ -93,6 +93,22 @@ function setProperty(markId, property, value) {
 
 /**
  * Return an action object instructing the reducer to flag a mark property
+ * as not _disabled
+ *
+ * @param {number} markId - The primitive ID for which to alter the property
+ * @param {string} property - The property on that primitive to enable
+ * @returns {Object} A redux action object
+ */
+function enableProperty(markId, property) {
+  return {
+    type: actions.RULES_ENABLE_PROPERTY,
+    id: markId,
+    property: property
+  };
+}
+
+/**
+ * Return an action object instructing the reducer to flag a mark property
  * as _disabled
  *
  * @param {number} markId - The primitive ID for which to alter the property
@@ -128,6 +144,7 @@ module.exports = {
   addAxisToGroup: addAxisToGroup,
   addLegendToGroup: addLegendToGroup,
   setProperty: setProperty,
+  enableProperty: enableProperty,
   disableProperty: disableProperty,
   resetProperty: resetProperty
 };

@@ -508,6 +508,33 @@ describe('primitives reducer', function() {
 
     });
 
+    describe('enable property action', function() {
+
+      it('flags a property as _disabled=false', function() {
+        initialState = setIn(initialState, '15.properties.update.height._disabled', true);
+        expect(initialState.get('15').toJS().properties.update).to.deep.equal({
+          height: {
+            scale: 'height',
+            field: 'price',
+            _disabled: true
+          }
+        });
+        var result = primitivesReducer(initialState, {
+          type: actions.RULES_ENABLE_PROPERTY,
+          id: 15,
+          property: 'height'
+        });
+        expect(result.get('15').toJS().properties.update).to.deep.equal({
+          height: {
+            scale: 'height',
+            field: 'price',
+            _disabled: false
+          }
+        });
+      });
+
+    });
+
     describe('disable property action', function() {
 
       it('flags a property as _disabled', function() {
