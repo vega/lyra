@@ -5,20 +5,19 @@ var React = require('react'),
 
 function mapStateToProps(reduxState, ownProps) {
   return {
-    selected: reduxState.get('selectedMark')
+    selectedId: reduxState.get('selectedMark')
   };
 }
 
-var ScaleList = connect(
-  mapStateToProps
-)(React.createClass({
+var ScaleList = React.createClass({
   propTypes: {
     select: React.PropTypes.func,
-    selected: React.PropTypes.number
+    selectedId: React.PropTypes.number,
+    scales: React.PropTypes.array
   },
   render: function() {
     var props = this.props,
-        selected = props.selected;
+        selectedId = props.selectedId;
     return (
       <div id="scale-list" className="expandingMenu">
         <h4 className="hed-tertiary">
@@ -32,7 +31,7 @@ var ScaleList = connect(
           {props.scales.map(function(scale) {
             var id = scale._id;
             return (
-              <li key={id} className={selected === id ? 'selected' : ''}>
+              <li key={id} className={selectedId === id ? 'selected' : ''}>
                 <div className="scale name">
                   <ContentEditable obj={scale} prop="name"
                     value={scale.name}/>
@@ -44,6 +43,6 @@ var ScaleList = connect(
       </div>
     );
   }
-}));
+});
 
-module.exports = ScaleList;
+module.exports = connect(mapStateToProps)(ScaleList);

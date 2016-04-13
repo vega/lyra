@@ -1,26 +1,17 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
+    store = require('../../store'),
     getIn = require('../../util/immutable-utils').getIn,
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
     marks = require('../../model/primitives/marks'),
     selectMark = require('../../actions/selectMark'),
     addMark = require('../../actions/primitiveActions').addMark;
 
-function mapStateToProps(reduxState, ownProps) {
-  var selectedMarkId = getIn(reduxState, 'inspector.selected'),
-      sceneId = getIn(reduxState, 'scene.id'),
-      closestContainerId;
-
-  // Closest container is determined by walking up from the selected mark,
-  // otherwise it defaults to the scene itself
-  closestContainerId = selectedMarkId ?
-    getClosestGroupId(reduxState, selectedMarkId) :
-    sceneId;
-
+function mapStateToProps(reduxState) {
   return {
-    selected: selectedMarkId,
-    container: closestContainerId
+    selectedId: getIn(reduxState, 'inspector.selected'),
+    sceneId: getIn(reduxState, 'scene.id')
   };
 }
 
@@ -43,19 +34,24 @@ var marksArray = ['rect', 'symbol', 'area', 'text', 'line'];
 
 var AddMarksTool = React.createClass({
   propTypes: {
+    selectedId: React.PropTypes.number,
+    sceneId: React.PropTypes.number,
     addMark: React.PropTypes.func,
-    container: React.PropTypes.number,
-    selectMark: React.PropTypes.func,
-    selected: React.PropTypes.number
+    selectMark: React.PropTypes.func
   },
   classNames: 'new-marks',
   render: function() {
-    var parentId = this.props.container;
+    // Closest container is determined by walking up from the selected mark,
+    // otherwise it defaults to the scene itself
+    var closestContainerId = this.props.selectedId ?
+      getClosestGroupId(store.getState(), this.props.selectedId) :
+      this.props.sceneId;
+
     return (
       <ul className={this.classNames}>
         {marksArray.map(function(markType, i) {
           return (
-            <li key={markType} onClick={this.props.addMark.bind(null, markType, parentId)}>
+            <li key={markType} onClick={this.props.addMark.bind(null, markType, closestContainerId)}>
               {markType}
             </li>
           );
