@@ -6,6 +6,9 @@ var React = require('react'),
     addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
 
 var SpatialPreset = React.createClass({
+  propTypes: {
+    primitive: React.PropTypes.object
+  },
 
   handleChange: function(evt) {
     var props = this.props,

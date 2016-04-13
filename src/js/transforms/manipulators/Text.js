@@ -5,8 +5,8 @@ var inherits = require('inherits'),
     map = require('../../util/map-manipulator'),
     CONST = spec.CONST,
     PX = CONST.PADDING,
-    SP = CONST.STROKE_PADDING,
-    A = CONST.ARROWHEAD;
+    SP = CONST.STROKE_PADDING;
+    // A = CONST.ARROWHEAD;
 
 /**
  * @classdesc Represents the TextManipulators, a Vega data transformation operator.
@@ -16,6 +16,7 @@ var inherits = require('inherits'),
  * @extends Manipulators
  *
  * @constructor
+ * @param {Object} graph - A Vega model.
  */
 function TextManipulators(graph) {
   return Manipulators.call(this, graph);

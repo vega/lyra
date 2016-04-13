@@ -59,9 +59,9 @@ describe('Text Inspector <Text/> (shallow)', function() {
       'text',
       'x',
       'y'
-    ].forEach(function( prop ) {
+    ].forEach(function(prop) {
       // @TODO: "name" is not the right property to inspect, but unless we
-      // refactor <Property> to take a single field prop the name's the only
+      // refactor <Property> to take a single field prop, the name's the only
       // attribute of the nested components that we can inspect.
       expect(wrapper.find('[name="' + prop + '"]')).to.have.length(1);
     });
