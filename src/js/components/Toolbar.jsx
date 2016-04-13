@@ -1,18 +1,10 @@
 'use strict';
 var React = require('react'),
-    connect = require('react-redux').connect,
     AddMarksTool = require('./tools/AddMarksTool'),
     UndoRedoClearTool = require('./tools/UndoRedoClearTool');
-// Splitting each sidebar into its column
 
-function mapStateToProps(reduxState, ownProps) {
-  return {
-    selected: reduxState.get('selectedMark')
-  };
-}
-var Toolbar = connect(
-  mapStateToProps
-)(React.createClass({
+// Splitting each sidebar into its column
+var Toolbar = React.createClass({
   classNames: 'toolbar',
   render: function() {
     return (
@@ -33,6 +25,6 @@ var Toolbar = connect(
       </div>
     );
   }
-}));
+});
 
 module.exports = Toolbar;

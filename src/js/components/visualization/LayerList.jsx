@@ -4,9 +4,8 @@ var React = require('react'),
     lookup = require('../../model').lookup,
     hierarchy = require('../../util/hierarchy'),
     getIn = require('../../util/immutable-utils').getIn,
-    get = require('../../util/immutable-utils').get,
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
-    marks = require('../../model/primitives/marks'),
+    getMarkDefaults = require('../../model/primitives/marks').getDefaults,
     addMark = require('../../actions/primitiveActions').addMark,
     selectMark = require('../../actions/selectMark'),
     expandLayers = require('../../actions/expandLayers'),
@@ -14,13 +13,7 @@ var React = require('react'),
 
 function mapStateToProps(reduxState) {
   var selectedMarkId = getIn(reduxState, 'inspector.selected'),
-      expandedLayers = getIn(reduxState, 'inspector.expandedLayers').toJS(),
-      // Get the list of selected marks so that this view will update when
-      // marks are added or removed
       sceneId = getIn(reduxState, 'scene.id'),
-      primitives = reduxState.get('primitives'),
-      sceneProps = primitives && get(primitives, sceneId),
-      sceneMarks = sceneProps && sceneProps.toJS().marks,
       closestContainerId;
 
   // Closest container is determined by walking up from the selected mark,
@@ -30,18 +23,19 @@ function mapStateToProps(reduxState) {
     sceneId;
 
   return {
-    container: closestContainerId,
-    layers: sceneMarks || [],
+    // Numbers
+    selectedId: selectedMarkId,
     sceneId: sceneId,
-    selected: selectedMarkId,
-    expanded: expandedLayers
+    containerId: closestContainerId,
+    // Immutable constructs
+    marks: getIn(reduxState, 'primitives.' + sceneId + '.marks')
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     addMark: function(type, parentId) {
-      var newMarkProps = marks.getDefaults(type, {
+      var newMarkProps = getMarkDefaults(type, {
         _parent: parentId
       });
       dispatch(addMark(newMarkProps));
@@ -60,21 +54,27 @@ function mapDispatchToProps(dispatch) {
 
 var LayerList = React.createClass({
   propTypes: {
+    selectedId: React.PropTypes.number,
+    sceneId: React.PropTypes.number,
+    containerId: React.PropTypes.number,
+    marks: React.PropTypes.object,
     addMark: React.PropTypes.func,
-    layers: React.PropTypes.array,
-    selectMark: React.PropTypes.func,
+    selectMark: React.PropTypes.func
   },
+
   render: function() {
     var props = this.props,
-        selected = props.selected,
+        selectedId = props.selectedId,
         sceneId = props.sceneId,
-        parentId = props.container;
+        containerId = props.containerId,
+        layers = props.marks ? props.marks.toJS() : [];
+
     return (
       <div id="layer-list" className="expandingMenu">
         <ul>
           <li>
             <div
-              className={'edit name' + (selected === sceneId ? ' selected' : '')}
+              className={'edit name' + (selectedId === sceneId ? ' selected' : '')}
               onClick={this.props.selectMark.bind(null, sceneId)}>
               Edit Scene
             </div>
@@ -87,11 +87,11 @@ var LayerList = React.createClass({
             data-html={true}
             data-tip="Add a new group to the scene <br> or create a subgroup."
             data-place="right"
-            onClick={this.props.addMark.bind(null, 'group', parentId)}></i>
+            onClick={this.props.addMark.bind(null, 'group', containerId)}></i>
         </h4>
 
         <ul>
-        {this.props.layers.map(function(id) {
+        {layers.map(function(id) {
           return (
             <Group key={id}
               {...props}

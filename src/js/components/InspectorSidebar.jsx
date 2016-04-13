@@ -18,9 +18,7 @@ function mapStateToProps(reduxState, ownProps) {
   };
 }
 
-var Inspector = connect(
-  mapStateToProps
-)(React.createClass({
+var Inspector = React.createClass({
   classNames: 'sidebar col5 push4 md-blue-bg',
   render: function() {
     var props = this.props,
@@ -60,11 +58,12 @@ var Inspector = connect(
       </div>
     );
   }
-}));
+});
 
-module.exports = Inspector;
 Inspector.Line = require('./inspectors/Line');
 Inspector.Rect = require('./inspectors/Rect');
 Inspector.Symbol = require('./inspectors/Symbol');
 Inspector.Text = require('./inspectors/Text');
 Inspector.Area = require('./inspectors/Area');
+
+module.exports = connect(mapStateToProps)(Inspector);

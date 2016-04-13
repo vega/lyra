@@ -5,6 +5,7 @@ var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     lookup = require('../../model').lookup,
     hierarchy = require('../../util/hierarchy'),
+    get = require('../../util/immutable-utils').get,
     getIn = require('../../util/immutable-utils').getIn,
     selectMark = require('../../actions/selectMark'),
     markDelete = require('../../actions/markDelete'),
@@ -20,13 +21,10 @@ var iconMap = {
   symbol: 'fa-moon-o'
 };
 
-function mapStateToProps(reduxState, ownProps) {
-  var selectedMarkId = getIn(reduxState, 'inspector.selected'),
-      expandedLayers = getIn(reduxState, 'inspector.expandedLayers').toJS();
-
+function mapStateToProps(reduxState) {
   return {
-    selected: selectedMarkId,
-    expanded: expandedLayers
+    selectedId: getIn(reduxState, 'inspector.selected'),
+    expandedLayers: getIn(reduxState, 'inspector.expandedLayers')
   };
 }
 
@@ -42,7 +40,7 @@ function mapDispatchToProps(dispatch, ownProps) {
       dispatch(expandLayers(parentGroupIds));
     },
     deleteMark: function(id) {
-      if (ownProps.selected === id) {
+      if (ownProps.selectedId === id) {
         dispatch(selectMark(null));
       }
       dispatch(markDelete(id));
@@ -55,12 +53,12 @@ function mapDispatchToProps(dispatch, ownProps) {
 
 var Group = React.createClass({
   propTypes: {
-    deleteMark: React.PropTypes.func,
-    expanded: React.PropTypes.object,
     id: React.PropTypes.number,
     level: React.PropTypes.number,
+    selectedId: React.PropTypes.number,
+    expandedLayers: React.PropTypes.object,
     select: React.PropTypes.func,
-    selected: React.PropTypes.number,
+    deleteMark: React.PropTypes.func,
     toggle: React.PropTypes.func
   },
 
@@ -94,20 +92,21 @@ var Group = React.createClass({
   render: function() {
     var props = this.props,
         level = +props.level,
+        selectedId = props.selectedId,
         groupId = props.id,
         group = lookup(groupId),
         groupType = group.type,
-        selected = props.selected,
-        expanded = props.expanded[groupId];
+        isExpanded = get(props.expandedLayers, groupId);
 
-    var contents = expanded && group.marks ? (
+    var contents = isExpanded && group.marks ?
+      (
         <ul className="group">
           <li className="header">Guides <i className="fa fa-plus"></i></li>
           <li className="header">Marks <i className="fa fa-plus"></i></li>
           {group.marks.map(function(id) {
             var mark = lookup(id),
                 type = mark.type,
-                spinner = this.iconMenuRow(type, expanded);
+                spinner = this.iconMenuRow(type, isExpanded);
 
             // onClick={this.deleteUpdate.bind(null, id)}
             return type === 'group' ? (
@@ -118,7 +117,7 @@ var Group = React.createClass({
             ) : (
               <li key={id}>
                 <div
-                  className={'name' + (selected === id ? ' selected' : '')}>
+                  className={'name' + (selectedId === id ? ' selected' : '')}>
                   <div onClick={this.props.select.bind(null, id)}>
                     {spinner}
                     <ContentEditable obj={mark} prop="name"
@@ -134,14 +133,15 @@ var Group = React.createClass({
             );
           }, this)}
         </ul>
-      ) : null;
+      ) :
+      null;
 
-    var spinner = this.iconMenuRow(groupType, expanded);
+    var spinner = this.iconMenuRow(groupType, isExpanded);
     // onClick={this.deleteUpdate.bind(null, groupId)}
     return (
-      <li className={expanded ? 'expanded' : 'contracted'}>
+      <li className={isExpanded ? 'expanded' : 'contracted'}>
         <div
-          className={'name' + (selected === groupId ? ' selected' : '')}>
+          className={'name' + (selectedId === groupId ? ' selected' : '')}>
           <div onClick={this.toggleFolder.bind(null, groupId)}>
             {spinner}
             <ContentEditable obj={group} prop="name"
