@@ -7,10 +7,9 @@ var Group = require('./Group');
 var Mark = require('./Mark');
 var ns = require('../../../util/ns');
 var VLSingle = require('../../rules/VLSingle');
-var model = require('../../');
 
 describe('Group Mark', function() {
-  var group, subgroup;
+  var group;
 
   describe('defaultProperties static method', function() {
 
@@ -195,121 +194,4 @@ describe('Group Mark', function() {
 
   });
 
-  describe('child method', function() {
-
-    beforeEach(function() {
-      group = new Group();
-      // Shim to handle the ID binding that no longer occurs in Mark instances
-      group._id = 1;
-      model.primitive(group._id, group);
-    });
-
-    it('is a function', function() {
-      expect(group).to.have.property('child');
-      expect(group.child).to.be.a('function');
-    });
-
-    it('creates and returns child primitives within the group', function() {
-      [
-        'axes',
-        'legends',
-        'marks.group',
-        'marks.rect',
-        'marks.symbol'
-      ].forEach(function(primitiveType) {
-        var child = group.child(primitiveType);
-        expect(child).to.be.an('object');
-        expect(child.parent()).to.equal(group);
-      });
-      // child marks will all have the same ID "undefined"...
-      // expect(group.marks.length).to.equal(3);
-      expect(group.axes.length).to.equal(1);
-      expect(group.legends.length).to.equal(1);
-    });
-
-    it('throws an error if provided an invalid type', function() {
-      expect(function() {
-        group.child('unsupported primitive');
-      }).to.throw;
-    });
-
-    it('can insert a pre-existing primitive into a group', function() {
-      var otherGroup = new Group();
-      expect(otherGroup.parent()).not.to.equal(group);
-      group.child('marks.group', otherGroup);
-      expect(otherGroup.parent()).to.equal(group);
-    });
-
-  });
-
-  describe('remove child method', function() {
-
-    beforeEach(function() {
-      group = new Group();
-      // Shim to handle the ID binding that no longer occurs in Mark instances
-      group._id = 1;
-      model.primitive(group._id, group);
-      subgroup = new Group();
-      subgroup._id = 2;
-      model.primitive(subgroup._id, subgroup);
-      group.child('marks.group', subgroup);
-    });
-
-    it('is a function', function() {
-      expect(group).to.have.property('removeChild');
-      expect(group.child).to.be.a('function');
-    });
-
-    it('it removes the mark id from this.marks array', function() {
-      // delete group
-      var subgroupId = subgroup._id;
-      group.removeChild(subgroupId);
-
-      expect(group.marks.length).to.equal(0);
-    });
-
-    it('if child mark is a group, it recursively removes the grandchildren', function() {
-      var subsub = new Group();
-      subsub._id = 3;
-      model.primitive(subsub._id, subsub);
-      subgroup.child('marks.group', subsub);
-      var subgroupId = subgroup._id;
-      // make sure these are being instantiated and exist
-      expect(group.marks.length).to.equal(1);
-      expect(subgroup.marks.length).to.equal(1);
-      // remove parent group
-      group.removeChild(subgroupId);
-      // make sure they are removed
-      expect(group.marks.length).to.equal(0);
-      expect(subgroup.marks.length).to.equal(0);
-    });
-
-  });
-
-  describe('remove children method', function() {
-
-    it('is a function', function() {
-      expect(group).to.have.property('removeChildren');
-      expect(group.child).to.be.a('function');
-    });
-
-    it('if type is "marks" removes all references of children ids', function() {
-      group = new Group();
-      group._id = 1;
-      model.primitive(group._id, group);
-      subgroup = new Group();
-      subgroup._id = 2;
-      model.primitive(subgroup._id, subgroup);
-      group.child('marks.group', subgroup);
-      [new Group(), new Group(), new Group()].forEach(function(childGroup, idx) {
-        childGroup._id = idx + 3;
-        model.primitive(childGroup._id, childGroup);
-        group.child('marks.group', childGroup);
-      });
-      // make sure children are being instantiated and exist
-      expect(group.marks.length).to.to.equal(4);
-      group.removeChildren('marks');
-      expect(group.marks.length).to.to.equal(0);
-    });
-  });
 });

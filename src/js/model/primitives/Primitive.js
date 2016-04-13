@@ -4,7 +4,6 @@
 var dl = require('datalib'),
     sg = require('../signals'),
     model = require('../'),
-    lookup = model.lookup,
     counter = require('../../util/counter');
 
 /**
@@ -64,21 +63,5 @@ Primitive.prototype.export = function(clean) {
  * @returns {Object} A Vega specification.
  */
 Primitive.prototype.manipulators = Primitive.prototype.export;
-
-/**
- * Gets or sets the parent of the Primitive. A Primitive's parent represents a
- * "contains" relationship. Thus, a Primitive may have only one parent but a
- * single parent may have many children.
- * @param  {number} [pid] - The ID of the parent to set.
- * @returns {Object} The parent Primitive, if called as a getter, otherwise the
- * current Primitive.
- */
-Primitive.prototype.parent = function(pid) {
-  if (!pid) {
-    return lookup(this._parent);
-  }
-  this._parent = Number(pid);
-  return this;
-};
 
 module.exports = Primitive;

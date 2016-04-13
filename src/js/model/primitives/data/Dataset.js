@@ -12,17 +12,22 @@ var dl = require('datalib'),
  * @extends {Primitive}
  *
  * @param {string} name - The name of the dataset.
+ * @param {number} [_parent] - The ID of the dataset's parent.
  * @see  Vega's {@link https://github.com/vega/vega/wiki/Data|Data source}
  * documentation for more information on this class' "public" properties.
  *
  * @constructor
  */
-function Dataset(name) {
+function Dataset(name, _parent) {
   this.name = name;
 
   this.source = undefined;
   this.url = undefined;
   this.format = undefined;
+
+  if (_parent) {
+    this._parent = _parent;
+  }
 
   return Primitive.call(this);
 }
@@ -86,7 +91,7 @@ Dataset.prototype.schema = function() {
       types = dl.type.inferAll(this.output());
 
   var schema = dl.keys(types).reduce(function(s, k) {
-    s[k] = new Field(k, types[k]).parent(that._id);
+    s[k] = new Field(k, types[k], that._id);
     return s;
   }, {});
 

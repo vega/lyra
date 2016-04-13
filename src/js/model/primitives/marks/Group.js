@@ -5,8 +5,6 @@ var dl = require('datalib'),
     model = require('../../'),
     lookup = model.lookup,
     Mark = require('./Mark'),
-    store = require('../../../store'),
-    vegaInvalidate = require('../../../actions/vegaInvalidate'),
     ns = require('../../../util/ns');
 
 var CHILD_TYPES = ['scales', 'axes', 'legends', 'marks'];
@@ -104,99 +102,6 @@ Group.prototype.manipulators = function() {
     group[c] = self[c].map(map).reduce(red, []);
   });
   return spec;
-};
-
-/**
- * Insert or create a child Primitive.
- *
- * @deprecated Use actions like PRIMITIVE_ADD_MARK or PRIMITIVE_SET_PARENT instead
- *
- * @param  {string} type - The type of the child (`scales`, `axes`, `legends`).
- * For marks, this should also include the mark type (e.g., `marks.rect`).
- * @param  {number|Object} [child] - The ID or Primitive corresponding to the
- * child to be inserted into the Group. If no child is specified, a new one
- * is created and initialized.
- * @returns {Object} The child Primitive.
- */
-Group.prototype.child = function(type, child) {
-  type = type.split('.');
-  var primitiveType = type[0];
-  var PrimitiveCtor = CHILDREN[type[1] || primitiveType];
-  var lookupChild = dl.isNumber(child) ? lookup(child) : child;
-
-  if (lookupChild) {
-    child = lookupChild;
-  } else {
-    child = new PrimitiveCtor();
-    // We've added a primitive, so re-parse the model to add it to vega
-    // This is sort of objectionable: We need to tell vega that we're about to
-    // need to re-parse, in order to suppress any attempts to write the about-
-    // to-be-initialized signals to a view that does not yet know about this
-    // new primitive. But we have to then call reparse again immediately after
-    // those signals are in the store in order to render vega WITH the newly-
-    // added signals. This should be cleaned up a bit when we handle mark
-    // creation and initialization through the store.
-    store.dispatch(vegaInvalidate(true));
-    child.init();
-    store.dispatch(vegaInvalidate(true));
-  }
-
-  var id = child._id;
-  // Get reference to the group's marks, scales, legends, or axes collection
-  var types = this[primitiveType];
-
-  if (types.indexOf(id) < 0) {
-    types.push(id);
-  }
-  return child.parent ? child.parent(this._id) : child;
-};
-
-/**
- * Remove a single child mark from this group
- * @param  {number|Object} [child] The ID or Primitive corresponding to the
- * child to be removed from the Group.
- * @returns {void}
- */
-Group.prototype.removeChild = function(child) {
-  var lookupChild = dl.isNumber(child) ? lookup(child) : child;
-  if (lookupChild) {
-    child = lookupChild;
-  } else {
-    return;
-  }
-  var id = child._id;
-  var types = this.marks;
-  var childIndex = types.indexOf(id);
-  if (childIndex !== -1) {
-    if (child.type === 'group') {
-      for (var x = 0; x < child.marks.length; x++) {
-        child.removeChild(child.marks[x]);
-      }
-    }
-    child.remove();
-    types.splice(childIndex, 1);
-  }
-};
-
-/**
- * Remove all children and children's children from group
- * @param {string} type - Marks, scales, legends, axes
- * @returns {void}
- */
-Group.prototype.removeChildren = function(type) {
-  if (type === 'marks') {
-    this.marks.forEach(function(childId) {
-      var child = lookup(childId);
-      if (child.type === 'group') {
-        for (var x = 0; x < child.marks.length; x++) {
-          child.removeChild(child.marks[x]);
-        }
-      }
-      child.remove();
-    });
-    this.marks = [];
-  }
-  store.dispatch(vegaInvalidate(true));
 };
 
 module.exports = Group;

@@ -11,6 +11,7 @@ var dl = require('datalib'),
     propSg = require('../../../util/prop-signal'),
     model = require('../../'),
     lookup = model.lookup,
+    getParent = require('../../../util/hierarchy').getParent,
     counter = require('../../../util/counter');
 
 /**
@@ -161,7 +162,7 @@ Mark.prototype.dataset = function(id) {
   var from;
   if (!arguments.length) {
     from = lookup(this.from);
-    return from && lookup(from.parent()._id);
+    return from && lookup(getParent(from)._id);
   } else if ((from = lookup(id)) instanceof Dataset) {
     this.from = id;
     return this;
