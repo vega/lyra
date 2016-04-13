@@ -22,7 +22,7 @@ function getSignal(name) {
  * @returns {Object} The signal store object
  */
 function api() {
-  return store.getState().get('signals').toJS();
+  return getIn(store.getState(), 'signals').toJS();
 }
 
 // Augment the signals API with properties like SELECTED that define the

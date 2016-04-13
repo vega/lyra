@@ -18,7 +18,7 @@ function mapStateToProps(reduxState) {
       // Get the list of selected marks so that this view will update when
       // marks are added or removed
       sceneId = getIn(reduxState, 'scene.id'),
-      primitives = reduxState.get('primitives'),
+      primitives = getIn(reduxState, 'primitives'),
       sceneProps = primitives && get(primitives, sceneId),
       sceneMarks = sceneProps && sceneProps.toJS().marks,
       closestContainerId;
