@@ -105,35 +105,6 @@ Mark.mergeProperties = function(defaults, overrides) {
 };
 
 /**
- * Initializes the Lyra Mark Primitive by converting all registered visual
- * properties with literal values to Lyra-specific signals. Each mark subclass
- * will register the necessary streams to change the signal values
- * (e.g., `initHandlers`).
- * @returns {Object} The Mark.
- */
-Mark.prototype.init = function() {
-  // Partial application to avoid needing access to `this` inside the loop below
-  var signalName = function(mark, key) {
-    return propSg(mark, key);
-  }.bind(null, this);
-
-  // Walk through each of the specified visual properties for this mark, create
-  // and register signals to represent those values, and update the mark's
-  // properties to contain references to those new vega signals.
-  this.properties.update = Object.keys(this.properties.update).reduce(function(update, key) {
-    var updateProp = update[key],
-        sgName = signalName(key);
-    if (typeof updateProp.value !== 'undefined') {
-      sg.init(sgName, updateProp.value);
-      update[key] = dl.extend(sg.reference(sgName), updateProp._disabled ? {_disabled: true} : {});
-    }
-    return update;
-  }, this.properties.update);
-
-  return this;
-};
-
-/**
  * Overwrite the properties of a mark with values from a provided configuration
  * object.
  *
