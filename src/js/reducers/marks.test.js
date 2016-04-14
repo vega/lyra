@@ -208,7 +208,6 @@ describe('marks reducer', function() {
         signal: 'lyra_vis_width'
       });
     });
-
   });
 
   describe('set parent action', function() {

@@ -1,11 +1,9 @@
 'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
-    sg = require('../../signals'),
-    Group = require('./Group');
-
-var SG_WIDTH = 'vis_width',
-    SG_HEIGHT = 'vis_height';
+    Group = require('./Group'),
+    store = require('../../../store'),
+    getIn = require('../../../util/immutable-utils').getIn;
 
 /**
  * @classdesc A Lyra Scene Primitive.
@@ -66,8 +64,10 @@ Scene.prototype.export = function(resolve) {
   var spec = Group.prototype.export.call(this, resolve);
 
   // Always resolve width/height signals.
-  spec.width = spec.width.signal ? sg.get(SG_WIDTH) : spec.width;
-  spec.height = spec.height.signal ? sg.get(SG_HEIGHT) : spec.height;
+  spec.width = spec.width.signal ?
+                getIn(store.getState(), 'signals.' + spec.width.signal + '.init') : spec.width;
+  spec.height = spec.height.signal ?
+                getIn(store.getState(), 'signals.' + spec.height.signal + '.init') : spec.height;
 
   // Remove mark-specific properties
   delete spec.type;
