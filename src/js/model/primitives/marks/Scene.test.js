@@ -184,5 +184,22 @@ describe('Scene Mark', function() {
     });
 
   });
+  describe('scene export', function() {
+    var spec;
+    beforeEach(function() {
+      scene = new Scene();
+      spec = scene.export();
+    });
+
+    it('width exists on the spec and is not undefined', function() {
+      expect(spec).to.have.property('width');
+      expect(spec.width).to.not.be.undefined;
+    });
+
+    it('height exists on the spec and is not undefined', function() {
+      expect(spec).to.have.property('height');
+      expect(spec.height).to.not.be.undefined;
+    });
+  });
 
 });

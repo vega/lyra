@@ -249,6 +249,26 @@ describe('signals reducer', function() {
           _idx: 1
         }
       });
+    });
+
+    it('initializes the scene width & height signals set to custom values', function() {
+      var result = signalsReducer(initialState,
+      createScene({
+        width: 400,
+        height: 100
+      }));
+      expect(result.toJS()).to.deep.equal({
+        lyra_vis_width: {
+          name: 'lyra_vis_width',
+          init: 400,
+          _idx: 0
+        },
+        lyra_vis_height: {
+          name: 'lyra_vis_height',
+          init: 100,
+          _idx: 1
+        }
+      });
 
     });
 

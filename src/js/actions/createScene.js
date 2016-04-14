@@ -11,13 +11,14 @@ var counter = require('../util/counter');
  * Loading data will require adding an action or altering this action to permit
  * seeding the created scene with preexisting properties.
  *
+ * @param {Object} customProps - custom properties
  * @returns {Object} An action object
  */
-module.exports = function() {
+module.exports = function(customProps) {
   var Scene = require('../model/primitives/marks/Scene');
-  var props = Scene.defaultProperties({
-    _id: counter.global()
-  });
+  var properties = customProps || {};
+  properties._id = counter.global();
+  var props = Scene.defaultProperties(properties);
 
   return {
     type: CREATE_SCENE,

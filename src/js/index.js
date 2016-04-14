@@ -22,7 +22,10 @@ store.subscribe(listeners.createStoreListener(store, model));
 
 // Initializes the Lyra model with a new Scene primitive.
 var createScene = require('./actions/createScene');
-store.dispatch(createScene());
+store.dispatch(createScene({
+  width: 600,
+  height: 600
+}));
 
 // Initialize components
 var ui = require('./components');
