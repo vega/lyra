@@ -17,7 +17,7 @@ function mapStateToProps(reduxState, ownProps) {
   return {
     id: selectedMarkId,
     // This will need to be refactored slightly once scale or guide inspectors exist
-    name: getIn(reduxState, 'primitives.' + selectedMarkId + '.name')
+    name: getIn(reduxState, 'marks.' + selectedMarkId + '.name')
   };
 }
 

@@ -9,7 +9,7 @@ var React = require('react'),
     getIn = require('../../util/immutable-utils').getIn,
     selectMark = require('../../actions/selectMark'),
     markDelete = require('../../actions/markDelete'),
-    updateMarkProperty = require('../../actions/primitiveActions').updateMarkProperty,
+    updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
     expandLayers = require('../../actions/expandLayers'),
     toggleLayers = require('../../actions/toggleLayers');
 

@@ -68,7 +68,7 @@ function signalsReducer(state, action) {
     return Immutable.Map();
   }
 
-  if (action.type === actions.PRIMITIVE_ADD_MARK) {
+  if (action.type === actions.MARK_ADD) {
     return initSignalsForMark(state, action);
   }
 
@@ -99,7 +99,7 @@ function signalsReducer(state, action) {
     return state.delete(action.signal);
   }
 
-  if (action.type === actions.PRIMITIVE_DELETE_MARK) {
+  if (action.type === actions.MARK_DELETE) {
     return deleteSignalsForMark(state, action);
   }
 

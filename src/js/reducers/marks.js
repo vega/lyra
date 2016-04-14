@@ -51,9 +51,9 @@ function convertValuesToSignals(properties, type, id) {
 }
 
 // Helper reducer to add a mark to the store. Runs the mark through a method to
-// convert property values into signal references before setting the primitive
+// convert property values into signal references before setting the mark
 // within the store.
-// "state" is the primitives store state; "action" is an object with a numeric
+// "state" is the marks store state; "action" is an object with a numeric
 // `._id`, string `.name`, and object `.props` defining the mark to be created.
 function makeMark(action) {
   return Object.keys(action.props).reduce(function(mark, key) {
@@ -70,7 +70,7 @@ function makeMark(action) {
 }
 
 // Helper reducer to configure a parent-child relationship between two marks.
-// "state" is the primitives store state; "action" is an object with a numeric
+// "state" is the marks store state; "action" is an object with a numeric
 // `.childId` and either a numeric `.parentId` (for setting a parent) or `null`
 // (for clearing a parent, e.g. when removing a mark).
 function setParentMark(state, action) {
@@ -138,7 +138,7 @@ function setParentMark(state, action) {
  * @param {number} action.id - The ID of the Axis or Legend to move
  * @param {number} [action.oldGroupId] - The ID of the group to move it from
  * @param {number} action.groupId - The ID of the group to move it to
- * @param {string} collection - The collection to which this primitive belongs,
+ * @param {string} collection - The collection to which this mark belongs,
  * either "legends" or "axes"
  * @returns {Object} A new Immutable state with the requested changes
  */
@@ -165,7 +165,7 @@ function moveChildToGroup(state, action, collection) {
  *
  * @private
  * @param {Object} state - An immutable state object
- * @param {number} id - A numeric primitive ID
+ * @param {number} id - A numeric mark ID
  * @param {string} property - A string property key (to be set on the mark's
  * properties.update selection)
  * @param {Object} value - The new property value to set
@@ -192,25 +192,25 @@ function resetProperty(state, id, property) {
 }
 
 /**
- * Main primitives reducer function, which generates a new state for the
- * primitives (marks) property store based on the changes specified by the
+ * Main marks reducer function, which generates a new state for the
+ * marks (marks) property store based on the changes specified by the
  * dispatched action object.
  *
  * @param {Object} state - An Immutable.Map state object
  * @param {Object} action - A redux action object
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
-function primitivesReducer(state, action) {
+function marksReducer(state, action) {
   if (typeof state === 'undefined') {
     return new Immutable.Map();
   }
 
-  if (action.type === actions.PRIMITIVE_ADD_MARK) {
+  if (action.type === actions.MARK_ADD) {
     // Make the mark and .set it at the provided ID, then pass it through a
     // method that will check to see whether the mark needs to be added as
     // a child of another mark
     return setParentMark(set(state, action.id, makeMark(action)), {
-      type: actions.PRIMITIVE_SET_PARENT,
+      type: actions.MARK_SET_PARENT,
       parentId: action.props ? action.props._parent : null,
       childId: action.id
     });
@@ -228,19 +228,19 @@ function primitivesReducer(state, action) {
     })));
   }
 
-  if (action.type === actions.PRIMITIVE_DELETE_MARK) {
-    // primitive store is keyed with strings: ensure ID is a string
+  if (action.type === actions.MARK_DELETE) {
+    // mark store is keyed with strings: ensure ID is a string
     return setParentMark(state, {
       childId: action.markId,
       parentId: null
     }).set('' + action.markId, null);
   }
 
-  if (action.type === actions.PRIMITIVE_SET_PARENT) {
+  if (action.type === actions.MARK_SET_PARENT) {
     return setParentMark(state, action);
   }
 
-  if (action.type === actions.PRIMITIVE_UPDATE_PROPERTY) {
+  if (action.type === actions.MARK_UPDATE_PROPERTY) {
     return setIn(state, action.id + '.' + action.property, action.value);
   }
 
@@ -271,4 +271,4 @@ function primitivesReducer(state, action) {
   return state;
 }
 
-module.exports = primitivesReducer;
+module.exports = marksReducer;

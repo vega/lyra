@@ -28,8 +28,8 @@ function vegaInvalidateReducer(state, action) {
   var invalidatingActions = [
     actions.CREATE_SCENE,
     actions.SIGNAL_INIT,
-    actions.PRIMITIVE_ADD_MARK,
-    actions.PRIMITIVE_DELETE_MARK,
+    actions.MARK_ADD,
+    actions.MARK_DELETE,
     actions.RULES_ADD_SCALE_TO_GROUP,
     actions.RULES_ADD_LEGEND_TO_GROUP,
     actions.RULES_ADD_AXIS_TO_GROUP,

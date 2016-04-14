@@ -5,7 +5,7 @@ var Immutable = require('immutable');
 
 var actions = require('../constants/actions');
 var signalsReducer = require('./signals');
-var primitiveActions = require('../actions/primitiveActions');
+var markActions = require('../actions/markActions');
 var createScene = require('../actions/createScene');
 var signalSetStreams = require('../actions/signalSetStreams');
 var signalInit = require('../actions/signalInit');
@@ -104,7 +104,7 @@ describe('signals reducer', function() {
     beforeEach(function() {
       // Reset counters module so that we can have predictable IDs for our new marks
       counter.reset();
-      addMark = primitiveActions.addMark;
+      addMark = markActions.addMark;
     });
 
     it('creates stream signals for the mark being created', function() {
@@ -164,7 +164,7 @@ describe('signals reducer', function() {
     beforeEach(function() {
       // Reset counters module so that we can have predictable IDs for our marks
       counter.reset();
-      initialState = signalsReducer(signalsReducer(initialState, primitiveActions.addMark({
+      initialState = signalsReducer(signalsReducer(initialState, markActions.addMark({
         type: 'symbol',
         properties: {
           update: {
@@ -173,7 +173,7 @@ describe('signals reducer', function() {
             y: {value: 30}
           }
         }
-      })), primitiveActions.addMark({
+      })), markActions.addMark({
         type: 'rect',
         properties: {
           update: {
@@ -198,7 +198,7 @@ describe('signals reducer', function() {
 
     it('removes all signals matching the provided mark type and ID', function() {
       var result = signalsReducer(initialState, {
-        type: actions.PRIMITIVE_DELETE_MARK,
+        type: actions.MARK_DELETE,
         markId: 1,
         markType: 'symbol'
       });
@@ -212,7 +212,7 @@ describe('signals reducer', function() {
 
     it('does not remove any signals if no matching signal names are found', function() {
       var result = signalsReducer(initialState, {
-        type: actions.PRIMITIVE_DELETE_MARK,
+        type: actions.MARK_DELETE,
         markId: 1000,
         markType: 'snake'
       });

@@ -6,7 +6,7 @@ var React = require('react'),
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
     marks = require('../../model/primitives/marks'),
     selectMark = require('../../actions/selectMark'),
-    addMark = require('../../actions/primitiveActions').addMark;
+    addMark = require('../../actions/markActions').addMark;
 
 function mapStateToProps(reduxState) {
   return {

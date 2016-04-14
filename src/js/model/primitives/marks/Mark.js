@@ -215,7 +215,7 @@ Mark.prototype.export = function(clean) {
 /**
  * Unsets the mark and its VLSingle _rule from the model primitives store.
  * Signals are not impacted by this method; they are cleaned up via the
- * PRIMITIVE_DELETE_MARK action within the signals reducer.
+ * MARK_DELETE action within the signals reducer.
  *
  * @returns {void}
  */

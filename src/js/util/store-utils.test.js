@@ -17,7 +17,7 @@ describe('store utilities', function() {
     beforeEach(function() {
       getClosestGroupId = storeUtils.getClosestGroupId;
       store = Immutable.fromJS({
-        primitives: {
+        marks: {
           '1': {_id: 1, type: 'scene'},
           '2': {_id: 2, _parent: 1, type: 'group'},
           '3': {_id: 3, _parent: 2, type: 'haschildrensomehowbutisnotagroup'},
@@ -69,7 +69,7 @@ describe('store utilities', function() {
     beforeEach(function() {
       getGuideScale = storeUtils.getGuideScale;
       state = Immutable.fromJS({
-        primitives: {
+        marks: {
           '1': {
             _id: 1,
             type: 'rect',

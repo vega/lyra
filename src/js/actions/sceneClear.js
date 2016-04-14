@@ -14,7 +14,7 @@ function sceneClear() {
   return function(dispatch, getState) {
     var state = getState(),
         sceneId = getIn(state, 'scene.id'),
-        sceneChildren = getIn(state, 'primitives.' + sceneId + '.marks').toJS();
+        sceneChildren = getIn(state, 'marks.' + sceneId + '.marks').toJS();
 
     sceneChildren.forEach(function(childId) {
       dispatch(markDelete(childId));
