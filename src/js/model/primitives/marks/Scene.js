@@ -36,6 +36,7 @@ Scene.prototype.parent = null;
  * @returns {Object} The default mark properties
  */
 Scene.defaultProperties = function(props) {
+  console.log(props);
   // Note that scene has no "properties" property
   return dl.extend({
     // Containers for child marks
