@@ -2,7 +2,8 @@
 'use strict';
 
 var dl = require('datalib'),
-    sg = require('../signals'),
+    store = require('../../store'),
+    getIn = require('../../util/immutable-utils').getIn,
     model = require('../'),
     counter = require('../../util/counter');
 
@@ -31,7 +32,9 @@ function _clean(spec, clean) {
     if (c) {
       delete spec[k];
     } else if (dl.isObject(p)) {
-      spec[k] = p.signal && cln ? sg.get(p.signal) : _clean(spec[k], clean);
+      spec[k] = p.signal && cln ?
+      getIn(store.getState(), 'signals.' + p.signal + '.init') :
+      _clean(spec[k], clean);
     }
   }
 
