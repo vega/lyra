@@ -1,8 +1,6 @@
 'use strict';
 var React = require('react'),
-    PipelineInspector = require('./PipelineInspector'),
-    Icon = require('../Icon'),
-    assets = require('../../util/assets');
+    PipelineInspector = require('./PipelineInspector');
 
 var PipelineList = React.createClass({
   propTypes: {
@@ -17,8 +15,6 @@ var PipelineList = React.createClass({
             <PipelineInspector key={p._id} pipeline={p} />
           );
         }, this)}
-
-        <h3><Icon glyph={assets.plus} /> New Pipeline</h3>
       </div>
     );
   }

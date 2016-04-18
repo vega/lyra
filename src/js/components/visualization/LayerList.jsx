@@ -73,6 +73,12 @@ var LayerList = React.createClass({
 
     return (
       <div id="layer-list" className="expandingMenu">
+        <h2>Groups
+          <span className="new" onClick={this.props.addMark.bind(null, 'group', sceneId)}>
+            <Icon glyph={assets.plus} /> New
+          </span>
+        </h2>
+
         <ul>
           <li id="scene">
             <div
@@ -93,9 +99,6 @@ var LayerList = React.createClass({
           );
         }, this)}
         </ul>
-
-        <h3 onClick={this.props.addMark.bind(null, 'group', containerId)}>
-            <Icon glyph={assets.plus} /> New Group</h3>
       </div>
     );
   }

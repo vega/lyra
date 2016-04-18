@@ -1,7 +1,13 @@
 $pipeline-width: 180px;
 
 #pipeline-sidebar {
-  h2 { color: #fff; }
+  h2 {
+    color: #fff;
+
+    svg {
+      fill: #fff;
+    }
+  }
 }
 
 .pipeline {

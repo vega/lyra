@@ -1,10 +1,26 @@
 h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   font-size: $header-font-size;
   text-transform: uppercase;
   margin-bottom: $margin;
   vertical-align: bottom;
   text-align: center;
   margin-bottom: 0;
+
+  .new {
+    font-size: 11px;
+    font-weight: normal;
+    margin-left: auto;
+    cursor: pointer;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
 }
 
 h3 {
