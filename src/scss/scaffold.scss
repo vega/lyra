@@ -58,6 +58,8 @@ body {
 }
 
 #visual-sidebar {
+  display: flex;
+  flex-flow: column;
   width: $visual-sidebar-width;
   background-color: $vlgrey-bg;
   border-right: 1px solid $lgrey-bg;
