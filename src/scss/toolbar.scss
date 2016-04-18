@@ -44,7 +44,7 @@
 
   .menu {
     display: flex;
-    min-width: 580px;
+    // min-width: 580px;
 
     @include breakingMenus {
       position: absolute;

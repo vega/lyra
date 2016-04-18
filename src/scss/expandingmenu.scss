@@ -4,6 +4,10 @@
 
     &#scene {
       border-top: 1px solid $lgrey-bg;
+
+      .delete {
+        visibility: visible;
+      }
     }
   }
 

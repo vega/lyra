@@ -18,5 +18,6 @@ module.exports = {
   prev: require('../../assets/prev.svg'),
   next: require('../../assets/next.svg'),
   close: require('../../assets/close.svg'),
-  hamburger: require('../../assets/hamburger.svg')
+  hamburger: require('../../assets/hamburger.svg'),
+  erase: require('../../assets/erase.svg')
 };
