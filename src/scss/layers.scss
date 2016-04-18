@@ -1,5 +1,6 @@
 #layer-list {
   height: 60%;
+  overflow-y: scroll;
 
   ul.group {
     white-space: nowrap;
@@ -22,6 +23,7 @@
 
 #scale-list {
   height: 40%;
+  overflow-y: scroll;
   background-color: $lgrey-bg;
   text-align: center;
 
@@ -31,7 +33,8 @@
 
   li {
     float: left;
-    margin: 0 $inner-padding;
+    margin: $inner-padding;
+    margin-top: 0;
   }
 
   .scale.name {
