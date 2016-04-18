@@ -83,6 +83,7 @@ var DataTable = React.createClass({
   },
 
   handleDragStart: function(evt) {
+    evt.dataTransfer.setData('text/plain', '');
     sg.set(sg.MODE, 'channels');
     model.update();
   },
