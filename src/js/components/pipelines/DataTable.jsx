@@ -85,6 +85,8 @@ var DataTable = React.createClass({
   },
 
   handleDragStart: function(evt) {
+    evt.dataTransfer.setData('text/plain', evt.target.id);
+    evt.dataTransfer.effectAllowed = 'link';
     sg.set(sg.MODE, 'channels');
     model.update();
   },
@@ -126,6 +128,8 @@ var DataTable = React.createClass({
 
     if (dropped) {
       this.requestVegaReparse();
+    } else {
+      model.update();
     }
   },
 
