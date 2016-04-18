@@ -2,8 +2,7 @@
 var dl = require('datalib'),
     inherits = require('inherits'),
     Group = require('./Group'),
-    store = require('../../../store'),
-    getIn = require('../../../util/immutable-utils').getIn;
+    signalLookup = require('../../../util/signal-lookup');
 
 /**
  * @classdesc A Lyra Scene Primitive.
@@ -65,9 +64,9 @@ Scene.prototype.export = function(resolve) {
 
   // Always resolve width/height signals.
   spec.width = spec.width.signal ?
-                getIn(store.getState(), 'signals.' + spec.width.signal + '.init') : spec.width;
+                signalLookup(spec.width.signal) : spec.width;
   spec.height = spec.height.signal ?
-                getIn(store.getState(), 'signals.' + spec.height.signal + '.init') : spec.height;
+                signalLookup(spec.height.signal) : spec.height;
 
   // Remove mark-specific properties
   delete spec.type;
