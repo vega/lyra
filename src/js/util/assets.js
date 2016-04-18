@@ -19,5 +19,7 @@ module.exports = {
   next: require('../../assets/next.svg'),
   close: require('../../assets/close.svg'),
   hamburger: require('../../assets/hamburger.svg'),
-  erase: require('../../assets/erase.svg')
+  erase: require('../../assets/erase.svg'),
+  export: require('../../assets/export.svg'),
+  scaffold: require('../../assets/scaffold.html')
 };

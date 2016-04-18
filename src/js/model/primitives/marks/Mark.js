@@ -147,12 +147,13 @@ Mark.prototype.dataset = function(id) {
 };
 
 Mark.prototype.export = function(clean) {
-  var spec = Primitive.prototype.export.call(this, clean),
-      props = spec.properties,
-      update = props.update,
+  var spec   = Primitive.prototype.export.call(this, clean),
+      props  = spec.properties,
+      update = this.properties.update,
+      upspec = props.update,
       from = this.from && lookup(this.from),
-      keys = dl.keys(update),
-      k, v, i, len, s, f;
+      keys = dl.keys(upspec),
+      k, v, u, i, len, s, f;
 
   if (from) {
     spec.from = (from instanceof Mark) ? {mark: from.name} :
@@ -160,19 +161,20 @@ Mark.prototype.export = function(clean) {
   }
 
   for (i = 0, len = keys.length; i < len; ++i) {
-    v = update[k = keys[i]];
+    v = upspec[k = keys[i]];
+    u = update[k];
     if (!dl.isObject(v)) {  // signalRef resolved to literal
-      update[k] = {value: v};
+      v = upspec[k] = {value: v};
     }
 
-    if (v.scale) {
-      v.scale = (s = lookup(v.scale)) && s.name;
+    if (u.scale) {
+      v.scale = (s = lookup(u.scale)) && s.name;
     }
-    if (v.field) {
-      v.field = (f = lookup(v.field)) && f._name;
+    if (u.field) {
+      v.field = (f = lookup(u.field)) && f._name;
     }
-    if (v.group) {
-      v.field = {group: v.group};
+    if (u.group) {
+      v.field = {group: u.group};
     }
   }
 

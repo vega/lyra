@@ -1,11 +1,11 @@
 'use strict';
 var React = require('react'),
-    AddMarksTool = require('./tools/AddMarksTool'),
-    UndoRedoClearTool = require('./tools/UndoRedoClearTool'),
+    AddMarks = require('./toolbar/AddMarks'),
+    UndoRedo = require('./toolbar/UndoRedo'),
+    Export = require('./toolbar/Export'),
     assets = require('../util/assets'),
     Icon = require('./Icon');
 
-// Splitting each sidebar into its column
 var Toolbar = React.createClass({
   render: function() {
     return (
@@ -16,11 +16,9 @@ var Toolbar = React.createClass({
             <Icon glyph={assets.hamburger} />
           </label>
           <div className="menu">
-            <AddMarksTool/>
-            <UndoRedoClearTool/>
-            <ul>
-              <li>EXPORT</li>
-            </ul>
+            <AddMarks />
+            <UndoRedo />
+            <Export />
           </div>
         </div>
       </div>
