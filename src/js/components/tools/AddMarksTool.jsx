@@ -6,7 +6,9 @@ var React = require('react'),
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
     marks = require('../../model/primitives/marks'),
     selectMark = require('../../actions/selectMark'),
-    addMark = require('../../actions/markActions').addMark;
+    addMark = require('../../actions/markActions').addMark,
+    assets = require('../../util/assets'),
+    Icon = require('../Icon');
 
 function mapStateToProps(reduxState) {
   return {
@@ -30,7 +32,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 // Currently supported mark types
-var marksArray = ['rect', 'symbol', 'area', 'text', 'line'];
+var marksArray = ['rect', 'symbol', 'text', 'line', 'area'];
 
 var AddMarksTool = React.createClass({
   propTypes: {
@@ -51,8 +53,9 @@ var AddMarksTool = React.createClass({
       <ul className={this.classNames}>
         {marksArray.map(function(markType, i) {
           return (
-            <li key={markType} onClick={this.props.addMark.bind(null, markType, closestContainerId)}>
-              {markType}
+            <li key={markType}
+              onClick={this.props.addMark.bind(null, markType, closestContainerId)}>
+              <Icon glyph={assets[markType]} /> {markType}
             </li>
           );
         }, this)}

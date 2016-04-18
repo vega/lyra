@@ -18,6 +18,7 @@ function mapStateToProps(state, ownProps) {
 
   return {
     field: getIn(markState, updatePropsPath + '.field'),
+    group: getIn(markState, updatePropsPath + '.group'),
     scale: getIn(markState, updatePropsPath + '.scale'),
     signal: getIn(markState, updatePropsPath + '.signal')
   };
@@ -36,6 +37,7 @@ var Property = React.createClass({
     name: React.PropTypes.string.isRequired,
     label: React.PropTypes.string,
     field: React.PropTypes.number,
+    group: React.PropTypes.number,
     scale: React.PropTypes.number,
     signal: React.PropTypes.string,
     resetProperty: React.PropTypes.func
@@ -57,7 +59,7 @@ var Property = React.createClass({
         scale = props.scale,
         field = props.field,
         value = state.value,
-        disabled = props.disabled,
+        disabled = props.disabled || props.group,
         labelEl, scaleEl, controlEl, extraEl;
 
     React.Children.forEach(props.children, function(child) {
@@ -67,17 +69,17 @@ var Property = React.createClass({
         extraEl = child;
       } else if (className === 'control') {
         controlEl = child;
-      } else if (childType === 'label' || className === 'label') {
+      } else if (type === 'label' || (className && className.indexOf('label') !== -1)) {
         labelEl = child;
       }
     });
 
     labelEl = labelEl || (<label htmlFor={name}>{label}</label>);
     scaleEl = scale && (scale = lookup(scale)) ?
-      (<div className="scale">{scale.name}</div>) : null;
+      (<div className="scale" onClick={this.unbind}>{scale.name}</div>) : null;
 
     controlEl = field && (field = lookup(field)) ?
-      (<div className="field">{field._name}</div>) : controlEl;
+      (<div className="field" onClick={this.unbind}>{field._name}</div>) : controlEl;
 
     if (!controlEl) {
       switch (type) {
@@ -135,24 +137,21 @@ var Property = React.createClass({
     if (props.canDrop) {
       className += ' can-drop';
     }
-    if (extraEl) {
-      className += ' extra';
+    if (props.firstChild) {
+      className += ' first-child';
     }
-
-    var indicatorClass = 'indicator';
-    if (scale || field) {
-      indicatorClass += ' fa fa-times';
+    if (extraEl) {
+      extraEl = (<div className="extra">{extraEl}</div>)
     }
 
     return (
       <div className={className}>
-        <div className={indicatorClass} onClick={this.unbind}></div>
         {labelEl}
         <div className="control">
           {scaleEl}
           {controlEl}
-          {extraEl}
         </div>
+        {extraEl}
       </div>
     );
   }

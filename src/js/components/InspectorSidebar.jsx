@@ -4,10 +4,10 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     Mark = require('../model/primitives/marks/Mark'),
+    Property = require('./inspectors/Property'),
     model = require('../model'),
     lookup = model.lookup,
-    getIn = require('../util/immutable-utils').getIn,
-    From = require('./inspectors/From');
+    getIn = require('../util/immutable-utils').getIn;
 
 var hierarchy = require('../util/hierarchy');
 var findInItemTree = hierarchy.findInItemTree;
@@ -26,7 +26,6 @@ var Inspector = React.createClass({
     id: React.PropTypes.number,
     name: React.PropTypes.string
   },
-  classNames: 'sidebar col5 push4 md-blue-bg',
   render: function() {
     var props = this.props,
         // props.id existence check handles the initial application render
@@ -37,7 +36,10 @@ var Inspector = React.createClass({
         isMark = primitive instanceof Mark;
 
     var pipeline = isMark ? (
-      <From {...props} primitive={primitive} from={primitive.dataset()} />
+      <div className="property-group property">
+        <h3 className="label-long">Pipeline</h3>
+        <div className="control">{from && from.name || 'None'}</div>
+      </div>
     ) : null;
 
     var inner = InspectorType ? (
@@ -48,19 +50,9 @@ var Inspector = React.createClass({
       </div>) : null;
 
     // if property is selected show the header
-    var propHeader;
-    if (this.props.name) {
-      propHeader = <h3 className="hed-secondary">{this.props.name}</h3>;
-    }
-
     return (
-      <div className={this.classNames} id="inspector">
-        <header>
-          <h2 className="hed">
-            Properties
-          </h2>
-        </header>
-        {propHeader}
+      <div className="sidebar" id="inspector">
+        <h2>{props.name || 'Properties'}</h2>
         {inner}
       </div>
     );

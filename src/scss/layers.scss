@@ -1,20 +1,45 @@
 #layer-list {
-  min-height: 60%;
+  height: 60%;
+  overflow-y: scroll;
 
   ul.group {
     white-space: nowrap;
     border-bottom: 1px solid $lgrey-bg;
 
     li.header {
-      margin: $inner-padding 0;
+      padding: 1.5*$inner-padding $outer-padding;
       font-size: 10px;
       color: $blue-font;
       font-weight: bold;
       text-transform: uppercase;
 
-      i.fa-plus {
+      .icon {
         float: right;
+        fill: $blue-font;
       }
     }
+  }
+}
+
+#scale-list {
+  height: 40%;
+  overflow-y: scroll;
+  background-color: $lgrey-bg;
+  text-align: center;
+
+  h2 {
+    color: $grey-font;
+  }
+
+  li {
+    float: left;
+    margin: $inner-padding;
+    margin-top: 0;
+  }
+
+  .scale.name {
+    display: inline-block;
+    padding: $inner-padding;
+    text-align: center;
   }
 }

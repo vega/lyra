@@ -11,74 +11,88 @@ var AreaInspector = React.createClass({
 
     return (
       <div>
-        <h4 className="hed-tertiary">X Position</h4>
+        <div className="property-group">
+          <h3>Orientation</h3>
 
-        <AreaProperty type="x" {...props} />
+          <Property
+            name="orient"
+            label="Orient"
+            primitive={primitive}
+            type="select"
+            opts={Area.ORIENT}
+            canDrop={true} />
+        </div>
 
-        <h4 className="hed-tertiary">Y Position</h4>
+        <div className="property-group">
+          <h3>X Position</h3>
 
-        <AreaProperty type="y" {...props} />
+          <AreaProperty type="x" {...props} />
+        </div>
 
-        <h4 className="hed-tertiary">Fill</h4>
+        <div className="property-group">
+          <h3>Y Position</h3>
 
-        <Property
-          name="fill"
-          label="Color"
-          type="color"
-          primitive={primitive}
-          canDrop={true} />
+          <AreaProperty type="y" {...props} />
+        </div>
 
-        <Property
-          name="fillOpacity"
-          label="Opacity"
-          primitive={primitive}
-          type="range"
-          canDrop={true}
-          min="0" max="1"
-          step="0.05" />
+        <div className="property-group">
+          <h3>Fill</h3>
 
-        <h4 className="hed-tertiary">Stroke</h4>
+          <Property
+            name="fill"
+            label="Color"
+            type="color"
+            canDrop={true}
+            primitive={primitive}/>
 
-        <Property
-          name="stroke"
-          label="Color"
-          type="color"
-          primitive={primitive}
-          canDrop={true} />
+          <Property
+            name="fillOpacity"
+            label="Opacity"
+            type="range"
+            min="0" max="1" step="0.05"
+            primitive={primitive}
+            canDrop={true} />
+        </div>
 
-        <Property
-          name="strokeWidth"
-          label="Width"
-          primitive={primitive}
-          type="range"
-          canDrop={true}
-          min="0"
-          max="10"
-          step="0.25" />
+        <div className="property-group">
+          <h3>Stroke</h3>
 
-        <h4>Line Strength</h4>
-        <Property
-          name="interpolate"
-          label="Interpolate"
-          primitive={primitive}
-          type="select"
-          opts={Area.INTERPOLATE}
-          canDrop={true} />
+          <Property
+            name="stroke"
+            label="Color"
+            type="color"
+            primitive={primitive}
+            canDrop={true} />
 
-        <Property
-          name="tension"
-          label="Tension"
-          type="number"
-          primitive={primitive}
-          canDrop={true} />
-        <h4 className="hed-tertiary">Orientation</h4>
-        <Property
-          name="orient"
-          label="Orient"
-          primitive={primitive}
-          type="select"
-          opts={Area.ORIENT}
-          canDrop={true} />
+          <Property
+            name="strokeWidth"
+            label="Width"
+            type="range"
+            min="0" max="10" step="0.25"
+            canDrop={true}
+            primitive={primitive} />
+        </div>
+
+        <div className="property-group">
+          <h3>Line Strength</h3>
+
+          <Property
+            name="interpolate"
+            label="Interpolate"
+            type="select"
+            opts={Area.INTERPOLATE}
+            canDrop={true}
+            primitive={primitive}
+          />
+
+          <Property
+            name="tension"
+            label="Tension"
+            type="number"
+            canDrop={true}
+            primitive={primitive}
+          />
+        </div>
       </div>
     );
   }

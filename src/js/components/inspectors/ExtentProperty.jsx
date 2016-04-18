@@ -93,14 +93,14 @@ var ExtentProperty = React.createClass({
 
     return (
       <div>
-
         <Property name={start}
           type="number"
           primitive={primitive}
           canDrop={true}
+          firstChild={true}
           disabled={update[start].band || update[start].group}>
 
-          <div className="label">
+          <div className="label-long label">
             <select name="start" value={start} onChange={this.handleChange}>
               {opts
                 .filter(function(x) {
@@ -119,9 +119,12 @@ var ExtentProperty = React.createClass({
           type="number"
           primitive={primitive}
           canDrop={true}
+          firstChild={true}
           disabled={update[end].band || update[end].group}>
 
-          <div className="label">
+          <br />
+
+          <div className="label-long label">
             {start === center ?
               (<label htmlFor="end">{span}</label>) :
               (

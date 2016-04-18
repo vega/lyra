@@ -11,56 +11,66 @@ var SymbolInspector = React.createClass({
     return (
       <div>
 
-        <h4 className="hed-tertiary">Position</h4>
+        <div className="property-group">
+          <h3>Position</h3>
 
-        <Property name="x" label="X"
-          primitive={primitive}
-          type="number"
-          canDrop={true} />
+          <Property name="x" label="X"
+            primitive={primitive}
+            type="number"
+            canDrop={true} />
 
-        <Property name="y" label="Y"
-          primitive={primitive}
-          type="number"
-          canDrop={true} />
+          <Property name="y" label="Y"
+            primitive={primitive}
+            type="number"
+            canDrop={true} />
+        </div>
 
-        <h4 className="hed-tertiary">Geometry</h4>
+        <div className="property-group">
+          <h3>Geometry</h3>
 
-        <Property name="size" label="Size"
-          primitive={primitive}
-          type="number"
-          canDrop={true} />
+          <Property name="size" label="Size"
+            primitive={primitive}
+            type="number"
+            canDrop={true} />
 
-        <Property name="shape" label="Shape"
-          primitive={primitive}
-          type="select"
-          opts={Symbol.SHAPES}
-          canDrop={true} />
+          <Property name="shape" label="Shape"
+            primitive={primitive}
+            type="select"
+            opts={Symbol.SHAPES}
+            canDrop={true} />
 
-        <h4 className="hed-tertiary">Fill</h4>
+        </div>
 
-        <Property name="fill" label="Color"
-          type="color"
-          primitive={primitive}
-          canDrop={true} />
+        <div className="property-group">
+          <h3>Fill</h3>
 
-        <Property name="fillOpacity" label="Opacity"
-          primitive={primitive}
-          type="range"
-          min="0" max="1" step="0.05"
-          canDrop={true} />
+          <Property name="fill" label="Color"
+            type="color"
+            primitive={primitive}
+            canDrop={true} />
 
-        <h4 className="hed-tertiary">Stroke</h4>
+          <Property name="fillOpacity" label="Opacity"
+            primitive={primitive}
+            type="range"
+            min="0" max="1" step="0.05"
+            canDrop={true} />
 
-        <Property name="stroke" label="Color"
-          type="color"
-          primitive={primitive}
-          canDrop={true} />
+        </div>
 
-        <Property name="strokeWidth" label="Width"
-          primitive={primitive}
-          type="range"
-          min="0" max="10" step="0.25"
-          canDrop={true} />
+        <div className="property-group">
+          <h3>Stroke</h3>
+
+          <Property name="stroke" label="Color"
+            type="color"
+            primitive={primitive}
+            canDrop={true} />
+
+          <Property name="strokeWidth" label="Width"
+            primitive={primitive}
+            type="range"
+            min="0" max="10" step="0.25"
+            canDrop={true} />
+        </div>
       </div>
     );
   }

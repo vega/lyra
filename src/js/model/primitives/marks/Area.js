@@ -5,7 +5,8 @@ var dl = require('datalib'),
     Mark = require('./Mark'),
     anchorTarget = require('../../../util/anchor-target'),
     test = require('../../../util/test-if'),
-    propSg = require('../../../util/prop-signal');
+    propSg = require('../../../util/prop-signal'),
+    INTERPOLATE = require('../../../constants/interpolate');
 
 var DELTA = sg.DELTA,
     DX = DELTA + '.x',
@@ -138,16 +139,7 @@ Area.prototype.export = function(resolve) {
 };
 
 // Parameters you can set on AREA
-Area.INTERPOLATE = [
-  'linear',
-  'step-before',
-  'step-after',
-  'basis',
-  'basis-open',
-  'cardinal',
-  'cardinal-open',
-  'monotone'
-];
+Area.INTERPOLATE = INTERPOLATE;
 Area.ORIENT = ['horizontal', 'vertical'];
 
 module.exports = Area;

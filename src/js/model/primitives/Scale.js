@@ -9,7 +9,7 @@ var dl = require('datalib'),
 
 // To prevent name collisions.
 function rename(name) {
-  var count = 0;
+  var count = 1;
   while (names[name]) {
     name += ++count;
   }

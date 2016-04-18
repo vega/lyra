@@ -1,7 +1,9 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    ContentEditable = require('../ContentEditable');
+    ContentEditable = require('../ContentEditable'),
+    assets = require('../../util/assets'),
+    Icon = require('../Icon');
 
 function mapStateToProps(reduxState, ownProps) {
   return {
@@ -20,13 +22,7 @@ var ScaleList = React.createClass({
         selectedId = props.selectedId;
     return (
       <div id="scale-list" className="expandingMenu">
-        <h4 className="hed-tertiary">
-          Scales
-          <i className="fa fa-plus"
-            data-tip="Add a new scale."
-            data-place="right"
-          ></i>
-        </h4>
+        <h2>Scales</h2>
         <ul>
           {props.scales.map(function(scale) {
             function updateScaleName(val) {

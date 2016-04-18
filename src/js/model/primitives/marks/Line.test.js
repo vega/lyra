@@ -25,7 +25,9 @@ describe('Line Mark Primitive', function() {
             x: {value: 25},
             y: {value: 25},
             stroke: {value: '#000000'},
-            strokeWidth: {value: 3}
+            strokeWidth: {value: 3},
+            tension: {value: 13},
+            interpolate: {value: 'monotone'}
           }
         }
       });
@@ -94,7 +96,9 @@ describe('Line Mark Primitive', function() {
           x: {value: 25},
           y: {value: 25},
           stroke: {value: '#000000'},
-          strokeWidth: {value: 3}
+          strokeWidth: {value: 3},
+          tension: {value: 13},
+          interpolate: {value: 'monotone'}
         }
       });
     });

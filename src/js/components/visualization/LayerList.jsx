@@ -8,8 +8,11 @@ var React = require('react'),
     getMarkDefaults = require('../../model/primitives/marks').getDefaults,
     addMark = require('../../actions/markActions').addMark,
     selectMark = require('../../actions/selectMark'),
+    sceneClear = require('../../actions/sceneClear'),
     expandLayers = require('../../actions/expandLayers'),
-    Group = require('./GroupSubMenu');
+    Group = require('./GroupSubMenu'),
+    assets = require('../../util/assets'),
+    Icon = require('../Icon');
 
 function mapStateToProps(reduxState) {
   var selectedMarkId = getIn(reduxState, 'inspector.selected'),
@@ -48,6 +51,10 @@ function mapDispatchToProps(dispatch) {
       dispatch(selectMark(id));
       // And expand the hierarchy so that it is visible
       dispatch(expandLayers(parentGroupIds));
+    },
+    clearScene: function(event) {
+      dispatch(selectMark(null));
+      dispatch(sceneClear());
     }
   };
 }
@@ -59,7 +66,8 @@ var LayerList = React.createClass({
     containerId: React.PropTypes.number,
     marks: React.PropTypes.object,
     addMark: React.PropTypes.func,
-    selectMark: React.PropTypes.func
+    selectMark: React.PropTypes.func,
+    clearScene: React.PropTypes.func
   },
 
   render: function() {
@@ -71,24 +79,27 @@ var LayerList = React.createClass({
 
     return (
       <div id="layer-list" className="expandingMenu">
+        <h2>Groups
+          <span className="new" onClick={this.props.addMark.bind(null, 'group', sceneId)}>
+            <Icon glyph={assets.plus} /> New
+          </span>
+        </h2>
+
         <ul>
-          <li>
+          <li id="scene">
             <div
               className={'edit name' + (selectedId === sceneId ? ' selected' : '')}
               onClick={this.props.selectMark.bind(null, sceneId)}>
               Edit Scene
+
+              <Icon glyph={assets.erase} className="delete"
+                onClick={this.props.clearScene}
+                data-html={true}
+                data-tip={'Clear scene.'}
+                data-place="right" />
             </div>
           </li>
         </ul>
-
-        <h4 className="hed-tertiary">
-          <span>Groups </span>
-          <i className="fa fa-plus"
-            data-html={true}
-            data-tip="Add a new group to the scene <br> or create a subgroup."
-            data-place="right"
-            onClick={this.props.addMark.bind(null, 'group', containerId)}></i>
-        </h4>
 
         <ul>
         {layers.map(function(id) {

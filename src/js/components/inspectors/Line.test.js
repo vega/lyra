@@ -22,7 +22,9 @@ describe('Line Inspector <Line/> (shallow)', function() {
           fill: {value: '#4682b4'},
           fillOpacity: {value: 1},
           stroke: {value: '#000000'},
-          strokeWidth: {value: 0.25}
+          strokeWidth: {value: 0.25},
+          tension: {value: 13},
+          interpolate: {value: 'monotone'}
         }
       }
     };
@@ -34,11 +36,11 @@ describe('Line Inspector <Line/> (shallow)', function() {
   });
 
   it('it should render 4 <Property/> components', function() {
-    expect(wrapper.find(Property)).to.have.length(4);
+    expect(wrapper.find(Property)).to.have.length(6);
   });
 
-  it('it should render 2 h4 tags', function() {
-    expect(wrapper.find('h4')).to.have.length(2);
+  it('it should render 3 h3 tags', function() {
+    expect(wrapper.find('h3')).to.have.length(3);
   });
 });
 

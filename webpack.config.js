@@ -42,6 +42,13 @@ module.exports = {
       {
         test: /\.png$/,
         loader: 'file-loader'
+      },
+      {
+        test: /\.svg$/,
+        loader: 'svg-sprite?' + JSON.stringify({
+          name: '[name]',
+          prefixize: true
+        })
       }
     ]
   },
