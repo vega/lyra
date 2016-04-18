@@ -44,7 +44,7 @@ body {
 
 // each vertical sidebar
 .sidebar {
-  display: inline-block;
+  float: left;
   position: relative;
   z-index: 999;
   height: 100%;
