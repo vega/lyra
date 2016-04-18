@@ -29,9 +29,10 @@ var Inspector = React.createClass({
   render: function() {
     var props = this.props,
         // props.id existence check handles the initial application render
-        primitive = props.id ? lookup(props.id) : {},
-        from = lookup(primitive.from),
-        ctor = primitive.constructor.name,
+        primitive = props.id ? lookup(props.id) : {};
+
+    var from = primitive ? lookup(primitive.from) : '',
+        ctor = primitive ? primitive.constructor.name : '',
         InspectorType = Inspector[ctor],
         isMark = primitive instanceof Mark;
 
