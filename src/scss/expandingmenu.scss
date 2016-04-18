@@ -1,6 +1,10 @@
 .expandingMenu {
-  > ul > li{
+  > ul > li {
     border-bottom: 1px solid $lgrey-bg;
+
+    &#scene {
+      border-top: 1px solid $lgrey-bg;
+    }
   }
 
   ul {

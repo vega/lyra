@@ -74,7 +74,7 @@ var LayerList = React.createClass({
     return (
       <div id="layer-list" className="expandingMenu">
         <ul>
-          <li>
+          <li id="scene">
             <div
               className={'edit name' + (selectedId === sceneId ? ' selected' : '')}
               onClick={this.props.selectMark.bind(null, sceneId)}>
