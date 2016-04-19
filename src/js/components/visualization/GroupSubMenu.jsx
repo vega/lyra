@@ -71,7 +71,8 @@ var Group = React.createClass({
   },
 
   icon: function(type, expanded) {
-    var gtype = type + (type === 'group' ? expanded ? '-open' : '-closed' : ''),
+    var expandedSubClass = expanded ? '-open' : '-closed',
+        gtype = type + (type === 'group' ? expandedSubClass : ''),
         glyph = assets[gtype],
         click = type === 'group' ? this.props.toggle.bind(null, this.props.id) : null,
         iconMarkup = (<Icon glyph={glyph} onClick={click} />);
@@ -80,11 +81,9 @@ var Group = React.createClass({
 
   deleteUpdate: function(id) {
     ReactTooltip.hide();
-    this.deleteMark(id);
+    this.props.deleteMark(id);
     // set selected to null
     this.props.select(null);
-    // redraw sidebar
-    this.updateSidebar();
   },
 
   render: function() {
