@@ -2,25 +2,94 @@
   padding: 20px;
   background: #fff;
   position: absolute;
-  bottom: 0;
+  bottom: 40px;
   z-index: 999;
-  border: 1px solid;
-  left: 0;
-  width: 54%;
+  border: 1px solid $lgrey-border;
+  left: 25px;
+  width: 600px;
   margin-left: $sidebars-width;
+
   h3 {
+    padding-left: 0;
     background-color: transparent;
   }
+
   @include breakingMenus {
     width: 500px;
-    margin-left:505px;
+    margin-left: 555px;
+  }
+
+  &.hidden {
+    bottom: -200px;
+  }
+  .step-dots {
+    text-align: center;
+    li {
+      &.selected {
+        background-color: $lgrey-border;
+      }
+      display: inline-block;
+      margin-left: 10px;
+      list-style: none;
+      border-radius: 50%;
+      width: 10px;
+      height: 10px;
+      border: 1px solid $lgrey-border;
+    }
+  }
+
+  .error {
+    border: 1px solid red;
+    position: absolute;
+    width: 100%;
+    top: -36px;
+    left: 0px;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: #FFD7D7;
+    ul {
+      list-style: none;
+    }
+  }
+
+  img {
+    width: 30%;
+  }
+
+  .details {
+    width: 70%;
+    box-sizing: border-box;
+    padding-left: 20px;
+    vertical-align: top;
+  }
+
+  .details,
+  img {
+    display: inline-block;
+  }
+
+  .next {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    text-align: right;
+    span {
+      display: block;
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 }
-
 .close-hint {
+  text-transform: uppercase;
   position: absolute;
   top: 10px;
   right: 10px;
   cursor: pointer;
-  font-size: 20px;
+  i {
+    margin-right: 5px;
+  }
 }
+

@@ -1,0 +1,27 @@
+.walkthrough-menu {
+  .hed {
+    text-align: left;
+    margin-bottom: 20px;
+  }
+
+  ul{
+    margin: 20px 0 0;
+    padding: 0;
+    li {
+      list-style: none;
+      display:inline-block;
+      padding: 20px;
+      cursor: pointer;
+      &:hover {
+        background-color: #eee;
+      }
+      img,
+      span {
+        display: block;
+      }
+      span {
+        margin-top:10px;
+      }
+    }
+  }
+}

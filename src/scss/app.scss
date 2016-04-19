@@ -9,9 +9,11 @@
 
 
 // components
+@import 'footer';
+@import 'modal';
 @import 'toolbar';
 @import 'hints';
 @import 'pipelines';
 @import 'layers';
 @import 'inspector';
-
+@import 'walkthroughs';

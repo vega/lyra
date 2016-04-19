@@ -1,0 +1,66 @@
+{
+  "title": "Example Walkthrough",
+  "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
+  "alt_text": "an image",
+  "steps": [{
+    "id": 1,
+    "title": "Step 1: Add a RECT",
+    "text": "Click on the RECT button in the toolbar to add a new Rect to the canvas",
+    "image": "http://fillmurray.com/g/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "help": "If you are stuck, try clearing the scene."
+  }, {
+    "id": 2,
+    "title": "Step 2: Change Color",
+    "text": "Select the RECT mark and then change it's color to #000000 in the property inspector",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {
+      "marks": [{
+        "type": "rect"
+      }]
+    },
+    "help": "If you are stuck, try clearing the scene."
+  }, {
+    "id": 3,
+    "title": "Step 2: Change color",
+    "text": "Select the RECT mark and then change it's stroke color to #ffffff",
+    "image": "http://fillmurray.com/g/150/150",
+    "alt_text": "an image",
+    "lyra_state": {
+      "marks": [{
+        "type": "rect",
+        "properties": {
+          "update": {
+            "fill": {
+              "value": "#000000"
+            }
+          }
+        }
+      }]
+    },
+    "help": "If you are stuck, try clearing the scene."
+  }, {
+    "id": 4,
+    "title": "Walkthrough complete!",
+    "text": "You did it!",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {
+      "marks": [{
+        "type": "rect",
+        "properties": {
+          "update": {
+            "fill": {
+              "value": "#000000"
+            },
+            "stroke": {
+              "value": "#ffffff"
+            }
+          }
+        }
+      }]
+    }
+  }]
+}
