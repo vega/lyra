@@ -1,6 +1,7 @@
 'use strict';
 var React = require('react'),
     Modal = require('react-modal'),
+    Settings = require('./settings/SettingsModal'),
     Walkthroughs = require('./walkthrough/Menu');
 
 
@@ -26,7 +27,9 @@ var Footer = React.createClass({
           <li>
             <Walkthroughs/>
           </li>
-          <li>Settings</li>
+          <li>
+            <Settings/>
+          </li>
         </ul>
         <Modal
           isOpen={this.state.modalIsOpen}
