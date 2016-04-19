@@ -9,10 +9,7 @@ var ContentEditable = React.createClass({
   },
 
   getInitialState: function() {
-    return {
-      edit: false,
-      value: this.props.value
-    };
+    return {edit: false};
   },
 
   componentDidMount: function() {
@@ -36,20 +33,14 @@ var ContentEditable = React.createClass({
   stop: function() {
     this.setState({edit: false});
     if (this.props.save) {
-      this.props.save(this.state.value);
+      this.props.save(this._el.textContent.trim());
     }
   },
 
-  handleInput: function() {
-    this.setState({
-      value: this._el.textContent.trim()
-    });
-  },
-
+  // On enter press, commit the change by triggering blur.
   handleEnter: function(evt) {
     if (!evt.keyCode || (evt.keyCode && evt.keyCode === 13)) {
-      // Commit the change (triggers the blur that fires this.stop callback)
-      this.setState({edit: false});
+      this._el.blur();
     }
   },
 
@@ -61,10 +52,9 @@ var ContentEditable = React.createClass({
         contentEditable={this.state.edit}
         onClick={props.onClick}
         onDoubleClick={props.onDoubleClick || this.start}
-        onInput={this.handleInput}
         onBlur={this.stop}
         onKeyDown={this.handleEnter}>
-          {this.state.value}
+          {props.value}
       </div>
     );
   }
