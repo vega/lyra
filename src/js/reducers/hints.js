@@ -3,13 +3,12 @@
 
 var Immutable = require('immutable');
 var actions = require('../constants/actions');
-var hintMap = require('../hints');
 
 function hintsReducer(state, action) {
   if (typeof state === 'undefined') {
     return Immutable.fromJS({
       display: null,
-      on: false
+      on: true
     });
   }
 
@@ -22,7 +21,17 @@ function hintsReducer(state, action) {
   }
 
   if (action.type === actions.CREATE_SCENE) {
-    return state.set('display', hintMap.CREATE_SCENE);
+    var sceneHints = require('../hints/scene-hints');
+    return state.set('display', sceneHints.CREATE_SCENE);
+  }
+
+  if (action.type === actions.MARK_ADD) {
+    // require the hintmap in here to prevent loading errors :/
+    var hintMap = require('../hints/mark-hints'),
+        markType = action.props.type;
+    if (hintMap.MARK_ADD[markType]){
+      return state.set('display', hintMap.MARK_ADD[markType]);
+    }
   }
 
   return state;
