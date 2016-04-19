@@ -20,6 +20,10 @@ var listeners = require('./store/listeners');
 // Bind the listener that will flow changes from the redux store into Vega.
 store.subscribe(listeners.createStoreListener(store, model));
 
+// Initialize hints
+var turnOnHints = require('./actions/hintActions').on;
+store.dispatch(turnOnHints(true));
+
 // Initializes the Lyra model with a new Scene primitive.
 var createScene = require('./actions/createScene');
 store.dispatch(createScene({
