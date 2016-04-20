@@ -3,25 +3,29 @@ var React = require('react'),
     connect = require('react-redux').connect,
     Modal = require('react-modal'),
     getIn = require('../../util/immutable-utils').getIn,
-    HintsOn = require('../../actions/hintActions').on;
+    hints = require('../../actions/hintActions').on,
+    assets = require('../../util/assets'),
+    Icon = require('../Icon');
 
 
 function mapStateToProps(reduxState) {
   return {
-    selected: getIn(reduxState, 'hints.on')
+    hintsOn: getIn(reduxState, 'hints.on')
   };
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    select: function(){
-      dispatch(HintsOn(!this.props.selected));
+    toggleHints: function() {
+      dispatch(hints(!this.props.selected));
     }
   };
 }
 
 var Settings = React.createClass({
   propTypes: {
+    hintsOn: React.PropTypes.bool,
+    toggleHints: React.PropTypes.func
   },
 
   getInitialState: function() {
@@ -46,11 +50,18 @@ var Settings = React.createClass({
           isOpen={this.state.modalIsOpen}
           onRequestClose={this.closeModal}>
             <div className ="wrapper settings">
-              <span className="closeModal" onClick={this.closeModal}>close</span>
+              <span className="closeModal" onClick={this.closeModal}>
+                <Icon glyph={assets.close} />
+              </span>
               <h2 className="hed">Settings</h2>
                 <label className="label-inline">Hints: </label>
                 <div className="onoffswitch inline">
-                  <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id="myonoffswitch" defaultChecked={this.props.selected} onChange={this.props.select.bind(this,'')}/>
+                  <input type="checkbox"
+                    name="onoffswitch"
+                    className="onoffswitch-checkbox"
+                    id="myonoffswitch"
+                    defaultChecked={this.props.hintsOn}
+                    onChange={this.props.toggleHints.bind(this, '')}/>
                   <label className="onoffswitch-label" htmlFor="myonoffswitch">
                     <span className="onoffswitch-inner"></span>
                     <span className="onoffswitch-switch"></span>

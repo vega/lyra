@@ -1,14 +1,14 @@
 'use strict';
 var constants = require('../constants/actions');
 
-function hintsOn(boolean){
+function hintsOn(boolean) {
   return {
     type: constants.HINTS_ON,
     on: boolean
   };
 }
 
-function clearHints(){
+function clearHints() {
   return {
     type: constants.HINTS_CLEAR
   };

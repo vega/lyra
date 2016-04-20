@@ -27,15 +27,17 @@ function mapStateToProps(reduxState) {
 
 var Sidebars = React.createClass({
   propTypes: {
+    hintsOn: React.PropTypes.bool,
+    hintsDisplay: React.PropTypes.object,
     arbitraryPropToTriggerUpdate: React.PropTypes.bool,
     showWalkthrough: React.PropTypes.string
   },
   render: function() {
     var pipelines = model.pipeline();
     var showWalkthrough = this.props.showWalkthrough ? <WalkthroughStep/> : '';
-    var hints = !this.props.showWalkthrough
-                && this.props.hintsOn
-                && this.props.hintsDisplay ? <Hints/> : '';
+    var hints = !this.props.showWalkthrough &&
+                this.props.hintsOn &&
+                this.props.hintsDisplay ? <Hints/> : '';
     return (
       <div>
         <div className="sidebar-container">

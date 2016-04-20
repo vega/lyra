@@ -1,10 +1,15 @@
 'use strict';
+
 /**
  * Mark kinds
  * This hints are triggered on MARK actions in the hints reducer
+ * If you are creating simple hints that are just text and a simple action,
+ * use the title, text, action, action_text, and action_props fields.
+ *
+ * If you need more custom functionality, create a template in /components/hints
+ * and include it as a template.
  */
 
-/** @namespace */
 var MarkHints = {
   MARK_ADD: {
     rect: {
@@ -13,12 +18,14 @@ var MarkHints = {
       action_text: 'DO IT. CLEAR IT OUT.',
       action: require('../actions/sceneClear')
     },
+
     line: {
       title: 'I see you have added a LINE...',
-      text: 'Maybe you\'d like to clear the whole canvas after adding that line cause I said so.',
-      action_text: 'Lets make a cool RECT thing with some properties.',
-      action: require('../actions/markActions').addMark,
-      action_props: require('../model/primitives/marks').getDefaults('rect')
+      text: 'Drop data on it to create a graph.',
+    },
+
+    symbol: {
+      template: require('../components/hints/symbol-hint')
     }
   }
 };
