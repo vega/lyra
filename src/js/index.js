@@ -27,9 +27,6 @@ store.dispatch(createScene({
   height: 600
 }));
 
-// Initialize components
-var ui = require('./components');
-
 var p = model.pipeline('cars'),
     p2 = model.pipeline('jobs'),
     p3 = model.pipeline('gapminder');
@@ -39,7 +36,9 @@ Promise.all([
   p2._source.init({url: '/data/jobs.json'}),
   p3._source.init({url: '/data/gapminder.json'})
 ]).then(function() {
-  ui.forceUpdate();
+  // Initialize components
+  var ui = require('./components');
+
 });
 
 // Expose model, store and Sidebars globally (via `window`) for debugging
