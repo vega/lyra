@@ -9,5 +9,6 @@ module.exports = combineReducers({
   marks: require('./marks'),
   signals: require('./signals'),
   walkthrough: require('./walkthrough'),
-  hints: require('./hints')
+  hints: require('./hints'),
+  pipelines: require('./pipelines')
 });
