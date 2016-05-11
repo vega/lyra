@@ -10,14 +10,12 @@ var React = require('react'),
 function mapStateToProps(reduxState) {
   var pipelines = getIn(reduxState, 'pipelines.pipelines');
   return {
-    pipelines: pipelines,
+    pipelines: pipelines.toJS(),
   };
 }
 
 var PipelineSidebar = React.createClass({
   render: function() {
-    console.log(this.props);
-    var pipelines = model.pipeline();
     return (
       <div className="sidebar" id="pipeline-sidebar">
         <h2>Data Pipelines
@@ -26,7 +24,7 @@ var PipelineSidebar = React.createClass({
           </span>
         </h2>
 
-        <PipelineList pipelines={pipelines} />
+        <PipelineList pipelines={this.props.pipelines} />
       </div>
     );
   }

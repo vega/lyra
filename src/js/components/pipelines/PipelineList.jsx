@@ -8,11 +8,12 @@ var PipelineList = React.createClass({
   },
 
   render: function() {
+    console.log(this.props.pipelines);
     return (
       <div id="pipeline-list">
         {this.props.pipelines.map(function(p) {
           return (
-            <PipelineInspector key={p._id} pipeline={p} />
+            <PipelineInspector key={p.id} pipeline={p} />
           );
         }, this)}
       </div>

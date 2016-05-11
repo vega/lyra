@@ -10,7 +10,7 @@ var React = require('react'),
 
 function mapStateToProps(state, ownProps) {
   return {
-    isSelected: getIn(state, 'inspector.pipelines.selected') === ownProps.pipeline._id
+    isSelected: getIn(state, 'inspector.pipelines.selected') === ownProps.pipeline.id
   };
 }
 
@@ -34,14 +34,15 @@ var PipelineInspector = React.createClass({
         inner = (<span></span>);
 
     function updatePipelineName(val) {
+      //TODO write a action to update a pipeline name (include id of course)
       pipeline.name = val;
     }
 
     if (props.isSelected) {
       inner = (
         <div className="inner">
-          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {pipeline._source.name}</p>
-          <DataTable dataset={pipeline._source} className="source" />
+          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {pipeline.name}</p>
+          <DataTable dataset={primitives[pipeline.source]} className="source" />
         </div>
       );
     }
@@ -51,7 +52,7 @@ var PipelineInspector = React.createClass({
         <ContentEditable className="header"
           value={pipeline.name}
           save={updatePipelineName}
-          onClick={props.selectPipeline.bind(null, pipeline._id)} />
+          onClick={props.selectPipeline.bind(null, pipeline.id)} />
         {inner}
       </div>
     );
