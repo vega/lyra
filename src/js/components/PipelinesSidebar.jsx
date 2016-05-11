@@ -8,11 +8,9 @@ var React = require('react'),
     model = require('../model');
 
 function mapStateToProps(reduxState) {
-  var pipelineNames = getIn(reduxState, 'pipelines.names');
-  var pipelineSources = getIn(reduxState, 'pipelines.sources');
+  var pipelines = getIn(reduxState, 'pipelines.pipelines');
   return {
-    pipelineNames: pipelineNames,
-    pipelineSources: pipelineSources
+    pipelines: pipelines,
   };
 }
 
