@@ -4,6 +4,7 @@
 var Immutable = require('immutable');
 
 var actions = require('../constants/actions');
+var counter = require('../util/counter');
 var immutableUtils = require('../util/immutable-utils');
 var get = immutableUtils.get;
 var getIn = immutableUtils.getIn;
@@ -35,6 +36,7 @@ function pipelinesReducer(state, action) {
   if (action.type === actions.CREATE_PIPELINE) {
     var newPipelines = pipelines.push(Immutable.fromJS({
       name: action.id,
+      id: counter.type("pipeline"),
       source: null
     }));
     return Immutable.fromJS({
@@ -53,6 +55,7 @@ function pipelinesReducer(state, action) {
     if (index == -1) {
       newPipelines = pipelines.push(Immutable.fromJS({
         name: action.pipelineId,
+        id: counter.type("pipeline"),
         source: action.datasetId
       }));
     } else {
