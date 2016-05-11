@@ -25,38 +25,44 @@ var assign = require('object-assign');
  */
 function pipelinesReducer(state, action) {
   if (typeof state === 'undefined') {
-    return  Immutable.fromJS({
-      names: [],
-      sources: []
+    return Immutable.fromJS({
+      pipelines: []
     });
   }
 
-  var names = state.get("names")
-  var sources = state.get("sources");
+  var pipelines = state.get("pipelines")
 
   if (action.type === actions.CREATE_PIPELINE) {
-    var newNames = names.push(action.id);
-    var newSources = sources.push(null);
-    return Immutable.Map({
-      names: newNames,
-      sources: newSources
+    var newPipelines = pipelines.push(Immutable.fromJS({
+      name: action.id,
+      source: null
+    }));
+    return Immutable.fromJS({
+      pipelines: newPipelines
     });
   }
 
   if (action.type === actions.UPDATE_PIPELINE_DATASET) {
-    var newNames = names;
-    var newSources = sources;
-    var nameIndex = names.indexOf(action.pipelineId);
-    if (nameIndex == -1) {
-      newNames = names.push(action.pipelineId);
-      newSources = names.push(action.datasetId);
+    var newPipelines = pipelines;
+    var index = -1;
+    for (var i = 0; i < pipelines.size; i++) {
+      if (pipelines.get(i).get("name") == action.pipelineId) {
+        index = i;
+      }
+    }
+    if (index == -1) {
+      newPipelines = pipelines.push(Immutable.fromJS({
+        name: action.pipelineId,
+        source: action.datasetId
+      }));
     } else {
-      newSources = sources.set(nameIndex, action.datasetId);
+      var newMap = pipelines.get(index).set("source", action.datasetId);
+      newPipelines = pipelines.set(index, newMap);
     }
     return Immutable.fromJS({
-      names: newNames,
-      sources: newSources
+      pipelines: newPipelines
     });
+
   }
 
   return state;
