@@ -44,13 +44,17 @@ function pipelinesReducer(state, action) {
   }
 
   if (action.type === actions.UPDATE_PIPELINE_DATASET) {
+    var newNames = names;
+    var newSources = sources;
     var nameIndex = names.indexOf(action.pipelineId);
     if (nameIndex == -1) {
-      console.log("SHOULDN'T HAPPENR IGHT NOW");
+      newNames = names.push(action.pipelineId);
+      newSources = names.push(action.datasetId);
+    } else {
+      newSources = sources.set(nameIndex, action.datasetId);
     }
-    var newSources = sources.set(nameIndex, action.datasetId);
     return Immutable.fromJS({
-      names: names,
+      names: newNames,
       sources: newSources
     });
   }
