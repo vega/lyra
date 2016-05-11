@@ -52,10 +52,10 @@ Promise.all([
   p3._source.init({url: '/data/gapminder.json'})
 ]).then(function() {
   // Initialize components
-  var ui = require('./components');
   store.dispatch(updatePipelineDataset('cars', d1._id));
   store.dispatch(updatePipelineDataset('jobs', d2._id));
   store.dispatch(updatePipelineDataset('gapminder', d3._id));
+  var ui = require('./components');
 });
 
 // Expose model, store and Sidebars globally (via `window`) for debugging

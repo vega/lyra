@@ -1,12 +1,24 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
+    getIn = require('../util/immutable-utils').getIn,
     PipelineList = require('./pipelines/PipelineList'),
     assets = require('../util/assets'),
     Icon = require('./Icon'),
     model = require('../model');
 
+function mapStateToProps(reduxState) {
+  var pipelineNames = getIn(reduxState, 'pipelines.names');
+  var pipelineSources = getIn(reduxState, 'pipelines.sources');
+  return {
+    pipelineNames: pipelineNames,
+    pipelineSources: pipelineSources
+  };
+}
+
 var PipelineSidebar = React.createClass({
   render: function() {
+    console.log(this.props);
     var pipelines = model.pipeline();
     return (
       <div className="sidebar" id="pipeline-sidebar">
@@ -22,4 +34,4 @@ var PipelineSidebar = React.createClass({
   }
 });
 
-module.exports = PipelineSidebar;
+module.exports = connect(mapStateToProps)(PipelineSidebar);
