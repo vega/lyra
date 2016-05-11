@@ -33,21 +33,29 @@ store.dispatch(createScene({
 }));
 
 store.dispatch(createPipeline('cars'));
-var d = new Dataset("cars");
+store.dispatch(createPipeline('jobs'));
+store.dispatch(createPipeline('gapminder'));
+var d1 = new Dataset("cars");
+var d2 = new Dataset("jobs");
+var d3 = new Dataset("gapminder");
 
 var p = model.pipeline('cars'),
     p2 = model.pipeline('jobs'),
     p3 = model.pipeline('gapminder');
 
 Promise.all([
-  d.init({url: '/data/cars.json'}),
+  d1.init({url: '/data/cars.json'}),
+  d2.init({url: '/data/jobs.json'}),
+  d3.init({url: '/data/gapminder.json'}),
   p._source.init({url: '/data/cars.json'}),
   p2._source.init({url: '/data/jobs.json'}),
   p3._source.init({url: '/data/gapminder.json'})
 ]).then(function() {
   // Initialize components
   var ui = require('./components');
-  store.dispatch(updatePipelineDataset('cars', d._id));
+  store.dispatch(updatePipelineDataset('cars', d1._id));
+  store.dispatch(updatePipelineDataset('jobs', d2._id));
+  store.dispatch(updatePipelineDataset('gapminder', d3._id));
 });
 
 // Expose model, store and Sidebars globally (via `window`) for debugging

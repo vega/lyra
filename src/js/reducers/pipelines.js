@@ -25,20 +25,33 @@ var assign = require('object-assign');
  */
 function pipelinesReducer(state, action) {
   if (typeof state === 'undefined') {
-    return new Immutable.Map();
+    return  Immutable.fromJS({
+      names: [],
+      sources: []
+    });
   }
 
+  var names = state.get("names")
+  var sources = state.get("sources");
+
   if (action.type === actions.CREATE_PIPELINE) {
-    return Immutable.fromJS({
-      name: action.id,
-      source: null
+    var newNames = names.push(action.id);
+    var newSources = sources.push(null);
+    return Immutable.Map({
+      names: newNames,
+      sources: newSources
     });
   }
 
   if (action.type === actions.UPDATE_PIPELINE_DATASET) {
+    var nameIndex = names.indexOf(action.pipelineId);
+    if (nameIndex == -1) {
+      console.log("SHOULDN'T HAPPENR IGHT NOW");
+    }
+    var newSources = sources.set(nameIndex, action.datasetId);
     return Immutable.fromJS({
-      name: action.pipelineId,
-      source: action.datasetId
+      names: names,
+      sources: newSources
     });
   }
 
