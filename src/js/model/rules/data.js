@@ -18,7 +18,7 @@ function data(parsed, from) {
   var map = this._rule._map.data;
   // This is a super-simple map to map b/w names in the vega output
   // VL's data[0].name.source maps to something in lyra e.g.
-  map.source = getParent(from)._source._id;
+  map.source = from._id;
 }
 
 module.exports = data;
