@@ -8,7 +8,6 @@ var PipelineList = React.createClass({
   },
 
   render: function() {
-    console.log(this.props.pipelines);
     return (
       <div id="pipeline-list">
         {this.props.pipelines.map(function(p) {

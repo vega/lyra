@@ -101,6 +101,7 @@ function compile(rule, property, from) {
   // We analyze the resultant Vega spec to understand what this mark's
   // backing dataset should actually be (source, aggregate, etc.).
   if (from) {
+    // TODO: multiple datasets per pipeline
     rule.data.values = from.output();
   }
 
