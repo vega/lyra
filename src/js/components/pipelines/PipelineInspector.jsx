@@ -6,11 +6,12 @@ var React = require('react'),
     selectPipeline = require('../../actions/selectPipeline'),
     getIn = require('../../util/immutable-utils').getIn,
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    Immutable = require('immutable');
 
 function mapStateToProps(state, ownProps) {
   return {
-    isSelected: getIn(state, 'inspector.pipelines.selected') === ownProps.pipeline.id
+    isSelected: getIn(state, 'inspector.pipelines.selected') === ownProps.pipeline.get("_id")
   };
 }
 
@@ -25,7 +26,8 @@ function mapDispatchToProps(dispatch) {
 var PipelineInspector = React.createClass({
   propTypes: {
     isSelected: React.PropTypes.bool,
-    selectPipeline: React.PropTypes.func
+    selectPipeline: React.PropTypes.func,
+    pipeline: React.PropTypes.instanceOf(Immutable.Map)
   },
 
   render: function() {
@@ -41,8 +43,8 @@ var PipelineInspector = React.createClass({
     if (props.isSelected) {
       inner = (
         <div className="inner">
-          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {pipeline.name}</p>
-          <DataTable dataset={primitives[pipeline.source]} className="source" />
+          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {pipeline.get("_name")}</p>
+          <DataTable dataset={primitives[pipeline.get("source")]} className="source" />
         </div>
       );
     }
@@ -50,9 +52,9 @@ var PipelineInspector = React.createClass({
     return (
       <div className={'pipeline' + (props.isSelected ? ' selected' : '')}>
         <ContentEditable className="header"
-          value={pipeline.name}
+          value={pipeline.get("_name")}
           save={updatePipelineName}
-          onClick={props.selectPipeline.bind(null, pipeline.id)} />
+          onClick={props.selectPipeline.bind(null, pipeline.get("_id"))} />
         {inner}
       </div>
     );
