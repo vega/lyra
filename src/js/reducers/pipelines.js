@@ -26,46 +26,23 @@ var assign = require('object-assign');
  */
 function pipelinesReducer(state, action) {
   if (typeof state === 'undefined') {
-    return Immutable.fromJS({
-      pipelines: []
-    });
+    return Immutable.Map();
   }
 
-  var pipelines = state.get("pipelines")
+  var pipelines = state.get("pipelines");
 
   if (action.type === actions.CREATE_PIPELINE) {
-    var newPipelines = pipelines.push(Immutable.fromJS({
-      name: action.id,
-      id: counter.type("pipeline"),
+    var newId = counter.type("pipeline");
+    return set(state, newId, Immutable.fromJS({
+      _name: action.id,
+      _id: newId,
       source: null
     }));
-    return Immutable.fromJS({
-      pipelines: newPipelines
-    });
   }
 
   if (action.type === actions.UPDATE_PIPELINE_DATASET) {
-    var newPipelines = pipelines;
-    var index = -1;
-    for (var i = 0; i < pipelines.size; i++) {
-      if (pipelines.get(i).get("name") == action.pipelineId) {
-        index = i;
-      }
-    }
-    if (index == -1) {
-      newPipelines = pipelines.push(Immutable.fromJS({
-        name: action.pipelineId,
-        id: counter.type("pipeline"),
-        source: action.datasetId
-      }));
-    } else {
-      var newMap = pipelines.get(index).set("source", action.datasetId);
-      newPipelines = pipelines.set(index, newMap);
-    }
-    return Immutable.fromJS({
-      pipelines: newPipelines
-    });
-
+    // TODO handle nonexistent pipeline id
+    return setIn(state, action.pipelineId + ".source", action.datasetId);
   }
 
   return state;
