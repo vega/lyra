@@ -6,11 +6,12 @@ var React = require('react'),
     selectPipeline = require('../../actions/selectPipeline'),
     getIn = require('../../util/immutable-utils').getIn,
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    Immutable = require('immutable');
 
 function mapStateToProps(state, ownProps) {
   return {
-    isSelected: getIn(state, 'inspector.pipelines.selected') === ownProps.pipeline._id
+    isSelected: getIn(state, 'inspector.pipelines.selected') === ownProps.pipeline.get("_id")
   };
 }
 
@@ -25,7 +26,8 @@ function mapDispatchToProps(dispatch) {
 var PipelineInspector = React.createClass({
   propTypes: {
     isSelected: React.PropTypes.bool,
-    selectPipeline: React.PropTypes.func
+    selectPipeline: React.PropTypes.func,
+    pipeline: React.PropTypes.instanceOf(Immutable.Map)
   },
 
   render: function() {
@@ -34,14 +36,15 @@ var PipelineInspector = React.createClass({
         inner = (<span></span>);
 
     function updatePipelineName(val) {
+      //TODO write a action to update a pipeline name (include id of course)
       pipeline.name = val;
     }
 
     if (props.isSelected) {
       inner = (
         <div className="inner">
-          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {pipeline._source.name}</p>
-          <DataTable dataset={pipeline._source} className="source" />
+          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {pipeline.get("_name")}</p>
+          <DataTable dataset={primitives[pipeline.get("source")]} className="source" />
         </div>
       );
     }
@@ -49,9 +52,9 @@ var PipelineInspector = React.createClass({
     return (
       <div className={'pipeline' + (props.isSelected ? ' selected' : '')}>
         <ContentEditable className="header"
-          value={pipeline.name}
+          value={pipeline.get("_name")}
           save={updatePipelineName}
-          onClick={props.selectPipeline.bind(null, pipeline._id)} />
+          onClick={props.selectPipeline.bind(null, pipeline.get("_id"))} />
         {inner}
       </div>
     );

@@ -1,20 +1,23 @@
 'use strict';
 var React = require('react'),
+    Immutable = require('immutable'),
     PipelineInspector = require('./PipelineInspector');
 
 var PipelineList = React.createClass({
   propTypes: {
-    pipelines: React.PropTypes.array
+    pipelines: React.PropTypes.instanceOf(Immutable.Map)
   },
 
   render: function() {
+    var pipelineInspectors = [];
+    this.props.pipelines.forEach(function(pipeline) {
+      pipelineInspectors.push(
+        <PipelineInspector key={pipeline.get("_id")} pipeline={pipeline} />
+      )
+    });
     return (
       <div id="pipeline-list">
-        {this.props.pipelines.map(function(p) {
-          return (
-            <PipelineInspector key={p._id} pipeline={p} />
-          );
-        }, this)}
+         {pipelineInspectors}
       </div>
     );
   }
