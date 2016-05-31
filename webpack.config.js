@@ -2,7 +2,7 @@
 
 var webpack = require( 'webpack' );
 var path = require( 'path' );
-var HtmlWepbackPlugin = require('html-webpack-plugin');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -37,7 +37,7 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loaders: ['style', 'css', 'sass']
+        loader: ExtractTextPlugin.extract('style-loader', 'css-loader!sass-loader')
       },
       {
         test: /\.png$/,
@@ -61,12 +61,7 @@ module.exports = {
     extensions: ['', '.js', '.jsx']
   },
   plugins: [
-    // Extract the "vendor" code into
-    new HtmlWepbackPlugin({
-      filename: './index.html',
-      template: './index.html',
-      inject: 'body',
-      version: require('./package.json').version
-    })
+    // Render CSS out into a separate file
+    new ExtractTextPlugin('style.css')
   ]
 };
