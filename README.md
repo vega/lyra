@@ -36,3 +36,15 @@ npm start
 ```
 
 Lyra should now be running at [http://localhost:8080](http://localhost:8080)! This web server will auto-reload when you change the JavaScript code; manually re-building with `npm run build` should only be necessary if you update the SCSS stylesheets.
+
+A deployed version of Lyra is [available online](http://idl.cs.washington.edu/projects/lyra/). For more information, check out the [Lyra wiki.](https://github.com/uwdata/lyra/wiki)
+
+# Running locally
+
+You can run lyra locally with [docker](https://docs.docker.com/).
+
+    # Build
+    sudo docker build -t uwdata/lyra .
+
+    # Serves on port 9009
+    sudo docker run -d -p 9009:8080 uwdata/lyra
