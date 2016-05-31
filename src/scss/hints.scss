@@ -8,8 +8,11 @@
   left: 25px;
   width: 600px;
   margin-left: $sidebars-width;
+  border-radius: 5px;
+  min-height: 100px;
 
-  h3 {
+  h3,
+  h4 {
     padding-left: 0;
     background-color: transparent;
   }
@@ -74,7 +77,6 @@
     right: 20px;
     text-align: right;
     span {
-      display: block;
       cursor: pointer;
       &:hover {
         text-decoration: underline;

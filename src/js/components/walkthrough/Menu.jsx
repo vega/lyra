@@ -3,7 +3,9 @@ var React = require('react'),
     connect = require('react-redux').connect,
     Modal = require('react-modal'),
     getIn = require('../../util/immutable-utils').getIn,
-    WActions = require('../../actions/walkthrough');
+    WActions = require('../../actions/walkthrough'),
+    assets = require('../../util/assets'),
+    Icon = require('../Icon');
 
 
 function mapStateToProps(reduxState) {
@@ -65,7 +67,9 @@ var WalkthroughMenu = React.createClass({
           isOpen={this.state.modalIsOpen}
           onRequestClose={this.closeModal}>
             <div className ="wrapper walkthrough-menu">
-              <span className="closeModal" onClick={this.closeModal}>close</span>
+              <span className="closeModal" onClick={this.closeModal}>
+                <Icon glyph={assets.close} />
+              </span>
               <h2 className="hed">Select a walkthrough</h2>
               <p>
                 Learn to use lyra with step by step guides.
