@@ -99,7 +99,7 @@ function setParentMark(state, action) {
     // Second, ensure the child ID has been removed from the parent's marks
     return ensureValueAbsent(
       // First, null out the child's parent reference
-      set(state, action.childId, setIn(child, '_parent', null)),
+      setIn(state, action.childId + '._parent', null),
       existingParentId + '.marks',
       action.childId
     );
@@ -112,7 +112,7 @@ function setParentMark(state, action) {
       // Next, remove the child ID from the old parent's marks
       ensureValueAbsent(
         // First, update the child's _parent pointer to target the new parent
-        set(state, action.childId, setIn(child, '_parent', action.parentId)),
+        setIn(state, action.childId + '._parent', action.parentId),
         existingParentId + '.marks',
         action.childId
       ),
