@@ -101,7 +101,8 @@ function compile(rule, property, from) {
   // We analyze the resultant Vega spec to understand what this mark's
   // backing dataset should actually be (source, aggregate, etc.).
   if (from) {
-    rule.data.values = getParent(from)._source.output();
+    // TODO: multiple datasets per pipeline
+    rule.data.values = from.output();
   }
 
   // Hack the config to be able to differentiate height/width for
