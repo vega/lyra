@@ -45,9 +45,7 @@ var AddMarksTool = React.createClass({
   render: function() {
     // Closest container is determined by walking up from the selected mark,
     // otherwise it defaults to the scene itself
-    var closestContainerId = this.props.selectedId ?
-      getClosestGroupId(store.getState(), this.props.selectedId) :
-      this.props.sceneId;
+    var closestContainerId = getClosestGroupId(store.getState(), this.props.selectedId);
 
     return (
       <ul>

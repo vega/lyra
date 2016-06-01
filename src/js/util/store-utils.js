@@ -23,7 +23,7 @@ function getClosestGroupId(state, id) {
       mark = markState && markState.toJS();
 
   if (!mark) {
-    return null;
+    return getIn(state, 'scene.id');
   }
 
   // If mark is a group or scene, return it as-is
