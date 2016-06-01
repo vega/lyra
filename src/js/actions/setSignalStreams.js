@@ -1,5 +1,5 @@
 'use strict';
-var SIGNAL_SET_STREAMS = require('../constants/actions').SIGNAL_SET_STREAMS;
+var SET_SIGNAL_STREAMS = require('../constants/actions').SET_SIGNAL_STREAMS;
 var ns = require('../util/ns');
 
 /**
@@ -11,7 +11,7 @@ var ns = require('../util/ns');
  */
 module.exports = function(signal, streams) {
   return {
-    type: SIGNAL_SET_STREAMS,
+    type: SET_SIGNAL_STREAMS,
     signal: ns(signal),
     value: streams
   };

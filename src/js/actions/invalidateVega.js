@@ -1,5 +1,5 @@
 'use strict';
-var VEGA_INVALIDATE = require('../constants/actions').VEGA_INVALIDATE;
+var INVALIDATE_VEGA = require('../constants/actions').INVALIDATE_VEGA;
 
 /**
  * Action creator to set a flag which will be used to reparse (destroy and
@@ -11,7 +11,7 @@ var VEGA_INVALIDATE = require('../constants/actions').VEGA_INVALIDATE;
  */
 module.exports = function(shouldReparse) {
   return {
-    type: VEGA_INVALIDATE,
+    type: INVALIDATE_VEGA,
     value: !!shouldReparse
   };
 };

@@ -1,7 +1,7 @@
 'use strict';
 
 var actions = require('../constants/actions');
-var MARK_DELETE = actions.MARK_DELETE;
+var DELETE_MARK = actions.DELETE_MARK;
 var getIn = require('../util/immutable-utils').getIn;
 
 /**
@@ -22,7 +22,7 @@ function deleteMark(id) {
     }
 
     dispatch({
-      type: MARK_DELETE,
+      type: DELETE_MARK,
       // ID and Type are needed to clear up all the mark's signals, as those are
       // the values used to create a signal's identifying name.
       markId: mark._id,

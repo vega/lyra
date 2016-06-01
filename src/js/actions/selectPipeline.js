@@ -1,9 +1,9 @@
 'use strict';
-var PIPELINE_SELECT = require('../constants/actions').PIPELINE_SELECT;
+var SELECT_PIPELINE = require('../constants/actions').SELECT_PIPELINE;
 
 module.exports = function(pipelineId) {
   return {
-    type: PIPELINE_SELECT,
+    type: SELECT_PIPELINE,
     id: pipelineId
   };
 };

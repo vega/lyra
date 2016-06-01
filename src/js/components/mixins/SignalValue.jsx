@@ -2,7 +2,7 @@
 var sg = require('../../model/signals'),
     store = require('../../store'),
     getIn = require('../../util/immutable-utils').getIn,
-    signalSet = require('../../actions/signalSet'),
+    setSignal = require('../../actions/setSignal'),
     model = require('../../model');
 
 module.exports = {
@@ -57,7 +57,7 @@ module.exports = {
     // Flow changes from Vega back up to the store
     var signal = this.props.signal;
     if (signal) {
-      store.dispatch(signalSet(signal, value));
+      store.dispatch(setSignal(signal, value));
     }
     this.setState({value: value});
   },
