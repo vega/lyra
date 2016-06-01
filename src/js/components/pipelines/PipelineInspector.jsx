@@ -10,8 +10,10 @@ var React = require('react'),
     Immutable = require('immutable');
 
 function mapStateToProps(state, ownProps) {
+  var id = ownProps.id;
   return {
-    isSelected: getIn(state, 'inspector.pipelines.selected') === ownProps.pipeline.get('_id')
+    isSelected: getIn(state, 'inspector.pipelines.selected') === id,
+    pipeline: getIn(state, 'pipelines.' + id)
   };
 }
 

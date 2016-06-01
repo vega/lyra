@@ -33,7 +33,6 @@ var Sidebars = React.createClass({
     showWalkthrough: React.PropTypes.string
   },
   render: function() {
-    var pipelines = model.pipeline();
     var showWalkthrough = this.props.showWalkthrough ? <WalkthroughStep/> : '';
     var hints = !this.props.showWalkthrough &&
                 this.props.hintsOn &&
@@ -42,8 +41,7 @@ var Sidebars = React.createClass({
       <div>
         <div className="sidebar-container">
           <VisualSidebar />
-          <InspectorSidebar ref="inspector"
-            pipelines={pipelines} />
+          <InspectorSidebar ref="inspector" />
           <PipelinesSidebar />
         </div>
         <Toolbar/>
