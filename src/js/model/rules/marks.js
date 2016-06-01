@@ -2,7 +2,7 @@
 var model = require('../'),
     propSg = require('../../util/prop-signal'),
     store = require('../../store'),
-    signalSet = require('../../actions/signalSet'),
+    setSignal = require('../../actions/setSignal'),
     setProperty = require('../../actions/ruleActions').setProperty,
     disableProperty = require('../../actions/ruleActions').disableProperty,
     lookup = model.lookup;
@@ -36,7 +36,7 @@ function bindProperty(property, def, map, from) {
 
   if (typeof defProp.value !== 'undefined') {
     prop.signal = propSg(this, property);
-    store.dispatch(signalSet(prop.signal, defProp.value));
+    store.dispatch(setSignal(prop.signal, defProp.value));
   }
 
   if (typeof defProp.band !== 'undefined') {

@@ -3,24 +3,24 @@
 var expect = require('chai').expect;
 
 var actions = require('../constants/actions');
-var signalSetStreams = require('./signalSetStreams');
+var setSignalStreams = require('./setSignalStreams');
 
-describe('signalSetStreams action creator', function() {
+describe('setSignalStreams action creator', function() {
 
   it('returns an object', function() {
-    var result = signalSetStreams('');
+    var result = setSignalStreams('');
     expect(result).to.be.an('object');
   });
 
   it('sets the correct signal type', function() {
-    var result = signalSetStreams('');
+    var result = setSignalStreams('');
     expect(result).to.have.property('type');
-    expect(result.type).to.equal(actions.SIGNAL_SET_STREAMS);
+    expect(result.type).to.equal(actions.SET_SIGNAL_STREAMS);
     expect(result.signal).to.be.a('string');
   });
 
   it('namespaces the "signal" property of the action', function() {
-    var result = signalSetStreams('some_name');
+    var result = setSignalStreams('some_name');
     expect(result).to.have.property('signal');
     expect(result.signal).to.be.a('string');
     expect(result.signal).to.equal('lyra_some_name');
@@ -28,7 +28,7 @@ describe('signalSetStreams action creator', function() {
 
   it('sets the provided value on the action object', function() {
     var val = {some: 'obj'};
-    var result = signalSetStreams('some_name', val);
+    var result = setSignalStreams('some_name', val);
     expect(result).to.have.property('value');
     expect(result.value).to.equal(val);
   });

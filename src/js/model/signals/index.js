@@ -4,9 +4,9 @@ var dl = require('datalib'),
     store = require('../../store'),
     getIn = require('../../util/immutable-utils').getIn,
     signalInit = require('../../actions/signalInit'),
-    signalSet = require('../../actions/signalSet'),
-    signalSetStreams = require('../../actions/signalSetStreams'),
-    signalUnset = require('../../actions/signalUnset'),
+    setSignal = require('../../actions/setSignal'),
+    setSignalStreams = require('../../actions/setSignalStreams'),
+    unsetSignal = require('../../actions/unsetSignal'),
     defaults = require('./defaults');
 
 // Utility method to get a signal from the store
@@ -95,7 +95,7 @@ api.set = function(name, val, dispatch) {
       view = model.view;
   // Always flow signals up to the store,
   if (!isDefault(name) && dispatch !== false) {
-    store.dispatch(signalSet(name, val));
+    store.dispatch(setSignal(name, val));
   }
 
   // and if we have a Vega view, flow signals down to Vega as well.
@@ -114,7 +114,7 @@ api.set = function(name, val, dispatch) {
  * @returns {void}
  */
 api.delete = function(name) {
-  store.dispatch(signalUnset(name));
+  store.dispatch(unsetSignal(name));
 };
 
 /**
@@ -126,7 +126,7 @@ api.delete = function(name) {
  * if called as a setter
  */
 api.streams = function(name, def) {
-  store.dispatch(signalSetStreams(name, def));
+  store.dispatch(setSignalStreams(name, def));
 };
 
 module.exports = api;

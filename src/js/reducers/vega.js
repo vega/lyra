@@ -12,7 +12,7 @@ var actions = require('../constants/actions');
  * the reparse flag within the store.
  * @returns {boolean} The new state of the reparse flag
  */
-function vegaInvalidateReducer(state, action) {
+function invalidateVegaReducer(state, action) {
   if (typeof state === 'undefined') {
     return Immutable.Map({
       invalid: false,
@@ -20,16 +20,16 @@ function vegaInvalidateReducer(state, action) {
     });
   }
 
-  if (action.type === actions.VEGA_INVALIDATE) {
+  if (action.type === actions.INVALIDATE_VEGA) {
     return state.set('invalid', action.value);
   }
 
   // All of these actions implicitly invalidate the view
   var invalidatingActions = [
     actions.CREATE_SCENE,
-    actions.SIGNAL_INIT,
-    actions.MARK_ADD,
-    actions.MARK_DELETE,
+    actions.INIT_SIGNAL,
+    actions.ADD_MARK,
+    actions.DELETE_MARK,
     actions.RULES_ADD_SCALE_TO_GROUP,
     actions.RULES_ADD_LEGEND_TO_GROUP,
     actions.RULES_ADD_AXIS_TO_GROUP,
@@ -41,7 +41,7 @@ function vegaInvalidateReducer(state, action) {
     return state.set('invalid', true);
   }
 
-  if (action.type === actions.VEGA_PARSE) {
+  if (action.type === actions.PARSE_VEGA) {
     return state.merge({
       isParsing: action.value,
       // Toggle this back to false now that the parse is in progress (or done)
@@ -52,4 +52,4 @@ function vegaInvalidateReducer(state, action) {
   return state;
 }
 
-module.exports = vegaInvalidateReducer;
+module.exports = invalidateVegaReducer;

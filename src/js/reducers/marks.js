@@ -205,12 +205,12 @@ function marksReducer(state, action) {
     return new Immutable.Map();
   }
 
-  if (action.type === actions.MARK_ADD) {
+  if (action.type === actions.ADD_MARK) {
     // Make the mark and .set it at the provided ID, then pass it through a
     // method that will check to see whether the mark needs to be added as
     // a child of another mark
     return setParentMark(set(state, action.id, makeMark(action)), {
-      type: actions.MARK_SET_PARENT,
+      type: actions.SET_PARENT_MARK,
       parentId: action.props ? action.props._parent : null,
       childId: action.id
     });
@@ -228,7 +228,7 @@ function marksReducer(state, action) {
     })));
   }
 
-  if (action.type === actions.MARK_DELETE) {
+  if (action.type === actions.DELETE_MARK) {
     // mark store is keyed with strings: ensure ID is a string
     return setParentMark(state, {
       childId: action.markId,
@@ -236,11 +236,11 @@ function marksReducer(state, action) {
     }).set('' + action.markId, null);
   }
 
-  if (action.type === actions.MARK_SET_PARENT) {
+  if (action.type === actions.SET_PARENT_MARK) {
     return setParentMark(state, action);
   }
 
-  if (action.type === actions.MARK_UPDATE_PROPERTY) {
+  if (action.type === actions.UPDATE_PROPERTY_MARK) {
     return setIn(state, action.id + '.' + action.property, action.value);
   }
 

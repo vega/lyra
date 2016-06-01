@@ -1,5 +1,5 @@
 'use strict';
-var SIGNAL_UNSET = require('../constants/actions').SIGNAL_UNSET;
+var UNSET_SIGNAL = require('../constants/actions').UNSET_SIGNAL;
 var ns = require('../util/ns');
 
 /**
@@ -10,7 +10,7 @@ var ns = require('../util/ns');
  */
 module.exports = function(signal) {
   return {
-    type: SIGNAL_UNSET,
+    type: UNSET_SIGNAL,
     signal: ns(signal)
   };
 };

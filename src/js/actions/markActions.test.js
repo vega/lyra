@@ -25,7 +25,7 @@ describe('markActions', function() {
       expect(result).to.be.an('object');
       expect(result).to.have.property('type');
       expect(result.type).to.be.a('string');
-      expect(result.type).to.equal(actions.MARK_ADD);
+      expect(result.type).to.equal(actions.ADD_MARK);
     });
 
     it('sets a numeric ID on the returned object', function() {

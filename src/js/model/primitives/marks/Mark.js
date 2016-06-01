@@ -2,13 +2,11 @@
 'use strict';
 var dl = require('datalib'),
     inherits = require('inherits'),
-    sg = require('../../signals'),
     Primitive = require('../Primitive'),
     Pipeline = require('../data/Pipeline'),
     Dataset = require('../data/Dataset'),
     manips = require('./manipulators'),
     rules = require('../../rules'),
-    propSg = require('../../../util/prop-signal'),
     model = require('../../'),
     lookup = model.lookup,
     getParent = require('../../../util/hierarchy').getParent,
@@ -147,8 +145,8 @@ Mark.prototype.dataset = function(id) {
 };
 
 Mark.prototype.export = function(clean) {
-  var spec   = Primitive.prototype.export.call(this, clean),
-      props  = spec.properties,
+  var spec = Primitive.prototype.export.call(this, clean),
+      props = spec.properties,
       update = this.properties.update,
       upspec = props.update,
       from = this.from && lookup(this.from),
@@ -188,7 +186,7 @@ Mark.prototype.export = function(clean) {
 /**
  * Unsets the mark and its VLSingle _rule from the model primitives store.
  * Signals are not impacted by this method; they are cleaned up via the
- * MARK_DELETE action within the signals reducer.
+ * DELETE_MARK action within the signals reducer.
  *
  * @returns {void}
  */

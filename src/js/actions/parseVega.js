@@ -1,5 +1,5 @@
 'use strict';
-var VEGA_PARSE = require('../constants/actions').VEGA_PARSE;
+var PARSE_VEGA = require('../constants/actions').PARSE_VEGA;
 
 /**
  * Action creator to set the state to represent an in-progress Lyra model parse.
@@ -9,7 +9,7 @@ var VEGA_PARSE = require('../constants/actions').VEGA_PARSE;
  */
 module.exports = function(value) {
   return {
-    type: VEGA_PARSE,
+    type: PARSE_VEGA,
     value: !!value
   };
 };

@@ -8,7 +8,7 @@ var React = require('react'),
     getMarkDefaults = require('../../model/primitives/marks').getDefaults,
     addMark = require('../../actions/markActions').addMark,
     selectMark = require('../../actions/selectMark'),
-    sceneClear = require('../../actions/sceneClear'),
+    clearScene = require('../../actions/clearScene'),
     expandLayers = require('../../actions/expandLayers'),
     Group = require('./GroupSubMenu'),
     assets = require('../../util/assets'),
@@ -54,7 +54,7 @@ function mapDispatchToProps(dispatch) {
     },
     clearScene: function(event) {
       dispatch(selectMark(null));
-      dispatch(sceneClear());
+      dispatch(clearScene());
     }
   };
 }
@@ -74,7 +74,6 @@ var LayerList = React.createClass({
     var props = this.props,
         selectedId = props.selectedId,
         sceneId = props.sceneId,
-        containerId = props.containerId,
         layers = props.marks ? props.marks.toJS() : [];
 
     return (
