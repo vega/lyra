@@ -26,13 +26,20 @@ var Inspector = React.createClass({
     id: React.PropTypes.number,
     name: React.PropTypes.string
   },
+
+  uppercase: function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  },
+
   render: function() {
     var props = this.props,
         // props.id existence check handles the initial application render
         primitive = props.id ? lookup(props.id) : {};
 
     var from = primitive ? lookup(primitive.from) : '',
-        ctor = primitive ? primitive.constructor.name : '',
+        ctor = primitive && primitive.type ?
+               this.uppercase(primitive.type) :
+               '',
         InspectorType = Inspector[ctor],
         isMark = primitive instanceof Mark;
 
@@ -46,7 +53,6 @@ var Inspector = React.createClass({
     var inner = InspectorType ? (
       <div className="inner">
         {pipeline}
-
         <InspectorType primitive={primitive} />
       </div>) : null;
 
