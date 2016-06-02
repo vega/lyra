@@ -1,9 +1,7 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    ContentEditable = require('../ContentEditable'),
-    assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    ContentEditable = require('../ContentEditable');
 
 function mapStateToProps(reduxState, ownProps) {
   return {

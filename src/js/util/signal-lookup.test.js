@@ -5,7 +5,7 @@ var expect = require('chai').expect,
     signalLookup = require('./signal-lookup');
 
 describe('Signal Lookup utility', function() {
-  beforeEach(function(){
+  beforeEach(function() {
     signal.init('lyra_rect_29_fill', '#4682b4');
   });
 

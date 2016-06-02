@@ -9,8 +9,7 @@ var React = require('react'),
     Toolbar = require('./Toolbar'),
     WalkthroughStep = require('./walkthrough/Step'),
     Footer = require('./Footer'),
-    Hints = require('./hints/Hints'),
-    model = require('../model');
+    Hints = require('./hints/Hints');
 
 // Use mapDispatchToProps to force sidebar to update when the user makes any
 // change which would cause a re-render: this is clumsy but avoids forceUpdate

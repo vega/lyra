@@ -1,6 +1,6 @@
 'use strict';
 var store = require('../store'),
-    getIn = require('./immutable-utils').getIn
+    getIn = require('./immutable-utils').getIn;
 
 /**
  * Retrieves the value stored in redux for the signal

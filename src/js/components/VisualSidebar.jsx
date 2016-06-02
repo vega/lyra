@@ -1,6 +1,5 @@
 'use strict';
 var React = require('react'),
-    connect = require('react-redux').connect,
     ScaleList = require('./visualization/ScaleList'),
     LayerList = require('./visualization/LayerList'),
     model = require('../model');

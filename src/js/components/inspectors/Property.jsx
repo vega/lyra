@@ -63,8 +63,7 @@ var Property = React.createClass({
         labelEl, scaleEl, controlEl, extraEl;
 
     React.Children.forEach(props.children, function(child) {
-      var className = child && child.props.className,
-          childType = child && child.type;
+      var className = child && child.props.className;
       if (className === 'extra') {
         extraEl = child;
       } else if (className === 'control') {
@@ -141,7 +140,7 @@ var Property = React.createClass({
       className += ' first-child';
     }
     if (extraEl) {
-      extraEl = (<div className="extra">{extraEl}</div>)
+      extraEl = (<div className="extra">{extraEl}</div>);
     }
 
     return (

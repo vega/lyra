@@ -38,11 +38,11 @@ var PipelineInspector = React.createClass({
         inner = (<span></span>);
 
     function updatePipelineName(val) {
-      //TODO write a action to update a pipeline name (include id of course)
+      // TODO write a action to update a pipeline name (include id of course)
       pipeline.name = val;
     }
 
-    //TODO do not rely on global primitives. Datasets should be in store.
+    // TODO do not rely on global primitives. Datasets should be in store.
     if (props.isSelected) {
       inner = (
         <div className="inner">
