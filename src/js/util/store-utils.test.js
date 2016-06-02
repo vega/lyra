@@ -17,6 +17,9 @@ describe('store utilities', function() {
     beforeEach(function() {
       getClosestGroupId = storeUtils.getClosestGroupId;
       store = Immutable.fromJS({
+        scene: {
+          id: 1
+        },
         marks: {
           '1': {_id: 1, type: 'scene'},
           '2': {_id: 2, _parent: 1, type: 'group'},
@@ -31,9 +34,9 @@ describe('store utilities', function() {
       expect(getClosestGroupId).to.be.a('function');
     });
 
-    it('returns null if an invalid ID is specified', function() {
+    it('returns scene id if an invalid ID is specified', function() {
       var result = getClosestGroupId(store, 600);
-      expect(result).to.equal(null);
+      expect(result).to.equal(1);
     });
 
     it('returns the same ID if the provided ID represents a scene', function() {
