@@ -3,7 +3,7 @@ var React = require('react'),
     connect = require('react-redux').connect,
     Modal = require('react-modal'),
     getIn = require('../../util/immutable-utils').getIn,
-    WActions = require('../../actions/walkthrough'),
+    WActions = require('../../actions/walkthroughActions'),
     assets = require('../../util/assets'),
     Icon = require('../Icon');
 

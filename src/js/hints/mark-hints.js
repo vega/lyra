@@ -11,12 +11,12 @@
  */
 
 var MarkHints = {
-  MARK_ADD: {
+  ADD_MARK: {
     rect: {
       title: 'I see you have added a RECT...',
       text: 'Maybe you\'d like to clear the whole canvas',
       action_text: 'DO IT. CLEAR IT OUT.',
-      action: require('../actions/sceneClear')
+      action: require('../actions/clearScene')
     },
 
     line: {

@@ -68,7 +68,7 @@ function signalsReducer(state, action) {
     return Immutable.Map();
   }
 
-  if (action.type === actions.MARK_ADD) {
+  if (action.type === actions.ADD_MARK) {
     return initSignalsForMark(state, action);
   }
 
@@ -83,23 +83,23 @@ function signalsReducer(state, action) {
     });
   }
 
-  if (action.type === actions.SIGNAL_INIT) {
+  if (action.type === actions.INIT_SIGNAL) {
     return signalInit(state, action);
   }
 
-  if (action.type === actions.SIGNAL_SET) {
+  if (action.type === actions.SET_SIGNAL) {
     return setIn(state, action.signal + '.init', action.value);
   }
 
-  if (action.type === actions.SIGNAL_SET_STREAMS) {
+  if (action.type === actions.SET_SIGNAL_STREAMS) {
     return setStreams(state, action);
   }
 
-  if (action.type === actions.SIGNAL_UNSET) {
+  if (action.type === actions.UNSET_SIGNAL) {
     return state.delete(action.signal);
   }
 
-  if (action.type === actions.MARK_DELETE) {
+  if (action.type === actions.DELETE_MARK) {
     return deleteSignalsForMark(state, action);
   }
 

@@ -8,7 +8,7 @@ var React = require('react'),
     get = require('../../util/immutable-utils').get,
     getIn = require('../../util/immutable-utils').getIn,
     selectMark = require('../../actions/selectMark'),
-    markDelete = require('../../actions/markDelete'),
+    deleteMark = require('../../actions/deleteMark'),
     updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
     expandLayers = require('../../actions/expandLayers'),
     toggleLayers = require('../../actions/toggleLayers'),
@@ -37,7 +37,7 @@ function mapDispatchToProps(dispatch, ownProps) {
       if (ownProps.selectedId === id) {
         dispatch(selectMark(null));
       }
-      dispatch(markDelete(id));
+      dispatch(deleteMark(id));
     },
     updateProperty: function(id, property, value) {
       // Update in the primitives dictionary

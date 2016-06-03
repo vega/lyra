@@ -26,7 +26,7 @@ function inspectorReducer(state, action) {
   }
 
   // Auto-select new marks
-  if (action.type === actions.MARK_ADD) {
+  if (action.type === actions.ADD_MARK) {
     // Select the mark, then attempt to auto-expand it (and its specified parent)
     return setIn(
       setIn(
@@ -63,7 +63,7 @@ function inspectorReducer(state, action) {
     }, state);
   }
 
-  if (action.type === actions.PIPELINE_SELECT) {
+  if (action.type === actions.SELECT_PIPELINE) {
     return setIn(state, 'pipelines.selected', action.id);
   }
 

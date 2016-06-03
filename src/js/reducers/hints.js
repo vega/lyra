@@ -12,7 +12,7 @@ var actions = require('../constants/actions');
  * The Hints reducer contains listeners for 2 hints specific actions,
  * and listeners on other application actions
  *
- * HINTS_CLEAR - sets 'display' to null
+ * CLEAR_HINTS - sets 'display' to null
  * HINTS_ON - boolean to determine if hints are shown in the app
  *
  * Listeners for other actions in the app which will set 'display' with
@@ -24,7 +24,7 @@ var actions = require('../constants/actions');
  *    title: 'title text for the hint',
  *    text: 'longer explaination,
  *    action_text: 'Button text',
- *    action: require('../actions/sceneClear'), // callback for the button's onClick event
+ *    action: require('../actions/clearScene'), // callback for the button's onClick event
  *    action_props: true // any properties that will be passed in the action event
  *  }
  *
@@ -44,7 +44,7 @@ function hintsReducer(state, action) {
     });
   }
 
-  if (action.type === actions.HINTS_CLEAR) {
+  if (action.type === actions.CLEAR_HINTS) {
     return state.set('display', null);
   }
 
@@ -57,11 +57,11 @@ function hintsReducer(state, action) {
     return state.set('display', sceneHints.CREATE_SCENE);
   }
 
-  if (action.type === actions.MARK_ADD) {
+  if (action.type === actions.ADD_MARK) {
     var hintMap = require('../hints/mark-hints'),
         markType = action.props.type;
-    if (hintMap.MARK_ADD[markType]) {
-      return state.set('display', hintMap.MARK_ADD[markType]);
+    if (hintMap.ADD_MARK[markType]) {
+      return state.set('display', hintMap.ADD_MARK[markType]);
     }
   }
 

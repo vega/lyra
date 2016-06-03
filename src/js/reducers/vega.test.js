@@ -38,7 +38,7 @@ describe('vega reducer', function() {
 
     it('can set the invalid flag on the store', function() {
       var result = vegaReducer(initialState, {
-        type: actions.VEGA_INVALIDATE,
+        type: actions.INVALIDATE_VEGA,
         value: true
       });
       expect(result.get('invalid')).to.equal(true);
@@ -46,7 +46,7 @@ describe('vega reducer', function() {
 
     it('can clear the invalid flag on the store', function() {
       var result = vegaReducer(initialState, {
-        type: actions.VEGA_INVALIDATE,
+        type: actions.INVALIDATE_VEGA,
         value: false
       });
       expect(result.get('invalid')).to.equal(false);
@@ -58,21 +58,21 @@ describe('vega reducer', function() {
 
     it('flags the store as invalid when a mark is added', function() {
       var result = vegaReducer(initialState, {
-        type: actions.MARK_ADD
+        type: actions.ADD_MARK
       });
       expect(result.get('invalid')).to.equal(true);
     });
 
     it('flags the store as invalid when a mark is removed', function() {
       var result = vegaReducer(initialState, {
-        type: actions.MARK_DELETE
+        type: actions.DELETE_MARK
       });
       expect(result.get('invalid')).to.equal(true);
     });
 
     it('flags the store as invalid when a signal is initialized', function() {
       var result = vegaReducer(initialState, {
-        type: actions.SIGNAL_INIT
+        type: actions.INIT_SIGNAL
       });
       expect(result.get('invalid')).to.equal(true);
     });
@@ -132,7 +132,7 @@ describe('vega reducer', function() {
 
     it('can set the isParsing flag on the store', function() {
       var result = vegaReducer(initialState, {
-        type: actions.VEGA_PARSE,
+        type: actions.PARSE_VEGA,
         value: true
       });
       expect(result.get('isParsing')).to.equal(true);
@@ -140,7 +140,7 @@ describe('vega reducer', function() {
 
     it('can clear the isParsing flag on the store', function() {
       var result = vegaReducer(initialState, {
-        type: actions.VEGA_PARSE,
+        type: actions.PARSE_VEGA,
         value: false
       });
       expect(result.get('isParsing')).to.equal(false);

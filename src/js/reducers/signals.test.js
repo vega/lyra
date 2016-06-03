@@ -7,7 +7,7 @@ var actions = require('../constants/actions');
 var signalsReducer = require('./signals');
 var markActions = require('../actions/markActions');
 var createScene = require('../actions/createScene');
-var signalSetStreams = require('../actions/signalSetStreams');
+var setSignalStreams = require('../actions/setSignalStreams');
 var signalInit = require('../actions/signalInit');
 var counter = require('../util/counter');
 
@@ -79,7 +79,7 @@ describe('signals reducer', function() {
     });
 
     it('Adds a stream property to the specified signal', function() {
-      var result = signalsReducer(initialState, signalSetStreams('lyra_rect_1_x', [{
+      var result = signalsReducer(initialState, setSignalStreams('lyra_rect_1_x', [{
         type: 'lyra_delta',
         expr: '(some)(vega)(expression)'
       }])).toJS();
@@ -198,7 +198,7 @@ describe('signals reducer', function() {
 
     it('removes all signals matching the provided mark type and ID', function() {
       var result = signalsReducer(initialState, {
-        type: actions.MARK_DELETE,
+        type: actions.DELETE_MARK,
         markId: 1,
         markType: 'symbol'
       });
@@ -212,7 +212,7 @@ describe('signals reducer', function() {
 
     it('does not remove any signals if no matching signal names are found', function() {
       var result = signalsReducer(initialState, {
-        type: actions.MARK_DELETE,
+        type: actions.DELETE_MARK,
         markId: 1000,
         markType: 'snake'
       });

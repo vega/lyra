@@ -15,7 +15,7 @@ describe('signalInit action creator', function() {
   it('sets the correct signal type', function() {
     var result = signalInit('');
     expect(result).to.have.property('type');
-    expect(result.type).to.equal(actions.SIGNAL_INIT);
+    expect(result.type).to.equal(actions.INIT_SIGNAL);
     expect(result.signal).to.be.a('string');
   });
 

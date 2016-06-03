@@ -169,7 +169,7 @@ describe('marks reducer', function() {
 
     it('nulls out the mark in the store', function() {
       var result = marksReducer(initialState, {
-        type: actions.MARK_DELETE,
+        type: actions.DELETE_MARK,
         markId: 4,
         markType: 'symbol'
       });
@@ -178,7 +178,7 @@ describe('marks reducer', function() {
 
     it('removes the mark from its parent\'s marks array', function() {
       var result = marksReducer(initialState, {
-        type: actions.MARK_DELETE,
+        type: actions.DELETE_MARK,
         markId: 4,
         markType: 'symbol'
       });
@@ -597,7 +597,7 @@ describe('marks reducer', function() {
 
     it('updates values on the relevant mark in the store', function() {
       var result = marksReducer(initialState, {
-        type: actions.MARK_UPDATE_PROPERTY,
+        type: actions.UPDATE_PROPERTY_MARK,
         id: 15,
         property: 'name',
         value: 'awesome_rectangle'

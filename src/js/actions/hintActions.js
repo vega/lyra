@@ -10,7 +10,7 @@ function hintsOn(boolean) {
 
 function clearHints() {
   return {
-    type: constants.HINTS_CLEAR
+    type: constants.CLEAR_HINTS
   };
 }
 
