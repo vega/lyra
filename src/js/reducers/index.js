@@ -7,6 +7,7 @@ module.exports = combineReducers({
   vega: require('./vega'),
   inspector: require('./inspector'),
   marks: require('./marks'),
+  scales: require('./scales'),
   signals: require('./signals'),
   walkthrough: require('./walkthrough'),
   hints: require('./hints'),
