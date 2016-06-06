@@ -24,7 +24,7 @@ var PipelineList = React.createClass({
       <div id="pipeline-list">
         {pipelines.map(function(pipeline) {
           var id = pipeline._id;
-          return (<PipelineInspector key={id} id={id} />)
+          return (<PipelineInspector key={id} id={id} />);
         })}
       </div>
     );

@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   'group-open': require('../../assets/mark-group-open.svg'),
   'group-closed': require('../../assets/mark-group-closed.svg'),

@@ -55,7 +55,7 @@ Promise.all([
   store.dispatch(updatePipelineDataset(1, d1._id));
   store.dispatch(updatePipelineDataset(2, d2._id));
   store.dispatch(updatePipelineDataset(3, d3._id));
-  var ui = require('./components');
+  require('./components');
 });
 
 // Expose model, store and Sidebars globally (via `window`) for debugging

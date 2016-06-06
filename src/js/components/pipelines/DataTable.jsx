@@ -158,10 +158,16 @@ var DataTable = React.createClass({
         fullField = state.fullField,
         fullValue = state.fullValue;
 
-    var prev = page > 0 ?
-          <Icon glyph={assets.prev} width="10" height="10" onClick={this.prevPage} /> : null,
-        next = page + 1 < max / limit ?
-          <Icon glyph={assets.next} width="10" height="10" onClick={this.nextPage} /> : null;
+    var prev = page > 0 ? (
+          <Icon glyph={assets.prev} width="10" height="10"
+            onClick={this.prevPage}
+          />
+        ) : null,
+        next = page + 1 < max / limit ? (
+          <Icon glyph={assets.next} width="10" height="10"
+            onClick={this.nextPage}
+          />
+        ) : null;
 
     fullField = fullField ? (
       <span>

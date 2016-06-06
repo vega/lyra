@@ -1,5 +1,6 @@
 'use strict';
 var isMatch = require('lodash.ismatch');
+
 /**
  * Walkthrough Utility has functions used in the walkthrough react components
  * that need to be well tested and can exist outside of the ui
@@ -36,7 +37,7 @@ function getProperties(object, type) {
  * @param  {string} elemType - a string that will match the key in each state element
  * @param  {Array} stateArray - an array of objects to test against
  * @param  {string} key - key to filter by
- * @returns {Object}
+ * @returns {Array} All matching elements
  */
 function filterBy(elemType, stateArray, key) {
   return stateArray.filter(function(o) {
@@ -49,7 +50,7 @@ function filterBy(elemType, stateArray, key) {
  * @param  {string} elemType - a string that will match the 'type' key in each state element
  * @param  {Array} stateArray - an array of objects to test against
  * @param  {number} min - minimum required to be found to pass test
- * @returns {Boolean} Success or failure of the
+ * @returns {Boolean} Success or failure of the type existence test
  */
 function testTypeExistence(elemType, stateArray, min) {
   var minimum = min || 1;

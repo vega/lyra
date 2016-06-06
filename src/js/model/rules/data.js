@@ -1,7 +1,5 @@
 'use strict';
 
-var getParent = require('../../util/hierarchy').getParent;
-
 /**
  * Parse the data source definitions in the resultant Vega specification.
  * For now, as we do not yet support transforms, we only add an entry to the
