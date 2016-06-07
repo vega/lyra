@@ -44,6 +44,7 @@ module.exports = {
 
   // Scales
   ADD_SCALE: 'ADD_SCALE',
+  UPDATE_SCALE_PROPERTY: 'UPDATE_SCALE_PROPERTY',
 
   // Walkthrough Actions
   SET_ACTIVE_WALKTHROUGH: 'SET_ACTIVE_WALKTHROUGH',

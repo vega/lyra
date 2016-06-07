@@ -56,6 +56,26 @@ function Scale(name, type, domain, range) {
 inherits(Scale, Primitive);
 Scale.prototype.parent = null;
 
+/**
+ * Get all the properties of the scale for storing in redux
+ * @returns {object} all scale properties
+ */
+Scale.prototype.getProperties = function() {
+  return {
+    _domain: this._domain,
+    _range: this._range,
+    name: this.name,
+    type: this.type,
+    domain: this.domain,
+    range: this.range,
+    nice: this.nice,
+    points: this.points,
+    round: this.round,
+    padding: this.padding
+  }
+};
+
+
 // Exports FieldIDs to DataRefs. We don't default to the last option as the
 // structure has performance implications in Vega. Most-least performant:
 //   {"data": ..., "field": ...} for a single field

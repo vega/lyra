@@ -3,6 +3,8 @@
 
 var Immutable = require('immutable');
 var actions = require('../constants/actions');
+var immutableUtils = require('../util/immutable-utils');
+var setIn = immutableUtils.setIn;
 
 function scaleReducer(state, action) {
   if (typeof state === 'undefined') {
@@ -10,7 +12,11 @@ function scaleReducer(state, action) {
   }
 
   if (action.type === actions.ADD_SCALE) {
-    return state.set('id', action.id);
+    return state.set(action.id, action.props);
+  }
+
+  if (action.type === actions.UPDATE_SCALE_PROPERTY) {
+    return setIn(state, action.id + 'action.property', value);
   }
 
   return state;

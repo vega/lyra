@@ -7,24 +7,30 @@ var React = require('react'),
 
 function mapStateToProps(reduxState, ownProps) {
   return {
-    selectedId: reduxState.get('selectedMark')
+    selectedId: reduxState.get('selectedMark'),
+    scales: reduxState.get('scales')
   };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {};
 }
 
 var ScaleList = React.createClass({
   propTypes: {
     select: React.PropTypes.func,
     selectedId: React.PropTypes.number,
-    scales: React.PropTypes.array
+    scales: React.PropTypes.object
   },
   render: function() {
     var props = this.props,
-        selectedId = props.selectedId;
+        selectedId = props.selectedId,
+        scales = props.scales.toArray();
     return (
       <div id="scale-list" className="expandingMenu">
         <h2>Scales</h2>
         <ul>
-          {props.scales.map(function(scale) {
+          {scales.map(function(scale) {
             function updateScaleName(val) {
               scale.name = val;
             }
@@ -44,4 +50,4 @@ var ScaleList = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps)(ScaleList);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(ScaleList);

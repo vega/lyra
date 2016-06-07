@@ -1,6 +1,7 @@
 'use strict';
 var ADD_SCALE = require('../constants/actions').ADD_SCALE;
 var counter = require('../util/counter');
+var assign = require('object-assign');
 
 function addScale(data) {
   var props = assign({
