@@ -15,7 +15,7 @@ var SpatialPreset = React.createClass({
         primitive = props.primitive,
         target = evt.target,
         name = target.name,
-        update = primitive.properties.update,
+        update = primitive.properties.toObject().update.toObject(),
         prop = update[name],
         scale = prop.scale && lookup(prop.scale),
         preset = name.indexOf('x') >= 0 ? 'width' : 'height';
@@ -40,7 +40,7 @@ var SpatialPreset = React.createClass({
     var props = this.props,
         name = props.name,
         primitive = this.props.primitive,
-        update = primitive.properties.update,
+        update = primitive.properties.toObject().update.toObject(),
         prop = update[name],
         scale = prop.scale && lookup(prop.scale),
         preset = name.indexOf('x') >= 0 ? 'width' : 'height';
