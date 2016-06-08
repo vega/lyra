@@ -17,7 +17,8 @@ function mapStateToProps(reduxState, ownProps) {
   return {
     id: selectedMarkId,
     // This will need to be refactored slightly once scale or guide inspectors exist
-    name: getIn(reduxState, 'marks.' + selectedMarkId + '.name')
+    name: getIn(reduxState, 'marks.' + selectedMarkId + '.name'),
+    prim: getIn(reduxState, 'marks.' + selectedMarkId)
   };
 }
 
@@ -34,7 +35,7 @@ var Inspector = React.createClass({
   render: function() {
     var props = this.props,
         // props.id existence check handles the initial application render
-        primitive = props.id ? lookup(props.id) : {};
+        primitive = props.prim && props.prim.toObject();
 
     var from = primitive ? lookup(primitive.from) : '',
         ctor = primitive && primitive.type ?

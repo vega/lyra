@@ -22,10 +22,6 @@ var EXTENTS = {
 
 var ExtentProperty = React.createClass({
 
-  getInitialState: function() {
-    return this.extents();
-  },
-
   componentWillReceiveProps: function() {
     this.setState(this.extents());
   },
@@ -34,12 +30,13 @@ var ExtentProperty = React.createClass({
     var props = this.props,
         type = props.type,
         primitive = props.primitive,
-        update = primitive.properties.update,
+        update = primitive.properties.toObject().update.toObject(),
         extents = dl.vals(EXTENTS[type]),
         start, end;
 
     extents.forEach(function(x) {
-      var name = x.name, prop = update[name];
+      var name = x.name,
+          prop = update[name].toObject();
       if (prop._disabled) {
         return;
       } else if (!start) {
@@ -54,10 +51,10 @@ var ExtentProperty = React.createClass({
 
   handleChange: function(evt) {
     var props = this.props,
-        state = this.state,
+        state = this.extents(),
         type = props.type,
         primitive = props.primitive,
-        update = primitive.properties.update,
+        update = primitive.properties.toObject().update.toObject(),
         target = evt.target,
         name = target.name,
         value = target.value,
@@ -80,16 +77,17 @@ var ExtentProperty = React.createClass({
   },
 
   render: function() {
-    var state = this.state,
+    var state = this.extents(),
         props = this.props,
         type = props.type,
         primitive = props.primitive,
-        update = primitive.properties.update,
+        update = primitive.properties.toObject().update.toObject(),
         extents = EXTENTS[type],
         center = extents.center.name,
         span = extents.span.label,
         opts = dl.vals(extents),
-        start = state.start, end = state.end;
+        start = state.start,
+        end = state.end;
 
     return (
       <div>
