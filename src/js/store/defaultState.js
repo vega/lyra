@@ -7,5 +7,6 @@ var Immutable = require('immutable');
 module.exports = Immutable.Map({
   marks: Immutable.Map(),
   scene: Immutable.Map(),
+  scales: Immutable.Map(),
   signals: Immutable.Map(require('../model/signals/defaults').signals)
 });

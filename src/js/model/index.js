@@ -163,15 +163,12 @@ model.pipeline = function(id) {
 };
 
 /**
- * A getter or creator for Scales.
- * @param  {number|string} [id] - The numeric ID of an existing Scale to retrieve
- * or the name of a new Scale to instantiate. If no id is given, returns all
- * Scales.
- * @returns {Object|Object[]} A Scale or array of Scales.
+ * Get all scales for this model
+ * @returns {Object|Object[]} A Scale or array of Scales from redux
  */
-model.scale = function(id) {
-  var scalesArray = getset(scales, id, require('./primitives/Scale'));
-  return scalesArray;
+model.scale = function() {
+  // this will be refactored out eventually
+  return getIn(store.getState(), 'scales').toArray();
 };
 
 /**

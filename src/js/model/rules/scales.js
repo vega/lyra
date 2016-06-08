@@ -6,6 +6,9 @@ var dl = require('datalib'),
     model = require('../'),
     lookup = model.lookup,
     store = require('../../store'),
+    addScale = require('../../actions/addScale'),
+    updateScale = require('../../actions/updateScale').updateScale,
+    getIn = require('../../util/immutable-utils').getIn,
     addScaleToGroup = require('../../actions/ruleActions').addScaleToGroup;
 
 var REF_CELLW = {data: 'layout', field: 'cellWidth'},
@@ -41,8 +44,10 @@ function usePoints(defType, markType) {
 function equals(def, scale) {
   var points = usePoints(def.type, this.type);
 
-  return scale.type === def.type && !!scale.points === points &&
-    dl.equal(scale._domain, def._domain) && scale.range === def.range;
+  return scale.type === def.type &&
+         !!scale.points === points &&
+         dl.equal(scale._domain, def._domain) &&
+         scale.range === def.range;
 }
 
 /**
@@ -56,29 +61,25 @@ function equals(def, scale) {
  */
 function findOrCreateScale(def) {
   var points = usePoints(def.type, this.type),
-      allScales = model.scale(),
-      scale = allScales.find(equals.bind(this, def));
-
+      allScales = getIn(store.getState(), 'scales').toArray(),
+      scale = allScales.find(equals.bind(this, def)); // this is a boolean or undefined...
+  // don't add if it doesn't exist
   if (!scale) {
-    scale = model.scale(new Scale(def.name, def.type, undefined, def.range));
-    scale._domain = def._domain;
-    scale.points = points;
+    var newScale = new Scale(def.name, def.type, undefined, def.range);
+    newScale._domain = def._domain;
+    newScale.points = points;
     if (points) {
-      scale.padding = def.padding;
+      newScale.padding = def.padding;
     }
+    newScale.nice = def.nice;
+    newScale.round = def.round;
+
+    this._rule._map.scales[def.name] = newScale._id;
+
+    // --------------------------------------------
+    store.dispatch(addScaleToGroup(newScale, this._parent));
+    store.dispatch(addScale(newScale.getProperties()));
   }
-
-  scale.nice = def.nice;
-  scale.round = def.round;
-
-  this._rule._map.scales[def.name] = scale._id;
-
-  // hacky fix: rerender ui ---------------------
-  var Sidebars = require('../../components');
-  Sidebars.forceUpdate();
-  // --------------------------------------------
-
-  store.dispatch(addScaleToGroup(scale, this._parent));
 }
 
 /**
