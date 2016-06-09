@@ -19,6 +19,7 @@ function scaleReducer(state, action) {
     return setIn(state, action.id + 'action.property', value);
   }
 
+
   return state;
 }
 

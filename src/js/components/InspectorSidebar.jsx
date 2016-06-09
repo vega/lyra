@@ -14,27 +14,29 @@ var findInItemTree = hierarchy.findInItemTree;
 
 function mapStateToProps(reduxState, ownProps) {
   var selectedMarkId = getIn(reduxState, 'inspector.selected');
+  var selectedScaleId = getIn(reduxState, 'inspector.scales.selected');
   return {
-    id: selectedMarkId,
+    selectedMarkId: selectedMarkId,
     // This will need to be refactored slightly once scale or guide inspectors exist
-    name: getIn(reduxState, 'marks.' + selectedMarkId + '.name')
+    name: getIn(reduxState, 'marks.' + selectedMarkId + '.name'),
+    showScales: getIn(reduxState, 'inspector.scales.show')
   };
 }
 
 var Inspector = React.createClass({
   propTypes: {
-    id: React.PropTypes.number,
-    name: React.PropTypes.string
+    selectedMarkId: React.PropTypes.number,
+    name: React.PropTypes.string,
+    showScales: React.PropTypes.bool
   },
 
   uppercase: function(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   },
 
-  render: function() {
-    var props = this.props,
-        // props.id existence check handles the initial application render
-        primitive = props.id ? lookup(props.id) : {};
+  showPrimitiveInspector: function(){
+    var props = this.props;
+    var primitive = props.selectedMarkId ? lookup(props.selectedMarkId) : {};
 
     var from = primitive ? lookup(primitive.from) : '',
         ctor = primitive && primitive.type ?
@@ -63,6 +65,33 @@ var Inspector = React.createClass({
         {inner}
       </div>
     );
+  },
+
+  showScaleInspector: function(){
+    var ScalesInspector = Inspector.Scale;
+    var inner = (
+      <div className="inner">
+        <ScalesInspector />
+      </div>
+    );
+    return (
+      <div className="sidebar" id="inspector">
+        <h2>{'Scale Properties'}</h2>
+        {inner}
+      </div>
+    );
+  },
+
+  render: function() {
+    var props = this.props;
+
+    // Check that we aren't showing a scale
+    if (props.showScales) {
+      return this.showScaleInspector();
+    } else {
+      // show primitive inspector
+      return this.showPrimitiveInspector();
+    }
   }
 });
 
@@ -71,5 +100,6 @@ Inspector.Rect = require('./inspectors/Rect');
 Inspector.Symbol = require('./inspectors/Symbol');
 Inspector.Text = require('./inspectors/Text');
 Inspector.Area = require('./inspectors/Area');
+Inspector.Scale = require('./inspectors/Scale');
 
 module.exports = connect(mapStateToProps)(Inspector);
