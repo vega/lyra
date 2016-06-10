@@ -16,7 +16,7 @@ function mapStateToProps(reduxState, ownProps) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    showScaleInspector: function(){
+    showScaleInspector: function() {
       dispatch(showScaleInspector(true));
     },
     selectScale: function(id) {
@@ -28,11 +28,13 @@ function mapDispatchToProps(dispatch) {
 var ScaleList = React.createClass({
   propTypes: {
     select: React.PropTypes.func,
-    selectedScaleId: React.PropTypes.number,
-    scales: React.PropTypes.object
+    selectedScaleId: React.PropTypes.string,
+    scales: React.PropTypes.object,
+    selectScale: React.PropTypes.func,
+    showScaleInspector: React.PropTypes.func
   },
-  displayInspector: function(id){
-    this.props.selectScale(id);
+  displayInspector: function(id) {
+    this.props.selectScale('scale_' + id);
     this.props.showScaleInspector();
   },
   render: function() {
@@ -52,8 +54,8 @@ var ScaleList = React.createClass({
 
             return (
               <li key={id}
-                  onClick={this.displayInspector.bind(null, id)}
-                  className="expanded"
+                onClick={this.displayInspector.bind(null, id)}
+                className="expanded"
               >
                 <div className={selectedId === id ? 'selected name' : ' name'}>
                   <ContentEditable value={scale.name}

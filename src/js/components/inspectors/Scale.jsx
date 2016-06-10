@@ -1,24 +1,38 @@
 'use strict';
 var React = require('react'),
-    Property = require('./Property');
+    connect = require('react-redux').connect,
+    getIn = require('../../util/immutable-utils').getIn;
+
+function mapStateToProps(reduxState, ownProps) {
+  var selectedScaleId = getIn(reduxState, 'inspector.scales.selected');
+  return {
+    scale: getIn(reduxState, 'scales.' + selectedScaleId)
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {};
+}
 
 var ScaleInspector = React.createClass({
-  render: function() {
-    var props = this.props;
+  propTypes: {
+    scale: React.PropTypes.object
+  },
 
+  render: function() {
     return (
       <div>
         <div className="property-group">
-          <Property name="scale"
-            type="scale"
-            canDrop={true}>
-
-            <h3 className="label">Scale</h3>
-          </Property>
+          <h3 className="label">Placeholder</h3>
+          <ul>
+            <li>name: {this.props.scale.name}</li>
+            <li>type: {this.props.scale.type}</li>
+            <li>range: {this.props.scale.range}</li>
+          </ul>
         </div>
       </div>
     );
   }
 });
 
-module.exports = ScaleInspector;
+module.exports = connect(mapStateToProps, mapDispatchToProps)(ScaleInspector);

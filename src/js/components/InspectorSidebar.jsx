@@ -18,23 +18,25 @@ function mapStateToProps(reduxState, ownProps) {
   return {
     selectedMarkId: selectedMarkId,
     // This will need to be refactored slightly once scale or guide inspectors exist
-    name: getIn(reduxState, 'marks.' + selectedMarkId + '.name'),
-    showScales: getIn(reduxState, 'inspector.scales.show')
+    markName: getIn(reduxState, 'marks.' + selectedMarkId + '.name'),
+    showScales: getIn(reduxState, 'inspector.scales.show'),
+    scale: getIn(reduxState, 'scales.' + selectedScaleId)
   };
 }
 
 var Inspector = React.createClass({
   propTypes: {
     selectedMarkId: React.PropTypes.number,
-    name: React.PropTypes.string,
-    showScales: React.PropTypes.bool
+    markName: React.PropTypes.string,
+    showScales: React.PropTypes.bool,
+    scale: React.PropTypes.object
   },
 
   uppercase: function(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   },
 
-  showPrimitiveInspector: function(){
+  showPrimitiveInspector: function() {
     var props = this.props;
     var primitive = props.selectedMarkId ? lookup(props.selectedMarkId) : {};
 
@@ -61,13 +63,13 @@ var Inspector = React.createClass({
     // if property is selected show the header
     return (
       <div className="sidebar" id="inspector">
-        <h2>{props.name || 'Properties'}</h2>
+        <h2>{props.markName || 'Properties'}</h2>
         {inner}
       </div>
     );
   },
 
-  showScaleInspector: function(){
+  showScaleInspector: function() {
     var ScalesInspector = Inspector.Scale;
     var inner = (
       <div className="inner">
@@ -76,22 +78,18 @@ var Inspector = React.createClass({
     );
     return (
       <div className="sidebar" id="inspector">
-        <h2>{'Scale Properties'}</h2>
+        <h2>{this.props.scale.name || 'Scale Properties'}</h2>
         {inner}
       </div>
     );
   },
 
   render: function() {
-    var props = this.props;
-
     // Check that we aren't showing a scale
-    if (props.showScales) {
+    if (this.props.showScales) {
       return this.showScaleInspector();
-    } else {
-      // show primitive inspector
-      return this.showPrimitiveInspector();
     }
+    return this.showPrimitiveInspector();
   }
 });
 

@@ -16,7 +16,7 @@ function scaleReducer(state, action) {
   }
 
   if (action.type === actions.UPDATE_SCALE_PROPERTY) {
-    return setIn(state, action.id + 'action.property', value);
+    return setIn(state, action.id + 'action.property', action.value);
   }
 
 

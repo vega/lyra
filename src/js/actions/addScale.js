@@ -9,7 +9,7 @@ function addScale(data) {
   }, data);
 
   var action = {
-    id: props._id,
+    id: 'scale_' + props._id,
     type: ADD_SCALE,
     props: props
   };

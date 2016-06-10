@@ -3,8 +3,8 @@ var SHOW_SCALE_INSPECTOR = require('../constants/actions').SHOW_SCALE_INSPECTOR;
 
 /**
  * set if we show the scale inspector
- * @param {number} id   scale ID to show
  * @param {boolean} show turn on or off
+ * @returns {Object} An action object
  */
 function showScaleInspector(show) {
   var action = {

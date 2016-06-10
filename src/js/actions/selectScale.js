@@ -4,7 +4,7 @@ var SELECT_SCALE = require('../constants/actions').SELECT_SCALE;
 /**
  * set selected scale
  * @param {number} id   scale ID to show
- * @param {boolean} show turn on or off
+  * @returns {Object} An action object
  */
 function selectScale(id) {
   var action = {
