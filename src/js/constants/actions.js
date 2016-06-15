@@ -1,5 +1,7 @@
 'use strict';
 
+var marks = require('../actions/markActions');
+
 module.exports = {
   // Vega Actions
   INVALIDATE_VEGA: 'INVALIDATE_VEGA',
@@ -23,11 +25,11 @@ module.exports = {
   TOGGLE_LAYERS: 'TOGGLE_LAYERS',
 
   // Mark Actions
-  ADD_MARK: 'ADD_MARK',
-  DELETE_MARK: 'DELETE_MARK',
+  ADD_MARK: marks.ADD_MARK,
+  DELETE_MARK: marks.DELETE_MARK,
   SELECT_MARK: 'SELECT_MARK',
-  SET_PARENT_MARK: 'SET_PARENT_MARK',
-  UPDATE_MARK_PROPERTY: 'UPDATE_MARK_PROPERTY',
+  SET_PARENT_MARK: marks.SET_PARENT_MARK,
+  UPDATE_MARK_PROPERTY: marks.UPDATE_MARK_PROPERTY,
 
   // Rule Actions
   RULES_ADD_SCALE_TO_GROUP: 'RULES_ADD_SCALE_TO_GROUP',

@@ -82,4 +82,8 @@ describe('markActions', function() {
 
   });
 
+  it('creates a deleteMark action');
+  it('creates a setParent action');
+  it('creates a updateMarkProperty action');
+
 });

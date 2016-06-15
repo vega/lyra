@@ -1,7 +1,7 @@
 'use strict';
 
 var getIn = require('../util/immutable-utils').getIn;
-var deleteMark = require('./deleteMark');
+var deleteMark = require('./markActions').deleteMark;
 
 /**
  * Action creator to delete all marks in a scene (wipes scene clear). Unusually
