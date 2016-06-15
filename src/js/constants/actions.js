@@ -1,12 +1,13 @@
 'use strict';
 
-var scales = require('../actions/scaleActions'),
+var vega = require('../actions/vegaActions'),
+    scales = require('../actions/scaleActions'),
     marks = require('../actions/markActions');
 
 module.exports = {
   // Vega Actions
-  INVALIDATE_VEGA: 'INVALIDATE_VEGA',
-  PARSE_VEGA: 'PARSE_VEGA',
+  INVALIDATE_VEGA: vega.INVALIDATE_VEGA,
+  PARSE_VEGA: vega.PARSE_VEGA,
 
   // Signal Actions
   INIT_SIGNAL: 'INIT_SIGNAL',

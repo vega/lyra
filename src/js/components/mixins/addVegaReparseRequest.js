@@ -1,7 +1,7 @@
 'use strict';
 
 var store = require('../../store'),
-    invalidateVega = require('../../actions/invalidateVega');
+    invalidateVega = require('../../actions/vegaActions').invalidateVega;
 
 /**
  * Augment any react component with a prototype property that can be called to
