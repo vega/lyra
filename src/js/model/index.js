@@ -20,7 +20,6 @@ var model = module.exports = {
 };
 
 var pipelines = [],
-    scales = [],
     primitives = {},
     listeners = {};
 

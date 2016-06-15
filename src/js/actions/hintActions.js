@@ -1,8 +1,8 @@
 'use strict';
 
 var HINTS_ON = 'HINTS_ON',
-  DISPLAY_HINTS = 'DISPLAY_HINTS',
-  CLEAR_HINTS = 'CLEAR_HINTS';
+    DISPLAY_HINTS = 'DISPLAY_HINTS',
+    CLEAR_HINTS = 'CLEAR_HINTS';
 
 function hintsOn(boolean) {
   return {

@@ -72,7 +72,7 @@ Scale.prototype.getProperties = function() {
     points: this.points,
     round: this.round,
     padding: this.padding
-  }
+  };
 };
 
 
