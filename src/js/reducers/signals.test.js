@@ -7,8 +7,9 @@ var actions = require('../constants/actions');
 var signalsReducer = require('./signals');
 var markActions = require('../actions/markActions');
 var createScene = require('../actions/createScene');
-var setSignalStreams = require('../actions/setSignalStreams');
-var signalInit = require('../actions/signalInit');
+var signalActions = require('../actions/signalActions');
+var setSignalStreams = signalActions.setSignalStreams;
+var initSignal = signalActions.initSignal;
 var counter = require('../util/counter');
 
 describe('signals reducer', function() {
@@ -38,7 +39,7 @@ describe('signals reducer', function() {
   describe('init signal action', function() {
 
     it('initializes a signal within the signals store state object', function() {
-      var result = signalsReducer(initialState, signalInit('lyra_rect_1_x', 50));
+      var result = signalsReducer(initialState, initSignal('lyra_rect_1_x', 50));
       expect(initialState.size).to.equal(0);
       expect(result.size).to.equal(1);
       expect(result.toJS()).to.deep.equal({
@@ -51,8 +52,8 @@ describe('signals reducer', function() {
     });
 
     it('gives signals an incrementing _idx', function() {
-      var initAction1 = signalInit('lyra_rect_1_x', 5),
-          initAction2 = signalInit('lyra_another_signal_name', 'some value'),
+      var initAction1 = initSignal('lyra_rect_1_x', 5),
+          initAction2 = initSignal('lyra_another_signal_name', 'some value'),
           result = signalsReducer(signalsReducer(initialState, initAction1), initAction2);
       expect(initialState.size).to.equal(0);
       expect(result.size).to.equal(2);
@@ -75,7 +76,7 @@ describe('signals reducer', function() {
   describe('set stream action', function() {
 
     beforeEach(function() {
-      initialState = signalsReducer(initialState, signalInit('lyra_rect_1_x', 5));
+      initialState = signalsReducer(initialState, initSignal('lyra_rect_1_x', 5));
     });
 
     it('Adds a stream property to the specified signal', function() {

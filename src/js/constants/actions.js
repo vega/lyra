@@ -1,6 +1,7 @@
 'use strict';
 
 var vega = require('../actions/vegaActions'),
+    signals = require('../actions/signalActions'),
     scales = require('../actions/scaleActions'),
     marks = require('../actions/markActions');
 
@@ -10,10 +11,10 @@ module.exports = {
   PARSE_VEGA: vega.PARSE_VEGA,
 
   // Signal Actions
-  INIT_SIGNAL: 'INIT_SIGNAL',
-  SET_SIGNAL: 'SET_SIGNAL',
-  SET_SIGNAL_STREAMS: 'SET_SIGNAL_STREAMS',
-  UNSET_SIGNAL: 'UNSET_SIGNAL',
+  INIT_SIGNAL: signals.INIT_SIGNAL,
+  SET_SIGNAL: signals.SET_SIGNAL,
+  SET_SIGNAL_STREAMS: signals.SET_SIGNAL_STREAMS,
+  UNSET_SIGNAL: signals.UNSET_SIGNAL,
 
   // Pipeline Actions
   CREATE_PIPELINE: 'CREATE_PIPELINE',

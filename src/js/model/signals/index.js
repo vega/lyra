@@ -3,10 +3,11 @@ var dl = require('datalib'),
     ns = require('../../util/ns'),
     store = require('../../store'),
     getIn = require('../../util/immutable-utils').getIn,
-    signalInit = require('../../actions/signalInit'),
-    setSignal = require('../../actions/setSignal'),
-    setSignalStreams = require('../../actions/setSignalStreams'),
-    unsetSignal = require('../../actions/unsetSignal'),
+    actions = require('../../actions/signalActions'),
+    initSignal = actions.initSignal,
+    setSignal = actions.setSignal,
+    setSignalStreams = actions.setSignalStreams,
+    unsetSignal = actions.unsetSignal,
     defaults = require('./defaults');
 
 // Utility method to get a signal from the store
@@ -37,7 +38,7 @@ dl.extend(api, defaults.signalNames);
  * @returns {Object} An object representing a link to this signal
  */
 api.init = function(name, val) {
-  store.dispatch(signalInit(name, val));
+  store.dispatch(initSignal(name, val));
 };
 
 /**

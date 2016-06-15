@@ -3,10 +3,10 @@
 
 var expect = require('chai').expect,
     actions = require('./markActions'),
+    counter = require('../util/counter'),
     addMark = actions.addMark;
 
 describe('Mark Actions', function() {
-
   describe('addMark action creator', function() {
     beforeEach(function() {
       counter.reset();
