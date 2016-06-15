@@ -26,14 +26,13 @@ function addMark(markProps) {
     name: markProps.name || markName(markProps.type)
   }, markProps);
 
-  var action = {
+  return {
     id: props._id,
     name: props.name,
     type: ADD_MARK,
     props: props,
     streams: defs.getHandleStreams(props)
   };
-  return action;
 }
 
 /**

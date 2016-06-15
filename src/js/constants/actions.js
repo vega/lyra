@@ -1,6 +1,7 @@
 'use strict';
 
-var marks = require('../actions/markActions');
+var scales = require('../actions/scaleActions'),
+    marks = require('../actions/markActions');
 
 module.exports = {
   // Vega Actions
@@ -45,8 +46,8 @@ module.exports = {
   CLEAR_HINTS: 'CLEAR_HINTS',
 
   // Scales
-  ADD_SCALE: 'ADD_SCALE',
-  UPDATE_SCALE_PROPERTY: 'UPDATE_SCALE_PROPERTY',
+  ADD_SCALE: scales.ADD_SCALE,
+  UPDATE_SCALE_PROPERTY: scales.UPDATE_SCALE_PROPERTY,
   SHOW_SCALE_INSPECTOR: 'SHOW_SCALE_INSPECTOR',
   SELECT_SCALE: 'SELECT_SCALE',
 
