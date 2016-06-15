@@ -32,7 +32,27 @@
     {% if category.first == 'journeymaps' %}
       <p>
         <strong>
-          <a href="{{'/design/journeymaps' | prepend: site.baseurl  }}">Journey Maps</a>
+          <a href="{{'/design/journeymap' | prepend: site.baseurl  }}">Journey Maps</a>
+        </strong>
+      </p>
+      <ul>
+      {% for posts in category %}
+        {% for post in posts %}
+          {% if post.layout == "post" %}
+            <li><a href="{{ post.url  | prepend: site.baseurl }}">{{ post.title }}</a></li>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endfor %}
+
+
+  {% for category in site.categories %}
+    {% if category.first == 'interviews' %}
+      <p>
+        <strong>
+          <a href="{{'/design/userinterviews' | prepend: site.baseurl  }}">User Interviews</a>
         </strong>
       </p>
       <ul>
