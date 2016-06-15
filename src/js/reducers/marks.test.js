@@ -6,7 +6,7 @@ var Immutable = require('immutable');
 var actions = require('../constants/actions');
 var marksReducer = require('./marks');
 var markActions = require('../actions/markActions');
-var createScene = require('../actions/createScene');
+var createScene = require('../actions/sceneActions').createScene;
 var counter = require('../util/counter');
 var setIn = require('../util/immutable-utils').setIn;
 

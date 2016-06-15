@@ -2,6 +2,7 @@
 
 var vega = require('../actions/vegaActions'),
     signals = require('../actions/signalActions'),
+    scene = require('../actions/sceneActions'),
     scales  = require('../actions/scaleActions'),
     marks = require('../actions/markActions'),
     rules = require('../actions/ruleActions'),
@@ -25,7 +26,7 @@ module.exports = {
   UPDATE_PIPELINE_DATASET: 'UPDATE_PIPELINE_DATASET',
 
   // Scene Actions
-  CREATE_SCENE: 'CREATE_SCENE',
+  CREATE_SCENE: scene.CREATE_SCENE,
 
   // Scales
   ADD_SCALE: scales.ADD_SCALE,

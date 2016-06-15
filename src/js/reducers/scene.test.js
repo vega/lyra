@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var Immutable = require('immutable');
 
 var sceneReducer = require('./scene');
-var createScene = require('../actions/createScene');
+var createScene = require('../actions/sceneActions').createScene;
 var counter = require('../util/counter');
 
 describe('signals reducer', function() {
