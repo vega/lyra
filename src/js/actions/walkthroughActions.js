@@ -1,5 +1,9 @@
 'use strict';
-var types = require('../constants/actions');
+
+var SET_ACTIVE_WALKTHROUGH = 'SET_ACTIVE_WALKTHROUGH',
+    SET_ACTIVE_STEP = 'SET_ACTIVE_STEP',
+    SET_WALKTHROUGH = 'SET_WALKTHROUGH',
+    SET_WALKTHROUGH_ON = 'SET_WALKTHROUGH_ON';
 
 /**
  * Walkthrough Actions
@@ -8,27 +12,34 @@ var types = require('../constants/actions');
 
 function setActiveStep(id) {
   return {
-    type: types.SET_ACTIVE_STEP,
+    type: SET_ACTIVE_STEP,
     step: id
   };
 }
 
 function setActiveWalkthrough(key) {
   return {
-    type: types.SET_ACTIVE_WALKTHROUGH,
+    type: SET_ACTIVE_WALKTHROUGH,
     key: key
   };
 }
 
 function setWalkthrough(key, data) {
   return {
-    type: types.SET_WALKTHROUGH,
+    type: SET_WALKTHROUGH,
     name: key,
     data: data
   };
 }
 
 module.exports = {
+  // Action Names
+  SET_ACTIVE_WALKTHROUGH: SET_ACTIVE_WALKTHROUGH,
+  SET_ACTIVE_STEP: SET_ACTIVE_STEP,
+  SET_WALKTHROUGH: SET_WALKTHROUGH,
+  SET_WALKTHROUGH_ON: SET_WALKTHROUGH_ON,
+
+  // Action Creators
   setWalkthrough: setWalkthrough,
   setActiveStep: setActiveStep,
   setActiveWalkthrough: setActiveWalkthrough

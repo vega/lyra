@@ -1,35 +1,64 @@
 'use strict';
-var actions = require('../constants/actions');
-var ADD_MARK = actions.ADD_MARK;
-var SET_PARENT_MARK = actions.SET_PARENT_MARK;
-var UPDATE_MARK_PROPERTY = actions.UPDATE_MARK_PROPERTY;
-var counter = require('../util/counter');
-var markName = require('../util/markName');
-var assign = require('object-assign');
 
-// We pull in all of the mark constructors purely to access their static
-// `.getHandleStreams` and `.defaultProperties` methods
-var marks = require('../model/primitives/marks');
+var assign   = require('object-assign'),
+    counter  = require('../util/counter'),
+    markName = require('../util/markName'),
+    getIn = require('../util/immutable-utils').getIn,
+    ADD_MARK = 'ADD_MARK',
+    DELETE_MARK = 'DELETE_MARK',
+    SET_PARENT_MARK = 'SET_PARENT_MARK',
+    UPDATE_MARK_PROPERTY = 'UPDATE_MARK_PROPERTY';
 
 /**
- * Action creator to create a new mark and add it to the store. (This creator is
- * intended for use with marks, and not other primitives like scales or axes.)
+ * Action creator to create a new mark and add it to the store.
+ *
  * @param {Object} markProps - The properties of the mark to create
  * @returns {Object} The ADD_MARK action object
  */
 function addMark(markProps) {
+  // We pull in all of the mark constructors purely to access their static
+  // `.getHandleStreams` and `.defaultProperties` methods
+  // TODO: Fix circular dependencies.
+  var defs = require('../model/primitives/marks');
+
   var props = assign({
     _id: markProps._id || counter.global(),
     name: markProps.name || markName(markProps.type)
   }, markProps);
-  var action = {
+
+  return {
     id: props._id,
     name: props.name,
     type: ADD_MARK,
     props: props,
-    streams: marks.getHandleStreams(props)
+    streams: defs.getHandleStreams(props)
   };
-  return action;
+}
+
+/**
+ * Action creator to delete a mark. It recursively calls itself on any children
+ * of the specified mark.
+ *
+ * @returns {Function} An async action function
+ */
+function deleteMark(id) {
+  return function(dispatch, getState) {
+    var mark = getIn(getState(), 'marks.' + id).toJS();
+
+    if (mark.marks && mark.marks.length) {
+      mark.marks.forEach(function(childId) {
+        dispatch(deleteMark(childId));
+      });
+    }
+
+    dispatch({
+      type: DELETE_MARK,
+      // ID and Type are needed to clear up all the mark's signals, as those are
+      // the values used to create a signal's identifying name.
+      markId: mark._id,
+      markType: mark.type
+    });
+  };
 }
 
 function updateMarkProperty(markId, property, value) {
@@ -43,6 +72,7 @@ function updateMarkProperty(markId, property, value) {
 
 /**
  * Action creator to set one existing mark as the child of another.
+ *
  * @param {number} childId - The child mark's ID
  * @param {number} parentId - The parent mark's ID
  * @returns {Object} The SET_PARENT_MARK action object
@@ -56,7 +86,15 @@ function setParent(childId, parentId) {
 }
 
 module.exports = {
+  // Action Names
+  ADD_MARK: ADD_MARK,
+  DELETE_MARK: DELETE_MARK,
+  SET_PARENT_MARK: SET_PARENT_MARK,
+  UPDATE_MARK_PROPERTY: UPDATE_MARK_PROPERTY,
+
+  // Action Creators
   addMark: addMark,
-  updateMarkProperty: updateMarkProperty,
-  setParent: setParent
+  deleteMark: deleteMark,
+  setParent: setParent,
+  updateMarkProperty: updateMarkProperty
 };

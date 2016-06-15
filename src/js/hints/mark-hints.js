@@ -16,7 +16,7 @@ var MarkHints = {
       title: 'I see you have added a RECT...',
       text: 'Maybe you\'d like to clear the whole canvas',
       action_text: 'DO IT. CLEAR IT OUT.',
-      action: require('../actions/clearScene')
+      action: require('../actions/sceneActions').clearScene
     },
 
     line: {

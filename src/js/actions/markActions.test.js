@@ -1,18 +1,14 @@
 /* eslint no-unused-expressions:0 */
 'use strict';
-var expect = require('chai').expect;
 
-var actions = require('../constants/actions');
-var markActions = require('./markActions');
-var counter = require('../util/counter');
+var expect = require('chai').expect,
+    actions = require('./markActions'),
+    counter = require('../util/counter'),
+    addMark = actions.addMark;
 
-describe('markActions', function() {
-
+describe('Mark Actions', function() {
   describe('addMark action creator', function() {
-    var addMark;
-
     beforeEach(function() {
-      addMark = markActions.addMark;
       counter.reset();
     });
 
@@ -81,5 +77,9 @@ describe('markActions', function() {
     });
 
   });
+
+  it('creates a deleteMark action');
+  it('creates a setParent action');
+  it('creates a updateMarkProperty action');
 
 });

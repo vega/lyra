@@ -24,7 +24,7 @@
 var sg = require('../model/signals'),
     hierarchy = require('../util/hierarchy'),
     getIn = require('../util/immutable-utils').getIn,
-    parseInProgress = require('../actions/parseVega');
+    parseInProgress = require('../actions/vegaActions').parseVega;
 
 function instantiatePrimitivesFromStore(store, model) {
   getIn(store.getState(), 'marks').forEach(function(props, markId) {

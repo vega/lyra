@@ -23,9 +23,10 @@ var listeners = require('./store/listeners');
 store.subscribe(listeners.createStoreListener(store, model));
 
 // Initializes the Lyra model with a new Scene primitive.
-var createScene = require('./actions/createScene');
-var createPipeline = require('./actions/createPipeline');
-var updatePipelineDataset = require('./actions/updatePipelineDataset');
+var createScene = require('./actions/sceneActions').createScene;
+var pipelineActions = require('./actions/pipelineActions');
+var createPipeline = pipelineActions.createPipeline;
+var updatePipelineDataset = pipelineActions.updatePipelineDataset;
 
 store.dispatch(createScene({
   width: 600,

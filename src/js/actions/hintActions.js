@@ -1,20 +1,29 @@
 'use strict';
-var constants = require('../constants/actions');
+
+var HINTS_ON = 'HINTS_ON',
+    DISPLAY_HINTS = 'DISPLAY_HINTS',
+    CLEAR_HINTS = 'CLEAR_HINTS';
 
 function hintsOn(boolean) {
   return {
-    type: constants.HINTS_ON,
+    type: HINTS_ON,
     on: boolean
   };
 }
 
 function clearHints() {
   return {
-    type: constants.CLEAR_HINTS
+    type: CLEAR_HINTS
   };
 }
 
 module.exports = {
+  // Action Names
+  HINTS_ON: HINTS_ON,
+  DISPLAY_HINTS: DISPLAY_HINTS,
+  CLEAR_HINTS: CLEAR_HINTS,
+
+  // Action Creators
   on: hintsOn,
   clearHints: clearHints
 };

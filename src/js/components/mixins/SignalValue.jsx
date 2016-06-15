@@ -2,7 +2,7 @@
 var sg = require('../../model/signals'),
     store = require('../../store'),
     getIn = require('../../util/immutable-utils').getIn,
-    setSignal = require('../../actions/setSignal'),
+    setSignal = require('../../actions/signalActions').setSignal,
     model = require('../../model');
 
 module.exports = {

@@ -43,8 +43,7 @@ describe('validate', function() {
     var expected = {
       marks: [{
         type: 'rect'
-      },
-      {
+      }, {
         type: 'rect'
       }]
     };

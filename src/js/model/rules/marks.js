@@ -2,7 +2,7 @@
 var model = require('../'),
     propSg = require('../../util/prop-signal'),
     store = require('../../store'),
-    setSignal = require('../../actions/setSignal'),
+    setSignal = require('../../actions/signalActions').setSignal,
     setProperty = require('../../actions/ruleActions').setProperty,
     disableProperty = require('../../actions/ruleActions').disableProperty,
     lookup = model.lookup;

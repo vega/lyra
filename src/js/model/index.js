@@ -9,8 +9,9 @@ var dl = require('datalib'),
     store = require('../store'),
     getIn = require('../util/immutable-utils').getIn,
     CancellablePromise = require('../util/simple-cancellable-promise'),
-    selectMark = require('../actions/selectMark'),
-    expandLayers = require('../actions/expandLayers');
+    inspectorActions = require('../actions/inspectorActions'),
+    selectMark = inspectorActions.selectMark,
+    expandLayers = inspectorActions.expandLayers;
 
 /** @namespace */
 var model = module.exports = {
@@ -19,7 +20,6 @@ var model = module.exports = {
 };
 
 var pipelines = [],
-    scales = [],
     primitives = {},
     listeners = {};
 

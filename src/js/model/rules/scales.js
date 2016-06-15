@@ -6,8 +6,8 @@ var dl = require('datalib'),
     model = require('../'),
     lookup = model.lookup,
     store = require('../../store'),
-    addScale = require('../../actions/addScale'),
-    updateScale = require('../../actions/updateScale').updateScale,
+    actions = require('../../actions/scaleActions'),
+    addScale = actions.addScale,
     getIn = require('../../util/immutable-utils').getIn,
     addScaleToGroup = require('../../actions/ruleActions').addScaleToGroup;
 
