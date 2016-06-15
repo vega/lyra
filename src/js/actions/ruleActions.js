@@ -6,7 +6,12 @@
  */
 'use strict';
 
-var actions = require('../constants/actions');
+var ADD_SCALE_TO_GROUP  = 'ADD_SCALE_TO_GROUP',
+    ADD_AXIS_TO_GROUP   = 'ADD_AXIS_TO_GROUP',
+    ADD_LEGEND_TO_GROUP = 'ADD_LEGEND_TO_GROUP',
+    SET_PROPERTY = 'SET_PROPERTY',
+    DISABLE_PROPERTY = 'DISABLE_PROPERTY',
+    RESET_PROPERTY = 'RESET_PROPERTY';
 
 /**
  * Return an action object instructing the reducer to add the provided scale
@@ -19,7 +24,7 @@ var actions = require('../constants/actions');
  */
 function addScaleToGroup(scale, groupId) {
   return {
-    type: actions.RULES_ADD_SCALE_TO_GROUP,
+    type: ADD_SCALE_TO_GROUP,
     groupId: groupId,
     id: scale._id
   };
@@ -42,7 +47,7 @@ function addAxisToGroup(axis, groupId) {
   var oldGroupId = axis._parent;
   axis._parent = groupId;
   return {
-    type: actions.RULES_ADD_AXIS_TO_GROUP,
+    type: ADD_AXIS_TO_GROUP,
     oldGroupId: oldGroupId,
     groupId: groupId,
     id: axis._id
@@ -66,7 +71,7 @@ function addLegendToGroup(legend, groupId) {
   var oldGroupId = legend._parent;
   legend._parent = groupId;
   return {
-    type: actions.RULES_ADD_LEGEND_TO_GROUP,
+    type: ADD_LEGEND_TO_GROUP,
     oldGroupId: oldGroupId,
     groupId: groupId,
     id: legend._id
@@ -84,7 +89,7 @@ function addLegendToGroup(legend, groupId) {
  */
 function setProperty(markId, property, value) {
   return {
-    type: actions.RULES_SET_PROPERTY,
+    type: SET_PROPERTY,
     id: markId,
     property: property,
     value: value
@@ -101,7 +106,7 @@ function setProperty(markId, property, value) {
  */
 function disableProperty(markId, property) {
   return {
-    type: actions.RULES_DISABLE_PROPERTY,
+    type: DISABLE_PROPERTY,
     id: markId,
     property: property
   };
@@ -117,13 +122,22 @@ function disableProperty(markId, property) {
  */
 function resetProperty(markId, property) {
   return {
-    type: actions.RULES_RESET_PROPERTY,
+    type: RESET_PROPERTY,
     id: markId,
     property: property
   };
 }
 
 module.exports = {
+  // Action Names
+  ADD_SCALE_TO_GROUP: ADD_SCALE_TO_GROUP,
+  ADD_AXIS_TO_GROUP: ADD_AXIS_TO_GROUP,
+  ADD_LEGEND_TO_GROUP: ADD_LEGEND_TO_GROUP,
+  SET_PROPERTY: SET_PROPERTY,
+  DISABLE_PROPERTY: DISABLE_PROPERTY,
+  RESET_PROPERTY: RESET_PROPERTY,
+
+  // Action Creators
   addScaleToGroup: addScaleToGroup,
   addAxisToGroup: addAxisToGroup,
   addLegendToGroup: addLegendToGroup,
