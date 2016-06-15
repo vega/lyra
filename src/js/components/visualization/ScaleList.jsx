@@ -1,8 +1,9 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    showScaleInspector = require('../../actions/showScaleInspector'),
-    selectScale = require('../../actions/selectScale'),
+    actions = require('../../actions/inspectorActions'),
+    showScaleInspector = actions.showScaleInspector,
+    selectScale = actions.selectScale,
     ContentEditable = require('../ContentEditable'),
     getIn = require('../../util/immutable-utils').getIn;
 

@@ -5,6 +5,7 @@ var vega = require('../actions/vegaActions'),
     scales  = require('../actions/scaleActions'),
     marks = require('../actions/markActions'),
     rules = require('../actions/ruleActions'),
+    inspectors = require('../actions/inspectorActions'),
     hints = require('../actions/hintActions'),
     walkthrough = require('../actions/walkthroughActions');
 
@@ -21,19 +22,18 @@ module.exports = {
 
   // Pipeline Actions
   CREATE_PIPELINE: 'CREATE_PIPELINE',
-  SELECT_PIPELINE: 'SELECT_PIPELINE',
   UPDATE_PIPELINE_DATASET: 'UPDATE_PIPELINE_DATASET',
 
-  // Layer Actions
+  // Scene Actions
   CREATE_SCENE: 'CREATE_SCENE',
-  EXPAND_LAYERS: 'EXPAND_LAYERS',
-  REMOVE_LAYERS: 'REMOVE_LAYERS',
-  TOGGLE_LAYERS: 'TOGGLE_LAYERS',
+
+  // Scales
+  ADD_SCALE: scales.ADD_SCALE,
+  UPDATE_SCALE_PROPERTY: scales.UPDATE_SCALE_PROPERTY,
 
   // Mark Actions
   ADD_MARK: marks.ADD_MARK,
   DELETE_MARK: marks.DELETE_MARK,
-  SELECT_MARK: 'SELECT_MARK',
   SET_PARENT_MARK: marks.SET_PARENT_MARK,
   UPDATE_MARK_PROPERTY: marks.UPDATE_MARK_PROPERTY,
 
@@ -45,16 +45,19 @@ module.exports = {
   RULES_DISABLE_PROPERTY: rules.DISABLE_PROPERTY,
   RULES_RESET_PROPERTY: rules.RESET_PROPERTY,
 
+  // Inspector Actions
+  EXPAND_LAYERS: inspectors.EXPAND_LAYERS,
+  TOGGLE_LAYERS: inspectors.TOGGLE_LAYERS,
+  REMOVE_LAYERS: inspectors.REMOVE_LAYERS,
+  SELECT_MARK: inspectors.SELECT_MARK,
+  SELECT_PIPELINE: inspectors.SELECT_PIPELINE,
+  SELECT_SCALE: inspectors.SELECT_SCALE,
+  SHOW_SCALE_INSPECTOR: inspectors.SHOW_SCALE_INSPECTOR,
+
   // Hint Actions
   HINTS_ON: hints.HINTS_ON,
   DISPLAY_HINTS: hints.DISPLAY_HINTS,
   CLEAR_HINTS: hints.CLEAR_HINTS,
-
-  // Scales
-  ADD_SCALE: scales.ADD_SCALE,
-  UPDATE_SCALE_PROPERTY: scales.UPDATE_SCALE_PROPERTY,
-  SHOW_SCALE_INSPECTOR: 'SHOW_SCALE_INSPECTOR',
-  SELECT_SCALE: 'SELECT_SCALE',
 
   // Walkthrough Actions
   SET_ACTIVE_WALKTHROUGH: walkthrough.SET_ACTIVE_WALKTHROUGH,
