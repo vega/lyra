@@ -3,7 +3,7 @@
 
 var Immutable = require('immutable');
 
-var actions = require('../constants/actions');
+var actions = require('../actions/Names');
 var getIn = require('../util/immutable-utils').getIn;
 var setIn = require('../util/immutable-utils').setIn;
 var hierarchy = require('../util/hierarchy');

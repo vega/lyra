@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var Immutable = require('immutable');
 
-var actions = require('../constants/actions');
+var actions = require('../actions/Names');
 var signalsReducer = require('./signals');
 var markActions = require('../actions/markActions');
 var createScene = require('../actions/sceneActions').createScene;

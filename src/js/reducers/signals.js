@@ -4,7 +4,7 @@
 var Immutable = require('immutable');
 
 var ns = require('../util/ns');
-var actions = require('../constants/actions');
+var actions = require('../actions/Names');
 var signalRef = require('../util/signal-reference');
 var setIn = require('../util/immutable-utils').setIn;
 

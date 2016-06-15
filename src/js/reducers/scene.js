@@ -3,7 +3,7 @@
 
 var Immutable = require('immutable');
 
-var actions = require('../constants/actions');
+var actions = require('../actions/Names');
 
 function sceneReducer(state, action) {
   if (typeof state === 'undefined') {

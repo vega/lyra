@@ -3,7 +3,7 @@
 
 var Immutable = require('immutable');
 
-var actions = require('../constants/actions');
+var actions = require('../actions/Names');
 var ns = require('../util/ns');
 var signalRef = require('../util/signal-reference');
 var immutableUtils = require('../util/immutable-utils');

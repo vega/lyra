@@ -3,7 +3,7 @@
 
 var Immutable = require('immutable');
 
-var actions = require('../constants/actions');
+var actions = require('../actions/Names');
 var counter = require('../util/counter');
 var immutableUtils = require('../util/immutable-utils');
 var set = immutableUtils.set;

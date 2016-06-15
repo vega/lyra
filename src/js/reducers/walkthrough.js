@@ -3,7 +3,7 @@
 
 var Immutable = require('immutable');
 var assign = require('object-assign');
-var actions = require('../constants/actions');
+var actions = require('../actions/Names');
 
 function walkthroughReducer(state, action) {
   if (typeof state === 'undefined') {

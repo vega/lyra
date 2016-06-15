@@ -2,7 +2,7 @@
 'use strict';
 
 var Immutable = require('immutable');
-var actions = require('../constants/actions');
+var actions = require('../actions/Names');
 var immutableUtils = require('../util/immutable-utils');
 var set = immutableUtils.set;
 var setIn = immutableUtils.setIn;

@@ -3,7 +3,7 @@
 
 var Immutable = require('immutable');
 
-var actions = require('../constants/actions');
+var actions = require('../actions/Names');
 
 /**
  * This reducer handles whether to recreate the view from the lyra model.
