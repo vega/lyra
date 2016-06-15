@@ -3,6 +3,7 @@
 var vega = require('../actions/vegaActions'),
     signals = require('../actions/signalActions'),
     scene = require('../actions/sceneActions'),
+    pipelines = require('../actions/pipelineActions'),
     scales  = require('../actions/scaleActions'),
     marks = require('../actions/markActions'),
     rules = require('../actions/ruleActions'),
@@ -21,12 +22,12 @@ module.exports = {
   SET_SIGNAL_STREAMS: signals.SET_SIGNAL_STREAMS,
   UNSET_SIGNAL: signals.UNSET_SIGNAL,
 
-  // Pipeline Actions
-  CREATE_PIPELINE: 'CREATE_PIPELINE',
-  UPDATE_PIPELINE_DATASET: 'UPDATE_PIPELINE_DATASET',
-
   // Scene Actions
   CREATE_SCENE: scene.CREATE_SCENE,
+
+  // Pipeline Actions
+  CREATE_PIPELINE: pipelines.CREATE_PIPELINE,
+  UPDATE_PIPELINE_DATASET: pipelines.UPDATE_PIPELINE_DATASET,
 
   // Scales
   ADD_SCALE: scales.ADD_SCALE,
