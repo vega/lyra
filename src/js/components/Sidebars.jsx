@@ -4,7 +4,7 @@ var React = require('react'),
     getIn = require('../util/immutable-utils').getIn,
     ReactTooltip = require('react-tooltip'),
     InspectorSidebar = require('./InspectorSidebar'),
-    VisualSidebar = require('./VisualSidebar'),
+    EncodingsSidebar = require('./EncodingsSidebar'),
     PipelinesSidebar = require('./PipelinesSidebar'),
     Toolbar = require('./Toolbar'),
     WalkthroughStep = require('./walkthrough/Step'),
@@ -39,7 +39,7 @@ var Sidebars = React.createClass({
     return (
       <div>
         <div className="sidebar-container">
-          <VisualSidebar />
+          <EncodingsSidebar />
           <InspectorSidebar ref="inspector" />
           <PipelinesSidebar />
         </div>

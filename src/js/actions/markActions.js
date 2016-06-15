@@ -39,7 +39,8 @@ function addMark(markProps) {
  * Action creator to delete a mark. It recursively calls itself on any children
  * of the specified mark.
  *
- * @returns {Function} An async action function
+ * @param {number} id The ID of the mark to delete.
+ * @returns {Function} An async action function.
  */
 function deleteMark(id) {
   return function(dispatch, getState) {

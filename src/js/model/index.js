@@ -129,7 +129,7 @@ function register() {
     var def = selected.mark.def,
         id = def && def.lyra_id;
 
-    if (getIn(store.getState(), 'inspector.selected') === id) {
+    if (getIn(store.getState(), 'inspector.encodings.selectedId') === id) {
       return;
     }
 

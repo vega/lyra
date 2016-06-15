@@ -16,7 +16,7 @@ var React = require('react'),
     Icon = require('../Icon');
 
 function mapStateToProps(reduxState) {
-  var selectedMarkId = getIn(reduxState, 'inspector.selected'),
+  var selectedMarkId = getIn(reduxState, 'inspector.encodings.selectedId'),
       sceneId = getIn(reduxState, 'scene.id'),
       closestContainerId;
 

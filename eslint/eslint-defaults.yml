@@ -176,6 +176,7 @@ rules:
     - 2
     - beforeColon: false
       afterColon: true
+      mode: minimum
   lines-around-comment:
     - 2
     - beforeBlockComment: true

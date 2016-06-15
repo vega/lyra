@@ -12,7 +12,7 @@ var React = require('react'),
 
 function mapStateToProps(reduxState) {
   return {
-    selectedId: getIn(reduxState, 'inspector.selected'),
+    selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
     sceneId: getIn(reduxState, 'scene.id')
   };
 }
