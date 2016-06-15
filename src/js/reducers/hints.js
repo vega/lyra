@@ -40,7 +40,7 @@ function hintsReducer(state, action) {
   if (typeof state === 'undefined') {
     return Immutable.fromJS({
       display: null,
-      on: true
+      on: false
     });
   }
 

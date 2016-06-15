@@ -21,7 +21,11 @@ function inspectorReducer(state, action) {
         selected: null
       },
       selected: null,
-      expandedLayers: {}
+      expandedLayers: {},
+      scales: {
+        selected: null,
+        show: false
+      }
     });
   }
 
@@ -41,9 +45,10 @@ function inspectorReducer(state, action) {
 
   if (action.type === actions.SELECT_MARK) {
     var lookup = require('../model').lookup,
-        parentGroupIds = hierarchy.getParentGroupIds(lookup(action.markId));
+        parentGroupIds = hierarchy.getParentGroupIds(lookup(action.markId)),
+        hideScalesState = setIn(state, 'scales.show', false);
 
-    return expandLayers(state.set('selected', action.markId), parentGroupIds);
+    return expandLayers(hideScalesState.set('selected', action.markId), parentGroupIds);
   }
 
   if (action.type === actions.EXPAND_LAYERS) {
@@ -65,6 +70,15 @@ function inspectorReducer(state, action) {
 
   if (action.type === actions.SELECT_PIPELINE) {
     return setIn(state, 'pipelines.selected', action.id);
+  }
+
+  if (action.type === actions.SELECT_SCALE) {
+    var selectedMarkState = setIn(state, 'selected', null);
+    return setIn(selectedMarkState, 'scales.selected', action.id);
+  }
+
+  if (action.type === actions.SHOW_SCALE_INSPECTOR) {
+    return setIn(state, 'scales.show', action.show);
   }
 
   return state;
