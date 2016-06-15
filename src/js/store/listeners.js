@@ -148,7 +148,7 @@ function createStoreListener(store, model) {
     }
 
     // If an item is marked selected in the store, pass that on to Vega
-    var storeSelectedId = getIn(state, 'inspector.selected');
+    var storeSelectedId = getIn(state, 'inspector.encodings.selectedId');
     if (storeSelectedId) {
       updateSelectedMarkInVega(model.lookup(storeSelectedId), model.view);
     }

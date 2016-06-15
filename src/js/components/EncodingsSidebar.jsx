@@ -1,7 +1,7 @@
 'use strict';
 var React = require('react'),
-    ScaleList = require('./visualization/ScaleList'),
-    LayerList = require('./visualization/LayerList');
+    ScaleList = require('./encodings/ScaleList'),
+    LayerList = require('./encodings/LayerList');
 
 var VisualSidebar = React.createClass({
   render: function() {

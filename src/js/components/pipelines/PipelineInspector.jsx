@@ -12,7 +12,7 @@ var React = require('react'),
 function mapStateToProps(state, ownProps) {
   var id = ownProps.id;
   return {
-    isSelected: getIn(state, 'inspector.pipelines.selected') === id,
+    isSelected: getIn(state, 'inspector.pipelines.selectedId') === id,
     pipeline: getIn(state, 'pipelines.' + id)
   };
 }

@@ -5,8 +5,7 @@ var TOGGLE_LAYERS = 'TOGGLE_LAYERS',
     REMOVE_LAYERS = 'REMOVE_LAYERS',
     SELECT_MARK = 'SELECT_MARK',
     SELECT_PIPELINE = 'SELECT_PIPELINE',
-    SELECT_SCALE = 'SELECT_SCALE',
-    SHOW_SCALE_INSPECTOR = 'SHOW_SCALE_INSPECTOR';
+    SELECT_SCALE = 'SELECT_SCALE';
 
 /**
  * Return an object for the action to toggle a set of layers.
@@ -50,7 +49,7 @@ function removeLayers(layerIds) {
 function selectMark(markId) {
   return {
     type: SELECT_MARK,
-    markId: markId
+    id: markId
   };
 }
 
@@ -72,19 +71,6 @@ function selectScale(id) {
     id: id
   };
 }
-
-/**
- * Set if we show the scale inspector
- * @param {boolean} show turn on or off
- * @returns {Object} An action object
- */
-function showScaleInspector(show) {
-  return {
-    type: SHOW_SCALE_INSPECTOR,
-    show: show
-  };
-}
-
 module.exports = {
   // Action Names
   TOGGLE_LAYERS: TOGGLE_LAYERS,
@@ -93,7 +79,6 @@ module.exports = {
   SELECT_MARK: SELECT_MARK,
   SELECT_PIPELINE: SELECT_PIPELINE,
   SELECT_SCALE: SELECT_SCALE,
-  SHOW_SCALE_INSPECTOR: SHOW_SCALE_INSPECTOR,
 
   // Action Creators
   toggleLayers: toggleLayers,
@@ -101,6 +86,5 @@ module.exports = {
   removeLayers: removeLayers,
   selectMark: selectMark,
   selectPipeline: selectPipeline,
-  selectScale: selectScale,
-  showScaleInspector: showScaleInspector
+  selectScale: selectScale
 };

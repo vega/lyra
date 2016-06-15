@@ -1,53 +1,71 @@
 /* eslint no-unused-vars:0 */
 // From is being used
 'use strict';
+
 var React = require('react'),
+    Immutable = require('immutable'),
     connect = require('react-redux').connect,
-    Mark = require('../model/primitives/marks/Mark'),
-    Property = require('./inspectors/Property'),
     model = require('../model'),
     lookup = model.lookup,
-    getIn = require('../util/immutable-utils').getIn;
-
-var hierarchy = require('../util/hierarchy');
-var findInItemTree = hierarchy.findInItemTree;
+    Property = require('./inspectors/Property'),
+    getIn = require('../util/immutable-utils').getIn,
+    hierarchy = require('../util/hierarchy'),
+    findInItemTree = hierarchy.findInItemTree,
+    TYPES = require('../actions/Names');
 
 function mapStateToProps(reduxState, ownProps) {
-  var selectedMarkId = getIn(reduxState, 'inspector.selected');
-  var selectedScaleId = getIn(reduxState, 'inspector.scales.selected');
+  var encState  = getIn(reduxState, 'inspector.encodings'),
+      selId   = encState.get('selectedId'),
+      selType = encState.get('selectedType'),
+      isMark  = selType === TYPES.SELECT_MARK,
+      isScale = selType === TYPES.SELECT_SCALE,
+      primitive;
+
+  if (isMark) {
+    primitive = getIn(reduxState, 'marks.' + selId);
+  } else if (isScale) {
+    primitive = getIn(reduxState, 'scales.' + selId);
+  }
+
   return {
-    selectedMarkId: selectedMarkId,
-    // This will need to be refactored slightly once scale or guide inspectors exist
-    markName: getIn(reduxState, 'marks.' + selectedMarkId + '.name'),
-    showScales: getIn(reduxState, 'inspector.scales.show'),
-    scale: getIn(reduxState, 'scales.' + selectedScaleId)
+    selectedId: selId,
+    selectedType: selType,
+    isMark: isMark,
+    isScale: isScale,
+    primitive: primitive
   };
 }
 
 var Inspector = React.createClass({
   propTypes: {
-    selectedMarkId: React.PropTypes.number,
-    markName: React.PropTypes.string,
-    showScales: React.PropTypes.bool,
-    scale: React.PropTypes.object
+    selectedId: React.PropTypes.number,
+    selectedType: React.PropTypes.string,
+    isMark: React.PropTypes.bool,
+    isScale: React.PropTypes.bool,
+    primitive: React.PropTypes.instanceOf(Immutable.Map)
   },
 
   uppercase: function(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   },
 
-  showPrimitiveInspector: function() {
-    var props = this.props;
-    var primitive = props.selectedMarkId ? lookup(props.selectedMarkId) : {};
+  render: function() {
+    var props = this.props,
+        prim = props.primitive && props.primitive.toJS(),
+        from = prim ? lookup(prim.from) : '',
+        ctor, InspectorType;
 
-    var from = primitive ? lookup(primitive.from) : '',
-        ctor = primitive && primitive.type ?
-               this.uppercase(primitive.type) :
-               '',
-        InspectorType = Inspector[ctor],
-        isMark = primitive instanceof Mark;
+    if (prim) {
+      if (props.isMark) {
+        ctor = this.uppercase(prim.type);
+      } else if (props.isScale) {
+        ctor = 'Scale';
+      }
 
-    var pipeline = isMark ? (
+      InspectorType = Inspector[ctor];
+    }
+
+    var pipeline = props.isMark ? (
       <div className="property-group property">
         <h3 className="label-long">Pipeline</h3>
         <div className="control">{from && from.name || 'None'}</div>
@@ -57,39 +75,17 @@ var Inspector = React.createClass({
     var inner = InspectorType ? (
       <div className="inner">
         {pipeline}
-        <InspectorType primitive={primitive} />
-      </div>) : null;
+        <InspectorType primitive={prim} />
+      </div>
+    ) : null;
 
     // if property is selected show the header
     return (
       <div className="sidebar" id="inspector">
-        <h2>{props.markName || 'Properties'}</h2>
+        <h2>{prim ? prim.name : 'Properties'}</h2>
         {inner}
       </div>
     );
-  },
-
-  showScaleInspector: function() {
-    var ScalesInspector = Inspector.Scale;
-    var inner = (
-      <div className="inner">
-        <ScalesInspector />
-      </div>
-    );
-    return (
-      <div className="sidebar" id="inspector">
-        <h2>{this.props.scale.name || 'Scale Properties'}</h2>
-        {inner}
-      </div>
-    );
-  },
-
-  render: function() {
-    // Check that we aren't showing a scale
-    if (this.props.showScales) {
-      return this.showScaleInspector();
-    }
-    return this.showPrimitiveInspector();
   }
 });
 

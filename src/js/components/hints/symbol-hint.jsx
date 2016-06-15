@@ -8,7 +8,7 @@ var React = require('react'),
 
 function mapStateToProps(reduxState, ownProps) {
   return {
-    selectedId: getIn(reduxState, 'inspector.selected')
+    selectedId: getIn(reduxState, 'inspector.encodings.selectedId')
   };
 }
 function mapDispatchToProps(dispatch, ownProps) {

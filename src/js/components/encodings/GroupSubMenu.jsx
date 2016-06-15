@@ -19,8 +19,8 @@ var React = require('react'),
 
 function mapStateToProps(reduxState) {
   return {
-    selectedId: getIn(reduxState, 'inspector.selected'),
-    expandedLayers: getIn(reduxState, 'inspector.expandedLayers')
+    selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
+    expandedLayers: getIn(reduxState, 'inspector.encodings.expandedLayers')
   };
 }
 
