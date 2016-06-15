@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var Immutable = require('immutable');
 
 var actions = require('../actions/Names');
-var vegaReducer = require('./vega');
+var vegaReducer = require('./vegaReducer');
 
 describe('vega reducer', function() {
   var initialState;

@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var Immutable = require('immutable');
 
-var sceneReducer = require('./scene');
+var sceneReducer = require('./sceneReducer');
 var createScene = require('../actions/sceneActions').createScene;
 var counter = require('../util/counter');
 
