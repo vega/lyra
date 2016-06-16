@@ -11,7 +11,8 @@ var dl = require('datalib'),
     CancellablePromise = require('../util/simple-cancellable-promise'),
     inspectorActions = require('../actions/inspectorActions'),
     selectMark = inspectorActions.selectMark,
-    expandLayers = inspectorActions.expandLayers;
+    expandLayers = inspectorActions.expandLayers,
+    exportUtil = require('../util/export');
 
 /** @namespace */
 var model = module.exports = {
@@ -182,10 +183,7 @@ model.export = function(scene, clean) {
   clean = clean || clean === undefined;
   var spec = scene || model.Scene.export(clean);
 
-  spec.data = pipelines.reduce(function(arr, id) {
-    return (arr.push.apply(arr, lookup(id).export(clean)), arr);
-  }, []);
-
+  spec.data = exportUtil.exportPipelines(clean);
   return spec;
 };
 
