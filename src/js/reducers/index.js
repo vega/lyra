@@ -3,13 +3,14 @@ var combineReducers = require('redux-immutable').combineReducers;
 
 // order matters here
 module.exports = combineReducers({
-  scene: require('./sceneReducer'),
   vega: require('./vegaReducer'),
-  inspector: require('./inspectorReducer'),
-  marks: require('./marksReducer'),
-  scales: require('./scalesReducer'),
   signals: require('./signalsReducer'),
-  walkthrough: require('./walkthroughReducer'),
+  scene: require('./sceneReducer'),
+  pipelines: require('./pipelinesReducer'),
+  datasets: require('./datasetsReducer'),
+  scales: require('./scalesReducer'),
+  marks: require('./marksReducer'),
+  inspector: require('./inspectorReducer'),
   hints: require('./hintsReducer'),
-  pipelines: require('./pipelinesReducer')
+  walkthrough: require('./walkthroughReducer')
 });

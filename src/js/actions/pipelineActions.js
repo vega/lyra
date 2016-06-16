@@ -1,44 +1,43 @@
 'use strict';
 
-var CREATE_PIPELINE = 'CREATE_PIPELINE',
-    UPDATE_PIPELINE_DATASET = 'UPDATE_PIPELINE_DATASET';
+var assign  = require('object-assign'),
+    counter = require('../util/counter'),
+    datasetActions = require('./datasetActions'),
+    addDataset = datasetActions.addDataset,
+    ADD_PIPELINE = 'ADD_PIPELINE';
 
 /**
- * Action creator to create a new Pipeline in the store
+ * Action creator to add a new Pipeline in the store. A new pipeline requires
+ * a new source dataset. Thus, we need to dispatch multiple actions.
  *
- * @param {string} id - The string ID to use for this pipeline
- * @returns {object} A CREATE_PIPELINE action object
+ * @param {Object} pipeline - The properties of the pipeline.
+ * @param {Object} dataset - The properties of the dataset.
+ * @returns {Function} An async action function
  */
-function createPipeline(id) {
-  return {
-    type: CREATE_PIPELINE,
-    id: id
-  };
-}
+function addPipeline(pipeline, dataset) {
+  return function(dispatch) {
+    var pid = pipeline._id || counter.global();
 
-/**
- * Action creator to update a pipeline to use a Dataset class instance.
- * TODO: Move Datasets into the redux store as well.
- *
- * @param {number} pipelineId - The numeric ID of the pipeline to update
- * @param {number} datasetId - The numeric ID of the dataset with which to update
- * the pipeline
- * @returns {object} An UPDATE_PIPELINE_DATASET action object
- */
-function updatePipelineDataset(pipelineId, datasetId) {
-  return {
-    type: UPDATE_PIPELINE_DATASET,
-    pipelineId: pipelineId,
-    datasetId: datasetId
+    var ds = addDataset(assign({_parent: pid}, dataset));
+    dispatch(ds);
+
+    pipeline = assign({
+      _id: pid,
+      _source: pipeline._source || ds.id
+    }, pipeline);
+
+    dispatch({
+      type: ADD_PIPELINE,
+      id: pipeline._id,
+      props: pipeline
+    });
   };
 }
 
 module.exports = {
   // Action Names
-  CREATE_PIPELINE: CREATE_PIPELINE,
-  UPDATE_PIPELINE_DATASET: UPDATE_PIPELINE_DATASET,
+  ADD_PIPELINE: ADD_PIPELINE,
 
   // Action Creators
-  createPipeline: createPipeline,
-  updatePipelineDataset: updatePipelineDataset
+  addPipeline: addPipeline
 };

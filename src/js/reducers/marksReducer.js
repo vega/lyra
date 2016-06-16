@@ -192,9 +192,8 @@ function resetProperty(state, id, property) {
 }
 
 /**
- * Main marks reducer function, which generates a new state for the
- * marks (marks) property store based on the changes specified by the
- * dispatched action object.
+ * Main marks reducer function, which generates a new state for the marks
+ * property store based on the changes specified by the dispatched action object.
  *
  * @param {Object} state - An Immutable.Map state object
  * @param {Object} action - A redux action object

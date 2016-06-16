@@ -1,7 +1,7 @@
 'use strict';
 
-var assign   = require('object-assign'),
-    counter  = require('../util/counter'),
+var assign  = require('object-assign'),
+    counter = require('../util/counter'),
     ADD_SCALE = 'ADD_SCALE',
     UPDATE_SCALE_PROPERTY = 'UPDATE_SCALE_PROPERTY';
 
