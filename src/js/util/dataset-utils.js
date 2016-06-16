@@ -73,8 +73,10 @@ du.init = function(action) {
  * @returns {Object[]} An array of objects.
  */
 du.values = function(id) {
-  var model = require('../model');
-  return model.view ? model.view.data(def(id).name).values() : values[id];
+  var model = require('../model'),
+      ds = model.view && model.view.data(def(id).name);
+
+  return ds ? ds.values() : values[id];
 };
 
 /**

@@ -1,7 +1,6 @@
 'use strict';
 var React = require('react'),
     Immutable = require('immutable'),
-    dl = require('datalib'),
     connect = require('react-redux').connect,
     getIn = require('../../util/immutable-utils').getIn,
     PipelineInspector = require('./PipelineInspector');
@@ -18,12 +17,11 @@ var PipelineList = React.createClass({
   },
 
   render: function() {
-    var pipelines = dl.vals(this.props.pipelines.toJS());
+    var pipelines = this.props.pipelines.keySeq().toArray();
 
     return (
       <div id="pipeline-list">
-        {pipelines.map(function(pipeline) {
-          var id = pipeline._id;
+        {pipelines.map(function(id) {
           return (<PipelineInspector key={id} id={id} />);
         })}
       </div>

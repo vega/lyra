@@ -4,7 +4,6 @@ var React = require('react'),
     ReactTooltip = require('react-tooltip'),
     ContentEditable = require('../ContentEditable'),
     lookup = require('../../model').lookup,
-    hierarchy = require('../../util/hierarchy'),
     get = require('../../util/immutable-utils').get,
     getIn = require('../../util/immutable-utils').getIn,
     selectMark = require('../../actions/inspectorActions').selectMark,
@@ -12,7 +11,6 @@ var React = require('react'),
     deleteMark = markActions.deleteMark,
     updateMarkProperty = markActions.updateMarkProperty,
     inspectorActions = require('../../actions/inspectorActions'),
-    expandLayers = inspectorActions.expandLayers,
     toggleLayers = inspectorActions.toggleLayers,
     Icon = require('../Icon'),
     assets = require('../../util/assets');
@@ -27,13 +25,7 @@ function mapStateToProps(reduxState) {
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     select: function(id) {
-      // Walk up from the selected primitive to create an array of its parent groups' IDs
-      var parentGroupIds = hierarchy.getParentGroupIds(lookup(id));
-
-      // Select the mark,
       dispatch(selectMark(id));
-      // And expand the hierarchy so that it is visible
-      dispatch(expandLayers(parentGroupIds));
     },
     deleteMark: function(id) {
       if (ownProps.selectedId === id) {

@@ -29,15 +29,15 @@ var ScaleList = React.createClass({
   },
   render: function() {
     var props = this.props,
-        scales = props.scales.toArray();
+        scales = props.scales.valueSeq().toJS();
 
     return (
       <div id="scale-list">
         <h2>Scales</h2>
         <ul>
           {scales.map(function(scale) {
-            var id = scale.get('_id'),
-                name = scale.get('name');
+            var id = scale._id,
+                name = scale.name;
 
             return (
               <li key={id}
