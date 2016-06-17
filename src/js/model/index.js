@@ -11,8 +11,7 @@ var dl = require('datalib'),
     CancellablePromise = require('../util/simple-cancellable-promise'),
     inspectorActions = require('../actions/inspectorActions'),
     selectMark = inspectorActions.selectMark,
-    expandLayers = inspectorActions.expandLayers,
-    exportUtil = require('../util/export');
+    expandLayers = inspectorActions.expandLayers;
 
 /** @namespace */
 var model = module.exports = {
@@ -75,34 +74,21 @@ Object.defineProperty(model, 'Scene', {
  * @returns {void}
  */
 model.syncMark = function(id, props) {
-  var existingMark = lookup(id),
-      MarkCtor = props && require('./primitives/marks').getConstructor(props.type);
+  // var existingMark = lookup(id),
+  //     MarkCtor = props && require('./primitives/marks').getConstructor(props.type);
 
-  if (existingMark && !props) {
-    // Remove the mark and its VLSingle from the primitives store
-    existingMark.remove();
-    return;
-  }
+  // if (existingMark && !props) {
+  //   // Remove the mark and its VLSingle from the primitives store
+  //   existingMark.remove();
+  //   return;
+  // }
 
-  if (existingMark) {
-    existingMark.update(props);
-  } else if (MarkCtor) {
-    model.primitive(id, new MarkCtor(props));
-  }
+  // if (existingMark) {
+  //   existingMark.update(props);
+  // } else if (MarkCtor) {
+  //   model.primitive(id, new MarkCtor(props));
+  // }
 };
-
-function getset(cache, id, Type) {
-  if (id === undefined) {
-    return cache.map(function(x) {
-      return lookup(x);
-    });
-  } else if (dl.isNumber(id)) {
-    return lookup(id);
-  }
-  var obj = dl.isString(id) ? new Type(id) : id;
-  return (cache.push(obj._id), obj);
-}
-
 
 function register() {
   var win = d3.select(window),
@@ -152,40 +138,7 @@ function register() {
   });
 }
 
-/**
- * A getter or creator for Pipelines.
- * @param  {number|string} [id] - The numeric ID of an existing Pipeline to retrieve
- * or the name of a new Pipeline to instantiate. If no id is given, returns all
- * Pipelines.
- * @returns {Object|Object[]} A Pipeline or array of Pipelines.
- */
-model.pipeline = function(id) {
-  return getset(pipelines, id, require('./primitives/data/Pipeline'));
-};
-
-/**
- * Get all scales for this model
- * @returns {Object|Object[]} A Scale or array of Scales from redux
- */
-model.scale = function() {
-  // this will be refactored out eventually
-  return getIn(store.getState(), 'scales').toArray();
-};
-
-/**
- * Exports the model as a complete Vega specification.
- * @param  {Object}  [scene] - An exported specification of the Scene.
- * @param  {boolean} [clean=true] - Should Lyra-specific properties be removed
- * or resolved (e.g., converting property signal references to actual values).
- * @returns {Object} A Vega specification.
- */
-model.export = function(scene, clean) {
-  clean = clean || clean === undefined;
-  var spec = scene || model.Scene.export(clean);
-
-  spec.data = exportUtil.exportPipelines(clean);
-  return spec;
-};
+model.export = require('../util/export');
 
 /**
  * Exports the model as a complete Vega specification with extra definitions
