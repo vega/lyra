@@ -3,7 +3,7 @@
 var dl = require('datalib'),
     vg = require('vega'),
     sg = require('./signals'),
-    manips = require('./primitives/marks/manipulators'),
+    manips = require('./manipulators'),
     ns = require('../util/ns'),
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
@@ -147,7 +147,7 @@ model.export = require('./export');
  * @returns {Object} A Vega specification.
  */
 model.manipulators = function() {
-  var spec = model.export(true, model.Scene.manipulators()),
+  var spec = model.export(true),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       predicates = spec.predicates || (spec.predicates = []),

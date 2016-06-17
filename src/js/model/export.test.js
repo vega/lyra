@@ -139,7 +139,8 @@ describe('Exporter Utility', function() {
       expect(spec).to.deep.equal(truth);
 
       spec = exporter.mark(state, true, 4);
-      expect(spec).to.deep.equal(assign({lyra_id: 4}, truth));
+      expect(spec.length).to.be.greaterThan(1); // Manipulators!
+      expect(spec[0]).to.deep.equal(assign({lyra_id: 4}, truth));
     });
 
     it('exports from mark', function() {
@@ -155,7 +156,8 @@ describe('Exporter Utility', function() {
       var spec1 = exporter.mark(state, false, 5),
           spec2 = exporter.mark(state, true, 5);
       expect(spec1).to.have.deep.property('from.mark', 'Symbol_Two');
-      expect(spec2).to.have.deep.property('from.mark', 'Symbol_Two');
+      expect(spec.length).to.be.greaterThan(1); // Manipulators!
+      expect(spec2[0]).to.have.deep.property('from.mark', 'Symbol_Two');
     });
 
     describe('Mark Properties', function() {
@@ -198,7 +200,8 @@ describe('Exporter Utility', function() {
 
       it('exports but does not resolve mark properties', function() {
         var spec = exporter.mark(state, true, 4);
-        expect(spec).to.deep.equal({
+        expect(spec.length).to.be.greaterThan(1); // Manipulators!
+        expect(spec[0]).to.deep.equal({
           name: 'Rect_One', type: 'rect', lyra_id: 4,
           properties: {
             update: {

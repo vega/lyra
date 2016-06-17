@@ -4,21 +4,23 @@ var dl = require('datalib'),
     store = require('../store'),
     getIn = require('../util/immutable-utils').getIn,
     signalLookup = require('../util/signal-lookup'),
-    dsUtils = require('../util/dataset-utils');
+    dsUtils = require('../util/dataset-utils'),
+    manipulators = require('./manipulators');
 
 /**
  * Exports primitives in the redux store as a complete Vega specification.
  *
  * @param  {boolean} [internal=false] Should Lyra-specific properties be
- * removed (e.g., converting property signal references to actual values).
- * @param  {Object} [scene] An exported specification of the scene.
+ * removed (e.g., converting property signal references to actual values). When
+ * true, additional mark specifications are also added corresponding to the
+ * direct-manipulation interactors (handles, connectors, etc.).
  * @returns {Object} A Vega specification.
  */
-function exporter(internal, scene) {
+function exporter(internal) {
   var state = store.getState(),
       int   = internal === true;
 
-  var spec = scene || exporter.scene(state, int);
+  var spec  = exporter.scene(state, int);
   spec.data = exporter.pipelines(state, int);
   return spec;
 }
@@ -53,6 +55,10 @@ exporter.dataset = function(state, internal, id) {
 exporter.scene = function(state, internal) {
   var sceneId = getIn(state, 'scene.id'),
       spec = exporter.group(state, internal, sceneId);
+
+  if (internal) {
+    spec = spec[0];
+  }
 
   /* eslint no-multi-spaces:0 */
   // Always resolve width/height signals.
@@ -104,6 +110,7 @@ exporter.mark = function(state, internal, id) {
 
   if (internal) {
     spec.lyra_id = mark._id;
+    return manipulators(mark, spec);
   }
 
   return spec;
@@ -111,14 +118,15 @@ exporter.mark = function(state, internal, id) {
 
 exporter.group = function(state, internal, id) {
   var mark = getIn(state, 'marks.' + id).toJS(),
-      spec = exporter.mark(state, internal, id);
+      spec = exporter.mark(state, internal, id),
+      group = internal ? spec[0] : spec;
 
   // TODO: axes and legends.
   ['scale', 'mark'].forEach(function(childType) {
     var childTypes = childType + 's'; // Pluralized for spec key.
 
     // Route export to the most appropriate function.
-    spec[childTypes] = mark[childTypes].map(function(cid) {
+    group[childTypes] = mark[childTypes].map(function(cid) {
       var child = getIn(state, childTypes + '.' + cid).toJS();
       if (exporter[child.type]) {
         return exporter[child.type](state, internal, cid);
@@ -127,7 +135,15 @@ exporter.group = function(state, internal, id) {
       }
 
       return clean(dl.duplicate(child), internal);
-    });
+    }).reduce(function(children, child) {
+      // If internal === true, children are an array of arrays which must be flattened.
+      if (dl.isArray(child)) {
+        children.push.apply(children, child);
+      } else {
+        children.push(child);
+      }
+      return children;
+    }, []);
   });
 
   return spec;
@@ -135,11 +151,12 @@ exporter.group = function(state, internal, id) {
 
 exporter.area = function(state, internal, id) {
   var spec = exporter.mark(state, internal, id),
-      update = spec.properties.update;
+      area = internal ? spec[0] : spec,
+      update = area.properties.update;
 
   // Export with dummy data to have an initial area appear on the canvas.
-  if (!spec.from) {
-    spec.from = {data: 'dummy_data_area'};
+  if (!area.from) {
+    area.from = {data: 'dummy_data_area'};
     update.x = {field: 'x'};
     update.y = {field: 'y'};
   }
@@ -155,11 +172,12 @@ exporter.area = function(state, internal, id) {
 
 exporter.line = function(state, internal, id) {
   var spec = exporter.mark(state, internal, id),
-      update = spec.properties.update;
+      line = internal ? spec[0] : spec,
+      update = line.properties.update;
 
   // Export with dummy data to have an initial area appear on the canvas.
-  if (!spec.from) {
-    spec.from = {data: 'dummy_data_line'};
+  if (!line.from) {
+    line.from = {data: 'dummy_data_line'};
     update.x = {field: 'foo'};
     update.y = {field: 'bar'};
   }

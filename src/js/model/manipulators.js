@@ -1,7 +1,7 @@
 'use strict';
 var dl = require('datalib'),
-    sg = require('../../signals'),
-    ns = require('../../../util/ns');
+    sg = require('./signals'),
+    ns = require('../util/ns');
 
 var TYPES = [];
 
@@ -10,28 +10,24 @@ var TYPES = [];
 // This differentiation is needed because channels and altchannels
 // display multiple manipulators.
 
-function manipulators(prototype) {
-
-  prototype.manipulators = function() {
-    return [this.export(false), {
-      type: 'group',
-      from: {
-        mark: this.name,
-        transform: [
-          {
-            type: ns('manipulators_' + this.type),
-            lyra_id: this._id
-          },
-          {
-            type: 'facet',
-            groupby: ['manipulator']
-          }
-        ]
-      },
-      marks: TYPES
-    }];
-  };
-
+function manipulators(mark, spec) {
+  return [spec, {
+    type: 'group',
+    from: {
+      mark: mark.name,
+      transform: [
+        {
+          type: ns('manipulators_' + mark.type),
+          lyra_id: mark._id
+        },
+        {
+          type: 'facet',
+          groupby: ['manipulator']
+        }
+      ]
+    },
+    marks: TYPES
+  }];
 }
 
 module.exports = manipulators;

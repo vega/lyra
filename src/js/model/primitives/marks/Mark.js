@@ -5,7 +5,6 @@ var dl = require('datalib'),
     Primitive = require('../Primitive'),
     Pipeline = require('../data/Pipeline'),
     Dataset = require('../data/Dataset'),
-    manips = require('./manipulators'),
     rules = require('../../rules'),
     model = require('../../'),
     lookup = model.lookup,
@@ -202,7 +201,6 @@ Mark.prototype.remove = function() {
   model.removeListeners(this);
 };
 
-manips(Mark.prototype);
 rules(Mark.prototype);
 
 module.exports = Mark;
