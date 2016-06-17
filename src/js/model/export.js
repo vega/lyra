@@ -9,37 +9,35 @@ var dl = require('datalib'),
 /**
  * Exports primitives in the redux store as a complete Vega specification.
  *
- * @param  {Object} [scene] An exported specification of the scene.
- * @param  {boolean} [shouldClean=true] Should Lyra-specific properties be
+ * @param  {boolean} [internal=false] Should Lyra-specific properties be
  * removed (e.g., converting property signal references to actual values).
+ * @param  {Object} [scene] An exported specification of the scene.
  * @returns {Object} A Vega specification.
  */
-function exporter(scene, shouldClean) {
+function exporter(internal, scene) {
   var state = store.getState(),
-      resolve = shouldClean || shouldClean === undefined,
-      spec = scene || exporter.scene(state, resolve);
+      int   = internal === true;
 
-  spec.data = exporter.pipelines(state, resolve);
+  var spec = scene || exporter.scene(state, int);
+  spec.data = exporter.pipelines(state, int);
   return spec;
 }
 
-exporter.pipelines = function(state, resolve) {
+exporter.pipelines = function(state, internal) {
   var pipelines = getIn(state, 'pipelines').valueSeq().toJS();
   return pipelines.map(function(pipeline) {
-    return exporter.dataset(state, resolve, pipeline._source);
+    return exporter.dataset(state, internal, pipeline._source);
   });
 };
 
-exporter.dataset = function(state, resolve, id) {
+exporter.dataset = function(state, internal, id) {
   var dataset = getIn(state, 'datasets.' + id).toJS(),
-      spec = clean(dl.duplicate(dataset), resolve);
+      spec = clean(dl.duplicate(dataset), internal);
 
   // Only include the raw values in the exported spec if:
   //   1. It is a remote dataset but we're re-rendering the Lyra view
-  //      (i.e., resolve === false)
-  //   2. Raw values were provided by the user directly
-  //      (i.e., no url or source).
-  if ((spec.url && !resolve) || (!spec.url && !spec.source)) {
+  //   2. Raw values were provided by the user directly (i.e., no url/source).
+  if ((spec.url && internal) || (!spec.url && !spec.source)) {
     spec.values = dsUtils.values(id);
     delete spec.url;
   }
@@ -52,9 +50,9 @@ exporter.dataset = function(state, resolve, id) {
   return spec;
 };
 
-exporter.scene = function(state, resolve) {
+exporter.scene = function(state, internal) {
   var sceneId = getIn(state, 'scene.id'),
-      spec = exporter.group(state, resolve, sceneId);
+      spec = exporter.group(state, internal, sceneId);
 
   /* eslint no-multi-spaces:0 */
   // Always resolve width/height signals.
@@ -69,9 +67,9 @@ exporter.scene = function(state, resolve) {
   return spec;
 };
 
-exporter.mark = function(state, resolve, id) {
+exporter.mark = function(state, internal, id) {
   var mark = getIn(state, 'marks.' + id).toJS(),
-      spec = clean(dl.duplicate(mark), resolve),
+      spec = clean(dl.duplicate(mark), internal),
       up = mark.properties.update,
       upspec = spec.properties.update,
       fromId;
@@ -104,16 +102,16 @@ exporter.mark = function(state, resolve, id) {
     }
   });
 
-  if (!resolve) {
+  if (internal) {
     spec.lyra_id = mark._id;
   }
 
   return spec;
 };
 
-exporter.group = function(state, resolve, id) {
+exporter.group = function(state, internal, id) {
   var mark = getIn(state, 'marks.' + id).toJS(),
-      spec = exporter.mark(state, resolve, id);
+      spec = exporter.mark(state, internal, id);
 
   // TODO: axes and legends.
   ['scale', 'mark'].forEach(function(childType) {
@@ -123,20 +121,20 @@ exporter.group = function(state, resolve, id) {
     spec[childTypes] = mark[childTypes].map(function(cid) {
       var child = getIn(state, childTypes + '.' + cid).toJS();
       if (exporter[child.type]) {
-        return exporter[child.type](state, resolve, cid);
+        return exporter[child.type](state, internal, cid);
       } else if (exporter[childType]) {
-        return exporter[childType](state, resolve, cid);
+        return exporter[childType](state, internal, cid);
       }
 
-      return clean(dl.duplicate(child), resolve);
+      return clean(dl.duplicate(child), internal);
     });
   });
 
   return spec;
 };
 
-exporter.area = function(state, resolve, id) {
-  var spec = exporter.mark(state, resolve, id),
+exporter.area = function(state, internal, id) {
+  var spec = exporter.mark(state, internal, id),
       update = spec.properties.update;
 
   // Export with dummy data to have an initial area appear on the canvas.
@@ -155,8 +153,8 @@ exporter.area = function(state, resolve, id) {
   return spec;
 };
 
-exporter.line = function(state, resolve, id) {
-  var spec = exporter.mark(state, resolve, id),
+exporter.line = function(state, internal, id) {
+  var spec = exporter.mark(state, internal, id),
       update = spec.properties.update;
 
   // Export with dummy data to have an initial area appear on the canvas.
@@ -169,9 +167,9 @@ exporter.line = function(state, resolve, id) {
   return spec;
 };
 
-exporter.scale = function(state, resolve, id) {
+exporter.scale = function(state, internal, id) {
   var scale = getIn(state, 'scales.' + id).toJS(),
-      spec  = clean(dl.duplicate(scale), resolve);
+      spec  = clean(dl.duplicate(scale), internal);
 
   if (!scale.domain && scale._domain && scale._domain.length) {
     spec.domain = dataRef(state, scale._domain);
@@ -199,10 +197,10 @@ function name(str) {
  * (i.e., those prefixed by an underscore).
  *
  * @param {Object} spec - A Lyra representation from the store.
- * @param {Boolean} resolve - Whether to resolve signal references to values.
+ * @param {Boolean} internal - Whether to resolve signal references to values.
  * @returns {Object} A cleaned spec object
  */
-function clean(spec, resolve) {
+function clean(spec, internal) {
   var key, prop, cleanKey;
   for (key in spec) {
     prop = spec[key];
@@ -213,12 +211,12 @@ function clean(spec, resolve) {
     } else if (key === 'name' && dl.isString(prop)) {
       spec[key] = name(prop);
     } else if (dl.isObject(prop)) {
-      if (prop.signal && resolve !== false) {
+      if (prop.signal && internal === false) {
         // Render signals to their value
         spec[key] = signalLookup(prop.signal);
       } else {
         // Recurse
-        spec[key] = clean(spec[key], resolve);
+        spec[key] = clean(spec[key], internal);
       }
     }
   }

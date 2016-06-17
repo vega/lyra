@@ -147,7 +147,7 @@ model.export = require('./export');
  * @returns {Object} A Vega specification.
  */
 model.manipulators = function() {
-  var spec = model.export(model.Scene.manipulators(), false),
+  var spec = model.export(true, model.Scene.manipulators()),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       predicates = spec.predicates || (spec.predicates = []),

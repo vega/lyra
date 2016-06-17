@@ -72,14 +72,14 @@ describe('Exporter Utility', function() {
 
     describe('Datasets', function() {
       it('exports remote datasets', function() {
-        var spec = exporter.dataset(imstate, true, 2);
+        var spec = exporter.dataset(imstate, false, 2);
         expect(spec).to.deep.equal({
           name: 'cars_dataset', url: '/data/cars.json'
         });
       });
 
       it('exports and embeds remote datasets', function() {
-        var spec = exporter.dataset(imstate, false, 2);
+        var spec = exporter.dataset(imstate, true, 2);
         expect(spec).to.deep.equal({
           name: 'cars_dataset', values: state.values[0]
         });
@@ -87,25 +87,25 @@ describe('Exporter Utility', function() {
 
       it('exports sourced datasets', function() {
         var truth = {name: 'gapminder_dataset', source: 'cars_dataset'};
-        expect(exporter.dataset(imstate, true, 3)).to.deep.equal(truth);
         expect(exporter.dataset(imstate, false, 3)).to.deep.equal(truth);
+        expect(exporter.dataset(imstate, true, 3)).to.deep.equal(truth);
       });
 
       it('exports raw datasets', function() {
         var truth = {name: 'jobs_dataset', values: state.values[1]};
-        expect(exporter.dataset(imstate, true, 4)).to.deep.equal(truth);
         expect(exporter.dataset(imstate, false, 4)).to.deep.equal(truth);
+        expect(exporter.dataset(imstate, true, 4)).to.deep.equal(truth);
       });
     });
 
     it('exports all pipelines', function() {
       expect(exporter.pipelines(imstate, true)).to.deep.equal([
-        {name: 'cars_dataset', url: '/data/cars.json'},
+        {name: 'cars_dataset', values: state.values[0]},
         {name: 'jobs_dataset', values: state.values[1]}
       ]);
 
       expect(exporter.pipelines(imstate, false)).to.deep.equal([
-        {name: 'cars_dataset', values: state.values[0]},
+        {name: 'cars_dataset', url: '/data/cars.json'},
         {name: 'jobs_dataset', values: state.values[1]}
       ]);
     });
@@ -129,7 +129,7 @@ describe('Exporter Utility', function() {
         }
       });
 
-      var spec  = exporter.mark(state, true, 4),
+      var spec  = exporter.mark(state, false, 4),
           truth = {
             name: 'Rect_One', type: 'rect',
             from: {data: 'cars_dataset'},
@@ -138,7 +138,7 @@ describe('Exporter Utility', function() {
 
       expect(spec).to.deep.equal(truth);
 
-      spec = exporter.mark(state, false, 4);
+      spec = exporter.mark(state, true, 4);
       expect(spec).to.deep.equal(assign({lyra_id: 4}, truth));
     });
 
@@ -152,8 +152,8 @@ describe('Exporter Utility', function() {
         }
       });
 
-      var spec1 = exporter.mark(state, true, 5),
-          spec2 = exporter.mark(state, false, 5);
+      var spec1 = exporter.mark(state, false, 5),
+          spec2 = exporter.mark(state, true, 5);
       expect(spec1).to.have.deep.property('from.mark', 'Symbol_Two');
       expect(spec2).to.have.deep.property('from.mark', 'Symbol_Two');
     });
@@ -181,7 +181,7 @@ describe('Exporter Utility', function() {
       });
 
       it('exports and resolves mark properties', function() {
-        var spec = exporter.mark(state, true, 4);
+        var spec = exporter.mark(state, false, 4);
         expect(spec).to.deep.equal({
           name: 'Rect_One', type: 'rect',
           properties: {
@@ -197,7 +197,7 @@ describe('Exporter Utility', function() {
       });
 
       it('exports but does not resolve mark properties', function() {
-        var spec = exporter.mark(state, false, 4);
+        var spec = exporter.mark(state, true, 4);
         expect(spec).to.deep.equal({
           name: 'Rect_One', type: 'rect', lyra_id: 4,
           properties: {
@@ -222,7 +222,7 @@ describe('Exporter Utility', function() {
         }
       });
 
-      var spec = exporter.area(state, true, 4);
+      var spec = exporter.area(state, false, 4);
       expect(spec).to.have.deep.property('from.data', 'cars_dataset');
       expect(spec.properties.update).to.deep.equal({orient: {value: 'horizontal'}});
     });
@@ -235,7 +235,7 @@ describe('Exporter Utility', function() {
         }
       });
 
-      var spec = exporter.area(state, true, 4);
+      var spec = exporter.area(state, false, 4);
       expect(spec).to.have.deep.property('from.data', 'dummy_data_area');
       expect(spec.properties.update).to.deep.equal({
         x: {field: 'x'}, y: {field: 'y'}, orient: {value: 'horizontal'}
@@ -254,7 +254,7 @@ describe('Exporter Utility', function() {
             }
           };
 
-      var spec = exporter.area(store(state), true, 4);
+      var spec = exporter.area(store(state), false, 4);
       expect(spec).to.have.deep.property('properties.update.orient.value', 'horizontal');
       expect(spec).to.have.deep.property('properties.update.x');
       expect(spec).to.have.deep.property('properties.update.x2');
@@ -262,7 +262,7 @@ describe('Exporter Utility', function() {
       expect(spec).to.not.have.deep.property('properties.update.y2');
 
       orient.value = 'vertical';
-      spec = exporter.area(store(state), true, 4);
+      spec = exporter.area(store(state), false, 4);
       expect(spec).to.have.deep.property('properties.update.orient.value', 'vertical');
       expect(spec).to.have.deep.property('properties.update.x');
       expect(spec).to.not.have.deep.property('properties.update.x2');
@@ -279,7 +279,7 @@ describe('Exporter Utility', function() {
         }
       });
 
-      var spec = exporter.line(state, true, 4);
+      var spec = exporter.line(state, false, 4);
       expect(spec).to.have.deep.property('from.data', 'cars_dataset');
       expect(spec.properties.update).to.deep.equal({});
     });
@@ -292,7 +292,7 @@ describe('Exporter Utility', function() {
         }
       });
 
-      var spec = exporter.line(state, true, 4);
+      var spec = exporter.line(state, false, 4);
       expect(spec).to.have.deep.property('from.data', 'dummy_data_line');
       expect(spec.properties.update).to.deep.equal({
         x: {field: 'foo'}, y: {field: 'bar'}
@@ -313,7 +313,7 @@ describe('Exporter Utility', function() {
         '2': {name: 'x scale', domain: [1, 2, 3]}
       });
 
-      var spec = exporter.scale(state, true, 2);
+      var spec = exporter.scale(state, false, 2);
       expect(spec).to.deep.equal({
         name: 'x_scale', domain: [1, 2, 3]
       });
@@ -325,12 +325,12 @@ describe('Exporter Utility', function() {
         '3': {name: 'y scale', range: 'height'}
       });
 
-      var spec = exporter.scale(state, true, 2);
+      var spec = exporter.scale(state, false, 2);
       expect(spec).to.deep.equal({
         name: 'x_scale', range: [1, 300]
       });
 
-      spec = exporter.scale(state, true, 3);
+      spec = exporter.scale(state, false, 3);
       expect(spec).to.deep.equal({
         name: 'y_scale', range: 'height'
       });
@@ -341,7 +341,7 @@ describe('Exporter Utility', function() {
         '2': {name: 'x scale', _domain: [{data: '1', field: 'MPG'}]}
       });
 
-      var spec = exporter.scale(state, true, 2);
+      var spec = exporter.scale(state, false, 2);
       expect(spec).to.deep.equal({
         name: 'x_scale', domain: {data: 'cars_dataset', field: 'MPG'}
       });
@@ -352,7 +352,7 @@ describe('Exporter Utility', function() {
         '2': {name: 'x scale', _range: [{data: '1', field: 'MPG'}]}
       });
 
-      var spec = exporter.scale(state, true, 2);
+      var spec = exporter.scale(state, false, 2);
       expect(spec).to.deep.equal({
         name: 'x_scale', range: {data: 'cars_dataset', field: 'MPG'}
       });
@@ -403,7 +403,7 @@ describe('Exporter Utility', function() {
     signal.init('lyra_rect_4_fill', '#00FF00');
 
     it('exports nested group marks', function() {
-      var spec = exporter.group(state, true, 4);
+      var spec = exporter.group(state, false, 4);
       expect(spec).to.deep.equal({
         name: 'group_mark',
         type: 'group',
@@ -450,7 +450,7 @@ describe('Exporter Utility', function() {
       signal.init('vis_width', 200);
       signal.init('vis_height', 300);
 
-      var spec = exporter.scene(state, true);
+      var spec = exporter.scene(state, false);
       expect(spec).to.deep.equal({
         name: 'group_mark',
         width: 200,
@@ -481,8 +481,8 @@ describe('Exporter Utility', function() {
         }]
       });
 
-      // Width/height signals should be resolved even if we're not resolving.
-      spec = exporter.scene(state, false);
+      // Width/height signals should be resolved even if we're internal.
+      spec = exporter.scene(state, true);
       expect(spec).to.have.property('width', 200);
       expect(spec).to.have.property('height', 300);
     });
