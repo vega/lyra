@@ -103,4 +103,10 @@ du.schema = function(id) {
   }, {});
 };
 
+du.reset = function() {
+  du = {};
+  values = {};
+  schema = {};
+};
+
 module.exports = du;

@@ -74,20 +74,20 @@ Object.defineProperty(model, 'Scene', {
  * @returns {void}
  */
 model.syncMark = function(id, props) {
-  // var existingMark = lookup(id),
-  //     MarkCtor = props && require('./primitives/marks').getConstructor(props.type);
+  var existingMark = lookup(id),
+      MarkCtor = props && require('./primitives/marks').getConstructor(props.type);
 
-  // if (existingMark && !props) {
-  //   // Remove the mark and its VLSingle from the primitives store
-  //   existingMark.remove();
-  //   return;
-  // }
+  if (existingMark && !props) {
+    // Remove the mark and its VLSingle from the primitives store
+    existingMark.remove();
+    return;
+  }
 
-  // if (existingMark) {
-  //   existingMark.update(props);
-  // } else if (MarkCtor) {
-  //   model.primitive(id, new MarkCtor(props));
-  // }
+  if (existingMark) {
+    existingMark.update(props);
+  } else if (MarkCtor) {
+    model.primitive(id, new MarkCtor(props));
+  }
 };
 
 function register() {
@@ -138,7 +138,7 @@ function register() {
   });
 }
 
-model.export = require('../util/export');
+model.export = require('./export');
 
 /**
  * Exports the model as a complete Vega specification with extra definitions

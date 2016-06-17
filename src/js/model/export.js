@@ -2,9 +2,9 @@
 
 var dl = require('datalib'),
     store = require('../store'),
-    getIn = require('./immutable-utils').getIn,
-    signalLookup = require('./signal-lookup'),
-    dsUtils = require('./dataset-utils');
+    getIn = require('../util/immutable-utils').getIn,
+    signalLookup = require('../util/signal-lookup'),
+    dsUtils = require('../util/dataset-utils');
 
 /**
  * Exports primitives in the redux store as a complete Vega specification.
@@ -32,7 +32,7 @@ exporter.pipelines = function(state, resolve) {
 
 exporter.dataset = function(state, resolve, id) {
   var dataset = getIn(state, 'datasets.' + id).toJS(),
-      spec = clean(dataset, resolve);
+      spec = clean(dl.duplicate(dataset), resolve);
 
   // Only include the raw values in the exported spec if:
   //   1. It is a remote dataset but we're re-rendering the Lyra view
@@ -42,6 +42,11 @@ exporter.dataset = function(state, resolve, id) {
   if ((spec.url && !resolve) || (!spec.url && !spec.source)) {
     spec.values = dsUtils.values(id);
     delete spec.url;
+  }
+
+  // Resolve dataset ID to name.
+  if (spec.source) {
+    spec.source = name(getIn(state, 'datasets.' + spec.source + '.name'));
   }
 
   return spec;
@@ -66,7 +71,7 @@ exporter.scene = function(state, resolve) {
 
 exporter.mark = function(state, resolve, id) {
   var mark = getIn(state, 'marks.' + id).toJS(),
-      spec = clean(mark, resolve),
+      spec = clean(dl.duplicate(mark), resolve),
       up = mark.properties.update,
       upspec = spec.properties.update,
       fromId;
@@ -90,11 +95,12 @@ exporter.mark = function(state, resolve, id) {
     // Use the origVal to determine if scale/fields have been set in case
     // specVal was replaced above (e.g., scale + signal).
     if (origVal.scale) {
-      specVal.scale = getIn(state, 'scales.' + origVal.scale + '.name');
+      specVal.scale = name(getIn(state, 'scales.' + origVal.scale + '.name'));
     }
 
     if (origVal.group) {
       specVal.field = {group: origVal.group};
+      delete specVal.group;
     }
   });
 
@@ -122,7 +128,7 @@ exporter.group = function(state, resolve, id) {
         return exporter[childType](state, resolve, cid);
       }
 
-      return clean(child, resolve);
+      return clean(dl.duplicate(child), resolve);
     });
   });
 
@@ -165,13 +171,13 @@ exporter.line = function(state, resolve, id) {
 
 exporter.scale = function(state, resolve, id) {
   var scale = getIn(state, 'scales.' + id).toJS(),
-      spec  = clean(scale, resolve);
+      spec  = clean(dl.duplicate(scale), resolve);
 
-  if (!scale.domain && scale._domain.length) {
+  if (!scale.domain && scale._domain && scale._domain.length) {
     spec.domain = dataRef(state, scale._domain);
   }
 
-  if (!scale.range && scale._range.length) {
+  if (!scale.range && scale._range && scale._range.length) {
     spec.range = dataRef(state, scale._range);
   }
 
@@ -185,7 +191,7 @@ exporter.scale = function(state, resolve, id) {
  * @returns {string} The name, where spaces are replaced with underscores.
  */
 function name(str) {
-  return str.replace(' ', '_');
+  return str.replace(/\s/g, '_');
 }
 
 /**
