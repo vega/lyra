@@ -5,7 +5,7 @@ var React = require('react'),
     getIn = require('../../util/immutable-utils').getIn,
     model = require('../../model'),
     lookup = model.lookup,
-    resetProperty = require('../../actions/ruleActions').resetProperty;
+    resetProperty = require('../../actions/dataBinding').resetProperty;
 
 function mapStateToProps(state, ownProps) {
   // This is also used with Pipelines, which have no primitive property

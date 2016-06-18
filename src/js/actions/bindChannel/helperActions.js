@@ -9,24 +9,21 @@
 var ADD_SCALE_TO_GROUP  = 'ADD_SCALE_TO_GROUP',
     ADD_AXIS_TO_GROUP   = 'ADD_AXIS_TO_GROUP',
     ADD_LEGEND_TO_GROUP = 'ADD_LEGEND_TO_GROUP',
-    SET_PROPERTY = 'SET_PROPERTY',
-    DISABLE_PROPERTY = 'DISABLE_PROPERTY',
     RESET_PROPERTY = 'RESET_PROPERTY';
 
 /**
  * Return an action object instructing the reducer to add the provided scale
  * to the specified group
  *
- * @param {Object} scale - A Scale primitive instance
- * @param {number} scale._id - The ID of the scale primitive
- * @param {number} groupId [description]
+ * @param {number} scaleId The scale ID
+ * @param {number} groupId The ID of the group to add the scale to
  * @returns {Object} A redux action object
  */
-function addScaleToGroup(scale, groupId) {
+function addScaleToGroup(scaleId, groupId) {
   return {
     type: ADD_SCALE_TO_GROUP,
-    groupId: groupId,
-    id: scale._id
+    scaleId: scaleId,
+    groupId: groupId
   };
 }
 
@@ -79,40 +76,6 @@ function addLegendToGroup(legend, groupId) {
 }
 
 /**
- * Return an action object instructing the reducer to set a mark property to
- * the provided value
- *
- * @param {number} markId - The primitive ID for which to set the value
- * @param {string} property - The property on that primitive to overwrite
- * @param {Object} value - The property value object to set
- * @returns {Object} A redux action object
- */
-function setProperty(markId, property, value) {
-  return {
-    type: SET_PROPERTY,
-    id: markId,
-    property: property,
-    value: value
-  };
-}
-
-/**
- * Return an action object instructing the reducer to flag a mark property
- * as _disabled
- *
- * @param {number} markId - The primitive ID for which to alter the property
- * @param {string} property - The property on that primitive to flag as disabled
- * @returns {Object} A redux action object
- */
-function disableProperty(markId, property) {
-  return {
-    type: DISABLE_PROPERTY,
-    id: markId,
-    property: property
-  };
-}
-
-/**
  * Return an action object instructing the reducer to reset the provided
  * property to its corresponding signal reference
  *
@@ -133,15 +96,11 @@ module.exports = {
   RULES_ADD_SCALE_TO_GROUP: ADD_SCALE_TO_GROUP,
   RULES_ADD_AXIS_TO_GROUP: ADD_AXIS_TO_GROUP,
   RULES_ADD_LEGEND_TO_GROUP: ADD_LEGEND_TO_GROUP,
-  RULES_SET_PROPERTY: SET_PROPERTY,
-  RULES_DISABLE_PROPERTY: DISABLE_PROPERTY,
   RULES_RESET_PROPERTY: RESET_PROPERTY,
 
   // Action Creators
   addScaleToGroup: addScaleToGroup,
   addAxisToGroup: addAxisToGroup,
   addLegendToGroup: addLegendToGroup,
-  setProperty: setProperty,
-  disableProperty: disableProperty,
   resetProperty: resetProperty
 };

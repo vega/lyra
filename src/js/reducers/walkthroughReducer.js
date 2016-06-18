@@ -2,7 +2,7 @@
 'use strict';
 
 var Immutable = require('immutable');
-var assign = require('object-assign');
+var dl = require('datalib');
 var actions = require('../actions/Names');
 
 function walkthroughReducer(state, action) {
@@ -23,7 +23,7 @@ function walkthroughReducer(state, action) {
   }
 
   if (action.type === actions.SET_WALKTHROUGH) {
-    return state.set(action.key, assign({}, state.get(action.key), action.data));
+    return state.set(action.key, dl.extend({}, state.get(action.key), action.data));
   }
 
   return state;

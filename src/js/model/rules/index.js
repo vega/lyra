@@ -2,7 +2,7 @@
 var dl = require('datalib'),
     vg = require('vega'),
     vl = require('vega-lite'),
-    Scale = require('../primitives/Scale'),
+    // Scale = require('../primitives/Scale'),
     model = require('../'),
     lookup = model.lookup,
     getParent = require('../../util/hierarchy').getParent,
@@ -155,13 +155,13 @@ function rules(prototype) {
         update = this.properties.update,
         c = channelName(property);
 
-    if (obj instanceof Scale) {
-      // store.dispatch(setPropertyScale(this._id, property, id));
-      // It would be better to move this to wherever .bindProp is being called
-      // from; this code path could then be removed from bindProp entirely
-      update[property].scale = id;
-      return this;
-    }
+    // if (obj instanceof Scale) {
+    //   // store.dispatch(setPropertyScale(this._id, property, id));
+    //   // It would be better to move this to wherever .bindProp is being called
+    //   // from; this code path could then be removed from bindProp entirely
+    //   update[property].scale = id;
+    //   return this;
+    // }
 
     // obj instanceof Field
     if (from && getParent(from) !== getParent(getParent(obj))) {

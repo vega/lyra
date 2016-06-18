@@ -3,8 +3,8 @@ var model = require('../'),
     propSg = require('../../util/prop-signal'),
     store = require('../../store'),
     setSignal = require('../../actions/signalActions').setSignal,
-    setProperty = require('../../actions/ruleActions').setProperty,
-    disableProperty = require('../../actions/ruleActions').disableProperty,
+    setProperty = require('../../actions/dataBinding').setProperty,
+    disableProperty = require('../../actions/dataBinding').disableProperty,
     lookup = model.lookup;
 
 /**

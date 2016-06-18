@@ -3,7 +3,7 @@
 
 var Immutable = require('immutable');
 
-var actions = require('../actions/Names');
+var ACTIONS = require('../actions/Names');
 
 /**
  * This reducer handles whether to recreate the view from the lyra model.
@@ -20,28 +20,27 @@ function invalidateVegaReducer(state, action) {
     });
   }
 
-  if (action.type === actions.INVALIDATE_VEGA) {
+  if (action.type === ACTIONS.INVALIDATE_VEGA) {
     return state.set('invalid', action.value);
   }
 
   // All of these actions implicitly invalidate the view
   var invalidatingActions = [
-    actions.CREATE_SCENE,
-    actions.INIT_SIGNAL,
-    actions.ADD_MARK,
-    actions.DELETE_MARK,
-    actions.RULES_ADD_SCALE_TO_GROUP,
-    actions.RULES_ADD_LEGEND_TO_GROUP,
-    actions.RULES_ADD_AXIS_TO_GROUP,
-    actions.RULES_SET_PROPERTY,
-    actions.RULES_DISABLE_PROPERTY,
-    actions.RULES_RESET_PROPERTY
+    ACTIONS.CREATE_SCENE,
+    ACTIONS.INIT_SIGNAL,
+    ACTIONS.ADD_MARK,
+    ACTIONS.DELETE_MARK,
+    ACTIONS.SET_PARENT_MARK,
+    ACTIONS.UPDATE_MARK_PROPERTY,
+    ACTIONS.SET_MARK_VISUAL,
+    ACTIONS.DISABLE_MARK_VISUAL,
+    ACTIONS.BIND_SCALE
   ];
   if (invalidatingActions.indexOf(action.type) >= 0) {
     return state.set('invalid', true);
   }
 
-  if (action.type === actions.PARSE_VEGA) {
+  if (action.type === ACTIONS.PARSE_VEGA) {
     return state.merge({
       isParsing: action.value,
       // Toggle this back to false now that the parse is in progress (or done)

@@ -1,7 +1,7 @@
 /* eslint no-undefined:0 */
 'use strict';
 var dl = require('datalib'),
-    Scale = require('../primitives/Scale'),
+    // Scale = require('../primitives/Guide'),
     rules = require('./'),
     model = require('../'),
     lookup = model.lookup,
@@ -9,7 +9,7 @@ var dl = require('datalib'),
     actions = require('../../actions/scaleActions'),
     addScale = actions.addScale,
     getIn = require('../../util/immutable-utils').getIn,
-    addScaleToGroup = require('../../actions/ruleActions').addScaleToGroup;
+    addScaleToGroup = require('../../actions/dataBinding').addScaleToGroup;
 
 var REF_CELLW = {data: 'layout', field: 'cellWidth'},
     REF_CELLH = {data: 'layout', field: 'cellHeight'};

@@ -8,7 +8,7 @@ module.exports = {
   datasets: require('../actions/datasetActions'),
   scales: require('../actions/scaleActions'),
   marks: require('../actions/markActions'),
-  rules: require('../actions/ruleActions'),
+  rules: require('../actions/dataBinding'),
   inspectors: require('../actions/inspectorActions'),
   hints: require('../actions/hintActions'),
   walkthrough: require('../actions/walkthroughActions')

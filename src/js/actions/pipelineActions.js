@@ -1,6 +1,6 @@
 'use strict';
 
-var assign  = require('object-assign'),
+var dl = require('datalib'),
     counter = require('../util/counter'),
     datasetActions = require('./datasetActions'),
     addDataset = datasetActions.addDataset,
@@ -18,10 +18,10 @@ function addPipeline(pipeline, dataset) {
   return function(dispatch) {
     var pid = pipeline._id || counter.global();
 
-    var ds = addDataset(assign({_parent: pid}, dataset));
+    var ds = addDataset(dl.extend({_parent: pid}, dataset));
     dispatch(ds);
 
-    pipeline = assign({
+    pipeline = dl.extend({
       _id: pid,
       _source: pipeline._source || ds.id
     }, pipeline);

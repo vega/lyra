@@ -1,7 +1,7 @@
 'use strict';
 var expect = require('chai').expect,
     Immutable = require('immutable'),
-    assign = require('object-assign'),
+    dl = require('datalib'),
     signal = require('./signals'),
     counter = require('../util/counter'),
     dsUtil = require('../util/dataset-utils'),
@@ -140,7 +140,7 @@ describe('Exporter Utility', function() {
 
       spec = exporter.mark(state, true, 4);
       expect(spec.length).to.be.greaterThan(1); // Manipulators!
-      expect(spec[0]).to.deep.equal(assign({lyra_id: 4}, truth));
+      expect(spec[0]).to.deep.equal(dl.extend({lyra_id: 4}, truth));
     });
 
     it('exports from mark', function() {
@@ -156,7 +156,7 @@ describe('Exporter Utility', function() {
       var spec1 = exporter.mark(state, false, 5),
           spec2 = exporter.mark(state, true, 5);
       expect(spec1).to.have.deep.property('from.mark', 'Symbol_Two');
-      expect(spec.length).to.be.greaterThan(1); // Manipulators!
+      expect(spec1.length).to.be.greaterThan(1); // Manipulators!
       expect(spec2[0]).to.have.deep.property('from.mark', 'Symbol_Two');
     });
 
