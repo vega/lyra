@@ -60,9 +60,9 @@ function addLegendToGroup(legendId, groupId) {
 
 module.exports = {
   // Action Names
-  RULES_ADD_SCALE_TO_GROUP: ADD_SCALE_TO_GROUP,
-  RULES_ADD_AXIS_TO_GROUP: ADD_AXIS_TO_GROUP,
-  RULES_ADD_LEGEND_TO_GROUP: ADD_LEGEND_TO_GROUP,
+  ADD_SCALE_TO_GROUP: ADD_SCALE_TO_GROUP,
+  ADD_AXIS_TO_GROUP: ADD_AXIS_TO_GROUP,
+  ADD_LEGEND_TO_GROUP: ADD_LEGEND_TO_GROUP,
 
   // Action Creators
   addScaleToGroup: addScaleToGroup,

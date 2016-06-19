@@ -141,6 +141,7 @@ function setParentMark(state, action) {
  * either "legends" or "axes"
  * @returns {Object} A new Immutable state with the requested changes
  */
+/* eslint no-unused-vars:0 */
 function moveChildToGroup(state, action, collection) {
   var oldGroupCollectionPath = action.oldGroupId + '.' + collection,
       newGroupCollectionPath = action.groupId + '.' + collection;
@@ -235,15 +236,15 @@ function marksReducer(state, action) {
       '.properties.update.' + action.property + '.scale', action.scaleId);
   }
 
-  if (action.type === ACTIONS.RULES_ADD_SCALE_TO_GROUP) {
+  if (action.type === ACTIONS.ADD_SCALE_TO_GROUP) {
     return ensureValuePresent(state, action.groupId + '.scales', action.scaleId);
   }
 
-  if (action.type === ACTIONS.RULES_ADD_AXIS_TO_GROUP) {
+  if (action.type === ACTIONS.ADD_AXIS_TO_GROUP) {
     return ensureValuePresent(state, action.groupId + '.axes', action.axisId);
   }
 
-  if (action.type === ACTIONS.RULES_ADD_LEGEND_TO_GROUP) {
+  if (action.type === ACTIONS.ADD_LEGEND_TO_GROUP) {
     return ensureValuePresent(state, action.groupId + '.legends', action.legendId);
   }
 
