@@ -5,10 +5,10 @@ var dl = require('datalib'),
     actions = require('./helperActions'),
     addAxisToGroup = actions.addAxisToGroup,
     addLegendToGroup = actions.addLegendToGroup,
-    guideDef = require('../../store/defs/guideDef'),
+    Guide = require('../../store/factory/Guide'),
     getIn = require('../../util/immutable-utils').getIn;
 
-var TYPES = guideDef.GTYPES,
+var TYPES = Guide.GTYPES,
     CTYPE = {
       x: TYPES.AXIS, y: TYPES.AXIS,
       color: TYPES.LEGEND, size: TYPES.LEGEND, shape: TYPES.LEGEND
@@ -94,7 +94,7 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
   }
 
   if (count < 2) {
-    var axis = guideDef(TYPES.AXIS, def.type, scaleId);
+    var axis = Guide(TYPES.AXIS, def.type, scaleId);
     axis.title = def.title;
     axis.layer = def.layer;
     axis.grid = def.grid;
@@ -138,7 +138,7 @@ function findOrCreateLegend(dispatch, state, parsed, scaleId, defs) {
   });
 
   if (!foundLegend) {
-    var legend = guideDef(TYPES.LEGEND, property, scaleId);
+    var legend = Guide(TYPES.LEGEND, property, scaleId);
     legend.title = def.title;
     dl.extend(legend.properties, def.properties);
     dispatch(legend = addGuide(legend));

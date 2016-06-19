@@ -60,7 +60,7 @@ function bindProperty(dispatch, parsed, def, property) {
   }
 
   if (def.value !== undefined) {
-    prop.signal = propSg({type: markType, _id: markId}, property);
+    prop.signal = propSg(markId, markType, property);
     dispatch(setSignal(prop.signal, def.value));
   }
 

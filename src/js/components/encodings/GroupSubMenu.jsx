@@ -84,7 +84,6 @@ var Group = React.createClass({
         groupId = props.id,
         group = props.group,
         groupType = group.get('type'),
-        axes = group.get('axes'),
         marks = group.get('marks'),
         isExpanded = get(props.expandedLayers, groupId),
         stored = store.getState();
@@ -92,13 +91,7 @@ var Group = React.createClass({
     var contents = isExpanded && group.get('marks') ? (
       <ul className="group">
         <li className="header">Axes &amp; Legends <Icon glyph={assets.plus} width="10" height="10" /></li>
-
-        {axes.map(function(id) {
-          var axis = getIn(stored, 'guides.' + id);
-          return (<p key={id}>{axis.get('type')}</p>);
-        })}
-
-          <li className="header">Marks <Icon glyph={assets.plus} width="10" height="10" /></li>
+        <li className="header">Marks <Icon glyph={assets.plus} width="10" height="10" /></li>
         {marks.map(function(id) {
           var mark = getIn(stored, 'marks.' + id),
               type = mark.get('type'),

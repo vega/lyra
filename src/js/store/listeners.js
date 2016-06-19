@@ -26,14 +26,6 @@ var sg = require('../model/signals'),
     getIn = require('../util/immutable-utils').getIn,
     parseInProgress = require('../actions/vegaActions').parseVega;
 
-function instantiatePrimitivesFromStore(store, model) {
-  getIn(store.getState(), 'marks').forEach(function(props, markId) {
-    // props will be an immutable iterable if the mark exists, or null if it has
-    // been deleted
-    model.syncMark(markId, props ? props.toJS() : props);
-  });
-}
-
 /**
  * Identify whether the redux model has changed in a way that invalidates the
  * rendered Vega view, and if so, kick off a destroy/recreate cycle to build
@@ -49,9 +41,6 @@ function recreateVegaIfNecessary(store, model) {
       sceneId = getIn(state, 'scene.id');
 
   if (shouldReparse) {
-    // First, ensure that all marks have been properly instantiated from the store
-    instantiatePrimitivesFromStore(store, model);
-
     if (!sceneId) {
       // If the initial Scene is not ready after primitive instantiaton, then we
       // do not yet have anything to render: exit out and wait for the next cycle,

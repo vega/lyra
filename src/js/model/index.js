@@ -19,39 +19,7 @@ var model = module.exports = {
   Scene: null
 };
 
-var pipelines = [],
-    primitives = {},
-    listeners = {};
-
-window.listeners = listeners;
-window.primitives = primitives;
-
-/**
- * @description A setter for primitives based on IDs. To prevent memory leaks,
- * primitives do not directly store references to other primitives. Instead,
- * they store IDs and use model.lookup as a lookup. When a new primitive is
- * created, it calls this function to store itself in the model.
- *
- * @param {number} id - The numeric ID of the primitive to set.
- * @param {Object} primitive - Store the provided primitive in the lyra model,
- * keyed by the given ID.
- * @returns {Object} The Lyra model.
- */
-model.primitive = function(id, primitive) {
-  primitives[id] = primitive;
-  return model;
-};
-
-/**
- * @description A getter for primitives based on IDs. Primitives store their IDs
- * in the model and use this method as a lookup.
- *
- * @param {number} id - The numeric ID of a specific primitive to look up.
- * @returns {Object} The Lyra model.
- */
-var lookup = model.lookup = function(id) {
-  return primitives[id];
-};
+var listeners = {};
 
 Object.defineProperty(model, 'Scene', {
   enumerable: true,
@@ -60,35 +28,10 @@ Object.defineProperty(model, 'Scene', {
         sceneId = getIn(state, 'scene.id');
 
     if (sceneId) {
-      return lookup(sceneId);
+      return getIn(state, 'marks.' + sceneId).toJS();
     }
   }
 });
-
-/**
- * From a mark ID and properties hash, either update an existing mark or
- * instantiate a new mark with the provided state.
- *
- * @param {number} id - The unique ID of a mark
- * @param {Object} props - A vanilla JS object of mark properties
- * @returns {void}
- */
-model.syncMark = function(id, props) {
-  var existingMark = lookup(id),
-      MarkCtor = props && require('./primitives/marks').getConstructor(props.type);
-
-  if (existingMark && !props) {
-    // Remove the mark and its VLSingle from the primitives store
-    existingMark.remove();
-    return;
-  }
-
-  if (existingMark) {
-    existingMark.update(props);
-  } else if (MarkCtor) {
-    model.primitive(id, new MarkCtor(props));
-  }
-};
 
 function register() {
   var win = d3.select(window),

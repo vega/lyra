@@ -1,7 +1,7 @@
 'use strict';
 var React = require('react'),
     Property = require('./Property'),
-    Text = require('../../model/primitives/marks/Text');
+    Text = require('../../store/factory/marks/Text');
 
 var TextInspector = React.createClass({
   render: function() {

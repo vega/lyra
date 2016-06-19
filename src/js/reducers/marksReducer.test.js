@@ -1,14 +1,14 @@
 /* eslint no-unused-expressions:0, new-cap:0 */
 'use strict';
-var expect = require('chai').expect;
-var Immutable = require('immutable');
-
-var actions = require('../actions/Names');
-var marksReducer = require('./marksReducer');
-var markActions = require('../actions/markActions');
-var createScene = require('../actions/sceneActions').createScene;
-var counter = require('../util/counter');
-var setIn = require('../util/immutable-utils').setIn;
+var expect = require('chai').expect,
+    Immutable = require('immutable'),
+    actions = require('../actions/Names'),
+    Mark = require('../store/factory/Mark'),
+    marksReducer = require('./marksReducer'),
+    markActions = require('../actions/markActions'),
+    createScene = require('../actions/sceneActions').createScene,
+    counter = require('../util/counter'),
+    setIn = require('../util/immutable-utils').setIn;
 
 describe('marks reducer', function() {
   var initialState, addMark;
@@ -40,57 +40,40 @@ describe('marks reducer', function() {
   describe('add mark action', function() {
 
     it('registers a mark in the store keyed by mark _id', function() {
-      var result = marksReducer(initialState, addMark({
-        type: 'rect'
-      }));
+      var result = marksReducer(initialState, addMark(Mark('rect')));
       expect(result.size).to.equal(1);
-      expect(result.get('1').toJS()).to.deep.equal({
+      expect(result.get('1').toJS()).to.contain.keys({
         _id: 1,
-        name: 'rect_1',
+        name: 'rect 1',
         type: 'rect'
       });
     });
 
     it('registers multiple marks on successive calls', function() {
-      var result = marksReducer(marksReducer(marksReducer(initialState, addMark({
-        type: 'rect'
-      })), addMark({
-        type: 'line'
-      })), addMark({
-        type: 'rect'
-      }));
+      var result = marksReducer(marksReducer(marksReducer(initialState, addMark(Mark('rect'))), addMark(Mark('line'))), addMark(Mark('rect')));
       expect(result.size).to.equal(3);
-      expect(result.get('1').toJS()).to.deep.equal({
+      expect(result.get('1').toJS()).to.contain.keys({
         _id: 1,
-        name: 'rect_1',
+        name: 'rect 1',
         type: 'rect'
       });
-      expect(result.get('2').toJS()).to.deep.equal({
+      expect(result.get('2').toJS()).to.contain.keys({
         _id: 2,
-        name: 'line_1',
+        name: 'line 1',
         type: 'line'
       });
-      expect(result.get('3').toJS()).to.deep.equal({
+      expect(result.get('3').toJS()).to.contain.keys({
         _id: 3,
-        name: 'rect_2',
+        name: 'rect 2',
         type: 'rect'
       });
     });
 
     it('stores vega property values as lyra signal references', function() {
-      var result = marksReducer(initialState, addMark({
-        type: 'symbol',
-        properties: {
-          update: {
-            x: {value: 100},
-            y: {value: 200},
-            fill: {value: '#7B8B9D'}
-          }
-        }
-      }));
-      expect(result.get('1').toJS()).to.deep.equal({
+      var result = marksReducer(initialState, addMark(Mark('symbol')));
+      expect(result.get('1').toJS()).to.contain.keys({
         _id: 1,
-        name: 'symbol_1',
+        name: 'symbol 1',
         type: 'symbol',
         properties: {
           update: {
@@ -107,17 +90,8 @@ describe('marks reducer', function() {
 
       beforeEach(function() {
         // Start out with a store already containing a group mark
-        initialState = marksReducer(Immutable.Map(), addMark({
-          _id: 15,
-          name: 'group_1',
-          type: 'group',
-          marks: []
-        }));
-        result = marksReducer(initialState, addMark({
-          type: 'symbol',
-          _id: 61,
-          _parent: 15
-        }));
+        initialState = marksReducer(Immutable.Map(), addMark(Mark('group', {_id: 15})));
+        result = marksReducer(initialState, addMark(Mark('symbol', {_id: 61, _parent: 15})));
       });
 
       it('sets a parent for the mark being added, if provided', function() {

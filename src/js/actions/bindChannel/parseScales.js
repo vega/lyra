@@ -2,7 +2,7 @@
 
 var dl = require('datalib'),
     getIn = require('../../util/immutable-utils').getIn,
-    scaleDef = require('../../store/defs/scaleDef'),
+    Scale = require('../../store/factory/Scale'),
     addScale = require('../scaleActions').addScale,
     addScaleToGroup = require('./helperActions').addScaleToGroup,
     bindChannel = require('./');
@@ -135,7 +135,7 @@ function createScale(dispatch, parsed, def) {
   var map = parsed.map,
       markType = parsed.markType,
       points = usesPoints(def.type, markType),
-      newScale = scaleDef(def.name, def.type, undefined, def.range),
+      newScale = Scale(def.name, def.type, undefined, def.range),
       domain = def.domain;
 
   if (dl.isArray(domain)) { // Literal domain values

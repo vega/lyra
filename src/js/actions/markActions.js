@@ -2,8 +2,8 @@
 
 var dl = require('datalib'),
     counter  = require('../util/counter'),
-    markName = require('../util/markName'),
     getIn = require('../util/immutable-utils').getIn,
+    Mark = require('../store/factory/Mark'),
     ADD_MARK = 'ADD_MARK',
     DELETE_MARK = 'DELETE_MARK',
     SET_PARENT_MARK = 'SET_PARENT_MARK',
@@ -23,12 +23,8 @@ var dl = require('datalib'),
 function addMark(markProps) {
   // We pull in all of the mark constructors purely to access their static
   // `.getHandleStreams` and `.defaultProperties` methods
-  // TODO: Fix circular dependencies.
-  var defs = require('../model/primitives/marks');
-
   var props = dl.extend({
     _id: markProps._id || counter.global(),
-    name: markProps.name || markName(markProps.type)
   }, markProps);
 
   return {
@@ -36,7 +32,7 @@ function addMark(markProps) {
     name: props.name,
     type: ADD_MARK,
     props: props,
-    streams: defs.getHandleStreams(props)
+    streams: Mark.getHandleStreams(props)
   };
 }
 

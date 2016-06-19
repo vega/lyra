@@ -5,7 +5,7 @@ var dl = require('datalib'),
     Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
     ns = require('../util/ns'),
-    signalRef = require('../util/signal-reference'),
+    propSg = require('../util/prop-signal'),
     immutableUtils = require('../util/immutable-utils'),
     get = immutableUtils.get,
     getIn = immutableUtils.getIn,
@@ -34,14 +34,14 @@ function convertValuesToSignals(properties, type, id) {
   // properly via the addMark store action).
   return dl.extend({}, properties, {
     update: Object.keys(updateProps).reduce(function(selection, key) {
-      if (typeof selection[key].value === 'undefined') {
+      if (selection[key] === undefined || selection[key].value === undefined) {
         return selection;
       }
 
       // Replace `{value: '??'}` property definition with a ref to its controlling
       // signal, and ensure that _disabled flags are set properly if present
       selection[key] = dl.extend({
-        signal: signalRef(type, id, key)
+        signal: propSg(id, type, key)
       }, selection[key]._disabled ? {_disabled: true} : {});
 
       return selection;
@@ -228,7 +228,7 @@ function marksReducer(state, action) {
         property = action.property;
 
     return setIn(state, markId + '.properties.update.' + property,
-        Immutable.fromJS({signal: signalRef(markType, markId, property)}));
+        Immutable.fromJS({signal: propSg(markId, markType, property)}));
   }
 
   if (action.type === ACTIONS.BIND_SCALE) {

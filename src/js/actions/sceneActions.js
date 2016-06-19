@@ -1,8 +1,10 @@
 'use strict';
 
-var counter = require('../util/counter'),
+var dl = require('datalib'),
+    counter = require('../util/counter'),
     getIn = require('../util/immutable-utils').getIn,
     deleteMark = require('./markActions').deleteMark,
+    Mark = require('../store/factory/Mark'),
     CREATE_SCENE = 'CREATE_SCENE';
 
 
@@ -19,16 +21,13 @@ var counter = require('../util/counter'),
  * @returns {Object} An action object
  */
 function createScene(customProps) {
-  var Scene = require('../model/primitives/marks/Scene');
-  var properties = customProps || {};
-  properties._id = counter.global();
-  var props = Scene.defaultProperties(properties);
+  var id = counter.global();
 
   return {
     type: CREATE_SCENE,
-    id: props._id,
+    id: id,
     name: 'Scene',
-    props: props
+    props: Mark('scene', dl.extend({_id: id, name: 'Scene'}, customProps))
   };
 }
 

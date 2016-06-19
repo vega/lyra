@@ -6,7 +6,7 @@ var dl = require('datalib'),
     signalLookup = require('../util/signal-lookup'),
     dsUtils = require('../util/dataset-utils'),
     manipulators = require('./manipulators'),
-    GTYPES = require('../store/defs/guideDef').GTYPES;
+    GTYPES = require('../store/factory/Guide').GTYPES;
 
 /**
  * Exports primitives in the redux store as a complete Vega specification.
@@ -312,3 +312,4 @@ function dataRef(state, ref) {
 }
 
 module.exports = exporter;
+module.exports.exportName = name;

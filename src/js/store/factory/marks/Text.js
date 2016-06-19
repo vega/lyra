@@ -1,55 +1,19 @@
 'use strict';
 
-var dl = require('datalib'),
-    inherits = require('inherits'),
-    sg = require('../../../model/signals'),
-    Mark = require('./Mark'),
-    anchorTarget = require('../../../util/anchor-target'),
+var anchorTarget = require('../../../util/anchor-target'),
     test = require('../../../util/test-if'),
     propSg = require('../../../util/prop-signal');
 
-var DELTA = sg.DELTA,
-    DX = DELTA + '.x',
-    DY = DELTA + '.y';
-
 /**
- * @classdesc A Lyra Text Mark Primitive.
- * @extends {Mark}
- *
- * @constructor
- * @param {Object} [props] - An object defining this mark's properties
- * @param {string} props.type - The type of mark (should be 'text')
- * @param {Object} props.properties - A Vega mark properties object
- * @param {string} [props.name] - The name of the mark
- * @param {number} [props._id] - A unique mark ID
+ * A text mark factory.
+ * @returns {Object} Additional default visual properties for a text mark.
  */
-function Text(props) {
-  Mark.call(this, props || Text.defaultProperties());
-}
-
-inherits(Text, Mark);
-
-/**
- * Returns an object representing the default values for a rect text, containing
- * a type string and a Vega mark properties object.
- *
- * @static
- * @param {Object} [props] - Props to merge into the returned default properties object
- * @returns {Object} The default mark properties
- */
-Text.defaultProperties = function(props) {
-  return dl.extend({
-    type: 'text',
-    // name: 'text' + '_' + counter.type('text'); // Assign name in the reducer
-    // _id: assign ID in the reducer
-    properties: Mark.mergeProperties(Mark.defaultProperties(), {
+function Text() {
+  return {
+    properties: {
       update: {
-        strokeWidth: {value: 0},
-        x: {value: 80},
-        y: {value: 30},
         dx: {value: 0, offset: 0},
         dy: {value: 0, offset: 0},
-        // Text-specific properties
         text: {value: 'Text'},
         align: {value: 'center'},
         baseline: {value: 'middle'},
@@ -59,9 +23,9 @@ Text.defaultProperties = function(props) {
         fontWeight: {value: 'normal'},
         angle: {value: 0}
       }
-    })
-  }, props);
-};
+    }
+  };
+}
 
 /**
  * Return an array of handle signal stream definitions to be instantiated.
@@ -76,26 +40,31 @@ Text.defaultProperties = function(props) {
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 Text.getHandleStreams = function(text) {
-  var at = anchorTarget.bind(null, text, 'handles'),
-      x = propSg(text, 'x'),
-      y = propSg(text, 'y'),
-      fontSize = propSg(text, 'fontSize'),
-      streamSignals = {};
+  var sg = require('../../../model/signals'),
+      at = anchorTarget.bind(null, text, 'handles'),
+      id = text._id,
+      x = propSg(id, 'text', 'x'),
+      y = propSg(id, 'text', 'y'),
+      fontSize = propSg(id, 'text', 'fontSize'),
+      DELTA = sg.DELTA,
+      DX = DELTA + '.x',
+      DY = DELTA + '.y',
+      streams = {};
 
-  streamSignals[x] = [{
+  streams[x] = [{
     type: DELTA, expr: test(at(), x + '+' + DX, x)
   }];
-  streamSignals[y] = [{
+  streams[y] = [{
     type: DELTA, expr: test(at(), y + '+' + DY, y)
   }];
   // Allow upper-left and lower-right handles to control font size
-  streamSignals[fontSize] = [
+  streams[fontSize] = [
     {type: DELTA, expr: test(at('left') + '&&' + at('top'), fontSize + '-' + DX, fontSize)},
     {type: DELTA, expr: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DX, fontSize)},
     {type: DELTA, expr: test(at('left') + '&&' + at('top'), fontSize + '-' + DY, fontSize)},
     {type: DELTA, expr: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DY, fontSize)}
   ];
-  return streamSignals;
+  return streams;
 };
 
 /**

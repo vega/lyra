@@ -78,7 +78,7 @@ api.get = function(name) {
   }
 
   // and handle case where signal hasn't been registered yet with the view.
-  return signalVal || signalObj.init;
+  return signalVal || signalObj.get('init');
 };
 
 /**

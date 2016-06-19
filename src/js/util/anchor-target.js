@@ -1,6 +1,5 @@
 'use strict';
-var dl = require('datalib'),
-    sg = require('../model/signals');
+var dl = require('datalib');
 
 /**
  * Returns a Vega expression string that tests whether the anchor target has a
@@ -13,7 +12,9 @@ var dl = require('datalib'),
  */
 module.exports = function(mark, mode, key) {
   // sg is required here to prevent a circular reference
-  var ANCHOR = sg.ANCHOR,
+  var sg = require('../model/signals'),
+      name = require('../model/export').exportName,
+      ANCHOR = sg.ANCHOR,
       TARGET = ANCHOR + '.target',
       expr = '(' + ANCHOR + '&&' + TARGET + '&&' + TARGET + '.datum &&';
 
@@ -24,7 +25,8 @@ module.exports = function(mark, mode, key) {
       'test(regexp(' + dl.str(key) + ', "i"), ' + TARGET + '.datum.key)';
   } else {
     // Mark
-    expr += TARGET + '.mark && ' + TARGET + '.mark.name === ' + dl.str(mark.name);
+    expr += TARGET + '.mark && ' +
+      TARGET + '.mark.name === ' + dl.str(name(mark.name));
   }
   return expr + ')';
 };

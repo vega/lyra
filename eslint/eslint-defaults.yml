@@ -194,6 +194,20 @@ rules:
     - 2
     - newIsCap: true
       capIsNew: true
+      capIsNewExceptions:
+        # Lyra primitive factories
+        - Area
+        - Group
+        - Line
+        - Mark
+        - Rect
+        - Scene
+        - Symbol
+        - Text
+        - Dataset
+        - Guide
+        - Pipeline
+        - Scale
   new-parens: 0
   newline-after-var: 0
   no-array-constructor: 2

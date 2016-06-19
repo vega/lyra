@@ -4,7 +4,7 @@ var GTYPES = {AXIS: 'axis', LEGEND: 'legend'},
     ORIENT = {x: 'bottom', y: 'left'};
 
 /**
- * The definition of a Lyra guide (axis or legend).
+ * A factory to produce a Lyra guide (axis or legend).
  *
  * @param {number} gtype - Axis or Legend (use enumerated `Guide.TYPES`).
  * @param {string} type - Axis/legend type (e.g., `x` axis, or `fill` legend).
@@ -15,6 +15,8 @@ var GTYPES = {AXIS: 'axis', LEGEND: 'legend'},
  * @see Vega's {@link https://github.com/vega/vega/wiki/Axes|Axes} or
  * {@link https://github.com/vega/vega/wiki/Legends|Legends} documentation for
  * more information on this class' "public" properties.
+ *
+ * @constructor
  */
 
 var def = module.exports = function(gtype, type, scale) {

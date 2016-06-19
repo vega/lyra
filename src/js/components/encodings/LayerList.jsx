@@ -4,7 +4,7 @@ var React = require('react'),
     hierarchy = require('../../util/hierarchy'),
     getIn = require('../../util/immutable-utils').getIn,
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
-    getMarkDefaults = require('../../model/primitives/marks').getDefaults,
+    Mark = require('../../store/factory/Mark'),
     addMark = require('../../actions/markActions').addMark,
     inspectorActions = require('../../actions/inspectorActions'),
     selectMark = inspectorActions.selectMark,
@@ -38,7 +38,7 @@ function mapStateToProps(reduxState) {
 function mapDispatchToProps(dispatch) {
   return {
     addMark: function(type, parentId) {
-      var newMarkProps = getMarkDefaults(type, {
+      var newMarkProps = Mark(type, {
         _parent: parentId
       });
       dispatch(addMark(newMarkProps));

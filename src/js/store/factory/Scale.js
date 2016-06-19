@@ -7,13 +7,13 @@ var names = {};
 function rename(name) {
   var count = 1, str = name;
   while (names[str]) {
-    str = name + ++count;
+    str = name + ' ' + ++count;
   }
   return (names[str] = 1, str);
 }
 
 /**
- * The definition of a Lyra scale.
+ * A factory to produce Lyra scales.
  *
  * @param   {string} name   Initial name of the scale; it may be renamed to
  * prevent name collisions.
