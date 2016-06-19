@@ -7,12 +7,12 @@ var Immutable = require('immutable'),
     set = immutableUtils.set,
     setIn = immutableUtils.setIn;
 
-function scalesReducer(state, action) {
+function guideReducer(state, action) {
   if (typeof state === 'undefined') {
     return Immutable.Map();
   }
 
-  if (action.type === ACTIONS.ADD_SCALE) {
+  if (action.type === ACTIONS.ADD_GUIDE) {
     return set(state, action.id, Immutable.fromJS(action.props));
   }
 
@@ -24,4 +24,4 @@ function scalesReducer(state, action) {
   return state;
 }
 
-module.exports = scalesReducer;
+module.exports = guideReducer;

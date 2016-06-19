@@ -213,7 +213,7 @@ function marksReducer(state, action) {
 
   if (action.type === ACTIONS.SET_MARK_VISUAL) {
     return setIn(state, action.id +
-      '.properties.update.' + action.property, action.def);
+      '.properties.update.' + action.property, Immutable.fromJS(action.def));
   }
 
   if (action.type === ACTIONS.DISABLE_MARK_VISUAL) {
@@ -227,7 +227,7 @@ function marksReducer(state, action) {
         property = action.property;
 
     return setIn(state, markId + '.properties.update.' + property,
-        {signal: signalRef(markType, markId, property)});
+        Immutable.fromJS({signal: signalRef(markType, markId, property)}));
   }
 
   if (action.type === ACTIONS.BIND_SCALE) {
@@ -240,11 +240,11 @@ function marksReducer(state, action) {
   }
 
   if (action.type === ACTIONS.RULES_ADD_AXIS_TO_GROUP) {
-    return moveChildToGroup(state, action, 'axes');
+    return ensureValuePresent(state, action.groupId + '.axes', action.axisId);
   }
 
   if (action.type === ACTIONS.RULES_ADD_LEGEND_TO_GROUP) {
-    return moveChildToGroup(state, action, 'legends');
+    return ensureValuePresent(state, action.groupId + '.legends', action.legendId);
   }
 
   return state;

@@ -9,6 +9,7 @@ module.exports = combineReducers({
   pipelines: require('./pipelinesReducer'),
   datasets: require('./datasetsReducer'),
   scales: require('./scalesReducer'),
+  guides: require('./guidesReducer'),
   marks: require('./marksReducer'),
   inspector: require('./inspectorReducer'),
   hints: require('./hintsReducer'),

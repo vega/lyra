@@ -5,7 +5,8 @@ var dl = require('datalib'),
     getIn = require('../util/immutable-utils').getIn,
     signalLookup = require('../util/signal-lookup'),
     dsUtils = require('../util/dataset-utils'),
-    manipulators = require('./manipulators');
+    manipulators = require('./manipulators'),
+    GTYPES = require('../store/defs/guideDef').GTYPES;
 
 /**
  * Exports primitives in the redux store as a complete Vega specification.
@@ -121,13 +122,14 @@ exporter.group = function(state, internal, id) {
       spec = exporter.mark(state, internal, id),
       group = internal ? spec[0] : spec;
 
-  // TODO: axes and legends.
-  ['scale', 'mark'].forEach(function(childType) {
-    var childTypes = childType + 's'; // Pluralized for spec key.
+  ['scale', 'mark', 'axe', 'legend'].forEach(function(childType) {
+    var childTypes = childType + 's', // Pluralized for spec key.
+        storePath  = childTypes === 'axes' || childTypes === 'legends' ?
+          'guides' : childTypes;
 
     // Route export to the most appropriate function.
     group[childTypes] = mark[childTypes].map(function(cid) {
-      var child = getIn(state, childTypes + '.' + cid).toJS();
+      var child = getIn(state, storePath + '.' + cid).toJS();
       if (exporter[child.type]) {
         return exporter[child.type](state, internal, cid);
       } else if (exporter[childType]) {
@@ -195,6 +197,21 @@ exporter.scale = function(state, internal, id) {
 
   if (!scale.range && scale._range && scale._range.length) {
     spec.range = dataRef(state, scale._range);
+  }
+
+  return spec;
+};
+
+exporter.axe = exporter.legend = function(state, internal, id) {
+  var guide = getIn(state, 'guides.' + id).toJS(),
+      spec  = clean(dl.duplicate(guide), internal),
+      gtype = guide._gtype,
+      type  = guide._type;
+
+  if (gtype === GTYPES.AXIS) {
+    spec.scale = name(getIn(state, 'scales.' + spec.scale + '.name'));
+  } else if (gtype === GTYPES.LEGEND) {
+    spec[type] = name(getIn(state, 'scales.' + spec[type] + '.name'));
   }
 
   return spec;

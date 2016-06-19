@@ -12,6 +12,17 @@ function rename(name) {
   return (names[str] = 1, str);
 }
 
+/**
+ * The definition of a Lyra scale.
+ *
+ * @param   {string} name   Initial name of the scale; it may be renamed to
+ * prevent name collisions.
+ * @param   {string} type   Scale type (e.g., ordinal, linear, etc.).
+ * @param   {Array[]} domain An array of literal domain values
+ * @param   {Array[]|string} range  An array of literal range values, or a
+ *                                  preset range string (e.g., width, height).
+ * @returns {Object} A Lyra scale definition.
+ */
 module.exports = function(name, type, domain, range) {
   return {
     name: rename(name),

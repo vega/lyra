@@ -5,7 +5,7 @@ var React = require('react'),
     getIn = require('../../util/immutable-utils').getIn,
     model = require('../../model'),
     lookup = model.lookup,
-    resetProperty = require('../../actions/dataBinding').resetProperty;
+    resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
 
 function mapStateToProps(state, ownProps) {
   // This is also used with Pipelines, which have no primitive property
@@ -26,8 +26,8 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    resetProperty: function(id, property) {
-      dispatch(resetProperty(id, property));
+    resetMarkVisual: function(id, property) {
+      dispatch(resetMarkVisual(id, property));
     }
   };
 }
@@ -40,14 +40,14 @@ var Property = React.createClass({
     group: React.PropTypes.number,
     scale: React.PropTypes.number,
     signal: React.PropTypes.string,
-    resetProperty: React.PropTypes.func
+    resetMarkVisual: React.PropTypes.func
   },
 
   mixins: [SignalValue],
 
   unbind: function() {
     var props = this.props;
-    props.resetProperty(props.primitive._id, props.name);
+    props.resetMarkVisual(props.primitive._id, props.name);
   },
 
   render: function() {

@@ -156,7 +156,7 @@ describe('Exporter Utility', function() {
       var spec1 = exporter.mark(state, false, 5),
           spec2 = exporter.mark(state, true, 5);
       expect(spec1).to.have.deep.property('from.mark', 'Symbol_Two');
-      expect(spec1.length).to.be.greaterThan(1); // Manipulators!
+      expect(spec2.length).to.be.greaterThan(1); // Manipulators!
       expect(spec2[0]).to.have.deep.property('from.mark', 'Symbol_Two');
     });
 
@@ -371,12 +371,18 @@ describe('Exporter Utility', function() {
         '2': {name: 'x scale', _domain: [{data: '1', field: 'MPG'}]},
         '3': {name: 'y scale', range: 'height'}
       },
+      guides: {
+        '7': {_gtype: 'axis', type: 'x', scale: '2'},
+        '8': {_gtype: 'legend', _type: 'fill', fill: '3'}
+      },
       marks: {
         '4': {
           name: 'group mark',
           type: 'group',
           from: {data: '1'},
           scales: [2],
+          axes: [7],
+          legends: [],
           marks: [5],
           properties: {update: {}}
         },
@@ -384,6 +390,8 @@ describe('Exporter Utility', function() {
           name: 'group mark 2',
           type: 'group',
           scales: [3],
+          axes: [],
+          legends: [8],
           marks: [6],
           properties: {update: {}}
         },
@@ -415,6 +423,8 @@ describe('Exporter Utility', function() {
         scales: [
           {name: 'x_scale', domain: {data: 'cars_dataset', field: 'MPG'}}
         ],
+        axes: [{type: 'x', scale: 'x_scale'}],
+        legends: [],
         marks: [{
           name: 'group_mark_2',
           type: 'group',
@@ -422,6 +432,8 @@ describe('Exporter Utility', function() {
           scales: [
             {name: 'y_scale', range: 'height'}
           ],
+          axes: [],
+          legends: [{fill: 'y_scale'}],
           marks: [{
             name: 'Rect_One',
             type: 'rect',
@@ -461,6 +473,8 @@ describe('Exporter Utility', function() {
         scales: [
           {name: 'x_scale', domain: {data: 'cars_dataset', field: 'MPG'}}
         ],
+        axes: [{type: 'x', scale: 'x_scale'}],
+        legends: [],
         marks: [{
           name: 'group_mark_2',
           type: 'group',
@@ -468,6 +482,8 @@ describe('Exporter Utility', function() {
           scales: [
             {name: 'y_scale', range: 'height'}
           ],
+          axes: [],
+          legends: [{fill: 'y_scale'}],
           marks: [{
             name: 'Rect_One',
             type: 'rect',

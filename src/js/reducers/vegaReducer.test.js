@@ -55,6 +55,19 @@ describe('vega reducer', function() {
   });
 
   describe('implicitly invalidating actions', function() {
+    it('flags the store as invalid when a scene is created', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.CREATE_SCENE
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when a signal is initialized', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.INIT_SIGNAL
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
 
     it('flags the store as invalid when a mark is added', function() {
       var result = vegaReducer(initialState, {
@@ -70,58 +83,93 @@ describe('vega reducer', function() {
       expect(result.get('invalid')).to.equal(true);
     });
 
-    it('flags the store as invalid when a signal is initialized', function() {
+    it('flags the store as invalid when a mark is parented', function() {
       var result = vegaReducer(initialState, {
-        type: actions.INIT_SIGNAL
+        type: actions.SET_PARENT_MARK
       });
       expect(result.get('invalid')).to.equal(true);
     });
 
-    it('flags the store as invalid when a scene is created', function() {
+    it('flags the store as invalid when a mark property is set', function() {
       var result = vegaReducer(initialState, {
-        type: actions.CREATE_SCENE
+        type: actions.UPDATE_MARK_PROPERTY
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when a mark visual property is set', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.SET_MARK_VISUAL
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when a mark visual property is disabled', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.DISABLE_MARK_VISUAL
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when a mark visual property is reset', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.RESET_MARK_VISUAL
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when a mark is bound to a scale', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.BIND_SCALE
       });
       expect(result.get('invalid')).to.equal(true);
     });
 
     it('flags the store as invalid when a scale is added', function() {
       var result = vegaReducer(initialState, {
-        type: actions.RULES_ADD_SCALE_TO_GROUP
+        type: actions.ADD_SCALE
       });
       expect(result.get('invalid')).to.equal(true);
     });
 
-    it('flags the store as invalid when a legend is added', function() {
+    it('flags the store as invalid when a scale property is updated', function() {
       var result = vegaReducer(initialState, {
-        type: actions.RULES_ADD_LEGEND_TO_GROUP
+        type: actions.UPDATE_SCALE_PROPERTY
       });
       expect(result.get('invalid')).to.equal(true);
     });
 
-    it('flags the store as invalid when an axis is added', function() {
+    it('flags the store as invalid when a scale is added to a gorup', function() {
       var result = vegaReducer(initialState, {
-        type: actions.RULES_ADD_AXIS_TO_GROUP
+        type: actions.ADD_SCALE_TO_GROUP
       });
       expect(result.get('invalid')).to.equal(true);
     });
 
-    it('flags the store as invalid when a property is added', function() {
+    it('flags the store as invalid when a guide is added', function() {
       var result = vegaReducer(initialState, {
-        type: actions.RULES_SET_PROPERTY
+        type: actions.ADD_GUIDE
       });
       expect(result.get('invalid')).to.equal(true);
     });
 
-    it('flags the store as invalid when a property is disabled', function() {
+    it('flags the store as invalid when a guide property is updated', function() {
       var result = vegaReducer(initialState, {
-        type: actions.RULES_DISABLE_PROPERTY
+        type: actions.UPDATE_GUIDE_PROPERTY
       });
       expect(result.get('invalid')).to.equal(true);
     });
 
-    it('flags the store as invalid when a property is reset to a signal', function() {
+    it('flags the store as invalid when an axis is added to a group', function() {
       var result = vegaReducer(initialState, {
-        type: actions.RULES_RESET_PROPERTY
+        type: actions.ADD_AXIS_TO_GROUP
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
+    it('flags the store as invalid when a legend is added to a group', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.ADD_LEGEND_TO_GROUP
       });
       expect(result.get('invalid')).to.equal(true);
     });

@@ -34,7 +34,15 @@ function invalidateVegaReducer(state, action) {
     ACTIONS.UPDATE_MARK_PROPERTY,
     ACTIONS.SET_MARK_VISUAL,
     ACTIONS.DISABLE_MARK_VISUAL,
-    ACTIONS.BIND_SCALE
+    ACTIONS.RESET_MARK_VISUAL,
+    ACTIONS.BIND_SCALE,
+    ACTIONS.ADD_SCALE,
+    ACTIONS.UPDATE_SCALE_PROPERTY,
+    ACTIONS.ADD_SCALE_TO_GROUP,
+    ACTIONS.ADD_GUIDE,
+    ACTIONS.UPDATE_GUIDE_PROPERTY,
+    ACTIONS.ADD_AXIS_TO_GROUP,
+    ACTIONS.ADD_LEGEND_TO_GROUP
   ];
   if (invalidatingActions.indexOf(action.type) >= 0) {
     return state.set('invalid', true);

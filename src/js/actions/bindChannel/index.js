@@ -9,7 +9,8 @@ var dl = require('datalib'),
     dsUtils = require('../../util/dataset-utils'),
     parseData = require('./parseData'),
     parseScales = require('./parseScales'),
-    parseMarks = require('./parseMarks');
+    parseMarks  = require('./parseMarks'),
+    parseGuides = require('./parseGuides');
 
 // Vega mark types to Vega-Lite mark types.
 var TYPES = {
@@ -64,6 +65,7 @@ function bindChannel(dsId, field, markId, property) {
     parseData(dispatch, state, parsed);
     parseScales(dispatch, state, parsed);
     parseMarks(dispatch, state, parsed);
+    parseGuides(dispatch, state, parsed);
   };
 }
 

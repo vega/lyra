@@ -7,6 +7,7 @@ module.exports = {
   pipelines: require('../actions/pipelineActions'),
   datasets: require('../actions/datasetActions'),
   scales: require('../actions/scaleActions'),
+  guides: require('../actions/guideActions'),
   marks: require('../actions/markActions'),
   rules: require('../actions/dataBinding'),
   inspectors: require('../actions/inspectorActions'),

@@ -8,8 +8,7 @@
 
 var ADD_SCALE_TO_GROUP  = 'ADD_SCALE_TO_GROUP',
     ADD_AXIS_TO_GROUP   = 'ADD_AXIS_TO_GROUP',
-    ADD_LEGEND_TO_GROUP = 'ADD_LEGEND_TO_GROUP',
-    RESET_PROPERTY = 'RESET_PROPERTY';
+    ADD_LEGEND_TO_GROUP = 'ADD_LEGEND_TO_GROUP';
 
 /**
  * Return an action object instructing the reducer to add the provided scale
@@ -31,23 +30,15 @@ function addScaleToGroup(scaleId, groupId) {
  * Return an action object instructing the reducer to add the provided axis
  * to the specified group
  *
- * @param {Object} axis - An Axis primitive instance
- * @param {number} axis._id - The ID of the Axis primitive
- * @param {number} groupId - The ID of the mark to which the axis should be added
+ * @param {number} axisId - The ID of the Lyra axis.
+ * @param {number} groupId - The ID of the group to which the axis should be added.
  * @returns {Object} A redux action object
  */
-function addAxisToGroup(axis, groupId) {
-  // Side effect: update the axis's parent. Since axes are not yet deduced from
-  // the store, the reducer has no ability to make this change. Store the old
-  // parent (which may be undefined) so that it can be passed in (the reducer
-  // must be able to move the axis from the old parent to the new).
-  var oldGroupId = axis._parent;
-  axis._parent = groupId;
+function addAxisToGroup(axisId, groupId) {
   return {
     type: ADD_AXIS_TO_GROUP,
-    oldGroupId: oldGroupId,
-    groupId: groupId,
-    id: axis._id
+    axisId: axisId,
+    groupId: groupId
   };
 }
 
@@ -55,39 +46,15 @@ function addAxisToGroup(axis, groupId) {
  * Return an action object instructing the reducer to add the provided legend
  * to the specified group
  *
- * @param {Object} legend - A Legend primitive instance
- * @param {number} legend._id - The ID of the Legend primitive
- * @param {number} groupId - The ID of the mark to which the legend should be added
+ * @param {number} legendId - The ID of the Lyra legend.
+ * @param {number} groupId - The ID of the group to which the legend should be added.
  * @returns {Object} A redux action object
  */
-function addLegendToGroup(legend, groupId) {
-  // Side effect: update the legend's parent. Since axes are not yet deduced from
-  // the store, the reducer has no ability to make this change. Store the old
-  // parent (which may be undefined) so that it can be passed in (the reducer
-  // must be able to move the legend from the old parent to the new).
-  var oldGroupId = legend._parent;
-  legend._parent = groupId;
+function addLegendToGroup(legendId, groupId) {
   return {
     type: ADD_LEGEND_TO_GROUP,
-    oldGroupId: oldGroupId,
-    groupId: groupId,
-    id: legend._id
-  };
-}
-
-/**
- * Return an action object instructing the reducer to reset the provided
- * property to its corresponding signal reference
- *
- * @param {number} markId - The primitive ID for which to reset the property
- * @param {string} property - The property to reset to a signal
- * @returns {Object} A redux action object
- */
-function resetProperty(markId, property) {
-  return {
-    type: RESET_PROPERTY,
-    id: markId,
-    property: property
+    legendId: legendId,
+    groupId: groupId
   };
 }
 
@@ -96,11 +63,9 @@ module.exports = {
   RULES_ADD_SCALE_TO_GROUP: ADD_SCALE_TO_GROUP,
   RULES_ADD_AXIS_TO_GROUP: ADD_AXIS_TO_GROUP,
   RULES_ADD_LEGEND_TO_GROUP: ADD_LEGEND_TO_GROUP,
-  RULES_RESET_PROPERTY: RESET_PROPERTY,
 
   // Action Creators
   addScaleToGroup: addScaleToGroup,
   addAxisToGroup: addAxisToGroup,
   addLegendToGroup: addLegendToGroup,
-  resetProperty: resetProperty
 };
