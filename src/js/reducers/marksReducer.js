@@ -1,19 +1,18 @@
 /* eslint new-cap:0 */
 'use strict';
 
-var Immutable = require('immutable');
-
-var actions = require('../actions/Names');
-var ns = require('../util/ns');
-var signalRef = require('../util/signal-reference');
-var immutableUtils = require('../util/immutable-utils');
-var get = immutableUtils.get;
-var getIn = immutableUtils.getIn;
-var set = immutableUtils.set;
-var setIn = immutableUtils.setIn;
-var ensureValuePresent = immutableUtils.ensureValuePresent;
-var ensureValueAbsent = immutableUtils.ensureValueAbsent;
-var assign = require('object-assign');
+var dl = require('datalib'),
+    Immutable = require('immutable'),
+    ACTIONS = require('../actions/Names'),
+    ns = require('../util/ns'),
+    signalRef = require('../util/signal-reference'),
+    immutableUtils = require('../util/immutable-utils'),
+    get = immutableUtils.get,
+    getIn = immutableUtils.getIn,
+    set = immutableUtils.set,
+    setIn = immutableUtils.setIn,
+    ensureValuePresent = immutableUtils.ensureValuePresent,
+    ensureValueAbsent = immutableUtils.ensureValueAbsent;
 
 // Helper function to iterate over a mark's .properties hash and convert any .value-
 // based property definitions into appropriate signal references.
@@ -33,7 +32,7 @@ function convertValuesToSignals(properties, type, id) {
   // replace any declared .value with a signal reference pointing at the signal which
   // will represent that property (which should exist if the mark was instantiated
   // properly via the addMark store action).
-  return assign({}, properties, {
+  return dl.extend({}, properties, {
     update: Object.keys(updateProps).reduce(function(selection, key) {
       if (typeof selection[key].value === 'undefined') {
         return selection;
@@ -41,12 +40,12 @@ function convertValuesToSignals(properties, type, id) {
 
       // Replace `{value: '??'}` property definition with a ref to its controlling
       // signal, and ensure that _disabled flags are set properly if present
-      selection[key] = assign({
+      selection[key] = dl.extend({
         signal: signalRef(type, id, key)
       }, selection[key]._disabled ? {_disabled: true} : {});
 
       return selection;
-    }, assign({}, updateProps))
+    }, dl.extend({}, updateProps))
   });
 }
 
@@ -142,6 +141,7 @@ function setParentMark(state, action) {
  * either "legends" or "axes"
  * @returns {Object} A new Immutable state with the requested changes
  */
+/* eslint no-unused-vars:0 */
 function moveChildToGroup(state, action, collection) {
   var oldGroupCollectionPath = action.oldGroupId + '.' + collection,
       newGroupCollectionPath = action.groupId + '.' + collection;
@@ -160,38 +160,6 @@ function moveChildToGroup(state, action, collection) {
 }
 
 /**
- * Set a property value in the store, overwriting any prior value that had
- * been held by that property.
- *
- * @private
- * @param {Object} state - An immutable state object
- * @param {number} id - A numeric mark ID
- * @param {string} property - A string property key (to be set on the mark's
- * properties.update selection)
- * @param {Object} value - The new property value to set
- * @returns {Object} A new immutable state with the requested changes
- */
-function setProperty(state, id, property, value) {
-  var propPath = id + '.properties.update.' + property;
-
-  return setIn(state, propPath, Immutable.fromJS(value));
-}
-
-function disableProperty(state, id, property) {
-  var propPath = id + '.properties.update.' + property;
-
-  return setIn(state, propPath + '._disabled', true);
-}
-
-function resetProperty(state, id, property) {
-  var markType = getIn(state, id + '.type');
-
-  return setProperty(state, id, property, {
-    signal: signalRef(markType, id, property)
-  });
-}
-
-/**
  * Main marks reducer function, which generates a new state for the marks
  * property store based on the changes specified by the dispatched action object.
  *
@@ -204,30 +172,30 @@ function marksReducer(state, action) {
     return new Immutable.Map();
   }
 
-  if (action.type === actions.ADD_MARK) {
+  if (action.type === ACTIONS.ADD_MARK) {
     // Make the mark and .set it at the provided ID, then pass it through a
     // method that will check to see whether the mark needs to be added as
     // a child of another mark
     return setParentMark(set(state, action.id, makeMark(action)), {
-      type: actions.SET_PARENT_MARK,
+      type: ACTIONS.SET_PARENT_MARK,
       parentId: action.props ? action.props._parent : null,
       childId: action.id
     });
   }
 
-  if (action.type === actions.CREATE_SCENE) {
+  if (action.type === ACTIONS.CREATE_SCENE) {
     // Set the scene, converting its width and height into their signal equivalents.
-    // `assign()` is used to avoid mutating the action object, which may be utilized
+    // `dl.extend()` is used to avoid mutating the action object, which may be utilized
     // in other reducers as well.
-    return set(state, action.id, makeMark(assign({}, action, {
-      props: assign({}, action.props, {
+    return set(state, action.id, makeMark(dl.extend({}, action, {
+      props: dl.extend({}, action.props, {
         width: {signal: ns('vis_width')},
         height: {signal: ns('vis_height')}
       })
     })));
   }
 
-  if (action.type === actions.DELETE_MARK) {
+  if (action.type === ACTIONS.DELETE_MARK) {
     // mark store is keyed with strings: ensure ID is a string
     return setParentMark(state, {
       childId: action.markId,
@@ -235,36 +203,49 @@ function marksReducer(state, action) {
     }).set('' + action.markId, null);
   }
 
-  if (action.type === actions.SET_PARENT_MARK) {
+  if (action.type === ACTIONS.SET_PARENT_MARK) {
     return setParentMark(state, action);
   }
 
-  if (action.type === actions.UPDATE_MARK_PROPERTY) {
-    return setIn(state, action.id + '.' + action.property, action.value);
+  if (action.type === ACTIONS.UPDATE_MARK_PROPERTY) {
+    return setIn(state, action.id + '.' + action.property,
+      Immutable.fromJS(action.value));
   }
 
-  if (action.type === actions.RULES_ADD_SCALE_TO_GROUP) {
-    return ensureValuePresent(state, action.groupId + '.scales', action.id);
+  if (action.type === ACTIONS.SET_MARK_VISUAL) {
+    return setIn(state, action.id +
+      '.properties.update.' + action.property, Immutable.fromJS(action.def));
   }
 
-  if (action.type === actions.RULES_ADD_AXIS_TO_GROUP) {
-    return moveChildToGroup(state, action, 'axes');
+  if (action.type === ACTIONS.DISABLE_MARK_VISUAL) {
+    return setIn(state, action.id +
+      '.properties.update.' + action.property + '._disabled', true);
   }
 
-  if (action.type === actions.RULES_ADD_LEGEND_TO_GROUP) {
-    return moveChildToGroup(state, action, 'legends');
+  if (action.type === ACTIONS.RESET_MARK_VISUAL) {
+    var markId = action.id,
+        markType = getIn(state, markId + '.type'),
+        property = action.property;
+
+    return setIn(state, markId + '.properties.update.' + property,
+        Immutable.fromJS({signal: signalRef(markType, markId, property)}));
   }
 
-  if (action.type === actions.RULES_SET_PROPERTY) {
-    return setProperty(state, action.id, action.property, action.value);
+  if (action.type === ACTIONS.BIND_SCALE) {
+    return setIn(state, action.id +
+      '.properties.update.' + action.property + '.scale', action.scaleId);
   }
 
-  if (action.type === actions.RULES_DISABLE_PROPERTY) {
-    return disableProperty(state, action.id, action.property);
+  if (action.type === ACTIONS.ADD_SCALE_TO_GROUP) {
+    return ensureValuePresent(state, action.groupId + '.scales', action.scaleId);
   }
 
-  if (action.type === actions.RULES_RESET_PROPERTY) {
-    return resetProperty(state, action.id, action.property);
+  if (action.type === ACTIONS.ADD_AXIS_TO_GROUP) {
+    return ensureValuePresent(state, action.groupId + '.axes', action.axisId);
+  }
+
+  if (action.type === ACTIONS.ADD_LEGEND_TO_GROUP) {
+    return ensureValuePresent(state, action.groupId + '.legends', action.legendId);
   }
 
   return state;

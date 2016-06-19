@@ -5,7 +5,6 @@ var dl = require('datalib'),
     Primitive = require('../Primitive'),
     Pipeline = require('../data/Pipeline'),
     Dataset = require('../data/Dataset'),
-    rules = require('../../rules'),
     model = require('../../'),
     lookup = model.lookup,
     getParent = require('../../../util/hierarchy').getParent,
@@ -45,7 +44,7 @@ function Mark(props) {
 
   // this.from starts as undefined
 
-  this._rule = new rules.VLSingle(type);
+  // this._rule = new rules.VLSingle(type);
 }
 
 inherits(Mark, Primitive);
@@ -200,7 +199,5 @@ Mark.prototype.remove = function() {
   // array in the model
   model.removeListeners(this);
 };
-
-rules(Mark.prototype);
 
 module.exports = Mark;

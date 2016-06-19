@@ -6,13 +6,13 @@ var d3 = require('d3'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
     model = require('../../model'),
-    lookup = model.lookup,
     addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
     sg = require('../../model/signals'),
     getIn = require('../../util/immutable-utils').getIn,
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    bindChannel = require('../../actions/bindChannel');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -20,10 +20,19 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    bindChannel: function(dsId, field, markId, property) {
+      dispatch(bindChannel(dsId, field, markId, property));
+    }
+  };
+}
+
 var DataTable = React.createClass({
   propTypes: {
     id: React.PropTypes.number,
-    dataset: React.PropTypes.instanceOf(Immutable.Map)
+    dataset: React.PropTypes.instanceOf(Immutable.Map),
+    bindChannel: React.PropTypes.func
   },
 
   getInitialState: function() {
@@ -110,20 +119,15 @@ var DataTable = React.createClass({
   // we're using that to figure out which channel we are closest to. The
   // SELECTED signal indicates the mark to bind the data to.
   handleDragEnd: function(evt) {
-    var sel = sg.get(sg.SELECTED),
+    var props = this.props,
+        sel = sg.get(sg.SELECTED),
         cell = sg.get(sg.CELL),
         bindField = this.state.bindField,
-        dropped = sel._id && cell._id,
-        prim;
+        dropped = sel._id && cell._id;
 
     try {
       if (dropped) {
-        prim = lookup(sel.mark.def.lyra_id);
-        // The bind function on the primitive takes our input, parses it into
-        // vega-lite (see the rules index file) -- looks up what channel we're
-        // on, finds a vega-lite property, puts that in the rules object,
-        // calls vega lite compile, then iterates through each part of the rule.
-        prim.bindProp(cell.key, bindField._id);
+        props.bindChannel(props.id, bindField, sel.mark.def.lyra_id, cell.key);
       }
     } catch (e) {
       console.warn('Unable to bind primitive');
@@ -224,4 +228,4 @@ var DataTable = React.createClass({
 
 });
 
-module.exports = connect(mapStateToProps)(addVegaReparseRequest(DataTable));
+module.exports = connect(mapStateToProps, mapDispatchToProps)(addVegaReparseRequest(DataTable));

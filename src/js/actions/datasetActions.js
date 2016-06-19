@@ -1,6 +1,6 @@
 'use strict';
 
-var assign  = require('object-assign'),
+var dl = require('datalib'),
     counter = require('../util/counter'),
     ADD_DATASET = 'ADD_DATASET',
     INIT_DATASET = 'INIT_DATASET';
@@ -13,7 +13,7 @@ var assign  = require('object-assign'),
  * @returns {Object} An ADD_DATASET action.
  */
 function addDataset(props, values) {
-  props = assign({
+  props = dl.extend({
     _id: props._id || counter.global(),
     _init: false  // Have the raw values been loaded + schema constructed?
   }, props);
