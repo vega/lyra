@@ -5,8 +5,7 @@ var Immutable = require('immutable'),
     immutils = require('../util/immutable-utils'),
     getIn = immutils.getIn,
     setIn = immutils.setIn,
-    ACTIONS = require('../actions/Names'),
-    hierarchy = require('../util/hierarchy');
+    ACTIONS = require('../actions/Names');
 
 function expandLayers(state, layerIds) {
   return layerIds.reduce(function(newState, layerId) {
@@ -43,8 +42,8 @@ function inspectorReducer(state, action) {
   }
 
   if (action.type === ACTIONS.SELECT_MARK) {
-    var lookup = require('../model').lookup,
-        parentGroupIds = hierarchy.getParentGroupIds(lookup(action.id));
+    var hierarchy = require('../util/hierarchy'),
+        parentGroupIds = hierarchy.getParentGroupIds(action.id);
 
     return expandLayers(state, parentGroupIds);
   }

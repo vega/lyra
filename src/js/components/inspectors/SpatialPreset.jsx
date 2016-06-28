@@ -1,36 +1,59 @@
 'use strict';
 var React = require('react'),
-    propSg = require('../../util/prop-signal'),
-    model = require('../../model'),
-    lookup = model.lookup,
-    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
+    connect = require('react-redux').connect,
+    Immutable = require('immutable'),
+    addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
+    getIn = require('../../util/immutable-utils').getIn,
+    markActions = require('../../actions/markActions'),
+    setMarkVisual = markActions.setMarkVisual,
+    resetMarkVisual = markActions.resetMarkVisual;
+
+function mapStateToProps(reduxState, ownProps) {
+  var prim = ownProps.primitive,
+      name = ownProps.name,
+      update = prim.properties.update,
+      prop = update[name];
+
+  return {
+    property: update[name],
+    scale: getIn(reduxState, 'scales.' + prop.scale)
+  };
+}
+
+function mapDispatchToProps(dispatch, ownProps) {
+  var id = ownProps.primitive._id;
+  return {
+    setPreset: function(name, def) {
+      dispatch(setMarkVisual(id, name, def));
+    },
+    reset: function(name) {
+      dispatch(resetMarkVisual(id, name));
+    }
+  };
+}
 
 var SpatialPreset = React.createClass({
   propTypes: {
-    primitive: React.PropTypes.object
+    primitive: React.PropTypes.object,
+    property: React.PropTypes.object,
+    scale: React.PropTypes.instanceOf(Immutable.Map)
   },
 
   handleChange: function(evt) {
     var props = this.props,
-        primitive = props.primitive,
-        target = evt.target,
-        name = target.name,
-        update = primitive.properties.update,
-        prop = update[name],
-        scale = prop.scale && lookup(prop.scale),
+        name  = props.name,
+        scale = props.scale,
         preset = name.indexOf('x') >= 0 ? 'width' : 'height';
 
     if (evt.target.checked) {
-      update[name] = (name === 'width' || name === 'height') ? {
-        scale: scale,
+      props.setPreset(name, (name === 'width' || name === 'height') ? {
+        scale: scale.get('_id'),
         band: true
       } : {
         group: preset
-      };
+      });
     } else {
-      update[name] = {
-        signal: propSg(primitive, name)
-      };
+      props.reset(name);
     }
 
     this.requestVegaReparse();
@@ -38,21 +61,19 @@ var SpatialPreset = React.createClass({
 
   render: function() {
     var props = this.props,
-        name = props.name,
-        primitive = this.props.primitive,
-        update = primitive.properties.update,
-        prop = update[name],
-        scale = prop.scale && lookup(prop.scale),
+        name  = props.name,
+        scale = props.scale,
+        property = props.property,
         preset = name.indexOf('x') >= 0 ? 'width' : 'height';
 
-    if (prop.field) {
+    if (property.field) {
       return null;
     }
 
     if (name === 'width' || name === 'height') {
-      return (scale && scale.type === 'ordinal' && !scale.points) ? (
+      return (scale && scale.get('type') === 'ordinal' && !scale.get('points')) ? (
         <label>
-          <input type="checkbox" name={name} checked={prop.band}
+          <input type="checkbox" name={name} checked={property.band}
             onChange={this.handleChange} /> Automatic
         </label>
       ) : null;
@@ -60,11 +81,11 @@ var SpatialPreset = React.createClass({
 
     return (
       <label>
-        <input type="checkbox" name={name} checked={prop.group}
+        <input type="checkbox" name={name} checked={property.group}
           onChange={this.handleChange} /> Set to group {preset}
       </label>
     );
   }
 });
 
-module.exports = addVegaReparseRequest(SpatialPreset);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(addVegaReparseRequest(SpatialPreset));

@@ -16,7 +16,7 @@ function scalesReducer(state, action) {
     return set(state, action.id, Immutable.fromJS(action.props));
   }
 
-  if (action.type === ACTIONS.UPDATE_GUIDE_PROPERTY) {
+  if (action.type === ACTIONS.UPDATE_SCALE_PROPERTY) {
     return setIn(state, action.id + '.' + action.property,
       Immutable.fromJS(action.value));
   }

@@ -1,7 +1,6 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    lookup = require('../../model').lookup,
     hierarchy = require('../../util/hierarchy'),
     getIn = require('../../util/immutable-utils').getIn,
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
@@ -46,7 +45,7 @@ function mapDispatchToProps(dispatch) {
     },
     selectMark: function(id) {
       // Walk up from the selected primitive to create an array of its parent groups' IDs
-      var parentGroupIds = hierarchy.getParentGroupIds(lookup(id));
+      var parentGroupIds = hierarchy.getParentGroupIds(id);
 
       // Select the mark,
       dispatch(selectMark(id));

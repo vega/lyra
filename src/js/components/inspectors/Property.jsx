@@ -1,10 +1,9 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
+    store = require('../../store'),
     SignalValue = require('../mixins/SignalValue'),
     getIn = require('../../util/immutable-utils').getIn,
-    model = require('../../model'),
-    lookup = model.lookup,
     resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
 
 function mapStateToProps(state, ownProps) {
@@ -51,7 +50,8 @@ var Property = React.createClass({
   },
 
   render: function() {
-    var state = this.state,
+    var storedState = store.getState(),
+        state = this.state,
         props = this.props,
         name = props.name,
         label = props.label,
@@ -74,11 +74,11 @@ var Property = React.createClass({
     });
 
     labelEl = labelEl || (<label htmlFor={name}>{label}</label>);
-    scaleEl = scale && (scale = lookup(scale)) ?
-      (<div className="scale" onClick={this.unbind}>{scale.name}</div>) : null;
+    scaleEl = scale && (scale = getIn(storedState, 'scales.' + scale)) ?
+      (<div className="scale" onClick={this.unbind}>{scale.get('name')}</div>) : null;
 
-    controlEl = field && (field = lookup(field)) ?
-      (<div className="field" onClick={this.unbind}>{field._name}</div>) : controlEl;
+    controlEl = field ?
+      (<div className="field" onClick={this.unbind}>{field}</div>) : controlEl;
 
     if (!controlEl) {
       switch (type) {

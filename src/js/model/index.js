@@ -121,7 +121,7 @@ function register() {
     }
 
     // Walk up from the selected primitive to create an array of its parent groups' IDs
-    var parentLayerIds = hierarchy.getParentGroupIds(lookup(id));
+    var parentLayerIds = hierarchy.getParentGroupIds(id);
 
     if (id) {
       // Select the mark,
