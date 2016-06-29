@@ -101,6 +101,7 @@ var Inspector = React.createClass({
 });
 
 Inspector.Line = require('./inspectors/Line');
+Inspector.Guide = require('./inspectors/Guide');
 Inspector.Rect = require('./inspectors/Rect');
 Inspector.Symbol = require('./inspectors/Symbol');
 Inspector.Text = require('./inspectors/Text');

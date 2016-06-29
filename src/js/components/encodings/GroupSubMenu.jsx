@@ -7,7 +7,6 @@ var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     get = require('../../util/immutable-utils').get,
     getIn = require('../../util/immutable-utils').getIn,
-    selectEncoding = require('../../actions/inspectorActions').selectEncoding,
     selectGuide = require('../../actions/inspectorActions').selectGuide,
     selectMark = require('../../actions/inspectorActions').selectMark,
     guideActions = require('../../actions/guideActions'),
@@ -49,7 +48,6 @@ function mapDispatchToProps(dispatch, ownProps) {
         dispatch(selectGuide(null));
       }
       dispatch(removeAxisFromGroup(id, ownProps.id));
-      // currently
       dispatch(deleteGuide(id, 0));
     },
     deleteMark: function(id) {

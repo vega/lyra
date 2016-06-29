@@ -141,13 +141,14 @@ describe('marks reducer', function() {
         }));
     });
 
+    // should delete/(make undefined) the mark in the store?
     it('nulls out the mark in the store', function() {
       var result = marksReducer(initialState, {
         type: actions.DELETE_MARK,
         markId: 4,
         markType: 'symbol'
       });
-      expect(result.get('4')).to.equal(null);
+      expect(result.get('4')).to.equal(undefined);
     });
 
     it('removes the mark from its parent\'s marks array', function() {
