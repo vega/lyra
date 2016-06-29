@@ -6,7 +6,7 @@ var React = require('react');
 var configureMockStore = require('redux-mock-store');
 var Immutable = require('immutable');
 var enzyme = require('enzyme');
-var Rect = require('../../model/primitives/marks/Rect');
+var Mark = require('../../store/factory/Mark');
 var Property = require('./Property');
 var wrapper;
 
@@ -62,7 +62,7 @@ describe('Property Inspector <Property/>', function() {
   describe('Property Inspector <Property type="range"/> (mount)', function() {
     var inputNode;
     beforeEach(function() {
-      var primitive = new Rect();
+      var primitive = Mark('rect');
       wrapper = enzyme.mount(<Property
         name="fillOpacity"
         label="Opacity"

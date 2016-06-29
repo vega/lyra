@@ -29,12 +29,15 @@ var PipelineInspector = React.createClass({
   propTypes: {
     isSelected: React.PropTypes.bool,
     selectPipeline: React.PropTypes.func,
-    pipeline: React.PropTypes.instanceOf(Immutable.Map)
+    pipeline: React.PropTypes.instanceOf(Immutable.Map),
+    source: React.PropTypes.number
   },
 
   render: function() {
     var props = this.props,
-        pipeline = props.pipeline,
+        pipeline = props.pipeline.toJS(),
+        id = props.id,
+        name = pipeline.name,
         inner = (<span></span>);
 
     function updatePipelineName(val) {
@@ -46,8 +49,8 @@ var PipelineInspector = React.createClass({
     if (props.isSelected) {
       inner = (
         <div className="inner">
-          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {pipeline.get('_name')}</p>
-          <DataTable dataset={primitives[pipeline.get('source')]} className="source" />
+          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {name}</p>
+          <DataTable id={pipeline._source} className="source" />
         </div>
       );
     }
@@ -55,9 +58,9 @@ var PipelineInspector = React.createClass({
     return (
       <div className={'pipeline' + (props.isSelected ? ' selected' : '')}>
         <ContentEditable className="header"
-          value={pipeline.get('_name')}
+          value={name}
           save={updatePipelineName}
-          onClick={props.selectPipeline.bind(null, pipeline.get('_id'))} />
+          onClick={props.selectPipeline.bind(null, id)} />
         {inner}
       </div>
     );

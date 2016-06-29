@@ -26,14 +26,6 @@ var sg = require('../model/signals'),
     getIn = require('../util/immutable-utils').getIn,
     parseInProgress = require('../actions/vegaActions').parseVega;
 
-function instantiatePrimitivesFromStore(store, model) {
-  getIn(store.getState(), 'marks').forEach(function(props, markId) {
-    // props will be an immutable iterable if the mark exists, or null if it has
-    // been deleted
-    model.syncMark(markId, props ? props.toJS() : props);
-  });
-}
-
 /**
  * Identify whether the redux model has changed in a way that invalidates the
  * rendered Vega view, and if so, kick off a destroy/recreate cycle to build
@@ -44,13 +36,12 @@ function instantiatePrimitivesFromStore(store, model) {
  * @returns {boolean} Whether or not the view was invalidated
  */
 function recreateVegaIfNecessary(store, model) {
-  var shouldReparse = getIn(store.getState(), 'vega.invalid');
+  var state = store.getState(),
+      shouldReparse = getIn(state, 'vega.invalid'),
+      sceneId = getIn(state, 'scene.id');
 
   if (shouldReparse) {
-    // First, ensure that all marks have been properly instantiated from the store
-    instantiatePrimitivesFromStore(store, model);
-
-    if (!model.Scene) {
+    if (!sceneId) {
       // If the initial Scene is not ready after primitive instantiaton, then we
       // do not yet have anything to render: exit out and wait for the next cycle,
       // returning "true" to preempt further action
@@ -89,16 +80,17 @@ function updateSelectedMarkInVega(selectedMark, vegaView) {
 
   var selectedSignal = vegaView.signal(sg.SELECTED),
       def = selectedSignal.mark.def,
-      vegaSelectedId = def && def.lyra_id;
+      vegaSelectedId = def && def.lyra_id,
+      selectedMarkId = selectedMark.get('_id');
 
   // If the store and the Vega scene graph are in sync, take no action
-  if (selectedMark._id === vegaSelectedId) {
+  if (selectedMarkId === vegaSelectedId) {
     return;
   }
 
   // Walk up from the selected primitive to find all parent groups and create
   // an array of all relevant [lyra] IDs
-  var markIds = [selectedMark._id].concat(hierarchy.getParentGroupIds(selectedMark)),
+  var markIds = [selectedMarkId].concat(hierarchy.getParentGroupIds(selectedMarkId)),
       // then walk down the rendered Vega scene graph to find a corresponding item.
       item = hierarchy.findInItemTree(vegaView.model().scene().items[0], markIds);
 
@@ -148,9 +140,10 @@ function createStoreListener(store, model) {
     }
 
     // If an item is marked selected in the store, pass that on to Vega
-    var storeSelectedId = getIn(state, 'inspector.encodings.selectedId');
-    if (storeSelectedId) {
-      updateSelectedMarkInVega(model.lookup(storeSelectedId), model.view);
+    var storeSelectedId = getIn(state, 'inspector.encodings.selectedId'),
+        selectedMark = getIn(state, 'marks.' + storeSelectedId);
+    if (storeSelectedId && selectedMark) {
+      updateSelectedMarkInVega(selectedMark, model.view);
     }
   };
 }

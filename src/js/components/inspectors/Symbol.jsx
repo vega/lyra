@@ -1,7 +1,7 @@
 'use strict';
 var React = require('react'),
     Property = require('./Property'),
-    Symbol = require('../../model/primitives/marks/Symbol');
+    Symbol = require('../../store/factory/marks/Symbol');
 
 var SymbolInspector = React.createClass({
   render: function() {

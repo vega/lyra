@@ -2,7 +2,8 @@
 var React = require('react'),
     Property = require('./Property'),
     AreaProperty = require('./AreaProperty'),
-    Area = require('../../model/primitives/marks/Area');
+    Area = require('../../store/factory/marks/Area'),
+    INTERPOLATE = require('../../constants/interpolate');
 
 var AreaInspector = React.createClass({
   render: function() {
@@ -80,7 +81,7 @@ var AreaInspector = React.createClass({
             name="interpolate"
             label="Interpolate"
             type="select"
-            opts={Area.INTERPOLATE}
+            opts={INTERPOLATE}
             canDrop={true}
             primitive={primitive}
           />

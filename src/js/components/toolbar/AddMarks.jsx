@@ -2,9 +2,9 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     store = require('../../store'),
+    Mark = require('../../store/factory/Mark'),
     getIn = require('../../util/immutable-utils').getIn,
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
-    marks = require('../../model/primitives/marks'),
     selectMark = require('../../actions/inspectorActions').selectMark,
     addMark = require('../../actions/markActions').addMark,
     assets = require('../../util/assets'),
@@ -20,7 +20,7 @@ function mapStateToProps(reduxState) {
 function mapDispatchToProps(dispatch) {
   return {
     addMark: function(type, parentId) {
-      var newMarkProps = marks.getDefaults(type, {
+      var newMarkProps = Mark(type, {
         _parent: parentId
       });
       dispatch(addMark(newMarkProps));

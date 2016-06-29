@@ -7,14 +7,10 @@ var dl = require('datalib'),
 var EXTENTS = {
   x: {
     start: {name: 'x', label: 'Left'},
-    center: {name: 'xc', label: 'Center'},
-    span: {name: 'width', label: 'Width'},
     end: {name: 'x2', label: 'Right'}
   },
   y: {
     start: {name: 'y', label: 'Top'},
-    center: {name: 'yc', label: 'Middle'},
-    span: {name: 'height', label: 'Height'},
     end: {name: 'y2', label: 'Bottom'}
   }
 };

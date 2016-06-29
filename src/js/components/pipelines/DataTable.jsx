@@ -3,17 +3,36 @@ var d3 = require('d3'),
     dl = require('datalib'),
     React = require('react'),
     ReactDOM = require('react-dom'),
+    connect = require('react-redux').connect,
+    Immutable = require('immutable'),
     model = require('../../model'),
-    lookup = model.lookup,
     addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
     sg = require('../../model/signals'),
+    getIn = require('../../util/immutable-utils').getIn,
+    dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    bindChannel = require('../../actions/bindChannel');
+
+function mapStateToProps(state, ownProps) {
+  return {
+    dataset: getIn(state, 'datasets.' + ownProps.id)
+  };
+}
+
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    bindChannel: function(dsId, field, markId, property) {
+      dispatch(bindChannel(dsId, field, markId, property));
+    }
+  };
+}
 
 var DataTable = React.createClass({
   propTypes: {
-    dataset: React.PropTypes.object,
-    'dataset.schema': React.PropTypes.object
+    id: React.PropTypes.number,
+    dataset: React.PropTypes.instanceOf(Immutable.Map),
+    bindChannel: React.PropTypes.func
   },
 
   getInitialState: function() {
@@ -21,26 +40,27 @@ var DataTable = React.createClass({
       limit: 20,
       page: 0,
       fullField: null,
-      fullValue: null
+      fullValue: null,
+      bindField: null
     };
   },
 
   componentDidMount: function() {
     var el = this._el = d3.select(ReactDOM.findDOMNode(this));
 
-    this._table = el.select('.datatable');
-    this._fullField = el.select('.full.field');
-    this._fullValue = el.select('.full.value');
+    this.$table = el.select('.datatable');
+    this.$fullField = el.select('.full.field');
+    this.$fullValue = el.select('.full.value');
   },
 
   prevPage: function() {
-    var node = this._table.node();
+    var node = this.$table.node();
     this.setState({page: --this.state.page});
     node.scrollLeft = 0;
   },
 
   nextPage: function() {
-    var node = this._table.node();
+    var node = this.$table.node();
     this.setState({page: ++this.state.page});
     node.scrollLeft = 0;
   },
@@ -48,16 +68,11 @@ var DataTable = React.createClass({
   showFullField: function(evt) {
     var target = evt.target,
         name = target.textContent,
-        schema = this.props.dataset.schema();
+        schema = dsUtil.schema(this.props.id);
 
     this.hideFull(evt);
-    this.setState({
-      // fullField is used for rendering
-      fullField: schema[name],
-      // selectedField is used to pass data around while dragging
-      selectedField: schema[name]
-    });
-    this._fullField.style('display', 'block')
+    this.setState({fullField: schema[name]});
+    this.$fullField.style('display', 'block')
       .style('top', target.offsetTop);
   },
 
@@ -66,12 +81,12 @@ var DataTable = React.createClass({
         node = target.node(),
         field = node.parentNode.firstChild,
         fieldRect = field.getBoundingClientRect(),
-        table = this._table.node(),
+        table = this.$table.node(),
         left = field.offsetLeft + fieldRect.width;
 
     this.hideFull(evt);
     this.setState({fullValue: target.text()});
-    this._fullValue.classed('odd', target.classed('odd'))
+    this.$fullValue.classed('odd', target.classed('odd'))
       .classed('even', target.classed('even'))
       .style('display', 'block')
       .style('left', node.offsetLeft - table.scrollLeft + left)
@@ -80,11 +95,12 @@ var DataTable = React.createClass({
 
   hideFull: function(evt) {
     this.setState({fullField: null, fullValue: null});
-    this._fullField.style('display', 'none');
-    this._fullValue.style('display', 'none');
+    this.$fullField.style('display', 'none');
+    this.$fullValue.style('display', 'none');
   },
 
   handleDragStart: function(evt) {
+    this.setState({bindField: this.state.fullField});
     evt.dataTransfer.setData('text/plain', evt.target.id);
     evt.dataTransfer.effectAllowed = 'link';
     sg.set(sg.MODE, 'channels');
@@ -103,20 +119,15 @@ var DataTable = React.createClass({
   // we're using that to figure out which channel we are closest to. The
   // SELECTED signal indicates the mark to bind the data to.
   handleDragEnd: function(evt) {
-    var sel = sg.get(sg.SELECTED),
+    var props = this.props,
+        sel = sg.get(sg.SELECTED),
         cell = sg.get(sg.CELL),
-        selectedField = this.state.selectedField,
-        dropped = sel._id && cell._id,
-        prim;
+        bindField = this.state.bindField,
+        dropped = sel._id && cell._id;
 
     try {
       if (dropped) {
-        prim = lookup(sel.mark.def.lyra_id);
-        // The bind function on the primitive takes our input, parses it into
-        // vega-lite (see the rules index file) -- looks up what channel we're
-        // on, finds a vega-lite property, puts that in the rules object,
-        // calls vega lite compile, then iterates through each part of the rule.
-        prim.bindProp(cell.key, selectedField._id);
+        props.bindChannel(props.id, bindField, sel.mark.def.lyra_id, cell.key);
       }
     } catch (e) {
       console.warn('Unable to bind primitive');
@@ -125,6 +136,7 @@ var DataTable = React.createClass({
 
     sg.set(sg.MODE, 'handles');
     sg.set(sg.CELL, {});
+    this.setState({bindField: null});
 
     if (dropped) {
       this.requestVegaReparse();
@@ -148,9 +160,9 @@ var DataTable = React.createClass({
         limit = state.limit,
         start = page * limit,
         stop = start + limit,
-        dataset = props.dataset,
-        schema = dataset.schema(),
-        output = dataset.output(),
+        id = props.id,
+        schema = dsUtil.schema(id),
+        output = dsUtil.values(id),
         values = output.slice(start, stop),
         keys = dl.keys(schema),
         max = output.length,
@@ -171,7 +183,7 @@ var DataTable = React.createClass({
 
     fullField = fullField ? (
       <span>
-        <Icon glyph={assets[fullField._type]} width="10" height="10" /> {fullField._name}
+        <Icon glyph={assets[fullField.mtype]} width="10" height="10" /> {fullField.name}
       </span>
       ) : null;
 
@@ -216,4 +228,4 @@ var DataTable = React.createClass({
 
 });
 
-module.exports = addVegaReparseRequest(DataTable);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(addVegaReparseRequest(DataTable));

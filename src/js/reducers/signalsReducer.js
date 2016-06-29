@@ -1,12 +1,11 @@
 /* eslint new-cap:0 */
 'use strict';
 
-var Immutable = require('immutable');
-
-var ns = require('../util/ns');
-var actions = require('../actions/Names');
-var signalRef = require('../util/signal-reference');
-var setIn = require('../util/immutable-utils').setIn;
+var Immutable = require('immutable'),
+    ns = require('../util/ns'),
+    actions = require('../actions/Names'),
+    propSg = require('../util/prop-signal'),
+    setIn = require('../util/immutable-utils').setIn;
 
 // Initialize a signal to a specific value
 function signalInit(state, action) {
@@ -38,7 +37,7 @@ function initSignalsForMark(state, action) {
       return state;
     }
 
-    var signalName = signalRef(action.props.type, action.id, propName);
+    var signalName = propSg(action.id, action.props.type, propName);
     var intermediateState = signalInit(state, {
       signal: signalName,
       value: updateProps[propName].value

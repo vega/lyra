@@ -2,9 +2,9 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     ReactTooltip = require('react-tooltip'),
+    Immutable = require('immutable'),
+    store = require('../../store'),
     ContentEditable = require('../ContentEditable'),
-    lookup = require('../../model').lookup,
-    hierarchy = require('../../util/hierarchy'),
     get = require('../../util/immutable-utils').get,
     getIn = require('../../util/immutable-utils').getIn,
     selectMark = require('../../actions/inspectorActions').selectMark,
@@ -12,28 +12,22 @@ var React = require('react'),
     deleteMark = markActions.deleteMark,
     updateMarkProperty = markActions.updateMarkProperty,
     inspectorActions = require('../../actions/inspectorActions'),
-    expandLayers = inspectorActions.expandLayers,
     toggleLayers = inspectorActions.toggleLayers,
     Icon = require('../Icon'),
     assets = require('../../util/assets');
 
-function mapStateToProps(reduxState) {
+function mapStateToProps(reduxState, ownProps) {
   return {
     selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
-    expandedLayers: getIn(reduxState, 'inspector.encodings.expandedLayers')
+    expandedLayers: getIn(reduxState, 'inspector.encodings.expandedLayers'),
+    group: getIn(reduxState, 'marks.' + ownProps.id)
   };
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     select: function(id) {
-      // Walk up from the selected primitive to create an array of its parent groups' IDs
-      var parentGroupIds = hierarchy.getParentGroupIds(lookup(id));
-
-      // Select the mark,
       dispatch(selectMark(id));
-      // And expand the hierarchy so that it is visible
-      dispatch(expandLayers(parentGroupIds));
     },
     deleteMark: function(id) {
       if (ownProps.selectedId === id) {
@@ -42,12 +36,6 @@ function mapDispatchToProps(dispatch, ownProps) {
       dispatch(deleteMark(id));
     },
     updateProperty: function(id, property, value) {
-      // Update in the primitives dictionary
-      var mark = lookup(id);
-      if (mark) {
-        mark[property] = value;
-      }
-      // Update in the global store
       dispatch(updateMarkProperty(id, property, value));
     },
     toggle: function(layerId) {
@@ -65,7 +53,8 @@ var Group = React.createClass({
     select: React.PropTypes.func,
     deleteMark: React.PropTypes.func,
     updateProperty: React.PropTypes.func,
-    toggle: React.PropTypes.func
+    toggle: React.PropTypes.func,
+    group: React.PropTypes.instanceOf(Immutable.Map)
   },
 
   componentWillUnmount: function() {
@@ -93,18 +82,20 @@ var Group = React.createClass({
         level = +props.level,
         selectedId = props.selectedId,
         groupId = props.id,
-        group = lookup(groupId),
-        groupType = group.type,
-        isExpanded = get(props.expandedLayers, groupId);
+        group = props.group,
+        groupType = group.get('type'),
+        marks = group.get('marks'),
+        isExpanded = get(props.expandedLayers, groupId),
+        stored = store.getState();
 
-    var contents = isExpanded && group.marks ? (
+    var contents = isExpanded && group.get('marks') ? (
       <ul className="group">
-        <li className="header">Guides <Icon glyph={assets.plus} width="10" height="10" /></li>
-          <li className="header">Marks <Icon glyph={assets.plus} width="10" height="10" /></li>
-        {group.marks.map(function(id) {
-          var mark = lookup(id),
-              type = mark.type,
-              name = mark.name,
+        <li className="header">Axes &amp; Legends <Icon glyph={assets.plus} width="10" height="10" /></li>
+        <li className="header">Marks <Icon glyph={assets.plus} width="10" height="10" /></li>
+        {marks.map(function(id) {
+          var mark = getIn(stored, 'marks.' + id),
+              type = mark.get('type'),
+              name = mark.get('name'),
               icon = this.icon(type, isExpanded);
 
           return type === 'group' ? (
@@ -132,7 +123,7 @@ var Group = React.createClass({
     ) : null;
 
     var icon = this.icon(groupType, isExpanded),
-        name = group.name;
+        name = group.get('name');
 
     return (
       <li className={isExpanded ? 'expanded' : 'contracted'}>

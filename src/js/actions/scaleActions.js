@@ -1,7 +1,7 @@
 'use strict';
 
-var assign   = require('object-assign'),
-    counter  = require('../util/counter'),
+var dl = require('datalib'),
+    counter = require('../util/counter'),
     ADD_SCALE = 'ADD_SCALE',
     UPDATE_SCALE_PROPERTY = 'UPDATE_SCALE_PROPERTY';
 
@@ -12,7 +12,7 @@ var assign   = require('object-assign'),
  * @returns {Object} The ADD_SCALE action object
  */
 function addScale(scaleProps) {
-  var props = assign({
+  var props = dl.extend({
     _id: scaleProps._id || counter.global(),
   }, scaleProps);
 

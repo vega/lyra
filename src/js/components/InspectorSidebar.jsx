@@ -5,8 +5,7 @@
 var React = require('react'),
     Immutable = require('immutable'),
     connect = require('react-redux').connect,
-    model = require('../model'),
-    lookup = model.lookup,
+    store = require('../store'),
     Property = require('./inspectors/Property'),
     getIn = require('../util/immutable-utils').getIn,
     hierarchy = require('../util/hierarchy'),
@@ -52,7 +51,8 @@ var Inspector = React.createClass({
   render: function() {
     var props = this.props,
         prim = props.primitive && props.primitive.toJS(),
-        from = prim ? lookup(prim.from) : '',
+        from = prim && prim.from ?
+          getIn(store.getState(), 'datasets.' + prim.from.data) : '',
         ctor, InspectorType;
 
     if (prim) {

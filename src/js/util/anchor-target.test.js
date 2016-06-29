@@ -3,13 +3,13 @@
 var expect = require('chai').expect;
 
 var anchorTarget = require('./anchor-target');
-var Rect = require('../model/primitives/marks/Rect');
+var Mark = require('../store/factory/Mark');
 
 describe('anchor target utility', function() {
   var mark;
 
   beforeEach(function() {
-    mark = new Rect();
+    mark = Mark('rect');
     // Manually override rect mark ID to prevent test order from changing results
     mark._id = 2501;
     mark.name = 'rect_name';

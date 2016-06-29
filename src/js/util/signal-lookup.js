@@ -1,6 +1,7 @@
 'use strict';
 var store = require('../store'),
-    getIn = require('./immutable-utils').getIn;
+    getIn = require('./immutable-utils').getIn,
+    ns = require('./ns');
 
 /**
  * Retrieves the value stored in redux for the signal
@@ -9,5 +10,5 @@ var store = require('../store'),
  * @returns {string|number|object} returns what is stored in redux which could be one of these types
  */
 module.exports = function(signal) {
-  return getIn(store.getState(), 'signals.' + signal + '.init');
+  return getIn(store.getState(), 'signals.' + ns(signal) + '.init');
 };

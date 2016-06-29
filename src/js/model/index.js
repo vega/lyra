@@ -3,7 +3,7 @@
 var dl = require('datalib'),
     vg = require('vega'),
     sg = require('./signals'),
-    manips = require('./primitives/marks/manipulators'),
+    manips = require('./manipulators'),
     ns = require('../util/ns'),
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
@@ -19,39 +19,7 @@ var model = module.exports = {
   Scene: null
 };
 
-var pipelines = [],
-    primitives = {},
-    listeners = {};
-
-window.listeners = listeners;
-window.primitives = primitives;
-
-/**
- * @description A setter for primitives based on IDs. To prevent memory leaks,
- * primitives do not directly store references to other primitives. Instead,
- * they store IDs and use model.lookup as a lookup. When a new primitive is
- * created, it calls this function to store itself in the model.
- *
- * @param {number} id - The numeric ID of the primitive to set.
- * @param {Object} primitive - Store the provided primitive in the lyra model,
- * keyed by the given ID.
- * @returns {Object} The Lyra model.
- */
-model.primitive = function(id, primitive) {
-  primitives[id] = primitive;
-  return model;
-};
-
-/**
- * @description A getter for primitives based on IDs. Primitives store their IDs
- * in the model and use this method as a lookup.
- *
- * @param {number} id - The numeric ID of a specific primitive to look up.
- * @returns {Object} The Lyra model.
- */
-var lookup = model.lookup = function(id) {
-  return primitives[id];
-};
+var listeners = {};
 
 Object.defineProperty(model, 'Scene', {
   enumerable: true,
@@ -60,48 +28,10 @@ Object.defineProperty(model, 'Scene', {
         sceneId = getIn(state, 'scene.id');
 
     if (sceneId) {
-      return lookup(sceneId);
+      return getIn(state, 'marks.' + sceneId).toJS();
     }
   }
 });
-
-/**
- * From a mark ID and properties hash, either update an existing mark or
- * instantiate a new mark with the provided state.
- *
- * @param {number} id - The unique ID of a mark
- * @param {Object} props - A vanilla JS object of mark properties
- * @returns {void}
- */
-model.syncMark = function(id, props) {
-  var existingMark = lookup(id),
-      MarkCtor = props && require('./primitives/marks').getConstructor(props.type);
-
-  if (existingMark && !props) {
-    // Remove the mark and its VLSingle from the primitives store
-    existingMark.remove();
-    return;
-  }
-
-  if (existingMark) {
-    existingMark.update(props);
-  } else if (MarkCtor) {
-    model.primitive(id, new MarkCtor(props));
-  }
-};
-
-function getset(cache, id, Type) {
-  if (id === undefined) {
-    return cache.map(function(x) {
-      return lookup(x);
-    });
-  } else if (dl.isNumber(id)) {
-    return lookup(id);
-  }
-  var obj = dl.isString(id) ? new Type(id) : id;
-  return (cache.push(obj._id), obj);
-}
-
 
 function register() {
   var win = d3.select(window),
@@ -134,7 +64,7 @@ function register() {
     }
 
     // Walk up from the selected primitive to create an array of its parent groups' IDs
-    var parentLayerIds = hierarchy.getParentGroupIds(lookup(id));
+    var parentLayerIds = hierarchy.getParentGroupIds(id);
 
     if (id) {
       // Select the mark,
@@ -151,43 +81,7 @@ function register() {
   });
 }
 
-/**
- * A getter or creator for Pipelines.
- * @param  {number|string} [id] - The numeric ID of an existing Pipeline to retrieve
- * or the name of a new Pipeline to instantiate. If no id is given, returns all
- * Pipelines.
- * @returns {Object|Object[]} A Pipeline or array of Pipelines.
- */
-model.pipeline = function(id) {
-  return getset(pipelines, id, require('./primitives/data/Pipeline'));
-};
-
-/**
- * Get all scales for this model
- * @returns {Object|Object[]} A Scale or array of Scales from redux
- */
-model.scale = function() {
-  // this will be refactored out eventually
-  return getIn(store.getState(), 'scales').toArray();
-};
-
-/**
- * Exports the model as a complete Vega specification.
- * @param  {Object}  [scene] - An exported specification of the Scene.
- * @param  {boolean} [clean=true] - Should Lyra-specific properties be removed
- * or resolved (e.g., converting property signal references to actual values).
- * @returns {Object} A Vega specification.
- */
-model.export = function(scene, clean) {
-  clean = clean || clean === undefined;
-  var spec = scene || model.Scene.export(clean);
-
-  spec.data = pipelines.reduce(function(arr, id) {
-    return (arr.push.apply(arr, lookup(id).export(clean)), arr);
-  }, []);
-
-  return spec;
-};
+model.export = require('./export');
 
 /**
  * Exports the model as a complete Vega specification with extra definitions
@@ -196,7 +90,7 @@ model.export = function(scene, clean) {
  * @returns {Object} A Vega specification.
  */
 model.manipulators = function() {
-  var spec = model.export(model.Scene.manipulators(), false),
+  var spec = model.export(true),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       predicates = spec.predicates || (spec.predicates = []),

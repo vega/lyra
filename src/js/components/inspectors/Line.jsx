@@ -1,7 +1,7 @@
 'use strict';
 var React = require('react'),
     Property = require('./Property'),
-    Line = require('../../model/primitives/marks/Line');
+    INTERPOLATE = require('../../constants/interpolate');
 
 var LineInspector = React.createClass({
   render: function() {
@@ -55,7 +55,7 @@ var LineInspector = React.createClass({
             name="interpolate"
             label="Interpolate"
             type="select"
-            opts={Line.INTERPOLATE}
+            opts={INTERPOLATE}
             primitive={primitive}
             canDrop={true}
           />

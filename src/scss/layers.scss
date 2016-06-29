@@ -42,7 +42,8 @@
     text-align: center;
 
     &.selected {
-      background-color: $vlgrey-bg;
+      background-color: $lblue-bg;
+      border-color: $dblue-bg;
     }
   }
 }

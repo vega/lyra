@@ -7,7 +7,7 @@ var Immutable = require('immutable'),
     set = immutableUtils.set,
     setIn = immutableUtils.setIn;
 
-function scaleReducer(state, action) {
+function scalesReducer(state, action) {
   if (typeof state === 'undefined') {
     return Immutable.Map();
   }
@@ -17,10 +17,11 @@ function scaleReducer(state, action) {
   }
 
   if (action.type === ACTIONS.UPDATE_SCALE_PROPERTY) {
-    return setIn(state, action.id + 'action.property', action.value);
+    return setIn(state, action.id + '.' + action.property,
+      Immutable.fromJS(action.value));
   }
 
   return state;
 }
 
-module.exports = scaleReducer;
+module.exports = scalesReducer;
