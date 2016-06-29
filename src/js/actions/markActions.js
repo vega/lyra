@@ -6,6 +6,7 @@ var dl = require('datalib'),
     Mark = require('../store/factory/Mark'),
     ADD_MARK = 'ADD_MARK',
     DELETE_MARK = 'DELETE_MARK',
+    REMOVE_AXIS_FROM_GROUP = 'REMOVE_AXIS_FROM_GROUP',
     SET_PARENT_MARK = 'SET_PARENT_MARK',
     UPDATE_MARK_PROPERTY = 'UPDATE_MARK_PROPERTY',
     SET_MARK_VISUAL = 'SET_MARK_VISUAL',
@@ -45,6 +46,7 @@ function addMark(markProps) {
  */
 function deleteMark(id) {
   return function(dispatch, getState) {
+    // change to .get('marks') instead of toJS()
     var mark = getIn(getState(), 'marks.' + id).toJS();
 
     if (mark.marks && mark.marks.length) {
@@ -122,7 +124,7 @@ function disableMarkVisual(id, property) {
 /**
  * Action creator to reset a mark's visual property back to being signal driven.
  *
- * @param {number} id   The ID of the mark whose visual property is being disabled.
+ * @param {number} id The ID of the mark whose visual property is being disabled.
  * @param {string} property The visual property to disable.
  * @returns {Object} The DISABLE_MARK_VISUAL action object
  */
@@ -168,6 +170,13 @@ function bindField(id, field, property) {
   };
 }
 
+function removeAxisFromGroup(axisId, groupId) {
+  return {
+    type: REMOVE_AXIS_FROM_GROUP,
+    axisId: axisId,
+    groupId: groupId
+  };
+}
 
 module.exports = {
   // Action Names
@@ -180,11 +189,13 @@ module.exports = {
   RESET_MARK_VISUAL: RESET_MARK_VISUAL,
   BIND_SCALE: BIND_SCALE,
   BIND_FIELD: BIND_FIELD,
+  REMOVE_AXIS_FROM_GROUP: REMOVE_AXIS_FROM_GROUP,
 
   // Action Creators
   addMark: addMark,
   deleteMark: deleteMark,
   setParent: setParent,
+  removeAxisFromGroup: removeAxisFromGroup,
   updateMarkProperty: updateMarkProperty,
   setMarkVisual: setMarkVisual,
   disableMarkVisual: disableMarkVisual,

@@ -11,6 +11,7 @@ var dl = require('datalib'),
     getIn = immutableUtils.getIn,
     set = immutableUtils.set,
     setIn = immutableUtils.setIn,
+    deleteKeyFromMap = immutableUtils.deleteKeyFromMap,
     ensureValuePresent = immutableUtils.ensureValuePresent,
     ensureValueAbsent = immutableUtils.ensureValueAbsent;
 
@@ -196,11 +197,10 @@ function marksReducer(state, action) {
   }
 
   if (action.type === ACTIONS.DELETE_MARK) {
-    // mark store is keyed with strings: ensure ID is a string
-    return setParentMark(state, {
+    return deleteKeyFromMap(setParentMark(state, {
       childId: action.markId,
       parentId: null
-    }).set('' + action.markId, null);
+    }), action.markId);
   }
 
   if (action.type === ACTIONS.SET_PARENT_MARK) {
@@ -246,6 +246,10 @@ function marksReducer(state, action) {
 
   if (action.type === ACTIONS.ADD_LEGEND_TO_GROUP) {
     return ensureValuePresent(state, action.groupId + '.legends', action.legendId);
+  }
+
+  if (action.type === ACTIONS.REMOVE_AXIS_FROM_GROUP) {
+    return ensureValueAbsent(state, action.groupId + '.axes', action.axisId);
   }
 
   return state;

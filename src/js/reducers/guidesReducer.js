@@ -5,7 +5,8 @@ var Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
     immutableUtils = require('../util/immutable-utils'),
     set = immutableUtils.set,
-    setIn = immutableUtils.setIn;
+    setIn = immutableUtils.setIn,
+    deleteKeyFromMap = immutableUtils.deleteKeyFromMap;
 
 function guideReducer(state, action) {
   if (typeof state === 'undefined') {
@@ -14,6 +15,10 @@ function guideReducer(state, action) {
 
   if (action.type === ACTIONS.ADD_GUIDE) {
     return set(state, action.id, Immutable.fromJS(action.props));
+  }
+
+  if (action.type === ACTIONS.DELETE_GUIDE) {
+    return deleteKeyFromMap(state, action.id);
   }
 
   if (action.type === ACTIONS.UPDATE_GUIDE_PROPERTY) {

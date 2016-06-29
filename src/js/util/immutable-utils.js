@@ -37,6 +37,10 @@ function set(structure, key, value) {
   return structure.set(toStr(key), value);
 }
 
+function deleteKeyFromMap(structure, key) {
+  return structure.delete(toStr(key));
+}
+
 /**
  * Ensure a value exists in an array within the specified array within the state.
  *
@@ -107,6 +111,7 @@ module.exports = {
   set: set,
   getIn: getIn,
   setIn: setIn,
+  deleteKeyFromMap: deleteKeyFromMap,
   ensureValuePresent: ensureValuePresent,
   ensureValueAbsent: ensureValueAbsent
 };

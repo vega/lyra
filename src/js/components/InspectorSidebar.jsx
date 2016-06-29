@@ -16,12 +16,16 @@ function mapStateToProps(reduxState, ownProps) {
   var encState  = getIn(reduxState, 'inspector.encodings'),
       selId   = encState.get('selectedId'),
       selType = encState.get('selectedType'),
+      selectionGroupId = encState.get('selectionGroupId'),
       isMark  = selType === TYPES.SELECT_MARK,
+      isGuide  = selType === TYPES.SELECT_GUIDE,
       isScale = selType === TYPES.SELECT_SCALE,
       primitive;
 
   if (isMark) {
     primitive = getIn(reduxState, 'marks.' + selId);
+  } else if (isGuide) {
+    primitive = getIn(reduxState, 'guides.' + selId);
   } else if (isScale) {
     primitive = getIn(reduxState, 'scales.' + selId);
   }
@@ -29,7 +33,9 @@ function mapStateToProps(reduxState, ownProps) {
   return {
     selectedId: selId,
     selectedType: selType,
+    selectionGroupId: selectionGroupId,
     isMark: isMark,
+    isGuide: isGuide,
     isScale: isScale,
     primitive: primitive
   };
@@ -40,6 +46,7 @@ var Inspector = React.createClass({
     selectedId: React.PropTypes.number,
     selectedType: React.PropTypes.string,
     isMark: React.PropTypes.bool,
+    isGuide: React.PropTypes.bool,
     isScale: React.PropTypes.bool,
     primitive: React.PropTypes.instanceOf(Immutable.Map)
   },
@@ -53,11 +60,13 @@ var Inspector = React.createClass({
         prim = props.primitive && props.primitive.toJS(),
         from = prim && prim.from ?
           getIn(store.getState(), 'datasets.' + prim.from.data) : '',
-        ctor, InspectorType;
+        ctor, sideBarTitle, InspectorType;
 
     if (prim) {
       if (props.isMark) {
         ctor = this.uppercase(prim.type);
+      } else if (props.isGuide) {
+        ctor = 'Guide';
       } else if (props.isScale) {
         ctor = 'Scale';
       }
@@ -79,10 +88,12 @@ var Inspector = React.createClass({
       </div>
     ) : null;
 
+    sideBarTitle = (prim && prim.name) ? prim.name : 'Properties';
+
     // if property is selected show the header
     return (
       <div className="sidebar" id="inspector">
-        <h2>{prim ? prim.name : 'Properties'}</h2>
+        <h2>{sideBarTitle}</h2>
         {inner}
       </div>
     );

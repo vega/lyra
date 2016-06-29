@@ -67,5 +67,5 @@ module.exports = {
   // Action Creators
   addScaleToGroup: addScaleToGroup,
   addAxisToGroup: addAxisToGroup,
-  addLegendToGroup: addLegendToGroup,
+  addLegendToGroup: addLegendToGroup
 };
