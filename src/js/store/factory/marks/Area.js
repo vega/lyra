@@ -35,7 +35,7 @@ function Area() {
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 Area.getHandleStreams = function(area) {
-  var sg = require('../../../model/signals'),
+  var sg = require('../../../ctrl/signals'),
       at = anchorTarget.bind(null, area, 'handles'),
       id = area._id,
       x  = propSg(id, 'area', 'x'),

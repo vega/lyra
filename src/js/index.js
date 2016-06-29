@@ -12,15 +12,15 @@ require('./transforms');
 var store = require('./store');
 
 // Initialize the Model.
-var model = require('./model');
+var ctrl = require('./ctrl');
 
-// Set up the listeners that connect the model to the store
+// Set up the listeners that connect the ctrl to the store
 var listeners = require('./store/listeners');
 
 // Bind the listener that will flow changes from the redux store into Vega.
-store.subscribe(listeners.createStoreListener(store, model));
+store.subscribe(listeners.createStoreListener(store, ctrl));
 
-// Initializes the Lyra model with a new Scene primitive.
+// Initializes the Lyra ctrl with a new Scene primitive.
 var createScene = require('./actions/sceneActions').createScene;
 var addPipeline = require('./actions/pipelineActions').addPipeline;
 
@@ -52,6 +52,6 @@ store.dispatch(addPipeline({
 
 require('./components');
 
-// Expose model, store and Sidebars globally (via `window`) for debugging
-global.model = model;
+// Expose ctrl, store and Sidebars globally (via `window`) for debugging
+global.ctrl = ctrl;
 global.store = store;

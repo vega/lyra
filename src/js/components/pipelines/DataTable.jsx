@@ -5,9 +5,9 @@ var d3 = require('d3'),
     ReactDOM = require('react-dom'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    model = require('../../model'),
+    ctrl = require('../../ctrl'),
     addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
-    sg = require('../../model/signals'),
+    sg = require('../../ctrl/signals'),
     getIn = require('../../util/immutable-utils').getIn,
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
@@ -104,7 +104,7 @@ var DataTable = React.createClass({
     evt.dataTransfer.setData('text/plain', evt.target.id);
     evt.dataTransfer.effectAllowed = 'link';
     sg.set(sg.MODE, 'channels');
-    model.update();
+    ctrl.update();
   },
 
   handleDragOver: function(evt) {
@@ -141,7 +141,7 @@ var DataTable = React.createClass({
     if (dropped) {
       this.requestVegaReparse();
     } else {
-      model.update();
+      ctrl.update();
     }
   },
 

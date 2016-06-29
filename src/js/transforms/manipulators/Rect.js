@@ -2,7 +2,7 @@
 var dl = require('datalib'),
     inherits = require('inherits'),
     Manipulators = require('./Manipulators'),
-    spec = require('../../model/manipulators'),
+    spec = require('../../ctrl/manipulators'),
     map = require('../../util/map-manipulator'),
     CONST = spec.CONST,
     PX = CONST.PADDING,

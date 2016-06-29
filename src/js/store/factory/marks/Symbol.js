@@ -31,7 +31,7 @@ function Symbol() {
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 Symbol.getHandleStreams = function(symbol) {
-  var sg = require('../../../model/signals'),
+  var sg = require('../../../ctrl/signals'),
       at = anchorTarget.bind(null, symbol, 'handles'),
       id = symbol._id,
       x = propSg(id, 'symbol', 'x'),

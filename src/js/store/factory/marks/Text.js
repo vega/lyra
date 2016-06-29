@@ -40,7 +40,7 @@ function Text() {
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 Text.getHandleStreams = function(text) {
-  var sg = require('../../../model/signals'),
+  var sg = require('../../../ctrl/signals'),
       at = anchorTarget.bind(null, text, 'handles'),
       id = text._id,
       x = propSg(id, 'text', 'x'),

@@ -9,7 +9,7 @@ var dl = require('datalib'),
     Deps = df.Dependencies,
     Transform = vg.Transform,
     Voronoi = vg.transforms.voronoi,
-    sg = require('../../model/signals'),
+    sg = require('../../ctrl/signals'),
     $x = dl.$('x'),
     $y = dl.$('y');
 

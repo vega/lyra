@@ -11,5 +11,5 @@ module.exports = Immutable.Map({
   scales: Immutable.Map(),
   guides: Immutable.Map(),
   marks: Immutable.Map(),
-  signals: Immutable.Map(require('../model/signals/defaults').signals)
+  signals: Immutable.Map(require('../ctrl/signals/defaults').signals)
 });

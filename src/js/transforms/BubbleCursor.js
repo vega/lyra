@@ -7,7 +7,7 @@ var dl = require('datalib'),
     Tuple = df.Tuple,
     Deps = df.Dependencies,
     Transform = vg.Transform,
-    sg = require('../model/signals');
+    sg = require('../ctrl/signals');
 
 /**
  * @classdesc Represents the BubbleCursor, a Vega data transformation operator.

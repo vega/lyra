@@ -1,9 +1,9 @@
 'use strict';
-var sg = require('../../model/signals'),
+var sg = require('../../ctrl/signals'),
     store = require('../../store'),
     getIn = require('../../util/immutable-utils').getIn,
     setSignal = require('../../actions/signalActions').setSignal,
-    model = require('../../model');
+    ctrl = require('../../ctrl');
 
 module.exports = {
   getInitialState: function() {
@@ -42,14 +42,14 @@ module.exports = {
   onSignal: function(signal) {
     signal = signal || this.props.signal;
     if (signal) {
-      model.onSignal(signal, this.signal);
+      ctrl.onSignal(signal, this.signal);
     }
   },
 
   offSignal: function(signal) {
     signal = signal || this.props.signal;
     if (signal) {
-      model.offSignal(signal, this.signal);
+      ctrl.offSignal(signal, this.signal);
     }
   },
 
@@ -80,7 +80,7 @@ module.exports = {
       // Set the signal on the view but do not dispatch: the `.signal` listener
       // above will dispatch the action to synchronize Redux with Vega.
       sg.set(signal, value, false);
-      model.update();
+      ctrl.update();
     } else {
       this.setState({
         value: value

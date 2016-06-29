@@ -14,14 +14,14 @@ var dl = require('datalib'),
     expandLayers = inspectorActions.expandLayers;
 
 /** @namespace */
-var model = module.exports = {
+var ctrl = module.exports = {
   view: null,
   Scene: null
 };
 
 var listeners = {};
 
-Object.defineProperty(model, 'Scene', {
+Object.defineProperty(ctrl, 'Scene', {
   enumerable: true,
   get: function() {
     var state = store.getState(),
@@ -43,19 +43,19 @@ function register() {
     win.on(dragover, function() {
       var mode = sg.get(sg.MODE),
           shiftKey = d3.event.shiftKey,
-          prevKey = Boolean(model._shiftKey);
+          prevKey = Boolean(ctrl._shiftKey);
 
       if (prevKey === shiftKey) {
         return;
       }
-      model._shiftKey = shiftKey;
+      ctrl._shiftKey = shiftKey;
       var setAltChan = mode === 'altchannels' ? 'channels' : mode;
       sg.set(sg.MODE, mode === 'channels' ? 'altchannels' : setAltChan);
-      model.update();
+      ctrl.update();
     });
   }
 
-  model.view.onSignal(sg.SELECTED, function(name, selected) {
+  ctrl.view.onSignal(sg.SELECTED, function(name, selected) {
     var def = selected.mark.def,
         id = def && def.lyra_id;
 
@@ -76,28 +76,28 @@ function register() {
 
   Object.keys(listeners).forEach(function(signalName) {
     listeners[signalName].forEach(function(handlerFn) {
-      model.view.onSignal(signalName, handlerFn);
+      ctrl.view.onSignal(signalName, handlerFn);
     });
   });
 }
 
-model.export = require('./export');
+ctrl.export = require('./export');
 
 /**
- * Exports the model as a complete Vega specification with extra definitions
+ * Exports the ctrl as a complete Vega specification with extra definitions
  * to power Lyra-specific interaction. In particular, this includes definitions
  * of all the Lyra-specific signals and manipulators (handles, channels, etc.).
  * @returns {Object} A Vega specification.
  */
-model.manipulators = function() {
-  var spec = model.export(true),
+ctrl.manipulators = function() {
+  var spec = ctrl.export(true),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       predicates = spec.predicates || (spec.predicates = []),
       marks = spec.marks || (spec.marks = []),
       idx = dl.comparator('_idx');
 
-  // Stash signals from vega into the lyra model, in preparation for seamlessly
+  // Stash signals from vega into the lyra ctrl, in preparation for seamlessly
   // destroying & recreating the vega view
   // sg() is a function that returns all registered signals
   signals.push.apply(signals, dl.vals(sg()).sort(idx));
@@ -140,17 +140,17 @@ model.manipulators = function() {
   return spec;
 };
 
-// Local variable used to hold the last-initiated Vega model reparse
+// Local variable used to hold the last-initiated Vega ctrl reparse
 var parsePromise = null;
 
 /**
- * Parses the model's `manipulators` spec and (re)renders the visualization.
+ * Parses the ctrl's `manipulators` spec and (re)renders the visualization.
  * @param  {string} [el] - A CSS selector corresponding to the DOM element
  * to render the visualization in.
  * @returns {Object} A Promise that resolves once the spec has been successfully
  * parsed and rendered.
  */
-model.parse = function(el) {
+ctrl.parse = function(el) {
   el = el || '#vis';
   if (parsePromise) {
     // A parse is already in progress; cancel that parse's callbacks
@@ -169,7 +169,7 @@ model.parse = function(el) {
         return;
       }
       // Recreate the vega spec
-      vg.parse.spec(model.manipulators(), function(err, chart) {
+      vg.parse.spec(ctrl.manipulators(), function(err, chart) {
         if (err) {
           return reject(err);
         }
@@ -179,14 +179,14 @@ model.parse = function(el) {
   });
 
   return parsePromise.then(function(chart) {
-    model.view = chart({
+    ctrl.view = chart({
       el: el
     });
     // Register all event listeners to the new view
     register();
     // the update() method initiates visual encoding and rendering:
     // View has to update once before scene is ready
-    model.update();
+    ctrl.update();
     // Re-parse complete: null out the completed promise
     parsePromise = null;
   });
@@ -196,9 +196,9 @@ model.parse = function(el) {
  * Re-renders the current spec (e.g., to account for new signal values).
  * @returns {void}
  */
-model.update = function() {
-  if (model.view && model.view.update && typeof model.view.update === 'function') {
-    model.view.update();
+ctrl.update = function() {
+  if (ctrl.view && ctrl.view.update && typeof ctrl.view.update === 'function') {
+    ctrl.view.update();
   }
 };
 
@@ -207,15 +207,15 @@ model.update = function() {
  * @param  {string} name - The name of a signal.
  * @param  {Function} handler - The function to call when the value of the
  * named signal changes.
- * @returns {Object} The Lyra model.
+ * @returns {Object} The Lyra ctrl.
  */
-model.onSignal = function(name, handler) {
+ctrl.onSignal = function(name, handler) {
   listeners[name] = listeners[name] || [];
   listeners[name].push(handler);
-  if (model.view) {
-    model.view.onSignal(name, handler);
+  if (ctrl.view) {
+    ctrl.view.onSignal(name, handler);
   }
-  return model;
+  return ctrl;
 };
 
 /**
@@ -223,9 +223,9 @@ model.onSignal = function(name, handler) {
  * @param  {string} name - The name of a signal.
  * @param  {Function} handler - The function to unregister; this function
  * should have previously been registered for this signal using `onSignal`.
- * @returns {Object} The Lyra model.
+ * @returns {Object} The Lyra ctrl.
  */
-model.offSignal = function(name, handler) {
+ctrl.offSignal = function(name, handler) {
   listeners[name] = listeners[name] || [];
   var listener = listeners[name];
   for (var i = listener.length; --i >= 0;) {
@@ -233,10 +233,10 @@ model.offSignal = function(name, handler) {
       listener.splice(i, 1);
     }
   }
-  if (model.view) {
-    model.view.offSignal(name, handler);
+  if (ctrl.view) {
+    ctrl.view.offSignal(name, handler);
   }
-  return model;
+  return ctrl;
 };
 
 
@@ -250,7 +250,7 @@ model.offSignal = function(name, handler) {
  * @param {string} mark.type - A mark type e.g. "rect"
  * @returns {void}
  */
-model.removeListeners = function(mark) {
+ctrl.removeListeners = function(mark) {
   // Remove all listeners
   if (!mark) {
     listeners = {};

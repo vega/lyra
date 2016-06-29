@@ -66,9 +66,9 @@ api.isDefault = isDefault;
  * @returns {*} The value of the signal
  */
 api.get = function(name) {
-  var model = require('../'),
+  var ctrl = require('../'),
       // `view` is a vega runtime component; view.signal is a getter/setter
-      view = model.view,
+      view = ctrl.view,
       signalObj = getSignal(name),
       signalVal;
 
@@ -92,8 +92,8 @@ api.get = function(name) {
  * @returns {Object} The Signals API object
  */
 api.set = function(name, val, dispatch) {
-  var model = require('../'),
-      view = model.view;
+  var ctrl = require('../'),
+      view = ctrl.view;
   // Always flow signals up to the store,
   if (!isDefault(name) && dispatch !== false) {
     store.dispatch(setSignal(name, val));

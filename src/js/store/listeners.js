@@ -6,7 +6,7 @@
  * the repostory and adopts a dependency-injection-based approach. The individual
  * functions that handle certain types of Store -> Vega updates each take an
  * argument representing the relevant store state, and an argument representing
- * the Vega view (or the Lyra model itself): in this way their behavior can be
+ * the Vega view (or the Lyra ctrl itself): in this way their behavior can be
  * validated using mock objects without having to set up a global store in the
  * test environment.
  *
@@ -21,7 +21,7 @@
 /* eslint no-shadow: 0 */
 
 // The only file-wide dependencies should be utility methods with no side-effects
-var sg = require('../model/signals'),
+var sg = require('../ctrl/signals'),
     hierarchy = require('../util/hierarchy'),
     getIn = require('../util/immutable-utils').getIn,
     parseInProgress = require('../actions/vegaActions').parseVega;
@@ -32,10 +32,10 @@ var sg = require('../model/signals'),
  * a new, up-to-date view representing the latest from the store.
  *
  * @param {Object} store - The Redux store
- * @param {Object} model - The Lyra model
+ * @param {Object} ctrl - The Lyra ctrl
  * @returns {boolean} Whether or not the view was invalidated
  */
-function recreateVegaIfNecessary(store, model) {
+function recreateVegaIfNecessary(store, ctrl) {
   var state = store.getState(),
       shouldReparse = getIn(state, 'vega.invalid'),
       sceneId = getIn(state, 'scene.id');
@@ -48,14 +48,14 @@ function recreateVegaIfNecessary(store, model) {
       return true;
     }
 
-    if (model.view) {
+    if (ctrl.view) {
       // Clear out the outdated vega spec: iterate through all registered
       // signal streams and remove their event listeners
-      model.view.destroy();
-      model.view = null;
+      ctrl.view.destroy();
+      ctrl.view = null;
     }
     store.dispatch(parseInProgress(true));
-    model.parse().then(function() {
+    ctrl.parse().then(function() {
       store.dispatch(parseInProgress(false));
     });
   }
@@ -103,16 +103,16 @@ function updateSelectedMarkInVega(selectedMark, vegaView) {
 
 /**
  * Return a master syncStoreToVega method created using the granular update
- * methods and an injected model and store. `recreateVegaIfNecessary`,
+ * methods and an injected ctrl and store. `recreateVegaIfNecessary`,
  * `updateSelectedMarkInVega`, and `updateAllSignals` are all consumed by local
- * reference, but the store and model to modify are injected as arguments
+ * reference, but the store and ctrl to modify are injected as arguments
  * and this method returns the fully-formed store listener function.
  *
  * @param {Object} store - The Redux store to inject
- * @param {Object} model - The Lyra model to inject
+ * @param {Object} ctrl - The Lyra ctrl to inject
  * @returns {Function} The complete store listener
  */
-function createStoreListener(store, model) {
+function createStoreListener(store, ctrl) {
 
   /**
    * This store listener handles all of the data-flow FROM the Redux store TO the
@@ -123,8 +123,7 @@ function createStoreListener(store, model) {
    * @returns {void}
    */
   return function syncStoreToVega() {
-
-    var reparseNeeded = recreateVegaIfNecessary(store, model),
+    var reparseNeeded = recreateVegaIfNecessary(store, ctrl),
         state = store.getState(),
         reparseInProgress = getIn(state, 'vega.isParsing');
 
@@ -135,7 +134,7 @@ function createStoreListener(store, model) {
     }
 
     // Similarly, there is nothing further to do here if the view is not ready
-    if (!model.view || !model.view.signal || typeof model.view.signal !== 'function' || !model.view.model) {
+    if (!ctrl.view || !ctrl.view.signal || typeof ctrl.view.signal !== 'function' || !ctrl.view.model) {
       return;
     }
 
@@ -143,7 +142,7 @@ function createStoreListener(store, model) {
     var storeSelectedId = getIn(state, 'inspector.encodings.selectedId'),
         selectedMark = getIn(state, 'marks.' + storeSelectedId);
     if (storeSelectedId && selectedMark) {
-      updateSelectedMarkInVega(selectedMark, model.view);
+      updateSelectedMarkInVega(selectedMark, ctrl.view);
     }
   };
 }

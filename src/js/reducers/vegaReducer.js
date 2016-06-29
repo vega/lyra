@@ -6,8 +6,8 @@ var Immutable = require('immutable');
 var ACTIONS = require('../actions/Names');
 
 /**
- * This reducer handles whether to recreate the view from the lyra model.
- * @param {boolean} state - The existing model reparse value from the store
+ * This reducer handles whether to recreate the view from the lyra ctrl.
+ * @param {boolean} state - The existing ctrl reparse value from the store
  * @param {Object} action - The dispatched action indicating how to modify
  * the reparse flag within the store.
  * @returns {boolean} The new state of the reparse flag

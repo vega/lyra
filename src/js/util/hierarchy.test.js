@@ -2,9 +2,9 @@
 'use strict';
 var expect = require('chai').expect;
 
-// var Group = require('../model/primitives/marks/Group');
-// var Rect = require('../model/primitives/marks/Rect');
-var model = require('../model');
+// var Group = require('../ctrl/primitives/marks/Group');
+// var Rect = require('../ctrl/primitives/marks/Rect');
+var ctrl = require('../ctrl');
 
 var hierarchy = require('./hierarchy');
 
@@ -25,7 +25,7 @@ describe.skip('hierarchy utilities', function() {
       var parent = new Group();
       // Set up a parent hierarchy to test
       parent._id = 1;
-      model.primitive(parent._id, parent);
+      ctrl.primitive(parent._id, parent);
       var rect = new Rect();
       rect._parent = parent._id;
       parent.marks.push(rect._id);
@@ -80,7 +80,7 @@ describe.skip('hierarchy utilities', function() {
       [g1, g2, g3, rect].reduce(function(parentMark, childMark, idx) {
         // Set up the child mark
         childMark._id = idx + 1;
-        model.primitive(childMark._id, childMark);
+        ctrl.primitive(childMark._id, childMark);
         // Set this mark a child of the last;
         if (parentMark) {
           childMark._parent = parentMark._id;
@@ -151,7 +151,7 @@ describe.skip('hierarchy utilities', function() {
       [g1, g2, g3, rect].reduce(function(parentMark, childMark, idx) {
         // Set up the child mark
         childMark._id = idx + 1;
-        model.primitive(childMark._id, childMark);
+        ctrl.primitive(childMark._id, childMark);
         // Set this mark a child of the last;
         if (parentMark) {
           childMark._parent = parentMark._id;

@@ -1,7 +1,7 @@
 /* eslint no-unused-expressions:0 */
 'use strict';
 var expect = require('chai').expect,
-    signal = require('../model/signals'),
+    signal = require('../ctrl/signals'),
     signalLookup = require('./signal-lookup');
 
 describe('Signal Lookup utility', function() {

@@ -12,8 +12,8 @@ var dl = require('datalib');
  */
 module.exports = function(mark, mode, key) {
   // sg is required here to prevent a circular reference
-  var sg = require('../model/signals'),
-      name = require('../model/export').exportName,
+  var sg = require('../ctrl/signals'),
+      name = require('../ctrl/export').exportName,
       ANCHOR = sg.ANCHOR,
       TARGET = ANCHOR + '.target',
       expr = '(' + ANCHOR + '&&' + TARGET + '&&' + TARGET + '.datum &&';

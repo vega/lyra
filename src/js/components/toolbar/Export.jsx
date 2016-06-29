@@ -2,7 +2,7 @@
 var React = require('react'),
     d3 = require('d3'),
     vg = require('vega'),
-    model = require('../../model'),
+    ctrl = require('../../ctrl'),
     assets = require('../../util/assets'),
     Icon = require('../Icon');
 
@@ -18,7 +18,7 @@ var Export = React.createClass({
    * @returns {void} File download of the png or svg image is triggered.
    */
   toImageURL: function(type) {
-    var that = this, spec = model.export();
+    var that = this, spec = ctrl.export();
     vg.parse.spec(spec, function(chart) {
       var view = chart({
         renderer: RENDERER[type]
@@ -32,7 +32,7 @@ var Export = React.createClass({
    * @returns {void} File download of the JSON file is triggered.
    */
   toJSONURL: function() {
-    var spec = JSON.stringify(model.export(), null, 2);
+    var spec = JSON.stringify(ctrl.export(), null, 2);
     return this.toBlob(spec, 'json');
   },
 
@@ -42,7 +42,7 @@ var Export = React.createClass({
    * with the spec embedded, is triggered.
    */
   toHTMLURL: function() {
-    var spec = JSON.stringify(model.export(), null, 2),
+    var spec = JSON.stringify(ctrl.export(), null, 2),
         html = assets.scaffold.replace('INJECT_SPEC', spec);
     return this.toBlob(html, 'html');
   },

@@ -11,7 +11,7 @@ var store = require('../store'),
  * @returns {ImmutableMap|null} The requested mark, if present, else null
  */
 function getParent(mark) {
-  // Require model in here to sidestep circular dependency issue
+  // Require ctrl in here to sidestep circular dependency issue
   return getIn(state, 'marks.' + mark.get('_parent')) || null;
 }
 

@@ -34,7 +34,7 @@ function Line() {
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 Line.getHandleStreams = function(line) {
-  var sg = require('../../../model/signals'),
+  var sg = require('../../../ctrl/signals'),
       at = anchorTarget.bind(null, line, 'handles'),
       id = line._id,
       x = propSg(id, 'line', 'x'),

@@ -2,7 +2,7 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     getIn = require('../../util/immutable-utils').getIn,
-    lookup = require('../../model').lookup,
+    lookup = require('../../ctrl').lookup,
     updateMarkProperty = require('../../actions/markActions').updateMarkProperty;
 
 

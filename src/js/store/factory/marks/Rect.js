@@ -36,7 +36,7 @@ function Rect() {
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 Rect.getHandleStreams = function(rect) {
-  var sg = require('../../../model/signals'),
+  var sg = require('../../../ctrl/signals'),
       at = anchorTarget.bind(null, rect, 'handles'),
       id = rect._id,
       type = rect.type,
