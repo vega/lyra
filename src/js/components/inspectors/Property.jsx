@@ -1,4 +1,5 @@
 'use strict';
+
 var React = require('react'),
     connect = require('react-redux').connect,
     store = require('../../store'),
@@ -120,10 +121,12 @@ var Property = React.createClass({
 
         case 'text':
           controlEl = (
-            <input type="text"
-              value={value}
-              onChange={this.handleChange}
-            />
+            <div>
+              <input type="text"
+                value={value}
+                onChange={this.handleChange}
+              />
+            </div>
           );
           break;
 

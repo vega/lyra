@@ -26,6 +26,7 @@ function mapStateToProps(reduxState, ownProps) {
     primitive = getIn(reduxState, 'marks.' + selId);
   } else if (isGuide) {
     primitive = getIn(reduxState, 'guides.' + selId);
+    console.log('primitive: ', primitive.toJS());
   } else if (isScale) {
     primitive = getIn(reduxState, 'scales.' + selId);
   }
