@@ -26,7 +26,6 @@ function mapStateToProps(reduxState, ownProps) {
     primitive = getIn(reduxState, 'marks.' + selId);
   } else if (isGuide) {
     primitive = getIn(reduxState, 'guides.' + selId);
-    console.log('primitive: ', primitive.toJS());
   } else if (isScale) {
     primitive = getIn(reduxState, 'scales.' + selId);
   }
@@ -71,6 +70,7 @@ var Inspector = React.createClass({
       } else if (props.isScale) {
         ctor = 'Scale';
       }
+      console.log('prim: ', prim);
 
       InspectorType = Inspector[ctor];
     }

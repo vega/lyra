@@ -8,7 +8,7 @@ var RectInspector = React.createClass({
     var props = this.props,
         primitive = props.primitive;
 
-    console.log('prims from rectangle: ', primitive);
+    // console.log('prims from rectangle: ', primitive);
 
     return (
       <div>
