@@ -24,57 +24,146 @@ var ScaleInspector = React.createClass({
   },
 
   handleChange: function(prop, evt) {
-    console.log(arguments);
-
-    if (prop == 'name') {
-      var scales = getIn(store.getState(), 'scales');
-      foreach (Object in scales) {
-        if (Object.name == evt.target.value) {
-          return;
-        } 
-      }
-    }
     var scale = this.props.primitive,
         scaleId = scale._id;
     //console.log(scaleId);
     //console.log(evt.target.value);
     //console.log(evt.target, evt.target.value);
-    this.props.updateScaleProperty(scaleId, prop, evt.target.value);
+
+    // ordinal scale 
+    if (prop == 'padding' || prop == 'exponent') {
+      var val = +evt.target.value;
+      console.log(val);
+      this.props.updateScaleProperty(scaleId, prop, val);
+    } else if (prop == 'points' || prop == 'clamp' || prop == 'zero') {
+      this.props.updateScaleProperty(scaleId, prop, document.getElementById(prop).checked);
+    } else if (prop == 'nice' && (document.getElementById('niceS') == null)) {
+      // console.log(document.getElementById('niceB').checked);
+      // console.log(Boolean(document.getElementById('niceB').checked));
+      this.props.updateScaleProperty(scaleId, prop, Boolean(document.getElementById('niceB').checked));
+    }
+    else {
+      console.log(scale.name);
+      this.props.updateScaleProperty(scaleId, prop, evt.target.value);
+    }
   },
 
-  // changeName: function() {
-  //   var scales = getIn(store.getState(), 'scale');
-  //   for(var i = 0; i < scales.length; i++) {
-  //     if (scales[i].name == document.getElementById('sName')) {
-  //       alert('Scale Name should be unique');
-  //     }
-  //   }
-  // this.props.updateScaleProperty(scaleId, 'name', evt.target.value);
-
-  // },
+  checkName: function() {
+    var scales = getIn(store.getState(), 'scales');
+    var count = 0;
+    scales.valueSeq().forEach(function(scaleDef) {
+      if (scaleDef.toJS().name === document.getElementById('name').value) {
+        count++;
+        console.log(count);
+        if (count > 1) {
+          alert('scale name should be unique');
+          console.log(count);
+          return;
+        }
+      }
+    })
+  },
 
   render: function() {
     var scale = this.props.primitive;
+    var typeProps = '';
+
+    var niceS = (
+      <select value={scale.nice} id='niceS'onChange={this.handleChange.bind(this, 'nice')}>
+                  <option value='second'>second</option>
+                  <option value='minute'>minute</option>
+                  <option value='hour'>hour</option>
+                  <option value='day'>day</option>
+                  <option value='week'>week</option>
+                  <option value='month'>month</option>
+                  <option value='year'>year</option>
+                </select>
+      );
+
+    var clamp = (
+      <input type='checkbox' id='clamp' onClick={this.handleChange.bind(this, 'clamp')} />
+      );
+
+    var niceB = (
+      <input type='checkbox' id='niceB' onClick={this.handleChange.bind(this, 'nice')} />
+      );
+
+    var zero = (
+      <input type='checkbox' id='zero' onClick={this.handleChange.bind(this, 'zero')} />
+      );
+    
+
+    if (scale.type == 'ordinal') {
+      //console.log(scale.padding);
+      typeProps = (
+        <div>
+          points: <input type='checkbox' id='points' onClick={this.handleChange.bind(this, 'points')} />
+          <input type='range' id='padding' min='0' max='1' step='0.1' disabled={!scale.points} value={scale.padding} onChange={this.handleChange.bind(this, 'padding')} />
+        </div>
+        );
+    } else if (scale.type == 'time') {
+      typeProps = (
+        <div>
+          clamp: {clamp}
+          nice: {niceS}
+        </div>);
+    } else if (scale.type == 'utc') {
+      typeProps = (
+        <div>
+          nice: {niceS}
+        </div>);
+    } else if (scale.type == 'linear' || scale.type == 'log' || scale.type == 'sqrt') {
+      typeProps = (
+        <div>
+          clamp: {clamp}
+          nice: {niceB}
+          zero: {zero}
+        </div>
+        );
+    } else if (scale.type == 'pow') {
+      typeProps = (
+        <div>
+          exponent: <input type='number' onChange={this.handleChange.bind(this, 'exponent')}/>
+          clamp: {clamp}
+          nice: {niceB}
+          zero: {zero}
+        </div>
+      );
+    }
 
     return (
       <div>
-        <div className="property-group">
-          <h3 className="label">Placeholder</h3>
-          <ul>
-            <li>name: <input type="text" name="sName" defaultValue={scale.name} onChange={this.handleChange.bind(this, 'name')} /></li>
-            <li>type: <select id="typeSelections" defaultValue={scale.type} onChange={this.handleChange.bind(this, 'type')}>
-                        <option value="log">log</option>
-                        <option value="linear">linear</option>
-                        <option value="ordinal">ordinal</option>
+        <div className='property-group'>
+          <h3 className='label'>Placeholder</h3>
+          
+            <div id='nameArea'>
+            name: <input type='text' id='name' name='sName' value={scale.name} onChange={this.handleChange.bind(this, 'name')} onBlur={this.checkName.bind(this)}  />
+            </div>
+
+            <div id='typeArea'>
+            type: <select id='typeSelections' value={scale.type} onChange={this.handleChange.bind(this, 'type')}>
+                        <option value='log'>log</option>
+                        <option value='linear'>linear</option>
+                        <option value='sqrt'>sqrt</option>
+                        <option value='pow'>pow</option>
+                        <option value='ordinal'>ordinal</option>
+                        <option value='time'>time</option>
+                        <option value='utc'>utc</option>
+
                       </select>
-            </li>
-            <li>range: <select id="rangeSelect" defaultValue={scale.range} onChange={this.handleChange.bind(this, 'range')}>
-                        <option value="width">width</option>
-                        <option value="height">height</option>
+              <div>
+                {typeProps}
+              </div>
+            </div>
+
+            <div>range: <select id='rangeSelect' value={scale.range} onChange={this.handleChange.bind(this, 'range')}>
+                        <option value='width'>width</option>
+                        <option value='height'>height</option>
                       </select>
-            </li>
-          </ul>
+            </div>
+
         </div>
+        
       </div>
     );
   }
