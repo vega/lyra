@@ -13,14 +13,18 @@ function mapStateToProps(state, ownProps) {
     return {};
   }
 
-  var markState = getIn(state, 'marks.' + ownProps.primitive._id),
-      updatePropsPath = 'properties.update.' + ownProps.name;
+  var propState = getIn(state, 'marks.' + ownProps.primitive._id) ||
+                  getIn(state, 'guides.' + ownProps.primitive._id);
+  var updatePropsPath = getIn(state, 'marks.' + ownProps.primitive._id) ?
+                        'properties.update.' + ownProps.name :
+                        'properties.' + ownProps.name;
 
+  // construct appropriate props object
   return {
-    field: getIn(markState, updatePropsPath + '.field'),
-    group: getIn(markState, updatePropsPath + '.group'),
-    scale: getIn(markState, updatePropsPath + '.scale'),
-    signal: getIn(markState, updatePropsPath + '.signal')
+    field: getIn(propState, updatePropsPath + '.field'),
+    group: getIn(propState, updatePropsPath + '.group'),
+    scale: getIn(propState, updatePropsPath + '.scale'),
+    signal: getIn(propState, updatePropsPath + '.signal')
   };
 }
 

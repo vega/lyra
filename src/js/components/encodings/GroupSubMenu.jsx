@@ -36,7 +36,6 @@ function mapDispatchToProps(dispatch, ownProps) {
           dispatch(selectMark(id));
           break;
         case 'guide':
-          console.log('mark group: ', ownProps.id);
           dispatch(selectGuide(id, ownProps.id));
           break;
         default:

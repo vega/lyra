@@ -24,7 +24,6 @@ function addGuide(guideProps) {
   };
 }
 
-// TODO: write the docs
 function deleteGuide(guideId) {
   return {
     type: DELETE_GUIDE,
@@ -32,7 +31,6 @@ function deleteGuide(guideId) {
   };
 }
 
-// TODO: write the docs for this
 function updateGuideProperty(GuideId, property, value) {
   return {
     type: UPDATE_GUIDE_PROPERTY,

@@ -4,11 +4,12 @@ var React = require('react'),
     ExtentProperty = require('./ExtentProperty');
 
 var RectInspector = React.createClass({
+  propTypes: {
+    primitive: React.PropTypes.object
+  },
   render: function() {
     var props = this.props,
-        primitive = props.primitive;
-
-    // console.log('prims from rectangle: ', primitive);
+        primitive = Object.assign({}, this.props.primitive, {_stateType: 'mark'});
 
     return (
       <div>

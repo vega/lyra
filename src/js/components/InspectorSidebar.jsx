@@ -13,12 +13,12 @@ var React = require('react'),
     TYPES = require('../actions/Names');
 
 function mapStateToProps(reduxState, ownProps) {
-  var encState  = getIn(reduxState, 'inspector.encodings'),
+  var encState = getIn(reduxState, 'inspector.encodings'),
       selId   = encState.get('selectedId'),
       selType = encState.get('selectedType'),
       selectionGroupId = encState.get('selectionGroupId'),
       isMark  = selType === TYPES.SELECT_MARK,
-      isGuide  = selType === TYPES.SELECT_GUIDE,
+      isGuide = selType === TYPES.SELECT_GUIDE,
       isScale = selType === TYPES.SELECT_SCALE,
       primitive;
 
@@ -70,7 +70,6 @@ var Inspector = React.createClass({
       } else if (props.isScale) {
         ctor = 'Scale';
       }
-      console.log('prim: ', prim);
 
       InspectorType = Inspector[ctor];
     }
