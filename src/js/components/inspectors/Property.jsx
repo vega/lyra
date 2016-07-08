@@ -94,7 +94,8 @@ var Property = React.createClass({
         case 'number':
           controlEl = (
             <input type="number" value={!disabled && value} disabled={disabled}
-              onChange={onChange} />
+              onChange={onChange}
+              name={name} />
           );
           break;
 
@@ -103,7 +104,8 @@ var Property = React.createClass({
             <div>
               <input type="range" value={!disabled && value} disabled={disabled}
                 min={props.min} max={props.max} step={props.step}
-                onChange={onChange} />
+                onChange={onChange}
+                name={name} />
             </div>
           );
           break;
@@ -111,7 +113,10 @@ var Property = React.createClass({
         case 'color':
           controlEl = (
             <div>
-              <input type="color" value={!disabled && value} disabled={disabled}
+              <input type="color"
+                value={!disabled && value}
+                disabled={disabled}
+                name={name}
                 onChange={onChange} />
             </div>
           );

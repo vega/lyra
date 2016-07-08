@@ -26,6 +26,8 @@ var GuideInspector = React.createClass({
         property = event.target.name,
         value = event.target.value;
 
+    console.log('property: ', property);
+
     this.props.updateGuideProperty(guideId, property, value);
   },
   render: function() {
@@ -42,12 +44,15 @@ var GuideInspector = React.createClass({
             primitive={primitive}
             onChange={this.handleChange}
             type="select" />
-          <Property name="stroke"
+          <Property name="properties.axis.stroke.value"
             label="Color"
             primitive={primitive}
+            onChange={this.handleChange}
             type="color" />
-          <Property name="strokeWidth" label="Width"
+          <Property name="properties.axis.strokeWidth.value"
+            label="Width"
             primitive={primitive}
+            onChange={this.handleChange}
             type="range" />
         </div>
         <div className="property-group">
