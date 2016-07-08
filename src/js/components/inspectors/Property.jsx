@@ -86,6 +86,7 @@ var Property = React.createClass({
       (<div className="field" onClick={this.unbind}>{field}</div>) : controlEl;
 
     if (!controlEl) {
+      // TODO: include 'radio' case when it's finished being implementing
       switch (type) {
         case 'number':
           controlEl = (
