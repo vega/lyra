@@ -13,6 +13,7 @@ function mapStateToProps(state, ownProps) {
     return {};
   }
 
+  // ownProps.primitive._type = 'scale' || 'mark' || 'guide'
   var propState = getIn(state, 'marks.' + ownProps.primitive._id) ||
                   getIn(state, 'guides.' + ownProps.primitive._id);
   var updatePropsPath = getIn(state, 'marks.' + ownProps.primitive._id) ?
@@ -44,6 +45,7 @@ var Property = React.createClass({
     group: React.PropTypes.number,
     scale: React.PropTypes.number,
     signal: React.PropTypes.string,
+    onChange: React.PropTypes.func,
     resetMarkVisual: React.PropTypes.func
   },
 
@@ -65,6 +67,8 @@ var Property = React.createClass({
         field = props.field,
         value = state.value,
         disabled = props.disabled || props.group,
+        // onChange prop or handleChange from other components
+        onChange = props.onChange || this.handleChange,
         labelEl, scaleEl, controlEl, extraEl;
 
     React.Children.forEach(props.children, function(child) {
@@ -90,7 +94,7 @@ var Property = React.createClass({
         case 'number':
           controlEl = (
             <input type="number" value={!disabled && value} disabled={disabled}
-              onChange={this.handleChange} />
+              onChange={onChange} />
           );
           break;
 
@@ -99,7 +103,7 @@ var Property = React.createClass({
             <div>
               <input type="range" value={!disabled && value} disabled={disabled}
                 min={props.min} max={props.max} step={props.step}
-                onChange={this.handleChange} />
+                onChange={onChange} />
             </div>
           );
           break;
@@ -108,14 +112,16 @@ var Property = React.createClass({
           controlEl = (
             <div>
               <input type="color" value={!disabled && value} disabled={disabled}
-                onChange={this.handleChange} />
+                onChange={onChange} />
             </div>
           );
           break;
 
         case 'select':
           controlEl = (
-            <select value={value} onChange={this.handleChange}>
+            <select value={value}
+              onChange={onChange}
+              name={name}>
               {props.opts.map(function(o) {
                 return (<option key={o} value={o}>{o}</option>);
               }, this)}
@@ -127,8 +133,9 @@ var Property = React.createClass({
           controlEl = (
             <div>
               <input type="text"
+                name={name}
                 value={value}
-                onChange={this.handleChange}
+                onChange={onChange}
               />
             </div>
           );
