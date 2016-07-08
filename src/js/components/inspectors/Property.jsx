@@ -13,19 +13,14 @@ function mapStateToProps(state, ownProps) {
     return {};
   }
 
-  // ownProps.primitive._type = 'scale' || 'mark' || 'guide'
-  var propState = getIn(state, 'marks.' + ownProps.primitive._id) ||
-                  getIn(state, 'guides.' + ownProps.primitive._id);
-  var updatePropsPath = getIn(state, 'marks.' + ownProps.primitive._id) ?
-                        'properties.update.' + ownProps.name :
-                        'properties.' + ownProps.name;
+  var markState = getIn(state, 'marks.' + ownProps.primitive._id),
+      updatePropsPath = 'properties.update.' + ownProps.name;
 
-  // construct appropriate props object
   return {
-    field: getIn(propState, updatePropsPath + '.field'),
-    group: getIn(propState, updatePropsPath + '.group'),
-    scale: getIn(propState, updatePropsPath + '.scale'),
-    signal: getIn(propState, updatePropsPath + '.signal')
+    field: getIn(markState, updatePropsPath + '.field'),
+    group: getIn(markState, updatePropsPath + '.group'),
+    scale: getIn(markState, updatePropsPath + '.scale'),
+    signal: getIn(markState, updatePropsPath + '.signal')
   };
 }
 
@@ -67,8 +62,9 @@ var Property = React.createClass({
         field = props.field,
         value = state.value,
         disabled = props.disabled || props.group,
-        // onChange prop or handleChange from other components
         onChange = props.onChange || this.handleChange,
+        onBlur = props.onBlur,
+        docId = props.id,
         labelEl, scaleEl, controlEl, extraEl;
 
     React.Children.forEach(props.children, function(child) {
@@ -93,23 +89,26 @@ var Property = React.createClass({
       switch (type) {
         case 'number':
           controlEl = (
-            <input type="number" value={!disabled && value} disabled={disabled}
+            <input type="number"
+              value={!disabled && value}
+              disabled={disabled}
+              id={docId}
               onChange={onChange}
               name={name} />
           );
           break;
-
         case 'range':
           controlEl = (
             <div>
-              <input type="range" value={!disabled && value} disabled={disabled}
+              <input type="range"
+                value={!disabled && value}
+                disabled={disabled}
                 min={props.min} max={props.max} step={props.step}
                 onChange={onChange}
                 name={name} />
             </div>
           );
           break;
-
         case 'color':
           controlEl = (
             <div>
@@ -121,7 +120,6 @@ var Property = React.createClass({
             </div>
           );
           break;
-
         case 'select':
           controlEl = (
             <select value={value}
@@ -133,7 +131,6 @@ var Property = React.createClass({
             </select>
           );
           break;
-
         case 'text':
           controlEl = (
             <div>
@@ -141,11 +138,20 @@ var Property = React.createClass({
                 name={name}
                 value={value}
                 onChange={onChange}
+                onBlur={onBlur}
               />
             </div>
           );
           break;
-
+        case 'checkbox':
+          controlEl = (
+            <div>
+              <input type="checkbox"
+                name={name}
+                onChange={onChange} />
+            </div>
+          );
+          break;
         default:
           controlEl = null;
       }

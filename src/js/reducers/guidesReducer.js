@@ -26,6 +26,10 @@ function guideReducer(state, action) {
       Immutable.fromJS(action.value));
   }
 
+  if (action.type === ACTIONS.DELETE_SCALE) {
+    return deleteKeyFromMap(state, action.id); // Immutable Maps
+  }
+
   return state;
 }
 

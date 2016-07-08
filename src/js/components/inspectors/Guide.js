@@ -24,16 +24,15 @@ var GuideInspector = React.createClass({
   handleChange: function(event) {
     var guideId = this.props.primitive._id,
         property = event.target.name,
-        value = event.target.value;
-
-    console.log('property: ', property);
+        value = (event.target.type === 'checkbox') ? event.target.checked :
+                event.target.value;
 
     this.props.updateGuideProperty(guideId, property, value);
   },
   render: function() {
     var primitive = this.props.primitive,
         orientOpts = ['top', 'right', 'bottom', 'left'],
-        fontOpts = ['Times', 'Sans Serif'];
+        layerOpts = ['back', 'front'];
 
     return (
       <div>
@@ -57,71 +56,102 @@ var GuideInspector = React.createClass({
         </div>
         <div className="property-group">
           <h3>Title</h3>
-          <Property name="title" label="Title"
+          <Property name="title"
+            label="Title"
             primitive={primitive}
+            onChange={this.handleChange}
             type="text" />
-          <Property name="titleOffset" label="Offset"
+          <Property name="titleOffset"
+            label="Offset"
             primitive={primitive}
+            onChange={this.handleChange}
             type="number" />
-          <Property name="fontSize" label="Font Size"
+          <Property name="properties.title.fontSize.value"
+            label="Font Size"
             primitive={primitive}
-            type="number">
-            <Property name="font" label="Font Type"
-              opts={fontOpts}
-              primitive={primitive}
-              type="select"
-              className="extra" />
-          </Property>
-          <Property name="fill" label="Color"
+            onChange={this.handleChange}
+            type="number" />
+          <Property name="properties.title.fill.value"
+            label="Color"
             primitive={primitive}
+            onChange={this.handleChange}
             type="color" />
         </div>
         <div className="property-group">
           <h3>Ticks</h3>
-          <Property name="ticks" label="Number of Ticks"
+          <Property name="ticks"
+            label="Number of Ticks"
             primitive={primitive}
+            onChange={this.handleChange}
             type="number" />
-          <Property name="tickSize" label="Size"
+          <Property name="properties.ticks.stroke.value"
+            label="Color"
             primitive={primitive}
-            type="number" />
-          <Property name="stroke" label="Color"
-            primitive={primitive}
+            onChange={this.handleChange}
             type="color" />
-          <Property name="strokeWidth" label="Width"
+          <Property name="properties.ticks.strokeWidth.value"
+            label="Width"
             primitive={primitive}
+            onChange={this.handleChange}
             type="range" />
-          <Property name="tickPadding" label="Padding"
+          <Property name="tickPadding"
+            label="Padding"
             primitive={primitive}
+            onChange={this.handleChange}
             type="range" />
-          <Property name="tickSize" label="Size"
+          <Property name="tickSize"
+            label="Size"
             primitive={primitive}
+            onChange={this.handleChange}
             type="number" />
-          <Property name="tickSizeMajor" label="Major Tick size"
+          <Property name="tickSizeMajor"
+            label="Major Tick size"
             primitive={primitive}
+            onChange={this.handleChange}
             type="number" />
-          <Property name="tickSizeMinor" label="Minor Tick size"
+          <Property name="tickSizeMinor"
+            label="Minor Tick size"
             primitive={primitive}
+            onChange={this.handleChange}
+            type="number" />
+          <Property name="tickSizeEnd"
+            label="End Tick size"
+            primitive={primitive}
+            onChange={this.handleChange}
             type="number" />
         </div>
         <div className="property-group">
           <h3>Labels</h3>
-          <Property name="fontSize" label="Font Size"
+          <Property name="properties.lables.fontSize.value" label="Font Size"
             primitive={primitive}
-            type="number">
-            <Property name="font" label="Font Type"
-              opts={fontOpts}
-              primitive={primitive}
-              type="select" />
-          </Property>
-          <Property name="angle" label="Angle"
+            onChange={this.handleChange}
+            type="number" />
+          <Property name="properties.lables.angle.value" label="Angle"
             primitive={primitive}
+            onChange={this.handleChange}
             type="number" />
           <Property name="format" label="Format"
             primitive={primitive}
+            onChange={this.handleChange}
             type="text" />
-          <Property name="fill" label="Fill"
+          <Property name="properties.lables.fill.value" label="Fill"
             primitive={primitive}
+            onChange={this.handleChange}
             type="color" />
+        </div>
+        <div className="property-group last">
+          <h3>Grid</h3>
+          <Property name="grid"
+            label="Grid"
+            primitive={primitive}
+            onChange={this.handleChange}
+            type="checkbox" />
+          <Property name="layer"
+            label="Layer"
+            opts={layerOpts}
+            primitive={primitive}
+            onChange={this.handleChange}
+            type="select" />
         </div>
       </div>
     );
