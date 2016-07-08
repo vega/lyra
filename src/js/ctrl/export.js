@@ -129,14 +129,17 @@ exporter.group = function(state, internal, id) {
 
     // Route export to the most appropriate function.
     group[childTypes] = mark[childTypes].map(function(cid) {
-      var child = getIn(state, storePath + '.' + cid).toJS();
-      if (exporter[child.type]) {
-        return exporter[child.type](state, internal, cid);
-      } else if (exporter[childType]) {
-        return exporter[childType](state, internal, cid);
-      }
+      if (getIn(state, storePath + '.' + cid)) {
+        var child = getIn(state, storePath + '.' + cid).toJS();
 
-      return clean(dl.duplicate(child), internal);
+        if (exporter[child.type]) {
+          return exporter[child.type](state, internal, cid);
+        } else if (exporter[childType]) {
+          return exporter[childType](state, internal, cid);
+        }
+
+        return clean(dl.duplicate(child), internal);
+      }
     }).reduce(function(children, child) {
       // If internal === true, children are an array of arrays which must be flattened.
       if (dl.isArray(child)) {

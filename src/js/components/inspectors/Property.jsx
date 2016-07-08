@@ -1,4 +1,5 @@
 'use strict';
+
 var React = require('react'),
     connect = require('react-redux').connect,
     store = require('../../store'),
@@ -39,6 +40,7 @@ var Property = React.createClass({
     group: React.PropTypes.number,
     scale: React.PropTypes.number,
     signal: React.PropTypes.string,
+    onChange: React.PropTypes.func,
     resetMarkVisual: React.PropTypes.func
   },
 
@@ -60,6 +62,9 @@ var Property = React.createClass({
         field = props.field,
         value = state.value,
         disabled = props.disabled || props.group,
+        onChange = props.onChange || this.handleChange,
+        onBlur = props.onBlur,
+        docId = props.id,
         labelEl, scaleEl, controlEl, extraEl;
 
     React.Children.forEach(props.children, function(child) {
@@ -81,52 +86,73 @@ var Property = React.createClass({
       (<div className="field" onClick={this.unbind}>{field}</div>) : controlEl;
 
     if (!controlEl) {
+      // TODO: include 'radio' case when it's finished being implementing
       switch (type) {
         case 'number':
           controlEl = (
-            <input type="number" value={!disabled && value} disabled={disabled}
-              onChange={this.handleChange} />
+            <input type="number"
+              value={!disabled && value}
+              disabled={disabled}
+              id={docId}
+              onChange={onChange}
+              name={name} />
           );
           break;
-
         case 'range':
           controlEl = (
             <div>
-              <input type="range" value={!disabled && value} disabled={disabled}
+              <input type="range"
+                value={!disabled && value}
+                disabled={disabled}
                 min={props.min} max={props.max} step={props.step}
-                onChange={this.handleChange} />
+                onChange={onChange}
+                name={name} />
             </div>
           );
           break;
-
         case 'color':
           controlEl = (
             <div>
-              <input type="color" value={!disabled && value} disabled={disabled}
-                onChange={this.handleChange} />
+              <input type="color"
+                value={!disabled && value}
+                disabled={disabled}
+                name={name}
+                onChange={onChange} />
             </div>
           );
           break;
-
         case 'select':
           controlEl = (
-            <select value={value} onChange={this.handleChange}>
+            <select value={value}
+              onChange={onChange}
+              name={name}>
               {props.opts.map(function(o) {
                 return (<option key={o} value={o}>{o}</option>);
               }, this)}
             </select>
           );
           break;
-
         case 'text':
           controlEl = (
-            <input type="text"
-              value={value}
-              onChange={this.handleChange}
-            />
+            <div>
+              <input type="text"
+                name={name}
+                value={value}
+                onChange={onChange}
+                onBlur={onBlur}
+              />
+            </div>
           );
           break;
-
+        case 'checkbox':
+          controlEl = (
+            <div>
+              <input type="checkbox"
+                name={name}
+                onChange={onChange} />
+            </div>
+          );
+          break;
         default:
           controlEl = null;
       }

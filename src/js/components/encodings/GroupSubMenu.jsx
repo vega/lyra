@@ -7,8 +7,12 @@ var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     get = require('../../util/immutable-utils').get,
     getIn = require('../../util/immutable-utils').getIn,
+    selectGuide = require('../../actions/inspectorActions').selectGuide,
     selectMark = require('../../actions/inspectorActions').selectMark,
+    guideActions = require('../../actions/guideActions'),
+    deleteGuide = guideActions.deleteGuide,
     markActions = require('../../actions/markActions'),
+    removeAxisFromGroup = markActions.removeAxisFromGroup,
     deleteMark = markActions.deleteMark,
     updateMarkProperty = markActions.updateMarkProperty,
     inspectorActions = require('../../actions/inspectorActions'),
@@ -23,11 +27,27 @@ function mapStateToProps(reduxState, ownProps) {
     group: getIn(reduxState, 'marks.' + ownProps.id)
   };
 }
-
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    select: function(id) {
-      dispatch(selectMark(id));
+    select: function(id, encType) {
+      // either name selectMark selectEncoding or create selectGroup action
+      switch (encType) {
+        case 'mark':
+          dispatch(selectMark(id));
+          break;
+        case 'guide':
+          dispatch(selectGuide(id, ownProps.id));
+          break;
+        default:
+          dispatch(selectMark(id));
+      }
+    },
+    deleteGuide: function(id) {
+      if (ownProps.selectedId === id) {
+        dispatch(selectGuide(null));
+      }
+      dispatch(removeAxisFromGroup(id, ownProps.id));
+      dispatch(deleteGuide(id, 0));
     },
     deleteMark: function(id) {
       if (ownProps.selectedId === id) {
@@ -43,7 +63,6 @@ function mapDispatchToProps(dispatch, ownProps) {
     }
   };
 }
-
 var Group = React.createClass({
   propTypes: {
     id: React.PropTypes.number,
@@ -52,15 +71,14 @@ var Group = React.createClass({
     expandedLayers: React.PropTypes.object,
     select: React.PropTypes.func,
     deleteMark: React.PropTypes.func,
+    deleteGuide: React.PropTypes.func,
     updateProperty: React.PropTypes.func,
     toggle: React.PropTypes.func,
     group: React.PropTypes.instanceOf(Immutable.Map)
   },
-
   componentWillUnmount: function() {
     ReactTooltip.hide();
   },
-
   icon: function(type, expanded) {
     var expandedSubClass = expanded ? '-open' : '-closed',
         gtype = type + (type === 'group' ? expandedSubClass : ''),
@@ -69,14 +87,19 @@ var Group = React.createClass({
         iconMarkup = (<Icon glyph={glyph} onClick={click} />);
     return iconMarkup;
   },
-
-  deleteUpdate: function(id) {
+  deleteUpdate: function(id, deletionType) {
     ReactTooltip.hide();
-    this.props.deleteMark(id);
-    // set selected to null
+    switch (deletionType) {
+      case 'guide':
+        this.props.deleteGuide(id);
+        break;
+      default:
+        this.props.deleteMark(id);
+        break;
+    }
+    // de-select item
     this.props.select(null);
   },
-
   render: function() {
     var props = this.props,
         level = +props.level,
@@ -84,20 +107,36 @@ var Group = React.createClass({
         groupId = props.id,
         group = props.group,
         groupType = group.get('type'),
+        axes = group.get('axes'),
         marks = group.get('marks'),
-        isExpanded = get(props.expandedLayers, groupId),
-        stored = store.getState();
-
+        isExpanded = get(props.expandedLayers, groupId);
     var contents = isExpanded && group.get('marks') ? (
       <ul className="group">
-        <li className="header">Axes &amp; Legends <Icon glyph={assets.plus} width="10" height="10" /></li>
+        <li className="header">Guides <Icon glyph={assets.plus} width="10" height="10" /></li>
+        {axes.map(function(id) {
+          var axis = getIn(store.getState(), 'guides.' + id);
+          if (axis) {
+            var axisType = axis.get('type');
+            return (
+              <li key={id}>
+                <div className={'name' + (selectedId === id ? ' selected' : '')}
+                  onClick={props.select.bind(null, id, 'guide')}>
+                  {axisType.toUpperCase()}
+                  <Icon glyph={assets.trash} className="delete"
+                    onClick={this.deleteUpdate.bind(null, id, 'guide')}
+                    data-tip={'Delete ' + axisType.toUpperCase()}
+                    data-place="right" />
+                </div>
+              </li>
+            );
+          }
+        }, this)}
         <li className="header">Marks <Icon glyph={assets.plus} width="10" height="10" /></li>
         {marks.map(function(id) {
-          var mark = getIn(stored, 'marks.' + id),
+          var mark = getIn(store.getState(), 'marks.' + id),
               type = mark.get('type'),
               name = mark.get('name'),
               icon = this.icon(type, isExpanded);
-
           return type === 'group' ? (
             <Group key={id}
               {...props}
@@ -106,13 +145,13 @@ var Group = React.createClass({
           ) : (
             <li key={id}>
               <div className={'name' + (selectedId === id ? ' selected' : '')}
-                onClick={this.props.select.bind(null, id)}>
+                onClick={props.select.bind(null, id, 'mark')}>
                 {icon}
                 <ContentEditable value={name}
                   save={props.updateProperty.bind(null, id, 'name')}
-                  onClick={props.select.bind(null, id)} />
+                  onClick={props.select.bind(null, id, 'mark')} />
                 <Icon glyph={assets.trash} className="delete"
-                  onClick={this.deleteUpdate.bind(null, id)}
+                  onClick={this.deleteUpdate.bind(null, id, 'mark')}
                   data-tip={'Delete ' + name}
                   data-place="right" />
               </div>
@@ -121,7 +160,6 @@ var Group = React.createClass({
         }, this)}
       </ul>
     ) : null;
-
     var icon = this.icon(groupType, isExpanded),
         name = group.get('name');
 
@@ -133,7 +171,6 @@ var Group = React.createClass({
           <ContentEditable value={name}
             save={this.props.updateProperty.bind(null, groupId, 'name')}
             onClick={props.select.bind(null, groupId)} />
-
           <Icon glyph={assets.trash} className="delete"
             onClick={this.props.deleteMark.bind(null, groupId)}
             data-html={true}
@@ -145,5 +182,4 @@ var Group = React.createClass({
     );
   }
 });
-
 module.exports = connect(mapStateToProps, mapDispatchToProps)(Group);

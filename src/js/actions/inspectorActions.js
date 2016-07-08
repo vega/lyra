@@ -3,6 +3,7 @@
 var TOGGLE_LAYERS = 'TOGGLE_LAYERS',
     EXPAND_LAYERS = 'EXPAND_LAYERS',
     REMOVE_LAYERS = 'REMOVE_LAYERS',
+    SELECT_GUIDE = 'SELECT_GUIDE',
     SELECT_MARK = 'SELECT_MARK',
     SELECT_PIPELINE = 'SELECT_PIPELINE',
     SELECT_SCALE = 'SELECT_SCALE';
@@ -46,6 +47,14 @@ function removeLayers(layerIds) {
   };
 }
 
+function selectGuide(guideId, groupId) {
+  return {
+    type: SELECT_GUIDE,
+    id: guideId,
+    groupId: groupId
+  };
+}
+
 function selectMark(markId) {
   return {
     type: SELECT_MARK,
@@ -77,6 +86,7 @@ module.exports = {
   EXPAND_LAYERS: EXPAND_LAYERS,
   REMOVE_LAYERS: REMOVE_LAYERS,
   SELECT_MARK: SELECT_MARK,
+  SELECT_GUIDE: SELECT_GUIDE,
   SELECT_PIPELINE: SELECT_PIPELINE,
   SELECT_SCALE: SELECT_SCALE,
 
@@ -84,6 +94,7 @@ module.exports = {
   toggleLayers: toggleLayers,
   expandLayers: expandLayers,
   removeLayers: removeLayers,
+  selectGuide: selectGuide,
   selectMark: selectMark,
   selectPipeline: selectPipeline,
   selectScale: selectScale

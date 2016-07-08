@@ -30,6 +30,9 @@ $long-label-width: $label-width + 10px;
     margin-bottom: 0;
   }
 }
+.last {
+  margin-bottom: 50px;
+}
 
 .property {
   display: flex;
@@ -85,7 +88,9 @@ $long-label-width: $label-width + 10px;
     margin-top: $inner-padding;
   }
 
-  input[type=range], input[type=number] {
+  input[type=range],
+  input[type=number],
+  input[type=text] {
     width: 75px;
   }
 

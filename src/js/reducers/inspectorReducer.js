@@ -31,6 +31,15 @@ function inspectorReducer(state, action) {
     return setIn(state, 'pipelines.selectedId', action.id);
   }
 
+  if (action.type === ACTIONS.SELECT_GUIDE) {
+    state = state.mergeDeep({
+      encodings: {
+        selectedId:   action.id,
+        selectedType: action.type
+      }
+    });
+  }
+
   if (action.type === ACTIONS.SELECT_MARK || action.type === ACTIONS.ADD_MARK ||
       action.type === ACTIONS.SELECT_SCALE) {
     state = state.mergeDeep({

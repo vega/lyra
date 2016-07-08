@@ -10,6 +10,8 @@ var AreaInspector = React.createClass({
     var props = this.props,
         primitive = props.primitive;
 
+    console.log('prims from area: ', primitive);
+
     return (
       <div>
         <div className="property-group">

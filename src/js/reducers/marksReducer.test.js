@@ -147,7 +147,7 @@ describe('marks reducer', function() {
         markId: 4,
         markType: 'symbol'
       });
-      expect(result.get('4')).to.equal(null);
+      expect(result.get('4')).to.equal(undefined);
     });
 
     it('removes the mark from its parent\'s marks array', function() {
