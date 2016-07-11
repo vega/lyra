@@ -153,6 +153,21 @@ var DataTable = React.createClass({
     return false;
   },
 
+  handleMTYPEChangeClick: function(evt) {
+    var newFullField = this.state.fullField;
+    var MTYPES = dsUtil.MTYPES;
+    var mtypeIndex = -1;
+    MTYPES.forEach(function (currentValue, index, array) {
+      if(currentValue == newFullField.mtype) {
+          mtypeIndex = index;
+      }
+    });
+    mtypeIndex = (mtypeIndex + 1) % MTYPES.length;
+    newFullField.mtype = MTYPES[mtypeIndex];
+
+    this.setState({fullField: newFullField});
+  },
+
   render: function() {
     var state = this.state,
         props = this.props,
@@ -183,7 +198,8 @@ var DataTable = React.createClass({
 
     fullField = fullField ? (
       <span>
-        <Icon glyph={assets[fullField.mtype]} width="10" height="10" /> {fullField.name}
+        <Icon onClick={this.handleMTYPEChangeClick}
+          glyph={assets[fullField.mtype]} width="10" height="10" /> {fullField.name}
       </span>
       ) : null;
 
