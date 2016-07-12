@@ -8,36 +8,34 @@ var RectInspector = React.createClass({
     primitive: React.PropTypes.object
   },
   render: function() {
-    this.props.primitive = Object.assign({}, this.props.primitive, {_primtype: 'mark'});
-
     var props = this.props,
         primitive = this.props.primitive;
-
-    console.log('primitive: ', primitive);
 
     return (
       <div>
         <div className="property-group">
           <h3>X Position</h3>
 
-          <ExtentProperty type="x" {...props} />
+          <ExtentProperty type="x" {...props} primtype="marks"/>
         </div>
 
         <div className="property-group">
           <h3>Y Position</h3>
 
-          <ExtentProperty type="y" {...props} />
+          <ExtentProperty type="y" {...props} primtype="marks"/>
         </div>
 
         <div className="property-group">
           <h3>Fill</h3>
 
           <Property name="fill" label="Color"
+            primtype="marks"
             primitive={primitive}
             type="color"
             canDrop={true} />
 
           <Property name="fillOpacity" label="Opacity"
+            primtype="marks"
             primitive={primitive}
             type="range"
             canDrop={true}
@@ -50,11 +48,13 @@ var RectInspector = React.createClass({
           <h3>Stroke</h3>
 
           <Property name="stroke" label="Color"
+            primtype="marks"
             primitive={primitive}
             type="color"
             canDrop={true} />
 
           <Property name="strokeWidth" label="Width"
+            primtype="marks"
             primitive={primitive}
             type="range"
             canDrop={true}

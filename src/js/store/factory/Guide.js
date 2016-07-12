@@ -29,11 +29,8 @@ var def = module.exports = function(gtype, type, scale) {
     guide.orient = ORIENT[type];
     guide.titleOffset = 10;
     guide.ticks = 5;
-    guide.tickPadding = 20;
-    guide.tickSize = 20;
-    guide.tickSizeMajor = 20;
-    guide.tickSizeEnd = 20;
-    guide.tickSizeMinor = 10;
+    guide.tickPadding = 5;
+    guide.tickSize = 10;
     guide.grid = false;
     guide.layer = 'back';
     guide.properties = {

@@ -6,12 +6,7 @@ var React = require('react'),
     getIn = require('./../../util/immutable-utils').getIn;
 
 function mapStateToProps(state, ownProps) {
-  var guideState = getIn(state, 'guides.' + ownProps.primitive._id),
-      guideDefaults;
-
-  return {
-    guideDefaults: guideDefaults
-  };
+  return {};
 }
 
 function mapDispatchToProps(dispatch) {
@@ -37,14 +32,12 @@ var GuideInspector = React.createClass({
     this.props.updateGuideProperty(guideId, property, value);
   },
   render: function() {
-    var primitive = Object.assign({}, this.props.primitive, {_primtype: 'guide'}),
+
+    // previously: var primitive = this.props.primitive
+    var primitive = this.props.primitive,
         orientOpts = ['top', 'right', 'bottom', 'left'],
-        layerOpts = ['back', 'front'],
-        axis = this.props.guideDefaults.axis,
-        title = this.props.guideDefaults.title.value,
-        layer = this.props.guideDefaults.layer.value,
-        grid = this.props.guideDefaults.grid.value,
-        ticks, labels;
+        layerOpts = ['back', 'front'];
+
 
     /*
 
@@ -64,19 +57,20 @@ var GuideInspector = React.createClass({
           <h3>Axis</h3>
           <Property name="orient"
             label="Orient"
-            value={axis.orient}
             opts={orientOpts}
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="select" />
           <Property name="properties.axis.stroke.value"
             label="Color"
-            value={axis.stroke}
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="color" />
           <Property name="properties.axis.strokeWidth.value"
             label="Width"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="range" />
@@ -84,23 +78,26 @@ var GuideInspector = React.createClass({
         <div className="property-group">
           <h3>Title</h3>
           <Property name="title"
-            value={title}
             label="Title"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="text" />
           <Property name="properties.title.fill.value"
             label="Color"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="color" />
           <Property name="titleOffset"
             label="Offset"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="number" />
           <Property name="properties.title.fontSize.value"
             label="Font Size"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="number" />
@@ -109,76 +106,62 @@ var GuideInspector = React.createClass({
           <h3>Ticks</h3>
           <Property name="ticks"
             label="Number of Ticks"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="number" />
           <Property name="properties.ticks.stroke.value"
             label="Color"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="color" />
           <Property name="properties.ticks.strokeWidth.value"
             label="Width"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="range" />
           <Property name="tickPadding"
             label="Padding"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="range" />
           <Property name="tickSize"
             label="Size"
-            primitive={primitive}
-            onChange={this.handleChange}
-            type="number" />
-          <Property name="tickSizeMajor"
-            label="Major Tick size"
-            primitive={primitive}
-            onChange={this.handleChange}
-            type="number" />
-          <Property name="tickSizeMinor"
-            label="Minor Tick size"
-            primitive={primitive}
-            onChange={this.handleChange}
-            type="number" />
-          <Property name="tickSizeEnd"
-            label="End Tick size"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="number" />
         </div>
         <div className="property-group">
           <h3>Labels</h3>
-          <Property name="properties.lables.fontSize.value" label="Font Size"
+          <Property name="properties.labels.fontSize.value"
+            label="Font Size"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="number" />
-          <Property name="properties.lables.fill.value" label="Fill"
+          <Property name="properties.labels.fill.value"
+            label="Fill"
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="color" />
-          <Property name="properties.lables.angle.value" label="Angle"
-            primitive={primitive}
-            onChange={this.handleChange}
-            type="number" />
-          <Property name="format" label="Format"
-            primitive={primitive}
-            onChange={this.handleChange}
-            type="text" />
         </div>
         <div className="property-group last">
           <h3>Grid</h3>
           <Property name="grid"
             label="Grid"
-            value={grid}
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="checkbox" />
           <Property name="layer"
             label="Layer"
-            value={layer}
             opts={layerOpts}
+            primtype="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="select" />
