@@ -1,7 +1,6 @@
 'use strict';
 
 var store = require('../store'),
-    state = store.getState(),
     getIn = require('./immutable-utils').getIn;
 
 /**
@@ -11,8 +10,7 @@ var store = require('../store'),
  * @returns {ImmutableMap|null} The requested mark, if present, else null
  */
 function getParent(mark) {
-  // Require ctrl in here to sidestep circular dependency issue
-  return getIn(state, 'marks.' + mark.get('_parent')) || null;
+  return getIn(store.getState(), 'marks.' + mark.get('_parent')) || null;
 }
 
 /**
@@ -48,7 +46,7 @@ function getParents(primitive) {
  */
 function getGroupIds(primitives) {
   return primitives.reduce(function(groupIds, primitive) {
-    if (primitive.type === 'group') {
+    if (primitive.get('type') === 'group') {
       groupIds.push(primitive.get('_id'));
     }
     return groupIds;
@@ -63,7 +61,7 @@ function getGroupIds(primitives) {
  * @returns {number[]} An array of the (lyra) IDs of the primitive's parent layers.
  */
 function getParentGroupIds(markId) {
-  return getGroupIds(getParents(getIn(state, 'marks.' + markId)));
+  return getGroupIds(getParents(getIn(store.getState(), 'marks.' + markId)));
 }
 
 /**

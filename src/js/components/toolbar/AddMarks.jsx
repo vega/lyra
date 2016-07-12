@@ -5,7 +5,6 @@ var React = require('react'),
     Mark = require('../../store/factory/Mark'),
     getIn = require('../../util/immutable-utils').getIn,
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
-    selectMark = require('../../actions/inspectorActions').selectMark,
     addMark = require('../../actions/markActions').addMark,
     assets = require('../../util/assets'),
     Icon = require('../Icon');
@@ -24,9 +23,6 @@ function mapDispatchToProps(dispatch) {
         _parent: parentId
       });
       dispatch(addMark(newMarkProps));
-    },
-    selectMark: function(id) {
-      dispatch(selectMark(id));
     }
   };
 }
@@ -38,8 +34,7 @@ var AddMarksTool = React.createClass({
   propTypes: {
     selectedId: React.PropTypes.number,
     sceneId: React.PropTypes.number,
-    addMark: React.PropTypes.func,
-    selectMark: React.PropTypes.func
+    addMark: React.PropTypes.func
   },
   classNames: 'new-marks',
   render: function() {
