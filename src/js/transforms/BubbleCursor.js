@@ -88,7 +88,7 @@ BubbleCursor.prototype.transform = function(input) {
     // If backing data has coords, use those. Otherwise, use the cousin's bounds.
     if (dl.isValid(cousins[0].datum.x)) {
       cache.push.apply(cache, cousins.map(function(i) {
-        var d = i.datum;
+        var d = dl.duplicate(i.datum);
         d.x += offset.x;
         d.y += offset.y;
         return d;

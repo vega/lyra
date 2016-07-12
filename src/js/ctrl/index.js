@@ -93,7 +93,6 @@ ctrl.manipulators = function() {
   var spec = ctrl.export(true),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
-      predicates = spec.predicates || (spec.predicates = []),
       marks = spec.marks || (spec.marks = []),
       idx = dl.comparator('_idx');
 
@@ -101,12 +100,6 @@ ctrl.manipulators = function() {
   // destroying & recreating the vega view
   // sg() is a function that returns all registered signals
   signals.push.apply(signals, dl.vals(sg()).sort(idx));
-
-  predicates.push({
-    name: sg.CELL,
-    type: '==',
-    operands: [{signal: sg.CELL + '.key'}, {arg: 'key'}]
-  });
 
   data.push({
     name: 'bubble_cursor',
