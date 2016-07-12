@@ -155,7 +155,7 @@ var DataTable = React.createClass({
 
   handleMTYPEChangeClick: function(evt) {
     var newFullField = this.state.fullField;
-    const MTYPES = dsUtil.MTYPES;
+    var MTYPES = dsUtil.MTYPES;
     var mtypeIndex = -1;
     MTYPES.forEach(function (currentValue, index, array) {
       if(currentValue == newFullField.mtype) {
