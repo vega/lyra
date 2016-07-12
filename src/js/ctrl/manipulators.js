@@ -89,10 +89,7 @@ function voronoi(parent) {
 
 function hoverCell(t, f, parent) {
   var rule = [{
-    predicate: {
-      name: sg.CELL,
-      key: {field: parent ? {parent: 'key'} : 'key'}
-    }
+    test: sg.CELL + '.key === ' + (parent ? 'parent.key' : 'datum.key')
   }];
 
   dl.extend(rule[0], t);
