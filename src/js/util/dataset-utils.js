@@ -109,4 +109,6 @@ du.reset = function() {
   schema = {};
 };
 
+du.MTYPES = ['nominal', 'quantitative', 'temporal']; // ordinal not yet used
+
 module.exports = du;
