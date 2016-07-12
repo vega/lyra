@@ -91,6 +91,8 @@ var ExtentProperty = React.createClass({
         opts = dl.vals(extents),
         start = state.start, end = state.end;
 
+    console.log('primitive form extent: ', primitive);
+
     return (
       <div>
         <Property name={start}

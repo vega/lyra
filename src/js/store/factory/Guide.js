@@ -19,6 +19,7 @@ var GTYPES = {AXIS: 'axis', LEGEND: 'legend'},
  * @constructor
  */
 
+// TODO: add defaults for legends
 var def = module.exports = function(gtype, type, scale) {
   var guide = {_gtype: gtype};
 
@@ -26,13 +27,67 @@ var def = module.exports = function(gtype, type, scale) {
     guide.type = type;
     guide.scale = +scale || scale.get('_id');
     guide.orient = ORIENT[type];
+    guide.titleOffset = 10;
+    guide.ticks = 5;
+    guide.tickPadding = 20;
+    guide.tickSize = 20;
+    guide.tickSizeMajor = 20;
+    guide.tickSizeEnd = 20;
+    guide.tickSizeMinor = 10;
+    guide.grid = false;
+    guide.layer = 'back';
     guide.properties = {
-      ticks: {},
-      majorTicks: {},
-      minorTicks: {},
-      title: {},
-      labels: {},
-      axis: {}
+      ticks: {
+        stroke: {
+          value: '#000000'
+        },
+        strokeWidth: {
+          value: 1
+        }
+      },
+      majorTicks: {
+        stroke: {
+          value: '#000000'
+        },
+        strokeWidth: {
+          value: 1
+        }
+      },
+      minorTicks: {
+        stroke: {
+          value: '#000000'
+        },
+        strokeWidth: {
+          value: 1
+        }
+      },
+      title: {
+        fill: {
+          value: '#000000'
+        },
+        fontSize: {
+          value: 14
+        }
+      },
+      labels: {
+        fontSize: {
+          value: 12
+        },
+        fill: {
+          value: '#000000'
+        },
+        angle: {
+          value: 0
+        }
+      },
+      axis: {
+        stroke: {
+          value: '#000000',
+        },
+        strokeWidth: {
+          value: 1
+        }
+      }
     };
   } else if (gtype === GTYPES.LEGEND) {
     guide._type = type;
@@ -46,7 +101,7 @@ var def = module.exports = function(gtype, type, scale) {
     };
   }
 
-  guide.title = undefined;
+  guide.title = 'title';
   return guide;
 };
 

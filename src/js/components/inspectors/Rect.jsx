@@ -8,8 +8,12 @@ var RectInspector = React.createClass({
     primitive: React.PropTypes.object
   },
   render: function() {
+    this.props.primitive = Object.assign({}, this.props.primitive, {_primtype: 'mark'});
+
     var props = this.props,
-        primitive = Object.assign({}, this.props.primitive, {_stateType: 'mark'});
+        primitive = this.props.primitive;
+
+    console.log('primitive: ', primitive);
 
     return (
       <div>

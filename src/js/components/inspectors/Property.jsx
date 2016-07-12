@@ -13,14 +13,27 @@ function mapStateToProps(state, ownProps) {
     return {};
   }
 
-  var markState = getIn(state, 'marks.' + ownProps.primitive._id),
+  console.log('ownProps: ', ownProps);
+
+  var propertyState = getIn(state, ownProps.primitive._primtype + ownProps.primitive._id),
+      updatePropsPath;
+
+  if (ownProps.name) {
+    if (ownProps.primitive._primtype === 'mark') {
       updatePropsPath = 'properties.update.' + ownProps.name;
+    } else if (ownProps.primitive._primtype === 'guide') {
+      updatePropsPath = ownProps.name;
+    }
+  }
+
+  // console.log('ps, pp: ', propertyState, updatePropsPath);
 
   return {
-    field: getIn(markState, updatePropsPath + '.field'),
-    group: getIn(markState, updatePropsPath + '.group'),
-    scale: getIn(markState, updatePropsPath + '.scale'),
-    signal: getIn(markState, updatePropsPath + '.signal')
+    field: getIn(propertyState, updatePropsPath + '.field'),
+    group: getIn(propertyState, updatePropsPath + '.group'),
+    scale: getIn(propertyState, updatePropsPath + '.scale'),
+    signal: getIn(propertyState, updatePropsPath + '.signal'),
+    value: getIn(propertyState, updatePropsPath)
   };
 }
 
@@ -41,6 +54,7 @@ var Property = React.createClass({
     scale: React.PropTypes.number,
     signal: React.PropTypes.string,
     onChange: React.PropTypes.func,
+    value: React.PropTypes.number || React.PropTypes.string,
     resetMarkVisual: React.PropTypes.func
   },
 
@@ -60,12 +74,14 @@ var Property = React.createClass({
         type = props.type,
         scale = props.scale,
         field = props.field,
-        value = state.value,
+        value = props.value || state.value, // proposed change: state.value -> state.value || props.value
         disabled = props.disabled || props.group,
         onChange = props.onChange || this.handleChange,
         onBlur = props.onBlur,
         docId = props.id,
         labelEl, scaleEl, controlEl, extraEl;
+
+    console.log('props frm Property', props.value);
 
     React.Children.forEach(props.children, function(child) {
       var className = child && child.props.className;
@@ -148,6 +164,7 @@ var Property = React.createClass({
           controlEl = (
             <div>
               <input type="checkbox"
+                checked={!disabled && value}
                 name={name}
                 onChange={onChange} />
             </div>
