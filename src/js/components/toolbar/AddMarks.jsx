@@ -3,7 +3,9 @@ var React = require('react'),
     connect = require('react-redux').connect,
     store = require('../../store'),
     Mark = require('../../store/factory/Mark'),
-    getIn = require('../../util/immutable-utils').getIn,
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
     addMark = require('../../actions/markActions').addMark,
     assets = require('../../util/assets'),
@@ -12,7 +14,7 @@ var React = require('react'),
 function mapStateToProps(reduxState) {
   return {
     selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
-    sceneId: getIn(reduxState, 'scene.id')
+    sceneId: getInVis(reduxState, 'scene.id')
   };
 }
 

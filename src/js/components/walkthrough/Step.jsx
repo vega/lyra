@@ -1,7 +1,9 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    getIn = require('../../util/immutable-utils').getIn,
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     validate = require('../../util/walkthrough-utils').validate,
     WActions = require('../../actions/walkthroughActions'),
     vegaSpec = require('../../ctrl').export,
@@ -17,7 +19,7 @@ function mapStateToProps(reduxState, ownProps) {
   return {
     currentStepId: currentStepId,
     steps: steps,
-    marks: getIn(reduxState, 'marks')
+    marks: getInVis(reduxState, 'marks')
   };
 }
 function mapDispatchToProps(dispatch, ownProps) {

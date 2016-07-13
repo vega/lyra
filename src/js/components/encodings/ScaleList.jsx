@@ -4,12 +4,14 @@ var React = require('react'),
     actions = require('../../actions/inspectorActions'),
     selectScale = actions.selectScale,
     ContentEditable = require('../ContentEditable'),
-    getIn = require('../../util/immutable-utils').getIn;
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis;
 
 function mapStateToProps(reduxState, ownProps) {
   return {
     selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
-    scales: reduxState.get('scales')
+    scales: getInVis(reduxState, 'scales')
   };
 }
 

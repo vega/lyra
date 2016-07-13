@@ -2,7 +2,7 @@
 
 var dl = require('datalib'),
     counter  = require('../util/counter'),
-    getIn = require('../util/immutable-utils').getIn,
+    getInVis = require('../util/immutable-utils').getInVis,
     Mark = require('../store/factory/Mark'),
     ADD_MARK = 'ADD_MARK',
     DELETE_MARK = 'DELETE_MARK',
@@ -45,7 +45,7 @@ function addMark(markProps) {
  */
 function deleteMark(id) {
   return function(dispatch, getState) {
-    var mark = getIn(getState(), 'marks.' + id).toJS();
+    var mark = getInVis(getState(), 'marks.' + id).toJS();
 
     if (mark.marks && mark.marks.length) {
       mark.marks.forEach(function(childId) {

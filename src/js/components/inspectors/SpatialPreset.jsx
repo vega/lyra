@@ -3,7 +3,7 @@ var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
     addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
-    getIn = require('../../util/immutable-utils').getIn,
+    getInVis = require('../../util/immutable-utils').getInVis,
     markActions = require('../../actions/markActions'),
     setMarkVisual = markActions.setMarkVisual,
     resetMarkVisual = markActions.resetMarkVisual;
@@ -16,7 +16,7 @@ function mapStateToProps(reduxState, ownProps) {
 
   return {
     property: update[name],
-    scale: getIn(reduxState, 'scales.' + prop.scale)
+    scale: getInVis(reduxState, 'scales.' + prop.scale)
   };
 }
 

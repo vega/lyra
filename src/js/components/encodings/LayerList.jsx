@@ -2,7 +2,9 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     hierarchy = require('../../util/hierarchy'),
-    getIn = require('../../util/immutable-utils').getIn,
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
     Mark = require('../../store/factory/Mark'),
     addMark = require('../../actions/markActions').addMark,
@@ -16,7 +18,7 @@ var React = require('react'),
 
 function mapStateToProps(reduxState) {
   var selectedMarkId = getIn(reduxState, 'inspector.encodings.selectedId'),
-      sceneId = getIn(reduxState, 'scene.id'),
+      sceneId = getInVis(reduxState, 'scene.id'),
       closestContainerId;
 
   // Closest container is determined by walking up from the selected mark,
@@ -31,7 +33,7 @@ function mapStateToProps(reduxState) {
     sceneId: sceneId,
     containerId: closestContainerId,
     // Immutable constructs
-    marks: getIn(reduxState, 'marks.' + sceneId + '.marks')
+    marks: getInVis(reduxState, 'marks.' + sceneId + '.marks')
   };
 }
 

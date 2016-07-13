@@ -7,7 +7,9 @@ var dl = require('datalib'),
     ns = require('../util/ns'),
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
-    getIn = require('../util/immutable-utils').getIn,
+    imutils = require('../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     CancellablePromise = require('../util/simple-cancellable-promise'),
     inspectorActions = require('../actions/inspectorActions'),
     selectMark = inspectorActions.selectMark,
@@ -25,10 +27,10 @@ Object.defineProperty(ctrl, 'Scene', {
   enumerable: true,
   get: function() {
     var state = store.getState(),
-        sceneId = getIn(state, 'scene.id');
+        sceneId = getInVis(state, 'scene.id');
 
     if (sceneId) {
-      return getIn(state, 'marks.' + sceneId).toJS();
+      return getInVis(state, 'marks.' + sceneId).toJS();
     }
   }
 });

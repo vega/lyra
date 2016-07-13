@@ -1,7 +1,7 @@
 'use strict';
 
 var store = require('../store'),
-    getIn = require('./immutable-utils').getIn;
+    getInVis = require('./immutable-utils').getInVis;
 
 /**
  * Find the parent item for a given mark.
@@ -10,7 +10,7 @@ var store = require('../store'),
  * @returns {ImmutableMap|null} The requested mark, if present, else null
  */
 function getParent(mark) {
-  return getIn(store.getState(), 'marks.' + mark.get('_parent')) || null;
+  return getInVis(store.getState(), 'marks.' + mark.get('_parent')) || null;
 }
 
 /**
@@ -61,7 +61,7 @@ function getGroupIds(primitives) {
  * @returns {number[]} An array of the (lyra) IDs of the primitive's parent layers.
  */
 function getParentGroupIds(markId) {
-  return getGroupIds(getParents(getIn(store.getState(), 'marks.' + markId)));
+  return getGroupIds(getParents(getInVis(store.getState(), 'marks.' + markId)));
 }
 
 /**

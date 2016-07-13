@@ -5,8 +5,10 @@ var React = require('react'),
     Immutable = require('immutable'),
     store = require('../../store'),
     ContentEditable = require('../ContentEditable'),
-    get = require('../../util/immutable-utils').get,
-    getIn = require('../../util/immutable-utils').getIn,
+    imutils = require('../../util/immutable-utils'),
+    get = imutils.get,
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     selectGuide = require('../../actions/inspectorActions').selectGuide,
     selectMark = require('../../actions/inspectorActions').selectMark,
     guideActions = require('../../actions/guideActions'),
@@ -23,7 +25,7 @@ function mapStateToProps(reduxState, ownProps) {
   return {
     selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
     expandedLayers: getIn(reduxState, 'inspector.encodings.expandedLayers'),
-    group: getIn(reduxState, 'marks.' + ownProps.id)
+    group: getInVis(reduxState, 'marks.' + ownProps.id)
   };
 }
 function mapDispatchToProps(dispatch, ownProps) {
@@ -107,11 +109,14 @@ var Group = React.createClass({
         axes = group.get('axes'),
         marks = group.get('marks'),
         isExpanded = get(props.expandedLayers, groupId);
+
     var contents = isExpanded && group.get('marks') ? (
       <ul className="group">
+
         <li className="header">Guides <Icon glyph={assets.plus} width="10" height="10" /></li>
+
         {axes.map(function(id) {
-          var axis = getIn(store.getState(), 'guides.' + id);
+          var axis = getInVis(store.getState(), 'guides.' + id);
           if (axis) {
             var axisType = axis.get('type');
             return (
@@ -128,12 +133,15 @@ var Group = React.createClass({
             );
           }
         }, this)}
+
         <li className="header">Marks <Icon glyph={assets.plus} width="10" height="10" /></li>
+
         {marks.map(function(id) {
-          var mark = getIn(store.getState(), 'marks.' + id),
+          var mark = getInVis(store.getState(), 'marks.' + id),
               type = mark.get('type'),
               name = mark.get('name'),
               icon = this.icon(type, isExpanded);
+
           return type === 'group' ? (
             <Group key={id}
               {...props}
@@ -155,6 +163,7 @@ var Group = React.createClass({
             </li>
           );
         }, this)}
+
       </ul>
     ) : null;
     var icon = this.icon(groupType, isExpanded),

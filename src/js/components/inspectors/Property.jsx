@@ -4,7 +4,9 @@ var React = require('react'),
     connect = require('react-redux').connect,
     store = require('../../store'),
     SignalValue = require('../mixins/SignalValue'),
-    getIn = require('../../util/immutable-utils').getIn,
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
 
 function mapStateToProps(state, ownProps) {
@@ -13,23 +15,23 @@ function mapStateToProps(state, ownProps) {
     return {};
   }
 
-  var propertyState = getIn(state, ownProps.primType + '.' + ownProps.primitive._id),
-      updatePropsPath;
+  var propertyState = getInVis(state, ownProps.primType + '.' + ownProps.primitive._id),
+      path;
 
   if (ownProps.name) {
     if (ownProps.primType === 'marks') {
-      updatePropsPath = 'properties.update.' + ownProps.name;
+      path = 'properties.update.' + ownProps.name;
     } else if (ownProps.primType === 'guides') {
-      updatePropsPath = ownProps.name;
+      path = ownProps.name;
     }
   }
 
   return {
-    field: getIn(propertyState, updatePropsPath + '.field'),
-    group: getIn(propertyState, updatePropsPath + '.group'),
-    scale: getIn(propertyState, updatePropsPath + '.scale'),
-    signal: getIn(propertyState, updatePropsPath + '.signal'),
-    value: getIn(propertyState, updatePropsPath)
+    field:  getIn(propertyState, path + '.field'),
+    group:  getIn(propertyState, path + '.group'),
+    scale:  getIn(propertyState, path + '.scale'),
+    signal: getIn(propertyState, path + '.signal'),
+    value:  getIn(propertyState, path)
   };
 }
 
@@ -89,7 +91,7 @@ var Property = React.createClass({
     });
 
     labelEl = labelEl || (<label htmlFor={name}>{label}</label>);
-    scaleEl = scale && (scale = getIn(storedState, 'scales.' + scale)) ?
+    scaleEl = scale && (scale = getInVis(storedState, 'scales.' + scale)) ?
       (<div className="scale" onClick={this.unbind}>{scale.get('name')}</div>) : null;
 
     controlEl = field ?

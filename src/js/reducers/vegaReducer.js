@@ -3,7 +3,8 @@
 
 var Immutable = require('immutable');
 
-var ACTIONS = require('../actions/Names');
+var ACTIONS = require('../actions/Names'),
+    HISTORY = require('redux-undo').ActionTypes;
 
 /**
  * This reducer handles whether to recreate the view from the lyra ctrl.
@@ -44,7 +45,9 @@ function invalidateVegaReducer(state, action) {
     ACTIONS.UPDATE_GUIDE_PROPERTY,
     ACTIONS.ADD_AXIS_TO_GROUP,
     ACTIONS.ADD_LEGEND_TO_GROUP,
-    ACTIONS.REMOVE_AXIS_FROM_GROUP
+    ACTIONS.REMOVE_AXIS_FROM_GROUP,
+    HISTORY.UNDO, HISTORY.REDO,
+    HISTORY.JUMP, HISTORY.JUMP_TO_FUTURE, HISTORY.JUMP_TO_PAST
   ];
   if (invalidatingActions.indexOf(action.type) >= 0) {
     return state.set('invalid', true);

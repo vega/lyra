@@ -7,7 +7,9 @@ var React = require('react'),
     connect = require('react-redux').connect,
     store = require('../store'),
     Property = require('./inspectors/Property'),
-    getIn = require('../util/immutable-utils').getIn,
+    imutils  = require('../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     hierarchy = require('../util/hierarchy'),
     findInItemTree = hierarchy.findInItemTree,
     TYPES = require('../actions/Names');
@@ -23,11 +25,11 @@ function mapStateToProps(reduxState, ownProps) {
       primitive;
 
   if (isMark) {
-    primitive = getIn(reduxState, 'marks.' + selId);
+    primitive = getInVis(reduxState, 'marks.' + selId);
   } else if (isGuide) {
-    primitive = getIn(reduxState, 'guides.' + selId);
+    primitive = getInVis(reduxState, 'guides.' + selId);
   } else if (isScale) {
-    primitive = getIn(reduxState, 'scales.' + selId);
+    primitive = getInVis(reduxState, 'scales.' + selId);
   }
 
   return {
@@ -59,7 +61,7 @@ var Inspector = React.createClass({
     var props = this.props,
         prim = props.primitive && props.primitive.toJS(),
         from = prim && prim.from ?
-          getIn(store.getState(), 'datasets.' + prim.from.data) : '',
+          getInVis(store.getState(), 'datasets.' + prim.from.data) : '',
         ctor, sideBarTitle, InspectorType;
 
     if (prim) {

@@ -7,7 +7,7 @@
  */
 'use strict';
 
-var getIn = require('./immutable-utils').getIn;
+var getInVis = require('./immutable-utils').getInVis;
 
 /**
  * Find the ID of the nearest group or scene which is or contains the provided
@@ -19,11 +19,11 @@ var getIn = require('./immutable-utils').getIn;
  * if the mark is invalid or there was no group or scene ancestor available
  */
 function getClosestGroupId(state, id) {
-  var markState = getIn(state, 'marks.' + id),
+  var markState = getInVis(state, 'marks.' + id),
       mark = markState && markState.toJS();
 
   if (!mark) {
-    return getIn(state, 'scene.id');
+    return getInVis(state, 'scene.id');
   }
 
   // If mark is a group or scene, return it as-is
@@ -46,7 +46,7 @@ function getClosestGroupId(state, id) {
  * @returns {number|void} The ID of the matched scale, or undefined
  */
 function getGuideScale(state, id, property, channel) {
-  var updatePropsState = getIn(state, 'marks.' + id + '.properties.update');
+  var updatePropsState = getInVis(state, 'marks.' + id + '.properties.update');
 
   if (!updatePropsState) {
     return;

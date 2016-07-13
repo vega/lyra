@@ -1,6 +1,6 @@
 'use strict';
 var store = require('../store'),
-    getIn = require('./immutable-utils').getIn,
+    getInVis = require('./immutable-utils').getInVis,
     ns = require('./ns');
 
 /**
@@ -10,5 +10,5 @@ var store = require('../store'),
  * @returns {string|number|object} returns what is stored in redux which could be one of these types
  */
 module.exports = function(signal) {
-  return getIn(store.getState(), 'signals.' + ns(signal) + '.init');
+  return getInVis(store.getState(), 'signals.' + ns(signal) + '.init');
 };
