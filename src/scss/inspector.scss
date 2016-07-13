@@ -101,3 +101,14 @@ $long-label-width: $label-width + 10px;
     border-bottom: 1px dashed #777;
   }
 }
+
+.more-props-label {
+  display: block;
+  color: $blue-font;
+  text-decoration: none;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer !important;
+
+  &:hover { color: $grey-font !important; }
+}

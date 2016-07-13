@@ -102,6 +102,7 @@ var Property = React.createClass({
           controlEl = (
             <input type="number"
               value={!disabled && value}
+              min={props.min} max={props.max}
               disabled={disabled}
               id={docId}
               onChange={onChange}
