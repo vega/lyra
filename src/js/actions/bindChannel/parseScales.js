@@ -4,8 +4,7 @@ var dl = require('datalib'),
     getIn = require('../../util/immutable-utils').getIn,
     Scale = require('../../store/factory/Scale'),
     addScale = require('../scaleActions').addScale,
-    addScaleToGroup = require('./helperActions').addScaleToGroup,
-    bindChannel = require('./');
+    addScaleToGroup = require('./helperActions').addScaleToGroup;
 
 var REF_CELLW = {data: 'layout', field: 'cellWidth'},
     REF_CELLH = {data: 'layout', field: 'cellHeight'};
@@ -80,7 +79,8 @@ module.exports = function(dispatch, state, parsed) {
  * @returns {Object} An object that mimics a Lyra Scale primitive.
  */
 function parse(def) {
-  var range  = def.rangeMin || def.rangeMax;
+  var bindChannel = require('./'),
+      range  = def.rangeMin || def.rangeMax;
 
   if (def.name === 'x' || range === bindChannel.CELLW || dl.equal(range, REF_CELLW)) {
     def.range = 'width';
