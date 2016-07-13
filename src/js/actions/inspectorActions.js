@@ -47,11 +47,10 @@ function removeLayers(layerIds) {
   };
 }
 
-function selectGuide(guideId, groupId) {
+function selectGuide(guideId) {
   return {
     type: SELECT_GUIDE,
-    id: guideId,
-    groupId: groupId
+    id: guideId
   };
 }
 

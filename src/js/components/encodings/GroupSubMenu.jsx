@@ -12,7 +12,6 @@ var React = require('react'),
     guideActions = require('../../actions/guideActions'),
     deleteGuide = guideActions.deleteGuide,
     markActions = require('../../actions/markActions'),
-    removeAxisFromGroup = markActions.removeAxisFromGroup,
     deleteMark = markActions.deleteMark,
     updateMarkProperty = markActions.updateMarkProperty,
     inspectorActions = require('../../actions/inspectorActions'),
@@ -30,7 +29,6 @@ function mapStateToProps(reduxState, ownProps) {
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     select: function(id, encType) {
-      // either name selectMark selectEncoding or create selectGroup action
       switch (encType) {
         case 'mark':
           dispatch(selectMark(id));
@@ -46,8 +44,7 @@ function mapDispatchToProps(dispatch, ownProps) {
       if (ownProps.selectedId === id) {
         dispatch(selectGuide(null));
       }
-      dispatch(removeAxisFromGroup(id, ownProps.id));
-      dispatch(deleteGuide(id, 0));
+      dispatch(deleteGuide(id, ownProps.id));
     },
     deleteMark: function(id) {
       if (ownProps.selectedId === id) {
@@ -87,9 +84,9 @@ var Group = React.createClass({
         iconMarkup = (<Icon glyph={glyph} onClick={click} />);
     return iconMarkup;
   },
-  deleteUpdate: function(id, deletionType) {
+  deleteUpdate: function(id, primType) {
     ReactTooltip.hide();
-    switch (deletionType) {
+    switch (primType) {
       case 'guide':
         this.props.deleteGuide(id);
         break;

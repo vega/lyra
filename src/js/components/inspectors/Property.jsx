@@ -13,14 +13,13 @@ function mapStateToProps(state, ownProps) {
     return {};
   }
 
-  var propertyState = getIn(state, ownProps.primtype + '.' + ownProps.primitive._id),
+  var propertyState = getIn(state, ownProps.primType + '.' + ownProps.primitive._id),
       updatePropsPath;
 
   if (ownProps.name) {
-    if (ownProps.primtype === 'marks') {
+    if (ownProps.primType === 'marks') {
       updatePropsPath = 'properties.update.' + ownProps.name;
-      console.log('ownProps.name: ', ownProps.name);
-    } else if (ownProps.primtype === 'guides') {
+    } else if (ownProps.primType === 'guides') {
       updatePropsPath = ownProps.name;
     }
   }
@@ -30,7 +29,7 @@ function mapStateToProps(state, ownProps) {
     group: getIn(propertyState, updatePropsPath + '.group'),
     scale: getIn(propertyState, updatePropsPath + '.scale'),
     signal: getIn(propertyState, updatePropsPath + '.signal'),
-    value: getIn(propertyState, updatePropsPath)  // fill --> value: {signal: ...}
+    value: getIn(propertyState, updatePropsPath)
   };
 }
 

@@ -25,8 +25,6 @@ function mapStateToProps(reduxState) {
     getClosestGroupId(reduxState, selectedMarkId) :
     sceneId;
 
-  // console.log('guides: ', getIn(reduxState, 'guides').toJS());
-
   return {
     // Numbers
     selectedId: selectedMarkId,

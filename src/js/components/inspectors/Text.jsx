@@ -13,6 +13,7 @@ var TextInspector = React.createClass({
         <div className="property-group">
           <Property name="text"
             type="text"
+            primType="marks"
             primitive={primitive}
             canDrop={true}>
 
@@ -26,21 +27,25 @@ var TextInspector = React.createClass({
           <Property name="font" label="Face"
             type="select"
             opts={Text.fonts}
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
           <Property name="fontSize" label="Size"
             type="number"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
           <Property name="fontWeight" label="Weight"
+            primType="marks"
             primitive={primitive}
             type="select"
             opts={Text.fontWeights}
             canDrop={true} />
 
           <Property name="fontStyle" label="Style"
+            primType="marks"
             primitive={primitive}
             type="select"
             opts={Text.fontStyles}
@@ -48,11 +53,13 @@ var TextInspector = React.createClass({
 
           <Property name="fill" label="Color"
             type="color"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
           <Property name="fillOpacity" label="Opacity"
             type="range"
+            primType="marks"
             primitive={primitive}
             canDrop={true}
             min="0" max="1" step="0.05" />
@@ -63,11 +70,13 @@ var TextInspector = React.createClass({
 
           <Property name="x" label="X"
             type="number"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
           <Property name="y" label="Y"
             type="number"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
         </div>
@@ -77,11 +86,13 @@ var TextInspector = React.createClass({
 
           <Property name="dx" label="X"
             type="number"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
           <Property name="dy" label="Y"
             type="number"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
@@ -91,12 +102,14 @@ var TextInspector = React.createClass({
           <h3>Align</h3>
 
           <Property name="align" label="Horizontal"
+            primType="marks"
             primitive={primitive}
             type="select"
             opts={Text.alignments}
             canDrop={true} />
 
           <Property name="baseline" label="Vertical"
+            primType="marks"
             primitive={primitive}
             type="select"
             opts={Text.baselines}
@@ -104,6 +117,7 @@ var TextInspector = React.createClass({
 
           <Property name="angle" label="Rotation"
             type="number"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
         </div>

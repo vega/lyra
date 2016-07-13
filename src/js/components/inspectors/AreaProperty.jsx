@@ -89,6 +89,7 @@ var AreaProperty = React.createClass({
         <Property
           name={start}
           type="number"
+          primType="marks"
           primitive={primitive}
           canDrop={true}
           disabled={update[start].band || update[start].group}
@@ -101,6 +102,7 @@ var AreaProperty = React.createClass({
         <Property
           name={end}
           type="number"
+          primType="marks"
           primitive={primitive}
           canDrop={true}
           disabled={update[end].band || update[end].group}

@@ -10,8 +10,6 @@ var AreaInspector = React.createClass({
     var props = this.props,
         primitive = props.primitive;
 
-    console.log('prims from area: ', primitive);
-
     return (
       <div>
         <div className="property-group">
@@ -20,6 +18,7 @@ var AreaInspector = React.createClass({
           <Property
             name="orient"
             label="Orient"
+            primType="marks"
             primitive={primitive}
             type="select"
             opts={Area.ORIENT}
@@ -29,13 +28,13 @@ var AreaInspector = React.createClass({
         <div className="property-group">
           <h3>X Position</h3>
 
-          <AreaProperty type="x" {...props} />
+          <AreaProperty type="x" {...props} primType="marks"/>
         </div>
 
         <div className="property-group">
           <h3>Y Position</h3>
 
-          <AreaProperty type="y" {...props} />
+          <AreaProperty type="y" {...props} primType="marks"/>
         </div>
 
         <div className="property-group">
@@ -46,6 +45,7 @@ var AreaInspector = React.createClass({
             label="Color"
             type="color"
             canDrop={true}
+            primType="marks"
             primitive={primitive}/>
 
           <Property
@@ -53,6 +53,7 @@ var AreaInspector = React.createClass({
             label="Opacity"
             type="range"
             min="0" max="1" step="0.05"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
         </div>
@@ -64,6 +65,7 @@ var AreaInspector = React.createClass({
             name="stroke"
             label="Color"
             type="color"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
@@ -73,6 +75,7 @@ var AreaInspector = React.createClass({
             type="range"
             min="0" max="10" step="0.25"
             canDrop={true}
+            primType="marks"
             primitive={primitive} />
         </div>
 
@@ -85,6 +88,7 @@ var AreaInspector = React.createClass({
             type="select"
             opts={INTERPOLATE}
             canDrop={true}
+            primType="marks"
             primitive={primitive}
           />
 
@@ -93,6 +97,7 @@ var AreaInspector = React.createClass({
             label="Tension"
             type="number"
             canDrop={true}
+            primType="marks"
             primitive={primitive}
           />
         </div>

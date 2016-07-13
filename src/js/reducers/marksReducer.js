@@ -248,8 +248,8 @@ function marksReducer(state, action) {
     return ensureValuePresent(state, action.groupId + '.legends', action.legendId);
   }
 
-  if (action.type === ACTIONS.REMOVE_AXIS_FROM_GROUP) {
-    return ensureValueAbsent(state, action.groupId + '.axes', action.axisId);
+  if (action.type === ACTIONS.DELETE_GUIDE) {
+    return ensureValueAbsent(state, action.groupId + '.axes', action.id);
   }
 
   return state;

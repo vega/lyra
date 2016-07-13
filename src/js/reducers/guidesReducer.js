@@ -27,7 +27,7 @@ function guideReducer(state, action) {
   }
 
   if (action.type === ACTIONS.DELETE_SCALE) {
-    return deleteKeyFromMap(state, action.id); // Immutable Maps
+    return deleteKeyFromMap(state, action.id);
   }
 
   return state;

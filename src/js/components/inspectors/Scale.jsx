@@ -10,8 +10,6 @@ var ScaleInspector = React.createClass({
   render: function() {
     var scale = this.props.primitive;
 
-    // console.log('primitives from scale: ', scale);
-
     return (
       <div>
         <div className="property-group">

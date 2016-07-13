@@ -2,8 +2,7 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     updateGuideProperty = require('../../actions/guideActions').updateGuideProperty,
-    Property = require('./Property'),
-    getIn = require('./../../util/immutable-utils').getIn;
+    Property = require('./Property');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -32,136 +31,137 @@ var GuideInspector = React.createClass({
     this.props.updateGuideProperty(guideId, property, value);
   },
   render: function() {
-
-    // previously: var primitive = this.props.primitive
     var primitive = this.props.primitive,
         orientOpts = ['top', 'right', 'bottom', 'left'],
         layerOpts = ['back', 'front'];
-
-
-    /*
-
-      Values need for axis:
-      - current orientation (orient)
-      - current properties.axis.stroke.value (color)
-      - current properties.axis.strokeWidth.value (width)
-
-      axis = {
-        orient: primitive
-      }
-    */
 
     return (
       <div>
         <div className="property-group">
           <h3>Axis</h3>
+
           <Property name="orient"
             label="Orient"
             opts={orientOpts}
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="select" />
+
           <Property name="properties.axis.stroke.value"
             label="Color"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="color" />
+
           <Property name="properties.axis.strokeWidth.value"
             label="Width"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="range" />
         </div>
         <div className="property-group">
           <h3>Title</h3>
+
           <Property name="title"
             label="Title"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="text" />
+
           <Property name="properties.title.fill.value"
             label="Color"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="color" />
+
           <Property name="titleOffset"
             label="Offset"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="number" />
+
           <Property name="properties.title.fontSize.value"
             label="Font Size"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="number" />
         </div>
         <div className="property-group">
           <h3>Ticks</h3>
+
           <Property name="ticks"
             label="Number of Ticks"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="number" />
+
           <Property name="properties.ticks.stroke.value"
             label="Color"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="color" />
+
           <Property name="properties.ticks.strokeWidth.value"
             label="Width"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="range" />
+
           <Property name="tickPadding"
             label="Padding"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="range" />
+
           <Property name="tickSize"
             label="Size"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="number" />
         </div>
         <div className="property-group">
           <h3>Labels</h3>
+
           <Property name="properties.labels.fontSize.value"
             label="Font Size"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="number" />
+
           <Property name="properties.labels.fill.value"
             label="Fill"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="color" />
         </div>
         <div className="property-group last">
           <h3>Grid</h3>
+
           <Property name="grid"
             label="Grid"
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="checkbox" />
+
           <Property name="layer"
             label="Layer"
             opts={layerOpts}
-            primtype="guides"
+            primType="guides"
             primitive={primitive}
             onChange={this.handleChange}
             type="select" />

@@ -27,8 +27,8 @@ var def = module.exports = function(gtype, type, scale) {
     guide.type = type;
     guide.scale = +scale || scale.get('_id');
     guide.orient = ORIENT[type];
-    guide.titleOffset = 10;
-    guide.ticks = 5;
+    guide.titleOffset = 100;
+    guide.ticks = 10;
     guide.tickPadding = 5;
     guide.tickSize = 10;
     guide.grid = false;
@@ -98,7 +98,7 @@ var def = module.exports = function(gtype, type, scale) {
     };
   }
 
-  guide.title = 'title';
+  guide.title = undefined;
   return guide;
 };
 

@@ -16,6 +16,7 @@ var LineInspector = React.createClass({
             name="x"
             label="X"
             type="number"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
@@ -23,6 +24,7 @@ var LineInspector = React.createClass({
             name="y"
             label="Y"
             type="number"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
         </div>
@@ -34,6 +36,7 @@ var LineInspector = React.createClass({
             name="stroke"
             label="Color"
             type="color"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
@@ -44,6 +47,7 @@ var LineInspector = React.createClass({
             min="0"
             max="10"
             step="0.25"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
         </div>
@@ -56,6 +60,7 @@ var LineInspector = React.createClass({
             label="Interpolate"
             type="select"
             opts={INTERPOLATE}
+            primType="marks"
             primitive={primitive}
             canDrop={true}
           />
@@ -64,6 +69,7 @@ var LineInspector = React.createClass({
             name="tension"
             label="Tension"
             type="number"
+            primType="marks"
             primitive={primitive}
             canDrop={true}
             />

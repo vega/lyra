@@ -24,17 +24,26 @@ function addGuide(guideProps) {
   };
 }
 
-function deleteGuide(guideId) {
+/**
+ * Action creator to delete a guide and remove it from its
+ * group.
+ *
+ * @param {number} guideId - The ID of the guide to delete
+ * @param {number} groupId - The ID of the group this guide belongs to
+ * @returns {Object} The ADD_GUIDE action object
+ */
+function deleteGuide(guideId, groupId) {
   return {
     type: DELETE_GUIDE,
-    id: guideId
+    id: guideId,
+    groupId: groupId
   };
 }
 
-function updateGuideProperty(GuideId, property, value) {
+function updateGuideProperty(guideId, property, value) {
   return {
     type: UPDATE_GUIDE_PROPERTY,
-    id: GuideId,
+    id: guideId,
     property: property,
     value: value
   };

@@ -15,11 +15,13 @@ var SymbolInspector = React.createClass({
           <h3>Position</h3>
 
           <Property name="x" label="X"
+            primType="marks"
             primitive={primitive}
             type="number"
             canDrop={true} />
 
           <Property name="y" label="Y"
+            primType="marks"
             primitive={primitive}
             type="number"
             canDrop={true} />
@@ -29,11 +31,13 @@ var SymbolInspector = React.createClass({
           <h3>Geometry</h3>
 
           <Property name="size" label="Size"
+            primType="marks"
             primitive={primitive}
             type="number"
             canDrop={true} />
 
           <Property name="shape" label="Shape"
+            primType="marks"
             primitive={primitive}
             type="select"
             opts={Symbol.SHAPES}
@@ -46,10 +50,12 @@ var SymbolInspector = React.createClass({
 
           <Property name="fill" label="Color"
             type="color"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
           <Property name="fillOpacity" label="Opacity"
+            primType="marks"
             primitive={primitive}
             type="range"
             min="0" max="1" step="0.05"
@@ -62,10 +68,12 @@ var SymbolInspector = React.createClass({
 
           <Property name="stroke" label="Color"
             type="color"
+            primType="marks"
             primitive={primitive}
             canDrop={true} />
 
           <Property name="strokeWidth" label="Width"
+            primType="marks"
             primitive={primitive}
             type="range"
             min="0" max="10" step="0.25"
