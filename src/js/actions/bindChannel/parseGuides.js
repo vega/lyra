@@ -1,6 +1,7 @@
 'use strict';
 
 var dl = require('datalib'),
+    merge = require('lodash.merge'),
     addGuide = require('../guideActions').addGuide,
     actions = require('./helperActions'),
     addAxisToGroup = actions.addAxisToGroup,
@@ -102,7 +103,7 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
     if (count === 1) {
       axis.orient = SWAP_ORIENT[axis.orient];
     }
-    dl.extend(axis.properties, def.properties);
+    merge(axis.properties, def.properties);
     dispatch(axis = addGuide(axis));
     dispatch(addAxisToGroup(axis.id, parentId));
   }

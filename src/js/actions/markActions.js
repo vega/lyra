@@ -122,7 +122,7 @@ function disableMarkVisual(id, property) {
 /**
  * Action creator to reset a mark's visual property back to being signal driven.
  *
- * @param {number} id   The ID of the mark whose visual property is being disabled.
+ * @param {number} id The ID of the mark whose visual property is being disabled.
  * @param {string} property The visual property to disable.
  * @returns {Object} The DISABLE_MARK_VISUAL action object
  */
@@ -167,7 +167,6 @@ function bindField(id, field, property) {
     property: property
   };
 }
-
 
 module.exports = {
   // Action Names

@@ -95,6 +95,7 @@ var ExtentProperty = React.createClass({
       <div>
         <Property name={start}
           type="number"
+          primType={props.primType}
           primitive={primitive}
           canDrop={true}
           firstChild={true}
@@ -117,6 +118,7 @@ var ExtentProperty = React.createClass({
 
         <Property name={end}
           type="number"
+          primType={props.primType}
           primitive={primitive}
           canDrop={true}
           firstChild={true}
