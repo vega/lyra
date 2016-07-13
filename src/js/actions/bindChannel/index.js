@@ -7,6 +7,7 @@ var dl = require('datalib'),
     getInVis = require('../../util/immutable-utils').getInVis,
     updateMarkProperty = require('../markActions').updateMarkProperty,
     dsUtils = require('../../util/dataset-utils'),
+    history = require('../../util/history-utils'),
     parseData = require('./parseData'),
     parseScales = require('./parseScales'),
     parseMarks  = require('./parseMarks'),
@@ -46,10 +47,12 @@ function bindChannel(dsId, field, markId, property) {
         mapping = map(markId),
         channel = channelName(property);
 
+    // Though we dispatch multiple actions, we want bindChannel to register as
+    // only a single state change to the history from the user's perspective.
+    history.pause();
+
     if (from && (from.get('mark') || from.get('data') !== dsId)) {
       throw Error('Mark and field must be from the same pipeline.');
-    } else if (!from) {
-      dispatch(updateMarkProperty(markId, 'from', {data: dsId}));
     }
 
     spec.encoding[channel] = channelDef(field);
@@ -66,6 +69,11 @@ function bindChannel(dsId, field, markId, property) {
     parseScales(dispatch, state, parsed);
     parseMarks(dispatch, state, parsed);
     parseGuides(dispatch, state, parsed);
+
+    // To register the end result of channel binding as a state in our history,
+    // we resume and dispatch a final action to (re-)bind the mark to a dataset.
+    history.resume();
+    dispatch(updateMarkProperty(markId, 'from', {data: dsId}));
   };
 }
 
