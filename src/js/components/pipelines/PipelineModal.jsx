@@ -51,8 +51,8 @@ var PipelineModal = React.createClass({
           <span className="closeModal" onClick={props.closeModal}>close</span>
           <div className="partLeft">
             <h2>Examples</h2>
-            <div>
-              <h4>Datasets</h4>
+            <div className="sect">
+              <h4>Datasets</h4><br />
               <ul>
                 {pipelines.map(function(pipeline) {
                   var name = pipeline.name,
@@ -70,12 +70,12 @@ var PipelineModal = React.createClass({
           </div>
           <div className="partRight">
             <h2>Import</h2>
-            <div>
-              <label>From url:</label>
+            <div className="sect">
+              <label>Url: </label>
               <input type="text" onChange={null} />
               <button onChange={null}>Load</button>
             </div>
-            <div>
+            <div className="sect">
               <textarea rows="10" cols="70"
                 placeholder="Copy and paste or drag and drop">
               </textarea>

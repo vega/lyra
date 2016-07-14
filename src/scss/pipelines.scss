@@ -139,5 +139,14 @@ $pipeline-width: 180px;
   .partRight {
     width: 50%;
     float: left;
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    div.sect {
+      margin-bottom: 10px;
+      padding: 10px 0;
+    }
   }
 }
