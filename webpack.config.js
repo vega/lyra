@@ -62,6 +62,7 @@ module.exports = {
   },
   plugins: [
     // Render CSS out into a separate file
-    new ExtractTextPlugin('style.css')
+    new ExtractTextPlugin('style.css'),
+    new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.js')
   ]
 };
