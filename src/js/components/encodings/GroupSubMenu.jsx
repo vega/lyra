@@ -26,6 +26,7 @@ function mapStateToProps(reduxState, ownProps) {
     group: getIn(reduxState, 'marks.' + ownProps.id)
   };
 }
+
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     select: function(id, encType) {
@@ -60,6 +61,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     }
   };
 }
+
 var Group = React.createClass({
   propTypes: {
     id: React.PropTypes.number,
@@ -159,7 +161,6 @@ var Group = React.createClass({
     ) : null;
     var icon = this.icon(groupType, isExpanded),
         name = group.get('name');
-
     return (
       <li className={isExpanded ? 'expanded' : 'contracted'}>
         <div className={'name' + (selectedId === groupId ? ' selected' : '')}
@@ -179,4 +180,5 @@ var Group = React.createClass({
     );
   }
 });
+
 module.exports = connect(mapStateToProps, mapDispatchToProps)(Group);

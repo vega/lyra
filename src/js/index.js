@@ -22,32 +22,10 @@ store.subscribe(listeners.createStoreListener(store, ctrl));
 
 // Initializes the Lyra ctrl with a new Scene primitive.
 var createScene = require('./actions/sceneActions').createScene;
-var addPipeline = require('./actions/pipelineActions').addPipeline;
 
 store.dispatch(createScene({
   width: 600,
   height: 600
-}));
-
-store.dispatch(addPipeline({
-  name: 'cars'
-}, {
-  name: 'cars.json',
-  url:  '/data/cars.json'
-}));
-
-store.dispatch(addPipeline({
-  name: 'jobs'
-}, {
-  name: 'jobs.json',
-  url:  '/data/jobs.json'
-}));
-
-store.dispatch(addPipeline({
-  name: 'gapminder'
-}, {
-  name: 'gapminder.json',
-  url:  '/data/gapminder.json'
 }));
 
 require('./components');
