@@ -51,3 +51,5 @@ store.dispatch(addPipeline({
 }));
 
 require('./components');
+
+store.dispatch(require('redux-undo').ActionCreators.clearHistory());

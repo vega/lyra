@@ -31,6 +31,7 @@
         padding-right: $inner-padding;
 
         &.undo, &.redo { padding-right: 0; }
+        &.grey { fill: #777; }
       }
 
       ul {

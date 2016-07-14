@@ -5,8 +5,12 @@ var React = require('react'),
     assets = require('../../util/assets'),
     Icon = require('../Icon');
 
-function mapStateToProps() {
-  return {};
+function mapStateToProps(state) {
+  var vis = state.get('vis');
+  return {
+    canUndo: vis.past.length > 0,
+    canRedo: vis.future.length > 0
+  };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -22,6 +26,8 @@ function mapDispatchToProps(dispatch) {
 
 var UndoRedo = React.createClass({
   propTypes: {
+    canUndo: React.PropTypes.bool.isRequired,
+    canRedo: React.PropTypes.bool.isRequired,
     undo: React.PropTypes.func.isRequired,
     redo: React.PropTypes.func.isRequired,
   },
@@ -31,11 +37,13 @@ var UndoRedo = React.createClass({
     return (
       <ul>
         <li onClick={props.undo}>
-          <Icon glyph={assets.undo} className="undo" width="12" height="12" />
+          <Icon glyph={assets.undo} className={'undo' + (!props.canUndo ? ' grey' : '')}
+            width="12" height="12" />
         </li>
 
         <li onClick={props.redo}>
-          <Icon glyph={assets.redo} className="redo" width="12" height="12" />
+          <Icon glyph={assets.redo} className={'redo' + (!props.canRedo ? ' grey' : '')}
+            width="12" height="12" />
         </li>
       </ul>
     );
