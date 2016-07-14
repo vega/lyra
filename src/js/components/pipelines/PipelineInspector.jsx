@@ -10,10 +10,9 @@ var React = require('react'),
     Immutable = require('immutable');
 
 function mapStateToProps(state, ownProps) {
-  var id = ownProps.id;
   return {
-    isSelected: getIn(state, 'inspector.pipelines.selectedId') === id,
-    pipeline: getIn(state, 'pipelines.' + id)
+    isSelected: getIn(state, 'inspector.pipelines.selectedId') === ownProps.id,
+    pipeline: getIn(state, 'pipelines.' + ownProps.id)
   };
 }
 
@@ -41,7 +40,7 @@ var PipelineInspector = React.createClass({
         inner = (<span></span>);
 
     function updatePipelineName(val) {
-      // TODO write a action to update a pipeline name (include id of course)
+      // TODO write an action to update a pipeline name (include id of course)
       pipeline.name = val;
     }
 

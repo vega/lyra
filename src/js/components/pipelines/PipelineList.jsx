@@ -5,6 +5,8 @@ var React = require('react'),
     getIn = require('../../util/immutable-utils').getIn,
     PipelineInspector = require('./PipelineInspector');
 
+// TODO: pass pipeline prop from PipelineSidebar, ergo delegating control over which
+// datasets get loaded to the Modal in PipeLinesSidebar
 function mapStateToProps(reduxState) {
   return {
     pipelines: getIn(reduxState, 'pipelines')

@@ -133,3 +133,11 @@ $pipeline-width: 180px;
     }
   }
 }
+
+.pipelineModal {
+  .partLeft,
+  .partRight {
+    width: 50%;
+    float: left;
+  }
+}
