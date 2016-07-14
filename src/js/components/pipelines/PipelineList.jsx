@@ -15,9 +15,12 @@ function mapStateToProps(reduxState) {
 
 var PipelineList = React.createClass({
   propTypes: {
+    pipelineKeys: React.PropTypes.array,
     pipelines: React.PropTypes.instanceOf(Immutable.Map)
   },
-
+  componentWillReceiveProps: function(props) {
+    console.log(props.pipelineKeys);
+  },
   render: function() {
     var pipelines = this.props.pipelines.keySeq().toArray();
 
