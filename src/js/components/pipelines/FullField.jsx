@@ -51,19 +51,8 @@ var FullField = React.createClass({
       this.$fullField = el.select('.full.field');
     },
 
-    showFullField: function(evt) {
-      var target = evt.target,
-      name = target.textContent,
-      schema = dsUtil.schema(this.props.id);
-
-      this.hideFull(evt);
-      this.setState({fullField: schema[name]});
-      this.$fullField.style('display', 'block')
-      .style('top', target.offsetTop);
-    },
-
     hideFull: function(evt) {
-        his.setState({
+        this.setState({
             name : null,
             type : null,
             mtype: null

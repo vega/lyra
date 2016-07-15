@@ -67,12 +67,14 @@ var DataTable = React.createClass({
   },
 
   showFullField: function(evt) {
-   var fullField = FullField;
-   this.hideFull(evt);
-   this.setState({fullField: fullField});
-   this.$fullField.style('display', 'block')
-     .style('top', target.offsetTop);
- },
+      var target = evt.target,
+          name = target.textContent,
+          schema = dsUtil.schema(this.props.id);
+
+      this.setState({fullField : schema[name]});
+      this.$fullField.style('display', 'block')
+      .style('top', target.offsetTop);
+  },
 
   showFullValue: function(evt) {
     var target = d3.select(evt.target),
