@@ -65,6 +65,32 @@ function getParentGroupIds(markId) {
 }
 
 /**
+ * Find the ID of the nearest group or scene which is or contains the provided
+ * primitive mark ID.
+ *
+ * @param {number} id - A numeric primitive ID
+ * @returns {number|null} The ID of the nearest group or scene, if found, or null
+ * if the mark is invalid or there was no group or scene ancestor available
+ */
+function getClosestGroupId(id) {
+  var state = store.getState(),
+      markState = getInVis(state, 'marks.' + id),
+      mark = markState && markState.toJS();
+
+  if (!mark) {
+    return getInVis(state, 'scene.id');
+  }
+
+  // If mark is a group or scene, return it as-is
+  if (mark.type === 'group' || mark.type === 'scene') {
+    return mark._id;
+  }
+
+  // If mark is not a group or scene, but exists, check its parents
+  return getClosestGroupId(mark._parent);
+}
+
+/**
  * Given a Vega scene graph root node and an array representing the path to a
  * desired item, walk the scene graph to find that desired item and return its
  * Vega scene graph representation.
@@ -100,5 +126,6 @@ module.exports = {
   getParentGroupIds: getParentGroupIds,
   getParents: getParents,
   getGroupIds: getGroupIds,
+  getClosestGroupId: getClosestGroupId,
   findInItemTree: findInItemTree
 };

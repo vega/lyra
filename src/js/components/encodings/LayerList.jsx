@@ -5,7 +5,7 @@ var React = require('react'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
-    getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
+    getClosestGroupId = require('../../util/hierarchy').getClosestGroupId,
     Mark = require('../../store/factory/Mark'),
     addMark = require('../../actions/markActions').addMark,
     inspectorActions = require('../../actions/inspectorActions'),
@@ -24,7 +24,7 @@ function mapStateToProps(reduxState) {
   // Closest container is determined by walking up from the selected mark,
   // otherwise it defaults to the scene itself
   closestContainerId = selectedMarkId ?
-    getClosestGroupId(reduxState, selectedMarkId) :
+    getClosestGroupId(selectedMarkId) :
     sceneId;
 
   return {

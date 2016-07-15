@@ -73,7 +73,7 @@ describe('Property Inspector <Property/>', function() {
         primitive={primitive}
       />, {
         context: {
-          store: mockStore(Immutable.Map())
+          store: mockStore(Immutable.Map({vis: {present: Immutable.Map()}}))
         }
       });
       inputNode = wrapper.find('input[type="range"]').node;

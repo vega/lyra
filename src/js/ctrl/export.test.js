@@ -7,6 +7,13 @@ var expect = require('chai').expect,
     dsUtil = require('../util/dataset-utils'),
     exporter = require('./export');
 
+/* eslint new-cap:0 */
+function historyWrap(map) {
+  return Immutable.Map({
+    vis: {present: map}
+  });
+}
+
 describe('Exporter Utility', function() {
   beforeEach(function() {
     counter.reset();
@@ -49,7 +56,7 @@ describe('Exporter Utility', function() {
       ]
     };
 
-    var imstate = Immutable.fromJS(state);
+    var imstate = historyWrap(Immutable.fromJS(state));
 
     beforeEach(function() {
       dsUtil.init({
@@ -113,11 +120,11 @@ describe('Exporter Utility', function() {
 
   describe('Marks', function() {
     function store(mark) {
-      return Immutable.fromJS({
+      return historyWrap(Immutable.fromJS({
         datasets: {'1': {name: 'cars dataset'}},
         scales: {'2': {name: 'x scale'}, '3': {name: 'y scale'}},
         marks: mark
-      });
+      }));
     }
 
     it('exports from dataset', function() {
@@ -305,10 +312,10 @@ describe('Exporter Utility', function() {
 
   describe('Scales', function() {
     function store(scale) {
-      return Immutable.fromJS({
+      return historyWrap(Immutable.fromJS({
         datasets: {'1': {name: 'cars dataset'}},
         scales: scale
-      });
+      }));
     }
 
     it('exports scales with a literal domain', function() {
@@ -365,7 +372,7 @@ describe('Exporter Utility', function() {
   });
 
   describe('Group Marks', function() {
-    var state = Immutable.fromJS({
+    var state = historyWrap(Immutable.fromJS({
       datasets: {'1': {name: 'cars dataset'}},
       scales: {
         '2': {name: 'x scale', _domain: [{data: '1', field: 'MPG'}]},
@@ -408,7 +415,7 @@ describe('Exporter Utility', function() {
           }
         }
       }
-    });
+    }));
 
     signal.init('lyra_rect_4_y2', 25);
     signal.init('lyra_rect_4_fill', '#00FF00');
@@ -452,7 +459,8 @@ describe('Exporter Utility', function() {
     });
 
     it('exports the scene', function() {
-      state = state.mergeDeep({
+      state = state.get('vis').present;
+      state = historyWrap(state.mergeDeep({
         scene: {id: 4},
         marks: {
           '4': {
@@ -460,7 +468,7 @@ describe('Exporter Utility', function() {
             height: {signal: 'lyra_vis_height'}
           }
         }
-      });
+      }));
 
       signal.init('vis_width', 200);
       signal.init('vis_height', 300);
