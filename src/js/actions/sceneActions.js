@@ -4,6 +4,9 @@ var dl = require('datalib'),
     counter = require('../util/counter'),
     getInVis = require('../util/immutable-utils').getInVis,
     deleteMark = require('./markActions').deleteMark,
+    historyActions = require('./historyActions'),
+    startBatch = historyActions.startBatch,
+    endBatch = historyActions.endBatch,
     Mark = require('../store/factory/Mark'),
     CREATE_SCENE = 'CREATE_SCENE';
 
@@ -44,9 +47,13 @@ function clearScene() {
         sceneId = getInVis(state, 'scene.id'),
         sceneChildren = getInVis(state, 'marks.' + sceneId + '.marks').toJS();
 
+    dispatch(startBatch());
+
     sceneChildren.forEach(function(childId) {
       dispatch(deleteMark(childId));
     });
+
+    dispatch(endBatch());
   };
 }
 

@@ -1,7 +1,6 @@
 'use strict';
 var combineReducers = require('redux-immutable').combineReducers,
-    undoable = require('redux-undo').default,
-    historyCfg = require('../util/history-utils').config;
+    undoable = require('./historyReducer');
 
 // order matters here
 module.exports = combineReducers({
@@ -13,7 +12,7 @@ module.exports = combineReducers({
     scales: require('./scalesReducer'),
     guides: require('./guidesReducer'),
     marks: require('./marksReducer')
-  }), historyCfg),
+  })),
   vega: require('./vegaReducer'),
   inspector: require('./inspectorReducer'),
   hints: require('./hintsReducer'),

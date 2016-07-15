@@ -1,7 +1,9 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    History = require('redux-undo').ActionCreators,
+    historyActions = require('../../actions/historyActions'),
+    undo = historyActions.undo,
+    redo = historyActions.redo,
     assets = require('../../util/assets'),
     Icon = require('../Icon');
 
@@ -16,10 +18,10 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     undo: function() {
-      dispatch(History.undo());
+      dispatch(undo());
     },
     redo: function() {
-      dispatch(History.redo());
+      dispatch(redo());
     }
   };
 }

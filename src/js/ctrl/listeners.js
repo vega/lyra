@@ -1,5 +1,7 @@
 'use strict';
-var History = require('redux-undo').ActionCreators,
+var historyActions = require('../actions/historyActions'),
+    undo = historyActions.undo,
+    redo = historyActions.redo,
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
     getIn = require('../util/immutable-utils').getIn,
@@ -144,12 +146,12 @@ function handleHistory(evt) {
 
   if (!testInput(evt) && evt.metaKey === true || evt.ctrlKey === true) { // Command or Ctrl
     if (keyCode === 89) { // Y
-      store.dispatch(History.redo());
+      store.dispatch(redo());
       evt.preventDefault();
       return false;
     } else if (keyCode === 90) {  // Z
       // special case (CMD-SHIFT-Z) does a redo on a mac
-      store.dispatch(evt.shiftKey ? History.redo() : History.undo());
+      store.dispatch(evt.shiftKey ? redo() : undo());
       evt.preventDefault();
       return false;
     }

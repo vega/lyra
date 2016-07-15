@@ -3,6 +3,9 @@
 var dl = require('datalib'),
     counter  = require('../util/counter'),
     getInVis = require('../util/immutable-utils').getInVis,
+    historyActions = require('./historyActions'),
+    startBatch = historyActions.startBatch,
+    endBatch = historyActions.endBatch,
     Mark = require('../store/factory/Mark'),
     ADD_MARK = 'ADD_MARK',
     DELETE_MARK = 'DELETE_MARK',
@@ -47,6 +50,8 @@ function deleteMark(id) {
   return function(dispatch, getState) {
     var mark = getInVis(getState(), 'marks.' + id).toJS();
 
+    dispatch(startBatch());
+
     if (mark.marks && mark.marks.length) {
       mark.marks.forEach(function(childId) {
         dispatch(deleteMark(childId));
@@ -60,6 +65,8 @@ function deleteMark(id) {
       markId: mark._id,
       markType: mark.type
     });
+
+    dispatch(endBatch());
   };
 }
 
