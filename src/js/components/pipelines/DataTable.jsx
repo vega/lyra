@@ -149,7 +149,7 @@ var DataTable = React.createClass({
           </tbody></table>
 
 
-      <FullField id={this.props.id} className={this.props.className}></FullField>
+          <FullField id={this.props.id} className={this.props.className}></FullField>
 
           <div className="full value">{fullValue}</div>
         </div>
