@@ -38,14 +38,12 @@ var UndoRedo = React.createClass({
     var props = this.props;
     return (
       <ul>
-        <li onClick={props.undo}>
-          <Icon glyph={assets.undo} className={'undo' + (!props.canUndo ? ' grey' : '')}
-            width="12" height="12" />
+        <li onClick={props.undo} className={!props.canUndo ? 'grey' : ''}>
+          <Icon glyph={assets.undo} className="undo" width="12" height="12" />
         </li>
 
-        <li onClick={props.redo}>
-          <Icon glyph={assets.redo} className={'redo' + (!props.canRedo ? ' grey' : '')}
-            width="12" height="12" />
+        <li onClick={props.redo} className={!props.canRedo ? 'grey' : ''}>
+          <Icon glyph={assets.redo} className="redo" width="12" height="12" />
         </li>
       </ul>
     );

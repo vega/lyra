@@ -55,18 +55,16 @@ var GuideInspector = React.createClass({
             type="select" />
 
           <MoreProperties label="Axis">
-            <Property name="properties.axis.stroke.value"
+            <Property name="properties.axis.stroke"
               label="Color"
               primType="guides"
               primitive={primitive}
-              onChange={this.handleChange}
               type="color" />
 
-            <Property name="properties.axis.strokeWidth.value"
+            <Property name="properties.axis.strokeWidth"
               label="Width"
               primType="guides"
               primitive={primitive}
-              onChange={this.handleChange}
               type="range"
               min="0"
               max="10"
@@ -84,19 +82,17 @@ var GuideInspector = React.createClass({
             onChange={this.handleChange}
             type="text" />
 
-          <Property name="properties.title.fontSize.value"
+          <Property name="properties.title.fontSize"
             label="Font Size"
             primType="guides"
             primitive={primitive}
-            onChange={this.handleChange}
             type="number" />
 
           <MoreProperties label="Title">
-            <Property name="properties.title.fill.value"
+            <Property name="properties.title.fill"
               label="Color"
               primType="guides"
               primitive={primitive}
-              onChange={this.handleChange}
               type="color" />
 
             <Property name="titleOffset"
@@ -111,26 +107,23 @@ var GuideInspector = React.createClass({
         <div className="property-group">
           <h3>Labels</h3>
 
-          <Property name="properties.labels.fontSize.value"
+          <Property name="properties.labels.fontSize"
             label="Font Size"
             primType="guides"
             primitive={primitive}
-            onChange={this.handleChange}
             type="number" />
 
-          <Property name="properties.labels.angle.value"
+          <Property name="properties.labels.angle"
             label="Angle" min="0" max="360"
             primType="guides"
             primitive={primitive}
-            onChange={this.handleChange}
             type="number" />
 
           <MoreProperties label="Label">
-            <Property name="properties.labels.fill.value"
+            <Property name="properties.labels.fill"
               label="Fill"
               primType="guides"
               primitive={primitive}
-              onChange={this.handleChange}
               type="color" />
           </MoreProperties>
         </div>
@@ -154,18 +147,16 @@ var GuideInspector = React.createClass({
             type="select" />
 
           <MoreProperties label="Grid">
-            <Property name="properties.grid.stroke.value"
+            <Property name="properties.grid.stroke"
               label="Color"
               primType="guides"
               primitive={primitive}
-              onChange={this.handleChange}
               type="color" />
 
-            <Property name="properties.grid.strokeWidth.value"
+            <Property name="properties.grid.strokeWidth"
               label="Width"
               primType="guides"
               primitive={primitive}
-              onChange={this.handleChange}
               type="range"
               min="0"
               max="10"
@@ -182,18 +173,16 @@ var GuideInspector = React.createClass({
               onChange={this.handleChange}
               type="number" />
 
-            <Property name="properties.ticks.stroke.value"
+            <Property name="properties.ticks.stroke"
               label="Color"
               primType="guides"
               primitive={primitive}
-              onChange={this.handleChange}
               type="color" />
 
-            <Property name="properties.ticks.strokeWidth.value"
+            <Property name="properties.ticks.strokeWidth"
               label="Width"
               primType="guides"
               primitive={primitive}
-              onChange={this.handleChange}
               type="range"
               min="0"
               max="10"

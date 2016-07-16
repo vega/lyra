@@ -144,7 +144,7 @@ describe('marks reducer', function() {
     it('nulls out the mark in the store', function() {
       var result = marksReducer(initialState, {
         type: actions.DELETE_MARK,
-        markId: 4,
+        id: 4,
         markType: 'symbol'
       });
       expect(result.get('4')).to.equal(undefined);
@@ -153,7 +153,7 @@ describe('marks reducer', function() {
     it('removes the mark from its parent\'s marks array', function() {
       var result = marksReducer(initialState, {
         type: actions.DELETE_MARK,
-        markId: 4,
+        id: 4,
         markType: 'symbol'
       });
       expect(result.get('2').toJS().marks).to.deep.equal([]);
