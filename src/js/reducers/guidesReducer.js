@@ -1,12 +1,26 @@
 /* eslint new-cap:0 */
 'use strict';
 
-var Immutable = require('immutable'),
+var dl = require('datalib'),
+    Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
+    convertValuesToSignals = require('../util/prop-signal').convertValuesToSignals,
     immutableUtils = require('../util/immutable-utils'),
     set = immutableUtils.set,
     setIn = immutableUtils.setIn,
     deleteKeyFromMap = immutableUtils.deleteKeyFromMap;
+
+function makeGuide(action) {
+  var def = action.props,
+      props = def.properties;
+
+  return Immutable.fromJS(dl.extend({}, def, {
+    properties: Object.keys(props).reduce(function(converted, name) {
+      converted[name] = convertValuesToSignals(props[name], 'guide', action.id, name);
+      return converted;
+    }, {})
+  }));
+}
 
 function guideReducer(state, action) {
   if (typeof state === 'undefined') {
@@ -14,7 +28,7 @@ function guideReducer(state, action) {
   }
 
   if (action.type === ACTIONS.ADD_GUIDE) {
-    return set(state, action.id, Immutable.fromJS(action.props));
+    return set(state, action.id, makeGuide(action));
   }
 
   if (action.type === ACTIONS.DELETE_GUIDE) {

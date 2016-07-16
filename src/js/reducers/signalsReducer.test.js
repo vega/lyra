@@ -176,7 +176,7 @@ describe('signals reducer', function() {
     it('removes all signals matching the provided mark type and ID', function() {
       var result = signalsReducer(initialState, {
         type: actions.DELETE_MARK,
-        markId: 1,
+        id: 1,
         markType: 'symbol'
       });
       expect(Object.keys(result.toJS()).sort()).to.not.include.members([
@@ -189,7 +189,7 @@ describe('signals reducer', function() {
     it('does not remove any signals if no matching signal names are found', function() {
       var result = signalsReducer(initialState, {
         type: actions.DELETE_MARK,
-        markId: 1000,
+        id: 1000,
         markType: 'snake'
       });
       expect(Object.keys(result.toJS()).sort()).to.include.members([

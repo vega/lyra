@@ -27,13 +27,6 @@
       display: flex;
       cursor: pointer;
 
-      .icon {
-        padding-right: $inner-padding;
-
-        &.undo, &.redo { padding-right: 0; }
-        &.grey { fill: #777; }
-      }
-
       ul {
         visibility: hidden;
         position: absolute;
@@ -55,6 +48,19 @@
         background-color: $lblue-bg;
 
         ul { visibility: visible; }
+      }
+
+      .icon {
+        padding-right: $inner-padding;
+
+        &.undo, &.redo { padding-right: 0; }
+      }
+
+      &.grey {
+        cursor: default;
+
+        .icon { fill: #777; }
+        &:hover { background-color: transparent; }
       }
 
       @include breakingMenus {

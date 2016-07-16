@@ -62,7 +62,7 @@ function deleteMark(id) {
       type: DELETE_MARK,
       // ID and Type are needed to clear up all the mark's signals, as those are
       // the values used to create a signal's identifying name.
-      markId: mark._id,
+      id: mark._id,
       markType: mark.type
     });
 

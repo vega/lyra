@@ -15,57 +15,18 @@ var dl = require('datalib'),
     ensureValuePresent = immutableUtils.ensureValuePresent,
     ensureValueAbsent = immutableUtils.ensureValueAbsent;
 
-// Helper function to iterate over a mark's .properties hash and convert any .value-
-// based property definitions into appropriate signal references.
-// "properties" is the properties hash from the dispatched action; "type" is a string
-// type; and "id" is a numeric mark ID (type and ID are used to create the name of
-// the signal that will be referenced in place of values in the properties hash).
-function convertValuesToSignals(properties, type, id) {
-  var updateProps = properties && properties.update;
-
-  if (!updateProps) {
-    // No property values to initialize as signals; return properties as-is
-    return properties;
-  }
-
-  // Reduce the properties into a new object with all values replaced by signal
-  // references: iterate over all of the `properties.update`'s keys. For each property,
-  // replace any declared .value with a signal reference pointing at the signal which
-  // will represent that property (which should exist if the mark was instantiated
-  // properly via the addMark store action).
-  return dl.extend({}, properties, {
-    update: Object.keys(updateProps).reduce(function(selection, key) {
-      if (selection[key] === undefined || selection[key].value === undefined) {
-        return selection;
-      }
-
-      // Replace `{value: '??'}` property definition with a ref to its controlling
-      // signal, and ensure that _disabled flags are set properly if present
-      selection[key] = dl.extend({
-        signal: propSg(id, type, key)
-      }, selection[key]._disabled ? {_disabled: true} : {});
-
-      return selection;
-    }, dl.extend({}, updateProps))
-  });
-}
-
 // Helper reducer to add a mark to the store. Runs the mark through a method to
 // convert property values into signal references before setting the mark
 // within the store.
 // "state" is the marks store state; "action" is an object with a numeric
 // `._id`, string `.name`, and object `.props` defining the mark to be created.
 function makeMark(action) {
-  return Object.keys(action.props).reduce(function(mark, key) {
-    if (key === 'properties') {
-      return set(mark, key, Immutable.fromJS(
-        convertValuesToSignals(action.props[key], action.props.type, action.id))
-      );
+  var def = action.props,
+      props = def.properties && def.properties.update;
+  return Immutable.fromJS(dl.extend({}, def, {
+    properties: {
+      update: propSg.convertValuesToSignals(props, def.type, action.id)
     }
-    return set(mark, key, Immutable.fromJS(action.props[key]));
-  }, Immutable.Map({
-    _id: action.id,
-    name: action.name
   }));
 }
 
@@ -198,9 +159,9 @@ function marksReducer(state, action) {
 
   if (action.type === ACTIONS.DELETE_MARK) {
     return deleteKeyFromMap(setParentMark(state, {
-      childId: action.markId,
+      childId: action.id,
       parentId: null
-    }), action.markId);
+    }), action.id);
   }
 
   if (action.type === ACTIONS.SET_PARENT_MARK) {

@@ -3,7 +3,7 @@
 
 var Immutable = require('immutable'),
     ns = require('../util/ns'),
-    actions = require('../actions/Names'),
+    ACTIONS = require('../actions/Names'),
     propSg = require('../util/prop-signal'),
     setIn = require('../util/immutable-utils').setIn;
 
@@ -22,30 +22,32 @@ function setStreams(state, action) {
 }
 
 // Initialize signals for any of the mark's properties that are defined with a .value
-function initSignalsForMark(state, action) {
-  var updateProps = action.props.properties && action.props.properties.update;
-
-  if (!updateProps) {
+function initSignalsForMark(state, action, props, propName) {
+  if (!props) {
     // No property values to initialize as signals; return state as-is
     return state;
   }
 
   /* eslint no-shadow:0 */
   // Initialize a signal to hold any specified update property values
-  return Object.keys(updateProps).reduce(function(state, propName) {
-    if (typeof updateProps[propName].value === 'undefined') {
+  return Object.keys(props).reduce(function(state, key) {
+    if (typeof props[key].value === 'undefined') {
       return state;
     }
 
-    var signalName = propSg(action.id, action.props.type, propName);
+    var type = action.type === ACTIONS.ADD_GUIDE ? 'guide' : action.props.type,
+        name = action.type === ACTIONS.ADD_GUIDE ? propName + '_' + key : key,
+        signalName = propSg(action.id, type, name),
+        streams = action.streams;
+
     var intermediateState = signalInit(state, {
       signal: signalName,
-      value: updateProps[propName].value
+      value: props[key].value
     });
 
-    return action.streams[signalName] ? setStreams(intermediateState, {
+    return streams && streams[signalName] ? setStreams(intermediateState, {
       signal: signalName,
-      value: action.streams[signalName]
+      value: streams[signalName]
     }) : intermediateState;
   }, state);
 }
@@ -55,7 +57,8 @@ function deleteSignalsForMark(state, action) {
   // Create a regular expression which will match any signal that was created
   // for this mark (this works because signal names take a predictable form,
   // using the prop-signal module)
-  var markSignalRegex = new RegExp('^' + ns(action.markType + '_' + action.markId));
+  var markType = action.markType || 'guide',
+      markSignalRegex = new RegExp('^' + ns(markType + '_' + action.id));
   return state.filter(function(value, key) {
     return !markSignalRegex.test(key);
   });
@@ -67,11 +70,23 @@ function signalsReducer(state, action) {
     return Immutable.Map();
   }
 
-  if (action.type === actions.ADD_MARK) {
-    return initSignalsForMark(state, action);
+  if (action.type === ACTIONS.INIT_SIGNAL) {
+    return signalInit(state, action);
   }
 
-  if (action.type === actions.CREATE_SCENE) {
+  if (action.type === ACTIONS.SET_SIGNAL) {
+    return setIn(state, action.signal + '.init', action.value);
+  }
+
+  if (action.type === ACTIONS.SET_SIGNAL_STREAMS) {
+    return setStreams(state, action);
+  }
+
+  if (action.type === ACTIONS.UNSET_SIGNAL) {
+    return state.delete(action.signal);
+  }
+
+  if (action.type === ACTIONS.CREATE_SCENE) {
     // Initialize the visualization width & height from the scene
     return signalInit(signalInit(state, {
       signal: ns('vis_width'),
@@ -82,23 +97,25 @@ function signalsReducer(state, action) {
     });
   }
 
-  if (action.type === actions.INIT_SIGNAL) {
-    return signalInit(state, action);
+  if (action.type === ACTIONS.ADD_MARK) {
+    return initSignalsForMark(state, action,
+      action.props.properties && action.props.properties.update);
   }
 
-  if (action.type === actions.SET_SIGNAL) {
-    return setIn(state, action.signal + '.init', action.value);
+  if (action.type === ACTIONS.ADD_GUIDE) {
+    var props = action.props.properties;
+    state = initSignalsForMark(state, action, props.ticks, 'ticks');
+    state = initSignalsForMark(state, action, props.title, 'title');
+    state = initSignalsForMark(state, action, props.labels, 'labels');
+    state = initSignalsForMark(state, action, props.symbols, 'symbols');
+    state = initSignalsForMark(state, action, props.gradient, 'gradient');
+    state = initSignalsForMark(state, action, props.axis, 'axis');
+    state = initSignalsForMark(state, action, props.legend, 'legend');
+    return state;
   }
 
-  if (action.type === actions.SET_SIGNAL_STREAMS) {
-    return setStreams(state, action);
-  }
-
-  if (action.type === actions.UNSET_SIGNAL) {
-    return state.delete(action.signal);
-  }
-
-  if (action.type === actions.DELETE_MARK) {
+  if (action.type === ACTIONS.DELETE_MARK ||
+      action.type === ACTIONS.DELETE_GUIDE) {
     return deleteSignalsForMark(state, action);
   }
 

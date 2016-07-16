@@ -1,7 +1,9 @@
 'use strict';
 
 var store = require('../store'),
-    getInVis = require('./immutable-utils').getInVis;
+    imutils = require('./immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis;
 
 /**
  * Find the parent item for a given mark.
@@ -74,7 +76,8 @@ function getParentGroupIds(markId) {
  */
 function getClosestGroupId(id) {
   var state = store.getState(),
-      markState = getInVis(state, 'marks.' + id),
+      markId = id || getIn(state, 'inspector.encodings.selectedId'),
+      markState = getInVis(state, 'marks.' + markId),
       mark = markState && markState.toJS();
 
   if (!mark) {
