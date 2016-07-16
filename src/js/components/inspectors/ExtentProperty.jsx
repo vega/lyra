@@ -1,95 +1,78 @@
 'use strict';
 var dl = require('datalib'),
     React = require('react'),
+    connect = require('react-redux').connect,
     Property = require('./Property'),
     SpatialPreset = require('./SpatialPreset'),
-    addVegaReparseRequest = require('../mixins/addVegaReparseRequest');
+    setMarkExtent = require('../../actions/markActions').setMarkExtent,
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
+    MARK_EXTENTS = require('../../constants/markExtents');
 
-var EXTENTS = {
-  x: {
-    start: {name: 'x', label: 'Left'},
-    center: {name: 'xc', label: 'Center'},
-    span: {name: 'width', label: 'Width'},
-    end: {name: 'x2', label: 'Right'}
-  },
-  y: {
-    start: {name: 'y', label: 'Top'},
-    center: {name: 'yc', label: 'Middle'},
-    span: {name: 'height', label: 'Height'},
-    end: {name: 'y2', label: 'Bottom'}
-  }
-};
+function mapStateToProps(state, ownProps) {
+  var type = ownProps.type,
+      primId = ownProps.primitive._id,
+      mark = getInVis(state, 'marks.' + primId + '.properties.update'),
+      EXTENTS = dl.vals(MARK_EXTENTS[type]),
+      start, end;
+
+  EXTENTS.forEach(function(ext) {
+    var name = ext.name, prop = mark.get(name);
+    if (prop.get('_disabled')) {
+      return;
+    } else if (!start) {
+      start = name;
+    } else if (start !== name) {
+      end = name;
+    }
+  });
+
+  return {
+    start: start,
+    end: end,
+    startDisabled: getIn(mark, start + '.band') || getIn(mark, start + '.group'),
+    endDisabled: getIn(mark, end + '.band') || getIn(mark, end + '.group'),
+  };
+}
+
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    setExtent: function(oldExtent, newExtent) {
+      dispatch(setMarkExtent(ownProps.primitive._id, oldExtent, newExtent));
+    }
+  };
+}
 
 var ExtentProperty = React.createClass({
-
-  getInitialState: function() {
-    return this.extents();
-  },
-
-  componentWillReceiveProps: function() {
-    this.setState(this.extents());
-  },
-
-  extents: function() {
-    var props = this.props,
-        type = props.type,
-        primitive = props.primitive,
-        update = primitive.properties.update,
-        extents = dl.vals(EXTENTS[type]),
-        start, end;
-
-    extents.forEach(function(x) {
-      var name = x.name, prop = update[name];
-      if (prop._disabled) {
-        return;
-      } else if (!start) {
-        start = name;
-      } else if (start !== name) {
-        end = name;
-      }
-    });
-
-    return {start: start, end: end};
-  },
-
   handleChange: function(evt) {
     var props = this.props,
-        state = this.state,
         type = props.type,
-        primitive = props.primitive,
-        update = primitive.properties.update,
         target = evt.target,
         name = target.name,
-        value = target.value,
-        extents = EXTENTS[type],
-        center = extents.center.name,
-        span = extents.span.name,
-        old = state[name];
+        newExtent = target.value,
+        oldExtent = props[name],
+        EXTENTS = MARK_EXTENTS[type],
+        center = EXTENTS.CENTER.name,
+        span = EXTENTS.SPAN.name,
+        oldEnd = props.end;
 
-    update[old]._disabled = true;
-    update[value]._disabled = false;
-    state[name] = value;
+    props.setExtent(oldExtent, newExtent);
 
-    if (value === center && state.end !== span) {
-      update[state.end]._disabled = true;
-      update[span]._disabled = false;
-      state.end = span;
+    if (newExtent === center && oldEnd !== span) {
+      props.setExtent(oldEnd, span);
     }
-
-    this.requestVegaReparse();
   },
 
   render: function() {
-    var state = this.state,
-        props = this.props,
+    var props = this.props,
         type = props.type,
         primitive = props.primitive,
-        update = primitive.properties.update,
-        extents = EXTENTS[type],
-        center = extents.center.name,
-        span = extents.span.label,
-        opts = dl.vals(extents),
-        start = state.start, end = state.end;
+        EXTENTS = MARK_EXTENTS[type],
+        center = EXTENTS.CENTER.name,
+        span = EXTENTS.SPAN.label,
+        opts = dl.vals(EXTENTS),
+        start = props.start, end = props.end;
 
     return (
       <div>
@@ -99,7 +82,7 @@ var ExtentProperty = React.createClass({
           primitive={primitive}
           canDrop={true}
           firstChild={true}
-          disabled={update[start].band || update[start].group}>
+          disabled={props.startDisblaed}>
 
           <div className="label-long label">
             <select name="start" value={start} onChange={this.handleChange}>
@@ -122,7 +105,7 @@ var ExtentProperty = React.createClass({
           primitive={primitive}
           canDrop={true}
           firstChild={true}
-          disabled={update[end].band || update[end].group}>
+          disabled={props.endDisabled}>
 
           <br />
 
@@ -150,4 +133,4 @@ var ExtentProperty = React.createClass({
   }
 });
 
-module.exports = addVegaReparseRequest(ExtentProperty);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(ExtentProperty);

@@ -134,16 +134,7 @@ function marksReducer(state, action) {
     return new Immutable.Map();
   }
 
-  if (action.type === ACTIONS.ADD_MARK) {
-    // Make the mark and .set it at the provided ID, then pass it through a
-    // method that will check to see whether the mark needs to be added as
-    // a child of another mark
-    return setParentMark(set(state, action.id, makeMark(action)), {
-      type: ACTIONS.SET_PARENT_MARK,
-      parentId: action.props ? action.props._parent : null,
-      childId: action.id
-    });
-  }
+  var markId = action.id;
 
   if (action.type === ACTIONS.CREATE_SCENE) {
     // Set the scene, converting its width and height into their signal equivalents.
@@ -155,6 +146,17 @@ function marksReducer(state, action) {
         height: {signal: ns('vis_height')}
       })
     })));
+  }
+
+  if (action.type === ACTIONS.ADD_MARK) {
+    // Make the mark and .set it at the provided ID, then pass it through a
+    // method that will check to see whether the mark needs to be added as
+    // a child of another mark
+    return setParentMark(set(state, action.id, makeMark(action)), {
+      type: ACTIONS.SET_PARENT_MARK,
+      parentId: action.props ? action.props._parent : null,
+      childId: action.id
+    });
   }
 
   if (action.type === ACTIONS.DELETE_MARK) {
@@ -184,12 +186,17 @@ function marksReducer(state, action) {
   }
 
   if (action.type === ACTIONS.RESET_MARK_VISUAL) {
-    var markId = action.id,
-        markType = getIn(state, markId + '.type'),
+    var markType = getIn(state, markId + '.type'),
         property = action.property;
 
     return setIn(state, markId + '.properties.update.' + property,
         Immutable.fromJS({signal: propSg(markId, markType, property)}));
+  }
+
+  if (action.type === ACTIONS.SET_MARK_EXTENT) {
+    return setIn(setIn(state,
+      markId + '.properties.update.' + action.oldExtent + '._disabled', true),
+      markId + '.properties.update.' + action.newExtent + '._disabled', false);
   }
 
   if (action.type === ACTIONS.BIND_SCALE) {

@@ -15,7 +15,8 @@ var dl = require('datalib'),
     DISABLE_MARK_VISUAL = 'DISABLE_MARK_VISUAL',
     RESET_MARK_VISUAL = 'RESET_MARK_VISUAL',
     BIND_SCALE = 'BIND_SCALE',
-    BIND_FIELD = 'BIND_FIELD';
+    BIND_FIELD = 'BIND_FIELD',
+    SET_MARK_EXTENT = 'SET_MARK_EXTENT';
 
 /**
  * Action creator to create a new mark and add it to the store.
@@ -175,6 +176,23 @@ function bindField(id, field, property) {
   };
 }
 
+/**
+ * Action creator to set a rect mark's spatial extents.
+ *
+ * @param   {number} id         The ID of the mark to bind.
+ * @param   {string} oldExtent  The old extent being disabled.
+ * @param   {string} newExtent  The new extent being set.
+ * @returns {Object} The SET_MARK_EXTENT action object.
+ */
+function setMarkExtent(id, oldExtent, newExtent) {
+  return {
+    type: SET_MARK_EXTENT,
+    id: id,
+    oldExtent: oldExtent,
+    newExtent: newExtent
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_MARK: ADD_MARK,
@@ -186,6 +204,7 @@ module.exports = {
   RESET_MARK_VISUAL: RESET_MARK_VISUAL,
   BIND_SCALE: BIND_SCALE,
   BIND_FIELD: BIND_FIELD,
+  SET_MARK_EXTENT: SET_MARK_EXTENT,
 
   // Action Creators
   addMark: addMark,
@@ -196,5 +215,6 @@ module.exports = {
   disableMarkVisual: disableMarkVisual,
   resetMarkVisual: resetMarkVisual,
   bindScale: bindScale,
-  bindField: bindField
+  bindField: bindField,
+  setMarkExtent: setMarkExtent
 };
