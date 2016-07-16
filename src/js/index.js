@@ -9,10 +9,10 @@ require('string.prototype.startswith');
 require('./transforms');
 
 // Initialize the Redux store
-var store = require('./store');
+var store = global.store = require('./store');
 
 // Initialize the Model.
-var ctrl = require('./ctrl');
+var ctrl = global.ctrl = require('./ctrl');
 
 // Set up the listeners that connect the ctrl to the store
 var listeners = require('./store/listeners');
@@ -52,6 +52,4 @@ store.dispatch(addPipeline({
 
 require('./components');
 
-// Expose ctrl, store and Sidebars globally (via `window`) for debugging
-global.ctrl = ctrl;
-global.store = store;
+store.dispatch(require('./actions/historyActions').clearHistory());

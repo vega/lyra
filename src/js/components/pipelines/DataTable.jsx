@@ -8,7 +8,7 @@ var d3 = require('d3'),
     ctrl = require('../../ctrl'),
     addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
     sg = require('../../ctrl/signals'),
-    getIn = require('../../util/immutable-utils').getIn,
+    getInVis = require('../../util/immutable-utils').getInVis,
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
@@ -16,7 +16,7 @@ var d3 = require('d3'),
 
 function mapStateToProps(state, ownProps) {
   return {
-    dataset: getIn(state, 'datasets.' + ownProps.id)
+    dataset: getInVis(state, 'datasets.' + ownProps.id)
   };
 }
 

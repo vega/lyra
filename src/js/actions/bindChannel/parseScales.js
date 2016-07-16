@@ -1,7 +1,9 @@
 'use strict';
 
 var dl = require('datalib'),
-    getIn = require('../../util/immutable-utils').getIn,
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     Scale = require('../../store/factory/Scale'),
     addScale = require('../scaleActions').addScale,
     addScaleToGroup = require('./helperActions').addScaleToGroup;
@@ -26,7 +28,7 @@ module.exports = function(dispatch, state, parsed) {
       mark = parsed.mark,
       channel  = parsed.channel,
       markType = parsed.markType,
-      prev = getIn(state, 'scales.' + map[channel]),
+      prev = getInVis(state, 'scales.' + map[channel]),
       scaleId = prev && prev.get('_id'),
       def;
 
@@ -45,7 +47,7 @@ module.exports = function(dispatch, state, parsed) {
   // If no previous scale exists for this channel on this mark, try to find
   // a matching scale in Lyra.
   if (!prev) {
-    state.get('scales').valueSeq().forEach(function(scale) {
+    getInVis(state, 'scales').valueSeq().forEach(function(scale) {
       if (equals(state, markType, def, scale)) {
         prev = scale;
         scaleId = scale.get('_id');

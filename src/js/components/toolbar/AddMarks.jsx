@@ -1,10 +1,11 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    store = require('../../store'),
     Mark = require('../../store/factory/Mark'),
-    getIn = require('../../util/immutable-utils').getIn,
-    getClosestGroupId = require('../../util/store-utils').getClosestGroupId,
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
+    getClosestGroupId = require('../../util/hierarchy').getClosestGroupId,
     addMark = require('../../actions/markActions').addMark,
     assets = require('../../util/assets'),
     Icon = require('../Icon');
@@ -12,7 +13,7 @@ var React = require('react'),
 function mapStateToProps(reduxState) {
   return {
     selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
-    sceneId: getIn(reduxState, 'scene.id')
+    sceneId: getInVis(reduxState, 'scene.id')
   };
 }
 
@@ -40,7 +41,7 @@ var AddMarksTool = React.createClass({
   render: function() {
     // Closest container is determined by walking up from the selected mark,
     // otherwise it defaults to the scene itself
-    var closestContainerId = getClosestGroupId(store.getState(), this.props.selectedId);
+    var closestContainerId = getClosestGroupId(this.props.selectedId);
 
     return (
       <ul>

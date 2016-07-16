@@ -1,9 +1,8 @@
 /* eslint new-cap:0 */
 'use strict';
 
-var Immutable = require('immutable');
-
-var ACTIONS = require('../actions/Names');
+var Immutable = require('immutable'),
+    ACTIONS = require('../actions/Names');
 
 /**
  * This reducer handles whether to recreate the view from the lyra ctrl.
@@ -44,7 +43,9 @@ function invalidateVegaReducer(state, action) {
     ACTIONS.UPDATE_GUIDE_PROPERTY,
     ACTIONS.ADD_AXIS_TO_GROUP,
     ACTIONS.ADD_LEGEND_TO_GROUP,
-    ACTIONS.REMOVE_AXIS_FROM_GROUP
+    ACTIONS.REMOVE_AXIS_FROM_GROUP,
+    ACTIONS.UNDO, ACTIONS.REDO,
+    ACTIONS.JUMP_TO_FUTURE, ACTIONS.JUMP_TO_PAST
   ];
   if (invalidatingActions.indexOf(action.type) >= 0) {
     return state.set('invalid', true);

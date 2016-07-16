@@ -4,7 +4,9 @@ var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     DataTable = require('./DataTable'),
     selectPipeline = require('../../actions/inspectorActions').selectPipeline,
-    getIn = require('../../util/immutable-utils').getIn,
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
     Immutable = require('immutable');
@@ -13,7 +15,7 @@ function mapStateToProps(state, ownProps) {
   var id = ownProps.id;
   return {
     isSelected: getIn(state, 'inspector.pipelines.selectedId') === id,
-    pipeline: getIn(state, 'pipelines.' + id)
+    pipeline: getInVis(state, 'pipelines.' + id)
   };
 }
 

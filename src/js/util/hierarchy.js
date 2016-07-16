@@ -1,7 +1,7 @@
 'use strict';
 
 var store = require('../store'),
-    getIn = require('./immutable-utils').getIn;
+    getInVis = require('./immutable-utils').getInVis;
 
 /**
  * Find the parent item for a given mark.
@@ -10,7 +10,7 @@ var store = require('../store'),
  * @returns {ImmutableMap|null} The requested mark, if present, else null
  */
 function getParent(mark) {
-  return getIn(store.getState(), 'marks.' + mark.get('_parent')) || null;
+  return getInVis(store.getState(), 'marks.' + mark.get('_parent')) || null;
 }
 
 /**
@@ -61,7 +61,33 @@ function getGroupIds(primitives) {
  * @returns {number[]} An array of the (lyra) IDs of the primitive's parent layers.
  */
 function getParentGroupIds(markId) {
-  return getGroupIds(getParents(getIn(store.getState(), 'marks.' + markId)));
+  return getGroupIds(getParents(getInVis(store.getState(), 'marks.' + markId)));
+}
+
+/**
+ * Find the ID of the nearest group or scene which is or contains the provided
+ * primitive mark ID.
+ *
+ * @param {number} id - A numeric primitive ID
+ * @returns {number|null} The ID of the nearest group or scene, if found, or null
+ * if the mark is invalid or there was no group or scene ancestor available
+ */
+function getClosestGroupId(id) {
+  var state = store.getState(),
+      markState = getInVis(state, 'marks.' + id),
+      mark = markState && markState.toJS();
+
+  if (!mark) {
+    return getInVis(state, 'scene.id');
+  }
+
+  // If mark is a group or scene, return it as-is
+  if (mark.type === 'group' || mark.type === 'scene') {
+    return mark._id;
+  }
+
+  // If mark is not a group or scene, but exists, check its parents
+  return getClosestGroupId(mark._parent);
 }
 
 /**
@@ -100,5 +126,6 @@ module.exports = {
   getParentGroupIds: getParentGroupIds,
   getParents: getParents,
   getGroupIds: getGroupIds,
+  getClosestGroupId: getClosestGroupId,
   findInItemTree: findInItemTree
 };

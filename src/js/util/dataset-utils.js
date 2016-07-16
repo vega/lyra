@@ -3,8 +3,7 @@
 var dl = require('datalib'),
     vl = require('vega-lite'),
     promisify = require('es6-promisify'),
-    immutableUtils = require('./immutable-utils'),
-    getIn = immutableUtils.getIn,
+    getInVis = require('./immutable-utils').getInVis,
     initDataset = require('../actions/datasetActions').initDataset,
     MTYPES = vl.data.types;
 
@@ -14,7 +13,7 @@ function store() {
 }
 
 function def(id) {
-  return getIn(store().getState(), 'datasets.' + id).toJS();
+  return getInVis(store().getState(), 'datasets.' + id).toJS();
 }
 
 /**

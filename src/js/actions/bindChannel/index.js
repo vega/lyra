@@ -4,9 +4,12 @@ var dl = require('datalib'),
     vg = require('vega'),
     vl = require('vega-lite'),
     AGG_OPS = vg.transforms.aggregate.VALID_OPS,
-    getIn = require('../../util/immutable-utils').getIn,
+    getInVis = require('../../util/immutable-utils').getInVis,
     updateMarkProperty = require('../markActions').updateMarkProperty,
     dsUtils = require('../../util/dataset-utils'),
+    historyActions = require('../../actions/historyActions'),
+    startBatch = historyActions.startBatch,
+    endBatch = historyActions.endBatch,
     parseData = require('./parseData'),
     parseScales = require('./parseScales'),
     parseMarks  = require('./parseMarks'),
@@ -39,12 +42,16 @@ var CELLW = 517,
 function bindChannel(dsId, field, markId, property) {
   return function(dispatch, getState) {
     var state = getState(),
-        mark  = getIn(state, 'marks.' + markId),
+        mark  = getInVis(state, 'marks.' + markId),
         from  = mark.get('from'),
         markType = mark.get('type'),
         spec = vlSpec(markId, markType),
         mapping = map(markId),
         channel = channelName(property);
+
+    // Though we dispatch multiple actions, we want bindChannel to register as
+    // only a single state change to the history from the user's perspective.
+    dispatch(startBatch());
 
     if (from && (from.get('mark') || from.get('data') !== dsId)) {
       throw Error('Mark and field must be from the same pipeline.');
@@ -66,6 +73,8 @@ function bindChannel(dsId, field, markId, property) {
     parseScales(dispatch, state, parsed);
     parseMarks(dispatch, state, parsed);
     parseGuides(dispatch, state, parsed);
+
+    dispatch(endBatch());
   };
 }
 

@@ -22,6 +22,10 @@ function getIn(structure, pathStr) {
   return structure.getIn(pathToArr(pathStr));
 }
 
+function getInVis(state, pathStr) {
+  return getIn(state.get('vis').present, pathStr);
+}
+
 function setIn(structure, pathStr, value) {
   return structure.setIn(pathToArr(pathStr), value);
 }
@@ -110,6 +114,7 @@ module.exports = {
   get: get,
   set: set,
   getIn: getIn,
+  getInVis: getInVis,
   setIn: setIn,
   deleteKeyFromMap: deleteKeyFromMap,
   ensureValuePresent: ensureValuePresent,

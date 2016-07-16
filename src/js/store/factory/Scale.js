@@ -7,7 +7,7 @@ var names = {};
 function rename(name) {
   var count = 1, str = name;
   while (names[str]) {
-    str = name + ' ' + ++count;
+    str = name + '' + ++count;
   }
   return (names[str] = 1, str);
 }
