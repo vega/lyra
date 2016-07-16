@@ -17,11 +17,11 @@ function mapStateToProps(reduxState) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch, ownProps) {
   return {
-    addMark: function(type, parentId) {
+    addMark: function(type) {
       var newMarkProps = Mark(type, {
-        _parent: parentId
+        _parent: getClosestGroupId(ownProps.selectedId)
       });
       dispatch(addMark(newMarkProps));
     }
@@ -39,16 +39,12 @@ var AddMarksTool = React.createClass({
   },
   classNames: 'new-marks',
   render: function() {
-    // Closest container is determined by walking up from the selected mark,
-    // otherwise it defaults to the scene itself
-    var closestContainerId = getClosestGroupId(this.props.selectedId);
-
     return (
       <ul>
         {marksArray.map(function(markType, i) {
           return (
             <li key={markType}
-              onClick={this.props.addMark.bind(null, markType, closestContainerId)}>
+              onClick={this.props.addMark.bind(null, markType)}>
               <Icon glyph={assets[markType]} /> {markType}
             </li>
           );
