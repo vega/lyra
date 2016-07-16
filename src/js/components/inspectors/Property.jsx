@@ -2,6 +2,7 @@
 
 var React = require('react'),
     connect = require('react-redux').connect,
+    Immutable = require('immutable'),
     store = require('../../store'),
     SignalValue = require('../mixins/SignalValue'),
     imutils = require('../../util/immutable-utils'),
@@ -47,12 +48,15 @@ var Property = React.createClass({
   propTypes: {
     name: React.PropTypes.string.isRequired,
     label: React.PropTypes.string,
-    field: React.PropTypes.number,
-    group: React.PropTypes.number,
+    field: React.PropTypes.string,
+    group: React.PropTypes.string,
     scale: React.PropTypes.number,
     signal: React.PropTypes.string,
     onChange: React.PropTypes.func,
-    value: React.PropTypes.string || React.PropTypes.number,
+    value: React.PropTypes.oneOfType([
+      React.PropTypes.string, React.PropTypes.number,
+      React.PropTypes.instanceOf(Immutable.Map)
+    ]),
     resetMarkVisual: React.PropTypes.func
   },
 
@@ -103,7 +107,7 @@ var Property = React.createClass({
         case 'number':
           controlEl = (
             <input type="number"
-              value={!disabled && value}
+              value={!disabled ? value : ''}
               min={props.min} max={props.max}
               disabled={disabled}
               id={docId}
@@ -115,7 +119,7 @@ var Property = React.createClass({
           controlEl = (
             <div>
               <input type="range"
-                value={!disabled && value}
+                value={!disabled ? value : ''}
                 disabled={disabled}
                 min={props.min} max={props.max} step={props.step}
                 onChange={onChange}
@@ -127,7 +131,7 @@ var Property = React.createClass({
           controlEl = (
             <div>
               <input type="color"
-                value={!disabled && value}
+                value={!disabled ? value : ''}
                 disabled={disabled}
                 name={name}
                 onChange={onChange} />
@@ -161,7 +165,7 @@ var Property = React.createClass({
           controlEl = (
             <div>
               <input type="checkbox"
-                checked={!disabled && value}
+                checked={!disabled ? value : ''}
                 name={name}
                 onChange={onChange} />
             </div>
