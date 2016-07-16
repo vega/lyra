@@ -3,8 +3,9 @@
 
 var Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
-    immutableUtils = require('../util/immutable-utils'),
-    set = immutableUtils.set;
+    imutils = require('../util/immutable-utils'),
+    set = imutils.set,
+    setIn = imutils.setIn;
 
 /**
  * Main pipelines reducer function, which generates a new state for the
@@ -22,6 +23,11 @@ function pipelinesReducer(state, action) {
 
   if (action.type === ACTIONS.ADD_PIPELINE) {
     return set(state, action.id, Immutable.fromJS(action.props));
+  }
+
+  if (action.type === ACTIONS.UPDATE_PIPELINE_PROPERTY) {
+    return setIn(state, action.id + '.' + action.property,
+      Immutable.fromJS(action.value));
   }
 
   return state;

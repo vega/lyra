@@ -4,6 +4,7 @@ var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     DataTable = require('./DataTable'),
     selectPipeline = require('../../actions/inspectorActions').selectPipeline,
+    updatePipeline = require('../../actions/pipelineActions').updatePipelineProperty,
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
@@ -23,6 +24,9 @@ function mapDispatchToProps(dispatch) {
   return {
     selectPipeline: function(id) {
       dispatch(selectPipeline(id));
+    },
+    updateProperty: function(id, prop, val) {
+      dispatch(updatePipeline(id, prop, val));
     }
   };
 }
@@ -42,11 +46,6 @@ var PipelineInspector = React.createClass({
         name = pipeline.name,
         inner = (<span></span>);
 
-    function updatePipelineName(val) {
-      // TODO write a action to update a pipeline name (include id of course)
-      pipeline.name = val;
-    }
-
     // TODO do not rely on global primitives. Datasets should be in store.
     if (props.isSelected) {
       inner = (
@@ -61,7 +60,7 @@ var PipelineInspector = React.createClass({
       <div className={'pipeline' + (props.isSelected ? ' selected' : '')}>
         <ContentEditable className="header"
           value={name}
-          save={updatePipelineName}
+          save={props.updateProperty.bind(this, id, 'name')}
           onClick={props.selectPipeline.bind(null, id)} />
         {inner}
       </div>

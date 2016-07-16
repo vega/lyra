@@ -1,13 +1,15 @@
 .site-footer {
-  width: 100%;
   position: absolute;
   bottom: 0;
   left: 0;
+  right: 0;
   padding: 0 10px;
   background-color: #fff;
+
   ul {
     margin: 0;
     padding: 0;
+
     li {
       cursor: pointer;
       padding: 10px;
@@ -17,5 +19,6 @@
       }
     }
   }
+
   z-index: 9999;
 }

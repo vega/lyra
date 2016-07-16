@@ -11,8 +11,8 @@ var dl = require('datalib'),
     MARK_EXTENTS = require('../../constants/markExtents');
 
 function mapStateToProps(state, ownProps) {
-  var type = ownProps.type,
-      primId = ownProps.primitive._id,
+  var type = ownProps.exType,
+      primId = ownProps.primId,
       mark = getInVis(state, 'marks.' + primId + '.properties.update'),
       EXTENTS = dl.vals(MARK_EXTENTS[type]),
       start, end;
@@ -39,7 +39,7 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     setExtent: function(oldExtent, newExtent) {
-      dispatch(setMarkExtent(ownProps.primitive._id, oldExtent, newExtent));
+      dispatch(setMarkExtent(ownProps.primId, oldExtent, newExtent));
     }
   };
 }
@@ -47,7 +47,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 var ExtentProperty = React.createClass({
   handleChange: function(evt) {
     var props = this.props,
-        type = props.type,
+        type = props.exType,
         target = evt.target,
         name = target.name,
         newExtent = target.value,
@@ -66,8 +66,7 @@ var ExtentProperty = React.createClass({
 
   render: function() {
     var props = this.props,
-        type = props.type,
-        primitive = props.primitive,
+        type = props.exType,
         EXTENTS = MARK_EXTENTS[type],
         center = EXTENTS.CENTER.name,
         span = EXTENTS.SPAN.label,
@@ -76,13 +75,8 @@ var ExtentProperty = React.createClass({
 
     return (
       <div>
-        <Property name={start}
-          type="number"
-          primType={props.primType}
-          primitive={primitive}
-          canDrop={true}
-          firstChild={true}
-          disabled={props.startDisblaed}>
+        <Property name={start} type="number" canDrop={true} firstChild={true}
+          disabled={props.startDisabled} {...props}>
 
           <div className="label-long label">
             <select name="start" value={start} onChange={this.handleChange}>
@@ -99,13 +93,8 @@ var ExtentProperty = React.createClass({
           <SpatialPreset className="extra" name={start} {...props} />
         </Property>
 
-        <Property name={end}
-          type="number"
-          primType={props.primType}
-          primitive={primitive}
-          canDrop={true}
-          firstChild={true}
-          disabled={props.endDisabled}>
+        <Property name={end} type="number" canDrop={true} firstChild={true}
+          disabled={props.endDisabled} {...props}>
 
           <br />
 

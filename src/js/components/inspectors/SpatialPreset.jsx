@@ -8,7 +8,7 @@ var React = require('react'),
     resetMarkVisual = markActions.resetMarkVisual;
 
 function mapStateToProps(state, ownProps) {
-  var id = ownProps.primitive._id,
+  var id = ownProps.primId,
       propName = ownProps.name,
       prop = getInVis(state, 'marks.' + id + '.properties.update.' + propName);
 
@@ -16,12 +16,12 @@ function mapStateToProps(state, ownProps) {
     field: prop.get('field'),
     band:  prop.get('band'),
     group: prop.get('group'),
-    scale: getInVis(state, 'scales.' + prop.scale)
+    scale: getInVis(state, 'scales.' + prop.get('scale'))
   };
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
-  var id = ownProps.primitive._id;
+  var id = ownProps.primId;
   return {
     setPreset: function(name, def) {
       dispatch(setMarkVisual(id, name, def));

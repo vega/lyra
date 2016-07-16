@@ -8,21 +8,22 @@ var React = require('react'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
+    TYPES = require('../../constants/primTypes'),
     resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
 
 function mapStateToProps(state, ownProps) {
   // This is also used with Pipelines, which have no primitive property
-  if (!ownProps.primitive) {
+  if (!ownProps.primId) {
     return {};
   }
 
-  var propertyState = getInVis(state, ownProps.primType + '.' + ownProps.primitive._id),
+  var propertyState = getInVis(state, ownProps.primType + '.' + ownProps.primId),
       path;
 
   if (ownProps.name) {
-    if (ownProps.primType === 'marks') {
+    if (ownProps.primType === TYPES.MARKS) {
       path = 'properties.update.' + ownProps.name;
-    } else if (ownProps.primType === 'guides') {
+    } else if (ownProps.primType === TYPES.GUIDES) {
       path = ownProps.name;
     }
   }
@@ -55,31 +56,38 @@ var Property = React.createClass({
     onChange: React.PropTypes.func,
     value: React.PropTypes.oneOfType([
       React.PropTypes.string, React.PropTypes.number,
-      React.PropTypes.instanceOf(Immutable.Map)
+      React.PropTypes.bool, React.PropTypes.instanceOf(Immutable.Map)
     ]),
     resetMarkVisual: React.PropTypes.func
   },
 
   mixins: [SignalValue],
 
+  colorSupport: function() {
+    var input = document.createElement('input');
+    input.setAttribute('type', 'color');
+    return input.type !== 'text';
+  },
+
   unbind: function() {
     var props = this.props;
-    props.resetMarkVisual(props.primitive._id, props.name);
+    props.resetMarkVisual(props.primId, props.name);
   },
 
   render: function() {
     var storedState = store.getState(),
         state = this.state,
         props = this.props,
-        name = props.name,
+        name  = props.name,
         label = props.label,
-        type = props.type,
+        type  = props.type,
         scale = props.scale,
         field = props.field,
         value = state.value,
         disabled = props.disabled || props.group,
         onChange = props.onChange || this.handleChange,
         onBlur = props.onBlur,
+        colorSupport = this.colorSupport(),
         docId = props.id,
         labelEl, scaleEl, controlEl, extraEl;
 
@@ -130,7 +138,7 @@ var Property = React.createClass({
         case 'color':
           controlEl = (
             <div>
-              <input type="color"
+              <input type={colorSupport ? 'color' : 'text'}
                 value={!disabled ? value : ''}
                 disabled={disabled}
                 name={name}

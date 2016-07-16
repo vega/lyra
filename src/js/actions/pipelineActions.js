@@ -4,7 +4,8 @@ var dl = require('datalib'),
     counter = require('../util/counter'),
     datasetActions = require('./datasetActions'),
     addDataset = datasetActions.addDataset,
-    ADD_PIPELINE = 'ADD_PIPELINE';
+    ADD_PIPELINE = 'ADD_PIPELINE',
+    UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY';
 
 /**
  * Action creator to add a new Pipeline in the store. A new pipeline requires
@@ -34,10 +35,21 @@ function addPipeline(pipeline, dataset) {
   };
 }
 
+function updatePipelineProperty(id, property, value) {
+  return {
+    type: UPDATE_PIPELINE_PROPERTY,
+    id: id,
+    property: property,
+    value: value
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_PIPELINE: ADD_PIPELINE,
+  UPDATE_PIPELINE_PROPERTY: UPDATE_PIPELINE_PROPERTY,
 
   // Action Creators
-  addPipeline: addPipeline
+  addPipeline: addPipeline,
+  updatePipelineProperty: updatePipelineProperty
 };

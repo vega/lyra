@@ -12,7 +12,7 @@ function Area() {
   return {
     properties: {
       update: {
-        x2: {value: 0},
+        // x2: {value: 0},
         y2: {value: 0},
         tension: {value: 13},
         interpolate: {value: 'monotone'},

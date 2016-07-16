@@ -3,7 +3,8 @@ var React = require('react'),
     connect = require('react-redux').connect,
     updateGuideProperty = require('../../actions/guideActions').updateGuideProperty,
     Property = require('./Property'),
-    MoreProperties = require('./MoreProperties');
+    MoreProperties = require('./MoreProperties'),
+    primTypes = require('../../constants/primTypes');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -19,13 +20,13 @@ function mapDispatchToProps(dispatch) {
 
 var GuideInspector = React.createClass({
   propTypes: {
-    primitive: React.PropTypes.object,
-    updateGuideProperty: React.PropTypes.func,
-    guideDefaults: React.PropTypes.object
+    primId: React.PropTypes.number.isRequired,
+    primType: primTypes.isRequired,
+    updateGuideProperty: React.PropTypes.func
   },
 
   handleChange: function(evt) {
-    var guideId = this.props.primitive._id,
+    var guideId = this.props.primId,
         target  = evt.target,
         property = target.name,
         value = (target.type === 'checkbox') ? target.checked :
@@ -37,170 +38,95 @@ var GuideInspector = React.createClass({
   },
 
   render: function() {
-    var primitive = this.props.primitive,
+    var props = this.props,
         orientOpts = ['top', 'right', 'bottom', 'left'],
-        layerOpts = ['back', 'front'];
+        layerOpts = ['back', 'front'],
+        axis   = 'properties.axis.',
+        title  = 'properties.title.',
+        labels = 'properties.labels.',
+        grid = 'properties.grid.',
+        ticks = 'properties.ticks.';
 
     return (
       <div>
         <div className="property-group">
           <h3>Axis</h3>
 
-          <Property name="orient"
-            label="Orient"
-            opts={orientOpts}
-            primType="guides"
-            primitive={primitive}
-            onChange={this.handleChange}
-            type="select" />
+          <Property name="orient" label="Orient" type="select"
+            opts={orientOpts} onChange={this.handleChange} {...props} />
 
           <MoreProperties label="Axis">
-            <Property name="properties.axis.stroke"
-              label="Color"
-              primType="guides"
-              primitive={primitive}
-              type="color" />
+            <Property name={axis + 'stroke'} label="Color" type="color" {...props} />
 
-            <Property name="properties.axis.strokeWidth"
-              label="Width"
-              primType="guides"
-              primitive={primitive}
-              type="range"
-              min="0"
-              max="10"
-              step="0.25" />
+            <Property name={axis + 'strokeWidth'} label="Width" type="range"
+              min="0" max="10" step="0.25" {...props} />
           </MoreProperties>
         </div>
 
         <div className="property-group">
           <h3>Title</h3>
 
-          <Property name="title"
-            label="Text"
-            primType="guides"
-            primitive={primitive}
-            onChange={this.handleChange}
-            type="text" />
+          <Property name="title" label="Text" type="text"
+            onChange={this.handleChange} {...props} />
 
-          <Property name="properties.title.fontSize"
-            label="Font Size"
-            primType="guides"
-            primitive={primitive}
-            type="number" />
+          <Property name={title + 'fontSize'} label="Font Size" type="number" {...props} />
 
           <MoreProperties label="Title">
-            <Property name="properties.title.fill"
-              label="Color"
-              primType="guides"
-              primitive={primitive}
-              type="color" />
+            <Property name={title + 'fill'} label="Color" type="color" {...props} />
 
-            <Property name="titleOffset"
-              label="Offset"
-              primType="guides"
-              primitive={primitive}
-              onChange={this.handleChange}
-              type="number" />
+            <Property name="titleOffset" label="Offset" type="number"
+              onChange={this.handleChange} {...props} />
           </MoreProperties>
         </div>
 
         <div className="property-group">
           <h3>Labels</h3>
 
-          <Property name="properties.labels.fontSize"
-            label="Font Size"
-            primType="guides"
-            primitive={primitive}
-            type="number" />
+          <Property name={labels + 'fontSize'} label="Font Size" type="number" {...props} />
 
-          <Property name="properties.labels.angle"
-            label="Angle" min="0" max="360"
-            primType="guides"
-            primitive={primitive}
-            type="number" />
+          <Property name={labels + 'angle'} label="Angle" type="number"
+            min="0" max="360" {...props} />
 
           <MoreProperties label="Label">
-            <Property name="properties.labels.fill"
-              label="Fill"
-              primType="guides"
-              primitive={primitive}
-              type="color" />
+            <Property name={labels + 'fill'} label="Fill" type="color" {...props} />
           </MoreProperties>
         </div>
 
         <div className="property-group">
           <h3>Grid</h3>
 
-          <Property name="grid"
-            label="Grid"
-            primType="guides"
-            primitive={primitive}
-            onChange={this.handleChange}
-            type="checkbox" />
+          <Property name="grid" label="Grid" type="checkbox"
+            onChange={this.handleChange} {...props}/>
 
-          <Property name="layer"
-            label="Layer"
-            opts={layerOpts}
-            primType="guides"
-            primitive={primitive}
-            onChange={this.handleChange}
-            type="select" />
+          <Property name="layer" label="Layer" type="select" opts={layerOpts}
+            onChange={this.handleChange} {...props} />
 
           <MoreProperties label="Grid">
-            <Property name="properties.grid.stroke"
-              label="Color"
-              primType="guides"
-              primitive={primitive}
-              type="color" />
+            <Property name={grid + 'stroke'} label="Color" type="color" {...props} />
 
-            <Property name="properties.grid.strokeWidth"
-              label="Width"
-              primType="guides"
-              primitive={primitive}
-              type="range"
-              min="0"
-              max="10"
-              step="0.25" />
+            <Property name={grid + 'strokeOpacity'} label="Opacity" type="range"
+              min="0" max="1" step="0.05" {...props} />
+
+            <Property name={grid + 'strokeWidth'} label="Width" type="range"
+              min="0" max="10" step="0.25" {...props} />
           </MoreProperties>
         </div>
 
         <div className="property-group last">
           <MoreProperties label="Ticks" header="true">
-            <Property name="ticks"
-              label="Number of Ticks"
-              primType="guides"
-              primitive={primitive}
-              onChange={this.handleChange}
-              type="number" />
+            <Property name="ticks" label="Number of Ticks" type="number"
+              onChange={this.handleChange} {...props} />
 
-            <Property name="properties.ticks.stroke"
-              label="Color"
-              primType="guides"
-              primitive={primitive}
-              type="color" />
+            <Property name={ticks + 'stroke'} label="Color" type="color" {...props} />
 
-            <Property name="properties.ticks.strokeWidth"
-              label="Width"
-              primType="guides"
-              primitive={primitive}
-              type="range"
-              min="0"
-              max="10"
-              step="0.25" />
+            <Property name={ticks + 'strokeWidth'} label="Width" type="range"
+              min="0" max="10" step="0.25" {...props} />
 
-            <Property name="tickPadding"
-              label="Padding"
-              primType="guides"
-              primitive={primitive}
-              onChange={this.handleChange}
-              type="range" />
+            <Property name="tickPadding" label="Padding" type="range"
+              onChange={this.handleChange} {...props} />
 
-            <Property name="tickSize"
-              label="Size"
-              primType="guides"
-              primitive={primitive}
-              onChange={this.handleChange}
-              type="number" />
+            <Property name="tickSize" label="Size" type="number"
+              onChange={this.handleChange} {...props} />
           </MoreProperties>
         </div>
       </div>

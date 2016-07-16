@@ -1,12 +1,3 @@
-// media query breaks
-$breaking-width: 1222px;
-
-@mixin breakingMenus {
-  @media (max-width: #{$breaking-width}) {
-    @content;
-  }
-}
-
 // Body
 
 body {

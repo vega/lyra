@@ -15,10 +15,6 @@
       border: none;
     }
 
-    @include breakingMenus {
-      min-width: auto;
-    }
-
     li {
       position: relative;
       text-transform: uppercase;
@@ -62,35 +58,15 @@
         .icon { fill: #777; }
         &:hover { background-color: transparent; }
       }
-
-      @include breakingMenus {
-        display: block;
-      }
     }
   }
 
   .menu {
     display: flex;
-    // min-width: 580px;
-
-    @include breakingMenus {
-      position: absolute;
-      top: -600px;
-      overflow-x: hidden;
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
-      background-color: $lgrey-bg;
-      z-index: 9999;
-      border: 1px solid #eee;
-      min-width: 100px;
-    }
   }
 
   .nav-trigger, label {
     display: none;
-    @include breakingMenus {
-      display: block;
-    }
   }
 }
 
