@@ -2,19 +2,13 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     Mark = require('../../store/factory/Mark'),
-    imutils = require('../../util/immutable-utils'),
-    getIn = imutils.getIn,
-    getInVis = imutils.getInVis,
     getClosestGroupId = require('../../util/hierarchy').getClosestGroupId,
     addMark = require('../../actions/markActions').addMark,
     assets = require('../../util/assets'),
     Icon = require('../Icon');
 
 function mapStateToProps(reduxState) {
-  return {
-    selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
-    sceneId: getInVis(reduxState, 'scene.id')
-  };
+  return {};
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
@@ -33,8 +27,6 @@ var marksArray = ['rect', 'symbol', 'text', 'line', 'area'];
 
 var AddMarksTool = React.createClass({
   propTypes: {
-    selectedId: React.PropTypes.number,
-    sceneId: React.PropTypes.number,
     addMark: React.PropTypes.func
   },
   classNames: 'new-marks',
