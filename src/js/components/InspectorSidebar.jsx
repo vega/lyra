@@ -5,6 +5,7 @@
 var React = require('react'),
     Immutable = require('immutable'),
     connect = require('react-redux').connect,
+    capitalize = require('capitalize'),
     store = require('../store'),
     Property = require('./inspectors/Property'),
     imutils  = require('../util/immutable-utils'),
@@ -69,7 +70,7 @@ var Inspector = React.createClass({
 
     if (primId) {
       if (props.isMark && props.markType) {
-        ctor = props.markType.capitalize();
+        ctor = capitalize(props.markType);
         primType = TYPES.MARKS;
       } else if (props.isGuide) {
         ctor = 'Guide';
@@ -109,11 +110,12 @@ var Inspector = React.createClass({
 });
 
 Inspector.Line = require('./inspectors/Line');
-Inspector.Guide = require('./inspectors/Guide');
 Inspector.Rect = require('./inspectors/Rect');
 Inspector.Symbol = require('./inspectors/Symbol');
 Inspector.Text = require('./inspectors/Text');
 Inspector.Area = require('./inspectors/Area');
+Inspector.Group = require('./inspectors/Rect');
 Inspector.Scale = require('./inspectors/Scale');
+Inspector.Guide = require('./inspectors/Guide');
 
 module.exports = connect(mapStateToProps)(Inspector);

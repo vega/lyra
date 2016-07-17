@@ -2,6 +2,7 @@
 'use strict';
 
 var dl = require('datalib'),
+    capitalize = require('capitalize'),
     counter = require('../../util/counter');
 
 var marks = {
@@ -15,7 +16,7 @@ var marks = {
 };
 
 function name(type) {
-  return type.capitalize() + ' ' + counter.type('marks');
+  return capitalize(type) + ' ' + counter.type('marks');
 }
 
 function throwIfInvalidType(type) {

@@ -1,6 +1,7 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
+    capitalize = require('capitalize'),
     ReactTooltip = require('react-tooltip'),
     Immutable = require('immutable'),
     store = require('../../store'),
@@ -120,7 +121,7 @@ var Group = React.createClass({
           var axis = getInVis(state, 'guides.' + id);
           if (axis) {
             var scale = getInVis(state, 'scales.' + axis.get('scale')),
-                name  = scale.get('name').capitalize();
+                name  = capitalize(scale.get('name'));
             return (
               <li key={id}>
                 <div className={'name' + (selectedId === id ? ' selected' : '')}

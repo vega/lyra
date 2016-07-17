@@ -3,7 +3,6 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    store = require('../../store'),
     SignalValue = require('../mixins/SignalValue'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
@@ -28,12 +27,16 @@ function mapStateToProps(state, ownProps) {
     }
   }
 
+  var scale = getIn(propertyState, path + '.scale'),
+      scaleName = scale && getInVis(state, 'scales.' + scale + '.name');
+
   return {
     field:  getIn(propertyState, path + '.field'),
     group:  getIn(propertyState, path + '.group'),
-    scale:  getIn(propertyState, path + '.scale'),
     signal: getIn(propertyState, path + '.signal'),
-    value:  getIn(propertyState, path)
+    value:  getIn(propertyState, path),
+    scale:  scale,
+    scaleName: scaleName
   };
 }
 
@@ -52,6 +55,7 @@ var Property = React.createClass({
     field: React.PropTypes.string,
     group: React.PropTypes.string,
     scale: React.PropTypes.number,
+    scaleName: React.PropTypes.string,
     signal: React.PropTypes.string,
     onChange: React.PropTypes.func,
     value: React.PropTypes.oneOfType([
@@ -75,8 +79,7 @@ var Property = React.createClass({
   },
 
   render: function() {
-    var storedState = store.getState(),
-        state = this.state,
+    var state = this.state,
         props = this.props,
         name  = props.name,
         label = props.label,
@@ -103,8 +106,8 @@ var Property = React.createClass({
     });
 
     labelEl = labelEl || (<label htmlFor={name}>{label}</label>);
-    scaleEl = scale && (scale = getInVis(storedState, 'scales.' + scale)) ?
-      (<div className="scale" onClick={this.unbind}>{scale.get('name')}</div>) : null;
+    scaleEl = scale ?
+      (<div className="scale" onClick={this.unbind}>{props.scaleName}</div>) : null;
 
     controlEl = field ?
       (<div className="field" onClick={this.unbind}>{field}</div>) : controlEl;

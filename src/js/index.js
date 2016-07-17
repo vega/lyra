@@ -8,10 +8,6 @@ require('array.prototype.find');
 require('string.prototype.startswith');
 require('./transforms');
 
-String.prototype.capitalize = function() {
-  return this.charAt(0).toUpperCase() + this.slice(1);
-};
-
 // Initialize the Redux store
 var store = global.store = require('./store');
 
@@ -38,21 +34,21 @@ store.dispatch(createScene({
 store.dispatch(addPipeline({
   name: 'cars'
 }, {
-  name: 'cars.json',
+  name: 'carsjson',
   url:  '/data/cars.json'
 }));
 
 store.dispatch(addPipeline({
   name: 'jobs'
 }, {
-  name: 'jobs.json',
+  name: 'jobsjson',
   url:  '/data/jobs.json'
 }));
 
 store.dispatch(addPipeline({
   name: 'gapminder'
 }, {
-  name: 'gapminder.json',
+  name: 'gapminderjson',
   url:  '/data/gapminder.json'
 }));
 
