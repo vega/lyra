@@ -2,7 +2,6 @@
 var React = require('react'),
     Property = require('./Property'),
     primTypes = require('../../constants/primTypes'),
-    Area = require('../../store/factory/marks/Area'),
     INTERPOLATE = require('../../constants/interpolate');
 
 var AreaInspector = React.createClass({
@@ -14,7 +13,7 @@ var AreaInspector = React.createClass({
     var props = this.props;
     return (
       <div>
-        {/*<div className="property-group">
+        {/* <div className="property-group">
           <h3>Orientation</h3>
 
           <Property name="orient" label="Orient" type="select"

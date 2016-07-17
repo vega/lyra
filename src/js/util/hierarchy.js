@@ -8,11 +8,14 @@ var store = require('../store'),
 /**
  * Find the parent item for a given mark.
  *
- * @param {ImmutableMap} mark - A mark for which to return the parent mark
+ * @param {ImmutableMap} mark  - A mark for which to return the parent mark
+ * @param {ImmutableMap} [state] - Optional redux state -- passed in for testing,
+ * otherwise uses the Lyra store.
  * @returns {ImmutableMap|null} The requested mark, if present, else null
  */
-function getParent(mark) {
-  return getInVis(store.getState(), 'marks.' + mark.get('_parent')) || null;
+function getParent(mark, state) {
+  state = state || store.getState();
+  return getInVis(state, 'marks.' + mark.get('_parent')) || null;
 }
 
 /**
@@ -22,17 +25,17 @@ function getParent(mark) {
  * @param  {ImmutableMap} primitive - The primitive for which to return ancestors.
  * @returns {ImmutableMap[]} An array of primitives.
  */
-function getParents(primitive) {
+function getParents(primitive, state) {
   if (!primitive) {
     return [];
   }
-  var current = primitive.get('_parent') && getParent(primitive);
+  var current = primitive.get('_parent') && getParent(primitive, state);
   if (!current) {
     return [];
   }
   var parents = [current];
   while (current && current.get('_parent')) {
-    current = getParent(current);
+    current = getParent(current, state);
     if (current) {
       parents.push(current);
     }
@@ -60,10 +63,13 @@ function getGroupIds(primitives) {
  * find all its parents, and return an array of those parents' IDs.
  *
  * @param {number} markId - The ID of a mark for which to return parent layer IDs.
+ * @param {ImmutableMap} [state] - Optional redux state -- passed in for testing,
+ * otherwise uses the Lyra store.
  * @returns {number[]} An array of the (lyra) IDs of the primitive's parent layers.
  */
-function getParentGroupIds(markId) {
-  return getGroupIds(getParents(getInVis(store.getState(), 'marks.' + markId)));
+function getParentGroupIds(markId, state) {
+  state = state || store.getState();
+  return getGroupIds(getParents(getInVis(state, 'marks.' + markId), state));
 }
 
 /**
@@ -71,12 +77,14 @@ function getParentGroupIds(markId) {
  * primitive mark ID.
  *
  * @param {number} id - A numeric primitive ID
+ * @param {ImmutableMap} [state] - Optional redux state -- passed in for testing,
+ * otherwise uses the Lyra store.
  * @returns {number|null} The ID of the nearest group or scene, if found, or null
  * if the mark is invalid or there was no group or scene ancestor available
  */
-function getClosestGroupId(id) {
-  var state = store.getState(),
-      markId = id || getIn(state, 'inspector.encodings.selectedId'),
+function getClosestGroupId(id, state) {
+  state = state || store.getState();
+  var markId = id || getIn(state, 'inspector.encodings.selectedId'),
       mark = getInVis(state, 'marks.' + markId);
 
   if (!mark) {
@@ -89,7 +97,7 @@ function getClosestGroupId(id) {
   }
 
   // If mark is not a group or scene, but exists, check its parents
-  return getClosestGroupId(mark.get('_parent'));
+  return getClosestGroupId(mark.get('_parent'), state);
 }
 
 /**
