@@ -49,12 +49,13 @@ function addMark(markProps) {
  */
 function deleteMark(id) {
   return function(dispatch, getState) {
-    var mark = getInVis(getState(), 'marks.' + id).toJS();
+    var mark = getInVis(getState(), 'marks.' + id),
+        children = mark.get('marks');
 
     dispatch(startBatch());
 
-    if (mark.marks && mark.marks.length) {
-      mark.marks.forEach(function(childId) {
+    if (children && children.size) {
+      children.forEach(function(childId) {
         dispatch(deleteMark(childId));
       });
     }
@@ -63,8 +64,8 @@ function deleteMark(id) {
       type: DELETE_MARK,
       // ID and Type are needed to clear up all the mark's signals, as those are
       // the values used to create a signal's identifying name.
-      id: mark._id,
-      markType: mark.type
+      id: mark.get('_id'),
+      markType: mark.get('type')
     });
 
     dispatch(endBatch());

@@ -77,20 +77,19 @@ function getParentGroupIds(markId) {
 function getClosestGroupId(id) {
   var state = store.getState(),
       markId = id || getIn(state, 'inspector.encodings.selectedId'),
-      markState = getInVis(state, 'marks.' + markId),
-      mark = markState && markState.toJS();
+      mark = getInVis(state, 'marks.' + markId);
 
   if (!mark) {
     return getInVis(state, 'scene.id');
   }
 
   // If mark is a group or scene, return it as-is
-  if (mark.type === 'group' || mark.type === 'scene') {
-    return mark._id;
+  if (mark.get('type') === 'group' || mark.get('type') === 'scene') {
+    return mark.get('_id');
   }
 
   // If mark is not a group or scene, but exists, check its parents
-  return getClosestGroupId(mark._parent);
+  return getClosestGroupId(mark.get('_parent'));
 }
 
 /**

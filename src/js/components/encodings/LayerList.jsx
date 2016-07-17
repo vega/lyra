@@ -76,7 +76,7 @@ var LayerList = React.createClass({
     var props = this.props,
         selectedId = props.selectedId,
         sceneId = props.sceneId,
-        layers = props.marks ? props.marks.toJS() : [];
+        layers = props.marks ? props.marks : [];
 
     return (
       <div id="layer-list" className="expandingMenu">

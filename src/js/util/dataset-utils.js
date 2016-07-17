@@ -13,7 +13,7 @@ function store() {
 }
 
 function def(id) {
-  return getInVis(store().getState(), 'datasets.' + id).toJS();
+  return getInVis(store().getState(), 'datasets.' + id);
 }
 
 /**
@@ -73,7 +73,7 @@ du.init = function(action) {
  */
 du.values = function(id) {
   var ctrl = require('../ctrl'),
-      ds = ctrl.view && ctrl.view.data(def(id).name);
+      ds = ctrl.view && ctrl.view.data(def(id).get('name'));
 
   return ds ? ds.values() : values[id];
 };

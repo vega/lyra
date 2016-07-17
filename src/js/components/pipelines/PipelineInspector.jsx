@@ -41,9 +41,9 @@ var PipelineInspector = React.createClass({
 
   render: function() {
     var props = this.props,
-        pipeline = props.pipeline.toJS(),
+        pipeline = props.pipeline,
         id = props.id,
-        name = pipeline.name,
+        name = pipeline.get('name'),
         inner = (<span></span>);
 
     // TODO do not rely on global primitives. Datasets should be in store.
@@ -51,7 +51,7 @@ var PipelineInspector = React.createClass({
       inner = (
         <div className="inner">
           <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {name}</p>
-          <DataTable id={pipeline._source} className="source" />
+          <DataTable id={pipeline.get('_source')} className="source" />
         </div>
       );
     }

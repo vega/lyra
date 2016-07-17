@@ -45,11 +45,11 @@ function clearScene() {
   return function(dispatch, getState) {
     var state = getState(),
         sceneId = getInVis(state, 'scene.id'),
-        sceneChildren = getInVis(state, 'marks.' + sceneId + '.marks').toJS();
+        children = getInVis(state, 'marks.' + sceneId + '.marks');
 
     dispatch(startBatch());
 
-    sceneChildren.forEach(function(childId) {
+    children.forEach(function(childId) {
       dispatch(deleteMark(childId));
     });
 

@@ -65,15 +65,12 @@ function deleteKeyFromMap(structure, key) {
  */
 function ensureValuePresent(state, arrPathStr, valToAdd) {
   var arr = getIn(state, arrPathStr);
-  if (!arr || !arr.toJS) {
+  if (!arr || !Immutable.List.isList(arr)) {
     return state;
   }
-  var vals = arr.toJS();
-  if (!Array.isArray(vals)) {
-    return state;
-  }
-  return vals.indexOf(valToAdd) < 0 ?
-    setIn(state, arrPathStr, Immutable.fromJS(vals.concat([valToAdd]))) :
+
+  return arr.indexOf(valToAdd) < 0 ?
+    setIn(state, arrPathStr, arr.push(valToAdd)) :
     state;
 }
 
@@ -96,17 +93,14 @@ function ensureValuePresent(state, arrPathStr, valToAdd) {
  */
 function ensureValueAbsent(state, arrPathStr, valToRemove) {
   var arr = getIn(state, arrPathStr);
-  if (!arr || !arr.toJS) {
+  if (!arr || !Immutable.List.isList(arr)) {
     return state;
   }
-  var vals = arr.toJS();
-  if (!Array.isArray(vals)) {
-    return state;
-  }
-  return vals.indexOf(valToRemove) >= 0 ?
-    setIn(state, arrPathStr, Immutable.fromJS(vals.filter(function(val) {
+
+  return arr.indexOf(valToRemove) >= 0 ?
+    setIn(state, arrPathStr, arr.filter(function(val) {
       return val !== valToRemove;
-    }))) :
+    })) :
     state;
 }
 
