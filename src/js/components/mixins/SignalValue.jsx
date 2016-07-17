@@ -63,7 +63,7 @@ module.exports = {
   },
 
   handleChange: function(evt) {
-    this.setValue(evt.target.value);
+    this.setValue(evt.target ? evt.target.value : evt);
   },
 
   setValue: function(value) {

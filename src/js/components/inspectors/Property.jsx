@@ -4,6 +4,7 @@ var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
     SignalValue = require('../mixins/SignalValue'),
+    ContentEditable = require('../ContentEditable'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
@@ -135,6 +136,9 @@ var Property = React.createClass({
                 min={props.min} max={props.max} step={props.step}
                 onChange={onChange}
                 name={name} />
+
+              <ContentEditable value={!disabled ? value : ''}
+                save={onChange} />
             </div>
           );
           break;
@@ -146,6 +150,10 @@ var Property = React.createClass({
                 disabled={disabled}
                 name={name}
                 onChange={onChange} />
+
+              {colorSupport ? (
+                <ContentEditable value={!disabled ? value : ''} save={onChange} />
+              ) : null}
             </div>
           );
           break;

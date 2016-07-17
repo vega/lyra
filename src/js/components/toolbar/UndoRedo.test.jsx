@@ -29,8 +29,8 @@ describe('UndoRedo Toolbar <UndoRedo/>', function() {
   it('renders undo and redo buttons', function() {
     wrapper = mount(<UndoRedo />, {context: {store: createStore()}});
     var li = wrapper.find('li');
-    expect(li.at(0).text().trim()).to.equal('Undo');
-    expect(li.at(1).text().trim()).to.equal('Redo');
+    expect(li.at(0).find('.undo')).to.have.length(1);
+    expect(li.at(1).find('.redo')).to.have.length(1);
   });
 
   it('greys out undo button if no past states', function() {
