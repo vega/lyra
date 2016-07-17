@@ -101,6 +101,7 @@ var Group = React.createClass({
   },
   render: function() {
     var props = this.props,
+        state = store.getState(),
         level = +props.level,
         selectedId = props.selectedId,
         groupId = props.id,
@@ -116,17 +117,18 @@ var Group = React.createClass({
         <li className="header">Guides <Icon glyph={assets.plus} width="10" height="10" /></li>
 
         {axes.map(function(id) {
-          var axis = getInVis(store.getState(), 'guides.' + id);
+          var axis = getInVis(state, 'guides.' + id);
           if (axis) {
-            var axisType = axis.get('type');
+            var scale = getInVis(state, 'scales.' + axis.get('scale')),
+                name  = scale.get('name').capitalize();
             return (
               <li key={id}>
                 <div className={'name' + (selectedId === id ? ' selected' : '')}
                   onClick={props.select.bind(null, id, 'guide')}>
-                  {axisType.toUpperCase()}
+                  {name} Axis
                   <Icon glyph={assets.trash} className="delete"
                     onClick={this.deleteUpdate.bind(null, id, 'guide')}
-                    data-tip={'Delete ' + axisType.toUpperCase()}
+                    data-tip={'Delete ' + name}
                     data-place="right" />
                 </div>
               </li>
@@ -137,7 +139,7 @@ var Group = React.createClass({
         <li className="header">Marks <Icon glyph={assets.plus} width="10" height="10" /></li>
 
         {marks.map(function(id) {
-          var mark = getInVis(store.getState(), 'marks.' + id),
+          var mark = getInVis(state, 'marks.' + id),
               type = mark.get('type'),
               name = mark.get('name'),
               icon = this.icon(type, isExpanded);

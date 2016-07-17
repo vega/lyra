@@ -8,6 +8,10 @@ require('array.prototype.find');
 require('string.prototype.startswith');
 require('./transforms');
 
+String.prototype.capitalize = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
 // Initialize the Redux store
 var store = global.store = require('./store');
 
@@ -21,8 +25,10 @@ var listeners = require('./store/listeners');
 store.subscribe(listeners.createStoreListener(store, ctrl));
 
 // Initializes the Lyra ctrl with a new Scene primitive.
-var createScene = require('./actions/sceneActions').createScene;
-var addPipeline = require('./actions/pipelineActions').addPipeline;
+var createScene = require('./actions/sceneActions').createScene,
+    addPipeline = require('./actions/pipelineActions').addPipeline,
+    Mark = require('./store/factory/Mark'),
+    addMark = require('./actions/markActions').addMark;
 
 store.dispatch(createScene({
   width: 600,
@@ -49,6 +55,8 @@ store.dispatch(addPipeline({
   name: 'gapminder.json',
   url:  '/data/gapminder.json'
 }));
+
+store.dispatch(addMark(Mark('group', {_parent: 1})));
 
 require('./components');
 

@@ -61,10 +61,6 @@ var Inspector = React.createClass({
     markType: React.PropTypes.string
   },
 
-  uppercase: function(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  },
-
   render: function() {
     var props  = this.props,
         primId = props.selectedId,
@@ -72,8 +68,8 @@ var Inspector = React.createClass({
         ctor, primType, InspectorType;
 
     if (primId) {
-      if (props.isMark) {
-        ctor = this.uppercase(props.markType);
+      if (props.isMark && props.markType) {
+        ctor = props.markType.capitalize();
         primType = TYPES.MARKS;
       } else if (props.isGuide) {
         ctor = 'Guide';

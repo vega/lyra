@@ -25,6 +25,8 @@ function Group() {
       update: dl.extend({}, base.properties.update, {
         fill: undefined,
         stroke: undefined,
+        x: {value: 0},
+        y: {value: 0},
         width: {value: signalLookup('vis_width')},
         height: {value: signalLookup('vis_height')},
         x2: {_disabled: true},
