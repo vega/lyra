@@ -217,6 +217,15 @@ exporter.axe = exporter.legend = function(state, internal, id) {
     spec[type] = name(getInVis(state, 'scales.' + spec[type] + '.name'));
   }
 
+  dl.keys(spec.properties).forEach(function(prop) {
+    var def = spec.properties[prop];
+    dl.keys(def).forEach(function(key) {
+      if (!dl.isObject(def[key])) {  // signalRef resolved to literal
+        def[key] = {value: def[key]};
+      }
+    });
+  });
+
   return spec;
 };
 
