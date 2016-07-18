@@ -2,7 +2,8 @@
 var React = require('react'),
     Modal = require('react-modal'),
     connect = require('react-redux').connect,
-    addPipeline = require('../../actions/pipelineActions').addPipeline;
+    addPipeline = require('../../actions/pipelineActions').addPipeline,
+    tabular = require('../../util/dataset-utils').tabular;
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -19,6 +20,42 @@ function mapDispatchToProps(dispatch, ownProps) {
 }
 
 var PipelineModal = React.createClass({
+  getInitialState: function() {
+    return {
+      sourceInvalid: false
+    };
+  },
+  proptypes: {
+    selectPipeline: React.PropTypes.func
+  },
+  handleSubmit: function(e) {
+    e.preventDefault();
+
+    // add url validation
+    var url = e.target.url.value,
+        fileRe = /[^/]*$/,
+        match = fileRe.exec(url),
+        fileName = match[0],
+        pipeline = fileName,
+        dataset = {
+          name: fileName,
+          url: url
+        };
+
+    if (!tabular(url)) {
+      this.setState({
+        sourceInvalid: true
+      });
+      return false;
+    } else {
+      if (this.state.sourceInvalid) {
+        this.setState({
+          sourceInvalid: false
+        });
+      }
+      this.props.selectPipeline(pipeline, dataset);
+    }
+  },
   render: function() {
     var props = this.props,
         pipelines = [{
@@ -41,7 +78,8 @@ var PipelineModal = React.createClass({
               name: 'gapminder.json',
               url:  '/data/gapminder.json'
             }
-          }];
+          }],
+        sourceInvalidError = this.state.sourceInvalid;
 
     return (
       <Modal
@@ -67,13 +105,22 @@ var PipelineModal = React.createClass({
                 }, this)}
               </ul>
             </div>
+
           </div>
           <div className="partRight">
             <h2>Import</h2>
             <div className="sect">
-              <label>Url: </label>
-              <input type="text" onChange={null} />
-              <button onChange={null}>Load</button>
+              <form onSubmit={this.handleSubmit}>
+                <input type="text" name="url" placeholder="Enter url"/>
+                <button type="submit" value="Submit">Load</button><br />
+                {
+                  sourceInvalidError ?
+                  <label className="error">
+                    Imported data must be in tabular form.
+                  </label> :
+                  null
+                }
+              </form>
             </div>
             <div className="sect">
               <textarea rows="10" cols="70"
