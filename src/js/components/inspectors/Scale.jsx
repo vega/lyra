@@ -1,3 +1,5 @@
+
+
 'use strict';
 
 var React = require('react'),
@@ -5,42 +7,34 @@ var React = require('react'),
     Property = require('./Property'),
     updateScaleProperty = require('../../actions/scaleActions').updateScaleProperty,
     store = require('../../store'),
-    // deleteScale = require('../../actions/scaleActions').deleteScale,
     getIn = require('../../util/immutable-utils').getIn;
 
 function mapDispatchToProps(dispatch) {
   return {
     updateScaleProperty: function(scaleId, property, value) {
       dispatch(updateScaleProperty(scaleId, property, value));
-    },
-    deleteScale: function(scaleId) {
-      dispatch(deleteScale(scaleId));
     }
   }
 }
-
-function mapStateToProps(state) {
-  return {};
-}
+ function mapStateToProps(reduxState, ownProps) {
+   return {};
+ }
 
 var ScaleInspector = React.createClass({
   propTypes: {
     primitive: React.PropTypes.object
   },
 
+
   handleChange: function(prop, evt) {
     var scale = this.props.primitive,
         scaleId = scale._id;
-    //console.log(scaleId);
-    //console.log(evt.target.value);
-    //console.log(evt.target, evt.target.value);
 
-    // ordinal scale 
     if (prop == 'padding' || prop == 'exponent') {
       var val = +evt.target.value;
       //console.log(val);
       this.props.updateScaleProperty(scaleId, prop, val);
-    } else if (prop == 'points' || prop == 'clamp' || prop == 'zero') {
+    } else if (prop == 'points' || prop == 'clamp' || prop == 'zero' || prop == 'nice') {
       //console.log(document.getElementById(prop).checked);
       //console.log('kkkkkk');
       this.props.updateScaleProperty(scaleId, prop, document.getElementsByName(prop)[0].checked);
@@ -55,28 +49,46 @@ var ScaleInspector = React.createClass({
     }
   },
 
-  // deleteCurrentScale: function() {
-  //   var scale = this.props.primitive,
-  //       scaleId = scale._id;
-  //   this.props.deleteScale(scaleId);
-  // }
-
   checkName: function() {
-    //console.log('call checkName');
-    console.log(document.getElementsByName('name')[0].value);
     var scales = getIn(store.getState(), 'scales');
     var count = 0;
     scales.valueSeq().forEach(function(scaleDef) {
       if (scaleDef.toJS().name === document.getElementsByName('name').value) {
         count++;
-        console.log(count);
         if (count > 1) {
           alert('scale name should be unique');
-          console.log(count);
           return;
         }
       }
     })
+  },
+
+  changeFrom: function() {
+    if (document.getElementById('domainF').checked) {
+      document.getElementById('domainFeild').style.display = '';
+      document.getElementById('valuesField').style.display = 'none';
+    } else {
+      document.getElementById('valuesField').style.display = '';
+      document.getElementById('domainFeild').style.display = 'none';
+    }
+  },
+
+  handleAdd: function() {
+    var scale = this.props.primitive,
+        scaleId = scale._id,
+        newDomain = getIn(store.getState(), 'scales.' + scaleId + '.amySha'),
+        num = getIn(store.getState(), 'scales.' + scaleId + '.amyShaNum');
+    newDomain.add(num);
+    this.props.updateScaleProperty(this.props.primitive._id, 'amySha', newDomain);
+    this.props.updateScaleProperty(this.props.primitive._id, 'amyShaNum', num+1);
+  },
+
+  handleDelete: function(key) {
+    var scale = this.props.primitive,
+        scaleId = scale._id,
+        newDomain = getIn(store.getState(), 'scales.' + scaleId + '.amySha');
+    newDomain.delete(key);
+    this.props.updateScaleProperty(this.props.primitive._id, 'amySha', newDomain);
   },
 
   render: function() {
@@ -85,6 +97,38 @@ var ScaleInspector = React.createClass({
     var timeUnit = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year'];
     var scaleType = ['linear', 'ordinal', 'log', 'pow', 'sqrt', 'quantile', 'quantize', 'threshold', 'time', 'utc'];
     var range = ['height', 'width'];
+
+    var domainShow = {display: ''};
+    var domainHide = {display: 'none'};
+    
+    var scale = this.props.primitive,
+        scaleId = scale._id,
+        newDomain = getIn(store.getState(), 'scales.' + scaleId + '.amySha');
+
+    var valuesFields = [];
+
+    for (let key of newDomain) {
+      valuesFields.push(
+        <div key={key}>
+          <Property type='text' name='domainInput'/>
+          <button onClick={this.handleDelete.bind(this, key)}>delete</button>
+        </div>
+      );
+    }
+    
+    valuesFields.push(<button onClick={this.handleAdd}>add</button>);
+
+
+
+
+    var domainFeild = (
+      <div id='domainFeild' style={domainShow}>
+        <p>drop field</p>
+      </div>
+      );
+
+
+    
 
     var niceS = (
       <Property type='select' value={scale.nice} id='niceS' label='Nice'
@@ -96,13 +140,14 @@ var ScaleInspector = React.createClass({
       );
 
     var niceB = (
-      <Property type='checkbox' name='niceB' label='Nice' onChange={this.handleChange.bind(this, 'nice')} />
+      <Property type='checkbox' name='niceB' label='Nice' onChange={this.handleChange.bind(this, 'nice')} checked='true' />
       );
 
     var zero = (
       <Property type='checkbox' name='zero' label='Zero' onChange={this.handleChange.bind(this, 'zero')} />
       );
     
+
 
     if (scale.type == 'ordinal') {
       //console.log(scale.padding);
@@ -136,16 +181,14 @@ var ScaleInspector = React.createClass({
         <div>
           <Property type='number' name='exponent' label='Exponent' onChange={this.handleChange.bind(this, 'exponent')}/>
           {clamp}
-          {niceB}
+          {nice}
           {zero}
         </div>
       );
     }
 
-
     return (
-      <div>
-          
+      <div>  
         <div id='nameArea' className='property-group'>
           <h3 className='label'>Name</h3>
           <Property type='text' name='name' onChange={this.handleChange.bind(this, 'name')} 
@@ -155,16 +198,21 @@ var ScaleInspector = React.createClass({
         <div className='property-group' id='typeArea'>
           <h3 className='label'>Type</h3>
           <Property label='Type' type='select' name='typeSelections' opts={scaleType} id='typeSelections' value={scale.type} onChange={this.handleChange.bind(this, 'type')} />
-          <div>
-            {typeProps}
-          </div>
+          {typeProps}
         </div>
 
         <div className='property-group'>
-          <h3 className='label'>Domain</h3> 
-          <Property type='radio' value='field' name='form' label='field' />
-          <Property type='radio' value='value' name='form' label='vaule' />
-
+          <h3 className='label'>Domain</h3>
+          <div> 
+           From:
+            field<input type='radio' value='field' id='domainF' name='from' onClick={this.changeFrom.bind(this)} defaultChecked/>
+            value<input type='radio' value='value' id='domainV' name='from' onClick={this.changeFrom.bind(this)}/> 
+          </div>
+          <div id='valuesField' style={domainHide}>
+            {valuesFields}
+          </div>
+          
+          {domainFeild}
         </div>
 
         <div className='property-group'>

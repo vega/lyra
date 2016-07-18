@@ -39,6 +39,8 @@ module.exports = function(name, type, domain, range) {
     nice: undefined,
     round: undefined,
     points: undefined,
-    padding: undefined
+    padding: undefined,
+    amySha: new Set([0]),
+    amyShaNum: 1
   };
 };

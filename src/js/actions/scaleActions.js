@@ -3,7 +3,8 @@
 var dl = require('datalib'),
     counter = require('../util/counter'),
     ADD_SCALE = 'ADD_SCALE',
-    UPDATE_SCALE_PROPERTY = 'UPDATE_SCALE_PROPERTY';
+    UPDATE_SCALE_PROPERTY = 'UPDATE_SCALE_PROPERTY',
+    ADD_DOMAIN_VALUE = 'ADD_DOMAIN_VALUE';
 
 /**
  * Action creator to create a new scale and add it to the store.
@@ -39,5 +40,5 @@ module.exports = {
 
   // Action Creators
   addScale: addScale,
-  updateScaleProperty: updateScaleProperty
+  updateScaleProperty: updateScaleProperty,
 };
