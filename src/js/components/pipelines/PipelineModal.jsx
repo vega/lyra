@@ -31,7 +31,7 @@ var PipelineModal = React.createClass({
   handleSubmit: function(e) {
     e.preventDefault();
 
-    // add url validation
+    // TODO use datalib url sanitizer
     var url = e.target.url.value,
         fileRe = /[^/]*$/,
         match = fileRe.exec(url),
@@ -46,7 +46,6 @@ var PipelineModal = React.createClass({
       this.setState({
         sourceInvalid: true
       });
-      return false;
     } else {
       if (this.state.sourceInvalid) {
         this.setState({
@@ -54,6 +53,27 @@ var PipelineModal = React.createClass({
         });
       }
       this.props.selectPipeline(pipeline, dataset);
+    }
+  },
+  // WIP
+  cpChangeHandler: function(event) {
+    event.preventDefault();
+    var type = event.type;
+
+
+    if (type === 'change') {
+
+    } else if (type === 'drop') {
+      /*
+
+        - process & validate paste content
+        - create data url, for dataset object's
+          url property
+        - create pipeline
+        - create dataset object
+        - call selectPipeline
+
+      */
     }
   },
   render: function() {
@@ -124,7 +144,9 @@ var PipelineModal = React.createClass({
             </div>
             <div className="sect">
               <textarea rows="10" cols="70"
-                placeholder="Copy and paste or drag and drop">
+                placeholder="Copy and paste or drag and drop"
+                onChange={this.cpChangeHandler}
+                onDrop={this.cpChangeHandler}>
               </textarea>
             </div>
           </div>
