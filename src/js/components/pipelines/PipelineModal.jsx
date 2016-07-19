@@ -3,7 +3,7 @@ var React = require('react'),
     Modal = require('react-modal'),
     connect = require('react-redux').connect,
     addPipeline = require('../../actions/pipelineActions').addPipeline,
-    tabular = require('../../util/dataset-utils').tabular;
+    dl = require('datalib');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -11,6 +11,7 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     selectPipeline: function(pipelineName, dataset) {
+
       dispatch(addPipeline({
         name: pipelineName
       }, dataset));
@@ -18,7 +19,8 @@ function mapDispatchToProps(dispatch, ownProps) {
     }
   };
 }
-
+// TODO maybe move form elements into own components
+// in order to water down this component
 var PipelineModal = React.createClass({
   getInitialState: function() {
     return {
@@ -31,51 +33,85 @@ var PipelineModal = React.createClass({
   handleSubmit: function(e) {
     e.preventDefault();
 
-    // TODO use datalib url sanitizer
-    var url = e.target.url.value,
-        fileRe = /[^/]*$/,
-        match = fileRe.exec(url),
+    // TODO drop file extension
+    var props = this.props,
+        url = e.target.url.value,
+        re = /[^/]*$/,
+        match = re.exec(url),
         fileName = match[0],
         pipeline = fileName,
         dataset = {
-          name: fileName,
-          url: url
+          name: fileName
         };
 
-    if (!tabular(url)) {
-      this.setState({
-        sourceInvalid: true
-      });
-    } else {
-      if (this.state.sourceInvalid) {
-        this.setState({
-          sourceInvalid: false
-        });
+    dl.load({url: url}, function(loadError, data) {
+      if (loadError) {
+        throw loadError;
       }
-      this.props.selectPipeline(pipeline, dataset);
-    }
-  },
-  // WIP
-  cpChangeHandler: function(event) {
-    event.preventDefault();
-    var type = event.type;
 
+      dataset = this.parseRaw(data, dataset);
+      props.selectPipeline(pipeline, dataset);
+    }.bind(this));
+  },
+  // TODO user input validation
+  cpChangeHandler: function(e) {
+    e.preventDefault();
+
+    var target = e.target,
+        props = this.props,
+        type = e.type,
+        pipeline = 'name',
+        dataset = {
+          name: 'name'
+        },
+        raw;
 
     if (type === 'change') {
+      raw = target.value;
 
+      dataset = this.parseRaw(raw, dataset);
+      props.selectPipeline(pipeline, dataset);
     } else if (type === 'drop') {
-      /*
+      var file = event.dataTransfer.files[0],
+          fr = new FileReader();
 
-        - process & validate paste content
-        - create data url, for dataset object's
-          url property
-        - create pipeline
-        - create dataset object
-        - call selectPipeline
+      fr.onload = function(loadEvent) {
+        raw = loadEvent.target.result;
 
-      */
+        dataset = this.parseRaw(raw, dataset);
+        props.selectPipeline(pipeline, dataset);
+      };
+
+      fr.readAsText(file);
     }
   },
+  // TODO switch throw to feedback label
+  parseRaw: function(raw, dataset) {
+    var readData,
+        format = {};
+
+    try {
+      format.type = 'json';
+      readData = dl.read(raw, format);
+      dataset.format = format;
+    } catch (error) {
+      format.type = 'csv';
+      readData = dl.read(raw, format);
+      dataset.format = format;
+      if (dl.keys(readData[0]).length === 1) {
+        format.type = 'tsv';
+        readData = dl.read(raw, format);
+        dataset.format = format;
+        if (dl.keys(readData[0]).length === 1) {
+          throw new Error('Trying to import unsupported datatype');
+        }
+      }
+    }
+
+    dataset.values = readData;
+    return dataset;
+  },
+  // TODO move hardcoded pipelines to separate file
   render: function() {
     var props = this.props,
         pipelines = [{
@@ -145,6 +181,7 @@ var PipelineModal = React.createClass({
             <div className="sect">
               <textarea rows="10" cols="70"
                 placeholder="Copy and paste or drag and drop"
+                name="cnpDnd"
                 onChange={this.cpChangeHandler}
                 onDrop={this.cpChangeHandler}>
               </textarea>

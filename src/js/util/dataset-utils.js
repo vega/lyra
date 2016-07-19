@@ -50,7 +50,28 @@ du.init = function(action) {
     if (ds.source) {
       resolve((values[id] = values[ds.source]));
     } else if (action.values) {
-      resolve((values[id] = dl.read(action.values, fmt)));
+
+      /*
+        Prior to changes:
+        resolve((values[id] = dl.read(action.values, fmt)));
+
+        Using dl.read with fmt when read csv or tsv causes already
+        read objects to be encapsulated in `columns` property.
+      */
+      var fmtType = fmt.type;
+
+      if (fmtType === 'csv' || fmtType === 'tsv') {
+        resolve((values[id] = action.values));
+      } else {
+
+        /*
+          Prior code assumes `action.values` will be raw.
+          However, sometimes values are read via dl.read before
+          this block eg. PipelineModal:handleSubmit or
+          PipelineModal:cpChangeHandler
+        */
+        resolve((values[id] = dl.read(action.values, fmt)));
+      }
     } else if (ds.url) {
       resolve(
         promisify(dl.load)({url: ds.url}).then(function(data) {
@@ -101,6 +122,7 @@ du.schema = function(id) {
     };
     return s;
   }, {});
+
 };
 
 du.reset = function() {
