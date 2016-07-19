@@ -50,7 +50,7 @@ var DataTable = React.createClass({
     var el = this._el = d3.select(ReactDOM.findDOMNode(this));
 
     this.$table = el.select('.datatable');
-    this.$fullField = el.select('.full.field');
+    this.$fullField = el.select('FullField');
     this.$fullValue = el.select('.full.value');
   },
 
@@ -71,6 +71,7 @@ var DataTable = React.createClass({
           name = target.textContent,
           schema = dsUtil.schema(this.props.id);
 
+      this.hideFull(evt);
       this.setState({fullField : schema[name]});
       this.$fullField.style('display', 'block')
       .style('top', target.offsetTop);
@@ -149,7 +150,7 @@ var DataTable = React.createClass({
           </tbody></table>
 
 
-          <FullField id={this.props.id} className={this.props.className}></FullField>
+      <FullField id={this.props.id} data={this.state.fullField} className={this.props.className}></FullField>
 
           <div className="full value">{fullValue}</div>
         </div>

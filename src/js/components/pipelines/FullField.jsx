@@ -38,9 +38,8 @@ var FullField = React.createClass({
 
     getInitialState: function() {
       return {
-        name: null,
-        type: null,
-        mtype: null,
+        fullField : this.props.data,
+        bindField : null
       };
     },
 
@@ -128,13 +127,11 @@ var FullField = React.createClass({
     },
 
     render : function() {
-
-        var state = this.state,
-            fullField = (state.name != null && state.type != null && state.mtype != null)
-             ? (
+        var fullField = this.state.fullField,
+            fullField = fullField ? (
               <span>
                 <Icon onClick={this.changeMType}
-                  glyph={assets[state.mtype]} width="10" height="10" /> {state.name}
+                  glyph={assets[fullField.mtype]} width="10" height="10" /> {fullField.name}
               </span>
               ) : null;
 
@@ -152,4 +149,4 @@ var FullField = React.createClass({
 
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(FullField);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(addVegaReparseRequest(FullField));
