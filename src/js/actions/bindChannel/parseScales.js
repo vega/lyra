@@ -6,7 +6,8 @@ var dl = require('datalib'),
     getInVis = imutils.getInVis,
     Scale = require('../../store/factory/Scale'),
     addScale = require('../scaleActions').addScale,
-    addScaleToGroup = require('./helperActions').addScaleToGroup;
+    addScaleToGroup = require('./helperActions').addScaleToGroup,
+    computeLayout = require('./computeLayout');
 
 var REF_CELLW = {data: 'layout', field: 'cellWidth'},
     REF_CELLH = {data: 'layout', field: 'cellHeight'};
@@ -61,6 +62,11 @@ module.exports = function(dispatch, state, parsed) {
   if (!prev || !equals(state, markType, def, prev)) {
     def = createScale(dispatch, parsed, def);
     scaleId = def.id;
+
+    // Ordinal-band scales can affect the layout. Call layout computation here
+    // as (1) we only want to do this for new scales and (2) the scale doesn't
+    // yet exist in the store, so we must pass it in manually.
+    computeLayout(dispatch, state, parsed, def.props);
   }
 
   map[channel] = scaleId;

@@ -63,8 +63,8 @@ exporter.scene = function(state, internal) {
 
   /* eslint no-multi-spaces:0 */
   // Always resolve width/height signals.
-  spec.width  = spec.width.signal  ? signalLookup(spec.width.signal)  : spec.width;
-  spec.height = spec.height.signal ? signalLookup(spec.height.signal) : spec.height;
+  // spec.width  = spec.width.signal  ? signalLookup(spec.width.signal)  : spec.width;
+  // spec.height = spec.height.signal ? signalLookup(spec.height.signal) : spec.height;
 
   // Remove mark-specific properties that do not apply to scenes.
   delete spec.type;
