@@ -131,21 +131,6 @@ du.reset = function() {
   schema = {};
 };
 
-/*
-  Temporary: currently only checks if data loaded from
-  source is an array || indexed data to verify whether
-  its in tabular form like Lyra expects.
-
-  TODO add more criteria to checking whether data is tabular
-  eg. checking if all elements of array are of same type?
-*/
-du.tabular = function(source) {
-  var data = dl.load({url: source}),
-      readData = dl.read(data, {type: 'json'});
-
-  return dl.isArray(readData);
-};
-
 du.MTYPES = ['nominal', 'quantitative', 'temporal']; // ordinal not yet used
 
 module.exports = du;
