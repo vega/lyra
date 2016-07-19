@@ -464,14 +464,11 @@ describe('Exporter Utility', function() {
         scene: {id: 4},
         marks: {
           '4': {
-            width: {signal: 'lyra_vis_width'},
-            height: {signal: 'lyra_vis_height'}
+            width: 200,
+            height: 300
           }
         }
       }));
-
-      signal.init('vis_width', 200);
-      signal.init('vis_height', 300);
 
       var spec = exporter.scene(state, false);
       expect(spec).to.deep.equal({
