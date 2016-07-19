@@ -72,7 +72,7 @@ var PipelineModal = React.createClass({
       dataset = this.parseRaw(raw, dataset);
       props.selectPipeline(pipeline, dataset);
     } else if (type === 'drop') {
-      var file = event.dataTransfer.files[0],
+      var file = e.dataTransfer.files[0],
           fr = new FileReader();
 
       fr.onload = function(loadEvent) {
@@ -80,7 +80,7 @@ var PipelineModal = React.createClass({
 
         dataset = this.parseRaw(raw, dataset);
         props.selectPipeline(pipeline, dataset);
-      };
+      }.bind(this);
 
       fr.readAsText(file);
     }
@@ -112,6 +112,7 @@ var PipelineModal = React.createClass({
     return dataset;
   },
   // TODO move hardcoded pipelines to separate file
+  // also add example datasets of different types
   render: function() {
     var props = this.props,
         pipelines = [{

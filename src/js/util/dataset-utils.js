@@ -60,7 +60,7 @@ du.init = function(action) {
       */
       var fmtType = fmt.type;
 
-      if (fmtType === 'csv' || fmtType === 'tsv') {
+      if (fmtType === 'csv' || fmtType === 'tsv' || fmtType === 'json') {
         resolve((values[id] = action.values));
       } else {
 
