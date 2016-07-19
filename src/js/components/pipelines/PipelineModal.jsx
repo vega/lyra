@@ -3,7 +3,8 @@ var React = require('react'),
     Modal = require('react-modal'),
     connect = require('react-redux').connect,
     addPipeline = require('../../actions/pipelineActions').addPipeline,
-    dl = require('datalib');
+    dl = require('datalib'),
+    examplePipelines = require('../../constants/exampledatasets');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -19,12 +20,13 @@ function mapDispatchToProps(dispatch, ownProps) {
     }
   };
 }
-// TODO maybe move form elements into own components
-// in order to water down this component
 var PipelineModal = React.createClass({
   getInitialState: function() {
     return {
-      sourceInvalid: false
+      error: {
+        value: false,
+        message: ''
+      }
     };
   },
   proptypes: {
@@ -33,12 +35,10 @@ var PipelineModal = React.createClass({
   handleSubmit: function(e) {
     e.preventDefault();
 
-    // TODO drop file extension
     var props = this.props,
         url = e.target.url.value,
-        re = /[^/]*$/,
-        match = re.exec(url),
-        fileName = match[0],
+        re = /([\w\d_-]*)\.?[^\\\/]*$/i,
+        fileName = url.match(re)[1],
         pipeline = fileName,
         dataset = {
           name: fileName
@@ -46,14 +46,21 @@ var PipelineModal = React.createClass({
 
     dl.load({url: url}, function(loadError, data) {
       if (loadError) {
-        throw loadError;
+        if (loadError.statusText) {
+          this.setState({
+            error: {
+              value: true,
+              message: loadError.statusText
+            }
+          });
+          throw loadError;
+        }
+      } else {
+        dataset = this.parseRaw(data, dataset);
+        props.selectPipeline(pipeline, dataset);
       }
-
-      dataset = this.parseRaw(data, dataset);
-      props.selectPipeline(pipeline, dataset);
     }.bind(this));
   },
-  // TODO user input validation
   cpChangeHandler: function(e) {
     e.preventDefault();
 
@@ -85,7 +92,6 @@ var PipelineModal = React.createClass({
       fr.readAsText(file);
     }
   },
-  // TODO switch throw to feedback label
   parseRaw: function(raw, dataset) {
     var readData,
         format = {};
@@ -103,7 +109,13 @@ var PipelineModal = React.createClass({
         readData = dl.read(raw, format);
         dataset.format = format;
         if (dl.keys(readData[0]).length === 1) {
-          throw new Error('Trying to import unsupported datatype');
+          this.setState({
+            error: {
+              value: true,
+              message: 'Trying to import data thats in an unsupported format!'
+            }
+          });
+          throw new Error('Trying to import data thats in an unsupported format!');
         }
       }
     }
@@ -115,28 +127,8 @@ var PipelineModal = React.createClass({
   // also add example datasets of different types
   render: function() {
     var props = this.props,
-        pipelines = [{
-            name: 'cars',
-            dataset: {
-              name: 'cars.json',
-              url: '/data/cars.json'
-            }
-          },
-          {
-            name: 'jobs',
-            dataset: {
-              name: 'jobs.json',
-              url:  '/data/jobs.json'
-            }
-          },
-          {
-            name: 'gapminder',
-            dataset: {
-              name: 'gapminder.json',
-              url:  '/data/gapminder.json'
-            }
-          }],
-        sourceInvalidError = this.state.sourceInvalid;
+        pipelines = examplePipelines,
+        error = this.state.error;
 
     return (
       <Modal
@@ -166,17 +158,18 @@ var PipelineModal = React.createClass({
           </div>
           <div className="partRight">
             <h2>Import</h2>
+            <label>
+              Supported import formats include <abbr title="JavaScripts Object Notation">JSON</abbr>,
+              <abbr title="Coma Separated Values">CSV</abbr> and <abbr title="Tab Separated Values">TSV</abbr>.<br />
+              All data <strong>must</strong> be in tabular form.
+            </label>
+            <div className="sect">
+              {error.value ? <label className="error">{error.message}</label> : null}
+            </div>
             <div className="sect">
               <form onSubmit={this.handleSubmit}>
                 <input type="text" name="url" placeholder="Enter url"/>
                 <button type="submit" value="Submit">Load</button><br />
-                {
-                  sourceInvalidError ?
-                  <label className="error">
-                    Imported data must be in tabular form.
-                  </label> :
-                  null
-                }
               </form>
             </div>
             <div className="sect">
