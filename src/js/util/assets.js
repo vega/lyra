@@ -23,5 +23,6 @@ module.exports = {
   hamburger: require('../../assets/hamburger.svg'),
   erase: require('../../assets/erase.svg'),
   export: require('../../assets/export.svg'),
+  decreasingSort: require('../../assets/decreasingSort.svg'),
   scaffold: require('../../assets/scaffold.html')
 };
