@@ -172,16 +172,6 @@ describe('marks reducer', function() {
       expect(result.name).to.equal('Scene');
       expect(result.type).to.equal('scene');
     });
-
-    it('converts the scene height and width to signal references', function() {
-      var result = marksReducer(initialState, createScene());
-      expect(result.get('1').get('height').toJS()).to.deep.equal({
-        signal: 'lyra_vis_height'
-      });
-      expect(result.get('1').get('width').toJS()).to.deep.equal({
-        signal: 'lyra_vis_width'
-      });
-    });
   });
 
   describe('set parent action', function() {

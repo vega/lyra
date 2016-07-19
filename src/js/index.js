@@ -27,8 +27,8 @@ var createScene = require('./actions/sceneActions').createScene,
     addMark = require('./actions/markActions').addMark;
 
 store.dispatch(createScene({
-  width: 600,
-  height: 600
+  width: 640,
+  height: 360
 }));
 
 store.dispatch(addPipeline({

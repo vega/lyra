@@ -137,15 +137,7 @@ function marksReducer(state, action) {
   var markId = action.id;
 
   if (action.type === ACTIONS.CREATE_SCENE) {
-    // Set the scene, converting its width and height into their signal equivalents.
-    // `dl.extend()` is used to avoid mutating the action object, which may be utilized
-    // in other reducers as well.
-    return set(state, action.id, makeMark(dl.extend({}, action, {
-      props: dl.extend({}, action.props, {
-        width: {signal: ns('vis_width')},
-        height: {signal: ns('vis_height')}
-      })
-    })));
+    return set(state, action.id, makeMark(action));
   }
 
   if (action.type === ACTIONS.ADD_MARK) {

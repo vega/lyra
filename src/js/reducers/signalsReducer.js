@@ -86,17 +86,6 @@ function signalsReducer(state, action) {
     return state.delete(action.signal);
   }
 
-  if (action.type === ACTIONS.CREATE_SCENE) {
-    // Initialize the visualization width & height from the scene
-    return signalInit(signalInit(state, {
-      signal: ns('vis_width'),
-      value: action.props.width
-    }), {
-      signal: ns('vis_height'),
-      value: action.props.height
-    });
-  }
-
   if (action.type === ACTIONS.ADD_MARK) {
     return initSignalsForMark(state, action,
       action.props.properties && action.props.properties.update);
