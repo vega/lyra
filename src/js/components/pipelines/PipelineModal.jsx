@@ -100,6 +100,7 @@ var PipelineModal = React.createClass({
       format.type = 'json';
       readData = dl.read(raw, format);
       dataset.format = format;
+      dataset.values = raw;
     } catch (error) {
       format.type = 'csv';
       readData = dl.read(raw, format);
@@ -116,15 +117,17 @@ var PipelineModal = React.createClass({
             }
           });
           throw new Error('Trying to import data thats in an unsupported format!');
+        } else {
+          dataset.values = raw;
         }
+      } else {
+        dataset.values = raw;
       }
     }
 
-    dataset.values = readData;
+    console.log('vals being sent: ', dataset.values, dataset.format);
     return dataset;
   },
-  // TODO move hardcoded pipelines to separate file
-  // also add example datasets of different types
   render: function() {
     var props = this.props,
         pipelines = examplePipelines,
