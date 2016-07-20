@@ -38,13 +38,13 @@ var FullField = React.createClass({
   },
 
   hideFull: function(evt) {
-    this.setState({fullField: null, fullValue: null});
+    this.setState({fullField: null});
     this.$fullField.style('display', 'none');
     this.$fullValue.style('display', 'none');
   },
 
   handleDragStart: function(evt) {
-    this.setState({bindField: this.state.fullField});
+    this.setState({bindField: this.props.fullField});
     evt.dataTransfer.setData('text/plain', evt.target.id);
     evt.dataTransfer.effectAllowed = 'link';
     sg.set(sg.MODE, 'channels');
@@ -99,7 +99,7 @@ var FullField = React.createClass({
 
   changeMType: function(evt) {
     var MTYPES = dsUtil.MTYPES,
-        fullField  = this.state.fullField,
+        fullField  = this.props.fullField,
         mTypeIndex = MTYPES.indexOf(fullField.mtype);
 
     mTypeIndex = (mTypeIndex + 1) % MTYPES.length;
