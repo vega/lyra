@@ -40,7 +40,10 @@ module.exports = function(name, type, domain, range) {
     round: undefined,
     points: undefined,
     padding: undefined,
-    amySha: new Set([0]),
-    amyShaNum: 1
+    domainValues: new Map([[0, null]]),
+    shapeValues: new Map([[0, null]]),
+    colorValies: new Map([[0, null]]),
+    shapeValuesSize: 1,
+    domainValuesSize: 1
   };
 };
