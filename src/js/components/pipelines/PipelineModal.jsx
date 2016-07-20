@@ -125,7 +125,6 @@ var PipelineModal = React.createClass({
       }
     }
 
-    console.log('vals being sent: ', dataset.values, dataset.format);
     return dataset;
   },
   render: function() {
