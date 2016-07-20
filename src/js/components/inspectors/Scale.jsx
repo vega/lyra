@@ -114,7 +114,16 @@ var ScaleInspector = React.createClass({
     newShape.set(num, null);
     this.props.updateScaleProperty(this.props.primitive._id, 'shapeValues', newShape);
     this.props.updateScaleProperty(this.props.primitive._id, 'shapeValuesSize', num+1);
+  },
 
+  addColor: function() {
+    var scale = this.props.primitive,
+        scaleId = scale._id,
+        newColor = getIn(store.getState(), 'scales.' + scaleId + '.colorValues'),
+        num = getIn(store.getState(), 'scales.' + scaleId + '.colorValuesSize');
+    newColor.set(num, null);
+    this.props.updateScaleProperty(this.props.primitive._id, 'colorValues', newColor);
+    this.props.updateScaleProperty(this.props.primitive._id, 'colorValuesSize', num+1);
   },
 
   handleDelete: function(key) {
@@ -135,6 +144,15 @@ var ScaleInspector = React.createClass({
     this.props.updateScaleProperty(this.props.primitive._id, 'range', Array.from(newShape.values()));
   },
 
+  deleteColor: function(key) {
+    var scale = this.props.primitive,
+         scaleId = scale._id,
+         newColor = getIn(store.getState(), 'scales.' + scaleId + '.colorValues');
+    newColor.delete(key);
+    this.props.updateScaleProperty(this.props.primitive._id, 'colorValues', newColor);
+    this.props.updateScaleProperty(this.props.primitive._id, 'range', Array.from(newColor.values()));
+  },
+
   handleDomainChange: function(key, evt) {
     var scale = this.props.primitive,
         scaleId = scale._id,
@@ -153,6 +171,16 @@ var ScaleInspector = React.createClass({
     this.props.updateScaleProperty(this.props.primitive._id, 'range', Array.from(newShape.values()));
   },
 
+  handleColorChange: function(key, evt) {
+     var scale = this.props.primitive,
+        scaleId = scale._id,
+        newColor = getIn(store.getState(), 'scales.' + scaleId + '.colorValues');
+    newColor.set(key, evt.target.value);
+    this.props.updateScaleProperty(this.props.primitive._id, 'colorValues', newColor);
+    this.props.updateScaleProperty(this.props.primitive._id, 'range', Array.from(newColor.values()));
+
+  },
+
   render: function() {
     var scale = this.props.primitive;
     var typeProps = '';
@@ -169,7 +197,7 @@ var ScaleInspector = React.createClass({
         scaleId = scale._id,
         newDomain = getIn(store.getState(), 'scales.' + scaleId + '.domainValues'),
         newShape = getIn(store.getState(), 'scales.' + scaleId + '.shapeValues'),
-        newColor = getIn(store.getState(), 'scales.' + scaleId + '.colorValies');
+        newColor = getIn(store.getState(), 'scales.' + scaleId + '.colorValues');
 
     var domainValuesFields = [];
 
@@ -198,7 +226,16 @@ var ScaleInspector = React.createClass({
 
     rangeShapeFields.push(<button onClick={this.addShape}>add</button>);
 
-    for (let key of )
+    for (let key of newColor.keys()) {
+      rangeColorFields.push(
+        <div key={key}>
+          <Property type='color' name='colorSelect' onChange={this.handleColorChange.bind(this, key)} />
+          <button onClick={this.deleteColor.bind(this, key)}>delete</button>
+        </div>
+        );
+    }
+
+    rangeColorFields.push(<button onClick={this.addColor}>add</button>);
 
     var niceS = (
       <Property type='select' value={scale.nice} id='niceS' label='Nice'
@@ -289,14 +326,15 @@ var ScaleInspector = React.createClass({
 
         <div className='property-group'>
           <h3 className='label'>Range</h3>
-            <Property type='select' label='Preset' name='rangePre' value={scale.value} onChange={this.handleChange.bind(this, 'range')} opts={preset} />
+            <Property type='select' label='Preset:' name='rangePre' value={scale.value} onChange={this.handleChange.bind(this, 'range')} opts={preset} />
 
+            
             <div id='custermized'>
-            Custermize
-              shape:<input type='radio' value='shape' id='rangeS' name='custermized' onClick={this.changeCustermized.bind(this)} defaultChecked />
-              color:<input type='radio' value='color' id='rangeC' name='custermized' onClick={this.changeCustermized.bind(this)} />
+            Custermized:
+              shape<input type='radio' value='shape' id='rangeS' name='custermized' onClick={this.changeCustermized.bind(this)} defaultChecked />
+              color<input type='radio' value='color' id='rangeC' name='custermized' onClick={this.changeCustermized.bind(this)} />
               <div id='colorField' style={domainHide}>
-                <p>color</p>
+                {rangeColorFields}
               </div>
               <div id='shapeField'>
                 {rangeShapeFields}
