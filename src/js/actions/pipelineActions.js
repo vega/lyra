@@ -19,7 +19,7 @@ function addPipeline(pipeline, dataset) {
   return function(dispatch) {
     var pid = pipeline._id || counter.global();
 
-    var ds = addDataset(dl.extend({_parent: pid}, dataset));
+    var ds = addDataset(dl.extend({_parent: pid}, dataset), dataset.values);
     dispatch(ds);
 
     pipeline = dl.extend({

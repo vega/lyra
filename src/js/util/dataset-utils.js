@@ -75,7 +75,8 @@ du.values = function(id) {
   var ctrl = require('../ctrl'),
       ds = ctrl.view && ctrl.view.data(def(id).get('name'));
 
-  return ds ? ds.values() : values[id];
+  // proposed change: ensure ds.values() return contents isnt empty
+  return (ds && ds.values().length) ? ds.values() : values[id];
 };
 
 /**
@@ -100,6 +101,7 @@ du.schema = function(id) {
     };
     return s;
   }, {});
+
 };
 
 du.reset = function() {
