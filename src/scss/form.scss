@@ -169,3 +169,24 @@
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
     right: 0px;
 }
+
+.textarea-dnd,
+input[type="text"] {
+  border: 1px solid;
+  border-radius: 3px;
+  font-size: 100%;
+  padding: .5em 1em;
+  border-color: $dgrey-border;
+}
+
+.textarea-dnd {
+  &.active {
+    background-color: $lblue-bg;
+    border-color: $mblue-bg;
+  }
+}
+
+input[type="text"] {
+  line-height: normal;
+  margin-top: 5px;
+}

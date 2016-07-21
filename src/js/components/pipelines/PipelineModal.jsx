@@ -26,7 +26,8 @@ var PipelineModal = React.createClass({
       error: {
         value: false,
         message: ''
-      }
+      },
+      dragActive: 'textarea-dnd'
     };
   },
   proptypes: {
@@ -60,6 +61,20 @@ var PipelineModal = React.createClass({
         props.selectPipeline(pipeline, dataset);
       }
     }.bind(this));
+  },
+  onDragEnter: function(e) {
+    e.preventDefault();
+
+    this.setState({
+      dragActive: 'textarea-dnd active'
+    });
+  },
+  onDragLeave: function(e) {
+    e.preventDefault();
+
+    this.setState({
+      dragActive: 'textarea-dnd'
+    });
   },
   cpChangeHandler: function(e) {
     e.preventDefault();
@@ -130,7 +145,9 @@ var PipelineModal = React.createClass({
   render: function() {
     var props = this.props,
         pipelines = examplePipelines,
-        error = this.state.error;
+        state = this.state,
+        error = state.error,
+        dragActive = state.dragActive;
 
     return (
       <Modal
@@ -142,13 +159,14 @@ var PipelineModal = React.createClass({
             <h2>Examples</h2>
             <div className="sect">
               <h4>Datasets</h4><br />
-              <ul>
+              <ul className="group">
                 {pipelines.map(function(pipeline) {
                   var name = pipeline.name,
                       dateset = pipeline.dataset;
                   return (
                     <li key={name}>
-                      <button onClick={props.selectPipeline.bind(null, name, dateset, this.closeModal)}>
+                      <button className="button"
+                        onClick={props.selectPipeline.bind(null, name, dateset, this.closeModal)}>
                         {name}
                       </button>
                     </li>
@@ -171,7 +189,7 @@ var PipelineModal = React.createClass({
             <div className="sect">
               <form onSubmit={this.handleSubmit}>
                 <input type="text" name="url" placeholder="Enter url"/>
-                <button type="submit" value="Submit">Load</button><br />
+                <button type="submit" value="Submit" className="button">Load</button><br />
               </form>
             </div>
             <div className="sect">
@@ -179,7 +197,10 @@ var PipelineModal = React.createClass({
                 placeholder="Copy and paste or drag and drop"
                 name="cnpDnd"
                 onChange={this.cpChangeHandler}
-                onDrop={this.cpChangeHandler}>
+                onDrop={this.cpChangeHandler}
+                onDragOver={this.onDragEnter}
+                onDragLeave={this.onDragLeave}
+                className={dragActive}>
               </textarea>
             </div>
           </div>
