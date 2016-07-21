@@ -6,16 +6,15 @@ var React = require('react'),
     dl = require('datalib'),
     examplePipelines = require('../../constants/exampledatasets');
 
+var FILE_NAME = /([\w\d_-]*)\.?[^\\\/]*$/i;
+
 function mapStateToProps(state, ownProps) {
   return {};
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     selectPipeline: function(pipelineName, dataset) {
-
-      dispatch(addPipeline({
-        name: pipelineName
-      }, dataset));
+      dispatch(addPipeline({name: pipelineName}, dataset));
       ownProps.closeModal();
     }
   };
@@ -37,24 +36,20 @@ var PipelineModal = React.createClass({
 
     var props = this.props,
         url = e.target.url.value,
-        re = /([\w\d_-]*)\.?[^\\\/]*$/i,
-        fileName = url.match(re)[1],
-        pipeline = fileName,
-        dataset = {
-          name: fileName
-        };
+        fileName = url.match(FILE_NAME)[1],
+        pipeline = {name: fileName},
+        dataset  = {name: fileName};
 
     dl.load({url: url}, function(loadError, data) {
       if (loadError) {
-        if (loadError.statusText) {
-          this.setState({
-            error: {
-              value: true,
-              message: loadError.statusText
-            }
-          });
-          throw loadError;
-        }
+        // TODO: loadError is an XHR object and will not have a statusText.
+        this.setState({
+          error: {
+            value: true,
+            message: loadError.statusText
+          }
+        });
+        throw loadError;
       } else {
         dataset = this.parseRaw(data, dataset);
         props.selectPipeline(pipeline, dataset);
@@ -67,15 +62,12 @@ var PipelineModal = React.createClass({
     var target = e.target,
         props = this.props,
         type = e.type,
-        pipeline = 'name',
-        dataset = {
-          name: 'name'
-        },
+        pipeline = {name: 'name'},
+        dataset  = {name: 'name'},
         raw;
 
     if (type === 'change') {
       raw = target.value;
-
       dataset = this.parseRaw(raw, dataset);
       props.selectPipeline(pipeline, dataset);
     } else if (type === 'drop') {
@@ -86,6 +78,7 @@ var PipelineModal = React.createClass({
         raw = loadEvent.target.result;
 
         dataset = this.parseRaw(raw, dataset);
+        pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
         props.selectPipeline(pipeline, dataset);
       }.bind(this);
 

@@ -26,6 +26,8 @@ function invalidateVegaReducer(state, action) {
   // All of these actions implicitly invalidate the view
   var invalidatingActions = [
     ACTIONS.CREATE_SCENE,
+    ACTIONS.ADD_PIPELINE,
+    ACTIONS.INIT_DATASET,
     ACTIONS.INIT_SIGNAL,
     ACTIONS.ADD_MARK,
     ACTIONS.DELETE_GUIDE,

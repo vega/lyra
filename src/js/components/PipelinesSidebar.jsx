@@ -7,19 +7,13 @@ var React = require('react'),
 
 var PipelineSidebar = React.createClass({
   getInitialState: function() {
-    return {
-      modalIsOpen: false
-    };
+    return {modalIsOpen: false};
   },
   openModal: function() {
-    this.setState({
-      modalIsOpen: true
-    });
+    this.setState({modalIsOpen: true});
   },
   closeModal: function() {
-    this.setState({
-      modalIsOpen: false
-    });
+    this.setState({modalIsOpen: false});
   },
   render: function() {
     return (
