@@ -4,7 +4,9 @@ var React = require('react'),
 
 var ContentEditable = React.createClass({
   propTypes: {
-    value: React.PropTypes.string,
+    value: React.PropTypes.oneOfType([
+      React.PropTypes.string, React.PropTypes.number
+    ]),
     save: React.PropTypes.func
   },
 

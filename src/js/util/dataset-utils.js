@@ -2,9 +2,9 @@
 
 var dl = require('datalib'),
     vl = require('vega-lite'),
-    promisify = require('es6-promisify'),
-    getInVis = require('./immutable-utils').getInVis,
-    initDataset = require('../actions/datasetActions').initDataset,
+    imutils = require('./immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     MTYPES = vl.data.types;
 
 // Circumvents the circular dependency
@@ -25,43 +25,55 @@ function def(id) {
  *
  * @namespace dataset-utilities
  */
-var du = {},
-    values = {},
-    schema = {};
+var _raw = {},
+    _values = {},
+    _schema = {};
 
 /**
  * Initialize a dataset by loading the raw values and constructing the schema.
  * Once this is done, an initDataset action is dispatched.
  *
  * @param  {Object} action - An ADD_DATASET action.
- * @returns {Promise} A promise that is resolved once the data has been loaded.
+ * @returns {void}
  */
-du.init = function(action) {
-  var id  = action.id,
-      ds  = action.props,
-      fmt = ds.format;
+function init(action) {
+  var id = action.id,
+      props = action.props,
+      src = props.source,
+      format = props.format,
+      type = format && format.type;
 
-  if (values[id]) { // Early-exit if we've previously loaded values.
-    return Promise.resolve(values[id]);
+  if (_values[id]) { // Early-exit if we've previously loaded values.
+    return _values[id];
   }
 
-  return new Promise(function(resolve, reject) {
-    if (ds.source) {
-      resolve((values[id] = values[ds.source]));
-    } else if (action.values) {
-      resolve((values[id] = dl.read(action.values, fmt)));
-    } else if (ds.url) {
-      resolve(
-        promisify(dl.load)({url: ds.url}).then(function(data) {
-          return (values[id] = dl.read(data, fmt));
-        })
-      );
+  if (src) {
+    _raw[id] = _raw[src];
+    _values[id] = _values[src];
+  } else {
+    if (type && type !== 'json') {
+      _raw[id] = action.rawVals;
     }
-  }).then(function() {
-    du.schema(id);
-    store().dispatch(initDataset(id));
-  });
-};
+
+    _values[id] = action.parsedVals;
+  }
+
+  schema(id);
+}
+
+/**
+ * Gets the dataset's raw input values. This is called during export because
+ * raw values might be more concise than parsed values in the case of CSV/TSV.
+ *
+ * @param {number} id - The ID of the dataset.
+ * @returns {Array|string} An array of objects.
+ */
+function raw(id) {
+  var ds = def(id),
+      format = getIn(ds, 'format.type');
+
+  return format && format !== 'json' ? _raw[id] : _values[id];
+}
 
 /**
  * Gets the dataset's output tuples (i.e., after all transformations have been
@@ -71,13 +83,14 @@ du.init = function(action) {
  * @param {number} id - The ID of the dataset.
  * @returns {Object[]} An array of objects.
  */
-du.values = function(id) {
+function values(id) {
   var ctrl = require('../ctrl'),
-      ds = ctrl.view && ctrl.view.data(def(id).get('name'));
+      ds = def(id),
+      view = ds && ctrl.view && ctrl.view.data(ds.get('name'));
 
   // proposed change: ensure ds.values() return contents isnt empty
-  return (ds && ds.values().length) ? ds.values() : values[id];
-};
+  return (view && view.values().length) ? view.values() : _values[id];
+}
 
 /**
  * Constructs the schema of the given dataset -- an object where keys correspond
@@ -86,13 +99,13 @@ du.values = function(id) {
  * @param  {number} id - The ID of the dataset.
  * @returns {Object} The dataset's schema.
  */
-du.schema = function(id) {
-  if (schema[id]) {
-    return schema[id];
+function schema(id) {
+  if (_schema[id]) {
+    return _schema[id];
   }
 
-  var types  = dl.type.inferAll(du.values(id));
-  schema[id] = dl.keys(types).reduce(function(s, k) {
+  var types  = dl.type.inferAll(values(id));
+  _schema[id] = dl.keys(types).reduce(function(s, k) {
     // TODO: Refactor out to a Field class?
     s[k] = {
       name:  k,
@@ -102,14 +115,19 @@ du.schema = function(id) {
     return s;
   }, {});
 
+}
+
+function reset() {
+  _raw = {};
+  _values = {};
+  _schema = {};
+}
+
+module.exports = {
+  init: init,
+  raw: raw,
+  values: values,
+  schema: schema,
+  reset: reset,
+  MTYPES: ['nominal', 'quantitative', 'temporal'], // ordinal not yet used
 };
-
-du.reset = function() {
-  du = {};
-  values = {};
-  schema = {};
-};
-
-du.MTYPES = ['nominal', 'quantitative', 'temporal']; // ordinal not yet used
-
-module.exports = du;

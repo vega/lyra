@@ -13,8 +13,8 @@ function mapStateToProps(state, ownProps) {
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    selectPipeline: function(pipelineName, dataset) {
-      dispatch(addPipeline({name: pipelineName}, dataset));
+    selectPipeline: function(pipeline, dataset, rawValues, parsedValues) {
+      dispatch(addPipeline(pipeline, dataset, rawValues, parsedValues));
       ownProps.closeModal();
     }
   };
@@ -28,98 +28,105 @@ var PipelineModal = React.createClass({
       }
     };
   },
+
   proptypes: {
     selectPipeline: React.PropTypes.func
   },
-  handleSubmit: function(e) {
-    e.preventDefault();
 
-    var props = this.props,
-        url = e.target.url.value,
-        fileName = url.match(FILE_NAME)[1],
-        pipeline = {name: fileName},
-        dataset  = {name: fileName};
+  loadURL: function(url, pipeline, dataset) {
+    var that = this,
+        fileName = url.match(FILE_NAME)[1];
 
-    dl.load({url: url}, function(loadError, data) {
-      if (loadError) {
-        // TODO: loadError is an XHR object and will not have a statusText.
-        this.setState({
+    pipeline = pipeline || {name: fileName};
+    dataset = dataset  || {name: fileName, url: url};
+
+    dl.load({url: url}, function(err, data) {
+      if (err) {
+        // TODO: err is an XHR object and will not have a statusText.
+        that.setState({
           error: {
             value: true,
-            message: loadError.statusText
+            message: err.statusText
           }
         });
-        throw loadError;
+        throw err;
       } else {
-        dataset = this.parseRaw(data, dataset);
-        props.selectPipeline(pipeline, dataset);
+        that.props.selectPipeline(pipeline, dataset, data,
+          that.parseRaw(data, dataset));
       }
-    }.bind(this));
+    });
   },
-  cpChangeHandler: function(e) {
-    e.preventDefault();
 
-    var target = e.target,
-        props = this.props,
-        type = e.type,
-        pipeline = {name: 'name'},
-        dataset  = {name: 'name'},
-        raw;
-
-    if (type === 'change') {
-      raw = target.value;
-      dataset = this.parseRaw(raw, dataset);
-      props.selectPipeline(pipeline, dataset);
-    } else if (type === 'drop') {
-      var file = e.dataTransfer.files[0],
-          fr = new FileReader();
-
-      fr.onload = function(loadEvent) {
-        raw = loadEvent.target.result;
-
-        dataset = this.parseRaw(raw, dataset);
-        pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
-        props.selectPipeline(pipeline, dataset);
-      }.bind(this);
-
-      fr.readAsText(file);
-    }
-  },
   parseRaw: function(raw, dataset) {
-    var readData,
-        format = {};
+    var format = dataset.format = {parse: 'auto'},
+        parsed;
 
     try {
       format.type = 'json';
-      readData = dl.read(raw, format);
-      dataset.format = format;
-      dataset.values = raw;
+      return dl.read(raw, format);
     } catch (error) {
       format.type = 'csv';
-      readData = dl.read(raw, format);
-      dataset.format = format;
-      if (dl.keys(readData[0]).length === 1) {
-        format.type = 'tsv';
-        readData = dl.read(raw, format);
-        dataset.format = format;
-        if (dl.keys(readData[0]).length === 1) {
-          this.setState({
-            error: {
-              value: true,
-              message: 'Trying to import data thats in an unsupported format!'
-            }
-          });
-          throw new Error('Trying to import data thats in an unsupported format!');
-        } else {
-          dataset.values = raw;
-        }
-      } else {
-        dataset.values = raw;
+      parsed = dl.read(raw, format);
+
+      // Test successful parsing of CSV/TSV data by checking # of fields found.
+      // If file is TSV but was parsed as CSV, the entire header row will be
+      // parsed as a single field.
+      if (dl.keys(parsed[0]).length > 1) {
+        return parsed;
       }
+
+      format.type = 'tsv';
+      parsed = dl.read(raw, format);
+      if (dl.keys(parsed[0]).length > 1) {
+        return parsed;
+      }
+
+      this.setState({
+        error: {
+          value: true,
+          message: 'Trying to import data thats in an unsupported format!'
+        }
+      });
+      throw new Error('Trying to import data thats in an unsupported format!');
     }
 
-    return dataset;
+    return [];
   },
+
+  handleSubmit: function(evt) {
+    var that = this,
+        props = this.props;
+
+    this.loadURL(evt.target.url.value);
+    evt.preventDefault();
+  },
+
+  cpChangeHandler: function(evt) {
+    var that = this,
+        props = this.props,
+        target = evt.target,
+        type = evt.type,
+        pipeline = {name: 'name'},
+        dataset  = {name: 'name'},
+        raw = target.value,
+        file, reader;
+
+    evt.preventDefault();
+    if (type === 'change') {
+      props.selectPipeline(pipeline, dataset, raw, this.parseRaw(raw, dataset));
+    } else if (type === 'drop') {
+      file = evt.dataTransfer.files[0];
+      reader = new FileReader();
+      reader.onload = function(loadEvt) {
+        pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
+        raw = loadEvt.target.result;
+        props.selectPipeline(pipeline, dataset, raw, that.parseRaw(raw, dataset));
+      };
+
+      reader.readAsText(file);
+    }
+  },
+
   render: function() {
     var props = this.props,
         pipelines = examplePipelines,
@@ -131,17 +138,20 @@ var PipelineModal = React.createClass({
         onRequestClose={props.closeModal}>
         <div className="wrapper pipelineModal">
           <span className="closeModal" onClick={props.closeModal}>close</span>
+
           <div className="partLeft">
             <h2>Examples</h2>
+
             <div className="sect">
-              <h4>Datasets</h4><br />
+              <h4>Datasets</h4>
+
               <ul>
                 {pipelines.map(function(pipeline) {
                   var name = pipeline.name,
-                      dateset = pipeline.dataset;
+                      dataset = pipeline.dataset;
                   return (
                     <li key={name}>
-                      <button onClick={props.selectPipeline.bind(null, name, dateset, this.closeModal)}>
+                      <button onClick={this.loadURL.bind(this, dataset.url, {name: name}, dataset)}>
                         {name}
                       </button>
                     </li>
@@ -149,24 +159,29 @@ var PipelineModal = React.createClass({
                 }, this)}
               </ul>
             </div>
-
           </div>
+
+
           <div className="partRight">
             <h2>Import</h2>
+
             <label>
               Supported import formats include <abbr title="JavaScripts Object Notation">JSON</abbr>,
               <abbr title="Coma Separated Values">CSV</abbr> and <abbr title="Tab Separated Values">TSV</abbr>.<br />
               All data <strong>must</strong> be in tabular form.
             </label>
+
             <div className="sect">
               {error.value ? <label className="error">{error.message}</label> : null}
             </div>
+
             <div className="sect">
               <form onSubmit={this.handleSubmit}>
                 <input type="text" name="url" placeholder="Enter url"/>
                 <button type="submit" value="Submit">Load</button><br />
               </form>
             </div>
+
             <div className="sect">
               <textarea rows="10" cols="70"
                 placeholder="Copy and paste or drag and drop"

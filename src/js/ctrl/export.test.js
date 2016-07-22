@@ -38,7 +38,8 @@ describe('Exporter Utility', function() {
         '2': {
           _id: 2,
           name: 'cars dataset',
-          url: '/data/cars.json'
+          url: '/data/cars.json',
+          format: {type: 'json'}
         },
         '3': {
           _id: 3,
@@ -47,7 +48,8 @@ describe('Exporter Utility', function() {
         },
         '4': {
           _id: 4,
-          name: 'jobs dataset'
+          name: 'jobs dataset',
+          format: {type: 'json'}
         }
       },
       values: [
@@ -62,7 +64,8 @@ describe('Exporter Utility', function() {
       dsUtil.init({
         id: 2,
         props: state.datasets['2'],
-        values: state.values[0]
+        rawVals: JSON.stringify(state.values[0]),
+        parsedVals: state.values[0]
       });
 
       dsUtil.init({
@@ -73,7 +76,8 @@ describe('Exporter Utility', function() {
       dsUtil.init({
         id: 4,
         props: state.datasets['4'],
-        values: state.values[1]
+        rawVals: JSON.stringify(state.values[1]),
+        parsedVals: state.values[1]
       });
     });
 
@@ -81,7 +85,7 @@ describe('Exporter Utility', function() {
       it('exports remote datasets', function() {
         var spec = exporter.dataset(imstate, false, 2);
         expect(spec).to.deep.equal({
-          name: 'cars_dataset', url: '/data/cars.json'
+          name: 'cars_dataset', url: '/data/cars.json', format: {type: 'json'}
         });
       });
 
@@ -99,9 +103,16 @@ describe('Exporter Utility', function() {
       });
 
       it('exports raw datasets', function() {
-        var truth = {name: 'jobs_dataset', values: state.values[1]};
-        expect(exporter.dataset(imstate, false, 4)).to.deep.equal(truth);
-        expect(exporter.dataset(imstate, true, 4)).to.deep.equal(truth);
+        expect(exporter.dataset(imstate, false, 4)).to.deep.equal({
+          name: 'jobs_dataset',
+          values: state.values[1],
+          format: {type: 'json'}
+        });
+
+        expect(exporter.dataset(imstate, true, 4)).to.deep.equal({
+          name: 'jobs_dataset',
+          values: state.values[1]
+        });
       });
     });
 
@@ -112,8 +123,8 @@ describe('Exporter Utility', function() {
       ]);
 
       expect(exporter.pipelines(imstate, false)).to.deep.equal([
-        {name: 'cars_dataset', url: '/data/cars.json'},
-        {name: 'jobs_dataset', values: state.values[1]}
+        {name: 'cars_dataset', url: '/data/cars.json', format: {type: 'json'}},
+        {name: 'jobs_dataset', values: state.values[1], format: {type: 'json'}}
       ]);
     });
   });

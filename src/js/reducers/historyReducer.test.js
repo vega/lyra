@@ -28,7 +28,6 @@ var reducer = historyReducer(function(state, action) {
     case ACTIONS.ADD_PIPELINE:
       return state + 1.5;
     case ACTIONS.ADD_DATASET:
-    case ACTIONS.INIT_DATASET:
       return state - 1.5;
     case ACTIONS.SET_SIGNAL:
       return state * 2;
@@ -220,7 +219,7 @@ describe('History Reducer', function() {
 
     // Prevent erroneously storing of state if first action is filtered.
     dispatch(histActions.clearHistory());
-    expect(dispatch({type: ACTIONS.INIT_DATASET})).to.deep.equal({
+    expect(dispatch({type: ACTIONS.ADD_DATASET})).to.deep.equal({
       past: [], present: 2, future: [], filtered: false
     });
   });

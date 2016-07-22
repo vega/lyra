@@ -13,13 +13,15 @@ var dl = require('datalib'),
  *
  * @param {Object} pipeline - The properties of the pipeline.
  * @param {Object} dataset - The properties of the dataset.
+ * @param {Array|string} rawVals - An array of raw values or a CSV/TSV string.
+ * @param {Array} parsedVals - A JSON array of parsed values.
  * @returns {Function} An async action function
  */
-function addPipeline(pipeline, dataset) {
+function addPipeline(pipeline, dataset, rawVals, parsedVals) {
   return function(dispatch) {
     var pid = pipeline._id || counter.global();
 
-    var ds = addDataset(dl.extend({_parent: pid}, dataset), dataset.values);
+    var ds = addDataset(dl.extend({_parent: pid}, dataset), rawVals, parsedVals);
     dispatch(ds);
 
     pipeline = dl.extend({

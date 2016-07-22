@@ -27,7 +27,6 @@ function invalidateVegaReducer(state, action) {
   var invalidatingActions = [
     ACTIONS.CREATE_SCENE,
     ACTIONS.ADD_PIPELINE,
-    ACTIONS.INIT_DATASET,
     ACTIONS.INIT_SIGNAL,
     ACTIONS.ADD_MARK,
     ACTIONS.DELETE_GUIDE,

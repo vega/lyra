@@ -37,17 +37,18 @@ exporter.dataset = function(state, internal, id) {
   var dataset = getInVis(state, 'datasets.' + id).toJS(),
       spec = clean(dl.duplicate(dataset), internal);
 
-  // Only include the raw values in the exported spec if:
-  //   1. It is a remote dataset but we're re-rendering the Lyra view
-  //   2. Raw values were provided by the user directly (i.e., no url/source).
-  if ((spec.url && internal) || (!spec.url && !spec.source)) {
-    spec.values = dsUtils.values(id);
-    delete spec.url;
-  }
-
   // Resolve dataset ID to name.
+  // Only include the raw values in the exported spec if:
+  //   1. We're re-rendering the Lyra view
+  //   2. Raw values were provided by the user directly (i.e., no url/source).
   if (spec.source) {
     spec.source = name(getInVis(state, 'datasets.' + spec.source + '.name'));
+  } else if (internal) {
+    spec.values = dsUtils.values(id);
+    delete spec.url;
+    delete spec.format; // values are JSON, so do not need to be reparsed.
+  } else if (!spec.url) {
+    spec.values = dsUtils.raw(id);
   }
 
   return spec;
