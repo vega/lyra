@@ -1,6 +1,7 @@
 'use strict';
 var d3 = require('d3'),
     dl = require('datalib'),
+    vl = require('vega-lite'),
     React = require('react'),
     ReactDOM = require('react-dom'),
     connect = require('react-redux').connect,
@@ -14,7 +15,19 @@ var d3 = require('d3'),
     Icon = require('../Icon'),
     bindChannel = require('../../actions/bindChannel');
 
+function mapStateToProps(state, ownProps) {
+  return {
+    dataset: getIn(state, 'datasets.' + ownProps.id)
+  };
+}
 
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    bindChannel: function(dsId, field, markId, property) {
+      dispatch(bindChannel(dsId, field, markId, property));
+    }
+  };
+}
 
 var FullField = React.createClass({
 
@@ -126,4 +139,4 @@ var FullField = React.createClass({
   }
 });
 
-module.exports = addVegaReparseRequest(FullField);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(addVegaReparseRequest(FullField));
