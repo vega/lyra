@@ -1,6 +1,7 @@
 'use strict';
 
 var dl = require('datalib'),
+    json2csv = require('json2csv'),
     store = require('../store'),
     getInVis = require('../util/immutable-utils').getInVis,
     signalLookup = require('../util/signal-lookup'),
@@ -35,7 +36,9 @@ exporter.pipelines = function(state, internal) {
 
 exporter.dataset = function(state, internal, id) {
   var dataset = getInVis(state, 'datasets.' + id).toJS(),
-      spec = clean(dl.duplicate(dataset), internal);
+      spec = clean(dl.duplicate(dataset), internal),
+      values = dsUtils.input(id),
+      format = spec.format && spec.format.type;
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
@@ -44,11 +47,12 @@ exporter.dataset = function(state, internal, id) {
   if (spec.source) {
     spec.source = name(getInVis(state, 'datasets.' + spec.source + '.name'));
   } else if (internal) {
-    spec.values = dsUtils.values(id);
+    spec.values = values;
     delete spec.url;
     delete spec.format; // values are JSON, so do not need to be reparsed.
   } else if (!spec.url) {
-    spec.values = dsUtils.raw(id);
+    spec.values = format && format !== 'json' ?
+      json2csv({data: values, del: format === 'tsv' ? '\t' : ','}) : values;
   }
 
   return spec;
@@ -294,7 +298,7 @@ function dataRef(state, ref) {
 
   // More than one ref
   for (i = 0, len = ref.length; i < len; ++i) {
-    data  = getInVis(state, 'datasets.' + ref[i].data);
+    data = getInVis(state, 'datasets.' + ref[i].data);
     field = ref[i].field;
     sets[did = data.get('_id')] = sets[did] || (sets[did] = []);
     sets[did].push(field);

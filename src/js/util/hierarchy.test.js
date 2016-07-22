@@ -1,4 +1,4 @@
-/* eslint no-unused-expressions:0 */
+/* eslint no-unused-expressions:0, new-cap:0 */
 'use strict';
 var expect = require('chai').expect,
     Immutable = require('immutable'),
@@ -41,7 +41,7 @@ describe('hierarchy utilities', function() {
 
     it('returns null if a mark was not found', function() {
       var parentlessMark  = Immutable.Map(),
-          parentlessMark2 = Immutable.Map({ _parent: 5 });
+          parentlessMark2 = Immutable.Map({_parent: 5});
       expect(getParent(parentlessMark, state)).to.be.null;
       expect(getParent(parentlessMark2, state)).to.be.null;
     });
@@ -72,7 +72,7 @@ describe('hierarchy utilities', function() {
     });
 
     it('returns an empty array when called with a mark without a parent', function() {
-      var result = getParents(Immutable.Map({ _parent: 5}));
+      var result = getParents(Immutable.Map({_parent: 5}));
       expect(result).to.be.an('array');
       expect(result).to.deep.equal([]);
     });

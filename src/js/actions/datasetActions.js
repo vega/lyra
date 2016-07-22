@@ -8,11 +8,10 @@ var dl = require('datalib'),
  * Action creator to add a new Dataset in the store.
  *
  * @param {Object} props - The properties of the dataset.
- * @param {Array|string} rawVals - An array of raw values or a CSV/TSV string.
- * @param {Array} parsedVals - A JSON array of parsed values.
+ * @param {Array} values - A JSON array of parsed values.
  * @returns {Object} An ADD_DATASET action.
  */
-function addDataset(props, rawVals, parsedVals) {
+function addDataset(props, values) {
   props = dl.extend({
     _id: props._id || counter.global()
   }, props);
@@ -21,8 +20,7 @@ function addDataset(props, rawVals, parsedVals) {
     type: ADD_DATASET,
     id: props._id,
     props: props,
-    rawVals: rawVals,
-    parsedVals: parsedVals
+    values: values
   };
 }
 

@@ -23,6 +23,8 @@ function getParent(mark, state) {
  * groups which may be considered to be ancestors of the provided primitive.
  *
  * @param  {ImmutableMap} primitive - The primitive for which to return ancestors.
+ * @param {ImmutableMap} [state] - Optional redux state -- passed in for testing,
+ * otherwise uses the Lyra store.
  * @returns {ImmutableMap[]} An array of primitives.
  */
 function getParents(primitive, state) {

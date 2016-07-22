@@ -64,8 +64,7 @@ describe('Exporter Utility', function() {
       dsUtil.init({
         id: 2,
         props: state.datasets['2'],
-        rawVals: JSON.stringify(state.values[0]),
-        parsedVals: state.values[0]
+        values: state.values[0]
       });
 
       dsUtil.init({
@@ -76,8 +75,7 @@ describe('Exporter Utility', function() {
       dsUtil.init({
         id: 4,
         props: state.datasets['4'],
-        rawVals: JSON.stringify(state.values[1]),
-        parsedVals: state.values[1]
+        values: state.values[1]
       });
     });
 

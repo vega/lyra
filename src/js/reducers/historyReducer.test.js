@@ -1,5 +1,6 @@
+'use strict';
+
 var range = require('datalib').range,
-    createStore = require('redux').createStore,
     expect = require('chai').expect,
     historyReducer = require('./historyReducer'),
     ACTIONS = require('../actions/Names'),

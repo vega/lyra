@@ -3,7 +3,6 @@
 var dl = require('datalib'),
     vl = require('vega-lite'),
     imutils = require('./immutable-utils'),
-    getIn = imutils.getIn,
     getInVis = imutils.getInVis,
     MTYPES = vl.data.types;
 
@@ -25,8 +24,7 @@ function def(id) {
  *
  * @namespace dataset-utilities
  */
-var _raw = {},
-    _values = {},
+var _values = {},
     _schema = {};
 
 /**
@@ -39,25 +37,13 @@ var _raw = {},
 function init(action) {
   var id = action.id,
       props = action.props,
-      src = props.source,
-      format = props.format,
-      type = format && format.type;
+      src = props.source;
 
   if (_values[id]) { // Early-exit if we've previously loaded values.
     return _values[id];
   }
 
-  if (src) {
-    _raw[id] = _raw[src];
-    _values[id] = _values[src];
-  } else {
-    if (type && type !== 'json') {
-      _raw[id] = action.rawVals;
-    }
-
-    _values[id] = action.parsedVals;
-  }
-
+  _values[id] = src ? _values[src] : action.values;
   schema(id);
 }
 
@@ -68,11 +54,8 @@ function init(action) {
  * @param {number} id - The ID of the dataset.
  * @returns {Array|string} An array of objects.
  */
-function raw(id) {
-  var ds = def(id),
-      format = getIn(ds, 'format.type');
-
-  return format && format !== 'json' ? _raw[id] : _values[id];
+function input(id) {
+  return _values[id];
 }
 
 /**
@@ -83,13 +66,13 @@ function raw(id) {
  * @param {number} id - The ID of the dataset.
  * @returns {Object[]} An array of objects.
  */
-function values(id) {
+function output(id) {
   var ctrl = require('../ctrl'),
       ds = def(id),
       view = ds && ctrl.view && ctrl.view.data(ds.get('name'));
 
   // proposed change: ensure ds.values() return contents isnt empty
-  return (view && view.values().length) ? view.values() : _values[id];
+  return (view && view.values().length) ? view.values() : input(id);
 }
 
 /**
@@ -104,7 +87,7 @@ function schema(id) {
     return _schema[id];
   }
 
-  var types  = dl.type.inferAll(values(id));
+  var types  = dl.type.inferAll(output(id));
   _schema[id] = dl.keys(types).reduce(function(s, k) {
     // TODO: Refactor out to a Field class?
     s[k] = {
@@ -118,15 +101,14 @@ function schema(id) {
 }
 
 function reset() {
-  _raw = {};
   _values = {};
   _schema = {};
 }
 
 module.exports = {
   init: init,
-  raw: raw,
-  values: values,
+  input: input,
+  output: output,
   schema: schema,
   reset: reset,
   MTYPES: ['nominal', 'quantitative', 'temporal'], // ordinal not yet used

@@ -13,8 +13,8 @@ function mapStateToProps(state, ownProps) {
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    selectPipeline: function(pipeline, dataset, rawValues, parsedValues) {
-      dispatch(addPipeline(pipeline, dataset, rawValues, parsedValues));
+    selectPipeline: function(pipeline, dataset, values) {
+      dispatch(addPipeline(pipeline, dataset, values));
       ownProps.closeModal();
     }
   };
@@ -37,8 +37,9 @@ var PipelineModal = React.createClass({
     var that = this,
         fileName = url.match(FILE_NAME)[1];
 
+    /* eslint no-multi-spaces:0 */
     pipeline = pipeline || {name: fileName};
-    dataset = dataset  || {name: fileName, url: url};
+    dataset  = dataset  || {name: fileName, url: url};
 
     dl.load({url: url}, function(err, data) {
       if (err) {
@@ -51,8 +52,7 @@ var PipelineModal = React.createClass({
         });
         throw err;
       } else {
-        that.props.selectPipeline(pipeline, dataset, data,
-          that.parseRaw(data, dataset));
+        that.props.selectPipeline(pipeline, dataset, that.parseRaw(data, dataset));
       }
     });
   },
@@ -94,9 +94,6 @@ var PipelineModal = React.createClass({
   },
 
   handleSubmit: function(evt) {
-    var that = this,
-        props = this.props;
-
     this.loadURL(evt.target.url.value);
     evt.preventDefault();
   },
@@ -113,14 +110,14 @@ var PipelineModal = React.createClass({
 
     evt.preventDefault();
     if (type === 'change') {
-      props.selectPipeline(pipeline, dataset, raw, this.parseRaw(raw, dataset));
+      props.selectPipeline(pipeline, dataset, this.parseRaw(raw, dataset));
     } else if (type === 'drop') {
       file = evt.dataTransfer.files[0];
       reader = new FileReader();
       reader.onload = function(loadEvt) {
         pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
         raw = loadEvt.target.result;
-        props.selectPipeline(pipeline, dataset, raw, that.parseRaw(raw, dataset));
+        props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
       };
 
       reader.readAsText(file);

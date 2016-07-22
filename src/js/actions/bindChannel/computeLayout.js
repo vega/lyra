@@ -43,7 +43,7 @@ module.exports = function(dispatch, state, parsed, scale) {
   }
 
   var distinct = domain.reduce(function(count, d) {
-    return count + dl.count.distinct(dsUtils.values(d.data), dl.$(d.field));
+    return count + dl.count.distinct(dsUtils.output(d.data), dl.$(d.field));
   }, 0);
 
   var size = scene.get(range),
