@@ -120,10 +120,12 @@ var PipelineModal = React.createClass({
       format.type = 'csv';
       readData = dl.read(raw, format);
       dataset.format = format;
+
       if (dl.keys(readData[0]).length === 1) {
         format.type = 'tsv';
         readData = dl.read(raw, format);
         dataset.format = format;
+
         if (dl.keys(readData[0]).length === 1) {
           this.setState({
             error: {
