@@ -1,12 +1,15 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
+    capitalize = require('capitalize'),
     ReactTooltip = require('react-tooltip'),
     Immutable = require('immutable'),
     store = require('../../store'),
     ContentEditable = require('../ContentEditable'),
-    get = require('../../util/immutable-utils').get,
-    getIn = require('../../util/immutable-utils').getIn,
+    imutils = require('../../util/immutable-utils'),
+    get = imutils.get,
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     selectGuide = require('../../actions/inspectorActions').selectGuide,
     selectMark = require('../../actions/inspectorActions').selectMark,
     guideActions = require('../../actions/guideActions'),
@@ -23,7 +26,7 @@ function mapStateToProps(reduxState, ownProps) {
   return {
     selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
     expandedLayers: getIn(reduxState, 'inspector.encodings.expandedLayers'),
-    group: getIn(reduxState, 'marks.' + ownProps.id)
+    group: getInVis(reduxState, 'marks.' + ownProps.id)
   };
 }
 
@@ -101,6 +104,7 @@ var Group = React.createClass({
   },
   render: function() {
     var props = this.props,
+        state = store.getState(),
         level = +props.level,
         selectedId = props.selectedId,
         groupId = props.id,
@@ -109,33 +113,40 @@ var Group = React.createClass({
         axes = group.get('axes'),
         marks = group.get('marks'),
         isExpanded = get(props.expandedLayers, groupId);
+
     var contents = isExpanded && group.get('marks') ? (
       <ul className="group">
+
         <li className="header">Guides <Icon glyph={assets.plus} width="10" height="10" /></li>
+
         {axes.map(function(id) {
-          var axis = getIn(store.getState(), 'guides.' + id);
+          var axis = getInVis(state, 'guides.' + id);
           if (axis) {
-            var axisType = axis.get('type');
+            var scale = getInVis(state, 'scales.' + axis.get('scale')),
+                name  = capitalize(scale.get('name'));
             return (
               <li key={id}>
                 <div className={'name' + (selectedId === id ? ' selected' : '')}
                   onClick={props.select.bind(null, id, 'guide')}>
-                  {axisType.toUpperCase()}
+                  {name} Axis
                   <Icon glyph={assets.trash} className="delete"
                     onClick={this.deleteUpdate.bind(null, id, 'guide')}
-                    data-tip={'Delete ' + axisType.toUpperCase()}
+                    data-tip={'Delete ' + name}
                     data-place="right" />
                 </div>
               </li>
             );
           }
         }, this)}
+
         <li className="header">Marks <Icon glyph={assets.plus} width="10" height="10" /></li>
+
         {marks.map(function(id) {
-          var mark = getIn(store.getState(), 'marks.' + id),
+          var mark = getInVis(state, 'marks.' + id),
               type = mark.get('type'),
               name = mark.get('name'),
               icon = this.icon(type, isExpanded);
+
           return type === 'group' ? (
             <Group key={id}
               {...props}
@@ -157,6 +168,7 @@ var Group = React.createClass({
             </li>
           );
         }, this)}
+
       </ul>
     ) : null;
     var icon = this.icon(groupType, isExpanded),

@@ -1,7 +1,7 @@
 'use strict';
 var sg = require('../../ctrl/signals'),
     store = require('../../store'),
-    getIn = require('../../util/immutable-utils').getIn,
+    getInVis = require('../../util/immutable-utils').getInVis,
     setSignal = require('../../actions/signalActions').setSignal,
     ctrl = require('../../ctrl');
 
@@ -9,7 +9,7 @@ module.exports = {
   getInitialState: function() {
     var state = store.getState(),
         props = this.props,
-        signalValue = props.signal && getIn(state, 'signals.' + props.signal + '.init');
+        signalValue = props.signal && getInVis(state, 'signals.' + props.signal + '.init');
 
     return {
       value: props.signal ? signalValue : props.value
@@ -63,7 +63,7 @@ module.exports = {
   },
 
   handleChange: function(evt) {
-    this.setValue(evt.target.value);
+    this.setValue(evt.target ? evt.target.value : evt);
   },
 
   setValue: function(value) {

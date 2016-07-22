@@ -1,10 +1,12 @@
 'use strict';
 
-var propSg = require('../../util/prop-signal'),
+var dl = require('datalib'),
+    propSg = require('../../util/prop-signal'),
     setSignal = require('../signalActions').setSignal,
     markActions = require('../markActions'),
     setMarkVisual = markActions.setMarkVisual,
-    disableMarkVisual = markActions.disableMarkVisual;
+    disableMarkVisual = markActions.disableMarkVisual,
+    MARK_EXTENTS = require('../../constants/markExtents');
 
 /**
  * Parses the mark definition in the resultant Vega specification to determine
@@ -93,7 +95,14 @@ function rectSpatial(dispatch, parsed, def) {
       markId = parsed.markId,
       max  = channel + '2',
       cntr = channel + 'c',
-      span = RECT_SPANS[channel];
+      span = RECT_SPANS[channel],
+      EXTENTS = dl.vals(MARK_EXTENTS[channel]);
+
+  // Clean slate the rect spatial properties by disabling them all. Subsequent
+  // bindProperty calls will reenable them as needed.
+  EXTENTS.forEach(function(ext) {
+    dispatch(disableMarkVisual(markId, ext.name));
+  });
 
   // If we're binding a literal spatial property (i.e., not arrow manipulators),
   // bind only that property.
@@ -105,7 +114,6 @@ function rectSpatial(dispatch, parsed, def) {
   if (def[max]) {
     bindProperty(dispatch, parsed, def, channel);
     bindProperty(dispatch, parsed, def, max);
-    dispatch(disableMarkVisual(markId, property));
   } else {
     def[channel] = def[cntr];  // Map xc/yc => x/y for binding.
     bindProperty(dispatch, parsed, def, channel);
@@ -115,7 +123,5 @@ function rectSpatial(dispatch, parsed, def) {
       band: true, offset: -1
     };
     bindProperty(dispatch, parsed, def, span);
-
-    dispatch(disableMarkVisual(markId, max));
   }
 }

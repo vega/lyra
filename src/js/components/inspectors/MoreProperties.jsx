@@ -1,66 +1,54 @@
 'use strict';
 
-var React = require('react'),
-    ReactDOM = require('react-dom'),
-    d3 = require('d3');
+var React = require('react');
 
 var MoreProperties = React.createClass({
   propTypes: {
     label: React.PropTypes.string.isRequired
   },
 
-  componentDidMount: function() {
-    var el = d3.select(ReactDOM.findDOMNode(this));
-
-    this.$showMore = el.select('.show-more-props');
-    this.$hideMore = el.select('.hide-more-props');
-    this.$moreProps = el.select('.more-props');
+  getInitialState: function() {
+    return {display: 'none'};
   },
 
-  toggleVisibility: function(evt) {
-    var showMore  = this.$showMore,
-        hideMore  = this.$hideMore,
-        moreProps = this.$moreProps;
+  toggle: function(old) {
+    return old === 'block' ? 'none' : 'block';
+  },
 
-    if (moreProps.style('display') === 'none') {
-      moreProps.style('display', 'block');
-      hideMore.style('display', 'block');
-      showMore.style('display', 'none');
-    } else {
-      moreProps.style('display', 'none');
-      hideMore.style('display', 'none');
-      showMore.style('display', 'block');
-    }
+  handleClick: function(evt) {
+    this.setState({display: this.toggle(this.state.display)});
   },
 
   render: function() {
     var props = this.props,
-        defaultStyle = {display: 'none'},
+        state = this.state.display,
+        style0 = {display: state},
+        style1 = {display: this.toggle(state)},
         moreLink, fewerLink;
 
     if (props.header) {
       moreLink = (
         <div>
           <h3 className="show-more-props more-props-label"
-            onClick={this.toggleVisibility}>
+            onClick={this.handleClick} style={style1}>
             + {props.label}</h3>
 
           <h3 className="hide-more-props more-props-label"
-            onClick={this.toggleVisibility} style={defaultStyle}>
+            onClick={this.handleClick} style={style0}>
             — {props.label}</h3>
         </div>
       );
     } else {
       moreLink = (
         <a className="show-more-props more-props-label" href="#"
-          onClick={this.toggleVisibility}>
+          onClick={this.handleClick} style={style1}>
           + More {props.label} Properties
         </a>
       );
 
       fewerLink = (
         <a className="hide-more-props more-props-label" href="#"
-          style={defaultStyle} onClick={this.toggleVisibility}>
+          style={style0} onClick={this.handleClick}>
           – Fewer {props.label} Properties
         </a>
       );
@@ -70,7 +58,7 @@ var MoreProperties = React.createClass({
       <div>
         {moreLink}
 
-        <div className="more-props" style={defaultStyle}>
+        <div className="more-props" style={style0}>
           {props.children}
         </div>
 

@@ -6,7 +6,6 @@ var React = require('react');
 var enzyme = require('enzyme');
 var Area = require('./Area');
 var Property = require('./Property');
-var AreaProperty = require('./AreaProperty');
 var wrapper;
 
 // this is shallow rendered tested since all the work is done in property.js
@@ -41,16 +40,12 @@ describe('Area Inspector <Area/> (shallow)', function() {
     expect(wrapper.type()).to.eql('div');
   });
 
-  it('it should render 2 <AreaProperty/> components', function() {
-    expect(wrapper.find(AreaProperty)).to.have.length(2);
-  });
-
   it('it should render 7 <Property/> components', function() {
-    expect(wrapper.find(Property)).to.have.length(7);
+    expect(wrapper.find(Property)).to.have.length(9);
   });
 
   it('it should render 6 h3 tags', function() {
-    expect(wrapper.find('h3')).to.have.length(6);
+    expect(wrapper.find('h3')).to.have.length(5);
   });
 });
 

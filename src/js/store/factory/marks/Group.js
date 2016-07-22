@@ -2,6 +2,7 @@
 'use strict';
 
 var dl = require('datalib'),
+    getInVis = require('../../../util/immutable-utils').getInVis,
     Rect = require('./Rect'); // Visually, groups are similar to Rects.
 
 /**
@@ -9,9 +10,15 @@ var dl = require('datalib'),
  * @returns {Object} Additional default properties for a group mark.
  */
 function Group() {
-  var signalLookup = require('../../../util/signal-lookup'),
-      base = Rect();
+  var base = Rect(),
+      state = require('../../').getState(),
+      scene = getInVis(state, 'marks.' + getInVis(state, 'scene.id'));
   return {
+    // Has the user manually set the width/height of this group? If so, any
+    // automatic adjustments to width/height made during data binding will not
+    // affect it.
+    _manualLayout: false,
+
     scales: [],
     axes: [],
     legends: [],
@@ -25,8 +32,10 @@ function Group() {
       update: dl.extend({}, base.properties.update, {
         fill: undefined,
         stroke: undefined,
-        width: {value: signalLookup('vis_width')},
-        height: {value: signalLookup('vis_height')},
+        x: {value: 0},
+        y: {value: 0},
+        width: {value: scene && scene.get('width')},
+        height: {value: scene && scene.get('height')},
         x2: {_disabled: true},
         y2: {_disabled: true}
       })

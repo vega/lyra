@@ -4,7 +4,9 @@ var React = require('react'),
 
 var ContentEditable = React.createClass({
   propTypes: {
-    value: React.PropTypes.string,
+    value: React.PropTypes.oneOfType([
+      React.PropTypes.string, React.PropTypes.number
+    ]),
     save: React.PropTypes.func
   },
 
@@ -50,7 +52,7 @@ var ContentEditable = React.createClass({
       <div style={props.style}
         className={(props.className || '') + ' content-editable'}
         contentEditable={this.state.edit}
-        onClick={props.onClick}
+        onClick={props.onClick || this.start}
         onDoubleClick={props.onDoubleClick || this.start}
         onBlur={this.stop}
         onKeyDown={this.handleEnter}>

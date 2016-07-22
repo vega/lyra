@@ -9,10 +9,10 @@ require('string.prototype.startswith');
 require('./transforms');
 
 // Initialize the Redux store
-var store = require('./store');
+var store = global.store = require('./store');
 
 // Initialize the Model.
-var ctrl = require('./ctrl');
+var ctrl = global.ctrl = require('./ctrl');
 
 // Set up the listeners that connect the ctrl to the store
 var listeners = require('./store/listeners');
@@ -21,15 +21,17 @@ var listeners = require('./store/listeners');
 store.subscribe(listeners.createStoreListener(store, ctrl));
 
 // Initializes the Lyra ctrl with a new Scene primitive.
-var createScene = require('./actions/sceneActions').createScene;
+var createScene = require('./actions/sceneActions').createScene,
+    Mark = require('./store/factory/Mark'),
+    addMark = require('./actions/markActions').addMark;
 
 store.dispatch(createScene({
-  width: 600,
-  height: 600
+  width: 640,
+  height: 360
 }));
+
+store.dispatch(addMark(Mark('group', {_parent: 1})));
 
 require('./components');
 
-// Expose ctrl, store and Sidebars globally (via `window`) for debugging
-global.ctrl = ctrl;
-global.store = store;
+store.dispatch(require('./actions/historyActions').clearHistory());

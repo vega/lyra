@@ -2,6 +2,7 @@
 'use strict';
 
 var dl = require('datalib'),
+    capitalize = require('capitalize'),
     counter = require('../../util/counter');
 
 var marks = {
@@ -15,7 +16,7 @@ var marks = {
 };
 
 function name(type) {
-  return type + ' ' + counter.type('marks');
+  return capitalize(type) + ' ' + counter.type('marks');
 }
 
 function throwIfInvalidType(type) {
@@ -26,8 +27,8 @@ function throwIfInvalidType(type) {
 
 // Default visual properties for marks.
 var defaults = {
-  x: {value: 25},
-  y: {value: 25},
+  x: {value: 50},
+  y: {value: 50},
   fill: {value: '#4682b4'},
   fillOpacity: {value: 1},
   stroke: {value: '#000000'},

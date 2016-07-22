@@ -2,12 +2,12 @@
 var React = require('react'),
     Immutable = require('immutable'),
     connect = require('react-redux').connect,
-    getIn = require('../../util/immutable-utils').getIn,
+    getInVis = require('../../util/immutable-utils').getInVis,
     PipelineInspector = require('./PipelineInspector');
 
 function mapStateToProps(reduxState) {
   return {
-    pipelines: getIn(reduxState, 'pipelines')
+    pipelines: getInVis(reduxState, 'pipelines')
   };
 }
 

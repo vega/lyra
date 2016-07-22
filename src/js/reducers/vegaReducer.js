@@ -1,9 +1,8 @@
 /* eslint new-cap:0 */
 'use strict';
 
-var Immutable = require('immutable');
-
-var ACTIONS = require('../actions/Names');
+var Immutable = require('immutable'),
+    ACTIONS = require('../actions/Names');
 
 /**
  * This reducer handles whether to recreate the view from the lyra ctrl.
@@ -27,6 +26,7 @@ function invalidateVegaReducer(state, action) {
   // All of these actions implicitly invalidate the view
   var invalidatingActions = [
     ACTIONS.CREATE_SCENE,
+    ACTIONS.ADD_PIPELINE,
     ACTIONS.INIT_SIGNAL,
     ACTIONS.ADD_MARK,
     ACTIONS.DELETE_GUIDE,
@@ -36,6 +36,7 @@ function invalidateVegaReducer(state, action) {
     ACTIONS.SET_MARK_VISUAL,
     ACTIONS.DISABLE_MARK_VISUAL,
     ACTIONS.RESET_MARK_VISUAL,
+    ACTIONS.SET_MARK_EXTENT,
     ACTIONS.BIND_SCALE,
     ACTIONS.ADD_SCALE,
     ACTIONS.UPDATE_SCALE_PROPERTY,
@@ -44,7 +45,9 @@ function invalidateVegaReducer(state, action) {
     ACTIONS.UPDATE_GUIDE_PROPERTY,
     ACTIONS.ADD_AXIS_TO_GROUP,
     ACTIONS.ADD_LEGEND_TO_GROUP,
-    ACTIONS.REMOVE_AXIS_FROM_GROUP
+    ACTIONS.REMOVE_AXIS_FROM_GROUP,
+    ACTIONS.UNDO, ACTIONS.REDO,
+    ACTIONS.JUMP_TO_FUTURE, ACTIONS.JUMP_TO_PAST
   ];
   if (invalidatingActions.indexOf(action.type) >= 0) {
     return state.set('invalid', true);

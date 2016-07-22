@@ -144,7 +144,7 @@ describe('marks reducer', function() {
     it('nulls out the mark in the store', function() {
       var result = marksReducer(initialState, {
         type: actions.DELETE_MARK,
-        markId: 4,
+        id: 4,
         markType: 'symbol'
       });
       expect(result.get('4')).to.equal(undefined);
@@ -153,7 +153,7 @@ describe('marks reducer', function() {
     it('removes the mark from its parent\'s marks array', function() {
       var result = marksReducer(initialState, {
         type: actions.DELETE_MARK,
-        markId: 4,
+        id: 4,
         markType: 'symbol'
       });
       expect(result.get('2').toJS().marks).to.deep.equal([]);
@@ -171,16 +171,6 @@ describe('marks reducer', function() {
       expect(result).to.have.property('name');
       expect(result.name).to.equal('Scene');
       expect(result.type).to.equal('scene');
-    });
-
-    it('converts the scene height and width to signal references', function() {
-      var result = marksReducer(initialState, createScene());
-      expect(result.get('1').get('height').toJS()).to.deep.equal({
-        signal: 'lyra_vis_height'
-      });
-      expect(result.get('1').get('width').toJS()).to.deep.equal({
-        signal: 'lyra_vis_width'
-      });
     });
   });
 

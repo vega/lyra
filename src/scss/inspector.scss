@@ -88,7 +88,8 @@ $long-label-width: $label-width + 10px;
     margin-top: $inner-padding;
   }
 
-  input[type=range],
+  input[type=range] { width: 70px; }
+
   input[type=number],
   input[type=text] {
     width: 75px;

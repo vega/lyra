@@ -4,12 +4,14 @@ var React = require('react'),
     actions = require('../../actions/inspectorActions'),
     selectScale = actions.selectScale,
     ContentEditable = require('../ContentEditable'),
-    getIn = require('../../util/immutable-utils').getIn;
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis;
 
 function mapStateToProps(reduxState, ownProps) {
   return {
     selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
-    scales: reduxState.get('scales')
+    scales: getInVis(reduxState, 'scales')
   };
 }
 
@@ -29,15 +31,15 @@ var ScaleList = React.createClass({
   },
   render: function() {
     var props = this.props,
-        scales = props.scales.valueSeq().toJS();
+        scales = props.scales.valueSeq();
 
     return (
       <div id="scale-list">
         <h2>Scales</h2>
         <ul>
           {scales.map(function(scale) {
-            var id = scale._id,
-                name = scale.name;
+            var id = scale.get('_id'),
+                name = scale.get('name');
 
             return (
               <li key={id}

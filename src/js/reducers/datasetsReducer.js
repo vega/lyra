@@ -5,7 +5,6 @@ var Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
     immutableUtils = require('../util/immutable-utils'),
     set   = immutableUtils.set,
-    setIn = immutableUtils.setIn,
     dsUtil = require('../util/dataset-utils');
 
 /**
@@ -26,10 +25,6 @@ function datasetsReducer(state, action) {
     state = set(state, action.id, Immutable.fromJS(action.props));
     dsUtil.init(action);
     return state;
-  }
-
-  if (action.type === ACTIONS.INIT_DATASET) {
-    return setIn(state, action.id + '._init', true);
   }
 
   return state;

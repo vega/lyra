@@ -7,7 +7,6 @@ var expect = require('chai').expect,
     Mark = require('../store/factory/Mark'),
     signalsReducer = require('./signalsReducer'),
     markActions = require('../actions/markActions'),
-    createScene = require('../actions/sceneActions').createScene,
     signalActions = require('../actions/signalActions'),
     setSignalStreams = signalActions.setSignalStreams,
     initSignal = signalActions.initSignal,
@@ -176,7 +175,7 @@ describe('signals reducer', function() {
     it('removes all signals matching the provided mark type and ID', function() {
       var result = signalsReducer(initialState, {
         type: actions.DELETE_MARK,
-        markId: 1,
+        id: 1,
         markType: 'symbol'
       });
       expect(Object.keys(result.toJS()).sort()).to.not.include.members([
@@ -189,7 +188,7 @@ describe('signals reducer', function() {
     it('does not remove any signals if no matching signal names are found', function() {
       var result = signalsReducer(initialState, {
         type: actions.DELETE_MARK,
-        markId: 1000,
+        id: 1000,
         markType: 'snake'
       });
       expect(Object.keys(result.toJS()).sort()).to.include.members([
@@ -204,50 +203,4 @@ describe('signals reducer', function() {
     });
 
   });
-
-  describe('create scene action', function() {
-    beforeEach(function() {
-      // Reset counters module so that we can have predictable IDs for our new marks
-      counter.reset();
-    });
-
-    it('initializes the scene width & height signals', function() {
-      var result = signalsReducer(initialState, createScene());
-      expect(result.toJS()).to.deep.equal({
-        lyra_vis_width: {
-          name: 'lyra_vis_width',
-          init: 500,
-          _idx: 0
-        },
-        lyra_vis_height: {
-          name: 'lyra_vis_height',
-          init: 500,
-          _idx: 1
-        }
-      });
-    });
-
-    it('initializes the scene width & height signals set to custom values', function() {
-      var result = signalsReducer(initialState,
-      createScene({
-        width: 400,
-        height: 100
-      }));
-      expect(result.toJS()).to.deep.equal({
-        lyra_vis_width: {
-          name: 'lyra_vis_width',
-          init: 400,
-          _idx: 0
-        },
-        lyra_vis_height: {
-          name: 'lyra_vis_height',
-          init: 100,
-          _idx: 1
-        }
-      });
-
-    });
-
-  });
-
 });

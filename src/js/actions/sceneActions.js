@@ -2,8 +2,11 @@
 
 var dl = require('datalib'),
     counter = require('../util/counter'),
-    getIn = require('../util/immutable-utils').getIn,
+    getInVis = require('../util/immutable-utils').getInVis,
     deleteMark = require('./markActions').deleteMark,
+    historyActions = require('./historyActions'),
+    startBatch = historyActions.startBatch,
+    endBatch = historyActions.endBatch,
     Mark = require('../store/factory/Mark'),
     CREATE_SCENE = 'CREATE_SCENE';
 
@@ -41,12 +44,16 @@ function createScene(customProps) {
 function clearScene() {
   return function(dispatch, getState) {
     var state = getState(),
-        sceneId = getIn(state, 'scene.id'),
-        sceneChildren = getIn(state, 'marks.' + sceneId + '.marks').toJS();
+        sceneId = getInVis(state, 'scene.id'),
+        children = getInVis(state, 'marks.' + sceneId + '.marks');
 
-    sceneChildren.forEach(function(childId) {
+    dispatch(startBatch());
+
+    children.forEach(function(childId) {
       dispatch(deleteMark(childId));
     });
+
+    dispatch(endBatch());
   };
 }
 

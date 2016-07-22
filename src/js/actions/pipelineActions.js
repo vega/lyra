@@ -4,7 +4,8 @@ var dl = require('datalib'),
     counter = require('../util/counter'),
     datasetActions = require('./datasetActions'),
     addDataset = datasetActions.addDataset,
-    ADD_PIPELINE = 'ADD_PIPELINE';
+    ADD_PIPELINE = 'ADD_PIPELINE',
+    UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY';
 
 /**
  * Action creator to add a new Pipeline in the store. A new pipeline requires
@@ -12,13 +13,14 @@ var dl = require('datalib'),
  *
  * @param {Object} pipeline - The properties of the pipeline.
  * @param {Object} dataset - The properties of the dataset.
+ * @param {Array} values - A JSON array of parsed values.
  * @returns {Function} An async action function
  */
-function addPipeline(pipeline, dataset) {
+function addPipeline(pipeline, dataset, values) {
   return function(dispatch) {
     var pid = pipeline._id || counter.global();
 
-    var ds = addDataset(dl.extend({_parent: pid}, dataset), dataset.values);
+    var ds = addDataset(dl.extend({_parent: pid}, dataset), values);
     dispatch(ds);
 
     pipeline = dl.extend({
@@ -34,10 +36,21 @@ function addPipeline(pipeline, dataset) {
   };
 }
 
+function updatePipelineProperty(id, property, value) {
+  return {
+    type: UPDATE_PIPELINE_PROPERTY,
+    id: id,
+    property: property,
+    value: value
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_PIPELINE: ADD_PIPELINE,
+  UPDATE_PIPELINE_PROPERTY: UPDATE_PIPELINE_PROPERTY,
 
   // Action Creators
-  addPipeline: addPipeline
+  addPipeline: addPipeline,
+  updatePipelineProperty: updatePipelineProperty
 };

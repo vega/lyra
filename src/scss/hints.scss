@@ -17,11 +17,6 @@
     background-color: transparent;
   }
 
-  @include breakingMenus {
-    width: 500px;
-    margin-left: 555px;
-  }
-
   &.hidden {
     bottom: -200px;
   }
