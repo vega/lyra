@@ -32,12 +32,10 @@ var PipelineModal = React.createClass({
       dragActive: 'textarea-dnd'
     };
   },
-
   proptypes: {
     selectPipeline: React.PropTypes.func,
     closeModal: React.PropTypes.func
   },
-
   loadURL: function(url, pipeline, dataset) {
     var that = this,
         fileName = url.match(FILE_NAME)[1];
@@ -49,28 +47,21 @@ var PipelineModal = React.createClass({
     dl.load({url: url}, function(err, data) {
       if (err) {
         // TODO: err is an XHR object and will not have a statusText.
-        that.setState({
-          error: {
-            value: true,
-            message: err.statusText
-          }
-        });
+        if (err.statusText) {
+          that.onError(err.statusText);
+        }
         throw err;
       } else {
         that.props.selectPipeline(pipeline, dataset, that.parseRaw(data, dataset));
       }
     });
   },
-  onDragEnter: function(e) {
-    e.preventDefault();
-
+  onDragEnter: function() {
     this.setState({
       dragActive: 'textarea-dnd active'
     });
   },
-  onDragLeave: function(e) {
-    e.preventDefault();
-
+  onDragLeave: function() {
     this.setState({
       dragActive: 'textarea-dnd'
     });
@@ -98,28 +89,19 @@ var PipelineModal = React.createClass({
       if (dl.keys(parsed[0]).length > 1) {
         return parsed;
       }
-
-      this.setState({
-        error: {
-          value: true,
-          message: 'Trying to import data thats in an unsupported format!'
-        }
-      });
+      var errorMsg = 'Trying to import data thats in an unsupported format!';
+      this.onError(errorMsg);
       throw new Error('Trying to import data thats in an unsupported format!');
     }
 
     return [];
   },
   onSuccess: function(msg) {
-    if (this.state.error.value) {
-      this.setState({
-        error: {
-          value: false,
-          message: ''
-        }
-      });
-    }
     this.setState({
+      error: {
+        value: false,
+        message: ''
+      },
       success: {
         value: true,
         message: msg
@@ -127,29 +109,25 @@ var PipelineModal = React.createClass({
     });
   },
   onError: function(msg) {
-    if (this.state.success.value) {
-      this.setState({
-        success: {
-          value: false,
-          message: ''
-        }
-      });
-    }
     this.setState({
       error: {
         value: true,
         message: msg
+      },
+      success: {
+        value: false,
+        message: ''
       }
     });
   },
   handleSubmit: function(evt) {
     this.loadURL(evt.target.url.value);
-    this.props.closeModal();
+    this.onSuccess('Ready to import');
     evt.preventDefault();
   },
   cpChangeHandler: function(evt) {
     var that = this,
-        props = this.props,
+        props = that.props,
         target = evt.target,
         type = evt.type,
         pipeline = {name: 'name'},
@@ -159,6 +137,30 @@ var PipelineModal = React.createClass({
 
     evt.preventDefault();
 
+    if (type === 'change') {
+      props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
+      that.onSuccess('Ready to import');
+    } else if (type === 'drop') {
+      file = evt.dataTransfer.files[0];
+      reader = new FileReader();
+      reader.onload = function(loadEvt) {
+        pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
+        raw = loadEvt.target.result;
+        props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
+
+        that.onSuccess('Ready to import');
+        target.value = raw;
+        that.onDragLeave();
+      };
+
+      reader.readAsText(file);
+    }
+  },
+  select: function(url, name, dataset) {
+    this.loadURL(url, name, dataset);
+    this.completeImport();
+  },
+  completeImport: function() {
     this.setState({
       error: {
         value: false,
@@ -169,24 +171,7 @@ var PipelineModal = React.createClass({
         message: ''
       }
     });
-
-    if (type === 'change') {
-      props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
-      that.onSuccess('Success! Importing...');
-      setTimeout(props.closeModal, 1200);
-    } else if (type === 'drop') {
-      file = evt.dataTransfer.files[0];
-      reader = new FileReader();
-      reader.onload = function(loadEvt) {
-        pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
-        raw = loadEvt.target.result;
-        props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
-        that.onSuccess('Success! Importing...');
-        setTimeout(props.closeModal, 1200);
-      };
-
-      reader.readAsText(file);
-    }
+    this.props.closeModal();
   },
   render: function() {
     var props = this.props,
@@ -214,7 +199,7 @@ var PipelineModal = React.createClass({
                       dataset = pipeline.dataset;
                   return (
                     <li key={name}>
-                      <button onClick={this.loadURL.bind(this, dataset.url, {name: name}, dataset)}>
+                      <button onClick={this.select.bind(this, dataset.url, {name: name}, dataset)}>
                         {name}
                       </button>
                     </li>
@@ -235,11 +220,6 @@ var PipelineModal = React.createClass({
             </label>
 
             <div className="sect">
-              {error.value ? <label className="error">{error.message}</label> : null}
-              {success.value ? <label className="success">{success.message}</label> : null}
-            </div>
-
-            <div className="sect">
               <form onSubmit={this.handleSubmit}>
                 <input type="text" name="url" placeholder="Enter url"/>
                 <button type="submit" value="Submit" className="button">Load</button><br />
@@ -256,6 +236,15 @@ var PipelineModal = React.createClass({
                 onDragLeave={this.onDragLeave}
                 className={dragActive}>
               </textarea><br />
+            </div>
+            <div className="sect">
+              {error.value ? <label className="error">{error.message}</label> : null}
+              {success.value ? <label className="success">{success.message}</label> : null}<br />
+              {success.value ?
+                <button className="button button-success"
+                  onClick={this.completeImport}>
+                  Import
+                </button> : null}
             </div>
           </div>
         </div>
