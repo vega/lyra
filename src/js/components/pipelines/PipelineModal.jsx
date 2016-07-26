@@ -53,6 +53,7 @@ var PipelineModal = React.createClass({
         throw err;
       } else {
         that.props.selectPipeline(pipeline, dataset, that.parseRaw(data, dataset));
+        that.onSuccess();
       }
     });
   },
@@ -104,7 +105,7 @@ var PipelineModal = React.createClass({
       },
       success: {
         value: true,
-        message: msg
+        message: 'Successful import!'
       }
     });
   },
@@ -122,7 +123,6 @@ var PipelineModal = React.createClass({
   },
   handleSubmit: function(evt) {
     this.loadURL(evt.target.url.value);
-    this.onSuccess('Ready to import');
     evt.preventDefault();
   },
   cpChangeHandler: function(evt) {
@@ -139,7 +139,7 @@ var PipelineModal = React.createClass({
 
     if (type === 'change') {
       props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
-      that.onSuccess('Ready to import');
+      that.onSuccess();
     } else if (type === 'drop') {
       file = evt.dataTransfer.files[0];
       reader = new FileReader();
@@ -148,7 +148,7 @@ var PipelineModal = React.createClass({
         raw = loadEvt.target.result;
         props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
 
-        that.onSuccess('Ready to import');
+        that.onSuccess();
         target.value = raw;
         that.onDragLeave();
       };
@@ -243,7 +243,7 @@ var PipelineModal = React.createClass({
               {success.value ?
                 <button className="button button-success"
                   onClick={this.completeImport}>
-                  Import
+                  Done
                 </button> : null}
             </div>
           </div>
