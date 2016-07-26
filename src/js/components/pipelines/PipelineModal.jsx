@@ -15,7 +15,6 @@ function mapDispatchToProps(dispatch, ownProps) {
   return {
     selectPipeline: function(pipeline, dataset, values) {
       dispatch(addPipeline(pipeline, dataset, values));
-      ownProps.closeModal();
     }
   };
 }
@@ -26,12 +25,17 @@ var PipelineModal = React.createClass({
         value: false,
         message: ''
       },
+      success: {
+        value: false,
+        message: ''
+      },
       dragActive: 'textarea-dnd'
     };
   },
 
   proptypes: {
-    selectPipeline: React.PropTypes.func
+    selectPipeline: React.PropTypes.func,
+    closeModal: React.PropTypes.func
   },
 
   loadURL: function(url, pipeline, dataset) {
@@ -71,18 +75,6 @@ var PipelineModal = React.createClass({
       dragActive: 'textarea-dnd'
     });
   },
-  cpChangeHandler: function(e) {
-    e.preventDefault();
-
-    var target = e.target,
-        props = this.props,
-        type = e.type,
-        pipeline = 'name',
-        dataset = {
-          name: 'name'
-        },
-        raw;
-
   parseRaw: function(raw, dataset) {
     var format = dataset.format = {parse: 'auto'},
         parsed;
@@ -92,29 +84,6 @@ var PipelineModal = React.createClass({
       return dl.read(raw, format);
     } catch (error) {
       format.type = 'csv';
-// <<<<<<< HEAD
-//       readData = dl.read(raw, format);
-//       dataset.format = format;
-//
-//       if (dl.keys(readData[0]).length === 1) {
-//         format.type = 'tsv';
-//         readData = dl.read(raw, format);
-//         dataset.format = format;
-//
-//         if (dl.keys(readData[0]).length === 1) {
-//           this.setState({
-//             error: {
-//               value: true,
-//               message: 'Trying to import data thats in an unsupported format!'
-//             }
-//           });
-//           throw new Error('Trying to import data thats in an unsupported format!');
-//         } else {
-//           dataset.values = raw;
-//         }
-//       } else {
-//         dataset.values = raw;
-// =======
       parsed = dl.read(raw, format);
 
       // Test successful parsing of CSV/TSV data by checking # of fields found.
@@ -122,7 +91,6 @@ var PipelineModal = React.createClass({
       // parsed as a single field.
       if (dl.keys(parsed[0]).length > 1) {
         return parsed;
-// >>>>>>> lyra2
       }
 
       format.type = 'tsv';
@@ -142,12 +110,43 @@ var PipelineModal = React.createClass({
 
     return [];
   },
-
+  onSuccess: function(msg) {
+    if (this.state.error.value) {
+      this.setState({
+        error: {
+          value: false,
+          message: ''
+        }
+      });
+    }
+    this.setState({
+      success: {
+        value: true,
+        message: msg
+      }
+    });
+  },
+  onError: function(msg) {
+    if (this.state.success.value) {
+      this.setState({
+        success: {
+          value: false,
+          message: ''
+        }
+      });
+    }
+    this.setState({
+      error: {
+        value: true,
+        message: msg
+      }
+    });
+  },
   handleSubmit: function(evt) {
     this.loadURL(evt.target.url.value);
+    this.props.closeModal();
     evt.preventDefault();
   },
-
   cpChangeHandler: function(evt) {
     var that = this,
         props = this.props,
@@ -159,8 +158,22 @@ var PipelineModal = React.createClass({
         file, reader;
 
     evt.preventDefault();
+
+    this.setState({
+      error: {
+        value: false,
+        message: ''
+      },
+      success: {
+        value: false,
+        message: ''
+      }
+    });
+
     if (type === 'change') {
-      props.selectPipeline(pipeline, dataset, this.parseRaw(raw, dataset));
+      props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
+      that.onSuccess('Success! Importing...');
+      setTimeout(props.closeModal, 1200);
     } else if (type === 'drop') {
       file = evt.dataTransfer.files[0];
       reader = new FileReader();
@@ -168,17 +181,19 @@ var PipelineModal = React.createClass({
         pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
         raw = loadEvt.target.result;
         props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
+        that.onSuccess('Success! Importing...');
+        setTimeout(props.closeModal, 1200);
       };
 
       reader.readAsText(file);
     }
   },
-
   render: function() {
     var props = this.props,
         pipelines = examplePipelines,
         state = this.state,
         error = state.error,
+        success = state.success,
         dragActive = state.dragActive;
 
     return (
@@ -187,30 +202,19 @@ var PipelineModal = React.createClass({
         onRequestClose={props.closeModal}>
         <div className="wrapper pipelineModal">
           <span className="closeModal" onClick={props.closeModal}>close</span>
-
           <div className="partLeft">
             <h2>Examples</h2>
 
             <div className="sect">
-{/*<<<<<<< HEAD
-              <h4>Datasets</h4><br />
-              <ul className="group">
-=======*/}
               <h4>Datasets</h4>
 
               <ul>
-{/*>>>>>>> lyra2*/}
                 {pipelines.map(function(pipeline) {
                   var name = pipeline.name,
                       dataset = pipeline.dataset;
                   return (
                     <li key={name}>
-{/*<<<<<<< HEAD
-                      <button className="button"
-                        onClick={props.selectPipeline.bind(null, name, dateset, this.closeModal)}>
-=======*/}
                       <button onClick={this.loadURL.bind(this, dataset.url, {name: name}, dataset)}>
-{/*>>>>>>> lyra2*/}
                         {name}
                       </button>
                     </li>
@@ -232,6 +236,7 @@ var PipelineModal = React.createClass({
 
             <div className="sect">
               {error.value ? <label className="error">{error.message}</label> : null}
+              {success.value ? <label className="success">{success.message}</label> : null}
             </div>
 
             <div className="sect">
@@ -250,7 +255,7 @@ var PipelineModal = React.createClass({
                 onDragOver={this.onDragEnter}
                 onDragLeave={this.onDragLeave}
                 className={dragActive}>
-              </textarea>
+              </textarea><br />
             </div>
           </div>
         </div>
