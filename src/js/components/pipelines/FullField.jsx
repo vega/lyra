@@ -119,11 +119,7 @@ var FullField = React.createClass({
         fullField = props.fullField,
         id = props.id,
         output = dsUtil.values(id),
-        schema = dsUtil.schema(id),
-        sel = sg.get(sg.SELECTED),
-        markId = sel.mark.def.lyra_id,
-        cell = sg.get(sg.CELL),
-        property = cell.key;
+        schema = dsUtil.schema(id);
 
     if (valuesInc == null) {
       // first click default: increasing
@@ -138,10 +134,11 @@ var FullField = React.createClass({
 
     // custom action, need to make action creator for future
     store.dispatch({
-      transform : 'SORT',
-      inc : valuesInc,
-      id : id,
-      fieldName : fullField.name
+      type : 'TRANSFORM_SORT',
+      data : ({
+        inc : valuesInc,
+        id : id,
+        fieldName : fullField.name})
     });
 
   },

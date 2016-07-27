@@ -5,8 +5,7 @@ var Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
     immutableUtils = require('../util/immutable-utils'),
     set   = immutableUtils.set,
-    setIn = immutableUtils.setIn,
-    dsUtil = require('../util/dataset-utils');
+    setIn = immutableUtils.setIn;
 
 // add commments here later
 
@@ -15,14 +14,13 @@ function transformReducer(state, action) {
     return Immutable.Map();
   }
 
-  // switch (action.transform) {
-  //   case 'SORT':
-  //     console.log("works");
-  //
-  //   default:
-  //     console.log('default');
-  // }
+  switch (action.type) {
+    case 'TRANSFORM_SORT':
+      state = set(state, 'sort', Immutable.fromJS(action.data));
+      console.log(state);
+  }
+
   return state;
 }
 
-module.export = transformReducer;
+module.exports = transformReducer;
