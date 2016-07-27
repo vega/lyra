@@ -220,6 +220,18 @@ exporter.axe = exporter.legend = function(state, internal, id) {
   return spec;
 };
 
+exporter.transform = function(state, internal, id) {
+  var transform = getIn(state, sort).toJS(),
+      spec = clean(dl.duplicate(sort), internal),
+      data = spec.data;
+
+  // add transform to spec
+  // data["transform"] = [{
+  //   "type": state.sort,
+  //   "by":
+  // }];
+};
+
 /**
  * Utility method that ensures names delimit spaces.
  *
