@@ -13,5 +13,6 @@ module.exports = combineReducers({
   marks: require('./marksReducer'),
   inspector: require('./inspectorReducer'),
   hints: require('./hintsReducer'),
-  walkthrough: require('./walkthroughReducer')
+  walkthrough: require('./walkthroughReducer'),
+  transforms: require('./transformReducer')
 });

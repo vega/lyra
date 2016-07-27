@@ -13,7 +13,9 @@ var d3 = require('d3'),
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
-    bindChannel = require('../../actions/bindChannel');
+    bindChannel = require('../../actions/bindChannel'),
+    data = require('../../actions/bindChannel/parseData').data,
+    store = require('../../store');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -34,7 +36,8 @@ var FullField = React.createClass({
   getInitialState: function() {
     return {
       fullField: null,
-      bindField: null
+      bindField: null,
+      valuesInc: null
     };
   },
 
@@ -109,8 +112,38 @@ var FullField = React.createClass({
     this.setState({fullField: fullField});
   },
 
-  sort: function(evt) {
-    console.log("works");
+  sortValues: function(evt) {
+    // will need to clean up this code
+    var valuesInc = this.state.valuesInc,
+        props = this.props,
+        fullField = props.fullField,
+        id = props.id,
+        output = dsUtil.values(id),
+        schema = dsUtil.schema(id),
+        sel = sg.get(sg.SELECTED),
+        markId = sel.mark.def.lyra_id,
+        cell = sg.get(sg.CELL),
+        property = cell.key;
+
+    if (valuesInc == null) {
+      // first click default: increasing
+      valuesInc = true;
+    } else {
+      valuesInc = !valuesInc;
+    }
+    this.setState({ valuesInc : valuesInc });
+
+    // bindchannel
+    //store.dispatch(bindChannel(id, schema, markId, property));
+
+    // custom action, need to make action creator for future
+    store.dispatch({
+      transform : 'SORT',
+      inc : valuesInc,
+      id : id,
+      fieldName : fullField.name
+    });
+
   },
 
   render : function() {
@@ -123,7 +156,7 @@ var FullField = React.createClass({
         <Icon onClick={this.changeMType}
           glyph={assets[fullField.mtype]} width="10" height="10" />
         {fullField.name}
-        <Icon onClick={this.sort}
+        <Icon onClick={this.sortValues}
           glyph={assets['decreasingSort']} width="10" height="10" />
       </span>
       ) : null;
