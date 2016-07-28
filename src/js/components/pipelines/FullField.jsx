@@ -15,7 +15,7 @@ var d3 = require('d3'),
     Icon = require('../Icon'),
     bindChannel = require('../../actions/bindChannel'),
     data = require('../../actions/bindChannel/parseData').data,
-    store = require('../../store');
+    sortDataset = require('../../actions/datasetActions').sortDataset;
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -27,6 +27,9 @@ function mapDispatchToProps(dispatch, ownProps) {
   return {
     bindChannel: function(dsId, field, markId, property) {
       dispatch(bindChannel(dsId, field, markId, property));
+    },
+    sortDataset: function(dsId, sortField, sortOrder) {
+      dispatch(sortDataset(dsId, sortField, sortOrder));
     }
   };
 }
@@ -118,8 +121,7 @@ var FullField = React.createClass({
         props = this.props,
         fullField = props.fullField,
         id = props.id,
-        output = dsUtil.values(id),
-        schema = dsUtil.schema(id);
+        incOrDec = null;
 
     if (valuesInc == null) {
       // first click default: increasing
@@ -129,18 +131,8 @@ var FullField = React.createClass({
     }
     this.setState({ valuesInc : valuesInc });
 
-    // bindchannel
-    //store.dispatch(bindChannel(id, schema, markId, property));
-
-    // custom action, need to make action creator for future
-    store.dispatch({
-      type : 'TRANSFORM_SORT',
-      data : ({
-        inc : valuesInc,
-        id : id,
-        fieldName : fullField.name})
-    });
-
+    incOrDec = valuesInc ? 'inc' : 'dec';
+    this.props.sortDataset(id, fullField.name, incOrDec);
   },
 
   render : function() {

@@ -220,16 +220,15 @@ exporter.axe = exporter.legend = function(state, internal, id) {
   return spec;
 };
 
-exporter.transform = function(state, internal, id) {
-  var transform = getIn(state, sort).toJS(),
+exporter.sort = function(state, internal, id) {
+  var sort = getIn(state, id + '_sort').toJS(),
       spec = clean(dl.duplicate(sort), internal),
-      data = spec.data;
+      byPrefix = sort.sortOrder == 'inc' ? '' : '-',
+      by = byPrefix + sort.sortField;
 
-  // add transform to spec
-  // data["transform"] = [{
-  //   "type": state.sort,
-  //   "by":
-  // }];
+  spec.transform = [{'type': 'sort', "by": by}];
+  return spec;
+
 };
 
 /**
