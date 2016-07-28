@@ -221,7 +221,7 @@ exporter.axe = exporter.legend = function(state, internal, id) {
 };
 
 exporter.sort = function(state, internal, id) {
-  var sort = getIn(state, id + '_sort').toJS(),
+  var sort = getIn(state, 'dataset.' + id + '._sort').toJS(),
       spec = clean(dl.duplicate(sort), internal),
       byPrefix = sort.sortOrder == 'inc' ? '' : '-',
       by = byPrefix + sort.sortField;
