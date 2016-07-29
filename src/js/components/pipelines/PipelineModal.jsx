@@ -238,6 +238,9 @@ var PipelineModal = React.createClass({
               </textarea><br />
             </div>
             <div className="sect">
+              
+            </div>
+            <div className="sect">
               {error.value ? <label className="error">{error.message}</label> : null}
               {success.value ? <label className="success">{success.message}</label> : null}<br />
               {success.value ?
