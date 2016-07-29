@@ -75,7 +75,7 @@ function resize(dispatch, state, mark, prop, size) {
   if (children && children.size) {
     children.forEach(function(childId) {
       var child = getInVis(state, 'marks.' + childId);
-      if (child.get('type') !== 'group') {
+      if (child.get('type') !== 'group' && !child.get('_manualLayout')) {
         return;
       }
 
