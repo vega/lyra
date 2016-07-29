@@ -5,7 +5,6 @@ var d3 = require('d3'),
     ReactDOM = require('react-dom'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
     getInVis = require('../../util/immutable-utils').getInVis,
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
@@ -136,4 +135,4 @@ var DataTable = React.createClass({
 
 });
 
-module.exports = connect(mapStateToProps)(addVegaReparseRequest(DataTable));
+module.exports = connect(mapStateToProps)(DataTable);

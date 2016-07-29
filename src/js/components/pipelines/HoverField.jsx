@@ -2,7 +2,6 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     ctrl = require('../../ctrl'),
-    addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
     sg = require('../../ctrl/signals'),
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
@@ -89,9 +88,7 @@ var HoverField = React.createClass({
     sg.set(sg.CELL, {});
     this.setState({bindField: null});
 
-    if (dropped) {
-      this.requestVegaReparse();
-    } else {
+    if (!dropped) {
       ctrl.update();
     }
   },
@@ -143,4 +140,4 @@ var HoverField = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(addVegaReparseRequest(HoverField));
+module.exports = connect(mapStateToProps, mapDispatchToProps)(HoverField);

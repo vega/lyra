@@ -5,7 +5,7 @@ var React = require('react'),
 var HoverValue = React.createClass({
   propTypes: {
     event: React.PropTypes.object,
-    scrollLeft: React.PropTypes.number.isRequired
+    scrollLeft: React.PropTypes.number
   },
 
   render: function() {
