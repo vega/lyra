@@ -35,7 +35,8 @@ exporter.pipelines = function(state, internal) {
 
 exporter.dataset = function(state, internal, id) {
   var dataset = getIn(state, 'datasets.' + id).toJS(),
-      spec = clean(dl.duplicate(dataset), internal);
+      spec = clean(dl.duplicate(dataset), internal),
+      sort = getSort(dataset);
 
   // Only include the raw values in the exported spec if:
   //   1. It is a remote dataset but we're re-rendering the Lyra view
@@ -50,7 +51,12 @@ exporter.dataset = function(state, internal, id) {
     spec.source = name(getIn(state, 'datasets.' + spec.source + '.name'));
   }
 
-  return spec;
+  if(sort == undefined) {
+    return spec;
+  } else {
+    spec['transform'] = sort;
+    return spec;
+  }
 };
 
 exporter.scene = function(state, internal) {
@@ -220,14 +226,19 @@ exporter.axe = exporter.legend = function(state, internal, id) {
   return spec;
 };
 
-exporter.sort = function(state, internal, id) {
-  var sort = getIn(state, 'dataset.' + id + '._sort').toJS(),
-      spec = clean(dl.duplicate(sort), internal),
-      byPrefix = sort.sortOrder == 'inc' ? '' : '-',
+function getSort(dataset) {
+  if (!('_sort' in dataset)) {
+    // not sorted
+    return;
+  }
+
+  var sort = dataset._sort,
+      byPrefix = sort.sortOrder == 'dec' ? '-' : '',
       by = byPrefix + sort.sortField;
 
-  spec.transform = [{'type': 'sort', "by": by}];
-  return spec;
+  var result = [{'type': 'sort', "by": by}];
+  console.log(result);
+  return result;
 
 };
 
