@@ -89,6 +89,7 @@ $pipeline-width: 180px;
   }
 
   .full {
+    display: none;
     position: absolute;
     min-width: $mw;
     width: auto;
