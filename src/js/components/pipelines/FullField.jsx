@@ -110,7 +110,7 @@ var FullField = React.createClass({
   },
 
   sort: function(evt) {
-    console.log("works");
+    console.log('works');
   },
 
   render : function() {

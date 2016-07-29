@@ -5,9 +5,7 @@ var d3 = require('d3'),
     ReactDOM = require('react-dom'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    ctrl = require('../../ctrl'),
     addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
-    sg = require('../../ctrl/signals'),
     getInVis = require('../../util/immutable-utils').getInVis,
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
@@ -117,6 +115,9 @@ var DataTable = React.createClass({
         fullField = state.fullField,
         fullValue = state.fullValue;
 
+    // schema
+    console.log('output: ', output);
+
     var prev = page > 0 ? (
           <Icon glyph={assets.prev} width="10" height="10"
             onClick={this.prevPage}
@@ -156,9 +157,8 @@ var DataTable = React.createClass({
             }, this)}
           </tbody></table>
 
-      <FullField className={props.className} fullField={this.state.fullField}
-          id={props.id}>
-      </FullField>
+        <FullField id={props.id} className={props.className}
+          fullField={this.state.fullField} />
 
           <div className="full value">{fullValue}</div>
         </div>

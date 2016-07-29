@@ -4,7 +4,8 @@ var React = require('react'),
     connect = require('react-redux').connect,
     addPipeline = require('../../actions/pipelineActions').addPipeline,
     dl = require('datalib'),
-    examplePipelines = require('../../constants/exampledatasets');
+    examplePipelines = require('../../constants/exampledatasets'),
+    DataTable = require('./DataTable');
 
 var FILE_NAME = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
@@ -29,7 +30,8 @@ var PipelineModal = React.createClass({
         value: false,
         message: ''
       },
-      dragActive: 'textarea-dnd'
+      dragActive: 'textarea-dnd',
+      values: []
     };
   },
   proptypes: {
@@ -38,7 +40,8 @@ var PipelineModal = React.createClass({
   },
   loadURL: function(url, pipeline, dataset) {
     var that = this,
-        fileName = url.match(FILE_NAME)[1];
+        fileName = url.match(FILE_NAME)[1],
+        rawParsed;
 
     /* eslint no-multi-spaces:0 */
     pipeline = pipeline || {name: fileName};
@@ -52,7 +55,11 @@ var PipelineModal = React.createClass({
         }
         throw err;
       } else {
+        rawParsed = that.parseRaw(data, dataset);
         that.props.selectPipeline(pipeline, dataset, that.parseRaw(data, dataset));
+        that.setState({
+          values: rawParsed
+        });
         that.onSuccess();
       }
     });
@@ -133,12 +140,16 @@ var PipelineModal = React.createClass({
         pipeline = {name: 'name'},
         dataset  = {name: 'name'},
         raw = target.value,
-        file, reader;
+        file, reader, rawParsed;
 
     evt.preventDefault();
 
     if (type === 'change') {
-      props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
+      rawParsed = that.parseRaw(raw, dataset);
+      props.selectPipeline(pipeline, dataset, rawParsed);
+      this.setState({
+        values: rawParsed
+      });
       that.onSuccess();
     } else if (type === 'drop') {
       file = evt.dataTransfer.files[0];
@@ -146,8 +157,11 @@ var PipelineModal = React.createClass({
       reader.onload = function(loadEvt) {
         pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
         raw = loadEvt.target.result;
-        props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
-
+        rawParsed = that.parseRaw(raw, dataset);
+        props.selectPipeline(pipeline, dataset, rawParsed);
+        this.setState({
+          values: rawParsed
+        });
         that.onSuccess();
         target.value = raw;
         that.onDragLeave();
@@ -238,7 +252,7 @@ var PipelineModal = React.createClass({
               </textarea><br />
             </div>
             <div className="sect">
-              
+              {/* <DataTable values={state.values} className="source" /> */}
             </div>
             <div className="sect">
               {error.value ? <label className="error">{error.message}</label> : null}
