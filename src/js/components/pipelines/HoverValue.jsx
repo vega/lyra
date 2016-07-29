@@ -24,7 +24,6 @@ var HoverValue = React.createClass({
         altClass = target.classed('odd') ? 'odd' : 'even';
 
     var style = {
-      display: 'block',
       left: node.offsetLeft - props.scrollLeft + left,
       top: field.offsetTop
     };

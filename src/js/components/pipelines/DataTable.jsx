@@ -34,9 +34,8 @@ var DataTable = React.createClass({
   },
 
   componentDidMount: function() {
-    var el = this._el = d3.select(ReactDOM.findDOMNode(this));
+    var el = d3.select(ReactDOM.findDOMNode(this));
     this.$table = el.select('.datatable');
-    this.$hoverValue = el.select('.full.value');
   },
 
   prevPage: function() {
@@ -87,15 +86,12 @@ var DataTable = React.createClass({
         scrollLeft = this.$table && this.$table.node().scrollLeft;
 
     var prev = page > 0 ? (
-          <Icon glyph={assets.prev} width="10" height="10"
-            onClick={this.prevPage}
-          />
-        ) : null,
-        next = page + 1 < max / limit ? (
-          <Icon glyph={assets.next} width="10" height="10"
-            onClick={this.nextPage}
-          />
-        ) : null;
+      <Icon glyph={assets.prev} width="10" height="10" onClick={this.prevPage} />
+    ) : null;
+
+    var next = page + 1 < max / limit ? (
+      <Icon glyph={assets.next} width="10" height="10" onClick={this.nextPage} />
+    ) : null;
 
     return (
       <div>

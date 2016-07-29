@@ -103,7 +103,7 @@ var HoverField = React.createClass({
 
   changeMType: function(evt) {
     var MTYPES = dsUtil.MTYPES,
-        fieldDef  = this.state.fieldDef,
+        fieldDef = this.state.fieldDef,
         mTypeIndex = MTYPES.indexOf(fieldDef.mtype);
 
     mTypeIndex = (mTypeIndex + 1) % MTYPES.length;
@@ -113,30 +113,24 @@ var HoverField = React.createClass({
 
   render: function() {
     var state = this.state,
-        fieldDef = state.fieldDef;
+        field = state.fieldDef,
+        style = {top: state.offsetTop};
 
-    fieldDef = fieldDef ? (
-      <span>
-        <Icon onClick={this.changeMType}
-          glyph={assets[fieldDef.mtype]} width="10" height="10" />
-
-        {fieldDef.name}
-      </span>
-      ) : null;
-
-    var style = {
-      display: fieldDef ? 'block' : 'none',
-      top: state.offsetTop
-    };
-
-    return (
+    return field ? (
       <div className={'full field ' + this.props.className}
         style={style} draggable={true}
         onDragStart={this.handleDragStart}
         onDragOver={this.handleDragOver}
         onDragEnd={this.handleDragEnd}
-        onDrop={this.handleDrop}>{fieldDef}</div>
-    );
+        onDrop={this.handleDrop}>
+
+        <Icon onClick={this.changeMType}
+          glyph={assets[field.mtype]} width="10" height="10" />
+
+        {field.name}
+
+      </div>
+    ) : null;
   }
 });
 
