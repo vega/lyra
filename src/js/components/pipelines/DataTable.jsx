@@ -5,15 +5,12 @@ var d3 = require('d3'),
     ReactDOM = require('react-dom'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    ctrl = require('../../ctrl'),
     addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
-    sg = require('../../ctrl/signals'),
     getInVis = require('../../util/immutable-utils').getInVis,
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
-    bindChannel = require('../../actions/bindChannel'),
-    FullField = require('./FullField');
+    HoverField = require('./HoverField');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -21,36 +18,24 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    bindChannel: function(dsId, field, markId, property) {
-      dispatch(bindChannel(dsId, field, markId, property));
-    }
-  };
-}
-
 var DataTable = React.createClass({
   propTypes: {
     id: React.PropTypes.number,
-    dataset: React.PropTypes.instanceOf(Immutable.Map),
-    bindChannel: React.PropTypes.func
+    dataset: React.PropTypes.instanceOf(Immutable.Map)
   },
 
   getInitialState: function() {
     return {
       limit: 20,
       page: 0,
-      fullField: null,
-      fullValue: null,
-      bindField: null
+      hoverField: null,
+      fullValue: null
     };
   },
 
   componentDidMount: function() {
     var el = this._el = d3.select(ReactDOM.findDOMNode(this));
-
     this.$table = el.select('.datatable');
-    this.$fullField = el.select('.full.field');
     this.$fullValue = el.select('.full.value');
   },
 
@@ -66,18 +51,15 @@ var DataTable = React.createClass({
     node.scrollLeft = 0;
   },
 
-  showFullField: function(evt) {
-    var target = evt.target,
-        name = target.textContent,
-        schema = dsUtil.schema(this.props.id);
-
-    this.hideFull(evt);
-    this.setState({fullField: schema[name]});
-    this.$fullField.style('display', 'block')
-      .style('top', target.offsetTop);
+  showHoverField: function(evt) {
+    var target = evt.target;
+    this.hideHover();
+    this.setState({
+      hoverField: {name: target.textContent, offsetTop: target.offsetTop}
+    });
   },
 
-  showFullValue: function(evt) {
+  showHoverValue: function(evt) {
     var target = d3.select(evt.target),
         node = target.node(),
         field = node.parentNode.firstChild,
@@ -85,7 +67,7 @@ var DataTable = React.createClass({
         table = this.$table.node(),
         left = field.offsetLeft + fieldRect.width;
 
-    this.hideFull(evt);
+    this.hideHover(evt);
     this.setState({fullValue: target.text()});
     this.$fullValue.classed('odd', target.classed('odd'))
       .classed('even', target.classed('even'))
@@ -94,9 +76,8 @@ var DataTable = React.createClass({
       .style('top', field.offsetTop);
   },
 
-  hideFull: function(evt) {
-    this.setState({fullField: null, fullValue: null});
-    this.$fullField.style('display', 'none');
+  hideHover: function(evt) {
+    this.setState({hoverField: null, fullValue: null});
     this.$fullValue.style('display', 'none');
   },
 
@@ -114,7 +95,6 @@ var DataTable = React.createClass({
         keys = dl.keys(schema),
         max = output.length,
         fmt = dl.format.auto.number(),
-        fullField = state.fullField,
         fullValue = state.fullValue;
 
     var prev = page > 0 ? (
@@ -128,27 +108,20 @@ var DataTable = React.createClass({
           />
         ) : null;
 
-    fullField = fullField ? (
-      <span>
-        <Icon onClick={this.changeMType}
-          glyph={assets[fullField.mtype]} width="10" height="10" /> {fullField.name}
-      </span>
-      ) : null;
-
     return (
       <div>
         <div className="datatable"
-          onMouseLeave={this.hideFull} onScroll={this.hideFull}>
+          onMouseLeave={this.hideHover} onScroll={this.hideHover}>
           <table><tbody>
             {keys.map(function(k) {
               return (
                 <tr key={k}>
                   <td className={'field ' + props.className}
-                    onMouseOver={this.showFullField}>{k}</td>
+                    onMouseOver={this.showHoverField}>{k}</td>
                   {values.map(function(v, i) {
                     return (
                       <td key={k + i} className={i % 2 ? 'even' : 'odd'}
-                        onMouseOver={this.showFullValue}>{v[k]}</td>
+                        onMouseOver={this.showHoverValue}>{v[k]}</td>
                     );
                   }, this)}
                 </tr>
@@ -156,9 +129,8 @@ var DataTable = React.createClass({
             }, this)}
           </tbody></table>
 
-      <FullField className={props.className} fullField={this.state.fullField}
-          id={props.id}>
-      </FullField>
+        <HoverField className={props.className} dsId={props.id}
+          event={state.hoverField} />
 
           <div className="full value">{fullValue}</div>
         </div>
@@ -173,4 +145,4 @@ var DataTable = React.createClass({
 
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(addVegaReparseRequest(DataTable));
+module.exports = connect(mapStateToProps)(addVegaReparseRequest(DataTable));

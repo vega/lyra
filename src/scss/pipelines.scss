@@ -107,7 +107,10 @@ $pipeline-width: 180px;
       pointer-events: none;
     }
 
-    .icon { cursor: pointer; }
+    .icon {
+      cursor: pointer;
+      margin-right: $inner-padding;
+    }
   }
 }
 
