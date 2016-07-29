@@ -25,7 +25,7 @@ var HoverField = React.createClass({
   propTypes: {
     dsId: React.PropTypes.number.isRequired,
     className: React.PropTypes.string.isRequired,
-    event: React.PropTypes.object
+    def: React.PropTypes.object
   },
 
   getInitialState: function() {
@@ -37,15 +37,15 @@ var HoverField = React.createClass({
   },
 
   componentWillReceiveProps: function(newProps) {
-    var evt = newProps.event,
+    var def = newProps.def,
         schema = dsUtil.schema(newProps.dsId);
 
-    if (!evt) {
+    if (!def) {
       this.setState({fieldDef: null});
     } else {
       this.setState({
-        fieldDef: schema[evt.name],
-        offsetTop: evt.offsetTop
+        fieldDef: schema[def.name],
+        offsetTop: def.offsetTop
       });
     }
   },

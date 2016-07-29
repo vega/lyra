@@ -10,7 +10,8 @@ var d3 = require('d3'),
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
-    HoverField = require('./HoverField');
+    HoverField = require('./HoverField'),
+    HoverValue = require('./HoverValue');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -29,14 +30,14 @@ var DataTable = React.createClass({
       limit: 20,
       page: 0,
       hoverField: null,
-      fullValue: null
+      hoverValue: null
     };
   },
 
   componentDidMount: function() {
     var el = this._el = d3.select(ReactDOM.findDOMNode(this));
     this.$table = el.select('.datatable');
-    this.$fullValue = el.select('.full.value');
+    this.$hoverValue = el.select('.full.value');
   },
 
   prevPage: function() {
@@ -53,41 +54,30 @@ var DataTable = React.createClass({
 
   showHoverField: function(evt) {
     var target = evt.target;
-    this.hideHover();
     this.setState({
-      hoverField: {name: target.textContent, offsetTop: target.offsetTop}
+      hoverField: {name: target.textContent, offsetTop: target.offsetTop},
+      hoverValue: null
     });
   },
 
   showHoverValue: function(evt) {
-    var target = d3.select(evt.target),
-        node = target.node(),
-        field = node.parentNode.firstChild,
-        fieldRect = field.getBoundingClientRect(),
-        table = this.$table.node(),
-        left = field.offsetLeft + fieldRect.width;
-
-    this.hideHover(evt);
-    this.setState({fullValue: target.text()});
-    this.$fullValue.classed('odd', target.classed('odd'))
-      .classed('even', target.classed('even'))
-      .style('display', 'block')
-      .style('left', node.offsetLeft - table.scrollLeft + left)
-      .style('top', field.offsetTop);
+    this.setState({
+      hoverField: null,
+      hoverValue: (evt.persist(), evt)
+    });
   },
 
   hideHover: function(evt) {
-    this.setState({hoverField: null, fullValue: null});
-    this.$fullValue.style('display', 'none');
+    this.setState({hoverField: null, hoverValue: null});
   },
 
   render: function() {
     var state = this.state,
         props = this.props,
-        page = state.page,
+        page  = state.page,
         limit = state.limit,
         start = page * limit,
-        stop = start + limit,
+        stop  = start + limit,
         id = props.id,
         schema = dsUtil.schema(id),
         output = dsUtil.output(id),
@@ -95,7 +85,7 @@ var DataTable = React.createClass({
         keys = dl.keys(schema),
         max = output.length,
         fmt = dl.format.auto.number(),
-        fullValue = state.fullValue;
+        scrollLeft = this.$table && this.$table.node().scrollLeft;
 
     var prev = page > 0 ? (
           <Icon glyph={assets.prev} width="10" height="10"
@@ -112,6 +102,7 @@ var DataTable = React.createClass({
       <div>
         <div className="datatable"
           onMouseLeave={this.hideHover} onScroll={this.hideHover}>
+
           <table><tbody>
             {keys.map(function(k) {
               return (
@@ -129,10 +120,10 @@ var DataTable = React.createClass({
             }, this)}
           </tbody></table>
 
-        <HoverField className={props.className} dsId={props.id}
-          event={state.hoverField} />
+          <HoverField className={props.className} dsId={props.id}
+            def={state.hoverField} />
 
-          <div className="full value">{fullValue}</div>
+          <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
         </div>
 
         <div className="paging">
