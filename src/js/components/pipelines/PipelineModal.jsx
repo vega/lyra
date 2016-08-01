@@ -37,7 +37,6 @@ var PipelineModal = React.createClass({
         value: false,
         message: ''
       },
-      dragActive: 'textarea-dnd',
       values: [],
       schema: {},
       showPreview: false
