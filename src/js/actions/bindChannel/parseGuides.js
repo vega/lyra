@@ -130,7 +130,7 @@ function findOrCreateLegend(dispatch, state, parsed, scaleId, defs) {
       def, foundLegend = false;
 
   def = defs.find(function(legendDef) {
-    return map.scale[legendDef[property]] === scaleId;
+    return map.scales[legendDef[property]] === scaleId;
   });
 
   legends.valueSeq().forEach(function(legendId) {

@@ -1,24 +1,14 @@
 'use strict';
-var d3 = require('d3'),
-    dl = require('datalib'),
-    vl = require('vega-lite'),
-    React = require('react'),
-    ReactDOM = require('react-dom'),
+var React = require('react'),
     connect = require('react-redux').connect,
-    Immutable = require('immutable'),
     ctrl = require('../../ctrl'),
-    addVegaReparseRequest = require('../mixins/addVegaReparseRequest'),
     sg = require('../../ctrl/signals'),
-    getIn = require('../../util/immutable-utils').getIn,
     dsUtil = require('../../util/dataset-utils'),
-    assets = require('../../util/assets'),
-    Icon = require('../Icon'),
-    bindChannel = require('../../actions/bindChannel');
+    bindChannel = require('../../actions/bindChannel'),
+    FieldType = require('./FieldType');
 
 function mapStateToProps(state, ownProps) {
-  return {
-    dataset: getIn(state, 'datasets.' + ownProps.id)
-  };
+  return {};
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
@@ -29,23 +19,37 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var FullField = React.createClass({
+var HoverField = React.createClass({
+  propTypes: {
+    dsId: React.PropTypes.number.isRequired,
+    className: React.PropTypes.string.isRequired,
+    def: React.PropTypes.object
+  },
 
   getInitialState: function() {
     return {
-      fullField: null,
+      fieldDef:  null,
+      offsetTop: null,
       bindField: null
     };
   },
 
-  hideFull: function(evt) {
-    this.setState({fullField: null});
-    this.$fullField.style('display', 'none');
-    this.$fullValue.style('display', 'none');
+  componentWillReceiveProps: function(newProps) {
+    var def = newProps.def,
+        schema = dsUtil.schema(newProps.dsValues || newProps.dsId);
+
+    if (!def) {
+      this.setState({fieldDef: null});
+    } else {
+      this.setState({
+        fieldDef: schema[def.name],
+        offsetTop: def.offsetTop
+      });
+    }
   },
 
   handleDragStart: function(evt) {
-    this.setState({bindField: this.props.fullField});
+    this.setState({bindField: this.state.fieldDef});
     evt.dataTransfer.setData('text/plain', evt.target.id);
     evt.dataTransfer.effectAllowed = 'link';
     sg.set(sg.MODE, 'channels');
@@ -72,7 +76,7 @@ var FullField = React.createClass({
 
     try {
       if (dropped) {
-        props.bindChannel(props.id, bindField, sel.mark.def.lyra_id, cell.key);
+        props.bindChannel(props.dsId, bindField, sel.mark.def.lyra_id, cell.key);
       }
     } catch (e) {
       console.warn('Unable to bind primitive');
@@ -83,9 +87,7 @@ var FullField = React.createClass({
     sg.set(sg.CELL, {});
     this.setState({bindField: null});
 
-    if (dropped) {
-      this.requestVegaReparse();
-    } else {
+    if (!dropped) {
       ctrl.update();
     }
   },
@@ -100,43 +102,35 @@ var FullField = React.createClass({
 
   changeMType: function(evt) {
     var MTYPES = dsUtil.MTYPES,
-        fullField  = this.props.fullField,
-        mTypeIndex = MTYPES.indexOf(fullField.mtype);
+        fieldDef  = this.state.fieldDef,
+        mTypeIndex = MTYPES.indexOf(fieldDef.mtype);
 
     mTypeIndex = (mTypeIndex + 1) % MTYPES.length;
-    fullField.mtype = MTYPES[mTypeIndex];
-
-    this.setState({fullField: fullField});
+    fieldDef.mtype = MTYPES[mTypeIndex];
+    this.setState({fieldDef: fieldDef});
   },
 
-  sort: function(evt) {
-    console.log('works');
-  },
+  render: function() {
+    var state = this.state,
+        field = state.fieldDef,
+        style = {top: state.offsetTop, display: field ? 'block' : 'none'};
 
-  render : function() {
-
-    var fullField = this.props.fullField;
-
-
-    fullField = fullField ? (
-      <span>
-        <Icon onClick={this.changeMType}
-          glyph={assets[fullField.mtype]} width="10" height="10" />
-        {fullField.name}
-        <Icon onClick={this.sort}
-          glyph={assets['decreasingSort']} width="10" height="10" />
-      </span>
-      ) : null;
+    field = field ? (
+      <div>
+        <FieldType field={field} />
+        {field.name}
+      </div>
+    ) : null;
 
     return (
       <div className={'full field ' + this.props.className}
-             draggable={true}
-             onDragStart={this.handleDragStart}
-             onDragOver={this.handleDragOver}
-             onDragEnd={this.handleDragEnd}
-             onDrop={this.handleDrop}>{fullField}</div>
+        style={style} draggable={true}
+        onDragStart={this.handleDragStart}
+        onDragOver={this.handleDragOver}
+        onDragEnd={this.handleDragEnd}
+        onDrop={this.handleDrop}>{field}</div>
     );
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(addVegaReparseRequest(FullField));
+module.exports = connect(mapStateToProps, mapDispatchToProps)(HoverField);

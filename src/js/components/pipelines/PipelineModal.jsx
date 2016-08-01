@@ -1,25 +1,32 @@
 'use strict';
+
 var React = require('react'),
     Modal = require('react-modal'),
     connect = require('react-redux').connect,
     addPipeline = require('../../actions/pipelineActions').addPipeline,
     dl = require('datalib'),
     examplePipelines = require('../../constants/exampledatasets'),
-    DataTable = require('./DataTable');
+    DataTable = require('./DataTable'),
+    TextArea = require('./TextArea');
 
-var FILE_NAME = /([\w\d_-]*)\.?[^\\\/]*$/i;
+var FILE_NAME = /([\w\d_-]*)\.?[^\\\/]*$/i,
+    MTYPES = require('vega-lite').data.types;
 
 function mapStateToProps(state, ownProps) {
   return {};
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    selectPipeline: function(pipeline, dataset, values) {
-      dispatch(addPipeline(pipeline, dataset, values));
+    selectPipeline: function(pipeline, dataset, values, schema) {
+      dispatch(addPipeline(pipeline, dataset, values, schema));
     }
   };
 }
 var PipelineModal = React.createClass({
+  propTypes: {
+    selectPipeline: React.PropTypes.func,
+    closeModal: React.PropTypes.func
+  },
   getInitialState: function() {
     return {
       error: {
@@ -31,17 +38,29 @@ var PipelineModal = React.createClass({
         message: ''
       },
       dragActive: 'textarea-dnd',
-      values: []
+      values: [],
+      schema: {},
+      showPreview: false
     };
   },
-  proptypes: {
-    selectPipeline: React.PropTypes.func,
-    closeModal: React.PropTypes.func
+  schema: function(values) {
+    var types = dl.type.inferAll(values), schema;
+
+    schema = dl.keys(types).reduce(function(s, k) {
+      s[k] = {
+        name: k,
+        type: types[k],
+        mtype: MTYPES[types[k]]
+      };
+      return s;
+    }, {});
+
+    return schema;
   },
   loadURL: function(url, pipeline, dataset) {
     var that = this,
         fileName = url.match(FILE_NAME)[1],
-        rawParsed;
+        rawParsed, schema;
 
     /* eslint no-multi-spaces:0 */
     pipeline = pipeline || {name: fileName};
@@ -56,22 +75,16 @@ var PipelineModal = React.createClass({
         throw err;
       } else {
         rawParsed = that.parseRaw(data, dataset);
-        that.props.selectPipeline(pipeline, dataset, that.parseRaw(data, dataset));
+        schema = that.schema(rawParsed);
+        that.props.selectPipeline(pipeline, dataset, rawParsed, schema);
         that.setState({
-          values: rawParsed
+          values: rawParsed,
+          schema: schema,
+          showPreview: true
         });
+
         that.onSuccess();
       }
-    });
-  },
-  onDragEnter: function() {
-    this.setState({
-      dragActive: 'textarea-dnd active'
-    });
-  },
-  onDragLeave: function() {
-    this.setState({
-      dragActive: 'textarea-dnd'
     });
   },
   parseRaw: function(raw, dataset) {
@@ -140,15 +153,18 @@ var PipelineModal = React.createClass({
         pipeline = {name: 'name'},
         dataset  = {name: 'name'},
         raw = target.value,
-        file, reader, rawParsed;
+        file, reader, rawParsed, schema;
 
     evt.preventDefault();
 
     if (type === 'change') {
       rawParsed = that.parseRaw(raw, dataset);
-      props.selectPipeline(pipeline, dataset, rawParsed);
+      schema = that.schema(rawParsed);
+      props.selectPipeline(pipeline, dataset, rawParsed, schema);
       this.setState({
-        values: rawParsed
+        values: rawParsed,
+        schema: schema,
+        showPreview: true
       });
       that.onSuccess();
     } else if (type === 'drop') {
@@ -158,13 +174,15 @@ var PipelineModal = React.createClass({
         pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
         raw = loadEvt.target.result;
         rawParsed = that.parseRaw(raw, dataset);
-        props.selectPipeline(pipeline, dataset, rawParsed);
-        this.setState({
-          values: rawParsed
+        schema = that.schema(rawParsed);
+        props.selectPipeline(pipeline, dataset, rawParsed, schema);
+        that.setState({
+          values: rawParsed,
+          schema: schema,
+          showPreview: true
         });
         that.onSuccess();
         target.value = raw;
-        that.onDragLeave();
       };
 
       reader.readAsText(file);
@@ -183,7 +201,8 @@ var PipelineModal = React.createClass({
       success: {
         value: false,
         message: ''
-      }
+      },
+      showPreview: false
     });
     this.props.closeModal();
   },
@@ -192,30 +211,31 @@ var PipelineModal = React.createClass({
         pipelines = examplePipelines,
         state = this.state,
         error = state.error,
-        success = state.success,
-        dragActive = state.dragActive;
+        success = state.success;
 
     return (
-      <Modal
-        isOpen={props.modalIsOpen}
+      <Modal isOpen={props.modalIsOpen}
         onRequestClose={props.closeModal}>
         <div className="wrapper pipelineModal">
           <span className="closeModal" onClick={props.closeModal}>close</span>
+
           <div className="partLeft">
-            <h2>Examples</h2>
+            <h1>Examples</h1>
 
             <div className="sect">
               <h4>Datasets</h4>
-
               <ul>
                 {pipelines.map(function(pipeline) {
                   var name = pipeline.name,
+                      description = pipeline.description,
                       dataset = pipeline.dataset;
                   return (
-                    <li key={name}>
-                      <button onClick={this.select.bind(this, dataset.url, {name: name}, dataset)}>
+                    <li key={name} className="item-li">
+                      <span onClick={this.select.bind(this, dataset.url, {name: name}, dataset)}
+                        className="item-clickable">
                         {name}
-                      </button>
+                      </span>
+                      <label className="item-label">{description}</label>
                     </li>
                   );
                 }, this)}
@@ -223,17 +243,15 @@ var PipelineModal = React.createClass({
             </div>
           </div>
 
-
           <div className="partRight">
-            <h2>Import</h2>
-
-            <label>
-              Supported import formats include <abbr title="JavaScripts Object Notation">JSON</abbr>,
-              <abbr title="Coma Separated Values">CSV</abbr> and <abbr title="Tab Separated Values">TSV</abbr>.<br />
-              All data <strong>must</strong> be in tabular form.
-            </label>
+            <h1>Import</h1>
 
             <div className="sect">
+              <label className="margined-top">
+                Supported import formats include <abbr title="JavaScripts Object Notation">JSON</abbr>,
+                <abbr title="Coma Separated Values">CSV</abbr> and <abbr title="Tab Separated Values">TSV</abbr>.<br />
+                All data <strong>must</strong> be in tabular form.
+              </label><br />
               <form onSubmit={this.handleSubmit}>
                 <input type="text" name="url" placeholder="Enter url"/>
                 <button type="submit" value="Submit" className="button">Load</button><br />
@@ -241,19 +259,16 @@ var PipelineModal = React.createClass({
             </div>
 
             <div className="sect">
-              <textarea rows="10" cols="70"
-                placeholder="Copy and paste or drag and drop"
-                name="cnpDnd"
-                onChange={this.cpChangeHandler}
-                onDrop={this.cpChangeHandler}
-                onDragOver={this.onDragEnter}
-                onDragLeave={this.onDragLeave}
-                className={dragActive}>
-              </textarea><br />
+
+              <TextArea name="cnpDnd" changeHandler={this.cpChangeHandler} />
+
+              {(state.showPreview) ?
+                <div className="preview">
+                  <h4>Preview</h4>
+                  <DataTable values={state.values} schema={state.schema} className="source" />
+                </div> : null}
             </div>
-            <div className="sect">
-              {/* <DataTable values={state.values} className="source" /> */}
-            </div>
+
             <div className="sect">
               {error.value ? <label className="error">{error.message}</label> : null}
               {success.value ? <label className="success">{success.message}</label> : null}<br />

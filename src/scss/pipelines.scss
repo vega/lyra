@@ -107,7 +107,10 @@ $pipeline-width: 180px;
       pointer-events: none;
     }
 
-    .icon { cursor: pointer; }
+    .icon {
+      cursor: pointer;
+      margin-right: $inner-padding;
+    }
   }
 }
 
@@ -139,14 +142,36 @@ $pipeline-width: 180px;
   .partRight {
     width: 50%;
     float: left;
+    font-size: 1.2em;
 
-    h2 {
+    .item-li {
+      margin-bottom: $margin;
+      padding-top: $inner-padding;
+
+      .item-clickable {
+        color: $mblue-bg;
+        padding: 0 10px;
+        cursor: pointer;
+      }
+    }
+
+    label.margined-top {
+      margin: $margin 0;
+    }
+
+    .header {
       margin-bottom: 20px;
     }
 
     div.sect {
       margin-bottom: 10px;
       padding: 10px 0;
+    }
+
+    .preview {
+      position: relative;
+      width: $pipeline-width - 2*$inner-padding;
+      padding: $inner-padding;
     }
   }
 }

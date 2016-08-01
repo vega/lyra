@@ -2,35 +2,32 @@
 
 module.exports = [
   {
-    name: 'cars',
+    name: 'Cars',
+    description: 'Vehicular data which consists of names, cylinders and displacement',
     dataset: {
       name: 'cars.json',
       url: '/data/cars.json'
     }
   },
   {
-    name: 'jobs',
+    name: 'Jobs',
+    description: 'Job demographics such as job type, sex and count',
     dataset: {
       name: 'jobs.json',
       url:  '/data/jobs.json'
     }
   },
   {
-    name: 'gapminder',
+    name: 'Gapminder',
+    description: 'Year, country, population, fertility',
     dataset: {
       name: 'gapminder.json',
       url:  '/data/gapminder.json'
     }
   },
   {
-    name: 'countries',
-    dataset: {
-      name: 'countries.json',
-      url:  '/data/countries.json'
-    }
-  },
-  {
-    name: 'climate',
+    name: 'Climate',
+    description: 'Climate attributes such as temperature by lat-long',
     dataset: {
       name: 'climate.json',
       url:  '/data/climate.json'

@@ -1,10 +1,7 @@
 'use strict';
 
-var dl = require('datalib'),
-    vl = require('vega-lite'),
-    imutils = require('./immutable-utils'),
-    getInVis = imutils.getInVis,
-    MTYPES = vl.data.types;
+var imutils = require('./immutable-utils'),
+    getInVis = imutils.getInVis;
 
 // Circumvents the circular dependency
 function store() {
@@ -44,7 +41,7 @@ function init(action) {
   }
 
   _values[id] = src ? _values[src] : action.values;
-  schema(id);
+  _schema[id] = src ? _schema[src] : action.schema;
 }
 
 /**
@@ -76,28 +73,13 @@ function output(id) {
 }
 
 /**
- * Constructs the schema of the given dataset -- an object where keys correspond
- * to the names of the dataset's fields, and the values are field primitives.
+ * Returns the schema of the dataset associated with the given id
  *
  * @param  {number} id - The ID of the dataset.
  * @returns {Object} The dataset's schema.
  */
 function schema(id) {
-  if (_schema[id]) {
-    return _schema[id];
-  }
-
-  var types  = dl.type.inferAll(output(id));
-  _schema[id] = dl.keys(types).reduce(function(s, k) {
-    // TODO: Refactor out to a Field class?
-    s[k] = {
-      name:  k,
-      type:  types[k],  // boolean, number, string, etc.
-      mtype: MTYPES[types[k]] // nominal, ordinal, quantitative, temporal, etc.
-    };
-    return s;
-  }, {});
-
+  return _schema[id];
 }
 
 function reset() {
