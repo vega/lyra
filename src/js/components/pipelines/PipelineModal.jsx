@@ -76,6 +76,7 @@ var PipelineModal = React.createClass({
         rawParsed = that.parseRaw(data, dataset);
         schema = that.schema(rawParsed);
         that.props.selectPipeline(pipeline, dataset, rawParsed, schema);
+
         that.setState({
           values: rawParsed,
           schema: schema,
@@ -189,7 +190,6 @@ var PipelineModal = React.createClass({
   },
   select: function(url, name, dataset) {
     this.loadURL(url, name, dataset);
-    this.completeImport();
   },
   completeImport: function() {
     this.setState({
@@ -203,6 +203,7 @@ var PipelineModal = React.createClass({
       },
       showPreview: false
     });
+
     this.props.closeModal();
   },
   render: function() {
@@ -258,10 +259,8 @@ var PipelineModal = React.createClass({
             </div>
 
             <div className="sect">
-
               <TextArea name="cnpDnd" changeHandler={this.cpChangeHandler} />
-
-              {(state.showPreview) ?
+              {state.showPreview ?
                 <div className="preview">
                   <h4>Preview</h4>
                   <DataTable values={state.values} schema={state.schema} className="source" />

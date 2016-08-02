@@ -5,7 +5,7 @@ var React = require('react');
 var TextArea = React.createClass({
   propTypes: {
     name: React.PropTypes.string.isRequired,
-    onChange: React.PropTypes.func.isRequired,
+    changeHandler: React.PropTypes.func.isRequired,
     rows: React.PropTypes.string,
     cols: React.PropTypes.string,
     placeHolder: React.PropTypes.string
