@@ -8,8 +8,7 @@ var React = require('react'),
     DataTable = require('./DataTable'),
     wrapper;
 
-describe('DataTable Component <DataTable/>'),
-function() {
+describe('DataTable Component <DataTable/>'), function() {
 
   // Tests initial values of states
   describe('Default state', function() {
