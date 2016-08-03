@@ -36,7 +36,7 @@ var HoverField = React.createClass({
 
   componentWillReceiveProps: function(newProps) {
     var def = newProps.def,
-        schema = dsUtil.schema(newProps.dsValues || newProps.dsId);
+        schema = dsUtil.schema(newProps.dsId) || newProps.dsSchema;
 
     if (!def) {
       this.setState({fieldDef: null});

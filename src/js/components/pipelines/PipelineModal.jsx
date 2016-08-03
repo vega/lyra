@@ -190,6 +190,7 @@ var PipelineModal = React.createClass({
   },
   select: function(url, name, dataset) {
     this.loadURL(url, name, dataset);
+    this.completeImport();
   },
   completeImport: function() {
     this.setState({

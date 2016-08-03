@@ -1,7 +1,9 @@
 'use strict';
 
 var imutils = require('./immutable-utils'),
-    getInVis = imutils.getInVis;
+    getInVis = imutils.getInVis,
+    dl = require('datalib'),
+    MTYPES = require('vega-lite').data.types;
 
 // Circumvents the circular dependency
 function store() {
@@ -74,8 +76,10 @@ function output(id) {
 
 /**
  * Returns the schema of the dataset associated with the given id
+ * or processes the schema based on the dataset's actual values
  *
  * @param  {number} id - The ID of the dataset.
+ * @param  {Array} values - The dataset values themselves
  * @returns {Object} The dataset's schema.
  */
 function schema(id) {

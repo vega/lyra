@@ -56,6 +56,8 @@ var DataTable = React.createClass({
       hoverField: {name: target.textContent, offsetTop: target.offsetTop},
       hoverValue: null
     });
+
+    console.log('modified state: ', this.state);
   },
 
   showHoverValue: function(evt) {
@@ -84,6 +86,8 @@ var DataTable = React.createClass({
         max = output.length,
         fmt = dl.format.auto.number(),
         scrollLeft = this.$table && this.$table.node().scrollLeft;
+
+    console.log('state:hf: ', state.hoverField);
 
     var prev = page > 0 ? (
       <Icon glyph={assets.prev} width="10" height="10" onClick={this.prevPage} />
@@ -116,8 +120,8 @@ var DataTable = React.createClass({
               }, this)}
             </tbody>
           </table>
-          {id ? <HoverField className={props.className} dsId={id}
-            def={state.hoverField} /> : null}
+          <HoverField className={props.className} dsId={id} dsValues={props.values}
+            dsSchema={props.schema} def={state.hoverField} />
           <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
         </div>
 
