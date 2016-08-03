@@ -50,5 +50,27 @@ function() {
     it('correct next page', function() {
       expect(wrapper.state('page').to.equal(1));
     });
+
+
+  });
+
+  // Tests case where click next then prev
+  describe('next then prev', function() {
+
+  });
+
+  // Tests showHoverField
+  describe('showHoverField', function() {
+
+  });
+
+  // Tests showHoverValue
+  describe('showHoverValue', function() {
+
+  });
+
+  // Tests hideHover
+  describe('hideHover', function() {
+
   });
 }
