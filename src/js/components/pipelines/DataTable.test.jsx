@@ -10,8 +10,9 @@ var React = require('react'),
 
 describe('DataTable Component <DataTable/>'),
 function() {
+
+  // Tests initial values of states
   describe('Default state', function() {
-    // Tests initial values of states
 
     beforeEach(function() {
       wrapper = shallow(<DataTable />);
@@ -25,5 +26,29 @@ function() {
       expect(wrapper.state('page').to.equal(0));
     });
 
+    it('valid init hoverField', function() {
+      expect(wrapper.state('hoverField').to.equal(null));
+    });
+
+    it('valid init hoverValue', function() {
+      expect(wrapper.state('hoverValue').to.equal(null));
+    });
+
+    it('calls componentDidMount', function() {
+      expect(DataTable.prototype.componentDidMount.calledOnce).to.equal(true);
+  });
+
+  });
+
+  // Tests case where click next once and ensure all states correct
+  describe('Pagination next', function() {
+    before(function() {
+      wrapper = shallow(<DataTable />);
+      wrapper.find('Icon').simulate('click'); // should click on next since only one that initially exists
+    });
+
+    it('correct next page', function() {
+      expect(wrapper.state('page').to.equal(1));
+    });
   });
 }
