@@ -17,5 +17,9 @@ describe('FieldType Component <FieldType/>'), function() {
       wrapper = shallow(<FieldType />);
     });
 
+    it('valid init type', function() {
+      expect(wrapper.state('type').to.equal(null));
+    });
+
   });
 }

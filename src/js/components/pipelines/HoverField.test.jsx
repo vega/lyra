@@ -17,5 +17,17 @@ describe('HoverField Component <HoverField/>'), function() {
       wrapper = shallow(<HoverField />);
     });
 
+    it('valid init fieldDef', function() {
+      expect(wrapper.state('fieldDef').to.equal(null));
+    });
+
+    it('valid init offsetTop', function() {
+      expect(wrapper.state('offsetTop').to.equal(null));
+    });
+
+    it('valid init bindField', function() {
+      expect(wrapper.state('bindField').to.equal(null));
+    });
+
   });
 }

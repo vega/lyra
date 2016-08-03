@@ -10,8 +10,9 @@ var React = require('react'),
 
 describe('HoverValue Component <HoverValue/>'), function() {
 
-  // Tests initial values of states
-  describe('Default state', function() {
+  // Will need to figure out if HoverValue needs to be tested rigorously since it only renders
+  // and there are not event handlers.
+  describe('Rendering', function() {
 
     beforeEach(function() {
       wrapper = shallow(<HoverValue />);
