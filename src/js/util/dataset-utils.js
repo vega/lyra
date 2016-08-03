@@ -1,9 +1,7 @@
 'use strict';
 
 var imutils = require('./immutable-utils'),
-    getInVis = imutils.getInVis,
-    dl = require('datalib'),
-    MTYPES = require('vega-lite').data.types;
+    getInVis = imutils.getInVis;
 
 // Circumvents the circular dependency
 function store() {
