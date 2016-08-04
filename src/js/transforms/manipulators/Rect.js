@@ -7,7 +7,7 @@ var dl = require('datalib'),
     CONST = spec.CONST,
     PAD   = CONST.PADDING,
     APAD  = CONST.ARROWHEAD,
-    PAD2  = PAD * 2;
+    PAD2  = 2 * PAD;
 
 /**
  * @classdesc Represents the RectManipulators, a Vega data transformation operator.

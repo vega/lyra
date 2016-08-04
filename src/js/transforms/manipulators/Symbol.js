@@ -4,7 +4,8 @@ var inherits = require('inherits'),
     spec = require('../../ctrl/manipulators'),
     annotate = require('../../util/annotate-manipulators'),
     CONST = spec.CONST,
-    PAD = CONST.PADDING;
+    PAD   = CONST.PADDING,
+    PAD15 = 1.5 * PAD;
 
 /**
  * @classdesc Represents the SymbolManipulators, a Vega data transformation operator.
@@ -42,11 +43,11 @@ SymbolManipulators.prototype.channels = function(item) {
   return []
     // x
     .concat([
-      {x: gb.x1, y: m.y}, {x: m.x - PAD, y: m.y}
+      {x: gb.x1, y: m.y}, {x: m.x - PAD15, y: m.y}
     ].map(annotate('x', 'span')))
     // y
     .concat([
-      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - PAD}
+      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - PAD15}
     ].map(annotate('y', 'span')))
     // Border shape for fill/stroke/opacity
     .concat([

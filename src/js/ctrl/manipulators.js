@@ -105,7 +105,7 @@ function border(spec) {
 
   props.fill = undefined;
   props.stroke = hoverCell({value: 'lightsalmon'}, {value: 'cyan'}, true);
-  props.strokeWidth = {value: 3};
+  props.strokeWidth = {value: spec.type === 'text' ? 1 : 3};
 
   return {
     type: 'group',

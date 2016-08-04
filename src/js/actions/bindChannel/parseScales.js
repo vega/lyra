@@ -31,16 +31,22 @@ module.exports = function(dispatch, state, parsed) {
       markType = parsed.markType,
       prev = getInVis(state, 'scales.' + map[channel]),
       scaleId = prev && prev.get('_id'),
+      scales  = parsed.output.marks[0].scales,
       def;
+
+  if (!scales) {
+    return;
+  }
 
   // For a single-layer VL spec, scales are defined within the first group
   // and are named for the channel they encode.
-  var scales = parsed.output.marks[0].scales.filter(function(scale) {
+  scales = scales.filter(function(scale) {
     return scale.name === channel;
   });
 
   if (scales.length !== 1) {
-    throw Error(scales.length + ' scales found for ' + channel);
+    console.warn(scales.length + ' scales found for ' + channel);
+    return;
   }
 
   def = parse(scales[0]);
