@@ -24,5 +24,6 @@ module.exports = {
   erase: require('../../assets/erase.svg'),
   export: require('../../assets/export.svg'),
   decreasingSort: require('../../assets/decreasingSort.svg'),
+  increasingSort: require('../../assets/increasingSort.svg'),
   scaffold: require('../../assets/scaffold.html')
 };

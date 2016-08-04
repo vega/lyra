@@ -137,16 +137,19 @@ var FullField = React.createClass({
 
   render : function() {
 
-    var fullField = this.props.fullField;
-
+    var fullField = this.props.fullField,
+        incOrDecIcon = this.state.valuesInc ? (
+          <Icon onClick={this.sortValues}
+            glyph={assets['increasingSort']} width="10" height="10" /> ) : (
+          <Icon onClick={this.sortValues}
+            glyph={assets['decreasingSort']} width="10" height="10" /> );
 
     fullField = fullField ? (
       <span>
         <Icon onClick={this.changeMType}
           glyph={assets[fullField.mtype]} width="10" height="10" />
         {fullField.name}
-        <Icon onClick={this.sortValues}
-          glyph={assets['decreasingSort']} width="10" height="10" />
+        {incOrDecIcon}
       </span>
       ) : null;
 
