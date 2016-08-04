@@ -98,14 +98,22 @@ function hoverCell(t, f, parent) {
 }
 
 function border(spec) {
-  var props = dl.duplicate(spec.properties.update);
+  var props = dl.duplicate(spec.properties.update),
+      markType = spec.type,
+      pathMark = markType === 'line' || markType === 'area';
+
   dl.keys(props).forEach(function(k) {
     props[k] = {field: {parent: k}};
   });
 
   props.fill = undefined;
   props.stroke = hoverCell({value: 'lightsalmon'}, {value: 'cyan'}, true);
-  props.strokeWidth = {value: spec.type === 'text' ? 1 : 3};
+  props.strokeWidth = {value: markType === 'text' ? 1 : 3};
+
+  if (pathMark) {
+    props.x = props.y = undefined;
+    props.path = {field: {parent: 'path'}};
+  }
 
   return {
     type: 'group',
@@ -113,7 +121,7 @@ function border(spec) {
       transform: [{type: 'filter', test: 'datum.manipulator === "border"'}]
     },
     marks: [{
-      type: spec.type,
+      type: pathMark ? 'path' : markType,
       properties: {update: props}
     }, voronoi(true)]
   };
