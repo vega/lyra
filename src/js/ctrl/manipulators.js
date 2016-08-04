@@ -78,6 +78,7 @@ function voronoi(parent) {
     properties: {
       update: {
         key: {field: parent ? {parent: 'key'} : 'key'},
+        tooltip: {field: parent ? {parent: 'tooltip'} : 'tooltip'},
         fill: {value: 'transparent'},
         strokeWidth: {value: 0.35},
         path: {field: parent ? {parent: 'layout_path'} : 'layout_path'},
@@ -212,3 +213,36 @@ manipulators.BUBBLE_CURSOR = {
     }
   }
 };
+
+manipulators.BUBBLE_CURSOR_TIP = [{
+  type: 'text',
+  properties: {
+    update: {
+      x: {signal: sg.MOUSE + '.x'},
+      y: {signal: sg.MOUSE + '.y'},
+      dy: {value: 30},
+      text: {signal: sg.CELL + '.tooltip'},
+      align: {value: 'center'},
+      baseline: {value: 'bottom'},
+      stroke: {value: 'white'},
+      strokeWidth: {value: 4},
+      fontSize: {value: 12},
+      fontWeight: {value: 'bold'}
+    }
+  }
+}, {
+  type: 'text',
+  properties: {
+    update: {
+      x: {signal: sg.MOUSE + '.x'},
+      y: {signal: sg.MOUSE + '.y'},
+      dy: {value: 30},
+      text: {signal: sg.CELL + '.tooltip'},
+      align: {value: 'center'},
+      baseline: {value: 'bottom'},
+      fill: {value: 'lightsalmon'},
+      fontSize: {value: 12},
+      fontWeight: {value: 'bold'}
+    }
+  }
+}];

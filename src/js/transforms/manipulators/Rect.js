@@ -49,13 +49,13 @@ RectManipulators.prototype.channels = function(item) {
       {x: tl.x, y: tl.y - PAD}, {x: tr.x, y: tr.y - PAD}, {x: tr.x + w, y: tr.y - PAD},
       {x: tr.x + w - APAD, y: tr.y - 2 * PAD}, {x: tr.x + w - APAD, y: tr.y},
       {x: tr.x + w, y: tr.y - PAD + 0.1}
-    ].map(annotate('x+', 'arrow')))
+    ].map(annotate('x+', 'arrow', 'x position')))
     // Height/vertical arrow stem
     .concat([
       {x: tr.x + PAD, y: tr.y}, {x: br.x + PAD, y: br.y}, {x: br.x + PAD, y: br.y + h},
       {x: br.x + 2 * PAD, y: br.y + h - APAD}, {x: br.x, y: br.y + h - APAD},
       {x: br.x + PAD, y: br.y + h + 0.1}
-    ].map(annotate('y+', 'arrow')))
+    ].map(annotate('y+', 'arrow', 'y position')))
     // fill
     .concat([
       {x: item.x, y: item.y, x2: item.x2, y2: item.y2,
@@ -75,21 +75,21 @@ RectManipulators.prototype.altchannels = function(item) {
     // x
     .concat([
       {x: gb.x1, y: tl.y}, {x: tl.x - PAD2, y: tl.y}
-    ].map(annotate('x', 'span')))
+    ].map(annotate('x', 'span', 'left (x)')))
     // x2
     .concat([
       {x: gb.x1, y: br.y + PAD}, {x: bl.x, y: br.y + PAD},
       {x: br.x, y: br.y + PAD}
-    ].map(annotate('x2', 'span')))
+    ].map(annotate('x2', 'span', 'right (x2)')))
     // y
     .concat([
       {x: tl.x, y: gb.y1}, {x: tl.x, y: tl.y - PAD2}
-    ].map(annotate('y', 'span')))
+    ].map(annotate('y', 'span', 'top (y)')))
     // y2
     .concat([
       {x: br.x + PAD, y: gb.y1}, {x: br.x + PAD, y: tr.y},
       {x: br.x + PAD, y: br.y}
-    ].map(annotate('y2', 'span')))
+    ].map(annotate('y2', 'span', 'bottom (y2)')))
     // width
     .concat([
       {x: ml.x, y: tr.y - PAD}, {x: mr.x, y: tr.y - PAD}

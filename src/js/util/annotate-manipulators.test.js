@@ -1,7 +1,6 @@
 /* eslint no-unused-expressions:0 */
 'use strict';
 var expect = require('chai').expect;
-var assert = require('chai').assert;
 var annotate = require('./annotate-manipulators');
 
 describe('Annotate Manipulators utility', function() {
@@ -10,15 +9,22 @@ describe('Annotate Manipulators utility', function() {
     expect(annotated).to.be.a('function');
   });
 
-  it('it returns an object with key & manipulator keys when return called as a function', function() {
-    var annotated = annotate('x', 'arrow')({x: 100, y: 200});
-    var mock = {
-      x: 100,
-      y: 200,
-      key: 'x',
-      manipulator: 'arrow'
-    };
-    assert.deepEqual(annotated, mock);
+  it('it returns an object with key & manipulator when return called as a function', function() {
+    var annotated = annotate('x+', 'arrow')({x: 100, y: 200});
+    expect(annotated).to.deep.equal({
+      x: 100, y: 200,
+      key: 'x+', manipulator: 'arrow',
+      tooltip: 'x+'
+    });
+  });
+
+  it('it returns an object with key, manipulator, and tooltip when return called as a function', function() {
+    var annotated = annotate('x', 'arrow', 'x position')({x: 100, y: 200});
+    expect(annotated).to.deep.equal({
+      x: 100, y: 200,
+      key: 'x', manipulator: 'arrow',
+      tooltip: 'x position'
+    });
   });
 
 });
