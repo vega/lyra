@@ -5,7 +5,8 @@ var inherits = require('inherits'),
     annotate = require('../../util/annotate-manipulators'),
     CONST = spec.CONST,
     PAD   = CONST.PADDING,
-    PAD15 = 1.5 * PAD;
+    PAD15 = 3.5 * PAD,
+    DELTA = 0.01;
 
 /**
  * @classdesc Represents the SymbolManipulators, a Vega data transformation operator.
@@ -43,22 +44,32 @@ SymbolManipulators.prototype.channels = function(item) {
   return []
     // x
     .concat([
-      {x: gb.x1, y: m.y}, {x: m.x - PAD15, y: m.y}
+      {x: gb.x1, y: m.y}, {x: m.x - PAD15, y: m.y, _voronoi: false}
     ].map(annotate('x', 'span')))
     // y
     .concat([
-      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - PAD15}
+      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - PAD15, _voronoi: false}
     ].map(annotate('y', 'span')))
-    // Border shape for fill/stroke/opacity
+    // shape
     .concat([
-      {x: item.x, y: item.y, shape: item.shape, size: item.size}
-    ].map(annotate('fill', 'border')));
+      {x: item.x + DELTA, y: item.y + DELTA, shape: item.shape, size: item.size}
+    ].map(annotate('fill', 'border')))
+    // size
+    .concat([
+      {x: item.x - DELTA, y: item.y - DELTA, shape: item.shape, size: PAD * item.size}
+    ].map(annotate('size', 'border')));
 };
 
 SymbolManipulators.prototype.altchannels = function(item) {
-  return [
-    {x: item.x, y: item.y, shape: item.shape, size: item.size}
-  ].map(annotate('stroke', 'border'));
+  return []
+    // shape
+    .concat([
+      {x: item.x + DELTA, y: item.y + DELTA, shape: item.shape, size: item.size}
+    ].map(annotate('stroke', 'border')))
+    // stroke
+    .concat([
+      {x: item.x - DELTA, y: item.y - DELTA, shape: item.shape, size: PAD * item.size}
+    ].map(annotate('shape', 'border')));
 };
 
 module.exports = SymbolManipulators;

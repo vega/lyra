@@ -56,7 +56,7 @@ RectManipulators.prototype.channels = function(item) {
       {x: br.x + 2 * PAD, y: br.y + h - APAD}, {x: br.x, y: br.y + h - APAD},
       {x: br.x + PAD, y: br.y + h + 0.1}
     ].map(annotate('y+', 'arrow')))
-    // Border shape for fill
+    // fill
     .concat([
       {x: item.x, y: item.y, x2: item.x2, y2: item.y2,
         width: item.width, height: item.height, shape: item.shape}
@@ -98,7 +98,7 @@ RectManipulators.prototype.altchannels = function(item) {
     .concat([
       {x: bl.x - PAD, y: tc.y}, {x: bl.x - PAD, y: bc.y}
     ].map(annotate('height', 'span')))
-    // Border shape for stroke
+    // stroke
     .concat([
       {x: item.x, y: item.y, x2: item.x2, y2: item.y2,
         width: item.width, height: item.height, shape: item.shape}
