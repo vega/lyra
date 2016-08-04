@@ -2,7 +2,7 @@
 var inherits = require('inherits'),
     Manipulators = require('./Manipulators'),
     spec = require('../../ctrl/manipulators'),
-    map = require('../../util/map-manipulator'),
+    annotate = require('../../util/annotate-manipulators'),
     CONST = spec.CONST,
     PX = CONST.PADDING,
     SP = CONST.STROKE_PADDING;
@@ -47,11 +47,11 @@ TextManipulators.prototype.channels = function(item) {
     // x
     .concat([
       {x: gb.x1, y: m.y}, {x: m.x - PX, y: m.y}
-    ].map(map('x', 'arrow')))
+    ].map(annotate('x', 'arrow')))
     // y
     .concat([
       {x: m.x, y: gb.y1}, {x: m.x, y: m.y - SP}
-    ].map(map('y', 'arrow')));
+    ].map(annotate('y', 'arrow')));
 };
 
 TextManipulators.prototype.altchannels = TextManipulators.prototype.channels;

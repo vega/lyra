@@ -3,11 +3,11 @@ var dl = require('datalib'),
     inherits = require('inherits'),
     Manipulators = require('./Manipulators'),
     spec = require('../../ctrl/manipulators'),
-    map = require('../../util/map-manipulator'),
+    annotate = require('../../util/annotate-manipulators'),
     CONST = spec.CONST,
-    PX = CONST.PADDING,
-    SP = CONST.STROKE_PADDING,
-    A = CONST.ARROWHEAD;
+    PAD   = CONST.PADDING,
+    APAD  = CONST.ARROWHEAD,
+    PAD2  = PAD * 2;
 
 /**
  * @classdesc Represents the RectManipulators, a Vega data transformation operator.
@@ -46,16 +46,21 @@ RectManipulators.prototype.channels = function(item) {
   return []
     // Width/horizontal arrow stem
     .concat([
-      {x: tl.x, y: tl.y - SP}, {x: tr.x, y: tr.y - SP}, {x: tr.x + w, y: tr.y - SP},
-      {x: tr.x + w - A, y: tr.y - 2 * SP}, {x: tr.x + w - A, y: tr.y},
-      {x: tr.x + w, y: tr.y - SP + 0.1}
-    ].map(map('x+', 'arrow')))
+      {x: tl.x, y: tl.y - PAD}, {x: tr.x, y: tr.y - PAD}, {x: tr.x + w, y: tr.y - PAD},
+      {x: tr.x + w - APAD, y: tr.y - 2 * PAD}, {x: tr.x + w - APAD, y: tr.y},
+      {x: tr.x + w, y: tr.y - PAD + 0.1}
+    ].map(annotate('x+', 'arrow')))
     // Height/vertical arrow stem
     .concat([
-      {x: tr.x + PX, y: tr.y}, {x: br.x + PX, y: br.y}, {x: br.x + PX, y: br.y + h},
-      {x: br.x + 2 * PX, y: br.y + h - A}, {x: br.x, y: br.y + h - A},
-      {x: br.x + PX, y: br.y + h + 0.1}
-    ].map(map('y+', 'arrow')));
+      {x: tr.x + PAD, y: tr.y}, {x: br.x + PAD, y: br.y}, {x: br.x + PAD, y: br.y + h},
+      {x: br.x + 2 * PAD, y: br.y + h - APAD}, {x: br.x, y: br.y + h - APAD},
+      {x: br.x + PAD, y: br.y + h + 0.1}
+    ].map(annotate('y+', 'arrow')))
+    // Border shape for fill
+    .concat([
+      {x: item.x, y: item.y, x2: item.x2, y2: item.y2,
+        width: item.width, height: item.height, shape: item.shape}
+    ].map(annotate('fill', 'border')));
 };
 
 RectManipulators.prototype.altchannels = function(item) {
@@ -69,26 +74,35 @@ RectManipulators.prototype.altchannels = function(item) {
   return []
     // x
     .concat([
-      {x: gb.x1, y: tl.y}, {x: tl.x - PX, y: tl.y}
-    ].map(map('x', 'span')))
+      {x: gb.x1, y: tl.y}, {x: tl.x - PAD2, y: tl.y}
+    ].map(annotate('x', 'span')))
     // x2
     .concat([
-      {x: gb.x1, y: br.y + SP}, {x: bl.x, y: br.y + SP},
-      {x: br.x, y: br.y + SP}
-    ].map(map('x2', 'span')))
+      {x: gb.x1, y: br.y + PAD}, {x: bl.x, y: br.y + PAD},
+      {x: br.x, y: br.y + PAD}
+    ].map(annotate('x2', 'span')))
     // y
     .concat([
-      {x: tl.x, y: gb.y1}, {x: tl.x, y: tl.y - SP}
-    ].map(map('y', 'span')))
+      {x: tl.x, y: gb.y1}, {x: tl.x, y: tl.y - PAD2}
+    ].map(annotate('y', 'span')))
     // y2
     .concat([
-      {x: br.x + SP, y: gb.y1}, {x: br.x + SP, y: tr.y},
-      {x: br.x + SP, y: br.y}
-    ].map(map('y2', 'span')))
+      {x: br.x + PAD, y: gb.y1}, {x: br.x + PAD, y: tr.y},
+      {x: br.x + PAD, y: br.y}
+    ].map(annotate('y2', 'span')))
     // width
-    .concat([ml, mr].map(map('width', 'span')))
+    .concat([
+      {x: ml.x, y: tr.y - PAD}, {x: mr.x, y: tr.y - PAD}
+    ].map(annotate('width', 'span')))
     // height
-    .concat([tc, bc].map(map('height', 'span')));
+    .concat([
+      {x: bl.x - PAD, y: tc.y}, {x: bl.x - PAD, y: bc.y}
+    ].map(annotate('height', 'span')))
+    // Border shape for stroke
+    .concat([
+      {x: item.x, y: item.y, x2: item.x2, y2: item.y2,
+        width: item.width, height: item.height, shape: item.shape}
+    ].map(annotate('stroke', 'border')));
 };
 
 module.exports = RectManipulators;

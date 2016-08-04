@@ -154,6 +154,7 @@ function createScale(dispatch, parsed, def) {
 
   newScale.nice = def.nice;
   newScale.round = def.round;
+  newScale.zero = def.zero;
   newScale.points = points;
   if (points) {
     newScale.padding = def.padding;

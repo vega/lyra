@@ -3,18 +3,19 @@ var dl = require('datalib'),
     sg = require('./signals'),
     ns = require('../util/ns');
 
-var TYPES = [];
+var TYPES  = [];
 
 // Mode = handles | connectors | channels | altchannels
-// Manipulators = handle | connector | arrow | span | point
+// Manipulators = handle | connector | arrow | span | point | border
 // This differentiation is needed because channels and altchannels
 // display multiple manipulators.
 
 function manipulators(mark, spec) {
+  var ex = require('./export');
   return [spec, {
     type: 'group',
     from: {
-      mark: mark.name,
+      mark: ex.exportName(mark.name),
       transform: [
         {
           type: ns('manipulators_' + mark.type),
@@ -26,7 +27,7 @@ function manipulators(mark, spec) {
         }
       ]
     },
-    marks: TYPES
+    marks: TYPES.concat(border(spec))
   }];
 }
 
@@ -36,7 +37,6 @@ manipulators.CONST = {
   LARGE: 40,
   SMALL: 20,
   PADDING: 7,
-  STROKE_PADDING: 7,
   ARROWHEAD: 7
 };
 
@@ -95,6 +95,28 @@ function hoverCell(t, f, parent) {
   dl.extend(rule[0], t);
   rule.push(f);
   return {rule: rule};
+}
+
+function border(spec) {
+  var props = dl.duplicate(spec.properties.update);
+  dl.keys(props).forEach(function(k) {
+    props[k] = {field: {parent: k}};
+  });
+
+  props.fill = undefined;
+  props.stroke = hoverCell({value: 'lightsalmon'}, {value: 'cyan'}, true);
+  props.strokeWidth = {value: 3};
+
+  return {
+    type: 'group',
+    from: {
+      transform: [{type: 'filter', test: 'datum.manipulator === "border"'}]
+    },
+    marks: [{
+      type: spec.type,
+      properties: {update: props}
+    }, voronoi(true)]
+  };
 }
 
 TYPES.push(manipulators.HANDLE = {

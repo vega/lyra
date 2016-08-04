@@ -2,10 +2,9 @@
 var inherits = require('inherits'),
     Manipulators = require('./Manipulators'),
     spec = require('../../ctrl/manipulators'),
-    map = require('../../util/map-manipulator'),
+    annotate = require('../../util/annotate-manipulators'),
     CONST = spec.CONST,
-    PX = CONST.PADDING,
-    SP = CONST.STROKE_PADDING;
+    PAD = CONST.PADDING;
 
 /**
  * @classdesc Represents the SymbolManipulators, a Vega data transformation operator.
@@ -43,13 +42,22 @@ SymbolManipulators.prototype.channels = function(item) {
   return []
     // x
     .concat([
-      {x: gb.x1, y: m.y}, {x: m.x - PX, y: m.y}
-    ].map(map('x', 'span')))
+      {x: gb.x1, y: m.y}, {x: m.x - PAD, y: m.y}
+    ].map(annotate('x', 'span')))
     // y
     .concat([
-      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - SP}
-    ].map(map('y', 'span')));
+      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - PAD}
+    ].map(annotate('y', 'span')))
+    // Border shape for fill/stroke/opacity
+    .concat([
+      {x: item.x, y: item.y, shape: item.shape, size: item.size}
+    ].map(annotate('fill', 'border')));
 };
 
-SymbolManipulators.prototype.altchannels = SymbolManipulators.prototype.channels;
+SymbolManipulators.prototype.altchannels = function(item) {
+  return [
+    {x: item.x, y: item.y, shape: item.shape, size: item.size}
+  ].map(annotate('stroke', 'border'));
+};
+
 module.exports = SymbolManipulators;
