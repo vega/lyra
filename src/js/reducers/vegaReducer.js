@@ -44,7 +44,8 @@ function invalidateVegaReducer(state, action) {
     ACTIONS.UPDATE_GUIDE_PROPERTY,
     ACTIONS.ADD_AXIS_TO_GROUP,
     ACTIONS.ADD_LEGEND_TO_GROUP,
-    ACTIONS.REMOVE_AXIS_FROM_GROUP
+    ACTIONS.REMOVE_AXIS_FROM_GROUP,
+    ACTIONS.SORT_DATASET
   ];
   if (invalidatingActions.indexOf(action.type) >= 0) {
     return state.set('invalid', true);

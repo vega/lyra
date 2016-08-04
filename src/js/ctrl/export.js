@@ -237,7 +237,6 @@ function getSort(dataset) {
       by = byPrefix + sort.sortField;
 
   var result = [{'type': 'sort', "by": by}];
-  console.log(result);
   return result;
 
 };
