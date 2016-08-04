@@ -6,8 +6,9 @@ var React = require('react'),
     addPipeline = require('../../actions/pipelineActions').addPipeline,
     dl = require('datalib'),
     examplePipelines = require('../../constants/exampledatasets'),
-    DataTable = require('./DataTable'),
-    TextArea = require('./TextArea');
+    DataPreview = require('./DataPreview'),
+    TextArea = require('./TextArea'),
+    Form = require('./Form');
 
 var FILE_NAME = /([\w\d_-]*)\.?[^\\\/]*$/i,
     MTYPES = require('vega-lite').data.types;
@@ -252,19 +253,13 @@ var PipelineModal = React.createClass({
                 <abbr title="Coma Separated Values">CSV</abbr> and <abbr title="Tab Separated Values">TSV</abbr>.<br />
                 All data <strong>must</strong> be in tabular form.
               </label><br />
-              <form onSubmit={this.handleSubmit}>
-                <input type="text" name="url" placeholder="Enter url"/>
-                <button type="submit" value="Submit" className="button">Load</button><br />
-              </form>
+            <Form handleSubmit={this.handleSubmit}/>
             </div>
 
             <div className="sect">
               <TextArea name="cnpDnd" changeHandler={this.cpChangeHandler} />
               {state.showPreview ?
-                <div className="preview">
-                  <h4>Preview</h4>
-                  <DataTable values={state.values} schema={state.schema} className="source" />
-                </div> : null}
+                <DataPreview values={state.values} schema={state.schema}/> : null}
             </div>
 
             <div className="sect">
