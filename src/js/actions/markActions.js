@@ -2,7 +2,10 @@
 
 var dl = require('datalib'),
     counter  = require('../util/counter'),
-    getIn = require('../util/immutable-utils').getIn,
+    getInVis = require('../util/immutable-utils').getInVis,
+    historyActions = require('./historyActions'),
+    startBatch = historyActions.startBatch,
+    endBatch = historyActions.endBatch,
     Mark = require('../store/factory/Mark'),
     ADD_MARK = 'ADD_MARK',
     DELETE_MARK = 'DELETE_MARK',
@@ -12,7 +15,8 @@ var dl = require('datalib'),
     DISABLE_MARK_VISUAL = 'DISABLE_MARK_VISUAL',
     RESET_MARK_VISUAL = 'RESET_MARK_VISUAL',
     BIND_SCALE = 'BIND_SCALE',
-    BIND_FIELD = 'BIND_FIELD';
+    BIND_FIELD = 'BIND_FIELD',
+    SET_MARK_EXTENT = 'SET_MARK_EXTENT';
 
 /**
  * Action creator to create a new mark and add it to the store.
@@ -45,10 +49,13 @@ function addMark(markProps) {
  */
 function deleteMark(id) {
   return function(dispatch, getState) {
-    var mark = getIn(getState(), 'marks.' + id).toJS();
+    var mark = getInVis(getState(), 'marks.' + id),
+        children = mark.get('marks');
 
-    if (mark.marks && mark.marks.length) {
-      mark.marks.forEach(function(childId) {
+    dispatch(startBatch());
+
+    if (children && children.size) {
+      children.forEach(function(childId) {
         dispatch(deleteMark(childId));
       });
     }
@@ -57,9 +64,11 @@ function deleteMark(id) {
       type: DELETE_MARK,
       // ID and Type are needed to clear up all the mark's signals, as those are
       // the values used to create a signal's identifying name.
-      markId: mark._id,
-      markType: mark.type
+      id: mark.get('_id'),
+      markType: mark.get('type')
     });
+
+    dispatch(endBatch());
   };
 }
 
@@ -168,6 +177,23 @@ function bindField(id, field, property) {
   };
 }
 
+/**
+ * Action creator to set a rect mark's spatial extents.
+ *
+ * @param   {number} id         The ID of the mark to bind.
+ * @param   {string} oldExtent  The old extent being disabled.
+ * @param   {string} newExtent  The new extent being set.
+ * @returns {Object} The SET_MARK_EXTENT action object.
+ */
+function setMarkExtent(id, oldExtent, newExtent) {
+  return {
+    type: SET_MARK_EXTENT,
+    id: id,
+    oldExtent: oldExtent,
+    newExtent: newExtent
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_MARK: ADD_MARK,
@@ -179,6 +205,7 @@ module.exports = {
   RESET_MARK_VISUAL: RESET_MARK_VISUAL,
   BIND_SCALE: BIND_SCALE,
   BIND_FIELD: BIND_FIELD,
+  SET_MARK_EXTENT: SET_MARK_EXTENT,
 
   // Action Creators
   addMark: addMark,
@@ -189,5 +216,6 @@ module.exports = {
   disableMarkVisual: disableMarkVisual,
   resetMarkVisual: resetMarkVisual,
   bindScale: bindScale,
-  bindField: bindField
+  bindField: bindField,
+  setMarkExtent: setMarkExtent
 };

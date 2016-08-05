@@ -5,81 +5,14 @@ var dl = require('datalib'),
     sg = require('./signals'),
     manips = require('./manipulators'),
     ns = require('../util/ns'),
-    hierarchy = require('../util/hierarchy'),
-    store = require('../store'),
-    getIn = require('../util/immutable-utils').getIn,
-    CancellablePromise = require('../util/simple-cancellable-promise'),
-    inspectorActions = require('../actions/inspectorActions'),
-    selectMark = inspectorActions.selectMark,
-    expandLayers = inspectorActions.expandLayers;
+    CancellablePromise = require('../util/simple-cancellable-promise');
 
 /** @namespace */
-var ctrl = module.exports = {
-  view: null,
-  Scene: null
-};
+var ctrl = module.exports = {view: null},
+    listeners = require('./listeners');
 
-var listeners = {};
-
-Object.defineProperty(ctrl, 'Scene', {
-  enumerable: true,
-  get: function() {
-    var state = store.getState(),
-        sceneId = getIn(state, 'scene.id');
-
-    if (sceneId) {
-      return getIn(state, 'marks.' + sceneId).toJS();
-    }
-  }
-});
-
-function register() {
-  var win = d3.select(window),
-      dragover = 'dragover.altchan';
-
-  // Register a window dragover event handler to detect shiftKey
-  // presses for alternate channel manipulators.
-  if (!win.on(dragover)) {
-    win.on(dragover, function() {
-      var mode = sg.get(sg.MODE),
-          shiftKey = d3.event.shiftKey,
-          prevKey = Boolean(ctrl._shiftKey);
-
-      if (prevKey === shiftKey) {
-        return;
-      }
-      ctrl._shiftKey = shiftKey;
-      var setAltChan = mode === 'altchannels' ? 'channels' : mode;
-      sg.set(sg.MODE, mode === 'channels' ? 'altchannels' : setAltChan);
-      ctrl.update();
-    });
-  }
-
-  ctrl.view.onSignal(sg.SELECTED, function(name, selected) {
-    var def = selected.mark.def,
-        id = def && def.lyra_id;
-
-    if (getIn(store.getState(), 'inspector.encodings.selectedId') === id) {
-      return;
-    }
-
-    // Walk up from the selected primitive to create an array of its parent groups' IDs
-    var parentLayerIds = hierarchy.getParentGroupIds(id);
-
-    if (id) {
-      // Select the mark,
-      store.dispatch(selectMark(id));
-      // And expand the hierarchy so that it is visible
-      store.dispatch(expandLayers(parentLayerIds));
-    }
-  });
-
-  Object.keys(listeners).forEach(function(signalName) {
-    listeners[signalName].forEach(function(handlerFn) {
-      ctrl.view.onSignal(signalName, handlerFn);
-    });
-  });
-}
+// Local variable used to hold the last-initiated Vega ctrl reparse
+var parsePromise = null;
 
 ctrl.export = require('./export');
 
@@ -107,6 +40,7 @@ ctrl.manipulators = function() {
   });
 
   marks.push(manips.BUBBLE_CURSOR);
+  marks.push.apply(marks, manips.BUBBLE_CURSOR_TIP);
   data.push({
     name: 'dummy_data_line',
     values: [
@@ -132,9 +66,6 @@ ctrl.manipulators = function() {
 
   return spec;
 };
-
-// Local variable used to hold the last-initiated Vega ctrl reparse
-var parsePromise = null;
 
 /**
  * Parses the ctrl's `manipulators` spec and (re)renders the visualization.
@@ -176,7 +107,7 @@ ctrl.parse = function(el) {
       el: el
     });
     // Register all event listeners to the new view
-    register();
+    listeners.register();
     // the update() method initiates visual encoding and rendering:
     // View has to update once before scene is ready
     ctrl.update();
@@ -195,67 +126,5 @@ ctrl.update = function() {
   }
 };
 
-/**
- * Registers a signal value change handler.
- * @param  {string} name - The name of a signal.
- * @param  {Function} handler - The function to call when the value of the
- * named signal changes.
- * @returns {Object} The Lyra ctrl.
- */
-ctrl.onSignal = function(name, handler) {
-  listeners[name] = listeners[name] || [];
-  listeners[name].push(handler);
-  if (ctrl.view) {
-    ctrl.view.onSignal(name, handler);
-  }
-  return ctrl;
-};
-
-/**
- * Unregisters a signal value change handler.
- * @param  {string} name - The name of a signal.
- * @param  {Function} handler - The function to unregister; this function
- * should have previously been registered for this signal using `onSignal`.
- * @returns {Object} The Lyra ctrl.
- */
-ctrl.offSignal = function(name, handler) {
-  listeners[name] = listeners[name] || [];
-  var listener = listeners[name];
-  for (var i = listener.length; --i >= 0;) {
-    if (!handler || listener[i] === handler) {
-      listener.splice(i, 1);
-    }
-  }
-  if (ctrl.view) {
-    ctrl.view.offSignal(name, handler);
-  }
-  return ctrl;
-};
-
-
-/**
- * Remove all listeners or just those for a specific mark (determined
- * by the ID and Type of the mark, which are utilized in the listener
- * key) to clean up the listener store when removing one or many marks.
- *
- * @param {Object} mark - A mark descriptor object or mark instance
- * @param {number} mark._id - A numeric mark ID
- * @param {string} mark.type - A mark type e.g. "rect"
- * @returns {void}
- */
-ctrl.removeListeners = function(mark) {
-  // Remove all listeners
-  if (!mark) {
-    listeners = {};
-    return;
-  }
-
-  // Remove a specific mark's listeners
-  var listenerForMarkRegex = new RegExp('^' + ns(mark.type + '_' + mark._id));
-  listeners = Object.keys(listeners).reduce(function(filteredListeners, key) {
-    if (!listenerForMarkRegex.test(key)) {
-      filteredListeners[key] = listeners[key];
-    }
-    return filteredListeners;
-  }, {});
-};
+ctrl.onSignal = listeners.onSignal;
+ctrl.offSignal = listeners.offSignal;

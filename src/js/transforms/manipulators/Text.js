@@ -1,12 +1,12 @@
 'use strict';
-var inherits = require('inherits'),
+var dl = require('datalib'),
+    inherits = require('inherits'),
     Manipulators = require('./Manipulators'),
     spec = require('../../ctrl/manipulators'),
-    map = require('../../util/map-manipulator'),
+    annotate = require('../../util/annotate-manipulators'),
     CONST = spec.CONST,
-    PX = CONST.PADDING,
-    SP = CONST.STROKE_PADDING;
-    // A = CONST.ARROWHEAD;
+    PAD = CONST.PADDING,
+    PAD15 = 1.5 * PAD;
 
 /**
  * @classdesc Represents the TextManipulators, a Vega data transformation operator.
@@ -46,14 +46,22 @@ TextManipulators.prototype.channels = function(item) {
   return []
     // x
     .concat([
-      {x: gb.x1, y: m.y}, {x: m.x - PX, y: m.y}
-    ].map(map('x', 'arrow')))
+      {x: gb.x1, y: m.y}, {x: m.x - PAD15, y: m.y}
+    ].map(annotate('x', 'span')))
     // y
     .concat([
-      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - SP}
-    ].map(map('y', 'arrow')));
+      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - PAD15}
+    ].map(annotate('y', 'span')))
+    // text
+    .concat([
+      dl.extend({}, item, {bounds: null, _id: null})
+    ].map(annotate('text', 'border')));
 };
 
-TextManipulators.prototype.altchannels = TextManipulators.prototype.channels;
+TextManipulators.prototype.altchannels = function(item) {
+  return [
+    dl.extend({}, item, {bounds: null, _id: null})
+  ].map(annotate('fill', 'border'));
+};
 
 module.exports = TextManipulators;

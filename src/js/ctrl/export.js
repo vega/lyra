@@ -1,8 +1,9 @@
 'use strict';
 
 var dl = require('datalib'),
+    json2csv = require('json2csv'),
     store = require('../store'),
-    getIn = require('../util/immutable-utils').getIn,
+    getInVis = require('../util/immutable-utils').getInVis,
     signalLookup = require('../util/signal-lookup'),
     dsUtils = require('../util/dataset-utils'),
     manipulators = require('./manipulators'),
@@ -27,28 +28,32 @@ function exporter(internal) {
 }
 
 exporter.pipelines = function(state, internal) {
-  var pipelines = getIn(state, 'pipelines').valueSeq().toJS();
+  var pipelines = getInVis(state, 'pipelines').valueSeq().toJS();
   return pipelines.map(function(pipeline) {
     return exporter.dataset(state, internal, pipeline._source);
   });
 };
 
 exporter.dataset = function(state, internal, id) {
-  var dataset = getIn(state, 'datasets.' + id).toJS(),
+  var dataset = getInVis(state, 'datasets.' + id).toJS(),
       spec = clean(dl.duplicate(dataset), internal),
+      values = dsUtils.input(id),
+      format = spec.format && spec.format.type,
       sort = getSort(dataset);
 
-  // Only include the raw values in the exported spec if:
-  //   1. It is a remote dataset but we're re-rendering the Lyra view
-  //   2. Raw values were provided by the user directly (i.e., no url/source).
-  if ((spec.url && internal) || (!spec.url && !spec.source)) {
-    spec.values = dsUtils.values(id);
-    delete spec.url;
-  }
-
   // Resolve dataset ID to name.
+  // Only include the raw values in the exported spec if:
+  //   1. We're re-rendering the Lyra view
+  //   2. Raw values were provided by the user directly (i.e., no url/source).
   if (spec.source) {
-    spec.source = name(getIn(state, 'datasets.' + spec.source + '.name'));
+    spec.source = name(getInVis(state, 'datasets.' + spec.source + '.name'));
+  } else if (internal) {
+    spec.values = values;
+    delete spec.url;
+    delete spec.format; // values are JSON, so do not need to be reparsed.
+  } else if (!spec.url) {
+    spec.values = format && format !== 'json' ?
+      json2csv({data: values, del: format === 'tsv' ? '\t' : ','}) : values;
   }
 
   if(sort == undefined) {
@@ -60,17 +65,12 @@ exporter.dataset = function(state, internal, id) {
 };
 
 exporter.scene = function(state, internal) {
-  var sceneId = getIn(state, 'scene.id'),
+  var sceneId = getInVis(state, 'scene.id'),
       spec = exporter.group(state, internal, sceneId);
 
   if (internal) {
     spec = spec[0];
   }
-
-  /* eslint no-multi-spaces:0 */
-  // Always resolve width/height signals.
-  spec.width  = spec.width.signal  ? signalLookup(spec.width.signal)  : spec.width;
-  spec.height = spec.height.signal ? signalLookup(spec.height.signal) : spec.height;
 
   // Remove mark-specific properties that do not apply to scenes.
   delete spec.type;
@@ -81,7 +81,7 @@ exporter.scene = function(state, internal) {
 };
 
 exporter.mark = function(state, internal, id) {
-  var mark = getIn(state, 'marks.' + id).toJS(),
+  var mark = getInVis(state, 'marks.' + id).toJS(),
       spec = clean(dl.duplicate(mark), internal),
       up = mark.properties.update,
       upspec = spec.properties.update,
@@ -89,9 +89,9 @@ exporter.mark = function(state, internal, id) {
 
   if (spec.from) {
     if ((fromId = spec.from.data)) {
-      spec.from.data = name(getIn(state, 'datasets.' + fromId + '.name'));
+      spec.from.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
     } else if ((fromId = spec.from.mark)) {
-      spec.from.mark = name(getIn(state, 'marks.' + fromId + '.name'));
+      spec.from.mark = name(getInVis(state, 'marks.' + fromId + '.name'));
     }
   }
 
@@ -106,7 +106,7 @@ exporter.mark = function(state, internal, id) {
     // Use the origVal to determine if scale/fields have been set in case
     // specVal was replaced above (e.g., scale + signal).
     if (origVal.scale) {
-      specVal.scale = name(getIn(state, 'scales.' + origVal.scale + '.name'));
+      specVal.scale = name(getInVis(state, 'scales.' + origVal.scale + '.name'));
     }
 
     if (origVal.group) {
@@ -124,7 +124,7 @@ exporter.mark = function(state, internal, id) {
 };
 
 exporter.group = function(state, internal, id) {
-  var mark = getIn(state, 'marks.' + id).toJS(),
+  var mark = getInVis(state, 'marks.' + id).toJS(),
       spec = exporter.mark(state, internal, id),
       group = internal ? spec[0] : spec;
 
@@ -135,8 +135,8 @@ exporter.group = function(state, internal, id) {
 
     // Route export to the most appropriate function.
     group[childTypes] = mark[childTypes].map(function(cid) {
-      if (getIn(state, storePath + '.' + cid)) {
-        var child = getIn(state, storePath + '.' + cid).toJS();
+      if (getInVis(state, storePath + '.' + cid)) {
+        var child = getInVis(state, storePath + '.' + cid).toJS();
 
         if (exporter[child.type]) {
           return exporter[child.type](state, internal, cid);
@@ -197,7 +197,7 @@ exporter.line = function(state, internal, id) {
 };
 
 exporter.scale = function(state, internal, id) {
-  var scale = getIn(state, 'scales.' + id).toJS(),
+  var scale = getInVis(state, 'scales.' + id).toJS(),
       spec  = clean(dl.duplicate(scale), internal);
 
   if (!scale.domain && scale._domain && scale._domain.length) {
@@ -212,16 +212,25 @@ exporter.scale = function(state, internal, id) {
 };
 
 exporter.axe = exporter.legend = function(state, internal, id) {
-  var guide = getIn(state, 'guides.' + id).toJS(),
+  var guide = getInVis(state, 'guides.' + id).toJS(),
       spec  = clean(dl.duplicate(guide), internal),
       gtype = guide._gtype,
       type  = guide._type;
 
   if (gtype === GTYPES.AXIS) {
-    spec.scale = name(getIn(state, 'scales.' + spec.scale + '.name'));
+    spec.scale = name(getInVis(state, 'scales.' + spec.scale + '.name'));
   } else if (gtype === GTYPES.LEGEND) {
-    spec[type] = name(getIn(state, 'scales.' + spec[type] + '.name'));
+    spec[type] = name(getInVis(state, 'scales.' + spec[type] + '.name'));
   }
+
+  dl.keys(spec.properties).forEach(function(prop) {
+    var def = spec.properties[prop];
+    dl.keys(def).forEach(function(key) {
+      if (!dl.isObject(def[key])) {  // signalRef resolved to literal
+        def[key] = {value: def[key]};
+      }
+    });
+  });
 
   return spec;
 };
@@ -303,14 +312,14 @@ function dataRef(state, ref) {
   if (ref.length === 1) {
     ref = ref[0];
     return {
-      data:  name(getIn(state, 'datasets.' + ref.data + '.name')),
+      data:  name(getInVis(state, 'datasets.' + ref.data + '.name')),
       field: ref.field
     };
   }
 
   // More than one ref
   for (i = 0, len = ref.length; i < len; ++i) {
-    data  = getIn(state, 'datasets.' + ref[i].data);
+    data = getInVis(state, 'datasets.' + ref[i].data);
     field = ref[i].field;
     sets[did = data.get('_id')] = sets[did] || (sets[did] = []);
     sets[did].push(field);
@@ -327,7 +336,7 @@ function dataRef(state, ref) {
   ref = {fields: []};
   for (i = 0, len = keys.length; i < len; ++i) {
     ref.fields.push({
-      data:  name(getIn(state, 'datasets.' + keys[i] + '.name')),
+      data:  name(getInVis(state, 'datasets.' + keys[i] + '.name')),
       field: sets[keys[i]]
     });
   }

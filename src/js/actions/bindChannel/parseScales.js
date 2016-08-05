@@ -1,10 +1,13 @@
 'use strict';
 
 var dl = require('datalib'),
-    getIn = require('../../util/immutable-utils').getIn,
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     Scale = require('../../store/factory/Scale'),
     addScale = require('../scaleActions').addScale,
-    addScaleToGroup = require('./helperActions').addScaleToGroup;
+    addScaleToGroup = require('./helperActions').addScaleToGroup,
+    computeLayout = require('./computeLayout');
 
 var REF_CELLW = {data: 'layout', field: 'cellWidth'},
     REF_CELLH = {data: 'layout', field: 'cellHeight'};
@@ -26,18 +29,24 @@ module.exports = function(dispatch, state, parsed) {
       mark = parsed.mark,
       channel  = parsed.channel,
       markType = parsed.markType,
-      prev = getIn(state, 'scales.' + map[channel]),
+      prev = getInVis(state, 'scales.' + map[channel]),
       scaleId = prev && prev.get('_id'),
+      scales  = parsed.output.marks[0].scales,
       def;
+
+  if (!scales) {
+    return;
+  }
 
   // For a single-layer VL spec, scales are defined within the first group
   // and are named for the channel they encode.
-  var scales = parsed.output.marks[0].scales.filter(function(scale) {
+  scales = scales.filter(function(scale) {
     return scale.name === channel;
   });
 
   if (scales.length !== 1) {
-    throw Error(scales.length + ' scales found for ' + channel);
+    console.warn(scales.length + ' scales found for ' + channel);
+    return;
   }
 
   def = parse(scales[0]);
@@ -45,7 +54,7 @@ module.exports = function(dispatch, state, parsed) {
   // If no previous scale exists for this channel on this mark, try to find
   // a matching scale in Lyra.
   if (!prev) {
-    state.get('scales').valueSeq().forEach(function(scale) {
+    getInVis(state, 'scales').valueSeq().forEach(function(scale) {
       if (equals(state, markType, def, scale)) {
         prev = scale;
         scaleId = scale.get('_id');
@@ -59,6 +68,11 @@ module.exports = function(dispatch, state, parsed) {
   if (!prev || !equals(state, markType, def, prev)) {
     def = createScale(dispatch, parsed, def);
     scaleId = def.id;
+
+    // Ordinal-band scales can affect the layout. Call layout computation here
+    // as (1) we only want to do this for new scales and (2) the scale doesn't
+    // yet exist in the store, so we must pass it in manually.
+    computeLayout(dispatch, state, parsed, def.props);
   }
 
   map[channel] = scaleId;
@@ -146,6 +160,7 @@ function createScale(dispatch, parsed, def) {
 
   newScale.nice = def.nice;
   newScale.round = def.round;
+  newScale.zero = def.zero;
   newScale.points = points;
   if (points) {
     newScale.padding = def.padding;

@@ -23,7 +23,9 @@
 // The only file-wide dependencies should be utility methods with no side-effects
 var sg = require('../ctrl/signals'),
     hierarchy = require('../util/hierarchy'),
-    getIn = require('../util/immutable-utils').getIn,
+    imutils = require('../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     parseInProgress = require('../actions/vegaActions').parseVega;
 
 /**
@@ -38,7 +40,7 @@ var sg = require('../ctrl/signals'),
 function recreateVegaIfNecessary(store, ctrl) {
   var state = store.getState(),
       shouldReparse = getIn(state, 'vega.invalid'),
-      sceneId = getIn(state, 'scene.id');
+      sceneId = getInVis(state, 'scene.id');
 
   if (shouldReparse) {
     if (!sceneId) {
@@ -140,7 +142,7 @@ function createStoreListener(store, ctrl) {
 
     // If an item is marked selected in the store, pass that on to Vega
     var storeSelectedId = getIn(state, 'inspector.encodings.selectedId'),
-        selectedMark = getIn(state, 'marks.' + storeSelectedId);
+        selectedMark = getInVis(state, 'marks.' + storeSelectedId);
     if (storeSelectedId && selectedMark) {
       updateSelectedMarkInVega(selectedMark, ctrl.view);
     }

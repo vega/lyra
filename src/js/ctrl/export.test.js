@@ -7,6 +7,13 @@ var expect = require('chai').expect,
     dsUtil = require('../util/dataset-utils'),
     exporter = require('./export');
 
+/* eslint new-cap:0 */
+function historyWrap(map) {
+  return Immutable.Map({
+    vis: {present: map}
+  });
+}
+
 describe('Exporter Utility', function() {
   beforeEach(function() {
     counter.reset();
@@ -31,7 +38,8 @@ describe('Exporter Utility', function() {
         '2': {
           _id: 2,
           name: 'cars dataset',
-          url: '/data/cars.json'
+          url: '/data/cars.json',
+          format: {type: 'json'}
         },
         '3': {
           _id: 3,
@@ -40,7 +48,8 @@ describe('Exporter Utility', function() {
         },
         '4': {
           _id: 4,
-          name: 'jobs dataset'
+          name: 'jobs dataset',
+          format: {type: 'json'}
         }
       },
       values: [
@@ -49,7 +58,7 @@ describe('Exporter Utility', function() {
       ]
     };
 
-    var imstate = Immutable.fromJS(state);
+    var imstate = historyWrap(Immutable.fromJS(state));
 
     beforeEach(function() {
       dsUtil.init({
@@ -74,7 +83,7 @@ describe('Exporter Utility', function() {
       it('exports remote datasets', function() {
         var spec = exporter.dataset(imstate, false, 2);
         expect(spec).to.deep.equal({
-          name: 'cars_dataset', url: '/data/cars.json'
+          name: 'cars_dataset', url: '/data/cars.json', format: {type: 'json'}
         });
       });
 
@@ -92,9 +101,16 @@ describe('Exporter Utility', function() {
       });
 
       it('exports raw datasets', function() {
-        var truth = {name: 'jobs_dataset', values: state.values[1]};
-        expect(exporter.dataset(imstate, false, 4)).to.deep.equal(truth);
-        expect(exporter.dataset(imstate, true, 4)).to.deep.equal(truth);
+        expect(exporter.dataset(imstate, false, 4)).to.deep.equal({
+          name: 'jobs_dataset',
+          values: state.values[1],
+          format: {type: 'json'}
+        });
+
+        expect(exporter.dataset(imstate, true, 4)).to.deep.equal({
+          name: 'jobs_dataset',
+          values: state.values[1]
+        });
       });
     });
 
@@ -105,19 +121,19 @@ describe('Exporter Utility', function() {
       ]);
 
       expect(exporter.pipelines(imstate, false)).to.deep.equal([
-        {name: 'cars_dataset', url: '/data/cars.json'},
-        {name: 'jobs_dataset', values: state.values[1]}
+        {name: 'cars_dataset', url: '/data/cars.json', format: {type: 'json'}},
+        {name: 'jobs_dataset', values: state.values[1], format: {type: 'json'}}
       ]);
     });
   });
 
   describe('Marks', function() {
     function store(mark) {
-      return Immutable.fromJS({
+      return historyWrap(Immutable.fromJS({
         datasets: {'1': {name: 'cars dataset'}},
         scales: {'2': {name: 'x scale'}, '3': {name: 'y scale'}},
         marks: mark
-      });
+      }));
     }
 
     it('exports from dataset', function() {
@@ -305,10 +321,10 @@ describe('Exporter Utility', function() {
 
   describe('Scales', function() {
     function store(scale) {
-      return Immutable.fromJS({
+      return historyWrap(Immutable.fromJS({
         datasets: {'1': {name: 'cars dataset'}},
         scales: scale
-      });
+      }));
     }
 
     it('exports scales with a literal domain', function() {
@@ -365,7 +381,7 @@ describe('Exporter Utility', function() {
   });
 
   describe('Group Marks', function() {
-    var state = Immutable.fromJS({
+    var state = historyWrap(Immutable.fromJS({
       datasets: {'1': {name: 'cars dataset'}},
       scales: {
         '2': {name: 'x scale', _domain: [{data: '1', field: 'MPG'}]},
@@ -408,7 +424,7 @@ describe('Exporter Utility', function() {
           }
         }
       }
-    });
+    }));
 
     signal.init('lyra_rect_4_y2', 25);
     signal.init('lyra_rect_4_fill', '#00FF00');
@@ -452,18 +468,16 @@ describe('Exporter Utility', function() {
     });
 
     it('exports the scene', function() {
-      state = state.mergeDeep({
+      state = state.get('vis').present;
+      state = historyWrap(state.mergeDeep({
         scene: {id: 4},
         marks: {
           '4': {
-            width: {signal: 'lyra_vis_width'},
-            height: {signal: 'lyra_vis_height'}
+            width: 200,
+            height: 300
           }
         }
-      });
-
-      signal.init('vis_width', 200);
-      signal.init('vis_height', 300);
+      }));
 
       var spec = exporter.scene(state, false);
       expect(spec).to.deep.equal({

@@ -2,7 +2,7 @@
 var dl = require('datalib'),
     ns = require('../../util/ns'),
     store = require('../../store'),
-    getIn = require('../../util/immutable-utils').getIn,
+    getInVis = require('../../util/immutable-utils').getInVis,
     actions = require('../../actions/signalActions'),
     initSignal = actions.initSignal,
     setSignal = actions.setSignal,
@@ -12,7 +12,7 @@ var dl = require('datalib'),
 
 // Utility method to get a signal from the store
 function getSignal(name) {
-  return getIn(store.getState(), 'signals.' + ns(name));
+  return getInVis(store.getState(), 'signals.' + ns(name));
 }
 
 /**
@@ -23,7 +23,7 @@ function getSignal(name) {
  * @returns {Object} The signal store object
  */
 function api() {
-  return store.getState().get('signals').toJS();
+  return getInVis(store.getState(), 'signals').toJS();
 }
 
 // Augment the signals API with properties like SELECTED that define the

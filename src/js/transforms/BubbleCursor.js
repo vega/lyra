@@ -97,8 +97,7 @@ BubbleCursor.prototype.transform = function(input) {
       cache.push.apply(cache, cousins.reduce(function(acc, i) {
         var b = i.bounds || i.mark.bounds;
         return acc.concat([
-          {x: b.x1, y: b.y1}, {x: b.x2, y: b.y1},
-          {x: b.x1, y: b.y2}, {x: b.x2, y: b.y2}
+          {x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}, {x: b.x2, y: b.y2}
         ].map(Tuple.ingest));
       }, []));
     }

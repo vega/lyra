@@ -1,17 +1,53 @@
 'use strict';
 var React = require('react'),
+    connect = require('react-redux').connect,
+    historyActions = require('../../actions/historyActions'),
+    undo = historyActions.undo,
+    redo = historyActions.redo,
     assets = require('../../util/assets'),
     Icon = require('../Icon');
 
+function mapStateToProps(state) {
+  var vis = state.get('vis');
+  return {
+    canUndo: vis.past.length > 0,
+    canRedo: vis.future.length > 0
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    undo: function() {
+      dispatch(undo());
+    },
+    redo: function() {
+      dispatch(redo());
+    }
+  };
+}
+
 var UndoRedo = React.createClass({
+  propTypes: {
+    canUndo: React.PropTypes.bool.isRequired,
+    canRedo: React.PropTypes.bool.isRequired,
+    undo: React.PropTypes.func.isRequired,
+    redo: React.PropTypes.func.isRequired,
+  },
+
   render: function() {
+    var props = this.props;
     return (
       <ul>
-        <li><Icon glyph={assets.undo} className="undo" width="12" height="12" /></li>
-        <li><Icon glyph={assets.redo} className="redo" width="12" height="12" /></li>
+        <li onClick={props.undo} className={!props.canUndo ? 'grey' : ''}>
+          <Icon glyph={assets.undo} className="undo" width="12" height="12" />
+        </li>
+
+        <li onClick={props.redo} className={!props.canRedo ? 'grey' : ''}>
+          <Icon glyph={assets.redo} className="redo" width="12" height="12" />
+        </li>
       </ul>
     );
   }
 });
 
-module.exports = UndoRedo;
+module.exports = connect(mapStateToProps, mapDispatchToProps)(UndoRedo);

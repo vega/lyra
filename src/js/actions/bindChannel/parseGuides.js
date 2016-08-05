@@ -7,7 +7,7 @@ var dl = require('datalib'),
     addAxisToGroup = actions.addAxisToGroup,
     addLegendToGroup = actions.addLegendToGroup,
     Guide = require('../../store/factory/Guide'),
-    getIn = require('../../util/immutable-utils').getIn;
+    getInVis = require('../../util/immutable-utils').getInVis;
 
 var TYPES = Guide.GTYPES,
     CTYPE = {
@@ -65,7 +65,7 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
   var map = parsed.map,
       mark  = parsed.mark,
       parentId = mark.get('_parent'),
-      axes = getIn(state, 'marks.' + parentId).get('axes'),
+      axes = getInVis(state, 'marks.' + parentId).get('axes'),
       def, count = 0, foundAxis = false;
 
   // First, find an def and then iterate through axes for the current group
@@ -75,7 +75,7 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
   });
 
   axes.valueSeq().forEach(function(axisId) {
-    var axis = getIn(state, 'guides.' + axisId);
+    var axis = getInVis(state, 'guides.' + axisId);
     if (axis.get('type') === def.type) {
       ++count;
     }
@@ -126,15 +126,15 @@ function findOrCreateLegend(dispatch, state, parsed, scaleId, defs) {
       mark = parsed.mark,
       property = parsed.property,
       parentId = mark.get('_parent'),
-      legends = getIn(state, 'marks.' + parentId).get('legends'),
+      legends = getInVis(state, 'marks.' + parentId).get('legends'),
       def, foundLegend = false;
 
   def = defs.find(function(legendDef) {
-    return map.scale[legendDef[property]] === scaleId;
+    return map.scales[legendDef[property]] === scaleId;
   });
 
   legends.valueSeq().forEach(function(legendId) {
-    var legend = getIn(state, 'guides.' + legendId);
+    var legend = getInVis(state, 'guides.' + legendId);
     foundLegend = foundLegend || legend.get(property) === scaleId;
   });
 

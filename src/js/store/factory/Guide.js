@@ -1,6 +1,7 @@
 'use strict';
 
-var GTYPES = {AXIS: 'axis', LEGEND: 'legend'},
+var defaults = require('vega').config.axis,
+    GTYPES = {AXIS: 'axis', LEGEND: 'legend'},
     ORIENT = {x: 'bottom', y: 'left'};
 
 /**
@@ -27,7 +28,7 @@ var def = module.exports = function(gtype, type, scale) {
     guide.type = type;
     guide.scale = +scale || scale.get('_id');
     guide.orient = ORIENT[type];
-    guide.titleOffset = 100;
+    // guide.titleOffset = 100;
     guide.ticks = 10;
     guide.tickPadding = 5;
     guide.tickSize = 10;
@@ -36,10 +37,10 @@ var def = module.exports = function(gtype, type, scale) {
     guide.properties = {
       ticks: {
         stroke: {
-          value: '#000000'
+          value: defaults.tickColor
         },
         strokeWidth: {
-          value: 1
+          value: defaults.tickWidth
         }
       },
 
@@ -65,18 +66,18 @@ var def = module.exports = function(gtype, type, scale) {
 
       title: {
         fill: {
-          value: '#000000'
+          value: defaults.titleColor
         },
         fontSize: {
-          value: 14
+          value: defaults.titleFontSize
         }
       },
       labels: {
         fontSize: {
-          value: 12
+          value: defaults.tickLabelFontSize
         },
         fill: {
-          value: '#000000'
+          value: defaults.tickLabelColor
         },
         angle: {
           value: 0
@@ -84,10 +85,21 @@ var def = module.exports = function(gtype, type, scale) {
       },
       axis: {
         stroke: {
-          value: '#000000',
+          value: defaults.axisColor
+        },
+        strokeWidth: {
+          value: defaults.axisWidth
+        }
+      },
+      grid: {
+        stroke: {
+          value: defaults.gridColor
         },
         strokeWidth: {
           value: 1
+        },
+        strokeOpacity: {
+          value: defaults.gridOpacity
         }
       }
     };

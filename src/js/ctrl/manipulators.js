@@ -3,18 +3,19 @@ var dl = require('datalib'),
     sg = require('./signals'),
     ns = require('../util/ns');
 
-var TYPES = [];
+var TYPES  = [];
 
 // Mode = handles | connectors | channels | altchannels
-// Manipulators = handle | connector | arrow | span | point
+// Manipulators = handle | connector | arrow | span | point | border
 // This differentiation is needed because channels and altchannels
 // display multiple manipulators.
 
 function manipulators(mark, spec) {
+  var ex = require('./export');
   return [spec, {
     type: 'group',
     from: {
-      mark: mark.name,
+      mark: ex.exportName(mark.name),
       transform: [
         {
           type: ns('manipulators_' + mark.type),
@@ -26,7 +27,7 @@ function manipulators(mark, spec) {
         }
       ]
     },
-    marks: TYPES
+    marks: TYPES.concat(border(spec))
   }];
 }
 
@@ -36,7 +37,6 @@ manipulators.CONST = {
   LARGE: 40,
   SMALL: 20,
   PADDING: 7,
-  STROKE_PADDING: 7,
   ARROWHEAD: 7
 };
 
@@ -78,6 +78,7 @@ function voronoi(parent) {
     properties: {
       update: {
         key: {field: parent ? {parent: 'key'} : 'key'},
+        tooltip: {field: parent ? {parent: 'tooltip'} : 'tooltip'},
         fill: {value: 'transparent'},
         strokeWidth: {value: 0.35},
         path: {field: parent ? {parent: 'layout_path'} : 'layout_path'},
@@ -95,6 +96,36 @@ function hoverCell(t, f, parent) {
   dl.extend(rule[0], t);
   rule.push(f);
   return {rule: rule};
+}
+
+function border(spec) {
+  var props = dl.duplicate(spec.properties.update),
+      markType = spec.type,
+      pathMark = markType === 'line' || markType === 'area';
+
+  dl.keys(props).forEach(function(k) {
+    props[k] = {field: {parent: k}};
+  });
+
+  props.fill = undefined;
+  props.stroke = hoverCell({value: 'lightsalmon'}, {value: 'cyan'}, true);
+  props.strokeWidth = {value: markType === 'text' ? 1 : 3};
+
+  if (pathMark) {
+    props.x = props.y = undefined;
+    props.path = {field: {parent: 'path'}};
+  }
+
+  return {
+    type: 'group',
+    from: {
+      transform: [{type: 'filter', test: 'datum.manipulator === "border"'}]
+    },
+    marks: [{
+      type: pathMark ? 'path' : markType,
+      properties: {update: props}
+    }, voronoi(true)]
+  };
 }
 
 TYPES.push(manipulators.HANDLE = {
@@ -182,3 +213,38 @@ manipulators.BUBBLE_CURSOR = {
     }
   }
 };
+
+manipulators.BUBBLE_CURSOR_TIP = [{
+  type: 'text',
+  properties: {
+    update: {
+      x: {signal: sg.MOUSE + '.x'},
+      y: {signal: sg.MOUSE + '.y'},
+      dy: {value: 30},
+      text: {signal: sg.CELL + '.tooltip'},
+      align: {value: 'center'},
+      baseline: {value: 'bottom'},
+      stroke: {value: 'white'},
+      strokeWidth: {value: 4},
+      fontSize: {value: 12},
+      fontFamily: {value: 'Lato'},
+      fontWeight: {value: 'bold'}
+    }
+  }
+}, {
+  type: 'text',
+  properties: {
+    update: {
+      x: {signal: sg.MOUSE + '.x'},
+      y: {signal: sg.MOUSE + '.y'},
+      dy: {value: 30},
+      text: {signal: sg.CELL + '.tooltip'},
+      align: {value: 'center'},
+      baseline: {value: 'bottom'},
+      fill: {value: 'lightsalmon'},
+      fontSize: {value: 12},
+      fontFamily: {value: 'Lato'},
+      fontWeight: {value: 'bold'}
+    }
+  }
+}];

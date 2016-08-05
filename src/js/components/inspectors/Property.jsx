@@ -2,34 +2,42 @@
 
 var React = require('react'),
     connect = require('react-redux').connect,
-    store = require('../../store'),
+    Immutable = require('immutable'),
     SignalValue = require('../mixins/SignalValue'),
-    getIn = require('../../util/immutable-utils').getIn,
+    ContentEditable = require('../ContentEditable'),
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
+    TYPES = require('../../constants/primTypes'),
     resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
 
 function mapStateToProps(state, ownProps) {
   // This is also used with Pipelines, which have no primitive property
-  if (!ownProps.primitive) {
+  if (!ownProps.primId) {
     return {};
   }
 
-  var propertyState = getIn(state, ownProps.primType + '.' + ownProps.primitive._id),
-      updatePropsPath;
+  var propertyState = getInVis(state, ownProps.primType + '.' + ownProps.primId),
+      path;
 
   if (ownProps.name) {
-    if (ownProps.primType === 'marks') {
-      updatePropsPath = 'properties.update.' + ownProps.name;
-    } else if (ownProps.primType === 'guides') {
-      updatePropsPath = ownProps.name;
+    if (ownProps.primType === TYPES.MARKS) {
+      path = 'properties.update.' + ownProps.name;
+    } else if (ownProps.primType === TYPES.GUIDES) {
+      path = ownProps.name;
     }
   }
 
+  var scale = getIn(propertyState, path + '.scale'),
+      scaleName = scale && getInVis(state, 'scales.' + scale + '.name');
+
   return {
-    field: getIn(propertyState, updatePropsPath + '.field'),
-    group: getIn(propertyState, updatePropsPath + '.group'),
-    scale: getIn(propertyState, updatePropsPath + '.scale'),
-    signal: getIn(propertyState, updatePropsPath + '.signal'),
-    value: getIn(propertyState, updatePropsPath)
+    field:  getIn(propertyState, path + '.field'),
+    group:  getIn(propertyState, path + '.group'),
+    signal: getIn(propertyState, path + '.signal'),
+    value:  getIn(propertyState, path),
+    scale:  scale,
+    scaleName: scaleName
   };
 }
 
@@ -45,35 +53,45 @@ var Property = React.createClass({
   propTypes: {
     name: React.PropTypes.string.isRequired,
     label: React.PropTypes.string,
-    field: React.PropTypes.number,
-    group: React.PropTypes.number,
+    field: React.PropTypes.string,
+    group: React.PropTypes.string,
     scale: React.PropTypes.number,
+    scaleName: React.PropTypes.string,
     signal: React.PropTypes.string,
     onChange: React.PropTypes.func,
-    value: React.PropTypes.string || React.PropTypes.number,
+    value: React.PropTypes.oneOfType([
+      React.PropTypes.string, React.PropTypes.number,
+      React.PropTypes.bool, React.PropTypes.instanceOf(Immutable.Map)
+    ]),
     resetMarkVisual: React.PropTypes.func
   },
 
   mixins: [SignalValue],
 
+  colorSupport: function() {
+    var input = document.createElement('input');
+    input.setAttribute('type', 'color');
+    return input.type !== 'text';
+  },
+
   unbind: function() {
     var props = this.props;
-    props.resetMarkVisual(props.primitive._id, props.name);
+    props.resetMarkVisual(props.primId, props.name);
   },
 
   render: function() {
-    var storedState = store.getState(),
-        state = this.state,
+    var state = this.state,
         props = this.props,
-        name = props.name,
+        name  = props.name,
         label = props.label,
-        type = props.type,
+        type  = props.type,
         scale = props.scale,
         field = props.field,
         value = state.value,
         disabled = props.disabled || props.group,
         onChange = props.onChange || this.handleChange,
         onBlur = props.onBlur,
+        colorSupport = this.colorSupport(),
         docId = props.id,
         labelEl, scaleEl, controlEl, extraEl;
 
@@ -89,8 +107,8 @@ var Property = React.createClass({
     });
 
     labelEl = labelEl || (<label htmlFor={name}>{label}</label>);
-    scaleEl = scale && (scale = getIn(storedState, 'scales.' + scale)) ?
-      (<div className="scale" onClick={this.unbind}>{scale.get('name')}</div>) : null;
+    scaleEl = scale ?
+      (<div className="scale" onClick={this.unbind}>{props.scaleName}</div>) : null;
 
     controlEl = field ?
       (<div className="field" onClick={this.unbind}>{field}</div>) : controlEl;
@@ -101,7 +119,7 @@ var Property = React.createClass({
         case 'number':
           controlEl = (
             <input type="number"
-              value={!disabled && value}
+              value={!disabled ? value : ''}
               min={props.min} max={props.max}
               disabled={disabled}
               id={docId}
@@ -113,22 +131,29 @@ var Property = React.createClass({
           controlEl = (
             <div>
               <input type="range"
-                value={!disabled && value}
+                value={!disabled ? value : ''}
                 disabled={disabled}
                 min={props.min} max={props.max} step={props.step}
                 onChange={onChange}
                 name={name} />
+
+              <ContentEditable value={!disabled ? value : ''}
+                save={onChange} />
             </div>
           );
           break;
         case 'color':
           controlEl = (
             <div>
-              <input type="color"
-                value={!disabled && value}
+              <input type={colorSupport ? 'color' : 'text'}
+                value={!disabled ? value : ''}
                 disabled={disabled}
                 name={name}
                 onChange={onChange} />
+
+              {colorSupport ? (
+                <ContentEditable value={!disabled ? value : ''} save={onChange} />
+              ) : null}
             </div>
           );
           break;
@@ -159,7 +184,7 @@ var Property = React.createClass({
           controlEl = (
             <div>
               <input type="checkbox"
-                checked={!disabled && value}
+                checked={!disabled ? value : ''}
                 name={name}
                 onChange={onChange} />
             </div>

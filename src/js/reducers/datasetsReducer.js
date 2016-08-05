@@ -28,10 +28,6 @@ function datasetsReducer(state, action) {
     return state;
   }
 
-  if (action.type === ACTIONS.INIT_DATASET) {
-    return setIn(state, action.id + '._init', true);
-  }
-
   if (action.type === ACTIONS.SORT_DATASET) {
     state = setIn(state, action.id + '._sort', Immutable.fromJS({
       sortField: action.sortField,
@@ -39,7 +35,6 @@ function datasetsReducer(state, action) {
     }));
 
   }
-
   return state;
 }
 

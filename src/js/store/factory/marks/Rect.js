@@ -12,12 +12,12 @@ function Rect() {
   return {
     properties: {
       update: {
-        x2: {value: 60},
-        y2: {value: 60},
-        xc: {value: 60, _disabled: true},
-        yc: {value: 60, _disabled: true},
-        width: {value: 30, _disabled: true},
-        height: {value: 30, _disabled: true}
+        x2: {value: 140},
+        y2: {value: 140},
+        xc: {value: 70, _disabled: true},
+        yc: {value: 70, _disabled: true},
+        width: {value: 40, _disabled: true},
+        height: {value: 40, _disabled: true}
       }
     }
   };

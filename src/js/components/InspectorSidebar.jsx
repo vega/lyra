@@ -5,70 +5,79 @@
 var React = require('react'),
     Immutable = require('immutable'),
     connect = require('react-redux').connect,
+    capitalize = require('capitalize'),
     store = require('../store'),
     Property = require('./inspectors/Property'),
-    getIn = require('../util/immutable-utils').getIn,
+    imutils  = require('../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     hierarchy = require('../util/hierarchy'),
     findInItemTree = hierarchy.findInItemTree,
-    TYPES = require('../actions/Names');
+    ACTIONS = require('../actions/Names'),
+    TYPES = require('../constants/primTypes');
 
-function mapStateToProps(reduxState, ownProps) {
-  var encState = getIn(reduxState, 'inspector.encodings'),
+function mapStateToProps(state, ownProps) {
+  var encState = getIn(state, 'inspector.encodings'),
       selId   = encState.get('selectedId'),
       selType = encState.get('selectedType'),
-      selectionGroupId = encState.get('selectionGroupId'),
-      isMark  = selType === TYPES.SELECT_MARK,
-      isGuide = selType === TYPES.SELECT_GUIDE,
-      isScale = selType === TYPES.SELECT_SCALE,
-      primitive;
+      isMark  = selType === ACTIONS.SELECT_MARK,
+      isGuide = selType === ACTIONS.SELECT_GUIDE,
+      isScale = selType === ACTIONS.SELECT_SCALE,
+      primitive, from;
 
   if (isMark) {
-    primitive = getIn(reduxState, 'marks.' + selId);
+    primitive = getInVis(state, 'marks.' + selId);
   } else if (isGuide) {
-    primitive = getIn(reduxState, 'guides.' + selId);
+    primitive = getInVis(state, 'guides.' + selId);
   } else if (isScale) {
-    primitive = getIn(reduxState, 'scales.' + selId);
+    primitive = getInVis(state, 'scales.' + selId);
+  }
+
+  if (primitive && (from = primitive.get('from'))) {
+    if ((from = from.get('data'))) {
+      from = getInVis(state, 'pipelines.' +
+          getInVis(state, 'datasets.' + from).get('_parent')).get('name');
+    }
   }
 
   return {
     selectedId: selId,
-    selectedType: selType,
-    selectionGroupId: selectionGroupId,
-    isMark: isMark,
+    isMark:  isMark,
     isGuide: isGuide,
     isScale: isScale,
-    primitive: primitive
+    name: primitive && primitive.get('name'),
+    from: from,
+    markType: primitive && primitive.get('type')
   };
 }
 
 var Inspector = React.createClass({
   propTypes: {
     selectedId: React.PropTypes.number,
-    selectedType: React.PropTypes.string,
     isMark: React.PropTypes.bool,
     isGuide: React.PropTypes.bool,
     isScale: React.PropTypes.bool,
-    primitive: React.PropTypes.instanceOf(Immutable.Map)
-  },
-
-  uppercase: function(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    name: React.PropTypes.string,
+    from: React.PropTypes.string,
+    markType: React.PropTypes.string
   },
 
   render: function() {
-    var props = this.props,
-        prim = props.primitive && props.primitive.toJS(),
-        from = prim && prim.from ?
-          getIn(store.getState(), 'datasets.' + prim.from.data) : '',
-        ctor, sideBarTitle, InspectorType;
+    var props  = this.props,
+        primId = props.selectedId,
+        from = props.from,
+        ctor, primType, InspectorType;
 
-    if (prim) {
-      if (props.isMark) {
-        ctor = this.uppercase(prim.type);
+    if (primId) {
+      if (props.isMark && props.markType) {
+        ctor = capitalize(props.markType);
+        primType = TYPES.MARKS;
       } else if (props.isGuide) {
         ctor = 'Guide';
+        primType = TYPES.GUIDES;
       } else if (props.isScale) {
         ctor = 'Scale';
+        primType = TYPES.SCALES;
       }
 
       InspectorType = Inspector[ctor];
@@ -77,23 +86,23 @@ var Inspector = React.createClass({
     var pipeline = props.isMark ? (
       <div className="property-group property">
         <h3 className="label-long">Pipeline</h3>
-        <div className="control">{from && from.name || 'None'}</div>
+        <div className="control">{from || 'None'}</div>
       </div>
     ) : null;
 
     var inner = InspectorType ? (
       <div className="inner">
         {pipeline}
-        <InspectorType primitive={prim} />
+        <InspectorType primId={primId} primType={primType} />
       </div>
     ) : null;
 
-    sideBarTitle = (prim && prim.name) ? prim.name : 'Properties';
+    var title = props.name || 'Properties';
 
     // if property is selected show the header
     return (
       <div className="sidebar" id="inspector">
-        <h2>{sideBarTitle}</h2>
+        <h2>{title}</h2>
         {inner}
       </div>
     );
@@ -101,11 +110,12 @@ var Inspector = React.createClass({
 });
 
 Inspector.Line = require('./inspectors/Line');
-Inspector.Guide = require('./inspectors/Guide');
 Inspector.Rect = require('./inspectors/Rect');
 Inspector.Symbol = require('./inspectors/Symbol');
 Inspector.Text = require('./inspectors/Text');
 Inspector.Area = require('./inspectors/Area');
+Inspector.Group = require('./inspectors/Rect');
 Inspector.Scale = require('./inspectors/Scale');
+Inspector.Guide = require('./inspectors/Guide');
 
 module.exports = connect(mapStateToProps)(Inspector);

@@ -35,7 +35,7 @@ describe('Mark Actions', function() {
       var result = addMark(Mark('rect'));
       expect(result).to.have.property('name');
       expect(result.name).to.be.a('string');
-      expect(/rect\s\d+/.test(result.name)).to.equal(true);
+      expect(/Rect\s\d+/.test(result.name)).to.equal(true);
     });
 
     it('passes through a provided name in the returned object', function() {
@@ -55,7 +55,7 @@ describe('Mark Actions', function() {
       expect(result.props).not.to.equal(props);
       expect(result.props).to.contain.all.keys({
         _id: 1,
-        name: 'line 1',
+        name: 'Line 1',
         type: 'line'
       });
     });
