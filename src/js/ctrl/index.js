@@ -40,6 +40,7 @@ ctrl.manipulators = function() {
   });
 
   marks.push(manips.BUBBLE_CURSOR);
+  marks.push.apply(marks, manips.BUBBLE_CURSOR_TIP);
   data.push({
     name: 'dummy_data_line',
     values: [

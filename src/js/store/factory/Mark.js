@@ -27,8 +27,8 @@ function throwIfInvalidType(type) {
 
 // Default visual properties for marks.
 var defaults = {
-  x: {value: 50},
-  y: {value: 50},
+  x: {value: 100},
+  y: {value: 100},
   fill: {value: '#4682b4'},
   fillOpacity: {value: 1},
   stroke: {value: '#000000'},
