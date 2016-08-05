@@ -37,24 +37,27 @@ RectManipulators.prototype.connectors = function(item) {
 
 RectManipulators.prototype.channels = function(item) {
   var b = item.bounds,
+      gb = item.mark.group.bounds,
       c = spec.coords(b),
       tl = c.topLeft,
       tr = c.topRight,
       br = c.bottomRight,
-      w = b.width(), h = b.height();
+      w = b.width(), h = b.height(),
+      fullW = Math.max(Math.min(tr.x + w, gb.x2 - PAD), tr.x + 50),
+      fullH = Math.max(Math.min(br.y + h, gb.y2 - PAD), br.y + 50);
 
   return []
     // Width/horizontal arrow stem
     .concat([
-      {x: tl.x, y: tl.y - PAD}, {x: tr.x, y: tr.y - PAD}, {x: tr.x + w, y: tr.y - PAD},
-      {x: tr.x + w - APAD, y: tr.y - 2 * PAD}, {x: tr.x + w - APAD, y: tr.y},
-      {x: tr.x + w, y: tr.y - PAD + 0.1}
+      {x: tl.x, y: tl.y - PAD}, {x: tr.x, y: tr.y - PAD}, {x: fullW, y: tr.y - PAD},
+      {x: fullW - APAD, y: tr.y - 2 * PAD}, {x: fullW - APAD, y: tr.y},
+      {x: fullW, y: tr.y - PAD + 0.1}
     ].map(annotate('x+', 'arrow', 'x position')))
     // Height/vertical arrow stem
     .concat([
-      {x: tr.x + PAD, y: tr.y}, {x: br.x + PAD, y: br.y}, {x: br.x + PAD, y: br.y + h},
-      {x: br.x + 2 * PAD, y: br.y + h - APAD}, {x: br.x, y: br.y + h - APAD},
-      {x: br.x + PAD, y: br.y + h + 0.1}
+      {x: tr.x + PAD, y: tr.y}, {x: br.x + PAD, y: br.y}, {x: br.x + PAD, y: fullH},
+      {x: br.x + 2 * PAD, y: fullH - APAD}, {x: br.x, y: fullH - APAD},
+      {x: br.x + PAD, y: fullH + 0.1}
     ].map(annotate('y+', 'arrow', 'y position')))
     // fill
     .concat([

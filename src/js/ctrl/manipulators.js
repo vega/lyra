@@ -227,6 +227,7 @@ manipulators.BUBBLE_CURSOR_TIP = [{
       stroke: {value: 'white'},
       strokeWidth: {value: 4},
       fontSize: {value: 12},
+      fontFamily: {value: 'Lato'},
       fontWeight: {value: 'bold'}
     }
   }
@@ -242,6 +243,7 @@ manipulators.BUBBLE_CURSOR_TIP = [{
       baseline: {value: 'bottom'},
       fill: {value: 'lightsalmon'},
       fontSize: {value: 12},
+      fontFamily: {value: 'Lato'},
       fontWeight: {value: 'bold'}
     }
   }
