@@ -105,8 +105,8 @@ Manipulators.prototype.transform = function(input) {
   }
 
   var clip = [
-    [dl.min(cache, $x) - 100, dl.min(cache, $y) - 50],
-    [dl.max(cache, $x) + 50, dl.max(cache, $y) + 50]
+    [dl.min(cache, $x) - 100, dl.min(cache, $y) - 60],
+    [dl.max(cache, $x) + 60, dl.max(cache, $y) + 60]
   ];
 
   return this._voronoi

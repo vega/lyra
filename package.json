@@ -92,6 +92,7 @@
     "svg-sprite-loader": "0.0.18",
     "vega": "^2.5.0",
     "vega-lite": "^1.0.1",
+    "vega-scenegraph": "^1.1.0",
     "webpack": "^1.12.14",
     "webpack-dev-server": "^1.14.1",
     "yargs": "^4.2.0"
