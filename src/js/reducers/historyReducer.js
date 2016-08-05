@@ -109,8 +109,7 @@ function implicitBatch(state, action, imPrev, imCurr) {
 }
 
 function filter(state, action) {
-  return batch === 0 &&
-    [ACTIONS.ADD_PIPELINE, ACTIONS.ADD_DATASET].indexOf(action.type) < 0;
+  return batch === 0 && [ACTIONS.ADD_DATASET].indexOf(action.type) < 0;
 }
 
 function insert(reducer, state, action) {
