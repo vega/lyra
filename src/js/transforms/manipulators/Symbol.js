@@ -56,7 +56,7 @@ SymbolManipulators.prototype.channels = function(item) {
     ].map(annotate('fill', 'border')))
     // size
     .concat([
-      {x: item.x - DELTA, y: item.y - DELTA, shape: item.shape, size: PAD * item.size}
+      {x: item.x - DELTA, y: item.y, shape: item.shape, size: PAD * item.size}
     ].map(annotate('size', 'border')));
 };
 
@@ -68,7 +68,7 @@ SymbolManipulators.prototype.altchannels = function(item) {
     ].map(annotate('stroke', 'border')))
     // stroke
     .concat([
-      {x: item.x - DELTA, y: item.y - DELTA, shape: item.shape, size: PAD * item.size}
+      {x: item.x - DELTA, y: item.y, shape: item.shape, size: PAD * item.size}
     ].map(annotate('shape', 'border')));
 };
 

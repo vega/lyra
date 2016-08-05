@@ -80,15 +80,20 @@ function registerSignalListeners() {
     win.on(dragover, function() {
       var mode = sg.get(sg.MODE),
           shiftKey = d3.event.shiftKey,
-          prevKey = Boolean(ctrl._shiftKey);
+          channels = mode === 'channels',
+          altchannels = mode === 'altchannels';
 
-      if (prevKey === shiftKey) {
+      if (!channels && !altchannels) {
         return;
       }
-      ctrl._shiftKey = shiftKey;
-      var setAltChan = mode === 'altchannels' ? 'channels' : mode;
-      sg.set(sg.MODE, mode === 'channels' ? 'altchannels' : setAltChan);
-      ctrl.update();
+
+      if (channels && shiftKey) {
+        sg.set(sg.MODE, 'altchannels');
+        ctrl.update();
+      } else if (altchannels && !shiftKey) {
+        sg.set(sg.MODE, 'channels');
+        ctrl.update();
+      }
     });
   }
 
