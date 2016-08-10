@@ -11,7 +11,7 @@ function autoCompleteReducer(state, action) {
    		return Immutable.Map();
     }
 
-    if (action.type === ACTIONS.UPDATE_EXPRESSION) {
+    if (action.type === ACTIONS.UPDATE_EXPRESSION_OR_TEMPLATE) {
     	return setIn(state, action.path, Immutable.fromJS(action.value));
     }
 }

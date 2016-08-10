@@ -1,18 +1,18 @@
 'use strict'
-var UPDATE_EXPRESSION = 'UPDATE_EXPRESSION';
+var UPDATE_EXPRESSION_OR_TEMPLATE = 'UPDATE_EXPRESSION_OR_TEMPLATE';
 
-function updateExpr(exprPath, exprValue) {
+function updateExprOrTmpl(path, value) {
 	return {
-		type: UPDATE_EXPRESSION,
-		path: exprPath,
-		value: exprValue
+		type: UPDATE_EXPRESSION_OR_TEMPLATE,
+		path: path,
+		value: value
 	};
 }
 
 module.exports = {
 	// Action Name
-	UPDATE_EXPRESSION: UPDATE_EXPRESSION,
+	UPDATE_EXPRESSION_OR_TEMPLATE: UPDATE_EXPRESSION_OR_TEMPLATE,
 
 	// Action Creators
-	updateExpr: updateExpr
+	updateExprOrTmpl: updateExprOrTmpl
 }
