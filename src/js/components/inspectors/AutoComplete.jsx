@@ -14,8 +14,8 @@ var React = require('react'),
 //	AutoComp = require('jquery-textcomplete');
 
 var store = ['stunning', 'amazing', 'incredible', 'fantastic', 'fantabulous'];
-var spanPreHardcore = <span class="auto">;
-var spanPostHardcore = </span>;
+var spanPreHardcore = '<span class="auto" contentEditable="false">';
+var spanPostHardcore = '</span>';
 
 function mapStateToProps(state, ownProps) {
 	return {};
@@ -75,10 +75,13 @@ function outTmpl(htmlString, store) {
 function insert(targetString, store, pre, post) {
   var extraLen = pre.length + post.length;
 
+  var divDom = document.createElement('div');
+
   for (var i = 0; i < store.length; i ++) {
     var s = store[i];
     var position = targetString.search(s);
     var searched = 0;
+
 
     while(position != -1) {
       position = position + searched;
@@ -98,8 +101,6 @@ var AutoComplete = React.createClass({
     	value: React.PropTypes.string,  
    	},
 
-
-
   	render: function() {
   		var props = this.props,
   			value = props.value,
@@ -107,13 +108,13 @@ var AutoComplete = React.createClass({
   			htmlString;
 
   		if (type == "expr") {
-  			htmlString = inExpr(value, store)
-  		}
+  			htmlString = inExpr(value, store);
+  		} else if (type == "tmpl") {
+        htmlString = inTmpl(value, store);
+      }
 
   		return (
-  			<div>
-  				{htmlString}
-  			</div>
+  	 	  <div dangerouslySetInnerHTML={{__html: htmlString}}></div>
   		);
   	}
 
