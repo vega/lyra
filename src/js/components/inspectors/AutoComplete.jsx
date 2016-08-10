@@ -2,14 +2,10 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    SignalValue = require('../mixins/SignalValue'),
     ContentEditable = require('../ContentEditable'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
-    getInVis = imutils.getInVis,
-    TYPES = require('../../constants/primTypes'),
-    AutoComplete = require('./AutoComplete'),
-    resetMarkVisual = require('../../actions/markActions').resetMarkVisual,
+    updateExprOrTmpl = require('../../actions/autoCompleteActions').updateExprOrTmpl,
 	ReactDOM = require('react-dom');
 //	AutoComp = require('jquery-textcomplete');
 
@@ -22,7 +18,11 @@ function mapStateToProps(state, ownProps) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return {};
+  return {
+    updateExprOrTmpl: function(path, value) {
+      dispatch(updateExprOrTmpl(path, value));
+    }
+  };
 }
 
 //fun inexpr(stringfromstore)->String html
@@ -98,18 +98,22 @@ function insert(targetString, store, pre, post) {
 var AutoComplete = React.createClass({
 	propTypes: {
     	type: React.PropTypes.string.isRequired,
-    	value: React.PropTypes.string,  
+    	value: React.PropTypes.string,
+      path: React.PropTypes.string,
    	},
 
   	render: function() {
   		var props = this.props,
   			value = props.value,
   			type = props.type,
+        type = props.path,
   			htmlString;
 
   		if (type == "expr") {
+        props.updateExprOrTmpl(path, outExpr(value, store));
   			htmlString = inExpr(value, store);
   		} else if (type == "tmpl") {
+        props.updateExprOrTmpl(path, outTmpl(value, store));
         htmlString = inTmpl(value, store);
       }
 
