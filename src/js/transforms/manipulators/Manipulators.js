@@ -10,6 +10,7 @@ var dl = require('datalib'),
     Transform = vg.Transform,
     Voronoi = vg.transforms.voronoi,
     sg = require('../../ctrl/signals'),
+    MODES = require('../../constants/modes'),
     $x = dl.$('x'),
     $y = dl.$('y');
 
@@ -74,8 +75,9 @@ Manipulators.prototype.transform = function(input) {
     output.rem = cache.splice(0);
   }
 
-  // If we don't correspond to the current selection, early exit
-  if (!def || (def && lyra_id !== def.lyra_id)) {
+  // If we don't correspond to the current selection, or we're recording
+  // interactions and do not want any manipulators, early exit
+  if (!def || (def && lyra_id !== def.lyra_id) || mode === MODES.RECORDING) {
     return output;
   }
 

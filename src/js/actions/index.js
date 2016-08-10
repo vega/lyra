@@ -1,17 +1,18 @@
 'use strict';
 
 module.exports = {
-  vega: require('./vegaActions'),
-  signals: require('./signalActions'),
-  scene: require('./sceneActions'),
-  pipelines: require('./pipelineActions'),
   datasets: require('./datasetActions'),
-  scales: require('./scaleActions'),
   guides: require('./guideActions'),
-  marks: require('./markActions'),
-  rules: require('./bindChannel'),
-  inspectors: require('./inspectorActions'),
   hints: require('./hintActions'),
-  walkthrough: require('./walkthroughActions'),
-  history: require('./historyActions')
+  history: require('./historyActions'),
+  inspectors: require('./inspectorActions'),
+  marks: require('./markActions'),
+  pipelines: require('./pipelineActions'),
+  recordings: require('./recordingActions'),
+  rules: require('./bindChannel'),
+  scales: require('./scaleActions'),
+  scene: require('./sceneActions'),
+  signals: require('./signalActions'),
+  vega: require('./vegaActions'),
+  walkthrough: require('./walkthroughActions')
 };

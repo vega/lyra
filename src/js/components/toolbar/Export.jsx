@@ -80,7 +80,7 @@ var Export = React.createClass({
 
   render: function() {
     return (
-      <ul className={this.classNames}>
+      <ul>
         <li><Icon glyph={assets.export} /> Export
           <ul>
             <li onClick={this.toImageURL.bind(null, 'png')}>As PNG</li>

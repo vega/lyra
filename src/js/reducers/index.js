@@ -16,5 +16,6 @@ module.exports = combineReducers({
   vega: require('./vegaReducer'),
   inspector: require('./inspectorReducer'),
   hints: require('./hintsReducer'),
+  recordings: require('./recordingsReducer'),
   walkthrough: require('./walkthroughReducer')
 });

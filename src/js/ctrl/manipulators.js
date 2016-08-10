@@ -5,7 +5,7 @@ var dl = require('datalib'),
 
 var TYPES  = [];
 
-// Mode = handles | connectors | channels | altchannels
+// Mode = see constants/modes.js (handles | channels | ...)
 // Manipulators = handle | connector | arrow | span | point | border
 // This differentiation is needed because channels and altchannels
 // display multiple manipulators.

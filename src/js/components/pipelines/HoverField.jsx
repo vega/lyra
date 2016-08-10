@@ -6,7 +6,8 @@ var React = require('react'),
     dsUtil = require('../../util/dataset-utils'),
     bindChannel = require('../../actions/bindChannel'),
     FieldType = require('./FieldType'),
-    SortField = require('./SortField');
+    SortField = require('./SortField'),
+    MODES = require('../../constants/modes');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -54,7 +55,7 @@ var HoverField = React.createClass({
     this.setState({bindField: this.state.fieldDef});
     evt.dataTransfer.setData('text/plain', evt.target.id);
     evt.dataTransfer.effectAllowed = 'link';
-    sg.set(sg.MODE, 'channels');
+    sg.set(sg.MODE, MODES.CHANNELS);
     ctrl.update();
   },
 

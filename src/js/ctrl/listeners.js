@@ -10,6 +10,7 @@ var historyActions = require('../actions/historyActions'),
     expandLayers = inspectorActions.expandLayers,
     deleteMark = require('../actions/markActions').deleteMark,
     ACTIONS = require('../actions/Names'),
+    MODES = require('../constants/modes'),
     ctrl = require('./'),
     sg = require('./signals');
 
@@ -72,7 +73,7 @@ function offSignal(name, handler) {
  */
 function registerSignalListeners() {
   var win = d3.select(window),
-      dragover = 'dragover.altchan';
+      dragover = 'dragover.' + MODES.ALTCHANNELS;
 
   // Register a window dragover event handler to detect shiftKey
   // presses for alternate channel manipulators.
@@ -80,18 +81,18 @@ function registerSignalListeners() {
     win.on(dragover, function() {
       var mode = sg.get(sg.MODE),
           shiftKey = d3.event.shiftKey,
-          channels = mode === 'channels',
-          altchannels = mode === 'altchannels';
+          channels = mode === MODES.CHANNELS,
+          altchannels = mode === MODES.ALTCHANNELS;
 
       if (!channels && !altchannels) {
         return;
       }
 
       if (channels && shiftKey) {
-        sg.set(sg.MODE, 'altchannels');
+        sg.set(sg.MODE, MODES.ALTCHANNELS);
         ctrl.update();
       } else if (altchannels && !shiftKey) {
-        sg.set(sg.MODE, 'channels');
+        sg.set(sg.MODE, MODES.CHANNELS);
         ctrl.update();
       }
     });

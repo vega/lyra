@@ -29,7 +29,6 @@ var AddMarksTool = React.createClass({
   propTypes: {
     addMark: React.PropTypes.func
   },
-  classNames: 'new-marks',
   render: function() {
     return (
       <ul>

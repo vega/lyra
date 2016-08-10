@@ -3,6 +3,7 @@ var React = require('react'),
     AddMarks = require('./toolbar/AddMarks'),
     UndoRedo = require('./toolbar/UndoRedo'),
     Export = require('./toolbar/Export'),
+    Record = require('./toolbar/Record'),
     assets = require('../util/assets'),
     Icon = require('./Icon');
 
@@ -18,6 +19,7 @@ var Toolbar = React.createClass({
           <div className="menu">
             <AddMarks />
             <UndoRedo />
+            <Record />
             <Export />
           </div>
         </div>

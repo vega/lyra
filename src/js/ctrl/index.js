@@ -9,7 +9,8 @@ var dl = require('datalib'),
 
 /** @namespace */
 var ctrl = module.exports = {view: null},
-    listeners = require('./listeners');
+    listeners = require('./listeners'),
+    recording = require('./recording');
 
 // Local variable used to hold the last-initiated Vega ctrl reparse
 var parsePromise = null;
@@ -108,6 +109,8 @@ ctrl.parse = function(el) {
     });
     // Register all event listeners to the new view
     listeners.register();
+    // If we re-parsed during recording, re-register those listeners.
+    recording.start();
     // the update() method initiates visual encoding and rendering:
     // View has to update once before scene is ready
     ctrl.update();
