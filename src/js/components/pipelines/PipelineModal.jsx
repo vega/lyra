@@ -26,7 +26,8 @@ function mapDispatchToProps(dispatch, ownProps) {
 var PipelineModal = React.createClass({
   propTypes: {
     selectPipeline: React.PropTypes.func,
-    closeModal: React.PropTypes.func
+    closeModal: React.PropTypes.func,
+    modalIsOpen: React.PropTypes.bool.isRequired
   },
   getInitialState: function() {
     return {
@@ -225,6 +226,7 @@ var PipelineModal = React.createClass({
 
             <div className="sect">
               <h4>Datasets</h4>
+              {/* move to SeedPipelines component */}
               <ul>
                 {pipelines.map(function(pipeline) {
                   var name = pipeline.name,
@@ -279,3 +281,6 @@ var PipelineModal = React.createClass({
 });
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(PipelineModal);
+module.exports = {
+  Undecorated: PipelineModal
+};
