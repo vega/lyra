@@ -25,19 +25,19 @@ function stopRecording() {
 /**
  * Records an event as part of the demonstration.
  *
- * @param {Object[]} eventLog An array of objects that holds the event, item,
- *                            and flag to indicate dragging.
- *
- * @param {Object[]} clickLog An array of objects that holds click events,
- *                            corresponding item, and dragging flag.
+ * @param {Object}   entry The recorded entry, containing the event type,
+ *                         event object, and picked scenegraph item.
+ * @param {Object}   summary A summary of all events seen during this demonstration.
+ * @param {Object[]} eventLog A full history of logged events.
  *
  * @returns {Object} An RECORD_EVENT Redux action object.
  */
-function recordEvent(eventLog, clickLog) {
+function recordEvent(entry, summary, eventLog) {
   return {
     type: RECORD_EVENT,
-    eventLog: eventLog,
-    clickLog: clickLog
+    entry: entry,
+    summary: summary,
+    eventLog: eventLog
   };
 }
 

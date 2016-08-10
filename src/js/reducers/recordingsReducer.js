@@ -1,7 +1,8 @@
 /* eslint new-cap:0 */
 'use strict';
 
-var Immutable = require('immutable'),
+var dl = require('datalib'),
+    Immutable = require('immutable'),
     ACTIONS = require('../actions/Names');
 
 var EVT_SCORES = {
@@ -16,7 +17,7 @@ var EVT_SCORES = {
   DRAG:      1 << 9
 };
 
-var MIN_LIST_ITEMS = 3,   // Min picked scenegraph items for list selection suggestion.
+var MIN_LIST_ITEMS = 2,   // Min picked scenegraph items for list selection suggestion.
     MIN_INTERVAL_LEN = 4; // Min click+shiftclick events for interval selection suggestion.
 
 function recordingsReducer(state, action) {
@@ -26,7 +27,6 @@ function recordingsReducer(state, action) {
 
     state = Immutable.fromJS({
       active: action.type === ACTIONS.START_RECORDING,
-      summary: {},
 
       interval: {events: {}, transforms: {}},
       list: {events: {}, transforms: {}},
@@ -39,85 +39,78 @@ function recordingsReducer(state, action) {
   }
 
   if (action.type === ACTIONS.RECORD_EVENT) {
-    return infer(state, action);
+    return inferSelection(state, action);
   }
 
   return state;
 }
 
-// Because we use event selector strings as the keys in our state, we cannot
+// Note: as we use event selector strings as the keys in our state, we cannot
 // use our imutils.getIn/setIn which breaks strings apart on dots. Instead, we
 // rely on ImmutableJS' internal getIn/setIn directly.
-function infer(state, action) {
-  var eventLog = action.eventLog,
-      clickLog = action.clickLog,
-      last  = eventLog[eventLog.length - 1],
-      evt   = last.evt,
-      item  = last.item,
-      dragging = last.dragging,
-      evtType  = evt.vegaType,
-      evtDef = {type: evtType, filters: []},
-      score  = modifiers(evt, evtDef, EVT_SCORES[evtType]),
+function inferSelection(state, action) {
+  var entry = action.entry,
+      evt   = entry.evt,
+      type  = entry.type,
+      evtDef = {type: type, filters: []},
+      score  = modifiers(evt, evtDef, EVT_SCORES[type]),
       evtStr = evtDefToStr(evtDef),
-      shiftInt = true, countItems;
-
-  /*
-    1. Does this event give us a new selection type we have not yet seen?
-   */
+      eventLog = action.eventLog,
+      summary  = getSummary(action),
+      countItems = summary.distinct_itemId, // discount nulls
+      shiftInterval = true;
 
   // Drags are always and only associated with interval selections.
-  if (evtType === 'mousemove' && dragging) {
-    evtType = evtDef.type = 'drag';
-    evtStr = evtDefToStr(evtDef);
-    score = modifiers(evt, evtDef, EVT_SCORES.DRAG);
-    state = state.setIn(['interval', 'events', evtStr], score);
+  if (type === 'drag') {
+    return suggestSelection(state, 'interval', evtDef, evtStr, score);
   }
 
-  // Suggest an interval selection if we see 2 consecutive click, shift-click pairs.
-  // To avoid unnecessary computation, check this suggestion hasn't been made.
-  if (evtType === 'click' && clickLog.length >= MIN_INTERVAL_LEN &&
-      !state.getIn(['interval', 'events', evtStr])) {
+  // Suggest an interval selection if we see 2 consecutive click, shift-click
+  // pairs. Check this suggestion hasn't been made to avoid wasted computation.
+  if (type === 'click' && eventLog.length >= MIN_INTERVAL_LEN &&
+    !state.getIn(['interval', 'events', evtStr])) {
 
-    for (var i = MIN_INTERVAL_LEN - 1; i >= 0; --i) {
-      evt = clickLog[i].evt;
-      if (evt.vegaType !== 'click' || evt.shiftKey !== !!(i % 2)) {
-        shiftInt = false;
+    eventLog = eventLog.slice(-MIN_INTERVAL_LEN);
+    for (var l, i = MIN_INTERVAL_LEN - 1; i >= 0; --i) {
+      l = eventLog[i];
+      if (l.type !== 'click' || l.evt.shiftKey !== !!(i % 2)) {
+        shiftInterval = false;
         break;
       }
     }
 
-    evt = last.evt;
-    if (shiftInt) {
-      state = state.getIn(['interval', 'events', evtStr], score);
+    eventLog = action.eventLog;
+    if (shiftInterval) {
+      return suggestSelection(state, 'interval', evtDef, evtStr, score);
     }
   }
 
-  // Recalculate summary statistics and determine if we should create a point
-  // or list selection.
-  state = summarize(state, evtDef, item);
-  countItems = state.getIn(['summary', evtStr, 'items']);
+  // Use summary to determine if we should create a point or list selection.
+  // List selections aren't produced on mouseover/mousemove.
   if (countItems === 1) {
-    state = state.setIn(['point', 'events', evtStr], score);
-  } else if (countItems === MIN_LIST_ITEMS && evtDef.filters.length) {
-    state = state.setIn(['list', 'events', evtStr], score);
+    return suggestSelection(state, 'point', evtDef, evtStr, score);
+  } else if (countItems === MIN_LIST_ITEMS && evtDef.filters.length &&
+      type !== 'mouseover' && type !== 'mousemove') {
+    return suggestSelection(state, 'list', evtDef, evtStr, score);
   }
 
   return state;
 }
 
-function summarize(state, evtDef, item) {
-  var summary = state.get('summary').toJS(),
-      evtStr = evtDefToStr(evtDef),
-      evtSum = summary[evtStr];
+function suggestSelection(state, type, evtDef, evtStr, score) {
+  return state.setIn([type, 'events', evtStr],
+    Immutable.fromJS(dl.extend(evtDef, {_score: score})));
+}
 
-  if (evtSum) {
-    evtSum.count++;
-    evtSum.items = item ? ++evtSum.items : evtSum.items;
-  } else {
-    summary[evtStr] = {count: 1, items: item ? 1 : 0};
-  }
+function getSummary(action) {
+  var EVT_SIG = require('../ctrl/recording').EVT_SIG,
+      entry = action.entry;
 
-  return state.mergeDeep({summary: summary});
+  return action.summary.find(function(x) {
+    return !EVT_SIG.some(function(f) {
+      return x[f] !== dl.$(f)(entry);
+    });
+  });
 }
 
 function modifiers(evt, evtDef, score) {
