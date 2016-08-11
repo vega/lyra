@@ -235,6 +235,14 @@ exporter.axe = exporter.legend = function(state, internal, id) {
   return spec;
 };
 
+/**
+  * Method that builds the vega sort data transform code from
+  * the current dataset.
+  *
+  * @param  {object} dataset The current dataset
+  * @returns {object} undefined if _sort not in dataset and the
+  * vega data transform code to be appended to the vega spec to * the dataset
+  */
 function getSort(dataset) {
   if (!('_sort' in dataset)) {
     // not sorted
