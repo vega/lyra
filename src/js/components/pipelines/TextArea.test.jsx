@@ -7,13 +7,22 @@ var expect = require('chai').expect,
     TextArea = require('./TextArea');
 
 describe('TextArea Component <TextArea />', function() {
-  var wrapper;
+  var name = 'textArea',
+      wrapper,
+      mockChangeHandler;
 
   beforeEach(function() {
-    wrapper = shallow(<TextArea />);
+    mockChangeHandler = function() {};
+    wrapper = shallow(<TextArea changeHandler={mockChangeHandler} name={name} />);
   });
 
   describe('Default state', function() {
-    
+    it('isn\'t in drag mode', function() {
+      expect(wrapper.state('dragActive')).to.equal('textarea-dnd');
+    });
+
+    it('has prop name', function() {
+      expect(wrapper.prop('')).to.have.length(1);
+    });
   });
 });

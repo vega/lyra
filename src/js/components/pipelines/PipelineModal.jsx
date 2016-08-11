@@ -226,7 +226,7 @@ var PipelineModal = React.createClass({
 
             <div className="sect">
               <h4>Datasets</h4>
-              {/* move to SeedPipelines component */}
+              {/* move to a SeedPipelines component */}
               <ul>
                 {pipelines.map(function(pipeline) {
                   var name = pipeline.name,
@@ -255,7 +255,7 @@ var PipelineModal = React.createClass({
                 <abbr title="Coma Separated Values">CSV</abbr> and <abbr title="Tab Separated Values">TSV</abbr>.<br />
                 All data <strong>must</strong> be in tabular form.
               </label><br />
-            <Form handleSubmit={this.handleSubmit}/>
+              <Form handleSubmit={this.handleSubmit}/>
             </div>
 
             <div className="sect">
@@ -281,6 +281,3 @@ var PipelineModal = React.createClass({
 });
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(PipelineModal);
-module.exports = {
-  Undecorated: PipelineModal
-};
