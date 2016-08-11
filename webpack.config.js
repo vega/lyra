@@ -1,8 +1,8 @@
 /* eslint-disable */
 
-var webpack = require( 'webpack' );
-var path = require( 'path' );
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var path = require('path'),
+    webpack = require('webpack'),
+    NotifierPlugin = require('webpack-notifier');
 
 module.exports = {
   entry: {
@@ -28,16 +28,11 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          presets: [
-            'react'
-          ]
-        }
+        loaders: ['react-hot', 'babel-loader?presets[]=react']
       },
       {
         test: /\.scss$/,
-        loader: ExtractTextPlugin.extract('style-loader', 'css-loader!sass-loader')
+        loader: 'style!css!autoprefixer?browsers=last 2 version!sass?outputStyle=expanded'
       },
       {
         test: /\.png$/,
@@ -61,8 +56,7 @@ module.exports = {
     extensions: ['', '.js', '.jsx']
   },
   plugins: [
-    // Render CSS out into a separate file
-    new ExtractTextPlugin('style.css'),
-    new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.js')
+    new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.js'),
+    new NotifierPlugin(),
   ]
 };
