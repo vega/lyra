@@ -47,7 +47,12 @@ function bindProperty(dispatch, parsed, def, property) {
       markType = parsed.markType,
       prop = {};
   property = property || parsed.property;
-  def = def[property];
+
+  if (property === 'stroke') {
+    def = def.stroke || def.fill;
+  } else {
+    def = def[property];
+  }
 
   if (def.scale !== undefined) {
     prop.scale = map.scales[def.scale];

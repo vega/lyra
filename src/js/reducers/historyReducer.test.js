@@ -202,26 +202,26 @@ describe('History Reducer', function() {
   it('should filter actions', function() {
     dispatch(inc());
 
-    expect(dispatch({type: ACTIONS.ADD_PIPELINE})).to.deep.equal({
-      past: [0, 1], present: 2.5, future: [], filtered: true
+    expect(dispatch({type: ACTIONS.ADD_DATASET})).to.deep.equal({
+      past: [0, 1], present: -0.5, future: [], filtered: true
     });
 
     expect(dispatch(inc())).to.deep.equal({
-      past: [0, 1], present: 3.5, future: [], filtered: false
+      past: [0, 1], present: 0.5, future: [], filtered: false
     });
 
     expect(dispatch({type: ACTIONS.ADD_DATASET})).to.deep.equal({
-      past: [0, 1, 3.5], present: 2, future: [], filtered: true
+      past: [0, 1, 0.5], present: -1, future: [], filtered: true
     });
 
     expect(dispatch(histActions.undo())).to.deep.equal({
-      past: [0, 1], present: 3.5, future: [], filtered: false
+      past: [0, 1], present: 0.5, future: [], filtered: false
     });
 
     // Prevent erroneously storing of state if first action is filtered.
     dispatch(histActions.clearHistory());
     expect(dispatch({type: ACTIONS.ADD_DATASET})).to.deep.equal({
-      past: [], present: 2, future: [], filtered: false
+      past: [], present: -1, future: [], filtered: false
     });
   });
 

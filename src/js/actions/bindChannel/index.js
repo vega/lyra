@@ -105,9 +105,7 @@ function compile(spec, property, dsId) {
   };
 
   // Force marks to be filled, if we're binding to the fill color property.
-  if (property === 'fill') {
-    spec.config.mark = {filled: true};
-  }
+  spec.config.mark = {filled: property === 'fill'};
 
   return {
     input:  spec,

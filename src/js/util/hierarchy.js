@@ -1,6 +1,7 @@
 'use strict';
 
-var store = require('../store'),
+var Bounds = require('vega-scenegraph').Bounds,
+    store = require('../store'),
     imutils = require('./immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis;
@@ -112,9 +113,15 @@ function getClosestGroupId(id, state) {
  * @returns {Object|null} The matched item, or null;
  */
 function findInItemTree(item, path) {
-  var id, items, i, j, len;
+  var vis = document.querySelector('.vis-container'),
+      offset = {x: 0, y: 0},
+      itemX = +Number.MAX_VALUE, itemY = +Number.MAX_VALUE,
+      id, items, i, j, len, bounds, closer, intersects, closest;
+
   for (i = path.length - 1; i >= 0; --i) {
     id = path[i];
+    offset.x += +item.x || 0;
+    offset.y += +item.y || 0;
 
     for (items = item.items, j = 0, len = items.length; j < len; ++j) {
       // The Vega scene graph structure alternates between definition nodes
@@ -130,7 +137,43 @@ function findInItemTree(item, path) {
       break;
     }
   }
-  return item;
+
+  // Now that we have a scenegraph item corresponding to our selected mark, we
+  // want to select an item within the visible viewport.
+  var viewport = new Bounds({
+    x1: vis.scrollLeft, x2: 300 + vis.scrollLeft,
+    y1: vis.scrollTop, y2: 200 + vis.scrollTop
+  });
+
+  if (item && item.mark.items.length > 1) {
+    for (i = 0, items = item.mark.items, len = items.length; i < len; ++i) {
+      item = items[i];
+      bounds = item.bounds;
+      closer = bounds && (bounds.x1 < itemX || bounds.y1 < itemY);
+
+      if (!bounds) {
+        break;
+      }
+
+      // Select the item if its entirely enclosed within our viewport.
+      // Otherwise, find the closest item that intersects it.
+      // And in the worst case, select the item closest to one of the edges.
+      if (viewport.encloses(bounds)) {
+        closest = intersects = null;
+        break;
+      } else if (viewport.intersects(bounds) && closer) {
+        intersects = item;
+        itemX = bounds.x1;
+        itemY = bounds.y1;
+      } else if (closer) {
+        closest = item;
+        itemX = bounds.x1;
+        itemY = bounds.y1;
+      }
+    }
+  }
+
+  return intersects || closest || item;
 }
 
 module.exports = {

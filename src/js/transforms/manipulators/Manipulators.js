@@ -113,7 +113,9 @@ Manipulators.prototype.transform = function(input) {
     .param('x', 'x')
     .param('y', 'y')
     .param('clipExtent', clip)
-    .batchTransform(output, cache);
+    .batchTransform(output, cache.filter(function(x) {
+      return x._voronoi !== false || x._voronoi === undefined;
+    }));
 };
 
 /**
