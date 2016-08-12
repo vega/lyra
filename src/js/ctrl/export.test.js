@@ -7,7 +7,10 @@ var expect = require('chai').expect,
     dsUtil = require('../util/dataset-utils'),
     exporter = require('./export'),
     store = require('../store'),
-    sortDataset = require('../actions/datasetActions').sortDataset;
+    sortDataset = require('../actions/datasetActions').sortDataset,
+    dsReducer = require('../reducers/datasetsReducer'),
+    getInVis = require('../util/immutable-utils').getInVis,
+    store = require('../store');
 
 /* eslint new-cap:0 */
 function historyWrap(map) {
@@ -118,15 +121,16 @@ describe('Exporter Utility', function() {
       it('exports dataset with sort', function() {
         var id = 4,
             sortField = 'testField',
-            sortOrder = 'inc';
-        store.dispatch(sortDataset(id, sortField, sortOrder));
+            sortOrder = 'inc',
+            action = sortDataset(id, sortField, sortOrder),
+            state = store.dispatch(action),
+            state = store.getState(),
+            result = exporter.dataset(state, false, 4);
 
-        expect(exporter.dataset(imstate, false, 4)).to.deep.equal({
-          name: 'jobs_dataset',
-          values: state.values[1],
-          transform: [{'type': 'sort', 'by': 'testField'}],
-          format: {type: 'json'},
-        });
+        expect(result.transform).to.deep.equal([
+          {'type': 'sort', 'by': 'testField'}
+        ]);
+        
       });
     });
 
