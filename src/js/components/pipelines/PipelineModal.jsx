@@ -1,5 +1,4 @@
 'use strict';
-
 var React = require('react'),
     Modal = require('react-modal'),
     connect = require('react-redux').connect,
@@ -26,7 +25,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 var PipelineModal = React.createClass({
   propTypes: {
     selectPipeline: React.PropTypes.func,
-    closeModal: React.PropTypes.func,
+    closeModal: React.PropTypes.func.isRequired,
     modalIsOpen: React.PropTypes.bool.isRequired
   },
   getInitialState: function() {
@@ -91,7 +90,7 @@ var PipelineModal = React.createClass({
   },
   parseRaw: function(raw, dataset) {
     var format = dataset.format = {parse: 'auto'},
-        parsed;
+        parsed, errorMsg;
 
     try {
       format.type = 'json';
@@ -99,7 +98,6 @@ var PipelineModal = React.createClass({
     } catch (error) {
       format.type = 'csv';
       parsed = dl.read(raw, format);
-
       // Test successful parsing of CSV/TSV data by checking # of fields found.
       // If file is TSV but was parsed as CSV, the entire header row will be
       // parsed as a single field.
@@ -112,9 +110,9 @@ var PipelineModal = React.createClass({
       if (dl.keys(parsed[0]).length > 1) {
         return parsed;
       }
-      var errorMsg = 'Trying to import data thats in an unsupported format!';
+      errorMsg = error.message || 'Trying to import data thats in an unsupported format!';
       this.onError(errorMsg);
-      throw new Error('Trying to import data thats in an unsupported format!');
+      throw new Error(errorMsg);
     }
 
     return [];
@@ -226,7 +224,6 @@ var PipelineModal = React.createClass({
 
             <div className="sect">
               <h4>Datasets</h4>
-              {/* move to a SeedPipelines component */}
               <ul>
                 {pipelines.map(function(pipeline) {
                   var name = pipeline.name,
@@ -280,4 +277,7 @@ var PipelineModal = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(PipelineModal);
+module.exports = {
+  disconnected: PipelineModal,
+  connected: connect(mapStateToProps, mapDispatchToProps)(PipelineModal)
+};
