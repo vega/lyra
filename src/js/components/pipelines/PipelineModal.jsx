@@ -96,20 +96,36 @@ var PipelineModal = React.createClass({
       format.type = 'json';
       return dl.read(raw, format);
     } catch (error) {
+      var keys;
+      format.type = 'tsv';
+      parsed = dl.read(raw, format);
+      if (dl.keys(parsed[0]).length > 1) {
+        parsed.forEach(function(item) {
+          keys = dl.keys(item);
+          keys.forEach(function(key) {
+            if (!item[key]) {
+              throw new Error('invalid csv');
+            }
+          });
+        });
+        return parsed;
+      }
+
       format.type = 'csv';
       parsed = dl.read(raw, format);
       // Test successful parsing of CSV/TSV data by checking # of fields found.
       // If file is TSV but was parsed as CSV, the entire header row will be
       // parsed as a single field.
       if (dl.keys(parsed[0]).length > 1) {
+        keys = dl.keys(parsed[0]);
+        keys.forEach(function(key) {
+          if (!parsed[0][key]) {
+            throw new Error('invalid tsv');
+          }
+        });
         return parsed;
       }
 
-      format.type = 'tsv';
-      parsed = dl.read(raw, format);
-      if (dl.keys(parsed[0]).length > 1) {
-        return parsed;
-      }
       errorMsg = error.message || 'Trying to import data thats in an unsupported format!';
       this.onError(errorMsg);
       throw new Error(errorMsg);
@@ -277,7 +293,12 @@ var PipelineModal = React.createClass({
   }
 });
 
+// module.exports = connect(mapStateToProps, mapDispatchToProps)(PipelineModal);
+// module.exports = {
+//   Undecorated: PipelineModal
+// };
+// alternative exports methods result in React invairant violations
 module.exports = {
-  disconnected: PipelineModal,
-  connected: connect(mapStateToProps, mapDispatchToProps)(PipelineModal)
+  connected: connect(mapStateToProps, mapDispatchToProps)(PipelineModal),
+  disconnected: PipelineModal
 };

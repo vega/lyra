@@ -13,14 +13,14 @@ var React = require('react'),
 
 var MOCK_DATA = require('./../../constants/mockdata');
 
-describe('PipelineModal component <PipelineModal/> ', function() {
+describe.only('PipelineModal component <PipelineModal/> ', function() {
   var mockStore, wrapper, props;
 
   beforeEach(function() {
     mockStore = configureMockStore([]);
   });
 
-  describe('Raw value parsing', function() {
+  describe.only('Raw value parsing', function() {
     var parseRaw, dataset, raw, invalidRaw, parsed;
 
     beforeEach(function() {
@@ -28,11 +28,11 @@ describe('PipelineModal component <PipelineModal/> ', function() {
         closeModal: function() {},
         modalIsOpen: true
       };
-
       wrapper = shallow(<PipelineModal {...props} />, {
         context: {store: mockStore({})}
       });
       parseRaw = wrapper.instance().parseRaw;
+      schema = wrapper.instance().schema;
       dataset = {
         format: {parse: 'auto', type: ''},
         name: 'name'
@@ -48,10 +48,9 @@ describe('PipelineModal component <PipelineModal/> ', function() {
     it('throws on invalid json', function() {
       invalidRaw = MOCK_DATA.INVALID_JSON;
       dataset.format.type = 'json';
-      function tryParse() {
+      expect(function() {
         parseRaw(invalidRaw, dataset);
-      }
-      expect(tryParse).to.throw(Error);
+      }).to.throw(Error);
     });
     it('correctly parses csv', function() {
       raw = MOCK_DATA.VALID_CSV;
@@ -59,11 +58,30 @@ describe('PipelineModal component <PipelineModal/> ', function() {
       parsed = dl.read(raw, dataset.format);
       expect(parseRaw(raw, dataset)).to.eql(parsed);
     });
+    it('throws on invalid csv', function() {
+      invalidRaw = MOCK_DATA.INVALID_CSV;
+      dataset.format.type = 'csv';
+      parsed = dl.read(raw, dataset.format);
+      expect(function() {
+        parseRaw(invalidRaw, dataset);
+      }).to.throw(Error);
+    });
     it('correctly parses tsv', function() {
       dataset.format.type = 'tsv';
       raw = MOCK_DATA.VALID_TSV;
       parsed = dl.read(raw, dataset.format);
       expect(parseRaw(raw, dataset)).to.eql(parsed);
+    });
+    it('throws on invalid tsv', function() {
+      dataset.format.type = 'tsv';
+      invalidRaw = MOCK_DATA.INVALID_TSV;
+      expect(function() {
+        parseRaw(invalidRaw, dataset);
+      }).to.throw(Error);
+    });
+
+    it('calculates schema correctly', function() {
+      
     });
 
     it('loads data from url');
@@ -86,7 +104,7 @@ describe('PipelineModal component <PipelineModal/> ', function() {
     it('selects pipelines');
   });
 
-  describe('Default state ui', function() {
+  describe('Default ui', function() {
     beforeEach(function() {
       props = {
         closeModal: function() {},
