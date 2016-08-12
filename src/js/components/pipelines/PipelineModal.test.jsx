@@ -13,15 +13,17 @@ var React = require('react'),
 
 var MOCK_DATA = require('./../../constants/mockdata');
 
-describe.only('PipelineModal component <PipelineModal/> ', function() {
+describe('PipelineModal component <PipelineModal/> ', function() {
   var mockStore, wrapper, props;
 
   beforeEach(function() {
     mockStore = configureMockStore([]);
   });
 
-  describe.only('Raw value parsing', function() {
-    var parseRaw, dataset, raw, invalidRaw, parsed;
+  // Suite that checks for proper parsing of csv, tsv and json
+  describe('Raw value parsing', function() {
+    var parseRaw, dataset, raw, invalidRaw, parsed,
+        schema, verifySchemaExpectations;
 
     beforeEach(function() {
       props = {
@@ -36,6 +38,18 @@ describe.only('PipelineModal component <PipelineModal/> ', function() {
       dataset = {
         format: {parse: 'auto', type: ''},
         name: 'name'
+      };
+      verifySchemaExpectations = function(processedSchema) {
+        for (var k in processedSchema) {
+          if (processedSchema.hasOwnProperty(k)) {
+            expect(processedSchema[k]).to.have.property('name')
+              .and.not.equal('');
+            expect(processedSchema[k]).to.have.property('type')
+              .and.not.equal('');
+            expect(processedSchema[k]).to.have.property('mtype')
+              .and.not.equal('');
+          }
+        }
       };
     });
 
@@ -80,8 +94,19 @@ describe.only('PipelineModal component <PipelineModal/> ', function() {
       }).to.throw(Error);
     });
 
-    it('calculates schema correctly', function() {
-      
+    it('calculates json schema', function() {
+      var json = JSON.parse(MOCK_DATA.VALID_JSON);
+      verifySchemaExpectations(schema(json));
+    });
+
+    it('calculates csv schema', function() {
+      var csv = MOCK_DATA.VALID_CSV;
+      verifySchemaExpectations(schema(csv));
+    });
+
+    it('calculates tsv schema', function() {
+      var csv = MOCK_DATA.VALID_TSV;
+      verifySchemaExpectations(schema(csv));
     });
 
     it('loads data from url');

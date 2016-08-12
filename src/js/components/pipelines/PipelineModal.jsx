@@ -293,11 +293,6 @@ var PipelineModal = React.createClass({
   }
 });
 
-// module.exports = connect(mapStateToProps, mapDispatchToProps)(PipelineModal);
-// module.exports = {
-//   Undecorated: PipelineModal
-// };
-// alternative exports methods result in React invairant violations
 module.exports = {
   connected: connect(mapStateToProps, mapDispatchToProps)(PipelineModal),
   disconnected: PipelineModal
