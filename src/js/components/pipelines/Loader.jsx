@@ -1,7 +1,7 @@
 'use strict';
 var React = require('react');
 
-var Form = React.createClass({
+var Loader = React.createClass({
   render: function() {
     var props = this.props;
     return (
@@ -18,4 +18,4 @@ var Form = React.createClass({
   }
 });
 
-module.exports = Form;
+module.exports = Loader;

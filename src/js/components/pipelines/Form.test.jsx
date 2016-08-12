@@ -4,7 +4,7 @@ var expect = require('chai').expect,
     enzyme = require('enzyme'),
     shallow = enzyme.shallow,
     React = require('react'),
-    Form = require('./Form');
+    Form = require('./Loader');
 
 describe('Form Component <Form />', function() {
   var wrapper;

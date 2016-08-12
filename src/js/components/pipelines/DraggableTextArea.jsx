@@ -2,7 +2,7 @@
 
 var React = require('react');
 
-var TextArea = React.createClass({
+var DraggableTextArea = React.createClass({
   propTypes: {
     name: React.PropTypes.string.isRequired,
     changeHandler: React.PropTypes.func.isRequired,
@@ -44,4 +44,4 @@ var TextArea = React.createClass({
   }
 });
 
-module.exports = TextArea;
+module.exports = DraggableTextArea;

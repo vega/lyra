@@ -21,7 +21,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 
 var HoverField = React.createClass({
   propTypes: {
-    dsId: React.PropTypes.number.isRequired,
+    dsId: React.PropTypes.number,
     className: React.PropTypes.string.isRequired,
     def: React.PropTypes.object
   },

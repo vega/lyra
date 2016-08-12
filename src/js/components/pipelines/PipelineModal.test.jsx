@@ -7,8 +7,8 @@ var React = require('react'),
     enzyme = require('enzyme'),
     shallow = enzyme.shallow,
     PipelineModal = require('./PipelineModal').disconnected,
-    Form = require('./Form'),
-    TextArea = require('./TextArea'),
+    Loader = require('./Loader'),
+    DraggableTextArea = require('./DraggableTextArea'),
     Modal = require('react-modal');
 
 var MOCK_DATA = require('./../../constants/mockdata');
@@ -102,10 +102,10 @@ describe('PipelineModal component <PipelineModal/> ', function() {
       expect(wrapper.find(Modal)).to.have.length(1);
     });
     it('has <Form/> component', function() {
-      expect(wrapper.find(Form)).to.have.length(1);
+      expect(wrapper.find(Loader)).to.have.length(1);
     });
     it('has <TextArea/> component', function() {
-      expect(wrapper.find(TextArea)).to.have.length(1);
+      expect(wrapper.find(DraggableTextArea)).to.have.length(1);
     });
   });
 });
