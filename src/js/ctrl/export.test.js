@@ -118,7 +118,7 @@ describe('Exporter Utility', function() {
         });
       });
 
-      it('exports dataset with sort', function() {
+      it('exports dataset with inc sort', function() {
         var id = 4,
             sortField = 'testField',
             sortOrder = 'inc',
@@ -130,7 +130,22 @@ describe('Exporter Utility', function() {
         expect(result.transform).to.deep.equal([
           {'type': 'sort', 'by': 'testField'}
         ]);
-        
+
+      });
+
+      it('exports dataset with dec sort', function() {
+        var id = 4,
+            sortField = 'testField',
+            sortOrder = 'dec',
+            action = sortDataset(id, sortField, sortOrder),
+            state = store.dispatch(action),
+            state = store.getState(),
+            result = exporter.dataset(state, false, 4);
+
+        expect(result.transform).to.deep.equal([
+          {'type': 'sort', 'by': '-testField'}
+        ]);
+
       });
     });
 
