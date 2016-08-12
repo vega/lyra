@@ -5,7 +5,9 @@ var expect = require('chai').expect,
     signal = require('./signals'),
     counter = require('../util/counter'),
     dsUtil = require('../util/dataset-utils'),
-    exporter = require('./export');
+    exporter = require('./export'),
+    store = require('../store'),
+    sortDataset = require('../actions/datasetActions').sortDataset;
 
 /* eslint new-cap:0 */
 function historyWrap(map) {
@@ -110,6 +112,20 @@ describe('Exporter Utility', function() {
         expect(exporter.dataset(imstate, true, 4)).to.deep.equal({
           name: 'jobs_dataset',
           values: state.values[1]
+        });
+      });
+
+      it('exports dataset with sort', function() {
+        var id = 4,
+            sortField = 'testField',
+            sortOrder = 'inc';
+        store.dispatch(sortDataset(id, sortField, sortOrder));
+
+        expect(exporter.dataset(imstate, false, 4)).to.deep.equal({
+          name: 'jobs_dataset',
+          values: state.values[1],
+          transform: [{'type': 'sort', 'by': 'testField'}],
+          format: {type: 'json'},
         });
       });
     });
