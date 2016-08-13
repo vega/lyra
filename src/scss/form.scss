@@ -13,14 +13,7 @@
 }
 
 .scale {
-  display: inline-block;
-  min-width: 20px;
-  padding: $inner-padding;
-  background-color: $dgrey-bg;
-  border: 1px solid $dgrey-border;
-  border-radius: 2*$border-radius;
-  cursor: -webkit-grab;
-  cursor: -moz-grab;
+  @include pill($dgrey-bg, $dgrey-border);
 }
 
 .field {
@@ -29,20 +22,20 @@
   cursor: -moz-grab;
 
   &.source {
-    background: #bed9ab;
-    border-color: rgba(140, 161, 124, 0.5);
+    background: $lgreen-bg;
+    border-color: $lgreen-border;
 
     &:hover {
-      background: #d2e7c3;
+      background: $lgreen-hover;
     }
   }
 
   &.derived {
-    background: #efe8af;
-    border-color: rgba(209, 191, 148, 0.65);
+    background: $lyellow-bg;
+    border-color: $lyellow-border;
 
     &:hover {
-      background: #f5f1cc;
+      background: $lyellow-hover;
     }
   }
 }

@@ -19,7 +19,19 @@ $lgrey-border: #989CA5;
 $grey-font: #555;
 $vdgrey-bg: #5F5D5D;
 
+$lgreen-bg: #bed9ab;
+$lgreen-border: rgba(140, 161, 124, 0.5);
+$lgreen-hover: #d2e7c3;
+
 $lyellow-bg: #efe8af;
+$lyellow-border: rgba(209, 191, 148, 0.65);
+$lyellow-hover: #f5f1cc;
+
+$dpurple-bg: #73668B;
+$lpurple-bg: #C6BFD1;
+$lpurple-hover: #D4CCE1;
+
+$yf-color: #FFFF77;
 
 $innerMenu: #FCFCFC;
 
@@ -41,3 +53,13 @@ $header-font-size: 15px;
 $outer-padding: 10px;
 $inner-padding: 5px;
 $margin: $outer-padding;
+
+@mixin pill($bg, $border) {
+  display: inline-block;
+  min-width: 20px;
+  padding: $inner-padding;
+  background-color: $bg;
+  border: 1px solid $border;
+  border-radius: 2*$border-radius;
+  cursor: grab;
+}

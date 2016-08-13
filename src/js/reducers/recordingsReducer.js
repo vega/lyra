@@ -28,9 +28,9 @@ function recordingsReducer(state, action) {
     state = Immutable.fromJS({
       active: action.type === ACTIONS.START_RECORDING,
 
-      interval: {events: {}, transforms: {}},
-      list: {events: {}, transforms: {}},
-      point: {events: {}, transforms: {}},
+      point: {def: {}, events: {}, transforms: {}},
+      list: {def: {}, events: {}, transforms: {}},
+      interval: {def: {}, events: {}, transforms: {}}
     });
   }
 
@@ -40,6 +40,10 @@ function recordingsReducer(state, action) {
 
   if (action.type === ACTIONS.RECORD_EVENT) {
     return inferSelection(state, action);
+  }
+
+  if (action.type === ACTIONS.DEFINE_SELECTION) {
+    return state.setIn([action.selType, 'def', action.property], action.def);
   }
 
   return state;
@@ -53,7 +57,7 @@ function inferSelection(state, action) {
       evt   = entry.evt,
       type  = entry.type,
       evtDef = {type: type, filters: []},
-      score  = modifiers(evt, evtDef, EVT_SCORES[type]),
+      score  = modifiers(evt, evtDef, EVT_SCORES[type.toUpperCase()]),
       evtStr = evtDefToStr(evtDef),
       eventLog = action.eventLog,
       summary  = getSummary(action),

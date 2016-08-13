@@ -1,0 +1,105 @@
+.selection {
+  @include pill($lpurple-bg, $lgrey-border);
+}
+
+.recordings {
+  width: auto;
+
+  .selection {
+    float: left;
+    width: 200px;
+    padding: 0;
+    margin-right: 2*$outer-padding;
+    border-radius: $border-radius;
+    cursor: default;
+
+    &:last-child {
+      margin-right: 0;
+    }
+
+    h5 {
+      padding: $inner-padding;
+      background: $dpurple-bg;
+      color: #fff;
+      font-weight: normal;
+      cursor: grab;
+
+      .type {
+        font-weight: 900;
+        font-style: italic;
+      }
+    }
+
+    li {
+      padding: $inner-padding;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $lpurple-hover;
+      }
+    }
+
+    .def {
+      font-weight: 700;
+      font-style: italic;
+      padding: 0 $inner-padding;
+    }
+
+    .selected {
+      display: flex;
+      align-items: center;
+
+      &.count-0 {
+        cursor: default;
+        svg, .count { visibility: hidden; }
+        &:hover {
+          background-color: auto;
+        }
+      }
+
+      span:nth-child(3) { margin-left: auto; }
+    }
+
+    .count {
+      display: inline-block;
+      padding: $inner-padding/2;
+      width: 14px;
+      height: 12px;
+      background: $dpurple-bg;
+      border-radius: 2*$border-radius;
+      color: #fff;
+      text-align: center;
+    }
+
+    .alternative {
+      .def { font-weight: 400; }
+      &:hover .def { font-weight: 700; }
+    }
+
+    .event { text-indent: 26px; }
+  }
+}
+
+.yf-text-enter {
+  color: $yf-color;
+}
+
+.yf-text-enter.yf-text-enter-active {
+  color: #000;
+  transition: all 1.5s ease-in;
+}
+
+.yf-bg-enter {
+  background: $yf-color !important;
+  color: #000 !important;
+}
+
+.yf-bg-enter.yf-bg-enter-active {
+  background: $dpurple-bg !important;
+  color: #fff !important;
+  transition: all 1s ease-in;
+}
+
+.yf-text-leave, .yf-bg-leave, .yf-text-leave-active, .yf-bg-leave-active {
+  display: none;
+}

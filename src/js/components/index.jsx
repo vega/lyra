@@ -7,6 +7,7 @@ var React = require('react'),
     InspectorSidebar = require('./InspectorSidebar'),
     EncodingsSidebar = require('./EncodingsSidebar'),
     PipelinesSidebar = require('./PipelinesSidebar'),
+    SuggestionsContainer = require('./recordings/SuggestionsContainer'),
     Footer = require('./Footer'),
     store = require('../store');
 
@@ -21,6 +22,8 @@ module.exports = window.ui = ReactDOM.render(
         <InspectorSidebar />
         <PipelinesSidebar />
       </div>
+
+      <SuggestionsContainer />
 
       <Footer/>
 
