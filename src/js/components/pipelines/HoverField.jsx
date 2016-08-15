@@ -45,8 +45,8 @@ var HoverField = React.createClass({
     var def = newProps.def,
         schema = dsUtil.schema(newProps.dsId) || newProps.dsSchema,
         state = {
-          showFieldTransforms: false,
-          listLimit: 2
+          listLimit: 2,
+          showFieldTransforms: false
         };
 
     if (!def) {
@@ -122,6 +122,7 @@ var HoverField = React.createClass({
       listLimit: AGGREGATION_OPS.length
     });
   },
+
   collapseTransformsList: function() {
     this.setState({
       listLimit: 2
@@ -144,15 +145,18 @@ var HoverField = React.createClass({
       (<li className="transform-item-enum"
         onClick={this.expandTransformsList}>
           + More transforms
-        </li>) : null;
+        </li>) : (<li className="transform-item-enum"
+          onClick={this.collapseTransformsList}>
+            + Few transforms
+          </li>);
 
     var transformsList = state.showFieldTransforms ? (
           <div className="transforms-menu">
             <ul className="transforms-list">
               {
-                transforms.map(function(transform) {
+                transforms.map(function(transform, i) {
                   return (
-                    <li className="transform-item">
+                    <li className="transform-item" key={i}>
                       {transform.name} - {field.name}
                     </li>
                   );
