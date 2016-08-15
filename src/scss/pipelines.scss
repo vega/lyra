@@ -236,7 +236,7 @@ $pipeline-width: 180px;
       margin-bottom: 0;
     }
 
-    .datatable td.field { left: 0; }
+    .datatable td.field, .datatable .full.field { left: 0; }
 
     button {
       margin: $margin 0;
