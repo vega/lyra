@@ -47,6 +47,43 @@
   }
 }
 
+/* Messages from Bootstrap */
+.success-message {
+  padding: $outer-padding;
+  margin: $margin 0;
+  color: #3c763d;
+  background-color: #dff0d8;
+  border: 1px solid #d6e9c6;
+  border-radius: $border-radius;
+}
+
+.error-message {
+  padding: $outer-padding;
+  margin: $margin 0;
+  color: #a94442;
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  border-radius: $border-radius;
+}
+
+.warning-message {
+  padding: $outer-padding;
+  margin: $margin 0;
+  color: #8a6d3b;
+  background-color: #fcf8e3;
+  border: 1px solid #faebcc;
+  border-radius: $border-radius;
+}
+
+.info-message {
+  padding: $outer-padding;
+  margin: $margin 0;
+  color: #31708f;
+  background-color: #d9edf7;
+  border: 1px solid #bce8f1;
+  border-radius: $border-radius;
+}
+
 .button {
   font-family: inherit;
   font-size: 100%;
@@ -58,7 +95,7 @@
   border: 0 rgba(0,0,0,0);
   background-color: #E6E6E6;
   text-decoration: none;
-  border-radius: 2px;
+  border-radius: $border-radius;
   display: inline-block;
   zoom: 1;
   line-height: normal;
@@ -85,7 +122,8 @@
 }
 
 .button-success {
-  background: rgb(28, 184, 65);
+  background: #5cb85c;
+  border-color: #4cae4c;
 }
 
 .button-error {
@@ -168,25 +206,4 @@
 }
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
     right: 0px;
-}
-
-.textarea-dnd,
-input[type="text"] {
-  border: 1px solid;
-  border-radius: 3px;
-  font-size: 100%;
-  padding: .5em 1em;
-  border-color: $dgrey-border;
-}
-
-.textarea-dnd {
-  &.active {
-    background-color: $lblue-bg;
-    border-color: $mblue-bg;
-  }
-}
-
-input[type="text"] {
-  line-height: normal;
-  margin-top: 5px;
 }

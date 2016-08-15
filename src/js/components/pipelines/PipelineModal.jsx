@@ -5,7 +5,7 @@ var React = require('react'),
     dl = require('datalib'),
     addPipeline = require('../../actions/pipelineActions').addPipeline,
     exampleDatasets = require('../../constants/exampleDatasets'),
-    DataPreview = require('./DataPreview'),
+    DataTable = require('./DataTable'),
     RawValuesTextArea = require('./RawValuesTextArea'),
     DatasetLoader = require('./DatasetLoader'),
     dsUtils = require('../../util/dataset-utils');
@@ -34,6 +34,7 @@ var PipelineModal = React.createClass({
       error: null,
       success: null,
       showPreview: false,
+      selectedExample: null,
 
       pipeline: null,
       dataset: null,
@@ -80,11 +81,12 @@ var PipelineModal = React.createClass({
           pipeline: loaded.pipeline,
           dataset: (dataset.format = parsed.format, dataset),
           values: values,
-          schema: dsUtils.schema(values)
+          schema: dsUtils.schema(values),
+          selectedExample: url
         });
       })
       .catch(function(err) {
-        that.error(err.statusText || err);
+        that.error(err.statusText);
       });
   },
 
@@ -92,66 +94,82 @@ var PipelineModal = React.createClass({
     var props = this.props,
         state = this.state,
         error = state.error,
-        success = state.success;
+        success = state.success,
+        preview = state.showPreview,
+        close = this.done.bind(this, false);
+
+    var style = {
+      overlay: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      content: {
+        // position: null,
+        overflow: 'hidden',
+        top: null, bottom: null, left: null, right: null,
+        width: '550px',
+        height: preview ? 'auto' : '300px',
+        padding: null
+      }
+    };
 
     return (
-      <Modal isOpen={props.modalIsOpen} onRequestClose={props.closeModal}>
-        <div className="wrapper pipelineModal">
-          <span className="closeModal" onClick={this.done.bind(this, false)}>close</span>
+      <Modal isOpen={props.modalIsOpen} onRequestClose={close}
+        style={style}>
+        <div className="pipelineModal">
+          <span className="closeModal" onClick={close}>close</span>
 
-          <div className="partLeft">
-            <h1>Example Datasets</h1>
+          <div className="examples">
+            <h2>Example Datasets</h2>
 
-            <div className="sect">
-              <ul>
-                {exampleDatasets.map(function(example) {
-                  var name = example.name,
-                      description = example.description,
-                      dataset = example.dataset;
-                  return (
-                    <li key={name} className="item-li">
-                      <span onClick={this.loadURL.bind(this, dataset.url)}
-                        className="item-clickable">
-                        {name}
-                      </span>
-                      <label className="item-label">{description}</label>
-                    </li>
-                  );
-                }, this)}
-              </ul>
-            </div>
+            <ul>
+              {exampleDatasets.map(function(example) {
+                var name = example.name,
+                    description = example.description,
+                    url = example.url,
+                    className = state.selectedExample === url ? 'selected' : null;
+
+                return (
+                  <li key={name} onClick={this.loadURL.bind(this, url)}
+                    className={className}>
+                    <p className="example-name">{name}</p>
+                    <p>{description}</p>
+                  </li>
+                );
+              }, this)}
+            </ul>
           </div>
 
-          <div className="partRight">
-            <h1>Import</h1>
+          <div className="load">
+            <h2>Import</h2>
 
-            <div className="sect">
-              <label className="margined-top">
-                Supported import formats include <abbr title="JavaScripts Object Notation">JSON</abbr>,
-                <abbr title="Coma Separated Values">CSV</abbr> and <abbr title="Tab Separated Values">TSV</abbr>.<br />
-                All data <strong>must</strong> be in tabular form.
-              </label><br />
+            <p>
+              Data must be in a tabular form. Supported import
+              formats include <abbr title="JavaScripts Object Notation">json</abbr>, <abbr title="Coma Separated Values">csv</abbr> and <abbr title="Tab Separated Values">tsv</abbr>
+            </p>
 
-              <DatasetLoader loadURL={this.loadURL} />
-            </div>
-
-            <div className="sect">
-              <RawValuesTextArea name="cnpDnd" success={this.success} error={this.error} />
-
-              {state.showPreview ?
-                <DataPreview values={state.values} schema={state.schema} /> : null}
-            </div>
-
-            <div className="sect">
-              {error ? <label className="error">{error}</label> : null}
-              {success ? <label className="success">{success}</label> : null}<br />
-              {success ?
-                <button className="button button-success"
-                  onClick={this.done.bind(this, true)}>
-                  Done
-                </button> : null}
-            </div>
+            <DatasetLoader loadURL={this.loadURL} />
+            <RawValuesTextArea success={this.success} error={this.error} />
           </div>
+
+          {error ? <div className="error-message">{error}</div> : null}
+
+          {!preview || error ? null : (
+            <div className="preview">
+              <h2>Preview</h2>
+
+              {success ? <div className="success-message">{success}</div> : null}
+
+              <DataTable className="source"
+                values={state.values} schema={state.schema} />
+
+              <button className="button button-success"
+                onClick={this.done.bind(this, true)}>
+                Import
+              </button>
+            </div>
+          )}
         </div>
       </Modal>
     );

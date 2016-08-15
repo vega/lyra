@@ -12,16 +12,10 @@ var Loader = React.createClass({
   },
 
   render: function() {
-    var props = this.props;
     return (
       <form onSubmit={this.handleSubmit}>
-        {
-          props.content ? props.content :
-          <div>
-            <input type="text" name="url" placeholder="Enter url"/>
-            <button type="submit" value="Submit" className="button">Load</button>
-          </div>
-        }
+        <input type="text" name="url" placeholder="Enter url"/>
+        <button type="submit" value="Submit" className="button">Load</button>
       </form>
     );
   }
