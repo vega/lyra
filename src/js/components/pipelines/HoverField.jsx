@@ -130,8 +130,15 @@ var HoverField = React.createClass({
               <li className="transform-item">
                 SD - {field.name}
               </li>
+              <li className="transform-item">
+                Variance - {field.name}
+              </li>
               <li className="transform-item-enum">
                 + More transformations
+              </li>
+              <li className="transform-item-enum"
+                onClick={this.toggleTransforms}>
+                <strong>Dismiss</strong>
               </li>
             </ul>
           </div>
@@ -145,9 +152,7 @@ var HoverField = React.createClass({
           {field.name}
           <SortField dsId={this.props.dsId} field={field} />
         </div>
-        <div>
-          {transformsList}
-        </div>
+        {transformsList}
       </div>
     ) : null;
 
