@@ -2,252 +2,115 @@
 var React = require('react'),
     Modal = require('react-modal'),
     connect = require('react-redux').connect,
-    addPipeline = require('../../actions/pipelineActions').addPipeline,
     dl = require('datalib'),
-    examplePipelines = require('../../constants/exampledatasets'),
+    addPipeline = require('../../actions/pipelineActions').addPipeline,
+    exampleDatasets = require('../../constants/exampleDatasets'),
     DataPreview = require('./DataPreview'),
-    DraggableTextArea = require('./DraggableTextArea'),
-    Loader = require('./Loader');
-
-var FILE_NAME = /([\w\d_-]*)\.?[^\\\/]*$/i,
-    MTYPES = require('vega-lite').data.types;
+    RawValuesTextArea = require('./RawValuesTextArea'),
+    DatasetLoader = require('./DatasetLoader'),
+    dsUtils = require('../../util/dataset-utils');
 
 function mapStateToProps(state, ownProps) {
   return {};
 }
+
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    selectPipeline: function(pipeline, dataset, values, schema) {
+    addPipeline: function(pipeline, dataset, values, schema) {
       dispatch(addPipeline(pipeline, dataset, values, schema));
     }
   };
 }
+
 var PipelineModal = React.createClass({
   propTypes: {
-    selectPipeline: React.PropTypes.func,
+    addPipeline: React.PropTypes.func,
     closeModal: React.PropTypes.func.isRequired,
     modalIsOpen: React.PropTypes.bool.isRequired
   },
+
   getInitialState: function() {
     return {
-      error: {
-        value: false,
-        message: ''
-      },
-      success: {
-        value: false,
-        message: ''
-      },
-      values: [],
-      schema: {},
-      showPreview: false
+      error: null,
+      success: null,
+      showPreview: false,
+
+      pipeline: null,
+      dataset: null,
+      values: null,
+      schema: null,
     };
   },
-  schema: function(values) {
-    var types = dl.type.inferAll(values), schema;
 
-    schema = dl.keys(types).reduce(function(s, k) {
-      s[k] = {
-        name: k,
-        type: types[k],
-        mtype: MTYPES[types[k]]
-      };
-      return s;
-    }, {});
-
-    return schema;
+  success: function(state, msg, preview) {
+    this.setState(dl.extend({
+      error: null,
+      success: msg || 'Successful import!',
+      showPreview: !(preview === false)
+    }, state));
   },
-  loadURL: function(url, pipeline, dataset) {
-    var that = this,
-        fileName = url.match(FILE_NAME)[1],
-        rawParsed, schema;
 
-    /* eslint no-multi-spaces:0 */
-    pipeline = pipeline || {name: fileName};
-    dataset  = dataset  || {name: fileName, url: url};
-
-    dl.load({url: url}, function(err, data) {
-      if (err) {
-        // TODO: err is an XHR object and will not have a statusText.
-        if (err.statusText) {
-          that.onError(err.statusText);
-        }
-        throw err;
-      } else {
-        rawParsed = that.parseRaw(data, dataset);
-        schema = that.schema(rawParsed);
-        that.props.selectPipeline(pipeline, dataset, rawParsed, schema);
-
-        that.setState({
-          values: rawParsed,
-          schema: schema,
-          showPreview: true
-        });
-
-        that.onSuccess();
-      }
+  error: function(msg) {
+    this.setState({
+      error: msg || 'An error occured!',
+      success: null
     });
   },
-  parseRaw: function(raw, dataset) {
-    var format = dataset.format = {parse: 'auto'},
-        parsed, errorMsg;
 
-    try {
-      format.type = 'json';
-      return dl.read(raw, format);
-    } catch (error) {
-      var keys;
-      format.type = 'tsv';
-      parsed = dl.read(raw, format);
-      if (dl.keys(parsed[0]).length > 1) {
-        parsed.forEach(function(item) {
-          keys = dl.keys(item);
-          keys.forEach(function(key) {
-            if (!item[key]) {
-              throw new Error('invalid csv');
-            }
-          });
-        });
-        return parsed;
-      }
-
-      format.type = 'csv';
-      parsed = dl.read(raw, format);
-      // Test successful parsing of CSV/TSV data by checking # of fields found.
-      // If file is TSV but was parsed as CSV, the entire header row will be
-      // parsed as a single field.
-      if (dl.keys(parsed[0]).length > 1) {
-        keys = dl.keys(parsed[0]);
-        keys.forEach(function(key) {
-          if (!parsed[0][key]) {
-            throw new Error('invalid tsv');
-          }
-        });
-        return parsed;
-      }
-
-      errorMsg = error.message || 'Trying to import data thats in an unsupported format!';
-      this.onError(errorMsg);
-      throw new Error(errorMsg);
+  done: function(save) {
+    var state = this.state;
+    if (save && state.error === null) {
+      this.props.addPipeline(state.pipeline, state.dataset,
+        state.values, state.schema);
     }
 
-    return [];
-  },
-  onSuccess: function(msg) {
-    this.setState({
-      error: {
-        value: false,
-        message: ''
-      },
-      success: {
-        value: true,
-        message: 'Successful import!'
-      }
-    });
-  },
-  onError: function(msg) {
-    this.setState({
-      error: {
-        value: true,
-        message: msg
-      },
-      success: {
-        value: false,
-        message: ''
-      }
-    });
-  },
-  handleSubmit: function(evt) {
-    this.loadURL(evt.target.url.value);
-    evt.preventDefault();
-  },
-  cpChangeHandler: function(evt) {
-    var that = this,
-        props = that.props,
-        target = evt.target,
-        type = evt.type,
-        pipeline = {name: 'name'},
-        dataset  = {name: 'name'},
-        raw = target.value,
-        file, reader, rawParsed, schema;
-
-    evt.preventDefault();
-
-    if (type === 'change') {
-      rawParsed = that.parseRaw(raw, dataset);
-      schema = that.schema(rawParsed);
-      props.selectPipeline(pipeline, dataset, rawParsed, schema);
-      this.setState({
-        values: rawParsed,
-        schema: schema,
-        showPreview: true
-      });
-      that.onSuccess();
-    } else if (type === 'drop') {
-      file = evt.dataTransfer.files[0];
-      reader = new FileReader();
-      reader.onload = function(loadEvt) {
-        pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
-        raw = loadEvt.target.result;
-        rawParsed = that.parseRaw(raw, dataset);
-        schema = that.schema(rawParsed);
-        props.selectPipeline(pipeline, dataset, rawParsed, schema);
-        that.setState({
-          values: rawParsed,
-          schema: schema,
-          showPreview: true
-        });
-        that.onSuccess();
-        target.value = raw;
-      };
-
-      reader.readAsText(file);
-    }
-  },
-  select: function(url, name, dataset) {
-    this.loadURL(url, name, dataset);
-  },
-  completeImport: function() {
-    this.setState({
-      error: {
-        value: false,
-        message: ''
-      },
-      success: {
-        value: false,
-        message: ''
-      },
-      showPreview: false
-    });
-
+    this.setState(this.getInitialState());
     this.props.closeModal();
   },
+
+  loadURL: function(url) {
+    var that = this;
+    dsUtils.loadURL(url)
+      .then(function(loaded) {
+        var dataset = loaded.dataset,
+            parsed = dsUtils.parseRaw(loaded.data),
+            values = parsed.values;
+
+        that.success({
+          pipeline: loaded.pipeline,
+          dataset: (dataset.format = parsed.format, dataset),
+          values: values,
+          schema: dsUtils.schema(values)
+        });
+      })
+      .catch(function(err) {
+        that.error(err.statusText || err);
+      });
+  },
+
   render: function() {
     var props = this.props,
-        pipelines = examplePipelines,
         state = this.state,
         error = state.error,
         success = state.success;
 
     return (
-      <Modal isOpen={props.modalIsOpen}
-        onRequestClose={props.closeModal}>
+      <Modal isOpen={props.modalIsOpen} onRequestClose={props.closeModal}>
         <div className="wrapper pipelineModal">
-          <span className="closeModal" onClick={props.closeModal}>close</span>
+          <span className="closeModal" onClick={this.done.bind(this, false)}>close</span>
 
           <div className="partLeft">
-            <h1>Examples</h1>
+            <h1>Example Datasets</h1>
 
             <div className="sect">
-              <h4>Datasets</h4>
               <ul>
-                {pipelines.map(function(pipeline) {
-                  var name = pipeline.name,
-                      description = pipeline.description,
-                      dataset = pipeline.dataset;
+                {exampleDatasets.map(function(example) {
+                  var name = example.name,
+                      description = example.description,
+                      dataset = example.dataset;
                   return (
                     <li key={name} className="item-li">
-                      <span onClick={this.select.bind(this, dataset.url, {name: name}, dataset)}
+                      <span onClick={this.loadURL.bind(this, dataset.url)}
                         className="item-clickable">
                         {name}
                       </span>
@@ -268,21 +131,23 @@ var PipelineModal = React.createClass({
                 <abbr title="Coma Separated Values">CSV</abbr> and <abbr title="Tab Separated Values">TSV</abbr>.<br />
                 All data <strong>must</strong> be in tabular form.
               </label><br />
-            <Loader handleSubmit={this.handleSubmit}/>
+
+              <DatasetLoader loadURL={this.loadURL} />
             </div>
 
             <div className="sect">
-              <DraggableTextArea name="cnpDnd" changeHandler={this.cpChangeHandler} />
+              <RawValuesTextArea name="cnpDnd" success={this.success} error={this.error} />
+
               {state.showPreview ?
-                <DataPreview values={state.values} schema={state.schema}/> : null}
+                <DataPreview values={state.values} schema={state.schema} /> : null}
             </div>
 
             <div className="sect">
-              {error.value ? <label className="error">{error.message}</label> : null}
-              {success.value ? <label className="success">{success.message}</label> : null}<br />
-              {success.value ?
+              {error ? <label className="error">{error}</label> : null}
+              {success ? <label className="success">{success}</label> : null}<br />
+              {success ?
                 <button className="button button-success"
-                  onClick={this.completeImport}>
+                  onClick={this.done.bind(this, true)}>
                   Done
                 </button> : null}
             </div>

@@ -2,10 +2,19 @@
 var React = require('react');
 
 var Loader = React.createClass({
+  propTypes: {
+    loadURL: React.PropTypes.func.isRequired
+  },
+
+  handleSubmit: function(evt) {
+    this.props.loadURL(evt.target.url.value);
+    evt.preventDefault();
+  },
+
   render: function() {
     var props = this.props;
     return (
-      <form onSubmit={props.handleSubmit}>
+      <form onSubmit={this.handleSubmit}>
         {
           props.content ? props.content :
           <div>

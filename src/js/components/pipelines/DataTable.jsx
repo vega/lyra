@@ -116,8 +116,8 @@ var DataTable = React.createClass({
               }, this)}
             </tbody>
           </table>
-          <HoverField className={props.className} dsId={id} dsValues={props.values}
-            dsSchema={props.schema} def={state.hoverField} />
+          <HoverField className={props.className} dsId={id}
+            schema={schema} def={state.hoverField} />
           <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
         </div>
 
