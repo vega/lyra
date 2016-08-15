@@ -154,8 +154,13 @@ $pipeline-width: 180px;
     overflow: auto;
   }
 
-  h2 {
+  .load h2 {
     margin: 2*$margin 0;
+  }
+
+  .examples h2 {
+    margin: 2*$margin 0;
+    margin-bottom: $margin;
   }
 
   .examples li {
@@ -236,7 +241,7 @@ $pipeline-width: 180px;
       margin-bottom: 0;
     }
 
-    .datatable td.field { left: 0; }
+    .datatable td.field, .datatable .full.field { left: 0; }
 
     button {
       margin: $margin 0;
