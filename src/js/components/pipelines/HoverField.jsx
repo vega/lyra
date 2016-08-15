@@ -11,6 +11,8 @@ var React = require('react'),
     assets = require('../../util/assets'),
     AGGREGATION_OPS = require('../../constants/transformTypes').aggregationOps;
 
+var LIST_LIMIT = 5;
+
 function mapStateToProps(state, ownProps) {
   return {};
 }
@@ -37,7 +39,7 @@ var HoverField = React.createClass({
       offsetTop: null,
       bindField: null,
       showFieldTransforms: false,
-      listLimit: 2
+      listLimit: LIST_LIMIT
     };
   },
 
@@ -45,7 +47,7 @@ var HoverField = React.createClass({
     var def = newProps.def,
         schema = dsUtil.schema(newProps.dsId) || newProps.dsSchema,
         state = {
-          listLimit: 2,
+          listLimit: LIST_LIMIT,
           showFieldTransforms: false
         };
 
@@ -62,7 +64,7 @@ var HoverField = React.createClass({
   handleDragStart: function(evt) {
     this.setState({
       bindField: this.state.fieldDef,
-      listLimit: 2,
+      listLimit: LIST_LIMIT,
       showFieldTransforms: false
     });
     evt.dataTransfer.setData('text/plain', evt.target.id);
@@ -129,7 +131,7 @@ var HoverField = React.createClass({
 
   collapseTransformsList: function() {
     this.setState({
-      listLimit: 2
+      listLimit: LIST_LIMIT
     });
   },
 
