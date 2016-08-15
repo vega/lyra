@@ -8,7 +8,8 @@ var React = require('react'),
     FieldType = require('./FieldType'),
     SortField = require('./SortField'),
     Icon = require('../Icon'),
-    assets = require('../../util/assets');
+    assets = require('../../util/assets'),
+    AGGREGATION_OPS = require('../../constants/transformTypes').aggregationOps;
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -35,23 +36,27 @@ var HoverField = React.createClass({
       fieldDef:  null,
       offsetTop: null,
       bindField: null,
-      showFieldTransforms: false
+      showFieldTransforms: false,
+      listLimit: 2
     };
   },
 
   componentWillReceiveProps: function(newProps) {
     var def = newProps.def,
-        schema = newProps.schema;
+        schema = dsUtil.schema(newProps.dsId) || newProps.dsSchema,
+        state = {
+          showFieldTransforms: false,
+          listLimit: 2
+        };
 
     if (!def) {
-      this.setState({fieldDef: null});
+      state.fieldDef = null;
     } else {
-      this.setState({
-        fieldDef: schema[def.name],
-        offsetTop: def.offsetTop,
-        showFieldTransforms: false
-      });
+      state.fieldDef = schema[def.name];
+      state.offsetTop = def.offsetTop;
     }
+
+    this.setState(state);
   },
 
   handleDragStart: function(evt) {
@@ -107,35 +112,53 @@ var HoverField = React.createClass({
   },
 
   toggleTransforms: function(evt) {
-
     this.setState({
       showFieldTransforms: !this.state.showFieldTransforms
     });
   },
 
+  expandTransformsList: function() {
+    this.setState({
+      listLimit: AGGREGATION_OPS.length
+    });
+  },
+  collapseTransformsList: function() {
+    this.setState({
+      listLimit: 2
+    });
+  },
+
+  // TODO generalize MoreProperties styling instead of rewriting all dynamic list code
+  // TODO move transformations list from HoverField to own component
   render: function() {
     var state = this.state,
         field = state.fieldDef,
-        style = {top: state.offsetTop, display: field ? 'block' : 'none'};
+        style = {top: state.offsetTop, display: field ? 'block' : 'none'},
+        transforms = AGGREGATION_OPS.slice(0, state.listLimit);
 
-    // Icon using temporary asset
-    var transformsIcon = (<Icon onClick={this.toggleTransforms}
-      glyph={assets.symbol} width="10" height="10" />),
-        transformsList = state.showFieldTransforms ? (
+    // Icon use temporary asset
+    var transformsIcon = (<Icon onClick={this.toggleTransforms} glyph={assets.symbol}
+      width="10" height="10" />);
+
+    var listControls = AGGREGATION_OPS.length > state.listLimit ?
+      (<li className="transform-item-enum"
+        onClick={this.expandTransformsList}>
+          + More transforms
+        </li>) : null;
+
+    var transformsList = state.showFieldTransforms ? (
           <div className="transforms-menu">
             <ul className="transforms-list">
-              <li className="transform-item">
-                Mean - {field.name}
-              </li>
-              <li className="transform-item">
-                SD - {field.name}
-              </li>
-              <li className="transform-item">
-                Variance - {field.name}
-              </li>
-              <li className="transform-item-enum">
-                + More transformations
-              </li>
+              {
+                transforms.map(function(transform) {
+                  return (
+                    <li className="transform-item">
+                      {transform.name} - {field.name}
+                    </li>
+                  );
+                }, this)
+              }
+              {listControls}
               <li className="transform-item-enum"
                 onClick={this.toggleTransforms}>
                 <strong>Dismiss</strong>
