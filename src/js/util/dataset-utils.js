@@ -1,10 +1,11 @@
 'use strict';
 
 var dl = require('datalib'),
-    vl = require('vega-lite'),
+    promisify = require('es6-promisify'),
+    MTYPES = require('vega-lite').data.types,
     imutils = require('./immutable-utils'),
     getInVis = imutils.getInVis,
-    MTYPES = vl.data.types;
+    NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
 // Circumvents the circular dependency
 function store() {
@@ -44,7 +45,12 @@ function init(action) {
   }
 
   _values[id] = src ? _values[src] : action.values;
-  schema(id);
+  _schema[id] = src ? _schema[src] : action.schema;
+}
+
+function reset() {
+  _values = {};
+  _schema = {};
 }
 
 /**
@@ -76,40 +82,100 @@ function output(id) {
 }
 
 /**
- * Constructs the schema of the given dataset -- an object where keys correspond
- * to the names of the dataset's fields, and the values are field primitives.
+ * Load raw values from a URL.
  *
- * @param  {number} id - The ID of the dataset.
- * @returns {Object} The dataset's schema.
+ * @param   {string} url      The URL to load.
+ * @param   {Object} [pipeline] The definition for a pipeline (e.g., w/name).
+ * @param   {Object} dataset  The definition for a dataset (e.g., name, url).
+ * @returns {Object} An object containing the loaded values.
  */
-function schema(id) {
-  if (_schema[id]) {
-    return _schema[id];
-  }
+function loadURL(url) {
+  var fileName = url.match(NAME_REGEX)[1],
+      pipeline = {name: fileName},
+      dataset  = {name: fileName, url: url};
 
-  var types  = dl.type.inferAll(output(id));
-  _schema[id] = dl.keys(types).reduce(function(s, k) {
-    // TODO: Refactor out to a Field class?
-    s[k] = {
-      name:  k,
-      type:  types[k],  // boolean, number, string, etc.
-      mtype: MTYPES[types[k]] // nominal, ordinal, quantitative, temporal, etc.
-    };
-    return s;
-  }, {});
-
+  return promisify(dl.load)({url: url})
+    .then(function(data) {
+      return {data: data, pipeline: pipeline, dataset: dataset};
+    });
 }
 
-function reset() {
-  _values = {};
-  _schema = {};
+/**
+ * Detects the format of a string of raw values (json, csv, tsv) and parses
+ * them based on the format.
+ *
+ * @param   {string} raw     A string of raw values (e.g., loaded from a url).
+ * @returns {Object} An object containing the format of a dataset and parsed
+ *                   raw values.
+ */
+function parseRaw(raw) {
+  var format = {parse: 'auto'},
+      parsed;
+
+  try {
+    format.type = 'json';
+    return {format: format, values: dl.read(raw, format)};
+  } catch (error) {
+    format.type = 'csv';
+    parsed = dl.read(raw, format);
+
+    // Test successful parsing of CSV/TSV data by checking # of fields found.
+    // If file is TSV but was parsed as CSV, the entire header row will be
+    // parsed as a single field.
+    if (dl.keys(parsed[0]).length > 1) {
+      return {format: format, values: parsed};
+    }
+
+    format.type = 'tsv';
+    parsed = dl.read(raw, format);
+    if (dl.keys(parsed[0]).length > 1) {
+      return {format: format, values: parsed};
+    }
+
+    throw Error('Raw data is in an unsupported format. ' +
+      'Only JSON, CSV, or TSV may be imported');
+  }
+
+  return {};
+}
+
+/**
+ * Returns the schema of the dataset associated with the given id
+ * or processes the schema based on the dataset's actual values
+ *
+ * @param  {number|Array} arg - The ID of the dataset whose schema to return, or
+ * an array of raw values to calculate a schema for.
+ * @returns {Object} The dataset's schema.
+ */
+function schema(arg) {
+  if (dl.isNumber(arg)) {
+    return _schema[arg];
+  } else if (dl.isArray(arg)) {
+    var types = dl.type.inferAll(arg);
+    return dl.keys(types).reduce(function(s, k) {
+      s[k] = {
+        name: k,
+        type: types[k],
+        mtype: MTYPES[types[k]]
+      };
+      return s;
+    }, {});
+  }
+
+  throw Error('Expected either a dataset ID or raw values array');
 }
 
 module.exports = {
   init: init,
+  reset: reset,
+
   input: input,
   output: output,
+
+  loadURL: loadURL,
+  parseRaw: parseRaw,
   schema: schema,
-  reset: reset,
+
   MTYPES: ['nominal', 'quantitative', 'temporal'], // ordinal not yet used
+  NAME_REGEX: NAME_REGEX
 };

@@ -2,196 +2,181 @@
 var React = require('react'),
     Modal = require('react-modal'),
     connect = require('react-redux').connect,
-    addPipeline = require('../../actions/pipelineActions').addPipeline,
     dl = require('datalib'),
-    examplePipelines = require('../../constants/exampledatasets');
-
-var FILE_NAME = /([\w\d_-]*)\.?[^\\\/]*$/i;
+    addPipeline = require('../../actions/pipelineActions').addPipeline,
+    exampleDatasets = require('../../constants/exampleDatasets'),
+    DataTable = require('./DataTable'),
+    RawValuesTextArea = require('./RawValuesTextArea'),
+    DataURL = require('./DataURL'),
+    dsUtils = require('../../util/dataset-utils');
 
 function mapStateToProps(state, ownProps) {
   return {};
 }
+
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    selectPipeline: function(pipeline, dataset, values) {
-      dispatch(addPipeline(pipeline, dataset, values));
-      ownProps.closeModal();
+    addPipeline: function(pipeline, dataset, values, schema) {
+      dispatch(addPipeline(pipeline, dataset, values, schema));
     }
   };
 }
+
 var PipelineModal = React.createClass({
+  propTypes: {
+    addPipeline: React.PropTypes.func,
+    closeModal: React.PropTypes.func.isRequired,
+    modalIsOpen: React.PropTypes.bool.isRequired
+  },
+
   getInitialState: function() {
     return {
-      error: {
-        value: false,
-        message: ''
-      }
+      error: null,
+      success: null,
+      showPreview: false,
+      selectedExample: null,
+
+      pipeline: null,
+      dataset: null,
+      values: null,
+      schema: null,
     };
   },
 
-  proptypes: {
-    selectPipeline: React.PropTypes.func
+  success: function(state, msg, preview) {
+    this.setState(dl.extend({
+      error: null,
+      success: msg || 'Successful import!',
+      showPreview: !(preview === false)
+    }, state));
   },
 
-  loadURL: function(url, pipeline, dataset) {
-    var that = this,
-        fileName = url.match(FILE_NAME)[1];
-
-    /* eslint no-multi-spaces:0 */
-    pipeline = pipeline || {name: fileName};
-    dataset  = dataset  || {name: fileName, url: url};
-
-    dl.load({url: url}, function(err, data) {
-      if (err) {
-        // TODO: err is an XHR object and will not have a statusText.
-        that.setState({
-          error: {
-            value: true,
-            message: err.statusText
-          }
-        });
-        throw err;
-      } else {
-        that.props.selectPipeline(pipeline, dataset, that.parseRaw(data, dataset));
-      }
+  error: function(msg) {
+    this.setState({
+      error: msg || 'An error occured!',
+      success: null
     });
   },
 
-  parseRaw: function(raw, dataset) {
-    var format = dataset.format = {parse: 'auto'},
-        parsed;
+  done: function(save) {
+    var state = this.state;
+    if (save && state.error === null) {
+      this.props.addPipeline(state.pipeline, state.dataset,
+        state.values, state.schema);
+    }
 
-    try {
-      format.type = 'json';
-      return dl.read(raw, format);
-    } catch (error) {
-      format.type = 'csv';
-      parsed = dl.read(raw, format);
+    this.setState(this.getInitialState());
+    this.props.closeModal();
+  },
 
-      // Test successful parsing of CSV/TSV data by checking # of fields found.
-      // If file is TSV but was parsed as CSV, the entire header row will be
-      // parsed as a single field.
-      if (dl.keys(parsed[0]).length > 1) {
-        return parsed;
-      }
+  loadURL: function(url) {
+    var that = this;
+    dsUtils.loadURL(url)
+      .then(function(loaded) {
+        var dataset = loaded.dataset,
+            parsed = dsUtils.parseRaw(loaded.data),
+            values = parsed.values;
 
-      format.type = 'tsv';
-      parsed = dl.read(raw, format);
-      if (dl.keys(parsed[0]).length > 1) {
-        return parsed;
-      }
-
-      this.setState({
-        error: {
-          value: true,
-          message: 'Trying to import data thats in an unsupported format!'
-        }
+        that.success({
+          pipeline: loaded.pipeline,
+          dataset: (dataset.format = parsed.format, dataset),
+          values: values,
+          schema: dsUtils.schema(values),
+          selectedExample: url
+        });
+      })
+      .catch(function(err) {
+        that.error(err.statusText);
       });
-      throw new Error('Trying to import data thats in an unsupported format!');
-    }
-
-    return [];
-  },
-
-  handleSubmit: function(evt) {
-    this.loadURL(evt.target.url.value);
-    evt.preventDefault();
-  },
-
-  cpChangeHandler: function(evt) {
-    var that = this,
-        props = this.props,
-        target = evt.target,
-        type = evt.type,
-        pipeline = {name: 'name'},
-        dataset  = {name: 'name'},
-        raw = target.value,
-        file, reader;
-
-    evt.preventDefault();
-    if (type === 'change') {
-      props.selectPipeline(pipeline, dataset, this.parseRaw(raw, dataset));
-    } else if (type === 'drop') {
-      file = evt.dataTransfer.files[0];
-      reader = new FileReader();
-      reader.onload = function(loadEvt) {
-        pipeline.name = dataset.name = file.name.match(FILE_NAME)[1];
-        raw = loadEvt.target.result;
-        props.selectPipeline(pipeline, dataset, that.parseRaw(raw, dataset));
-      };
-
-      reader.readAsText(file);
-    }
   },
 
   render: function() {
     var props = this.props,
-        pipelines = examplePipelines,
-        error = this.state.error;
+        state = this.state,
+        error = state.error,
+        success = state.success,
+        preview = state.showPreview,
+        close = this.done.bind(this, false);
+
+    var style = {
+      overlay: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      content: {
+        // position: null,
+        overflow: 'hidden',
+        top: null, bottom: null, left: null, right: null,
+        width: '550px',
+        height: preview ? 'auto' : '300px',
+        padding: null
+      }
+    };
 
     return (
-      <Modal
-        isOpen={props.modalIsOpen}
-        onRequestClose={props.closeModal}>
-        <div className="wrapper pipelineModal">
-          <span className="closeModal" onClick={props.closeModal}>close</span>
+      <Modal isOpen={props.modalIsOpen} onRequestClose={close}
+        style={style}>
+        <div className="pipelineModal">
+          <span className="closeModal" onClick={close}>close</span>
 
-          <div className="partLeft">
-            <h2>Examples</h2>
+          <div className="examples">
+            <h2>Example Datasets</h2>
 
-            <div className="sect">
-              <h4>Datasets</h4>
+            <ul>
+              {exampleDatasets.map(function(example) {
+                var name = example.name,
+                    description = example.description,
+                    url = example.url,
+                    className = state.selectedExample === url ? 'selected' : null;
 
-              <ul>
-                {pipelines.map(function(pipeline) {
-                  var name = pipeline.name,
-                      dataset = pipeline.dataset;
-                  return (
-                    <li key={name}>
-                      <button onClick={this.loadURL.bind(this, dataset.url, {name: name}, dataset)}>
-                        {name}
-                      </button>
-                    </li>
-                  );
-                }, this)}
-              </ul>
-            </div>
+                return (
+                  <li key={name} onClick={this.loadURL.bind(this, url)}
+                    className={className}>
+                    <p className="example-name">{name}</p>
+                    <p>{description}</p>
+                  </li>
+                );
+              }, this)}
+            </ul>
           </div>
 
-
-          <div className="partRight">
+          <div className="load">
             <h2>Import</h2>
 
-            <label>
-              Supported import formats include <abbr title="JavaScripts Object Notation">JSON</abbr>,
-              <abbr title="Coma Separated Values">CSV</abbr> and <abbr title="Tab Separated Values">TSV</abbr>.<br />
-              All data <strong>must</strong> be in tabular form.
-            </label>
+            <p>
+              Data must be in a tabular form. Supported import
+              formats include <abbr title="JavaScripts Object Notation">json</abbr>, <abbr title="Coma Separated Values">csv</abbr> and <abbr title="Tab Separated Values">tsv</abbr>
+            </p>
 
-            <div className="sect">
-              {error.value ? <label className="error">{error.message}</label> : null}
-            </div>
-
-            <div className="sect">
-              <form onSubmit={this.handleSubmit}>
-                <input type="text" name="url" placeholder="Enter url"/>
-                <button type="submit" value="Submit">Load</button><br />
-              </form>
-            </div>
-
-            <div className="sect">
-              <textarea rows="10" cols="70"
-                placeholder="Copy and paste or drag and drop"
-                name="cnpDnd"
-                onChange={this.cpChangeHandler}
-                onDrop={this.cpChangeHandler}>
-              </textarea>
-            </div>
+            <DataURL loadURL={this.loadURL} />
+            <RawValuesTextArea success={this.success} error={this.error} />
           </div>
+
+          {error ? <div className="error-message">{error}</div> : null}
+
+          {!preview || error ? null : (
+            <div className="preview">
+              <h2>Preview</h2>
+
+              {success ? <div className="success-message">{success}</div> : null}
+
+              <DataTable className="source"
+                values={state.values} schema={state.schema} />
+
+              <button className="button button-success"
+                onClick={this.done.bind(this, true)}>
+                Import
+              </button>
+            </div>
+          )}
         </div>
       </Modal>
     );
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(PipelineModal);
+module.exports = {
+  connected: connect(mapStateToProps, mapDispatchToProps)(PipelineModal),
+  disconnected: PipelineModal
+};

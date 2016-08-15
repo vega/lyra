@@ -21,9 +21,10 @@ function mapDispatchToProps(dispatch, ownProps) {
 
 var HoverField = React.createClass({
   propTypes: {
-    dsId: React.PropTypes.number.isRequired,
+    dsId: React.PropTypes.number,
     className: React.PropTypes.string.isRequired,
-    def: React.PropTypes.object
+    def: React.PropTypes.object,
+    schema: React.PropTypes.object
   },
 
   getInitialState: function() {
@@ -36,7 +37,7 @@ var HoverField = React.createClass({
 
   componentWillReceiveProps: function(newProps) {
     var def = newProps.def,
-        schema = dsUtil.schema(newProps.dsId);
+        schema = newProps.schema;
 
     if (!def) {
       this.setState({fieldDef: null});
