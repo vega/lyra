@@ -6,7 +6,9 @@ var React = require('react'),
     dsUtil = require('../../util/dataset-utils'),
     bindChannel = require('../../actions/bindChannel'),
     FieldType = require('./FieldType'),
-    SortField = require('./SortField');
+    SortField = require('./SortField'),
+    Icon = require('../Icon'),
+    assets = require('../../util/assets');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -32,7 +34,8 @@ var HoverField = React.createClass({
     return {
       fieldDef:  null,
       offsetTop: null,
-      bindField: null
+      bindField: null,
+      showFieldTransforms: false
     };
   },
 
@@ -45,7 +48,8 @@ var HoverField = React.createClass({
     } else {
       this.setState({
         fieldDef: schema[def.name],
-        offsetTop: def.offsetTop
+        offsetTop: def.offsetTop,
+        showFieldTransforms: false
       });
     }
   },
@@ -102,16 +106,48 @@ var HoverField = React.createClass({
     return false;
   },
 
+  toggleTransforms: function(evt) {
+
+    this.setState({
+      showFieldTransforms: !this.state.showFieldTransforms
+    });
+  },
+
   render: function() {
     var state = this.state,
         field = state.fieldDef,
         style = {top: state.offsetTop, display: field ? 'block' : 'none'};
 
+    // Icon using temporary asset
+    var transformsIcon = (<Icon onClick={this.toggleTransforms}
+      glyph={assets.symbol} width="10" height="10" />),
+        transformsList = state.showFieldTransforms ? (
+          <div className="transforms-menu">
+            <ul className="transforms-list">
+              <li className="transform-item">
+                Mean - {field.name}
+              </li>
+              <li className="transform-item">
+                SD - {field.name}
+              </li>
+              <li className="transform-item-enum">
+                + More transformations
+              </li>
+            </ul>
+          </div>
+        ) : null;
+
     field = field ? (
       <div>
-        <FieldType field={field} />
-        {field.name}
-        <SortField dsId={this.props.dsId} field={field} />
+        <div>
+          <FieldType field={field} />
+          {transformsIcon}
+          {field.name}
+          <SortField dsId={this.props.dsId} field={field} />
+        </div>
+        <div>
+          {transformsList}
+        </div>
       </div>
     ) : null;
 

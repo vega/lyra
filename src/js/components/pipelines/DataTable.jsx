@@ -24,7 +24,6 @@ var DataTable = React.createClass({
     id: React.PropTypes.number,
     dataset: React.PropTypes.instanceOf(Immutable.Map)
   },
-
   getInitialState: function() {
     return {
       limit: 20,

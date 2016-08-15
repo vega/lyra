@@ -112,6 +112,17 @@ $pipeline-width: 180px;
       margin-right: $inner-padding;
     }
   }
+
+  // lets use flexbox positioning
+  .transforms-menu {
+
+    background-color: $yellow-bg;
+    margin: 0;
+    padding: $inner-padding 0;
+
+    .transforms-list {}
+    .transform {}
+  }
 }
 
 .paging {
