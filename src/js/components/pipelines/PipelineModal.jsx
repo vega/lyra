@@ -7,7 +7,7 @@ var React = require('react'),
     exampleDatasets = require('../../constants/exampleDatasets'),
     DataTable = require('./DataTable'),
     RawValuesTextArea = require('./RawValuesTextArea'),
-    DatasetLoader = require('./DatasetLoader'),
+    DataURL = require('./DataURL'),
     dsUtils = require('../../util/dataset-utils');
 
 function mapStateToProps(state, ownProps) {
@@ -149,7 +149,7 @@ var PipelineModal = React.createClass({
               formats include <abbr title="JavaScripts Object Notation">json</abbr>, <abbr title="Coma Separated Values">csv</abbr> and <abbr title="Tab Separated Values">tsv</abbr>
             </p>
 
-            <DatasetLoader loadURL={this.loadURL} />
+            <DataURL loadURL={this.loadURL} />
             <RawValuesTextArea success={this.success} error={this.error} />
           </div>
 

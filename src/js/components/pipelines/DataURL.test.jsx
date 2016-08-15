@@ -4,13 +4,13 @@ var expect = require('chai').expect,
     enzyme = require('enzyme'),
     shallow = enzyme.shallow,
     React = require('react'),
-    Loader = require('./Loader');
+    DataURL = require('./DataURL');
 
-describe('Form Component <Loader />', function() {
+describe('Form Component <DataURL />', function() {
   var wrapper;
 
   beforeEach(function() {
-    wrapper = shallow(<Loader />);
+    wrapper = shallow(<DataURL />);
   });
 
   it('renders form', function() {
