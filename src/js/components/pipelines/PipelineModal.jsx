@@ -111,7 +111,6 @@ var PipelineModal = React.createClass({
         justifyContent: 'center'
       },
       content: {
-        // position: null,
         overflow: 'hidden',
         top: null, bottom: null, left: null, right: null,
         width: '550px',

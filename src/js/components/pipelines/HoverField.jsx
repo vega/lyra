@@ -60,7 +60,11 @@ var HoverField = React.createClass({
   },
 
   handleDragStart: function(evt) {
-    this.setState({bindField: this.state.fieldDef});
+    this.setState({
+      bindField: this.state.fieldDef,
+      listLimit: 2,
+      showFieldTransforms: false
+    });
     evt.dataTransfer.setData('text/plain', evt.target.id);
     evt.dataTransfer.effectAllowed = 'link';
     sg.set(sg.MODE, 'channels');
@@ -141,14 +145,12 @@ var HoverField = React.createClass({
     var transformsIcon = (<Icon onClick={this.toggleTransforms} glyph={assets.symbol}
       width="10" height="10" />);
 
+    // TODO implement collapsing feature
     var listControls = AGGREGATION_OPS.length > state.listLimit ?
       (<li className="transform-item-enum"
         onClick={this.expandTransformsList}>
           + More transforms
-        </li>) : (<li className="transform-item-enum"
-          onClick={this.collapseTransformsList}>
-            + Few transforms
-          </li>);
+        </li>) : null;
 
     var transformsList = state.showFieldTransforms ? (
           <div className="transforms-menu">
@@ -157,7 +159,7 @@ var HoverField = React.createClass({
                 transforms.map(function(transform, i) {
                   return (
                     <li className="transform-item" key={i}>
-                      {transform.name} - {field.name}
+                      {transform} - {field.name}
                     </li>
                   );
                 }, this)

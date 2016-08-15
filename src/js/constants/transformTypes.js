@@ -2,28 +2,8 @@
 'use strict';
 
 module.exports = {
-  aggregationOps: [
-    {
-      name: 'count'
-    },
-    {
-      name: 'valid'
-    },
-    {
-      name: 'missing'
-    },
-    {
-      name: 'distinct'
-    },
-    {
-      name: 'sum'
-    },
-    {
-      name: 'mean'
-    },
-    {
-      name: 'average'
-    }
-  ],
+  aggregationOps: ['count', 'valid', 'missing', 'distinct', 'sum', 'mean',
+                    'average', 'variance', 'variancep', 'stdev', 'stdevp',
+                    'median', 'q1', 'q3', 'modeskew', 'min', 'max'],
   facetingOps: []
 };
