@@ -26,7 +26,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 var SortField = React.createClass({
   propTypes: {
     field: React.PropTypes.object.isRequired,
-    dsId:  React.PropTypes.number.isRequired,
+    dsId:  React.PropTypes.number,
     sort:  React.PropTypes.instanceOf(Immutable.Map)
   },
 

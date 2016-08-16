@@ -3,7 +3,9 @@
 var dl = require('datalib'),
     json2csv = require('json2csv'),
     store = require('../store'),
-    getInVis = require('../util/immutable-utils').getInVis,
+    imutils = require('../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     signalLookup = require('../util/signal-lookup'),
     dsUtils = require('../util/dataset-utils'),
     manipulators = require('./manipulators'),
@@ -222,11 +224,17 @@ exporter.scale = function(state, internal, id) {
       spec  = clean(dl.duplicate(scale), internal);
 
   if (!scale.domain && scale._domain && scale._domain.length) {
-    spec.domain = dataRef(state, scale._domain);
+    spec.domain = dataRef(state, scale, scale._domain);
   }
 
   if (!scale.range && scale._range && scale._range.length) {
-    spec.range = dataRef(state, scale._range);
+    spec.range = dataRef(state, scale, scale._range);
+  }
+
+  // TODO: Sorting multiple datasets?
+  var sortOrder = dl.isObject(spec.domain) && spec.domain._sortOrder;
+  if (sortOrder) {
+    spec.reverse = sortOrder === ORDER.DESC ? !spec.reverse : !!spec.reserve;
   }
 
   return spec;
@@ -307,20 +315,22 @@ function clean(spec, internal) {
  *   {"fields": [...]} for multiple fields from distinct datasets
  *
  * @param  {object} state Redux state
+ * @param  {Object} scale The definition of the scale.
  * @param  {Array}  ref   Array of fields
  * @returns {Object} A Vega DataRef
  */
-function dataRef(state, ref) {
+function dataRef(state, scale, ref) {
   var sets = {},
       data, did, field, i, len, keys;
 
   // One ref
   if (ref.length === 1) {
     ref = ref[0];
-    return {
-      data:  name(getInVis(state, 'datasets.' + ref.data + '.name')),
+    data = getInVis(state, 'datasets.' + ref.data);
+    return sortDataRef(data, scale, {
+      data:  name(data.get('name')),
       field: ref.field
-    };
+    });
   }
 
   // More than one ref
@@ -333,17 +343,31 @@ function dataRef(state, ref) {
 
   keys = dl.keys(sets);
   if (keys.length === 1) {
-    return {
+    return sortDataRef(data, scale, {
       data:  name(data.get('name')),
       field: sets[did]
-    };
+    });
   }
 
   ref = {fields: []};
   for (i = 0, len = keys.length; i < len; ++i) {
-    ref.fields.push({
-      data:  name(getInVis(state, 'datasets.' + keys[i] + '.name')),
+    data = getInVis(state, 'datasets.' + keys[i]);
+    ref.fields.push(sortDataRef(data, scale, {
+      data:  name(data.get('name')),
       field: sets[keys[i]]
+    }));
+  }
+
+  return ref;
+}
+
+function sortDataRef(data, scale, ref) {
+  if (scale.type === 'ordinal' && data.get('_sort')) {
+    var sortField = getIn(data, '_sort.field');
+    return dl.extend(ref, {
+      sort: sortField === ref.field ? true :
+        {field: sortField, op: 'min'},
+      _sortOrder: getIn(data, '_sort.order')
     });
   }
 
