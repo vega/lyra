@@ -14,7 +14,8 @@ var d3 = require('d3'),
 
 function mapStateToProps(state, ownProps) {
   return {
-    dataset: getInVis(state, 'datasets.' + ownProps.id)
+    dataset: getInVis(state, 'datasets.' + ownProps.id),
+    vega: state.get('vega')
   };
 }
 
@@ -36,6 +37,11 @@ var DataTable = React.createClass({
   componentDidMount: function() {
     var el = d3.select(ReactDOM.findDOMNode(this));
     this.$table = el.select('.datatable');
+  },
+
+  shouldComponentUpdate: function(nextProps, nextState) {
+    var vega = nextProps.vega;
+    return !vega.get('invalid') && !vega.get('isParsing');
   },
 
   prevPage: function() {
