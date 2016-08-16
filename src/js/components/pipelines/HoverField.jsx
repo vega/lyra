@@ -45,8 +45,8 @@ var HoverField = React.createClass({
     };
   },
 
-  // need to modify in a way that preserves the old props if no new ones
-  // are detected, if the user drags an AggregationField out of the transforms
+  // need to modify in a way that preserves the old props if new ones
+  // aren't detected, if the user drags an AggregationField out of the transforms
   // menue the information that the DraggableFields mixins is gone
   componentWillReceiveProps: function(newProps) {
     var def = newProps.def,

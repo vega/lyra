@@ -6,10 +6,17 @@ var sg = require('../../ctrl/signals'),
 module.exports = {
 
   handleDragStart: function(evt) {
-    this.setState({
+    var state = {
       bindField: this.state.fieldDef,
       listLimit: LIST_LIMIT
-    });
+    };
+
+    // if an AggregateField isn't being dragged, collapse the menu
+    if (!evt.target.classList.contains('aggregate-field')) {
+      state.showFieldTransforms = false;
+    }
+
+    this.setState(state);
     evt.dataTransfer.setData('text/plain', evt.target.id);
     evt.dataTransfer.effectAllowed = 'link';
     sg.set(sg.MODE, 'channels');
