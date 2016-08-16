@@ -191,6 +191,10 @@ function marksReducer(state, action) {
       markId + '.properties.update.' + action.newExtent + '._disabled', false);
   }
 
+  if (action.type === ACTIONS.SET_VL_UNIT) {
+    return setIn(state, markId + '._vlUnit', Immutable.fromJS(action.spec));
+  }
+
   if (action.type === ACTIONS.BIND_SCALE) {
     return setIn(state, action.id +
       '.properties.update.' + action.property + '.scale', action.scaleId);
