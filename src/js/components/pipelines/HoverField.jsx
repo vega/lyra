@@ -1,15 +1,14 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    ctrl = require('../../ctrl'),
-    sg = require('../../ctrl/signals'),
     dsUtil = require('../../util/dataset-utils'),
     bindChannel = require('../../actions/bindChannel'),
     FieldType = require('./FieldType'),
     SortField = require('./SortField'),
     Icon = require('../Icon'),
     assets = require('../../util/assets'),
-    AGGREGATION_OPS = require('../../constants/transformTypes').aggregationOps;
+    AGGREGATION_OPS = require('../../constants/transformTypes').aggregationOps,
+    DraggableFields = require('../mixins/DraggableFields');
 
 var LIST_LIMIT = 5;
 
@@ -32,6 +31,8 @@ var HoverField = React.createClass({
     def: React.PropTypes.object,
     schema: React.PropTypes.object
   },
+
+  mixins: [DraggableFields],
 
   getInitialState: function() {
     return {
@@ -61,74 +62,16 @@ var HoverField = React.createClass({
     this.setState(state);
   },
 
-  handleDragStart: function(evt) {
-    this.setState({
-      bindField: this.state.fieldDef,
-      listLimit: LIST_LIMIT,
-      showFieldTransforms: false
-    });
-    evt.dataTransfer.setData('text/plain', evt.target.id);
-    evt.dataTransfer.effectAllowed = 'link';
-    sg.set(sg.MODE, 'channels');
-    ctrl.update();
-  },
-
-  handleDragOver: function(evt) {
-    if (evt.preventDefault) {
-      evt.preventDefault(); // Necessary. Allows us to drop.
-    }
-
-    return false;
-  },
-
-  // This makes use of the bubble cursor, which corresponds to the cell signal;
-  // we're using that to figure out which channel we are closest to. The
-  // SELECTED signal indicates the mark to bind the data to.
-  handleDragEnd: function(evt) {
-    var props = this.props,
-        sel = sg.get(sg.SELECTED),
-        cell = sg.get(sg.CELL),
-        bindField = this.state.bindField,
-        dropped = sel._id && cell._id;
-
-    try {
-      if (dropped) {
-        props.bindChannel(props.dsId, bindField, sel.mark.def.lyra_id, cell.key);
-      }
-    } catch (e) {
-      console.warn('Unable to bind primitive');
-      console.warn(e);
-    }
-
-    sg.set(sg.MODE, 'handles');
-    sg.set(sg.CELL, {});
-    this.setState({bindField: null});
-
-    if (!dropped) {
-      ctrl.update();
-    }
-  },
-
-  handleDrop: function(evt) {
-    if (evt.preventDefault) {
-      evt.preventDefault(); // Necessary. Allows us to drop.
-    }
-
-    return false;
-  },
-
   toggleTransforms: function(evt) {
     this.setState({
       showFieldTransforms: !this.state.showFieldTransforms
     });
   },
-
   expandTransformsList: function() {
     this.setState({
       listLimit: AGGREGATION_OPS.length
     });
   },
-
   collapseTransformsList: function() {
     this.setState({
       listLimit: LIST_LIMIT
@@ -151,12 +94,16 @@ var HoverField = React.createClass({
     var listControls = AGGREGATION_OPS.length > state.listLimit ?
       (<li className="transform-item-enum"
         onClick={this.expandTransformsList}>
-          + More transforms
-        </li>) : null;
+          <strong>+ More Transforms</strong>
+        </li>) : (<li className="transform-item-enum"
+          onClick={this.collapseTransformsList}>
+            <strong>+ Fewer Transforms</strong>
+          </li>);
 
     var transformsList = state.showFieldTransforms ? (
           <div className="transforms-menu">
             <ul className="transforms-list">
+              {listControls}
               {
                 transforms.map(function(transform, i) {
                   return (
@@ -166,10 +113,9 @@ var HoverField = React.createClass({
                   );
                 }, this)
               }
-              {listControls}
               <li className="transform-item-enum"
                 onClick={this.toggleTransforms}>
-                <strong>Dismiss</strong>
+                <strong className="close-transforms">Dismiss</strong>
               </li>
             </ul>
           </div>
@@ -177,12 +123,10 @@ var HoverField = React.createClass({
 
     field = field ? (
       <div>
-        <div>
-          <FieldType field={field} />
-          {transformsIcon}
-          {field.name}
-          <SortField dsId={this.props.dsId} field={field} />
-        </div>
+        <FieldType field={field} />
+        {transformsIcon}
+        {field.name}
+        <SortField dsId={this.props.dsId} field={field} />
         {transformsList}
       </div>
     ) : null;

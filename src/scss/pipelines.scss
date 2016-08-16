@@ -115,29 +115,25 @@ $pipeline-width: 180px;
 
   .transforms-menu {
 
-    margin: 0;
+    margin: $outer-padding 0 0 0;
     padding: $inner-padding 0;
+    background-color: $yellow-bg;
 
     .transforms-list,
     .transform-item,
     .transform-item-enum {
       margin: 0;
     }
-
-    .transform-item {
+    
+    .transform-item,
+    .transform-item-enum:not(:last-child) {
       border-bottom: 1px solid #000;
     }
-
     .transform-item,
     .transform-item-enum {
       padding: $inner-padding $inner-padding/2;
     }
 
-    .transform-item-enum {
-      .close-transforms {
-        text-align: right;
-      }
-    }
     .transform-item:hover,
     .transform-item-enum:hover {
       cursor: pointer;
