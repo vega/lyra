@@ -59,7 +59,7 @@ exporter.dataset = function(state, internal, id) {
   if(sort == undefined) {
     return spec;
   } else {
-    spec['transform'] = sort;
+    spec.transform = sort;
     return spec;
   }
 };
@@ -244,13 +244,13 @@ exporter.axe = exporter.legend = function(state, internal, id) {
   * vega data transform code to be appended to the vega spec to * the dataset
   */
 function getSort(dataset) {
-  if (!('_sort' in dataset)) {
+  if (!dataset._sort) {
     // not sorted
     return;
   }
 
   var sort = dataset._sort,
-      byPrefix = sort.sortOrder == 'dec' ? '-' : '',
+      byPrefix = sort.sortOrder == 'desc' ? '-' : '',
       by = byPrefix + sort.sortField;
 
   var result = [{'type': 'sort', "by": by}];

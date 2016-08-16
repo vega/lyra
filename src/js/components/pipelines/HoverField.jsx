@@ -8,7 +8,7 @@ var React = require('react'),
     FieldType = require('./FieldType'),
     Icon = require('../Icon'),
     assets = require('../../util/assets'),
-    sortDataset = require('../../actions/datasetActions').sortDataset;
+    SortField = require('./SortField');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -18,9 +18,6 @@ function mapDispatchToProps(dispatch, ownProps) {
   return {
     bindChannel: function(dsId, field, markId, property) {
       dispatch(bindChannel(dsId, field, markId, property));
-    },
-    sortDataset: function(dsId, sortField, sortOrder) {
-      dispatch(sortDataset(dsId, sortField, sortOrder));
     }
   };
 }
@@ -36,8 +33,7 @@ var HoverField = React.createClass({
     return {
       fieldDef:  null,
       offsetTop: null,
-      bindField: null,
-      valuesInc: null
+      bindField: null
     };
   },
 
@@ -117,41 +113,16 @@ var HoverField = React.createClass({
     this.setState({fieldDef: fieldDef});
   },
 
-  sortValues: function(evt) {
-  // will need to clean up this code
-  var valuesInc = this.state.valuesInc,
-      props = this.props,
-      field = props.def,
-      id = props.dsId,
-      incOrDec = null;
-
-  if (valuesInc == null) {
-    // first click default: increasing
-    valuesInc = true;
-  } else {
-    valuesInc = !valuesInc;
-  }
-  this.setState({ valuesInc : valuesInc });
-
-  incOrDec = valuesInc ? 'inc' : 'dec';
-  this.props.sortDataset(id, field.name, incOrDec);
-},
-
   render: function() {
     var state = this.state,
         field = state.fieldDef,
-        style = {top: state.offsetTop, display: field ? 'block' : 'none'},
-        incOrDecIcon = this.state.valuesInc ? (
-          <Icon onClick={this.sortValues}
-            glyph={assets['increasingSort']} width="10" height="10" /> ) : (
-          <Icon onClick={this.sortValues}
-            glyph={assets['decreasingSort']} width="10" height="10" /> );
+        style = {top: state.offsetTop, display: field ? 'block' : 'none'};
 
     field = field ? (
       <div>
         <FieldType field={field} />
         {field.name}
-        {incOrDecIcon}
+        <SortField dsId={this.props.dsId} field={field} />
       </div>
     ) : null;
 
