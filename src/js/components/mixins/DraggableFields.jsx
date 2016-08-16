@@ -7,13 +7,14 @@ module.exports = {
 
   handleDragStart: function(evt) {
     var state = {
-      bindField: this.state.fieldDef,
-      listLimit: LIST_LIMIT
+      bindField: this.state.fieldDef
     };
 
-    // if an AggregateField isn't being dragged, collapse the menu
+    // if an AggregateField isn't being dragged, close the menu
+    // and reset listLimit
     if (!evt.target.classList.contains('aggregate-field')) {
       state.showFieldTransforms = false;
+      state.listLimit = LIST_LIMIT;
     }
 
     this.setState(state);
