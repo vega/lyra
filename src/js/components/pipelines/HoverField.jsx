@@ -6,7 +6,6 @@ var React = require('react'),
     dsUtil = require('../../util/dataset-utils'),
     bindChannel = require('../../actions/bindChannel'),
     FieldType = require('./FieldType'),
-    Icon = require('../Icon'),
     assets = require('../../util/assets'),
     SortField = require('./SortField');
 

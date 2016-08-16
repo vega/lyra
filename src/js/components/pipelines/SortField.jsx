@@ -4,12 +4,12 @@ var React = require('react'),
     sortDataset = require('../../actions/datasetActions').sortDataset,
     assets = require('../../util/assets'),
     Icon   = require('../Icon'),
-    getInVis = require('../../util/immutable-utils').getInVis,
-    dsUtil = require('../../util/dataset-utils'),
-    store = require('../../store');
+    getInVis = require('../../util/immutable-utils').getInVis;
 
 function mapStateToProps(state, ownProps) {
-  return {};
+  return {
+    dataset: getInVis(state, 'datasets.' + ownProps.dsId)
+  };
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
@@ -20,22 +20,6 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-function getDataset(id) {
-  return getInVis(store.getState(), 'datasets.' + id).toJS();
-}
-
-function isSorted(id) {
-  var dataset = getDataset(id),
-      sort = dataset._sort,
-      result = null;
-
-  if (sort) {
-    result = sort == 'asc';
-  }
-
-  return result;
-}
-
 var SortField = React.createClass({
 
   propTypes: {
@@ -43,14 +27,24 @@ var SortField = React.createClass({
     dsId: React.PropTypes.number.isRequired
   },
 
+  isSortAsc: function() {
+    var dataset = this.props.dataset.toJS(),
+        sort = dataset._sort,
+        result = null;
+
+    if (sort) {
+      result = sort == 'asc';
+    }
+
+    return result;
+  },
+
   sort: function(evt) {
     var valuesAsc = null,
         props = this.props,
         field = props.field,
         id = props.dsId,
-        ascOrDesc = null,
-        valuesAsc = isSorted(id);
-
+        ascOrDesc = isSortAsc(props.dataset);
 
     if (valuesAsc == null) {
       // first click default: increasing
@@ -67,10 +61,9 @@ var SortField = React.createClass({
     var ascOrDescIcon = (
       <Icon onClick={this.sort}
         glyph={assets['sort']} width="10" height="10" />),
+        props = this.props,
         field = this.props.field,
-        sortAsc = this.state.valuesAsc,
-        id = this.props.dsId,
-        sortAsc = isSorted(id);
+        sortAsc = isSortAsc(props.dataset);
 
     if (sortAsc != null) {
       if (field.mtype == 'nominal') {
@@ -90,8 +83,18 @@ var SortField = React.createClass({
 
     return ascOrDescIcon;
   }
-
-
 });
+
+function isSortAsc(dataset) {
+  var dataset = dataset.toJS(),
+      sort = dataset._sort,
+      result = null;
+
+  if (sort) {
+    result = sort == 'asc';
+  }
+
+  return result;
+}
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(SortField);
