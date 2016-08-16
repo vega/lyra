@@ -182,7 +182,7 @@ var AutoComplete = React.createClass({
     //   }
 
   		return (
-  	 	  <div ref="auto" className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true" ></div>
+  	 	  <div className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true" ></div>
   		);
   	}
 

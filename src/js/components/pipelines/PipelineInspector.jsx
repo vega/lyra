@@ -10,6 +10,7 @@ var React = require('react'),
     getInVis = imutils.getInVis,
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
+    AutoComplete = require('./AutoComplete'),
     Immutable = require('immutable');
 
 function mapStateToProps(state, ownProps) {
@@ -58,11 +59,14 @@ var PipelineInspector = React.createClass({
 
     return (
       <div className={'pipeline' + (props.isSelected ? ' selected' : '')}>
+      
         <ContentEditable className="header"
           value={name}
           save={props.updateProperty.bind(this, id, 'name')}
           onClick={props.selectPipeline.bind(null, id)} />
+        
         {inner}
+
       </div>
     );
   }

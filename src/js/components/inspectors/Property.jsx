@@ -213,6 +213,9 @@ var Property = React.createClass({
           {scaleEl}
           {controlEl}
         </div>
+        
+          
+        
         {extraEl}
       </div>
     );

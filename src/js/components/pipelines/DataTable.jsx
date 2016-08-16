@@ -85,6 +85,7 @@ var DataTable = React.createClass({
         fmt = dl.format.auto.number(),
         scrollLeft = this.$table && this.$table.node().scrollLeft;
 
+  
     var prev = page > 0 ? (
       <Icon glyph={assets.prev} width="10" height="10" onClick={this.prevPage} />
     ) : null;
