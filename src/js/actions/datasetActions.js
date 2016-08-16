@@ -29,18 +29,18 @@ function addDataset(props, values) {
  * Action creator to add transformations to dataset
  *
  * @param {number} dsId - Id of the dataset.
- * @param {string} sortField - Field to be sorted.
- * @param {string} sortOrder - Either 'asc' or 'desc'
- * indicating order of sort of the sortField.
+ * @param {string} field - Field to be sorted.
+ * @param {string} order - Either 'asc' or 'desc'
+ * indicating order of sort of the field.
  * @returns {Object} SORT_DATASET action with info about
  * field to be sorted
  */
-function sortDataset(dsId, sortField, sortOrder) {
+function sortDataset(dsId, field, order) {
   return {
     type: SORT_DATASET,
     id: dsId,
-    sortField: sortField,
-    sortOrder: sortOrder
+    field: field,
+    order: order
   };
 }
 

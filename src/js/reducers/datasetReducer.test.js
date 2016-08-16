@@ -28,15 +28,15 @@ describe('dataset reducer', function() {
     var action = {
           type: actions.SORT_DATASET,
           id: 'testId',
-          sortField: 'testField',
-          sortOrder: 'inc'
+          field: 'testField',
+          order: 'asc'
         },
         result = dsReducer(initialState, action),
         sort = getIn(result, action.id + '._sort'),
         sortJS = sort.toJS();
     expect(sort).to.not.be.undefined;
-    expect(sortJS.sortField).to.equal(action.sortField);
-    expect(sortJS.sortOrder).to.equal(action.sortOrder);
+    expect(sortJS.field).to.equal(action.field);
+    expect(sortJS.order).to.equal(action.order);
   });
 
 });

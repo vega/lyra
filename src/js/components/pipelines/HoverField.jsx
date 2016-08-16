@@ -101,16 +101,6 @@ var HoverField = React.createClass({
     return false;
   },
 
-  changeMType: function(evt) {
-    var MTYPES = dsUtil.MTYPES,
-        fieldDef  = this.state.fieldDef,
-        mTypeIndex = MTYPES.indexOf(fieldDef.mtype);
-
-    mTypeIndex = (mTypeIndex + 1) % MTYPES.length;
-    fieldDef.mtype = MTYPES[mTypeIndex];
-    this.setState({fieldDef: fieldDef});
-  },
-
   render: function() {
     var state = this.state,
         field = state.fieldDef,

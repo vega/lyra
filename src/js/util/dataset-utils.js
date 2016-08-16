@@ -110,6 +110,5 @@ module.exports = {
   input: input,
   output: output,
   schema: schema,
-  reset: reset,
-  MTYPES: ['nominal', 'quantitative', 'temporal'], // ordinal not yet used
+  reset: reset
 };

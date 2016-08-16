@@ -1,99 +1,68 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
+    Immutable = require('immutable'),
     sortDataset = require('../../actions/datasetActions').sortDataset,
     assets = require('../../util/assets'),
     Icon   = require('../Icon'),
-    getInVis = require('../../util/immutable-utils').getInVis;
+    getInVis = require('../../util/immutable-utils').getInVis,
+    ORDER  = require('../../constants/sortOrder'),
+    MTYPES = require('../../constants/measureTypes');
 
 function mapStateToProps(state, ownProps) {
   return {
-    dataset: getInVis(state, 'datasets.' + ownProps.dsId)
+    sort: getInVis(state, 'datasets.' + ownProps.dsId + '._sort')
   };
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    sortDataset: function(dsId, sortField, sortOrder) {
-      dispatch(sortDataset(dsId, sortField, sortOrder));
+    sortDataset: function(dsId, field, order) {
+      dispatch(sortDataset(dsId, field, order));
     }
   };
 }
 
 var SortField = React.createClass({
-
   propTypes: {
-    field: React.PropTypes.object,
-    dsId: React.PropTypes.number.isRequired,
-    dataset: React.PropTypes.object
+    field: React.PropTypes.object.isRequired,
+    dsId:  React.PropTypes.number.isRequired,
+    sort:  React.PropTypes.instanceOf(Immutable.Map)
   },
 
   sort: function(evt) {
     var props = this.props,
-        valuesAsc = isSortAsc(props.dataset),
-        field = props.field,
-        id = props.dsId,
-        ascOrDesc = null;
+        sort  = props.sort,
+        field = props.field.name,
+        dsId = props.dsId;
 
-    if (valuesAsc == null) {
-      // first click default: increasing
-      valuesAsc = true;
+    if (sort && sort.get('field') === field) {
+      props.sortDataset(dsId, field,
+        sort.get('order') === ORDER.ASC ? ORDER.DESC : ORDER.ASC);
     } else {
-      valuesAsc = !valuesAsc;
+      props.sortDataset(dsId, field, ORDER.ASC);
     }
-
-    ascOrDesc = valuesAsc ? 'asc' : 'desc';
-    this.props.sortDataset(id, field.name, ascOrDesc);
   },
 
   render: function() {
-    var ascOrDescIcon = (
-      <Icon onClick={this.sort}
-        glyph={assets.sort} width="10" height="10" />),
-        props = this.props,
-        field = this.props.field,
-        sortAsc = isSortAsc(props.dataset);
+    var props = this.props,
+        sort  = props.sort,
+        field = props.field,
+        mtype = field.mtype,
+        isAsc;
 
-    if (sortAsc != null) {
-      if (field.name === getFieldName(props.dataset.toJS()._sort.sortField)) {
-        if (field.mtype === 'nominal') {
-          ascOrDescIcon = sortAsc ? (
-            <Icon onClick={this.sort}
-              glyph={assets.sortAlphaAsc} width="10" height="10" />) : (
-            <Icon onClick={this.sort}
-              glyph={assets.sortAlphaDesc} width="10" height="10" />);
-        } else if (field.mtype === 'quantitative' || field.mtype === 'temporal') {
-          ascOrDescIcon = sortAsc ? (
-            <Icon onClick={this.sort}
-              glyph={assets.sortNumericAsc} width="10" height="10" />) : (
-            <Icon onClick={this.sort}
-              glyph={assets.sortNumericDesc} width="10" height="10" />);
-        }
-      }
+    if (sort && sort.get('field') === field.name) {
+      isAsc = sort.get('order') === ORDER.ASC;
+      return mtype === MTYPES.NOMINAL ?
+        (<Icon onClick={this.sort} width="10" height="10"
+          glyph={isAsc ? assets.sortAlphaAsc : assets.sortAlphaDesc} />) :
+
+        (<Icon onClick={this.sort} width="10" height="10"
+          glyph={isAsc ? assets.sortNumericAsc : assets.sortNumericDesc} />);
     }
 
-    return ascOrDescIcon;
+    return (<Icon onClick={this.sort} glyph={assets.sort} width="10" height="10" />);
   }
 });
-
-function isSortAsc(dataset) {
-  var ds = dataset.toJS(),
-      sort = ds._sort,
-      result = null;
-
-  if (sort) {
-    result = sort.sortOrder === 'asc';
-  }
-
-  return result;
-}
-
-function getFieldName(sortField) {
-  if (sortField.charAt(0) === '-') {
-    return sortField.substring(1);
-  } else {
-    return sortField;
-  }
-}
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(SortField);

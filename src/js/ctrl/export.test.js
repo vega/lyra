@@ -6,8 +6,7 @@ var expect = require('chai').expect,
     counter = require('../util/counter'),
     dsUtil = require('../util/dataset-utils'),
     exporter = require('./export'),
-    Store = require('../store'),
-    sortDataset = require('../actions/datasetActions').sortDataset;
+    ORDER = require('../constants/sortOrder');
 
 /* eslint new-cap:0 */
 function historyWrap(map) {
@@ -52,6 +51,14 @@ describe('Exporter Utility', function() {
           _id: 4,
           name: 'jobs dataset',
           format: {type: 'json'}
+        },
+        '5': {
+          _id: 5,
+          _sort: {field: 'Horsepower', order: ORDER.ASC}
+        },
+        '6': {
+          _id: 6,
+          _sort: {field: 'Displacement', order: ORDER.DESC}
         }
       },
       values: [
@@ -115,34 +122,16 @@ describe('Exporter Utility', function() {
         });
       });
 
-      it('exports dataset with inc sort', function() {
-        var id = 4,
-            sortField = 'testField',
-            sortOrder = 'asc',
-            action = sortDataset(id, sortField, sortOrder);
-        Store.dispatch(action);
-        var currState = Store.getState(),
-            result = exporter.dataset(currState, false, 4);
-
-        expect(result.transform).to.deep.equal([
-          {type: 'sort', by: 'testField'}
-        ]);
-
+      it('exports dataset with ascending sort', function() {
+        var ds = exporter.dataset(imstate, false, 5);
+        expect(ds).to.have.deep.property('transform[0].type', 'sort');
+        expect(ds).to.have.deep.property('transform[0].by', 'Horsepower');
       });
 
-      it('exports dataset with dec sort', function() {
-        var id = 4,
-            sortField = 'testField',
-            sortOrder = 'desc',
-            action = sortDataset(id, sortField, sortOrder);
-        Store.dispatch(action);
-        var currState = Store.getState(),
-            result = exporter.dataset(currState, false, 4);
-
-        expect(result.transform).to.deep.equal([
-          {type: 'sort', by: '-testField'}
-        ]);
-
+      it('exports dataset with descending sort', function() {
+        var ds = exporter.dataset(imstate, false, 6);
+        expect(ds).to.have.deep.property('transform[0].type', 'sort');
+        expect(ds).to.have.deep.property('transform[0].by', '-Displacement');
       });
     });
 

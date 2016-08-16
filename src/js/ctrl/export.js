@@ -7,7 +7,8 @@ var dl = require('datalib'),
     signalLookup = require('../util/signal-lookup'),
     dsUtils = require('../util/dataset-utils'),
     manipulators = require('./manipulators'),
-    GTYPES = require('../store/factory/Guide').GTYPES;
+    GTYPES = require('../store/factory/Guide').GTYPES,
+    ORDER = require('../constants/sortOrder');
 
 /**
  * Exports primitives in the redux store as a complete Vega specification.
@@ -39,7 +40,7 @@ exporter.dataset = function(state, internal, id) {
       spec = clean(dl.duplicate(dataset), internal),
       values = dsUtils.input(id),
       format = spec.format && spec.format.type,
-      sort = getSort(dataset);
+      sort = exporter.sort(dataset);
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
@@ -57,9 +58,31 @@ exporter.dataset = function(state, internal, id) {
   }
 
   if (sort !== undefined) {
-    spec.transform = sort;
+    spec.transform = spec.transform || [];
+    spec.transform.push(sort);
   }
+
   return spec;
+};
+
+/**
+  * Method that builds the vega sort data transform code from
+  * the current dataset.
+  *
+  * @param  {object} dataset The current dataset
+  * @returns {object} undefined if _sort not in dataset and the
+  * vega data transform code to be appended to the vega spec to * the dataset
+  */
+exporter.sort = function(dataset) {
+  var sort = dataset._sort;
+  if (!sort) {
+    return;
+  }
+
+  return {
+    type: 'sort',
+    by: (sort.order === ORDER.DESC ? '-' : '') + sort.field
+  };
 };
 
 exporter.scene = function(state, internal) {
@@ -232,29 +255,6 @@ exporter.axe = exporter.legend = function(state, internal, id) {
 
   return spec;
 };
-
-/**
-  * Method that builds the vega sort data transform code from
-  * the current dataset.
-  *
-  * @param  {object} dataset The current dataset
-  * @returns {object} undefined if _sort not in dataset and the
-  * vega data transform code to be appended to the vega spec to * the dataset
-  */
-function getSort(dataset) {
-  if (!dataset._sort) {
-    // not sorted
-    return;
-  }
-
-  var sort = dataset._sort,
-      byPrefix = sort.sortOrder === 'desc' ? '-' : '',
-      by = byPrefix + sort.sortField;
-
-  var result = [{type: 'sort', by: by}];
-  return result;
-
-}
 
 /**
  * Utility method that ensures names delimit spaces.
