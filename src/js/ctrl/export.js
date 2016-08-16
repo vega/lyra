@@ -56,12 +56,10 @@ exporter.dataset = function(state, internal, id) {
       json2csv({data: values, del: format === 'tsv' ? '\t' : ','}) : values;
   }
 
-  if(sort == undefined) {
-    return spec;
-  } else {
+  if (sort !== undefined) {
     spec.transform = sort;
-    return spec;
   }
+  return spec;
 };
 
 exporter.scene = function(state, internal) {
@@ -250,13 +248,13 @@ function getSort(dataset) {
   }
 
   var sort = dataset._sort,
-      byPrefix = sort.sortOrder == 'desc' ? '-' : '',
+      byPrefix = sort.sortOrder === 'desc' ? '-' : '',
       by = byPrefix + sort.sortField;
 
-  var result = [{'type': 'sort', "by": by}];
+  var result = [{type: 'sort', by: by}];
   return result;
 
-};
+}
 
 /**
  * Utility method that ensures names delimit spaces.

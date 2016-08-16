@@ -24,19 +24,8 @@ var SortField = React.createClass({
 
   propTypes: {
     field: React.PropTypes.object,
-    dsId: React.PropTypes.number.isRequired
-  },
-
-  isSortAsc: function() {
-    var dataset = this.props.dataset.toJS(),
-        sort = dataset._sort,
-        result = null;
-
-    if (sort) {
-      result = sort == 'asc';
-    }
-
-    return result;
+    dsId: React.PropTypes.number.isRequired,
+    dataset: React.PropTypes.object
   },
 
   sort: function(evt) {
@@ -60,24 +49,24 @@ var SortField = React.createClass({
   render: function() {
     var ascOrDescIcon = (
       <Icon onClick={this.sort}
-        glyph={assets['sort']} width="10" height="10" />),
+        glyph={assets.sort} width="10" height="10" />),
         props = this.props,
         field = this.props.field,
         sortAsc = isSortAsc(props.dataset);
 
     if (sortAsc != null) {
-      if (field.mtype == 'nominal') {
+      if (field.mtype === 'nominal') {
         ascOrDescIcon = sortAsc ? (
           <Icon onClick={this.sort}
-            glyph={assets['sortAlphaAsc']} width="10" height="10" />) : (
+            glyph={assets.sortAlphaAsc} width="10" height="10" />) : (
           <Icon onClick={this.sort}
-            glyph={assets['sortAlphaDesc']} width="10" height="10" />);
-      } else if (field.mtype == 'quantitative' || field.mtype == 'temporal') {
+            glyph={assets.sortAlphaDesc} width="10" height="10" />);
+      } else if (field.mtype === 'quantitative' || field.mtype === 'temporal') {
         ascOrDescIcon = sortAsc ? (
           <Icon onClick={this.sort}
-            glyph={assets['sortNumericAsc']} width="10" height="10" />) : (
+            glyph={assets.sortNumericAsc} width="10" height="10" />) : (
           <Icon onClick={this.sort}
-            glyph={assets['sortNumericDesc']} width="10" height="10" />);
+            glyph={assets.sortNumericDesc} width="10" height="10" />);
       }
     }
 
@@ -86,12 +75,12 @@ var SortField = React.createClass({
 });
 
 function isSortAsc(dataset) {
-  var dataset = dataset.toJS(),
-      sort = dataset._sort,
+  var ds = dataset.toJS(),
+      sort = ds._sort,
       result = null;
 
   if (sort) {
-    result = sort == 'asc';
+    result = sort === 'asc';
   }
 
   return result;

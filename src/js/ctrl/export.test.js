@@ -6,11 +6,8 @@ var expect = require('chai').expect,
     counter = require('../util/counter'),
     dsUtil = require('../util/dataset-utils'),
     exporter = require('./export'),
-    store = require('../store'),
-    sortDataset = require('../actions/datasetActions').sortDataset,
-    dsReducer = require('../reducers/datasetsReducer'),
-    getInVis = require('../util/immutable-utils').getInVis,
-    store = require('../store');
+    Store = require('../store'),
+    sortDataset = require('../actions/datasetActions').sortDataset;
 
 /* eslint new-cap:0 */
 function historyWrap(map) {
@@ -122,13 +119,13 @@ describe('Exporter Utility', function() {
         var id = 4,
             sortField = 'testField',
             sortOrder = 'inc',
-            action = sortDataset(id, sortField, sortOrder),
-            state = store.dispatch(action),
-            state = store.getState(),
-            result = exporter.dataset(state, false, 4);
+            action = sortDataset(id, sortField, sortOrder);
+        Store.dispatch(action);
+        var currState = Store.getState(),
+            result = exporter.dataset(currState, false, 4);
 
         expect(result.transform).to.deep.equal([
-          {'type': 'sort', 'by': 'testField'}
+          {type: 'sort', by: 'testField'}
         ]);
 
       });
@@ -137,13 +134,13 @@ describe('Exporter Utility', function() {
         var id = 4,
             sortField = 'testField',
             sortOrder = 'dec',
-            action = sortDataset(id, sortField, sortOrder),
-            state = store.dispatch(action),
-            state = store.getState(),
-            result = exporter.dataset(state, false, 4);
+            action = sortDataset(id, sortField, sortOrder);
+        Store.dispatch(action);
+        var currState = Store.getState(),
+            result = exporter.dataset(currState, false, 4);
 
         expect(result.transform).to.deep.equal([
-          {'type': 'sort', 'by': '-testField'}
+          {type: 'sort', by: '-testField'}
         ]);
 
       });
