@@ -213,7 +213,8 @@ function marksReducer(state, action) {
   }
 
   if (action.type === ACTIONS.DELETE_GUIDE) {
-    return ensureValueAbsent(state, action.groupId + '.axes', action.id);
+    state = ensureValueAbsent(state, action.groupId + '.axes', action.id);
+    return ensureValueAbsent(state, action.groupId + '.legends', action.id);
   }
 
   return state;

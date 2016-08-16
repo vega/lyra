@@ -111,28 +111,35 @@ var Group = React.createClass({
         group = props.group,
         groupType = group.get('type'),
         axes = group.get('axes'),
+        legends = group.get('legends'),
         marks = group.get('marks'),
         isExpanded = get(props.expandedLayers, groupId);
 
     var contents = isExpanded && group.get('marks') ? (
       <ul className="group">
 
-        <li className="header">Guides <Icon glyph={assets.plus} width="10" height="10" /></li>
+        <li className="header">
+          Guides <Icon glyph={assets.plus} width="10" height="10" />
+        </li>
 
-        {axes.map(function(id) {
-          var axis = getInVis(state, 'guides.' + id);
-          if (axis) {
-            var scale = getInVis(state, 'scales.' + axis.get('scale')),
-                name  = capitalize(scale.get('name'));
+        {axes.concat(legends).map(function(id) {
+          var guide = getInVis(state, 'guides.' + id),
+              scale, name, type;
+
+          if (guide) {
+            scale = guide.get('scale') || guide.get(guide.get('_type'));
+            scale = getInVis(state, 'scales.' + scale);
+            name = capitalize(scale.get('name'));
+            type = capitalize(guide.get('_gtype'));
+
             return (
               <li key={id}>
                 <div className={'name' + (selectedId === id ? ' selected' : '')}
                   onClick={props.select.bind(null, id, 'guide')}>
-                  {name} Axis
+                  {name + ' ' + type}
                   <Icon glyph={assets.trash} className="delete"
                     onClick={this.deleteUpdate.bind(null, id, 'guide')}
-                    data-tip={'Delete ' + name}
-                    data-place="right" />
+                    data-tip={'Delete ' + name + ' ' + type} data-place="right" />
                 </div>
               </li>
             );

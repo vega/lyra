@@ -25,10 +25,10 @@ var SymbolInspector = React.createClass({
         <div className="property-group">
           <h3>Geometry</h3>
 
-          <Property name="size" label="Size" type="number" canDrop={true} {...props} />
-
           <Property name="shape" label="Shape" type="select" opts={Symbol.SHAPES}
             canDrop={true} {...props} />
+
+          <Property name="size" label="Size" type="number" canDrop={true} {...props} />
 
         </div>
 
