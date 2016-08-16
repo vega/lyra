@@ -118,7 +118,7 @@ describe('Exporter Utility', function() {
       it('exports dataset with inc sort', function() {
         var id = 4,
             sortField = 'testField',
-            sortOrder = 'inc',
+            sortOrder = 'asc',
             action = sortDataset(id, sortField, sortOrder);
         Store.dispatch(action);
         var currState = Store.getState(),
@@ -133,7 +133,7 @@ describe('Exporter Utility', function() {
       it('exports dataset with dec sort', function() {
         var id = 4,
             sortField = 'testField',
-            sortOrder = 'dec',
+            sortOrder = 'desc',
             action = sortDataset(id, sortField, sortOrder);
         Store.dispatch(action);
         var currState = Store.getState(),

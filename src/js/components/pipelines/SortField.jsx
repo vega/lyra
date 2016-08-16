@@ -29,11 +29,11 @@ var SortField = React.createClass({
   },
 
   sort: function(evt) {
-    var valuesAsc = null,
-        props = this.props,
+    var props = this.props,
+        valuesAsc = isSortAsc(props.dataset),
         field = props.field,
         id = props.dsId,
-        ascOrDesc = isSortAsc(props.dataset);
+        ascOrDesc = null;
 
     if (valuesAsc == null) {
       // first click default: increasing
@@ -80,7 +80,7 @@ function isSortAsc(dataset) {
       result = null;
 
   if (sort) {
-    result = sort === 'asc';
+    result = sort.sortOrder === 'asc';
   }
 
   return result;
