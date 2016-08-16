@@ -5,30 +5,23 @@ var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
-    updateExpr = require('../../actions/autoCompleteActions').updateExpr,
-    updateTmpl = require('../../actions/autoCompleteActions').updateTmpl,
+    getInVis = imutils.getInVis,
     dsUtil = require('../../util/dataset-utils'),
+    updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
     d3 = require('d3'),
     dl = require('datalib'),
 	  ReactDOM = require('react-dom');
-//	AutoComp = require('jquery-textcomplete');
+  	//AutoComp = require('jquery-textcomplete');
 
-var spanPreHardcore = '<span class="auto" contentEditable="false">';
+var spanPreHardcore = '<span class="auto" contenteditable="false">';
 var spanPostHardcore = '</span>';
 
 function mapStateToProps(state, ownProps) {
 	return {};
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    updateExpr: function(path, value, store) {
-      dispatch(updateExpr(path, value, store));
-    },
-    updateTmpl: function(path, value, store) {
-      dispatch(updateTmpl(path, value, store));
-    }
-  };
+function mapDispatchToProps(dispatch, ownProps) {
+  return {};
 }
 
 //fun inexpr(stringfromstore)->String html
@@ -42,6 +35,9 @@ function inExpr(storeString, store) {
 
 //Fun outexp(string html)->store string
 function outExpr(htmlString, store) {
+  htmlString = htmlString.split('<div>').join('');
+  htmlString = htmlString.split('</div>').join('');
+  htmlString = htmlString.split('<br>').join('');
   htmlString = htmlString.split(spanPreHardcore).join('');
   htmlString = htmlString.split(spanPostHardcore).join('');
   htmlString = insert(htmlString, store, 'datum.', '');
@@ -101,17 +97,63 @@ function insert(targetString, store, pre, post) {
 var AutoComplete = React.createClass({
 	propTypes: {
     	type: React.PropTypes.string.isRequired,
-      dsId: React.PropTypes.number,
-      dataset: React.PropTypes.instanceOf(Immutable.Map),
+      dsId: React.PropTypes.number.isRequired,
     	value: React.PropTypes.string,
-      path: React.PropTypes.string,
+      updateFn: React.PropTypes.func.isRequired
    	},
 
-    handleChange: function(path, value, store, type) {
+    componentDidMount: function() {
+      var auto = this.refs;
+
+      var props = this.props,
+          dsId = parseInt(props.dsId),
+          schema = dsUtil.schema(dsId),
+          keys = dl.keys(schema);
+
+      $(ReactDOM.findDOMNode(this)).textcomplete([
+                {
+                    words: keys,
+                    match: /\b(\w{2,})$/,
+                    search: function (term, callback) {
+
+                        callback($.map(this.words, function (word) {
+                          console.log(word);
+                            return word.indexOf(term) === 0 ? word : null;
+                        }));
+                    },
+                    index: 1,
+                    replace: function (word) {
+                        return '<span class="auto" contenteditable="false">' + word + '</span> ';
+                    }
+                }
+            ]);
+    },
+    
+
+    handleChange: function(type, value, event) {
+      var props = this.props,
+        value = props.value,
+        type = props.type,
+        dsId = parseInt(props.dsId),
+        schema = dsUtil.schema(dsId),
+        keys = dl.keys(schema),
+
+        updateFn = props.updateFn,
+
+        htmlString;
+
+      // console.log("fired handleChange");
+      // console.log(event.target.innerHTML);
+      // console.log(value);
+      // console.log(type);
       if (type == 'expr') {
-        this.props.updateExprOrTmpl(path, value, store);
+        updateFn(outExpr(event.target.innerHTML, keys));
+        console.log(outExpr(event.target.innerHTML, keys));
       } else if (type == 'tmpl') {
-        this.props.updateExprOrTmpl(path, value, store);
+        console.log(outTmpl(event.target.innerHTML, keys));
+        updateFn(outTmpl(event.target.innerHTML, keys));
+      } else {
+        // handel error
       }
     },
 
@@ -119,28 +161,28 @@ var AutoComplete = React.createClass({
   		var props = this.props,
   			value = props.value,
   			type = props.type,
-        path = props.path,
         dsId = parseInt(props.dsId),
         schema = dsUtil.schema(dsId),
-        keys = dl.keys(schema),
+        keys = dl.keys(schema);
+  			//htmlString = " ";
 
-        
+        //console.log(keys);
 
-  			htmlString;
-
-        console.log(keys);
-
-  		if (type == "expr") {
-        props.updateExpr(path, outExpr(value, keys));
-  			htmlString = inExpr(value, keys);
-        //console.log(htmlString);
-  		} else if (type == "tmpl") {
-        props.updateTmpl(path, outTmpl(value, keys));
-        htmlString = inTmpl(value, keys);
+      if (value === undefined) {
+        value = "";
       }
 
+  		// if (type == "expr") {
+  		// 	htmlString = inExpr(value, keys);
+    //     //console.log(htmlString);
+  		// } else if (type == "tmpl") {
+    //     htmlString = inTmpl(value, keys);
+    //   } else {
+    //     // handle error
+    //   }
+
   		return (
-  	 	  <div contentEditable="true" dangerouslySetInnerHTML={{__html: htmlString}}></div>
+  	 	  <div ref="auto" className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true" ></div>
   		);
   	}
 
