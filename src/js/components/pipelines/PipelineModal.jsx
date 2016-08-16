@@ -8,7 +8,8 @@ var React = require('react'),
     DataTable = require('./DataTable'),
     RawValuesTextArea = require('./RawValuesTextArea'),
     DataURL = require('./DataURL'),
-    dsUtils = require('../../util/dataset-utils');
+    dsUtils = require('../../util/dataset-utils'),
+    NAME_REGEX = dsUtils.NAME_REGEX;
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -46,15 +47,17 @@ var PipelineModal = React.createClass({
   success: function(state, msg, preview) {
     this.setState(dl.extend({
       error: null,
-      success: msg || 'Successful import!',
-      showPreview: !(preview === false)
+      success: msg || null,
+      showPreview: !(preview === false),
+      selectedExample: null
     }, state));
   },
 
-  error: function(msg) {
+  error: function(err) {
     this.setState({
-      error: msg || 'An error occured!',
-      success: null
+      error: err.statusText || err.message || 'An error occured!',
+      success: null,
+      selectedExample: null
     });
   },
 
@@ -69,8 +72,11 @@ var PipelineModal = React.createClass({
     this.props.closeModal();
   },
 
-  loadURL: function(url) {
+  loadURL: function(msg, url) {
     var that = this;
+    msg = msg !== false ?
+      'Successfully imported ' + url.match(NAME_REGEX)[0] + '!' : msg;
+
     dsUtils.loadURL(url)
       .then(function(loaded) {
         var dataset = loaded.dataset,
@@ -83,10 +89,10 @@ var PipelineModal = React.createClass({
           values: values,
           schema: dsUtils.schema(values),
           selectedExample: url
-        });
+        }, msg, true);
       })
       .catch(function(err) {
-        that.error(err.statusText);
+        that.error(err);
       });
   },
 
@@ -109,7 +115,7 @@ var PipelineModal = React.createClass({
         overflow: 'hidden',
         top: null, bottom: null, left: null, right: null,
         width: '550px',
-        height: preview ? 'auto' : '300px',
+        height: (success || error || preview) ? 'auto' : '300px',
         padding: null
       }
     };
@@ -131,7 +137,7 @@ var PipelineModal = React.createClass({
                     className = state.selectedExample === url ? 'selected' : null;
 
                 return (
-                  <li key={name} onClick={this.loadURL.bind(this, url)}
+                  <li key={name} onClick={this.loadURL.bind(this, false, url)}
                     className={className}>
                     <p className="example-name">{name}</p>
                     <p>{description}</p>
@@ -142,24 +148,23 @@ var PipelineModal = React.createClass({
           </div>
 
           <div className="load">
-            <h2>Import</h2>
+            <h2>Import a Dataset</h2>
 
             <p>
               Data must be in a tabular form. Supported import
-              formats include <abbr title="JavaScripts Object Notation">json</abbr>, <abbr title="Coma Separated Values">csv</abbr> and <abbr title="Tab Separated Values">tsv</abbr>
+              formats include <abbr title="JavaScript Object Notation">json</abbr>, <abbr title="Comma-Separated Values">csv</abbr> and <abbr title="Tab-Separated Values">tsv</abbr>
             </p>
 
-            <DataURL loadURL={this.loadURL} />
+            <DataURL loadURL={this.loadURL.bind(this, true)} />
             <RawValuesTextArea success={this.success} error={this.error} />
           </div>
 
           {error ? <div className="error-message">{error}</div> : null}
+          {success ? <div className="success-message">{success}</div> : null}
 
           {!preview || error ? null : (
             <div className="preview">
               <h2>Preview</h2>
-
-              {success ? <div className="success-message">{success}</div> : null}
 
               <DataTable className="source"
                 values={state.values} schema={state.schema} />

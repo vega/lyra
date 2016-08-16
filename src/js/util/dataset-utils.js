@@ -133,7 +133,7 @@ function parseRaw(raw) {
     }
 
     throw Error('Raw data is in an unsupported format. ' +
-      'Only JSON, CSV, or TSV may be imported');
+      'Only JSON, CSV, or TSV may be imported.');
   }
 
   return {};
