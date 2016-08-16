@@ -176,6 +176,5 @@ module.exports = {
   parseRaw: parseRaw,
   schema: schema,
 
-  MTYPES: ['nominal', 'quantitative', 'temporal'], // ordinal not yet used
   NAME_REGEX: NAME_REGEX
 };

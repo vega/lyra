@@ -7,7 +7,8 @@ var dl = require('datalib'),
     signalLookup = require('../util/signal-lookup'),
     dsUtils = require('../util/dataset-utils'),
     manipulators = require('./manipulators'),
-    GTYPES = require('../store/factory/Guide').GTYPES;
+    GTYPES = require('../store/factory/Guide').GTYPES,
+    ORDER = require('../constants/sortOrder');
 
 /**
  * Exports primitives in the redux store as a complete Vega specification.
@@ -38,7 +39,8 @@ exporter.dataset = function(state, internal, id) {
   var dataset = getInVis(state, 'datasets.' + id).toJS(),
       spec = clean(dl.duplicate(dataset), internal),
       values = dsUtils.input(id),
-      format = spec.format && spec.format.type;
+      format = spec.format && spec.format.type,
+      sort = exporter.sort(dataset);
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
@@ -55,7 +57,32 @@ exporter.dataset = function(state, internal, id) {
       json2csv({data: values, del: format === 'tsv' ? '\t' : ','}) : values;
   }
 
+  if (sort !== undefined) {
+    spec.transform = spec.transform || [];
+    spec.transform.push(sort);
+  }
+
   return spec;
+};
+
+/**
+  * Method that builds the vega sort data transform code from
+  * the current dataset.
+  *
+  * @param  {object} dataset The current dataset
+  * @returns {object} undefined if _sort not in dataset and the
+  * vega data transform code to be appended to the vega spec to * the dataset
+  */
+exporter.sort = function(dataset) {
+  var sort = dataset._sort;
+  if (!sort) {
+    return;
+  }
+
+  return {
+    type: 'sort',
+    by: (sort.order === ORDER.DESC ? '-' : '') + sort.field
+  };
 };
 
 exporter.scene = function(state, internal) {
