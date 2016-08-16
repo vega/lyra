@@ -55,18 +55,20 @@ var SortField = React.createClass({
         sortAsc = isSortAsc(props.dataset);
 
     if (sortAsc != null) {
-      if (field.mtype === 'nominal') {
-        ascOrDescIcon = sortAsc ? (
-          <Icon onClick={this.sort}
-            glyph={assets.sortAlphaAsc} width="10" height="10" />) : (
-          <Icon onClick={this.sort}
-            glyph={assets.sortAlphaDesc} width="10" height="10" />);
-      } else if (field.mtype === 'quantitative' || field.mtype === 'temporal') {
-        ascOrDescIcon = sortAsc ? (
-          <Icon onClick={this.sort}
-            glyph={assets.sortNumericAsc} width="10" height="10" />) : (
-          <Icon onClick={this.sort}
-            glyph={assets.sortNumericDesc} width="10" height="10" />);
+      if (field.name === getFieldName(props.dataset.toJS()._sort.sortField)) {
+        if (field.mtype === 'nominal') {
+          ascOrDescIcon = sortAsc ? (
+            <Icon onClick={this.sort}
+              glyph={assets.sortAlphaAsc} width="10" height="10" />) : (
+            <Icon onClick={this.sort}
+              glyph={assets.sortAlphaDesc} width="10" height="10" />);
+        } else if (field.mtype === 'quantitative' || field.mtype === 'temporal') {
+          ascOrDescIcon = sortAsc ? (
+            <Icon onClick={this.sort}
+              glyph={assets.sortNumericAsc} width="10" height="10" />) : (
+            <Icon onClick={this.sort}
+              glyph={assets.sortNumericDesc} width="10" height="10" />);
+        }
       }
     }
 
@@ -84,6 +86,14 @@ function isSortAsc(dataset) {
   }
 
   return result;
+}
+
+function getFieldName(sortField) {
+  if (sortField.charAt(0) === '-') {
+    return sortField.substring(1);
+  } else {
+    return sortField;
+  }
 }
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(SortField);
