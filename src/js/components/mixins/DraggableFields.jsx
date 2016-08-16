@@ -8,8 +8,7 @@ module.exports = {
   handleDragStart: function(evt) {
     this.setState({
       bindField: this.state.fieldDef,
-      listLimit: LIST_LIMIT,
-      showFieldTransforms: false
+      listLimit: LIST_LIMIT
     });
     evt.dataTransfer.setData('text/plain', evt.target.id);
     evt.dataTransfer.effectAllowed = 'link';

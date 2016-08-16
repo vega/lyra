@@ -6,6 +6,7 @@ var React = require('react'),
     FieldType = require('./FieldType'),
     SortField = require('./SortField'),
     Icon = require('../Icon'),
+    AggregateField = require('./AggregateField'),
     assets = require('../../util/assets'),
     AGGREGATION_OPS = require('../../constants/transformTypes').aggregationOps,
     DraggableFields = require('../mixins/DraggableFields');
@@ -44,6 +45,9 @@ var HoverField = React.createClass({
     };
   },
 
+  // need to modify in a way that preserves the old props if no new ones
+  // are detected, if the user drags an AggregationField out of the transforms
+  // menue the information that the DraggableFields mixins is gone
   componentWillReceiveProps: function(newProps) {
     var def = newProps.def,
         schema = dsUtil.schema(newProps.dsId) || newProps.dsSchema,
@@ -90,7 +94,6 @@ var HoverField = React.createClass({
     var transformsIcon = (<Icon onClick={this.toggleTransforms} glyph={assets.symbol}
       width="10" height="10" />);
 
-    // TODO implement collapsing feature
     var listControls = AGGREGATION_OPS.length > state.listLimit ?
       (<li className="transform-item-enum"
         onClick={this.expandTransformsList}>
@@ -108,7 +111,9 @@ var HoverField = React.createClass({
                 transforms.map(function(transform, i) {
                   return (
                     <li className="transform-item" key={i}>
-                      {transform} - {field.name}
+                      <AggregateField aggregationName={transform}
+                        field={field.name}
+                        className={this.props.className} />
                     </li>
                   );
                 }, this)
