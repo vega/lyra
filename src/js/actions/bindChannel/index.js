@@ -37,11 +37,12 @@ var CELLW = 517,
  *
  * @param  {number} dsId     The ID of the dataset that contains the given field.
  * @param  {Object} field    A field schema object.
+ * @param  {Object} transformA string with the transformation name.
  * @param  {number} markId   The ID of the mark whose property will be bound.
  * @param  {string} property The name of the property to bind.
  * @returns {Function}       Async action function.
  */
-function bindChannel(dsId, field, markId, property) {
+function bindChannel(dsId, field, markId, property, transform) {
   return function(dispatch, getState) {
     var state = getState(),
         mark  = getInVis(state, 'marks.' + markId),
@@ -198,13 +199,15 @@ function channelDef(field) {
 
   if (agg) {
     res = re.agg.exec(name);
-    ref.aggregate = res[1];
+    ref.aggregate = res ? res[1] : field.aggregate;
   } else if (bin) {
     res = re.bin.exec(name);
     ref.bin = true;
   }
 
   ref.field = res ? res[2] : name;
+
+  console.log('ref: ', ref);
 
   return ref;
 }

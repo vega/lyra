@@ -98,7 +98,7 @@ var HoverField = React.createClass({
   // This makes use of the bubble cursor, which corresponds to the cell signal;
   // we're using that to figure out which channel we are closest to. The
   // SELECTED signal indicates the mark to bind the data to.
-  handleDragEnd: function(evt) {
+  handleDragEnd: function(evt, transform) {
     var props = this.props,
         sel = sg.get(sg.SELECTED),
         cell = sg.get(sg.CELL),
@@ -107,6 +107,9 @@ var HoverField = React.createClass({
 
     try {
       if (dropped) {
+        if (transform) {
+          bindField.aggregate = transform;
+        }
         props.bindChannel(props.dsId, bindField, sel.mark.def.lyra_id, cell.key);
       }
     } catch (e) {
