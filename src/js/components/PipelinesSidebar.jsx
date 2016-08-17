@@ -2,7 +2,7 @@
 var React = require('react'),
     PipelineList = require('./pipelines/PipelineList'),
     assets = require('../util/assets'),
-    PipelineModal = require('./pipelines/PipelineModal'),
+    PipelineModal = require('./pipelines/PipelineModal').connected,
     Icon = require('./Icon');
 
 var PipelineSidebar = React.createClass({

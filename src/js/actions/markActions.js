@@ -16,7 +16,8 @@ var dl = require('datalib'),
     RESET_MARK_VISUAL = 'RESET_MARK_VISUAL',
     BIND_SCALE = 'BIND_SCALE',
     BIND_FIELD = 'BIND_FIELD',
-    SET_MARK_EXTENT = 'SET_MARK_EXTENT';
+    SET_MARK_EXTENT = 'SET_MARK_EXTENT',
+    SET_VL_UNIT = 'SET_VL_UNIT';
 
 /**
  * Action creator to create a new mark and add it to the store.
@@ -194,6 +195,22 @@ function setMarkExtent(id, oldExtent, newExtent) {
   };
 }
 
+/**
+ * Sets the Vega-Lite unit specification for the specified mark to the given spec.
+ *
+ * @param {number} id   The ID of the mark.
+ * @param {Object} spec The Vega-Lite unit specification.
+ *
+ * @returns {Object} The SET_VL_UNIT action object.
+ */
+function setVlUnit(id, spec) {
+  return {
+    type: SET_VL_UNIT,
+    id: id,
+    spec: spec
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_MARK: ADD_MARK,
@@ -206,6 +223,7 @@ module.exports = {
   BIND_SCALE: BIND_SCALE,
   BIND_FIELD: BIND_FIELD,
   SET_MARK_EXTENT: SET_MARK_EXTENT,
+  SET_VL_UNIT: SET_VL_UNIT,
 
   // Action Creators
   addMark: addMark,
@@ -217,5 +235,6 @@ module.exports = {
   resetMarkVisual: resetMarkVisual,
   bindScale: bindScale,
   bindField: bindField,
-  setMarkExtent: setMarkExtent
+  setMarkExtent: setMarkExtent,
+  setVlUnit: setVlUnit
 };

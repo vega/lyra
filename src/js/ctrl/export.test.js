@@ -5,7 +5,8 @@ var expect = require('chai').expect,
     signal = require('./signals'),
     counter = require('../util/counter'),
     dsUtil = require('../util/dataset-utils'),
-    exporter = require('./export');
+    exporter = require('./export'),
+    ORDER = require('../constants/sortOrder');
 
 /* eslint new-cap:0 */
 function historyWrap(map) {
@@ -50,6 +51,14 @@ describe('Exporter Utility', function() {
           _id: 4,
           name: 'jobs dataset',
           format: {type: 'json'}
+        },
+        '5': {
+          _id: 5,
+          _sort: {field: 'Horsepower', order: ORDER.ASC}
+        },
+        '6': {
+          _id: 6,
+          _sort: {field: 'Displacement', order: ORDER.DESC}
         }
       },
       values: [
@@ -111,6 +120,18 @@ describe('Exporter Utility', function() {
           name: 'jobs_dataset',
           values: state.values[1]
         });
+      });
+
+      it('exports dataset with ascending sort', function() {
+        var ds = exporter.dataset(imstate, false, 5);
+        expect(ds).to.have.deep.property('transform[0].type', 'sort');
+        expect(ds).to.have.deep.property('transform[0].by', 'Horsepower');
+      });
+
+      it('exports dataset with descending sort', function() {
+        var ds = exporter.dataset(imstate, false, 6);
+        expect(ds).to.have.deep.property('transform[0].type', 'sort');
+        expect(ds).to.have.deep.property('transform[0].by', '-Displacement');
       });
     });
 

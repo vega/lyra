@@ -1,7 +1,6 @@
 'use strict';
 
-var dl = require('datalib'),
-    merge = require('lodash.merge'),
+var merge = require('lodash.merge'),
     addGuide = require('../guideActions').addGuide,
     actions = require('./helperActions'),
     addAxisToGroup = actions.addAxisToGroup,
@@ -141,7 +140,8 @@ function findOrCreateLegend(dispatch, state, parsed, scaleId, defs) {
   if (!foundLegend) {
     var legend = Guide(TYPES.LEGEND, property, scaleId);
     legend.title = def.title;
-    dl.extend(legend.properties, def.properties);
+    delete legend.properties.symbols[property];
+    merge(legend.properties, def.properties);
     dispatch(legend = addGuide(legend));
     dispatch(addLegendToGroup(legend.id, parentId));
   }

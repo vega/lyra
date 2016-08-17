@@ -5,7 +5,8 @@ var React = require('react'),
     sg = require('../../ctrl/signals'),
     dsUtil = require('../../util/dataset-utils'),
     bindChannel = require('../../actions/bindChannel'),
-    FieldType = require('./FieldType');
+    FieldType = require('./FieldType'),
+    SortField = require('./SortField');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -21,9 +22,10 @@ function mapDispatchToProps(dispatch, ownProps) {
 
 var HoverField = React.createClass({
   propTypes: {
-    dsId: React.PropTypes.number.isRequired,
+    dsId: React.PropTypes.number,
     className: React.PropTypes.string.isRequired,
-    def: React.PropTypes.object
+    def: React.PropTypes.object,
+    schema: React.PropTypes.object
   },
 
   getInitialState: function() {
@@ -36,7 +38,7 @@ var HoverField = React.createClass({
 
   componentWillReceiveProps: function(newProps) {
     var def = newProps.def,
-        schema = dsUtil.schema(newProps.dsId);
+        schema = newProps.schema;
 
     if (!def) {
       this.setState({fieldDef: null});
@@ -100,16 +102,6 @@ var HoverField = React.createClass({
     return false;
   },
 
-  changeMType: function(evt) {
-    var MTYPES = dsUtil.MTYPES,
-        fieldDef  = this.state.fieldDef,
-        mTypeIndex = MTYPES.indexOf(fieldDef.mtype);
-
-    mTypeIndex = (mTypeIndex + 1) % MTYPES.length;
-    fieldDef.mtype = MTYPES[mTypeIndex];
-    this.setState({fieldDef: fieldDef});
-  },
-
   render: function() {
     var state = this.state,
         field = state.fieldDef,
@@ -119,6 +111,7 @@ var HoverField = React.createClass({
       <div>
         <FieldType field={field} />
         {field.name}
+        <SortField dsId={this.props.dsId} field={field} />
       </div>
     ) : null;
 

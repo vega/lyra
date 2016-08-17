@@ -12,8 +12,8 @@ function Rect() {
   return {
     properties: {
       update: {
-        x2: {value: 90},
-        y2: {value: 90},
+        x2: {value: 140},
+        y2: {value: 140},
         xc: {value: 70, _disabled: true},
         yc: {value: 70, _disabled: true},
         width: {value: 40, _disabled: true},

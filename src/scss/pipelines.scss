@@ -138,18 +138,114 @@ $pipeline-width: 180px;
 }
 
 .pipelineModal {
-  .partLeft,
-  .partRight {
-    width: 50%;
-    float: left;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 
-    h2 {
-      margin-bottom: 20px;
+  .closeModal {
+    top: $inner-padding;
+    right: $inner-padding;
+  }
+
+  .examples, .load {
+    flex: 1;
+    padding: 0 2*$inner-padding;
+    height: 300px;
+    overflow: auto;
+  }
+
+  .load h2 {
+    margin: 2*$margin 0;
+  }
+
+  .examples h2 {
+    margin: 2*$margin 0;
+    margin-bottom: $margin;
+  }
+
+  .examples li {
+    padding: $outer-padding;
+    cursor: pointer;
+    border-radius: $border-radius;
+
+    &:hover {
+      background: $lblue-bg;
     }
 
-    div.sect {
-      margin-bottom: 10px;
-      padding: 10px 0;
+    &.selected {
+      background: $lyellow-bg;
+    }
+  }
+
+  .example-name {
+    display: block;
+    font-weight: bold;
+    font-size: 14px;
+    color: $dblue-bg;
+    margin-bottom: $inner-padding;
+  }
+
+  abbr {
+    font-variant: small-caps;
+    font-size: 1.3em;
+  }
+
+  form {
+    margin: $margin 0;
+
+    input[type=text] {
+      margin-right: $inner-padding;
+      width: 195px;
+    }
+  }
+
+  textarea {
+    font-family: monospace;
+  }
+
+  .textarea-dnd,
+  input[type="text"] {
+    border: 1px solid;
+    border-radius: 3px;
+    font-size: 100%;
+    padding: .5em 1em;
+    border-color: $lgrey-border;
+  }
+
+  .textarea-dnd {
+    &.active {
+      background-color: $lblue-bg;
+      border-color: $mblue-bg;
+    }
+  }
+
+  input[type="text"] {
+    line-height: normal;
+    margin-top: 5px;
+  }
+
+  .error-message, .success-message {
+    width: 100%;
+    margin: 2 * $margin;
+    margin-top: 0;
+    margin-bottom: $margin;
+  }
+
+  .preview {
+    position: relative;
+    margin: 0 2 * $margin;
+    width: 520px;
+
+    h2 {
+      align-items: flex-start;
+      justify-content: flex-start;
+      margin-bottom: $margin;
+    }
+
+    .datatable td.field, .datatable .full.field { left: 0; }
+
+    button {
+      margin: $margin 0;
     }
   }
 }

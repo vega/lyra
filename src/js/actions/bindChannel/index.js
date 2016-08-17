@@ -5,7 +5,9 @@ var dl = require('datalib'),
     vl = require('vega-lite'),
     AGG_OPS = vg.transforms.aggregate.VALID_OPS,
     getInVis = require('../../util/immutable-utils').getInVis,
-    updateMarkProperty = require('../markActions').updateMarkProperty,
+    markActions = require('../markActions'),
+    updateMarkProperty = markActions.updateMarkProperty,
+    setVlUnit = markActions.setVlUnit,
     dsUtils = require('../../util/dataset-utils'),
     historyActions = require('../../actions/historyActions'),
     startBatch = historyActions.startBatch,
@@ -45,8 +47,8 @@ function bindChannel(dsId, field, markId, property) {
         mark  = getInVis(state, 'marks.' + markId),
         from  = mark.get('from'),
         markType = mark.get('type'),
-        spec = vlSpec(markId, markType),
-        mapping = map(markId),
+        spec = vlSpec(mark),
+        mapping = map(spec),
         channel = channelName(property);
 
     // Though we dispatch multiple actions, we want bindChannel to register as
@@ -74,6 +76,7 @@ function bindChannel(dsId, field, markId, property) {
     parseMarks(dispatch, state, parsed);
     parseGuides(dispatch, state, parsed);
 
+    dispatch(setVlUnit(markId, spec));
     dispatch(endBatch());
   };
 }
@@ -105,9 +108,7 @@ function compile(spec, property, dsId) {
   };
 
   // Force marks to be filled, if we're binding to the fill color property.
-  if (property === 'fill') {
-    spec.config.mark = {filled: true};
-  }
+  spec.config.mark = {filled: property === 'fill'};
 
   return {
     input:  spec,
@@ -119,30 +120,28 @@ function compile(spec, property, dsId) {
  * Constructs a Vega-Lite specification, or returns a previously created one,
  * for the given mark.
  *
- * @param  {number} markId   The ID of the mark.
- * @param  {string} markType The Vega type of the mark.
+ * @param  {ImmutableMap} mark A mark definition from the store.
  * @returns {Object} A Vega-Lite specification.
  */
-function vlSpec(markId, markType) {
-  var cache = vlSpec.cache || (vlSpec.cache = {});
-  return cache[markId] || (cache[markId] = {
-    mark: TYPES[markType],
+function vlSpec(mark) {
+  var vlUnit = mark.get('_vlUnit');
+  return vlUnit ? vlUnit.toJS() : {
+    mark: TYPES[mark.get('type')],
     data: {},
     encoding: {},
     config: {}
-  });
+  };
 }
 
 /**
  * Builds/returns a mapping of primitive names found in a mark's Vega-Lite
  * specification and the corresponding IDs of the primitives in Lyra.
  *
- * @param  {number} markId The ID of the mark.
- * @returns {Object} A mapping object.
+ * @param  {Object} vlUnit A Vega-Lite unit spec for the mark.
+ * @returns {Object} A mapping object, stored in a private key in the vlUnit.
  */
-function map(markId) {
-  var cache = map.cache || (map.cache = {});
-  return cache[markId] || (cache[markId] = {
+function map(vlUnit) {
+  return vlUnit._lyraMap || (vlUnit._lyraMap = {
     data: {},
     scales: {},
     axes: {},

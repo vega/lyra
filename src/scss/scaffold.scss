@@ -17,12 +17,14 @@ body {
 
 // Vis-container is where vega is placed
 .vis-container {
-  left: $sidebars-width;
-  overflow: auto;
-  display: block;
   position: absolute;
-  bottom: 0;
+  display: block;
+  left: $sidebars-width;
+  right: 0;
   top: 60px;
+  bottom: 0;
+  overflow: auto;
+
 
   #vis {
     margin: 0 2*$outer-padding 2*$outer-padding;

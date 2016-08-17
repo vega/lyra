@@ -174,6 +174,13 @@ describe('vega reducer', function() {
       expect(result.get('invalid')).to.equal(true);
     });
 
+    it('flags the store as invalid when sort on dataset requested', function() {
+      var result = vegaReducer(initialState, {
+        type: actions.SORT_DATASET
+      });
+      expect(result.get('invalid')).to.equal(true);
+    });
+
   });
 
   describe('parse action', function() {

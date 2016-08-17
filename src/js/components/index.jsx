@@ -1,15 +1,31 @@
 'use strict';
-var ReactDOM = require('react-dom'),
-    Sidebars = require('./Sidebars'),
-    React = require('react'),
+var React = require('react'),
+    ReactDOM = require('react-dom'),
+    ReactTooltip = require('react-tooltip'),
     Provider = require('react-redux').Provider,
+    Toolbar = require('./Toolbar'),
+    InspectorSidebar = require('./InspectorSidebar'),
+    EncodingsSidebar = require('./EncodingsSidebar'),
+    PipelinesSidebar = require('./PipelinesSidebar'),
+    Footer = require('./Footer'),
     store = require('../store');
 
 // React requires you only have one wrapper element called in your provider
-module.exports = ReactDOM.render(
+module.exports = window.ui = ReactDOM.render(
   <Provider store={store}>
-    <Sidebars/>
+    <div>
+      <Toolbar/>
+
+      <div className="sidebar-container">
+        <EncodingsSidebar />
+        <InspectorSidebar />
+        <PipelinesSidebar />
+      </div>
+
+      <Footer/>
+
+      <ReactTooltip effect="solid"/>
+    </div>
   </Provider>,
-  d3.select('#sidebars').node()
+  document.querySelector('.chrome-container')
 );
-window.ui = module.exports;

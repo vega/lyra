@@ -14,7 +14,8 @@ var d3 = require('d3'),
 
 function mapStateToProps(state, ownProps) {
   return {
-    dataset: getInVis(state, 'datasets.' + ownProps.id)
+    dataset: getInVis(state, 'datasets.' + ownProps.id),
+    vega: state.get('vega')
   };
 }
 
@@ -36,6 +37,11 @@ var DataTable = React.createClass({
   componentDidMount: function() {
     var el = d3.select(ReactDOM.findDOMNode(this));
     this.$table = el.select('.datatable');
+  },
+
+  shouldComponentUpdate: function(nextProps, nextState) {
+    var vega = nextProps.vega;
+    return !vega.get('invalid') && !vega.get('isParsing');
   },
 
   prevPage: function() {
@@ -77,8 +83,8 @@ var DataTable = React.createClass({
         start = page * limit,
         stop  = start + limit,
         id = props.id,
-        schema = dsUtil.schema(id),
-        output = dsUtil.output(id),
+        schema = id ? dsUtil.schema(id) : props.schema,
+        output = id ? dsUtil.output(id) : props.values,
         values = output.slice(start, stop),
         keys = dl.keys(schema),
         max = output.length,
@@ -98,26 +104,26 @@ var DataTable = React.createClass({
         <div className="datatable"
           onMouseLeave={this.hideHover} onScroll={this.hideHover}>
 
-          <table><tbody>
-            {keys.map(function(k) {
-              return (
-                <tr key={k}>
-                  <td className={'field ' + props.className}
-                    onMouseOver={this.showHoverField}>{k}</td>
-                  {values.map(function(v, i) {
-                    return (
-                      <td key={k + i} className={i % 2 ? 'even' : 'odd'}
-                        onMouseOver={this.showHoverValue}>{v[k]}</td>
-                    );
-                  }, this)}
-                </tr>
-              );
-            }, this)}
-          </tbody></table>
-
-          <HoverField className={props.className} dsId={props.id}
-            def={state.hoverField} />
-
+          <table>
+            <tbody>
+              {keys.map(function(k) {
+                return (
+                  <tr key={k}>
+                    <td className={'field ' + props.className}
+                      onMouseOver={this.showHoverField}>{k}</td>
+                    {values.map(function(v, i) {
+                      return (
+                        <td key={k + i} className={i % 2 ? 'even' : 'odd'}
+                          onMouseOver={this.showHoverValue}>{v[k]}</td>
+                      );
+                    }, this)}
+                  </tr>
+                );
+              }, this)}
+            </tbody>
+          </table>
+          <HoverField className={props.className} dsId={id}
+            schema={schema} def={state.hoverField} />
           <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
         </div>
 

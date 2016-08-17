@@ -14,13 +14,14 @@ var dl = require('datalib'),
  * @param {Object} pipeline - The properties of the pipeline.
  * @param {Object} dataset - The properties of the dataset.
  * @param {Array} values - A JSON array of parsed values.
+ * @param {Object} schema - An object containing the schema values.
  * @returns {Function} An async action function
  */
-function addPipeline(pipeline, dataset, values) {
+function addPipeline(pipeline, dataset, values, schema) {
   return function(dispatch) {
     var pid = pipeline._id || counter.global();
 
-    var ds = addDataset(dl.extend({_parent: pid}, dataset), values);
+    var ds = addDataset(dl.extend({_parent: pid}, dataset), values, schema);
     dispatch(ds);
 
     pipeline = dl.extend({
