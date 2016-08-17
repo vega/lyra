@@ -1,3 +1,4 @@
+// autoComplete component should be wrapped by a div with className "unce"
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
