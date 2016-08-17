@@ -41,7 +41,6 @@ function outExpr(htmlString, store) {
   htmlString = htmlString.split(spanPreHardcore).join('');
   htmlString = htmlString.split(spanPostHardcore).join('');
   htmlString = insert(htmlString, store, 'datum.', '');
-  //console.log(htmlString);
   return htmlString;
 }
 
@@ -59,7 +58,6 @@ function inTmpl(storeString, store) {
     position = storeString.search(regex);
   }
   storeString = insert(storeString, store, spanPreHardcore, spanPostHardcore);
-  //console.log(storeString);
   return storeString;
 }
 
@@ -103,7 +101,6 @@ var AutoComplete = React.createClass({
    	},
 
     componentDidMount: function() {
-      var auto = this.refs;
 
       var props = this.props,
           dsId = parseInt(props.dsId),
@@ -117,7 +114,7 @@ var AutoComplete = React.createClass({
                     search: function (term, callback) {
 
                         callback($.map(this.words, function (word) {
-                          console.log(word);
+                          
                             return word.indexOf(term) === 0 ? word : null;
                         }));
                     },
@@ -142,16 +139,12 @@ var AutoComplete = React.createClass({
 
         htmlString;
 
-      // console.log("fired handleChange");
-      // console.log(event.target.innerHTML);
-      // console.log(value);
-      // console.log(type);
       if (type == 'expr') {
         updateFn(outExpr(event.target.innerHTML, keys));
         console.log(outExpr(event.target.innerHTML, keys));
       } else if (type == 'tmpl') {
-        console.log(outTmpl(event.target.innerHTML, keys));
         updateFn(outTmpl(event.target.innerHTML, keys));
+        console.log(outTmpl(event.target.innerHTML, keys));
       } else {
         // handel error
       }
@@ -164,25 +157,15 @@ var AutoComplete = React.createClass({
         dsId = parseInt(props.dsId),
         schema = dsUtil.schema(dsId),
         keys = dl.keys(schema);
-  			//htmlString = " ";
-
-        //console.log(keys);
 
       if (value === undefined) {
         value = "";
       }
 
-  		// if (type == "expr") {
-  		// 	htmlString = inExpr(value, keys);
-    //     //console.log(htmlString);
-  		// } else if (type == "tmpl") {
-    //     htmlString = inTmpl(value, keys);
-    //   } else {
-    //     // handle error
-    //   }
-
   		return (
-  	 	  <div className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true" ></div>
+        
+  	 	   <div id="ce" className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true" ></div>
+        
   		);
   	}
 

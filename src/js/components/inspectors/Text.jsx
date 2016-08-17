@@ -1,12 +1,12 @@
 'use strict';
 var React = require('react'),
     Property = require('./Property'),
-    AutoComplete = require('../pipelines/AutoComplete'),
+    AutoComplete = require('./AutoComplete'),
     primTypes = require('../../constants/primTypes'),
     connect = require('react-redux').connect,
     updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
     Text = require('../../store/factory/marks/Text'),
-
+    AutoComplete = require('./AutoComplete'),
     imutils = require('../../util/immutable-utils'),
     
     
@@ -43,8 +43,9 @@ var TextInspector = React.createClass({
     return (
       <div>
        
+       <div className='unce'>
          <AutoComplete dsId={4} value={props.autoVal} type="tmpl" updateFn={this.props.autoCompleteUpdate.bind(this, this.props.primId, 'job')} />
-
+       </div>
         <div className="property-group">
           <Property name="text" type="text" canDrop={true} {...props}>
             <h3 className="label">Text</h3>

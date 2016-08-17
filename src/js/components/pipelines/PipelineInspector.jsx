@@ -10,7 +10,6 @@ var React = require('react'),
     getInVis = imutils.getInVis,
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
-    AutoComplete = require('./AutoComplete'),
     Immutable = require('immutable');
 
 function mapStateToProps(state, ownProps) {
