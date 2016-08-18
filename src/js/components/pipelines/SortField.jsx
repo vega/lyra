@@ -65,4 +65,7 @@ var SortField = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(SortField);
+module.exports = {
+  connected: connect(mapStateToProps, mapDispatchToProps)(SortField),
+  disconnected: SortField
+}

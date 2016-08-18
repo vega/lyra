@@ -6,7 +6,7 @@ var React = require('react'),
     dsUtil = require('../../util/dataset-utils'),
     bindChannel = require('../../actions/bindChannel'),
     FieldType = require('./FieldType'),
-    SortField = require('./SortField');
+    SortField = require('./SortField').connected;
 
 function mapStateToProps(state, ownProps) {
   return {};
