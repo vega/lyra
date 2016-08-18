@@ -126,4 +126,7 @@ var HoverField = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(HoverField);
+module.exports = {
+  connected: connect(mapStateToProps, mapDispatchToProps)(HoverField),
+  disconnected: HoverField
+}

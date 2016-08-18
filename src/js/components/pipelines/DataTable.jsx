@@ -9,7 +9,7 @@ var d3 = require('d3'),
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
-    HoverField = require('./HoverField'),
+    HoverField = require('./HoverField').connected,
     HoverValue = require('./HoverValue');
 
 function mapStateToProps(state, ownProps) {
