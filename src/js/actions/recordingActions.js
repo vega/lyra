@@ -23,22 +23,26 @@ function stopRecording() {
   return {type: STOP_RECORDING};
 }
 
+
 /**
  * Records an event as part of the demonstration.
  *
- * @param {Object}   entry The recorded entry, containing the event type,
- *                         event object, and picked scenegraph item.
- * @param {Object}   summary A summary of all events seen during this demonstration.
- * @param {Object[]} eventLog A full history of logged events.
- *
- * @returns {Object} An RECORD_EVENT Redux action object.
+ * @param   {string} evtType The type of an event (which may be `drag` for
+ *                           `mousemoves` that occur between `mousedown`
+ *                           and `mouseup`).
+ * @param   {Object} evt     The DOM event object.
+ * @param   {Item}   item    The Vega scenegraph item.
+ * @param   {number} markId  The Lyra ID of the mark being interacted with.
+ * @returns {Object} A RECORD_EVENT redux action.
  */
-function recordEvent(entry, summary, eventLog) {
+function recordEvent(evtType, evt, item, markId) {
   return {
     type: RECORD_EVENT,
-    entry: entry,
-    summary: summary,
-    eventLog: eventLog
+    evtType: evtType,
+    evt: evt,
+    item: item,
+    itemId: item ? item._id : null,
+    markId: markId
   };
 }
 

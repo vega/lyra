@@ -4,26 +4,13 @@ var dl = require('datalib'),
     ctrl = require('./'),
     sg = require('./signals'),
     store = require('../store'),
+    classes = require('../reducers/recordings/registry'),
     recordEvent = require('../actions/recordingActions').recordEvent,
     getIn = require('../util/immutable-utils').getIn,
     MODES = require('../constants/modes');
 
 // Supported events for recording.
 var EVENTS = ['mousemove', 'mouseover', 'click', 'dblclick'];
-
-// The fields that comprise an "event signature."
-// TODO: not evt.type to be able to detect/rewrite "drags."
-var EVT_SIG = ['type', 'evt.altKey', 'evt.ctrlKey', 'evt.metaKey', 'evt.shiftKey'];
-
-// We want to keep a log of streams of the following events. By streams we mean
-// that all the events in the log must be of the same type. If a new logged
-// event occurs, the log is first cleared of the old stream.
-var LOG_EVENTS = ['click', 'dblclick', 'drag'],
-    eventLog = [];
-
-// For all events, we also calculate summary statistics by event signature.
-var summary = dl.groupby(EVT_SIG)
-    .summarize({'*': 'count', itemId: 'distinct'});
 
 // Is the user performing a drag operation?
 var dragging = false;
@@ -58,32 +45,25 @@ function stop() {
       .update();
   }
 
-  eventLog = [];
-  summary.clear();
   dragging = false;
+  dl.vals(classes).forEach(function(c) {
+    c.reset();
+  });
 }
 
 function record(evt, item) {
-  var type = evt.vegaType;
+  var type = evt.vegaType,
+      markId = item ? item.mark.def.lyra_id :
+        getIn(store.getState(), 'inspectors.encodings.selectedId');
+
   type = type === 'mousemove' && dragging ? 'drag' : type;
 
-  var entry = {
-    type: type,
-    evt: evt,
-    item: item,
-    itemId: item ? item._id : null
-  };
+  var action = recordEvent(type, evt, item, markId);
+  dl.vals(classes).forEach(function(c) {
+    c.record(action);
+  });
 
-  summary.insert([entry]);
-  if (LOG_EVENTS.indexOf(type) >= 0) {
-    if (eventLog.length && eventLog[eventLog.length - 1].type !== type) {
-      eventLog = [];
-    }
-
-    eventLog.push(entry);
-  }
-
-  store.dispatch(recordEvent(entry, summary.result(), eventLog));
+  store.dispatch(action);
 }
 
 function detectDrag(evt) {
@@ -94,4 +74,4 @@ function detectDrag(evt) {
   }
 }
 
-module.exports = {start: start, stop: stop, EVT_SIG: EVT_SIG};
+module.exports = {start: start, stop: stop};

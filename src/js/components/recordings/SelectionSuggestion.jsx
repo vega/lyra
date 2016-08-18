@@ -2,7 +2,7 @@
 
 var React = require('react'),
     EventSuggestions = require('./EventSuggestions'),
-    SEL_TYPES = require('../../constants/selectionTypes').PROP_TYPES;
+    SEL_TYPES = require('../../constants/selectionTypes');
 
 var SelectionSuggestion = React.createClass({
   propTypes: {

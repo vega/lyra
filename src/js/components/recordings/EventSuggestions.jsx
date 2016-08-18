@@ -8,7 +8,7 @@ var React = require('react'),
     recordingActions = require('../../actions/recordingActions'),
     defineSelection = recordingActions.defineSelection,
     assets = require('../../util/assets'),
-    SEL_TYPES = require('../../constants/selectionTypes').PROP_TYPES,
+    SEL_TYPES = require('../../constants/selectionTypes'),
     getIn = require('../../util/immutable-utils').getIn;
 
 function mapStateToProps(reduxState, ownProps) {

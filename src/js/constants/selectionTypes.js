@@ -1,9 +1,11 @@
 'use strict';
 
 var React = require('react'),
-    TYPES = ['point', 'list', 'interval'];
+    POINT = 'point',
+    LIST  = 'list',
+    INTERVAL = 'interval';
 
-module.exports = {
-  TYPES: TYPES,
-  PROP_TYPES: React.PropTypes.oneOf(TYPES)
-};
+module.exports = React.PropTypes.oneOf([POINT, LIST, INTERVAL]);
+module.exports.POINT = POINT;
+module.exports.LIST = LIST;
+module.exports.INTERVAL = INTERVAL;
