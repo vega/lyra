@@ -17,6 +17,6 @@ module.exports = function(name) {
   return {
     name: name,
     _source: undefined,
-    _aggregates: []
+    _aggregates: {}
   };
 };

@@ -50,6 +50,7 @@ $pipeline-width: 180px;
 .datatable {
   $cell-width: 55px;
   $cell-padding: 3px;
+  $menu-offset: 22px; // calculate cell height
   $mw: $cell-width - $cell-padding;
 
   /* Req'd to prevent Chrome scrolling .field for some reason */
@@ -88,14 +89,17 @@ $pipeline-width: 180px;
     border-color: #ddd;
   }
 
+  .transforms-menu,
   .full {
     display: none;
     position: absolute;
     min-width: $mw;
     width: auto;
-    padding: 5px $cell-padding;
     vertical-align: middle;
+  }
 
+  .full {
+    padding: 5px $cell-padding;
     &.field {
       left: $inner-padding;
     }
@@ -115,9 +119,10 @@ $pipeline-width: 180px;
 
   .transforms-menu {
 
-    margin: $outer-padding 0 0 0;
+    margin: $menu-offset 0;
     padding: $inner-padding 0;
     background-color: $yellow-bg;
+    left: $inner-padding;
 
     .transforms-list,
     .transform-item,

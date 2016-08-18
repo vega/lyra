@@ -5,8 +5,6 @@ var React = require('react');
 var AggregateField = React.createClass({
   wrapDragEndTransform: function(evt) {
     var props = this.props;
-    // passing the transform parameter from here due to HoverField not having
-    // access to it
     props.onDragEnd(evt, props.aggregationName);
   },
   render: function() {

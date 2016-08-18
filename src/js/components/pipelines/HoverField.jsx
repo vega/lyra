@@ -9,9 +9,8 @@ var React = require('react'),
     sg = require('../../ctrl/signals'),
     ctrl = require('../../ctrl'),
     Icon = require('../Icon'),
-    AggregateField = require('./AggregateField'),
-    assets = require('../../util/assets'),
-    AGGREGATION_OPS = require('../../constants/transformTypes').aggregationOps;
+    TransformsList = require('./TransformsList'),
+    assets = require('../../util/assets');
 
 var LIST_LIMIT = 5;
 
@@ -139,25 +138,13 @@ var HoverField = React.createClass({
       showFieldTransforms: !this.state.showFieldTransforms
     });
   },
-  expandTransformsList: function() {
-    this.setState({
-      listLimit: AGGREGATION_OPS.length
-    });
-  },
-  collapseTransformsList: function() {
-    this.setState({
-      listLimit: LIST_LIMIT
-    });
-  },
 
   // TODO generalize MoreProperties styling instead of rewriting all dynamic list code
-  // TODO move transformations list from HoverField to own component
   render: function() {
     var state = this.state,
         field = state.fieldDef,
         style = {top: state.offsetTop, display: field ? 'block' : 'none'},
-        transforms = AGGREGATION_OPS.slice(0, state.listLimit),
-        aggregateFieldProps = {
+        aggrHandlers = {
           onDragStart: this.handleDragStart,
           onDragOver: this.handleDragOver,
           onDragEnd: this.handleDragEnd,
@@ -168,36 +155,11 @@ var HoverField = React.createClass({
     var transformsIcon = (<Icon onClick={this.toggleTransforms} glyph={assets.symbol}
       width="10" height="10" />);
 
-    var listControls = AGGREGATION_OPS.length > state.listLimit ?
-      (<li className="transform-item-enum"
-        onClick={this.expandTransformsList}>
-          <strong>+ More Transforms</strong>
-        </li>) : (<li className="transform-item-enum"
-          onClick={this.collapseTransformsList}>
-            <strong>+ Fewer Transforms</strong>
-          </li>);
-
     var transformsList = state.showFieldTransforms ? (
-          <div className="transforms-menu">
-            <ul className="transforms-list">
-              {listControls}
-              {
-                transforms.map(function(transform, i) {
-                  return (
-                    <li className="transform-item" key={i}>
-                      <AggregateField aggregationName={transform}
-                        field={field.name}
-                        {...aggregateFieldProps} />
-                    </li>
-                  );
-                }, this)
-              }
-              <li className="transform-item-enum"
-                onClick={this.toggleTransforms}>
-                <strong className="close-transforms">Dismiss</strong>
-              </li>
-            </ul>
-          </div>
+          <TransformsList handlers={aggrHandlers}
+            style={style}
+            toggleTransforms={this.toggleTransforms}
+            fieldName={field.name} />
         ) : null;
 
     field = field ? (
@@ -211,12 +173,15 @@ var HoverField = React.createClass({
     ) : null;
 
     return (
-      <div className={'full field ' + this.props.className}
-        style={style} draggable={true}
-        onDragStart={this.handleDragStart}
-        onDragOver={this.handleDragOver}
-        onDragEnd={this.handleDragEnd}
-        onDrop={this.handleDrop}>{field}</div>
+      <div>
+        <div className={'full field ' + this.props.className}
+          style={style} draggable={true}
+          onDragStart={this.handleDragStart}
+          onDragOver={this.handleDragOver}
+          onDragEnd={this.handleDragEnd}
+          onDrop={this.handleDrop}>{field}</div>
+          {transformsList}
+      </div>
     );
   }
 });

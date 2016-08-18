@@ -72,6 +72,9 @@ function bindChannel(dsId, field, markId, property, transform) {
     parsed.property = property;
     parsed.channel = channel;
     parsed.dsId = dsId;
+
+    console.log('parsed: ', parsed);
+
     parseData(dispatch, state, parsed);
     parseScales(dispatch, state, parsed);
     parseMarks(dispatch, state, parsed);
@@ -206,8 +209,6 @@ function channelDef(field) {
   }
 
   ref.field = res ? res[2] : name;
-
-  console.log('ref: ', ref);
 
   return ref;
 }
