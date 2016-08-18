@@ -24,15 +24,15 @@ describe('HoverField Component <HoverField/>', function() {
     });
 
     it('valid init fieldDef', function() {
-      expect(wrapper.state('fieldDef').to.equal(null));
+      expect(wrapper.state('fieldDef')).to.be.null;
     });
 
     it('valid init offsetTop', function() {
-      expect(wrapper.state('offsetTop').to.equal(null));
+      expect(wrapper.state('offsetTop')).to.be.null;
     });
 
     it('valid init bindField', function() {
-      expect(wrapper.state('bindField').to.equal(null));
+      expect(wrapper.state('bindField')).to.be.null;
     });
 
   });
