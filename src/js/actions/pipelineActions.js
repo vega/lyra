@@ -5,7 +5,8 @@ var dl = require('datalib'),
     datasetActions = require('./datasetActions'),
     addDataset = datasetActions.addDataset,
     ADD_PIPELINE = 'ADD_PIPELINE',
-    UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY';
+    UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY',
+    AGGREGATE_PIPELINE = 'AGGREGATE_PIPELINE';
 
 /**
  * Action creator to add a new Pipeline in the store. A new pipeline requires
@@ -37,6 +38,22 @@ function addPipeline(pipeline, dataset, values, schema) {
   };
 }
 
+// TODO: docs
+function aggregatePipeline(id, groupBy, datasetAttr) {
+  return function(dispatch) {
+    var props = datasetAttr.props,
+        values = datasetAttr.values,
+        schema = datasetAttr.schema;
+
+    dispatch(addDataset(props, values, schema));
+    dispatch({
+      type: AGGREGATE_PIPELINE,
+      id: id,
+      groupBy: groupBy
+    });
+  };
+}
+
 function updatePipelineProperty(id, property, value) {
   return {
     type: UPDATE_PIPELINE_PROPERTY,
@@ -50,8 +67,10 @@ module.exports = {
   // Action Names
   ADD_PIPELINE: ADD_PIPELINE,
   UPDATE_PIPELINE_PROPERTY: UPDATE_PIPELINE_PROPERTY,
+  AGGREGATE_PIPELINE: AGGREGATE_PIPELINE,
 
   // Action Creators
   addPipeline: addPipeline,
-  updatePipelineProperty: updatePipelineProperty
+  updatePipelineProperty: updatePipelineProperty,
+  aggregatePipeline: aggregatePipeline
 };

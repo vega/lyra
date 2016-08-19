@@ -30,6 +30,11 @@ function pipelinesReducer(state, action) {
       Immutable.fromJS(action.value));
   }
 
+  if (action.type === ACTIONS.AGGREGATE_PIPELINE) {
+    console.log('action: ', action);
+    return {};
+  }
+
   return state;
 }
 
