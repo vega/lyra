@@ -4,7 +4,8 @@ var React = require('react'),
     Immutable = require('immutable'),
     assets = require('../../util/assets'),
     getInVis = require('../../util/immutable-utils').getInVis,
-    Icon   = require('../Icon');
+    Icon   = require('../Icon'),
+    filterDataset = require('../../actions/datasetActions').filterDataset;
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -14,25 +15,24 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-
+    filterDataset: function(dsId, expression) {
+      dispatch(filterDataset(dsId, expression));
+    }
   };
 }
 
 var FilterField = React.createClass({
 
   propTypes: {
-    field: React.PropTypes.object.isRequired,
     dsId:  React.PropTypes.number,
     filter:  React.PropTypes.instanceOf(Immutable.Map)
   },
 
   filter: function(evt) {
     var props = this.props,
-        field = props.field,
         filter = props.filter,
         dsId = props.dsId;
 
-    
   },
 
   render: function() {

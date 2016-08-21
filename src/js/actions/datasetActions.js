@@ -3,7 +3,8 @@
 var dl = require('datalib'),
     counter = require('../util/counter'),
     ADD_DATASET = 'ADD_DATASET',
-    SORT_DATASET = 'SORT_DATASET';
+    SORT_DATASET = 'SORT_DATASET',
+    FILTER_DATASET = 'FILTER_DATASET';
 
 /**
  * Action creator to add a new Dataset in the store.
@@ -28,7 +29,7 @@ function addDataset(props, values, schema) {
 }
 
 /**
- * Action creator to add transformations to dataset
+ * Action creator to add sort data transformations to dataset
  *
  * @param {number} dsId - Id of the dataset.
  * @param {string} field - Field to be sorted.
@@ -46,12 +47,33 @@ function sortDataset(dsId, field, order) {
   };
 }
 
+/**
+ * Action creator to add filter data transformations to dataset
+ *
+ * @param {number} dsId - Id of the dataset.
+ * @param {string} expression - expression (in JavaScript
+ * syntax) for the filter predicate. The expression language
+ * includes the variable datum, corresponding to the current
+ * data object.
+ * @returns {Object} FILTER_DATASET action with info about
+ * field to be filtered
+ */
+function filterDataset(dsId, expression) {
+  return {
+    type: FILTER_DATASET,
+    id: dsId,
+    expression: expression
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_DATASET: ADD_DATASET,
   SORT_DATASET: SORT_DATASET,
+  FILTER_DATASET: FILTER_DATASET,
 
   // Action Creators
   addDataset: addDataset,
-  sortDataset: sortDataset
+  sortDataset: sortDataset,
+  filterDataset: filterDataset
 };
