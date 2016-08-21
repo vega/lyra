@@ -15,8 +15,8 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    filterDataset: function(dsId, expression) {
-      dispatch(filterDataset(dsId, expression));
+    filterDataset: function(dsId, filter, expression) {
+      dispatch(filterDataset(dsId, filter, expression));
     }
   };
 }
@@ -24,6 +24,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 var FilterField = React.createClass({
 
   propTypes: {
+    field: React.PropTypes.object.isRequired,
     dsId:  React.PropTypes.number,
     filter:  React.PropTypes.instanceOf(Immutable.Map)
   },

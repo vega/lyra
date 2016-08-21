@@ -113,7 +113,7 @@ var HoverField = React.createClass({
         <FieldType field={field} />
         {field.name}
         <SortField dsId={this.props.dsId} field={field} />
-        <FilterField dsId={this.props.dsId} />
+        <FilterField dsId={this.props.dsId} field={field}/>
       </div>
     ) : null;
 

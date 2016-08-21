@@ -51,6 +51,7 @@ function sortDataset(dsId, field, order) {
  * Action creator to add filter data transformations to dataset
  *
  * @param {number} dsId - Id of the dataset.
+ * @param {string} field - Field to be sorted.
  * @param {string} expression - expression (in JavaScript
  * syntax) for the filter predicate. The expression language
  * includes the variable datum, corresponding to the current
@@ -58,10 +59,11 @@ function sortDataset(dsId, field, order) {
  * @returns {Object} FILTER_DATASET action with info about
  * field to be filtered
  */
-function filterDataset(dsId, expression) {
+function filterDataset(dsId, field, expression) {
   return {
     type: FILTER_DATASET,
     id: dsId,
+    field: field,
     expression: expression
   };
 }
