@@ -7,16 +7,14 @@ var dl = require('datalib'),
     ACTIONS = require('../../actions/Names');
 
 var EVT_SCORES = {
-  ALT:    1 << 1,
-  CTRL:   1 << 2,
-  META:   1 << 3,
-  SHIFT:  1 << 4,
-  MOUSEMOVE: 1 << 5,
-  MOUSEOVER: 1 << 6,
-  CLICK:     1 << 7,
-  DBLCLICK:  1 << 8,
-  DRAG:      1 << 9
-};
+      MOUSEOVER: 1 << 6,
+      CLICK:     1 << 7,
+      DBLCLICK:  1 << 7,
+      DRAG:      1 << 8
+    },
+    MODIFIER_WEIGHT = 0.5,
+    DECAY_THRESHOLD = -1500,
+    DECAY_RATE = 10000;
 
 function recordingsReducer(state, action) {
   if (typeof state === 'undefined' ||
@@ -35,7 +33,7 @@ function recordingsReducer(state, action) {
   }
 
   if (action.type === ACTIONS.RECORD_EVENT) {
-    return inferSelection(state, action);
+    return inferSelection(decayScores(state), action);
   }
 
   if (action.type === ACTIONS.DEFINE_SELECTION) {
@@ -70,25 +68,56 @@ function inferSelection(state, action) {
   return state;
 }
 
+function decayScores(state) {
+  var ts = Date.now();
+
+  return state.withMutations(function(newState) {
+    dl.keys(classes).forEach(function(k) {  // ['point', 'list', 'interval']
+      state.get(k).entrySeq().forEach(function(category) { // [['def', {}], ['events', {}], ...]
+        category[1].entrySeq().forEach(function(alt) {
+          var val = alt[1];
+          if (!Immutable.Map.isMap(val) || !val.get('_score')) {
+            return;
+          }
+
+          var tdiff = val.get('_ts') - ts;
+          if (tdiff < DECAY_THRESHOLD) {
+            newState.setIn([k, category[0], alt[0], '_score'],
+              val.get('_baseScore') * Math.exp(tdiff / DECAY_RATE));
+          }
+        });
+      });
+    });
+  });
+}
+
 function modifiers(evt, evtDef, score) {
+  var weight = MODIFIER_WEIGHT,
+      count  = 0;
+
   if (evt.shiftKey) {
     evtDef.filters.push('event.shiftKey');
-    score |= EVT_SCORES.SHIFT;
+    ++count;
   }
 
   if (evt.altKey) {
     evtDef.filters.push('event.altKey');
-    score |= EVT_SCORES.ALT;
+    ++count;
   }
 
   if (evt.ctrlKey) {
     evtDef.filters.push('event.ctrlKey');
-    score |= EVT_SCORES.CTRL;
+    ++count;
   }
 
   if (evt.metaKey) {
     evtDef.filters.push('event.metaKey');
-    score |= EVT_SCORES.META;
+    ++count;
+  }
+
+  for (var i = 0; i < count; ++i) {
+    score *= (1 + weight);
+    weight /= 2;
   }
 
   return score;

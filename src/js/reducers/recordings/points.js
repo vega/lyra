@@ -3,7 +3,7 @@
 var dl = require('datalib'),
     SEL_TYPES = require('../../constants/selectionTypes');
 
-var EVENTS = ['mousemove', 'mouseover', 'click', 'dblclick'],
+var EVENTS = ['mouseover', 'click', 'dblclick'],
     MIN_POINT_EVTS = 1,
     MIN_LIST_LEN = 3;
 

@@ -43,8 +43,18 @@ var EventSuggestions = React.createClass({
     this.setState({open: !this.state.open});
   },
 
+  // Sort event suggestions descending by score (i.e., highest scoring first).
+  // If they have matching scores, sort by ascending timestamp (i.e., oldest
+  // first) to churn the UI only when scores decay sufficiently.
   score: function(a, b) {
-    return b[1].get('_score') - a[1].get('_score');
+    var sa = a[1].get('_score'),
+        sb = b[1].get('_score');
+
+    if (sa === sb) {
+      return a[1].get('_ts') - b[1].get('_ts');
+    }
+
+    return sb - sa;
   },
 
   eventName: function(event) {
