@@ -34,8 +34,6 @@ var HoverField = React.createClass({
     schema: React.PropTypes.object
   },
 
-  // mixins: [DraggableFields],
-
   getInitialState: function() {
     return {
       fieldDef:  null,
@@ -46,9 +44,6 @@ var HoverField = React.createClass({
     };
   },
 
-  // need to modify in a way that preserves the old props if new ones
-  // aren't detected, if the user drags an AggregationField out of the transforms
-  // menue the information that the DraggableFields mixins is gone
   componentWillReceiveProps: function(newProps) {
     var def = newProps.def,
         schema = dsUtil.schema(newProps.dsId) || newProps.dsSchema,

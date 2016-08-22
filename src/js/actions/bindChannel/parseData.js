@@ -20,34 +20,29 @@ var aggregatePipeline = require('../pipelineActions').aggregatePipeline,
 function data(dispatch, state, parsed) {
   // TODO: transforms, aggregates, multiple datasets per pipeline, etc.
   var dsId = parsed.dsId,
-      pipelineId = getInVis(state, 'datasets.' + dsId + '._parent'),
-      pipeline = getInVis(state, 'pipelines.' + pipelineId),
-      property = '_aggregate',
-      mappedOutput = parsed.output,
-      groupBy, datasetAttr = {};
+      plId = getInVis(state, 'datasets.' + dsId + '._parent'),
+      mappedOutput = parsed.output;
 
   parsed.map.data.source = parsed.dsId;
+  findOrCreateAggregatePipeline(dispatch, state, mappedOutput, dsId, plId);
+}
 
-  mappedOutput.data.forEach(function(dataItem) {
+function findOrCreateAggregatePipeline(dispatch, state, output, dsId, pipelineId) {
+  var groupby, datasetAttr = {};
+
+  output.data.forEach(function(dataItem) {
     if (dataItem.name === 'summary') {
       if (dataItem.transform) {
         dataItem.transform.forEach(function(transformItem) {
 
           if (transformItem.type === 'aggregate') {
             if (transformItem.groupby) {
-
-              groupBy = transformItem.groupby;
-
-              /*
-                datasetAttr and associated assignment block
-                needed for dispatching ADD_DATASET action from
-                AGGREGATE_PIPELINE action
-              */
-              datasetAttr.props = getInVis(state, 'datasets.' + parsed.dsId).toJS();
+              groupby = transformItem.groupby;
+              datasetAttr.props = getInVis(state, 'datasets.' + dsId).toJS();
               datasetAttr.values = du.input(dsId);
               datasetAttr.schema = du.schema(datasetAttr.values);
-
-              dispatch(aggregatePipeline(pipelineId, groupBy, datasetAttr));
+              datasetAttr.source = dsId;
+              dispatch(aggregatePipeline(pipelineId, groupby, datasetAttr));
             }
           }
         });
