@@ -47,7 +47,8 @@ function mapStateToProps(state, ownProps) {
     isScale: isScale,
     name: primitive && primitive.get('name'),
     from: from,
-    markType: primitive && primitive.get('type')
+    markType:  primitive && primitive.get('type'),
+    guideType: primitive && primitive.get('_gtype')
   };
 }
 
@@ -93,7 +94,8 @@ var Inspector = React.createClass({
     var inner = InspectorType ? (
       <div className="inner">
         {pipeline}
-        <InspectorType primId={primId} primType={primType} />
+        <InspectorType primId={primId}
+          primType={primType} guideType={props.guideType} />
       </div>
     ) : null;
 

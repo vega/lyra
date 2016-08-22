@@ -5,6 +5,7 @@ var Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
     immutableUtils = require('../util/immutable-utils'),
     set   = immutableUtils.set,
+    setIn = immutableUtils.setIn,
     dsUtil = require('../util/dataset-utils');
 
 /**
@@ -27,6 +28,13 @@ function datasetsReducer(state, action) {
     return state;
   }
 
+  if (action.type === ACTIONS.SORT_DATASET) {
+    state = setIn(state, action.id + '._sort', Immutable.fromJS({
+      field: action.field,
+      order: action.order
+    }));
+
+  }
   return state;
 }
 

@@ -23,6 +23,10 @@ module.exports = {
   hamburger: require('../../assets/hamburger.svg'),
   erase: require('../../assets/erase.svg'),
   export: require('../../assets/export.svg'),
-  decreasingSort: require('../../assets/decreasingSort.svg'),
-  scaffold: require('../../assets/scaffold.html')
+  scaffold: require('../../assets/scaffold.html'),
+  sort: require('../../assets/sort.svg'),
+  sortAlphaAsc: require('../../assets/sort-alpha-asc.svg'),
+  sortAlphaDesc: require('../../assets/sort-alpha-desc.svg'),
+  sortNumericAsc: require('../../assets/sort-numeric-asc.svg'),
+  sortNumericDesc: require('../../assets/sort-numeric-desc.svg')
 };

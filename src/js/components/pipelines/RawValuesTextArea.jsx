@@ -34,7 +34,7 @@ var DraggableTextArea = React.createClass({
         raw  = target.value,
         pipeline = {name: 'name'},
         dataset  = {name: 'name'},
-        file, reader, parsed, values;
+        file, reader, name, parsed, values;
 
     evt.preventDefault();
 
@@ -46,20 +46,25 @@ var DraggableTextArea = React.createClass({
           dataset: (dataset.format = parsed.format, dataset),
           values: (values = parsed.values),
           schema: dsUtils.schema(values)
-        });
+        }, 'Successfully imported data!');
       } else if (type === 'drop') {
         file = evt.dataTransfer.files[0];
         reader = new FileReader();
         reader.onload = function(loadEvt) {
-          pipeline.name = dataset.name = file.name.match(dsUtils.NAME_REGEX)[1];
+          name = file.name.match(dsUtils.NAME_REGEX);
+          pipeline.name = dataset.name = name[1];
           raw = target.value = loadEvt.target.result;
-          parsed = dsUtils.parseRaw(raw);
-          props.success({
-            pipeline: pipeline,
-            dataset: (dataset.format = parsed.format, dataset),
-            values: (values = parsed.values),
-            schema: dsUtils.schema(values)
-          });
+          try {
+            parsed = dsUtils.parseRaw(raw);
+            props.success({
+              pipeline: pipeline,
+              dataset: (dataset.format = parsed.format, dataset),
+              values: (values = parsed.values),
+              schema: dsUtils.schema(values)
+            }, 'Successfully imported ' + name[0] + '!');
+          } catch (err) {
+            props.error(err);
+          }
         };
         reader.readAsText(file);
       }

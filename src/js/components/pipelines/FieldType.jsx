@@ -1,8 +1,7 @@
 'use strict';
 
 var React  = require('react'),
-    dsUtil = require('../../util/dataset-utils'),
-    MTYPES = dsUtil.MTYPES,
+    MTYPES = require('../../constants/measureTypes'),
     assets = require('../../util/assets'),
     Icon   = require('../Icon');
 

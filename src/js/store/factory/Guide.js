@@ -1,6 +1,8 @@
 'use strict';
 
-var defaults = require('vega').config.axis,
+var vgCfg = require('vega').config,
+    axisDef = vgCfg.axis,
+    legendDef = vgCfg.legend,
     GTYPES = {AXIS: 'axis', LEGEND: 'legend'},
     ORIENT = {x: 'bottom', y: 'left'};
 
@@ -20,7 +22,6 @@ var defaults = require('vega').config.axis,
  * @constructor
  */
 
-// TODO: add defaults for legends
 var def = module.exports = function(gtype, type, scale) {
   var guide = {_gtype: gtype};
 
@@ -37,10 +38,10 @@ var def = module.exports = function(gtype, type, scale) {
     guide.properties = {
       ticks: {
         stroke: {
-          value: defaults.tickColor
+          value: axisDef.tickColor
         },
         strokeWidth: {
-          value: defaults.tickWidth
+          value: axisDef.tickWidth
         }
       },
 
@@ -66,18 +67,18 @@ var def = module.exports = function(gtype, type, scale) {
 
       title: {
         fill: {
-          value: defaults.titleColor
+          value: axisDef.titleColor
         },
         fontSize: {
-          value: defaults.titleFontSize
+          value: axisDef.titleFontSize
         }
       },
       labels: {
-        fontSize: {
-          value: defaults.tickLabelFontSize
-        },
         fill: {
-          value: defaults.tickLabelColor
+          value: axisDef.tickLabelColor
+        },
+        fontSize: {
+          value: axisDef.tickLabelFontSize
         },
         angle: {
           value: 0
@@ -85,33 +86,87 @@ var def = module.exports = function(gtype, type, scale) {
       },
       axis: {
         stroke: {
-          value: defaults.axisColor
+          value: axisDef.axisColor
         },
         strokeWidth: {
-          value: defaults.axisWidth
+          value: axisDef.axisWidth
         }
       },
       grid: {
         stroke: {
-          value: defaults.gridColor
+          value: axisDef.gridColor
         },
         strokeWidth: {
           value: 1
         },
         strokeOpacity: {
-          value: defaults.gridOpacity
+          value: axisDef.gridOpacity
         }
       }
     };
   } else if (gtype === GTYPES.LEGEND) {
     guide._type = type;
     guide[type] = +scale || scale.get('_id');
+    guide.orient = legendDef.orient;
     guide.properties = {
-      title: {},
-      labels: {},
-      symbols: {},
-      gradient: {},
-      legend: {}
+      title: {
+        fill: {
+          value: legendDef.titleColor
+        },
+        fontSize: {
+          value: legendDef.titleFontSize
+        }
+      },
+      labels: {
+        fill: {
+          value: legendDef.labelColor
+        },
+        fontSize: {
+          value: legendDef.labelFontSize
+        },
+      },
+      symbols: {
+        shape: {
+          value: legendDef.symbolShape
+        },
+        size: {
+          value: legendDef.symbolSize
+        },
+        fill: {
+          value: '#ffffff'
+        },
+        fillOpacity: {
+          value: 1
+        },
+        stroke: {
+          value: legendDef.symbolColor
+        },
+        strokeWidth: {
+          value: legendDef.symbolStrokeWidth
+        }
+      },
+      gradient: {
+        stroke: {
+          value: legendDef.gradientStrokeColor
+        },
+        strokeWidth: {
+          value: legendDef.gradientStrokeWidth
+        },
+        height: {
+          value: legendDef.gradientHeight
+        },
+        width: {
+          value: legendDef.gradientWidth
+        }
+      },
+      legend: {
+        stroke: {
+          value: '#ffffff'
+        },
+        strokeWidth: {
+          value: 0
+        }
+      }
     };
   }
 

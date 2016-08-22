@@ -154,8 +154,13 @@ $pipeline-width: 180px;
     overflow: auto;
   }
 
-  h2 {
+  .load h2 {
     margin: 2*$margin 0;
+  }
+
+  .examples h2 {
+    margin: 2*$margin 0;
+    margin-bottom: $margin;
   }
 
   .examples li {
@@ -219,10 +224,11 @@ $pipeline-width: 180px;
     margin-top: 5px;
   }
 
-  .error-message {
+  .error-message, .success-message {
     width: 100%;
     margin: 2 * $margin;
     margin-top: 0;
+    margin-bottom: $margin;
   }
 
   .preview {
@@ -233,7 +239,7 @@ $pipeline-width: 180px;
     h2 {
       align-items: flex-start;
       justify-content: flex-start;
-      margin-bottom: 0;
+      margin-bottom: $margin;
     }
 
     .datatable td.field, .datatable .full.field { left: 0; }

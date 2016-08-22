@@ -133,7 +133,7 @@ function parseRaw(raw) {
     }
 
     throw Error('Raw data is in an unsupported format. ' +
-      'Only JSON, CSV, or TSV may be imported');
+      'Only JSON, CSV, or TSV may be imported.');
   }
 
   return {};
@@ -176,6 +176,5 @@ module.exports = {
   parseRaw: parseRaw,
   schema: schema,
 
-  MTYPES: ['nominal', 'quantitative', 'temporal'], // ordinal not yet used
   NAME_REGEX: NAME_REGEX
 };
