@@ -16,7 +16,7 @@ var AggregateField = React.createClass({
         onDragEnd={this.wrapDragEndTransform}
         onDrop={props.onDrop}
         className="aggregate-field">
-        {props.aggregationName} - {props.field}
+        {props.aggregationName + '_' + props.field}
       </div>
     );
   }

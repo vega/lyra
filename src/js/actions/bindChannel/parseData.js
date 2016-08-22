@@ -21,28 +21,29 @@ function data(dispatch, state, parsed) {
   // TODO: transforms, aggregates, multiple datasets per pipeline, etc.
   var dsId = parsed.dsId,
       plId = getInVis(state, 'datasets.' + dsId + '._parent'),
-      mappedOutput = parsed.output;
+      mappedOutput = parsed.output,
+      groupby, datasetAttr = {};
 
   parsed.map.data.source = parsed.dsId;
-  findOrCreateAggregatePipeline(dispatch, state, mappedOutput, dsId, plId);
-}
 
-function findOrCreateAggregatePipeline(dispatch, state, output, dsId, pipelineId) {
-  var groupby, datasetAttr = {};
+  console.log('parsed: ', parsed);
 
-  output.data.forEach(function(dataItem) {
+  mappedOutput.data.forEach(function(dataItem, key) {
     if (dataItem.name === 'summary') {
+      console.log('dataItem, key: ', dataItem, key);
+      parsed.map.data.summary = key;
       if (dataItem.transform) {
         dataItem.transform.forEach(function(transformItem) {
 
           if (transformItem.type === 'aggregate') {
             if (transformItem.groupby) {
               groupby = transformItem.groupby;
+
               datasetAttr.props = getInVis(state, 'datasets.' + dsId).toJS();
-              datasetAttr.values = du.input(dsId);
-              datasetAttr.schema = du.schema(datasetAttr.values);
+              datasetAttr.schema = du.schema(du.input(dsId));
               datasetAttr.source = dsId;
-              dispatch(aggregatePipeline(pipelineId, groupby, datasetAttr));
+
+              dispatch(aggregatePipeline(plId, groupby, datasetAttr));
             }
           }
         });
