@@ -25,13 +25,27 @@ var SelectionSuggestion = React.createClass({
       }).join('-') + '-' + type;
   },
 
+  project: {
+    interval: function(project) {
+      var channels = project.get('channels'),
+          dim = channels.get(0);
+
+      return channels.size === 2 ?
+        'both dimensions' : 'only the ' + dim + ' dimension';
+    }
+  },
+
   render: function() {
     var props = this.props,
-        type = props.type;
+        type  = props.type,
+        projectLede = type === SEL_TYPES.INTERVAL ? 'in' : '';
 
     return (
       <div className="selection">
         {this.headers[type]}
+
+        <Alternatives defKey="project" altKey="project"
+          lede={projectLede} label={this.project[type]} {...props} />
 
         <Alternatives defKey="on" altKey="events"
           lede="on" label={this.eventName} {...props} />

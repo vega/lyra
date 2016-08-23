@@ -30,6 +30,11 @@
       }
     }
 
+    ul {
+      border-bottom: 1px solid $lgrey-border;
+      &:last-child {border-bottom: 0;}
+    }
+
     li {
       padding: $inner-padding;
       cursor: pointer;
@@ -72,11 +77,10 @@
     }
 
     .alternative {
+      text-indent: 26px;
       .def { font-weight: 400; }
       &:hover .def { font-weight: 700; }
     }
-
-    .event { text-indent: 26px; }
   }
 }
 

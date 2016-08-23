@@ -68,17 +68,23 @@ var Alternatives = React.createClass({
 
   render: function() {
     var props  = this.props,
-        alts = props.alts.entrySeq().sort(this.score),
-        def = props.def ? props.alts.get(props.def) : alts.first()[1],
+        alts = props.alts.entrySeq().sort(this.score);
+
+    if (!alts || !alts.size) {
+      return null;
+    }
+
+    var def = props.def ? props.alts.get(props.def) : alts.first()[1],
         defName = props.label(def),
-        open = this.state.open;
+        open = this.state.open,
+        count, glyph;
 
     alts = alts.filter(function(alt) {
       return alt[1] !== def;
     });
 
-    var count = alts.count(),
-        glyph = assets[open ? 'group-open' : 'group-closed'];
+    count = alts.count(),
+    glyph = assets[open ? 'group-open' : 'group-closed'];
 
     return (
       <ul>

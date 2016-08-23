@@ -29,26 +29,28 @@ module.exports = function(selType) {
     aggr.insert([action]);
   }
 
-  function classifyEvt(state, action) {
+  function classify(state, action) {
     var evtType  = action.evtType,
         evt = action.evt,
         marks = aggr.result().filter(function(x) {
           return x.evtType === evtType;
-        });
+        }),
+        retVal = {};
 
     if (!marks.length) {
-      return false;
+      return (retVal[selType] = false, retVal);
     }
 
     if (selType === SEL_TYPES.POINT) {
-      return marks.some(function(mark) {
+      retVal[selType] = marks.some(function(mark) {
         return mark.distinct_itemId >= MIN_POINT_EVTS;
       });
+      return retVal;
     } else if (selType === SEL_TYPES.LIST && evtType !== 'mousemove' &&
         (evt.shiftKey || evt.metaKey || evt.altKey || evt.ctrlKey)) {
 
       var isList = listTest.bind(null, evt);
-      return marks.some(function(mark) {
+      retVal[selType] = marks.some(function(mark) {
         if (mark.distinct_itemId < MIN_LIST_LEN) {
           return false;
         }
@@ -67,9 +69,11 @@ module.exports = function(selType) {
 
         return values.every(isList);
       });
+
+      return retVal;
     }
 
-    return false;
+    return (retVal[selType] = false, retVal);
   }
 
   /**
@@ -94,7 +98,7 @@ module.exports = function(selType) {
 
   return {
     record: record,
-    classifyEvt: classifyEvt,
+    classify: classify,
     reset: reset
   };
 };

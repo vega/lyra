@@ -22,7 +22,7 @@ function recordingsReducer(state, action) {
       action.type === ACTIONS.STOP_RECORDING) {
 
     state = Immutable.fromJS(dl.keys(classes).reduce(function(acc, k) {
-      return (acc[k] = {def: {}, events: {}, transforms: {}}, acc);
+      return (acc[k] = {def: {}, events: {}, project: {}}, acc);
     }, {
       active: action.type === ACTIONS.START_RECORDING
     }));
@@ -51,21 +51,36 @@ function inferSelection(state, action) {
       type = action.evtType,
       evtDef = {type: type, filters: []},
       score  = modifiers(evt, evtDef, EVT_SCORES[type.toUpperCase()]),
-      evtStr = evtDefToStr(evtDef);
+      evtStr = evtDefToStr(evtDef),
+      ts = Date.now();
 
-  dl.keys(classes).some(function(k) {
-    if (classes[k].classifyEvt(state, action)) {
-      state = state.setIn([k, 'events', evtStr],
+  return state.withMutations(function(newState) {
+    dl.keys(classes).forEach(function(k) {
+      var retVal = classes[k].classify(state, action),
+          project;
+
+      if (!retVal[k]) {
+        return;
+      }
+
+      newState.setIn([k, 'events', evtStr],
         Immutable.fromJS(dl.extend(evtDef, {
           _baseScore: score,
           _score: score,
-          _ts: Date.now()
+          _ts: ts
         })
       ));
-    }
-  });
 
-  return state;
+      if ((project = retVal.project)) {
+        newState.setIn([k, 'project', dl.array(project.channels).join('|')],
+          Immutable.fromJS(dl.extend(project, {
+            _baseScore: project._score,
+            _ts: ts
+          })
+        ));
+      }
+    });
+  });
 }
 
 function decayScores(state) {
