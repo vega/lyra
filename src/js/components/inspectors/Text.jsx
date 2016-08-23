@@ -42,10 +42,10 @@ var TextInspector = React.createClass({
     //console.log(props.autoVal);
     return (
       <div>
-       
-       <div className='unce'>
-         <AutoComplete dsId={4} value={props.autoVal} type="tmpl" updateFn={this.props.autoCompleteUpdate.bind(this, this.props.primId, 'job')} />
-       </div>
+    
+         <Property type='autocomplete' autoType="expr" value={props.autoVal} dsId={4} label='Expression' name='auto' onChange={this.props.autoCompleteUpdate.bind(this, this.props.primId, 'job')} />
+         
+      
         <div className="property-group">
           <Property name="text" type="text" canDrop={true} {...props}>
             <h3 className="label">Text</h3>
