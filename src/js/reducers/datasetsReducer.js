@@ -33,8 +33,16 @@ function datasetsReducer(state, action) {
       field: action.field,
       order: action.order
     }));
-
   }
+
+  if (action.type === ACTIONS.FILTER_DATASET) {
+    state = setIn(state, action.id + '._filter',
+    Immutable.fromJS({
+      field: action.field,
+      expression: action.expression
+    }));
+  }
+  
   return state;
 }
 
