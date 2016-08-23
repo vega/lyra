@@ -30,7 +30,11 @@
 }
 
 .auto {
-	background-color: grey;
-    border-width: 1px;
-    border: yellow;
+    padding-top: 0px;
+	background-color: LightGray;
+    border: 1px solid orange;
+}
+
+.ce {
+    line-height: 20px;
 }

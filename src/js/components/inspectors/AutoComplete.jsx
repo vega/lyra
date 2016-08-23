@@ -1,38 +1,17 @@
-// autoComplete component should be wrapped by a div with className "unce"
 'use strict';
 var React = require('react'),
-    connect = require('react-redux').connect,
-    Immutable = require('immutable'),
     ContentEditable = require('../ContentEditable'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
     dsUtil = require('../../util/dataset-utils'),
-    updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
     d3 = require('d3'),
     dl = require('datalib'),
 	  ReactDOM = require('react-dom');
-  	//AutoComp = require('jquery-textcomplete');
+
 
 var spanPreHardcore = '<span class="auto" contenteditable="false">';
 var spanPostHardcore = '</span>';
-
-function mapStateToProps(state, ownProps) {
-	return {};
-}
-
-function mapDispatchToProps(dispatch, ownProps) {
-  return {};
-}
-
-//fun inexpr(stringfromstore)->String html
-// @require StringFromStore should be in form of "datumn."
-function inExpr(storeString, store) {
-  storeString = storeString.split('datum.').join('');
-  storeString = insert(storeString, store, spanPreHardcore, spanPostHardcore);
-  console.log(storeString);
-  return storeString;
-}
 
 //Fun outexp(string html)->store string
 function outExpr(htmlString, store) {
@@ -45,29 +24,13 @@ function outExpr(htmlString, store) {
   return htmlString;
 }
 
-// @require storeString should be in form "{{datumn.}}"
-function inTmpl(storeString, store) {
-  var regex = new RegExp("{{datum.*}}");
-  var position = storeString.search(regex);
 
-  while (position != -1) {
-    var next = position + 8;
-
-    var nextString = storeString.substring(next);
-    var end = nextString.search("}}");
-    storeString = storeString.substring(0, position) + nextString.substring(0, end) + nextString.substring(end + 2);
-    position = storeString.search(regex);
-  }
-  storeString = insert(storeString, store, spanPreHardcore, spanPostHardcore);
-  return storeString;
-}
 
 //Fun outtmpl(string html)->store string
 function outTmpl(htmlString, store) {
   htmlString = htmlString.split(spanPreHardcore).join('');
   htmlString = htmlString.split(spanPostHardcore).join('');
   htmlString = insert(htmlString, store, '{{datum.', '}}');
-  //console.log(htmlString);
   return htmlString;
 }
 
@@ -102,13 +65,13 @@ var AutoComplete = React.createClass({
    	},
 
     componentDidMount: function() {
-
       var props = this.props,
           dsId = parseInt(props.dsId),
           schema = dsUtil.schema(dsId),
-          keys = dl.keys(schema);
+          keys = dl.keys(schema),
+          contentEditable = ReactDOM.findDOMNode(this).childNodes[0];
 
-      $(ReactDOM.findDOMNode(this)).textcomplete([
+      $(contentEditable).textcomplete([
                 {
                     words: keys,
                     match: /\b(\w{2,})$/,
@@ -135,19 +98,15 @@ var AutoComplete = React.createClass({
         dsId = parseInt(props.dsId),
         schema = dsUtil.schema(dsId),
         keys = dl.keys(schema),
-
         updateFn = props.updateFn,
-
         htmlString;
 
       if (type == 'expr') {
         updateFn(outExpr(event.target.innerHTML, keys));
-        console.log(outExpr(event.target.innerHTML, keys));
       } else if (type == 'tmpl') {
         updateFn(outTmpl(event.target.innerHTML, keys));
-        console.log(outTmpl(event.target.innerHTML, keys));
       } else {
-        // handel error
+        console.log("type of AutoComplete can either be expr or tmpl");
       }
     },
 
@@ -164,11 +123,12 @@ var AutoComplete = React.createClass({
       }
 
   		return (
-        
+        <div className="unce" contentEditable="false">
   	 	   <div id="ce" className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true" ></div>
-        
+        </div>
   		);
   	}
 
 });
-module.exports = connect(mapStateToProps,mapDispatchToProps)(AutoComplete);
+
+module.exports = AutoComplete;
