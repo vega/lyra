@@ -28,7 +28,7 @@ function data(dispatch, state, parsed) {
       aggFieldSourceName = '',
       datasetAttr = {},
       aggSchema = {},
-      groupby, sourceSchema, aggDsId;
+      groupby, sourceSchema;
 
   parsed.map.data.source = parsed.dsId;
 
@@ -62,10 +62,17 @@ function data(dispatch, state, parsed) {
               datasetAttr._parent = getInVis(state, 'datasets.' + dsId).toJS()._parent;
               datasetAttr.transform = transformItem;
 
-              dispatch(aggregatePipeline(plId, groupby, datasetAttr));
+              var aggPipeline = aggregatePipeline(plId, groupby, datasetAttr, function(err, aggDsId) {
+                if (err) {
+                  console.log('err: ', err);
+                  throw err;
+                }
+                parsed.map.data.summary = aggDsId;
 
-              // need to retreive newly created dsId
-              // parsed.map.data.summary = aggDsId;
+                console.log('parsed.map.data.summary: ', parsed.map.data.summary);
+              });
+
+              dispatch(aggPipeline);
             }
           }
         });

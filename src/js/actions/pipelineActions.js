@@ -39,26 +39,30 @@ function addPipeline(pipeline, dataset, values, schema) {
 }
 
 // TODO: docs
-function aggregatePipeline(pipelineId, groupby, datasetAttr) {
+function aggregatePipeline(pipelineId, groupby, datasetAttr, cb) {
   return function(dispatch) {
-    var props = {
-      _parent: datasetAttr._parent,
-      name: datasetAttr.name,
-      source: datasetAttr.source,
-      transform: datasetAttr.transform
-    };
+    var aggDsId = counter.global(),
+        props = {
+          _id: aggDsId,
+          _parent: datasetAttr._parent,
+          name: datasetAttr.name,
+          source: datasetAttr.source,
+          transform: datasetAttr.transform
+        },
+        ds = addDataset(props, undefined, datasetAttr.schema);
 
-    var ds = addDataset(props, undefined, datasetAttr.schema);
-    dispatch(ds);
-
-    var aggDsId; // retreive newly created dsId
-
-    dispatch({
-      type: AGGREGATE_PIPELINE,
-      id: pipelineId,
-      dsId: aggDsId,
-      groupby: groupby
-    });
+    try {
+      dispatch(ds);
+      dispatch({
+        type: AGGREGATE_PIPELINE,
+        id: pipelineId,
+        dsId: aggDsId,
+        groupby: groupby
+      });
+      cb(false, aggDsId);
+    } catch (e) {
+      cb(e);
+    }
   };
 }
 
