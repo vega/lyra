@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('react'),
-    EventSuggestions = require('./EventSuggestions'),
+    Alternatives = require('./Alternatives'),
     SEL_TYPES = require('../../constants/selectionTypes');
 
 var SelectionSuggestion = React.createClass({
@@ -15,6 +15,16 @@ var SelectionSuggestion = React.createClass({
     interval: (<h5>an <span className="type">interval</span> of points</h5>)
   },
 
+  eventName: function(event) {
+    var type = event.get('type'),
+        filters = event.get('filters');
+
+    return filters.size === 0 ? type :
+      filters.valueSeq().map(function(f) {
+        return f.replace('event.', '').replace('Key', '');
+      }).join('-') + '-' + type;
+  },
+
   render: function() {
     var props = this.props,
         type = props.type;
@@ -23,7 +33,8 @@ var SelectionSuggestion = React.createClass({
       <div className="selection">
         {this.headers[type]}
 
-        <EventSuggestions {...props} />
+        <Alternatives defKey="on" altKey="events"
+          lede="on" label={this.eventName} {...props} />
       </div>
     );
   }

@@ -14,24 +14,28 @@ var React = require('react'),
 function mapStateToProps(reduxState, ownProps) {
   var path = 'recordings.' + ownProps.type;
   return {
-    def: getIn(reduxState, path + '.def.on'),
-    events: getIn(reduxState, path + '.events')
+    def:  getIn(reduxState, path + '.def.' + ownProps.defKey),
+    alts: getIn(reduxState, path + '.' + ownProps.altKey)
   };
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    define: function(evtKey) {
-      dispatch(defineSelection(ownProps.type, 'on', evtKey));
+    define: function(value) {
+      dispatch(defineSelection(ownProps.type, ownProps.defKey, value));
     }
   };
 }
 
-var EventSuggestions = React.createClass({
+var Alternatives = React.createClass({
   propTypes: {
     type: SEL_TYPES.isRequired,
+    defKey: React.PropTypes.oneOf(['on', 'project']).isRequired,
+    altKey: React.PropTypes.oneOf(['events', 'project']).isRequired,
+    lede: React.PropTypes.string,
     def: React.PropTypes.string,
-    events: React.PropTypes.instanceOf(Immutable.Map),
+    alts: React.PropTypes.instanceOf(Immutable.Map),
+    label: React.PropTypes.func,
     define: React.PropTypes.func,
   },
 
@@ -57,40 +61,30 @@ var EventSuggestions = React.createClass({
     return sb - sa;
   },
 
-  eventName: function(event) {
-    var type = event.get('type'),
-        filters = event.get('filters');
-
-    return filters.size === 0 ? type :
-      filters.valueSeq().map(function(f) {
-        return f.replace('event.', '').replace('Key', '');
-      }).join('-') + '-' + type;
-  },
-
-  selectEvent: function(evtKey) {
+  selectAlt: function(evtKey) {
     this.props.define(evtKey);
     this.setState({open: false});
   },
 
   render: function() {
     var props  = this.props,
-        events = props.events.entrySeq().sort(this.score),
-        def = props.def ? props.events.get(props.def) : events.first()[1],
-        defName = this.eventName(def),
+        alts = props.alts.entrySeq().sort(this.score),
+        def = props.def ? props.alts.get(props.def) : alts.first()[1],
+        defName = props.label(def),
         open = this.state.open;
 
-    events = events.filter(function(event) {
-      return event[1] !== def;
+    alts = alts.filter(function(alt) {
+      return alt[1] !== def;
     });
 
-    var count = events.count(),
+    var count = alts.count(),
         glyph = assets[open ? 'group-open' : 'group-closed'];
 
     return (
       <ul>
         <li className={'selected count-' + count} onClick={this.toggle}>
           <Icon glyph={glyph} />
-          on
+          {props.lede}
 
           <ReactCSSTransitionGroup transitionName="yf-text"
             transitionEnterTimeout={1500} transitionLeave={false}>
@@ -104,11 +98,11 @@ var EventSuggestions = React.createClass({
         </li>
 
 
-        {open ? events.map(function(event) {
+        {open ? alts.map(function(alt) {
           return (
-            <li key={event[0]} className="event alternative"
-              onClick={this.selectEvent.bind(this, event[0])}>
-              <span className="def">{this.eventName(event[1])}</span>
+            <li key={alt[0]} className="event alternative"
+              onClick={this.selectAlt.bind(this, alt[0])}>
+              <span className="def">{props.label(alt[1])}</span>
             </li>
           );
         }, this) : null}
@@ -117,4 +111,4 @@ var EventSuggestions = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(EventSuggestions);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(Alternatives);

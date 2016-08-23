@@ -14,7 +14,7 @@ function mapStateToProps(reduxState) {
   };
 }
 
-var SuggestionsContainer = React.createClass({
+var Suggestions = React.createClass({
   render: function() {
     var props = this.props,
         point = props.point,
@@ -48,4 +48,4 @@ var SuggestionsContainer = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps)(SuggestionsContainer);
+module.exports = connect(mapStateToProps)(Suggestions);
