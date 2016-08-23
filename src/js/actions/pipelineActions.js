@@ -41,16 +41,22 @@ function addPipeline(pipeline, dataset, values, schema) {
 // TODO: docs
 function aggregatePipeline(pipelineId, groupby, datasetAttr) {
   return function(dispatch) {
-    var props = datasetAttr.props,
-        values = datasetAttr.values,
-        schema = datasetAttr.schema,
-        ds = addDataset(props, values, schema);
+    var props = {
+      _parent: datasetAttr._parent,
+      name: datasetAttr.name,
+      source: datasetAttr.source,
+      transform: datasetAttr.transform
+    };
 
+    var ds = addDataset(props, undefined, datasetAttr.schema);
     dispatch(ds);
+
+    var aggDsId; // retreive newly created dsId
+
     dispatch({
       type: AGGREGATE_PIPELINE,
       id: pipelineId,
-      dsId: datasetAttr.source,
+      dsId: aggDsId,
       groupby: groupby
     });
   };

@@ -22,16 +22,27 @@ function data(dispatch, state, parsed) {
   var dsId = parsed.dsId,
       plId = getInVis(state, 'datasets.' + dsId + '._parent'),
       mappedOutput = parsed.output,
-      groupby, datasetAttr = {};
+      input = parsed.input.encoding,
+      groupByFieldName = '',
+      aggFieldName = '',
+      aggFieldSourceName = '',
+      datasetAttr = {},
+      aggSchema = {},
+      groupby, sourceSchema, aggDsId;
 
   parsed.map.data.source = parsed.dsId;
 
-  console.log('parsed: ', parsed);
+  for (var k in input) {
+    if (input.hasOwnProperty(k)) {
+      if (input[k].hasOwnProperty('aggregate')) {
+        aggFieldName = input[k].aggregate + '_' + input[k].field;
+        aggFieldSourceName = input[k].field;
+      }
+    }
+  }
 
   mappedOutput.data.forEach(function(dataItem, key) {
     if (dataItem.name === 'summary') {
-      console.log('dataItem, key: ', dataItem, key);
-      parsed.map.data.summary = key;
       if (dataItem.transform) {
         dataItem.transform.forEach(function(transformItem) {
 
@@ -39,11 +50,22 @@ function data(dispatch, state, parsed) {
             if (transformItem.groupby) {
               groupby = transformItem.groupby;
 
-              datasetAttr.props = getInVis(state, 'datasets.' + dsId).toJS();
-              datasetAttr.schema = du.schema(du.input(dsId));
+              sourceSchema = du.schema(du.input(dsId));
+              groupByFieldName = groupby['0'];
+
+              aggSchema[groupByFieldName] = sourceSchema[groupByFieldName];
+              aggSchema[aggFieldName] = sourceSchema[aggFieldSourceName];
+
+              datasetAttr.schema = aggSchema;
               datasetAttr.source = dsId;
+              datasetAttr.name = aggFieldName;
+              datasetAttr._parent = getInVis(state, 'datasets.' + dsId).toJS()._parent;
+              datasetAttr.transform = transformItem;
 
               dispatch(aggregatePipeline(plId, groupby, datasetAttr));
+
+              // need to retreive newly created dsId
+              // parsed.map.data.summary = aggDsId;
             }
           }
         });
