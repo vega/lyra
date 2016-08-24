@@ -26,9 +26,10 @@ function data(dispatch, state, parsed) {
       groupByFieldName = '',
       aggFieldName = '',
       aggFieldSourceName = '',
+      aggDsName = '',
       datasetAttr = {},
       aggSchema = {},
-      groupby, sourceSchema;
+      groupby, sourceSchema, sourceDs;
 
   parsed.map.data.source = parsed.dsId;
 
@@ -45,21 +46,25 @@ function data(dispatch, state, parsed) {
     if (dataItem.name === 'summary') {
       if (dataItem.transform) {
         dataItem.transform.forEach(function(transformItem) {
-
           if (transformItem.type === 'aggregate') {
             if (transformItem.groupby) {
+
               groupby = transformItem.groupby;
-
               sourceSchema = du.schema(du.input(dsId));
-              groupByFieldName = groupby['0'];
-
+              // TODO: get source schema for all groupbys
+              // not just 0th one
+              groupByFieldName = groupby[0];
               aggSchema[groupByFieldName] = sourceSchema[groupByFieldName];
               aggSchema[aggFieldName] = sourceSchema[aggFieldSourceName];
 
+              // dataset properties creation
+              sourceDs = getInVis(state, 'datasets.' + dsId);
+              aggDsName = sourceDs.get('name') + '_groupby_' + groupby.join('');
+
               datasetAttr.schema = aggSchema;
               datasetAttr.source = dsId;
-              datasetAttr.name = aggFieldName;
-              datasetAttr._parent = getInVis(state, 'datasets.' + dsId).toJS()._parent;
+              datasetAttr.name = aggDsName;
+              datasetAttr._parent = sourceDs.get('_parent');
               datasetAttr.transform = transformItem;
 
               var aggPipeline = aggregatePipeline(plId, groupby, datasetAttr, function(err, aggDsId) {
@@ -68,8 +73,6 @@ function data(dispatch, state, parsed) {
                   throw err;
                 }
                 parsed.map.data.summary = aggDsId;
-
-                console.log('parsed.map.data.summary: ', parsed.map.data.summary);
               });
 
               dispatch(aggPipeline);
