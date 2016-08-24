@@ -41,9 +41,8 @@ function addPipeline(pipeline, dataset, values, schema) {
 // TODO: docs
 function aggregatePipeline(pipelineId, groupby, datasetAttr, cb) {
   return function(dispatch) {
-    var aggDsId = counter.global(),
-        props = {
-          _id: aggDsId,
+    var props = {
+          _id: datasetAttr._id,
           _parent: datasetAttr._parent,
           name: datasetAttr.name,
           source: datasetAttr.source,
@@ -51,18 +50,13 @@ function aggregatePipeline(pipelineId, groupby, datasetAttr, cb) {
         },
         ds = addDataset(props, undefined, datasetAttr.schema);
 
-    try {
-      dispatch(ds);
-      dispatch({
-        type: AGGREGATE_PIPELINE,
-        id: pipelineId,
-        dsId: aggDsId,
-        groupby: groupby
-      });
-      cb(false, aggDsId);
-    } catch (e) {
-      cb(e);
-    }
+    dispatch(ds);
+    dispatch({
+      type: AGGREGATE_PIPELINE,
+      id: pipelineId,
+      dsId: datasetAttr._id,
+      groupby: groupby
+    });
   };
 }
 

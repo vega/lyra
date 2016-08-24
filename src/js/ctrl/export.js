@@ -27,6 +27,7 @@ function exporter(internal) {
 
   var spec  = exporter.scene(state, int);
   spec.data = exporter.pipelines(state, int);
+  console.log('spec.data: ', spec.data);
   return spec;
 }
 
@@ -35,10 +36,6 @@ exporter.pipelines = function(state, internal) {
   return pipelines.map(function(pipeline) {
 
     if (pipeline._aggregates) {
-      // console.log('sst');
-      // console.log('pipeline: ', pipeline);
-      // console.log('pipeline._aggregates: ', pipeline._aggregates);
-
       for (var aggregate in pipeline._aggregates) {
         if (pipeline._aggregates.hasOwnProperty(aggregate)) {
           // console.log('rtrn contents: ', exporter.dataset(state, internal, pipeline._aggregates[aggregate]));
@@ -47,25 +44,22 @@ exporter.pipelines = function(state, internal) {
       }
     }
 
-    // console.log('rtrn contents: ', exporter.dataset(state, internal, pipeline._source));
-
     return exporter.dataset(state, internal, pipeline._source);
   });
 };
 
 exporter.dataset = function(state, internal, id) {
-  console.log('given id: ', id);
-
   var dataset = getInVis(state, 'datasets.' + id).toJS(),
       spec = clean(dl.duplicate(dataset), internal),
       values = dsUtils.input(id),
       format = spec.format && spec.format.type,
       sort = exporter.sort(dataset);
 
-  console.log('dataset: ', dataset);
-  console.log('spec: ', spec);
-  console.log('format: ', format);
-  console.log('values: ' + values);
+  console.log('dl.duplicate(dataset): ', dl.duplicate(dataset));
+
+  // console.log('dataset: ', dataset);
+  // console.log('spec:dataset:63: ', spec);
+  // console.log('format: ', format);
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
@@ -73,6 +67,7 @@ exporter.dataset = function(state, internal, id) {
   //   2. Raw values were provided by the user directly (i.e., no url/source).
   if (spec.source) {
     spec.source = name(getInVis(state, 'datasets.' + spec.source + '.name'));
+    console.log('spec.source: ', spec.source);
   } else if (internal) {
     spec.values = values;
     delete spec.url;
@@ -346,6 +341,8 @@ function dataRef(state, scale, ref) {
   var sets = {},
       data, did, field, i, len, keys;
 
+  console.log('ref:a: ', ref);
+
   // One ref
   if (ref.length === 1) {
     ref = ref[0];
@@ -393,6 +390,8 @@ function sortDataRef(data, scale, ref) {
       _sortOrder: getIn(data, '_sort.order')
     });
   }
+
+  console.log('ref:b: ', ref);
 
   return ref;
 }

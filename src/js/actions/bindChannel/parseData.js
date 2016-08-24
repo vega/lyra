@@ -2,7 +2,9 @@
 
 var aggregatePipeline = require('../pipelineActions').aggregatePipeline,
     getInVis = require('../../util/immutable-utils').getInVis,
-    du = require('../../util/dataset-utils');
+    du = require('../../util/dataset-utils'),
+    dl = require('datalib'),
+    counter = require('../../util/counter');
 
 /**
  * Parse the data source definitions in the resultant Vega specification.
@@ -33,6 +35,8 @@ function data(dispatch, state, parsed) {
 
   parsed.map.data.source = parsed.dsId;
 
+  console.log('parsed: ', parsed);
+
   for (var k in input) {
     if (input.hasOwnProperty(k)) {
       if (input[k].hasOwnProperty('aggregate')) {
@@ -45,6 +49,7 @@ function data(dispatch, state, parsed) {
   mappedOutput.data.forEach(function(dataItem, key) {
     if (dataItem.name === 'summary') {
       if (dataItem.transform) {
+        console.log('dataItem.transform: ', dataItem.transform);
         dataItem.transform.forEach(function(transformItem) {
           if (transformItem.type === 'aggregate') {
             if (transformItem.groupby) {
@@ -64,24 +69,20 @@ function data(dispatch, state, parsed) {
               datasetAttr.schema = aggSchema;
               datasetAttr.source = dsId;
               datasetAttr.name = aggDsName;
+              datasetAttr._id = counter.global();
               datasetAttr._parent = sourceDs.get('_parent');
-              datasetAttr.transform = transformItem;
-
-              var aggPipeline = aggregatePipeline(plId, groupby, datasetAttr, function(err, aggDsId) {
-                if (err) {
-                  console.log('err: ', err);
-                  throw err;
-                }
-                parsed.map.data.summary = aggDsId;
-              });
-
+              datasetAttr.transform = dataItem.transform;
+              var aggPipeline = aggregatePipeline(plId, groupby, datasetAttr);
               dispatch(aggPipeline);
+              parsed.map.data.summary = datasetAttr._id;
             }
           }
         });
       }
     }
   });
+
+  console.log('parsed: ', parsed);
 }
 
 module.exports = data;
