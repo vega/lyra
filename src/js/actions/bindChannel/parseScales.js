@@ -77,9 +77,6 @@ module.exports = function(dispatch, state, parsed) {
 
   map[channel] = scaleId;
   dispatch(addScaleToGroup(scaleId, mark.get('_parent')));
-
-  // leaves domain in scales spec the same way it was found
-  console.log('parseSales:var:parsed: ', parsed);
 };
 
 /**

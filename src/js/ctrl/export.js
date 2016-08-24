@@ -33,16 +33,39 @@ function exporter(internal) {
 exporter.pipelines = function(state, internal) {
   var pipelines = getInVis(state, 'pipelines').valueSeq().toJS();
   return pipelines.map(function(pipeline) {
+
+    if (pipeline._aggregates) {
+      // console.log('sst');
+      // console.log('pipeline: ', pipeline);
+      // console.log('pipeline._aggregates: ', pipeline._aggregates);
+
+      for (var aggregate in pipeline._aggregates) {
+        if (pipeline._aggregates.hasOwnProperty(aggregate)) {
+          // console.log('rtrn contents: ', exporter.dataset(state, internal, pipeline._aggregates[aggregate]));
+          return exporter.dataset(state, internal, pipeline._aggregates[aggregate]);
+        }
+      }
+    }
+
+    // console.log('rtrn contents: ', exporter.dataset(state, internal, pipeline._source));
+
     return exporter.dataset(state, internal, pipeline._source);
   });
 };
 
 exporter.dataset = function(state, internal, id) {
+  console.log('given id: ', id);
+
   var dataset = getInVis(state, 'datasets.' + id).toJS(),
       spec = clean(dl.duplicate(dataset), internal),
       values = dsUtils.input(id),
       format = spec.format && spec.format.type,
       sort = exporter.sort(dataset);
+
+  console.log('dataset: ', dataset);
+  console.log('spec: ', spec);
+  console.log('format: ', format);
+  console.log('values: ' + values);
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
