@@ -5,7 +5,7 @@ var React = require('react'),
     assets = require('../../util/assets'),
     getInVis = require('../../util/immutable-utils').getInVis,
     Icon   = require('../Icon'),
-    filterDataset = require('../../actions/datasetActions').filterDataset;
+    showExpressionTextbox = require('../../actions/pipelineActions').showExpressionTextbox;
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -15,8 +15,8 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    filterDataset: function(dsId, filter, expression) {
-      dispatch(filterDataset(dsId, filter, expression));
+    showExpressionTextbox: function(dsId, show, time) {
+      dispatch(showExpressionTextbox(dsId, show, time));
     }
   };
 }
@@ -31,8 +31,11 @@ var FilterField = React.createClass({
 
   filter: function(evt) {
     var props = this.props,
-        filter = props.filter,
-        dsId = props.dsId;
+        show = true,
+        dsId = props.dsId,
+        time = 10;
+        
+    this.props.showExpressionTextbox(dsId, show, time);
 
   },
 

@@ -5,7 +5,8 @@ var dl = require('datalib'),
     datasetActions = require('./datasetActions'),
     addDataset = datasetActions.addDataset,
     ADD_PIPELINE = 'ADD_PIPELINE',
-    UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY';
+    UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY',
+    SHOW_EXPRESSION_TEXTBOX = 'SHOW_EXPRESSION_TEXTBOX';
 
 /**
  * Action creator to add a new Pipeline in the store. A new pipeline requires
@@ -46,12 +47,23 @@ function updatePipelineProperty(id, property, value) {
   };
 }
 
+function showExpressionTextbox(dsId, show, time) {
+  return {
+    type: SHOW_EXPRESSION_TEXTBOX,
+    id: dsId,
+    show: show,
+    time: time
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_PIPELINE: ADD_PIPELINE,
   UPDATE_PIPELINE_PROPERTY: UPDATE_PIPELINE_PROPERTY,
+  SHOW_EXPRESSION_TEXTBOX: SHOW_EXPRESSION_TEXTBOX,
 
   // Action Creators
   addPipeline: addPipeline,
-  updatePipelineProperty: updatePipelineProperty
+  updatePipelineProperty: updatePipelineProperty,
+  showExpressionTextbox: showExpressionTextbox
 };

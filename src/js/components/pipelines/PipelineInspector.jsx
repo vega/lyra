@@ -16,7 +16,8 @@ function mapStateToProps(state, ownProps) {
   var id = ownProps.id;
   return {
     isSelected: getIn(state, 'inspector.pipelines.selectedId') === id,
-    pipeline: getInVis(state, 'pipelines.' + id)
+    pipeline: getInVis(state, 'pipelines.' + id),
+    expressionTextbox: getInVis(state, 'datasets.' + id + '._expressionTextbox')
   };
 }
 
@@ -44,13 +45,20 @@ var PipelineInspector = React.createClass({
         pipeline = props.pipeline,
         id = props.id,
         name = pipeline.get('name'),
-        inner = (<span></span>);
+        inner = (<span></span>),
+        expTextbox = this.props.expessionTextbox,
+        showTextbox = expTextbox && expTextbox.show,
+        textbox = showTextbox ? (
+          <input className="source" type="text" name="expression"
+            placeholder="Enter Expression" />
+        ): null;
 
     // TODO do not rely on global primitives. Datasets should be in store.
     if (props.isSelected) {
       inner = (
         <div className="inner">
           <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {name}</p>
+          {textbox}
           <DataTable id={pipeline.get('_source')} className="source" />
         </div>
       );

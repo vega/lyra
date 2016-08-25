@@ -30,6 +30,14 @@ function pipelinesReducer(state, action) {
       Immutable.fromJS(action.value));
   }
 
+  if (action.type === ACTIONS.SHOW_EXPRESSION_TEXTBOX) {
+    state = setIn(state, action.id + '._expressionTextbox',
+    Immutable.fromJS({
+      show: action.show,
+      time: action.time
+    }));
+  }
+
   return state;
 }
 
