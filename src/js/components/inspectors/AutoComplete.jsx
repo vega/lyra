@@ -21,9 +21,9 @@ function outExpr(htmlString, store) {
   htmlString = htmlString.split(spanPreHardcore).join('');
   htmlString = htmlString.split(spanPostHardcore).join('');
   htmlString = insert(htmlString, store, 'datum.', '');
-  console.log(htmlString);
-  var decoded = unescape(htmlString);
-  console.log(decoded);
+  // console.log(htmlString);
+  // var decoded = unescape(htmlString);
+  // console.log(decoded);
   return unescape(htmlString);
 }
 
@@ -95,6 +95,10 @@ var AutoComplete = React.createClass({
       var option = {
         appendTo:  $(unContentEditable),
       }
+
+      $(unContentEditable).keyup(function(event) {
+        return event.which != 13; 
+      });
 
       $(contentEditable).textcomplete(strategies, option);
 
