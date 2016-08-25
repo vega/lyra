@@ -49,35 +49,38 @@ function data(dispatch, state, parsed) {
   mappedOutput.data.forEach(function(dataItem, key) {
     if (dataItem.name === 'summary') {
       if (dataItem.transform) {
-        console.log('dataItem.transform: ', dataItem.transform);
-        dataItem.transform.forEach(function(transformItem) {
-          if (transformItem.type === 'aggregate') {
-            if (transformItem.groupby) {
+        var transformItem = dataItem.transform[0];
 
-              groupby = transformItem.groupby;
-              sourceSchema = du.schema(du.input(dsId));
-              // TODO: get source schema for all groupbys
-              // not just 0th one
-              groupByFieldName = groupby[0];
-              aggSchema[groupByFieldName] = sourceSchema[groupByFieldName];
-              aggSchema[aggFieldName] = sourceSchema[aggFieldSourceName];
+        if (transformItem.type === 'aggregate') {
+          if (transformItem.groupby) {
+            // source ds and schema backing creation of new schema & aggregated
+            // dataset
+            sourceDs = getInVis(state, 'datasets.' + dsId);
+            sourceSchema = du.schema(du.input(dsId));
 
-              // dataset properties creation
-              sourceDs = getInVis(state, 'datasets.' + dsId);
-              aggDsName = sourceDs.get('name') + '_groupby_' + groupby.join('');
+            groupby = transformItem.groupby;
 
-              datasetAttr.schema = aggSchema;
-              datasetAttr.source = dsId;
-              datasetAttr.name = aggDsName;
-              datasetAttr._id = counter.global();
-              datasetAttr._parent = sourceDs.get('_parent');
-              datasetAttr.transform = dataItem.transform;
-              var aggPipeline = aggregatePipeline(plId, groupby, datasetAttr);
-              dispatch(aggPipeline);
-              parsed.map.data.summary = datasetAttr._id;
-            }
+            // construct aggregated dataset schema
+            groupByFieldName = groupby[0];
+            aggSchema[groupByFieldName] = sourceSchema[groupByFieldName];
+            aggSchema[aggFieldName] = sourceSchema[aggFieldSourceName];
+
+            // aggregated dataset properties
+            aggDsName = sourceDs.get('name') + '_groupby_' + groupby.join('');
+
+            datasetAttr.schema = aggSchema;
+            datasetAttr.source = dsId;
+            datasetAttr.name = aggDsName;
+            datasetAttr._id = counter.global();
+            datasetAttr._parent = sourceDs.get('_parent');
+            datasetAttr.transform = [transformItem];
+
+            var aggPipeline = aggregatePipeline(plId, groupby, datasetAttr);
+            dispatch(aggPipeline);
+            // store newly created aggregate dataset id
+            parsed.map.data.summary = datasetAttr._id;
           }
-        });
+        }
       }
     }
   });

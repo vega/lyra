@@ -32,19 +32,26 @@ function exporter(internal) {
 }
 
 exporter.pipelines = function(state, internal) {
-  var pipelines = getInVis(state, 'pipelines').valueSeq().toJS();
-  return pipelines.map(function(pipeline) {
 
-    if (pipeline._aggregates) {
-      for (var aggregate in pipeline._aggregates) {
-        if (pipeline._aggregates.hasOwnProperty(aggregate)) {
-          // console.log('rtrn contents: ', exporter.dataset(state, internal, pipeline._aggregates[aggregate]));
-          return exporter.dataset(state, internal, pipeline._aggregates[aggregate]);
-        }
-      }
+  var pipelines = getInVis(state, 'pipelines').valueSeq().toJS(),
+      plAggregatesList = [], plList = [], plSourceList;
+
+  plSourceList = pipelines.map(function(pl) {
+    return pl._source;
+  });
+
+  pipelines.forEach(function(pl) {
+    if (pl._aggregates) {
+      dl.keys(pl._aggregates).forEach(function(aggregate) {
+        plAggregatesList.push(pl._aggregates[aggregate]);
+      });
     }
+  });
 
-    return exporter.dataset(state, internal, pipeline._source);
+  plList = plSourceList.concat(plAggregatesList);
+
+  return plList.map(function(plMapping) {
+    return exporter.dataset(state, internal, plMapping);
   });
 };
 
@@ -54,12 +61,6 @@ exporter.dataset = function(state, internal, id) {
       values = dsUtils.input(id),
       format = spec.format && spec.format.type,
       sort = exporter.sort(dataset);
-
-  console.log('dl.duplicate(dataset): ', dl.duplicate(dataset));
-
-  // console.log('dataset: ', dataset);
-  // console.log('spec:dataset:63: ', spec);
-  // console.log('format: ', format);
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
