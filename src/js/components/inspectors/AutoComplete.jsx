@@ -73,10 +73,10 @@ var AutoComplete = React.createClass({
           dsId = parseInt(props.dsId),
           schema = dsUtil.schema(dsId),
           keys = dl.keys(schema),
+          unContentEditable = ReactDOM.findDOMNode(this),
           contentEditable = ReactDOM.findDOMNode(this).childNodes[0];
 
-      $(contentEditable).textcomplete([
-                {
+      var strategies = [{
                     words: keys,
                     match: /\b(\w{2,})$/,
                     search: function (term, callback) {
@@ -90,8 +90,15 @@ var AutoComplete = React.createClass({
                     replace: function (word) {
                         return '<span class="auto" contenteditable="false">' + word + '</span> ';
                     }
-                }
-            ]);
+                }];
+
+      var option = {
+        appendTo:  $(unContentEditable),
+      }
+
+      $(contentEditable).textcomplete(strategies, option);
+
+      
     },
     
 
@@ -128,7 +135,7 @@ var AutoComplete = React.createClass({
 
   		return (
         <div className="unce" contentEditable="false">
-  	 	   <div className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true" ></div>
+  	 	   <div className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true"></div>
         </div>
   		);
   	}
