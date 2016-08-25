@@ -21,7 +21,10 @@ function outExpr(htmlString, store) {
   htmlString = htmlString.split(spanPreHardcore).join('');
   htmlString = htmlString.split(spanPostHardcore).join('');
   htmlString = insert(htmlString, store, 'datum.', '');
-  return htmlString;
+  console.log(htmlString);
+  var decoded = unescape(htmlString);
+  console.log(decoded);
+  return unescape(htmlString);
 }
 
 
@@ -31,7 +34,8 @@ function outTmpl(htmlString, store) {
   htmlString = htmlString.split(spanPreHardcore).join('');
   htmlString = htmlString.split(spanPostHardcore).join('');
   htmlString = insert(htmlString, store, '{{datum.', '}}');
-  return htmlString;
+  //console.log(unescape(htmlString));
+  return unescape(htmlString);
 }
 
 // helper function to insert pre and post string to target string
@@ -102,9 +106,9 @@ var AutoComplete = React.createClass({
         htmlString;
 
       if (type == 'expr') {
-        updateFn(outExpr(event.target.innerHTML, keys));
+        updateFn(outExpr(event.target.textContent, keys));
       } else if (type == 'tmpl') {
-        updateFn(outTmpl(event.target.innerHTML, keys));
+        updateFn(outTmpl(event.target.textContent, keys));
       } else {
         console.log("type of AutoComplete can either be expr or tmpl");
       }
@@ -124,7 +128,7 @@ var AutoComplete = React.createClass({
 
   		return (
         <div className="unce" contentEditable="false">
-  	 	   <div id="ce" className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true" ></div>
+  	 	   <div className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true" ></div>
         </div>
   		);
   	}
