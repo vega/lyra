@@ -58,8 +58,6 @@ function bindChannel(dsId, field, markId, property, transform) {
 
     if (from && (from.get('mark') || from.get('data') !== dsId)) {
       throw Error('Mark and field must be from the same pipeline.');
-    } else if (!from) {
-      dispatch(updateMarkProperty(markId, 'from', {data: dsId}));
     }
 
     spec.encoding[channel] = channelDef(field);

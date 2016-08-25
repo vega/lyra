@@ -27,12 +27,13 @@ function exporter(internal) {
 
   var spec  = exporter.scene(state, int);
   spec.data = exporter.pipelines(state, int);
-  console.log('spec.data: ', spec.data);
   return spec;
 }
 
 exporter.pipelines = function(state, internal) {
 
+  // TODO: gather ids of source and aggregate dsIds
+  // in more efficient manner
   var pipelines = getInVis(state, 'pipelines').valueSeq().toJS(),
       plAggregatesList = [], plList = [], plSourceList;
 
@@ -68,7 +69,6 @@ exporter.dataset = function(state, internal, id) {
   //   2. Raw values were provided by the user directly (i.e., no url/source).
   if (spec.source) {
     spec.source = name(getInVis(state, 'datasets.' + spec.source + '.name'));
-    console.log('spec.source: ', spec.source);
   } else if (internal) {
     spec.values = values;
     delete spec.url;
@@ -342,8 +342,6 @@ function dataRef(state, scale, ref) {
   var sets = {},
       data, did, field, i, len, keys;
 
-  console.log('ref:a: ', ref);
-
   // One ref
   if (ref.length === 1) {
     ref = ref[0];
@@ -391,8 +389,6 @@ function sortDataRef(data, scale, ref) {
       _sortOrder: getIn(data, '_sort.order')
     });
   }
-
-  console.log('ref:b: ', ref);
 
   return ref;
 }

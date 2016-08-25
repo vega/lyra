@@ -6,6 +6,7 @@ var dl = require('datalib'),
     markActions = require('../markActions'),
     setMarkVisual = markActions.setMarkVisual,
     disableMarkVisual = markActions.disableMarkVisual,
+    updateMarkProperty = require('../markActions').updateMarkProperty,
     MARK_EXTENTS = require('../../constants/markExtents');
 
 /**
@@ -20,9 +21,13 @@ var dl = require('datalib'),
  */
 module.exports = function(dispatch, state, parsed) {
   var markType = parsed.markType,
+      map = parsed.map,
+      data = map.data,
+      markId = parsed.markId,
       channel  = parsed.channel,
       def = parsed.output.marks[0].marks[0],
-      props = def.properties.update;
+      props = def.properties.update,
+      fromDataId = data.summary ? data.summary : data.source;
 
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial(dispatch, parsed, props);
@@ -31,6 +36,8 @@ module.exports = function(dispatch, state, parsed) {
   } else {
     bindProperty(dispatch, parsed, props);
   }
+
+  dispatch(updateMarkProperty(markId, 'from', {data: fromDataId}));
 };
 
 /**

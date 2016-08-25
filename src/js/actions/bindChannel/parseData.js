@@ -35,8 +35,14 @@ function data(dispatch, state, parsed) {
 
   parsed.map.data.source = parsed.dsId;
 
-  console.log('parsed: ', parsed);
+  // sketch of steps one & two
+  /*
 
+
+  */
+
+  // TODO: refactor following into separate funcs
+  // rethink iteration
   for (var k in input) {
     if (input.hasOwnProperty(k)) {
       if (input[k].hasOwnProperty('aggregate')) {
@@ -79,6 +85,9 @@ function data(dispatch, state, parsed) {
             dispatch(aggPipeline);
             // store newly created aggregate dataset id
             parsed.map.data.summary = datasetAttr._id;
+
+            console.log('parsed.map.data.summary: ', parsed.map.data.summary);
+            console.log('transformed vals: ', du.input(parsed.map.data.summary));
           }
         }
       }
@@ -86,6 +95,12 @@ function data(dispatch, state, parsed) {
   });
 
   console.log('parsed: ', parsed);
+  console.log('parsed: ', parsed.mark.toJS());
+}
+
+// move appropriate pipeline aggregation code in here
+function createAggrPipeline(dispatch, state, aggField, aggSourceField) {
+
 }
 
 module.exports = data;
