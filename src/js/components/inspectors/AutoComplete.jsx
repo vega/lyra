@@ -94,11 +94,32 @@ var AutoComplete = React.createClass({
 
       var option = {
         appendTo:  $(unContentEditable),
+        onKeydown: onKeydownFunc,
       }
 
-      $(unContentEditable).keyup(function(event) {
-        return event.which != 13; 
-      });
+      var onKeydownFunc = function (e, commands) {
+        console.log(e.keyCode);
+        // `commands` has `KEY_UP`, `KEY_DOWN`, `KEY_ENTER`, `KEY_PAGEUP`, `KEY_PAGEDOWN`,
+        // `KEY_ESCAPE` and `SKIP_DEFAULT`.
+        if (e.keyCode === 13) {
+          // Treat CTRL-J as enter key.
+          console.log(13);
+          return commands.SKIP_DEFAULT;
+        }
+       // If the function does not return a result or undefined is returned,
+      // the plugin uses default behavior.
+      };
+
+       $(contentEditable).keypress(function(event) {
+
+       
+        //alert("Function is Called on Enter");
+
+        return event.which !=13; //Add this line to your code
+
+       
+
+   });
 
       $(contentEditable).textcomplete(strategies, option);
 
