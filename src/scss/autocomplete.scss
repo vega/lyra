@@ -34,8 +34,22 @@
 	background-color: LightGray;
     border: 1px solid orange;
 }
-
-.ce {
-    line-height: 20px;
+.unec {
     width: 100px;
+}
+.ce {
+     -moz-appearance: textfield !important;
+    -webkit-appearance: textfield !important;
+    background-color: white;
+    background-color: -moz-field !important;
+    border: 1px solid darkgray;
+    box-shadow: 1px 1px 1px 0 lightgray inset;  
+    font: -moz-field;
+    font: -webkit-small-control;
+    margin-top: 5px;
+    padding: 2px 3px;   
+    line-height: 20px;
+    width:100;
+    white-space: nowrap !important;
+    overflow: hidden;
 }
