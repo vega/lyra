@@ -51,14 +51,13 @@ function bindChannel(dsId, field, markId, property, transform) {
         spec = vlSpec(mark),
         mapping = map(spec),
         channel = channelName(property);
+        plId = getInVis(state, 'datasets.' + dsId).get('_parent'),
+        pl, plSource, isNotFromSamePl, fromData,
+        plSrcAggList = [], plAggregates;
 
     // Though we dispatch multiple actions, we want bindChannel to register as
     // only a single state change to the history from the user's perspective.
     dispatch(startBatch());
-
-    if (from && (from.get('mark') || from.get('data') !== dsId)) {
-      throw Error('Mark and field must be from the same pipeline.');
-    }
 
     spec.encoding[channel] = channelDef(field);
 
@@ -76,6 +75,24 @@ function bindChannel(dsId, field, markId, property, transform) {
     parseGuides(dispatch, state, parsed);
 
     dispatch(setVlUnit(markId, spec));
+
+    // capture all the changes made to the store by parsers
+    state = getState();
+    pl = getInVis(state, 'pipelines.' + plId);
+    plSource = pl.get('_source');
+    plAggregates = pl.get('_aggregates') ? pl.get('_aggregates').valueSeq().toArray() : [];
+
+    if (from) {
+      fromData = from.get('data');
+      plSrcAggList.push(plSource);
+      plSrcAggList = plAggregates ? plSrcAggList.concat(plAggregates) : plSrcAggList;
+      isNotFromSamePl = plSrcAggList.indexOf(fromData) === -1;
+
+      if (from.get('mark') || isNotFromSamePl) {
+        throw Error('Mark and field must be from the same pipeline.');
+      }
+    }
+
     dispatch(endBatch());
   };
 }

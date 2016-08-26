@@ -35,6 +35,11 @@ function datasetsReducer(state, action) {
     }));
 
   }
+
+  if (action.type === ACTIONS.ADD_DATASET) {
+    return {};
+  }
+
   return state;
 }
 

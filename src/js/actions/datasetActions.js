@@ -3,7 +3,8 @@
 var dl = require('datalib'),
     counter = require('../util/counter'),
     ADD_DATASET = 'ADD_DATASET',
-    SORT_DATASET = 'SORT_DATASET';
+    SORT_DATASET = 'SORT_DATASET',
+    UPDATE_DATASET_PROPERTY = 'UPDATE_DATASET_PROPERTY';
 
 /**
  * Action creator to add a new Dataset in the store.
@@ -46,12 +47,23 @@ function sortDataset(dsId, field, order) {
   };
 }
 
+function updateDatasetProperty(id, property, value) {
+  return {
+    type: UPDATE_DATASET_PROPERTY,
+    id: id,
+    property: property,
+    value: value
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_DATASET: ADD_DATASET,
   SORT_DATASET: SORT_DATASET,
+  UPDATE_DATASET_PROPERTY: UPDATE_DATASET_PROPERTY,
 
   // Action Creators
   addDataset: addDataset,
-  sortDataset: sortDataset
+  sortDataset: sortDataset,
+  updateDatasetProperty: updateDatasetProperty
 };
