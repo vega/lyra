@@ -5,8 +5,8 @@ var dl = require('datalib'),
     datasetActions = require('./datasetActions'),
     addDataset = datasetActions.addDataset,
     ADD_PIPELINE = 'ADD_PIPELINE',
-    UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY',
-    AGGREGATE_PIPELINE = 'AGGREGATE_PIPELINE';
+    AGGREGATE_PIPELINE = 'AGGREGATE_PIPELINE',
+    UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY';
 
 /**
  * Action creator to add a new Pipeline in the store. A new pipeline requires
@@ -72,11 +72,11 @@ function updatePipelineProperty(id, property, value) {
 module.exports = {
   // Action Names
   ADD_PIPELINE: ADD_PIPELINE,
-  UPDATE_PIPELINE_PROPERTY: UPDATE_PIPELINE_PROPERTY,
   AGGREGATE_PIPELINE: AGGREGATE_PIPELINE,
+  UPDATE_PIPELINE_PROPERTY: UPDATE_PIPELINE_PROPERTY,
 
   // Action Creators
   addPipeline: addPipeline,
-  updatePipelineProperty: updatePipelineProperty,
-  aggregatePipeline: aggregatePipeline
+  aggregatePipeline: aggregatePipeline,
+  updatePipelineProperty: updatePipelineProperty
 };

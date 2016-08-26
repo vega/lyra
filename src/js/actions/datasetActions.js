@@ -4,7 +4,7 @@ var dl = require('datalib'),
     counter = require('../util/counter'),
     ADD_DATASET = 'ADD_DATASET',
     SORT_DATASET = 'SORT_DATASET',
-    UPDATE_DATASET_PROPERTY = 'UPDATE_DATASET_PROPERTY';
+    ADD_TO_SUMMARIZE = 'ADD_TO_SUMMARIZE';
 
 /**
  * Action creator to add a new Dataset in the store.
@@ -47,12 +47,12 @@ function sortDataset(dsId, field, order) {
   };
 }
 
-function updateDatasetProperty(id, property, value) {
+
+function addToSummarize(id, summarize) {
   return {
-    type: UPDATE_DATASET_PROPERTY,
+    type: ADD_TO_SUMMARIZE,
     id: id,
-    property: property,
-    value: value
+    summarize: summarize
   };
 }
 
@@ -60,10 +60,11 @@ module.exports = {
   // Action Names
   ADD_DATASET: ADD_DATASET,
   SORT_DATASET: SORT_DATASET,
-  UPDATE_DATASET_PROPERTY: UPDATE_DATASET_PROPERTY,
+  ADD_TO_SUMMARIZE: ADD_TO_SUMMARIZE,
+  UPDATE_SUMMARIZE: ADD_TO_SUMMARIZE,
 
   // Action Creators
   addDataset: addDataset,
   sortDataset: sortDataset,
-  updateDatasetProperty: updateDatasetProperty
+  addToSummarize: addToSummarize
 };

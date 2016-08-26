@@ -1,6 +1,7 @@
 'use strict';
 
 var aggregatePipeline = require('../pipelineActions').aggregatePipeline,
+    addToSummarizes = require('../datasetActions').addToSummarize,
     getInVis = require('../../util/immutable-utils').getInVis,
     dl = require('datalib'),
     du = require('../../util/dataset-utils'),
@@ -23,93 +24,114 @@ function data(dispatch, state, parsed) {
   // TODO: transforms, aggregates, multiple datasets per pipeline, etc.
   var dsId = parsed.dsId,
       plId = getInVis(state, 'datasets.' + dsId + '._parent'),
-      pl = getInVis(state, 'pipelines.' + plId),
       map = parsed.map,
-      mappedOutput = parsed.output,
-      input = parsed.input.encoding,
-      groupByFieldName = '',
-      aggFieldName = '',
-      aggFieldSourceName = '',
-      aggDsName = '',
-      datasetAttr = {},
-      aggSchema = {},
-      groupby, sourceSchema, summary, sourceDs;
+      summary = map.data.summary,
+      sourceBacking = {},
+      aggregatedDataset, pl, plAggsProps, aggDsGroupby;
 
   parsed.map.data.source = parsed.dsId;
 
-  for (var k in input) {
-    if (input.hasOwnProperty(k)) {
-      if (input[k].hasOwnProperty('aggregate')) {
-        aggFieldName = input[k].aggregate + '_' + input[k].field;
-        aggFieldSourceName = input[k].field;
+  // if a matching aggregate ds is found
+  if (summary) {
+    aggregatedDataset = getInVis(state, 'datasets.' + summary);
+
+    if (aggregatedDataset) {
+      // grab pipeline from plId which is derived from dsId
+      pl = getInVis(state, 'pipelines.' + plId);
+      plAggsProps = dl.keys(pl.get('_aggregates').toJS());
+      aggDsGroupby = aggregatedDataset.get('transform').toJS()[0].groupby[0];
+
+      if (plAggsProps.indexOf(aggDsGroupby) !== -1) {
+        // matching groupbys
+        // construct summarize and add trigger dispatch
+        var backingDef = aggregateDef(parsed.input),
+            summarize = {
+              field: backingDef.aggFieldSourceName,
+              aggOp: backingDef.aggregate
+            };
+
+        // dispatch updateSummarize with id property
+        dispatch(addToSummarizes(summary, summarize));
       }
     }
-  }
-
-  summary = map.data.summary;
-  var aggregatedDataset = getInVis(state, 'datasets.' + summary);
-
-  // if a matching aggregate ds is found
-  if (aggregatedDataset) {
-    console.log('something happened: ', aggregatedDataset.toJS(), summary);
-
-    var groupbysInAggDs = aggregatedDataset.get('transform').get('groupby').join('');
-    var groupbysInPl = dl.keys(pl.get('_aggregates'));
-
-    if (groupbysInPl.indexOf(groupbysInAggDs) !== -1) {
-      // need to write actions + reducers that update
-      // dataset
-      var updatedDsAttr = {
-        summarize: {}
-      };
-
-      updatedDsAttr.summarize
-      //
-      // dispatch(updateDatasetProperty(summary, ));
-    }
   } else {
-    // TODO: refactor the following block into own function
-    // no aggregate ds was found so commence creation
-    mappedOutput.data.forEach(function(dataItem, key) {
-      if (dataItem.name === 'summary') {
-        if (dataItem.transform) {
-          var transformItem = dataItem.transform[0];
-          if (transformItem.type === 'aggregate') {
-            // code for all aggregation
-            if (transformItem.groupby) {
-              // code for adding aggregated ds
-              sourceDs = getInVis(state, 'datasets.' + dsId);
-              sourceSchema = du.schema(du.input(dsId));
+    sourceBacking.sourceDs = getInVis(state, 'datasets.' + dsId);
+    sourceBacking.sourceSchema = du.schema(du.input(dsId));
+    sourceBacking.plId = plId;
 
-              groupby = transformItem.groupby;
+    createAggregateDataset(dispatch, parsed, sourceBacking);
+  }
+}
 
-              // construct aggregated dataset schema
-              groupByFieldName = groupby[0];
-              aggSchema[groupByFieldName] = sourceSchema[groupByFieldName];
-              aggSchema[aggFieldName] = sourceSchema[aggFieldSourceName];
+function createAggregateDataset(dispatch, parsed, sourceBacking) {
+  var dsId = parsed.dsId,
+      input = parsed.input,
+      output = parsed.output,
+      sourceDs = sourceBacking.sourceDs,
+      sourceSchema = sourceBacking.sourceSchema,
+      plId = sourceBacking.plId,
+      aggSchema = {},
+      datasetAttr = {},
+      groupby,
+      groupByFieldName,
+      aggDsName,
+      aggrDef = {};
 
-              // aggregated dataset properties
-              aggDsName = sourceDs.get('name') + '_groupby_' + groupby.join('');
+  aggrDef = aggregateDef(input);
 
-              datasetAttr.schema = aggSchema;
-              datasetAttr.source = dsId;
-              datasetAttr.name = aggDsName;
-              datasetAttr._id = counter.global();
-              datasetAttr._parent = sourceDs.get('_parent');
-              datasetAttr.transform = [transformItem];
+  output.data.forEach(function(dataItem, key) {
+    if (dataItem.name === 'summary') {
+      if (dataItem.transform) {
+        var transformItem = dataItem.transform[0];
+        if (transformItem.type === 'aggregate') {
+          // code for all aggregation
+          if (transformItem.groupby) {
+            // code for adding aggregated ds
+            groupby = transformItem.groupby;
 
-              var aggPipeline = aggregatePipeline(plId, groupby, datasetAttr);
-              dispatch(aggPipeline);
-              // store newly created aggregate dataset id
-              parsed.map.data.summary = datasetAttr._id;
-            }
+            // construct aggregated dataset schema
+            groupByFieldName = groupby[0];
+            aggSchema[groupByFieldName] = sourceSchema[groupByFieldName];
+            aggSchema[aggrDef.aggFieldName] = sourceSchema[aggrDef.aggFieldSourceName];
+
+            // aggregated dataset properties
+            aggDsName = sourceDs.get('name') + '_groupby_' + groupby.join('');
+
+            datasetAttr.schema = aggSchema;
+            datasetAttr.source = dsId;
+            datasetAttr.name = aggDsName;
+            datasetAttr._id = counter.global();
+            datasetAttr._parent = sourceDs.get('_parent');
+            datasetAttr.transform = [transformItem];
+
+            var aggPipeline = aggregatePipeline(plId, groupby, datasetAttr);
+            dispatch(aggPipeline);
+
+            // store newly created aggregate dataset id
+            parsed.map.data.summary = datasetAttr._id;
           }
         }
       }
-    });
+    }
+  });
+}
 
-    console.log('parsed: ', parsed);
+function aggregateDef(input) {
+  var encoding = input.encoding,
+      def = {};
+
+  for (var k in encoding) {
+    if (encoding.hasOwnProperty(k)) {
+      if (encoding[k].hasOwnProperty('aggregate')) {
+        def.aggregate = encoding[k].aggregate;
+        def.field = encoding[k].field;
+        def.aggFieldName = def.aggregate + '_' + def.field;
+        def.aggFieldSourceName = def.field;
+      }
+    }
   }
+
+  return def;
 }
 
 module.exports = data;

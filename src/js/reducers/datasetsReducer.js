@@ -6,6 +6,7 @@ var Immutable = require('immutable'),
     immutableUtils = require('../util/immutable-utils'),
     set   = immutableUtils.set,
     setIn = immutableUtils.setIn,
+    getIn = immutableUtils.getIn,
     dsUtil = require('../util/dataset-utils');
 
 /**
@@ -36,8 +37,13 @@ function datasetsReducer(state, action) {
 
   }
 
-  if (action.type === ACTIONS.ADD_DATASET) {
-    return {};
+  if (action.type === ACTIONS.ADD_TO_SUMMARIZE) {
+    var newAggr = action.aggOp,
+        field = action.field,
+        newTransform = getIn(state, action.id + '.transform.0');
+
+    console.log('newTransform: ', newTransform.toJS());
+    return state;
   }
 
   return state;

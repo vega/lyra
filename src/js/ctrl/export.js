@@ -31,9 +31,6 @@ function exporter(internal) {
 }
 
 exporter.pipelines = function(state, internal) {
-
-  // TODO: gather ids of source and aggregate dsIds
-  // in more efficient manner
   var pipelines = getInVis(state, 'pipelines').valueSeq().toJS(),
       plAggregatesList = [], plList = [], plSourceList;
 
