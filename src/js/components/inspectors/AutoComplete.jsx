@@ -13,6 +13,33 @@ var React = require('react'),
 var spanPreHardcore = '<span class="auto" contenteditable="false">';
 var spanPostHardcore = '</span>';
 
+//fun inexpr(stringfromstore)->String html
+// @require StringFromStore should be in form of "datumn."
+function inExpr(storeString, store) {
+  storeString = storeString.split('datum.').join('');
+  storeString = insert(storeString, store, spanPreHardcore, spanPostHardcore);
+  console.log(storeString);
+  return storeString;
+}
+
+// @require storeString should be in form "{{datumn.}}"
+function inTmpl(storeString, store) {
+  var regex = new RegExp("{{datum.*}}");
+  var position = storeString.search(regex);
+
+  while (position != -1) {
+    var next = position + 8;
+
+    var nextString = storeString.substring(next);
+    var end = nextString.search("}}");
+    storeString = storeString.substring(0, position) + nextString.substring(0, end) + nextString.substring(end + 2);
+    position = storeString.search(regex);
+  }
+  storeString = insert(storeString, store, "", "");
+  //console.log(storeString);
+  return storeString;
+}
+
 //Fun outexp(string html)->store string
 function outExpr(htmlString, store) {
   htmlString = htmlString.split('<div>').join('');
@@ -87,39 +114,39 @@ var AutoComplete = React.createClass({
                         }));
                     },
                     index: 1,
-                    replace: function (word) {
-                        return '<span class="auto" contenteditable="false">' + word + '</span> ';
-                    }
+                    // replace: function (word) {
+                    //     return '<span class="auto" contenteditable="false">' + word + '</span> ';
+                    // }
                 }];
 
       var option = {
         appendTo:  $(unContentEditable),
-        onKeydown: onKeydownFunc,
+        // onKeydown: onKeydownFunc,
       }
 
-      var onKeydownFunc = function (e, commands) {
-        console.log(e.keyCode);
-        // `commands` has `KEY_UP`, `KEY_DOWN`, `KEY_ENTER`, `KEY_PAGEUP`, `KEY_PAGEDOWN`,
-        // `KEY_ESCAPE` and `SKIP_DEFAULT`.
-        if (e.keyCode === 13) {
-          // Treat CTRL-J as enter key.
-          console.log(13);
-          return commands.SKIP_DEFAULT;
-        }
-       // If the function does not return a result or undefined is returned,
-      // the plugin uses default behavior.
-      };
+      // var onKeydownFunc = function (e, commands) {
+      //   console.log(e.keyCode);
+      //   // `commands` has `KEY_UP`, `KEY_DOWN`, `KEY_ENTER`, `KEY_PAGEUP`, `KEY_PAGEDOWN`,
+      //   // `KEY_ESCAPE` and `SKIP_DEFAULT`.
+      //   if (e.keyCode === 13) {
+      //     // Treat CTRL-J as enter key.
+      //     console.log(13);
+      //     return commands.SKIP_DEFAULT;
+      //   }
+      //  // If the function does not return a result or undefined is returned,
+      // // the plugin uses default behavior.
+      // };
 
-       $(contentEditable).keypress(function(event) {
-
-       
-        //alert("Function is Called on Enter");
-
-        return event.which !=13; //Add this line to your code
+   //     $(contentEditable).keypress(function(event) {
 
        
+   //      //alert("Function is Called on Enter");
 
-   });
+   //      return event.which !=13; //Add this line to your code
+
+       
+
+   // });
 
       $(contentEditable).textcomplete(strategies, option);
 
@@ -152,15 +179,22 @@ var AutoComplete = React.createClass({
   			type = props.type,
         dsId = parseInt(props.dsId),
         schema = dsUtil.schema(dsId),
-        keys = dl.keys(schema);
+        keys = dl.keys(schema),
+        htmlString = value;
 
       if (value === undefined) {
-        value = "";
+        htmlString = "";
+      }
+
+      if (type == 'expr') {
+        htmlString = inExpr(htmlString, keys);
+      } else {
+        htmlString = inTmpl(htmlString, keys);
       }
 
   		return (
         <div className="unce" contentEditable="false">
-  	 	   <div className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true"></div>
+  	 	   <div className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true"  dangerouslySetInnerHTML={{__html: htmlString}}></div>
         </div>
   		);
   	}
