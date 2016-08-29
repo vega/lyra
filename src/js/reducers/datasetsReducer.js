@@ -7,6 +7,7 @@ var Immutable = require('immutable'),
     set   = immutableUtils.set,
     setIn = immutableUtils.setIn,
     getIn = immutableUtils.getIn,
+    dl = require('datalib'),
     dsUtil = require('../util/dataset-utils');
 
 /**
@@ -37,13 +38,14 @@ function datasetsReducer(state, action) {
 
   }
 
+  // block much change the summary property in ds to add more to the summary
   if (action.type === ACTIONS.ADD_TO_SUMMARIZE) {
-    var newAggr = action.aggOp,
-        field = action.field,
-        newTransform = getIn(state, action.id + '.transform.0');
+    var id = action.id,
+        summarize = action.summarize,
+        propPath = id + '.transform.0.summarize',
+        mergedSummarize = getIn(state, propPath).mergeDeep(Immutable.fromJS(summarize));
 
-    console.log('newTransform: ', newTransform.toJS());
-    return state;
+    return setIn(state, propPath, mergedSummarize);
   }
 
   return state;

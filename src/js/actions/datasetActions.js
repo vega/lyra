@@ -47,11 +47,10 @@ function sortDataset(dsId, field, order) {
   };
 }
 
-
-function addToSummarize(id, summarize) {
+function addToSummarize(summaryId, summarize) {
   return {
     type: ADD_TO_SUMMARIZE,
-    id: id,
+    id: summaryId,
     summarize: summarize
   };
 }
