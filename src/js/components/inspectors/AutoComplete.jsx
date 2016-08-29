@@ -4,7 +4,7 @@ var React = require('react'),
     dl = require('datalib'),
     ReactDOM = require('react-dom'),
     ContentEditable = require('react-contenteditable');
-
+   // $ = require ('jquery');
 
 var spanPreHardcore = '<span class="auto" contenteditable="false">';
 var spanPostHardcore = '</span>';
@@ -56,7 +56,7 @@ function outTmpl(htmlString, store) {
   htmlString = htmlString.split(spanPreHardcore).join('');
   htmlString = htmlString.split(spanPostHardcore).join('');
   htmlString = insert(htmlString, store, '{{datum.', '}}');
-  console.log(htmlString);
+  // console.log(htmlString);
   return htmlDecode(htmlString);
 }
 
@@ -103,7 +103,6 @@ var AutoComplete = React.createClass({
       htmlString = '';
     }
 
-    // console.log(value);
     if (type === 'expr') {
       htmlString = inExpr(htmlString, keys);
     } else {
@@ -135,8 +134,15 @@ var AutoComplete = React.createClass({
       }
     }];
 
+    var onKeydownFunc = function(e, commands) {
+      if (e.keyCode === 32) {
+        return commands.KEY_ENTER;
+      }
+    };
+
     var option = {
       appendTo: $(unContentEditable),
+      onKeydown: onKeydownFunc
     };
 
     $(contentEditable).textcomplete(strategies, option);
@@ -144,13 +150,11 @@ var AutoComplete = React.createClass({
 
   handleChange: function(event) {
     var props = this.props,
-      //  value = props.value,
         type = props.type,
         dsId = parseInt(props.dsId, 10),
         schema = dsUtil.schema(dsId),
         keys = dl.keys(schema),
         updateFn = props.updateFn;
-    //    htmlString;
 
     if (type === 'expr') {
       updateFn(outExpr(event.target.value, keys));
@@ -164,7 +168,6 @@ var AutoComplete = React.createClass({
   },
 
   render: function() {
-
     return (
       <div className="unce" contentEditable="false">
         <ContentEditable className = "ce" html={this.state.html} disabled={false} onChange={this.handleChange.bind(this)} />

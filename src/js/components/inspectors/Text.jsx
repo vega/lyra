@@ -1,19 +1,13 @@
 'use strict';
 var React = require('react'),
     Property = require('./Property'),
-    AutoComplete = require('./AutoComplete'),
     primTypes = require('../../constants/primTypes'),
     connect = require('react-redux').connect,
     updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
     Text = require('../../store/factory/marks/Text'),
-    AutoComplete = require('./AutoComplete'),
-    imutils = require('../../util/immutable-utils'),
-    
-    
     getInVis = require('../../util/immutable-utils').getInVis;
 
 function mapStateToProps(reduxState, ownProps) {
-  //console.log(getInVis(reduxState, 'marks.' + ownProps.primId + '.job'));
   return {
     autoVal: getInVis(reduxState, 'marks.' + ownProps.primId + '.job')
   };
@@ -22,10 +16,9 @@ function mapStateToProps(reduxState, ownProps) {
 function mapDispatchToProps(dispatch) {
   return {
     autoCompleteUpdate: function(markId, property, value) {
-      //console.log("fired update mark");
       dispatch(updateMarkProperty(markId, property, value));
     }
-  }
+  };
 }
 
 var TextInspector = React.createClass({
@@ -36,16 +29,11 @@ var TextInspector = React.createClass({
   },
 
   render: function() {
-    var props = this.props,
-        primId = this.props.primId;
-       
-    //console.log(props.autoVal);
+    var props = this.props;
+
     return (
       <div>
-    
-         <Property type='autocomplete' autoType="expr" value={props.autoVal} dsId={4} label='Expression' name='auto' onChange={this.props.autoCompleteUpdate.bind(this, this.props.primId, 'job')} />
-         
-      
+      <Property type="autocomplete" autoType="expr" value={props.autoVal} dsId={4} label="Expression" name="auto" onChange={this.props.autoCompleteUpdate.bind(this, this.props.primId, 'job')} />
         <div className="property-group">
           <Property name="text" type="text" canDrop={true} {...props}>
             <h3 className="label">Text</h3>
