@@ -75,6 +75,7 @@
     "raw-loader": "^0.5.1",
     "react": "^15.2.1",
     "react-addons-test-utils": "^15.2.1",
+    "react-contenteditable": "^2.0.1",
     "react-dom": "^15.2.1",
     "react-modal": "^1.4.0",
     "react-redux": "^4.4.5",
@@ -112,5 +113,9 @@
     "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/",
     "docs": "jsdoc --configure .jsdoc.json",
     "start": "webpack-dev-server --devtool=cheap-module-source-map --inline"
+  },
+  "dependencies": {
+    "debug-log": "^1.0.0",
+    "react-cursor-position": "^1.0.0"
   }
 }

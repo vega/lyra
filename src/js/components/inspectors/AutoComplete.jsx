@@ -9,6 +9,8 @@ var React = require('react'),
     dl = require('datalib'),
 	  ReactDOM = require('react-dom');
 
+    var ContentEditable = require("react-contenteditable");
+
 
 var spanPreHardcore = '<span class="auto" contenteditable="false">';
 var spanPostHardcore = '</span>';
@@ -18,7 +20,7 @@ var spanPostHardcore = '</span>';
 function inExpr(storeString, store) {
   storeString = storeString.split('datum.').join('');
   storeString = insert(storeString, store, spanPreHardcore, spanPostHardcore);
-  console.log(storeString);
+  //console.log(storeString);
   return storeString;
 }
 
@@ -49,8 +51,8 @@ function outExpr(htmlString, store) {
   htmlString = htmlString.split(spanPostHardcore).join('');
   htmlString = insert(htmlString, store, 'datum.', '');
   // console.log(htmlString);
-  // var decoded = unescape(htmlString);
-  // console.log(decoded);
+  var decoded = unescape(htmlString);
+  console.log(decoded);
   return unescape(htmlString);
 }
 
@@ -114,9 +116,9 @@ var AutoComplete = React.createClass({
                         }));
                     },
                     index: 1,
-                    // replace: function (word) {
-                    //     return '<span class="auto" contenteditable="false">' + word + '</span> ';
-                    // }
+                    replace: function (word) {
+                        return '<span class="auto" contenteditable="false">' + word + '</span> ';
+                    }
                 }];
 
       var option = {
@@ -148,11 +150,58 @@ var AutoComplete = React.createClass({
 
    // });
 
-      $(contentEditable).textcomplete(strategies, option);
+       $(contentEditable).textcomplete(strategies, option);
 
       
-    },
+     },
+
+    //  shouldComponentUpdate: function(nextProps){
+    //     return nextProps.html !== ReactDOM.findDOMNode(this).childNodes[0].innerHTML;
+    // },
+
+    // componentDidUpdate: function(prevProps, prevState){
+    //    this.placeCaretAtEnd( document.getElementById("ce") );
+    // },
     
+    // placeCaretAtEnd: function(el) {
+    //     el.focus();
+    //     if (typeof window.getSelection != "undefined"
+    //         && typeof document.createRange != "undefined") {
+    //         var range = document.createRange();
+    //         range.selectNodeContents(el);
+    //         range.collapse(false);
+    //         var sel = window.getSelection();
+    //         sel.removeAllRanges();
+    //         sel.addRange(range);
+    //     } else if (typeof document.body.createTextRange != "undefined") {
+    //         var textRange = document.body.createTextRange();
+    //         textRange.moveToElementText(el);
+    //         textRange.collapse(false);
+    //         textRange.select();
+    //     }
+    // },
+
+     getInitialState: function(){
+        var props = this.props,
+        value = props.value,
+        type = props.type,
+        dsId = parseInt(props.dsId),
+        schema = dsUtil.schema(dsId),
+        keys = dl.keys(schema),
+        htmlString = value;
+
+        if (value == undefined) {
+          htmlString = "hello";
+        }
+
+      if (type == 'expr') {
+        htmlString = inExpr(htmlString, keys);
+      } else {
+        htmlString = inTmpl(htmlString, keys);
+      }
+
+      return {html: htmlString};
+    },
 
     handleChange: function(type, value, event) {
       var props = this.props,
@@ -165,12 +214,19 @@ var AutoComplete = React.createClass({
         htmlString;
 
       if (type == 'expr') {
-        updateFn(outExpr(event.target.textContent, keys));
+
+        console.log(event.target);
+        console.log(event.target.value);
+        value = event.target.value;
+        updateFn(outExpr(event.target.value, keys));
       } else if (type == 'tmpl') {
+        value = outTmpl(event.target.textContent, keys);
         updateFn(outTmpl(event.target.textContent, keys));
       } else {
         console.log("type of AutoComplete can either be expr or tmpl");
       }
+
+      this.setState({html: event.target.value})
     },
 
   	render: function() {
@@ -182,19 +238,24 @@ var AutoComplete = React.createClass({
         keys = dl.keys(schema),
         htmlString = value;
 
-      if (value === undefined) {
-        htmlString = "";
-      }
+      // if (value == undefined) {
+      //   htmlString = "";
+      // }
 
-      if (type == 'expr') {
-        htmlString = inExpr(htmlString, keys);
-      } else {
-        htmlString = inTmpl(htmlString, keys);
-      }
+      // if (type == 'expr') {
+      //   htmlString = inExpr(htmlString, keys);
+      // } else {
+      //   htmlString = inTmpl(htmlString, keys);
+      // }
 
   		return (
         <div className="unce" contentEditable="false">
-  	 	   <div className="ce" onKeyUp={this.handleChange.bind(this, type, value)} contentEditable="true"  dangerouslySetInnerHTML={{__html: htmlString}}></div>
+          <ContentEditable
+                className = 'ce'
+                html={this.state.html} // innerHTML of the editable div
+                disabled={false}       // use true to disable edition
+                onChange={this.handleChange.bind(this, type, value)} />
+    
         </div>
   		);
   	}

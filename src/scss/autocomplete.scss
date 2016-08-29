@@ -39,24 +39,20 @@
 }
 
 .ce {
-     -moz-appearance: textfield !important;
-    -webkit-appearance: textfield !important;
-    background-color: white;
-    background-color: -moz-field !important;
-    border: 1px solid darkgray;
-    box-shadow: 1px 1px 1px 0 lightgray inset;  
-    font: -moz-field;
-    font: -webkit-small-control;
-    margin-top: 5px;
-    padding: 2px 3px;   
-    line-height: 20px;
-    width:100;
-    white-space: nowrap !important;
-    overflow: hidden;
-    white-space: nowrap;
-    display: inline-block;
-    white-space: pre-wrap; 
-    height: 20px;
+
+     box-shadow: 1px 1px 1px 0 lightgray inset; 
+     background-color: white;
+     width:100;
+     overflow: hidden;
+     height: 20px;
+     margin-top: 5px;
+     padding-left: 2px;
+
+   
+     border: 1px solid darkgray;
+     font: -moz-field;
+     line-height: 20px;
+    
 }
 
 
