@@ -15,13 +15,28 @@ var React = require('react'),
 var spanPreHardcore = '<span class="auto" contenteditable="false">';
 var spanPostHardcore = '</span>';
 
+function htmlDecode(input){
+  var e = document.createElement('div');
+  e.innerHTML = input;
+  return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+}
+
 //fun inexpr(stringfromstore)->String html
 // @require StringFromStore should be in form of "datumn."
 function inExpr(storeString, store) {
   storeString = storeString.split('datum.').join('');
   storeString = insert(storeString, store, spanPreHardcore, spanPostHardcore);
-  //console.log(storeString);
+  console.log(storeString);
   return storeString;
+}
+
+//Fun outexp(string html)->store string
+function outExpr(htmlString, store) {
+  htmlString = htmlString.split(spanPreHardcore).join('');
+  htmlString = htmlString.split(spanPostHardcore).join('');
+  htmlString = insert(htmlString, store, 'datum.', '');
+  console.log(htmlDecode(htmlString));
+  return htmlDecode(htmlString);
 }
 
 // @require storeString should be in form "{{datumn.}}"
@@ -37,34 +52,18 @@ function inTmpl(storeString, store) {
     storeString = storeString.substring(0, position) + nextString.substring(0, end) + nextString.substring(end + 2);
     position = storeString.search(regex);
   }
-  storeString = insert(storeString, store, "", "");
+  storeString = insert(storeString, store, spanPreHardcore, spanPostHardcore);
   //console.log(storeString);
   return storeString;
 }
-
-//Fun outexp(string html)->store string
-function outExpr(htmlString, store) {
-  htmlString = htmlString.split('<div>').join('');
-  htmlString = htmlString.split('</div>').join('');
-  htmlString = htmlString.split('<br>').join('');
-  htmlString = htmlString.split(spanPreHardcore).join('');
-  htmlString = htmlString.split(spanPostHardcore).join('');
-  htmlString = insert(htmlString, store, 'datum.', '');
-  // console.log(htmlString);
-  var decoded = unescape(htmlString);
-  console.log(decoded);
-  return unescape(htmlString);
-}
-
-
 
 //Fun outtmpl(string html)->store string
 function outTmpl(htmlString, store) {
   htmlString = htmlString.split(spanPreHardcore).join('');
   htmlString = htmlString.split(spanPostHardcore).join('');
   htmlString = insert(htmlString, store, '{{datum.', '}}');
-  //console.log(unescape(htmlString));
-  return unescape(htmlString);
+  console.log(htmlString);
+  return htmlDecode(htmlString);
 }
 
 // helper function to insert pre and post string to target string
@@ -191,9 +190,10 @@ var AutoComplete = React.createClass({
         htmlString = value;
 
         if (value == undefined) {
-          htmlString = "hello";
+          htmlString = "";
         }
 
+      console.log(value);
       if (type == 'expr') {
         htmlString = inExpr(htmlString, keys);
       } else {
@@ -215,9 +215,8 @@ var AutoComplete = React.createClass({
 
       if (type == 'expr') {
 
-        console.log(event.target);
-        console.log(event.target.value);
-        value = event.target.value;
+        // value = event.target.innerHTML;
+        // console.log(value);
         updateFn(outExpr(event.target.value, keys));
       } else if (type == 'tmpl') {
         value = outTmpl(event.target.textContent, keys);
@@ -237,16 +236,6 @@ var AutoComplete = React.createClass({
         schema = dsUtil.schema(dsId),
         keys = dl.keys(schema),
         htmlString = value;
-
-      // if (value == undefined) {
-      //   htmlString = "";
-      // }
-
-      // if (type == 'expr') {
-      //   htmlString = inExpr(htmlString, keys);
-      // } else {
-      //   htmlString = inTmpl(htmlString, keys);
-      // }
 
   		return (
         <div className="unce" contentEditable="false">

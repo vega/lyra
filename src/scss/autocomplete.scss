@@ -47,12 +47,18 @@
      height: 20px;
      margin-top: 5px;
      padding-left: 2px;
-
-   
+     white-space:nowrap;
      border: 1px solid darkgray;
      font: -moz-field;
      line-height: 20px;
     
 }
 
+.ce br {
+    display: none;
+}
+
+.ce div {
+    display: none;
+}
 
