@@ -26,6 +26,8 @@ module.exports = function(dispatch, state, parsed) {
 
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial(dispatch, parsed, props);
+  } else if (markType === 'text' && channel === 'text') {
+    textTemplate(dispatch, parsed, props);
   } else {
     bindProperty(dispatch, parsed, props);
   }
@@ -129,4 +131,20 @@ function rectSpatial(dispatch, parsed, def) {
     };
     bindProperty(dispatch, parsed, def, span);
   }
+}
+
+/**
+ * Binding a field to a text mark's text property should generate a Vega
+ * template string, not a field binding.
+ *
+ * @param   {Function} dispatch Redux dispatch function.
+ * @param   {Object} parsed   An object containing the parsed and output Vega
+ * specifications as well as a mapping of output spec names to Lyra IDs.
+ * @param   {Object} def      The parsed Vega visual properties for the mark.
+ * @returns {void}
+ */
+function textTemplate(dispatch, parsed, def) {
+  dispatch(setMarkVisual(parsed.markId, 'text', {
+    template: '{{datum.' + def.text.field + '}}'
+  }));
 }
