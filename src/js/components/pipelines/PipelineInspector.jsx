@@ -6,6 +6,7 @@ var React = require('react'),
     selectPipeline = require('../../actions/inspectorActions').selectPipeline,
     updatePipeline = require('../../actions/pipelineActions').updatePipelineProperty,
     imutils = require('../../util/immutable-utils'),
+    getState = require('../../store').getState,
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
     assets = require('../../util/assets'),
@@ -13,10 +14,14 @@ var React = require('react'),
     Immutable = require('immutable');
 
 function mapStateToProps(state, ownProps) {
-  var id = ownProps.id;
+  var id = ownProps.id,
+      pipeline = getInVis(state, 'pipelines.' + id),
+      aggregates = pipeline.get('_aggregates') ? pipeline.get('_aggregates').valueSeq().toArray() : [];
+
   return {
     isSelected: getIn(state, 'inspector.pipelines.selectedId') === id,
-    pipeline: getInVis(state, 'pipelines.' + id)
+    pipeline: getInVis(state, 'pipelines.' + id),
+    aggregates: aggregates
   };
 }
 
@@ -44,7 +49,31 @@ var PipelineInspector = React.createClass({
         pipeline = props.pipeline,
         id = props.id,
         name = pipeline.get('name'),
+        aggregates = props.aggregates,
+        aggregateTables = null,
         inner = (<span></span>);
+
+    if (aggregates) {
+      aggregateTables = (
+        <div>
+          {
+            aggregates.map(function(currentAgg, key) {
+              var ds = getInVis(getState(), 'datasets.' + currentAgg),
+                  dsName = ds.get('name');
+              return (
+                <span key={key}>
+                  <p className="source">
+                    <Icon glyph={assets.database} width="11" height="11" />
+                    {dsName}
+                  </p>
+                  <DataTable id={currentAgg} className="derived" />
+                </span>
+              );
+            })
+          }
+        </div>
+      );
+    }
 
     // TODO do not rely on global primitives. Datasets should be in store.
     if (props.isSelected) {
@@ -52,6 +81,7 @@ var PipelineInspector = React.createClass({
         <div className="inner">
           <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {name}</p>
           <DataTable id={pipeline.get('_source')} className="source" />
+          {aggregateTables}
         </div>
       );
     }
