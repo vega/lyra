@@ -63,6 +63,7 @@ var PipelineInspector = React.createClass({
           save={props.updateProperty.bind(this, id, 'name')}
           onClick={props.selectPipeline.bind(null, id)} />
         {inner}
+
       </div>
     );
   }

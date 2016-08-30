@@ -14,7 +14,7 @@ function Text() {
       update: {
         dx: {value: 0, offset: 0},
         dy: {value: 0, offset: 0},
-        text: {value: 'Text'},
+        text: {template: 'Text'},
         align: {value: 'center'},
         baseline: {value: 'middle'},
         font: {value: 'Helvetica'},

@@ -12,10 +12,20 @@ module.exports = {
     vendor: [
       'd3',
       'datalib',
+      'jquery',
+      'jquery-textcomplete',
+      'json2csv',
+      'lodash.ismatch',
+      'lodash.merge',
       'react',
+      'react-contenteditable',
       'react-dom',
+      'react-modal',
+      'react-tooltip',
+      'string.prototype.startswith',
       'vega',
-      'vega-lite'
+      'vega-lite',
+      'vega-scenegraph'
     ],
   },
   output: {
