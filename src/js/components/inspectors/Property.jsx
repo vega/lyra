@@ -9,6 +9,7 @@ var React = require('react'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
     TYPES = require('../../constants/primTypes'),
+    AutoComplete = require('./AutoComplete'),
     resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
 
 function mapStateToProps(state, ownProps) {
@@ -56,8 +57,10 @@ var Property = React.createClass({
     field: React.PropTypes.string,
     group: React.PropTypes.string,
     scale: React.PropTypes.number,
+    dsId: React.PropTypes.number,
     scaleName: React.PropTypes.string,
     signal: React.PropTypes.string,
+    autoType: React.PropTypes.string,
     onChange: React.PropTypes.func,
     value: React.PropTypes.oneOfType([
       React.PropTypes.string, React.PropTypes.number,
@@ -87,6 +90,8 @@ var Property = React.createClass({
         type  = props.type,
         scale = props.scale,
         field = props.field,
+        dsId = props.dsId,
+        autoType = props.autoType,
         value = state.value,
         disabled = props.disabled || props.group,
         onChange = props.onChange || this.handleChange,
@@ -179,6 +184,11 @@ var Property = React.createClass({
               />
             </div>
           );
+          break;
+        case 'autocomplete':
+          controlEl = (
+            <AutoComplete type={autoType} updateFn={onChange} value={value} dsId={dsId}/>
+            );
           break;
         case 'checkbox':
           controlEl = (

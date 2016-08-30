@@ -1,0 +1,42 @@
+.textcomplete-dropdown {
+  border: 1px solid darkgray;
+  background-color: white;
+  z-index: 5000 !important;
+  padding: $inner-padding 0;
+  margin-top: $inner-padding;
+  border-radius: $border-radius;
+  box-shadow: 0 6px 12px rgba(0,0,0,.175);
+  list-style: none;
+}
+
+.textcomplete-dropdown li {
+  border-top: 1px solid #ddd;
+  padding: $inner-padding;
+}
+
+.textcomplete-dropdown li:first-child {
+  border-top: none;
+}
+
+.textcomplete-dropdown li:hover,
+.textcomplete-dropdown .active {
+  background-color: rgb(110, 183, 219);
+}
+
+.textcomplete-dropdown a:hover {
+  cursor: pointer;
+}
+
+.autocomplete {
+  width: 100px;
+  max-height: 60px;
+  overflow: auto;
+  line-height: 20px;
+
+  br, div { display: none; }
+
+  .field {
+    text-decoration: none !important;
+    cursor: default !important;
+  }
+}
