@@ -24,7 +24,7 @@ function mapStateToProps(reduxState, ownProps) {
 
 var AutoComplete = React.createClass({
   propTypes: {
-    type: React.PropTypes.string.isRequired,
+    type: React.PropTypes.oneOf([EXPR, TMPL]).isRequired,
     dsId: React.PropTypes.number.isRequired,
     fields: React.PropTypes.array.isRequired,
     value: React.PropTypes.string,
@@ -47,7 +47,8 @@ var AutoComplete = React.createClass({
   },
 
   componentDidMount: function() {
-    var contentEditable = ReactDOM.findDOMNode(this);
+    var contentEditable = ReactDOM.findDOMNode(this),
+        handleChange = this.handleChange;
 
     var strategies = [{
       words: this.props.fields,
@@ -71,7 +72,8 @@ var AutoComplete = React.createClass({
       }
     };
 
-    $(contentEditable).textcomplete(strategies, options);
+    $(contentEditable).textcomplete(strategies, options)
+      .on({'textComplete:select': handleChange});
   },
 
   exprToHtml: function(str) {
@@ -138,18 +140,16 @@ var AutoComplete = React.createClass({
     return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue;
   },
 
-  handleChange: function(event) {
+  handleChange: function(evt) {
     var props = this.props,
         type  = props.type,
-        value = event.target.value,
+        value = evt.target.value || evt.target.innerHTML,
         updateFn = props.updateFn;
 
     if (type === EXPR) {
       updateFn(this.htmlToExpr(value));
     } else if (type === TMPL) {
       updateFn(this.htmlToTmpl(value));
-    } else {
-      console.log('type of AutoComplete can either be expr or tmpl');
     }
 
     this.setState({html: value});

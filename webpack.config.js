@@ -22,6 +22,7 @@ module.exports = {
       'react-dom',
       'react-modal',
       'react-tooltip',
+      'string.prototype.startswith',
       'vega',
       'vega-lite',
       'vega-scenegraph'

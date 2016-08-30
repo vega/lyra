@@ -9,7 +9,7 @@ var Property = require('./Property');
 var wrapper;
 
 // this is shallow rendered tested since all the work is done in property.js
-describe('Text Inspector <Text/> (shallow)', function() {
+describe.skip('Text Inspector <Text/> (shallow)', function() {
   beforeEach(function() {
     var mock = {
       properties: {

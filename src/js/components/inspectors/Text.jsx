@@ -9,14 +9,16 @@ var React = require('react'),
 
 function mapStateToProps(reduxState, ownProps) {
   return {
-    autoVal: getInVis(reduxState, 'marks.' + ownProps.primId + '.job')
+    dsId: getInVis(reduxState, 'marks.' + ownProps.primId + '.from.data')
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch, ownProps) {
   return {
-    autoCompleteUpdate: function(markId, property, value) {
-      dispatch(updateMarkProperty(markId, property, value));
+    updateTemplate: function(value) {
+      var val = value.target ? value.target.value : value;
+      dispatch(updateMarkProperty(ownProps.primId,
+        'properties.update.text.template', val));
     }
   };
 }
@@ -29,15 +31,26 @@ var TextInspector = React.createClass({
   },
 
   render: function() {
-    var props = this.props;
+    var props = this.props,
+        dsId = props.dsId,
+        textLbl = (<h3 className="label">Text</h3>);
+
+    var textProp = dsId ? (
+      <Property name="text.template" type="autocomplete" autoType="tmpl"
+        dsId={dsId} onChange={props.updateTemplate} {...props}>
+        {textLbl}
+      </Property>
+    ) : (
+      <Property name="text.template" type="text"
+        onChange={props.updateTemplate} {...props}>
+        {textLbl}
+      </Property>
+    );
 
     return (
       <div>
-      <Property type="autocomplete" autoType="tmpl" value={props.autoVal} dsId={4} label="Expression" name="auto" onChange={this.props.autoCompleteUpdate.bind(this, this.props.primId, 'job')} />
         <div className="property-group">
-          <Property name="text" type="text" canDrop={true} {...props}>
-            <h3 className="label">Text</h3>
-          </Property>
+          {textProp}
         </div>
 
         <div className="property-group">
