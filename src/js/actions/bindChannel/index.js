@@ -6,7 +6,6 @@ var dl = require('datalib'),
     AGG_OPS = vg.transforms.aggregate.VALID_OPS,
     getInVis = require('../../util/immutable-utils').getInVis,
     markActions = require('../markActions'),
-    updateMarkProperty = markActions.updateMarkProperty,
     setVlUnit = markActions.setVlUnit,
     dsUtils = require('../../util/dataset-utils'),
     historyActions = require('../../actions/historyActions'),
@@ -50,7 +49,7 @@ function bindChannel(dsId, field, markId, property, transform) {
         markType = mark.get('type'),
         spec = vlSpec(mark),
         mapping = map(spec),
-        channel = channelName(property);
+        channel = channelName(property),
         plId = getInVis(state, 'datasets.' + dsId).get('_parent'),
         pl, plSource, isNotFromSamePl, fromData,
         plSrcAggList = [], plAggregates;
@@ -74,8 +73,6 @@ function bindChannel(dsId, field, markId, property, transform) {
     parseMarks(dispatch, state, parsed);
     parseGuides(dispatch, state, parsed);
 
-    dispatch(setVlUnit(markId, spec));
-
     // capture all the changes made to the store by parsers
     state = getState();
     pl = getInVis(state, 'pipelines.' + plId);
@@ -93,6 +90,7 @@ function bindChannel(dsId, field, markId, property, transform) {
       }
     }
 
+    dispatch(setVlUnit(markId, spec));
     dispatch(endBatch());
   };
 }

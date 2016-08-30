@@ -44,8 +44,8 @@ function init(action) {
     return _values[id];
   }
 
-  _values[id] = src ? _values[src] : action.values;
-  _schema[id] = src ? _schema[src] : action.schema;
+  _values[id] = action.values || (src ? _values[src] : null);
+  _schema[id] = action.schema || (src ? _schema[src] : null);
 }
 
 function reset() {

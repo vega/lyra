@@ -60,7 +60,6 @@ module.exports = {
   ADD_DATASET: ADD_DATASET,
   SORT_DATASET: SORT_DATASET,
   ADD_TO_SUMMARIZE: ADD_TO_SUMMARIZE,
-  UPDATE_SUMMARIZE: ADD_TO_SUMMARIZE,
 
   // Action Creators
   addDataset: addDataset,

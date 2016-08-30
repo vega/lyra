@@ -38,7 +38,6 @@ function datasetsReducer(state, action) {
 
   }
 
-  // block much change the summary property in ds to add more to the summary
   if (action.type === ACTIONS.ADD_TO_SUMMARIZE) {
     var id = action.id,
         summarize = action.summarize,

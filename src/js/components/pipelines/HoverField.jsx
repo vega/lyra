@@ -134,7 +134,6 @@ var HoverField = React.createClass({
     });
   },
 
-  // TODO generalize MoreProperties styling instead of rewriting all dynamic list code
   render: function() {
     var state = this.state,
         field = state.fieldDef,
@@ -163,7 +162,6 @@ var HoverField = React.createClass({
         {transformsIcon}
         {field.name}
         <SortField dsId={this.props.dsId} field={field} />
-        {transformsList}
       </div>
     ) : null;
 

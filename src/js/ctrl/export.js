@@ -48,10 +48,7 @@ exporter.pipelines = function(state, internal) {
 
   plList = plSourceList.concat(plAggregatesList);
 
-  // console.log('plList: ', plList);
-
   return plList.map(function(plMapping) {
-    console.log(exporter.dataset(state, internal, plMapping));
     return exporter.dataset(state, internal, plMapping);
   });
 };
