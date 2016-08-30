@@ -1,127 +1,56 @@
 'use strict';
-var React = require('react'),
-    dsUtil = require('../../util/dataset-utils'),
-    dl = require('datalib'),
+var $ = require('jquery'),
+    React = require('react'),
     ReactDOM = require('react-dom'),
-    ContentEditable = require('react-contenteditable');
-   // $ = require ('jquery');
+    connect = require('react-redux').connect,
+    ContentEditable = require('react-contenteditable'),
+    dsUtil = require('../../util/dataset-utils');
 
-var spanPreHardcore = '<span class="auto" contenteditable="false">';
-var spanPostHardcore = '</span>';
+var EXPR = 'expr',
+    TMPL = 'tmpl',
+    SPAN_OPEN  = '<span class="field source" contenteditable="false">',
+    SPAN_CLOSE = '</span>',
+    DATUM = 'datum.',
+    TMPL_OPEN  = '{{',
+    TMPL_CLOSE = '}}',
+    TMPL_DATUM = new RegExp(TMPL_OPEN + DATUM + '*' + TMPL_CLOSE);
 
-function htmlDecode(input) {
-  var e = document.createElement('div');
-  e.innerHTML = input;
-  return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue;
+function mapStateToProps(reduxState, ownProps) {
+  var schema = dsUtil.schema(ownProps.dsId);
+  return {
+    fields: Object.keys(schema)
+  };
 }
-
-// fun inexpr(stringfromstore)->String html
-// @require StringFromStore should be in form of "datumn."
-function inExpr(storeString, store) {
-  storeString = storeString.split('datum.').join('');
-  storeString = insert(storeString, store, spanPreHardcore, spanPostHardcore);
-  console.log(storeString);
-  return storeString;
-}
-
-// Fun outexp(string html)->store string
-function outExpr(htmlString, store) {
-  htmlString = htmlString.split(spanPreHardcore).join('');
-  htmlString = htmlString.split(spanPostHardcore).join('');
-  htmlString = insert(htmlString, store, 'datum.', '');
-  console.log(htmlDecode(htmlString));
-  return htmlDecode(htmlString);
-}
-
-// @require storeString should be in form "{{datumn.}}"
-function inTmpl(storeString, store) {
-  var regex = new RegExp('{{datum.*}}');
-  var position = storeString.search(regex);
-
-  while (position !== -1) {
-    var next = position + 8;
-
-    var nextString = storeString.substring(next);
-    var end = nextString.search('}}');
-    storeString = storeString.substring(0, position) + nextString.substring(0, end) + nextString.substring(end + 2);
-    position = storeString.search(regex);
-  }
-  storeString = insert(storeString, store, spanPreHardcore, spanPostHardcore);
-  // console.log(storeString);
-  return storeString;
-}
-
-// Fun outtmpl(string html)->store string
-function outTmpl(htmlString, store) {
-  htmlString = htmlString.split(spanPreHardcore).join('');
-  htmlString = htmlString.split(spanPostHardcore).join('');
-  htmlString = insert(htmlString, store, '{{datum.', '}}');
-  // console.log(htmlString);
-  return htmlDecode(htmlString);
-}
-
-// helper function to insert pre and post string to target string
-// example: pre = <span> post = </span>
-function insert(targetString, store, pre, post) {
-  var extraLen = pre.length + post.length;
-
-  for (var i = 0; i < store.length; i++) {
-    var s = store[i];
-    var position = targetString.search(s);
-    var searched = 0;
-
-    while (position !== -1) {
-      position += searched;
-      targetString = targetString.substring(0, position) + pre + targetString.substring(position, position + s.length) + post + targetString.substring(position + s.length);
-      searched = position + s.length + extraLen;
-      var nextString = targetString.substring(searched);
-      position = nextString.search(s);
-    }
-  }
-  return targetString;
-}
-
 
 var AutoComplete = React.createClass({
   propTypes: {
     type: React.PropTypes.string.isRequired,
     dsId: React.PropTypes.number.isRequired,
+    fields: React.PropTypes.array.isRequired,
     value: React.PropTypes.string,
     updateFn: React.PropTypes.func.isRequired
   },
 
   getInitialState: function() {
     var props = this.props,
-        value = props.value,
+        value = props.value || '',
         type = props.type,
-        dsId = parseInt(props.dsId, 10),
-        schema = dsUtil.schema(dsId),
-        keys = dl.keys(schema),
-        htmlString = value;
+        html = value;
 
-    if (value === undefined) {
-      htmlString = '';
+    if (type === EXPR) {
+      html = this.exprToHtml(html);
+    } else if (type === TMPL) {
+      html = this.tmplToHtml(html);
     }
 
-    if (type === 'expr') {
-      htmlString = inExpr(htmlString, keys);
-    } else {
-      htmlString = inTmpl(htmlString, keys);
-    }
-
-    return {html: htmlString};
+    return {html: html};
   },
 
   componentDidMount: function() {
-    var props = this.props,
-        dsId = parseInt(props.dsId, 10),
-        schema = dsUtil.schema(dsId),
-        keys = dl.keys(schema),
-        unContentEditable = ReactDOM.findDOMNode(this),
-        contentEditable = ReactDOM.findDOMNode(this).childNodes[0];
+    var contentEditable = ReactDOM.findDOMNode(this);
 
     var strategies = [{
-      words: keys,
+      words: this.props.fields,
       match: /\b(\w{2,})$/,
       search: function(term, callback) {
         callback($.map(this.words, function(word) {
@@ -130,50 +59,108 @@ var AutoComplete = React.createClass({
       },
       index: 1,
       replace: function(word) {
-        return '<span class="auto" contenteditable="false">' + word + '</span> ';
+        return SPAN_OPEN + word + SPAN_CLOSE + ' ';
       }
     }];
 
-    var onKeydownFunc = function(e, commands) {
-      if (e.keyCode === 32) {
-        return commands.KEY_ENTER;
+    var options = {
+      onKeydown: function(e, commands) {
+        if (e.keyCode === 32) {
+          return commands.KEY_ENTER;
+        }
       }
     };
 
-    var option = {
-      appendTo: $(unContentEditable),
-      onKeydown: onKeydownFunc
-    };
+    $(contentEditable).textcomplete(strategies, options);
+  },
 
-    $(contentEditable).textcomplete(strategies, option);
+  exprToHtml: function(str) {
+    str = str.split(DATUM).join('');
+    return this.wrapStr(str, SPAN_OPEN, SPAN_CLOSE);
+  },
+
+  htmlToExpr: function(html) {
+    html = html.split(SPAN_OPEN).join('');
+    html = html.split(SPAN_CLOSE).join('');
+    return this.htmlDecode(this.wrapStr(html, DATUM, ''));
+  },
+
+  tmplToHtml: function(str) {
+    var position = str.search(TMPL_DATUM),
+        next, nextStr, end;
+
+    while (position !== -1) {
+      next = position + TMPL_OPEN.length + DATUM.length;
+      nextStr = str.substring(next);
+      end = nextStr.search('}}');
+      str = str.substring(0, position) + nextStr.substring(0, end) +
+        nextStr.substring(end + 2);
+      position = str.search(TMPL_DATUM);
+    }
+
+    str = this.wrapStr(str, SPAN_OPEN, SPAN_CLOSE);
+    return str;
+  },
+
+  htmlToTmpl: function(html) {
+    html = html.split(SPAN_OPEN).join('');
+    html = html.split(SPAN_CLOSE).join('');
+    return this.htmlDecode(this.wrapStr(html, TMPL_OPEN + DATUM, TMPL_CLOSE));
+  },
+
+  wrapStr: function(str, pre, post) {
+    var fields = this.props.fields,
+        extraLen = pre.length + post.length,
+        field, position, searched, nextStr;
+
+    for (var i = 0; i < fields.length; i++) {
+      field = fields[i];
+      position = str.search(field);
+      searched = 0;
+
+      while (position !== -1) {
+        position += searched;
+        str = str.substring(0, position) + pre +
+          str.substring(position, position + field.length) + post +
+          str.substring(position + field.length);
+        searched = position + field.length + extraLen;
+        nextStr = str.substring(searched);
+        position = nextStr.search(field);
+      }
+    }
+
+    return str;
+  },
+
+  htmlDecode: function(input) {
+    var e = document.createElement('div');
+    e.innerHTML = input;
+    return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue;
   },
 
   handleChange: function(event) {
     var props = this.props,
-        type = props.type,
-        dsId = parseInt(props.dsId, 10),
-        schema = dsUtil.schema(dsId),
-        keys = dl.keys(schema),
+        type  = props.type,
+        value = event.target.value,
         updateFn = props.updateFn;
 
-    if (type === 'expr') {
-      updateFn(outExpr(event.target.value, keys));
-    } else if (type === 'tmpl') {
-      updateFn(outTmpl(event.target.textContent, keys));
+    if (type === EXPR) {
+      updateFn(this.htmlToExpr(value));
+    } else if (type === TMPL) {
+      updateFn(this.htmlToTmpl(value));
     } else {
       console.log('type of AutoComplete can either be expr or tmpl');
     }
 
-    this.setState({html: event.target.value});
+    this.setState({html: value});
   },
 
   render: function() {
     return (
-      <div className="unce" contentEditable="false">
-        <ContentEditable className = "ce" html={this.state.html} disabled={false} onChange={this.handleChange.bind(this)} />
-      </div>
+      <ContentEditable className="autocomplete" html={this.state.html}
+        disabled={false} onChange={this.handleChange} />
     );
   }
 });
 
-module.exports = AutoComplete;
+module.exports = connect(mapStateToProps)(AutoComplete);

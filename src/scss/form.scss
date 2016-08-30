@@ -1,5 +1,5 @@
 
-.content-editable:focus {
+.autocomplete, .content-editable:focus {
   -moz-user-select: -moz-text;
   -khtml-user-select: text;
   -webkit-user-select: text;

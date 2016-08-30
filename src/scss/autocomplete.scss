@@ -1,61 +1,42 @@
 .textcomplete-dropdown {
-	z-index: 5000 !important;
-    border: 1px solid #ddd;
-    background-color: white;
-   
+  border: 1px solid darkgray;
+  background-color: white;
+  z-index: 5000 !important;
+  padding: $inner-padding 0;
+  margin-top: $inner-padding;
+  border-radius: $border-radius;
+  box-shadow: 0 6px 12px rgba(0,0,0,.175);
+  list-style: none;
 }
 
 .textcomplete-dropdown li {
-    border-top: 1px solid #ddd;
-    padding: 2px 5px;
+  border-top: 1px solid #ddd;
+  padding: $inner-padding;
 }
 
 .textcomplete-dropdown li:first-child {
-    border-top: none;
+  border-top: none;
 }
 
 .textcomplete-dropdown li:hover,
 .textcomplete-dropdown .active {
-    background-color: rgb(110, 183, 219);
-}
-
-.textcomplete-dropdown {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  background-color: rgb(110, 183, 219);
 }
 
 .textcomplete-dropdown a:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
-.auto {
-    padding-top: 0px;
-	background-color: LightGray;
-    border: 1px solid orange;
-}
-.unec {
-    width: 100px;
-}
+.autocomplete {
+  width: 100px;
+  max-height: 60px;
+  overflow: auto;
+  line-height: 20px;
 
-.ce {
+  br, div { display: none; }
 
-     box-shadow: 1px 1px 1px 0 lightgray inset; 
-     background-color: white;
-     width:100;
-     margin-top: 5px;
-     padding-left: 2px;
-     border: 1px solid darkgray;
-     font: -moz-field;
-     line-height: 20px;
-    
+  .field {
+    text-decoration: none !important;
+    cursor: default !important;
+  }
 }
-
-.ce br {
-    display: none;
-}
-
-.ce div {
-    display: none;
-}
-

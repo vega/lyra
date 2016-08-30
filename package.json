@@ -48,7 +48,8 @@
     "istanbul": "^0.3.21",
     "istanbul-instrumenter-loader": "^0.2.0",
     "istanbul-react": "^1.1.0",
-    "jquery": "^3.1.0",
+    "jquery": "^2.2.4",
+    "jquery-textcomplete": "^1.7.1",
     "jsdoc": "^3.4.0",
     "jshint": "^2.8.0",
     "json-loader": "^0.5.4",
@@ -114,10 +115,5 @@
     "cover:js": "istanbul cover _mocha -- --timeout 30000 --recursive test/",
     "docs": "jsdoc --configure .jsdoc.json",
     "start": "webpack-dev-server --devtool=cheap-module-source-map --inline"
-  },
-  "dependencies": {
-    "debug-log": "^1.0.0",
-    "jquery": "^3.1.0",
-    "react-cursor-position": "^1.0.0"
   }
 }
