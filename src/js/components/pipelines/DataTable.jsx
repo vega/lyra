@@ -10,7 +10,8 @@ var d3 = require('d3'),
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
     HoverField = require('./HoverField'),
-    HoverValue = require('./HoverValue');
+    HoverValue = require('./HoverValue'),
+    Property = require('../inspectors/Property');
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.id;
@@ -97,8 +98,8 @@ var DataTable = React.createClass({
         showTextbox = expTextbox && expTextbox.show;
 
     var textbox = showTextbox ? (
-      <input type="text" name="expression"
-        placeholder="Enter Expression" />
+      <Property name="expressionProp" type="autocomplete" autoType="expr" dsId={id} {...props}>
+      </Property>
     ): null;
 
 
