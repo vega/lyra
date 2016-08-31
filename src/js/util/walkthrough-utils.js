@@ -115,6 +115,7 @@ function validate(currentState, expectedState) {
           min = filterBy(markType, expectedState.marks, 'type').length;
       // test type existence ----------------------
       if (!testTypeExistence(markType, markSpec, min)) {
+        console.log('a trigged');
         status = false;
         errors.push('No ' + markType.toUpperCase() + ' mark found');
         break;
@@ -123,6 +124,7 @@ function validate(currentState, expectedState) {
       // test property existence ------------------
       var expectedProps = getProperties(expectedState.marks[i], 'marks');
       if (expectedProps && !testPropertyExistence(expectedState.marks[i], markSpec, 'marks')) {
+        console.log('b trigged');
         status = false;
         errors.push('Missing a ' + markType.toUpperCase() + ' element with properties: ' + JSON.stringify(expectedProps));
       }

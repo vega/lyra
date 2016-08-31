@@ -109,7 +109,7 @@ var Step = React.createClass({
       return (<div className="next">
                 <span className="button" onClick={this.next}>NEXT</span>
                 <br/>
-                <span onClick={this.forceContinue}>Continue without validation</span>
+                <span onClick={this.forceContinue}>Skip this step</span>
               </div>);
     } else if (notLast) {
       return (<span className="next">
