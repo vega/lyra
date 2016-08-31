@@ -5,7 +5,7 @@ var React = require('react'),
     assets = require('../../util/assets'),
     getInVis = require('../../util/immutable-utils').getInVis,
     Icon   = require('../Icon'),
-    showExpressionTextbox = require('../../actions/pipelineActions').showExpressionTextbox;
+    showExpressionTextbox = require('../../actions/datasetActions').showExpressionTextbox;
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -34,7 +34,7 @@ var FilterField = React.createClass({
         show = true,
         dsId = props.dsId,
         time = 10;
-        
+
     this.props.showExpressionTextbox(dsId, show, time);
 
   },

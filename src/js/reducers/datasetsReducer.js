@@ -42,7 +42,15 @@ function datasetsReducer(state, action) {
       expression: action.expression
     }));
   }
-  
+
+  if (action.type === ACTIONS.SHOW_EXPRESSION_TEXTBOX) {
+    state = setIn(state, action.id + '._expressionTextbox',
+    Immutable.fromJS({
+      show: action.show,
+      time: action.time
+    }));
+  }
+
   return state;
 }
 

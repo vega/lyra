@@ -4,7 +4,8 @@ var dl = require('datalib'),
     counter = require('../util/counter'),
     ADD_DATASET = 'ADD_DATASET',
     SORT_DATASET = 'SORT_DATASET',
-    FILTER_DATASET = 'FILTER_DATASET';
+    FILTER_DATASET = 'FILTER_DATASET',
+    SHOW_EXPRESSION_TEXTBOX = 'SHOW_EXPRESSION_TEXTBOX';
 
 /**
  * Action creator to add a new Dataset in the store.
@@ -68,14 +69,25 @@ function filterDataset(dsId, field, expression) {
   };
 }
 
+function showExpressionTextbox(dsId, show, time) {
+  return {
+    type: SHOW_EXPRESSION_TEXTBOX,
+    id: dsId,
+    show: show,
+    time: time
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_DATASET: ADD_DATASET,
   SORT_DATASET: SORT_DATASET,
   FILTER_DATASET: FILTER_DATASET,
+  SHOW_EXPRESSION_TEXTBOX: SHOW_EXPRESSION_TEXTBOX,
 
   // Action Creators
   addDataset: addDataset,
   sortDataset: sortDataset,
-  filterDataset: filterDataset
+  filterDataset: filterDataset,
+  showExpressionTextbox: showExpressionTextbox
 };
