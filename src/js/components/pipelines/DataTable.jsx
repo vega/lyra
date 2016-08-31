@@ -11,7 +11,7 @@ var d3 = require('d3'),
     Icon = require('../Icon'),
     HoverField = require('./HoverField'),
     HoverValue = require('./HoverValue'),
-    Property = require('../inspectors/Property');
+    ExpressionTextbox = require('./ExpressionTextbox').connected;
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.id;
@@ -98,8 +98,7 @@ var DataTable = React.createClass({
         showTextbox = expTextbox && expTextbox.show;
 
     var textbox = showTextbox ? (
-      <Property name="expressionProp" type="autocomplete" autoType="expr" dsId={id} {...props}>
-      </Property>
+      <ExpressionTextbox dsId={id} />
     ): null;
 
 
