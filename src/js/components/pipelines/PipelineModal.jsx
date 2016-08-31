@@ -152,7 +152,8 @@ var PipelineModal = React.createClass({
 
             <p>
               Data must be in a tabular form. Supported import
-              formats include <abbr title="JavaScript Object Notation">json</abbr>, <abbr title="Comma-Separated Values">csv</abbr> and <abbr title="Tab-Separated Values">tsv</abbr>
+              formats include <abbr title="JavaScript Object Notation">json</abbr>,
+              <abbr title="Comma-Separated Values">csv</abbr> and <abbr title="Tab-Separated Values">tsv</abbr>
             </p>
 
             <DataURL loadURL={this.loadURL.bind(this, true)} />
