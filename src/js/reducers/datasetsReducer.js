@@ -38,7 +38,6 @@ function datasetsReducer(state, action) {
   if (action.type === ACTIONS.FILTER_DATASET) {
     state = setIn(state, action.id + '._filter',
     Immutable.fromJS({
-      field: action.field,
       expression: action.expression
     }));
   }

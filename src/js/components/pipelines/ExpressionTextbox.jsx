@@ -23,6 +23,7 @@ var ExpressionTextbox = React.createClass({
 
   filter: function(evt) {
     console.log("works");
+    this.props.filterDataset(this.props.dsId, evt);
   },
 
   render: function() {
