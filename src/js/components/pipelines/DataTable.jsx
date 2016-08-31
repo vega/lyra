@@ -101,6 +101,7 @@ var DataTable = React.createClass({
         placeholder="Enter Expression" />
     ): null;
 
+
     var prev = page > 0 ? (
       <Icon glyph={assets.prev} width="10" height="10" onClick={this.prevPage} />
     ) : null;

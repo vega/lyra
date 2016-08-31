@@ -2,21 +2,55 @@
 var React = require('react'),
     Property = require('./Property'),
     primTypes = require('../../constants/primTypes'),
-    Text = require('../../store/factory/marks/Text');
+    connect = require('react-redux').connect,
+    updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
+    Text = require('../../store/factory/marks/Text'),
+    getInVis = require('../../util/immutable-utils').getInVis;
+
+function mapStateToProps(reduxState, ownProps) {
+  return {
+    dsId: getInVis(reduxState, 'marks.' + ownProps.primId + '.from.data')
+  };
+}
+
+function mapDispatchToProps(dispatch, ownProps) {
+  return {
+    updateTemplate: function(value) {
+      var val = value.target ? value.target.value : value;
+      dispatch(updateMarkProperty(ownProps.primId,
+        'properties.update.text.template', val));
+    }
+  };
+}
 
 var TextInspector = React.createClass({
   propTypes: {
     primId: React.PropTypes.number.isRequired,
-    primType: primTypes.isRequired
+    primType: primTypes.isRequired,
+    autoVal: React.PropTypes.string
   },
+
   render: function() {
-    var props = this.props;
+    var props = this.props,
+        dsId = props.dsId,
+        textLbl = (<h3 className="label">Text</h3>);
+
+    var textProp = dsId ? (
+      <Property name="text.template" type="autocomplete" autoType="tmpl"
+        dsId={dsId} onChange={props.updateTemplate} {...props}>
+        {textLbl}
+      </Property>
+    ) : (
+      <Property name="text.template" type="text"
+        onChange={props.updateTemplate} {...props}>
+        {textLbl}
+      </Property>
+    );
+
     return (
       <div>
         <div className="property-group">
-          <Property name="text" type="text" canDrop={true} {...props}>
-            <h3 className="label">Text</h3>
-          </Property>
+          {textProp}
         </div>
 
         <div className="property-group">
@@ -75,4 +109,5 @@ var TextInspector = React.createClass({
   }
 });
 
-module.exports = TextInspector;
+module.exports = connect(mapStateToProps, mapDispatchToProps)(TextInspector);
+
