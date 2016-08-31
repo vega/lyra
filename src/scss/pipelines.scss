@@ -89,7 +89,7 @@ $pipeline-width: 180px;
     border-color: #ddd;
   }
 
-  .transforms-menu,
+  .aggregates-list,
   .full {
     display: none;
     position: absolute;
@@ -117,36 +117,20 @@ $pipeline-width: 180px;
     }
   }
 
-  .transforms-menu {
-
+  .aggregates-list {
+    top: 0;
+    left: 0;
     margin: $menu-offset 0;
-    padding: $inner-padding 0;
-    background-color: $yellow-bg;
-    left: $inner-padding;
 
-    .transforms-list,
-    .transform-item,
-    .transform-item-enum {
-      margin: 0;
-    }
+    .full {
+      display: block;
+      position: relative;
 
-    .transform-item,
-    .transform-item-enum:not(:last-child) {
-      border-bottom: 1px solid #000;
+      &.more {
+        cursor: pointer;
+        font-style: italic;
+      }
     }
-    .transform-item,
-    .transform-item-enum {
-      padding: $inner-padding $inner-padding/2;
-    }
-
-    .transform-item:hover,
-    .transform-item-enum:hover {
-      cursor: pointer;
-    }
-  }
-
-  .transforms-menu:hover {
-    cursor: default;
   }
 }
 

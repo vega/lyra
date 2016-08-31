@@ -2,17 +2,16 @@
 
 var React = require('react'),
     connect = require('react-redux').connect,
-    dsUtil = require('../../util/dataset-utils'),
+    dl = require('datalib'),
+    ctrl = require('../../ctrl'),
+    sg = require('../../ctrl/signals'),
     bindChannel = require('../../actions/bindChannel'),
+    Icon = require('../Icon'),
     FieldType = require('./FieldType'),
     SortField = require('./SortField'),
-    sg = require('../../ctrl/signals'),
-    ctrl = require('../../ctrl'),
-    Icon = require('../Icon'),
-    TransformsList = require('./TransformsList'),
-    assets = require('../../util/assets');
-
-var LIST_LIMIT = 5;
+    AggregateList = require('./AggregateList'),
+    assets = require('../../util/assets'),
+    QUANTITATIVE = require('../../constants/measureTypes').QUANTITATIVE;
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -39,18 +38,14 @@ var HoverField = React.createClass({
       fieldDef:  null,
       offsetTop: null,
       bindField: null,
-      showFieldTransforms: false,
-      listLimit: LIST_LIMIT
+      showAggregates: false,
     };
   },
 
   componentWillReceiveProps: function(newProps) {
     var def = newProps.def,
-        schema = dsUtil.schema(newProps.dsId) || newProps.dsSchema,
-        state = {
-          listLimit: LIST_LIMIT,
-          showFieldTransforms: false
-        };
+        schema = newProps.schema,
+        state = {showAggregates: false};
 
     if (!def) {
       state.fieldDef = null;
@@ -63,15 +58,11 @@ var HoverField = React.createClass({
   },
 
   handleDragStart: function(evt) {
-    var state = {
-      bindField: this.state.fieldDef
-    };
+    var state = {bindField: this.state.fieldDef};
 
     // if an AggregateField isn't being dragged, close the menu
-    // and reset listLimit
     if (!evt.target.classList.contains('aggregate-field')) {
-      state.showFieldTransforms = false;
-      state.listLimit = LIST_LIMIT;
+      state.showAggregates = false;
     }
 
     this.setState(state);
@@ -92,7 +83,7 @@ var HoverField = React.createClass({
   // This makes use of the bubble cursor, which corresponds to the cell signal;
   // we're using that to figure out which channel we are closest to. The
   // SELECTED signal indicates the mark to bind the data to.
-  handleDragEnd: function(evt, transform) {
+  handleDragEnd: function(evt, opts) {
     var props = this.props,
         sel = sg.get(sg.SELECTED),
         cell = sg.get(sg.CELL),
@@ -101,9 +92,7 @@ var HoverField = React.createClass({
 
     try {
       if (dropped) {
-        if (transform) {
-          bindField.aggregate = transform;
-        }
+        dl.extend(bindField, opts); // Aggregate or Bin passed in opts.
         props.bindChannel(props.dsId, bindField, sel.mark.def.lyra_id, cell.key);
       }
     } catch (e) {
@@ -129,16 +118,18 @@ var HoverField = React.createClass({
   },
 
   toggleTransforms: function(evt) {
-    this.setState({
-      showFieldTransforms: !this.state.showFieldTransforms
-    });
+    this.setState({showAggregates: !this.state.showAggregates});
   },
 
   render: function() {
     var state = this.state,
         field = state.fieldDef,
-        style = {top: state.offsetTop, display: field ? 'block' : 'none'},
-        aggrHandlers = {
+        fieldStyle = {top: state.offsetTop, display: field ? 'block' : 'none'},
+        listStyle  = {
+          top: state.offsetTop,
+          display: field && state.showAggregates ? 'block' : 'none'
+        },
+        dragHandlers = {
           onDragStart: this.handleDragStart,
           onDragOver: this.handleDragOver,
           onDragEnd: this.handleDragEnd,
@@ -146,20 +137,13 @@ var HoverField = React.createClass({
         };
 
     // Icon use temporary asset
-    var transformsIcon = (<Icon onClick={this.toggleTransforms} glyph={assets.symbol}
-      width="10" height="10" />);
+    var aggregateIcon = (<Icon onClick={this.toggleTransforms}
+      glyph={assets.symbol} width="10" height="10" />);
 
-    var transformsList = state.showFieldTransforms ? (
-          <TransformsList handlers={aggrHandlers}
-            style={style}
-            toggleTransforms={this.toggleTransforms}
-            fieldName={field.name} />
-        ) : null;
-
-    field = field ? (
+    var fieldEl = field ? (
       <div>
         <FieldType field={field} />
-        {transformsIcon}
+        {field.mtype === QUANTITATIVE ? aggregateIcon : null}
         {field.name}
         <SortField dsId={this.props.dsId} field={field} />
       </div>
@@ -168,12 +152,14 @@ var HoverField = React.createClass({
     return (
       <div>
         <div className={'full field ' + this.props.className}
-          style={style} draggable={true}
+          style={fieldStyle} draggable={true}
           onDragStart={this.handleDragStart}
           onDragOver={this.handleDragOver}
           onDragEnd={this.handleDragEnd}
-          onDrop={this.handleDrop}>{field}</div>
-          {transformsList}
+          onDrop={this.handleDrop}>{fieldEl}</div>
+
+        <AggregateList handlers={dragHandlers} style={listStyle}
+          field={field} {...this.props} />
       </div>
     );
   }
