@@ -7,6 +7,7 @@ var React = require('react'),
     InspectorSidebar = require('./InspectorSidebar'),
     EncodingsSidebar = require('./EncodingsSidebar'),
     PipelinesSidebar = require('./PipelinesSidebar'),
+    Walkthroughs = require('./Walkthroughs'),
     Footer = require('./Footer'),
     store = require('../store');
 
@@ -22,6 +23,7 @@ module.exports = window.ui = ReactDOM.render(
         <PipelinesSidebar />
       </div>
 
+      <Walkthroughs />
       <Footer/>
 
       <ReactTooltip effect="solid" delayShow={650} class="tooltip" html={true} />
