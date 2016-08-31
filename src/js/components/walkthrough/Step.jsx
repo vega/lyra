@@ -107,13 +107,13 @@ var Step = React.createClass({
     var notLast = (props.steps.size > props.currentStepId);
     if (this.state.error && notLast) {
       return (<div className="next">
-                <span className ="button" onClick={this.next}>NEXT</span>
+                <span className="button" onClick={this.next}>NEXT</span>
                 <br/>
                 <span onClick={this.forceContinue}>Continue without validation</span>
               </div>);
     } else if (notLast) {
       return (<span className="next">
-                <span className ="button" onClick={this.next}>NEXT</span>
+                <span className="button" onClick={this.next}>NEXT</span>
               </span>);
     }
     return '';

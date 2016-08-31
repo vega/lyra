@@ -55,7 +55,6 @@ function filterBy(elemType, stateArray, key) {
 function testTypeExistence(elemType, stateArray, min) {
   var minimum = min || 1;
   var found = filterBy(elemType, stateArray, 'type');
-
   return (found.length >= minimum);
 }
 
@@ -106,7 +105,7 @@ function validate(currentState, expectedState) {
   var status = true,
       errors = [];
 
-  var markSpec = currentState.marks;
+  var markSpec = currentState.marks[0].marks;
   // Marks -------------
   if (markSpec) {
     for (var i = 0; i < expectedState.marks.length; i++) {
