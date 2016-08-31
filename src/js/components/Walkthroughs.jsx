@@ -15,6 +15,7 @@ var Walkthroughs = React.createClass({
     var props = this.props,
         showWalkthrough = props.showWalkthrough,
         walkthroughStep = showWalkthrough ? <WalkthroughStep/> : '';
+
     return (
       <div>
         {walkthroughStep}
