@@ -8,6 +8,7 @@ var React = require('react'),
     EncodingsSidebar = require('./EncodingsSidebar'),
     PipelinesSidebar = require('./PipelinesSidebar'),
     Walkthroughs = require('./Walkthroughs'),
+    HintsContainer = require('./HintsContainer'),
     Footer = require('./Footer'),
     store = require('../store');
 
@@ -22,7 +23,7 @@ module.exports = window.ui = ReactDOM.render(
         <InspectorSidebar />
         <PipelinesSidebar />
       </div>
-
+      <HintsContainer />
       <Walkthroughs />
       <Footer/>
 
