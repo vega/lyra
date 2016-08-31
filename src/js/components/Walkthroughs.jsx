@@ -1,15 +1,12 @@
 'use strict';
 var React = require('react'),
     WalkthroughStep = require('./walkthrough/Step'),
-    Hints = require('./hints/Hints'),
     connect = require('react-redux').connect,
     getIn = require('../util/immutable-utils').getIn;
 
 function mapStateToProps(state) {
   return {
-    showWalkthrough: getIn(state, 'walkthrough.activeWalkthrough'),
-    hintsOn: getIn(state, 'hints.on'),
-    hintsDisplay: getIn(state, 'hints.display')
+    showWalkthrough: getIn(state, 'walkthrough.activeWalkthrough')
   };
 }
 
