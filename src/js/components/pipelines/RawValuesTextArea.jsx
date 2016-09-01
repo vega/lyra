@@ -80,7 +80,7 @@ var DraggableTextArea = React.createClass({
 
     return (
       <div>
-        <textarea name={props.name} rows="10" cols="30"
+        <textarea name={props.name} rows="8" cols="30"
           placeholder="Copy and paste raw values or drag and drop a file."
           onChange={this.onChange}
           onDrop={this.onChange}

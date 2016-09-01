@@ -5,13 +5,19 @@
   bottom: 'auto';
   transform: 'translate(-50%, -50%)';
   z-index: 9999;
+
+  .ReactModal__Content {
+    position: relative !important;
+  }
+
   .closeModal {
     position: absolute;
     top: 20px;
     right: 20px;
     cursor: pointer;
   }
+
   .wrapper {
-    padding:20px;
+    padding: 20px;
   }
 }
