@@ -10,8 +10,12 @@ module.exports = {
     // By specifying "vendor" dependencies we can render those vendor files
     // into a separate JS bundle; see the CommonsChunkPlugin usage below
     vendor: [
+      'array.prototype.find',
       'd3',
       'datalib',
+      'es6-promisify',
+      'immutable',
+      'inherits',
       'jquery',
       'jquery-textcomplete',
       'json2csv',
@@ -22,6 +26,8 @@ module.exports = {
       'react-dom',
       'react-modal',
       'react-tooltip',
+      'redux-immutable',
+      'redux-thunk',
       'string.prototype.startswith',
       'vega',
       'vega-lite',
