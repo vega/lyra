@@ -3,6 +3,7 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     dl = require('datalib'),
+    ReactTooltip = require('react-tooltip'),
     ctrl = require('../../ctrl'),
     sg = require('../../ctrl/signals'),
     bindChannel = require('../../actions/bindChannel'),
@@ -59,6 +60,10 @@ var HoverField = React.createClass({
     }
 
     this.setState(state);
+  },
+
+  componentDidUpdate: function() {
+    ReactTooltip.rebuild();
   },
 
   handleDragStart: function(evt) {
@@ -141,15 +146,14 @@ var HoverField = React.createClass({
           onDrop: this.handleDrop
         };
 
-    // Icon use temporary asset
-    var aggregateIcon = (<Icon onClick={this.toggleTransforms}
-      glyph={assets.symbol} width="10" height="10" />);
-
     var fieldEl = field ? (
       <div>
         <FieldType field={field} />
-        {field.mtype === QUANTITATIVE ? aggregateIcon : null}
-        {field.name}
+        {field.mtype === QUANTITATIVE ? (
+          <Icon onClick={this.toggleTransforms} glyph={assets.aggregate}
+            width="10" height="10" data-tip="Show aggregations" />
+        ) : null}
+        <span className="fieldName">{field.name}</span>
         <SortField dsId={this.props.dsId} field={field} />
       </div>
     ) : null;

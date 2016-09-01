@@ -1,6 +1,8 @@
 'use strict';
 
 var React  = require('react'),
+    ReactTooltip = require('react-tooltip'),
+    capitalize = require('capitalize'),
     MTYPES = require('../../constants/measureTypes'),
     assets = require('../../util/assets'),
     Icon   = require('../Icon');
@@ -14,6 +16,10 @@ var FieldType = React.createClass({
     return {type: null};
   },
 
+  componentDidUpdate: function() {
+    ReactTooltip.rebuild();
+  },
+
   changeType: function(evt) {
     var field  = this.props.field,
         idx = MTYPES.indexOf(field.mtype);
@@ -25,8 +31,8 @@ var FieldType = React.createClass({
   render: function() {
     var type = this.state.type || this.props.field.mtype;
     return (
-      <Icon onClick={this.changeType}
-        glyph={assets[type]} width="10" height="10" />
+      <Icon onClick={this.changeType} glyph={assets[type]} width="10" height="10"
+        data-tip={capitalize(type) + ' field'} />
     );
   }
 });

@@ -100,6 +100,7 @@ $pipeline-width: 180px;
 
   .full {
     padding: 5px $cell-padding;
+
     &.field {
       left: $inner-padding;
     }
@@ -114,17 +115,26 @@ $pipeline-width: 180px;
     .icon {
       cursor: pointer;
       margin-right: $inner-padding;
+
+      &:last-child { margin-right: 0; }
+    }
+
+    .fieldName {
+      margin-right: $inner-padding;
     }
   }
 
   .aggregates-list {
     top: 0;
-    left: 0;
+    left: $inner-padding;
     margin: $menu-offset 0;
+    box-shadow: 0px 6px 12px rgba(0,0,0,.175);
+    z-index: 5000;
 
     .full {
       display: block;
       position: relative;
+      left: 0;
 
       &.more {
         cursor: pointer;

@@ -54,7 +54,7 @@ $long-label-width: $label-width + 10px;
     .scale {
       padding: 3px ($outer-padding+$inner-padding) 2px $inner-padding;
       min-width: auto;
-      max-width: 15px;
+      max-width: 30px;
       border: 0;
       white-space: nowrap;
       overflow: hidden;
@@ -73,7 +73,7 @@ $long-label-width: $label-width + 10px;
     }
 
     .field {
-      max-width: 70px;
+      max-width: 65px;
       padding: 3px $inner-padding;
       border: 0;
       border-radius: $outer-padding;

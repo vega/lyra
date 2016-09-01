@@ -68,3 +68,10 @@ body {
   width: $pipeline-sidebar-width;
   background-color: $dblue-bg;
 }
+
+.tooltip {
+  font-size: 11px !important;
+  padding: $inner-padding $outer-padding !important;
+  border-radius: $border-radius !important;
+  line-height: 1.3em !important;
+}
