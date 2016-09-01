@@ -22,12 +22,10 @@ var dl = require('datalib'),
 module.exports = function(dispatch, state, parsed) {
   var markType = parsed.markType,
       map = parsed.map,
-      data = map.data,
       markId = parsed.markId,
       channel  = parsed.channel,
       def = parsed.output.marks[0].marks[0],
-      props = def.properties.update,
-      fromDataId = data.summary ? data.summary : data.source;
+      props = def.properties.update;
 
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial(dispatch, parsed, props);
@@ -37,7 +35,9 @@ module.exports = function(dispatch, state, parsed) {
     bindProperty(dispatch, parsed, props);
   }
 
-  dispatch(updateMarkProperty(markId, 'from', {data: fromDataId}));
+  if (def.from && def.from.data) {
+    dispatch(updateMarkProperty(markId, 'from', {data: map.data[def.from.data]}));
+  }
 };
 
 /**

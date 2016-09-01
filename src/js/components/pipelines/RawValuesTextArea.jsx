@@ -1,6 +1,8 @@
 'use strict';
 
 var React = require('react'),
+    Pipeline = require('../../store/factory/Pipeline'),
+    Dataset = require('../../store/factory/Dataset'),
     dsUtils = require('../../util/dataset-utils');
 
 var DraggableTextArea = React.createClass({
@@ -32,8 +34,8 @@ var DraggableTextArea = React.createClass({
         target = evt.target,
         type = evt.type,
         raw  = target.value,
-        pipeline = {name: 'name'},
-        dataset  = {name: 'name'},
+        pipeline = Pipeline('name'),
+        dataset  = Dataset('name'),
         file, reader, name, parsed, values;
 
     evt.preventDefault();

@@ -3,7 +3,9 @@
 var dl = require('datalib'),
     promisify = require('es6-promisify'),
     MTYPES = require('vega-lite').data.types,
-    imutils = require('./immutable-utils'),
+    Pipeline = require('../store/factory/Pipeline'),
+    Dataset  = require('../store/factory/Dataset'),
+    imutils  = require('./immutable-utils'),
     getInVis = imutils.getInVis,
     NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
@@ -91,8 +93,8 @@ function output(id) {
  */
 function loadURL(url) {
   var fileName = url.match(NAME_REGEX)[1],
-      pipeline = {name: fileName},
-      dataset  = {name: fileName, url: url};
+      pipeline = Pipeline(fileName),
+      dataset  = Dataset(fileName, {url: url});
 
   return promisify(dl.load)({url: url})
     .then(function(data) {

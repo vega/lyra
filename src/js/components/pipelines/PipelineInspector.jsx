@@ -6,7 +6,6 @@ var React = require('react'),
     selectPipeline = require('../../actions/inspectorActions').selectPipeline,
     updatePipeline = require('../../actions/pipelineActions').updatePipelineProperty,
     imutils = require('../../util/immutable-utils'),
-    getState = require('../../store').getState,
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
     assets = require('../../util/assets'),
@@ -14,14 +13,10 @@ var React = require('react'),
     Immutable = require('immutable');
 
 function mapStateToProps(state, ownProps) {
-  var id = ownProps.id,
-      pipeline = getInVis(state, 'pipelines.' + id),
-      aggregates = pipeline.get('_aggregates') ? pipeline.get('_aggregates').valueSeq().toArray() : [];
-
+  var id = ownProps.id;
   return {
     isSelected: getIn(state, 'inspector.pipelines.selectedId') === id,
-    pipeline: getInVis(state, 'pipelines.' + id),
-    aggregates: aggregates
+    pipeline: getInVis(state, 'pipelines.' + id)
   };
 }
 
@@ -38,10 +33,11 @@ function mapDispatchToProps(dispatch) {
 
 var PipelineInspector = React.createClass({
   propTypes: {
-    isSelected: React.PropTypes.bool,
-    selectPipeline: React.PropTypes.func,
-    pipeline: React.PropTypes.instanceOf(Immutable.Map),
-    source: React.PropTypes.number
+    id: React.PropTypes.string.isRequired,
+    pipeline: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    isSelected: React.PropTypes.bool.isRequired,
+    selectPipeline: React.PropTypes.func.isRequired,
+    updateProperty: React.PropTypes.func.isRequired
   },
 
   render: function() {
@@ -49,39 +45,26 @@ var PipelineInspector = React.createClass({
         pipeline = props.pipeline,
         id = props.id,
         name = pipeline.get('name'),
-        aggregates = props.aggregates,
-        aggregateTables = null,
-        inner = (<span></span>);
+        inner;
 
-    if (aggregates) {
-      aggregateTables = (
-        <div>
-          {
-            aggregates.map(function(currentAgg, key) {
-              var ds = getInVis(getState(), 'datasets.' + currentAgg),
-                  dsName = ds.get('name');
-              return (
-                <span key={key}>
-                  <p className="source">
-                    <Icon glyph={assets.database} width="11" height="11" />
-                    {dsName}
-                  </p>
-                  <DataTable id={currentAgg} />
-                </span>
-              );
-            })
-          }
-        </div>
-      );
-    }
-
-    // TODO do not rely on global primitives. Datasets should be in store.
     if (props.isSelected) {
       inner = (
         <div className="inner">
-          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {name}</p>
+          <p className="source">
+            <Icon glyph={assets.download} width="11" height="11" />
+            Loaded Values
+          </p>
+
           <DataTable id={pipeline.get('_source')} />
-          {aggregateTables}
+
+          {pipeline.get('_aggregates').entrySeq().map(function(entry, i) {
+            return (
+              <div key={i}>
+                <p className="source">Group By: {entry[0].split('|').join(', ')}</p>
+                <DataTable id={entry[1]} />
+              </div>
+            );
+          })}
         </div>
       );
     }

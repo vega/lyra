@@ -1,9 +1,8 @@
 'use strict';
 
 var dl = require('datalib'),
-    vg = require('vega'),
     vl = require('vega-lite'),
-    AGG_OPS = vg.transforms.aggregate.VALID_OPS,
+    AGGREGATE_OPS = require('../../constants/aggregateOps'),
     getInVis = require('../../util/immutable-utils').getInVis,
     markActions = require('../markActions'),
     setVlUnit = markActions.setVlUnit,
@@ -176,7 +175,7 @@ function channelName(name) {
 }
 
 var re = {
-  agg: new RegExp('^(' + AGG_OPS.join('|') + ')_(.*?)$'),
+  agg: new RegExp('^(' + AGGREGATE_OPS.join('|') + ')_(.*?)$'),
   bin: new RegExp('^(bin)_(.*?)(_start|_mid|_end)$')
 };
 

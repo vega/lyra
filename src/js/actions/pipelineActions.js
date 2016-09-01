@@ -27,10 +27,10 @@ function addPipeline(pipeline, ds, values, schema) {
     ds = addDataset(ds, values, schema);
     dispatch(ds);
 
-    pipeline = dl.extend({
+    pipeline = dl.extend({}, pipeline, {
       _id: pid,
       _source: pipeline._source || ds.id
-    }, pipeline);
+    });
 
     dispatch({
       type: ADD_PIPELINE,
