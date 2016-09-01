@@ -31,11 +31,10 @@ function datasetsReducer(state, action) {
   }
 
   if (action.type === ACTIONS.SORT_DATASET) {
-    state = setIn(state, action.id + '._sort', Immutable.fromJS({
+    return setIn(state, action.id + '._sort', Immutable.fromJS({
       field: action.field,
       order: action.order
     }));
-
   }
 
   if (action.type === ACTIONS.ADD_TO_SUMMARIZE) {

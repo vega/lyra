@@ -1,9 +1,10 @@
 'use strict';
 
 var dl = require('datalib'),
+    addDataset = require('./datasetActions').addDataset,
     counter = require('../util/counter'),
-    datasetActions = require('./datasetActions'),
-    addDataset = datasetActions.addDataset,
+    getInVis = require('../util/immutable-utils').getInVis,
+    dsUtil = require('../util/dataset-utils'),
     ADD_PIPELINE = 'ADD_PIPELINE',
     AGGREGATE_PIPELINE = 'AGGREGATE_PIPELINE',
     UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY';
@@ -13,16 +14,17 @@ var dl = require('datalib'),
  * a new source dataset. Thus, we need to dispatch multiple actions.
  *
  * @param {Object} pipeline - The properties of the pipeline.
- * @param {Object} dataset - The properties of the dataset.
+ * @param {Object} ds - The properties of the dataset.
  * @param {Array} values - A JSON array of parsed values.
  * @param {Object} schema - An object containing the schema values.
  * @returns {Function} An async action function
  */
-function addPipeline(pipeline, dataset, values, schema) {
+function addPipeline(pipeline, ds, values, schema) {
   return function(dispatch) {
     var pid = pipeline._id || counter.global();
 
-    var ds = addDataset(dl.extend({_parent: pid}, dataset), values, schema);
+    ds = dl.extend({}, ds, {_parent: pid, name: pipeline.name + '_source'});
+    ds = addDataset(ds, values, schema);
     dispatch(ds);
 
     pipeline = dl.extend({
@@ -38,24 +40,36 @@ function addPipeline(pipeline, dataset, values, schema) {
   };
 }
 
-// TODO: docs
-function aggregatePipeline(pipelineId, groupby, datasetAttr, cb) {
-  return function(dispatch) {
-    var props = {
-          _id: datasetAttr._id,
-          _parent: datasetAttr._parent,
-          name: datasetAttr.name,
-          source: datasetAttr.source,
-          transform: datasetAttr.transform
-        },
-        ds = addDataset(props, undefined, datasetAttr.schema);
+/**
+ * Action creator to aggregate a pipeline based on the given transform
+ * definition. The action creator dispatches actions to create a new aggregated
+ * dataset, and an action to associate this new dataset with the pipeline.
+ *
+ * @param   {number} id        The ID of the pipeline to aggregate
+ * @param   {Object} aggregate A Vega aggregate transform definition.
+ * @returns {Function}         An async action function.
+ */
+function aggregatePipeline(id, aggregate) {
+  return function(dispatch, getState) {
+    var state  = getState(),
+        pipeline = getInVis(state, 'pipelines.' + id),
+        srcId  = pipeline.get('_source'),
+        schema = dsUtil.aggregateSchema(srcId, aggregate),
+        key = aggregate.groupby.join('|');
+
+    var ds = addDataset({
+      name: pipeline.get('name') + '_groupby_' + key,
+      source: srcId,
+      transform: [aggregate],
+      _parent: id
+    }, null, schema);
 
     dispatch(ds);
     dispatch({
       type: AGGREGATE_PIPELINE,
-      id: pipelineId,
-      dsId: datasetAttr._id,
-      groupby: groupby
+      id: id,
+      dsId: (aggregate._id = ds.id),
+      key: key
     });
   };
 }

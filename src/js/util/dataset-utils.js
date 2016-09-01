@@ -165,6 +165,38 @@ function schema(arg) {
   throw Error('Expected either a dataset ID or raw values array');
 }
 
+/**
+ * Calculates the schema for an aggregated dataset for a given source. The
+ * aggregated dataset's schema contains all the groupby fields, with the same
+ * definition as the source, as well as additional fields for all summarized
+ * fields.
+ *
+ * @param   {number} srcId     The ID of the source dataset.
+ * @param   {Object} aggregate The Vega aggregate transform definition.
+ * @returns {Object} The aggregate dataset's schema.
+ */
+function aggregateSchema(srcId, aggregate) {
+  var src = schema(srcId),
+      aggSchema = aggregate.groupby.reduce(function(acc, gb) {
+        return (acc[gb] = src[gb], acc);
+      }, {}),
+      summarize = aggregate.summarize,
+      field, i, len, name;
+
+  for (field in summarize) {
+    for (i = 0, len = summarize[field].length; i < len; ++i) {
+      name = summarize[field][i] + '_' + field;
+      aggSchema[name] = {
+        name: name,
+        type: 'number',
+        mtype: MTYPES.number
+      };
+    }
+  }
+
+  return aggSchema;
+}
+
 module.exports = {
   init: init,
   reset: reset,
@@ -175,6 +207,7 @@ module.exports = {
   loadURL: loadURL,
   parseRaw: parseRaw,
   schema: schema,
+  aggregateSchema: aggregateSchema,
 
   NAME_REGEX: NAME_REGEX
 };

@@ -4,7 +4,6 @@
 var Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
     imutils = require('../util/immutable-utils'),
-    dl = require('datalib'),
     set = imutils.set,
     setIn = imutils.setIn;
 
@@ -32,9 +31,7 @@ function pipelinesReducer(state, action) {
   }
 
   if (action.type === ACTIONS.AGGREGATE_PIPELINE) {
-    var groupby = action.groupby;
-    groupby = dl.isArray(groupby) ? groupby.join('|') : groupby;
-    return setIn(state, action.id + '._aggregates.' + groupby, action.dsId);
+    return setIn(state, action.id + '._aggregates.' + action.key, action.dsId);
   }
 
   return state;

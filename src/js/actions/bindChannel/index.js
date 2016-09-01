@@ -36,12 +36,11 @@ var CELLW = 517,
  *
  * @param  {number} dsId     The ID of the dataset that contains the given field.
  * @param  {Object} field    A field schema object.
- * @param  {Object} transformA string with the transformation name.
  * @param  {number} markId   The ID of the mark whose property will be bound.
  * @param  {string} property The name of the property to bind.
  * @returns {Function}       Async action function.
  */
-function bindChannel(dsId, field, markId, property, transform) {
+function bindChannel(dsId, field, markId, property) {
   return function(dispatch, getState) {
     var state = getState(),
         mark  = getInVis(state, 'marks.' + markId),
@@ -50,9 +49,13 @@ function bindChannel(dsId, field, markId, property, transform) {
         spec = vlSpec(mark),
         mapping = map(spec),
         channel = channelName(property),
-        plId = getInVis(state, 'datasets.' + dsId).get('_parent'),
-        pl, plSource, isNotFromSamePl, fromData,
-        plSrcAggList = [], plAggregates;
+        plId = getInVis(state, 'datasets.' + dsId + '._parent');
+
+    if (from && (from = from.get('data'))) {
+      if (getInVis(state, 'datasets.' + from + '._parent') !== plId) {
+        throw Error('Mark and field must be from the same pipeline.');
+      }
+    }
 
     // Though we dispatch multiple actions, we want bindChannel to register as
     // only a single state change to the history from the user's perspective.
@@ -68,27 +71,11 @@ function bindChannel(dsId, field, markId, property, transform) {
     parsed.property = property;
     parsed.channel = channel;
     parsed.dsId = dsId;
+    parsed.plId = plId;
     parseData(dispatch, state, parsed);
     parseScales(dispatch, state, parsed);
     parseMarks(dispatch, state, parsed);
     parseGuides(dispatch, state, parsed);
-
-    // capture all the changes made to the store by parsers
-    state = getState();
-    pl = getInVis(state, 'pipelines.' + plId);
-    plSource = pl.get('_source');
-    plAggregates = pl.get('_aggregates') ? pl.get('_aggregates').valueSeq().toArray() : [];
-
-    if (from) {
-      fromData = from.get('data');
-      plSrcAggList.push(plSource);
-      plSrcAggList = plAggregates ? plSrcAggList.concat(plAggregates) : plSrcAggList;
-      isNotFromSamePl = plSrcAggList.indexOf(fromData) === -1;
-
-      if (from.get('mark') || isNotFromSamePl) {
-        throw Error('Mark and field must be from the same pipeline.');
-      }
-    }
 
     dispatch(setVlUnit(markId, spec));
     dispatch(endBatch());
@@ -210,16 +197,13 @@ function channelDef(field) {
       bin = field.bin,
       ref = {type: field.mtype}, res;
 
-  if (agg) {
-    res = re.agg.exec(name);
-    ref.aggregate = res ? res[1] : field.aggregate;
-  } else if (bin) {
-    res = re.bin.exec(name);
+  if (agg || (res = re.agg.exec(name))) {
+    ref.aggregate = res ? res[1] : agg;
+  } else if (bin || (res = re.bin.exec(name))) {
     ref.bin = true;
   }
 
   ref.field = res ? res[2] : name;
-
   return ref;
 }
 
