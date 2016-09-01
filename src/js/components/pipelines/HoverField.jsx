@@ -7,7 +7,8 @@ var React = require('react'),
     bindChannel = require('../../actions/bindChannel'),
     FieldType = require('./FieldType'),
     SortField = require('./SortField'),
-    FilterField = require('./FilterField').connected;
+    FilterField = require('./FilterField').connected,
+    FormulaField = require('./FormulaField').connected;
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -114,6 +115,7 @@ var HoverField = React.createClass({
         {field.name}
         <SortField dsId={this.props.dsId} field={field} />
         <FilterField dsId={this.props.dsId} field={field}/>
+        <FormulaField dsId={this.props.dsId} field={field}/>
       </div>
     ) : null;
 

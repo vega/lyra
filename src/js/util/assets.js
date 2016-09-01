@@ -29,5 +29,6 @@ module.exports = {
   sortAlphaDesc: require('../../assets/sort-alpha-desc.svg'),
   sortNumericAsc: require('../../assets/sort-numeric-asc.svg'),
   sortNumericDesc: require('../../assets/sort-numeric-desc.svg'),
-  filter: require('../../assets/filter.svg')
+  filter: require('../../assets/filter.svg'),
+  formula: require('../../assets/formula.svg')
 };

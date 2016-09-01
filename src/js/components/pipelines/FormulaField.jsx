@@ -19,7 +19,7 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var FilterField = React.createClass({
+var FormulaField = React.createClass({
 
   propTypes: {
     field: React.PropTypes.object.isRequired,
@@ -37,11 +37,11 @@ var FilterField = React.createClass({
   },
 
   render: function() {
-    return (<Icon onClick={this.showTextbox} glyph={assets.filter} width="10" height="10" />);
+    return (<Icon onClick={this.showTextbox} glyph={assets.formula} width="10" height="10" />);
   }
 });
 
 module.exports = {
-  connected: connect(mapStateToProps, mapDispatchToProps)(FilterField),
-  disconnected: FilterField
+  connected: connect(mapStateToProps, mapDispatchToProps)(FormulaField),
+  disconnected: FormulaField
 }
