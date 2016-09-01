@@ -149,14 +149,15 @@ function parseRaw(raw) {
  */
 function schema(arg) {
   if (dl.isNumber(arg)) {
-    return _schema[arg];
+    return (arguments.length === 2) ? (_schema[arg] = arguments[1]) : _schema[arg];
   } else if (dl.isArray(arg)) {
     var types = dl.type.inferAll(arg);
     return dl.keys(types).reduce(function(s, k) {
       s[k] = {
         name: k,
         type: types[k],
-        mtype: MTYPES[types[k]]
+        mtype: MTYPES[types[k]],
+        source: true
       };
       return s;
     }, {});
@@ -189,7 +190,8 @@ function aggregateSchema(srcId, aggregate) {
       aggSchema[name] = {
         name: name,
         type: 'number',
-        mtype: MTYPES.number
+        mtype: MTYPES.number,
+        source: false
       };
     }
   }

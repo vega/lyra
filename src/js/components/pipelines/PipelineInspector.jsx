@@ -66,7 +66,7 @@ var PipelineInspector = React.createClass({
                     <Icon glyph={assets.database} width="11" height="11" />
                     {dsName}
                   </p>
-                  <DataTable id={currentAgg} className="derived" />
+                  <DataTable id={currentAgg} />
                 </span>
               );
             })
@@ -80,7 +80,7 @@ var PipelineInspector = React.createClass({
       inner = (
         <div className="inner">
           <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {name}</p>
-          <DataTable id={pipeline.get('_source')} className="source" />
+          <DataTable id={pipeline.get('_source')} />
           {aggregateTables}
         </div>
       );

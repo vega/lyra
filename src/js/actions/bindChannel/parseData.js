@@ -1,6 +1,7 @@
 'use strict';
 
-var aggregatePipeline = require('../pipelineActions').aggregatePipeline,
+var aggregatePipeline  = require('../pipelineActions').aggregatePipeline,
+    summarizeAggregate = require('../datasetActions').summarizeAggregate,
     getInVis = require('../../util/immutable-utils').getInVis;
 
 /**
@@ -41,12 +42,13 @@ function parseAggregate(dispatch, state, parsed, summary) {
   var groupby = aggregate.groupby,
       keys  = groupby.join('|'),
       plId  = parsed.plId,
-      aggDs = getInVis(state, 'pipelines.' + plId + '._aggregates.' + keys),
-      aggId = aggDs && aggDs.get('_id');
+      aggId = getInVis(state, 'pipelines.' + plId + '._aggregates.' + keys);
 
-  if (!aggDs) {
+  if (!aggId) {
     dispatch(aggregatePipeline(plId, aggregate));
     aggId = aggregate._id;
+  } else {
+    dispatch(summarizeAggregate(aggId, aggregate.summarize));
   }
 
   parsed.map.data.summary = aggId;

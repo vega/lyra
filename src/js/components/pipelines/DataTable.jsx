@@ -108,7 +108,7 @@ var DataTable = React.createClass({
               {keys.map(function(k) {
                 return (
                   <tr key={k}>
-                    <td className={'field ' + props.className}
+                    <td className={'field ' + (schema[k].source ? 'source' : 'derived')}
                       onMouseOver={this.showHoverField}>{k}</td>
                     {values.map(function(v, i) {
                       return (
@@ -121,8 +121,7 @@ var DataTable = React.createClass({
               }, this)}
             </tbody>
           </table>
-          <HoverField className={props.className} dsId={id}
-            schema={schema} def={state.hoverField} />
+          <HoverField dsId={id} schema={schema} def={state.hoverField} />
           <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
         </div>
 

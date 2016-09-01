@@ -7,7 +7,6 @@ var Immutable = require('immutable'),
     set   = immutableUtils.set,
     setIn = immutableUtils.setIn,
     getIn = immutableUtils.getIn,
-    dl = require('datalib'),
     dsUtil = require('../util/dataset-utils');
 
 /**
@@ -20,30 +19,31 @@ var Immutable = require('immutable'),
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
 function datasetsReducer(state, action) {
+  var id = action.id;
+
   if (typeof state === 'undefined') {
     return Immutable.Map();
   }
 
   if (action.type === ACTIONS.ADD_DATASET) {
-    state = set(state, action.id, Immutable.fromJS(action.props));
+    state = set(state, id, Immutable.fromJS(action.props));
     dsUtil.init(action);
     return state;
   }
 
   if (action.type === ACTIONS.SORT_DATASET) {
-    return setIn(state, action.id + '._sort', Immutable.fromJS({
+    return setIn(state, id + '._sort', Immutable.fromJS({
       field: action.field,
       order: action.order
     }));
   }
 
-  if (action.type === ACTIONS.ADD_TO_SUMMARIZE) {
-    var id = action.id,
-        summarize = action.summarize,
-        propPath = id + '.transform.0.summarize',
-        mergedSummarize = getIn(state, propPath).mergeDeep(Immutable.fromJS(summarize));
-
-    return setIn(state, propPath, mergedSummarize);
+  if (action.type === ACTIONS.SUMMARIZE_AGGREGATE) {
+    state = setIn(state, id + '.transform.0.summarize',
+      getIn(state, id + '.transform.0.summarize').mergeDeep(action.summarize));
+    dsUtil.schema(id, dsUtil.aggregateSchema(getIn(state, id + '.source'),
+      getIn(state, id + '.transform.0').toJS()));
+    return state;
   }
 
   return state;

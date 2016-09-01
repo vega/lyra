@@ -10,11 +10,15 @@ var React = require('react'),
     FieldType = require('./FieldType'),
     SortField = require('./SortField'),
     AggregateList = require('./AggregateList'),
+    getInVis = require('../../util/immutable-utils').getInVis,
     assets = require('../../util/assets'),
     QUANTITATIVE = require('../../constants/measureTypes').QUANTITATIVE;
 
 function mapStateToProps(state, ownProps) {
-  return {};
+  return {
+    srcId: getInVis(state, 'pipelines.' +
+      getInVis(state, 'datasets.' + ownProps.dsId + '._parent') + '._source')
+  };
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
@@ -28,7 +32,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 var HoverField = React.createClass({
   propTypes: {
     dsId: React.PropTypes.number,
-    className: React.PropTypes.string.isRequired,
+    srcId: React.PropTypes.number,
     def: React.PropTypes.object,
     schema: React.PropTypes.object
   },
@@ -88,12 +92,13 @@ var HoverField = React.createClass({
         sel = sg.get(sg.SELECTED),
         cell = sg.get(sg.CELL),
         bindField = this.state.bindField,
-        dropped = sel._id && cell._id;
+        dropped = sel._id && cell._id,
+        dsId = bindField.source ? props.srcId : props.dsId;
 
     try {
       if (dropped) {
         dl.extend(bindField, opts); // Aggregate or Bin passed in opts.
-        props.bindChannel(props.dsId, bindField, sel.mark.def.lyra_id, cell.key);
+        props.bindChannel(dsId, bindField, sel.mark.def.lyra_id, cell.key);
       }
     } catch (e) {
       console.warn('Unable to bind primitive');
@@ -151,8 +156,8 @@ var HoverField = React.createClass({
 
     return (
       <div>
-        <div className={'full field ' + this.props.className}
-          style={fieldStyle} draggable={true}
+        <div style={fieldStyle} draggable={true}
+          className={'full field ' + (field && field.source ? 'source' : 'derived')}
           onDragStart={this.handleDragStart}
           onDragOver={this.handleDragOver}
           onDragEnd={this.handleDragEnd}
