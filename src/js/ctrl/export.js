@@ -31,9 +31,25 @@ function exporter(internal) {
 }
 
 exporter.pipelines = function(state, internal) {
-  var pipelines = getInVis(state, 'pipelines').valueSeq().toJS();
-  return pipelines.map(function(pipeline) {
-    return exporter.dataset(state, internal, pipeline._source);
+  var pipelines = getInVis(state, 'pipelines').valueSeq().toJS(),
+      plAggregatesList = [], plList = [], plSourceList;
+
+  plSourceList = pipelines.map(function(pl) {
+    return pl._source;
+  });
+
+  pipelines.forEach(function(pl) {
+    if (pl._aggregates) {
+      dl.keys(pl._aggregates).forEach(function(aggregate) {
+        plAggregatesList.push(pl._aggregates[aggregate]);
+      });
+    }
+  });
+
+  plList = plSourceList.concat(plAggregatesList);
+
+  return plList.map(function(plMapping) {
+    return exporter.dataset(state, internal, plMapping);
   });
 };
 

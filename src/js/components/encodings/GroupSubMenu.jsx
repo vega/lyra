@@ -78,6 +78,9 @@ var Group = React.createClass({
     toggle: React.PropTypes.func,
     group: React.PropTypes.instanceOf(Immutable.Map)
   },
+  componentDidUpdate: function() {
+    ReactTooltip.rebuild();
+  },
   componentWillUnmount: function() {
     ReactTooltip.hide();
   },

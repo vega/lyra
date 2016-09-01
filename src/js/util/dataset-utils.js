@@ -3,7 +3,9 @@
 var dl = require('datalib'),
     promisify = require('es6-promisify'),
     MTYPES = require('vega-lite').data.types,
-    imutils = require('./immutable-utils'),
+    Pipeline = require('../store/factory/Pipeline'),
+    Dataset  = require('../store/factory/Dataset'),
+    imutils  = require('./immutable-utils'),
     getInVis = imutils.getInVis,
     NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
@@ -44,8 +46,8 @@ function init(action) {
     return _values[id];
   }
 
-  _values[id] = src ? _values[src] : action.values;
-  _schema[id] = src ? _schema[src] : action.schema;
+  _values[id] = action.values || (src ? _values[src] : null);
+  _schema[id] = action.schema || (src ? _schema[src] : null);
 }
 
 function reset() {
@@ -91,8 +93,8 @@ function output(id) {
  */
 function loadURL(url) {
   var fileName = url.match(NAME_REGEX)[1],
-      pipeline = {name: fileName},
-      dataset  = {name: fileName, url: url};
+      pipeline = Pipeline(fileName),
+      dataset  = Dataset(fileName, {url: url});
 
   return promisify(dl.load)({url: url})
     .then(function(data) {
@@ -149,20 +151,54 @@ function parseRaw(raw) {
  */
 function schema(arg) {
   if (dl.isNumber(arg)) {
-    return _schema[arg];
+    return (arguments.length === 2) ? (_schema[arg] = arguments[1]) : _schema[arg];
   } else if (dl.isArray(arg)) {
     var types = dl.type.inferAll(arg);
     return dl.keys(types).reduce(function(s, k) {
       s[k] = {
         name: k,
         type: types[k],
-        mtype: MTYPES[types[k]]
+        mtype: MTYPES[types[k]],
+        source: true
       };
       return s;
     }, {});
   }
 
   throw Error('Expected either a dataset ID or raw values array');
+}
+
+/**
+ * Calculates the schema for an aggregated dataset for a given source. The
+ * aggregated dataset's schema contains all the groupby fields, with the same
+ * definition as the source, as well as additional fields for all summarized
+ * fields.
+ *
+ * @param   {number} srcId     The ID of the source dataset.
+ * @param   {Object} aggregate The Vega aggregate transform definition.
+ * @returns {Object} The aggregate dataset's schema.
+ */
+function aggregateSchema(srcId, aggregate) {
+  var src = schema(srcId),
+      aggSchema = aggregate.groupby.reduce(function(acc, gb) {
+        return (acc[gb] = src[gb], acc);
+      }, {}),
+      summarize = aggregate.summarize,
+      field, i, len, name;
+
+  for (field in summarize) {
+    for (i = 0, len = summarize[field].length; i < len; ++i) {
+      name = summarize[field][i] + '_' + field;
+      aggSchema[name] = {
+        name: name,
+        type: 'number',
+        mtype: MTYPES.number,
+        source: false
+      };
+    }
+  }
+
+  return aggSchema;
 }
 
 module.exports = {
@@ -175,6 +211,7 @@ module.exports = {
   loadURL: loadURL,
   parseRaw: parseRaw,
   schema: schema,
+  aggregateSchema: aggregateSchema,
 
   NAME_REGEX: NAME_REGEX
 };

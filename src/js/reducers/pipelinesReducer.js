@@ -30,6 +30,10 @@ function pipelinesReducer(state, action) {
       Immutable.fromJS(action.value));
   }
 
+  if (action.type === ACTIONS.AGGREGATE_PIPELINE) {
+    return setIn(state, action.id + '._aggregates.' + action.key, action.dsId);
+  }
+
   return state;
 }
 

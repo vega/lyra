@@ -54,7 +54,11 @@ $long-label-width: $label-width + 10px;
     .scale {
       padding: 3px ($outer-padding+$inner-padding) 2px $inner-padding;
       min-width: auto;
+      max-width: 30px;
       border: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
       & + .field {
         margin-left: (-$outer-padding);
@@ -69,10 +73,13 @@ $long-label-width: $label-width + 10px;
     }
 
     .field {
+      max-width: 65px;
       padding: 3px $inner-padding;
-      background: #bed9ab;
       border: 0;
       border-radius: $outer-padding;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     &:hover {

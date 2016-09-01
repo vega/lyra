@@ -8,6 +8,7 @@ var React = require('react'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
+    dsUtils  = require('../../util/dataset-utils'),
     TYPES = require('../../constants/primTypes'),
     AutoComplete = require('./AutoComplete'),
     resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
@@ -19,25 +20,28 @@ function mapStateToProps(state, ownProps) {
   }
 
   var propertyState = getInVis(state, ownProps.primType + '.' + ownProps.primId),
-      path;
+      path, dsId;
 
   if (ownProps.name) {
     if (ownProps.primType === TYPES.MARKS) {
       path = 'properties.update.' + ownProps.name;
+      dsId = getIn(propertyState, 'from.data');
     } else if (ownProps.primType === TYPES.GUIDES) {
       path = ownProps.name;
     }
   }
 
   var scale = getIn(propertyState, path + '.scale'),
-      scaleName = scale && getInVis(state, 'scales.' + scale + '.name');
+      scaleName = scale && getInVis(state, 'scales.' + scale + '.name'),
+      field = getIn(propertyState, path + '.field');
 
   return {
-    field:  getIn(propertyState, path + '.field'),
     group:  getIn(propertyState, path + '.group'),
     signal: getIn(propertyState, path + '.signal'),
     value:  getIn(propertyState, path),
+    field:  field,
     scale:  scale,
+    srcField:  dsId && field ? dsUtils.schema(dsId)[field].source : false,
     scaleName: scaleName
   };
 }
@@ -116,7 +120,8 @@ var Property = React.createClass({
       (<div className="scale" onClick={this.unbind}>{props.scaleName}</div>) : null;
 
     controlEl = field ?
-      (<div className="field" onClick={this.unbind}>{field}</div>) : controlEl;
+      (<div className={'field ' + (props.srcField ? 'source' : 'derived')}
+        onClick={this.unbind}>{field}</div>) : controlEl;
 
     if (!controlEl) {
       // TODO: include 'radio' case when it's finished being implementing

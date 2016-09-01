@@ -6,6 +6,7 @@ var dl = require('datalib'),
     markActions = require('../markActions'),
     setMarkVisual = markActions.setMarkVisual,
     disableMarkVisual = markActions.disableMarkVisual,
+    updateMarkProperty = require('../markActions').updateMarkProperty,
     MARK_EXTENTS = require('../../constants/markExtents');
 
 /**
@@ -20,6 +21,8 @@ var dl = require('datalib'),
  */
 module.exports = function(dispatch, state, parsed) {
   var markType = parsed.markType,
+      map = parsed.map,
+      markId = parsed.markId,
       channel  = parsed.channel,
       def = parsed.output.marks[0].marks[0],
       props = def.properties.update;
@@ -30,6 +33,10 @@ module.exports = function(dispatch, state, parsed) {
     textTemplate(dispatch, parsed, props);
   } else {
     bindProperty(dispatch, parsed, props);
+  }
+
+  if (def.from && def.from.data) {
+    dispatch(updateMarkProperty(markId, 'from', {data: map.data[def.from.data]}));
   }
 };
 
