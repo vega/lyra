@@ -1,6 +1,6 @@
 'use strict';
 var React = require('react'),
-    WalkthroughStep = require('./walkthrough/Step'),
+    Steps = require('./walkthrough/Steps'),
     connect = require('react-redux').connect,
     getIn = require('../util/immutable-utils').getIn;
 
@@ -14,7 +14,7 @@ var Walkthroughs = React.createClass({
   render: function() {
     var props = this.props,
         showWalkthrough = props.showWalkthrough,
-        walkthroughStep = showWalkthrough ? <WalkthroughStep/> : '';
+        walkthroughStep = showWalkthrough ? <Steps /> : '';
 
     return (
       <div>
