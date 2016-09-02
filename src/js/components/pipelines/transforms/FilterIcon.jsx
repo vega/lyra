@@ -37,7 +37,8 @@ var FilterField = React.createClass({
   },
 
   render: function() {
-    return (<Icon onClick={this.showTextbox} glyph={assets.filter} width="10" height="10" />);
+    return (<Icon onClick={this.showTextbox} glyph={assets.filter} width="10" height="10"
+    data-tip="Filter" />);
   }
 });
 

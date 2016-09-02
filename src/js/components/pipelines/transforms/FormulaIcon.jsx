@@ -37,7 +37,8 @@ var FormulaField = React.createClass({
   },
 
   render: function() {
-    return (<Icon onClick={this.showTextbox} glyph={assets.formula} width="10" height="10" />);
+    return (<Icon onClick={this.showTextbox} glyph={assets.formula} width="10" height="10"
+    data-tip="Formula" />);
   }
 });
 
