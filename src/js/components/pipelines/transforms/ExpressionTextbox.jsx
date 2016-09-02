@@ -21,6 +21,20 @@ var ExpressionTextbox = React.createClass({
     dsId:  React.PropTypes.number
   },
 
+  getInitialState: function() {
+    return {expanded: true};
+  },
+
+  timer: null,
+
+  resetTimer: function() {
+    var that = this;
+    window.clearTimeout(this.timer);
+    this.timer = window.setTimeout(function() {
+        that.setState({expanded: false});
+      }, 10000);
+  },
+
   filter: function(evt) {
     console.log("works");
     this.props.filterDataset(this.props.dsId, evt);
@@ -30,10 +44,10 @@ var ExpressionTextbox = React.createClass({
     var props = this.props,
         id = props.dsId;
 
-    return (
+    return this.state.expanded ? (
       <Property name="expressionProp" type="autocomplete"   autoType="expr" dsId={id} {...props} onChange={this.filter}>
       </Property>
-    );
+    ) : null;
   }
 });
 
