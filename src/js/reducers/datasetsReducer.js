@@ -45,14 +45,21 @@ function datasetsReducer(state, action) {
     }));
   }
 
-  if (action.type === ACTIONS.SHOW_EXPRESSION_TEXTBOX) {
-    state = setIn(state, action.id + '._expressionTextbox',
-    Immutable.fromJS({
-      show: action.show,
-      time: action.time
-    }));
+  if (action.type === ACTIONS.ADD_DATA_TRANSFORM) {
+    var transforms = getIn(state, action.id + '._transforms');
+
+    if (!transforms) {
+      transforms = [];
+    }
+    var result = transforms.indexOf(action.transformSpec);
+    if (transforms.indexOf(action.transformSpec) === -1) {
+      // if transform doesn't exist already
+      transforms.push(action.transformSpec);
+    }
+
+    state = setIn(state, action.id + '._transforms', transforms);
   }
-  
+
   if (action.type === ACTIONS.SUMMARIZE_AGGREGATE) {
     state = setIn(state, id + '.transform.0.summarize',
       getIn(state, id + '.transform.0.summarize').mergeDeep(action.summarize));

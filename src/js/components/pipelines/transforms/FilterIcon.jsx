@@ -5,7 +5,7 @@ var React = require('react'),
     assets = require('../../../util/assets'),
     getInVis = require('../../../util/immutable-utils').getInVis,
     Icon   = require('../../Icon'),
-    showExpressionTextbox = require('../../../actions/datasetActions').showExpressionTextbox;
+    addTransform = require('../../../actions/datasetActions').addTransform;
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -13,8 +13,8 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    showExpressionTextbox: function(dsId, show, time) {
-      dispatch(showExpressionTextbox(dsId, show, time));
+    addTransform: function(dsId, transformSpec) {
+      dispatch(addTransform(dsId, transformSpec));
     }
   };
 }
@@ -26,18 +26,21 @@ var FilterField = React.createClass({
     dsId:  React.PropTypes.number,
   },
 
-  showTextbox: function(evt) {
+  filter: function(evt) {
     var props = this.props,
-        show = true,
         dsId = props.dsId,
-        time = 10;
+        test = 'datum.' + props.field.name,
+        transform = {
+          type: 'filter',
+          test: test
+        };
 
-    this.props.showExpressionTextbox(dsId, show, time);
+    this.props.addTransform(dsId, transform);
 
   },
 
   render: function() {
-    return (<Icon onClick={this.showTextbox} glyph={assets.filter} width="10" height="10"
+    return (<Icon onClick={this.filter} glyph={assets.filter} width="10" height="10"
     data-tip="Filter" />);
   }
 });

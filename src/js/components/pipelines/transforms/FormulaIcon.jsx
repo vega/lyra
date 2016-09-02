@@ -5,7 +5,7 @@ var React = require('react'),
     assets = require('../../../util/assets'),
     getInVis = require('../../../util/immutable-utils').getInVis,
     Icon   = require('../../Icon'),
-    showExpressionTextbox = require('../../../actions/datasetActions').showExpressionTextbox;
+    addTransform = require('../../../actions/datasetActions').addTransform;
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -13,8 +13,8 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    showExpressionTextbox: function(dsId, show, time) {
-      dispatch(showExpressionTextbox(dsId, show, time));
+    addTransform: function(dsId, transformSpec) {
+      dispatch(addTransform(dsId, transformSpec));
     }
   };
 }
@@ -28,11 +28,16 @@ var FormulaField = React.createClass({
 
   showTextbox: function(evt) {
     var props = this.props,
-        show = true,
         dsId = props.dsId,
-        time = 10;
+        fieldname = props.field.name,
+        expr = 'datum.' + fieldname,
+        transform = {
+          type: 'formula',
+          field: fieldname,
+          expr: expr
+        };
 
-    this.props.showExpressionTextbox(dsId, show, time);
+    this.props.addTransform(dsId, transform);
 
   },
 

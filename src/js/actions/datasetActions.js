@@ -6,7 +6,8 @@ var dl = require('datalib'),
     SORT_DATASET = 'SORT_DATASET',
     FILTER_DATASET = 'FILTER_DATASET',
     SHOW_EXPRESSION_TEXTBOX = 'SHOW_EXPRESSION_TEXTBOX',
-    SUMMARIZE_AGGREGATE = 'SUMMARIZE_AGGREGATE';
+    SUMMARIZE_AGGREGATE = 'SUMMARIZE_AGGREGATE',
+    ADD_DATA_TRANSFORM = 'ADD_DATA_TRANSFORM';
 
 /**
  * Action creator to add a new Dataset in the store.
@@ -85,6 +86,22 @@ function summarizeAggregate(id, summarize) {
   };
 }
 
+/**
+ * Action creator to add a data transformations to the dataset
+ *
+ * @param {number} dsId - Id of the dataset.
+ * @param {object} transformSpec - vega data transform object
+ * @returns {Object} DATA_TRANSFORM action with info about
+ * vega data transformation
+ */
+function addTransform(dsId, transformSpec) {
+  return {
+    type: ADD_DATA_TRANSFORM,
+    id: dsId,
+    transformSpec: transformSpec
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_DATASET: ADD_DATASET,
@@ -92,11 +109,13 @@ module.exports = {
   FILTER_DATASET: FILTER_DATASET,
   SHOW_EXPRESSION_TEXTBOX: SHOW_EXPRESSION_TEXTBOX,
   SUMMARIZE_AGGREGATE: SUMMARIZE_AGGREGATE,
+  ADD_DATA_TRANSFORM: ADD_DATA_TRANSFORM,
 
   // Action Creators
   addDataset: addDataset,
   sortDataset: sortDataset,
   filterDataset: filterDataset,
   showExpressionTextbox: showExpressionTextbox,
-  summarizeAggregate: summarizeAggregate
+  summarizeAggregate: summarizeAggregate,
+  addTransform: addTransform
 };
