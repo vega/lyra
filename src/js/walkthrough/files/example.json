@@ -9,6 +9,10 @@
     "image": "http://fillmurray.com/g/150/150",
     "alt_text": "an image",
     "lyra_state": {},
+    "opts": {
+      "target": "",
+      "validate": true
+    },
     "help": "If you are stuck, try clearing the scene."
   }, {
     "id": 2,
@@ -20,6 +24,10 @@
       "marks": [{
         "type": "rect"
       }]
+    },
+    "opts": {
+      "target": "",
+      "validate": true
     },
     "help": "If you are stuck, try clearing the scene."
   }, {
@@ -39,6 +47,10 @@
           }
         }
       }]
+    },
+    "opts": {
+      "target": "",
+      "validate": true
     },
     "help": "If you are stuck, try clearing the scene."
   }, {
@@ -61,6 +73,10 @@
           }
         }
       }]
+    },
+    "opts": {
+      "target": "",
+      "validate": true
     }
   }]
 }

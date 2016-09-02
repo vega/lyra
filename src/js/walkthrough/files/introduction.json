@@ -1,0 +1,57 @@
+{
+  "title": "Introduction to Lyra's Interface",
+  "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
+  "alt_text": "an image",
+  "steps": [{
+    "id": 1,
+    "title": "Group Sidebar",
+    "text": "This is Lyra's visual sidebar. Here you'll find guides, marks and scales corresponding to the visualization enumerated into groups.",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": "visual-sidebar",
+      "validate": false
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "tooltip"
+  }, {
+    "id": 2,
+    "title": "Inspector Sidebar",
+    "text": "The Inspector Sidebar allows you to modify different attributes of the current visualization such as a mark's fill color or the number of ticks  present in a specific axis",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": "inspector",
+      "validate": false
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "tooltip"
+  }, {
+    "id": 3,
+    "title": "Pipeline Sidebar",
+    "text": "This sidebar will be populated with data tables once you've imported data.",
+    "image": "http://fillmurray.com/g/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": "pipeline-sidebar",
+      "validate": false
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "tooltip"
+  }, {
+    "id": 4,
+    "title": "Toolbar",
+    "text": "The Toolbar is a utility that allows you to add variaous elements to the visualization",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": "vis-toolbar",
+      "validate": false
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "tooltip"
+  }]
+}
