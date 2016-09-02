@@ -12,23 +12,6 @@ var ToolTip = React.createClass({
       }
     };
   },
-  // componentWillMount: function() {
-  //   var props = this.props,
-  //       toolTipStyle = {},
-  //       targetDomEl,
-  //       boundingRect;
-  //
-  //   if (props && props.target) {
-  //     toolTipStyle.position = {};
-  //     // get targetDomEl position
-  //     targetDomEl = document.getElementById(props.target);
-  //     boundingRect = targetDomEl.getBoundingClientRect();
-  //
-  //     console.log('targetDomEl: ', targetDomEl);
-  //     // console.log(boundingRect.top, boundingRect.right, boundingRect.bottom, boundingRect.left);
-  //     // console.log(this.styles);
-  //   }
-  // },
   componentWillReceiveProps: function(newProps) {
     var props = this.props,
         toolTipStyle = {},
