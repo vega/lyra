@@ -24,7 +24,7 @@ module.exports = window.ui = ReactDOM.render(
 
       <Footer/>
 
-      <ReactTooltip effect="solid"/>
+      <ReactTooltip effect="solid" delayShow={650} class="tooltip" html={true} />
     </div>
   </Provider>,
   document.querySelector('.chrome-container')

@@ -1,15 +1,25 @@
 'use strict';
+
 var React = require('react'),
     connect = require('react-redux').connect,
+    dl = require('datalib'),
+    ReactTooltip = require('react-tooltip'),
     ctrl = require('../../ctrl'),
     sg = require('../../ctrl/signals'),
-    dsUtil = require('../../util/dataset-utils'),
     bindChannel = require('../../actions/bindChannel'),
+    Icon = require('../Icon'),
     FieldType = require('./FieldType'),
-    SortField = require('./SortField');
+    SortField = require('./SortField'),
+    AggregateList = require('./AggregateList'),
+    getInVis = require('../../util/immutable-utils').getInVis,
+    assets = require('../../util/assets'),
+    QUANTITATIVE = require('../../constants/measureTypes').QUANTITATIVE;
 
 function mapStateToProps(state, ownProps) {
-  return {};
+  return {
+    srcId: getInVis(state, 'pipelines.' +
+      getInVis(state, 'datasets.' + ownProps.dsId + '._parent') + '._source')
+  };
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
@@ -23,7 +33,7 @@ function mapDispatchToProps(dispatch, ownProps) {
 var HoverField = React.createClass({
   propTypes: {
     dsId: React.PropTypes.number,
-    className: React.PropTypes.string.isRequired,
+    srcId: React.PropTypes.number,
     def: React.PropTypes.object,
     schema: React.PropTypes.object
   },
@@ -32,26 +42,39 @@ var HoverField = React.createClass({
     return {
       fieldDef:  null,
       offsetTop: null,
-      bindField: null
+      bindField: null,
+      showAggregates: false,
     };
   },
 
   componentWillReceiveProps: function(newProps) {
     var def = newProps.def,
-        schema = newProps.schema;
+        schema = newProps.schema,
+        state = {showAggregates: false};
 
     if (!def) {
-      this.setState({fieldDef: null});
+      state.fieldDef = null;
     } else {
-      this.setState({
-        fieldDef: schema[def.name],
-        offsetTop: def.offsetTop
-      });
+      state.fieldDef = schema[def.name];
+      state.offsetTop = def.offsetTop;
     }
+
+    this.setState(state);
+  },
+
+  componentDidUpdate: function() {
+    ReactTooltip.rebuild();
   },
 
   handleDragStart: function(evt) {
-    this.setState({bindField: this.state.fieldDef});
+    var state = {bindField: this.state.fieldDef};
+
+    // if an AggregateField isn't being dragged, close the menu
+    if (!evt.target.classList.contains('aggregate-field')) {
+      state.showAggregates = false;
+    }
+
+    this.setState(state);
     evt.dataTransfer.setData('text/plain', evt.target.id);
     evt.dataTransfer.effectAllowed = 'link';
     sg.set(sg.MODE, 'channels');
@@ -69,16 +92,18 @@ var HoverField = React.createClass({
   // This makes use of the bubble cursor, which corresponds to the cell signal;
   // we're using that to figure out which channel we are closest to. The
   // SELECTED signal indicates the mark to bind the data to.
-  handleDragEnd: function(evt) {
+  handleDragEnd: function(evt, opts) {
     var props = this.props,
         sel = sg.get(sg.SELECTED),
         cell = sg.get(sg.CELL),
         bindField = this.state.bindField,
-        dropped = sel._id && cell._id;
+        dropped = sel._id && cell._id,
+        dsId = bindField.source ? props.srcId : props.dsId;
 
     try {
       if (dropped) {
-        props.bindChannel(props.dsId, bindField, sel.mark.def.lyra_id, cell.key);
+        dl.extend(bindField, opts); // Aggregate or Bin passed in opts.
+        props.bindChannel(dsId, bindField, sel.mark.def.lyra_id, cell.key);
       }
     } catch (e) {
       console.warn('Unable to bind primitive');
@@ -102,26 +127,49 @@ var HoverField = React.createClass({
     return false;
   },
 
+  toggleTransforms: function(evt) {
+    this.setState({showAggregates: !this.state.showAggregates});
+  },
+
   render: function() {
     var state = this.state,
         field = state.fieldDef,
-        style = {top: state.offsetTop, display: field ? 'block' : 'none'};
+        fieldStyle = {top: state.offsetTop, display: field ? 'block' : 'none'},
+        listStyle  = {
+          top: state.offsetTop,
+          display: field && state.showAggregates ? 'block' : 'none'
+        },
+        dragHandlers = {
+          onDragStart: this.handleDragStart,
+          onDragOver: this.handleDragOver,
+          onDragEnd: this.handleDragEnd,
+          onDrop: this.handleDrop
+        };
 
-    field = field ? (
+    var fieldEl = field ? (
       <div>
         <FieldType field={field} />
-        {field.name}
+        {field.mtype === QUANTITATIVE ? (
+          <Icon onClick={this.toggleTransforms} glyph={assets.aggregate}
+            width="10" height="10" data-tip="Show aggregations" />
+        ) : null}
+        <span className="fieldName">{field.name}</span>
         <SortField dsId={this.props.dsId} field={field} />
       </div>
     ) : null;
 
     return (
-      <div className={'full field ' + this.props.className}
-        style={style} draggable={true}
-        onDragStart={this.handleDragStart}
-        onDragOver={this.handleDragOver}
-        onDragEnd={this.handleDragEnd}
-        onDrop={this.handleDrop}>{field}</div>
+      <div>
+        <div style={fieldStyle} draggable={true}
+          className={'full field ' + (field && field.source ? 'source' : 'derived')}
+          onDragStart={this.handleDragStart}
+          onDragOver={this.handleDragOver}
+          onDragEnd={this.handleDragEnd}
+          onDrop={this.handleDrop}>{fieldEl}</div>
+
+        <AggregateList handlers={dragHandlers} style={listStyle}
+          field={field} {...this.props} />
+      </div>
     );
   }
 });

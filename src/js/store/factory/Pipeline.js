@@ -5,6 +5,7 @@
  * source dataset with additional derived datasets (e.g., aggregates or facets).
  *
  * @param {string} name - The name of the pipeline
+ * @param {number} source - The Lyra ID of the source dataset.
  *
  * @property {Object} _source - The source {@link Dataset} of the pipeline. All
  * other {@link Dataset|Datasets} in the pipeline must be derived from this.
@@ -13,10 +14,10 @@
  *
  * @constructor
  */
-module.exports = function(name) {
+module.exports = function(name, source) {
   return {
     name: name,
-    _source: undefined,
-    _aggregates: []
+    _source: source,
+    _aggregates: {}
   };
 };
