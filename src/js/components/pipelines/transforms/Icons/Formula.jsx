@@ -2,10 +2,10 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    assets = require('../../../util/assets'),
-    getInVis = require('../../../util/immutable-utils').getInVis,
-    Icon   = require('../../Icon'),
-    addTransform = require('../../../actions/datasetActions').addTransform;
+    assets = require('../../../../util/assets'),
+    getInVis = require('../../../../util/immutable-utils').getInVis,
+    Icon   = require('../../../Icon'),
+    addTransform = require('../../../../actions/datasetActions').addTransform;
 
 function mapStateToProps(state, ownProps) {
   return {};
