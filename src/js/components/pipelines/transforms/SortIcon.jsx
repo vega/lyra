@@ -7,7 +7,8 @@ var React = require('react'),
     Icon   = require('../../Icon'),
     getInVis = require('../../../util/immutable-utils').getInVis,
     ORDER  = require('../../../constants/sortOrder'),
-    MTYPES = require('../../../constants/measureTypes');
+    MTYPES = require('../../../constants/measureTypes'),
+    ReactTooltip = require('react-tooltip');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -30,6 +31,10 @@ var SortField = React.createClass({
     sort:  React.PropTypes.instanceOf(Immutable.Map)
   },
 
+  componentDidUpdate: function() {
+    ReactTooltip.rebuild();
+  },
+
   sort: function(evt) {
     var props = this.props,
         sort  = props.sort,
@@ -49,19 +54,24 @@ var SortField = React.createClass({
         sort  = props.sort,
         field = props.field,
         mtype = field.mtype,
-        isAsc;
+        isAsc, tip;
 
     if (sort && sort.get('field') === field.name) {
       isAsc = sort.get('order') === ORDER.ASC;
+      tip = 'Sorted in ' + (isAsc ? 'ascending' : 'descending') + ' order.';
+
       return mtype === MTYPES.NOMINAL ?
         (<Icon onClick={this.sort} width="10" height="10"
-          glyph={isAsc ? assets.sortAlphaAsc : assets.sortAlphaDesc} />) :
+          glyph={isAsc ? assets.sortAlphaAsc : assets.sortAlphaDesc}
+          data-tip={tip} />) :
 
         (<Icon onClick={this.sort} width="10" height="10"
-          glyph={isAsc ? assets.sortNumericAsc : assets.sortNumericDesc} />);
+          glyph={isAsc ? assets.sortNumericAsc : assets.sortNumericDesc}
+          data-tip={tip} />);
     }
 
-    return (<Icon onClick={this.sort} glyph={assets.sort} width="10" height="10" />);
+    return (<Icon onClick={this.sort} glyph={assets.sort}
+      width="10" height="10" data-tip="Sort" />);
   }
 });
 

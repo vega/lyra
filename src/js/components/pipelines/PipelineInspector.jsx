@@ -33,10 +33,11 @@ function mapDispatchToProps(dispatch) {
 
 var PipelineInspector = React.createClass({
   propTypes: {
-    isSelected: React.PropTypes.bool,
-    selectPipeline: React.PropTypes.func,
-    pipeline: React.PropTypes.instanceOf(Immutable.Map),
-    source: React.PropTypes.number
+    id: React.PropTypes.string.isRequired,
+    pipeline: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    isSelected: React.PropTypes.bool.isRequired,
+    selectPipeline: React.PropTypes.func.isRequired,
+    updateProperty: React.PropTypes.func.isRequired
   },
 
   render: function() {
@@ -44,14 +45,26 @@ var PipelineInspector = React.createClass({
         pipeline = props.pipeline,
         id = props.id,
         name = pipeline.get('name'),
-        inner = (<span></span>);
+        inner;
 
-    // TODO do not rely on global primitives. Datasets should be in store.
     if (props.isSelected) {
       inner = (
         <div className="inner">
-          <p className="source"><Icon glyph={assets.database} width="11" height="11" /> {name}</p>
-          <DataTable id={pipeline.get('_source')} className="source" />
+          <p className="source">
+            <Icon glyph={assets.download} width="11" height="11" />
+            Loaded Values
+          </p>
+
+          <DataTable id={pipeline.get('_source')} />
+
+          {pipeline.get('_aggregates').entrySeq().map(function(entry, i) {
+            return (
+              <div key={i}>
+                <p className="source">Group By: {entry[0].split('|').join(', ')}</p>
+                <DataTable id={entry[1]} />
+              </div>
+            );
+          })}
         </div>
       );
     }

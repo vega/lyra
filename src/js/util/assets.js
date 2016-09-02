@@ -12,7 +12,6 @@ module.exports = {
   plus: require('../../assets/plus.svg'),
   undo: require('../../assets/undo.svg'),
   redo: require('../../assets/redo.svg'),
-  database: require('../../assets/database.svg'),
   nominal: require('../../assets/type-nominal.svg'),
   ordinal: require('../../assets/type-ordinal.svg'),
   quantitative: require('../../assets/type-quantitative.svg'),
@@ -30,5 +29,7 @@ module.exports = {
   sortNumericAsc: require('../../assets/sort-numeric-asc.svg'),
   sortNumericDesc: require('../../assets/sort-numeric-desc.svg'),
   filter: require('../../assets/filter.svg'),
-  formula: require('../../assets/formula.svg')
+  formula: require('../../assets/formula.svg'),
+  aggregate: require('../../assets/aggregate.svg'),
+  download: require('../../assets/download.svg')
 };

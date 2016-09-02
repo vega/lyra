@@ -5,7 +5,8 @@ var dl = require('datalib'),
     ADD_DATASET = 'ADD_DATASET',
     SORT_DATASET = 'SORT_DATASET',
     FILTER_DATASET = 'FILTER_DATASET',
-    SHOW_EXPRESSION_TEXTBOX = 'SHOW_EXPRESSION_TEXTBOX';
+    SHOW_EXPRESSION_TEXTBOX = 'SHOW_EXPRESSION_TEXTBOX',
+    SUMMARIZE_AGGREGATE = 'SUMMARIZE_AGGREGATE';
 
 /**
  * Action creator to add a new Dataset in the store.
@@ -76,16 +77,26 @@ function showExpressionTextbox(dsId, show, time) {
   };
 }
 
+function summarizeAggregate(id, summarize) {
+  return {
+    type: SUMMARIZE_AGGREGATE,
+    id: id,
+    summarize: summarize
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_DATASET: ADD_DATASET,
   SORT_DATASET: SORT_DATASET,
   FILTER_DATASET: FILTER_DATASET,
   SHOW_EXPRESSION_TEXTBOX: SHOW_EXPRESSION_TEXTBOX,
+  SUMMARIZE_AGGREGATE: SUMMARIZE_AGGREGATE,
 
   // Action Creators
   addDataset: addDataset,
   sortDataset: sortDataset,
   filterDataset: filterDataset,
-  showExpressionTextbox: showExpressionTextbox
+  showExpressionTextbox: showExpressionTextbox,
+  summarizeAggregate: summarizeAggregate
 };

@@ -1,12 +1,10 @@
 'use strict';
 
 var dl = require('datalib'),
-    vg = require('vega'),
     vl = require('vega-lite'),
-    AGG_OPS = vg.transforms.aggregate.VALID_OPS,
+    AGGREGATE_OPS = require('../../constants/aggregateOps'),
     getInVis = require('../../util/immutable-utils').getInVis,
     markActions = require('../markActions'),
-    updateMarkProperty = markActions.updateMarkProperty,
     setVlUnit = markActions.setVlUnit,
     dsUtils = require('../../util/dataset-utils'),
     historyActions = require('../../actions/historyActions'),
@@ -49,17 +47,18 @@ function bindChannel(dsId, field, markId, property) {
         markType = mark.get('type'),
         spec = vlSpec(mark),
         mapping = map(spec),
-        channel = channelName(property);
+        channel = channelName(property),
+        plId = getInVis(state, 'datasets.' + dsId + '._parent');
+
+    if (from && (from = from.get('data'))) {
+      if (getInVis(state, 'datasets.' + from + '._parent') !== plId) {
+        throw Error('Mark and field must be from the same pipeline.');
+      }
+    }
 
     // Though we dispatch multiple actions, we want bindChannel to register as
     // only a single state change to the history from the user's perspective.
     dispatch(startBatch());
-
-    if (from && (from.get('mark') || from.get('data') !== dsId)) {
-      throw Error('Mark and field must be from the same pipeline.');
-    } else if (!from) {
-      dispatch(updateMarkProperty(markId, 'from', {data: dsId}));
-    }
 
     spec.encoding[channel] = channelDef(field);
 
@@ -71,6 +70,7 @@ function bindChannel(dsId, field, markId, property) {
     parsed.property = property;
     parsed.channel = channel;
     parsed.dsId = dsId;
+    parsed.plId = plId;
     parseData(dispatch, state, parsed);
     parseScales(dispatch, state, parsed);
     parseMarks(dispatch, state, parsed);
@@ -175,7 +175,7 @@ function channelName(name) {
 }
 
 var re = {
-  agg: new RegExp('^(' + AGG_OPS.join('|') + ')_(.*?)$'),
+  agg: new RegExp('^(' + AGGREGATE_OPS.join('|') + ')_(.*?)$'),
   bin: new RegExp('^(bin)_(.*?)(_start|_mid|_end)$')
 };
 
@@ -196,16 +196,13 @@ function channelDef(field) {
       bin = field.bin,
       ref = {type: field.mtype}, res;
 
-  if (agg) {
-    res = re.agg.exec(name);
-    ref.aggregate = res[1];
-  } else if (bin) {
-    res = re.bin.exec(name);
+  if (agg || (res = re.agg.exec(name))) {
+    ref.aggregate = res ? res[1] : agg;
+  } else if (bin || (res = re.bin.exec(name))) {
     ref.bin = true;
   }
 
   ref.field = res ? res[2] : name;
-
   return ref;
 }
 

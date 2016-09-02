@@ -27,7 +27,6 @@ var DataTable = React.createClass({
     id: React.PropTypes.number,
     dataset: React.PropTypes.instanceOf(Immutable.Map)
   },
-
   getInitialState: function() {
     return {
       limit: 20,
@@ -101,7 +100,6 @@ var DataTable = React.createClass({
       <ExpressionTextbox dsId={id} />
     ): null;
 
-
     var prev = page > 0 ? (
       <Icon glyph={assets.prev} width="10" height="10" onClick={this.prevPage} />
     ) : null;
@@ -123,7 +121,7 @@ var DataTable = React.createClass({
               {keys.map(function(k) {
                 return (
                   <tr key={k}>
-                    <td className={'field ' + props.className}
+                    <td className={'field ' + (schema[k].source ? 'source' : 'derived')}
                       onMouseOver={this.showHoverField}>{k}</td>
                     {values.map(function(v, i) {
                       return (
@@ -136,8 +134,7 @@ var DataTable = React.createClass({
               }, this)}
             </tbody>
           </table>
-          <HoverField className={props.className} dsId={id}
-            schema={schema} def={state.hoverField} />
+          <HoverField dsId={id} schema={schema} def={state.hoverField} />
           <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
         </div>
 
