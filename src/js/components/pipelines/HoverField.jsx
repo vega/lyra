@@ -6,9 +6,9 @@ var React = require('react'),
     dsUtil = require('../../util/dataset-utils'),
     bindChannel = require('../../actions/bindChannel'),
     FieldType = require('./FieldType'),
-    SortField = require('./SortField'),
-    FilterField = require('./FilterField').connected,
-    FormulaField = require('./FormulaField').connected;
+    SortField = require('./transforms/SortField'),
+    FilterField = require('./transforms/FilterField').connected,
+    FormulaField = require('./transforms/FormulaField').connected;
 
 function mapStateToProps(state, ownProps) {
   return {};
