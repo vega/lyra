@@ -58,6 +58,10 @@ var GuideList = React.createClass({
     deleteGuide: React.PropTypes.func.isRequired
   },
 
+  componentDidUpdate: function() {
+    ReactTooltip.rebuild();
+  },
+
   render: function() {
     var props = this.props,
         selectedId = props.selectedId;

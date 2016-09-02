@@ -54,6 +54,10 @@ var MarkList = React.createClass({
     updateName: React.PropTypes.func.isRequired,
   },
 
+  componentDidUpdate: function() {
+    ReactTooltip.rebuild();
+  },
+
   render: function() {
     var props = this.props,
         selectedId = props.selectedId;
