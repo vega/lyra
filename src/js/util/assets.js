@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = {
-  'group-open': require('../../assets/mark-group-open.svg'),
-  'group-closed': require('../../assets/mark-group-closed.svg'),
+  'group-expanded': require('../../assets/mark-group-open.svg'),
+  'group-contracted': require('../../assets/mark-group-closed.svg'),
   rect: require('../../assets/mark-rect.svg'),
   line: require('../../assets/mark-line.svg'),
   area: require('../../assets/mark-area.svg'),
