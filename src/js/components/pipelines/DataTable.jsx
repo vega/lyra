@@ -11,7 +11,7 @@ var d3 = require('d3'),
     Icon = require('../Icon'),
     HoverField = require('./HoverField'),
     HoverValue = require('./HoverValue'),
-    ExpressionTextbox = require('./ExpressionTextbox').connected;
+    ExpressionTextbox = require('./transforms/ExpressionTextbox').connected;
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.id;

@@ -1,8 +1,8 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    filterDataset = require('../../actions/datasetActions').filterDataset,
-    Property = require('../inspectors/Property');
+    filterDataset = require('../../../actions/datasetActions').filterDataset,
+    Property = require('../../inspectors/Property');
 
 function mapStateToProps(state, ownProps) {
   return {};
