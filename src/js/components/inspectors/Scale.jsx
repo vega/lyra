@@ -7,8 +7,11 @@ var React = require('react'),
     getInVis = require('../../util/immutable-utils').getInVis,
     getIn = imutils.getIn,
     Property = require('./Property'),
+    ScaleValueList = require('./ScaleValueList'),
     updateScaleProperty = require('../../actions/scaleActions').updateScaleProperty,
-    primTypes = require('../../constants/primTypes');
+    primTypes = require('../../constants/primTypes'),
+    assets = require('../../util/assets'),
+    Icon = require('../Icon');
 
 var SCALE_TYPE = ['linear', 'ordinal', 'time', 'utc', 'log', 'pow', 'sqrt', 'quantile', 'quantize', 'threshold'],
     NICE_TIME = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year'];
@@ -34,12 +37,23 @@ var ScaleInspector = React.createClass({
     scale: React.PropTypes.instanceOf(Immutable.Map)
   },
 
+  changeDomain: function() {
+    if (document.getElementById('domainF').checked) {
+      document.getElementById('fieldFeild').style.display = '';
+      document.getElementById('valuesField').style.display = 'none';
+    } else {
+      document.getElementById('valuesField').style.display = '';
+      document.getElementById('fieldFeild').style.display = 'none';
+    }
+  },
 
   handleChange: function(prop, evt) {
     var scale = this.props.scale,
         points = getIn(scale, 'points'),
         clamp = getIn(scale, 'clamp'),
-        value = evt.target.value || '';
+        zero = getIn(scale, 'zero'),
+        nice = getIn(scale, 'nice'),
+        value = evt.target.value;
 
     if (prop === 'padding' || prop === 'exponent') {
       value = +value;
@@ -47,19 +61,14 @@ var ScaleInspector = React.createClass({
       value = !points;
     } else if (prop === 'clamp') {
       value = !clamp;
+    } else if (prop === 'zero') {
+      value = !zero;
+    } else if (prop === 'nice' && typeof(nice) === 'boolean' && value === 'on') {
+      value = !nice;
     }
 
     this.props.updateScaleProperty(this.props.primId, prop, value);
   },
-
-  // getInitialState: function() {
-  //   var type = this.props.scale.type,
-  //       time = false;
-  //   if (type === 'time' || type === 'utc') {
-  //     time = true;
-  //   }
-  //   return {time: time};
-  // },
 
   render: function() {
     var scale = this.props.scale,
@@ -68,7 +77,8 @@ var ScaleInspector = React.createClass({
         padding = getIn(scale, 'padding'),
         nice = getIn(scale, 'nice'),
         zero = getIn(scale, 'zero'),
-        type = getIn(scale, 'type');
+        type = getIn(scale, 'type'),
+        domainValues = getIn(scale, '_domain');
 
     if (type === 'time' && typeof(nice) !== 'string') {
       nice = 'second'; // default value
@@ -84,8 +94,10 @@ var ScaleInspector = React.createClass({
             <Property name="zero" label="Zero" type="checkbox" value={zero} onChange={this.handleChange.bind(this, 'zero')} />
           </div>
         ),
-
-        scaleTypes;
+        styleShow = {display: ''},
+        styleHide = {display: 'none'},
+        scaleTypes,
+        scaleDomain;
 
         if (type === 'ordinal') {
           scaleTypes = (
@@ -122,8 +134,7 @@ var ScaleInspector = React.createClass({
         } else {
           scaleTypes = typeSelections;
         }
-   
-
+        
     return (
       <div>
         <div className="property-group">
@@ -134,6 +145,28 @@ var ScaleInspector = React.createClass({
         <div className="property-group">
           <h3 className="label">Type</h3>
             {scaleTypes}
+        </div>
+
+        <div className="property-group">
+          <h3 className="label">Domain</h3>
+          <div>
+            From&nbsp;&nbsp;&nbsp;
+            <input type="radio" name="domainSelections" id="domainF" value="field" defaultChecked onClick={this.changeDomain.bind(this)} />field&nbsp;&nbsp;
+            <input type="radio" name="domainSelections" id="domainV" value="value" onClick={this.changeDomain.bind(this)} />value
+          </div>
+          <div id='valuesField' style={styleHide}>
+            <p>value list</p>
+            <ScaleValueList scale={this.props.scale} scaleProp='domain' />
+          </div>
+      
+          <div id='fieldFeild' style={styleShow}>
+            <p>drop field</p>
+          </div>
+
+        </div>
+
+        <div className="property-group">
+          <h3 className="label">Range</h3>
         </div>
       </div>
     );
