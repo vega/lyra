@@ -68,7 +68,7 @@ var TextInspector = React.createClass({
           canDrop={true} {...props} />
 
           <Property name="fontStyle" label="Style" type="toggle"
-            glyph={assets.italic} opts={Text.fontStyles} 
+            glyph={assets.italic} opts={Text.fontStyles}
             canDrop={true} {...props} />
 
           <Property name="fill" label="Color" type="color"
@@ -98,10 +98,14 @@ var TextInspector = React.createClass({
         <div className="property-group">
           <h3>Align</h3>
 
-          <Property name="align" label="Horizontal" type="select"
+          <Property name="align" label="Horizontal" type="selection"
+            glyphs={[assets['align-left'],
+                     assets['align-center'], assets['align-right']]}
             opts={Text.alignments} canDrop={true} {...props} />
 
-          <Property name="baseline" label="Vertical" type="select"
+          <Property name="baseline" label="Vertical" type="selection"
+            glyphs={[assets['vertical-align-top'],
+                     assets['vertical-align-center'], assets['vertical-align-bottom']]}
             opts={Text.baselines} canDrop={true} {...props} />
 
           <Property name="angle" label="Rotation" type="number"

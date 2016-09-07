@@ -31,5 +31,11 @@ module.exports = {
   aggregate: require('../../assets/aggregate.svg'),
   download: require('../../assets/download.svg'),
   bold: require('../../assets/bold.svg'),
-  italic: require('../../assets/italic.svg')
+  italic: require('../../assets/italic.svg'),
+  'align-left': require('../../assets/align-left.svg'),
+  'align-center': require('../../assets/align-center.svg'),
+  'align-right': require('../../assets/align-right.svg'),
+  'vertical-align-bottom': require('../../assets/vertical-align-bottom.svg'),
+  'vertical-align-center': require('../../assets/vertical-align-center.svg'),
+  'vertical-align-top': require('../../assets/vertical-align-top.svg')
 };

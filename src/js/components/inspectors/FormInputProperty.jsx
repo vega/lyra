@@ -32,7 +32,8 @@ var FormInputProperty = React.createClass({
   propTypes: {
     id: React.PropTypes.string,
     type: React.PropTypes.oneOf([
-      'number', 'range', 'color', 'select', 'text', 'checkbox', 'toggle'
+      'number', 'range', 'color', 'select',
+      'text', 'checkbox', 'toggle', 'selection'
     ]),
     value: React.PropTypes.oneOfType([
       React.PropTypes.string, React.PropTypes.number,
@@ -207,6 +208,25 @@ var FormInputProperty = React.createClass({
               onClick={onChange.bind(this, otherVal)}>
               <Icon glyph={props.glyph} />
             </button>
+          </div>
+        );
+
+      case 'selection':
+        var currentVal = sg.get(props.signal);
+        return (
+          <div>
+            {props.opts.map(function(o, idx) {
+              var buttonClass = 'btn-default';
+              if (currentVal == o) {
+                buttonClass = 'btn-toggled'
+              }
+              return (
+                <button type="button" id={id} className={buttonClass}
+                  key={o} onClick={onChange.bind(this, o)}>
+                  <Icon glyph={props.glyphs[idx]} />
+                </button>
+              );
+            }, this)}
           </div>
         );
 
