@@ -42,16 +42,140 @@
     "type": "tooltip"
   }, {
     "id": 4,
-    "title": "Toolbar",
-    "text": "The Toolbar is a utility that allows you to add variaous elements to the visualization",
+    "title": "Marks - Toolbar",
+    "text": "Marks are the primary elements of a visualization: they are graphical primitives whose properties (such as position, size, shape, and color) can be used to visually encode data. To add marks to the visualization, you can select them from this Toolbar",
     "image": "http://fillmurray.com/150/150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
       "target": "vis-toolbar",
+      "validate": false,
+      "markupComponent": "MarksList"
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "tooltip"
+  }, {
+    "id": 5,
+    "title": "Export",
+    "text": "The Export button allows you to download the visualizations created by Lyra in PNG, SVG, JSON or HTML formats.",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": ".menu ul:nth-child(3) li:nth-child(1)",
       "validate": false
     },
     "help": "If you are stuck, try clearing the scene.",
     "type": "tooltip"
+  }, {
+    "id": 6,
+    "title": "Data Pipelines",
+    "text": "Data is loaded via the Pipeline Modal which can be accessed by clicking this '+ NEW' data pipeline button.",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": "#pipeline-sidebar h2 span.new",
+      "validate": false
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "tooltip"
+  }, {
+    "id": 7,
+    "title": "Importing Data",
+    "text": "Proceed by opening the Pipeline Modal. In order to do so click '+ NEW' in the Pipeline Sidebar tab. Once you've done so click 'Next'.",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": "",
+      "validate": true,
+      "domState": {
+        "query": ".pipelineModal"
+      }
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "dialog"
+  }, {
+    "id": 8,
+    "title": "Examples",
+    "text": "You can import data in Lyra from example datasets.",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": ".examples ul",
+      "validate": false
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "tooltip"
+  }, {
+    "id": 9,
+    "title": "Urls",
+    "text": "You can laod data from external urls.",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": ".load form",
+      "validate": false
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "tooltip"
+  }, {
+    "id": 10,
+    "title": "Drag and Drop / Raw Input",
+    "text": "You can enter raw data, drag and drop files with appropriate formatting in this dropzone.",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": ".load div textarea",
+      "validate": false
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "tooltip"
+  }, {
+    "id": 11,
+    "title": "Loading Data",
+    "text": "Let's import some data! Choose an example dataset, or import some data using urls, drag and drop or entering raw data.",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": "",
+      "validate": true,
+      "domState": {
+        "query": ".pipelineModal .preview div .datatable"
+      }
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "dialog"
+  }, {
+    "id": 12,
+    "title": "Data Previews",
+    "text": "Upon loading imported data, Lyra will present that data using this Data Table.",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": ".pipelineModal .preview div",
+      "validate": false
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "tooltip"
+  }, {
+    "id": 13,
+    "title": "Woo Hoo!",
+    "text": "You've now been acquainted with all the components that make up Lyra's interface, click import to finish.",
+    "image": "http://fillmurray.com/150/150",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": "",
+      "validate": false
+    },
+    "help": "If you are stuck, try clearing the scene.",
+    "type": "dialog"
   }]
 }

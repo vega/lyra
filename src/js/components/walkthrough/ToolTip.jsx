@@ -1,44 +1,49 @@
 'use strict';
 var React = require('react'),
     Icon = require('../Icon'),
+    MarksList = require('./MarksList'),
     close = require('../../util/assets').close;
 
 var ToolTip = React.createClass({
+  propTypes: {
+    position: React.PropTypes.object.isRequired,
+    steps: React.PropTypes.object,
+    marks: React.PropTypes.object,
+    goToNext: React.PropTypes.func,
+    deselectWalkthrough: React.PropTypes.func
+  },
   getInitialState: function() {
     return {
-      position: {
-        x: -1000,
-        y: -1000
-      }
+      position: this.props.position
     };
-  },
-  componentWillReceiveProps: function(newProps) {
-    var props = this.props,
-        toolTipStyle = {},
-        targetDomEl,
-        boundingRect;
-
-    if (props && props.target) {
-      toolTipStyle.position = {};
-      // get targetDomEl position
-      targetDomEl = document.getElementById(props.target);
-      boundingRect = targetDomEl.getBoundingClientRect();
-
-      console.log('targetDomEl: ', targetDomEl);
-      console.log(boundingRect.top, boundingRect.right, boundingRect.bottom, boundingRect.left);
-      console.log(this.styles);
-    }
-  },
-  componentDidUpdate: function(newProps) {
-    console.log('newProps: ', newProps);
   },
   render: function() {
     var props = this.props,
-        toolTipStyle;
+        options = props.options,
+        position = props.position,
+        orient = position.orient,
+        toolTipStyle = {
+          top: position.top,
+          left: position.left
+        },
+        toolTipArrowStyle = position.arrow,
+        toolTipClassnames = 'popover in ' + orient,
+        inner,
+        markupComponent = options.markupComponent;
+
+    if (markupComponent && markupComponent === 'MarksList') {
+      inner = (
+        <div>
+          {props.text}
+          <MarksList />
+        </div>);
+    } else {
+      inner = props.text;
+    }
 
     return (
-      <div className="popover right in" role="tooltip">
-        <div className="arrow" style={toolTipStyle}></div>
+      <div className={toolTipClassnames} style={toolTipStyle} role="tooltip">
+        <div className="arrow" style={toolTipArrowStyle}></div>
         <div className="popover-title">
           <h3>{props.title}</h3>
           <span className="close-hint" onClick={props.quit}>
@@ -46,7 +51,7 @@ var ToolTip = React.createClass({
           </span>
         </div>
         <div className="popover-content">
-          {props.text}
+          {inner}
           {props.error}
         </div>
         <div className="popover-footer">

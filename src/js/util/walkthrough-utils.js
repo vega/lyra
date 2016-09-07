@@ -147,6 +147,32 @@ function validate(currentState, expectedState) {
   };
 }
 
+function validateDom(domState) {
+  var status = true,
+      errors = [],
+      query;
+
+  if (domState) {
+    query = domState.query;
+
+    if (!document.querySelector(query)) {
+      console.log('flag A being called');
+      status = false;
+      // TODO add error/hint messages
+      errors.push(query + ' was not found');
+    } else {
+      console.log('flag B being called');
+      console.log('found: ', document.querySelector(query));
+    }
+  }
+
+  return {
+    success_status: status,
+    errors: errors
+  };
+}
+
 module.exports = {
-  validate: validate
+  validate: validate,
+  validateDom: validateDom
 };
