@@ -66,7 +66,7 @@ function datasetsReducer(state, action) {
     if (!transforms) {
       transforms = [];
     }
-    var index = transforms.indexOf(action.oldSpec);
+    var index = action.specId;
     if (index > -1) {
       // if transform exist already
       transforms[index] = action.newSpec;

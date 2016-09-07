@@ -77,16 +77,16 @@ function addTransform(dsId, transformSpec) {
  * Action creator to edit a data transformations to the dataset
  *
  * @param {number} dsId - Id of the dataset.
- * @param {object} oldSpec - vega data transform object for the old spec to be replaced
+ * @param {number} specId - vega data transform index for the old spec to be replaced
  * @param {object} newSpec - vega data transform object to replace the oldSpec
  * @returns {Object} EDIT_DATA_TRANSFORM action with info about
  * vega data transformation
  */
-function editTransform(dsId, oldSpec, newSpec) {
+function editTransform(dsId, specId, newSpec) {
   return {
     type: EDIT_DATA_TRANSFORM,
     id: dsId,
-    oldSpec: oldSpec,
+    specId: specId,
     newSpec: newSpec
   };
 }

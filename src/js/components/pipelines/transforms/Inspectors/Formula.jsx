@@ -11,8 +11,8 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    editTransform: function(dsId, oldSpec, newSpec) {
-      dispatch(editTransform(dsId, oldSpec, newSpec));
+    editTransform: function(dsId, specId, newSpec) {
+      dispatch(editTransform(dsId, specId, newSpec));
     }
   };
 }
@@ -26,11 +26,11 @@ var Formula = React.createClass({
   transform: function(expr) {
     var props = this.props,
         id = props.dsId,
-        oldSpec = props.spec,
+        specId = props.key,
         newSpec = Object.assign({}, oldSpec);
 
     newSpec.expr = expr;
-    props.editTransform(id, oldSpec, newSpec);
+    props.editTransform(id, specId, newSpec);
   },
 
   render: function() {
