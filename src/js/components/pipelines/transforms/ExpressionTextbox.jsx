@@ -31,11 +31,8 @@ var ExpressionTextbox = React.createClass({
   },
 
   applyTransformation: function(e) {
-    var props = this.props,
-        id = props.dsId,
-        oldSpec = props.spec,
-        editTransform = props.editTransform;
-    editTransform(id, oldSpec, e);
+    var props = this.props;
+    props.transform(e);
   },
 
   render: function() {

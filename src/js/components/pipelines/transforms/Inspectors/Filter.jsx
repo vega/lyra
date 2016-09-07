@@ -23,13 +23,23 @@ var Filter = React.createClass({
     spec:  React.PropTypes.object
   },
 
+  transform: function(newTest) {
+    var props = this.props,
+        id = props.dsId,
+        oldSpec = props.spec,
+        newSpec = Object.assign({}, oldSpec);
+
+    newSpec.test = newTest;
+    props.editTransform(id, oldSpec, newSpec);
+  },
+
   render: function() {
     var props = this.props,
         spec = props.spec,
         test = 'filter: ' + spec.test,
         id = props.dsId;
 
-    return <ExpressionTextbox label={test} {...this.props} />
+    return <ExpressionTextbox label={test} {...this.props} transform={this.transform} />
   }
 });
 
