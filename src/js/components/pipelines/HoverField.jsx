@@ -67,7 +67,7 @@ var HoverField = React.createClass({
   },
 
   handleDragStart: function(evt) {
-    var state = {bindField: this.state.fieldDef};
+    var state = {bindField: dl.duplicate(this.state.fieldDef)};
 
     // if an AggregateField isn't being dragged, close the menu
     if (!evt.target.classList.contains('aggregate-field')) {
