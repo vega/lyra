@@ -4,10 +4,10 @@
   right: 'auto';
   bottom: 'auto';
   transform: 'translate(-50%, -50%)';
-  z-index: 9999;
+  z-index: 9000;
 
   .ReactModal__Content {
-    position: relative !important;
+    // position: relative !important;
   }
 
   .closeModal {

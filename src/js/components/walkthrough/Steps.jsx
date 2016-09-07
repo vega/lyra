@@ -5,12 +5,16 @@ var React = require('react'),
     isArray = require('datalib').isArray,
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
-    validate = require('../../util/walkthrough-utils').validate,
+    WAUtils = require('../../util/walkthrough-utils'),
+    validate = WAUtils.validate,
+    validateDom = WAUtils.validateDom,
     WActions = require('../../actions/walkthroughActions'),
     vegaSpec = require('../../ctrl').export,
     ToolTip = require('./ToolTip'),
     Dialog = require('./Dialog'),
-    Errors = require('./Error');
+    Errors = require('./Error'),
+    TOOL_TIP_MAX_W = 276,
+    TOOL_TIP_MAX_H = 400;
 
 function mapStateToProps(reduxState, ownProps) {
   var active = getIn(reduxState, 'walkthrough.activeWalkthrough'),
@@ -74,11 +78,13 @@ var Step = React.createClass({
   },
 
   next: function() {
-    var requiresValidation = this.getCurrentStep().opts.validate,
+    var current = this.getCurrentStep(),
+        opts = current.opts,
+        requiresValidation = opts.validate,
         validation;
 
     if (requiresValidation) {
-      validation = this.validateStep();
+      validation = this.validateStep(opts);
 
       if (validation.success_status) {
         this.setState({error: false});
@@ -91,8 +97,6 @@ var Step = React.createClass({
     } else {
       this.props.goToNext();
     }
-
-
   },
 
   forceContinue: function() {
@@ -104,14 +108,20 @@ var Step = React.createClass({
     this.props.deselectWalkthrough();
   },
 
-  validateStep: function() {
-    // get current lyra object
-    var thisState = vegaSpec();
-    var nextState = this.getNextStep().lyra_state;
-    return validate(thisState, nextState);
-  },
+  validateStep: function(stepOpts) {
+    var domState = stepOpts.domState,
+        validation;
 
-  // classNames: 'hints',
+    if (domState) {
+      validation = validateDom(domState);
+    } else {
+      var thisState = vegaSpec();
+      var nextState = this.getNextStep().lyra_state;
+      validation = validate(thisState, nextState);
+    }
+
+    return validation;
+  },
 
   nextButton: function() {
     var props = this.props,
@@ -131,6 +141,42 @@ var Step = React.createClass({
     return '';
   },
 
+  getTargetEl: function(selector) {
+    // TODO parameterize for more complex dom selection
+    return document.getElementById(selector) || document.querySelector(selector);
+  },
+
+  computeToolTipPosition: function(targetDomElSelector) {
+    var targetDomEl = this.getTargetEl(targetDomElSelector),
+        targetBounds,
+        windowIW = window.innerWidth,
+        pos = {}, shorter, narrower;
+
+    if (targetDomEl) {
+      targetBounds = targetDomEl.getBoundingClientRect();
+      pos.arrow = {};
+
+      if (windowIW - targetBounds.right >= TOOL_TIP_MAX_W) {
+        narrower = targetBounds.width && targetBounds.width < TOOL_TIP_MAX_W / 2;
+        shorter = targetBounds.height && targetBounds.height < TOOL_TIP_MAX_H / 2;
+
+        if (narrower || shorter) {
+          pos.left = targetBounds.left - ((TOOL_TIP_MAX_W / 2) - (targetBounds.width / 2)) + 'px';
+          pos.top = targetBounds.bottom + 'px';
+          pos.orient = 'bottom';
+        } else {
+          pos.left = targetBounds.right + 'px';
+          pos.top = targetBounds.top + 'px';
+          pos.orient = 'right';
+        }
+      }
+    }
+
+    return pos;
+  },
+
+  highlightTarget: function(selector) {},
+
   render: function() {
     var props = this.props,
         current = this.getCurrentStep(),
@@ -138,25 +184,28 @@ var Step = React.createClass({
         thumbnail = current.image ? (<img src={current.image} alt={current.alt_text}/>) : '',
         nextButton = this.nextButton(),
         steps = this.props.steps.valueSeq().toArray(),
-        stepType = current.type;
-
-    var errors = this.state.errorMap;
-    var message = this.state.errorMessage;
-    var error = this.state.error ? (<Errors message={message} errors={errors}/>) : '';
-
-    var stepInner,
+        stepType = current.type,
+        errors = this.state.errorMap,
+        message = this.state.errorMessage,
+        error = this.state.error ? (<Errors message={message} errors={errors}/>) : '',
         stepProps = {
           title: current.title,
           text: current.text,
-          target: current.opts ? current.opts.target : undefined,
-          error: error
-        };
+          error: error,
+          position: {}
+        },
+        targetDomElSelector, stepInner;
 
     if (stepType === 'tooltip') {
+      var opts = current.opts;
+
+      targetDomElSelector = opts ? opts.target : undefined;
+      stepProps.position = this.computeToolTipPosition(targetDomElSelector);
+      stepProps.options = opts;
+
       stepInner = (<ToolTip control={nextButton} quit={this.quitWalkthrough}
         {...stepProps} />);
     } else {
-      // TODO modify to check stepType === 'dialog'
       stepProps.steps = steps;
       stepProps.currentId = currentId;
       stepProps.thumbnail = thumbnail;
