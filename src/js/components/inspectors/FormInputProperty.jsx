@@ -4,6 +4,7 @@ var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
     ContentEditable = require('../ContentEditable'),
+    Icon = require('../Icon'),
     setSignal = require('../../actions/signalActions').setSignal,
     getInVis = require('../../util/immutable-utils').getInVis,
     ctrl = require('../../ctrl'),
@@ -31,7 +32,7 @@ var FormInputProperty = React.createClass({
   propTypes: {
     id: React.PropTypes.string,
     type: React.PropTypes.oneOf([
-      'number', 'range', 'color', 'select', 'text', 'checkbox'
+      'number', 'range', 'color', 'select', 'text', 'checkbox', 'toggle'
     ]),
     value: React.PropTypes.oneOfType([
       React.PropTypes.string, React.PropTypes.number,
@@ -184,6 +185,29 @@ var FormInputProperty = React.createClass({
               return (<option key={o} value={o}>{o}</option>);
             }, this)}
           </select>
+        );
+
+      case 'toggle':
+        var currentVal = sg.get(props.signal);
+        for (var i = 0; i < props.opts.length; i++) {
+          var val = props.opts[i];
+          if (val != currentVal) {
+            var otherVal = val;
+            break;
+          }
+        }
+        if (currentVal == props.opts[0]) {
+          var buttonClass = "btn-default";
+        } else {
+          var buttonClass = "btn-toggled";
+        }
+        return (
+          <div>
+            <button type="button" id={id} className={buttonClass}
+              onClick={onChange.bind(this, otherVal)}>
+              <Icon glyph={props.glyph} />
+            </button>
+          </div>
         );
 
       default:

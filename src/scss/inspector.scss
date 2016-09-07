@@ -120,3 +120,11 @@ $long-label-width: $label-width + 10px;
 
   &:hover { color: $grey-font !important; }
 }
+
+.btn-default {
+  background-color: #ffffff;
+}
+
+.btn-toggled {
+  background-color: #999999;
+}
