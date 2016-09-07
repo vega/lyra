@@ -1,7 +1,6 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    filterDataset = require('../../../actions/datasetActions').filterDataset,
     Property = require('../../inspectors/Property');
 
 function mapStateToProps(state, ownProps) {
@@ -9,11 +8,7 @@ function mapStateToProps(state, ownProps) {
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    filterDataset: function(dsId, expression) {
-      dispatch(filterDataset(dsId, expression));
-    }
-  };
+  return {};
 }
 
 var ExpressionTextbox = React.createClass({
@@ -35,9 +30,13 @@ var ExpressionTextbox = React.createClass({
       }, 10000);
   },
 
-  filter: function(evt) {
-    console.log("works");
-    this.props.filterDataset(this.props.dsId, evt);
+  applyTransformation: function(e) {
+    console.log('applyTransformation()');
+    var props = this.props,
+        id = props.dsId,
+        oldSpec = props.spec,
+        editTransform = props.editTransform;
+    editTransform(id, oldSpec, e);
   },
 
   render: function() {
@@ -45,7 +44,7 @@ var ExpressionTextbox = React.createClass({
         id = props.dsId;
 
     return this.state.expanded ? (
-      <Property name="expressionProp" type="autocomplete"   autoType="expr" dsId={id} {...props} onChange={this.filter}>
+      <Property name="expressionProp" type="autocomplete"   autoType="expr" dsId={id} {...props} onChange={this.applyTransformation}>
       </Property>
     ) : null;
   }

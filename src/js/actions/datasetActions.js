@@ -7,7 +7,8 @@ var dl = require('datalib'),
     FILTER_DATASET = 'FILTER_DATASET',
     SHOW_EXPRESSION_TEXTBOX = 'SHOW_EXPRESSION_TEXTBOX',
     SUMMARIZE_AGGREGATE = 'SUMMARIZE_AGGREGATE',
-    ADD_DATA_TRANSFORM = 'ADD_DATA_TRANSFORM';
+    ADD_DATA_TRANSFORM = 'ADD_DATA_TRANSFORM',
+    EDIT_DATA_TRANSFORM = 'EDIT_DATA_TRANSFORM';
 
 /**
  * Action creator to add a new Dataset in the store.
@@ -91,7 +92,7 @@ function summarizeAggregate(id, summarize) {
  *
  * @param {number} dsId - Id of the dataset.
  * @param {object} transformSpec - vega data transform object
- * @returns {Object} DATA_TRANSFORM action with info about
+ * @returns {Object} ADD_DATA_TRANSFORM action with info about
  * vega data transformation
  */
 function addTransform(dsId, transformSpec) {
@@ -99,6 +100,24 @@ function addTransform(dsId, transformSpec) {
     type: ADD_DATA_TRANSFORM,
     id: dsId,
     transformSpec: transformSpec
+  };
+}
+
+/**
+ * Action creator to edit a data transformations to the dataset
+ *
+ * @param {number} dsId - Id of the dataset.
+ * @param {object} oldSpec - vega data transform object for the old spec to be replaced
+ * @param {object} newSpec - vega data transform object to replace the oldSpec
+ * @returns {Object} EDIT_DATA_TRANSFORM action with info about
+ * vega data transformation
+ */
+function editTransform(dsId, oldSpec, newSpec) {
+  return {
+    type: EDIT_DATA_TRANSFORM,
+    id: dsId,
+    oldSpec: oldSpec,
+    newSpec: newSpec
   };
 }
 
@@ -110,6 +129,7 @@ module.exports = {
   SHOW_EXPRESSION_TEXTBOX: SHOW_EXPRESSION_TEXTBOX,
   SUMMARIZE_AGGREGATE: SUMMARIZE_AGGREGATE,
   ADD_DATA_TRANSFORM: ADD_DATA_TRANSFORM,
+  EDIT_DATA_TRANSFORM: EDIT_DATA_TRANSFORM,
 
   // Action Creators
   addDataset: addDataset,
@@ -117,5 +137,6 @@ module.exports = {
   filterDataset: filterDataset,
   showExpressionTextbox: showExpressionTextbox,
   summarizeAggregate: summarizeAggregate,
-  addTransform: addTransform
+  addTransform: addTransform,
+  editTransform: editTransform
 };

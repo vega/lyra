@@ -60,6 +60,20 @@ function datasetsReducer(state, action) {
     state = setIn(state, action.id + '._transforms', transforms);
   }
 
+  if (action.type === ACTIONS.EDIT_DATA_TRANSFORM) {
+    var transforms = getIn(state, action.id + '._transforms');
+
+    if (!transforms) {
+      transforms = [];
+    }
+    var index = transforms.indexOf(action.oldSpec);
+    if (index > -1) {
+      // if transform exist already
+      transforms[index] = action.newSpec;
+    }
+    state = setIn(state, action.id + '._transforms', transforms);
+  }
+
   if (action.type === ACTIONS.SUMMARIZE_AGGREGATE) {
     state = setIn(state, id + '.transform.0.summarize',
       getIn(state, id + '.transform.0.summarize').mergeDeep(action.summarize));

@@ -59,7 +59,7 @@ exporter.dataset = function(state, internal, id) {
       values = dsUtils.input(id),
       format = spec.format && spec.format.type,
       sort = exporter.sort(dataset),
-      filter = exporter.filter(dataset);
+      transforms = dataset._transforms;
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
@@ -81,9 +81,10 @@ exporter.dataset = function(state, internal, id) {
     spec.transform.push(sort);
   }
 
-  if (filter !== undefined) {
-    spec.transform = spec.transform || [];
-    spec.transform.push(filter);
+  if (transforms) {
+    transforms.forEach(function(element, index, arr) {
+      spec.transform.push(element);
+    });
   }
 
   return spec;
@@ -106,26 +107,6 @@ exporter.sort = function(dataset) {
   return {
     type: 'sort',
     by: (sort.order === ORDER.DESC ? '-' : '') + sort.field
-  };
-};
-
-/**
-  * Method that builds the vega filter data transform code
-  * from the current dataset.
-  *
-  * @param  {object} dataset The current dataset
-  * @returns {object} undefined if _filter not in dataset and
-  * the vega data transform code to be appended to the vega spec to the dataset
-  */
-exporter.filter = function(dataset) {
-  var filter = dataset._filter;
-  if (!filter) {
-    return;
-  }
-
-  return {
-    type: 'filter',
-    test: filter.expression
   };
 };
 
