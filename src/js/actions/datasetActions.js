@@ -102,8 +102,6 @@ module.exports = {
   // Action Creators
   addDataset: addDataset,
   sortDataset: sortDataset,
-  filterDataset: filterDataset,
-  showExpressionTextbox: showExpressionTextbox,
   summarizeAggregate: summarizeAggregate,
   addTransform: addTransform,
   editTransform: editTransform
