@@ -4,8 +4,6 @@ var dl = require('datalib'),
     counter = require('../util/counter'),
     ADD_DATASET = 'ADD_DATASET',
     SORT_DATASET = 'SORT_DATASET',
-    FILTER_DATASET = 'FILTER_DATASET',
-    SHOW_EXPRESSION_TEXTBOX = 'SHOW_EXPRESSION_TEXTBOX',
     SUMMARIZE_AGGREGATE = 'SUMMARIZE_AGGREGATE',
     ADD_DATA_TRANSFORM = 'ADD_DATA_TRANSFORM',
     EDIT_DATA_TRANSFORM = 'EDIT_DATA_TRANSFORM';
@@ -48,34 +46,6 @@ function sortDataset(dsId, field, order) {
     id: dsId,
     field: field,
     order: order
-  };
-}
-
-/**
- * Action creator to add filter data transformations to dataset
- *
- * @param {number} dsId - Id of the dataset.
- * @param {string} expression - expression (in JavaScript
- * syntax) for the filter predicate. The expression language
- * includes the variable datum, corresponding to the current
- * data object.
- * @returns {Object} FILTER_DATASET action with info about
- * field to be filtered
- */
-function filterDataset(dsId, expression) {
-  return {
-    type: FILTER_DATASET,
-    id: dsId,
-    expression: expression
-  };
-}
-
-function showExpressionTextbox(dsId, show, time) {
-  return {
-    type: SHOW_EXPRESSION_TEXTBOX,
-    id: dsId,
-    show: show,
-    time: time
   };
 }
 
@@ -125,8 +95,6 @@ module.exports = {
   // Action Names
   ADD_DATASET: ADD_DATASET,
   SORT_DATASET: SORT_DATASET,
-  FILTER_DATASET: FILTER_DATASET,
-  SHOW_EXPRESSION_TEXTBOX: SHOW_EXPRESSION_TEXTBOX,
   SUMMARIZE_AGGREGATE: SUMMARIZE_AGGREGATE,
   ADD_DATA_TRANSFORM: ADD_DATA_TRANSFORM,
   EDIT_DATA_TRANSFORM: EDIT_DATA_TRANSFORM,
