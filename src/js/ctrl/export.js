@@ -83,6 +83,7 @@ exporter.dataset = function(state, internal, id) {
 
   if (transforms) {
     transforms.forEach(function(element, index, arr) {
+      spec.transform = spec.transform || [];
       spec.transform.push(element);
     });
   }

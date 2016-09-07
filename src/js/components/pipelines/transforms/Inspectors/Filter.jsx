@@ -30,7 +30,7 @@ var Filter = React.createClass({
         test = 'filter: ' + spec.test,
         id = props.dsId;
 
-    return <ExpressionTextbox label={test} dsId={id} applyTransform={props.editTransform} oldSpec={spec} />
+    return <ExpressionTextbox label={test} dsId={id}  oldSpec={spec} {...this.props} />
   }
 });
 
