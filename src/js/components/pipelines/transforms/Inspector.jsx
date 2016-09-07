@@ -4,8 +4,7 @@ var React = require('react'),
     connect = require('react-redux').connect,
     capitalize = require('capitalize'),
     getInVis = require('../../../util/immutable-utils').getInVis,
-    ExpressionTextbox = require('./ExpressionTextbox'),
-    TransformTypes = require('../../../constants/dataTransforms');
+    ExpressionTextbox = require('./ExpressionTextbox');
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.dsId;
@@ -24,22 +23,21 @@ var Inspector = React.createClass({
     var props = this.props,
         transforms = props.transforms,
         id = props.dsId,
+        transforms = transforms ? transforms : [],
         inner;
 
-    if (transforms) {
-      transforms.forEach(function(element, index, arr) {
-        var type = capitalize(element.type),
-            InspectorType = Inspector[type];
+    return (
+      <div>
+        {transforms.map(function(element, index) {
+          var type = capitalize(element.type),
+              InspectorType = Inspector[type];
 
-        inner = InspectorType ? (
-          <InspectorType spec={element} dsId={id} />
-        ) : null;
-
-      });
-    }
-
-    return <div>{inner}</div>;
+          return <InspectorType key={index} dsId={id} spec={element} />
+        }, this)}
+      </div>
+    );
   }
+
 });
 
 Inspector.Filter = require('./Inspectors/Filter').connected;
