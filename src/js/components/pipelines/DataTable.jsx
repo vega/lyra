@@ -11,14 +11,13 @@ var d3 = require('d3'),
     Icon = require('../Icon'),
     HoverField = require('./HoverField'),
     HoverValue = require('./HoverValue'),
-    ExpressionTextbox = require('./transforms/ExpressionTextbox').connected;
+    TransformInspector = require('./transforms/Inspector').connected;
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.id;
   return {
     dataset: getInVis(state, 'datasets.' + id),
-    vega: state.get('vega'),
-    expressionTextbox: getInVis(state, 'datasets.' + id + '._expressionTextbox')
+    vega: state.get('vega')
   };
 }
 
@@ -91,14 +90,7 @@ var DataTable = React.createClass({
         keys = dl.keys(schema),
         max = output.length,
         fmt = dl.format.auto.number(),
-        scrollLeft = this.$table && this.$table.node().scrollLeft,
-        expTextbox = props.expressionTextbox,
-        expTextbox = expTextbox ? expTextbox.toJS() : expTextbox,
-        showTextbox = expTextbox && expTextbox.show;
-
-    var textbox = showTextbox ? (
-      <ExpressionTextbox dsId={id} />
-    ): null;
+        scrollLeft = this.$table && this.$table.node().scrollLeft;
 
     var prev = page > 0 ? (
       <Icon glyph={assets.prev} width="10" height="10" onClick={this.prevPage} />
@@ -111,7 +103,7 @@ var DataTable = React.createClass({
     return (
       <div>
 
-        {textbox}
+        <TransformInspector dsId={id} />
 
         <div className="datatable"
           onMouseLeave={this.hideHover} onScroll={this.hideHover}>
