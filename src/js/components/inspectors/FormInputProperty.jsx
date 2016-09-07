@@ -126,6 +126,7 @@ var FormInputProperty = React.createClass({
 
   render: function() {
     var props = this.props,
+        name = props.name,
         id  = props.id,
         min = props.min,
         max = props.max,
