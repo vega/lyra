@@ -148,6 +148,7 @@ exporter.mark = function(state, internal, id) {
     // specVal was replaced above (e.g., scale + signal).
     if (origVal.scale) {
       specVal.scale = name(getInVis(state, 'scales.' + origVal.scale + '.name'));
+      counts.scales[origVal.scale].marks[id] = true;
     }
 
     if (origVal.group) {
@@ -191,7 +192,7 @@ exporter.group = function(state, internal, id) {
       // If internal === true, children are an array of arrays which must be flattened.
       if (dl.isArray(child)) {
         children.push.apply(children, child);
-      } else {
+      } else if (child) {
         children.push(child);
       }
       return children;
@@ -267,8 +268,10 @@ exporter.axe = exporter.legend = function(state, internal, id) {
       type  = guide._type;
 
   if (gtype === GTYPES.AXIS) {
+    counts.scales[spec.scale].guides[id] = true;
     spec.scale = name(getInVis(state, 'scales.' + spec.scale + '.name'));
   } else if (gtype === GTYPES.LEGEND) {
+    counts.scales[spec[type]].guides[id] = true;
     spec[type] = name(getInVis(state, 'scales.' + spec[type] + '.name'));
   }
 
@@ -326,10 +329,11 @@ function clean(spec, internal) {
   return spec;
 }
 
-function getCounts() {
+function getCounts(recount) {
   var key, entry;
-
-  if (counts._totaled) {
+  if (recount) {
+    exporter();
+  } else if (counts._totaled) {
     return counts;
   }
 

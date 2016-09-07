@@ -65,7 +65,7 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
       mark  = parsed.mark,
       parentId = mark.get('_parent'),
       axes = getInVis(state, 'marks.' + parentId).get('axes'),
-      def, count = 0, foundAxis = false;
+      def, count = 0, foundAxis = false, prevOrient;
 
   // First, find an def and then iterate through axes for the current group
   // to see if an axis exists for this scale or if we have room to add one more.
@@ -75,8 +75,13 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
 
   axes.valueSeq().forEach(function(axisId) {
     var axis = getInVis(state, 'guides.' + axisId);
+    if (!axis) {
+      return true;
+    }
+
     if (axis.get('type') === def.type) {
       ++count;
+      prevOrient = axis.get('orient');
     }
 
     if (axis.get('scale') === scaleId) {
@@ -88,7 +93,6 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
     // ordinal scales only differing by "points," so check the domains.
   });
 
-
   if (foundAxis) {
     return;
   }
@@ -99,8 +103,8 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
     axis.layer = def.layer;
     axis.grid = def.grid;
     axis.orient = def.orient || axis.orient;
-    if (count === 1) {
-      axis.orient = SWAP_ORIENT[axis.orient];
+    if (count === 1 && prevOrient) {
+      axis.orient = SWAP_ORIENT[prevOrient];
     }
     merge(axis.properties, def.properties);
     dispatch(axis = addGuide(axis));

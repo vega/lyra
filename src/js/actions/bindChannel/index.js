@@ -13,7 +13,8 @@ var dl = require('datalib'),
     parseData = require('./parseData'),
     parseScales = require('./parseScales'),
     parseMarks  = require('./parseMarks'),
-    parseGuides = require('./parseGuides');
+    parseGuides = require('./parseGuides'),
+    cleanupUnused = require('./cleanupUnused');
 
 // Vega mark types to Vega-Lite mark types.
 var TYPES = {
@@ -74,7 +75,14 @@ function bindChannel(dsId, field, markId, property) {
     parseData(dispatch, state, parsed);
     parseScales(dispatch, state, parsed);
     parseMarks(dispatch, state, parsed);
-    parseGuides(dispatch, state, parsed);
+
+    // At this point, we know enough to clean up any unused scales and
+    // data sources. We do this here (rather than in the ctrl) to (1) avoid
+    // unnecessary re-renders triggered by deleting primitives and (2) to get
+    // the most accurate guide orientation as possible.
+    cleanupUnused(dispatch, state);
+
+    parseGuides(dispatch, getState(), parsed);
 
     dispatch(setVlUnit(markId, spec));
     dispatch(endBatch());

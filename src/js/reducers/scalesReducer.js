@@ -5,7 +5,8 @@ var Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
     immutableUtils = require('../util/immutable-utils'),
     set = immutableUtils.set,
-    setIn = immutableUtils.setIn;
+    setIn = immutableUtils.setIn,
+    deleteKeyFromMap = immutableUtils.deleteKeyFromMap;
 
 function scalesReducer(state, action) {
   if (typeof state === 'undefined') {
@@ -19,6 +20,10 @@ function scalesReducer(state, action) {
   if (action.type === ACTIONS.UPDATE_SCALE_PROPERTY) {
     return setIn(state, action.id + '.' + action.property,
       Immutable.fromJS(action.value));
+  }
+
+  if (action.type === ACTIONS.DELETE_SCALE) {
+    return deleteKeyFromMap(state, action.id);
   }
 
   return state;
