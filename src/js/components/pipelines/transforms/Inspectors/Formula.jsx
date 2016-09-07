@@ -20,14 +20,15 @@ function mapDispatchToProps(dispatch, ownProps) {
 var Formula = React.createClass({
   propTypes: {
     dsId:  React.PropTypes.number,
+    specId: React.PropTypes.number, // represents index of transform array in store
     spec:  React.PropTypes.object
   },
 
   transform: function(expr) {
     var props = this.props,
         id = props.dsId,
-        specId = props.key,
-        newSpec = Object.assign({}, oldSpec);
+        specId = props.specId,
+        newSpec = Object.assign({}, props.spec);
 
     newSpec.expr = expr;
     props.editTransform(id, specId, newSpec);

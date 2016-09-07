@@ -32,7 +32,7 @@ var Inspector = React.createClass({
           var type = capitalize(element.type),
               InspectorType = Inspector[type];
 
-          return <InspectorType key={index} dsId={id} spec={element} />
+          return <InspectorType key={index} dsId={id} spec={element} specId={index} />
         }, this)}
       </div>
     );
