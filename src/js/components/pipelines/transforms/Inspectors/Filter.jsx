@@ -12,7 +12,6 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     editTransform: function(dsId, oldSpec, newSpec) {
-      console.log('editTransform()');
       dispatch(editTransform(dsId, oldSpec, newSpec));
     }
   };
@@ -30,7 +29,7 @@ var Filter = React.createClass({
         test = 'filter: ' + spec.test,
         id = props.dsId;
 
-    return <ExpressionTextbox label={test} dsId={id}  oldSpec={spec} {...this.props} />
+    return <ExpressionTextbox label={test} {...this.props} />
   }
 });
 
