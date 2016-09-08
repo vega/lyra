@@ -61,10 +61,11 @@ module.exports = function(dispatch, state, parsed) {
  * @returns {void}
  */
 function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
-  var map = parsed.map,
-      mark  = parsed.mark,
+  var map  = parsed.map,
+      mark = parsed.mark,
       parentId = mark.get('_parent'),
-      axes = getInVis(state, 'marks.' + parentId).get('axes'),
+      scale = getInVis(state, 'scales.' + scaleId),
+      axes  = getInVis(state, 'marks.' + parentId).get('axes'),
       def, count = 0, foundAxis = false, prevOrient;
 
   // First, find an def and then iterate through axes for the current group
@@ -89,8 +90,19 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
       return false; // Early exit.
     }
 
-    // TODO: If we're here, the scales don't match. But, we might have two
-    // ordinal scales only differing by "points," so check the domains.
+    // Test domain/range since point/band-ordinal scales can share an axis.
+    var axisScale = getInVis(state, 'scales.' + axis.get('scale'));
+    if (axisScale.get('type') === 'ordinal') {
+      foundAxis = ['domain', 'range'].every(function(x) {
+        var araw = axisScale.get(x),
+            sraw = scale.get(x),
+            aref = axisScale.get('_' + x),
+            sref = scale.get('_' + x);
+        return araw ? araw === sraw || araw.equals(sraw) :
+          aref === sref || aref.equals(sref);
+      });
+      return !foundAxis;
+    }
   });
 
   if (foundAxis) {
