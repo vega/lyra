@@ -30,8 +30,8 @@ var ExpressionTextbox = React.createClass({
     var that = this;
     window.clearTimeout(this.timer);
     this.timer = window.setTimeout(function() {
-        that.setState({expanded: false});
-      }, 10000);
+      that.setState({expanded: false});
+    }, 10000);
   },
 
   applyTransformation: function(e) {
@@ -45,7 +45,9 @@ var ExpressionTextbox = React.createClass({
         id = props.dsId;
 
     return this.state.expanded ? (
-      <Property name="expressionProp" type="autocomplete"   autoType="expr" dsId={id} {...props} onChange={this.applyTransformation}>
+      <Property name="expressionProp" type="autocomplete"
+        autoType="expr" dsId={id} {...props}
+        onChange={this.applyTransformation}>
       </Property>
     ) : null;
   }
@@ -54,4 +56,4 @@ var ExpressionTextbox = React.createClass({
 module.exports = {
   connected: connect(mapStateToProps, mapDispatchToProps)(ExpressionTextbox),
   disconnected: ExpressionTextbox
-}
+};
