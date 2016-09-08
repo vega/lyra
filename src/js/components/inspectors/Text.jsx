@@ -64,8 +64,8 @@ var TextInspector = React.createClass({
             canDrop={true} {...props} />
 
           <Property name="fontWeight" label="Weight" type="toggle"
-          glyph={assets.bold} opts={Text.fontWeights}
-          canDrop={true} {...props} />
+            glyph={assets.bold} opts={Text.fontWeights}
+            canDrop={true} {...props} />
 
           <Property name="fontStyle" label="Style" type="toggle"
             glyph={assets.italic} opts={Text.fontStyles}

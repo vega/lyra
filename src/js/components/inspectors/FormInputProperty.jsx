@@ -189,22 +189,22 @@ var FormInputProperty = React.createClass({
         );
 
       case 'toggle':
-        var currentVal = sg.get(props.signal);
+        var otherVal;
         for (var i = 0; i < props.opts.length; i++) {
-          var val = props.opts[i];
-          if (val != currentVal) {
-            var otherVal = val;
+          if (props.opts[i] !== value) {
+            otherVal = props.opts[i];
             break;
           }
         }
-        if (currentVal == props.opts[0]) {
-          var buttonClass = "btn-default";
+        var toggleButtonClass;
+        if (value === props.opts[0]) {
+          toggleButtonClass = 'btn-default';
         } else {
-          var buttonClass = "btn-toggled";
+          toggleButtonClass = 'btn-toggled';
         }
         return (
           <div>
-            <button type="button" id={id} className={buttonClass}
+            <button type="button" id={id} className={toggleButtonClass}
               onClick={onChange.bind(this, otherVal)}>
               <Icon glyph={props.glyph} />
             </button>
@@ -212,16 +212,15 @@ var FormInputProperty = React.createClass({
         );
 
       case 'selection':
-        var currentVal = sg.get(props.signal);
         return (
           <div>
             {props.opts.map(function(o, idx) {
-              var buttonClass = 'btn-default';
-              if (currentVal == o) {
-                buttonClass = 'btn-toggled'
+              var selectionButtonClass = 'btn-default';
+              if (value === o) {
+                selectionButtonClass = 'btn-toggled';
               }
               return (
-                <button type="button" id={id} className={buttonClass}
+                <button type="button" id={id} className={selectionButtonClass}
                   key={o} onClick={onChange.bind(this, o)}>
                   <Icon glyph={props.glyphs[idx]} />
                 </button>
