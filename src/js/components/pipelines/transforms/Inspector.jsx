@@ -1,10 +1,8 @@
 'use strict';
 var React = require('react'),
-    Immutable = require('immutable'),
     connect = require('react-redux').connect,
     capitalize = require('capitalize'),
     getInVis = require('../../../util/immutable-utils').getInVis,
-    ExpressionTextbox = require('./ExpressionTextbox'),
     deepEquality = require('../../../util/deep-equality');
 
 function mapStateToProps(state, ownProps) {
@@ -23,7 +21,6 @@ var Inspector = React.createClass({
   shouldComponentUpdate: function(nextProps, nextState) {
     var props = this.props,
         transforms = props.transforms,
-        id = props.dsId,
         newTransforms = nextProps.transforms;
     return !deepEquality.isObjectEquiv(transforms, newTransforms);
   },
@@ -31,9 +28,9 @@ var Inspector = React.createClass({
   render: function() {
     var props = this.props,
         transforms = props.transforms,
-        id = props.dsId,
-        transforms = transforms ? transforms : [],
-        inner;
+        id = props.dsId;
+
+    transforms = transforms ? transforms : [];
 
     return (
       <div>
@@ -41,7 +38,7 @@ var Inspector = React.createClass({
           var type = capitalize(element.type),
               InspectorType = Inspector[type];
 
-          return <InspectorType key={index} dsId={id} spec={element} specId={index} />
+          return <InspectorType key={index} dsId={id} spec={element} specId={index} />;
         }, this)}
       </div>
     );
@@ -55,4 +52,4 @@ Inspector.Formula = require('./Inspectors/Formula').connected;
 module.exports = {
   connected: connect(mapStateToProps)(Inspector),
   disconnected: Inspector
-}
+};
