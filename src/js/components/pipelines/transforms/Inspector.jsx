@@ -4,7 +4,8 @@ var React = require('react'),
     connect = require('react-redux').connect,
     capitalize = require('capitalize'),
     getInVis = require('../../../util/immutable-utils').getInVis,
-    ExpressionTextbox = require('./ExpressionTextbox');
+    ExpressionTextbox = require('./ExpressionTextbox'),
+    deepEquality = require('../../../util/deep-equality');
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.dsId;
@@ -17,6 +18,14 @@ var Inspector = React.createClass({
   propTypes: {
     dsId:  React.PropTypes.number,
     transforms:  React.PropTypes.array
+  },
+
+  shouldComponentUpdate: function(nextProps, nextState) {
+    var props = this.props,
+        transforms = props.transforms,
+        id = props.dsId,
+        newTransforms = nextProps.transforms;
+    return !deepEquality.isObjectEquiv(transforms, newTransforms);
   },
 
   render: function() {
