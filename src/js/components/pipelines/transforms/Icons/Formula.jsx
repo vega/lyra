@@ -1,9 +1,7 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    Immutable = require('immutable'),
     assets = require('../../../../util/assets'),
-    getInVis = require('../../../../util/immutable-utils').getInVis,
     Icon   = require('../../../Icon'),
     addTransform = require('../../../../actions/datasetActions').addTransform;
 
@@ -24,6 +22,7 @@ var FormulaField = React.createClass({
   propTypes: {
     field: React.PropTypes.object.isRequired,
     dsId:  React.PropTypes.number,
+    addTransform: React.PropTypes.func
   },
 
   showTextbox: function(evt) {
@@ -42,12 +41,13 @@ var FormulaField = React.createClass({
   },
 
   render: function() {
-    return (<Icon onClick={this.showTextbox} glyph={assets.formula} width="10" height="10"
-    data-tip="Formula" />);
+    return (<Icon onClick={this.showTextbox}
+      glyph={assets.formula} width="10" height="10"
+      data-tip="Formula" />);
   }
 });
 
 module.exports = {
   connected: connect(mapStateToProps, mapDispatchToProps)(FormulaField),
   disconnected: FormulaField
-}
+};

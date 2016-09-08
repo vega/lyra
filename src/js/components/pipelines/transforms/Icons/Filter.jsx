@@ -1,9 +1,7 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    Immutable = require('immutable'),
     assets = require('../../../../util/assets'),
-    getInVis = require('../../../../util/immutable-utils').getInVis,
     Icon   = require('../../../Icon'),
     addTransform = require('../../../../actions/datasetActions').addTransform;
 
@@ -24,6 +22,7 @@ var FilterField = React.createClass({
   propTypes: {
     field: React.PropTypes.object.isRequired,
     dsId:  React.PropTypes.number,
+    addTransform: React.PropTypes.func
   },
 
   filter: function(evt) {
@@ -40,12 +39,13 @@ var FilterField = React.createClass({
   },
 
   render: function() {
-    return (<Icon onClick={this.filter} glyph={assets.filter} width="10" height="10"
-    data-tip="Filter" />);
+    return (<Icon onClick={this.filter} glyph={assets.filter}
+      width="10" height="10"
+      data-tip="Filter" />);
   }
 });
 
 module.exports = {
   connected: connect(mapStateToProps, mapDispatchToProps)(FilterField),
   disconnected: FilterField
-}
+};
