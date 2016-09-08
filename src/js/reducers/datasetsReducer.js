@@ -39,13 +39,6 @@ function datasetsReducer(state, action) {
     }));
   }
 
-  if (action.type === ACTIONS.FILTER_DATASET) {
-    state = setIn(state, action.id + '._filter',
-    Immutable.fromJS({
-      expression: action.expression
-    }));
-  }
-
   var transforms = getIn(state, action.id + '._transforms');
   if (action.type === ACTIONS.ADD_DATA_TRANSFORM) {
 
