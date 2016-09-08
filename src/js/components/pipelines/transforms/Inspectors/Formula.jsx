@@ -1,6 +1,5 @@
 'use strict';
 var React = require('react'),
-    Immutable = require('immutable'),
     connect = require('react-redux').connect,
     ExpressionTextbox = require('../ExpressionTextbox').connected,
     editTransform = require('../../../../actions/datasetActions').editTransform;
@@ -37,8 +36,7 @@ var Formula = React.createClass({
   render: function() {
     var props = this.props,
         spec = props.spec,
-        expr = 'formula: ' + spec.expr,
-        id = props.dsId;
+        expr = 'formula: ' + spec.expr;
 
     return (
       <ExpressionTextbox label={expr} {...this.props} transform={this.transform} />
@@ -49,4 +47,4 @@ var Formula = React.createClass({
 module.exports = {
   connected: connect(mapStateToProps, mapDispatchToProps)(Formula),
   disconnected: Formula
-}
+};

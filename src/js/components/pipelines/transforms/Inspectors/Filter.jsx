@@ -1,6 +1,5 @@
 'use strict';
 var React = require('react'),
-    Immutable = require('immutable'),
     connect = require('react-redux').connect,
     ExpressionTextbox = require('../ExpressionTextbox').connected,
     editTransform = require('../../../../actions/datasetActions').editTransform;
@@ -37,14 +36,13 @@ var Filter = React.createClass({
   render: function() {
     var props = this.props,
         spec = props.spec,
-        test = 'filter: ' + spec.test,
-        id = props.dsId;
+        test = 'filter: ' + spec.test;
 
-    return <ExpressionTextbox label={test} {...this.props} transform={this.transform} />
+    return <ExpressionTextbox label={test} {...this.props} transform={this.transform} />;
   }
 });
 
 module.exports = {
   connected: connect(mapStateToProps, mapDispatchToProps)(Filter),
   disconnected: Filter
-}
+};
