@@ -20,6 +20,10 @@ var ExpressionTextbox = React.createClass({
     return {expanded: true};
   },
 
+  componentDidMount: function() {
+    this.resetTimer();
+  },
+
   timer: null,
 
   resetTimer: function() {
@@ -32,6 +36,7 @@ var ExpressionTextbox = React.createClass({
 
   applyTransformation: function(e) {
     var props = this.props;
+    this.resetTimer();
     props.transform(e);
   },
 

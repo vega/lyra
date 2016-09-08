@@ -7,7 +7,8 @@ var Immutable = require('immutable'),
     set   = immutableUtils.set,
     setIn = immutableUtils.setIn,
     getIn = immutableUtils.getIn,
-    dsUtil = require('../util/dataset-utils');
+    dsUtil = require('../util/dataset-utils'),
+    deepEquality = require('../util/deep-equality');
 
 /**
  * Main datasets reducer function, which generates a new state for the
@@ -51,8 +52,8 @@ function datasetsReducer(state, action) {
     if (!transforms) {
       transforms = [];
     }
-    var result = transforms.indexOf(action.transformSpec);
-    if (transforms.indexOf(action.transformSpec) === -1) {
+    var result = deepEquality.indexOf(action.transformSpec, transforms);
+    if (result === -1) {
       // if transform doesn't exist already
       transforms.push(action.transformSpec);
     }
