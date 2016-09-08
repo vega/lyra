@@ -46,8 +46,8 @@ function datasetsReducer(state, action) {
     }));
   }
 
+  var transforms = getIn(state, action.id + '._transforms');
   if (action.type === ACTIONS.ADD_DATA_TRANSFORM) {
-    var transforms = getIn(state, action.id + '._transforms');
 
     if (!transforms) {
       transforms = [];
@@ -62,7 +62,6 @@ function datasetsReducer(state, action) {
   }
 
   if (action.type === ACTIONS.EDIT_DATA_TRANSFORM) {
-    var transforms = getIn(state, action.id + '._transforms');
 
     if (!transforms) {
       transforms = [];

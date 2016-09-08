@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Exposes a number of utility functions that deal with deep
  * equality.
@@ -20,10 +22,10 @@ function isObjectEquiv(obj1, obj2) {
  * Finds the index of the Object obj in the array arr
  * @param  {Object} obj Object to be found in arr
  * @param  {Array} arr Array obj is trying to find index of
- * @return {number}  The index of the Object obj in the array arr. Returns -1 if obj is not found in arr.
+ * @returns {number}  The index of the Object obj in the array arr. Returns -1 if obj is not found in arr.
  */
 function indexOf(obj, arr) {
-  for (i = 0; i < arr.length; i++) {
+  for (var i = 0; i < arr.length; i++) {
     var element = arr[i];
     if (isObjectEquiv(element, obj)) {
       return i;
