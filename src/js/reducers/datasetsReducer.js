@@ -7,8 +7,7 @@ var Immutable = require('immutable'),
     set   = immutableUtils.set,
     setIn = immutableUtils.setIn,
     getIn = immutableUtils.getIn,
-    dsUtil = require('../util/dataset-utils'),
-    deepEquality = require('../util/deep-equality');
+    dsUtil = require('../util/dataset-utils');
 
 /**
  * Main datasets reducer function, which generates a new state for the
@@ -39,32 +38,29 @@ function datasetsReducer(state, action) {
     }));
   }
 
-  var transforms = getIn(state, action.id + '._transforms');
+  var transforms = getIn(state, action.id + '.transform');
+  transforms = transforms ? transforms.toArray() : transforms;
   if (action.type === ACTIONS.ADD_DATA_TRANSFORM) {
 
     if (!transforms) {
       transforms = [];
     }
-    var result = deepEquality.indexOf(action.transformSpec, transforms);
-    if (result === -1) {
+    var index = transforms.indexOf(action.transformSpec);
+    if (index === -1) {
       // if transform doesn't exist already
       transforms.push(action.transformSpec);
     }
 
-    state = setIn(state, action.id + '._transforms', transforms);
+    state = setIn(state, action.id + '.transform', Immutable.fromJS(transforms));
   }
 
   if (action.type === ACTIONS.EDIT_DATA_TRANSFORM) {
-
-    if (!transforms) {
-      transforms = [];
-    }
     var index = action.specId;
     if (index > -1) {
       // if transform exist already
       transforms[index] = action.newSpec;
     }
-    state = setIn(state, action.id + '._transforms', transforms);
+    state = setIn(state, action.id + '.transform', Immutable.fromJS(transforms));
   }
 
   if (action.type === ACTIONS.SUMMARIZE_AGGREGATE) {

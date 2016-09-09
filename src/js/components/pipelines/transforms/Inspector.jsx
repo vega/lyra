@@ -1,28 +1,21 @@
 'use strict';
 var React = require('react'),
+    Immutable = require('immutable'),
     connect = require('react-redux').connect,
     capitalize = require('capitalize'),
-    getInVis = require('../../../util/immutable-utils').getInVis,
-    deepEquality = require('../../../util/deep-equality');
+    getInVis = require('../../../util/immutable-utils').getInVis;
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.dsId;
   return {
-    transforms: getInVis(state, 'datasets.' + id + '._transforms')
+    transforms: getInVis(state, 'datasets.' + id + '.transform')
   };
 }
 
 var Inspector = React.createClass({
   propTypes: {
     dsId:  React.PropTypes.number,
-    transforms:  React.PropTypes.array
-  },
-
-  shouldComponentUpdate: function(nextProps, nextState) {
-    var props = this.props,
-        transforms = props.transforms,
-        newTransforms = nextProps.transforms;
-    return !deepEquality.isObjectEquiv(transforms, newTransforms);
+    transforms:  React.PropTypes.instanceOf(Immutable.List)
   },
 
   render: function() {
@@ -30,11 +23,13 @@ var Inspector = React.createClass({
         transforms = props.transforms,
         id = props.dsId;
 
-    transforms = transforms ? transforms : [];
+    transforms = transforms ? transforms.toArray() : [];
 
     return (
       <div>
         {transforms.map(function(element, index) {
+          element = element.toJS();
+
           var type = capitalize(element.type),
               InspectorType = Inspector[type];
 

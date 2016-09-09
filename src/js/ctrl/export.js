@@ -58,8 +58,7 @@ exporter.dataset = function(state, internal, id) {
       spec = clean(dl.duplicate(dataset), internal),
       values = dsUtils.input(id),
       format = spec.format && spec.format.type,
-      sort = exporter.sort(dataset),
-      transforms = dataset._transforms;
+      sort = exporter.sort(dataset);
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
@@ -79,13 +78,6 @@ exporter.dataset = function(state, internal, id) {
   if (sort !== undefined) {
     spec.transform = spec.transform || [];
     spec.transform.push(sort);
-  }
-
-  if (transforms) {
-    transforms.forEach(function(element, index, arr) {
-      spec.transform = spec.transform || [];
-      spec.transform.push(element);
-    });
   }
 
   return spec;
