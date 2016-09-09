@@ -1,0 +1,69 @@
+{
+  "title": "Lets Make A Bar Chart",
+  "image": "https://placeholdit.imgix.net/~text?txtsize=33&txt=150%C3%97150&w=150&h=150",
+  "alt_text": "an image",
+  "steps": [{
+    "id": 1,
+    "title": "Playfair's Wheat",
+    "text": "This tutorial will introduce you to some fundamental workflows in Lyra which are needed for creating visualizations.",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "validate": false
+    },
+    "help": "",
+    "type": "dialog"
+  }, {
+    "id": 2,
+    "title": "Adding Marks",
+    "text": "As you saw in the Introduction, Marks act as visual building blocks for any visualization in Lyra. For this tutorial we'll be relying on the Rect mark, so to begin, add a Rect to the visualization.",
+    "alt_text": "an image",
+    "lyra_state": {},
+    "opts": {
+      "target": "",
+      "validate": true
+    },
+    "help": "Marks are located in the Toolbar above the visualization canvas. Click on a specific Mark to add it to the visualization.",
+    "type": "dialog"
+  }, {
+    "id": 3,
+    "title": "Adding Data",
+    "text": "All visualizations in Lyra need backing data, for this tutorial we'll be employing a dataset inspired by William Playfair's famous \"Playfair's Wheat\" visualization. The dataset can be found at this url: https://raw.githubusercontent.com/vega/vega-datasets/gh-pages/data/wheat.json, load the corresponding data using the Pipeline Modal's url field.",
+    "alt_text": "an image",
+    "lyra_state": {
+      "marks": [{
+        "type": "rect"
+      }]
+    },
+    "opts": {
+      "target": "",
+      "validate": true
+    },
+    "help": "Marks are located in the Toolbar above the visualization canvas. Click on a specific Mark to add it to the visualization.",
+    "type": "dialog"
+  }, {
+    "id": 4,
+    "title": "Mark Interaction",
+    "text": "Usage of gifs to demonstrate dropzones",
+    "alt_text": "an image",
+    "lyra_state": {
+      "marks": [{
+        "type": "rect"
+      }],
+      "data": [{
+        "name": "wheat_source",
+        "url": "https://raw.githubusercontent.com/vega/vega-datasets/gh-pages/data/wheat.json",
+        "format": {
+          "parse": "auto",
+          "type": "json"
+        }
+      }]
+    },
+    "opts": {
+      "target": "",
+      "validate": true
+    },
+    "help": "Hints: ensure you've imported from the correct url. If you're still having trouble try closing the modal and clicking 'Undo'.",
+    "type": "dialog"
+  }]
+}

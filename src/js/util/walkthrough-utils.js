@@ -1,5 +1,6 @@
 'use strict';
-var isMatch = require('lodash.ismatch');
+var isMatch = require('lodash.ismatch'),
+    intersection = require('lodash.intersection');
 
 /**
  * Walkthrough Utility has functions used in the walkthrough react components
@@ -105,7 +106,10 @@ function validate(currentState, expectedState) {
   var status = true,
       errors = [];
 
-  var markSpec = currentState.marks[0].marks;
+  var markSpec = currentState.marks[0].marks,
+      currentDsSpecs = currentState.data,
+      expectedDsSpec = expectedState.data;
+
   // Marks -------------
   if (markSpec) {
     for (var i = 0; i < expectedState.marks.length; i++) {
@@ -115,7 +119,6 @@ function validate(currentState, expectedState) {
           min = filterBy(markType, expectedState.marks, 'type').length;
       // test type existence ----------------------
       if (!testTypeExistence(markType, markSpec, min)) {
-        console.log('a trigged');
         status = false;
         errors.push('No ' + markType.toUpperCase() + ' mark found');
         break;
@@ -124,11 +127,20 @@ function validate(currentState, expectedState) {
       // test property existence ------------------
       var expectedProps = getProperties(expectedState.marks[i], 'marks');
       if (expectedProps && !testPropertyExistence(expectedState.marks[i], markSpec, 'marks')) {
-        console.log('b trigged');
         status = false;
-        errors.push('Missing a ' + markType.toUpperCase() + ' element with properties: ' + JSON.stringify(expectedProps));
+        errors.push('Missing a ' + markType.toUpperCase() +
+        ' element with properties: ' + JSON.stringify(expectedProps));
       }
     }
+  }
+
+  if (expectedDsSpec) {
+    expectedDsSpec.forEach(function(spec) {
+      if (currentDsSpecs.indexOf(spec) === -1) {
+        status = false;
+        errors.push('Necessary data not found!');
+      }
+    });
   }
 
   // Scales -------------
@@ -156,13 +168,9 @@ function validateDom(domState) {
     query = domState.query;
 
     if (!document.querySelector(query)) {
-      console.log('flag A being called');
       status = false;
       // TODO add error/hint messages
       errors.push(query + ' was not found');
-    } else {
-      console.log('flag B being called');
-      console.log('found: ', document.querySelector(query));
     }
   }
 
