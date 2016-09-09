@@ -7,6 +7,7 @@ var Immutable = require('immutable'),
     set   = immutableUtils.set,
     setIn = immutableUtils.setIn,
     getIn = immutableUtils.getIn,
+    deleteKeyFromMap = immutableUtils.deleteKeyFromMap,
     dsUtil = require('../util/dataset-utils'),
     MTYPES = require('../constants/measureTypes');
 
@@ -31,6 +32,10 @@ function datasetsReducer(state, action) {
     state = set(state, id, Immutable.fromJS(action.props));
     dsUtil.init(action);
     return state;
+  }
+
+  if (action.type === ACTIONS.DELETE_DATASET) {
+    return deleteKeyFromMap(state, action.dsId);
   }
 
   if (action.type === ACTIONS.CHANGE_FIELD_MTYPE) {

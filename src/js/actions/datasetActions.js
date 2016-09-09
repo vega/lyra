@@ -3,6 +3,7 @@
 var dl = require('datalib'),
     counter = require('../util/counter'),
     ADD_DATASET = 'ADD_DATASET',
+    DELETE_DATASET = 'DELETE_DATASET',
     CHANGE_FIELD_MTYPE = 'CHANGE_FIELD_MTYPE',
     SORT_DATASET = 'SORT_DATASET',
     SUMMARIZE_AGGREGATE = 'SUMMARIZE_AGGREGATE',
@@ -28,6 +29,14 @@ function addDataset(props, values, schema) {
     id: props._id,
     props: props,
     values: values
+  };
+}
+
+function deleteDataset(dsId, pldId) {
+  return {
+    type: DELETE_DATASET,
+    dsId: dsId,
+    plId: pldId
   };
 }
 
@@ -120,6 +129,7 @@ function updateTransform(dsId, index, transform) {
 module.exports = {
   // Action Names
   ADD_DATASET: ADD_DATASET,
+  DELETE_DATASET: DELETE_DATASET,
   CHANGE_FIELD_MTYPE: CHANGE_FIELD_MTYPE,
   SORT_DATASET: SORT_DATASET,
   SUMMARIZE_AGGREGATE: SUMMARIZE_AGGREGATE,
@@ -128,6 +138,7 @@ module.exports = {
 
   // Action Creators
   addDataset: addDataset,
+  deleteDataset: deleteDataset,
   changeFieldMType: changeFieldMType,
   sortDataset: sortDataset,
   summarizeAggregate: summarizeAggregate,

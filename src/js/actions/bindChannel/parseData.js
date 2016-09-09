@@ -1,7 +1,9 @@
 'use strict';
 
-var aggregatePipeline  = require('../pipelineActions').aggregatePipeline,
-    summarizeAggregate = require('../datasetActions').summarizeAggregate,
+var dl = require('datalib'),
+    aggregatePipeline   = require('../pipelineActions').aggregatePipeline,
+    summarizeAggregate  = require('../datasetActions').summarizeAggregate,
+    updateScaleProperty = require('../scaleActions').updateScaleProperty,
     getInVis = require('../../util/immutable-utils').getInVis;
 
 /**
@@ -47,9 +49,36 @@ function parseAggregate(dispatch, state, parsed, summary) {
   if (!aggId) {
     dispatch(aggregatePipeline(plId, aggregate));
     aggId = aggregate._id;
+    updateAggregateDependencies(dispatch, state, parsed, aggId);
   } else {
     dispatch(summarizeAggregate(aggId, aggregate.summarize));
   }
 
   parsed.map.data.summary = aggId;
+}
+
+function updateAggregateDependencies(dispatch, state, parsed, aggId) {
+  var map = parsed.map,
+      oldId = map.data.summary,
+      counts = require('../../ctrl/export').counts();
+
+  if (!oldId) {
+    return;
+  }
+
+  dl.vals(map.scales).forEach(function(scaleId) {
+    var domain = getInVis(state, 'scales.' + scaleId + '._domain'),
+        range  = getInVis(state, 'scales.' + scaleId + '._range'),
+        count  = counts.scales[scaleId].markTotal;
+
+    function updateDataRef(ref, idx) {
+      // TODO: When count > 1
+      if (ref.get('data') === oldId && count === 1) {
+        dispatch(updateScaleProperty(scaleId, '_domain.' + idx + '.data', aggId));
+      }
+    }
+
+    domain.forEach(updateDataRef);
+    range.forEach(updateDataRef);
+  });
 }

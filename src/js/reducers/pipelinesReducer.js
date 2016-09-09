@@ -4,6 +4,7 @@
 var Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
     imutils = require('../util/immutable-utils'),
+    getIn = imutils.getIn,
     set = imutils.set,
     setIn = imutils.setIn;
 
@@ -32,6 +33,21 @@ function pipelinesReducer(state, action) {
 
   if (action.type === ACTIONS.AGGREGATE_PIPELINE) {
     return setIn(state, action.id + '._aggregates.' + action.key, action.dsId);
+  }
+
+  if (action.type === ACTIONS.DELETE_DATASET) {
+    var plId = action.plId,
+        dsId = action.dsId;
+
+    if (getIn(state, plId + '._source') === dsId) {
+      throw Error('Cannot delete a pipeline\' source dataset.');
+    }
+
+    var key = getIn(state, plId + '._aggregates').findKey(function(aggId) {
+      return aggId === dsId;
+    });
+
+    return state.deleteIn([plId + '', '_aggregates', key]);
   }
 
   return state;
