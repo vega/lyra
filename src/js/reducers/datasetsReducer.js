@@ -55,10 +55,10 @@ function datasetsReducer(state, action) {
   }
 
   if (action.type === ACTIONS.EDIT_DATA_TRANSFORM) {
-    var index = action.specId;
-    if (index > -1) {
+    var specId = action.specId;
+    if (specId > -1) {
       // if transform exist already
-      transforms[index] = action.newSpec;
+      transforms[specId] = action.newSpec;
     }
     state = setIn(state, action.id + '.transform', Immutable.fromJS(transforms));
   }
