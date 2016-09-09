@@ -20,9 +20,6 @@ var aggregatePipeline  = require('../pipelineActions').aggregatePipeline,
 module.exports = function(dispatch, state, parsed) {
   // TODO: transforms.
   var data = parsed.output.data,
-      source = data.find(function(def) {
-        return def.name === 'source';
-      }),
       summary = data.find(function(def) {
         return def.name === 'summary';
       });

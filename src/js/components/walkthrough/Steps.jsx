@@ -2,7 +2,6 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     imutils = require('../../util/immutable-utils'),
-    isArray = require('datalib').isArray,
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
     WAUtils = require('../../util/walkthrough-utils'),
@@ -11,7 +10,7 @@ var React = require('react'),
     WActions = require('../../actions/walkthroughActions'),
     vegaSpec = require('../../ctrl').export,
     ToolTip = require('./ToolTip'),
-    Dialog = require('./Dialog'),
+    Dialogue = require('./Dialogue'),
     Errors = require('./Error'),
     TOOL_TIP_MAX_W = 276,
     TOOL_TIP_MAX_H = 400;
@@ -37,6 +36,11 @@ function mapDispatchToProps(dispatch, ownProps) {
       if (this.steps.size > this.currentStepId) {
         dispatch(WActions.setActiveStep(this.currentStepId + 1));
       }
+    },
+    goToPrevious: function() {
+      if (this.currentStepId > 1) {
+        dispatch(WActions.setActiveStep(this.currentStepId - 1));
+      }
     }
   };
 }
@@ -47,6 +51,7 @@ var Step = React.createClass({
     steps: React.PropTypes.object,
     marks: React.PropTypes.object,
     goToNext: React.PropTypes.func,
+    goToPrevious: React.PropTypes.func,
     deselectWalkthrough: React.PropTypes.func
   },
 
@@ -75,6 +80,15 @@ var Step = React.createClass({
     return steps.find(function(step) {
       return step.id === currentId;
     });
+  },
+
+  previous: function() {
+    this.setState({
+      errorMessage: '',
+      errorMap: null,
+      error: false
+    });
+    this.props.goToPrevious();
   },
 
   next: function() {
@@ -123,22 +137,34 @@ var Step = React.createClass({
     return validation;
   },
 
-  nextButton: function() {
-    var props = this.props,
-        notLast = (props.steps.size > props.currentStepId);
+  controls: function() {
+    var state = this.state,
+        props = this.props,
+        notLast = (props.steps.size > props.currentStepId),
+        notFirst = props.currentStepId !== 1,
+        error = state.error, next, previous, finish;
 
-    if (this.state.error && notLast) {
-      return (<div className="next">
-                <span className="button" onClick={this.next}>NEXT</span>
-                <br/>
-                <span onClick={this.forceContinue}>Skip this step</span>
-              </div>);
-    } else if (notLast) {
-      return (<span className="next">
-                <span className="button" onClick={this.next}>NEXT</span>
-              </span>);
-    }
-    return '';
+    error = error ? <span className="skip" onClick={this.forceContinue}>
+        Skip this step
+      </span> : null;
+    next = notLast ? <span className="next" onClick={this.next}>
+        NEXT
+      </span> : null;
+    previous = notFirst ? (<span className="previous" onClick={this.previous}>
+        Previous
+      </span>) : null;
+    finish = !notLast ? (<span className="next" onClick={this.quitWalkthrough}>
+        FINISH
+      </span>) : null;
+
+    return (
+      <div className="controls">
+        {previous}
+        {error}
+        {next}
+        {finish}
+      </div>
+    );
   },
 
   getTargetEl: function(selector) {
@@ -182,7 +208,7 @@ var Step = React.createClass({
         current = this.getCurrentStep(),
         currentId = props.currentStepId,
         thumbnail = current.image ? (<img src={current.image} alt={current.alt_text}/>) : '',
-        nextButton = this.nextButton(),
+        controls = this.controls(),
         steps = this.props.steps.valueSeq().toArray(),
         stepType = current.type,
         errors = this.state.errorMap,
@@ -203,13 +229,13 @@ var Step = React.createClass({
       stepProps.position = this.computeToolTipPosition(targetDomElSelector);
       stepProps.options = opts;
 
-      stepInner = (<ToolTip control={nextButton} quit={this.quitWalkthrough}
+      stepInner = (<ToolTip control={controls} quit={this.quitWalkthrough}
         {...stepProps} />);
     } else {
       stepProps.steps = steps;
       stepProps.currentId = currentId;
       stepProps.thumbnail = thumbnail;
-      stepInner = (<Dialog control={nextButton} quit={this.quitWalkthrough}
+      stepInner = (<Dialogue control={controls} quit={this.quitWalkthrough}
         {...stepProps} />);
     }
 

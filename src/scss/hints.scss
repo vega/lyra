@@ -1,105 +1,33 @@
+.marksList {
+  padding-top: $inner-padding;
+  li {
+    padding: $inner-padding 0;
 
-.hints {
-  padding: 20px;
-  background: #fff;
-  position: absolute;
-  bottom: 40px;
-  z-index: 9999;
-  border: 1px solid $lgrey-border;
-  left: 25px;
-  width: 600px;
-  margin-left: $sidebars-width;
-  border-radius: 5px;
-  min-height: 100px;
-
-  h3,
-  h4 {
-    padding-left: 0;
-    background-color: transparent;
-  }
-
-  &.hidden {
-    bottom: -200px;
-  }
-  .step-dots {
-    text-align: center;
-    li {
-      &.selected {
-        background-color: $lgrey-border;
-      }
-      display: inline-block;
-      margin-left: 10px;
-      list-style: none;
-      border-radius: 50%;
-      width: 10px;
-      height: 10px;
-      border: 1px solid $lgrey-border;
-    }
-  }
-
-  .error {
-    border: 1px solid red;
-    position: absolute;
-    width: 100%;
-    top: -36px;
-    left: 0px;
-    padding: 10px;
-    box-sizing: border-box;
-    background-color: #FFD7D7;
-    ul {
-      list-style: none;
-    }
-  }
-
-  img {
-    width: 30%;
-  }
-
-  .details {
-    width: 70%;
-    box-sizing: border-box;
-    padding-left: 20px;
-    vertical-align: top;
-  }
-
-  .details,
-  img {
-    display: inline-block;
-  }
-
-  .next {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    text-align: right;
-    span {
+    label {
+      color: $blue-font;
+      margin-top: 5px;
       cursor: pointer;
-      &:hover {
-        text-decoration: underline;
-      }
+      font-weight: bolder;
+    }
+
+    p {
+      display: none;
+      padding: $inner-padding/2 0;
+    }
+
+    p.show {
+      display: block !important;
     }
   }
 }
-.close-hint {
-  text-transform: uppercase;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-  i {
-    margin-right: 5px;
-  }
-}
 
+.dialogue,
 .popover {
   position: absolute;
   display: block;
-  top: 0;
-  left: 0;
-  z-index: 1060;
-  max-width: 276px;
-  min-width: 200px;
-  // max-height: 400px;
+  z-index: 9999;
+  display: block;
+  z-index: 9999;
   padding: 1px;
   font-family: inherit;
   font-size: 14px;
@@ -125,6 +53,98 @@
   -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   line-break: auto;
+
+  .title,
+  .content,
+  .footer {
+    padding: 8px 10px;
+    margin: 0;
+    font-size: 14px;
+  }
+  .hints {
+    padding: 0 10px;
+  }
+
+  .title {
+    border-bottom: 1px solid #ebebeb;
+    border-radius: 5px 5px 0 0;
+    display: flex;
+    flex-direction: row;
+
+    h3,
+    span.exit {
+      margin: 0;
+    }
+
+    h3 {
+      flex: 14 0 0;
+    }
+    span.exit {
+      flex: 1 0 0;
+      text-align: right;
+      cursor: pointer;
+    }
+  }
+
+  .footer {
+    .controls {
+      display: flex;
+      flex-direction: row;
+
+      .previous,
+      .next,
+      .skip {
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .skip {
+        flex: 1 0 0;
+        text-align: center;
+      }
+      .previous {
+        flex: 1 0 0;
+      }
+      .next {
+        flex: 1 0 0;
+        font-weight: bold;
+        color: $mblue-bg;
+        text-align: right;
+      }
+    }
+  }
+}
+
+.dialogue {
+  bottom: 45px;
+  left: 570px;
+  width: 646px;
+  min-height: 150px;
+  max-height: 200px;
+  display: flex;
+  flex-direction: column;
+
+  .title {
+    flex: 0 0 auto;
+  }
+  .content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    position: relative;
+  }
+  .footer {
+    flex: 0 0 auto;
+    border-top: 1px solid #ebebeb;
+    border-radius: 0 0 5px 5px;
+  }
+}
+
+.popover {
+  top: 0;
+  left: 0;
+  max-width: 276px;
+  min-width: 200px;
+
   &.top {
     margin-top: -10px;
   }
@@ -136,34 +156,6 @@
   }
   &.left {
     margin-left: -10px;
-  }
-}
-
-.popover {
-  opacity: 1 !important;
-  z-index: 9999;
-  .popover-title,
-  .popover-footer {
-    padding: 8px 10px;
-    margin: 0;
-    font-size: 14px;
-  }
-  .popover-title {
-    border-bottom: 1px solid #ebebeb;
-    border-radius: 5px 5px 0 0;
-
-    h3,
-    span {
-      margin: 0;
-    }
-
-    span {
-      text-align: right;
-    }
-  }
-
-  .popover-content {
-    padding: 8px 10px;
   }
 
   > .arrow {

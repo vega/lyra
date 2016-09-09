@@ -31,6 +31,7 @@ var ToolTip = React.createClass({
         inner,
         markupComponent = options.markupComponent;
 
+    // switch block or find
     if (markupComponent && markupComponent === 'MarksList') {
       inner = (
         <div>
@@ -44,17 +45,17 @@ var ToolTip = React.createClass({
     return (
       <div className={toolTipClassnames} style={toolTipStyle} role="tooltip">
         <div className="arrow" style={toolTipArrowStyle}></div>
-        <div className="popover-title">
+        <div className="title">
           <h3>{props.title}</h3>
-          <span className="close-hint" onClick={props.quit}>
+          <span onClick={props.quit} className="exit">
             <Icon glyph={close} />
           </span>
         </div>
-        <div className="popover-content">
+        <div className="content">
           {inner}
           {props.error}
         </div>
-        <div className="popover-footer">
+        <div className="footer">
           {props.control}
         </div>
       </div>
