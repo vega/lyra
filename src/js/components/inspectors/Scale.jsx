@@ -33,20 +33,35 @@ var ScaleInspector = React.createClass({
   },
 
   getInitialState: function() {
-    var domainPreset = true,
+    var scale = this.props.scale,
+        domainPresetValue = getIn(scale, 'domain'),
+        rangePresetValue = getIn(scale, 'range'),
+        domainPreset = true,
         rangePreset = true,
         rangeType = 'spatial';
 
     return ({domainPreset: domainPreset,
+            rangePresetValue: rangePresetValue,
             rangePreset: rangePreset,
             rangeType: rangeType});
   },
 
   setScaleState: function(state, value) {
+    var domainPresetValue = this.state.domainPresetValue,
+        rangePresetValue = this.state.rangePresetValue;
+
+    // have problems here. range/domain's value is in valuelist
     if (state === 'domainPreset') {
       this.setState({domainPreset: value});
+      if (value === true) {
+       this.props.updateScaleProperty(this.props.primId, 'domain', domainPresetValue);
+      }
+   
     } else if (state === 'rangePreset') {
       this.setState({rangePreset: value});
+      if (value === true) {
+        this.props.updateScaleProperty(this.props.primId, 'range', rangePresetValue);
+      }
     }
   },
 
