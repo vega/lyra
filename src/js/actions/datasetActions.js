@@ -58,36 +58,36 @@ function summarizeAggregate(id, summarize) {
 }
 
 /**
- * Action creator to add a data transformations to the dataset
+ * Action creator to add a data transformations to the dataset.
  *
  * @param {number} dsId - Id of the dataset.
- * @param {object} transformSpec - vega data transform object
+ * @param {object} transform - vega data transform object
  * @returns {Object} ADD_DATA_TRANSFORM action with info about
  * vega data transformation
  */
-function addTransform(dsId, transformSpec) {
+function addTransform(dsId, transform) {
   return {
     type: ADD_DATA_TRANSFORM,
     id: dsId,
-    transformSpec: transformSpec
+    transform: transform
   };
 }
 
 /**
- * Action creator to edit a data transformations to the dataset
+ * Action creator to edit an existing data transformation.
  *
  * @param {number} dsId - Id of the dataset.
- * @param {number} specId - vega data transform index for the old spec to be replaced
- * @param {object} newSpec - vega data transform object to replace the oldSpec
+ * @param {number} index - The index into the dataset's transform array.
+ * @param {object} transform - Vega data transform object to replace the oldSpec
  * @returns {Object} EDIT_DATA_TRANSFORM action with info about
  * vega data transformation
  */
-function editTransform(dsId, specId, newSpec) {
+function editTransform(dsId, index, transform) {
   return {
     type: EDIT_DATA_TRANSFORM,
     id: dsId,
-    specId: specId,
-    newSpec: newSpec
+    index: index,
+    transform: transform
   };
 }
 

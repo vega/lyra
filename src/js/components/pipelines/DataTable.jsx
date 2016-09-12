@@ -11,7 +11,7 @@ var d3 = require('d3'),
     Icon = require('../Icon'),
     HoverField = require('./HoverField'),
     HoverValue = require('./HoverValue'),
-    TransformInspector = require('./transforms/Inspector').connected;
+    TransformList = require('./transforms/TransformList').connected;
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.id;
@@ -103,7 +103,7 @@ var DataTable = React.createClass({
     return (
       <div>
 
-        <TransformInspector dsId={id} />
+        <TransformList dsId={id} />
 
         <div className="datatable"
           onMouseLeave={this.hideHover} onScroll={this.hideHover}>

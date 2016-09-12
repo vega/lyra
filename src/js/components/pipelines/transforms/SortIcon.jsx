@@ -2,12 +2,12 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    sortDataset = require('../../../../actions/datasetActions').sortDataset,
-    assets = require('../../../../util/assets'),
-    Icon   = require('../../../Icon'),
-    getInVis = require('../../../../util/immutable-utils').getInVis,
-    ORDER  = require('../../../../constants/sortOrder'),
-    MTYPES = require('../../../../constants/measureTypes'),
+    sortDataset = require('../../../actions/datasetActions').sortDataset,
+    assets = require('../../../util/assets'),
+    Icon   = require('../../Icon'),
+    getInVis = require('../../../util/immutable-utils').getInVis,
+    ORDER  = require('../../../constants/sortOrder'),
+    MTYPES = require('../../../constants/measureTypes'),
     ReactTooltip = require('react-tooltip');
 
 function mapStateToProps(state, ownProps) {

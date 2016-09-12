@@ -1,8 +1,8 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    ExpressionTextbox = require('../ExpressionTextbox').connected,
-    editTransform = require('../../../../actions/datasetActions').editTransform;
+    ExpressionTextbox = require('./ExpressionTextbox').connected,
+    editTransform = require('../../../actions/datasetActions').editTransform;
 
 function mapStateToProps(state, ownProps) {
   return {};

@@ -38,29 +38,15 @@ function datasetsReducer(state, action) {
     }));
   }
 
-  var transforms = getIn(state, action.id + '.transform');
-  transforms = transforms ? transforms.toArray() : transforms;
   if (action.type === ACTIONS.ADD_DATA_TRANSFORM) {
-
-    if (!transforms) {
-      transforms = [];
-    }
-    var index = transforms.indexOf(action.transformSpec);
-    if (index === -1) {
-      // if transform doesn't exist already
-      transforms.push(action.transformSpec);
-    }
-
-    state = setIn(state, action.id + '.transform', Immutable.fromJS(transforms));
+    var transforms = getIn(state, action.id + '.transform') || Immutable.List();
+    return setIn(state, action.id + '.transform',
+      transforms.push(Immutable.fromJS(action.transform)));
   }
 
   if (action.type === ACTIONS.EDIT_DATA_TRANSFORM) {
-    var specId = action.specId;
-    if (specId > -1) {
-      // if transform exist already
-      transforms[specId] = action.newSpec;
-    }
-    state = setIn(state, action.id + '.transform', Immutable.fromJS(transforms));
+    return setIn(state, action.id + '.transform.' + action.index,
+      Immutable.fromJS(action.transform));
   }
 
   if (action.type === ACTIONS.SUMMARIZE_AGGREGATE) {

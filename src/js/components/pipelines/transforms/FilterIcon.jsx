@@ -1,9 +1,9 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
-    assets = require('../../../../util/assets'),
-    Icon   = require('../../../Icon'),
-    addTransform = require('../../../../actions/datasetActions').addTransform;
+    assets = require('../../../util/assets'),
+    Icon   = require('../../Icon'),
+    addTransform = require('../../../actions/datasetActions').addTransform;
 
 function mapStateToProps(state, ownProps) {
   return {};
