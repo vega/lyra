@@ -2,7 +2,7 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     assets = require('../../../util/assets'),
-    Icon   = require('../../Icon'),
+    Icon = require('../../Icon'),
     addTransform = require('../../../actions/datasetActions').addTransform;
 
 function mapStateToProps(state, ownProps) {
@@ -11,41 +11,28 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    addTransform: function(dsId, transformSpec) {
-      dispatch(addTransform(dsId, transformSpec));
+    filter: function() {
+      dispatch(addTransform(ownProps.dsId,
+        {type: 'filter', test: 'datum.' + ownProps.field.name}));
     }
   };
 }
 
-var FilterField = React.createClass({
-
+var FilterIcon = React.createClass({
   propTypes: {
     field: React.PropTypes.object.isRequired,
     dsId:  React.PropTypes.number,
-    addTransform: React.PropTypes.func
-  },
-
-  filter: function(evt) {
-    var props = this.props,
-        dsId = props.dsId,
-        test = 'datum.' + props.field.name,
-        transform = {
-          type: 'filter',
-          test: test
-        };
-
-    this.props.addTransform(dsId, transform);
-
+    filter: React.PropTypes.func
   },
 
   render: function() {
-    return (<Icon onClick={this.filter} glyph={assets.filter}
+    return (<Icon onClick={this.props.filter} glyph={assets.filter}
       width="10" height="10"
       data-tip="Filter" />);
   }
 });
 
 module.exports = {
-  connected: connect(mapStateToProps, mapDispatchToProps)(FilterField),
-  disconnected: FilterField
+  connected: connect(mapStateToProps, mapDispatchToProps)(FilterIcon),
+  disconnected: FilterIcon
 };

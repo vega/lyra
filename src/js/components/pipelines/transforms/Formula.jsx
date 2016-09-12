@@ -1,50 +1,41 @@
 'use strict';
 var React = require('react'),
-    connect = require('react-redux').connect,
-    ExpressionTextbox = require('./ExpressionTextbox').connected,
-    editTransform = require('../../../actions/datasetActions').editTransform;
-
-function mapStateToProps(state, ownProps) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    editTransform: function(dsId, specId, newSpec) {
-      dispatch(editTransform(dsId, specId, newSpec));
-    }
-  };
-}
+    Immutable = require('immutable'),
+    Property = require('../../inspectors/Property');
 
 var Formula = React.createClass({
   propTypes: {
-    dsId:  React.PropTypes.number,
-    specId: React.PropTypes.number, // represents index of transform array in store
-    spec:  React.PropTypes.object
+    dsId: React.PropTypes.number.isRequired,
+    index: React.PropTypes.number.isRequired,
+    def: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    update: React.PropTypes.func.isRequired
   },
 
-  transform: function(expr) {
+  updateFormula: function(evt) {
     var props = this.props,
-        id = props.dsId,
-        specId = props.specId,
-        newSpec = Object.assign({}, props.spec);
+        def = props.def,
+        field = evt.target ? evt.target.value : def.get('field'),
+        expr = evt.target ? def.get('expr') : evt;
 
-    newSpec.expr = expr;
-    props.editTransform(id, specId, newSpec);
+    props.update({type: 'formula', field: field, expr: expr});
   },
 
   render: function() {
     var props = this.props,
-        spec = props.spec,
-        expr = 'formula: ' + spec.expr;
+        update = this.updateFormula,
+        dsId = props.dsId;
 
     return (
-      <ExpressionTextbox label={expr} {...this.props} transform={this.transform} />
+      <div>
+        <Property type="autocomplete" autoType="expr" label="Calculate"
+          primType="datasets" primId={dsId} name={'transform.' + props.index + '.expr'}
+          dsId={dsId} onChange={update} />
+
+        <Property type="text" label="As" primType="datasets" primId={dsId}
+          name={'transform.' + props.index + '.field'} onChange={update} />
+      </div>
     );
   }
 });
 
-module.exports = {
-  connected: connect(mapStateToProps, mapDispatchToProps)(Formula),
-  disconnected: Formula
-};
+module.exports = Formula;

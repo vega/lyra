@@ -3,7 +3,8 @@
 var React = require('react'),
     Immutable = require('immutable'),
     connect = require('react-redux').connect,
-    capitalize = require('capitalize'),
+
+    TransformInspector = require('./TransformInspector').connected,
     getInVis = require('../../../util/immutable-utils').getInVis;
 
 function mapStateToProps(state, ownProps) {
@@ -24,22 +25,16 @@ var TransformList = React.createClass({
         dsId = props.dsId;
 
     return transforms ? (
-      <div>
+      <div className="transform-list">
         {transforms.map(function(transform, i) {
-          var type = capitalize(transform.get('type')),
-              InspectorType = TransformList[type];
-
           return (
-            <InspectorType key={i} dsId={dsId} spec={transform} index={i} />
+            <TransformInspector key={i} index={i} dsId={dsId} def={transform} />
           );
         }, this)}
       </div>
     ) : null;
   }
 });
-
-TransformList.Filter = require('./Filter').connected;
-TransformList.Formula = require('./Formula').connected;
 
 module.exports = {
   connected: connect(mapStateToProps)(TransformList),

@@ -7,7 +7,7 @@ var dl = require('datalib'),
     SORT_DATASET = 'SORT_DATASET',
     SUMMARIZE_AGGREGATE = 'SUMMARIZE_AGGREGATE',
     ADD_DATA_TRANSFORM = 'ADD_DATA_TRANSFORM',
-    EDIT_DATA_TRANSFORM = 'EDIT_DATA_TRANSFORM';
+    UPDATE_DATA_TRANSFORM = 'UPDATE_DATA_TRANSFORM';
 
 /**
  * Action creator to add a new Dataset in the store.
@@ -105,12 +105,12 @@ function addTransform(dsId, transform) {
  * @param {number} dsId - Id of the dataset.
  * @param {number} index - The index into the dataset's transform array.
  * @param {object} transform - Vega data transform object to replace the oldSpec
- * @returns {Object} EDIT_DATA_TRANSFORM action with info about
+ * @returns {Object} UPDATE_DATA_TRANSFORM action with info about
  * vega data transformation
  */
-function editTransform(dsId, index, transform) {
+function updateTransform(dsId, index, transform) {
   return {
-    type: EDIT_DATA_TRANSFORM,
+    type: UPDATE_DATA_TRANSFORM,
     id: dsId,
     index: index,
     transform: transform
@@ -124,7 +124,7 @@ module.exports = {
   SORT_DATASET: SORT_DATASET,
   SUMMARIZE_AGGREGATE: SUMMARIZE_AGGREGATE,
   ADD_DATA_TRANSFORM: ADD_DATA_TRANSFORM,
-  EDIT_DATA_TRANSFORM: EDIT_DATA_TRANSFORM,
+  UPDATE_DATA_TRANSFORM: UPDATE_DATA_TRANSFORM,
 
   // Action Creators
   addDataset: addDataset,
@@ -132,5 +132,5 @@ module.exports = {
   sortDataset: sortDataset,
   summarizeAggregate: summarizeAggregate,
   addTransform: addTransform,
-  editTransform: editTransform
+  updateTransform: updateTransform
 };

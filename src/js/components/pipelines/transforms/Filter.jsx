@@ -1,48 +1,30 @@
 'use strict';
 var React = require('react'),
-    connect = require('react-redux').connect,
-    ExpressionTextbox = require('./ExpressionTextbox').connected,
-    editTransform = require('../../../actions/datasetActions').editTransform;
-
-function mapStateToProps(state, ownProps) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch, ownProps) {
-  return {
-    editTransform: function(dsId, specId, newSpec) {
-      dispatch(editTransform(dsId, specId, newSpec));
-    }
-  };
-}
+    Property = require('../../inspectors/Property');
 
 var Filter = React.createClass({
   propTypes: {
-    dsId:  React.PropTypes.number,
-    specId:  React.PropTypes.number, // represents index of transform array in store
-    spec: React.PropTypes.object
+    dsId: React.PropTypes.number.isRequired,
+    index: React.PropTypes.number.isRequired,
+    update: React.PropTypes.func.isRequired
   },
 
-  transform: function(newTest) {
+  updateFilter: function(value) {
     var props = this.props,
-        id = props.dsId,
-        specId = props.specId,
-        newSpec = Object.assign({}, props.spec);
-
-    newSpec.test = newTest;
-    props.editTransform(id, specId, newSpec);
+        val = value.target ? value.target.value : value;
+    props.update({type: 'filter', test: val});
   },
 
   render: function() {
     var props = this.props,
-        spec = props.spec,
-        test = 'filter: ' + spec.test;
+        dsId = props.dsId;
 
-    return <ExpressionTextbox label={test} {...this.props} transform={this.transform} />;
+    return (
+      <Property type="autocomplete" autoType="expr" label="Filter"
+        primType="datasets" primId={dsId} name={'transform.' + props.index + '.test'}
+        dsId={dsId} onChange={this.updateFilter} />
+    );
   }
 });
 
-module.exports = {
-  connected: connect(mapStateToProps, mapDispatchToProps)(Filter),
-  disconnected: Filter
-};
+module.exports = Filter;

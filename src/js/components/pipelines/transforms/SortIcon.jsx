@@ -24,7 +24,7 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var SortField = React.createClass({
+var SortIcon = React.createClass({
   propTypes: {
     field: React.PropTypes.object.isRequired,
     dsId:  React.PropTypes.number,
@@ -75,4 +75,4 @@ var SortField = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(SortField);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(SortIcon);

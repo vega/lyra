@@ -48,7 +48,7 @@ function datasetsReducer(state, action) {
       transforms.push(Immutable.fromJS(action.transform)));
   }
 
-  if (action.type === ACTIONS.EDIT_DATA_TRANSFORM) {
+  if (action.type === ACTIONS.UPDATE_DATA_TRANSFORM) {
     return setIn(state, action.id + '.transform.' + action.index,
       Immutable.fromJS(action.transform));
   }
