@@ -132,7 +132,8 @@ var HoverField = React.createClass({
   },
 
   render: function() {
-    var state = this.state,
+    var dsId  = this.props.dsId,
+        state = this.state,
         field = state.fieldDef,
         fieldStyle = {top: state.offsetTop, display: field ? 'block' : 'none'},
         listStyle  = {
@@ -148,13 +149,13 @@ var HoverField = React.createClass({
 
     var fieldEl = field ? (
       <div>
-        <FieldType field={field} />
+        <FieldType dsId={dsId} field={field} />
         {field.mtype === QUANTITATIVE ? (
           <Icon onClick={this.toggleTransforms} glyph={assets.aggregate}
             width="10" height="10" data-tip="Show aggregations" />
         ) : null}
         <span className="fieldName">{field.name}</span>
-        <SortField dsId={this.props.dsId} field={field} />
+        <SortField dsId={dsId} field={field} />
       </div>
     ) : null;
 

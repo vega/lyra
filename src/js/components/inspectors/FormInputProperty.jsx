@@ -41,7 +41,9 @@ var FormInputProperty = React.createClass({
     ]),
     min: React.PropTypes.string,
     max: React.PropTypes.string,
-    disabled: React.PropTypes.string,
+    disabled: React.PropTypes.oneOfType([
+      React.PropTypes.bool, React.PropTypes.string
+    ]),
     opts: React.PropTypes.array,
     signal: React.PropTypes.string,
     setSignal: React.PropTypes.func,

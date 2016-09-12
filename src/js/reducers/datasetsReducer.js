@@ -31,6 +31,10 @@ function datasetsReducer(state, action) {
     return state;
   }
 
+  if (action.type === ACTIONS.CHANGE_FIELD_MTYPE) {
+    return setIn(state, id + '._schema.' + action.field + '.mtype', action.mtype);
+  }
+
   if (action.type === ACTIONS.SORT_DATASET) {
     return setIn(state, id + '._sort', Immutable.fromJS({
       field: action.field,
@@ -41,9 +45,11 @@ function datasetsReducer(state, action) {
   if (action.type === ACTIONS.SUMMARIZE_AGGREGATE) {
     state = setIn(state, id + '.transform.0.summarize',
       getIn(state, id + '.transform.0.summarize').mergeDeep(action.summarize));
-    dsUtil.schema(id, dsUtil.aggregateSchema(getIn(state, id + '.source'),
-      getIn(state, id + '.transform.0').toJS()));
-    return state;
+
+    var src = getIn(state, id + '.source');
+    return setIn(state, id + '._schema',
+      Immutable.fromJS(dsUtil.aggregateSchema(getIn(state, src + '._schema'),
+        getIn(state, id + '.transform.0').toJS())));
   }
 
   return state;
