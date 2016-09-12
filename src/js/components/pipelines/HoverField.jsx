@@ -9,7 +9,9 @@ var React = require('react'),
     bindChannel = require('../../actions/bindChannel'),
     Icon = require('../Icon'),
     FieldType = require('./FieldType'),
-    SortField = require('./SortField'),
+    SortIcon = require('./transforms/SortIcon'),
+    FilterIcon = require('./transforms/FilterIcon').connected,
+    FormulaIcon = require('./transforms/FormulaIcon').connected,
     AggregateList = require('./AggregateList'),
     getInVis = require('../../util/immutable-utils').getInVis,
     assets = require('../../util/assets'),
@@ -155,7 +157,10 @@ var HoverField = React.createClass({
             width="10" height="10" data-tip="Show aggregations" />
         ) : null}
         <span className="fieldName">{field.name}</span>
-        <SortField dsId={dsId} field={field} />
+
+        <SortIcon dsId={dsId} field={field} />
+        <FilterIcon dsId={dsId} field={field}/>
+        <FormulaIcon dsId={dsId} field={field}/>
       </div>
     ) : null;
 

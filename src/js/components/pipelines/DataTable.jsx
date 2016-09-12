@@ -10,11 +10,13 @@ var d3 = require('d3'),
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
     HoverField = require('./HoverField'),
-    HoverValue = require('./HoverValue');
+    HoverValue = require('./HoverValue'),
+    TransformList = require('./transforms/TransformList').connected;
 
 function mapStateToProps(state, ownProps) {
+  var id = ownProps.id;
   return {
-    dataset: getInVis(state, 'datasets.' + ownProps.id),
+    dataset: getInVis(state, 'datasets.' + id),
     vega: state.get('vega')
   };
 }
@@ -100,6 +102,9 @@ var DataTable = React.createClass({
 
     return (
       <div>
+
+        <TransformList dsId={id} />
+
         <div className="datatable"
           onMouseLeave={this.hideHover} onScroll={this.hideHover}>
 

@@ -23,7 +23,7 @@ function mapStateToProps(reduxState, ownProps) {
     if (ownProps.primType === TYPES.MARKS) {
       path = 'properties.update.' + ownProps.name;
       dsId = getIn(state, 'from.data');
-    } else if (ownProps.primType === TYPES.GUIDES) {
+    } else {
       path = ownProps.name;
     }
   }
