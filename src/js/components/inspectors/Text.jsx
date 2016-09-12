@@ -5,6 +5,7 @@ var React = require('react'),
     connect = require('react-redux').connect,
     updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
     Text = require('../../store/factory/marks/Text'),
+    assets = require('../../util/assets'),
     getInVis = require('../../util/immutable-utils').getInVis;
 
 function mapStateToProps(reduxState, ownProps) {
@@ -62,11 +63,13 @@ var TextInspector = React.createClass({
           <Property name="fontSize" label="Size" type="number"
             canDrop={true} {...props} />
 
-          <Property name="fontWeight" label="Weight" type="select"
-            opts={Text.fontWeights} canDrop={true} {...props} />
+          <Property name="fontWeight" label="Weight" type="toggle"
+            glyph={assets.bold} opts={Text.fontWeights}
+            canDrop={true} {...props} />
 
-          <Property name="fontStyle" label="Style" type="select"
-            opts={Text.fontStyles} canDrop={true} {...props} />
+          <Property name="fontStyle" label="Style" type="toggle"
+            glyph={assets.italic} opts={Text.fontStyles}
+            canDrop={true} {...props} />
 
           <Property name="fill" label="Color" type="color"
             canDrop={true} {...props} />
@@ -95,10 +98,14 @@ var TextInspector = React.createClass({
         <div className="property-group">
           <h3>Align</h3>
 
-          <Property name="align" label="Horizontal" type="select"
+          <Property name="align" label="Horizontal" type="selection"
+            glyphs={[assets['align-left'],
+                     assets['align-center'], assets['align-right']]}
             opts={Text.alignments} canDrop={true} {...props} />
 
-          <Property name="baseline" label="Vertical" type="select"
+          <Property name="baseline" label="Vertical" type="selection"
+            glyphs={[assets['vertical-align-top'],
+                     assets['vertical-align-center'], assets['vertical-align-bottom']]}
             opts={Text.baselines} canDrop={true} {...props} />
 
           <Property name="angle" label="Rotation" type="number"
@@ -110,4 +117,3 @@ var TextInspector = React.createClass({
 });
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(TextInspector);
-

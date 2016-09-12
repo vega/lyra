@@ -27,8 +27,7 @@ function def(id) {
  *
  * @namespace dataset-utilities
  */
-var _values = {},
-    _schema = {};
+var _values = {};
 
 /**
  * Initialize a dataset by loading the raw values and constructing the schema.
@@ -47,12 +46,10 @@ function init(action) {
   }
 
   _values[id] = action.values || (src ? _values[src] : null);
-  _schema[id] = action.schema || (src ? _schema[src] : null);
 }
 
 function reset() {
   _values = {};
-  _schema = {};
 }
 
 /**
@@ -145,13 +142,12 @@ function parseRaw(raw) {
  * Returns the schema of the dataset associated with the given id
  * or processes the schema based on the dataset's actual values
  *
- * @param  {number|Array} arg - The ID of the dataset whose schema to return, or
- * an array of raw values to calculate a schema for.
+ * @param  {number|Array} arg - An array of raw values to calculate a schema for.
  * @returns {Object} The dataset's schema.
  */
 function schema(arg) {
   if (dl.isNumber(arg)) {
-    return (arguments.length === 2) ? (_schema[arg] = arguments[1]) : _schema[arg];
+    throw Error('Dataset schemas are now available in the store.');
   } else if (dl.isArray(arg)) {
     var types = dl.type.inferAll(arg);
     return dl.keys(types).reduce(function(s, k) {
@@ -165,7 +161,7 @@ function schema(arg) {
     }, {});
   }
 
-  throw Error('Expected either a dataset ID or raw values array');
+  throw Error('Expected an array of raw values.');
 }
 
 /**
@@ -174,13 +170,12 @@ function schema(arg) {
  * definition as the source, as well as additional fields for all summarized
  * fields.
  *
- * @param   {number} srcId     The ID of the source dataset.
+ * @param   {Object} src     The source schema
  * @param   {Object} aggregate The Vega aggregate transform definition.
  * @returns {Object} The aggregate dataset's schema.
  */
-function aggregateSchema(srcId, aggregate) {
-  var src = schema(srcId),
-      aggSchema = aggregate.groupby.reduce(function(acc, gb) {
+function aggregateSchema(src, aggregate) {
+  var aggSchema = aggregate.groupby.reduce(function(acc, gb) {
         return (acc[gb] = src[gb], acc);
       }, {}),
       summarize = aggregate.summarize,

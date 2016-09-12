@@ -3,6 +3,7 @@
 var dl = require('datalib'),
     counter = require('../util/counter'),
     ADD_DATASET = 'ADD_DATASET',
+    CHANGE_FIELD_MTYPE = 'CHANGE_FIELD_MTYPE',
     SORT_DATASET = 'SORT_DATASET',
     SUMMARIZE_AGGREGATE = 'SUMMARIZE_AGGREGATE',
     ADD_DATA_TRANSFORM = 'ADD_DATA_TRANSFORM',
@@ -18,15 +19,32 @@ var dl = require('datalib'),
  */
 function addDataset(props, values, schema) {
   props = dl.extend({
-    _id: props._id || counter.global()
+    _id: props._id || counter.global(),
+    _schema: schema
   }, props);
 
   return {
     type: ADD_DATASET,
     id: props._id,
     props: props,
-    values: values,
-    schema: schema
+    values: values
+  };
+}
+
+/**
+ * Action creator to change a field's measure type.
+ *
+ * @param   {number} id    The ID of a dataset.
+ * @param   {string} field The name of a field.
+ * @param   {string} mtype Type of measure (nominal, quantitative, temporal).
+ * @returns {Object} A CHANGE_FIELD_MTYPE action.
+ */
+function changeFieldMType(id, field, mtype) {
+  return {
+    type: CHANGE_FIELD_MTYPE,
+    id: id,
+    field: field,
+    mtype: mtype
   };
 }
 
@@ -49,6 +67,14 @@ function sortDataset(dsId, field, order) {
   };
 }
 
+/**
+ * Action creator to update the summary fields calculated
+ * in an aggregate transform.
+ *
+ * @param   {number} id        The ID of the aggregated dataset.
+ * @param   {Object} summarize A summary definition.
+ * @returns {Object} SUMMARIZE_AGGREGATE action.
+ */
 function summarizeAggregate(id, summarize) {
   return {
     type: SUMMARIZE_AGGREGATE,
@@ -94,6 +120,7 @@ function editTransform(dsId, index, transform) {
 module.exports = {
   // Action Names
   ADD_DATASET: ADD_DATASET,
+  CHANGE_FIELD_MTYPE: CHANGE_FIELD_MTYPE,
   SORT_DATASET: SORT_DATASET,
   SUMMARIZE_AGGREGATE: SUMMARIZE_AGGREGATE,
   ADD_DATA_TRANSFORM: ADD_DATA_TRANSFORM,
@@ -101,6 +128,7 @@ module.exports = {
 
   // Action Creators
   addDataset: addDataset,
+  changeFieldMType: changeFieldMType,
   sortDataset: sortDataset,
   summarizeAggregate: summarizeAggregate,
   addTransform: addTransform,

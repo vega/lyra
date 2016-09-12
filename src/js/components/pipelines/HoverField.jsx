@@ -69,7 +69,7 @@ var HoverField = React.createClass({
   },
 
   handleDragStart: function(evt) {
-    var state = {bindField: this.state.fieldDef};
+    var state = {bindField: dl.duplicate(this.state.fieldDef)};
 
     // if an AggregateField isn't being dragged, close the menu
     if (!evt.target.classList.contains('aggregate-field')) {
@@ -134,7 +134,8 @@ var HoverField = React.createClass({
   },
 
   render: function() {
-    var state = this.state,
+    var dsId  = this.props.dsId,
+        state = this.state,
         field = state.fieldDef,
         fieldStyle = {top: state.offsetTop, display: field ? 'block' : 'none'},
         listStyle  = {
@@ -150,15 +151,16 @@ var HoverField = React.createClass({
 
     var fieldEl = field ? (
       <div>
-        <FieldType field={field} />
+        <FieldType dsId={dsId} field={field} />
         {field.mtype === QUANTITATIVE ? (
           <Icon onClick={this.toggleTransforms} glyph={assets.aggregate}
             width="10" height="10" data-tip="Show aggregations" />
         ) : null}
         <span className="fieldName">{field.name}</span>
-        <SortIcon dsId={this.props.dsId} field={field} />
-        <FilterIcon dsId={this.props.dsId} field={field}/>
-        <FormulaIcon dsId={this.props.dsId} field={field}/>
+
+        <SortIcon dsId={dsId} field={field} />
+        <FilterIcon dsId={dsId} field={field}/>
+        <FormulaIcon dsId={dsId} field={field}/>
       </div>
     ) : null;
 

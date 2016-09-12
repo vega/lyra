@@ -51,10 +51,11 @@ function addPipeline(pipeline, ds, values, schema) {
  */
 function aggregatePipeline(id, aggregate) {
   return function(dispatch, getState) {
-    var state  = getState(),
+    var state = getState(),
         pipeline = getInVis(state, 'pipelines.' + id),
-        srcId  = pipeline.get('_source'),
-        schema = dsUtil.aggregateSchema(srcId, aggregate),
+        srcId = pipeline.get('_source'),
+        srcSchema = getInVis(state, 'datasets.' + srcId + '._schema').toJS(),
+        schema = dsUtil.aggregateSchema(srcSchema, aggregate),
         key = aggregate.groupby.join('|');
 
     var ds = addDataset({

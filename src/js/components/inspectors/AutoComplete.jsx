@@ -4,7 +4,7 @@ var $ = require('jquery'),
     ReactDOM = require('react-dom'),
     connect = require('react-redux').connect,
     ContentEditable = require('react-contenteditable'),
-    dsUtil = require('../../util/dataset-utils');
+    getInVis = require('../../util/immutable-utils').getInVis;
 
 var EXPR = 'expr',
     TMPL = 'tmpl',
@@ -16,9 +16,9 @@ var EXPR = 'expr',
     TMPL_DATUM = new RegExp(TMPL_OPEN + DATUM + '*' + TMPL_CLOSE);
 
 function mapStateToProps(reduxState, ownProps) {
-  var schema = dsUtil.schema(ownProps.dsId);
+  var schema = getInVis(reduxState, 'datasets.' + ownProps.dsId + '._schema');
   return {
-    fields: Object.keys(schema)
+    fields: schema.keySeq().toJS()
   };
 }
 
@@ -55,7 +55,7 @@ var AutoComplete = React.createClass({
       match: /\b(\w{2,})$/,
       search: function(term, callback) {
         callback($.map(this.words, function(word) {
-          return word.indexOf(term) === 0 ? word : null;
+          return word.toLowerCase().indexOf(term.toLowerCase()) === 0 ? word : null;
         }));
       },
       index: 1,
@@ -143,7 +143,7 @@ var AutoComplete = React.createClass({
   handleChange: function(evt) {
     var props = this.props,
         type  = props.type,
-        value = evt.target.value || evt.target.innerHTML,
+        value = evt.target.value || evt.target.innerHTML || '',
         updateFn = props.updateFn;
 
     if (type === EXPR) {

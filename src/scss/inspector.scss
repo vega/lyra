@@ -108,6 +108,16 @@ $long-label-width: $label-width + 10px;
     margin-left: $inner-padding;
     border-bottom: 1px dashed #777;
   }
+
+  .button {
+    background-color: white;
+    padding: $inner-padding 1.5*$inner-padding;
+    margin-right: $inner-padding;
+  }
+
+  .button-secondary {
+    background-color: rgba(66, 184, 221, 0.5);
+  }
 }
 
 .more-props-label {

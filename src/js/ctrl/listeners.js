@@ -4,7 +4,9 @@ var historyActions = require('../actions/historyActions'),
     redo = historyActions.redo,
     hierarchy = require('../util/hierarchy'),
     store = require('../store'),
-    getIn = require('../util/immutable-utils').getIn,
+    imutils = require('../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis,
     inspectorActions = require('../actions/inspectorActions'),
     selectMark = inspectorActions.selectMark,
     expandLayers = inspectorActions.expandLayers,
@@ -170,12 +172,15 @@ function handleHistory(evt) {
  */
 function handleDelete(evt) {
   if (!testInput(evt) && evt.keyCode === 8) { // Delete/Backspace
-    var inspectors = getIn(store.getState(), 'inspector.encodings'),
+    var state = store.getState(),
+        inspectors = getIn(state, 'inspector.encodings'),
         type = inspectors.get('selectedType'),
-        id   = inspectors.get('selectedId');
+        id   = inspectors.get('selectedId'),
+        groupId = getInVis(state, 'marks.' + id + '._parent');
 
     if (type === ACTIONS.SELECT_MARK) {
       evt.preventDefault();
+      store.dispatch(selectMark(groupId));
       store.dispatch(deleteMark(id));
       return false;
     }

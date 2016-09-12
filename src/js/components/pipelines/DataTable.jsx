@@ -84,7 +84,7 @@ var DataTable = React.createClass({
         start = page * limit,
         stop  = start + limit,
         id = props.id,
-        schema = id ? dsUtil.schema(id) : props.schema,
+        schema = id ? props.dataset.get('_schema').toJS() : props.schema,
         output = id ? dsUtil.output(id) : props.values,
         values = output.slice(start, stop),
         keys = dl.keys(schema),
@@ -126,7 +126,7 @@ var DataTable = React.createClass({
               }, this)}
             </tbody>
           </table>
-          <HoverField dsId={id} schema={schema} def={state.hoverField} />
+          {id ? <HoverField dsId={id} schema={schema} def={state.hoverField} /> : null}
           <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
         </div>
 

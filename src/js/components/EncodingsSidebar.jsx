@@ -1,17 +1,17 @@
 'use strict';
 var React = require('react'),
     ScaleList = require('./encodings/ScaleList'),
-    LayerList = require('./encodings/LayerList');
+    GroupList = require('./encodings/GroupList');
 
-var VisualSidebar = React.createClass({
+var EncodingsSidebar = React.createClass({
   render: function() {
     return (
       <div className="sidebar" id="visual-sidebar">
-        <LayerList ref="layerList" />
+        <GroupList ref="groupList" />
         <ScaleList ref="scaleList"/>
       </div>
     );
   }
 });
 
-module.exports = VisualSidebar;
+module.exports = EncodingsSidebar;

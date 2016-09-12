@@ -3,53 +3,51 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    SignalValue = require('../mixins/SignalValue'),
-    ContentEditable = require('../ContentEditable'),
+    FormInputProperty = require('./FormInputProperty'),
+    AutoComplete = require('./AutoComplete'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
-    dsUtils  = require('../../util/dataset-utils'),
     TYPES = require('../../constants/primTypes'),
-    AutoComplete = require('./AutoComplete'),
     resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
 
-function mapStateToProps(state, ownProps) {
-  // This is also used with Pipelines, which have no primitive property
+function mapStateToProps(reduxState, ownProps) {
   if (!ownProps.primId) {
     return {};
   }
 
-  var propertyState = getInVis(state, ownProps.primType + '.' + ownProps.primId),
+  var state = getInVis(reduxState, ownProps.primType + '.' + ownProps.primId),
       path, dsId;
 
   if (ownProps.name) {
     if (ownProps.primType === TYPES.MARKS) {
       path = 'properties.update.' + ownProps.name;
-      dsId = getIn(propertyState, 'from.data');
+      dsId = getIn(state, 'from.data');
     } else if (ownProps.primType === TYPES.GUIDES) {
       path = ownProps.name;
     }
   }
 
-  var scale = getIn(propertyState, path + '.scale'),
-      scaleName = scale && getInVis(state, 'scales.' + scale + '.name'),
-      field = getIn(propertyState, path + '.field');
+  var scale = getIn(state, path + '.scale'),
+      field = getIn(state, path + '.field'),
+      scaleName = scale && getInVis(reduxState, 'scales.' + scale + '.name');
 
   return {
-    group:  getIn(propertyState, path + '.group'),
-    signal: getIn(propertyState, path + '.signal'),
-    value:  getIn(propertyState, path),
+    group:  getIn(state, path + '.group'),
+    signal: getIn(state, path + '.signal'),
+    value:  getIn(state, path),
     field:  field,
     scale:  scale,
-    srcField:  dsId && field ? dsUtils.schema(dsId)[field].source : false,
+    srcField:  dsId && field ?
+      getInVis(reduxState, 'datasets.' + dsId + '._schema.' + field + '.source') : false,
     scaleName: scaleName
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch, ownProps) {
   return {
-    resetMarkVisual: function(id, property) {
-      dispatch(resetMarkVisual(id, property));
+    unbind: function() {
+      dispatch(resetMarkVisual(ownProps.primId, ownProps.name));
     }
   };
 }
@@ -70,38 +68,17 @@ var Property = React.createClass({
       React.PropTypes.string, React.PropTypes.number,
       React.PropTypes.bool, React.PropTypes.instanceOf(Immutable.Map)
     ]),
-    resetMarkVisual: React.PropTypes.func
-  },
-
-  mixins: [SignalValue],
-
-  colorSupport: function() {
-    var input = document.createElement('input');
-    input.setAttribute('type', 'color');
-    return input.type !== 'text';
-  },
-
-  unbind: function() {
-    var props = this.props;
-    props.resetMarkVisual(props.primId, props.name);
+    unbind: React.PropTypes.func
   },
 
   render: function() {
-    var state = this.state,
-        props = this.props,
+    var props = this.props,
         name  = props.name,
         label = props.label,
         type  = props.type,
         scale = props.scale,
         field = props.field,
-        dsId = props.dsId,
-        autoType = props.autoType,
-        value = state.value,
-        disabled = props.disabled || props.group,
-        onChange = props.onChange || this.handleChange,
-        onBlur = props.onBlur,
-        colorSupport = this.colorSupport(),
-        docId = props.id,
+        unbind = props.unbind,
         labelEl, scaleEl, controlEl, extraEl;
 
     React.Children.forEach(props.children, function(child) {
@@ -117,109 +94,33 @@ var Property = React.createClass({
 
     labelEl = labelEl || (<label htmlFor={name}>{label}</label>);
     scaleEl = scale ?
-      (<div className="scale" onClick={this.unbind}>{props.scaleName}</div>) : null;
+      (<div className="scale" onClick={unbind}>{props.scaleName}</div>) : null;
 
     controlEl = field ?
       (<div className={'field ' + (props.srcField ? 'source' : 'derived')}
-        onClick={this.unbind}>{field}</div>) : controlEl;
+        onClick={unbind}>{field}</div>) : controlEl;
 
     if (!controlEl) {
-      // TODO: include 'radio' case when it's finished being implementing
       switch (type) {
-        case 'number':
-          controlEl = (
-            <input type="number"
-              value={!disabled ? value : ''}
-              min={props.min} max={props.max}
-              disabled={disabled}
-              id={docId}
-              onChange={onChange}
-              name={name} />
-          );
-          break;
-        case 'range':
-          controlEl = (
-            <div>
-              <input type="range"
-                value={!disabled ? value : ''}
-                disabled={disabled}
-                min={props.min} max={props.max} step={props.step}
-                onChange={onChange}
-                name={name} />
-
-              <ContentEditable value={!disabled ? value : ''}
-                save={onChange} />
-            </div>
-          );
-          break;
-        case 'color':
-          controlEl = (
-            <div>
-              <input type={colorSupport ? 'color' : 'text'}
-                value={!disabled ? value : ''}
-                disabled={disabled}
-                name={name}
-                onChange={onChange} />
-
-              {colorSupport ? (
-                <ContentEditable value={!disabled ? value : ''} save={onChange} />
-              ) : null}
-            </div>
-          );
-          break;
-        case 'select':
-          controlEl = (
-            <select value={value}
-              onChange={onChange}
-              name={name}>
-              {props.opts.map(function(o) {
-                return (<option key={o} value={o}>{o}</option>);
-              }, this)}
-            </select>
-          );
-          break;
-        case 'text':
-          controlEl = (
-            <div>
-              <input type="text"
-                name={name}
-                value={value}
-                onChange={onChange}
-                onBlur={onBlur}
-              />
-            </div>
-          );
-          break;
         case 'autocomplete':
           controlEl = (
-            <AutoComplete type={autoType} updateFn={onChange} value={value} dsId={dsId}/>
-            );
-          break;
-        case 'checkbox':
-          controlEl = (
-            <div>
-              <input type="checkbox"
-                checked={!disabled ? value : ''}
-                name={name}
-                onChange={onChange} />
-            </div>
+            <AutoComplete type={props.autoType} updateFn={props.onChange}
+              value={props.value} dsId={props.dsId}/>
           );
           break;
         default:
-          controlEl = null;
+          controlEl = (
+            <FormInputProperty {...props} />
+          );
       }
     }
 
-    var className = 'property';
-    if (props.canDrop) {
-      className += ' can-drop';
-    }
-    if (props.firstChild) {
-      className += ' first-child';
-    }
     if (extraEl) {
       extraEl = (<div className="extra">{extraEl}</div>);
     }
+
+    var className = 'property' + (props.canDrop ? ' can-drop' : '') +
+      (props.firstChild ? ' first-child' : '');
 
     return (
       <div className={className}>

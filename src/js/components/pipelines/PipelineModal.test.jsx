@@ -2,7 +2,7 @@
 
 var React = require('react'),
     expect = require('chai').expect,
-    configureMockStore = require('redux-mock-store'),
+    configureMockStore = require('redux-mock-store').default,
     dl = require('datalib'),
     enzyme = require('enzyme'),
     shallow = enzyme.shallow,

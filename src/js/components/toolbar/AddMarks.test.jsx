@@ -4,7 +4,7 @@
 var React = require('react'),
     expect = require('chai').expect,
     enzyme = require('enzyme'),
-    configureMockStore = require('redux-mock-store'),
+    configureMockStore = require('redux-mock-store').default,
     AddMarks = require('./AddMarks'),
     ACTIONS = require('../../actions/Names');
 
