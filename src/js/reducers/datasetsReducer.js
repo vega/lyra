@@ -7,7 +7,8 @@ var Immutable = require('immutable'),
     set   = immutableUtils.set,
     setIn = immutableUtils.setIn,
     getIn = immutableUtils.getIn,
-    dsUtil = require('../util/dataset-utils');
+    dsUtil = require('../util/dataset-utils'),
+    MTYPES = require('../constants/measureTypes.js');
 
 /**
  * Main datasets reducer function, which generates a new state for the
@@ -19,7 +20,8 @@ var Immutable = require('immutable'),
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
 function datasetsReducer(state, action) {
-  var id = action.id;
+  var id = action.id,
+      transform = action.transform;
 
   if (typeof state === 'undefined') {
     return Immutable.Map();
@@ -43,13 +45,32 @@ function datasetsReducer(state, action) {
   }
 
   if (action.type === ACTIONS.ADD_DATA_TRANSFORM) {
-    var transforms = getIn(state, action.id + '.transform') || Immutable.List();
-    return setIn(state, action.id + '.transform',
-      transforms.push(Immutable.fromJS(action.transform)));
+    var transforms = getIn(state, id + '.transform') || Immutable.List();
+
+    if (transform.type === 'formula') {
+      state = setIn(state, id + '._schema.' + transform.field,
+        Immutable.fromJS({
+          name: transform.field,
+          type: 'number',
+          mtype: MTYPES.QUANTITATIVE,
+          source: false
+        }));
+    }
+
+    return setIn(state, id + '.transform',
+      transforms.push(Immutable.fromJS(transform)));
   }
 
   if (action.type === ACTIONS.UPDATE_DATA_TRANSFORM) {
-    return setIn(state, action.id + '.transform.' + action.index,
+    if (transform.type === 'formula') {
+      var oldName = getIn(state, id + '.transform.' + action.index + '.field'),
+          oldSchema = getIn(state, id + '._schema.' + oldName);
+
+      state = state.deleteIn([id + '', '_schema', oldName]);
+      state = setIn(state, id + '._schema.' + transform.field, oldSchema);
+    }
+
+    return setIn(state, id + '.transform.' + action.index,
       Immutable.fromJS(action.transform));
   }
 

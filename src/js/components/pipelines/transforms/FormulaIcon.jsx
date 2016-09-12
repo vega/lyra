@@ -12,8 +12,9 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     formula: function() {
+      var field = ownProps.field.name;
       dispatch(addTransform(ownProps.dsId,
-        {type: 'formula', field: '', expr: 'datum.' + ownProps.field.name}));
+        {type: 'formula', field: 'calc_' + field, expr: 'datum.' + field}));
     }
   };
 }
