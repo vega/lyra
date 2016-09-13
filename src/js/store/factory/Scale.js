@@ -25,6 +25,7 @@ function rename(name) {
  */
 module.exports = function(name, type, domain, range) {
   return {
+    _origName: name,
     name: rename(name),
     type: type,
 

@@ -126,11 +126,13 @@ exporter.mark = function(state, internal, id) {
       spec = clean(dl.duplicate(mark), internal),
       up = mark.properties.update,
       upspec = spec.properties.update,
-      fromId;
+      fromId, count;
 
   if (spec.from) {
     if ((fromId = spec.from.data)) {
       spec.from.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
+      count = counts.data[fromId] || (counts.data[fromId] = dl.duplicate(DATA_COUNT));
+      count.marks[id] = true;
     } else if ((fromId = spec.from.mark)) {
       spec.from.mark = name(getInVis(state, 'marks.' + fromId + '.name'));
     }

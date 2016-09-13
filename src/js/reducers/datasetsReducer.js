@@ -81,11 +81,14 @@ function datasetsReducer(state, action) {
 
   if (action.type === ACTIONS.SUMMARIZE_AGGREGATE) {
     state = setIn(state, id + '.transform.0.summarize',
-      getIn(state, id + '.transform.0.summarize').mergeDeep(action.summarize));
+      getIn(state, id + '.transform.0.summarize')
+        .mergeWith(function(prev, next) {
+          return prev.toSet().merge(next);
+        }, action.summarize));
 
     var src = getIn(state, id + '.source');
     return setIn(state, id + '._schema',
-      Immutable.fromJS(dsUtil.aggregateSchema(getIn(state, src + '._schema'),
+      Immutable.fromJS(dsUtil.aggregateSchema(getIn(state, src + '._schema').toJS(),
         getIn(state, id + '.transform.0').toJS())));
   }
 

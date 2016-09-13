@@ -150,7 +150,9 @@ function findOrCreateLegend(dispatch, state, parsed, scaleId, defs) {
 
   legends.valueSeq().forEach(function(legendId) {
     var legend = getInVis(state, 'guides.' + legendId);
-    foundLegend = foundLegend || legend.get(property) === scaleId;
+    if (legend) {
+      foundLegend = foundLegend || legend.get(property) === scaleId;
+    }
   });
 
   if (!foundLegend) {

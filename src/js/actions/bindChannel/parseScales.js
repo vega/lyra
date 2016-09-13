@@ -132,7 +132,9 @@ function equals(state, markType, def, scale) {
     return false;
   }
 
-  if (scale.get('range') !== def.range) {
+  var rng = scale.get('range');
+  rng = rng.toJS ? rng.toJS() : rng;
+  if (JSON.stringify(rng) !== JSON.stringify(def.range)) {
     return false;
   }
 

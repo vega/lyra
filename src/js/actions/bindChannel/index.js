@@ -14,6 +14,7 @@ var dl = require('datalib'),
     parseScales = require('./parseScales'),
     parseMarks  = require('./parseMarks'),
     parseGuides = require('./parseGuides'),
+    updateAggregateDependencies = require('./aggregateDependencies'),
     cleanupUnused = require('./cleanupUnused');
 
 // Vega mark types to Vega-Lite mark types.
@@ -75,6 +76,10 @@ function bindChannel(dsId, field, markId, property) {
     parseData(dispatch, state, parsed);
     parseScales(dispatch, state, parsed);
     parseMarks(dispatch, state, parsed);
+
+    if (parsed.map.data.summary) {
+      updateAggregateDependencies(dispatch, getState(), parsed);
+    }
 
     // At this point, we know enough to clean up any unused scales and
     // data sources. We do this here (rather than in the ctrl) to (1) avoid
