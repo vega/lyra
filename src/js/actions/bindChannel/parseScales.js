@@ -25,8 +25,9 @@ var REF_CELLW = {data: 'layout', field: 'cellWidth'},
  * @returns {void}
  */
 module.exports = function(dispatch, state, parsed) {
-  var map  = parsed.map.scales,
-      mark = parsed.mark,
+  var map = parsed.map.scales,
+      dsMap = parsed.map.data,
+      mark  = parsed.mark,
       channel  = parsed.channel,
       markType = parsed.markType,
       prev = getInVis(state, 'scales.' + map[channel]),
@@ -52,9 +53,9 @@ module.exports = function(dispatch, state, parsed) {
   def = parse(scales[0]);
 
   // First, try to find a matching scale.
-  if (!prev || !equals(state, markType, def, prev)) {
+  if (!prev || !equals(state, markType, def, prev, dsMap)) {
     getInVis(state, 'scales').valueSeq().forEach(function(scale) {
-      if (equals(state, markType, def, scale)) {
+      if (equals(state, markType, def, scale, dsMap)) {
         prev = scale;
         scaleId = scale.get('_id');
         return false;
@@ -64,7 +65,7 @@ module.exports = function(dispatch, state, parsed) {
 
   // If no previous or matching scale exists, or if there's a mismatch in
   // definitions, dispatch actions to construct a new scale.
-  if (!prev || !equals(state, markType, def, prev)) {
+  if (!prev || !equals(state, markType, def, prev, dsMap)) {
     def = createScale(dispatch, parsed, def);
     scaleId = def.id;
 
@@ -119,10 +120,11 @@ function parse(def) {
  * @param  {string} markType    The Vega type of the mark.
  * @param  {Object} def   A parsed Vega scale definition.
  * @param  {Scale}  scale An existing Lyra scale.
+ * @param  {Object} dsMap A mapping of data source names to IDs
  * @returns {boolean} Returns true or false based on if the given Lyra scale
  * matches the parsed Vega definition.
  */
-function equals(state, markType, def, scale) {
+function equals(state, markType, def, scale, dsMap) {
   if (scale.get('type') !== def.type) {
     return false;
   }
@@ -140,6 +142,13 @@ function equals(state, markType, def, scale) {
 
   var field = getIn(scale, '_domain.0.field');
   if (field !== def.domain.field) {
+    return false;
+  }
+
+  var pipeline = getInVis(state,
+    'datasets.' + getIn(scale, '_domain.0.data') + '._parent');
+  if (pipeline !== getInVis(state,
+    'datasets.' + dsMap[def.domain.data] + '._parent')) {
     return false;
   }
 

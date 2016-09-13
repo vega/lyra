@@ -19,10 +19,10 @@ var dl = require('datalib'),
  * @returns {Object} An ADD_DATASET action.
  */
 function addDataset(props, values, schema) {
-  props = dl.extend({
+  props = dl.extend({}, props, {
     _id: props._id || counter.global(),
     _schema: schema
-  }, props);
+  });
 
   return {
     type: ADD_DATASET,
