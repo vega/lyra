@@ -22,12 +22,14 @@ var TransformList = React.createClass({
   render: function() {
     var props = this.props,
         transforms = props.transforms,
+        aggregate  = transforms ? transforms.size === 1 &&
+          transforms.first().get('type') === 'aggregate' : false,
         dsId = props.dsId;
 
-    return transforms ? (
+    return transforms && !aggregate ? (
       <div className="transform-list">
         {transforms.map(function(transform, i) {
-          return (
+          return transform.get('type') === 'aggregate' ? null : (
             <TransformInspector key={i} index={i} dsId={dsId} def={transform} />
           );
         }, this)}

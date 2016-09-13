@@ -139,7 +139,10 @@ var HoverField = React.createClass({
         elem  = document.querySelector('.field.source'),
         size  = elem ? elem.getBoundingClientRect() : {},
         field = state.fieldDef,
-        fieldStyle = {top: state.offsetTop, display: field ? 'block' : 'none'},
+        fieldStyle = {
+          top: state.offsetTop,
+          display: field ? 'block' : 'none'
+        },
         listStyle  = {
           top: state.offsetTop,
           display: field && state.showAggregates ? 'block' : 'none'
