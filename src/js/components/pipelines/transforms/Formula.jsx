@@ -1,7 +1,8 @@
 'use strict';
 var React = require('react'),
     Immutable = require('immutable'),
-    Property = require('../../inspectors/Property');
+    parseExpr = require('vega').parse.expr(),
+    Property  = require('../../inspectors/Property');
 
 var Formula = React.createClass({
   propTypes: {
@@ -15,13 +16,18 @@ var Formula = React.createClass({
     var props = this.props,
         def = props.def,
         field = evt.target ? evt.target.value : def.get('field'),
-        expr = evt.target ? def.get('expr') : evt;
+        expr  = evt.target ? def.get('expr') : evt;
 
-    props.update({type: 'formula', field: field, expr: expr});
+    try {
+      parseExpr(expr);
+      props.update({type: 'formula', field: field, expr: expr});
+    } catch (e) {
+      // Do nothing if the expression doesn't parse correctly.
+    }
   },
 
   render: function() {
-    var props = this.props,
+    var props  = this.props,
         update = this.updateFormula,
         dsId = props.dsId;
 

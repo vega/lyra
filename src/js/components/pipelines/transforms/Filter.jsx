@@ -1,6 +1,7 @@
 'use strict';
 var React = require('react'),
-    Property = require('../../inspectors/Property');
+    parseExpr = require('vega').parse.expr(),
+    Property  = require('../../inspectors/Property');
 
 var Filter = React.createClass({
   propTypes: {
@@ -12,12 +13,18 @@ var Filter = React.createClass({
   updateFilter: function(value) {
     var props = this.props,
         val = value.target ? value.target.value : value;
-    props.update({type: 'filter', test: val});
+
+    try {
+      parseExpr(val);
+      props.update({type: 'filter', test: val});
+    } catch (e) {
+      // Do nothing if the expression doesn't parse correctly.
+    }
   },
 
   render: function() {
     var props = this.props,
-        dsId = props.dsId;
+        dsId  = props.dsId;
 
     return (
       <Property type="autocomplete" autoType="expr" label="Filter"
