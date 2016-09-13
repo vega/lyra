@@ -136,11 +136,19 @@ var HoverField = React.createClass({
   render: function() {
     var dsId  = this.props.dsId,
         state = this.state,
+        elem  = document.querySelector('.field.source'),
+        size  = elem ? elem.getBoundingClientRect() : {},
         field = state.fieldDef,
         fieldStyle = {top: state.offsetTop, display: field ? 'block' : 'none'},
         listStyle  = {
           top: state.offsetTop,
           display: field && state.showAggregates ? 'block' : 'none'
+        },
+        bufferStyle = {
+          display: fieldStyle.display,
+          top: state.offsetTop - 18,
+          height: size.height + 26,
+          width: 2 * size.width
         },
         dragHandlers = {
           onDragStart: this.handleDragStart,
@@ -158,14 +166,16 @@ var HoverField = React.createClass({
         ) : null}
         <span className="fieldName">{field.name}</span>
 
-        <SortIcon dsId={dsId} field={field} />
         <FilterIcon dsId={dsId} field={field}/>
         <FormulaIcon dsId={dsId} field={field}/>
+        <SortIcon dsId={dsId} field={field} />
       </div>
     ) : null;
 
     return (
       <div>
+        <div className="buffer full" style={bufferStyle}></div>
+
         <div style={fieldStyle} draggable={true}
           className={'full field ' + (field && field.source ? 'source' : 'derived')}
           onDragStart={this.handleDragStart}

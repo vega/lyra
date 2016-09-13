@@ -8,7 +8,7 @@ var Immutable = require('immutable'),
     setIn = immutableUtils.setIn,
     getIn = immutableUtils.getIn,
     dsUtil = require('../util/dataset-utils'),
-    MTYPES = require('../constants/measureTypes.js');
+    MTYPES = require('../constants/measureTypes');
 
 /**
  * Main datasets reducer function, which generates a new state for the

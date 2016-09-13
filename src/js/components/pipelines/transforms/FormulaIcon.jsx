@@ -29,7 +29,7 @@ var FormulaIcon = React.createClass({
   render: function() {
     return (<Icon onClick={this.props.formula}
       glyph={assets.formula} width="10" height="10"
-      data-tip="Formula" />);
+      data-tip="Calculate a new field" />);
   }
 });
 
