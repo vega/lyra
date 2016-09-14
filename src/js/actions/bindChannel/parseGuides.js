@@ -6,7 +6,9 @@ var merge = require('lodash.merge'),
     addAxisToGroup = actions.addAxisToGroup,
     addLegendToGroup = actions.addLegendToGroup,
     Guide = require('../../store/factory/Guide'),
-    getInVis = require('../../util/immutable-utils').getInVis;
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis;
 
 var TYPES = Guide.GTYPES,
     CTYPE = {
@@ -97,9 +99,13 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
         var araw = axisScale.get(x),
             sraw = scale.get(x),
             aref = axisScale.get('_' + x),
-            sref = scale.get('_' + x);
+            sref = scale.get('_' + x),
+            apl  = getInVis(state, 'datasets.' + getIn(aref, '0.data') + '._parent'),
+            spl  = getInVis(state, 'datasets.' + getIn(sref, '0.data') + '._parent'),
+            afl  = getIn(aref, '0.field'),
+            sfl  = getIn(sref, '0.field');
         return araw ? araw === sraw || araw.equals(sraw) :
-          aref === sref || aref.equals(sref);
+          apl === spl && afl === sfl;
       });
       return !foundAxis;
     }
