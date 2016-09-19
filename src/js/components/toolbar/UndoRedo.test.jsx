@@ -6,7 +6,7 @@ var React = require('react'),
     enzyme = require('enzyme'),
     Immutable = require('immutable'),
     mount  = enzyme.mount,
-    configureMockStore = require('redux-mock-store'),
+    configureMockStore = require('redux-mock-store').default,
     UndoRedo = require('./UndoRedo'),
     ACTIONS = require('../../actions/Names');
 

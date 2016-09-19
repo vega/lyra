@@ -167,6 +167,32 @@ $pipeline-width: 180px;
   }
 }
 
+.transform-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: $outer-padding;
+
+  .transform-button {
+    display: inline-block;
+    padding: $inner-padding;
+    cursor: pointer;
+    background: $lgrey-bg;
+    border: 1px solid $lgrey-border;
+    border-radius: $border-radius;
+    margin-right: $inner-padding;
+  }
+
+  .transform-inspector {
+    width: 100%;
+    margin: $outer-padding 0;
+    border-top: 1px solid $lgrey-bg;
+    border-bottom: 1px solid $lgrey-bg;
+
+    &:first-child { margin-top: 0; }
+    &:last-child { margin-bottom: 0; }
+  }
+}
+
 .pipelineModal {
   display: flex;
   flex-direction: row;

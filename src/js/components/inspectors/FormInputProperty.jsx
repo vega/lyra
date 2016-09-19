@@ -4,6 +4,7 @@ var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
     ContentEditable = require('../ContentEditable'),
+    Icon = require('../Icon'),
     setSignal = require('../../actions/signalActions').setSignal,
     getInVis = require('../../util/immutable-utils').getInVis,
     ctrl = require('../../ctrl'),
@@ -31,7 +32,8 @@ var FormInputProperty = React.createClass({
   propTypes: {
     id: React.PropTypes.string,
     type: React.PropTypes.oneOf([
-      'number', 'range', 'color', 'select', 'text', 'checkbox'
+      'number', 'range', 'color', 'select',
+      'text', 'checkbox', 'toggle', 'selection'
     ]),
     value: React.PropTypes.oneOfType([
       React.PropTypes.string, React.PropTypes.number,
@@ -39,7 +41,9 @@ var FormInputProperty = React.createClass({
     ]),
     min: React.PropTypes.string,
     max: React.PropTypes.string,
-    disabled: React.PropTypes.string,
+    disabled: React.PropTypes.oneOfType([
+      React.PropTypes.bool, React.PropTypes.string
+    ]),
     opts: React.PropTypes.array,
     signal: React.PropTypes.string,
     setSignal: React.PropTypes.func,
@@ -126,6 +130,7 @@ var FormInputProperty = React.createClass({
 
   render: function() {
     var props = this.props,
+        name = props.name,
         id  = props.id,
         min = props.min,
         max = props.max,
@@ -184,6 +189,36 @@ var FormInputProperty = React.createClass({
               return (<option key={o} value={o}>{o}</option>);
             }, this)}
           </select>
+        );
+
+      case 'toggle':
+        var otherVal = props.opts.find(function(opt) {
+          return opt !== value;
+        });
+
+        return (
+          <div>
+            <button type="button" id={id}
+              className={(value === props.opts[0] ? '' : 'button-secondary ') + 'button'}
+              onClick={onChange.bind(this, otherVal)}>
+              <Icon glyph={props.glyph} />
+            </button>
+          </div>
+        );
+
+      case 'selection':
+        return (
+          <div>
+            {props.opts.map(function(opt, idx) {
+              return (
+                <button key={opt} type="button" id={id}
+                  className={(value === opt ? 'button-secondary ' : '') + 'button'}
+                  onClick={onChange.bind(this, opt)}>
+                  <Icon glyph={props.glyphs[idx]} />
+                </button>
+              );
+            }, this)}
+          </div>
         );
 
       default:

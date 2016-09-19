@@ -31,26 +31,16 @@ function exporter(internal) {
 }
 
 exporter.pipelines = function(state, internal) {
-  var pipelines = getInVis(state, 'pipelines').valueSeq().toJS(),
-      plAggregatesList = [], plList = [], plSourceList;
+  var pipelines = getInVis(state, 'pipelines').valueSeq().toJS();
+  return pipelines.reduce(function(spec, pipeline) {
+    spec.push(exporter.dataset(state, internal, pipeline._source));
 
-  plSourceList = pipelines.map(function(pl) {
-    return pl._source;
-  });
-
-  pipelines.forEach(function(pl) {
-    if (pl._aggregates) {
-      dl.keys(pl._aggregates).forEach(function(aggregate) {
-        plAggregatesList.push(pl._aggregates[aggregate]);
-      });
+    var aggrs = pipeline._aggregates;
+    for (var key in aggrs) {
+      spec.push(exporter.dataset(state, internal, aggrs[key]));
     }
-  });
-
-  plList = plSourceList.concat(plAggregatesList);
-
-  return plList.map(function(plMapping) {
-    return exporter.dataset(state, internal, plMapping);
-  });
+    return spec;
+  }, []);
 };
 
 exporter.dataset = function(state, internal, id) {

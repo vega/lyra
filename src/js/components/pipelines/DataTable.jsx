@@ -10,11 +10,13 @@ var d3 = require('d3'),
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
     HoverField = require('./HoverField'),
-    HoverValue = require('./HoverValue');
+    HoverValue = require('./HoverValue'),
+    TransformList = require('./transforms/TransformList').connected;
 
 function mapStateToProps(state, ownProps) {
+  var id = ownProps.id;
   return {
-    dataset: getInVis(state, 'datasets.' + ownProps.id),
+    dataset: getInVis(state, 'datasets.' + id),
     vega: state.get('vega')
   };
 }
@@ -82,7 +84,7 @@ var DataTable = React.createClass({
         start = page * limit,
         stop  = start + limit,
         id = props.id,
-        schema = id ? dsUtil.schema(id) : props.schema,
+        schema = id ? props.dataset.get('_schema').toJS() : props.schema,
         output = id ? dsUtil.output(id) : props.values,
         values = output.slice(start, stop),
         keys = dl.keys(schema),
@@ -100,6 +102,9 @@ var DataTable = React.createClass({
 
     return (
       <div>
+
+        <TransformList dsId={id} />
+
         <div className="datatable"
           onMouseLeave={this.hideHover} onScroll={this.hideHover}>
 
@@ -121,7 +126,7 @@ var DataTable = React.createClass({
               }, this)}
             </tbody>
           </table>
-          <HoverField dsId={id} schema={schema} def={state.hoverField} />
+          {id ? <HoverField dsId={id} schema={schema} def={state.hoverField} /> : null}
           <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
         </div>
 

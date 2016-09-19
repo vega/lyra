@@ -9,7 +9,9 @@ var React = require('react'),
     bindChannel = require('../../actions/bindChannel'),
     Icon = require('../Icon'),
     FieldType = require('./FieldType'),
-    SortField = require('./SortField'),
+    SortIcon = require('./transforms/SortIcon'),
+    FilterIcon = require('./transforms/FilterIcon').connected,
+    FormulaIcon = require('./transforms/FormulaIcon').connected,
     AggregateList = require('./AggregateList'),
     getInVis = require('../../util/immutable-utils').getInVis,
     assets = require('../../util/assets'),
@@ -67,7 +69,7 @@ var HoverField = React.createClass({
   },
 
   handleDragStart: function(evt) {
-    var state = {bindField: this.state.fieldDef};
+    var state = {bindField: dl.duplicate(this.state.fieldDef)};
 
     // if an AggregateField isn't being dragged, close the menu
     if (!evt.target.classList.contains('aggregate-field')) {
@@ -132,12 +134,24 @@ var HoverField = React.createClass({
   },
 
   render: function() {
-    var state = this.state,
+    var dsId  = this.props.dsId,
+        state = this.state,
+        elem  = document.querySelector('.field.source'),
+        size  = elem ? elem.getBoundingClientRect() : {},
         field = state.fieldDef,
-        fieldStyle = {top: state.offsetTop, display: field ? 'block' : 'none'},
+        fieldStyle = {
+          top: state.offsetTop,
+          display: field ? 'block' : 'none'
+        },
         listStyle  = {
           top: state.offsetTop,
           display: field && state.showAggregates ? 'block' : 'none'
+        },
+        bufferStyle = {
+          display: fieldStyle.display,
+          top: state.offsetTop - 18,
+          height: size.height + 26,
+          width: 2 * size.width
         },
         dragHandlers = {
           onDragStart: this.handleDragStart,
@@ -148,18 +162,23 @@ var HoverField = React.createClass({
 
     var fieldEl = field ? (
       <div>
-        <FieldType field={field} />
+        <FieldType dsId={dsId} field={field} />
         {field.mtype === QUANTITATIVE ? (
           <Icon onClick={this.toggleTransforms} glyph={assets.aggregate}
             width="10" height="10" data-tip="Show aggregations" />
         ) : null}
         <span className="fieldName">{field.name}</span>
-        <SortField dsId={this.props.dsId} field={field} />
+
+        <FilterIcon dsId={dsId} field={field}/>
+        <FormulaIcon dsId={dsId} field={field}/>
+        <SortIcon dsId={dsId} field={field} />
       </div>
     ) : null;
 
     return (
       <div>
+        <div className="buffer full" style={bufferStyle}></div>
+
         <div style={fieldStyle} draggable={true}
           className={'full field ' + (field && field.source ? 'source' : 'derived')}
           onDragStart={this.handleDragStart}

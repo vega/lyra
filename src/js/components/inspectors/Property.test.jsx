@@ -4,7 +4,7 @@
 var React = require('react'),
     expect = require('chai').expect,
     dl = require('datalib'),
-    configureMockStore = require('redux-mock-store'),
+    configureMockStore = require('redux-mock-store').default,
     Immutable = require('immutable'),
     enzyme = require('enzyme'),
     mount = enzyme.mount,

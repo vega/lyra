@@ -8,7 +8,6 @@ var React = require('react'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
-    dsUtils  = require('../../util/dataset-utils'),
     TYPES = require('../../constants/primTypes'),
     resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
 
@@ -24,7 +23,7 @@ function mapStateToProps(reduxState, ownProps) {
     if (ownProps.primType === TYPES.MARKS) {
       path = 'properties.update.' + ownProps.name;
       dsId = getIn(state, 'from.data');
-    } else if (ownProps.primType === TYPES.GUIDES) {
+    } else {
       path = ownProps.name;
     }
   }
@@ -39,7 +38,8 @@ function mapStateToProps(reduxState, ownProps) {
     value:  getIn(state, path),
     field:  field,
     scale:  scale,
-    srcField:  dsId && field ? dsUtils.schema(dsId)[field].source : false,
+    srcField:  dsId && field ?
+      getInVis(reduxState, 'datasets.' + dsId + '._schema.' + field + '.source') : false,
     scaleName: scaleName
   };
 }

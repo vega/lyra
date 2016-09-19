@@ -15,8 +15,8 @@
 module.exports = function(name, opt) {
   return {
     name:   name,
-    source: opt.source,
-    url: opt.url,
-    format: opt.format
+    source: opt ? opt.source : undefined,
+    url: opt ? opt.url : undefined,
+    format: opt ? opt.format : undefined
   };
 };

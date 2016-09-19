@@ -87,7 +87,7 @@
     "redux": "^3.5.2",
     "redux-devtools": "^3.3.1",
     "redux-immutable": "^3.0.6",
-    "redux-mock-store": "^1.1.2",
+    "redux-mock-store": "^1.2.0",
     "redux-thunk": "^2.1.0",
     "sass-loader": "^3.2.0",
     "sinon": "^1.17.4",

@@ -2,13 +2,13 @@
 var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    ReactTooltip = require('react-tooltip'),
-    sortDataset = require('../../actions/datasetActions').sortDataset,
-    assets = require('../../util/assets'),
-    Icon   = require('../Icon'),
-    getInVis = require('../../util/immutable-utils').getInVis,
-    ORDER  = require('../../constants/sortOrder'),
-    MTYPES = require('../../constants/measureTypes');
+    sortDataset = require('../../../actions/datasetActions').sortDataset,
+    assets = require('../../../util/assets'),
+    Icon   = require('../../Icon'),
+    getInVis = require('../../../util/immutable-utils').getInVis,
+    ORDER  = require('../../../constants/sortOrder'),
+    MTYPES = require('../../../constants/measureTypes'),
+    ReactTooltip = require('react-tooltip');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -24,7 +24,7 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var SortField = React.createClass({
+var SortIcon = React.createClass({
   propTypes: {
     field: React.PropTypes.object.isRequired,
     dsId:  React.PropTypes.number,
@@ -75,4 +75,4 @@ var SortField = React.createClass({
   }
 });
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(SortField);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(SortIcon);
