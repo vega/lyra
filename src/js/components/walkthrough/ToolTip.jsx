@@ -28,18 +28,36 @@ var ToolTip = React.createClass({
         },
         toolTipArrowStyle = position.arrow,
         toolTipClassnames = 'popover in ' + orient,
-        inner,
-        markupComponent = options.markupComponent;
+        markupComponent = options.markupComponent,
+        media = props.media ? (<div className="media">
+          {props.media}
+        </div>) : null,
+        instructions = props.instructions ? (<div className="instructions">
+            <strong>Instructions</strong>
+            <ul>
+              {props.instructions.map(function(o, k) {
+                return (<li><strong>{k + 1}</strong> - {o}</li>);
+              })}
+            </ul>
+          </div>) : null,
+        inner;
 
     // switch block or find
     if (markupComponent && markupComponent === 'MarksList') {
       inner = (
         <div>
-          {props.text}
+          {props.text}<br />
+          {instructions}
+          {media}
           <MarksList />
         </div>);
     } else {
-      inner = props.text;
+      inner = (<div>
+
+        {props.text}<br />
+        {instructions}
+        {media}
+      </div>);
     }
 
     return (
@@ -52,8 +70,8 @@ var ToolTip = React.createClass({
           </span>
         </div>
         <div className="content">
-          {inner}
           {props.error}
+          {inner}
         </div>
         <div className="footer">
           {props.control}

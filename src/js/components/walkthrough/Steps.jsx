@@ -1,6 +1,8 @@
 'use strict';
 var React = require('react'),
     connect = require('react-redux').connect,
+    keys = require('datalib').keys,
+    isArray = require('datalib').isArray,
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
@@ -18,12 +20,17 @@ var React = require('react'),
 function mapStateToProps(reduxState, ownProps) {
   var active = getIn(reduxState, 'walkthrough.activeWalkthrough'),
       currentStepId = getIn(reduxState, 'walkthrough.activeStep'),
-      steps = getIn(reduxState, 'walkthrough.data.' + active + '.steps');
+      steps = getIn(reduxState, 'walkthrough.data.' + active + '.steps'),
+      paused = getIn(reduxState, 'walkthrough.pausedWalkthrough');
 
   return {
     currentStepId: currentStepId,
     steps: steps,
-    marks: getInVis(reduxState, 'marks')
+    marks: getInVis(reduxState, 'marks'),
+    data: getIn(reduxState, 'walkthrough').get('data'),
+    pausedWalkthrough: paused,
+    activeWalkthrough: active,
+    vegaSpec: vegaSpec()
   };
 }
 function mapDispatchToProps(dispatch, ownProps) {
@@ -31,6 +38,9 @@ function mapDispatchToProps(dispatch, ownProps) {
     deselectWalkthrough: function() {
       dispatch(WActions.setActiveWalkthrough(null));
       dispatch(WActions.setActiveStep(1));
+    },
+    nextWalkThrough: function(nextKey) {
+      dispatch(WActions.setActiveWalkthrough(nextKey));
     },
     goToNext: function() {
       if (this.steps.size > this.currentStepId) {
@@ -52,7 +62,9 @@ var Step = React.createClass({
     marks: React.PropTypes.object,
     goToNext: React.PropTypes.func,
     goToPrevious: React.PropTypes.func,
-    deselectWalkthrough: React.PropTypes.func
+    deselectWalkthrough: React.PropTypes.func,
+    nextWalkThrough: React.PropTypes.func,
+    vegaSpec: React.PropTypes.object
   },
 
   getInitialState: function() {
@@ -61,6 +73,60 @@ var Step = React.createClass({
       errorMap: null,
       errorMessage: null
     };
+  },
+
+  componentWillReceiveProps: function(newProps) {
+    var currentStep = this.getCurrentStep(),
+        oldVs = this.props.vegaSpec,
+        newVs = newProps.vegaSpec;
+
+    if (currentStep.opts.autoValidate && JSON.stringify(oldVs) !== JSON.stringify(newVs)) {
+      this.next();
+    }
+  },
+
+  componentDidUpdate: function() {
+    // clear old dom auto-validators
+    this.unbindProgressors();
+    // add new dom auto-validators
+    this.bindProgressors();
+  },
+
+  bindProgressors: function() {
+    var nextStep = this.getCurrentStep(),
+        opts = nextStep.opts,
+        autoProwess = opts.validate && opts.autoValidate,
+        domState = opts.domState,
+        parent;
+
+    if (autoProwess && (domState && domState.queryParent)) {
+      parent = this.getTargetEl(domState.queryParent);
+      parent.addEventListener('DOMNodeInserted', this.next, false);
+    }
+  },
+
+  unbindProgressors: function() {
+    var previous = this.getPreviousStep(),
+        popts = previous.opts,
+        pautoProwess = popts.validate && popts.autoValidate,
+        pdomState = popts.domState,
+        pparent;
+
+    if (pautoProwess && (pdomState && pdomState.queryParent)) {
+      pparent = this.getTargetEl(pdomState.queryParent);
+      pparent.removeEventListener('DOMNodeInserted', this.next, false);
+    }
+  },
+
+  getPreviousStep: function() {
+    var steps = this.props.steps.toJS();
+    var currentId = this.props.currentStepId;
+    return steps.find(function(step) {
+      if (currentId > 0) {
+        return step.id === currentId - 1;
+      }
+      return null;
+    });
   },
 
   getNextStep: function() {
@@ -94,19 +160,16 @@ var Step = React.createClass({
   next: function() {
     var current = this.getCurrentStep(),
         opts = current.opts,
-        requiresValidation = opts.validate,
         validation;
 
-    if (requiresValidation) {
+    if (opts.validate) {
       validation = this.validateStep(opts);
 
-      if (validation.success_status) {
-        this.setState({error: false});
+      if (validation.success) {
+        this.setState({error: false, errorMessage: null, errorMap: null});
         this.props.goToNext();
       } else {
-        this.setState({errorMessage: validation.message});
-        this.setState({errorMap: validation.errors});
-        this.setState({error: true});
+        this.setState({error: true, errorMessage: validation.message, errorMap: validation.errors});
       }
     } else {
       this.props.goToNext();
@@ -120,6 +183,11 @@ var Step = React.createClass({
 
   quitWalkthrough: function() {
     this.props.deselectWalkthrough();
+  },
+
+  goToWalkthrough: function(nextKey) {
+    this.quitWalkthrough();
+    this.props.nextWalkThrough(nextKey);
   },
 
   validateStep: function(stepOpts) {
@@ -140,21 +208,30 @@ var Step = React.createClass({
   controls: function() {
     var state = this.state,
         props = this.props,
+        waKeys = keys(props.data.toJS()),
+        currentKey = props.activeWalkthrough,
+        currentKeyIndex = waKeys.indexOf(currentKey),
         notLast = (props.steps.size > props.currentStepId),
+        last = !notLast,
         notFirst = props.currentStepId !== 1,
-        error = state.error, next, previous, finish;
+        error = state.error, nextKey, next, previous, finish, nextWa;
 
-    error = error ? <span className="skip" onClick={this.forceContinue}>
+    nextKey = currentKeyIndex + 1 <= waKeys.length - 1 ? waKeys[currentKeyIndex + 1] : null;
+
+    error = error ? (<span className="skip" onClick={this.forceContinue}>
         Skip this step
-      </span> : null;
-    next = notLast ? <span className="next" onClick={this.next}>
+      </span>) : null;
+    next = notLast ? (<span className="next" onClick={this.next}>
         NEXT
-      </span> : null;
+      </span>) : null;
     previous = notFirst ? (<span className="previous" onClick={this.previous}>
         Previous
       </span>) : null;
-    finish = !notLast ? (<span className="next" onClick={this.quitWalkthrough}>
+    finish = last ? (<span className="next" onClick={this.quitWalkthrough}>
         FINISH
+      </span>) : null;
+    nextWa = last && nextKey ? (<span className="nextWa" onClick={this.goToWalkthrough.bind(null, nextKey)}>
+        Next walkthrough
       </span>) : null;
 
     return (
@@ -163,12 +240,13 @@ var Step = React.createClass({
         {error}
         {next}
         {finish}
+        {nextWa}
       </div>
     );
   },
 
   getTargetEl: function(selector) {
-    // TODO parameterize for more complex dom selection
+    // @TODO parameterize for more complex dom selection
     return document.getElementById(selector) || document.querySelector(selector);
   },
 
@@ -201,25 +279,45 @@ var Step = React.createClass({
     return pos;
   },
 
-  highlightTarget: function(selector) {},
+  processMedia: function(source) {
+    var media;
+
+    if (isArray(source)) {
+      media = (<span>
+        {
+          source.forEach(function(imgUrl) {
+            return (<img src={imgUrl}></img>);
+          })
+        }
+      </span>);
+    } else {
+      media = (<img src={source}></img>);
+    }
+
+    return media;
+  },
 
   render: function() {
     var props = this.props,
+        state = this.state,
         current = this.getCurrentStep(),
         currentId = props.currentStepId,
-        thumbnail = current.image ? (<img src={current.image} alt={current.alt_text}/>) : '',
+        media = current.image ? this.processMedia(current.image) : null,
         controls = this.controls(),
         steps = this.props.steps.valueSeq().toArray(),
         stepType = current.type,
-        errors = this.state.errorMap,
-        message = this.state.errorMessage,
+        errors = state.errorMap,
+        message = state.errorMessage,
         error = this.state.error ? (<Errors message={message} errors={errors}/>) : '',
         stepProps = {
           title: current.title,
           text: current.text,
           error: error,
+          media: media,
+          instructions: current.instructions,
           position: {}
         },
+        paused = props.pausedWalkthrough,
         targetDomElSelector, stepInner;
 
     if (stepType === 'tooltip') {
@@ -229,14 +327,13 @@ var Step = React.createClass({
       stepProps.position = this.computeToolTipPosition(targetDomElSelector);
       stepProps.options = opts;
 
-      stepInner = (<ToolTip control={controls} quit={this.quitWalkthrough}
-        {...stepProps} />);
+      stepInner = !paused ? (<ToolTip control={controls} quit={this.quitWalkthrough}
+        {...stepProps} />) : null;
     } else {
       stepProps.steps = steps;
       stepProps.currentId = currentId;
-      stepProps.thumbnail = thumbnail;
-      stepInner = (<Dialogue control={controls} quit={this.quitWalkthrough}
-        {...stepProps} />);
+      stepInner = !paused ? (<Dialogue control={controls} quit={this.quitWalkthrough}
+        {...stepProps} />) : null;
     }
 
     return (

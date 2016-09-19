@@ -10,7 +10,8 @@ function walkthroughReducer(state, action) {
     return Immutable.fromJS({
       data: require('../walkthrough'),
       activeStep: 1,
-      activeWalkthrough: null
+      activeWalkthrough: null,
+      pausedWalkthrough: null
     });
   }
 
@@ -24,6 +25,10 @@ function walkthroughReducer(state, action) {
 
   if (action.type === actions.SET_WALKTHROUGH) {
     return state.set(action.key, dl.extend({}, state.get(action.key), action.data));
+  }
+
+  if (action.type === actions.PAUSE_WALKTHROUGH) {
+    return state.set('pausedWalkthrough', action.paused);
   }
 
   return state;

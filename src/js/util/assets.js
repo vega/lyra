@@ -39,5 +39,6 @@ module.exports = {
   'align-right': require('../../assets/align-right.svg'),
   'vertical-align-bottom': require('../../assets/vertical-align-bottom.svg'),
   'vertical-align-center': require('../../assets/vertical-align-center.svg'),
-  'vertical-align-top': require('../../assets/vertical-align-top.svg')
+  'vertical-align-top': require('../../assets/vertical-align-top.svg'),
+  playfair_4: require('../../assets/playfair_4.gif')
 };

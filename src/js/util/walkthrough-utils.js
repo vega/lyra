@@ -1,6 +1,6 @@
 'use strict';
 var isMatch = require('lodash.ismatch'),
-    intersection = require('lodash.intersection');
+    isArray = require('datalib').isArray;
 
 /**
  * Walkthrough Utility has functions used in the walkthrough react components
@@ -15,8 +15,11 @@ var isMatch = require('lodash.ismatch'),
 var PROPERTY_CONTAINER = {
   marks: 'properties.update',
   guides: 'property',
-  scales: ''
+  scales: '',
+  legends: 'properties.update'
 };
+
+var observer;
 
 /**
  * Get the properties off the primitive
@@ -102,83 +105,226 @@ function testPropertyExistence(match, stateArray, type) {
  * @param  {String} type - marks, guides, or scales
  * @returns {Object} An object containing success or error messaging
  */
+ // @TODO appropriately pair necessary hints/suggestion to every error
+ // @TODO refactor iterative blocks into their own function
 function validate(currentState, expectedState) {
-  var status = true,
-      errors = [];
+  var validation = {success: false, errors: []},
+      expectedMarkSpecs = expectedState.marks,
+      expectedDsSpecs = expectedState.data,
+      expectedAxisSpecs = expectedState.axes,
+      expectedScalesSpecs = expectedState.scales,
+      currentStateMarks = currentState.marks[0],
+      markSpecs = currentStateMarks.marks,
+      dsSpecs = currentState.data,
+      axesSpecs = currentStateMarks.axes,
+      scalesSpecs = currentStateMarks.scales;
 
-  var markSpec = currentState.marks[0].marks,
-      currentDsSpecs = currentState.data,
-      expectedDsSpec = expectedState.data;
+  // Marks
+  if (expectedMarkSpecs) {
+    // we ought to determine how to store all necessary errors here
+    var noMarksPresent = 'No marks not found!',
+        missingMarkType, missingMarkProperties;
 
-  // Marks -------------
-  if (markSpec) {
-    for (var i = 0; i < expectedState.marks.length; i++) {
-      // find types in current state
-      // find how many we are looking for
-      var markType = expectedState.marks[i].type,
-          min = filterBy(markType, expectedState.marks, 'type').length;
-      // test type existence ----------------------
-      if (!testTypeExistence(markType, markSpec, min)) {
-        status = false;
-        errors.push('No ' + markType.toUpperCase() + ' mark found');
-        break;
-      }
+    if (!markSpecs.length) {
+      addError(noMarksPresent, validation.errors);
+    } else {
+      expectedMarkSpecs.forEach(function(eMarkSpec) {
+        var markType = eMarkSpec.type,
+            minMarkCount = filterBy(markType, expectedMarkSpecs, 'type').length,
+            expectedMarkProps = getProperties(eMarkSpec, 'marks');
 
-      // test property existence ------------------
-      var expectedProps = getProperties(expectedState.marks[i], 'marks');
-      if (expectedProps && !testPropertyExistence(expectedState.marks[i], markSpec, 'marks')) {
-        status = false;
-        errors.push('Missing a ' + markType.toUpperCase() +
-        ' element with properties: ' + JSON.stringify(expectedProps));
-      }
+        missingMarkType = 'No ' + markType.toUpperCase() + ' mark found!';
+        missingMarkProperties = 'Missing ' + markType.toUpperCase() + ' with properties: ' +
+        JSON.stringify(expectedMarkProps);
+
+        if (!testTypeExistence(markType, markSpecs, minMarkCount)) {
+          addError(missingMarkType, validation.errors);
+        } else if (expectedMarkProps && !testPropertyExistence(eMarkSpec, markSpecs, 'marks')) {
+          addError(missingMarkProperties, validation.errors);
+        } else {
+          removeError(missingMarkType, validation.errors);
+          removeError(missingMarkProperties, validation.errors);
+        }
+      });
     }
   }
 
-  if (expectedDsSpec) {
-    expectedDsSpec.forEach(function(spec) {
-      if (currentDsSpecs.indexOf(spec) === -1) {
-        status = false;
-        errors.push('Necessary data not found!');
-      }
-    });
+  // Datasets
+  if (expectedDsSpecs) {
+    // @TODO switch to error helpers
+    var noDsPresent = 'No data sets found!',
+        dsInvalid;
+
+    // ensure currentState contains all contents of expectedDsSpecs
+    if (!dsSpecs.length) {
+      addError(noDsPresent, validation.errors);
+    } else {
+      expectedDsSpecs.forEach(function(eDsSpec) {
+        dsSpecs.forEach(function(cDsSpec) {
+          dsInvalid = eDsSpec.name + ' data set not found!';
+          if (eDsSpec.url === cDsSpec.url) {
+            removeError(noDsPresent, validation.errors);
+            removeError(dsInvalid, validation.errors);
+          } else {
+            addError(dsInvalid, validation.errors);
+          }
+        });
+      });
+    }
   }
 
-  // Scales -------------
-  if (currentState.scales) {
-    // TODO
+  // Axes
+  if (expectedAxisSpecs) {
+    var noAxesFound = 'No axes found!',
+        missingAxisType, missingAxisProperties;
+
+    if (!axesSpecs.length) {
+      addError(noAxesFound, validation.errors);
+    } else {
+      expectedAxisSpecs.forEach(function(eAxisSpec) {
+        var axisType = eAxisSpec.type,
+            minAxisCount = filterBy(axisType, expectedAxisSpecs, 'type').length,
+            expectedAxisProps = getProperties(eAxisSpec, 'guides');
+
+        missingAxisType = 'No ' + axisType.toUpperCase() + ' axis found!';
+        missingAxisProperties = 'Missing ' + axisType.toUpperCase() + ' with properties: ' +
+        JSON.stringify(expectedAxisProps);
+
+        if (!testTypeExistence(axisType, axesSpecs, minAxisCount)) {
+          addError(missingAxisType, validation.errors);
+        } else if (expectedAxisProps && !testPropertyExistence(eAxisSpec, axesSpecs, 'guides')) {
+          addError(missingAxisType, validation.errors);
+        } else {
+          removeError(missingAxisType, validation.errors);
+          removeError(missingAxisProperties, validation.errors);
+        }
+      });
+    }
   }
 
-  // Axes -------------
-  if (currentState.axes) {
-    // TODO
+  // Scales
+  if (expectedScalesSpecs) {
+    var noScales = 'No scales found!',
+        noAxes = 'No axes found!',
+        missingScaleType, missingScaleProperties;
+
+    if (!axesSpecs.length) {
+      addError(noAxes, validation.errors);
+    } else if (!scalesSpecs.length) {
+      addError(noScales, validation.errors);
+    } else {
+      expectedScalesSpecs.forEach(function(eScaleSpec) {
+        var scaleType = eScaleSpec.type,
+            scaleName = eScaleSpec.name,
+            minScaleCount = filterBy(scaleType, expectedScalesSpecs, 'type').length,
+            expectedScaleProps = getProperties(eScaleSpec, 'scales');
+
+        missingScaleType = 'No ' + scaleType.toUpperCase() + ' scale found on ' + scaleName + ' axis or legend!';
+        missingScaleProperties = 'Missing ' + scaleType.toUpperCase() + ' with properties: ' +
+        JSON.stringify(expectedScaleProps);
+
+        if (!testTypeExistence(scaleType, scalesSpecs, minScaleCount)) {
+          addError(missingScaleType, validation.errors);
+        } else if (expectedScaleProps && !testPropertyExistence(eScaleSpec, scalesSpecs, 'scales')) {
+          addError(missingScaleProperties, validation.errors);
+        } else {
+          removeError(missingScaleType, validation.errors);
+          removeError(missingScaleProperties, validation.errors);
+          removeError(noAxes, validation.errors);
+          removeError(noScales, validation.errors);
+        }
+      });
+    }
   }
 
-  return {
-    success_status: status,
-    errors: errors
-  };
+  if (!validation.errors.length) {
+    validation.success = true;
+  }
+
+  return validation;
+}
+
+function getErrorIndex(e, errs) {
+  if (!isArray(errs)) {
+    throw new Error('errors must be an array');
+  }
+  return errs.indexOf(e);
+}
+
+function errorExists(e, errs) {
+  if (!isArray(errs)) {
+    throw new Error('errors must be an array');
+  }
+  return errs.indexOf(e) !== -1;
+}
+
+function addError(e, errs) {
+  if (!isArray(errs)) {
+    throw new Error('errors must be an array');
+  }
+  if (!errorExists(e, errs)) {
+    errs.push(e);
+  }
+}
+
+function removeError(e, errs) {
+  if (!isArray(errs)) {
+    throw new Error('errors must be an array');
+  }
+  if (errorExists(e, errs)) {
+    errs.splice(getErrorIndex(e, errs), 1);
+  }
 }
 
 function validateDom(domState) {
-  var status = true,
+  var status = false,
       errors = [],
-      query;
+      errorMessage, query;
 
-  if (domState) {
+  if (domState && domState.query) {
     query = domState.query;
+    errorMessage = 'A ' + query.replace('.', '').toUpperCase() + ' was not found';
 
     if (!document.querySelector(query)) {
-      status = false;
-      // TODO add error/hint messages
-      errors.push(query + ' was not found');
+      addError(errorMessage, errors);
+    } else {
+      removeError(errorMessage, errors);
     }
   }
 
+  if (!errors.length) {
+    status = true;
+  }
+
   return {
-    success_status: status,
+    success: status,
     errors: errors
   };
 }
+
+// function detectNodeInsertion(parentNode, onNodeInsert) {
+//   observer = new MutationObserver(function(mutations) {
+//     mutations.forEach(function(mutation) {
+//       console.log(mutation.type);
+//     });
+//   });
+//
+//   startObserver();
+// }
+//
+// function detectNodeRemoval(parentNode, onNodeRemoval) {}
+//
+// function startObserver(target, config) {
+//   if (observer.observe) {
+//     observer.observe(target, config);
+//   }
+// }
+//
+// function clearObserver() {
+//   if (observer.disconnect) {
+//     observer.disconnect();
+//   }
+// }
 
 module.exports = {
   validate: validate,

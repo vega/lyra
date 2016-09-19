@@ -18,7 +18,6 @@
     "id": 2,
     "title": "Inspector Sidebar",
     "text": "The Inspector Sidebar allows you to modify different attributes of the current visualization such as a mark's fill color or the number of ticks  present in a specific axis",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
@@ -31,7 +30,6 @@
     "id": 3,
     "title": "Pipeline Sidebar",
     "text": "This sidebar will be populated with data tables once you've imported data.",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
@@ -44,7 +42,6 @@
     "id": 4,
     "title": "Marks - Toolbar",
     "text": "Marks are the primary elements of a visualization: they are graphical primitives whose properties (such as position, size, shape, and color) can be used to visually encode data. To add marks to the visualization, you can select them from this Toolbar",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
@@ -58,7 +55,6 @@
     "id": 5,
     "title": "Export",
     "text": "The Export button allows you to download the visualizations created by Lyra in PNG, SVG, JSON or HTML formats.",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
@@ -69,9 +65,8 @@
     "type": "tooltip"
   }, {
     "id": 6,
-    "title": "Data Pipelines",
+    "title": "Importing Data",
     "text": "Data is loaded via the Pipeline Modal which can be accessed by clicking this '+ NEW' data pipeline button.",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
@@ -82,16 +77,18 @@
     "type": "tooltip"
   }, {
     "id": 7,
-    "title": "Importing Data",
+    "title": "Pipeline Modal",
     "text": "Proceed by opening the Pipeline Modal. In order to do so click '+ NEW' in the Pipeline Sidebar tab. Once you've done so click 'Next'.",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
       "target": "",
+      "allowSkip": false,
       "validate": true,
+      "autoValidate": true,
       "domState": {
-        "query": ".pipelineModal"
+        "query": ".pipelineModal",
+        "queryParent": ".ReactModalPortal"
       }
     },
     "help": "",
@@ -100,12 +97,15 @@
     "id": 8,
     "title": "Examples",
     "text": "You can import data in Lyra from example datasets.",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
       "target": ".examples ul",
-      "validate": false
+      "validate": true,
+      "domState": {
+        "query": ".pipelineModal",
+        "queryParent": ".ReactModalPortal"
+      }
     },
     "help": "",
     "type": "tooltip"
@@ -113,12 +113,15 @@
     "id": 9,
     "title": "Urls",
     "text": "You can laod data from external urls.",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
       "target": ".load form",
-      "validate": false
+      "validate": true,
+      "domState": {
+        "query": ".pipelineModal",
+        "queryParent": ".ReactModalPortal"
+      }
     },
     "help": "",
     "type": "tooltip"
@@ -126,12 +129,15 @@
     "id": 10,
     "title": "Drag and Drop / Raw Input",
     "text": "You can enter raw data or drag and drop files with appropriate formatting in this dropzone.",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
       "target": ".load div textarea",
-      "validate": false
+      "validate": true,
+      "domState": {
+        "query": ".pipelineModal",
+        "queryParent": ".ReactModalPortal"
+      }
     },
     "help": "",
     "type": "tooltip"
@@ -139,14 +145,15 @@
     "id": 11,
     "title": "Loading Data",
     "text": "Let's import some data! Choose an example dataset, or import some data using urls, drag and drop or entering raw data.",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
       "target": "",
       "validate": true,
+      "autoValidate": true,
       "domState": {
-        "query": ".pipelineModal .preview div .datatable"
+        "query": ".pipelineModal .preview div .datatable",
+        "queryParent": ".pipelineModal"
       }
     },
     "help": "",
@@ -155,12 +162,15 @@
     "id": 12,
     "title": "Data Previews",
     "text": "Upon importing data, Lyra will present that data using this Data Table.",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
       "target": ".pipelineModal .preview div",
-      "validate": false
+      "validate": true,
+      "domState": {
+        "query": ".pipelineModal .preview div .datatable",
+        "queryParent": ".pipelineModal"
+      }
     },
     "help": "",
     "type": "tooltip"
@@ -168,12 +178,12 @@
     "id": 13,
     "title": "Importing",
     "text": "Click import to laod data into the Pipelines Sidebar.",
-    "image": "https://placehold.it/150x150",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
       "target": "",
       "validate": true,
+      "autoValidate": true,
       "domState": {
         "query": "#pipeline-sidebar #pipeline-list .pipeline"
       }
@@ -183,8 +193,7 @@
   }, {
     "id": 14,
     "title": "Woo Hoo!",
-    "text": "You've now been acquainted with the Lyra interface!",
-    "image": "https://placehold.it/150x150",
+    "text": "You've now been acquainted with Lyra's interface!",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {

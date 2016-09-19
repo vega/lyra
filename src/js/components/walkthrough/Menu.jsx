@@ -4,20 +4,35 @@ var React = require('react'),
     Modal = require('react-modal'),
     getIn = require('../../util/immutable-utils').getIn,
     WActions = require('../../actions/walkthroughActions'),
+    setActiveWalkthrough = WActions.setActiveWalkthrough,
+    setActiveStep = WActions.setActiveStep,
+    pauseWalkthrough = WActions.pauseWalkthrough,
+    unPauseWalkthrough = WActions.unPauseWalkthrough,
     assets = require('../../util/assets'),
     Icon = require('../Icon');
 
 
 function mapStateToProps(reduxState) {
   return {
-    walkthroughs: getIn(reduxState, 'walkthrough.data')
+    walkthroughs: getIn(reduxState, 'walkthrough.data'),
+    activeStep: getIn(reduxState, 'walkthrough.activeStep'),
+    activeWalkthrough: getIn(reduxState, 'walkthrough.activeWalkthrough'),
+    pausedWalkthrough: getIn(reduxState, 'walkthrough.pausedWalkthrough')
   };
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    select: function(key) {
-      dispatch(WActions.setActiveWalkthrough(key));
+    select: function(key, step) {
+      step = step || 1;
+      dispatch(setActiveWalkthrough(key));
+      dispatch(setActiveStep(step));
+    },
+    pauseWA: function(key, currentStep) {
+      dispatch(pauseWalkthrough(key, currentStep));
+    },
+    unPauseWA: function(key, currentStep) {
+      dispatch(unPauseWalkthrough(key, currentStep));
     }
   };
 }
@@ -40,10 +55,27 @@ var WalkthroughMenu = React.createClass({
   },
 
   openModal: function() {
+    var props = this.props,
+        waKey = props.activeWalkthrough,
+        waStep = props.activeStep;
+
+    if (waKey) {
+      props.pauseWA(waKey, waStep);
+      props.select(null, null);
+    }
+
     this.setState({modalIsOpen: true});
   },
 
   closeModal: function() {
+    var props = this.props,
+        pausedWA = props.pausedWalkthrough;
+
+    if (pausedWA) {
+      props.select(pausedWA.key);
+      props.pauseWA(null, null);
+    }
+
     this.setState({modalIsOpen: false});
   },
 

@@ -5,7 +5,8 @@
   "steps": [{
     "id": 1,
     "title": "Playfair's Wheat",
-    "text": "This tutorial will introduce you to some fundamental workflows in Lyra which are needed for creating visualizations.",
+    "text": "This tutorial will introduce you to some fundamental workflows in Lyra such as adding data, adding marks and binding data to different attributes of a Mark in order the compose visualizations. By the end we'll have produced the visualization pictured below!",
+    "image": "http://localhost:8080/src/assets/playfair_1.png",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
@@ -15,36 +16,51 @@
     "type": "dialog"
   }, {
     "id": 2,
-    "title": "Adding Marks",
-    "text": "As you saw in the Introduction, Marks act as visual building blocks for any visualization in Lyra. For this tutorial we'll be relying on the Rect mark, so to begin, add a Rect to the visualization.",
+    "title": "Adding Data",
+    "text": "All visualizations in Lyra need backing data, for this tutorial we'll be employing a dataset used in William Playfair's famous \"Playfair's Wheat\" visualization.",
+    "instructions": [
+      "Copy the dataset's url: https://raw.githubusercontent.com/vega/vega-datasets/gh-pages/data/wheat.json",
+      "load the corresponding data using the Pipeline Modal's url field"
+    ],
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
       "target": "",
-      "validate": true
+      "validate": true,
+      "autoValidate": true
     },
-    "help": "Marks are located in the Toolbar above the visualization canvas. Click on a specific Mark to add it to the visualization.",
+    "help": "Hints: ensure you've imported from the correct url. If you're still having trouble try closing the modal and clicking 'Undo'.",
     "type": "dialog"
   }, {
     "id": 3,
-    "title": "Adding Data",
-    "text": "All visualizations in Lyra need backing data, for this tutorial we'll be employing a dataset inspired by William Playfair's famous \"Playfair's Wheat\" visualization. The dataset can be found at this url: https://raw.githubusercontent.com/vega/vega-datasets/gh-pages/data/wheat.json, load the corresponding data using the Pipeline Modal's url field.",
+    "title": "Adding Marks",
+    "text": "As you saw in the Introduction, Marks act as visual building blocks in Lyra. For this tutorial we'll be relying on the Rect mark.",
+    "instructions": [
+      "Add a Rect to the visualization."
+    ],
     "alt_text": "an image",
     "lyra_state": {
-      "marks": [{
-        "type": "rect"
+      "data": [{
+        "name": "wheat_source",
+        "url": "https://raw.githubusercontent.com/vega/vega-datasets/gh-pages/data/wheat.json",
+        "format": {
+          "parse": "auto",
+          "type": "json"
+        }
       }]
     },
     "opts": {
       "target": "",
-      "validate": true
+      "validate": true,
+      "autoValidate": true
     },
     "help": "Marks are located in the Toolbar above the visualization canvas. Click on a specific Mark to add it to the visualization.",
     "type": "dialog"
   }, {
     "id": 4,
-    "title": "Mark Interaction",
-    "text": "Usage of gifs to demonstrate dropzones",
+    "title": "Dropzones",
+    "text": "Dropzones are crucial to any visualization in Lyra. A mark's various dropzones are what allow us to bind data values to its physical attrubutes, so that the marks can start to resemble visualizations. In order to use dropzones, ensure the mark is selected, then drag a field out of the Data Table and move it towards the mark. Once the data field is inside a dropzone, colored regions will appear indicating which mark property the dropzone corresponds to. To bind the data to the mark, simply drop the field inside the dropzone's range.",
+    "image": "http://localhost:8080/src/assets/playfair_4.gif",
     "alt_text": "an image",
     "lyra_state": {
       "marks": [{
@@ -61,9 +77,98 @@
     },
     "opts": {
       "target": "",
-      "validate": true
+      "validate": false
     },
-    "help": "Hints: ensure you've imported from the correct url. If you're still having trouble try closing the modal and clicking 'Undo'.",
+    "help": "",
+    "type": "dialog"
+  }, {
+    "id": 5,
+    "title": "Binding Data 1/3",
+    "text": "Lets try putting our knowledge of dropzones to the test!",
+    "instructions": [
+      "Start off by toggling the 'year' field's type to 'ordinal'",
+      "Now grab the 'year' field from the Data Table and bind its values to the Rect mark's x axis",
+      "Next, grab the field titled 'wheat' and bind its values to the Rect mark's y axis.",
+      "Lastly, grab the field titled 'wages' and bind its values to the Rect mark's fill dropzone."
+    ],
+    "alt_text": "an image",
+    "lyra_state": {
+      "marks": [{
+        "type": "rect"
+      }],
+      "axes": [{
+        "type": "x",
+        "title": "year",
+        "scale": "x"
+      },{
+        "type": "y",
+        "title": "wheat",
+        "scale": "y"
+      }],
+      "scales": [{
+        "name": "x",
+        "type": "ordinal"
+      },{
+        "name": "y",
+        "type": "linear"
+      }],
+      "data": [{
+        "name": "wheat_source",
+        "url": "https://raw.githubusercontent.com/vega/vega-datasets/gh-pages/data/wheat.json",
+        "format": {
+          "parse": "auto",
+          "type": "json"
+        }
+      }]
+    },
+    "opts": {
+      "target": "",
+      "validate": true,
+      "autoValidate": true
+    },
+    "help": "",
+    "type": "dialog"
+  }, {
+    "id": 6,
+    "title": "Conclusion",
+    "text": "You just composed you're first visualization using Lyra! Lets recap what we've seen thus far. We began our visualization process by 1) importing necessary data, 2) adding visual elements like marks to our visualization and 3) binding different values to the mark's various properties such as width, height and fill color.",
+    "alt_text": "an image",
+    "lyra_state": {
+      "marks": [{
+        "type": "rect"
+      }],
+      "axes": [{
+        "type": "x",
+        "title": "year"
+      },{
+        "type": "y",
+        "title": "wheat"
+      }],
+      "scales": [{
+        "name": "x",
+        "type": "ordinal"
+      }, {
+        "name": "y",
+        "type": "linear"
+      }, {
+        "name": "color",
+        "type": "linear"
+      }],
+      "data": [{
+        "name": "wheat_source",
+        "url": "https://raw.githubusercontent.com/vega/vega-datasets/gh-pages/data/wheat.json",
+        "format": {
+          "parse": "auto",
+          "type": "json"
+        }
+      }]
+    },
+    "opts": {
+      "target": "",
+      "validate": true,
+      "autoValidate": true
+    },
+    "help": "",
     "type": "dialog"
   }]
 }

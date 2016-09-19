@@ -27,7 +27,6 @@
   display: block;
   z-index: 9999;
   display: block;
-  z-index: 9999;
   padding: 1px;
   font-family: inherit;
   font-size: 14px;
@@ -93,7 +92,8 @@
 
       .previous,
       .next,
-      .skip {
+      .skip,
+      .nextWa {
         margin: 0;
         cursor: pointer;
       }
@@ -111,6 +111,9 @@
         color: $mblue-bg;
         text-align: right;
       }
+      .nextWa {
+        padding-left: $inner-padding;
+      }
     }
   }
 }
@@ -119,8 +122,9 @@
   bottom: 45px;
   left: 570px;
   width: 646px;
-  min-height: 150px;
-  max-height: 200px;
+  max-width: 750px;
+  min-height: 100px;
+  max-height: 250px;
   display: flex;
   flex-direction: column;
 
@@ -131,6 +135,16 @@
     flex: 1 1 auto;
     overflow-y: auto;
     position: relative;
+
+    .media {
+      padding: $outer-padding 0;
+    }
+
+    .media > img {
+      height: 175px;
+      border: 2px solid $dblue-bg;
+      width: auto;
+    }
   }
   .footer {
     flex: 0 0 auto;
