@@ -86,18 +86,22 @@ var Step = React.createClass({
   },
 
   componentDidUpdate: function() {
+    console.log('updating');
     // clear old dom auto-validators
     this.unbindProgressors();
     // add new dom auto-validators
     this.bindProgressors();
+
   },
 
   bindProgressors: function() {
-    var nextStep = this.getCurrentStep(),
-        opts = nextStep.opts,
+    var step = this.getCurrentStep(),
+        opts = step.opts,
         autoProwess = opts.validate && opts.autoValidate,
         domState = opts.domState,
         parent;
+
+    console.log('step: ', step);
 
     if (autoProwess && (domState && domState.queryParent)) {
       parent = this.getTargetEl(domState.queryParent);
@@ -149,11 +153,8 @@ var Step = React.createClass({
   },
 
   previous: function() {
-    this.setState({
-      errorMessage: '',
-      errorMap: null,
-      error: false
-    });
+    this.setState({errorMessage: '', errorMap: null, error: false});
+    this.unbindProgressors();
     this.props.goToPrevious();
   },
 

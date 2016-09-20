@@ -66,24 +66,12 @@
   }, {
     "id": 6,
     "title": "Importing Data",
-    "text": "Data is loaded via the Pipeline Modal which can be accessed by clicking this '+ NEW' data pipeline button.",
+    "text": "All data used in Lyra is loading via a Pipeline Modal which can be accessed by clicking this '+ NEW' button.",
+    "instructions": ["Click '+ NEW' to open the Pipeline Modal"],
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
       "target": "#pipeline-sidebar h2 span.new",
-      "validate": false
-    },
-    "help": "",
-    "type": "tooltip"
-  }, {
-    "id": 7,
-    "title": "Pipeline Modal",
-    "text": "Proceed by opening the Pipeline Modal. In order to do so click '+ NEW' in the Pipeline Sidebar tab. Once you've done so click 'Next'.",
-    "alt_text": "an image",
-    "lyra_state": {},
-    "opts": {
-      "target": "",
-      "allowSkip": false,
       "validate": true,
       "autoValidate": true,
       "domState": {
@@ -92,9 +80,9 @@
       }
     },
     "help": "",
-    "type": "dialog"
+    "type": "tooltip"
   }, {
-    "id": 8,
+    "id": 7,
     "title": "Examples",
     "text": "You can import data in Lyra from example datasets.",
     "alt_text": "an image",
@@ -110,7 +98,7 @@
     "help": "",
     "type": "tooltip"
   }, {
-    "id": 9,
+    "id": 8,
     "title": "Urls",
     "text": "You can laod data from external urls.",
     "alt_text": "an image",
@@ -126,7 +114,7 @@
     "help": "",
     "type": "tooltip"
   }, {
-    "id": 10,
+    "id": 9,
     "title": "Drag and Drop / Raw Input",
     "text": "You can enter raw data or drag and drop files with appropriate formatting in this dropzone.",
     "alt_text": "an image",
@@ -142,9 +130,15 @@
     "help": "",
     "type": "tooltip"
   }, {
-    "id": 11,
+    "id": 10,
     "title": "Loading Data",
-    "text": "Let's import some data! Choose an example dataset, or import some data using urls, drag and drop or entering raw data.",
+    "text": "Let's import some data! Choose one of the various import methods and load any dataset of your chosing.",
+    "instructions": [
+      "Choose one of the various import methods and load any dataset of your chosing",
+      "Once you've done so, an 'import' button pictured below will appear in addition to a preview table",
+      "Click 'import' to make this data available for usage in Lyra"
+    ],
+    "image": "http://localhost:8080/src/assets/intro_1.png",
     "alt_text": "an image",
     "lyra_state": {},
     "opts": {
@@ -152,46 +146,14 @@
       "validate": true,
       "autoValidate": true,
       "domState": {
-        "query": ".pipelineModal .preview div .datatable",
-        "queryParent": ".pipelineModal"
+        "query": "#pipeline-sidebar #pipeline-list .pipeline",
+        "queryParent": "#pipeline-sidebar #pipeline-list"
       }
     },
     "help": "",
     "type": "dialog"
   }, {
-    "id": 12,
-    "title": "Data Previews",
-    "text": "Upon importing data, Lyra will present that data using this Data Table.",
-    "alt_text": "an image",
-    "lyra_state": {},
-    "opts": {
-      "target": ".pipelineModal .preview div",
-      "validate": true,
-      "domState": {
-        "query": ".pipelineModal .preview div .datatable",
-        "queryParent": ".pipelineModal"
-      }
-    },
-    "help": "",
-    "type": "tooltip"
-  }, {
-    "id": 13,
-    "title": "Importing",
-    "text": "Click import to laod data into the Pipelines Sidebar.",
-    "alt_text": "an image",
-    "lyra_state": {},
-    "opts": {
-      "target": "",
-      "validate": true,
-      "autoValidate": true,
-      "domState": {
-        "query": "#pipeline-sidebar #pipeline-list .pipeline"
-      }
-    },
-    "help": "",
-    "type": "dialog"
-  }, {
-    "id": 14,
+    "id": 11,
     "title": "Woo Hoo!",
     "text": "You've now been acquainted with Lyra's interface!",
     "alt_text": "an image",

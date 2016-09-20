@@ -36,7 +36,7 @@ var ToolTip = React.createClass({
             <strong>Instructions</strong>
             <ul>
               {props.instructions.map(function(o, k) {
-                return (<li><strong>{k + 1}</strong> - {o}</li>);
+                return (<li key={k}><strong>{k + 1}</strong> - {o}</li>);
               })}
             </ul>
           </div>) : null,

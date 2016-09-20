@@ -302,30 +302,6 @@ function validateDom(domState) {
   };
 }
 
-// function detectNodeInsertion(parentNode, onNodeInsert) {
-//   observer = new MutationObserver(function(mutations) {
-//     mutations.forEach(function(mutation) {
-//       console.log(mutation.type);
-//     });
-//   });
-//
-//   startObserver();
-// }
-//
-// function detectNodeRemoval(parentNode, onNodeRemoval) {}
-//
-// function startObserver(target, config) {
-//   if (observer.observe) {
-//     observer.observe(target, config);
-//   }
-// }
-//
-// function clearObserver() {
-//   if (observer.disconnect) {
-//     observer.disconnect();
-//   }
-// }
-
 module.exports = {
   validate: validate,
   validateDom: validateDom

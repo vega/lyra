@@ -124,7 +124,7 @@
   width: 646px;
   max-width: 750px;
   min-height: 100px;
-  max-height: 250px;
+  max-height: 200px;
   display: flex;
   flex-direction: column;
 
@@ -141,7 +141,7 @@
     }
 
     .media > img {
-      height: 175px;
+      max-height: 175px;
       border: 2px solid $dblue-bg;
       width: auto;
     }
