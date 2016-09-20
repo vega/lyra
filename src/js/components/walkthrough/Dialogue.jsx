@@ -5,7 +5,6 @@ var React = require('react'),
 
 var Dialog = React.createClass({
   render: function() {
-// <<<<<<< HEAD
     var props = this.props,
         media = props.media ? (<div className="media">
           {props.media}
@@ -19,9 +18,6 @@ var Dialog = React.createClass({
             </ul>
           </div>) : null;
 
-// =======
-//     var props = this.props;
-// >>>>>>> a95677eb24ab61fa0193abc475e2f814601a35d5
     return (
       <div className="dialogue">
         <div className="title">
@@ -36,11 +32,6 @@ var Dialog = React.createClass({
         </div>
         <div className="content">
           {props.text}
-{/* <<<<<<< HEAD */}
-          {instructions}
-          {media}
-{/* =======
->>>>>>> a95677eb24ab61fa0193abc475e2f814601a35d5 */}
         </div>
         <div className="footer">
           {props.control}
