@@ -28,6 +28,7 @@ var ToolTip = React.createClass({
         },
         toolTipArrowStyle = position.arrow,
         toolTipClassnames = 'popover in ' + orient,
+// <<<<<<< HEAD
         markupComponent = options.markupComponent,
         media = props.media ? (<div className="media">
           {props.media}
@@ -41,11 +42,16 @@ var ToolTip = React.createClass({
             </ul>
           </div>) : null,
         inner;
+// =======
+//         inner,
+//         markupComponent = options.markupComponent;
+// >>>>>>> a95677eb24ab61fa0193abc475e2f814601a35d5
 
     // switch block or find
     if (markupComponent && markupComponent === 'MarksList') {
       inner = (
         <div>
+{/* <<<<<<< HEAD */}
           {props.text}<br />
           {instructions}
           {media}
@@ -58,6 +64,13 @@ var ToolTip = React.createClass({
         {instructions}
         {media}
       </div>);
+// =======
+//           {props.text}
+//           <MarksList />
+//         </div>);
+//     } else {
+//       inner = props.text;
+// >>>>>>> a95677eb24ab61fa0193abc475e2f814601a35d5
     }
 
     return (
@@ -70,8 +83,13 @@ var ToolTip = React.createClass({
           </span>
         </div>
         <div className="content">
+{/* <<<<<<< HEAD */}
           {props.error}
           {inner}
+{/* =======
+          {inner}
+          {props.error}
+>>>>>>> a95677eb24ab61fa0193abc475e2f814601a35d5 */}
         </div>
         <div className="footer">
           {props.control}
