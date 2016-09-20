@@ -86,10 +86,7 @@ var Step = React.createClass({
   },
 
   componentDidUpdate: function() {
-    console.log('updating');
-    // clear old dom auto-validators
     this.unbindProgressors();
-    // add new dom auto-validators
     this.bindProgressors();
 
   },
@@ -100,8 +97,6 @@ var Step = React.createClass({
         autoProwess = opts.validate && opts.autoValidate,
         domState = opts.domState,
         parent;
-
-    console.log('step: ', step);
 
     if (autoProwess && (domState && domState.queryParent)) {
       parent = this.getTargetEl(domState.queryParent);

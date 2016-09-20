@@ -19,8 +19,6 @@ var PROPERTY_CONTAINER = {
   legends: 'properties.update'
 };
 
-var observer;
-
 /**
  * Get the properties off the primitive
  * @param  {Object} object - a primitive object
@@ -108,7 +106,7 @@ function testPropertyExistence(match, stateArray, type) {
  // @TODO appropriately pair necessary hints/suggestion to every error
  // @TODO refactor iterative blocks into their own function
 function validate(currentState, expectedState) {
-  var validation = {success: false, errors: []},
+  var validation = {success_status: false, errors: []},
       expectedMarkSpecs = expectedState.marks,
       expectedDsSpecs = expectedState.data,
       expectedAxisSpecs = expectedState.axes,
@@ -125,7 +123,7 @@ function validate(currentState, expectedState) {
     var noMarksPresent = 'No marks not found!',
         missingMarkType, missingMarkProperties;
 
-    if (!markSpecs.length) {
+    if (!markSpecs || !markSpecs.length) {
       addError(noMarksPresent, validation.errors);
     } else {
       expectedMarkSpecs.forEach(function(eMarkSpec) {
@@ -156,7 +154,7 @@ function validate(currentState, expectedState) {
         dsInvalid;
 
     // ensure currentState contains all contents of expectedDsSpecs
-    if (!dsSpecs.length) {
+    if (!dsSpecs || !dsSpecs.length) {
       addError(noDsPresent, validation.errors);
     } else {
       expectedDsSpecs.forEach(function(eDsSpec) {
@@ -178,7 +176,7 @@ function validate(currentState, expectedState) {
     var noAxesFound = 'No axes found!',
         missingAxisType, missingAxisProperties;
 
-    if (!axesSpecs.length) {
+    if (!axesSpecs || !axesSpecs.length) {
       addError(noAxesFound, validation.errors);
     } else {
       expectedAxisSpecs.forEach(function(eAxisSpec) {
@@ -208,9 +206,9 @@ function validate(currentState, expectedState) {
         noAxes = 'No axes found!',
         missingScaleType, missingScaleProperties;
 
-    if (!axesSpecs.length) {
+    if (!axesSpecs || !axesSpecs.length) {
       addError(noAxes, validation.errors);
-    } else if (!scalesSpecs.length) {
+    } else if (!scalesSpecs || !scalesSpecs.length) {
       addError(noScales, validation.errors);
     } else {
       expectedScalesSpecs.forEach(function(eScaleSpec) {
@@ -238,7 +236,7 @@ function validate(currentState, expectedState) {
   }
 
   if (!validation.errors.length) {
-    validation.success = true;
+    validation.success_status = true;
   }
 
   return validation;
@@ -297,7 +295,7 @@ function validateDom(domState) {
   }
 
   return {
-    success: status,
+    success_status: status,
     errors: errors
   };
 }
