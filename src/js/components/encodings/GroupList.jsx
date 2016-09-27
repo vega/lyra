@@ -75,7 +75,7 @@ var GroupList = React.createClass({
 
         <ul>
           {groups.map(function(id) {
-            return (<Group key={id} id={id} {...props} />);
+            return (<Group key={id} id={id} {...props} level={0} />);
           }, this)}
         </ul>
       </div>

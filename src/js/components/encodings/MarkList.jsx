@@ -48,6 +48,7 @@ var MarkList = React.createClass({
   propTypes: {
     groupId: React.PropTypes.number.isRequired,
     selectedId: React.PropTypes.number,
+    level: React.PropTypes.number.isRequired,
     marks: React.PropTypes.instanceOf(Immutable.List),
     selectMark: React.PropTypes.func.isRequired,
     deleteMark: React.PropTypes.func.isRequired,
@@ -60,7 +61,8 @@ var MarkList = React.createClass({
 
   render: function() {
     var props = this.props,
-        selectedId = props.selectedId;
+        selectedId = props.selectedId,
+        Group = require('./GroupChildren');
 
     return (
       <div>
@@ -70,11 +72,16 @@ var MarkList = React.createClass({
 
         {props.marks.map(function(mark, i) {
           var markId = mark.get('_id'),
-              name = mark.get('name');
+              name = mark.get('name'),
+              isSelected = selectedId === markId;
 
-          return (
+          return mark.get('type') === 'group' ? (
+            <Group key={markId} id={markId} level={props.level}
+              selectedId={selectedId} sceneId={props.sceneId} />
+          ) : (
             <li key={markId}>
-              <div className={'name' + (selectedId === markId ? ' selected' : '')}
+              <div className={'name' + (isSelected ? ' selected' : '')}
+                style={isSelected ? Group.selectedStyle(props.level) : null}
                 onClick={props.selectMark.bind(null, markId)}>
 
                 <Icon glyph={assets[mark.get('type')]} />

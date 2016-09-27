@@ -1,11 +1,16 @@
 #layer-list {
   height: 60%;
   overflow-y: scroll;
+
   ul.group {
     white-space: nowrap;
     border-bottom: 1px solid $lgrey-bg;
+    padding-left: $outer-padding;
+
     li.header {
       padding: 1.5*$inner-padding $outer-padding;
+      padding-left: 0;
+
       font-size: 10px;
       color: $blue-font;
       font-weight: bold;
@@ -15,6 +20,11 @@
         float: right;
         fill: $blue-font;
       }
+    }
+
+    ul.group {
+      border-bottom-color: #eee;
+      border-left: 1px solid #eee;
     }
   }
 }

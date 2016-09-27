@@ -58,6 +58,7 @@ var Group = React.createClass({
     id: React.PropTypes.number,
     selectedId: React.PropTypes.number,
     sceneId: React.PropTypes.number.isRequired,
+    level: React.PropTypes.number.isRequired,
     group: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     expandedLayers: React.PropTypes.object,
     selectGroup: React.PropTypes.func.isRequired,
@@ -76,11 +77,13 @@ var Group = React.createClass({
         group = props.group,
         name  = get(group, 'name'),
         isExpanded = get(props.expandedLayers, id),
+        isSelected = props.selectedId === id,
         groupClass = isExpanded ? 'expanded' : 'contracted';
 
     return (
       <li className={groupClass}>
-        <div className={'name' + (props.selectedId === id ? ' selected' : '')}
+        <div className={'name' + (isSelected ? ' selected' : '')}
+          style={isSelected ? selectedStyle(props.level) : null}
           onClick={props.selectGroup}>
 
           <Icon glyph={assets['group-' + groupClass]} onClick={props.toggleGroup} />
@@ -95,8 +98,8 @@ var Group = React.createClass({
 
         {isExpanded && group.get('marks') ? (
           <ul className="group">
-            <GuideList groupId={id} {...props} />
-            <MarkList groupId={id} {...props} />
+            <GuideList groupId={id} {...props} level={props.level + 1} />
+            <MarkList groupId={id} {...props} level={props.level + 1} />
           </ul>
         ) : null}
       </li>
@@ -104,4 +107,13 @@ var Group = React.createClass({
   }
 });
 
+var NEST_PADDING = 10;
+function selectedStyle(level) {
+  return {
+    marginLeft: -level * NEST_PADDING,
+    paddingLeft: (level + 1) * NEST_PADDING
+  };
+}
+
 module.exports = connect(mapStateToProps, mapDispatchToProps)(Group);
+module.exports.selectedStyle = selectedStyle;

@@ -52,6 +52,7 @@ var GuideList = React.createClass({
   propTypes: {
     groupId: React.PropTypes.number.isRequired,
     selectedId: React.PropTypes.number,
+    level: React.PropTypes.number.isRequired,
     scales: React.PropTypes.instanceOf(Immutable.Map),
     guides: React.PropTypes.instanceOf(Immutable.List),
     selectGuide: React.PropTypes.func.isRequired,
@@ -64,7 +65,8 @@ var GuideList = React.createClass({
 
   render: function() {
     var props = this.props,
-        selectedId = props.selectedId;
+        selectedId = props.selectedId,
+        Group = require('./GroupChildren');
 
     return (
       <div>
@@ -76,11 +78,13 @@ var GuideList = React.createClass({
           var guideId = guide.get('_id'),
               scaleId = guide.get('scale') || guide.get(guide.get('_type')),
               name = capitalize(getIn(props.scales, scaleId + '.name')),
-              type = capitalize(guide.get('_gtype'));
+              type = capitalize(guide.get('_gtype')),
+              isSelected = selectedId === guideId;
 
           return (
             <li key={guideId}>
-              <div className={'name' + (selectedId === guideId ? ' selected' : '')}
+              <div className={'name' + (isSelected ? ' selected' : '')}
+                style={isSelected ? Group.selectedStyle(props.level) : null}
                 onClick={props.selectGuide.bind(null, guideId)}>
 
                 {name + ' ' + type}
