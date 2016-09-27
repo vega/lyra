@@ -7,7 +7,10 @@ var dl = require('datalib'),
     setMarkVisual = markActions.setMarkVisual,
     disableMarkVisual = markActions.disableMarkVisual,
     updateMarkProperty = require('../markActions').updateMarkProperty,
-    MARK_EXTENTS = require('../../constants/markExtents');
+    MARK_EXTENTS = require('../../constants/markExtents'),
+    imutils = require('../../util/immutable-utils'),
+    getInVis = imutils.getInVis,
+    getIn = imutils.getIn;
 
 /**
  * Parses the mark definition in the resultant Vega specification to determine
@@ -28,7 +31,7 @@ module.exports = function(dispatch, state, parsed) {
       props = def.properties.update;
 
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
-    rectSpatial(dispatch, parsed, props);
+    rectSpatial(dispatch, state, parsed, props);
   } else if (markType === 'text' && channel === 'text') {
     textTemplate(dispatch, parsed, props);
   } else {
@@ -89,6 +92,11 @@ function bindProperty(dispatch, parsed, def, property) {
   }
 
   dispatch(setMarkVisual(markId, property, prop));
+
+  // Set a timestamp on the property to facilitate smarter disabling of rect
+  // spatial properties.
+  map = map.marks[markId] || (map.marks[markId] = {});
+  map[property] = Date.now();
 }
 
 /**
@@ -97,33 +105,52 @@ function bindProperty(dispatch, parsed, def, property) {
  * using an ordinal-point scale. However, Lyra prefers using start/span.
  *
  * @param   {Function} dispatch Redux dispatch function.
+ * @param {ImmutableMap} state Redux store.
  * @param   {Object} parsed   An object containing the parsed and output Vega
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @param   {Object} def      The parsed Vega visual properties for the mark.
  * @returns {void}
  */
 var RECT_SPANS = {x: 'width', y: 'height'};
-function rectSpatial(dispatch, parsed, def) {
+function rectSpatial(dispatch, state, parsed, def) {
   var channel  = parsed.channel,
       property = parsed.property,
       markId = parsed.markId,
+      map  = parsed.map.marks[markId],
       max  = channel + '2',
       cntr = channel + 'c',
       span = RECT_SPANS[channel],
-      EXTENTS = dl.vals(MARK_EXTENTS[channel]);
+      EXTENTS = dl.vals(MARK_EXTENTS[channel]),
+      props = getInVis(state, 'marks.' + markId + '.properties.update'),
+      count = 0;
+
+  // If we're binding a literal spatial property (i.e., not arrow manipulators),
+  // bind only that property.
+  if (property !== channel + '+') {
+    // Ensure that only two spatial properties will be set. We sort them to
+    // try our best guess for disabling "older" properties.
+    EXTENTS.map(function(ext) {
+      return dl.extend({ts: (map && map[ext.name]) || 0}, ext);
+    }).sort(dl.comparator('-ts')).forEach(function(ext) {
+      var name = ext.name;
+      if (name === property) {
+        return;
+      } else if (count >= 1) {
+        dispatch(disableMarkVisual(markId, name));
+      } else if (!getIn(props, name + '._disabled')) {
+        ++count;
+      }
+    });
+
+    def[property] = def[channel] || def[cntr] || def[property];
+    return bindProperty(dispatch, parsed, def);
+  }
 
   // Clean slate the rect spatial properties by disabling them all. Subsequent
   // bindProperty calls will reenable them as needed.
   EXTENTS.forEach(function(ext) {
     dispatch(disableMarkVisual(markId, ext.name));
   });
-
-  // If we're binding a literal spatial property (i.e., not arrow manipulators),
-  // bind only that property.
-  if (property !== channel + '+') {
-    def[property] = def[property] || def[channel] || def[cntr];
-    return bindProperty(dispatch, parsed, def);
-  }
 
   if (def[max]) {
     bindProperty(dispatch, parsed, def, channel);

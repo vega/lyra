@@ -158,7 +158,8 @@ function map(vlUnit) {
     data: {},
     scales: {},
     axes: {},
-    legends: {}
+    legends: {},
+    marks: {}
   });
 }
 
@@ -168,6 +169,8 @@ function map(vlUnit) {
  * @returns {string}      A Vega-Lite encoding channel.
  */
 function channelName(name) {
+  //  We don't use Vega-Lite's x2/y2 channels because a user may bind them
+  //  first in Lyra which Vega-Lite does not expect.
   switch (name) {
     case 'x':
     case 'x+':

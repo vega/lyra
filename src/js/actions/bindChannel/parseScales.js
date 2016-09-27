@@ -53,6 +53,7 @@ module.exports = function(dispatch, state, parsed) {
   def = parse(scales[0]);
 
   // First, try to find a matching scale.
+  // TODO: Reuse rect spatial scale if available.
   if (!prev || !equals(state, markType, def, prev, dsMap)) {
     getInVis(state, 'scales').valueSeq().forEach(function(scale) {
       if (equals(state, markType, def, scale, dsMap)) {
