@@ -4,7 +4,9 @@ var dl = require('datalib'),
     connect = require('react-redux').connect,
     Property = require('./Property'),
     SpatialPreset = require('./SpatialPreset'),
-    setMarkExtent = require('../../actions/markActions').setMarkExtent,
+    markActions = require('../../actions/markActions'),
+    setMarkExtent = markActions.setMarkExtent,
+    resetMarkVisual = markActions.resetMarkVisual,
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
@@ -39,7 +41,9 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     setExtent: function(oldExtent, newExtent) {
-      dispatch(setMarkExtent(ownProps.primId, oldExtent, newExtent));
+      var markId = ownProps.primId;
+      dispatch(setMarkExtent(markId, oldExtent, newExtent));
+      dispatch(resetMarkVisual(markId, newExtent));
     }
   };
 }

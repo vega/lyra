@@ -137,7 +137,7 @@ var HoverField = React.createClass({
     var dsId  = this.props.dsId,
         state = this.state,
         elem  = document.querySelector('.field.source'),
-        size  = elem ? elem.getBoundingClientRect() : {},
+        size  = elem ? elem.getBoundingClientRect() : {height: 1, width: 1},
         field = state.fieldDef,
         fieldStyle = {
           top: state.offsetTop,

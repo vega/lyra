@@ -4,6 +4,7 @@
 var dl = require('datalib'),
     Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
+    GTYPES = require('../store/factory/Guide').GTYPES,
     convertValuesToSignals = require('../util/prop-signal').convertValuesToSignals,
     immutableUtils = require('../util/immutable-utils'),
     set = immutableUtils.set,
@@ -41,7 +42,23 @@ function guideReducer(state, action) {
   }
 
   if (action.type === ACTIONS.DELETE_SCALE) {
-    return deleteKeyFromMap(state, action.id);
+    var scaleId = +action.id;
+    return state.withMutations(function(newState) {
+      state.forEach(function(def, guideId) {
+        var gtype = def.get('_gtype'),
+            scale;
+
+        if (gtype === GTYPES.AXIS) {
+          scale = def.get('scale');
+        } else if (gtype === GTYPES.LEGEND) {
+          scale = def.get(def.get('_type'));
+        }
+
+        if (scale === scaleId) {
+          deleteKeyFromMap(newState, guideId);
+        }
+      });
+    });
   }
 
   return state;

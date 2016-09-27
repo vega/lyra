@@ -7,6 +7,7 @@ var Immutable = require('immutable'),
     set   = immutableUtils.set,
     setIn = immutableUtils.setIn,
     getIn = immutableUtils.getIn,
+    deleteKeyFromMap = immutableUtils.deleteKeyFromMap,
     dsUtil = require('../util/dataset-utils'),
     MTYPES = require('../constants/measureTypes');
 
@@ -31,6 +32,10 @@ function datasetsReducer(state, action) {
     state = set(state, id, Immutable.fromJS(action.props));
     dsUtil.init(action);
     return state;
+  }
+
+  if (action.type === ACTIONS.DELETE_DATASET) {
+    return deleteKeyFromMap(state, action.dsId);
   }
 
   if (action.type === ACTIONS.CHANGE_FIELD_MTYPE) {
@@ -76,11 +81,14 @@ function datasetsReducer(state, action) {
 
   if (action.type === ACTIONS.SUMMARIZE_AGGREGATE) {
     state = setIn(state, id + '.transform.0.summarize',
-      getIn(state, id + '.transform.0.summarize').mergeDeep(action.summarize));
+      getIn(state, id + '.transform.0.summarize')
+        .mergeWith(function(prev, next) {
+          return prev.toSet().merge(next);
+        }, action.summarize));
 
     var src = getIn(state, id + '.source');
     return setIn(state, id + '._schema',
-      Immutable.fromJS(dsUtil.aggregateSchema(getIn(state, src + '._schema'),
+      Immutable.fromJS(dsUtil.aggregateSchema(getIn(state, src + '._schema').toJS(),
         getIn(state, id + '.transform.0').toJS())));
   }
 

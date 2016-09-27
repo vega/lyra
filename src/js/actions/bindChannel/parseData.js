@@ -1,7 +1,7 @@
 'use strict';
 
-var aggregatePipeline  = require('../pipelineActions').aggregatePipeline,
-    summarizeAggregate = require('../datasetActions').summarizeAggregate,
+var aggregatePipeline   = require('../pipelineActions').aggregatePipeline,
+    summarizeAggregate  = require('../datasetActions').summarizeAggregate,
     getInVis = require('../../util/immutable-utils').getInVis;
 
 /**
@@ -45,6 +45,8 @@ function parseAggregate(dispatch, state, parsed, summary) {
       aggId = getInVis(state, 'pipelines.' + plId + '._aggregates.' + keys);
 
   if (!aggId) {
+    // TODO: What about if a previous parsed.map.data.summary exists? How do
+    // we derive a new agg DS to preserve transforms.
     dispatch(aggregatePipeline(plId, aggregate));
     aggId = aggregate._id;
   } else {

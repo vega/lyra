@@ -12,6 +12,13 @@ var dl = require('datalib'),
     GTYPES = require('../store/factory/Guide').GTYPES,
     ORDER = require('../constants/sortOrder');
 
+var SPEC_COUNT  = {data: {}, scales: {}},
+    DATA_COUNT  = {marks: {}, scales: {}},
+    SCALE_COUNT = {marks: {}, guides: {}};
+
+// How many times data sources and scales have been used.
+var counts = dl.duplicate(SPEC_COUNT);
+
 /**
  * Exports primitives in the redux store as a complete Vega specification.
  *
@@ -25,8 +32,11 @@ function exporter(internal) {
   var state = store.getState(),
       int   = internal === true;
 
+  counts = dl.duplicate(SPEC_COUNT);
+
   var spec  = exporter.scene(state, int);
   spec.data = exporter.pipelines(state, int);
+
   return spec;
 }
 
@@ -49,6 +59,8 @@ exporter.dataset = function(state, internal, id) {
       values = dsUtils.input(id),
       format = spec.format && spec.format.type,
       sort = exporter.sort(dataset);
+
+  counts.data[id] = counts.data[id] || dl.duplicate(DATA_COUNT);
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
@@ -114,11 +126,13 @@ exporter.mark = function(state, internal, id) {
       spec = clean(dl.duplicate(mark), internal),
       up = mark.properties.update,
       upspec = spec.properties.update,
-      fromId;
+      fromId, count;
 
   if (spec.from) {
     if ((fromId = spec.from.data)) {
       spec.from.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
+      count = counts.data[fromId] || (counts.data[fromId] = dl.duplicate(DATA_COUNT));
+      count.marks[id] = true;
     } else if ((fromId = spec.from.mark)) {
       spec.from.mark = name(getInVis(state, 'marks.' + fromId + '.name'));
     }
@@ -126,7 +140,8 @@ exporter.mark = function(state, internal, id) {
 
   dl.keys(upspec).forEach(function(key) {
     var specVal = upspec[key],
-        origVal = up[key];
+        origVal = up[key],
+        origScale = origVal.scale;
 
     if (!dl.isObject(specVal)) {  // signalRef resolved to literal
       specVal = upspec[key] = {value: specVal};
@@ -134,8 +149,11 @@ exporter.mark = function(state, internal, id) {
 
     // Use the origVal to determine if scale/fields have been set in case
     // specVal was replaced above (e.g., scale + signal).
-    if (origVal.scale) {
-      specVal.scale = name(getInVis(state, 'scales.' + origVal.scale + '.name'));
+    if (origScale) {
+      specVal.scale = name(getInVis(state, 'scales.' + origScale + '.name'));
+      count = counts.scales[origScale] ||
+        (counts.scales[origScale] = dl.duplicate(SCALE_COUNT));
+      count.marks[id] = true;
     }
 
     if (origVal.group) {
@@ -179,7 +197,7 @@ exporter.group = function(state, internal, id) {
       // If internal === true, children are an array of arrays which must be flattened.
       if (dl.isArray(child)) {
         children.push.apply(children, child);
-      } else {
+      } else if (child) {
         children.push(child);
       }
       return children;
@@ -229,6 +247,8 @@ exporter.scale = function(state, internal, id) {
   var scale = getInVis(state, 'scales.' + id).toJS(),
       spec  = clean(dl.duplicate(scale), internal);
 
+  counts.scales[id] = counts.scales[id] || dl.duplicate(SCALE_COUNT);
+
   if (!scale.domain && scale._domain && scale._domain.length) {
     spec.domain = dataRef(state, scale, scale._domain);
   }
@@ -253,8 +273,10 @@ exporter.axe = exporter.legend = function(state, internal, id) {
       type  = guide._type;
 
   if (gtype === GTYPES.AXIS) {
+    counts.scales[spec.scale].guides[id] = true;
     spec.scale = name(getInVis(state, 'scales.' + spec.scale + '.name'));
   } else if (gtype === GTYPES.LEGEND) {
+    counts.scales[spec[type]].guides[id] = true;
     spec[type] = name(getInVis(state, 'scales.' + spec[type] + '.name'));
   }
 
@@ -312,6 +334,29 @@ function clean(spec, internal) {
   return spec;
 }
 
+function getCounts(recount) {
+  var key, entry;
+  if (recount) {
+    exporter();
+  } else if (counts._totaled) {
+    return counts;
+  }
+
+  for (key in counts.data) {
+    entry = counts.data[key];
+    entry.total = dl.keys(entry.marks).length + dl.keys(entry.scales).length;
+  }
+
+  for (key in counts.scales) {
+    entry = counts.scales[key];
+    entry.markTotal = dl.keys(entry.marks).length;
+    entry.guideTotal = dl.keys(entry.guides).length;
+    entry.total = entry.markTotal + entry.guideTotal;
+  }
+
+  return (counts._totaled = true, counts);
+}
+
 /**
  * Utility method to export a list of fields to DataRefs. We don't default to
  * the last option, as the structure has performance implications in Vega.
@@ -333,10 +378,7 @@ function dataRef(state, scale, ref) {
   if (ref.length === 1) {
     ref = ref[0];
     data = getInVis(state, 'datasets.' + ref.data);
-    return sortDataRef(data, scale, {
-      data:  name(data.get('name')),
-      field: ref.field
-    });
+    return sortDataRef(data, scale, ref.field);
   }
 
   // More than one ref
@@ -349,25 +391,20 @@ function dataRef(state, scale, ref) {
 
   keys = dl.keys(sets);
   if (keys.length === 1) {
-    return sortDataRef(data, scale, {
-      data:  name(data.get('name')),
-      field: sets[did]
-    });
+    return sortDataRef(data, scale, sets[did]);
   }
 
   ref = {fields: []};
   for (i = 0, len = keys.length; i < len; ++i) {
     data = getInVis(state, 'datasets.' + keys[i]);
-    ref.fields.push(sortDataRef(data, scale, {
-      data:  name(data.get('name')),
-      field: sets[keys[i]]
-    }));
+    ref.fields.push(sortDataRef(data, scale, sets[keys[i]]));
   }
 
   return ref;
 }
 
-function sortDataRef(data, scale, ref) {
+function sortDataRef(data, scale, field) {
+  var ref = {data: name(data.get('name')), field: field};
   if (scale.type === 'ordinal' && data.get('_sort')) {
     var sortField = getIn(data, '_sort.field');
     return dl.extend(ref, {
@@ -377,8 +414,12 @@ function sortDataRef(data, scale, ref) {
     });
   }
 
+  var dsId = data.get('_id'),
+      count = counts.data[dsId] || (counts.data[dsId] = dl.duplicate(DATA_COUNT));
+  count.scales[scale._id] = true;
   return ref;
 }
 
 module.exports = exporter;
 module.exports.exportName = name;
+module.exports.counts = getCounts;

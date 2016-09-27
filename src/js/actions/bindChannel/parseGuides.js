@@ -6,7 +6,9 @@ var merge = require('lodash.merge'),
     addAxisToGroup = actions.addAxisToGroup,
     addLegendToGroup = actions.addLegendToGroup,
     Guide = require('../../store/factory/Guide'),
-    getInVis = require('../../util/immutable-utils').getInVis;
+    imutils = require('../../util/immutable-utils'),
+    getIn = imutils.getIn,
+    getInVis = imutils.getInVis;
 
 var TYPES = Guide.GTYPES,
     CTYPE = {
@@ -61,11 +63,12 @@ module.exports = function(dispatch, state, parsed) {
  * @returns {void}
  */
 function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
-  var map = parsed.map,
-      mark  = parsed.mark,
+  var map  = parsed.map,
+      mark = parsed.mark,
       parentId = mark.get('_parent'),
-      axes = getInVis(state, 'marks.' + parentId).get('axes'),
-      def, count = 0, foundAxis = false;
+      scale = getInVis(state, 'scales.' + scaleId),
+      axes  = getInVis(state, 'marks.' + parentId).get('axes'),
+      def, count = 0, foundAxis = false, prevOrient;
 
   // First, find an def and then iterate through axes for the current group
   // to see if an axis exists for this scale or if we have room to add one more.
@@ -75,8 +78,13 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
 
   axes.valueSeq().forEach(function(axisId) {
     var axis = getInVis(state, 'guides.' + axisId);
+    if (!axis) {
+      return true;
+    }
+
     if (axis.get('type') === def.type) {
       ++count;
+      prevOrient = axis.get('orient');
     }
 
     if (axis.get('scale') === scaleId) {
@@ -84,10 +92,24 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
       return false; // Early exit.
     }
 
-    // TODO: If we're here, the scales don't match. But, we might have two
-    // ordinal scales only differing by "points," so check the domains.
+    // Test domain/range since point/band-ordinal scales can share an axis.
+    var axisScale = getInVis(state, 'scales.' + axis.get('scale'));
+    if (axisScale.get('type') === 'ordinal') {
+      foundAxis = ['domain', 'range'].every(function(x) {
+        var araw = axisScale.get(x),
+            sraw = scale.get(x),
+            aref = axisScale.get('_' + x),
+            sref = scale.get('_' + x),
+            apl  = getInVis(state, 'datasets.' + getIn(aref, '0.data') + '._parent'),
+            spl  = getInVis(state, 'datasets.' + getIn(sref, '0.data') + '._parent'),
+            afl  = getIn(aref, '0.field'),
+            sfl  = getIn(sref, '0.field');
+        return araw ? araw === sraw || araw.equals(sraw) :
+          apl === spl && afl === sfl;
+      });
+      return !foundAxis;
+    }
   });
-
 
   if (foundAxis) {
     return;
@@ -99,8 +121,8 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
     axis.layer = def.layer;
     axis.grid = def.grid;
     axis.orient = def.orient || axis.orient;
-    if (count === 1) {
-      axis.orient = SWAP_ORIENT[axis.orient];
+    if (count === 1 && prevOrient) {
+      axis.orient = SWAP_ORIENT[prevOrient];
     }
     merge(axis.properties, def.properties);
     dispatch(axis = addGuide(axis));
@@ -134,7 +156,9 @@ function findOrCreateLegend(dispatch, state, parsed, scaleId, defs) {
 
   legends.valueSeq().forEach(function(legendId) {
     var legend = getInVis(state, 'guides.' + legendId);
-    foundLegend = foundLegend || legend.get(property) === scaleId;
+    if (legend) {
+      foundLegend = foundLegend || legend.get(property) === scaleId;
+    }
   });
 
   if (!foundLegend) {
