@@ -140,7 +140,8 @@ exporter.mark = function(state, internal, id) {
 
   dl.keys(upspec).forEach(function(key) {
     var specVal = upspec[key],
-        origVal = up[key];
+        origVal = up[key],
+        origScale = origVal.scale;
 
     if (!dl.isObject(specVal)) {  // signalRef resolved to literal
       specVal = upspec[key] = {value: specVal};
@@ -148,9 +149,11 @@ exporter.mark = function(state, internal, id) {
 
     // Use the origVal to determine if scale/fields have been set in case
     // specVal was replaced above (e.g., scale + signal).
-    if (origVal.scale) {
-      specVal.scale = name(getInVis(state, 'scales.' + origVal.scale + '.name'));
-      counts.scales[origVal.scale].marks[id] = true;
+    if (origScale) {
+      specVal.scale = name(getInVis(state, 'scales.' + origScale + '.name'));
+      count = counts.scales[origScale] ||
+        (counts.scales[origScale] = dl.duplicate(SCALE_COUNT));
+      count.marks[id] = true;
     }
 
     if (origVal.group) {
