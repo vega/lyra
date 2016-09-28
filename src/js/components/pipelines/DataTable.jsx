@@ -48,8 +48,11 @@ var DataTable = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    var prevProps = this.props;
-    if (!prevProps.id || nextProps.dataset !== prevProps.dataset) {
+    var dataset = nextProps.dataset,
+        facet = dataset && getIn(dataset, '_facet.groupby');
+
+    if (!facet || (this.shouldComponentUpdate(nextProps) &&
+        dataset !== this.props.dataset)) {
       this.setState(this.getValues(nextProps));
     }
   },
