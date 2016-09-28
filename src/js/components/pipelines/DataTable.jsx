@@ -5,13 +5,16 @@ var d3 = require('d3'),
     ReactDOM = require('react-dom'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
-    getInVis = require('../../util/immutable-utils').getInVis,
+    imutils  = require('../../util/immutable-utils'),
+    getInVis = imutils.getInVis,
+    getIn  = imutils.getIn,
     dsUtil = require('../../util/dataset-utils'),
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
     HoverField = require('./HoverField'),
     HoverValue = require('./HoverValue'),
-    TransformList = require('./transforms/TransformList').connected;
+    TransformList = require('./transforms/TransformList').connected,
+    Property = require('../inspectors/Property');
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.id;
@@ -26,13 +29,17 @@ var DataTable = React.createClass({
     id: React.PropTypes.number,
     dataset: React.PropTypes.instanceOf(Immutable.Map)
   },
+
   getInitialState: function() {
-    return {
+    return dl.extend({
       limit: 20,
       page: 0,
       hoverField: null,
-      hoverValue: null
-    };
+      hoverValue: null,
+      facet:  null,
+      values: [],
+      facets: []
+    }, this.getValues(this.props));
   },
 
   componentDidMount: function() {
@@ -40,9 +47,40 @@ var DataTable = React.createClass({
     this.$table = el.select('.datatable');
   },
 
+  componentWillReceiveProps: function(nextProps) {
+    var prevProps = this.props;
+    if (!prevProps.id || nextProps.dataset !== prevProps.dataset) {
+      this.setState(this.getValues(nextProps));
+    }
+  },
+
   shouldComponentUpdate: function(nextProps, nextState) {
     var vega = nextProps.vega;
     return !vega.get('invalid') && !vega.get('isParsing');
+  },
+
+  getValues: function(props) {
+    var id = props.id,
+        groupby = getIn(props.dataset, '_facet.groupby'),
+        output  = id ? dsUtil.output(id) : props.values,
+        facets;
+
+    return groupby ? {
+      facet:  0,
+      values: (facets = dl.groupby(groupby = groupby.toJS())
+        .summarize({'*': ['values']}).execute(output)),
+      facets: facets.map(function(f) {
+        return groupby.map(dl.$).map((k) => k(f)).join('|');
+      })
+    } : {
+      facet:  null,
+      facets: [],
+      values: output
+    };
+  },
+
+  changeFacet: function(evt) {
+    this.setState({facet: evt.target.value});
   },
 
   prevPage: function() {
@@ -85,7 +123,8 @@ var DataTable = React.createClass({
         stop  = start + limit,
         id = props.id,
         schema = id ? props.dataset.get('_schema').toJS() : props.schema,
-        output = id ? dsUtil.output(id) : props.values,
+        facet  = state.facet,
+        output = facet !== null ? state.values[facet].values : state.values,
         values = output.slice(start, stop),
         keys = dl.keys(schema),
         max = output.length,
@@ -104,6 +143,18 @@ var DataTable = React.createClass({
       <div>
 
         <TransformList dsId={id} />
+
+        {facet === null ? null : (
+          <Property name="facet" label="Facet" className="facet">
+            <div className="control">
+              <select onChange={this.changeFacet} value={facet}>
+                {state.facets.map(function(key, idx) {
+                  return (<option key={idx} value={idx}>{key}</option>);
+                })}
+              </select>
+            </div>
+          </Property>
+        )}
 
         <div className="datatable"
           onMouseLeave={this.hideHover} onScroll={this.hideHover}>

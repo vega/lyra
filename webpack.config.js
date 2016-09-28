@@ -6,7 +6,7 @@ var path = require('path'),
 
 module.exports = {
   entry: {
-    lyra: path.resolve( __dirname, 'src/js/index.js' ),
+    lyra: ['babel-polyfill', path.resolve( __dirname, 'src/js/index.js' )],
     // By specifying "vendor" dependencies we can render those vendor files
     // into a separate JS bundle; see the CommonsChunkPlugin usage below
     vendor: [

@@ -45,6 +45,10 @@ $pipeline-width: 180px;
     }
   }
 
+  .facet.property label {
+    width: 52px;
+    text-align: right;
+  }
 }
 
 .datatable {

@@ -25,6 +25,7 @@
     "array.prototype.find": "^1.0.0",
     "autoprefixer-loader": "^3.2.0",
     "babel-core": "^6.4.0",
+    "babel-eslint": "^5.0.4",
     "babel-loader": "^6.2.1",
     "babel-polyfill": "^6.3.14",
     "babel-preset-react": "^6.3.13",

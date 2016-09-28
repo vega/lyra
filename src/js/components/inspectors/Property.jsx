@@ -119,7 +119,8 @@ var Property = React.createClass({
       extraEl = (<div className="extra">{extraEl}</div>);
     }
 
-    var className = 'property' + (props.canDrop ? ' can-drop' : '') +
+    var className = (props.className || '') +
+      ' property' + (props.canDrop ? ' can-drop' : '') +
       (props.firstChild ? ' first-child' : '');
 
     return (

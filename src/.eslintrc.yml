@@ -8,3 +8,4 @@ env:
 globals:
   require: true
   d3: true
+parser: "babel-eslint"

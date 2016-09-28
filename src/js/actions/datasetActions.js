@@ -5,7 +5,8 @@ var dl = require('datalib'),
     ADD_DATASET = 'ADD_DATASET',
     DELETE_DATASET = 'DELETE_DATASET',
     CHANGE_FIELD_MTYPE = 'CHANGE_FIELD_MTYPE',
-    SORT_DATASET = 'SORT_DATASET',
+    SORT_DATASET  = 'SORT_DATASET',
+    FACET_DATASET = 'FACET_DATASET',
     SUMMARIZE_AGGREGATE = 'SUMMARIZE_AGGREGATE',
     ADD_DATA_TRANSFORM = 'ADD_DATA_TRANSFORM',
     UPDATE_DATA_TRANSFORM = 'UPDATE_DATA_TRANSFORM';
@@ -77,6 +78,21 @@ function sortDataset(dsId, field, order) {
 }
 
 /**
+ * Action creator to add sort data transformations to dataset
+ *
+ * @param {number} dsId - Id of the dataset.
+ * @param {Array} groupby - An array of field names to groupby.
+ * @returns {Object} A FACET_DATASET action.
+ */
+function facetDataset(dsId, groupby) {
+  return {
+    type: FACET_DATASET,
+    id: dsId,
+    groupby: groupby
+  };
+}
+
+/**
  * Action creator to update the summary fields calculated
  * in an aggregate transform.
  *
@@ -132,6 +148,7 @@ module.exports = {
   DELETE_DATASET: DELETE_DATASET,
   CHANGE_FIELD_MTYPE: CHANGE_FIELD_MTYPE,
   SORT_DATASET: SORT_DATASET,
+  FACET_DATASET: FACET_DATASET,
   SUMMARIZE_AGGREGATE: SUMMARIZE_AGGREGATE,
   ADD_DATA_TRANSFORM: ADD_DATA_TRANSFORM,
   UPDATE_DATA_TRANSFORM: UPDATE_DATA_TRANSFORM,
@@ -141,6 +158,7 @@ module.exports = {
   deleteDataset: deleteDataset,
   changeFieldMType: changeFieldMType,
   sortDataset: sortDataset,
+  facetDataset: facetDataset,
   summarizeAggregate: summarizeAggregate,
   addTransform: addTransform,
   updateTransform: updateTransform

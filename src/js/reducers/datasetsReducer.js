@@ -49,6 +49,10 @@ function datasetsReducer(state, action) {
     }));
   }
 
+  if (action.type === ACTIONS.FACET_DATASET) {
+    return setIn(state, id + '._facet', Immutable.fromJS({groupby: action.groupby}));
+  }
+
   if (action.type === ACTIONS.ADD_DATA_TRANSFORM) {
     var transforms = getIn(state, id + '.transform') || Immutable.List();
 
