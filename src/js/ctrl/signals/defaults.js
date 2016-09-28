@@ -67,7 +67,7 @@ signals[MOUSE] = {
   name: MOUSE,
   init: {},
   streams: [
-    {type: 'mousemove, dragover', expr: '{x: eventX(), y: eventY()}'}
+    {type: 'mousemove, dragover', expr: '{x: eventX(), y: eventY(), item: eventItem()}'}
   ],
   _idx: 5
 };

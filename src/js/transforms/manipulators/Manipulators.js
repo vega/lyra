@@ -10,6 +10,11 @@ var dl = require('datalib'),
     Transform = vg.Transform,
     Voronoi = vg.transforms.voronoi,
     sg = require('../../ctrl/signals'),
+    spec = require('../../ctrl/manipulators'),
+    annotate = require('../../util/annotate-manipulators'),
+    PAD = spec.CONST.PADDING,
+    PAD15 = 1.5 * PAD,
+    PAD25 = 2.5 * PAD,
     $x = dl.$('x'),
     $y = dl.$('y');
 
@@ -104,10 +109,13 @@ Manipulators.prototype.transform = function(input) {
     output.add.push.apply(output.add, cache);
   }
 
-  var clip = [
-    [dl.min(cache, $x) - 100, dl.min(cache, $y) - 50],
-    [dl.max(cache, $x) + 50, dl.max(cache, $y) + 50]
-  ];
+  // Clip the voronoi to the edge of the facet dropzones.
+  var row = cache[cache.length - 1],
+      isFacet = row.manipulator === 'facet',
+      cx = isFacet ? row.x + PAD25 : dl.min(cache, $x) - 100,
+      cy = isFacet ? row.y + PAD25 : dl.min(cache, $y) - 50;
+
+  var clip = [[cx, cy], [dl.max(cache, $x) + 50, dl.max(cache, $y) + 50]];
 
   return this._voronoi
     .param('x', 'x')
@@ -141,14 +149,30 @@ Manipulators.prototype.connectors = function(item) {
 };
 
 /**
- * Calculates the coordinates when in the `channels` manipulators mode.
+ * Calculates the coordinates when in the `channels` manipulators mode. This
+ * super class method calculates the facet channels, which can be reused by
+ * subclasses.
+ *
  * @param  {Object} item - The Vega-Scenegraph Item corresponding to the
  * currently selected visualization mark instance.
  * @returns {Object[]} An array of objects, containing the coordinates and other
  * metadata for downstream manipulator mark specifications.
  */
 Manipulators.prototype.channels = function(item) {
-  return [];
+  var gb = item.mark.group.bounds,
+      c  = spec.coords(gb),
+      tl = c.topLeft,
+      tr = c.topRight,
+      bl = c.bottomLeft,
+      minX = (tl.x < 0 ? 0 : tl.x) + PAD,
+      minY = (tl.y < 0 ? 0 : tl.y) + PAD;
+
+  return [
+    annotate('col', 'facet', 'horizontal facets')(
+      {x: minX, x2: tr.x, y: minY, y2: minY + PAD15}),
+    annotate('row', 'facet', 'vertical facets')(
+      {x: minX, x2: minX + PAD15, y: minY, y2: bl.y})
+  ];
 };
 
 /**

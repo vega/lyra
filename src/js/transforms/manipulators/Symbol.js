@@ -39,7 +39,8 @@ SymbolManipulators.prototype.channels = function(item) {
   var b = item.bounds,
       gb = item.mark.group.bounds,
       c = spec.coords(b),
-      m = c.midCenter;
+      m = c.midCenter,
+      facets = Manipulators.prototype.channels.call(this, item);
 
   return []
     // x
@@ -57,7 +58,8 @@ SymbolManipulators.prototype.channels = function(item) {
     // size
     .concat([
       {x: item.x - DELTA, y: item.y, shape: item.shape, size: PAD * item.size}
-    ].map(annotate('size', 'border')));
+    ].map(annotate('size', 'border')))
+    .concat(facets);
 };
 
 SymbolManipulators.prototype.altchannels = function(item) {

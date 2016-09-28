@@ -44,7 +44,8 @@ RectManipulators.prototype.channels = function(item) {
       br = c.bottomRight,
       w = b.width(), h = b.height(),
       fullW = Math.max(Math.min(tr.x + w, gb.x2 - PAD), tr.x + 50),
-      fullH = Math.max(Math.min(br.y + h, gb.y2 - PAD), br.y + 50);
+      fullH = Math.max(Math.min(br.y + h, gb.y2 - PAD), br.y + 50),
+      facets = Manipulators.prototype.channels.call(this, item);
 
   return []
     // Width/horizontal arrow stem
@@ -63,7 +64,8 @@ RectManipulators.prototype.channels = function(item) {
     .concat([
       {x: item.x, y: item.y, x2: item.x2, y2: item.y2,
         width: item.width, height: item.height, shape: item.shape}
-    ].map(annotate('fill', 'border')));
+    ].map(annotate('fill', 'border')))
+    .concat(facets);
 };
 
 RectManipulators.prototype.altchannels = function(item) {

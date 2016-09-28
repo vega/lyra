@@ -41,7 +41,8 @@ TextManipulators.prototype.channels = function(item) {
   var b = item.bounds,
       gb = item.mark.group.bounds,
       c = spec.coords(b),
-      m = c.midCenter;
+      m = c.midCenter,
+      facets = Manipulators.prototype.channels.call(this, item);
 
   return []
     // x
@@ -55,7 +56,8 @@ TextManipulators.prototype.channels = function(item) {
     // text
     .concat([
       dl.extend({}, item, {bounds: null, _id: null})
-    ].map(annotate('text', 'border')));
+    ].map(annotate('text', 'border')))
+    .concat(facets);
 };
 
 TextManipulators.prototype.altchannels = function(item) {

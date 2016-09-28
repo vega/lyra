@@ -43,11 +43,8 @@ LineManipulators.prototype.channels = function(item) {
       gb = item.mark.group.bounds,
       path = item.mark.items[0].pathCache,
       c = spec.coords(b),
-      m = c.midCenter;
-
-  path = path.map(function(d) {
-    return d.join(' ');
-  }).join(' ');
+      m = c.midCenter,
+      facets = Manipulators.prototype.channels.call(this, item);
 
   return []
     // x
@@ -60,8 +57,9 @@ LineManipulators.prototype.channels = function(item) {
     ].map(annotate('y', 'span')))
     // stroke
     .concat([
-      {x: m.x, y: m.y, path: path}
-    ].map(annotate('stroke', 'border')));
+      {x: m.x, y: m.y, path: path.map((d) => d.join(' ')).join(' ')}
+    ].map(annotate('stroke', 'border')))
+    .concat(facets);
 };
 
 LineManipulators.prototype.altchannels = LineManipulators.prototype.channels;

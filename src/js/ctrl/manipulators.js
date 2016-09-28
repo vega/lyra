@@ -201,6 +201,26 @@ TYPES.push(manipulators.SPAN = dl.extend({}, manipulators.ARROW, {
   }
 }));
 
+TYPES.push(manipulators.FACET = {
+  type: 'rect',
+  from: {
+    transform: [{type: 'filter', test: 'datum.manipulator === "facet"'}]
+  },
+  properties: {
+    update: {
+      x: {field: 'x'},
+      y: {field: 'y'},
+      x2: {field: 'x2'},
+      y2: {field: 'y2'},
+      fill: [
+        {test: sg.MOUSE + '.item && ' + sg.MOUSE + '.item.datum === datum', value: 'lightsalmon'},
+        {value: 'cyan'}
+      ],
+      fillOpacity: {value: 0.2}
+    }
+  }
+});
+
 manipulators.BUBBLE_CURSOR = {
   type: 'line',
   from: {data: 'bubble_cursor'},
@@ -221,8 +241,14 @@ manipulators.BUBBLE_CURSOR_TIP = [{
       x: {signal: sg.MOUSE + '.x'},
       y: {signal: sg.MOUSE + '.y'},
       dy: {value: 30},
-      text: {signal: sg.CELL + '.tooltip'},
-      align: {value: 'center'},
+      text: [
+        {test: sg.CELL + '.tooltip', signal: sg.CELL + '.tooltip'},
+        {test: sg.MODE + ' === "channels" && ' +
+          sg.MOUSE + '.item && ' + sg.MOUSE + '.item.datum',
+          signal: sg.MOUSE + '.item.datum.tooltip'},
+        {value: ''}
+      ],
+      align: {value: 'left'},
       baseline: {value: 'bottom'},
       stroke: {value: 'white'},
       strokeWidth: {value: 4},
@@ -238,8 +264,14 @@ manipulators.BUBBLE_CURSOR_TIP = [{
       x: {signal: sg.MOUSE + '.x'},
       y: {signal: sg.MOUSE + '.y'},
       dy: {value: 30},
-      text: {signal: sg.CELL + '.tooltip'},
-      align: {value: 'center'},
+      text: [
+        {test: sg.CELL + '.tooltip', signal: sg.CELL + '.tooltip'},
+        {test: sg.MODE + ' === "channels" && ' +
+          sg.MOUSE + '.item && ' + sg.MOUSE + '.item.datum',
+          signal: sg.MOUSE + '.item.datum.tooltip'},
+        {value: ''}
+      ],
+      align: {value: 'left'},
       baseline: {value: 'bottom'},
       fill: {value: 'lightsalmon'},
       fontSize: {value: 12},
