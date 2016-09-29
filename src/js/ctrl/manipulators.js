@@ -203,6 +203,7 @@ TYPES.push(manipulators.SPAN = dl.extend({}, manipulators.ARROW, {
 
 TYPES.push(manipulators.FACET = {
   type: 'rect',
+  name: sg.CELL,
   from: {
     transform: [{type: 'filter', test: 'datum.manipulator === "facet"'}]
   },

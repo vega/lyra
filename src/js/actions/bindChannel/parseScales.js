@@ -191,5 +191,5 @@ function createScale(dispatch, parsed, def) {
  * @returns {boolean} The value of the "points" property of the Vega scale
  */
 function usesPoints(scaleType, markType) {
-  return scaleType === 'ordinal' && markType !== 'rect';
+  return scaleType === 'ordinal' && markType !== 'rect' && markType !== 'group';
 }

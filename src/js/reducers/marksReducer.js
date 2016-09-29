@@ -137,25 +137,25 @@ function marksReducer(state, action) {
   var markId = action.id;
 
   if (action.type === ACTIONS.CREATE_SCENE) {
-    return set(state, action.id, makeMark(action));
+    return set(state, markId, makeMark(action));
   }
 
   if (action.type === ACTIONS.ADD_MARK) {
     // Make the mark and .set it at the provided ID, then pass it through a
     // method that will check to see whether the mark needs to be added as
     // a child of another mark
-    return setParentMark(set(state, action.id, makeMark(action)), {
+    return setParentMark(set(state, markId, makeMark(action)), {
       type: ACTIONS.SET_PARENT_MARK,
       parentId: action.props ? action.props._parent : null,
-      childId: action.id
+      childId: markId
     });
   }
 
   if (action.type === ACTIONS.DELETE_MARK) {
     return deleteKeyFromMap(setParentMark(state, {
-      childId: action.id,
+      childId: markId,
       parentId: null
-    }), action.id);
+    }), markId);
   }
 
   if (action.type === ACTIONS.SET_PARENT_MARK) {
@@ -163,17 +163,17 @@ function marksReducer(state, action) {
   }
 
   if (action.type === ACTIONS.UPDATE_MARK_PROPERTY) {
-    return setIn(state, action.id + '.' + action.property,
+    return setIn(state, markId + '.' + action.property,
       Immutable.fromJS(action.value));
   }
 
   if (action.type === ACTIONS.SET_MARK_VISUAL) {
-    return setIn(state, action.id +
+    return setIn(state, markId +
       '.properties.update.' + action.property, Immutable.fromJS(action.def));
   }
 
   if (action.type === ACTIONS.DISABLE_MARK_VISUAL) {
-    return setIn(state, action.id +
+    return setIn(state, markId +
       '.properties.update.' + action.property + '._disabled', true);
   }
 
@@ -195,8 +195,12 @@ function marksReducer(state, action) {
     return setIn(state, markId + '._vlUnit', Immutable.fromJS(action.spec));
   }
 
+  if (action.type === ACTIONS.FACET_GROUP) {
+    return setIn(state, markId + '.from._facet', action.groupby);
+  }
+
   if (action.type === ACTIONS.BIND_SCALE) {
-    return setIn(state, action.id +
+    return setIn(state, markId +
       '.properties.update.' + action.property + '.scale', action.scaleId);
   }
 
@@ -213,8 +217,8 @@ function marksReducer(state, action) {
   }
 
   if (action.type === ACTIONS.DELETE_GUIDE) {
-    state = ensureValueAbsent(state, action.groupId + '.axes', action.id);
-    return ensureValueAbsent(state, action.groupId + '.legends', action.id);
+    state = ensureValueAbsent(state, action.groupId + '.axes', markId);
+    return ensureValueAbsent(state, action.groupId + '.legends', markId);
   }
 
   return state;

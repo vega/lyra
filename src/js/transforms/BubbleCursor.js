@@ -68,6 +68,10 @@ BubbleCursor.prototype.transform = function(input) {
   }
 
   // Voronoi cells always come after their manipulator.
+  if (!cell.cousin || !cell.cousin(-1)) {
+    return output;
+  }
+
   var cousins = cell.cousin(-1).mark.items,
       offset = {x: 0, y: 0},
       item = cousins[0].mark.group;

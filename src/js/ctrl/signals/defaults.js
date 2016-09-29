@@ -55,7 +55,10 @@ signals[CELL] = {
   name: CELL,
   init: {},
   streams: [
-    {type: '@' + CELL + ':dragover', expr: 'eventItem()'},
+    {
+      type: '@' + CELL + ':dragover',
+      expr: 'datum && datum.manipulator === "facet" ? datum : eventItem()'
+    },
     {type: '@' + CELL + ':dragleave', expr: '{}'},
     // {type: '@'+CELL+':mouseover', expr: 'eventItem()'},
     // {type: '@'+CELL+':mouseout',  expr: '{}'}
@@ -66,9 +69,10 @@ signals[CELL] = {
 signals[MOUSE] = {
   name: MOUSE,
   init: {},
-  streams: [
-    {type: 'mousemove, dragover', expr: '{x: eventX(), y: eventY(), item: eventItem()}'}
-  ],
+  streams: [{
+    type: 'mousemove, dragover',
+    expr: '{x: eventX(), y: eventY(), item: eventItem()}'
+  }],
   _idx: 5
 };
 

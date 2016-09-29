@@ -14,11 +14,13 @@ var dl = require('datalib'),
     parseScales = require('./parseScales'),
     parseMarks  = require('./parseMarks'),
     parseGuides = require('./parseGuides'),
+    injectGroup = require('./parseFacet').injectGroup,
     updateAggregateDependencies = require('./aggregateDependencies'),
     cleanupUnused = require('./cleanupUnused');
 
 // Vega mark types to Vega-Lite mark types.
 var TYPES = {
+  group: 'bar',
   rect: 'bar',
   symbol: 'point',
   text: 'text',
@@ -26,7 +28,8 @@ var TYPES = {
   area: 'area'
 };
 
-var CELLW = 517,
+var FACET_CHANNEL = {col: 'x+', row: 'y+'},
+    CELLW = 517,
     CELLH = 392;
 
 /**
@@ -43,6 +46,22 @@ var CELLW = 517,
  */
 function bindChannel(dsId, field, markId, property) {
   return function(dispatch, getState) {
+    var parsed = {};
+
+    // Though we dispatch multiple actions, we want bindChannel to register as
+    // only a single state change to the history from the user's perspective.
+    dispatch(startBatch());
+
+    // If we're faceting, inject any necessary group marks and rebind the
+    // property. We do not use Vega-Lite's row/column channels for faceting as
+    // that produces dramatically different Vega output. Instead, we run our
+    // bindChannel using x+/y+ of the newly injected (or existing) group mark.
+    if (FACET_CHANNEL[property]) {
+      parsed.facet = property;
+      markId = injectGroup(dispatch, getState(), markId);
+      property = FACET_CHANNEL[property];
+    }
+
     var state = getState(),
         mark  = getInVis(state, 'marks.' + markId),
         from  = mark.get('from'),
@@ -58,19 +77,16 @@ function bindChannel(dsId, field, markId, property) {
       }
     }
 
-    // Though we dispatch multiple actions, we want bindChannel to register as
-    // only a single state change to the history from the user's perspective.
-    dispatch(startBatch());
-
     spec.encoding[channel] = channelDef(field);
 
-    var parsed = compile(spec, property, dsId);
+    parsed = dl.extend(parsed, compile(spec, property, dsId));
     parsed.map = mapping;
     parsed.mark = mark;
     parsed.markId = markId;
     parsed.markType = markType;
     parsed.property = property;
     parsed.channel = channel;
+    parsed.field = field;
     parsed.dsId = dsId;
     parsed.plId = plId;
     parseData(dispatch, state, parsed);

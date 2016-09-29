@@ -81,7 +81,7 @@ function sortDataset(dsId, field, order) {
  * Action creator to add sort data transformations to dataset
  *
  * @param {number} dsId - Id of the dataset.
- * @param {Array} groupby - An array of field names to groupby.
+ * @param {ImmutableSet} groupby - A set of field names to groupby.
  * @returns {Object} A FACET_DATASET action.
  */
 function facetDataset(dsId, groupby) {

@@ -50,7 +50,8 @@ function datasetsReducer(state, action) {
   }
 
   if (action.type === ACTIONS.FACET_DATASET) {
-    return setIn(state, id + '._facet', Immutable.fromJS({groupby: action.groupby}));
+    var facet = getIn(state, id + '._facet') || Immutable.Set();
+    return setIn(state, id + '._facet', facet.add(Immutable.Set(action.groupby)));
   }
 
   if (action.type === ACTIONS.ADD_DATA_TRANSFORM) {

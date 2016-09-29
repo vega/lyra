@@ -1,12 +1,16 @@
+/* eslint new-cap:0 */
 'use strict';
 
 var dl = require('datalib'),
+    Immutable = require('immutable'),
     propSg = require('../../util/prop-signal'),
     setSignal = require('../signalActions').setSignal,
     markActions = require('../markActions'),
     setMarkVisual = markActions.setMarkVisual,
     disableMarkVisual = markActions.disableMarkVisual,
-    updateMarkProperty = require('../markActions').updateMarkProperty,
+    updateMarkProperty = markActions.updateMarkProperty,
+    facetGroup = markActions.facetGroup,
+    facetDataset = require('../datasetActions').facetDataset,
     MARK_EXTENTS = require('../../constants/markExtents'),
     imutils = require('../../util/immutable-utils'),
     getInVis = imutils.getInVis,
@@ -25,12 +29,14 @@ var dl = require('datalib'),
 module.exports = function(dispatch, state, parsed) {
   var markType = parsed.markType,
       map = parsed.map,
-      markId = parsed.markId,
-      channel  = parsed.channel,
+      markId  = parsed.markId,
+      channel = parsed.channel,
       def = parsed.output.marks[0].marks[0],
-      props = def.properties.update;
+      props = def.properties.update,
+      dsId, groupby;
 
-  if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
+  if ((markType === 'rect' || markType === 'group') &&
+      (channel === 'x' || channel === 'y')) {
     rectSpatial(dispatch, state, parsed, props);
   } else if (markType === 'text' && channel === 'text') {
     textTemplate(dispatch, parsed, props);
@@ -39,7 +45,15 @@ module.exports = function(dispatch, state, parsed) {
   }
 
   if (def.from && def.from.data) {
-    dispatch(updateMarkProperty(markId, 'from', {data: map.data[def.from.data]}));
+    dsId = map.data[def.from.data];
+    dispatch(updateMarkProperty(markId, 'from', {data: dsId}));
+
+    if (parsed.facet && markType === 'group') {
+      groupby = getInVis(state, markId + '.from._facet') || Immutable.Map();
+      groupby = groupby.set(parsed.facet, parsed.field.name);
+      dispatch(facetGroup(markId, groupby));
+      dispatch(facetDataset(dsId, groupby.valueSeq().toJS()));
+    }
   }
 };
 

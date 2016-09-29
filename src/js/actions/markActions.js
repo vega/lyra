@@ -17,7 +17,8 @@ var dl = require('datalib'),
     BIND_SCALE = 'BIND_SCALE',
     BIND_FIELD = 'BIND_FIELD',
     SET_MARK_EXTENT = 'SET_MARK_EXTENT',
-    SET_VL_UNIT = 'SET_VL_UNIT';
+    SET_VL_UNIT = 'SET_VL_UNIT',
+    FACET_GROUP = 'FACET_GROUP';
 
 /**
  * Action creator to create a new mark and add it to the store.
@@ -211,6 +212,22 @@ function setVlUnit(id, spec) {
   };
 }
 
+/**
+ * Action creator to facetGroup a group mark.
+ *
+ * @param {number} id - ID of the group mark to facetGroup.
+ * @param {ImmutableMap} groupby - A map that maps between row/col
+ *                                 and a field name.
+ * @returns {Object} A FACET_GROUP action.
+ */
+function facetGroup(id, groupby) {
+  return {
+    type: FACET_GROUP,
+    id: id,
+    groupby: groupby
+  };
+}
+
 module.exports = {
   // Action Names
   ADD_MARK: ADD_MARK,
@@ -224,6 +241,7 @@ module.exports = {
   BIND_FIELD: BIND_FIELD,
   SET_MARK_EXTENT: SET_MARK_EXTENT,
   SET_VL_UNIT: SET_VL_UNIT,
+  FACET_GROUP: FACET_GROUP,
 
   // Action Creators
   addMark: addMark,
@@ -236,5 +254,6 @@ module.exports = {
   bindScale: bindScale,
   bindField: bindField,
   setMarkExtent: setMarkExtent,
-  setVlUnit: setVlUnit
+  setVlUnit: setVlUnit,
+  facetGroup: facetGroup
 };

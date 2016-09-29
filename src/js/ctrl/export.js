@@ -58,9 +58,10 @@ exporter.dataset = function(state, internal, id) {
       spec = clean(dl.duplicate(dataset), internal),
       values = dsUtils.input(id),
       format = spec.format && spec.format.type,
-      sort = exporter.sort(dataset);
+      sort  = dataset._sort;
 
   counts.data[id] = counts.data[id] || dl.duplicate(DATA_COUNT);
+  spec.transform = spec.transform || [];
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
@@ -77,32 +78,14 @@ exporter.dataset = function(state, internal, id) {
       json2csv({data: values, del: format === 'tsv' ? '\t' : ','}) : values;
   }
 
-  if (sort !== undefined) {
-    spec.transform = spec.transform || [];
-    spec.transform.push(sort);
+  if (sort) {
+    spec.transform.push({
+      type: 'sort',
+      by: (sort.order === ORDER.DESC ? '-' : '') + sort.field
+    });
   }
 
   return spec;
-};
-
-/**
-  * Method that builds the vega sort data transform code from
-  * the current dataset.
-  *
-  * @param  {object} dataset The current dataset
-  * @returns {object} undefined if _sort not in dataset and the
-  * vega data transform code to be appended to the vega spec to * the dataset
-  */
-exporter.sort = function(dataset) {
-  var sort = dataset._sort;
-  if (!sort) {
-    return;
-  }
-
-  return {
-    type: 'sort',
-    by: (sort.order === ORDER.DESC ? '-' : '') + sort.field
-  };
 };
 
 exporter.scene = function(state, internal) {
@@ -173,7 +156,16 @@ exporter.mark = function(state, internal, id) {
 exporter.group = function(state, internal, id) {
   var mark = getInVis(state, 'marks.' + id).toJS(),
       spec = exporter.mark(state, internal, id),
-      group = internal ? spec[0] : spec;
+      group = internal ? spec[0] : spec,
+      transform;
+
+  if (mark.from && mark.from._facet) {
+    transform = group.from.transform || (group.from.transform = []);
+    transform.push({
+      type: 'facet',
+      groupby: dl.vals(mark.from._facet)
+    });
+  }
 
   ['scale', 'mark', 'axe', 'legend'].forEach(function(childType) {
     var childTypes = childType + 's', // Pluralized for spec key.
