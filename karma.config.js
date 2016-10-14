@@ -72,6 +72,10 @@ module.exports = function(config) {
               path.resolve(__dirname, 'src/assets')
             ],
             loader: 'raw-loader'
+          },
+          {
+            test: /\.json$/,
+            loader: 'json-loader'
           }
         ],
         // instrument only testing sources with Istanbul

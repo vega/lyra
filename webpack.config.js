@@ -64,6 +64,10 @@ module.exports = {
           name: '[name]',
           prefixize: true
         })
+      },
+      {
+        test: /\.json$/,
+        loader: 'json-loader'
       }
     ]
   },
