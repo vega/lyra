@@ -17,7 +17,27 @@ var dl = require('datalib'),
     BIND_SCALE = 'BIND_SCALE',
     BIND_FIELD = 'BIND_FIELD',
     SET_MARK_EXTENT = 'SET_MARK_EXTENT',
-    SET_VL_UNIT = 'SET_VL_UNIT';
+    SET_VL_UNIT = 'SET_VL_UNIT',
+
+    BIND_DATA = 'BIND_DATA';
+
+
+/**
+ * Action creator to bind a mark's visual property directly to data.
+ *
+ * @param   {number} id       The ID of the mark to bind.
+ * @param   {string} field    The name of the field to bind.
+ * @param   {string} property The name of the property to bind
+ * @returns {Object} The BIND_DATA action object.
+ */
+function bindData(id, field, property) {
+  return {
+    type: BIND_DATA,
+    id: id,
+    field: field,
+    property: property
+  };
+}
 
 /**
  * Action creator to create a new mark and add it to the store.
@@ -224,6 +244,7 @@ module.exports = {
   BIND_FIELD: BIND_FIELD,
   SET_MARK_EXTENT: SET_MARK_EXTENT,
   SET_VL_UNIT: SET_VL_UNIT,
+  BIND_DATA: BIND_DATA,
 
   // Action Creators
   addMark: addMark,
@@ -236,5 +257,6 @@ module.exports = {
   bindScale: bindScale,
   bindField: bindField,
   setMarkExtent: setMarkExtent,
-  setVlUnit: setVlUnit
+  setVlUnit: setVlUnit,
+  bindData: bindData
 };

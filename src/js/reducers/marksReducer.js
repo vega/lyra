@@ -217,6 +217,12 @@ function marksReducer(state, action) {
     return ensureValueAbsent(state, action.groupId + '.legends', action.id);
   }
 
+  if (action.type === ACTIONS.BIND_DATA) {
+    return setIn(state, action.id + '.properties.update.' + action.property, 
+      Immutable.fromJS({field: action.field}));
+
+  }
+
   return state;
 }
 

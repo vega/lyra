@@ -9,7 +9,8 @@ var React = require('react'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
     TYPES = require('../../constants/primTypes'),
-    resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
+    resetMarkVisual = require('../../actions/markActions').resetMarkVisual,
+    bindData = require('../../actions/markActions').bindData;
 
 function mapStateToProps(reduxState, ownProps) {
   if (!ownProps.primId) {
@@ -45,9 +46,14 @@ function mapStateToProps(reduxState, ownProps) {
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
+  //console.log(ownProps);
   return {
     unbind: function() {
       dispatch(resetMarkVisual(ownProps.primId, ownProps.name));
+    }, 
+
+    bindData: function(field) {
+      dispatch(bindData(ownProps.primId, field, ownProps.name));
     }
   };
 }
@@ -69,6 +75,33 @@ var Property = React.createClass({
       React.PropTypes.bool, React.PropTypes.instanceOf(Immutable.Map)
     ]),
     unbind: React.PropTypes.func
+  },
+
+  getInitialState: function() {
+    return {
+      markId:  null,
+      propertyName: null,
+      field: null,
+    };
+  },
+
+  handleDrop: function(evt) {
+    if (evt.preventDefault) {
+      evt.preventDefault(); // Necessary. Allows us to drop.
+    }
+
+    var data = JSON.parse(evt.dataTransfer.getData("text/plain"));
+    //console.log(data.name);
+    //console.log(this.props);
+    this.props.bindData(data.name);
+    return false;
+  },
+
+  handleDragOver: function(evt) {
+    if (evt.preventDefault) {
+      evt.preventDefault(); // Necessary. Allows us to drop.
+    }
+    return false;
   },
 
   render: function() {
@@ -123,7 +156,7 @@ var Property = React.createClass({
       (props.firstChild ? ' first-child' : '');
 
     return (
-      <div className={className}>
+      <div className={className} onDrop={this.handleDrop} onDragOver={this.handleDragOver}>
         {labelEl}
         <div className="control">
           {scaleEl}
