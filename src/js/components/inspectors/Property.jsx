@@ -46,7 +46,6 @@ function mapStateToProps(reduxState, ownProps) {
 }
 
 function mapDispatchToProps(dispatch, ownProps) {
-  //console.log(ownProps);
   return {
     unbind: function() {
       dispatch(resetMarkVisual(ownProps.primId, ownProps.name));
@@ -91,8 +90,6 @@ var Property = React.createClass({
     }
 
     var data = JSON.parse(evt.dataTransfer.getData("text/plain"));
-    //console.log(data.name);
-    //console.log(this.props);
     this.props.bindData(data.name);
     return false;
   },

@@ -220,7 +220,6 @@ function marksReducer(state, action) {
   if (action.type === ACTIONS.BIND_DATA) {
     return setIn(state, action.id + '.properties.update.' + action.property, 
       Immutable.fromJS({field: action.field}));
-
   }
 
   return state;

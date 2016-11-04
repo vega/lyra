@@ -78,7 +78,6 @@ var HoverField = React.createClass({
 
     this.setState(state);
     evt.dataTransfer.setData('text/plain', JSON.stringify(state.bindField));
-    //console.log(JSON.stringify(state.bindField));
     evt.dataTransfer.effectAllowed = 'link';
     sg.set(sg.MODE, 'channels');
     ctrl.update();
