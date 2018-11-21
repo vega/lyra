@@ -46,7 +46,7 @@
     "fs": "0.0.2",
     "immutable": "^3.8.1",
     "inherits": "^2.0.1",
-    "istanbul": "^0.3.21",
+    "istanbul": "^0.4.5",
     "istanbul-instrumenter-loader": "^0.2.0",
     "istanbul-react": "^1.1.0",
     "jquery": "^2.2.4",
