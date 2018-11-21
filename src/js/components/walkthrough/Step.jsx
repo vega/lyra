@@ -9,7 +9,9 @@ var React = require('react'),
     vegaSpec = require('../../ctrl').export,
     Errors = require('./Error'),
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState, ownProps) {
   var active = getIn(reduxState, 'walkthrough.activeWalkthrough'),
@@ -36,13 +38,13 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var Step = React.createClass({
+var Step = createReactClass({
   propTypes: {
-    currentStepId: React.PropTypes.number,
-    steps: React.PropTypes.object,
-    marks: React.PropTypes.object,
-    goToNext: React.PropTypes.func,
-    deselectWalkthrough: React.PropTypes.func
+    currentStepId: propTypes.number,
+    steps: propTypes.object,
+    marks: propTypes.object,
+    goToNext: propTypes.func,
+    deselectWalkthrough: propTypes.func
   },
 
   getInitialState: function() {

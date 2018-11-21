@@ -5,7 +5,9 @@ var React = require('react'),
     getClosestGroupId = require('../../util/hierarchy').getClosestGroupId,
     addMark = require('../../actions/markActions').addMark,
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState) {
   return {};
@@ -25,9 +27,9 @@ function mapDispatchToProps(dispatch, ownProps) {
 // Currently supported mark types
 var marksArray = ['rect', 'symbol', 'text', 'line', 'area'];
 
-var AddMarksTool = React.createClass({
+var AddMarksTool = createReactClass({
   propTypes: {
-    addMark: React.PropTypes.func
+    addMark: propTypes.func
   },
   classNames: 'new-marks',
   render: function() {

@@ -4,7 +4,9 @@ var $ = require('jquery'),
     ReactDOM = require('react-dom'),
     connect = require('react-redux').connect,
     ContentEditable = require('react-contenteditable'),
-    getInVis = require('../../util/immutable-utils').getInVis;
+    getInVis = require('../../util/immutable-utils').getInVis,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 var EXPR = 'expr',
     TMPL = 'tmpl',
@@ -22,13 +24,13 @@ function mapStateToProps(reduxState, ownProps) {
   };
 }
 
-var AutoComplete = React.createClass({
+var AutoComplete = createReactClass({
   propTypes: {
-    type: React.PropTypes.oneOf([EXPR, TMPL]).isRequired,
-    dsId: React.PropTypes.number.isRequired,
-    fields: React.PropTypes.array.isRequired,
-    value: React.PropTypes.string,
-    updateFn: React.PropTypes.func.isRequired
+    type: propTypes.oneOf([EXPR, TMPL]).isRequired,
+    dsId: propTypes.number.isRequired,
+    fields: propTypes.array.isRequired,
+    value: propTypes.string,
+    updateFn: propTypes.func.isRequired
   },
 
   getInitialState: function() {

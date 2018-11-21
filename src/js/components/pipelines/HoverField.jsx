@@ -15,7 +15,9 @@ var React = require('react'),
     AggregateList = require('./AggregateList'),
     getInVis = require('../../util/immutable-utils').getInVis,
     assets = require('../../util/assets'),
-    QUANTITATIVE = require('../../constants/measureTypes').QUANTITATIVE;
+    QUANTITATIVE = require('../../constants/measureTypes').QUANTITATIVE,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -32,12 +34,12 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var HoverField = React.createClass({
+var HoverField = createReactClass({
   propTypes: {
-    dsId: React.PropTypes.number,
-    srcId: React.PropTypes.number,
-    def: React.PropTypes.object,
-    schema: React.PropTypes.object
+    dsId: propTypes.number,
+    srcId: propTypes.number,
+    def: propTypes.object,
+    schema: propTypes.object
   },
 
   getInitialState: function() {

@@ -2,15 +2,17 @@
 
 var React = require('react'),
     AggregateField = require('./AggregateField'),
-    AGGREGATE_OPS = require('../../constants/aggregateOps');
+    AGGREGATE_OPS = require('../../constants/aggregateOps'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 var SHORT_LIST = 5;
 
-var TransformsList = React.createClass({
+var TransformsList = createReactClass({
   propTypes: {
-    handlers: React.PropTypes.object.isRequired,
-    style: React.PropTypes.object,
-    field: React.PropTypes.object
+    handlers: propTypes.object.isRequired,
+    style: propTypes.object,
+    field: propTypes.object
   },
 
   getInitialState: function() {

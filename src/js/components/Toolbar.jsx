@@ -4,9 +4,10 @@ var React = require('react'),
     UndoRedo = require('./toolbar/UndoRedo'),
     Export = require('./toolbar/Export'),
     assets = require('../util/assets'),
-    Icon = require('./Icon');
+    Icon = require('./Icon'),
+    createReactClass = require('create-react-class');
 
-var Toolbar = React.createClass({
+var Toolbar = createReactClass({
   render: function() {
     return (
       <div className="toolbar">

@@ -11,7 +11,9 @@ var d3 = require('d3'),
     Icon = require('../Icon'),
     HoverField = require('./HoverField'),
     HoverValue = require('./HoverValue'),
-    TransformList = require('./transforms/TransformList').connected;
+    TransformList = require('./transforms/TransformList').connected,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.id;
@@ -21,10 +23,10 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-var DataTable = React.createClass({
+var DataTable = createReactClass({
   propTypes: {
-    id: React.PropTypes.number,
-    dataset: React.PropTypes.instanceOf(Immutable.Map)
+    id: propTypes.number,
+    dataset: propTypes.instanceOf(Immutable.Map)
   },
   getInitialState: function() {
     return {

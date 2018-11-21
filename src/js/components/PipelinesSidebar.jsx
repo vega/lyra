@@ -3,9 +3,10 @@ var React = require('react'),
     PipelineList = require('./pipelines/PipelineList'),
     assets = require('../util/assets'),
     PipelineModal = require('./pipelines/PipelineModal').connected,
-    Icon = require('./Icon');
+    Icon = require('./Icon'),
+    createReactClass = require('create-react-class');
 
-var PipelineSidebar = React.createClass({
+var PipelineSidebar = createReactClass({
   getInitialState: function() {
     return {modalIsOpen: false};
   },

@@ -2,10 +2,11 @@
 var React = require('react'),
     Modal = require('react-modal'),
     Settings = require('./settings/SettingsModal'),
-    Walkthroughs = require('./walkthrough/Menu');
+    Walkthroughs = require('./walkthrough/Menu'),
+    createReactClass = require('create-react-class');
 
 
-var Footer = React.createClass({
+var Footer = createReactClass({
   getInitialState: function() {
     return {modalIsOpen: false};
   },

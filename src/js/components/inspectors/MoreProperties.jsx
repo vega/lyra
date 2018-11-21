@@ -1,10 +1,12 @@
 'use strict';
 
-var React = require('react');
+var React = require('react'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var MoreProperties = React.createClass({
+var MoreProperties = createReactClass({
   propTypes: {
-    label: React.PropTypes.string.isRequired
+    label: propTypes.string.isRequired
   },
 
   getInitialState: function() {

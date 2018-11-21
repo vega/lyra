@@ -4,12 +4,13 @@ var React = require('react'),
     vg = require('vega'),
     ctrl = require('../../ctrl'),
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    createReactClass = require('create-react-class');
 
 var RENDERER = {png: 'canvas', svg: 'svg'},
     MIME = {json: 'application/json', html: 'text/html'};
 
-var Export = React.createClass({
+var Export = createReactClass({
 
   /**
    * Lyra's rendered visualization contains manipulators, so we re-render a

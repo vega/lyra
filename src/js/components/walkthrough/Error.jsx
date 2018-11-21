@@ -1,7 +1,8 @@
 'use strict';
-var React = require('react');
+var React = require('react'),
+    createReactClass = require('create-react-class');
 
-var Errors = React.createClass({
+var Errors = createReactClass({
   classNames: 'error',
   render: function() {
     var props = this.props;

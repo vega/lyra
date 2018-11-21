@@ -8,7 +8,9 @@ var React = require('react'),
     setSignal = require('../../actions/signalActions').setSignal,
     getInVis = require('../../util/immutable-utils').getInVis,
     ctrl = require('../../ctrl'),
-    sg = require('../../ctrl/signals');
+    sg = require('../../ctrl/signals'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState, ownProps) {
   var signal = ownProps.signal;
@@ -28,27 +30,27 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var FormInputProperty = React.createClass({
+var FormInputProperty = createReactClass({
   propTypes: {
-    id: React.PropTypes.string,
-    type: React.PropTypes.oneOf([
+    id: propTypes.string,
+    type: propTypes.oneOf([
       'number', 'range', 'color', 'select',
       'text', 'checkbox', 'toggle', 'selection'
     ]),
-    value: React.PropTypes.oneOfType([
-      React.PropTypes.string, React.PropTypes.number,
-      React.PropTypes.bool, React.PropTypes.instanceOf(Immutable.Map)
+    value: propTypes.oneOfType([
+      propTypes.string, propTypes.number,
+      propTypes.bool, propTypes.instanceOf(Immutable.Map)
     ]),
-    min: React.PropTypes.string,
-    max: React.PropTypes.string,
-    disabled: React.PropTypes.oneOfType([
-      React.PropTypes.bool, React.PropTypes.string
+    min: propTypes.string,
+    max: propTypes.string,
+    disabled: propTypes.oneOfType([
+      propTypes.bool, propTypes.string
     ]),
-    opts: React.PropTypes.array,
-    signal: React.PropTypes.string,
-    setSignal: React.PropTypes.func,
-    onChange: React.PropTypes.func,
-    onBlur: React.PropTypes.func
+    opts: propTypes.array,
+    signal: propTypes.string,
+    setSignal: propTypes.func,
+    onChange: propTypes.func,
+    onBlur: propTypes.func
   },
 
   getInitialState: function() {

@@ -4,7 +4,9 @@ var React = require('react'),
     Immutable = require('immutable'),
     connect = require('react-redux').connect,
     getInVis = require('../../util/immutable-utils').getInVis,
-    primTypes = require('../../constants/primTypes');
+    primTypes = require('../../constants/primTypes'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -12,11 +14,11 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-var ScaleInspector = React.createClass({
+var ScaleInspector = createReactClass({
   propTypes: {
-    primId: React.PropTypes.number.isRequired,
+    primId: propTypes.number.isRequired,
     primType: primTypes.isRequired,
-    scale: React.PropTypes.instanceOf(Immutable.Map)
+    scale: propTypes.instanceOf(Immutable.Map)
   },
 
   render: function() {

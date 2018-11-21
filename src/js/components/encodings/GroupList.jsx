@@ -10,7 +10,9 @@ var React = require('react'),
     clearScene = require('../../actions/sceneActions').clearScene,
     Group = require('./GroupChildren'),
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState) {
   var sceneId = getInVis(reduxState, 'scene.id');
@@ -36,14 +38,14 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-var GroupList = React.createClass({
+var GroupList = createReactClass({
   propTypes: {
-    selectedId: React.PropTypes.number,
-    sceneId: React.PropTypes.number,
-    marks: React.PropTypes.object,
-    addMark: React.PropTypes.func,
-    selectMark: React.PropTypes.func,
-    clearScene: React.PropTypes.func
+    selectedId: propTypes.number,
+    sceneId: propTypes.number,
+    marks: propTypes.object,
+    addMark: propTypes.func,
+    selectMark: propTypes.func,
+    clearScene: propTypes.func
   },
 
   render: function() {

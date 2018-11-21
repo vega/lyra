@@ -6,7 +6,9 @@ var React = require('react'),
     updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
     Text = require('../../store/factory/marks/Text'),
     assets = require('../../util/assets'),
-    getInVis = require('../../util/immutable-utils').getInVis;
+    getInVis = require('../../util/immutable-utils').getInVis,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState, ownProps) {
   return {
@@ -24,11 +26,11 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var TextInspector = React.createClass({
+var TextInspector = createReactClass({
   propTypes: {
-    primId: React.PropTypes.number.isRequired,
+    primId: propTypes.number.isRequired,
     primType: primTypes.isRequired,
-    autoVal: React.PropTypes.string
+    autoVal: propTypes.string
   },
 
   render: function() {

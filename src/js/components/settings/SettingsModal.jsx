@@ -5,7 +5,9 @@ var React = require('react'),
     getIn = require('../../util/immutable-utils').getIn,
     hints = require('../../actions/hintActions').on,
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 
 function mapStateToProps(reduxState) {
@@ -22,10 +24,10 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var Settings = React.createClass({
+var Settings = createReactClass({
   propTypes: {
-    hintsOn: React.PropTypes.bool,
-    toggleHints: React.PropTypes.func
+    hintsOn: propTypes.bool,
+    toggleHints: propTypes.func
   },
 
   getInitialState: function() {

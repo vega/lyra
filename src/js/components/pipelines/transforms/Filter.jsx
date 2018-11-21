@@ -1,13 +1,15 @@
 'use strict';
 var React = require('react'),
     parseExpr = require('vega').parse.expr(),
-    Property  = require('../../inspectors/Property');
+    Property  = require('../../inspectors/Property'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var Filter = React.createClass({
+var Filter = createReactClass({
   propTypes: {
-    dsId: React.PropTypes.number.isRequired,
-    index: React.PropTypes.number.isRequired,
-    update: React.PropTypes.func.isRequired
+    dsId: propTypes.number.isRequired,
+    index: propTypes.number.isRequired,
+    update: propTypes.func.isRequired
   },
 
   updateFilter: function(value) {

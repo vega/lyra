@@ -2,14 +2,16 @@
 var React = require('react'),
     Immutable = require('immutable'),
     parseExpr = require('vega').parse.expr(),
-    Property  = require('../../inspectors/Property');
+    Property  = require('../../inspectors/Property'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var Formula = React.createClass({
+var Formula = createReactClass({
   propTypes: {
-    dsId: React.PropTypes.number.isRequired,
-    index: React.PropTypes.number.isRequired,
-    def: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    update: React.PropTypes.func.isRequired
+    dsId: propTypes.number.isRequired,
+    index: propTypes.number.isRequired,
+    def: propTypes.instanceOf(Immutable.Map).isRequired,
+    update: propTypes.func.isRequired
   },
 
   updateFormula: function(evt) {

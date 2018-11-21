@@ -9,7 +9,9 @@ var React = require('react'),
     RawValuesTextArea = require('./RawValuesTextArea'),
     DataURL = require('./DataURL'),
     dsUtils = require('../../util/dataset-utils'),
-    NAME_REGEX = dsUtils.NAME_REGEX;
+    NAME_REGEX = dsUtils.NAME_REGEX,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -23,11 +25,11 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var PipelineModal = React.createClass({
+var PipelineModal = createReactClass({
   propTypes: {
-    addPipeline: React.PropTypes.func,
-    closeModal: React.PropTypes.func.isRequired,
-    modalIsOpen: React.PropTypes.bool.isRequired
+    addPipeline: propTypes.func,
+    closeModal: propTypes.func.isRequired,
+    modalIsOpen: propTypes.bool.isRequired
   },
 
   getInitialState: function() {

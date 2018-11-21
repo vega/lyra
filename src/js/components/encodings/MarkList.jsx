@@ -11,7 +11,9 @@ var React = require('react'),
     getInVis = require('../../util/immutable-utils').getInVis,
     ContentEditable = require('../ContentEditable'),
     Icon = require('../Icon'),
-    assets = require('../../util/assets');
+    assets = require('../../util/assets'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState, ownProps) {
   var marks = getInVis(reduxState, 'marks.' + ownProps.groupId + '.marks');
@@ -44,14 +46,14 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var MarkList = React.createClass({
+var MarkList = createReactClass({
   propTypes: {
-    groupId: React.PropTypes.number.isRequired,
-    selectedId: React.PropTypes.number,
-    marks: React.PropTypes.instanceOf(Immutable.List),
-    selectMark: React.PropTypes.func.isRequired,
-    deleteMark: React.PropTypes.func.isRequired,
-    updateName: React.PropTypes.func.isRequired,
+    groupId: propTypes.number.isRequired,
+    selectedId: propTypes.number,
+    marks: propTypes.instanceOf(Immutable.List),
+    selectMark: propTypes.func.isRequired,
+    deleteMark: propTypes.func.isRequired,
+    updateName: propTypes.func.isRequired,
   },
 
   componentDidUpdate: function() {

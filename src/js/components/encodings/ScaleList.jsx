@@ -6,7 +6,9 @@ var React = require('react'),
     ContentEditable = require('../ContentEditable'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
-    getInVis = imutils.getInVis;
+    getInVis = imutils.getInVis,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState, ownProps) {
   return {
@@ -23,11 +25,11 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-var ScaleList = React.createClass({
+var ScaleList = createReactClass({
   propTypes: {
-    selectedId: React.PropTypes.number,
-    scales: React.PropTypes.object,
-    selectScale: React.PropTypes.func
+    selectedId: propTypes.number,
+    scales: propTypes.object,
+    selectScale: propTypes.func
   },
   render: function() {
     var props = this.props,

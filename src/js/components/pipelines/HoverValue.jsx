@@ -1,11 +1,13 @@
 'use strict';
 var React = require('react'),
-    d3 = require('d3');
+    d3 = require('d3'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var HoverValue = React.createClass({
+var HoverValue = createReactClass({
   propTypes: {
-    event: React.PropTypes.object,
-    scrollLeft: React.PropTypes.number
+    event: propTypes.object,
+    scrollLeft: propTypes.number
   },
 
   render: function() {

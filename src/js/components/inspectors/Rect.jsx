@@ -3,11 +3,13 @@
 var React = require('react'),
     Property = require('./Property'),
     ExtentProperty = require('./ExtentProperty'),
-    primTypes = require('../../constants/primTypes');
+    primTypes = require('../../constants/primTypes'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var RectInspector = React.createClass({
+var RectInspector = createReactClass({
   propTypes: {
-    primId: React.PropTypes.number.isRequired,
+    primId: propTypes.number.isRequired,
     primType: primTypes.isRequired
   },
   render: function() {

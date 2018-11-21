@@ -1,16 +1,18 @@
 'use strict';
 
 var React = require('react'),
-    AGGREGATE_OPS = require('../../constants/aggregateOps');
+    AGGREGATE_OPS = require('../../constants/aggregateOps'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var AggregateField = React.createClass({
+var AggregateField = createReactClass({
   propTypes: {
-    op: React.PropTypes.oneOf(AGGREGATE_OPS).isRequired,
-    field: React.PropTypes.object,
-    onDragStart: React.PropTypes.func.isRequired,
-    onDragOver: React.PropTypes.func.isRequired,
-    onDragEnd: React.PropTypes.func.isRequired,
-    onDrop: React.PropTypes.func.isRequired
+    op: propTypes.oneOf(AGGREGATE_OPS).isRequired,
+    field: propTypes.object,
+    onDragStart: propTypes.func.isRequired,
+    onDragOver: propTypes.func.isRequired,
+    onDragEnd: propTypes.func.isRequired,
+    onDrop: propTypes.func.isRequired
   },
 
   onDragEnd: function(evt) {

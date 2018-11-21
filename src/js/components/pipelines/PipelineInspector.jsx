@@ -10,7 +10,9 @@ var React = require('react'),
     getInVis = imutils.getInVis,
     assets = require('../../util/assets'),
     Icon = require('../Icon'),
-    Immutable = require('immutable');
+    Immutable = require('immutable'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.id;
@@ -31,13 +33,13 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-var PipelineInspector = React.createClass({
+var PipelineInspector = createReactClass({
   propTypes: {
-    id: React.PropTypes.string.isRequired,
-    pipeline: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    isSelected: React.PropTypes.bool.isRequired,
-    selectPipeline: React.PropTypes.func.isRequired,
-    updateProperty: React.PropTypes.func.isRequired
+    id: propTypes.string.isRequired,
+    pipeline: propTypes.instanceOf(Immutable.Map).isRequired,
+    isSelected: propTypes.bool.isRequired,
+    selectPipeline: propTypes.func.isRequired,
+    updateProperty: propTypes.func.isRequired
   },
 
   render: function() {

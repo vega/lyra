@@ -17,7 +17,9 @@ var React = require('react'),
     Icon = require('../Icon'),
     assets = require('../../util/assets'),
     MarkList = require('./MarkList'),
-    GuideList = require('./GuideList');
+    GuideList = require('./GuideList'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState, ownProps) {
   return {
@@ -53,17 +55,17 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var Group = React.createClass({
+var Group = createReactClass({
   propTypes: {
-    id: React.PropTypes.number,
-    selectedId: React.PropTypes.number,
-    sceneId: React.PropTypes.number.isRequired,
-    group: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    expandedLayers: React.PropTypes.object,
-    selectGroup: React.PropTypes.func.isRequired,
-    deleteGroup: React.PropTypes.func.isRequired,
-    updateName: React.PropTypes.func.isRequired,
-    toggleGroup: React.PropTypes.func
+    id: propTypes.number,
+    selectedId: propTypes.number,
+    sceneId: propTypes.number.isRequired,
+    group: propTypes.instanceOf(Immutable.Map).isRequired,
+    expandedLayers: propTypes.object,
+    selectGroup: propTypes.func.isRequired,
+    deleteGroup: propTypes.func.isRequired,
+    updateName: propTypes.func.isRequired,
+    toggleGroup: propTypes.func
   },
 
   componentDidUpdate: function() {

@@ -9,7 +9,9 @@ var React = require('react'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
     TYPES = require('../../constants/primTypes'),
-    resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
+    resetMarkVisual = require('../../actions/markActions').resetMarkVisual,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState, ownProps) {
   if (!ownProps.primId) {
@@ -52,23 +54,23 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var Property = React.createClass({
+var Property = createReactClass({
   propTypes: {
-    name: React.PropTypes.string.isRequired,
-    label: React.PropTypes.string,
-    field: React.PropTypes.string,
-    group: React.PropTypes.string,
-    scale: React.PropTypes.number,
-    dsId: React.PropTypes.number,
-    scaleName: React.PropTypes.string,
-    signal: React.PropTypes.string,
-    autoType: React.PropTypes.string,
-    onChange: React.PropTypes.func,
-    value: React.PropTypes.oneOfType([
-      React.PropTypes.string, React.PropTypes.number,
-      React.PropTypes.bool, React.PropTypes.instanceOf(Immutable.Map)
+    name: propTypes.string.isRequired,
+    label: propTypes.string,
+    field: propTypes.string,
+    group: propTypes.string,
+    scale: propTypes.number,
+    dsId: propTypes.number,
+    scaleName: propTypes.string,
+    signal: propTypes.string,
+    autoType: propTypes.string,
+    onChange: propTypes.func,
+    value: propTypes.oneOfType([
+      propTypes.string, propTypes.number,
+      propTypes.bool, propTypes.instanceOf(Immutable.Map)
     ]),
-    unbind: React.PropTypes.func
+    unbind: propTypes.func
   },
 
   render: function() {

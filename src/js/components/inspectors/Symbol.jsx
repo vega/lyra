@@ -2,11 +2,13 @@
 var React = require('react'),
     Property = require('./Property'),
     primTypes = require('../../constants/primTypes'),
-    Symbol = require('../../store/factory/marks/Symbol');
+    Symbol = require('../../store/factory/marks/Symbol'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var SymbolInspector = React.createClass({
+var SymbolInspector = createReactClass({
   propTypes: {
-    primId: React.PropTypes.number.isRequired,
+    primId: propTypes.number.isRequired,
     primType: primTypes.isRequired
   },
 

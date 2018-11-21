@@ -2,13 +2,15 @@
 var React = require('react'),
     Property = require('./Property'),
     MoreProperties = require('./MoreProperties'),
-    primTypes = require('../../constants/primTypes');
+    primTypes = require('../../constants/primTypes'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var AxisInspector = React.createClass({
+var AxisInspector = createReactClass({
   propTypes: {
-    primId: React.PropTypes.number.isRequired,
+    primId: propTypes.number.isRequired,
     primType: primTypes.isRequired,
-    handleChange: React.PropTypes.func
+    handleChange: propTypes.func
   },
 
   render: function() {

@@ -3,7 +3,9 @@ var React = require('react'),
     connect = require('react-redux').connect,
     assets = require('../../../util/assets'),
     Icon = require('../../Icon'),
-    addTransform = require('../../../actions/datasetActions').addTransform;
+    addTransform = require('../../../actions/datasetActions').addTransform,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -18,11 +20,11 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var FilterIcon = React.createClass({
+var FilterIcon = createReactClass({
   propTypes: {
-    field: React.PropTypes.object.isRequired,
-    dsId:  React.PropTypes.number,
-    filter: React.PropTypes.func
+    field: propTypes.object.isRequired,
+    dsId:  propTypes.number,
+    filter: propTypes.func
   },
 
   render: function() {

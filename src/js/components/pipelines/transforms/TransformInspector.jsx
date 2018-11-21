@@ -4,7 +4,9 @@ var React = require('react'),
     connect = require('react-redux').connect,
     Immutable = require('immutable'),
     capitalize = require('capitalize'),
-    updateTransform = require('../../../actions/datasetActions').updateTransform;
+    updateTransform = require('../../../actions/datasetActions').updateTransform,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -18,12 +20,12 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var TransformInspector = React.createClass({
+var TransformInspector = createReactClass({
   propTypes: {
-    dsId: React.PropTypes.number.isRequired,
-    index: React.PropTypes.number.isRequired,
-    def: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    updateTransform: React.PropTypes.func.isRequired
+    dsId: propTypes.number.isRequired,
+    index: propTypes.number.isRequired,
+    def: propTypes.instanceOf(Immutable.Map).isRequired,
+    updateTransform: propTypes.func.isRequired
   },
 
   getInitialState: function() {

@@ -5,7 +5,9 @@ var React = require('react'),
     Property = require('./Property'),
     MoreProperties = require('./MoreProperties'),
     primTypes = require('../../constants/primTypes'),
-    SHAPES = require('../../store/factory/marks/Symbol').SHAPES;
+    SHAPES = require('../../store/factory/marks/Symbol').SHAPES,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState, ownProps) {
   var guide = getInVis(reduxState, 'guides.' + ownProps.primId),
@@ -18,13 +20,13 @@ function mapStateToProps(reduxState, ownProps) {
   };
 }
 
-var LegendInspector = React.createClass({
+var LegendInspector = createReactClass({
   propTypes: {
-    primId: React.PropTypes.number.isRequired,
+    primId: propTypes.number.isRequired,
     primType: primTypes.isRequired,
-    legendType: React.PropTypes.string.isRequired,
-    scaleType: React.PropTypes.string.isRequired,
-    handleChange: React.PropTypes.func
+    legendType: propTypes.string.isRequired,
+    scaleType: propTypes.string.isRequired,
+    handleChange: propTypes.func
   },
 
   render: function() {

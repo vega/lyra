@@ -5,7 +5,9 @@ var React = require('react'),
     undo = historyActions.undo,
     redo = historyActions.redo,
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state) {
   var vis = state.get('vis');
@@ -26,12 +28,12 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-var UndoRedo = React.createClass({
+var UndoRedo = createReactClass({
   propTypes: {
-    canUndo: React.PropTypes.bool.isRequired,
-    canRedo: React.PropTypes.bool.isRequired,
-    undo: React.PropTypes.func.isRequired,
-    redo: React.PropTypes.func.isRequired,
+    canUndo: propTypes.bool.isRequired,
+    canRedo: propTypes.bool.isRequired,
+    undo: propTypes.func.isRequired,
+    redo: propTypes.func.isRequired,
   },
 
   render: function() {

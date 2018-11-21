@@ -13,7 +13,9 @@ var React = require('react'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
     Icon = require('../Icon'),
-    assets = require('../../util/assets');
+    assets = require('../../util/assets'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState, ownProps) {
   var groupId = ownProps.groupId,
@@ -48,14 +50,14 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var GuideList = React.createClass({
+var GuideList = createReactClass({
   propTypes: {
-    groupId: React.PropTypes.number.isRequired,
-    selectedId: React.PropTypes.number,
-    scales: React.PropTypes.instanceOf(Immutable.Map),
-    guides: React.PropTypes.instanceOf(Immutable.List),
-    selectGuide: React.PropTypes.func.isRequired,
-    deleteGuide: React.PropTypes.func.isRequired
+    groupId: propTypes.number.isRequired,
+    selectedId: propTypes.number,
+    scales: propTypes.instanceOf(Immutable.Map),
+    guides: propTypes.instanceOf(Immutable.List),
+    selectGuide: propTypes.func.isRequired,
+    deleteGuide: propTypes.func.isRequired
   },
 
   componentDidUpdate: function() {

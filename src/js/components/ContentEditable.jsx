@@ -1,13 +1,15 @@
 'use strict';
 var React = require('react'),
-    ReactDOM = require('react-dom');
+    ReactDOM = require('react-dom'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var ContentEditable = React.createClass({
+var ContentEditable = createReactClass({
   propTypes: {
-    value: React.PropTypes.oneOfType([
-      React.PropTypes.string, React.PropTypes.number
+    value: propTypes.oneOfType([
+      propTypes.string, propTypes.number
     ]),
-    save: React.PropTypes.func
+    save: propTypes.func
   },
 
   getInitialState: function() {

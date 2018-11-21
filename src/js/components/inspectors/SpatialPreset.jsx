@@ -5,7 +5,9 @@ var React = require('react'),
     getInVis = require('../../util/immutable-utils').getInVis,
     markActions = require('../../actions/markActions'),
     setMarkVisual = markActions.setMarkVisual,
-    resetMarkVisual = markActions.resetMarkVisual;
+    resetMarkVisual = markActions.resetMarkVisual,
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   var id = ownProps.primId,
@@ -32,13 +34,13 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var SpatialPreset = React.createClass({
+var SpatialPreset = createReactClass({
   propTypes: {
-    primitive: React.PropTypes.object,
-    field: React.PropTypes.string,
-    band: React.PropTypes.bool,
-    group: React.PropTypes.string,
-    scale: React.PropTypes.instanceOf(Immutable.Map)
+    primitive: propTypes.object,
+    field: propTypes.string,
+    band: propTypes.bool,
+    group: propTypes.string,
+    scale: propTypes.instanceOf(Immutable.Map)
   },
 
   handleChange: function(evt) {

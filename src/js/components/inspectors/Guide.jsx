@@ -6,7 +6,9 @@ var React = require('react'),
     GTYPES = require('../../store/factory/Guide').GTYPES,
     updateGuideProperty = require('../../actions/guideActions').updateGuideProperty,
     AxisInspector = require('./Axis'),
-    LegendInspector = require('./Legend');
+    LegendInspector = require('./Legend'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   return {};
@@ -20,11 +22,11 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-var GuideInspector = React.createClass({
+var GuideInspector = createReactClass({
   propTypes: {
-    primId: React.PropTypes.number,
-    guideType: React.PropTypes.oneOf(dl.vals(GTYPES)),
-    updateGuideProperty: React.PropTypes.func
+    primId: propTypes.number,
+    guideType: propTypes.oneOf(dl.vals(GTYPES)),
+    updateGuideProperty: propTypes.func
   },
 
   handleChange: function(evt) {

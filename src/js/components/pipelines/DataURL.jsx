@@ -1,9 +1,11 @@
 'use strict';
-var React = require('react');
+var React = require('react'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var Loader = React.createClass({
+var Loader = createReactClass({
   propTypes: {
-    loadURL: React.PropTypes.func.isRequired
+    loadURL: propTypes.func.isRequired
   },
 
   handleSubmit: function(evt) {

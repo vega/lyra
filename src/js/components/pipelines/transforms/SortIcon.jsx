@@ -8,7 +8,9 @@ var React = require('react'),
     getInVis = require('../../../util/immutable-utils').getInVis,
     ORDER  = require('../../../constants/sortOrder'),
     MTYPES = require('../../../constants/measureTypes'),
-    ReactTooltip = require('react-tooltip');
+    ReactTooltip = require('react-tooltip'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -24,11 +26,11 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var SortIcon = React.createClass({
+var SortIcon = createReactClass({
   propTypes: {
-    field: React.PropTypes.object.isRequired,
-    dsId:  React.PropTypes.number,
-    sort:  React.PropTypes.instanceOf(Immutable.Map)
+    field: propTypes.object.isRequired,
+    dsId:  propTypes.number,
+    sort:  propTypes.instanceOf(Immutable.Map)
   },
 
   componentDidUpdate: function() {

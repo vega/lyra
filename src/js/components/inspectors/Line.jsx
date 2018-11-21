@@ -2,11 +2,13 @@
 var React = require('react'),
     Property = require('./Property'),
     primTypes = require('../../constants/primTypes'),
-    INTERPOLATE = require('../../constants/interpolate');
+    INTERPOLATE = require('../../constants/interpolate'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var LineInspector = React.createClass({
+var LineInspector = createReactClass({
   propTypes: {
-    primId: React.PropTypes.number.isRequired,
+    primId: propTypes.number.isRequired,
     primType: primTypes.isRequired
   },
   render: function() {

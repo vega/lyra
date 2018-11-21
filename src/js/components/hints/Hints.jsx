@@ -4,7 +4,9 @@ var React = require('react'),
     getIn = require('../../util/immutable-utils').getIn,
     hintActions = require('../../actions/hintActions'),
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState, ownProps) {
   return {
@@ -26,11 +28,11 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var Hints = React.createClass({
+var Hints = createReactClass({
   propTypes: {
-    displayHint: React.PropTypes.object,
-    dispatchAction: React.PropTypes.func,
-    clearHints: React.PropTypes.func
+    displayHint: propTypes.object,
+    dispatchAction: propTypes.func,
+    clearHints: propTypes.func
   },
   classNames: 'hints',
   render: function() {

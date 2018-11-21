@@ -5,7 +5,9 @@ var React = require('react'),
     getIn = require('../../util/immutable-utils').getIn,
     WActions = require('../../actions/walkthroughActions'),
     assets = require('../../util/assets'),
-    Icon = require('../Icon');
+    Icon = require('../Icon'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 
 function mapStateToProps(reduxState) {
@@ -22,10 +24,10 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var WalkthroughMenu = React.createClass({
+var WalkthroughMenu = createReactClass({
   propTypes: {
-    walkthroughs: React.PropTypes.object,
-    select: React.PropTypes.func
+    walkthroughs: propTypes.object,
+    select: propTypes.func
   },
 
   getInitialState: function() {

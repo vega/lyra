@@ -7,7 +7,9 @@ var React  = require('react'),
     changeFieldMType = require('../../actions/datasetActions').changeFieldMType,
     MTYPES = require('../../constants/measureTypes'),
     assets = require('../../util/assets'),
-    Icon   = require('../Icon');
+    Icon   = require('../Icon'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps() {
   return {};
@@ -25,10 +27,10 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var FieldType = React.createClass({
+var FieldType = createReactClass({
   propTypes: {
-    dsId: React.PropTypes.number.isRequired,
-    field: React.PropTypes.object
+    dsId: propTypes.number.isRequired,
+    field: propTypes.object
   },
 
   componentDidUpdate: function() {

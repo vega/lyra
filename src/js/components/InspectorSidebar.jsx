@@ -14,7 +14,9 @@ var React = require('react'),
     hierarchy = require('../util/hierarchy'),
     findInItemTree = hierarchy.findInItemTree,
     ACTIONS = require('../actions/Names'),
-    TYPES = require('../constants/primTypes');
+    TYPES = require('../constants/primTypes'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   var encState = getIn(state, 'inspector.encodings'),
@@ -52,15 +54,15 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-var Inspector = React.createClass({
+var Inspector = createReactClass({
   propTypes: {
-    selectedId: React.PropTypes.number,
-    isMark: React.PropTypes.bool,
-    isGuide: React.PropTypes.bool,
-    isScale: React.PropTypes.bool,
-    name: React.PropTypes.string,
-    from: React.PropTypes.string,
-    markType: React.PropTypes.string
+    selectedId: propTypes.number,
+    isMark: propTypes.bool,
+    isGuide: propTypes.bool,
+    isScale: propTypes.bool,
+    name: propTypes.string,
+    from: propTypes.string,
+    markType: propTypes.string
   },
 
   render: function() {

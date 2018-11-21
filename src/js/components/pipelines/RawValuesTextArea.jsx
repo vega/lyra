@@ -3,12 +3,14 @@
 var React = require('react'),
     Pipeline = require('../../store/factory/Pipeline'),
     Dataset = require('../../store/factory/Dataset'),
-    dsUtils = require('../../util/dataset-utils');
+    dsUtils = require('../../util/dataset-utils'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
-var DraggableTextArea = React.createClass({
+var DraggableTextArea = createReactClass({
   propTypes: {
-    success: React.PropTypes.func.isRequired,
-    error: React.PropTypes.func.isRequired
+    success: propTypes.func.isRequired,
+    error: propTypes.func.isRequired
   },
 
   getInitialState: function() {

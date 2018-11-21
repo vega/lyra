@@ -3,7 +3,9 @@ var React = require('react'),
     Immutable = require('immutable'),
     connect = require('react-redux').connect,
     getInVis = require('../../util/immutable-utils').getInVis,
-    PipelineInspector = require('./PipelineInspector');
+    PipelineInspector = require('./PipelineInspector'),
+    propTypes = require('prop-types'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(reduxState) {
   return {
@@ -11,9 +13,9 @@ function mapStateToProps(reduxState) {
   };
 }
 
-var PipelineList = React.createClass({
+var PipelineList = createReactClass({
   propTypes: {
-    pipelines: React.PropTypes.instanceOf(Immutable.Map)
+    pipelines: propTypes.instanceOf(Immutable.Map)
   },
 
   render: function() {

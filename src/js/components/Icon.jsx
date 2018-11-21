@@ -1,7 +1,8 @@
 'use strict';
-var React = require('react');
+var React = require('react'),
+    createReactClass = require('create-react-class');
 
-var Icon = React.createClass({
+var Icon = createReactClass({
   render: function() {
     var props = this.props,
         className = (props.className ? props.className + ' ' : '') + 'icon';

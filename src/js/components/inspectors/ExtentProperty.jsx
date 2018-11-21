@@ -10,7 +10,8 @@ var dl = require('datalib'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
-    MARK_EXTENTS = require('../../constants/markExtents');
+    MARK_EXTENTS = require('../../constants/markExtents'),
+    createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   var type = ownProps.exType,
@@ -48,7 +49,7 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var ExtentProperty = React.createClass({
+var ExtentProperty = createReactClass({
   handleChange: function(evt) {
     var props = this.props,
         type = props.exType,
