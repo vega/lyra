@@ -9,21 +9,20 @@ var dl = require('datalib'),
     ExtractTextPlugin = require('extract-text-webpack-plugin'),
     devCfg  = require('./webpack.config'),
     prodCfg = dl.extend({}, devCfg, {devtool: 'cheap-module-source-map'}),
-    loaders = prodCfg.module.loaders;
+    rules = prodCfg.module.rules;
 
 // Extract stylesheet.
-loaders[1].loader = ExtractTextPlugin.extract('style-loader', 'css-loader!sass-loader');
+rules[1].loader = ExtractTextPlugin.extract({fallback: 'style-loader', use: ['css-loader', 'sass-loader']});
 
 // Add a DefinePlugin instance to hard-set global environment to "production",
 // to trigger the use of an optimized Redux build, etc.
 prodCfg.plugins.push.apply(prodCfg.plugins, [
-  new webpack.optimize.DedupePlugin(),
   new webpack.DefinePlugin({
     'process.env': {
       NODE_ENV: JSON.stringify('production')
     }
   }),
-  new ExtractTextPlugin('style.css'),
+  new ExtractTextPlugin({filename: 'style.css'}),
 ]);
 
 module.exports = prodCfg;

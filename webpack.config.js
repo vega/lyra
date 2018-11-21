@@ -40,43 +40,43 @@ module.exports = {
     filename: 'js/[name].js'
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'babel-loader?presets[]=react'
+        loader: 'babel-loader',
+        options: {
+          'presets': ['react']
+        }
       },
       {
         test: /\.scss$/,
-        loader: 'style!css!autoprefixer?browsers=last 2 version!sass?outputStyle=expanded'
+        loader: 'style-loader!css-loader!autoprefixer-loader?browsers=last 2 version!sass-loader?outputStyle=expanded'
       },
       {
         test: /\.png$/,
-        loader: 'file-loader'
+        use: 'file-loader'
       },
       {
         test: /\.html$/,
-        loader: 'raw-loader'
+        use: 'raw-loader'
       },
       {
         test: /\.svg$/,
-        loader: 'svg-sprite?' + JSON.stringify({
+        loader: 'svg-sprite-loader',
+        options: {
           name: '[name]',
           prefixize: true
-        })
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
+        }
       }
     ]
   },
   resolve: {
     // Permits `require( 'file' )` instead of `require( 'file.jsx' )`
-    extensions: ['', '.js', '.jsx']
+    extensions: ['.js', '.jsx']
   },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.js'),
+    new webpack.optimize.CommonsChunkPlugin({name: 'vendor', filename: 'js/vendor.js'}),
     new NotifierPlugin(),
   ]
 };
