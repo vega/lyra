@@ -11,9 +11,6 @@ var dl = require('datalib'),
     prodCfg = dl.extend({}, devCfg, {devtool: 'cheap-module-source-map'}),
     loaders = prodCfg.module.loaders;
 
-// Remove hot-reloading plugins/loaders/etc.
-loaders[0].loaders.splice(0, 1);
-
 // Extract stylesheet.
 loaders[1].loader = ExtractTextPlugin.extract('style-loader', 'css-loader!sass-loader');
 
