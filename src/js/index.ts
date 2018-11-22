@@ -8,11 +8,13 @@ require('array.prototype.find');
 require('string.prototype.startswith');
 require('./transforms');
 
+const _global:any = global; // TODO(jzong): make this not a hack by making a type that extends NodeJS.Global
+
 // Initialize the Redux store
-var store = global.store = require('./store');
+var store = _global.store = require('./store');
 
 // Initialize the Model.
-var ctrl = global.ctrl = require('./ctrl');
+var ctrl = _global.ctrl = require('./ctrl');
 
 // Set up the listeners that connect the ctrl to the store
 var listeners = require('./store/listeners');

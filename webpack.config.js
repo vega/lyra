@@ -6,8 +6,8 @@ var path = require('path'),
 
 module.exports = {
   entry: {
-    lyra: path.resolve( __dirname, 'src/js/index.js' ),
-    // // By specifying "vendor" dependencies we can render those vendor files
+    lyra: path.resolve( __dirname, 'src/js/index.ts' ),
+    // // By specifying 'vendor' dependencies we can render those vendor files
     // // into a separate JS bundle; see the CommonsChunkPlugin usage below
     // vendor: [
     //   'array.prototype.find',
@@ -86,12 +86,13 @@ module.exports = {
         options: {
           esModule: false
         }
-      }
+      },
+      { test: /\.tsx?$/, loader: 'awesome-typescript-loader' },
     ]
   },
   resolve: {
     // Permits `require( 'file' )` instead of `require( 'file.jsx' )`
-    extensions: ['.js', '.jsx']
+    extensions: ['.ts', '.tsx', '.js', '.jsx']
   },
   plugins: [
     // new webpack.optimize.CommonsChunkPlugin({name: 'vendor', filename: 'js/vendor.js'}),
