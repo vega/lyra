@@ -7,12 +7,14 @@ var Icon = createReactClass({
     var props = this.props,
         className = (props.className ? props.className + ' ' : '') + 'icon';
 
+    console.log(props);
+
     return (
       <svg className={className} onClick={props.onClick}
         width={props.width || 13} height={props.height || 13}
         data-html={props['data-html']} data-tip={props['data-tip']}
         data-place={props['data-place']}>
-        <use xlinkHref={props.glyph} />
+        <use xlinkHref={'#' + props.glyph.id} />
       </svg>
     );
   }

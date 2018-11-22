@@ -12,7 +12,7 @@ var dl = require('datalib'),
     rules = prodCfg.module.rules;
 
 // Extract stylesheet.
-rules[1].loader = ExtractTextPlugin.extract({fallback: 'style-loader', use: ['css-loader', 'sass-loader']});
+rules[1].use = ExtractTextPlugin.extract({fallback: 'style-loader', use: ['css-loader', 'sass-loader']});
 
 // Add a DefinePlugin instance to hard-set global environment to "production",
 // to trigger the use of an optimized Redux build, etc.
