@@ -117,7 +117,7 @@
     "docs": "jsdoc --configure .jsdoc.json",
     "lint": "eslint --ext .js,.jsx src",
     "lint:branch": "eslint $(git diff --name-only --diff-filter=ACMRTUXB $(git merge-base head lyra2) | grep '.jsx*$') || true",
-    "start": "webpack-dev-server --devtool=cheap-source-map --inline --hot --progress",
+    "start": "webpack-dev-server --mode=development --devtool=cheap-source-map --inline --hot --progress",
     "test": "karma start karma.config.js",
     "test:dev": "npm run test -- --watch",
     "test:chrome": "npm run test -- --watch --browsers Chrome",
