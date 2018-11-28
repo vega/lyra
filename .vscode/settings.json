@@ -1,10 +1,10 @@
 // Place your settings in this file to overwrite default and user settings.
 {
   "editor.tabSize": 2,
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "files.exclude": {
     "coverage/**/*": true,
-    "_site/**/*": true,
+    "_site/**/*": true
   },
   "search.exclude": {
     "build": true
