@@ -131,8 +131,6 @@
     "test:win": "npm run test -- --browsers PhantomJS,Chrome,Firefox,IE,IE9,IE10"
   },
   "dependencies": {
-    "@types/create-react-class": "^15.6.2",
-    "@types/react-redux": "^6.0.10",
-    "save": "^2.3.3"
+    "@types/react-redux": "^6.0.10"
   }
 }

@@ -1,4 +1,5 @@
 'use strict';
+
 // TODO Change from 'requires' to 'import'
 const historyActions = require('../../actions/historyActions');
 const undo = historyActions.undo;
@@ -6,11 +7,9 @@ const redo = historyActions.redo;
 const assets = require('../../util/assets');
 const Icon = require('../Icon');
 
-import * as createReactClass from 'create-react-class';
-import * as propTypes from 'prop-types';
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {State} from '../../store/index';
+import {State} from '../../store';
 
 function mapStateToProps(state: State) {
   const vis = state.get('vis');
