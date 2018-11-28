@@ -1,10 +1,10 @@
 import * as React from 'react';
 
 const AddMarks = require('./AddMarks'),
-  UndoRedo = require('./UndoRedo'),
   Export = require('./Export'),
   assets = require('../../util/assets'),
   Icon = require('../Icon');
+import {UndoRedo} from './UndoRedo';
 
 export class Toolbar extends React.PureComponent {
   public render() {
