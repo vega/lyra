@@ -95,8 +95,6 @@ function loadURL(url: string) {
   const pipeline = Pipeline({name});
   const dataset = Dataset(name, {url: url});
 
-  pipeline._id;
-
   return promisify(dl.load)({url: url}).then(function(data) {
     return {data: data, pipeline: pipeline, dataset: dataset};
   });

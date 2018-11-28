@@ -17,12 +17,6 @@
     "no-reference": false,
     "no-shadowed-variable": [true, { "temporalDeadZone": false }],
     "no-string-literal": false,
-    "variable-name": [
-      true,
-      "check-format",
-      "allow-leading-underscore",
-      "ban-keywords"
-    ],
     "no-inferrable-types": [true, "ignore-params"],
     "no-console": [true, "debug", "info", "time", "timeEnd", "trace"],
     "no-unnecessary-initializer": false,
