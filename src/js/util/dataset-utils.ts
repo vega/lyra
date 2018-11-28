@@ -1,20 +1,21 @@
 'use strict';
 
-var dl = require('datalib'),
-    promisify = require('es6-promisify'),
-    MTYPES = require('vega-lite').data.types,
-    Pipeline = require('../store/factory/Pipeline'),
-    Dataset  = require('../store/factory/Dataset'),
-    imutils  = require('./immutable-utils'),
-    getInVis = imutils.getInVis,
-    NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
+const dl = require('datalib'),
+  promisify = require('es6-promisify'),
+  MTYPES = require('vega-lite').data.types,
+  Dataset = require('../store/factory/Dataset'),
+  imutils = require('./immutable-utils'),
+  getInVis = imutils.getInVis,
+  NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
+
+import {Pipeline} from '../store/factory/Pipeline';
 
 // Circumvents the circular dependency
 function store() {
   return require('../store');
 }
 
-function def(id) {
+function def(id: number) {
   return getInVis(store().getState(), 'datasets.' + id);
 }
 
@@ -27,7 +28,7 @@ function def(id) {
  *
  * @namespace dataset-utilities
  */
-var _values = {};
+let _values = {};
 
 /**
  * Initialize a dataset by loading the raw values and constructing the schema.
@@ -37,11 +38,12 @@ var _values = {};
  * @returns {void}
  */
 function init(action) {
-  var id = action.id,
-      props = action.props,
-      src = props.source;
+  const id = action.id,
+    props = action.props,
+    src = props.source;
 
-  if (_values[id]) { // Early-exit if we've previously loaded values.
+  if (_values[id]) {
+    // Early-exit if we've previously loaded values.
     return _values[id];
   }
 
@@ -59,7 +61,7 @@ function reset() {
  * @param {number} id - The ID of the dataset.
  * @returns {Array|string} An array of objects.
  */
-function input(id) {
+function input(id: number) {
   return _values[id];
 }
 
@@ -71,13 +73,13 @@ function input(id) {
  * @param {number} id - The ID of the dataset.
  * @returns {Object[]} An array of objects.
  */
-function output(id) {
-  var ctrl = require('../ctrl'),
-      ds = def(id),
-      view = ds && ctrl.view && ctrl.view.data(ds.get('name'));
+function output(id: number) {
+  const ctrl = require('../ctrl'),
+    ds = def(id),
+    view = ds && ctrl.view && ctrl.view.data(ds.get('name'));
 
   // proposed change: ensure ds.values() return contents isnt empty
-  return (view && view.values().length) ? view.values() : input(id);
+  return view && view.values().length ? view.values() : input(id);
 }
 
 /**
@@ -88,15 +90,16 @@ function output(id) {
  * @param   {Object} dataset  The definition for a dataset (e.g., name, url).
  * @returns {Object} An object containing the loaded values.
  */
-function loadURL(url) {
-  var fileName = url.match(NAME_REGEX)[1],
-      pipeline = Pipeline(fileName),
-      dataset  = Dataset(fileName, {url: url});
+function loadURL(url: string) {
+  const name = url.match(NAME_REGEX)[1];
+  const pipeline = Pipeline({name});
+  const dataset = Dataset(name, {url: url});
 
-  return promisify(dl.load)({url: url})
-    .then(function(data) {
-      return {data: data, pipeline: pipeline, dataset: dataset};
-    });
+  pipeline._id;
+
+  return promisify(dl.load)({url: url}).then(function(data) {
+    return {data: data, pipeline: pipeline, dataset: dataset};
+  });
 }
 
 /**
@@ -108,8 +111,8 @@ function loadURL(url) {
  *                   raw values.
  */
 function parseRaw(raw) {
-  var format = {parse: 'auto'},
-      parsed;
+  let format = {parse: 'auto'},
+    parsed;
 
   try {
     format.type = 'json';
@@ -131,8 +134,7 @@ function parseRaw(raw) {
       return {format: format, values: parsed};
     }
 
-    throw Error('Raw data is in an unsupported format. ' +
-      'Only JSON, CSV, or TSV may be imported.');
+    throw Error('Raw data is in an unsupported format. ' + 'Only JSON, CSV, or TSV may be imported.');
   }
 
   return {};
@@ -149,7 +151,7 @@ function schema(arg) {
   if (dl.isNumber(arg)) {
     throw Error('Dataset schemas are now available in the store.');
   } else if (dl.isArray(arg)) {
-    var types = dl.type.inferAll(arg);
+    const types = dl.type.inferAll(arg);
     return dl.keys(types).reduce(function(s, k) {
       s[k] = {
         name: k,
@@ -175,11 +177,14 @@ function schema(arg) {
  * @returns {Object} The aggregate dataset's schema.
  */
 function aggregateSchema(src, aggregate) {
-  var aggSchema = aggregate.groupby.reduce(function(acc, gb) {
-        return (acc[gb] = src[gb], acc);
-      }, {}),
-      summarize = aggregate.summarize,
-      field, i, len, name;
+  let aggSchema = aggregate.groupby.reduce(function(acc, gb) {
+      return (acc[gb] = src[gb]), acc;
+    }, {}),
+    summarize = aggregate.summarize,
+    field,
+    i,
+    len,
+    name;
 
   for (field in summarize) {
     for (i = 0, len = summarize[field].length; i < len; ++i) {
