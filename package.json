@@ -24,6 +24,7 @@
   "devDependencies": {
     "@types/react": "^16.7.6",
     "@types/react-dom": "^16.0.9",
+    "@types/react-redux": "^6.0.10",
     "array.prototype.find": "^1.0.0",
     "autoprefixer": "^9.3.1",
     "awesome-typescript-loader": "^5.2.1",
@@ -86,7 +87,7 @@
     "react-contenteditable": "^2.0.1",
     "react-dom": "^16.6.3",
     "react-modal": "^1.4.0",
-    "react-redux": "^4.4.5",
+    "react-redux": "^5.1.1",
     "react-tooltip": "^3.0.13",
     "redux": "^4.0.1",
     "redux-devtools": "^3.3.1",

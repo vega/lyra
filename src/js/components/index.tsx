@@ -4,12 +4,12 @@ const ReactDOM = require('react-dom'),
   Provider = require('react-redux').Provider,
   InspectorSidebar = require('./InspectorSidebar'),
   EncodingsSidebar = require('./EncodingsSidebar'),
-  PipelinesSidebar = require('./PipelinesSidebar'),
   Footer = require('./Footer'),
   store = require('../store');
 
 import * as React from 'react';
-import { Toolbar } from './Toolbar';
+import {PipelinesSidebar} from './PipelinesSidebar';
+import {Toolbar} from './Toolbar';
 
 // React requires you only have one wrapper element called in your provider
 module.exports = (window as any).ui = ReactDOM.render(
