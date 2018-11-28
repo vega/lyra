@@ -32,4 +32,4 @@ class Icon extends React.Component<IconProps> {
   }
 }
 
-module.exports = Icon;
+module.exports = Icon; // TODO(jzong) eventually change this into es6 export class
