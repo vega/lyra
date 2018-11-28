@@ -1,6 +1,4 @@
----
 rules:
-
   # Possible Errors
 
   no-cond-assign:
@@ -169,11 +167,7 @@ rules:
     - 2
     - 2
     - SwitchCase: 1
-      VariableDeclarator: {
-        let: 2,
-        var: 2,
-        const: 3
-      }
+      VariableDeclarator: { let: 2, var: 2, const: 3 }
   key-spacing:
     - 2
     - beforeColon: false
@@ -238,7 +232,7 @@ rules:
   quote-props:
     - 2
     - as-needed
-    - {keywords: false, numbers: true}
+    - { keywords: false, numbers: true }
   quotes:
     - 2
     - single
@@ -251,9 +245,9 @@ rules:
     - 2
     - always
   sort-vars: 0
-  space-after-keywords:
+  keyword-spacing:
     - 2
-    - always
+    - { before: true, after: true }
   space-before-blocks:
     - 2
     - always
@@ -266,7 +260,6 @@ rules:
   space-infix-ops:
     - 2
     - int32Hint: false
-  space-return-throw-case: 2
   space-unary-ops:
     - 2
     - words: true

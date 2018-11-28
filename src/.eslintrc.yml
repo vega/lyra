@@ -1,4 +1,3 @@
----
 extends:
   - "../eslint/eslint-defaults.yml"
   - "../eslint/eslint-jsx.yml"
