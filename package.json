@@ -47,7 +47,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^2.0.0",
     "fs": "0.0.2",
-    "immutable": "^3.8.1",
+    "immutable": "^4.0.0-rc.12",
     "inherits": "^2.0.1",
     "istanbul": "^0.4.5",
     "istanbul-instrumenter-loader": "^0.2.0",
