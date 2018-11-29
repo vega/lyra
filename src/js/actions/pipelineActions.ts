@@ -1,7 +1,6 @@
 'use strict';
 
 const dl = require('datalib'),
-  addDataset = require('./datasetActions').addDataset,
   counter = require('../util/counter'),
   getInVis = require('../util/immutable-utils').getInVis,
   dsUtil = require('../util/dataset-utils'),
@@ -10,7 +9,9 @@ const dl = require('datalib'),
   UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY';
 
 import {RecordOf} from 'immutable';
+import {DatasetRecord, Schema} from '../store/factory/Dataset';
 import {LyraPipeline} from '../store/factory/Pipeline';
+import {addDataset} from './datasetActions';
 
 /**
  * Action creator to add a new Pipeline in the store. A new pipeline requires
@@ -22,23 +23,22 @@ import {LyraPipeline} from '../store/factory/Pipeline';
  * @param {Object} schema - An object containing the schema values.
  * @returns {Function} An async action function
  */
-function addPipeline(pipeline: RecordOf<LyraPipeline>, ds, values, schema) {
+// TODO(arvind): Remove schema as an argument here -- the schema should be added
+// to the DatasetRecord when it is created.
+function addPipeline(pipeline: RecordOf<LyraPipeline>, ds: DatasetRecord, schema: Schema) {
   return function(dispatch) {
     const pid = pipeline._id || counter.global();
+    const newDs = addDataset(ds.merge({
+      name: pipeline.name + '_source',
+      _parent: pid,
+      _schema: schema
+    }));
 
-    ds = dl.extend({}, ds, {_parent: pid, name: pipeline.name + '_source'});
-    ds = addDataset(ds, values, schema);
-    dispatch(ds);
-
-    pipeline = pipeline.merge({
-      _id: pid,
-      _source: pipeline._source || ds.id
-    });
-
+    dispatch(newDs);
     dispatch({
       type: ADD_PIPELINE,
       id: pipeline._id,
-      props: pipeline
+      props: pipeline.merge({_id: pid, _source: newDs.payload._id})
     });
   };
 }
@@ -61,24 +61,24 @@ function aggregatePipeline(id, aggregate) {
       schema = dsUtil.aggregateSchema(srcSchema, aggregate),
       key = aggregate.groupby.join('|');
 
-    const ds = addDataset(
-      {
-        name: pipeline.get('name') + '_groupby_' + key,
-        source: srcId,
-        transform: [aggregate],
-        _parent: id
-      },
-      null,
-      schema
-    );
+    // const ds = addDataset(
+    //   {
+    //     name: pipeline.get('name') + '_groupby_' + key,
+    //     source: srcId,
+    //     transform: [aggregate],
+    //     _parent: id
+    //   },
+    //   null,
+    //   schema
+    // );
 
-    dispatch(ds);
-    dispatch({
-      type: AGGREGATE_PIPELINE,
-      id: id,
-      dsId: aggregate._id = ds.id,
-      key: key
-    });
+    // dispatch(ds);
+    // dispatch({
+    //   type: AGGREGATE_PIPELINE,
+    //   id: id,
+    //   dsId: aggregate._id = ds.id,
+    //   key: key
+    // });
   };
 }
 

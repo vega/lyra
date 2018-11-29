@@ -8,6 +8,7 @@ import {Map, Record, RecordOf} from 'immutable';
 import {Type} from 'vega-lite/src/type';
 import {Data} from 'vega-typings';
 
+// TODO: Consolidate with constants/measureTypes.js
 export type MType = Type;
 
 export interface ColumnDescription {

@@ -1,46 +1,37 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
-import { Dispatch } from 'redux';
+import {Dispatch} from 'redux';
+import {changeFieldMType} from '../../actions/datasetActions';
+import {ColumnRecord} from '../../store/factory/Dataset';
 import { Icon } from '../Icon';
 
 const capitalize = require('capitalize');
-const changeFieldMType = require('../../actions/datasetActions').changeFieldMType;
 const MTYPES = require('../../constants/measureTypes');
 const assets = require('../../util/assets');
 
 interface OwnProps {
   dsId: number;
-  field: FieldObject;
+  field: ColumnRecord;
 }
 
 interface DispatchProps {
   changeType: () => void;
 }
 
-export interface FieldObject {
-  name: string;
-  mtype: string;
-}
-
-function mapStateToProps() {
-  return {};
-}
-
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+function mapDispatch(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     changeType: function() {
       const field = ownProps.field;
       let idx = MTYPES.indexOf(field.mtype);
 
       idx = (idx + 1) % MTYPES.length;
-      dispatch(changeFieldMType(ownProps.dsId, field.name, MTYPES[idx]));
+      dispatch(changeFieldMType({field: field.name, mtype: MTYPES[idx]}, ownProps.dsId));
     }
   };
 }
 
-class FieldType extends React.Component<OwnProps & DispatchProps> {
-
+class BaseFieldType extends React.Component<OwnProps & DispatchProps> {
   public componentDidUpdate() {
     ReactTooltip.rebuild();
   }
@@ -53,6 +44,6 @@ class FieldType extends React.Component<OwnProps & DispatchProps> {
         data-tip={capitalize(type) + ' field'} />
     );
   }
-}
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(FieldType);
+export default connect(null, mapDispatch)(BaseFieldType);
