@@ -24,12 +24,7 @@ interface StateProps {
   pipeline: RecordOf<LyraPipeline>;
 }
 
-interface DispatchProps {
-  selectPipeline: (id: number) => void;
-  updateProperty: (id: number, prop: string, value: any) => void;
-}
-
-function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
+function mapState(state: State, ownProps: OwnProps): StateProps {
   const id = ownProps.id;
   return {
     isSelected: getIn(state, 'inspector.pipelines.selectedId') === id,
@@ -37,14 +32,9 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
-  return {
-    selectPipeline: id => dispatch(selectPipeline(id)),
-    updateProperty: (id, prop, val) => dispatch(updatePipeline(id, prop, val))
-  };
-}
+const actionCreators = {selectPipeline, updatePipeline};
 
-class BasePipelineInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
+class BasePipelineInspector extends React.Component<OwnProps & StateProps & typeof actionCreators> {
   public render() {
     const props = this.props;
     const pipeline = props.pipeline;
@@ -78,7 +68,7 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps & Disp
       <div className={'pipeline' + (props.isSelected ? ' selected' : '')}>
         <ContentEditable className='header'
           value={name}
-          save={props.updateProperty.bind(this, id, 'name')}
+          save={props.updatePipeline.bind(this, id, 'name')}
           onClick={props.selectPipeline.bind(null, id)} />
         {inner}
 
@@ -87,4 +77,4 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps & Disp
   }
 };
 
-export const PipelineInspector = connect(mapStateToProps, mapDispatchToProps)(BasePipelineInspector);
+export const PipelineInspector = connect(mapState, actionCreators)(BasePipelineInspector);
