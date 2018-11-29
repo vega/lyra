@@ -11,7 +11,7 @@ interface Props {
   pipelines: Map<number, RecordOf<LyraPipeline>>;
 }
 
-function mapStateToProps(state: State): Props {
+function mapState(state: State): Props {
   return {
     pipelines: getInVis(state, 'pipelines')
   };
@@ -31,4 +31,4 @@ class BasePipelineList extends React.Component<Props> {
   }
 }
 
-export const PipelineList = connect(mapStateToProps)(BasePipelineList);
+export const PipelineList = connect(mapState)(BasePipelineList);
