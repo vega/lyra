@@ -1,4 +1,5 @@
-import {Dataset} from '../store/factory/Dataset';
+import {Map} from 'immutable';
+import {Column, Dataset, Schema} from '../store/factory/Dataset';
 import {Pipeline} from '../store/factory/Pipeline';
 
 const dl = require('datalib');
@@ -143,20 +144,19 @@ function parseRaw(raw: string) {
  * @param  {number|Array} arg - An array of raw values to calculate a schema for.
  * @returns {Object} The dataset's schema.
  */
-function schema(arg) {
+function schema(arg: object[]): Schema {
   if (dl.isNumber(arg)) {
     throw Error('Dataset schemas are now available in the store.');
   } else if (dl.isArray(arg)) {
     const types = dl.type.inferAll(arg);
-    return dl.keys(types).reduce(function(s, k) {
-      s[k] = {
+    return dl.keys(types).reduce(function(s: Schema, k: string) {
+      return s.set(k, Column({
         name: k,
         type: types[k],
         mtype: MTYPES[types[k]],
         source: true
-      };
-      return s;
-    }, {});
+      }));
+    }, Map());
   }
 
   throw Error('Expected an array of raw values.');
