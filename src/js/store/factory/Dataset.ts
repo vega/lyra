@@ -5,19 +5,24 @@
  */
 
 import {Map, Record, RecordOf} from 'immutable';
+import {Type} from 'vega-lite/src/type';
 import {Data} from 'vega-typings';
+
+export type MType = Type;
 
 export interface ColumnDescription {
   name: string;
   type: 'boolean' | 'integer' | 'number' | 'date' | 'string';
-  mtype: 'quantitative' | 'nominal' | 'temporal'; // TODO(arvind): Replace with Vega-Lite typings.
+  mtype: MType; // TODO(arvind): Replace with Vega-Lite typings.
   /**
    * Flags whether the column is found in the raw dataset, or whether it is derived.
    */
   source: boolean;
 }
 
-export const Column = Record<ColumnDescription>({name: null, type: null, mtype: null, source: null});
+export const Column = Record<ColumnDescription>({
+  name: null, type: null, mtype: null, source: null
+});
 export type ColumnRecord = RecordOf<ColumnDescription>;
 
 export type Schema = Map<string, ColumnRecord>;
@@ -28,6 +33,8 @@ export type LyraDataset = {
   _schema: Schema;
 } & Data;
 
-export const Dataset = Record<Data>({name: ''});
-export type DatasetRecord = RecordOf<Data>;
+export const Dataset = Record<LyraDataset>({
+  _id: null, _parent: null, _schema: null, name: null
+});
+export type DatasetRecord = RecordOf<LyraDataset>;
 export type DatasetState = Map<number, DatasetRecord>;
