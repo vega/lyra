@@ -1,13 +1,11 @@
 {
-    "compilerOptions": {
-        "outDir": "./build/",
-        "sourceMap": true,
-        "noImplicitAny": true,
-        "module": "commonjs",
-        "target": "es5",
-        "jsx": "react"
-    },
-    "include": [
-        "./src/**/*"
-    ]
+  "compilerOptions": {
+    "outDir": "./build/",
+    "sourceMap": true,
+    "noImplicitAny": false, // TODO(jzong): change this back to true when we're farther along refactoring
+    "module": "commonjs",
+    "target": "es5",
+    "jsx": "react"
+  },
+  "include": ["./src/**/*"]
 }
