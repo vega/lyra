@@ -1,8 +1,8 @@
 import * as React from 'react';
+import { AddMarks } from './AddMarks';
+import { Export } from './Export';
 
-const AddMarks = require('./AddMarks'),
-  UndoRedo = require('./UndoRedo'),
-  Export = require('./Export'),
+const UndoRedo = require('./UndoRedo'),
   assets = require('../../util/assets'),
   Icon = require('../Icon');
 
