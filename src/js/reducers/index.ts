@@ -1,6 +1,7 @@
-'use strict';
-var combineReducers = require('redux-immutable').combineReducers,
-    undoable = require('./historyReducer');
+import {combineReducers} from 'redux-immutable';
+import {datasetsReducer as datasets} from './datasetsReducer';
+
+const undoable = require('./historyReducer');
 
 // order matters here
 module.exports = combineReducers({
@@ -8,7 +9,7 @@ module.exports = combineReducers({
     signals: require('./signalsReducer'),
     scene: require('./sceneReducer'),
     pipelines: require('./pipelinesReducer'),
-    datasets: require('./datasetsReducer'),
+    datasets,
     scales: require('./scalesReducer'),
     guides: require('./guidesReducer'),
     marks: require('./marksReducer')

@@ -1,5 +1,15 @@
+/**
+ * Exposes a number of utility functions for Datasets including loading the raw
+ * values, constructing the schema, and calculating a profile. As these
+ * operations are expensive, the results are memoized. However, as they can
+ * always be derived from the definition of a dataset, the memoized results are
+ * stored in this utility module, rather than within the redux store itself.
+ *
+ * @namespace dataset-utilities
+ */
+
 import {Map} from 'immutable';
-import {Column, Dataset, Schema} from '../store/factory/Dataset';
+import {Column, Dataset, DatasetRecord, Schema} from '../store/factory/Dataset';
 import {Pipeline} from '../store/factory/Pipeline';
 
 const dl = require('datalib');
@@ -18,15 +28,7 @@ function def(id: number) {
   return getInVis(store().getState(), 'datasets.' + id);
 }
 
-/**
- * Exposes a number of utility functions for Datasets including loading the raw
- * values, constructing the schema, and calculating a profile. As these
- * operations are expensive, the results are memoized. However, as they can
- * always be derived from the definition of a dataset, the memoized results are
- * stored in this utility module, rather than within the redux store itself.
- *
- * @namespace dataset-utilities
- */
+// tslint:disable-next-line:variable-name
 let _values = {};
 
 /**
@@ -36,17 +38,16 @@ let _values = {};
  * @param  {Object} action - An ADD_DATASET action.
  * @returns {void}
  */
-function init(action) {
-  const id = action.id;
-  const props = action.props;
-  const src = props.source;
+function init(ds: DatasetRecord, values: object[]) {
+  const id = ds._id;
+  const src = ds.source;  // TODO: Break apart DatasetRecord into finer-grains.
 
   if (_values[id]) {
     // Early-exit if we've previously loaded values.
     return _values[id];
   }
 
-  _values[id] = action.values || (src ? _values[src] : null);
+  _values[id] = values || (src ? _values[src] : null);
 }
 
 function reset() {

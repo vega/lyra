@@ -112,5 +112,6 @@ module.exports = {
   setIn: setIn,
   deleteKeyFromMap: deleteKeyFromMap,
   ensureValuePresent: ensureValuePresent,
-  ensureValueAbsent: ensureValueAbsent
+  ensureValueAbsent: ensureValueAbsent,
+  str: toStr
 };

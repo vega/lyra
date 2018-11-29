@@ -8,12 +8,15 @@ const ADD_DATA_TRANSFORM = 'ADD_DATA_TRANSFORM';
 const UPDATE_DATA_TRANSFORM = 'UPDATE_DATA_TRANSFORM';
 
 export const addDataset = createStandardAction('ADD_DATASET').map((payload: DatasetRecord) => {
-  return {payload: payload.merge({_id: payload._id || counter.global()})}
+  const id: number = payload._id || counter.global();
+  return {payload: payload.merge({_id: id}), meta: id}
 });
 
 export const deleteDataset = createStandardAction('DELETE_DATASET')<number, number>();
 
 export const changeFieldMType = createStandardAction('CHANGE_FIELD_MTYPE')<{field: string, mtype: MType}, number>();
+
+// TODO: End of Arvind's typesafe datasetActions refactor.
 
 /**
  * Action creator to add sort data transformations to dataset
@@ -25,7 +28,7 @@ export const changeFieldMType = createStandardAction('CHANGE_FIELD_MTYPE')<{fiel
  * @returns {Object} SORT_DATASET action with info about
  * field to be sorted
  */
-export function sortDataset(dsId, field, order) {
+function sortDataset(dsId, field, order) {
   return {
     type: SORT_DATASET,
     id: dsId,
@@ -42,7 +45,7 @@ export function sortDataset(dsId, field, order) {
  * @param   {Object} summarize A summary definition.
  * @returns {Object} SUMMARIZE_AGGREGATE action.
  */
-export function summarizeAggregate(id, summarize) {
+function summarizeAggregate(id, summarize) {
   return {
     type: SUMMARIZE_AGGREGATE,
     id: id,
@@ -58,7 +61,7 @@ export function summarizeAggregate(id, summarize) {
  * @returns {Object} ADD_DATA_TRANSFORM action with info about
  * vega data transformation
  */
-export function addTransform(dsId, transform) {
+function addTransform(dsId, transform) {
   return {
     type: ADD_DATA_TRANSFORM,
     id: dsId,
@@ -75,7 +78,7 @@ export function addTransform(dsId, transform) {
  * @returns {Object} UPDATE_DATA_TRANSFORM action with info about
  * vega data transformation
  */
-export function updateTransform(dsId, index, transform) {
+function updateTransform(dsId, index, transform) {
   return {
     type: UPDATE_DATA_TRANSFORM,
     id: dsId,

@@ -38,4 +38,4 @@ export const Dataset = Record<LyraDataset>({
   _id: null, _parent: null, _schema: null, name: null
 });
 export type DatasetRecord = RecordOf<LyraDataset>;
-export type DatasetState = Map<number, DatasetRecord>;
+export type DatasetState = Map<string, DatasetRecord>;
