@@ -1,9 +1,11 @@
-/* eslint new-cap:0 */
-'use strict';
+import {ActionType, getType} from 'typesafe-actions';
+import * as datasetActions from '../actions/datasetActions';
+import {DatasetState} from '../store/factory/Dataset';
 
-var Immutable = require('immutable'),
+const Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
     immutableUtils = require('../util/immutable-utils'),
+    str   = immutableUtils.str,
     set   = immutableUtils.set,
     setIn = immutableUtils.setIn,
     getIn = immutableUtils.getIn,
@@ -20,27 +22,28 @@ var Immutable = require('immutable'),
  * @param {Object} action - A redux action object
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
-function datasetsReducer(state, action) {
-  var id = action.id,
-      transform = action.transform;
+export function datasetsReducer(state: DatasetState, action: ActionType<typeof datasetActions>) {
+  const id = action.meta;
 
   if (typeof state === 'undefined') {
     return Immutable.Map();
   }
 
-  if (action.type === ACTIONS.ADD_DATASET) {
-    state = set(state, id, Immutable.fromJS(action.props));
-    dsUtil.init(action);
-    return state;
+  if (action.type === getType(datasetActions.addDataset)) {
+    return state.set(str(id), action.payload);
   }
 
-  if (action.type === ACTIONS.DELETE_DATASET) {
-    return deleteKeyFromMap(state, action.dsId);
+  if (action.type === getType(datasetActions.deleteDataset)) {
+    return state.remove(str(id));
   }
 
-  if (action.type === ACTIONS.CHANGE_FIELD_MTYPE) {
-    return setIn(state, id + '._schema.' + action.field + '.mtype', action.mtype);
+  if (action.type === getType(datasetActions.changeFieldMType)) {
+    const p = action.payload;
+    return state.setIn([str(id), '_schema', p.field, 'mtype'], p.mtype);
   }
+
+  // TODO: End of Arvind's typesafe datasetActions refactor.
+  const transform = action.transform;
 
   if (action.type === ACTIONS.SORT_DATASET) {
     return setIn(state, id + '._sort', Immutable.fromJS({
@@ -50,7 +53,7 @@ function datasetsReducer(state, action) {
   }
 
   if (action.type === ACTIONS.ADD_DATA_TRANSFORM) {
-    var transforms = getIn(state, id + '.transform') || Immutable.List();
+    const transforms = getIn(state, id + '.transform') || Immutable.List();
 
     if (transform.type === 'formula') {
       state = setIn(state, id + '._schema.' + transform.field,
@@ -68,7 +71,7 @@ function datasetsReducer(state, action) {
 
   if (action.type === ACTIONS.UPDATE_DATA_TRANSFORM) {
     if (transform.type === 'formula') {
-      var oldName = getIn(state, id + '.transform.' + action.index + '.field'),
+      const oldName = getIn(state, id + '.transform.' + action.index + '.field'),
           oldSchema = getIn(state, id + '._schema.' + oldName);
 
       state = state.deleteIn([id + '', '_schema', oldName]);
@@ -86,7 +89,7 @@ function datasetsReducer(state, action) {
           return prev.toSet().merge(next);
         }, action.summarize));
 
-    var src = getIn(state, id + '.source');
+    const src = getIn(state, id + '.source');
     return setIn(state, id + '._schema',
       Immutable.fromJS(dsUtil.aggregateSchema(getIn(state, src + '._schema').toJS(),
         getIn(state, id + '.transform.0').toJS())));
@@ -94,5 +97,3 @@ function datasetsReducer(state, action) {
 
   return state;
 }
-
-module.exports = datasetsReducer;

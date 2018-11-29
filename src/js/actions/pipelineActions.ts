@@ -25,7 +25,7 @@ import {addDataset} from './datasetActions';
  */
 // TODO(arvind): Remove schema as an argument here -- the schema should be added
 // to the DatasetRecord when it is created.
-function addPipeline(pipeline: RecordOf<LyraPipeline>, ds: DatasetRecord, schema: Schema) {
+function addPipeline(pipeline: RecordOf<LyraPipeline>, ds: DatasetRecord, schema: Schema, values: object[]) {
   return function(dispatch) {
     const pid = pipeline._id || counter.global();
     const newDs = addDataset(ds.merge({
@@ -37,9 +37,11 @@ function addPipeline(pipeline: RecordOf<LyraPipeline>, ds: DatasetRecord, schema
     dispatch(newDs);
     dispatch({
       type: ADD_PIPELINE,
-      id: pipeline._id,
+      id: pid,
       props: pipeline.merge({_id: pid, _source: newDs.payload._id})
     });
+
+    dsUtil.init(newDs.payload, values);
   };
 }
 
