@@ -2,6 +2,7 @@ import {createStandardAction} from 'typesafe-actions';
 import {DatasetRecord, MType} from '../store/factory/Dataset';
 
 const counter = require('../util/counter');
+const SORT_DATASET = 'SORT_DATASET';
 const SUMMARIZE_AGGREGATE = 'SUMMARIZE_AGGREGATE';
 const ADD_DATA_TRANSFORM = 'ADD_DATA_TRANSFORM';
 const UPDATE_DATA_TRANSFORM = 'UPDATE_DATA_TRANSFORM';
@@ -14,7 +15,24 @@ export const deleteDataset = createStandardAction('DELETE_DATASET')<number, numb
 
 export const changeFieldMType = createStandardAction('CHANGE_FIELD_MTYPE')<{field: string, mtype: MType}, number>();
 
-export const sortDataset = createStandardAction('SORT_DATASET')<{field: string, order: 'asc' | 'desc'}, number>();
+/**
+ * Action creator to add sort data transformations to dataset
+ *
+ * @param {number} dsId - Id of the dataset.
+ * @param {string} field - Field to be sorted.
+ * @param {string} order - Either 'asc' or 'desc'
+ * indicating order of sort of the field.
+ * @returns {Object} SORT_DATASET action with info about
+ * field to be sorted
+ */
+export function sortDataset(dsId, field, order) {
+  return {
+    type: SORT_DATASET,
+    id: dsId,
+    field: field,
+    order: order
+  };
+}
 
 /**
  * Action creator to update the summary fields calculated
