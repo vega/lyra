@@ -108,9 +108,8 @@ function loadURL(url: string) {
  * @returns {Object} An object containing the format of a dataset and parsed
  *                   raw values.
  */
-function parseRaw(raw) {
-  let format = {parse: 'auto'},
-    parsed;
+function parseRaw(raw: string) {
+  let format = {parse: 'auto', type: null}, parsed;
 
   try {
     format.type = 'json';
