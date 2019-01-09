@@ -7,7 +7,7 @@ import {LyraPipeline} from '../../store/factory/Pipeline';
 
 const ContentEditable = require('../ContentEditable');
 const DataTable = require('./DataTable');
-const Icon = require('../icon');
+const Icon = require('../Icon');
 const selectPipeline = require('../../actions/inspectorActions').selectPipeline;
 const updatePipeline = require('../../actions/pipelineActions').updatePipelineProperty;
 const imutils = require('../../util/immutable-utils');
