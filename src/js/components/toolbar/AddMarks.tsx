@@ -6,8 +6,7 @@ const Mark = require('../../store/factory/Mark'),
   getClosestGroupId = require('../../util/hierarchy').getClosestGroupId,
   addMark = require('../../actions/markActions').addMark,
   assets = require('../../util/assets'),
-  Icon = require('../Icon'),
-  propTypes = require('prop-types');
+  Icon = require('../Icon');
 
 function mapStateToProps(reduxState: State) {
   return {};
@@ -32,9 +31,7 @@ interface AddMarksToolProps {
 }
 
 class AddMarksTool extends React.Component<AddMarksToolProps> {
-  public static propTypes = {
-    addMark: propTypes.func
-  };
+
   public classNames: 'new-marks';
   public render() {
     return (

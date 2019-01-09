@@ -1,4 +1,5 @@
-'use strict';
+import { Icon } from '../Icon';
+
 var React = require('react'),
     connect = require('react-redux').connect,
     ReactTooltip = require('react-tooltip'),
@@ -14,7 +15,6 @@ var React = require('react'),
     get = imutils.get,
     getIn = imutils.getIn,
     getInVis = imutils.getInVis,
-    Icon = require('../Icon'),
     assets = require('../../util/assets'),
     MarkList = require('./MarkList'),
     GuideList = require('./GuideList'),
