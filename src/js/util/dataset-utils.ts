@@ -109,7 +109,8 @@ function loadURL(url: string) {
  *                   raw values.
  */
 function parseRaw(raw: string) {
-  let format = {parse: 'auto', type: null}, parsed;
+  const format = {parse: 'auto', type: null};
+  let parsed;
 
   try {
     format.type = 'json';

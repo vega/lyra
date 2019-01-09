@@ -1,41 +1,58 @@
-import { Icon } from '../Icon';
+import { Map } from 'immutable';
+import * as React from 'react';
+import { connect } from 'react-redux';
+import ReactTooltip from 'react-tooltip'
+import { Dispatch } from 'redux';
+import {State} from '../../store';
 
-var React = require('react'),
-    connect = require('react-redux').connect,
-    ReactTooltip = require('react-tooltip'),
-    Immutable = require('immutable'),
-    ContentEditable = require('../ContentEditable'),
-    inspectorActions = require('../../actions/inspectorActions'),
-    selectMark = inspectorActions.selectMark,
-    toggleLayers = inspectorActions.toggleLayers,
-    markActions = require('../../actions/markActions'),
-    deleteMark = markActions.deleteMark,
-    updateMarkProperty = markActions.updateMarkProperty,
-    imutils = require('../../util/immutable-utils'),
-    get = imutils.get,
-    getIn = imutils.getIn,
-    getInVis = imutils.getInVis,
-    assets = require('../../util/assets'),
-    MarkList = require('./MarkList'),
-    GuideList = require('./GuideList'),
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+const ContentEditable = require('../ContentEditable');
+const inspectorActions = require('../../actions/inspectorActions');
+const selectMark = inspectorActions.selectMark;
+const toggleLayers = inspectorActions.toggleLayers;
+const markActions = require('../../actions/markActions');
+const deleteMark = markActions.deleteMark;
+const updateMarkProperty = markActions.updateMarkProperty;
+const imutils = require('../../util/immutable-utils');
+const Icon = require('../Icon');
+const get = imutils.get;
+const getIn = imutils.getIn;
+const getInVis = imutils.getInVis;
+const assets = require('../../util/assets');
+const MarkList = require('./MarkList');
+const GuideList = require('./GuideList');
+interface OwnProps {
+  id?: number;
+  selectedId?: number;
+  sceneId: number;
+}
 
-function mapStateToProps(reduxState, ownProps) {
+interface StateProps {
+  expandedLayers?: object;
+  group: any; // TODO(jzong): the propTypes was Immutable.Map, not sure what it should be
+}
+
+interface DispatchProps {
+  selectGroup: () => void;
+  deleteGroup: (evt) => void;
+  updateName: (value: string) => void;
+  toggleGroup?: () => void;
+}
+
+function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   return {
     expandedLayers: getIn(reduxState, 'inspector.encodings.expandedLayers'),
     group: getInVis(reduxState, 'marks.' + ownProps.id)
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     selectGroup: function() {
       dispatch(selectMark(ownProps.id));
     },
 
     deleteGroup: function(evt) {
-      var id = ownProps.id;
+      const id = ownProps.id;
       if (ownProps.selectedId === id) {
         dispatch(selectMark(ownProps.sceneId));
       }
@@ -55,30 +72,19 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var Group = createReactClass({
-  propTypes: {
-    id: propTypes.number,
-    selectedId: propTypes.number,
-    sceneId: propTypes.number.isRequired,
-    group: propTypes.instanceOf(Immutable.Map).isRequired,
-    expandedLayers: propTypes.object,
-    selectGroup: propTypes.func.isRequired,
-    deleteGroup: propTypes.func.isRequired,
-    updateName: propTypes.func.isRequired,
-    toggleGroup: propTypes.func
-  },
+class Group extends React.Component<OwnProps & StateProps & DispatchProps> {
 
-  componentDidUpdate: function() {
+  public componentDidUpdate() {
     ReactTooltip.rebuild();
-  },
+  }
 
-  render: function() {
-    var props = this.props,
-        id = props.id,
-        group = props.group,
-        name  = get(group, 'name'),
-        isExpanded = get(props.expandedLayers, id),
-        groupClass = isExpanded ? 'expanded' : 'contracted';
+  public render() {
+    const props = this.props;
+    const id = props.id;
+    const group = props.group;
+    const name  = get(group, 'name');
+    const isExpanded = get(props.expandedLayers, id);
+    const groupClass = isExpanded ? 'expanded' : 'contracted';
 
     return (
       <li className={groupClass}>
@@ -90,13 +96,13 @@ var Group = createReactClass({
           <ContentEditable value={name} save={props.updateName}
             onClick={props.selectGroup} />
 
-          <Icon glyph={assets.trash} className="delete"
-            onClick={props.deleteGroup} data-html={true} data-place="right"
+          <Icon glyph={assets.trash} className='delete'
+            onClick={props.deleteGroup} data-html={true} data-place='right'
             data-tip={'Delete ' + name + ' and <br> everything inside it'} />
         </div>
 
         {isExpanded && group.get('marks') ? (
-          <ul className="group">
+          <ul className='group'>
             <GuideList groupId={id} {...props} />
             <MarkList groupId={id} {...props} />
           </ul>
@@ -104,6 +110,6 @@ var Group = createReactClass({
       </li>
     );
   }
-});
+}
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(Group);
+export default connect(mapStateToProps, mapDispatchToProps)(Group);
