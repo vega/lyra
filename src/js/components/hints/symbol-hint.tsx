@@ -1,23 +1,26 @@
 'use strict';
-var React = require('react'),
-    connect = require('react-redux').connect,
-    getIn = require('../../util/immutable-utils').getIn,
-    lookup = require('../../ctrl').lookup,
-    updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+const getIn = require('../../util/immutable-utils').getIn;
+const lookup = require('../../ctrl').lookup;
+const updateMarkProperty = require('../../actions/markActions').updateMarkProperty;
 
+import * as React from 'react';
+import {connect} from 'react-redux';
+import {State} from '../../store';
+interface SymbolHintsProps {
+    selectedId: number,
+    updateProperty: (id: number, property: any, value: any) => void
+}
 
-function mapStateToProps(reduxState, ownProps) {
+function mapStateToProps(reduxState: State, ownProps) {
   return {
     selectedId: getIn(reduxState, 'inspector.encodings.selectedId')
   };
 }
-function mapDispatchToProps(dispatch, ownProps) {
+function mapDispatchToProps(dispatch: any, ownProps) {
   return {
     updateProperty: function(id, property, value) {
       // Update in the primitives dictionary
-      var mark = lookup(id);
+      const mark = lookup(id);
       if (mark) {
         mark[property] = value;
       }
@@ -28,18 +31,17 @@ function mapDispatchToProps(dispatch, ownProps) {
 }
 
 // Splitting each sidebar into its column
-var SymbolHint = createReactClass({
-  propTypes: {
-    selectedId: propTypes.number,
-    updateProperty: propTypes.func
-  },
-  render: function() {
+class BaseSymbolHints extends React.Component<SymbolHintsProps> {
+  public render() {
     return (
       <div>
         <p>I have a special template!!!</p>
       </div>
     );
   }
-});
+};
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(SymbolHint);
+export const SymbolHints = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(BaseSymbolHints);
