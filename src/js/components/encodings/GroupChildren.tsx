@@ -1,7 +1,7 @@
 import { Map } from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import ReactTooltip from 'react-tooltip'
+import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
 
