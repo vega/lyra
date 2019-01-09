@@ -2,11 +2,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { State } from '../../store';
 
-const Mark = require('../../store/factory/Mark'),
-  getClosestGroupId = require('../../util/hierarchy').getClosestGroupId,
-  addMark = require('../../actions/markActions').addMark,
-  assets = require('../../util/assets'),
-  Icon = require('../Icon');
+const Mark = require('../../store/factory/Mark');
+const getClosestGroupId = require('../../util/hierarchy').getClosestGroupId;
+const addMark = require('../../actions/markActions').addMark;
+const assets = require('../../util/assets');
+const Icon = require('../Icon');
 
 function mapStateToProps(reduxState: State) {
   return {};
