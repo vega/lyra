@@ -6,6 +6,7 @@ const Icon = require('../Icon');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import { Dispatch } from 'redux';
 import {State} from '../../store';
 
 interface HintsProps {
@@ -14,13 +15,13 @@ interface HintsProps {
   clearHints: () => any
 }
 
-function mapStateToProps(reduxState: State, ownProps) {
+function mapStateToProps(reduxState: State, ownProps: HintsProps) {
   return {
     displayHint: getIn(reduxState, 'hints.display')
   };
 }
 
-function mapDispatchToProps(dispatch: any, ownProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps: HintsProps) {
   return {
     dispatchAction: function() {
       const action = this.props.displayHint.action;
