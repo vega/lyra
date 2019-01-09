@@ -5,20 +5,21 @@ const updateMarkProperty = require('../../actions/markActions').updateMarkProper
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import { Dispatch } from 'redux';
 import {State} from '../../store';
 interface SymbolHintsProps {
     selectedId: number,
-    updateProperty: (id: number, property: any, value: any) => void
+    updateProperty: (id: number, property: any, value: any) => void // TODO: fix 'any' type
 }
 
-function mapStateToProps(reduxState: State, ownProps) {
+function mapStateToProps(reduxState: State, ownProps: SymbolHintsProps) {
   return {
     selectedId: getIn(reduxState, 'inspector.encodings.selectedId')
   };
 }
-function mapDispatchToProps(dispatch: any, ownProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps: SymbolHintsProps) {
   return {
-    updateProperty: function(id, property, value) {
+    updateProperty: (id, property, value) => {
       // Update in the primitives dictionary
       const mark = lookup(id);
       if (mark) {
