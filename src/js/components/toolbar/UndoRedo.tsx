@@ -29,8 +29,7 @@ function mapDispatchToProps(dispatch: any) {
     }
   };
 }
-
-export interface UndoRedoProps {
+interface UndoRedoProps {
   canUndo: boolean,
   canRedo: boolean,
   undo: any,

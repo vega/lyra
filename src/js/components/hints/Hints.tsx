@@ -1,23 +1,30 @@
 'use strict';
-var React = require('react'),
-    connect = require('react-redux').connect,
-    getIn = require('../../util/immutable-utils').getIn,
-    hintActions = require('../../actions/hintActions'),
-    assets = require('../../util/assets'),
-    Icon = require('../Icon'),
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+const getIn = require('../../util/immutable-utils').getIn;
+const hintActions = require('../../actions/hintActions');
+const assets = require('../../util/assets');
+const Icon = require('../Icon');
 
-function mapStateToProps(reduxState, ownProps) {
+import * as React from 'react';
+import {connect} from 'react-redux';
+import {State} from '../../store';
+
+interface HintsProps {
+  displayHint: any,
+  dispatchAction: () => any,
+  clearHints: () => any
+}
+
+function mapStateToProps(reduxState: State, ownProps) {
   return {
     displayHint: getIn(reduxState, 'hints.display')
   };
 }
-function mapDispatchToProps(dispatch, ownProps) {
+
+function mapDispatchToProps(dispatch: any, ownProps) {
   return {
     dispatchAction: function() {
-      var action = this.props.displayHint.action;
-      var actionProps = this.props.displayHint.action_props !== undefined ?
+      const action = this.props.displayHint.action;
+      const actionProps = this.props.displayHint.action_props !== undefined ?
         this.props.displayHint.action_props : '';
       dispatch(action(actionProps));
       dispatch(hintActions.clearHints());
@@ -28,27 +35,22 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var Hints = createReactClass({
-  propTypes: {
-    displayHint: propTypes.object,
-    dispatchAction: propTypes.func,
-    clearHints: propTypes.func
-  },
-  classNames: 'hints',
-  render: function() {
-    var hint = this.props.displayHint;
+class BaseHints extends React.Component<HintsProps> {
+  public classNames: 'hints';
+  public render() {
+    const hint = this.props.displayHint;
     // If there is an action in the displayHint object, show the action button.
-    var action = hint.action ? (
-        <a className="action button button-secondary" onClick={this.props.dispatchAction.bind(this, '')}>
+    const action = hint.action ? (
+        <a className='action button button-secondary' onClick={this.props.dispatchAction.bind(this, '')}>
           {hint.action_text}
         </a>
       ) : '';
     // Content is dependent on if the hint template exists
-    var Template = hint.template;
-    var content = Template ? (<Template/>) :
+    const Template = hint.template;
+    const content = Template ? (<Template/>) :
       (
         <div>
-          <h4 className="hint-header">{hint.title}</h4>
+          <h4 className='hint-header'>{hint.title}</h4>
           <p>
             {hint.text}
           </p>
@@ -60,12 +62,15 @@ var Hints = createReactClass({
       <div className={this.classNames}>
         {content}
         {action}
-        <span className="close-hint" onClick={this.props.clearHints.bind(null, '')}>
+        <span className='close-hint' onClick={this.props.clearHints.bind(null, '')}>
           <Icon glyph={assets.close} />
         </span>
       </div>
     );
-  }
-});
+  };
+};
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(Hints);
+export const Hints = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(BaseHints);
