@@ -68,5 +68,4 @@ class BaseArea extends React.Component<AreaProps> {
     );
   }
 };
-
 export const AreaInspector = connect()(BaseArea);

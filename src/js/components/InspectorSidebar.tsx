@@ -4,6 +4,7 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {State} from '../store';
 
 interface Inspector {
   selectedId: number,
@@ -16,28 +17,22 @@ interface Inspector {
   guideType: string
 }
 
-const Immutable = require('immutable'),
-    capitalize = require('capitalize'),
-    store = require('../store'),
-    Property = require('./inspectors/Property'),
-    imutils  = require('../util/immutable-utils'),
-    getIn = imutils.getIn,
-    getInVis = imutils.getInVis,
-    hierarchy = require('../util/hierarchy'),
-    findInItemTree = hierarchy.findInItemTree,
-    ACTIONS = require('../actions/Names'),
-    TYPES = require('../constants/primTypes'),
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+const capitalize = require('capitalize');
+const imutils  = require('../util/immutable-utils');
+const getIn = imutils.getIn;
+const getInVis = imutils.getInVis;
+const ACTIONS = require('../actions/Names');
+const TYPES = require('../constants/primTypes');
 
-function mapStateToProps(state, ownProps) {
-  let encState = getIn(state, 'inspector.encodings'),
-      selId   = encState.get('selectedId'),
-      selType = encState.get('selectedType'),
-      isMark  = selType === ACTIONS.SELECT_MARK,
-      isGuide = selType === ACTIONS.SELECT_GUIDE,
-      isScale = selType === ACTIONS.SELECT_SCALE,
-      primitive, from;
+function mapStateToProps(state: State, ownProps): Inspector {
+  const encState = getIn(state, 'inspector.encodings');
+  const selId   = encState.get('selectedId');
+  const selType = encState.get('selectedType');
+  const isMark  = selType === ACTIONS.SELECT_MARK;
+  const isGuide = selType === ACTIONS.SELECT_GUIDE;
+  const isScale = selType === ACTIONS.SELECT_SCALE;
+  let primitive;
+  let from;
 
   if (isMark) {
     primitive = getInVis(state, 'marks.' + selId);
@@ -77,10 +72,12 @@ class BaseInspector extends React.Component<Inspector> {
   public Guide = require('./inspectors/Guide');
 
   public render() {
-    let props  = this.props,
-        primId = props.selectedId,
-        from = props.from,
-        ctor, primType, InspectorType;
+    const  props  = this.props;
+    const primId = props.selectedId;
+    const from = props.from;
+    let ctor;
+    let primType;
+    let InspectorType;
 
     if (primId) {
       if (props.isMark && props.markType) {
@@ -93,8 +90,7 @@ class BaseInspector extends React.Component<Inspector> {
         ctor = 'Scale';
         primType = TYPES.SCALES;
       }
-
-      // InspectorType = Inspector[ctor]; // TODO: This throws an error when uncommented
+      // InspectorType = Inspector[ctor]; // TODO: This throws an error when uncommented, unkown reason
     }
 
     const pipeline = props.isMark ? (
@@ -123,14 +119,5 @@ class BaseInspector extends React.Component<Inspector> {
     );
   }
 };
-
-// BaseInspector.Line = require('./inspectors/Line');
-// BaseInspector.Rect = require('./inspectors/Rect');
-// BaseInspector.Symbol = require('./inspectors/Symbol');
-// BaseInspector.Text = require('./inspectors/Text');
-// BaseInspector.Area = require('./inspectors/Area');
-// BaseInspector.Group = require('./inspectors/Rect');
-// BaseInspector.Scale = require('./inspectors/Scale');
-// BaseInspector.Guide = require('./inspectors/Guide');
 
 export const InspectorSidebar = connect(mapStateToProps)(BaseInspector);
