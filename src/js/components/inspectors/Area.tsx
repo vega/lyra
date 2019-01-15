@@ -1,16 +1,14 @@
 'use strict';
 const Property = require('./Property');
-const primTypes = require('../../constants/primTypes');
+// const primTypes = require('../../constants/primTypes');
 const INTERPOLATE = require('../../constants/interpolate');
-const createReactClass = require('create-react-class');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {State} from '../../store';
 
 interface AreaProps {
   primId: number,
-  primType: any // TODO replace 'any'
+  primType: string
 }
 
 class BaseArea extends React.Component<AreaProps> {

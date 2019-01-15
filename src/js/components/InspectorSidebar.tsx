@@ -2,9 +2,21 @@
 // From is being used
 'use strict';
 
-var React = require('react'),
-    Immutable = require('immutable'),
-    connect = require('react-redux').connect,
+import * as React from 'react';
+import {connect} from 'react-redux';
+
+interface Inspector {
+  selectedId: number,
+  isMark: boolean,
+  isGuide: boolean,
+  isScale: boolean,
+  name: string,
+  from: string,
+  markType: string,
+  guideType: string
+}
+
+const Immutable = require('immutable'),
     capitalize = require('capitalize'),
     store = require('../store'),
     Property = require('./inspectors/Property'),
@@ -19,7 +31,7 @@ var React = require('react'),
     createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
-  var encState = getIn(state, 'inspector.encodings'),
+  let encState = getIn(state, 'inspector.encodings'),
       selId   = encState.get('selectedId'),
       selType = encState.get('selectedType'),
       isMark  = selType === ACTIONS.SELECT_MARK,
@@ -54,19 +66,18 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-var Inspector = createReactClass({
-  propTypes: {
-    selectedId: propTypes.number,
-    isMark: propTypes.bool,
-    isGuide: propTypes.bool,
-    isScale: propTypes.bool,
-    name: propTypes.string,
-    from: propTypes.string,
-    markType: propTypes.string
-  },
+class BaseInspector extends React.Component<Inspector> {
+  public Line = require('./inspectors/Line');
+  public Rect = require('./inspectors/Rect');
+  public Symbol = require('./inspectors/Symbol');
+  public Text = require('./inspectors/Text');
+  public Area = require('./inspectors/Area');
+  public Group = require('./inspectors/Rect');
+  public Scale = require('./inspectors/Scale');
+  public Guide = require('./inspectors/Guide');
 
-  render: function() {
-    var props  = this.props,
+  public render() {
+    let props  = this.props,
         primId = props.selectedId,
         from = props.from,
         ctor, primType, InspectorType;
@@ -83,43 +94,43 @@ var Inspector = createReactClass({
         primType = TYPES.SCALES;
       }
 
-      InspectorType = Inspector[ctor];
+      // InspectorType = Inspector[ctor]; // TODO: This throws an error when uncommented
     }
 
-    var pipeline = props.isMark ? (
-      <div className="property-group property">
-        <h3 className="label-long">Pipeline</h3>
-        <div className="control">{from || 'None'}</div>
+    const pipeline = props.isMark ? (
+      <div className='property-group property'>
+        <h3 className='label-long'>Pipeline</h3>
+        <div className='control'>{from || 'None'}</div>
       </div>
     ) : null;
 
-    var inner = InspectorType ? (
-      <div className="inner">
+    const inner = InspectorType ? (
+      <div className='inner'>
         {pipeline}
         <InspectorType primId={primId}
           primType={primType} guideType={props.guideType} />
       </div>
     ) : null;
 
-    var title = props.name || 'Properties';
+    const title = props.name || 'Properties';
 
     // if property is selected show the header
     return (
-      <div className="sidebar" id="inspector">
+      <div className='sidebar' id='inspector'>
         <h2>{title}</h2>
         {inner}
       </div>
     );
   }
-});
+};
 
-Inspector.Line = require('./inspectors/Line');
-Inspector.Rect = require('./inspectors/Rect');
-Inspector.Symbol = require('./inspectors/Symbol');
-Inspector.Text = require('./inspectors/Text');
-Inspector.Area = require('./inspectors/Area');
-Inspector.Group = require('./inspectors/Rect');
-Inspector.Scale = require('./inspectors/Scale');
-Inspector.Guide = require('./inspectors/Guide');
+// BaseInspector.Line = require('./inspectors/Line');
+// BaseInspector.Rect = require('./inspectors/Rect');
+// BaseInspector.Symbol = require('./inspectors/Symbol');
+// BaseInspector.Text = require('./inspectors/Text');
+// BaseInspector.Area = require('./inspectors/Area');
+// BaseInspector.Group = require('./inspectors/Rect');
+// BaseInspector.Scale = require('./inspectors/Scale');
+// BaseInspector.Guide = require('./inspectors/Guide');
 
-module.exports = connect(mapStateToProps)(Inspector);
+export const InspectorSidebar = connect(mapStateToProps)(BaseInspector);
