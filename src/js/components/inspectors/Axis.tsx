@@ -1,9 +1,6 @@
 'use strict';
 const Property = require('./Property');
 const MoreProperties = require('./MoreProperties');
-const primTypes = require('../../constants/primTypes');
-const propTypes = require('prop-types');
-const createReactClass = require('create-react-class');
 
 import * as React from 'react';
 import {connect} from 'react-redux'
