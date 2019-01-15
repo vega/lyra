@@ -2,12 +2,12 @@
 const ReactDOM = require('react-dom'),
   ReactTooltip = require('react-tooltip'),
   Provider = require('react-redux').Provider,
-  InspectorSidebar = require('./InspectorSidebar'),
   EncodingsSidebar = require('./EncodingsSidebar'),
   Footer = require('./Footer'),
   store = require('../store');
 
 import * as React from 'react';
+import {InspectorSidebar} from './InspectorSidebar';
 import {PipelinesSidebar} from './PipelinesSidebar';
 import {Toolbar} from './Toolbar';
 
