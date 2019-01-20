@@ -1,27 +1,28 @@
 'use strict';
-var dl = require('datalib'),
-    React = require('react'),
-    connect = require('react-redux').connect,
-    Property = require('./Property'),
-    SpatialPreset = require('./SpatialPreset'),
-    markActions = require('../../actions/markActions'),
-    setMarkExtent = markActions.setMarkExtent,
-    resetMarkVisual = markActions.resetMarkVisual,
-    imutils = require('../../util/immutable-utils'),
-    getIn = imutils.getIn,
-    getInVis = imutils.getInVis,
-    MARK_EXTENTS = require('../../constants/markExtents'),
-    createReactClass = require('create-react-class');
+const dl = require('datalib');
+const React = require('react');
+const connect = require('react-redux').connect;
+const Property = require('./Property');
+const SpatialPreset = require('./SpatialPreset');
+const markActions = require('../../actions/markActions');
+const setMarkExtent = markActions.setMarkExtent;
+const resetMarkVisual = markActions.resetMarkVisual;
+const imutils = require('../../util/immutable-utils');
+const getIn = imutils.getIn;
+const getInVis = imutils.getInVis;
+const MARK_EXTENTS = require('../../constants/markExtents');
 
 function mapStateToProps(state, ownProps) {
-  var type = ownProps.exType,
-      primId = ownProps.primId,
-      mark = getInVis(state, 'marks.' + primId + '.properties.update'),
-      EXTENTS = dl.vals(MARK_EXTENTS[type]),
-      start, end;
+  const type = ownProps.exType;
+  const primId = ownProps.primId;
+  const mark = getInVis(state, 'marks.' + primId + '.properties.update');
+  const EXTENTS = dl.vals(MARK_EXTENTS[type]);
+  let start;
+  let end;
 
   EXTENTS.forEach(function(ext) {
-    var name = ext.name, prop = mark.get(name);
+    const name = ext.name;
+    const prop = mark.get(name);
     if (prop.get('_disabled')) {
       return;
     } else if (!start) {
@@ -42,49 +43,50 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     setExtent: function(oldExtent, newExtent) {
-      var markId = ownProps.primId;
+      const markId = ownProps.primId;
       dispatch(setMarkExtent(markId, oldExtent, newExtent));
       dispatch(resetMarkVisual(markId, newExtent));
     }
   };
 }
 
-var ExtentProperty = createReactClass({
-  handleChange: function(evt) {
-    var props = this.props,
-        type = props.exType,
-        target = evt.target,
-        name = target.name,
-        newExtent = target.value,
-        oldExtent = props[name],
-        EXTENTS = MARK_EXTENTS[type],
-        center = EXTENTS.CENTER.name,
-        span = EXTENTS.SPAN.name,
-        oldEnd = props.end;
+class BaseExtentProperty extends React.Component {
+  public handleChange(evt) {
+    const props = this.props;
+    const type = props.exType;
+    const target = evt.target;
+    const name = target.name;
+    const newExtent = target.value;
+    const oldExtent = props[name];
+    const EXTENTS = MARK_EXTENTS[type];
+    const center = EXTENTS.CENTER.name;
+    const span = EXTENTS.SPAN.name;
+    const oldEnd = props.end;
 
     props.setExtent(oldExtent, newExtent);
 
     if (newExtent === center && oldEnd !== span) {
       props.setExtent(oldEnd, span);
     }
-  },
+  };
 
-  render: function() {
-    var props = this.props,
-        type = props.exType,
-        EXTENTS = MARK_EXTENTS[type],
-        center = EXTENTS.CENTER.name,
-        span = EXTENTS.SPAN.label,
-        opts = dl.vals(EXTENTS),
-        start = props.start, end = props.end;
+  public render() {
+    const props = this.props;
+    const type = props.exType;
+    const EXTENTS = MARK_EXTENTS[type];
+    const center = EXTENTS.CENTER.name;
+    const span = EXTENTS.SPAN.label;
+    const opts = dl.vals(EXTENTS);
+    const start = props.start;
+    const end = props.end;
 
     return (
       <div>
-        <Property name={start} type="number" canDrop={true} firstChild={true}
+        <Property name={start} type='number' canDrop={true} firstChild={true}
           disabled={props.startDisabled} {...props}>
 
-          <div className="label-long label">
-            <select name="start" value={start} onChange={this.handleChange}>
+          <div className='label-long label'>
+            <select name='start' value={start} onChange={this.handleChange}>
               {opts
                 .filter(function(x) {
                   return x.name !== end;
@@ -95,19 +97,19 @@ var ExtentProperty = createReactClass({
             </select>
           </div>
 
-          <SpatialPreset className="extra" name={start} {...props} />
+          <SpatialPreset className='extra' name={start} {...props} />
         </Property>
 
-        <Property name={end} type="number" canDrop={true} firstChild={true}
+        <Property name={end} type='number' canDrop={true} firstChild={true}
           disabled={props.endDisabled} {...props}>
 
           <br />
 
-          <div className="label-long label">
+          <div className='label-long label'>
             {start === center ?
-              (<label htmlFor="end">{span}</label>) :
+              (<label htmlFor='end'>{span}</label>) :
               (
-                <select name="end" value={end} onChange={this.handleChange}>
+                <select name='end' value={end} onChange={this.handleChange}>
                   {opts
                     .filter(function(x) {
                       return x.name !== start && x.name !== center;
@@ -120,11 +122,10 @@ var ExtentProperty = createReactClass({
             }
           </div>
 
-          <SpatialPreset className="extra" name={end} {...props} />
+          <SpatialPreset className='extra' name={end} {...props} />
         </Property>
       </div>
     );
   }
-});
-
-module.exports = connect(mapStateToProps, mapDispatchToProps)(ExtentProperty);
+};
+export const ExtentProperty = connect(mapStateToProps, mapDispatchToProps)(BaseExtentProperty);
