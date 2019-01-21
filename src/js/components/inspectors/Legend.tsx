@@ -1,9 +1,8 @@
 'use strict';
-const getInVis = require('../../util/immutable-utils').getInVis,
-const Property = require('./Property'),
-const MoreProperties = require('./MoreProperties'),
-const primTypes = require('../../constants/primTypes'),
-const SHAPES = require('../../store/factory/marks/Symbol').SHAPES,
+const getInVis = require('../../util/immutable-utils').getInVis;
+const Property = require('./Property');
+const MoreProperties = require('./MoreProperties');
+const SHAPES = require('../../store/factory/marks/Symbol').SHAPES;
 
 import * as React from 'react';
 import {connect} from 'react-redux';
