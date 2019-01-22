@@ -1,19 +1,17 @@
+import * as React from 'react';
 import GroupList from './encodings/GroupList';
+import ScaleList from './encodings/ScaleList';
 
-'use strict';
-let React = require('react'),
-    ScaleList = require('./encodings/ScaleList'),
-    createReactClass = require('create-react-class');
+export class EncodingsSidebar extends React.Component {
+  private groupList = React.createRef();
+  private scaleList = React.createRef();
 
-let EncodingsSidebar = createReactClass({
-  render: function() {
+  public render() {
     return (
       <div className='sidebar' id='visual-sidebar'>
-        <GroupList ref='groupList' />
-        <ScaleList ref='scaleList'/>
+        <GroupList ref={(ref: any) => this.groupList = ref} />
+        <ScaleList ref={(ref: any) => this.scaleList = ref}/>
       </div>
     );
   }
-});
-
-module.exports = EncodingsSidebar;
+}
