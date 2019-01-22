@@ -51,7 +51,11 @@ interface FormInputProps {
 
 }
 
-class BaseFormInputProperty extends React.Component<FormInputProps> {
+interface FormInputState {
+  value: any;
+}
+
+class BaseFormInputProperty extends React.Component<FormInputProps, FormInputState> {
 
   public getInitialState() {
     const props = this.props;
@@ -136,7 +140,7 @@ class BaseFormInputProperty extends React.Component<FormInputProps> {
     const min = props.min;
     const max = props.max;
     const disabled = props.disabled || props.group;
-    const value = !disabled ? props.value : '';
+    const value = !disabled ? this.state.value : '';
     const onChange = props.onChange || this.handleChange;
     const onBlur = props.onBlur;
     const colorSupport = this.colorSupport();
