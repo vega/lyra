@@ -1,9 +1,9 @@
-import { Map } from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
-import {State} from '../../store';
+import {State} from '../../store'
+import GuideList from './GuideList';
 
 const ContentEditable = require('../ContentEditable');
 const inspectorActions = require('../../actions/inspectorActions');
@@ -19,7 +19,6 @@ const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
 const assets = require('../../util/assets');
 const MarkList = require('./MarkList');
-const GuideList = require('./GuideList');
 interface OwnProps {
   id?: number;
   selectedId?: number;
