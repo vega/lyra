@@ -1,25 +1,27 @@
 'use strict';
 
-var React = require('react'),
-    connect = require('react-redux').connect,
-    Immutable = require('immutable'),
-    FormInputProperty = require('./FormInputProperty'),
-    AutoComplete = require('./AutoComplete'),
-    imutils = require('../../util/immutable-utils'),
-    getIn = imutils.getIn,
-    getInVis = imutils.getInVis,
-    TYPES = require('../../constants/primTypes'),
-    resetMarkVisual = require('../../actions/markActions').resetMarkVisual,
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+const Immutable = require('immutable');
+const FormInputProperty = require('./FormInputProperty');
+const AutoComplete = require('./AutoComplete');
+const imutils = require('../../util/immutable-utils');
+const getIn = imutils.getIn;
+const getInVis = imutils.getInVis;
+const TYPES = require('../../constants/primTypes');
+const resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
 
-function mapStateToProps(reduxState, ownProps) {
+import * as React from 'react';
+import {connect} from 'react-redux';
+import { Dispatch } from 'redux';
+import {State} from '../../store';
+
+function mapStateToProps(reduxState: State, ownProps) {
   if (!ownProps.primId) {
     return {};
   }
 
-  var state = getInVis(reduxState, ownProps.primType + '.' + ownProps.primId),
-      path, dsId;
+  const state = getInVis(reduxState, ownProps.primType + '.' + ownProps.primId);
+  let path;
+  let dsId;
 
   if (ownProps.name) {
     if (ownProps.primType === TYPES.MARKS) {
@@ -30,9 +32,9 @@ function mapStateToProps(reduxState, ownProps) {
     }
   }
 
-  var scale = getIn(state, path + '.scale'),
-      field = getIn(state, path + '.field'),
-      scaleName = scale && getInVis(reduxState, 'scales.' + scale + '.name');
+  const scale = getIn(state, path + '.scale');
+  const field = getIn(state, path + '.field');
+  const scaleName = scale && getInVis(reduxState, 'scales.' + scale + '.name');
 
   return {
     group:  getIn(state, path + '.group'),
@@ -46,7 +48,7 @@ function mapStateToProps(reduxState, ownProps) {
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps) {
   return {
     unbind: function() {
       dispatch(resetMarkVisual(ownProps.primId, ownProps.name));
@@ -54,37 +56,43 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var Property = createReactClass({
-  propTypes: {
-    name: propTypes.string.isRequired,
-    label: propTypes.string,
-    field: propTypes.string,
-    group: propTypes.string,
-    scale: propTypes.number,
-    dsId: propTypes.number,
-    scaleName: propTypes.string,
-    signal: propTypes.string,
-    autoType: propTypes.string,
-    onChange: propTypes.func,
-    value: propTypes.oneOfType([
-      propTypes.string, propTypes.number,
-      propTypes.bool, propTypes.instanceOf(Immutable.Map)
-    ]),
-    unbind: propTypes.func
-  },
+interface PropertyProps {
+  name: string;
+  label: string;
+  field: string;
+  group: string;
+  scale: number;
+  dsId: number;
+  scaleName: string;
+  signal: string;
+  autoType: string;
+  onChange: () => any;
+  value: string|number|boolean|any; // TODO: remove 'any', add Immutable.Map type
+  unbind: () => any;
+  type: any;
+  srcField: any;
+  firstChild: any;
+  canDrop: any;
 
-  render: function() {
-    var props = this.props,
-        name  = props.name,
-        label = props.label,
-        type  = props.type,
-        scale = props.scale,
-        field = props.field,
-        unbind = props.unbind,
-        labelEl, scaleEl, controlEl, extraEl;
+}
+
+class Property extends React.Component<PropertyProps> {
+  public render() {
+    const props = this.props;
+    const name  = props.name;
+    const label = props.label;
+    const type  = props.type;
+    const scale = props.scale;
+    const field = props.field;
+    const unbind = props.unbind;
+    let labelEl;
+    let scaleEl;
+    let controlEl;
+    let extraEl;
 
     React.Children.forEach(props.children, function(child) {
-      var className = child && child.props.className;
+      const className = child && child.props.className;
+
       if (className === 'extra') {
         extraEl = child;
       } else if (className === 'control') {
@@ -96,7 +104,7 @@ var Property = createReactClass({
 
     labelEl = labelEl || (<label htmlFor={name}>{label}</label>);
     scaleEl = scale ?
-      (<div className="scale" onClick={unbind}>{props.scaleName}</div>) : null;
+      (<div className='scale' onClick={unbind}>{props.scaleName}</div>) : null;
 
     controlEl = field ?
       (<div className={'field ' + (props.srcField ? 'source' : 'derived')}
@@ -118,16 +126,16 @@ var Property = createReactClass({
     }
 
     if (extraEl) {
-      extraEl = (<div className="extra">{extraEl}</div>);
+      extraEl = (<div className='extra'>{extraEl}</div>);
     }
 
-    var className = 'property' + (props.canDrop ? ' can-drop' : '') +
+    const className = 'property' + (props.canDrop ? ' can-drop' : '') +
       (props.firstChild ? ' first-child' : '');
 
     return (
       <div className={className}>
         {labelEl}
-        <div className="control">
+        <div className='control'>
           {scaleEl}
           {controlEl}
         </div>
@@ -135,6 +143,6 @@ var Property = createReactClass({
       </div>
     );
   }
-});
+};
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(Property);
+export default connect(mapStateToProps, mapDispatchToProps)(Property);

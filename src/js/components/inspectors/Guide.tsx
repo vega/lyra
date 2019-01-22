@@ -55,5 +55,4 @@ class BaseGuideInspector extends React.Component<GuideInspectorProps> {
     return null;
   }
 };
-
 export const GuideInspector = connect(mapStateToProps, mapDispatchToProps)(BaseGuideInspector);

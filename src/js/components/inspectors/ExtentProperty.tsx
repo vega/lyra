@@ -1,7 +1,5 @@
 'use strict';
 const dl = require('datalib');
-const React = require('react');
-const connect = require('react-redux').connect;
 const Property = require('./Property');
 const SpatialPreset = require('./SpatialPreset');
 const markActions = require('../../actions/markActions');
@@ -11,6 +9,9 @@ const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
 const MARK_EXTENTS = require('../../constants/markExtents');
+
+import * as React from 'react';
+import {connect} from 'react-redux';
 
 function mapStateToProps(state, ownProps) {
   const type = ownProps.exType;
@@ -50,7 +51,15 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-class BaseExtentProperty extends React.Component {
+interface ExtentPropProps {
+  exType: any;
+  end: any;
+  setExtent: any;
+  start: any;
+  startDisabled: any;
+  endDisabled: any;
+}
+class BaseExtentProperty extends React.Component<ExtentPropProps> {
   public handleChange(evt) {
     const props = this.props;
     const type = props.exType;
