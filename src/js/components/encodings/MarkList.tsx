@@ -1,19 +1,17 @@
-'use strict';
+import * as React from 'react';
+import { connect } from 'react-redux';
+import * as ReactTooltip from 'react-tooltip';
+import { Dispatch } from 'redux';
+import {State} from '../../store';
 
-var React = require('react'),
-    connect = require('react-redux').connect,
-    Immutable = require('immutable'),
-    ReactTooltip = require('react-tooltip'),
-    selectMark = require('../../actions/inspectorActions').selectMark,
-    markActions = require('../../actions/markActions'),
-    deleteMark = markActions.deleteMark,
-    updateMarkProperty = markActions.updateMarkProperty,
-    getInVis = require('../../util/immutable-utils').getInVis,
-    ContentEditable = require('../ContentEditable'),
-    Icon = require('../Icon'),
-    assets = require('../../util/assets'),
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+const selectMark = require('../../actions/inspectorActions').selectMark;
+const markActions = require('../../actions/markActions');
+const deleteMark = markActions.deleteMark;
+const updateMarkProperty = markActions.updateMarkProperty;
+const getInVis = require('../../util/immutable-utils').getInVis;
+const ContentEditable = require('../ContentEditable');
+const Icon = require('../Icon');
+const assets = require('../../util/assets');
 
 function mapStateToProps(reduxState, ownProps) {
   var marks = getInVis(reduxState, 'marks.' + ownProps.groupId + '.marks');
