@@ -4,6 +4,7 @@ import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
 import {State} from '../../store'
 import GuideList from './GuideList';
+import MarkList from './MarkList';
 
 const ContentEditable = require('../ContentEditable');
 const inspectorActions = require('../../actions/inspectorActions');
@@ -18,10 +19,10 @@ const get = imutils.get;
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
 const assets = require('../../util/assets');
-const MarkList = require('./MarkList');
+
 interface OwnProps {
   id?: number;
-  selectedId?: number;
+  selectedId: number;
   sceneId: number;
 }
 
