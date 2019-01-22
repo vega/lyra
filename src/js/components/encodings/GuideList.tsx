@@ -14,8 +14,22 @@ const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
 const Icon = require('../Icon');
 const assets = require('../../util/assets');
+interface OwnProps {
+  groupId: number;
+  selectedId: number;
+}
 
-function mapStateToProps(reduxState: State, ownProps: GuideListProps) {
+interface StateProps {
+  scales?: any; // Immutable.Map
+  guides?: any; // Immutable.List
+}
+
+interface DispatchProps {
+  selectGuide: (guideId: number) => void;
+  deleteGuide: (selectedId: number, guideId: number, evt: any) => void;
+}
+
+function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const groupId = ownProps.groupId;
   const axes = getInVis(reduxState, 'marks.' + groupId + '.axes');
   const legends = getInVis(reduxState, 'marks.' + groupId + '.legends');
@@ -30,7 +44,7 @@ function mapStateToProps(reduxState: State, ownProps: GuideListProps) {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps: GuideListProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     selectGuide: function(guideId) {
       dispatch(selectGuide(guideId));
@@ -48,16 +62,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: GuideListProps) {
   };
 }
 
-interface GuideListProps {
-  groupId: number;
-  selectedId: number;
-  scales?: any; // Immutable.Map
-  guides?: any; // Immutable.List
-  selectGuide: () => any;
-  deleteGuide: () => any;
-}
-
-class GuideList extends React.Component<GuideListProps> {
+class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
   public componentDidUpdate() {
     ReactTooltip.rebuild();
   }

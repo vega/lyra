@@ -13,8 +13,22 @@ const ContentEditable = require('../ContentEditable');
 const Icon = require('../Icon');
 const assets = require('../../util/assets');
 
-function mapStateToProps(reduxState, ownProps) {
-  var marks = getInVis(reduxState, 'marks.' + ownProps.groupId + '.marks');
+interface OwnProps {
+  groupId: number;
+  selectedId?: number;
+}
+interface StateProps {
+  marks: any; // Immutable.List
+}
+
+interface DispatchProps {
+  selectMark: (markId: number) => void;
+  deleteMark: (selectedId: number, markId: number, evt: any) => void;
+  updateName: (markId: number, value: any) => void;
+}
+
+function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
+  const marks = getInVis(reduxState, 'marks.' + ownProps.groupId + '.marks');
   return {
     marks: marks.map(function(markId) {
       return getInVis(reduxState, 'marks.' + markId);
@@ -22,7 +36,7 @@ function mapStateToProps(reduxState, ownProps) {
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     selectMark: function(markId) {
       dispatch(selectMark(markId));
@@ -44,33 +58,26 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var MarkList = createReactClass({
-  propTypes: {
-    groupId: propTypes.number.isRequired,
-    selectedId: propTypes.number,
-    marks: propTypes.instanceOf(Immutable.List),
-    selectMark: propTypes.func.isRequired,
-    deleteMark: propTypes.func.isRequired,
-    updateName: propTypes.func.isRequired,
-  },
 
-  componentDidUpdate: function() {
+class MarkList extends React.Component<OwnProps & StateProps & DispatchProps> {
+
+  public componentDidUpdate() {
     ReactTooltip.rebuild();
-  },
+  }
 
-  render: function() {
-    var props = this.props,
-        selectedId = props.selectedId;
+  public render() {
+    const props = this.props;
+    const selectedId = props.selectedId;
 
     return (
       <div>
-        <li className="header">
-          Marks <Icon glyph={assets.plus} width="10" height="10" />
+        <li className='header'>
+          Marks <Icon glyph={assets.plus} width='10' height='10' />
         </li>
 
         {props.marks.map(function(mark, i) {
-          var markId = mark.get('_id'),
-              name = mark.get('name');
+          const markId = mark.get('_id');
+          const name = mark.get('name');
 
           return (
             <li key={markId}>
@@ -83,9 +90,9 @@ var MarkList = createReactClass({
                   save={props.updateName.bind(null, markId)}
                   onClick={props.selectMark.bind(null, markId)} />
 
-                <Icon glyph={assets.trash} className="delete"
+                <Icon glyph={assets.trash} className='delete'
                   onClick={props.deleteMark.bind(null, selectedId, markId)}
-                  data-tip={'Delete ' + name} data-place="right" />
+                  data-tip={'Delete ' + name} data-place='right' />
               </div>
             </li>
           );
@@ -93,6 +100,6 @@ var MarkList = createReactClass({
       </div>
     );
   }
-});
+};
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(MarkList);
+export default connect(mapStateToProps, mapDispatchToProps)(MarkList);
