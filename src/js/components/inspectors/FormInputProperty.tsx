@@ -1,26 +1,27 @@
 'use strict';
 
-var React = require('react'),
-    connect = require('react-redux').connect,
-    Immutable = require('immutable'),
-    ContentEditable = require('../ContentEditable'),
-    Icon = require('../Icon'),
-    setSignal = require('../../actions/signalActions').setSignal,
-    getInVis = require('../../util/immutable-utils').getInVis,
-    ctrl = require('../../ctrl'),
-    sg = require('../../ctrl/signals'),
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+// const Immutable = require('immutable'); TODO: Need type for Immutable.Map (see below)
+const ContentEditable = require('../ContentEditable');
+const Icon = require('../Icon');
+const setSignal = require('../../actions/signalActions').setSignal;
+const getInVis = require('../../util/immutable-utils').getInVis;
+const ctrl = require('../../ctrl');
+const sg = require('../../ctrl/signals');
 
-function mapStateToProps(reduxState, ownProps) {
-  var signal = ownProps.signal;
+import * as React from 'react';
+import {connect} from 'react-redux';
+import { Dispatch } from 'redux';
+import {State} from '../../store';
+
+function mapStateToProps(reduxState: State, ownProps) {
+  const signal = ownProps.signal;
   return !signal ? {} : {
     value: getInVis(reduxState, 'signals.' + signal + '.init')
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
-  var signal = ownProps.signal;
+function mapDispatchToProps(dispatch: Dispatch, ownProps) {
+  const signal = ownProps.signal;
   return {
     setSignal: function(value) {
       if (signal) {
@@ -30,42 +31,45 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var FormInputProperty = createReactClass({
-  propTypes: {
-    id: propTypes.string,
-    type: propTypes.oneOf([
-      'number', 'range', 'color', 'select',
-      'text', 'checkbox', 'toggle', 'selection'
-    ]),
-    value: propTypes.oneOfType([
-      propTypes.string, propTypes.number,
-      propTypes.bool, propTypes.instanceOf(Immutable.Map)
-    ]),
-    min: propTypes.string,
-    max: propTypes.string,
-    disabled: propTypes.oneOfType([
-      propTypes.bool, propTypes.string
-    ]),
-    opts: propTypes.array,
-    signal: propTypes.string,
-    setSignal: propTypes.func,
-    onChange: propTypes.func,
-    onBlur: propTypes.func
-  },
+interface FormInputProps {
+  id: string;
+  type: 'number'|'range'|'color'|'select'|'text'|'checkbox'|'toggle'|'selection';
+  value: string|number|boolean|any; // TODO(arlu): the any propTypes was Immutable.Map, not sure what it should be
+  min: string;
+  max: string;
+  disabled: boolean|string;
+  opts: any; // Should be array type, but any[] doesn't work
+  signal: string;
+  setSignal: (value: any) => any; // TODO: find function in/out types
+  onChange: () => any; // TODO: find function in/out types
+  onBlur: () => any; // TODO: find function in/out types
+  name: any;
+  group: any;
+  glyph: any;
+  glyphs: any;
+  step: any;
 
-  getInitialState: function() {
-    var props = this.props;
+}
+
+interface FormInputState {
+  value: any;
+}
+
+class BaseFormInputProperty extends React.Component<FormInputProps, FormInputState> {
+
+  public getInitialState() {
+    const props = this.props;
     return {value: props.value};
-  },
+  };
 
-  componentWillMount: function() {
-    this.onSignal();
-  },
+  public componentWillMount() {
+    this.onSignal(false);
+  };
 
-  componentWillReceiveProps: function(nextProps) {
-    var prevProps = this.props,
-        prevSig = prevProps.signal,
-        nextSig = nextProps.signal;
+  public componentWillReceiveProps(nextProps) {
+    const prevProps = this.props;
+    const prevSig = prevProps.signal;
+    const nextSig = nextProps.signal;
 
     if (prevSig !== nextSig) {
       this.offSignal(prevSig);
@@ -78,36 +82,35 @@ var FormInputProperty = createReactClass({
     if (nextSig || nextProps.value !== prevProps.value) {
       this.setState({value: nextSig ? sg.get(nextSig) : nextProps.value});
     }
-  },
+  };
+  public componentWillUnmount() {
+    this.offSignal(false);
+  };
 
-  componentWillUnmount: function() {
-    this.offSignal();
-  },
-
-  onSignal: function(signal) {
+  public onSignal(signal) {
     signal = signal || this.props.signal;
     if (signal) {
       ctrl.onSignal(signal, this.signal);
     }
-  },
+  };
 
-  offSignal: function(signal) {
+  public offSignal(signal) {
     signal = signal || this.props.signal;
     if (signal) {
       ctrl.offSignal(signal, this.signal);
     }
-  },
+  };
 
-  signal: function(_, value) {
+  public signal(_, value) {
     this.props.setSignal(value);
     this.setState({value: value});
-  },
+  }
 
-  handleChange: function(evt) {
-    var props = this.props,
-        type  = props.type,
-        signal = props.signal,
-        value  = evt.target ? evt.target.value : evt;
+  public handleChange(evt) {
+    const props = this.props;
+    const type  = props.type;
+    const signal = props.signal;
+    let value  = evt.target ? evt.target.value : evt;
 
     // Ensure value is a number
     if (type === 'number' || type === 'range') {
@@ -122,42 +125,42 @@ var FormInputProperty = createReactClass({
     } else {
       this.setState({value: value});
     }
-  },
+  };
 
-  colorSupport: function() {
-    var input = document.createElement('input');
+  public colorSupport() {
+    const input = document.createElement('input');
     input.setAttribute('type', 'color');
     return input.type !== 'text';
-  },
+  };
 
-  render: function() {
-    var props = this.props,
-        name = props.name,
-        id  = props.id,
-        min = props.min,
-        max = props.max,
-        disabled = props.disabled || props.group,
-        value = !disabled ? this.state.value : '',
-        onChange = props.onChange || this.handleChange,
-        onBlur = props.onBlur,
-        colorSupport = this.colorSupport();
+  public render() {
+    const props = this.props;
+    const name = props.name;
+    const id  = props.id;
+    const min = props.min;
+    const max = props.max;
+    const disabled = props.disabled || props.group;
+    const value = !disabled ? this.state.value : '';
+    const onChange = props.onChange || this.handleChange;
+    const onBlur = props.onBlur;
+    const colorSupport = this.colorSupport();
 
     switch (props.type) {
       case 'checkbox':
         return (
-          <input id={id} name={name} type="checkbox" checked={value}
+          <input id={id} name={name} type='checkbox' checked={value}
             disabled={disabled} onChange={onChange} onBlur={onBlur} />
         );
 
       case 'text':
         return (
-          <input id={id} name={name} type="text" value={value}
+          <input id={id} name={name} type='text' value={value}
             disabled={disabled} onChange={onChange} onBlur={onBlur} />
         );
 
       case 'number':
         return (
-          <input id={id} name={name} type="number" value={value}
+          <input id={id} name={name} type='number' value={value}
             min={min} max={max} disabled={disabled}
             onChange={onChange} onBlur={onBlur} />
         );
@@ -165,7 +168,7 @@ var FormInputProperty = createReactClass({
       case 'range':
         return (
           <div>
-            <input id={id} name={name} type="range" value={value}
+            <input id={id} name={name} type='range' value={value}
               min={min} max={max} step={props.step}
               disabled={disabled} onChange={onChange} onBlur={onBlur} />
 
@@ -194,13 +197,13 @@ var FormInputProperty = createReactClass({
         );
 
       case 'toggle':
-        var otherVal = props.opts.find(function(opt) {
+        const otherVal = props.opts.find(function(opt) {
           return opt !== value;
         });
 
         return (
           <div>
-            <button type="button" id={id}
+            <button type='button' id={id}
               className={(value === props.opts[0] ? '' : 'button-secondary ') + 'button'}
               onClick={onChange.bind(this, otherVal)}>
               <Icon glyph={props.glyph} />
@@ -213,7 +216,7 @@ var FormInputProperty = createReactClass({
           <div>
             {props.opts.map(function(opt, idx) {
               return (
-                <button key={opt} type="button" id={id}
+                <button key={opt} type='button' id={id}
                   className={(value === opt ? 'button-secondary ' : '') + 'button'}
                   onClick={onChange.bind(this, opt)}>
                   <Icon glyph={props.glyphs[idx]} />
@@ -227,6 +230,5 @@ var FormInputProperty = createReactClass({
         return null;
     }
   }
-});
-
-module.exports = connect(mapStateToProps, mapDispatchToProps)(FormInputProperty);
+};
+export const FormInputProperty = connect(mapStateToProps, mapDispatchToProps)(BaseFormInputProperty);
