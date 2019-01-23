@@ -37,11 +37,13 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps): DispatchProps {
 
 class WalkthroughMenu extends React.Component<StateProps & DispatchProps, OwnState> {
 
-  public getInitialState(): OwnState {
-    return {
+  constructor(props) {
+    super(props);
+
+    this.state = {
       modalIsOpen: false
     };
-  }
+  };
 
   public selectWalkthrough(key) {
     this.props.select(key);
