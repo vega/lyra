@@ -90,9 +90,8 @@ class Property extends React.Component<PropertyProps> {
     let controlEl;
     let extraEl;
 
-    React.Children.forEach(props.children, function(child) {
+    React.Children.forEach(props.children, function(child: JSX.Element) {
       const className = child && child.props.className;
-
       if (className === 'extra') {
         extraEl = child;
       } else if (className === 'control') {

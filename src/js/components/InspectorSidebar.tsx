@@ -90,7 +90,7 @@ class BaseInspector extends React.Component<Inspector> {
         ctor = 'Scale';
         primType = TYPES.SCALES;
       }
-      // InspectorType = Inspector[ctor]; // TODO: This throws an error when uncommented, unkown reason
+      InspectorType = BaseInspector[ctor];
     }
 
     const pipeline = props.isMark ? (

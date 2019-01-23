@@ -120,8 +120,7 @@ class BaseAutoComplete extends React.Component<AutoCompleteProps> {
     let searched;
     let nextStr;
 
-    // for (let i = 0; i < fields.length; i++)
-    for (const i of fields.length) {
+    for (let i = 0; i < fields.length; i++) {
       field = fields[i];
       position = str.search(field);
       searched = 0
