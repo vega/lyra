@@ -58,13 +58,15 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps): DispatchProps {
 
 class Step extends React.Component<StateProps & DispatchProps, OwnState> {
 
-  public getInitialState(): OwnState {
-    return {
+  constructor(props) {
+    super(props);
+
+    this.state = {
       error: false,
       errorMap: null,
       errorMessage: null
     };
-  }
+  };
 
   public getNextStep() {
     const steps = this.props.steps.toJS();
