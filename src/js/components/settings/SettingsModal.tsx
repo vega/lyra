@@ -1,22 +1,33 @@
-'use strict';
-var React = require('react'),
-    connect = require('react-redux').connect,
-    Modal = require('react-modal'),
-    getIn = require('../../util/immutable-utils').getIn,
-    hints = require('../../actions/hintActions').on,
-    assets = require('../../util/assets'),
-    Icon = require('../Icon'),
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+import * as React from 'react';
+import { connect } from 'react-redux';
+import * as ReactModal from 'react-modal';
+import { Dispatch } from 'redux';
+import {State} from '../../store';
 
+const getIn = require('../../util/immutable-utils').getIn;
+const hints = require('../../actions/hintActions').on;
+const assets = require('../../util/assets');
+const Icon = require('../Icon');
 
-function mapStateToProps(reduxState) {
+interface StateProps {
+  hintsOn: boolean
+}
+
+interface DispatchProps {
+  toggleHints: () => void;
+}
+
+interface OwnState {
+  modalIsOpen: boolean
+}
+
+function mapStateToProps(reduxState: State): StateProps {
   return {
     hintsOn: getIn(reduxState, 'hints.on')
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps): DispatchProps {
   return {
     toggleHints: function() {
       dispatch(hints(!this.props.selected));
@@ -24,31 +35,27 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var Settings = createReactClass({
-  propTypes: {
-    hintsOn: propTypes.bool,
-    toggleHints: propTypes.func
-  },
+class Settings extends React.Component<StateProps & DispatchProps, OwnState> {
 
-  getInitialState: function() {
+  public getInitialState(): OwnState {
     return {
       modalIsOpen: false
     };
-  },
+  }
 
-  openModal: function() {
+  public openModal() {
     this.setState({modalIsOpen: true});
-  },
+  }
 
-  closeModal: function() {
+  public closeModal() {
     this.setState({modalIsOpen: false});
-  },
+  }
 
-  render: function() {
+  public render() {
     return (
       <div>
         <a onClick={this.openModal}>Settings</a>
-        <Modal
+        <ReactModal
           isOpen={this.state.modalIsOpen}
           onRequestClose={this.closeModal}>
             <div className ="wrapper settings">
@@ -70,10 +77,10 @@ var Settings = createReactClass({
                   </label>
                 </div>
             </div>
-          </Modal>
+          </ReactModal>
       </div>
     );
   }
-});
+}
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(Settings);
+export default connect(mapStateToProps, mapDispatchToProps)(Settings);
