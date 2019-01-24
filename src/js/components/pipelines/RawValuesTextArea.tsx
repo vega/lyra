@@ -1,44 +1,53 @@
-'use strict';
+import * as React from 'react';
 
-var React = require('react'),
-    Pipeline = require('../../store/factory/Pipeline'),
-    Dataset = require('../../store/factory/Dataset'),
-    dsUtils = require('../../util/dataset-utils'),
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+import {Pipeline} from '../../store/factory/Pipeline';
+import {PipelineModalState} from './PipelineModal';
+const Dataset = require('../../store/factory/Dataset');
+const dsUtils = require('../../util/dataset-utils');
 
-var DraggableTextArea = createReactClass({
-  propTypes: {
-    success: propTypes.func.isRequired,
-    error: propTypes.func.isRequired
-  },
+interface OwnProps {
+  success: (state: Partial<PipelineModalState>, msg: string | boolean, preview?: boolean) => void;
+  error: (err: any) => void;
+  name?: string;
+}
 
-  getInitialState: function() {
-    return {
+interface OwnState {
+  dragActive: string;
+}
+
+class DraggableTextArea extends React.Component<OwnProps, OwnState> {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
       dragActive: 'textarea-dnd'
     };
-  },
-
-  onDragEnter: function() {
+  }
+  public onDragEnter() {
     this.setState({
       dragActive: 'textarea-dnd active'
     });
-  },
+  }
 
-  onDragLeave: function() {
+  public onDragLeave() {
     this.setState({
       dragActive: 'textarea-dnd'
     });
-  },
+  }
 
-  onChange: function(evt) {
-    var props = this.props,
-        target = evt.target,
-        type = evt.type,
-        raw  = target.value,
-        pipeline = Pipeline('name'),
-        dataset  = Dataset('name'),
-        file, reader, name, parsed, values;
+  public onChange(evt) {
+    const props = this.props;
+    const target = evt.target;
+    const type = evt.type;
+    let pipeline = Pipeline('name');
+    const dataset  = Dataset('name');
+    let raw  = target.value;
+    let file;
+    let reader;
+    let name;
+    let parsed;
+    let values;
 
     evt.preventDefault();
 
@@ -56,7 +65,11 @@ var DraggableTextArea = createReactClass({
         reader = new FileReader();
         reader.onload = function(loadEvt) {
           name = file.name.match(dsUtils.NAME_REGEX);
-          pipeline.name = dataset.name = name[1];
+          // pipeline.name = dataset.name = name[1]; //TODO(jzong) pipeline.name is read-only
+          //
+          dataset.name = name[1];
+          pipeline = Pipeline(name[1]); // does this work?
+          //
           raw = target.value = loadEvt.target.result;
           try {
             parsed = dsUtils.parseRaw(raw);
@@ -75,24 +88,23 @@ var DraggableTextArea = createReactClass({
     } catch (err) {
       props.error(err);
     }
-  },
+  }
 
-  render: function() {
-    var props = this.props;
+  public render() {
+    const props = this.props;
 
     return (
       <div>
-        <textarea name={props.name} rows="8" cols="30"
-          placeholder="Copy and paste raw values or drag and drop a file."
+        <textarea name={props.name} rows={8} cols={30}
+          placeholder='Copy and paste raw values or drag and drop a file.'
           onChange={this.onChange}
           onDrop={this.onChange}
           onDragOver={this.onDragEnter}
           onDragLeave={this.onDragLeave}
-          className={this.state.dragActive}>
-        </textarea>
+          className={this.state.dragActive} />
       </div>
     );
   }
-});
+}
 
-module.exports = DraggableTextArea;
+export default DraggableTextArea;

@@ -1,12 +1,11 @@
 import {RecordOf} from 'immutable';
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {Dispatch} from 'redux';
 import {State} from '../../store';
 import {LyraPipeline} from '../../store/factory/Pipeline';
+import DataTable from './DataTable';
 
 const ContentEditable = require('../ContentEditable');
-const DataTable = require('./DataTable');
 const Icon = require('../Icon');
 const selectPipeline = require('../../actions/inspectorActions').selectPipeline;
 const updatePipeline = require('../../actions/pipelineActions').updatePipelineProperty;
@@ -75,6 +74,6 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps & type
       </div>
     );
   }
-};
+}
 
 export const PipelineInspector = connect(mapState, actionCreators)(BasePipelineInspector);
