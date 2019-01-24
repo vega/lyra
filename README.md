@@ -9,30 +9,24 @@ A deployed version of [Lyra 1 is available online](http://idl.cs.washington.edu/
 
 ### Installation
 
-To work on Lyra locally, you must have [Node](https://nodejs.org/) installed on your computer. Download this repository with Git, then (from the command prompt or terminal) check out the `lyra2` development branch with the command
+To work on Lyra locally, you must have [node](https://nodejs.org/) and [yarn](https://yarnpkg.com/en/) installed on your computer. Download this repository with Git, then (from the command prompt or terminal) check out the `lyra2` development branch with the command
 
 ```sh
-git checkout lyra2
+git checkout lyra2019
 ```
 
 Once you are on the lyra2 branch, run
 
 ```sh
-npm install
+yarn install
 ```
 
 to install the project's code dependencies.
 
-To build the application itself, execute the build command:
+Start the local webserver with the command:
 
 ```sh
-npm run build
-```
-
-Lyra is now ready to run. Start the local webserver with the command:
-
-```sh
-npm start
+yarn start
 ```
 
 Lyra should now be running at [http://localhost:8080](http://localhost:8080)! This web server will auto-reload when you change the JavaScript code; manually re-building with `npm run build` should only be necessary if you update the SCSS stylesheets.
