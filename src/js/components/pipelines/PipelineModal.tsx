@@ -102,13 +102,13 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
 
     dsUtils.loadURL(url)
       .then(function(loaded) {
-        const dataset = loaded.dataset;
+        let dataset = loaded.dataset;
         const parsed = dsUtils.parseRaw(loaded.data);
         const values = parsed.values;
 
         that.success({
           pipeline: loaded.pipeline,
-          dataset: (dataset.format = parsed.format, dataset),
+          dataset: (dataset = dataset.set('format', parsed.format)),
           values: values,
           schema: dsUtils.schema(values),
           selectedExample: url
