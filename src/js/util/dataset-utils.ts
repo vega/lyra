@@ -1,14 +1,12 @@
-'use strict';
-
-const dl = require('datalib'),
-  promisify = require('es6-promisify'),
-  MTYPES = require('vega-lite').data.types,
-  Dataset = require('../store/factory/Dataset'),
-  imutils = require('./immutable-utils'),
-  getInVis = imutils.getInVis,
-  NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
-
+import {Dataset} from '../store/factory/Dataset';
 import {Pipeline} from '../store/factory/Pipeline';
+
+const dl = require('datalib');
+const promisify = require('es6-promisify');
+const MTYPES = require('vega-lite').data.types;
+const imutils = require('./immutable-utils');
+const getInVis = imutils.getInVis;
+const NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
 // Circumvents the circular dependency
 function store() {
@@ -38,9 +36,9 @@ let _values = {};
  * @returns {void}
  */
 function init(action) {
-  const id = action.id,
-    props = action.props,
-    src = props.source;
+  const id = action.id;
+  const props = action.props;
+  const src = props.source;
 
   if (_values[id]) {
     // Early-exit if we've previously loaded values.
@@ -93,7 +91,7 @@ function output(id: number) {
 function loadURL(url: string) {
   const name = url.match(NAME_REGEX)[1];
   const pipeline = Pipeline({name});
-  const dataset = Dataset(name, {url: url});
+  const dataset = Dataset({name, url});
 
   return promisify(dl.load)({url: url}).then(function(data) {
     return {data: data, pipeline: pipeline, dataset: dataset};

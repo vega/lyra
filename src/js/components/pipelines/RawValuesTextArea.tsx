@@ -1,8 +1,8 @@
 import * as React from 'react';
 
+import {Dataset} from '../../store/factory/Dataset';
 import {Pipeline} from '../../store/factory/Pipeline';
 import {PipelineModalState} from './PipelineModal';
-const Dataset = require('../../store/factory/Dataset');
 const dsUtils = require('../../util/dataset-utils');
 
 interface OwnProps {
@@ -40,8 +40,8 @@ class DraggableTextArea extends React.Component<OwnProps, OwnState> {
     const props = this.props;
     const target = evt.target;
     const type = evt.type;
-    let pipeline = Pipeline('name');
-    const dataset  = Dataset('name');
+    let pipeline = Pipeline();
+    let dataset  = Dataset();
     let raw  = target.value;
     let file;
     let reader;
@@ -56,7 +56,7 @@ class DraggableTextArea extends React.Component<OwnProps, OwnState> {
         parsed = dsUtils.parseRaw(raw);
         props.success({
           pipeline: pipeline,
-          dataset: (dataset.format = parsed.format, dataset),
+          dataset: (dataset = dataset.set('format', parsed.format)),
           values: (values = parsed.values),
           schema: dsUtils.schema(values)
         }, 'Successfully imported data!');
@@ -65,17 +65,14 @@ class DraggableTextArea extends React.Component<OwnProps, OwnState> {
         reader = new FileReader();
         reader.onload = function(loadEvt) {
           name = file.name.match(dsUtils.NAME_REGEX);
-          // pipeline.name = dataset.name = name[1]; //TODO(jzong) pipeline.name is read-only
-          //
-          dataset.name = name[1];
-          pipeline = Pipeline(name[1]); // does this work?
-          //
+          dataset = dataset.set('name', name[1]);
+          pipeline = pipeline.set('name', dataset.name);
           raw = target.value = loadEvt.target.result;
           try {
             parsed = dsUtils.parseRaw(raw);
             props.success({
               pipeline: pipeline,
-              dataset: (dataset.format = parsed.format, dataset),
+              dataset: (dataset = dataset.set('format', parsed.format)),
               values: (values = parsed.values),
               schema: dsUtils.schema(values)
             }, 'Successfully imported ' + name[0] + '!');
