@@ -1,6 +1,6 @@
 import * as React from 'react';
+import {ColumnRecord} from '../../store/factory/Dataset';
 import AggregateField from './AggregateField';
-import {FieldObject} from './FieldType';
 const AGGREGATE_OPS = require('../../constants/aggregateOps');
 
 const SHORT_LIST = 5;
@@ -15,7 +15,7 @@ export interface AggregateHandlers {
 interface OwnProps {
   handlers: AggregateHandlers;
   style: object;
-  field: FieldObject;
+  field: ColumnRecord;
 }
 
 interface OwnState {

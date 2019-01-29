@@ -56,7 +56,7 @@ class DraggableTextArea extends React.Component<OwnProps, OwnState> {
         parsed = dsUtils.parseRaw(raw);
         props.success({
           pipeline: pipeline,
-          dataset: (dataset = dataset.set('format', parsed.format)),
+          dataset: (dataset = dataset.merge({format: parsed.format})),
           values: (values = parsed.values),
           schema: dsUtils.schema(values)
         }, 'Successfully imported data!');
@@ -65,14 +65,14 @@ class DraggableTextArea extends React.Component<OwnProps, OwnState> {
         reader = new FileReader();
         reader.onload = function(loadEvt) {
           name = file.name.match(dsUtils.NAME_REGEX);
-          dataset = dataset.set('name', name[1]);
-          pipeline = pipeline.set('name', dataset.name);
+          dataset = dataset.merge({name: name[1]});
+          pipeline = pipeline.merge({name: dataset.name});
           raw = target.value = loadEvt.target.result;
           try {
             parsed = dsUtils.parseRaw(raw);
             props.success({
               pipeline: pipeline,
-              dataset: (dataset = dataset.set('format', parsed.format)),
+              dataset: (dataset = dataset.merge({format: parsed.format})),
               values: (values = parsed.values),
               schema: dsUtils.schema(values)
             }, 'Successfully imported ' + name[0] + '!');

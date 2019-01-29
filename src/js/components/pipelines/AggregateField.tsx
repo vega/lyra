@@ -1,12 +1,12 @@
 import * as React from 'react';
+import {ColumnRecord} from '../../store/factory/Dataset';
 import {AggregateHandlers} from './AggregateList';
-import {FieldObject} from './FieldType';
 
 const AGGREGATE_OPS = require('../../constants/aggregateOps');
 
 interface OwnProps extends AggregateHandlers {
   op: any; // propTypes.oneOf(AGGREGATE_OPS).isRequired,
-  field: FieldObject
+  field: ColumnRecord
 }
 
 class AggregateField extends React.Component<OwnProps> {
