@@ -41,8 +41,8 @@ function mapStateToProps(state: State, ownProps: OwnProps) {
 
 function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
   return {
-    addPipeline: function(pipeline, dataset, values, schema) {
-      dispatch(addPipeline(pipeline, dataset, values, schema));
+    addPipeline: function(pipeline, dataset, schema, values) {
+      dispatch(addPipeline(pipeline, dataset, schema, values));
     }
   };
 }
@@ -88,7 +88,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
     const state = this.state;
     if (save && state.error === null) {
       this.props.addPipeline(state.pipeline, state.dataset,
-        state.values, state.schema);
+        state.schema, state.values);
     }
 
     this.setState(this.initialState);
@@ -108,7 +108,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
 
         that.success({
           pipeline: loaded.pipeline,
-          dataset: (dataset = dataset.set('format', parsed.format)),
+          dataset: (dataset = dataset.merge({format: parsed.format})),
           values: values,
           schema: dsUtils.schema(values),
           selectedExample: url

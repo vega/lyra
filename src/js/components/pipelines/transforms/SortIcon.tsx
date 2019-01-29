@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
 import {State} from '../../../store';
+import {ColumnRecord} from '../../../store/factory/Dataset';
 import { Icon } from '../../Icon';
-import {FieldObject} from '../FieldType';
 
 const Immutable = require('immutable');
 const sortDataset = require('../../../actions/datasetActions').sortDataset;
@@ -14,7 +14,7 @@ const ORDER  = require('../../../constants/sortOrder');
 const MTYPES = require('../../../constants/measureTypes');
 
 interface OwnProps {
-  field: FieldObject;
+  field: ColumnRecord;
   dsId: number;
 }
 

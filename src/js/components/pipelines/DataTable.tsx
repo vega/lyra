@@ -106,7 +106,7 @@ class DataTable extends React.Component<OwnProps & StateProps, OwnState> {
     const start = page * limit;
     const stop  = start + limit;
     const id = props.id;
-    const schema = id ? props.dataset.get('_schema').toJS() : props.schema;
+    const schema = (id ? props.dataset.get('_schema') : props.schema).toJS();
     const output = id ? dsUtil.output(id) : props.values;
     const values = output.slice(start, stop);
     const keys = dl.keys(schema);
