@@ -22,7 +22,7 @@ const Immutable = require('immutable'),
  * @param {Object} action - A redux action object
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
-export function datasetsReducer(state: DatasetState, action: ActionType<typeof datasetActions>) {
+export function datasetsReducer(state: DatasetState, action: ActionType<typeof datasetActions>): DatasetState {
   const id = action.meta;
 
   if (typeof state === 'undefined') {

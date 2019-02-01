@@ -8,9 +8,9 @@ const dl = require('datalib'),
   AGGREGATE_PIPELINE = 'AGGREGATE_PIPELINE',
   UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY';
 
-import {RecordOf} from 'immutable';
+import {Datum} from 'vega-typings/types';
 import {DatasetRecord, Schema} from '../store/factory/Dataset';
-import {LyraPipeline} from '../store/factory/Pipeline';
+import {PipelineRecord} from '../store/factory/Pipeline';
 import {addDataset} from './datasetActions';
 
 /**
@@ -23,15 +23,12 @@ import {addDataset} from './datasetActions';
  * @param {Object} schema - An object containing the schema values.
  * @returns {Function} An async action function
  */
-// TODO(arvind): Remove schema as an argument here -- the schema should be added
-// to the DatasetRecord when it is created.
-function addPipeline(pipeline: RecordOf<LyraPipeline>, ds: DatasetRecord, schema: Schema, values: object[]) {
+function addPipeline(pipeline: PipelineRecord, ds: DatasetRecord, values: Datum[]) {
   return function(dispatch) {
     const pid = pipeline._id || counter.global();
     const newDs = addDataset(ds.merge({
       name: pipeline.name + '_source',
-      _parent: pid,
-      _schema: schema
+      _parent: pid
     }));
 
     dispatch(newDs);

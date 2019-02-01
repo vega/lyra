@@ -1,14 +1,14 @@
-import {Map, RecordOf} from 'immutable';
+import {Map} from 'immutable';
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {LyraPipeline} from '../../store/factory/Pipeline';
+import {PipelineRecord} from '../../store/factory/Pipeline';
 import {PipelineInspector} from './PipelineInspector';
 
 const getInVis = require('../../util/immutable-utils').getInVis;
 
 interface Props {
-  pipelines: Map<number, RecordOf<LyraPipeline>>;
+  pipelines: Map<number, PipelineRecord>;
 }
 
 function mapState(state: State): Props {

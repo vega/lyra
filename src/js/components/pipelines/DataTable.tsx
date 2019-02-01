@@ -6,11 +6,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import {State} from '../../store';
+import {DatasetRecord} from '../../store/factory/Dataset';
 import { Icon } from '../Icon';
 
 const d3 = require('d3');
 const dl = require('datalib');
-const Immutable = require('immutable');
 const getInVis = require('../../util/immutable-utils').getInVis;
 const dsUtil = require('../../util/dataset-utils');
 const assets = require('../../util/assets');
@@ -23,7 +23,7 @@ interface OwnProps {
   values?: any;
 }
 interface StateProps {
-  dataset: any; // Immutable.Map
+  dataset: DatasetRecord;
   vega: any;
 }
 
@@ -94,7 +94,7 @@ class DataTable extends React.Component<OwnProps & StateProps, OwnState> {
     });
   }
 
-  public hideHover = (evt) => {
+  public hideHover = () => {
     this.setState({hoverField: null, hoverValue: null});
   }
 

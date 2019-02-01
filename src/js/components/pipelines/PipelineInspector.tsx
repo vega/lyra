@@ -1,8 +1,7 @@
-import {RecordOf} from 'immutable';
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {LyraPipeline} from '../../store/factory/Pipeline';
+import {PipelineRecord} from '../../store/factory/Pipeline';
 import { Icon } from '../Icon';
 import DataTable from './DataTable';
 
@@ -20,7 +19,7 @@ interface OwnProps {
 
 interface StateProps {
   isSelected: boolean;
-  pipeline: RecordOf<LyraPipeline>;
+  pipeline: PipelineRecord;
 }
 
 function mapState(state: State, ownProps: OwnProps): StateProps {
