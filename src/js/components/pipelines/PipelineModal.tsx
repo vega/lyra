@@ -1,9 +1,11 @@
-import {RecordOf} from 'immutable';
 import * as React from 'react';
 import * as ReactModal from 'react-modal';
 import { connect } from 'react-redux';
+import {Datum} from 'vega-typings';
 import {State} from '../../store';
-import {LyraPipeline} from '../../store/factory/Pipeline';
+import {DatasetRecord} from '../../store/factory/Dataset';
+import {PipelineRecord} from '../../store/factory/Pipeline';
+import * as dsUtils from '../../util/dataset-utils';
 import DataTable from './DataTable';
 import DataURL from './DataURL';
 import RawValuesTextArea from './RawValuesTextArea';
@@ -11,7 +13,6 @@ import RawValuesTextArea from './RawValuesTextArea';
 const dl = require('datalib');
 const addPipeline = require('../../actions/pipelineActions').addPipeline;
 const exampleDatasets = require('../../constants/exampleDatasets');
-const dsUtils = require('../../util/dataset-utils');
 const NAME_REGEX = dsUtils.NAME_REGEX;
 
 interface OwnProps {
@@ -20,7 +21,7 @@ interface OwnProps {
 }
 
 interface DispatchProps {
-  addPipeline: (pipeline: RecordOf<LyraPipeline>, dataset: any, values: any, schema: any) => void;
+  addPipeline: (pipeline: PipelineRecord, dataset: DatasetRecord, values: Datum[]) => void;
 }
 
 export interface PipelineModalState {
@@ -29,10 +30,9 @@ export interface PipelineModalState {
     showPreview: boolean;
     selectedExample: string;
 
-    pipeline: RecordOf<LyraPipeline>;
-    dataset: any;
-    values: any;
-    schema: any;
+    pipeline: PipelineRecord;
+    dataset: DatasetRecord;
+    values: Datum[];
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps) {
@@ -41,8 +41,8 @@ function mapStateToProps(state: State, ownProps: OwnProps) {
 
 function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
   return {
-    addPipeline: function(pipeline, dataset, schema, values) {
-      dispatch(addPipeline(pipeline, dataset, schema, values));
+    addPipeline: function(pipeline, dataset, values) {
+      dispatch(addPipeline(pipeline, dataset, values));
     }
   };
 }
@@ -58,7 +58,6 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
     pipeline: null,
     dataset: null,
     values: null,
-    schema: null,
   };
 
   constructor(props) {
@@ -87,8 +86,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
   public done(save) {
     const state = this.state;
     if (save && state.error === null) {
-      this.props.addPipeline(state.pipeline, state.dataset,
-        state.schema, state.values);
+      this.props.addPipeline(state.pipeline, state.dataset, state.values);
     }
 
     this.setState(this.initialState);
@@ -101,16 +99,15 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
       'Successfully imported ' + url.match(NAME_REGEX)[0] + '!' : msg;
 
     dsUtils.loadURL(url)
-      .then(function(loaded) {
+      .then(function(loaded: {data: string, pipeline: PipelineRecord, dataset: DatasetRecord }) {
         let dataset = loaded.dataset;
         const parsed = dsUtils.parseRaw(loaded.data);
         const values = parsed.values;
 
         that.success({
           pipeline: loaded.pipeline,
-          dataset: (dataset = dataset.merge({format: parsed.format})),
+          dataset: (dataset = dataset.merge({format: parsed.format, _schema: dsUtils.schema(values)})),
           values: values,
-          schema: dsUtils.schema(values),
           selectedExample: url
         }, msg, true);
       })
@@ -191,7 +188,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
 
               {/* <DataTable className='source' TODO(jzong): check if className was getting read*/ }
               <DataTable
-                values={state.values} schema={state.schema} />
+                values={state.values} schema={state.dataset._schema} />
 
               <button className='button button-success'
                 onClick={this.done.bind(this, true)}>

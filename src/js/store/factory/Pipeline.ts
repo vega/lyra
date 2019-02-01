@@ -1,4 +1,4 @@
-import {Map, Record} from 'immutable';
+import {Map, Record, RecordOf} from 'immutable';
 
 /**
  * Pipelines group together a single source dataset with additional derived datasets (e.g., aggregates or facets).
@@ -29,3 +29,5 @@ export const Pipeline = Record<LyraPipeline>({
   _source: null,
   _aggregates: Map()
 });
+
+export type PipelineRecord = RecordOf<LyraPipeline>;

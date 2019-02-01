@@ -2,9 +2,8 @@ import * as React from 'react';
 
 import {Dataset} from '../../store/factory/Dataset';
 import {Pipeline} from '../../store/factory/Pipeline';
+import * as dsUtils from '../../util/dataset-utils';
 import {PipelineModalState} from './PipelineModal';
-const dsUtils = require('../../util/dataset-utils');
-
 interface OwnProps {
   success: (state: Partial<PipelineModalState>, msg: string | boolean, preview?: boolean) => void;
   error: (err: any) => void;
@@ -46,7 +45,7 @@ class DraggableTextArea extends React.Component<OwnProps, OwnState> {
     let file;
     let reader;
     let name;
-    let parsed;
+    let parsed: dsUtils.ParsedValues;
     let values;
 
     evt.preventDefault();
@@ -56,9 +55,8 @@ class DraggableTextArea extends React.Component<OwnProps, OwnState> {
         parsed = dsUtils.parseRaw(raw);
         props.success({
           pipeline: pipeline,
-          dataset: (dataset = dataset.merge({format: parsed.format})),
-          values: (values = parsed.values),
-          schema: dsUtils.schema(values)
+          dataset: (dataset = dataset.merge({format: parsed.format, _schema: dsUtils.schema(parsed.values)})),
+          values: (values = parsed.values)
         }, 'Successfully imported data!');
       } else if (type === 'drop') {
         file = evt.dataTransfer.files[0];
@@ -72,9 +70,8 @@ class DraggableTextArea extends React.Component<OwnProps, OwnState> {
             parsed = dsUtils.parseRaw(raw);
             props.success({
               pipeline: pipeline,
-              dataset: (dataset = dataset.merge({format: parsed.format})),
-              values: (values = parsed.values),
-              schema: dsUtils.schema(values)
+              dataset: (dataset = dataset.merge({format: parsed.format, _schema: dsUtils.schema(parsed.values)})),
+              values: (values = parsed.values)
             }, 'Successfully imported ' + name[0] + '!');
           } catch (err) {
             props.error(err);

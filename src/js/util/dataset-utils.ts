@@ -9,15 +9,17 @@
  */
 
 import {Map} from 'immutable';
-import {Column, Dataset, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
-import {Pipeline} from '../store/factory/Pipeline';
+import {Datum, Format} from 'vega-typings/types';
+import {Column, Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
+import {Pipeline, PipelineRecord} from '../store/factory/Pipeline';
 
 const dl = require('datalib');
 const promisify = require('es6-promisify');
 const MTYPES = require('vega-lite').data.types;
 const imutils = require('./immutable-utils');
 const getInVis = imutils.getInVis;
-const NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
+
+export const NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
 // Circumvents the circular dependency
 function store() {
@@ -38,7 +40,7 @@ let _values = {};
  * @param  {Object} action - An ADD_DATASET action.
  * @returns {void}
  */
-function init(ds: SourceDatasetRecord, values: object[]) {
+export function init(ds: SourceDatasetRecord, values: object[]) {
   const id = ds._id;
   const src = ds.source;
 
@@ -50,7 +52,7 @@ function init(ds: SourceDatasetRecord, values: object[]) {
   _values[id] = values || (src ? _values[src] : null);
 }
 
-function reset() {
+export function reset() {
   _values = {};
 }
 
@@ -61,7 +63,7 @@ function reset() {
  * @param {number} id - The ID of the dataset.
  * @returns {Array|string} An array of objects.
  */
-function input(id: number) {
+export function input(id: number) {
   return _values[id];
 }
 
@@ -73,7 +75,7 @@ function input(id: number) {
  * @param {number} id - The ID of the dataset.
  * @returns {Object[]} An array of objects.
  */
-function output(id: number) {
+export function output(id: number) {
   const ctrl = require('../ctrl'),
     ds = def(id),
     view = ds && ctrl.view && ctrl.view.data(ds.get('name'));
@@ -90,7 +92,7 @@ function output(id: number) {
  * @param   {Object} dataset  The definition for a dataset (e.g., name, url).
  * @returns {Object} An object containing the loaded values.
  */
-function loadURL(url: string) {
+export function loadURL(url: string) {
   const name = url.match(NAME_REGEX)[1];
   const pipeline = Pipeline({name});
   const dataset = Dataset({name, url});
@@ -100,15 +102,20 @@ function loadURL(url: string) {
   });
 }
 
+export interface ParsedValues {
+  format: Format,
+  values: Datum[]
+}
+
 /**
  * Detects the format of a string of raw values (json, csv, tsv) and parses
  * them based on the format.
  *
  * @param   {string} raw     A string of raw values (e.g., loaded from a url).
- * @returns {Object} An object containing the format of a dataset and parsed
+ * @returns {ParsedValues} An object containing the format of a dataset and parsed
  *                   raw values.
  */
-function parseRaw(raw: string) {
+export function parseRaw(raw: string): ParsedValues {
   const format = {parse: 'auto', type: null};
   let parsed;
 
@@ -134,8 +141,6 @@ function parseRaw(raw: string) {
 
     throw Error('Raw data is in an unsupported format. ' + 'Only JSON, CSV, or TSV may be imported.');
   }
-
-  return {};
 }
 
 /**
@@ -145,7 +150,7 @@ function parseRaw(raw: string) {
  * @param  {number|Array} arg - An array of raw values to calculate a schema for.
  * @returns {Object} The dataset's schema.
  */
-function schema(arg: object[]): Schema {
+export function schema(arg: object[]): Schema {
   if (dl.isNumber(arg)) {
     throw Error('Dataset schemas are now available in the store.');
   } else if (dl.isArray(arg)) {
@@ -173,7 +178,7 @@ function schema(arg: object[]): Schema {
  * @param   {Object} aggregate The Vega aggregate transform definition.
  * @returns {Object} The aggregate dataset's schema.
  */
-function aggregateSchema(src, aggregate) {
+export function aggregateSchema(src, aggregate) {
   let aggSchema = aggregate.groupby.reduce(function(acc, gb) {
       return (acc[gb] = src[gb]), acc;
     }, {}),
