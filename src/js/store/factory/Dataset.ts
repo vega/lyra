@@ -6,7 +6,7 @@
 
 import {Map, Record, RecordOf} from 'immutable';
 import {Type} from 'vega-lite/src/type';
-import {Data} from 'vega-typings';
+import {BaseData, Data, SourceData, UrlData, ValuesData} from 'vega-typings';
 
 // TODO: Consolidate with constants/measureTypes.js
 export type MType = Type;
@@ -14,7 +14,7 @@ export type MType = Type;
 export interface ColumnDescription {
   name: string;
   type: 'boolean' | 'integer' | 'number' | 'date' | 'string';
-  mtype: MType; // TODO(arvind): Replace with Vega-Lite typings.
+  mtype: MType;
   /**
    * Flags whether the column is found in the raw dataset, or whether it is derived.
    */
@@ -27,15 +27,26 @@ export const Column = Record<ColumnDescription>({
 export type ColumnRecord = RecordOf<ColumnDescription>;
 
 export type Schema = Map<string, ColumnRecord>;
-export type LyraDataset = {
+
+// tslint:disable-next-line:class-name
+interface _LyraDataset {
   _id: number;
   /** The ID of the Lyra Pipeline this dataset falls within. */
   _parent: number;
   _schema: Schema;
-} & Data;
+}
+export type LyraDataset = _LyraDataset & Data;
+export type LyraBaseDataset = _LyraDataset & BaseData;
+export type LyraSourceDataset = _LyraDataset & SourceData;
+export type LyraValuesDataset = _LyraDataset & ValuesData;
+export type LyraUrlDataset = _LyraDataset & UrlData;
 
 export const Dataset = Record<LyraDataset>({
   _id: null, _parent: null, _schema: null, name: null
 });
 export type DatasetRecord = RecordOf<LyraDataset>;
+
+export type SourceDatasetRecord = RecordOf<LyraSourceDataset>;
+export type ValuesDatasetRecord = RecordOf<LyraValuesDataset>;
+export type UrlDatasetRecord = RecordOf<LyraUrlDataset>;
 export type DatasetState = Map<string, DatasetRecord>;

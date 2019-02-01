@@ -9,7 +9,7 @@
  */
 
 import {Map} from 'immutable';
-import {Column, Dataset, DatasetRecord, Schema} from '../store/factory/Dataset';
+import {Column, Dataset, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
 import {Pipeline} from '../store/factory/Pipeline';
 
 const dl = require('datalib');
@@ -38,9 +38,9 @@ let _values = {};
  * @param  {Object} action - An ADD_DATASET action.
  * @returns {void}
  */
-function init(ds: DatasetRecord, values: object[]) {
+function init(ds: SourceDatasetRecord, values: object[]) {
   const id = ds._id;
-  const src = ds.source;  // TODO: Break apart DatasetRecord into finer-grains.
+  const src = ds.source;
 
   if (_values[id]) {
     // Early-exit if we've previously loaded values.
