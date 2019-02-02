@@ -1,5 +1,6 @@
 import {createStandardAction} from 'typesafe-actions';
 import {Transform} from 'vega-typings/types';
+import {SortOrder} from '../constants/sortOrder';
 import {DatasetRecord, MType} from '../store/factory/Dataset';
 
 const counter = require('../util/counter');
@@ -14,7 +15,7 @@ export const deleteDataset = createStandardAction('DELETE_DATASET')<number, numb
 
 export const changeFieldMType = createStandardAction('CHANGE_FIELD_MTYPE')<{field: string, mtype: MType}, number>();
 
-export const sortDataset = createStandardAction('SORT_DATASET')<{field: string, order: 'asc' | 'desc'}, number>();
+export const sortDataset = createStandardAction('SORT_DATASET')<{field: string, order: SortOrder}, number>();
 
 // export const summarizeAggregate = createStandardAction('SUMMARIZE_AGGREGATE')<, number>();
 

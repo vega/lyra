@@ -1,30 +1,25 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import {State} from '../../../store';
+import {addTransform} from '../../../actions/datasetActions';
+import {ColumnRecord} from '../../../store/factory/Dataset';
 import { Icon } from '../../Icon';
 
 const assets = require('../../../util/assets');
-const addTransform = require('../../../actions/datasetActions').addTransform;
 
 interface OwnProps {
-  field: any;
+  field: ColumnRecord;
   dsId: number;
 }
 interface DispatchProps {
-  formula: () => any;
+  formula: () => void;
 }
 
-function mapStateToProps(state: State, ownProps: OwnProps) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+function mapDispatch(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     formula: function() {
       const field = ownProps.field.name;
-      dispatch(addTransform(ownProps.dsId,
-        {type: 'formula', field: 'calc_' + field, expr: 'datum.' + field}));
+      dispatch(addTransform({type: 'formula', as: 'calc_' + field, expr: 'datum.' + field}, ownProps.dsId));
     }
   };
 }
@@ -39,4 +34,4 @@ export class FormulaIcon extends React.Component<OwnProps & DispatchProps> {
 
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FormulaIcon);
+export default connect(null, mapDispatch)(FormulaIcon);

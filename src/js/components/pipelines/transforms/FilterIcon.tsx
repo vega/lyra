@@ -1,34 +1,30 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import {State} from '../../../store';
+
+import {addTransform} from '../../../actions/datasetActions';
+import {ColumnRecord} from '../../../store/factory/Dataset';
 import { Icon } from '../../Icon';
 
 const assets = require('../../../util/assets');
-const addTransform = require('../../../actions/datasetActions').addTransform;
 
 interface OwnProps {
-  field: object;
+  field: ColumnRecord;
   dsId: number;
 }
 interface DispatchProps {
   filter: () => any;
 }
 
-function mapStateToProps(state: State, ownProps) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch: Dispatch, ownProps): DispatchProps {
+function mapDispatch(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     filter: function() {
-      dispatch(addTransform(ownProps.dsId,
-        {type: 'filter', test: 'datum.' + ownProps.field.name}));
+      dispatch(addTransform({type: 'filter', expr: 'datum.' + ownProps.field.name}, ownProps.dsId));
     }
   };
 }
 
-export class FilterIcon extends React.Component<DispatchProps> {
+export class FilterIcon extends React.Component<OwnProps & DispatchProps> {
 
   public render() {
     return (<Icon onClick={this.props.filter} glyph={assets.filter}
@@ -37,4 +33,4 @@ export class FilterIcon extends React.Component<DispatchProps> {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FilterIcon);
+export default connect(null, mapDispatch)(FilterIcon);
