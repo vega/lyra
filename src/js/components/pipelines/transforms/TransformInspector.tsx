@@ -1,35 +1,30 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import {State} from '../../../store';
+import {Transform} from 'vega-typings/types';
+import {updateTransform} from '../../../actions/datasetActions';
 import {Filter as filter} from './Filter';
 import {Formula as formula} from './Formula';
 
-const Immutable = require('immutable');
 const capitalize = require('capitalize');
-const updateTransform = require('../../../actions/datasetActions').updateTransform;
 
 interface OwnProps {
   dsId: number;
   index: number;
-  def: any; // Immutable.Map
+  def: Transform;
 }
 interface DispatchProps {
-  updateTransform: (def: any) => any;
+  updateTransform: (def: Transform) => void;
 }
 
 interface OwnState {
   expanded: boolean;
 }
 
-function mapStateToProps(state: State, ownProps: OwnProps) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+function mapDispatch(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     updateTransform: function(def) {
-      dispatch(updateTransform(ownProps.dsId, ownProps.index, def));
+      dispatch(updateTransform({index: ownProps.index, transform: def}, ownProps.dsId));
     }
   };
 }
@@ -80,7 +75,7 @@ export class TransformInspector extends React.Component<OwnProps & DispatchProps
     const expanded = this.state.expanded;
     const updateFn = this.updateTransform;
     const expand = this.expand;
-    const type = capitalize(props.def.get('type'));
+    const type = capitalize(props.def.type);
     const InspectorType = this[type];
 
     return !expanded ?
@@ -91,4 +86,4 @@ export class TransformInspector extends React.Component<OwnProps & DispatchProps
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(TransformInspector);
+export default connect(null, mapDispatch)(TransformInspector);

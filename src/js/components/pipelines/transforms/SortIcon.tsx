@@ -2,15 +2,14 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
+import {sortDataset} from '../../../actions/datasetActions';
+import * as ORDER from '../../../constants/sortOrder';
 import {State} from '../../../store';
 import {ColumnRecord} from '../../../store/factory/Dataset';
 import { Icon } from '../../Icon';
 
-const Immutable = require('immutable');
-const sortDataset = require('../../../actions/datasetActions').sortDataset;
 const assets = require('../../../util/assets');
 const getInVis = require('../../../util/immutable-utils').getInVis;
-const ORDER  = require('../../../constants/sortOrder');
 const MTYPES = require('../../../constants/measureTypes');
 
 interface OwnProps {
@@ -23,7 +22,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  sortDataset: (dsId: number, field: any, order: any) => void;
+  sortDataset: (dsId: number, field: string, order: ORDER.SortOrder) => void;
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -35,7 +34,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     sortDataset: function(dsId, field, order) {
-      dispatch(sortDataset(dsId, field, order));
+      dispatch(sortDataset({field, order}, dsId));
     }
   };
 }
