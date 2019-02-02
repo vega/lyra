@@ -1,6 +1,7 @@
 import {ActionType, getType} from 'typesafe-actions';
+import {Transform} from 'vega-typings/types';
 import * as datasetActions from '../actions/datasetActions';
-import {DatasetState} from '../store/factory/Dataset';
+import {Column, DatasetState} from '../store/factory/Dataset';
 
 const Immutable = require('immutable'),
     ACTIONS = require('../actions/Names'),
@@ -42,45 +43,47 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
     return state.setIn([str(id), '_schema', p.field, 'mtype'], p.mtype);
   }
 
-  // TODO: End of Arvind's typesafe datasetActions refactor.
-  const transform = action.transform;
-
-  if (action.type === ACTIONS.SORT_DATASET) {
-    return setIn(state, id + '._sort', Immutable.fromJS({
-      field: action.field,
-      order: action.order
-    }));
+  if (action.type === getType(datasetActions.sortDataset)) {
+    return state.setIn([str(id), '_sort'], action.payload);
   }
 
-  if (action.type === ACTIONS.ADD_DATA_TRANSFORM) {
-    const transforms = getIn(state, id + '.transform') || Immutable.List();
+  if (action.type === getType(datasetActions.addTransform)) {
+    const transform = action.payload;
+
+    const transforms: Transform[] = state.getIn([str(id), 'transform']) || Immutable.List();
 
     if (transform.type === 'formula') {
-      state = setIn(state, id + '._schema.' + transform.field,
-        Immutable.fromJS({
-          name: transform.field,
+      state = state.setIn([str(id), '_schema', transform.as],
+        Column({
+          name: transform.as,
           type: 'number',
           mtype: MTYPES.QUANTITATIVE,
           source: false
         }));
     }
 
-    return setIn(state, id + '.transform',
-      transforms.push(Immutable.fromJS(transform)));
+    return state.setIn([str(id), 'transform'],
+      transforms.push(transform));
   }
 
-  if (action.type === ACTIONS.UPDATE_DATA_TRANSFORM) {
-    if (transform.type === 'formula') {
-      const oldName = getIn(state, id + '.transform.' + action.index + '.field'),
-          oldSchema = getIn(state, id + '._schema.' + oldName);
+  if (action.type === getType(datasetActions.updateTransform)) {
+    const p = action.payload;
+    const transform = p.transform;
 
-      state = state.deleteIn([id + '', '_schema', oldName]);
-      state = setIn(state, id + '._schema.' + transform.field, oldSchema);
+    if (transform.type === 'formula') {
+      const oldName = state.getIn([str(id), 'transform', p.index, 'field']);
+      const oldSchema = state.getIn([str(id), '_schema', oldName]);
+
+      state = state.deleteIn([str(id), '_schema', oldName]);
+      state = state.setIn([str(id), '_schema', transform.as], oldSchema);
     }
 
-    return setIn(state, id + '.transform.' + action.index,
-      Immutable.fromJS(action.transform));
+    return state.setIn([str(id), 'transform', p.index], p.transform);
   }
+
+  // TODO: End of Arvind's typesafe datasetActions refactor.
+  // Summarize is outdated in the latest Vega.
+  const transform = action.transform;
 
   if (action.type === ACTIONS.SUMMARIZE_AGGREGATE) {
     state = setIn(state, id + '.transform.0.summarize',
