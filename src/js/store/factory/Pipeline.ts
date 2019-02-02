@@ -1,4 +1,7 @@
 import {Map, Record, RecordOf} from 'immutable';
+import {AggregateTransform} from 'vega-typings/types';
+
+export type LyraAggregateTransform = { _id: number } & AggregateTransform; // TODO(jzong) find an appropriate place to put this
 
 /**
  * Pipelines group together a single source dataset with additional derived datasets (e.g., aggregates or facets).
