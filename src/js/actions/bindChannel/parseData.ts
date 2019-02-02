@@ -3,7 +3,7 @@
 const aggregatePipeline   = require('../pipelineActions').aggregatePipeline,
     getInVis = require('../../util/immutable-utils').getInVis;
 
-import {AggregateTransform} from 'vega-typings/types';
+import {LyraAggregateTransform} from '../../store/factory/Pipeline';
 import {summarizeAggregate} from '../datasetActions';
 
 /**
@@ -37,14 +37,14 @@ module.exports = function(dispatch, state, parsed) {
 };
 
 function parseAggregate(dispatch, state, parsed, summary) {
-  const aggregate: AggregateTransform = summary.transform.find(function(tx) {
+  const aggregate: LyraAggregateTransform = summary.transform.find(function(tx) { // TODO(jzong) is this the right type? this file is scary
     return tx.type === 'aggregate';
   });
 
   const groupby = aggregate.groupby as string[]; // TODO vega 2 groupby was string[]
   const keys  = groupby.join('|');
   const plId  = parsed.plId;
-  const aggId = getInVis(state, 'pipelines.' + plId + '._aggregates.' + keys);
+  let aggId = getInVis(state, 'pipelines.' + plId + '._aggregates.' + keys);
 
   if (!aggId) {
     // TODO: What about if a previous parsed.map.data.summary exists? How do
