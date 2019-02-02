@@ -9,9 +9,9 @@
  */
 
 import {Map} from 'immutable';
-import {Datum, Format} from 'vega-typings/types';
-import {Column, Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
-import {Pipeline, PipelineRecord} from '../store/factory/Pipeline';
+import {AggregateTransform, Datum, Format} from 'vega-typings/types';
+import {Column, ColumnRecord, Dataset, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
+import {Pipeline} from '../store/factory/Pipeline';
 
 const dl = require('datalib');
 const promisify = require('es6-promisify');
@@ -178,27 +178,25 @@ export function schema(arg: object[]): Schema {
  * @param   {Object} aggregate The Vega aggregate transform definition.
  * @returns {Object} The aggregate dataset's schema.
  */
-export function aggregateSchema(src, aggregate) {
-  let aggSchema = aggregate.groupby.reduce(function(acc, gb) {
-      return (acc[gb] = src[gb]), acc;
-    }, {}),
-    summarize = aggregate.summarize,
-    field,
-    i,
-    len,
-    name;
+export function aggregateSchema(src: Schema, aggregate: AggregateTransform) {
+  const groupby = (aggregate.groupby as string[]); // TODO: in vega 2, groupby is string[]. consider revisiting to avoid cast
+  const aggSchema: Schema = groupby.reduce(function(acc: Schema, gb) {
+      return acc.set(gb, src.get(gb)), acc;
+    }, Map<string, ColumnRecord>());
 
-  for (field in summarize) {
-    for (i = 0, len = summarize[field].length; i < len; ++i) {
-      name = summarize[field][i] + '_' + field;
-      aggSchema[name] = {
-        name: name,
-        type: 'number',
-        mtype: MTYPES.number,
-        source: false
-      };
-    }
+  const numOps = groupby.length;
+
+  for (let i = 0; i < numOps; i++) {
+    const name = aggregate.as[i];
+    aggSchema[name] = {
+      name: name,
+      type: 'number',
+      mtype: MTYPES.number,
+      source: false
+    };
   }
+
+
 
   return aggSchema;
 }

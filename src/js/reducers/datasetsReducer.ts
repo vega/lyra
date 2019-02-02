@@ -81,21 +81,18 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
     return state.setIn([str(id), 'transform', p.index], p.transform);
   }
 
-  // TODO: End of Arvind's typesafe datasetActions refactor.
-  // Summarize is outdated in the latest Vega.
-  const transform = action.transform;
+  if (action.type === getType(datasetActions.summarizeAggregate)) {
+    state = state.setIn([str(id), 'transform', '0', 'fields'],
+      state.getIn([str(id), 'transform', '0', 'fields']).concat(action.payload.fields));
+    state = state.setIn([str(id), 'transform', '0', 'ops'],
+      state.getIn([str(id), 'transform', '0', 'ops']).concat(action.payload.ops));
+    state = state.setIn([str(id), 'transform', '0', 'as'],
+      state.getIn([str(id), 'transform', '0', 'as']).concat(action.payload.as));
 
-  if (action.type === ACTIONS.SUMMARIZE_AGGREGATE) {
-    state = setIn(state, id + '.transform.0.summarize',
-      getIn(state, id + '.transform.0.summarize')
-        .mergeWith(function(prev, next) {
-          return prev.toSet().merge(next);
-        }, action.summarize));
-
-    const src = getIn(state, id + '.source');
-    return setIn(state, id + '._schema',
-      Immutable.fromJS(dsUtil.aggregateSchema(getIn(state, src + '._schema').toJS(),
-        getIn(state, id + '.transform.0').toJS())));
+    const src = state.getIn([str(id), 'source']);
+    return state.setIn([str(id), '_schema'],
+      dsUtil.aggregateSchema(state.getIn([src, '_schema']),
+        state.getIn([str(id), 'transform', '0'])));
   }
 
   return state;
