@@ -9,7 +9,7 @@ const dl = require('datalib'),
   UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY';
 
 import {Datum} from 'vega-typings/types';
-import {DatasetRecord, Schema} from '../store/factory/Dataset';
+import {DatasetRecord} from '../store/factory/Dataset';
 import {PipelineRecord} from '../store/factory/Pipeline';
 import {addDataset} from './datasetActions';
 

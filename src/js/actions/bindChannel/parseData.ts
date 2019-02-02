@@ -1,8 +1,10 @@
 'use strict';
 
-var aggregatePipeline   = require('../pipelineActions').aggregatePipeline,
-    summarizeAggregate  = require('../datasetActions').summarizeAggregate,
+const aggregatePipeline   = require('../pipelineActions').aggregatePipeline,
     getInVis = require('../../util/immutable-utils').getInVis;
+
+import {AggregateTransform} from 'vega-typings/types';
+import {summarizeAggregate} from '../datasetActions';
 
 /**
  * Parse the data source definitions in the resultant Vega specification.
@@ -19,7 +21,7 @@ var aggregatePipeline   = require('../pipelineActions').aggregatePipeline,
  */
 module.exports = function(dispatch, state, parsed) {
   // TODO: transforms.
-  var data = parsed.output.data,
+  const data = parsed.output.data,
       source = data.find(function(def) {
         return def.name === 'source';
       }),
@@ -35,14 +37,14 @@ module.exports = function(dispatch, state, parsed) {
 };
 
 function parseAggregate(dispatch, state, parsed, summary) {
-  var aggregate = summary.transform.find(function(tx) {
+  const aggregate: AggregateTransform = summary.transform.find(function(tx) {
     return tx.type === 'aggregate';
   });
 
-  var groupby = aggregate.groupby,
-      keys  = groupby.join('|'),
-      plId  = parsed.plId,
-      aggId = getInVis(state, 'pipelines.' + plId + '._aggregates.' + keys);
+  const groupby = aggregate.groupby as string[]; // TODO vega 2 groupby was string[]
+  const keys  = groupby.join('|');
+  const plId  = parsed.plId;
+  const aggId = getInVis(state, 'pipelines.' + plId + '._aggregates.' + keys);
 
   if (!aggId) {
     // TODO: What about if a previous parsed.map.data.summary exists? How do
@@ -50,7 +52,7 @@ function parseAggregate(dispatch, state, parsed, summary) {
     dispatch(aggregatePipeline(plId, aggregate));
     aggId = aggregate._id;
   } else {
-    dispatch(summarizeAggregate(aggId, aggregate.summarize));
+    dispatch(summarizeAggregate(aggregate, aggId));
   }
 
   parsed.map.data.summary = aggId;
