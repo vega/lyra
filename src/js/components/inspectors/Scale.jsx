@@ -1,12 +1,12 @@
 'use strict';
 
-var React = require('react'),
-    Immutable = require('immutable'),
-    connect = require('react-redux').connect,
-    getInVis = require('../../util/immutable-utils').getInVis,
-    primTypes = require('../../constants/primTypes'),
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+let React = require('react');
+const Immutable = require('immutable');
+const connect = require('react-redux').connect;
+const getInVis = require('../../util/immutable-utils').getInVis;
+const primTypes = require('../../constants/primTypes');
+const propTypes = require('prop-types');
+const createReactClass = require('create-react-class');
 
 function mapStateToProps(state, ownProps) {
   return {
@@ -14,7 +14,7 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-var ScaleInspector = createReactClass({
+let ScaleInspector = createReactClass({
   propTypes: {
     primId: propTypes.number.isRequired,
     primType: primTypes.isRequired,
@@ -22,11 +22,11 @@ var ScaleInspector = createReactClass({
   },
 
   render: function() {
-    var scale = this.props.scale;
+    let scale = this.props.scale;
     return (
       <div>
-        <div className="property-group">
-          <h3 className="label">Placeholder</h3>
+        <div className='property-group'>
+          <h3 className='label'>Placeholder</h3>
           <ul>
             <li>name: {scale.get('name')}</li>
             <li>type: {scale.get('type')}</li>

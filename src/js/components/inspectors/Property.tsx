@@ -76,7 +76,7 @@ interface PropertyProps {
 
 }
 
-class Property extends React.Component<PropertyProps> {
+class BaseProperty extends React.Component<PropertyProps> {
   public render() {
     const props = this.props;
     const name  = props.name;
@@ -144,4 +144,4 @@ class Property extends React.Component<PropertyProps> {
   }
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Property);
+export const Property = connect(mapStateToProps, mapDispatchToProps)(BaseProperty);
