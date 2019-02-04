@@ -1,28 +1,34 @@
 'use strict';
 
-let React = require('react');
-const Immutable = require('immutable');
-const connect = require('react-redux').connect;
 const getInVis = require('../../util/immutable-utils').getInVis;
-const primTypes = require('../../constants/primTypes');
-const propTypes = require('prop-types');
-const createReactClass = require('create-react-class');
 
-function mapStateToProps(state, ownProps) {
+import * as React from 'react';
+import {connect} from 'react-redux';
+import {State} from '../../store';
+
+interface OwnProps {
+  primId: number
+}
+
+interface StateProps {
+  scale: any
+}
+
+interface ScaleInspectorProps {
+  primId: number,
+  primType: any,
+  scale: any, // TODO: should be Immutable.Map
+}
+
+function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   return {
     scale: getInVis(state, 'scales.' + ownProps.primId)
   };
 }
 
-let ScaleInspector = createReactClass({
-  propTypes: {
-    primId: propTypes.number.isRequired,
-    primType: primTypes.isRequired,
-    scale: propTypes.instanceOf(Immutable.Map)
-  },
-
-  render: function() {
-    let scale = this.props.scale;
+class BaseScaleInspector extends React.Component<ScaleInspectorProps> {
+  public render() {
+    const scale = this.props.scale;
     return (
       <div>
         <div className='property-group'>
@@ -36,6 +42,6 @@ let ScaleInspector = createReactClass({
       </div>
     );
   }
-});
+};
 
-module.exports = connect(mapStateToProps)(ScaleInspector);
+export const ScaleInspector = connect(mapStateToProps)(BaseScaleInspector);
