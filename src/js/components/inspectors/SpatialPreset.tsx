@@ -1,18 +1,36 @@
 'use strict';
-var React = require('react'),
-    connect = require('react-redux').connect,
-    Immutable = require('immutable'),
-    getInVis = require('../../util/immutable-utils').getInVis,
-    markActions = require('../../actions/markActions'),
-    setMarkVisual = markActions.setMarkVisual,
-    resetMarkVisual = markActions.resetMarkVisual,
-    propTypes = require('prop-types'),
-    createReactClass = require('create-react-class');
+const Immutable = require('immutable');
+const getInVis = require('../../util/immutable-utils').getInVis;
+const markActions = require('../../actions/markActions');
+const setMarkVisual = markActions.setMarkVisual;
+const resetMarkVisual = markActions.resetMarkVisual;
 
-function mapStateToProps(state, ownProps) {
-  var id = ownProps.primId,
-      propName = ownProps.name,
-      prop = getInVis(state, 'marks.' + id + '.properties.update.' + propName);
+import * as React from 'react';
+import {connect} from 'react-redux';
+import {Dispatch} from 'redux';
+import {State} from '../../store';
+
+interface OwnProps {
+  name: string,
+  primId: number
+}
+
+interface StateProps {
+  field: any
+  band: any
+  group: any
+  scale: any
+}
+
+interface DispatchProps {
+  setPreset: (name: string, def: any) => void,
+  reset: (name: string) => void
+}
+
+function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
+  const id = ownProps.primId;
+  const propName = ownProps.name;
+  const prop = getInVis(state, 'marks.' + id + '.properties.update.' + propName);
 
   return {
     field: prop.get('field'),
@@ -22,8 +40,8 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
-  var id = ownProps.primId;
+function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+  const id = ownProps.primId;
   return {
     setPreset: function(name, def) {
       dispatch(setMarkVisual(id, name, def));
@@ -34,20 +52,23 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-var SpatialPreset = createReactClass({
-  propTypes: {
-    primitive: propTypes.object,
-    field: propTypes.string,
-    band: propTypes.bool,
-    group: propTypes.string,
-    scale: propTypes.instanceOf(Immutable.Map)
-  },
+interface SpatialPresetProps {
+  primitive: object,
+  field: string,
+  band: boolean,
+  group: boolean,
+  scale: any // TODO: propTypes.instanceOf(Immutable.Map),
+  name: string,
+  setPreset: any,
+  reset: any
+}
 
-  handleChange: function(evt) {
-    var props = this.props,
-        name  = props.name,
-        scale = props.scale,
-        preset = name.indexOf('x') >= 0 ? 'width' : 'height';
+class BaseSpatialPreset extends React.Component<SpatialPresetProps>{
+  public handleChange(evt) {
+    const props = this.props;
+    const name  = props.name;
+    const scale = props.scale;
+    const preset = name.indexOf('x') >= 0 ? 'width' : 'height';
 
     if (evt.target.checked) {
       props.setPreset(name, (name === 'width' || name === 'height') ? {
@@ -59,13 +80,13 @@ var SpatialPreset = createReactClass({
     } else {
       props.reset(name);
     }
-  },
+  };
 
-  render: function() {
-    var props = this.props,
-        name  = props.name,
-        scale = props.scale,
-        preset = name.indexOf('x') >= 0 ? 'width' : 'height';
+  public render() {
+    const props = this.props;
+    const name  = props.name;
+    const scale = props.scale;
+    const preset = name.indexOf('x') >= 0 ? 'width' : 'height';
 
     if (props.field) {
       return null;
@@ -74,7 +95,7 @@ var SpatialPreset = createReactClass({
     if (name === 'width' || name === 'height') {
       return (scale && scale.get('type') === 'ordinal' && !scale.get('points')) ? (
         <label>
-          <input type="checkbox" name={name} checked={props.band}
+          <input type='checkbox' name={name} checked={props.band}
             onChange={this.handleChange} /> Automatic
         </label>
       ) : null;
@@ -82,11 +103,11 @@ var SpatialPreset = createReactClass({
 
     return (
       <label>
-        <input type="checkbox" name={name} checked={props.group}
+        <input type='checkbox' name={name} checked={props.group}
           onChange={this.handleChange} /> Set to group {preset}
       </label>
     );
   }
-});
+};
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(SpatialPreset);
+export const SpatialPreset = connect(mapStateToProps, mapDispatchToProps)(BaseSpatialPreset);
