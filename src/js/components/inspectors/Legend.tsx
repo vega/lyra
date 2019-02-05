@@ -1,12 +1,12 @@
 'use strict';
 const getInVis = require('../../util/immutable-utils').getInVis;
-const Property = require('./Property');
-const MoreProperties = require('./MoreProperties');
 const SHAPES = require('../../store/factory/marks/Symbol').SHAPES;
 
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
+import {MoreProperties} from './MoreProperties';
+import {Property} from './Property';
 
 function mapStateToProps(reduxState: State, ownProps) {
   const guide = getInVis(reduxState, 'guides.' + ownProps.primId);

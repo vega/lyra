@@ -11,7 +11,7 @@ interface IconProps {
   'data-place'?: any;
   glyph: any;
 }
-class Icon extends React.Component<IconProps> {
+class BaseIcon extends React.Component<IconProps> {
   public render() {
     const props = this.props;
     const className = (props.className ? props.className + ' ' : '') + 'icon';
@@ -31,5 +31,4 @@ class Icon extends React.Component<IconProps> {
     );
   }
 }
-
-module.exports = Icon; // TODO(jzong) eventually change this into es6 export class
+export const Icon = BaseIcon;

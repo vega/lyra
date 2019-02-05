@@ -3,13 +3,13 @@
 const dl = require('datalib');
 const GTYPES = require('../../store/factory/Guide').GTYPES;
 const updateGuideProperty = require('../../actions/guideActions').updateGuideProperty;
-const AxisInspector = require('./Axis');
-const LegendInspector = require('./Legend');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
+import {AxisInspector} from './Axis';
+import {LegendInspector} from './Legend';
 
 function mapStateToProps(state: State, ownProps) {
   return {};
@@ -24,6 +24,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
 }
 
 interface GuideInspectorProps {
+  primType: any;
   primId: number;
   guideType: any; // propTypes.oneOf(dl.vals(GTYPES))
   updateGuideProperty: (guideId: any, property: any, value: any) => any;

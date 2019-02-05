@@ -2,7 +2,6 @@
 
 const Immutable = require('immutable');
 const FormInputProperty = require('./FormInputProperty');
-const AutoComplete = require('./AutoComplete');
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
@@ -13,6 +12,7 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
+import {AutoComplete} from './AutoComplete';
 
 function mapStateToProps(reduxState: State, ownProps) {
   if (!ownProps.primId) {
@@ -143,5 +143,4 @@ class BaseProperty extends React.Component<PropertyProps> {
     );
   }
 };
-
 export const Property = connect(mapStateToProps, mapDispatchToProps)(BaseProperty);

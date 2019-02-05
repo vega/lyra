@@ -1,9 +1,9 @@
 'use strict';
-const Property = require('./Property');
 const primTypes = require('../../constants/primTypes');
 const Symbol = require('../../store/factory/marks/Symbol');
 
 import * as React from 'react';
+import {Property} from './Property';
 
 interface SymbolInspectorProps {
   primId: number,
