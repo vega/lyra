@@ -8,7 +8,16 @@ import {State} from '../../store';
 import {MoreProperties} from './MoreProperties';
 import {Property} from './Property';
 
-function mapStateToProps(reduxState: State, ownProps) {
+interface OwnProps {
+  primId: number;
+}
+
+interface StateProps {
+  legendType: any;
+  scaleType: any;
+}
+
+function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const guide = getInVis(reduxState, 'guides.' + ownProps.primId);
   const type  = guide.get('_type');
   const scale = getInVis(reduxState, 'scales.' + guide.get(type));
@@ -24,7 +33,7 @@ interface LegendInspectorProps {
   primType: any;
   legendType: string;
   scaleType: string;
-  handleChange: () => any;
+  handleChange: (evt: any) => void;
 
 }
 

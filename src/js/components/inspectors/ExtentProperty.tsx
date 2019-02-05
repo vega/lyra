@@ -10,10 +10,28 @@ const MARK_EXTENTS = require('../../constants/markExtents');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {Dispatch} from 'redux';
+import {State} from '../../store';
 import {Property} from './Property';
 import {SpatialPreset} from './SpatialPreset';
 
-function mapStateToProps(state, ownProps) {
+interface OwnProps {
+  exType: any;
+  primId: number;
+}
+
+interface StateProps {
+  start: number;
+  end: number;
+  startDisabled: any;
+  endDisabled: any;
+}
+
+interface DispatchProps {
+  setExtent: (oldExtent: any, newExtent: any) => void;
+}
+
+function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const type = ownProps.exType;
   const primId = ownProps.primId;
   const mark = getInVis(state, 'marks.' + primId + '.properties.update');
@@ -41,7 +59,7 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     setExtent: function(oldExtent, newExtent) {
       const markId = ownProps.primId;

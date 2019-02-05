@@ -15,7 +15,16 @@ const TMPL_OPEN  = '{{';
 const TMPL_CLOSE = '}}';
 const TMPL_DATUM = new RegExp(TMPL_OPEN + DATUM + '*' + TMPL_CLOSE);
 
-function mapStateToProps(reduxState, ownProps) {
+import {State} from '../../store';
+interface OwnProps {
+  dsId: any;
+}
+
+interface StateProps {
+  fields: any;
+}
+
+function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const schema = getInVis(reduxState, 'datasets.' + ownProps.dsId + '._schema');
   return {
     fields: schema.keySeq().toJS()
