@@ -7,18 +7,16 @@ import {connect} from 'react-redux';
 import {State} from '../../store';
 
 interface OwnProps {
-  primId: number
+  primId: number;
+  primType: any;
+  scale: any; // TODO: should be Immutable.Map
+
 }
 
 interface StateProps {
-  scale: any
+  scale: any;
 }
 
-interface ScaleInspectorProps {
-  primId: number,
-  primType: any,
-  scale: any, // TODO: should be Immutable.Map
-}
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   return {
@@ -26,7 +24,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-class BaseScaleInspector extends React.Component<ScaleInspectorProps> {
+class BaseScaleInspector extends React.Component<OwnProps & StateProps> {
   public render() {
     const scale = this.props.scale;
     return (

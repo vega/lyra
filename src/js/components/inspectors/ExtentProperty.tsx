@@ -17,7 +17,12 @@ import {SpatialPreset} from './SpatialPreset';
 
 interface OwnProps {
   exType: any;
-  primId: number;
+  end?: any;
+  setExtent?: any;
+  start?: any;
+  startDisabled?: any;
+  endDisabled?: any;
+  primId: any;
 }
 
 interface StateProps {
@@ -69,16 +74,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   };
 }
 
-interface ExtentPropProps {
-  exType: any;
-  end: any;
-  setExtent: any;
-  start: any;
-  startDisabled: any;
-  endDisabled: any;
-  primId: any;
-}
-class BaseExtentProperty extends React.Component<ExtentPropProps> {
+class BaseExtentProperty extends React.Component<OwnProps & StateProps & DispatchProps> {
   public handleChange(evt) {
     const props = this.props;
     const type = props.exType;

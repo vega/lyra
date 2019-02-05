@@ -13,11 +13,16 @@ import {State} from '../../store';
 import {Property} from './Property';
 
 interface OwnProps {
-  primId: number
+  primId?: number;
+  primType: any; // TODO
+  autoVal: string;
+  dsId: any;
+  updateTemplate: any;
+
 }
 
 interface StateProps {
-  dsId: any
+  dsId: any;
 }
 
 interface DispatchProps {
@@ -40,15 +45,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   };
 }
 
-interface TextInspectorProps {
-  primId: number,
-  primType: any, // TODO
-  autoVal: string,
-  dsId: any,
-  updateTemplate: any
-}
-
-class BaseTextInspector extends React.Component<TextInspectorProps> {
+class BaseTextInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
   public render() {
     const props = this.props;
     const dsId = props.dsId;

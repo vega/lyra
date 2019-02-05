@@ -11,6 +11,14 @@ import {State} from '../../store';
 import {AxisInspector} from './Axis';
 import {LegendInspector} from './Legend';
 
+interface OwnProps {
+  primType: any;
+  primId: number;
+  guideType: any; // propTypes.oneOf(dl.vals(GTYPES))
+  updateGuideProperty: (guideId: any, property: any, value: any) => any;
+
+}
+
 interface DispatchProps {
   updateGuideProperty: (guideId: any, property: any, value: any) => void;
 }
@@ -27,14 +35,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   };
 }
 
-interface GuideInspectorProps {
-  primType: any;
-  primId: number;
-  guideType: any; // propTypes.oneOf(dl.vals(GTYPES))
-  updateGuideProperty: (guideId: any, property: any, value: any) => any;
-}
-
-class BaseGuideInspector extends React.Component<GuideInspectorProps> {
+class BaseGuideInspector extends React.Component<OwnProps & DispatchProps> {
 
   public handleChange(evt) {
     const guideId = this.props.primId;

@@ -14,7 +14,22 @@ import {State} from '../../store';
 import {Icon} from '../Icon';
 
 interface OwnProps {
-  signal: any;
+  id: string;
+  type: 'number'|'range'|'color'|'select'|'text'|'checkbox'|'toggle'|'selection';
+  value: string|number|boolean|any; // TODO(arlu): the any propTypes was Immutable.Map, not sure what it should be
+  min: string;
+  max: string;
+  disabled: boolean|string;
+  opts: any; // Should be array type, but any[] doesn't work
+  signal: string;
+  setSignal: (value: any) => any; // TODO: find function in/out types
+  onChange: () => any; // TODO: find function in/out types
+  onBlur: () => any; // TODO: find function in/out types
+  name: any;
+  group: any;
+  glyph: any;
+  glyphs: any;
+  step: any;
 }
 interface StateProps {
   value?: any;
@@ -42,31 +57,11 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   };
 }
 
-interface FormInputProps {
-  id: string;
-  type: 'number'|'range'|'color'|'select'|'text'|'checkbox'|'toggle'|'selection';
-  value: string|number|boolean|any; // TODO(arlu): the any propTypes was Immutable.Map, not sure what it should be
-  min: string;
-  max: string;
-  disabled: boolean|string;
-  opts: any; // Should be array type, but any[] doesn't work
-  signal: string;
-  setSignal: (value: any) => any; // TODO: find function in/out types
-  onChange: () => any; // TODO: find function in/out types
-  onBlur: () => any; // TODO: find function in/out types
-  name: any;
-  group: any;
-  glyph: any;
-  glyphs: any;
-  step: any;
-
-}
-
 interface FormInputState {
   value: any;
 }
 
-class BaseFormInputProperty extends React.Component<FormInputProps, FormInputState> {
+class BaseFormInputProperty extends React.Component<OwnProps & StateProps & DispatchProps, FormInputState> {
 
   public getInitialState() {
     const props = this.props;

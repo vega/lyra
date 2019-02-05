@@ -10,6 +10,11 @@ import {Property} from './Property';
 
 interface OwnProps {
   primId: number;
+  primType: any;
+  legendType?: string;
+  scaleType?: string;
+  handleChange: (evt: any) => void;
+
 }
 
 interface StateProps {
@@ -28,16 +33,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   };
 }
 
-interface LegendInspectorProps {
-  primId: number;
-  primType: any;
-  legendType: string;
-  scaleType: string;
-  handleChange: (evt: any) => void;
-
-}
-
-class BaseLegendInspector extends React.Component<LegendInspectorProps> {
+class BaseLegendInspector extends React.Component<OwnProps & StateProps> {
 
   public render() {
     const props = this.props;
