@@ -1,7 +1,5 @@
 'use strict';
 const dl = require('datalib');
-const Property = require('./Property');
-const SpatialPreset = require('./SpatialPreset');
 const markActions = require('../../actions/markActions');
 const setMarkExtent = markActions.setMarkExtent;
 const resetMarkVisual = markActions.resetMarkVisual;
@@ -12,6 +10,8 @@ const MARK_EXTENTS = require('../../constants/markExtents');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {Property} from './Property';
+import {SpatialPreset} from './SpatialPreset';
 
 function mapStateToProps(state, ownProps) {
   const type = ownProps.exType;
@@ -58,6 +58,7 @@ interface ExtentPropProps {
   start: any;
   startDisabled: any;
   endDisabled: any;
+  primId: any;
 }
 class BaseExtentProperty extends React.Component<ExtentPropProps> {
   public handleChange(evt) {

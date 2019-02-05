@@ -3,14 +3,14 @@
 import * as React from 'react';
 interface MorePropsProps {
   label: string;
-  header: any;
+  header?: any;
 }
 
 interface MorePropsState {
   display: any;
 
 }
-class MoreProperties extends React.Component<MorePropsProps, MorePropsState> {
+class BaseMoreProperties extends React.Component<MorePropsProps, MorePropsState> {
 
   public getInitialState() {
     return {display: 'none'};
@@ -74,4 +74,4 @@ class MoreProperties extends React.Component<MorePropsProps, MorePropsState> {
   }
 };
 
-module.exports = MoreProperties;
+export const MoreProperties = BaseMoreProperties;

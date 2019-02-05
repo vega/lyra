@@ -1,9 +1,9 @@
 'use strict';
-const Property = require('./Property');
 const INTERPOLATE = require('../../constants/interpolate');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {Property} from './Property';
 
 interface AreaProps {
   primId: number,

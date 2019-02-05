@@ -2,7 +2,6 @@
 
 // const Immutable = require('immutable'); TODO: Need type for Immutable.Map (see below)
 const ContentEditable = require('../ContentEditable');
-const Icon = require('../Icon');
 const setSignal = require('../../actions/signalActions').setSignal;
 const getInVis = require('../../util/immutable-utils').getInVis;
 const ctrl = require('../../ctrl');
@@ -12,6 +11,7 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
+import {Icon} from '../Icon';
 
 function mapStateToProps(reduxState: State, ownProps) {
   const signal = ownProps.signal;

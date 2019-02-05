@@ -1,9 +1,9 @@
 'use strict';
-const Property = require('./Property');
 const primTypes = require('../../constants/primTypes');
 const INTERPOLATE = require('../../constants/interpolate');
 
 import * as React from 'react';
+import {Property} from './Property';
 
 interface LineInspectorProps {
   primId: number;

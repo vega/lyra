@@ -14,11 +14,10 @@ interface OwnProps {
   name: string,
   primId: number
 }
-
 interface StateProps {
-  field: any
-  band: any
-  group: any
+  field: any,
+  band: any,
+  group: any,
   scale: any
 }
 
@@ -53,14 +52,15 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
 }
 
 interface SpatialPresetProps {
-  primitive: object,
+  primitive?: object,
   field: string,
   band: boolean,
   group: boolean,
   scale: any // TODO: propTypes.instanceOf(Immutable.Map),
   name: string,
   setPreset: any,
-  reset: any
+  reset: any,
+  className: any
 }
 
 class BaseSpatialPreset extends React.Component<SpatialPresetProps>{

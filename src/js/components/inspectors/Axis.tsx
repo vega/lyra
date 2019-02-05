@@ -1,14 +1,14 @@
 'use strict';
-const Property = require('./Property');
-const MoreProperties = require('./MoreProperties');
 
 import * as React from 'react';
-import {connect} from 'react-redux'
+import {connect} from 'react-redux';
+import {MoreProperties} from './MoreProperties';
+import {Property} from './Property';
 
 interface AxisProps {
   primId: number,
   primType: string,
-  handleChange: () => any
+  handleChange: (evt: any) => void
 }
 
 class BaseAxisInspector extends React.Component<AxisProps> {
