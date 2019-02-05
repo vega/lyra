@@ -9,12 +9,11 @@ import {State} from '../../store';
 interface OwnProps {
   primId: number;
   primType: any;
-  scale: any; // TODO: should be Immutable.Map
 
 }
 
 interface StateProps {
-  scale: any;
+  scale: any; // TODO: should be Immutable.Map
 }
 
 

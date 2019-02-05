@@ -16,13 +16,11 @@ interface OwnProps {
   primId?: number;
   primType: any; // TODO
   autoVal: string;
-  dsId: any;
-  updateTemplate: any;
 
 }
 
 interface StateProps {
-  dsId: any;
+  dsId: number;
 }
 
 interface DispatchProps {

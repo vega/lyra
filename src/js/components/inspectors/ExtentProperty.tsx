@@ -17,17 +17,12 @@ import {SpatialPreset} from './SpatialPreset';
 
 interface OwnProps {
   exType: any;
-  end?: any;
-  setExtent?: any;
-  start?: any;
-  startDisabled?: any;
-  endDisabled?: any;
   primId: any;
 }
 
 interface StateProps {
-  start: number;
-  end: number;
+  start: any;
+  end: any;
   startDisabled: any;
   endDisabled: any;
 }

@@ -11,15 +11,13 @@ import {Property} from './Property';
 interface OwnProps {
   primId: number;
   primType: any;
-  legendType?: string;
-  scaleType?: string;
   handleChange: (evt: any) => void;
 
 }
 
 interface StateProps {
-  legendType: any;
-  scaleType: any;
+  legendType?: string;
+  scaleType?: string;
 }
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
