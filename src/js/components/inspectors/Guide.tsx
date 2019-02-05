@@ -15,7 +15,6 @@ interface OwnProps {
   primType: any;
   primId: number;
   guideType: any; // propTypes.oneOf(dl.vals(GTYPES))
-  updateGuideProperty: (guideId: any, property: any, value: any) => any;
 
 }
 

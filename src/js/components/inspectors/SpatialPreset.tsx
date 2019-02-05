@@ -13,21 +13,15 @@ import {State} from '../../store';
 interface OwnProps {
   primId: number;
   primitive?: object;
-  field?: string;
-  band?: boolean;
-  group?: boolean;
-  scale?: any // TODO: propTypes.instanceOf(Immutable.Map);
   name?: string;
-  setPreset?: any;
-  reset?: any;
   className: any;
 
 }
 interface StateProps {
-  field: any;
-  band: any;
-  group: any;
-  scale: any;
+  field?: string;
+  band?: boolean;
+  group?: boolean;
+  scale?: any // TODO: propTypes.instanceOf(Immutable.Map);
 }
 
 interface DispatchProps {

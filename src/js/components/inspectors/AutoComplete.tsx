@@ -19,7 +19,6 @@ import {State} from '../../store';
 interface OwnProps {
   type: any, // propTypes.oneOf([EXPR, TMPL]).isRequired,
   dsId: number,
-  fields: any,
   value: string,
   updateFn: () => any
 }

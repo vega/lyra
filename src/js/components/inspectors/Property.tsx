@@ -14,34 +14,40 @@ import { Dispatch } from 'redux';
 import {State} from '../../store';
 import {AutoComplete} from './AutoComplete';
 
+/* TODO: this is a work in progress
+   parents of property usually pass in their props using {...prop}
+   the parents adhere to inconsistent interfaces
+
 interface OwnProps {
-  name: string;
-  label: string;
+  primId?: any;
+  primType?: any;
+  name?: string;
+  label?: string;
   dsId?: number;
-  autoType: string;
-  onChange: () => any;
-  unbind: () => any;
-  type: any;
-  firstChild: any;
-  canDrop: any;
+  autoType?: string;
+  onChange?: (value: any) => any;
+  type?: any;
+  firstChild?: any;
+  canDrop?: any;
 
 }
 
 interface StateProps {
-  group:  any;
-  signal: any;
-  value: string|number|boolean|any; // TODO: remove 'any', add Immutable.Map type
-  field:  any;
-  scale:  any;
-  srcField:  any;
-  scaleName: any;
+  group?:  any;
+  signal?: any;
+  value?: string|number|boolean|any; // TODO: remove 'any', add Immutable.Map type
+  field?:  any;
+  scale?:  any;
+  srcField?:  any;
+  scaleName?: any;
 }
 
 interface DispatchProps {
-  unbind: () => void;
+  unbind?: () => void;
 }
+*/
 
-function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
+function mapStateToProps(reduxState: State, ownProps/*: OwnProps*/)/*: StateProps*/ {
   if (!ownProps.primId) {
     return {};
   }
@@ -75,7 +81,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+function mapDispatchToProps(dispatch: Dispatch, ownProps/*: OwnProps*/)/*: DispatchProps*/ {
   return {
     unbind: function() {
       dispatch(resetMarkVisual(ownProps.primId, ownProps.name));
@@ -83,7 +89,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   };
 }
 
-class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps> {
+class BaseProperty extends React.Component</*OwnProps & StateProps & DispatchProps*/ any> {
   public render() {
     const props = this.props;
     const name  = props.name;

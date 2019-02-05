@@ -7,6 +7,7 @@ const getInVis = require('../../util/immutable-utils').getInVis;
 const ctrl = require('../../ctrl');
 const sg = require('../../ctrl/signals');
 
+import {Map} from 'immutable';
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
@@ -16,13 +17,11 @@ import {Icon} from '../Icon';
 interface OwnProps {
   id: string;
   type: 'number'|'range'|'color'|'select'|'text'|'checkbox'|'toggle'|'selection';
-  value: string|number|boolean|any; // TODO(arlu): the any propTypes was Immutable.Map, not sure what it should be
   min: string;
   max: string;
   disabled: boolean|string;
   opts: any; // Should be array type, but any[] doesn't work
   signal: string;
-  setSignal: (value: any) => any; // TODO: find function in/out types
   onChange: () => any; // TODO: find function in/out types
   onBlur: () => any; // TODO: find function in/out types
   name: any;
@@ -32,16 +31,16 @@ interface OwnProps {
   step: any;
 }
 interface StateProps {
-  value?: any;
+  value: string|number|boolean|any; // TODO(arlu): the any propTypes was Immutable.Map, not sure what it should be
 }
 
 interface DispatchProps {
-  setSignal: (value: any) => void;
+  setSignal: (value: any) => any; // TODO: find function in/out types
 }
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const signal = ownProps.signal;
-  return !signal ? {} : {
+  return !signal ? {value: null} : { // TODO replace this with a real default value
     value: getInVis(reduxState, 'signals.' + signal + '.init')
   };
 }
