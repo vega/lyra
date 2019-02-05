@@ -13,14 +13,25 @@ import { Dispatch } from 'redux';
 import {State} from '../../store';
 import {Icon} from '../Icon';
 
-function mapStateToProps(reduxState: State, ownProps) {
+interface OwnProps {
+  signal: any;
+}
+interface StateProps {
+  value?: any;
+}
+
+interface DispatchProps {
+  setSignal: (value: any) => void;
+}
+
+function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const signal = ownProps.signal;
   return !signal ? {} : {
     value: getInVis(reduxState, 'signals.' + signal + '.init')
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   const signal = ownProps.signal;
   return {
     setSignal: function(value) {

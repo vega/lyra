@@ -11,11 +11,15 @@ import {State} from '../../store';
 import {AxisInspector} from './Axis';
 import {LegendInspector} from './Legend';
 
+interface DispatchProps {
+  updateGuideProperty: (guideId: any, property: any, value: any) => void;
+}
+
 function mapStateToProps(state: State, ownProps) {
   return {};
 }
 
-function mapDispatchToProps(dispatch: Dispatch) {
+function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   return {
     updateGuideProperty: function(guideId, property, value) {
       dispatch(updateGuideProperty(guideId, property, value));
