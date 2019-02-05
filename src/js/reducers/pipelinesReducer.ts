@@ -1,3 +1,5 @@
+import {PipelineState} from '../store/factory/Pipeline';
+
 /* eslint new-cap:0 */
 'use strict';
 
@@ -17,7 +19,7 @@ var Immutable = require('immutable'),
  * @param {Object} action - A redux action object
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
-function pipelinesReducer(state, action) {
+function pipelinesReducer(state, action): PipelineState {
   if (typeof state === 'undefined') {
     return Immutable.Map();
   }
