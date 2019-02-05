@@ -178,7 +178,7 @@ export function schema(arg: object[]): Schema {
  * @param   {Object} aggregate The Vega aggregate transform definition.
  * @returns {Object} The aggregate dataset's schema.
  */
-export function aggregateSchema(src: Schema, aggregate: AggregateTransform) {
+export function aggregateSchema(src: Schema, aggregate: AggregateTransform): Schema {
   const groupby = (aggregate.groupby as string[]); // TODO: in vega 2, groupby is string[]. consider revisiting to avoid cast
   const aggSchema: Schema = groupby.reduce(function(acc: Schema, gb) {
       return acc.set(gb, src.get(gb)), acc;

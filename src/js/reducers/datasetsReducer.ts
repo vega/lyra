@@ -1,18 +1,12 @@
+import {List, Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
+import {Type as MTYPES} from 'vega-lite/src/type';
 import {Transform} from 'vega-typings/types';
 import * as datasetActions from '../actions/datasetActions';
 import {Column, DatasetState} from '../store/factory/Dataset';
+import * as dsUtil from '../util/dataset-utils';
 
-const Immutable = require('immutable'),
-    ACTIONS = require('../actions/Names'),
-    immutableUtils = require('../util/immutable-utils'),
-    str   = immutableUtils.str,
-    set   = immutableUtils.set,
-    setIn = immutableUtils.setIn,
-    getIn = immutableUtils.getIn,
-    deleteKeyFromMap = immutableUtils.deleteKeyFromMap,
-    dsUtil = require('../util/dataset-utils'),
-    MTYPES = require('../constants/measureTypes');
+const str   = require('../util/immutable-utils').str;
 
 /**
  * Main datasets reducer function, which generates a new state for the
@@ -27,7 +21,7 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
   const id = action.meta;
 
   if (typeof state === 'undefined') {
-    return Immutable.Map();
+    return Map();
   }
 
   if (action.type === getType(datasetActions.addDataset)) {
@@ -50,7 +44,7 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
   if (action.type === getType(datasetActions.addTransform)) {
     const transform = action.payload;
 
-    const transforms: Transform[] = state.getIn([str(id), 'transform']) || Immutable.List();
+    const transforms: Transform[] = state.getIn([str(id), 'transform']) || List();
 
     if (transform.type === 'formula') {
       state = state.setIn([str(id), '_schema', transform.as],
