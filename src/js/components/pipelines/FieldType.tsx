@@ -2,12 +2,12 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
+import { Icon } from '../Icon';
 
 const capitalize = require('capitalize');
 const changeFieldMType = require('../../actions/datasetActions').changeFieldMType;
 const MTYPES = require('../../constants/measureTypes');
 const assets = require('../../util/assets');
-const Icon   = require('../Icon');
 
 interface OwnProps {
   dsId: number;

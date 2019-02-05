@@ -3,10 +3,10 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
 import {LyraPipeline} from '../../store/factory/Pipeline';
+import { Icon } from '../Icon';
 import DataTable from './DataTable';
 
 const ContentEditable = require('../ContentEditable');
-const Icon = require('../Icon');
 const selectPipeline = require('../../actions/inspectorActions').selectPipeline;
 const updatePipeline = require('../../actions/pipelineActions').updatePipelineProperty;
 const imutils = require('../../util/immutable-utils');

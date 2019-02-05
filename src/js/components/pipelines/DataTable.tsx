@@ -6,6 +6,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import {State} from '../../store';
+import { Icon } from '../Icon';
 
 const d3 = require('d3');
 const dl = require('datalib');
@@ -13,7 +14,6 @@ const Immutable = require('immutable');
 const getInVis = require('../../util/immutable-utils').getInVis;
 const dsUtil = require('../../util/dataset-utils');
 const assets = require('../../util/assets');
-const Icon = require('../Icon');
 
 
 

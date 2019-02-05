@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
 import {State} from '../../store'
+import { Icon } from '../Icon';
 import GuideList from './GuideList';
 import MarkList from './MarkList';
 
@@ -14,7 +15,6 @@ const markActions = require('../../actions/markActions');
 const deleteMark = markActions.deleteMark;
 const updateMarkProperty = markActions.updateMarkProperty;
 const imutils = require('../../util/immutable-utils');
-const Icon = require('../Icon');
 const get = imutils.get;
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;

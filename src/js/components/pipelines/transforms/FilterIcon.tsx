@@ -2,9 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import {State} from '../../../store';
+import { Icon } from '../../Icon';
 
 const assets = require('../../../util/assets');
-const Icon = require('../../Icon');
 const addTransform = require('../../../actions/datasetActions').addTransform;
 
 interface OwnProps {

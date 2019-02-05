@@ -3,11 +3,11 @@ import * as ReactModal from 'react-modal';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
+import { Icon } from '../Icon';
 
 const getIn = require('../../util/immutable-utils').getIn;
 const WActions = require('../../actions/walkthroughActions');
 const assets = require('../../util/assets');
-const Icon = require('../Icon');
 
 interface StateProps {
   walkthroughs: any;

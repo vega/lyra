@@ -1,9 +1,9 @@
 import * as React from 'react';
+import { Icon } from './Icon';
 import {PipelineList} from './pipelines/PipelineList';
 import PipelineModal from './pipelines/PipelineModal';
 
 const assets = require('../util/assets');
-const Icon = require('./Icon');
 
 
 export class PipelinesSidebar extends React.PureComponent<{}, {modalIsOpen: boolean}> {

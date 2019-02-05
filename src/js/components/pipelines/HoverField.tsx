@@ -4,6 +4,7 @@ import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
 
+import { Icon } from '../Icon';
 import AggregateList from './AggregateList';
 import FieldType from './FieldType';
 import FilterIcon from './transforms/FilterIcon';
@@ -14,7 +15,6 @@ const dl = require('datalib');
 const ctrl = require('../../ctrl');
 const sg = require('../../ctrl/signals');
 const bindChannel = require('../../actions/bindChannel');
-const Icon = require('../Icon');
 
 const getInVis = require('../../util/immutable-utils').getInVis;
 const assets = require('../../util/assets');

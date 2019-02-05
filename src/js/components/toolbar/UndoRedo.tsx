@@ -5,11 +5,11 @@ const historyActions = require('../../actions/historyActions');
 const undo = historyActions.undo;
 const redo = historyActions.redo;
 const assets = require('../../util/assets');
-const Icon = require('../Icon');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
+import { Icon } from '../Icon';
 
 function mapStateToProps(state: State) {
   const vis = state.get('vis');

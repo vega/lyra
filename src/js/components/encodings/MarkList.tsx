@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
+import { Icon } from '../Icon';
 
 const selectMark = require('../../actions/inspectorActions').selectMark;
 const markActions = require('../../actions/markActions');
@@ -10,7 +11,6 @@ const deleteMark = markActions.deleteMark;
 const updateMarkProperty = markActions.updateMarkProperty;
 const getInVis = require('../../util/immutable-utils').getInVis;
 const ContentEditable = require('../ContentEditable');
-const Icon = require('../Icon');
 const assets = require('../../util/assets');
 
 interface OwnProps {

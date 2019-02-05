@@ -2,11 +2,11 @@
 const getIn = require('../../util/immutable-utils').getIn;
 const hintActions = require('../../actions/hintActions');
 const assets = require('../../util/assets');
-const Icon = require('../Icon');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
+import { Icon } from '../Icon';
 
 interface HintsProps {
   displayHint: any,

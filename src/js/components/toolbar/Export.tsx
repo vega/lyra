@@ -1,10 +1,11 @@
 'use strict';
 import * as React from 'react';
+import { Icon } from '../Icon';
+
 const d3 = require('d3'),
   vg = require('vega'),
   ctrl = require('../../ctrl'),
-  assets = require('../../util/assets'),
-  Icon = require('../Icon');
+  assets = require('../../util/assets');
 
 const RENDERER: { [s: string]: string } = {
   png: 'canvas',

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
+import { Icon } from '../Icon';
 import Group from './GroupChildren';
 
 const imutils = require('../../util/immutable-utils');
@@ -12,7 +13,6 @@ const addMark = require('../../actions/markActions').addMark;
 const selectMark = require('../../actions/inspectorActions').selectMark;
 const clearScene = require('../../actions/sceneActions').clearScene;
 const assets = require('../../util/assets');
-const Icon = require('../Icon');
 
 interface StateProps {
   sceneId: number;

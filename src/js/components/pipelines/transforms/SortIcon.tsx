@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
 import {State} from '../../../store';
+import { Icon } from '../../Icon';
 import {FieldObject} from '../FieldType';
 
 const Immutable = require('immutable');
 const sortDataset = require('../../../actions/datasetActions').sortDataset;
 const assets = require('../../../util/assets');
-const Icon   = require('../../Icon');
 const getInVis = require('../../../util/immutable-utils').getInVis;
 const ORDER  = require('../../../constants/sortOrder');
 const MTYPES = require('../../../constants/measureTypes');

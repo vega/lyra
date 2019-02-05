@@ -4,8 +4,8 @@ interface IconProps {
   // TODO(jzong): change 'any' to more specific types
   className?: string;
   onClick?: any;
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
   'data-html'?: any;
   'data-tip'?: any;
   'data-place'?: any;

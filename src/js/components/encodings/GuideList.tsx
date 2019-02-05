@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
+import { Icon } from '../Icon';
 
 const capitalize = require('capitalize');
 const inspectorActions = require('../../actions/inspectorActions');
@@ -12,7 +13,6 @@ const deleteGuide = require('../../actions/guideActions').deleteGuide;
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
-const Icon = require('../Icon');
 const assets = require('../../util/assets');
 interface OwnProps {
   groupId: number;

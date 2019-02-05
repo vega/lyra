@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
+import { Icon } from '../Icon';
 import {Errors} from './Error';
 
 const imutils = require('../../util/immutable-utils');
@@ -11,7 +12,6 @@ const validate = require('../../util/walkthrough-utils').validate;
 const WActions = require('../../actions/walkthroughActions');
 const vegaSpec = require('../../ctrl').export;
 const assets = require('../../util/assets');
-const Icon = require('../Icon');
 
 interface StateProps {
   currentStepId: number;
