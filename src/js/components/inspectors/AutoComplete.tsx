@@ -17,7 +17,11 @@ const TMPL_DATUM = new RegExp(TMPL_OPEN + DATUM + '*' + TMPL_CLOSE);
 
 import {State} from '../../store';
 interface OwnProps {
-  dsId: any;
+  type: any, // propTypes.oneOf([EXPR, TMPL]).isRequired,
+  dsId: number,
+  fields: any,
+  value: string,
+  updateFn: () => any
 }
 
 interface StateProps {
@@ -31,15 +35,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   };
 }
 
-interface AutoCompleteProps {
-  type: any, // propTypes.oneOf([EXPR, TMPL]).isRequired,
-  dsId: number,
-  fields: any,
-  value: string,
-  updateFn: () => any
-}
-
-class BaseAutoComplete extends React.Component<AutoCompleteProps> {
+class BaseAutoComplete extends React.Component<OwnProps & StateProps> {
   public getInitialState() {
     const props = this.props;
     const value = props.value || '';

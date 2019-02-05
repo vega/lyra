@@ -11,19 +11,28 @@ import {Dispatch} from 'redux';
 import {State} from '../../store';
 
 interface OwnProps {
-  name: string,
-  primId: number
+  primId: number;
+  primitive?: object;
+  field?: string;
+  band?: boolean;
+  group?: boolean;
+  scale?: any // TODO: propTypes.instanceOf(Immutable.Map);
+  name?: string;
+  setPreset?: any;
+  reset?: any;
+  className: any;
+
 }
 interface StateProps {
-  field: any,
-  band: any,
-  group: any,
-  scale: any
+  field: any;
+  band: any;
+  group: any;
+  scale: any;
 }
 
 interface DispatchProps {
-  setPreset: (name: string, def: any) => void,
-  reset: (name: string) => void
+  setPreset: (name: string, def: any) => void;
+  reset: (name: string) => void;
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -51,19 +60,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   };
 }
 
-interface SpatialPresetProps {
-  primitive?: object,
-  field: string,
-  band: boolean,
-  group: boolean,
-  scale: any // TODO: propTypes.instanceOf(Immutable.Map),
-  name: string,
-  setPreset: any,
-  reset: any,
-  className: any
-}
-
-class BaseSpatialPreset extends React.Component<SpatialPresetProps>{
+class BaseSpatialPreset extends React.Component<OwnProps & StateProps & DispatchProps>{
   public handleChange(evt) {
     const props = this.props;
     const name  = props.name;

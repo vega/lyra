@@ -14,7 +14,34 @@ import { Dispatch } from 'redux';
 import {State} from '../../store';
 import {AutoComplete} from './AutoComplete';
 
-function mapStateToProps(reduxState: State, ownProps) {
+interface OwnProps {
+  name: string;
+  label: string;
+  dsId?: number;
+  autoType: string;
+  onChange: () => any;
+  unbind: () => any;
+  type: any;
+  firstChild: any;
+  canDrop: any;
+
+}
+
+interface StateProps {
+  group:  any;
+  signal: any;
+  value: string|number|boolean|any; // TODO: remove 'any', add Immutable.Map type
+  field:  any;
+  scale:  any;
+  srcField:  any;
+  scaleName: any;
+}
+
+interface DispatchProps {
+  unbind: () => void;
+}
+
+function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   if (!ownProps.primId) {
     return {};
   }
@@ -48,7 +75,7 @@ function mapStateToProps(reduxState: State, ownProps) {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     unbind: function() {
       dispatch(resetMarkVisual(ownProps.primId, ownProps.name));
@@ -56,27 +83,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps) {
   };
 }
 
-interface PropertyProps {
-  name: string;
-  label: string;
-  field: string;
-  group: string;
-  scale: number;
-  dsId: number;
-  scaleName: string;
-  signal: string;
-  autoType: string;
-  onChange: () => any;
-  value: string|number|boolean|any; // TODO: remove 'any', add Immutable.Map type
-  unbind: () => any;
-  type: any;
-  srcField: any;
-  firstChild: any;
-  canDrop: any;
-
-}
-
-class BaseProperty extends React.Component<PropertyProps> {
+class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps> {
   public render() {
     const props = this.props;
     const name  = props.name;
