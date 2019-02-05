@@ -1,16 +1,16 @@
 'use strict';
 
-const dl = require('datalib'),
-  counter = require('../util/counter'),
-  getInVis = require('../util/immutable-utils').getInVis,
-  dsUtil = require('../util/dataset-utils'),
-  ADD_PIPELINE = 'ADD_PIPELINE',
-  AGGREGATE_PIPELINE = 'AGGREGATE_PIPELINE',
-  UPDATE_PIPELINE_PROPERTY = 'UPDATE_PIPELINE_PROPERTY';
+const counter = require('../util/counter');
+const getInVis = require('../util/immutable-utils').getInVis;
 
+import {AssertionError} from 'assert';
+import {Dispatch} from 'redux';
+import {createStandardAction} from 'typesafe-actions';
 import {Datum} from 'vega-typings/types';
-import {DatasetRecord} from '../store/factory/Dataset';
-import {PipelineRecord} from '../store/factory/Pipeline';
+import {State} from '../store'
+import {Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
+import {LyraAggregateTransform, PipelineRecord} from '../store/factory/Pipeline';
+import * as dsUtil from '../util/dataset-utils';
 import {addDataset} from './datasetActions';
 
 /**
@@ -20,11 +20,10 @@ import {addDataset} from './datasetActions';
  * @param {Object} pipeline - The properties of the pipeline.
  * @param {Object} ds - The properties of the dataset.
  * @param {Array} values - A JSON array of parsed values.
- * @param {Object} schema - An object containing the schema values.
  * @returns {Function} An async action function
  */
-function addPipeline(pipeline: PipelineRecord, ds: DatasetRecord, values: Datum[]) {
-  return function(dispatch) {
+export const addPipeline = (pipeline: PipelineRecord, ds: DatasetRecord, values: Datum[]) => {
+  return function(dispatch: Dispatch) {
     const pid = pipeline._id || counter.global();
     const newDs = addDataset(ds.merge({
       name: pipeline.name + '_source',
@@ -33,12 +32,16 @@ function addPipeline(pipeline: PipelineRecord, ds: DatasetRecord, values: Datum[
 
     dispatch(newDs);
     dispatch({
-      type: ADD_PIPELINE,
-      id: pid,
-      props: pipeline.merge({_id: pid, _source: newDs.payload._id})
+      type: 'ADD_PIPELINE',
+      meta: pid,
+      payload: pipeline.merge({_id: pid, _source: newDs.payload._id})
     });
 
-    dsUtil.init(newDs.payload, values);
+    if ((newDs.payload as SourceDatasetRecord).source !== undefined) {
+      dsUtil.init(newDs.payload as SourceDatasetRecord, values);
+    } else {
+      throw new AssertionError({message: 'old code assumed source dataset'});
+    }
   };
 }
 
@@ -51,53 +54,33 @@ function addPipeline(pipeline: PipelineRecord, ds: DatasetRecord, values: Datum[
  * @param   {Object} aggregate A Vega aggregate transform definition.
  * @returns {Function}         An async action function.
  */
-function aggregatePipeline(id, aggregate) {
+export const aggregatePipeline = (id: number, aggregate: LyraAggregateTransform) => {
   return function(dispatch, getState) {
-    const state = getState(),
-      pipeline = getInVis(state, 'pipelines.' + id),
-      srcId = pipeline.get('_source'),
-      srcSchema = getInVis(state, 'datasets.' + srcId + '._schema').toJS(),
-      schema = dsUtil.aggregateSchema(srcSchema, aggregate),
-      key = aggregate.groupby.join('|');
+    const state: State = getState();
+    const pipeline: PipelineRecord = getInVis(state, 'pipelines.' + id);
+    const srcId = pipeline.get('_source');
+    const srcSchema: Schema = getInVis(state, 'datasets.' + srcId + '._schema').toJS();
+    const schema = dsUtil.aggregateSchema(srcSchema, aggregate);
+    const key = (aggregate.groupby as string[]).join('|'); // TODO: vega 2 aggregate.groupby is string[]
 
-    // const ds = addDataset(
-    //   {
-    //     name: pipeline.get('name') + '_groupby_' + key,
-    //     source: srcId,
-    //     transform: [aggregate],
-    //     _parent: id
-    //   },
-    //   null,
-    //   schema
-    // );
+    const ds = addDataset(
+      Dataset({
+        name: pipeline.get('name') + '_groupby_' + key,
+        source: srcId,
+        transform: [aggregate],
+        _schema: schema,
+        _parent: id
+      })
+    );
 
-    // dispatch(ds);
-    // dispatch({
-    //   type: AGGREGATE_PIPELINE,
-    //   id: id,
-    //   dsId: aggregate._id = ds.id,
-    //   key: key
-    // });
+    dispatch(ds);
+    dispatch({
+      type: 'AGGREGATE_PIPELINE',
+      id: id,
+      dsId: aggregate._id = ds.payload._id,
+      key: key
+    });
   };
 }
 
-function updatePipelineProperty(id, property, value) {
-  return {
-    type: UPDATE_PIPELINE_PROPERTY,
-    id: id,
-    property: property,
-    value: value
-  };
-}
-
-module.exports = {
-  // Action Names
-  ADD_PIPELINE: ADD_PIPELINE,
-  AGGREGATE_PIPELINE: AGGREGATE_PIPELINE,
-  UPDATE_PIPELINE_PROPERTY: UPDATE_PIPELINE_PROPERTY,
-
-  // Action Creators
-  addPipeline: addPipeline,
-  aggregatePipeline: aggregatePipeline,
-  updatePipelineProperty: updatePipelineProperty
-};
+export const updatePipelineProperty = createStandardAction('UPDATE_PIPELINE_PROPERTY')<{property: any, value: any}, number>();
