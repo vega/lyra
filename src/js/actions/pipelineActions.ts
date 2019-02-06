@@ -1,5 +1,3 @@
-'use strict';
-
 const counter = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
 
@@ -22,7 +20,7 @@ import {addDataset} from './datasetActions';
  * @param {Array} values - A JSON array of parsed values.
  * @returns {Function} An async action function
  */
-export const addPipeline = (pipeline: PipelineRecord, ds: DatasetRecord, values: Datum[]) => {
+export function addPipeline (pipeline: PipelineRecord, ds: DatasetRecord, values: Datum[]) {
   return function(dispatch: Dispatch) {
     const pid = pipeline._id || counter.global();
     const newDs = addDataset(ds.merge({
@@ -31,11 +29,7 @@ export const addPipeline = (pipeline: PipelineRecord, ds: DatasetRecord, values:
     }));
 
     dispatch(newDs);
-    dispatch({
-      type: 'ADD_PIPELINE',
-      meta: pid,
-      payload: pipeline.merge({_id: pid, _source: newDs.payload._id})
-    });
+    dispatch(_addPipeline(pipeline.merge({_id: pid, _source: newDs.payload._id}), pid));
 
     if ((newDs.payload as SourceDatasetRecord).source !== undefined) {
       dsUtil.init(newDs.payload as SourceDatasetRecord, values);
@@ -54,7 +48,7 @@ export const addPipeline = (pipeline: PipelineRecord, ds: DatasetRecord, values:
  * @param   {Object} aggregate A Vega aggregate transform definition.
  * @returns {Function}         An async action function.
  */
-export const aggregatePipeline = (id: number, aggregate: LyraAggregateTransform) => {
+export function aggregatePipeline (id: number, aggregate: LyraAggregateTransform) {
   return function(dispatch, getState) {
     const state: State = getState();
     const pipeline: PipelineRecord = getInVis(state, 'pipelines.' + id);
@@ -74,13 +68,16 @@ export const aggregatePipeline = (id: number, aggregate: LyraAggregateTransform)
     );
 
     dispatch(ds);
-    dispatch({
-      type: 'AGGREGATE_PIPELINE',
-      id: id,
+    dispatch(_aggregatePipeline({
       dsId: aggregate._id = ds.payload._id,
       key: key
-    });
+    }, id));
   };
 }
 
+// action creators prefixed with _ should only be called by their redux-flunk function wrappers - jzong
+// tslint:disable-next-line:variable-name
+export const _addPipeline = createStandardAction('ADD_PIPELINE')<PipelineRecord, number>();
+// tslint:disable-next-line:variable-name
+export const _aggregatePipeline = createStandardAction('AGGREGATE_PIPELINE')<{dsId: number, key: any}, number>();
 export const updatePipelineProperty = createStandardAction('UPDATE_PIPELINE_PROPERTY')<{property: any, value: any}, number>();

@@ -34,3 +34,5 @@ export const Pipeline = Record<LyraPipeline>({
 });
 
 export type PipelineRecord = RecordOf<LyraPipeline>;
+
+export type PipelineState = Map<string, PipelineRecord>;

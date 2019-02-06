@@ -1,14 +1,9 @@
+import {Map} from 'immutable';
+import {ActionType, getType} from 'typesafe-actions';
+import * as pipelineActions from '../actions/pipelineActions';
 import {PipelineState} from '../store/factory/Pipeline';
 
-/* eslint new-cap:0 */
-'use strict';
-
-var Immutable = require('immutable'),
-    ACTIONS = require('../actions/Names'),
-    imutils = require('../util/immutable-utils'),
-    getIn = imutils.getIn,
-    set = imutils.set,
-    setIn = imutils.setIn;
+const str   = require('../util/immutable-utils').str;
 
 /**
  * Main pipelines reducer function, which generates a new state for the
@@ -19,40 +14,44 @@ var Immutable = require('immutable'),
  * @param {Object} action - A redux action object
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
-function pipelinesReducer(state, action): PipelineState {
+export function pipelinesReducer(state: PipelineState, action: ActionType<typeof pipelineActions>): PipelineState {
+  const id = action.meta;
+
   if (typeof state === 'undefined') {
-    return Immutable.Map();
+    return Map();
   }
 
-  if (action.type === ACTIONS.ADD_PIPELINE) {
-    return set(state, action.id, Immutable.fromJS(action.props));
+  if (action.type === getType(pipelineActions._addPipeline)) {
+    return state.set(str(id), action.payload);
   }
 
-  if (action.type === ACTIONS.UPDATE_PIPELINE_PROPERTY) {
-    return setIn(state, action.id + '.' + action.property,
-      Immutable.fromJS(action.value));
+  if (action.type === getType(pipelineActions.updatePipelineProperty)) {
+    const p = action.payload;
+    return state.setIn([str(id), p.property], p.value);
   }
 
-  if (action.type === ACTIONS.AGGREGATE_PIPELINE) {
-    return setIn(state, action.id + '._aggregates.' + action.key, action.dsId);
+  if (action.type === getType(pipelineActions._aggregatePipeline)) {
+    const p = action.payload;
+    return state.setIn([id, '_aggregates', p.key], p.dsId);
   }
 
+  // TODO: this code is unused
+  /*
   if (action.type === ACTIONS.DELETE_DATASET) {
-    var plId = action.plId,
+    const plId = action.plId,
         dsId = action.dsId;
 
     if (getIn(state, plId + '._source') === dsId) {
       throw Error('Cannot delete a pipeline\' source dataset.');
     }
 
-    var key = getIn(state, plId + '._aggregates').findKey(function(aggId) {
+    const key = getIn(state, plId + '._aggregates').findKey(function(aggId) {
       return aggId === dsId;
     });
 
     return state.deleteIn([plId + '', '_aggregates', key]);
   }
+  */
 
   return state;
 }
-
-module.exports = pipelinesReducer;
