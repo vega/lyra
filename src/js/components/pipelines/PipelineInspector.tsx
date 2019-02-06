@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {updatePipelineProperty as updatePipeline} from '../../actions/pipelineActions';
 import {State} from '../../store';
 import {PipelineRecord} from '../../store/factory/Pipeline';
 import { Icon } from '../Icon';
@@ -7,7 +8,6 @@ import DataTable from './DataTable';
 
 const ContentEditable = require('../ContentEditable');
 const selectPipeline = require('../../actions/inspectorActions').selectPipeline;
-const updatePipeline = require('../../actions/pipelineActions').updatePipelineProperty;
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;

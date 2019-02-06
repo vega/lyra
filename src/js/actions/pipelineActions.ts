@@ -1,12 +1,11 @@
 const counter = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
 
-import {AssertionError} from 'assert';
 import {Dispatch} from 'redux';
 import {createStandardAction} from 'typesafe-actions';
 import {Datum} from 'vega-typings/types';
 import {State} from '../store'
-import {Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
+import {Dataset, DatasetRecord, Schema} from '../store/factory/Dataset';
 import {LyraAggregateTransform, PipelineRecord} from '../store/factory/Pipeline';
 import * as dsUtil from '../util/dataset-utils';
 import {addDataset} from './datasetActions';
@@ -31,11 +30,7 @@ export function addPipeline (pipeline: PipelineRecord, ds: DatasetRecord, values
     dispatch(newDs);
     dispatch(_addPipeline(pipeline.merge({_id: pid, _source: newDs.payload._id}), pid));
 
-    if ((newDs.payload as SourceDatasetRecord).source !== undefined) {
-      dsUtil.init(newDs.payload as SourceDatasetRecord, values);
-    } else {
-      throw new AssertionError({message: 'old code assumed source dataset'});
-    }
+    dsUtil.init(newDs.payload, values);
   };
 }
 
@@ -52,7 +47,7 @@ export function aggregatePipeline (id: number, aggregate: LyraAggregateTransform
   return function(dispatch, getState) {
     const state: State = getState();
     const pipeline: PipelineRecord = getInVis(state, 'pipelines.' + id);
-    const srcId = pipeline.get('_source');
+    const srcId = pipeline._source;
     const srcSchema: Schema = getInVis(state, 'datasets.' + srcId + '._schema').toJS();
     const schema = dsUtil.aggregateSchema(srcSchema, aggregate);
     const key = (aggregate.groupby as string[]).join('|'); // TODO: vega 2 aggregate.groupby is string[]
