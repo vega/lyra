@@ -1,10 +1,8 @@
-'use strict';
-
-const aggregatePipeline   = require('../pipelineActions').aggregatePipeline,
-    getInVis = require('../../util/immutable-utils').getInVis;
+const getInVis = require('../../util/immutable-utils').getInVis;
 
 import {LyraAggregateTransform} from '../../store/factory/Pipeline';
 import {summarizeAggregate} from '../datasetActions';
+import {aggregatePipeline} from '../pipelineActions';
 
 /**
  * Parse the data source definitions in the resultant Vega specification.
@@ -21,13 +19,13 @@ import {summarizeAggregate} from '../datasetActions';
  */
 module.exports = function(dispatch, state, parsed) {
   // TODO: transforms.
-  const data = parsed.output.data,
-      source = data.find(function(def) {
-        return def.name === 'source';
-      }),
-      summary = data.find(function(def) {
-        return def.name === 'summary';
-      });
+  const data = parsed.output.data;
+  const source = data.find(function(def) {
+    return def.name === 'source';
+  });
+  const summary = data.find(function(def) {
+    return def.name === 'summary';
+  });
 
   parsed.map.data.source = parsed.dsId;
 

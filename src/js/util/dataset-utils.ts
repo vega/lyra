@@ -33,6 +33,10 @@ function def(id: number) {
 // tslint:disable-next-line:variable-name
 let _values = {};
 
+function isSourceDatasetRecord(ds: DatasetRecord): ds is SourceDatasetRecord {
+  return (ds as SourceDatasetRecord).source !== undefined;
+}
+
 /**
  * Initialize a dataset by loading the raw values and constructing the schema.
  * Once this is done, an initDataset action is dispatched.
@@ -40,16 +44,23 @@ let _values = {};
  * @param  {Object} action - An ADD_DATASET action.
  * @returns {void}
  */
-export function init(ds: SourceDatasetRecord, values: object[]) {
+export function init(ds: DatasetRecord, values: object[]) {
   const id = ds._id;
-  const src = ds.source;
 
   if (_values[id]) {
     // Early-exit if we've previously loaded values.
     return _values[id];
   }
 
-  _values[id] = values || (src ? _values[src] : null);
+  if (values) {
+    _values[id] = values;
+  }
+  else if (isSourceDatasetRecord(ds)) {
+    _values[id] = _values[ds.source];
+  }
+  else {
+    _values[id] = null;
+  }
 }
 
 export function reset() {
@@ -79,7 +90,6 @@ export function output(id: number) {
   const ctrl = require('../ctrl'),
     ds = def(id),
     view = ds && ctrl.view && ctrl.view.data(ds.get('name'));
-
   // proposed change: ensure ds.values() return contents isnt empty
   return view && view.values().length ? view.values() : input(id);
 }
