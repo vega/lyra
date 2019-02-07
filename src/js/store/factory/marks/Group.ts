@@ -5,6 +5,25 @@ var dl = require('datalib'),
     getInVis = require('../../../util/immutable-utils').getInVis,
     Rect = require('./Rect'); // Visually, groups are similar to Rects.
 
+
+export type LyraGroupMark = {
+  _id: number
+} & GroupMark;
+
+export const Area = Record<LyraGroupMark>({
+  _id: null,
+  type: 'area',
+  encode: {
+    update: {
+      // x2: {value: 0},
+      y2: {value: 0},
+      tension: {value: 13},
+      interpolate: {value: 'monotone'},
+      orient: {value: 'vertical'}
+    }
+  }
+});
+
 /**
  * A group mark factory.
  * @returns {Object} Additional default properties for a group mark.
