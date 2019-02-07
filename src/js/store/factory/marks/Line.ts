@@ -1,25 +1,29 @@
-'use strict';
-var anchorTarget = require('../../../util/anchor-target'),
-    test = require('../../../util/test-if'),
-    propSg = require('../../../util/prop-signal');
+import {Record, RecordOf} from 'immutable';
+import {LineMark, OnEvent} from 'vega-typings';
 
-/**
- * A line mark factory.
- * @returns {Object} Additional default visual properties for a line mark.
- */
-function Line() {
-  return {
-    properties: {
-      update: {
-        fill: undefined,
-        fillOpacity: undefined,
-        strokeWidth: {value: 3},
-        tension: {value: 13},
-        interpolate: {value: 'monotone'}
-      }
+const anchorTarget = require('../../../util/anchor-target');
+const test = require('../../../util/test-if');
+const propSg = require('../../../util/prop-signal');
+
+export type LyraLineMark = {
+  _id: number
+} & LineMark;
+
+export const Line = Record<LyraLineMark>({
+  _id: null,
+  type: 'line',
+  encode: {
+    update: {
+      fill: undefined,
+      fillOpacity: undefined,
+      strokeWidth: {value: 3},
+      tension: {value: 13},
+      interpolate: {value: 'monotone'}
     }
-  };
-}
+  }
+});
+
+export type LineRecord = RecordOf<LyraLineMark>;
 
 /**
  * Return an array of handle signal stream definitions to be instantiated.
@@ -33,22 +37,22 @@ function Line() {
  * @param {string} line.type - A mark type, presumably "line"
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
-Line.getHandleStreams = function(line) {
-  var sg = require('../../../ctrl/signals'),
-      at = anchorTarget.bind(null, line, 'handles'),
-      id = line._id,
-      x = propSg(id, 'line', 'x'),
-      y = propSg(id, 'line', 'y'),
-      DELTA = sg.DELTA,
-      DX = DELTA + '.x',
-      DY = DELTA + '.y',
-      streams = {};
+export function getHandleStreams(line: LineRecord): {[s: string]: OnEvent[];} {
+  const sg = require('../../../ctrl/signals');
+  const at = anchorTarget.bind(null, line, 'handles');
+  const id = line._id;
+  const x = propSg(id, 'line', 'x');
+  const y = propSg(id, 'line', 'y');
+  const DELTA = sg.DELTA;
+  const DX = DELTA + '.x';
+  const DY = DELTA + '.y';
+  const streams: {[s: string]: OnEvent[];} = {};
 
   streams[x] = [{
-    type: DELTA, expr: test(at(), x + '+' + DX, x)
+    events: DELTA, update: test(at(), x + '+' + DX, x)
   }];
   streams[y] = [{
-    type: DELTA, expr: test(at(), y + '+' + DY, y)
+    events: DELTA, update: test(at(), y + '+' + DY, y)
   }];
   return streams;
 };
