@@ -1,22 +1,27 @@
-'use strict';
-var anchorTarget = require('../../../util/anchor-target'),
-    test = require('../../../util/test-if'),
-    propSg = require('../../../util/prop-signal');
+import {Record, RecordOf} from 'immutable';
+import {OnEvent, SymbolMark} from 'vega-typings';
 
-/**
- * A symbol mark factory.
- * @returns {Object} Additional default visual properties for a symbol mark.
- */
-function Symbol() {
-  return {
-    properties: {
-      update: {
-        size: {value: 100},
-        shape: {value: 'circle'}
-      }
+const anchorTarget = require('../../../util/anchor-target');
+const test = require('../../../util/test-if');
+const propSg = require('../../../util/prop-signal');
+
+export type LyraSymbolMark = {
+  _id: number
+} & SymbolMark;
+
+export const Symbol = Record<LyraSymbolMark>({
+  _id: null,
+  type: 'symbol',
+  encode: {
+    update: {
+      size: {value: 100},
+      shape: {value: 'circle'}
     }
-  };
-}
+  }
+});
+
+export type SymbolRecord = RecordOf<LyraSymbolMark>;
+
 
 /**
  * Return an array of handle signal stream definitions to be instantiated.
@@ -30,38 +35,27 @@ function Symbol() {
  * @param {string} symbol.type - A mark type, presumably "symbol"
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
-Symbol.getHandleStreams = function(symbol) {
-  var sg = require('../../../ctrl/signals'),
-      at = anchorTarget.bind(null, symbol, 'handles'),
-      id = symbol._id,
-      x = propSg(id, 'symbol', 'x'),
-      y = propSg(id, 'symbol', 'y'),
-      size = propSg(id, 'symbol', 'size'),
-      DELTA = sg.DELTA,
-      DX = DELTA + '.x',
-      DY = DELTA + '.y',
-      streams = {};
+export function getHandleStreams(symbol: SymbolRecord): {[s: string]: OnEvent[];} {
+  const sg = require('../../../ctrl/signals');
+  const at = anchorTarget.bind(null, symbol, 'handles');
+  const id = symbol._id;
+  const x = propSg(id, 'symbol', 'x');
+  const y = propSg(id, 'symbol', 'y');
+  const size = propSg(id, 'symbol', 'size');
+  const DELTA = sg.DELTA;
+  const DX = DELTA + '.x';
+  const DY = DELTA + '.y';
+  const streams: {[s: string]: OnEvent[];} = {};
 
   streams[x] = [{
-    type: DELTA, expr: test(at(), x + '+' + DX, x)
+    events: DELTA, update: test(at(), x + '+' + DX, x)
   }];
   streams[y] = [{
-    type: DELTA, expr: test(at(), y + '+' + DY, y)
+    events: DELTA, update: test(at(), y + '+' + DY, y)
   }];
   streams[size] = [
-    {type: DELTA, expr: test(at('top'), size + '-(' + DY + '<<5)', size)},
-    {type: DELTA, expr: test(at('bottom'), size + '+(' + DY + '<<5)', size)}
+    {events: DELTA, update: test(at('top'), size + '-(' + DY + '<<5)', size)},
+    {events: DELTA, update: test(at('bottom'), size + '+(' + DY + '<<5)', size)}
   ];
   return streams;
 };
-
-Symbol.SHAPES = [
-  'circle',
-  'square',
-  'cross',
-  'diamond',
-  'triangle-up',
-  'triangle-down'
-];
-
-module.exports = Symbol;
