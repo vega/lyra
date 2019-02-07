@@ -1,27 +1,30 @@
-'use strict';
+import {Record, RecordOf} from 'immutable';
+import {OnEvent, RectMark} from 'vega-typings';
 
-var anchorTarget = require('../../../util/anchor-target'),
-    test = require('../../../util/test-if'),
-    propSg = require('../../../util/prop-signal');
+const anchorTarget = require('../../../util/anchor-target');
+const test = require('../../../util/test-if');
+const propSg = require('../../../util/prop-signal');
 
-/**
- * A rect mark factory.
- * @returns {Object} Additional default visual properties for a rect mark.
- */
-function Rect() {
-  return {
-    properties: {
-      update: {
-        x2: {value: 140},
-        y2: {value: 140},
-        xc: {value: 70, _disabled: true},
-        yc: {value: 70, _disabled: true},
-        width: {value: 40, _disabled: true},
-        height: {value: 40, _disabled: true}
-      }
+export type LyraRectMark = {
+  _id: number
+} & RectMark;
+
+export const Rect = Record<LyraRectMark>({
+  _id: null,
+  type: 'rect',
+  encode: {
+    update: {
+      x2: {value: 140},
+      y2: {value: 140},
+      xc: {value: 70, _disabled: true},
+      yc: {value: 70, _disabled: true},
+      width: {value: 40, _disabled: true},
+      height: {value: 40, _disabled: true}
     }
-  };
-}
+  }
+});
+
+export type RectRecord = RecordOf<LyraRectMark>;
 
 /**
  * Return an array of handle signal stream definitions to be instantiated.
@@ -35,52 +38,50 @@ function Rect() {
  * @param {string} rect.type - A mark type, presumably "rect"
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
-Rect.getHandleStreams = function(rect) {
-  var sg = require('../../../ctrl/signals'),
-      at = anchorTarget.bind(null, rect, 'handles'),
-      id = rect._id,
-      type = rect.type,
-      x = propSg(id, type, 'x'),
-      xc = propSg(id, type, 'xc'),
-      x2 = propSg(id, type, 'x2'),
-      y = propSg(id, type, 'y'),
-      yc = propSg(id, type, 'yc'),
-      y2 = propSg(id, type, 'y2'),
-      w = propSg(id, type, 'width'),
-      h = propSg(id, type, 'height'),
-      DELTA = sg.DELTA,
-      DX = DELTA + '.x',
-      DY = DELTA + '.y',
-      streams = {};
+export function getHandleStreams(rect: RectRecord): {[s: string]: OnEvent[];} {
+  const sg = require('../../../ctrl/signals');
+  const at = anchorTarget.bind(null, rect, 'handles');
+  const id = rect._id;
+  const type = rect.type;
+  const x = propSg(id, type, 'x');
+  const xc = propSg(id, type, 'xc');
+  const x2 = propSg(id, type, 'x2');
+  const y = propSg(id, type, 'y');
+  const yc = propSg(id, type, 'yc');
+  const y2 = propSg(id, type, 'y2');
+  const w = propSg(id, type, 'width');
+  const h = propSg(id, type, 'height');
+  const DELTA = sg.DELTA;
+  const DX = DELTA + '.x';
+  const DY = DELTA + '.y';
+  const streams: {[s: string]: OnEvent[];} = {};
 
   streams[x] = [{
-    type: DELTA, expr: test(at() + '||' + at('left'), x + '+' + DX, x)
+    events: DELTA, update: test(at() + '||' + at('left'), x + '+' + DX, x)
   }];
   streams[xc] = [{
-    type: DELTA, expr: test(at() + '||' + at('left'), xc + '+' + DX, xc)
+    events: DELTA, update: test(at() + '||' + at('left'), xc + '+' + DX, xc)
   }];
   streams[x2] = [{
-    type: DELTA, expr: test(at() + '||' + at('right'), x2 + '+' + DX, x2)
+    events: DELTA, update: test(at() + '||' + at('right'), x2 + '+' + DX, x2)
   }];
   streams[y] = [{
-    type: DELTA, expr: test(at() + '||' + at('top'), y + '+' + DY, y)
+    events: DELTA, update: test(at() + '||' + at('top'), y + '+' + DY, y)
   }];
   streams[yc] = [{
-    type: DELTA, expr: test(at() + '||' + at('top'), yc + '+' + DY, yc)
+    events: DELTA, update: test(at() + '||' + at('top'), yc + '+' + DY, yc)
   }];
   streams[y2] = [{
-    type: DELTA, expr: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
+    events: DELTA, update: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
   }];
   streams[w] = [
-    {type: DELTA, expr: test(at('left'), w + '-' + DX, w)},
-    {type: DELTA, expr: test(at('right'), w + '+' + DX, w)}
+    {events: DELTA, update: test(at('left'), w + '-' + DX, w)},
+    {events: DELTA, update: test(at('right'), w + '+' + DX, w)}
   ];
   streams[h] = [
-    {type: DELTA, expr: test(at('top'), h + '-' + DY, h)},
-    {type: DELTA, expr: test(at('bottom'), h + '+' + DY, h)}
+    {events: DELTA, update: test(at('top'), h + '-' + DY, h)},
+    {events: DELTA, update: test(at('bottom'), h + '+' + DY, h)}
   ];
 
   return streams;
 };
-
-module.exports = Rect;
