@@ -1,8 +1,9 @@
-'use strict';
+import {Record, RecordOf} from 'immutable';
+import {OnEvent, TextMark} from 'vega-typings';
 
-var anchorTarget = require('../../../util/anchor-target'),
-    test = require('../../../util/test-if'),
-    propSg = require('../../../util/prop-signal');
+const anchorTarget = require('../../../util/anchor-target');
+const test = require('../../../util/test-if');
+const propSg = require('../../../util/prop-signal');
 
 /**
  * A text mark factory.
@@ -40,7 +41,7 @@ function Text() {
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 Text.getHandleStreams = function(text) {
-  var sg = require('../../../ctrl/signals'),
+  const sg = require('../../../ctrl/signals'),
       at = anchorTarget.bind(null, text, 'handles'),
       id = text._id,
       x = propSg(id, 'text', 'x'),
