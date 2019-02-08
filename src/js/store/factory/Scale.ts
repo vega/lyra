@@ -1,4 +1,4 @@
-import {Record} from 'immutable';
+import {Map, Record, RecordOf} from 'immutable';
 
 /**
  * Scales are functions that transform a domain of data values (numbers, dates, strings, etc.) to a range of visual values (pixels, colors, sizes).
@@ -106,3 +106,6 @@ export const Scale = Record<LyraScale>({
   points: null,
   padding: null
 });
+
+export type ScaleRecord = RecordOf<LyraScale>;
+export type ScaleState = Map<string, ScaleRecord>;
