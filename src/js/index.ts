@@ -1,3 +1,5 @@
+import { Mark } from './store/factory/Mark';
+
 /* eslint no-unused-expressions: 0 */
 'use strict';
 
@@ -22,7 +24,6 @@ store.subscribe(listeners.createStoreListener(store, ctrl));
 
 // Initializes the Lyra ctrl with a new Scene primitive.
 const createScene = require('./actions/sceneActions').createScene;
-const Mark = require('./store/factory/Mark');
 const addMark = require('./actions/markActions').addMark;
 
 store.dispatch(

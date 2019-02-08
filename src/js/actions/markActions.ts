@@ -1,3 +1,5 @@
+import { Mark } from '../store/factory/Mark';
+
 'use strict';
 
 var dl = require('datalib'),
@@ -6,7 +8,6 @@ var dl = require('datalib'),
     historyActions = require('./historyActions'),
     startBatch = historyActions.startBatch,
     endBatch = historyActions.endBatch,
-    Mark = require('../store/factory/Mark'),
     ADD_MARK = 'ADD_MARK',
     DELETE_MARK = 'DELETE_MARK',
     SET_PARENT_MARK = 'SET_PARENT_MARK',

@@ -6,6 +6,7 @@ const dl = require('datalib');
 
 // TODO(jzong): how to keep this in sync with GroupMark in vega-typings?
 export interface LyraSceneMark extends BaseMark, Scope, Encodable<GroupEncodeEntry> {
+  _parent: null,
   type: 'scene'
   from?: FromFacet;
 }
@@ -15,6 +16,7 @@ export function Scene(values?: Partial<LyraSceneMark>): SceneRecord {
 
   return Record<LyraSceneMark>({
     type: 'scene',
+    _parent: null,
     scales: [],
     axes: [],
     legends: [],

@@ -6,11 +6,13 @@ const test = require('../../../util/test-if');
 const propSg = require('../../../util/prop-signal');
 
 export type LyraLineMark = {
-  _id: number
+  _id: number;
+  _parent: number;
 } & LineMark;
 
 export const Line = Record<LyraLineMark>({
   _id: null,
+  _parent: null,
   type: 'line',
   encode: {
     update: {

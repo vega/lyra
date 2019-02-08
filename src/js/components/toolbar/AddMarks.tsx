@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { State } from '../../store';
+import { LyraMarkType, Mark } from '../../store/factory/Mark';
 import { Icon } from '../Icon';
 
-const Mark = require('../../store/factory/Mark');
 const getClosestGroupId = require('../../util/hierarchy').getClosestGroupId;
 const addMark = require('../../actions/markActions').addMark;
 const assets = require('../../util/assets');
@@ -14,7 +14,7 @@ function mapStateToProps(reduxState: State) {
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    addMark: (type: string) => {
+    addMark: (type: LyraMarkType) => {
       const newMarkProps = Mark(type, {
         _parent: getClosestGroupId()
       });
