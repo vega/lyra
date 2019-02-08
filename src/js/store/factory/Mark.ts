@@ -1,39 +1,38 @@
-/* eslint no-undefined:0 */
-'use strict';
+import {MarkType} from 'vega-typings';
+import {Area, AreaRecord, getHandleStreams as areaHandleStreams, LyraAreaMark} from './marks/Area';
+import {Group, GroupRecord, LyraGroupMark} from './marks/Group';
+import {getHandleStreams as lineHandleStreams, Line, LineRecord, LyraLineMark} from './marks/Line';
+import {getHandleStreams as rectHandleStreams, LyraRectMark, Rect, RectRecord} from './marks/Rect';
+import {LyraSceneMark, Scene, SceneRecord} from './marks/Scene';
+import {getHandleStreams as symbolHandleStreams, LyraSymbolMark, Symbol, SymbolRecord} from './marks/Symbol';
+import {getHandleStreams as textHandleStreams, LyraTextMark, Text, TextRecord} from './marks/Text';
 
-var dl = require('datalib'),
-    capitalize = require('capitalize'),
-    counter = require('../../util/counter');
+const capitalize = require('capitalize');
+const counter = require('../../util/counter');
 
-var marks = {
-  area: require('./marks/Area'),
-  group: require('./marks/Group'),
-  line: require('./marks/Line'),
-  rect: require('./marks/Rect'),
-  scene: require('./marks/Scene'),
-  symbol: require('./marks/Symbol'),
-  text: require('./marks/Text')
-};
+// export type LyraMarkType = MarkType | 'scene';
+export type LyraMarkType = 'symbol' | 'area' | 'line' | 'rect' | 'text' | 'group' | 'scene';
 
-function name(type) {
+function name(type: LyraMarkType) {
   return capitalize(type) + ' ' + counter.type('marks');
 }
 
-function throwIfInvalidType(type) {
-  if (!marks[type]) {
-    throw Error('unrecognized mark type "' + type + '"');
-  }
-}
-
 // Default visual properties for marks.
-var defaults = {
-  x: {value: 100},
-  y: {value: 100},
-  fill: {value: '#4682b4'},
-  fillOpacity: {value: 1},
-  stroke: {value: '#000000'},
-  strokeWidth: {value: 0.25}
+const defaults = {
+  encode: {
+    update: {
+      x: {value: 100},
+      y: {value: 100},
+      fill: {value: '#4682b4'},
+      fillOpacity: {value: 1},
+      stroke: {value: '#000000'},
+      strokeWidth: {value: 0.25}
+    }
+  }
 };
+
+export type LyraMark = LyraAreaMark | LyraGroupMark | LyraLineMark | LyraRectMark | LyraSceneMark | LyraSymbolMark | LyraTextMark;
+export type MarkRecord = AreaRecord | GroupRecord | LineRecord | RectRecord | SceneRecord | SymbolRecord | TextRecord;
 
 /**
  * A factory to produce Lyra marks.
@@ -42,17 +41,30 @@ var defaults = {
  * @param   {Object} props  Default visual properties of the mark.
  * @returns {Object} A Lyra mark definition.
  */
-function Mark(type, props) {
-  throwIfInvalidType(type);
-  var mark = marks[type]();
-
-  return dl.extend(mark, props, {
-    name: props && props.name || name(type),
-    type: type,
-    properties: {
-      update: extend({}, defaults, mark.properties.update)
-    }
-  });
+export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord {
+  switch(type) {
+    case 'symbol': return Symbol({
+        name: values && values.name || name(type)
+      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+    case 'area': return Area({
+        name: values && values.name || name(type)
+      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+    case 'line': return Line({
+        name: values && values.name || name(type)
+      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+    case 'rect': return Rect({
+        name: values && values.name || name(type)
+      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+    case 'text': return Text({
+        name: values && values.name || name(type)
+      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+    case 'group': return Group({
+        name: values && values.name || name(type)
+      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+    case 'scene': return Scene({
+        name: values && values.name || name(type)
+      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+  }
 }
 
 /**
@@ -64,9 +76,15 @@ function Mark(type, props) {
  * @param {string} mark.type - A mark type, such as "text" or "rect"
  * @returns {Object} A dictionary of signal stream definitions
  */
-Mark.getHandleStreams = function(mark) {
-  var markType = mark.type;
-  return marks[markType].getHandleStreams(mark);
+Mark.getHandleStreams = function(mark: MarkRecord) {
+  switch(mark.type) {
+    case 'symbol': return symbolHandleStreams(mark);
+    case 'area': return areaHandleStreams(mark);
+    case 'line': return lineHandleStreams(mark);
+    case 'text': return textHandleStreams(mark);
+    case 'group':
+    case 'rect': return rectHandleStreams(mark);
+  }
 };
 
 /**
@@ -74,17 +92,15 @@ Mark.getHandleStreams = function(mark) {
  * @param   {Object} obj Javascript object to extend
  * @returns {Object}     Extended Javascript object.
  */
-function extend(obj) {
-  for (var x, key, i = 1, len = arguments.length; i < len; ++i) {
-    x = arguments[i];
-    for (key in x) {
-      obj[key] = x[key];
-      if (x[key] === undefined) {
-        delete obj[key];
-      }
-    }
-  }
-  return obj;
-}
-
-module.exports = Mark;
+// function extend(obj) {
+//   for (let x, key, i = 1, len = arguments.length; i < len; ++i) {
+//     x = arguments[i];
+//     for (key in x) {
+//       obj[key] = x[key];
+//       if (x[key] === undefined) {
+//         delete obj[key];
+//       }
+//     }
+//   }
+//   return obj;
+// }
