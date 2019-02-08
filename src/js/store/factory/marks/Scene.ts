@@ -10,7 +10,7 @@ export interface LyraSceneMark extends BaseMark, Scope, Encodable<GroupEncodeEnt
   from?: FromFacet;
 }
 
-export function Scene(values?: Partial<LyraSceneMark> | Iterable<[string, any]>): SceneRecord {
+export function Scene(values?: Partial<LyraSceneMark>): SceneRecord {
   const base = Group();
 
   return Record<LyraSceneMark>({
