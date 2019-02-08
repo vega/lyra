@@ -1,54 +1,33 @@
-/* eslint consistent-this:0, no-undefined:0*/
-'use strict';
+import {Record, RecordOf} from 'immutable';
+import {GroupMark} from 'vega-typings';
+import {Rect} from './Rect';
 
-var dl = require('datalib'),
-    getInVis = require('../../../util/immutable-utils').getInVis,
-    Rect = require('./Rect'); // Visually, groups are similar to Rects.
-
+const dl = require('datalib');
+const getInVis = require('../../../util/immutable-utils').getInVis;
 
 export type LyraGroupMark = {
-  _id: number
+  _manualLayout: boolean
 } & GroupMark;
 
-export const Area = Record<LyraGroupMark>({
-  _id: null,
-  type: 'area',
-  encode: {
-    update: {
-      // x2: {value: 0},
-      y2: {value: 0},
-      tension: {value: 13},
-      interpolate: {value: 'monotone'},
-      orient: {value: 'vertical'}
-    }
-  }
-});
+export function Group(values?: Partial<LyraGroupMark> | Iterable<[string, any]>): GroupRecord {
+  const base = Rect();
+  const state = require('../../').getState();
+  const scene = getInVis(state, 'marks.' + getInVis(state, 'scene.id'));
 
-/**
- * A group mark factory.
- * @returns {Object} Additional default properties for a group mark.
- */
-function Group() {
-  var base = Rect(),
-      state = require('../../').getState(),
-      scene = getInVis(state, 'marks.' + getInVis(state, 'scene.id'));
-  return {
-    // Has the user manually set the width/height of this group? If so, any
-    // automatic adjustments to width/height made during data binding will not
-    // affect it.
+  return Record<LyraGroupMark>({
     _manualLayout: false,
-
+    type: 'group',
     scales: [],
     axes: [],
     legends: [],
     marks: [],
-    properties: {
+    encode: {
       // To allow marks across layered groups to be selected interactively on
       // the campus, groups do not have a fill color by default. Users may, of
       // course set a fill color. If a group is explicitly selected from the
       // sidebar, a transparent fill is rendered in order for direct
       // manipulation events of the group itself to be captured.
-      update: dl.extend({}, base.properties.update, {
+      update: dl.extend({}, base.encode.update, {
         fill: undefined,
         stroke: undefined,
         x: {value: 0},
@@ -59,10 +38,7 @@ function Group() {
         y2: {_disabled: true}
       })
     }
-  };
+  })(values);
 }
 
-Group.getHandleStreams = Rect.getHandleStreams;
-
-module.exports = Group;
-
+export type GroupRecord = RecordOf<LyraGroupMark>;
