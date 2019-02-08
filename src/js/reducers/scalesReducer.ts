@@ -9,7 +9,7 @@ const setIn = immutableUtils.setIn;
 const deleteKeyFromMap = immutableUtils.deleteKeyFromMap;
 
 import {fromJS, Map} from 'immutable';
-// import {ActionType, getType} from 'typesafe-actions';
+import {ActionType, getType} from 'typesafe-actions';
 import * as scaleActions from '../actions/scaleActions';
 import {ScaleState} from '../store/factory/Scale';
 
