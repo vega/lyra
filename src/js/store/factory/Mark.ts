@@ -45,25 +45,25 @@ export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord
   switch(type) {
     case 'symbol': return Symbol({
         name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
     case 'area': return Area({
         name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
     case 'line': return Line({
         name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
     case 'rect': return Rect({
         name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
     case 'text': return Text({
         name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
     case 'group': return Group({
         name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
     case 'scene': return Scene({
         name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal, defaults);
+      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
   }
 }
 
