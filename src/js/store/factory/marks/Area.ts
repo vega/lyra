@@ -8,11 +8,13 @@ const test = require('../../../util/test-if');
 const propSg = require('../../../util/prop-signal');
 
 export type LyraAreaMark = {
-  _id: number
+  _id: number;
+  _parent: number;
 } & AreaMark;
 
 export const Area = Record<LyraAreaMark>({
   _id: null,
+  _parent: null,
   type: 'area',
   encode: {
     update: {

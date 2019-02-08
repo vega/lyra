@@ -7,11 +7,13 @@ const test = require('../../../util/test-if');
 const propSg = require('../../../util/prop-signal');
 
 export type LyraRectMark = {
-  _id: number
+  _id: number;
+  _parent: number;
 } & RectMark;
 
 export const Rect = Record<LyraRectMark>({
   _id: null,
+  _parent: null,
   type: 'rect',
   encode: {
     update: {

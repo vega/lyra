@@ -6,8 +6,9 @@ const dl = require('datalib');
 const getInVis = require('../../../util/immutable-utils').getInVis;
 
 export type LyraGroupMark = {
-  _id: number,
-  _manualLayout: boolean
+  _id: number;
+  _parent: number;
+  _manualLayout: boolean;
 } & GroupMark;
 
 export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
@@ -17,6 +18,7 @@ export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
 
   return Record<LyraGroupMark>({
     _id: null,
+    _parent: null,
     _manualLayout: false,
     type: 'group',
     scales: [],
