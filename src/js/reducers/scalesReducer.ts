@@ -9,34 +9,32 @@ const setIn = immutableUtils.setIn;
 const deleteKeyFromMap = immutableUtils.deleteKeyFromMap;
 
 import {fromJS, Map} from 'immutable';
-import {ActionType, getType} from 'typesafe-actions';
+import {getType} from 'typesafe-actions';
 import * as scaleActions from '../actions/scaleActions';
 import {ScaleState} from '../store/factory/Scale';
 
-function scalesReducer(state: ScaleState, action) {
+export function scalesReducer(state: ScaleState, action): ScaleState {
   if (typeof state === 'undefined') {
     return Map();
   }
 
-  if (action.type === ACTIONS.ADD_SCALE) {
+  if (action.type === getType(scaleActions.addScale)) {
     return set(state, action.id, fromJS(action.props));
   }
 
-  if (action.type === ACTIONS.UPDATE_SCALE_PROPERTY) {
+  if (action.type === getType(scaleActions.updateScaleProperty)) {
     return setIn(state, action.id + '.' + action.property,
       fromJS(action.value));
   }
 
-  if (action.type === ACTIONS.AMEND_DATA_REF) {
+  if (action.type === getType(scaleActions.amendDataRef)) {
     const refs = getIn(state, action.id + '.' + action.property);
     return setIn(state, action.id + '.' + action.property, refs.push(action.ref));
   }
 
-  if (action.type === ACTIONS.DELETE_SCALE) {
+  if (action.type === getType(scaleActions.deleteScale)) {
     return deleteKeyFromMap(state, action.id);
   }
 
   return state;
 }
-
-module.exports = scalesReducer;
