@@ -1,18 +1,14 @@
 'use strict';
 
-import * as dl from 'datalib';
 import {createStandardAction} from 'typesafe-actions';
 import {ScaleRecord} from '../store/factory/Scale';
 import * as counter from '../util/counter';
 
 // /**
 //  * Action creator to create a new scale and add it to the store.
-//  *
 //  */
 export const addScale = createStandardAction('ADD_SCALE').map((payload: ScaleRecord) => {
-  const id = dl.extend({
-    _id: payload._id || counter.global(),
-  }, payload);
+  const id = payload._id || counter.global();
   return {payload: payload.merge({_id: id}), meta: id}
 });
 
