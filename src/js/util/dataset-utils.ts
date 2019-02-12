@@ -10,8 +10,8 @@
 
 import {Map} from 'immutable';
 import {AggregateTransform, Datum, Format} from 'vega-typings/types';
-import {Column, ColumnRecord, Dataset, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
-import {Pipeline} from '../store/factory/Pipeline';
+import {Column, ColumnRecord, Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
+import {Pipeline, PipelineRecord} from '../store/factory/Pipeline';
 
 const dl = require('datalib');
 const promisify = require('es6-promisify');
@@ -84,6 +84,12 @@ export function output(id: number) {
   return view && view.values().length ? view.values() : input(id);
 }
 
+export interface LoadUrlResult {
+  data: string,
+  pipeline: PipelineRecord,
+  dataset: DatasetRecord
+}
+
 /**
  * Load raw values from a URL.
  *
@@ -97,7 +103,7 @@ export function loadURL(url: string) {
   const pipeline = Pipeline({name});
   const dataset = Dataset({name, url});
 
-  return promisify(dl.load)({url: url}).then(function(data) {
+  return promisify(dl.load)({url: url}).then(function(data): LoadUrlResult {
     return {data: data, pipeline: pipeline, dataset: dataset};
   });
 }

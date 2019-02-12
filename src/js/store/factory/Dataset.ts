@@ -28,18 +28,17 @@ export type ColumnRecord = RecordOf<ColumnDescription>;
 
 export type Schema = Map<string, ColumnRecord>;
 
-// tslint:disable-next-line:class-name
-interface _LyraDataset {
+interface LyraDatasetProperties {
   _id: number;
   /** The ID of the Lyra Pipeline this dataset falls within. */
   _parent: number;
   _schema: Schema;
 }
-export type LyraDataset = _LyraDataset & Data;
-export type LyraBaseDataset = _LyraDataset & BaseData;
-export type LyraSourceDataset = _LyraDataset & SourceData;
-export type LyraValuesDataset = _LyraDataset & ValuesData;
-export type LyraUrlDataset = _LyraDataset & UrlData;
+export type LyraDataset = LyraDatasetProperties & Data;
+export type LyraBaseDataset = LyraDatasetProperties & BaseData;
+export type LyraSourceDataset = LyraDatasetProperties & SourceData;
+export type LyraValuesDataset = LyraDatasetProperties & ValuesData;
+export type LyraUrlDataset = LyraDatasetProperties & UrlData;
 
 export const Dataset = Record<LyraDataset>({
   _id: null, _parent: null, _schema: null, name: null
