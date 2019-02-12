@@ -1,3 +1,4 @@
+import {Map} from 'immutable';
 import {MarkType} from 'vega-typings';
 import {Area, AreaRecord, getHandleStreams as areaHandleStreams, LyraAreaMark} from './marks/Area';
 import {Group, GroupRecord, LyraGroupMark} from './marks/Group';
@@ -66,6 +67,8 @@ export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord
       }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
   }
 }
+
+export type MarkState = Map<string, MarkRecord>;
 
 /**
  * Return an object of signal stream definitions for handle manipulators for the
