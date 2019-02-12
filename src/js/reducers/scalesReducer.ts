@@ -2,13 +2,9 @@
 'use strict';
 
 const immutableUtils = require('../util/immutable-utils');
-const getIn = immutableUtils.getIn;
-const set = immutableUtils.set;
 const str = immutableUtils.str;
-const setIn = immutableUtils.setIn;
-const deleteKeyFromMap = immutableUtils.deleteKeyFromMap;
 
-import {fromJS, Map} from 'immutable';
+import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import * as scaleActions from '../actions/scaleActions';
 import {ScaleState} from '../store/factory/Scale';
@@ -21,23 +17,22 @@ export function scalesReducer(state: ScaleState, action: ActionType<typeof scale
   }
 
   if (action.type === getType(scaleActions.addScale)) {
-    return set(str(id), action.payload);
+    return state.set(str(id), action.payload);
   }
 
   if (action.type === getType(scaleActions.updateScaleProperty)) {
     const p = action.payload;
-    return setIn(state, str(id) + '.' + p.property,
-      fromJS(p.value));
+    return state.setIn([str(id), p.property], p.value);
   }
 
   if (action.type === getType(scaleActions.amendDataRef)) {
     const p = action.payload;
-    const refs = getIn(state, str(id) + '.' + p.property);
-    return setIn(state, str(id) + '.' + p.property, refs.push(p.ref));
+    const refs = state.getIn([str(id), p.property]);
+    return state.setIn([str(id), p.property], refs.push(p.ref));
   }
 
   if (action.type === getType(scaleActions.deleteScale)) {
-    return deleteKeyFromMap(state, str(id));
+    return state.delete(str(id));
   }
 
   return state;

@@ -4,7 +4,7 @@ import {Scale as ScaleType} from 'vega-typings/types';
 /**
  * Scales are functions that transform a domain of data values (numbers, dates, strings, etc.) to a range of visual values (pixels, colors, sizes).
  */
-export interface _LyraScale {
+export type LyraScale = {
   /**
    * Unique id for scale.
    */
@@ -15,8 +15,8 @@ export interface _LyraScale {
   _origName: string;
   _domain: [],
   _range: [],
-};
-export type LyraScale = _LyraScale & ScaleType;
+
+} & ScaleType;
 
 const names = {};
 
@@ -31,13 +31,16 @@ function rename(name) {
   return (names[str] = 1, str);
 }
 
-export const Scale = Record<LyraScale>({
-  _id: null,
-  _origName: null,
-  _domain: [],
-  _range: [],
-  name: rename(name) // TODO
-});
+export function Scale(values?: Partial<LyraScale>): ScaleRecord {
+  return Record<LyraScale>({
+    _id: null,
+    _origName: null,
+    _domain: [],
+    _range: [],
+
+    name: rename(values.name)
+  })(values);
+}
 
 export type ScaleRecord = RecordOf<LyraScale>;
 export type ScaleState = Map<string, ScaleRecord>;
