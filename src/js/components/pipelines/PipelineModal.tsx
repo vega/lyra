@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as ReactModal from 'react-modal';
 import { connect } from 'react-redux';
 import {Datum} from 'vega-typings';
-import {State} from '../../store';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {PipelineRecord} from '../../store/factory/Pipeline';
 import * as dsUtils from '../../util/dataset-utils';
@@ -35,17 +34,9 @@ export interface PipelineModalState {
     values: Datum[];
 }
 
-function mapStateToProps(state: State, ownProps: OwnProps) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
-  return {
-    addPipeline: function(pipeline, dataset, values) {
-      dispatch(addPipeline(pipeline, dataset, values));
-    }
-  };
-}
+const mapDispatch: DispatchProps = {
+  addPipeline
+};
 
 export class PipelineModal extends React.Component<OwnProps & DispatchProps, PipelineModalState> {
 
@@ -99,7 +90,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
       'Successfully imported ' + url.match(NAME_REGEX)[0] + '!' : msg;
 
     dsUtils.loadURL(url)
-      .then(function(loaded: {data: string, pipeline: PipelineRecord, dataset: DatasetRecord }) {
+      .then(function(loaded: dsUtils.LoadUrlResult) {
         let dataset = loaded.dataset;
         const parsed = dsUtils.parseRaw(loaded.data);
         const values = parsed.values;
@@ -202,4 +193,4 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PipelineModal);
+export default connect(null, mapDispatch)(PipelineModal);

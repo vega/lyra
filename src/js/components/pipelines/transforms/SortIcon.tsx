@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
-import { Dispatch } from 'redux';
 import {sortDataset} from '../../../actions/datasetActions';
-import * as ORDER from '../../../constants/sortOrder';
 import {State} from '../../../store';
 import {ColumnRecord} from '../../../store/factory/Dataset';
 import { Icon } from '../../Icon';
+
+import {Compare} from 'vega-typings/types';
+import {SortOrderValues} from '../../../constants/sortOrder';
 
 const assets = require('../../../util/assets');
 const getInVis = require('../../../util/immutable-utils').getInVis;
@@ -18,11 +19,11 @@ interface OwnProps {
 }
 
 interface StateProps {
-  sort: any; // Immutable.Map
+  sort: Compare;
 }
 
 interface DispatchProps {
-  sortDataset: (dsId: number, field: string, order: ORDER.SortOrder) => void;
+  sortDataset: (payload: Compare, dsId: number) => void;
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -31,12 +32,8 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
-  return {
-    sortDataset: function(dsId, field, order) {
-      dispatch(sortDataset({field, order}, dsId));
-    }
-  };
+const mapDispatch: DispatchProps = {
+  sortDataset
 }
 
 class SortIcon extends React.Component<OwnProps & StateProps & DispatchProps> {
@@ -51,11 +48,11 @@ class SortIcon extends React.Component<OwnProps & StateProps & DispatchProps> {
     const field = props.field.name;
     const dsId = props.dsId;
 
-    if (sort && sort.get('field') === field) {
-      props.sortDataset(dsId, field,
-        sort.get('order') === ORDER.ASC ? ORDER.DESC : ORDER.ASC);
+    if (sort && sort.field === field) {
+      props.sortDataset({field,
+        order: sort.order === SortOrderValues.Asc ? SortOrderValues.Desc : SortOrderValues.Asc}, dsId);
     } else {
-      props.sortDataset(dsId, field, ORDER.ASC);
+      props.sortDataset({field, order: SortOrderValues.Asc}, dsId);
     }
   }
 
@@ -67,8 +64,8 @@ class SortIcon extends React.Component<OwnProps & StateProps & DispatchProps> {
     let isAsc
     let tip;
 
-    if (sort && sort.get('field') === field.name) {
-      isAsc = sort.get('order') === ORDER.ASC;
+    if (sort && sort.field === field.name) {
+      isAsc = sort.order === SortOrderValues.Asc;
       tip = 'Sorted in ' + (isAsc ? 'ascending' : 'descending') + ' order.';
 
       return mtype === MTYPES.NOMINAL ?
@@ -86,4 +83,4 @@ class SortIcon extends React.Component<OwnProps & StateProps & DispatchProps> {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SortIcon);
+export default connect(mapStateToProps, mapDispatch)(SortIcon);

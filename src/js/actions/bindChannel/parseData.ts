@@ -37,7 +37,7 @@ module.exports = function(dispatch, state, parsed) {
 };
 
 function parseAggregate(dispatch, state, parsed, summary) {
-  const aggregate: LyraAggregateTransform = summary.transform.find(function(tx) { // TODO(jzong) is this the right type? this file is scary
+  const aggregate: LyraAggregateTransform = summary.transform.find(function(tx) {
     return tx.type === 'aggregate';
   });
 
