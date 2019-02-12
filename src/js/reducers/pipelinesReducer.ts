@@ -21,7 +21,7 @@ export function pipelinesReducer(state: PipelineState, action: ActionType<typeof
     return Map();
   }
 
-  if (action.type === getType(pipelineActions._addPipeline)) {
+  if (action.type === getType(pipelineActions.baseAddPipeline)) {
     return state.set(str(id), action.payload);
   }
 
@@ -30,7 +30,7 @@ export function pipelinesReducer(state: PipelineState, action: ActionType<typeof
     return state.setIn([str(id), p.property], p.value);
   }
 
-  if (action.type === getType(pipelineActions._aggregatePipeline)) {
+  if (action.type === getType(pipelineActions.baseAggregatePipeline)) {
     const p = action.payload;
     return state.setIn([id, '_aggregates', p.key], p.dsId);
   }
