@@ -1,14 +1,14 @@
 import {Record, RecordOf} from 'immutable';
-import {BaseMark, Encodable, FromFacet, GroupEncodeEntry, Scope} from 'vega-typings';
-import {Group, LyraGroupMark} from './Group';
+import {Omit} from 'react-redux';
+import {GroupMark} from 'vega-typings/types';
+import {Group} from './Group';
 
 const dl = require('datalib');
 
-// TODO(jzong): how to keep this in sync with GroupMark in vega-typings?
-export interface LyraSceneMark extends BaseMark, Scope, Encodable<GroupEncodeEntry> {
-  _parent: null,
-  type: 'scene'
-  from?: FromFacet;
+export interface LyraSceneMark extends Omit<GroupMark, 'type'> {
+  _id: number;
+  _parent: number;
+  type: 'scene';
 }
 
 export function Scene(values?: Partial<LyraSceneMark>): SceneRecord {
@@ -16,6 +16,7 @@ export function Scene(values?: Partial<LyraSceneMark>): SceneRecord {
 
   return Record<LyraSceneMark>({
     type: 'scene',
+    _id: null,
     _parent: null,
     scales: [],
     axes: [],
