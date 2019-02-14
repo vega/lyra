@@ -1,6 +1,8 @@
-'use strict';
+import {createStandardAction} from 'typesafe-actions';
+import {OnEvent} from 'vega-typings/types';
 
-var ns = require('../util/ns'),
+const ns = require('../util/ns');
+
     INIT_SIGNAL = 'INIT_SIGNAL',
     SET_SIGNAL  = 'SET_SIGNAL',
     SET_SIGNAL_STREAMS = 'SET_SIGNAL_STREAMS',
@@ -13,13 +15,7 @@ var ns = require('../util/ns'),
  * @param {*} value - The initial value of the signal
  * @returns {Object} An action object
  */
-function initSignal(signal, value) {
-  return {
-    type: INIT_SIGNAL,
-    signal: ns(signal),
-    value: value
-  };
-}
+export const initSignal = createStandardAction('INIT_SIGNAL')<any, string>();
 
 /**
  * Action creator to configure the initial value of a signal.
@@ -28,13 +24,7 @@ function initSignal(signal, value) {
  * @param {*} value - The value to set as the signal's initial value
  * @returns {Object} An action object
  */
-function setSignal(signal, value) {
-  return {
-    type: SET_SIGNAL,
-    signal: ns(signal),
-    value: value
-  };
-}
+export const setSignal = createStandardAction('SET_SIGNAL')<any, string>();
 
 /**
  * Action creator to configure a property to update based on a stream.
@@ -43,13 +33,7 @@ function setSignal(signal, value) {
  * @param {Object[]} streams - Array of stream configuration objects
  * @returns {Object} An action object
  */
-function setSignalStreams(signal, streams) {
-  return {
-    type: SET_SIGNAL_STREAMS,
-    signal: ns(signal),
-    value: streams
-  };
-}
+export const setSignalStreams = createStandardAction('SET_SIGNAL_STREAMS')<OnEvent[], string>();
 
 /**
  * Unset a signal in the current store
@@ -57,23 +41,4 @@ function setSignalStreams(signal, streams) {
  * @param {string} signal - Name of the signal to modify
  * @returns {Object} An action object
  */
-function unsetSignal(signal) {
-  return {
-    type: UNSET_SIGNAL,
-    signal: ns(signal)
-  };
-}
-
-module.exports = {
-  // Action Names
-  INIT_SIGNAL: INIT_SIGNAL,
-  SET_SIGNAL: SET_SIGNAL,
-  SET_SIGNAL_STREAMS: SET_SIGNAL_STREAMS,
-  UNSET_SIGNAL: UNSET_SIGNAL,
-
-  // Action Creators
-  initSignal: initSignal,
-  setSignal: setSignal,
-  setSignalStreams: setSignalStreams,
-  unsetSignal: unsetSignal
-};
+export const unsetSignal = createStandardAction('UNSET_SIGNAL')<null, string>();
