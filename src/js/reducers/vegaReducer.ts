@@ -1,4 +1,5 @@
 import {ActionType, getType} from 'typesafe-actions';
+import * as helperActions from '../actions/bindChannel/helperActions';
 import * as datasetActions from '../actions/datasetActions';
 import * as markActions from '../actions/markActions';
 import * as pipelineActions from '../actions/pipelineActions';
@@ -15,7 +16,9 @@ import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
  * @returns {boolean} The new state of the reparse flag
  */
 export function invalidateVegaReducer(state: VegaReparseRecord,
-                              action: ActionType<typeof vegaActions | typeof datasetActions | typeof markActions | typeof pipelineActions | typeof sceneActions | typeof scaleActions>): VegaReparseRecord {
+                              action: ActionType<typeof vegaActions | typeof datasetActions |
+                              typeof markActions | typeof pipelineActions | typeof sceneActions |
+                              typeof scaleActions | typeof helperActions>): VegaReparseRecord {
   if (typeof state === 'undefined') {
     return VegaReparse({
       invalid: false,
@@ -42,16 +45,16 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     getType(markActions.disableMarkVisual),
     getType(markActions.resetMarkVisual),
     getType(markActions.setMarkExtent),
-    ACTIONS.BIND_SCALE,
+    getType(markActions.bindScale),
     getType(scaleActions.addScale),
     getType(scaleActions.updateScaleProperty),
     ACTIONS.ADD_SCALE_TO_GROUP,
     getType(scaleActions.deleteScale),
     ACTIONS.ADD_GUIDE,
     ACTIONS.UPDATE_GUIDE_PROPERTY,
-    ACTIONS.ADD_AXIS_TO_GROUP,
-    ACTIONS.ADD_LEGEND_TO_GROUP,
-    ACTIONS.REMOVE_AXIS_FROM_GROUP,
+    getType(helperActions.addAxisToGroup),
+    getType(helperActions.addLegendToGroup),
+    // ACTIONS.REMOVE_AXIS_FROM_GROUP, // TODO this action doesn't exist
     getType(datasetActions.sortDataset),
     getType(datasetActions.addTransform),
     getType(datasetActions.updateTransform),

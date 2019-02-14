@@ -1,5 +1,6 @@
 import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
+import * as helperActions from '../actions/bindChannel/helperActions';
 import * as markActions from '../actions/markActions';
 import * as sceneActions from '../actions/sceneActions';
 import {MarkRecord, MarkState} from '../store/factory/Mark';
@@ -126,7 +127,7 @@ function moveChildToGroup(state, action, collection) {
  * @param {Object} action - A redux action object
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
-export function marksReducer(state: MarkState, action: ActionType<typeof markActions | typeof sceneActions.createScene>): MarkState {
+export function marksReducer(state: MarkState, action: ActionType<typeof markActions | typeof helperActions | typeof sceneActions.createScene>): MarkState {
   if (typeof state === 'undefined') {
     return Map();
   }
@@ -195,18 +196,18 @@ export function marksReducer(state: MarkState, action: ActionType<typeof markAct
     return state.setIn([String(markId), 'properties', 'update', action.payload.property, 'scale'], action.payload.scaleId);
   }
 
-  // TODO(jzong, al) blocked on scaleActions refactor
+  const groupId = action.meta;
 
-  if (action.type === ACTIONS.ADD_SCALE_TO_GROUP) {
-    return ensureValuePresent(state, action.groupId + '.scales', action.scaleId);
+  if (action.type === getType(helperActions.addScaleToGroup)) {
+    return ensureValuePresent(state, groupId + '.scales', action.payload);
   }
 
-  if (action.type === ACTIONS.ADD_AXIS_TO_GROUP) {
-    return ensureValuePresent(state, action.groupId + '.axes', action.axisId);
+  if (action.type === getType(helperActions.addAxisToGroup)) {
+    return ensureValuePresent(state, groupId + '.axes', action.payload);
   }
 
-  if (action.type === ACTIONS.ADD_LEGEND_TO_GROUP) {
-    return ensureValuePresent(state, action.groupId + '.legends', action.legendId);
+  if (action.type === getType(helperActions.addLegendToGroup)) {
+    return ensureValuePresent(state, groupId + '.legends', action.payload);
   }
 
   if (action.type === ACTIONS.DELETE_GUIDE) {
