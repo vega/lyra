@@ -22,7 +22,7 @@ const defaultState = Map({
   })
 });
 
-export type State = typeof defaultState;
+export type State = any;
 
 function configureStore(initialState: State) {
   return createStore(rootReducer, initialState, applyMiddleware(ReduxThunk));

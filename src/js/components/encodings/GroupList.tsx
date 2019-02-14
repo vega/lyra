@@ -18,7 +18,7 @@ const assets = require('../../util/assets');
 interface StateProps {
   sceneId: number;
   selectedId: number;
-  marks: MarkRecord[];
+  marks: number[]; // list of ids
 }
 
 interface DispatchProps {
