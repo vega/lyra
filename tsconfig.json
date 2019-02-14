@@ -4,7 +4,7 @@
     "sourceMap": true,
     "noImplicitAny": false, // TODO(jzong): change this back to true when we're farther along refactoring
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
     "jsx": "react"
   },
   "include": ["./src/**/*"]
