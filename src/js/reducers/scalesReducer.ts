@@ -32,7 +32,7 @@ export function scalesReducer(state: ScaleState, action: ActionType<typeof scale
   }
 
   if (action.type === getType(scaleActions.deleteScale)) {
-    return state.delete(str(id));
+    return state.remove(str(id));
   }
 
   return state;

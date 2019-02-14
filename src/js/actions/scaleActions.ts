@@ -12,8 +12,8 @@ export const addScale = createStandardAction('ADD_SCALE').map((payload: ScaleRec
   return {payload: payload.merge({_id: id}), meta: id}
 });
 
-export const updateScaleProperty = createStandardAction('UPDATE_SCALE_PROPERTY')<{scaleId: number, property: any, value: any}, number>();
+export const updateScaleProperty = createStandardAction('UPDATE_SCALE_PROPERTY')<{property: string, value: any}, number>();
 
-export const amendDataRef = createStandardAction('AMEND_DATA_REF')<{scaleId: number, property: any, ref: any}, number>();
+export const amendDataRef = createStandardAction('AMEND_DATA_REF')<{property: string, ref: any}, number>();
 
-export const deleteScale = createStandardAction('DELETE_SCALE')<{id: number}, number>();
+export const deleteScale = createStandardAction('DELETE_SCALE')<null, number>();
