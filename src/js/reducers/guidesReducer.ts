@@ -2,7 +2,6 @@ import {GuideState, GuideRecord} from "../store/factory/Guide";
 import * as guideActions from '../actions/guideActions';
 import {ActionType, getType} from 'typesafe-actions';
 import {Map, fromJS} from 'immutable';
-import {AxisEncode, LegendEncode} from "vega-typings/types";
 
 
 const str = require('../util/immutable-utils').str;
