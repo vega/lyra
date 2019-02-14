@@ -1,87 +1,98 @@
-'use strict';
-var dl = require('datalib'),
-    ns = require('../../util/ns'),
-    signals = {};
+// TODO(jzong): this probably should be moved to store/factory
 
-var SELECTED = ns('selected'),
-    MODE = ns('mode'),
-    ANCHOR = ns('anchor'),
-    DELTA = ns('delta'),
-    CURSOR = 'cursor',  // Special vega signal, don't namespace.
-    CELL = ns('cell'),
-    MOUSE = ns('mouse');
+import {Map, Record, RecordOf} from 'immutable';
+import {Signal as VegaSignal} from 'vega-typings/types';
+import ns from '../../util/ns';
 
-signals[SELECTED] = {
-  name: SELECTED,
-  init: {mark: {}},
-  streams: [
-    {type: 'mousedown[eventItem().mark && eventItem().mark.name &&' +
-        'eventItem().mark.name !== ' + dl.str(CELL) + ']',
-      expr: 'eventItem()'},
-    {type: 'mousedown[!eventItem().mark]', expr: '{mark: {}}'}
-  ],
-  _idx: 0
-};
+const dl = require('datalib');
 
-signals[MODE] = {
-  name: MODE,
-  init: 'handles',
-  _idx: 1
-};
+const SELECTED = ns('selected');
+const MODE = ns('mode');
+const ANCHOR = ns('anchor');
+const DELTA = ns('delta');
+const CURSOR = 'cursor';  // Special vega signal, don't namespace.
+const CELL = ns('cell');
+const MOUSE = ns('mouse');
 
-signals[DELTA] = {
-  name: DELTA,
-  init: 0,
-  streams: [
-    {type: '[mousedown, window:mouseup] > window:mousemove',
-      expr: '{x: eventX() - lyra_anchor.x, y: eventY() - lyra_anchor.y}'}
-  ],
-  _idx: 2
-};
+export type LyraSignal = {
+  _idx: number
+} & VegaSignal;
+export const Signal = Record<LyraSignal>({
+  _idx: null,
+  name: null
+});
 
-signals[ANCHOR] = {
-  name: ANCHOR,
-  init: 0,
-  streams: [
-    {type: 'mousedown',
-      expr: '{x: eventX(), y: eventY(), target: eventItem()}'},
-    {type: '[mousedown, window:mouseup] > window:mousemove',
-      expr: '{x: eventX(), y: eventY(), target: lyra_anchor.target}'}
-  ],
-  _idx: 3
-};
+export type SignalRecord = RecordOf<LyraSignal>;
 
-signals[CELL] = {
-  name: CELL,
-  init: {},
-  streams: [
-    {type: '@' + CELL + ':dragover', expr: 'eventItem()'},
-    {type: '@' + CELL + ':dragleave', expr: '{}'},
-    // {type: '@'+CELL+':mouseover', expr: 'eventItem()'},
-    // {type: '@'+CELL+':mouseout',  expr: '{}'}
-  ],
-  _idx: 4
-};
+export type SignalState = Map<string, SignalRecord>;
 
-signals[MOUSE] = {
-  name: MOUSE,
-  init: {},
-  streams: [
-    {type: 'mousemove, dragover', expr: '{x: eventX(), y: eventY()}'}
-  ],
-  _idx: 5
-};
-
-signals[CURSOR] = {
-  name: CURSOR,
-  streams: [
-    {type: 'mousedown', expr: "eventItem() && eventItem().cursor || 'default'"},
-    {type: 'mouseup', expr: "'default'"}
-  ]
-};
+export const defaultSignalState: SignalState = Map({
+  SELECTED: Signal({
+    name: SELECTED,
+    value: {mark: {}},
+    on: [
+      {events: 'mousedown[eventItem().mark && eventItem().mark.name &&' +
+          'eventItem().mark.name !== ' + dl.str(CELL) + ']',
+        update: 'eventItem()'},
+      {events: 'mousedown[!eventItem().mark]', update: '{mark: {}}'}
+    ],
+    _idx: 0
+  }),
+  MODE: Signal({
+    name: MODE,
+    value: 'handles',
+    _idx: 1
+  }),
+  DELTA: Signal({
+    name: DELTA,
+    value: 0,
+    on: [
+      {events: '[mousedown, window:mouseup] > window:mousemove',
+        update: '{x: eventX() - lyra_anchor.x, y: eventY() - lyra_anchor.y}'}
+    ],
+    _idx: 2
+  }),
+  ANCHOR: Signal({
+    name: ANCHOR,
+    value: 0,
+    on: [
+      {events: 'mousedown',
+        update: '{x: eventX(), y: eventY(), target: eventItem()}'},
+      {events: '[mousedown, window:mouseup] > window:mousemove',
+        update: '{x: eventX(), y: eventY(), target: lyra_anchor.target}'}
+    ],
+    _idx: 3
+  }),
+  CELL: Signal({
+    name: CELL,
+    value: {},
+    on: [
+      {events: '@' + CELL + ':dragover', update: 'eventItem()'},
+      {events: '@' + CELL + ':dragleave', update: '{}'},
+      // {events: '@'+CELL+':mouseover', update: 'eventItem()'},
+      // {events: '@'+CELL+':mouseout',  update: '{}'}
+    ],
+    _idx: 4
+  }),
+  MOUSE: Signal({
+    name: MOUSE,
+    value: {},
+    on: [
+      {events: 'mousemove, dragover', update: '{x: eventX(), y: eventY()}'}
+    ],
+    _idx: 5
+  }),
+  CURSOR: Signal({
+    name: CURSOR,
+    on: [
+      {events: 'mousedown', update: "eventItem() && eventItem().cursor || 'default'"},
+      {events: 'mouseup', update: "'default'"}
+    ]
+  })
+});
 
 module.exports = {
-  signals: signals,
+  signals: defaultSignalState,
   names: [SELECTED, MODE, ANCHOR, DELTA, CELL, MOUSE, CURSOR],
   signalNames: {
     SELECTED: SELECTED,

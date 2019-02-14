@@ -1,6 +1,7 @@
 import {Map} from 'immutable';
 import {applyMiddleware, createStore} from 'redux';
 import ReduxThunk from 'redux-thunk'; // redux-thunk lets us dispatch() functions to create async or multi-stage actions
+import {defaultSignalState} from '../ctrl/signals/defaults';
 import {DatasetRecord} from './factory/Dataset';
 import {MarkRecord} from './factory/Mark';
 import {PipelineRecord} from './factory/Pipeline';
@@ -19,7 +20,7 @@ const defaultState = Map({
     scales: Map(),
     guides: Map(),
     marks: Map<string, MarkRecord>(),
-    signals: Map(require('../ctrl/signals/defaults').signals)
+    signals: defaultSignalState
   }),
   vega: VegaReparse(),
 });
