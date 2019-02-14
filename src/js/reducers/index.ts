@@ -5,6 +5,7 @@ import {marksReducer as marks} from './marksReducer';
 import {pipelinesReducer as pipelines} from './pipelinesReducer';
 import {scalesReducer as scales} from './scalesReducer';
 import {sceneReducer as scene} from './sceneReducer';
+import {invalidateVegaReducer as vega} from './vegaReducer';
 
 const undoable = require('./historyReducer');
 
@@ -19,7 +20,7 @@ module.exports = combineReducers({
     guides,
     marks
   })),
-  vega: require('./vegaReducer'),
+  vega,
   inspector: require('./inspectorReducer'),
   hints: require('./hintsReducer'),
   walkthrough: require('./walkthroughReducer')

@@ -4,7 +4,7 @@ import ReduxThunk from 'redux-thunk'; // redux-thunk lets us dispatch() function
 import {DatasetRecord} from './factory/Dataset';
 import {MarkRecord} from './factory/Mark';
 import {PipelineRecord} from './factory/Pipeline';
-import {LyraVegaFlags} from './factory/Vega';
+import {VegaReparse} from './factory/Vega';
 
 // reducer/index.js returns combinedReducers();
 const rootReducer = require('../reducers');
@@ -21,7 +21,7 @@ const defaultState = Map({
     marks: Map<string, MarkRecord>(),
     signals: Map(require('../ctrl/signals/defaults').signals)
   }),
-  vega: Map<keyof LyraVegaFlags, boolean>(),
+  vega: VegaReparse(),
 });
 
 export type State = any;

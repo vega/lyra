@@ -1,8 +1,13 @@
-import {Map} from 'immutable';
+import {Record, RecordOf} from 'immutable';
 
-export interface LyraVegaFlags {
+export interface LyraVegaReparse {
   invalid: boolean,
   isParsing: boolean
 }
 
-export type VegaFlagsState = Map<keyof LyraVegaFlags, boolean>;
+export const VegaReparse = Record<LyraVegaReparse>({
+  invalid: false,
+  isParsing: false
+});
+
+export type VegaReparseRecord = RecordOf<LyraVegaReparse>;
