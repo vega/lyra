@@ -1,52 +1,29 @@
-import { Mark } from '../store/factory/Mark';
+import {createStandardAction} from 'typesafe-actions';
+import {SceneRecord} from '../store/factory/marks/Scene';
+import {deleteMark} from './markActions';
 
-'use strict';
+const dl = require('datalib');
+const counter = require('../util/counter');
+const getInVis = require('../util/immutable-utils').getInVis;
+const historyActions = require('./historyActions');
+const startBatch = historyActions.startBatch;
+const endBatch = historyActions.endBatch;
 
-var dl = require('datalib'),
-    counter = require('../util/counter'),
-    getInVis = require('../util/immutable-utils').getInVis,
-    deleteMark = require('./markActions').deleteMark,
-    historyActions = require('./historyActions'),
-    startBatch = historyActions.startBatch,
-    endBatch = historyActions.endBatch,
-    CREATE_SCENE = 'CREATE_SCENE';
-
-
-/**
- * Action creator to configure the scene. It generates the default properties
- * of a scene and returns an object that is used to generate the scene within
- * the store and, via the store listener callbacks, to instantiate the scene
- * object.
- *
- * Loading data will require adding an action or altering this action to permit
- * seeding the created scene with preexisting properties.
- *
- * @param {Object} customProps - custom properties
- * @returns {Object} An action object
- */
-function createScene(customProps) {
-  var id = counter.global();
-
+export const createScene = createStandardAction('CREATE_SCENE').map((payload: SceneRecord) => {
+  const id: number = payload._id || counter.global();
   return {
-    type: CREATE_SCENE,
-    id: id,
-    name: 'Scene',
-    props: Mark('scene', dl.extend({_id: id, name: 'Scene'}, customProps))
+    payload: {
+      props: payload.merge({_id: id, name: 'Scene'}),
+      name: 'Scene'
+    },
+    meta: id
   };
-}
-
-/**
- * Action creator to delete all marks in a scene (wipes scene clear). Unusually
- * this "action" doesn't dispatch anything itself, it simply uses deleteMark
- * to clear all of a scene's children.
- *
- * @returns {Function} An async action function
- */
-function clearScene() {
+});
+export function clearScene() {
   return function(dispatch, getState) {
-    var state = getState(),
-        sceneId = getInVis(state, 'scene.id'),
-        children = getInVis(state, 'marks.' + sceneId + '.marks');
+    const state = getState();
+    const sceneId = getInVis(state, 'scene.id');
+    const children = getInVis(state, 'marks.' + sceneId + '.marks');
 
     dispatch(startBatch());
 
@@ -57,12 +34,3 @@ function clearScene() {
     dispatch(endBatch());
   };
 }
-
-module.exports = {
-  // Action Names
-  CREATE_SCENE: CREATE_SCENE,
-
-  // Action Creators
-  createScene: createScene,
-  clearScene: clearScene
-};
