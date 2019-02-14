@@ -24,7 +24,7 @@ export const addMark = createStandardAction('ADD_MARK').map((record: MarkRecord)
   return {
     payload: {
       name: record.name,
-      streams: Mark.getHandleStreams(record),
+      streams: Mark.getHandleStreams(record), // TODO(jzong) pretty sure this isn't used anywhere right now
       props: record
     }, meta: id
   }

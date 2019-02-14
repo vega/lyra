@@ -5,6 +5,7 @@ import * as markActions from '../actions/markActions';
 import * as pipelineActions from '../actions/pipelineActions';
 import * as scaleActions from '../actions/scaleActions';
 import * as sceneActions from '../actions/sceneActions';
+import * as signalActions from '../actions/signalActions';
 import * as vegaActions from '../actions/vegaActions';
 import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
 
@@ -18,7 +19,7 @@ import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
 export function invalidateVegaReducer(state: VegaReparseRecord,
                               action: ActionType<typeof vegaActions | typeof datasetActions |
                               typeof markActions | typeof pipelineActions | typeof sceneActions |
-                              typeof scaleActions | typeof helperActions>): VegaReparseRecord {
+                              typeof scaleActions | typeof helperActions | typeof signalActions>): VegaReparseRecord {
   if (typeof state === 'undefined') {
     return VegaReparse({
       invalid: false,
@@ -35,7 +36,7 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
   const invalidatingActions = [
     getType(sceneActions.createScene),
     getType(pipelineActions.baseAddPipeline),
-    ACTIONS.INIT_SIGNAL,
+    getType(signalActions.initSignal),
     getType(markActions.addMark),
     ACTIONS.DELETE_GUIDE,
     getType(markActions.baseDeleteMark),
@@ -48,13 +49,13 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     getType(markActions.bindScale),
     getType(scaleActions.addScale),
     getType(scaleActions.updateScaleProperty),
-    ACTIONS.ADD_SCALE_TO_GROUP,
+    getType(helperActions.addScaleToGroup),
     getType(scaleActions.deleteScale),
     ACTIONS.ADD_GUIDE,
     ACTIONS.UPDATE_GUIDE_PROPERTY,
     getType(helperActions.addAxisToGroup),
     getType(helperActions.addLegendToGroup),
-    // ACTIONS.REMOVE_AXIS_FROM_GROUP, // TODO this action doesn't exist
+    // ACTIONS.REMOVE_AXIS_FROM_GROUP, // TODO this action doesn't exist (but would belong in helperActions)
     getType(datasetActions.sortDataset),
     getType(datasetActions.addTransform),
     getType(datasetActions.updateTransform),

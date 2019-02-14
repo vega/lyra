@@ -4,7 +4,9 @@ import ReduxThunk from 'redux-thunk'; // redux-thunk lets us dispatch() function
 import {defaultSignalState} from '../ctrl/signals/defaults';
 import {DatasetRecord} from './factory/Dataset';
 import {MarkRecord} from './factory/Mark';
+import {SceneRecord} from './factory/marks/Scene';
 import {PipelineRecord} from './factory/Pipeline';
+import {ScaleRecord} from './factory/Scale';
 import {VegaReparse} from './factory/Vega';
 
 // reducer/index.js returns combinedReducers();
@@ -16,8 +18,8 @@ const defaultState = Map({
   vis: Map({
     pipelines: Map<string, PipelineRecord>(),
     datasets: Map<string, DatasetRecord>(),
-    scene: Map(),
-    scales: Map(),
+    scene: Map<string, SceneRecord>(),
+    scales: Map<string, ScaleRecord>(),
     guides: Map(),
     marks: Map<string, MarkRecord>(),
     signals: defaultSignalState
