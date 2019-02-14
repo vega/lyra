@@ -135,7 +135,5 @@
   },
   "dependencies": {
     "@types/react-redux": "^6.0.10",
-    "typesafe-actions": "^3.0.0",
-    "vega-typings": "^0.3.53"
   }
 }
