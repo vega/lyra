@@ -1,17 +1,14 @@
-import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import * as sceneActions from '../actions/sceneActions';
-import {SceneState} from '../store/factory/marks/Scene';
+import {Scene, SceneRecord} from '../store/factory/marks/Scene';
 
-export function sceneReducer(state: SceneState, action: ActionType<typeof sceneActions>) {
+export function sceneReducer(state: SceneRecord, action: ActionType<typeof sceneActions>): SceneRecord {
   if (typeof state === 'undefined') {
-    return Map();
+    return Scene();
   }
 
   if (action.type === getType(sceneActions.createScene)) {
-    // TODO(jzong) figure out what this line was supposed to do
-    // return state.set('id', action.id);
-    return state;
+    return state.set('_id', action.meta);
   }
 
   return state;

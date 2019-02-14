@@ -3,8 +3,9 @@ import {applyMiddleware, createStore} from 'redux';
 import ReduxThunk from 'redux-thunk'; // redux-thunk lets us dispatch() functions to create async or multi-stage actions
 import {defaultSignalState} from '../ctrl/signals/defaults';
 import {DatasetRecord} from './factory/Dataset';
+import {GuideRecord} from './factory/Guide';
 import {MarkRecord} from './factory/Mark';
-import {SceneRecord} from './factory/marks/Scene';
+import {Scene} from './factory/marks/Scene';
 import {PipelineRecord} from './factory/Pipeline';
 import {ScaleRecord} from './factory/Scale';
 import {VegaReparse} from './factory/Vega';
@@ -13,14 +14,13 @@ import {VegaReparse} from './factory/Vega';
 const rootReducer = require('../reducers');
 
 // Create immutable state
-// TODO: switch to Record types.
 const defaultState = Map({
   vis: Map({
     pipelines: Map<string, PipelineRecord>(),
     datasets: Map<string, DatasetRecord>(),
-    scene: Map<string, SceneRecord>(),
+    scene: Scene(),
     scales: Map<string, ScaleRecord>(),
-    guides: Map(),
+    guides: Map<string, GuideRecord>(),
     marks: Map<string, MarkRecord>(),
     signals: defaultSignalState
   }),

@@ -44,5 +44,3 @@ export function Scene(values?: Partial<LyraSceneMark>): SceneRecord {
   })(values);
 }
 export type SceneRecord = RecordOf<LyraSceneMark>;
-
-export type SceneState = Map<string, SceneRecord>;
