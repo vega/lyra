@@ -1,30 +1,36 @@
-/* eslint new-cap:0 */
-'use strict';
+import {List} from 'immutable';
+import {AnyAction} from 'redux';
+import {getType} from 'typesafe-actions';
+import * as datasetActions from '../actions/datasetActions';
+import * as guideActions from '../actions/guideActions';
+import * as historyActions from '../actions/historyActions';
+import * as signalActions from '../actions/signalActions';
+import {VisState} from '../store';
 
-var dl = require('datalib'),
-    ACTIONS = require('../actions/Names'),
-    LIMIT = 20,
-    IMPLICIT_BATCH = [ACTIONS.SET_SIGNAL, ACTIONS.UPDATE_GUIDE_PROPERTY],
-    BATCH_INTERVAL = 500,  // ms to identify new batch for same implicit action.
-    batch = 0,
-    prevAction, prevTime;
+const dl = require('datalib');
+const LIMIT = 20;
+const IMPLICIT_BATCH = [getType(signalActions.setSignal), getType(guideActions.updateGuideProperty)];
+const BATCH_INTERVAL = 500;  // ms to identify new batch for same implicit action.
+let batch = 0;
+let prevAction;
+let prevTime;
 
-function historyReducer(reducer) {
-  return function(state, action) {
+export function undoable(reducer) {
+  return function(state: VisState, action: AnyAction): VisState {
     if (typeof state === 'undefined') {
       state = create([], reducer(undefined, {}), []);
     } else if (!dl.isArray(state.past)) {
       state = create([], state, []);
     }
 
-    var imPrev = prevAction && IMPLICIT_BATCH.indexOf(prevAction.type) >= 0,
-        imCurr = IMPLICIT_BATCH.indexOf(action.type) >= 0;
+    const imPrev = prevAction && IMPLICIT_BATCH.indexOf(prevAction.type) >= 0;
+    const imCurr = IMPLICIT_BATCH.indexOf(action.type) >= 0;
 
-    if (action.type === ACTIONS.START_BATCH) {
+    if (action.type === getType(historyActions.startBatch)) {
       ++batch;
     }
 
-    if (action.type === ACTIONS.END_BATCH) {
+    if (action.type === getType(historyActions.endBatch)) {
       --batch;
       return endBatch(state);
     }
@@ -37,15 +43,15 @@ function historyReducer(reducer) {
       state = implicitBatch(state, action, imPrev, imCurr);
     }
 
-    if (action.type === ACTIONS.UNDO) {
+    if (action.type === getType(historyActions.undo)) {
       return undo(state);
     }
 
-    if (action.type === ACTIONS.REDO) {
+    if (action.type === getType(historyActions.redo)) {
       return redo(state);
     }
 
-    if (action.type === ACTIONS.CLEAR_HISTORY) {
+    if (action.type === getType(historyActions.clearHistory)) {
       return create([], state.present, []);
     }
 
@@ -53,7 +59,7 @@ function historyReducer(reducer) {
   };
 }
 
-function create(past, present, future, filtered) {
+function create(past, present, future, filtered?: boolean): VisState {
   return {
     past: past, present: present, future: future, filtered: filtered || false
   };
@@ -61,7 +67,7 @@ function create(past, present, future, filtered) {
 
 // Mark the last operation in a batch as NOT filtered to ensure subsequent
 // actions push the state to past.
-function endBatch(state) {
+function endBatch(state: VisState): VisState {
   return batch === 0 ?
     create(state.past.slice(0), state.present, state.future.slice(0)) :
     state;
@@ -80,15 +86,15 @@ function endBatch(state) {
  * @param   {boolean}  imCurr  If the current action is an implicit batch.
  * @returns {Object}   New history state.
  */
-function implicitBatch(state, action, imPrev, imCurr) {
-  var now = Date.now();
+function implicitBatch(state: VisState, action: AnyAction, imPrev: boolean, imCurr: boolean): VisState {
+  const now = Date.now();
 
   // We end an implicit batch when the previous (implicit) batch action differs
   // from the current one, or if a sufficient time interval has passed between
   // two successive implicit batch actions of the same type.
-  var diffTypes = prevAction && prevAction.type !== action.type,
-      sameTypes = prevAction && prevAction.type === action.type,
-      longTime = sameTypes && (now - prevTime) >= BATCH_INTERVAL;
+  const diffTypes = prevAction && prevAction.type !== action.type;
+  const sameTypes = prevAction && prevAction.type === action.type;
+  const longTime = sameTypes && (now - prevTime) >= BATCH_INTERVAL;
 
   if (imPrev && (diffTypes || longTime)) {
     --batch;
@@ -108,17 +114,17 @@ function implicitBatch(state, action, imPrev, imCurr) {
   return state;
 }
 
-function filter(state, action) {
-  return batch === 0 && [ACTIONS.ADD_DATASET].indexOf(action.type) < 0;
+function filter(state, action): boolean {
+  return batch === 0 && action.type !== getType(datasetActions.addDataset);
 }
 
-function insert(reducer, state, action) {
-  var past = state.past,
-      present  = state.present,
-      filtered = state.filtered,
-      newPresent  = reducer(present, action),
-      newFiltered = !filter(state, action),
-      newPast;
+function insert(reducer, state: VisState, action: AnyAction): VisState {
+  const past = state.past;
+  const present  = state.present;
+  const filtered = state.filtered;
+  const newPresent  = reducer(present, action);
+  let newFiltered = !filter(state, action);
+  let newPast;
 
   if (present === newPresent) {
     return state;
@@ -129,7 +135,7 @@ function insert(reducer, state, action) {
   // initial state to past if our first new state is filtered.
   if (filtered) {
     newPast = past;
-  } else if (newFiltered && !past.length) {
+  } else if (newFiltered && !past.size) {
     newPast = past;
     newFiltered = false;
   } else {
@@ -144,37 +150,37 @@ function insert(reducer, state, action) {
   );
 }
 
-function undo(state) {
-  var past = state.past,
-      present = state.present,
-      future  = state.future,
-      newFuture = state.filtered ? future : [present].concat(future);
+function undo(state: VisState): VisState {
+  const past = state.past;
+  const present = state.present;
+  const future  = state.future;
+  const newFuture = state.filtered ? future : List(present).concat(future);
 
-  if (!past.length) {
+  if (!past.size) {
     return state;
   }
 
   return create(
-    past.splice(0, past.length - 1),
-    past[past.length - 1],
+    past.splice(0, past.size - 1),
+    past[past.size - 1],
     newFuture
   );
 }
 
-function redo(state) {
-  var past = state.past,
-      present = state.present,
-      future  = state.future;
+function redo(state: VisState): VisState {
+  const past = state.past;
+  const present = state.present;
+  const future  = state.future;
 
-  if (!future.length) {
+  if (!future.size) {
     return state;
   }
 
   return create(
     past.concat(present),
     future[0],
-    future.splice(1)
+    future.splice(0, 1)
   );
 }
 
-module.exports = historyReducer;
+module.exports = undoable;

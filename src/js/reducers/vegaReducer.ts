@@ -2,6 +2,7 @@ import {ActionType, getType} from 'typesafe-actions';
 import * as helperActions from '../actions/bindChannel/helperActions';
 import * as datasetActions from '../actions/datasetActions';
 import * as guideActions from '../actions/guideActions';
+import * as historyActions from '../actions/historyActions';
 import * as markActions from '../actions/markActions';
 import * as pipelineActions from '../actions/pipelineActions';
 import * as scaleActions from '../actions/scaleActions';
@@ -19,7 +20,7 @@ import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
  */
 export function invalidateVegaReducer(state: VegaReparseRecord,
                               action: ActionType<typeof vegaActions | typeof datasetActions |
-                              typeof markActions | typeof pipelineActions | typeof sceneActions |
+                              typeof markActions | typeof pipelineActions | typeof sceneActions | typeof historyActions |
                               typeof scaleActions | typeof helperActions | typeof signalActions | typeof guideActions>): VegaReparseRecord {
   if (typeof state === 'undefined') {
     return VegaReparse({
@@ -32,39 +33,38 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     return state.set('invalid', action.payload);
   }
 
-  //  TODO the rest of the actions
-  // All of these actions implicitly invalidate the view
-  const invalidatingActions = [
-    getType(sceneActions.createScene),
-    getType(pipelineActions.baseAddPipeline),
-    getType(signalActions.initSignal),
-    getType(markActions.addMark),
-    getType(guideActions.deleteGuide),
-    getType(markActions.baseDeleteMark),
-    getType(markActions.setParent),
-    getType(markActions.updateMarkProperty),
-    getType(markActions.setMarkVisual),
-    getType(markActions.disableMarkVisual),
-    getType(markActions.resetMarkVisual),
-    getType(markActions.setMarkExtent),
-    getType(markActions.bindScale),
-    getType(scaleActions.addScale),
-    getType(scaleActions.updateScaleProperty),
-    getType(helperActions.addScaleToGroup),
-    getType(scaleActions.deleteScale),
-    getType(guideActions.addGuide),
-    getType(guideActions.updateGuideProperty),
-    getType(helperActions.addAxisToGroup),
-    getType(helperActions.addLegendToGroup),
-    // ACTIONS.REMOVE_AXIS_FROM_GROUP, // TODO this action doesn't exist (but would belong in helperActions)
-    getType(datasetActions.sortDataset),
-    getType(datasetActions.addTransform),
-    getType(datasetActions.updateTransform),
-    ACTIONS.UNDO, ACTIONS.REDO,
-    ACTIONS.JUMP_TO_FUTURE, ACTIONS.JUMP_TO_PAST
-  ];
-  if (invalidatingActions.indexOf(action.type) >= 0) {
-    return state.set('invalid', true);
+  switch (action.type) {
+    // All of these actions implicitly invalidate the view
+    case getType(sceneActions.createScene):
+    case getType(pipelineActions.baseAddPipeline):
+    case getType(signalActions.initSignal):
+    case getType(markActions.addMark):
+    case getType(guideActions.deleteGuide):
+    case getType(markActions.baseDeleteMark):
+    case getType(markActions.setParent):
+    case getType(markActions.updateMarkProperty):
+    case getType(markActions.setMarkVisual):
+    case getType(markActions.disableMarkVisual):
+    case getType(markActions.resetMarkVisual):
+    case getType(markActions.setMarkExtent):
+    case getType(markActions.bindScale):
+    case getType(scaleActions.addScale):
+    case getType(scaleActions.updateScaleProperty):
+    case getType(helperActions.addScaleToGroup):
+    case getType(scaleActions.deleteScale):
+    case getType(guideActions.addGuide):
+    case getType(guideActions.updateGuideProperty):
+    case getType(helperActions.addAxisToGroup):
+    case getType(helperActions.addLegendToGroup):
+    // ACTIONS.REMOVE_AXIS_FROM_GROUP, // TODO this action doesn't exist (but would belong in helperActions
+    case getType(datasetActions.sortDataset):
+    case getType(datasetActions.addTransform):
+    case getType(datasetActions.updateTransform):
+    case getType(historyActions.undo):
+    case getType(historyActions.redo):
+    case getType(historyActions.jumpToFuture):
+    case getType(historyActions.jumpToPast):
+      return state.set('invalid', true);
   }
 
   if (action.type === getType(vegaActions.parseVega)) {

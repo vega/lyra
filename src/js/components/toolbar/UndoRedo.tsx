@@ -21,8 +21,8 @@ interface DispatchProps {
 function mapStateToProps(state: State): StateProps {
   const vis = state.get('vis');
   return {
-    canUndo: vis.past.length > 0,
-    canRedo: vis.future.length > 0
+    canUndo: vis.past.size > 0,
+    canRedo: vis.future.size > 0
   };
 }
 
