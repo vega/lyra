@@ -19,7 +19,7 @@ function makeGuide(action : ActionType<typeof guideActions.addGuide>): GuideReco
   });
 }
 
-export function guideReducer(state: GuideState, action: ActionType<typeof guideActions>): GuideState {
+export function guidesReducer(state: GuideState, action: ActionType<typeof guideActions>): GuideState {
   const id = action.meta;
 
   if (typeof state === 'undefined') {

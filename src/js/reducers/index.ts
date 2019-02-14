@@ -1,5 +1,7 @@
 import {combineReducers} from 'redux-immutable';
 import {datasetsReducer as datasets} from './datasetsReducer';
+import {guidesReducer as guides} from './guidesReducer';
+import {scalesReducer as scales} from './scalesReducer';
 import {pipelinesReducer as pipelines} from './pipelinesReducer';
 
 const undoable = require('./historyReducer');
@@ -11,8 +13,8 @@ module.exports = combineReducers({
     scene: require('./sceneReducer'),
     pipelines,
     datasets,
-    scales: require('./scalesReducer'),
-    guides: require('./guidesReducer'),
+    scales,
+    guides,
     marks: require('./marksReducer')
   })),
   vega: require('./vegaReducer'),
