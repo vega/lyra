@@ -1,4 +1,4 @@
-import {Record, RecordOf} from 'immutable';
+import {Map, Record, RecordOf} from 'immutable';
 import {Omit} from 'react-redux';
 import {GroupMark} from 'vega-typings/types';
 import {Group} from './Group';
@@ -44,3 +44,5 @@ export function Scene(values?: Partial<LyraSceneMark>): SceneRecord {
   })(values);
 }
 export type SceneRecord = RecordOf<LyraSceneMark>;
+
+export type SceneState = Map<string, SceneRecord>;
