@@ -17,7 +17,7 @@ interface OwnProps {
 }
 
 interface DispatchProps {
-  updateGuideProperty: (guideId: any, property: any, value: any) => void;
+  updateGuideProperty: (guideId: number, property: string, value: any) => void;
 }
 
 function mapStateToProps(state: State, ownProps) {

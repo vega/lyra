@@ -81,7 +81,7 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
 
         {props.guides.map(function(guide) {
           const guideId = guide.get('_id');
-          const scaleId = guide.get('scale'); // || guide.get(guide.get('type'));
+          const scaleId = guide.get('scale'); // || guide.get(guide.get('type')); TODO(rneogy) figure out if we need this?
           const name = capitalize(getIn(props.scales, scaleId + '.name'));
           const type = capitalize(guide.get('_gtype'));
 
