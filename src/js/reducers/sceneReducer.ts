@@ -1,20 +1,18 @@
-/* eslint new-cap:0 */
-'use strict';
+import {Map} from 'immutable';
+import {ActionType, getType} from 'typesafe-actions';
+import * as sceneActions from '../actions/sceneActions';
+import {SceneState} from '../store/factory/marks/Scene';
 
-var Immutable = require('immutable');
-
-var actions = require('../actions/Names');
-
-function sceneReducer(state, action) {
+export function sceneReducer(state: SceneState, action: ActionType<typeof sceneActions>) {
   if (typeof state === 'undefined') {
-    return Immutable.Map();
+    return Map();
   }
 
-  if (action.type === actions.CREATE_SCENE) {
-    return state.set('id', action.id);
+  if (action.type === getType(sceneActions.createScene)) {
+    // TODO(jzong) figure out what this line was supposed to do
+    // return state.set('id', action.id);
+    return state;
   }
 
   return state;
 }
-
-module.exports = sceneReducer;
