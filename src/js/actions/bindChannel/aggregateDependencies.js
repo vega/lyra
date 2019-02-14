@@ -13,7 +13,7 @@ var dl = require('datalib'),
     imutils = require('../../util/immutable-utils'),
     getInVis = imutils.getInVis,
     getIn = imutils.getIn,
-    GTYPES = require('../../store/factory/Guide').GTYPES;
+    GuideType = require('../../store/factory/Guide').GuideType;
 
 /**
  * When a new group by field is added to an aggregation, Lyra produces a new
@@ -102,10 +102,10 @@ module.exports = function(dispatch, state, parsed) {
       for (guideId in counts.scales[scaleId].guides) {
         guide = getInVis(state, 'guides.' + guideId);
 
-        if (guide.get('_gtype') === GTYPES.AXIS) {
-          dispatch(updateGuideProperty(guideId, 'scale', newScaleId));
+        if (guide.get('_gtype') === GuideType.Axis) {
+          dispatch(updateGuideProperty({property: 'scale', value: newScaleId}, guideId));
         } else {
-          dispatch(updateGuideProperty(guideId, guide.get('_type'), newScaleId));
+          dispatch(updateGuideProperty({property: guide.get('_type'), value: newScaleId}, guideId));
         }
       }
     });

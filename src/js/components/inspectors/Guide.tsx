@@ -1,20 +1,18 @@
 'use strict';
 
-const dl = require('datalib');
-const GTYPES = require('../../store/factory/Guide').GTYPES;
-const updateGuideProperty = require('../../actions/guideActions').updateGuideProperty;
-
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
 import {AxisInspector} from './Axis';
 import {LegendInspector} from './Legend';
+import {GuideType} from '../../store/factory/Guide';
+import {updateGuideProperty} from '../../actions/guideActions';
 
 interface OwnProps {
   primType: any;
   primId: number;
-  guideType: any; // propTypes.oneOf(dl.vals(GTYPES))
+  guideType: GuideType;
 
 }
 
@@ -29,7 +27,7 @@ function mapStateToProps(state: State, ownProps) {
 function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   return {
     updateGuideProperty: function(guideId, property, value) {
-      dispatch(updateGuideProperty(guideId, property, value));
+      dispatch(updateGuideProperty({property, value}, guideId));
     }
   };
 }
@@ -51,9 +49,9 @@ class BaseGuideInspector extends React.Component<OwnProps & DispatchProps> {
     const props = this.props;
     const guideType = props.guideType;
 
-    if (guideType === GTYPES.AXIS) {
+    if (guideType === GuideType.Axis) {
       return (<AxisInspector {...props} handleChange={this.handleChange} />);
-    } else if (guideType === GTYPES.LEGEND) {
+    } else if (guideType === GuideType.Legend) {
       return (<LegendInspector {...props} handleChange={this.handleChange} />);
     }
 

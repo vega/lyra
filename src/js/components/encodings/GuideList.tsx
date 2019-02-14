@@ -4,12 +4,14 @@ import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
 import { Icon } from '../Icon';
+import {deleteGuide} from '../../actions/guideActions';
+import {List} from 'immutable';
+import {GuideRecord} from '../../store/factory/Guide';
 
 const capitalize = require('capitalize');
 const inspectorActions = require('../../actions/inspectorActions');
 const selectMark = inspectorActions.selectMark;
 const selectGuide = inspectorActions.selectGuide;
-const deleteGuide = require('../../actions/guideActions').deleteGuide;
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
@@ -21,7 +23,7 @@ interface OwnProps {
 
 interface StateProps {
   scales?: any; // Immutable.Map
-  guides?: any; // Immutable.List
+  guides?: List<GuideRecord>;
 }
 
 interface DispatchProps {
@@ -39,7 +41,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
     guides: axes.concat(legends).map(function(guideId) {
       return getInVis(reduxState, 'guides.' + guideId);
     }).filter(function(guide) {
-      return !!guide;
+      return !!guide; // checking for existence
     })
   };
 }
@@ -54,7 +56,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
       if (selectedId === guideId) {
         dispatch(selectMark(groupId));
       }
-      dispatch(deleteGuide(guideId, groupId));
+      dispatch(deleteGuide({groupId}, guideId));
       evt.preventDefault();
       evt.stopPropagation();
       ReactTooltip.hide();
@@ -79,7 +81,7 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
 
         {props.guides.map(function(guide) {
           const guideId = guide.get('_id');
-          const scaleId = guide.get('scale') || guide.get(guide.get('_type'));
+          const scaleId = guide.get('scale'); // || guide.get(guide.get('type'));
           const name = capitalize(getIn(props.scales, scaleId + '.name'));
           const type = capitalize(guide.get('_gtype'));
 

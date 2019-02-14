@@ -10,10 +10,10 @@ var merge = require('lodash.merge'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis;
 
-var TYPES = Guide.GTYPES,
+var GuideType = Guide.GuideType,
     CTYPE = {
-      x: TYPES.AXIS, y: TYPES.AXIS,
-      color: TYPES.LEGEND, size: TYPES.LEGEND, shape: TYPES.LEGEND
+      x: GuideType.Axis, y: GuideType.Axis,
+      color: GuideType.Legend, size: GuideType.Legend, shape: GuideType.Legend
     };
 
 var SWAP_ORIENT = {
@@ -42,7 +42,7 @@ module.exports = function(dispatch, state, parsed) {
     return;
   }
 
-  if (guideType === TYPES.AXIS) {
+  if (guideType === GuideType.AXIS) {
     findOrCreateAxis(dispatch, state, parsed, scaleId, group.axes);
   } else {
     findOrCreateLegend(dispatch, state, parsed, scaleId, group.legends);
@@ -116,7 +116,7 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
   }
 
   if (count < 2) {
-    var axis = Guide(TYPES.AXIS, def.type, scaleId);
+    var axis = Guide(GuideType.AXIS, def.type, scaleId);
     axis.title = def.title;
     axis.layer = def.layer;
     axis.grid = def.grid;
@@ -162,7 +162,7 @@ function findOrCreateLegend(dispatch, state, parsed, scaleId, defs) {
   });
 
   if (!foundLegend) {
-    var legend = Guide(TYPES.LEGEND, property, scaleId);
+    var legend = Guide(GuideType.LEGEND, property, scaleId);
     legend.title = def.title;
     delete legend.properties.symbols[property];
     merge(legend.properties, def.properties);
