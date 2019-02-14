@@ -1,5 +1,5 @@
+import {Map, Record, RecordOf} from 'immutable';
 import {Axis as VegaAxis, Legend as VegaLegend} from 'vega-typings';
-import {Record, RecordOf, Map} from 'immutable';
 
 const ORIENT = {x: 'bottom', y: 'left'};
 

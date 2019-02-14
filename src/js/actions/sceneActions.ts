@@ -3,13 +3,11 @@ import {ThunkAction} from 'redux-thunk';
 import {createStandardAction} from 'typesafe-actions';
 import {State} from '../store';
 import {SceneRecord} from '../store/factory/marks/Scene';
+import {endBatch, startBatch} from './historyActions';
 import {deleteMark} from './markActions';
 
 const counter = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
-const historyActions = require('./historyActions');
-const startBatch = historyActions.startBatch;
-const endBatch = historyActions.endBatch;
 
 export const createScene = createStandardAction('CREATE_SCENE').map((payload: SceneRecord) => {
   const id: number = payload._id || counter.global();

@@ -1,3 +1,4 @@
+import { clearHistory } from './actions/historyActions';
 import { addMark } from './actions/markActions';
 import { createScene } from './actions/sceneActions';
 import initialStore from './store';
@@ -39,4 +40,4 @@ store.dispatch(addMark(Mark('group', {_parent: 1})));
 
 import './components';
 
-store.dispatch(require('./actions/historyActions').clearHistory());
+store.dispatch(clearHistory());
