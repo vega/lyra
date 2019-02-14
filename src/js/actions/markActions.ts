@@ -4,12 +4,10 @@ import {createStandardAction} from 'typesafe-actions';
 import {Encode} from 'vega-typings';
 import {State} from '../store';
 import { LyraMark, LyraMarkType, Mark, MarkRecord } from '../store/factory/Mark';
+import {endBatch, startBatch} from './historyActions';
 
 const counter  = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
-const historyActions = require('./historyActions');
-const startBatch = historyActions.startBatch;
-const endBatch = historyActions.endBatch;
 
 // TODO: use the vega-lite unit type, probably defined here:
 // https://github.com/vega/vega-lite/blob/d61deb9e4a2312114ce74945af65fc165309899a/src/spec/unit.ts

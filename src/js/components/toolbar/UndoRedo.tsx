@@ -1,17 +1,24 @@
 'use strict';
 
 // TODO Change from 'requires' to 'import'
-const historyActions = require('../../actions/historyActions');
-const undo = historyActions.undo;
-const redo = historyActions.redo;
 const assets = require('../../util/assets');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {redo, undo} from '../../actions/historyActions';
 import {State} from '../../store';
 import { Icon } from '../Icon';
 
-function mapStateToProps(state: State) {
+interface StateProps {
+  canUndo: boolean;
+  canRedo: boolean;
+}
+interface DispatchProps {
+  undo: () => void;
+  redo: () => void;
+}
+
+function mapStateToProps(state: State): StateProps {
   const vis = state.get('vis');
   return {
     canUndo: vis.past.length > 0,
@@ -19,24 +26,12 @@ function mapStateToProps(state: State) {
   };
 }
 
-function mapDispatchToProps(dispatch: any) {
-  return {
-    undo: () => {
-      dispatch(undo());
-    },
-    redo: () => {
-      dispatch(redo());
-    }
-  };
-}
-interface UndoRedoProps {
-  canUndo: boolean,
-  canRedo: boolean,
-  undo: any,
-  redo: any
+const mapDispatch: DispatchProps = {
+  undo,
+  redo
 }
 
-export class BaseUndoRedo extends React.PureComponent<UndoRedoProps, {}> {
+export class BaseUndoRedo extends React.PureComponent<StateProps & DispatchProps> {
   public render() {
     const props = this.props;
     return (
@@ -52,4 +47,4 @@ export class BaseUndoRedo extends React.PureComponent<UndoRedoProps, {}> {
     );
   }
 }
-export const UndoRedo = connect(mapStateToProps, mapDispatchToProps)(BaseUndoRedo);
+export const UndoRedo = connect(mapStateToProps, mapDispatch)(BaseUndoRedo);
