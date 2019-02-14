@@ -19,7 +19,7 @@ const ensureValueAbsent = immutableUtils.ensureValueAbsent;
 function makeMark(action: ActionType<typeof markActions.addMark> | ActionType<typeof sceneActions.createScene>) {
   const def: MarkRecord = action.payload.props;
   const props = def.encode && def.encode.update;
-  return def.merge({
+  return (def as any).merge({ // TODO(jzong) typescript barfs when calling merge on union record types
     encode: {
       update: propSg.convertValuesToSignals(props, def.type, action.meta)
     }
@@ -126,7 +126,7 @@ function moveChildToGroup(state, action, collection) {
  * @param {Object} action - A redux action object
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
-function marksReducer(state: MarkState, action: ActionType<typeof markActions> | ActionType<typeof sceneActions.createScene>): MarkState {
+export function marksReducer(state: MarkState, action: ActionType<typeof markActions> | ActionType<typeof sceneActions.createScene>): MarkState {
   if (typeof state === 'undefined') {
     return Map();
   }
@@ -216,5 +216,3 @@ function marksReducer(state: MarkState, action: ActionType<typeof markActions> |
 
   return state;
 }
-
-module.exports = marksReducer;
