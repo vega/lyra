@@ -1,5 +1,3 @@
-'use strict';
-
 import {createStandardAction} from 'typesafe-actions';
 import {ScaleRecord} from '../store/factory/Scale';
 import * as counter from '../util/counter';

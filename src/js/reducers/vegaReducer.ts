@@ -1,8 +1,11 @@
-/* eslint new-cap:0 */
-'use strict';
-
-var Immutable = require('immutable'),
-    ACTIONS = require('../actions/Names');
+import {ActionType, getType} from 'typesafe-actions';
+import * as datasetActions from '../actions/datasetActions';
+import * as markActions from '../actions/markActions';
+import * as pipelineActions from '../actions/pipelineActions';
+import * as scaleActions from '../actions/scaleActions';
+import * as sceneActions from '../actions/sceneActions';
+import * as vegaActions from '../actions/vegaActions';
+import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
 
 /**
  * This reducer handles whether to recreate the view from the lyra ctrl.
@@ -11,45 +14,47 @@ var Immutable = require('immutable'),
  * the reparse flag within the store.
  * @returns {boolean} The new state of the reparse flag
  */
-function invalidateVegaReducer(state, action) {
+export function invalidateVegaReducer(state: VegaReparseRecord,
+                              action: ActionType<typeof vegaActions | typeof datasetActions | typeof markActions | typeof pipelineActions | typeof sceneActions | typeof scaleActions>): VegaReparseRecord {
   if (typeof state === 'undefined') {
-    return Immutable.Map({
+    return VegaReparse({
       invalid: false,
       isParsing: false,
     });
   }
 
-  if (action.type === ACTIONS.INVALIDATE_VEGA) {
-    return state.set('invalid', action.value);
+  if (action.type === getType(vegaActions.invalidateVega)) {
+    return state.set('invalid', action.payload);
   }
 
+  //  TODO the rest of the actions
   // All of these actions implicitly invalidate the view
-  var invalidatingActions = [
-    ACTIONS.CREATE_SCENE,
-    ACTIONS.ADD_PIPELINE,
+  const invalidatingActions = [
+    getType(sceneActions.createScene),
+    getType(pipelineActions.baseAddPipeline),
     ACTIONS.INIT_SIGNAL,
-    ACTIONS.ADD_MARK,
+    getType(markActions.addMark),
     ACTIONS.DELETE_GUIDE,
-    ACTIONS.DELETE_MARK,
-    ACTIONS.SET_PARENT_MARK,
-    ACTIONS.UPDATE_MARK_PROPERTY,
-    ACTIONS.SET_MARK_VISUAL,
-    ACTIONS.DISABLE_MARK_VISUAL,
-    ACTIONS.RESET_MARK_VISUAL,
-    ACTIONS.SET_MARK_EXTENT,
+    getType(markActions.baseDeleteMark),
+    getType(markActions.setParent),
+    getType(markActions.updateMarkProperty),
+    getType(markActions.setMarkVisual),
+    getType(markActions.disableMarkVisual),
+    getType(markActions.resetMarkVisual),
+    getType(markActions.setMarkExtent),
     ACTIONS.BIND_SCALE,
-    ACTIONS.ADD_SCALE,
-    ACTIONS.UPDATE_SCALE_PROPERTY,
+    getType(scaleActions.addScale),
+    getType(scaleActions.updateScaleProperty),
     ACTIONS.ADD_SCALE_TO_GROUP,
-    ACTIONS.DELETE_SCALE,
+    getType(scaleActions.deleteScale),
     ACTIONS.ADD_GUIDE,
     ACTIONS.UPDATE_GUIDE_PROPERTY,
     ACTIONS.ADD_AXIS_TO_GROUP,
     ACTIONS.ADD_LEGEND_TO_GROUP,
     ACTIONS.REMOVE_AXIS_FROM_GROUP,
-    ACTIONS.SORT_DATASET,
-    ACTIONS.ADD_DATA_TRANSFORM,
-    ACTIONS.UPDATE_DATA_TRANSFORM,
+    getType(datasetActions.sortDataset),
+    getType(datasetActions.addTransform),
+    getType(datasetActions.updateTransform),
     ACTIONS.UNDO, ACTIONS.REDO,
     ACTIONS.JUMP_TO_FUTURE, ACTIONS.JUMP_TO_PAST
   ];
@@ -57,9 +62,9 @@ function invalidateVegaReducer(state, action) {
     return state.set('invalid', true);
   }
 
-  if (action.type === ACTIONS.PARSE_VEGA) {
+  if (action.type === getType(vegaActions.parseVega)) {
     return state.merge({
-      isParsing: action.value,
+      isParsing: action.payload,
       // Toggle this back to false now that the parse is in progress (or done)
       invalid: false
     });
@@ -67,5 +72,3 @@ function invalidateVegaReducer(state, action) {
 
   return state;
 }
-
-module.exports = invalidateVegaReducer;
