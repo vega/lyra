@@ -1,49 +1,22 @@
-'use strict';
-var UNDO = 'UNDO',
-    REDO = 'REDO',
-    JUMP_TO_FUTURE = 'JUMP_TO_FUTURE',
-    JUMP_TO_PAST = 'JUMP_TO_PAST',
-    CLEAR_HISTORY = 'CLEAR_HISTORY',
-    START_BATCH = 'START_BATCH',
-    END_BATCH = 'END_BATCH';
+import {createStandardAction} from 'typesafe-actions';
 
-function undo() {
-  return {type: UNDO};
-}
-
-function redo() {
-  return {type: REDO};
-}
-
-function jumpToFuture(index) {
-  return {type: JUMP_TO_FUTURE, index: index};
-}
-
-function jumpToPast(index) {
-  return {type: JUMP_TO_PAST, index: index};
-}
-
-function clearHistory() {
-  return {type: CLEAR_HISTORY};
-}
-
-function startBatch() {
-  return {type: START_BATCH};
-}
-
-function endBatch() {
-  return {type: END_BATCH};
-}
+export const undo = createStandardAction('UNDO')();
+export const redo = createStandardAction('REDO')();
+export const jumpToFuture = createStandardAction('JUMP_TO_FUTURE')<number>();
+export const jumpToPast = createStandardAction('JUMP_TO_PAST')<number>();
+export const clearHistory = createStandardAction('CLEAR_HISTORY')();
+export const startBatch = createStandardAction('START_BATCH')();
+export const endBatch = createStandardAction('END_BATCH')();
 
 module.exports = {
   // Action Names
-  UNDO: UNDO,
-  REDO: REDO,
-  JUMP_TO_FUTURE: JUMP_TO_FUTURE,
-  JUMP_TO_PAST: JUMP_TO_PAST,
-  CLEAR_HISTORY: CLEAR_HISTORY,
-  START_BATCH:  START_BATCH,
-  END_BATCH: END_BATCH,
+  UNDO: 'UNDO',
+  REDO: 'REDO',
+  JUMP_TO_FUTURE: 'JUMP_TO_FUTURE',
+  JUMP_TO_PAST: 'JUMP_TO_PAST',
+  CLEAR_HISTORY: 'CLEAR_HISTORY',
+  START_BATCH:  'START_BATCH',
+  END_BATCH: 'END_BATCH',
 
   // Action Creators
   undo: undo,
