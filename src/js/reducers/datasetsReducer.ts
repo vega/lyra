@@ -6,8 +6,6 @@ import * as datasetActions from '../actions/datasetActions';
 import {Column, DatasetState} from '../store/factory/Dataset';
 import * as dsUtil from '../util/dataset-utils';
 
-const str   = require('../util/immutable-utils').str;
-
 /**
  * Main datasets reducer function, which generates a new state for the
  * datasets property store based on the changes specified by the dispatched
@@ -25,29 +23,29 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
   }
 
   if (action.type === getType(datasetActions.addDataset)) {
-    return state.set(str(id), action.payload);
+    return state.set(String(id), action.payload);
   }
 
   if (action.type === getType(datasetActions.deleteDataset)) {
-    return state.remove(str(id));
+    return state.remove(String(id));
   }
 
   if (action.type === getType(datasetActions.changeFieldMType)) {
     const p = action.payload;
-    return state.setIn([str(id), '_schema', p.field, 'mtype'], p.mtype);
+    return state.setIn([String(id), '_schema', p.field, 'mtype'], p.mtype);
   }
 
   if (action.type === getType(datasetActions.sortDataset)) {
-    return state.setIn([str(id), '_sort'], action.payload);
+    return state.setIn([String(id), '_sort'], action.payload);
   }
 
   if (action.type === getType(datasetActions.addTransform)) {
     const transform = action.payload;
 
-    const transforms: Transform[] = state.getIn([str(id), 'transform']) || List();
+    const transforms: Transform[] = state.getIn([String(id), 'transform']) || List();
 
     if (transform.type === 'formula') {
-      state = state.setIn([str(id), '_schema', transform.as],
+      state = state.setIn([String(id), '_schema', transform.as],
         Column({
           name: transform.as,
           type: 'number',
@@ -56,7 +54,7 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
         }));
     }
 
-    return state.setIn([str(id), 'transform'],
+    return state.setIn([String(id), 'transform'],
       transforms.push(transform));
   }
 
@@ -65,28 +63,28 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
     const transform = p.transform;
 
     if (transform.type === 'formula') {
-      const oldName = state.getIn([str(id), 'transform', p.index, 'field']);
-      const oldSchema = state.getIn([str(id), '_schema', oldName]);
+      const oldName = state.getIn([String(id), 'transform', p.index, 'field']);
+      const oldSchema = state.getIn([String(id), '_schema', oldName]);
 
-      state = state.deleteIn([str(id), '_schema', oldName]);
-      state = state.setIn([str(id), '_schema', transform.as], oldSchema);
+      state = state.deleteIn([String(id), '_schema', oldName]);
+      state = state.setIn([String(id), '_schema', transform.as], oldSchema);
     }
 
-    return state.setIn([str(id), 'transform', p.index], p.transform);
+    return state.setIn([String(id), 'transform', p.index], p.transform);
   }
 
   if (action.type === getType(datasetActions.summarizeAggregate)) {
-    state = state.setIn([str(id), 'transform', '0', 'fields'],
-      state.getIn([str(id), 'transform', '0', 'fields']).concat(action.payload.fields));
-    state = state.setIn([str(id), 'transform', '0', 'ops'],
-      state.getIn([str(id), 'transform', '0', 'ops']).concat(action.payload.ops));
-    state = state.setIn([str(id), 'transform', '0', 'as'],
-      state.getIn([str(id), 'transform', '0', 'as']).concat(action.payload.as));
+    state = state.setIn([String(id), 'transform', '0', 'fields'],
+      state.getIn([String(id), 'transform', '0', 'fields']).concat(action.payload.fields));
+    state = state.setIn([String(id), 'transform', '0', 'ops'],
+      state.getIn([String(id), 'transform', '0', 'ops']).concat(action.payload.ops));
+    state = state.setIn([String(id), 'transform', '0', 'as'],
+      state.getIn([String(id), 'transform', '0', 'as']).concat(action.payload.as));
 
-    const src = state.getIn([str(id), 'source']);
-    return state.setIn([str(id), '_schema'],
+    const src = state.getIn([String(id), 'source']);
+    return state.setIn([String(id), '_schema'],
       dsUtil.aggregateSchema(state.getIn([src, '_schema']),
-        state.getIn([str(id), 'transform', '0'])));
+        state.getIn([String(id), 'transform', '0'])));
   }
 
   return state;

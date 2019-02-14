@@ -2,7 +2,6 @@ import {createStandardAction} from 'typesafe-actions';
 import {SceneRecord} from '../store/factory/marks/Scene';
 import {deleteMark} from './markActions';
 
-const dl = require('datalib');
 const counter = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
 const historyActions = require('./historyActions');

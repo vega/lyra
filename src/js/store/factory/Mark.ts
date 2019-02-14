@@ -11,6 +11,7 @@ import {getHandleStreams as textHandleStreams, LyraTextMark, Text, TextRecord} f
 const capitalize = require('capitalize');
 const counter = require('../../util/counter');
 
+// TODO(jzong) reconcile this with vega typings marktype
 // export type LyraMarkType = MarkType | 'scene';
 export type LyraMarkType = 'symbol' | 'area' | 'line' | 'rect' | 'text' | 'group' | 'scene';
 
