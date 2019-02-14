@@ -1,20 +1,16 @@
-'use strict';
-const Immutable = require('immutable');
 const getInVis = require('../../util/immutable-utils').getInVis;
-const markActions = require('../../actions/markActions');
-const setMarkVisual = markActions.setMarkVisual;
-const resetMarkVisual = markActions.resetMarkVisual;
 
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
+import {resetMarkVisual, setMarkVisual} from '../../actions/markActions';
 import {State} from '../../store';
 
 interface OwnProps {
   primId: number;
   primitive?: object;
   name?: string;
-  className: any;
+  className: string;
 
 }
 interface StateProps {
@@ -46,10 +42,10 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   const id = ownProps.primId;
   return {
     setPreset: function(name, def) {
-      dispatch(setMarkVisual(id, name, def));
+      dispatch(setMarkVisual({property: name, def}, id));
     },
     reset: function(name) {
-      dispatch(resetMarkVisual(id, name));
+      dispatch(resetMarkVisual(name, id));
     }
   };
 }

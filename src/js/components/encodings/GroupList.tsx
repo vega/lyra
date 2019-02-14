@@ -1,29 +1,30 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
+import { AnyAction } from 'redux';
+import {ThunkDispatch} from 'redux-thunk';
+import {addMark} from '../../actions/markActions';
+import {clearScene} from '../../actions/sceneActions';
 import {State} from '../../store';
-import { Mark } from '../../store/factory/Mark';
+import { LyraMarkType, Mark, MarkRecord } from '../../store/factory/Mark';
 import { Icon } from '../Icon';
 import Group from './GroupChildren';
 
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
-const addMark = require('../../actions/markActions').addMark;
 const selectMark = require('../../actions/inspectorActions').selectMark;
-const clearScene = require('../../actions/sceneActions').clearScene;
 const assets = require('../../util/assets');
 
 interface StateProps {
   sceneId: number;
   selectedId: number;
-  marks: any;
+  marks: MarkRecord[];
 }
 
 interface DispatchProps {
-  addMark: (type, parentId) => void;
-  selectMark: (id) => void;
-  clearScene: (event) => void;
+  addMark: (type: LyraMarkType, parentId: number) => void;
+  selectMark: (id: number) => void;
+  clearScene: () => void;
 }
 
 function mapStateToProps(reduxState: State): StateProps {
@@ -35,7 +36,7 @@ function mapStateToProps(reduxState: State): StateProps {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
+function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>): DispatchProps {
   return {
     addMark: function(type, parentId) {
       dispatch(addMark(Mark(type, {_parent: parentId})));
@@ -43,7 +44,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
     selectMark: function(id) {
       dispatch(selectMark(id));
     },
-    clearScene: function(event) {
+    clearScene: function() {
       dispatch(selectMark(null));
       dispatch(clearScene());
     }

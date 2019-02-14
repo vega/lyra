@@ -1,8 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
-import { Dispatch } from 'redux';
+import { AnyAction } from 'redux';
+import {ThunkDispatch} from 'redux-thunk';
+import {deleteMark, updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store'
+import {GroupRecord} from '../../store/factory/marks/Group';
 import { Icon } from '../Icon';
 import GuideList from './GuideList';
 import MarkList from './MarkList';
@@ -11,9 +14,6 @@ const ContentEditable = require('../ContentEditable');
 const inspectorActions = require('../../actions/inspectorActions');
 const selectMark = inspectorActions.selectMark;
 const toggleLayers = inspectorActions.toggleLayers;
-const markActions = require('../../actions/markActions');
-const deleteMark = markActions.deleteMark;
-const updateMarkProperty = markActions.updateMarkProperty;
 const imutils = require('../../util/immutable-utils');
 const get = imutils.get;
 const getIn = imutils.getIn;
@@ -28,7 +28,7 @@ interface OwnProps {
 
 interface StateProps {
   expandedLayers?: object;
-  group: any; // TODO(jzong): the propTypes was Immutable.Map, not sure what it should be
+  group: GroupRecord;
 }
 
 interface DispatchProps {
@@ -40,12 +40,12 @@ interface DispatchProps {
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   return {
-    expandedLayers: getIn(reduxState, 'inspector.encodings.expandedLayers'),
+    expandedLayers: reduxState.getIn(['inspector','encodings', 'expandedLayers']),
     group: getInVis(reduxState, 'marks.' + ownProps.id)
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, ownProps: OwnProps): DispatchProps {
   return {
     selectGroup: function() {
       dispatch(selectMark(ownProps.id));
@@ -63,7 +63,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
     },
 
     updateName: function(value) {
-      dispatch(updateMarkProperty(ownProps.id, 'name', value));
+      dispatch(updateMarkProperty({property: 'name', value}, ownProps.id));
     },
 
     toggleGroup: function() {
@@ -82,7 +82,7 @@ class Group extends React.Component<OwnProps & StateProps & DispatchProps> {
     const props = this.props;
     const id = props.id;
     const group = props.group;
-    const name  = get(group, 'name');
+    const name  = group.name;
     const isExpanded = get(props.expandedLayers, id);
     const groupClass = isExpanded ? 'expanded' : 'contracted';
 

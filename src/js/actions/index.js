@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO(jzong) eventually delete this file
+
 module.exports = {
   vega: require('./vegaActions'),
   signals: require('./signalActions'),

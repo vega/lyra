@@ -1,38 +1,40 @@
-'use strict';
-const getIn = require('../../util/immutable-utils').getIn;
-const lookup = require('../../ctrl').lookup;
-const updateMarkProperty = require('../../actions/markActions').updateMarkProperty;
-
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
+import {updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store';
-interface SymbolHintsProps {
-    selectedId: number,
-    updateProperty: (id: number, property: any, value: any) => void // TODO: fix 'any' type
+
+const lookup = require('../../ctrl').lookup; // TODO(jzong) ??? what is this? doesn't exist?
+
+interface StateProps {
+    selectedId: number
 }
 
-function mapStateToProps(reduxState: State, ownProps: SymbolHintsProps) {
+interface DispatchProps {
+  updateProperty: (id: number, property: string, value: any) => void
+}
+
+function mapStateToProps(reduxState: State, ownProps): StateProps {
   return {
-    selectedId: getIn(reduxState, 'inspector.encodings.selectedId')
+    selectedId: reduxState.getIn(['inspector', 'encodings', 'selectedId'])
   };
 }
-function mapDispatchToProps(dispatch: Dispatch, ownProps: SymbolHintsProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps): DispatchProps {
   return {
     updateProperty: (id, property, value) => {
       // Update in the primitives dictionary
       const mark = lookup(id);
       if (mark) {
-        mark[property] = value;
+        mark[property] = value; // TODO(jzong) what is happening here??
       }
       // Update in the global store
-      dispatch(updateMarkProperty(id, property, value));
+      dispatch(updateMarkProperty({property, value}, id));
     }
   };
 }
 
 // Splitting each sidebar into its column
-class BaseSymbolHints extends React.Component<SymbolHintsProps> {
+class BaseSymbolHints extends React.Component<StateProps & DispatchProps> {
   public render() {
     return (
       <div>

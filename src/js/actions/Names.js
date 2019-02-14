@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO(jzong) eventually delete this file
+
 var types = require('./'),
     NAMES = {};
 
