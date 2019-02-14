@@ -25,7 +25,6 @@ export interface LyraPipeline {
   _aggregates: Map<string, number>;
 }
 
-// tslint:disable-next-line:variable-name
 export const Pipeline = Record<LyraPipeline>({
   _id: null,
   name: null,
