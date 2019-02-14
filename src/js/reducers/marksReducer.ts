@@ -1,14 +1,13 @@
 import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import * as helperActions from '../actions/bindChannel/helperActions';
+import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as sceneActions from '../actions/sceneActions';
 import {MarkRecord, MarkState} from '../store/factory/Mark';
 
-const ACTIONS = require('../actions/Names');
 const propSg = require('../util/prop-signal');
 const immutableUtils = require('../util/immutable-utils');
-const deleteKeyFromMap = immutableUtils.deleteKeyFromMap;
 const ensureValuePresent = immutableUtils.ensureValuePresent;
 const ensureValueAbsent = immutableUtils.ensureValueAbsent;
 
@@ -17,7 +16,7 @@ const ensureValueAbsent = immutableUtils.ensureValueAbsent;
 // within the store.
 // "state" is the marks store state; "action" is an object with a numeric
 // `._id`, string `.name`, and object `.props` defining the mark to be created.
-function makeMark(action: ActionType<typeof markActions.addMark | typeof sceneActions.createScene>) {
+function makeMark(action: ActionType<typeof markActions.addMark | typeof sceneActions.createScene>): MarkRecord {
   const def: MarkRecord = action.payload.props;
   const props = def.encode && def.encode.update;
   return (def as any).merge({ // TODO(jzong) typescript barfs when calling merge on union record types
@@ -101,23 +100,22 @@ function setParentMark(state: MarkState, params: {parentId: number, childId: num
  * either "legends" or "axes"
  * @returns {Object} A new Immutable state with the requested changes
  */
-/* eslint no-unused-vars:0 */
-function moveChildToGroup(state, action, collection) {
-  const oldGroupCollectionPath = action.oldGroupId + '.' + collection,
-      newGroupCollectionPath = action.groupId + '.' + collection;
+// function moveChildToGroup(state, action, collection) {
+//   const oldGroupCollectionPath = action.oldGroupId + '.' + collection;
+//   const newGroupCollectionPath = action.groupId + '.' + collection;
 
-  // Simple case: add to the new
-  if (!action.oldGroupId) {
-    return ensureValuePresent(state, newGroupCollectionPath, action.id);
-  }
+//   // Simple case: add to the new
+//   if (!action.oldGroupId) {
+//     return ensureValuePresent(state, newGroupCollectionPath, action.id);
+//   }
 
-  // Remove from the old and add to the new
-  return ensureValuePresent(
-    ensureValueAbsent(state, oldGroupCollectionPath, action.id),
-    newGroupCollectionPath,
-    action.id
-  );
-}
+//   // Remove from the old and add to the new
+//   return ensureValuePresent(
+//     ensureValueAbsent(state, oldGroupCollectionPath, action.id),
+//     newGroupCollectionPath,
+//     action.id
+//   );
+// }
 
 /**
  * Main marks reducer function, which generates a new state for the marks
@@ -127,7 +125,8 @@ function moveChildToGroup(state, action, collection) {
  * @param {Object} action - A redux action object
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
-export function marksReducer(state: MarkState, action: ActionType<typeof markActions | typeof helperActions | typeof sceneActions.createScene>): MarkState {
+export function marksReducer(state: MarkState, action: ActionType<typeof markActions> | ActionType<typeof helperActions> |
+  ActionType<typeof sceneActions.createScene> | ActionType<typeof guideActions.deleteGuide>): MarkState {
   if (typeof state === 'undefined') {
     return Map();
   }
@@ -149,10 +148,10 @@ export function marksReducer(state: MarkState, action: ActionType<typeof markAct
   }
 
   if (action.type === getType(markActions.baseDeleteMark)) {
-    return deleteKeyFromMap(setParentMark(state, {
+    return setParentMark(state, {
       childId: markId,
       parentId: null
-    }), markId);
+    }).remove(String(markId));
   }
 
   if (action.type === getType(markActions.setParent)) {
@@ -210,9 +209,11 @@ export function marksReducer(state: MarkState, action: ActionType<typeof markAct
     return ensureValuePresent(state, groupId + '.legends', action.payload);
   }
 
-  if (action.type === ACTIONS.DELETE_GUIDE) {
-    state = ensureValueAbsent(state, action.groupId + '.axes', action.id);
-    return ensureValueAbsent(state, action.groupId + '.legends', action.id);
+  const guideId = action.meta;
+
+  if (action.type === getType(guideActions.deleteGuide)) {
+    state = ensureValueAbsent(state, action.payload.groupId + '.axes', guideId);
+    return ensureValueAbsent(state, action.payload.groupId + '.legends', guideId);
   }
 
   return state;
