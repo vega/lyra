@@ -4,17 +4,9 @@ import * as markActions from '../actions/markActions';
 import * as sceneActions from '../actions/sceneActions';
 import {MarkRecord, MarkState} from '../store/factory/Mark';
 
-const str   = require('../util/immutable-utils').str;
-
-const dl = require('datalib');
 const ACTIONS = require('../actions/Names');
-const ns = require('../util/ns');
 const propSg = require('../util/prop-signal');
 const immutableUtils = require('../util/immutable-utils');
-const get = immutableUtils.get;
-const getIn = immutableUtils.getIn;
-const set = immutableUtils.set;
-const setIn = immutableUtils.setIn;
 const deleteKeyFromMap = immutableUtils.deleteKeyFromMap;
 const ensureValuePresent = immutableUtils.ensureValuePresent;
 const ensureValueAbsent = immutableUtils.ensureValueAbsent;
@@ -44,7 +36,7 @@ function setParentMark(state: MarkState, params: {parentId: number, childId: num
   if (typeof childId === 'undefined') {
     return state;
   }
-  const child = state.get(str(childId));
+  const child = state.get(String(childId));
   if (!child) {
     return state;
   }
@@ -57,15 +49,15 @@ function setParentMark(state: MarkState, params: {parentId: number, childId: num
     return state;
   }
 
-  const existingParent = state.get(str(existingParentId));
-  const newParent = parentId ? state.get(str(parentId)) : parentId;
+  const existingParent = state.get(String(existingParentId));
+  const newParent = parentId ? state.get(String(parentId)) : parentId;
 
   // Clearing a mark's parent reference
   if (newParent === null) {
     // Second, ensure the child ID has been removed from the parent's marks
     return ensureValueAbsent(
       // First, null out the child's parent reference
-      state.setIn([str(childId), '_parent'], null),
+      state.setIn([String(childId), '_parent'], null),
       existingParentId + '.marks',
       childId
     );
@@ -78,7 +70,7 @@ function setParentMark(state: MarkState, params: {parentId: number, childId: num
       // Next, remove the child ID from the old parent's marks
       ensureValueAbsent(
         // First, update the child's _parent pointer to target the new parent
-        state.setIn([str(childId), '_parent'], parentId),
+        state.setIn([String(childId), '_parent'], parentId),
         existingParentId + '.marks',
         childId
       ),
@@ -90,7 +82,7 @@ function setParentMark(state: MarkState, params: {parentId: number, childId: num
   // Setting a parent of a previously-parentless mark
   return ensureValuePresent(
     // First, update the child's _parent pointer to target the new parent
-    state.setIn([str(childId), '_parent'], parentId),
+    state.setIn([String(childId), '_parent'], parentId),
     parentId + '.marks',
     childId
   );
@@ -142,14 +134,14 @@ function marksReducer(state: MarkState, action: ActionType<typeof markActions> |
   const markId = action.meta;
 
   if (action.type === getType(sceneActions.createScene)) {
-    return state.set(str(markId), makeMark(action));
+    return state.set(String(markId), makeMark(action));
   }
 
   if (action.type === getType(markActions.addMark)) {
     // Make the mark and .set it at the provided ID, then pass it through a
     // method that will check to see whether the mark needs to be added as
     // a child of another mark
-    return setParentMark( state.set(str(markId), makeMark(action)), {
+    return setParentMark( state.set(String(markId), makeMark(action)), {
       parentId: action.payload.props ? action.payload.props._parent : null,
       childId: markId
     });
@@ -170,37 +162,37 @@ function marksReducer(state: MarkState, action: ActionType<typeof markActions> |
   }
 
   if (action.type === getType(markActions.updateMarkProperty)) {
-    return state.setIn([str(markId), action.payload.property],
+    return state.setIn([String(markId), action.payload.property],
       action.payload.value);
   }
 
   if (action.type === getType(markActions.setMarkVisual)) {
-    return state.setIn([str(markId), 'properties', 'update', action.payload.property], action.payload.def);
+    return state.setIn([String(markId), 'properties', 'update', action.payload.property], action.payload.def);
   }
 
   if (action.type === getType(markActions.disableMarkVisual)) {
-    return state.setIn([str(markId), 'properties', 'update', action.payload, '_disabled'], true);
+    return state.setIn([String(markId), 'properties', 'update', action.payload, '_disabled'], true);
   }
 
   if (action.type === getType(markActions.resetMarkVisual)) {
-    const markType = state.getIn([str(markId), 'type']);
+    const markType = state.getIn([String(markId), 'type']);
     const property = action.payload;
 
-    return state.setIn([str(markId), 'properties', 'update', property],
+    return state.setIn([String(markId), 'properties', 'update', property],
         {signal: propSg(markId, markType, property)});
   }
 
   if (action.type === getType(markActions.setMarkExtent)) {
-    return state.setIn([str(markId), 'properties', 'update', action.payload.oldExtent, '_disabled'], true)
-                .setIn([str(markId), 'properties', 'update', action.payload.newExtent, '_disabled'], false);
+    return state.setIn([String(markId), 'properties', 'update', action.payload.oldExtent, '_disabled'], true)
+                .setIn([String(markId), 'properties', 'update', action.payload.newExtent, '_disabled'], false);
   }
 
   if (action.type === getType(markActions.setVlUnit)) {
-    return state.setIn([str(markId), '_vlUnit'], action.payload);
+    return state.setIn([String(markId), '_vlUnit'], action.payload);
   }
 
   if (action.type === getType(markActions.bindScale)) {
-    return state.setIn([str(markId), 'properties', 'update', action.payload.property, 'scale'], action.payload.scaleId);
+    return state.setIn([String(markId), 'properties', 'update', action.payload.property, 'scale'], action.payload.scaleId);
   }
 
   // TODO(jzong, al) blocked on scaleActions refactor
