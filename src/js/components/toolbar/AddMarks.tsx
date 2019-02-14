@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import {addMark} from '../../actions/markActions');
+import {addMark} from '../../actions/markActions';
 import { LyraMarkType, Mark } from '../../store/factory/Mark';
 import { Icon } from '../Icon';
 
