@@ -1,14 +1,11 @@
+import {createStandardAction} from 'typesafe-actions';
+
 /**
  * This module holds action creators, some of which create side-effects to bridge
  * the gap between the prior instance-store-oriented architecture and the new
  * redux-store architecture. It could and likely should be fragments into individual
  * modules for clarity and ease of `require()`.
  */
-'use strict';
-
-var ADD_SCALE_TO_GROUP  = 'ADD_SCALE_TO_GROUP',
-    ADD_AXIS_TO_GROUP   = 'ADD_AXIS_TO_GROUP',
-    ADD_LEGEND_TO_GROUP = 'ADD_LEGEND_TO_GROUP';
 
 /**
  * Return an action object instructing the reducer to add the provided scale
@@ -18,13 +15,7 @@ var ADD_SCALE_TO_GROUP  = 'ADD_SCALE_TO_GROUP',
  * @param {number} groupId The ID of the group to add the scale to
  * @returns {Object} A redux action object
  */
-function addScaleToGroup(scaleId, groupId) {
-  return {
-    type: ADD_SCALE_TO_GROUP,
-    scaleId: scaleId,
-    groupId: groupId
-  };
-}
+export const addScaleToGroup = createStandardAction('ADD_SCALE_TO_GROUP')<number, number>(); // scaleId, groupId
 
 /**
  * Return an action object instructing the reducer to add the provided axis
@@ -34,13 +25,7 @@ function addScaleToGroup(scaleId, groupId) {
  * @param {number} groupId - The ID of the group to which the axis should be added.
  * @returns {Object} A redux action object
  */
-function addAxisToGroup(axisId, groupId) {
-  return {
-    type: ADD_AXIS_TO_GROUP,
-    axisId: axisId,
-    groupId: groupId
-  };
-}
+export const addAxisToGroup = createStandardAction('ADD_AXIS_TO_GROUP')<number, number>(); // axisId, groupId
 
 /**
  * Return an action object instructing the reducer to add the provided legend
@@ -50,22 +35,4 @@ function addAxisToGroup(axisId, groupId) {
  * @param {number} groupId - The ID of the group to which the legend should be added.
  * @returns {Object} A redux action object
  */
-function addLegendToGroup(legendId, groupId) {
-  return {
-    type: ADD_LEGEND_TO_GROUP,
-    legendId: legendId,
-    groupId: groupId
-  };
-}
-
-module.exports = {
-  // Action Names
-  ADD_SCALE_TO_GROUP: ADD_SCALE_TO_GROUP,
-  ADD_AXIS_TO_GROUP: ADD_AXIS_TO_GROUP,
-  ADD_LEGEND_TO_GROUP: ADD_LEGEND_TO_GROUP,
-
-  // Action Creators
-  addScaleToGroup: addScaleToGroup,
-  addAxisToGroup: addAxisToGroup,
-  addLegendToGroup: addLegendToGroup
-};
+export const addLegendToGroup = createStandardAction('ADD_LEGEND_TO_GROUP')<number, number>(); // legendId, groupId
