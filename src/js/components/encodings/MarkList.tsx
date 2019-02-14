@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
-import { Dispatch } from 'redux';
+import { AnyAction, Dispatch } from 'redux';
+import {ThunkDispatch} from 'redux-thunk';
+import {deleteMark, updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store';
+import {MarkRecord} from '../../store/factory/Mark';
 import { Icon } from '../Icon';
 
 const selectMark = require('../../actions/inspectorActions').selectMark;
-const markActions = require('../../actions/markActions');
-const deleteMark = markActions.deleteMark;
-const updateMarkProperty = markActions.updateMarkProperty;
 const getInVis = require('../../util/immutable-utils').getInVis;
 const ContentEditable = require('../ContentEditable');
 const assets = require('../../util/assets');
@@ -18,7 +18,7 @@ interface OwnProps {
   selectedId?: number;
 }
 interface StateProps {
-  marks: any; // Immutable.List
+  marks: MarkRecord[];
 }
 
 interface DispatchProps {
@@ -36,7 +36,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, ownProps: OwnProps): DispatchProps {
   return {
     selectMark: function(markId) {
       dispatch(selectMark(markId));
@@ -53,7 +53,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
     },
 
     updateName: function(markId, value) {
-      dispatch(updateMarkProperty(markId, 'name', value));
+      dispatch(updateMarkProperty({property: 'name', value}, markId));
     },
   };
 }
@@ -76,8 +76,8 @@ class MarkList extends React.Component<OwnProps & StateProps & DispatchProps> {
         </li>
 
         {props.marks.map(function(mark, i) {
-          const markId = mark.get('_id');
-          const name = mark.get('name');
+          const markId = mark._id;
+          const name = mark.name;
 
           return (
             <li key={markId}>

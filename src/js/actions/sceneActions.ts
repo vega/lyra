@@ -1,4 +1,7 @@
+import {AnyAction} from 'redux';
+import {ThunkAction} from 'redux-thunk';
 import {createStandardAction} from 'typesafe-actions';
+import {State} from '../store';
 import {SceneRecord} from '../store/factory/marks/Scene';
 import {deleteMark} from './markActions';
 
@@ -18,7 +21,7 @@ export const createScene = createStandardAction('CREATE_SCENE').map((payload: Sc
     meta: id
   };
 });
-export function clearScene() {
+export function clearScene(): ThunkAction<void, State, null, AnyAction> {
   return function(dispatch, getState) {
     const state = getState();
     const sceneId = getInVis(state, 'scene.id');

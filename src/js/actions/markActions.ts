@@ -1,5 +1,8 @@
+import {AnyAction, Dispatch} from 'redux';
+import {ThunkAction, ThunkDispatch} from 'redux-thunk';
 import {createStandardAction} from 'typesafe-actions';
 import {Encode} from 'vega-typings';
+import {State} from '../store';
 import { LyraMark, Mark, MarkRecord } from '../store/factory/Mark';
 
 const counter  = require('../util/counter');
@@ -40,7 +43,7 @@ export const bindField = createStandardAction('BIND_FIELD')<{field: string, prop
 export const setMarkExtent = createStandardAction('SET_MARK_EXTENT')<{oldExtent: string, newExtent: string}, number>();
 export const setVlUnit = createStandardAction('SET_VL_UNIT')<VegaLiteUnit, number>();
 
-export function deleteMark(id: number) {
+export function deleteMark(id: number): ThunkAction<void, State, null, AnyAction> {
   return function(dispatch, getState) {
     const mark = getInVis(getState(), 'marks.' + id);
     const children = mark.get('marks');

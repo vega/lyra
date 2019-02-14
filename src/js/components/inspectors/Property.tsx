@@ -1,16 +1,13 @@
-'use strict';
-
-const Immutable = require('immutable');
 const FormInputProperty = require('./FormInputProperty');
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
 const TYPES = require('../../constants/primTypes');
-const resetMarkVisual = require('../../actions/markActions').resetMarkVisual;
 
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
+import {resetMarkVisual} from '../../actions/markActions';
 import {State} from '../../store';
 import {AutoComplete} from './AutoComplete';
 
@@ -19,7 +16,7 @@ import {AutoComplete} from './AutoComplete';
    the parents adhere to inconsistent interfaces
 
 interface OwnProps {
-  primId?: any;
+  primId?: number;
   primType?: any;
   name?: string;
   label?: string;
@@ -84,7 +81,7 @@ function mapStateToProps(reduxState: State, ownProps/*: OwnProps*/)/*: StateProp
 function mapDispatchToProps(dispatch: Dispatch, ownProps/*: OwnProps*/)/*: DispatchProps*/ {
   return {
     unbind: function() {
-      dispatch(resetMarkVisual(ownProps.primId, ownProps.name));
+      dispatch(resetMarkVisual(ownProps.name, ownProps.primId));
     }
   };
 }

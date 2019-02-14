@@ -1,8 +1,5 @@
 'use strict';
 const dl = require('datalib');
-const markActions = require('../../actions/markActions');
-const setMarkExtent = markActions.setMarkExtent;
-const resetMarkVisual = markActions.resetMarkVisual;
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
@@ -11,13 +8,14 @@ const MARK_EXTENTS = require('../../constants/markExtents');
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
+import {resetMarkVisual, setMarkExtent} from '../../actions/markActions';
 import {State} from '../../store';
 import {Property} from './Property';
 import {SpatialPreset} from './SpatialPreset';
 
 interface OwnProps {
   exType: any;
-  primId: any;
+  primId: number;
 }
 
 interface StateProps {
@@ -28,7 +26,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  setExtent: (oldExtent: any, newExtent: any) => void;
+  setExtent: (oldExtent: string, newExtent: string) => void;
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -63,8 +61,8 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   return {
     setExtent: function(oldExtent, newExtent) {
       const markId = ownProps.primId;
-      dispatch(setMarkExtent(markId, oldExtent, newExtent));
-      dispatch(resetMarkVisual(markId, newExtent));
+      dispatch(setMarkExtent({oldExtent, newExtent}, markId));
+      dispatch(resetMarkVisual(newExtent, markId));
     }
   };
 }

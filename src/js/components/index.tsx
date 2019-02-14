@@ -1,10 +1,8 @@
-'use strict';
-const ReactDOM = require('react-dom'),
-  ReactTooltip = require('react-tooltip'),
-  Provider = require('react-redux').Provider,
-  store = require('../store');
-
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import {Provider} from 'react-redux';
+import * as ReactTooltip from 'react-tooltip';
+import store from '../store';
 import {EncodingsSidebar} from './EncodingsSidebar';
 import {Footer} from './Footer';
 import {InspectorSidebar} from './InspectorSidebar';

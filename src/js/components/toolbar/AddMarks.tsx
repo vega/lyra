@@ -1,20 +1,15 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { State } from '../../store';
+import {addMark} from '../../actions/markActions');
 import { LyraMarkType, Mark } from '../../store/factory/Mark';
 import { Icon } from '../Icon';
 
 const getClosestGroupId = require('../../util/hierarchy').getClosestGroupId;
-const addMark = require('../../actions/markActions').addMark;
 const assets = require('../../util/assets');
-
-function mapStateToProps(reduxState: State) {
-  return {};
-}
 
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    addMark: (type: LyraMarkType) => {
+    addMark: (type) => {
       const newMarkProps = Mark(type, {
         _parent: getClosestGroupId()
       });
@@ -24,10 +19,11 @@ function mapDispatchToProps(dispatch, ownProps) {
 }
 
 // Currently supported mark types
+// TODO don't repeat this list across the codebase
 const marksArray = ['rect', 'symbol', 'text', 'line', 'area'];
 
 interface AddMarksToolProps {
-  addMark: (type: string) => void;
+  addMark: (type: LyraMarkType) => void;
 }
 
 class AddMarksTool extends React.Component<AddMarksToolProps> {
@@ -52,6 +48,6 @@ class AddMarksTool extends React.Component<AddMarksToolProps> {
 }
 
 export const AddMarks = connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(AddMarksTool);

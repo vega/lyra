@@ -1,7 +1,7 @@
 'use strict';
 
 const primTypes = require('../../constants/primTypes');
-const updateMarkProperty = require('../../actions/markActions').updateMarkProperty;
+
 const Text = require('../../store/factory/marks/Text');
 const assets = require('../../util/assets');
 const getInVis = require('../../util/immutable-utils').getInVis;
@@ -9,6 +9,7 @@ const getInVis = require('../../util/immutable-utils').getInVis;
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
+import {updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store';
 import {Property} from './Property';
 
@@ -37,8 +38,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   return {
     updateTemplate: function(value) {
       const val = value.target ? value.target.value : value;
-      dispatch(updateMarkProperty(ownProps.primId,
-        'properties.update.text.template', val));
+      dispatch(updateMarkProperty({property: 'properties.update.text.template', value: val}, ownProps.primId));
     }
   };
 }

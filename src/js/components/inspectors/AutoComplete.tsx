@@ -1,9 +1,5 @@
 'use strict';
 const $ = require('jquery');
-const React = require('react');
-const ReactDOM = require('react-dom');
-const connect = require('react-redux').connect;
-const ContentEditable = require('react-contenteditable');
 const getInVis = require('../../util/immutable-utils').getInVis;
 
 const EXPR = 'expr';
@@ -15,16 +11,25 @@ const TMPL_OPEN  = '{{';
 const TMPL_CLOSE = '}}';
 const TMPL_DATUM = new RegExp(TMPL_OPEN + DATUM + '*' + TMPL_CLOSE);
 
+import * as React from 'react';
+import ContentEditable from 'react-contenteditable';
+import * as ReactDOM from 'react-dom';
+import { connect } from 'react-redux';
 import {State} from '../../store';
+
 interface OwnProps {
-  type: any, // propTypes.oneOf([EXPR, TMPL]).isRequired,
+  type: 'expr' | 'tmpl';
   dsId: number,
   value: string,
-  updateFn: () => any
+  updateFn: (html) => any
 }
 
 interface StateProps {
   fields: any;
+}
+
+interface OwnState {
+  html: string
 }
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
@@ -34,14 +39,14 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   };
 }
 
-class BaseAutoComplete extends React.Component<OwnProps & StateProps> {
+class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> {
   public getInitialState() {
     const props = this.props;
     const value = props.value || '';
     const type = props.type;
- let html = value;
+    let html = value;
 
- if (type === EXPR) {
+    if (type === EXPR) {
       html = this.exprToHtml(html);
     } else if (type === TMPL) {
       html = this.tmplToHtml(html);
@@ -80,7 +85,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps> {
       .on({'textComplete:select': handleChange});
   };
 
-  public exprToHtml(str) {
+  public exprToHtml(str: string) {
     str = str.split(DATUM).join('');
     return this.wrapStr(str, SPAN_OPEN, SPAN_CLOSE);
   };

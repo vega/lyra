@@ -1,7 +1,8 @@
+import { addMark } from './actions/markActions';
+import { createScene } from './actions/sceneActions';
+import initialStore from './store';
 import { Mark } from './store/factory/Mark';
-
-/* eslint no-unused-expressions: 0 */
-'use strict';
+import { Scene } from './store/factory/marks/Scene';
 
 require('../scss/app.scss');
 
@@ -11,7 +12,7 @@ require('string.prototype.startswith');
 require('./transforms');
 
 // Initialize the Redux store
-const store = ((global as any).store = require('./store'));
+const store = (global as any).store = initialStore;
 
 // Initialize the Model.
 const ctrl = ((global as any).ctrl = require('./ctrl'));
@@ -23,14 +24,15 @@ const listeners = require('./store/listeners');
 store.subscribe(listeners.createStoreListener(store, ctrl));
 
 // Initializes the Lyra ctrl with a new Scene primitive.
-const createScene = require('./actions/sceneActions').createScene;
-const addMark = require('./actions/markActions').addMark;
-
 store.dispatch(
-  createScene({
-    width: 640,
-    height: 360
-  })
+  createScene(Scene({
+    encode: {
+      update: {
+        width: { value: 640 },
+        height: { value: 360 }
+      }
+    }
+  }))
 );
 
 store.dispatch(addMark(Mark('group', {_parent: 1})));
