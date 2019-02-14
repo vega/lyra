@@ -1,6 +1,7 @@
 import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import {SignalValue} from 'vega-typings/types';
+import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as signalActions from '../actions/signalActions';
 import {Signal, SignalState} from '../ctrl/signals/defaults';
@@ -23,43 +24,51 @@ function setStreams(state: SignalState, signal: string, value: SignalValue): Sig
 }
 
 // Initialize signals for any of the mark's properties that are defined with a .value
-function initSignalsForMark(state: SignalState, action: ActionType<typeof markActions.addMark>, props, propName?): SignalState {
+function initSignalsForMark(state: SignalState, action: ActionType<typeof markActions.addMark | typeof guideActions.addGuide>, props, propName?): SignalState {
   if (!props) {
     // No property values to initialize as signals; return state as-is
     return state;
   }
 
-  /* eslint no-shadow:0 */
   // Initialize a signal to hold any specified update property values
   return Object.keys(props).reduce(function(accState, key) {
     if (typeof props[key].value === 'undefined') {
       return accState;
     }
 
-    const type = action.type === ACTIONS.ADD_GUIDE ? 'guide' : action.props.type,
-        name = action.type === ACTIONS.ADD_GUIDE ? propName + '_' + key : key,
-        signalName = propSg(action.id, type, name),
-        streams = action.streams;
+    if (action.type === getType(guideActions.addGuide)) {
+      const type = 'guide';
+      const name =  propName + '_' + key;
+      const signalName = propSg(action.meta, type, name);
 
-    const intermediateState = signalInit(accState, signalName, props[key].value);
+      const intermediateState = signalInit(accState, signalName, props[key].value);
+      return intermediateState;
+    }
+    if (action.type === getType(markActions.addMark)) {
+      const type = action.payload.props.type;
+      const name = key;
+      const signalName = propSg(action.meta, type, name);
+      const streams = action.payload.streams;
 
-    return streams && streams[signalName] ? setStreams(intermediateState, signalName, streams[signalName]) : intermediateState;
+      const intermediateState = signalInit(accState, signalName, props[key].value);
+      return streams && streams[signalName] ? setStreams(intermediateState, signalName, streams[signalName]) : intermediateState;
+    }
   }, state);
 }
 
 // Action has two non-type properties, markId and markType
-function deleteSignalsForMark(state, action) {
+function deleteSignalsForMark(state: SignalState, action: ActionType<typeof markActions.baseDeleteMark | typeof guideActions.deleteGuide>): SignalState {
   // Create a regular expression which will match any signal that was created
   // for this mark (this works because signal names take a predictable form,
   // using the prop-signal module)
-  const markType = action.markType || 'guide',
-      markSignalRegex = new RegExp('^' + ns(markType + '_' + action.id));
+  const markType = action.type === getType(markActions.baseDeleteMark) ? action.payload : 'guide';
+  const markSignalRegex = new RegExp('^' + ns(markType + '_' + action.meta));
   return state.filter(function(value, key) {
     return !markSignalRegex.test(key);
   });
 }
 
-export function signalsReducer(state: SignalState, action: ActionType<typeof signalActions | typeof markActions.addMark | typeof markActions.baseDeleteMark>): SignalState {
+export function signalsReducer(state: SignalState, action: ActionType<typeof signalActions | typeof markActions.addMark | typeof markActions.baseDeleteMark | typeof guideActions.addGuide | typeof guideActions.deleteGuide>): SignalState {
   if (typeof state === 'undefined') {
     return Map();
   }
@@ -85,8 +94,8 @@ export function signalsReducer(state: SignalState, action: ActionType<typeof sig
       action.payload.props.encode && action.payload.props.encode.update);
   }
 
-  if (action.type === ACTIONS.ADD_GUIDE) {
-    const props = action.props.properties;
+  if (action.type === getType(guideActions.addGuide)) {
+    const props = action.payload.encode;
     Object.keys(props).forEach(function(key) {
       state = initSignalsForMark(state, action, props[key], key);
     });
@@ -94,7 +103,7 @@ export function signalsReducer(state: SignalState, action: ActionType<typeof sig
   }
 
   if (action.type === getType(markActions.baseDeleteMark) ||
-      action.type === ACTIONS.DELETE_GUIDE) {
+      action.type === getType(guideActions.deleteGuide)) {
     return deleteSignalsForMark(state, action);
   }
 

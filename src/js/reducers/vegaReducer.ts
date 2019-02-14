@@ -1,6 +1,7 @@
 import {ActionType, getType} from 'typesafe-actions';
 import * as helperActions from '../actions/bindChannel/helperActions';
 import * as datasetActions from '../actions/datasetActions';
+import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as pipelineActions from '../actions/pipelineActions';
 import * as scaleActions from '../actions/scaleActions';
@@ -19,7 +20,7 @@ import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
 export function invalidateVegaReducer(state: VegaReparseRecord,
                               action: ActionType<typeof vegaActions | typeof datasetActions |
                               typeof markActions | typeof pipelineActions | typeof sceneActions |
-                              typeof scaleActions | typeof helperActions | typeof signalActions>): VegaReparseRecord {
+                              typeof scaleActions | typeof helperActions | typeof signalActions | typeof guideActions>): VegaReparseRecord {
   if (typeof state === 'undefined') {
     return VegaReparse({
       invalid: false,
@@ -38,7 +39,7 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     getType(pipelineActions.baseAddPipeline),
     getType(signalActions.initSignal),
     getType(markActions.addMark),
-    ACTIONS.DELETE_GUIDE,
+    getType(guideActions.deleteGuide),
     getType(markActions.baseDeleteMark),
     getType(markActions.setParent),
     getType(markActions.updateMarkProperty),
@@ -51,8 +52,8 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     getType(scaleActions.updateScaleProperty),
     getType(helperActions.addScaleToGroup),
     getType(scaleActions.deleteScale),
-    ACTIONS.ADD_GUIDE,
-    ACTIONS.UPDATE_GUIDE_PROPERTY,
+    getType(guideActions.addGuide),
+    getType(guideActions.updateGuideProperty),
     getType(helperActions.addAxisToGroup),
     getType(helperActions.addLegendToGroup),
     // ACTIONS.REMOVE_AXIS_FROM_GROUP, // TODO this action doesn't exist (but would belong in helperActions)

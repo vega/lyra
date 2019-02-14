@@ -1,9 +1,9 @@
-import {AnyAction, Dispatch} from 'redux';
-import {ThunkAction, ThunkDispatch} from 'redux-thunk';
+import {AnyAction} from 'redux';
+import {ThunkAction} from 'redux-thunk';
 import {createStandardAction} from 'typesafe-actions';
 import {Encode} from 'vega-typings';
 import {State} from '../store';
-import { LyraMark, Mark, MarkRecord } from '../store/factory/Mark';
+import { LyraMark, LyraMarkType, Mark, MarkRecord } from '../store/factory/Mark';
 
 const counter  = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
@@ -19,12 +19,12 @@ type VegaLiteUnit = object;
 
 export const addMark = createStandardAction('ADD_MARK').map((record: MarkRecord) => {
   const id: number = record._id || counter.global();
-  record = (record as any).merge({_id: id}); // TODO(jzong) typescript barfs when calling merge on union record types
+  record = (record as any).merge({_id: id}) as MarkRecord; // TODO(jzong) typescript barfs when calling merge on union record types
 
   return {
     payload: {
       name: record.name,
-      streams: Mark.getHandleStreams(record), // TODO(jzong) pretty sure this isn't used anywhere right now
+      streams: Mark.getHandleStreams(record),
       props: record
     }, meta: id
   }
@@ -56,10 +56,10 @@ export function deleteMark(id: number): ThunkAction<void, State, null, AnyAction
       });
     }
 
-    dispatch(baseDeleteMark(null, mark._id));
+    dispatch(baseDeleteMark(mark.type, mark._id));
 
     dispatch(endBatch());
   };
 }
 
-export const baseDeleteMark = createStandardAction('DELETE_MARK')<null, number>();
+export const baseDeleteMark = createStandardAction('DELETE_MARK')<LyraMarkType, number>();
