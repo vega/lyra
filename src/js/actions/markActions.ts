@@ -8,30 +8,28 @@ const historyActions = require('./historyActions');
 const startBatch = historyActions.startBatch;
 const endBatch = historyActions.endBatch;
 
-const DELETE_MARK = 'DELETE_MARK';
-
 // TODO: use the vega-lite unit type, probably defined here:
 // https://github.com/vega/vega-lite/blob/d61deb9e4a2312114ce74945af65fc165309899a/src/spec/unit.ts
 // may require modification of vega-lite typings
 // import { GenericUnitSpec } from 'vega-lite/src/spec/unit';
-type VegaLiteUnit = any;
+type VegaLiteUnit = object;
 
-export const addMark = createStandardAction('ADD_MARK').map((payload: MarkRecord) => {
-  const id: number = payload._id || counter.global();
-  payload = payload.merge({_id: id});
+export const addMark = createStandardAction('ADD_MARK').map((record: MarkRecord) => {
+  const id: number = record._id || counter.global();
+  record = record.merge({_id: id});
 
   return {
     payload: {
-      name: payload.name,
-      streams: Mark.getHandleStreams(payload),
-      props: payload
+      name: record.name,
+      streams: Mark.getHandleStreams(record),
+      props: record
     }, meta: id
   }
 });
 
 export const updateMarkProperty = createStandardAction('UPDATE_MARK_PROPERTY')<{property: string, value: any}, number>();
 
-export const setParent = createStandardAction('SET_PARENT_MARK')<{childId: number, parentId: number}, null>();
+export const setParent = createStandardAction('SET_PARENT_MARK')<number, number>(); // parentId, childId
 
 export const setMarkVisual = createStandardAction('SET_MARK_VISUAL')<{property: string, def: Encode<LyraMark>}, number>();
 

@@ -1,68 +1,73 @@
-/* eslint new-cap:0 */
-'use strict';
+import {Map} from 'immutable';
+import {ActionType, getType} from 'typesafe-actions';
+import * as markActions from '../actions/markActions';
+import * as sceneActions from '../actions/sceneActions';
+import {MarkRecord, MarkState} from '../store/factory/Mark';
 
-var dl = require('datalib'),
-    Immutable = require('immutable'),
-    ACTIONS = require('../actions/Names'),
-    ns = require('../util/ns'),
-    propSg = require('../util/prop-signal'),
-    immutableUtils = require('../util/immutable-utils'),
-    get = immutableUtils.get,
-    getIn = immutableUtils.getIn,
-    set = immutableUtils.set,
-    setIn = immutableUtils.setIn,
-    deleteKeyFromMap = immutableUtils.deleteKeyFromMap,
-    ensureValuePresent = immutableUtils.ensureValuePresent,
-    ensureValueAbsent = immutableUtils.ensureValueAbsent;
+const str   = require('../util/immutable-utils').str;
+
+const dl = require('datalib');
+const ACTIONS = require('../actions/Names');
+const ns = require('../util/ns');
+const propSg = require('../util/prop-signal');
+const immutableUtils = require('../util/immutable-utils');
+const get = immutableUtils.get;
+const getIn = immutableUtils.getIn;
+const set = immutableUtils.set;
+const setIn = immutableUtils.setIn;
+const deleteKeyFromMap = immutableUtils.deleteKeyFromMap;
+const ensureValuePresent = immutableUtils.ensureValuePresent;
+const ensureValueAbsent = immutableUtils.ensureValueAbsent;
 
 // Helper reducer to add a mark to the store. Runs the mark through a method to
 // convert property values into signal references before setting the mark
 // within the store.
 // "state" is the marks store state; "action" is an object with a numeric
 // `._id`, string `.name`, and object `.props` defining the mark to be created.
-function makeMark(action) {
-  var def = action.props,
-      props = def.properties && def.properties.update;
-  return Immutable.fromJS(dl.extend({}, def, {
-    properties: {
-      update: propSg.convertValuesToSignals(props, def.type, action.id)
+function makeMark(action: ActionType<typeof markActions.addMark> | ActionType<typeof sceneActions.createScene>) {
+  const def: MarkRecord = action.payload.props;
+  const props = def.encode && def.encode.update;
+  return def.merge({
+    encode: {
+      update: propSg.convertValuesToSignals(props, def.type, action.meta)
     }
-  }));
+  });
 }
 
 // Helper reducer to configure a parent-child relationship between two marks.
 // "state" is the marks store state; "action" is an object with a numeric
 // `.childId` and either a numeric `.parentId` (for setting a parent) or `null`
 // (for clearing a parent, e.g. when removing a mark).
-function setParentMark(state, action) {
+function setParentMark(state: MarkState, params: {parentId: number, childId: number}): MarkState {
+  const {parentId, childId} = params;
   // Nothing to do if no child is provided
-  if (typeof action.childId === 'undefined') {
+  if (typeof childId === 'undefined') {
     return state;
   }
-  var child = get(state, action.childId);
+  const child = state.get(str(childId));
   if (!child) {
     return state;
   }
 
-  var existingParentId = child.get('_parent');
+  const existingParentId = child.get('_parent');
 
   // If we're deleting a parent but there isn't one to begin with, do nothing
   // (`== null` is used to catch both `undefined` and explicitly `null`)
-  if (existingParentId == null && !action.parentId) {
+  if (existingParentId == null && !parentId) {
     return state;
   }
 
-  var existingParent = get(state, existingParentId);
-  var newParent = action.parentId ? get(state, action.parentId) : action.parentId;
+  const existingParent = state.get(str(existingParentId));
+  const newParent = parentId ? state.get(str(parentId)) : parentId;
 
   // Clearing a mark's parent reference
   if (newParent === null) {
     // Second, ensure the child ID has been removed from the parent's marks
     return ensureValueAbsent(
       // First, null out the child's parent reference
-      setIn(state, action.childId + '._parent', null),
+      state.setIn([str(childId), '_parent'], null),
       existingParentId + '.marks',
-      action.childId
+      childId
     );
   }
 
@@ -73,21 +78,21 @@ function setParentMark(state, action) {
       // Next, remove the child ID from the old parent's marks
       ensureValueAbsent(
         // First, update the child's _parent pointer to target the new parent
-        setIn(state, action.childId + '._parent', action.parentId),
+        state.setIn([str(childId), '_parent'], parentId),
         existingParentId + '.marks',
-        action.childId
+        childId
       ),
-      action.parentId + '.marks',
-      action.childId
+      parentId + '.marks',
+      childId
     );
   }
 
   // Setting a parent of a previously-parentless mark
   return ensureValuePresent(
     // First, update the child's _parent pointer to target the new parent
-    setIn(state, action.childId + '._parent', action.parentId),
-    action.parentId + '.marks',
-    action.childId
+    state.setIn([str(childId), '_parent'], parentId),
+    parentId + '.marks',
+    childId
   );
 }
 
@@ -105,7 +110,7 @@ function setParentMark(state, action) {
  */
 /* eslint no-unused-vars:0 */
 function moveChildToGroup(state, action, collection) {
-  var oldGroupCollectionPath = action.oldGroupId + '.' + collection,
+  const oldGroupCollectionPath = action.oldGroupId + '.' + collection,
       newGroupCollectionPath = action.groupId + '.' + collection;
 
   // Simple case: add to the new
@@ -129,76 +134,76 @@ function moveChildToGroup(state, action, collection) {
  * @param {Object} action - A redux action object
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
-function marksReducer(state, action) {
+function marksReducer(state: MarkState, action: ActionType<typeof markActions> | ActionType<typeof sceneActions.createScene>): MarkState {
   if (typeof state === 'undefined') {
-    return new Immutable.Map();
+    return Map();
   }
 
-  var markId = action.id;
+  const markId = action.meta;
 
-  if (action.type === ACTIONS.CREATE_SCENE) {
-    return set(state, action.id, makeMark(action));
+  if (action.type === getType(sceneActions.createScene)) {
+    return state.set(str(markId), makeMark(action));
   }
 
-  if (action.type === ACTIONS.ADD_MARK) {
+  if (action.type === getType(markActions.addMark)) {
     // Make the mark and .set it at the provided ID, then pass it through a
     // method that will check to see whether the mark needs to be added as
     // a child of another mark
-    return setParentMark(set(state, action.id, makeMark(action)), {
-      type: ACTIONS.SET_PARENT_MARK,
-      parentId: action.props ? action.props._parent : null,
-      childId: action.id
+    return setParentMark( state.set(str(markId), makeMark(action)), {
+      parentId: action.payload.props ? action.payload.props._parent : null,
+      childId: markId
     });
   }
 
-  if (action.type === ACTIONS.DELETE_MARK) {
+  if (action.type === getType(markActions.baseDeleteMark)) {
     return deleteKeyFromMap(setParentMark(state, {
-      childId: action.id,
+      childId: markId,
       parentId: null
-    }), action.id);
+    }), markId);
   }
 
-  if (action.type === ACTIONS.SET_PARENT_MARK) {
-    return setParentMark(state, action);
+  if (action.type === getType(markActions.setParent)) {
+    return setParentMark(state, {
+      parentId: action.payload,
+      childId: markId
+    });
   }
 
-  if (action.type === ACTIONS.UPDATE_MARK_PROPERTY) {
-    return setIn(state, action.id + '.' + action.property,
-      Immutable.fromJS(action.value));
+  if (action.type === getType(markActions.updateMarkProperty)) {
+    return state.setIn([str(markId), action.payload.property],
+      action.payload.value);
   }
 
-  if (action.type === ACTIONS.SET_MARK_VISUAL) {
-    return setIn(state, action.id +
-      '.properties.update.' + action.property, Immutable.fromJS(action.def));
+  if (action.type === getType(markActions.setMarkVisual)) {
+    return state.setIn([str(markId), 'properties', 'update', action.payload.property], action.payload.def);
   }
 
-  if (action.type === ACTIONS.DISABLE_MARK_VISUAL) {
-    return setIn(state, action.id +
-      '.properties.update.' + action.property + '._disabled', true);
+  if (action.type === getType(markActions.disableMarkVisual)) {
+    return state.setIn([str(markId), 'properties', 'update', action.payload, '_disabled'], true);
   }
 
-  if (action.type === ACTIONS.RESET_MARK_VISUAL) {
-    var markType = getIn(state, markId + '.type'),
-        property = action.property;
+  if (action.type === getType(markActions.resetMarkVisual)) {
+    const markType = state.getIn([str(markId), 'type']);
+    const property = action.payload;
 
-    return setIn(state, markId + '.properties.update.' + property,
-        Immutable.fromJS({signal: propSg(markId, markType, property)}));
+    return state.setIn([str(markId), 'properties', 'update', property],
+        {signal: propSg(markId, markType, property)});
   }
 
-  if (action.type === ACTIONS.SET_MARK_EXTENT) {
-    return setIn(setIn(state,
-      markId + '.properties.update.' + action.oldExtent + '._disabled', true),
-      markId + '.properties.update.' + action.newExtent + '._disabled', false);
+  if (action.type === getType(markActions.setMarkExtent)) {
+    return state.setIn([str(markId), 'properties', 'update', action.payload.oldExtent, '_disabled'], true)
+                .setIn([str(markId), 'properties', 'update', action.payload.newExtent, '_disabled'], false);
   }
 
-  if (action.type === ACTIONS.SET_VL_UNIT) {
-    return setIn(state, markId + '._vlUnit', Immutable.fromJS(action.spec));
+  if (action.type === getType(markActions.setVlUnit)) {
+    return state.setIn([str(markId), '_vlUnit'], action.payload);
   }
 
-  if (action.type === ACTIONS.BIND_SCALE) {
-    return setIn(state, action.id +
-      '.properties.update.' + action.property + '.scale', action.scaleId);
+  if (action.type === getType(markActions.bindScale)) {
+    return state.setIn([str(markId), 'properties', 'update', action.payload.property, 'scale'], action.payload.scaleId);
   }
+
+  // TODO(jzong, al) blocked on scaleActions refactor
 
   if (action.type === ACTIONS.ADD_SCALE_TO_GROUP) {
     return ensureValuePresent(state, action.groupId + '.scales', action.scaleId);
