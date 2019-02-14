@@ -22,7 +22,7 @@ const names = {};
 
 // Scales churn (unused scales are deleted) and thus we want to reuse names
 // as much as possible.
-function rename(name) {
+function rename(name): string {
   let count = 1;
   let str = name;
   while (names[str]) {
