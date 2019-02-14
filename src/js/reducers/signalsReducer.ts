@@ -59,8 +59,7 @@ function deleteSignalsForMark(state, action) {
   });
 }
 
-// @TODO: members of the state.signals map are not actually immutable
-function signalsReducer(state: SignalState, action: ActionType<typeof signalActions | typeof markActions.addMark | typeof markActions.baseDeleteMark>): SignalState {
+export function signalsReducer(state: SignalState, action: ActionType<typeof signalActions | typeof markActions.addMark | typeof markActions.baseDeleteMark>): SignalState {
   if (typeof state === 'undefined') {
     return Map();
   }
@@ -94,7 +93,7 @@ function signalsReducer(state: SignalState, action: ActionType<typeof signalActi
     return state;
   }
 
-  if (action.type === ACTIONS.DELETE_MARK ||
+  if (action.type === getType(markActions.baseDeleteMark) ||
       action.type === ACTIONS.DELETE_GUIDE) {
     return deleteSignalsForMark(state, action);
   }
