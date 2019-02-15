@@ -8,7 +8,7 @@ var dl = require('datalib'),
     setSignal = actions.setSignal,
     setSignalStreams = actions.setSignalStreams,
     unsetSignal = actions.unsetSignal,
-    defaults = require('./defaults');
+    defaults = require('../../store/factory/Signal');
 
 // Utility method to get a signal from the store
 function getSignal(name) {
