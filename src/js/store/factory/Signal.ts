@@ -2,9 +2,9 @@
 
 import {Map, Record, RecordOf} from 'immutable';
 import {Signal as VegaSignal} from 'vega-typings/types';
-import ns from '../../util/ns';
 
 const dl = require('datalib');
+const ns = require('../../util/ns');
 
 const SELECTED = ns('selected');
 const MODE = ns('mode');
@@ -17,6 +17,7 @@ const MOUSE = ns('mouse');
 export type LyraSignal = {
   _idx: number
 } & VegaSignal;
+
 export const Signal = Record<LyraSignal>({
   _idx: null,
   name: null
