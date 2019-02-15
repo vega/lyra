@@ -182,5 +182,3 @@ function redo(state: VisState): VisState {
     future.splice(0, 1)
   );
 }
-
-module.exports = undoable;
