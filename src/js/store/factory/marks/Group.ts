@@ -1,5 +1,6 @@
 import {Record, RecordOf} from 'immutable';
 import {GroupMark} from 'vega-typings';
+import store from '../../';
 import {Rect} from './Rect';
 
 const dl = require('datalib');
@@ -13,7 +14,7 @@ export type LyraGroupMark = {
 
 export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
   const base = Rect();
-  const state = require('../../').getState();
+  const state = store.getState();
   const scene = getInVis(state, 'marks.' + getInVis(state, 'scene.id'));
 
   return Record<LyraGroupMark>({
@@ -43,6 +44,6 @@ export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
       })
     }
   })(values);
-}
+};
 
 export type GroupRecord = RecordOf<LyraGroupMark>;

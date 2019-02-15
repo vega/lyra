@@ -1,13 +1,13 @@
 import {List, Map, Record, RecordOf} from 'immutable';
-import {applyMiddleware, createStore} from 'redux';
+import {applyMiddleware, createStore, Store} from 'redux';
 import ReduxThunk from 'redux-thunk'; // redux-thunk lets us dispatch() functions to create async or multi-stage actions
-import {defaultSignalState, SignalRecord} from '../ctrl/signals/defaults';
 import {DatasetRecord} from './factory/Dataset';
 import {GuideRecord} from './factory/Guide';
 import {MarkRecord} from './factory/Mark';
 import {Scene, SceneRecord} from './factory/marks/Scene';
 import {PipelineRecord} from './factory/Pipeline';
 import {ScaleRecord} from './factory/Scale';
+import {defaultSignalState, SignalRecord} from './factory/Signal';
 import {VegaReparse, VegaReparseRecord} from './factory/Vega';
 
 // reducer/index.js returns combinedReducers();
@@ -22,7 +22,7 @@ export interface VisState {
   filtered: boolean;
 }
 
-export interface LyraState {
+interface LyraState {
   vis: VisState;
   vega: VegaReparseRecord;
 };
@@ -59,6 +59,5 @@ function configureStore(initialState: State) {
  * from anywhere in Lyra
  * @type {Store}
  */
-// TODO: Replace with ES6 export once dependents (e.g., Group.js) have been migrated.
-module.exports = configureStore(defaultState);
-export default configureStore(defaultState);
+const initialStore: Store = configureStore(defaultState);;
+export default module.exports = initialStore;

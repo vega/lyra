@@ -4,9 +4,9 @@ import {SignalValue} from 'vega-typings/types';
 import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as signalActions from '../actions/signalActions';
-import {Signal, SignalState} from '../ctrl/signals/defaults';
-import ns from '../util/ns';
+import {Signal, SignalState} from '../store/factory/Signal';
 
+const ns = require('../util/ns');
 const propSg = require('../util/prop-signal');
 
 // Initialize a signal to a specific value
