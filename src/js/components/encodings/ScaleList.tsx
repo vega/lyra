@@ -1,18 +1,18 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
+import {selectScale} from '../../actions/inspectorActions';
 import {State} from '../../store';
+import {ScaleRecord} from '../../store/factory/Scale';
 
-const actions = require('../../actions/inspectorActions');
-const selectScale = actions.selectScale;
 const ContentEditable = require('../ContentEditable');
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
 
 interface StateProps {
-  selectedId: number,
-  scales: any, // TODO(jzong) give this a type
+  selectedId: number;
+  scales: Map<string, ScaleRecord>;
 }
 
 interface DispatchProps {
@@ -21,7 +21,7 @@ interface DispatchProps {
 
 function mapStateToProps(reduxState: State, ownProps): StateProps {
   return {
-    selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
+    selectedId: reduxState.getIn(['inspector', 'encodings', 'selectedId']),
     scales: getInVis(reduxState, 'scales')
   };
 }
@@ -37,7 +37,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
 class ScaleList extends React.Component<StateProps & DispatchProps> {
   public render() {
     const props = this.props;
-    const scales = props.scales.valueSeq();
+    const scales = [...props.scales.values()]
 
     return (
       <div id='scale-list'>

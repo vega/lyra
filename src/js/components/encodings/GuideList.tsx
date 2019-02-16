@@ -1,19 +1,17 @@
+import {List, Map} from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
-import {State} from '../../store';
-import { Icon } from '../Icon';
 import {deleteGuide} from '../../actions/guideActions';
-import {List} from 'immutable';
+import {selectGuide, selectMark} from '../../actions/inspectorActions';
+import {State} from '../../store';
 import {GuideRecord} from '../../store/factory/Guide';
+import {ScaleRecord} from '../../store/factory/Scale';
+import { Icon } from '../Icon';
 
 const capitalize = require('capitalize');
-const inspectorActions = require('../../actions/inspectorActions');
-const selectMark = inspectorActions.selectMark;
-const selectGuide = inspectorActions.selectGuide;
 const imutils = require('../../util/immutable-utils');
-const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
 const assets = require('../../util/assets');
 interface OwnProps {
@@ -22,7 +20,7 @@ interface OwnProps {
 }
 
 interface StateProps {
-  scales?: any; // Immutable.Map
+  scales?: Map<string, ScaleRecord>;
   guides?: List<GuideRecord>;
 }
 
@@ -82,7 +80,7 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
         {props.guides.map(function(guide) {
           const guideId = guide.get('_id');
           const scaleId = guide.get('scale'); // || guide.get(guide.get('type')); TODO(rneogy) figure out if we need this?
-          const name = capitalize(getIn(props.scales, scaleId + '.name'));
+          const name = capitalize(props.scales.getIn([scaleId, 'name']));
           const type = capitalize(guide.get('_gtype'));
 
           return (

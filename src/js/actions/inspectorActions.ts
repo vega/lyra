@@ -1,12 +1,12 @@
-'use strict';
+import {createStandardAction} from 'typesafe-actions';
 
-var TOGGLE_LAYERS = 'TOGGLE_LAYERS',
-    EXPAND_LAYERS = 'EXPAND_LAYERS',
-    REMOVE_LAYERS = 'REMOVE_LAYERS',
-    SELECT_GUIDE = 'SELECT_GUIDE',
-    SELECT_MARK = 'SELECT_MARK',
-    SELECT_PIPELINE = 'SELECT_PIPELINE',
-    SELECT_SCALE = 'SELECT_SCALE';
+export namespace InspectorSelectedType {
+  export const SELECT_GUIDE = 'SELECT_GUIDE';
+  export const SELECT_MARK = 'SELECT_MARK';
+  export const SELECT_PIPELINE = 'SELECT_PIPELINE';
+  export const SELECT_SCALE = 'SELECT_SCALE';
+}
+export type InspectorSelectedType = 'SELECT_GUIDE' | 'SELECT_MARK' | 'SELECT_PIPELINE' | 'SELECT_SCALE';
 
 /**
  * Return an object for the action to toggle a set of layers.
@@ -14,12 +14,7 @@ var TOGGLE_LAYERS = 'TOGGLE_LAYERS',
  * @param {number[]} layerIds - Array of layer IDs to toggle
  * @returns {Object} Redux action
  */
-function toggleLayers(layerIds) {
-  return {
-    type: TOGGLE_LAYERS,
-    layerIds: layerIds
-  };
-}
+export const toggleLayers = createStandardAction('TOGGLE_LAYERS')<number[]>();
 
 /**
  * Return an object for the action to expand a set of layers.
@@ -27,12 +22,7 @@ function toggleLayers(layerIds) {
  * @param {number[]} layerIds - Array of layer IDs to expand
  * @returns {Object} Redux action
  */
-function expandLayers(layerIds) {
-  return {
-    type: EXPAND_LAYERS,
-    layerIds: layerIds
-  };
-}
+export const expandLayers = createStandardAction('EXPAND_LAYERS')<number[]>();
 
 /**
  * Remove layers from the expand layers store
@@ -40,61 +30,9 @@ function expandLayers(layerIds) {
  * @param {number[]} layerIds - Array of layer IDs to expand
  * @returns {Object} Redux action
  */
-function removeLayers(layerIds) {
-  return {
-    type: REMOVE_LAYERS,
-    layerIds: layerIds
-  };
-}
+export const removeLayers = createStandardAction('REMOVE_LAYERS')<number[]>();
 
-function selectGuide(guideId) {
-  return {
-    type: SELECT_GUIDE,
-    id: guideId
-  };
-}
-
-function selectMark(markId) {
-  return {
-    type: SELECT_MARK,
-    id: markId
-  };
-}
-
-function selectPipeline(pipelineId) {
-  return {
-    type: SELECT_PIPELINE,
-    id: pipelineId
-  };
-}
-
-/**
- * Set selected scale
- * @param {number} id scale ID to show
-  * @returns {Object} An action object
- */
-function selectScale(id) {
-  return {
-    type: SELECT_SCALE,
-    id: id
-  };
-}
-module.exports = {
-  // Action Names
-  TOGGLE_LAYERS: TOGGLE_LAYERS,
-  EXPAND_LAYERS: EXPAND_LAYERS,
-  REMOVE_LAYERS: REMOVE_LAYERS,
-  SELECT_MARK: SELECT_MARK,
-  SELECT_GUIDE: SELECT_GUIDE,
-  SELECT_PIPELINE: SELECT_PIPELINE,
-  SELECT_SCALE: SELECT_SCALE,
-
-  // Action Creators
-  toggleLayers: toggleLayers,
-  expandLayers: expandLayers,
-  removeLayers: removeLayers,
-  selectGuide: selectGuide,
-  selectMark: selectMark,
-  selectPipeline: selectPipeline,
-  selectScale: selectScale
-};
+export const selectGuide = createStandardAction(InspectorSelectedType.SELECT_GUIDE)<number>();
+export const selectMark = createStandardAction(InspectorSelectedType.SELECT_MARK)<number>();
+export const selectPipeline = createStandardAction(InspectorSelectedType.SELECT_PIPELINE)<number>();
+export const selectScale = createStandardAction(InspectorSelectedType.SELECT_SCALE)<number>();
