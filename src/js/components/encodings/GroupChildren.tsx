@@ -3,20 +3,17 @@ import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
+import {selectMark, toggleLayers} from '../../actions/inspectorActions';
 import {deleteMark, updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store'
+import {ExpandedLayers} from '../../store/factory/Inspector';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import { Icon } from '../Icon';
 import GuideList from './GuideList';
 import MarkList from './MarkList';
 
 const ContentEditable = require('../ContentEditable');
-const inspectorActions = require('../../actions/inspectorActions');
-const selectMark = inspectorActions.selectMark;
-const toggleLayers = inspectorActions.toggleLayers;
 const imutils = require('../../util/immutable-utils');
-const get = imutils.get;
-const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
 const assets = require('../../util/assets');
 
@@ -27,7 +24,7 @@ interface OwnProps {
 }
 
 interface StateProps {
-  expandedLayers?: object;
+  expandedLayers?: ExpandedLayers;
   group: GroupRecord;
 }
 
@@ -40,7 +37,7 @@ interface DispatchProps {
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   return {
-    expandedLayers: reduxState.getIn(['inspector','encodings', 'expandedLayers']),
+    expandedLayers: reduxState.getIn(['inspector', 'encodings', 'expandedLayers']),
     group: getInVis(reduxState, 'marks.' + ownProps.id)
   };
 }
@@ -83,7 +80,7 @@ class Group extends React.Component<OwnProps & StateProps & DispatchProps> {
     const id = props.id;
     const group = props.group;
     const name  = group.name;
-    const isExpanded = get(props.expandedLayers, id);
+    const isExpanded = props.expandedLayers[id];
     const groupClass = isExpanded ? 'expanded' : 'contracted';
 
     return (

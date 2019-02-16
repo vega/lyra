@@ -2,17 +2,16 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
+import {selectMark} from '../../actions/inspectorActions';
 import {addMark} from '../../actions/markActions';
 import {clearScene} from '../../actions/sceneActions';
 import {State} from '../../store';
-import { LyraMarkType, Mark, MarkRecord } from '../../store/factory/Mark';
+import { LyraMarkType, Mark } from '../../store/factory/Mark';
 import { Icon } from '../Icon';
 import Group from './GroupChildren';
 
 const imutils = require('../../util/immutable-utils');
-const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
-const selectMark = require('../../actions/inspectorActions').selectMark;
 const assets = require('../../util/assets');
 
 interface StateProps {
@@ -31,7 +30,7 @@ function mapStateToProps(reduxState: State): StateProps {
   const sceneId = getInVis(reduxState, 'scene.id');
   return {
     sceneId: sceneId,
-    selectedId: getIn(reduxState, 'inspector.encodings.selectedId'),
+    selectedId: reduxState.getIn(['inspector', 'encodings', 'selectedId']),
     marks: getInVis(reduxState, 'marks.' + sceneId + '.marks')
   };
 }

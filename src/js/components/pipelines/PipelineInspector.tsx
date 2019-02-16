@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {selectPipeline} from '../../actions/inspectorActions';
 import {updatePipelineProperty as updatePipeline} from '../../actions/pipelineActions';
 import {State} from '../../store';
 import {PipelineRecord} from '../../store/factory/Pipeline';
@@ -7,9 +8,7 @@ import { Icon } from '../Icon';
 import DataTable from './DataTable';
 
 const ContentEditable = require('../ContentEditable');
-const selectPipeline = require('../../actions/inspectorActions').selectPipeline;
 const imutils = require('../../util/immutable-utils');
-const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
 const assets = require('../../util/assets');
 
@@ -22,17 +21,25 @@ interface StateProps {
   pipeline: PipelineRecord;
 }
 
+interface DispatchProps {
+  selectPipeline: (id: number) => void;
+  updatePipeline: (payload: {property: string, value: any}, id: number) => void;
+}
+
 function mapState(state: State, ownProps: OwnProps): StateProps {
   const id = ownProps.id;
   return {
-    isSelected: getIn(state, 'inspector.pipelines.selectedId') === id,
+    isSelected: state.getIn(['inspector', 'pipelines', 'selectedId']) === id,
     pipeline: getInVis(state, 'pipelines.' + id)
   };
 }
 
-const actionCreators = {selectPipeline, updatePipeline};
+const mapDispatch: DispatchProps = {
+  selectPipeline,
+  updatePipeline
+};
 
-class BasePipelineInspector extends React.Component<OwnProps & StateProps & typeof actionCreators> {
+class BasePipelineInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
   public render() {
     const props = this.props;
     const pipeline = props.pipeline;
@@ -75,4 +82,4 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps & type
   }
 }
 
-export const PipelineInspector = connect(mapState, actionCreators)(BasePipelineInspector);
+export const PipelineInspector = connect(mapState, mapDispatch)(BasePipelineInspector);

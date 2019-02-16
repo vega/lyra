@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { AnyAction, Dispatch } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
+import {selectMark} from '../../actions/inspectorActions';
 import {deleteMark, updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store';
 import {MarkRecord} from '../../store/factory/Mark';
 import { Icon } from '../Icon';
 
-const selectMark = require('../../actions/inspectorActions').selectMark;
 const getInVis = require('../../util/immutable-utils').getInVis;
 const ContentEditable = require('../ContentEditable');
 const assets = require('../../util/assets');

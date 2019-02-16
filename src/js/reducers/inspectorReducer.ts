@@ -1,93 +1,67 @@
-/* eslint new-cap:0 */
-'use strict';
+import {ActionType, getType} from 'typesafe-actions';
+import * as inspectorActions from '../actions/inspectorActions';
+import * as markActions from '../actions/markActions';
+import {ExpandedLayers, Inspector, InspectorRecord} from '../store/factory/Inspector';
 
-var Immutable = require('immutable'),
-    immutils = require('../util/immutable-utils'),
-    getIn = immutils.getIn,
-    setIn = immutils.setIn,
-    ACTIONS = require('../actions/Names');
-
-function expandLayers(state, layerIds) {
-  return layerIds.reduce(function(newState, layerId) {
-    return setIn(newState, 'encodings.expandedLayers.' + layerId, true);
+function expandLayers(state: InspectorRecord, layerIds: number[]): InspectorRecord {
+  return layerIds.reduce(function(newState: InspectorRecord, layerId: number) {
+    return newState.setIn(['encodings', 'expandedLayers', layerId], true);
   }, state);
 }
 
-function inspectorReducer(state, action) {
+export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.addMark>): InspectorRecord {
   if (typeof state === 'undefined') {
-    return Immutable.fromJS({
-      pipelines: {
-        selectedId: null
-      },
-      encodings: {
-        selectedId:   null,
-        selectedType: null,
-        expandedLayers: {}
-      }
-    });
+    return Inspector();
   }
 
-  if (action.type === ACTIONS.SELECT_PIPELINE) {
-    return setIn(state, 'pipelines.selectedId', action.id);
+  if (action.type === getType(inspectorActions.selectPipeline)) {
+    return state.setIn(['pipelines', 'selectedId'], action.payload);
   }
 
-  if (action.type === ACTIONS.SELECT_GUIDE) {
-    state = state.mergeDeep({
-      encodings: {
-        selectedId:   action.id,
-        selectedType: action.type
-      }
-    });
+  if (action.type === getType(inspectorActions.selectGuide)) {
+    state = state.setIn(['encodings', 'selectedId'], action.payload);
+    state = state.setIn(['encodings', 'selectedType'], action.type);
   }
 
-  if (action.type === ACTIONS.SELECT_MARK || action.type === ACTIONS.ADD_MARK ||
-      action.type === ACTIONS.SELECT_SCALE) {
-    state = state.mergeDeep({
-      encodings: {
-        selectedId:   action.id,
-        selectedType: action.type === ACTIONS.ADD_MARK ? ACTIONS.SELECT_MARK : action.type
-      }
-    });
+  if (action.type === getType(inspectorActions.selectMark) || action.type === getType(markActions.addMark) ||
+      action.type === getType(inspectorActions.selectScale)) {
+      state = state.setIn(['encodings', 'selectedId'], action.payload);
+      state = state.setIn(['encodings', 'selectedType'], action.type === getType(markActions.addMark) ? getType(inspectorActions.selectMark) : action.type);
   }
 
-  if (action.type === ACTIONS.SELECT_MARK) {
-    var hierarchy = require('../util/hierarchy'),
-        parentGroupIds = hierarchy.getParentGroupIds(action.id);
+  if (action.type === getType(inspectorActions.selectMark)) {
+    const hierarchy = require('../util/hierarchy');
+    const parentGroupIds = hierarchy.getParentGroupIds(action.payload);
 
     return expandLayers(state, parentGroupIds);
   }
 
   // Auto-select new marks
-  if (action.type === ACTIONS.ADD_MARK) {
-    var layers = {};
-    layers[action.props._parent] = true;
-    if (action.props.type === 'group') {
-      layers[action.id] = true;
+  if (action.type === getType(markActions.addMark)) {
+    const layers: ExpandedLayers = {};
+    layers[action.payload.props._parent] = true;
+    if (action.payload.props.type === 'group') {
+      layers[action.meta] = true;
     }
-
-    return state.mergeDeep({
-      encodings: {expandedLayers: layers}
-    });
+    return state = state.mergeIn(['encodings', 'expandedLayers'], layers);
   }
 
-  if (action.type === ACTIONS.EXPAND_LAYERS) {
-    return expandLayers(state, action.layerIds);
+  if (action.type === getType(inspectorActions.expandLayers)) {
+    return expandLayers(state, action.payload);
   }
 
-  if (action.type === ACTIONS.REMOVE_LAYERS) {
-    return action.layerIds.reduce(function(newState, layerId) {
-      return newState.delete(layerId);
+  if (action.type === getType(inspectorActions.removeLayers)) {
+    return action.payload.reduce(function(newState, layerId) {
+      return newState.deleteIn(['encodings', 'expandedLayers', layerId]);
     }, state);
   }
 
-  if (action.type === ACTIONS.TOGGLE_LAYERS) {
-    return action.layerIds.reduce(function(newState, layerId) {
-      var key = 'encodings.expandedLayers.' + layerId;
-      return setIn(newState, key, !getIn(newState, key));
+  if (action.type === getType(inspectorActions.toggleLayers)) {
+    return action.payload.reduce(function(newState, layerId) {
+      const key = ['encodings', 'expandedLayers', layerId];
+      return newState.setIn(key, !newState.getIn(key));
     }, state);
   }
 
   return state;
 }
-
-module.exports = inspectorReducer;
