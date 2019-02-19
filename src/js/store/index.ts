@@ -3,6 +3,7 @@ import {applyMiddleware, createStore, Store} from 'redux';
 import ReduxThunk from 'redux-thunk'; // redux-thunk lets us dispatch() functions to create async or multi-stage actions
 import {DatasetRecord} from './factory/Dataset';
 import {GuideRecord} from './factory/Guide';
+import {Inspector, InspectorRecord} from './factory/Inspector';
 import {MarkRecord} from './factory/Mark';
 import {Scene, SceneRecord} from './factory/marks/Scene';
 import {PipelineRecord} from './factory/Pipeline';
@@ -25,6 +26,7 @@ export interface VisState {
 interface LyraState {
   vis: VisState;
   vega: VegaReparseRecord;
+  inspector: InspectorRecord;
 };
 
 const State = Record<LyraState>({
@@ -43,6 +45,7 @@ const State = Record<LyraState>({
     filtered: false
   },
   vega: VegaReparse(),
+  inspector: Inspector()
 });
 
 export type State = RecordOf<LyraState>;
