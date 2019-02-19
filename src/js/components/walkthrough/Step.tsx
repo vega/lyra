@@ -1,22 +1,25 @@
+import {List} from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
+import * as WActions from '../../actions/walkthroughActions';
 import {State} from '../../store';
+import {MarkState} from '../../store/factory/Mark';
+import {WalkthroughName} from '../../store/factory/Walkthrough';
+import {WalkthroughStepJSON} from '../../walkthrough';
 import { Icon } from '../Icon';
 import {Errors} from './Error';
 
 const imutils = require('../../util/immutable-utils');
-const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
 const validate = require('../../util/walkthrough-utils').validate;
-const WActions = require('../../actions/walkthroughActions');
 const vegaSpec = require('../../ctrl').export;
 const assets = require('../../util/assets');
 
 interface StateProps {
   currentStepId: number;
-  steps: any;
-  marks: any;
+  steps: List<WalkthroughStepJSON>;
+  marks: MarkState;
 }
 
 interface DispatchProps {
@@ -31,9 +34,9 @@ interface OwnState {
 }
 
 function mapStateToProps(reduxState: State, ownProps): StateProps {
-  const active = getIn(reduxState, 'walkthrough.activeWalkthrough');
-  const currentStepId = getIn(reduxState, 'walkthrough.activeStep');
-  const steps = getIn(reduxState, 'walkthrough.data.' + active + '.steps');
+  const active: WalkthroughName = reduxState.getIn(['walkthrough', 'activeWalkthrough']);
+  const currentStepId: number = reduxState.getIn(['walkthrough', 'activeStep']);
+  const steps: List<WalkthroughStepJSON> = reduxState.getIn(['walkthrough','data', active, 'steps']);
 
   return {
     currentStepId: currentStepId,
@@ -69,10 +72,10 @@ class Step extends React.Component<StateProps & DispatchProps, OwnState> {
   };
 
   public getNextStep() {
-    const steps = this.props.steps.toJS();
+    const steps = this.props.steps;
     const currentId = this.props.currentStepId;
     return steps.find(function(step) {
-      if (steps.length > currentId) {
+      if (steps.size > currentId) {
         return step.id === currentId + 1;
       }
       return null;
@@ -80,7 +83,7 @@ class Step extends React.Component<StateProps & DispatchProps, OwnState> {
   }
 
   public getCurrentStep() {
-    const steps = this.props.steps.toJS();
+    const steps = this.props.steps;
     const currentId = this.props.currentStepId;
     return steps.find(function(step) {
       return step.id === currentId;
@@ -140,7 +143,7 @@ class Step extends React.Component<StateProps & DispatchProps, OwnState> {
     const currentId = props.currentStepId;
     const thumbnail = current.image ? (<img src={current.image} alt={current.alt_text}/>) : '';
     const nextButton = this.nextButton();
-    const steps = this.props.steps.toJS();
+    const steps = this.props.steps;
 
     const errors = this.state.errorMap;
     const message = this.state.errorMessage;

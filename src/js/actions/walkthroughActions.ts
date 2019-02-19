@@ -1,46 +1,14 @@
-'use strict';
-
-var SET_ACTIVE_WALKTHROUGH = 'SET_ACTIVE_WALKTHROUGH',
-    SET_ACTIVE_STEP = 'SET_ACTIVE_STEP',
-    SET_WALKTHROUGH = 'SET_WALKTHROUGH',
-    SET_WALKTHROUGH_ON = 'SET_WALKTHROUGH_ON';
+import {createStandardAction} from 'typesafe-actions';
+import {WalkthroughName} from '../store/factory/Walkthrough';
+import {WalkthroughJSON} from '../walkthrough';
 
 /**
  * Walkthrough Actions
  * Used to instantiate a walkthrough & track state as a user goes through the tutorial
  */
 
-function setActiveStep(id) {
-  return {
-    type: SET_ACTIVE_STEP,
-    step: id
-  };
-}
+export const setActiveStep = createStandardAction('SET_ACTIVE_STEP')<number>();
+export const setActiveWalkthrough = createStandardAction('SET_ACTIVE_WALKTHROUGH')<WalkthroughName>();
 
-function setActiveWalkthrough(key) {
-  return {
-    type: SET_ACTIVE_WALKTHROUGH,
-    key: key
-  };
-}
-
-function setWalkthrough(key, data) {
-  return {
-    type: SET_WALKTHROUGH,
-    name: key,
-    data: data
-  };
-}
-
-module.exports = {
-  // Action Names
-  SET_ACTIVE_WALKTHROUGH: SET_ACTIVE_WALKTHROUGH,
-  SET_ACTIVE_STEP: SET_ACTIVE_STEP,
-  SET_WALKTHROUGH: SET_WALKTHROUGH,
-  SET_WALKTHROUGH_ON: SET_WALKTHROUGH_ON,
-
-  // Action Creators
-  setWalkthrough: setWalkthrough,
-  setActiveStep: setActiveStep,
-  setActiveWalkthrough: setActiveWalkthrough
-};
+// TODO(jzong): unused, need to clarify what the intent was
+// export const setWalkthrough = createStandardAction('SET_WALKTHROUGH')<any, any>();

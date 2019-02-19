@@ -1,20 +1,21 @@
 import * as React from 'react';
 import * as ReactModal from 'react-modal';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
+import * as WActions from '../../actions/walkthroughActions';
 import {State} from '../../store';
+import {WalkthroughName} from '../../store/factory/Walkthrough';
+import {WalkthroughData} from '../../walkthrough';
 import { Icon } from '../Icon';
 
 const getIn = require('../../util/immutable-utils').getIn;
-const WActions = require('../../actions/walkthroughActions');
 const assets = require('../../util/assets');
 
 interface StateProps {
-  walkthroughs: any;
+  walkthroughs: WalkthroughData;
 }
 
 interface DispatchProps {
-  select: (key: any) => void;
+  select: (key: WalkthroughName) => void;
 }
 
 interface OwnState {
@@ -27,12 +28,8 @@ function mapStateToProps(reduxState: State): StateProps {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps): DispatchProps {
-  return {
-    select: function(key) {
-      dispatch(WActions.setActiveWalkthrough(key));
-    }
-  };
+const mapDispatch: DispatchProps = {
+  select: WActions.setActiveWalkthrough
 }
 
 class WalkthroughMenu extends React.Component<StateProps & DispatchProps, OwnState> {
@@ -59,9 +56,9 @@ class WalkthroughMenu extends React.Component<StateProps & DispatchProps, OwnSta
   }
 
   public getWalkthroughDetails() {
-    const walkD = this.props.walkthroughs.toJS();
+    const walkD = this.props.walkthroughs;
     const walkthroughs = [];
-    for (const key in walkD) {
+    for (const key of Object.keys(walkD)) {
       walkD[key].key = key;
       walkthroughs.push(walkD[key]);
     }
@@ -104,4 +101,4 @@ class WalkthroughMenu extends React.Component<StateProps & DispatchProps, OwnSta
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(WalkthroughMenu);
+export default connect(mapStateToProps, mapDispatch)(WalkthroughMenu);

@@ -10,11 +10,12 @@ import {PipelineRecord} from './factory/Pipeline';
 import {ScaleRecord} from './factory/Scale';
 import {defaultSignalState, SignalRecord} from './factory/Signal';
 import {VegaReparse, VegaReparseRecord} from './factory/Vega';
+import {Walkthrough, WalkthroughRecord} from './factory/Walkthrough';
 
 // reducer/index.js returns combinedReducers();
 const rootReducer = require('../reducers');
 
-type VisStateTree = Map<string, SceneRecord |
+export type VisStateTree = Map<string, SceneRecord |
       Map<string, PipelineRecord | DatasetRecord | ScaleRecord | GuideRecord | MarkRecord | SignalRecord>>;
 export interface VisState {
   past: List<VisStateTree>;
@@ -27,6 +28,7 @@ interface LyraState {
   vis: VisState;
   vega: VegaReparseRecord;
   inspector: InspectorRecord;
+  walkthrough: WalkthroughRecord;
 };
 
 const State = Record<LyraState>({
@@ -45,7 +47,8 @@ const State = Record<LyraState>({
     filtered: false
   },
   vega: VegaReparse(),
-  inspector: Inspector()
+  inspector: Inspector(),
+  walkthrough: Walkthrough()
 });
 
 export type State = RecordOf<LyraState>;
