@@ -1,6 +1,7 @@
 import {combineReducers} from 'redux-immutable';
 import {datasetsReducer as datasets} from './datasetsReducer';
 import {guidesReducer as guides} from './guidesReducer';
+import {hintsReducer as hints} from './hintsReducer';
 import {undoable} from './historyReducer';
 import {inspectorReducer as inspector} from './inspectorReducer';
 import {marksReducer as marks} from './marksReducer';
@@ -12,7 +13,7 @@ import {invalidateVegaReducer as vega} from './vegaReducer';
 import {walkthroughReducer as walkthrough} from './walkthroughReducer';
 
 // order matters here
-module.exports = combineReducers({
+export default combineReducers({
   vis: undoable(combineReducers({
     signals,
     scene,
@@ -24,6 +25,6 @@ module.exports = combineReducers({
   })),
   vega,
   inspector,
-  hints: require('./hintsReducer'),
+  hints,
   walkthrough
 });

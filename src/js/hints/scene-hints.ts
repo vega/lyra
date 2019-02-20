@@ -1,4 +1,5 @@
-'use strict';
+import * as hintActions from '../actions/hintActions';
+import {HintsDisplay} from '../store/factory/Hints';
 
 /**
  * Scene Hints
@@ -10,14 +11,12 @@
  * and include it as a template.
  */
 
-var SceneHints = {
+export const SceneHints: {[x: string]: HintsDisplay} = {
   CREATE_SCENE: {
     title: 'Hi, I\'m helpy the helper hints box',
     text: 'You can turn me on and off. You can manage this in the settings link in the footer.',
     action_text: 'DISABLE HINTS',
-    action: require('../actions/hintActions').on,
+    action: hintActions.hintsOn,
     action_props: false
   }
 };
-
-module.exports = SceneHints;

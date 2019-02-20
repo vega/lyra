@@ -1,29 +1,7 @@
-'use strict';
+import {createStandardAction} from 'typesafe-actions';
 
-var HINTS_ON = 'HINTS_ON',
-    DISPLAY_HINTS = 'DISPLAY_HINTS',
-    CLEAR_HINTS = 'CLEAR_HINTS';
+export const hintsOn = createStandardAction('HINTS_ON')<boolean>();
+export const clearHints = createStandardAction('CLEAR_HINTS')();
 
-function hintsOn(boolean) {
-  return {
-    type: HINTS_ON,
-    on: boolean
-  };
-}
-
-function clearHints() {
-  return {
-    type: CLEAR_HINTS
-  };
-}
-
-module.exports = {
-  // Action Names
-  HINTS_ON: HINTS_ON,
-  DISPLAY_HINTS: DISPLAY_HINTS,
-  CLEAR_HINTS: CLEAR_HINTS,
-
-  // Action Creators
-  on: hintsOn,
-  clearHints: clearHints
-};
+// unused
+// export const displayHints = createStandardAction('DISPLAY_HINTS')();

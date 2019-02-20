@@ -1,8 +1,10 @@
-/* eslint new-cap:0 */
-'use strict';
-
-var Immutable = require('immutable');
-var actions = require('../actions/Names');
+import {ActionType, getType} from 'typesafe-actions';
+import * as hintActions from '../actions/hintActions';
+import * as markActions from '../actions/markActions';
+import * as sceneActions from '../actions/sceneActions';
+import {MarkHints} from '../hints/mark-hints';
+import {SceneHints} from '../hints/scene-hints';
+import {Hints, HintsRecord} from '../store/factory/Hints';
 
 /**
  * Hints
@@ -36,36 +38,29 @@ var actions = require('../actions/Names');
  */
 
 
-function hintsReducer(state, action) {
+export function hintsReducer(state: HintsRecord, action: ActionType<typeof hintActions | typeof sceneActions | typeof markActions>): HintsRecord {
   if (typeof state === 'undefined') {
-    return Immutable.fromJS({
-      display: null,
-      on: false
-    });
+    return Hints();
   }
 
-  if (action.type === actions.CLEAR_HINTS) {
+  if (action.type === getType(hintActions.clearHints)) {
     return state.set('display', null);
   }
 
-  if (action.type === actions.HINTS_ON) {
-    return state.set('on', action.on);
+  if (action.type === getType(hintActions.hintsOn)) {
+    return state.set('on', action.payload);
   }
 
-  if (action.type === actions.CREATE_SCENE) {
-    var sceneHints = require('../hints/scene-hints');
-    return state.set('display', sceneHints.CREATE_SCENE);
+  if (action.type === getType(sceneActions.createScene)) {
+    return state.set('display', SceneHints.CREATE_SCENE);
   }
 
-  if (action.type === actions.ADD_MARK) {
-    var hintMap = require('../hints/mark-hints'),
-        markType = action.props.type;
-    if (hintMap.ADD_MARK[markType]) {
-      return state.set('display', hintMap.ADD_MARK[markType]);
+  if (action.type === getType(markActions.addMark)) {
+    const markType = action.payload.props.type;
+    if (MarkHints.ADD_MARK[markType]) {
+      return state.set('display', MarkHints.ADD_MARK[markType]);
     }
   }
 
   return state;
 }
-
-module.exports = hintsReducer;
