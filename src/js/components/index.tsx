@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
-import store from '../store';
+import {store} from '../store';
 import {EncodingsSidebar} from './EncodingsSidebar';
 import {Footer} from './Footer';
 import {InspectorSidebar} from './InspectorSidebar';

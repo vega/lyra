@@ -58,7 +58,8 @@ class Settings extends React.Component<StateProps & DispatchProps, OwnState> {
         <a onClick={this.openModal}>Settings</a>
         <ReactModal
           isOpen={this.state.modalIsOpen}
-          onRequestClose={this.closeModal}>
+          onRequestClose={this.closeModal}
+          contentLabel='Settings Modal'>
             <div className ='wrapper settings'>
               <span className='closeModal' onClick={this.closeModal}>
                 <Icon glyph={assets.close} />

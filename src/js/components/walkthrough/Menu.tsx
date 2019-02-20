@@ -73,7 +73,8 @@ class WalkthroughMenu extends React.Component<StateProps & DispatchProps, OwnSta
         <a onClick={this.openModal}>Walkthroughs</a>
         <ReactModal
           isOpen={this.state.modalIsOpen}
-          onRequestClose={this.closeModal}>
+          onRequestClose={this.closeModal}
+          contentLabel='Walkthrough Modal'>
             <div className ='wrapper walkthrough-menu'>
               <span className='closeModal' onClick={this.closeModal}>
                 <Icon glyph={assets.close} />

@@ -1,7 +1,7 @@
 {
   "name": "lyra",
   "version": "2.0.0",
-  "main": true,
+  "main": "true",
   "description": "A direct manipulation visualization design environment.",
   "keywords": [
     "lyra",
@@ -91,7 +91,7 @@
     "react-tooltip": "^3.9.2",
     "redux": "^4.0.1",
     "redux-devtools": "^3.3.1",
-    "redux-immutable": "^3.0.6",
+    "redux-immutable": "^4.0.0",
     "redux-mock-store": "^1.2.0",
     "redux-thunk": "^2.1.0",
     "sass-loader": "^7.1.0",
@@ -105,7 +105,7 @@
     "tslint-config-prettier": "^1.16.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
-    "typesafe-actions": "^3.0.0",
+    "typesafe-actions": "^3.1.0",
     "typescript": "^3.1.6",
     "typescript-eslint-parser": "^21.0.1",
     "vega": "^2.5.0",

@@ -109,5 +109,3 @@ export function signalsReducer(state: SignalState, action: ActionType<typeof sig
 
   return state;
 }
-
-module.exports = signalsReducer;

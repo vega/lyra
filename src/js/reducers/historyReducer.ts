@@ -1,5 +1,5 @@
-import {List} from 'immutable';
-import {AnyAction} from 'redux';
+import {List, Map} from 'immutable';
+import {AnyAction, Reducer} from 'redux';
 import {getType} from 'typesafe-actions';
 import * as datasetActions from '../actions/datasetActions';
 import * as guideActions from '../actions/guideActions';
@@ -7,7 +7,6 @@ import * as historyActions from '../actions/historyActions';
 import * as signalActions from '../actions/signalActions';
 import {VisState} from '../store';
 
-const dl = require('datalib');
 const LIMIT = 20;
 const IMPLICIT_BATCH = [getType(signalActions.setSignal), getType(guideActions.updateGuideProperty)];
 const BATCH_INTERVAL = 500;  // ms to identify new batch for same implicit action.
@@ -15,12 +14,12 @@ let batch = 0;
 let prevAction;
 let prevTime;
 
-export function undoable(reducer) {
+export function undoable(reducer: Reducer<Map<string, any>, AnyAction>) {
   return function(state: VisState, action: AnyAction): VisState {
     if (typeof state === 'undefined') {
-      state = create([], reducer(undefined, {}), []);
-    } else if (!dl.isArray(state.past)) {
-      state = create([], state, []);
+      state = create(List(), reducer(undefined, {type: undefined}), List());
+    } else if (!(state.past instanceof List)) {
+      state = create(List(), state, List());
     }
 
     const imPrev = prevAction && IMPLICIT_BATCH.indexOf(prevAction.type) >= 0;
@@ -52,7 +51,7 @@ export function undoable(reducer) {
     }
 
     if (action.type === getType(historyActions.clearHistory)) {
-      return create([], state.present, []);
+      return create(List(), state.present, List());
     }
 
     return insert(reducer, state, action);
@@ -69,7 +68,7 @@ function create(past, present, future, filtered?: boolean): VisState {
 // actions push the state to past.
 function endBatch(state: VisState): VisState {
   return batch === 0 ?
-    create(state.past.slice(0), state.present, state.future.slice(0)) :
+    create(state.past, state.present, state.future) :
     state;
 }
 
@@ -114,11 +113,11 @@ function implicitBatch(state: VisState, action: AnyAction, imPrev: boolean, imCu
   return state;
 }
 
-function filter(state, action): boolean {
+function filter(state: VisState, action): boolean {
   return batch === 0 && action.type !== getType(datasetActions.addDataset);
 }
 
-function insert(reducer, state: VisState, action: AnyAction): VisState {
+function insert(reducer: Reducer<Map<string, any>, AnyAction>, state: VisState, action: AnyAction): VisState {
   const past = state.past;
   const present  = state.present;
   const filtered = state.filtered;
@@ -143,9 +142,9 @@ function insert(reducer, state: VisState, action: AnyAction): VisState {
   }
 
   return create(
-    newPast.slice(newPast.length > LIMIT ? 1 : 0),
+    newPast.size > LIMIT ? newPast.shift() : newPast,
     newPresent,
-    [],
+    List(),
     newFiltered
   );
 }
@@ -161,8 +160,8 @@ function undo(state: VisState): VisState {
   }
 
   return create(
-    past.splice(0, past.size - 1),
-    past[past.size - 1],
+    past.pop(),
+    past.get(-1),
     newFuture
   );
 }
@@ -178,7 +177,7 @@ function redo(state: VisState): VisState {
 
   return create(
     past.concat(present),
-    future[0],
-    future.splice(0, 1)
+    future.get(0),
+    future.shift()
   );
 }

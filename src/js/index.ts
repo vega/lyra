@@ -1,7 +1,7 @@
 import { clearHistory } from './actions/historyActions';
 import { addMark } from './actions/markActions';
 import { createScene } from './actions/sceneActions';
-import initialStore from './store';
+import {store as initialStore} from './store';
 import { Mark } from './store/factory/Mark';
 import { Scene } from './store/factory/marks/Scene';
 

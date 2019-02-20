@@ -31,7 +31,7 @@ interface LyraState {
   hints: HintsRecord;
 };
 
-const State = Record<LyraState>({
+const getDefaultState = Record<LyraState>({
   vis: {
     past: List(),
     present: Map({
@@ -55,7 +55,7 @@ const State = Record<LyraState>({
 export type State = RecordOf<LyraState>;
 
 // Create immutable state
-const defaultState = State();
+export const defaultState = getDefaultState();
 
 function configureStore(initialState: State) {
   return createStore(rootReducer, initialState, applyMiddleware(ReduxThunk));
@@ -66,5 +66,4 @@ function configureStore(initialState: State) {
  * from anywhere in Lyra
  * @type {Store}
  */
-const initialStore: Store = configureStore(defaultState);;
-export default module.exports = initialStore;
+export const store: Store = configureStore(defaultState);

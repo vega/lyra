@@ -1,9 +1,7 @@
 import {Record, RecordOf} from 'immutable';
 import {GroupMark} from 'vega-typings';
-import store from '../../';
-import {Rect} from './Rect';
+// import {store} from '../../';
 
-const dl = require('datalib');
 const getInVis = require('../../../util/immutable-utils').getInVis;
 
 export type LyraGroupMark = {
@@ -13,15 +11,16 @@ export type LyraGroupMark = {
 } & GroupMark;
 
 export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
-  const base = Rect();
-  const state = store.getState();
-  const scene = getInVis(state, 'marks.' + getInVis(state, 'scene.id'));
+  // TODO(jzong) this was a circular dependency
+  // const state = store.getState();
+  // const scene = getInVis(state, 'marks.' + getInVis(state, 'scene.id'));
 
   return Record<LyraGroupMark>({
     _id: null,
     _parent: null,
     _manualLayout: false,
     type: 'group',
+    name: null,
     scales: [],
     axes: [],
     legends: [],
@@ -32,16 +31,20 @@ export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
       // course set a fill color. If a group is explicitly selected from the
       // sidebar, a transparent fill is rendered in order for direct
       // manipulation events of the group itself to be captured.
-      update: dl.extend({}, base.encode.update, {
+      update: {
         fill: undefined,
         stroke: undefined,
         x: {value: 0},
         y: {value: 0},
-        width: {value: scene && scene.get('width')},
-        height: {value: scene && scene.get('height')},
-        x2: {_disabled: true},
-        y2: {_disabled: true}
-      })
+        x2: {value: 140, _disabled: true},
+        y2: {value: 140, _disabled: true},
+        xc: {value: 70, _disabled: true},
+        yc: {value: 70, _disabled: true},
+        // width: {value: scene && scene.get('width')},
+        // height: {value: scene && scene.get('height')},
+        width: {value: 500},
+        height: {value: 500},
+      }
     }
   })(values);
 };
