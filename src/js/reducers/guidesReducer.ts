@@ -1,8 +1,7 @@
-import {GuideState, GuideRecord} from "../store/factory/Guide";
-import * as guideActions from '../actions/guideActions';
+import {fromJS, Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
-import {Map, fromJS} from 'immutable';
-
+import * as guideActions from '../actions/guideActions';
+import {GuideRecord, GuideState} from '../store/factory/Guide';
 
 const str = require('../util/immutable-utils').str;
 const convertValuesToSignals = require('../util/prop-signal').convertValuesToSignals;

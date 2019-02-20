@@ -5,6 +5,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../store';
+import {EncodingStateRecord} from '../store/factory/Inspector';
 
 interface Inspector {
   selectedId: number,
@@ -25,7 +26,7 @@ const ACTIONS = require('../actions/Names');
 const TYPES = require('../constants/primTypes');
 
 function mapStateToProps(state: State, ownProps): Inspector {
-  const encState = getIn(state, 'inspector.encodings');
+  const encState: EncodingStateRecord = state.getIn(['inspector', 'encodings']);
   const selId   = encState.get('selectedId');
   const selType = encState.get('selectedType');
   const isMark  = selType === ACTIONS.SELECT_MARK;

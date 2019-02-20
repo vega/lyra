@@ -3,7 +3,7 @@ import {ThunkAction} from 'redux-thunk';
 import {createStandardAction} from 'typesafe-actions';
 import {Encode} from 'vega-typings';
 import {State} from '../store';
-import { LyraMark, LyraMarkType, Mark, MarkRecord } from '../store/factory/Mark';
+import { LyraMark, LyraMarkType, Mark, MarkRecord } from '../store/factory/Mark'; // HELP
 import {endBatch, startBatch} from './historyActions';
 
 const counter  = require('../util/counter');

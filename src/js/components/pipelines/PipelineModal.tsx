@@ -132,7 +132,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
     };
 
     return (
-      <ReactModal isOpen={props.modalIsOpen} onRequestClose={close}
+      <ReactModal isOpen={props.modalIsOpen} onRequestClose={close} contentLabel='Pipeline Modal'
         style={style}>
         <div className='pipelineModal'>
           <span className='closeModal' onClick={close}>close</span>

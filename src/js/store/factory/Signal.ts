@@ -91,17 +91,3 @@ export const defaultSignalState: SignalState = Map({
     ]
   })
 });
-
-module.exports = {
-  signals: defaultSignalState,
-  names: [SELECTED, MODE, ANCHOR, DELTA, CELL, MOUSE, CURSOR],
-  signalNames: {
-    SELECTED: SELECTED,
-    MODE: MODE,
-    ANCHOR: ANCHOR,
-    DELTA: DELTA,
-    CURSOR: CURSOR,
-    CELL: CELL,
-    MOUSE: MOUSE
-  }
-};

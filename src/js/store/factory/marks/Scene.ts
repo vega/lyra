@@ -22,6 +22,7 @@ export const Scene = Record<LyraSceneMark>({
       x: {value: 0},
       y: {value: 0},
       // TODO(jzong): _disabled is not part of vega-typings encode.d.ts
+      // but somehow it works on group and rect so honestly idk
       // x2: {_disabled: true},
       // y2: {_disabled: true},
       // xc: {value: 70, _disabled: true},
