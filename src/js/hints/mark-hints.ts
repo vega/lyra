@@ -1,4 +1,6 @@
-'use strict';
+import * as sceneActions from '../actions/sceneActions';
+import {HintsDisplay} from '../store/factory/Hints';
+import {LyraMarkType} from '../store/factory/Mark';
 
 /**
  * Mark kinds
@@ -10,13 +12,13 @@
  * and include it as a template.
  */
 
-var MarkHints = {
+export const MarkHints: {[x: string]: {[t: string]: HintsDisplay}} = {
   ADD_MARK: {
     rect: {
       title: 'I see you have added a RECT...',
       text: 'Maybe you\'d like to clear the whole canvas',
       action_text: 'DO IT. CLEAR IT OUT.',
-      action: require('../actions/sceneActions').clearScene
+      action: sceneActions.clearScene
     },
 
     line: {
@@ -29,5 +31,3 @@ var MarkHints = {
     }
   }
 };
-
-module.exports = MarkHints;

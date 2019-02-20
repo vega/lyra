@@ -2,11 +2,10 @@ import * as React from 'react';
 import * as ReactModal from 'react-modal';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
+import {hintsOn as hints} from '../../actions/hintActions';
 import {State} from '../../store';
 import { Icon } from '../Icon';
 
-const getIn = require('../../util/immutable-utils').getIn;
-const hints = require('../../actions/hintActions').on;
 const assets = require('../../util/assets');
 
 interface StateProps {
@@ -23,7 +22,7 @@ interface OwnState {
 
 function mapStateToProps(reduxState: State): StateProps {
   return {
-    hintsOn: getIn(reduxState, 'hints.on')
+    hintsOn: reduxState.getIn(['hints', 'on'])
   };
 }
 
@@ -74,8 +73,8 @@ class Settings extends React.Component<StateProps & DispatchProps, OwnState> {
                     defaultChecked={this.props.hintsOn}
                     onChange={this.props.toggleHints.bind(this, '')}/>
                   <label className='onoffswitch-label' htmlFor='myonoffswitch'>
-                    <span className='onoffswitch-inner'></span>
-                    <span className='onoffswitch-switch'></span>
+                    <span className='onoffswitch-inner' />
+                    <span className='onoffswitch-switch' />
                   </label>
                 </div>
             </div>

@@ -1,8 +1,10 @@
 import {List, Map, Record, RecordOf} from 'immutable';
 import {applyMiddleware, createStore, Store} from 'redux';
 import ReduxThunk from 'redux-thunk'; // redux-thunk lets us dispatch() functions to create async or multi-stage actions
+import rootReducer from '../reducers'; // reducer/index.js returns combinedReducers();
 import {DatasetRecord} from './factory/Dataset';
 import {GuideRecord} from './factory/Guide';
+import {Hints, HintsRecord} from './factory/Hints';
 import {Inspector, InspectorRecord} from './factory/Inspector';
 import {MarkRecord} from './factory/Mark';
 import {Scene, SceneRecord} from './factory/marks/Scene';
@@ -11,9 +13,6 @@ import {ScaleRecord} from './factory/Scale';
 import {defaultSignalState, SignalRecord} from './factory/Signal';
 import {VegaReparse, VegaReparseRecord} from './factory/Vega';
 import {Walkthrough, WalkthroughRecord} from './factory/Walkthrough';
-
-// reducer/index.js returns combinedReducers();
-const rootReducer = require('../reducers');
 
 export type VisStateTree = Map<string, SceneRecord |
       Map<string, PipelineRecord | DatasetRecord | ScaleRecord | GuideRecord | MarkRecord | SignalRecord>>;
@@ -29,6 +28,7 @@ interface LyraState {
   vega: VegaReparseRecord;
   inspector: InspectorRecord;
   walkthrough: WalkthroughRecord;
+  hints: HintsRecord;
 };
 
 const State = Record<LyraState>({
@@ -48,7 +48,8 @@ const State = Record<LyraState>({
   },
   vega: VegaReparse(),
   inspector: Inspector(),
-  walkthrough: Walkthrough()
+  walkthrough: Walkthrough(),
+  hints: Hints()
 });
 
 export type State = RecordOf<LyraState>;

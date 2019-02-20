@@ -1,26 +1,30 @@
 'use strict';
-const getIn = require('../../util/immutable-utils').getIn;
-const hintActions = require('../../actions/hintActions');
 const assets = require('../../util/assets');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {Dispatch} from 'redux';
+import * as hintActions from '../../actions/hintActions';
 import {State} from '../../store';
+import {HintsDisplay, HintsTemplateDisplay} from '../../store/factory/Hints';
 import { Icon } from '../Icon';
 
-interface HintsProps {
-  displayHint: any,
-  dispatchAction: () => any,
-  clearHints: () => any
+interface StateProps {
+  displayHint: HintsDisplay
 }
 
-function mapStateToProps(reduxState: State, ownProps) {
+interface DispatchProps {
+  dispatchAction: () => void,
+  clearHints: () => void
+}
+
+function mapStateToProps(reduxState: State, ownProps): StateProps {
   return {
-    displayHint: getIn(reduxState, 'hints.display')
+    displayHint: reduxState.getIn(['hints', 'display'])
   };
 }
 
-function mapDispatchToProps(dispatch: any, ownProps) {
+function mapDispatchToProps(dispatch: Dispatch, ownProps): DispatchProps {
   return {
     dispatchAction: function() {
       const action = this.props.displayHint.action;
@@ -35,7 +39,11 @@ function mapDispatchToProps(dispatch: any, ownProps) {
   };
 }
 
-class BaseHints extends React.Component<HintsProps> {
+function isHintsTemplateDisplay(hint: HintsDisplay): hint is HintsTemplateDisplay {
+  return (hint as HintsTemplateDisplay).template !== undefined;
+}
+
+class BaseHints extends React.Component<StateProps & DispatchProps> {
   public classNames: 'hints';
   public render() {
     const hint = this.props.displayHint;
@@ -46,9 +54,12 @@ class BaseHints extends React.Component<HintsProps> {
         </a>
       ) : '';
     // Content is dependent on if the hint template exists
-    const Template = hint.template;
-    const content = Template ? (<Template/>) :
-      (
+    if (isHintsTemplateDisplay(hint)) {
+      const Template = hint.template;
+      return <Template/>;
+    }
+    else {
+      const content = (
         <div>
           <h4 className='hint-header'>{hint.title}</h4>
           <p>
@@ -56,17 +67,16 @@ class BaseHints extends React.Component<HintsProps> {
           </p>
         </div>
       );
-
-    return hint.templates ? (<Template/>) :
-    (
-      <div className={this.classNames}>
-        {content}
-        {action}
-        <span className='close-hint' onClick={this.props.clearHints.bind(null, '')}>
-          <Icon glyph={assets.close} />
-        </span>
-      </div>
-    );
+      return (
+        <div className={this.classNames}>
+          {content}
+          {action}
+          <span className='close-hint' onClick={this.props.clearHints.bind(null, '')}>
+            <Icon glyph={assets.close} />
+          </span>
+        </div>
+      );
+    }
   };
 };
 
