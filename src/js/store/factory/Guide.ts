@@ -1,12 +1,26 @@
 import {Map, Record, RecordOf} from 'immutable';
 import {Axis as VegaAxis, Legend as VegaLegend} from 'vega-typings';
+import {ScaleRecord} from './Scale';
 
 const ORIENT = {x: 'bottom', y: 'left'};
 
-export enum GuideType {
-  Axis = 'axis',
-  Legend = 'legend'
+export namespace GuideType {
+  export const Axis = 'axis';
+  export const Legend = 'legend';
 }
+
+export type GuideType = 'axis' | 'legend';
+
+export namespace LegendForType {
+  export const fill = 'fill';
+  export const opacity = 'opacity';
+  export const shape = 'shape';
+  export const size = 'size';
+  export const stroke = 'stroke';
+  export const strokeDash = 'strokeDash';
+}
+
+export type LegendForType = 'fill' | 'opacity' | 'shape' | 'size' | 'stroke' | 'strokeDash';
 
 export type LyraAxis = {
   _gtype: GuideType,
@@ -28,7 +42,8 @@ export type AxisRecord = RecordOf<LyraAxis>;
 
 export type LyraLegend = {
   _gtype: GuideType,
-  _id: number
+  _id: number,
+  _type: LegendForType
 } & VegaLegend;
 
 export const Legend = Record<LyraLegend>({
@@ -37,7 +52,8 @@ export const Legend = Record<LyraLegend>({
   symbolOpacity: 1,
   strokeColor: '#ffffff',
   strokeWidth: '0',
-  _id: null
+  _id: null,
+  _type: null
 });
 
 export type LegendRecord = RecordOf<LyraLegend>;
@@ -61,11 +77,11 @@ export type GuideRecord = AxisRecord | LegendRecord;
  * @constructor
  */
 
-export function Guide(gtype : GuideType, type, scale) {
+export function Guide(gtype : GuideType, type: string, scale : number | ScaleRecord) : AxisRecord | LegendRecord {
   if (gtype === GuideType.Axis) {
     return Axis({
       orient: ORIENT[type],
-      scale: +scale || scale.get('_id') // TODO: Change when scale is modified
+      scale: (scale as ScaleRecord)._id ? (scale as ScaleRecord)._id : scale
     });
     // guide.tickPadding = 5; // ???
     // guide.properties = {
@@ -118,7 +134,9 @@ export function Guide(gtype : GuideType, type, scale) {
     //   }
     // };
   } else if (gtype === GuideType.Legend) {
-    return Legend({});
+    return Legend({
+      _type: type as LegendForType
+    });
     // guide.properties = {
     //   title: {
     //     fill: {

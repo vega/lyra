@@ -1,22 +1,22 @@
-'use strict';
+import {Guide, GuideType, AxisRecord, LegendRecord} from '../../store/factory/Guide';
+import {addGuide} from '../guideActions';
+import {Dispatch} from 'redux';
+import {State} from '../../store';
 
-var merge = require('lodash.merge'),
-    addGuide = require('../guideActions').addGuide,
-    actions = require('./helperActions'),
-    addAxisToGroup = actions.addAxisToGroup,
-    addLegendToGroup = actions.addLegendToGroup,
-    Guide = require('../../store/factory/Guide'),
-    imutils = require('../../util/immutable-utils'),
-    getIn = imutils.getIn,
-    getInVis = imutils.getInVis;
 
-var GuideType = Guide.GuideType,
-    CTYPE = {
-      x: GuideType.Axis, y: GuideType.Axis,
-      color: GuideType.Legend, size: GuideType.Legend, shape: GuideType.Legend
-    };
+const actions = require('./helperActions'),
+  addAxisToGroup = actions.addAxisToGroup,
+  addLegendToGroup = actions.addLegendToGroup,
+  imutils = require('../../util/immutable-utils'),
+  getIn = imutils.getIn,
+  getInVis = imutils.getInVis;
 
-var SWAP_ORIENT = {
+const CTYPE = {
+  x: GuideType.Axis, y: GuideType.Axis,
+  color: GuideType.Legend, size: GuideType.Legend, shape: GuideType.Legend
+};
+
+const SWAP_ORIENT = {
   left: 'right', right: 'left',
   top: 'bottom', bottom: 'top'
 };
@@ -31,8 +31,8 @@ var SWAP_ORIENT = {
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-module.exports = function(dispatch, state, parsed) {
-  var channel = parsed.channel,
+module.exports = function(dispatch : Dispatch, state : State, parsed) {
+  const channel = parsed.channel,
       map = parsed.map,
       guideType = CTYPE[channel],
       scaleId = map.scales[channel],
@@ -42,7 +42,7 @@ module.exports = function(dispatch, state, parsed) {
     return;
   }
 
-  if (guideType === GuideType.AXIS) {
+  if (guideType === GuideType.Axis) {
     findOrCreateAxis(dispatch, state, parsed, scaleId, group.axes);
   } else {
     findOrCreateLegend(dispatch, state, parsed, scaleId, group.legends);
@@ -62,13 +62,13 @@ module.exports = function(dispatch, state, parsed) {
  * @param  {Object} defs  All parsed Vega axis definitions.
  * @returns {void}
  */
-function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
-  var map  = parsed.map,
+function findOrCreateAxis(dispatch : Dispatch, state : State, parsed, scaleId : number, defs) {
+  const map  = parsed.map,
       mark = parsed.mark,
       parentId = mark.get('_parent'),
       scale = getInVis(state, 'scales.' + scaleId),
-      axes  = getInVis(state, 'marks.' + parentId).get('axes'),
-      def, count = 0, foundAxis = false, prevOrient;
+      axes  = getInVis(state, 'marks.' + parentId).get('axes');
+  let def, prevOrient, count = 0, foundAxis = false;
 
   // First, find an def and then iterate through axes for the current group
   // to see if an axis exists for this scale or if we have room to add one more.
@@ -93,10 +93,10 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
     }
 
     // Test domain/range since point/band-ordinal scales can share an axis.
-    var axisScale = getInVis(state, 'scales.' + axis.get('scale'));
+    const axisScale = getInVis(state, 'scales.' + axis.get('scale'));
     if (axisScale.get('type') === 'ordinal') {
       foundAxis = ['domain', 'range'].every(function(x) {
-        var araw = axisScale.get(x),
+        const araw = axisScale.get(x),
             sraw = scale.get(x),
             aref = axisScale.get('_' + x),
             sref = scale.get('_' + x),
@@ -116,17 +116,18 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
   }
 
   if (count < 2) {
-    var axis = Guide(GuideType.AXIS, def.type, scaleId);
-    axis.title = def.title;
-    axis.layer = def.layer;
-    axis.grid = def.grid;
-    axis.orient = def.orient || axis.orient;
-    if (count === 1 && prevOrient) {
-      axis.orient = SWAP_ORIENT[prevOrient];
-    }
-    merge(axis.properties, def.properties);
-    dispatch(axis = addGuide(axis));
-    dispatch(addAxisToGroup(axis.id, parentId));
+    let axis = Guide(GuideType.Axis, def.type, scaleId) as AxisRecord;
+    axis = axis.mergeDeep({
+      'title': def.title,
+      'zindex': def.zindex,
+      'grid': def.grid,
+      'axis': (count === 1 && prevOrient) ? SWAP_ORIENT[prevOrient] : def.orient || axis.orient,
+      'encode': def.encode
+    });
+
+    const axisAction = addGuide(axis);
+    dispatch(axisAction);
+    dispatch(addAxisToGroup(axisAction.meta, parentId));
   }
 }
 
@@ -142,13 +143,13 @@ function findOrCreateAxis(dispatch, state, parsed, scaleId, defs) {
  * @param  {Object} defs  All parsed Vega legend definitions.
  * @returns {void}
  */
-function findOrCreateLegend(dispatch, state, parsed, scaleId, defs) {
-  var map = parsed.map,
+function findOrCreateLegend(dispatch : Dispatch, state : State, parsed, scaleId : number, defs) {
+  const map = parsed.map,
       mark = parsed.mark,
       property = parsed.property,
       parentId = mark.get('_parent'),
-      legends = getInVis(state, 'marks.' + parentId).get('legends'),
-      def, foundLegend = false;
+      legends = getInVis(state, 'marks.' + parentId).get('legends');
+  let def, foundLegend = false;
 
   def = defs.find(function(legendDef) {
     return map.scales[legendDef[property]] === scaleId;
@@ -162,11 +163,15 @@ function findOrCreateLegend(dispatch, state, parsed, scaleId, defs) {
   });
 
   if (!foundLegend) {
-    var legend = Guide(GuideType.LEGEND, property, scaleId);
-    legend.title = def.title;
-    delete legend.properties.symbols[property];
-    merge(legend.properties, def.properties);
-    dispatch(legend = addGuide(legend));
-    dispatch(addLegendToGroup(legend.id, parentId));
+    let legend = Guide(GuideType.Legend, property, scaleId) as LegendRecord;
+    legend = legend.deleteIn(['encode','symbols', property]);
+    legend = legend.mergeDeep({
+      'title': def.title,
+      'encode': def.encode
+    });
+    // delete legend.properties.symbols[property];
+    const legendAction = addGuide(legend);
+    dispatch(legendAction);
+    dispatch(addLegendToGroup(legendAction.meta, parentId));
   }
 }
