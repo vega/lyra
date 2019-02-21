@@ -1,19 +1,20 @@
-'use strict';
+import {updateGuideProperty} from '../guideActions';
+import {GuideType} from '../../store/factory/Guide';
+import {Dispatch} from 'redux';
+import {State} from '../../store';
 
-var dl = require('datalib'),
+const dl = require('datalib'),
     Scale = require('../../store/factory/Scale'),
     scaleActions = require('../scaleActions'),
     addScale = scaleActions.addScale,
     updateScaleProperty = scaleActions.updateScaleProperty,
     amendDataRef = scaleActions.amendDataRef,
     updateMarkProperty = require('../markActions').updateMarkProperty,
-    updateGuideProperty = require('../guideActions').updateGuideProperty,
     helperActions = require('./helperActions'),
     addScaleToGroup = helperActions.addScaleToGroup,
     imutils = require('../../util/immutable-utils'),
     getInVis = imutils.getInVis,
-    getIn = imutils.getIn,
-    GuideType = require('../../store/factory/Guide').GuideType;
+    getIn = imutils.getIn;
 
 /**
  * When a new group by field is added to an aggregation, Lyra produces a new
@@ -37,8 +38,8 @@ var dl = require('datalib'),
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-module.exports = function(dispatch, state, parsed) {
-  var map = parsed.map,
+module.exports = function(dispatch: Dispatch, state: State, parsed) {
+  const map = parsed.map,
       aggId  = map.data.summary,
       markId = parsed.markId,
       mark = getInVis(state, 'marks.' + markId),
@@ -54,7 +55,7 @@ module.exports = function(dispatch, state, parsed) {
   // than the source as well. This ensures that any transformations applied to
   // the aggregated dataset (e.g., filtering) will be reflected in the scales.
   dl.vals(map.scales).forEach(function(scaleId) {
-    var type   = getInVis(state, 'scales.' + scaleId + '.type'),
+    const type   = getInVis(state, 'scales.' + scaleId + '.type'),
         domain = getInVis(state, 'scales.' + scaleId + '._domain'),
         range  = getInVis(state, 'scales.' + scaleId + '._range'),
         count  = counts.scales[scaleId].markTotal;
@@ -90,11 +91,11 @@ module.exports = function(dispatch, state, parsed) {
   // pre-cloned scales are updated.
   if (dl.keys(clones).length > 0) {
     dl.keys(clones).forEach(function(scaleId) {
-      var scale = getInVis(state, 'scales.' + scaleId),
+      const scale = getInVis(state, 'scales.' + scaleId),
           newScale = addScale(cloneScale(scale, aggId)),
           newScaleId = clones[scaleId] = newScale.id,
-          groupId = mark.get('_parent'),
-          guide, guideId;
+          groupId = mark.get('_parent');
+      let guide, guideId;
 
       dispatch(newScale);
       dispatch(addScaleToGroup(newScaleId, groupId));
@@ -111,7 +112,7 @@ module.exports = function(dispatch, state, parsed) {
     });
 
     getIn(mark, 'properties.update').forEach(function(def, name) {
-      var newScaleId = clones[def.get('scale')];
+      const newScaleId = clones[def.get('scale')];
       if (newScaleId) {
         dispatch(updateMarkProperty(markId,
           'properties.update.' + name + '.scale', newScaleId));
@@ -125,7 +126,7 @@ function cloneScale(def, aggId) {
     return {data: aggId, field: ref.field};
   }
 
-  var scale = Scale(def.get('_origName'), def.get('type'));
+  const scale = Scale(def.get('_origName'), def.get('type'));
   scale.nice = def.get('nice');
   scale.round = def.get('round');
   scale.zero = def.get('zero');

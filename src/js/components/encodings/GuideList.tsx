@@ -6,9 +6,9 @@ import { Dispatch } from 'redux';
 import {deleteGuide} from '../../actions/guideActions';
 import {selectGuide, selectMark} from '../../actions/inspectorActions';
 import {State} from '../../store';
-import {GuideRecord} from '../../store/factory/Guide';
 import {ScaleRecord} from '../../store/factory/Scale';
 import { Icon } from '../Icon';
+import {GuideRecord, GuideType, LegendRecord, AxisRecord, LegendForType} from '../../store/factory/Guide';
 
 const capitalize = require('capitalize');
 const imutils = require('../../util/immutable-utils');
@@ -79,7 +79,14 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
 
         {props.guides.map(function(guide) {
           const guideId = guide.get('_id');
-          const scaleId = guide.get('scale'); // || guide.get(guide.get('type')); TODO(rneogy) figure out if we need this?
+          let scaleId;
+          if (guide._gtype === GuideType.Axis) {
+            guide = guide as AxisRecord;
+            scaleId = guide.get('scale');
+          } else if (guide._gtype === GuideType.Legend) {
+            guide = guide as LegendRecord;
+            scaleId = guide.get(guide.get('_type'));
+          }
           const name = capitalize(props.scales.getIn([scaleId, 'name']));
           const type = capitalize(guide.get('_gtype'));
 
