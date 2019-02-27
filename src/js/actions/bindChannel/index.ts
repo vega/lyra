@@ -1,21 +1,21 @@
 'use strict';
 
 var dl = require('datalib'),
-    vl = require('vega-lite'),
-    AGGREGATE_OPS = require('../../constants/aggregateOps'),
-    getInVis = require('../../util/immutable-utils').getInVis,
-    markActions = require('../markActions'),
-    setVlUnit = markActions.setVlUnit,
-    dsUtils = require('../../util/dataset-utils'),
-    historyActions = require('../../actions/historyActions'),
-    startBatch = historyActions.startBatch,
-    endBatch = historyActions.endBatch,
-    parseData = require('./parseData'),
-    parseScales = require('./parseScales'),
-    parseMarks  = require('./parseMarks'),
-    parseGuides = require('./parseGuides'),
-    updateAggregateDependencies = require('./aggregateDependencies'),
-    cleanupUnused = require('./cleanupUnused');
+  vl = require('vega-lite'),
+  AGGREGATE_OPS = require('../../constants/aggregateOps'),
+  getInVis = require('../../util/immutable-utils').getInVis,
+  markActions = require('../markActions'),
+  setVlUnit = markActions.setVlUnit,
+  dsUtils = require('../../util/dataset-utils'),
+  historyActions = require('../../actions/historyActions'),
+  startBatch = historyActions.startBatch,
+  endBatch = historyActions.endBatch,
+  parseData = require('./parseData'),
+  parseScales = require('./parseScales'),
+  parseMarks = require('./parseMarks'),
+  parseGuides = require('./parseGuides'),
+  updateAggregateDependencies = require('./aggregateDependencies'),
+  cleanupUnused = require('./cleanupUnused');
 
 // Vega mark types to Vega-Lite mark types.
 var TYPES = {
@@ -27,7 +27,7 @@ var TYPES = {
 };
 
 var CELLW = 517,
-    CELLH = 392;
+  CELLH = 392;
 
 /**
  * Async action creator that binds the given field to the given mark's property.
@@ -43,14 +43,14 @@ var CELLW = 517,
  */
 function bindChannel(dsId, field, markId, property) {
   return function(dispatch, getState) {
-    var state = getState(),
-        mark  = getInVis(state, 'marks.' + markId),
-        from  = mark.get('from'),
-        markType = mark.get('type'),
-        spec = vlSpec(mark),
-        mapping = map(spec),
-        channel = channelName(property),
-        plId = getInVis(state, 'datasets.' + dsId + '._parent');
+    const state = getState(),
+      mark = getInVis(state, 'marks.' + markId),
+      markType = mark.get('type'),
+      spec = vlSpec(mark),
+      mapping = map(spec),
+      channel = channelName(property),
+      plId = getInVis(state, 'datasets.' + dsId + '._parent');
+    let from = mark.get('from');
 
     if (from && (from = from.get('data'))) {
       if (getInVis(state, 'datasets.' + from + '._parent') !== plId) {
@@ -64,7 +64,7 @@ function bindChannel(dsId, field, markId, property) {
 
     spec.encoding[channel] = channelDef(field);
 
-    var parsed = compile(spec, property, dsId);
+    const parsed = compile(spec, property, dsId) as any;
     parsed.map = mapping;
     parsed.mark = mark;
     parsed.markId = markId;
@@ -124,7 +124,7 @@ function compile(spec, property, dsId) {
   spec.config.mark = {filled: property === 'fill'};
 
   return {
-    input:  spec,
+    input: spec,
     output: vl.compile(spec).spec
   };
 }
@@ -138,12 +138,14 @@ function compile(spec, property, dsId) {
  */
 function vlSpec(mark) {
   var vlUnit = mark.get('_vlUnit');
-  return vlUnit ? vlUnit.toJS() : {
-    mark: TYPES[mark.get('type')],
-    data: {},
-    encoding: {},
-    config: {}
-  };
+  return vlUnit
+    ? vlUnit.toJS()
+    : {
+        mark: TYPES[mark.get('type')],
+        data: {},
+        encoding: {},
+        config: {}
+      };
 }
 
 /**
@@ -154,13 +156,16 @@ function vlSpec(mark) {
  * @returns {Object} A mapping object, stored in a private key in the vlUnit.
  */
 function map(vlUnit) {
-  return vlUnit._lyraMap || (vlUnit._lyraMap = {
-    data: {},
-    scales: {},
-    axes: {},
-    legends: {},
-    marks: {}
-  });
+  return (
+    vlUnit._lyraMap ||
+    (vlUnit._lyraMap = {
+      data: {},
+      scales: {},
+      axes: {},
+      legends: {},
+      marks: {}
+    })
+  );
 }
 
 /**
@@ -207,10 +212,11 @@ var re = {
  * @returns {Object} A Vega-Lite channel definition.
  */
 function channelDef(field) {
-  var name = field.name,
-      agg = field.aggregate,
-      bin = field.bin,
-      ref = {type: field.mtype}, res;
+  const name = field.name,
+    agg = field.aggregate,
+    bin = field.bin,
+    ref = {type: field.mtype} as any;
+  let res;
 
   if (agg || (res = re.agg.exec(name))) {
     ref.aggregate = res ? res[1] : agg;
