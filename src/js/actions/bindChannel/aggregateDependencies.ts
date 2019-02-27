@@ -2,19 +2,16 @@ import {updateGuideProperty} from '../guideActions';
 import {GuideType} from '../../store/factory/Guide';
 import {Dispatch} from 'redux';
 import {State} from '../../store';
+import {Scale} from '../../store/factory/Scale';
+import {addScale, updateScaleProperty, amendDataRef} from '../scaleActions';
 
 const dl = require('datalib'),
-    Scale = require('../../store/factory/Scale'),
-    scaleActions = require('../scaleActions'),
-    addScale = scaleActions.addScale,
-    updateScaleProperty = scaleActions.updateScaleProperty,
-    amendDataRef = scaleActions.amendDataRef,
-    updateMarkProperty = require('../markActions').updateMarkProperty,
-    helperActions = require('./helperActions'),
-    addScaleToGroup = helperActions.addScaleToGroup,
-    imutils = require('../../util/immutable-utils'),
-    getInVis = imutils.getInVis,
-    getIn = imutils.getIn;
+  updateMarkProperty = require('../markActions').updateMarkProperty,
+  helperActions = require('./helperActions'),
+  addScaleToGroup = helperActions.addScaleToGroup,
+  imutils = require('../../util/immutable-utils'),
+  getInVis = imutils.getInVis,
+  getIn = imutils.getIn;
 
 /**
  * When a new group by field is added to an aggregation, Lyra produces a new
@@ -33,18 +30,18 @@ const dl = require('datalib'),
  *     experience of doing layout interactively in Lyra.
  *
  * @param {Function} dispatch  Redux dispatch function.
- * @param {ImmutableMap} state Redux store.
+ * @param {State} state Redux store.
  * @param {Object} parsed      An object containing the parsed and output Vega
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
 module.exports = function(dispatch: Dispatch, state: State, parsed) {
   const map = parsed.map,
-      aggId  = map.data.summary,
-      markId = parsed.markId,
-      mark = getInVis(state, 'marks.' + markId),
-      counts = require('../../ctrl/export').counts(true),
-      clones = {};
+    aggId = map.data.summary,
+    markId = parsed.markId,
+    mark = getInVis(state, 'marks.' + markId),
+    counts = require('../../ctrl/export').counts(true),
+    clones = {};
 
   function dataRefHasAgg(ref) {
     return ref.get('data') === aggId;
@@ -55,10 +52,10 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
   // than the source as well. This ensures that any transformations applied to
   // the aggregated dataset (e.g., filtering) will be reflected in the scales.
   dl.vals(map.scales).forEach(function(scaleId) {
-    const type   = getInVis(state, 'scales.' + scaleId + '.type'),
-        domain = getInVis(state, 'scales.' + scaleId + '._domain'),
-        range  = getInVis(state, 'scales.' + scaleId + '._range'),
-        count  = counts.scales[scaleId].markTotal;
+    const type = getInVis(state, 'scales.' + scaleId + '.type'),
+      domain = getInVis(state, 'scales.' + scaleId + '._domain'),
+      range = getInVis(state, 'scales.' + scaleId + '._range'),
+      count = counts.scales[scaleId].markTotal;
 
     function updateDataRef(property, ref, idx) {
       if (ref.get('data') === aggId) {
@@ -66,11 +63,11 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
       }
 
       if (count === 1) {
-        dispatch(updateScaleProperty(scaleId, property + '.' + idx + '.data', aggId));
+        dispatch(updateScaleProperty({property: property + '.' + idx + '.data', value: aggId}, scaleId));
       } else if (type === 'ordinal') {
         clones[scaleId] = true;
       } else {
-        dispatch(amendDataRef(scaleId, property, ref.set('data', aggId)));
+        dispatch(amendDataRef({property: property, ref: ref.set('data', aggId)}, scaleId));
       }
     }
 
@@ -92,9 +89,9 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
   if (dl.keys(clones).length > 0) {
     dl.keys(clones).forEach(function(scaleId) {
       const scale = getInVis(state, 'scales.' + scaleId),
-          newScale = addScale(cloneScale(scale, aggId)),
-          newScaleId = clones[scaleId] = newScale.id,
-          groupId = mark.get('_parent');
+        newScale = addScale(cloneScale(scale, aggId)),
+        newScaleId = (clones[scaleId] = newScale.meta),
+        groupId = mark.get('_parent');
       let guide, guideId;
 
       dispatch(newScale);
@@ -114,8 +111,7 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
     getIn(mark, 'properties.update').forEach(function(def, name) {
       const newScaleId = clones[def.get('scale')];
       if (newScaleId) {
-        dispatch(updateMarkProperty(markId,
-          'properties.update.' + name + '.scale', newScaleId));
+        dispatch(updateMarkProperty(markId, 'properties.update.' + name + '.scale', newScaleId));
       }
     });
   }
@@ -126,18 +122,25 @@ function cloneScale(def, aggId) {
     return {data: aggId, field: ref.field};
   }
 
-  const scale = Scale(def.get('_origName'), def.get('type'));
-  scale.nice = def.get('nice');
-  scale.round = def.get('round');
-  scale.zero = def.get('zero');
-  scale.points = def.get('points');
-  scale.padding = def.get('padding');
-
-  scale.domain = def.get('domain');
-  scale._domain = def.get('_domain').toJS().map(updateDataRef);
-
-  scale.range = def.get('range');
-  scale._range = def.get('_range').toJS().map(updateDataRef);
+  const scale = Scale({
+    _origName: def.get('_origName'),
+    type: def.get('type'),
+    nice: def.get('nice'),
+    round: def.get('round'),
+    zero: def.get('zero'),
+    // points: def.get('points'), // TODO(rneogy): figure out why this doesn't exist?
+    padding: def.get('padding'),
+    domain: def.get('domain'),
+    _domain: def
+      .get('_domain')
+      .toJS()
+      .map(updateDataRef),
+    range: def.get('range'),
+    _range: def
+      .get('_range')
+      .toJS()
+      .map(updateDataRef)
+  });
 
   return scale;
 }
