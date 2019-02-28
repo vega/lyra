@@ -17,7 +17,7 @@ import {aggregatePipeline} from '../pipelineActions';
  * @param {number} dsId        The ID of the current mark's backing dataset.
  * @returns {void}
  */
-module.exports = function(dispatch, state, parsed) {
+export function parseData(dispatch, state, parsed) {
   // TODO: transforms.
   const data = parsed.output.data;
   const source = data.find(function(def) {
