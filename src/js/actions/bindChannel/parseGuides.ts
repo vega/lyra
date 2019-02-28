@@ -121,7 +121,7 @@ function findOrCreateAxis(dispatch : Dispatch, state : State, parsed, scaleId : 
       'title': def.title,
       'zindex': def.zindex,
       'grid': def.grid,
-      'axis': (count === 1 && prevOrient) ? SWAP_ORIENT[prevOrient] : def.orient || axis.orient,
+      'orient': (count === 1 && prevOrient) ? SWAP_ORIENT[prevOrient] : def.orient || axis.orient,
       'encode': def.encode
     });
 
