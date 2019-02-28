@@ -1,6 +1,9 @@
 'use strict';
 
-var dl = require('datalib'),
+import {parseData} from './parseData';
+import {parseGuides} from './parseGuides';
+
+const dl = require('datalib'),
   vl = require('vega-lite'),
   AGGREGATE_OPS = require('../../constants/aggregateOps'),
   getInVis = require('../../util/immutable-utils').getInVis,
@@ -10,15 +13,13 @@ var dl = require('datalib'),
   historyActions = require('../../actions/historyActions'),
   startBatch = historyActions.startBatch,
   endBatch = historyActions.endBatch,
-  parseData = require('./parseData'),
   parseScales = require('./parseScales'),
   parseMarks = require('./parseMarks'),
-  parseGuides = require('./parseGuides'),
   updateAggregateDependencies = require('./aggregateDependencies'),
   cleanupUnused = require('./cleanupUnused');
 
 // Vega mark types to Vega-Lite mark types.
-var TYPES = {
+const TYPES = {
   rect: 'bar',
   symbol: 'point',
   text: 'text',
@@ -26,7 +27,7 @@ var TYPES = {
   area: 'area'
 };
 
-var CELLW = 517,
+const CELLW = 517,
   CELLH = 392;
 
 /**
@@ -195,7 +196,7 @@ function channelName(name) {
   }
 }
 
-var re = {
+const re = {
   agg: new RegExp('^(' + AGGREGATE_OPS.join('|') + ')_(.*?)$'),
   bin: new RegExp('^(bin)_(.*?)(_start|_mid|_end)$')
 };

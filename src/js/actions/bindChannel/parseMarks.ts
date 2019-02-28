@@ -53,11 +53,11 @@ module.exports = function(dispatch, state, parsed) {
  * @param   {string} [property=parsed.property]  The visual property to bind.
  * @returns {void}
  */
-function bindProperty(dispatch, parsed, def, property) {
+function bindProperty(dispatch, parsed, def, property?) {
   var map = parsed.map,
       markId = parsed.markId,
       markType = parsed.markType,
-      prop = {};
+      prop : any = {};
   property = property || parsed.property;
 
   if (property === 'stroke') {

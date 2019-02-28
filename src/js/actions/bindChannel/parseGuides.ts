@@ -31,7 +31,7 @@ const SWAP_ORIENT = {
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-module.exports = function(dispatch : Dispatch, state : State, parsed) {
+export function parseGuides(dispatch : Dispatch, state : State, parsed) {
   const channel = parsed.channel,
       map = parsed.map,
       guideType = CTYPE[channel],
