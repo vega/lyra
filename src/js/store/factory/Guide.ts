@@ -81,7 +81,7 @@ export function Guide(gtype : GuideType, type: string, scale : number | ScaleRec
   if (gtype === GuideType.Axis) {
     return Axis({
       orient: ORIENT[type],
-      scale: (scale as ScaleRecord)._id ? (scale as ScaleRecord)._id : scale
+      scale: (scale as ScaleRecord)._id ? (scale as ScaleRecord)._id + "": scale + ""
     });
   } else if (gtype === GuideType.Legend) {
     return Legend({
