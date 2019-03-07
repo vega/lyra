@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const parseExpr = require('vega').parse.expr();
+// const parseExpr = require('vega').parse.expr();
 const Property  = require('../../inspectors/Property');
 
 interface FilterObject {
@@ -20,7 +20,7 @@ export class Filter extends React.Component<OwnProps> {
     const val = value.target ? value.target.value : value;
 
     try {
-      parseExpr(val);
+      // parseExpr(val);
       props.update({type: 'filter', test: val});
     } catch (e) {
       // Do nothing if the expression doesn't parse correctly.
