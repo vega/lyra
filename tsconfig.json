@@ -3,6 +3,7 @@
     "outDir": "./build/",
     "sourceMap": true,
     "noImplicitAny": false, // TODO(jzong): change this back to true when we're farther along refactoring
+    "allowSyntheticDefaultImports": true,
     "module": "commonjs",
     "target": "es6",
     "jsx": "react"
