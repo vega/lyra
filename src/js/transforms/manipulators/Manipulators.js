@@ -3,12 +3,12 @@
 var dl = require('datalib'),
     vg = require('vega'),
     inherits = require('inherits'),
-    df = vg.dataflow,
-    ChangeSet = df.ChangeSet,
-    Tuple = df.Tuple,
-    Deps = df.Dependencies,
-    Transform = vg.Transform,
-    Voronoi = vg.transforms.voronoi,
+    // df = vg.dataflow,
+    // ChangeSet = df.ChangeSet,
+    // Tuple = df.Tuple,
+    // Deps = df.Dependencies,
+    // Transform = vg.Transform,
+    // Voronoi = vg.transforms.voronoi,
     sg = require('../../ctrl/signals'),
     $x = dl.$('x'),
     $y = dl.$('y');
@@ -49,7 +49,7 @@ function Manipulators(graph) {
     .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MODE]);
 }
 
-inherits(Manipulators, Transform);
+// inherits(Manipulators, Transform);
 
 /**
  * The transform method is automatically called by Vega whenever the manipulator

@@ -17,14 +17,14 @@ function manipulators(mark, spec) {
     from: {
       mark: ex.exportName(mark.name),
       transform: [
-        {
-          type: ns('manipulators_' + mark.type),
-          lyra_id: mark._id
-        },
-        {
-          type: 'facet',
-          groupby: ['manipulator']
-        }
+        // {
+        //   type: ns('manipulators_' + mark.type),
+        //   lyra_id: mark._id
+        // },
+        // {
+        //   type: 'facet',
+        //   groupby: ['manipulator']
+        // }
       ]
     },
     marks: TYPES.concat(border(spec))

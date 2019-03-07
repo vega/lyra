@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 const Immutable = require('immutable');
-const parseExpr = require('vega').parse.expr();
+// const parseExpr = require('vega').parse.expr();
 const Property  = require('../../inspectors/Property');
 
 
@@ -26,7 +26,7 @@ export class Formula extends React.Component<OwnProps> {
     const expr  = evt.target ? def.get('expr') : evt;
 
     try {
-      parseExpr(expr);
+      // parseExpr(expr);
       props.update({type: 'formula', field: field, expr: expr});
     } catch (e) {
       // Do nothing if the expression doesn't parse correctly.
