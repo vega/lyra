@@ -1,15 +1,18 @@
 'use strict';
 
-var dl = require('datalib'),
+import {Dispatch} from "redux";
+import {State} from "../../store";
+import {updateMarkProperty} from '../../actions/markActions';
+import {setSignal} from '../../actions/signalActions';
+
+const dl = require('datalib'),
     vl = require('vega-lite'),
     dsUtils = require('../../util/dataset-utils'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
-    getInVis = imutils.getInVis,
-    updateMarkProperty = require('../../actions/markActions').updateMarkProperty,
-    setSignal = require('../../actions/signalActions').setSignal;
+    getInVis = imutils.getInVis;
 
-var MIN_BAND_SIZE = vl.config.defaultConfig.scale.bandSize;
+const MIN_BAND_SIZE = vl.config.defaultConfig.scale.bandSize;
 
 /**
  * Compute a new layout based on the latest data binding. In particular, look
@@ -23,8 +26,8 @@ var MIN_BAND_SIZE = vl.config.defaultConfig.scale.bandSize;
  * @param {Object} scale       The definition of the scale that will be added.
  * @returns {void}
  */
-module.exports = function(dispatch, state, parsed, scale) {
-  var sceneId = getInVis(state, 'scene.id'),
+module.exports = function(dispatch : Dispatch, state : State, parsed, scale) {
+  const sceneId = getInVis(state, 'scene.id'),
       scene = getInVis(state, 'marks.' + sceneId),
       manualLayout = scene.get('_manualLayout');
 
@@ -32,7 +35,7 @@ module.exports = function(dispatch, state, parsed, scale) {
     return;
   }
 
-  var scaleType = scale.type,
+  const scaleType = scale.type,
       domain = scale._domain,
       range  = scale.range;
 
@@ -42,11 +45,11 @@ module.exports = function(dispatch, state, parsed, scale) {
     return;
   }
 
-  var distinct = domain.reduce(function(count, d) {
+  const distinct = domain.reduce(function(count, d) {
     return count + dl.count.distinct(dsUtils.output(d.data), dl.$(d.field));
   }, 0);
 
-  var size = scene.get(range),
+  const size = scene.get(range),
       minSize = (distinct + 1) * MIN_BAND_SIZE;
 
   if (size < minSize) {
@@ -55,12 +58,12 @@ module.exports = function(dispatch, state, parsed, scale) {
 };
 
 
-function resize(dispatch, state, mark, prop, size) {
+function resize(dispatch : Dispatch, state : State, mark, prop : string, size) {
   if (mark.get(prop)) { // Scene
-    dispatch(updateMarkProperty(mark.get('_id'), prop, size));
+    dispatch(updateMarkProperty({property: prop, value: size}, mark.get('_id')));
   } else {
     // TODO: check all spatial properties of groups rather than just width/height.
-    var updatePath = 'properties.update.',
+    const updatePath = 'properties.update.',
         propPath = updatePath + prop,
         signal = getIn(mark, propPath + '.signal');
 
@@ -71,7 +74,7 @@ function resize(dispatch, state, mark, prop, size) {
     }
   }
 
-  var children = mark.get('marks');
+  const children = mark.get('marks');
   if (children && children.size) {
     children.forEach(function(childId) {
       var child = getInVis(state, 'marks.' + childId);
