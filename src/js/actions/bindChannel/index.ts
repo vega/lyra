@@ -2,21 +2,19 @@
 
 import {parseData} from './parseData';
 import {parseGuides} from './parseGuides';
+import {parseScales} from './parseScales';
+import {setVlUnit} from '../markActions';
+import {parseMarks} from './parseMarks';
+import {startBatch, endBatch} from '../historyActions';
+import {cleanupUnused} from './cleanupUnused';
+import {Mark} from '../../store/factory/Mark';
 
 const dl = require('datalib'),
   vl = require('vega-lite'),
   AGGREGATE_OPS = require('../../constants/aggregateOps'),
   getInVis = require('../../util/immutable-utils').getInVis,
-  markActions = require('../markActions'),
-  setVlUnit = markActions.setVlUnit,
   dsUtils = require('../../util/dataset-utils'),
-  historyActions = require('../../actions/historyActions'),
-  startBatch = historyActions.startBatch,
-  endBatch = historyActions.endBatch,
-  parseScales = require('./parseScales'),
-  parseMarks = require('./parseMarks'),
-  updateAggregateDependencies = require('./aggregateDependencies'),
-  cleanupUnused = require('./cleanupUnused');
+  updateAggregateDependencies = require('./aggregateDependencies');
 
 // Vega mark types to Vega-Lite mark types.
 const TYPES = {
@@ -27,7 +25,7 @@ const TYPES = {
   area: 'area'
 };
 
-const CELLW = 517,
+export const CELLW = 517,
   CELLH = 392;
 
 /**
@@ -42,7 +40,7 @@ const CELLW = 517,
  * @param  {string} property The name of the property to bind.
  * @returns {Function}       Async action function.
  */
-function bindChannel(dsId, field, markId, property) {
+function bindChannel(dsId: number, field, markId: number, property: string) {
   return function(dispatch, getState) {
     const state = getState(),
       mark = getInVis(state, 'marks.' + markId),
@@ -90,7 +88,7 @@ function bindChannel(dsId, field, markId, property) {
 
     parseGuides(dispatch, getState(), parsed);
 
-    dispatch(setVlUnit(markId, spec));
+    dispatch(setVlUnit(spec, markId));
     dispatch(endBatch());
   };
 }
@@ -106,7 +104,7 @@ function bindChannel(dsId, field, markId, property) {
  * @param   {number} dsId     The ID of the dataset that backs the current mark.
  * @returns {Object}          An object containing the Vega and Vega-Lite specs.
  */
-function compile(spec, property, dsId) {
+function compile(spec, property: string, dsId: number) {
   spec = dl.duplicate(spec);
 
   // Always drive the Vega-Lite spec by a pipeline's source dataset.
@@ -134,11 +132,11 @@ function compile(spec, property, dsId) {
  * Constructs a Vega-Lite specification, or returns a previously created one,
  * for the given mark.
  *
- * @param  {ImmutableMap} mark A mark definition from the store.
+ * @param  {Mark} mark A mark definition from the store.
  * @returns {Object} A Vega-Lite specification.
  */
-function vlSpec(mark) {
-  var vlUnit = mark.get('_vlUnit');
+function vlSpec(mark: Mark) {
+  const vlUnit = mark.get('_vlUnit');
   return vlUnit
     ? vlUnit.toJS()
     : {
@@ -174,7 +172,7 @@ function map(vlUnit) {
  * @param   {string} name A Vega mark property.
  * @returns {string}      A Vega-Lite encoding channel.
  */
-function channelName(name) {
+function channelName(name: string): string {
   //  We don't use Vega-Lite's x2/y2 channels because a user may bind them
   //  first in Lyra which Vega-Lite does not expect.
   switch (name) {
@@ -230,6 +228,4 @@ function channelDef(field) {
 }
 
 module.exports = bindChannel;
-bindChannel.CELLW = CELLW;
-bindChannel.CELLH = CELLH;
 dl.extend(bindChannel, require('./helperActions'));

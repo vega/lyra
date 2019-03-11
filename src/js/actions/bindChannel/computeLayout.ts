@@ -26,7 +26,7 @@ const MIN_BAND_SIZE = vl.config.defaultConfig.scale.bandSize;
  * @param {Object} scale       The definition of the scale that will be added.
  * @returns {void}
  */
-module.exports = function(dispatch : Dispatch, state : State, parsed, scale) {
+export function computeLayout(dispatch : Dispatch, state : State, parsed, scale) {
   const sceneId = getInVis(state, 'scene.id'),
       scene = getInVis(state, 'marks.' + sceneId),
       manualLayout = scene.get('_manualLayout');
