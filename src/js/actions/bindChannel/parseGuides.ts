@@ -2,23 +2,25 @@ import {Guide, GuideType, AxisRecord, LegendRecord} from '../../store/factory/Gu
 import {addGuide} from '../guideActions';
 import {Dispatch} from 'redux';
 import {State} from '../../store';
+import {addAxisToGroup, addLegendToGroup} from './helperActions';
 
-
-const actions = require('./helperActions'),
-  addAxisToGroup = actions.addAxisToGroup,
-  addLegendToGroup = actions.addLegendToGroup,
-  imutils = require('../../util/immutable-utils'),
+const imutils = require('../../util/immutable-utils'),
   getIn = imutils.getIn,
   getInVis = imutils.getInVis;
 
 const CTYPE = {
-  x: GuideType.Axis, y: GuideType.Axis,
-  color: GuideType.Legend, size: GuideType.Legend, shape: GuideType.Legend
+  x: GuideType.Axis,
+  y: GuideType.Axis,
+  color: GuideType.Legend,
+  size: GuideType.Legend,
+  shape: GuideType.Legend
 };
 
 const SWAP_ORIENT = {
-  left: 'right', right: 'left',
-  top: 'bottom', bottom: 'top'
+  left: 'right',
+  right: 'left',
+  top: 'bottom',
+  bottom: 'top'
 };
 
 /**
@@ -31,12 +33,12 @@ const SWAP_ORIENT = {
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-export function parseGuides(dispatch : Dispatch, state : State, parsed) {
+export function parseGuides(dispatch: Dispatch, state: State, parsed) {
   const channel = parsed.channel,
-      map = parsed.map,
-      guideType = CTYPE[channel],
-      scaleId = map.scales[channel],
-      group = parsed.output.marks[0];
+    map = parsed.map,
+    guideType = CTYPE[channel],
+    scaleId = map.scales[channel],
+    group = parsed.output.marks[0];
 
   if (!guideType || !scaleId) {
     return;
@@ -47,7 +49,7 @@ export function parseGuides(dispatch : Dispatch, state : State, parsed) {
   } else {
     findOrCreateLegend(dispatch, state, parsed, scaleId, group.legends);
   }
-};
+}
 
 /**
  * Attempts to find an axis for the given scale. If one is not found, and the
@@ -62,13 +64,16 @@ export function parseGuides(dispatch : Dispatch, state : State, parsed) {
  * @param  {Object} defs  All parsed Vega axis definitions.
  * @returns {void}
  */
-function findOrCreateAxis(dispatch : Dispatch, state : State, parsed, scaleId : number, defs) {
-  const map  = parsed.map,
-      mark = parsed.mark,
-      parentId = mark.get('_parent'),
-      scale = getInVis(state, 'scales.' + scaleId),
-      axes  = getInVis(state, 'marks.' + parentId).get('axes');
-  let def, prevOrient, count = 0, foundAxis = false;
+function findOrCreateAxis(dispatch: Dispatch, state: State, parsed, scaleId: number, defs) {
+  const map = parsed.map,
+    mark = parsed.mark,
+    parentId = mark.get('_parent'),
+    scale = getInVis(state, 'scales.' + scaleId),
+    axes = getInVis(state, 'marks.' + parentId).get('axes');
+  let def,
+    prevOrient,
+    count = 0,
+    foundAxis = false;
 
   // First, find an def and then iterate through axes for the current group
   // to see if an axis exists for this scale or if we have room to add one more.
@@ -97,15 +102,14 @@ function findOrCreateAxis(dispatch : Dispatch, state : State, parsed, scaleId : 
     if (axisScale.get('type') === 'ordinal') {
       foundAxis = ['domain', 'range'].every(function(x) {
         const araw = axisScale.get(x),
-            sraw = scale.get(x),
-            aref = axisScale.get('_' + x),
-            sref = scale.get('_' + x),
-            apl  = getInVis(state, 'datasets.' + getIn(aref, '0.data') + '._parent'),
-            spl  = getInVis(state, 'datasets.' + getIn(sref, '0.data') + '._parent'),
-            afl  = getIn(aref, '0.field'),
-            sfl  = getIn(sref, '0.field');
-        return araw ? araw === sraw || araw.equals(sraw) :
-          apl === spl && afl === sfl;
+          sraw = scale.get(x),
+          aref = axisScale.get('_' + x),
+          sref = scale.get('_' + x),
+          apl = getInVis(state, 'datasets.' + getIn(aref, '0.data') + '._parent'),
+          spl = getInVis(state, 'datasets.' + getIn(sref, '0.data') + '._parent'),
+          afl = getIn(aref, '0.field'),
+          sfl = getIn(sref, '0.field');
+        return araw ? araw === sraw || araw.equals(sraw) : apl === spl && afl === sfl;
       });
       return !foundAxis;
     }
@@ -118,11 +122,11 @@ function findOrCreateAxis(dispatch : Dispatch, state : State, parsed, scaleId : 
   if (count < 2) {
     let axis = Guide(GuideType.Axis, def.type, scaleId) as AxisRecord;
     axis = axis.mergeDeep({
-      'title': def.title,
-      'zindex': def.zindex,
-      'grid': def.grid,
-      'orient': (count === 1 && prevOrient) ? SWAP_ORIENT[prevOrient] : def.orient || axis.orient,
-      'encode': def.encode
+      title: def.title,
+      zindex: def.zindex,
+      grid: def.grid,
+      orient: count === 1 && prevOrient ? SWAP_ORIENT[prevOrient] : def.orient || axis.orient,
+      encode: def.encode
     });
 
     const axisAction = addGuide(axis);
@@ -143,13 +147,14 @@ function findOrCreateAxis(dispatch : Dispatch, state : State, parsed, scaleId : 
  * @param  {Object} defs  All parsed Vega legend definitions.
  * @returns {void}
  */
-function findOrCreateLegend(dispatch : Dispatch, state : State, parsed, scaleId : number, defs) {
+function findOrCreateLegend(dispatch: Dispatch, state: State, parsed, scaleId: number, defs) {
   const map = parsed.map,
-      mark = parsed.mark,
-      property = parsed.property,
-      parentId = mark.get('_parent'),
-      legends = getInVis(state, 'marks.' + parentId).get('legends');
-  let def, foundLegend = false;
+    mark = parsed.mark,
+    property = parsed.property,
+    parentId = mark.get('_parent'),
+    legends = getInVis(state, 'marks.' + parentId).get('legends');
+  let def,
+    foundLegend = false;
 
   def = defs.find(function(legendDef) {
     return map.scales[legendDef[property]] === scaleId;
@@ -164,10 +169,10 @@ function findOrCreateLegend(dispatch : Dispatch, state : State, parsed, scaleId 
 
   if (!foundLegend) {
     let legend = Guide(GuideType.Legend, property, scaleId) as LegendRecord;
-    legend = legend.deleteIn(['encode','symbols', property]);
+    legend = legend.deleteIn(['encode', 'symbols', property]);
     legend = legend.mergeDeep({
-      'title': def.title,
-      'encode': def.encode
+      title: def.title,
+      encode: def.encode
     });
     // delete legend.properties.symbols[property];
     const legendAction = addGuide(legend);

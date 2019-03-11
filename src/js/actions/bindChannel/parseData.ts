@@ -3,6 +3,8 @@ const getInVis = require('../../util/immutable-utils').getInVis;
 import {LyraAggregateTransform} from '../../store/factory/Pipeline';
 import {summarizeAggregate} from '../datasetActions';
 import {aggregatePipeline} from '../pipelineActions';
+import {Dispatch} from 'redux';
+import {State} from '../../store';
 
 /**
  * Parse the data source definitions in the resultant Vega specification.
@@ -17,7 +19,7 @@ import {aggregatePipeline} from '../pipelineActions';
  * @param {number} dsId        The ID of the current mark's backing dataset.
  * @returns {void}
  */
-export function parseData(dispatch, state, parsed) {
+export function parseData(dispatch: Dispatch, state: State, parsed) {
   // TODO: transforms.
   const data = parsed.output.data;
   const source = data.find(function(def) {
@@ -34,7 +36,7 @@ export function parseData(dispatch, state, parsed) {
   }
 };
 
-function parseAggregate(dispatch, state, parsed, summary) {
+function parseAggregate(dispatch: Dispatch, state: State, parsed, summary) {
   const aggregate: LyraAggregateTransform = summary.transform.find(function(tx) {
     return tx.type === 'aggregate';
   });
@@ -47,7 +49,7 @@ function parseAggregate(dispatch, state, parsed, summary) {
   if (!aggId) {
     // TODO: What about if a previous parsed.map.data.summary exists? How do
     // we derive a new agg DS to preserve transforms.
-    dispatch(aggregatePipeline(plId, aggregate));
+    dispatch(aggregatePipeline(plId, aggregate) as any); // TODO(rn) fix this so that aggregate actually returns AnyAction
     aggId = aggregate._id;
   } else {
     dispatch(summarizeAggregate(aggregate, aggId));
