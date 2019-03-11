@@ -5,6 +5,8 @@ Lyra is an interactive environment that enables custom visualization design with
 **This is the working branch for Lyra 2 and does not contain all functionality.** 
 A deployed version of [Lyra 1 is available online](http://idl.cs.washington.edu/projects/lyra/). For more information, check out the [Lyra wiki](https://github.com/uwdata/lyra/wiki).
 
+To build a stable version of Lyra 1, see the `master` branch. For a stable but not fully-featured version of Lyra 2, see the `lyra2` branch.
+
 ## Local Development
 
 ### Installation
