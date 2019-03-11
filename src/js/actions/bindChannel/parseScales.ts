@@ -1,16 +1,19 @@
 'use strict';
+import {Scale} from '../../store/factory/Scale';
+import {addScale} from '../scaleActions';
+import {addScaleToGroup} from './helperActions';
+import {computeLayout} from './computeLayout';
+import {Dispatch} from 'redux';
+import {State} from '../../store';
+import {CELLH, CELLW} from './index';
 
-var dl = require('datalib'),
-    imutils = require('../../util/immutable-utils'),
-    getIn = imutils.getIn,
-    getInVis = imutils.getInVis,
-    Scale = require('../../store/factory/Scale'),
-    addScale = require('../scaleActions').addScale,
-    addScaleToGroup = require('./helperActions').addScaleToGroup,
-    computeLayout = require('./computeLayout');
+const dl = require('datalib'),
+  imutils = require('../../util/immutable-utils'),
+  getIn = imutils.getIn,
+  getInVis = imutils.getInVis;
 
-var REF_CELLW = {data: 'layout', field: 'cellWidth'},
-    REF_CELLH = {data: 'layout', field: 'cellHeight'};
+const REF_CELLW = {data: 'layout', field: 'cellWidth'},
+  REF_CELLH = {data: 'layout', field: 'cellHeight'};
 
 /**
  * Parse the scale definitions in the resultant Vega specification to determine
@@ -24,16 +27,16 @@ var REF_CELLW = {data: 'layout', field: 'cellWidth'},
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-module.exports = function(dispatch, state, parsed) {
-  var map = parsed.map.scales,
-      dsMap = parsed.map.data,
-      mark  = parsed.mark,
-      channel  = parsed.channel,
-      markType = parsed.markType,
-      prev = getInVis(state, 'scales.' + map[channel]),
-      scaleId = prev && prev.get('_id'),
-      scales  = parsed.output.marks[0].scales,
-      def;
+export function parseScales(dispatch: Dispatch, state: State, parsed) {
+  const map = parsed.map.scales,
+    dsMap = parsed.map.data,
+    mark = parsed.mark,
+    channel = parsed.channel,
+    markType = parsed.markType;
+  let prev = getInVis(state, 'scales.' + map[channel]),
+    scaleId = prev && prev.get('_id'),
+    scales = parsed.output.marks[0].scales,
+    def;
 
   if (!scales) {
     return;
@@ -55,13 +58,15 @@ module.exports = function(dispatch, state, parsed) {
   // First, try to find a matching scale.
   // TODO: Reuse rect spatial scale if available.
   if (!prev || !equals(state, markType, def, prev, dsMap)) {
-    getInVis(state, 'scales').valueSeq().forEach(function(scale) {
-      if (equals(state, markType, def, scale, dsMap)) {
-        prev = scale;
-        scaleId = scale.get('_id');
-        return false;
-      }
-    });
+    getInVis(state, 'scales')
+      .valueSeq()
+      .forEach(function(scale) {
+        if (equals(state, markType, def, scale, dsMap)) {
+          prev = scale;
+          scaleId = scale.get('_id');
+          return false;
+        }
+      });
   }
 
   // If no previous or matching scale exists, or if there's a mismatch in
@@ -78,7 +83,7 @@ module.exports = function(dispatch, state, parsed) {
 
   map[channel] = scaleId;
   dispatch(addScaleToGroup(scaleId, mark.get('_parent')));
-};
+}
 
 /**
  * Parse a Vega scale definition (produced by Vega-Lite) and return an object
@@ -94,12 +99,11 @@ module.exports = function(dispatch, state, parsed) {
  * @returns {Object} An object that mimics a Lyra Scale primitive.
  */
 function parse(def) {
-  var bindChannel = require('./'),
-      range  = def.rangeMin || def.rangeMax;
+  const range = def.rangeMin || def.rangeMax;
 
-  if (def.name === 'x' || range === bindChannel.CELLW || dl.equal(range, REF_CELLW)) {
+  if (def.name === 'x' || range === CELLW || dl.equal(range, REF_CELLW)) {
     def.range = 'width';
-  } else if (def.name === 'y' || range === bindChannel.CELLH || dl.equal(range, REF_CELLH)) {
+  } else if (def.name === 'y' || range === CELLH || dl.equal(range, REF_CELLH)) {
     def.range = 'height';
   }
 
@@ -125,7 +129,7 @@ function parse(def) {
  * @returns {boolean} Returns true or false based on if the given Lyra scale
  * matches the parsed Vega definition.
  */
-function equals(state, markType, def, scale, dsMap) {
+function equals(state: State, markType: string, def, scale, dsMap): boolean {
   if (scale.get('type') !== def.type) {
     return false;
   }
@@ -135,50 +139,53 @@ function equals(state, markType, def, scale, dsMap) {
     return false;
   }
 
-  var rng = scale.get('range');
+  let rng = scale.get('range');
   rng = rng.toJS ? rng.toJS() : rng;
   if (JSON.stringify(rng) !== JSON.stringify(def.range)) {
     return false;
   }
 
-  var field = getIn(scale, '_domain.0.field');
+  const field = getIn(scale, '_domain.0.field');
   if (field !== def.domain.field) {
     return false;
   }
 
-  var pipeline = getInVis(state,
-    'datasets.' + getIn(scale, '_domain.0.data') + '._parent');
-  if (pipeline !== getInVis(state,
-    'datasets.' + dsMap[def.domain.data] + '._parent')) {
+  const pipeline = getInVis(state, 'datasets.' + getIn(scale, '_domain.0.data') + '._parent');
+  if (pipeline !== getInVis(state, 'datasets.' + dsMap[def.domain.data] + '._parent')) {
     return false;
   }
 
   return true;
 }
 
-function createScale(dispatch, parsed, def) {
-  var map = parsed.map,
-      markType = parsed.markType,
-      points = usesPoints(def.type, markType),
-      newScale = Scale(def.name, def.type, undefined, def.range),
-      domain = def.domain;
+function createScale(dispatch: Dispatch, parsed, def) {
+  const map = parsed.map,
+    markType = parsed.markType,
+    points: boolean = usesPoints(def.type, markType),
+    domain = def.domain;
+  let newScale = Scale({name: def.name, type: def.type, range: def.range});
 
-  if (dl.isArray(domain)) { // Literal domain values
-    newScale.domain = domain;
-  } else if (dl.isObject(domain) && domain.data) { // Domain is a single DataRef
-    newScale._domain = [{data: map.data[domain.data], field: domain.field}];
+  if (dl.isArray(domain)) {
+    // Literal domain values
+    newScale = newScale.merge({domain: domain});
+  } else if (dl.isObject(domain) && domain.data) {
+    // Domain is a single DataRef
+    newScale = newScale.merge({_domain: [{data: map.data[domain.data], field: domain.field}] as any}); // TODO(rn) figure out what type this should be
   }
 
-  newScale.nice = def.nice;
-  newScale.round = def.round;
-  newScale.zero = def.zero;
-  newScale.points = points;
-  if (points) {
-    newScale.padding = def.padding;
-  }
+  newScale = newScale.merge({
+    nice: def.nice,
+    round: def.round,
+    zero: def.zero
+    // points: points
+  });
 
-  var action = addScale(newScale);
-  return (dispatch(action), action);
+  // if (points) {
+  //   newScale.padding = def.padding;
+  // }
+
+  const action = addScale(newScale);
+  return dispatch(action), action;
 }
 
 /**
@@ -190,6 +197,6 @@ function createScale(dispatch, parsed, def) {
  * @param {string} markType   The type of mark
  * @returns {boolean} The value of the "points" property of the Vega scale
  */
-function usesPoints(scaleType, markType) {
+function usesPoints(scaleType: string, markType: string): boolean {
   return scaleType === 'ordinal' && markType !== 'rect';
 }

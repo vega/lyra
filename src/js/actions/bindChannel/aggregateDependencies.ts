@@ -4,11 +4,10 @@ import {Dispatch} from 'redux';
 import {State} from '../../store';
 import {Scale} from '../../store/factory/Scale';
 import {addScale, updateScaleProperty, amendDataRef} from '../scaleActions';
+import {updateMarkProperty} from '../markActions';
+import {addScaleToGroup} from './helperActions';
 
 const dl = require('datalib'),
-  updateMarkProperty = require('../markActions').updateMarkProperty,
-  helperActions = require('./helperActions'),
-  addScaleToGroup = helperActions.addScaleToGroup,
   imutils = require('../../util/immutable-utils'),
   getInVis = imutils.getInVis,
   getIn = imutils.getIn;
@@ -111,7 +110,7 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
     getIn(mark, 'properties.update').forEach(function(def, name) {
       const newScaleId = clones[def.get('scale')];
       if (newScaleId) {
-        dispatch(updateMarkProperty(markId, 'properties.update.' + name + '.scale', newScaleId));
+        dispatch(updateMarkProperty({property: 'properties.update.' + name + '.scale', value: newScaleId}, markId));
       }
     });
   }

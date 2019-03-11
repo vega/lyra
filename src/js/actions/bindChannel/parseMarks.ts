@@ -1,16 +1,16 @@
 'use strict';
 
-var dl = require('datalib'),
-    propSg = require('../../util/prop-signal'),
-    setSignal = require('../signalActions').setSignal,
-    markActions = require('../markActions'),
-    setMarkVisual = markActions.setMarkVisual,
-    disableMarkVisual = markActions.disableMarkVisual,
-    updateMarkProperty = require('../markActions').updateMarkProperty,
-    MARK_EXTENTS = require('../../constants/markExtents'),
-    imutils = require('../../util/immutable-utils'),
-    getInVis = imutils.getInVis,
-    getIn = imutils.getIn;
+import {setSignal} from '../signalActions';
+import {setMarkVisual, disableMarkVisual, updateMarkProperty} from '../markActions';
+import {Dispatch} from 'redux';
+import {State} from '../../store';
+
+const dl = require('datalib'),
+  propSg = require('../../util/prop-signal'),
+  MARK_EXTENTS = require('../../constants/markExtents'),
+  imutils = require('../../util/immutable-utils'),
+  getInVis = imutils.getInVis,
+  getIn = imutils.getIn;
 
 /**
  * Parses the mark definition in the resultant Vega specification to determine
@@ -22,13 +22,13 @@ var dl = require('datalib'),
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-module.exports = function(dispatch, state, parsed) {
-  var markType = parsed.markType,
-      map = parsed.map,
-      markId = parsed.markId,
-      channel  = parsed.channel,
-      def = parsed.output.marks[0].marks[0],
-      props = def.properties.update;
+export function parseMarks(dispatch: Dispatch, state: State, parsed) {
+  const markType = parsed.markType,
+    map = parsed.map,
+    markId = parsed.markId,
+    channel = parsed.channel,
+    def = parsed.output.marks[0].marks[0],
+    props = def.properties.update;
 
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial(dispatch, state, parsed, props);
@@ -39,9 +39,9 @@ module.exports = function(dispatch, state, parsed) {
   }
 
   if (def.from && def.from.data) {
-    dispatch(updateMarkProperty(markId, 'from', {data: map.data[def.from.data]}));
+    dispatch(updateMarkProperty({property: 'from', value: {data: map.data[def.from.data]}}, markId));
   }
-};
+}
 
 /**
  * Updates a Lyra mark property using the parsed Vega property definition.
@@ -53,11 +53,11 @@ module.exports = function(dispatch, state, parsed) {
  * @param   {string} [property=parsed.property]  The visual property to bind.
  * @returns {void}
  */
-function bindProperty(dispatch, parsed, def, property?) {
-  var map = parsed.map,
-      markId = parsed.markId,
-      markType = parsed.markType,
-      prop : any = {};
+function bindProperty(dispatch: Dispatch, parsed, def, property?: string) {
+  let map = parsed.map;
+  const markId = parsed.markId,
+    markType = parsed.markType,
+    prop = {} as any;
   property = property || parsed.property;
 
   if (property === 'stroke') {
@@ -91,7 +91,7 @@ function bindProperty(dispatch, parsed, def, property?) {
     prop.offset = def.offset;
   }
 
-  dispatch(setMarkVisual(markId, property, prop));
+  dispatch(setMarkVisual({property: property, def: prop}, markId));
 
   // Set a timestamp on the property to facilitate smarter disabling of rect
   // spatial properties.
@@ -111,18 +111,18 @@ function bindProperty(dispatch, parsed, def, property?) {
  * @param   {Object} def      The parsed Vega visual properties for the mark.
  * @returns {void}
  */
-var RECT_SPANS = {x: 'width', y: 'height'};
-function rectSpatial(dispatch, state, parsed, def) {
-  var channel  = parsed.channel,
-      property = parsed.property,
-      markId = parsed.markId,
-      map  = parsed.map.marks[markId],
-      max  = channel + '2',
-      cntr = channel + 'c',
-      span = RECT_SPANS[channel],
-      EXTENTS = dl.vals(MARK_EXTENTS[channel]),
-      props = getInVis(state, 'marks.' + markId + '.properties.update'),
-      count = 0;
+const RECT_SPANS = {x: 'width', y: 'height'};
+function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
+  const channel = parsed.channel,
+    property = parsed.property,
+    markId = parsed.markId,
+    map = parsed.map.marks[markId],
+    max = channel + '2',
+    cntr = channel + 'c',
+    span = RECT_SPANS[channel],
+    EXTENTS = dl.vals(MARK_EXTENTS[channel]),
+    props = getInVis(state, 'marks.' + markId + '.properties.update');
+  let count = 0;
 
   // If we're binding a literal spatial property (i.e., not arrow manipulators),
   // bind only that property.
@@ -131,16 +131,18 @@ function rectSpatial(dispatch, state, parsed, def) {
     // try our best guess for disabling "older" properties.
     EXTENTS.map(function(ext) {
       return dl.extend({ts: (map && map[ext.name]) || 0}, ext);
-    }).sort(dl.comparator('-ts')).forEach(function(ext) {
-      var name = ext.name;
-      if (name === property) {
-        return;
-      } else if (count >= 1) {
-        dispatch(disableMarkVisual(markId, name));
-      } else if (!getIn(props, name + '._disabled')) {
-        ++count;
-      }
-    });
+    })
+      .sort(dl.comparator('-ts'))
+      .forEach(function(ext) {
+        var name = ext.name;
+        if (name === property) {
+          return;
+        } else if (count >= 1) {
+          dispatch(disableMarkVisual(markId, name));
+        } else if (!getIn(props, name + '._disabled')) {
+          ++count;
+        }
+      });
 
     def[property] = def[channel] || def[cntr] || def[property];
     return bindProperty(dispatch, parsed, def);
@@ -156,12 +158,13 @@ function rectSpatial(dispatch, state, parsed, def) {
     bindProperty(dispatch, parsed, def, channel);
     bindProperty(dispatch, parsed, def, max);
   } else {
-    def[channel] = def[cntr];  // Map xc/yc => x/y for binding.
+    def[channel] = def[cntr]; // Map xc/yc => x/y for binding.
     bindProperty(dispatch, parsed, def, channel);
 
     def[span] = {
       scale: def[channel].scale,
-      band: true, offset: -1
+      band: true,
+      offset: -1
     };
     bindProperty(dispatch, parsed, def, span);
   }
@@ -177,8 +180,16 @@ function rectSpatial(dispatch, state, parsed, def) {
  * @param   {Object} def      The parsed Vega visual properties for the mark.
  * @returns {void}
  */
-function textTemplate(dispatch, parsed, def) {
-  dispatch(setMarkVisual(parsed.markId, 'text', {
-    template: '{{datum.' + def.text.field + '}}'
-  }));
+function textTemplate(dispatch: Dispatch, parsed, def) {
+  dispatch(
+    setMarkVisual(
+      {
+        property: 'text',
+        def: {
+          template: '{{datum.' + def.text.field + '}}'
+        } as any
+      },
+      parsed.markId
+    )
+  );
 }
