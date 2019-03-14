@@ -1,23 +1,24 @@
 'use strict';
 
-var dl = require('datalib'),
-    json2csv = require('json2csv'),
-    store = require('../store'),
-    imutils = require('../util/immutable-utils'),
-    getIn = imutils.getIn,
-    getInVis = imutils.getInVis,
-    signalLookup = require('../util/signal-lookup'),
-    dsUtils = require('../util/dataset-utils'),
-    manipulators = require('./manipulators'),
-    GTYPES = require('../store/factory/Guide').GTYPES,
-    ORDER = require('../constants/sortOrder');
+import {store} from '../store';
+import {GuideType} from '../store/factory/Guide';
 
-var SPEC_COUNT  = {data: {}, scales: {}},
-    DATA_COUNT  = {marks: {}, scales: {}},
-    SCALE_COUNT = {marks: {}, guides: {}};
+const dl = require('datalib'),
+  json2csv = require('json2csv'),
+  imutils = require('../util/immutable-utils'),
+  getIn = imutils.getIn,
+  getInVis = imutils.getInVis,
+  signalLookup = require('../util/signal-lookup'),
+  dsUtils = require('../util/dataset-utils'),
+  manipulators = require('./manipulators'),
+  ORDER = require('../constants/sortOrder');
+
+const SPEC_COUNT = {data: {}, scales: {}},
+  DATA_COUNT = {marks: {}, scales: {}},
+  SCALE_COUNT = {marks: {}, guides: {}};
 
 // How many times data sources and scales have been used.
-var counts = dl.duplicate(SPEC_COUNT);
+let counts = dl.duplicate(SPEC_COUNT);
 
 /**
  * Exports primitives in the redux store as a complete Vega specification.
@@ -28,25 +29,27 @@ var counts = dl.duplicate(SPEC_COUNT);
  * direct-manipulation interactors (handles, connectors, etc.).
  * @returns {Object} A Vega specification.
  */
-function exporter(internal) {
-  var state = store.getState(),
-      int   = internal === true;
+function exporter(internal = false) {
+  const state = store.getState(),
+    int = internal === true;
 
   counts = dl.duplicate(SPEC_COUNT);
 
-  var spec  = exporter.scene(state, int);
+  const spec = exporter.scene(state, int);
   spec.data = exporter.pipelines(state, int);
 
   return spec;
 }
 
 exporter.pipelines = function(state, internal) {
-  var pipelines = getInVis(state, 'pipelines').valueSeq().toJS();
+  const pipelines = getInVis(state, 'pipelines')
+    .valueSeq()
+    .toJS();
   return pipelines.reduce(function(spec, pipeline) {
     spec.push(exporter.dataset(state, internal, pipeline._source));
 
-    var aggrs = pipeline._aggregates;
-    for (var key in aggrs) {
+    const aggrs = pipeline._aggregates;
+    for (const key in aggrs) {
       spec.push(exporter.dataset(state, internal, aggrs[key]));
     }
     return spec;
@@ -54,11 +57,11 @@ exporter.pipelines = function(state, internal) {
 };
 
 exporter.dataset = function(state, internal, id) {
-  var dataset = getInVis(state, 'datasets.' + id).toJS(),
-      spec = clean(dl.duplicate(dataset), internal),
-      values = dsUtils.input(id),
-      format = spec.format && spec.format.type,
-      sort = exporter.sort(dataset);
+  const dataset = getInVis(state, 'datasets.' + id).toJS(),
+    spec = clean(dl.duplicate(dataset), internal),
+    values = dsUtils.input(id),
+    format = spec.format && spec.format.type,
+    sort = exporter.sort(dataset);
 
   counts.data[id] = counts.data[id] || dl.duplicate(DATA_COUNT);
 
@@ -73,8 +76,7 @@ exporter.dataset = function(state, internal, id) {
     delete spec.url;
     delete spec.format; // values are JSON, so do not need to be reparsed.
   } else if (!spec.url) {
-    spec.values = format && format !== 'json' ?
-      json2csv({data: values, del: format === 'tsv' ? '\t' : ','}) : values;
+    spec.values = format && format !== 'json' ? json2csv({data: values, del: format === 'tsv' ? '\t' : ','}) : values;
   }
 
   if (sort !== undefined) {
@@ -86,15 +88,15 @@ exporter.dataset = function(state, internal, id) {
 };
 
 /**
-  * Method that builds the vega sort data transform code from
-  * the current dataset.
-  *
-  * @param  {object} dataset The current dataset
-  * @returns {object} undefined if _sort not in dataset and the
-  * vega data transform code to be appended to the vega spec to * the dataset
-  */
+ * Method that builds the vega sort data transform code from
+ * the current dataset.
+ *
+ * @param  {object} dataset The current dataset
+ * @returns {object} undefined if _sort not in dataset and the
+ * vega data transform code to be appended to the vega spec to * the dataset
+ */
 exporter.sort = function(dataset) {
-  var sort = dataset._sort;
+  const sort = dataset._sort;
   if (!sort) {
     return;
   }
@@ -106,8 +108,8 @@ exporter.sort = function(dataset) {
 };
 
 exporter.scene = function(state, internal) {
-  var sceneId = getInVis(state, 'scene.id'),
-      spec = exporter.group(state, internal, sceneId);
+  const sceneId = getInVis(state, 'scene.id');
+  let spec = exporter.group(state, internal, sceneId);
 
   if (internal) {
     spec = spec[0];
@@ -122,11 +124,11 @@ exporter.scene = function(state, internal) {
 };
 
 exporter.mark = function(state, internal, id) {
-  var mark = getInVis(state, 'marks.' + id).toJS(),
-      spec = clean(dl.duplicate(mark), internal),
-      up = mark.properties.update,
-      upspec = spec.properties.update,
-      fromId, count;
+  const mark = getInVis(state, 'marks.' + id).toJS(),
+    spec = clean(dl.duplicate(mark), internal),
+    up = mark.properties.update,
+    upspec = spec.properties.update;
+  let fromId, count;
 
   if (spec.from) {
     if ((fromId = spec.from.data)) {
@@ -139,11 +141,12 @@ exporter.mark = function(state, internal, id) {
   }
 
   dl.keys(upspec).forEach(function(key) {
-    var specVal = upspec[key],
-        origVal = up[key],
-        origScale = origVal.scale;
+    let specVal = upspec[key],
+      origVal = up[key],
+      origScale = origVal.scale;
 
-    if (!dl.isObject(specVal)) {  // signalRef resolved to literal
+    if (!dl.isObject(specVal)) {
+      // signalRef resolved to literal
       specVal = upspec[key] = {value: specVal};
     }
 
@@ -151,8 +154,7 @@ exporter.mark = function(state, internal, id) {
     // specVal was replaced above (e.g., scale + signal).
     if (origScale) {
       specVal.scale = name(getInVis(state, 'scales.' + origScale + '.name'));
-      count = counts.scales[origScale] ||
-        (counts.scales[origScale] = dl.duplicate(SCALE_COUNT));
+      count = counts.scales[origScale] || (counts.scales[origScale] = dl.duplicate(SCALE_COUNT));
       count.marks[id] = true;
     }
 
@@ -171,46 +173,47 @@ exporter.mark = function(state, internal, id) {
 };
 
 exporter.group = function(state, internal, id) {
-  var mark = getInVis(state, 'marks.' + id).toJS(),
-      spec = exporter.mark(state, internal, id),
-      group = internal ? spec[0] : spec;
+  const mark = getInVis(state, 'marks.' + id).toJS(),
+    spec = exporter.mark(state, internal, id),
+    group = internal ? spec[0] : spec;
 
   ['scale', 'mark', 'axe', 'legend'].forEach(function(childType) {
-    var childTypes = childType + 's', // Pluralized for spec key.
-        storePath  = childTypes === 'axes' || childTypes === 'legends' ?
-          'guides' : childTypes;
+    const childTypes = childType + 's', // Pluralized for spec key.
+      storePath = childTypes === 'axes' || childTypes === 'legends' ? 'guides' : childTypes;
 
     // Route export to the most appropriate function.
-    group[childTypes] = mark[childTypes].map(function(cid) {
-      if (getInVis(state, storePath + '.' + cid)) {
-        var child = getInVis(state, storePath + '.' + cid).toJS();
+    group[childTypes] = mark[childTypes]
+      .map(function(cid) {
+        if (getInVis(state, storePath + '.' + cid)) {
+          const child = getInVis(state, storePath + '.' + cid).toJS();
 
-        if (exporter[child.type]) {
-          return exporter[child.type](state, internal, cid);
-        } else if (exporter[childType]) {
-          return exporter[childType](state, internal, cid);
+          if (exporter[child.type]) {
+            return exporter[child.type](state, internal, cid);
+          } else if (exporter[childType]) {
+            return exporter[childType](state, internal, cid);
+          }
+
+          return clean(dl.duplicate(child), internal);
         }
-
-        return clean(dl.duplicate(child), internal);
-      }
-    }).reduce(function(children, child) {
-      // If internal === true, children are an array of arrays which must be flattened.
-      if (dl.isArray(child)) {
-        children.push.apply(children, child);
-      } else if (child) {
-        children.push(child);
-      }
-      return children;
-    }, []);
+      })
+      .reduce(function(children, child) {
+        // If internal === true, children are an array of arrays which must be flattened.
+        if (dl.isArray(child)) {
+          children.push.apply(children, child);
+        } else if (child) {
+          children.push(child);
+        }
+        return children;
+      }, []);
   });
 
   return spec;
 };
 
 exporter.area = function(state, internal, id) {
-  var spec = exporter.mark(state, internal, id),
-      area = internal ? spec[0] : spec,
-      update = area.properties.update;
+  const spec = exporter.mark(state, internal, id),
+    area = internal ? spec[0] : spec,
+    update = area.properties.update;
 
   // Export with dummy data to have an initial area appear on the canvas.
   if (!area.from) {
@@ -229,9 +232,9 @@ exporter.area = function(state, internal, id) {
 };
 
 exporter.line = function(state, internal, id) {
-  var spec = exporter.mark(state, internal, id),
-      line = internal ? spec[0] : spec,
-      update = line.properties.update;
+  const spec = exporter.mark(state, internal, id),
+    line = internal ? spec[0] : spec,
+    update = line.properties.update;
 
   // Export with dummy data to have an initial area appear on the canvas.
   if (!line.from) {
@@ -244,8 +247,8 @@ exporter.line = function(state, internal, id) {
 };
 
 exporter.scale = function(state, internal, id) {
-  var scale = getInVis(state, 'scales.' + id).toJS(),
-      spec  = clean(dl.duplicate(scale), internal);
+  const scale = getInVis(state, 'scales.' + id).toJS(),
+    spec = clean(dl.duplicate(scale), internal);
 
   counts.scales[id] = counts.scales[id] || dl.duplicate(SCALE_COUNT);
 
@@ -258,7 +261,7 @@ exporter.scale = function(state, internal, id) {
   }
 
   // TODO: Sorting multiple datasets?
-  var sortOrder = dl.isObject(spec.domain) && spec.domain._sortOrder;
+  const sortOrder = dl.isObject(spec.domain) && spec.domain._sortOrder;
   if (sortOrder) {
     spec.reverse = sortOrder === ORDER.DESC ? !spec.reverse : !!spec.reserve;
   }
@@ -267,23 +270,24 @@ exporter.scale = function(state, internal, id) {
 };
 
 exporter.axe = exporter.legend = function(state, internal, id) {
-  var guide = getInVis(state, 'guides.' + id).toJS(),
-      spec  = clean(dl.duplicate(guide), internal),
-      gtype = guide._gtype,
-      type  = guide._type;
+  const guide = getInVis(state, 'guides.' + id).toJS(),
+    spec = clean(dl.duplicate(guide), internal),
+    gtype = guide._gtype,
+    type = guide._type;
 
-  if (gtype === GTYPES.AXIS) {
+  if (gtype === GuideType.Axis) {
     counts.scales[spec.scale].guides[id] = true;
     spec.scale = name(getInVis(state, 'scales.' + spec.scale + '.name'));
-  } else if (gtype === GTYPES.LEGEND) {
+  } else if (gtype === GuideType.Legend) {
     counts.scales[spec[type]].guides[id] = true;
     spec[type] = name(getInVis(state, 'scales.' + spec[type] + '.name'));
   }
 
   dl.keys(spec.properties).forEach(function(prop) {
-    var def = spec.properties[prop];
+    const def = spec.properties[prop];
     dl.keys(def).forEach(function(key) {
-      if (!dl.isObject(def[key])) {  // signalRef resolved to literal
+      if (!dl.isObject(def[key])) {
+        // signalRef resolved to literal
         def[key] = {value: def[key]};
       }
     });
@@ -298,7 +302,7 @@ exporter.axe = exporter.legend = function(state, internal, id) {
  * @param  {string} str The name of a primitive that may contain spaces
  * @returns {string} The name, where spaces are replaced with underscores.
  */
-function name(str) {
+function name(str: string): string {
   return str.replace(/\s/g, '_');
 }
 
@@ -310,8 +314,8 @@ function name(str) {
  * @param {Boolean} internal - Whether to resolve signal references to values.
  * @returns {Object} A cleaned spec object
  */
-function clean(spec, internal) {
-  var key, prop, cleanKey;
+function clean(spec, internal: boolean) {
+  let key, prop, cleanKey;
   for (key in spec) {
     prop = spec[key];
     cleanKey = key.startsWith('_');
@@ -335,7 +339,7 @@ function clean(spec, internal) {
 }
 
 function getCounts(recount) {
-  var key, entry;
+  let key, entry;
   if (recount) {
     exporter();
   } else if (counts._totaled) {
@@ -354,7 +358,7 @@ function getCounts(recount) {
     entry.total = entry.markTotal + entry.guideTotal;
   }
 
-  return (counts._totaled = true, counts);
+  return (counts._totaled = true), counts;
 }
 
 /**
@@ -371,8 +375,13 @@ function getCounts(recount) {
  * @returns {Object} A Vega DataRef
  */
 function dataRef(state, scale, ref) {
-  var sets = {},
-      data, did, field, i, len, keys;
+  let sets = {},
+    data,
+    did,
+    field,
+    i,
+    len,
+    keys;
 
   // One ref
   if (ref.length === 1) {
@@ -385,7 +394,7 @@ function dataRef(state, scale, ref) {
   for (i = 0, len = ref.length; i < len; ++i) {
     data = getInVis(state, 'datasets.' + ref[i].data);
     field = ref[i].field;
-    sets[did = data.get('_id')] = sets[did] || (sets[did] = []);
+    sets[(did = data.get('_id'))] = sets[did] || (sets[did] = []);
     sets[did].push(field);
   }
 
@@ -404,18 +413,17 @@ function dataRef(state, scale, ref) {
 }
 
 function sortDataRef(data, scale, field) {
-  var ref = {data: name(data.get('name')), field: field};
+  const ref = {data: name(data.get('name')), field: field};
   if (scale.type === 'ordinal' && data.get('_sort')) {
-    var sortField = getIn(data, '_sort.field');
+    const sortField = getIn(data, '_sort.field');
     return dl.extend(ref, {
-      sort: sortField === ref.field ? true :
-        {field: sortField, op: 'min'},
+      sort: sortField === ref.field ? true : {field: sortField, op: 'min'},
       _sortOrder: getIn(data, '_sort.order')
     });
   }
 
-  var dsId = data.get('_id'),
-      count = counts.data[dsId] || (counts.data[dsId] = dl.duplicate(DATA_COUNT));
+  const dsId = data.get('_id'),
+    count = counts.data[dsId] || (counts.data[dsId] = dl.duplicate(DATA_COUNT));
   count.scales[scale._id] = true;
   return ref;
 }
