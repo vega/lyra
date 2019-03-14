@@ -31,7 +31,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  bindChannel: (dsId: number, field: any, markId: number, property: any) => void;
+  bindChannel: (dsId: number, field: any, markId: number, property: string) => void;
 }
 
 interface OwnState {

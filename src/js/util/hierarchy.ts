@@ -1,10 +1,11 @@
 'use strict';
+import {store, State} from '../store';
+import {Mark} from '../store/factory/Mark';
 
-var Bounds = require('vega-scenegraph').Bounds,
-    store = require('../store'),
-    imutils = require('./immutable-utils'),
-    getIn = imutils.getIn,
-    getInVis = imutils.getInVis;
+const Bounds = require('vega-scenegraph').Bounds,
+  imutils = require('./immutable-utils'),
+  getIn = imutils.getIn,
+  getInVis = imutils.getInVis;
 
 /**
  * Find the parent item for a given mark.
@@ -14,7 +15,7 @@ var Bounds = require('vega-scenegraph').Bounds,
  * otherwise uses the Lyra store.
  * @returns {ImmutableMap|null} The requested mark, if present, else null
  */
-function getParent(mark, state) {
+function getParent(mark: Mark, state: State) {
   state = state || store.getState();
   return getInVis(state, 'marks.' + mark.get('_parent')) || null;
 }
@@ -28,15 +29,15 @@ function getParent(mark, state) {
  * otherwise uses the Lyra store.
  * @returns {ImmutableMap[]} An array of primitives.
  */
-function getParents(primitive, state) {
+function getParents(primitive, state: State) {
   if (!primitive) {
     return [];
   }
-  var current = primitive.get('_parent') && getParent(primitive, state);
+  let current = primitive.get('_parent') && getParent(primitive, state);
   if (!current) {
     return [];
   }
-  var parents = [current];
+  const parents = [current];
   while (current && current.get('_parent')) {
     current = getParent(current, state);
     if (current) {
@@ -70,7 +71,7 @@ function getGroupIds(primitives) {
  * otherwise uses the Lyra store.
  * @returns {number[]} An array of the (lyra) IDs of the primitive's parent layers.
  */
-function getParentGroupIds(markId, state) {
+function getParentGroupIds(markId: number, state: State) {
   state = state || store.getState();
   return getGroupIds(getParents(getInVis(state, 'marks.' + markId), state));
 }
@@ -85,10 +86,10 @@ function getParentGroupIds(markId, state) {
  * @returns {number|null} The ID of the nearest group or scene, if found, or null
  * if the mark is invalid or there was no group or scene ancestor available
  */
-function getClosestGroupId(id, state) {
+function getClosestGroupId(id: number, state: State) {
   state = state || store.getState();
-  var markId = id || getIn(state, 'inspector.encodings.selectedId'),
-      mark = getInVis(state, 'marks.' + markId);
+  const markId = id || getIn(state, 'inspector.encodings.selectedId'),
+    mark = getInVis(state, 'marks.' + markId);
 
   if (!mark) {
     return getInVis(state, 'scene.id');
@@ -113,10 +114,19 @@ function getClosestGroupId(id, state) {
  * @returns {Object|null} The matched item, or null;
  */
 function findInItemTree(item, path) {
-  var vis = document.querySelector('.vis-container'),
-      offset = {x: 0, y: 0},
-      itemX = +Number.MAX_VALUE, itemY = +Number.MAX_VALUE,
-      id, items, i, j, len, bounds, closer, intersects, closest;
+  const vis = document.querySelector('.vis-container'),
+    offset = {x: 0, y: 0};
+  let itemX = +Number.MAX_VALUE,
+    itemY = +Number.MAX_VALUE,
+    id,
+    items,
+    i,
+    j,
+    len,
+    bounds,
+    closer,
+    intersects,
+    closest;
 
   for (i = path.length - 1; i >= 0; --i) {
     id = path[i];
@@ -140,9 +150,11 @@ function findInItemTree(item, path) {
 
   // Now that we have a scenegraph item corresponding to our selected mark, we
   // want to select an item within the visible viewport.
-  var viewport = new Bounds({
-    x1: vis.scrollLeft, x2: 300 + vis.scrollLeft,
-    y1: vis.scrollTop, y2: 200 + vis.scrollTop
+  const viewport = new Bounds({
+    x1: vis.scrollLeft,
+    x2: 300 + vis.scrollLeft,
+    y1: vis.scrollTop,
+    y2: 200 + vis.scrollTop
   });
 
   if (item && item.mark.items.length > 1) {
