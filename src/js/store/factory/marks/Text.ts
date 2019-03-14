@@ -16,6 +16,7 @@ export const Text = Record<LyraTextMark>({
   _id: null,
   _parent: null,
   type: 'text',
+  name: null,
   encode: {
     update: {
       dx: {value: 0, offset: 0},

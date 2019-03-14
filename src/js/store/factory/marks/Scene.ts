@@ -15,6 +15,7 @@ export const Scene = Record<LyraSceneMark>({
   axes: [],
   legends: [],
   marks: [],
+  name: null,
   encode: {
     update: {
       fill: undefined,
