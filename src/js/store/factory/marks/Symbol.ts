@@ -45,20 +45,20 @@ export function getHandleStreams(symbol: SymbolRecord): HandleStreams {
   const x = propSg(id, 'symbol', 'x');
   const y = propSg(id, 'symbol', 'y');
   const size = propSg(id, 'symbol', 'size');
-  const DELTA = sg.DELTA;
+  const DELTA: string = sg.DELTA.name;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};
 
   streams[x] = [{
-    events: DELTA, update: test(at(), x + '+' + DX, x)
+    events: {signal: DELTA}, update: test(at(), x + '+' + DX, x)
   }];
   streams[y] = [{
-    events: DELTA, update: test(at(), y + '+' + DY, y)
+    events: {signal: DELTA}, update: test(at(), y + '+' + DY, y)
   }];
   streams[size] = [
-    {events: DELTA, update: test(at('top'), size + '-(' + DY + '<<5)', size)},
-    {events: DELTA, update: test(at('bottom'), size + '+(' + DY + '<<5)', size)}
+    {events: {signal: DELTA}, update: test(at('top'), size + '-(' + DY + '<<5)', size)},
+    {events: {signal: DELTA}, update: test(at('bottom'), size + '+(' + DY + '<<5)', size)}
   ];
   return streams;
 };

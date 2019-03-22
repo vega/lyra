@@ -52,23 +52,23 @@ export function getHandleStreams(text: TextRecord): HandleStreams {
   const x = propSg(id, 'text', 'x');
   const y = propSg(id, 'text', 'y');
   const fontSize = propSg(id, 'text', 'fontSize');
-  const DELTA = sg.DELTA;
+  const DELTA: string = sg.DELTA.name;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};
 
   streams[x] = [{
-    events: DELTA, update: test(at(), x + '+' + DX, x)
+    events: {signal: DELTA}, update: test(at(), x + '+' + DX, x)
   }];
   streams[y] = [{
-    events: DELTA, update: test(at(), y + '+' + DY, y)
+    events: {signal: DELTA}, update: test(at(), y + '+' + DY, y)
   }];
   // Allow upper-left and lower-right handles to control font size
   streams[fontSize] = [
-    {events: DELTA, update: test(at('left') + '&&' + at('top'), fontSize + '-' + DX, fontSize)},
-    {events: DELTA, update: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DX, fontSize)},
-    {events: DELTA, update: test(at('left') + '&&' + at('top'), fontSize + '-' + DY, fontSize)},
-    {events: DELTA, update: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DY, fontSize)}
+    {events: {signal: DELTA}, update: test(at('left') + '&&' + at('top'), fontSize + '-' + DX, fontSize)},
+    {events: {signal: DELTA}, update: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DX, fontSize)},
+    {events: {signal: DELTA}, update: test(at('left') + '&&' + at('top'), fontSize + '-' + DY, fontSize)},
+    {events: {signal: DELTA}, update: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DY, fontSize)}
   ];
   return streams;
 };
