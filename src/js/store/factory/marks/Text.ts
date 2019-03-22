@@ -1,5 +1,5 @@
 import {Record, RecordOf} from 'immutable';
-import {TextMark} from 'vega-typings';
+import {TextMark, Align, Baseline, FontStyle, FontWeight} from 'vega-typings';
 import {HandleStreams} from '../Mark';
 
 const anchorTarget = require('../../../util/anchor-target');
@@ -72,3 +72,9 @@ export function getHandleStreams(text: TextRecord): HandleStreams {
   ];
   return streams;
 };
+
+export const TextAlignments: Align[] = ['left', 'center', 'right'];
+export const TextBaselines: Baseline[] = ['top', 'middle', 'bottom'];
+export const TextFonts = ['Helvetica', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Trebuchet MS'];
+export const TextFontStyles: FontStyle[] = ['normal', 'italic'];
+export const TextFontWeights: FontWeight[] = ['normal', 'bold'];

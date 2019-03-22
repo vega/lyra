@@ -12,6 +12,7 @@ import { Dispatch } from 'redux';
 import {updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store';
 import {Property} from './Property';
+import {TextAlignments, TextBaselines, TextFonts, TextFontStyles, TextFontWeights} from '../../store/factory/marks/Text';
 
 interface OwnProps {
   primId?: number;
@@ -71,17 +72,17 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
           <h3>Font</h3>
 
           <Property name='font' label='Face' type='select'
-            opts={Text.fonts} canDrop={true} {...props} />
+            opts={TextFonts} canDrop={true} {...props} />
 
           <Property name='fontSize' label='Size' type='number'
             canDrop={true} {...props} />
 
           <Property name='fontWeight' label='Weight' type='toggle'
-            glyph={assets.bold} opts={Text.fontWeights}
+            glyph={assets.bold} opts={TextFontWeights}
             canDrop={true} {...props} />
 
           <Property name='fontStyle' label='Style' type='toggle'
-            glyph={assets.italic} opts={Text.fontStyles}
+            glyph={assets.italic} opts={TextFontStyles}
             canDrop={true} {...props} />
 
           <Property name='fill' label='Color' type='color'
@@ -114,12 +115,12 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
           <Property name='align' label='Horizontal' type='selection'
             glyphs={[assets['align-left'],
                      assets['align-center'], assets['align-right']]}
-            opts={Text.alignments} canDrop={true} {...props} />
+            opts={TextAlignments} canDrop={true} {...props} />
 
           <Property name='baseline' label='Vertical' type='selection'
             glyphs={[assets['vertical-align-top'],
                      assets['vertical-align-center'], assets['vertical-align-bottom']]}
-            opts={Text.baselines} canDrop={true} {...props} />
+            opts={TextBaselines} canDrop={true} {...props} />
 
           <Property name='angle' label='Rotation' type='number'
             canDrop={true} {...props} />
