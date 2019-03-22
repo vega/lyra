@@ -1,5 +1,5 @@
 import {Map} from 'immutable';
-import {MarkType} from 'vega-typings';
+import {MarkType, OnEvent} from 'vega-typings';
 import {Area, AreaRecord, getHandleStreams as areaHandleStreams, LyraAreaMark} from './marks/Area';
 import {Group, GroupRecord, LyraGroupMark} from './marks/Group';
 import {getHandleStreams as lineHandleStreams, Line, LineRecord, LyraLineMark} from './marks/Line';
@@ -71,6 +71,8 @@ export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord
 
 export type MarkState = Map<string, MarkRecord>;
 
+export type HandleStreams = {[s: string]: OnEvent[];};
+
 /**
  * Return an object of signal stream definitions for handle manipulators for the
  * specified mark.
@@ -80,7 +82,7 @@ export type MarkState = Map<string, MarkRecord>;
  * @param {string} mark.type - A mark type, such as "text" or "rect"
  * @returns {Object} A dictionary of signal stream definitions
  */
-Mark.getHandleStreams = function(mark: MarkRecord) {
+Mark.getHandleStreams = function(mark: MarkRecord): HandleStreams {
   switch(mark.type) {
     case 'symbol': return symbolHandleStreams(mark);
     case 'area': return areaHandleStreams(mark);
