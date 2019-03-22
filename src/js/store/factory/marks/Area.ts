@@ -1,8 +1,9 @@
 'use strict';
 
 import {Record, RecordOf} from 'immutable';
-import {AreaMark} from 'vega-typings';
+import {AreaMark, OnEvent} from 'vega-typings';
 import {HandleStreams} from '../Mark';
+import {SignalRecord} from '../Signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -54,36 +55,36 @@ export function getHandleStreams(area: AreaRecord): HandleStreams {
   const y2 = propSg(id, 'area', 'y2');
   const w = propSg(id, 'area', 'width');
   const h = propSg(id, 'area', 'height');
-  const DELTA = sg.DELTA;
+  const DELTA: string = sg.DELTA.name;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};
 
   streams[x] = [{
-    events: DELTA, update: test(at() + '||' + at('left'), x + '+' + DX, x)
+    events: {signal: DELTA}, update: test(at() + '||' + at('left'), x + '+' + DX, x)
   }];
   streams[xc] = [{
-    events: DELTA, update: test(at() + '||' + at('left'), xc + '+' + DX, xc)
+    events: {signal: DELTA}, update: test(at() + '||' + at('left'), xc + '+' + DX, xc)
   }];
   streams[x2] = [{
-    events: DELTA, update: test(at() + '||' + at('right'), x2 + '+' + DX, x2)
+    events: {signal: DELTA}, update: test(at() + '||' + at('right'), x2 + '+' + DX, x2)
   }];
   streams[y] = [{
-    events: DELTA, update: test(at() + '||' + at('top'), y + '+' + DY, y)
+    events: {signal: DELTA}, update: test(at() + '||' + at('top'), y + '+' + DY, y)
   }];
   streams[yc] = [{
-    events: DELTA, update: test(at() + '||' + at('top'), yc + '+' + DY, yc)
+    events: {signal: DELTA}, update: test(at() + '||' + at('top'), yc + '+' + DY, yc)
   }];
   streams[y2] = [{
-    events: DELTA, update: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
+    events: {signal: DELTA}, update: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
   }];
   streams[w] = [
-    {events: DELTA, update: test(at('left'), w + '-' + DX, w)},
-    {events: DELTA, update: test(at('right'), w + '+' + DX, w)}
+    {events: {signal: DELTA}, update: test(at('left'), w + '-' + DX, w)},
+    {events: {signal: DELTA}, update: test(at('right'), w + '+' + DX, w)}
   ];
   streams[h] = [
-    {events: DELTA, update: test(at('top'), h + '-' + DY, h)},
-    {events: DELTA, update: test(at('bottom'), h + '+' + DY, h)}
+    {events: {signal: DELTA}, update: test(at('top'), h + '-' + DY, h)},
+    {events: {signal: DELTA}, update: test(at('bottom'), h + '+' + DY, h)}
   ];
   return streams;
 };
