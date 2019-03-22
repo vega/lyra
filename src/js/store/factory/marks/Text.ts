@@ -1,5 +1,6 @@
 import {Record, RecordOf} from 'immutable';
-import {OnEvent, TextMark} from 'vega-typings';
+import {TextMark} from 'vega-typings';
+import {HandleStreams} from '../Mark';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -44,7 +45,7 @@ export type TextRecord = RecordOf<LyraTextMark>;
  * @param {string} text.type - A mark type, presumably "text"
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
-export function getHandleStreams(text: TextRecord): {[s: string]: OnEvent[];} {
+export function getHandleStreams(text: TextRecord): HandleStreams {
   const sg = require('../../../ctrl/signals');
   const at = anchorTarget.bind(null, text, 'handles');
   const id = text._id;
@@ -54,7 +55,7 @@ export function getHandleStreams(text: TextRecord): {[s: string]: OnEvent[];} {
   const DELTA = sg.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
-  const streams: {[s: string]: OnEvent[];} = {};
+  const streams: HandleStreams = {};
 
   streams[x] = [{
     events: DELTA, update: test(at(), x + '+' + DX, x)

@@ -1,5 +1,6 @@
 import {Record, RecordOf} from 'immutable';
-import {LineMark, OnEvent} from 'vega-typings';
+import {LineMark} from 'vega-typings';
+import {HandleStreams} from '../Mark';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -39,7 +40,7 @@ export type LineRecord = RecordOf<LyraLineMark>;
  * @param {string} line.type - A mark type, presumably "line"
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
-export function getHandleStreams(line: LineRecord): {[s: string]: OnEvent[];} {
+export function getHandleStreams(line: LineRecord): HandleStreams {
   const sg = require('../../../ctrl/signals');
   const at = anchorTarget.bind(null, line, 'handles');
   const id = line._id;
@@ -48,7 +49,7 @@ export function getHandleStreams(line: LineRecord): {[s: string]: OnEvent[];} {
   const DELTA = sg.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
-  const streams: {[s: string]: OnEvent[];} = {};
+  const streams: HandleStreams = {};
 
   streams[x] = [{
     events: DELTA, update: test(at(), x + '+' + DX, x)
