@@ -58,5 +58,3 @@ export function getHandleStreams(line: LineRecord): {[s: string]: OnEvent[];} {
   }];
   return streams;
 };
-
-module.exports = Line;

@@ -90,21 +90,3 @@ Mark.getHandleStreams = function(mark: MarkRecord) {
     case 'rect': return rectHandleStreams(mark);
   }
 };
-
-/**
- * Custom extend method that deletes undefined keys.
- * @param   {Object} obj Javascript object to extend
- * @returns {Object}     Extended Javascript object.
- */
-// function extend(obj) {
-//   for (let x, key, i = 1, len = arguments.length; i < len; ++i) {
-//     x = arguments[i];
-//     for (key in x) {
-//       obj[key] = x[key];
-//       if (x[key] === undefined) {
-//         delete obj[key];
-//       }
-//     }
-//   }
-//   return obj;
-// }
