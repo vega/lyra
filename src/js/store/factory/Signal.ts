@@ -32,10 +32,10 @@ export const defaultSignalState: SignalState = Map({
     name: SELECTED,
     value: {mark: {}},
     on: [
-      {events: 'mousedown[eventItem().mark && eventItem().mark.name &&' +
-          'eventItem().mark.name !== ' + dl.str(CELL) + ']',
-        update: 'eventItem()'},
-      {events: 'mousedown[!eventItem().mark]', update: '{mark: {}}'}
+      {events: 'mousedown[item().mark && item().mark.name &&' +
+          'item().mark.name !== ' + dl.str(CELL) + ']',
+        update: 'item()'},
+      {events: 'mousedown[!item().mark]', update: '{mark: {}}'}
     ],
     _idx: 0
   }),
@@ -49,7 +49,7 @@ export const defaultSignalState: SignalState = Map({
     value: 0,
     on: [
       {events: '[mousedown, window:mouseup] > window:mousemove',
-        update: '{x: eventX() - lyra_anchor.x, y: eventY() - lyra_anchor.y}'}
+        update: '{x: x() - lyra_anchor.x, y: y() - lyra_anchor.y}'}
     ],
     _idx: 2
   }),
@@ -58,9 +58,9 @@ export const defaultSignalState: SignalState = Map({
     value: 0,
     on: [
       {events: 'mousedown',
-        update: '{x: eventX(), y: eventY(), target: eventItem()}'},
+        update: '{x: x(), y: y(), target: item()}'},
       {events: '[mousedown, window:mouseup] > window:mousemove',
-        update: '{x: eventX(), y: eventY(), target: lyra_anchor.target}'}
+        update: '{x: x(), y: y(), target: lyra_anchor.target}'}
     ],
     _idx: 3
   }),
@@ -68,9 +68,9 @@ export const defaultSignalState: SignalState = Map({
     name: CELL,
     value: {},
     on: [
-      {events: '@' + CELL + ':dragover', update: 'eventItem()'},
+      {events: '@' + CELL + ':dragover', update: 'item()'},
       {events: '@' + CELL + ':dragleave', update: '{}'},
-      // {events: '@'+CELL+':mouseover', update: 'eventItem()'},
+      // {events: '@'+CELL+':mouseover', update: 'item()'},
       // {events: '@'+CELL+':mouseout',  update: '{}'}
     ],
     _idx: 4
@@ -79,14 +79,14 @@ export const defaultSignalState: SignalState = Map({
     name: MOUSE,
     value: {},
     on: [
-      {events: 'mousemove, dragover', update: '{x: eventX(), y: eventY()}'}
+      {events: 'mousemove, dragover', update: '{x: x(), y: y()}'}
     ],
     _idx: 5
   }),
   CURSOR: Signal({
     name: CURSOR,
     on: [
-      {events: 'mousedown', update: "eventItem() && eventItem().cursor || 'default'"},
+      {events: 'mousedown', update: "item() && item().cursor || 'default'"},
       {events: 'mouseup', update: "'default'"}
     ]
   })
