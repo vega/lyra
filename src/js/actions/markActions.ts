@@ -5,15 +5,12 @@ import {Encode} from 'vega-typings';
 import {State} from '../store';
 import { LyraMark, LyraMarkType, Mark, MarkRecord } from '../store/factory/Mark'; // HELP
 import {endBatch, startBatch} from './historyActions';
+import { UnitSpec } from 'vega-lite/src/spec';
 
 const counter  = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
 
-// TODO: use the vega-lite unit type, probably defined here:
-// https://github.com/vega/vega-lite/blob/d61deb9e4a2312114ce74945af65fc165309899a/src/spec/unit.ts
-// may require modification of vega-lite typings
-// import { GenericUnitSpec } from 'vega-lite/src/spec/unit';
-type VegaLiteUnit = object;
+export type VegaLiteUnit = UnitSpec;
 
 export const addMark = createStandardAction('ADD_MARK').map((record: MarkRecord) => {
   const id: number = record._id || counter.global();
