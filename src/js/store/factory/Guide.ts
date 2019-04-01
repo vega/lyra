@@ -36,7 +36,7 @@ export const Legend = Record<LyraLegend>({
   symbolFillColor: '#ffffff',
   symbolOpacity: 1,
   strokeColor: '#ffffff',
-  strokeWidth: 0,
+  strokeWidth: '0',
   _id: null
 });
 

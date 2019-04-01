@@ -1,7 +1,7 @@
 import {List, Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import {Type as MTYPES} from 'vega-lite/src/type';
-import {Transform} from 'vega-typings/types';
+import {Transforms} from 'vega-typings/types';
 import * as datasetActions from '../actions/datasetActions';
 import {Column, DatasetState} from '../store/factory/Dataset';
 import * as dsUtil from '../util/dataset-utils';
@@ -42,7 +42,7 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
   if (action.type === getType(datasetActions.addTransform)) {
     const transform = action.payload;
 
-    const transforms: Transform[] = state.getIn([String(id), 'transform']) || List();
+    const transforms: Transforms[] = state.getIn([String(id), 'transform']) || List();
 
     if (transform.type === 'formula') {
       state = state.setIn([String(id), '_schema', transform.as],
