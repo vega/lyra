@@ -1,6 +1,5 @@
 import {List, Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
-import {Type as MTYPES} from 'vega-lite/src/type';
 import {Transforms} from 'vega-typings/types';
 import * as datasetActions from '../actions/datasetActions';
 import {Column, DatasetState} from '../store/factory/Dataset';
@@ -45,17 +44,18 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
     const transforms: Transforms[] = state.getIn([String(id), 'transform']) || List();
 
     if (transform.type === 'formula') {
-      state = state.setIn([String(id), '_schema', transform.as],
+      state = state.setIn(
+        [String(id), '_schema', transform.as],
         Column({
           name: transform.as,
           type: 'number',
-          mtype: MTYPES.QUANTITATIVE,
+          mtype: 'quantitative',
           source: false
-        }));
+        })
+      );
     }
 
-    return state.setIn([String(id), 'transform'],
-      transforms.push(transform));
+    return state.setIn([String(id), 'transform'], transforms.push(transform));
   }
 
   if (action.type === getType(datasetActions.updateTransform)) {
@@ -74,17 +74,24 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
   }
 
   if (action.type === getType(datasetActions.summarizeAggregate)) {
-    state = state.setIn([String(id), 'transform', '0', 'fields'],
-      state.getIn([String(id), 'transform', '0', 'fields']).concat(action.payload.fields));
-    state = state.setIn([String(id), 'transform', '0', 'ops'],
-      state.getIn([String(id), 'transform', '0', 'ops']).concat(action.payload.ops));
-    state = state.setIn([String(id), 'transform', '0', 'as'],
-      state.getIn([String(id), 'transform', '0', 'as']).concat(action.payload.as));
+    state = state.setIn(
+      [String(id), 'transform', '0', 'fields'],
+      state.getIn([String(id), 'transform', '0', 'fields']).concat(action.payload.fields)
+    );
+    state = state.setIn(
+      [String(id), 'transform', '0', 'ops'],
+      state.getIn([String(id), 'transform', '0', 'ops']).concat(action.payload.ops)
+    );
+    state = state.setIn(
+      [String(id), 'transform', '0', 'as'],
+      state.getIn([String(id), 'transform', '0', 'as']).concat(action.payload.as)
+    );
 
     const src = state.getIn([String(id), 'source']);
-    return state.setIn([String(id), '_schema'],
-      dsUtil.aggregateSchema(state.getIn([src, '_schema']),
-        state.getIn([String(id), 'transform', '0'])));
+    return state.setIn(
+      [String(id), '_schema'],
+      dsUtil.aggregateSchema(state.getIn([src, '_schema']), state.getIn([String(id), 'transform', '0']))
+    );
   }
 
   return state;
