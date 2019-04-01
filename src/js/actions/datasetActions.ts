@@ -1,5 +1,5 @@
 import {createStandardAction} from 'typesafe-actions';
-import {AggregateTransform, Compare, Transform} from 'vega-typings/types';
+import {AggregateTransform, Compare, Transforms} from 'vega-typings/types';
 import {DatasetRecord, MType} from '../store/factory/Dataset';
 
 const counter = require('../util/counter');
@@ -17,6 +17,6 @@ export const sortDataset = createStandardAction('SORT_DATASET')<Compare, number>
 
 export const summarizeAggregate = createStandardAction('SUMMARIZE_AGGREGATE')<AggregateTransform, number>();
 
-export const addTransform = createStandardAction('ADD_DATA_TRANSFORM')<Transform, number>();
+export const addTransform = createStandardAction('ADD_DATA_TRANSFORM')<Transforms, number>();
 
-export const updateTransform = createStandardAction('UPDATE_DATA_TRANSFORM')<{index: number, transform: Transform}, number>();
+export const updateTransform = createStandardAction('UPDATE_DATA_TRANSFORM')<{index: number, transform: Transforms}, number>();

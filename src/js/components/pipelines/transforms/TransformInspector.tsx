@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import {Transform} from 'vega-typings/types';
+import {Transforms} from 'vega-typings/types';
 import {updateTransform} from '../../../actions/datasetActions';
 import {Filter as filter} from './Filter';
 import {Formula as formula} from './Formula';
@@ -11,10 +11,10 @@ const capitalize = require('capitalize');
 interface OwnProps {
   dsId: number;
   index: number;
-  def: Transform;
+  def: Transforms;
 }
 interface DispatchProps {
-  updateTransform: (def: Transform) => void;
+  updateTransform: (def: Transforms) => void;
 }
 
 interface OwnState {
