@@ -46,7 +46,7 @@ export function getHandleStreams(line: LineRecord): HandleStreams {
   const id = line._id;
   const x = propSg(id, 'line', 'x');
   const y = propSg(id, 'line', 'y');
-  const DELTA: string = sg.DELTA.name;
+  const DELTA: string = sg.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};

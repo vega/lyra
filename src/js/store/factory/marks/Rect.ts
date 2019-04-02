@@ -55,7 +55,7 @@ export function getHandleStreams(rect: RectRecord | GroupRecord): HandleStreams 
   const y2 = propSg(id, type, 'y2');
   const w = propSg(id, type, 'width');
   const h = propSg(id, type, 'height');
-  const DELTA: string = sg.DELTA.name;
+  const DELTA: string = sg.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};
