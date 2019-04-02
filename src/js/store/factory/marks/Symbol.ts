@@ -1,6 +1,7 @@
 import {Record, RecordOf} from 'immutable';
 import {SymbolMark} from 'vega-typings';
 import {HandleStreams} from '../Mark';
+import {signalNames} from '../Signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -39,13 +40,12 @@ export type SymbolRecord = RecordOf<LyraSymbolMark>;
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 export function getHandleStreams(symbol: SymbolRecord): HandleStreams {
-  const sg = require('../../../ctrl/signals');
   const at = anchorTarget.bind(null, symbol, 'handles');
   const id = symbol._id;
   const x = propSg(id, 'symbol', 'x');
   const y = propSg(id, 'symbol', 'y');
   const size = propSg(id, 'symbol', 'size');
-  const DELTA: string = sg.DELTA;
+  const DELTA: string = signalNames.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};

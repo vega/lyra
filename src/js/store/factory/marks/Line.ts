@@ -1,6 +1,7 @@
 import {Record, RecordOf} from 'immutable';
 import {LineMark, SignalRef} from 'vega-typings';
 import {HandleStreams} from '../Mark';
+import {signalNames} from '../Signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -41,12 +42,11 @@ export type LineRecord = RecordOf<LyraLineMark>;
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 export function getHandleStreams(line: LineRecord): HandleStreams {
-  const sg = require('../../../ctrl/signals');
   const at = anchorTarget.bind(null, line, 'handles');
   const id = line._id;
   const x = propSg(id, 'line', 'x');
   const y = propSg(id, 'line', 'y');
-  const DELTA: string = sg.DELTA;
+  const DELTA: string = signalNames.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};

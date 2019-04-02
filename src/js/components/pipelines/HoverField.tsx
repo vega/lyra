@@ -10,10 +10,10 @@ import FieldType from './FieldType';
 import FilterIcon from './transforms/FilterIcon';
 import FormulaIcon from './transforms/FormulaIcon';
 import SortIcon from './transforms/SortIcon';
+import sg from '../../ctrl/signals';
 
 const dl = require('datalib');
 const ctrl = require('../../ctrl');
-const sg = require('../../ctrl/signals');
 const bindChannel = require('../../actions/bindChannel');
 
 const getInVis = require('../../util/immutable-utils').getInVis;

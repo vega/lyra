@@ -1,9 +1,9 @@
 'use strict';
 
 import {Record, RecordOf} from 'immutable';
-import {AreaMark, OnEvent} from 'vega-typings';
+import {AreaMark} from 'vega-typings';
 import {HandleStreams} from '../Mark';
-import {SignalRecord} from '../Signal';
+import {signalNames} from '../Signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -44,7 +44,6 @@ export type AreaRecord = RecordOf<LyraAreaMark>;
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 export function getHandleStreams(area: AreaRecord): HandleStreams {
-  const sg = require('../../../ctrl/signals');
   const at = anchorTarget.bind(null, area, 'handles');
   const id = area._id;
   const x  = propSg(id, 'area', 'x');
@@ -55,7 +54,7 @@ export function getHandleStreams(area: AreaRecord): HandleStreams {
   const y2 = propSg(id, 'area', 'y2');
   const w = propSg(id, 'area', 'width');
   const h = propSg(id, 'area', 'height');
-  const DELTA: string = sg.DELTA;
+  const DELTA: string = signalNames.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};

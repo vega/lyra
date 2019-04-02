@@ -1,14 +1,10 @@
-'use strict';
-var dl = require('datalib'),
-    ns = require('../../util/ns'),
-    store = require('../../store'),
-    getInVis = require('../../util/immutable-utils').getInVis,
-    actions = require('../../actions/signalActions'),
-    initSignal = actions.initSignal,
-    setSignal = actions.setSignal,
-    setSignalStreams = actions.setSignalStreams,
-    unsetSignal = actions.unsetSignal,
-    defaults = require('../../store/factory/Signal');
+import * as signalActions from '../actions/signalActions';
+import {signalNames} from '../store/factory/Signal';
+
+const dl = require('datalib');
+const ns = require('../util/ns');
+const store = require('../store');
+const getInVis = require('../util/immutable-utils').getInVis;
 
 // Utility method to get a signal from the store
 function getSignal(name) {
@@ -28,7 +24,7 @@ function api() {
 
 // Augment the signals API with properties like SELECTED that define the
 // strings used to identify and trigger a given signal
-dl.extend(api, defaults.signalNames);
+dl.extend(api, signalNames);
 
 /**
  * Initialize a signal within the signal store, and return that signal's value.
@@ -38,7 +34,7 @@ dl.extend(api, defaults.signalNames);
  * @returns {Object} An object representing a link to this signal
  */
 api.init = function(name, val) {
-  store.dispatch(initSignal(name, val));
+  store.dispatch(signalActions.initSignal(name, val));
 };
 
 /**
@@ -54,7 +50,7 @@ api.reference = function(name) {
 };
 
 function isDefault(name) {
-  return defaults.names.indexOf(name) >= 0;
+  return name in signalNames;
 }
 api.isDefault = isDefault;
 
@@ -66,7 +62,7 @@ api.isDefault = isDefault;
  * @returns {*} The value of the signal
  */
 api.get = function(name) {
-  var ctrl = require('../'),
+  var ctrl = require('./'),
       // `view` is a vega runtime component; view.signal is a getter/setter
       view = ctrl.view,
       signalObj = getSignal(name),
@@ -91,12 +87,15 @@ api.get = function(name) {
  * @param {boolean} [dispatch=true] - Whether to dispatch the signal to the store
  * @returns {Object} The Signals API object
  */
-api.set = function(name, val, dispatch) {
-  var ctrl = require('../'),
+api.set = function(name, val, dispatch?) {
+  if (dispatch === undefined) {
+    dispatch = true;
+  }
+  var ctrl = require('./'),
       view = ctrl.view;
   // Always flow signals up to the store,
   if (!isDefault(name) && dispatch !== false) {
-    store.dispatch(setSignal(name, val));
+    store.dispatch(signalActions.setSignal(name, val));
   }
 
   // and if we have a Vega view, flow signals down to Vega as well.
@@ -115,7 +114,7 @@ api.set = function(name, val, dispatch) {
  * @returns {void}
  */
 api.delete = function(name) {
-  store.dispatch(unsetSignal(name));
+  store.dispatch(signalActions.unsetSignal(null, name));
 };
 
 /**
@@ -127,8 +126,8 @@ api.delete = function(name) {
  * if called as a setter
  */
 api.streams = function(name, def) {
-  store.dispatch(setSignalStreams(name, def));
+  store.dispatch(signalActions.setSignalStreams(name, def));
 };
 
-module.exports = api;
-window.sg = api;
+export default api as (typeof api & typeof signalNames); // TODO(jzong): hack to get typescript to recognize signal names added by dl.extend, eventually rewrite this file
+(window as any).sg = api;

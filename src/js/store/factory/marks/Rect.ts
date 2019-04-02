@@ -1,7 +1,8 @@
 import {Record, RecordOf} from 'immutable';
-import {RectMark, SignalRef} from 'vega-typings';
+import {RectMark} from 'vega-typings';
 import {GroupRecord} from './Group';
 import {HandleStreams} from '../Mark';
+import {signalNames} from '../Signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -43,7 +44,6 @@ export type RectRecord = RecordOf<LyraRectMark>;
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 export function getHandleStreams(rect: RectRecord | GroupRecord): HandleStreams {
-  const sg = require('../../../ctrl/signals');
   const at = anchorTarget.bind(null, rect, 'handles');
   const id = rect._id;
   const type = rect.type;
@@ -55,7 +55,7 @@ export function getHandleStreams(rect: RectRecord | GroupRecord): HandleStreams 
   const y2 = propSg(id, type, 'y2');
   const w = propSg(id, type, 'width');
   const h = propSg(id, type, 'height');
-  const DELTA: string = sg.DELTA;
+  const DELTA: string = signalNames.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};
