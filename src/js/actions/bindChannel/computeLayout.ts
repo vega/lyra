@@ -4,15 +4,13 @@ import {Dispatch} from "redux";
 import {State} from "../../store";
 import {updateMarkProperty} from '../../actions/markActions';
 import {setSignal} from '../../actions/signalActions';
+import {defaultConfig} from 'vega-lite/src/config';
 
 const dl = require('datalib'),
-    vl = require('vega-lite'),
     dsUtils = require('../../util/dataset-utils'),
     imutils = require('../../util/immutable-utils'),
     getIn = imutils.getIn,
     getInVis = imutils.getInVis;
-
-const MIN_BAND_SIZE = vl.config.defaultConfig.scale.bandSize;
 
 /**
  * Compute a new layout based on the latest data binding. In particular, look
@@ -50,7 +48,7 @@ export function computeLayout(dispatch : Dispatch, state : State, parsed, scale)
   }, 0);
 
   const size = scene.get(range),
-      minSize = (distinct + 1) * MIN_BAND_SIZE;
+      minSize = (distinct + 1) * defaultConfig.scale.minBandSize;
 
   if (size < minSize) {
     resize(dispatch, state, scene, range, minSize);
