@@ -13,9 +13,20 @@ import {AggregateTransform, Datum, Format} from 'vega-typings/types';
 import {Column, ColumnRecord, Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
 import {Pipeline, PipelineRecord} from '../store/factory/Pipeline';
 
+// Taken from vega-lite 1.0.0 src/data.js
+
+import {NOMINAL, QUANTITATIVE, TEMPORAL} from 'vega-lite/src/type';
+
+const MTYPES = {
+  'boolean': NOMINAL,
+  'number': QUANTITATIVE,
+  'integer': QUANTITATIVE,
+  'date': TEMPORAL,
+  'string': NOMINAL
+};
+
 const dl = require('datalib');
 const promisify = require('es6-promisify');
-const MTYPES = require('vega-lite').data.types;
 const imutils = require('./immutable-utils');
 const getInVis = imutils.getInVis;
 

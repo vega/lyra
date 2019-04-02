@@ -4,6 +4,7 @@ import {Transforms} from 'vega-typings/types';
 import * as datasetActions from '../actions/datasetActions';
 import {Column, DatasetState} from '../store/factory/Dataset';
 import * as dsUtil from '../util/dataset-utils';
+import {QUANTITATIVE} from 'vega-lite/src/type';
 
 /**
  * Main datasets reducer function, which generates a new state for the
@@ -49,7 +50,7 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
         Column({
           name: transform.as,
           type: 'number',
-          mtype: 'quantitative',
+          mtype: QUANTITATIVE,
           source: false
         })
       );
