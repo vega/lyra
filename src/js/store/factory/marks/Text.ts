@@ -1,6 +1,7 @@
 import {Record, RecordOf} from 'immutable';
 import {TextMark, Align, Baseline, FontStyle, FontWeight} from 'vega-typings';
 import {HandleStreams} from '../Mark';
+import {signalNames} from '../Signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -46,13 +47,12 @@ export type TextRecord = RecordOf<LyraTextMark>;
  * @returns {Object} A dictionary of stream definitions keyed by signal name
  */
 export function getHandleStreams(text: TextRecord): HandleStreams {
-  const sg = require('../../../ctrl/signals');
   const at = anchorTarget.bind(null, text, 'handles');
   const id = text._id;
   const x = propSg(id, 'text', 'x');
   const y = propSg(id, 'text', 'y');
   const fontSize = propSg(id, 'text', 'fontSize');
-  const DELTA: string = sg.DELTA;
+  const DELTA: string = signalNames.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};
