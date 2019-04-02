@@ -14,6 +14,16 @@ const CURSOR = 'cursor';  // Special vega signal, don't namespace.
 const CELL = ns('cell');
 const MOUSE = ns('mouse');
 
+export const signalNames = {
+  SELECTED,
+  MODE,
+  ANCHOR,
+  DELTA,
+  CURSOR,
+  CELL,
+  MOUSE
+};
+
 export type LyraSignal = {
   _idx: number
 } & VegaSignal;

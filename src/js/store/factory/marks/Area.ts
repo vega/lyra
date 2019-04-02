@@ -55,7 +55,7 @@ export function getHandleStreams(area: AreaRecord): HandleStreams {
   const y2 = propSg(id, 'area', 'y2');
   const w = propSg(id, 'area', 'width');
   const h = propSg(id, 'area', 'height');
-  const DELTA: string = sg.DELTA.name;
+  const DELTA: string = sg.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};

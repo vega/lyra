@@ -52,7 +52,7 @@ export function getHandleStreams(text: TextRecord): HandleStreams {
   const x = propSg(id, 'text', 'x');
   const y = propSg(id, 'text', 'y');
   const fontSize = propSg(id, 'text', 'fontSize');
-  const DELTA: string = sg.DELTA.name;
+  const DELTA: string = sg.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};

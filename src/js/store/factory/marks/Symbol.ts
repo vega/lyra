@@ -45,7 +45,7 @@ export function getHandleStreams(symbol: SymbolRecord): HandleStreams {
   const x = propSg(id, 'symbol', 'x');
   const y = propSg(id, 'symbol', 'y');
   const size = propSg(id, 'symbol', 'size');
-  const DELTA: string = sg.DELTA.name;
+  const DELTA: string = sg.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};
