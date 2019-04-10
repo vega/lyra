@@ -3,13 +3,13 @@
 import {store, State} from '../store';
 import {GuideType} from '../store/factory/Guide';
 import {input} from '../util/dataset-utils';
+import {signalLookup} from '../util/signal-lookup';
 
 const dl = require('datalib'),
   json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
   getIn = imutils.getIn,
   getInVis = imutils.getInVis,
-  signalLookup = require('../util/signal-lookup'),
   manipulators = require('./manipulators'),
   ORDER = require('../constants/sortOrder');
 
@@ -108,7 +108,7 @@ exporter.sort = function(dataset) {
 };
 
 exporter.scene = function(state: State, internal: boolean) {
-  const sceneId = getInVis(state, 'scene.id');
+  const sceneId = getInVis(state, 'scene._id');
   let spec = exporter.group(state, internal, sceneId);
 
   if (internal) {
@@ -118,7 +118,7 @@ exporter.scene = function(state: State, internal: boolean) {
   // Remove mark-specific properties that do not apply to scenes.
   delete spec.type;
   delete spec.from;
-  delete spec.properties;
+  delete spec.encode;
 
   return spec;
 };
@@ -126,8 +126,8 @@ exporter.scene = function(state: State, internal: boolean) {
 exporter.mark = function(state: State, internal: boolean, id: number) {
   const mark = getInVis(state, 'marks.' + id).toJS(),
     spec = clean(dl.duplicate(mark), internal),
-    up = mark.properties.update,
-    upspec = spec.properties.update;
+    up = mark.encode.update,
+    upspec = spec.encode.update;
   let fromId, count;
 
   if (spec.from) {
@@ -213,7 +213,7 @@ exporter.group = function(state: State, internal: boolean, id: number) {
 exporter.area = function(state: State, internal: boolean, id: number) {
   const spec = exporter.mark(state, internal, id),
     area = internal ? spec[0] : spec,
-    update = area.properties.update;
+    update = area.encode.update;
 
   // Export with dummy data to have an initial area appear on the canvas.
   if (!area.from) {
@@ -234,7 +234,7 @@ exporter.area = function(state: State, internal: boolean, id: number) {
 exporter.line = function(state: State, internal: boolean, id: number) {
   const spec = exporter.mark(state, internal, id),
     line = internal ? spec[0] : spec,
-    update = line.properties.update;
+    update = line.encode.update;
 
   // Export with dummy data to have an initial area appear on the canvas.
   if (!line.from) {
@@ -283,8 +283,8 @@ exporter.axe = exporter.legend = function(state: State, internal: boolean, id: n
     spec[type] = name(getInVis(state, 'scales.' + spec[type] + '.name'));
   }
 
-  dl.keys(spec.properties).forEach(function(prop) {
-    const def = spec.properties[prop];
+  dl.keys(spec.encode).forEach(function(prop) {
+    const def = spec.encode[prop];
     dl.keys(def).forEach(function(key) {
       if (!dl.isObject(def[key])) {
         // signalRef resolved to literal
