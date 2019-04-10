@@ -6,6 +6,7 @@ import {Scale} from '../../store/factory/Scale';
 import {addScale, updateScaleProperty, amendDataRef} from '../scaleActions';
 import {updateMarkProperty} from '../markActions';
 import {addScaleToGroup} from './helperActions';
+import {getCounts} from '../../ctrl/export';
 
 const dl = require('datalib'),
   imutils = require('../../util/immutable-utils'),
@@ -39,7 +40,7 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
     aggId = map.data.summary,
     markId = parsed.markId,
     mark = getInVis(state, 'marks.' + markId),
-    counts = require('../../ctrl/export').counts(true),
+    counts = getCounts(true),
     clones = {};
 
   function dataRefHasAgg(ref) {

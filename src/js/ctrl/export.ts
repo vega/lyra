@@ -1,7 +1,8 @@
 'use strict';
 
-import {store} from '../store';
+import {store, State} from '../store';
 import {GuideType} from '../store/factory/Guide';
+import {input} from '../util/dataset-utils';
 
 const dl = require('datalib'),
   json2csv = require('json2csv'),
@@ -9,7 +10,6 @@ const dl = require('datalib'),
   getIn = imutils.getIn,
   getInVis = imutils.getInVis,
   signalLookup = require('../util/signal-lookup'),
-  dsUtils = require('../util/dataset-utils'),
   manipulators = require('./manipulators'),
   ORDER = require('../constants/sortOrder');
 
@@ -29,7 +29,7 @@ let counts = dl.duplicate(SPEC_COUNT);
  * direct-manipulation interactors (handles, connectors, etc.).
  * @returns {Object} A Vega specification.
  */
-function exporter(internal = false) {
+export function exporter(internal: boolean = false) {
   const state = store.getState(),
     int = internal === true;
 
@@ -41,7 +41,7 @@ function exporter(internal = false) {
   return spec;
 }
 
-exporter.pipelines = function(state, internal) {
+exporter.pipelines = function(state: State, internal: boolean) {
   const pipelines = getInVis(state, 'pipelines')
     .valueSeq()
     .toJS();
@@ -56,10 +56,10 @@ exporter.pipelines = function(state, internal) {
   }, []);
 };
 
-exporter.dataset = function(state, internal, id) {
+exporter.dataset = function(state: State, internal: boolean, id: number) {
   const dataset = getInVis(state, 'datasets.' + id).toJS(),
     spec = clean(dl.duplicate(dataset), internal),
-    values = dsUtils.input(id),
+    values = input(id),
     format = spec.format && spec.format.type,
     sort = exporter.sort(dataset);
 
@@ -107,7 +107,7 @@ exporter.sort = function(dataset) {
   };
 };
 
-exporter.scene = function(state, internal) {
+exporter.scene = function(state: State, internal: boolean) {
   const sceneId = getInVis(state, 'scene.id');
   let spec = exporter.group(state, internal, sceneId);
 
@@ -123,7 +123,7 @@ exporter.scene = function(state, internal) {
   return spec;
 };
 
-exporter.mark = function(state, internal, id) {
+exporter.mark = function(state: State, internal: boolean, id: number) {
   const mark = getInVis(state, 'marks.' + id).toJS(),
     spec = clean(dl.duplicate(mark), internal),
     up = mark.properties.update,
@@ -172,7 +172,7 @@ exporter.mark = function(state, internal, id) {
   return spec;
 };
 
-exporter.group = function(state, internal, id) {
+exporter.group = function(state: State, internal: boolean, id: number) {
   const mark = getInVis(state, 'marks.' + id).toJS(),
     spec = exporter.mark(state, internal, id),
     group = internal ? spec[0] : spec;
@@ -210,7 +210,7 @@ exporter.group = function(state, internal, id) {
   return spec;
 };
 
-exporter.area = function(state, internal, id) {
+exporter.area = function(state: State, internal: boolean, id: number) {
   const spec = exporter.mark(state, internal, id),
     area = internal ? spec[0] : spec,
     update = area.properties.update;
@@ -231,7 +231,7 @@ exporter.area = function(state, internal, id) {
   return spec;
 };
 
-exporter.line = function(state, internal, id) {
+exporter.line = function(state: State, internal: boolean, id: number) {
   const spec = exporter.mark(state, internal, id),
     line = internal ? spec[0] : spec,
     update = line.properties.update;
@@ -246,7 +246,7 @@ exporter.line = function(state, internal, id) {
   return spec;
 };
 
-exporter.scale = function(state, internal, id) {
+exporter.scale = function(state: State, internal: boolean, id: number) {
   const scale = getInVis(state, 'scales.' + id).toJS(),
     spec = clean(dl.duplicate(scale), internal);
 
@@ -269,7 +269,7 @@ exporter.scale = function(state, internal, id) {
   return spec;
 };
 
-exporter.axe = exporter.legend = function(state, internal, id) {
+exporter.axe = exporter.legend = function(state: State, internal: boolean, id: number) {
   const guide = getInVis(state, 'guides.' + id).toJS(),
     spec = clean(dl.duplicate(guide), internal),
     gtype = guide._gtype,
@@ -338,7 +338,7 @@ function clean(spec, internal: boolean) {
   return spec;
 }
 
-function getCounts(recount) {
+export function getCounts(recount: boolean) {
   let key, entry;
   if (recount) {
     exporter();
@@ -374,7 +374,7 @@ function getCounts(recount) {
  * @param  {Array}  ref   Array of fields
  * @returns {Object} A Vega DataRef
  */
-function dataRef(state, scale, ref) {
+function dataRef(state: State, scale, ref) {
   let sets = {},
     data,
     did,
