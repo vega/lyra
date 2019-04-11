@@ -44,28 +44,19 @@ export type MarkRecord = AreaRecord | GroupRecord | LineRecord | RectRecord | Sc
  * @returns {Object} A Lyra mark definition.
  */
 export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord {
+  if (values) {
+    values.name = values.name || name(type);
+  } else {
+    values = {name: name(type)}
+  }
   switch(type) {
-    case 'symbol': return Symbol({
-        name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'area': return Area({
-        name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'line': return Line({
-        name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'rect': return Rect({
-        name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'text': return Text({
-        name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'group': return Group({
-        name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'scene': return Scene({
-        name: values && values.name || name(type)
-      }).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
+    case 'symbol': return Symbol(values as Partial<LyraSymbolMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
+    case 'area': return Area(values as Partial<LyraAreaMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
+    case 'line': return Line(values as Partial<LyraLineMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
+    case 'rect': return Rect(values as Partial<LyraRectMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
+    case 'text': return Text(values as Partial<LyraTextMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
+    case 'group': return Group(values as Partial<LyraGroupMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
+    case 'scene': return Scene(values as Partial<LyraSceneMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
   }
 }
 
