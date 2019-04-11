@@ -86,9 +86,9 @@ function getParentGroupIds(markId: number, state: State) {
  * @returns {number|null} The ID of the nearest group or scene, if found, or null
  * if the mark is invalid or there was no group or scene ancestor available
  */
-function getClosestGroupId(id: number, state: State) {
+export function getClosestGroupId(id?: number, state?: State) {
   state = state || store.getState();
-  const markId = id || getIn(state, 'inspector.encodings.selectedId'),
+  const markId = id || getIn(state, 'inspector.encodings.selectedId.props._id'),
     mark = getInVis(state, 'marks.' + markId);
 
   if (!mark) {

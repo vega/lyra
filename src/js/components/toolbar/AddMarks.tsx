@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import {addMark} from '../../actions/markActions';
 import { LyraMarkType, Mark } from '../../store/factory/Mark';
 import { Icon } from '../Icon';
+import {getClosestGroupId} from '../../util/hierarchy';
 
-const getClosestGroupId = require('../../util/hierarchy').getClosestGroupId;
 const assets = require('../../util/assets');
 
 function mapDispatchToProps(dispatch, ownProps) {
