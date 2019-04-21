@@ -11,6 +11,7 @@ import { Dispatch } from 'redux';
 import {State} from '../../store';
 import {Icon} from '../Icon';
 import sg from '../../ctrl/signals';
+import {onSignal, offSignal} from '../../ctrl/listeners';
 
 interface OwnProps {
   id: string;
@@ -93,14 +94,14 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
   public onSignal(signal) {
     signal = signal || this.props.signal;
     if (signal) {
-      ctrl.onSignal(signal, this.signal);
+      onSignal(signal, this.signal);
     }
   };
 
   public offSignal(signal) {
     signal = signal || this.props.signal;
     if (signal) {
-      ctrl.offSignal(signal, this.signal);
+      offSignal(signal, this.signal);
     }
   };
 

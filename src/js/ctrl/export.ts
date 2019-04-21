@@ -38,6 +38,10 @@ export function exporter(internal: boolean = false) {
   const spec = exporter.scene(state, int);
   spec.data = exporter.pipelines(state, int);
 
+  //TODO(rn): remove this, figure out actual default size of scene
+  spec.width = 400;
+  spec.height = 600;
+
   return spec;
 }
 
