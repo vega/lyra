@@ -40,7 +40,7 @@ var sg = require('../ctrl/signals'),
 function recreateVegaIfNecessary(store, ctrl) {
   var state = store.getState(),
       shouldReparse = getIn(state, 'vega.invalid'),
-      sceneId = getInVis(state, 'scene.id');
+      sceneId = getInVis(state, 'scene._id');
 
   if (shouldReparse) {
     if (!sceneId) {
@@ -53,7 +53,7 @@ function recreateVegaIfNecessary(store, ctrl) {
     if (ctrl.view) {
       // Clear out the outdated vega spec: iterate through all registered
       // signal streams and remove their event listeners
-      ctrl.view.destroy();
+      ctrl.view.finalize();
       ctrl.view = null;
     }
     store.dispatch(parseInProgress(true));

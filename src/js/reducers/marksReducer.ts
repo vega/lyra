@@ -7,9 +7,17 @@ import * as sceneActions from '../actions/sceneActions';
 import {MarkRecord, MarkState} from '../store/factory/Mark';
 
 const propSg = require('../util/prop-signal');
-const immutableUtils = require('../util/immutable-utils');
-const ensureValuePresent = immutableUtils.ensureValuePresent;
-const ensureValueAbsent = immutableUtils.ensureValueAbsent;
+const ensureValuePresent = function(state: MarkState, path: String[], valToAdd): MarkState {
+  return state.updateIn(path, marks => {
+    if (marks.indexOf(valToAdd) === -1) {
+      marks.push(valToAdd);
+    }
+    return marks;
+  });
+};
+const ensureValueAbsent = function(state: MarkState, path: String[], valToRemove): MarkState {
+  return state.updateIn(path, marks => marks.filter(c => c !== valToRemove));
+};
 
 // Helper reducer to add a mark to the store. Runs the mark through a method to
 // convert property values into signal references before setting the mark
@@ -19,7 +27,8 @@ const ensureValueAbsent = immutableUtils.ensureValueAbsent;
 function makeMark(action: ActionType<typeof markActions.addMark | typeof sceneActions.createScene>): MarkRecord {
   const def: MarkRecord = action.payload.props;
   const props = def.encode && def.encode.update;
-  return (def as any).merge({ // TODO(jzong) typescript barfs when calling merge on union record types
+  return (def as any).merge({
+    // TODO(jzong) typescript barfs when calling merge on union record types
     encode: {
       update: propSg.convertValuesToSignals(props, def.type, action.meta)
     }
@@ -30,7 +39,7 @@ function makeMark(action: ActionType<typeof markActions.addMark | typeof sceneAc
 // "state" is the marks store state; "action" is an object with a numeric
 // `.childId` and either a numeric `.parentId` (for setting a parent) or `null`
 // (for clearing a parent, e.g. when removing a mark).
-function setParentMark(state: MarkState, params: {parentId: number, childId: number}): MarkState {
+function setParentMark(state: MarkState, params: {parentId: number; childId: number}): MarkState {
   const {parentId, childId} = params;
   // Nothing to do if no child is provided
   if (typeof childId === 'undefined') {
@@ -58,7 +67,7 @@ function setParentMark(state: MarkState, params: {parentId: number, childId: num
     return ensureValueAbsent(
       // First, null out the child's parent reference
       state.setIn([String(childId), '_parent'], null),
-      existingParentId + '.marks',
+      [String(existingParentId), 'marks'],
       childId
     );
   }
@@ -71,10 +80,10 @@ function setParentMark(state: MarkState, params: {parentId: number, childId: num
       ensureValueAbsent(
         // First, update the child's _parent pointer to target the new parent
         state.setIn([String(childId), '_parent'], parentId),
-        existingParentId + '.marks',
+        [String(existingParentId), 'marks'],
         childId
       ),
-      parentId + '.marks',
+      [String(parentId), 'marks'],
       childId
     );
   }
@@ -82,8 +91,8 @@ function setParentMark(state: MarkState, params: {parentId: number, childId: num
   // Setting a parent of a previously-parentless mark
   return ensureValuePresent(
     // First, update the child's _parent pointer to target the new parent
-    state.setIn([String(childId), '_parent'], parentId),
-    parentId + '.marks',
+    state.setIn([String(childId), '_parent'], parentId), //.updateIn([String(parentId), 'marks'], marks => marks.push(childId)),
+    [String(parentId), 'marks'],
     childId
   );
 }
@@ -125,8 +134,14 @@ function setParentMark(state: MarkState, params: {parentId: number, childId: num
  * @param {Object} action - A redux action object
  * @returns {Object} A new Immutable.Map with the changes specified by the action
  */
-export function marksReducer(state: MarkState, action: ActionType<typeof markActions> | ActionType<typeof helperActions> |
-  ActionType<typeof sceneActions.createScene> | ActionType<typeof guideActions.deleteGuide>): MarkState {
+export function marksReducer(
+  state: MarkState,
+  action:
+    | ActionType<typeof markActions>
+    | ActionType<typeof helperActions>
+    | ActionType<typeof sceneActions.createScene>
+    | ActionType<typeof guideActions.deleteGuide>
+): MarkState {
   if (typeof state === 'undefined') {
     return Map();
   }
@@ -141,7 +156,7 @@ export function marksReducer(state: MarkState, action: ActionType<typeof markAct
     // Make the mark and .set it at the provided ID, then pass it through a
     // method that will check to see whether the mark needs to be added as
     // a child of another mark
-    return setParentMark( state.set(String(markId), makeMark(action)), {
+    return setParentMark(state.set(String(markId), makeMark(action)), {
       parentId: action.payload.props ? action.payload.props._parent : null,
       childId: markId
     });
@@ -162,8 +177,7 @@ export function marksReducer(state: MarkState, action: ActionType<typeof markAct
   }
 
   if (action.type === getType(markActions.updateMarkProperty)) {
-    return state.setIn([String(markId), action.payload.property],
-      action.payload.value);
+    return state.setIn([String(markId), action.payload.property], action.payload.value);
   }
 
   if (action.type === getType(markActions.setMarkVisual)) {
@@ -178,13 +192,15 @@ export function marksReducer(state: MarkState, action: ActionType<typeof markAct
     const markType = state.getIn([String(markId), 'type']);
     const property = action.payload;
 
-    return state.setIn([String(markId), 'properties', 'update', property],
-        {signal: propSg(markId, markType, property)});
+    return state.setIn([String(markId), 'properties', 'update', property], {
+      signal: propSg(markId, markType, property)
+    });
   }
 
   if (action.type === getType(markActions.setMarkExtent)) {
-    return state.setIn([String(markId), 'properties', 'update', action.payload.oldExtent, '_disabled'], true)
-                .setIn([String(markId), 'properties', 'update', action.payload.newExtent, '_disabled'], false);
+    return state
+      .setIn([String(markId), 'properties', 'update', action.payload.oldExtent, '_disabled'], true)
+      .setIn([String(markId), 'properties', 'update', action.payload.newExtent, '_disabled'], false);
   }
 
   if (action.type === getType(markActions.setVlUnit)) {
@@ -192,28 +208,31 @@ export function marksReducer(state: MarkState, action: ActionType<typeof markAct
   }
 
   if (action.type === getType(markActions.bindScale)) {
-    return state.setIn([String(markId), 'properties', 'update', action.payload.property, 'scale'], action.payload.scaleId);
+    return state.setIn(
+      [String(markId), 'properties', 'update', action.payload.property, 'scale'],
+      action.payload.scaleId
+    );
   }
 
   const groupId = action.meta;
 
   if (action.type === getType(helperActions.addScaleToGroup)) {
-    return ensureValuePresent(state, groupId + '.scales', action.payload);
+    return ensureValuePresent(state, [String(groupId), 'scales'], action.payload);
   }
 
   if (action.type === getType(helperActions.addAxisToGroup)) {
-    return ensureValuePresent(state, groupId + '.axes', action.payload);
+    return ensureValuePresent(state, [String(groupId), 'axes'], action.payload);
   }
 
   if (action.type === getType(helperActions.addLegendToGroup)) {
-    return ensureValuePresent(state, groupId + '.legends', action.payload);
+    return ensureValuePresent(state, [String(groupId), 'legends'], action.payload);
   }
 
   const guideId = action.meta;
 
   if (action.type === getType(guideActions.deleteGuide)) {
-    state = ensureValueAbsent(state, action.payload.groupId + '.axes', guideId);
-    return ensureValueAbsent(state, action.payload.groupId + '.legends', guideId);
+    state = ensureValueAbsent(state, [String(action.payload.groupId), 'axes'], guideId);
+    return ensureValueAbsent(state, [String(action.payload.groupId), 'legends'], guideId);
   }
 
   return state;
