@@ -1,18 +1,20 @@
 /* eslint no-undefined: 0 */
 'use strict';
-var dl = require('datalib'),
-    vg = require('vega'),
+
+import * as vg from 'vega';
+
+const dl = require('datalib'),
     sg = require('./signals'),
     manips = require('./manipulators'),
     ns = require('../util/ns'),
     CancellablePromise = require('../util/simple-cancellable-promise');
 
 /** @namespace */
-var ctrl = module.exports = {view: null},
+const ctrl = module.exports = {view: null} as any,
     listeners = require('./listeners');
 
 // Local variable used to hold the last-initiated Vega ctrl reparse
-var parsePromise = null;
+let parsePromise = null;
 
 ctrl.export = require('./export');
 
@@ -23,7 +25,7 @@ ctrl.export = require('./export');
  * @returns {Object} A Vega specification.
  */
 ctrl.manipulators = function() {
-  var spec = ctrl.export(true),
+  const spec = ctrl.export(true),
       data = spec.data || (spec.data = []),
       signals = spec.signals || (spec.signals = []),
       marks = spec.marks || (spec.marks = []),
@@ -74,7 +76,7 @@ ctrl.manipulators = function() {
  * @returns {Object} A Promise that resolves once the spec has been successfully
  * parsed and rendered.
  */
-ctrl.parse = function(el) {
+ctrl.parse = function(el: string) {
   el = el || '#vis';
   if (parsePromise) {
     // A parse is already in progress; cancel that parse's callbacks
@@ -87,12 +89,13 @@ ctrl.parse = function(el) {
     // Debounce parse initiation very slightly to handle re-starts on subsequent
     // store listener digest cycles: CancellablePromise exposes its state through
     // this.cancel.
-    var that = this;
+    const that = this;
     setTimeout(function() {
       if (that.cancelled) {
         return;
       }
       // Recreate the vega spec
+      // TODO(rn) add back ctrl.manipulators()
       resolve(vg.parse(ctrl.export()));
     }, 10);
   });
@@ -119,6 +122,3 @@ ctrl.update = function() {
     ctrl.view.runAsync();
   }
 };
-
-ctrl.onSignal = listeners.onSignal;
-ctrl.offSignal = listeners.offSignal;

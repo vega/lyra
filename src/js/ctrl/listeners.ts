@@ -1,33 +1,30 @@
 'use strict';
-var historyActions = require('../actions/historyActions'),
-    undo = historyActions.undo,
-    redo = historyActions.redo,
-    hierarchy = require('../util/hierarchy'),
-    store = require('../store'),
-    imutils = require('../util/immutable-utils'),
-    getIn = imutils.getIn,
-    getInVis = imutils.getInVis,
-    inspectorActions = require('../actions/inspectorActions'),
-    selectMark = inspectorActions.selectMark,
-    expandLayers = inspectorActions.expandLayers,
-    deleteMark = require('../actions/markActions').deleteMark,
-    ACTIONS = require('../actions/Names'),
-    ctrl = require('./'),
-    sg = require('./signals');
+import * as d3 from 'd3';
+import {undo, redo} from '../actions/historyActions';
+import {store} from '../store';
+import {selectMark, expandLayers} from '../actions/inspectorActions';
+import {deleteMark} from '../actions/markActions';
 
-var listeners = {};
+const hierarchy = require('../util/hierarchy'),
+  ACTIONS = require('../actions/Names'),
+  ctrl = require('./'),
+  sg = require('./signals');
+
+const listeners = {};
 
 module.exports = {
-  onSignal:  onSignal,
+  onSignal: onSignal,
   offSignal: offSignal,
-  register:  registerSignalListeners
+  register: registerSignalListeners
 };
 
-d3.select(window).on('keydown', function() {
-  var evt = d3.event;
-  handleHistory(evt);
-  handleDelete(evt);
-}).on('beforeunload', beforeUnload);
+d3.select(window)
+  .on('keydown', function() {
+    const evt = d3.event;
+    handleHistory(evt);
+    handleDelete(evt);
+  })
+  .on('beforeunload', beforeUnload);
 
 /**
  * Registers a signal value change handler.
@@ -36,7 +33,7 @@ d3.select(window).on('keydown', function() {
  * named signal changes.
  * @returns {Object} The Lyra ctrl.
  */
-function onSignal(name, handler) {
+export function onSignal(name, handler) {
   listeners[name] = listeners[name] || [];
   listeners[name].push(handler);
   if (ctrl.view) {
@@ -52,10 +49,10 @@ function onSignal(name, handler) {
  * should have previously been registered for this signal using `onSignal`.
  * @returns {Object} The Lyra ctrl.
  */
-function offSignal(name, handler) {
+export function offSignal(name, handler) {
   listeners[name] = listeners[name] || [];
-  var listener = listeners[name];
-  for (var i = listener.length; --i >= 0;) {
+  const listener = listeners[name];
+  for (let i = listener.length; --i >= 0; ) {
     if (!handler || listener[i] === handler) {
       listener.splice(i, 1);
     }
@@ -72,18 +69,18 @@ function offSignal(name, handler) {
  * (e.g., by property inspectors) are re-registered after re-parses.
  * @returns {void}
  */
-function registerSignalListeners() {
-  var win = d3.select(window),
-      dragover = 'dragover.altchan';
+export function registerSignalListeners() {
+  const win = d3.select(window),
+    dragover = 'dragover.altchan';
 
   // Register a window dragover event handler to detect shiftKey
   // presses for alternate channel manipulators.
   if (!win.on(dragover)) {
     win.on(dragover, function() {
-      var mode = sg.get(sg.MODE),
-          shiftKey = d3.event.shiftKey,
-          channels = mode === 'channels',
-          altchannels = mode === 'altchannels';
+      const mode = sg.get(sg.MODE),
+        shiftKey = d3.event.shiftKey,
+        channels = mode === 'channels',
+        altchannels = mode === 'altchannels';
 
       if (!channels && !altchannels) {
         return;
@@ -99,6 +96,7 @@ function registerSignalListeners() {
     });
   }
 
+  // TODO(rn): add this back in when handles are necessary
   // ctrl.view.addSignalListener(sg.SELECTED, function(name, selected) {
   //   var def = selected.mark.def,
   //       id = def && def.lyra_id;
@@ -131,12 +129,11 @@ function registerSignalListeners() {
  * @param   {Event}   evt The triggering DOM event.
  * @returns {boolean} True/false if default behaviour should/should not occur.
  */
-function testInput(evt) {
-  var target  = evt.srcElement || evt.target,
-      tagName = target.tagName.toUpperCase();
+function testInput(evt): Boolean {
+  const target = evt.srcElement || evt.target,
+    tagName = target.tagName.toUpperCase();
 
-  if (tagName === 'INPUT' || tagName === 'TEXTAREA' ||
-      target.contentEditable === 'true') {
+  if (tagName === 'INPUT' || tagName === 'TEXTAREA' || target.contentEditable === 'true') {
     return !target.readOnly && !target.disabled;
   }
 
@@ -148,15 +145,18 @@ function testInput(evt) {
  * @param   {Event}   evt The triggering DOM event.
  * @returns {boolean} False, to prevent default behaviours.
  */
-function handleHistory(evt) {
-  var keyCode = evt.keyCode;
+function handleHistory(evt): Boolean {
+  const keyCode = evt.keyCode;
 
-  if (!testInput(evt) && evt.metaKey === true || evt.ctrlKey === true) { // Command or Ctrl
-    if (keyCode === 89) { // Y
+  if ((!testInput(evt) && evt.metaKey === true) || evt.ctrlKey === true) {
+    // Command or Ctrl
+    if (keyCode === 89) {
+      // Y
       store.dispatch(redo());
       evt.preventDefault();
       return false;
-    } else if (keyCode === 90) {  // Z
+    } else if (keyCode === 90) {
+      // Z
       // special case (CMD-SHIFT-Z) does a redo on a mac
       store.dispatch(evt.shiftKey ? redo() : undo());
       evt.preventDefault();
@@ -170,18 +170,19 @@ function handleHistory(evt) {
  * @param   {Event}   evt The triggering DOM event.
  * @returns {boolean} False, to prevent default behaviours.
  */
-function handleDelete(evt) {
-  if (!testInput(evt) && evt.keyCode === 8) { // Delete/Backspace
-    var state = store.getState(),
-        inspectors = getIn(state, 'inspector.encodings'),
-        type = inspectors.get('selectedType'),
-        id   = inspectors.get('selectedId'),
-        groupId = getInVis(state, 'marks.' + id + '._parent');
+function handleDelete(evt): Boolean {
+  if (!testInput(evt) && evt.keyCode === 8) {
+    // Delete/Backspace
+    const state = store.getState(),
+      inspectors = state.getIn(['inspector', 'encodings']),
+      type = inspectors.get('selectedType'),
+      id = inspectors.get('selectedId'),
+      groupId = state.getIn(['vis', 'present', 'marks', String(id), '_parent']);
 
     if (type === ACTIONS.SELECT_MARK) {
       evt.preventDefault();
       store.dispatch(selectMark(groupId));
-      store.dispatch(deleteMark(id));
+      store.dispatch(deleteMark(id) as any); //TODO(rn): check with jzong to confirm correct functionality for thunk action
       return false;
     }
   }
@@ -192,10 +193,10 @@ function handleDelete(evt) {
  * navigation away from Lyra.
  * @returns {string} Error message to prevent unwanted navigation away in Webkit.
  */
-function beforeUnload() {
+function beforeUnload(): string {
   if (process.env.NODE_ENV === 'production') {
     var msg = 'You have unsaved changed in Lyra.';
     d3.event.returnValue = msg; // Gecko + IE
-    return msg;                 // Webkit, Safari, Chrome etc.
+    return msg; // Webkit, Safari, Chrome etc.
   }
 }
