@@ -93,19 +93,13 @@ ctrl.parse = function(el) {
         return;
       }
       // Recreate the vega spec
-      vg.parse.spec(ctrl.manipulators(), function(err, chart) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(chart);
-      });
+      resolve(vg.parse(ctrl.export()));
     }, 10);
   });
 
-  return parsePromise.then(function(chart) {
-    ctrl.view = chart({
-      el: el
-    });
+  return parsePromise.then(function(runtime) {
+    ctrl.view = new vg.View(runtime)
+      .initialize(el);
     // Register all event listeners to the new view
     listeners.register();
     // the update() method initiates visual encoding and rendering:
@@ -121,8 +115,8 @@ ctrl.parse = function(el) {
  * @returns {void}
  */
 ctrl.update = function() {
-  if (ctrl.view && ctrl.view.update && typeof ctrl.view.update === 'function') {
-    ctrl.view.update();
+  if (ctrl.view && ctrl.view.runAsync && typeof ctrl.view.runAsync === 'function') {
+    ctrl.view.runAsync();
   }
 };
 

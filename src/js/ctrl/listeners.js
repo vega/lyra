@@ -40,7 +40,7 @@ function onSignal(name, handler) {
   listeners[name] = listeners[name] || [];
   listeners[name].push(handler);
   if (ctrl.view) {
-    ctrl.view.onSignal(name, handler);
+    ctrl.view.addSignalListener(name, handler);
   }
   return ctrl;
 }
@@ -61,7 +61,7 @@ function offSignal(name, handler) {
     }
   }
   if (ctrl.view) {
-    ctrl.view.offSignal(name, handler);
+    ctrl.view.removeSignalListener(name, handler);
   }
   return ctrl;
 }
@@ -99,30 +99,30 @@ function registerSignalListeners() {
     });
   }
 
-  ctrl.view.onSignal(sg.SELECTED, function(name, selected) {
-    var def = selected.mark.def,
-        id = def && def.lyra_id;
+  // ctrl.view.addSignalListener(sg.SELECTED, function(name, selected) {
+  //   var def = selected.mark.def,
+  //       id = def && def.lyra_id;
 
-    if (getIn(store.getState(), 'inspector.encodings.selectedId') === id) {
-      return;
-    }
+  //   if (getIn(store.getState(), 'inspector.encodings.selectedId') === id) {
+  //     return;
+  //   }
 
-    // Walk up from the selected primitive to create an array of its parent groups' IDs
-    var parentLayerIds = hierarchy.getParentGroupIds(id);
+  //   // Walk up from the selected primitive to create an array of its parent groups' IDs
+  //   var parentLayerIds = hierarchy.getParentGroupIds(id);
 
-    if (id) {
-      // Select the mark,
-      store.dispatch(selectMark(id));
-      // And expand the hierarchy so that it is visible
-      store.dispatch(expandLayers(parentLayerIds));
-    }
-  });
+  //   if (id) {
+  //     // Select the mark,
+  //     store.dispatch(selectMark(id));
+  //     // And expand the hierarchy so that it is visible
+  //     store.dispatch(expandLayers(parentLayerIds));
+  //   }
+  // });
 
-  Object.keys(listeners).forEach(function(signalName) {
-    listeners[signalName].forEach(function(handlerFn) {
-      ctrl.view.onSignal(signalName, handlerFn);
-    });
-  });
+  // Object.keys(listeners).forEach(function(signalName) {
+  //   listeners[signalName].forEach(function(handlerFn) {
+  //     ctrl.view.addSignalListener(signalName, handlerFn);
+  //   });
+  // });
 }
 
 /**
