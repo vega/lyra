@@ -5,10 +5,10 @@ import {GroupMark} from 'vega-typings/types';
 export interface LyraSceneMark extends Omit<GroupMark, 'type'> {
   _id: number;
   _parent: number;
-  type: 'scene';
+  type: 'group';
 }
 export const Scene = Record<LyraSceneMark>({
-  type: 'scene',
+  type: 'group',
   _id: null,
   _parent: null,
   scales: [],

@@ -4,6 +4,7 @@ import {store, State} from '../store';
 import {GuideType} from '../store/factory/Guide';
 import {input} from '../util/dataset-utils';
 import {signalLookup} from '../util/signal-lookup';
+import {Spec, Mark} from 'vega-typings';
 
 const dl = require('datalib'),
   json2csv = require('json2csv'),
@@ -29,18 +30,21 @@ let counts = dl.duplicate(SPEC_COUNT);
  * direct-manipulation interactors (handles, connectors, etc.).
  * @returns {Object} A Vega specification.
  */
-export function exporter(internal: boolean = false) {
+export function exporter(internal: boolean = false): Spec {
   const state = store.getState(),
     int = internal === true;
 
   counts = dl.duplicate(SPEC_COUNT);
 
-  const spec = exporter.scene(state, int);
+  const spec: Spec = {};
+
+  spec.marks = [exporter.scene(state, int)];
   spec.data = exporter.pipelines(state, int);
 
   //TODO(rn): remove this, figure out actual default size of scene
-  spec.width = 400;
-  spec.height = 600;
+  spec.width = 640;
+  spec.height = 360;
+  spec.background = 'white';
 
   return spec;
 }
@@ -111,8 +115,8 @@ exporter.sort = function(dataset) {
   };
 };
 
-exporter.scene = function(state: State, internal: boolean) {
-  const sceneId = getInVis(state, 'scene._id');
+exporter.scene = function(state: State, internal: boolean): Mark {
+  const sceneId = state.getIn(['vis', 'present', 'scene', '_id']);
   let spec = exporter.group(state, internal, sceneId);
 
   if (internal) {
@@ -120,7 +124,7 @@ exporter.scene = function(state: State, internal: boolean) {
   }
 
   // Remove mark-specific properties that do not apply to scenes.
-  delete spec.type;
+  // delete spec.type;
   delete spec.from;
   delete spec.encode;
 
@@ -177,7 +181,7 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
 };
 
 exporter.group = function(state: State, internal: boolean, id: number) {
-  const mark = getInVis(state, 'marks.' + id).toJS(),
+  const mark = state.getIn(['vis', 'present', 'marks', String(id)]).toJS(),
     spec = exporter.mark(state, internal, id),
     group = internal ? spec[0] : spec;
 
@@ -188,8 +192,8 @@ exporter.group = function(state: State, internal: boolean, id: number) {
     // Route export to the most appropriate function.
     group[childTypes] = mark[childTypes]
       .map(function(cid) {
-        if (getInVis(state, storePath + '.' + cid)) {
-          const child = getInVis(state, storePath + '.' + cid).toJS();
+        if (state.getIn(['vis', 'present', storePath, String(cid)])) {
+          const child = state.getIn(['vis', 'present', storePath, String(cid)]).toJS();
 
           if (exporter[child.type]) {
             return exporter[child.type](state, internal, cid);

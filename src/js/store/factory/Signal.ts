@@ -30,6 +30,7 @@ export type LyraSignal = {
 
 export const Signal = Record<LyraSignal>({
   _idx: null,
+  value: null,
   name: null
 });
 
