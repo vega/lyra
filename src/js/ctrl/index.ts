@@ -4,14 +4,14 @@
 import * as vg from 'vega';
 
 const dl = require('datalib'),
-    sg = require('./signals'),
-    manips = require('./manipulators'),
-    ns = require('../util/ns'),
-    CancellablePromise = require('../util/simple-cancellable-promise');
+  sg = require('./signals'),
+  manips = require('./manipulators'),
+  ns = require('../util/ns'),
+  CancellablePromise = require('../util/simple-cancellable-promise');
 
 /** @namespace */
-const ctrl = module.exports = {view: null} as any,
-    listeners = require('./listeners');
+const ctrl = (module.exports = {view: null} as any),
+  listeners = require('./listeners');
 
 // Local variable used to hold the last-initiated Vega ctrl reparse
 let parsePromise = null;
@@ -26,10 +26,10 @@ ctrl.export = require('./export');
  */
 ctrl.manipulators = function() {
   const spec = ctrl.export(true),
-      data = spec.data || (spec.data = []),
-      signals = spec.signals || (spec.signals = []),
-      marks = spec.marks || (spec.marks = []),
-      idx = dl.comparator('_idx');
+    data = spec.data || (spec.data = []),
+    signals = spec.signals || (spec.signals = []),
+    marks = spec.marks || (spec.marks = []),
+    idx = dl.comparator('_idx');
 
   // Stash signals from vega into the lyra ctrl, in preparation for seamlessly
   // destroying & recreating the vega view
@@ -60,10 +60,7 @@ ctrl.manipulators = function() {
   // I would change this
   data.push({
     name: 'dummy_data_area',
-    values: [
-      {x: 100, y: 28},
-      {x: 200, y: 55},
-    ]
+    values: [{x: 100, y: 28}, {x: 200, y: 55}]
   });
 
   return spec;
