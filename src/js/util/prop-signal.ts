@@ -11,7 +11,7 @@ const ns = require('./ns');
  * @param {string} property The name of the mark property determined by the signal.
  * @returns {string} The name of the signal for the given mark's property.
  */
-export function propSg(markId: number, markType: string, property: string): string {
+export const propSg = function(markId: number, markType: string, property: string): string {
   return ns(markType + '_' + markId + '_' + property);
 }
 
@@ -20,7 +20,7 @@ export function propSg(markId: number, markType: string, property: string): stri
 // "encode" is the encode hash from the dispatched action; "type" is a string
 // type; and "id" is a numeric mark ID (type and ID are used to create the name of
 // the signal that will be referenced in place of values in the encode hash).
-export function convertValuesToSignals(encode, type, id, propName) {
+export function convertValuesToSignals(encode, type, id, propName?) {
   if (!encode) {
     // No property values to initialize as signals; return encode as-is
     return encode;
@@ -48,6 +48,3 @@ export function convertValuesToSignals(encode, type, id, propName) {
     return selection;
   }, encode);
 }
-
-module.exports = propSg;
-propSg.convertValuesToSignals = convertValuesToSignals;

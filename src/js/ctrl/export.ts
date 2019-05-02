@@ -32,7 +32,8 @@ let counts = dl.duplicate(SPEC_COUNT);
  */
 export function exporter(internal: boolean = false): Spec {
   const state = store.getState(),
-    int = internal === true;
+  // TODO(rn): remove this temporary constant when trying to get manipulators to actually work.
+    int = false;
 
   counts = dl.duplicate(SPEC_COUNT);
 
@@ -320,6 +321,8 @@ function name(str: string): string {
  * @returns {Object} A cleaned spec object
  */
 function clean(spec, internal: boolean) {
+  // TODO(rn): remove this temporary constant, only for testing signals are working
+  internal = true;
   let key, prop, cleanKey;
   for (key in spec) {
     prop = spec[key];
@@ -330,7 +333,7 @@ function clean(spec, internal: boolean) {
     } else if (key === 'name' && dl.isString(prop)) {
       spec[key] = name(prop);
     } else if (dl.isObject(prop)) {
-      if (prop.signal && internal === false) {
+      if (prop.signal && !internal) {
         // Render signals to their value
         spec[key] = signalLookup(prop.signal);
       } else {
@@ -433,6 +436,5 @@ function sortDataRef(data, scale, field) {
   return ref;
 }
 
-module.exports = exporter;
 module.exports.exportName = name;
 module.exports.counts = getCounts;

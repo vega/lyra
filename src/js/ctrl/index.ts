@@ -2,9 +2,10 @@
 'use strict';
 
 import * as vg from 'vega';
+import {api} from './signals';
+import {exporter} from './export';
 
 const dl = require('datalib'),
-  sg = require('./signals'),
   manips = require('./manipulators'),
   ns = require('../util/ns'),
   CancellablePromise = require('../util/simple-cancellable-promise');
@@ -16,7 +17,7 @@ const ctrl = (module.exports = {view: null} as any),
 // Local variable used to hold the last-initiated Vega ctrl reparse
 let parsePromise = null;
 
-ctrl.export = require('./export');
+ctrl.export = exporter;
 
 /**
  * Exports the ctrl as a complete Vega specification with extra definitions
@@ -33,16 +34,16 @@ ctrl.manipulators = function() {
 
   // Stash signals from vega into the lyra ctrl, in preparation for seamlessly
   // destroying & recreating the vega view
-  // sg() is a function that returns all registered signals
-  signals.push.apply(signals, dl.vals(sg()).sort(idx));
+  // api() is a function that returns all registered signals
+  signals.push.apply(signals, dl.vals(api()).sort(idx));
 
-  data.push({
-    name: 'bubble_cursor',
-    transform: [{type: ns('bubble_cursor')}]
-  });
+  // data.push({
+  //   name: 'bubble_cursor',
+  //   transform: [{type: ns('bubble_cursor')}]
+  // });
 
-  marks.push(manips.BUBBLE_CURSOR);
-  marks.push.apply(marks, manips.BUBBLE_CURSOR_TIP);
+  // marks.push(manips.BUBBLE_CURSOR);
+  // marks.push.apply(marks, manips.BUBBLE_CURSOR_TIP);
   data.push({
     name: 'dummy_data_line',
     values: [
@@ -92,8 +93,7 @@ ctrl.parse = function(el: string) {
         return;
       }
       // Recreate the vega spec
-      // TODO(rn) add back ctrl.manipulators()
-      resolve(vg.parse(ctrl.export()));
+      resolve(vg.parse(ctrl.manipulators()));
     }, 10);
   });
 

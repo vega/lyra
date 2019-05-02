@@ -5,9 +5,9 @@ import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as signalActions from '../actions/signalActions';
 import {Signal, SignalState} from '../store/factory/Signal';
+import {propSg} from '../util/prop-signal';
 
 const ns = require('../util/ns');
-const propSg = require('../util/prop-signal');
 
 // Initialize a signal to a specific value
 function signalInit(state: SignalState, signal: string, value: SignalValue): SignalState {

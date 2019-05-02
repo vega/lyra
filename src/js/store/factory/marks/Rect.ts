@@ -3,10 +3,10 @@ import {RectMark} from 'vega-typings';
 import {GroupRecord} from './Group';
 import {HandleStreams} from '../Mark';
 import {signalNames} from '../Signal';
+import {propSg} from '../../../util/prop-signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
-const propSg = require('../../../util/prop-signal');
 
 export type LyraRectMark = {
   _id: number;
