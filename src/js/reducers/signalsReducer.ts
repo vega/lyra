@@ -32,7 +32,7 @@ function initSignalsForMark(state: SignalState, action: ActionType<typeof markAc
 
   // Initialize a signal to hold any specified update property values
   return Object.keys(props).reduce(function(accState, key) {
-    if (typeof props[key].value === 'undefined') {
+    if (typeof props[key] === 'undefined' || typeof props[key].value === 'undefined') {
       return accState;
     }
 

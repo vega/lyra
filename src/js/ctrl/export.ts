@@ -41,9 +41,6 @@ export function exporter(internal: boolean = false): Spec {
   spec.marks = [exporter.scene(state, int)];
   spec.data = exporter.pipelines(state, int);
 
-  //TODO(rn): remove this, figure out actual default size of scene
-  spec.width = 640;
-  spec.height = 360;
   spec.background = 'white';
 
   return spec;
