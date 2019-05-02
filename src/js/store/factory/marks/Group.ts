@@ -32,8 +32,8 @@ export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
       // sidebar, a transparent fill is rendered in order for direct
       // manipulation events of the group itself to be captured.
       update: {
-        fill: undefined,
-        stroke: undefined,
+        fill: null, // use special null value to indicate that this field should not be overwritten by defaults
+        stroke: null,
         x: {value: 0},
         y: {value: 0},
         x2: {value: 140, _disabled: true},
@@ -43,10 +43,10 @@ export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
         // width: {value: scene && scene.get('width')},
         // height: {value: scene && scene.get('height')},
         width: {value: 500},
-        height: {value: 500},
+        height: {value: 500}
       }
     }
   })(values);
-};
+}
 
 export type GroupRecord = RecordOf<LyraGroupMark>;

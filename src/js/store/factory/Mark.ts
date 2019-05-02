@@ -50,15 +50,25 @@ export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord
     values = {name: name(type)}
   }
   switch(type) {
-    case 'symbol': return Symbol(values as Partial<LyraSymbolMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'area': return Area(values as Partial<LyraAreaMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'line': return Line(values as Partial<LyraLineMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'rect': return Rect(values as Partial<LyraRectMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'text': return Text(values as Partial<LyraTextMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'group': return Group(values as Partial<LyraGroupMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
-    case 'scene': return Scene(values as Partial<LyraSceneMark>).mergeDeepWith((oldVal, newVal) => oldVal ? oldVal : newVal, defaults);
+    case 'symbol': return Symbol(values as Partial<LyraSymbolMark>).mergeDeepWith(mergeComparator, defaults);
+    case 'area': return Area(values as Partial<LyraAreaMark>).mergeDeepWith(mergeComparator, defaults);
+    case 'line': return Line(values as Partial<LyraLineMark>).mergeDeepWith(mergeComparator, defaults);
+    case 'rect': return Rect(values as Partial<LyraRectMark>).mergeDeepWith(mergeComparator, defaults);
+    case 'text': return Text(values as Partial<LyraTextMark>).mergeDeepWith(mergeComparator, defaults);
+    case 'group': return Group(values as Partial<LyraGroupMark>).mergeDeepWith(mergeComparator, defaults);
+    case 'scene': return Scene(values as Partial<LyraSceneMark>).mergeDeepWith(mergeComparator, defaults);
   }
 }
+
+/**
+ * Compares two values and returns the new value if the old one is undefined.
+ * In the special case that the old value is null, returns undefined.
+ * @param oldVal the value in the source object
+ * @param newVal the value in the new object (to be merged)
+ */
+const mergeComparator = (oldVal, newVal) => {
+  return oldVal !== undefined ? (oldVal === null ? undefined : oldVal ) : newVal;
+};
 
 export type MarkState = Map<string, MarkRecord>;
 
