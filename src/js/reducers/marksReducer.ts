@@ -5,8 +5,8 @@ import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as sceneActions from '../actions/sceneActions';
 import {MarkRecord, MarkState} from '../store/factory/Mark';
+import {propSg, convertValuesToSignals} from '../util/prop-signal';
 
-const propSg = require('../util/prop-signal');
 const ensureValuePresent = function(state: MarkState, path: String[], valToAdd): MarkState {
   return state.updateIn(path, marks => {
     if (marks.indexOf(valToAdd) === -1) {
@@ -30,7 +30,7 @@ function makeMark(action: ActionType<typeof markActions.addMark | typeof sceneAc
   return (def as any).merge({
     // TODO(jzong) typescript barfs when calling merge on union record types
     encode: {
-      update: propSg.convertValuesToSignals(props, def.type, action.meta)
+      update: convertValuesToSignals(props, def.type, action.meta)
     }
   });
 }

@@ -75,7 +75,7 @@ function voronoi(parent) {
   return {
     type: 'path',
     name: sg.CELL,
-    properties: {
+    encode: {
       update: {
         key: {field: parent ? {parent: 'key'} : 'key'},
         tooltip: {field: parent ? {parent: 'tooltip'} : 'tooltip'},
@@ -99,7 +99,7 @@ function hoverCell(t, f, parent) {
 }
 
 function border(spec) {
-  var props = dl.duplicate(spec.properties.update),
+  var props = dl.duplicate(spec.encode.update),
       markType = spec.type,
       pathMark = markType === 'line' || markType === 'area';
 
@@ -123,7 +123,7 @@ function border(spec) {
     },
     marks: [{
       type: pathMark ? 'path' : markType,
-      properties: {update: props}
+      encode: {update: props}
     }, voronoi(true)]
   };
 }
@@ -133,7 +133,7 @@ TYPES.push(manipulators.HANDLE = {
   from: {
     transform: [{type: 'filter', test: 'datum.manipulator === "handle"'}]
   },
-  properties: {
+  encode: {
     update: {
       x: {field: 'x'},
       y: {field: 'y'},
@@ -156,7 +156,7 @@ TYPES.push(manipulators.CONNECTOR = {
   },
   marks: [{
     type: 'symbol',
-    properties: {
+    encode: {
       update: {
         x: {field: {parent: 'x'}},
         y: {field: {parent: 'y'}},
@@ -180,7 +180,7 @@ TYPES.push(manipulators.ARROW = {
   },
   marks: [{
     type: 'line',
-    properties: {
+    encode: {
       update: {
         x: {field: 'x'},
         y: {field: 'y'},
@@ -204,7 +204,7 @@ TYPES.push(manipulators.SPAN = dl.extend({}, manipulators.ARROW, {
 manipulators.BUBBLE_CURSOR = {
   type: 'line',
   from: {data: 'bubble_cursor'},
-  properties: {
+  encode: {
     update: {
       x: {field: 'x'},
       y: {field: 'y'},
@@ -216,7 +216,7 @@ manipulators.BUBBLE_CURSOR = {
 
 manipulators.BUBBLE_CURSOR_TIP = [{
   type: 'text',
-  properties: {
+  encode: {
     update: {
       x: {signal: sg.MOUSE + '.x'},
       y: {signal: sg.MOUSE + '.y'},
@@ -233,7 +233,7 @@ manipulators.BUBBLE_CURSOR_TIP = [{
   }
 }, {
   type: 'text',
-  properties: {
+  encode: {
     update: {
       x: {signal: sg.MOUSE + '.x'},
       y: {signal: sg.MOUSE + '.y'},

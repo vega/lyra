@@ -4,10 +4,10 @@ import {Record, RecordOf} from 'immutable';
 import {AreaMark} from 'vega-typings';
 import {HandleStreams} from '../Mark';
 import {signalNames} from '../Signal';
+import {propSg} from '../../../util/prop-signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
-const propSg = require('../../../util/prop-signal');
 
 export type LyraAreaMark = {
   _id: number;

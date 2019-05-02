@@ -4,9 +4,9 @@ import {setSignal} from '../signalActions';
 import {setMarkVisual, disableMarkVisual, updateMarkProperty} from '../markActions';
 import {Dispatch} from 'redux';
 import {State} from '../../store';
+import {propSg} from '../../util/prop-signal';
 
 const dl = require('datalib'),
-  propSg = require('../../util/prop-signal'),
   MARK_EXTENTS = require('../../constants/markExtents'),
   imutils = require('../../util/immutable-utils'),
   getInVis = imutils.getInVis,

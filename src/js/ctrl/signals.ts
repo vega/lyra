@@ -1,9 +1,9 @@
 import * as signalActions from '../actions/signalActions';
 import {signalNames} from '../store/factory/Signal';
+import {store} from '../store';
 
 const dl = require('datalib');
 const ns = require('../util/ns');
-const store = require('../store');
 const getInVis = require('../util/immutable-utils').getInVis;
 
 // Utility method to get a signal from the store
@@ -18,7 +18,7 @@ function getSignal(name) {
  * @module signals
  * @returns {Object} The signal store object
  */
-function api() {
+export function api() {
   return getInVis(store.getState(), 'signals').toJS();
 }
 
@@ -63,10 +63,10 @@ api.isDefault = isDefault;
  */
 api.get = function(name) {
   var ctrl = require('./'),
-      // `view` is a vega runtime component; view.signal is a getter/setter
-      view = ctrl.view,
-      signalObj = getSignal(name),
-      signalVal;
+    // `view` is a vega runtime component; view.signal is a getter/setter
+    view = ctrl.view,
+    signalObj = getSignal(name),
+    signalVal;
 
   // Wrap signal accessors in case view doesn't yet exist,
   if (view && typeof view.signal === 'function') {
@@ -92,7 +92,7 @@ api.set = function(name, val, dispatch?) {
     dispatch = true;
   }
   var ctrl = require('./'),
-      view = ctrl.view;
+    view = ctrl.view;
   // Always flow signals up to the store,
   if (!isDefault(name) && dispatch !== false) {
     store.dispatch(signalActions.setSignal(name, val));

@@ -31,7 +31,8 @@ export type LyraSignal = {
 export const Signal = Record<LyraSignal>({
   _idx: null,
   value: null,
-  name: null
+  name: null,
+  on: []
 });
 
 export type SignalRecord = RecordOf<LyraSignal>;
@@ -94,11 +95,11 @@ export const defaultSignalState: SignalState = Map({
     ],
     _idx: 5
   }),
-  CURSOR: Signal({
-    name: CURSOR,
-    on: [
-      {events: 'mousedown', update: "item() && item().cursor || 'default'"},
-      {events: 'mouseup', update: "'default'"}
-    ]
-  })
+  // CURSOR: Signal({
+  //   name: CURSOR,
+  //   on: [
+  //     {events: 'mousedown', update: "item() && item().cursor || 'default'"},
+  //     {events: 'mouseup', update: "'default'"}
+  //   ]
+  // })
 });
