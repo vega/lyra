@@ -100,6 +100,7 @@ ctrl.parse = function(el: string) {
   return parsePromise.then(function(runtime) {
     ctrl.view = new vg.View(runtime)
       .initialize(el);
+
     // Register all event listeners to the new view
     listeners.register();
     // the update() method initiates visual encoding and rendering:

@@ -80,6 +80,6 @@ Mark.getHandleStreams = function(mark: MarkRecord): HandleStreams {
     case 'line': return lineHandleStreams(mark);
     case 'text': return textHandleStreams(mark);
     case 'group':
-    case 'rect': return rectHandleStreams(mark);
+    case 'rect': return rectHandleStreams(mark as any); // TODO(rn): see if there is a good solution to any-casting union types
   }
 };
