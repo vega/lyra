@@ -87,7 +87,7 @@ module.exports = {
           esModule: false
         }
       },
-      { test: /\.tsx?$/, loader: 'awesome-typescript-loader' },
+      { test: /\.tsx?$/, loader: 'ts-loader' },
     ]
   },
   resolve: {
