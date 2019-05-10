@@ -12,6 +12,7 @@ import {Map} from 'immutable';
 import {AggregateTransform, Datum, Format} from 'vega-typings/types';
 import {Column, ColumnRecord, Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
 import {Pipeline, PipelineRecord} from '../store/factory/Pipeline';
+import {store} from '../store';
 
 // Taken from vega-lite 1.0.0 src/data.js
 
@@ -32,13 +33,9 @@ const getInVis = imutils.getInVis;
 
 export const NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
-// Circumvents the circular dependency
-function store() {
-  return require('../store');
-}
 
 function def(id: number) {
-  return getInVis(store().getState(), 'datasets.' + id);
+  return getInVis(store.getState(), 'datasets.' + id);
 }
 
 // tslint:disable-next-line:variable-name
