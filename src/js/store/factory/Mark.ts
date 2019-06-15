@@ -4,7 +4,7 @@ import {Area, AreaRecord, getHandleStreams as areaHandleStreams, LyraAreaMark} f
 import {Group, GroupRecord, LyraGroupMark} from './marks/Group';
 import {getHandleStreams as lineHandleStreams, Line, LineRecord, LyraLineMark} from './marks/Line';
 import {getHandleStreams as rectHandleStreams, LyraRectMark, Rect, RectRecord} from './marks/Rect';
-import {LyraSceneMark, Scene, SceneRecord} from './marks/Scene';
+import {Scene, SceneRecord} from './marks/Scene';
 import {getHandleStreams as symbolHandleStreams, LyraSymbolMark, Symbol, SymbolRecord} from './marks/Symbol';
 import {getHandleStreams as textHandleStreams, LyraTextMark, Text, TextRecord} from './marks/Text';
 
@@ -33,7 +33,7 @@ const defaults = {
   }
 };
 
-export type LyraMark = LyraAreaMark | LyraGroupMark | LyraLineMark | LyraRectMark | LyraSceneMark | LyraSymbolMark | LyraTextMark;
+export type LyraMark = LyraAreaMark | LyraGroupMark | LyraLineMark | LyraRectMark | LyraSymbolMark | LyraTextMark;
 export type MarkRecord = AreaRecord | GroupRecord | LineRecord | RectRecord | SceneRecord | SymbolRecord | TextRecord;
 
 /**
@@ -56,7 +56,7 @@ export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord
     case 'rect': return Rect(values as Partial<LyraRectMark>).mergeDeepWith(mergeComparator, defaults);
     case 'text': return Text(values as Partial<LyraTextMark>).mergeDeepWith(mergeComparator, defaults);
     case 'group': return Group(values as Partial<LyraGroupMark>).mergeDeepWith(mergeComparator, defaults);
-    case 'scene': return Scene(values as Partial<LyraSceneMark>).mergeDeepWith(mergeComparator, defaults);
+    case 'scene': return Scene(values as Partial<LyraGroupMark>).mergeDeepWith(mergeComparator, defaults);
   }
 }
 

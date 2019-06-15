@@ -1,16 +1,11 @@
 import {Record, RecordOf} from 'immutable';
-import {Omit} from 'react-redux';
-import {GroupMark} from 'vega-typings/types';
+import {LyraGroupMark} from './Group';
 
-export interface LyraSceneMark extends Omit<GroupMark, 'type'> {
-  _id: number;
-  _parent: number;
-  type: 'group';
-}
-export const Scene = Record<LyraSceneMark>({
+export const Scene = Record<LyraGroupMark>({
   type: 'group',
   _id: null,
   _parent: null,
+  _manualLayout: false,
   scales: [],
   axes: [],
   legends: [],
@@ -35,4 +30,4 @@ export const Scene = Record<LyraSceneMark>({
     }
   },
 });
-export type SceneRecord = RecordOf<LyraSceneMark>;
+export type SceneRecord = RecordOf<LyraGroupMark>;
