@@ -3,7 +3,8 @@ const getInVis = require('../../util/immutable-utils').getInVis;
 import {LyraAggregateTransform} from '../../store/factory/Pipeline';
 import {summarizeAggregate} from '../datasetActions';
 import {aggregatePipeline} from '../pipelineActions';
-import {Dispatch} from 'redux';
+import {AnyAction, Dispatch} from 'redux';
+import {ThunkDispatch} from 'redux-thunk';
 import {State} from '../../store';
 
 /**
@@ -36,7 +37,7 @@ export function parseData(dispatch: Dispatch, state: State, parsed) {
   }
 };
 
-function parseAggregate(dispatch: Dispatch, state: State, parsed, summary) {
+function parseAggregate(dispatch: ThunkDispatch<State, null, AnyAction>, state: State, parsed, summary) {
   const aggregate: LyraAggregateTransform = summary.transform.find(function(tx) {
     return tx.type === 'aggregate';
   });
@@ -49,7 +50,7 @@ function parseAggregate(dispatch: Dispatch, state: State, parsed, summary) {
   if (!aggId) {
     // TODO: What about if a previous parsed.map.data.summary exists? How do
     // we derive a new agg DS to preserve transforms.
-    dispatch(aggregatePipeline(plId, aggregate) as any); // TODO(rn) fix this so that aggregate actually returns AnyAction
+    dispatch(aggregatePipeline(plId, aggregate));
     aggId = aggregate._id;
   } else {
     dispatch(summarizeAggregate(aggregate, aggId));
