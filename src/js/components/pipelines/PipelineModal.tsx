@@ -177,8 +177,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
             <div className='preview'>
               <h2>Preview</h2>
 
-              {/* <DataTable className='source' TODO(jzong): check if className was getting read*/ }
-              <DataTable
+              <DataTable className='source'
                 values={state.values} schema={state.dataset._schema} />
 
               <button className='button button-success'

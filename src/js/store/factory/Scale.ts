@@ -13,8 +13,8 @@ export type LyraScale = {
    * Original scale name
    */
   _origName: string;
-  _domain: [],
-  _range: [],
+  _domain: any[],
+  _range: any[],
 
 } & ScaleType;
 

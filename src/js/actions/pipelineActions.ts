@@ -55,7 +55,7 @@ export function aggregatePipeline (id: number, aggregate: LyraAggregateTransform
     const ds = addDataset(
       Dataset({
         name: pipeline.get('name') + '_groupby_' + key,
-        source: srcId,
+        source: String(srcId),
         transform: [aggregate],
         _schema: schema,
         _parent: id

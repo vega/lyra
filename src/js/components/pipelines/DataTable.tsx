@@ -1,4 +1,4 @@
-import HoverField from './HoverField';
+import HoverField, {HoverFieldDef} from './HoverField';
 import HoverValue from './HoverValue';
 import TransformList from './transforms/TransformList';
 
@@ -6,8 +6,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import {State} from '../../store';
-import {DatasetRecord} from '../../store/factory/Dataset';
+import {DatasetRecord, Schema} from '../../store/factory/Dataset';
 import { Icon } from '../Icon';
+import {VegaReparseRecord} from '../../store/factory/Vega';
 
 const d3 = require('d3');
 const dl = require('datalib');
@@ -19,19 +20,19 @@ const assets = require('../../util/assets');
 
 interface OwnProps {
   id?: number;
-  schema?: any;
+  schema?: Schema;
   values?: any;
 }
 interface StateProps {
   dataset: DatasetRecord;
-  vega: any;
+  vega: VegaReparseRecord;
 }
 
 interface OwnState {
   limit: number;
   page: number;
-  hoverField: any;
-  hoverValue: any;
+  hoverField: HoverFieldDef;
+  hoverValue: React.MouseEvent<HTMLElement, MouseEvent>;
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -42,7 +43,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-class DataTable extends React.Component<OwnProps & StateProps, OwnState> {
+class DataTable extends React.Component<OwnProps & StateProps & {className?: string}, OwnState> {
 
   constructor(props) {
     super(props);
@@ -80,7 +81,7 @@ class DataTable extends React.Component<OwnProps & StateProps, OwnState> {
   }
 
   public showHoverField = (evt) => {
-    const target = evt.target;
+    const target: HTMLDivElement = evt.target;
     this.setState({
       hoverField: {name: target.textContent, offsetTop: target.offsetTop},
       hoverValue: null
@@ -106,10 +107,10 @@ class DataTable extends React.Component<OwnProps & StateProps, OwnState> {
     const start = page * limit;
     const stop  = start + limit;
     const id = props.id;
-    const schema = (id ? props.dataset.get('_schema') : props.schema).toJS();
+    const schema = id ? props.dataset.get('_schema') : props.schema;
     const output = id ? dsUtil.output(id) : props.values;
     const values = output.slice(start, stop);
-    const keys = dl.keys(schema);
+    const keys = schema.keySeq().toArray();
     const max = output.length;
     const fmt = dl.format.auto.number();
     const scrollLeft = this.$table && this.$table.node().scrollLeft;
@@ -135,7 +136,7 @@ class DataTable extends React.Component<OwnProps & StateProps, OwnState> {
               {keys.map(function(k) {
                 return (
                   <tr key={k}>
-                    <td className={'field ' + (schema[k].source ? 'source' : 'derived')}
+                    <td className={'field ' + (schema.get(k).source ? 'source' : 'derived')}
                       onMouseOver={this.showHoverField}>{k}</td>
                     {values.map(function(v, i) {
                       return (

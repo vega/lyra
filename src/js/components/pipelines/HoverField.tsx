@@ -11,6 +11,8 @@ import FilterIcon from './transforms/FilterIcon';
 import FormulaIcon from './transforms/FormulaIcon';
 import SortIcon from './transforms/SortIcon';
 import sg from '../../ctrl/signals';
+import {ColumnRecord, Schema} from '../../store/factory/Dataset';
+import {fieldDefs} from 'vega-lite/src/encoding';
 
 const dl = require('datalib');
 const ctrl = require('../../ctrl');
@@ -22,8 +24,8 @@ const QUANTITATIVE = require('../../constants/measureTypes').QUANTITATIVE;
 
 interface OwnProps {
   dsId: number;
-  def: any;
-  schema: any;
+  def: HoverFieldDef;
+  schema: Schema;
 }
 
 interface StateProps {
@@ -31,14 +33,19 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  bindChannel: (dsId: number, field: any, markId: number, property: string) => void;
+  bindChannel: (dsId: number, field: ColumnRecord, markId: number, property: string) => void;
 }
 
 interface OwnState {
-  fieldDef:  any;
-  offsetTop: any;
-  bindField: any;
+  fieldDef:  ColumnRecord;
+  offsetTop: number;
+  bindField: ColumnRecord;
   showAggregates: boolean;
+}
+
+export interface HoverFieldDef {
+  name: string,
+  offsetTop: number
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -77,7 +84,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
       if (!def) {
         return {...currentState, fieldDef: null, showAggregates: false};
       } else {
-        return {...currentState, fieldDef: schema[def.name], offSetTop: def.offsetTop, showAggregates: false};
+        return {...currentState, fieldDef: schema.get(def.name), offsetTop: def.offsetTop, showAggregates: false};
       }
     });
   }
