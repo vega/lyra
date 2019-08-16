@@ -4,14 +4,23 @@
 import * as vg from 'vega';
 import {api} from './signals';
 import {exporter} from './export';
+import {View, Spec, Runtime} from 'vega';
 
 const dl = require('datalib'),
   manips = require('./manipulators'),
   ns = require('../util/ns'),
   CancellablePromise = require('../util/simple-cancellable-promise');
 
+interface LyraCtrl {
+  view: View,
+  export: (internal: boolean) => Spec,
+  manipulators: () => Spec,
+  parse: (el: string) => Promise<Runtime>,
+  update: () => void
+};
+
 /** @namespace */
-const ctrl = (module.exports = {view: null} as any),
+const ctrl: LyraCtrl = (module.exports = {view: null} as any),
   listeners = require('./listeners');
 
 // Local variable used to hold the last-initiated Vega ctrl reparse
@@ -25,7 +34,7 @@ ctrl.export = exporter;
  * of all the Lyra-specific signals and manipulators (handles, channels, etc.).
  * @returns {Object} A Vega specification.
  */
-ctrl.manipulators = function() {
+ctrl.manipulators = function(): Spec {
   const spec = ctrl.export(true),
     data = spec.data || (spec.data = []),
     signals = spec.signals || (spec.signals = []),

@@ -70,7 +70,7 @@ export function aggregatePipeline (id: number, aggregate: LyraAggregateTransform
   };
 }
 
-// action creators prefixed with _ should only be called by their redux-flunk function wrappers - jzong
+// action creators prefixed with "base" should only be called by their redux-thunk function wrappers - jzong
 export const baseAddPipeline = createStandardAction('ADD_PIPELINE')<PipelineRecord, number>();
 export const baseAggregatePipeline = createStandardAction('AGGREGATE_PIPELINE')<{dsId: number, key: any}, number>();
 export const updatePipelineProperty = createStandardAction('UPDATE_PIPELINE_PROPERTY')<{property: string, value: any}, number>();

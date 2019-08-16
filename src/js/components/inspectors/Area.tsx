@@ -4,10 +4,11 @@ const INTERPOLATE = require('../../constants/interpolate');
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {Property} from './Property';
+import {PrimType} from '../../constants/primTypes';
 
 interface AreaProps {
   primId: number,
-  primType: string
+  primType: PrimType
 }
 
 class BaseArea extends React.Component<AreaProps> {

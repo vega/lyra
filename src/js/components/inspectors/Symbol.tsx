@@ -1,13 +1,13 @@
 'use strict';
-const primTypes = require('../../constants/primTypes');
 const Symbol = require('../../store/factory/marks/Symbol');
 
 import * as React from 'react';
 import {Property} from './Property';
+import {PrimType} from '../../constants/primTypes';
 
 interface SymbolInspectorProps {
   primId: number,
-  primType: any
+  primType: PrimType
 }
 
 class BaseSymbolInspector extends React.Component<SymbolInspectorProps> {

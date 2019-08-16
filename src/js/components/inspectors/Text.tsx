@@ -1,7 +1,5 @@
 'use strict';
 
-const primTypes = require('../../constants/primTypes');
-
 const Text = require('../../store/factory/marks/Text');
 const assets = require('../../util/assets');
 const getInVis = require('../../util/immutable-utils').getInVis;
@@ -13,10 +11,11 @@ import {updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store';
 import {TextAlignments, TextBaselines, TextFonts, TextFontStyles, TextFontWeights} from '../../store/factory/marks/Text';
 import {Property} from './Property';
+import {PrimType} from '../../constants/primTypes';
 
 interface OwnProps {
   primId?: number;
-  primType: any; // TODO
+  primType: PrimType;
   autoVal: string;
 
 }

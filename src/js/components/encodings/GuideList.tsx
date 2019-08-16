@@ -2,13 +2,14 @@ import {List, Map} from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
-import { Dispatch } from 'redux';
+import { AnyAction } from 'redux';
 import {deleteGuide} from '../../actions/guideActions';
 import {selectGuide, selectMark} from '../../actions/inspectorActions';
 import {State} from '../../store';
 import {ScaleRecord} from '../../store/factory/Scale';
 import { Icon } from '../Icon';
 import {GuideRecord, GuideType, LegendRecord, AxisRecord, LegendForType} from '../../store/factory/Guide';
+import {ThunkDispatch} from 'redux-thunk';
 
 const capitalize = require('capitalize');
 const imutils = require('../../util/immutable-utils');
@@ -44,7 +45,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, ownProps: OwnProps): DispatchProps {
   return {
     selectGuide: function(guideId) {
       dispatch(selectGuide(guideId));

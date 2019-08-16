@@ -7,10 +7,11 @@ import {connect} from 'react-redux';
 import {State} from '../../store';
 import {MoreProperties} from './MoreProperties';
 import {Property} from './Property';
+import {PrimType} from '../../constants/primTypes';
 
 interface OwnProps {
   primId: number;
-  primType: any;
+  primType: PrimType;
   handleChange: (evt: any) => void;
 
 }

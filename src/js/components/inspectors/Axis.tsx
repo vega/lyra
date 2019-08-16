@@ -4,11 +4,12 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {MoreProperties} from './MoreProperties';
 import {Property} from './Property';
+import {PrimType} from '../../constants/primTypes';
 
 interface AxisProps {
   primId: number,
-  primType: string,
-  handleChange: (evt: any) => void
+  primType: PrimType,
+  handleChange: (evt) => void
 }
 
 class BaseAxisInspector extends React.Component<AxisProps> {

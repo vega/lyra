@@ -3,7 +3,6 @@ const dl = require('datalib');
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
-const MARK_EXTENTS = require('../../constants/markExtents');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
@@ -12,17 +11,18 @@ import {resetMarkVisual, setMarkExtent} from '../../actions/markActions';
 import {State} from '../../store';
 import {Property} from './Property';
 import {SpatialPreset} from './SpatialPreset';
+import MARK_EXTENTS from '../../constants/markExtents';
 
 interface OwnProps {
-  exType: any;
+  exType: 'x' | 'y';
   primId: number;
 }
 
 interface StateProps {
-  start: any;
-  end: any;
-  startDisabled: any;
-  endDisabled: any;
+  start: string;
+  end: string;
+  startDisabled: boolean;
+  endDisabled: boolean;
 }
 
 interface DispatchProps {

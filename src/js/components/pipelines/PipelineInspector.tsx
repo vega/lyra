@@ -74,7 +74,7 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps & Disp
         <ContentEditable className='header'
           value={name}
           save={props.updatePipeline.bind(this, id, 'name')}
-          onClick={props.selectPipeline.bind(null, id)} />
+          onClick={() => props.selectPipeline(id)} />
         {inner}
 
       </div>

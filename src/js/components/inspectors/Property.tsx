@@ -1,7 +1,6 @@
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
-const TYPES = require('../../constants/primTypes');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
@@ -10,23 +9,22 @@ import {resetMarkVisual} from '../../actions/markActions';
 import {State} from '../../store';
 import {AutoComplete} from './AutoComplete';
 import {FormInputProperty} from './FormInputProperty';
+import {PrimType} from '../../constants/primTypes';
 
-/* TODO: this is a work in progress
-   parents of property usually pass in their props using {...prop}
-   the parents adhere to inconsistent interfaces
-
+// hunch: probably actually needs to be a bunch of different types anded to a base type
+// instead of one type with everything optional
+// but it would take a long time to figure out what the mutually exclusive fields are
 interface OwnProps {
   primId?: number;
-  primType?: any;
+  primType?: PrimType;
   name?: string;
   label?: string;
   dsId?: number;
   autoType?: string;
-  onChange?: (value: any) => any;
-  type?: any;
-  firstChild?: any;
-  canDrop?: any;
-
+  onChange?: (value) => void;
+  type?: string;
+  firstChild?: boolean;
+  canDrop?: boolean;
 }
 
 interface StateProps {
@@ -42,9 +40,8 @@ interface StateProps {
 interface DispatchProps {
   unbind?: () => void;
 }
-*/
 
-function mapStateToProps(reduxState: State, ownProps/*: OwnProps*/)/*: StateProps*/ {
+function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   if (!ownProps.primId) {
     return {};
   }
@@ -54,7 +51,7 @@ function mapStateToProps(reduxState: State, ownProps/*: OwnProps*/)/*: StateProp
   let dsId;
 
   if (ownProps.name) {
-    if (ownProps.primType === TYPES.MARKS) {
+    if (ownProps.primType === PrimType.MARKS) {
       path = 'encode.update.' + ownProps.name;
       dsId = getIn(state, 'from.data');
     } else {
@@ -78,7 +75,7 @@ function mapStateToProps(reduxState: State, ownProps/*: OwnProps*/)/*: StateProp
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps/*: OwnProps*/)/*: DispatchProps*/ {
+function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
     unbind: function() {
       dispatch(resetMarkVisual(ownProps.name, ownProps.primId));

@@ -25,7 +25,7 @@ const dl = require('datalib'),
  * @returns {void}
  */
 export function computeLayout(dispatch : Dispatch, state : State, parsed, scale) {
-  const sceneId = getInVis(state, 'scene.id'),
+  const sceneId = getInVis(state, 'scene._id'),
       scene = getInVis(state, 'marks.' + sceneId),
       manualLayout = scene.get('_manualLayout');
 

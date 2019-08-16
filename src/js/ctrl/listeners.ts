@@ -2,7 +2,7 @@
 import * as d3 from 'd3';
 import {undo, redo} from '../actions/historyActions';
 import {store} from '../store';
-import {selectMark, expandLayers} from '../actions/inspectorActions';
+import {selectMark} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';
 
 const hierarchy = require('../util/hierarchy'),
@@ -181,8 +181,8 @@ function handleDelete(evt): Boolean {
 
     if (type === ACTIONS.SELECT_MARK) {
       evt.preventDefault();
-      store.dispatch(selectMark(groupId));
-      store.dispatch(deleteMark(id) as any); //TODO(rn): check with jzong to confirm correct functionality for thunk action
+      store.dispatch(selectMark(groupId) as any); //TODO(jzong) make sure it's dispatching these two thunk actions correctly
+      store.dispatch(deleteMark(id) as any);
       return false;
     }
   }

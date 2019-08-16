@@ -1,5 +1,3 @@
-// TODO(jzong): this probably should be moved to store/factory
-
 import {Map, Record, RecordOf} from 'immutable';
 import {Signal as VegaSignal} from 'vega-typings/types';
 

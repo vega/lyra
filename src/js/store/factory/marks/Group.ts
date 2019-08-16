@@ -13,7 +13,7 @@ export type LyraGroupMark = {
 export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
   // TODO(jzong) this was a circular dependency
   // const state = store.getState();
-  // const scene = getInVis(state, 'marks.' + getInVis(state, 'scene.id'));
+  // const scene = getInVis(state, 'marks.' + getInVis(state, 'scene._id'));
 
   return Record<LyraGroupMark>({
     _id: null,
