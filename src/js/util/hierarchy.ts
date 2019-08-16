@@ -15,7 +15,7 @@ const Bounds = require('vega-scenegraph').Bounds,
  * otherwise uses the Lyra store.
  * @returns {ImmutableMap|null} The requested mark, if present, else null
  */
-function getParent(mark: Mark, state: State) {
+function getParent(mark: Mark, state: State): Mark {
   state = state || store.getState();
   return getInVis(state, 'marks.' + mark.get('_parent')) || null;
 }
@@ -53,7 +53,7 @@ function getParents(primitive, state: State) {
  * @param {ImmutableMap[]} primitives - An array of primitives
  * @returns {Array} Array of group mark IDs
  */
-function getGroupIds(primitives) {
+function getGroupIds(primitives): number[] {
   return primitives.reduce(function(groupIds, primitive) {
     if (primitive.get('type') === 'group') {
       groupIds.push(primitive.get('_id'));
@@ -71,7 +71,7 @@ function getGroupIds(primitives) {
  * otherwise uses the Lyra store.
  * @returns {number[]} An array of the (lyra) IDs of the primitive's parent layers.
  */
-function getParentGroupIds(markId: number, state: State) {
+export function getParentGroupIds(markId: number, state: State): number[] {
   state = state || store.getState();
   return getGroupIds(getParents(getInVis(state, 'marks.' + markId), state));
 }
@@ -92,7 +92,7 @@ export function getClosestGroupId(id?: number, state?: State) {
     mark = getInVis(state, 'marks.' + markId);
 
   if (!mark) {
-    return getInVis(state, 'scene.id');
+    return getInVis(state, 'scene._id');
   }
 
   // If mark is a group or scene, return it as-is

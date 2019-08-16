@@ -11,7 +11,7 @@ const LIMIT = 20;
 const IMPLICIT_BATCH = [getType(signalActions.setSignal), getType(guideActions.updateGuideProperty)];
 const BATCH_INTERVAL = 500;  // ms to identify new batch for same implicit action.
 let batch = 0;
-let prevAction;
+let prevAction: AnyAction;
 let prevTime;
 
 export function undoable(reducer: Reducer<Map<string, any>, AnyAction>) {

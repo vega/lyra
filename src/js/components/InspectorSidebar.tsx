@@ -13,6 +13,9 @@ import {RectInspector} from './inspectors/Rect';
 import {ScaleInspector} from './inspectors/Scale';
 import {SymbolInspector} from './inspectors/Symbol';
 import {TextInspector} from './inspectors/Text';
+import {PrimType} from '../constants/primTypes';
+import * as inspectorActions from '../actions/inspectorActions';
+import {getType} from 'typesafe-actions';
 
 const inspectors = {AreaInspector, GuideInspector, LineInspector,
   RectInspector, ScaleInspector, SymbolInspector, TextInspector,
@@ -30,17 +33,14 @@ interface Inspector {
 }
 
 const capitalize = require('capitalize');
-import {getType} from 'typesafe-actions';
 const imutils  = require('../util/immutable-utils');
 const getInVis = imutils.getInVis;
-import * as inspectorActions from '../actions/inspectorActions';
-const TYPES = require('../constants/primTypes');
 
 function mapStateToProps(state: State, ownProps): Inspector {
   const encState: EncodingStateRecord = state.getIn(['inspector', 'encodings']);
   const selId   = encState.get('selectedId');
   const selType = encState.get('selectedType');
-  const isMark  = selType === getType(inspectorActions.selectMark);
+  const isMark  = selType === getType(inspectorActions.baseSelectMark);
   const isGuide = selType === getType(inspectorActions.selectGuide);
   const isScale = selType === getType(inspectorActions.selectScale);
   let primitive;
@@ -79,19 +79,19 @@ class BaseInspector extends React.Component<Inspector> {
     const primId = props.selectedId;
     const from = props.from;
     let ctor;
-    let primType;
+    let primType: PrimType;
     let InspectorType;
 
     if (primId) {
       if (props.isMark && props.markType) {
         ctor = capitalize(props.markType);
-        primType = TYPES.MARKS;
+        primType = PrimType.MARKS;
       } else if (props.isGuide) {
         ctor = 'Guide';
-        primType = TYPES.GUIDES;
+        primType = PrimType.GUIDES;
       } else if (props.isScale) {
         ctor = 'Scale';
-        primType = TYPES.SCALES;
+        primType = PrimType.SCALES;
       }
       InspectorType = inspectors[ctor + 'Inspector'];
     }

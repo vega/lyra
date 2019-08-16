@@ -8,9 +8,10 @@ import {AxisInspector} from './Axis';
 import {LegendInspector} from './Legend';
 import {GuideType} from '../../store/factory/Guide';
 import {updateGuideProperty} from '../../actions/guideActions';
+import {PrimType} from '../../constants/primTypes';
 
 interface OwnProps {
-  primType: any;
+  primType: PrimType;
   primId: number;
   guideType: GuideType;
 

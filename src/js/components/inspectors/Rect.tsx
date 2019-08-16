@@ -3,10 +3,11 @@
 import * as React from 'react';
 import {ExtentProperty} from './ExtentProperty';
 import {Property} from './Property';
+import {PrimType} from '../../constants/primTypes';
 
 interface RectInspectorProps {
   primId: number,
-  primType: any
+  primType: PrimType
 }
 
 class BaseRectInspector extends React.Component<RectInspectorProps> {

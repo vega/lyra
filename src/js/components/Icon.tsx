@@ -1,14 +1,13 @@
 import * as React from 'react';
 
 interface IconProps {
-  // TODO(jzong): change 'any' to more specific types
   className?: string;
-  onClick?: any;
+  onClick?: (evt) => void;
   width?: number | string;
   height?: number | string;
-  'data-html'?: any;
-  'data-tip'?: any;
-  'data-place'?: any;
+  'data-html'?: boolean;
+  'data-tip'?: string;
+  'data-place'?: string;
   glyph: any;
 }
 class BaseIcon extends React.Component<IconProps> {

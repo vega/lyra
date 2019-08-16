@@ -1,8 +1,7 @@
 import * as React from 'react';
+import {Property} from '../../inspectors/Property';
 
-const Immutable = require('immutable');
-// const parseExpr = require('vega').parse.expr();
-const Property  = require('../../inspectors/Property');
+// const parseExpr = require('vega').parse.expr(); TODO
 
 
 interface FormulaObject {

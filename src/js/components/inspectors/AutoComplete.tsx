@@ -16,16 +16,17 @@ import ContentEditable from 'react-contenteditable';
 import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import {State} from '../../store';
+import {Schema} from '../../store/factory/Dataset';
 
 interface OwnProps {
   type: 'expr' | 'tmpl';
   dsId: number,
   value: string,
-  updateFn: (html) => any
+  updateFn: (evt) => void
 }
 
 interface StateProps {
-  fields: any;
+  fields: string[];
 }
 
 interface OwnState {
@@ -33,7 +34,7 @@ interface OwnState {
 }
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
-  const schema = getInVis(reduxState, 'datasets.' + ownProps.dsId + '._schema');
+  const schema: Schema = getInVis(reduxState, 'datasets.' + ownProps.dsId + '._schema');
   return {
     fields: schema.keySeq().toJS()
   };

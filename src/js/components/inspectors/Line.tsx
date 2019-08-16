@@ -1,13 +1,12 @@
-'use strict';
-const primTypes = require('../../constants/primTypes');
 const INTERPOLATE = require('../../constants/interpolate');
 
 import * as React from 'react';
 import {Property} from './Property';
+import {PrimType} from '../../constants/primTypes';
 
 interface LineInspectorProps {
   primId: number;
-  primType: 'marks'|'guides'|'scales'|any; // TODO: Should import from primType: primTypes.isRequired
+  primType: PrimType
 
 }
 class BaseLineInspector extends React.Component<LineInspectorProps> {

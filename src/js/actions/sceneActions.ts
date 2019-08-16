@@ -22,7 +22,7 @@ export const createScene = createStandardAction('CREATE_SCENE').map((payload: Sc
 export function clearScene(): ThunkAction<void, State, null, AnyAction> {
   return function(dispatch, getState) {
     const state = getState();
-    const sceneId = getInVis(state, 'scene.id');
+    const sceneId = getInVis(state, 'scene._id');
     const children = getInVis(state, 'marks.' + sceneId + '.marks');
 
     dispatch(startBatch());

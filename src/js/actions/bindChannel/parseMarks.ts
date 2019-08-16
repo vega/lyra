@@ -5,9 +5,9 @@ import {setMarkVisual, disableMarkVisual, updateMarkProperty} from '../markActio
 import {Dispatch} from 'redux';
 import {State} from '../../store';
 import {propSg} from '../../util/prop-signal';
+import MARK_EXTENTS from '../../constants/markExtents';
 
 const dl = require('datalib'),
-  MARK_EXTENTS = require('../../constants/markExtents'),
   imutils = require('../../util/immutable-utils'),
   getInVis = imutils.getInVis,
   getIn = imutils.getIn;
@@ -28,7 +28,7 @@ export function parseMarks(dispatch: Dispatch, state: State, parsed) {
     markId = parsed.markId,
     channel = parsed.channel,
     def = parsed.output.marks[0].marks[0],
-    props = def.properties.update;
+    props = def.encode.update;
 
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial(dispatch, state, parsed, props);

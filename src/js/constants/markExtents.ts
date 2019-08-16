@@ -1,5 +1,4 @@
-'use strict';
-module.exports = {
+export default {
   x: {
     START: {name: 'x', label: 'Left'},
     CENTER: {name: 'xc', label: 'Center'},

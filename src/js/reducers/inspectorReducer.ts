@@ -18,7 +18,7 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
     return state.setIn(['pipelines', 'selectedId'], action.payload);
   }
 
-  if (action.type === getType(inspectorActions.selectMark) ||
+  if (action.type === getType(inspectorActions.baseSelectMark) ||
     action.type === getType(inspectorActions.selectScale) ||
     action.type === getType(inspectorActions.selectGuide)) {
     state = state.setIn(['encodings', 'selectedId'], action.payload);
@@ -27,14 +27,11 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
 
   if (action.type === getType(markActions.addMark)) {
       state = state.setIn(['encodings', 'selectedId'], action.meta);
-      state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.selectMark));
+      state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.baseSelectMark));
   }
 
-  if (action.type === getType(inspectorActions.selectMark)) {
-    const hierarchy = require('../util/hierarchy');
-    const parentGroupIds = hierarchy.getParentGroupIds(action.payload);
-
-    return expandLayers(state, parentGroupIds);
+  if (action.type === getType(inspectorActions.baseSelectMark)) {
+    return expandLayers(state, action.meta);
   }
 
   // Auto-select new marks
