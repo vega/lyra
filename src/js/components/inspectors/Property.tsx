@@ -1,4 +1,3 @@
-const FormInputProperty = require('./FormInputProperty');
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
@@ -10,6 +9,7 @@ import { Dispatch } from 'redux';
 import {resetMarkVisual} from '../../actions/markActions';
 import {State} from '../../store';
 import {AutoComplete} from './AutoComplete';
+import {FormInputProperty} from './FormInputProperty';
 
 /* TODO: this is a work in progress
    parents of property usually pass in their props using {...prop}
@@ -55,7 +55,7 @@ function mapStateToProps(reduxState: State, ownProps/*: OwnProps*/)/*: StateProp
 
   if (ownProps.name) {
     if (ownProps.primType === TYPES.MARKS) {
-      path = 'properties.update.' + ownProps.name;
+      path = 'encode.update.' + ownProps.name;
       dsId = getIn(state, 'from.data');
     } else {
       path = ownProps.name;

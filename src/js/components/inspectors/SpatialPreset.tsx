@@ -28,13 +28,13 @@ interface DispatchProps {
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const id = ownProps.primId;
   const propName = ownProps.name;
-  const prop = getInVis(state, 'marks.' + id + '.properties.update.' + propName);
+  const prop = getInVis(state, 'marks.' + id + '.encode.update.' + propName);
 
   return {
-    field: prop.get('field'),
-    band:  prop.get('band'),
-    group: prop.get('group'),
-    scale: getInVis(state, 'scales.' + prop.get('scale'))
+    field: prop.field,
+    band:  prop.band,
+    group: prop.group,
+    scale: getInVis(state, 'scales.' + prop.scale)
   };
 }
 

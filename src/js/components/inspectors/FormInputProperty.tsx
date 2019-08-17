@@ -8,26 +8,26 @@ import {Map} from 'immutable';
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
+import {offSignal, onSignal} from '../../ctrl/listeners';
+import sg from '../../ctrl/signals';
 import {State} from '../../store';
 import {Icon} from '../Icon';
-import sg from '../../ctrl/signals';
-import {onSignal, offSignal} from '../../ctrl/listeners';
 
 interface OwnProps {
-  id: string;
-  type: 'number'|'range'|'color'|'select'|'text'|'checkbox'|'toggle'|'selection';
-  min: string;
-  max: string;
-  disabled: boolean|string;
-  opts: any; // Should be array type, but any[] doesn't work
-  signal: string;
-  onChange: () => any; // TODO: find function in/out types
-  onBlur: () => any; // TODO: find function in/out types
-  name: any;
-  group: any;
-  glyph: any;
-  glyphs: any;
-  step: any;
+  id?: string;
+  type?: 'number'|'range'|'color'|'select'|'text'|'checkbox'|'toggle'|'selection';
+  min?: string;
+  max?: string;
+  disabled?: boolean|string;
+  opts?: any; // Should be array type, but any[] doesn't work
+  signal?: string;
+  onChange?: () => any; // TODO: find function in/out types
+  onBlur?: () => any; // TODO: find function in/out types
+  name?: any;
+  group?: any;
+  glyph?: any;
+  glyphs?: any;
+  step?: any;
 }
 interface StateProps {
   value: string|number|boolean|any; // TODO(arlu): the any propTypes was Immutable.Map, not sure what it should be
@@ -39,8 +39,8 @@ interface DispatchProps {
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const signal = ownProps.signal;
-  return !signal ? {value: null} : { // TODO replace this with a real default value
-    value: getInVis(reduxState, 'signals.' + signal + '.init')
+  return !signal ? {value: ''} : {
+    value: getInVis(reduxState, 'signals.' + signal + '.value')
   };
 }
 
@@ -60,11 +60,10 @@ interface FormInputState {
 }
 
 class BaseFormInputProperty extends React.Component<OwnProps & StateProps & DispatchProps, FormInputState> {
-
-  public getInitialState() {
-    const props = this.props;
-    return {value: props.value};
-  };
+  constructor(props) {
+    super(props);
+    this.state = {value: props.value};
+  }
 
   public componentWillMount() {
     this.onSignal(false);
