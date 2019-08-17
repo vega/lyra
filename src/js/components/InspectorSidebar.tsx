@@ -6,6 +6,17 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../store';
 import {EncodingStateRecord} from '../store/factory/Inspector';
+import {AreaInspector} from './inspectors/Area';
+import {GuideInspector} from './inspectors/Guide';
+import {LineInspector} from './inspectors/Line';
+import {RectInspector} from './inspectors/Rect';
+import {ScaleInspector} from './inspectors/Scale';
+import {SymbolInspector} from './inspectors/Symbol';
+import {TextInspector} from './inspectors/Text';
+
+const inspectors = {AreaInspector, GuideInspector, LineInspector,
+  RectInspector, ScaleInspector, SymbolInspector, TextInspector,
+  GroupInspector: RectInspector};
 
 interface Inspector {
   selectedId: number,
@@ -19,19 +30,19 @@ interface Inspector {
 }
 
 const capitalize = require('capitalize');
+import {getType} from 'typesafe-actions';
 const imutils  = require('../util/immutable-utils');
-const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
-const ACTIONS = require('../actions/Names');
+import * as inspectorActions from '../actions/inspectorActions';
 const TYPES = require('../constants/primTypes');
 
 function mapStateToProps(state: State, ownProps): Inspector {
   const encState: EncodingStateRecord = state.getIn(['inspector', 'encodings']);
   const selId   = encState.get('selectedId');
   const selType = encState.get('selectedType');
-  const isMark  = selType === ACTIONS.SELECT_MARK;
-  const isGuide = selType === ACTIONS.SELECT_GUIDE;
-  const isScale = selType === ACTIONS.SELECT_SCALE;
+  const isMark  = selType === getType(inspectorActions.selectMark);
+  const isGuide = selType === getType(inspectorActions.selectGuide);
+  const isScale = selType === getType(inspectorActions.selectScale);
   let primitive;
   let from;
 
@@ -63,15 +74,6 @@ function mapStateToProps(state: State, ownProps): Inspector {
 }
 
 class BaseInspector extends React.Component<Inspector> {
-  public Line = require('./inspectors/Line');
-  public Rect = require('./inspectors/Rect');
-  public Symbol = require('./inspectors/Symbol');
-  public Text = require('./inspectors/Text');
-  public Area = require('./inspectors/Area');
-  public Group = require('./inspectors/Rect');
-  public Scale = require('./inspectors/Scale');
-  public Guide = require('./inspectors/Guide');
-
   public render() {
     const  props  = this.props;
     const primId = props.selectedId;
@@ -91,7 +93,7 @@ class BaseInspector extends React.Component<Inspector> {
         ctor = 'Scale';
         primType = TYPES.SCALES;
       }
-      InspectorType = BaseInspector[ctor];
+      InspectorType = inspectors[ctor + 'Inspector'];
     }
 
     const pipeline = props.isMark ? (
