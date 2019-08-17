@@ -7,15 +7,16 @@ import {GuideRecord} from './factory/Guide';
 import {Hints, HintsRecord} from './factory/Hints';
 import {Inspector, InspectorRecord} from './factory/Inspector';
 import {MarkRecord} from './factory/Mark';
-import {Scene, SceneRecord} from './factory/marks/Scene';
 import {PipelineRecord} from './factory/Pipeline';
 import {ScaleRecord} from './factory/Scale';
 import {defaultSignalState, SignalRecord} from './factory/Signal';
 import {VegaReparse, VegaReparseRecord} from './factory/Vega';
 import {Walkthrough, WalkthroughRecord} from './factory/Walkthrough';
 
-export type VisStateTree = Map<string, SceneRecord |
-      Map<string, PipelineRecord | DatasetRecord | ScaleRecord | GuideRecord | MarkRecord | SignalRecord>>;
+export type VisStateTree = Map<string, Map<string, number |
+  PipelineRecord | DatasetRecord | ScaleRecord | GuideRecord |
+  MarkRecord | SignalRecord>>;
+
 export interface VisState {
   past: List<VisStateTree>;
   present: VisStateTree;
@@ -37,7 +38,7 @@ const getDefaultState = Record<LyraState>({
     present: Map({
       pipelines: Map<string, PipelineRecord>(),
       datasets: Map<string, DatasetRecord>(),
-      scene: Scene(),
+      scene: Map<string, number>(),
       scales: Map<string, ScaleRecord>(),
       guides: Map<string, GuideRecord>(),
       marks: Map<string, MarkRecord>(),

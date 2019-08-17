@@ -1,10 +1,10 @@
+import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import * as sceneActions from '../actions/sceneActions';
-import {Scene, SceneRecord} from '../store/factory/marks/Scene';
 
-export function sceneReducer(state: SceneRecord, action: ActionType<typeof sceneActions>): SceneRecord {
+export function sceneReducer(state: Map<string, number>, action: ActionType<typeof sceneActions>): Map<string, number> {
   if (typeof state === 'undefined') {
-    return Scene();
+    return Map();
   }
 
   if (action.type === getType(sceneActions.createScene)) {

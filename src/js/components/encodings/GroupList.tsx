@@ -27,7 +27,7 @@ interface DispatchProps {
 }
 
 function mapStateToProps(reduxState: State): StateProps {
-  const sceneId = getInVis(reduxState, 'scene.id');
+  const sceneId = getInVis(reduxState, 'scene._id');
   return {
     sceneId: sceneId,
     selectedId: reduxState.getIn(['inspector', 'encodings', 'selectedId']),
