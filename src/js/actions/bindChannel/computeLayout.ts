@@ -1,10 +1,10 @@
 'use strict';
 
-import {Dispatch} from "redux";
-import {State} from "../../store";
+import {Dispatch} from 'redux';
+import {defaultConfig} from 'vega-lite/src/config';
 import {updateMarkProperty} from '../../actions/markActions';
 import {setSignal} from '../../actions/signalActions';
-import {defaultConfig} from 'vega-lite/src/config';
+import {State} from '../../store';
 
 const dl = require('datalib'),
     dsUtils = require('../../util/dataset-utils'),
@@ -61,7 +61,7 @@ function resize(dispatch : Dispatch, state : State, mark, prop : string, size) {
     dispatch(updateMarkProperty({property: prop, value: size}, mark.get('_id')));
   } else {
     // TODO: check all spatial properties of groups rather than just width/height.
-    const updatePath = 'properties.update.',
+    const updatePath = 'encode.update.',
         propPath = updatePath + prop,
         signal = getIn(mark, propPath + '.signal');
 
@@ -75,7 +75,7 @@ function resize(dispatch : Dispatch, state : State, mark, prop : string, size) {
   const children = mark.get('marks');
   if (children && children.size) {
     children.forEach(function(childId) {
-      var child = getInVis(state, 'marks.' + childId);
+      const child = getInVis(state, 'marks.' + childId);
       if (child.get('type') !== 'group' && !child.get('_manualLayout')) {
         return;
       }

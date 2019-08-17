@@ -11,8 +11,8 @@ import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
 import {updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store';
-import {Property} from './Property';
 import {TextAlignments, TextBaselines, TextFonts, TextFontStyles, TextFontWeights} from '../../store/factory/marks/Text';
+import {Property} from './Property';
 
 interface OwnProps {
   primId?: number;
@@ -39,7 +39,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   return {
     updateTemplate: function(value) {
       const val = value.target ? value.target.value : value;
-      dispatch(updateMarkProperty({property: 'properties.update.text.template', value: val}, ownProps.primId));
+      dispatch(updateMarkProperty({property: 'encode.update.text.template', value: val}, ownProps.primId));
     }
   };
 }

@@ -5,7 +5,7 @@ import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as sceneActions from '../actions/sceneActions';
 import {MarkRecord, MarkState} from '../store/factory/Mark';
-import {propSg, convertValuesToSignals} from '../util/prop-signal';
+import {convertValuesToSignals, propSg} from '../util/prop-signal';
 
 const ensureValuePresent = function(state: MarkState, path: String[], valToAdd): MarkState {
   return state.updateIn(path, marks => {
@@ -91,7 +91,7 @@ function setParentMark(state: MarkState, params: {parentId: number; childId: num
   // Setting a parent of a previously-parentless mark
   return ensureValuePresent(
     // First, update the child's _parent pointer to target the new parent
-    state.setIn([String(childId), '_parent'], parentId), //.updateIn([String(parentId), 'marks'], marks => marks.push(childId)),
+    state.setIn([String(childId), '_parent'], parentId), // .updateIn([String(parentId), 'marks'], marks => marks.push(childId)),
     [String(parentId), 'marks'],
     childId
   );
@@ -181,26 +181,26 @@ export function marksReducer(
   }
 
   if (action.type === getType(markActions.setMarkVisual)) {
-    return state.setIn([String(markId), 'properties', 'update', action.payload.property], action.payload.def);
+    return state.setIn([String(markId), 'encode', 'update', action.payload.property], action.payload.def);
   }
 
   if (action.type === getType(markActions.disableMarkVisual)) {
-    return state.setIn([String(markId), 'properties', 'update', action.payload, '_disabled'], true);
+    return state.setIn([String(markId), 'encode', 'update', action.payload, '_disabled'], true);
   }
 
   if (action.type === getType(markActions.resetMarkVisual)) {
     const markType = state.getIn([String(markId), 'type']);
     const property = action.payload;
 
-    return state.setIn([String(markId), 'properties', 'update', property], {
+    return state.setIn([String(markId), 'encode', 'update', property], {
       signal: propSg(markId, markType, property)
     });
   }
 
   if (action.type === getType(markActions.setMarkExtent)) {
     return state
-      .setIn([String(markId), 'properties', 'update', action.payload.oldExtent, '_disabled'], true)
-      .setIn([String(markId), 'properties', 'update', action.payload.newExtent, '_disabled'], false);
+      .setIn([String(markId), 'encode', 'update', action.payload.oldExtent, '_disabled'], true)
+      .setIn([String(markId), 'encode', 'update', action.payload.newExtent, '_disabled'], false);
   }
 
   if (action.type === getType(markActions.setVlUnit)) {
@@ -209,7 +209,7 @@ export function marksReducer(
 
   if (action.type === getType(markActions.bindScale)) {
     return state.setIn(
-      [String(markId), 'properties', 'update', action.payload.property, 'scale'],
+      [String(markId), 'encode', 'update', action.payload.property, 'scale'],
       action.payload.scaleId
     );
   }

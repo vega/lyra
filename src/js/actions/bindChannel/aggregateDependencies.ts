@@ -1,12 +1,12 @@
-import {updateGuideProperty} from '../guideActions';
-import {GuideType} from '../../store/factory/Guide';
 import {Dispatch} from 'redux';
-import {State} from '../../store';
-import {Scale} from '../../store/factory/Scale';
-import {addScale, updateScaleProperty, amendDataRef} from '../scaleActions';
-import {updateMarkProperty} from '../markActions';
-import {addScaleToGroup} from './helperActions';
 import {getCounts} from '../../ctrl/export';
+import {State} from '../../store';
+import {GuideType} from '../../store/factory/Guide';
+import {Scale} from '../../store/factory/Scale';
+import {updateGuideProperty} from '../guideActions';
+import {updateMarkProperty} from '../markActions';
+import {addScale, amendDataRef, updateScaleProperty} from '../scaleActions';
+import {addScaleToGroup} from './helperActions';
 
 const dl = require('datalib'),
   imutils = require('../../util/immutable-utils'),
@@ -108,10 +108,10 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
       }
     });
 
-    getIn(mark, 'properties.update').forEach(function(def, name) {
+    getIn(mark, 'encode.update').forEach(function(def, name) {
       const newScaleId = clones[def.get('scale')];
       if (newScaleId) {
-        dispatch(updateMarkProperty({property: 'properties.update.' + name + '.scale', value: newScaleId}, markId));
+        dispatch(updateMarkProperty({property: 'encode.update.' + name + '.scale', value: newScaleId}, markId));
       }
     });
   }
