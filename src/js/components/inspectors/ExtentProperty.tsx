@@ -32,15 +32,15 @@ interface DispatchProps {
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const type = ownProps.exType;
   const primId = ownProps.primId;
-  const mark = getInVis(state, 'marks.' + primId + '.properties.update');
+  const update = getInVis(state, 'marks.' + primId + '.encode.update');
   const EXTENTS = dl.vals(MARK_EXTENTS[type]);
   let start;
   let end;
 
   EXTENTS.forEach(function(ext) {
     const name = ext.name;
-    const prop = mark.get(name);
-    if (prop.get('_disabled')) {
+    const prop = update[name];
+    if (prop._disabled) {
       return;
     } else if (!start) {
       start = name;
@@ -52,8 +52,8 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   return {
     start: start,
     end: end,
-    startDisabled: getIn(mark, start + '.band') || getIn(mark, start + '.group'),
-    endDisabled: getIn(mark, end + '.band') || getIn(mark, end + '.group'),
+    startDisabled: update[start].band || update[start].group,
+    endDisabled: update[end].band || update[end].group,
   };
 }
 
