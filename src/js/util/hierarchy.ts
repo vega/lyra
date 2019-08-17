@@ -1,5 +1,5 @@
 'use strict';
-import {store, State} from '../store';
+import {State, store} from '../store';
 import {Mark} from '../store/factory/Mark';
 
 const Bounds = require('vega-scenegraph').Bounds,
@@ -88,7 +88,7 @@ function getParentGroupIds(markId: number, state: State) {
  */
 export function getClosestGroupId(id?: number, state?: State) {
   state = state || store.getState();
-  const markId = id || getIn(state, 'inspector.encodings.selectedId.props._id'),
+  const markId = id || getIn(state, 'inspector.encodings.selectedId'),
     mark = getInVis(state, 'marks.' + markId);
 
   if (!mark) {

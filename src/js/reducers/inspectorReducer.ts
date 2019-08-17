@@ -18,15 +18,16 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
     return state.setIn(['pipelines', 'selectedId'], action.payload);
   }
 
-  if (action.type === getType(inspectorActions.selectGuide)) {
+  if (action.type === getType(inspectorActions.selectMark) ||
+    action.type === getType(inspectorActions.selectScale) ||
+    action.type === getType(inspectorActions.selectGuide)) {
     state = state.setIn(['encodings', 'selectedId'], action.payload);
     state = state.setIn(['encodings', 'selectedType'], action.type);
   }
 
-  if (action.type === getType(inspectorActions.selectMark) || action.type === getType(markActions.addMark) ||
-      action.type === getType(inspectorActions.selectScale)) {
-      state = state.setIn(['encodings', 'selectedId'], action.payload);
-      state = state.setIn(['encodings', 'selectedType'], action.type === getType(markActions.addMark) ? getType(inspectorActions.selectMark) : action.type);
+  if (action.type === getType(markActions.addMark)) {
+      state = state.setIn(['encodings', 'selectedId'], action.meta);
+      state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.selectMark));
   }
 
   if (action.type === getType(inspectorActions.selectMark)) {
