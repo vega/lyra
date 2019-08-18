@@ -26,14 +26,7 @@ store.subscribe(listeners.createStoreListener(store, ctrl));
 
 // Initializes the Lyra ctrl with a new Scene primitive.
 store.dispatch(
-  createScene(Scene({
-    encode: {
-      update: {
-        width: { value: 640 },
-        height: { value: 360 }
-      }
-    }
-  }))
+  createScene(Scene())
 );
 
 store.dispatch(addMark(Mark('group', {_parent: 1})));

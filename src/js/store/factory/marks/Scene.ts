@@ -23,8 +23,8 @@ export const Scene = Record<LyraGroupMark>({
       // y2: {_disabled: true},
       // xc: {value: 70, _disabled: true},
       // yc: {value: 70, _disabled: true},
-      width: {value: 500},
-      height: {value: 500},
+      width: {value: 640},
+      height: {value: 360},
       padding: {value: 'auto'},
       background: {value: 'auto'},
     }

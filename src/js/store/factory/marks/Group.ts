@@ -42,8 +42,8 @@ export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
         yc: {value: 70, _disabled: true},
         // width: {value: scene && scene.get('width')},
         // height: {value: scene && scene.get('height')},
-        width: {value: 500},
-        height: {value: 500}
+        width: {value: 640},
+        height: {value: 360}
       }
     }
   })(values);
