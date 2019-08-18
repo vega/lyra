@@ -4,15 +4,16 @@ import * as ReactTooltip from 'react-tooltip';
 import { Dispatch } from 'redux';
 import {State} from '../../store';
 
+import {fieldDefs} from 'vega-lite/src/encoding';
+import sg from '../../ctrl/signals';
+import {ColumnRecord, Schema} from '../../store/factory/Dataset';
+import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import { Icon } from '../Icon';
 import AggregateList from './AggregateList';
 import FieldType from './FieldType';
 import FilterIcon from './transforms/FilterIcon';
 import FormulaIcon from './transforms/FormulaIcon';
 import SortIcon from './transforms/SortIcon';
-import sg from '../../ctrl/signals';
-import {ColumnRecord, Schema} from '../../store/factory/Dataset';
-import {fieldDefs} from 'vega-lite/src/encoding';
 
 const dl = require('datalib');
 const ctrl = require('../../ctrl');
@@ -107,7 +108,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
 
     evt.dataTransfer.setData('text/plain', evt.target.id);
     evt.dataTransfer.effectAllowed = 'link';
-    sg.set(sg.MODE, 'channels');
+    sg.set(MODE, 'channels');
     ctrl.update();
   }
 
@@ -124,8 +125,8 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
   // SELECTED signal indicates the mark to bind the data to.
   public handleDragEnd = (evt: React.DragEvent<HTMLDivElement>, opts?) => {
     const props = this.props;
-    const sel = sg.get(sg.SELECTED);
-    const cell = sg.get(sg.CELL);
+    const sel = sg.get(SELECTED);
+    const cell = sg.get(CELL);
     const bindField = this.state.bindField;
     const dropped = sel._id && cell._id;
     const dsId = bindField.source ? props.srcId : props.dsId;
@@ -140,8 +141,8 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
       console.warn(e);
     }
 
-    sg.set(sg.MODE, 'handles');
-    sg.set(sg.CELL, {});
+    sg.set(MODE, 'handles');
+    sg.set(CELL, {});
     this.setState({bindField: null});
 
     if (!dropped) {

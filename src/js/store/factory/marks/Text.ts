@@ -1,8 +1,8 @@
 import {Record, RecordOf} from 'immutable';
-import {TextMark, Align, Baseline, FontStyle, FontWeight} from 'vega-typings';
-import {HandleStreams} from '../Mark';
-import {signalNames} from '../Signal';
+import {Align, Baseline, FontStyle, FontWeight, TextMark} from 'vega-typings';
 import {propSg} from '../../../util/prop-signal';
+import {HandleStreams} from '../Mark';
+import {DELTA} from '../Signal';
 
 
 const anchorTarget = require('../../../util/anchor-target');
@@ -54,7 +54,6 @@ export function getHandleStreams(text: TextRecord): HandleStreams {
   const x = propSg(id, 'text', 'x');
   const y = propSg(id, 'text', 'y');
   const fontSize = propSg(id, 'text', 'fontSize');
-  const DELTA: string = signalNames.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};

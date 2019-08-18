@@ -2,9 +2,9 @@
 
 import {Record, RecordOf} from 'immutable';
 import {AreaMark} from 'vega-typings';
-import {HandleStreams} from '../Mark';
-import {signalNames} from '../Signal';
 import {propSg} from '../../../util/prop-signal';
+import {HandleStreams} from '../Mark';
+import {DELTA} from '../Signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -55,7 +55,6 @@ export function getHandleStreams(area: AreaRecord): HandleStreams {
   const y2 = propSg(id, 'area', 'y2');
   const w = propSg(id, 'area', 'width');
   const h = propSg(id, 'area', 'height');
-  const DELTA: string = signalNames.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};

@@ -1,8 +1,8 @@
 import {Record, RecordOf} from 'immutable';
 import {LineMark, SignalRef} from 'vega-typings';
-import {HandleStreams} from '../Mark';
-import {signalNames} from '../Signal';
 import {propSg} from '../../../util/prop-signal';
+import {HandleStreams} from '../Mark';
+import {DELTA} from '../Signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -47,7 +47,6 @@ export function getHandleStreams(line: LineRecord): HandleStreams {
   const id = line._id;
   const x = propSg(id, 'line', 'x');
   const y = propSg(id, 'line', 'y');
-  const DELTA: string = signalNames.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};

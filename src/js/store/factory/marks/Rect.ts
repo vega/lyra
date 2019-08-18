@@ -1,9 +1,9 @@
 import {Record, RecordOf} from 'immutable';
 import {RectMark} from 'vega-typings';
-import {GroupRecord} from './Group';
-import {HandleStreams} from '../Mark';
-import {signalNames} from '../Signal';
 import {propSg} from '../../../util/prop-signal';
+import {HandleStreams} from '../Mark';
+import {DELTA} from '../Signal';
+import {GroupRecord} from './Group';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
@@ -56,7 +56,6 @@ export function getHandleStreams(rect: RectRecord | GroupRecord): HandleStreams 
   const y2 = propSg(id, type, 'y2');
   const w = propSg(id, type, 'width');
   const h = propSg(id, type, 'height');
-  const DELTA: string = signalNames.DELTA;
   const DX = DELTA + '.x';
   const DY = DELTA + '.y';
   const streams: HandleStreams = {};

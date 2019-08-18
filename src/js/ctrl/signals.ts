@@ -22,10 +22,6 @@ export function api() {
   return getInVis(store.getState(), 'signals').toJS();
 }
 
-// Augment the signals API with properties like SELECTED that define the
-// strings used to identify and trigger a given signal
-dl.extend(api, signalNames);
-
 /**
  * Initialize a signal within the signal store, and return that signal's value.
  *
@@ -129,5 +125,5 @@ api.streams = function(name, def) {
   store.dispatch(signalActions.setSignalStreams(name, def));
 };
 
-export default api as (typeof api & typeof signalNames); // TODO(jzong): hack to get typescript to recognize signal names added by dl.extend, eventually rewrite this file
+export default api;
 (window as any).sg = api;

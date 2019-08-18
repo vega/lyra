@@ -4,13 +4,13 @@ import {Signal as VegaSignal} from 'vega-typings/types';
 const dl = require('datalib');
 const ns = require('../../util/ns');
 
-const SELECTED = ns('selected');
-const MODE = ns('mode');
-const ANCHOR = ns('anchor');
-const DELTA = ns('delta');
-const CURSOR = 'cursor';  // Special vega signal, don't namespace.
-const CELL = ns('cell');
-const MOUSE = ns('mouse');
+export const SELECTED = ns('selected');
+export const MODE = ns('mode');
+export const ANCHOR = ns('anchor');
+export const DELTA = ns('delta');
+export const CURSOR = 'cursor';  // Special vega signal, don't namespace.
+export const CELL = ns('cell');
+export const MOUSE = ns('mouse');
 
 export const signalNames = {
   SELECTED,

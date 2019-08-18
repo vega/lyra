@@ -4,6 +4,7 @@ import {redo, undo} from '../actions/historyActions';
 import {expandLayers, selectMark} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';
 import {store} from '../store';
+import {MODE} from '../store/factory/Signal';
 
 const hierarchy = require('../util/hierarchy');
 const ACTIONS = require('../actions/Names');
@@ -77,7 +78,7 @@ export function registerSignalListeners() {
   // presses for alternate channel manipulators.
   if (!win.on(dragover)) {
     win.on(dragover, function() {
-      const mode = sg.get(sg.MODE);
+      const mode = sg.get(MODE);
       const shiftKey = d3.event.shiftKey;
       const channels = mode === 'channels';
       const altchannels = mode === 'altchannels';
@@ -87,10 +88,10 @@ export function registerSignalListeners() {
       }
 
       if (channels && shiftKey) {
-        sg.set(sg.MODE, 'altchannels');
+        sg.set(MODE, 'altchannels');
         ctrl.update();
       } else if (altchannels && !shiftKey) {
-        sg.set(sg.MODE, 'channels');
+        sg.set(MODE, 'channels');
         ctrl.update();
       }
     });
