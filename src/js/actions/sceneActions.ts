@@ -13,7 +13,7 @@ export const createScene = createStandardAction('CREATE_SCENE').map((payload: Sc
   const id: number = payload._id || counter.global();
   return {
     payload: {
-      props: payload.merge({_id: id, name: 'Scene'}),
+      props: payload.merge({_id: id}),
       name: 'Scene'
     },
     meta: id

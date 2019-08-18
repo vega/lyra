@@ -1,10 +1,10 @@
 'use strict';
 
-import {store, State} from '../store';
+import {Mark, Spec} from 'vega-typings';
+import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
 import {input} from '../util/dataset-utils';
 import {signalLookup} from '../util/signal-lookup';
-import {Spec, Mark} from 'vega-typings';
 
 const dl = require('datalib'),
   json2csv = require('json2csv'),
@@ -37,12 +37,9 @@ export function exporter(internal: boolean = false): Spec {
 
   counts = dl.duplicate(SPEC_COUNT);
 
-  const spec: Spec = {};
-
-  spec.marks = [exporter.scene(state, int)];
+  const spec: Spec = exporter.scene(state, int);
   spec.data = exporter.pipelines(state, int);
-
-  spec.background = 'white';
+  // spec.background = 'white';
 
   return spec;
 }

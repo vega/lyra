@@ -5,9 +5,10 @@ import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as sceneActions from '../actions/sceneActions';
 import {MarkRecord, MarkState} from '../store/factory/Mark';
+import {SceneRecord} from '../store/factory/marks/Scene';
 import {convertValuesToSignals, propSg} from '../util/prop-signal';
 
-const ensureValuePresent = function(state: MarkState, path: String[], valToAdd): MarkState {
+const ensureValuePresent = function(state: MarkState, path: string[], valToAdd): MarkState {
   return state.updateIn(path, marks => {
     if (marks.indexOf(valToAdd) === -1) {
       marks.push(valToAdd);
@@ -15,7 +16,7 @@ const ensureValuePresent = function(state: MarkState, path: String[], valToAdd):
     return marks;
   });
 };
-const ensureValueAbsent = function(state: MarkState, path: String[], valToRemove): MarkState {
+const ensureValueAbsent = function(state: MarkState, path: string[], valToRemove): MarkState {
   return state.updateIn(path, marks => marks.filter(c => c !== valToRemove));
 };
 
@@ -25,14 +26,14 @@ const ensureValueAbsent = function(state: MarkState, path: String[], valToRemove
 // "state" is the marks store state; "action" is an object with a numeric
 // `._id`, string `.name`, and object `.props` defining the mark to be created.
 function makeMark(action: ActionType<typeof markActions.addMark | typeof sceneActions.createScene>): MarkRecord {
-  const def: MarkRecord = action.payload.props;
+  const def: MarkRecord | SceneRecord = action.payload.props;
   const props = def.encode && def.encode.update;
-  return (def as any).merge({
+  return def.encode ? (def as any).merge({
     // TODO(jzong) typescript barfs when calling merge on union record types
     encode: {
-      update: convertValuesToSignals(props, def.type, action.meta)
+      update: convertValuesToSignals(props, (def as MarkRecord).type, action.meta)
     }
-  });
+  }) : def;
 }
 
 // Helper reducer to configure a parent-child relationship between two marks.

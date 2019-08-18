@@ -1,33 +1,22 @@
 import {Record, RecordOf} from 'immutable';
-import {LyraGroupMark} from './Group';
+import {Spec} from 'vega-typings';
 
-export const Scene = Record<LyraGroupMark>({
-  type: 'group',
+export type LyraScene = {
+  _id: number;
+  name: string;
+} & Spec;
+
+export const Scene = Record<LyraScene>({
   _id: null,
-  _parent: null,
-  _manualLayout: false,
+  name: 'Scene',
   scales: [],
   axes: [],
   legends: [],
   marks: [],
-  name: null,
+  autosize: 'pad',
+  background: 'white',
   encode: {
-    update: {
-      fill: undefined,
-      stroke: undefined,
-      x: {value: 0},
-      y: {value: 0},
-      // TODO(jzong): _disabled is not part of vega-typings encode.d.ts
-      // but somehow it works on group and rect so honestly idk
-      // x2: {_disabled: true},
-      // y2: {_disabled: true},
-      // xc: {value: 70, _disabled: true},
-      // yc: {value: 70, _disabled: true},
-      width: {value: 640},
-      height: {value: 360},
-      padding: {value: 'auto'},
-      background: {value: 'auto'},
-    }
-  },
+    update: {}
+  }
 });
-export type SceneRecord = RecordOf<LyraGroupMark>;
+export type SceneRecord = RecordOf<LyraScene>;

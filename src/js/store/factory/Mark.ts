@@ -4,7 +4,7 @@ import {Area, AreaRecord, getHandleStreams as areaHandleStreams, LyraAreaMark} f
 import {Group, GroupRecord, LyraGroupMark} from './marks/Group';
 import {getHandleStreams as lineHandleStreams, Line, LineRecord, LyraLineMark} from './marks/Line';
 import {getHandleStreams as rectHandleStreams, LyraRectMark, Rect, RectRecord} from './marks/Rect';
-import {Scene, SceneRecord} from './marks/Scene';
+import {LyraScene, Scene, SceneRecord} from './marks/Scene';
 import {getHandleStreams as symbolHandleStreams, LyraSymbolMark, Symbol, SymbolRecord} from './marks/Symbol';
 import {getHandleStreams as textHandleStreams, LyraTextMark, Text, TextRecord} from './marks/Text';
 
@@ -13,7 +13,7 @@ const counter = require('../../util/counter');
 
 // TODO(jzong) reconcile this with vega typings marktype
 // export type LyraMarkType = MarkType | 'scene';
-export type LyraMarkType = 'symbol' | 'area' | 'line' | 'rect' | 'text' | 'group' | 'scene';
+export type LyraMarkType = 'symbol' | 'area' | 'line' | 'rect' | 'text' | 'group';
 
 function name(type: LyraMarkType) {
   return capitalize(type) + ' ' + counter.type('marks');
@@ -34,7 +34,7 @@ const defaults = {
 };
 
 export type LyraMark = LyraAreaMark | LyraGroupMark | LyraLineMark | LyraRectMark | LyraSymbolMark | LyraTextMark;
-export type MarkRecord = AreaRecord | GroupRecord | LineRecord | RectRecord | SceneRecord | SymbolRecord | TextRecord;
+export type MarkRecord = AreaRecord | GroupRecord | LineRecord | RectRecord | SymbolRecord | TextRecord;
 
 /**
  * A factory to produce Lyra marks.
@@ -56,7 +56,6 @@ export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord
     case 'rect': return Rect(values as Partial<LyraRectMark>).mergeDeepWith(mergeComparator, defaults);
     case 'text': return Text(values as Partial<LyraTextMark>).mergeDeepWith(mergeComparator, defaults);
     case 'group': return Group(values as Partial<LyraGroupMark>).mergeDeepWith(mergeComparator, defaults);
-    case 'scene': return Scene(values as Partial<LyraGroupMark>).mergeDeepWith(mergeComparator, defaults);
   }
 }
 
@@ -72,7 +71,7 @@ const mergeComparator = (oldVal, newVal) => {
 
 export type MarkState = Map<string, MarkRecord>;
 
-export type HandleStreams = {[s: string]: OnEvent[];};
+export interface HandleStreams {[s: string]: OnEvent[];}
 
 /**
  * Return an object of signal stream definitions for handle manipulators for the

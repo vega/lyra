@@ -1,3 +1,4 @@
+import * as vega from 'vega';
 import { clearHistory } from './actions/historyActions';
 import { addMark } from './actions/markActions';
 import { createScene } from './actions/sceneActions';
@@ -34,3 +35,5 @@ store.dispatch(addMark(Mark('group', {_parent: 1})));
 import './components';
 
 store.dispatch(clearHistory());
+
+(global as any).vega = vega;
