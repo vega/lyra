@@ -1,11 +1,11 @@
 'use strict';
 
-import {setSignal} from '../signalActions';
-import {setMarkVisual, disableMarkVisual, updateMarkProperty} from '../markActions';
 import {Dispatch} from 'redux';
+import MARK_EXTENTS from '../../constants/markExtents';
 import {State} from '../../store';
 import {propSg} from '../../util/prop-signal';
-import MARK_EXTENTS from '../../constants/markExtents';
+import {disableMarkVisual, setMarkVisual, updateMarkProperty} from '../markActions';
+import {setSignal} from '../signalActions';
 
 const dl = require('datalib'),
   imutils = require('../../util/immutable-utils'),
@@ -80,7 +80,7 @@ function bindProperty(dispatch: Dispatch, parsed, def, property?: string) {
 
   if (def.value !== undefined) {
     prop.signal = propSg(markId, markType, property);
-    dispatch(setSignal(prop.signal, def.value));
+    dispatch(setSignal(def.value, prop.signal));
   }
 
   if (def.band !== undefined) {
@@ -134,7 +134,7 @@ function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
     })
       .sort(dl.comparator('-ts'))
       .forEach(function(ext) {
-        var name = ext.name;
+        const name = ext.name;
         if (name === property) {
           return;
         } else if (count >= 1) {

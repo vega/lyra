@@ -1,6 +1,6 @@
 import * as signalActions from '../actions/signalActions';
-import {signalNames} from '../store/factory/Signal';
 import {store} from '../store';
+import {signalNames} from '../store/factory/Signal';
 
 const dl = require('datalib');
 const ns = require('../util/ns');
@@ -34,7 +34,7 @@ dl.extend(api, signalNames);
  * @returns {Object} An object representing a link to this signal
  */
 api.init = function(name, val) {
-  store.dispatch(signalActions.initSignal(name, val));
+  store.dispatch(signalActions.initSignal(val, name));
 };
 
 /**
@@ -62,7 +62,7 @@ api.isDefault = isDefault;
  * @returns {*} The value of the signal
  */
 api.get = function(name) {
-  var ctrl = require('./'),
+  let ctrl = require('./'),
     // `view` is a vega runtime component; view.signal is a getter/setter
     view = ctrl.view,
     signalObj = getSignal(name),
@@ -74,7 +74,7 @@ api.get = function(name) {
   }
 
   // and handle case where signal hasn't been registered yet with the view.
-  return signalVal || signalObj.get('init');
+  return signalVal || signalObj.get('value');
 };
 
 /**
@@ -91,11 +91,11 @@ api.set = function(name, val, dispatch?) {
   if (dispatch === undefined) {
     dispatch = true;
   }
-  var ctrl = require('./'),
+  const ctrl = require('./'),
     view = ctrl.view;
   // Always flow signals up to the store,
   if (!isDefault(name) && dispatch !== false) {
-    store.dispatch(signalActions.setSignal(name, val));
+    store.dispatch(signalActions.setSignal(val, name));
   }
 
   // and if we have a Vega view, flow signals down to Vega as well.

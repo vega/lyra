@@ -68,7 +68,7 @@ function resize(dispatch : Dispatch, state : State, mark, prop : string, size) {
     // Don't update width/height if they're determined by data (i.e., only if
     // a signal is found).
     if (signal) {
-      dispatch(setSignal(signal, size));
+      dispatch(setSignal(size, signal));
     }
   }
 

@@ -1,12 +1,12 @@
 // const Immutable = require('immutable'); TODO: Need type for Immutable.Map (see below)
 const ContentEditable = require('../ContentEditable');
-const setSignal = require('../../actions/signalActions').setSignal;
 const getInVis = require('../../util/immutable-utils').getInVis;
 const ctrl = require('../../ctrl');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
+import {setSignal} from '../../actions/signalActions';
 import {offSignal, onSignal} from '../../ctrl/listeners';
 import sg from '../../ctrl/signals';
 import {State} from '../../store';
@@ -48,7 +48,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   return {
     setSignal: function(value) {
       if (signal) {
-        dispatch(setSignal(signal, value));
+        dispatch(setSignal(value, signal));
       }
     }
   };
@@ -92,14 +92,14 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
   public onSignal(signal) {
     signal = signal || this.props.signal;
     if (signal) {
-      onSignal(signal, this.signal);
+      onSignal(signal, this.signal.bind(this));
     }
   };
 
   public offSignal(signal) {
     signal = signal || this.props.signal;
     if (signal) {
-      offSignal(signal, this.signal);
+      offSignal(signal, this.signal.bind(this));
     }
   };
 
@@ -124,9 +124,9 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
     if (signal) {
       sg.set(signal, value, false);
       ctrl.update();
-    } else {
-      this.setState({value: value});
     }
+
+    this.setState({value});
   };
 
   public colorSupport() {
