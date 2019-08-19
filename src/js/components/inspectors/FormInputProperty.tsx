@@ -4,7 +4,6 @@ const setSignal = require('../../actions/signalActions').setSignal;
 const getInVis = require('../../util/immutable-utils').getInVis;
 const ctrl = require('../../ctrl');
 
-import {Map} from 'immutable';
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
@@ -19,7 +18,7 @@ interface OwnProps {
   min?: string;
   max?: string;
   disabled?: boolean|string;
-  opts?: any; // Should be array type, but any[] doesn't work
+  opts?: string[];
   signal?: string;
   onChange?: () => any; // TODO: find function in/out types
   onBlur?: () => any; // TODO: find function in/out types

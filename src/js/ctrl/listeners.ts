@@ -4,11 +4,11 @@ import {undo, redo} from '../actions/historyActions';
 import {store} from '../store';
 import {selectMark} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';
+import sg from './signals';
 
 const hierarchy = require('../util/hierarchy'),
   ACTIONS = require('../actions/Names'),
-  ctrl = require('./'),
-  sg = require('./signals');
+  ctrl = require('./');
 
 const listeners = {};
 
