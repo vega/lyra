@@ -1,6 +1,5 @@
 'use strict';
 const getInVis = require('../../util/immutable-utils').getInVis;
-const SHAPES = require('../../store/factory/marks/Symbol').SHAPES;
 
 import * as React from 'react';
 import {connect} from 'react-redux';
@@ -8,6 +7,7 @@ import {State} from '../../store';
 import {MoreProperties} from './MoreProperties';
 import {Property} from './Property';
 import {PrimType} from '../../constants/primTypes';
+import {SymbolShapes} from '../../store/factory/marks/Symbol';
 
 interface OwnProps {
   primId: number;
@@ -114,7 +114,7 @@ class BaseLegendInspector extends React.Component<OwnProps & StateProps> {
 
               {legendType !== 'shape' ? (
                 <Property name={symbols + 'shape'} label='Shape'
-                  type='select' opts={SHAPES} {...props} />
+                  type='select' opts={SymbolShapes} {...props} />
               ) : null}
 
               {legendType !== 'size' ? (

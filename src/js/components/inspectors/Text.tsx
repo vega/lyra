@@ -77,7 +77,7 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
             canDrop={true} {...props} />
 
           <Property name='fontWeight' label='Weight' type='toggle'
-            glyph={assets.bold} opts={TextFontWeights}
+            glyph={assets.bold} opts={TextFontWeights.map(x => String(x))}
             canDrop={true} {...props} />
 
           <Property name='fontStyle' label='Style' type='toggle'

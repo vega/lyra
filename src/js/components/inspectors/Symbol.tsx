@@ -1,9 +1,7 @@
-'use strict';
-const Symbol = require('../../store/factory/marks/Symbol');
-
 import * as React from 'react';
 import {Property} from './Property';
 import {PrimType} from '../../constants/primTypes';
+import {SymbolShapes} from '../../store/factory/marks/Symbol';
 
 interface SymbolInspectorProps {
   primId: number,
@@ -26,7 +24,7 @@ class BaseSymbolInspector extends React.Component<SymbolInspectorProps> {
         <div className='property-group'>
           <h3>Geometry</h3>
 
-          <Property name='shape' label='Shape' type='select' opts={Symbol.SHAPES}
+          <Property name='shape' label='Shape' type='select' opts={SymbolShapes}
             canDrop={true} {...props} />
 
           <Property name='size' label='Size' type='number' canDrop={true} {...props} />

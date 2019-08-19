@@ -25,6 +25,7 @@ interface OwnProps {
   type?: string;
   firstChild?: boolean;
   canDrop?: boolean;
+  opts?: string[]
 }
 
 interface StateProps {

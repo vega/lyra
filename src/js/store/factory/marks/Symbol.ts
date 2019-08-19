@@ -28,6 +28,14 @@ export const Symbol = Record<LyraSymbolMark>({
 
 export type SymbolRecord = RecordOf<LyraSymbolMark>;
 
+export const SymbolShapes = [
+  'circle',
+  'square',
+  'cross',
+  'diamond',
+  'triangle-up',
+  'triangle-down'
+];
 
 /**
  * Return an array of handle signal stream definitions to be instantiated.
