@@ -21,7 +21,7 @@
 /* eslint no-shadow: 0 */
 
 // The only file-wide dependencies should be utility methods with no side-effects
-var sg = require('../ctrl/signals'),
+var sg = require('./factory/Signal'),
     hierarchy = require('../util/hierarchy'),
     imutils = require('../util/immutable-utils'),
     getIn = imutils.getIn,
@@ -94,12 +94,12 @@ function updateSelectedMarkInVega(selectedMark, vegaView) {
   // an array of all relevant [lyra] IDs
   var markIds = [selectedMarkId].concat(hierarchy.getParentGroupIds(selectedMarkId)),
       // then walk down the rendered Vega scene graph to find a corresponding item.
-      item = hierarchy.findInItemTree(vegaView.model().scene().items[0], markIds);
+      item = hierarchy.findInItemTree(vegaView.scenegraph().root.items[0], markIds);
 
   // If an item was found, set the Lyra mode signal so that the handles appear.
   if (item !== null) {
     vegaView.signal(sg.SELECTED, item);
-    vegaView.update();
+    vegaView.runAsync();
   }
 }
 
@@ -136,7 +136,7 @@ function createStoreListener(store, ctrl) {
     }
 
     // Similarly, there is nothing further to do here if the view is not ready
-    if (!ctrl.view || !ctrl.view.signal || typeof ctrl.view.signal !== 'function' || !ctrl.view.model) {
+    if (!ctrl.view || !ctrl.view.signal || typeof ctrl.view.signal !== 'function') {
       return;
     }
 

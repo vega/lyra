@@ -2,9 +2,9 @@
 'use strict';
 
 import * as vg from 'vega';
-import {api} from './signals';
+import {Runtime, Spec, View} from 'vega';
 import {exporter} from './export';
-import {View, Spec, Runtime} from 'vega';
+import {api} from './signals';
 
 const dl = require('datalib'),
   manips = require('./manipulators'),
@@ -108,7 +108,9 @@ ctrl.parse = function(el: string) {
 
   return parsePromise.then(function(runtime) {
     ctrl.view = new vg.View(runtime)
-      .initialize(el);
+      .initialize(el)
+      .logLevel(vg.Warn)
+      .hover();
 
     // Register all event listeners to the new view
     listeners.register();

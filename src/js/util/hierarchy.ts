@@ -1,11 +1,10 @@
 'use strict';
 import {State, store} from '../store';
-import {Mark} from '../store/factory/Mark';
+import {Mark, MarkRecord} from '../store/factory/Mark';
+import {TextRecord} from '../store/factory/marks/Text';
 
-const Bounds = require('vega-scenegraph').Bounds,
-  imutils = require('./immutable-utils'),
-  getIn = imutils.getIn,
-  getInVis = imutils.getInVis;
+const Bounds = require('vega-scenegraph').Bounds;
+const getInVis = require('./immutable-utils').getInVis;
 
 /**
  * Find the parent item for a given mark.
@@ -88,8 +87,8 @@ export function getParentGroupIds(markId: number, state: State): number[] {
  */
 export function getClosestGroupId(id?: number, state?: State) {
   state = state || store.getState();
-  const markId = id || getIn(state, 'inspector.encodings.selectedId'),
-    mark = getInVis(state, 'marks.' + markId);
+  const markId = id || state.getIn(['inspector', 'encodings', 'selectedId']);
+  const mark = getInVis(state, 'marks.' + markId);
 
   if (!mark) {
     return getInVis(state, 'scene._id');
@@ -116,28 +115,21 @@ export function getClosestGroupId(id?: number, state?: State) {
 function findInItemTree(item, path) {
   const vis = document.querySelector('.vis-container'),
     offset = {x: 0, y: 0};
-  let itemX = +Number.MAX_VALUE,
-    itemY = +Number.MAX_VALUE,
-    id,
-    items,
-    i,
-    j,
-    len,
-    bounds,
-    closer,
-    intersects,
-    closest;
 
-  for (i = path.length - 1; i >= 0; --i) {
-    id = path[i];
+  let itemX = +Number.MAX_VALUE, itemY = +Number.MAX_VALUE,
+    intersects, closest, role;
+
+  for (let i = path.length - 1; i >= 0; --i) {
+    const id = path[i];
     offset.x += +item.x || 0;
     offset.y += +item.y || 0;
 
-    for (items = item.items, j = 0, len = items.length; j < len; ++j) {
+    for (let items = item.items, j = 0, len = items.length; j < len; ++j) {
       // The Vega scene graph structure alternates between definition nodes
       // which hold the vega spec for a mark, and each of the item nodes (one
       // per visualized element). This logic handles that alternation.
-      item = items[j].def.lyra_id === id ? items[j].items[0] : null;
+      role = items[j].role;
+      item = role && +role.split('lyra_')[1] === id ? items[j].items[0] : null;
       if (item !== null) {
         break;
       }
@@ -158,10 +150,10 @@ function findInItemTree(item, path) {
   });
 
   if (item && item.mark.items.length > 1) {
-    for (i = 0, items = item.mark.items, len = items.length; i < len; ++i) {
+    for (let i = 0, items = item.mark.items, len = items.length; i < len; ++i) {
       item = items[i];
-      bounds = item.bounds;
-      closer = bounds && (bounds.x1 < itemX || bounds.y1 < itemY);
+      const bounds = item.bounds;
+      const closer = bounds && (bounds.x1 < itemX || bounds.y1 < itemY);
 
       if (!bounds) {
         break;
