@@ -1,10 +1,7 @@
-'use strict';
-var inherits = require('inherits'),
-    Manipulators = require('./Manipulators'),
-    spec = require('../../ctrl/manipulators'),
-    annotate = require('../../util/annotate-manipulators'),
-    CONST = spec.CONST,
-    PAD = CONST.PADDING;
+import {inherits, extend}  from 'vega';
+import Manipulators from './Manipulators';
+import annotate from '../../util/annotate-manipulators';
+import {coords, PADDING as PAD} from '../../ctrl/manipulators';
 
 /**
  * @classdesc Represents the AreaManipulators, a Vega data transformation operator.
@@ -17,39 +14,39 @@ var inherits = require('inherits'),
  *
  * @constructor
  */
-function AreaManipulators(graph) {
-  return Manipulators.call(this, graph);
+export default function AreaManipulators(params) {
+  Manipulators.call(this, [], params);
 }
 
-inherits(AreaManipulators, Manipulators);
+AreaManipulators.Definition = extend({}, Manipulators.Definition);
 
-AreaManipulators.prototype.handles = function(item) {
-  var bounds = item.mark.bounds;
-  var c = spec.coords(bounds, 'handle');
+const prototype = inherits(AreaManipulators, Manipulators);
+
+prototype.handles = function(item) {
+  const bounds = item.mark.bounds;
+  const c = coords(bounds, 'handle');
   return [
     c.topLeft, c.topRight,
     c.bottomLeft, c.bottomRight
   ];
 };
 
-AreaManipulators.prototype.connectors = function(item) {
-  var bounds = item.mark.bounds;
-  var c = spec.coords(bounds, 'connector');
+prototype.connectors = function(item) {
+  const bounds = item.mark.bounds;
+  const c = coords(bounds, 'connector');
   return [c.midCenter];
 };
 
-AreaManipulators.prototype.channels = function(item) {
-  var b  = item.mark.bounds,
+prototype.channels = function(item) {
+  const b  = item.mark.bounds,
       gb = item.mark.group.bounds,
       path = item.mark.items[0].pathCache,
-      c = spec.coords(b),
+      c = coords(b),
       m = c.midCenter;
 
   path = path.map(function(d) {
     return d.join(' ');
   }).join(' ');
-
-  console.log(path);
 
   return []
     // x
@@ -66,9 +63,9 @@ AreaManipulators.prototype.channels = function(item) {
     ].map(annotate('fill', 'border')));
 };
 
-AreaManipulators.prototype.altchannels = function(item) {
-  var b  = item.mark.bounds,
-      c = spec.coords(b),
+prototype.altchannels = function(item) {
+  const b  = item.mark.bounds,
+      c = coords(b),
       m = c.midCenter,
       path = item.mark.items[0].pathCache;
 
@@ -80,5 +77,3 @@ AreaManipulators.prototype.altchannels = function(item) {
     {x: m.x, y: m.y, path: path}
   ].map(annotate('stroke', 'border'));
 };
-
-module.exports = AreaManipulators;

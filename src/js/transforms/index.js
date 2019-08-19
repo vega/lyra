@@ -1,18 +1,25 @@
-'use strict';
-var dl = require('datalib'),
-    vg = require('vega'),
-    ns = require('../util/ns'),
-    t = module.exports = {},
-    MANIPULATORS = ns('manipulators_');
+import AreaManipulators from './manipulators/Area';
+import LineManipulators from './manipulators/Line';
+import RectManipulators from './manipulators/Rect';
+import SymbolManipulators from './manipulators/Symbol';
+import TextManipulators from './manipulators/Text';
+import * as vega from 'vega';
 
-t[MANIPULATORS + 'rect'] = require('./manipulators/Rect');
-t[MANIPULATORS + 'group'] = require('./manipulators/Rect');
-t[MANIPULATORS + 'symbol'] = require('./manipulators/Symbol');
-t[MANIPULATORS + 'line'] = require('./manipulators/Line');
-t[MANIPULATORS + 'text'] = require('./manipulators/Text');
-t[MANIPULATORS + 'area'] = require('./manipulators/Area');
+const ns = require('../util/ns');
+const MANIPULATORS = ns('manipulators_');
 
+const t = {
+  [`${MANIPULATORS}area`]: AreaManipulators,
+  [`${MANIPULATORS}group`]: RectManipulators,
+  [`${MANIPULATORS}line`]: LineManipulators,
+  [`${MANIPULATORS}rect`]: RectManipulators,
+  [`${MANIPULATORS}symbol`]: SymbolManipulators,
+  [`${MANIPULATORS}text`]: TextManipulators,
+};
 
-t[ns('bubble_cursor')] = require('./BubbleCursor');
+// t[ns('bubble_cursor')] = require('./BubbleCursor');
 
-dl.extend(vg.transforms, t);
+Object.keys(t).forEach(k => (t[k].Definition.type = k));
+vega.extend(vega.transforms, t);
+
+export default t;

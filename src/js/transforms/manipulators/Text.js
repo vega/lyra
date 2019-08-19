@@ -1,12 +1,9 @@
-'use strict';
-var dl = require('datalib'),
-    inherits = require('inherits'),
-    Manipulators = require('./Manipulators'),
-    spec = require('../../ctrl/manipulators'),
-    annotate = require('../../util/annotate-manipulators'),
-    CONST = spec.CONST,
-    PAD = CONST.PADDING,
-    PAD15 = 1.5 * PAD;
+import {inherits, extend, Transform} from 'vega';
+import Manipulators from './Manipulators';
+import annotate from '../../util/annotate-manipulators';
+import {coords, PADDING as PAD} from '../../ctrl/manipulators';
+
+const PAD15 = 1.5 * PAD;
 
 /**
  * @classdesc Represents the TextManipulators, a Vega data transformation operator.
@@ -18,29 +15,31 @@ var dl = require('datalib'),
  * @constructor
  * @param {Object} graph - A Vega model.
  */
-function TextManipulators(graph) {
-  return Manipulators.call(this, graph);
+export default function TextManipulators(params) {
+  Manipulators.call(this, [], params);
 }
 
-inherits(TextManipulators, Manipulators);
+TextManipulators.Definition = extend({}, Manipulators.Definition);
 
-TextManipulators.prototype.handles = function(item) {
-  var c = spec.coords(item.bounds, 'handle');
+const prototype = inherits(TextManipulators, Manipulators);
+
+prototype.handles = function(item) {
+  var c = coords(item.bounds, 'handle');
   return [
     c.topLeft,
     c.bottomRight
   ];
 };
 
-TextManipulators.prototype.connectors = function(item) {
-  var c = spec.coords(item.bounds, 'connector');
+prototype.connectors = function(item) {
+  var c = coords(item.bounds, 'connector');
   return [c.midCenter];
 };
 
-TextManipulators.prototype.channels = function(item) {
+prototype.channels = function(item) {
   var b = item.bounds,
       gb = item.mark.group.bounds,
-      c = spec.coords(b),
+      c = coords(b),
       m = c.midCenter;
 
   return []
@@ -54,14 +53,12 @@ TextManipulators.prototype.channels = function(item) {
     ].map(annotate('y', 'span')))
     // text
     .concat([
-      dl.extend({}, item, {bounds: null, _id: null})
+      extend({}, item, {bounds: null, _id: null})
     ].map(annotate('text', 'border')));
 };
 
-TextManipulators.prototype.altchannels = function(item) {
+prototype.altchannels = function(item) {
   return [
-    dl.extend({}, item, {bounds: null, _id: null})
+    extend({}, item, {bounds: null, _id: null})
   ].map(annotate('fill', 'border'));
 };
-
-module.exports = TextManipulators;

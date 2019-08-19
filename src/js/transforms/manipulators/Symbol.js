@@ -1,12 +1,10 @@
-'use strict';
-var inherits = require('inherits'),
-    Manipulators = require('./Manipulators'),
-    spec = require('../../ctrl/manipulators'),
-    annotate = require('../../util/annotate-manipulators'),
-    CONST = spec.CONST,
-    PAD   = CONST.PADDING,
-    PAD15 = 3.5 * PAD,
-    DELTA = 0.01;
+import {inherits, extend, Transform} from 'vega';
+import Manipulators from './Manipulators';
+import annotate from '../../util/annotate-manipulators';
+import {coords, PADDING as PAD} from '../../ctrl/manipulators';
+
+const PAD15 = 3.5 * PAD;
+const DELTA = 0.01;
 
 /**
  * @classdesc Represents the SymbolManipulators, a Vega data transformation operator.
@@ -16,29 +14,31 @@ var inherits = require('inherits'),
  * @extends Manipulators
  * @constructor
  */
-function SymbolManipulators(graph) {
-  return Manipulators.call(this, graph);
+export default function SymbolManipulators(params) {
+  Manipulators.call(this, [], params);
 }
 
-inherits(SymbolManipulators, Manipulators);
+SymbolManipulators.Definition = extend({}, Manipulators.Definition);
 
-SymbolManipulators.prototype.handles = function(item) {
-  var c = spec.coords(item.bounds, 'handle');
+const prototype = inherits(SymbolManipulators, Manipulators);
+
+prototype.handles = function(item) {
+  var c = coords(item.bounds, 'handle');
   return [
     c.topLeft, c.topRight,
     c.bottomLeft, c.bottomRight
   ];
 };
 
-SymbolManipulators.prototype.connectors = function(item) {
-  var c = spec.coords(item.bounds, 'connector');
+prototype.connectors = function(item) {
+  var c = coords(item.bounds, 'connector');
   return [c.midCenter];
 };
 
-SymbolManipulators.prototype.channels = function(item) {
+prototype.channels = function(item) {
   var b = item.bounds,
       gb = item.mark.group.bounds,
-      c = spec.coords(b),
+      c = coords(b),
       m = c.midCenter;
 
   return []
@@ -60,7 +60,7 @@ SymbolManipulators.prototype.channels = function(item) {
     ].map(annotate('size', 'border')));
 };
 
-SymbolManipulators.prototype.altchannels = function(item) {
+prototype.altchannels = function(item) {
   return []
     // shape
     .concat([
@@ -71,5 +71,3 @@ SymbolManipulators.prototype.altchannels = function(item) {
       {x: item.x - DELTA, y: item.y, shape: item.shape, size: PAD * item.size}
     ].map(annotate('shape', 'border')));
 };
-
-module.exports = SymbolManipulators;

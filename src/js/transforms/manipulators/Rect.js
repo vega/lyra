@@ -1,13 +1,9 @@
-'use strict';
-var dl = require('datalib'),
-    inherits = require('inherits'),
-    Manipulators = require('./Manipulators'),
-    spec = require('../../ctrl/manipulators'),
-    annotate = require('../../util/annotate-manipulators'),
-    CONST = spec.CONST,
-    PAD   = CONST.PADDING,
-    APAD  = CONST.ARROWHEAD,
-    PAD2  = 2 * PAD;
+import {inherits, extend, Transform} from 'vega';
+import Manipulators from './Manipulators';
+import annotate from '../../util/annotate-manipulators';
+import {coords, PADDING as PAD, ARROWHEAD as APAD} from '../../ctrl/manipulators';
+
+const PAD2 = 2 * PAD;
 
 /**
  * @classdesc Represents the RectManipulators, a Vega data transformation operator.
@@ -18,27 +14,27 @@ var dl = require('datalib'),
  * @param {Model} graph - A Vega model.
  * @constructor
  */
-function RectManipulators(graph) {
-  return Manipulators.call(this, graph);
+export default function RectManipulators(params) {
+  Manipulators.call(this, [], params);
 }
 
-inherits(RectManipulators, Manipulators);
+RectManipulators.Definition = extend({}, Manipulators.Definition);
 
-RectManipulators.prototype.handles = function(item) {
-  var c = spec.coords(item.bounds, 'handle');
-  return dl.vals(c).filter(function(x) {
-    return x.key !== 'midCenter';
-  });
+const prototype = inherits(RectManipulators, Manipulators);
+
+prototype.handles = function(item) {
+  const c = coords(item.bounds, 'handle');
+  return Object.values(c).filter(x => x.key !== 'midCenter');
 };
 
-RectManipulators.prototype.connectors = function(item) {
-  return dl.vals(spec.coords(item.bounds, 'connector'));
+prototype.connectors = function(item) {
+  return Object.values(coords(item.bounds, 'connector'));
 };
 
-RectManipulators.prototype.channels = function(item) {
+prototype.channels = function(item) {
   var b = item.bounds,
       gb = item.mark.group.bounds,
-      c = spec.coords(b),
+      c = coords(b),
       tl = c.topLeft,
       tr = c.topRight,
       br = c.bottomRight,
@@ -66,10 +62,10 @@ RectManipulators.prototype.channels = function(item) {
     ].map(annotate('fill', 'border')));
 };
 
-RectManipulators.prototype.altchannels = function(item) {
+prototype.altchannels = function(item) {
   var b = item.bounds,
       gb = item.mark.group.bounds,
-      c = spec.coords(b),
+      c = coords(b),
       tl = c.topLeft, tc = c.topCenter, tr = c.topRight,
       ml = c.midLeft, mr = c.midRight,
       bl = c.bottomLeft, bc = c.bottomCenter, br = c.bottomRight;
@@ -107,5 +103,3 @@ RectManipulators.prototype.altchannels = function(item) {
         width: item.width, height: item.height, shape: item.shape}
     ].map(annotate('stroke', 'border')));
 };
-
-module.exports = RectManipulators;
