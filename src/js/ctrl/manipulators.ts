@@ -84,7 +84,8 @@ const hoverCell = (t, f) => [{test: `${CELL}.key === datum.key`, ...t}, f];
 
 const voronoi = {
   type: 'path',
-  name: CELL,
+  from: {data},
+  role: CELL,
   encode: {
     update: {
       path: {field: 'path'},

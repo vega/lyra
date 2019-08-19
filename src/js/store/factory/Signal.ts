@@ -78,8 +78,8 @@ export const defaultSignalState: SignalState = Map({
     name: CELL,
     value: {},
     on: [
-      {events: '@' + CELL + ':dragover', update: 'item()'},
-      {events: '@' + CELL + ':dragleave', update: '{}'},
+      {events: {type: 'dragover', filter: [`event.item && event.item.mark.role === "${CELL}"`]}, update: 'item()'},
+      {events: {type: 'dragleave', filter: [`event.item && event.item.mark.role === "${CELL}"`]}, update: '{}'},
       // {events: '@'+CELL+':mouseover', update: 'item()'},
       // {events: '@'+CELL+':mouseout',  update: '{}'}
     ],
