@@ -17,65 +17,29 @@ export default function manipulators(mark, spec) {
       data: [
         {
           name: manipName,
-          transform: [{
-            type: ns('manipulators_' + mark.type),
-            lyra_id: mark._id,
-            lyra_selected: {signal: SELECTED},
-            lyra_mode: {signal: MODE}
-          }]
-        },
-        {
-          name: 'handles',
-          source: manipName,
-          transform: [{type: 'filter', expr: 'datum.manipulator === "handle"'}]
-        },
-        {
-          name: 'connectors',
-          source: manipName,
           transform: [
-            {type: 'filter', expr: 'datum.manipulator === "connector"'},
+            {
+              type: ns('manipulators_' + mark.type),
+              lyra_id: mark._id,
+              lyra_selected: {signal: SELECTED},
+              lyra_mode: {signal: MODE}
+            },
             {type: 'voronoi', x: 'x', y: 'y', as: 'lyra_cell_path'}
           ]
         },
-        {
-          name: 'arrows',
-          source: manipName,
-          transform: [
-            {type: 'filter', expr: 'datum.manipulator === "arrow"'},
-            {type: 'voronoi', x: 'x', y: 'y', as: 'lyra_cell_path'}
-          ]
-        },
-        {
-          name: 'span',
-          source: manipName,
-          transform: [
-            {type: 'filter', expr: 'datum.manipulator === "span"'},
-            {type: 'voronoi', x: 'x', y: 'y', as: 'lyra_cell_path'}
-          ]
-        },
-        {
-          name: 'borders',
-          source: manipName,
-          transform: [
-            {type: 'filter', expr: 'datum.manipulator === "border"'},
-            {type: 'voronoi', x: 'x', y: 'y', as: 'lyra_cell_path'}
-          ]
-        }
+        dataset('handle', manipName),
+        dataset('connector', manipName),
+        dataset('arrow', manipName),
+        dataset('span', manipName),
+        dataset('border', manipName)
       ],
       marks: [
         handle,
-
         connector,
-        voronoi('connectors'),
-
-        arrowSpan('arrows'),
-        voronoi('arrows'),
-
+        arrowSpan('arrow'),
         arrowSpan('span'),
-        voronoi('span'),
-
         border(spec),
-        voronoi('borders')
+        voronoi(manipName)
       ]
     }
   ];
@@ -85,11 +49,6 @@ export const LARGE = 40;
 export const SMALL = 20;
 export const PADDING = 7;
 export const ARROWHEAD = 7;
-
-export function size(b/*: Bounds*/) {
-  return b.width() < SMALL || b.height() < SMALL
-    ? SMALL : LARGE;
-}
 
 export function coords(b, manipulator) {
   const c = {
@@ -113,7 +72,15 @@ export function coords(b, manipulator) {
   return c;
 };
 
+const size = (b/*: Bounds*/) => b.width() < SMALL || b.height() < SMALL ? SMALL : LARGE;
+
 const hoverCell = (t, f) => [{test: `${CELL}.key === datum.key`, ...t}, f];
+
+const dataset = (name: string, source: string) => ({
+  name,
+  source,
+  transform: [{type: 'filter', expr: `datum.manipulator === "${name}"`}]
+});
 
 const voronoi = (data: string) => ({
   type: 'path',
@@ -124,9 +91,13 @@ const voronoi = (data: string) => ({
       path: {field: 'lyra_cell_path'},
       key: {field: 'key'},
       tooltip: {field: 'tooltip'},
-      fill: {value: 'transparent'},
       strokeWidth: {value: 0.35},
-      stroke: {value: 'brown'}
+      stroke: {value: 'brown'},
+      fill: [
+        // Handles should be directly manipulable, rather than proxied via voronoi cells.
+        {test: 'datum.manipulator === "handle"', value: null},
+        {value: 'transparent'}
+      ],
     }
   }
 });
@@ -152,14 +123,14 @@ function border(spec) {
 
   return {
     type: pathMark ? 'path' : markType,
-    from: {data: 'borders'},
+    from: {data: 'border'},
     encode: {update}
   };
 }
 
 const handle = {
   type: 'symbol',
-  from: {data: 'handles'},
+  from: {data: 'handle'},
   encode: {
     update: {
       x: {field: 'x'},
@@ -178,7 +149,7 @@ const handle = {
 
 const connector = {
   type: 'symbol',
-  from: {data: 'connectors'},
+  from: {data: 'connector'},
   encode: {
     update: {
       x: {field: 'x'},
