@@ -43,7 +43,7 @@ const prototype = inherits(Manipulators, Transform);
  * @returns {Object} output - A Vega-Dataflow ChangeSet.
  */
 prototype.transform = function(_, pulse) {
-  const cache = this.value;
+  const cache = this.value || [];
   const out = pulse.fork(pulse.NO_FIELDS & pulse.NO_SOURCE);
   const lyraId = _.lyra_id;
   const item = _.lyra_selected;
@@ -59,7 +59,7 @@ prototype.transform = function(_, pulse) {
 
   // If we don't correspond to the current selection, early exit
   if (!role || (role && lyraId !== +role.split('lyra_')[1])) {
-    return out;
+    return (out.source = this.value = cache, out);
   }
 
   // Manipulators should only be called on items that already exist
@@ -85,8 +85,7 @@ prototype.transform = function(_, pulse) {
     out.add = cache;
   }
 
-  out.source = this.value = cache;
-  return out;
+  return (out.source = this.value = cache, out);
 };
 
 /**
