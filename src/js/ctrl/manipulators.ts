@@ -34,7 +34,7 @@ export default function manipulators(mark, spec) {
           source: manipName,
           transform: [
             {type: 'filter', expr: 'datum.manipulator === "connector"'},
-            {type: 'voronoi', x: 'x', y: 'y'}
+            {type: 'voronoi', x: 'x', y: 'y', as: 'lyra_cell_path'}
           ]
         },
         {
@@ -42,7 +42,7 @@ export default function manipulators(mark, spec) {
           source: manipName,
           transform: [
             {type: 'filter', expr: 'datum.manipulator === "arrow"'},
-            {type: 'voronoi', x: 'x', y: 'y'}
+            {type: 'voronoi', x: 'x', y: 'y', as: 'lyra_cell_path'}
           ]
         },
         {
@@ -50,7 +50,15 @@ export default function manipulators(mark, spec) {
           source: manipName,
           transform: [
             {type: 'filter', expr: 'datum.manipulator === "span"'},
-            {type: 'voronoi', x: 'x', y: 'y'}
+            {type: 'voronoi', x: 'x', y: 'y', as: 'lyra_cell_path'}
+          ]
+        },
+        {
+          name: 'borders',
+          source: manipName,
+          transform: [
+            {type: 'filter', expr: 'datum.manipulator === "border"'},
+            {type: 'voronoi', x: 'x', y: 'y', as: 'lyra_cell_path'}
           ]
         }
       ],
@@ -64,7 +72,10 @@ export default function manipulators(mark, spec) {
         voronoi('arrows'),
 
         arrowSpan('span'),
-        voronoi('span')
+        voronoi('span'),
+
+        border(spec),
+        voronoi('borders')
       ]
     }
   ];
@@ -110,7 +121,7 @@ const voronoi = (data: string) => ({
   role: CELL,
   encode: {
     update: {
-      path: {field: 'path'},
+      path: {field: 'lyra_cell_path'},
       key: {field: 'key'},
       tooltip: {field: 'tooltip'},
       fill: {value: 'transparent'},
@@ -120,35 +131,31 @@ const voronoi = (data: string) => ({
   }
 });
 
-// function border(spec) {
-//   let props = dl.duplicate(spec.encode.update),
-//       markType = spec.type,
-//       pathMark = markType === 'line' || markType === 'area';
+function border(spec) {
+  const update = JSON.parse(JSON.stringify(spec.encode.update)),
+    markType = spec.type,
+    pathMark = markType === 'line' || markType === 'area';
 
-//   dl.keys(props).forEach(function(k) {
-//     props[k] = {field: {parent: k}};
-//   });
+  for (const key of Object.keys(update)) {
+    update[key] = {field: key};
+  }
 
-//   props.fill = undefined;
-//   props.stroke = hoverCell({value: 'lightsalmon'}, {value: 'cyan'}, true);
-//   props.strokeWidth = {value: markType === 'text' ? 1 : 3};
+  delete update.fill;
+  update.stroke = hoverCell({value: 'lightsalmon'}, {value: 'cyan'});
+  update.strokeWidth = {value: markType === 'text' ? 1 : 3};
 
-//   if (pathMark) {
-//     props.x = props.y = undefined;
-//     props.path = {field: {parent: 'path'}};
-//   }
+  if (pathMark) {
+    delete update.x;
+    delete update.y;
+    update.path = {field: 'path'};
+  }
 
-//   return {
-//     type: 'group',
-//     from: {
-//       transform: [{type: 'filter', test: 'datum.manipulator === "border"'}]
-//     },
-//     marks: [{
-//       type: pathMark ? 'path' : markType,
-//       encode: {update: props}
-//     }, voronoi(true)]
-//   };
-// }
+  return {
+    type: pathMark ? 'path' : markType,
+    from: {data: 'borders'},
+    encode: {update}
+  };
+}
 
 const handle = {
   type: 'symbol',
