@@ -17,7 +17,6 @@ export default function manipulators(mark, spec) {
       data: [
         {
           name: manipName,
-          source: markName,
           transform: [{
             type: ns('manipulators_' + mark.type),
             lyra_id: mark._id,
@@ -26,23 +25,46 @@ export default function manipulators(mark, spec) {
           }]
         },
         {
-          name: `${manipName}_handles`,
+          name: 'handles',
           source: manipName,
           transform: [{type: 'filter', expr: 'datum.manipulator === "handle"'}]
         },
         {
-          name: `${manipName}_connectors`,
+          name: 'connectors',
           source: manipName,
           transform: [
-            {type: 'filter', expr: 'warn(datum) && datum.manipulator === "connector"'},
+            {type: 'filter', expr: 'datum.manipulator === "connector"'},
+            {type: 'voronoi', x: 'x', y: 'y'}
+          ]
+        },
+        {
+          name: 'arrows',
+          source: manipName,
+          transform: [
+            {type: 'filter', expr: 'datum.manipulator === "arrow"'},
+            {type: 'voronoi', x: 'x', y: 'y'}
+          ]
+        },
+        {
+          name: 'span',
+          source: manipName,
+          transform: [
+            {type: 'filter', expr: 'datum.manipulator === "span"'},
             {type: 'voronoi', x: 'x', y: 'y'}
           ]
         }
       ],
       marks: [
-        extend({}, {from: {data: `${manipName}_handles`}}, handle),
-        extend({}, {from: {data: `${manipName}_connectors`}}, connector),
-        extend({}, {from: {data: `${manipName}_connectors`}}, voronoi)
+        handle,
+
+        connector,
+        voronoi('connectors'),
+
+        arrowSpan('arrows'),
+        voronoi('arrows'),
+
+        arrowSpan('span'),
+        voronoi('span')
       ]
     }
   ];
@@ -82,7 +104,7 @@ export function coords(b, manipulator) {
 
 const hoverCell = (t, f) => [{test: `${CELL}.key === datum.key`, ...t}, f];
 
-const voronoi = {
+const voronoi = (data: string) => ({
   type: 'path',
   from: {data},
   role: CELL,
@@ -96,7 +118,7 @@ const voronoi = {
       stroke: {value: 'brown'}
     }
   }
-}
+});
 
 // function border(spec) {
 //   let props = dl.duplicate(spec.encode.update),
@@ -130,6 +152,7 @@ const voronoi = {
 
 const handle = {
   type: 'symbol',
+  from: {data: 'handles'},
   encode: {
     update: {
       x: {field: 'x'},
@@ -148,6 +171,7 @@ const handle = {
 
 const connector = {
   type: 'symbol',
+  from: {data: 'connectors'},
   encode: {
     update: {
       x: {field: 'x'},
@@ -161,36 +185,29 @@ const connector = {
   }
 };
 
-// TYPES.push(manipulators.ARROW = {
-//   type: 'group',
-//   from: {
-//     transform: [
-//       {type: 'filter', test: 'datum.manipulator === "arrow"'},
-//       {type: 'facet', groupby: ['key']}
-//     ]
-//   },
-//   marks: [{
-//     type: 'line',
-//     encode: {
-//       update: {
-//         x: {field: 'x'},
-//         y: {field: 'y'},
-//         fill: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}),
-//         stroke: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}),
-//         strokeWidth: {value: 3}
-//       }
-//     }
-//   }, voronoi()]
-// });
-
-// TYPES.push(manipulators.SPAN = dl.extend({}, manipulators.ARROW, {
-//   from: {
-//     transform: [
-//       {type: 'filter', test: 'datum.manipulator === "span"'},
-//       {type: 'facet', groupby: ['key']}
-//     ]
-//   }
-// }));
+const arrowSpan = (data: string) => ({
+  type: 'group',
+  from: {
+    facet: {
+      data,
+      name: 'facet',
+      groupby: 'key'
+    }
+  },
+  marks: [{
+    type: 'line',
+    from: {data: 'facet'},
+    encode: {
+      update: {
+        x: {field: 'x'},
+        y: {field: 'y'},
+        fill: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}),
+        stroke: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}),
+        strokeWidth: {value: 3}
+      }
+    }
+  }]
+});
 
 // manipulators.BUBBLE_CURSOR = {
 //   type: 'line',
