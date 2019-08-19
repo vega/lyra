@@ -1,5 +1,5 @@
 import {Bounds, extend} from 'vega';
-import {MODE, SELECTED} from '../store/factory/Signal';
+import {CELL, MODE, SELECTED} from '../store/factory/Signal';
 import exportName from '../util/exportName';
 const ns = require('../util/ns');
 
@@ -29,10 +29,20 @@ export default function manipulators(mark, spec) {
           name: `${manipName}_handles`,
           source: manipName,
           transform: [{type: 'filter', expr: 'datum.manipulator === "handle"'}]
+        },
+        {
+          name: `${manipName}_connectors`,
+          source: manipName,
+          transform: [
+            {type: 'filter', expr: 'warn(datum) && datum.manipulator === "connector"'},
+            {type: 'voronoi', x: 'x', y: 'y'}
+          ]
         }
       ],
       marks: [
-        extend({}, {from: {data: `${manipName}_handles`}}, HANDLE)
+        extend({}, {from: {data: `${manipName}_handles`}}, handle),
+        extend({}, {from: {data: `${manipName}_connectors`}}, connector),
+        extend({}, {from: {data: `${manipName}_connectors`}}, voronoi)
       ]
     }
   ];
@@ -70,32 +80,22 @@ export function coords(b, manipulator) {
   return c;
 };
 
-// function voronoi(parent) {
-//   return {
-//     type: 'path',
-//     name: sg.CELL,
-//     encode: {
-//       update: {
-//         key: {field: parent ? {parent: 'key'} : 'key'},
-//         tooltip: {field: parent ? {parent: 'tooltip'} : 'tooltip'},
-//         fill: {value: 'transparent'},
-//         strokeWidth: {value: 0.35},
-//         path: {field: parent ? {parent: 'layout_path'} : 'layout_path'},
-//         stroke: {value: 'transparent'}
-//       }
-//     }
-//   };
-// }
+const hoverCell = (t, f) => [{test: `${CELL}.key === datum.key`, ...t}, f];
 
-// function hoverCell(t, f, parent) {
-//   let rule = [{
-//     test: sg.CELL + '.key === ' + (parent ? 'parent.key' : 'datum.key')
-//   }];
-
-//   dl.extend(rule[0], t);
-//   rule.push(f);
-//   return {rule: rule};
-// }
+const voronoi = {
+  type: 'path',
+  name: CELL,
+  encode: {
+    update: {
+      path: {field: 'path'},
+      key: {field: 'key'},
+      tooltip: {field: 'tooltip'},
+      fill: {value: 'transparent'},
+      strokeWidth: {value: 0.35},
+      stroke: {value: 'brown'}
+    }
+  }
+}
 
 // function border(spec) {
 //   let props = dl.duplicate(spec.encode.update),
@@ -127,7 +127,7 @@ export function coords(b, manipulator) {
 //   };
 // }
 
-export const HANDLE = {
+const handle = {
   type: 'symbol',
   encode: {
     update: {
@@ -145,26 +145,20 @@ export const HANDLE = {
   }
 };
 
-// TYPES.push(manipulators.CONNECTOR = {
-//   type: 'group',
-//   from: {
-//     transform: [{type: 'filter', test: 'datum.manipulator === "connector"'}]
-//   },
-//   marks: [{
-//     type: 'symbol',
-//     encode: {
-//       update: {
-//         x: {field: {parent: 'x'}},
-//         y: {field: {parent: 'y'}},
-//         shape: {value: 'diamond'},
-//         size: {field: {parent: 'size'}},
-//         fill: {value: 'white'},
-//         stroke: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}, true),
-//         strokeWidth: {value: 0.5}
-//       }
-//     }
-//   }, voronoi(true)]
-// });
+const connector = {
+  type: 'symbol',
+  encode: {
+    update: {
+      x: {field: 'x'},
+      y: {field: 'y'},
+      shape: {value: 'diamond'},
+      size: {field: 'size'},
+      fill: {value: 'white'},
+      stroke: hoverCell({value: 'lightsalmon'}, {value: 'cyan'}),
+      strokeWidth: {value: 0.5}
+    }
+  }
+};
 
 // TYPES.push(manipulators.ARROW = {
 //   type: 'group',
