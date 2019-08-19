@@ -308,8 +308,6 @@ exporter.axe = exporter.legend = function(state: State, internal: boolean, id: n
  * @returns {Object} A cleaned spec object
  */
 function clean(spec, internal: boolean) {
-  // TODO(rn): remove this temporary constant, only for testing signals are working
-  internal = true;
   let key, prop, cleanKey;
   for (key in spec) {
     prop = spec[key];
