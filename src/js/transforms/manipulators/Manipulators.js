@@ -1,17 +1,4 @@
-/* eslint camelcase:0 */
-'use strict';
-var dl = require('datalib'),
-    vg = require('vega'),
-    inherits = require('inherits'),
-    // df = vg.dataflow,
-    // ChangeSet = df.ChangeSet,
-    // Tuple = df.Tuple,
-    // Deps = df.Dependencies,
-    // Transform = vg.Transform,
-    // Voronoi = vg.transforms.voronoi,
-    sg = require('../../ctrl/signals'),
-    $x = dl.$('x'),
-    $y = dl.$('y');
+import {inherits, Transform, tupleid, ingest, extend} from 'vega';
 
 /**
  * @classdesc Represents the Manipulators, a Vega data transformation operator.
@@ -34,22 +21,20 @@ var dl = require('datalib'),
  *
  * @constructor
  */
-function Manipulators(graph) {
-  Transform.prototype.init.call(this, graph);
-  Transform.addParameters(this, {
-    lyra_id: {type: 'value'}
-  });
-
-  this._cacheID = null;
-  this._cacheMode = null;
-  this._cache = [];
-  this._voronoi = new Voronoi(graph);
-
-  return this.router(true).produces(true)
-    .dependency(Deps.SIGNALS, [sg.SELECTED, sg.MODE]);
+export default function Manipulators(params) {
+  Transform.call(this, [], params);
 }
 
-// inherits(Manipulators, Transform);
+Manipulators.Definition = {
+  metadata: {source: true, changes: true},
+  params: [
+    {name: 'lyra_id', type: 'number', required: true},
+    {name: 'lyra_selected', required: true},
+    {name: 'lyra_mode', required: true}
+  ]
+}
+
+const prototype = inherits(Manipulators, Transform);
 
 /**
  * The transform method is automatically called by Vega whenever the manipulator
@@ -57,26 +42,24 @@ function Manipulators(graph) {
  * @param {Object} input - A Vega-Dataflow ChangeSet.
  * @returns {Object} output - A Vega-Dataflow ChangeSet.
  */
-Manipulators.prototype.transform = function(input) {
-  var g = this._graph,
-      item = g.signal(sg.SELECTED).value(),
-      mode = g.signal(sg.MODE).value(),
-      def = item.mark.def,
-      lyra_id = this.param('lyra_id'),
-      cache = this._cache,
-      cacheID = this._cacheID,
-      cacheMode = this._cacheMode,
-      output = ChangeSet.create(input);
+prototype.transform = function(_, pulse) {
+  const cache = this.value;
+  const out = pulse.fork(pulse.NO_FIELDS & pulse.NO_SOURCE);
+  const lyraId = _.lyra_id;
+  const item = _.lyra_selected;
+  const mode = _.lyra_mode;
+  const role = item.mark.role;
+  const itemId = tupleid(item);
 
   // If we've selected another scenegraph item or changed the manipulator state,
   // remove any manipulators we added here.
-  if (cache.length && (cacheID !== item._id || cacheMode !== mode)) {
-    output.rem = cache.splice(0);
+  if (cache.length && (cache._id !== itemId || cache._mode !== mode)) {
+    out.rem = cache.splice(0);
   }
 
   // If we don't correspond to the current selection, early exit
-  if (!def || (def && lyra_id !== def.lyra_id)) {
-    return output;
+  if (!role || (role && lyraId !== +role.split('lyra_')[1])) {
+    return out;
   }
 
   // Manipulators should only be called on items that already exist
@@ -86,36 +69,24 @@ Manipulators.prototype.transform = function(input) {
   //   return item && x._id === item._id;
   // });
 
-  var tpls = this[mode](item).map(function(t) {
+  const tpls = this[mode](item).map(function(t) {
     t.mode = mode;
-    t.lyra_id = lyra_id;
+    t.lyra_id = lyraId;
     return t;
   });
 
-  if (cache.length && cacheID === item._id) {
-    tpls.forEach(function(d, i) {
-      dl.extend(cache[i], d);
-    });
-    output.mod.push.apply(output.mod, cache);
+  if (cache.length && cache._id === itemId) {
+    tpls.forEach((d, i) => extend(cache[i], d));
+    out.mod = cache;
   } else {
-    this._cacheID = item._id;
-    this._cacheMode = mode;
-    cache.push.apply(cache, tpls.map(Tuple.ingest));
-    output.add.push.apply(output.add, cache);
+    cache._id = itemId;
+    cache._mode = mode;
+    cache.push.apply(cache, tpls.map(ingest));
+    out.add = cache;
   }
 
-  var clip = [
-    [dl.min(cache, $x) - 100, dl.min(cache, $y) - 50],
-    [dl.max(cache, $x) + 50, dl.max(cache, $y) + 50]
-  ];
-
-  return this._voronoi
-    .param('x', 'x')
-    .param('y', 'y')
-    .param('clipExtent', clip)
-    .batchTransform(output, cache.filter(function(x) {
-      return x._voronoi !== false || x._voronoi === undefined;
-    }));
+  out.source = this.value = cache;
+  return out;
 };
 
 /**
@@ -125,7 +96,7 @@ Manipulators.prototype.transform = function(input) {
  * @returns {Object[]} An array of objects, containing the coordinates and other
  * metadata for downstream manipulator mark specifications.
  */
-Manipulators.prototype.handles = function(item) {
+prototype.handles = function(item) {
   return [];
 };
 
@@ -136,7 +107,7 @@ Manipulators.prototype.handles = function(item) {
  * @returns {Object[]} An array of objects, containing the coordinates and other
  * metadata for downstream manipulator mark specifications.
  */
-Manipulators.prototype.connectors = function(item) {
+prototype.connectors = function(item) {
   return [];
 };
 
@@ -147,7 +118,7 @@ Manipulators.prototype.connectors = function(item) {
  * @returns {Object[]} An array of objects, containing the coordinates and other
  * metadata for downstream manipulator mark specifications.
  */
-Manipulators.prototype.channels = function(item) {
+prototype.channels = function(item) {
   return [];
 };
 
@@ -158,8 +129,6 @@ Manipulators.prototype.channels = function(item) {
  * @returns {Object[]} An array of objects, containing the coordinates and other
  * metadata for downstream manipulator mark specifications.
  */
-Manipulators.prototype.altchannels = function(item) {
+prototype.altchannels = function(item) {
   return [];
 };
-
-module.exports = Manipulators;
