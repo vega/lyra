@@ -21,6 +21,7 @@
     "no-console": [true, "debug", "info", "time", "timeEnd", "trace"],
     "no-unnecessary-initializer": false,
     "no-var-requires": false,
-    "only-arrow-functions": false
+    "only-arrow-functions": false,
+    "one-variable-per-declaration": false
   }
 }
