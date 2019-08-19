@@ -4,14 +4,15 @@ import {Mark, Spec} from 'vega-typings';
 import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
 import {input} from '../util/dataset-utils';
+import name from '../util/exportName';
 import {signalLookup} from '../util/signal-lookup';
+import manipulators from './manipulators';
 
 const dl = require('datalib'),
   json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
   getIn = imutils.getIn,
   getInVis = imutils.getInVis,
-  manipulators = require('./manipulators'),
   ORDER = require('../constants/sortOrder');
 
 const SPEC_COUNT = {data: {}, scales: {}},
@@ -31,9 +32,8 @@ let counts = dl.duplicate(SPEC_COUNT);
  * @returns {Object} A Vega specification.
  */
 export function exporter(internal: boolean = false): Spec {
-  const state = store.getState(),
-  // TODO(rn): remove this temporary constant when trying to get manipulators to actually work.
-    int = false;
+  const state = store.getState();
+  const int = internal === true;
 
   counts = dl.duplicate(SPEC_COUNT);
 
@@ -168,7 +168,7 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
   });
 
   if (internal) {
-    spec.lyra_id = mark._id;
+    spec.role = `lyra_${mark._id}`;
     return manipulators(mark, spec);
   }
 
@@ -298,16 +298,6 @@ exporter.axe = exporter.legend = function(state: State, internal: boolean, id: n
 
   return spec;
 };
-
-/**
- * Utility method that ensures names delimit spaces.
- *
- * @param  {string} str The name of a primitive that may contain spaces
- * @returns {string} The name, where spaces are replaced with underscores.
- */
-function name(str: string): string {
-  return str.replace(/\s/g, '_');
-}
 
 /**
  * Utility method to clean a spec object by removing Lyra-specific keys
