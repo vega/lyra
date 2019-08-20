@@ -5,11 +5,11 @@ import {expandLayers, selectMark} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';
 import {store} from '../store';
 import {MODE} from '../store/factory/Signal';
+import sg from './signals';
 
 const hierarchy = require('../util/hierarchy');
 const ACTIONS = require('../actions/Names');
 const ctrl = require('./');
-const sg = require('./signals');
 
 const listeners = {};
 
