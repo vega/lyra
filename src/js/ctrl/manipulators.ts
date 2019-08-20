@@ -11,6 +11,7 @@ const ns = require('../util/ns');
 export default function manipulators(mark, spec) {
   const markName = exportName(mark.name);
   const manipName = `${markName}_manipulators`;
+  const peek = `peek(data("${manipName}"))`;
   return [spec,
     {
       type: 'group',
@@ -24,8 +25,25 @@ export default function manipulators(mark, spec) {
               lyra_selected: {signal: SELECTED},
               lyra_mode: {signal: MODE}
             },
-            {type: 'voronoi', x: 'x', y: 'y', as: 'lyra_cell_path'}
+            {
+              type: 'window',
+              ops: ['min', 'max', 'min', 'max'],
+              fields: ['x', 'x', 'y', 'y']
+            }
           ]
+        },
+        {
+          name: 'voronoi',
+          source: manipName,
+          transform: [{
+            type: 'voronoi',
+            x: 'x', y: 'y',
+            as: 'lyra_cell_path',
+            extent: [
+              {signal: `data("${manipName}")[0] ? [${peek}.min_x - 100, ${peek}.min_y - 50] : [0, 0]`},
+              {signal: `data("${manipName}")[0] ? [${peek}.max_x + 100, ${peek}.max_y + 50] : [0, 0]`}
+            ]
+          }]
         },
         dataset('handle', manipName),
         dataset('connector', manipName),
@@ -39,7 +57,7 @@ export default function manipulators(mark, spec) {
         arrowSpan('arrow'),
         arrowSpan('span'),
         border(spec),
-        voronoi(manipName)
+        voronoi
       ]
     }
   ];
@@ -82,9 +100,9 @@ const dataset = (name: string, source: string) => ({
   transform: [{type: 'filter', expr: `datum.manipulator === "${name}"`}]
 });
 
-const voronoi = (data: string) => ({
+const voronoi = {
   type: 'path',
-  from: {data},
+  from: {data: 'voronoi'},
   role: CELL,
   encode: {
     update: {
@@ -98,9 +116,15 @@ const voronoi = (data: string) => ({
         {test: 'datum.manipulator === "handle"', value: null},
         {value: 'transparent'}
       ],
+    },
+    hover: {
+      cursor: [
+        {test: 'datum.manipulator === "handle"', field: 'cursor'},
+        {value: null}
+      ]
     }
   }
-});
+};
 
 function border(spec) {
   const update = JSON.parse(JSON.stringify(spec.encode.update)),
