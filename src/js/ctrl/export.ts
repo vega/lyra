@@ -8,6 +8,7 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {signalLookup} from '../util/signal-lookup';
 import manipulators from './manipulators';
+import demonstrations from './demonstrations';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -41,6 +42,7 @@ export function exporter(internal: boolean = false): Spec {
   spec.data = exporter.pipelines(state, int);
   // spec.background = 'white';
 
+  console.log(spec);
   return spec;
 }
 
@@ -123,7 +125,7 @@ exporter.scene = function(state: State, internal: boolean): Mark {
   delete spec.from;
   delete spec.encode;
 
-  return spec;
+  return demonstrations(spec); //TODO(jzong) make this conditional on "demonstration mode"
 };
 
 exporter.mark = function(state: State, internal: boolean, id: number) {
