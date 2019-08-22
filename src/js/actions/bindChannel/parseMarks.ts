@@ -113,14 +113,14 @@ function bindProperty(dispatch: Dispatch, parsed, def, property?: string) {
  */
 const RECT_SPANS = {x: 'width', y: 'height'};
 function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
-  const channel = parsed.channel,
+  const channel: string = parsed.channel,
     property = parsed.property,
     markId = parsed.markId,
     map = parsed.map.marks[markId],
     max = channel + '2',
     cntr = channel + 'c',
     span = RECT_SPANS[channel],
-    EXTENTS = dl.vals(MARK_EXTENTS[channel]),
+    EXTENTS = Object.values(MARK_EXTENTS[channel]),
     props = getInVis(state, 'marks.' + markId + '.properties.update');
   let count = 0;
 
@@ -129,7 +129,7 @@ function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
   if (property !== channel + '+') {
     // Ensure that only two spatial properties will be set. We sort them to
     // try our best guess for disabling "older" properties.
-    EXTENTS.map(function(ext) {
+    EXTENTS.map(function(ext: any) {
       return dl.extend({ts: (map && map[ext.name]) || 0}, ext);
     })
       .sort(dl.comparator('-ts'))
@@ -150,7 +150,7 @@ function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
 
   // Clean slate the rect spatial properties by disabling them all. Subsequent
   // bindProperty calls will reenable them as needed.
-  EXTENTS.forEach(function(ext) {
+  EXTENTS.forEach(function(ext: any) {
     dispatch(disableMarkVisual(markId, ext.name));
   });
 

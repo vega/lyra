@@ -44,7 +44,7 @@ ctrl.manipulators = function(): Spec {
   // Stash signals from vega into the lyra ctrl, in preparation for seamlessly
   // destroying & recreating the vega view
   // api() is a function that returns all registered signals
-  signals.push.apply(signals, dl.vals(api()).sort(idx));
+  signals.push.apply(signals, Object.values(api()).sort(idx));
 
   // data.push({
   //   name: 'bubble_cursor',

@@ -1,16 +1,15 @@
-'use strict';
-
+import {extend} from 'vega';
+import {Mark} from '../../store/factory/Mark';
+import duplicate from '../../util/duplicate';
+import {endBatch, startBatch} from '../historyActions';
+import {setVlUnit} from '../markActions';
+import {cleanupUnused} from './cleanupUnused';
 import {parseData} from './parseData';
 import {parseGuides} from './parseGuides';
-import {parseScales} from './parseScales';
-import {setVlUnit} from '../markActions';
 import {parseMarks} from './parseMarks';
-import {startBatch, endBatch} from '../historyActions';
-import {cleanupUnused} from './cleanupUnused';
-import {Mark} from '../../store/factory/Mark';
+import {parseScales} from './parseScales';
 
-const dl = require('datalib'),
-  vl = require('vega-lite'),
+const vl = require('vega-lite'),
   AGGREGATE_OPS = require('../../constants/aggregateOps'),
   getInVis = require('../../util/immutable-utils').getInVis,
   dsUtils = require('../../util/dataset-utils'),
@@ -105,7 +104,7 @@ function bindChannel(dsId: number, field, markId: number, property: string) {
  * @returns {Object}          An object containing the Vega and Vega-Lite specs.
  */
 function compile(spec, property: string, dsId: number) {
-  spec = dl.duplicate(spec);
+  spec = duplicate(spec);
 
   // Always drive the Vega-Lite spec by a pipeline's source dataset.
   // We analyze the resultant Vega spec to understand what this mark's
@@ -228,4 +227,4 @@ function channelDef(field) {
 }
 
 module.exports = bindChannel;
-dl.extend(bindChannel, require('./helperActions'));
+extend(bindChannel, require('./helperActions'));

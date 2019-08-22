@@ -1,5 +1,5 @@
 'use strict';
-var dl = require('datalib'),
+var clone = require('clone'),
     inherits = require('inherits'),
     vg = require('vega'),
     // df = vg.dataflow,
@@ -75,10 +75,10 @@ BubbleCursor.prototype.transform = function(input) {
   // If we're still in the same cell, we only need to update
   // the mouse points.
   if (cache.length && (mouseCache.x !== mouse.x || mouseCache.y !== mouse.y)) {
-    output.mod.push(dl.extend(start, mouse));
-    output.mod.push(dl.extend(end, mouse));
+    output.mod.push(vg.extend(start, mouse));
+    output.mod.push(vg.extend(end, mouse));
   } else if (!cache.length) {
-    cache.push(dl.extend(start, mouse));
+    cache.push(vg.extend(start, mouse));
 
     for (; item; item = item.mark && item.mark.group) {
       offset.x += item.x || 0;
@@ -86,9 +86,9 @@ BubbleCursor.prototype.transform = function(input) {
     }
 
     // If backing data has coords, use those. Otherwise, use the cousin's bounds.
-    if (dl.isValid(cousins[0].datum.x)) {
+    if (cousins[0].datum.x != null) {
       cache.push.apply(cache, cousins.map(function(i) {
-        var d = dl.duplicate(i.datum);
+        var d = clone(i.datum);
         d.x += offset.x;
         d.y += offset.y;
         return d;
@@ -102,7 +102,7 @@ BubbleCursor.prototype.transform = function(input) {
       }, []));
     }
 
-    cache.push(dl.extend(end, mouse));
+    cache.push(vg.extend(end, mouse));
     output.add = cache;
     this._cellID = cell._id;
   }

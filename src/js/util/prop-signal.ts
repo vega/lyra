@@ -1,6 +1,4 @@
-'use strict';
-
-import * as dl from 'datalib';
+import {extend} from 'vega';
 
 const ns = require('./ns');
 
@@ -38,7 +36,7 @@ export function convertValuesToSignals(encode, type, id, propName?) {
 
     // Replace `{value: '??'}` property definition with a ref to its controlling
     // signal, and ensure that _disabled flags are set properly if present
-    selection[key] = dl.extend(
+    selection[key] = extend({},
       {
         signal: propSg(id, type, propName ? propName + '_' + key : key)
       },

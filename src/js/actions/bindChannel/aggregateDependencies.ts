@@ -8,8 +8,7 @@ import {updateMarkProperty} from '../markActions';
 import {addScale, amendDataRef, updateScaleProperty} from '../scaleActions';
 import {addScaleToGroup} from './helperActions';
 
-const dl = require('datalib'),
-  imutils = require('../../util/immutable-utils'),
+const imutils = require('../../util/immutable-utils'),
   getInVis = imutils.getInVis,
   getIn = imutils.getIn;
 
@@ -51,7 +50,7 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
   // So update all scales it uses to draw from the aggregated dataset rather
   // than the source as well. This ensures that any transformations applied to
   // the aggregated dataset (e.g., filtering) will be reflected in the scales.
-  dl.vals(map.scales).forEach(function(scaleId) {
+  Object.values(map.scales).forEach(function(scaleId: number) {
     const type = getInVis(state, 'scales.' + scaleId + '.type'),
       domain = getInVis(state, 'scales.' + scaleId + '._domain'),
       range = getInVis(state, 'scales.' + scaleId + '._range'),
@@ -86,8 +85,8 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
   // This behavior reduces guide churning, and keeps guides always visualizing
   // the most recent scale.  Finally, any mark properties that referred to the
   // pre-cloned scales are updated.
-  if (dl.keys(clones).length > 0) {
-    dl.keys(clones).forEach(function(scaleId) {
+  if (Object.keys(clones).length > 0) {
+    Object.keys(clones).forEach(function(scaleId) {
       const scale = getInVis(state, 'scales.' + scaleId),
         newScale = addScale(cloneScale(scale, aggId)),
         newScaleId = (clones[scaleId] = newScale.meta),

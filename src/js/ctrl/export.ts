@@ -1,26 +1,24 @@
-'use strict';
-
-import {Mark, Spec} from 'vega-typings';
+import {extend, isArray, isObject, isString, Mark, Spec} from 'vega';
 import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
 import {input} from '../util/dataset-utils';
+import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {signalLookup} from '../util/signal-lookup';
 import manipulators from './manipulators';
 
-const dl = require('datalib'),
-  json2csv = require('json2csv'),
+const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
   getIn = imutils.getIn,
   getInVis = imutils.getInVis,
   ORDER = require('../constants/sortOrder');
 
-const SPEC_COUNT = {data: {}, scales: {}},
+const SPEC_COUNT = {data: {}, scales: {}, _totaled: false},
   DATA_COUNT = {marks: {}, scales: {}},
   SCALE_COUNT = {marks: {}, guides: {}};
 
 // How many times data sources and scales have been used.
-let counts = dl.duplicate(SPEC_COUNT);
+let counts = duplicate(SPEC_COUNT);
 
 /**
  * Exports primitives in the redux store as a complete Vega specification.
@@ -35,7 +33,7 @@ export function exporter(internal: boolean = false): Spec {
   const state = store.getState();
   const int = internal === true;
 
-  counts = dl.duplicate(SPEC_COUNT);
+  counts = duplicate(SPEC_COUNT);
 
   const spec: Spec = exporter.scene(state, int);
   spec.data = exporter.pipelines(state, int);
@@ -61,12 +59,12 @@ exporter.pipelines = function(state: State, internal: boolean) {
 
 exporter.dataset = function(state: State, internal: boolean, id: number) {
   const dataset = getInVis(state, 'datasets.' + id).toJS(),
-    spec = clean(dl.duplicate(dataset), internal),
+    spec = clean(duplicate(dataset), internal),
     values = input(id),
     format = spec.format && spec.format.type,
     sort = exporter.sort(dataset);
 
-  counts.data[id] = counts.data[id] || dl.duplicate(DATA_COUNT);
+  counts.data[id] = counts.data[id] || duplicate(DATA_COUNT);
 
   // Resolve dataset ID to name.
   // Only include the raw values in the exported spec if:
@@ -128,7 +126,7 @@ exporter.scene = function(state: State, internal: boolean): Mark {
 
 exporter.mark = function(state: State, internal: boolean, id: number) {
   const mark = getInVis(state, 'marks.' + id).toJS(),
-    spec = clean(dl.duplicate(mark), internal),
+    spec = clean(duplicate(mark), internal),
     up = mark.encode.update,
     upspec = spec.encode.update;
   let fromId, count;
@@ -136,19 +134,19 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
   if (spec.from) {
     if ((fromId = spec.from.data)) {
       spec.from.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
-      count = counts.data[fromId] || (counts.data[fromId] = dl.duplicate(DATA_COUNT));
+      count = counts.data[fromId] || (counts.data[fromId] = duplicate(DATA_COUNT));
       count.marks[id] = true;
     } else if ((fromId = spec.from.mark)) {
       spec.from.mark = name(getInVis(state, 'marks.' + fromId + '.name'));
     }
   }
 
-  dl.keys(upspec).forEach(function(key) {
+  Object.keys(upspec).forEach(function(key) {
     let specVal = upspec[key],
       origVal = up[key],
       origScale = origVal.scale;
 
-    if (!dl.isObject(specVal)) {
+    if (!isObject(specVal)) {
       // signalRef resolved to literal
       specVal = upspec[key] = {value: specVal};
     }
@@ -157,7 +155,7 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
     // specVal was replaced above (e.g., scale + signal).
     if (origScale) {
       specVal.scale = name(getInVis(state, 'scales.' + origScale + '.name'));
-      count = counts.scales[origScale] || (counts.scales[origScale] = dl.duplicate(SCALE_COUNT));
+      count = counts.scales[origScale] || (counts.scales[origScale] = duplicate(SCALE_COUNT));
       count.marks[id] = true;
     }
 
@@ -196,12 +194,12 @@ exporter.group = function(state: State, internal: boolean, id: number) {
             return exporter[childType](state, internal, cid);
           }
 
-          return clean(dl.duplicate(child), internal);
+          return clean(duplicate(child), internal);
         }
       })
       .reduce(function(children, child) {
         // If internal === true, children are an array of arrays which must be flattened.
-        if (dl.isArray(child)) {
+        if (isArray(child)) {
           children.push.apply(children, child);
         } else if (child) {
           children.push(child);
@@ -251,9 +249,9 @@ exporter.line = function(state: State, internal: boolean, id: number) {
 
 exporter.scale = function(state: State, internal: boolean, id: number) {
   const scale = getInVis(state, 'scales.' + id).toJS(),
-    spec = clean(dl.duplicate(scale), internal);
+    spec = clean(duplicate(scale), internal);
 
-  counts.scales[id] = counts.scales[id] || dl.duplicate(SCALE_COUNT);
+  counts.scales[id] = counts.scales[id] || duplicate(SCALE_COUNT);
 
   if (!scale.domain && scale._domain && scale._domain.length) {
     spec.domain = dataRef(state, scale, scale._domain);
@@ -264,7 +262,7 @@ exporter.scale = function(state: State, internal: boolean, id: number) {
   }
 
   // TODO: Sorting multiple datasets?
-  const sortOrder = dl.isObject(spec.domain) && spec.domain._sortOrder;
+  const sortOrder = isObject(spec.domain) && spec.domain._sortOrder;
   if (sortOrder) {
     spec.reverse = sortOrder === ORDER.DESC ? !spec.reverse : !!spec.reserve;
   }
@@ -274,7 +272,7 @@ exporter.scale = function(state: State, internal: boolean, id: number) {
 
 exporter.axe = exporter.legend = function(state: State, internal: boolean, id: number) {
   const guide = getInVis(state, 'guides.' + id).toJS(),
-    spec = clean(dl.duplicate(guide), internal),
+    spec = clean(duplicate(guide), internal),
     gtype = guide._gtype,
     type = guide._type;
 
@@ -286,10 +284,10 @@ exporter.axe = exporter.legend = function(state: State, internal: boolean, id: n
     spec[type] = name(getInVis(state, 'scales.' + spec[type] + '.name'));
   }
 
-  dl.keys(spec.encode).forEach(function(prop) {
+  Object.keys(spec.encode).forEach(function(prop) {
     const def = spec.encode[prop];
-    dl.keys(def).forEach(function(key) {
-      if (!dl.isObject(def[key])) {
+    Object.keys(def).forEach(function(key) {
+      if (!isObject(def[key])) {
         // signalRef resolved to literal
         def[key] = {value: def[key]};
       }
@@ -308,19 +306,18 @@ exporter.axe = exporter.legend = function(state: State, internal: boolean, id: n
  * @returns {Object} A cleaned spec object
  */
 function clean(spec, internal: boolean) {
-  let key, prop, cleanKey;
-  for (key in spec) {
-    prop = spec[key];
+  let cleanKey;
+  for (const [key, prop] of Object.entries(spec)) {
     cleanKey = key.startsWith('_');
-    cleanKey = cleanKey || prop._disabled || prop === undefined;
+    cleanKey = cleanKey || (prop as any)._disabled || prop === undefined;
     if (cleanKey) {
       delete spec[key];
-    } else if (key === 'name' && dl.isString(prop)) {
+    } else if (key === 'name' && isString(prop)) {
       spec[key] = name(prop);
-    } else if (dl.isObject(prop)) {
-      if (prop.signal && !internal) {
+    } else if (isObject(prop)) {
+      if ((prop as any).signal && !internal) {
         // Render signals to their value
-        spec[key] = signalLookup(prop.signal);
+        spec[key] = signalLookup((prop as any).signal);
       } else {
         // Recurse
         spec[key] = clean(spec[key], internal);
@@ -341,13 +338,13 @@ export function getCounts(recount: boolean) {
 
   for (key in counts.data) {
     entry = counts.data[key];
-    entry.total = dl.keys(entry.marks).length + dl.keys(entry.scales).length;
+    entry.total = Object.keys(entry.marks).length + Object.keys(entry.scales).length;
   }
 
   for (key in counts.scales) {
     entry = counts.scales[key];
-    entry.markTotal = dl.keys(entry.marks).length;
-    entry.guideTotal = dl.keys(entry.guides).length;
+    entry.markTotal = Object.keys(entry.marks).length;
+    entry.guideTotal = Object.keys(entry.guides).length;
     entry.total = entry.markTotal + entry.guideTotal;
   }
 
@@ -391,7 +388,7 @@ function dataRef(state: State, scale, ref) {
     sets[did].push(field);
   }
 
-  keys = dl.keys(sets);
+  keys = Object.keys(sets);
   if (keys.length === 1) {
     return sortDataRef(data, scale, sets[did]);
   }
@@ -409,14 +406,14 @@ function sortDataRef(data, scale, field) {
   const ref = {data: name(data.get('name')), field: field};
   if (scale.type === 'ordinal' && data.get('_sort')) {
     const sortField = getIn(data, '_sort.field');
-    return dl.extend(ref, {
+    return extend({}, ref, {
       sort: sortField === ref.field ? true : {field: sortField, op: 'min'},
       _sortOrder: getIn(data, '_sort.order')
     });
   }
 
   const dsId = data.get('_id'),
-    count = counts.data[dsId] || (counts.data[dsId] = dl.duplicate(DATA_COUNT));
+    count = counts.data[dsId] || (counts.data[dsId] = duplicate(DATA_COUNT));
   count.scales[scale._id] = true;
   return ref;
 }

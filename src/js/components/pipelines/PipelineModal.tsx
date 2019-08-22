@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactModal from 'react-modal';
 import { connect } from 'react-redux';
-import {Datum} from 'vega-typings';
+import {Datum, extend} from 'vega';
 import {addPipeline} from '../../actions/pipelineActions';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {PipelineRecord} from '../../store/factory/Pipeline';
@@ -10,7 +10,6 @@ import DataTable from './DataTable';
 import DataURL from './DataURL';
 import RawValuesTextArea from './RawValuesTextArea';
 
-const dl = require('datalib');
 const exampleDatasets = require('../../constants/exampleDatasets');
 const NAME_REGEX = dsUtils.NAME_REGEX;
 
@@ -58,7 +57,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
   }
 
   public success(state: Partial<PipelineModalState>, msg: string | boolean, preview) {
-    this.setState(dl.extend({
+    this.setState(extend({}, {
       error: null,
       success: msg || null,
       showPreview: !(preview === false),

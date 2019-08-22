@@ -1,5 +1,4 @@
 'use strict';
-const dl = require('datalib');
 const imutils = require('../../util/immutable-utils');
 const getIn = imutils.getIn;
 const getInVis = imutils.getInVis;
@@ -8,10 +7,10 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {resetMarkVisual, setMarkExtent} from '../../actions/markActions';
+import MARK_EXTENTS from '../../constants/markExtents';
 import {State} from '../../store';
 import {Property} from './Property';
 import {SpatialPreset} from './SpatialPreset';
-import MARK_EXTENTS from '../../constants/markExtents';
 
 interface OwnProps {
   exType: 'x' | 'y';
@@ -33,7 +32,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const type = ownProps.exType;
   const primId = ownProps.primId;
   const update = getInVis(state, 'marks.' + primId + '.encode.update');
-  const EXTENTS = dl.vals(MARK_EXTENTS[type]);
+  const EXTENTS = Object.values(MARK_EXTENTS[type]);
   let start;
   let end;
 
@@ -93,7 +92,7 @@ class BaseExtentProperty extends React.Component<OwnProps & StateProps & Dispatc
     const EXTENTS = MARK_EXTENTS[type];
     const center = EXTENTS.CENTER.name;
     const span = EXTENTS.SPAN.label;
-    const opts = dl.vals(EXTENTS);
+    const opts = Object.values(EXTENTS);
     const start = props.start;
     const end = props.end;
 

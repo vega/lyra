@@ -10,9 +10,9 @@
 
 import {Map} from 'immutable';
 import {AggregateTransform, Datum, Format} from 'vega-typings/types';
+import {store} from '../store';
 import {Column, ColumnRecord, Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
 import {Pipeline, PipelineRecord} from '../store/factory/Pipeline';
-import {store} from '../store';
 
 // Taken from vega-lite 1.0.0 src/data.js
 
@@ -153,13 +153,13 @@ export function parseRaw(raw: string): ParsedValues {
     // Test successful parsing of CSV/TSV data by checking # of fields found.
     // If file is TSV but was parsed as CSV, the entire header row will be
     // parsed as a single field.
-    if (dl.keys(parsed[0]).length > 1) {
+    if (Object.keys(parsed[0]).length > 1) {
       return {format: format, values: parsed};
     }
 
     format.type = 'tsv';
     parsed = dl.read(raw, format);
-    if (dl.keys(parsed[0]).length > 1) {
+    if (Object.keys(parsed[0]).length > 1) {
       return {format: format, values: parsed};
     }
 

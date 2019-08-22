@@ -2,7 +2,6 @@ import * as signalActions from '../actions/signalActions';
 import {store} from '../store';
 import {signalNames} from '../store/factory/Signal';
 
-const dl = require('datalib');
 const ns = require('../util/ns');
 const getInVis = require('../util/immutable-utils').getInVis;
 

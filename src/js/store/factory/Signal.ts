@@ -1,7 +1,6 @@
 import {Map, Record, RecordOf} from 'immutable';
-import {Signal as VegaSignal} from 'vega-typings/types';
+import {Signal as VegaSignal, stringValue} from 'vega';
 
-const dl = require('datalib');
 const ns = require('../../util/ns');
 
 export const SELECTED = ns('selected');
@@ -43,7 +42,7 @@ export const defaultSignalState: SignalState = Map({
     value: {mark: {}},
     on: [
       {events: 'mousedown[item().mark && item().mark.name &&' +
-          'item().mark.name !== ' + dl.str(CELL) + ']',
+          'item().mark.name !== ' + stringValue(CELL) + ']',
         update: 'item()'},
       {events: 'mousedown[!item().mark]', update: '{mark: {}}'}
     ],

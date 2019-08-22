@@ -1,21 +1,20 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
-import { Dispatch } from 'redux';
-import {State} from '../../store';
-
-import {fieldDefs} from 'vega-lite/src/encoding';
+import {Dispatch} from 'redux';
+import {extend} from 'vega';
 import sg from '../../ctrl/signals';
+import {State} from '../../store';
 import {ColumnRecord, Schema} from '../../store/factory/Dataset';
 import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
-import { Icon } from '../Icon';
+import duplicate from '../../util/duplicate';
+import {Icon} from '../Icon';
 import AggregateList from './AggregateList';
 import FieldType from './FieldType';
 import FilterIcon from './transforms/FilterIcon';
 import FormulaIcon from './transforms/FormulaIcon';
 import SortIcon from './transforms/SortIcon';
 
-const dl = require('datalib');
 const ctrl = require('../../ctrl');
 const bindChannel = require('../../actions/bindChannel');
 
@@ -99,10 +98,10 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
     this.setState((currentState) => {
       // if an AggregateField isn't being dragged, close the menu
       if (!classList.contains('aggregate-field')) {
-        return {...currentState, bindField: dl.duplicate(this.state.fieldDef), showAggregates: false}
+        return {...currentState, bindField: duplicate(this.state.fieldDef), showAggregates: false}
       }
       else {
-        return {...currentState, bindField: dl.duplicate(this.state.fieldDef)};
+        return {...currentState, bindField: duplicate(this.state.fieldDef)};
       }
     });
 
@@ -133,7 +132,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
 
     try {
       if (dropped) {
-        dl.extend(bindField, opts); // Aggregate or Bin passed in opts.
+        extend(bindField, opts); // Aggregate or Bin passed in opts.
         props.bindChannel(dsId, bindField, sel.mark.def.lyra_id, cell.key);
       }
     } catch (e) {

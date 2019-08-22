@@ -1,5 +1,6 @@
 import {Bounds, extend} from 'vega';
 import {CELL, MODE, SELECTED} from '../store/factory/Signal';
+import duplicate from '../util/duplicate';
 import exportName from '../util/exportName';
 const ns = require('../util/ns');
 
@@ -127,7 +128,7 @@ const voronoi = {
 };
 
 function border(spec) {
-  const update = JSON.parse(JSON.stringify(spec.encode.update)),
+  const update = duplicate(spec.encode.update),
     markType = spec.type,
     pathMark = markType === 'line' || markType === 'area';
 
