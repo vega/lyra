@@ -5,25 +5,144 @@ const ns = require('../util/ns');
 export default function demonstrations(sceneSpec) {
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
-      return addSignalsToGroup(markSpec);
+      const xScaleName = getScaleNameFromAxes(markSpec.axes, 'x');
+      const xFieldName = getFieldFromScaleName(markSpec.scales, xScaleName);
+      const yScaleName = getScaleNameFromAxes(markSpec.axes, 'y');
+      const yFieldName = getFieldFromScaleName(markSpec.scales, yScaleName);
+
+      if (!(xScaleName && xFieldName && yScaleName && yFieldName)) {
+        // likely the user has not created scales yet
+        return markSpec;
+      }
+
+      return addMarksToGroup(addSignalsToGroup(markSpec, {xScaleName, xFieldName, yScaleName, yFieldName}));
     }
     return markSpec;
   });
   return sceneSpec;
 }
 
-function addSignalsToGroup(groupSpec: GroupMark) {
-  const data = groupSpec.data || (groupSpec.data = []);
-  groupSpec.data = [...data,
-    {"name": "brush_store"},
-    {"name": "grid_store"}
+function addMarksToGroup(groupSpec: GroupMark): GroupMark {
+  const marks = groupSpec.marks || (groupSpec.marks = []);
+  groupSpec.marks = [...marks,
+    {
+      "name": "brush_brush_bg",
+      "type": "rect",
+      "clip": true,
+      "encode": {
+        "enter": {
+          "fill": {
+            "value": "#333"
+          },
+          "fillOpacity": {
+            "value": 0.125
+          }
+        },
+        "update": {
+          "x": [
+            {
+              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "signal": "brush_x[0]"
+            },
+            {
+              "value": 0
+            }
+          ],
+          "y": [
+            {
+              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "signal": "brush_y[0]"
+            },
+            {
+              "value": 0
+            }
+          ],
+          "x2": [
+            {
+              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "signal": "brush_x[1]"
+            },
+            {
+              "value": 0
+            }
+          ],
+          "y2": [
+            {
+              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "signal": "brush_y[1]"
+            },
+            {
+              "value": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "brush_brush",
+      "type": "rect",
+      "clip": true,
+      "encode": {
+        "enter": {
+          "fill": {
+            "value": "transparent"
+          }
+        },
+        "update": {
+          "x": [
+            {
+              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "signal": "brush_x[0]"
+            },
+            {
+              "value": 0
+            }
+          ],
+          "y": [
+            {
+              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "signal": "brush_y[0]"
+            },
+            {
+              "value": 0
+            }
+          ],
+          "x2": [
+            {
+              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "signal": "brush_x[1]"
+            },
+            {
+              "value": 0
+            }
+          ],
+          "y2": [
+            {
+              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "signal": "brush_y[1]"
+            },
+            {
+              "value": 0
+            }
+          ],
+          "stroke": [
+            {
+              "test": "brush_x[0] !== brush_x[1] && brush_y[0] !== brush_y[1]",
+              "value": "white"
+            },
+            {
+              "value": null
+            }
+          ]
+        }
+      }
+    }
   ];
+  return groupSpec;
+}
 
-  const xScaleName = getScaleNameFromAxes(groupSpec.axes, 'x');
-  const xFieldName = getFieldFromScaleName(groupSpec.scales, xScaleName);
-  const yScaleName = getScaleNameFromAxes(groupSpec.axes, 'y');
-  const yFieldName = getFieldFromScaleName(groupSpec.scales, yScaleName);
-
+function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
+  const {xScaleName, xFieldName, yScaleName, yFieldName} = names;
   const signals = groupSpec.signals || (groupSpec.signals = []);
   groupSpec.signals = [...signals,
     {
@@ -411,6 +530,13 @@ function addSignalsToGroup(groupSpec: GroupMark) {
       "update": "modify(\"grid_store\", grid_tuple, true)"
     }
   ];
+
+  const data = groupSpec.data || (groupSpec.data = []);
+  groupSpec.data = [...data,
+    {"name": "brush_store"},
+    {"name": "grid_store"}
+  ];
+
   return groupSpec;
 }
 

@@ -8,6 +8,7 @@ import {Footer} from './Footer';
 import {InspectorSidebar} from './InspectorSidebar';
 import {PipelinesSidebar} from './PipelinesSidebar';
 import {Toolbar} from './Toolbar';
+import InteractionPreview from './interactions/InteractionPreview';
 
 // React requires you only have one wrapper element called in your provider
 module.exports = (window as any).ui = ReactDOM.render(
@@ -32,4 +33,12 @@ module.exports = (window as any).ui = ReactDOM.render(
     </div>
   </Provider>,
   document.querySelector('.chrome-container')
+);
+
+// React requires you only have one wrapper element called in your provider
+module.exports = (window as any).ui = ReactDOM.render(
+  <Provider store={store}>
+    <InteractionPreview id="preview_1"></InteractionPreview>
+  </Provider>,
+  document.querySelector('.interaction-preview')
 );
