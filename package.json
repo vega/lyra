@@ -21,7 +21,7 @@
     "url": "http://arvindsatya.com"
   },
   "license": "BSD-3-Clause",
-  "devDependencies": {
+  "dependencies": {
     "@types/react": "^16.7.6",
     "@types/react-dom": "^16.0.9",
     "@types/react-redux": "^6.0.10",
@@ -130,8 +130,5 @@
     "test:chrome": "npm run test -- --watch --browsers Chrome",
     "test:osx": "npm run test -- --browsers PhantomJS,Chrome,Firefox,Safari",
     "test:win": "npm run test -- --browsers PhantomJS,Chrome,Firefox,IE,IE9,IE10"
-  },
-  "dependencies": {
-    "@types/react-redux": "^6.0.10"
   }
 }

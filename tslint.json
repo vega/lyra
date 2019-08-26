@@ -22,6 +22,7 @@
     "no-unnecessary-initializer": false,
     "no-var-requires": false,
     "only-arrow-functions": false,
-    "one-variable-per-declaration": false
+    "one-variable-per-declaration": false,
+    "no-conditional-assignment": false
   }
 }
