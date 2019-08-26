@@ -37,7 +37,7 @@ export type SignalRecord = RecordOf<LyraSignal>;
 export type SignalState = Map<string, SignalRecord>;
 
 export const defaultSignalState: SignalState = Map({
-  SELECTED: Signal({
+  [SELECTED]: Signal({
     name: SELECTED,
     value: {mark: {}},
     on: [
@@ -48,12 +48,12 @@ export const defaultSignalState: SignalState = Map({
     ],
     _idx: 0
   }),
-  MODE: Signal({
+  [MODE]: Signal({
     name: MODE,
     value: 'handles',
     _idx: 1
   }),
-  DELTA: Signal({
+  [DELTA]: Signal({
     name: DELTA,
     value: 0,
     on: [
@@ -62,7 +62,7 @@ export const defaultSignalState: SignalState = Map({
     ],
     _idx: 2
   }),
-  ANCHOR: Signal({
+  [ANCHOR]: Signal({
     name: ANCHOR,
     value: 0,
     on: [
@@ -73,7 +73,7 @@ export const defaultSignalState: SignalState = Map({
     ],
     _idx: 3
   }),
-  CELL: Signal({
+  [CELL]: Signal({
     name: CELL,
     value: {},
     on: [
@@ -84,7 +84,7 @@ export const defaultSignalState: SignalState = Map({
     ],
     _idx: 4
   }),
-  MOUSE: Signal({
+  [MOUSE]: Signal({
     name: MOUSE,
     value: {},
     on: [

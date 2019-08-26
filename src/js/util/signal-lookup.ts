@@ -12,5 +12,5 @@ const getInVis = require('./immutable-utils').getInVis,
  * @returns {string|number|object} returns what is stored in redux which could be one of these types
  */
 export function signalLookup(signal: string) {
-  return store.getState().getIn(['vis', 'present', 'signals', ns(signal), 'value']);
+  return getInVis(store.getState(), `signals.${ns(signal)}.value`);
 }
