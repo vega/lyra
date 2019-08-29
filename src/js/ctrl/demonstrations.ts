@@ -1,8 +1,6 @@
 import {Axis, Spec, GroupMark, Mark, Scale, ScaleData, DataRef} from "vega";
 import {isSignalRef} from "vega-lite/build/src/vega.schema";
 
-const ns = require('../util/ns');
-
 export default function demonstrations(sceneSpec) {
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
