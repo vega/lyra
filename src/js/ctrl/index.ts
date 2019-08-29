@@ -107,7 +107,7 @@ ctrl.parse = function(el: string) {
   });
 
   return parsePromise.then(function(runtime) {
-    ctrl.view = new vg.View(runtime)
+    ctrl.view = new vg.View(runtime, {renderer: 'svg'})
       .initialize(el)
       .logLevel(vg.Warn)
       .hover();

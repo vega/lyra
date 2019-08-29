@@ -20,7 +20,7 @@ const listeners = {};
 const groupListeners: {
   [groupName: string]: {
     [signalName: string]: {
-      operator: Operator & {_targets?: any}, //TODO(jzong) investigate why '_targets' instead of 'targets'
+      operator: {_targets?: any, value?: any},
       handler: (name, value) => void
     }[]
   }
@@ -75,11 +75,11 @@ export function offSignal(name, handler) {
  * Finds a signal in a top-level group
 */
 function getSignalOperatorFromGroup(groupName, signalName) {
-  const view = ctrl.getView();
-  if (view) {
-    const rootItemNode = view._scenegraph.root.items[0];
+  if (ctrl.view) {
+    debugger;
+    const rootItemNode = ctrl.view._scenegraph.root.items[0];
     for (let markNode of rootItemNode.items) {
-      if (markNode.name && markNode.markType === 'group') {
+      if (markNode.name && markNode.marktype === 'group') {
         if (markNode.name === groupName) {
           if (markNode.items && markNode.items.length) {
             const itemNode = markNode.items[0];
@@ -99,22 +99,29 @@ function getSignalOperatorFromGroup(groupName, signalName) {
 
 export function onSignalInGroup(groupName, signalName, handler) {
   const operator = getSignalOperatorFromGroup(groupName, signalName);
+  console.log('operator', operator);
   if (operator) {
+    const h: any = function() { handler(name, operator.value); };
+        h.handler = handler;
+
+    groupListeners[groupName] = groupListeners[groupName] || {};
     groupListeners[groupName][signalName] = groupListeners[groupName][signalName] || [];
     groupListeners[groupName][signalName].push({
       operator,
-      handler
+      handler: h
     });
     if (ctrl.view) {
-      ctrl.view.on(operator, null, handler);
+      ctrl.view.on(operator, null, h);
     }
     return ctrl;
   }
 }
+(window as any).onSignalInGroup = onSignalInGroup;
 
 export function offSignalInGroup(groupName, signalName, handler) {
   const operator = getSignalOperatorFromGroup(groupName, signalName);
   if (operator) {
+    groupListeners[groupName] = groupListeners[groupName] || {};
     groupListeners[groupName][signalName] = groupListeners[groupName][signalName] || [];
     const listener = groupListeners[groupName][signalName];
     for (let i = listener.length; --i >= 0; ) {

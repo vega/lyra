@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {View, parse} from 'vega';
+import {onSignalInGroup} from '../../ctrl/listeners';
 
 const ctrl = require('../../ctrl');
 
@@ -36,7 +37,7 @@ class InteractionPreview extends React.Component<OwnProps & StateProps, OwnState
 
   private attachView() {
     this.view = new View(parse(ctrl.export()), {
-      renderer:  'canvas',  // renderer (canvas or svg)
+      renderer:  'svg',  // renderer (canvas or svg)
       container: '#'+this.props.id,   // parent DOM container
       hover:     true       // enable hover processing
     });
@@ -54,6 +55,7 @@ class InteractionPreview extends React.Component<OwnProps & StateProps, OwnState
       this.attachView();
     }
   }
+
   public render() {
 
     return (
