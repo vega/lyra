@@ -50,7 +50,6 @@ class InteractionPreview extends React.Component<OwnProps & StateProps, OwnState
   };
 
   public componentDidUpdate(prevProps) {
-    console.log(arguments);
     if (prevProps.vegaIsParsing && !this.props.vegaIsParsing) {
       this.attachView();
     }
