@@ -1,23 +1,30 @@
-'use strict';
 import * as d3 from 'd3';
 import {redo, undo} from '../actions/historyActions';
-import {expandLayers, selectMark} from '../actions/inspectorActions';
+import {selectMark} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';
 import {store} from '../store';
 import {MODE} from '../store/factory/Signal';
 import sg from './signals';
+import {Operator} from 'vega';
 
-const hierarchy = require('../util/hierarchy');
 const ACTIONS = require('../actions/Names');
 const ctrl = require('./');
-
-const listeners = {};
 
 module.exports = {
   onSignal: onSignal,
   offSignal: offSignal,
   register: registerSignalListeners
 };
+
+const listeners = {};
+const groupListeners: {
+  [groupName: string]: {
+    [signalName: string]: {
+      operator: Operator & {_targets?: any}, //TODO(jzong) investigate why '_targets' instead of 'targets'
+      handler: (name, value) => void
+    }[]
+  }
+} = {};
 
 d3.select(window)
   .on('keydown', function() {
@@ -62,6 +69,62 @@ export function offSignal(name, handler) {
     ctrl.view.removeSignalListener(name, handler);
   }
   return ctrl;
+}
+
+/*
+ * Finds a signal in a top-level group
+*/
+function getSignalOperatorFromGroup(groupName, signalName) {
+  const view = ctrl.getView();
+  if (view) {
+    const rootItemNode = view._scenegraph.root.items[0];
+    for (let markNode of rootItemNode.items) {
+      if (markNode.name && markNode.markType === 'group') {
+        if (markNode.name === groupName) {
+          if (markNode.items && markNode.items.length) {
+            const itemNode = markNode.items[0];
+            const signals = itemNode.context.signals;
+            for (let name of Object.keys(signals)) {
+              if (name === signalName) {
+                return signals[name];
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+}
+
+export function onSignalInGroup(groupName, signalName, handler) {
+  const operator = getSignalOperatorFromGroup(groupName, signalName);
+  if (operator) {
+    groupListeners[groupName][signalName] = groupListeners[groupName][signalName] || [];
+    groupListeners[groupName][signalName].push({
+      operator,
+      handler
+    });
+    if (ctrl.view) {
+      ctrl.view.on(operator, null, handler);
+    }
+    return ctrl;
+  }
+}
+
+export function offSignalInGroup(groupName, signalName, handler) {
+  const operator = getSignalOperatorFromGroup(groupName, signalName);
+  if (operator) {
+    groupListeners[groupName][signalName] = groupListeners[groupName][signalName] || [];
+    const listener = groupListeners[groupName][signalName];
+    for (let i = listener.length; --i >= 0; ) {
+      if (!handler || listener[i].handler === handler) {
+        listener[i].operator._targets.remove(handler);
+        listener.splice(i, 1);
+      }
+    }
+    return ctrl;
+  }
 }
 
 /**
@@ -125,6 +188,19 @@ export function registerSignalListeners() {
           ctrl.view.addSignalListener(signalName, handlerFn);
         });
       }
+    });
+
+    Object.keys(groupListeners).forEach(function(groupName) {
+      Object.keys(groupListeners[groupName]).forEach(function(signalName) {
+        const maybeSignal = getSignalOperatorFromGroup(groupName, signalName);
+        if (!maybeSignal) {
+          groupListeners[groupName][signalName] = [];
+        } else {
+          groupListeners[groupName][signalName].forEach(function(def) {
+            ctrl.view.on(def.operator, null, def.handler);
+          });
+        }
+      });
     });
   }
 }

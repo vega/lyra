@@ -1,4 +1,5 @@
 import {Axis, Spec, GroupMark, Mark, Scale, ScaleData, DataRef} from "vega";
+import {isSignalRef} from "vega-lite/build/src/vega.schema";
 
 const ns = require('../util/ns');
 
@@ -541,20 +542,26 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
 }
 
 function getScaleNameFromAxes(axesList: Axis[], axisType: 'x' | 'y'): string {
-  axesList.forEach(axis => {
+  for (let axis of axesList) {
     if (axisType === 'x' && (axis.orient === 'top' || axis.orient === 'bottom') ||
         axisType === 'y' && (axis.orient === 'left' || axis.orient === 'right')) {
       return axis.scale;
     }
-  });
+  };
   return null;
 }
 
 function getFieldFromScaleName(scalesList: Scale[], scaleName: string): string {
-  scalesList.forEach(scale => {
+  for (let scale of scalesList) {
     if (scale.name === scaleName) {
-      return (scale.domain as DataRef).field; // TODO(jzong) this makes assumptions about where the field name is
+      const field = (scale.domain as DataRef).field; // TODO(jzong) this makes assumptions about where the field name is
+      if (isSignalRef(field)) {
+        const signalName = field.signal;
+        // TODO look up the value from the signal name
+        return signalName; // change this
+      }
+      return field;
     }
-  });
+  };
   return null;
 }
