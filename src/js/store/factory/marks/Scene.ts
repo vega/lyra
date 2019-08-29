@@ -9,14 +9,15 @@ export type LyraScene = {
 export const Scene = Record<LyraScene>({
   _id: null,
   name: 'Scene',
+  background: 'white',
+  autosize: 'pad',
+  padding: 5,
+  encode: {
+    update: {}
+  },
   scales: [],
   axes: [],
   legends: [],
   marks: [],
-  autosize: 'pad',
-  background: 'white',
-  encode: {
-    update: {}
-  }
 });
 export type SceneRecord = RecordOf<LyraScene>;

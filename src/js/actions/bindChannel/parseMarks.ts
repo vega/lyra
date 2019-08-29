@@ -1,6 +1,6 @@
-'use strict';
-
 import {Dispatch} from 'redux';
+import {EncodeEntry} from 'vega';
+import {CompiledBinding} from '.';
 import MARK_EXTENTS from '../../constants/markExtents';
 import {State} from '../../store';
 import {propSg} from '../../util/prop-signal';
@@ -22,20 +22,25 @@ const dl = require('datalib'),
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-export function parseMarks(dispatch: Dispatch, state: State, parsed) {
+export default function parseMarks(dispatch: Dispatch, state: State, parsed: CompiledBinding) {
   const markType = parsed.markType,
     map = parsed.map,
     markId = parsed.markId,
-    channel = parsed.channel,
-    def = parsed.output.marks[0].marks[0],
-    props = def.encode.update;
+    channel = parsed.channel;
+
+  // Most marks will be at the top-level, but path marks (line/area) might
+  // be nested in a group for faceting.
+  let def = parsed.output.marks[0];
+  if (def.type === 'group' && def.name.indexOf('pathgroup') >= 0) {
+    def = def.marks[0];
+  }
 
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
-    rectSpatial(dispatch, state, parsed, props);
+    rectSpatial(dispatch, state, parsed, def.encode.update);
   } else if (markType === 'text' && channel === 'text') {
-    textTemplate(dispatch, parsed, props);
+    textTemplate(dispatch, parsed, def.encode.update);
   } else {
-    bindProperty(dispatch, parsed, props);
+    bindProperty(dispatch, parsed, def.encode.update);
   }
 
   if (def.from && def.from.data) {
@@ -53,49 +58,29 @@ export function parseMarks(dispatch: Dispatch, state: State, parsed) {
  * @param   {string} [property=parsed.property]  The visual property to bind.
  * @returns {void}
  */
-function bindProperty(dispatch: Dispatch, parsed, def, property?: string) {
-  let map = parsed.map;
-  const markId = parsed.markId,
-    markType = parsed.markType,
-    prop = {} as any;
+function bindProperty(dispatch: Dispatch, parsed: CompiledBinding, update: EncodeEntry, property?: string) {
+  const map = parsed.map,
+    markId = parsed.markId,
+    markType = parsed.markType;
+
   property = property || parsed.property;
+  const def = property === 'stroke' ? update.stroke || update.fill : update[property];
 
-  if (property === 'stroke') {
-    def = def.stroke || def.fill;
-  } else {
-    def = def[property];
+  if ('scale' in def && typeof def.scale === 'string') {
+    def.scale = map.scales[def.scale];
   }
 
-  if (def.scale !== undefined) {
-    prop.scale = map.scales[def.scale];
+  if ('value' in def) {
+    def['signal'] = propSg(markId, markType, property);
+    dispatch(setSignal(def.value, def['signal']));
+    delete def.value;
   }
 
-  if (def.field !== undefined) {
-    if (def.field.group) {
-      prop.group = def.field.group;
-    } else {
-      prop.field = def.field;
-    }
-  }
-
-  if (def.value !== undefined) {
-    prop.signal = propSg(markId, markType, property);
-    dispatch(setSignal(def.value, prop.signal));
-  }
-
-  if (def.band !== undefined) {
-    prop.band = def.band;
-  }
-
-  if (def.offset !== undefined) {
-    prop.offset = def.offset;
-  }
-
-  dispatch(setMarkVisual({property: property, def: prop}, markId));
+  dispatch(setMarkVisual({property: property, def: def as any}, markId));
 
   // Set a timestamp on the property to facilitate smarter disabling of rect
   // spatial properties.
-  map = map.marks[markId] || (map.marks[markId] = {});
+  map.marks[markId] = map.marks[markId] || {};
   map[property] = Date.now();
 }
 

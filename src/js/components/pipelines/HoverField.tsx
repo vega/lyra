@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
-import {Dispatch} from 'redux';
-import {extend} from 'vega';
+import * as vega from 'vega';
+import bindChannel from '../../actions/bindChannel';
 import sg from '../../ctrl/signals';
 import {State} from '../../store';
 import {ColumnRecord, Schema} from '../../store/factory/Dataset';
@@ -16,11 +16,12 @@ import FormulaIcon from './transforms/FormulaIcon';
 import SortIcon from './transforms/SortIcon';
 
 const ctrl = require('../../ctrl');
-const bindChannel = require('../../actions/bindChannel');
 
 const getInVis = require('../../util/immutable-utils').getInVis;
 const assets = require('../../util/assets');
 const QUANTITATIVE = require('../../constants/measureTypes').QUANTITATIVE;
+
+const tupleid = (vega as any).tupleid; // TODO: remove when vega/vega#1947 is merged.
 
 interface OwnProps {
   dsId: number;
@@ -55,13 +56,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
-  return {
-    bindChannel: function(dsId, field, markId, property) {
-      dispatch(bindChannel(dsId, field, markId, property));
-    }
-  };
-}
+const actionCreators = {bindChannel};
 
 class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
 
@@ -127,17 +122,18 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
     const sel = sg.get(SELECTED);
     const cell = sg.get(CELL);
     const bindField = this.state.bindField;
-    const dropped = sel._id && cell._id;
+    const dropped = tupleid(sel) && tupleid(cell);
     const dsId = bindField.source ? props.srcId : props.dsId;
 
     try {
       if (dropped) {
-        extend(bindField, opts); // Aggregate or Bin passed in opts.
-        props.bindChannel(dsId, bindField, sel.mark.def.lyra_id, cell.key);
+        const lyraId = +sel.mark.role.split('lyra_')[1];
+        vega.extend(bindField, opts); // Aggregate or Bin passed in opts.
+        props.bindChannel(dsId, bindField, lyraId, cell.key);
       }
     } catch (e) {
-      console.warn('Unable to bind primitive');
-      console.warn(e);
+      console.error('Unable to bind primitive');
+      console.error(e);
     }
 
     sg.set(MODE, 'handles');
@@ -221,4 +217,4 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HoverField);
+export default connect(mapStateToProps, actionCreators)(HoverField);

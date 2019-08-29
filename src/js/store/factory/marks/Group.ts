@@ -21,6 +21,7 @@ export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
     _manualLayout: false,
     type: 'group',
     name: null,
+    from: null,
     scales: [],
     axes: [],
     legends: [],

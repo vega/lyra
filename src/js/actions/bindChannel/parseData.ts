@@ -1,11 +1,11 @@
 const getInVis = require('../../util/immutable-utils').getInVis;
 
-import {LyraAggregateTransform} from '../../store/factory/Pipeline';
-import {summarizeAggregate} from '../datasetActions';
-import {aggregatePipeline} from '../pipelineActions';
 import {AnyAction, Dispatch} from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
 import {State} from '../../store';
+import {LyraAggregateTransform} from '../../store/factory/Pipeline';
+import {summarizeAggregate} from '../datasetActions';
+import {aggregatePipeline} from '../pipelineActions';
 
 /**
  * Parse the data source definitions in the resultant Vega specification.
@@ -20,21 +20,14 @@ import {State} from '../../store';
  * @param {number} dsId        The ID of the current mark's backing dataset.
  * @returns {void}
  */
-export function parseData(dispatch: Dispatch, state: State, parsed) {
-  // TODO: transforms.
-  const data = parsed.output.data;
-  const source = data.find(function(def) {
-    return def.name === 'source';
-  });
-  const summary = data.find(function(def) {
-    return def.name === 'summary';
-  });
+export default function parseData(dispatch: Dispatch, state: State, parsed) {
+  parsed.map.data['source_0'] = parsed.dsId;
+  parsed.map.data['data_0'] = parsed.dsId;
+      // summary = data.find(def => def.name === 'summary');
 
-  parsed.map.data.source = parsed.dsId;
-
-  if (summary) {
-    parseAggregate(dispatch, state, parsed, summary);
-  }
+  // if (summary) {
+  //   parseAggregate(dispatch, state, parsed, summary);
+  // }
 };
 
 function parseAggregate(dispatch: ThunkDispatch<State, null, AnyAction>, state: State, parsed, summary) {

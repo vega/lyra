@@ -18,6 +18,7 @@ export const Rect = Record<LyraRectMark>({
   _parent: null,
   type: 'rect',
   name: null,
+  from: null,
   encode: {
     update: {
       x2: {value: 140},

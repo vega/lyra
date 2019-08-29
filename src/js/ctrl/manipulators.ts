@@ -111,7 +111,7 @@ const voronoi = {
       key: {field: 'key'},
       tooltip: {field: 'tooltip'},
       strokeWidth: {value: 0.35},
-      stroke: {value: 'brown'},
+      stroke: {value: 'transparent'},
       fill: [
         // Handles should be directly manipulable, rather than proxied via voronoi cells.
         {test: 'datum.manipulator === "handle"', value: null},

@@ -1,6 +1,8 @@
 import {extend, isArray, isObject, isString, Mark, Spec} from 'vega';
+import MARK_EXTENTS from '../constants/markExtents';
 import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
+import {GroupRecord} from '../store/factory/marks/Group';
 import {input} from '../util/dataset-utils';
 import duplicate from '../util/duplicate';
 import name from '../util/exportName';
@@ -174,7 +176,7 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
 };
 
 exporter.group = function(state: State, internal: boolean, id: number) {
-  const mark = state.getIn(['vis', 'present', 'marks', String(id)]).toJS(),
+  const mark: GroupRecord = getInVis(state, `marks.${id}`),
     spec = exporter.mark(state, internal, id),
     group = internal ? spec[0] : spec;
 
@@ -184,20 +186,12 @@ exporter.group = function(state: State, internal: boolean, id: number) {
 
     // Route export to the most appropriate function.
     group[childTypes] = mark[childTypes]
-      .map(function(cid) {
-        if (state.getIn(['vis', 'present', storePath, String(cid)])) {
-          const child = state.getIn(['vis', 'present', storePath, String(cid)]).toJS();
-
-          if (exporter[child.type]) {
-            return exporter[child.type](state, internal, cid);
-          } else if (exporter[childType]) {
-            return exporter[childType](state, internal, cid);
-          }
-
-          return clean(duplicate(child), internal);
-        }
+      .map(cid => {
+        const child = getInVis(state, `${storePath}.${cid}`);
+        return !child ? clean(duplicate(child.toJS()), internal) :
+          (exporter[child.type] || exporter[childType])(state, internal, cid);
       })
-      .reduce(function(children, child) {
+      .reduce((children, child) => {
         // If internal === true, children are an array of arrays which must be flattened.
         if (isArray(child)) {
           children.push.apply(children, child);
@@ -207,6 +201,15 @@ exporter.group = function(state: State, internal: boolean, id: number) {
         return children;
       }, []);
   });
+
+  // Add width/height signals so that nested scales span correctly.
+  if (mark.name !== 'Scene') {
+    group.signals = group.signals || [];
+    group.signals.push(
+      {name: 'width', value: groupSize(mark, 'x')},
+      {name: 'height', value: groupSize(mark, 'y')},
+    );
+  }
 
   return spec;
 };
@@ -297,6 +300,16 @@ exporter.axe = exporter.legend = function(state: State, internal: boolean, id: n
   return spec;
 };
 
+function groupSize(group, dimension: 'x' | 'y') {
+  const update = group.encode.update,
+    extents = MARK_EXTENTS[dimension];
+
+  // TODO: If these properties are scale bound.
+  if (!update[extents.SPAN.name]._disabled) {
+    return signalLookup(update[extents.SPAN.name].signal);
+  }
+}
+
 /**
  * Utility method to clean a spec object by removing Lyra-specific keys
  * (i.e., those prefixed by an underscore).
@@ -309,7 +322,7 @@ function clean(spec, internal: boolean) {
   let cleanKey;
   for (const [key, prop] of Object.entries(spec)) {
     cleanKey = key.startsWith('_');
-    cleanKey = cleanKey || (prop as any)._disabled || prop === undefined;
+    cleanKey = cleanKey || prop === null || prop === undefined || (prop as any)._disabled;
     if (cleanKey) {
       delete spec[key];
     } else if (key === 'name' && isString(prop)) {

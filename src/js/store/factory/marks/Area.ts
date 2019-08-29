@@ -19,6 +19,7 @@ export const Area = Record<LyraAreaMark>({
   _parent: null,
   type: 'area',
   name: null,
+  from: null,
   encode: {
     update: {
       // x2: {value: 0},

@@ -17,6 +17,7 @@ export const Line = Record<LyraLineMark>({
   _parent: null,
   type: 'line',
   name: null,
+  from: null,
   encode: {
     update: {
       fill: undefined,

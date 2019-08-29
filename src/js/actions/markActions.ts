@@ -1,11 +1,11 @@
 import {AnyAction} from 'redux';
 import {ThunkAction} from 'redux-thunk';
 import {createStandardAction} from 'typesafe-actions';
-import {Encode} from 'vega-typings';
+import {NumericValueRef, StringValueRef} from 'vega';
+import {UnitSpec} from 'vega-lite/src/spec';
 import {State} from '../store';
-import { LyraMark, LyraMarkType, Mark, MarkRecord } from '../store/factory/Mark'; // HELP
+import {LyraMarkType, Mark, MarkRecord} from '../store/factory/Mark';
 import {endBatch, startBatch} from './historyActions';
-import { UnitSpec } from 'vega-lite/src/spec';
 
 const counter  = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
@@ -29,7 +29,7 @@ export const updateMarkProperty = createStandardAction('UPDATE_MARK_PROPERTY')<{
 
 export const setParent = createStandardAction('SET_PARENT_MARK')<number, number>(); // parentId, childId
 
-export const setMarkVisual = createStandardAction('SET_MARK_VISUAL')<{property: string, def: Encode<LyraMark>}, number>();
+export const setMarkVisual = createStandardAction('SET_MARK_VISUAL')<{property: string, def: NumericValueRef | StringValueRef}, number>();
 
 export const disableMarkVisual = createStandardAction('DISABLE_MARK_VISUAL')<string, number>();
 export const resetMarkVisual = createStandardAction('RESET_MARK_VISUAL')<string, number>();

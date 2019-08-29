@@ -29,13 +29,15 @@ export type LyraAxis = {
 
 export const Axis = Record<LyraAxis>({
   _gtype: GuideType.Axis,
+  _id: null,
   orient: null,
   scale: null,
-  tickCount: 10, // replaces ticks
-  tickSize: 10,
+  tickCount: null, // replaces ticks
+  tickSize: null,
   grid: false,
+  title: null,
   zindex: 0, // replaces layer
-  _id: null
+  encode: {}
 });
 
 export type AxisRecord = RecordOf<LyraAxis>;

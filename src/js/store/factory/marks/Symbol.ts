@@ -18,6 +18,7 @@ export const Symbol = Record<LyraSymbolMark>({
   _parent: null,
   type: 'symbol',
   name: null,
+  from: null,
   encode: {
     update: {
       size: {value: 100},
