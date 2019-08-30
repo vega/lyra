@@ -150,19 +150,17 @@ function findOrCreateLegend(dispatch: Dispatch, state: State, parsed, scaleId: n
   const map = parsed.map,
     mark = parsed.mark,
     property = parsed.property,
-    parentId = mark.get('_parent'),
-    legends = getInVis(state, 'marks.' + parentId).get('legends');
-  let def,
-    foundLegend = false;
+    parentId = mark._parent,
+    legends = getInVis(state, `marks.${parentId}.legends`);
 
-  def = defs.find(function(legendDef) {
-    return map.scales[legendDef[property]] === scaleId;
-  });
+  let foundLegend = false;
 
-  legends.valueSeq().forEach(function(legendId) {
-    const legend = getInVis(state, 'guides.' + legendId);
+  const def = defs.find(legend => map.scales[legend[property]] === scaleId);
+
+  legends.some(function(legendId) {
+    const legend = getInVis(state, `guides.${legendId}`);
     if (legend) {
-      foundLegend = foundLegend || legend.get(property) === scaleId;
+      return (foundLegend = foundLegend || legend.get(property) === scaleId);
     }
   });
 
@@ -173,7 +171,7 @@ function findOrCreateLegend(dispatch: Dispatch, state: State, parsed, scaleId: n
       title: def.title,
       encode: def.encode
     });
-    // delete legend.properties.symbols[property];
+
     const legendAction = addGuide(legend);
     dispatch(legendAction);
     dispatch(addLegendToGroup(legendAction.meta, parentId));

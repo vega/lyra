@@ -188,8 +188,10 @@ exporter.group = function(state: State, internal: boolean, id: number) {
     group[childTypes] = mark[childTypes]
       .map(cid => {
         const child = getInVis(state, `${storePath}.${cid}`);
-        return !child ? clean(duplicate(child.toJS()), internal) :
-          (exporter[child.type] || exporter[childType])(state, internal, cid);
+        return !child ? null :
+          exporter[child.type] ? exporter[child.type](state, internal, cid) :
+          exporter[childType]  ? exporter[childType](state, internal, cid) :
+          clean(duplicate(child.toJS()), internal);
       })
       .reduce((children, child) => {
         // If internal === true, children are an array of arrays which must be flattened.

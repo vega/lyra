@@ -1,5 +1,5 @@
 import {Dispatch} from 'redux';
-import {EncodeEntry} from 'vega';
+import {compare, EncodeEntry, extend} from 'vega';
 import {CompiledBinding} from '.';
 import MARK_EXTENTS from '../../constants/markExtents';
 import {State} from '../../store';
@@ -38,7 +38,9 @@ export default function parseMarks(dispatch: Dispatch, state: State, parsed: Com
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial(dispatch, state, parsed, def.encode.update);
   } else if (markType === 'text' && channel === 'text') {
-    textTemplate(dispatch, parsed, def.encode.update);
+    // TODO: Text templates are now done via signals,
+    // but the rest of Lyra's infrastructure isn't expecting that.
+    // textTemplate(dispatch, parsed, def.encode.update);
   } else {
     bindProperty(dispatch, parsed, def.encode.update);
   }
@@ -97,8 +99,8 @@ function bindProperty(dispatch: Dispatch, parsed: CompiledBinding, update: Encod
  * @returns {void}
  */
 const RECT_SPANS = {x: 'width', y: 'height'};
-function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
-  const channel: string = parsed.channel,
+function rectSpatial(dispatch: Dispatch, state: State, parsed: CompiledBinding, def: EncodeEntry) {
+  const channel = parsed.channel as 'x' | 'y',
     property = parsed.property,
     markId = parsed.markId,
     map = parsed.map.marks[markId],
@@ -106,25 +108,24 @@ function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
     cntr = channel + 'c',
     span = RECT_SPANS[channel],
     EXTENTS = Object.values(MARK_EXTENTS[channel]),
-    props = getInVis(state, 'marks.' + markId + '.properties.update');
+    props = getInVis(state, `marks.${markId}.encode.update`);
+
   let count = 0;
 
   // If we're binding a literal spatial property (i.e., not arrow manipulators),
   // bind only that property.
-  if (property !== channel + '+') {
+  if (property !== `${channel}+`) {
     // Ensure that only two spatial properties will be set. We sort them to
     // try our best guess for disabling "older" properties.
-    EXTENTS.map(function(ext: any) {
-      return dl.extend({ts: (map && map[ext.name]) || 0}, ext);
-    })
-      .sort(dl.comparator('-ts'))
-      .forEach(function(ext) {
+    EXTENTS.map(ext => extend({}, {ts: (map && map[ext.name]) || 0}, ext))
+      .sort(compare('ts', 'descending'))
+      .forEach((ext: any) => {
         const name = ext.name;
         if (name === property) {
           return;
         } else if (count >= 1) {
-          dispatch(disableMarkVisual(markId, name));
-        } else if (!getIn(props, name + '._disabled')) {
+          dispatch(disableMarkVisual(name, markId));
+        } else if (!props[name]._disabled) {
           ++count;
         }
       });
@@ -135,19 +136,16 @@ function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
 
   // Clean slate the rect spatial properties by disabling them all. Subsequent
   // bindProperty calls will reenable them as needed.
-  EXTENTS.forEach(function(ext: any) {
-    dispatch(disableMarkVisual(markId, ext.name));
-  });
+  EXTENTS.forEach(ext => dispatch(disableMarkVisual(ext.name, markId)));
 
   if (def[max]) {
     bindProperty(dispatch, parsed, def, channel);
     bindProperty(dispatch, parsed, def, max);
   } else {
-    def[channel] = def[cntr]; // Map xc/yc => x/y for binding.
     bindProperty(dispatch, parsed, def, channel);
 
     def[span] = {
-      scale: def[channel].scale,
+      scale: (def[channel] as any).scale,
       band: true,
       offset: -1
     };

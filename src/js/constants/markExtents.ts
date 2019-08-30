@@ -1,4 +1,4 @@
-export default {
+const markExtents = {
   x: {
     START: {name: 'x', label: 'Left'},
     CENTER: {name: 'xc', label: 'Center'},
@@ -12,3 +12,5 @@ export default {
     END: {name: 'y2', label: 'Bottom'}
   }
 };
+
+export default markExtents;

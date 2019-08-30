@@ -3,13 +3,13 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
 import { AnyAction } from 'redux';
+import {ThunkDispatch} from 'redux-thunk';
 import {deleteGuide} from '../../actions/guideActions';
 import {selectGuide, selectMark} from '../../actions/inspectorActions';
 import {State} from '../../store';
+import {AxisRecord, GuideRecord, GuideType, LegendForType, LegendRecord} from '../../store/factory/Guide';
 import {ScaleRecord} from '../../store/factory/Scale';
 import { Icon } from '../Icon';
-import {GuideRecord, GuideType, LegendRecord, AxisRecord, LegendForType} from '../../store/factory/Guide';
-import {ThunkDispatch} from 'redux-thunk';
 
 const capitalize = require('capitalize');
 const imutils = require('../../util/immutable-utils');
@@ -83,10 +83,10 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
           let scaleId;
           if (guide._gtype === GuideType.Axis) {
             guide = guide as AxisRecord;
-            scaleId = guide.get('scale');
+            scaleId = guide.scale;
           } else if (guide._gtype === GuideType.Legend) {
             guide = guide as LegendRecord;
-            scaleId = guide.get(guide.get('_type'));
+            scaleId = guide[guide._type];
           }
           const name = capitalize(props.scales.getIn([scaleId, 'name']));
           const type = capitalize(guide.get('_gtype'));

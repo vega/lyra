@@ -1,7 +1,8 @@
 import {fromJS, Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import * as guideActions from '../actions/guideActions';
-import {GuideRecord, GuideState} from '../store/factory/Guide';
+import * as scaleActions from '../actions/scaleActions';
+import {GuideRecord, GuideState, GuideType, isAxis, isLegend} from '../store/factory/Guide';
 
 const str = require('../util/immutable-utils').str;
 const convertValuesToSignals = require('../util/prop-signal').convertValuesToSignals;
@@ -18,7 +19,7 @@ function makeGuide(action : ActionType<typeof guideActions.addGuide>): GuideReco
   });
 }
 
-export function guidesReducer(state: GuideState, action: ActionType<typeof guideActions>): GuideState {
+export function guidesReducer(state: GuideState, action: ActionType<typeof guideActions> | ActionType<typeof scaleActions.deleteScale>): GuideState {
   const id = action.meta;
 
   if (typeof state === 'undefined') {
@@ -37,26 +38,19 @@ export function guidesReducer(state: GuideState, action: ActionType<typeof guide
     return state.setIn([str(id), action.payload.property], fromJS(action.payload.value));
   }
 
-  // TODO: Figure out where this action came from? Not in guideActions.ts
-  // if (action.type === ACTIONS.DELETE_SCALE) {
-  //   var scaleId = +action.id;
-  //   return state.withMutations(function(newState) {
-  //     state.forEach(function(def, guideId) {
-  //       var gtype = def.get('_gtype'),
-  //           scale;
+  if (action.type === getType(scaleActions.deleteScale)) {
+    const scaleId = action.meta;
+    return state.withMutations(function(newState) {
+      state.forEach(function(guide, guideId) {
+        const scale = isAxis(guide) ? guide.scale :
+          isLegend(guide) ? guide[guide._type] : null;
 
-  //       if (gtype === GTYPES.AXIS) {
-  //         scale = def.get('scale');
-  //       } else if (gtype === GTYPES.LEGEND) {
-  //         scale = def.get(def.get('_type'));
-  //       }
-
-  //       if (scale === scaleId) {
-  //         deleteKeyFromMap(newState, guideId);
-  //       }
-  //     });
-  //   });
-  // }
+          if (+scale === scaleId) {
+            newState.delete(String(guideId));
+          }
+      });
+    });
+  }
 
   return state;
 }

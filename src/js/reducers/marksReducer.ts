@@ -16,8 +16,9 @@ const ensureValuePresent = function(state: MarkState, path: string[], valToAdd):
     return marks;
   });
 };
+
 const ensureValueAbsent = function(state: MarkState, path: string[], valToRemove): MarkState {
-  return state.updateIn(path, marks => marks.filter(c => c !== valToRemove));
+  return state.updateIn(path, children => children.filter(c => c !== valToRemove));
 };
 
 // Helper reducer to add a mark to the store. Runs the mark through a method to
