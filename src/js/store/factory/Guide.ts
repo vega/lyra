@@ -20,7 +20,7 @@ export namespace LegendForType {
   export const strokeDash = 'strokeDash';
 }
 
-export type LegendForType = 'fill' | 'opacity' | 'shape' | 'size' | 'stroke' | 'strokeDash';
+export type LegendForType = 'fill' | 'opacity' | 'shape' | 'size' | 'stroke' | 'strokeWidth' | 'strokeDash';
 
 export type LyraAxis = {
   _gtype: GuideType,
@@ -29,13 +29,15 @@ export type LyraAxis = {
 
 export const Axis = Record<LyraAxis>({
   _gtype: GuideType.Axis,
+  _id: null,
   orient: null,
   scale: null,
-  tickCount: 10, // replaces ticks
-  tickSize: 10,
+  tickCount: null, // replaces ticks
+  tickSize: null,
   grid: false,
+  title: null,
   zindex: 0, // replaces layer
-  _id: null
+  encode: {}
 });
 
 export type AxisRecord = RecordOf<LyraAxis>;
@@ -47,13 +49,20 @@ export type LyraLegend = {
 } & VegaLegend;
 
 export const Legend = Record<LyraLegend>({
+  _id: null,
+  _type: null,
   _gtype: GuideType.Legend,
+  fill: null,
+  opacity: null,
+  shape: null,
+  size: null,
+  stroke: null,
+  strokeWidth: null,
+  strokeDash: null,
   symbolFillColor: '#ffffff',
   symbolOpacity: 1,
   strokeColor: '#ffffff',
-  strokeWidth: '0',
-  _id: null,
-  _type: null
+  encode: {}
 });
 
 export type LegendRecord = RecordOf<LyraLegend>;
@@ -77,17 +86,28 @@ export type GuideRecord = AxisRecord | LegendRecord;
  * @constructor
  */
 
-export function Guide(gtype : GuideType, type: string, scale : number | ScaleRecord) : AxisRecord | LegendRecord {
+export function Guide(gtype : GuideType, type: string, scaleId : number | ScaleRecord) : AxisRecord | LegendRecord {
+  const scale: string = (scaleId as ScaleRecord)._id ? String((scaleId as ScaleRecord)._id) : String(scaleId);
   if (gtype === GuideType.Axis) {
     return Axis({
       orient: ORIENT[type],
-      scale: (scale as ScaleRecord)._id ? String((scale as ScaleRecord)._id) : String(scale)
+      scale
     });
   } else if (gtype === GuideType.Legend) {
     return Legend({
-      _type: type as LegendForType
+      _type: type as LegendForType,
+      [type]: scale,
+      encode: {}
     });
   }
 };
 
 export type GuideState = Map<string, GuideRecord>;
+
+export function isAxis(guide: GuideRecord): guide is AxisRecord {
+  return guide && guide._gtype === GuideType.Axis;
+}
+
+export function isLegend(guide: GuideRecord): guide is LegendRecord {
+  return guide && guide._gtype === GuideType.Legend;
+}

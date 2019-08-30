@@ -1,7 +1,9 @@
-import {Guide, GuideType, AxisRecord, LegendRecord} from '../../store/factory/Guide';
-import {addGuide} from '../guideActions';
 import {Dispatch} from 'redux';
+import {Axis} from 'vega';
+import {CompiledBinding} from '.';
 import {State} from '../../store';
+import {AxisRecord, Guide, GuideType, LegendRecord} from '../../store/factory/Guide';
+import {addGuide} from '../guideActions';
 import {addAxisToGroup, addLegendToGroup} from './helperActions';
 
 const imutils = require('../../util/immutable-utils'),
@@ -33,12 +35,12 @@ const SWAP_ORIENT = {
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-export function parseGuides(dispatch: Dispatch, state: State, parsed) {
+export default function parseGuides(dispatch: Dispatch, state: State, parsed: CompiledBinding) {
   const channel = parsed.channel,
     map = parsed.map,
     guideType = CTYPE[channel],
     scaleId = map.scales[channel],
-    group = parsed.output.marks[0];
+    group = parsed.output;
 
   if (!guideType || !scaleId) {
     return;
@@ -64,55 +66,52 @@ export function parseGuides(dispatch: Dispatch, state: State, parsed) {
  * @param  {Object} defs  All parsed Vega axis definitions.
  * @returns {void}
  */
-function findOrCreateAxis(dispatch: Dispatch, state: State, parsed, scaleId: number, defs) {
+function findOrCreateAxis(dispatch: Dispatch, state: State, parsed: CompiledBinding, scaleId: number, defs: Axis[]) {
   const map = parsed.map,
     mark = parsed.mark,
-    parentId = mark.get('_parent'),
-    scale = getInVis(state, 'scales.' + scaleId),
-    axes = getInVis(state, 'marks.' + parentId).get('axes');
-  let def,
-    prevOrient,
+    parentId = mark._parent,
+    scale = getInVis(state, `scales.${scaleId}`),
+    axes = getInVis(state, `marks.${parentId}.axes`);
+
+  let foundAxis = false,
     count = 0,
-    foundAxis = false;
+    prevOrient;
 
-  // First, find an def and then iterate through axes for the current group
+  // First, find a def and then iterate through axes for the current group
   // to see if an axis exists for this scale or if we have room to add one more.
-  def = defs.find(function(axisDef) {
-    return map.scales[axisDef.scale] === scaleId;
-  });
+  const def = defs.filter(axis => map.scales[axis.scale] === scaleId);
 
-  axes.valueSeq().forEach(function(axisId) {
-    var axis = getInVis(state, 'guides.' + axisId);
+  axes.some(function(axisId) {
+    const axis = getInVis(state, `guides.${axisId}`);
     if (!axis) {
-      return true;
+      return false;
     }
 
-    if (axis.get('type') === def.type) {
+    if (axis.scale === scaleId) {
+      return (foundAxis = true); // Early exit.
+    }
+
+    if (axis.orient === def[0].orient) {
       ++count;
-      prevOrient = axis.get('orient');
-    }
-
-    if (axis.get('scale') === scaleId) {
-      foundAxis = true;
-      return false; // Early exit.
+      prevOrient = axis.orient;
     }
 
     // Test domain/range since point/band-ordinal scales can share an axis.
-    const axisScale = getInVis(state, 'scales.' + axis.get('scale'));
-    if (axisScale.get('type') === 'ordinal') {
-      foundAxis = ['domain', 'range'].every(function(x) {
-        const araw = axisScale.get(x),
-          sraw = scale.get(x),
-          aref = axisScale.get('_' + x),
-          sref = scale.get('_' + x),
-          apl = getInVis(state, 'datasets.' + getIn(aref, '0.data') + '._parent'),
-          spl = getInVis(state, 'datasets.' + getIn(sref, '0.data') + '._parent'),
-          afl = getIn(aref, '0.field'),
-          sfl = getIn(sref, '0.field');
-        return araw ? araw === sraw || araw.equals(sraw) : apl === spl && afl === sfl;
-      });
-      return !foundAxis;
-    }
+    // const axisScale = getInVis(state, 'scales.' + axis.get('scale'));
+    // if (axisScale.get('type') === 'ordinal') {
+    //   foundAxis = ['domain', 'range'].every(function(x) {
+    //     const araw = axisScale.get(x),
+    //       sraw = scale.get(x),
+    //       aref = axisScale.get('_' + x),
+    //       sref = scale.get('_' + x),
+    //       apl = getInVis(state, 'datasets.' + getIn(aref, '0.data') + '._parent'),
+    //       spl = getInVis(state, 'datasets.' + getIn(sref, '0.data') + '._parent'),
+    //       afl = getIn(aref, '0.field'),
+    //       sfl = getIn(sref, '0.field');
+    //     return araw ? araw === sraw || araw.equals(sraw) : apl === spl && afl === sfl;
+    //   });
+    //   return !foundAxis;
+    // }
   });
 
   if (foundAxis) {
@@ -120,13 +119,13 @@ function findOrCreateAxis(dispatch: Dispatch, state: State, parsed, scaleId: num
   }
 
   if (count < 2) {
-    let axis = Guide(GuideType.Axis, def.type, scaleId) as AxisRecord;
+    let axis = Guide(GuideType.Axis, parsed.channel, scaleId) as AxisRecord;
     axis = axis.mergeDeep({
-      title: def.title,
-      zindex: def.zindex,
-      grid: def.grid,
-      orient: count === 1 && prevOrient ? SWAP_ORIENT[prevOrient] : def.orient || axis.orient,
-      encode: def.encode
+      title: def[0].title,
+      // zindex: def[0].zindex,
+      grid: def.length > 1,
+      orient: count === 1 && prevOrient ? SWAP_ORIENT[prevOrient] : def[0].orient || axis.orient,
+      encode: def[0].encode
     });
 
     const axisAction = addGuide(axis);
@@ -151,19 +150,17 @@ function findOrCreateLegend(dispatch: Dispatch, state: State, parsed, scaleId: n
   const map = parsed.map,
     mark = parsed.mark,
     property = parsed.property,
-    parentId = mark.get('_parent'),
-    legends = getInVis(state, 'marks.' + parentId).get('legends');
-  let def,
-    foundLegend = false;
+    parentId = mark._parent,
+    legends = getInVis(state, `marks.${parentId}.legends`);
 
-  def = defs.find(function(legendDef) {
-    return map.scales[legendDef[property]] === scaleId;
-  });
+  let foundLegend = false;
 
-  legends.valueSeq().forEach(function(legendId) {
-    var legend = getInVis(state, 'guides.' + legendId);
+  const def = defs.find(legend => map.scales[legend[property]] === scaleId);
+
+  legends.some(function(legendId) {
+    const legend = getInVis(state, `guides.${legendId}`);
     if (legend) {
-      foundLegend = foundLegend || legend.get(property) === scaleId;
+      return (foundLegend = foundLegend || legend.get(property) === scaleId);
     }
   });
 
@@ -174,7 +171,7 @@ function findOrCreateLegend(dispatch: Dispatch, state: State, parsed, scaleId: n
       title: def.title,
       encode: def.encode
     });
-    // delete legend.properties.symbols[property];
+
     const legendAction = addGuide(legend);
     dispatch(legendAction);
     dispatch(addLegendToGroup(legendAction.meta, parentId));

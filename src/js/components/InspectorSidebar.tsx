@@ -4,6 +4,9 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {getType} from 'typesafe-actions';
+import * as inspectorActions from '../actions/inspectorActions';
+import {PrimType} from '../constants/primTypes';
 import {State} from '../store';
 import {EncodingStateRecord} from '../store/factory/Inspector';
 import {AreaInspector} from './inspectors/Area';
@@ -13,9 +16,6 @@ import {RectInspector} from './inspectors/Rect';
 import {ScaleInspector} from './inspectors/Scale';
 import {SymbolInspector} from './inspectors/Symbol';
 import {TextInspector} from './inspectors/Text';
-import {PrimType} from '../constants/primTypes';
-import * as inspectorActions from '../actions/inspectorActions';
-import {getType} from 'typesafe-actions';
 
 const inspectors = {AreaInspector, GuideInspector, LineInspector,
   RectInspector, ScaleInspector, SymbolInspector, TextInspector,
@@ -43,22 +43,15 @@ function mapStateToProps(state: State, ownProps): Inspector {
   const isMark  = selType === getType(inspectorActions.baseSelectMark);
   const isGuide = selType === getType(inspectorActions.selectGuide);
   const isScale = selType === getType(inspectorActions.selectScale);
-  let primitive;
+
+  const primitive = isMark ? getInVis(state, `marks.${selId}`) :
+    isGuide ? getInVis(state, `guides.${selId}`) :
+    isScale ? getInVis(state, `scales.${selId}`) : null;
+
   let from;
-
-  if (isMark) {
-    primitive = getInVis(state, 'marks.' + selId);
-  } else if (isGuide) {
-    primitive = getInVis(state, 'guides.' + selId);
-  } else if (isScale) {
-    primitive = getInVis(state, 'scales.' + selId);
-  }
-
-  if (primitive && (from = primitive.get('from'))) {
-    if ((from = from.get('data'))) {
-      from = getInVis(state, 'pipelines.' +
-          getInVis(state, 'datasets.' + from).get('_parent')).get('name');
-    }
+  if (primitive && primitive.from && primitive.from.data) {
+    from = getInVis(state, 'pipelines.' +
+        getInVis(state, 'datasets.' + primitive.from.data).get('_parent')).get('name');
   }
 
   return {

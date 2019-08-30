@@ -1,23 +1,22 @@
 import {Record, RecordOf} from 'immutable';
 import {SymbolMark} from 'vega-typings';
 import {propSg} from '../../../util/prop-signal';
-import {HandleStreams} from '../Mark';
+import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
 
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
 
-export type LyraSymbolMark = {
-  _id: number;
-  _parent: number;
-} & SymbolMark;
+export type LyraSymbolMark = LyraMarkMeta & SymbolMark;
 
 export const Symbol = Record<LyraSymbolMark>({
   _id: null,
   _parent: null,
+  _vlUnit: null,
   type: 'symbol',
   name: null,
+  from: null,
   encode: {
     update: {
       size: {value: 100},
@@ -27,7 +26,6 @@ export const Symbol = Record<LyraSymbolMark>({
 });
 
 export type SymbolRecord = RecordOf<LyraSymbolMark>;
-
 export const SymbolShapes = [
   'circle',
   'square',

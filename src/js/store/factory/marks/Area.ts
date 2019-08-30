@@ -3,22 +3,21 @@
 import {Record, RecordOf} from 'immutable';
 import {AreaMark} from 'vega-typings';
 import {propSg} from '../../../util/prop-signal';
-import {HandleStreams} from '../Mark';
+import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
 
-export type LyraAreaMark = {
-  _id: number;
-  _parent: number;
-} & AreaMark;
+export type LyraAreaMark = LyraMarkMeta & AreaMark;
 
 export const Area = Record<LyraAreaMark>({
   _id: null,
   _parent: null,
+  _vlUnit: null,
   type: 'area',
   name: null,
+  from: null,
   encode: {
     update: {
       // x2: {value: 0},

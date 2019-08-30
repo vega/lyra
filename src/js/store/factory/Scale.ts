@@ -1,5 +1,7 @@
 import {Map, Record, RecordOf} from 'immutable';
-import {Scale as ScaleType} from 'vega-typings/types';
+import {IdentityScale, Scale as ScaleType} from 'vega-typings/types';
+
+export type RangeScale = Exclude<ScaleType, IdentityScale>;
 
 /**
  * Scales are functions that transform a domain of data values (numbers, dates, strings, etc.) to a range of visual values (pixels, colors, sizes).
@@ -14,9 +16,8 @@ export type LyraScale = {
    */
   _origName: string;
   _domain: any[],
-  _range: any[],
-
-} & ScaleType;
+  _range: any[]
+} & RangeScale;
 
 const names = {};
 
@@ -34,12 +35,13 @@ function rename(name): string {
 export function Scale(values?: Partial<LyraScale>): ScaleRecord {
   return Record<LyraScale>({
     _id: null,
-    _origName: null,
+    _origName: values.name,
     _domain: [],
     _range: [],
 
+    ...values,
     name: rename(values.name)
-  })(values);
+  } as any)();
 }
 
 export type ScaleRecord = RecordOf<LyraScale>;

@@ -1,6 +1,6 @@
-'use strict';
-
 import {Dispatch} from 'redux';
+import {compare, EncodeEntry, extend} from 'vega';
+import {CompiledBinding} from '.';
 import MARK_EXTENTS from '../../constants/markExtents';
 import {State} from '../../store';
 import {propSg} from '../../util/prop-signal';
@@ -22,20 +22,27 @@ const dl = require('datalib'),
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-export function parseMarks(dispatch: Dispatch, state: State, parsed) {
+export default function parseMarks(dispatch: Dispatch, state: State, parsed: CompiledBinding) {
   const markType = parsed.markType,
     map = parsed.map,
     markId = parsed.markId,
-    channel = parsed.channel,
-    def = parsed.output.marks[0].marks[0],
-    props = def.encode.update;
+    channel = parsed.channel;
+
+  // Most marks will be at the top-level, but path marks (line/area) might
+  // be nested in a group for faceting.
+  let def = parsed.output.marks[0];
+  if (def.type === 'group' && def.name.indexOf('pathgroup') >= 0) {
+    def = def.marks[0];
+  }
 
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
-    rectSpatial(dispatch, state, parsed, props);
+    rectSpatial(dispatch, state, parsed, def.encode.update);
   } else if (markType === 'text' && channel === 'text') {
-    textTemplate(dispatch, parsed, props);
+    // TODO: Text templates are now done via signals,
+    // but the rest of Lyra's infrastructure isn't expecting that.
+    // textTemplate(dispatch, parsed, def.encode.update);
   } else {
-    bindProperty(dispatch, parsed, props);
+    bindProperty(dispatch, parsed, def.encode.update);
   }
 
   if (def.from && def.from.data) {
@@ -53,49 +60,29 @@ export function parseMarks(dispatch: Dispatch, state: State, parsed) {
  * @param   {string} [property=parsed.property]  The visual property to bind.
  * @returns {void}
  */
-function bindProperty(dispatch: Dispatch, parsed, def, property?: string) {
-  let map = parsed.map;
-  const markId = parsed.markId,
-    markType = parsed.markType,
-    prop = {} as any;
+function bindProperty(dispatch: Dispatch, parsed: CompiledBinding, update: EncodeEntry, property?: string) {
+  const map = parsed.map,
+    markId = parsed.markId,
+    markType = parsed.markType;
+
   property = property || parsed.property;
+  const def = property === 'stroke' ? update.stroke || update.fill : update[property];
 
-  if (property === 'stroke') {
-    def = def.stroke || def.fill;
-  } else {
-    def = def[property];
+  if ('scale' in def && typeof def.scale === 'string') {
+    def.scale = map.scales[def.scale];
   }
 
-  if (def.scale !== undefined) {
-    prop.scale = map.scales[def.scale];
+  if ('value' in def) {
+    def['signal'] = propSg(markId, markType, property);
+    dispatch(setSignal(def.value, def['signal']));
+    delete def.value;
   }
 
-  if (def.field !== undefined) {
-    if (def.field.group) {
-      prop.group = def.field.group;
-    } else {
-      prop.field = def.field;
-    }
-  }
-
-  if (def.value !== undefined) {
-    prop.signal = propSg(markId, markType, property);
-    dispatch(setSignal(def.value, prop.signal));
-  }
-
-  if (def.band !== undefined) {
-    prop.band = def.band;
-  }
-
-  if (def.offset !== undefined) {
-    prop.offset = def.offset;
-  }
-
-  dispatch(setMarkVisual({property: property, def: prop}, markId));
+  dispatch(setMarkVisual({property: property, def: def as any}, markId));
 
   // Set a timestamp on the property to facilitate smarter disabling of rect
   // spatial properties.
-  map = map.marks[markId] || (map.marks[markId] = {});
+  map.marks[markId] = map.marks[markId] || {};
   map[property] = Date.now();
 }
 
@@ -112,8 +99,8 @@ function bindProperty(dispatch: Dispatch, parsed, def, property?: string) {
  * @returns {void}
  */
 const RECT_SPANS = {x: 'width', y: 'height'};
-function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
-  const channel: string = parsed.channel,
+function rectSpatial(dispatch: Dispatch, state: State, parsed: CompiledBinding, def: EncodeEntry) {
+  const channel = parsed.channel as 'x' | 'y',
     property = parsed.property,
     markId = parsed.markId,
     map = parsed.map.marks[markId],
@@ -121,25 +108,24 @@ function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
     cntr = channel + 'c',
     span = RECT_SPANS[channel],
     EXTENTS = Object.values(MARK_EXTENTS[channel]),
-    props = getInVis(state, 'marks.' + markId + '.properties.update');
+    props = getInVis(state, `marks.${markId}.encode.update`);
+
   let count = 0;
 
   // If we're binding a literal spatial property (i.e., not arrow manipulators),
   // bind only that property.
-  if (property !== channel + '+') {
+  if (property !== `${channel}+`) {
     // Ensure that only two spatial properties will be set. We sort them to
     // try our best guess for disabling "older" properties.
-    EXTENTS.map(function(ext: any) {
-      return dl.extend({ts: (map && map[ext.name]) || 0}, ext);
-    })
-      .sort(dl.comparator('-ts'))
-      .forEach(function(ext) {
+    EXTENTS.map(ext => extend({}, {ts: (map && map[ext.name]) || 0}, ext))
+      .sort(compare('ts', 'descending'))
+      .forEach((ext: any) => {
         const name = ext.name;
         if (name === property) {
           return;
         } else if (count >= 1) {
-          dispatch(disableMarkVisual(markId, name));
-        } else if (!getIn(props, name + '._disabled')) {
+          dispatch(disableMarkVisual(name, markId));
+        } else if (!props[name]._disabled) {
           ++count;
         }
       });
@@ -150,19 +136,16 @@ function rectSpatial(dispatch: Dispatch, state: State, parsed, def) {
 
   // Clean slate the rect spatial properties by disabling them all. Subsequent
   // bindProperty calls will reenable them as needed.
-  EXTENTS.forEach(function(ext: any) {
-    dispatch(disableMarkVisual(markId, ext.name));
-  });
+  EXTENTS.forEach(ext => dispatch(disableMarkVisual(ext.name, markId)));
 
   if (def[max]) {
     bindProperty(dispatch, parsed, def, channel);
     bindProperty(dispatch, parsed, def, max);
   } else {
-    def[channel] = def[cntr]; // Map xc/yc => x/y for binding.
     bindProperty(dispatch, parsed, def, channel);
 
     def[span] = {
-      scale: def[channel].scale,
+      scale: (def[channel] as any).scale,
       band: true,
       offset: -1
     };
