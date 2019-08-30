@@ -1,21 +1,19 @@
 import {Record, RecordOf} from 'immutable';
 import {Align, Baseline, FontStyle, FontWeight, TextMark} from 'vega-typings';
 import {propSg} from '../../../util/prop-signal';
-import {HandleStreams} from '../Mark';
+import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
 
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
 
-export type LyraTextMark = {
-  _id: number;
-  _parent: number;
-} & TextMark;
+export type LyraTextMark = LyraMarkMeta & TextMark;
 
 export const Text = Record<LyraTextMark>({
   _id: null,
   _parent: null,
+  _vlUnit: null,
   type: 'text',
   name: null,
   from: null,

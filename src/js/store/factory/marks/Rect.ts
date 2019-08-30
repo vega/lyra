@@ -1,21 +1,19 @@
 import {Record, RecordOf} from 'immutable';
 import {RectMark} from 'vega-typings';
 import {propSg} from '../../../util/prop-signal';
-import {HandleStreams} from '../Mark';
+import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
 import {GroupRecord} from './Group';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
 
-export type LyraRectMark = {
-  _id: number;
-  _parent: number;
-} & RectMark;
+export type LyraRectMark = LyraMarkMeta & RectMark;
 
 export const Rect = Record<LyraRectMark>({
   _id: null,
   _parent: null,
+  _vlUnit: null,
   type: 'rect',
   name: null,
   from: null,

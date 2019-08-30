@@ -1,14 +1,13 @@
 import {Record, RecordOf} from 'immutable';
 import {GroupMark} from 'vega-typings';
+import {LyraMarkMeta} from '../Mark';
 // import {store} from '../../';
 
 const getInVis = require('../../../util/immutable-utils').getInVis;
 
 export type LyraGroupMark = {
-  _id: number;
-  _parent: number;
   _manualLayout: boolean;
-} & GroupMark;
+} & LyraMarkMeta & GroupMark;
 
 export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
   // TODO(jzong) this was a circular dependency
@@ -18,6 +17,7 @@ export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
   return Record<LyraGroupMark>({
     _id: null,
     _parent: null,
+    _vlUnit: null,
     _manualLayout: false,
     type: 'group',
     name: null,

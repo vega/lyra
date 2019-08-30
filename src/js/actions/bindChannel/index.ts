@@ -3,8 +3,8 @@ import {compile as vlCompile} from 'vega-lite';
 import {Channel} from 'vega-lite/src/channel';
 import {ChannelDef} from 'vega-lite/src/channeldef';
 import {InlineData} from 'vega-lite/src/data';
-import {TopLevelUnitSpec} from 'vega-lite/src/spec/unit';
-import {Mark, MarkRecord} from '../../store/factory/Mark';
+import {NormalizedUnitSpec, TopLevelUnitSpec} from 'vega-lite/src/spec/unit';
+import {LyraVegaLiteSpec, Mark, MarkRecord} from '../../store/factory/Mark';
 import duplicate from '../../util/duplicate';
 import {endBatch, startBatch} from '../historyActions';
 import {setVlUnit} from '../markActions';
@@ -22,7 +22,7 @@ const AGGREGATE_OPS = require('../../constants/aggregateOps'),
 // Vega mark types to Vega-Lite mark types.
 const TYPES = {
   rect: 'bar',
-  symbol: 'point',
+  symbol: 'circle',
   text: 'text',
   line: 'line',
   area: 'area'
@@ -119,7 +119,7 @@ export default function bindChannel(dsId: number, field, markId: number, propert
  * @param   {number} dsId     The ID of the dataset that backs the current mark.
  * @returns {Object}          An object containing the Vega and Vega-Lite specs.
  */
-function compile(spec: TopLevelUnitSpec, property: string, dsId: number): CompiledBinding {
+function compile(spec: LyraVegaLiteSpec, property: string, dsId: number): CompiledBinding {
   spec = duplicate(spec);
 
   // Always drive the Vega-Lite spec by a pipeline's source dataset.
@@ -150,16 +150,13 @@ function compile(spec: TopLevelUnitSpec, property: string, dsId: number): Compil
  * @param  {Mark} mark A mark definition from the store.
  * @returns {Object} A Vega-Lite specification.
  */
-function vlSpec(mark: Mark) {
-  const vlUnit = mark.get('_vlUnit');
-  return vlUnit
-    ? vlUnit.toJS()
-    : {
-        mark: TYPES[mark.get('type')],
-        data: {},
-        encoding: {},
-        config: {}
-      };
+function vlSpec(mark: MarkRecord): LyraVegaLiteSpec {
+  return mark._vlUnit || {
+    mark: TYPES[mark.type],
+    data: {values: []},
+    encoding: {},
+    config: {}
+  };
 }
 
 /**

@@ -1,20 +1,18 @@
 import {Record, RecordOf} from 'immutable';
 import {LineMark, SignalRef} from 'vega-typings';
 import {propSg} from '../../../util/prop-signal';
-import {HandleStreams} from '../Mark';
+import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
 
 const anchorTarget = require('../../../util/anchor-target');
 const test = require('../../../util/test-if');
 
-export type LyraLineMark = {
-  _id: number;
-  _parent: number;
-} & LineMark;
+export type LyraLineMark = LyraMarkMeta & LineMark;
 
 export const Line = Record<LyraLineMark>({
   _id: null,
   _parent: null,
+  _vlUnit: null,
   type: 'line',
   name: null,
   from: null,

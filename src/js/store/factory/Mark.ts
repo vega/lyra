@@ -1,4 +1,6 @@
 import {Map} from 'immutable';
+import {DataMixins, TopLevel} from 'vega-lite/src/spec';
+import {NormalizedUnitSpec} from 'vega-lite/src/spec/unit';
 import {MarkType, OnEvent} from 'vega-typings';
 import {Area, AreaRecord, getHandleStreams as areaHandleStreams, LyraAreaMark} from './marks/Area';
 import {Group, GroupRecord, LyraGroupMark} from './marks/Group';
@@ -32,6 +34,14 @@ const defaults = {
     }
   }
 };
+
+export type LyraVegaLiteSpec = TopLevel<NormalizedUnitSpec> & DataMixins;
+
+export interface LyraMarkMeta {
+  _id: number;
+  _parent: number;
+  _vlUnit: LyraVegaLiteSpec;
+}
 
 export type LyraMark = LyraAreaMark | LyraGroupMark | LyraLineMark | LyraRectMark | LyraSymbolMark | LyraTextMark;
 export type MarkRecord = AreaRecord | GroupRecord | LineRecord | RectRecord | SymbolRecord | TextRecord;
