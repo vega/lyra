@@ -1,15 +1,20 @@
-import {Axis, Spec, GroupMark, Mark, Scale, ScaleData, DataRef} from "vega";
+import {Axis, GroupMark, Scale, DataRef, MultiDataRef} from "vega";
 import {isSignalRef} from "vega-lite/build/src/vega.schema";
+import {GuideRecord} from "../store/factory/Guide";
+import {Map} from 'immutable';
+import {ScaleRecord} from "../store/factory/Scale";
+import {State} from "../store";
 
-export default function demonstrations(sceneSpec) {
+export default function demonstrations(sceneSpec, state: State) {
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
-      const xScaleName = getScaleNameFromAxes(markSpec.axes, 'x');
-      const xFieldName = getFieldFromScaleName(markSpec.scales, xScaleName);
-      const yScaleName = getScaleNameFromAxes(markSpec.axes, 'y');
-      const yFieldName = getFieldFromScaleName(markSpec.scales, yScaleName);
+      const xScaleName = getScaleNameFromAxisRecords(state, 'x');
+      const xFieldName = getFieldFromScaleRecordName(state, xScaleName);
+      const yScaleName = getScaleNameFromAxisRecords(state, 'y');
+      const yFieldName = getFieldFromScaleRecordName(state, yScaleName);
 
       if (!(xScaleName && xFieldName && yScaleName && yFieldName)) {
+        // cannot currently demonstrate
         // likely the user has not created scales yet
         return markSpec;
       }
@@ -539,27 +544,48 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
   return groupSpec;
 }
 
-function getScaleNameFromAxes(axesList: Axis[], axisType: 'x' | 'y'): string {
-  for (let axis of axesList) {
-    if (axisType === 'x' && (axis.orient === 'top' || axis.orient === 'bottom') ||
-        axisType === 'y' && (axis.orient === 'left' || axis.orient === 'right')) {
-      return axis.scale;
-    }
-  };
-  return null;
+export function getScaleNameFromAxisRecords(state: State, axisType: 'x' | 'y'): string {
+  const guides: Map<string, GuideRecord> = state.getIn(['vis', 'present', 'guides']);
+  return guides.filter((axis) => {
+    return axis.get('_gtype') == 'axis' && axisType === 'x' && (axis.get('orient') === 'top' || axis.get('orient') === 'bottom') ||
+            axisType === 'y' && (axis.get('orient') === 'left' || axis.get('orient') === 'right');
+  }).map((axis) => {
+    return state.getIn(['vis', 'present', 'scales', axis.get('scale'), 'name']);
+  }).first(null);
 }
 
-function getFieldFromScaleName(scalesList: Scale[], scaleName: string): string {
-  for (let scale of scalesList) {
-    if (scale.name === scaleName) {
-      const field = (scale.domain as DataRef).field; // TODO(jzong) this makes assumptions about where the field name is
-      if (isSignalRef(field)) {
-        const signalName = field.signal;
-        // TODO look up the value from the signal name
-        return signalName; // change this
-      }
-      return field;
-    }
-  };
-  return null;
+// function getScaleNameFromAxes(axesList: Axis[], axisType: 'x' | 'y'): string {
+//   for (let axis of axesList) {
+//     if (axisType === 'x' && (axis.orient === 'top' || axis.orient === 'bottom') ||
+//         axisType === 'y' && (axis.orient === 'left' || axis.orient === 'right')) {
+//       return axis.scale;
+//     }
+//   };
+//   return null;
+// }
+
+export function getFieldFromScaleRecordName(state: State, scaleName: string): string {
+  const scales: Map<string, ScaleRecord> = state.getIn(['vis', 'present', 'scales']);
+  return scales.filter((scale) => {
+    return scale.get('name') === scaleName;
+  }).map((scale) => {
+    const domain = scale.get('_domain');
+    // TODO(jzong) assume there is one domain?
+    return domain[0].field;
+  }).first(null);
 }
+
+// function getFieldFromScaleName(scalesList: Scale[], scaleName: string): string {
+//   for (let scale of scalesList) {
+//     if (scale.name === scaleName) {
+//       const field = (scale.domain as DataRef).field; // TODO(jzong) this makes assumptions about where the field name is
+//       if (isSignalRef(field)) {
+//         const signalName = field.signal;
+//         // TODO look up the value from the signal name
+//         return signalName; // change this
+//       }
+//       return field;
+//     }
+//   };
+//   return null;
+// }
