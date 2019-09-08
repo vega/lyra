@@ -10,9 +10,13 @@ import {Operator} from 'vega';
 const ACTIONS = require('../actions/Names');
 const ctrl = require('./');
 
+// jzong: converting this module to import instead of require leads to pain and wasted time
 module.exports = {
-  onSignal: onSignal,
-  offSignal: offSignal,
+  onSignal,
+  offSignal,
+  onSignalInGroup,
+  offSignalInGroup,
+  setSignalInGroup,
   register: registerSignalListeners
 };
 
@@ -72,36 +76,32 @@ export function offSignal(name, handler) {
 }
 
 /*
- * Finds a signal in a top-level group
+ * Finds a signal in a top-level group (a direct child of scene)
 */
-function getSignalOperatorFromGroup(groupName, signalName) {
-  if (ctrl.view) {
-    debugger;
-    const rootItemNode = ctrl.view._scenegraph.root.items[0];
-    for (let markNode of rootItemNode.items) {
-      if (markNode.name && markNode.marktype === 'group') {
-        if (markNode.name === groupName) {
-          if (markNode.items && markNode.items.length) {
-            const itemNode = markNode.items[0];
-            const signals = itemNode.context.signals;
-            for (let name of Object.keys(signals)) {
-              if (name === signalName) {
-                return signals[name];
-              }
+function getSignalOperatorInGroup(view, groupName, signalName) {
+  const rootItemNode = view._scenegraph.root.items[0];
+  for (let markNode of rootItemNode.items) {
+    if (markNode.name && markNode.marktype === 'group') {
+      if (markNode.name === groupName) {
+        if (markNode.items && markNode.items.length) {
+          const itemNode = markNode.items[0];
+          const signals = itemNode.context.signals;
+          for (let name of Object.keys(signals)) {
+            if (name === signalName) {
+              return signals[name];
             }
           }
         }
       }
     }
-    return null;
   }
+  return null;
 }
 
-export function onSignalInGroup(groupName, signalName, handler) {
-  const operator = getSignalOperatorFromGroup(groupName, signalName);
-  console.log('operator', operator);
+export function onSignalInGroup(view, groupName, signalName, handler) {
+  const operator = getSignalOperatorInGroup(view, groupName, signalName);
   if (operator) {
-    const h: any = function() { handler(name, operator.value); };
+    const h: any = function() { handler(signalName, operator.value); };
         h.handler = handler;
 
     groupListeners[groupName] = groupListeners[groupName] || {};
@@ -110,16 +110,12 @@ export function onSignalInGroup(groupName, signalName, handler) {
       operator,
       handler: h
     });
-    if (ctrl.view) {
-      ctrl.view.on(operator, null, h);
-    }
-    return ctrl;
+    view.on(operator, null, h);
   }
 }
-(window as any).onSignalInGroup = onSignalInGroup;
 
-export function offSignalInGroup(groupName, signalName, handler) {
-  const operator = getSignalOperatorFromGroup(groupName, signalName);
+export function offSignalInGroup(view, groupName, signalName, handler) {
+  const operator = getSignalOperatorInGroup(view, groupName, signalName);
   if (operator) {
     groupListeners[groupName] = groupListeners[groupName] || {};
     groupListeners[groupName][signalName] = groupListeners[groupName][signalName] || [];
@@ -130,8 +126,12 @@ export function offSignalInGroup(groupName, signalName, handler) {
         listener.splice(i, 1);
       }
     }
-    return ctrl;
   }
+}
+
+export function setSignalInGroup(view, groupName, signalName, value) {
+  const operator = getSignalOperatorInGroup(view, groupName, signalName);
+  view.update(operator, value);
 }
 
 /**

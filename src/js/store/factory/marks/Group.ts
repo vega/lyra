@@ -33,7 +33,7 @@ export function Group(values?: Partial<LyraGroupMark>): GroupRecord {
       // sidebar, a transparent fill is rendered in order for direct
       // manipulation events of the group itself to be captured.
       update: {
-        fill: null, // use special null value to indicate that this field should not be overwritten by defaults
+        fill: {'value': 'transparent'},
         stroke: null,
         x: {value: 0},
         y: {value: 0},

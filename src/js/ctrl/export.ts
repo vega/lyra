@@ -125,7 +125,7 @@ exporter.scene = function(state: State, internal: boolean): Mark {
   delete spec.from;
   delete spec.encode;
 
-  return demonstrations(spec); //TODO(jzong) make this conditional on "demonstration mode"
+  return demonstrations(spec, state);
 };
 
 exporter.mark = function(state: State, internal: boolean, id: number) {
