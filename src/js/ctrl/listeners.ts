@@ -17,6 +17,7 @@ module.exports = {
   onSignalInGroup,
   offSignalInGroup,
   setSignalInGroup,
+  getSignalInGroup,
   register: registerSignalListeners
 };
 
@@ -132,6 +133,15 @@ export function offSignalInGroup(view, groupName, signalName, handler) {
 export function setSignalInGroup(view, groupName, signalName, value) {
   const operator = getSignalOperatorInGroup(view, groupName, signalName);
   view.update(operator, value);
+}
+
+
+export function getSignalInGroup(view, groupName, signalName) {
+  const operator = getSignalOperatorInGroup(view, groupName, signalName);
+  if (operator) {
+    return operator.value;
+  }
+  return null;
 }
 
 /**

@@ -42,7 +42,6 @@ export function exporter(internal: boolean = false): Spec {
   spec.data = exporter.pipelines(state, int);
   // spec.background = 'white';
 
-  console.log(spec);
   return spec;
 }
 

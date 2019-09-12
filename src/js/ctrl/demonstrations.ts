@@ -4,9 +4,13 @@ import {GuideRecord} from "../store/factory/Guide";
 import {Map} from 'immutable';
 import {ScaleRecord} from "../store/factory/Scale";
 import {State} from "../store";
+import {LyraInteractionPreviewDef} from "../components/interactions/InteractionPreviewController";
+import * as React from 'react';
+import {InteractionPreview as InteractionPreviewClass} from "../components/interactions/InteractionPreview";
 
 export default function demonstrations(sceneSpec, state: State) {
-  sceneSpec.marks = sceneSpec.marks.map(markSpec => {
+  const sceneUpdated = {...sceneSpec};
+  sceneUpdated.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
       const xScaleName = getScaleNameFromAxisRecords(state, 'x');
       const xFieldName = getFieldFromScaleRecordName(state, xScaleName);
@@ -23,12 +27,13 @@ export default function demonstrations(sceneSpec, state: State) {
     }
     return markSpec;
   });
-  return sceneSpec;
+  return sceneUpdated;
 }
 
 function addMarksToGroup(groupSpec: GroupMark): GroupMark {
+  const groupUpdated = {...groupSpec};
   const marks = groupSpec.marks || (groupSpec.marks = []);
-  groupSpec.marks = [...marks,
+  groupUpdated.marks = [...marks,
     {
       "name": "brush_brush_bg",
       "type": "rect",
@@ -46,7 +51,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
           "x": [
             {
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "brush_x[0]"
+              "signal": "lyra_brush_x[0]"
             },
             {
               "value": 0
@@ -55,7 +60,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
           "y": [
             {
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "brush_y[0]"
+              "signal": "lyra_brush_y[0]"
             },
             {
               "value": 0
@@ -64,7 +69,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
           "x2": [
             {
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "brush_x[1]"
+              "signal": "lyra_brush_x[1]"
             },
             {
               "value": 0
@@ -73,7 +78,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
           "y2": [
             {
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "brush_y[1]"
+              "signal": "lyra_brush_y[1]"
             },
             {
               "value": 0
@@ -96,7 +101,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
           "x": [
             {
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "brush_x[0]"
+              "signal": "lyra_brush_x[0]"
             },
             {
               "value": 0
@@ -105,7 +110,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
           "y": [
             {
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "brush_y[0]"
+              "signal": "lyra_brush_y[0]"
             },
             {
               "value": 0
@@ -114,7 +119,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
           "x2": [
             {
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "brush_x[1]"
+              "signal": "lyra_brush_x[1]"
             },
             {
               "value": 0
@@ -123,7 +128,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
           "y2": [
             {
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "brush_y[1]"
+              "signal": "lyra_brush_y[1]"
             },
             {
               "value": 0
@@ -131,7 +136,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
           ],
           "stroke": [
             {
-              "test": "brush_x[0] !== brush_x[1] && brush_y[0] !== brush_y[1]",
+              "test": "lyra_brush_x[0] !== lyra_brush_x[1] && lyra_brush_y[0] !== lyra_brush_y[1]",
               "value": "white"
             },
             {
@@ -142,13 +147,22 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
       }
     }
   ];
-  return groupSpec;
+  return groupUpdated;
 }
 
 function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
   const {xScaleName, xFieldName, yScaleName, yFieldName} = names;
+  const groupUpdated = {...groupSpec};
   const signals = groupSpec.signals || (groupSpec.signals = []);
-  groupSpec.signals = [...signals,
+  groupUpdated.signals = [...signals,
+    {
+      "name": "lyra_brush_x",
+      "update": "brush_x"
+    },
+    {
+      "name": "lyra_brush_y",
+      "update": "brush_y"
+    },
     {
       "name": "unit",
       "value": {},
@@ -236,9 +250,9 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       "on": [
         {
           "events": {
-            "signal": "brush_x"
+            "signal": "lyra_brush_x"
           },
-          "update": `brush_x[0] === brush_x[1] ? null : invert(\"${xScaleName}\", brush_x)`
+          "update": `lyra_brush_x[0] === lyra_brush_x[1] ? null : invert(\"${xScaleName}\", lyra_brush_x)`
         }
       ]
     },
@@ -311,9 +325,9 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       "on": [
         {
           "events": {
-            "signal": "brush_y"
+            "signal": "lyra_brush_y"
           },
-          "update": `brush_y[0] === brush_y[1] ? null : invert(\"${yScaleName}\", brush_y)`
+          "update": `lyra_brush_y[0] === lyra_brush_y[1] ? null : invert(\"${yScaleName}\", lyra_brush_y)`
         }
       ]
     },
@@ -330,7 +344,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
               "scale": "y"
             }
           ],
-          "update": `(!isArray(brush_${xFieldName}) || (+invert(\"${xScaleName}\", brush_x)[0] === +brush_${xFieldName}[0] && +invert(\"${xScaleName}\", brush_x)[1] === +brush_${xFieldName}[1])) && (!isArray(brush_${yFieldName}) || (+invert(\"${yScaleName}\", brush_y)[0] === +brush_${yFieldName}[0] && +invert(\"${yScaleName}\", brush_y)[1] === +brush_${yFieldName}[1])) ? brush_scale_trigger : {}`
+          "update": `(!isArray(brush_${xFieldName}) || (+invert(\"${xScaleName}\", lyra_brush_x)[0] === +brush_${xFieldName}[0] && +invert(\"${xScaleName}\", lyra_brush_x)[1] === +brush_${xFieldName}[1])) && (!isArray(brush_${yFieldName}) || (+invert(\"${yScaleName}\", lyra_brush_y)[0] === +brush_${yFieldName}[0] && +invert(\"${yScaleName}\", lyra_brush_y)[1] === +brush_${yFieldName}[1])) ? brush_scale_trigger : {}`
         }
       ]
     },
@@ -374,7 +388,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
               "markname": "brush_brush"
             }
           ],
-          "update": "{x: x(unit), y: y(unit), extent_x: slice(brush_x), extent_y: slice(brush_y)}"
+          "update": "{x: x(unit), y: y(unit), extent_x: slice(lyra_brush_x), extent_y: slice(lyra_brush_y)}"
         }
       ]
     },
@@ -536,12 +550,12 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
   ];
 
   const data = groupSpec.data || (groupSpec.data = []);
-  groupSpec.data = [...data,
+  groupUpdated.data = [...data,
     {"name": "brush_store"},
     {"name": "grid_store"}
   ];
 
-  return groupSpec;
+  return groupUpdated;
 }
 
 export function getScaleNameFromAxisRecords(state: State, axisType: 'x' | 'y'): string {
@@ -554,16 +568,6 @@ export function getScaleNameFromAxisRecords(state: State, axisType: 'x' | 'y'): 
   }).first(null);
 }
 
-// function getScaleNameFromAxes(axesList: Axis[], axisType: 'x' | 'y'): string {
-//   for (let axis of axesList) {
-//     if (axisType === 'x' && (axis.orient === 'top' || axis.orient === 'bottom') ||
-//         axisType === 'y' && (axis.orient === 'left' || axis.orient === 'right')) {
-//       return axis.scale;
-//     }
-//   };
-//   return null;
-// }
-
 export function getFieldFromScaleRecordName(state: State, scaleName: string): string {
   const scales: Map<string, ScaleRecord> = state.getIn(['vis', 'present', 'scales']);
   return scales.filter((scale) => {
@@ -575,17 +579,111 @@ export function getFieldFromScaleRecordName(state: State, scaleName: string): st
   }).first(null);
 }
 
-// function getFieldFromScaleName(scalesList: Scale[], scaleName: string): string {
-//   for (let scale of scalesList) {
-//     if (scale.name === scaleName) {
-//       const field = (scale.domain as DataRef).field; // TODO(jzong) this makes assumptions about where the field name is
-//       if (isSignalRef(field)) {
-//         const signalName = field.signal;
-//         // TODO look up the value from the signal name
-//         return signalName; // change this
-//       }
-//       return field;
-//     }
-//   };
-//   return null;
-// }
+export function resizeSpec(sceneSpec, width, height) {
+  const sceneUpdated = {...sceneSpec};
+  sceneUpdated.marks = sceneSpec.marks.map(markSpec => {
+    const markUpdated = {...markSpec};
+    if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
+      markUpdated.encode.update.width.value = width;
+      markUpdated.encode.update.height.value = height;
+    }
+    return markSpec;
+  });
+  return sceneUpdated;
+}
+
+export function cleanSpecForPreview(sceneSpec) {
+  const sceneUpdated = {...sceneSpec};
+  sceneUpdated.marks = sceneSpec.marks.map(markSpec => {
+    const markUpdated = {...markSpec};
+    if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
+      markUpdated.axes = markSpec.axes.map((axis) => {
+        return {...axis, title: ''};
+      });
+      markUpdated.legends = [];
+    }
+    return markUpdated;
+  });
+  return sceneUpdated;
+}
+
+export function editSignalsForPreview(sceneSpec, groupName, signals) {
+  const sceneUpdated = {...sceneSpec};
+  sceneUpdated.marks = sceneSpec.marks.map(markSpec => {
+    const markUpdated = {...markSpec};
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      markUpdated.signals = markSpec.signals.map(signal => {
+        const match = signals.filter(s => s.name === signal.name);
+        return match.length ? match[0] : signal;
+      });
+    }
+    return markUpdated;
+  });
+  return sceneUpdated;
+}
+
+const baseSignals = [
+  {
+    name: "brush_x",
+    init: "[0, 0]"
+  },
+  {
+    name: "brush_y",
+    init: "[0, 0]"
+  },
+  {
+    name: "brush_zoom_anchor",
+    init: "null"
+  },
+  {
+    name: "brush_zoom_delta",
+    init: "null"
+  },
+  {
+    name: "grid_zoom_anchor",
+    init: "null"
+  },
+  {
+    name: "grid_zoom_delta",
+    init: "null"
+  }];
+export const intervalPreviewDefs: LyraInteractionPreviewDef[] = [
+  {
+    id: "brush",
+    signals: [...baseSignals]
+  },
+  {
+    id: "brush_x",
+    signals: [...baseSignals,
+      {
+        name: "lyra_brush_x",
+        init: "[width, 0]",
+        on: [
+          {
+            "events": {
+              "signal": "brush_x"
+            },
+            "update": "[width, 0]"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "brush_y",
+    signals: [...baseSignals,
+      {
+        name: "lyra_brush_y",
+        init: "[0, height]",
+        on: [
+          {
+            "events": {
+              "signal": "brush_y"
+            },
+            "update": "[0, height]"
+          }
+        ]
+      }
+    ]
+  }
+]
