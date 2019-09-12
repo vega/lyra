@@ -8,7 +8,7 @@ import {Footer} from './Footer';
 import {InspectorSidebar} from './InspectorSidebar';
 import {PipelinesSidebar} from './PipelinesSidebar';
 import {Toolbar} from './Toolbar';
-import InteractionPreview from './interactions/InteractionPreview';
+import InteractionPreviewController from './interactions/InteractionPreviewController';
 
 // React requires you only have one wrapper element called in your provider
 module.exports = (window as any).ui = ReactDOM.render(
@@ -38,7 +38,7 @@ module.exports = (window as any).ui = ReactDOM.render(
 // React requires you only have one wrapper element called in your provider
 module.exports = (window as any).ui = ReactDOM.render(
   <Provider store={store}>
-    <InteractionPreview id="preview_1" group="Group_1"></InteractionPreview>
+    <InteractionPreviewController group="Group_1"></InteractionPreviewController>
   </Provider>,
   document.querySelector('.interaction-preview')
 );
