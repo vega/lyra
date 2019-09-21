@@ -7,10 +7,11 @@ import {State} from "../store";
 import {LyraInteractionPreviewDef, LyraMappingPreviewDef} from "../components/interactions/InteractionPreviewController";
 import * as React from 'react';
 import {InteractionPreview as InteractionPreviewClass} from "../components/interactions/InteractionPreview";
+import duplicate from "../util/duplicate";
 
 export default function demonstrations(sceneSpec, state: State) {
-  const sceneUpdated = {...sceneSpec};
-  sceneUpdated.marks = sceneSpec.marks.map(markSpec => {
+  const sceneUpdated = duplicate(sceneSpec);
+  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
       const xScaleName = getScaleNameFromAxisRecords(state, 'x');
       const xFieldName = getFieldFromScaleRecordName(state, xScaleName);
@@ -31,8 +32,8 @@ export default function demonstrations(sceneSpec, state: State) {
 }
 
 function addMarksToGroup(groupSpec: GroupMark): GroupMark {
-  const groupUpdated = {...groupSpec};
-  const marks = groupSpec.marks || (groupSpec.marks = []);
+  const groupUpdated = duplicate(groupSpec);
+  const marks = groupUpdated.marks || (groupUpdated.marks = []);
   groupUpdated.marks = [...marks,
     {
       "name": "brush_brush_bg",
@@ -152,8 +153,8 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
 
 function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
   const {xScaleName, xFieldName, yScaleName, yFieldName} = names;
-  const groupUpdated = {...groupSpec};
-  const signals = groupSpec.signals || (groupSpec.signals = []);
+  const groupUpdated = duplicate(groupSpec);
+  const signals = groupUpdated.signals || (groupUpdated.signals = []);
   groupUpdated.signals = [...signals,
     {
       "name": "lyra_brush_x",
@@ -591,7 +592,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     }
   ];
 
-  const data = groupSpec.data || (groupSpec.data = []);
+  const data = groupUpdated.data || (groupUpdated.data = []);
   groupUpdated.data = [...data,
     {"name": "brush_store"},
     {"name": "grid_store"},
@@ -622,53 +623,38 @@ export function getFieldFromScaleRecordName(state: State, scaleName: string): st
   }).first(null);
 }
 
-export function resizeSpec(sceneSpec, width, height) {
-  const sceneUpdated = {...sceneSpec};
-  sceneUpdated.marks = sceneSpec.marks.map(markSpec => {
-    const markUpdated = {...markSpec};
+export function cleanSpecForPreview(sceneSpec) {
+  const sceneUpdated = duplicate(sceneSpec);
+  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
-      markUpdated.encode.update.width.value = width;
-      markUpdated.encode.update.height.value = height;
+      markSpec.axes = markSpec.axes.map((axis) => {
+        return {...axis, title: '', labels: false};
+      });
+      markSpec.legends = [];
+      markSpec.encode.update.width = {"signal": "width"};
+      markSpec.encode.update.height = {"signal": "height"};
+
+      if (markSpec.marks.length &&
+        markSpec.marks[0].type === 'symbol' && // TODO(jzong) what about other mark types?
+        markSpec.marks[0].encode.update.size.value) {
+        markSpec.marks[0].encode.update.size = {"value": "10"};
+      }
     }
     return markSpec;
   });
   return sceneUpdated;
 }
 
-export function cleanSpecForPreview(sceneSpec) {
-  const sceneUpdated = {...sceneSpec};
-  sceneUpdated.marks = sceneSpec.marks.map(markSpec => {
-    const markUpdated = {...markSpec};
-    if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
-      markUpdated.axes = markSpec.axes.map((axis) => {
-        return {...axis, title: '', labels: false};
-      });
-      markUpdated.legends = [];
-      markUpdated.encode.update.width = {"signal": "width"};
-      markUpdated.encode.update.height = {"signal": "height"};
-
-      if (markUpdated.marks.length &&
-        markUpdated.marks[0].type === 'symbol' && // TODO(jzong) what about other mark types?
-        markUpdated.marks[0].encode.update.size.value) {
-        markUpdated.marks[0].encode.update.size = {"value": "10"};
-      }
-    }
-    return markUpdated;
-  });
-  return sceneUpdated;
-}
-
 export function editSignalsForPreview(sceneSpec, groupName, signals) {
-  const sceneUpdated = {...sceneSpec};
-  sceneUpdated.marks = sceneSpec.marks.map(markSpec => {
-    const markUpdated = {...markSpec};
+  const sceneUpdated = duplicate(sceneSpec);
+  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      markUpdated.signals = markSpec.signals.map(signal => {
+      markSpec.signals = markSpec.signals.map(signal => {
         const match = signals.filter(s => s.name === signal.name);
         return match.length ? match[0] : signal;
       });
     }
-    return markUpdated;
+    return markSpec;
   });
   return sceneUpdated;
 }
@@ -775,23 +761,21 @@ export const pointPreviewDefs: LyraInteractionPreviewDef[] = [
 
 
 export function editMarksForPreview(sceneSpec, groupName, properties) {
-  const sceneUpdated = {...sceneSpec};
-  sceneUpdated.marks = sceneSpec.marks.map(markSpec => {
-    const markUpdated = {...markSpec};
+  const sceneUpdated = duplicate(sceneSpec);
+  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      if (markUpdated.marks.length &&
-        markUpdated.marks[0].type === 'symbol') { // TODO(jzong) what about other mark types?
-          for (let [key, value] of Object.entries(properties)) {
-            const oldValue = markUpdated.marks[0].encode.update[key];
-            markUpdated.marks[0].encode.update[key] = value;
-            // TODO(jzong) write more general-purpose way to preserve old properties when adding the conditional
-            if  (oldValue.value) {
-              markUpdated.marks[0].encode.update[key][0].value = oldValue.value;
-            }
+      if (markSpec.marks.length && markSpec.marks[0].type === 'symbol') { //TODO(jzong) make this less hardcoded
+        for (let [key, value] of Object.entries(properties)) {
+          const oldValue = markSpec.marks[0].encode.update[key];
+          markSpec.marks[0].encode.update[key] = value
+          // TODO(jzong) write more general-purpose way to preserve old properties when adding the conditional
+          if  (oldValue.value) {
+            markSpec.marks[0].encode.update[key][0].value = oldValue.value;
           }
+        }
       }
     }
-    return markUpdated;
+    return markSpec;
   });
   return sceneUpdated;
 }

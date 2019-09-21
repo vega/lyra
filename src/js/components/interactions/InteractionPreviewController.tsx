@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {Signal, Spec} from 'vega';
-import {getScaleNameFromAxisRecords, getFieldFromScaleRecordName, resizeSpec, cleanSpecForPreview, editSignalsForPreview, intervalPreviewDefs, pointPreviewDefs, mappingPreviewDefs, editMarksForPreview} from '../../ctrl/demonstrations';
+import {getScaleNameFromAxisRecords, getFieldFromScaleRecordName, cleanSpecForPreview, editSignalsForPreview, intervalPreviewDefs, pointPreviewDefs, mappingPreviewDefs, editMarksForPreview} from '../../ctrl/demonstrations';
 import InteractionPreview from './InteractionPreview';
 
 const ctrl = require('../../ctrl');
@@ -199,6 +199,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
             this.state.interactionPreviews.map((preview) => {
               preview.ref = React.createRef();
               const spec = editSignalsForPreview(this.state.spec, this.props.group, preview.signals);
+              console.log(preview.id, spec);
               return (
                 <div>
                   <div className="preview-label">{preview.label}</div>
@@ -215,6 +216,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
               preview.ref = React.createRef();
               let spec = editSignalsForPreview(this.state.spec, this.props.group, preview.signals);
               spec = editMarksForPreview(spec, this.props.group, preview.properties);
+              console.log(preview.id, spec);
               return (
                 <div>
                   <div className="preview-label">{preview.label}</div>

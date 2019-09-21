@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {View, parse, Spec} from 'vega';
-import {getScaleNameFromAxisRecords, getFieldFromScaleRecordName, resizeSpec, cleanSpecForPreview, editSignalsForPreview} from '../../ctrl/demonstrations';
+import {getScaleNameFromAxisRecords, getFieldFromScaleRecordName, cleanSpecForPreview, editSignalsForPreview} from '../../ctrl/demonstrations';
 import {GuideRecord} from '../../store/factory/Guide';
 import {Map} from 'immutable';
 import {ScaleRecord} from '../../store/factory/Scale';
