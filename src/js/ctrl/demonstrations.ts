@@ -780,7 +780,7 @@ export function editMarksForPreview(sceneSpec, groupName, properties) {
   return sceneUpdated;
 }
 
-export function mappingPreviewDefs(isDemonstratingInterval, isDemonstratingPoint): LyraMappingPreviewDef[] {
+export function mappingPreviewDefs(isDemonstratingInterval): LyraMappingPreviewDef[] {
   return [
     {
       id: "color",
@@ -789,8 +789,8 @@ export function mappingPreviewDefs(isDemonstratingInterval, isDemonstratingPoint
       properties: {
         "fill": [
           {
-            "test": isDemonstratingPoint ? "!(length(data(\"point_store\"))) || (vlSelectionTest(\"point_store\", datum))" :
-                    isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" : "null",
+            "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
+                                              "!(length(data(\"point_store\"))) || (vlSelectionTest(\"point_store\", datum))",
             "value": "orange"
           },
           {"value": "grey"}
@@ -802,7 +802,14 @@ export function mappingPreviewDefs(isDemonstratingInterval, isDemonstratingPoint
       label: "Opacity",
       signals: baseSignals,
       properties: {
-
+        "fillOpacity": [
+          {
+            "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
+                                              "!(length(data(\"point_store\"))) || (vlSelectionTest(\"point_store\", datum))",
+            "value": "1"
+          },
+          {"value": "0.2"}
+        ],
       }
     },
     {
@@ -810,7 +817,14 @@ export function mappingPreviewDefs(isDemonstratingInterval, isDemonstratingPoint
       label: "Size",
       signals: baseSignals,
       properties: {
-
+        "size": [
+          {
+            "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
+                                              "!(length(data(\"point_store\"))) || (vlSelectionTest(\"point_store\", datum))",
+            "value": "10"
+          },
+          {"value": "1"}
+        ],
       }
     },
   ];
