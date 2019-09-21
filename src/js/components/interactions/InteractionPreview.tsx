@@ -31,14 +31,23 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   private view;
 
   public componentDidMount() {
+    console.log(this.props.spec);
     this.view = new View(parse(this.props.spec), {
       renderer:  'svg',  // renderer (canvas or svg)
       container: `#${this.props.group}-${this.props.id}`   // parent DOM container
     });
-    // this.view.width(100);
-    // this.view.height(100);
+    this.view.width(100);
+    this.view.height(100);
     this.view.runAsync();
   };
+
+  public width() {
+    return this.view.width();
+  }
+
+  public height() {
+    return this.view.height();
+  }
 
   public setPreviewSignal(name, value) {
     if (this.view) {

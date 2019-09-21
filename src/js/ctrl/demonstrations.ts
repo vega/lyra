@@ -4,7 +4,7 @@ import {GuideRecord} from "../store/factory/Guide";
 import {Map} from 'immutable';
 import {ScaleRecord} from "../store/factory/Scale";
 import {State} from "../store";
-import {LyraInteractionPreviewDef} from "../components/interactions/InteractionPreviewController";
+import {LyraInteractionPreviewDef, LyraMappingPreviewDef} from "../components/interactions/InteractionPreviewController";
 import * as React from 'react';
 import {InteractionPreview as InteractionPreviewClass} from "../components/interactions/InteractionPreview";
 
@@ -546,13 +546,56 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     {
       "name": "grid_modify",
       "update": "modify(\"grid_store\", grid_tuple, true)"
+    },
+    {"name": "points", "update": "vlSelectionResolve(\"points_store\")"},
+    {
+      "name": "datum",
+      "on": [
+        {
+          "events": [{"source": "scope", "type": "click"}],
+          "update": "datum",
+          "force": true
+        },
+        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+      ]
+    },
+    {
+      "name": "points_tuple",
+      "on": [
+        {
+          "events": [{"source": "scope", "type": "click"}],
+          "update": "datum && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)[\"_vgsid_\"]]} : null",
+          "force": true
+        },
+        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+      ]
+    },
+    {
+      "name": "points_tuple_fields",
+      "value": [{"type": "E", "field": "_vgsid_"}]
+    },
+    {
+      "name": "points_toggle",
+      "value": false,
+      "on": [
+        {
+          "events": [{"source": "scope", "type": "click"}],
+          "update": "event.shiftKey"
+        },
+        {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
+      ]
+    },
+    {
+      "name": "points_modify",
+      "update": "modify(\"points_store\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)"
     }
   ];
 
   const data = groupSpec.data || (groupSpec.data = []);
   groupUpdated.data = [...data,
     {"name": "brush_store"},
-    {"name": "grid_store"}
+    {"name": "grid_store"},
+    {"name": "points_store"},
   ];
 
   return groupUpdated;
@@ -598,9 +641,17 @@ export function cleanSpecForPreview(sceneSpec) {
     const markUpdated = {...markSpec};
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
       markUpdated.axes = markSpec.axes.map((axis) => {
-        return {...axis, title: ''};
+        return {...axis, title: '', labels: false};
       });
       markUpdated.legends = [];
+      markUpdated.encode.update.width = {"signal": "width"};
+      markUpdated.encode.update.height = {"signal": "height"};
+
+      if (markUpdated.marks.length &&
+        markUpdated.marks[0].type === 'symbol' && // TODO(jzong) what about other mark types?
+        markUpdated.marks[0].encode.update.size.value) {
+        markUpdated.marks[0].encode.update.size = {"value": "10"};
+      }
     }
     return markUpdated;
   });
@@ -624,6 +675,14 @@ export function editSignalsForPreview(sceneSpec, groupName, signals) {
 
 const baseSignals = [
   {
+    name: "width",
+    init: "100"
+  },
+  {
+    name: "height",
+    init: "100"
+  },
+  {
     name: "brush_x",
     init: "[0, 0]"
   },
@@ -646,14 +705,21 @@ const baseSignals = [
   {
     name: "grid_zoom_delta",
     init: "null"
-  }];
+  },
+  {
+    name: "points_tuple",
+    init: "null"
+  }
+];
 export const intervalPreviewDefs: LyraInteractionPreviewDef[] = [
   {
     id: "brush",
-    signals: [...baseSignals]
+    label: "Brush",
+    signals: baseSignals
   },
   {
     id: "brush_x",
+    label: "Brush (x-axis)",
     signals: [...baseSignals,
       {
         name: "lyra_brush_x",
@@ -671,6 +737,7 @@ export const intervalPreviewDefs: LyraInteractionPreviewDef[] = [
   },
   {
     id: "brush_y",
+    label: "Brush (y-axis)",
     signals: [...baseSignals,
       {
         name: "lyra_brush_y",
@@ -687,3 +754,80 @@ export const intervalPreviewDefs: LyraInteractionPreviewDef[] = [
     ]
   }
 ]
+
+export const pointPreviewDefs: LyraInteractionPreviewDef[] = [
+  {
+    id: "single",
+    label: "Single point",
+    signals: [...baseSignals,
+      {
+        "name": "points_modify",
+        "update": "modify(\"points_store\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)"
+      }
+    ]
+  },
+  {
+    id: "multi",
+    label: "Multi point",
+    signals: baseSignals
+  },
+]
+
+
+export function editMarksForPreview(sceneSpec, groupName, properties) {
+  const sceneUpdated = {...sceneSpec};
+  sceneUpdated.marks = sceneSpec.marks.map(markSpec => {
+    const markUpdated = {...markSpec};
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      if (markUpdated.marks.length &&
+        markUpdated.marks[0].type === 'symbol') { // TODO(jzong) what about other mark types?
+          for (let [key, value] of Object.entries(properties)) {
+            const oldValue = markUpdated.marks[0].encode.update[key];
+            markUpdated.marks[0].encode.update[key] = value;
+            // TODO(jzong) write more general-purpose way to preserve old properties when adding the conditional
+            if  (oldValue.value) {
+              markUpdated.marks[0].encode.update[key][0].value = oldValue.value;
+            }
+          }
+      }
+    }
+    return markUpdated;
+  });
+  return sceneUpdated;
+}
+
+export function mappingPreviewDefs(isDemonstratingInterval, isDemonstratingPoint): LyraMappingPreviewDef[] {
+  return [
+    {
+      id: "color",
+      label: "Color",
+      signals: baseSignals,
+      properties: {
+        "fill": [
+          {
+            "test": isDemonstratingPoint ? "!(length(data(\"point_store\"))) || (vlSelectionTest(\"point_store\", datum))" :
+                    isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" : "null",
+            "value": "orange"
+          },
+          {"value": "grey"}
+        ],
+      }
+    },
+    {
+      id: "opacity",
+      label: "Opacity",
+      signals: baseSignals,
+      properties: {
+
+      }
+    },
+    {
+      id: "size",
+      label: "Size",
+      signals: baseSignals,
+      properties: {
+
+      }
+    },
+  ];
+}
