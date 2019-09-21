@@ -29,9 +29,42 @@ body {
   #vis {
     margin: 0 2*$outer-padding 2*$outer-padding;
 
-    canvas {
+    canvas, svg {
       border: 1px solid #ccc;
       box-shadow: 2px 2px 17px 0px rgba(0,0,0,0.15)
+    }
+  }
+
+  .interaction-preview .preview-controller {
+    &.active {
+      background: rgba(0,0,0,0.1);
+      padding: $outer-padding;
+    }
+
+    h2 {
+      justify-content: normal;
+      margin: 0 $outer-padding;
+    }
+
+    h5  {
+      margin: $outer-padding $outer-padding 0;
+    }
+
+    .preview-scroll {
+      display: flex;
+    }
+
+    .preview-scroll > div {
+      display: inline-block;
+      margin: 0 $outer-padding;
+
+      .preview-label {
+        margin: 0.5 * $outer-padding 0;
+      }
+
+      svg.marks > g {
+        transform: translate(18px, 13px);
+      }
     }
   }
 }

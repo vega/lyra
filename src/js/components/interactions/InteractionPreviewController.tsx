@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {Signal, Spec} from 'vega';
-import {getScaleNameFromAxisRecords, getFieldFromScaleRecordName, resizeSpec, cleanSpecForPreview, editSignalsForPreview, intervalPreviewDefs} from '../../ctrl/demonstrations';
+import {getScaleNameFromAxisRecords, getFieldFromScaleRecordName, resizeSpec, cleanSpecForPreview, editSignalsForPreview, intervalPreviewDefs, pointPreviewDefs, mappingPreviewDefs, editMarksForPreview} from '../../ctrl/demonstrations';
 import InteractionPreview from './InteractionPreview';
 
 const ctrl = require('../../ctrl');
@@ -19,15 +19,25 @@ interface StateProps {
 
 export interface LyraInteractionPreviewDef {
   id: string,
+  label: string,
   ref?: React.RefObject<InteractionPreview>,
   signals: Signal[]
+}
+
+export interface LyraMappingPreviewDef {
+  id: string,
+  label: string,
+  ref?: React.RefObject<InteractionPreview>,
+  signals: Signal[],
+  properties: any // encode.update object
 }
 
 interface OwnState {
   isDemonstratingInterval: boolean,
   isDemonstratingPoint: boolean,
   spec: Spec,
-  previews: LyraInteractionPreviewDef[]
+  interactionPreviews: LyraInteractionPreviewDef[],
+  mappingPreviews: LyraMappingPreviewDef[]
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -57,7 +67,8 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       isDemonstratingInterval: false,
       isDemonstratingPoint: false,
       spec: null,
-      previews: []
+      interactionPreviews: [],
+      mappingPreviews: []
     };
   }
 
@@ -72,8 +83,17 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     }
 
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
-      this.onSignal('brush_x', (name, value) => this.onMainViewSignal(name, value));
-      this.onSignal('brush_y', (name, value) => this.onMainViewSignal(name, value));
+      this.onSignal('brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
+      this.onSignal('brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
+      this.onSignal('points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal('points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal('datum', (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal('points', (name, value) => {
+        const isDemonstratingPoint = Object.keys(value).length > 0;
+        this.setState({
+          isDemonstratingPoint
+        });
+      });
     }
     else if (prevProps.canDemonstrate && !this.props.canDemonstrate) {
       if (ctrl.view) {
@@ -82,9 +102,11 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       }
     }
 
-    if (prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval) {
+    if (prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval ||
+        prevState.isDemonstratingPoint !== this.state.isDemonstratingPoint) {
       this.setState({
-        previews: this.getPreviewDefs()
+        interactionPreviews: this.getInteractionPreviewDefs(),
+        mappingPreviews: this.getMappingPreviewDefs()
       });
     }
   }
@@ -92,23 +114,61 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   private signalHandlers = {};
   private mainViewSignalValues = {};
 
-  private getPreviewDefs(): LyraInteractionPreviewDef[] {
+  private getInteractionPreviewDefs(): LyraInteractionPreviewDef[] {
+    if (this.state.isDemonstratingInterval && this.state.isDemonstratingPoint) {
+      return intervalPreviewDefs.concat(pointPreviewDefs);
+    }
     if (this.state.isDemonstratingInterval) {
       return intervalPreviewDefs;
+    }
+    if (this.state.isDemonstratingPoint) {
+      return pointPreviewDefs;
     }
     return [];
   }
 
-  private onMainViewSignal(name, value) {
+  private getMappingPreviewDefs(): LyraMappingPreviewDef[] {
+    if (this.state.isDemonstratingInterval || this.state.isDemonstratingPoint) {
+      return mappingPreviewDefs(this.state.isDemonstratingInterval, this.state.isDemonstratingPoint);
+    }
+    return [];
+  }
+
+  private onMainViewPointSignal(name, value) {
+    console.log(name, value)
+
+    this.state.interactionPreviews.forEach(preview => {
+      if (preview.ref.current) {
+        preview.ref.current.setPreviewSignal(name, value);
+      }
+    });
+  }
+
+  private onMainViewIntervalSignal(name, value) {
     this.mainViewSignalValues[name] = value;
-    const isDemonstratingInterval = this.mainViewSignalValues['brush_x'] && this.mainViewSignalValues['brush_y'] && this.mainViewSignalValues['brush_x'] !== this.mainViewSignalValues['brush_y'];
+    const isDemonstratingInterval = this.mainViewSignalValues['brush_x'] &&
+      this.mainViewSignalValues['brush_y'] &&
+      this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
+      this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1];
     this.setState({
       isDemonstratingInterval
     });
 
-    this.state.previews.forEach(preview => {
+    const wScale = 100/640;
+    const hScale = 100/360; // TODO(jzong) preview height / main view height
+
+    const scaledValue = value.map(n => {
+      if (name === 'brush_x') {
+        return n * wScale;
+      }
+      else if (name === 'brush_y') {
+        return n * hScale;
+      }
+    });
+
+    this.state.interactionPreviews.forEach(preview => {
       if (preview.ref.current) {
-        preview.ref.current.setPreviewSignal(name, value);
+        preview.ref.current.setPreviewSignal(name, scaledValue);
       }
     });
   }
@@ -131,14 +191,39 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   public render() {
 
     return (
-      <div className="preview-controller">
-        {
-          this.state.previews.map((preview) => {
-            preview.ref = React.createRef();
-            const spec = editSignalsForPreview(this.state.spec, this.props.group, preview.signals);
-            return <InteractionPreview key={preview.id} ref={preview.ref} id={`preview-${preview.id}`} group={this.props.group} spec={spec}/>;
-          })
-        }
+      <div className={"preview-controller" + (this.state.interactionPreviews.length  ? " active" : "")}>
+        {this.state.interactionPreviews.length ? <h2>Interactions</h2> : null}
+        {this.state.interactionPreviews.length ? <h5>Selections</h5> : null}
+        <div className="preview-scroll">
+          {
+            this.state.interactionPreviews.map((preview) => {
+              preview.ref = React.createRef();
+              const spec = editSignalsForPreview(this.state.spec, this.props.group, preview.signals);
+              return (
+                <div>
+                  <div className="preview-label">{preview.label}</div>
+                  <InteractionPreview key={preview.id} ref={preview.ref} id={`preview-${preview.id}`} group={this.props.group} spec={spec}/>
+                </div>
+              )
+            })
+          }
+        </div>
+        {this.state.mappingPreviews.length ? <h5>Mappings</h5> : null}
+        <div className="preview-scroll">
+          {
+            this.state.mappingPreviews.map((preview) => {
+              preview.ref = React.createRef();
+              let spec = editSignalsForPreview(this.state.spec, this.props.group, preview.signals);
+              spec = editMarksForPreview(spec, this.props.group, preview.properties);
+              return (
+                <div>
+                  <div className="preview-label">{preview.label}</div>
+                  <InteractionPreview key={preview.id} ref={preview.ref} id={`preview-${preview.id}`} group={this.props.group} spec={spec}/>
+                </div>
+              )
+            })
+          }
+        </div>
       </div>
     );
   }
