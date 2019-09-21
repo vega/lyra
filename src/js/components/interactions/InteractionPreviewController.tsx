@@ -115,9 +115,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   private mainViewSignalValues = {};
 
   private getInteractionPreviewDefs(): LyraInteractionPreviewDef[] {
-    if (this.state.isDemonstratingInterval && this.state.isDemonstratingPoint) {
-      return intervalPreviewDefs.concat(pointPreviewDefs);
-    }
     if (this.state.isDemonstratingInterval) {
       return intervalPreviewDefs;
     }
@@ -129,7 +126,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
   private getMappingPreviewDefs(): LyraMappingPreviewDef[] {
     if (this.state.isDemonstratingInterval || this.state.isDemonstratingPoint) {
-      return mappingPreviewDefs(this.state.isDemonstratingInterval, this.state.isDemonstratingPoint);
+      return mappingPreviewDefs(this.state.isDemonstratingInterval);
     }
     return [];
   }
@@ -138,6 +135,11 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     console.log(name, value)
 
     this.state.interactionPreviews.forEach(preview => {
+      if (preview.ref.current) {
+        preview.ref.current.setPreviewSignal(name, value);
+      }
+    });
+    this.state.mappingPreviews.forEach(preview => {
       if (preview.ref.current) {
         preview.ref.current.setPreviewSignal(name, value);
       }
@@ -167,6 +169,11 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     });
 
     this.state.interactionPreviews.forEach(preview => {
+      if (preview.ref.current) {
+        preview.ref.current.setPreviewSignal(name, scaledValue);
+      }
+    });
+    this.state.mappingPreviews.forEach(preview => {
       if (preview.ref.current) {
         preview.ref.current.setPreviewSignal(name, scaledValue);
       }
