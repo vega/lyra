@@ -100,7 +100,7 @@ export default function bindChannel(dsId: number, field, markId: number, propert
     // data sources. We do this here (rather than in the ctrl) to (1) avoid
     // unnecessary re-renders triggered by deleting primitives and (2) to get
     // the most accurate guide orientation as possible.
-    // cleanupUnused(dispatch, state);
+    cleanupUnused(dispatch, state);
 
     parseGuides(dispatch, getState(), parsed);
 

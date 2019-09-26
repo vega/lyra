@@ -550,17 +550,6 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     },
     {"name": "points", "update": "vlSelectionResolve(\"points_store\")"},
     {
-      "name": "datum",
-      "on": [
-        {
-          "events": [{"source": "scope", "type": "click"}],
-          "update": "datum",
-          "force": true
-        },
-        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-      ]
-    },
-    {
       "name": "points_tuple",
       "on": [
         {
@@ -704,8 +693,8 @@ export const intervalPreviewDefs: LyraInteractionPreviewDef[] = [
     signals: baseSignals
   },
   {
-    id: "brush_x",
-    label: "Brush (x-axis)",
+    id: "brush_y",
+    label: "Brush (y-axis)",
     signals: [...baseSignals,
       {
         name: "lyra_brush_x",
@@ -722,8 +711,8 @@ export const intervalPreviewDefs: LyraInteractionPreviewDef[] = [
     ]
   },
   {
-    id: "brush_y",
-    label: "Brush (y-axis)",
+    id: "brush_x",
+    label: "Brush (x-axis)",
     signals: [...baseSignals,
       {
         name: "lyra_brush_y",
@@ -790,7 +779,7 @@ export function mappingPreviewDefs(isDemonstratingInterval): LyraMappingPreviewD
         "fill": [
           {
             "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                              "!(length(data(\"point_store\"))) || (vlSelectionTest(\"point_store\", datum))",
+                                              "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
             "value": "orange"
           },
           {"value": "grey"}
@@ -805,7 +794,7 @@ export function mappingPreviewDefs(isDemonstratingInterval): LyraMappingPreviewD
         "fillOpacity": [
           {
             "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                              "!(length(data(\"point_store\"))) || (vlSelectionTest(\"point_store\", datum))",
+                                              "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
             "value": "1"
           },
           {"value": "0.2"}
@@ -820,7 +809,7 @@ export function mappingPreviewDefs(isDemonstratingInterval): LyraMappingPreviewD
         "size": [
           {
             "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                              "!(length(data(\"point_store\"))) || (vlSelectionTest(\"point_store\", datum))",
+                                              "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
             "value": "10"
           },
           {"value": "1"}
