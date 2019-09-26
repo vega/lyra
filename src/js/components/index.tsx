@@ -36,7 +36,7 @@ module.exports = (window as any).ui = ReactDOM.render(
 );
 
 // React requires you only have one wrapper element called in your provider
-module.exports = (window as any).ui = ReactDOM.render(
+ReactDOM.render(
   <Provider store={store}>
     <InteractionPreviewController group="Group_1"></InteractionPreviewController>
   </Provider>,

@@ -206,7 +206,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
             this.state.interactionPreviews.map((preview) => {
               preview.ref = React.createRef();
               const spec = editSignalsForPreview(this.state.spec, this.props.group, preview.signals);
-              console.log(preview.id, spec);
               return (
                 <div>
                   <div className="preview-label">{preview.label}</div>
@@ -223,7 +222,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
               preview.ref = React.createRef();
               let spec = editSignalsForPreview(this.state.spec, this.props.group, preview.signals);
               spec = editMarksForPreview(spec, this.props.group, preview.properties);
-              console.log(preview.id, spec);
               return (
                 <div>
                   <div className="preview-label">{preview.label}</div>
