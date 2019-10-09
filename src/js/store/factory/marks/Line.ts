@@ -25,7 +25,7 @@ export const Line = Record<LyraLineMark>({
       interpolate: {value: 'monotone'}
     }
   }
-});
+}, 'LyraLineMark');
 
 export type LineRecord = RecordOf<LyraLineMark>;
 

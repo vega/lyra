@@ -30,7 +30,7 @@ export const Pipeline = Record<LyraPipeline>({
   name: null,
   _source: null,
   _aggregates: Map()
-});
+}, 'LyraPipeline');
 
 export type PipelineRecord = RecordOf<LyraPipeline>;
 

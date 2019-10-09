@@ -19,5 +19,5 @@ export const Scene = Record<LyraScene>({
   axes: [],
   legends: [],
   marks: [],
-});
+}, 'LyraScene');
 export type SceneRecord = RecordOf<LyraScene>;

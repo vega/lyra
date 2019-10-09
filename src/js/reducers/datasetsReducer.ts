@@ -23,7 +23,10 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
   }
 
   if (action.type === getType(datasetActions.addDataset)) {
-    return state.set(String(id), action.payload);
+    if (action.meta) {
+      dsUtil.init(action.payload, action.meta);
+    }
+    return state.set(String(action.payload._id), action.payload);
   }
 
   if (action.type === getType(datasetActions.deleteDataset)) {

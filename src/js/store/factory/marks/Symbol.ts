@@ -23,7 +23,7 @@ export const Symbol = Record<LyraSymbolMark>({
       shape: {value: 'circle'}
     }
   }
-});
+}, 'LyraSymbolMark');
 
 export type SymbolRecord = RecordOf<LyraSymbolMark>;
 export const SymbolShapes = [

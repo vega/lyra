@@ -27,7 +27,7 @@ export const Rect = Record<LyraRectMark>({
       height: {value: 40, _disabled: true}
     }
   }
-});
+}, 'LyraRectMark');
 
 export type RectRecord = RecordOf<LyraRectMark>;
 

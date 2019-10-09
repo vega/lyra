@@ -15,7 +15,7 @@ const EncodingState = Record<LyraEncodingState>({
   selectedId:   null,
   selectedType: null,
   expandedLayers: {}
-});
+}, 'LyraEncodingState');
 
 export type EncodingStateRecord = RecordOf<LyraEncodingState>;
 
@@ -31,6 +31,6 @@ export const Inspector = Record<LyraInspector>({
     selectedId: null
   },
   encodings: EncodingState()
-});
+}, 'LyraInspector');
 
 export type InspectorRecord = RecordOf<LyraInspector>;

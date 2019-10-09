@@ -8,6 +8,6 @@ export interface LyraVegaReparse {
 export const VegaReparse = Record<LyraVegaReparse>({
   invalid: false,
   isParsing: false
-});
+}, 'LyraVegaReparse');
 
 export type VegaReparseRecord = RecordOf<LyraVegaReparse>;

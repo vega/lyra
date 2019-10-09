@@ -13,6 +13,6 @@ export const Walkthrough = Record<LyraWalkthrough>({
   data: data,
   activeStep: 1,
   activeWalkthrough: null
-});
+}, 'LyraWalkthrough');
 
 export type WalkthroughRecord = RecordOf<LyraWalkthrough>;

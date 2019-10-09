@@ -39,7 +39,7 @@ function def(id: number): DatasetRecord {
 }
 
 // tslint:disable-next-line:variable-name
-let _values = {};
+let _values: {[s: string]: object[]} = {};
 
 function isSourceDatasetRecord(ds: DatasetRecord): ds is SourceDatasetRecord {
   return (ds as SourceDatasetRecord).source !== undefined;
@@ -82,8 +82,8 @@ export function reset() {
  * @param {number} id - The ID of the dataset.
  * @returns {Array|string} An array of objects.
  */
-export function input(id: number) {
-  return _values[id];
+export function input(id: number): object[] {
+  return _values[id] || [];
 }
 
 /**

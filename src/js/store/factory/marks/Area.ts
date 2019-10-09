@@ -27,7 +27,7 @@ export const Area = Record<LyraAreaMark>({
       orient: {value: 'vertical'}
     }
   }
-});
+}, 'LyraAreaMark');
 
 export type AreaRecord = RecordOf<LyraAreaMark>;
 

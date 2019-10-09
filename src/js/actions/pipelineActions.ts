@@ -25,12 +25,10 @@ export function addPipeline (pipeline: PipelineRecord, ds: DatasetRecord, values
     const newDs = addDataset(ds.merge({
       name: pipeline.name + '_source',
       _parent: pid
-    }));
+    }), values);
 
     dispatch(newDs);
     dispatch(baseAddPipeline(pipeline.merge({_id: pid, _source: newDs.payload._id}), pid));
-
-    dsUtil.init(newDs.payload, values);
   };
 }
 
@@ -59,7 +57,7 @@ export function aggregatePipeline (id: number, aggregate: LyraAggregateTransform
         transform: [aggregate],
         _schema: schema,
         _parent: id
-      })
+      }), null
     );
 
     dispatch(ds);

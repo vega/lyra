@@ -41,7 +41,7 @@ export function Scale(values?: Partial<LyraScale>): ScaleRecord {
 
     ...values,
     name: rename(values.name)
-  } as any)();
+  } as any, 'LyraScale')();
 }
 
 export type ScaleRecord = RecordOf<LyraScale>;
