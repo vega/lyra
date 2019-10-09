@@ -1,12 +1,12 @@
 import {createStandardAction} from 'typesafe-actions';
-import {AggregateTransform, Compare, Transforms} from 'vega-typings/types';
+import {AggregateTransform, Compare, Transforms, Datum} from 'vega-typings/types';
 import {DatasetRecord, MType} from '../store/factory/Dataset';
 
 const counter = require('../util/counter');
 
-export const addDataset = createStandardAction('ADD_DATASET').map((payload: DatasetRecord) => {
+export const addDataset = createStandardAction('ADD_DATASET').map((payload: DatasetRecord, meta: Datum[]) => {
   const id: number = payload._id || counter.global();
-  return {payload: payload.merge({_id: id}), meta: id}
+  return {payload: payload.merge({_id: id}), meta}
 });
 
 export const deleteDataset = createStandardAction('DELETE_DATASET')<number, number>();

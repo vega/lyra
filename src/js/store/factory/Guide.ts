@@ -38,7 +38,7 @@ export const Axis = Record<LyraAxis>({
   title: null,
   zindex: 0, // replaces layer
   encode: {}
-});
+}, 'LyraAxis');
 
 export type AxisRecord = RecordOf<LyraAxis>;
 
@@ -63,7 +63,7 @@ export const Legend = Record<LyraLegend>({
   symbolOpacity: 1,
   strokeColor: '#ffffff',
   encode: {}
-});
+}, 'LyraLegend');
 
 export type LegendRecord = RecordOf<LyraLegend>;
 

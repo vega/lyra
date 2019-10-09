@@ -31,7 +31,7 @@ export const Text = Record<LyraTextMark>({
       angle: {value: 0}
     }
   }
-});
+}, 'LyraTextMark');
 
 export type TextRecord = RecordOf<LyraTextMark>;
 

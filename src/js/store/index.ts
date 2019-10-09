@@ -12,6 +12,7 @@ import {ScaleRecord} from './factory/Scale';
 import {defaultSignalState, SignalRecord} from './factory/Signal';
 import {VegaReparse, VegaReparseRecord} from './factory/Vega';
 import {Walkthrough, WalkthroughRecord} from './factory/Walkthrough';
+import RecNReplayMiddlewareFactory from  './replay';
 
 export type VisStateTree = Map<string, Map<string, number |
   PipelineRecord | DatasetRecord | ScaleRecord | GuideRecord |
@@ -51,7 +52,7 @@ const getDefaultState = Record<LyraState>({
   inspector: Inspector(),
   walkthrough: Walkthrough(),
   hints: Hints()
-});
+}, 'LyraState');
 
 export type State = RecordOf<LyraState>;
 
@@ -59,7 +60,7 @@ export type State = RecordOf<LyraState>;
 export const defaultState = getDefaultState();
 
 function configureStore(initialState: State) {
-  return createStore(rootReducer, initialState, applyMiddleware(ReduxThunk));
+  return createStore(rootReducer, initialState, applyMiddleware(ReduxThunk, RecNReplayMiddlewareFactory()));
 }
 
 /**

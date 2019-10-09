@@ -36,4 +36,11 @@ import './components';
 
 store.dispatch(clearHistory());
 
+// if recording state changes (e.g. to load known states for user testing),
+// do not record intialization actions (see store/replay.ts)
+if (window.location.search.indexOf('record') > -1) {
+  localStorage.clear();
+  console.log('clear');
+}
+
 (global as any).vega = vega;

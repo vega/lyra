@@ -28,6 +28,6 @@ interface LyraHints {
 export const Hints = Record<LyraHints>({
   display: null,
   on: false
-});
+}, 'LyraHints');
 
 export type HintsRecord = RecordOf<LyraHints>;
