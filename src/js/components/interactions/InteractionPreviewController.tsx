@@ -42,7 +42,7 @@ export interface LyraMappingPreviewDef {
   id: LyraMappingType,
   label: string,
   ref?: React.RefObject<InteractionPreview>,
-  signals: Signal[],
+  // signals: Signal[],
   properties: any // encode.update object
 }
 
@@ -295,7 +295,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
           {
             this.state.mappingPreviews.map((preview) => {
               preview.ref = React.createRef();
-              let spec = editSignalsForPreview(this.state.spec, this.props.groupName, preview.signals);
+              let spec = editSignalsForPreview(this.state.spec, this.props.groupName, []);
               spec = editMarksForPreview(spec, this.props.groupName, preview.properties);
               return (
                 <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.mappingType === preview.id ? 'selected' : ''}>
