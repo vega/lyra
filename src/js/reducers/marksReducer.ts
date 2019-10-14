@@ -230,6 +230,10 @@ export function marksReducer(
     return ensureValuePresent(state, [String(groupId), 'legends'], action.payload);
   }
 
+  if (action.type === getType(helperActions.addInteractionToGroup)) {
+    return ensureValuePresent(state, [String(groupId), '_interactions'], action.payload);
+  }
+
   const guideId = action.meta;
 
   if (action.type === getType(guideActions.deleteGuide)) {

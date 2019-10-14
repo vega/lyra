@@ -107,7 +107,7 @@
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
     "typesafe-actions": "^3.1.0",
-    "typescript": "3.3.3",
+    "typescript": "3.4",
     "typescript-eslint-parser": "^21.0.1",
     "vega": "^5.3.5",
     "vega-lite": "^3.0.0",

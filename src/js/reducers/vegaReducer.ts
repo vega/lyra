@@ -9,6 +9,7 @@ import * as scaleActions from '../actions/scaleActions';
 import * as sceneActions from '../actions/sceneActions';
 import * as signalActions from '../actions/signalActions';
 import * as vegaActions from '../actions/vegaActions';
+import * as interactionActions from '../actions/interactionActions';
 import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
 
 /**
@@ -21,7 +22,7 @@ import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
 export function invalidateVegaReducer(state: VegaReparseRecord,
                               action: ActionType<typeof vegaActions | typeof datasetActions |
                               typeof markActions | typeof pipelineActions | typeof sceneActions | typeof historyActions |
-                              typeof scaleActions | typeof helperActions | typeof signalActions | typeof guideActions>): VegaReparseRecord {
+                              typeof scaleActions | typeof helperActions | typeof signalActions | typeof guideActions | typeof interactionActions>): VegaReparseRecord {
   if (typeof state === 'undefined') {
     return VegaReparse({
       invalid: false,
@@ -56,6 +57,8 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     case getType(guideActions.updateGuideProperty):
     case getType(helperActions.addAxisToGroup):
     case getType(helperActions.addLegendToGroup):
+    case getType(interactionActions.setInteractionType):
+    case getType(interactionActions.setMappingType):
     // ACTIONS.REMOVE_AXIS_FROM_GROUP, // TODO this action doesn't exist (but would belong in helperActions
     case getType(datasetActions.sortDataset):
     case getType(datasetActions.addTransform):

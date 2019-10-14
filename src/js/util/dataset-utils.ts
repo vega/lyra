@@ -41,10 +41,6 @@ function def(id: number): DatasetRecord {
 // tslint:disable-next-line:variable-name
 let _values: {[s: string]: object[]} = {};
 
-function isSourceDatasetRecord(ds: DatasetRecord): ds is SourceDatasetRecord {
-  return (ds as SourceDatasetRecord).source !== undefined;
-}
-
 /**
  * Initialize a dataset by loading the raw values and constructing the schema.
  * Once this is done, an initDataset action is dispatched.
@@ -63,8 +59,8 @@ export function init(ds: DatasetRecord, values: object[]) {
   if (values) {
     _values[id] = values;
   }
-  else if (isSourceDatasetRecord(ds)) {
-    _values[id] = _values[ds.source];
+  else if ((ds as SourceDatasetRecord).source !== undefined) {
+    _values[id] = _values[(ds as SourceDatasetRecord).source];
   }
   else {
     _values[id] = null;

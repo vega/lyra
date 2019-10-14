@@ -35,7 +35,7 @@ body {
     }
   }
 
-  .interaction-preview .preview-controller {
+  .interaction-preview-container .preview-controller {
     &.active {
       background: rgba(0,0,0,0.1);
       padding: $outer-padding;
@@ -47,16 +47,22 @@ body {
     }
 
     h5  {
-      margin: $outer-padding $outer-padding 0;
+      margin: $outer-padding $outer-padding $outer-padding / 2;
     }
 
     .preview-scroll {
       display: flex;
+      background: #aaa;
     }
 
     .preview-scroll > div {
       display: inline-block;
-      margin: 0 $outer-padding;
+      padding: 0 $outer-padding $outer-padding;
+
+      &.selected {
+        background: #777;
+        color: white;
+      }
 
       .preview-label {
         margin: 0.5 * $outer-padding 0;

@@ -4,28 +4,42 @@ import {State} from '../../store';
 import {Signal, Spec} from 'vega';
 import {getScaleNameFromAxisRecords, getFieldFromScaleRecordName, cleanSpecForPreview, editSignalsForPreview, intervalPreviewDefs, pointPreviewDefs, mappingPreviewDefs, editMarksForPreview} from '../../ctrl/demonstrations';
 import InteractionPreview from './InteractionPreview';
+import {InteractionRecord, LyraInteractionType, LyraMappingType, Interaction} from '../../store/factory/Interaction';
+import {Dispatch} from 'redux';
+import {addInteraction, setInteractionType, setMappingType} from '../../actions/interactionActions';
+import {GroupRecord} from '../../store/factory/marks/Group';
+import exportName from '../../util/exportName';
+import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
 
 interface OwnProps {
-  group: string, // name of group mark (view) this preview is attached to
+  groupId: number;
 }
 interface StateProps {
-  vegaIsParsing: boolean,
-  canDemonstrate: boolean,
-  // names: {xScaleName: string, yScaleName: string, xFieldName: string, yFieldName: string}
+  vegaIsParsing: boolean;
+  canDemonstrate: boolean;
+  groupRecord: GroupRecord;
+  groupName: string;
+  interactionRecord: InteractionRecord;
+}
+
+interface DispatchProps {
+  addInteraction: (groupId: number) => number; // return id of newly created interaction
+  setInteractionType: (type: LyraInteractionType, id: number) => void;
+  setMappingType: (type: LyraMappingType, id: number) => void;
 }
 
 export interface LyraInteractionPreviewDef {
-  id: string,
+  id: LyraInteractionType,
   label: string,
   ref?: React.RefObject<InteractionPreview>,
   signals: Signal[]
 }
 
 export interface LyraMappingPreviewDef {
-  id: string,
+  id: LyraMappingType,
   label: string,
   ref?: React.RefObject<InteractionPreview>,
   signals: Signal[],
@@ -50,15 +64,42 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const canDemonstrate = Boolean(ctrl.view && xScaleName && yScaleName && xFieldName && yFieldName);
 
   const isParsing = state.getIn(['vega', 'isParsing']);
+
+  const groupRecord = state.getIn(['vis', 'present', 'marks', String(ownProps.groupId)]);
+
+  const interactionRecordId = groupRecord.get('_interactions').length ? groupRecord._interactions[0] : null;
+  const interactionRecord = interactionRecordId ? state.getIn(['vis', 'present', 'interactions', String(interactionRecordId)]) : null;
+
   return {
     vegaIsParsing: isParsing,
     canDemonstrate,
-    // names: {xScaleName, xFieldName, yScaleName, yFieldName}
+    groupRecord,
+    groupName: exportName(groupRecord.name),
+    interactionRecord
   };
 }
 
+function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+  return {
+    addInteraction: (groupId) => {
+      const record = Interaction({
+        groupId
+      });
+      const addAction = addInteraction(record);
+      dispatch(addAction);
+      dispatch(addInteractionToGroup(addAction.meta, groupId));
+      return addAction.meta;
+    },
+    setInteractionType: (type: LyraInteractionType, id: number) => {
+      dispatch(setInteractionType(type, id));
+    },
+    setMappingType: (type: LyraMappingType, id: number) => {
+      dispatch(setMappingType(type, id));
+    }
+  };
+}
 
-class InteractionPreviewController extends React.Component<OwnProps & StateProps, OwnState> {
+class InteractionPreviewController extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
 
   constructor(props) {
     super(props);
@@ -75,7 +116,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState: OwnState) {
 
     if (prevProps.vegaIsParsing && !this.props.vegaIsParsing) {
-      const spec = cleanSpecForPreview(ctrl.export());
+      const spec = cleanSpecForPreview(ctrl.export(false, true));
       // spec = resizeSpec(spec, 100, 100);
       this.setState({
         spec
@@ -184,14 +225,44 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   private onSignal(signalName, handler) {
     if (!this.signalHandlers[signalName]) {
       this.signalHandlers[signalName] = handler;
-      listeners.onSignalInGroup(ctrl.view, this.props.group, signalName, this.signalHandlers[signalName]);
+      listeners.onSignalInGroup(ctrl.view, this.props.groupName, signalName, this.signalHandlers[signalName]);
     }
   }
 
   private offSignal(signalName) {
     if (this.signalHandlers[signalName]) {
-      listeners.offSignalInGroup(ctrl.view, this.props.group, signalName, this.signalHandlers[signalName]);
+      listeners.offSignalInGroup(ctrl.view, this.props.groupName, signalName, this.signalHandlers[signalName]);
       this.signalHandlers[signalName] = null;
+    }
+  }
+
+  private onClickInteractionPreview(previewId: LyraInteractionType) {
+    if (!this.props.interactionRecord) {
+      const interactionId = this.props.addInteraction(this.props.groupId);
+      this.props.setInteractionType(previewId, interactionId);
+    }
+    else {
+      if (this.props.interactionRecord.interactionType === previewId) {
+        this.props.setInteractionType(null, this.props.interactionRecord.id);
+      }
+      else {
+        this.props.setInteractionType(previewId, this.props.interactionRecord.id);
+      }
+    }
+  }
+
+  private onClickMappingPreview(previewId: LyraMappingType) {
+    if (!this.props.interactionRecord) {
+      const interactionId = this.props.addInteraction(this.props.groupId);
+      this.props.setMappingType(previewId, interactionId);
+    }
+    else {
+      if (this.props.interactionRecord.mappingType === previewId) {
+        this.props.setMappingType(null, this.props.interactionRecord.id);
+      }
+      else {
+        this.props.setMappingType(previewId, this.props.interactionRecord.id);
+      }
     }
   }
 
@@ -205,11 +276,15 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
           {
             this.state.interactionPreviews.map((preview) => {
               preview.ref = React.createRef();
-              const spec = editSignalsForPreview(this.state.spec, this.props.group, preview.signals);
+              const spec = editSignalsForPreview(this.state.spec, this.props.groupName, preview.signals);
               return (
-                <div>
+                <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.interactionType === preview.id ? 'selected' : ''}>
                   <div className="preview-label">{preview.label}</div>
-                  <InteractionPreview key={preview.id} ref={preview.ref} id={`preview-${preview.id}`} group={this.props.group} spec={spec}/>
+                  <InteractionPreview ref={preview.ref}
+                    id={`preview-${preview.id}`}
+                    groupName={this.props.groupName}
+                    spec={spec}
+                    onClick={() => this.onClickInteractionPreview(preview.id)}/>
                 </div>
               )
             })
@@ -220,12 +295,16 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
           {
             this.state.mappingPreviews.map((preview) => {
               preview.ref = React.createRef();
-              let spec = editSignalsForPreview(this.state.spec, this.props.group, preview.signals);
-              spec = editMarksForPreview(spec, this.props.group, preview.properties);
+              let spec = editSignalsForPreview(this.state.spec, this.props.groupName, preview.signals);
+              spec = editMarksForPreview(spec, this.props.groupName, preview.properties);
               return (
-                <div>
+                <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.mappingType === preview.id ? 'selected' : ''}>
                   <div className="preview-label">{preview.label}</div>
-                  <InteractionPreview key={preview.id} ref={preview.ref} id={`preview-${preview.id}`} group={this.props.group} spec={spec}/>
+                  <InteractionPreview ref={preview.ref}
+                    id={`preview-${preview.id}`}
+                    groupName={this.props.groupName}
+                    spec={spec}
+                    onClick={() => this.onClickMappingPreview(preview.id)}/>
                 </div>
               )
             })
@@ -237,4 +316,4 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
 }
 
-export default connect(mapStateToProps)(InteractionPreviewController);
+export default connect(mapStateToProps, mapDispatchToProps)(InteractionPreviewController);

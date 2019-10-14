@@ -36,3 +36,13 @@ export const addAxisToGroup = createStandardAction('ADD_AXIS_TO_GROUP')<number, 
  * @returns {Object} A redux action object
  */
 export const addLegendToGroup = createStandardAction('ADD_LEGEND_TO_GROUP')<number, number>(); // legendId, groupId
+
+/**
+ * Return an action object instructing the reducer to add the provided interaction
+ * to the specified group
+ *
+ * @param {number} interactionId - The ID of the Lyra interaction.
+ * @param {number} groupId - The ID of the group to which the interaction should be added.
+ * @returns {Object} A redux action object
+ */
+export const addInteractionToGroup = createStandardAction('ADD_INTERACTION_TO_GROUP')<number, number>(); // interactionId, groupId

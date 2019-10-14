@@ -13,7 +13,7 @@ const dl = require('datalib'),
 
 interface LyraCtrl {
   view: View,
-  export: (internal: boolean) => Spec,
+  export: (internal: boolean, preview?: boolean) => Spec,
   manipulators: () => Spec,
   parse: (el: string) => Promise<Runtime>,
   update: () => void

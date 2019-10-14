@@ -1,12 +1,14 @@
-import {Record, RecordOf} from 'immutable';
+import {Record, RecordOf, List} from 'immutable';
 import {GroupMark} from 'vega-typings';
 import {LyraMarkMeta} from '../Mark';
+import {InteractionRecord} from '../Interaction';
 // import {store} from '../../';
 
 const getInVis = require('../../../util/immutable-utils').getInVis;
 
 export type LyraGroupMark = {
   _manualLayout: boolean;
+  _interactions: number[] // array of IDs of InteractionRecords
 } & LyraMarkMeta & GroupMark;
 
 export const Group = Record<LyraGroupMark>({
@@ -14,6 +16,7 @@ export const Group = Record<LyraGroupMark>({
   _parent: null,
   _vlUnit: null,
   _manualLayout: false,
+  _interactions: [],
   type: 'group',
   name: null,
   from: null,
