@@ -8,7 +8,7 @@ import {Footer} from './Footer';
 import {InspectorSidebar} from './InspectorSidebar';
 import {PipelinesSidebar} from './PipelinesSidebar';
 import {Toolbar} from './Toolbar';
-import InteractionPreviewController from './interactions/InteractionPreviewController';
+import InteractionPreviewContainer from './interactions/InteractionPreviewContainer';
 
 // React requires you only have one wrapper element called in your provider
 module.exports = (window as any).ui = ReactDOM.render(
@@ -35,10 +35,10 @@ module.exports = (window as any).ui = ReactDOM.render(
   document.querySelector('.chrome-container')
 );
 
-// React requires you only have one wrapper element called in your provider
+// TODO: not hardcode the group name
 ReactDOM.render(
   <Provider store={store}>
-    <InteractionPreviewController group="Group_1"></InteractionPreviewController>
+    <InteractionPreviewContainer></InteractionPreviewContainer>
   </Provider>,
-  document.querySelector('.interaction-preview')
+  document.querySelector('.interaction-preview-container')
 );

@@ -12,8 +12,9 @@ const listeners = require('../../ctrl/listeners');
 
 interface OwnProps {
   id: string,
-  group: string, // name of group mark (view) this preview is attached to,
-  spec: Spec
+  groupName: string, // name of group mark (view) this preview is attached to,
+  spec: Spec,
+  onClick: () => void
 }
 interface OwnState {
 }
@@ -22,10 +23,6 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
 
   constructor(props) {
     super(props);
-
-    this.state = {
-
-    };
   }
 
   private view;
@@ -33,7 +30,7 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   public componentDidMount() {
     this.view = new View(parse(this.props.spec), {
       renderer:  'svg',  // renderer (canvas or svg)
-      container: `#${this.props.group}-${this.props.id}`   // parent DOM container
+      container: `#${this.props.groupName}-${this.props.id}`   // parent DOM container
     });
     this.view.width(100);
     this.view.height(100);
@@ -50,14 +47,14 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
 
   public setPreviewSignal(name, value) {
     if (this.view) {
-      listeners.setSignalInGroup(this.view, this.props.group, name, value);
+      listeners.setSignalInGroup(this.view, this.props.groupName, name, value);
     }
   }
 
   public render() {
 
     return (
-      <div id={`${this.props.group}-${this.props.id}`}></div>
+      <div id={`${this.props.groupName}-${this.props.id}`} onClick={this.props.onClick}></div>
     );
   }
 

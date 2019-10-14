@@ -638,25 +638,33 @@ export function editSignalsForPreview(sceneSpec, groupName, signals) {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      markSpec.signals = markSpec.signals.map(signal => {
-        const match = signals.filter(s => s.name === signal.name);
-        return match.length ? match[0] : signal;
-      });
+      markSpec.signals = editSignals(markSpec.signals, signals.concat([
+        {
+          name: "width",
+          init: "100"
+        },
+        {
+          name: "height",
+          init: "100"
+        }
+      ]));
     }
     return markSpec;
   });
   return sceneUpdated;
 }
 
+export function editSignals(specSignals, interactionSignals) {
+  return specSignals.map(signal => {
+    const match = interactionSignals.filter(s => s.name === signal.name);
+    return match.length ? match[0] : signal;
+  }).concat(interactionSignals.filter(signal => {
+    const match = specSignals.filter(s => s.name === signal.name);
+    return match.length === 0;
+  }));
+}
+
 const baseSignals = [
-  {
-    name: "width",
-    init: "100"
-  },
-  {
-    name: "height",
-    init: "100"
-  },
   {
     name: "brush_x",
     init: "[0, 0]"

@@ -2,13 +2,14 @@ import {extend, isArray, isObject, isString, Mark, Spec} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
 import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
+import {InteractionRecord} from '../store/factory/Interaction';
 import {GroupRecord} from '../store/factory/marks/Group';
 import {input} from '../util/dataset-utils';
 import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {signalLookup} from '../util/signal-lookup';
 import manipulators from './manipulators';
-import demonstrations from './demonstrations';
+import demonstrations, {intervalPreviewDefs, pointPreviewDefs, mappingPreviewDefs, editSignals} from './demonstrations';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -30,37 +31,40 @@ let counts = duplicate(SPEC_COUNT);
  * removed (e.g., converting property signal references to actual values). When
  * true, additional mark specifications are also added corresponding to the
  * direct-manipulation interactors (handles, connectors, etc.).
+ * @param  {boolean} [preview=false] Should interaction definitions be removed
+ * (so that they can be overwritten to display interaction previews).
  * @returns {Object} A Vega specification.
  */
-export function exporter(internal: boolean = false): Spec {
+export function exporter(internal: boolean = false, preview: boolean = false): Spec {
   const state = store.getState();
   const int = internal === true;
+  const prev = preview === true;
 
   counts = duplicate(SPEC_COUNT);
 
-  const spec: Spec = exporter.scene(state, int);
-  spec.data = exporter.pipelines(state, int);
+  const spec: Spec = exporter.scene(state, int, prev);
+  spec.data = exporter.pipelines(state, int, prev);
   // spec.background = 'white';
-
+  console.log(spec);
   return spec;
 }
 
-exporter.pipelines = function(state: State, internal: boolean) {
+exporter.pipelines = function(state: State, internal: boolean, preview: boolean) {
   const pipelines = getInVis(state, 'pipelines')
     .valueSeq()
     .toJS();
   return pipelines.reduce(function(spec, pipeline) {
-    spec.push(exporter.dataset(state, internal, pipeline._source));
+    spec.push(exporter.dataset(state, internal, preview, pipeline._source));
 
     const aggrs = pipeline._aggregates;
     for (const key in aggrs) {
-      spec.push(exporter.dataset(state, internal, aggrs[key]));
+      spec.push(exporter.dataset(state, internal, preview, aggrs[key]));
     }
     return spec;
   }, []);
 };
 
-exporter.dataset = function(state: State, internal: boolean, id: number) {
+exporter.dataset = function(state: State, internal: boolean, preview: boolean, id: number) {
   const dataset = getInVis(state, 'datasets.' + id).toJS(),
     spec = clean(duplicate(dataset), internal),
     values = input(id),
@@ -111,9 +115,9 @@ exporter.sort = function(dataset) {
   };
 };
 
-exporter.scene = function(state: State, internal: boolean): Mark {
+exporter.scene = function(state: State, internal: boolean, preview: boolean): Mark {
   const sceneId = state.getIn(['vis', 'present', 'scene', '_id']);
-  let spec = exporter.group(state, internal, sceneId);
+  let spec = exporter.group(state, internal, preview, sceneId);
 
   if (internal) {
     spec = spec[0];
@@ -127,7 +131,7 @@ exporter.scene = function(state: State, internal: boolean): Mark {
   return demonstrations(spec, state);
 };
 
-exporter.mark = function(state: State, internal: boolean, id: number) {
+exporter.mark = function(state: State, internal: boolean, preview: boolean, id: number) {
   const mark = getInVis(state, 'marks.' + id).toJS(),
     spec = clean(duplicate(mark), internal),
     up = mark.encode.update,
@@ -185,9 +189,9 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
   return spec;
 };
 
-exporter.group = function(state: State, internal: boolean, id: number) {
+exporter.group = function(state: State, internal: boolean, preview: boolean, id: number) {
   const mark: GroupRecord = getInVis(state, `marks.${id}`),
-    spec = exporter.mark(state, internal, id),
+    spec = exporter.mark(state, internal, preview, id),
     group = internal ? spec[0] : spec;
 
   ['scale', 'mark', 'axe', 'legend'].forEach(function(childType) {
@@ -199,8 +203,8 @@ exporter.group = function(state: State, internal: boolean, id: number) {
       .map(cid => {
         const child = getInVis(state, `${storePath}.${cid}`);
         return !child ? null :
-          exporter[child.type] ? exporter[child.type](state, internal, cid) :
-          exporter[childType]  ? exporter[childType](state, internal, cid) :
+          exporter[child.type] ? exporter[child.type](state, internal, preview, cid) :
+          exporter[childType]  ? exporter[childType](state, internal, preview, cid) :
           clean(duplicate(child.toJS()), internal);
       })
       .reduce((children, child) => {
@@ -214,20 +218,59 @@ exporter.group = function(state: State, internal: boolean, id: number) {
       }, []);
   });
 
-  // Add width/height signals so that nested scales span correctly.
   if (mark.name !== 'Scene') {
+    // Add width/height signals so that nested scales span correctly.
     group.signals = group.signals || [];
     group.signals.push(
       {name: 'width', value: groupSize(mark, 'x')},
       {name: 'height', value: groupSize(mark, 'y')},
     );
+    // Add interaction signals
+    if (!preview) {
+      const interactions = mark._interactions;
+      console.log('not preview ', interactions);
+      if (interactions) {
+        interactions.forEach((interactionId: number) => {
+          const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+          const interactionType = interaction.get('interactionType');
+          const mappingType = interaction.get('mappingType');
+          console.log('an interaction ', interactionType, mappingType);
+          if (interactionType) {
+            const intervalMatches = intervalPreviewDefs.filter((def) => def.id === interactionType);
+            const isDemonstratingInterval = intervalMatches.length > 0;
+            if (isDemonstratingInterval) {
+              group.signals = editSignals(group.signals, intervalMatches[0].signals);
+              // group.signals = group.signals.concat(intervalMatches[0].signals);
+              console.log('pushed signals ', intervalMatches[0].signals);
+            }
+            else {
+              const pointMatches = pointPreviewDefs.filter((def) => def.id === interactionType);
+              if (pointMatches.length) {
+                group.signals = editSignals(group.signals, pointMatches[0].signals);
+                // group.signals = group.signals.concat(pointMatches[0].signals);
+                console.log('pushed signals ', pointMatches[0].signals);
+              }
+            }
+            if (mappingType) {
+              const mappingDefs = mappingPreviewDefs(isDemonstratingInterval);
+              const mappingMatches = mappingDefs.filter((def) => def.id === mappingType);
+              if (mappingMatches.length) {
+                // TODO(jzong): have to find the correct mark inside of this group, and apply the properties
+                // mappingMatches[0].properties
+              }
+            }
+          }
+        });
+        console.log(group.signals);
+      }
+    }
   }
 
   return spec;
 };
 
-exporter.area = function(state: State, internal: boolean, id: number) {
-  const spec = exporter.mark(state, internal, id),
+exporter.area = function(state: State, internal: boolean, preview: boolean, id: number) {
+  const spec = exporter.mark(state, internal, preview, id),
     area = internal ? spec[0] : spec,
     update = area.encode.update;
 
@@ -247,8 +290,8 @@ exporter.area = function(state: State, internal: boolean, id: number) {
   return spec;
 };
 
-exporter.line = function(state: State, internal: boolean, id: number) {
-  const spec = exporter.mark(state, internal, id),
+exporter.line = function(state: State, internal: boolean, preview: boolean, id: number) {
+  const spec = exporter.mark(state, internal, preview, id),
     line = internal ? spec[0] : spec,
     update = line.encode.update;
 
@@ -262,7 +305,7 @@ exporter.line = function(state: State, internal: boolean, id: number) {
   return spec;
 };
 
-exporter.scale = function(state: State, internal: boolean, id: number) {
+exporter.scale = function(state: State, internal: boolean, preview: boolean, id: number) {
   const scale = getInVis(state, 'scales.' + id).toJS(),
     spec = clean(duplicate(scale), internal);
 
@@ -285,7 +328,7 @@ exporter.scale = function(state: State, internal: boolean, id: number) {
   return spec;
 };
 
-exporter.axe = exporter.legend = function(state: State, internal: boolean, id: number) {
+exporter.axe = exporter.legend = function(state: State, internal: boolean, preview: boolean, id: number) {
   const guide = getInVis(state, 'guides.' + id).toJS(),
     spec = clean(duplicate(guide), internal),
     gtype = guide._gtype,

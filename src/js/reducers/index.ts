@@ -11,6 +11,7 @@ import {sceneReducer as scene} from './sceneReducer';
 import {signalsReducer as signals} from './signalsReducer';
 import {invalidateVegaReducer as vega} from './vegaReducer';
 import {walkthroughReducer as walkthrough} from './walkthroughReducer';
+import {interactionsReducer as interactions} from './interactionsReducer';
 
 // order matters here
 export default combineReducers({
@@ -21,7 +22,8 @@ export default combineReducers({
     datasets,
     scales,
     guides,
-    marks
+    marks,
+    interactions
   })),
   vega,
   inspector,

@@ -22,7 +22,6 @@ import transit from '../util/transit-immutable';
 const serializer = transit.withRecords([SymbolRecord, Area, Line, Rect, Text, Group, Scene, Column, Dataset, Axis, Legend, Hints, Inspector, Pipeline, Signal, VegaReparse, Walkthrough],
   (name, value) => {
     // reader
-    console.log('HIIIIIIIIII', name, value);
     switch (name) {
       case 'LyraScale':
         return Scale(value);
@@ -31,98 +30,97 @@ const serializer = transit.withRecords([SymbolRecord, Area, Line, Rect, Text, Gr
     }
   });
 
-const actionTimeoutMs = 50;
+const actionTimeoutMs = 10;
 
 const RecordMode = 'rec';
 const ReplayMode = 'replay';
 
 // gets all actions stored in localStorage under the given id
 const getActions = (id: string) => {
-    const item = window.localStorage.getItem(id);
-    // const parseIfPresent = item ? (JSON.parse(item) as Action[]) : null
-    const parseIfPresent = item ? (serializer.fromJSON(item) as AnyAction[]) : null
-    return parseIfPresent;
+  const item = window.localStorage.getItem(id);
+  // const parseIfPresent = item ? (JSON.parse(item) as Action[]) : null
+  const parseIfPresent = item ? (serializer.fromJSON(item) as AnyAction[]) : null
+  return parseIfPresent;
 };
 
 // returns a function that adds the given action to an array
 // stored in localStorage under the given id
 const storeAction = (id: string) => (action: AnyAction) => {
-    const items = getActions(id) || [];
-    items.push(action);
-    console.log('storing ', action);
-    // window.localStorage.setItem(id, JSON.stringify(items));
-    window.localStorage.setItem(id, serializer.toJSON(items));
+  const items = getActions(id) || [];
+  items.push(action);
+  // window.localStorage.setItem(id, JSON.stringify(items));
+  window.localStorage.setItem(id, serializer.toJSON(items));
 };
 
 // takes an array of actions, and returns a function that accepts
 // a callback function. This callback will be called with the action as
 // param in the same intervall that the actions were stored.
 const replayer = (actions: AnyAction[]) => {
-    const iterator = actions[Symbol.iterator]();
-    const eachAction = (callback) => {
-        const { done, value } = iterator.next();
-        if (done) {
-            return;
-        }
+  const iterator = actions[Symbol.iterator]();
+  const eachAction = (callback) => {
+    const { done, value } = iterator.next();
+    if (done) {
+      return;
+    }
 
-        const action = value;
-        console.log('replaying ', action);
+    const action = value;
 
-        setTimeout(() => {
-            callback(action);
-            eachAction(callback);
-        }, actionTimeoutMs);
-    };
+    setTimeout(() => {
+      callback(action);
+      eachAction(callback);
+    }, actionTimeoutMs);
+  };
 
-    return eachAction;
+  return eachAction;
 };
 
 // eslint-disable-next-line
 const recordMddleware = (storeAction: (action: AnyAction) => void) => (store: Store) => {
-    return next => (action: AnyAction) => {
-        storeAction(action);
-        return next(action);
-    };
+  return next => (action: AnyAction) => {
+    storeAction(action);
+    return next(action);
+  };
 };
 
 const replaydMddleware = onActionReplay => (store: Store) => {
-    onActionReplay((action) => {
-        store.dispatch(action);
-    });
+  onActionReplay((action) => {
+    store.dispatch(action);
+  });
 
-    return next => action => next(action);
+  return next => action => next(action);
 };
 
 // eslint-disable-next-line
 const noActionMiddleware = (store: Store) => next => action => next(action);
 
 const getQueryStringOptions = () => {
-    const { record, replay } = parse(window.location.search);
-    if (!!record || record === null) {
-        return { mode: RecordMode, id: record || '' };
-    }
-    if (!!replay || replay === null) {
-        return { mode: ReplayMode, id: replay || '' };
-    }
-    return { mode: '', id: '' };
+  const { record, replay } = parse(window.location.search);
+  if (!!record || record === null) {
+    return { mode: RecordMode, id: record || '' };
+  }
+  if (!!replay || replay === null) {
+    return { mode: ReplayMode, id: replay || '' };
+  }
+  return { mode: '', id: '' };
 };
 
 export default function reactRecNReplay(options = getQueryStringOptions()) {
-    const { mode, id } = options;
+  const { mode, id } = options;
 
-    const storageId = `http://reactRecNReplay/v1/${id}`;
-    if (mode === RecordMode) {
-        return recordMddleware(storeAction(storageId));
+  const storageId = `http://reactRecNReplay/v1/${id}`;
+  if (mode === RecordMode) {
+    return recordMddleware(storeAction(storageId));
+  }
+
+  if (mode === ReplayMode) {
+    const actions = getActions(storageId);
+    console.log(actions);
+    if (actions) {
+      return replaydMddleware(replayer(actions));
     }
+    // eslint-disable-next-line
+    console.warn(`No actions with id=${id} found to replay!`);
+  }
 
-    if (mode === ReplayMode) {
-        const actions = getActions(storageId);
-        if (actions) {
-            return replaydMddleware(replayer(actions));
-        }
-        // eslint-disable-next-line
-        console.warn(`No actions with id=${id} found to replay!`);
-    }
-
-    return noActionMiddleware;
+  return noActionMiddleware;
 }
