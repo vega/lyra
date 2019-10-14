@@ -128,7 +128,7 @@ exporter.scene = function(state: State, internal: boolean, preview: boolean): Ma
   delete spec.from;
   delete spec.encode;
 
-  return demonstrations(spec, state);
+  return spec;
 };
 
 exporter.mark = function(state: State, internal: boolean, preview: boolean, id: number) {
@@ -225,6 +225,8 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
       {name: 'width', value: groupSize(mark, 'x')},
       {name: 'height', value: groupSize(mark, 'y')},
     );
+    // Add demonstrations
+    demonstrations(group, state);
     // Add interaction signals
     if (!preview) {
       const interactions = mark._interactions;

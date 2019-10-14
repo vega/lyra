@@ -9,32 +9,27 @@ import * as React from 'react';
 import {InteractionPreview as InteractionPreviewClass} from "../components/interactions/InteractionPreview";
 import duplicate from "../util/duplicate";
 
-export default function demonstrations(sceneSpec, state: State) {
-  const sceneUpdated = duplicate(sceneSpec);
-  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
-    if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
-      const xScaleName = getScaleNameFromAxisRecords(state, 'x');
-      const xFieldName = getFieldFromScaleRecordName(state, xScaleName);
-      const yScaleName = getScaleNameFromAxisRecords(state, 'y');
-      const yFieldName = getFieldFromScaleRecordName(state, yScaleName);
+export default function demonstrations(groupSpec, state: State) {
+  if (groupSpec.name) { // don't touch manipulators, which don't have names
+    const xScaleName = getScaleNameFromAxisRecords(state, 'x');
+    const xFieldName = getFieldFromScaleRecordName(state, xScaleName);
+    const yScaleName = getScaleNameFromAxisRecords(state, 'y');
+    const yFieldName = getFieldFromScaleRecordName(state, yScaleName);
 
-      if (!(xScaleName && xFieldName && yScaleName && yFieldName)) {
-        // cannot currently demonstrate
-        // likely the user has not created scales yet
-        return markSpec;
-      }
-
-      return addMarksToGroup(addSignalsToGroup(markSpec, {xScaleName, xFieldName, yScaleName, yFieldName}));
+    if (!(xScaleName && xFieldName && yScaleName && yFieldName)) {
+      // cannot currently demonstrate
+      // likely the user has not created scales yet
+      return groupSpec;
     }
-    return markSpec;
-  });
-  return sceneUpdated;
+
+    return addMarksToGroup(addSignalsToGroup(groupSpec, {xScaleName, xFieldName, yScaleName, yFieldName}));
+  }
+  return groupSpec;
 }
 
 function addMarksToGroup(groupSpec: GroupMark): GroupMark {
-  const groupUpdated = duplicate(groupSpec);
-  const marks = groupUpdated.marks || (groupUpdated.marks = []);
-  groupUpdated.marks = [...marks,
+  const marks = groupSpec.marks || (groupSpec.marks = []);
+  groupSpec.marks = [...marks,
     {
       "name": "brush_brush_bg",
       "type": "rect",
@@ -148,14 +143,13 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
       }
     }
   ];
-  return groupUpdated;
+  return groupSpec;
 }
 
 function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
   const {xScaleName, xFieldName, yScaleName, yFieldName} = names;
-  const groupUpdated = duplicate(groupSpec);
-  const signals = groupUpdated.signals || (groupUpdated.signals = []);
-  groupUpdated.signals = [...signals,
+  const signals = groupSpec.signals || (groupSpec.signals = []);
+  groupSpec.signals = [...signals,
     {
       "name": "lyra_brush_x",
       "update": "brush_x"
@@ -581,14 +575,14 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     }
   ];
 
-  const data = groupUpdated.data || (groupUpdated.data = []);
-  groupUpdated.data = [...data,
+  const data = groupSpec.data || (groupSpec.data = []);
+  groupSpec.data = [...data,
     {"name": "brush_store"},
     {"name": "grid_store"},
     {"name": "points_store"},
   ];
 
-  return groupUpdated;
+  return groupSpec;
 }
 
 export function getScaleNameFromAxisRecords(state: State, axisType: 'x' | 'y'): string {
@@ -638,16 +632,7 @@ export function editSignalsForPreview(sceneSpec, groupName, signals) {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      markSpec.signals = editSignals(markSpec.signals, signals.concat([
-        {
-          name: "width",
-          init: "100"
-        },
-        {
-          name: "height",
-          init: "100"
-        }
-      ]));
+      markSpec.signals = editSignals(markSpec.signals, signals.concat(baseSignals));
     }
     return markSpec;
   });
@@ -665,6 +650,14 @@ export function editSignals(specSignals, interactionSignals) {
 }
 
 const baseSignals = [
+  {
+    name: "width",
+    init: "100"
+  },
+  {
+    name: "height",
+    init: "100"
+  },
   {
     name: "brush_x",
     init: "[0, 0]"
@@ -698,12 +691,12 @@ export const intervalPreviewDefs: LyraInteractionPreviewDef[] = [
   {
     id: "brush",
     label: "Brush",
-    signals: baseSignals
+    signals: []
   },
   {
     id: "brush_y",
     label: "Brush (y-axis)",
-    signals: [...baseSignals,
+    signals: [
       {
         name: "lyra_brush_x",
         init: "[width, 0]",
@@ -721,7 +714,7 @@ export const intervalPreviewDefs: LyraInteractionPreviewDef[] = [
   {
     id: "brush_x",
     label: "Brush (x-axis)",
-    signals: [...baseSignals,
+    signals: [
       {
         name: "lyra_brush_y",
         init: "[0, height]",
@@ -742,7 +735,7 @@ export const pointPreviewDefs: LyraInteractionPreviewDef[] = [
   {
     id: "single",
     label: "Single point",
-    signals: [...baseSignals,
+    signals: [
       {
         "name": "points_modify",
         "update": "modify(\"points_store\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)"
@@ -752,7 +745,7 @@ export const pointPreviewDefs: LyraInteractionPreviewDef[] = [
   {
     id: "multi",
     label: "Multi point",
-    signals: baseSignals
+    signals: []
   },
 ]
 
@@ -782,7 +775,7 @@ export function mappingPreviewDefs(isDemonstratingInterval): LyraMappingPreviewD
     {
       id: "color",
       label: "Color",
-      signals: baseSignals,
+      // signals: baseSignals,
       properties: {
         "fill": [
           {
@@ -797,7 +790,7 @@ export function mappingPreviewDefs(isDemonstratingInterval): LyraMappingPreviewD
     {
       id: "opacity",
       label: "Opacity",
-      signals: baseSignals,
+      // signals: baseSignals,
       properties: {
         "fillOpacity": [
           {
@@ -812,7 +805,7 @@ export function mappingPreviewDefs(isDemonstratingInterval): LyraMappingPreviewD
     {
       id: "size",
       label: "Size",
-      signals: baseSignals,
+      // signals: baseSignals,
       properties: {
         "size": [
           {
