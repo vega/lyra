@@ -1,5 +1,4 @@
 import {Map, Record, RecordOf} from 'immutable';
-import {intervalPreviewDefs, pointPreviewDefs, mappingPreviewDefs} from '../../ctrl/demonstrations';
 
 export interface LyraInteraction {
   id: number;
@@ -9,7 +8,7 @@ export interface LyraInteraction {
 };
 
 export type LyraInteractionType = "brush" | "brush_y" | "brush_x" | "single" | "multi";
-export type LyraMappingType = "color" | "opacity" | "size";
+export type LyraMappingType = "color" | "opacity" | "size" | "text";
 
 export const Interaction = Record<LyraInteraction>({
   id: null,

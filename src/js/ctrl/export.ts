@@ -9,7 +9,7 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {signalLookup} from '../util/signal-lookup';
 import manipulators from './manipulators';
-import demonstrations, {intervalPreviewDefs, pointPreviewDefs, mappingPreviewDefs, editSignals} from './demonstrations';
+import demonstrations, {interactionPreviewDefs, mappingPreviewDefs, editSignals, editMarks} from './demonstrations';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -238,27 +238,24 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
           const mappingType = interaction.get('mappingType');
           console.log('an interaction ', interactionType, mappingType);
           if (interactionType) {
-            const intervalMatches = intervalPreviewDefs.filter((def) => def.id === interactionType);
+            const intervalMatches = interactionPreviewDefs(true, false).filter((def) => def.id === interactionType);
             const isDemonstratingInterval = intervalMatches.length > 0;
             if (isDemonstratingInterval) {
               group.signals = editSignals(group.signals, intervalMatches[0].signals);
-              // group.signals = group.signals.concat(intervalMatches[0].signals);
               console.log('pushed signals ', intervalMatches[0].signals);
             }
             else {
-              const pointMatches = pointPreviewDefs.filter((def) => def.id === interactionType);
+              const pointMatches = interactionPreviewDefs(false, true).filter((def) => def.id === interactionType);
               if (pointMatches.length) {
                 group.signals = editSignals(group.signals, pointMatches[0].signals);
-                // group.signals = group.signals.concat(pointMatches[0].signals);
                 console.log('pushed signals ', pointMatches[0].signals);
               }
             }
             if (mappingType) {
-              const mappingDefs = mappingPreviewDefs(isDemonstratingInterval);
+              const mappingDefs = mappingPreviewDefs(isDemonstratingInterval, group.marks);
               const mappingMatches = mappingDefs.filter((def) => def.id === mappingType);
               if (mappingMatches.length) {
-                // TODO(jzong): have to find the correct mark inside of this group, and apply the properties
-                // mappingMatches[0].properties
+                group.marks = editMarks(group.marks, mappingMatches[0]);
               }
             }
           }
