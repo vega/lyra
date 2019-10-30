@@ -1,13 +1,11 @@
-import {Axis, GroupMark, Scale, DataRef, MultiDataRef} from "vega";
-import {isSignalRef} from "vega-lite/build/src/vega.schema";
+import {GroupMark} from "vega";
 import {GuideRecord} from "../store/factory/Guide";
 import {Map} from 'immutable';
-import {ScaleRecord} from "../store/factory/Scale";
+import {ScaleRecord, LyraScale, Scale} from "../store/factory/Scale";
 import {State} from "../store";
 import {LyraInteractionPreviewDef, LyraMappingPreviewDef} from "../components/interactions/InteractionPreviewController";
-import * as React from 'react';
-import {InteractionPreview as InteractionPreviewClass} from "../components/interactions/InteractionPreview";
 import duplicate from "../util/duplicate";
+import {LyraMarkType} from "../store/factory/Mark";
 
 export default function demonstrations(groupSpec, state: State) {
   if (groupSpec.name) { // don't touch manipulators, which don't have names
@@ -31,7 +29,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
   const marks = groupSpec.marks || (groupSpec.marks = []);
   groupSpec.marks = [...marks,
     {
-      "name": "brush_brush_bg",
+      "name": "lyra_brush_brush_bg",
       "type": "rect",
       "clip": true,
       "encode": {
@@ -84,7 +82,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
       }
     },
     {
-      "name": "brush_brush",
+      "name": "lyra_brush_brush",
       "type": "rect",
       "clip": true,
       "encode": {
@@ -185,7 +183,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
             "source": "scope",
             "type": "mousedown",
             "filter": [
-              "!event.item || event.item.mark.name !== \"brush_brush\""
+              "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
             ]
           },
           "update": "[x(unit), x(unit)]"
@@ -200,7 +198,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
                 "source": "scope",
                 "type": "mousedown",
                 "filter": [
-                  "!event.item || event.item.mark.name !== \"brush_brush\""
+                  "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
                 ]
               },
               {
@@ -260,7 +258,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
             "source": "scope",
             "type": "mousedown",
             "filter": [
-              "!event.item || event.item.mark.name !== \"brush_brush\""
+              "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
             ]
           },
           "update": "[y(unit), y(unit)]"
@@ -275,7 +273,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
                 "source": "scope",
                 "type": "mousedown",
                 "filter": [
-                  "!event.item || event.item.mark.name !== \"brush_brush\""
+                  "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
                 ]
               },
               {
@@ -380,7 +378,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
             {
               "source": "scope",
               "type": "mousedown",
-              "markname": "brush_brush"
+              "markname": "lyra_brush_brush"
             }
           ],
           "update": "{x: x(unit), y: y(unit), extent_x: slice(lyra_brush_x), extent_y: slice(lyra_brush_y)}"
@@ -401,7 +399,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
                 {
                   "source": "scope",
                   "type": "mousedown",
-                  "markname": "brush_brush"
+                  "markname": "lyra_brush_brush"
                 },
                 {
                   "source": "window",
@@ -423,7 +421,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
               "source": "scope",
               "type": "wheel",
               "consume": true,
-              "markname": "brush_brush"
+              "markname": "lyra_brush_brush"
             }
           ],
           "update": "{x: x(unit), y: y(unit)}"
@@ -439,7 +437,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
               "source": "scope",
               "type": "wheel",
               "consume": true,
-              "markname": "brush_brush"
+              "markname": "lyra_brush_brush"
             }
           ],
           "force": true,
@@ -606,6 +604,45 @@ export function getFieldFromScaleRecordName(state: State, scaleName: string): st
   }).first(null);
 }
 
+export function getScaleTypeFromAxisRecords(state: State, axisType: 'x' | 'y'): ScaleSimpleType {
+  const guides: Map<string, GuideRecord> = state.getIn(['vis', 'present', 'guides']);
+  return guides.filter((axis) => {
+    return axis.get('_gtype') == 'axis' && axisType === 'x' && (axis.get('orient') === 'top' || axis.get('orient') === 'bottom') ||
+            axisType === 'y' && (axis.get('orient') === 'left' || axis.get('orient') === 'right');
+  }).map((axis) => {
+    const type = state.getIn(['vis', 'present', 'scales', axis.get('scale'), 'type']);
+    return scaleTypeSimple(type);
+  }).first(null);
+}
+
+export namespace ScaleSimpleType {
+  export const CONTINUOUS = 'CONTINUOUS';
+  export const DISCRETE = 'DISCRETE';
+}
+export type ScaleSimpleType = 'CONTINUOUS' | 'DISCRETE';
+
+function scaleTypeSimple(scaleType): ScaleSimpleType {
+  switch (scaleType) {
+    case 'linear':
+    case 'log':
+    case 'pow':
+    case 'sqrt':
+    case 'symlog':
+    case 'time':
+    case 'utc':
+    case 'sequential':
+      return ScaleSimpleType.CONTINUOUS;
+    case 'ordinal':
+    case 'band':
+    case 'point':
+    case 'quantile':
+    case 'quantize':
+    case 'threshold':
+    case 'bin-ordinal':
+      return ScaleSimpleType.DISCRETE;
+  }
+}
+
 export function cleanSpecForPreview(sceneSpec) {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
@@ -687,135 +724,199 @@ const baseSignals = [
     init: "null"
   }
 ];
-export const intervalPreviewDefs: LyraInteractionPreviewDef[] = [
-  {
-    id: "brush",
-    label: "Brush",
-    signals: []
-  },
-  {
-    id: "brush_y",
-    label: "Brush (y-axis)",
-    signals: [
-      {
-        name: "lyra_brush_x",
-        init: "[width, 0]",
-        on: [
+
+export function interactionPreviewDefs(isDemonstratingInterval: boolean,
+                                       isDemonstratingPoint: boolean,
+                                       marks?: any[],
+                                       xScaleType?: ScaleSimpleType,
+                                       yScaleType?: ScaleSimpleType): LyraInteractionPreviewDef[] {
+  let defs = [];
+  const optionalParams = Boolean(marks || xScaleType || yScaleType);
+  const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
+  if (isDemonstratingInterval) {
+    const intervalDefs = {
+      brush: defs.push({
+        id: "brush",
+        label: "Brush",
+        signals: []
+      }),
+      brush_y: {
+        id: "brush_y",
+        label: "Brush (y-axis)",
+        signals: [
           {
-            "events": {
-              "signal": "brush_x"
-            },
-            "update": "[width, 0]"
+            name: "lyra_brush_x",
+            init: "[width, 0]",
+            on: [
+              {
+                "events": {
+                  "signal": "brush_x"
+                },
+                "update": "[width, 0]"
+              }
+            ]
+          }
+        ]
+      },
+      brush_x: {
+        id: "brush_x",
+        label: "Brush (x-axis)",
+        signals: [
+          {
+            name: "lyra_brush_y",
+            init: "[0, height]",
+            on: [
+              {
+                "events": {
+                  "signal": "brush_y"
+                },
+                "update": "[0, height]"
+              }
+            ]
           }
         ]
       }
-    ]
-  },
-  {
-    id: "brush_x",
-    label: "Brush (x-axis)",
-    signals: [
-      {
-        name: "lyra_brush_y",
-        init: "[0, height]",
-        on: [
-          {
-            "events": {
-              "signal": "brush_y"
-            },
-            "update": "[0, height]"
-          }
-        ]
+    }
+    if (markTypes.has('symbol')) {
+      defs.push(intervalDefs.brush);
+      defs.push(intervalDefs.brush_y);
+      defs.push(intervalDefs.brush_x);
+    }
+    if (markTypes.has('rect')) {
+      if (xScaleType === ScaleSimpleType.DISCRETE) {
+        defs.push(intervalDefs.brush_x);
       }
-    ]
+      if (yScaleType === ScaleSimpleType.DISCRETE) {
+        defs.push(intervalDefs.brush_y);
+      }
+    }
+    if (markTypes.has('area')) {
+      const areaMark = marks.filter(mark => mark.type === 'area')[0];
+      if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
+        // TODO(jzong) what if orient is not in update but is in one of the other ones?
+        if (areaMark.encode.update.orient.value === 'vertical') {
+          defs.push(intervalDefs.brush_x);
+        }
+        else if (areaMark.encode.update.orient.value === 'horizontal') {
+          defs.push(intervalDefs.brush_y);
+        }
+      }
+    }
+    if (markTypes.has('line')) {
+      // ?
+    }
+    defs = [... new Set(defs)];
   }
-]
+  if (isDemonstratingPoint) {
+    defs = defs.concat([{
+      id: "single",
+      label: "Single point",
+      signals: [
+        {
+          "name": "points_modify",
+          "update": "modify(\"points_store\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)"
+        }
+      ]
+    },
+    {
+      id: "multi",
+      label: "Multi point",
+      signals: []
+    }]);
+  }
+  return defs;
+}
 
-export const pointPreviewDefs: LyraInteractionPreviewDef[] = [
-  {
-    id: "single",
-    label: "Single point",
-    signals: [
-      {
-        "name": "points_modify",
-        "update": "modify(\"points_store\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)"
-      }
-    ]
-  },
-  {
-    id: "multi",
-    label: "Multi point",
-    signals: []
-  },
-]
-
-
-export function editMarksForPreview(sceneSpec, groupName, properties) {
+export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraMappingPreviewDef) {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      if (markSpec.marks.length && markSpec.marks[0].type === 'symbol') { //TODO(jzong) make this less hardcoded
-        for (let [key, value] of Object.entries(properties)) {
-          const oldValue = markSpec.marks[0].encode.update[key];
-          markSpec.marks[0].encode.update[key] = value
-          // TODO(jzong) write more general-purpose way to preserve old properties when adding the conditional
-          if  (oldValue.value) {
-            markSpec.marks[0].encode.update[key][0].value = oldValue.value;
-          }
-        }
+      if (preview.properties.size) {
+        // make symbol previews look nicer
+        preview.properties.size[1].value /= 5;
       }
+      markSpec.marks = editMarks(markSpec.marks, preview);
     }
     return markSpec;
   });
   return sceneUpdated;
 }
 
-export function mappingPreviewDefs(isDemonstratingInterval): LyraMappingPreviewDef[] {
-  return [
-    {
-      id: "color",
-      label: "Color",
-      // signals: baseSignals,
-      properties: {
-        "fill": [
-          {
-            "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                              "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
-            "value": "orange"
-          },
-          {"value": "grey"}
-        ],
+export function editMarks(marks: any[], def: LyraMappingPreviewDef) {
+  const interactionProperties = def.properties;
+  const markType = def.markType;
+  for (let mark of marks) {
+    if (mark.type === 'group' || mark.name.indexOf('lyra') === 0) continue;
+    if (!markType || mark.type === markType) { // TODO(jzong) i wouldn't be surprised if this condition is wrong when there's multiple marks
+      for (let [key, value] of Object.entries(interactionProperties)) {
+        const oldValue = mark.encode.update[key];
+        mark.encode.update[key] = value;
+        // preserve old properties when adding the conditional. see: BaseValueRef for types
+        if (oldValue.value) {
+          mark.encode.update[key][0].value = oldValue.value;
+        }
+        else if (oldValue.signal) {
+          delete mark.encode.update[key][0].value;
+          mark.encode.update[key][0].signal = oldValue.signal;
+        }
+        else if (oldValue.field) {
+          delete mark.encode.update[key][0].value;
+          mark.encode.update[key][0].field = oldValue.field;
+        }
       }
-    },
-    {
-      id: "opacity",
-      label: "Opacity",
-      // signals: baseSignals,
-      properties: {
-        "fillOpacity": [
-          {
-            "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                              "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
-            "value": "1"
-          },
-          {"value": "0.2"}
-        ],
-      }
-    },
-    {
-      id: "size",
-      label: "Size",
-      // signals: baseSignals,
-      properties: {
-        "size": [
-          {
-            "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                              "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
-            "value": "10"
-          },
-          {"value": "1"}
-        ],
-      }
-    },
-  ];
+    }
+  }
+  return marks;
+}
+
+export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[]): LyraMappingPreviewDef[] {
+  let defs: LyraMappingPreviewDef[] = [{
+    id: "color",
+    label: "Color",
+    properties: {
+      "fill": [
+        {
+          "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
+                                            "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
+          "value": "orange"
+        },
+        {"value": "grey"}
+      ],
+    }
+  },
+  {
+    id: "opacity",
+    label: "Opacity",
+    properties: {
+      "fillOpacity": [
+        {
+          "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
+                                            "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
+          "value": "1"
+        },
+        {"value": "0.2"}
+      ],
+    }
+  }];
+  const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
+  if (markTypes.has('symbol')) {
+    defs = defs.concat([
+      {
+        id: "size",
+        label: "Size",
+        markType: "symbol",
+        properties: {
+          "size": [
+            {
+              "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
+                                                "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
+              "value": "10"
+            },
+            {"value": "5"}
+          ],
+        }
+      },
+    ]);
+  }
+  return defs;
 }
