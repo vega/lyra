@@ -70,12 +70,15 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
   const isParsing = state.getIn(['vega', 'isParsing']);
 
-  const canDemonstrate = Boolean(!isParsing && ctrl.view && xScaleName && yScaleName && xFieldName && yFieldName);
+  // const canDemonstrate = Boolean(!isParsing && ctrl.view && (xScaleName && xFieldName || yScaleName && yFieldName));
+  const canDemonstrate = Boolean(!isParsing && ctrl.view && xScaleName && xFieldName && yScaleName && yFieldName);
 
   const groupRecord = state.getIn(['vis', 'present', 'marks', String(ownProps.groupId)]);
 
   const marksOfGroup = groupRecord.marks.map((markId) => {
     return state.getIn(['vis', 'present', 'marks', String(markId)]).toJS();
+  }).filter((mark) => {
+    return !(mark.type === 'group' || mark.name.indexOf('lyra') === 0);
   });
 
   const interactionRecordId = groupRecord.get('_interactions').length ? groupRecord._interactions[0] : null; //TODO(jzong) this just grabs the first one. eventually support multiple interactions per group
@@ -205,7 +208,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   }
 
   private onMainViewIntervalSignal(name, value) {
-    console.log(name, value);
     this.mainViewSignalValues[name] = value;
     const isDemonstratingInterval = this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&

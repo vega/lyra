@@ -732,14 +732,13 @@ export function interactionPreviewDefs(isDemonstratingInterval: boolean,
                                        yScaleType?: ScaleSimpleType): LyraInteractionPreviewDef[] {
   let defs = [];
   const optionalParams = Boolean(marks || xScaleType || yScaleType);
-  const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
   if (isDemonstratingInterval) {
     const intervalDefs = {
-      brush: defs.push({
+      brush: {
         id: "brush",
         label: "Brush",
         signals: []
-      }),
+      },
       brush_y: {
         id: "brush_y",
         label: "Brush (y-axis)",
@@ -777,35 +776,41 @@ export function interactionPreviewDefs(isDemonstratingInterval: boolean,
         ]
       }
     }
-    if (markTypes.has('symbol')) {
-      defs.push(intervalDefs.brush);
-      defs.push(intervalDefs.brush_y);
-      defs.push(intervalDefs.brush_x);
+    if (!optionalParams) {
+      defs = Object.values(intervalDefs);
     }
-    if (markTypes.has('rect')) {
-      if (xScaleType === ScaleSimpleType.DISCRETE) {
+    else{
+      const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
+      if (markTypes.has('symbol')) {
+        defs.push(intervalDefs.brush);
+        defs.push(intervalDefs.brush_y);
         defs.push(intervalDefs.brush_x);
       }
-      if (yScaleType === ScaleSimpleType.DISCRETE) {
-        defs.push(intervalDefs.brush_y);
-      }
-    }
-    if (markTypes.has('area')) {
-      const areaMark = marks.filter(mark => mark.type === 'area')[0];
-      if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
-        // TODO(jzong) what if orient is not in update but is in one of the other ones?
-        if (areaMark.encode.update.orient.value === 'vertical') {
+      if (markTypes.has('rect')) {
+        if (xScaleType === ScaleSimpleType.DISCRETE) {
           defs.push(intervalDefs.brush_x);
         }
-        else if (areaMark.encode.update.orient.value === 'horizontal') {
+        if (yScaleType === ScaleSimpleType.DISCRETE) {
           defs.push(intervalDefs.brush_y);
         }
       }
+      if (markTypes.has('area')) {
+        const areaMark = marks.filter(mark => mark.type === 'area')[0];
+        if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
+          // TODO(jzong) what if orient is not in update but is in one of the other ones?
+          if (areaMark.encode.update.orient.value === 'vertical') {
+            defs.push(intervalDefs.brush_x);
+          }
+          else if (areaMark.encode.update.orient.value === 'horizontal') {
+            defs.push(intervalDefs.brush_y);
+          }
+        }
+      }
+      if (markTypes.has('line')) {
+        // ?
+      }
+      defs = [... new Set(defs)];
     }
-    if (markTypes.has('line')) {
-      // ?
-    }
-    defs = [... new Set(defs)];
   }
   if (isDemonstratingPoint) {
     defs = defs.concat([{
