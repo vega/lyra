@@ -139,6 +139,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   }
 
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState: OwnState) {
+    console.log(this.props, this.state)
     if (prevProps.vegaIsParsing && !this.props.vegaIsParsing) {
       const spec = cleanSpecForPreview(ctrl.export(false, true));
       // spec = resizeSpec(spec, 100, 100);
@@ -161,13 +162,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
         });
       });
     }
-    else if (prevProps.canDemonstrate && !this.props.canDemonstrate) {
-      if (ctrl.view) {
-        console.log('off signals');
-        this.offSignal('brush_x');
-        this.offSignal('brush_y');
-      }
-    }
 
     if (prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval ||
         prevState.isDemonstratingPoint !== this.state.isDemonstratingPoint) {
@@ -182,7 +176,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     }
   }
 
-  private signalHandlers = {};
   private mainViewSignalValues = {};
 
   private getInteractionPreviewDefs(): LyraInteractionPreviewDef[] {
@@ -218,6 +211,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   }
 
   private onMainViewIntervalSignal(name, value) {
+    console.log(name, value);
     this.mainViewSignalValues[name] = value;
     const isDemonstratingInterval = this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&
@@ -253,17 +247,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
 
   private onSignal(signalName, handler) {
-    if (!this.signalHandlers[signalName]) {
-      this.signalHandlers[signalName] = handler;
-      listeners.onSignalInGroup(ctrl.view, this.props.groupName, signalName, this.signalHandlers[signalName]);
-    }
-  }
-
-  private offSignal(signalName) {
-    if (this.signalHandlers[signalName]) {
-      listeners.offSignalInGroup(ctrl.view, this.props.groupName, signalName, this.signalHandlers[signalName]);
-      this.signalHandlers[signalName] = null;
-    }
+    listeners.onSignalInGroup(ctrl.view, this.props.groupName, signalName, handler);
   }
 
   private onClickInteractionPreview(previewId: LyraInteractionType) {
