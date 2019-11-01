@@ -130,6 +130,15 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     };
   }
 
+  public componentDidMount() {
+    // for debugging
+    (window as any).dumpSignals = () => {
+      for (let signalName of ['brush', 'lyra_brush_x', 'lyra_brush_y', 'brush_x', 'brush_y', 'points_tuple', 'points_toggle', 'datum', 'points']) {
+        console.log(signalName, listeners.getSignalInGroup(ctrl.view, this.props.groupName, signalName))
+      }
+    }
+  }
+
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState: OwnState) {
     if (prevProps.vegaIsParsing && !this.props.vegaIsParsing) {
       const spec = cleanSpecForPreview(ctrl.export(false, true));
@@ -140,6 +149,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     }
 
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
+      console.log('on signals');
       this.onSignal('brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal('brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal('points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
@@ -154,6 +164,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     }
     else if (prevProps.canDemonstrate && !this.props.canDemonstrate) {
       if (ctrl.view) {
+        console.log('off signals');
         this.offSignal('brush_x');
         this.offSignal('brush_y');
       }

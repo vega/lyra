@@ -1,7 +1,7 @@
 import {GroupMark} from "vega";
 import {GuideRecord} from "../store/factory/Guide";
 import {Map} from 'immutable';
-import {ScaleRecord, LyraScale, Scale} from "../store/factory/Scale";
+import {ScaleRecord} from "../store/factory/Scale";
 import {State} from "../store";
 import {LyraInteractionPreviewDef, LyraMappingPreviewDef} from "../components/interactions/InteractionPreviewController";
 import duplicate from "../util/duplicate";
@@ -14,18 +14,25 @@ export default function demonstrations(groupSpec, state: State) {
     const yScaleName = getScaleNameFromAxisRecords(state, 'y');
     const yFieldName = getFieldFromScaleRecordName(state, yScaleName);
 
-    if (!(xScaleName && xFieldName && yScaleName && yFieldName)) {
+    if (!(xScaleName && xFieldName || yScaleName && yFieldName)) {
       // cannot currently demonstrate
       // likely the user has not created scales yet
       return groupSpec;
     }
 
-    return addMarksToGroup(addSignalsToGroup(groupSpec, {xScaleName, xFieldName, yScaleName, yFieldName}));
+    const ifXElse = (e1, e2) => xScaleName && xFieldName ? e1 : e2;
+    const ifYElse = (e1, e2) => yScaleName && yFieldName ? e1 : e2;
+    const ifXY = (e1) => xScaleName && xFieldName && yScaleName && yFieldName ? e1 : '';
+
+    const names = {xScaleName, xFieldName, yScaleName, yFieldName, ifXElse, ifYElse, ifXY};
+
+    return addMarksToGroup(addSignalsToGroup(groupSpec, names), names);
   }
   return groupSpec;
 }
 
-function addMarksToGroup(groupSpec: GroupMark): GroupMark {
+function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
+  const {ifXElse, ifYElse, ifXY} = names;
   const marks = groupSpec.marks || (groupSpec.marks = []);
   groupSpec.marks = [...marks,
     {
@@ -43,37 +50,33 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
         },
         "update": {
           "x": [
-            {
+            Object.assign({
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "lyra_brush_x[0]"
-            },
+            }, ifXElse({"signal": "lyra_brush_x[0]"}, {"value": "0"})),
             {
               "value": 0
             }
           ],
           "y": [
-            {
+            Object.assign({
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "lyra_brush_y[0]"
-            },
+            }, ifYElse({"signal": "lyra_brush_y[0]"}, {"value": "0"})),
             {
               "value": 0
             }
           ],
           "x2": [
-            {
+            Object.assign({
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "lyra_brush_x[1]"
-            },
+            }, ifXElse({"signal": "lyra_brush_x[1]"}, {"signal": "width"})),
             {
               "value": 0
             }
           ],
           "y2": [
-            {
+            Object.assign({
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "lyra_brush_y[1]"
-            },
+            }, ifYElse({"signal": "lyra_brush_y[1]"}, {"signal": "height"})),
             {
               "value": 0
             }
@@ -93,44 +96,40 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
         },
         "update": {
           "x": [
-            {
+            Object.assign({
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "lyra_brush_x[0]"
-            },
+            }, ifXElse({"signal": "lyra_brush_x[0]"}, {"value": "0"})),
             {
               "value": 0
             }
           ],
           "y": [
-            {
+            Object.assign({
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "lyra_brush_y[0]"
-            },
+            }, ifYElse({"signal": "lyra_brush_y[0]"}, {"value": "0"})),
             {
               "value": 0
             }
           ],
           "x2": [
-            {
+            Object.assign({
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "lyra_brush_x[1]"
-            },
+            }, ifXElse({"signal": "lyra_brush_x[1]"}, {"signal": "width"})),
             {
               "value": 0
             }
           ],
           "y2": [
-            {
+            Object.assign({
               "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
-              "signal": "lyra_brush_y[1]"
-            },
+            }, ifYElse({"signal": "lyra_brush_y[1]"}, {"signal": "height"})),
             {
               "value": 0
             }
           ],
           "stroke": [
             {
-              "test": "lyra_brush_x[0] !== lyra_brush_x[1] && lyra_brush_y[0] !== lyra_brush_y[1]",
+              "test": ifXElse("lyra_brush_x[0] !== lyra_brush_x[1]", "") + ifXY(" && ") + ifYElse("lyra_brush_y[0] !== lyra_brush_y[1]", ""),
               "value": "white"
             },
             {
@@ -145,7 +144,7 @@ function addMarksToGroup(groupSpec: GroupMark): GroupMark {
 }
 
 function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
-  const {xScaleName, xFieldName, yScaleName, yFieldName} = names;
+  const {xScaleName, xFieldName, yScaleName, yFieldName, ifXElse, ifYElse, ifXY} = names;
   const signals = groupSpec.signals || (groupSpec.signals = []);
   groupSpec.signals = [...signals,
     {
@@ -213,7 +212,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
           "events": {
             "signal": "brush_scale_trigger"
           },
-          "update": `[scale(\"${xScaleName}\", brush_${xFieldName}[0]), scale(\"${xScaleName}\", brush_${xFieldName}[1])]`
+          "update": ifXElse(`[scale(\"${xScaleName}\", brush_${xFieldName}[0]), scale(\"${xScaleName}\", brush_${xFieldName}[1])]`, "[width, 0]")
         },
         {
           "events": {
@@ -239,15 +238,15 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       ]
     },
     {
-      "name": `brush_${xFieldName}`,
-      "on": [
+      "name": ifXElse(`brush_${xFieldName}`, "brush_x_field_undefined"),
+      "on": ifXElse([
         {
           "events": {
             "signal": "lyra_brush_x"
           },
           "update": `lyra_brush_x[0] === lyra_brush_x[1] ? null : invert(\"${xScaleName}\", lyra_brush_x)`
         }
-      ]
+      ], [])
     },
     {
       "name": "brush_y",
@@ -288,7 +287,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
           "events": {
             "signal": "brush_scale_trigger"
           },
-          "update": `[scale(\"${yScaleName}\", brush_${yFieldName}[0]), scale(\"${yScaleName}\", brush_${yFieldName}[1])]`
+          "update": ifYElse(`[scale(\"${yScaleName}\", brush_${yFieldName}[0]), scale(\"${yScaleName}\", brush_${yFieldName}[1])]`, "[0, height]")
         },
         {
           "events": {
@@ -314,30 +313,35 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       ]
     },
     {
-      "name": `brush_${yFieldName}`,
-      "on": [
+      "name": ifYElse(`brush_${yFieldName}`, "brush_y_field_undefined"),
+      "on": ifYElse([
         {
           "events": {
             "signal": "lyra_brush_y"
           },
           "update": `lyra_brush_y[0] === lyra_brush_y[1] ? null : invert(\"${yScaleName}\", lyra_brush_y)`
         }
-      ]
+      ], [])
     },
     {
       "name": "brush_scale_trigger",
       "value": {},
       "on": [
         {
-          "events": [
-            {
-              "scale": "x"
-            },
-            {
-              "scale": "y"
-            }
-          ],
-          "update": `(!isArray(brush_${xFieldName}) || (+invert(\"${xScaleName}\", lyra_brush_x)[0] === +brush_${xFieldName}[0] && +invert(\"${xScaleName}\", lyra_brush_x)[1] === +brush_${xFieldName}[1])) && (!isArray(brush_${yFieldName}) || (+invert(\"${yScaleName}\", lyra_brush_y)[0] === +brush_${yFieldName}[0] && +invert(\"${yScaleName}\", lyra_brush_y)[1] === +brush_${yFieldName}[1])) ? brush_scale_trigger : {}`
+          "events": [].concat(ifXElse([
+                      {
+                        "scale": "x"
+                      }
+                    ], [])).concat(ifYElse([
+                      {
+                        "scale": "y"
+                      }
+                    ], [])),
+          "update":
+            ifXElse(`(!isArray(brush_${xFieldName}) || (+invert(\"${xScaleName}\", lyra_brush_x)[0] === +brush_${xFieldName}[0] && +invert(\"${xScaleName}\", lyra_brush_x)[1] === +brush_${xFieldName}[1]))`, '') +
+            ifXY(" && ") +
+            ifYElse(`(!isArray(brush_${yFieldName}) || (+invert(\"${yScaleName}\", lyra_brush_y)[0] === +brush_${yFieldName}[0] && +invert(\"${yScaleName}\", lyra_brush_y)[1] === +brush_${yFieldName}[1]))`, '') +
+            ` ? brush_scale_trigger : {}`
         }
       ]
     },
@@ -347,27 +351,29 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
         {
           "events": [
             {
-              "signal": `brush_${xFieldName} || brush_${yFieldName}`
+              "signal": ifXElse(`brush_${xFieldName}`, "") + ifXY(" || ") + ifYElse(`brush_${yFieldName}`, "")
             }
           ],
-          "update": `brush_${xFieldName} && brush_${yFieldName} ? {unit: \"\", fields: tuple_fields, values: [brush_${xFieldName},brush_${yFieldName}]} : null`
+          "update": ifXElse(`brush_${xFieldName}`, "") + ifXY(" && ") + ifYElse(`brush_${yFieldName}`, "") + " ? {unit: \"\", fields: tuple_fields, values: [" +
+                        ifXElse(`brush_${xFieldName}`, "") + ifXY(",") + ifYElse(`brush_${yFieldName}`, "") + "]} : null"
         }
       ]
     },
     {
       "name": "tuple_fields",
-      "value": [
-        {
-          "field": xFieldName,
-          "channel": "x",
-          "type": "R"
-        },
-        {
-          "field": yFieldName,
-          "channel": "y",
-          "type": "R"
-        }
-      ]
+      "value": [].concat(ifXElse([
+          {
+            "field": xFieldName,
+            "channel": "x",
+            "type": "R"
+          }
+        ], [])).concat(ifYElse([
+          {
+            "field": yFieldName,
+            "channel": "y",
+            "type": "R"
+          }
+        ], []))
     },
     {
       "name": "brush_translate_anchor",
@@ -381,7 +387,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
               "markname": "lyra_brush_brush"
             }
           ],
-          "update": "{x: x(unit), y: y(unit), extent_x: slice(lyra_brush_x), extent_y: slice(lyra_brush_y)}"
+          "update": "{x: x(unit), y: y(unit)" + ifXElse(", extent_x: slice(lyra_brush_x)", "") + ifYElse(", extent_y: slice(lyra_brush_y)", "") + "}"
         }
       ]
     },
@@ -451,8 +457,8 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     },
 
     {
-      "name": `grid_${xFieldName}`,
-      "on": [
+      "name": ifXElse(`grid_${xFieldName}`, "grid_x_field_undefined"),
+      "on": ifXElse([
         {
           "events": {"signal": "grid_translate_delta"},
           "update": "panLinear(grid_translate_anchor.extent_x, -grid_translate_delta.x / width)"
@@ -462,11 +468,11 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
           "update": `zoomLinear(domain(\"${xScaleName}\"), grid_zoom_anchor.x, grid_zoom_delta)`
         },
         {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-      ]
+      ], [])
     },
     {
-      "name": `grid_${yFieldName}`,
-      "on": [
+      "name": ifYElse(`grid_${yFieldName}`, "grid_y_field_undefined"),
+      "on": ifYElse([
         {
           "events": {"signal": "grid_translate_delta"},
           "update": "panLinear(grid_translate_anchor.extent_y, grid_translate_delta.y / height)"
@@ -476,14 +482,14 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
           "update": `zoomLinear(domain(\"${yScaleName}\"), grid_zoom_anchor.y, grid_zoom_delta)`
         },
         {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-      ]
+      ], [])
     },
     {
       "name": "grid_tuple",
       "on": [
         {
-          "events": [{"signal": `grid_${xFieldName} || grid_${yFieldName}`}],
-          "update": `grid_${xFieldName} && grid_${yFieldName} ? {unit: \"\", fields: tuple_fields, values: [grid_${xFieldName},grid_${yFieldName}]} : null`
+          "events": [{"signal": ifXElse(`grid_${xFieldName}`, "") + ifXY(" || ") + ifYElse(`grid_${yFieldName}`, "")}],
+          "update": ifXElse(`grid_${xFieldName}`, "") + ifXY(" && ") + ifYElse(`grid_${yFieldName}`, "") + "? {unit: \"\", fields: tuple_fields, values: [" + ifXElse(`grid_${xFieldName}`, "") + ifXY(",") + ifYElse(`grid_${yFieldName}`, "") + "]} : null"
         }
       ]
     },
@@ -493,7 +499,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       "on": [
         {
           "events": [{"source": "scope", "type": "mousedown"}],
-          "update": `{x: x(unit), y: y(unit), extent_x: domain(\"${xScaleName}\"), extent_y: domain(\"${yScaleName}\")}`
+          "update": "{x: x(unit), y: y(unit)" + ifXElse(`, extent_x: domain(\"${xScaleName}\")`, "") + ifYElse(`, extent_y: domain(\"${yScaleName}\")`, "") + "}"
         }
       ]
     },
@@ -522,7 +528,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       "on": [
         {
           "events": [{"source": "scope", "type": "wheel", "consume": true}],
-          "update": `{x: invert(\"${xScaleName}\", x(unit)), y: invert(\"${yScaleName}\", y(unit))}`
+          "update": "{" + ifXElse(`x: invert(\"${xScaleName}\", x(unit))`, "") + ifXY(", ") + ifYElse(`y: invert(\"${yScaleName}\", y(unit))`, "") + "}"
         }
       ]
     },
