@@ -45,7 +45,7 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
   const spec: Spec = exporter.scene(state, int, prev);
   spec.data = exporter.pipelines(state, int, prev);
   // spec.background = 'white';
-  console.log(spec);
+
   return spec;
 }
 
@@ -227,28 +227,25 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
     );
     // Add demonstrations
     demonstrations(group, state);
+    console.log(group);
     // Add interaction signals
     if (!preview) {
       const interactions = mark._interactions;
-      console.log('not preview ', interactions);
       if (interactions) {
         interactions.forEach((interactionId: number) => {
           const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
           const interactionType = interaction.get('interactionType');
           const mappingType = interaction.get('mappingType');
-          console.log('an interaction ', interactionType, mappingType);
           if (interactionType) {
             const intervalMatches = interactionPreviewDefs(true, false).filter((def) => def.id === interactionType);
             const isDemonstratingInterval = intervalMatches.length > 0;
             if (isDemonstratingInterval) {
               group.signals = editSignals(group.signals, intervalMatches[0].signals);
-              console.log('pushed signals ', intervalMatches[0].signals);
             }
             else {
               const pointMatches = interactionPreviewDefs(false, true).filter((def) => def.id === interactionType);
               if (pointMatches.length) {
                 group.signals = editSignals(group.signals, pointMatches[0].signals);
-                console.log('pushed signals ', pointMatches[0].signals);
               }
             }
             if (mappingType) {
@@ -260,7 +257,6 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
             }
           }
         });
-        console.log(group.signals);
       }
     }
   }
