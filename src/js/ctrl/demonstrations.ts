@@ -788,9 +788,9 @@ export function interactionPreviewDefs(isDemonstratingInterval: boolean,
     else{
       const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
       if (markTypes.has('symbol')) {
-        defs.push(intervalDefs.brush);
-        defs.push(intervalDefs.brush_y);
-        defs.push(intervalDefs.brush_x);
+        if (xScaleType && yScaleType) defs.push(intervalDefs.brush);
+        if (yScaleType) defs.push(intervalDefs.brush_y);
+        if (xScaleType) defs.push(intervalDefs.brush_x);
       }
       if (markTypes.has('rect')) {
         if (xScaleType === ScaleSimpleType.DISCRETE) {
@@ -804,16 +804,16 @@ export function interactionPreviewDefs(isDemonstratingInterval: boolean,
         const areaMark = marks.filter(mark => mark.type === 'area')[0];
         if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
           // TODO(jzong) what if orient is not in update but is in one of the other ones?
-          if (areaMark.encode.update.orient.value === 'vertical') {
+          if (areaMark.encode.update.orient.value === 'vertical' && xScaleType) {
             defs.push(intervalDefs.brush_x);
           }
-          else if (areaMark.encode.update.orient.value === 'horizontal') {
+          else if (areaMark.encode.update.orient.value === 'horizontal' && yScaleType) {
             defs.push(intervalDefs.brush_y);
           }
         }
       }
       if (markTypes.has('line')) {
-        // ?
+        // TODO(jzong) ?
       }
       defs = [... new Set(defs)];
     }

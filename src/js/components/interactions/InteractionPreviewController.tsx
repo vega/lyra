@@ -70,8 +70,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
   const isParsing = state.getIn(['vega', 'isParsing']);
 
-  // const canDemonstrate = Boolean(!isParsing && ctrl.view && (xScaleName && xFieldName || yScaleName && yFieldName));
-  const canDemonstrate = Boolean(!isParsing && ctrl.view && xScaleName && xFieldName && yScaleName && yFieldName);
+  const canDemonstrate = Boolean(!isParsing && ctrl.view && (xScaleName && xFieldName || yScaleName && yFieldName));
 
   const groupRecord = state.getIn(['vis', 'present', 'marks', String(ownProps.groupId)]);
 
