@@ -17,9 +17,10 @@ import {Signal} from './factory/Signal';
 import {VegaReparse} from './factory/Vega';
 import {Walkthrough} from './factory/Walkthrough';
 import {Scale} from './factory/Scale';
+import {Interaction} from './factory/Interaction';
 import transit from '../util/transit-immutable';
 
-const serializer = transit.withRecords([SymbolRecord, Area, Line, Rect, Text, Group, Scene, Column, Dataset, Axis, Legend, Hints, Inspector, Pipeline, Signal, VegaReparse, Walkthrough],
+const serializer = transit.withRecords([SymbolRecord, Area, Line, Rect, Text, Group, Scene, Column, Dataset, Axis, Legend, Hints, Inspector, Pipeline, Signal, VegaReparse, Walkthrough, Interaction],
   (name, value) => {
     // reader
     switch (name) {

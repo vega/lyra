@@ -148,12 +148,20 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
   const signals = groupSpec.signals || (groupSpec.signals = []);
   groupSpec.signals = [...signals,
     {
+      "name": "lyra_brush_is_x_encoding",
+      "init": "false"
+    },
+    {
+      "name": "lyra_brush_is_y_encoding",
+      "init": "false"
+    },
+    {
       "name": "lyra_brush_x",
-      "update": "brush_x"
+      "update": "lyra_brush_is_y_encoding ? [width, 0] : brush_x"
     },
     {
       "name": "lyra_brush_y",
-      "update": "brush_y"
+      "update": "lyra_brush_is_x_encoding ? [0, height] : brush_y"
     },
     {
       "name": "unit",
@@ -750,16 +758,8 @@ export function interactionPreviewDefs(isDemonstratingInterval: boolean,
         label: "Brush (y-axis)",
         signals: [
           {
-            name: "lyra_brush_x",
-            init: "[width, 0]",
-            on: [
-              {
-                "events": {
-                  "signal": "brush_x"
-                },
-                "update": "[width, 0]"
-              }
-            ]
+            name: "lyra_brush_is_y_encoding",
+            init: "true"
           }
         ]
       },
@@ -768,16 +768,8 @@ export function interactionPreviewDefs(isDemonstratingInterval: boolean,
         label: "Brush (x-axis)",
         signals: [
           {
-            name: "lyra_brush_y",
-            init: "[0, height]",
-            on: [
-              {
-                "events": {
-                  "signal": "brush_y"
-                },
-                "update": "[0, height]"
-              }
-            ]
+            name: "lyra_brush_is_x_encoding",
+            init: "true"
           }
         ]
       }
