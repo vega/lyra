@@ -148,8 +148,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     }
 
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
-      this.restoreSignalValues();
-
       this.onSignal('brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal('brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal('points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
@@ -161,6 +159,8 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
           isDemonstratingPoint
         });
       });
+
+      this.restoreSignalValues();
     }
 
     if (prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval ||
@@ -210,6 +210,8 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     });
   }
 
+  private cancelDemonstrationTimeout = null;
+
   private onMainViewIntervalSignal(name, value) {
     console.log(name, value);
     this.mainViewSignalValues[name] = value;
@@ -217,9 +219,23 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       this.mainViewSignalValues['brush_y'] &&
       this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
       this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1];
-    this.setState({
-      isDemonstratingInterval
-    });
+    if (!isDemonstratingInterval && this.state.isDemonstratingInterval) {
+      clearTimeout(this.cancelDemonstrationTimeout);
+      this.cancelDemonstrationTimeout = setTimeout(() => {
+        this.setState({
+          isDemonstratingInterval
+        });
+      }, 250);
+    }
+    else {
+      if (isDemonstratingInterval) {
+        clearTimeout(this.cancelDemonstrationTimeout);
+        this.cancelDemonstrationTimeout = null;
+      }
+      this.setState({
+        isDemonstratingInterval
+      });
+    }
 
     const wScale = 100/640;
     const hScale = 100/360; // TODO(jzong) preview height / main view height
@@ -247,8 +263,9 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
   private restoreSignalValues() {
     for (let signalName of ['brush_x', 'brush_y']) {
-      if (this.mainViewSignalValues[signalName])
+      if (this.mainViewSignalValues[signalName]) {
         listeners.setSignalInGroup(ctrl.view, this.props.groupName, signalName, this.mainViewSignalValues[signalName]);
+      }
     }
   }
 
@@ -306,7 +323,10 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
           {
             this.state.mappingPreviews.map((preview) => {
               preview.ref = React.createRef();
-              let spec = editSignalsForPreview(this.state.spec, this.props.groupName, []);
+              const selectedInteractionSignals = [].concat.apply([], this.state.interactionPreviews.filter((def) => {
+                return this.props.interactionRecord && this.props.interactionRecord.interactionType === def.id;
+              }).map((def) => def.signals));
+              let spec = editSignalsForPreview(this.state.spec, this.props.groupName, selectedInteractionSignals);
               spec = editMarksForPreview(spec, this.props.groupName, preview);
               return (
                 <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.mappingType === preview.id ? 'selected' : ''}>
