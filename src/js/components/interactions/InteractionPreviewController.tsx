@@ -139,7 +139,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   }
 
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState: OwnState) {
-    console.log(this.props, this.state)
     if (prevProps.vegaIsParsing && !this.props.vegaIsParsing) {
       const spec = cleanSpecForPreview(ctrl.export(false, true));
       // spec = resizeSpec(spec, 100, 100);
@@ -149,7 +148,8 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     }
 
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
-      console.log('on signals');
+      this.restoreSignalValues();
+
       this.onSignal('brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal('brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal('points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
@@ -245,6 +245,12 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     });
   }
 
+  private restoreSignalValues() {
+    for (let signalName of ['brush_x', 'brush_y']) {
+      if (this.mainViewSignalValues[signalName])
+        listeners.setSignalInGroup(ctrl.view, this.props.groupName, signalName, this.mainViewSignalValues[signalName]);
+    }
+  }
 
   private onSignal(signalName, handler) {
     listeners.onSignalInGroup(ctrl.view, this.props.groupName, signalName, handler);
@@ -265,8 +271,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     }
     else {
       if (!this.props.interactionRecord.interactionType) {
-        const defs = this.getInteractionPreviewDefs();
-        this.props.setInteractionType(defs[0].id, this.props.interactionRecord.id);
+        this.props.setInteractionType(this.state.interactionPreviews[0].id, this.props.interactionRecord.id);
       }
       this.props.setMappingType(previewId, this.props.interactionRecord.id);
     }
