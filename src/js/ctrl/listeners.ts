@@ -116,12 +116,17 @@ export function registerSignalListeners() {
   //     store.dispatch(expandLayers(parentLayerIds));
   //   }
   // });
-
-  Object.keys(listeners).forEach(function(signalName) {
-    listeners[signalName].forEach(function(handlerFn) {
-      ctrl.view.addSignalListener(signalName, handlerFn);
+  if (ctrl.view) {
+    Object.keys(listeners).forEach(function(signalName) {
+      if (!ctrl.view._signals[signalName]) {
+        listeners[signalName] = [];
+      } else {
+        listeners[signalName].forEach(function(handlerFn) {
+          ctrl.view.addSignalListener(signalName, handlerFn);
+        });
+      }
     });
-  });
+  }
 }
 
 /**
