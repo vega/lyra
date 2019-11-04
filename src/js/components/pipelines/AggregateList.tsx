@@ -7,9 +7,7 @@ const SHORT_LIST = 5;
 
 export interface AggregateHandlers {
   onDragStart: (evt: React.DragEvent) => void,
-  onDragOver: (evt: React.DragEvent) => boolean,
-  onDragEnd: (evt: React.DragEvent, obj: any) => void,
-  onDrop: (evt: any) => void
+  onDragEnd: (evt: React.DragEvent, obj: any) => void
 }
 
 interface OwnProps {

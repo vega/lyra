@@ -100,18 +100,11 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
       }
     });
 
-    evt.dataTransfer.setData('text/plain', evt.target.id);
+    evt.dataTransfer.setData('dsId', this.props.dsId);
+    evt.dataTransfer.setData('fieldDef', JSON.stringify(this.state.fieldDef.toJS()));
     evt.dataTransfer.effectAllowed = 'link';
     sg.set(MODE, 'channels');
     ctrl.update();
-  }
-
-  public handleDragOver(evt) {
-    if (evt.preventDefault) {
-      evt.preventDefault(); // Necessary. Allows us to drop.
-    }
-
-    return false;
   }
 
   // This makes use of the bubble cursor, which corresponds to the cell signal;
@@ -145,14 +138,6 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
     }
   }
 
-  public handleDrop(evt) {
-    if (evt.preventDefault) {
-      evt.preventDefault(); // Necessary. Allows us to drop.
-    }
-
-    return false;
-  }
-
   public toggleTransforms = (evt) => {
     this.setState({showAggregates: !this.state.showAggregates});
   }
@@ -179,9 +164,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
     };
     const dragHandlers = {
       onDragStart: this.handleDragStart,
-      onDragOver: this.handleDragOver,
-      onDragEnd: this.handleDragEnd,
-      onDrop: this.handleDrop
+      onDragEnd: this.handleDragEnd
     };
 
     const fieldEl = field ? (
@@ -200,15 +183,11 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
     ) : null;
 
     return (
-      <div>
+      <div onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd}>
         <div className='buffer full' style={bufferStyle} />
 
         <div style={fieldStyle} draggable={true}
-          className={'full field ' + (field && field.source ? 'source' : 'derived')}
-          onDragStart={this.handleDragStart}
-          onDragOver={this.handleDragOver}
-          onDragEnd={this.handleDragEnd}
-          onDrop={this.handleDrop}>{fieldEl}</div>
+          className={'full field ' + (field && field.source ? 'source' : 'derived')}>{fieldEl}</div>
 
         <AggregateList handlers={dragHandlers} style={listStyle}
           field={field} {...this.props} />

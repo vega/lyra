@@ -24,9 +24,7 @@ class AggregateField extends React.Component<OwnProps> {
     return (
       <div className={'full field derived aggregate-field'} draggable={true}
         onDragStart={props.onDragStart}
-        onDragOver={props.onDragOver}
-        onDragEnd={this.onDragEnd}
-        onDrop={props.onDrop}>
+        onDragEnd={this.onDragEnd}>
         <strong>{props.op}</strong>_{fieldName}
       </div>
     );
