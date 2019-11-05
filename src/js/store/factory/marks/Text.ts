@@ -21,11 +21,11 @@ export const Text = Record<LyraTextMark>({
     update: {
       dx: {value: 0, offset: 0},
       dy: {value: 0, offset: 0},
-      text: {value: 'Text'},
+      text: {signal: 'Text'},
       align: {value: 'center'},
       baseline: {value: 'middle'},
       font: {value: 'Helvetica'},
-      fontSize: {value: 14},
+      fontSize: {value: 12},
       fontStyle: {value: 'normal'},
       fontWeight: {value: 'normal'},
       angle: {value: 0}

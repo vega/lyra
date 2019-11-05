@@ -6,10 +6,10 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
 import {resetMarkVisual} from '../../actions/markActions';
+import {PrimType} from '../../constants/primTypes';
 import {State} from '../../store';
 import {AutoComplete} from './AutoComplete';
 import {FormInputProperty} from './FormInputProperty';
-import {PrimType} from '../../constants/primTypes';
 
 // hunch: probably actually needs to be a bunch of different types anded to a base type
 // instead of one type with everything optional

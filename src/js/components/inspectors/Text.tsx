@@ -7,11 +7,11 @@ const getInVis = require('../../util/immutable-utils').getInVis;
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
-import {updateMarkProperty} from '../../actions/markActions';
+import {setMarkVisual, updateMarkProperty} from '../../actions/markActions';
+import {PrimType} from '../../constants/primTypes';
 import {State} from '../../store';
 import {TextAlignments, TextBaselines, TextFonts, TextFontStyles, TextFontWeights} from '../../store/factory/marks/Text';
 import {Property} from './Property';
-import {PrimType} from '../../constants/primTypes';
 
 interface OwnProps {
   primId?: number;
@@ -25,7 +25,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  updateTemplate: (value: any) => void
+  updateText: (value: any) => void
 }
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
@@ -36,9 +36,9 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
 
 function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
-    updateTemplate: function(value) {
+    updateText: function(value) {
       const val = value.target ? value.target.value : value;
-      dispatch(updateMarkProperty({property: 'encode.update.text.template', value: val}, ownProps.primId));
+      dispatch(setMarkVisual({property: 'text', def: {signal: value}}, ownProps.primId));
     }
   };
 }
@@ -47,24 +47,14 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
   public render() {
     const props = this.props;
     const dsId = props.dsId;
-    const textLbl = (<h3 className='label'>Text</h3>);
-
-    const textProp = dsId ? (
-      <Property name='text.template' type='autocomplete' autoType='tmpl'
-        dsId={dsId} onChange={props.updateTemplate} {...props}>
-        {textLbl}
-      </Property>
-    ) : (
-      <Property name='text.template' type='text'
-        onChange={props.updateTemplate} {...props}>
-        {textLbl}
-      </Property>
-    );
 
     return (
       <div>
         <div className='property-group'>
-          {textProp}
+          <Property name='text.signal' type='autocomplete' autoType='tmpl'
+          dsId={dsId} onChange={props.updateText} {...props}>
+            <h3 className='label'>Text</h3>
+          </Property>
         </div>
 
         <div className='property-group'>
