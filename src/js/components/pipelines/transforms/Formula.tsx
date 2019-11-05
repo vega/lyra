@@ -39,7 +39,7 @@ export class Formula extends React.Component<OwnProps> {
 
     return (
       <div>
-        <Property type='autocomplete' autoType='expr' label='Calculate'
+        <Property type='autocomplete' label='Calculate'
           primType='datasets' primId={dsId} name={'transform.' + props.index + '.expr'}
           dsId={dsId} onChange={update} />
 

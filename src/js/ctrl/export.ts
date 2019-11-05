@@ -167,6 +167,15 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
     }
   });
 
+  // Convert text template strings into signal expressions.
+  if (spec.type === 'text') {
+    let tmpl = spec.encode.update.text.signal;
+    tmpl = tmpl.split(RegExp('{{(.*?)}}')).map(s => {
+      return s.indexOf('datum') < 0 ? `"${s}"` : `+ ${s} + `
+    }).join('');
+    spec.encode.update.text.signal = tmpl;
+  }
+
   if (internal) {
     spec.role = `lyra_${mark._id}`;
     return manipulators(mark, spec);

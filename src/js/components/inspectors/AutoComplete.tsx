@@ -1,9 +1,6 @@
 'use strict';
-const $ = require('jquery');
 const getInVis = require('../../util/immutable-utils').getInVis;
 
-const EXPR = 'expr';
-const TMPL = 'tmpl';
 const SPAN_OPEN  = '<span class="field source" contenteditable="false">';
 const SPAN_CLOSE = '</span>';
 const DATUM = 'datum.';
@@ -36,24 +33,14 @@ interface OwnState {
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const schema: Schema = getInVis(reduxState, 'datasets.' + ownProps.dsId + '._schema');
   return {
-    fields: schema.keySeq().toJS()
+    fields: schema ? schema.keySeq().toJS() : []
   };
 }
 
 class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> {
-  public getInitialState() {
-    const props = this.props;
-    const value = props.value || '';
-    const type = props.type;
-    let html = value;
-
-    if (type === EXPR) {
-      html = this.exprToHtml(html);
-    } else if (type === TMPL) {
-      html = this.tmplToHtml(html);
-    }
-
-    return {html: html};
+  constructor(props) {
+    super(props);
+    this.state = {html: this.toHtml(props.value || '')};
   };
 
   public componentDidMount() {
@@ -64,7 +51,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
       words: this.props.fields,
       match: /\b(\w{2,})$/,
       search: function(term, callback) {
-        callback($.map(this.words, function(word) {
+        callback(this.words.map(function(word) {
           return word.toLowerCase().indexOf(term.toLowerCase()) === 0 ? word : null;
         }));
       },
@@ -82,9 +69,17 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
       }
     };
 
-    $(contentEditable).textcomplete(strategies, options)
-      .on({'textComplete:select': handleChange});
+    // $(contentEditable).textcomplete(strategies, options)
+    //   .on({'textComplete:select': handleChange});
   };
+
+  public toHtml(str: string) {
+    return this.props.type === 'expr' ? this.exprToHtml(str) : this.tmplToHtml(str);
+  };
+
+  public fromHtml(str: string) {
+    return this.props.type === 'expr' ? this.htmlToExpr(str) : this.htmlToTmpl(str);
+  }
 
   public exprToHtml(str: string) {
     str = str.split(DATUM).join('');
@@ -125,13 +120,11 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
   public wrapStr(str, pre, post) {
     const fields = this.props.fields;
     const extraLen = pre.length + post.length;
-    let field;
     let position;
     let searched;
     let nextStr;
 
-    for (let i = 0; i < fields.length; i++) {
-      field = fields[i];
+    for (const field of fields) {
       position = str.search(field);
       searched = 0
 
@@ -155,25 +148,35 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
     return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue;
   };
 
-  public handleChange(evt) {
-    const props = this.props;
-    const type  = props.type;
+  public handleChange = (evt) => {
     const value = evt.target.value || evt.target.innerHTML || '';
-    const updateFn = props.updateFn;
+    this.props.updateFn(this.fromHtml(value));
+    this.setState({html: value});
+  };
 
-    if (type === EXPR) {
-      updateFn(this.htmlToExpr(value));
-    } else if (type === TMPL) {
-      updateFn(this.htmlToTmpl(value));
+  public handleDragOver = (evt) => {
+    if (evt.preventDefault) {
+      evt.preventDefault(); // Necessary. Allows us to drop.
     }
 
-    this.setState({html: value});
+    return false;
+  };
+
+  public handleDrop = (evt)  => {
+    const dt = evt.dataTransfer;
+    const dsId = dt.getData('dsId');
+    const fieldDef = JSON.parse(dt.getData('fieldDef'));
+    const html = this.state.html + SPAN_OPEN + fieldDef.name + SPAN_CLOSE;
+    this.props.updateFn(this.fromHtml(html));
+    this.setState({html});
   };
 
   public render() {
     return (
-      <ContentEditable className='autocomplete' html={this.state.html}
+      <div onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
+        <ContentEditable className='autocomplete' html={this.state.html}
         disabled={false} onChange={this.handleChange} />
+      </div>
     );
   }
 };
