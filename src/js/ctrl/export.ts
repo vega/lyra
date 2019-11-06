@@ -9,7 +9,7 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {signalLookup} from '../util/signal-lookup';
 import manipulators from './manipulators';
-import demonstrations, {interactionPreviewDefs, mappingPreviewDefs, editSignals, editMarks} from './demonstrations';
+import demonstrations, {interactionPreviewDefs, mappingPreviewDefs, editSignals, editMarks, getScaleNameFromAxisRecords, getFieldFromScaleRecordName, getScaleTypeFromAxisRecords, editScales} from './demonstrations';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -227,7 +227,6 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
     );
     // Add demonstrations
     demonstrations(group, state);
-    console.log(group);
     // Add interaction signals
     if (!preview) {
       const interactions = mark._interactions;
@@ -249,9 +248,33 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
               }
             }
             if (mappingType) {
-              const mappingDefs = mappingPreviewDefs(isDemonstratingInterval, group.marks);
+              let scaleInfo = undefined;
+              let axis = undefined;
+              if (isDemonstratingInterval) {
+                const xScaleName = getScaleNameFromAxisRecords(state, 'x'); // TODO(jzong) how do we distinguish which view (group mark) an axis belongs to?
+                const yScaleName = getScaleNameFromAxisRecords(state, 'y');
+
+                const xFieldName = getFieldFromScaleRecordName(state, xScaleName);
+                const yFieldName = getFieldFromScaleRecordName(state, yScaleName);
+
+                const xScaleType = getScaleTypeFromAxisRecords(state, 'x')
+                const yScaleType = getScaleTypeFromAxisRecords(state, 'y')
+
+                scaleInfo = {xScaleName, yScaleName, xFieldName, yFieldName, xScaleType, yScaleType};
+                if (intervalMatches[0].id === 'brush_x') {
+                  axis = 'x';
+                }
+                else if (intervalMatches[0].id === 'brush_y') {
+                  axis = 'y';
+                }
+
+              }
+              const mappingDefs = mappingPreviewDefs(isDemonstratingInterval, group.marks, scaleInfo, axis);
               const mappingMatches = mappingDefs.filter((def) => def.id === mappingType);
               if (mappingMatches.length) {
+                if (isDemonstratingInterval && mappingMatches[0].id === 'panzoom') {
+                  group.scales = editScales(group.scales, mappingMatches[0]);
+                }
                 group.marks = editMarks(group.marks, mappingMatches[0]);
               }
             }

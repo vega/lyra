@@ -3,10 +3,17 @@ import {GuideRecord} from "../store/factory/Guide";
 import {Map} from 'immutable';
 import {ScaleRecord} from "../store/factory/Scale";
 import {State} from "../store";
-import {LyraInteractionPreviewDef, LyraMappingPreviewDef} from "../components/interactions/InteractionPreviewController";
+import {LyraInteractionPreviewDef, LyraMappingPreviewDef, ScaleInfo} from "../components/interactions/InteractionPreviewController";
 import duplicate from "../util/duplicate";
 import {LyraMarkType} from "../store/factory/Mark";
 
+function conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName) {
+  return {
+    ifXElse: (e1, e2) => xScaleName && xFieldName ? e1 : e2,
+    ifYElse: (e1, e2) => yScaleName && yFieldName ? e1 : e2,
+    ifXY: (e1) => xScaleName && xFieldName && yScaleName && yFieldName ? e1 : ''
+  }
+}
 export default function demonstrations(groupSpec, state: State) {
   if (groupSpec.name) { // don't touch manipulators, which don't have names
     const xScaleName = getScaleNameFromAxisRecords(state, 'x');
@@ -20,11 +27,7 @@ export default function demonstrations(groupSpec, state: State) {
       return groupSpec;
     }
 
-    const ifXElse = (e1, e2) => xScaleName && xFieldName ? e1 : e2;
-    const ifYElse = (e1, e2) => yScaleName && yFieldName ? e1 : e2;
-    const ifXY = (e1) => xScaleName && xFieldName && yScaleName && yFieldName ? e1 : '';
-
-    const names = {xScaleName, xFieldName, yScaleName, yFieldName, ifXElse, ifYElse, ifXY};
+    const names = {xScaleName, xFieldName, yScaleName, yFieldName};
 
     return addMarksToGroup(addSignalsToGroup(groupSpec, names), names);
   }
@@ -32,7 +35,8 @@ export default function demonstrations(groupSpec, state: State) {
 }
 
 function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
-  const {ifXElse, ifYElse, ifXY} = names;
+  const {xScaleName, yScaleName, xFieldName, yFieldName} = names;
+  const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName);
   const marks = groupSpec.marks || (groupSpec.marks = []);
   groupSpec.marks = [...marks,
     {
@@ -144,7 +148,8 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
 }
 
 function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
-  const {xScaleName, xFieldName, yScaleName, yFieldName, ifXElse, ifYElse, ifXY} = names;
+  const {xScaleName, yScaleName, xFieldName, yFieldName} = names;
+  const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName);
   const signals = groupSpec.signals || (groupSpec.signals = []);
   groupSpec.signals = [...signals,
     {
@@ -528,7 +533,15 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
             }
           ],
           "update": "{x: grid_translate_anchor.x - x(unit), y: grid_translate_anchor.y - y(unit)}"
-        }
+        },
+        // {
+        //   "events": {"signal": "lyra_brush_x"},
+        //   "update": "{x: lyra_brush_x[0] - lyra_brush_x[1], y: lyra_brush_y[0] - lyra_brush_y[1]}"
+        // },
+        // {
+        //   "events": {"signal": "lyra_brush_y"},
+        //   "update": "{x: brush_x[0] - brush_x[1], y: lyra_brush_y[0] - lyra_brush_y[1]}"
+        // }
       ]
     },
     {
@@ -742,10 +755,9 @@ const baseSignals = [
 export function interactionPreviewDefs(isDemonstratingInterval: boolean,
                                        isDemonstratingPoint: boolean,
                                        marks?: any[],
-                                       xScaleType?: ScaleSimpleType,
-                                       yScaleType?: ScaleSimpleType): LyraInteractionPreviewDef[] {
+                                       scaleInfo?: ScaleInfo): LyraInteractionPreviewDef[] {
   let defs = [];
-  const optionalParams = Boolean(marks || xScaleType || yScaleType);
+  const optionalParams = Boolean(marks && scaleInfo);
   if (isDemonstratingInterval) {
     const intervalDefs = {
       brush: {
@@ -780,15 +792,15 @@ export function interactionPreviewDefs(isDemonstratingInterval: boolean,
     else{
       const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
       if (markTypes.has('symbol')) {
-        if (xScaleType && yScaleType) defs.push(intervalDefs.brush);
-        if (yScaleType) defs.push(intervalDefs.brush_y);
-        if (xScaleType) defs.push(intervalDefs.brush_x);
+        if (scaleInfo.xScaleType && scaleInfo.yScaleType) defs.push(intervalDefs.brush);
+        if (scaleInfo.yScaleType) defs.push(intervalDefs.brush_y);
+        if (scaleInfo.xScaleType) defs.push(intervalDefs.brush_x);
       }
       if (markTypes.has('rect')) {
-        if (xScaleType === ScaleSimpleType.DISCRETE) {
+        if (scaleInfo.xScaleType === ScaleSimpleType.DISCRETE) {
           defs.push(intervalDefs.brush_x);
         }
-        if (yScaleType === ScaleSimpleType.DISCRETE) {
+        if (scaleInfo.yScaleType === ScaleSimpleType.DISCRETE) {
           defs.push(intervalDefs.brush_y);
         }
       }
@@ -796,10 +808,10 @@ export function interactionPreviewDefs(isDemonstratingInterval: boolean,
         const areaMark = marks.filter(mark => mark.type === 'area')[0];
         if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
           // TODO(jzong) what if orient is not in update but is in one of the other ones?
-          if (areaMark.encode.update.orient.value === 'vertical' && xScaleType) {
+          if (areaMark.encode.update.orient.value === 'vertical' && scaleInfo.xScaleType) {
             defs.push(intervalDefs.brush_x);
           }
-          else if (areaMark.encode.update.orient.value === 'horizontal' && yScaleType) {
+          else if (areaMark.encode.update.orient.value === 'horizontal' && scaleInfo.yScaleType) {
             defs.push(intervalDefs.brush_y);
           }
         }
@@ -815,10 +827,10 @@ export function interactionPreviewDefs(isDemonstratingInterval: boolean,
       id: "single",
       label: "Single point",
       signals: [
-        {
-          "name": "points_modify",
-          "update": "modify(\"points_store\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)"
-        }
+        // {
+        //   "name": "points_modify",
+        //   "update": "modify(\"points_store\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)"
+        // }
       ]
     },
     {
@@ -834,11 +846,14 @@ export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraM
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      if (preview.properties.size) {
+      if (preview.markProperties.encode && preview.markProperties.encode.update && preview.markProperties.encode.update.size) {
         // make symbol previews look nicer
-        preview.properties.size[1].value /= 5;
+        preview.markProperties.encode.update.size[1].value /= 5;
       }
       markSpec.marks = editMarks(markSpec.marks, preview);
+      if (preview.id.indexOf('panzoom') === 0) {
+        markSpec.marks = markSpec.marks.filter((mark) => mark.name.indexOf('lyra') !== 0);
+      }
     }
     return markSpec;
   });
@@ -846,61 +861,107 @@ export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraM
 }
 
 export function editMarks(marks: any[], def: LyraMappingPreviewDef) {
-  const interactionProperties = def.properties;
+  const markProperties = def.markProperties;
   const markType = def.markType;
   for (let mark of marks) {
     if (mark.type === 'group' || mark.name.indexOf('lyra') === 0) continue;
     if (!markType || mark.type === markType) { // TODO(jzong) i wouldn't be surprised if this condition is wrong when there's multiple marks
-      for (let [key, value] of Object.entries(interactionProperties)) {
-        const oldValue = mark.encode.update[key];
-        mark.encode.update[key] = value;
-        // preserve old properties when adding the conditional. see: BaseValueRef for types
-        if (oldValue.value) {
-          mark.encode.update[key][0].value = oldValue.value;
-        }
-        else if (oldValue.signal) {
-          delete mark.encode.update[key][0].value;
-          mark.encode.update[key][0].signal = oldValue.signal;
-        }
-        else if (oldValue.field) {
-          delete mark.encode.update[key][0].value;
-          mark.encode.update[key][0].field = oldValue.field;
+      for (let [key, value] of Object.entries(markProperties)) {
+        mark[key] = value;
+      }
+      if (markProperties.encode && markProperties.encode.update) {
+        for (let [key, value] of Object.entries(markProperties.encode.update)) {
+          const oldValue = mark.encode.update[key];
+          mark.encode.update[key] = value;
+          // preserve old properties when adding the conditional. see: BaseValueRef for types
+          if (oldValue.value) {
+            mark.encode.update[key][0].value = oldValue.value;
+          }
+          else if (oldValue.signal) {
+            delete mark.encode.update[key][0].value;
+            mark.encode.update[key][0].signal = oldValue.signal;
+          }
+          else if (oldValue.field) {
+            delete mark.encode.update[key][0].value;
+            mark.encode.update[key][0].field = oldValue.field;
+          }
         }
       }
     }
   }
+  if (def.id.indexOf('panzoom') === 0) { // if panzoom, remove the brush marks
+    marks = marks.filter(mark => !(mark.name && mark.name.indexOf('lyra') === 0));
+  }
   return marks;
 }
 
-export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[]): LyraMappingPreviewDef[] {
+export function editScalesForPreview(sceneSpec, groupName: string, preview: LyraMappingPreviewDef) {
+  const sceneUpdated = duplicate(sceneSpec);
+  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      markSpec.scales = editScales(markSpec.scales, preview);
+    }
+    return markSpec;
+  });
+  return sceneUpdated;
+}
+
+export function editScales(scales: any[], def: LyraMappingPreviewDef) {
+  if (!def.scaleProperties) {
+    return scales;
+  }
+
+  for (let scale of scales) {
+    for (let scaleProps of def.scaleProperties) {
+      if (scale.name === scaleProps.name) {
+        for (let [key, value] of Object.entries(scaleProps)) {
+          scale[key] = value;
+        }
+      }
+    }
+  }
+  return scales;
+}
+
+
+export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[], scaleInfo?: ScaleInfo, axis?: 'x'|'y'): LyraMappingPreviewDef[] {
   let defs: LyraMappingPreviewDef[] = [{
     id: "color",
     label: "Color",
-    properties: {
-      "fill": [
-        {
-          "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                            "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
-          "value": "orange"
-        },
-        {"value": "grey"}
-      ],
+    markProperties: {
+      "encode": {
+        "update": {
+          "fill": [
+            {
+              "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
+                                                "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
+              "value": "orange"
+            },
+            {"value": "grey"}
+          ],
+        }
+      }
     }
   },
   {
     id: "opacity",
     label: "Opacity",
-    properties: {
-      "fillOpacity": [
-        {
-          "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                            "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
-          "value": "1"
-        },
-        {"value": "0.2"}
-      ],
+    markProperties: {
+      "encode": {
+        "update": {
+          "fillOpacity": [
+            {
+              "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
+                                                "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
+              "value": "1"
+            },
+            {"value": "0.2"}
+          ],
+        }
+      }
     }
   }];
+
   const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
   if (markTypes.has('symbol')) {
     defs = defs.concat([
@@ -908,18 +969,57 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
         id: "size",
         label: "Size",
         markType: "symbol",
-        properties: {
-          "size": [
-            {
-              "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                                "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
-              "value": "10"
-            },
-            {"value": "5"}
-          ],
+        markProperties: {
+          "encode": {
+            "update": {
+              "size": [
+                {
+                  "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
+                                                    "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
+                  "value": "10"
+                },
+                {"value": "5"}
+              ],
+            }
+          }
         }
       },
     ]);
+  }
+  if (isDemonstratingInterval) {
+    const helpers = conditionalHelpersForScales(scaleInfo.xScaleName, scaleInfo.yScaleName, scaleInfo.xFieldName, scaleInfo.yFieldName);
+    const ifXElse = (e1, e2) => {
+      if (axis) {
+        if (axis === 'x') return e1;
+        else return e2;
+      }
+      return helpers.ifXElse(e1, e2);
+    }
+    const ifYElse = (e1, e2) => {
+      if (axis) {
+        if (axis === 'y') return e1;
+        else return e2;
+      }
+      return helpers.ifYElse(e1, e2);
+    }
+    const panzoomDef: LyraMappingPreviewDef = {
+      id: "panzoom",
+      label: "Pan and zoom",
+      markProperties: {
+        clip: {value: true}
+      },
+      scaleProperties: [].concat(ifXElse([
+        {
+          "name": scaleInfo.xScaleName,
+          "domainRaw": {"signal": `grid["${scaleInfo.xFieldName}"]`},
+          "zero": false
+        }], []).concat(ifYElse([{
+          "name": scaleInfo.yScaleName,
+          "domainRaw": {"signal": `grid["${scaleInfo.yFieldName}"]`},
+          "zero": false
+        }], [])))
+    }
+    defs.push(panzoomDef);
   }
   return defs;
 }

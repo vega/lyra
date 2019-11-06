@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {Signal, Spec} from 'vega';
-import {getScaleNameFromAxisRecords, getFieldFromScaleRecordName, cleanSpecForPreview, editSignalsForPreview, interactionPreviewDefs, mappingPreviewDefs, editMarksForPreview, getScaleTypeFromAxisRecords, ScaleSimpleType} from '../../ctrl/demonstrations';
+import {getScaleNameFromAxisRecords, getFieldFromScaleRecordName, cleanSpecForPreview, editSignalsForPreview, interactionPreviewDefs, mappingPreviewDefs, editMarksForPreview, editScalesForPreview, getScaleTypeFromAxisRecords, ScaleSimpleType} from '../../ctrl/demonstrations';
 import InteractionPreview from './InteractionPreview';
 import {InteractionRecord, LyraInteractionType, LyraMappingType, Interaction} from '../../store/factory/Interaction';
 import {Dispatch} from 'redux';
@@ -25,8 +25,18 @@ interface StateProps {
   marksOfGroup: any[];
   groupName: string;
   interactionRecord: InteractionRecord;
+  scaleInfo: ScaleInfo;
+
+}
+
+export interface ScaleInfo {
+  xScaleName: string;
+  yScaleName: string;
+  xFieldName: string;
+  yFieldName: string;
   xScaleType: ScaleSimpleType;
   yScaleType: ScaleSimpleType;
+
 }
 
 interface DispatchProps {
@@ -47,7 +57,9 @@ export interface LyraMappingPreviewDef {
   label: string,
   ref?: React.RefObject<InteractionPreview>,
   markType?: Exclude<LyraMarkType, 'group'>,
-  properties: any // encode.update object
+  markProperties: any // partial mark object,
+
+  scaleProperties?: any[] // list of partial scale objects
 }
 
 interface OwnState {
@@ -90,8 +102,14 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     marksOfGroup,
     groupName: exportName(groupRecord.name),
     interactionRecord,
-    xScaleType,
-    yScaleType
+    scaleInfo: {
+      xScaleName,
+      yScaleName,
+      xFieldName,
+      yFieldName,
+      xScaleType,
+      yScaleType,
+    }
   };
 }
 
@@ -150,14 +168,15 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
       this.onSignal('brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal('brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
-      this.onSignal('points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
-      this.onSignal('points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
-      this.onSignal('datum', (name, value) => this.onMainViewPointSignal(name, value));
+      // this.onSignal('points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
+      // this.onSignal('points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
+      // this.onSignal('datum', (name, value) => this.onMainViewPointSignal(name, value));
       this.onSignal('points', (name, value) => {
         const isDemonstratingPoint = Object.keys(value).length > 0;
         this.setState({
           isDemonstratingPoint
         });
+        // this.onMainViewPointSignal(name, value);
       });
 
       this.restoreSignalValues();
@@ -180,17 +199,25 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
   private getInteractionPreviewDefs(): LyraInteractionPreviewDef[] {
     if (this.state.isDemonstratingInterval) {
-      return interactionPreviewDefs(this.state.isDemonstratingInterval, false, this.props.marksOfGroup, this.props.xScaleType, this.props.yScaleType);
+      return interactionPreviewDefs(this.state.isDemonstratingInterval, false, this.props.marksOfGroup, this.props.scaleInfo);
     }
     if (this.state.isDemonstratingPoint) {
-      return interactionPreviewDefs(false, this.state.isDemonstratingPoint, this.props.marksOfGroup, this.props.xScaleType, this.props.yScaleType);
+      return interactionPreviewDefs(false, this.state.isDemonstratingPoint, this.props.marksOfGroup, this.props.scaleInfo);
     }
     return [];
   }
 
   private getMappingPreviewDefs(): LyraMappingPreviewDef[] {
     if (this.state.isDemonstratingInterval || this.state.isDemonstratingPoint) {
-      return mappingPreviewDefs(this.state.isDemonstratingInterval, this.props.marksOfGroup);
+      let axis = undefined;
+      if (this.props.interactionRecord && this.props.interactionRecord.interactionType === 'brush_x') {
+        axis = 'x';
+      }
+      else if (this.props.interactionRecord && this.props.interactionRecord.interactionType === 'brush_y') {
+        axis = 'y';
+      }
+      console.log(axis);
+      return mappingPreviewDefs(this.state.isDemonstratingInterval, this.props.marksOfGroup, this.props.scaleInfo, axis);
     }
     return [];
   }
@@ -213,7 +240,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   private cancelDemonstrationTimeout = null;
 
   private onMainViewIntervalSignal(name, value) {
-    console.log(name, value);
+    // console.log(name, value);
     this.mainViewSignalValues[name] = value;
     const isDemonstratingInterval = this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&
@@ -280,6 +307,9 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     else {
       this.props.setInteractionType(previewId, this.props.interactionRecord.id);
     }
+    this.setState({
+      mappingPreviews: this.getMappingPreviewDefs()
+    });
   }
 
   private onClickMappingPreview(previewId: LyraMappingType) {
@@ -328,6 +358,10 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
               }).map((def) => def.signals));
               let spec = editSignalsForPreview(this.state.spec, this.props.groupName, selectedInteractionSignals);
               spec = editMarksForPreview(spec, this.props.groupName, preview);
+              if (preview.id === 'panzoom') {
+                console.log(preview);
+                spec = editScalesForPreview(spec, this.props.groupName, preview);
+              }
               return (
                 <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.mappingType === preview.id ? 'selected' : ''}>
                   <div className="preview-label">{preview.label}</div>
