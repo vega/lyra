@@ -514,6 +514,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
           "events": [{"source": "scope", "type": "mousedown"}],
           "update": "{x: x(unit), y: y(unit)" + ifXElse(`, extent_x: domain(\"${xScaleName}\")`, "") + ifYElse(`, extent_y: domain(\"${yScaleName}\")`, "") + "}"
         }
+        // TODO
       ]
     },
     {
@@ -535,13 +536,9 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
           "update": "{x: grid_translate_anchor.x - x(unit), y: grid_translate_anchor.y - y(unit)}"
         },
         // {
-        //   "events": {"signal": "lyra_brush_x"},
-        //   "update": "{x: lyra_brush_x[0] - lyra_brush_x[1], y: lyra_brush_y[0] - lyra_brush_y[1]}"
+        //   "events": {"signal": "lyra_brush_x || lyra_brush_y"},
+        //   "update": "isArray(lyra_brush_x) && isArray(lyra_brush_y) && length(lyra_brush_x) == 2 && length(lyra_brush_y) == 2 ? {x: lyra_brush_x[0] - lyra_brush_x[1], y: lyra_brush_y[0] - lyra_brush_y[1]} : grid_translate_delta"
         // },
-        // {
-        //   "events": {"signal": "lyra_brush_y"},
-        //   "update": "{x: brush_x[0] - brush_x[1], y: lyra_brush_y[0] - lyra_brush_y[1]}"
-        // }
       ]
     },
     {
@@ -573,7 +570,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       "on": [
         {
           "events": [{"source": "scope", "type": "click"}],
-          "update": "datum && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)[\"_vgsid_\"]]} : null",
+          "update": "datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)[\"_vgsid_\"]]} : null",
           "force": true
         },
         {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
@@ -585,14 +582,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     },
     {
       "name": "points_toggle",
-      "value": false,
-      "on": [
-        {
-          "events": [{"source": "scope", "type": "click"}],
-          "update": "event.shiftKey"
-        },
-        {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
-      ]
+      "init": false
     },
     {
       "name": "points_modify",
@@ -826,17 +816,22 @@ export function interactionPreviewDefs(isDemonstratingInterval: boolean,
     defs = defs.concat([{
       id: "single",
       label: "Single point",
-      signals: [
-        // {
-        //   "name": "points_modify",
-        //   "update": "modify(\"points_store\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)"
-        // }
-      ]
+      signals: []
     },
     {
       id: "multi",
       label: "Multi point",
-      signals: []
+      signals: [{
+        "name": "points_toggle",
+        "value": false,
+        "on": [
+          {
+            "events": [{"source": "scope", "type": "click"}],
+            "update": "event.shiftKey"
+          },
+          {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
+        ]
+      }]
     }]);
   }
   return defs;
@@ -867,7 +862,9 @@ export function editMarks(marks: any[], def: LyraMappingPreviewDef) {
     if (mark.type === 'group' || mark.name.indexOf('lyra') === 0) continue;
     if (!markType || mark.type === markType) { // TODO(jzong) i wouldn't be surprised if this condition is wrong when there's multiple marks
       for (let [key, value] of Object.entries(markProperties)) {
-        mark[key] = value;
+        if (key !== 'encode') {
+          mark[key] = value;
+        }
       }
       if (markProperties.encode && markProperties.encode.update) {
         for (let [key, value] of Object.entries(markProperties.encode.update)) {
