@@ -40,6 +40,7 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
 
   public setPreviewSignal(name, value) {
     if (this.view) {
+      console.log(this.props.id + ':', name, value);
       listeners.setSignalInGroup(this.view, this.props.groupName, name, value);
     }
   }

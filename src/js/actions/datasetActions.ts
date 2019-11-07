@@ -1,11 +1,18 @@
 import {createStandardAction} from 'typesafe-actions';
-import {AggregateTransform, Compare, Transforms, Datum} from 'vega-typings/types';
+import {AggregateTransform, Compare, Transforms, Datum, IdentifierTransform} from 'vega-typings/types';
 import {DatasetRecord, MType} from '../store/factory/Dataset';
 
 const counter = require('../util/counter');
 
 export const addDataset = createStandardAction('ADD_DATASET').map((payload: DatasetRecord, meta: Datum[]) => {
   const id: number = payload._id || counter.global();
+  const hasIdentifierTransform = payload.transform.filter(transform => transform.type === 'identifier').length > 0;
+  if (!hasIdentifierTransform) {
+    payload.transform.push({
+      type: 'identifier',
+      as: '_vgsid_'
+    } as IdentifierTransform);
+  }
   return {payload: payload.merge({_id: id}), meta}
 });
 

@@ -33,7 +33,7 @@ export class TransformList extends React.Component<OwnProps & StateProps> {
     return transforms && !aggregate ? (
       <div className='transform-list'>
         {transforms.map(function(transform, i) {
-          return transform.type === 'aggregate' ? null : (
+          return transform.type === 'aggregate' || transform.type === 'identifier' ? null : (
             <TransformInspector key={i} index={i} dsId={dsId} def={transform} />
           );
         }, this)}

@@ -150,7 +150,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   public componentDidMount() {
     // for debugging
     (window as any).dumpSignals = () => {
-      for (let signalName of ['brush', 'lyra_brush_x', 'lyra_brush_y', 'brush_x', 'brush_y', 'points_tuple', 'points_toggle', 'datum', 'points']) {
+      for (let signalName of ['brush', 'lyra_brush_x', 'lyra_brush_y', 'brush_x', 'brush_y', 'points_tuple', 'points_toggle']) {
         console.log(signalName, listeners.getSignalInGroup(ctrl.view, this.props.groupName, signalName))
       }
     }
@@ -168,16 +168,8 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
       this.onSignal('brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal('brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
-      // this.onSignal('points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
-      // this.onSignal('points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
-      // this.onSignal('datum', (name, value) => this.onMainViewPointSignal(name, value));
-      this.onSignal('points', (name, value) => {
-        const isDemonstratingPoint = Object.keys(value).length > 0;
-        this.setState({
-          isDemonstratingPoint
-        });
-        // this.onMainViewPointSignal(name, value);
-      });
+      this.onSignal('points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal('points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
 
       this.restoreSignalValues();
     }
@@ -216,7 +208,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       else if (this.props.interactionRecord && this.props.interactionRecord.interactionType === 'brush_y') {
         axis = 'y';
       }
-      console.log(axis);
       return mappingPreviewDefs(this.state.isDemonstratingInterval, this.props.marksOfGroup, this.props.scaleInfo, axis);
     }
     return [];
@@ -224,6 +215,25 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
   private onMainViewPointSignal(name, value) {
     console.log(name, value)
+    this.mainViewSignalValues[name] = value;
+    const isDemonstratingPoint = this.mainViewSignalValues['points_tuple'];
+      if (!isDemonstratingPoint && this.state.isDemonstratingPoint) {
+        clearTimeout(this.cancelDemonstrationTimeout);
+        this.cancelDemonstrationTimeout = setTimeout(() => {
+          this.setState({
+            isDemonstratingPoint
+          });
+        }, 250);
+      }
+      else {
+        if (isDemonstratingPoint) {
+          clearTimeout(this.cancelDemonstrationTimeout);
+          this.cancelDemonstrationTimeout = null;
+        }
+        this.setState({
+          isDemonstratingPoint
+        });
+      }
 
     this.state.interactionPreviews.forEach(preview => {
       if (preview.ref.current) {
@@ -289,7 +299,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   }
 
   private restoreSignalValues() {
-    for (let signalName of ['brush_x', 'brush_y']) {
+    for (let signalName of ['brush_x', 'brush_y', 'points_tuple', 'points_toggle']) {
       if (this.mainViewSignalValues[signalName]) {
         listeners.setSignalInGroup(ctrl.view, this.props.groupName, signalName, this.mainViewSignalValues[signalName]);
       }
@@ -359,7 +369,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
               let spec = editSignalsForPreview(this.state.spec, this.props.groupName, selectedInteractionSignals);
               spec = editMarksForPreview(spec, this.props.groupName, preview);
               if (preview.id === 'panzoom') {
-                console.log(preview);
                 spec = editScalesForPreview(spec, this.props.groupName, preview);
               }
               return (
