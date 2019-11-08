@@ -14,9 +14,9 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
     return state.set(String(id), action.payload);
   }
 
-  if (action.type === getType(interactionActions.setInteractionType)) {
+  if (action.type === getType(interactionActions.setSelectionType)) {
     const t = action.payload;
-    return state.setIn([String(id), 'interactionType'], t);
+    return state.setIn([String(id), 'selectionType'], t);
   }
 
   if (action.type === getType(interactionActions.setMappingType)) {

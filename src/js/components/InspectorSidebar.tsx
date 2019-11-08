@@ -14,11 +14,12 @@ import {GuideInspector} from './inspectors/Guide';
 import {LineInspector} from './inspectors/Line';
 import {RectInspector} from './inspectors/Rect';
 import {ScaleInspector} from './inspectors/Scale';
+import {InteractionInspector} from './inspectors/Interaction';
 import {SymbolInspector} from './inspectors/Symbol';
 import {TextInspector} from './inspectors/Text';
 
 const inspectors = {AreaInspector, GuideInspector, LineInspector,
-  RectInspector, ScaleInspector, SymbolInspector, TextInspector,
+  RectInspector, ScaleInspector, SymbolInspector, TextInspector, InteractionInspector,
   GroupInspector: RectInspector};
 
 interface Inspector {
@@ -26,6 +27,7 @@ interface Inspector {
   isMark: boolean,
   isGuide: boolean,
   isScale: boolean,
+  isInteraction: boolean,
   name: string,
   from: string,
   markType: string,
@@ -43,10 +45,12 @@ function mapStateToProps(state: State, ownProps): Inspector {
   const isMark  = selType === getType(inspectorActions.baseSelectMark);
   const isGuide = selType === getType(inspectorActions.selectGuide);
   const isScale = selType === getType(inspectorActions.selectScale);
+  const isInteraction = selType === getType(inspectorActions.selectInteraction);
 
   const primitive = isMark ? getInVis(state, `marks.${selId}`) :
     isGuide ? getInVis(state, `guides.${selId}`) :
-    isScale ? getInVis(state, `scales.${selId}`) : null;
+    isScale ? getInVis(state, `scales.${selId}`) :
+    isInteraction ? getInVis(state, `interactions.${selId}`) : null;
 
   let from;
   if (primitive && primitive.from && primitive.from.data) {
@@ -59,6 +63,7 @@ function mapStateToProps(state: State, ownProps): Inspector {
     isMark:  isMark,
     isGuide: isGuide,
     isScale: isScale,
+    isInteraction: isInteraction,
     name: primitive && primitive.get('name'),
     from: from,
     markType:  primitive && primitive.get('type'),
@@ -75,6 +80,7 @@ class BaseInspector extends React.Component<Inspector> {
     let primType: PrimType;
     let InspectorType;
 
+
     if (primId) {
       if (props.isMark && props.markType) {
         ctor = capitalize(props.markType);
@@ -85,6 +91,9 @@ class BaseInspector extends React.Component<Inspector> {
       } else if (props.isScale) {
         ctor = 'Scale';
         primType = PrimType.SCALES;
+      } else if (props.isInteraction) {
+        ctor = 'Interaction';
+        primType = PrimType.INTERACTIONS;
       }
       InspectorType = inspectors[ctor + 'Inspector'];
     }

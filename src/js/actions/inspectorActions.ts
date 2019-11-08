@@ -11,8 +11,9 @@ export namespace InspectorSelectedType {
   export const SELECT_MARK = 'SELECT_MARK';
   export const SELECT_PIPELINE = 'SELECT_PIPELINE';
   export const SELECT_SCALE = 'SELECT_SCALE';
+  export const SELECT_INTERACTION = 'SELECT_INTERACTION';
 }
-export type InspectorSelectedType = 'SELECT_GUIDE' | 'SELECT_MARK' | 'SELECT_PIPELINE' | 'SELECT_SCALE';
+export type InspectorSelectedType = 'SELECT_GUIDE' | 'SELECT_MARK' | 'SELECT_PIPELINE' | 'SELECT_SCALE' | 'SELECT_INTERACTION';
 
 /**
  * Return an object for the action to toggle a set of layers.
@@ -51,3 +52,4 @@ export function selectMark(id: number): ThunkAction<void, State, null, AnyAction
 
 export const selectPipeline = createStandardAction(InspectorSelectedType.SELECT_PIPELINE)<number>();
 export const selectScale = createStandardAction(InspectorSelectedType.SELECT_SCALE)<number>();
+export const selectInteraction = createStandardAction(InspectorSelectedType.SELECT_INTERACTION)<number>();

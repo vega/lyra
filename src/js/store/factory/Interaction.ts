@@ -4,18 +4,18 @@ export interface LyraInteraction {
   id: number;
   name: string;
   groupId: number;
-  interactionType: LyraInteractionType;
+  selectionType: LyraSelectionType;
   mappingType: LyraMappingType;
 };
 
-export type LyraInteractionType = "brush" | "brush_y" | "brush_x" | "single" | "multi";
+export type LyraSelectionType = "brush" | "brush_y" | "brush_x" | "single" | "multi";
 export type LyraMappingType = "color" | "opacity" | "size" | "text" | "panzoom";
 
 export const Interaction = Record<LyraInteraction>({
   id: null,
   name: null,
   groupId: null,
-  interactionType: null,
+  selectionType: null,
   mappingType: null,
 }, 'LyraInteraction');
 

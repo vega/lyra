@@ -1,5 +1,5 @@
 #layer-list {
-  height: 60%;
+  height: 50%;
   overflow-y: scroll;
   ul.group {
     white-space: nowrap;
@@ -20,7 +20,7 @@
 }
 
 #scale-list {
-  height: 40%;
+  height: 25%;
   overflow-y: scroll;
   background-color: $lgrey-bg;
   text-align: center;
@@ -37,6 +37,36 @@
   }
 
   .scale.name {
+    display: inline-block;
+    padding: $inner-padding;
+    text-align: center;
+
+    &.selected {
+      background-color: $lblue-bg;
+      border-color: $dblue-bg;
+    }
+  }
+}
+
+
+#interaction-list {
+  height: 25%;
+  overflow-y: scroll;
+  // background-color: $lgrey-bg;
+  text-align: center;
+
+  h2 {
+    color: $grey-font;
+  }
+
+  li {
+    float: left;
+    margin: $inner-padding;
+    margin-top: 0;
+    list-style-type: none;
+  }
+
+  .interaction.name {
     display: inline-block;
     padding: $inner-padding;
     text-align: center;

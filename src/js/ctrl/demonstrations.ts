@@ -400,7 +400,8 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
               "markname": "lyra_brush_brush"
             }
           ],
-          "update": "{x: x(unit), y: y(unit)" + ifXElse(", extent_x: slice(lyra_brush_x)", "") + ifYElse(", extent_y: slice(lyra_brush_y)", "") + "}"
+          // "update": "{x: x(unit), y: y(unit)" + ifXElse(", extent_x: slice(lyra_brush_x)", "") + ifYElse(", extent_y: slice(lyra_brush_y)", "") + "}"
+          "update": "{x: x(unit), y: y(unit), extent_x: slice(lyra_brush_x), extent_y: slice(lyra_brush_y)}"
         }
       ]
     },
@@ -973,9 +974,9 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
                 {
                   "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
                                                     "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
-                  "value": "10"
+                  "value": isDemonstratingInterval ? "10" : "20"
                 },
-                {"value": "5"}
+                {"value": isDemonstratingInterval ? "5" : "10"}
               ],
             }
           }

@@ -1,6 +1,7 @@
 import {ActionType, getType} from 'typesafe-actions';
 import * as inspectorActions from '../actions/inspectorActions';
 import * as markActions from '../actions/markActions';
+import * as interactionActions from '../actions/interactionActions';
 import {ExpandedLayers, Inspector, InspectorRecord} from '../store/factory/Inspector';
 
 function expandLayers(state: InspectorRecord, layerIds: number[]): InspectorRecord {
@@ -9,7 +10,7 @@ function expandLayers(state: InspectorRecord, layerIds: number[]): InspectorReco
   }, state);
 }
 
-export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.addMark>): InspectorRecord {
+export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.addMark | typeof interactionActions.addInteraction>): InspectorRecord {
   if (typeof state === 'undefined') {
     return Inspector();
   }
@@ -20,9 +21,15 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
 
   if (action.type === getType(inspectorActions.baseSelectMark) ||
     action.type === getType(inspectorActions.selectScale) ||
+    action.type === getType(inspectorActions.selectInteraction) ||
     action.type === getType(inspectorActions.selectGuide)) {
     state = state.setIn(['encodings', 'selectedId'], action.payload);
     state = state.setIn(['encodings', 'selectedType'], action.type);
+  }
+
+  if (action.type === getType(interactionActions.addInteraction)) {
+    state = state.setIn(['encodings', 'selectedId'], action.meta);
+    state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.selectInteraction));
   }
 
   if (action.type === getType(markActions.addMark)) {
