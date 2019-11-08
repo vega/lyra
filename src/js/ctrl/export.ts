@@ -233,16 +233,16 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
       if (interactions) {
         interactions.forEach((interactionId: number) => {
           const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
-          const interactionType = interaction.get('interactionType');
+          const selectionType = interaction.get('selectionType');
           const mappingType = interaction.get('mappingType');
-          if (interactionType) {
-            const intervalMatches = interactionPreviewDefs(true, false).filter((def) => def.id === interactionType);
+          if (selectionType) {
+            const intervalMatches = interactionPreviewDefs(true, false).filter((def) => def.id === selectionType);
             const isDemonstratingInterval = intervalMatches.length > 0;
             if (isDemonstratingInterval) {
               group.signals = editSignals(group.signals, intervalMatches[0].signals);
             }
             else {
-              const pointMatches = interactionPreviewDefs(false, true).filter((def) => def.id === interactionType);
+              const pointMatches = interactionPreviewDefs(false, true).filter((def) => def.id === selectionType);
               if (pointMatches.length) {
                 group.signals = editSignals(group.signals, pointMatches[0].signals);
               }
