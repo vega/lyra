@@ -1,10 +1,10 @@
 import {List, Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
+import {QUANTITATIVE} from 'vega-lite/src/type';
 import {Transforms} from 'vega-typings/types';
 import * as datasetActions from '../actions/datasetActions';
 import {Column, DatasetState} from '../store/factory/Dataset';
 import * as dsUtil from '../util/dataset-utils';
-import {QUANTITATIVE} from 'vega-lite/src/type';
 
 /**
  * Main datasets reducer function, which generates a new state for the
@@ -56,7 +56,7 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
       );
     }
 
-    return state.setIn([String(id), 'transform'], transforms.push(transform));
+    return state.setIn([String(id), 'transform'], transforms.concat(transform));
   }
 
   if (action.type === getType(datasetActions.updateTransform)) {

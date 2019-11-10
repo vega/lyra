@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { connect } from 'react-redux';
+import {Transforms} from 'vega';
 import {State} from '../../../store';
 import TransformInspector from './TransformInspector';
-import {Transforms} from 'vega';
 
 const getInVis = require('../../../util/immutable-utils').getInVis;
 

@@ -7,8 +7,8 @@ import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {DatasetRecord, Schema} from '../../store/factory/Dataset';
-import { Icon } from '../Icon';
 import {VegaReparseRecord} from '../../store/factory/Vega';
+import { Icon } from '../Icon';
 
 const d3 = require('d3');
 const dl = require('datalib');
@@ -128,30 +128,32 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
 
         <TransformList dsId={id} />
 
-        <div className='datatable'
-          onMouseLeave={this.hideHover} onScroll={this.hideHover}>
+        {output.length ? (
+          <div className='datatable'
+            onMouseLeave={this.hideHover} onScroll={this.hideHover}>
 
-          <table>
-            <tbody>
-              {keys.map(function(k) {
-                return (
-                  <tr key={k}>
-                    <td className={'field ' + (schema.get(k).source ? 'source' : 'derived')}
-                      onMouseOver={this.showHoverField}>{k}</td>
-                    {values.map(function(v, i) {
-                      return (
-                        <td key={k + i} className={i % 2 ? 'even' : 'odd'}
-                          onMouseOver={this.showHoverValue}>{v[k]}</td>
-                      );
-                    }, this)}
-                  </tr>
-                );
-              }, this)}
-            </tbody>
-          </table>
-          {id ? <HoverField dsId={id} schema={schema} def={state.hoverField} /> : null}
-          <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
-        </div>
+            <table>
+              <tbody>
+                {keys.map(function(k) {
+                  return (
+                    <tr key={k}>
+                      <td className={'field ' + (schema.get(k).source ? 'source' : 'derived')}
+                        onMouseOver={this.showHoverField}>{k}</td>
+                      {values.map(function(v, i) {
+                        return (
+                          <td key={k + i} className={i % 2 ? 'even' : 'odd'}
+                            onMouseOver={this.showHoverValue}>{v[k]}</td>
+                        );
+                      }, this)}
+                    </tr>
+                  );
+                }, this)}
+              </tbody>
+            </table>
+            {id ? <HoverField dsId={id} schema={schema} def={state.hoverField} /> : null}
+            <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
+          </div>
+        ) : null}
 
         <div className='paging'>
           <span>{fmt(start + 1)}–{stop > max ? fmt(max) : fmt(stop)} of {fmt(max)}</span>
