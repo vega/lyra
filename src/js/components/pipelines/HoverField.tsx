@@ -178,7 +178,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
 
         <FilterIcon dsId={dsId} field={field}/>
         <FormulaIcon dsId={dsId} field={field}/>
-        <SortIcon dsId={dsId} field={field} />
+        {/* <SortIcon dsId={dsId} field={field} /> */}
       </div>
     ) : null;
 
