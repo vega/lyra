@@ -1,5 +1,6 @@
 import {List, Map, Record, RecordOf} from 'immutable';
 import {applyMiddleware, createStore, Store} from 'redux';
+// import logger from 'redux-logger';
 import ReduxThunk from 'redux-thunk'; // redux-thunk lets us dispatch() functions to create async or multi-stage actions
 import rootReducer from '../reducers'; // reducer/index.js returns combinedReducers();
 import {DatasetRecord} from './factory/Dataset';

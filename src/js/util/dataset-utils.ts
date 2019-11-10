@@ -97,6 +97,22 @@ export function output(id: number) {
   return data || input(id) || [];
 }
 
+export function widgetParams(fieldDef, id: number) {
+  const data = output(id);
+  console.log(data);
+  let field = data.map(e => e[fieldDef.name]);
+  field = field.sort((a,b)=> a-b);
+  const length = field.length;
+  return {
+    max: field[length-1],
+    min: field[0],
+    mid: field[Math.floor(length/2)],
+    quart1: field[Math.floor(length/4)],
+    quart2: field[Math.floor(3*length/4)],
+    length,
+  }
+}
+
 export interface LoadUrlResult {
   data: string,
   pipeline: PipelineRecord,
@@ -217,6 +233,8 @@ module.exports = {
 
   input: input,
   output: output,
+
+  widgetParams: widgetParams,
 
   loadURL: loadURL,
   parseRaw: parseRaw,

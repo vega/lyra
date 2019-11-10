@@ -24,6 +24,17 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
     return state.setIn([String(id), 'mappingDef'], t);
   }
 
+  if (action.type === getType(interactionActions.addWidgetSignals)) {
+    const t = action.payload;
+    // const interaction = state.getIn(['vis', 'present', 'interactions']);
+    // console.log(interaction, "is interactiosn")
+    // let widgetSignals = interaction.widgetSignals;
+    // const match = widgetSignals.filter(e => e.name == t.name);
+    // if(match.length) return state;
+    // widgetSignals = [...widgetSignals, t];
+    return state.setIn([String(id), 'widgetSignals'], t);
+  }
+
   if (action.type === getType(interactionActions.deleteInteraction)) {
     return state.remove(String(id));
   }

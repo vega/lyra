@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {State} from '../../store';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import InteractionPreviewController from './InteractionPreviewController';
+import InteractionWidget from './InteractionWidget'
 import {MarkRecord} from '../../store/factory/Mark';
 import {Map} from 'immutable';
 
@@ -28,11 +29,17 @@ class InteractionPreviewContainer extends React.Component<StateProps> {
   }
   public render() {
 
+    const InteractionControllers = this.props.groups.map((id: number) => {
+      return <InteractionPreviewController key={id} groupId={id}></InteractionPreviewController>;
+    });
+
     return (
-      this.props.groups.map((id: number) => {
-        return <InteractionPreviewController key={id} groupId={id}></InteractionPreviewController>;
-      })
-    );
+      <React.Fragment>
+        <InteractionWidget></InteractionWidget>
+        {InteractionControllers}
+      </React.Fragment>
+    )
+
   }
 
 }

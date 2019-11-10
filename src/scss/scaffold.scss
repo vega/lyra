@@ -35,6 +35,30 @@ body {
     }
   }
 
+  .interaction-widget {
+    border: 1px solid #333333;
+    padding: $outer-padding;
+    border-radius: 3px;
+    display: inline-block;
+    margin: 0 2*$outer-padding 2*$outer-padding 2*$outer-padding;
+  }
+
+  .widgetPanel {
+    margin-top: 50px;
+    border: 2px solid red;
+    padding: 20px;
+  }
+
+    .widgetDemonstration {
+      display: inline-block;
+      margin: 0 25px;
+    }
+
+  .widgetPanel.disabled {
+    display: none;
+  }
+
+
   .interaction-preview-container .preview-controller {
     &.active {
       background: rgba(0,0,0,0.1);

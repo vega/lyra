@@ -1,5 +1,5 @@
 import {Map} from 'immutable';
-import {extend, isArray, isObject, isString, Mark, Spec} from 'vega';
+import {extend, isArray, isObject, isString, Mark, Spec, Signal} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
 import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
@@ -49,7 +49,17 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
   // add data stores for demonstration
   demonstrationDatasets(spec, state);
 
+  spec.signals = exporter.signals(state, int, prev);
+  console.log("spec", spec);
   return spec;
+}
+
+exporter.signals = function(state: State, internal: boolean, preview: boolean) {
+  const interaction = state.getIn(['vis', 'present', 'interactions']).valueSeq().toJS();
+  return interaction.reduce((signals, value) => {
+    signals = [...signals, ...value.widgetSignals];
+    return signals;
+  }, []);
 }
 
 exporter.pipelines = function(state: State, internal: boolean, preview: boolean) {
