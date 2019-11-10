@@ -34,7 +34,7 @@ const getInVis = imutils.getInVis;
 export const NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
 
-function def(id: number) {
+function def(id: number): DatasetRecord {
   return getInVis(store.getState(), 'datasets.' + id);
 }
 
@@ -95,11 +95,10 @@ export function input(id: number) {
  * @returns {Object[]} An array of objects.
  */
 export function output(id: number) {
-  const ctrl = require('../ctrl'),
-    ds = def(id),
-    view = ds && ctrl.view && ctrl.view.data(ds.get('name'));
-  // proposed change: ensure ds.values() return contents isnt empty
-  return view && view.values().length ? view.values() : input(id);
+  const ctrl = require('../ctrl');
+  const ds = def(id);
+  const data = ds && ctrl.view && ctrl.view.data(ds.name);
+  return data || input(id);
 }
 
 export interface LoadUrlResult {

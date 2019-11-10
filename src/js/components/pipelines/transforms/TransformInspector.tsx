@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
+import {connect} from 'react-redux';
+import {Dispatch} from 'redux';
 import {Transforms} from 'vega-typings/types';
 import {updateTransform} from '../../../actions/datasetActions';
 import {Filter as filter} from './Filter';
@@ -33,6 +33,7 @@ export class TransformInspector extends React.Component<OwnProps & DispatchProps
 
   public Filter = filter;
   public Formula = formula;
+  private timer = null;
 
   constructor(props) {
     super(props);
@@ -50,38 +51,32 @@ export class TransformInspector extends React.Component<OwnProps & DispatchProps
     window.clearTimeout(this.timer);
   }
 
-  private timer = null;
-
-  public resetTimer() {
-    const that = this;
+  public resetTimer = () => {
     window.clearTimeout(this.timer);
-    this.timer = window.setTimeout(function() {
-      that.setState({expanded: false});
+    this.timer = window.setTimeout(() => {
+      this.setState({expanded: false});
     }, 10000);
   }
 
-  public expand() {
+  public expand = () => {
     this.setState({expanded: true});
     this.resetTimer();
   }
 
-  public updateTransform(def) {
+  public updateTransform = (def) => {
     this.props.updateTransform(def);
     this.resetTimer();
   }
 
   public render() {
     const props = this.props;
-    const expanded = this.state.expanded;
-    const updateFn = this.updateTransform;
-    const expand = this.expand;
     const type = capitalize(props.def.type);
     const InspectorType = this[type];
 
-    return !expanded ?
-      (<div className='transform-button' onClick={expand}>{type}</div>) :
+    return !this.state.expanded ?
+      (<div className='transform-button' onClick={this.expand}>{type}</div>) :
       (<div className='transform-inspector'>
-        <InspectorType update={updateFn} {...props} />
+        <InspectorType update={this.updateTransform} {...props} />
       </div>);
   }
 }
