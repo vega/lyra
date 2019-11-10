@@ -1,34 +1,29 @@
 import * as React from 'react';
+import {FormulaTransform} from 'vega';
+import parseExpr from 'vega-parser/src/parsers/expression';
 import {Property} from '../../inspectors/Property';
 
-// const parseExpr = require('vega').parse.expr(); TODO
 
-
-interface FormulaObject {
-  type: string;
-  field: any;
-  expr: any;
-}
 interface OwnProps {
   dsId: number;
   index: number;
-  def: any; // Immutable.Map
-  update: (obj: FormulaObject) => any;
+  def: FormulaTransform;
+  update: (obj: FormulaTransform) => any;
 }
 
 export class Formula extends React.Component<OwnProps> {
 
-  public updateFormula(evt) {
+  public updateFormula = (evt) => {
     const props = this.props;
     const def = props.def;
-    const field = evt.target ? evt.target.value : def.get('field');
-    const expr  = evt.target ? def.get('expr') : evt;
+    const as = evt.target ? evt.target.value : def.as;
+    const expr = evt.target ? def.expr : evt;
 
     try {
-      // parseExpr(expr);
-      props.update({type: 'formula', field: field, expr: expr});
+      parseExpr(expr);
+      props.update({type: 'formula', as, expr});
     } catch (e) {
-      // Do nothing if the expression doesn't parse correctly.
+      // TODO: Indicate error in parsing expression.
     }
   }
 
@@ -39,12 +34,12 @@ export class Formula extends React.Component<OwnProps> {
 
     return (
       <div>
-        <Property type='autocomplete' label='Calculate'
+        <Property type='autocomplete' label='Calculate' autoType='expr'
           primType='datasets' primId={dsId} name={'transform.' + props.index + '.expr'}
           dsId={dsId} onChange={update} />
 
         <Property type='text' label='As' primType='datasets' primId={dsId}
-          name={'transform.' + props.index + '.field'} onChange={update} />
+          name={'transform.' + props.index + '.as'} onChange={update} />
       </div>
     );
   }

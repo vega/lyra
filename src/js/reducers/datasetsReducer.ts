@@ -3,7 +3,7 @@ import {ActionType, getType} from 'typesafe-actions';
 import {QUANTITATIVE} from 'vega-lite/src/type';
 import {Transforms} from 'vega-typings/types';
 import * as datasetActions from '../actions/datasetActions';
-import {Column, DatasetState} from '../store/factory/Dataset';
+import {Column, ColumnRecord, DatasetState} from '../store/factory/Dataset';
 import * as dsUtil from '../util/dataset-utils';
 
 /**
@@ -64,11 +64,11 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
     const transform = p.transform;
 
     if (transform.type === 'formula') {
-      const oldName = state.getIn([String(id), 'transform', p.index, 'field']);
-      const oldSchema = state.getIn([String(id), '_schema', oldName]);
-
+      const oldName = state.getIn([String(id), 'transform', p.index, 'as']);
+      const oldSchema: ColumnRecord = state.getIn([String(id), '_schema', oldName]);
       state = state.deleteIn([String(id), '_schema', oldName]);
-      state = state.setIn([String(id), '_schema', transform.as], oldSchema);
+      state = state.setIn([String(id), '_schema', transform.as],
+        oldSchema.set('name', transform.as));
     }
 
     return state.setIn([String(id), 'transform', p.index], p.transform);

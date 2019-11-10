@@ -27,6 +27,7 @@ interface OwnProps {
   glyph?: any;
   glyphs?: any;
   step?: any;
+  value?: any;
 }
 interface StateProps {
   value: string|number|boolean|any; // TODO(arlu): the any propTypes was Immutable.Map, not sure what it should be
@@ -38,7 +39,7 @@ interface DispatchProps {
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const signal = ownProps.signal;
-  return !signal ? {value: ''} : {
+  return !signal ? {value: ownProps.value} : {
     value: getInVis(reduxState, 'signals.' + signal + '.value')
   };
 }

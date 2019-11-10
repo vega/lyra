@@ -1,6 +1,7 @@
 'use strict';
 const getInVis = require('../../util/immutable-utils').getInVis;
 
+// TODO: derived fields?
 const SPAN_OPEN  = '<span class="field source" contenteditable="false">';
 const SPAN_CLOSE = '</span>';
 const DATUM = 'datum.';
