@@ -48,7 +48,7 @@ export function aggregatePipeline (id: number, aggregate: LyraAggregateTransform
     const state: State = getState();
     const pipeline: PipelineRecord = getInVis(state, 'pipelines.' + id);
     const srcId = pipeline._source;
-    const srcSchema: Schema = getInVis(state, 'datasets.' + srcId + '._schema').toJS();
+    const srcSchema: Schema = getInVis(state, 'datasets.' + srcId + '._schema');
     const schema = dsUtil.aggregateSchema(srcSchema, aggregate);
     const key = (aggregate.groupby as string[]).join('|'); // TODO: vega 2 aggregate.groupby is string[]
 

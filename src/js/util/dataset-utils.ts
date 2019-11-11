@@ -9,7 +9,7 @@
  */
 
 import {Map} from 'immutable';
-import {AggregateTransform, Datum, Format} from 'vega-typings/types';
+import {AggregateTransform, array, Datum, Format} from 'vega';
 import {store} from '../store';
 import {Column, ColumnRecord, Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
 import {Pipeline, PipelineRecord} from '../store/factory/Pipeline';
@@ -98,7 +98,7 @@ export function output(id: number) {
   const ctrl = require('../ctrl');
   const ds = def(id);
   const data = ds && ctrl.view && ctrl.view.data(ds.name);
-  return data || input(id);
+  return data || input(id) || [];
 }
 
 export interface LoadUrlResult {
@@ -203,25 +203,16 @@ export function schema(arg: object[]): Schema {
  */
 export function aggregateSchema(src: Schema, aggregate: AggregateTransform): Schema {
   const groupby = (aggregate.groupby as string[]); // TODO: in vega 2, groupby is string[]. consider revisiting to avoid cast
-  const aggSchema: Schema = groupby.reduce(function(acc: Schema, gb) {
-      return acc.set(gb, src.get(gb)), acc;
-    }, Map<string, ColumnRecord>());
+  const aggSchema: Schema = groupby.reduce((s: Schema, gb: string) => s.set(gb, src.get(gb)), Map<string, ColumnRecord>());
 
-  const numOps = groupby.length;
-
-  for (let i = 0; i < numOps; i++) {
-    const name = aggregate.as[i];
-    aggSchema[name] = {
-      name: name,
+  return array(aggregate.as).reduce((s: Schema, k: string) => {
+    return s.set(k, Column({
+      name: k,
       type: 'number',
       mtype: MTYPES.number,
       source: false
-    };
-  }
-
-
-
-  return aggSchema;
+    }));
+  }, aggSchema);
 }
 
 module.exports = {

@@ -9,7 +9,7 @@ import {ColumnRecord, Schema} from '../../store/factory/Dataset';
 import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import duplicate from '../../util/duplicate';
 import {Icon} from '../Icon';
-import AggregateList from './AggregateList';
+import {AggregateList} from './AggregateList';
 import FieldType from './FieldType';
 import FilterIcon from './transforms/FilterIcon';
 import FormulaIcon from './transforms/FormulaIcon';
@@ -91,12 +91,10 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
   public handleDragStart = (evt) => {
     const classList = evt.target.classList;
     this.setState((currentState) => {
-      // if an AggregateField isn't being dragged, close the menu
-      if (!classList.contains('aggregate-field')) {
-        return {...currentState, bindField: duplicate(this.state.fieldDef), showAggregates: false}
-      }
-      else {
-        return {...currentState, bindField: duplicate(this.state.fieldDef)};
+      return {
+        ...currentState,
+        bindField: duplicate(this.state.fieldDef),
+        showAggregates: classList.contains('aggregate-field')  // if an AggregateField isn't being dragged, close the menu
       }
     });
 

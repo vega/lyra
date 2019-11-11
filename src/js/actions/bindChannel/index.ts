@@ -59,7 +59,7 @@ export default function bindChannel(dsId: number, field, markId: number, propert
   return function(dispatch, getState) {
     const state = getState(),
       mark: MarkRecord = getInVis(state, 'marks.' + markId),
-      markType = mark.get('type'),
+      markType = mark.type,
       spec = vlSpec(mark),
       mapping = map(spec),
       channel = channelName(property),
@@ -91,6 +91,7 @@ export default function bindChannel(dsId: number, field, markId: number, propert
     parseScales(dispatch, state, parsed);
     parseMarks(dispatch, state, parsed);
 
+    // TODO:
     // if (parsed.map.data.summary) {
     //   updateAggregateDependencies(dispatch, getState(), parsed);
     // }
