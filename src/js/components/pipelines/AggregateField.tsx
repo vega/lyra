@@ -1,11 +1,12 @@
 import * as React from 'react';
+import {AggregateOp} from 'vega';
 import {ColumnRecord} from '../../store/factory/Dataset';
 import {AggregateHandlers} from './AggregateList';
 
 const AGGREGATE_OPS = require('../../constants/aggregateOps');
 
 interface OwnProps extends AggregateHandlers {
-  op: any; // propTypes.oneOf(AGGREGATE_OPS).isRequired,
+  op: AggregateOp;
   field: ColumnRecord
 }
 

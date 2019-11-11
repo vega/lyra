@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = [
-  'mean', 'median', 'min', 'max', 'sum', 'count', 'distinct', 'valid',
-  'missing', 'q1', 'q3', 'variance', 'variancep', 'stdev', 'stdevp',
-  'modeskew'
+  'count', 'mean', 'sum', 'min', 'max',
+  'variance', 'variancep', 'stdev', 'stdevp',
+  'median', 'q1', 'q3', 'modeskew'
 ];

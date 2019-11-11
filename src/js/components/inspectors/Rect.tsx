@@ -1,9 +1,9 @@
 'use strict';
 
 import * as React from 'react';
+import {PrimType} from '../../constants/primTypes';
 import {ExtentProperty} from './ExtentProperty';
 import {Property} from './Property';
-import {PrimType} from '../../constants/primTypes';
 
 interface RectInspectorProps {
   primId: number,

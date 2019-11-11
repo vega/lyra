@@ -32,7 +32,7 @@ export function pipelinesReducer(state: PipelineState, action: ActionType<typeof
 
   if (action.type === getType(pipelineActions.baseAggregatePipeline)) {
     const p = action.payload;
-    return state.setIn([id, '_aggregates', p.key], p.dsId);
+    return state.setIn([str(id), '_aggregates', p.key], p.dsId);
   }
 
   // TODO: this code is unused

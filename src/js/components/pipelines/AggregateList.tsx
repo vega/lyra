@@ -19,11 +19,10 @@ interface OwnProps {
 interface OwnState {
   fullList: boolean;
 }
-class TransformsList extends React.Component<OwnProps, OwnState> {
+export class AggregateList extends React.Component<OwnProps, OwnState> {
 
   constructor(props) {
     super(props);
-
     this.state = {fullList: false};
   }
   public componentWillReceiveProps(newProps: OwnProps) {
@@ -32,7 +31,7 @@ class TransformsList extends React.Component<OwnProps, OwnState> {
     }
   }
 
-  public expand() {
+  public expand = () => {
     this.setState({fullList: true});
   }
 
@@ -56,5 +55,3 @@ class TransformsList extends React.Component<OwnProps, OwnState> {
     );
   }
 }
-
-export default TransformsList;

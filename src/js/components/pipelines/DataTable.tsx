@@ -56,12 +56,7 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     };
   }
 
-  private $table;
-
-  public componentDidMount() {
-    const el = d3.select(ReactDOM.findDOMNode(this));
-    this.$table = el.select('.datatable');
-  };
+  private $table: any = React.createRef();
 
   public shouldComponentUpdate(nextProps: OwnProps & StateProps, nextState: OwnState) {
     const vega = nextProps.vega;
@@ -69,15 +64,13 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
   }
 
   public prevPage = () => {
-    const node = this.$table.node();
     this.setState({page: this.state.page - 1});
-    node.scrollLeft = 0;
+    this.$table.current.scrollLeft = 0;
   }
 
   public nextPage = () => {
-    const node = this.$table.node();
     this.setState({page: this.state.page + 1});
-    node.scrollLeft = 0;
+    this.$table.current.scrollLeft = 0;
   }
 
   public showHoverField = (evt) => {
@@ -113,7 +106,7 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     const keys = schema.keySeq().toArray();
     const max = output.length;
     const fmt = dl.format.auto.number();
-    const scrollLeft = this.$table && this.$table.node().scrollLeft;
+    const scrollLeft = this.$table.current && this.$table.current.scrollLeft;
 
     const prev = page > 0 ? (
       <Icon glyph={assets.prev} width='10' height='10' onClick={this.prevPage} />
@@ -129,7 +122,7 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
         <TransformList dsId={id} />
 
         {output.length ? (
-          <div className='datatable'
+          <div className='datatable' ref={this.$table}
             onMouseLeave={this.hideHover} onScroll={this.hideHover}>
 
             <table>

@@ -42,6 +42,7 @@ export type LyraUrlDataset = LyraDatasetProperties & UrlData;
 
 export const Dataset = Record<LyraDataset>({
   _id: null, _parent: null, _schema: null, name: null,
+  source: null,
   transform: []
 });
 export type DatasetRecord = RecordOf<LyraDataset>;

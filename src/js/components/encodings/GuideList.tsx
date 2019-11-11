@@ -79,7 +79,7 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
         </li>
 
         {props.guides.map(function(guide) {
-          const guideId = guide.get('_id');
+          const guideId = guide._id;
           let scaleId;
           if (guide._gtype === GuideType.Axis) {
             guide = guide as AxisRecord;
@@ -89,7 +89,7 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
             scaleId = guide[guide._type];
           }
           const name = capitalize(props.scales.getIn([scaleId, 'name']));
-          const type = capitalize(guide.get('_gtype'));
+          const type = capitalize(guide._gtype);
 
           return (
             <li key={guideId}>
