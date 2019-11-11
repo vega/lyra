@@ -1,14 +1,14 @@
 import {List, Map} from 'immutable';
 import {AnyAction, Reducer} from 'redux';
 import {getType} from 'typesafe-actions';
-import * as datasetActions from '../actions/datasetActions';
-import * as guideActions from '../actions/guideActions';
+import {addDataset} from '../actions/datasetActions';
+import {updateGuideProperty} from '../actions/guideActions';
 import * as historyActions from '../actions/historyActions';
-import * as signalActions from '../actions/signalActions';
+import {setSignal} from '../actions/signalActions';
 import {VisState} from '../store';
 
 const LIMIT = 20;
-const IMPLICIT_BATCH = [getType(signalActions.setSignal), getType(guideActions.updateGuideProperty)];
+const IMPLICIT_BATCH = [getType(setSignal), getType(updateGuideProperty)];
 const BATCH_INTERVAL = 500;  // ms to identify new batch for same implicit action.
 let batch = 0;
 let prevAction: AnyAction;
@@ -114,7 +114,7 @@ function implicitBatch(state: VisState, action: AnyAction, imPrev: boolean, imCu
 }
 
 function filter(state: VisState, action): boolean {
-  return batch === 0 && action.type !== getType(datasetActions.addDataset);
+  return batch === 0 && action.type !== getType(addDataset);
 }
 
 function insert(reducer: Reducer<Map<string, any>, AnyAction>, state: VisState, action: AnyAction): VisState {
@@ -138,7 +138,7 @@ function insert(reducer: Reducer<Map<string, any>, AnyAction>, state: VisState, 
     newPast = past;
     newFiltered = false;
   } else {
-    newPast = (past.push(present), past);
+    newPast = past.push(present);
   }
 
   return create(
@@ -153,7 +153,7 @@ function undo(state: VisState): VisState {
   const past = state.past;
   const present = state.present;
   const future  = state.future;
-  const newFuture = state.filtered ? future : List(present).concat(future);
+  const newFuture = state.filtered ? future : future.unshift(present);
 
   if (!past.size) {
     return state;
@@ -161,7 +161,7 @@ function undo(state: VisState): VisState {
 
   return create(
     past.pop(),
-    past.get(-1),
+    past.last(),
     newFuture
   );
 }
