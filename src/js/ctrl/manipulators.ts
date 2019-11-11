@@ -13,6 +13,10 @@ export default function manipulators(mark, spec) {
   const markName = exportName(mark.name);
   const manipName = `${markName}_manipulators`;
   const peek = `peek(data("${manipName}"))`;
+  const signals = Object.values(mark.encode.update)
+    .filter((s:any) => s && !!s.signal)
+    .map((s:any) => ({signal: s.signal}));
+
   return [spec,
     {
       type: 'group',
@@ -24,7 +28,8 @@ export default function manipulators(mark, spec) {
               type: ns('manipulators_' + mark.type),
               lyra_id: mark._id,
               lyra_selected: {signal: SELECTED},
-              lyra_mode: {signal: MODE}
+              lyra_mode: {signal: MODE},
+              signals
             },
             {
               type: 'window',
