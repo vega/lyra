@@ -30,7 +30,8 @@ Manipulators.Definition = {
   params: [
     {name: 'lyra_id', type: 'number', required: true},
     {name: 'lyra_selected', required: true},
-    {name: 'lyra_mode', required: true}
+    {name: 'lyra_mode', required: true},
+    {name: 'signals', array: true}
   ]
 }
 
