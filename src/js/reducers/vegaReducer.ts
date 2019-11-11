@@ -25,7 +25,7 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
   if (typeof state === 'undefined') {
     return VegaReparse({
       invalid: false,
-      isParsing: false,
+      isParsing: false
     });
   }
 
