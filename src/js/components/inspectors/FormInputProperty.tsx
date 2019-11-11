@@ -1,13 +1,12 @@
-// const Immutable = require('immutable'); TODO: Need type for Immutable.Map (see below)
 const ContentEditable = require('../ContentEditable');
 const getInVis = require('../../util/immutable-utils').getInVis;
 const ctrl = require('../../ctrl');
-const listeners = require('../../ctrl/listeners');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
 import {setSignal} from '../../actions/signalActions';
+import {offSignal, onSignal} from '../../ctrl/listeners';
 import sg from '../../ctrl/signals';
 import {State} from '../../store';
 import {Icon} from '../Icon';
@@ -93,22 +92,14 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
   public onSignal(signal) {
     signal = signal || this.props.signal;
     if (signal) {
-<<<<<<< HEAD
       onSignal(signal, this.signal);
-=======
-      listeners.onSignal(signal, this.signal.bind(this));
->>>>>>> signal syncing between views works
     }
   };
 
   public offSignal(signal) {
     signal = signal || this.props.signal;
     if (signal) {
-<<<<<<< HEAD
       offSignal(signal, this.signal);
-=======
-      listeners.offSignal(signal, this.signal.bind(this));
->>>>>>> signal syncing between views works
     }
   };
 
