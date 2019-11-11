@@ -81,8 +81,8 @@ function updateSelectedMarkInVega(selectedMark, vegaView) {
   }
 
   var selectedSignal = vegaView.signal(sg.SELECTED),
-      def = selectedSignal.mark.def,
-      vegaSelectedId = def && def.lyra_id,
+      role = selectedSignal.mark.role,
+      vegaSelectedId = role && +role.split('lyra_')[1],
       selectedMarkId = selectedMark.get('_id');
 
   // If the store and the Vega scene graph are in sync, take no action
@@ -97,10 +97,12 @@ function updateSelectedMarkInVega(selectedMark, vegaView) {
       item = hierarchy.findInItemTree(vegaView.scenegraph().root.items[0], markIds);
 
   // If an item was found, set the Lyra mode signal so that the handles appear.
-  if (item !== null) {
-    vegaView.signal(sg.SELECTED, item);
-    vegaView.runAsync();
-  }
+  (vegaView._running || Promise.resolve(true)).then(function() {
+    if (item !== null) {
+      vegaView.signal(sg.SELECTED, item);
+      vegaView.runAsync();
+    }
+  });
 }
 
 /**
