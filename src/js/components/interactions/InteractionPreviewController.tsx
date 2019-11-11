@@ -186,7 +186,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState: OwnState) {
     if (prevProps.vegaIsParsing && !this.props.vegaIsParsing) {
-      const spec = cleanSpecForPreview(ctrl.export(false, true));
+      const spec = cleanSpecForPreview(ctrl.export(false, true), this.props.groupName);
       // spec = resizeSpec(spec, 100, 100);
       this.setState({
         spec

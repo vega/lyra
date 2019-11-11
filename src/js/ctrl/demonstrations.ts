@@ -225,7 +225,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
           "events": {
             "signal": "brush_scale_trigger"
           },
-          "update": ifXElse(`[scale(\"${xScaleName}\", brush_${xFieldName}[0]), scale(\"${xScaleName}\", brush_${xFieldName}[1])]`, "[width, 0]")
+          "update": ifXElse(`[scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}[0]), scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}[1])]`, "[width, 0]")
         },
         {
           "events": {
@@ -251,7 +251,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       ]
     },
     {
-      "name": ifXElse(`brush_${xFieldName}`, "brush_x_field_undefined"),
+      "name": ifXElse(`brush_${xFieldName}_${xScaleName}`, "brush_x_field_undefined"),
       "on": ifXElse([
         {
           "events": {
@@ -300,7 +300,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
           "events": {
             "signal": "brush_scale_trigger"
           },
-          "update": ifYElse(`[scale(\"${yScaleName}\", brush_${yFieldName}[0]), scale(\"${yScaleName}\", brush_${yFieldName}[1])]`, "[0, height]")
+          "update": ifYElse(`[scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}[0]), scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}[1])]`, "[0, height]")
         },
         {
           "events": {
@@ -326,7 +326,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       ]
     },
     {
-      "name": ifYElse(`brush_${yFieldName}`, "brush_y_field_undefined"),
+      "name": ifYElse(`brush_${yFieldName}_${yScaleName}`, "brush_y_field_undefined"),
       "on": ifYElse([
         {
           "events": {
@@ -351,9 +351,9 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
                       }
                     ], [])),
           "update":
-            ifXElse(`(!isArray(brush_${xFieldName}) || (+invert(\"${xScaleName}\", lyra_brush_x)[0] === +brush_${xFieldName}[0] && +invert(\"${xScaleName}\", lyra_brush_x)[1] === +brush_${xFieldName}[1]))`, '') +
+            ifXElse(`(!isArray(brush_${xFieldName}_${xScaleName}) || (+invert(\"${xScaleName}\", lyra_brush_x)[0] === +brush_${xFieldName}_${xScaleName}[0] && +invert(\"${xScaleName}\", lyra_brush_x)[1] === +brush_${xFieldName}_${xScaleName}[1]))`, '') +
             ifXY(" && ") +
-            ifYElse(`(!isArray(brush_${yFieldName}) || (+invert(\"${yScaleName}\", lyra_brush_y)[0] === +brush_${yFieldName}[0] && +invert(\"${yScaleName}\", lyra_brush_y)[1] === +brush_${yFieldName}[1]))`, '') +
+            ifYElse(`(!isArray(brush_${yFieldName}_${yScaleName}) || (+invert(\"${yScaleName}\", lyra_brush_y)[0] === +brush_${yFieldName}_${yScaleName}[0] && +invert(\"${yScaleName}\", lyra_brush_y)[1] === +brush_${yFieldName}_${yScaleName}[1]))`, '') +
             ` ? brush_scale_trigger : {}`
         }
       ]
@@ -364,11 +364,11 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
         {
           "events": [
             {
-              "signal": ifXElse(`brush_${xFieldName}`, "") + ifXY(" || ") + ifYElse(`brush_${yFieldName}`, "")
+              "signal": ifXElse(`brush_${xFieldName}_${xScaleName}`, "") + ifXY(" || ") + ifYElse(`brush_${yFieldName}_${yScaleName}`, "")
             }
           ],
-          "update": ifXElse(`brush_${xFieldName}`, "") + ifXY(" && ") + ifYElse(`brush_${yFieldName}`, "") + " ? {unit: \"\", fields: tuple_fields, values: [" +
-                        ifXElse(`brush_${xFieldName}`, "") + ifXY(",") + ifYElse(`brush_${yFieldName}`, "") + "]} : null"
+          "update": ifXElse(`brush_${xFieldName}_${xScaleName}`, "") + ifXY(" && ") + ifYElse(`brush_${yFieldName}_${yScaleName}`, "") + " ? {unit: \"\", fields: tuple_fields, values: [" +
+                        ifXElse(`brush_${xFieldName}_${xScaleName}`, "") + ifXY(",") + ifYElse(`brush_${yFieldName}_${yScaleName}`, "") + "]} : null"
         }
       ]
     },
@@ -471,7 +471,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     },
 
     {
-      "name": ifXElse(`grid_${xFieldName}`, "grid_x_field_undefined"),
+      "name": ifXElse(`grid_${xFieldName}_${xScaleName}`, "grid_x_field_undefined"),
       "on": ifXElse([
         {
           "events": {"signal": "grid_translate_delta"},
@@ -485,7 +485,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       ], [])
     },
     {
-      "name": ifYElse(`grid_${yFieldName}`, "grid_y_field_undefined"),
+      "name": ifYElse(`grid_${yFieldName}_${yScaleName}`, "grid_y_field_undefined"),
       "on": ifYElse([
         {
           "events": {"signal": "grid_translate_delta"},
@@ -502,8 +502,8 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
       "name": "grid_tuple",
       "on": [
         {
-          "events": [{"signal": ifXElse(`grid_${xFieldName}`, "") + ifXY(" || ") + ifYElse(`grid_${yFieldName}`, "")}],
-          "update": ifXElse(`grid_${xFieldName}`, "") + ifXY(" && ") + ifYElse(`grid_${yFieldName}`, "") + "? {unit: \"\", fields: tuple_fields, values: [" + ifXElse(`grid_${xFieldName}`, "") + ifXY(",") + ifYElse(`grid_${yFieldName}`, "") + "]} : null"
+          "events": [{"signal": ifXElse(`grid_${xFieldName}_${xScaleName}`, "") + ifXY(" || ") + ifYElse(`grid_${yFieldName}_${yScaleName}`, "")}],
+          "update": ifXElse(`grid_${xFieldName}_${xScaleName}`, "") + ifXY(" && ") + ifYElse(`grid_${yFieldName}_${yScaleName}`, "") + "? {unit: \"\", fields: tuple_fields, values: [" + ifXElse(`grid_${xFieldName}_${xScaleName}`, "") + ifXY(",") + ifYElse(`grid_${yFieldName}_${yScaleName}`, "") + "]} : null"
         }
       ]
     },
@@ -661,19 +661,23 @@ function scaleTypeSimple(scaleType): ScaleSimpleType {
   }
 }
 
-export function cleanSpecForPreview(sceneSpec) {
+export function cleanSpecForPreview(sceneSpec, groupName) {
   const sceneUpdated = duplicate(sceneSpec);
-  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
+  sceneUpdated.marks = sceneUpdated.marks.filter(markSpec => {
+    return markSpec.name && markSpec.type === 'group' ? markSpec.name === groupName : true; // remove top-level groups (views) other than the relevant one
+  }).map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
       markSpec.axes = markSpec.axes.map((axis) => {
         return {...axis, title: '', labels: false};
       });
       markSpec.legends = [];
+      markSpec.encode.update.x = {"value": 0};
+      markSpec.encode.update.y = {"value": 0};
       markSpec.encode.update.width = {"signal": "width"};
       markSpec.encode.update.height = {"signal": "height"};
 
       if (markSpec.marks.length &&
-        markSpec.marks[0].type === 'symbol' && // TODO(jzong) what about other mark types?
+        markSpec.marks[0].type === 'symbol' &&
         markSpec.marks[0].encode.update.size.value) {
         markSpec.marks[0].encode.update.size = {"value": "10"};
       }

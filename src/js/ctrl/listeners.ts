@@ -209,7 +209,7 @@ export function registerSignalListeners() {
 
     Object.keys(groupListeners).forEach(function(groupName) {
       Object.keys(groupListeners[groupName]).forEach(function(signalName) {
-        const maybeSignal = getSignalOperatorFromGroup(groupName, signalName);
+        const maybeSignal = getSignalOperatorInGroup(ctrl.view, groupName, signalName);
         if (!maybeSignal) {
           groupListeners[groupName][signalName] = [];
         } else {
