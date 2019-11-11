@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {Signal, Spec} from 'vega';
-import {getScaleNameFromAxisRecords, getFieldFromScaleRecordName, cleanSpecForPreview, editSignalsForPreview, interactionPreviewDefs, mappingPreviewDefs, editMarksForPreview, editScalesForPreview, getScaleTypeFromAxisRecords, ScaleSimpleType} from '../../ctrl/demonstrations';
+import {getScaleInfoForGroup, cleanSpecForPreview, editSignalsForPreview, interactionPreviewDefs, mappingPreviewDefs, editMarksForPreview, editScalesForPreview, ScaleSimpleType} from '../../ctrl/demonstrations';
 import InteractionPreview from './InteractionPreview';
 import {InteractionRecord, LyraSelectionType, LyraMappingType, Interaction} from '../../store/factory/Interaction';
 import {Dispatch} from 'redux';
@@ -64,6 +64,7 @@ export interface LyraMappingPreviewDef {
   markProperties: any // partial mark object,
 
   scaleProperties?: any[] // list of partial scale objects
+  datasetProperties?: any // partial dataset object
 }
 
 interface OwnState {
@@ -75,18 +76,11 @@ interface OwnState {
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
-  const xScaleName = getScaleNameFromAxisRecords(state, 'x'); // TODO(jzong) how do we distinguish which view (group mark) an axis belongs to?
-  const yScaleName = getScaleNameFromAxisRecords(state, 'y');
-
-  const xFieldName = getFieldFromScaleRecordName(state, xScaleName);
-  const yFieldName = getFieldFromScaleRecordName(state, yScaleName);
-
-  const xScaleType = getScaleTypeFromAxisRecords(state, 'x')
-  const yScaleType = getScaleTypeFromAxisRecords(state, 'y')
+  const scaleInfo = getScaleInfoForGroup(state, ownProps.groupId);
 
   const isParsing = state.getIn(['vega', 'isParsing']);
 
-  const canDemonstrate = Boolean(!isParsing && ctrl.view && (xScaleName && xFieldName || yScaleName && yFieldName));
+  const canDemonstrate = Boolean(!isParsing && ctrl.view && (scaleInfo.xScaleName && scaleInfo.xFieldName || scaleInfo.yScaleName && scaleInfo.yFieldName));
 
   const groupRecord: GroupRecord = state.getIn(['vis', 'present', 'marks', String(ownProps.groupId)]);
 
@@ -127,14 +121,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     marksOfGroup,
     groupName: exportName(groupRecord.name),
     interactionRecord,
-    scaleInfo: {
-      xScaleName,
-      yScaleName,
-      xFieldName,
-      yFieldName,
-      xScaleType,
-      yScaleType,
-    }
+    scaleInfo
   };
 }
 
@@ -205,13 +192,15 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
     if (prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval ||
         prevState.isDemonstratingPoint !== this.state.isDemonstratingPoint) {
-      if (!this.props.interactionRecord) {
-        console.log('make new');
-        this.props.addInteraction(this.props.groupId);
-      }
-      else {
-        console.log('select existing');
-        this.props.selectInteraction(this.props.interactionRecord.id);
+      if (this.state.isDemonstratingInterval || this.state.isDemonstratingPoint) {
+        if (!this.props.interactionRecord) {
+          console.log('make new');
+          this.props.addInteraction(this.props.groupId);
+        }
+        else {
+          console.log('select existing');
+          this.props.selectInteraction(this.props.interactionRecord.id);
+        }
       }
       this.setState({
         interactionPreviews: this.getInteractionPreviewDefs(),

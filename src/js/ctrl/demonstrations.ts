@@ -1,4 +1,4 @@
-import {GroupMark} from "vega";
+import {GroupMark, Axis, Scale} from "vega";
 import {GuideRecord} from "../store/factory/Guide";
 import {Map} from 'immutable';
 import {ScaleRecord} from "../store/factory/Scale";
@@ -6,6 +6,7 @@ import {State} from "../store";
 import {LyraInteractionPreviewDef, LyraMappingPreviewDef, ScaleInfo} from "../components/interactions/InteractionPreviewController";
 import duplicate from "../util/duplicate";
 import {LyraMarkType} from "../store/factory/Mark";
+import {GroupRecord} from "../store/factory/marks/Group";
 
 function conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName) {
   return {
@@ -14,12 +15,9 @@ function conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldN
     ifXY: (e1) => xScaleName && xFieldName && yScaleName && yFieldName ? e1 : ''
   }
 }
-export default function demonstrations(groupSpec, state: State) {
+export default function demonstrations(groupSpec, groupId: number, state: State) {
   if (groupSpec.name) { // don't touch manipulators, which don't have names
-    const xScaleName = getScaleNameFromAxisRecords(state, 'x');
-    const xFieldName = getFieldFromScaleRecordName(state, xScaleName);
-    const yScaleName = getScaleNameFromAxisRecords(state, 'y');
-    const yFieldName = getFieldFromScaleRecordName(state, yScaleName);
+    const {xScaleName, xFieldName, yScaleName, yFieldName} = getScaleInfoForGroup(state, groupId);
 
     if (!(xScaleName && xFieldName || yScaleName && yFieldName)) {
       // cannot currently demonstrate
@@ -601,36 +599,38 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
   return groupSpec;
 }
 
-export function getScaleNameFromAxisRecords(state: State, axisType: 'x' | 'y'): string {
+function getScaleRecordForAxisType(state: State, groupId: number): {scaleRecordX: ScaleRecord, scaleRecordY: ScaleRecord} {
+  const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groupId)]);
+  const axisIds: string[] = (group.get('axes') as any as number[]).map(x => String(x)); // TODO (vega-typings thinks these are Axis objects but they're ids)
   const guides: Map<string, GuideRecord> = state.getIn(['vis', 'present', 'guides']);
-  return guides.filter((axis) => {
-    return axis.get('_gtype') == 'axis' && axisType === 'x' && (axis.get('orient') === 'top' || axis.get('orient') === 'bottom') ||
-            axisType === 'y' && (axis.get('orient') === 'left' || axis.get('orient') === 'right');
-  }).map((axis) => {
-    return state.getIn(['vis', 'present', 'scales', axis.get('scale'), 'name']);
-  }).first(null);
+  const axisGuides = guides.filter((axis, id) => {
+    return axisIds.indexOf(id) >= 0 && axis.get('_gtype') == 'axis';
+  });
+  const ret = {
+    scaleRecordX: null,
+    scaleRecordY: null
+  }
+  axisGuides.forEach((axis) => {
+    if (axis.get('orient') === 'top' || axis.get('orient') === 'bottom') {
+      ret.scaleRecordX = state.getIn(['vis', 'present', 'scales', axis.get('scale')]);
+    }
+    if (axis.get('orient') === 'left' || axis.get('orient') === 'right') {
+      ret.scaleRecordY = state.getIn(['vis', 'present', 'scales', axis.get('scale')]);
+    }
+  });
+  return ret;
 }
 
-export function getFieldFromScaleRecordName(state: State, scaleName: string): string {
-  const scales: Map<string, ScaleRecord> = state.getIn(['vis', 'present', 'scales']);
-  return scales.filter((scale) => {
-    return scale.get('name') === scaleName;
-  }).map((scale) => {
-    const domain = scale.get('_domain');
-    // TODO(jzong) assume there is one domain?
-    return domain[0].field;
-  }).first(null);
-}
-
-export function getScaleTypeFromAxisRecords(state: State, axisType: 'x' | 'y'): ScaleSimpleType {
-  const guides: Map<string, GuideRecord> = state.getIn(['vis', 'present', 'guides']);
-  return guides.filter((axis) => {
-    return axis.get('_gtype') == 'axis' && axisType === 'x' && (axis.get('orient') === 'top' || axis.get('orient') === 'bottom') ||
-            axisType === 'y' && (axis.get('orient') === 'left' || axis.get('orient') === 'right');
-  }).map((axis) => {
-    const type = state.getIn(['vis', 'present', 'scales', axis.get('scale'), 'type']);
-    return scaleTypeSimple(type);
-  }).first(null);
+export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
+  const {scaleRecordX, scaleRecordY} = getScaleRecordForAxisType(state, groupId);
+  return {
+    xScaleName: scaleRecordX ? scaleRecordX.get('name') : null,
+    xFieldName: scaleRecordX ? scaleRecordX.get('_domain')[0].field : null,
+    xScaleType: scaleRecordX ? scaleTypeSimple(scaleRecordX.get('type')) : null,
+    yScaleName: scaleRecordY ? scaleRecordY.get('name') : null,
+    yFieldName: scaleRecordY ? scaleRecordY.get('_domain')[0].field : null,
+    yScaleType: scaleRecordY ? scaleTypeSimple(scaleRecordY.get('type')) : null,
+  };
 }
 
 export namespace ScaleSimpleType {
@@ -1008,7 +1008,7 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
       id: "panzoom",
       label: "Pan and zoom",
       markProperties: {
-        clip: {value: true}
+        "clip": {"value": true}
       },
       scaleProperties: [].concat(ifXElse([
         {
@@ -1023,5 +1023,11 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
     }
     defs.push(panzoomDef);
   }
+  return defs;
+}
+
+function filterViewMappingPreviewDefs(spec) {
+  const defs = [];
+
   return defs;
 }

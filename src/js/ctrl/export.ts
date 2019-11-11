@@ -9,7 +9,7 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {signalLookup} from '../util/signal-lookup';
 import manipulators from './manipulators';
-import demonstrations, {interactionPreviewDefs, mappingPreviewDefs, editSignals, editMarks, getScaleNameFromAxisRecords, getFieldFromScaleRecordName, getScaleTypeFromAxisRecords, editScales} from './demonstrations';
+import demonstrations, {interactionPreviewDefs, mappingPreviewDefs, editSignals, editMarks, editScales, getScaleInfoForGroup} from './demonstrations';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -226,7 +226,7 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
       {name: 'height', value: groupSize(mark, 'y')},
     );
     // Add demonstrations
-    demonstrations(group, state);
+    demonstrations(group, id, state);
     // Add interaction signals
     if (!preview) {
       const interactions = mark._interactions;
@@ -251,16 +251,7 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
               let scaleInfo = undefined;
               let axis = undefined;
               if (isDemonstratingInterval) {
-                const xScaleName = getScaleNameFromAxisRecords(state, 'x'); // TODO(jzong) how do we distinguish which view (group mark) an axis belongs to?
-                const yScaleName = getScaleNameFromAxisRecords(state, 'y');
-
-                const xFieldName = getFieldFromScaleRecordName(state, xScaleName);
-                const yFieldName = getFieldFromScaleRecordName(state, yScaleName);
-
-                const xScaleType = getScaleTypeFromAxisRecords(state, 'x')
-                const yScaleType = getScaleTypeFromAxisRecords(state, 'y')
-
-                scaleInfo = {xScaleName, yScaleName, xFieldName, yFieldName, xScaleType, yScaleType};
+                const scaleInfo = getScaleInfoForGroup(state, id);
                 if (intervalMatches[0].id === 'brush_x') {
                   axis = 'x';
                 }
