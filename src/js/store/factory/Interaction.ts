@@ -1,22 +1,20 @@
 import {Map, Record, RecordOf} from 'immutable';
+import {LyraSelectionPreviewDef, LyraMappingPreviewDef} from '../../components/interactions/InteractionPreviewController';
 
 export interface LyraInteraction {
   id: number;
   name: string;
   groupId: number;
-  selectionType: LyraSelectionType;
-  mappingType: LyraMappingType;
+  selectionDef: LyraSelectionPreviewDef;
+  mappingDef: LyraMappingPreviewDef;
 };
-
-export type LyraSelectionType = "brush" | "brush_y" | "brush_x" | "single" | "multi";
-export type LyraMappingType = "color" | "opacity" | "size" | "text" | "panzoom";
 
 export const Interaction = Record<LyraInteraction>({
   id: null,
   name: null,
   groupId: null,
-  selectionType: null,
-  mappingType: null,
+  selectionDef: null,
+  mappingDef: null,
 }, 'LyraInteraction');
 
 export type InteractionRecord = RecordOf<LyraInteraction>;

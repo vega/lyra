@@ -2,11 +2,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {Signal, Spec} from 'vega';
-import {getScaleInfoForGroup, cleanSpecForPreview, editSignalsForPreview, interactionPreviewDefs, mappingPreviewDefs, editMarksForPreview, editScalesForPreview, ScaleSimpleType} from '../../ctrl/demonstrations';
+import {getScaleInfoForGroup, cleanSpecForPreview, editSignalsForPreview, selectionPreviewDefs, mappingPreviewDefs, editMarksForPreview, editScalesForPreview, ScaleSimpleType} from '../../ctrl/demonstrations';
 import InteractionPreview from './InteractionPreview';
-import {InteractionRecord, LyraSelectionType, LyraMappingType, Interaction} from '../../store/factory/Interaction';
+import {InteractionRecord, Interaction} from '../../store/factory/Interaction';
 import {Dispatch} from 'redux';
-import {addInteraction, setSelectionType, setMappingType} from '../../actions/interactionActions';
+import {addInteraction, setSelection, setMapping} from '../../actions/interactionActions';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import exportName from '../../util/exportName';
 import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
@@ -44,20 +44,20 @@ export interface ScaleInfo {
 
 interface DispatchProps {
   addInteraction: (groupId: number) => number; // return id of newly created interaction
-  setSelectionType: (type: LyraSelectionType, id: number) => void;
-  setMappingType: (type: LyraMappingType, id: number) => void;
+  setSelection: (def: any, id: number) => void;
+  setMapping: (def: any, id: number) => void;
   selectInteraction: (id: number) => void;
 }
 
-export interface LyraInteractionPreviewDef {
-  id: LyraSelectionType,
+export interface LyraSelectionPreviewDef {
+  id: string,
   label: string,
   ref?: React.RefObject<InteractionPreview>,
   signals: Signal[]
 }
 
 export interface LyraMappingPreviewDef {
-  id: LyraMappingType,
+  id: string,
   label: string,
   ref?: React.RefObject<InteractionPreview>,
   markType?: Exclude<LyraMarkType, 'group'>,
@@ -71,7 +71,7 @@ interface OwnState {
   isDemonstratingInterval: boolean,
   isDemonstratingPoint: boolean,
   spec: Spec,
-  interactionPreviews: LyraInteractionPreviewDef[],
+  selectionPreviews: LyraSelectionPreviewDef[],
   mappingPreviews: LyraMappingPreviewDef[]
 }
 
@@ -95,7 +95,6 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const selType = encState.get('selectedType');
   const isSelectedInteraction = selType === getType(selectInteraction);
 
-  console.log('find interaction record id');
   let interactionRecordId = null;
   if (isSelectedInteraction) {
     const maybeIdInGroup = groupRecord.get('_interactions').filter(id => id === selId);
@@ -106,7 +105,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   if (!interactionRecordId) {
     const maybeUnfinishedSpecification = groupRecord.get('_interactions').filter(id => {
       const record: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(id)]);
-      return !Boolean(record.selectionType && record.mappingType);
+      return !Boolean(record.selectionDef && record.mappingDef);
     });
     if (maybeUnfinishedSpecification.length) {
       interactionRecordId = maybeUnfinishedSpecification[0];
@@ -136,11 +135,11 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
       dispatch(addInteractionToGroup(addAction.meta, groupId));
       return addAction.meta;
     },
-    setSelectionType: (type: LyraSelectionType, id: number) => {
-      dispatch(setSelectionType(type, id));
+    setSelection: (def: any, id: number) => {
+      dispatch(setSelection(def, id));
     },
-    setMappingType: (type: LyraMappingType, id: number) => {
-      dispatch(setMappingType(type, id));
+    setMapping: (def: any, id: number) => {
+      dispatch(setMapping(def, id));
     },
     selectInteraction: (id: number) => {
       dispatch(selectInteraction(id));
@@ -157,14 +156,14 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       isDemonstratingInterval: false,
       isDemonstratingPoint: false,
       spec: null,
-      interactionPreviews: [],
+      selectionPreviews: [],
       mappingPreviews: []
     };
   }
 
   public componentDidMount() {
     // for debugging
-    (window as any).dumpSignals = () => {
+    (window as any)["dumpSignals"+this.props.groupName] = () => {
       for (let signalName of ['brush', 'lyra_brush_x', 'lyra_brush_y', 'brush_x', 'brush_y', 'points_tuple', 'points_toggle']) {
         console.log(signalName, listeners.getSignalInGroup(ctrl.view, this.props.groupName, signalName))
       }
@@ -194,16 +193,14 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
         prevState.isDemonstratingPoint !== this.state.isDemonstratingPoint) {
       if (this.state.isDemonstratingInterval || this.state.isDemonstratingPoint) {
         if (!this.props.interactionRecord) {
-          console.log('make new');
           this.props.addInteraction(this.props.groupId);
         }
         else {
-          console.log('select existing');
           this.props.selectInteraction(this.props.interactionRecord.id);
         }
       }
       this.setState({
-        interactionPreviews: this.getInteractionPreviewDefs(),
+        selectionPreviews: this.getSelectionPreviewDefs(),
         mappingPreviews: this.getMappingPreviewDefs()
       });
     }
@@ -211,12 +208,12 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
   private mainViewSignalValues = {};
 
-  private getInteractionPreviewDefs(): LyraInteractionPreviewDef[] {
+  private getSelectionPreviewDefs(): LyraSelectionPreviewDef[] {
     if (this.state.isDemonstratingInterval) {
-      return interactionPreviewDefs(this.state.isDemonstratingInterval, false, this.props.marksOfGroup, this.props.scaleInfo);
+      return selectionPreviewDefs(this.state.isDemonstratingInterval, false, this.props.marksOfGroup, this.props.scaleInfo);
     }
     if (this.state.isDemonstratingPoint) {
-      return interactionPreviewDefs(false, this.state.isDemonstratingPoint, this.props.marksOfGroup, this.props.scaleInfo);
+      return selectionPreviewDefs(false, this.state.isDemonstratingPoint, this.props.marksOfGroup, this.props.scaleInfo);
     }
     return [];
   }
@@ -224,13 +221,13 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   private getMappingPreviewDefs(): LyraMappingPreviewDef[] {
     if (this.state.isDemonstratingInterval || this.state.isDemonstratingPoint) {
       let axis = undefined;
-      if (this.props.interactionRecord && this.props.interactionRecord.selectionType === 'brush_x') {
-        axis = 'x';
+      if (this.props.interactionRecord && this.props.interactionRecord.selectionDef) {
+        switch(this.props.interactionRecord.selectionDef.id) {
+          case 'brush_x': axis = 'x'; break;
+          case 'brush_y': axis = 'y'; break;
+        }
       }
-      else if (this.props.interactionRecord && this.props.interactionRecord.selectionType === 'brush_y') {
-        axis = 'y';
-      }
-      return mappingPreviewDefs(this.state.isDemonstratingInterval, this.props.marksOfGroup, this.props.scaleInfo, axis);
+      return mappingPreviewDefs(this.state.isDemonstratingInterval, this.props.marksOfGroup, this.props.scaleInfo, axis, this.props.groupName, ctrl.export());
     }
     return [];
   }
@@ -257,7 +254,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
         });
       }
 
-    this.state.interactionPreviews.forEach(preview => {
+    this.state.selectionPreviews.forEach(preview => {
       if (preview.ref.current) {
         preview.ref.current.setPreviewSignal(name, value);
       }
@@ -272,7 +269,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   private cancelDemonstrationTimeout = null;
 
   private onMainViewIntervalSignal(name, value) {
-    // console.log(name, value);
     this.mainViewSignalValues[name] = value;
     const isDemonstratingInterval = this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&
@@ -308,7 +304,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       }
     });
 
-    this.state.interactionPreviews.forEach(preview => {
+    this.state.selectionPreviews.forEach(preview => {
       if (preview.ref.current) {
         preview.ref.current.setPreviewSignal(name, scaledValue);
       }
@@ -332,49 +328,49 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     listeners.onSignalInGroup(ctrl.view, this.props.groupName, signalName, handler);
   }
 
-  private onClickInteractionPreview(previewId: LyraSelectionType) {
-    if (this.props.interactionRecord.selectionType === previewId) {
-      this.props.setSelectionType(null, this.props.interactionRecord.id);
+  private onClickInteractionPreview(preview) {
+    if (this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === preview.id) {
+      this.props.setSelection(null, this.props.interactionRecord.id);
     }
     else {
-      this.props.setSelectionType(previewId, this.props.interactionRecord.id);
+      this.props.setSelection(preview, this.props.interactionRecord.id);
     }
     this.setState({
       mappingPreviews: this.getMappingPreviewDefs()
     });
   }
 
-  private onClickMappingPreview(previewId: LyraMappingType) {
-    if (this.props.interactionRecord.mappingType === previewId) {
-      this.props.setMappingType(null, this.props.interactionRecord.id);
+  private onClickMappingPreview(preview) {
+    if (this.props.interactionRecord.mappingDef && this.props.interactionRecord.mappingDef.id === preview.id) {
+      this.props.setMapping(null, this.props.interactionRecord.id);
     }
     else {
-      if (!this.props.interactionRecord.selectionType) {
-        this.props.setSelectionType(this.state.interactionPreviews[0].id, this.props.interactionRecord.id);
+      if (!this.props.interactionRecord.selectionDef) {
+        this.props.setSelection(this.state.selectionPreviews[0], this.props.interactionRecord.id);
       }
-      this.props.setMappingType(previewId, this.props.interactionRecord.id);
+      this.props.setMapping(preview, this.props.interactionRecord.id);
     }
   }
 
   public render() {
 
     return (
-      <div className={"preview-controller" + (this.state.interactionPreviews.length  ? " active" : "")}>
-        {this.state.interactionPreviews.length ? <h2>Interactions</h2> : null}
-        {this.state.interactionPreviews.length ? <h5>Selections</h5> : null}
+      <div className={"preview-controller" + (this.state.selectionPreviews.length  ? " active" : "")}>
+        {this.state.selectionPreviews.length ? <h2>Interactions</h2> : null}
+        {this.state.selectionPreviews.length ? <h5>Selections</h5> : null}
         <div className="preview-scroll">
           {
-            this.state.interactionPreviews.map((preview) => {
+            this.state.selectionPreviews.map((preview) => {
               preview.ref = React.createRef();
               const spec = editSignalsForPreview(this.state.spec, this.props.groupName, preview.signals);
               return (
-                <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.selectionType === preview.id ? 'selected' : ''}>
+                <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === preview.id ? 'selected' : ''}>
                   <div className="preview-label">{preview.label}</div>
                   <InteractionPreview ref={preview.ref}
                     id={`preview-${preview.id}`}
                     groupName={this.props.groupName}
                     spec={spec}
-                    onClick={() => this.onClickInteractionPreview(preview.id)}/>
+                    onClick={() => this.onClickInteractionPreview(preview)}/>
                 </div>
               )
             })
@@ -385,8 +381,8 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
           {
             this.state.mappingPreviews.map((preview) => {
               preview.ref = React.createRef();
-              const selectedInteractionSignals = [].concat.apply([], this.state.interactionPreviews.filter((def) => {
-                return this.props.interactionRecord && this.props.interactionRecord.selectionType === def.id;
+              const selectedInteractionSignals = [].concat.apply([], this.state.selectionPreviews.filter((def) => {
+                return this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === def.id;
               }).map((def) => def.signals));
               let spec = editSignalsForPreview(this.state.spec, this.props.groupName, selectedInteractionSignals);
               spec = editMarksForPreview(spec, this.props.groupName, preview);
@@ -394,13 +390,13 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
                 spec = editScalesForPreview(spec, this.props.groupName, preview);
               }
               return (
-                <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.mappingType === preview.id ? 'selected' : ''}>
+                <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.mappingDef && this.props.interactionRecord.mappingDef.id === preview.id ? 'selected' : ''}>
                   <div className="preview-label">{preview.label}</div>
                   <InteractionPreview ref={preview.ref}
                     id={`preview-${preview.id}`}
                     groupName={this.props.groupName}
                     spec={spec}
-                    onClick={() => this.onClickMappingPreview(preview.id)}/>
+                    onClick={() => this.onClickMappingPreview(preview)}/>
                 </div>
               )
             })

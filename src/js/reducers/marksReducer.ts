@@ -11,7 +11,16 @@ import {convertValuesToSignals, propSg} from '../util/prop-signal';
 const ensureValuePresent = function(state: MarkState, path: string[], valToAdd): MarkState {
   return state.updateIn(path, marks => {
     if (marks.indexOf(valToAdd) === -1) {
-      marks.push(valToAdd);
+      marks.push(valToAdd); // TODO(jzong) so, this creates a side effect which we rely on for scales but which breaks interactions
+    }
+    return marks;
+  });
+};
+
+const ensureValuePresentImmutable = function(state: MarkState, path: string[], valToAdd): MarkState {
+  return state.updateIn(path, marks => {
+    if (marks.indexOf(valToAdd) === -1) {
+      return [...marks, valToAdd]; // TODO(jzong) this one does what i think it does but would break stuff if i replaced the above with it
     }
     return marks;
   });
@@ -231,7 +240,7 @@ export function marksReducer(
   }
 
   if (action.type === getType(helperActions.addInteractionToGroup)) {
-    return ensureValuePresent(state, [String(groupId), '_interactions'], action.payload);
+    return ensureValuePresentImmutable(state, [String(groupId), '_interactions'], action.payload);
   }
 
   const guideId = action.meta;

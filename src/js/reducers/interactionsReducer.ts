@@ -14,14 +14,14 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
     return state.set(String(id), action.payload);
   }
 
-  if (action.type === getType(interactionActions.setSelectionType)) {
+  if (action.type === getType(interactionActions.setSelection)) {
     const t = action.payload;
-    return state.setIn([String(id), 'selectionType'], t);
+    return state.setIn([String(id), 'selectionDef'], t);
   }
 
-  if (action.type === getType(interactionActions.setMappingType)) {
+  if (action.type === getType(interactionActions.setMapping)) {
     const t = action.payload;
-    return state.setIn([String(id), 'mappingType'], t);
+    return state.setIn([String(id), 'mappingDef'], t);
   }
 
   if (action.type === getType(interactionActions.deleteInteraction)) {

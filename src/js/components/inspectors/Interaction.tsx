@@ -24,14 +24,16 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 class BaseInteractionInspector extends React.Component<OwnProps & StateProps> {
   public render() {
     const interaction = this.props.interaction;
+    const selectionDef = interaction.get('selectionDef');
+    const mappingDef = interaction.get('mappingDef');
     return (
       <div>
         <div className='property-group'>
           <h3 className='label'>Placeholder</h3>
           <ul>
             <li>Name: {interaction.get('name')}</li>
-            <li>Selection: {interaction.get('selectionType')}</li>
-            <li>Mapping: {interaction.get('mappingType')}</li>
+            <li>Selection: {selectionDef ? selectionDef.label : ''}</li>
+            <li>Mapping: {mappingDef ? mappingDef.label : ''}</li>
           </ul>
         </div>
       </div>
