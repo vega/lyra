@@ -243,7 +243,15 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
               const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
               if (mappingDef && mappingDef.groupName === group.name) {
                 if (isDemonstratingInterval && mappingDef.id === 'panzoom') {
-                  group.scales = editScales(group.scales, mappingDef);
+                  const mappingDefClone = Object.assign({}, mappingDef);
+                  if (selectionDef.id === 'brush_x') {
+                    mappingDefClone.scaleProperties = mappingDef.scaleProperties.filter(scale => scale._axis === 'x');
+                  }
+                  else if  (selectionDef.id === 'brush_y') {
+                    mappingDefClone.scaleProperties = mappingDef.scaleProperties.filter(scale => scale._axis === 'y');
+                  }
+                  console.log(mappingDefClone.scaleProperties);
+                  group.scales = editScales(group.scales, mappingDefClone);
                 }
                 group.marks = editMarks(group.marks, mappingDef);
               }
