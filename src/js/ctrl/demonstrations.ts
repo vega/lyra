@@ -10,7 +10,8 @@ import {GroupRecord} from "../store/factory/marks/Group";
 import exportName from "../util/exportName";
 import {InteractionRecord} from "../store/factory/Interaction";
 
-function conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName) {
+function conditionalHelpersForScales(scaleInfo: ScaleInfo) {
+  const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
   return {
     ifXElse: (e1, e2) => xScaleName && xFieldName ? e1 : e2,
     ifYElse: (e1, e2) => yScaleName && yFieldName ? e1 : e2,
@@ -44,7 +45,8 @@ export function demonstrationDatasets(sceneSpec, state: State) {
 
 export function demonstrations(groupSpec, groupId: number, state: State) {
   if (groupSpec.name) { // don't touch manipulators, which don't have names
-    const {xScaleName, xFieldName, yScaleName, yFieldName} = getScaleInfoForGroup(state, groupId);
+    const scaleInfo = getScaleInfoForGroup(state, groupId);
+    const {xScaleName, xFieldName, yScaleName, yFieldName} = scaleInfo;
 
     if (!(xScaleName && xFieldName || yScaleName && yFieldName)) {
       // cannot currently demonstrate
@@ -52,16 +54,13 @@ export function demonstrations(groupSpec, groupId: number, state: State) {
       return groupSpec;
     }
 
-    const names = {xScaleName, xFieldName, yScaleName, yFieldName};
-
-    return addMarksToGroup(addSignalsToGroup(groupSpec, names), names);
+    return addMarksToGroup(addSignalsToGroup(groupSpec, scaleInfo), scaleInfo);
   }
   return groupSpec;
 }
 
-function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
-  const {xScaleName, yScaleName, xFieldName, yFieldName} = names;
-  const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName);
+function addMarksToGroup(groupSpec: GroupMark, scaleInfo: ScaleInfo): GroupMark {
+  const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(scaleInfo);
   const marks = groupSpec.marks || (groupSpec.marks = []);
   const groupName = groupSpec.name;
   groupSpec.marks = [...marks,
@@ -173,9 +172,9 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
   return groupSpec;
 }
 
-function addSignalsToGroup(groupSpec, names) {
-  const {xScaleName, yScaleName, xFieldName, yFieldName} = names;
-  const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName);
+function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
+  const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
+  const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(scaleInfo);
   const groupName = groupSpec.name;
   const signals = groupSpec.signals || (groupSpec.signals = []);
   groupSpec.signals = [...signals,
@@ -252,7 +251,7 @@ function addSignalsToGroup(groupSpec, names) {
           "events": {
             "signal": "brush_scale_trigger"
           },
-          "update": ifXElse(`[scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}[0]), scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}[1])]`, "[width, 0]")
+          "update": ifXElse(`isArray(brush_${xFieldName}_${xScaleName}) && length(brush_${xFieldName}_${xScaleName}) == 2 ? [scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}[0]), scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}[1])] : [0, 0]`, "[width, 0]")
         },
         {
           "events": {
@@ -327,7 +326,7 @@ function addSignalsToGroup(groupSpec, names) {
           "events": {
             "signal": "brush_scale_trigger"
           },
-          "update": ifYElse(`[scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}[0]), scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}[1])]`, "[0, height]")
+          "update": ifYElse(`isArray(brush_${yFieldName}_${yScaleName}) && length(brush_${yFieldName}_${yScaleName}) == 2 ? [scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}[0]), scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}[1])] : [0, 0]`, "[0, height]")
         },
         {
           "events": {
@@ -541,8 +540,7 @@ function addSignalsToGroup(groupSpec, names) {
         {
           "events": [{"source": "scope", "type": "mousedown"}],
           "update": "{x: x(unit), y: y(unit)" + ifXElse(`, extent_x: domain(\"${xScaleName}\")`, "") + ifYElse(`, extent_y: domain(\"${yScaleName}\")`, "") + "}"
-        }
-        // TODO
+        },
       ]
     },
     {
@@ -563,10 +561,6 @@ function addSignalsToGroup(groupSpec, names) {
           ],
           "update": "{x: grid_translate_anchor.x - x(unit), y: grid_translate_anchor.y - y(unit)}"
         },
-        // {
-        //   "events": {"signal": "lyra_brush_x || lyra_brush_y"},
-        //   "update": "isArray(lyra_brush_x) && isArray(lyra_brush_y) && length(lyra_brush_x) == 2 && length(lyra_brush_y) == 2 ? {x: lyra_brush_x[0] - lyra_brush_x[1], y: lyra_brush_y[0] - lyra_brush_y[1]} : grid_translate_delta"
-        // },
       ]
     },
     {
@@ -643,25 +637,6 @@ function getScaleRecords(state: State, groupId: number): {scaleRecordX: ScaleRec
     }
   }
   return ret;
-
-  // const axisIds: string[] = (group.get('axes') as any as number[]).map(x => String(x)); // TODO (vega-typings thinks these are Axis objects but they're ids)
-  // const guides: Map<string, GuideRecord> = state.getIn(['vis', 'present', 'guides']);
-  // const axisGuides = guides.filter((axis, id) => {
-  //   return axisIds.indexOf(id) >= 0 && axis.get('_gtype') == 'axis';
-  // });
-  // const ret = {
-  //   scaleRecordX: null,
-  //   scaleRecordY: null
-  // }
-  // axisGuides.forEach((axis) => {
-  //   if (axis.get('orient') === 'top' || axis.get('orient') === 'bottom') {
-  //     ret.scaleRecordX = state.getIn(['vis', 'present', 'scales', axis.get('scale')]);
-  //   }
-  //   if (axis.get('orient') === 'left' || axis.get('orient') === 'right') {
-  //     ret.scaleRecordY = state.getIn(['vis', 'present', 'scales', axis.get('scale')]);
-  //   }
-  // });
-  // return ret;
 }
 
 export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
@@ -787,7 +762,15 @@ const baseSignals = [
   {
     name: "points_tuple",
     init: "null"
-  }
+  },
+  {
+    "name": "grid_translate_anchor",
+    "init": {},
+  },
+  {
+    "name": "grid_translate_delta",
+    "init": {}
+  },
 ];
 
 export function selectionPreviewDefs(isDemonstratingInterval: boolean,
@@ -957,6 +940,7 @@ export function editScales(scales: any[], def: LyraMappingPreviewDef) {
     for (let scaleProps of def.scaleProperties) {
       if (scale.name === scaleProps.name) {
         for (let [key, value] of Object.entries(scaleProps)) {
+          if (key === '_axis') continue;
           scale[key] = value;
         }
       }
@@ -966,7 +950,7 @@ export function editScales(scales: any[], def: LyraMappingPreviewDef) {
 }
 
 
-export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[], scaleInfo: ScaleInfo, axis: 'x'|'y', groupName: string, sceneSpec): LyraMappingPreviewDef[] {
+export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[], scaleInfo: ScaleInfo, groupName: string, sceneSpec): LyraMappingPreviewDef[] {
   let defs: LyraMappingPreviewDef[] = [{
     id: "color",
     label: "Color",
@@ -1032,21 +1016,6 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
     ]);
   }
   if (isDemonstratingInterval) {
-    const helpers = conditionalHelpersForScales(scaleInfo.xScaleName, scaleInfo.yScaleName, scaleInfo.xFieldName, scaleInfo.yFieldName);
-    const ifXElse = (e1, e2) => {
-      if (axis) {
-        if (axis === 'x') return e1;
-        else return e2;
-      }
-      return helpers.ifXElse(e1, e2);
-    }
-    const ifYElse = (e1, e2) => {
-      if (axis) {
-        if (axis === 'y') return e1;
-        else return e2;
-      }
-      return helpers.ifYElse(e1, e2);
-    }
     const panzoomDef: LyraMappingPreviewDef = {
       id: "panzoom",
       label: "Pan and zoom",
@@ -1054,16 +1023,20 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
       markProperties: {
         "clip": {"value": true}
       },
-      scaleProperties: [].concat(ifXElse([
+      scaleProperties: [
         {
+          "_axis": "x",
           "name": scaleInfo.xScaleName,
           "domainRaw": {"signal": `grid["${scaleInfo.xFieldName}"]`},
           "zero": false
-        }], []).concat(ifYElse([{
+        },
+        {
+          "_axis": "y",
           "name": scaleInfo.yScaleName,
           "domainRaw": {"signal": `grid["${scaleInfo.yFieldName}"]`},
           "zero": false
-        }], [])))
+        }
+      ]
     }
     defs.push(panzoomDef);
   }
@@ -1081,7 +1054,7 @@ function filterViewMappingPreviewDefs(isDemonstratingInterval: boolean, sceneSpe
         const maybeDataset = groupSpec.marks.filter(markSpec => markSpec.from && markSpec.from.data).map(markSpec => markSpec.from.data);
         console.log(maybeDataset)
         if (maybeDataset.length) {
-          const newDatasetName = maybeDataset[0] + "_filter_" + groupName;
+          const newDatasetName = maybeDataset[0] + "_filter_" + groupSpec.name;
           return {
             id: "filter_" + groupSpec.name,
             label: "Filter " + groupSpec.name,

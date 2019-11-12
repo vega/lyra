@@ -45,6 +45,12 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     }
   }
 
+  public getPreviewSignal(name) {
+    if (this.view) {
+      return listeners.getSignalInGroup(this.view, this.props.groupName, name);
+    }
+  }
+
   public render() {
 
     return (

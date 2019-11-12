@@ -165,7 +165,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   public componentDidMount() {
     // for debugging
     (window as any)["dumpSignals"+this.props.groupName] = () => {
-      for (let signalName of ['brush', 'lyra_brush_x', 'lyra_brush_y', 'brush_x', 'brush_y', 'points_tuple', 'points_toggle']) {
+      for (let signalName of ['brush', 'lyra_brush_x', 'lyra_brush_y', 'brush_x', 'brush_y', 'points_tuple', 'points_toggle', 'grid', 'grid_translate_anchor', 'grid_translate_delta']) {
         console.log(signalName, listeners.getSignalInGroup(ctrl.view, this.props.groupName, signalName))
       }
     }
@@ -182,6 +182,8 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
 
+      this.onSignal('grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
+      this.onSignal('grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
       this.onSignal('brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal('brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal('points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
@@ -221,14 +223,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
   private getMappingPreviewDefs(): LyraMappingPreviewDef[] {
     if (this.state.isDemonstratingInterval || this.state.isDemonstratingPoint) {
-      let axis = undefined;
-      if (this.props.interactionRecord && this.props.interactionRecord.selectionDef) {
-        switch(this.props.interactionRecord.selectionDef.id) {
-          case 'brush_x': axis = 'x'; break;
-          case 'brush_y': axis = 'y'; break;
-        }
-      }
-      return mappingPreviewDefs(this.state.isDemonstratingInterval, this.props.marksOfGroup, this.props.scaleInfo, axis, this.props.groupName, ctrl.export());
+      return mappingPreviewDefs(this.state.isDemonstratingInterval, this.props.marksOfGroup, this.props.scaleInfo, this.props.groupName, ctrl.export());
     }
     return [];
   }
@@ -313,6 +308,27 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     this.state.mappingPreviews.forEach(preview => {
       if (preview.ref.current) {
         preview.ref.current.setPreviewSignal(name, scaledValue);
+      }
+    });
+  }
+
+  private onMainViewGridSignal(name, value) {
+    this.mainViewSignalValues[name] = value;
+
+    const wScale = 100/640;
+    const hScale = 100/360; // TODO(jzong) preview height / main view height
+    const scaledValue = this.mainViewSignalValues['grid_translate_delta'] ? {
+      x: this.mainViewSignalValues['grid_translate_delta'].x * wScale,
+      y: this.mainViewSignalValues['grid_translate_delta'].y * hScale
+    } : null;
+    this.state.mappingPreviews.forEach(preview => {
+      if (preview.ref.current) {
+        if (this.mainViewSignalValues['grid_translate_anchor']) {
+          preview.ref.current.setPreviewSignal('grid_translate_anchor', this.mainViewSignalValues['grid_translate_anchor']);
+        }
+        if (this.mainViewSignalValues['grid_translate_delta']) {
+          preview.ref.current.setPreviewSignal('grid_translate_delta', scaledValue);
+        }
       }
     });
   }
