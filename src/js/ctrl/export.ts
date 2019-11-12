@@ -237,10 +237,8 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
         interactionState.forEach((interaction) => {
           const selectionDef = interaction.get('selectionDef');
           const mappingDef = interaction.get('mappingDef');
-          if (mappingDef && mappingDef.groupName) console.log(mappingDef.groupName, group.name);
           if (interaction.get('groupId') === id) {
             if (selectionDef) {
-              console.log('exporter');
               group.signals = editSignals(group.signals, selectionDef.signals);
               const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
               if (mappingDef && mappingDef.groupName === group.name) {

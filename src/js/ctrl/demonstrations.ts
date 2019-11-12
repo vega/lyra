@@ -921,19 +921,11 @@ export function editMarks(marks: any[], def: LyraMappingPreviewDef) {
         if (markProperties.encode && markProperties.encode.update) {
           for (let [key, value] of Object.entries(markProperties.encode.update)) {
             const oldValue = mark.encode.update[key];
+            if (oldValue.value || oldValue.signal || oldValue.field) {
+              delete value[0].value;
+              value[0] = {...value[0], ...oldValue};
+            }
             mark.encode.update[key] = value;
-            // preserve old properties when adding the conditional. see: BaseValueRef for types
-            if (oldValue.value) {
-              mark.encode.update[key][0].value = oldValue.value;
-            }
-            else if (oldValue.signal) {
-              delete mark.encode.update[key][0].value;
-              mark.encode.update[key][0].signal = oldValue.signal;
-            }
-            else if (oldValue.field) {
-              delete mark.encode.update[key][0].value;
-              mark.encode.update[key][0].field = oldValue.field;
-            }
           }
         }
       }
@@ -1076,9 +1068,6 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
     defs.push(panzoomDef);
   }
   const filterViewDefs = filterViewMappingPreviewDefs(isDemonstratingInterval, sceneSpec, groupName);
-  if (filterViewDefs.length) {
-    console.log(filterViewDefs);
-  }
   defs = defs.concat(filterViewDefs);
   return defs;
 }
@@ -1090,6 +1079,7 @@ function filterViewMappingPreviewDefs(isDemonstratingInterval: boolean, sceneSpe
   return otherGroups.map(groupSpec => {
       if (groupSpec.marks.length) {
         const maybeDataset = groupSpec.marks.filter(markSpec => markSpec.from && markSpec.from.data).map(markSpec => markSpec.from.data);
+        console.log(maybeDataset)
         if (maybeDataset.length) {
           const newDatasetName = maybeDataset[0] + "_filter_" + groupName;
           return {
