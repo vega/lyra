@@ -60,6 +60,7 @@ export interface LyraMappingPreviewDef {
   id: string,
   label: string,
   ref?: React.RefObject<InteractionPreview>,
+  groupName: string, // which group to apply this mapping in (not necessarily the same as the interaction's parent group, for multiview)
   markType?: Exclude<LyraMarkType, 'group'>,
   markProperties: any // partial mark object,
 

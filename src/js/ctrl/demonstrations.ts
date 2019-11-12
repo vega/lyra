@@ -1,4 +1,4 @@
-import {GroupMark} from "vega";
+import {GroupMark, Mark} from "vega";
 import {GuideRecord} from "../store/factory/Guide";
 import {Map} from 'immutable';
 import {ScaleRecord} from "../store/factory/Scale";
@@ -8,6 +8,7 @@ import duplicate from "../util/duplicate";
 import {LyraMarkType, MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
 import exportName from "../util/exportName";
+import {InteractionRecord} from "../store/factory/Interaction";
 
 function conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName) {
   return {
@@ -17,7 +18,8 @@ function conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldN
   }
 }
 
-export function demonstrationStores(sceneSpec) {
+export function demonstrationDatasets(sceneSpec, state: State) {
+  // add stores for interactions
   sceneSpec.marks.forEach(markSpec => {
     if (markSpec.name && markSpec.type === 'group') {
       const groupName = markSpec.name;
@@ -28,6 +30,15 @@ export function demonstrationStores(sceneSpec) {
         {"name": `points_store_${groupName}`},
       ];
     }
+  });
+  // check for interactions that define transforms and apply them
+  const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
+  interactionState.filter((interaction) => {
+    return interaction.mappingDef && interaction.mappingDef.id.indexOf('filter') === 0 && interaction.mappingDef.datasetProperties;
+  }).forEach((interaction) => {
+    const datasetProps = interaction.mappingDef.datasetProperties;
+    const data = sceneSpec.data || (sceneSpec.data = []);
+    sceneSpec.data = [...data, datasetProps];
   });
 }
 
@@ -609,30 +620,52 @@ function addSignalsToGroup(groupSpec, names) {
   return groupSpec;
 }
 
-function getScaleRecordForAxisType(state: State, groupId: number): {scaleRecordX: ScaleRecord, scaleRecordY: ScaleRecord} {
-  const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groupId)]);
-  const axisIds: string[] = (group.get('axes') as any as number[]).map(x => String(x)); // TODO (vega-typings thinks these are Axis objects but they're ids)
-  const guides: Map<string, GuideRecord> = state.getIn(['vis', 'present', 'guides']);
-  const axisGuides = guides.filter((axis, id) => {
-    return axisIds.indexOf(id) >= 0 && axis.get('_gtype') == 'axis';
-  });
+function getScaleRecords(state: State, groupId: number): {scaleRecordX: ScaleRecord, scaleRecordY: ScaleRecord} {
   const ret = {
     scaleRecordX: null,
     scaleRecordY: null
+  };
+  const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groupId)]);
+  const childMarkIds: number[] = group.get('marks') as any as number[];// (vega-typings thinks these are vega objects but they're ids)
+  const childMarks: MarkRecord[] = childMarkIds.map((id) => state.getIn(['vis', 'present', 'marks', String(id)]));
+  if  (!childMarks.length) {
+    return ret;
   }
-  axisGuides.forEach((axis) => {
-    if (axis.get('orient') === 'top' || axis.get('orient') === 'bottom') {
-      ret.scaleRecordX = state.getIn(['vis', 'present', 'scales', axis.get('scale')]);
+  const mark = childMarks[0];
+  if (mark.encode && mark.encode.update) {
+    if (mark.encode.update.x) {
+      const {scale, field} = mark.encode.update.x as any;
+      ret.scaleRecordX = state.getIn(['vis', 'present', 'scales', String(scale)]);
     }
-    if (axis.get('orient') === 'left' || axis.get('orient') === 'right') {
-      ret.scaleRecordY = state.getIn(['vis', 'present', 'scales', axis.get('scale')]);
+    if (mark.encode.update.y) {
+      const {scale, field} = mark.encode.update.y as any;
+      ret.scaleRecordY = state.getIn(['vis', 'present', 'scales', String(scale)]);
     }
-  });
+  }
   return ret;
+
+  // const axisIds: string[] = (group.get('axes') as any as number[]).map(x => String(x)); // TODO (vega-typings thinks these are Axis objects but they're ids)
+  // const guides: Map<string, GuideRecord> = state.getIn(['vis', 'present', 'guides']);
+  // const axisGuides = guides.filter((axis, id) => {
+  //   return axisIds.indexOf(id) >= 0 && axis.get('_gtype') == 'axis';
+  // });
+  // const ret = {
+  //   scaleRecordX: null,
+  //   scaleRecordY: null
+  // }
+  // axisGuides.forEach((axis) => {
+  //   if (axis.get('orient') === 'top' || axis.get('orient') === 'bottom') {
+  //     ret.scaleRecordX = state.getIn(['vis', 'present', 'scales', axis.get('scale')]);
+  //   }
+  //   if (axis.get('orient') === 'left' || axis.get('orient') === 'right') {
+  //     ret.scaleRecordY = state.getIn(['vis', 'present', 'scales', axis.get('scale')]);
+  //   }
+  // });
+  // return ret;
 }
 
 export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
-  const {scaleRecordX, scaleRecordY} = getScaleRecordForAxisType(state, groupId);
+  const {scaleRecordX, scaleRecordY} = getScaleRecords(state, groupId);
   return {
     xScaleName: scaleRecordX ? scaleRecordX.get('name') : null,
     xFieldName: scaleRecordX ? scaleRecordX.get('_domain')[0].field : null,
@@ -860,6 +893,9 @@ export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraM
         // make symbol previews look nicer
         preview.markProperties.encode.update.size[1].value /= 5;
       }
+      if (preview.id.indexOf('filter') >= 0) {
+        return markSpec; // TODO don't leave this!!! this is bc i dont know what to do about previews for now
+      }
       markSpec.marks = editMarks(markSpec.marks, preview);
       if (preview.id.indexOf('panzoom') === 0) {
         markSpec.marks = markSpec.marks.filter((mark) => mark.name.indexOf('lyra') !== 0);
@@ -873,29 +909,31 @@ export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraM
 export function editMarks(marks: any[], def: LyraMappingPreviewDef) {
   const markProperties = def.markProperties;
   const markType = def.markType;
-  for (let mark of marks) {
-    if (mark.type === 'group' || mark.name.indexOf('lyra') === 0) continue;
-    if (!markType || mark.type === markType) { // TODO(jzong) i wouldn't be surprised if this condition is wrong when there's multiple marks
-      for (let [key, value] of Object.entries(markProperties)) {
-        if (key !== 'encode') {
-          mark[key] = value;
+  if (markProperties) {
+    for (let mark of marks) {
+      if (mark.type === 'group' || mark.name.indexOf('lyra') === 0) continue;
+      if (!markType || mark.type === markType) { // TODO(jzong) i wouldn't be surprised if this condition is wrong when there's multiple marks
+        for (let [key, value] of Object.entries(markProperties)) {
+          if (key !== 'encode') {
+            mark[key] = value;
+          }
         }
-      }
-      if (markProperties.encode && markProperties.encode.update) {
-        for (let [key, value] of Object.entries(markProperties.encode.update)) {
-          const oldValue = mark.encode.update[key];
-          mark.encode.update[key] = value;
-          // preserve old properties when adding the conditional. see: BaseValueRef for types
-          if (oldValue.value) {
-            mark.encode.update[key][0].value = oldValue.value;
-          }
-          else if (oldValue.signal) {
-            delete mark.encode.update[key][0].value;
-            mark.encode.update[key][0].signal = oldValue.signal;
-          }
-          else if (oldValue.field) {
-            delete mark.encode.update[key][0].value;
-            mark.encode.update[key][0].field = oldValue.field;
+        if (markProperties.encode && markProperties.encode.update) {
+          for (let [key, value] of Object.entries(markProperties.encode.update)) {
+            const oldValue = mark.encode.update[key];
+            mark.encode.update[key] = value;
+            // preserve old properties when adding the conditional. see: BaseValueRef for types
+            if (oldValue.value) {
+              mark.encode.update[key][0].value = oldValue.value;
+            }
+            else if (oldValue.signal) {
+              delete mark.encode.update[key][0].value;
+              mark.encode.update[key][0].signal = oldValue.signal;
+            }
+            else if (oldValue.field) {
+              delete mark.encode.update[key][0].value;
+              mark.encode.update[key][0].field = oldValue.field;
+            }
           }
         }
       }
@@ -940,6 +978,7 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
   let defs: LyraMappingPreviewDef[] = [{
     id: "color",
     label: "Color",
+    groupName: groupName,
     markProperties: {
       "encode": {
         "update": {
@@ -958,6 +997,7 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
   {
     id: "opacity",
     label: "Opacity",
+    groupName: groupName,
     markProperties: {
       "encode": {
         "update": {
@@ -980,6 +1020,7 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
       {
         id: "size",
         label: "Size",
+        groupName: groupName,
         markType: "symbol",
         markProperties: {
           "encode": {
@@ -1017,6 +1058,7 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
     const panzoomDef: LyraMappingPreviewDef = {
       id: "panzoom",
       label: "Pan and zoom",
+      groupName: groupName,
       markProperties: {
         "clip": {"value": true}
       },
@@ -1049,12 +1091,19 @@ function filterViewMappingPreviewDefs(isDemonstratingInterval: boolean, sceneSpe
       if (groupSpec.marks.length) {
         const maybeDataset = groupSpec.marks.filter(markSpec => markSpec.from && markSpec.from.data).map(markSpec => markSpec.from.data);
         if (maybeDataset.length) {
+          const newDatasetName = maybeDataset[0] + "_filter_" + groupName;
           return {
             id: "filter_" + groupSpec.name,
             label: "Filter " + groupSpec.name,
-            markProperties: {},
+            groupName: groupSpec.name,
+            markProperties: {
+              "from": {
+                "data": newDatasetName
+              }
+            },
             datasetProperties: {
-              "name": maybeDataset[0],
+              "name": newDatasetName,
+              "source": maybeDataset[0],
               "transform": [{
                 "type": "filter",
                 "expr": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
