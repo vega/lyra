@@ -133,6 +133,7 @@ export function offSignalInGroup(view, groupName, signalName, handler) {
 export function setSignalInGroup(view, groupName, signalName, value) {
   const operator = getSignalOperatorInGroup(view, groupName, signalName);
   view.update(operator, value);
+  view.runAsync();
 }
 
 

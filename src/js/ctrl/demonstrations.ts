@@ -1,12 +1,13 @@
-import {GroupMark, Axis, Scale} from "vega";
+import {GroupMark} from "vega";
 import {GuideRecord} from "../store/factory/Guide";
 import {Map} from 'immutable';
 import {ScaleRecord} from "../store/factory/Scale";
 import {State} from "../store";
-import {LyraInteractionPreviewDef, LyraMappingPreviewDef, ScaleInfo} from "../components/interactions/InteractionPreviewController";
+import {LyraSelectionPreviewDef, LyraMappingPreviewDef, ScaleInfo} from "../components/interactions/InteractionPreviewController";
 import duplicate from "../util/duplicate";
-import {LyraMarkType} from "../store/factory/Mark";
+import {LyraMarkType, MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
+import exportName from "../util/exportName";
 
 function conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName) {
   return {
@@ -15,7 +16,22 @@ function conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldN
     ifXY: (e1) => xScaleName && xFieldName && yScaleName && yFieldName ? e1 : ''
   }
 }
-export default function demonstrations(groupSpec, groupId: number, state: State) {
+
+export function demonstrationStores(sceneSpec) {
+  sceneSpec.marks.forEach(markSpec => {
+    if (markSpec.name && markSpec.type === 'group') {
+      const groupName = markSpec.name;
+      const data = sceneSpec.data || (sceneSpec.data = []);
+      sceneSpec.data = [...data,
+        {"name": `brush_store_${groupName}`},
+        {"name": `grid_store_${groupName}`},
+        {"name": `points_store_${groupName}`},
+      ];
+    }
+  });
+}
+
+export function demonstrations(groupSpec, groupId: number, state: State) {
   if (groupSpec.name) { // don't touch manipulators, which don't have names
     const {xScaleName, xFieldName, yScaleName, yFieldName} = getScaleInfoForGroup(state, groupId);
 
@@ -36,6 +52,7 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
   const {xScaleName, yScaleName, xFieldName, yFieldName} = names;
   const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName);
   const marks = groupSpec.marks || (groupSpec.marks = []);
+  const groupName = groupSpec.name;
   groupSpec.marks = [...marks,
     {
       "name": "lyra_brush_brush_bg",
@@ -53,7 +70,7 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
         "update": {
           "x": [
             Object.assign({
-              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
             }, ifXElse({"signal": "lyra_brush_x[0]"}, {"value": "0"})),
             {
               "value": 0
@@ -61,7 +78,7 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
           ],
           "y": [
             Object.assign({
-              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
             }, ifYElse({"signal": "lyra_brush_y[0]"}, {"value": "0"})),
             {
               "value": 0
@@ -69,7 +86,7 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
           ],
           "x2": [
             Object.assign({
-              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
             }, ifXElse({"signal": "lyra_brush_x[1]"}, {"signal": "width"})),
             {
               "value": 0
@@ -77,7 +94,7 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
           ],
           "y2": [
             Object.assign({
-              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
             }, ifYElse({"signal": "lyra_brush_y[1]"}, {"signal": "height"})),
             {
               "value": 0
@@ -99,7 +116,7 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
         "update": {
           "x": [
             Object.assign({
-              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
             }, ifXElse({"signal": "lyra_brush_x[0]"}, {"value": "0"})),
             {
               "value": 0
@@ -107,7 +124,7 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
           ],
           "y": [
             Object.assign({
-              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
             }, ifYElse({"signal": "lyra_brush_y[0]"}, {"value": "0"})),
             {
               "value": 0
@@ -115,7 +132,7 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
           ],
           "x2": [
             Object.assign({
-              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
             }, ifXElse({"signal": "lyra_brush_x[1]"}, {"signal": "width"})),
             {
               "value": 0
@@ -123,7 +140,7 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
           ],
           "y2": [
             Object.assign({
-              "test": "data(\"brush_store\").length && data(\"brush_store\")[0].unit === \"\"",
+              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
             }, ifYElse({"signal": "lyra_brush_y[1]"}, {"signal": "height"})),
             {
               "value": 0
@@ -145,9 +162,10 @@ function addMarksToGroup(groupSpec: GroupMark, names): GroupMark {
   return groupSpec;
 }
 
-function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
+function addSignalsToGroup(groupSpec, names) {
   const {xScaleName, yScaleName, xFieldName, yFieldName} = names;
   const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(xScaleName, yScaleName, xFieldName, yFieldName);
+  const groupName = groupSpec.name;
   const signals = groupSpec.signals || (groupSpec.signals = []);
   groupSpec.signals = [...signals,
     {
@@ -178,11 +196,11 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     },
     {
       "name": "brush",
-      "update": "vlSelectionResolve(\"brush_store\")"
+      "update": `vlSelectionResolve(\"brush_store_${groupName}\")`
     },
     {
       "name": "grid",
-      "update": "vlSelectionResolve(\"grid_store\")"
+      "update": `vlSelectionResolve(\"grid_store_${groupName}\")`
     },
     {
       "name": "brush_x",
@@ -465,7 +483,7 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     },
     {
       "name": "brush_modify",
-      "update": "modify(\"brush_store\", brush_tuple, true)"
+      "update": `modify(\"brush_store_${groupName}\", brush_tuple, true)`
     },
 
     {
@@ -561,9 +579,9 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     },
     {
       "name": "grid_modify",
-      "update": "modify(\"grid_store\", grid_tuple, true)"
+      "update": `modify(\"grid_store_${groupName}\", grid_tuple, true)`
     },
-    {"name": "points", "update": "vlSelectionResolve(\"points_store\")"},
+    {"name": "points", "update": `vlSelectionResolve(\"points_store_${groupName}\")`},
     {
       "name": "points_tuple",
       "on": [
@@ -585,17 +603,9 @@ function addSignalsToGroup(groupSpec: GroupMark, names): GroupMark {
     },
     {
       "name": "points_modify",
-      "update": "modify(\"points_store\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)"
+      "update": `modify(\"points_store_${groupName}\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)`
     }
   ];
-
-  const data = groupSpec.data || (groupSpec.data = []);
-  groupSpec.data = [...data,
-    {"name": "brush_store"},
-    {"name": "grid_store"},
-    {"name": "points_store"},
-  ];
-
   return groupSpec;
 }
 
@@ -747,10 +757,10 @@ const baseSignals = [
   }
 ];
 
-export function interactionPreviewDefs(isDemonstratingInterval: boolean,
+export function selectionPreviewDefs(isDemonstratingInterval: boolean,
                                        isDemonstratingPoint: boolean,
                                        marks?: any[],
-                                       scaleInfo?: ScaleInfo): LyraInteractionPreviewDef[] {
+                                       scaleInfo?: ScaleInfo): LyraSelectionPreviewDef[] {
   let defs = [];
   const optionalParams = Boolean(marks && scaleInfo);
   if (isDemonstratingInterval) {
@@ -926,7 +936,7 @@ export function editScales(scales: any[], def: LyraMappingPreviewDef) {
 }
 
 
-export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[], scaleInfo?: ScaleInfo, axis?: 'x'|'y'): LyraMappingPreviewDef[] {
+export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[], scaleInfo: ScaleInfo, axis: 'x'|'y', groupName: string, sceneSpec): LyraMappingPreviewDef[] {
   let defs: LyraMappingPreviewDef[] = [{
     id: "color",
     label: "Color",
@@ -935,8 +945,8 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
         "update": {
           "fill": [
             {
-              "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                                "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
+              "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+                                                `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
               "value": "orange"
             },
             {"value": "grey"}
@@ -953,8 +963,8 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
         "update": {
           "fillOpacity": [
             {
-              "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                                "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
+              "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+                                                `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
               "value": "1"
             },
             {"value": "0.2"}
@@ -976,8 +986,8 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
             "update": {
               "size": [
                 {
-                  "test": isDemonstratingInterval ? "!(length(data(\"brush_store\"))) || (vlSelectionTest(\"brush_store\", datum))" :
-                                                    "!(length(data(\"points_store\"))) || (vlSelectionTest(\"points_store\", datum))",
+                  "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+                                                    `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
                   "value": isDemonstratingInterval ? "10" : "20"
                 },
                 {"value": isDemonstratingInterval ? "5" : "10"}
@@ -1023,11 +1033,37 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
     }
     defs.push(panzoomDef);
   }
+  const filterViewDefs = filterViewMappingPreviewDefs(isDemonstratingInterval, sceneSpec, groupName);
+  if (filterViewDefs.length) {
+    console.log(filterViewDefs);
+  }
+  defs = defs.concat(filterViewDefs);
   return defs;
 }
 
-function filterViewMappingPreviewDefs(spec) {
-  const defs = [];
-
-  return defs;
+function filterViewMappingPreviewDefs(isDemonstratingInterval: boolean, sceneSpec, groupName: string): LyraMappingPreviewDef[] {
+  const otherGroups = sceneSpec.marks.filter(markSpec => {
+    return markSpec.name && markSpec.type === 'group' && markSpec.name !== groupName;
+  });
+  return otherGroups.map(groupSpec => {
+      if (groupSpec.marks.length) {
+        const maybeDataset = groupSpec.marks.filter(markSpec => markSpec.from && markSpec.from.data).map(markSpec => markSpec.from.data);
+        if (maybeDataset.length) {
+          return {
+            id: "filter_" + groupSpec.name,
+            label: "Filter " + groupSpec.name,
+            markProperties: {},
+            datasetProperties: {
+              "name": maybeDataset[0],
+              "transform": [{
+                "type": "filter",
+                "expr": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+                `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
+              }]
+            }
+          }
+        }
+      }
+      return null;
+  }).filter(x => x);
 }

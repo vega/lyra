@@ -1,3 +1,4 @@
+import {Map} from 'immutable';
 import {extend, isArray, isObject, isString, Mark, Spec} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
 import {State, store} from '../store';
@@ -9,7 +10,7 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {signalLookup} from '../util/signal-lookup';
 import manipulators from './manipulators';
-import demonstrations, {interactionPreviewDefs, mappingPreviewDefs, editSignals, editMarks, editScales, getScaleInfoForGroup} from './demonstrations';
+import {demonstrations, demonstrationStores, editSignals, editMarks, editScales} from './demonstrations';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -43,7 +44,7 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
   counts = duplicate(SPEC_COUNT);
 
   const spec: Spec = exporter.scene(state, int, prev);
-  spec.data = exporter.pipelines(state, int, prev);
+  spec.data = spec.data.concat(exporter.pipelines(state, int, prev));
   // spec.background = 'white';
 
   return spec;
@@ -92,6 +93,20 @@ exporter.dataset = function(state: State, internal: boolean, preview: boolean, i
     spec.transform.push(sort);
   }
 
+  // check for interactions that define transforms and apply them
+  const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
+  interactionState.filter((interaction) => {
+    if (interaction.mappingDef && interaction.mappingDef.id.indexOf('filter') === 0 && interaction.mappingDef.datasetProperties) {
+      const datasetProps = interaction.mappingDef.datasetProperties;
+      return spec.name === datasetProps.name;
+    }
+    return false;
+  }).forEach((interaction) => {
+    const datasetProps = interaction.mappingDef.datasetProperties;
+    spec.transform = spec.transform || [];
+    spec.transform = spec.transform.concat(datasetProps.transform);
+  });
+
   return spec;
 };
 
@@ -127,6 +142,9 @@ exporter.scene = function(state: State, internal: boolean, preview: boolean): Ma
   // delete spec.type;
   delete spec.from;
   delete spec.encode;
+
+  // add data stores for demonstration
+  demonstrationStores(spec);
 
   return spec;
 };
@@ -233,41 +251,17 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
       if (interactions) {
         interactions.forEach((interactionId: number) => {
           const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
-          const selectionType = interaction.get('selectionType');
-          const mappingType = interaction.get('mappingType');
-          if (selectionType) {
-            const intervalMatches = interactionPreviewDefs(true, false).filter((def) => def.id === selectionType);
-            const isDemonstratingInterval = intervalMatches.length > 0;
-            if (isDemonstratingInterval) {
-              group.signals = editSignals(group.signals, intervalMatches[0].signals);
-            }
-            else {
-              const pointMatches = interactionPreviewDefs(false, true).filter((def) => def.id === selectionType);
-              if (pointMatches.length) {
-                group.signals = editSignals(group.signals, pointMatches[0].signals);
+          const selectionDef = interaction.get('selectionDef');
+          const mappingDef = interaction.get('mappingDef');
+          if (selectionDef) {
+            console.log('exporter');
+            group.signals = editSignals(group.signals, selectionDef.signals);
+            const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
+            if (mappingDef) {
+              if (isDemonstratingInterval && mappingDef.id === 'panzoom') {
+                group.scales = editScales(group.scales, mappingDef);
               }
-            }
-            if (mappingType) {
-              let scaleInfo = undefined;
-              let axis = undefined;
-              if (isDemonstratingInterval) {
-                const scaleInfo = getScaleInfoForGroup(state, id);
-                if (intervalMatches[0].id === 'brush_x') {
-                  axis = 'x';
-                }
-                else if (intervalMatches[0].id === 'brush_y') {
-                  axis = 'y';
-                }
-
-              }
-              const mappingDefs = mappingPreviewDefs(isDemonstratingInterval, group.marks, scaleInfo, axis);
-              const mappingMatches = mappingDefs.filter((def) => def.id === mappingType);
-              if (mappingMatches.length) {
-                if (isDemonstratingInterval && mappingMatches[0].id === 'panzoom') {
-                  group.scales = editScales(group.scales, mappingMatches[0]);
-                }
-                group.marks = editMarks(group.marks, mappingMatches[0]);
-              }
+              group.marks = editMarks(group.marks, mappingDef);
             }
           }
         });

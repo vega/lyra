@@ -57,8 +57,8 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     case getType(guideActions.updateGuideProperty):
     case getType(helperActions.addAxisToGroup):
     case getType(helperActions.addLegendToGroup):
-    case getType(interactionActions.setSelectionType):
-    case getType(interactionActions.setMappingType):
+    case getType(interactionActions.setSelection):
+    case getType(interactionActions.setMapping):
     // ACTIONS.REMOVE_AXIS_FROM_GROUP, // TODO this action doesn't exist (but would belong in helperActions
     case getType(datasetActions.sortDataset):
     case getType(datasetActions.addTransform):

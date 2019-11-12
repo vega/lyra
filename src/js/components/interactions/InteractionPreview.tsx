@@ -21,7 +21,6 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   private view;
 
   public componentDidMount() {
-    console.log(this.props.spec);
     this.view = new View(parse(this.props.spec), {
       renderer:  'svg',  // renderer (canvas or svg)
       container: `#${this.props.groupName}-${this.props.id}`   // parent DOM container
@@ -41,8 +40,8 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
 
   public setPreviewSignal(name, value) {
     if (this.view) {
-      // console.log(this.props.id + ':', name, value);
       listeners.setSignalInGroup(this.view, this.props.groupName, name, value);
+      this.view.runAsync();
     }
   }
 
