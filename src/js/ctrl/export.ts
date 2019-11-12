@@ -10,7 +10,7 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {signalLookup} from '../util/signal-lookup';
 import manipulators from './manipulators';
-import {demonstrations, demonstrationStores, editSignals, editMarks, editScales} from './demonstrations';
+import {demonstrations, demonstrationDatasets, editSignals, editMarks, editScales} from './demonstrations';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -44,8 +44,10 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
   counts = duplicate(SPEC_COUNT);
 
   const spec: Spec = exporter.scene(state, int, prev);
-  spec.data = spec.data.concat(exporter.pipelines(state, int, prev));
-  // spec.background = 'white';
+  spec.data = exporter.pipelines(state, int, prev);
+
+  // add data stores for demonstration
+  demonstrationDatasets(spec, state);
 
   return spec;
 }
@@ -93,20 +95,6 @@ exporter.dataset = function(state: State, internal: boolean, preview: boolean, i
     spec.transform.push(sort);
   }
 
-  // check for interactions that define transforms and apply them
-  const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
-  interactionState.filter((interaction) => {
-    if (interaction.mappingDef && interaction.mappingDef.id.indexOf('filter') === 0 && interaction.mappingDef.datasetProperties) {
-      const datasetProps = interaction.mappingDef.datasetProperties;
-      return spec.name === datasetProps.name;
-    }
-    return false;
-  }).forEach((interaction) => {
-    const datasetProps = interaction.mappingDef.datasetProperties;
-    spec.transform = spec.transform || [];
-    spec.transform = spec.transform.concat(datasetProps.transform);
-  });
-
   return spec;
 };
 
@@ -142,9 +130,6 @@ exporter.scene = function(state: State, internal: boolean, preview: boolean): Ma
   // delete spec.type;
   delete spec.from;
   delete spec.encode;
-
-  // add data stores for demonstration
-  demonstrationStores(spec);
 
   return spec;
 };
@@ -247,22 +232,27 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
     demonstrations(group, id, state);
     // Add interaction signals
     if (!preview) {
-      const interactions = mark._interactions;
-      if (interactions) {
-        interactions.forEach((interactionId: number) => {
-          const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+      const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
+      if (interactionState) {
+        interactionState.forEach((interaction) => {
           const selectionDef = interaction.get('selectionDef');
           const mappingDef = interaction.get('mappingDef');
-          if (selectionDef) {
-            console.log('exporter');
-            group.signals = editSignals(group.signals, selectionDef.signals);
-            const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
-            if (mappingDef) {
-              if (isDemonstratingInterval && mappingDef.id === 'panzoom') {
-                group.scales = editScales(group.scales, mappingDef);
+          if (mappingDef && mappingDef.groupName) console.log(mappingDef.groupName, group.name);
+          if (interaction.get('groupId') === id) {
+            if (selectionDef) {
+              console.log('exporter');
+              group.signals = editSignals(group.signals, selectionDef.signals);
+              const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
+              if (mappingDef && mappingDef.groupName === group.name) {
+                if (isDemonstratingInterval && mappingDef.id === 'panzoom') {
+                  group.scales = editScales(group.scales, mappingDef);
+                }
+                group.marks = editMarks(group.marks, mappingDef);
               }
-              group.marks = editMarks(group.marks, mappingDef);
             }
+          }
+          else if (mappingDef && mappingDef.groupName === group.name) {
+            group.marks = editMarks(group.marks, mappingDef);
           }
         });
       }
