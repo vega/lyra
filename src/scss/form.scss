@@ -34,6 +34,21 @@
   cursor: -moz-grab;
 }
 
+.signal {
+  display: inline-block;
+  min-width: 20px;
+  padding: $inner-padding;
+  background-color: $dgrey-bg;
+  border: 1px solid $dgrey-border;
+  border-radius: 2*$border-radius;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+  margin: 2px;
+  &:first-child {
+    margin-top: 5px;
+  }
+}
+
 .field {
   border: 1px solid;
   cursor: -webkit-grab;
