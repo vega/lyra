@@ -776,9 +776,11 @@ const baseSignals = [
 export function selectionPreviewDefs(isDemonstratingInterval: boolean,
                                        isDemonstratingPoint: boolean,
                                        marks?: any[],
-                                       scaleInfo?: ScaleInfo): LyraSelectionPreviewDef[] {
+                                       scaleInfo?: ScaleInfo,
+                                       projectionField?: string): LyraSelectionPreviewDef[] {
   let defs = [];
   const optionalParams = Boolean(marks && scaleInfo);
+  projectionField = projectionField || '_vgsid_';
   if (isDemonstratingInterval) {
     const intervalDefs = {
       brush: {
@@ -844,28 +846,54 @@ export function selectionPreviewDefs(isDemonstratingInterval: boolean,
     }
   }
   if (isDemonstratingPoint) {
-    defs = defs.concat([{
-      id: "single",
-      label: "Single point",
-      signals: []
-    },
-    {
-      id: "multi",
-      label: "Multi point",
-      signals: [{
-        "name": "points_toggle",
-        "value": false,
-        "on": [
+    defs = defs.concat([
+      {
+        id: "single",
+        label: "Single point",
+        projectionField,
+        signals: []
+      },
+      {
+        id: "multi",
+        label: "Multi point",
+        projectionField,
+        signals: [
           {
-            "events": [{"source": "scope", "type": "click"}],
-            "update": "event.shiftKey"
+            "name": "points_toggle",
+            "value": false,
+            "on": [
+              {
+                "events": [{"source": "scope", "type": "click"}],
+                "update": "event.shiftKey"
+              },
+              {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
+            ]
           },
-          {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
         ]
-      }]
-    }]);
+      },
+    ]);
   }
   return defs;
+}
+
+export function signalsForProjection(projectionField: string) {
+  return [
+    {
+      "name": "points_tuple",
+      "on": [
+        {
+          "events": [{"source": "scope", "type": "click"}],
+          "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)[\"${projectionField}\"]]} : null`,
+          "force": true
+        },
+        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+      ]
+    },
+    {
+      "name": "points_tuple_fields",
+      "value": [{"type": "E", "field": projectionField}]
+    },
+  ]
 }
 
 export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraMappingPreviewDef) {

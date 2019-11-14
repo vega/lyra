@@ -53,6 +53,7 @@ export interface LyraSelectionPreviewDef {
   id: string,
   label: string,
   ref?: React.RefObject<InteractionPreview>,
+  projectionField?: string,
   signals: Signal[]
 }
 

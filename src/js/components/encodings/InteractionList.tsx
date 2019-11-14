@@ -53,6 +53,27 @@ class InteractionList extends React.Component<StateProps & DispatchProps> {
                 <div className={props.selectedId === id ? 'selected interaction name' : 'interaction name'}>
                   {/* <ContentEditable value={name} save={updateScaleName} /> */}
                   {name}
+                  {
+                    interaction.get('selectionDef') && interaction.get('selectionDef').id.startsWith('brush') ? (
+                      <div>
+                        <div className={'signal'}>
+                          brush
+                        </div>
+                        <div className={'signal'}>
+                          brush_x
+                        </div>
+                        <div className={'signal'}>
+                          brush_y
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className={'signal'}>
+                          points
+                        </div>
+                      </div>
+                    )
+                  }
                 </div>
               </li>
             );
