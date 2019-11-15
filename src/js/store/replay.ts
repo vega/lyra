@@ -37,26 +37,23 @@ const RecordMode = 'rec';
 const ReplayMode = 'replay';
 
 // gets all actions stored in localStorage under the given id
-const getActions = (id: string) => {
-  const item = window.localStorage.getItem(id);
-  // const parseIfPresent = item ? (JSON.parse(item) as Action[]) : null
-  const parseIfPresent = item ? (serializer.fromJSON(item) as AnyAction[]) : null
-  return parseIfPresent;
+const getActions = (id: string): string[] => {
+  return JSON.parse(window.localStorage.getItem(id));
 };
 
 // returns a function that adds the given action to an array
 // stored in localStorage under the given id
 const storeAction = (id: string) => (action: AnyAction) => {
   const items = getActions(id) || [];
-  items.push(action);
-  // window.localStorage.setItem(id, JSON.stringify(items));
-  window.localStorage.setItem(id, serializer.toJSON(items));
+  items.push(serializer.toJSON(action));
+
+  window.localStorage.setItem(id, JSON.stringify(items));
 };
 
 // takes an array of actions, and returns a function that accepts
 // a callback function. This callback will be called with the action as
 // param in the same intervall that the actions were stored.
-const replayer = (actions: AnyAction[]) => {
+const replayer = (actions: string[]) => {
   const iterator = actions[Symbol.iterator]();
   const eachAction = (callback) => {
     const { done, value } = iterator.next();
@@ -64,7 +61,7 @@ const replayer = (actions: AnyAction[]) => {
       return;
     }
 
-    const action = value;
+    const action = serializer.fromJSON(value);
 
     setTimeout(() => {
       callback(action);
@@ -115,7 +112,6 @@ export default function reactRecNReplay(options = getQueryStringOptions()) {
 
   if (mode === ReplayMode) {
     const actions = getActions(storageId);
-    console.log(actions);
     if (actions) {
       return replaydMddleware(replayer(actions));
     }
