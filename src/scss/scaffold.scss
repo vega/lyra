@@ -45,13 +45,19 @@ body {
 
   .widgetPanel {
     margin-top: 50px;
-    border: 2px solid red;
+    background: #ccc;
     padding: 20px;
   }
 
     .widgetDemonstration {
       display: inline-block;
       margin: 0 25px;
+      padding: 10px;
+      background: #bbb;
+
+      &:hover {
+        background: #aaa;
+      }
     }
 
   .widgetPanel.disabled {

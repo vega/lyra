@@ -50,14 +50,17 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
   demonstrationDatasets(spec, state);
 
   spec.signals = exporter.signals(state, int, prev);
-  console.log("spec", spec);
+
+  console.log('SPEC', spec);
   return spec;
 }
 
 exporter.signals = function(state: State, internal: boolean, preview: boolean) {
   const interaction = state.getIn(['vis', 'present', 'interactions']).valueSeq().toJS();
-  return interaction.reduce((signals, value) => {
-    signals = [...signals, ...value.widgetSignals];
+  return interaction.reduce((signals, record) => {
+    if(record.selectionDef && record.selectionDef.label=='Widget') {
+      signals = [...signals, ...record.selectionDef.signals];
+    }
     return signals;
   }, []);
 }
@@ -249,7 +252,7 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
           const mappingDef = interaction.get('mappingDef');
           if (interaction.get('groupId') === id) {
             if (selectionDef) {
-              group.signals = editSignals(group.signals, selectionDef.signals);
+              if(selectionDef.label!='Widget') group.signals = editSignals(group.signals, selectionDef.signals);
               const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
               if (mappingDef && mappingDef.groupName === group.name) {
                 if (isDemonstratingInterval && mappingDef.id === 'panzoom') {
