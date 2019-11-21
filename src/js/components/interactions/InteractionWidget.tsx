@@ -4,39 +4,38 @@ import {State, store} from '../../store';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {MarkRecord} from '../../store/factory/Mark';
 import {Map} from 'immutable';
-import {fieldDefs} from 'vega-lite/src/encoding';
 import {ColumnRecord} from '../../store/factory/Dataset';
 import {Dispatch} from 'redux';
-import {Interaction, LyraInteractionType} from '../../store/factory/Interaction';
+import {Interaction} from '../../store/factory/Interaction';
 import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
-import {addInteraction} from '../../actions/interactionActions';
-import {setInteractionType, addWidgetSignals} from '../../actions/interactionActions';
-import {Signal} from 'vega';
+import {addInteraction, setSelection, setMapping} from '../../actions/interactionActions';
 import {QUANTITATIVE} from 'vega-lite/build/src/type';
+import WidgetPanel from './WidgetPanel';
+import exportName from '../../util/exportName';
 
-
-const ctrl = require('../../ctrl');
 const dsUtil = require('../../util/dataset-utils');
-const getInVis = require('../../util/immutable-utils').getInVis;
+const WG_DEFAULT = '_widget_default';
 
 interface StateProps {
   groups: number[],
+  groupName: string
 }
 
 interface WidgetField {
   fieldDef: ColumnRecord,
-  id: number,
+  dsId: number,
+  interactionId: number
 }
 
 interface OwnState{
   field: WidgetField[],
-  closed: boolean
+  closed: boolean[]
 }
 
 interface DispatchProps {
   addInteraction: (groupId: number) => number; // return id of newly created interaction
-  setInteractionType: (type: LyraInteractionType, id: number) => void;
-  addWidgetSignals: (type: Signal[], id: number) => void;
+  setSelection: (def: any, id: number) => void;
+  setMapping: (def: any, id: number) => void;
 }
 
 function mapStateToProps(state: State, ownProps): StateProps {
@@ -44,8 +43,8 @@ function mapStateToProps(state: State, ownProps): StateProps {
   const groups = marks.filter((mark: MarkRecord) => {
     return mark.type === 'group';
   }).valueSeq().map((x: GroupRecord) => x._id).toArray();
-
-  return {groups};
+  const groupRecord: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groups[0])]);
+  return {groups, groupName: exportName(groupRecord.name)};
 
 }
 
@@ -60,32 +59,52 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
       dispatch(addInteractionToGroup(addAction.meta, groupId));
       return addAction.meta;
     },
-    setInteractionType: (type: LyraInteractionType, id: number) => {
-      dispatch(setInteractionType(type, id));
+    setSelection: (def: any, id: number) => {
+      dispatch(setSelection(def, id));
     },
-    addWidgetSignals: (type: Signal[], id:number) => {
-      dispatch(addWidgetSignals(type, id));
-    }
+    setMapping: (def: any, id: number) => {
+      dispatch(setMapping(def, id));
+    },
   };
 }
 
 function generateSignals(fieldDef, dsId) {
   let signals = [];
-  const DEFAULT = '_widget_default';
   const name = fieldDef.name;
   if(fieldDef.mtype === QUANTITATIVE) {
     const {max, min, mid, quart1, quart2, length} = dsUtil.widgetParams(fieldDef, dsId);
-    signals.push({name: name+DEFAULT, init: min, bind: {name, input: 'range', min, max, step: Math.floor((max-min)/length)}});
-    signals.push({name: name+'1', bind:{name, input: 'select', element: '.widget_1', options:[min, quart1, mid, quart2, max]}});
-    signals.push({name: name+'2', bind:{name, input: 'radio', element: '.widget_2', options:[min, quart1, mid, quart2, max]}});
-    signals.push({name: name+'3', update: name+DEFAULT, bind:{name, input: 'text', element: '.widget_3'}});
-
+    signals.push({name: name+WG_DEFAULT, init: mid, bind: {name, input: 'range', min, max, step: Math.floor((max-min)/length)}});
+    signals.push({name: name+'1', init: mid, bind: {name, element: '.'+name+1, input: 'range', min, max, step: Math.floor((max-min)/length)}});
+    signals.push({name: name+'2', bind:{name, input: 'select', element: '.'+name+2, options:[min, quart1, mid, quart2, max]}});
+    signals.push({name: name+'3', bind:{name, input: 'radio', element: '.'+name+3, options:[min, quart1, mid, quart2, max]}});
+    signals.push({name: name+'4', init: mid, bind:{name, input: 'text', element: '.'+name+4}});
     return signals;
   } else {
-    signals.push({name: name+DEFAULT, bind: {name, input: 'range', min: 0, max: 100, step: 1}});
+    signals.push({name: name+WG_DEFAULT, bind: {name, input: 'range', min: 0, max: 100, step: 1}});
   }
 
   return signals;
+}
+
+function getDefaultMapping(fieldDef, groupName) {
+  return {
+    id: 'color',
+    label: 'Color',
+    groupName,
+    markProperties: {
+      "encode": {
+        "update": {
+          "fill": [
+            {
+              "test": `datum.${fieldDef.name} <= ${fieldDef.name+WG_DEFAULT}`,
+              "value": "orange"
+            },
+            {"value": "grey"}
+          ],
+        }
+      }
+    }
+  }
 }
 
 class InteractionWidget extends React.Component<StateProps & DispatchProps, OwnState> {
@@ -94,7 +113,7 @@ class InteractionWidget extends React.Component<StateProps & DispatchProps, OwnS
     super(props);
     this.state = {
       field: [],
-      closed: true
+      closed: []
     }
   }
 
@@ -105,21 +124,23 @@ class InteractionWidget extends React.Component<StateProps & DispatchProps, OwnS
     const dt = evt.dataTransfer;
     const dsId = dt.getData('dsId');
     const fieldDefn = JSON.parse(dt.getData('fieldDef'));
-    console.log(fieldDefn);
-    const fieldObj = this.state.field.filter(e => e.id===dsId && e.fieldDef.name === fieldDefn.name);
+    const fieldObj = this.state.field.filter(e => e.dsId===dsId && e.fieldDef.name === fieldDefn.name);
 
     if(!fieldObj.length) {
-      this.setState(prevState => ({
-        field: [...prevState.field, {fieldDef: fieldDefn, id: dsId}]
-      }))
-
+      let panelState = this.state.closed.map(e => true).concat(false);
       const interactionId = this.props.addInteraction(this.props.groups[0]);
-      this.props.setInteractionType('widget', interactionId);
-      this.props.addWidgetSignals(generateSignals(fieldDefn, dsId), interactionId)
-      this.setState({closed: false});
-      // add the widget in the viz
-      // ctrl.update();
-      // launch demonstration mode
+      this.setState(prevState => ({
+        field: [...prevState.field, {fieldDef: fieldDefn, dsId, interactionId}],
+        closed: panelState
+      }));
+
+      this.props.setSelection({
+        id: 'widget_'+fieldDefn.name+'1',
+        label: 'Widget',
+        signals: generateSignals(fieldDefn, dsId),
+      }, interactionId)
+
+      this.props.setMapping(getDefaultMapping(fieldDefn, this.props.groupName), interactionId);
     }
   };
 
@@ -131,6 +152,7 @@ class InteractionWidget extends React.Component<StateProps & DispatchProps, OwnS
   public render() {
 
     const widgetFields = this.state.field.map(e=><span key={e.fieldDef.name}>{e.fieldDef.name + " "}</span>)
+    const widgetPanels = this.state.field.map((e, i) => <WidgetPanel id={e.interactionId} closed={this.state.closed[i]} name={e.fieldDef.name}></WidgetPanel>)
 
     return (
       <React.Fragment>
@@ -138,12 +160,7 @@ class InteractionWidget extends React.Component<StateProps & DispatchProps, OwnS
           {this.state.field.length ? widgetFields : null}
           <div><i>Drop a field to add a widget</i></div>
         </div>
-        <div className={'widgetPanel' + (this.state.closed ? " disabled" : "")}>
-          <div className='widgetDemonstration widget_1'></div>
-          <div className='widgetDemonstration widget_2'></div>
-          <div className='widgetDemonstration widget_3'></div>
-          <div><button onClick={()=> this.setState({closed: true})}>Done</button></div>
-        </div>
+        {this.state.field.length ? widgetPanels : null}
       </React.Fragment>
     )
   }

@@ -1,7 +1,6 @@
 import {createStandardAction} from 'typesafe-actions';
 import {InteractionRecord} from '../store/factory/Interaction';
 import {LyraSelectionPreviewDef, LyraMappingPreviewDef} from '../components/interactions/InteractionPreviewController';
-import {Signal} from 'vega';
 
 const counter  = require('../util/counter');
 
@@ -31,6 +30,4 @@ export const setMapping = createStandardAction('SET_MAPPING').map((preview: Lyra
     payload: previewCopy, meta: id
   }
 });
-export const addWidgetSignals = createStandardAction('SET_WIDGET_DATA_FIELD')<Signal[], number>(); // mappingField, id
-
 export const deleteInteraction = createStandardAction('DELETE_INTERACTION')<null, number>(); // id

@@ -157,7 +157,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     this.state = {
       isDemonstratingInterval: false,
       isDemonstratingPoint: false,
-      isDemonstratingWidget: false,
       spec: null,
       selectionPreviews: [],
       mappingPreviews: []
