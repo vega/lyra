@@ -777,10 +777,9 @@ export function selectionPreviewDefs(isDemonstratingInterval: boolean,
                                        isDemonstratingPoint: boolean,
                                        marks?: any[],
                                        scaleInfo?: ScaleInfo,
-                                       projectionField?: string): LyraSelectionPreviewDef[] {
+                                       field?: string): LyraSelectionPreviewDef[] {
   let defs = [];
   const optionalParams = Boolean(marks && scaleInfo);
-  projectionField = projectionField || '_vgsid_';
   if (isDemonstratingInterval) {
     const intervalDefs = {
       brush: {
@@ -846,32 +845,52 @@ export function selectionPreviewDefs(isDemonstratingInterval: boolean,
     }
   }
   if (isDemonstratingPoint) {
-    defs = defs.concat([
-      {
-        id: "single",
-        label: "Single point",
-        projectionField,
-        signals: []
-      },
-      {
-        id: "multi",
-        label: "Multi point",
-        projectionField,
-        signals: [
+    defs = defs.concat([{
+      id: "single",
+      label: "Single point",
+      signals: [{
+        "name": "points_tuple",
+        "on": [
           {
-            "name": "points_toggle",
-            "value": false,
-            "on": [
-              {
-                "events": [{"source": "scope", "type": "click"}],
-                "update": "event.shiftKey"
-              },
-              {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
-            ]
+            "events": [{"source": "scope", "type": "click"}],
+            "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
+            "force": true
           },
-        ]
-      },
-    ]);
+          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+          ]},
+          {
+            "name": "points_tuple_fields",
+            "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
+          }]
+    },
+    {
+      id: "multi",
+      label: "Multi point",
+      signals: [{
+        "name": "points_tuple",
+        "on": [{
+            "events": [{"source": "scope", "type": "click"}],
+            "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
+            "force": true
+          },
+          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+          ]
+        },
+        {
+          "name": "points_tuple_fields",
+          "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
+        },
+        {
+          "name": "points_toggle",
+          "value": false,
+          "on": [{
+              "events": [{"source": "scope", "type": "click"}],
+              "update": "event.shiftKey"
+            },
+            {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
+        ]}
+      ]
+    }]);
   }
   return defs;
 }

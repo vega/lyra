@@ -14,6 +14,7 @@ import {LyraMarkType, MarkRecord} from '../../store/factory/Mark';
 import {EncodingStateRecord} from '../../store/factory/Inspector';
 import {selectInteraction} from '../../actions/inspectorActions';
 import {getType} from 'typesafe-actions';
+import {updateVal} from '../inspectors/Interaction';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -53,8 +54,8 @@ export interface LyraSelectionPreviewDef {
   id: string,
   label: string,
   ref?: React.RefObject<InteractionPreview>,
-  projectionField?: string,
-  signals: Signal[]
+  signals: Signal[],
+  field: string,
 }
 
 export interface LyraMappingPreviewDef {
@@ -351,7 +352,18 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       this.props.setSelection(null, this.props.interactionRecord.id);
     }
     else {
-      this.props.setSelection(preview, this.props.interactionRecord.id);
+      const fieldPresent = this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.field ? true: false;
+      if(fieldPresent && this.state.isDemonstratingPoint) {
+        const field = this.props.interactionRecord.selectionDef.field;
+        const currentDef = Object.assign({},preview);
+        if(currentDef && currentDef.signals.length) {
+          currentDef.signals[0].on[0]['update'] = updateVal(field);
+          currentDef.signals[1]['value'][0].field = field;
+          currentDef.field = field;
+          this.props.setSelection(currentDef, this.props.interactionRecord.id);
+        } else this.props.setSelection(preview, this.props.interactionRecord.id);
+      }
+      else this.props.setSelection(preview, this.props.interactionRecord.id);
     }
     this.setState({
       mappingPreviews: this.getMappingPreviewDefs()

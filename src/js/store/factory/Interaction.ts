@@ -8,7 +8,6 @@ export interface LyraInteraction {
   groupId: number;
   selectionDef: LyraSelectionPreviewDef;
   mappingDef: LyraMappingPreviewDef;
-  widgetSignals: Signal[];
 };
 
 export const Interaction = Record<LyraInteraction>({
@@ -17,7 +16,6 @@ export const Interaction = Record<LyraInteraction>({
   groupId: null,
   selectionDef: null,
   mappingDef: null,
-  widgetSignals: [],
 }, 'LyraInteraction');
 
 export type InteractionRecord = RecordOf<LyraInteraction>;
