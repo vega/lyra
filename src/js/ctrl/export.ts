@@ -51,7 +51,6 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
 
   spec.signals = exporter.signals(state, int, prev);
 
-  console.log('SPEC', spec);
   return spec;
 }
 
