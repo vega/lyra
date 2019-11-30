@@ -232,11 +232,11 @@ export function marksReducer(
   }
 
   if (action.type === getType(helperActions.addAxisToGroup)) {
-    return ensureValuePresent(state, [String(groupId), 'axes'], action.payload);
+    return ensureValuePresentImmutable(state, [String(groupId), 'axes'], action.payload);
   }
 
   if (action.type === getType(helperActions.addLegendToGroup)) {
-    return ensureValuePresent(state, [String(groupId), 'legends'], action.payload);
+    return ensureValuePresentImmutable(state, [String(groupId), 'legends'], action.payload);
   }
 
   if (action.type === getType(helperActions.addInteractionToGroup)) {
