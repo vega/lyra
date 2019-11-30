@@ -9,6 +9,7 @@ import {LyraMarkType, MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
 import exportName from "../util/exportName";
 import {InteractionRecord} from "../store/factory/Interaction";
+import {WG_DEFAULT} from "../components/interactions/InteractionWidget";
 
 function conditionalHelpersForScales(scaleInfo: ScaleInfo) {
   const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
@@ -954,6 +955,9 @@ export function editMarks(marks: any[], def: LyraMappingPreviewDef) {
             if (oldValue.value || oldValue.signal || oldValue.field) {
               delete value[0].value;
               value[0] = {...value[0], ...oldValue};
+            } else if (Array.isArray(oldValue) && oldValue[0].test && !value[0].test.includes(oldValue[0].test)) {
+              value[0].test = value[0].test + ' && ' + oldValue[0].test;
+              value[0].value = oldValue[0].value;
             }
             mark.encode.update[key] = value;
           }
@@ -996,6 +1000,68 @@ export function editScales(scales: any[], def: LyraMappingPreviewDef) {
   return scales;
 }
 
+export function widgetMappingPreviewDefs(fieldName: string, groupName: string, comparator: string = '==') {
+  let defs: LyraMappingPreviewDef[] = [{
+    id: "color",
+    label: "Color",
+    groupName: groupName,
+    comparator,
+    markProperties: {
+      "encode": {
+        "update": {
+          "fill": [
+            {
+              "test": `datum.${fieldName} ${comparator} ${fieldName+WG_DEFAULT}`,
+              "value": "orange"
+            },
+            {"value": "grey"}
+          ],
+        }
+      }
+    }
+  },
+  {
+    id: "opacity",
+    label: "Opacity",
+    groupName: groupName,
+    comparator,
+    markProperties: {
+      "encode": {
+        "update": {
+          "fillOpacity": [
+            {
+               "test": `datum.${fieldName} ${comparator} ${fieldName+WG_DEFAULT}`,
+               "value": "1"
+            },
+            {"value": "0.2"}
+          ],
+        }
+      }
+    }
+  },
+  {
+    id: "size",
+    label: "Size",
+    groupName: groupName,
+    markType: "symbol",
+    comparator,
+    markProperties: {
+      "encode": {
+        "update": {
+          "size": [
+            {
+              "test": `datum.${fieldName} ${comparator} ${fieldName+WG_DEFAULT}`,
+              "value": 80
+            },
+            {"value": 30}
+          ],
+        }
+      }
+    }
+  }];
+
+  return defs;
+}
 
 export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[], scaleInfo: ScaleInfo, groupName: string, sceneSpec): LyraMappingPreviewDef[] {
   let defs: LyraMappingPreviewDef[] = [{

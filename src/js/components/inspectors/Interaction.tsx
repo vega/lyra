@@ -6,7 +6,7 @@ import {State} from '../../store';
 import {InteractionRecord, Interaction} from '../../store/factory/Interaction';
 import {Property} from './Property';
 import {ScaleInfo, LyraMappingPreviewDef, LyraSelectionPreviewDef} from '../interactions/InteractionPreviewController';
-import {mappingPreviewDefs, getScaleInfoForGroup, selectionPreviewDefs} from '../../ctrl/demonstrations';
+import {mappingPreviewDefs, getScaleInfoForGroup, selectionPreviewDefs, widgetMappingPreviewDefs} from '../../ctrl/demonstrations';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import exportName from '../../util/exportName';
 import {Dispatch} from 'redux';
@@ -35,7 +35,7 @@ interface StateProps {
   mappingOptions: string[];
   selectionOptions: string[];
   fields: string[];
-  isPoint: boolean;
+  type: string;
 }
 
 
@@ -45,7 +45,13 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const scaleInfo: ScaleInfo = getScaleInfoForGroup(state, groupId);
   const groupRecord: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groupId)]);
   const isInterval = interaction.selectionDef && interaction.selectionDef.id.startsWith('brush') ? true : false;
-  const isPoint = !isInterval;
+  let type = 'brush';
+  if(interaction.selectionDef) {
+    if(interaction.selectionDef.id.startsWith('widget_')) type = 'widget'
+    else if(!isInterval) {
+      type = interaction.selectionDef.id;
+    }
+  }
 
   const field = interaction.selectionDef && interaction.selectionDef.field;
   const marksOfGroup = groupRecord.marks.map((markId) => {
@@ -70,7 +76,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     selectionDefs,
     selectionOptions,
     fields,
-    isPoint,
+    type,
   };
 }
 
@@ -100,16 +106,24 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   public handleMapChange(event) {
-    const preview = this.props.mappingDefs.filter(e => e.id === event.target.value);
-    if(preview.length) {
-      if (this.props.interaction.mappingDef && this.props.interaction.mappingDef.id === preview[0].id) {
-        this.props.setMapping(null, this.props.interaction.id);
-      }
-      else {
-        if (!this.props.interaction.selectionDef) {
-          this.props.setSelection(this.props.selectionDefs[0], this.props.interaction.id);
+    if(this.props.type == 'widget') {
+      const fieldName = this.props.interaction.selectionDef.field;
+      const previousMappingDef = this.props.interaction.mappingDef;
+      const defs = widgetMappingPreviewDefs(fieldName, previousMappingDef.groupName, previousMappingDef.comparator);
+      const def = defs.filter(e => e.id === event.target.value);
+      this.props.setMapping(def[0], this.props.interaction.id);
+    } else {
+      const preview = this.props.mappingDefs.filter(e => e.id === event.target.value);
+      if(preview.length) {
+        if (this.props.interaction.mappingDef && this.props.interaction.mappingDef.id === preview[0].id) {
+          this.props.setMapping(null, this.props.interaction.id);
         }
-        this.props.setMapping(preview[0], this.props.interaction.id);
+        else {
+          if (!this.props.interaction.selectionDef) {
+            this.props.setSelection(this.props.selectionDefs[0], this.props.interaction.id);
+          }
+          this.props.setMapping(preview[0], this.props.interaction.id);
+        }
       }
     }
   }
@@ -157,7 +171,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     let fieldOptions = this.props.fields.map(e => {
       return <option key={e} value={e}>{e}</option>
     });
-    fieldOptions.push(<option key='_blank2' value='_vgsid_'>None</option>)
+    fieldOptions.push(<option key='_blank3' value='_vgsid_'>None</option>)
 
     const props = this.props;
     const interaction = this.props.interaction;
@@ -178,9 +192,11 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
           <h3 className='label'>Settings</h3>
           <ul>
           Selection :
-          <select value={selectionDef ? selectionDef.id : ''} onChange={e => this.handleSelectionChange(e)}>
-            {selectionOptions}
-          </select>
+          {this.props.type == 'widget' ? 'Widget' :
+            <select value={selectionDef ? selectionDef.id : ''} onChange={e => this.handleSelectionChange(e)}>
+              {selectionOptions}
+            </select>
+          }
           </ul>
 
           <ul>
@@ -190,14 +206,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
           </select>
           </ul>
 
-          <ul className={this.props.isPoint ? '': 'hidden'}>
+          <ul className={this.props.type === 'multi' || this.props.type =='single' ? '': 'hidden'}>
           Project On :
           <select value={selectionDef ? selectionDef.field : '_vgsid_'} onChange={e => this.handleFieldChange(e.target.value)}>
             {fieldOptions}
           </select>
           </ul>
         </div>
-        <Property name='size' label='Size' type='number' canDrop={true} {...props} />
+        {/* <Property name='size' label='Size' type='number' canDrop={true} {...props} /> */}
 
 
       </div>

@@ -12,13 +12,16 @@ import {addInteraction, setSelection, setMapping} from '../../actions/interactio
 import {QUANTITATIVE} from 'vega-lite/build/src/type';
 import WidgetPanel from './WidgetPanel';
 import exportName from '../../util/exportName';
+import {widgetMappingPreviewDefs, getScaleInfoForGroup} from '../../ctrl/demonstrations';
+import {NOMINAL} from 'vega-lite/src/type';
 
 const dsUtil = require('../../util/dataset-utils');
-const WG_DEFAULT = '_widget_default';
+export const WG_DEFAULT = '_widget_default';
 
 interface StateProps {
   groups: number[],
-  groupName: string
+  groupName: string,
+  canDemonstrate: boolean
 }
 
 interface WidgetField {
@@ -38,13 +41,20 @@ interface DispatchProps {
   setMapping: (def: any, id: number) => void;
 }
 
-function mapStateToProps(state: State, ownProps): StateProps {
+function mapStateToProps(state: State): StateProps {
   const marks: Map<string, MarkRecord> = state.getIn(['vis', 'present', 'marks']);
   const groups = marks.filter((mark: MarkRecord) => {
     return mark.type === 'group';
   }).valueSeq().map((x: GroupRecord) => x._id).toArray();
   const groupRecord: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groups[0])]);
-  return {groups, groupName: exportName(groupRecord.name)};
+  const scaleInfo = getScaleInfoForGroup(state, groups[0]);
+  const isParsing = state.getIn(['vega', 'isParsing']);
+  const canDemonstrate = Boolean(!isParsing && ((scaleInfo.xScaleName && scaleInfo.xFieldName) || (scaleInfo.yScaleName && scaleInfo.yFieldName)));
+  return {
+    groups,
+    groupName: exportName(groupRecord.name),
+    canDemonstrate,
+  };
 
 }
 
@@ -72,7 +82,7 @@ function generateSignals(fieldDef, dsId) {
   let signals = [];
   const name = fieldDef.name;
   if(fieldDef.mtype === QUANTITATIVE) {
-    const {max, min, mid, quart1, quart2, length} = dsUtil.widgetParams(fieldDef, dsId);
+    const {max, min, mid, quart1, quart2, length} = dsUtil.widgetParams(fieldDef, dsId, QUANTITATIVE);
     signals.push({name: name+WG_DEFAULT, init: mid, bind: {name, input: 'range', min, max, step: Math.floor((max-min)/length)}});
     signals.push({name: name+'1', init: mid, bind: {name, element: '.'+name+1, input: 'range', min, max, step: Math.floor((max-min)/length)}});
     signals.push({name: name+'2', bind:{name, input: 'select', element: '.'+name+2, options:[min, quart1, mid, quart2, max]}});
@@ -80,31 +90,16 @@ function generateSignals(fieldDef, dsId) {
     signals.push({name: name+'4', init: mid, bind:{name, input: 'text', element: '.'+name+4}});
     return signals;
   } else {
-    signals.push({name: name+WG_DEFAULT, bind: {name, input: 'range', min: 0, max: 100, step: 1}});
+    const {options} = dsUtil.widgetParams(fieldDef, dsId, NOMINAL);
+    console.log('op', options);
+    signals.push({name: name+WG_DEFAULT, init: [options[0]], bind:{name, input: 'select', options}});
+    signals.push({name: name+'1', bind:{name, input: 'select', element: '.'+name+1, options}});
+    signals.push({name: name+'2', bind:{name, input: 'select', element: '.'+name+2, options}});
+    signals.push({name: name+'3', bind:{name, input: 'select', element: '.'+name+3, options}});
+    signals.push({name: name+'4', init: [options[0]], bind:{name, input: 'text', element: '.'+name+4}});
   }
 
   return signals;
-}
-
-function getDefaultMapping(fieldDef, groupName) {
-  return {
-    id: 'color',
-    label: 'Color',
-    groupName,
-    markProperties: {
-      "encode": {
-        "update": {
-          "fill": [
-            {
-              "test": `datum.${fieldDef.name} <= ${fieldDef.name+WG_DEFAULT}`,
-              "value": "orange"
-            },
-            {"value": "grey"}
-          ],
-        }
-      }
-    }
-  }
 }
 
 class InteractionWidget extends React.Component<StateProps & DispatchProps, OwnState> {
@@ -128,22 +123,28 @@ class InteractionWidget extends React.Component<StateProps & DispatchProps, OwnS
 
     if(!fieldObj.length) {
       let panelState = this.state.closed.map(e => true).concat(false);
-      const interactionId = this.props.addInteraction(this.props.groups[0]);
+      const interactionId = this.props.addInteraction(this.props.groups[0]); // On Which group to add interaction?
       this.setState(prevState => ({
         field: [...prevState.field, {fieldDef: fieldDefn, dsId, interactionId}],
         closed: panelState
       }));
 
       this.props.setSelection({
-        id: 'widget_'+fieldDefn.name+'1',
+        id: 'widget_'+fieldDefn.name,
         label: 'Widget',
+        field: fieldDefn.name,
         signals: generateSignals(fieldDefn, dsId),
       }, interactionId)
-
-      this.props.setMapping(getDefaultMapping(fieldDefn, this.props.groupName), interactionId);
+      const defs= widgetMappingPreviewDefs(fieldDefn.name, this.props.groupName, '<=');
+      this.props.setMapping(defs[1], interactionId);
     }
   };
 
+  public managePane = (t: boolean, i: number) => {
+    const arr = this.state.closed;
+    arr[i] = t;
+    this.setState({closed: arr});
+  };
   public handleDragOver = (evt) => {
     if (evt.preventDefault) {
       evt.preventDefault(); // Necessary. Allows us to drop.
@@ -151,12 +152,23 @@ class InteractionWidget extends React.Component<StateProps & DispatchProps, OwnS
   };
   public render() {
 
-    const widgetFields = this.state.field.map(e=><span key={e.fieldDef.name}>{e.fieldDef.name + " "}</span>)
-    const widgetPanels = this.state.field.map((e, i) => <WidgetPanel id={e.interactionId} closed={this.state.closed[i]} name={e.fieldDef.name}></WidgetPanel>)
+    const widgetFields = this.state.field.map((e, i)=>
+      <span onClick={() => this.managePane(false, i)} key={e.fieldDef.name}>{e.fieldDef.name + " "}</span>
+    )
+
+    const widgetPanels = this.state.field.map((e, i) =>
+      <WidgetPanel
+        id={e.interactionId}
+        managePane={t => this.managePane(t, i)}
+        key={e.interactionId}
+        closed={this.state.closed[i]}
+        name={e.fieldDef.name}>
+      </WidgetPanel>
+    );
 
     return (
       <React.Fragment>
-        <div className="interaction-widget" onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
+        <div className={this.props.canDemonstrate ? 'interaction-widget':'hidden' } onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
           {this.state.field.length ? widgetFields : null}
           <div><i>Drop a field to add a widget</i></div>
         </div>

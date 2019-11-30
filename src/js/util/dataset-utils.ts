@@ -97,10 +97,16 @@ export function output(id: number) {
   return data || input(id) || [];
 }
 
-export function widgetParams(fieldDef, id: number) {
+export function widgetParams(fieldDef, id: number, type) {
   const data = output(id);
-  console.log(data);
   let field = data.map(e => e[fieldDef.name]);
+  console.log(type, NOMINAL);
+  if(type == NOMINAL) {
+    field = [...new Set(field)];
+    if(field.length>50) { // What to do for very large number of options?
+      return {options: field.slice(0, 50)}
+    } else return {options: field}
+  }
   field = field.sort((a,b)=> a-b);
   const length = field.length;
   return {
