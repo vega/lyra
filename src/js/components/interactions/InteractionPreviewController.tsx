@@ -68,6 +68,7 @@ export interface LyraMappingPreviewDef {
 
   scaleProperties?: any[] // list of partial scale objects
   datasetProperties?: any // partial dataset object
+  comparator?: string // comparison operator for widgets
 }
 
 interface OwnState {
