@@ -1080,8 +1080,20 @@ function filterViewMappingPreviewDefs(isDemonstratingInterval: boolean, sceneSpe
   return otherGroups.map(groupSpec => {
       if (groupSpec.marks.length) {
         const maybeDataset = groupSpec.marks.filter(markSpec => markSpec.from && markSpec.from.data).map(markSpec => markSpec.from.data);
-        console.log(maybeDataset)
         if (maybeDataset.length) {
+          function collectTransforms(datasetName, transforms) {
+            const dataset = sceneSpec.data.filter(data => data.name === datasetName)[0];
+            const currentTransforms = transforms.concat(dataset.transform);
+            const currentTransformsToString = currentTransforms.map(x => JSON.stringify(x));
+            const uniqueTransforms = currentTransforms.filter((transform, idx) => {
+              return currentTransformsToString.indexOf(JSON.stringify(transform)) === idx;
+            });
+            if (dataset.source) {
+              return collectTransforms(dataset.source, uniqueTransforms);
+            }
+            return {source: datasetName, transform: uniqueTransforms};
+          }
+          const {source, transform} = collectTransforms(maybeDataset[0], []);
           const newDatasetName = maybeDataset[0] + "_filter_" + groupSpec.name;
           return {
             id: "filter_" + groupSpec.name,
@@ -1094,12 +1106,12 @@ function filterViewMappingPreviewDefs(isDemonstratingInterval: boolean, sceneSpe
             },
             datasetProperties: {
               "name": newDatasetName,
-              "source": maybeDataset[0],
+              "source": source,
               "transform": [{
                 "type": "filter",
                 "expr": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
                 `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
-              }]
+              }, ...transform]
             }
           }
         }
