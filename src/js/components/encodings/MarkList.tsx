@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as ReactTooltip from 'react-tooltip';
-import { AnyAction, Dispatch } from 'redux';
+import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
 import {selectMark} from '../../actions/inspectorActions';
 import {deleteMark, updateMarkProperty} from '../../actions/markActions';

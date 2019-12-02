@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
 import {redo, undo} from '../actions/historyActions';
-import {selectMark} from '../actions/inspectorActions';
+import {selectMark, expandLayers, baseSelectMark} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';
 import {store} from '../store';
-import {MODE} from '../store/factory/Signal';
+import {MODE, SELECTED} from '../store/factory/Signal';
 import sg from './signals';
-import {Operator} from 'vega';
+import {getParentGroupIds} from '../util/hierarchy';
 
 const ACTIONS = require('../actions/Names');
 const ctrl = require('./');
@@ -178,26 +178,27 @@ export function registerSignalListeners() {
     });
   }
 
-  // TODO(rn): add this back in when handles are necessary
-  // ctrl.view.addSignalListener(sg.SELECTED, function(name, selected) {
-  //   const def = selected.mark.def;
-  //   const id = def && def.lyra_id;
-
-  //   if (store.getState().getIn(['inspector', 'encodings', 'selectedId']) === id) {
-  //     return;
-  //   }
-
-  //   // Walk up from the selected primitive to create an array of its parent groups' IDs
-  //   const parentLayerIds = hierarchy.getParentGroupIds(id);
-
-  //   if (id) {
-  //     // Select the mark,
-  //     store.dispatch(selectMark(id));
-  //     // And expand the hierarchy so that it is visible
-  //     store.dispatch(expandLayers(parentLayerIds));
-  //   }
-  // });
   if (ctrl.view) {
+    ctrl.view.addSignalListener(SELECTED, function(name, selected) {
+      const role = selected.mark.role;
+      const id = role && +role.split('lyra_')[1];
+      const state = store.getState();
+
+      if (state.getIn(['inspector', 'encodings', 'selectedId']) === id) {
+        return;
+      }
+
+      // Walk up from the selected primitive to create an array of its parent groups' IDs
+      const parentLayerIds = getParentGroupIds(id, state);
+
+      if (id) {
+        // Select the mark,
+        store.dispatch(baseSelectMark(id, parentLayerIds));
+        // And expand the hierarchy so that it is visible
+        store.dispatch(expandLayers(parentLayerIds));
+      }
+    });
+
     Object.keys(listeners).forEach(function(signalName) {
       if (!ctrl.view._signals[signalName]) {
         listeners[signalName] = [];
