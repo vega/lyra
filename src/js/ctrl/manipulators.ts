@@ -13,7 +13,9 @@ export default function manipulators(mark, spec) {
   const markName = exportName(mark.name);
   const manipName = `${markName}_manipulators`;
   const peek = `peek(data("${manipName}"))`;
-  const signals = Object.values(mark.encode.update)
+  const signals = Object.keys(mark.encode.update)
+    .filter((k: any) => k !== 'text')
+    .map((k: any) => mark.encode.update[k])
     .filter((s:any) => s && !!s.signal)
     .map((s:any) => ({signal: s.signal}));
 
