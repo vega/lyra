@@ -100,7 +100,6 @@ export function output(id: number) {
 export function widgetParams(fieldDef, id: number, type) {
   const data = output(id);
   let field = data.map(e => e[fieldDef.name]);
-  console.log(type, NOMINAL);
   if(type == NOMINAL) {
     field = [...new Set(field)];
     if(field.length>50) { // What to do for very large number of options?

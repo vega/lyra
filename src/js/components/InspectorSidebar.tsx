@@ -31,7 +31,8 @@ interface Inspector {
   name: string,
   from: string,
   markType: string,
-  guideType: string
+  guideType: string,
+  interactionList: string[],
 }
 
 const capitalize = require('capitalize');
@@ -52,7 +53,12 @@ function mapStateToProps(state: State, ownProps): Inspector {
     isScale ? getInVis(state, `scales.${selId}`) :
     isInteraction ? getInVis(state, `interactions.${selId}`) : null;
 
-  let from;
+  let from, interactions = [];
+  if(isMark) {
+    interactions = getInVis(state, 'interactions');
+    interactions = [...interactions.values()];
+    interactions = interactions.filter(i => primitive._parent == i.get('groupId')).map(i => i.get('name'));
+  }
   if (primitive && primitive.from && primitive.from.data) {
     from = getInVis(state, 'pipelines.' +
         getInVis(state, 'datasets.' + primitive.from.data).get('_parent')).get('name');
@@ -67,7 +73,8 @@ function mapStateToProps(state: State, ownProps): Inspector {
     name: primitive && primitive.get('name'),
     from: from,
     markType:  primitive && primitive.get('type'),
-    guideType: primitive && primitive.get('_gtype')
+    guideType: primitive && primitive.get('_gtype'),
+    interactionList: interactions
   };
 }
 
@@ -105,11 +112,27 @@ class BaseInspector extends React.Component<Inspector> {
       </div>
     ) : null;
 
+    const linkedInteractions = props.isMark ? (
+      <div className='property-group property'>
+        <h3 className='label-long'>Interactions</h3>
+        <div>
+          {this.props.interactionList.length ?
+            this.props.interactionList.map(interaction => {
+              return (
+                <span className='interaction name'>{interaction}</span>
+              )
+            }) : <div>No linked Interactions</div>
+          }
+        </div>
+      </div>
+    ): null;
+
     const inner = InspectorType ? (
       <div className='inner'>
         {pipeline}
         <InspectorType primId={primId}
           primType={primType} guideType={props.guideType} />
+          {linkedInteractions}
       </div>
     ) : null;
 

@@ -1,5 +1,6 @@
 import {Map} from 'immutable';
 import * as React from 'react';
+import * as ReactTooltip from 'react-tooltip';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import {selectInteraction} from '../../actions/inspectorActions';
@@ -20,23 +21,30 @@ interface StateProps {
 
 interface DispatchProps {
   selectInteraction: (id: number) => void;
-  deleteInteraction: (id: number) =>void;
+  deleteInteraction: (selectedId: number, interactionId: number, evt: any) => void;
 }
 
-function mapStateToProps(reduxState: State, ownProps): StateProps {
+function mapStateToProps(reduxState: State): StateProps {
   return {
     selectedId: reduxState.getIn(['inspector', 'encodings', 'selectedId']),
     interactions: getInVis(reduxState, 'interactions')
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
+function mapDispatchToProps(dispatch: Dispatch, ownProps): DispatchProps {
   return {
     selectInteraction: function(id) {
       dispatch(selectInteraction(id));
     },
-    deleteInteraction: function(id) {
-      dispatch(deleteInteraction(null, id));
+
+    deleteInteraction: function (selectedId, interactionId, evt) {
+      if (selectedId === interactionId) {
+        dispatch(selectInteraction(ownProps.groupId));
+      }
+      dispatch(deleteInteraction(null, interactionId));
+      evt.preventDefault();
+      evt.stopPropagation();
+      ReactTooltip.hide();
     }
   };
 }
@@ -82,7 +90,7 @@ class InteractionList extends React.Component<StateProps & DispatchProps> {
                     )
                   }
                   <Icon glyph={assets.trash} className='delete'
-                  onClick={() => props.deleteInteraction(id)}
+                    onClick={(e) => props.deleteInteraction(props.selectedId, id, e)}
                   data-tip={'Delete ' + name} data-place='right' />
                 </div>
               </li>

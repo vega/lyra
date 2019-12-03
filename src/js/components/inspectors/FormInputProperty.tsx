@@ -19,7 +19,7 @@ interface OwnProps {
   disabled?: boolean|string;
   opts?: string[];
   signal?: string;
-  onChange?: () => any; // TODO: find function in/out types
+  onChange?: (e) => any; // TODO: find function in/out types
   onBlur?: () => any; // TODO: find function in/out types
   name?: any;
   group?: any;

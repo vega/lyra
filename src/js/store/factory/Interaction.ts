@@ -1,13 +1,18 @@
 import {Map, Record, RecordOf} from 'immutable';
 import {LyraSelectionPreviewDef, LyraMappingPreviewDef} from '../../components/interactions/InteractionPreviewController';
-import {Signal} from 'vega';
 
+export interface PropertyValues {
+  size: number,
+  opacity: number,
+  color: string,
+}
 export interface LyraInteraction {
   id: number;
   name: string;
   groupId: number;
   selectionDef: LyraSelectionPreviewDef;
   mappingDef: LyraMappingPreviewDef;
+  markPropertyValues: PropertyValues;
 };
 
 export const Interaction = Record<LyraInteraction>({
@@ -16,6 +21,7 @@ export const Interaction = Record<LyraInteraction>({
   groupId: null,
   selectionDef: null,
   mappingDef: null,
+  markPropertyValues: {size: 10, opacity: 0.2, color: '#666666'}
 }, 'LyraInteraction');
 
 export type InteractionRecord = RecordOf<LyraInteraction>;

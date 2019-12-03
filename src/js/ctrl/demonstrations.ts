@@ -1077,7 +1077,7 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
                                                 `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
               "value": "orange"
             },
-            {"value": "grey"}
+            {"value": "#666666"}
           ],
         }
       }
@@ -1118,7 +1118,7 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
                 {
                   "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
                                                     `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
-                  "value": isDemonstratingInterval ? "10" : "20"
+                  "value": isDemonstratingInterval ? "10" : "100"
                 },
                 {"value": isDemonstratingInterval ? "5" : "10"}
               ],
