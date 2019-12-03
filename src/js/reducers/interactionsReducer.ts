@@ -24,6 +24,16 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
     return state.setIn([String(id), 'mappingDef'], t);
   }
 
+  if (action.type === getType(interactionActions.setValueInMark)) {
+    const {property, value} = action.payload;
+    return state.setIn([String(id), 'mappingDef', 'markProperties', 'encode', 'update', property, 1, 'value'], value);
+  }
+
+  if (action.type === getType(interactionActions.setMarkPropertyValue)) {
+    const {property, value} = action.payload;
+    return state.setIn([String(id), 'markPropertyValues', property], value);
+  }
+
   if (action.type === getType(interactionActions.deleteInteraction)) {
     return state.remove(String(id));
   }

@@ -30,4 +30,15 @@ export const setMapping = createStandardAction('SET_MAPPING').map((preview: Lyra
     payload: previewCopy, meta: id
   }
 });
+export const setValueInMark = createStandardAction('SET_VALUE_IN_MARK').map((payload: any, id: number) => {
+  return {
+    payload, meta: id
+  }
+});
+
+export const setMarkPropertyValue = createStandardAction('SET_MARK_PROPERTY_VALUE').map((payload: any, id: number) => {
+  return {
+    payload, meta: id
+  }
+});
 export const deleteInteraction = createStandardAction('DELETE_INTERACTION')<null, number>(); // id

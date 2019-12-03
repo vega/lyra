@@ -48,8 +48,7 @@ function mapStateToProps(state: State): StateProps {
   }).valueSeq().map((x: GroupRecord) => x._id).toArray();
   const groupRecord: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groups[0])]);
   const scaleInfo = getScaleInfoForGroup(state, groups[0]);
-  const isParsing = state.getIn(['vega', 'isParsing']);
-  const canDemonstrate = Boolean(!isParsing && ((scaleInfo.xScaleName && scaleInfo.xFieldName) || (scaleInfo.yScaleName && scaleInfo.yFieldName)));
+  const canDemonstrate = Boolean(((scaleInfo.xScaleName && scaleInfo.xFieldName) || (scaleInfo.yScaleName && scaleInfo.yFieldName)));
   return {
     groups,
     groupName: exportName(groupRecord.name),
@@ -91,7 +90,6 @@ function generateSignals(fieldDef, dsId) {
     return signals;
   } else {
     const {options} = dsUtil.widgetParams(fieldDef, dsId, NOMINAL);
-    console.log('op', options);
     signals.push({name: name+WG_DEFAULT, init: [options[0]], bind:{name, input: 'select', options}});
     signals.push({name: name+'1', bind:{name, input: 'select', element: '.'+name+1, options}});
     signals.push({name: name+'2', bind:{name, input: 'select', element: '.'+name+2, options}});
@@ -153,7 +151,7 @@ class InteractionWidget extends React.Component<StateProps & DispatchProps, OwnS
   public render() {
 
     const widgetFields = this.state.field.map((e, i)=>
-      <span onClick={() => this.managePane(false, i)} key={e.fieldDef.name}>{e.fieldDef.name + " "}</span>
+      <span onClick={() => this.managePane(false, i)} className='widget-tag' key={e.fieldDef.name}>{e.fieldDef.name + " "}</span>
     )
 
     const widgetPanels = this.state.field.map((e, i) =>

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import { throttle } from "throttle-debounce";
 import {State} from '../../store';
 import {InteractionRecord, Interaction} from '../../store/factory/Interaction';
 import {Property} from './Property';
@@ -10,7 +11,8 @@ import {mappingPreviewDefs, getScaleInfoForGroup, selectionPreviewDefs, widgetMa
 import {GroupRecord} from '../../store/factory/marks/Group';
 import exportName from '../../util/exportName';
 import {Dispatch} from 'redux';
-import {setSelection, setMapping} from '../../actions/interactionActions';
+import {setSelection, setMapping, setValueInMark, setMarkPropertyValue} from '../../actions/interactionActions';
+import {FormInputProperty} from './FormInputProperty';
 
 const ctrl = require('../../ctrl');
 const getInVis = require('../../util/immutable-utils').getInVis;
@@ -20,12 +22,16 @@ interface OwnProps {
 }
 
 interface OwnState {
-  value: string;
+  size: number;
+  color: string;
+  opacity: number;
 }
 
 interface DispatchProps {
-  setSelection: (def: any, id: number) => void;
-  setMapping: (def: any, id: number) => void;
+  setSelection: (def: LyraSelectionPreviewDef, id: number) => void;
+  setMapping: (def: LyraMappingPreviewDef, id: number) => void;
+  setValueInMark: (payload: any, id: number) => void;
+  setMarkPropertyValue: (payload: any, id: number) => void;
 }
 
 interface StateProps {
@@ -82,11 +88,17 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
 function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   return {
-    setSelection: (def: any, id: number) => {
+    setSelection: (def: LyraSelectionPreviewDef, id: number) => {
       dispatch(setSelection(def, id));
     },
-    setMapping: (def: any, id: number) => {
+    setMapping: (def: LyraMappingPreviewDef, id: number) => {
       dispatch(setMapping(def, id));
+    },
+    setValueInMark: (payload: any, id: number) => {
+      dispatch(setValueInMark(payload, id));
+    },
+    setMarkPropertyValue: (payload: any, id: number) => {
+      dispatch(setMarkPropertyValue(payload, id));
     }
   };
 }
@@ -95,25 +107,34 @@ export function updateVal(field: string) {
   return `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`
 }
 class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
+  [x: string]: any;
   constructor(props) {
     super(props);
 
     this.state = {
-      value: null
+      size: 100,
+      color: '#666666',
+      opacity: 0.2
     }
     this.handleMapChange = this.handleMapChange.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
+    this.handlePropertyChangeThrottled = throttle(500, this.handlePropertyChange);
   }
 
-  public handleMapChange(event) {
+  // componentWillMount() {
+  //   const name = 'lyra_interaction_' + this.props.primId + '_size';
+  //   this.props.initSignal(name, 100);
+  // }
+
+  public handleMapChange(value) {
     if(this.props.type == 'widget') {
       const fieldName = this.props.interaction.selectionDef.field;
       const previousMappingDef = this.props.interaction.mappingDef;
       const defs = widgetMappingPreviewDefs(fieldName, previousMappingDef.groupName, previousMappingDef.comparator);
-      const def = defs.filter(e => e.id === event.target.value);
+      const def = defs.filter(e => e.id === value);
       this.props.setMapping(def[0], this.props.interaction.id);
     } else {
-      const preview = this.props.mappingDefs.filter(e => e.id === event.target.value);
+      const preview = this.props.mappingDefs.filter(e => e.id === value);
       if(preview.length) {
         if (this.props.interaction.mappingDef && this.props.interaction.mappingDef.id === preview[0].id) {
           this.props.setMapping(null, this.props.interaction.id);
@@ -126,18 +147,18 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         }
       }
     }
+    this.handlePropertyChange();
   }
 
 
-  public handleSelectionChange(event) {
-    const preview = this.props.selectionDefs.filter(e => e.id === event.target.value);
+  public handleSelectionChange(value) {
+    const preview = this.props.selectionDefs.filter(e => e.id === value);
     if(preview.length) {
       if (this.props.interaction.selectionDef && this.props.interaction.selectionDef.id === preview[0].id) {
         this.props.setSelection(null, this.props.interaction.id);
 
       }
       else {
-        console.log(this.props.interaction.selectionDef);
         const fieldPresent = this.props.interaction.selectionDef && this.props.interaction.selectionDef.field ? true: false;
         this.props.setSelection(preview[0], this.props.interaction.id);
         if(fieldPresent) {
@@ -154,6 +175,29 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       currentDef.signals[1]['value'][0].field = field;
       currentDef.field = field;
       this.props.setSelection(currentDef, this.props.interaction.id);
+    }
+  }
+
+  public handlePropertyChange() {
+    if(!this.props.interaction.mappingDef) this.handleMapChange('color');
+    const {markPropertyValues} = this.props.interaction
+    const id = this.props.interaction.mappingDef.id;
+    const update = this.props.interaction.mappingDef.markProperties.encode.update;
+    if(id == 'color' && update.fill[1].value != markPropertyValues.color) {
+      this.props.setValueInMark({property: 'fill', value: markPropertyValues.color}, this.props.interaction.id);
+    } else if (id == 'opacity' && update.fillOpacity[1].value != markPropertyValues.opacity) {
+      this.props.setValueInMark({property: 'fillOpacity', value: markPropertyValues.opacity}, this.props.interaction.id);
+    } else if (id == 'size' && update.size[1].value != markPropertyValues.size) {
+      this.props.setValueInMark({property: 'size', value: markPropertyValues.size}, this.props.interaction.id);
+    }
+
+  }
+
+  public onPropertyChange(e, field):void {
+    const value = e.target && e.target.value;
+    if(value) {
+      this.props.setMarkPropertyValue({property: field, value}, this.props.interaction.id);
+      this.handlePropertyChangeThrottled();
     }
   }
 
@@ -177,6 +221,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     const interaction = this.props.interaction;
     const selectionDef = interaction.get('selectionDef');
     const mappingDef = interaction.get('mappingDef');
+    const markPropertyValues = interaction.get('markPropertyValues');
     return (
       <div>
         <div className='property-group'>
@@ -193,7 +238,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
           <ul>
           Selection :
           {this.props.type == 'widget' ? 'Widget' :
-            <select value={selectionDef ? selectionDef.id : ''} onChange={e => this.handleSelectionChange(e)}>
+            <select value={selectionDef ? selectionDef.id : ''} onChange={e => this.handleSelectionChange(e.target.value)}>
               {selectionOptions}
             </select>
           }
@@ -201,9 +246,13 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
           <ul>
           Channel :
-          <select value={mappingDef ? mappingDef.id : ''} onChange={e => this.handleMapChange(e)}>
+          <select value={mappingDef ? mappingDef.id : ''} onChange={e => this.handleMapChange(e.target.value)}>
             {mapOptions}
           </select>
+          </ul>
+
+          <ul className={this.props.type === 'widget' ? '' : 'hidden'}>
+            Field: {selectionDef && selectionDef.field}
           </ul>
 
           <ul className={this.props.type === 'multi' || this.props.type =='single' ? '': 'hidden'}>
@@ -213,8 +262,49 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
           </select>
           </ul>
         </div>
-        {/* <Property name='size' label='Size' type='number' canDrop={true} {...props} /> */}
 
+        <div className={mappingDef && mappingDef.id=='size' ? '':'hidden'}>
+          Size:
+          <FormInputProperty
+            name='size'
+            id='Size'
+            onChange={(e) => this.onPropertyChange(e, 'size')}
+            value={markPropertyValues.size}
+            type='number'
+            min='0'
+            max='500'
+            disabled={false}>
+          </FormInputProperty>
+          <br />
+        </div>
+
+        <div className={mappingDef && mappingDef.id == 'color' ? '' : 'hidden'}>
+          Color:
+          <FormInputProperty
+            name='color'
+            id='Color'
+            onChange={(e) => this.onPropertyChange(e, 'color')}
+            value={markPropertyValues.color}
+            type='color'
+            disabled={false}>
+          </FormInputProperty>
+          <br />
+        </div>
+
+        <div className={mappingDef && mappingDef.id == 'opacity' ? '' : 'hidden'}>
+          Opacity:
+          <FormInputProperty
+            name='opacity'
+            id='Opacity'
+            onChange={(e) => this.onPropertyChange(e, 'opacity')}
+            value={markPropertyValues.opacity}
+            min='0'
+            max='1'
+            step='0.05'
+            type='range'
+            disabled={false}>
+          </FormInputProperty>
+        </div>
 
       </div>
     );

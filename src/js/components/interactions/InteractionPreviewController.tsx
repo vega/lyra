@@ -101,7 +101,11 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
   let interactionRecordId = null;
   if (isSelectedInteraction) {
-    const maybeIdInGroup = groupRecord.get('_interactions').filter(id => id === selId);
+    const maybeIdInGroup = groupRecord.get('_interactions').filter(id => {
+      const record: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(id)]);
+      if (record.selectionDef && record.selectionDef.label === 'Widget') return false;
+      return id==selId;
+    });
     if (maybeIdInGroup.length) {
       interactionRecordId = maybeIdInGroup[0];
     }
