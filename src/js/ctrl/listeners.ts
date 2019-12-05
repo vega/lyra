@@ -188,15 +188,15 @@ export function registerSignalListeners() {
         return;
       }
 
-      // Walk up from the selected primitive to create an array of its parent groups' IDs
-      const parentLayerIds = getParentGroupIds(id, state);
+      // // Walk up from the selected primitive to create an array of its parent groups' IDs
+      // const parentLayerIds = getParentGroupIds(id, state);
 
-      if (id) {
-        // Select the mark,
-        store.dispatch(baseSelectMark(id, parentLayerIds));
-        // And expand the hierarchy so that it is visible
-        store.dispatch(expandLayers(parentLayerIds));
-      }
+      // if (id) {
+      //   // Select the mark,
+      //   store.dispatch(baseSelectMark(id, parentLayerIds));
+      //   // And expand the hierarchy so that it is visible
+      //   store.dispatch(expandLayers(parentLayerIds));
+      // }
     });
 
     Object.keys(listeners).forEach(function(signalName) {
