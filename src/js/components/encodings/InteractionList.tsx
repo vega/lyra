@@ -81,6 +81,12 @@ class InteractionList extends React.Component<StateProps & DispatchProps> {
                           brush_y
                         </div>
                       </div>
+                    ) : interaction.get('selectionDef') && interaction.get('selectionDef').id.startsWith('widget') ? (
+                        <div>
+                          <div className={'signal'}>
+                            widget
+                        </div>
+                        </div>
                     ) : (
                       <div>
                         <div className={'signal'}>
