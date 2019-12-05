@@ -190,10 +190,12 @@ exporter.mark = function(state: State, internal: boolean, preview: boolean, id: 
   // Convert text template strings into signal expressions.
   if (spec.type === 'text') {
     let tmpl = spec.encode.update.text.signal;
-    tmpl = tmpl.split(RegExp('{{(.*?)}}')).map(s => {
-      return s.indexOf('datum') < 0 ? `"${s}"` : `+ ${s} + `
-    }).join('');
-    spec.encode.update.text.signal = tmpl;
+    if (tmpl && !tmpl.startsWith('brush')) {
+      tmpl = tmpl.split(RegExp('{{(.*?)}}')).map(s => {
+        return s.indexOf('datum') < 0 ? `"${s}"` : `+ ${s} + `
+      }).join('');
+      spec.encode.update.text.signal = tmpl;
+    }
   }
 
   if (internal) {
@@ -396,7 +398,7 @@ function clean(spec, internal: boolean) {
     } else if (isObject(prop)) {
       if ((prop as any).signal && !internal) {
         // Render signals to their value
-        spec[key] = signalLookup((prop as any).signal);
+        if ((prop as any).signal.startsWith('lyra')) spec[key] = signalLookup((prop as any).signal);
       } else {
         // Recurse
         spec[key] = clean(spec[key], internal);
