@@ -142,6 +142,15 @@ body {
   width: $inspector-width;
   background-color: $lblue-bg;
 }
+.widget-tag {
+  border: 1px solid #bed000;
+  padding: 3px 10px;
+  cursor: pointer;
+  background:#bed9ab;
+  border-radius: 3px;
+  display: inline-block;
+  margin: 5px 2px;
+}
 
 #pipeline-sidebar {
   width: $pipeline-sidebar-width;

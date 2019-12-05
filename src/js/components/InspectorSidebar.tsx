@@ -119,7 +119,7 @@ class BaseInspector extends React.Component<Inspector> {
           {this.props.interactionList.length ?
             this.props.interactionList.map(interaction => {
               return (
-                <span className='interaction name'>{interaction}</span>
+                <span key={interaction} className='interaction name'>{interaction}</span>
               )
             }) : <div>No linked Interactions</div>
           }

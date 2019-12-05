@@ -8,6 +8,7 @@ import {State} from '../../store';
 import {InteractionRecord} from '../../store/factory/Interaction';
 import {Icon} from '../Icon';
 import {deleteInteraction} from '../../actions/interactionActions';
+import {getScaleInfoForGroup} from '../../ctrl/demonstrations';
 
 const ContentEditable = require('../ContentEditable');
 const imutils = require('../../util/immutable-utils');
@@ -17,6 +18,7 @@ const getInVis = imutils.getInVis;
 interface StateProps {
   selectedId: number;
   interactions: Map<string, InteractionRecord>;
+  scales
 }
 
 interface DispatchProps {
@@ -25,9 +27,15 @@ interface DispatchProps {
 }
 
 function mapStateToProps(reduxState: State): StateProps {
+  const interactions =  getInVis(reduxState, 'interactions')
+  const scales = [...interactions.values()].map(interaction => {
+    const scaleInfo = getScaleInfoForGroup(reduxState, interaction.groupId);
+    return {x: scaleInfo.xFieldName, y: scaleInfo.yFieldName}
+  })
   return {
     selectedId: reduxState.getIn(['inspector', 'encodings', 'selectedId']),
-    interactions: getInVis(reduxState, 'interactions')
+    interactions,
+    scales
   };
 }
 
@@ -50,15 +58,20 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps): DispatchProps {
 }
 
 class InteractionList extends React.Component<StateProps & DispatchProps> {
+
+  public handleDragStart = (evt) => {
+    evt.dataTransfer.setData('signalName', evt.target.innerText);
+    evt.dataTransfer.setData('type', 'interaction');
+  }
+
   public render() {
     const props = this.props;
     const interactions = [...props.interactions.values()]
-
     return (
       <div id='interaction-list'>
         <h2>Interactions</h2>
         <ul>
-          {interactions.map(function(interaction) {
+          {interactions.map(function(interaction, i) {
             const id = interaction.get('id');
             const name = interaction.get('name');
 
@@ -71,14 +84,11 @@ class InteractionList extends React.Component<StateProps & DispatchProps> {
                   {
                     interaction.get('selectionDef') && interaction.get('selectionDef').id.startsWith('brush') ? (
                       <div>
-                        <div className={'signal'}>
-                          brush
+                        <div onDragStart={this.handleDragStart} draggable={true} className={'signal'}>
+                          {'brush_'+this.props.scales[i].x+'_x'}
                         </div>
-                        <div className={'signal'}>
-                          brush_x
-                        </div>
-                        <div className={'signal'}>
-                          brush_y
+                        <div onDragStart={this.handleDragStart} draggable={true} className={'signal'}>
+                          {'brush_'+this.props.scales[i].y+'_y'}
                         </div>
                       </div>
                     ) : interaction.get('selectionDef') && interaction.get('selectionDef').id.startsWith('widget') ? (
