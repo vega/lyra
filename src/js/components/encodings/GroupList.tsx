@@ -63,7 +63,7 @@ class GroupList extends React.Component<StateProps & DispatchProps> {
         <h2>Groups
           <span className='new'
             onClick={this.props.addMark.bind(null, 'group', sceneId)}>
-            <Icon glyph={assets.plus} /> New
+            <Icon glyph={assets.plus} />
           </span>
         </h2>
 
