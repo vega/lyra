@@ -40,13 +40,9 @@ prototype.connectors = function(item) {
 prototype.channels = function(item) {
   const b  = item.mark.bounds,
       gb = item.mark.group.bounds,
-      // path = item.mark.items[0].pathCache,
+      path = item._svg.getAttribute('d'),
       c = coords(b),
       m = c.midCenter;
-
-  // path = path.map(function(d) {
-  //   return d.join(' ');
-  // }).join(' ');
 
   return []
     // x
@@ -57,10 +53,9 @@ prototype.channels = function(item) {
     .concat([
       {x: item.x, y: gb.y1}, {x: item.x, y: item.y - PAD}
     ].map(annotate('y', 'span')))
-    // TODO: re-expose stroke channels.
-    // .concat([
-    //   {x: m.x, y: m.y, path: path}
-    // ].map(annotate('fill', 'border')));
+    .concat([
+      {x: m.x, y: m.y, path: path}
+    ].map(annotate('fill', 'border')));
 };
 
 prototype.altchannels = function(item) {
