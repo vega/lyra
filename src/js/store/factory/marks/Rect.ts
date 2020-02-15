@@ -1,12 +1,11 @@
 import {Record, RecordOf} from 'immutable';
 import {RectMark} from 'vega-typings';
+import anchorTarget from '../../../util/anchor-target';
 import {propSg} from '../../../util/prop-signal';
+import test from '../../../util/test-if';
 import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
 import {GroupRecord} from './Group';
-
-const anchorTarget = require('../../../util/anchor-target');
-const test = require('../../../util/test-if');
 
 export type LyraRectMark = LyraMarkMeta & RectMark;
 
@@ -55,36 +54,35 @@ export function getHandleStreams(rect: RectRecord | GroupRecord): HandleStreams 
   const y2 = propSg(id, type, 'y2');
   const w = propSg(id, type, 'width');
   const h = propSg(id, type, 'height');
-  const DX = DELTA + '.x';
-  const DY = DELTA + '.y';
-  const streams: HandleStreams = {};
+  const DX = `${DELTA}.x`;
+  const DY = `${DELTA}.y`;
 
-  streams[x] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('left'), x + '+' + DX, x)
-  }];
-  streams[xc] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('left'), xc + '+' + DX, xc)
-  }];
-  streams[x2] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('right'), x2 + '+' + DX, x2)
-  }];
-  streams[y] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('top'), y + '+' + DY, y)
-  }];
-  streams[yc] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('top'), yc + '+' + DY, yc)
-  }];
-  streams[y2] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
-  }];
-  streams[w] = [
-    {events: {signal: DELTA}, update: test(at('left'), w + '-' + DX, w)},
-    {events: {signal: DELTA}, update: test(at('right'), w + '+' + DX, w)}
-  ];
-  streams[h] = [
-    {events: {signal: DELTA}, update: test(at('top'), h + '-' + DY, h)},
-    {events: {signal: DELTA}, update: test(at('bottom'), h + '+' + DY, h)}
-  ];
-
-  return streams;
+  return {
+    [x]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('left')}`, `${x} + ${DX}`, x)
+    }],
+    [xc]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('left')}`, `${xc} + ${DX}`, xc)
+    }],
+    [x2]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('right')}`, `${x2} + ${DX}`, x2)
+    }],
+    [y]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('top')}`, `${y} + ${DY}`, y)
+    }],
+    [yc]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('top')}`, `${yc} + ${DY}`, yc)
+    }],
+    [y2]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('bottom')}`, `${y2} + ${DY}`, y2)
+    }],
+    [w]: [
+      {events: {signal: DELTA}, update: test(at('left'), w + '-' + DX, w)},
+      {events: {signal: DELTA}, update: test(at('right'), w + '+' + DX, w)}
+    ],
+    [h]: [
+      {events: {signal: DELTA}, update: test(at('top'), h + '-' + DY, h)},
+      {events: {signal: DELTA}, update: test(at('bottom'), h + '+' + DY, h)}
+    ]
+  };
 };

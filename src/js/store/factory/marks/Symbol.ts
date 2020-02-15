@@ -1,12 +1,10 @@
 import {Record, RecordOf} from 'immutable';
 import {SymbolMark} from 'vega-typings';
+import anchorTarget from '../../../util/anchor-target';
 import {propSg} from '../../../util/prop-signal';
+import test from '../../../util/test-if';
 import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
-
-
-const anchorTarget = require('../../../util/anchor-target');
-const test = require('../../../util/test-if');
 
 export type LyraSymbolMark = LyraMarkMeta & SymbolMark;
 
@@ -19,7 +17,7 @@ export const Symbol = Record<LyraSymbolMark>({
   from: null,
   encode: {
     update: {
-      size: {value: 100},
+      size: {value: 200},
       shape: {value: 'circle'}
     }
   }
@@ -53,19 +51,19 @@ export function getHandleStreams(symbol: SymbolRecord): HandleStreams {
   const x = propSg(id, 'symbol', 'x');
   const y = propSg(id, 'symbol', 'y');
   const size = propSg(id, 'symbol', 'size');
-  const DX = DELTA + '.x';
-  const DY = DELTA + '.y';
-  const streams: HandleStreams = {};
+  const DX = `${DELTA}.x`;
+  const DY = `${DELTA}.y`;
 
-  streams[x] = [{
-    events: {signal: DELTA}, update: test(at(), x + '+' + DX, x)
-  }];
-  streams[y] = [{
-    events: {signal: DELTA}, update: test(at(), y + '+' + DY, y)
-  }];
-  streams[size] = [
-    {events: {signal: DELTA}, update: test(at('top'), size + '-(' + DY + '<<5)', size)},
-    {events: {signal: DELTA}, update: test(at('bottom'), size + '+(' + DY + '<<5)', size)}
-  ];
-  return streams;
+  return {
+    [x]: [{
+      events: {signal: DELTA}, update: test(at(), `${x} + ${DX}`, x)
+    }],
+    [y]: [{
+      events: {signal: DELTA}, update: test(at(), `${y} + ${DY}`, y)
+    }],
+    [size]: [
+      {events: {signal: DELTA}, update: test(at('top'), `${size} - (${DY} << 5)`, size)},
+      {events: {signal: DELTA}, update: test(at('bottom'), `${size} + (${DY} << 5)`, size)}
+    ]
+  };
 };

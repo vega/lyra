@@ -1,12 +1,10 @@
 import {Record, RecordOf} from 'immutable';
 import {Align, Baseline, FontStyle, FontWeight, TextMark} from 'vega-typings';
+import anchorTarget from '../../../util/anchor-target';
 import {propSg} from '../../../util/prop-signal';
+import test from '../../../util/test-if';
 import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
-
-
-const anchorTarget = require('../../../util/anchor-target');
-const test = require('../../../util/test-if');
 
 export type LyraTextMark = LyraMarkMeta & TextMark;
 
@@ -53,24 +51,24 @@ export function getHandleStreams(text: TextRecord): HandleStreams {
   const x = propSg(id, 'text', 'x');
   const y = propSg(id, 'text', 'y');
   const fontSize = propSg(id, 'text', 'fontSize');
-  const DX = DELTA + '.x';
-  const DY = DELTA + '.y';
-  const streams: HandleStreams = {};
+  const DX = `${DELTA}.x`;
+  const DY = `${DELTA}.y`;
 
-  streams[x] = [{
-    events: {signal: DELTA}, update: test(at(), x + '+' + DX, x)
-  }];
-  streams[y] = [{
-    events: {signal: DELTA}, update: test(at(), y + '+' + DY, y)
-  }];
-  // Allow upper-left and lower-right handles to control font size
-  streams[fontSize] = [
-    {events: {signal: DELTA}, update: test(at('left') + '&&' + at('top'), fontSize + '-' + DX, fontSize)},
-    {events: {signal: DELTA}, update: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DX, fontSize)},
-    {events: {signal: DELTA}, update: test(at('left') + '&&' + at('top'), fontSize + '-' + DY, fontSize)},
-    {events: {signal: DELTA}, update: test(at('right') + '&&' + at('bottom'), fontSize + '+' + DY, fontSize)}
-  ];
-  return streams;
+  return {
+    [x]: [{
+      events: {signal: DELTA}, update: test(at(), `${x} + ${DX}`, x)
+    }],
+    [y]: [{
+      events: {signal: DELTA}, update: test(at(), `${y} + ${DY}`, y)
+    }],
+    // Allow upper-left and lower-right handles to control font size
+    [fontSize]: [
+      {events: {signal: DELTA}, update: test(`${at('left')} && ${at('top')}`, `${fontSize} - ${DX}`, fontSize)},
+      {events: {signal: DELTA}, update: test(`${at('right')} && ${at('bottom')}`, `${fontSize} + ${DX}`, fontSize)},
+      {events: {signal: DELTA}, update: test(`${at('left')} && ${at('top')}`, `${fontSize} - ${DY}`, fontSize)},
+      {events: {signal: DELTA}, update: test(`${at('right')} && ${at('bottom')}`, `${fontSize} + ${DY}`, fontSize)}
+    ]
+  }
 };
 
 export const TextAlignments: Align[] = ['left', 'center', 'right'];

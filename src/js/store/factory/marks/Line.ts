@@ -1,11 +1,10 @@
 import {Record, RecordOf} from 'immutable';
 import {LineMark, SignalRef} from 'vega-typings';
+import anchorTarget from '../../../util/anchor-target';
 import {propSg} from '../../../util/prop-signal';
+import test from '../../../util/test-if';
 import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
-
-const anchorTarget = require('../../../util/anchor-target');
-const test = require('../../../util/test-if');
 
 export type LyraLineMark = LyraMarkMeta & LineMark;
 
@@ -46,15 +45,15 @@ export function getHandleStreams(line: LineRecord): HandleStreams {
   const id = line._id;
   const x = propSg(id, 'line', 'x');
   const y = propSg(id, 'line', 'y');
-  const DX = DELTA + '.x';
-  const DY = DELTA + '.y';
-  const streams: HandleStreams = {};
+  const DX = `${DELTA}.x`;
+  const DY = `${DELTA}.y`;
 
-  streams[x] = [{
-    events: {signal: DELTA}, update: test(at(), x + '+' + DX, x)
-  }];
-  streams[y] = [{
-    events: {signal: DELTA}, update: test(at(), y + '+' + DY, y)
-  }];
-  return streams;
+  return {
+    [x]: [{
+      events: {signal: DELTA}, update: test(at(), `${x} + ${DX}`, x)
+    }],
+    [y]: [{
+      events: {signal: DELTA}, update: test(at(), `${y} + ${DY}`, y)
+    }]
+  };
 };

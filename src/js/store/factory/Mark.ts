@@ -93,13 +93,13 @@ export interface HandleStreams {[s: string]: OnEvent[];}
  * @returns {Object} A dictionary of signal stream definitions
  */
 Mark.getHandleStreams = function(mark: MarkRecord): HandleStreams {
-  return {}; // TODO(rn): fix handle streams later for signal issues
-  // switch(mark.type) {
-  //   case 'symbol': return symbolHandleStreams(mark);
-  //   case 'area': return areaHandleStreams(mark);
-  //   case 'line': return lineHandleStreams(mark);
-  //   case 'text': return textHandleStreams(mark);
-  //   case 'group':
-  //   case 'rect': return rectHandleStreams(mark as any); // TODO(rn): see if there is a good solution to any-casting union types
-  // }
+  // return {}; // TODO(rn): fix handle streams later for signal issues
+  switch(mark.type) {
+    case 'symbol': return symbolHandleStreams(mark);
+    case 'area': return areaHandleStreams(mark);
+    case 'line': return lineHandleStreams(mark);
+    case 'text': return textHandleStreams(mark);
+    case 'group':
+    case 'rect': return rectHandleStreams(mark as any);
+  }
 };

@@ -2,12 +2,11 @@
 
 import {Record, RecordOf} from 'immutable';
 import {AreaMark} from 'vega-typings';
+import anchorTarget from '../../../util/anchor-target';
 import {propSg} from '../../../util/prop-signal';
+import test from '../../../util/test-if';
 import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
-
-const anchorTarget = require('../../../util/anchor-target');
-const test = require('../../../util/test-if');
 
 export type LyraAreaMark = LyraMarkMeta & AreaMark;
 
