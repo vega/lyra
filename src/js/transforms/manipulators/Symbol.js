@@ -3,7 +3,7 @@ import Manipulators from './Manipulators';
 import annotate from '../../util/annotate-manipulators';
 import {coords, PADDING as PAD} from '../../ctrl/manipulators';
 
-const PAD15 = 3.5 * PAD;
+const PAD35 = 3.5 * PAD;
 const DELTA = 0.01;
 
 /**
@@ -44,20 +44,20 @@ prototype.channels = function(item) {
   return []
     // x
     .concat([
-      {x: gb.x1, y: m.y}, {x: m.x - PAD15, y: m.y, _voronoi: false}
+      {x: gb.x1, y: m.y}, {x: m.x - PAD35, y: m.y, _voronoi: false}
     ].map(annotate('x', 'span')))
     // y
     .concat([
-      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - PAD15, _voronoi: false}
+      {x: m.x, y: gb.y1}, {x: m.x, y: m.y - PAD35, _voronoi: false}
     ].map(annotate('y', 'span')))
-    // shape
-    .concat([
-      {x: item.x + DELTA, y: item.y + DELTA, shape: item.shape, size: item.size}
-    ].map(annotate('fill', 'border')))
     // size
     .concat([
-      {x: item.x - DELTA, y: item.y, shape: item.shape, size: PAD * item.size}
-    ].map(annotate('size', 'border')));
+      {x: item.x + DELTA, y: item.y - DELTA, shape: item.shape, size: item.size}
+    ].map(annotate('size', 'border')))
+    // fill
+    .concat([
+      {x: item.x - DELTA, y: item.y + DELTA, shape: item.shape, size: PAD * item.size}
+    ].map(annotate('fill', 'border')));
 };
 
 prototype.altchannels = function(item) {
@@ -65,9 +65,9 @@ prototype.altchannels = function(item) {
     // shape
     .concat([
       {x: item.x + DELTA, y: item.y + DELTA, shape: item.shape, size: item.size}
-    ].map(annotate('stroke', 'border')))
+    ].map(annotate('shape', 'border')))
     // stroke
     .concat([
       {x: item.x - DELTA, y: item.y, shape: item.shape, size: PAD * item.size}
-    ].map(annotate('shape', 'border')));
+    ].map(annotate('stroke', 'border')));
 };
