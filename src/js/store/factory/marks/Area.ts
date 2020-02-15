@@ -20,7 +20,7 @@ export const Area = Record<LyraAreaMark>({
   encode: {
     update: {
       // x2: {value: 0},
-      y2: {value: 0},
+      y2: {value: 250},
       tension: {value: 13},
       interpolate: {value: 'monotone'},
       orient: {value: 'vertical'}
@@ -53,35 +53,35 @@ export function getHandleStreams(area: AreaRecord): HandleStreams {
   const y2 = propSg(id, 'area', 'y2');
   const w = propSg(id, 'area', 'width');
   const h = propSg(id, 'area', 'height');
-  const DX = DELTA + '.x';
-  const DY = DELTA + '.y';
-  const streams: HandleStreams = {};
+  const DX = `${DELTA}.x`;
+  const DY = `${DELTA}.y`;
 
-  streams[x] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('left'), x + '+' + DX, x)
-  }];
-  streams[xc] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('left'), xc + '+' + DX, xc)
-  }];
-  streams[x2] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('right'), x2 + '+' + DX, x2)
-  }];
-  streams[y] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('top'), y + '+' + DY, y)
-  }];
-  streams[yc] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('top'), yc + '+' + DY, yc)
-  }];
-  streams[y2] = [{
-    events: {signal: DELTA}, update: test(at() + '||' + at('bottom'), y2 + '+' + DY, y2)
-  }];
-  streams[w] = [
-    {events: {signal: DELTA}, update: test(at('left'), w + '-' + DX, w)},
-    {events: {signal: DELTA}, update: test(at('right'), w + '+' + DX, w)}
-  ];
-  streams[h] = [
-    {events: {signal: DELTA}, update: test(at('top'), h + '-' + DY, h)},
-    {events: {signal: DELTA}, update: test(at('bottom'), h + '+' + DY, h)}
-  ];
-  return streams;
+  return {
+    [x]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('left')}`, `${x} + ${DX}`, x)
+    }],
+    [xc]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('left')}`, `${xc} + ${DX}`, xc)
+    }],
+    [x2]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('right')}`, `${x2} + ${DX}`, x2)
+    }],
+    [y]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('top')}`,`${ y} + ${DY}`, y)
+    }],
+    [yc]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('top')}`, `${yc} + ${DY}`, yc)
+    }],
+    [y2]: [{
+      events: {signal: DELTA}, update: test(`${at()} || ${at('bottom')}`, `${y2} + ${DY}`, y2)
+    }],
+    [w]: [
+      {events: {signal: DELTA}, update: test(at('left'), `${w} - ${DX}`, w)},
+      {events: {signal: DELTA}, update: test(at('right'), `${w} + ${DX}`, w)}
+    ],
+    [h]: [
+      {events: {signal: DELTA}, update: test(at('top'), `${h} - ${DY}`, h)},
+      {events: {signal: DELTA}, update: test(at('bottom'), `${h} + ${DY}`, h)}
+    ]
+  };
 };

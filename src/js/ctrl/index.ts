@@ -59,24 +59,10 @@ ctrl.manipulators = function(): Spec {
 
   marks.push(BUBBLE_CURSOR);
   marks.push.apply(marks, BUBBLE_CURSOR_TIP);
+
   data.push({
-    name: 'dummy_data_line',
-    values: [
-      {
-        foo: 100,
-        bar: 100
-      },
-      {
-        foo: 200,
-        bar: 200
-      }
-    ]
-  });
-  // I don't want line and area to overlap. When we have the option to drag onto the scene,
-  // I would change this
-  data.push({
-    name: 'dummy_data_area',
-    values: [{x: 100, y: 28}, {x: 200, y: 55}]
+    name: 'dummy_data',
+    values: [{x: 0, y: 0}, {x: 100, y: 100}]
   });
 
   return spec;

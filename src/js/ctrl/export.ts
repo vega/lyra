@@ -1,5 +1,5 @@
 import {Map} from 'immutable';
-import {extend, isArray, isObject, isString, Mark, Spec, Signal} from 'vega';
+import {extend, isArray, isObject, isString, Mark, Signal, Spec} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
 import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
@@ -8,9 +8,10 @@ import {GroupRecord} from '../store/factory/marks/Group';
 import {input} from '../util/dataset-utils';
 import duplicate from '../util/duplicate';
 import name from '../util/exportName';
+import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
+import {demonstrationDatasets, demonstrations, editMarks, editScales, editSignals} from './demonstrations';
 import manipulators from './manipulators';
-import {demonstrations, demonstrationDatasets, editSignals, editMarks, editScales} from './demonstrations';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -57,7 +58,7 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
 exporter.signals = function(state: State, internal: boolean, preview: boolean) {
   const interaction = state.getIn(['vis', 'present', 'interactions']).valueSeq().toJS();
   return interaction.reduce((signals, record) => {
-    if(record.selectionDef && record.selectionDef.label=='Widget') {
+    if(record.selectionDef && record.selectionDef.label==='Widget') {
       signals = [...signals, ...record.selectionDef.signals];
     }
     return signals;
@@ -253,7 +254,7 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
           const mappingDef = interaction.get('mappingDef');
           if (interaction.get('groupId') === id) {
             if (selectionDef) {
-              if(selectionDef.label!='Widget') group.signals = editSignals(group.signals, selectionDef.signals);
+              if(selectionDef.label!=='Widget') { group.signals = editSignals(group.signals, selectionDef.signals); }
               const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
               if (mappingDef && mappingDef.groupName === group.name) {
                 if (isDemonstratingInterval && mappingDef.id === 'panzoom') {
@@ -289,9 +290,9 @@ exporter.area = function(state: State, internal: boolean, preview: boolean, id: 
 
   // Export with dummy data to have an initial area appear on the canvas.
   if (!area.from) {
-    area.from = {data: 'dummy_data_area'};
-    update.x = {field: 'x'};
-    update.y = {field: 'y'};
+    area.from = {data: 'dummy_data'};
+    update.x = {signal: `datum.x + ${propSg(id, 'area', 'x')}`};
+    update.y = {signal: `datum.y + ${propSg(id, 'area', 'y')}`};
   }
 
   if (update.orient.value === 'horizontal') {
@@ -310,9 +311,9 @@ exporter.line = function(state: State, internal: boolean, preview: boolean, id: 
 
   // Export with dummy data to have an initial area appear on the canvas.
   if (!line.from) {
-    line.from = {data: 'dummy_data_line'};
-    update.x = {field: 'foo'};
-    update.y = {field: 'bar'};
+    line.from = {data: 'dummy_data'};
+    update.x = {signal: `datum.x + ${propSg(id, 'line', 'x')}`};
+    update.y = {signal: `datum.y + ${propSg(id, 'line', 'y')}`};
   }
 
   return spec;
@@ -398,7 +399,7 @@ function clean(spec, internal: boolean) {
     } else if (isObject(prop)) {
       if ((prop as any).signal && !internal) {
         // Render signals to their value
-        if ((prop as any).signal.startsWith('lyra')) spec[key] = signalLookup((prop as any).signal);
+        if ((prop as any).signal.startsWith('lyra')) { spec[key] = signalLookup((prop as any).signal); }
       } else {
         // Recurse
         spec[key] = clean(spec[key], internal);
