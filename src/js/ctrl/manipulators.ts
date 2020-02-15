@@ -1,5 +1,5 @@
-import {Bounds, extend} from 'vega';
-import {CELL, MODE, SELECTED} from '../store/factory/Signal';
+import {Bounds, extend, Mark} from 'vega';
+import {CELL, MODE, MOUSE, SELECTED} from '../store/factory/Signal';
 import duplicate from '../util/duplicate';
 import exportName from '../util/exportName';
 const ns = require('../util/ns');
@@ -155,6 +155,7 @@ function border(spec) {
 
   return {
     type: pathMark ? 'path' : markType,
+    role: 'border',
     from: {data: 'border'},
     encode: {update}
   };
@@ -163,6 +164,7 @@ function border(spec) {
 const handle = {
   type: 'symbol',
   from: {data: 'handle'},
+  role: 'handle',
   encode: {
     update: {
       x: {field: 'x'},
@@ -182,6 +184,7 @@ const handle = {
 const connector = {
   type: 'symbol',
   from: {data: 'connector'},
+  role: 'connector',
   encode: {
     update: {
       x: {field: 'x'},
@@ -197,6 +200,7 @@ const connector = {
 
 const arrowSpan = (data: string) => ({
   type: 'group',
+  role: data,
   from: {
     facet: {
       data,
@@ -219,50 +223,53 @@ const arrowSpan = (data: string) => ({
   }]
 });
 
-// manipulators.BUBBLE_CURSOR = {
-//   type: 'line',
-//   from: {data: 'bubble_cursor'},
-//   encode: {
-//     update: {
-//       x: {field: 'x'},
-//       y: {field: 'y'},
-//       fill: {value: 'lightsalmon'},
-//       fillOpacity: {value: 0.2}
-//     }
-//   }
-// };
+export const BUBBLE_CURSOR: Mark = {
+  type: 'line',
+  from: {data: 'bubble_cursor'},
+  interactive: false,
+  encode: {
+    update: {
+      x: {field: 'x'},
+      y: {field: 'y'},
+      fill: {value: 'lightsalmon'},
+      fillOpacity: {value: 0.2}
+    }
+  }
+};
 
-// manipulators.BUBBLE_CURSOR_TIP = [{
-//   type: 'text',
-//   encode: {
-//     update: {
-//       x: {signal: sg.MOUSE + '.x'},
-//       y: {signal: sg.MOUSE + '.y'},
-//       dy: {value: 30},
-//       text: {signal: sg.CELL + '.tooltip'},
-//       align: {value: 'center'},
-//       baseline: {value: 'bottom'},
-//       stroke: {value: 'white'},
-//       strokeWidth: {value: 4},
-//       fontSize: {value: 12},
-//       fontFamily: {value: 'Lato'},
-//       fontWeight: {value: 'bold'}
-//     }
-//   }
-// }, {
-//   type: 'text',
-//   encode: {
-//     update: {
-//       x: {signal: sg.MOUSE + '.x'},
-//       y: {signal: sg.MOUSE + '.y'},
-//       dy: {value: 30},
-//       text: {signal: sg.CELL + '.tooltip'},
-//       align: {value: 'center'},
-//       baseline: {value: 'bottom'},
-//       fill: {value: 'lightsalmon'},
-//       fontSize: {value: 12},
-//       fontFamily: {value: 'Lato'},
-//       fontWeight: {value: 'bold'}
-//     }
-//   }
-// }];
+export const BUBBLE_CURSOR_TIP = [{
+  type: 'text',
+  interactive: false,
+  encode: {
+    update: {
+      x: {signal: `${MOUSE}.x`},
+      y: {signal: `${MOUSE}.y`},
+      dy: {value: 35},
+      text: {signal: `${CELL}.tooltip`},
+      align: {value: 'center'},
+      baseline: {value: 'bottom'},
+      stroke: {value: 'white'},
+      strokeWidth: {value: 4},
+      fontSize: {value: 12},
+      fontFamily: {value: 'Lato'},
+      fontWeight: {value: 'bold'}
+    }
+  }
+}, {
+  type: 'text',
+  interactive: false,
+  encode: {
+    update: {
+      x: {signal: `${MOUSE}.x`},
+      y: {signal: `${MOUSE}.y`},
+      dy: {value: 35},
+      text: {signal: `${CELL}.tooltip`},
+      align: {value: 'center'},
+      baseline: {value: 'bottom'},
+      fill: {value: 'lightsalmon'},
+      fontSize: {value: 12},
+      fontFamily: {value: 'Lato'},
+      fontWeight: {value: 'bold'}
+    }
+  }
+}];

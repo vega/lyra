@@ -40,8 +40,6 @@ const prototype = inherits(Manipulators, Transform);
 /**
  * The transform method is automatically called by Vega whenever the manipulator
  * coordinates need to be recalculated (e.g., when a new mark item is selected).
- * @param {Object} input - A Vega-Dataflow ChangeSet.
- * @returns {Object} output - A Vega-Dataflow ChangeSet.
  */
 prototype.transform = function(_, pulse) {
   const cache = this.value || [];

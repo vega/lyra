@@ -1,13 +1,5 @@
-'use strict';
-var clone = require('clone'),
-    inherits = require('inherits'),
-    vg = require('vega'),
-    // df = vg.dataflow,
-    // ChangeSet = df.ChangeSet,
-    // Tuple = df.Tuple,
-    // Deps = df.Dependencies,
-    // Transform = vg.Transform,
-    sg = require('../ctrl/signals');
+import {inherits, Transform, tupleid, ingest, extend} from 'vega';
+import duplicate from '../util/duplicate';
 
 /**
  * @classdesc Represents the BubbleCursor, a Vega data transformation operator.
@@ -29,86 +21,99 @@ var clone = require('clone'),
  *
  * @constructor
  */
-function BubbleCursor(graph) {
-  Transform.prototype.init.call(this, graph);
+export default function BubbleCursor(params) {
+  Transform.call(this, [], params);
   this._cellID = null;
-  this._cache = [];
-  this._start = Tuple.ingest({});
-  this._end = Tuple.ingest({});
-  this._mouse = {x: -1, y: -1};
-  return this.router(true).produces(true)
-    .dependency(Deps.SIGNALS, [sg.CELL, sg.MOUSE]);
+  this._start = ingest({});
+  this._end = ingest({});
+  this._mouseCache = {x: -1, y: -1};
 }
 
-// inherits(BubbleCursor, Transform);
+BubbleCursor.Definition = {
+  metadata: {source: true, changes: true},
+  params: [
+    {name: 'lyra_cell', required: true},
+    {name: 'lyra_mouse', required: true}
+  ]
+}
+
+const prototype = inherits(BubbleCursor, Transform);
 
 /**
  * The transform method is automatically called by Vega whenever the bubble
  * cursor region needs to be recalculated (e.g., when the user moves the mouse).
- * @param {Object} input - A Vega-Dataflow ChangeSet.
- * @returns {Object} output - A Vega-Dataflow ChangeSet.
  */
-BubbleCursor.prototype.transform = function(input) {
-  var g = this._graph,
-      cell = g.signal(sg.CELL).value(),
-      mouse = g.signal(sg.MOUSE).value(),
-      mouseCache = this._mouse,
-      cellID = this._cellID,
-      cache = this._cache,
-      start = this._start,
-      end = this._end,
-      output = ChangeSet.create(input);
+prototype.transform = function(_, pulse) {
+  const cell = _.lyra_cell;
+  const mouse = _.lyra_mouse;
+  const mouseCache = this._mouseCache;
+  const cellID = this._cellID;
+  const start = this._start;
+  const end = this._end;
+  const cache = this.value || [];
+  const out = pulse.fork(pulse.NO_FIELDS & pulse.NO_SOURCE);
 
-  if (cache.length && cellID !== cell._id) {
-    output.rem = cache.splice(0);
+  if (cache.length && cellID !== tupleid(cell)) {
+    out.rem = cache.splice(0);
   }
 
-  if (!cell._id) {
-    return output;
+  if (!tupleid(cell)) {
+    return (out.source = this.value = cache, out);
   }
 
-  // Voronoi cells always come after their manipulator.
-  var cousins = cell.cousin(-1).mark.items,
-      offset = {x: 0, y: 0},
-      item = cousins[0].mark.group;
+  // Voronoi cells always come at the end of the group of manipulators
+  let item = cell.mark.group;
+  const type = cell.datum.manipulator;
+  const manipulators = findManipulator(cell);
+  const offset = {x: 0, y: 0};
 
   // If we're still in the same cell, we only need to update
   // the mouse points.
   if (cache.length && (mouseCache.x !== mouse.x || mouseCache.y !== mouse.y)) {
-    output.mod.push(vg.extend(start, mouse));
-    output.mod.push(vg.extend(end, mouse));
+    out.mod.push(extend(start, mouse));
+    out.mod.push(extend(end, mouse));
   } else if (!cache.length) {
-    cache.push(vg.extend(start, mouse));
+    cache.push(extend(start, mouse));
 
     for (; item; item = item.mark && item.mark.group) {
       offset.x += item.x || 0;
       offset.y += item.y || 0;
     }
 
-    // If backing data has coords, use those. Otherwise, use the cousin's bounds.
-    if (cousins[0].datum.x != null) {
-      cache.push.apply(cache, cousins.map(function(i) {
-        var d = clone(i.datum);
-        d.x += offset.x;
-        d.y += offset.y;
-        return d;
-      }));
+    if (type === 'arrow' || type === 'span') {
+      cache.push.apply(cache, manipulators.map(i => ingest({x: i.x + offset.x, y: i.y + offset.y})));
     } else {
-      cache.push.apply(cache, cousins.reduce(function(acc, i) {
-        var b = i.bounds || i.mark.bounds;
-        return acc.concat([
-          {x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}, {x: b.x2, y: b.y2}
-        ].map(Tuple.ingest));
-      }, []));
+      const b = manipulators[0].bounds || manipulators[0].mark.bounds;
+      cache.push.apply(cache, [
+        {x: b.x1, y: b.y1}, {x: b.x2, y: b.y1}, {x: b.x2, y: b.y2}
+      ].map(ingest));
     }
 
-    cache.push(vg.extend(end, mouse));
-    output.add = cache;
-    this._cellID = cell._id;
+    cache.push(extend(end, mouse));
+    out.add = cache;
+    this._cellID = tupleid(cell);
   }
 
-  this._mouse = mouse;
-  return output;
+  this._mouseCache = mouse;
+  return (out.source = this.value = cache, out);
 };
 
-module.exports = BubbleCursor;
+function findManipulator(cell) {
+  const group = cell.mark.group;
+  const manipulator = cell.datum.manipulator;
+  for (const item of group.items) {
+    if (item.role === manipulator) {
+      if (item.marktype === 'group') {
+        for (const child of item.items) {
+          if (child.datum && child.datum.key === cell.datum.key) {
+            return child.items[0].items;
+          }
+        }
+      }
+
+      return item.items;
+    }
+  }
+
+  return null;
+}

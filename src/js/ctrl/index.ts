@@ -3,7 +3,9 @@
 
 import * as vg from 'vega';
 import {Runtime, Spec, View} from 'vega';
+import {CELL, MOUSE} from '../store/factory/Signal';
 import {exporter} from './export';
+import {BUBBLE_CURSOR, BUBBLE_CURSOR_TIP} from './manipulators';
 import {api} from './signals';
 
 const dl = require('datalib'),
@@ -46,13 +48,17 @@ ctrl.manipulators = function(): Spec {
   // api() is a function that returns all registered signals
   signals.push.apply(signals, Object.values(api()).sort(idx));
 
-  // data.push({
-  //   name: 'bubble_cursor',
-  //   transform: [{type: ns('bubble_cursor')}]
-  // });
+  data.push({
+    name: 'bubble_cursor',
+    transform: [{
+      type: ns('bubble_cursor'),
+      lyra_cell: {signal: CELL},
+      lyra_mouse: {signal: MOUSE}
+    }]
+  });
 
-  // marks.push(manips.BUBBLE_CURSOR);
-  // marks.push.apply(marks, manips.BUBBLE_CURSOR_TIP);
+  marks.push(BUBBLE_CURSOR);
+  marks.push.apply(marks, BUBBLE_CURSOR_TIP);
   data.push({
     name: 'dummy_data_line',
     values: [

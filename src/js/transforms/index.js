@@ -3,6 +3,7 @@ import LineManipulators from './manipulators/Line';
 import RectManipulators from './manipulators/Rect';
 import SymbolManipulators from './manipulators/Symbol';
 import TextManipulators from './manipulators/Text';
+import BubbleCursor from './BubbleCursor';
 import * as vega from 'vega';
 
 const ns = require('../util/ns');
@@ -15,9 +16,8 @@ const t = {
   [`${MANIPULATORS}rect`]: RectManipulators,
   [`${MANIPULATORS}symbol`]: SymbolManipulators,
   [`${MANIPULATORS}text`]: TextManipulators,
+  [ns('bubble_cursor')]: BubbleCursor
 };
-
-// t[ns('bubble_cursor')] = require('./BubbleCursor');
 
 Object.keys(t).forEach(k => (t[k].Definition.type = k));
 vega.extend(vega.transforms, t);
