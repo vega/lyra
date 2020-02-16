@@ -4,9 +4,9 @@ import {Channel} from 'vega-lite/src/channel';
 import {ChannelDef} from 'vega-lite/src/channeldef';
 import {InlineData} from 'vega-lite/src/data';
 import {NormalizedUnitSpec, TopLevelUnitSpec} from 'vega-lite/src/spec/unit';
+import {batchGroupBy} from '../../reducers/historyOptions';
 import {LyraVegaLiteSpec, Mark, MarkRecord} from '../../store/factory/Mark';
 import duplicate from '../../util/duplicate';
-import {endBatch, startBatch} from '../historyActions';
 import {setVlUnit} from '../markActions';
 import cleanupUnused from './cleanupUnused';
 import parseData from './parseData';
@@ -74,7 +74,7 @@ export default function bindChannel(dsId: number, field, markId: number, propert
 
     // Though we dispatch multiple actions, we want bindChannel to register as
     // only a single state change to the history from the user's perspective.
-    dispatch(startBatch());
+    batchGroupBy.start();
 
     spec.encoding[channel] = channelDef(field);
 
@@ -105,7 +105,7 @@ export default function bindChannel(dsId: number, field, markId: number, propert
     parseGuides(dispatch, getState(), parsed);
 
     dispatch(setVlUnit(spec, markId));
-    dispatch(endBatch());
+    batchGroupBy.end();
   };
 }
 

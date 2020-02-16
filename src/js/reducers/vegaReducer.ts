@@ -1,15 +1,15 @@
+import {ActionTypes as historyActions} from 'redux-undo';
 import {ActionType, getType} from 'typesafe-actions';
 import * as helperActions from '../actions/bindChannel/helperActions';
 import * as datasetActions from '../actions/datasetActions';
 import * as guideActions from '../actions/guideActions';
-import * as historyActions from '../actions/historyActions';
+import * as interactionActions from '../actions/interactionActions';
 import * as markActions from '../actions/markActions';
 import * as pipelineActions from '../actions/pipelineActions';
 import * as scaleActions from '../actions/scaleActions';
 import * as sceneActions from '../actions/sceneActions';
 import * as signalActions from '../actions/signalActions';
 import * as vegaActions from '../actions/vegaActions';
-import * as interactionActions from '../actions/interactionActions';
 import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
 
 /**
@@ -65,10 +65,10 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     case getType(datasetActions.sortDataset):
     case getType(datasetActions.addTransform):
     case getType(datasetActions.updateTransform):
-    case getType(historyActions.undo):
-    case getType(historyActions.redo):
-    case getType(historyActions.jumpToFuture):
-    case getType(historyActions.jumpToPast):
+    case historyActions.UNDO:
+    case historyActions.REDO:
+    case historyActions.JUMP_TO_FUTURE:
+    case historyActions.JUMP_TO_PAST:
       return state.set('invalid', true);
   }
 

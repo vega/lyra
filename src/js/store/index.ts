@@ -7,6 +7,7 @@ import {DatasetRecord} from './factory/Dataset';
 import {GuideRecord} from './factory/Guide';
 import {Hints, HintsRecord} from './factory/Hints';
 import {Inspector, InspectorRecord} from './factory/Inspector';
+import {InteractionRecord} from './factory/Interaction';
 import {MarkRecord} from './factory/Mark';
 import {PipelineRecord} from './factory/Pipeline';
 import {ScaleRecord} from './factory/Scale';
@@ -14,17 +15,16 @@ import {defaultSignalState, SignalRecord} from './factory/Signal';
 import {VegaReparse, VegaReparseRecord} from './factory/Vega';
 import {Walkthrough, WalkthroughRecord} from './factory/Walkthrough';
 import RecNReplayMiddlewareFactory from  './replay';
-import {InteractionRecord} from './factory/Interaction';
 
 export type VisStateTree = Map<string, Map<string, number |
   PipelineRecord | DatasetRecord | ScaleRecord | GuideRecord |
   MarkRecord | SignalRecord | InteractionRecord>>;
 
 export interface VisState {
-  past: List<VisStateTree>;
+  past: VisStateTree[];
   present: VisStateTree;
-  future: List<VisStateTree>;
-  filtered: boolean;
+  future: VisStateTree[];
+  filtered?: boolean;
 }
 
 interface LyraState {
@@ -37,7 +37,7 @@ interface LyraState {
 
 const getDefaultState = Record<LyraState>({
   vis: {
-    past: List(),
+    past: [],
     present: Map({
       pipelines: Map<string, PipelineRecord>(),
       datasets: Map<string, DatasetRecord>(),
@@ -48,8 +48,7 @@ const getDefaultState = Record<LyraState>({
       interactions: Map<string, InteractionRecord>(),
       signals: defaultSignalState,
     }),
-    future: List(),
-    filtered: false
+    future: []
   },
   vega: VegaReparse(),
   inspector: Inspector(),

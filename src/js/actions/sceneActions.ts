@@ -1,9 +1,9 @@
 import {AnyAction} from 'redux';
 import {ThunkAction} from 'redux-thunk';
 import {createStandardAction} from 'typesafe-actions';
+import {batchGroupBy} from '../reducers/historyOptions';
 import {State} from '../store';
 import {SceneRecord} from '../store/factory/marks/Scene';
-import {endBatch, startBatch} from './historyActions';
 import {deleteMark} from './markActions';
 
 const counter = require('../util/counter');
@@ -25,12 +25,12 @@ export function clearScene(): ThunkAction<void, State, null, AnyAction> {
     const sceneId = getInVis(state, 'scene._id');
     const children = getInVis(state, 'marks.' + sceneId + '.marks');
 
-    dispatch(startBatch());
+    batchGroupBy.start();
 
     children.forEach(function(childId) {
       dispatch(deleteMark(childId));
     });
 
-    dispatch(endBatch());
+    batchGroupBy.end();
   };
 }

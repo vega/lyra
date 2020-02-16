@@ -3,9 +3,9 @@ import {ThunkAction} from 'redux-thunk';
 import {createStandardAction} from 'typesafe-actions';
 import {NumericValueRef, StringValueRef} from 'vega';
 import {UnitSpec} from 'vega-lite/src/spec';
+import {batchGroupBy} from '../reducers/historyOptions';
 import {State} from '../store';
 import {LyraMarkType, Mark, MarkRecord} from '../store/factory/Mark';
-import {endBatch, startBatch} from './historyActions';
 
 const counter  = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
@@ -43,7 +43,7 @@ export function deleteMark(id: number): ThunkAction<void, State, null, AnyAction
     const mark = getInVis(getState(), 'marks.' + id);
     const children = mark.get('marks');
 
-    dispatch(startBatch());
+    batchGroupBy.start();
 
     if (children && children.size) {
       children.forEach(function(childId) {
@@ -53,7 +53,7 @@ export function deleteMark(id: number): ThunkAction<void, State, null, AnyAction
 
     dispatch(baseDeleteMark(mark.type, mark._id));
 
-    dispatch(endBatch());
+    batchGroupBy.end()
   };
 }
 

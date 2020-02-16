@@ -14,6 +14,5 @@ module.exports = {
   rules: require('./bindChannel'),
   inspectors: require('./inspectorActions'),
   hints: require('./hintActions'),
-  walkthrough: require('./walkthroughActions'),
-  history: require('./historyActions')
+  walkthrough: require('./walkthroughActions')
 };

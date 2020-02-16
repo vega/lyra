@@ -1,10 +1,9 @@
-import {createStandardAction} from 'typesafe-actions';
-import {ThunkAction} from 'redux-thunk';
-import {State} from '../store';
 import {AnyAction} from 'redux';
-import {startBatch, endBatch} from './historyActions';
-import {deleteMark, baseDeleteMark} from './markActions';
+import {ThunkAction} from 'redux-thunk';
+import {createStandardAction} from 'typesafe-actions';
+import {State} from '../store';
 import {getParentGroupIds} from '../util/hierarchy';
+import {baseDeleteMark, deleteMark} from './markActions';
 
 export namespace InspectorSelectedType {
   export const SELECT_GUIDE = 'SELECT_GUIDE';

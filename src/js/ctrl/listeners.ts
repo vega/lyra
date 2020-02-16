@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
-import {redo, undo} from '../actions/historyActions';
-import {selectMark, expandLayers, baseSelectMark} from '../actions/inspectorActions';
+import {ActionCreators} from 'redux-undo';
+import {baseSelectMark, expandLayers, selectMark} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';
 import {store} from '../store';
 import {MODE, SELECTED} from '../store/factory/Signal';
-import sg from './signals';
 import {getParentGroupIds} from '../util/hierarchy';
+import sg from './signals';
 
 const ACTIONS = require('../actions/Names');
 const ctrl = require('./');
@@ -81,13 +81,13 @@ export function offSignal(name, handler) {
 */
 function getSignalOperatorInGroup(view, groupName, signalName) {
   const rootItemNode = view._scenegraph.root.items[0];
-  for (let markNode of rootItemNode.items) {
+  for (const markNode of rootItemNode.items) {
     if (markNode.name && markNode.marktype === 'group') {
       if (markNode.name === groupName) {
         if (markNode.items && markNode.items.length) {
           const itemNode = markNode.items[0];
           const signals = itemNode.context.signals;
-          for (let name of Object.keys(signals)) {
+          for (const name of Object.keys(signals)) {
             if (name === signalName) {
               return signals[name];
             }
@@ -255,13 +255,13 @@ function handleHistory(evt): boolean {
     // Command or Ctrl
     if (keyCode === 89) {
       // Y
-      store.dispatch(redo());
+      store.dispatch(ActionCreators.redo());
       evt.preventDefault();
       return false;
     } else if (keyCode === 90) {
       // Z
       // special case (CMD-SHIFT-Z) does a redo on a mac
-      store.dispatch(evt.shiftKey ? redo() : undo());
+      store.dispatch(evt.shiftKey ? ActionCreators.redo() : ActionCreators.undo());
       evt.preventDefault();
       return false;
     }

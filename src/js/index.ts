@@ -1,5 +1,5 @@
+import {ActionCreators as historyActions} from 'redux-undo';
 import * as vega from 'vega';
-import { clearHistory } from './actions/historyActions';
 import { addMark } from './actions/markActions';
 import { createScene } from './actions/sceneActions';
 import {store as initialStore} from './store';
@@ -34,7 +34,7 @@ store.dispatch(addMark(Mark('group', {_parent: 1})));
 
 import './components';
 
-store.dispatch(clearHistory());
+store.dispatch(historyActions.clearHistory());
 
 // if recording state changes (e.g. to load known states for user testing),
 // do not record intialization actions (see store/replay.ts)
