@@ -16,6 +16,7 @@ export const batchGroupBy = {
 };
 
 export default {
+  limit: 15,
   filter: function(action) {
     return action.type !== getType(addDataset) &&
       (action.type !== getType(setSignal) ||

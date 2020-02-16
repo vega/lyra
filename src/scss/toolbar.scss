@@ -1,19 +1,14 @@
 .toolbar {
-  background-color: $lgrey-bg;
   position: absolute;
-  top: $outer-padding;
   left: 2*$outer-padding;
   margin-left: $sidebars-width;
-  border: 1px solid #aaa;
 
   ul {
+    background-color: $lgrey-bg;
     display: flex;
-    margin: 0;
-    border-left: solid 1px #666;
-
-    &:first-child {
-      border: none;
-    }
+    margin: 0 10px 0 0;
+    border: solid 1px #999;
+    border-top: 0;
 
     li {
       position: relative;
@@ -30,9 +25,8 @@
         z-index: 9999;
         top: 27px;
         left: 0px;
-        background-color: #BFBFBF;
-        border: 1px solid #aaa;
-        box-shadow: 2px 2px 17px 0px rgba(0,0,0,0.15);
+        margin: -1px;
+        border-top: solid 1px #999;
 
         li {
           display: block;
@@ -49,7 +43,7 @@
       .icon {
         padding-right: $inner-padding;
 
-        &.undo, &.redo { padding-right: 0; }
+        &.undo, &.redo, &.save, &.open { padding-right: 0; }
       }
 
       &.grey {

@@ -10,6 +10,7 @@ import * as scaleActions from '../actions/scaleActions';
 import * as sceneActions from '../actions/sceneActions';
 import * as signalActions from '../actions/signalActions';
 import * as vegaActions from '../actions/vegaActions';
+import {hydrate} from '../ctrl/persist';
 import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
 
 /**
@@ -20,7 +21,7 @@ import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
  * @returns {boolean} The new state of the reparse flag
  */
 export function invalidateVegaReducer(state: VegaReparseRecord,
-                              action: ActionType<typeof vegaActions | typeof datasetActions |
+                              action: ActionType<typeof vegaActions | typeof datasetActions | typeof hydrate |
                               typeof markActions | typeof pipelineActions | typeof sceneActions | typeof historyActions |
                               typeof scaleActions | typeof helperActions | typeof signalActions | typeof guideActions | typeof interactionActions>): VegaReparseRecord {
   if (typeof state === 'undefined') {
@@ -65,6 +66,7 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     case getType(datasetActions.sortDataset):
     case getType(datasetActions.addTransform):
     case getType(datasetActions.updateTransform):
+    case getType(hydrate):
     case historyActions.UNDO:
     case historyActions.REDO:
     case historyActions.JUMP_TO_FUTURE:

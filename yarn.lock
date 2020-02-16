@@ -8834,6 +8834,11 @@ tough-cookie@~2.4.3:
     psl "^1.1.24"
     punycode "^1.4.1"
 
+transit-immutable-js@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/transit-immutable-js/-/transit-immutable-js-0.8.0.tgz#3517519451fbdf3c187032da076757eb03d9848a"
+  integrity sha512-ONMckwIaS/t06yfdgui91zbVzyu/8iM+q+apbevO1SCs1NfX1C8KAczeP/XcSue095UG5oC3UWSIySHIT7jTzA==
+
 transit-js@^0.8.861:
   version "0.8.861"
   resolved "https://registry.yarnpkg.com/transit-js/-/transit-js-0.8.861.tgz#829e516b80349a41fff5d59f5e6993b5473f72c9"

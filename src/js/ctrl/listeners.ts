@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import {ActionCreators} from 'redux-undo';
+import {ActionCreators as historyActions} from 'redux-undo';
 import {baseSelectMark, expandLayers, selectMark} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';
 import {store} from '../store';
@@ -255,13 +255,13 @@ function handleHistory(evt): boolean {
     // Command or Ctrl
     if (keyCode === 89) {
       // Y
-      store.dispatch(ActionCreators.redo());
+      store.dispatch(historyActions.redo());
       evt.preventDefault();
       return false;
     } else if (keyCode === 90) {
       // Z
       // special case (CMD-SHIFT-Z) does a redo on a mac
-      store.dispatch(evt.shiftKey ? ActionCreators.redo() : ActionCreators.undo());
+      store.dispatch(evt.shiftKey ? historyActions.redo() : historyActions.undo());
       evt.preventDefault();
       return false;
     }

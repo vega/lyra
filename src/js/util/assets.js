@@ -34,6 +34,8 @@ module.exports = {
   download: require('../../assets/download.svg'),
   bold: require('../../assets/bold.svg'),
   italic: require('../../assets/italic.svg'),
+  open: require('../../assets/open.svg'),
+  save: require('../../assets/save.svg'),
   'align-left': require('../../assets/align-left.svg'),
   'align-center': require('../../assets/align-center.svg'),
   'align-right': require('../../assets/align-right.svg'),

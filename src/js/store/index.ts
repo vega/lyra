@@ -1,4 +1,4 @@
-import {List, Map, Record, RecordOf} from 'immutable';
+import {Map, Record, RecordOf} from 'immutable';
 import {applyMiddleware, createStore, Store} from 'redux';
 // import logger from 'redux-logger';
 import ReduxThunk from 'redux-thunk'; // redux-thunk lets us dispatch() functions to create async or multi-stage actions
@@ -14,7 +14,6 @@ import {ScaleRecord} from './factory/Scale';
 import {defaultSignalState, SignalRecord} from './factory/Signal';
 import {VegaReparse, VegaReparseRecord} from './factory/Vega';
 import {Walkthrough, WalkthroughRecord} from './factory/Walkthrough';
-import RecNReplayMiddlewareFactory from  './replay';
 
 export type VisStateTree = Map<string, Map<string, number |
   PipelineRecord | DatasetRecord | ScaleRecord | GuideRecord |
@@ -27,7 +26,7 @@ export interface VisState {
   filtered?: boolean;
 }
 
-interface LyraState {
+export interface LyraState {
   vis: VisState;
   vega: VegaReparseRecord;
   inspector: InspectorRecord;
@@ -62,7 +61,7 @@ export type State = RecordOf<LyraState>;
 export const defaultState = getDefaultState();
 
 function configureStore(initialState: State) {
-  return createStore(rootReducer, initialState, applyMiddleware(ReduxThunk, RecNReplayMiddlewareFactory()));
+  return createStore(rootReducer, initialState, applyMiddleware(ReduxThunk));
 }
 
 /**

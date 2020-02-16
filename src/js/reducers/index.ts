@@ -1,5 +1,6 @@
 import {combineReducers} from 'redux-immutable';
 import undoable from 'redux-undo';
+import {hydrator} from '../ctrl/persist';
 import {datasetsReducer as datasets} from './datasetsReducer';
 import {guidesReducer as guides} from './guidesReducer';
 import {hintsReducer as hints} from './hintsReducer';
@@ -14,18 +15,20 @@ import {signalsReducer as signals} from './signalsReducer';
 import {invalidateVegaReducer as vega} from './vegaReducer';
 import {walkthroughReducer as walkthrough} from './walkthroughReducer';
 
+const visReducers = combineReducers({
+  signals,
+  scene,
+  pipelines,
+  datasets,
+  scales,
+  guides,
+  marks,
+  interactions
+});
+
 // order matters here
 export default combineReducers({
-  vis: undoable(combineReducers({
-    signals,
-    scene,
-    pipelines,
-    datasets,
-    scales,
-    guides,
-    marks,
-    interactions
-  }), historyOptions),
+  vis: undoable(hydrator(visReducers), historyOptions),
   vega,
   inspector,
   hints,

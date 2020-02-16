@@ -71,6 +71,10 @@ export function reset() {
   _values = {};
 }
 
+export function persist(vals?: {}) {
+  return arguments.length ? (_values = vals) : _values;
+}
+
 /**
  * Gets the dataset's raw input values. This is called during export because
  * raw values might be more concise than parsed values in the case of CSV/TSV.
@@ -100,11 +104,11 @@ export function output(id: number) {
 export function widgetParams(fieldDef, id: number, type) {
   const data = output(id);
   let field = data.map(e => e[fieldDef.name]);
-  if(type == NOMINAL) {
+  if(type === NOMINAL) {
     field = [...new Set(field)];
     if(field.length>50) { // What to do for very large number of options?
       return {options: field.slice(0, 50)}
-    } else return {options: field}
+    } else { return {options: field} }
   }
   field = field.sort((a,b)=> a-b);
   const length = field.length;
@@ -233,18 +237,19 @@ export function aggregateSchema(src: Schema, aggregate: AggregateTransform): Sch
 }
 
 module.exports = {
-  init: init,
-  reset: reset,
+  init,
+  reset,
+  persist,
 
-  input: input,
-  output: output,
+  input,
+  output,
 
-  widgetParams: widgetParams,
+  widgetParams,
 
-  loadURL: loadURL,
-  parseRaw: parseRaw,
-  schema: schema,
-  aggregateSchema: aggregateSchema,
+  loadURL,
+  parseRaw,
+  schema,
+  aggregateSchema,
 
-  NAME_REGEX: NAME_REGEX
+  NAME_REGEX
 };

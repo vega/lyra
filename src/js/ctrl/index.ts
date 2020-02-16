@@ -6,6 +6,7 @@ import {Runtime, Spec, View} from 'vega';
 import {CELL, MOUSE} from '../store/factory/Signal';
 import {exporter} from './export';
 import {BUBBLE_CURSOR, BUBBLE_CURSOR_TIP} from './manipulators';
+import {hydrate, persist} from './persist';
 import {api} from './signals';
 
 const dl = require('datalib'),
@@ -16,6 +17,8 @@ const dl = require('datalib'),
 interface LyraCtrl {
   view: View,
   export: (internal: boolean, preview?: boolean) => Spec,
+  persist: () => {},
+  hydrate: ({}) => void,
   manipulators: () => Spec,
   parse: (el: string) => Promise<Runtime>,
   update: () => void
@@ -29,6 +32,8 @@ const ctrl: LyraCtrl = (module.exports = {view: null} as any),
 let parsePromise = null;
 
 ctrl.export = exporter;
+ctrl.persist = persist;
+ctrl.hydrate = hydrate;
 
 /**
  * Exports the ctrl as a complete Vega specification with extra definitions
