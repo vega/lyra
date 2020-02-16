@@ -1,3 +1,4 @@
+import {array} from 'vega';
 const d3 = require('d3');
 
 const MIME: { [s: string]: string } = {
@@ -36,10 +37,10 @@ export function download(url: string, ext: string) {
   el.dispatchEvent(evt);
 }
 
-export function fopen(accept: string, cb: (str: string) => void) {
+export function fopen(accept: string | string[], cb: (str: string) => void) {
   const el = d3.select(document.createElement('input'))
     .attr('type', 'file')
-    .attr('accept', accept)
+    .attr('accept', array(accept).map(ext => `.${ext}`).join(','))
     .on('change', () => {
       for (const file of d3.event.target.files) {
         const reader = new FileReader();
