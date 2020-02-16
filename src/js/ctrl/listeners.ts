@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import {ActionCreators as historyActions} from 'redux-undo';
+import {getType} from 'typesafe-actions';
 import {baseSelectMark, expandLayers, selectMark} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';
 import {store} from '../store';
@@ -282,7 +283,7 @@ function handleDelete(evt): boolean {
     const id = inspectors.get('selectedId');
     const groupId = state.getIn(['vis', 'present', 'marks', String(id), '_parent']);
 
-    if (type === ACTIONS.SELECT_MARK) {
+    if (type === getType(baseSelectMark)) {
       evt.preventDefault();
       store.dispatch(selectMark(groupId) as any); // TODO(jzong) make sure it's dispatching these two thunk actions correctly
       store.dispatch(deleteMark(id) as any);
