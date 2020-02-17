@@ -51,7 +51,7 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
       state = state.setIn(
         [String(id), '_schema', transform.as],
         Column({
-          name: transform.as,
+          name: transform.as as string,
           type: 'number',
           mtype: QUANTITATIVE,
           source: false
@@ -71,7 +71,7 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
       const oldSchema: ColumnRecord = state.getIn([String(id), '_schema', oldName]);
       state = state.deleteIn([String(id), '_schema', oldName]);
       state = state.setIn([String(id), '_schema', transform.as],
-        oldSchema.set('name', transform.as));
+        oldSchema.set('name', transform.as as string));
     }
 
     return state.setIn([String(id), 'transform', p.index], p.transform);

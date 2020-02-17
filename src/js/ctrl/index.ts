@@ -59,7 +59,7 @@ ctrl.manipulators = function(): Spec {
       type: ns('bubble_cursor'),
       lyra_cell: {signal: CELL},
       lyra_mouse: {signal: MOUSE}
-    }]
+    } as any]
   });
 
   marks.push(BUBBLE_CURSOR);

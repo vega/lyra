@@ -61,7 +61,7 @@ function setParentMark(state: MarkState, params: {parentId: number; childId: num
     return state;
   }
 
-  const existingParentId = child.get('_parent');
+  const existingParentId = child._parent;
 
   // If we're deleting a parent but there isn't one to begin with, do nothing
   // (`== null` is used to catch both `undefined` and explicitly `null`)

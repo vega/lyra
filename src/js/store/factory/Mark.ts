@@ -1,5 +1,6 @@
 import {Map} from 'immutable';
-import {DataMixins, TopLevel} from 'vega-lite/src/spec';
+import {TopLevel} from 'vega-lite/src/spec';
+import {DataMixins} from 'vega-lite/src/spec/base';
 import {NormalizedUnitSpec} from 'vega-lite/src/spec/unit';
 import {MarkType, OnEvent} from 'vega-typings';
 import {Area, AreaRecord, getHandleStreams as areaHandleStreams, LyraAreaMark} from './marks/Area';

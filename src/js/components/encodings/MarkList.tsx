@@ -84,7 +84,7 @@ class MarkList extends React.Component<OwnProps & StateProps & DispatchProps> {
               <div className={'name' + (selectedId === markId ? ' selected' : '')}
                 onClick={props.selectMark.bind(null, markId)}>
 
-                <Icon glyph={assets[mark.get('type')]} />
+                <Icon glyph={assets[mark.type]} />
 
                 <ContentEditable value={name}
                   save={props.updateName.bind(null, markId)}

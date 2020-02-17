@@ -1,6 +1,6 @@
 'use strict';
 import {State, store} from '../store';
-import {Mark, MarkRecord} from '../store/factory/Mark';
+import {MarkRecord} from '../store/factory/Mark';
 import {TextRecord} from '../store/factory/marks/Text';
 
 const Bounds = require('vega-scenegraph').Bounds;
@@ -14,9 +14,9 @@ const getInVis = require('./immutable-utils').getInVis;
  * otherwise uses the Lyra store.
  * @returns {ImmutableMap|null} The requested mark, if present, else null
  */
-function getParent(mark: Mark, state: State): Mark {
+function getParent(mark: MarkRecord, state: State): MarkRecord {
   state = state || store.getState();
-  return getInVis(state, 'marks.' + mark.get('_parent')) || null;
+  return getInVis(state, 'marks.' + mark._parent) || null;
 }
 
 /**
@@ -37,7 +37,7 @@ function getParents(primitive, state: State) {
     return [];
   }
   const parents = [current];
-  while (current && current.get('_parent')) {
+  while (current && current._parent) {
     current = getParent(current, state);
     if (current) {
       parents.push(current);
