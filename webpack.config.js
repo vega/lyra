@@ -1,45 +1,20 @@
 /* eslint-disable */
 
 var path = require('path'),
-    webpack = require('webpack'),
+    HtmlWebpackPlugin = require('html-webpack-plugin'),
     NotifierPlugin = require('webpack-notifier');
 
 module.exports = {
   entry: {
     lyra: path.resolve( __dirname, 'src/js/index.ts' ),
-    // // By specifying 'vendor' dependencies we can render those vendor files
-    // // into a separate JS bundle; see the CommonsChunkPlugin usage below
-    // vendor: [
-    //   'array.prototype.find',
-    //   'd3',
-    //   'datalib',
-    //   'es6-promisify',
-    //   'immutable',
-    //   'inherits',
-    //   'jquery',
-    //   'jquery-textcomplete',
-    //   'json2csv',
-    //   'lodash.ismatch',
-    //   'lodash.merge',
-    //   'react',
-    //   'react-contenteditable',
-    //   'react-dom',
-    //   'react-modal',
-    //   'react-tooltip',
-    //   'redux-immutable',
-    //   'redux-thunk',
-    //   'string.prototype.startswith',
-    //   'vega',
-    //   'vega-lite',
-    //   'vega-scenegraph'
-    // ],
   },
+
   output: {
     path: path.resolve(__dirname, 'build'),
-    publicPath: '/build/',
     filename: 'js/[name].js',
     jsonpFunction: '__webpackJsonp__'
   },
+
   module: {
     rules: [
       {
@@ -87,15 +62,60 @@ module.exports = {
           esModule: false
         }
       },
-      { test: /\.tsx?$/, loader: 'ts-loader' },
+      {
+        test: /\.tsx?$/,
+        loader: 'ts-loader',
+        options: {
+          transpileOnly: true
+        }
+      },
     ]
   },
+
   resolve: {
     // Permits `require( 'file' )` instead of `require( 'file.jsx' )`
     extensions: ['.ts', '.tsx', '.js', '.jsx']
   },
+
   plugins: [
-    // new webpack.optimize.CommonsChunkPlugin({name: 'vendor', filename: 'js/vendor.js'}),
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: 'src/index.html'
+    }),
     new NotifierPlugin(),
-  ]
+  ],
+
+  optimization: {
+    concatenateModules: false,
+    splitChunks: {
+      chunks: 'all',
+      maxInitialRequests: Infinity,
+      minSize: 0,
+      cacheGroups: {
+        vega: {
+          test: /vega/,
+          name: 'vega',
+          priority: 10,
+          reuseExistingChunk: true
+        },
+        vegaLite: {
+          test: /vega-lite/,
+          name: 'vega-lite',
+          priority: 20,
+          reuseExistingChunk: true
+        },
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          name: 'vendor',
+          reuseExistingChunk: true
+        },
+        default: {
+          name: 'default',
+          priority: -20,
+          reuseExistingChunk: true
+        }
+      }
+    }
+  }
 };
