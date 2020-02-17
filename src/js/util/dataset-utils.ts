@@ -11,8 +11,7 @@
 import {Map} from 'immutable';
 import {AggregateTransform, array, Datum, Format, FormatJSON, FormatSV} from 'vega';
 import {store} from '../store';
-import {Column, ColumnRecord, Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
-import {Pipeline, PipelineRecord} from '../store/factory/Pipeline';
+import {Column, ColumnRecord, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
 
 // Taken from vega-lite 1.0.0 src/data.js
 

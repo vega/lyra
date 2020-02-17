@@ -1,14 +1,13 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
-import * as ReactTooltip from 'react-tooltip';
+import ReactTooltip from 'react-tooltip'
 import {store} from '../store';
 import {EncodingsSidebar} from './EncodingsSidebar';
-import {Footer} from './Footer';
 import {InspectorSidebar} from './InspectorSidebar';
+import InteractionPreviewContainer from './interactions/InteractionPreviewContainer';
 import {PipelinesSidebar} from './PipelinesSidebar';
 import {Toolbar} from './Toolbar';
-import InteractionPreviewContainer from './interactions/InteractionPreviewContainer';
 
 // React requires you only have one wrapper element called in your provider
 module.exports = (window as any).ui = ReactDOM.render(
@@ -22,11 +21,9 @@ module.exports = (window as any).ui = ReactDOM.render(
         <PipelinesSidebar />
       </div>
 
-      <Footer />
-
       <ReactTooltip
         effect='solid'
-        delayShow={650}
+        delayShow={375}
         class='tooltip'
         html={true}
       />

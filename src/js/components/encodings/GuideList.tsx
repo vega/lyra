@@ -1,7 +1,7 @@
 import {List, Map} from 'immutable';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import * as ReactTooltip from 'react-tooltip';
+import ReactTooltip from 'react-tooltip'
 import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
 import {deleteGuide} from '../../actions/guideActions';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import * as ReactTooltip from 'react-tooltip';
+import ReactTooltip from 'react-tooltip'
 import {Dispatch} from 'redux';
 import {changeFieldMType} from '../../actions/datasetActions';
 import {ColumnRecord} from '../../store/factory/Dataset';

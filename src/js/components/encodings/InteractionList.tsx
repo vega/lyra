@@ -1,6 +1,6 @@
 import {Map} from 'immutable';
 import * as React from 'react';
-import * as ReactTooltip from 'react-tooltip';
+import ReactTooltip from 'react-tooltip'
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import {selectInteraction} from '../../actions/inspectorActions';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import * as ReactTooltip from 'react-tooltip';
+import ReactTooltip from 'react-tooltip'
 import * as vega from 'vega';
 import bindChannel from '../../actions/bindChannel';
 import sg from '../../ctrl/signals';
