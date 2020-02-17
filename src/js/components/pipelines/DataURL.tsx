@@ -1,6 +1,10 @@
 import * as React from 'react';
 
 class Loader extends React.Component<{loadURL: (url: string) => void}> {
+  constructor(props) {
+    super(props);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
 
   public handleSubmit(evt) {
     this.props.loadURL(evt.target.url.value);

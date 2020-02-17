@@ -3,15 +3,15 @@ import * as ReactModal from 'react-modal';
 import { connect } from 'react-redux';
 import {Datum, extend} from 'vega';
 import {addPipeline} from '../../actions/pipelineActions';
-import {DatasetRecord} from '../../store/factory/Dataset';
-import {PipelineRecord} from '../../store/factory/Pipeline';
+import {Dataset, DatasetRecord} from '../../store/factory/Dataset';
+import {Pipeline, PipelineRecord} from '../../store/factory/Pipeline';
 import * as dsUtils from '../../util/dataset-utils';
+import {get, read} from '../../util/io';
 import DataTable from './DataTable';
 import DataURL from './DataURL';
-import RawValuesTextArea from './RawValuesTextArea';
 
 const exampleDatasets = require('../../constants/exampleDatasets');
-const NAME_REGEX = dsUtils.NAME_REGEX;
+const NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
 interface OwnProps {
   closeModal: () => void;
@@ -28,6 +28,7 @@ export interface PipelineModalState {
     showPreview: boolean;
     selectedExample: string;
 
+    name: string;
     pipeline: PipelineRecord;
     dataset: DatasetRecord;
     values: Datum[];
@@ -39,12 +40,13 @@ const mapDispatch: DispatchProps = {
 
 export class PipelineModal extends React.Component<OwnProps & DispatchProps, PipelineModalState> {
 
-  private initialState = {
+  private initialState: PipelineModalState = {
     error: null,
     success: null,
     showPreview: false,
     selectedExample: null,
 
+    name: null,
     pipeline: null,
     dataset: null,
     values: null,
@@ -52,17 +54,36 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
 
   constructor(props) {
     super(props);
-
     this.state = this.initialState;
+    this.loadURL = this.loadURL.bind(this);
+    this.fopen = this.fopen.bind(this);
   }
 
-  public success(state: Partial<PipelineModalState>, msg: string | boolean, preview) {
-    this.setState(extend({}, {
+  public createPipeline(id: string) {
+    const name = id.match(NAME_REGEX)[1];
+    this.setState({name, pipeline: Pipeline({name})});
+  }
+
+  public createDataset(data: string) {
+    const parsed = dsUtils.parseRaw(data);
+    const values = parsed.values;
+    this.setState({
+      values,
+      dataset: Dataset({
+        name: this.state.name,
+        format: parsed.format,
+        _schema: dsUtils.schema(values)
+      })
+    });
+  }
+
+  public success(msg: string | boolean, selectedExample?: string) {
+    this.setState({
       error: null,
       success: msg || null,
-      showPreview: !(preview === false),
-      selectedExample: null
-    }, state));
+      showPreview: true,
+      selectedExample
+    });
   }
 
   public error(err) {
@@ -83,27 +104,25 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
     this.props.closeModal();
   }
 
-  public loadURL(msg: string | boolean, url: string) {
-    const that = this;
-    msg = msg !== false ?
-      'Successfully imported ' + url.match(NAME_REGEX)[0] + '!' : msg;
+  public loadURL(url: string, example?: boolean) {
+    this.createPipeline(url);
+    get(url, (data, err) => {
+      if (err) {
+        this.error(err);
+      } else {
+        this.createDataset(data);
+        this.success(example ? null : `Succesfully imported ${url}`);
+        this.setState({selectedExample: url});
+      }
+    });
+  }
 
-    dsUtils.loadURL(url)
-      .then(function(loaded: dsUtils.LoadUrlResult) {
-        let dataset = loaded.dataset;
-        const parsed = dsUtils.parseRaw(loaded.data);
-        const values = parsed.values;
-
-        that.success({
-          pipeline: loaded.pipeline,
-          dataset: (dataset = dataset.merge({format: parsed.format, _schema: dsUtils.schema(values)})),
-          values: values,
-          selectedExample: url
-        }, msg, true);
-      })
-      .catch(function(err) {
-        that.error(err);
-      });
+  public fopen(evt) {
+    read(evt.target.files, (data, file) => {
+      this.createPipeline(file.name);
+      this.createDataset(data);
+      this.success(`Successfully imported ${file.name}`);
+    });
   }
 
   public render() {
@@ -147,7 +166,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
                 const className = state.selectedExample === url ? 'selected' : null;
 
                 return (
-                  <li key={name} onClick={this.loadURL.bind(this, false, url)}
+                  <li key={name} onClick={this.loadURL.bind(this, url, true)}
                     className={className}>
                     <p className='example-name'>{name}</p>
                     <p>{description}</p>
@@ -165,8 +184,11 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
               formats include <abbr title='JavaScript Object Notation'>json</abbr>, <abbr title='Comma-Separated Values'>csv</abbr> and <abbr title='Tab-Separated Values'>tsv</abbr>
             </p>
 
-            <DataURL loadURL={this.loadURL.bind(this, true)} />
-            <RawValuesTextArea success={this.success} error={this.error} />
+            <p><input type='file' accept='.json,.tsv,.csv' onChange={this.fopen} /></p>
+
+            <p>or</p>
+
+            <DataURL loadURL={this.loadURL} />
           </div>
 
           {error ? <div className='error-message'>{error}</div> : null}

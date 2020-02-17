@@ -214,6 +214,10 @@ $pipeline-width: 230px;
     margin: 2*$margin 0;
   }
 
+  .load p {
+    margin-bottom: $margin;
+  }
+
   .examples h2 {
     margin: 2*$margin 0;
     margin-bottom: $margin;

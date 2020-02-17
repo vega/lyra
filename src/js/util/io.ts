@@ -1,5 +1,6 @@
 import {array} from 'vega';
 const d3 = require('d3');
+const dl = require('datalib');
 
 const MIME: { [s: string]: string } = {
   json: 'application/json',
@@ -37,20 +38,30 @@ export function download(url: string, ext: string) {
   el.dispatchEvent(evt);
 }
 
-export function fopen(accept: string | string[], cb: (str: string) => void) {
+export function get(url: string, cb: (str: string, err?: any) => void) {
+  dl.load({url}, (err, data) => cb(data, err));
+}
+
+export function fopen(accept: string | string[], cb: (str: string, file?: any) => void) {
   const el = d3.select(document.createElement('input'))
     .attr('type', 'file')
     .attr('accept', array(accept).map(ext => `.${ext}`).join(','))
     .on('change', () => {
-      for (const file of d3.event.target.files) {
-        const reader = new FileReader();
-        reader.onload = (e) => cb(typeof reader.result === 'string' ?
-          reader.result :
-          Buffer.from(reader.result).toString('utf-8')
-        );
-        reader.readAsText(file);
-      }
+      return read(d3.event.target.files, cb);
     })
     .node()
     .click();
+}
+
+export function read(entries, cb: (str: string, file?: any) => void) {
+  for (const entry of entries) {
+    const reader = new FileReader();
+    reader.onloadend = ((file) => {
+      return (e) => {
+        const res = e.target.result;
+        cb(typeof res === 'string' ? res : Buffer.from(res).toString('utf-8'), file);
+      }
+    })(entry);
+    reader.readAsText(entry);
+  }
 }

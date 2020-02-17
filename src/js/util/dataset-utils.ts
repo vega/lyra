@@ -9,7 +9,7 @@
  */
 
 import {Map} from 'immutable';
-import {AggregateTransform, array, Datum, Format} from 'vega';
+import {AggregateTransform, array, Datum, Format, FormatJSON, FormatSV} from 'vega';
 import {store} from '../store';
 import {Column, ColumnRecord, Dataset, DatasetRecord, Schema, SourceDatasetRecord} from '../store/factory/Dataset';
 import {Pipeline, PipelineRecord} from '../store/factory/Pipeline';
@@ -30,9 +30,6 @@ const dl = require('datalib');
 const promisify = require('es6-promisify');
 const imutils = require('./immutable-utils');
 const getInVis = imutils.getInVis;
-
-export const NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
-
 
 function def(id: number): DatasetRecord {
   return getInVis(store.getState(), 'datasets.' + id);
@@ -60,7 +57,7 @@ export function init(ds: DatasetRecord, values: object[]) {
     _values[id] = values;
   }
   else if ((ds as SourceDatasetRecord).source !== undefined) {
-    _values[id] = _values[(ds as SourceDatasetRecord).source];
+    _values[id] = _values[(ds as SourceDatasetRecord).source as string];
   }
   else {
     _values[id] = null;
@@ -122,30 +119,6 @@ export function widgetParams(fieldDef, id: number, type) {
   }
 }
 
-export interface LoadUrlResult {
-  data: string,
-  pipeline: PipelineRecord,
-  dataset: DatasetRecord
-}
-
-/**
- * Load raw values from a URL.
- *
- * @param   {string} url      The URL to load.
- * @param   {Object} [pipeline] The definition for a pipeline (e.g., w/name).
- * @param   {Object} dataset  The definition for a dataset (e.g., name, url).
- * @returns {Object} An object containing the loaded values.
- */
-export function loadURL(url: string) {
-  const name = url.match(NAME_REGEX)[1];
-  const pipeline = Pipeline({name});
-  const dataset = Dataset({name, url});
-
-  return promisify(dl.load)({url: url}).then(function(data): LoadUrlResult {
-    return {data: data, pipeline: pipeline, dataset: dataset};
-  });
-}
-
 export interface ParsedValues {
   format: Format,
   values: Datum[]
@@ -165,7 +138,7 @@ export function parseRaw(raw: string): ParsedValues {
 
   try {
     format.type = 'json';
-    return {format: format, values: dl.read(raw, format)};
+    return {format: format as FormatJSON, values: dl.read(raw, format)};
   } catch (error) {
     format.type = 'csv';
     parsed = dl.read(raw, format);
@@ -174,13 +147,13 @@ export function parseRaw(raw: string): ParsedValues {
     // If file is TSV but was parsed as CSV, the entire header row will be
     // parsed as a single field.
     if (Object.keys(parsed[0]).length > 1) {
-      return {format: format, values: parsed};
+      return {format: format as FormatSV, values: parsed};
     }
 
     format.type = 'tsv';
     parsed = dl.read(raw, format);
     if (Object.keys(parsed[0]).length > 1) {
-      return {format: format, values: parsed};
+      return {format: format as FormatSV, values: parsed};
     }
 
     throw Error('Raw data is in an unsupported format. ' + 'Only JSON, CSV, or TSV may be imported.');
@@ -246,10 +219,7 @@ module.exports = {
 
   widgetParams,
 
-  loadURL,
   parseRaw,
   schema,
-  aggregateSchema,
-
-  NAME_REGEX
+  aggregateSchema
 };
