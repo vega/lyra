@@ -1,7 +1,7 @@
 import {Dispatch} from 'redux';
 import {ActionType} from 'typesafe-actions';
 import {extend, isArray} from 'vega';
-import {isDataRefDomain, isSignalRef} from 'vega-lite/src/vega.schema';
+import {isDataRefDomain, isSignalRef} from 'vega-lite/build/src/vega.schema';
 import {State} from '../../store';
 import {RangeScale, Scale, ScaleRecord} from '../../store/factory/Scale';
 import {addScale} from '../scaleActions';
