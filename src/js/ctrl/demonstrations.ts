@@ -3,7 +3,7 @@ import {GuideRecord} from "../store/factory/Guide";
 import {Map} from 'immutable';
 import {ScaleRecord} from "../store/factory/Scale";
 import {State} from "../store";
-import {LyraSelectionPreviewDef, LyraMappingPreviewDef, ScaleInfo} from "../components/interactions/InteractionPreviewController";
+import {LyraSelectionPreviewDef, LyraApplicationPreviewDef, ScaleInfo} from "../components/interactions/InteractionPreviewController";
 import duplicate from "../util/duplicate";
 import {LyraMarkType, MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
@@ -916,7 +916,7 @@ export function signalsForProjection(projectionField: string) {
   ]
 }
 
-export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraMappingPreviewDef) {
+export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraApplicationPreviewDef) {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
@@ -937,7 +937,7 @@ export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraM
   return sceneUpdated;
 }
 
-export function editMarks(marks: any[], def: LyraMappingPreviewDef) {
+export function editMarks(marks: any[], def: LyraApplicationPreviewDef) {
   const markProperties = def.markProperties;
   const markType = def.markType;
   if (markProperties) {
@@ -971,7 +971,7 @@ export function editMarks(marks: any[], def: LyraMappingPreviewDef) {
   return marks;
 }
 
-export function editScalesForPreview(sceneSpec, groupName: string, preview: LyraMappingPreviewDef) {
+export function editScalesForPreview(sceneSpec, groupName: string, preview: LyraApplicationPreviewDef) {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
@@ -982,7 +982,7 @@ export function editScalesForPreview(sceneSpec, groupName: string, preview: Lyra
   return sceneUpdated;
 }
 
-export function editScales(scales: any[], def: LyraMappingPreviewDef) {
+export function editScales(scales: any[], def: LyraApplicationPreviewDef) {
   if (!def.scaleProperties) {
     return scales;
   }
@@ -1000,8 +1000,8 @@ export function editScales(scales: any[], def: LyraMappingPreviewDef) {
   return scales;
 }
 
-export function widgetMappingPreviewDefs(fieldName: string, groupName: string, comparator: string = '==') {
-  let defs: LyraMappingPreviewDef[] = [{
+export function widgetApplicationPreviewDefs(fieldName: string, groupName: string, comparator: string = '==') {
+  let defs: LyraApplicationPreviewDef[] = [{
     id: "color",
     label: "Color",
     groupName: groupName,
@@ -1063,8 +1063,8 @@ export function widgetMappingPreviewDefs(fieldName: string, groupName: string, c
   return defs;
 }
 
-export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[], scaleInfo: ScaleInfo, groupName: string, sceneSpec): LyraMappingPreviewDef[] {
-  let defs: LyraMappingPreviewDef[] = [{
+export function applicationPreviewDefs(isDemonstratingInterval: boolean, marks: any[], scaleInfo: ScaleInfo, groupName: string, sceneSpec): LyraApplicationPreviewDef[] {
+  let defs: LyraApplicationPreviewDef[] = [{
     id: "color",
     label: "Color",
     groupName: groupName,
@@ -1129,7 +1129,7 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
     ]);
   }
   if (isDemonstratingInterval) {
-    const panzoomDef: LyraMappingPreviewDef = {
+    const panzoomDef: LyraApplicationPreviewDef = {
       id: "panzoom",
       label: "Pan and zoom",
       groupName: groupName,
@@ -1153,12 +1153,12 @@ export function mappingPreviewDefs(isDemonstratingInterval: boolean, marks: any[
     }
     defs.push(panzoomDef);
   }
-  const filterViewDefs = filterViewMappingPreviewDefs(isDemonstratingInterval, sceneSpec, groupName);
+  const filterViewDefs = filterViewApplicationPreviewDefs(isDemonstratingInterval, sceneSpec, groupName);
   defs = defs.concat(filterViewDefs);
   return defs;
 }
 
-function filterViewMappingPreviewDefs(isDemonstratingInterval: boolean, sceneSpec, groupName: string): LyraMappingPreviewDef[] {
+function filterViewApplicationPreviewDefs(isDemonstratingInterval: boolean, sceneSpec, groupName: string): LyraApplicationPreviewDef[] {
   const otherGroups = sceneSpec.marks.filter(markSpec => {
     return markSpec.name && markSpec.type === 'group' && markSpec.name !== groupName;
   });

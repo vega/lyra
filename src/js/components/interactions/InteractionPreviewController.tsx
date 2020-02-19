@@ -2,11 +2,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {Signal, Spec} from 'vega';
-import {getScaleInfoForGroup, cleanSpecForPreview, editSignalsForPreview, selectionPreviewDefs, mappingPreviewDefs, editMarksForPreview, editScalesForPreview, ScaleSimpleType} from '../../ctrl/demonstrations';
+import {getScaleInfoForGroup, cleanSpecForPreview, editSignalsForPreview, selectionPreviewDefs, applicationPreviewDefs, editMarksForPreview, editScalesForPreview, ScaleSimpleType} from '../../ctrl/demonstrations';
 import InteractionPreview from './InteractionPreview';
 import {InteractionRecord, Interaction} from '../../store/factory/Interaction';
 import {Dispatch} from 'redux';
-import {addInteraction, setSelection, setMapping} from '../../actions/interactionActions';
+import {addInteraction, setSelection, setApplication} from '../../actions/interactionActions';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import exportName from '../../util/exportName';
 import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
@@ -58,7 +58,7 @@ export interface LyraSelectionPreviewDef {
   field: string,
 }
 
-export interface LyraMappingPreviewDef {
+export interface LyraApplicationPreviewDef {
   id: string,
   label: string,
   ref?: React.RefObject<InteractionPreview>,
@@ -76,7 +76,7 @@ interface OwnState {
   isDemonstratingPoint: boolean,
   spec: Spec,
   selectionPreviews: LyraSelectionPreviewDef[],
-  mappingPreviews: LyraMappingPreviewDef[]
+  applicationPreviews: LyraApplicationPreviewDef[]
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -147,7 +147,7 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
       dispatch(setSelection(def, id));
     },
     setMapping: (def: any, id: number) => {
-      dispatch(setMapping(def, id));
+      dispatch(setApplication(def, id));
     },
     selectInteraction: (id: number) => {
       dispatch(selectInteraction(id));
@@ -165,7 +165,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       isDemonstratingPoint: false,
       spec: null,
       selectionPreviews: [],
-      mappingPreviews: []
+      applicationPreviews: []
     };
   }
 
@@ -211,7 +211,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       }
       this.setState({
         selectionPreviews: this.getSelectionPreviewDefs(),
-        mappingPreviews: this.getMappingPreviewDefs()
+        applicationPreviews: this.getApplicationPreviewDefs()
       });
     }
   }
@@ -228,9 +228,9 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     return [];
   }
 
-  private getMappingPreviewDefs(): LyraMappingPreviewDef[] {
+  private getApplicationPreviewDefs(): LyraApplicationPreviewDef[] {
     if (this.state.isDemonstratingInterval || this.state.isDemonstratingPoint) {
-      return mappingPreviewDefs(this.state.isDemonstratingInterval, this.props.marksOfGroup, this.props.scaleInfo, this.props.groupName, ctrl.export());
+      return applicationPreviewDefs(this.state.isDemonstratingInterval, this.props.marksOfGroup, this.props.scaleInfo, this.props.groupName, ctrl.export());
     }
     return [];
   }
@@ -262,7 +262,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
         preview.ref.current.setPreviewSignal(name, value);
       }
     });
-    this.state.mappingPreviews.forEach(preview => {
+    this.state.applicationPreviews.forEach(preview => {
       if (preview.ref.current) {
         preview.ref.current.setPreviewSignal(name, value);
       }
@@ -312,7 +312,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
         preview.ref.current.setPreviewSignal(name, scaledValue);
       }
     });
-    this.state.mappingPreviews.forEach(preview => {
+    this.state.applicationPreviews.forEach(preview => {
       if (preview.ref.current) {
         preview.ref.current.setPreviewSignal(name, scaledValue);
       }
@@ -328,7 +328,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       x: this.mainViewSignalValues['grid_translate_delta'].x * wScale,
       y: this.mainViewSignalValues['grid_translate_delta'].y * hScale
     } : null;
-    this.state.mappingPreviews.forEach(preview => {
+    this.state.applicationPreviews.forEach(preview => {
       if (preview.ref.current) {
         if (this.mainViewSignalValues['grid_translate_anchor']) {
           preview.ref.current.setPreviewSignal('grid_translate_anchor', this.mainViewSignalValues['grid_translate_anchor']);
@@ -371,11 +371,11 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       else this.props.setSelection(preview, this.props.interactionRecord.id);
     }
     this.setState({
-      mappingPreviews: this.getMappingPreviewDefs()
+      applicationPreviews: this.getApplicationPreviewDefs()
     });
   }
 
-  private onClickMappingPreview(preview) {
+  private onClickApplicationPreview(preview) {
     if (this.props.interactionRecord.mappingDef && this.props.interactionRecord.mappingDef.id === preview.id) {
       this.props.setMapping(null, this.props.interactionRecord.id);
     }
@@ -411,10 +411,10 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
             })
           }
         </div>
-        {this.state.mappingPreviews.length ? <h5>Mappings</h5> : null}
+        {this.state.applicationPreviews.length ? <h5>Applications</h5> : null}
         <div className="preview-scroll">
           {
-            this.state.mappingPreviews.map((preview) => {
+            this.state.applicationPreviews.map((preview) => {
               preview.ref = React.createRef();
               const selectedInteractionSignals = [].concat.apply([], this.state.selectionPreviews.filter((def) => {
                 return this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === def.id;
@@ -431,7 +431,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
                     id={`preview-${preview.id}`}
                     groupName={this.props.groupName}
                     spec={spec}
-                    onClick={() => this.onClickMappingPreview(preview)}/>
+                    onClick={() => this.onClickApplicationPreview(preview)}/>
                 </div>
               )
             })

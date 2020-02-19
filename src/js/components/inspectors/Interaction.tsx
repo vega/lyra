@@ -6,12 +6,12 @@ import { throttle } from "throttle-debounce";
 import {State} from '../../store';
 import {InteractionRecord, Interaction} from '../../store/factory/Interaction';
 import {Property} from './Property';
-import {ScaleInfo, LyraMappingPreviewDef, LyraSelectionPreviewDef} from '../interactions/InteractionPreviewController';
-import {mappingPreviewDefs, getScaleInfoForGroup, selectionPreviewDefs, widgetMappingPreviewDefs} from '../../ctrl/demonstrations';
+import {ScaleInfo, LyraApplicationPreviewDef, LyraSelectionPreviewDef} from '../interactions/InteractionPreviewController';
+import {applicationPreviewDefs, getScaleInfoForGroup, selectionPreviewDefs, widgetApplicationPreviewDefs} from '../../ctrl/demonstrations';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import exportName from '../../util/exportName';
 import {Dispatch} from 'redux';
-import {setSelection, setMapping, setValueInMark, setMarkPropertyValue} from '../../actions/interactionActions';
+import {setSelection, setApplication, setValueInMark, setMarkPropertyValue} from '../../actions/interactionActions';
 import {FormInputProperty} from './FormInputProperty';
 
 const ctrl = require('../../ctrl');
@@ -29,14 +29,14 @@ interface OwnState {
 
 interface DispatchProps {
   setSelection: (def: LyraSelectionPreviewDef, id: number) => void;
-  setMapping: (def: LyraMappingPreviewDef, id: number) => void;
+  setMapping: (def: LyraApplicationPreviewDef, id: number) => void;
   setValueInMark: (payload: any, id: number) => void;
   setMarkPropertyValue: (payload: any, id: number) => void;
 }
 
 interface StateProps {
   interaction: InteractionRecord;
-  mappingDefs: LyraMappingPreviewDef[];
+  mappingDefs: LyraApplicationPreviewDef[];
   selectionDefs: LyraSelectionPreviewDef[];
   mappingOptions: string[];
   selectionOptions: string[];
@@ -65,7 +65,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   }).filter((mark) => {
     return !(mark.type === 'group' || mark.name.indexOf('lyra') === 0);
   });
-  const mappingDefs =  mappingPreviewDefs(isInterval, marksOfGroup, scaleInfo, exportName(groupRecord.name), ctrl.export());
+  const mappingDefs =  applicationPreviewDefs(isInterval, marksOfGroup, scaleInfo, exportName(groupRecord.name), ctrl.export());
   const mappingOptions = mappingDefs.map(e => e.id);
   const selectionDefs = selectionPreviewDefs(true, true, marksOfGroup, scaleInfo, field);
   const selectionOptions = selectionDefs.map(e => e.id);
@@ -91,8 +91,8 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
     setSelection: (def: LyraSelectionPreviewDef, id: number) => {
       dispatch(setSelection(def, id));
     },
-    setMapping: (def: LyraMappingPreviewDef, id: number) => {
-      dispatch(setMapping(def, id));
+    setMapping: (def: LyraApplicationPreviewDef, id: number) => {
+      dispatch(setApplication(def, id));
     },
     setValueInMark: (payload: any, id: number) => {
       dispatch(setValueInMark(payload, id));
@@ -130,7 +130,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     if(this.props.type == 'widget') {
       const fieldName = this.props.interaction.selectionDef.field;
       const previousMappingDef = this.props.interaction.mappingDef;
-      const defs = widgetMappingPreviewDefs(fieldName, previousMappingDef.groupName, previousMappingDef.comparator);
+      const defs = widgetApplicationPreviewDefs(fieldName, previousMappingDef.groupName, previousMappingDef.comparator);
       const def = defs.filter(e => e.id === value);
       this.props.setMapping(def[0], this.props.interaction.id);
     } else {

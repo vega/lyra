@@ -1,5 +1,5 @@
 import {Map, Record, RecordOf} from 'immutable';
-import {LyraSelectionPreviewDef, LyraMappingPreviewDef} from '../../components/interactions/InteractionPreviewController';
+import {LyraSelectionPreviewDef, LyraApplicationPreviewDef} from '../../components/interactions/InteractionPreviewController';
 
 export interface PropertyValues {
   size: number,
@@ -11,7 +11,7 @@ export interface LyraInteraction {
   name: string;
   groupId: number;
   selectionDef: LyraSelectionPreviewDef;
-  mappingDef: LyraMappingPreviewDef;
+  mappingDef: LyraApplicationPreviewDef;
   markPropertyValues: PropertyValues;
 };
 

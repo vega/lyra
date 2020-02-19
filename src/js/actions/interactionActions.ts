@@ -1,6 +1,6 @@
 import {createStandardAction} from 'typesafe-actions';
 import {InteractionRecord} from '../store/factory/Interaction';
-import {LyraSelectionPreviewDef, LyraMappingPreviewDef} from '../components/interactions/InteractionPreviewController';
+import {LyraSelectionPreviewDef, LyraApplicationPreviewDef} from '../components/interactions/InteractionPreviewController';
 
 const counter  = require('../util/counter');
 
@@ -23,7 +23,7 @@ export const setSelection = createStandardAction('SET_SELECTION').map((preview: 
     payload: previewCopy, meta: id
   }
 });
-export const setMapping = createStandardAction('SET_MAPPING').map((preview: LyraMappingPreviewDef, id: number) => {
+export const setApplication = createStandardAction('SET_APPLICATION').map((preview: LyraApplicationPreviewDef, id: number) => {
   const previewCopy = Object.assign({}, preview);
   delete previewCopy.ref;
   return {

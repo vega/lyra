@@ -5,9 +5,9 @@ import {Map} from 'immutable';
 import {WG_DEFAULT} from './InteractionWidget';
 import {State} from '../../store';
 import {InteractionRecord} from '../../store/factory/Interaction';
-import {setSelection, setMapping} from '../../actions/interactionActions';
+import {setSelection, setApplication} from '../../actions/interactionActions';
 import {LyraSelectionPreviewDef} from './InteractionPreviewController';
-import {widgetMappingPreviewDefs} from '../../ctrl/demonstrations';
+import {widgetApplicationPreviewDefs} from '../../ctrl/demonstrations';
 import exportName from '../../util/exportName';
 import {MarkRecord} from '../../store/factory/Mark';
 import {GroupRecord} from '../../store/factory/marks/Group';
@@ -52,7 +52,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
       dispatch(setSelection(def, id));
     },
     setMapping: (def: any, id: number) => {
-      dispatch(setMapping(def, id));
+      dispatch(setApplication(def, id));
     },
   };
 }
@@ -94,7 +94,7 @@ class WidgetPanel extends React.Component<StateProps & DispatchProps & OwnProps,
 
   public handleComparatorChange = (comp) => {
     if (comp!=this.state.comp) {
-      const defs= widgetMappingPreviewDefs(this.props.name, this.state.groupName, comp);
+      const defs= widgetApplicationPreviewDefs(this.props.name, this.state.groupName, comp);
       const def = defs.filter(d => d.id == this.props.interaction.mappingDef.id);
       this.props.setMapping(def[0], this.props.id);
       this.setState({comp});
@@ -103,7 +103,7 @@ class WidgetPanel extends React.Component<StateProps & DispatchProps & OwnProps,
 
   public handleGroupChange = (groupName) => {
     if (groupName!=this.state.groupName) {
-      const defs= widgetMappingPreviewDefs(this.props.name, groupName, this.state.comp);
+      const defs= widgetApplicationPreviewDefs(this.props.name, groupName, this.state.comp);
       const def = defs.filter(d => d.id == this.props.interaction.mappingDef.id);
       this.props.setMapping(def[0], this.props.id);
       this.setState({groupName});

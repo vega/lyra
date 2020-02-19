@@ -8,11 +8,11 @@ import {ColumnRecord} from '../../store/factory/Dataset';
 import {Dispatch} from 'redux';
 import {Interaction} from '../../store/factory/Interaction';
 import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
-import {addInteraction, setSelection, setMapping} from '../../actions/interactionActions';
+import {addInteraction, setSelection, setApplication} from '../../actions/interactionActions';
 import {QUANTITATIVE} from 'vega-lite/build/src/type';
 import WidgetPanel from './WidgetPanel';
 import exportName from '../../util/exportName';
-import {widgetMappingPreviewDefs, getScaleInfoForGroup} from '../../ctrl/demonstrations';
+import {widgetApplicationPreviewDefs, getScaleInfoForGroup} from '../../ctrl/demonstrations';
 import {NOMINAL} from 'vega-lite/src/type';
 
 const dsUtil = require('../../util/dataset-utils');
@@ -72,7 +72,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
       dispatch(setSelection(def, id));
     },
     setMapping: (def: any, id: number) => {
-      dispatch(setMapping(def, id));
+      dispatch(setApplication(def, id));
     },
   };
 }
@@ -133,7 +133,7 @@ class InteractionWidget extends React.Component<StateProps & DispatchProps, OwnS
         field: fieldDefn.name,
         signals: generateSignals(fieldDefn, dsId),
       }, interactionId)
-      const defs= widgetMappingPreviewDefs(fieldDefn.name, this.props.groupName, '<=');
+      const defs= widgetApplicationPreviewDefs(fieldDefn.name, this.props.groupName, '<=');
       this.props.setMapping(defs[1], interactionId);
     }
   };
