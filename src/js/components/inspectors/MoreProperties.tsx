@@ -12,8 +12,9 @@ interface MorePropsState {
 }
 class BaseMoreProperties extends React.Component<MorePropsProps, MorePropsState> {
 
-  public getInitialState() {
-    return {display: 'none'};
+  constructor(props) {
+    super(props);
+    this.state = {display: 'none'};
   };
 
   public toggle(old) {
