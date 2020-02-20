@@ -11,7 +11,7 @@ export interface LyraInteraction {
   name: string;
   groupId: number;
   selectionDef: LyraSelectionPreviewDef;
-  mappingDef: LyraApplicationPreviewDef;
+  applicationDef: LyraApplicationPreviewDef;
   markPropertyValues: PropertyValues;
 };
 
@@ -20,7 +20,7 @@ export const Interaction = Record<LyraInteraction>({
   name: null,
   groupId: null,
   selectionDef: null,
-  mappingDef: null,
+  applicationDef: null,
   markPropertyValues: {size: 10, opacity: 0.2, color: '#666666'}
 }, 'LyraInteraction');
 

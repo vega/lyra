@@ -36,9 +36,9 @@ export function demonstrationDatasets(sceneSpec, state: State) {
   // check for interactions that define transforms and apply them
   const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
   interactionState.filter((interaction) => {
-    return interaction.mappingDef && interaction.mappingDef.id.indexOf('filter') === 0 && interaction.mappingDef.datasetProperties;
+    return interaction.applicationDef && interaction.applicationDef.id.indexOf('filter') === 0 && interaction.applicationDef.datasetProperties;
   }).forEach((interaction) => {
-    const datasetProps = interaction.mappingDef.datasetProperties;
+    const datasetProps = interaction.applicationDef.datasetProperties;
     const data = sceneSpec.data || (sceneSpec.data = []);
     sceneSpec.data = [...data, datasetProps];
   });

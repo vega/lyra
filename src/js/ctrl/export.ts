@@ -250,30 +250,30 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
       const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
       if (interactionState) {
         interactionState.forEach((interaction) => {
-          const selectionDef = interaction.get('selectionDef');
-          const mappingDef = interaction.get('mappingDef');
+          const selectionDef = interaction.selectionDef;
+          const applicationDef = interaction.applicationDef;
           if (interaction.get('groupId') === id) {
             if (selectionDef) {
               if(selectionDef.label!=='Widget') { group.signals = editSignals(group.signals, selectionDef.signals); }
               const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
-              if (mappingDef && mappingDef.groupName === group.name) {
-                if (isDemonstratingInterval && mappingDef.id === 'panzoom') {
-                  const mappingDefClone = Object.assign({}, mappingDef);
+              if (applicationDef && applicationDef.groupName === group.name) {
+                if (isDemonstratingInterval && applicationDef.id === 'panzoom') {
+                  const mappingDefClone = Object.assign({}, applicationDef);
                   if (selectionDef.id === 'brush_x') {
-                    mappingDefClone.scaleProperties = mappingDef.scaleProperties.filter(scale => scale._axis === 'x');
+                    mappingDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'x');
                   }
                   else if  (selectionDef.id === 'brush_y') {
-                    mappingDefClone.scaleProperties = mappingDef.scaleProperties.filter(scale => scale._axis === 'y');
+                    mappingDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'y');
                   }
                   console.log(mappingDefClone.scaleProperties);
                   group.scales = editScales(group.scales, mappingDefClone);
                 }
-                group.marks = editMarks(group.marks, mappingDef);
+                group.marks = editMarks(group.marks, applicationDef);
               }
             }
           }
-          else if (mappingDef && mappingDef.groupName === group.name) {
-            group.marks = editMarks(group.marks, mappingDef);
+          else if (applicationDef && applicationDef.groupName === group.name) {
+            group.marks = editMarks(group.marks, applicationDef);
           }
         });
       }

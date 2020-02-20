@@ -113,7 +113,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   if (!interactionRecordId) {
     const maybeUnfinishedSpecification = groupRecord.get('_interactions').filter(id => {
       const record: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(id)]);
-      return !Boolean(record.selectionDef && record.mappingDef);
+      return !Boolean(record.selectionDef && record.applicationDef);
     });
     if (maybeUnfinishedSpecification.length) {
       interactionRecordId = maybeUnfinishedSpecification[0];
@@ -376,7 +376,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   }
 
   private onClickApplicationPreview(preview) {
-    if (this.props.interactionRecord.mappingDef && this.props.interactionRecord.mappingDef.id === preview.id) {
+    if (this.props.interactionRecord.applicationDef && this.props.interactionRecord.applicationDef.id === preview.id) {
       this.props.setMapping(null, this.props.interactionRecord.id);
     }
     else {
@@ -425,7 +425,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
                 spec = editScalesForPreview(spec, this.props.groupName, preview);
               }
               return (
-                <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.mappingDef && this.props.interactionRecord.mappingDef.id === preview.id ? 'selected' : ''}>
+                <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.applicationDef && this.props.interactionRecord.applicationDef.id === preview.id ? 'selected' : ''}>
                   <div className="preview-label">{preview.label}</div>
                   <InteractionPreview ref={preview.ref}
                     id={`preview-${preview.id}`}

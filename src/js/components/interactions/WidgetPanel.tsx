@@ -95,7 +95,7 @@ class WidgetPanel extends React.Component<StateProps & DispatchProps & OwnProps,
   public handleComparatorChange = (comp) => {
     if (comp!=this.state.comp) {
       const defs= widgetApplicationPreviewDefs(this.props.name, this.state.groupName, comp);
-      const def = defs.filter(d => d.id == this.props.interaction.mappingDef.id);
+      const def = defs.filter(d => d.id == this.props.interaction.applicationDef.id);
       this.props.setMapping(def[0], this.props.id);
       this.setState({comp});
     }
@@ -104,7 +104,7 @@ class WidgetPanel extends React.Component<StateProps & DispatchProps & OwnProps,
   public handleGroupChange = (groupName) => {
     if (groupName!=this.state.groupName) {
       const defs= widgetApplicationPreviewDefs(this.props.name, groupName, this.state.comp);
-      const def = defs.filter(d => d.id == this.props.interaction.mappingDef.id);
+      const def = defs.filter(d => d.id == this.props.interaction.applicationDef.id);
       this.props.setMapping(def[0], this.props.id);
       this.setState({groupName});
     }

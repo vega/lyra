@@ -129,14 +129,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   public handleMapChange(value) {
     if(this.props.type == 'widget') {
       const fieldName = this.props.interaction.selectionDef.field;
-      const previousMappingDef = this.props.interaction.mappingDef;
+      const previousMappingDef = this.props.interaction.applicationDef;
       const defs = widgetApplicationPreviewDefs(fieldName, previousMappingDef.groupName, previousMappingDef.comparator);
       const def = defs.filter(e => e.id === value);
       this.props.setMapping(def[0], this.props.interaction.id);
     } else {
       const preview = this.props.mappingDefs.filter(e => e.id === value);
       if(preview.length) {
-        if (this.props.interaction.mappingDef && this.props.interaction.mappingDef.id === preview[0].id) {
+        if (this.props.interaction.applicationDef && this.props.interaction.applicationDef.id === preview[0].id) {
           this.props.setMapping(null, this.props.interaction.id);
         }
         else {
@@ -179,10 +179,10 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   public handlePropertyChange() {
-    if(!this.props.interaction.mappingDef) this.handleMapChange('color');
+    if(!this.props.interaction.applicationDef) this.handleMapChange('color');
     const {markPropertyValues} = this.props.interaction
-    const id = this.props.interaction.mappingDef.id;
-    const update = this.props.interaction.mappingDef.markProperties.encode.update;
+    const id = this.props.interaction.applicationDef.id;
+    const update = this.props.interaction.applicationDef.markProperties.encode.update;
     if(id == 'color' && update.fill[1].value != markPropertyValues.color) {
       this.props.setValueInMark({property: 'fill', value: markPropertyValues.color}, this.props.interaction.id);
     } else if (id == 'opacity' && update.fillOpacity[1].value != markPropertyValues.opacity) {
