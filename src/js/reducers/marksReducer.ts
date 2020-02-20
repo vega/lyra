@@ -4,6 +4,7 @@ import * as helperActions from '../actions/bindChannel/helperActions';
 import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as sceneActions from '../actions/sceneActions';
+import * as interactionActions from '../actions/interactionActions';
 import {MarkRecord, MarkState} from '../store/factory/Mark';
 import {SceneRecord} from '../store/factory/marks/Scene';
 import {convertValuesToSignals, propSg} from '../util/prop-signal';
@@ -152,6 +153,7 @@ export function marksReducer(
     | ActionType<typeof helperActions>
     | ActionType<typeof sceneActions.createScene>
     | ActionType<typeof guideActions.deleteGuide>
+    | ActionType<typeof interactionActions.deleteInteraction>
 ): MarkState {
   if (typeof state === 'undefined') {
     return Map();
@@ -243,11 +245,15 @@ export function marksReducer(
     return ensureValuePresentImmutable(state, [String(groupId), '_interactions'], action.payload);
   }
 
-  const guideId = action.meta;
+  const id = action.meta;
 
   if (action.type === getType(guideActions.deleteGuide)) {
-    state = ensureValueAbsent(state, [String(action.payload.groupId), 'axes'], guideId);
-    return ensureValueAbsent(state, [String(action.payload.groupId), 'legends'], guideId);
+    state = ensureValueAbsent(state, [String(action.payload.groupId), 'axes'], id);
+    return ensureValueAbsent(state, [String(action.payload.groupId), 'legends'], id);
+  }
+
+  if (action.type === getType(interactionActions.deleteInteraction)) {
+    return ensureValueAbsent(state, [String(action.payload.groupId), '_interactions'], id);
   }
 
   return state;

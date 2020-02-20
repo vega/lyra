@@ -41,4 +41,4 @@ export const setMarkPropertyValue = createStandardAction('SET_MARK_PROPERTY_VALU
     payload, meta: id
   }
 });
-export const deleteInteraction = createStandardAction('DELETE_INTERACTION')<null, number>(); // id
+export const deleteInteraction = createStandardAction('DELETE_INTERACTION')<{groupId: number}, number>(); // id

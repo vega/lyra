@@ -25,6 +25,11 @@
   text-align: center;
   border-top: 1px solid $lgrey-bg;
 
+  .interaction-list__group > h5 {
+    margin: 0 $outer-padding $outer-padding $outer-padding;
+    text-align: left;
+  }
+
   h2 {
     color: $grey-font;
   }
