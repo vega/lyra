@@ -903,26 +903,6 @@ export function selectionPreviewDefs(isDemonstratingInterval: boolean,
   return defs;
 }
 
-export function signalsForProjection(projectionField: string) {
-  return [
-    {
-      "name": "points_tuple",
-      "on": [
-        {
-          "events": [{"source": "scope", "type": "click"}],
-          "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)[\"${projectionField}\"]]} : null`,
-          "force": true
-        },
-        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-      ]
-    },
-    {
-      "name": "points_tuple_fields",
-      "value": [{"type": "E", "field": projectionField}]
-    },
-  ]
-}
-
 export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraApplicationPreviewDef) {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
