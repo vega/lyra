@@ -1,6 +1,8 @@
 import {Map, Record, RecordOf} from 'immutable';
 import InteractionPreview from '../../components/interactions/InteractionPreview';
 import {Signal} from 'vega';
+import {ScaleInfo} from '../../components/interactions/InteractionPreviewController';
+import {ScaleSimpleType} from '../../ctrl/demonstrations';
 
 export interface PropertyValues {
   size: number,
@@ -11,61 +13,68 @@ export interface LyraInteraction {
   id: number;
   name: string;
   groupId: number;
-  selectionDef: LyraSelectionDef;
-  applicationDef: LyraApplicationDef;
+  groupName: string;
+  selection: LyraSelection;
+  application: LyraApplication;
   markPropertyValues: PropertyValues;
 };
 
-interface BaseLyraInteractionDef {
+export interface ScaleInfo {
+  xScaleName: string;
+  yScaleName: string;
+  xFieldName: string;
+  yFieldName: string;
+  xScaleType: ScaleSimpleType;
+  yScaleType: ScaleSimpleType;
+
+}
+
+interface LyraInteractionPreview {
   id: string;
   label: string;
   ref?: React.RefObject<InteractionPreview>;
 }
 
-interface BaseLyraSelectionDef {
-  signals: Signal[];
-}
+export type LyraPointSelection = {
+  // type: 'point';
+  field: string;
 
-export type LyraPointSelectionDef = {
-  type: 'point';
+} & LyraInteractionPreview;
 
-} & BaseLyraSelectionDef & BaseLyraInteractionDef;
+export type LyraIntervalSelection = {
+  // type: 'interval';
+  field: 'x' | 'y' | 'xy';
+} & LyraInteractionPreview;
 
-export type LyraIntervalSelectionDef = {
-  type: 'interval';
-} & BaseLyraSelectionDef & BaseLyraInteractionDef;
+export type LyraSelection = LyraPointSelection | LyraIntervalSelection;
 
-export type LyraSelectionDef = LyraPointSelectionDef | LyraIntervalSelectionDef;
+export type LyraMarkApplication = {
+  // type: 'mark';
+  targetMarkName: string; // which mark does this application affect?
+  isDemonstratingInterval: boolean; // true for interval, false for point
+} & LyraInteractionPreview;
 
-interface BaseLyraApplicationDef {
-  groupName: string; // which group does this application affect? (for filters, different from the group it's attached to)
-}
+export type LyraScaleApplication = {
+  // type: 'scale';
+  scaleInfo: ScaleInfo;
+} & LyraInteractionPreview;
 
-export type LyraMarkApplicationDef = {
-  type: 'mark';
-  markName: string; // which mark does this application affect?
-  markProperties: any; // partial mark spec object
-} & BaseLyraApplicationDef & BaseLyraInteractionDef;
+export type LyraTransformApplication = {
+  // type: 'transform';
+  targetGroupName: string; // which group does this application affect? (e.g. for filters, different from parent group)
+  newDatasetName: string;
+  isDemonstratingInterval: boolean; // true for interval, false for point
+} & LyraInteractionPreview;
 
-export type LyraScaleApplicationDef = {
-  type: 'scale';
-  scaleProperties: any[]; // list of partial scale objects
-} & BaseLyraApplicationDef & BaseLyraInteractionDef;
-
-export type LyraTransformApplicationDef = {
-  type: 'transform';
-  markProperties: any; // partial mark object,
-  datasetProperties: any; // partial dataset object
-} & BaseLyraApplicationDef & BaseLyraInteractionDef;
-
-export type LyraApplicationDef = LyraMarkApplicationDef | LyraScaleApplicationDef | LyraTransformApplicationDef;
+export type LyraApplication = LyraMarkApplication | LyraScaleApplication | LyraTransformApplication;
 
 export const Interaction = Record<LyraInteraction>({
   id: null,
   name: null,
   groupId: null,
-  selectionDef: null,
-  applicationDef: null,
+  groupName: null,
+  selection: null,
+  application: null,
   markPropertyValues: {size: 10, opacity: 0.2, color: '#666666'}
 }, 'LyraInteraction');
 
