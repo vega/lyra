@@ -21,12 +21,12 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
 
   if (action.type === getType(interactionActions.setApplication)) {
     const t = action.payload;
-    return state.setIn([String(id), 'mappingDef'], t);
+    return state.setIn([String(id), 'applicationDef'], t);
   }
 
   if (action.type === getType(interactionActions.setValueInMark)) {
     const {property, value} = action.payload;
-    return state.setIn([String(id), 'mappingDef', 'markProperties', 'encode', 'update', property, 1, 'value'], value);
+    return state.setIn([String(id), 'applicationDef', 'markProperties', 'encode', 'update', property, 1, 'value'], value);
   }
 
   if (action.type === getType(interactionActions.setMarkPropertyValue)) {

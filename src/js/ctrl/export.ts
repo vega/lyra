@@ -258,15 +258,15 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
               const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
               if (applicationDef && applicationDef.groupName === group.name) {
                 if (isDemonstratingInterval && applicationDef.id === 'panzoom') {
-                  const mappingDefClone = Object.assign({}, applicationDef);
+                  const applicationDefClone = Object.assign({}, applicationDef);
                   if (selectionDef.id === 'brush_x') {
-                    mappingDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'x');
+                    applicationDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'x');
                   }
                   else if  (selectionDef.id === 'brush_y') {
-                    mappingDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'y');
+                    applicationDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'y');
                   }
-                  console.log(mappingDefClone.scaleProperties);
-                  group.scales = editScales(group.scales, mappingDefClone);
+                  console.log(applicationDefClone.scaleProperties);
+                  group.scales = editScales(group.scales, applicationDefClone);
                 }
                 group.marks = editMarks(group.marks, applicationDef);
               }

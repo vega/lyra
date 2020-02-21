@@ -46,7 +46,7 @@ export interface ScaleInfo {
 interface DispatchProps {
   addInteraction: (groupId: number) => number; // return id of newly created interaction
   setSelection: (def: any, id: number) => void;
-  setMapping: (def: any, id: number) => void;
+  setApplication: (def: any, id: number) => void;
   selectInteraction: (id: number) => void;
 }
 
@@ -146,7 +146,8 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
     setSelection: (def: any, id: number) => {
       dispatch(setSelection(def, id));
     },
-    setMapping: (def: any, id: number) => {
+    setApplication: (def: any, id: number) => {
+      console.log(def, id);
       dispatch(setApplication(def, id));
     },
     selectInteraction: (id: number) => {
@@ -377,13 +378,13 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
   private onClickApplicationPreview(preview) {
     if (this.props.interactionRecord.applicationDef && this.props.interactionRecord.applicationDef.id === preview.id) {
-      this.props.setMapping(null, this.props.interactionRecord.id);
+      this.props.setApplication(null, this.props.interactionRecord.id);
     }
     else {
       if (!this.props.interactionRecord.selectionDef) {
         this.props.setSelection(this.state.selectionPreviews[0], this.props.interactionRecord.id);
       }
-      this.props.setMapping(preview, this.props.interactionRecord.id);
+      this.props.setApplication(preview, this.props.interactionRecord.id);
     }
   }
 
@@ -419,7 +420,9 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
               const selectedInteractionSignals = [].concat.apply([], this.state.selectionPreviews.filter((def) => {
                 return this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === def.id;
               }).map((def) => def.signals));
-              let spec = editSignalsForPreview(this.state.spec, this.props.groupName, selectedInteractionSignals);
+              let spec = cleanSpecForPreview(ctrl.export(false, true), preview.groupName);
+              spec = editSignalsForPreview(spec, this.props.groupName, selectedInteractionSignals);
+              spec = editSignalsForPreview(spec, preview.groupName, []);
               spec = editMarksForPreview(spec, this.props.groupName, preview);
               if (preview.id === 'panzoom') {
                 spec = editScalesForPreview(spec, this.props.groupName, preview);

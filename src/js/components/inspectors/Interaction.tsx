@@ -36,7 +36,7 @@ interface DispatchProps {
 
 interface StateProps {
   interaction: InteractionRecord;
-  mappingDefs: LyraApplicationPreviewDef[];
+  applicationDefs: LyraApplicationPreviewDef[];
   selectionDefs: LyraSelectionPreviewDef[];
   mappingOptions: string[];
   selectionOptions: string[];
@@ -65,8 +65,8 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   }).filter((mark) => {
     return !(mark.type === 'group' || mark.name.indexOf('lyra') === 0);
   });
-  const mappingDefs =  applicationPreviewDefs(isInterval, marksOfGroup, scaleInfo, exportName(groupRecord.name), ctrl.export());
-  const mappingOptions = mappingDefs.map(e => e.id);
+  const applicationDefs =  applicationPreviewDefs(isInterval, marksOfGroup, scaleInfo, exportName(groupRecord.name), ctrl.export());
+  const applicationOptions = applicationDefs.map(e => e.id);
   const selectionDefs = selectionPreviewDefs(true, true, marksOfGroup, scaleInfo, field);
   const selectionOptions = selectionDefs.map(e => e.id);
 
@@ -77,8 +77,8 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
   return {
     interaction,
-    mappingDefs,
-    mappingOptions,
+    applicationDefs: applicationDefs,
+    mappingOptions: applicationOptions,
     selectionDefs,
     selectionOptions,
     fields,
@@ -116,7 +116,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       color: '#666666',
       opacity: 0.2
     }
-    this.handleMapChange = this.handleMapChange.bind(this);
+    this.handleApplicationChange = this.handleApplicationChange.bind(this);
     this.handleSelectionChange = this.handleSelectionChange.bind(this);
     this.handlePropertyChangeThrottled = throttle(500, this.handlePropertyChange);
   }
@@ -126,15 +126,15 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   //   this.props.initSignal(name, 100);
   // }
 
-  public handleMapChange(value) {
+  public handleApplicationChange(value) {
     if(this.props.type == 'widget') {
       const fieldName = this.props.interaction.selectionDef.field;
-      const previousMappingDef = this.props.interaction.applicationDef;
-      const defs = widgetApplicationPreviewDefs(fieldName, previousMappingDef.groupName, previousMappingDef.comparator);
+      const previousApplicationDef = this.props.interaction.applicationDef;
+      const defs = widgetApplicationPreviewDefs(fieldName, previousApplicationDef.groupName, previousApplicationDef.comparator);
       const def = defs.filter(e => e.id === value);
       this.props.setMapping(def[0], this.props.interaction.id);
     } else {
-      const preview = this.props.mappingDefs.filter(e => e.id === value);
+      const preview = this.props.applicationDefs.filter(e => e.id === value);
       if(preview.length) {
         if (this.props.interaction.applicationDef && this.props.interaction.applicationDef.id === preview[0].id) {
           this.props.setMapping(null, this.props.interaction.id);
@@ -179,7 +179,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   public handlePropertyChange() {
-    if(!this.props.interaction.applicationDef) this.handleMapChange('color');
+    if(!this.props.interaction.applicationDef) this.handleApplicationChange('color');
     const {markPropertyValues} = this.props.interaction
     const id = this.props.interaction.applicationDef.id;
     const update = this.props.interaction.applicationDef.markProperties.encode.update;
@@ -219,8 +219,8 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
     const props = this.props;
     const interaction = this.props.interaction;
-    const selectionDef = interaction.get('selectionDef');
-    const mappingDef = interaction.get('mappingDef');
+    const selectionDef = interaction.selectionDef;
+    const applicationDef = interaction.applicationDef;
     const markPropertyValues = interaction.get('markPropertyValues');
     return (
       <div>
@@ -229,7 +229,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
           <ul>
             <li>Name: {interaction.get('name')}</li>
             <li>Selection: {selectionDef ? selectionDef.label : ''}</li>
-            <li>Mapping: {mappingDef ? mappingDef.label : ''}</li>
+            <li>Mapping: {applicationDef ? applicationDef.label : ''}</li>
           </ul>
         </div>
 
@@ -246,7 +246,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
           <ul>
           Channel :
-          <select value={mappingDef ? mappingDef.id : ''} onChange={e => this.handleMapChange(e.target.value)}>
+          <select value={applicationDef ? applicationDef.id : ''} onChange={e => this.handleApplicationChange(e.target.value)}>
             {mapOptions}
           </select>
           </ul>
@@ -263,7 +263,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
           </ul>
         </div>
 
-        <div className={mappingDef && mappingDef.id=='size' ? '':'hidden'}>
+        <div className={applicationDef && applicationDef.id=='size' ? '':'hidden'}>
           Size:
           <FormInputProperty
             name='size'
@@ -278,7 +278,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
           <br />
         </div>
 
-        <div className={mappingDef && mappingDef.id == 'color' ? '' : 'hidden'}>
+        <div className={applicationDef && applicationDef.id == 'color' ? '' : 'hidden'}>
           Color:
           <FormInputProperty
             name='color'
@@ -291,7 +291,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
           <br />
         </div>
 
-        <div className={mappingDef && mappingDef.id == 'opacity' ? '' : 'hidden'}>
+        <div className={applicationDef && applicationDef.id == 'opacity' ? '' : 'hidden'}>
           Opacity:
           <FormInputProperty
             name='opacity'

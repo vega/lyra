@@ -683,7 +683,8 @@ function scaleTypeSimple(scaleType): ScaleSimpleType {
 export function cleanSpecForPreview(sceneSpec, groupName) {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.marks = sceneUpdated.marks.filter(markSpec => {
-    return markSpec.name && markSpec.type === 'group' ? markSpec.name === groupName : true; // remove top-level groups (views) other than the relevant one
+    // return markSpec.name && markSpec.type === 'group' ? markSpec.name === groupName : true; // remove top-level groups (views) other than the relevant one
+    return true;
   }).map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
       markSpec.axes = markSpec.axes.map((axis) => {
@@ -699,6 +700,12 @@ export function cleanSpecForPreview(sceneSpec, groupName) {
         markSpec.marks[0].type === 'symbol' &&
         markSpec.marks[0].encode.update.size.value) {
         markSpec.marks[0].encode.update.size = {"value": "10"};
+      }
+
+      if (markSpec.name !== groupName) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
+        markSpec.clip = true;
+        markSpec.encode.update.x = {"value": -999};
+        markSpec.encode.update.y = {"value": -999};
       }
     }
     return markSpec;
@@ -925,6 +932,11 @@ export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraA
         preview.markProperties.encode.update.size[1].value /= 5;
       }
       if (preview.id.indexOf('filter') >= 0) {
+        /// this is redundant with demonstrationDatasets ARGGHHHH
+        // check for interactions that define transforms and apply them
+        const datasetProps = preview.datasetProperties;
+        const data = sceneUpdated.data || (sceneUpdated.data = []);
+        sceneUpdated.data = [...data, datasetProps];
         return markSpec; // TODO don't leave this!!! this is bc i dont know what to do about previews for now
       }
       markSpec.marks = editMarks(markSpec.marks, preview);
