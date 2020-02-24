@@ -1,12 +1,15 @@
 import * as React from 'react';
 import {View, parse, Spec} from 'vega';
+import {ApplicationRecord, SelectionRecord} from '../../store/factory/Interaction';
+import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview} from '../../ctrl/demonstrations';
 
 const listeners = require('../../ctrl/listeners');
+const ctrl = require('../../ctrl');
 
 interface OwnProps {
   id: string,
   groupName: string, // name of group mark (view) this preview is attached to,
-  spec: Spec,
+  preview: SelectionRecord | ApplicationRecord,
   onClick: () => void
 }
 interface OwnState {
@@ -18,10 +21,33 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     super(props);
   }
 
+  private previewToSpec(preview: SelectionRecord | ApplicationRecord): Spec {
+    // const spec = ctrl.export(false, true);
+    const spec = cleanSpecForPreview(ctrl.export(false, true), this.props.groupName);
+
+    // switch (preview.type) {
+    //   case 'point':
+    //   case 'interval':
+    //     const lol = addSelectionToScene(spec, this.props.groupName, preview as SelectionRecord);;
+    //     return lol
+    //   case 'mark':
+    //   case 'scale':
+    //   case 'transform':
+    //     const lel = addApplicationToScene(spec, this.props.groupName, preview as ApplicationRecord);
+    //     return lel
+    // }
+    // console.warn('expected switch to be exhaustive');
+    return spec;
+  }
+
   private view;
 
   public componentDidMount() {
-    this.view = new View(parse(this.props.spec), {
+    const spec = this.previewToSpec(this.props.preview);
+
+    // console.log(this.props.id, spec);
+
+    this.view = new View(parse(spec), {
       renderer:  'svg',  // renderer (canvas or svg)
       container: `#${this.props.groupName}-${this.props.id}`   // parent DOM container
     });

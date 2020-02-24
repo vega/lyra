@@ -1,15 +1,264 @@
-import {GroupMark, Mark} from "vega";
-import {GuideRecord} from "../store/factory/Guide";
+import {GroupMark, Mark, Spec} from "vega";
 import {Map} from 'immutable';
-import {ScaleRecord} from "../store/factory/Scale";
+import {ScaleRecord, LyraScale} from "../store/factory/Scale";
 import {State} from "../store";
-import {LyraSelectionPreviewDef, LyraApplicationPreviewDef, ScaleInfo} from "../components/interactions/InteractionPreviewController";
 import duplicate from "../util/duplicate";
 import {LyraMarkType, MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
-import exportName from "../util/exportName";
-import {InteractionRecord} from "../store/factory/Interaction";
+import {InteractionRecord, ScaleInfo, LyraMarkApplication, LyraScaleApplication, LyraTransformApplication, LyraPointSelection, ApplicationRecord, SelectionRecord, PointSelectionRecord, MarkApplicationRecord, ScaleApplicationRecord, TransformApplicationRecord, IntervalSelectionRecord} from "../store/factory/Interaction";
 import {WG_DEFAULT} from "../components/interactions/InteractionWidget";
+
+export function addSelectionToScene(sceneSpec: Spec, groupName: string, selection: SelectionRecord): Spec {
+  switch (selection.type) {
+    case 'point':
+        selection = selection as PointSelectionRecord;
+        const field = selection.field;
+        switch (selection.ptype) {
+          case 'single':
+            return applySignals(sceneSpec, groupName, [{
+              "name": "points_tuple",
+              "on": [
+                {
+                  "events": [{"source": "scope", "type": "click"}],
+                  "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
+                  "force": true
+                },
+                {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+                ]},
+                {
+                  "name": "points_tuple_fields",
+                  "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
+            }]);
+          case 'multi':
+            return applySignals(sceneSpec, groupName, [{
+              "name": "points_tuple",
+              "on": [{
+                  "events": [{"source": "scope", "type": "click"}],
+                  "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
+                  "force": true
+                },
+                {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+                ]
+              },
+              {
+                "name": "points_tuple_fields",
+                "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
+              },
+              {
+                "name": "points_toggle",
+                "value": false,
+                "on": [{
+                    "events": [{"source": "scope", "type": "click"}],
+                    "update": "event.shiftKey"
+                  },
+                  {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
+              ]}
+            ]);
+        }
+      break;
+    case 'interval':
+        selection = selection as IntervalSelectionRecord;
+        switch (selection.field) {
+          case 'x':
+            return applySignals(sceneSpec, groupName, [{
+              name: "lyra_brush_is_x_encoding",
+              init: "true"
+            }]);
+          case 'y':
+            return applySignals(sceneSpec, groupName, [{
+              name: "lyra_brush_is_y_encoding",
+              init: "true"
+            }]);
+          default:
+            return sceneSpec;
+        }
+  }
+}
+
+export function addApplicationToScene(sceneSpec: Spec, groupName: string, application: ApplicationRecord): Spec {
+  let isDemonstratingInterval;
+  let targetMarkName;
+  switch (application.type) {
+    case 'mark':
+      application = application as MarkApplicationRecord;
+      targetMarkName = application.targetMarkName;
+      isDemonstratingInterval = application.isDemonstratingInterval;
+      const defaultValue = application.defaultValue;
+      return applyMarkProperties(sceneSpec, groupName, targetMarkName, {
+        "encode": {
+          "update": {
+            "fill": [
+              {
+                "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+                                                  `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
+                "value": "orange" // right now, we expect this to be overwritten with the mark's value
+              },
+              {"value": defaultValue}
+            ],
+          }
+        }
+      });
+    case 'scale':
+      application = application as ScaleApplicationRecord;
+      const scaleInfo = application.scaleInfo;
+      sceneSpec = removeBrushMark(sceneSpec, groupName);
+      sceneSpec = clipGroup(sceneSpec, groupName);
+      return applyScaleProperties(sceneSpec, groupName, [
+        {
+          "_axis": "x",
+          "name": scaleInfo.xScaleName,
+          "domainRaw": {"signal": `grid["${scaleInfo.xFieldName}"]`},
+          "zero": false
+        },
+        {
+          "_axis": "y",
+          "name": scaleInfo.yScaleName,
+          "domainRaw": {"signal": `grid["${scaleInfo.yFieldName}"]`},
+          "zero": false
+        }
+      ]);
+    case 'transform':
+      application = application as TransformApplicationRecord;
+      const datasetName = application.datasetName;
+      const targetGroupName = application.targetGroupName;
+      targetMarkName = application.targetMarkName;
+      isDemonstratingInterval = application.isDemonstratingInterval;
+
+      const newDatasetName = datasetName + "_filter_" + targetGroupName;
+
+      sceneSpec = applyMarkProperties(sceneSpec, groupName, targetMarkName, {
+        "from": {
+          "data": newDatasetName
+        }
+      });
+
+      const {source, transform} = collectTransforms(sceneSpec, datasetName, []);
+
+      sceneSpec = applyDatasetProperties(sceneSpec, {
+        "name": newDatasetName,
+        "source": source,
+        "transform": [{
+          "type": "filter",
+          "expr": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+          `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
+        }, ...transform]
+      });
+
+      return sceneSpec;
+  }
+}
+
+function applySignals(sceneSpec, groupName: string, signals: any[]): Spec {
+  const sceneUpdated = duplicate(sceneSpec);
+  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      markSpec.signals = editSignals(markSpec.signals, signals);
+    }
+    return markSpec;
+  });
+  return sceneUpdated;
+}
+
+function applyMarkProperties(sceneSpec, groupName: string, markName: string, markProperties: any): Spec {
+  sceneSpec = duplicate(sceneSpec);
+  sceneSpec.marks = sceneSpec.marks.map(markSpec => {
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      // TODO (jzong) add back a way to scale stuff down for preview
+      // if (preview.markProperties.encode && preview.markProperties.encode.update && preview.markProperties.encode.update.size) {
+      //   // make symbol previews look nicer
+      //   preview.markProperties.encode.update.size[1].value /= 5;
+      // }
+      markSpec.marks = markSpec.marks.map(mark => {
+        if (mark.type === 'group' || mark.name.indexOf('lyra') === 0) return mark;
+        if (mark.name === markName) {
+          for (let [key, value] of Object.entries(markProperties)) {
+            if (key !== 'encode') {
+              mark[key] = value;
+            }
+          }
+          if (markProperties.encode && markProperties.encode.update) {
+            for (let [key, value] of Object.entries(markProperties.encode.update)) {
+              const oldValue = mark.encode.update[key];
+              if (oldValue.value || oldValue.signal || oldValue.field) {
+                delete value[0].value;
+                value[0] = {...value[0], ...oldValue};
+              } else if (Array.isArray(oldValue) && oldValue[0].test && !value[0].test.includes(oldValue[0].test)) {
+                value[0].test = value[0].test + ' && ' + oldValue[0].test;
+                value[0].value = oldValue[0].value;
+              }
+              mark.encode.update[key] = value;
+            }
+          }
+        }
+        return mark;
+      });
+    }
+    return markSpec;
+  });
+  return sceneSpec;
+}
+
+function removeBrushMark(sceneSpec, groupName: string): Spec {
+  sceneSpec = duplicate(sceneSpec);
+  sceneSpec.marks = sceneSpec.marks.map(markSpec => {
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      markSpec.marks = markSpec.marks.filter(mark => !(mark.name && mark.name.indexOf('lyra') === 0));
+    }
+    return markSpec;
+  });
+  return sceneSpec;
+}
+
+function clipGroup(sceneSpec, groupName: string): Spec {
+  sceneSpec = duplicate(sceneSpec);
+  sceneSpec.marks = sceneSpec.marks.map(markSpec => {
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      markSpec.clip = {"value": true};
+    }
+    return markSpec;
+  });
+  return sceneSpec;
+}
+
+function applyScaleProperties(sceneSpec, groupName: string, scaleProperties: any): Spec {
+  sceneSpec = duplicate(sceneSpec);
+  sceneSpec.marks = sceneSpec.marks.map(markSpec => {
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      markSpec.scales.forEach(scale => {
+        scaleProperties.forEach(scaleProps => {
+          if (scale.name === scaleProps.name) {
+            for (let [key, value] of Object.entries(scaleProps)) {
+              if (key === '_axis') continue;
+              scale[key] = value;
+            }
+          }
+        });
+      });
+    }
+    return markSpec;
+  });
+  return sceneSpec;
+}
+
+function collectTransforms(sceneSpec, datasetName: string, transforms: any[]): {source: string, transform: any[]} {
+  const dataset = sceneSpec.data.filter(data => data.name === datasetName)[0];
+  const currentTransforms = transforms.concat(dataset.transform);
+  const currentTransformsToString = currentTransforms.map(x => JSON.stringify(x));
+  const uniqueTransforms = currentTransforms.filter((transform, idx) => {
+    return currentTransformsToString.indexOf(JSON.stringify(transform)) === idx;
+  });
+  if (dataset.source) {
+    return collectTransforms(sceneSpec, dataset.source, uniqueTransforms);
+  }
+  return {source: datasetName, transform: uniqueTransforms};
+}
+
+function applyDatasetProperties(sceneSpec, datasetProperties): Spec {
+  sceneSpec = duplicate(sceneSpec);
+  const data = sceneSpec.data || (sceneSpec.data = []);
+  sceneSpec.data = [...data, datasetProperties];
+  return sceneSpec;
+}
 
 function conditionalHelpersForScales(scaleInfo: ScaleInfo) {
   const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
@@ -20,7 +269,7 @@ function conditionalHelpersForScales(scaleInfo: ScaleInfo) {
   }
 }
 
-export function demonstrationDatasets(sceneSpec, state: State) {
+export function demonstrationDatasets(sceneSpec) {
   // add stores for interactions
   sceneSpec.marks.forEach(markSpec => {
     if (markSpec.name && markSpec.type === 'group') {
@@ -34,14 +283,14 @@ export function demonstrationDatasets(sceneSpec, state: State) {
     }
   });
   // check for interactions that define transforms and apply them
-  const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
-  interactionState.filter((interaction) => {
-    return interaction.applicationDef && interaction.applicationDef.id.indexOf('filter') === 0 && interaction.applicationDef.datasetProperties;
-  }).forEach((interaction) => {
-    const datasetProps = interaction.applicationDef.datasetProperties;
-    const data = sceneSpec.data || (sceneSpec.data = []);
-    sceneSpec.data = [...data, datasetProps];
-  });
+  // const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
+  // interactionState.filter((interaction) => {
+  //   return interaction.application && interaction.application.id.indexOf('filter') === 0 && interaction.application.datasetProperties;
+  // }).forEach((interaction) => {
+  //   const datasetProps = interaction.application.datasetProperties;
+  //   const data = sceneSpec.data || (sceneSpec.data = []);
+  //   sceneSpec.data = [...data, datasetProps];
+  // });
 }
 
 export function demonstrations(groupSpec, groupId: number, state: State) {
@@ -680,7 +929,7 @@ function scaleTypeSimple(scaleType): ScaleSimpleType {
   }
 }
 
-export function cleanSpecForPreview(sceneSpec, groupName) {
+export function cleanSpecForPreview(sceneSpec, groupName): Spec {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.marks = sceneUpdated.marks.filter(markSpec => {
     // return markSpec.name && markSpec.type === 'group' ? markSpec.name === groupName : true; // remove top-level groups (views) other than the relevant one
@@ -688,7 +937,7 @@ export function cleanSpecForPreview(sceneSpec, groupName) {
   }).map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
       markSpec.axes = markSpec.axes.map((axis) => {
-        return {...axis, title: '', labels: false};
+        return {...axis, title: '', labels: false, ticks: false, domain: false};
       });
       markSpec.legends = [];
       markSpec.encode.update.x = {"value": 0};
@@ -702,16 +951,29 @@ export function cleanSpecForPreview(sceneSpec, groupName) {
         markSpec.marks[0].encode.update.size = {"value": "10"};
       }
 
-      if (markSpec.name !== groupName) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
-        markSpec.clip = true;
-        markSpec.encode.update.x = {"value": -999};
-        markSpec.encode.update.y = {"value": -999};
-      }
+      // if (markSpec.name !== groupName) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
+      //   markSpec.clip = true;
+      //   markSpec.encode.update.x = {"value": -999};
+      //   markSpec.encode.update.y = {"value": -999};
+      // }
+    }
+    return markSpec;
+  });
+
+  return addBaseSignalsForPreview(sceneUpdated, groupName);
+}
+
+function addBaseSignalsForPreview(sceneSpec, groupName) {
+  const sceneUpdated = duplicate(sceneSpec);
+  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      markSpec.signals = editSignals(markSpec.signals, baseSignals);
     }
     return markSpec;
   });
   return sceneUpdated;
 }
+
 
 export function editSignalsForPreview(sceneSpec, groupName, signals) {
   const sceneUpdated = duplicate(sceneSpec);
@@ -781,418 +1043,418 @@ const baseSignals = [
   },
 ];
 
-export function selectionPreviewDefs(isDemonstratingInterval: boolean,
-                                       isDemonstratingPoint: boolean,
-                                       marks?: any[],
-                                       scaleInfo?: ScaleInfo,
-                                       field?: string): LyraSelectionPreviewDef[] {
-  let defs = [];
-  const optionalParams = Boolean(marks && scaleInfo);
-  if (isDemonstratingInterval) {
-    const intervalDefs = {
-      brush: {
-        id: "brush",
-        label: "Brush",
-        signals: []
-      },
-      brush_y: {
-        id: "brush_y",
-        label: "Brush (y-axis)",
-        signals: [
-          {
-            name: "lyra_brush_is_y_encoding",
-            init: "true"
-          }
-        ]
-      },
-      brush_x: {
-        id: "brush_x",
-        label: "Brush (x-axis)",
-        signals: [
-          {
-            name: "lyra_brush_is_x_encoding",
-            init: "true"
-          }
-        ]
-      }
-    }
-    if (!optionalParams) {
-      defs = Object.values(intervalDefs);
-    }
-    else{
-      const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
-      if (markTypes.has('symbol')) {
-        if (scaleInfo.xScaleType && scaleInfo.yScaleType) defs.push(intervalDefs.brush);
-        if (scaleInfo.yScaleType) defs.push(intervalDefs.brush_y);
-        if (scaleInfo.xScaleType) defs.push(intervalDefs.brush_x);
-      }
-      if (markTypes.has('rect')) {
-        if (scaleInfo.xScaleType === ScaleSimpleType.DISCRETE) {
-          defs.push(intervalDefs.brush_x);
-        }
-        if (scaleInfo.yScaleType === ScaleSimpleType.DISCRETE) {
-          defs.push(intervalDefs.brush_y);
-        }
-      }
-      if (markTypes.has('area')) {
-        const areaMark = marks.filter(mark => mark.type === 'area')[0];
-        if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
-          // TODO(jzong) what if orient is not in update but is in one of the other ones?
-          if (areaMark.encode.update.orient.value === 'vertical' && scaleInfo.xScaleType) {
-            defs.push(intervalDefs.brush_x);
-          }
-          else if (areaMark.encode.update.orient.value === 'horizontal' && scaleInfo.yScaleType) {
-            defs.push(intervalDefs.brush_y);
-          }
-        }
-      }
-      if (markTypes.has('line')) {
-        // TODO(jzong) ?
-      }
-      defs = [... new Set(defs)];
-    }
-  }
-  if (isDemonstratingPoint) {
-    defs = defs.concat([{
-      id: "single",
-      label: "Single point",
-      signals: [{
-        "name": "points_tuple",
-        "on": [
-          {
-            "events": [{"source": "scope", "type": "click"}],
-            "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
-            "force": true
-          },
-          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-          ]},
-          {
-            "name": "points_tuple_fields",
-            "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
-          }]
-    },
-    {
-      id: "multi",
-      label: "Multi point",
-      signals: [{
-        "name": "points_tuple",
-        "on": [{
-            "events": [{"source": "scope", "type": "click"}],
-            "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
-            "force": true
-          },
-          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-          ]
-        },
-        {
-          "name": "points_tuple_fields",
-          "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
-        },
-        {
-          "name": "points_toggle",
-          "value": false,
-          "on": [{
-              "events": [{"source": "scope", "type": "click"}],
-              "update": "event.shiftKey"
-            },
-            {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
-        ]}
-      ]
-    }]);
-  }
-  return defs;
-}
+// export function selectionPreviewDefs(isDemonstratingInterval: boolean,
+//                                        isDemonstratingPoint: boolean,
+//                                        marks?: any[],
+//                                        scaleInfo?: ScaleInfo,
+//                                        field?: string): LyraSelectionPreviewDef[] {
+//   let defs = [];
+//   const optionalParams = Boolean(marks && scaleInfo);
+//   if (isDemonstratingInterval) {
+//     const intervalDefs = {
+//       brush: {
+//         id: "brush",
+//         label: "Brush",
+//         signals: []
+//       },
+//       brush_y: {
+//         id: "brush_y",
+//         label: "Brush (y-axis)",
+//         signals: [
+//           {
+//             name: "lyra_brush_is_y_encoding",
+//             init: "true"
+//           }
+//         ]
+//       },
+//       brush_x: {
+//         id: "brush_x",
+//         label: "Brush (x-axis)",
+//         signals: [
+//           {
+//             name: "lyra_brush_is_x_encoding",
+//             init: "true"
+//           }
+//         ]
+//       }
+//     }
+//     if (!optionalParams) {
+//       defs = Object.values(intervalDefs);
+//     }
+//     else{
+//       const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
+//       if (markTypes.has('symbol')) {
+//         if (scaleInfo.xScaleType && scaleInfo.yScaleType) defs.push(intervalDefs.brush);
+//         if (scaleInfo.yScaleType) defs.push(intervalDefs.brush_y);
+//         if (scaleInfo.xScaleType) defs.push(intervalDefs.brush_x);
+//       }
+//       if (markTypes.has('rect')) {
+//         if (scaleInfo.xScaleType === ScaleSimpleType.DISCRETE) {
+//           defs.push(intervalDefs.brush_x);
+//         }
+//         if (scaleInfo.yScaleType === ScaleSimpleType.DISCRETE) {
+//           defs.push(intervalDefs.brush_y);
+//         }
+//       }
+//       if (markTypes.has('area')) {
+//         const areaMark = marks.filter(mark => mark.type === 'area')[0];
+//         if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
+//           // TODO(jzong) what if orient is not in update but is in one of the other ones?
+//           if (areaMark.encode.update.orient.value === 'vertical' && scaleInfo.xScaleType) {
+//             defs.push(intervalDefs.brush_x);
+//           }
+//           else if (areaMark.encode.update.orient.value === 'horizontal' && scaleInfo.yScaleType) {
+//             defs.push(intervalDefs.brush_y);
+//           }
+//         }
+//       }
+//       if (markTypes.has('line')) {
+//         // TODO(jzong) ?
+//       }
+//       defs = [... new Set(defs)];
+//     }
+//   }
+//   if (isDemonstratingPoint) {
+//     defs = defs.concat([{
+//       id: "single",
+//       label: "Single point",
+//       signals: [{
+//         "name": "points_tuple",
+//         "on": [
+//           {
+//             "events": [{"source": "scope", "type": "click"}],
+//             "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
+//             "force": true
+//           },
+//           {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+//           ]},
+//           {
+//             "name": "points_tuple_fields",
+//             "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
+//           }]
+//     },
+//     {
+//       id: "multi",
+//       label: "Multi point",
+//       signals: [{
+//         "name": "points_tuple",
+//         "on": [{
+//             "events": [{"source": "scope", "type": "click"}],
+//             "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
+//             "force": true
+//           },
+//           {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+//           ]
+//         },
+//         {
+//           "name": "points_tuple_fields",
+//           "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
+//         },
+//         {
+//           "name": "points_toggle",
+//           "value": false,
+//           "on": [{
+//               "events": [{"source": "scope", "type": "click"}],
+//               "update": "event.shiftKey"
+//             },
+//             {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
+//         ]}
+//       ]
+//     }]);
+//   }
+//   return defs;
+// }
 
-export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraApplicationPreviewDef) {
-  const sceneUpdated = duplicate(sceneSpec);
-  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
-    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      if (preview.markProperties.encode && preview.markProperties.encode.update && preview.markProperties.encode.update.size) {
-        // make symbol previews look nicer
-        preview.markProperties.encode.update.size[1].value /= 5;
-      }
-      if (preview.id.indexOf('filter') >= 0) {
-        /// this is redundant with demonstrationDatasets ARGGHHHH
-        // check for interactions that define transforms and apply them
-        const datasetProps = preview.datasetProperties;
-        const data = sceneUpdated.data || (sceneUpdated.data = []);
-        sceneUpdated.data = [...data, datasetProps];
-        return markSpec; // TODO don't leave this!!! this is bc i dont know what to do about previews for now
-      }
-      markSpec.marks = editMarks(markSpec.marks, preview);
-      if (preview.id.indexOf('panzoom') === 0) {
-        markSpec.marks = markSpec.marks.filter((mark) => mark.name.indexOf('lyra') !== 0);
-      }
-    }
-    return markSpec;
-  });
-  return sceneUpdated;
-}
+// export function editMarksForPreview(sceneSpec, groupName: string, preview: LyraApplicationPreviewDef) {
+//   const sceneUpdated = duplicate(sceneSpec);
+//   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
+//     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+//       if (preview.markProperties.encode && preview.markProperties.encode.update && preview.markProperties.encode.update.size) {
+//         // make symbol previews look nicer
+//         preview.markProperties.encode.update.size[1].value /= 5;
+//       }
+//       if (preview.id.indexOf('filter') >= 0) {
+//         /// this is redundant with demonstrationDatasets ARGGHHHH
+//         // check for interactions that define transforms and apply them
+//         const datasetProps = preview.datasetProperties;
+//         const data = sceneUpdated.data || (sceneUpdated.data = []);
+//         sceneUpdated.data = [...data, datasetProps];
+//         return markSpec; // TODO don't leave this!!! this is bc i dont know what to do about previews for now
+//       }
+//       markSpec.marks = editMarks(markSpec.marks, preview);
+//       if (preview.id.indexOf('panzoom') === 0) {
+//         markSpec.marks = markSpec.marks.filter((mark) => mark.name.indexOf('lyra') !== 0);
+//       }
+//     }
+//     return markSpec;
+//   });
+//   return sceneUpdated;
+// }
 
-export function editMarks(marks: any[], def: LyraApplicationPreviewDef) {
-  const markProperties = def.markProperties;
-  const markType = def.markType;
-  if (markProperties) {
-    for (let mark of marks) {
-      if (mark.type === 'group' || mark.name.indexOf('lyra') === 0) continue;
-      if (!markType || mark.type === markType) { // TODO(jzong) i wouldn't be surprised if this condition is wrong when there's multiple marks
-        for (let [key, value] of Object.entries(markProperties)) {
-          if (key !== 'encode') {
-            mark[key] = value;
-          }
-        }
-        if (markProperties.encode && markProperties.encode.update) {
-          for (let [key, value] of Object.entries(markProperties.encode.update)) {
-            const oldValue = mark.encode.update[key];
-            if (oldValue.value || oldValue.signal || oldValue.field) {
-              delete value[0].value;
-              value[0] = {...value[0], ...oldValue};
-            } else if (Array.isArray(oldValue) && oldValue[0].test && !value[0].test.includes(oldValue[0].test)) {
-              value[0].test = value[0].test + ' && ' + oldValue[0].test;
-              value[0].value = oldValue[0].value;
-            }
-            mark.encode.update[key] = value;
-          }
-        }
-      }
-    }
-  }
-  if (def.id.indexOf('panzoom') === 0) { // if panzoom, remove the brush marks
-    marks = marks.filter(mark => !(mark.name && mark.name.indexOf('lyra') === 0));
-  }
-  return marks;
-}
+// export function editMarks(marks: any[], def: LyraApplicationPreviewDef) {
+//   const markProperties = def.markProperties;
+//   const markType = def.markType;
+//   if (markProperties) {
+//     for (let mark of marks) {
+//       if (mark.type === 'group' || mark.name.indexOf('lyra') === 0) continue;
+//       if (!markType || mark.type === markType) { // TODO(jzong) i wouldn't be surprised if this condition is wrong when there's multiple marks
+//         for (let [key, value] of Object.entries(markProperties)) {
+//           if (key !== 'encode') {
+//             mark[key] = value;
+//           }
+//         }
+//         if (markProperties.encode && markProperties.encode.update) {
+//           for (let [key, value] of Object.entries(markProperties.encode.update)) {
+//             const oldValue = mark.encode.update[key];
+//             if (oldValue.value || oldValue.signal || oldValue.field) {
+//               delete value[0].value;
+//               value[0] = {...value[0], ...oldValue};
+//             } else if (Array.isArray(oldValue) && oldValue[0].test && !value[0].test.includes(oldValue[0].test)) {
+//               value[0].test = value[0].test + ' && ' + oldValue[0].test;
+//               value[0].value = oldValue[0].value;
+//             }
+//             mark.encode.update[key] = value;
+//           }
+//         }
+//       }
+//     }
+//   }
+//   if (def.id.indexOf('panzoom') === 0) { // if panzoom, remove the brush marks
+//     marks = marks.filter(mark => !(mark.name && mark.name.indexOf('lyra') === 0));
+//   }
+//   return marks;
+// }
 
-export function editScalesForPreview(sceneSpec, groupName: string, preview: LyraApplicationPreviewDef) {
-  const sceneUpdated = duplicate(sceneSpec);
-  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
-    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      markSpec.scales = editScales(markSpec.scales, preview);
-    }
-    return markSpec;
-  });
-  return sceneUpdated;
-}
+// export function editScalesForPreview(sceneSpec, groupName: string, preview: LyraApplicationPreviewDef) {
+//   const sceneUpdated = duplicate(sceneSpec);
+//   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
+//     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+//       markSpec.scales = editScales(markSpec.scales, preview);
+//     }
+//     return markSpec;
+//   });
+//   return sceneUpdated;
+// }
 
-export function editScales(scales: any[], def: LyraApplicationPreviewDef) {
-  if (!def.scaleProperties) {
-    return scales;
-  }
+// export function editScales(scales: any[], def: LyraApplicationPreviewDef) {
+//   if (!def.scaleProperties) {
+//     return scales;
+//   }
 
-  for (let scale of scales) {
-    for (let scaleProps of def.scaleProperties) {
-      if (scale.name === scaleProps.name) {
-        for (let [key, value] of Object.entries(scaleProps)) {
-          if (key === '_axis') continue;
-          scale[key] = value;
-        }
-      }
-    }
-  }
-  return scales;
-}
+//   for (let scale of scales) {
+//     for (let scaleProps of def.scaleProperties) {
+//       if (scale.name === scaleProps.name) {
+//         for (let [key, value] of Object.entries(scaleProps)) {
+//           if (key === '_axis') continue;
+//           scale[key] = value;
+//         }
+//       }
+//     }
+//   }
+//   return scales;
+// }
 
-export function widgetApplicationPreviewDefs(fieldName: string, groupName: string, comparator: string = '==') {
-  let defs: LyraApplicationPreviewDef[] = [{
-    id: "color",
-    label: "Color",
-    groupName: groupName,
-    comparator,
-    markProperties: {
-      "encode": {
-        "update": {
-          "fill": [
-            {
-              "test": `datum.${fieldName} ${comparator} ${fieldName+WG_DEFAULT}`,
-              "value": "orange"
-            },
-            {"value": "grey"}
-          ],
-        }
-      }
-    }
-  },
-  {
-    id: "opacity",
-    label: "Opacity",
-    groupName: groupName,
-    comparator,
-    markProperties: {
-      "encode": {
-        "update": {
-          "fillOpacity": [
-            {
-               "test": `datum.${fieldName} ${comparator} ${fieldName+WG_DEFAULT}`,
-               "value": "1"
-            },
-            {"value": "0.2"}
-          ],
-        }
-      }
-    }
-  },
-  {
-    id: "size",
-    label: "Size",
-    groupName: groupName,
-    markType: "symbol",
-    comparator,
-    markProperties: {
-      "encode": {
-        "update": {
-          "size": [
-            {
-              "test": `datum.${fieldName} ${comparator} ${fieldName+WG_DEFAULT}`,
-              "value": 80
-            },
-            {"value": 30}
-          ],
-        }
-      }
-    }
-  }];
+// export function widgetApplicationPreviewDefs(fieldName: string, groupName: string, comparator: string = '==') {
+//   let defs: LyraApplicationPreviewDef[] = [{
+//     id: "color",
+//     label: "Color",
+//     groupName: groupName,
+//     comparator,
+//     markProperties: {
+//       "encode": {
+//         "update": {
+//           "fill": [
+//             {
+//               "test": `datum.${fieldName} ${comparator} ${fieldName+WG_DEFAULT}`,
+//               "value": "orange"
+//             },
+//             {"value": "grey"}
+//           ],
+//         }
+//       }
+//     }
+//   },
+//   {
+//     id: "opacity",
+//     label: "Opacity",
+//     groupName: groupName,
+//     comparator,
+//     markProperties: {
+//       "encode": {
+//         "update": {
+//           "fillOpacity": [
+//             {
+//                "test": `datum.${fieldName} ${comparator} ${fieldName+WG_DEFAULT}`,
+//                "value": "1"
+//             },
+//             {"value": "0.2"}
+//           ],
+//         }
+//       }
+//     }
+//   },
+//   {
+//     id: "size",
+//     label: "Size",
+//     groupName: groupName,
+//     markType: "symbol",
+//     comparator,
+//     markProperties: {
+//       "encode": {
+//         "update": {
+//           "size": [
+//             {
+//               "test": `datum.${fieldName} ${comparator} ${fieldName+WG_DEFAULT}`,
+//               "value": 80
+//             },
+//             {"value": 30}
+//           ],
+//         }
+//       }
+//     }
+//   }];
 
-  return defs;
-}
+//   return defs;
+// }
 
-export function applicationPreviewDefs(isDemonstratingInterval: boolean, marks: any[], scaleInfo: ScaleInfo, groupName: string, sceneSpec): LyraApplicationPreviewDef[] {
-  let defs: LyraApplicationPreviewDef[] = [{
-    id: "color",
-    label: "Color",
-    groupName: groupName,
-    markProperties: {
-      "encode": {
-        "update": {
-          "fill": [
-            {
-              "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
-                                                `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
-              "value": "orange"
-            },
-            {"value": "#666666"}
-          ],
-        }
-      }
-    }
-  },
-  {
-    id: "opacity",
-    label: "Opacity",
-    groupName: groupName,
-    markProperties: {
-      "encode": {
-        "update": {
-          "fillOpacity": [
-            {
-              "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
-                                                `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
-              "value": "1"
-            },
-            {"value": "0.2"}
-          ],
-        }
-      }
-    }
-  }];
+// export function applicationPreviewDefs(isDemonstratingInterval: boolean, marks: any[], scaleInfo: ScaleInfo, groupName: string, sceneSpec): LyraApplicationPreviewDef[] {
+//   let defs: LyraApplicationPreviewDef[] = [{
+//     id: "color",
+//     label: "Color",
+//     groupName: groupName,
+//     markProperties: {
+//       "encode": {
+//         "update": {
+//           "fill": [
+//             {
+//               "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+//                                                 `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
+//               "value": "orange"
+//             },
+//             {"value": "#666666"}
+//           ],
+//         }
+//       }
+//     }
+//   },
+//   {
+//     id: "opacity",
+//     label: "Opacity",
+//     groupName: groupName,
+//     markProperties: {
+//       "encode": {
+//         "update": {
+//           "fillOpacity": [
+//             {
+//               "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+//                                                 `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
+//               "value": "1"
+//             },
+//             {"value": "0.2"}
+//           ],
+//         }
+//       }
+//     }
+//   }];
 
-  const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
-  if (markTypes.has('symbol')) {
-    defs = defs.concat([
-      {
-        id: "size",
-        label: "Size",
-        groupName: groupName,
-        markType: "symbol",
-        markProperties: {
-          "encode": {
-            "update": {
-              "size": [
-                {
-                  "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
-                                                    `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
-                  "value": isDemonstratingInterval ? "10" : "100"
-                },
-                {"value": isDemonstratingInterval ? "5" : "10"}
-              ],
-            }
-          }
-        }
-      },
-    ]);
-  }
-  if (isDemonstratingInterval) {
-    const panzoomDef: LyraApplicationPreviewDef = {
-      id: "panzoom",
-      label: "Pan and zoom",
-      groupName: groupName,
-      markProperties: {
-        "clip": {"value": true}
-      },
-      scaleProperties: [
-        {
-          "_axis": "x",
-          "name": scaleInfo.xScaleName,
-          "domainRaw": {"signal": `grid["${scaleInfo.xFieldName}"]`},
-          "zero": false
-        },
-        {
-          "_axis": "y",
-          "name": scaleInfo.yScaleName,
-          "domainRaw": {"signal": `grid["${scaleInfo.yFieldName}"]`},
-          "zero": false
-        }
-      ]
-    }
-    defs.push(panzoomDef);
-  }
-  const filterViewDefs = filterViewApplicationPreviewDefs(isDemonstratingInterval, sceneSpec, groupName);
-  defs = defs.concat(filterViewDefs);
-  return defs;
-}
+//   const markTypes: Set<LyraMarkType> = new Set(marks.map((mark) => mark.type));
+//   if (markTypes.has('symbol')) {
+//     defs = defs.concat([
+//       {
+//         id: "size",
+//         label: "Size",
+//         groupName: groupName,
+//         markType: "symbol",
+//         markProperties: {
+//           "encode": {
+//             "update": {
+//               "size": [
+//                 {
+//                   "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+//                                                     `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
+//                   "value": isDemonstratingInterval ? "10" : "100"
+//                 },
+//                 {"value": isDemonstratingInterval ? "5" : "10"}
+//               ],
+//             }
+//           }
+//         }
+//       },
+//     ]);
+//   }
+//   if (isDemonstratingInterval) {
+//     const panzoomDef: LyraApplicationPreviewDef = {
+//       id: "panzoom",
+//       label: "Pan and zoom",
+//       groupName: groupName,
+//       markProperties: {
+//         "clip": {"value": true}
+//       },
+//       scaleProperties: [
+//         {
+//           "_axis": "x",
+//           "name": scaleInfo.xScaleName,
+//           "domainRaw": {"signal": `grid["${scaleInfo.xFieldName}"]`},
+//           "zero": false
+//         },
+//         {
+//           "_axis": "y",
+//           "name": scaleInfo.yScaleName,
+//           "domainRaw": {"signal": `grid["${scaleInfo.yFieldName}"]`},
+//           "zero": false
+//         }
+//       ]
+//     }
+//     defs.push(panzoomDef);
+//   }
+//   const filterViewDefs = filterViewApplicationPreviewDefs(isDemonstratingInterval, sceneSpec, groupName);
+//   defs = defs.concat(filterViewDefs);
+//   return defs;
+// }
 
-function filterViewApplicationPreviewDefs(isDemonstratingInterval: boolean, sceneSpec, groupName: string): LyraApplicationPreviewDef[] {
-  const otherGroups = sceneSpec.marks.filter(markSpec => {
-    return markSpec.name && markSpec.type === 'group' && markSpec.name !== groupName;
-  });
-  return otherGroups.map(groupSpec => {
-      if (groupSpec.marks.length) {
-        const maybeDataset = groupSpec.marks.filter(markSpec => markSpec.from && markSpec.from.data).map(markSpec => markSpec.from.data);
-        if (maybeDataset.length) {
-          function collectTransforms(datasetName, transforms) {
-            const dataset = sceneSpec.data.filter(data => data.name === datasetName)[0];
-            const currentTransforms = transforms.concat(dataset.transform);
-            const currentTransformsToString = currentTransforms.map(x => JSON.stringify(x));
-            const uniqueTransforms = currentTransforms.filter((transform, idx) => {
-              return currentTransformsToString.indexOf(JSON.stringify(transform)) === idx;
-            });
-            if (dataset.source) {
-              return collectTransforms(dataset.source, uniqueTransforms);
-            }
-            return {source: datasetName, transform: uniqueTransforms};
-          }
-          const {source, transform} = collectTransforms(maybeDataset[0], []);
-          const newDatasetName = maybeDataset[0] + "_filter_" + groupSpec.name;
-          return {
-            id: "filter_" + groupSpec.name,
-            label: "Filter " + groupSpec.name,
-            groupName: groupSpec.name,
-            markProperties: {
-              "from": {
-                "data": newDatasetName
-              }
-            },
-            datasetProperties: {
-              "name": newDatasetName,
-              "source": source,
-              "transform": [{
-                "type": "filter",
-                "expr": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
-                `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
-              }, ...transform]
-            }
-          }
-        }
-      }
-      return null;
-  }).filter(x => x);
-}
+// function filterViewApplicationPreviewDefs(isDemonstratingInterval: boolean, sceneSpec, groupName: string): LyraApplicationPreviewDef[] {
+//   const otherGroups = sceneSpec.marks.filter(markSpec => {
+//     return markSpec.name && markSpec.type === 'group' && markSpec.name !== groupName;
+//   });
+//   return otherGroups.map(groupSpec => {
+//       if (groupSpec.marks.length) {
+//         const maybeDataset = groupSpec.marks.filter(markSpec => markSpec.from && markSpec.from.data).map(markSpec => markSpec.from.data);
+//         if (maybeDataset.length) {
+//           function collectTransforms(datasetName, transforms) {
+//             const dataset = sceneSpec.data.filter(data => data.name === datasetName)[0];
+//             const currentTransforms = transforms.concat(dataset.transform);
+//             const currentTransformsToString = currentTransforms.map(x => JSON.stringify(x));
+//             const uniqueTransforms = currentTransforms.filter((transform, idx) => {
+//               return currentTransformsToString.indexOf(JSON.stringify(transform)) === idx;
+//             });
+//             if (dataset.source) {
+//               return collectTransforms(dataset.source, uniqueTransforms);
+//             }
+//             return {source: datasetName, transform: uniqueTransforms};
+//           }
+//           const {source, transform} = collectTransforms(maybeDataset[0], []);
+//           const newDatasetName = maybeDataset[0] + "_filter_" + groupSpec.name;
+//           return {
+//             id: "filter_" + groupSpec.name,
+//             label: "Filter " + groupSpec.name,
+//             groupName: groupSpec.name,
+//             markProperties: {
+//               "from": {
+//                 "data": newDatasetName
+//               }
+//             },
+//             datasetProperties: {
+//               "name": newDatasetName,
+//               "source": source,
+//               "transform": [{
+//                 "type": "filter",
+//                 "expr": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+//                 `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
+//               }, ...transform]
+//             }
+//           }
+//         }
+//       }
+//       return null;
+//   }).filter(x => x);
+// }

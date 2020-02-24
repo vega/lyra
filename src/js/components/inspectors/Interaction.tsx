@@ -128,19 +128,19 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
   public handleApplicationChange(value) {
     if(this.props.type == 'widget') {
-      const fieldName = this.props.interaction.selectionDef.field;
-      const previousApplicationDef = this.props.interaction.applicationDef;
+      const fieldName = this.props.interaction.selection.field;
+      const previousApplicationDef = this.props.interaction.application;
       const defs = widgetApplicationPreviewDefs(fieldName, previousApplicationDef.groupName, previousApplicationDef.comparator);
       const def = defs.filter(e => e.id === value);
       this.props.setMapping(def[0], this.props.interaction.id);
     } else {
       const preview = this.props.applicationDefs.filter(e => e.id === value);
       if(preview.length) {
-        if (this.props.interaction.applicationDef && this.props.interaction.applicationDef.id === preview[0].id) {
+        if (this.props.interaction.application && this.props.interaction.application.id === preview[0].id) {
           this.props.setMapping(null, this.props.interaction.id);
         }
         else {
-          if (!this.props.interaction.selectionDef) {
+          if (!this.props.interaction.selection) {
             this.props.setSelection(this.props.selectionDefs[0], this.props.interaction.id);
           }
           this.props.setMapping(preview[0], this.props.interaction.id);
@@ -154,21 +154,21 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   public handleSelectionChange(value) {
     const preview = this.props.selectionDefs.filter(e => e.id === value);
     if(preview.length) {
-      if (this.props.interaction.selectionDef && this.props.interaction.selectionDef.id === preview[0].id) {
+      if (this.props.interaction.selection && this.props.interaction.selection.id === preview[0].id) {
         this.props.setSelection(null, this.props.interaction.id);
 
       }
       else {
-        const fieldPresent = this.props.interaction.selectionDef && this.props.interaction.selectionDef.field ? true: false;
+        const fieldPresent = this.props.interaction.selection && this.props.interaction.selection.field ? true: false;
         this.props.setSelection(preview[0], this.props.interaction.id);
         if(fieldPresent) {
-          this.handleFieldChange(this.props.interaction.selectionDef.field, preview[0]);
+          this.handleFieldChange(this.props.interaction.selection.field, preview[0]);
         }
       }
     }
   }
 
-  public handleFieldChange(field, def=this.props.interaction.selectionDef) {
+  public handleFieldChange(field, def=this.props.interaction.selection) {
     const currentDef = JSON.parse(JSON.stringify(def));
     if(currentDef && currentDef.signals.length) {
       currentDef.signals[0].on[0]['update'] = updateVal(field);
@@ -179,10 +179,10 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   public handlePropertyChange() {
-    if(!this.props.interaction.applicationDef) this.handleApplicationChange('color');
+    if(!this.props.interaction.application) this.handleApplicationChange('color');
     const {markPropertyValues} = this.props.interaction
-    const id = this.props.interaction.applicationDef.id;
-    const update = this.props.interaction.applicationDef.markProperties.encode.update;
+    const id = this.props.interaction.application.id;
+    const update = this.props.interaction.application.markProperties.encode.update;
     if(id == 'color' && update.fill[1].value != markPropertyValues.color) {
       this.props.setValueInMark({property: 'fill', value: markPropertyValues.color}, this.props.interaction.id);
     } else if (id == 'opacity' && update.fillOpacity[1].value != markPropertyValues.opacity) {
@@ -219,8 +219,8 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
     const props = this.props;
     const interaction = this.props.interaction;
-    const selectionDef = interaction.selectionDef;
-    const applicationDef = interaction.applicationDef;
+    const selectionDef = interaction.selection;
+    const applicationDef = interaction.application;
     const markPropertyValues = interaction.get('markPropertyValues');
     return (
       <div>
