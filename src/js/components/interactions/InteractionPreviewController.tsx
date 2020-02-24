@@ -2,21 +2,18 @@ import * as React from 'react';
 import {Map} from 'immutable';
 import { connect } from 'react-redux';
 import {State} from '../../store';
-import {Signal, Spec} from 'vega';
-import {getScaleInfoForGroup, cleanSpecForPreview, editSignalsForPreview, selectionPreviewDefs, applicationPreviewDefs, editMarksForPreview, editScalesForPreview, ScaleSimpleType} from '../../ctrl/demonstrations';
-import InteractionPreview from './InteractionPreview';
-import {InteractionRecord, Interaction, LyraSelection, LyraApplication, LyraPointSelection, LyraIntervalSelection, ScaleInfo} from '../../store/factory/Interaction';
+import {getScaleInfoForGroup, ScaleSimpleType} from '../../ctrl/demonstrations';
+import {Interaction, ApplicationRecord, ScaleInfo, PointSelectionRecord, IntervalSelectionRecord, SelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication} from '../../store/factory/Interaction';
 import {Dispatch} from 'redux';
 import {addInteraction, setSelection, setApplication} from '../../actions/interactionActions';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import exportName from '../../util/exportName';
 import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
 import {LyraMarkType, MarkRecord} from '../../store/factory/Mark';
-import {EncodingStateRecord} from '../../store/factory/Inspector';
 import {selectInteraction} from '../../actions/inspectorActions';
-import {getType} from 'typesafe-actions';
-import {updateVal} from '../inspectors/Interaction';
 import {DatasetRecord} from '../../store/factory/Dataset';
+import {InteractionPreview} from './InteractionPreview';
+import { debounce } from "throttle-debounce";
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -27,6 +24,7 @@ interface StateProps {
   marksOfGroups: Map<number, MarkRecord[]>; // map of group ids to array of mark specs
   fieldsOfGroups: Map<number, string[]>; // map of group ids to array of fields
   canDemonstrateGroups: Map<number, Boolean>;
+  datasets: Map<string, DatasetRecord>;
   // canDemonstrate: boolean;
   // groupRecord: GroupRecord;
   // marksOfGroup: any[];
@@ -47,6 +45,8 @@ interface OwnState {
   groupId: number; // active group (the one that the user is demonstrating on)
   groupName: string; // active group (the one that the user is demonstrating on)
   isDemonstratingInterval: boolean,
+  selectionPreviews: SelectionRecord[];
+  applicationPreviews: ApplicationRecord[];
 }
 
 function mapStateToProps(state: State): StateProps {
@@ -79,18 +79,19 @@ function mapStateToProps(state: State): StateProps {
     });
   });
 
+  const datasets: Map<string, DatasetRecord> = state.getIn(['vis', 'present', 'datasets']);
+
   const fieldsOfGroups: Map<number, string[]> = marksOfGroups.map((marksOfGroup) => {
     if (marksOfGroup.length && marksOfGroup[0].from && marksOfGroup[0].from.data) {
-      const dsId = marksOfGroup[0].from.data;
-      const dataset: DatasetRecord =  state.getIn(['vis', 'present', 'datasets', dsId]);
-      if (dataset) {
-        const schema = dataset.get('_schema');
-        const fields = schema.keySeq().toArray();
-        return fields;
-      }
+      const dsId = String(marksOfGroup[0].from.data);
+      const dataset: DatasetRecord =  datasets.get(dsId);
+      const schema = dataset.get('_schema');
+      const fields = schema.keySeq().toArray();
+      return fields;
     }
     return [];
   });
+
 
   // const encState: EncodingStateRecord = state.getIn(['inspector', 'encodings']);
   // const selId   = encState.get('selectedId');
@@ -125,6 +126,7 @@ function mapStateToProps(state: State): StateProps {
     marksOfGroups,
     fieldsOfGroups,
     canDemonstrateGroups,
+    datasets
     // canDemonstrate,
     // groupRecord,
     // marksOfGroup,
@@ -134,7 +136,7 @@ function mapStateToProps(state: State): StateProps {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps): DispatchProps {
+function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   return {
     addInteraction: (groupId) => {
       const record = Interaction({
@@ -167,6 +169,8 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
       isDemonstratingInterval: false,
       groupId: null,
       groupName: null,
+      selectionPreviews: [],
+      applicationPreviews: []
     };
   }
 
@@ -195,8 +199,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     });
 
     if (prevState.groupId !== this.state.groupId || prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval) {
-      const {selectionPreviews, applicationPreviews} = this.generatePreviewDefs(this.state.groupId);
-      console.log(selectionPreviews, applicationPreviews);
+      this.generatePreviews();
     }
 
     // if (prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval ||
@@ -218,42 +221,44 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
 
   private mainViewSignalValues = {};
 
-  private generatePreviewDefs(groupId: number): {selectionPreviews: LyraSelection[], applicationPreviews: LyraApplication[]} {
-    const marksOfGroup = this.props.marksOfGroups.get(groupId);
-    const scaleInfo = this.props.scaleInfoForGroups.get(groupId);
-    const fieldsOfGroup = this.props.fieldsOfGroups.get(groupId);
+  private generatePreviews = debounce(500, () => {
+      const groupId = this.state.groupId;
+      const marksOfGroup = this.props.marksOfGroups.get(groupId);
+      const scaleInfo = this.props.scaleInfoForGroups.get(groupId);
+      const fieldsOfGroup = this.props.fieldsOfGroups.get(groupId);
 
-    const selectionPreviews = this.generateSelectionPreviews(marksOfGroup, scaleInfo, fieldsOfGroup);
-    const applicationPreviews = this.generateApplicationPreviews(groupId, marksOfGroup, scaleInfo);
+      const selectionPreviews = this.generateSelectionPreviews(marksOfGroup, scaleInfo, fieldsOfGroup);
+      const applicationPreviews = this.generateApplicationPreviews(groupId, marksOfGroup, scaleInfo);
 
-    return {
-      selectionPreviews,
-      applicationPreviews
-    }
-  }
+      console.log('regenerated previews');
 
-  private generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, fieldsOfGroup: string[]): LyraSelection[] {
+      this.setState({
+        selectionPreviews,
+        applicationPreviews
+      });
+    });
+
+  private generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, fieldsOfGroup: string[]): SelectionRecord[] {
     if (this.state.isDemonstratingInterval) {
-      const defs: LyraIntervalSelection[] = [];
-      const brush = {
+      const defs: IntervalSelectionRecord[] = [];
+      const brush = IntervalSelection({
         id: "brush",
         label: "Brush",
-        field: 'xy' as const
-      };
-      const brush_y = {
+        field: 'xy'
+      });
+      const brush_y = IntervalSelection({
         id: "brush_y",
         label: "Brush (y-axis)",
-        field: 'y' as const
-      };
-      const brush_x = {
+        field: 'y'
+      });
+      const brush_x = IntervalSelection({
         id: "brush_x",
         label: "Brush (x-axis)",
-        field: 'x' as const
-      };
+        field: 'x'
+      });
 
       // HEURISTICS: surface different interval selections depending on mark type
       const markTypes: Set<LyraMarkType> = new Set(marksOfGroup.map((mark) => mark.type));
-      console.log(markTypes);
       if (markTypes.has('symbol')) {
         if (scaleInfo.xScaleType && scaleInfo.yScaleType) defs.push(brush);
         if (scaleInfo.yScaleType) defs.push(brush_y);
@@ -285,86 +290,97 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
       return [... new Set(defs)];
     }
     else {
-      const defs: LyraPointSelection[] = [
-        {
+      const defs: PointSelectionRecord[] = [
+        PointSelection({
+          ptype: 'single',
           id: 'single',
           label: 'Single point',
           field: '_vgsid_'
-        },
-        {
+        }),
+        PointSelection({
+          ptype: 'multi',
           id: 'multi',
           label: 'Multi point',
           field: '_vgsid_'
-        }
+        })
       ];
       // TODO(jzong): add heuristic here by sorting the fields by frequency
       fieldsOfGroup.forEach(field => {
-        defs.push({
+        defs.push(PointSelection({
+          ptype: 'single',
           id: `single_${field}`,
-          label: `Single point (match on ${field})`,
+          label: `Single point (${field})`,
           field
-        });
-        defs.push({
+        }));
+        defs.push(PointSelection({
+          ptype: 'multi',
           id: `multi_${field}`,
-          label: `Multi point (match on ${field})`,
+          label: `Multi point (${field})`,
           field
-        });
+        }));
       });
       return defs;
     }
   }
 
-  private generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo): LyraApplication[] {
-    const defs: LyraApplication[] = [];
+  private generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo): ApplicationRecord[] {
+    const defs: ApplicationRecord[] = [];
 
     // TODO(jzong): could add a heuristic -- better way to sort these?
     marksOfGroup.forEach(mark => {
-      defs.push({
+      defs.push(MarkApplication({
         id: "color",
         label: "Color",
         targetMarkName: exportName(mark.name),
-        isDemonstratingInterval: this.state.isDemonstratingInterval
-      });
-      defs.push({
+        isDemonstratingInterval: this.state.isDemonstratingInterval,
+        defaultValue: "grey"
+      }));
+      defs.push(MarkApplication({
         id: "opacity",
         label: "Opacity",
         targetMarkName: exportName(mark.name),
-        isDemonstratingInterval: this.state.isDemonstratingInterval
-      });
+        isDemonstratingInterval: this.state.isDemonstratingInterval,
+        defaultValue: "0.2"
+      }));
       if (mark.type === 'symbol') {
-        defs.push({
+        defs.push(MarkApplication({
           id: "size",
           label: "Size",
           targetMarkName: exportName(mark.name),
-          isDemonstratingInterval: this.state.isDemonstratingInterval
-        });
+          isDemonstratingInterval: this.state.isDemonstratingInterval,
+          defaultValue: 30
+        }));
       }
     });
 
     if (this.state.isDemonstratingInterval) {
-      defs.push({
+      defs.push(ScaleApplication({
         id: "panzoom",
         label: "Pan and zoom",
         scaleInfo
-      });
+      }));
     }
 
     const otherGroups = this.props.groups.filter(group => group._id !== groupId);
     otherGroups.forEach(otherGroup => {
       const otherGroupId = otherGroup._id;
       const marksOfOtherGroup = this.props.marksOfGroups.get(otherGroupId);
-      const maybeDataset = marksOfOtherGroup.filter(mark => mark.from && mark.from.data).map(mark => mark.from.data);
-      if (maybeDataset.length) {
+      const maybeMarkWithDataset = marksOfOtherGroup.filter(mark => mark.from && mark.from.data);
+      if (maybeMarkWithDataset.length) {
+        const mark = maybeMarkWithDataset[0];
         const targetGroupName = exportName(otherGroup.name);
-        const newDatasetName = maybeDataset[0] + "_filter_" + targetGroupName;
+        const targetMarkName = exportName(mark.name);
 
-        defs.push({
+        const datasetName = this.props.datasets.get(String(mark.from.data)).name;
+
+        defs.push(TransformApplication({
           id: "filter_" + targetGroupName,
           label: "Filter " + otherGroup.name,
           targetGroupName,
-          newDatasetName,
+          datasetName,
+          targetMarkName,
           isDemonstratingInterval: this.state.isDemonstratingInterval
-        });
+        }));
       }
     });
 
@@ -379,23 +395,16 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
   private onMainViewPointSignal(name, value) {
     this.onMainViewAnySignal(name, value);
 
-    const isDemonstratingInterval = !this.mainViewSignalValues['points_tuple'];
-    if (isDemonstratingInterval && !this.state.isDemonstratingInterval) {
-      clearTimeout(this.cancelDemonstrationTimeout);
-      this.cancelDemonstrationTimeout = setTimeout(() => {
+    const isDemonstratingInterval = (this.mainViewSignalValues['brush_x'] &&
+      this.mainViewSignalValues['brush_y'] &&
+      this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
+      this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1]) || !this.mainViewSignalValues['points_tuple'];
+
+    if (isDemonstratingInterval !== this.state.isDemonstratingInterval) {
         this.setState({
           isDemonstratingInterval
         });
-      }, 250);
-    }
-    else {
-      if (!isDemonstratingInterval) {
-        clearTimeout(this.cancelDemonstrationTimeout);
-        this.cancelDemonstrationTimeout = null;
-      }
-      this.setState({
-        isDemonstratingInterval
-      });
+
     }
 
     // this.state.selectionPreviews.forEach(preview => {
@@ -415,28 +424,15 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
   private onMainViewIntervalSignal(name, value) {
     this.onMainViewAnySignal(name, value);
 
-    const isDemonstratingInterval = this.mainViewSignalValues['brush_x'] &&
+    const isDemonstratingInterval = (this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&
       this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
-      this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1];
-    if (!isDemonstratingInterval && this.state.isDemonstratingInterval) {
-      clearTimeout(this.cancelDemonstrationTimeout);
-      this.cancelDemonstrationTimeout = setTimeout(() => {
-        this.setState({
-          isDemonstratingInterval
-        });
-      }, 250);
-    }
-    else {
-      if (isDemonstratingInterval) {
-        clearTimeout(this.cancelDemonstrationTimeout);
-        this.cancelDemonstrationTimeout = null;
-      }
+      this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1]) || !this.mainViewSignalValues['points_tuple'];
+    if (isDemonstratingInterval !== this.state.isDemonstratingInterval) {
       this.setState({
         isDemonstratingInterval
       });
     }
-
     // const wScale = 100/640;
     // const hScale = 100/360; // TODO(jzong) preview height / main view height
 
@@ -502,96 +498,61 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     });
   }
 
-  private onClickInteractionPreview(preview) {
-    if (this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === preview.id) {
-      this.props.setSelection(null, this.props.interactionRecord.id);
-    }
-    else {
-      const fieldPresent = this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.field ? true: false;
-      if(fieldPresent && this.state.isDemonstratingPoint) {
-        const field = this.props.interactionRecord.selectionDef.field;
-        const currentDef = Object.assign({},preview);
-        if(currentDef && currentDef.signals.length) {
-          currentDef.signals[0].on[0]['update'] = updateVal(field);
-          currentDef.signals[1]['value'][0].field = field;
-          currentDef.field = field;
-          this.props.setSelection(currentDef, this.props.interactionRecord.id);
-        } else this.props.setSelection(preview, this.props.interactionRecord.id);
-      }
-      else this.props.setSelection(preview, this.props.interactionRecord.id);
-    }
-    this.setState({
-      applicationPreviews: this.getApplicationPreviewDefs()
-    });
-  }
+  private previewRefs = {}; // id -> ref
 
-  private onClickApplicationPreview(preview) {
-    if (this.props.interactionRecord.applicationDef && this.props.interactionRecord.applicationDef.id === preview.id) {
-      this.props.setApplication(null, this.props.interactionRecord.id);
-    }
-    else {
-      if (!this.props.interactionRecord.selectionDef) {
-        this.props.setSelection(this.state.selectionPreviews[0], this.props.interactionRecord.id);
-      }
-      this.props.setApplication(preview, this.props.interactionRecord.id);
-    }
+  private onClickInteractionPreview(preview) {
   }
 
   public render() {
 
-    return <div></div>;
-    // return (
-    //   <div className={"preview-controller" + (this.state.selectionPreviews.length  ? " active" : "")}>
-    //     {this.state.selectionPreviews.length ? <h2>Interactions</h2> : null}
-    //     {this.state.selectionPreviews.length ? <h5>Selections</h5> : null}
-    //     <div className="preview-scroll">
-    //       {
-    //         this.state.selectionPreviews.map((preview) => {
-    //           preview.ref = React.createRef();
-    //           const spec = editSignalsForPreview(this.state.spec, this.props.groupName, preview.signals);
-    //           return (
-    //             <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === preview.id ? 'selected' : ''}>
-    //               <div className="preview-label">{preview.label}</div>
-    //               <InteractionPreview ref={preview.ref}
-    //                 id={`preview-${preview.id}`}
-    //                 groupName={this.props.groupName}
-    //                 spec={spec}
-    //                 onClick={() => this.onClickInteractionPreview(preview)}/>
-    //             </div>
-    //           )
-    //         })
-    //       }
-    //     </div>
-    //     {this.state.applicationPreviews.length ? <h5>Applications</h5> : null}
-    //     <div className="preview-scroll">
-    //       {
-    //         this.state.applicationPreviews.map((preview) => {
-    //           preview.ref = React.createRef();
-    //           const selectedInteractionSignals = [].concat.apply([], this.state.selectionPreviews.filter((def) => {
-    //             return this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === def.id;
-    //           }).map((def) => def.signals));
-    //           let spec = cleanSpecForPreview(ctrl.export(false, true), preview.groupName);
-    //           spec = editSignalsForPreview(spec, this.props.groupName, selectedInteractionSignals);
-    //           spec = editSignalsForPreview(spec, preview.groupName, []);
-    //           spec = editMarksForPreview(spec, this.props.groupName, preview);
-    //           if (preview.id === 'panzoom') {
-    //             spec = editScalesForPreview(spec, this.props.groupName, preview);
-    //           }
-    //           return (
-    //             <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.applicationDef && this.props.interactionRecord.applicationDef.id === preview.id ? 'selected' : ''}>
-    //               <div className="preview-label">{preview.label}</div>
-    //               <InteractionPreview ref={preview.ref}
-    //                 id={`preview-${preview.id}`}
-    //                 groupName={this.props.groupName}
-    //                 spec={spec}
-    //                 onClick={() => this.onClickApplicationPreview(preview)}/>
-    //             </div>
-    //           )
-    //         })
-    //       }
-    //     </div>
-    //   </div>
-    // );
+    // return <div></div>;
+    return (
+      <div className={"preview-controller" + (this.state.selectionPreviews.length  ? " active" : "")}>
+        {this.state.selectionPreviews.length ? <h2>Interactions</h2> : null}
+        {this.state.selectionPreviews.length ? <h5>Selections</h5> : null}
+        <div className="preview-scroll">
+          {
+            this.state.selectionPreviews.map((preview) => {
+              if (!this.previewRefs[preview.id]) {
+                this.previewRefs[preview.id] = React.createRef();
+              }
+              return (
+                // <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === preview.id ? 'selected' : ''}>
+                <div key={preview.id}>
+                  <div className="preview-label">{preview.label}</div>
+                  <InteractionPreview ref={this.previewRefs[preview.id]}
+                    id={`preview-${preview.id}`}
+                    groupName={this.state.groupName}
+                    preview={preview}
+                    onClick={() => this.onClickInteractionPreview(preview)}/>
+                </div>
+              )
+            })
+          }
+        </div>
+        {this.state.applicationPreviews.length ? <h5>Applications</h5> : null}
+        <div className="preview-scroll">
+          {
+            this.state.applicationPreviews.map((preview) => {
+              if (!this.previewRefs[preview.id]) {
+                this.previewRefs[preview.id] = React.createRef();
+              }
+              return (
+                // <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === preview.id ? 'selected' : ''}>
+                <div key={preview.id}>
+                  <div className="preview-label">{preview.label}</div>
+                  <InteractionPreview ref={this.previewRefs[preview.id]}
+                    id={`preview-${preview.id}`}
+                    groupName={this.state.groupName}
+                    preview={preview}
+                    onClick={() => this.onClickInteractionPreview(preview)}/>
+                </div>
+              )
+            })
+          }
+        </div>
+      </div>
+    );
   }
 
 }

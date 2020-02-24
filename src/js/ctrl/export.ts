@@ -246,38 +246,38 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
     // Add demonstrations
     demonstrations(group, id, state);
     // Add interaction signals
-    if (!preview) {
-      const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
-      if (interactionState) {
-        interactionState.forEach((interaction) => {
-          const selectionDef = interaction.selectionDef;
-          const applicationDef = interaction.applicationDef;
-          if (interaction.get('groupId') === id) {
-            if (selectionDef) {
-              if(selectionDef.label!=='Widget') { group.signals = editSignals(group.signals, selectionDef.signals); }
-              const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
-              if (applicationDef && applicationDef.groupName === group.name) {
-                if (isDemonstratingInterval && applicationDef.id === 'panzoom') {
-                  const applicationDefClone = Object.assign({}, applicationDef);
-                  if (selectionDef.id === 'brush_x') {
-                    applicationDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'x');
-                  }
-                  else if  (selectionDef.id === 'brush_y') {
-                    applicationDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'y');
-                  }
-                  console.log(applicationDefClone.scaleProperties);
-                  group.scales = editScales(group.scales, applicationDefClone);
-                }
-                group.marks = editMarks(group.marks, applicationDef);
-              }
-            }
-          }
-          else if (applicationDef && applicationDef.groupName === group.name) {
-            group.marks = editMarks(group.marks, applicationDef);
-          }
-        });
-      }
-    }
+    // if (!preview) {
+    //   const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
+    //   if (interactionState) {
+    //     interactionState.forEach((interaction) => {
+    //       const selectionDef = interaction.selectionDef;
+    //       const applicationDef = interaction.applicationDef;
+    //       if (interaction.get('groupId') === id) {
+    //         if (selectionDef) {
+    //           if(selectionDef.label!=='Widget') { group.signals = editSignals(group.signals, selectionDef.signals); }
+    //           const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
+    //           if (applicationDef && applicationDef.groupName === group.name) {
+    //             if (isDemonstratingInterval && applicationDef.id === 'panzoom') {
+    //               const applicationDefClone = Object.assign({}, applicationDef);
+    //               if (selectionDef.id === 'brush_x') {
+    //                 applicationDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'x');
+    //               }
+    //               else if  (selectionDef.id === 'brush_y') {
+    //                 applicationDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'y');
+    //               }
+    //               console.log(applicationDefClone.scaleProperties);
+    //               group.scales = editScales(group.scales, applicationDefClone);
+    //             }
+    //             group.marks = editMarks(group.marks, applicationDef);
+    //           }
+    //         }
+    //       }
+    //       else if (applicationDef && applicationDef.groupName === group.name) {
+    //         group.marks = editMarks(group.marks, applicationDef);
+    //       }
+    //     });
+    //   }
+    // }
   }
 
   return spec;
