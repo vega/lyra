@@ -72,6 +72,7 @@ export type SelectionRecord = PointSelectionRecord | IntervalSelectionRecord;
 export type LyraMarkApplication = {
   targetMarkName: string; // which mark does this application affect?
   isDemonstratingInterval: boolean; // true for interval, false for point
+  propertyName: string; // which property (e.g. fill, opacity, size)
   // selectedValue: any; // value of property when mark is selected /// TODO(jzong): currently using the existing mark value
   defaultValue: any; // value of property otherwise
 } & LyraInteractionPreview;
@@ -82,6 +83,7 @@ export const MarkApplication = Record<LyraMarkApplication>({
   label: null,
   targetMarkName: null,
   isDemonstratingInterval: null,
+  propertyName: null,
   // selectedValue: null,
   defaultValue: null
 }, 'LyraMarkApplication');

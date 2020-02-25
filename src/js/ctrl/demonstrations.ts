@@ -87,11 +87,11 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, applic
       return applyMarkProperties(sceneSpec, groupName, targetMarkName, {
         "encode": {
           "update": {
-            "fill": [
+            [application.propertyName]: [
               {
                 "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
                                                   `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
-                "value": "orange" // right now, we expect this to be overwritten with the mark's value
+                "value": "" // TODO right now, we expect this to be overwritten with the mark's value
               },
               {"value": defaultValue}
             ],
@@ -163,11 +163,6 @@ function applyMarkProperties(sceneSpec, groupName: string, markName: string, mar
   sceneSpec = duplicate(sceneSpec);
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      // TODO (jzong) add back a way to scale stuff down for preview
-      // if (preview.markProperties.encode && preview.markProperties.encode.update && preview.markProperties.encode.update.size) {
-      //   // make symbol previews look nicer
-      //   preview.markProperties.encode.update.size[1].value /= 5;
-      // }
       markSpec.marks = markSpec.marks.map(mark => {
         if (mark.type === 'group' || mark.name.indexOf('lyra') === 0) return mark;
         if (mark.name === markName) {
@@ -179,12 +174,14 @@ function applyMarkProperties(sceneSpec, groupName: string, markName: string, mar
           if (markProperties.encode && markProperties.encode.update) {
             for (let [key, value] of Object.entries(markProperties.encode.update)) {
               const oldValue = mark.encode.update[key];
-              if (oldValue.value || oldValue.signal || oldValue.field) {
-                delete value[0].value;
-                value[0] = {...value[0], ...oldValue};
-              } else if (Array.isArray(oldValue) && oldValue[0].test && !value[0].test.includes(oldValue[0].test)) {
-                value[0].test = value[0].test + ' && ' + oldValue[0].test;
-                value[0].value = oldValue[0].value;
+              if (oldValue) {
+                if (oldValue.value || oldValue.signal || oldValue.field) {
+                  delete value[0].value;
+                  value[0] = {...value[0], ...oldValue};
+                } else if (Array.isArray(oldValue) && oldValue[0].test && !value[0].test.includes(oldValue[0].test)) {
+                  value[0].test = value[0].test + ' && ' + oldValue[0].test;
+                  value[0].value = oldValue[0].value;
+                }
               }
               mark.encode.update[key] = value;
             }
@@ -951,11 +948,11 @@ export function cleanSpecForPreview(sceneSpec, groupName): Spec {
         markSpec.marks[0].encode.update.size = {"value": "10"};
       }
 
-      // if (markSpec.name !== groupName) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
-      //   markSpec.clip = true;
-      //   markSpec.encode.update.x = {"value": -999};
-      //   markSpec.encode.update.y = {"value": -999};
-      // }
+      if (markSpec.name !== groupName) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
+        markSpec.clip = true;
+        markSpec.encode.update.x = {"value": -999};
+        markSpec.encode.update.y = {"value": -999};
+      }
     }
     return markSpec;
   });

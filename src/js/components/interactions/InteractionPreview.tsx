@@ -25,17 +25,15 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     // const spec = ctrl.export(false, true);
     const spec = cleanSpecForPreview(ctrl.export(false, true), this.props.groupName);
 
-    // switch (preview.type) {
-    //   case 'point':
-    //   case 'interval':
-    //     const lol = addSelectionToScene(spec, this.props.groupName, preview as SelectionRecord);;
-    //     return lol
-    //   case 'mark':
-    //   case 'scale':
-    //   case 'transform':
-    //     const lel = addApplicationToScene(spec, this.props.groupName, preview as ApplicationRecord);
-    //     return lel
-    // }
+    switch (preview.type) {
+      case 'point':
+      case 'interval':
+        return addSelectionToScene(spec, this.props.groupName, preview as SelectionRecord);
+      case 'mark':
+      case 'scale':
+      case 'transform':
+        return addApplicationToScene(spec, this.props.groupName, preview as ApplicationRecord);
+    }
     // console.warn('expected switch to be exhaustive');
     return spec;
   }
@@ -80,7 +78,7 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   public render() {
 
     return (
-      <div id={`${this.props.groupName}-${this.props.id}`} onClick={this.props.onClick}></div>
+      <div id={`${this.props.groupName}-${this.props.id}`} className={"interaction-preview"} onClick={this.props.onClick}></div>
     );
   }
 

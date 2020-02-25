@@ -221,7 +221,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
 
   private mainViewSignalValues = {};
 
-  private generatePreviews = debounce(500, () => {
+  private generatePreviews = debounce(250, () => {
       const groupId = this.state.groupId;
       const marksOfGroup = this.props.marksOfGroups.get(groupId);
       const scaleInfo = this.props.scaleInfoForGroups.get(groupId);
@@ -333,6 +333,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
         label: "Color",
         targetMarkName: exportName(mark.name),
         isDemonstratingInterval: this.state.isDemonstratingInterval,
+        propertyName: "fill",
         defaultValue: "grey"
       }));
       defs.push(MarkApplication({
@@ -340,6 +341,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
         label: "Opacity",
         targetMarkName: exportName(mark.name),
         isDemonstratingInterval: this.state.isDemonstratingInterval,
+        propertyName: "opacity",
         defaultValue: "0.2"
       }));
       if (mark.type === 'symbol') {
@@ -348,6 +350,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
           label: "Size",
           targetMarkName: exportName(mark.name),
           isDemonstratingInterval: this.state.isDemonstratingInterval,
+          propertyName: "size",
           defaultValue: 30
         }));
       }
@@ -387,14 +390,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     return defs;
   }
 
-  private onMainViewAnySignal(name, value) {
-    // console.log(name, value);
-    this.mainViewSignalValues[name] = value;
-  }
-
-  private onMainViewPointSignal(name, value) {
-    this.onMainViewAnySignal(name, value);
-
+  private updateIsDemonstratingInterval() {
     const isDemonstratingInterval = (this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&
       this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
@@ -404,78 +400,71 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
         this.setState({
           isDemonstratingInterval
         });
-
     }
-
-    // this.state.selectionPreviews.forEach(preview => {
-    //   if (preview.ref.current) {
-    //     preview.ref.current.setPreviewSignal(name, value);
-    //   }
-    // });
-    // this.state.applicationPreviews.forEach(preview => {
-    //   if (preview.ref.current) {
-    //     preview.ref.current.setPreviewSignal(name, value);
-    //   }
-    // });
   }
 
-  private cancelDemonstrationTimeout = null;
+  private updatePreviewSignals(name, value) {
+    this.state.selectionPreviews.forEach(preview => {
+      if (this.previewRefs[preview.id] && this.previewRefs[preview.id].current) {
+        this.previewRefs[preview.id].current.setPreviewSignal(name, value);
+      }
+    });
+    this.state.applicationPreviews.forEach(preview => {
+      if (this.previewRefs[preview.id] && this.previewRefs[preview.id].current) {
+        this.previewRefs[preview.id].current.setPreviewSignal(name, value);
+      }
+    });
+  }
+
+  private onMainViewPointSignal(name, value) {
+    this.mainViewSignalValues[name] = value;
+
+    this.updateIsDemonstratingInterval();
+
+    this.updatePreviewSignals(name, value);
+  }
 
   private onMainViewIntervalSignal(name, value) {
-    this.onMainViewAnySignal(name, value);
+    this.mainViewSignalValues[name] = value;
 
-    const isDemonstratingInterval = (this.mainViewSignalValues['brush_x'] &&
-      this.mainViewSignalValues['brush_y'] &&
-      this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
-      this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1]) || !this.mainViewSignalValues['points_tuple'];
-    if (isDemonstratingInterval !== this.state.isDemonstratingInterval) {
-      this.setState({
-        isDemonstratingInterval
-      });
-    }
-    // const wScale = 100/640;
-    // const hScale = 100/360; // TODO(jzong) preview height / main view height
+    this.updateIsDemonstratingInterval();
 
-    // const scaledValue = value.map(n => {
-    //   if (name === 'brush_x') {
-    //     return n * wScale;
-    //   }
-    //   else if (name === 'brush_y') {
-    //     return n * hScale;
-    //   }
-    // });
+    const wScale = 100/640;
+    const hScale = 100/360; // TODO(jzong) preview height / main view height
 
-    // this.state.selectionPreviews.forEach(preview => {
-    //   if (preview.ref.current) {
-    //     preview.ref.current.setPreviewSignal(name, scaledValue);
-    //   }
-    // });
-    // this.state.applicationPreviews.forEach(preview => {
-    //   if (preview.ref.current) {
-    //     preview.ref.current.setPreviewSignal(name, scaledValue);
-    //   }
-    // });
+    const scaledValue = value.map(n => {
+      if (name === 'brush_x') {
+        return n * wScale;
+      }
+      else if (name === 'brush_y') {
+        return n * hScale;
+      }
+    });
+
+    this.updatePreviewSignals(name, scaledValue);
   }
 
   private onMainViewGridSignal(name, value) {
-    this.onMainViewAnySignal(name, value);
+    this.mainViewSignalValues[name] = value;
 
-    // const wScale = 100/640;
-    // const hScale = 100/360; // TODO(jzong) preview height / main view height
-    // const scaledValue = this.mainViewSignalValues['grid_translate_delta'] ? {
-    //   x: this.mainViewSignalValues['grid_translate_delta'].x * wScale,
-    //   y: this.mainViewSignalValues['grid_translate_delta'].y * hScale
-    // } : null;
-    // this.state.applicationPreviews.forEach(preview => {
-    //   if (preview.ref.current) {
-    //     if (this.mainViewSignalValues['grid_translate_anchor']) {
-    //       preview.ref.current.setPreviewSignal('grid_translate_anchor', this.mainViewSignalValues['grid_translate_anchor']);
-    //     }
-    //     if (this.mainViewSignalValues['grid_translate_delta']) {
-    //       preview.ref.current.setPreviewSignal('grid_translate_delta', scaledValue);
-    //     }
-    //   }
-    // });
+    const wScale = 100/640;
+    const hScale = 100/360; // TODO(jzong) preview height / main view height
+    const scaledValue = this.mainViewSignalValues['grid_translate_delta'] ? {
+      x: this.mainViewSignalValues['grid_translate_delta'].x * wScale,
+      y: this.mainViewSignalValues['grid_translate_delta'].y * hScale
+    } : null;
+
+    // update grid signals in previews
+    this.state.applicationPreviews.forEach(preview => {
+      if (this.previewRefs[preview.id] && this.previewRefs[preview.id].current) {
+        if (this.mainViewSignalValues['grid_translate_anchor']) {
+          this.previewRefs[preview.id].current.setPreviewSignal('grid_translate_anchor', this.mainViewSignalValues['grid_translate_anchor']);
+        }
+        if (this.mainViewSignalValues['grid_translate_delta']) {
+          this.previewRefs[preview.id].current.setPreviewSignal('grid_translate_delta', scaledValue);
+        }
+      }
+    });
   }
 
   private restoreSignalValues(groupName) {
