@@ -477,6 +477,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
 
   private onSignal(groupId, groupName, signalName, handler) {
     listeners.onSignalInGroup(ctrl.view, groupName, signalName, (name, value) => {
+      console.log(groupId);
       if (this.state.groupId !== groupId) {
         this.setState({
           groupId,

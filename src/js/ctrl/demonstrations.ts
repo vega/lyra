@@ -126,7 +126,9 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, applic
 
       const newDatasetName = datasetName + "_filter_" + targetGroupName;
 
-      sceneSpec = applyMarkProperties(sceneSpec, groupName, targetMarkName, {
+      console.log(targetGroupName, targetMarkName, newDatasetName);
+
+      sceneSpec = applyMarkProperties(sceneSpec, targetGroupName, targetMarkName, {
         "from": {
           "data": newDatasetName
         }
@@ -143,6 +145,8 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, applic
           `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
         }, ...transform]
       });
+
+      console.log(sceneSpec);
 
       return sceneSpec;
   }

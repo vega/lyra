@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {View, parse, Spec} from 'vega';
-import {ApplicationRecord, SelectionRecord} from '../../store/factory/Interaction';
+import {ApplicationRecord, SelectionRecord, TransformApplicationRecord} from '../../store/factory/Interaction';
 import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview} from '../../ctrl/demonstrations';
 
 const listeners = require('../../ctrl/listeners');
@@ -23,7 +23,8 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
 
   private previewToSpec(preview: SelectionRecord | ApplicationRecord): Spec {
     // const spec = ctrl.export(false, true);
-    const spec = cleanSpecForPreview(ctrl.export(false, true), this.props.groupName);
+    const groupName = (preview as TransformApplicationRecord).targetGroupName || this.props.groupName;
+    const spec = cleanSpecForPreview(ctrl.export(false, true), groupName);
 
     switch (preview.type) {
       case 'point':
