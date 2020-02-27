@@ -84,13 +84,6 @@ body {
       display: block;
     }
 
-    > div {
-      &.active {
-        display: block;
-      }
-      display: none;
-    }
-
     h2 {
       justify-content: normal;
       margin: 0 $outer-padding;
