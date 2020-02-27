@@ -1,4 +1,4 @@
-import {Map} from 'immutable';
+import {Seq, List} from 'immutable';
 import {extend, isArray, isObject, isString, Mark, Signal, Spec} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
 import {State, store} from '../store';
@@ -10,8 +10,9 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {demonstrationDatasets, demonstrations, editMarks, editScales, editSignals} from './demonstrations';
+import {demonstrationDatasets, demonstrations, editMarks, editScales, editSignals, addSelectionToScene, addApplicationToScene} from './demonstrations';
 import manipulators from './manipulators';
+import exportName from '../util/exportName';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -48,7 +49,7 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
   spec.data = exporter.pipelines(state, int, prev);
 
   // add data stores for demonstration
-  demonstrationDatasets(spec, state);
+  demonstrationDatasets(spec);
 
   spec.signals = exporter.signals(state, int, prev);
 
@@ -208,9 +209,9 @@ exporter.mark = function(state: State, internal: boolean, preview: boolean, id: 
 };
 
 exporter.group = function(state: State, internal: boolean, preview: boolean, id: number) {
-  const mark: GroupRecord = getInVis(state, `marks.${id}`),
-    spec = exporter.mark(state, internal, preview, id),
-    group = internal ? spec[0] : spec;
+  const mark: GroupRecord = getInVis(state, `marks.${id}`);
+  let spec = exporter.mark(state, internal, preview, id);
+  const group = internal ? spec[0] : spec;
 
   ['scale', 'mark', 'axe', 'legend'].forEach(function(childType) {
     const childTypes = childType + 's', // Pluralized for spec key.
@@ -243,41 +244,17 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
       {name: 'width', value: groupSize(mark, 'x')},
       {name: 'height', value: groupSize(mark, 'y')},
     );
-    // Add demonstrations
+    // Add demonstrations signal/mark scaffolding
     demonstrations(group, id, state);
-    // Add interaction signals
-    // if (!preview) {
-    //   const interactionState: Map<string, InteractionRecord> = state.getIn(['vis', 'present', 'interactions']);
-    //   if (interactionState) {
-    //     interactionState.forEach((interaction) => {
-    //       const selectionDef = interaction.selectionDef;
-    //       const applicationDef = interaction.applicationDef;
-    //       if (interaction.get('groupId') === id) {
-    //         if (selectionDef) {
-    //           if(selectionDef.label!=='Widget') { group.signals = editSignals(group.signals, selectionDef.signals); }
-    //           const isDemonstratingInterval = selectionDef.id.indexOf('brush') >= 0;
-    //           if (applicationDef && applicationDef.groupName === group.name) {
-    //             if (isDemonstratingInterval && applicationDef.id === 'panzoom') {
-    //               const applicationDefClone = Object.assign({}, applicationDef);
-    //               if (selectionDef.id === 'brush_x') {
-    //                 applicationDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'x');
-    //               }
-    //               else if  (selectionDef.id === 'brush_y') {
-    //                 applicationDefClone.scaleProperties = applicationDef.scaleProperties.filter(scale => scale._axis === 'y');
-    //               }
-    //               console.log(applicationDefClone.scaleProperties);
-    //               group.scales = editScales(group.scales, applicationDefClone);
-    //             }
-    //             group.marks = editMarks(group.marks, applicationDef);
-    //           }
-    //         }
-    //       }
-    //       else if (applicationDef && applicationDef.groupName === group.name) {
-    //         group.marks = editMarks(group.marks, applicationDef);
-    //       }
-    //     });
-    //   }
-    // }
+    // Add interactions from store
+    const groupName = exportName(mark.name);
+    mark._interactions.forEach(interactionId => {
+      const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+      if (interaction.selection && interaction.application) {
+        spec = addSelectionToScene(spec, groupName, interaction.selection);
+        spec = addApplicationToScene(spec, groupName, interaction.application);
+      }
+    });
   }
 
   return spec;

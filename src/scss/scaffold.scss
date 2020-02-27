@@ -76,9 +76,19 @@ body {
 
 
   .interaction-preview-container .preview-controller {
+    background: rgba(0,0,0,0.1);
+    padding: $outer-padding;
+    display: none;
+
     &.active {
-      background: rgba(0,0,0,0.1);
-      padding: $outer-padding;
+      display: block;
+    }
+
+    > div {
+      &.active {
+        display: block;
+      }
+      display: none;
     }
 
     h2 {
