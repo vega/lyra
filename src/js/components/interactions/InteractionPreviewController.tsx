@@ -3,7 +3,7 @@ import {Map} from 'immutable';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {getScaleInfoForGroup, ScaleSimpleType} from '../../ctrl/demonstrations';
-import {Interaction, ApplicationRecord, ScaleInfo, PointSelectionRecord, IntervalSelectionRecord, SelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication} from '../../store/factory/Interaction';
+import {Interaction, ApplicationRecord, ScaleInfo, PointSelectionRecord, IntervalSelectionRecord, SelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionRecord} from '../../store/factory/Interaction';
 import {Dispatch} from 'redux';
 import {addInteraction, setSelection, setApplication} from '../../actions/interactionActions';
 import {GroupRecord} from '../../store/factory/marks/Group';
@@ -25,12 +25,7 @@ interface StateProps {
   fieldsOfGroups: Map<number, string[]>; // map of group ids to array of fields
   canDemonstrateGroups: Map<number, Boolean>;
   datasets: Map<string, DatasetRecord>;
-  // canDemonstrate: boolean;
-  // groupRecord: GroupRecord;
-  // marksOfGroup: any[];
-  // groupName: string;
-  // interactionRecord: InteractionRecord;
-  // scaleInfo: ScaleInfo;
+  interactionsOfGroups: Map<number, InteractionRecord[]>;
 
 }
 
@@ -44,6 +39,7 @@ interface DispatchProps {
 interface OwnState {
   groupId: number; // active group (the one that the user is demonstrating on)
   groupName: string; // active group (the one that the user is demonstrating on)
+  isDemonstrating: boolean,
   isDemonstratingInterval: boolean,
   selectionPreviews: SelectionRecord[];
   applicationPreviews: ApplicationRecord[];
@@ -66,10 +62,6 @@ function mapStateToProps(state: State): StateProps {
   const canDemonstrateGroups: Map<number, Boolean> = Map(scaleInfoForGroups.map((scaleInfo) => {
     return Boolean(!isParsing && ctrl.view && (scaleInfo.xScaleName && scaleInfo.xFieldName || scaleInfo.yScaleName && scaleInfo.yFieldName));
   }));
-
-  // const canDemonstrate = Boolean(!isParsing && ctrl.view && (scaleInfo.xScaleName && scaleInfo.xFieldName || scaleInfo.yScaleName && scaleInfo.yFieldName));
-
-  // const groupRecord: GroupRecord = state.getIn(['vis', 'present', 'marks', String(ownProps.groupId)]);
 
   const marksOfGroups: Map<number, MarkRecord[]> = groups.map(group => {
     return group.marks.map(markId => {
@@ -110,15 +102,24 @@ function mapStateToProps(state: State): StateProps {
   //   }
   // }
   // if (!interactionRecordId) {
-  //   const maybeUnfinishedSpecification = groupRecord.get('_interactions').filter(id => {
-  //     const record: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(id)]);
-  //     return !Boolean(record.selectionDef && record.applicationDef);
+  // const unfinishedInteractionIdsOfGroups = groups.map(group => {
+  //   const maybeUnfinishedInteractionId = group._interactions.filter(interactionId => {
+  //     const record: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+  //     return !Boolean(record.selection && record.application);
   //   });
-  //   if (maybeUnfinishedSpecification.length) {
-  //     interactionRecordId = maybeUnfinishedSpecification[0];
+  //   if (maybeUnfinishedInteractionId.length) {
+  //     return maybeUnfinishedInteractionId[0];
   //   }
+  //   return -1;
+  // });
   // }
   // const interactionRecord = interactionRecordId ? state.getIn(['vis', 'present', 'interactions', String(interactionRecordId)]) : null;
+
+  const interactionsOfGroups = groups.map(group => {
+    return group._interactions.map(interactionId => {
+      return state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+    })
+  });
 
   return {
     groups,
@@ -126,13 +127,8 @@ function mapStateToProps(state: State): StateProps {
     marksOfGroups,
     fieldsOfGroups,
     canDemonstrateGroups,
-    datasets
-    // canDemonstrate,
-    // groupRecord,
-    // marksOfGroup,
-    // groupName: exportName(groupRecord.name),
-    // interactionRecord,
-    // scaleInfo
+    datasets,
+    interactionsOfGroups
   };
 }
 
@@ -166,6 +162,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     super(props);
 
     this.state = {
+      isDemonstrating: false,
       isDemonstratingInterval: false,
       groupId: null,
       groupName: null,
@@ -175,14 +172,6 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
   }
 
   public componentDidUpdate(prevProps: StateProps, prevState: OwnState) {
-    // if (prevProps.vegaIsParsing && !this.props.vegaIsParsing) {
-    //   const spec = cleanSpecForPreview(ctrl.export(false, true), this.props.groupName);
-    //   // spec = resizeSpec(spec, 100, 100);
-    //   this.setState({
-    //     spec
-    //   });
-    // }
-
     this.props.groups.forEach((group) => {
       const groupId = group._id;
       const groupName = exportName(group.name);
@@ -201,22 +190,6 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     if (prevState.groupId !== this.state.groupId || prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval) {
       this.generatePreviews();
     }
-
-    // if (prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval ||
-    //     prevState.isDemonstratingPoint !== this.state.isDemonstratingPoint) {
-    //   if (this.state.isDemonstratingInterval || this.state.isDemonstratingPoint) {
-    //     if (!this.props.interactionRecord) {
-    //       this.props.addInteraction(this.props.groupId);
-    //     }
-    //     else {
-    //       this.props.selectInteraction(this.props.interactionRecord.id);
-    //     }
-    //   }
-    //   this.setState({
-    //     selectionPreviews: this.getSelectionPreviewDefs(),
-    //     applicationPreviews: this.getApplicationPreviewDefs()
-    //   });
-    // }
   }
 
   private mainViewSignalValues = {};
@@ -390,14 +363,20 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     return defs;
   }
 
-  private updateIsDemonstratingInterval() {
-    const isDemonstratingInterval = (this.mainViewSignalValues['brush_x'] &&
+  private updateIsDemonstrating(){
+    const intervalActive = (this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&
       this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
-      this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1]) || !this.mainViewSignalValues['points_tuple'];
+      this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1]);
+    const pointActive = Boolean(this.mainViewSignalValues['points_tuple']);
 
-    if (isDemonstratingInterval !== this.state.isDemonstratingInterval) {
+    const isDemonstrating = intervalActive || pointActive;
+    const isDemonstratingInterval = intervalActive || !pointActive;
+
+    if (isDemonstrating !== this.state.isDemonstrating || isDemonstratingInterval !== this.state.isDemonstratingInterval) {
+      console.log('isdemonstrating changed');
         this.setState({
+          isDemonstrating,
           isDemonstratingInterval
         });
     }
@@ -419,7 +398,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
   private onMainViewPointSignal(name, value) {
     this.mainViewSignalValues[name] = value;
 
-    this.updateIsDemonstratingInterval();
+    this.updateIsDemonstrating();
 
     this.updatePreviewSignals(name, value);
   }
@@ -427,7 +406,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
   private onMainViewIntervalSignal(name, value) {
     this.mainViewSignalValues[name] = value;
 
-    this.updateIsDemonstratingInterval();
+    this.updateIsDemonstrating();
 
     const wScale = 100/640;
     const hScale = 100/360; // TODO(jzong) preview height / main view height
@@ -477,7 +456,6 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
 
   private onSignal(groupId, groupName, signalName, handler) {
     listeners.onSignalInGroup(ctrl.view, groupName, signalName, (name, value) => {
-      console.log(groupId);
       if (this.state.groupId !== groupId) {
         this.setState({
           groupId,
@@ -497,8 +475,8 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
 
     // return <div></div>;
     return (
-      <div className={"preview-controller" + (this.state.selectionPreviews.length  ? " active" : "")}>
-        {this.state.selectionPreviews.length ? <h2>Interactions</h2> : null}
+      <div className={"preview-controller" + (this.state.isDemonstrating  ? " active" : "")}>
+        {this.state.isDemonstrating ? <h2>Interactions</h2> : null}
         {this.state.selectionPreviews.length ? <h5>Selections</h5> : null}
         <div className="preview-scroll">
           {
