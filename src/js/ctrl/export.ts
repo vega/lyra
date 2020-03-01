@@ -45,13 +45,23 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
 
   counts = duplicate(SPEC_COUNT);
 
-  const spec: Spec = exporter.scene(state, int, prev);
+  let spec: Spec = exporter.scene(state, int, prev);
   spec.data = exporter.pipelines(state, int, prev);
 
   // add data stores for demonstration
   demonstrationDatasets(spec);
 
   spec.signals = exporter.signals(state, int, prev);
+
+  // Add interactions from store
+  state.getIn(['vis', 'present', 'interactions']).forEach((interaction: InteractionRecord) => {
+    if (interaction.selection && interaction.application) {
+      const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
+      const groupName = exportName(group.name);
+      spec = addSelectionToScene(spec, groupName, interaction.selection);
+      spec = addApplicationToScene(spec, groupName, interaction.application);
+    }
+  });
 
   return spec;
 }
@@ -246,15 +256,6 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
     );
     // Add demonstrations signal/mark scaffolding
     demonstrations(group, id, state);
-    // Add interactions from store
-    const groupName = exportName(mark.name);
-    mark._interactions.forEach(interactionId => {
-      const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
-      if (interaction.selection && interaction.application) {
-        spec = addSelectionToScene(spec, groupName, interaction.selection);
-        spec = addApplicationToScene(spec, groupName, interaction.application);
-      }
-    });
   }
 
   return spec;

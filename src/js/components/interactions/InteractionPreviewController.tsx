@@ -14,6 +14,7 @@ import {selectInteraction} from '../../actions/inspectorActions';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionPreview} from './InteractionPreview';
 import { debounce } from "throttle-debounce";
+import interval from 'vega-lite/src/compile/selection/interval';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -30,7 +31,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  addInteraction: (groupId: number) => number; // return id of newly created interaction
+  addInteraction: (groupId: number) => number; // return newly created interaction
   setSelection: (def: any, id: number) => void;
   setApplication: (def: any, id: number) => void;
   selectInteraction: (id: number) => void;
@@ -43,6 +44,7 @@ interface OwnState {
   isDemonstratingInterval: boolean,
   selectionPreviews: SelectionRecord[];
   applicationPreviews: ApplicationRecord[];
+  interactionId: number;
 }
 
 function mapStateToProps(state: State): StateProps {
@@ -167,7 +169,8 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
       groupId: null,
       groupName: null,
       selectionPreviews: [],
-      applicationPreviews: []
+      applicationPreviews: [],
+      interactionId: null
     };
   }
 
@@ -189,6 +192,33 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
 
     if (prevState.groupId !== this.state.groupId || prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval) {
       this.generatePreviews();
+    }
+
+    if (prevState.groupId !== this.state.groupId) {
+      const interactionsOfGroup = this.props.interactionsOfGroups.get(this.state.groupId);
+      if (interactionsOfGroup.length) {
+        const maybeUnfinishedInteraction = interactionsOfGroup.filter(interaction => {
+          return !Boolean(interaction.selection && interaction.application);
+        });
+        if (maybeUnfinishedInteraction.length) {
+          const unfinishedInteraction = maybeUnfinishedInteraction[0];
+          this.setState({
+            interactionId: unfinishedInteraction.id
+          });
+        }
+        else {
+          const latestInteraction = interactionsOfGroup[interactionsOfGroup.length - 1];
+          this.setState({
+            interactionId: latestInteraction.id
+          });
+        }
+      }
+      else {
+        const interactionId = this.props.addInteraction(this.state.groupId);
+        this.setState({
+          interactionId
+        });
+      }
     }
   }
 
@@ -312,6 +342,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     const defs: ApplicationRecord[] = [];
 
     // TODO(jzong): could add a heuristic -- better way to sort these?
+    // TODO(jzong): change mark to dropdown
     marksOfGroup.forEach(mark => {
       defs.push(MarkApplication({
         id: "color",
@@ -375,7 +406,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     return defs;
   }
 
-  private updateIsDemonstrating(){
+  private updateIsDemonstrating() {
     const intervalActive = (this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&
       this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
@@ -385,14 +416,28 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     const isDemonstrating = intervalActive || pointActive;
     const isDemonstratingInterval = intervalActive || !pointActive;
 
-    if (isDemonstrating !== this.state.isDemonstrating || isDemonstratingInterval !== this.state.isDemonstratingInterval) {
-      console.log('isdemonstrating changed');
+    this.setState({
+      isDemonstratingInterval
+    });
+
+    if (!isDemonstrating) {
+      clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => {
         this.setState({
-          isDemonstrating,
-          isDemonstratingInterval
+          isDemonstrating
         });
+      }, 250);
+    }
+    else {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+      this.setState({
+        isDemonstrating
+      });
     }
   }
+
+  private timeout;
 
   private updatePreviewSignals(name, value) {
     this.state.selectionPreviews.forEach(preview => {
@@ -480,7 +525,18 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
 
   private previewRefs = {}; // id -> ref
 
-  private onClickInteractionPreview(preview) {
+  private onClickInteractionPreview(preview: SelectionRecord | ApplicationRecord) {
+    switch (preview.type) {
+      case 'point':
+      case 'interval':
+        this.props.setSelection(preview as SelectionRecord, this.state.interactionId);
+        break;
+      case 'mark':
+      case 'scale':
+      case 'transform':
+        this.props.setApplication(preview as ApplicationRecord, this.state.interactionId);
+        break;
+    }
   }
 
   private onSelectProjectionField(preview: SelectionRecord, field: string) {
@@ -495,7 +551,10 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
   }
 
   public render() {
-    console.log(this.state.selectionPreviews);
+    let interaction;
+    if (this.state.groupId && this.state.interactionId) {
+      interaction = this.props.interactionsOfGroups.get(this.state.groupId).filter(interaction => interaction.id === this.state.interactionId)[0];
+    }
     // return <div></div>;
     return (
       <div className={"preview-controller" + (this.state.isDemonstrating  ? " active" : "")}>
@@ -508,8 +567,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
                 this.previewRefs[preview.id] = React.createRef();
               }
               return (
-                // <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === preview.id ? 'selected' : ''}>
-                <div key={preview.id}>
+                <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}>
                   <div className="preview-label">{preview.label}
                     {
                       preview.id.includes('project') ?
@@ -538,8 +596,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
                 this.previewRefs[preview.id] = React.createRef();
               }
               return (
-                // <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === preview.id ? 'selected' : ''}>
-                <div key={preview.id}>
+                <div key={preview.id} className={interaction && interaction.application && interaction.application.id === preview.id ? 'selected' : ''}>
                   <div className="preview-label">{preview.label}</div>
                   <InteractionPreview ref={this.previewRefs[preview.id]}
                     id={`preview-${preview.id}`}

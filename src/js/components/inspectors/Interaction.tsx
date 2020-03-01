@@ -4,44 +4,38 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import { throttle } from "throttle-debounce";
 import {State} from '../../store';
-import {InteractionRecord, Interaction} from '../../store/factory/Interaction';
-import {Property} from './Property';
-import {ScaleInfo, LyraApplicationPreviewDef, LyraSelectionPreviewDef} from '../interactions/InteractionPreviewController';
-import {applicationPreviewDefs, getScaleInfoForGroup, selectionPreviewDefs, widgetApplicationPreviewDefs} from '../../ctrl/demonstrations';
+import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
-import exportName from '../../util/exportName';
 import {Dispatch} from 'redux';
-import {setSelection, setApplication, setValueInMark, setMarkPropertyValue} from '../../actions/interactionActions';
+import {setSelection, setApplication} from '../../actions/interactionActions';
 import {FormInputProperty} from './FormInputProperty';
-
-const ctrl = require('../../ctrl');
-const getInVis = require('../../util/immutable-utils').getInVis;
+import {getScaleInfoForGroup} from '../../ctrl/demonstrations';
+import {DatasetRecord} from '../../store/factory/Dataset';
+import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
+import {MarkRecord} from '../../store/factory/Mark';
 
 interface OwnProps {
   primId: number;
 }
 
 interface OwnState {
-  size: number;
-  color: string;
-  opacity: number;
+  // size: number;
+  // color: string;
+  // opacity: number;
 }
 
 interface DispatchProps {
-  setSelection: (def: LyraSelectionPreviewDef, id: number) => void;
-  setMapping: (def: LyraApplicationPreviewDef, id: number) => void;
-  setValueInMark: (payload: any, id: number) => void;
-  setMarkPropertyValue: (payload: any, id: number) => void;
+  setSelection: (record: SelectionRecord, id: number) => void;
+  setMapping: (record: ApplicationRecord, id: number) => void;
 }
 
 interface StateProps {
   interaction: InteractionRecord;
-  applicationDefs: LyraApplicationPreviewDef[];
-  selectionDefs: LyraSelectionPreviewDef[];
-  mappingOptions: string[];
-  selectionOptions: string[];
-  fields: string[];
-  type: string;
+  scaleInfo: ScaleInfo;
+  group: GroupRecord;
+  marksOfGroup: MarkRecord[];
+  fieldsOfGroup: string[];
+  // type: string;
 }
 
 
@@ -49,61 +43,48 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const interaction = state.getIn(['vis', 'present', 'interactions',  String(ownProps.primId)]);
   const groupId = interaction.get('groupId');
   const scaleInfo: ScaleInfo = getScaleInfoForGroup(state, groupId);
-  const groupRecord: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groupId)]);
-  const isInterval = interaction.selectionDef && interaction.selectionDef.id.startsWith('brush') ? true : false;
-  let type = 'brush';
-  if(interaction.selectionDef) {
-    if(interaction.selectionDef.id.startsWith('widget_')) type = 'widget'
-    else if(!isInterval) {
-      type = interaction.selectionDef.id;
-    }
+  const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groupId)]);
+  // marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, fieldsOfGroup: string[]
+
+  const marksOfGroup = group.marks.map(markId => {
+      return state.getIn(['vis', 'present', 'marks', String(markId)]);
+    }).filter((mark) => {
+      return !(mark.type === 'group' || mark.name.indexOf('lyra') === 0);
+    });
+
+  const datasets: Map<string, DatasetRecord> = state.getIn(['vis', 'present', 'datasets']);
+
+  let fieldsOfGroup = [];
+  if (marksOfGroup.length && marksOfGroup[0].from && marksOfGroup[0].from.data) {
+    const dsId = String(marksOfGroup[0].from.data);
+    const dataset: DatasetRecord =  datasets.get(dsId);
+    const schema = dataset.get('_schema');
+    const fields = schema.keySeq().toArray();
+    fieldsOfGroup = fields;
   }
-
-  const field = interaction.selectionDef && interaction.selectionDef.field;
-  const marksOfGroup = groupRecord.marks.map((markId) => {
-    return state.getIn(['vis', 'present', 'marks', String(markId)]).toJS();
-  }).filter((mark) => {
-    return !(mark.type === 'group' || mark.name.indexOf('lyra') === 0);
-  });
-  const applicationDefs =  applicationPreviewDefs(isInterval, marksOfGroup, scaleInfo, exportName(groupRecord.name), ctrl.export());
-  const applicationOptions = applicationDefs.map(e => e.id);
-  const selectionDefs = selectionPreviewDefs(true, true, marksOfGroup, scaleInfo, field);
-  const selectionOptions = selectionDefs.map(e => e.id);
-
-  const dsId = marksOfGroup[0].from.data;
-  const dataset =  getInVis(state, 'datasets.' + dsId);
-  const schema = dataset.get('_schema');
-  const fields = schema.keySeq().toArray();
 
   return {
     interaction,
-    applicationDefs: applicationDefs,
-    mappingOptions: applicationOptions,
-    selectionDefs,
-    selectionOptions,
-    fields,
-    type,
+    scaleInfo,
+    group,
+    marksOfGroup,
+    fieldsOfGroup,
+    // type,
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   return {
-    setSelection: (def: LyraSelectionPreviewDef, id: number) => {
+    setSelection: (def: SelectionRecord, id: number) => {
       dispatch(setSelection(def, id));
     },
-    setMapping: (def: LyraApplicationPreviewDef, id: number) => {
+    setMapping: (def: ApplicationRecord, id: number) => {
       dispatch(setApplication(def, id));
-    },
-    setValueInMark: (payload: any, id: number) => {
-      dispatch(setValueInMark(payload, id));
-    },
-    setMarkPropertyValue: (payload: any, id: number) => {
-      dispatch(setMarkPropertyValue(payload, id));
     }
   };
 }
 
-export function updateVal(field: string) {
+function updateVal(field: string) {
   return `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`
 }
 class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
@@ -202,109 +183,65 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   public render() {
-    let mapOptions = this.props.mappingOptions.map(e=> {
-      return <option key={e} value={e}>{e}</option>
-    });
-    mapOptions.push(<option hidden key='_blank1' value=''>Select Channel</option>)
 
-    let selectionOptions = this.props.selectionOptions.map(e=> {
-      return <option key={e} value={e}>{e}</option>
-    });
-    mapOptions.push(<option hidden key='_blank2' value=''>Select Type</option>)
+    // mapOptions.push(<option hidden key='_blank1' value=''>Select Channel</option>)
+    // fieldOptions.push(<option key='_blank3' value='_vgsid_'>None</option>)
 
-    let fieldOptions = this.props.fields.map(e => {
-      return <option key={e} value={e}>{e}</option>
-    });
-    fieldOptions.push(<option key='_blank3' value='_vgsid_'>None</option>)
-
-    const props = this.props;
     const interaction = this.props.interaction;
     const selectionDef = interaction.selection;
     const applicationDef = interaction.application;
-    const markPropertyValues = interaction.get('markPropertyValues');
+
     return (
       <div>
         <div className='property-group'>
-          <h3 className='label'>Placeholder</h3>
+          <h3 className='label'>Interaction</h3>
           <ul>
             <li>Name: {interaction.get('name')}</li>
-            <li>Selection: {selectionDef ? selectionDef.label : ''}</li>
-            <li>Mapping: {applicationDef ? applicationDef.label : ''}</li>
+            <li>Selection: {selectionDef ? selectionDef.label : 'None'}</li>
+            <li>Application: {applicationDef ? applicationDef.label : 'None'}</li>
           </ul>
         </div>
 
         <div className='property-group'>
+          <h3 className='label'>Selection</h3>
+          <ul>
+            <li>Field: </li>
+          </ul>
+        </div>
+
+        {
+          applicationDef ? (applicationDef.type === 'mark' ? <InteractionMarkApplicationProperty groupId={interaction.groupId} markApplication={applicationDef as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null) : null
+        }
+
+{/*
+        <div className='property-group'>
           <h3 className='label'>Settings</h3>
           <ul>
-          Selection :
-          {this.props.type == 'widget' ? 'Widget' :
+            Selection :
             <select value={selectionDef ? selectionDef.id : ''} onChange={e => this.handleSelectionChange(e.target.value)}>
-              {selectionOptions}
+              {
+                this.props.selections.map(selection => {
+                  return <option key={selection.id} value={selection.id}>{selection.label}</option>
+                })
+              }
             </select>
-          }
           </ul>
 
           <ul>
-          Channel :
-          <select value={applicationDef ? applicationDef.id : ''} onChange={e => this.handleApplicationChange(e.target.value)}>
-            {mapOptions}
-          </select>
-          </ul>
-
-          <ul className={this.props.type === 'widget' ? '' : 'hidden'}>
-            Field: {selectionDef && selectionDef.field}
-          </ul>
-
-          <ul className={this.props.type === 'multi' || this.props.type =='single' ? '': 'hidden'}>
-          Project On :
-          <select value={selectionDef ? selectionDef.field : '_vgsid_'} onChange={e => this.handleFieldChange(e.target.value)}>
-            {fieldOptions}
-          </select>
+            Application :
+            <select value={applicationDef ? applicationDef.id : ''} onChange={e => this.handleApplicationChange(e.target.value)}>
+              {
+                this.props.applications.map(application => {
+                  return <option key={application.id} value={application.id}>{application.label}</option>
+                })
+              }
+            </select>
           </ul>
         </div>
 
-        <div className={applicationDef && applicationDef.id=='size' ? '':'hidden'}>
-          Size:
-          <FormInputProperty
-            name='size'
-            id='Size'
-            onChange={(e) => this.onPropertyChange(e, 'size')}
-            value={markPropertyValues.size}
-            type='number'
-            min='0'
-            max='500'
-            disabled={false}>
-          </FormInputProperty>
-          <br />
-        </div>
-
-        <div className={applicationDef && applicationDef.id == 'color' ? '' : 'hidden'}>
-          Color:
-          <FormInputProperty
-            name='color'
-            id='Color'
-            onChange={(e) => this.onPropertyChange(e, 'color')}
-            value={markPropertyValues.color}
-            type='color'
-            disabled={false}>
-          </FormInputProperty>
-          <br />
-        </div>
-
-        <div className={applicationDef && applicationDef.id == 'opacity' ? '' : 'hidden'}>
-          Opacity:
-          <FormInputProperty
-            name='opacity'
-            id='Opacity'
-            onChange={(e) => this.onPropertyChange(e, 'opacity')}
-            value={markPropertyValues.opacity}
-            min='0'
-            max='1'
-            step='0.05'
-            type='range'
-            disabled={false}>
-          </FormInputProperty>
-        </div>
+        {
+          applicationDef.type === 'mark' ? <InteractionMarkApplicationProperty groupId={interaction.groupId} markApplication={applicationDef as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null
+        } */}
 
       </div>
     );

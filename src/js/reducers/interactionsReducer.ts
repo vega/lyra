@@ -16,22 +16,14 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
 
   if (action.type === getType(interactionActions.setSelection)) {
     const t = action.payload;
-    return state.setIn([String(id), 'selectionDef'], t);
+    console.log(id, t);
+    return state.setIn([String(id), 'selection'], t);
   }
 
   if (action.type === getType(interactionActions.setApplication)) {
     const t = action.payload;
-    return state.setIn([String(id), 'applicationDef'], t);
-  }
-
-  if (action.type === getType(interactionActions.setValueInMark)) {
-    const {property, value} = action.payload;
-    return state.setIn([String(id), 'applicationDef', 'markProperties', 'encode', 'update', property, 1, 'value'], value);
-  }
-
-  if (action.type === getType(interactionActions.setMarkPropertyValue)) {
-    const {property, value} = action.payload;
-    return state.setIn([String(id), 'markPropertyValues', property], value);
+    console.log(id, t);
+    return state.setIn([String(id), 'application'], t);
   }
 
   if (action.type === getType(interactionActions.deleteInteraction)) {
