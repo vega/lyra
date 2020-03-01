@@ -144,15 +144,12 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, applic
         }, ...transform]
       });
 
-      console.log(sceneSpec);
-
       return sceneSpec;
   }
 }
 
 function applySignals(sceneSpec, groupName: string, signals: any[]): Spec {
   const sceneUpdated = duplicate(sceneSpec);
-  console.log(sceneUpdated);
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
       markSpec.signals = editSignals(markSpec.signals, signals);

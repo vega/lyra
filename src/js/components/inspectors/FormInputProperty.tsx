@@ -147,6 +147,8 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
     const onBlur = props.onBlur;
     const colorSupport = this.colorSupport();
 
+    console.log(props.type, value);
+
     switch (props.type) {
       case 'checkbox':
         return (

@@ -16,6 +16,7 @@ import {getScaleInfoForGroup} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {NumericValueRef, StringValueRef} from 'vega';
 import {setMarkVisual} from '../../actions/markActions';
+import {Property} from './Property';
 
 interface OwnProps {
   groupId: number;
@@ -92,14 +93,17 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
     const propertyValue = targetMark.encode.update[propertyName];
     const defaultValue = this.props.markApplication.defaultValue;
 
-    const attributes = {};
+    const attributes = {
+      primId: targetMark._id,
+      primType: "marks" as const
+    };
     switch (propertyName) {
       case 'size':
         attributes['type'] = 'number';
         attributes['min'] = '0';
         attributes['max'] = '500';
         break;
-      case 'color':
+      case 'fill':
         attributes['type'] = 'color';
         break;
       case 'opacity':
@@ -113,14 +117,7 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
     return (
       <div>
         Selected {propertyName} :
-        <FormInputProperty
-          name='propertyValue'
-          id='propertyValue'
-          onChange={(e) => this.onPropertyChange(e, propertyName, targetMark.id)}
-          value={propertyValue}
-          disabled={false}
-          {...attributes}>
-        </FormInputProperty>
+        <Property name={propertyName} label={propertyName} canDrop={true} {...attributes} />
         <br />
 
         Default {propertyName} :
