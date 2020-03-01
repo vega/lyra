@@ -1,6 +1,5 @@
 import {createStandardAction} from 'typesafe-actions';
-import {InteractionRecord} from '../store/factory/Interaction';
-import {LyraSelectionPreviewDef, LyraApplicationPreviewDef} from '../components/interactions/InteractionPreviewController';
+import {InteractionRecord, SelectionRecord, ApplicationRecord} from '../store/factory/Interaction';
 
 const counter  = require('../util/counter');
 
@@ -16,27 +15,12 @@ export const addInteraction = createStandardAction('ADD_INTERACTION').map((recor
   }
 });
 
-export const setSelection = createStandardAction('SET_SELECTION').map((preview: LyraSelectionPreviewDef, id: number) => {
-  const previewCopy = Object.assign({}, preview);
-  delete previewCopy.ref;
-  return {
-    payload: previewCopy, meta: id
-  }
-});
-export const setApplication = createStandardAction('SET_APPLICATION').map((preview: LyraApplicationPreviewDef, id: number) => {
-  const previewCopy = Object.assign({}, preview);
-  delete previewCopy.ref;
-  return {
-    payload: previewCopy, meta: id
-  }
-});
-export const setValueInMark = createStandardAction('SET_VALUE_IN_MARK').map((payload: any, id: number) => {
+export const setSelection = createStandardAction('SET_SELECTION').map((payload: SelectionRecord, id: number) => {
   return {
     payload, meta: id
   }
 });
-
-export const setMarkPropertyValue = createStandardAction('SET_MARK_PROPERTY_VALUE').map((payload: any, id: number) => {
+export const setApplication = createStandardAction('SET_APPLICATION').map((payload: ApplicationRecord, id: number) => {
   return {
     payload, meta: id
   }

@@ -17,7 +17,6 @@ export interface LyraInteraction {
   groupId: number;
   selection: SelectionRecord;
   application: ApplicationRecord;
-  markPropertyValues: PropertyValues;
 };
 
 export interface ScaleInfo {
@@ -129,8 +128,7 @@ export const Interaction = Record<LyraInteraction>({
   name: null,
   groupId: null,
   selection: null,
-  application: null,
-  markPropertyValues: {size: 10, opacity: 0.2, color: '#666666'}
+  application: null
 }, 'LyraInteraction');
 
 export type InteractionRecord = RecordOf<LyraInteraction>;
