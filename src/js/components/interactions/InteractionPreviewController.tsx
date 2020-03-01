@@ -15,9 +15,11 @@ import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionPreview} from './InteractionPreview';
 import { debounce } from "throttle-debounce";
 import interval from 'vega-lite/src/compile/selection/interval';
+import {Icon} from '../Icon';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
+const assets = require('../../util/assets');
 
 interface StateProps {
   groups: Map<number, GroupRecord>;
@@ -86,36 +88,10 @@ function mapStateToProps(state: State): StateProps {
     return [];
   });
 
-
   // const encState: EncodingStateRecord = state.getIn(['inspector', 'encodings']);
   // const selId   = encState.get('selectedId');
   // const selType = encState.get('selectedType');
   // const isSelectedInteraction = selType === getType(selectInteraction);
-
-  // let interactionRecordId = null;
-  // if (isSelectedInteraction) {
-  //   const maybeIdInGroup = groupRecord.get('_interactions').filter(id => {
-  //     const record: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(id)]);
-  //     // if (record.selectionDef && record.selectionDef.label === 'Widget') return false;
-  //     return id === selId;
-  //   });
-  //   if (maybeIdInGroup.length) {
-  //     interactionRecordId = maybeIdInGroup[0];
-  //   }
-  // }
-  // if (!interactionRecordId) {
-  // const unfinishedInteractionIdsOfGroups = groups.map(group => {
-  //   const maybeUnfinishedInteractionId = group._interactions.filter(interactionId => {
-  //     const record: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
-  //     return !Boolean(record.selection && record.application);
-  //   });
-  //   if (maybeUnfinishedInteractionId.length) {
-  //     return maybeUnfinishedInteractionId[0];
-  //   }
-  //   return -1;
-  // });
-  // }
-  // const interactionRecord = interactionRecordId ? state.getIn(['vis', 'present', 'interactions', String(interactionRecordId)]) : null;
 
   const interactionsOfGroups = groups.map(group => {
     return group._interactions.map(interactionId => {
@@ -193,7 +169,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
       this.generatePreviews();
     }
 
-    if (prevState.groupId !== this.state.groupId) {
+    if (prevState.groupId !== this.state.groupId || !prevState.isDemonstrating && this.state.isDemonstrating) {
       const interactionsOfGroup = this.props.interactionsOfGroups.get(this.state.groupId);
       if (interactionsOfGroup.length) {
         const maybeUnfinishedInteraction = interactionsOfGroup.filter(interaction => {
@@ -206,9 +182,15 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
           });
         }
         else {
-          const latestInteraction = interactionsOfGroup[interactionsOfGroup.length - 1];
+          // TODO(jzong) worth user testing the logic here. do we want the preview to edit old interactions or create new ones by default?
+
+          // const latestInteraction = interactionsOfGroup[interactionsOfGroup.length - 1];
+          // this.setState({
+          //   interactionId: latestInteraction.id
+          // });
+          const interactionId = this.props.addInteraction(this.state.groupId);
           this.setState({
-            interactionId: latestInteraction.id
+            interactionId
           });
         }
       }
@@ -549,15 +531,40 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     })
   }
 
+  private onSelectInteraction(interactionId: number) {
+    this.setState({
+      interactionId
+    })
+  }
+
+  private closePreview() {
+    this.setState({
+      isDemonstrating: false
+    })
+  }
+
   public render() {
-    let interaction;
+    let interaction, interactionOptions;
     if (this.state.groupId && this.state.interactionId) {
       interaction = this.props.interactionsOfGroups.get(this.state.groupId).filter(interaction => interaction.id === this.state.interactionId)[0];
+      interactionOptions = this.props.interactionsOfGroups.get(this.state.groupId).map((interaction) => {
+        return <option key={interaction.name} value={interaction.id}>{interaction.name}</option>;
+      });
     }
     // return <div></div>;
     return (
       <div className={"preview-controller" + (this.state.isDemonstrating  ? " active" : "")}>
-        {this.state.isDemonstrating ? <h2>Interactions</h2> : null}
+        {this.state.isDemonstrating ? (
+          <div className="preview-header">
+            <h2>Interactions</h2>
+            <select value={this.state.interactionId} onChange={e => this.onSelectInteraction(Number(e.target.value))}>
+              {interactionOptions}
+            </select>
+            <div className="preview-close">
+              <Icon glyph={assets.close} onClick={() => this.closePreview()} />
+            </div>
+          </div>
+        ) : null}
         {this.state.selectionPreviews.length ? <h5>Selections</h5> : null}
         <div className="preview-scroll">
           {

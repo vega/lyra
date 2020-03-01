@@ -82,7 +82,7 @@ class InteractionList extends React.Component<StateProps & DispatchProps> {
             const groupInteractions = group._interactions;
             if (groupInteractions && groupInteractions.length) {
               return (
-                <div className='interaction-list__group'>
+                <div key={groupId} className='interaction-list__group'>
                   <h5>{groupName}</h5>
                   <ul>
                     {
