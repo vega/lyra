@@ -5,7 +5,7 @@ import {Map} from 'immutable';
 import {connect} from 'react-redux';
 import { throttle } from "throttle-debounce";
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord} from '../../store/factory/Interaction';
+import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, MarkApplication} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import exportName from '../../util/exportName';
 import {Dispatch} from 'redux';
@@ -19,14 +19,13 @@ import {setMarkVisual} from '../../actions/markActions';
 import {Property} from './Property';
 
 interface OwnProps {
+  interactionId: number;
   groupId: number;
   markApplication: MarkApplicationRecord;
 }
 
 interface DispatchProps {
-  setSelection: (record: SelectionRecord, id: number) => void;
-  setMapping: (record: ApplicationRecord, id: number) => void;
-  setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
+  setApplication: (record: ApplicationRecord, id: number) => void;
 }
 
 interface StateProps {
@@ -52,14 +51,8 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
 function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   return {
-    setSelection: (def: SelectionRecord, id: number) => {
-      dispatch(setSelection(def, id));
-    },
-    setMapping: (def: ApplicationRecord, id: number) => {
+    setApplication: (def: ApplicationRecord, id: number) => {
       dispatch(setApplication(def, id));
-    },
-    setMarkVisual: (payload: any, markId: number) => {
-      dispatch(setMarkVisual(payload, markId));
     }
   };
 }
@@ -70,13 +63,10 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
     super(props);
   }
 
-  private onPropertyChange(e, propertyName, markId):void {
+  private onDefaultValueChange(e):void {
     const value = e.target && e.target.value;
     if (value) {
-      this.props.setMarkVisual({
-        property: propertyName,
-        def: value
-      }, markId);
+      this.props.setApplication(this.props.markApplication.set('defaultValue', value), this.props.interactionId);
     }
   }
 
@@ -90,7 +80,6 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
     const targetMark: MarkRecord = this.props.marks.filter((mark, markName) => {
       return markName === targetMarkName;
     }).valueSeq().first();
-    const propertyValue = targetMark.encode.update[propertyName];
     const defaultValue = this.props.markApplication.defaultValue;
 
     const attributes = {
@@ -124,7 +113,7 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
         <FormInputProperty
           name='defaultValue'
           id='defaultValue'
-          // onChange={(e) => this.onPropertyChange(e, propertyName, targetMark.id)}
+          onChange={(e) => this.onDefaultValueChange(e)}
           value={defaultValue}
           disabled={false}
           {...attributes}>
