@@ -45,7 +45,7 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
 
   counts = duplicate(SPEC_COUNT);
 
-  let spec: Spec = exporter.scene(state, int, prev);
+  const spec: Spec = exporter.scene(state, int, prev);
   spec.data = exporter.pipelines(state, int, prev);
 
   // add data stores for demonstration
@@ -54,6 +54,10 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
   spec.signals = exporter.signals(state, int, prev);
 
   // Add interactions from store
+  return exporter.interactions(state, spec);
+}
+
+exporter.interactions = function(state: State, spec) {
   state.getIn(['vis', 'present', 'interactions']).forEach((interaction: InteractionRecord) => {
     if (interaction.selection && interaction.application) {
       const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
@@ -62,7 +66,6 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
       spec = addApplicationToScene(spec, groupName, interaction.application);
     }
   });
-
   return spec;
 }
 
