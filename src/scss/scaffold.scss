@@ -93,6 +93,17 @@ body {
       margin: $outer-padding $outer-padding $outer-padding / 2;
     }
 
+    .preview-close {
+      display: inline;
+      position: absolute;
+      right: $outer-padding;
+      cursor: pointer;
+    }
+
+    .preview-header h2 {
+      display: inline;
+    }
+
     .preview-scroll {
       display: flex;
       background: #aaa;

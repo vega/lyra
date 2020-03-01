@@ -210,7 +210,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         </div>
 
         {
-          applicationDef ? (applicationDef.type === 'mark' ? <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={applicationDef as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null) : null
+          applicationDef && applicationDef.type === 'mark' ? <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={applicationDef as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null
         }
 
 {/*
