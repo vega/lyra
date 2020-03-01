@@ -275,23 +275,35 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
           id: 'multi',
           label: 'Multi point',
           field: '_vgsid_'
+        }),
+        PointSelection({
+          ptype: 'single',
+          id: 'single_project',
+          label: 'Single point (by field)',
+          field: '_vgsid_'
+        }),
+        PointSelection({
+          ptype: 'multi',
+          id: 'multi_project',
+          label: 'Multi point (by field)',
+          field: '_vgsid_'
         })
       ];
       // TODO(jzong): add heuristic here by sorting the fields by frequency
-      fieldsOfGroup.forEach(field => {
-        defs.push(PointSelection({
-          ptype: 'single',
-          id: `single_${field}`,
-          label: `Single point (${field})`,
-          field
-        }));
-        defs.push(PointSelection({
-          ptype: 'multi',
-          id: `multi_${field}`,
-          label: `Multi point (${field})`,
-          field
-        }));
-      });
+      // fieldsOfGroup.forEach(field => {
+      //   defs.push(PointSelection({
+      //     ptype: 'single',
+      //     id: `single_${field}`,
+      //     label: `Single point (${field})`,
+      //     field
+      //   }));
+      //   defs.push(PointSelection({
+      //     ptype: 'multi',
+      //     id: `multi_${field}`,
+      //     label: `Multi point (${field})`,
+      //     field
+      //   }));
+      // });
       return defs;
     }
   }
@@ -471,8 +483,19 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
   private onClickInteractionPreview(preview) {
   }
 
-  public render() {
+  private onSelectProjectionField(preview: SelectionRecord, field: string) {
+    this.setState({
+      selectionPreviews: this.state.selectionPreviews.map(p => {
+        if (p === preview) {
+          return (preview as PointSelectionRecord).set('field', field);
+        }
+        return p;
+      })
+    })
+  }
 
+  public render() {
+    console.log(this.state.selectionPreviews);
     // return <div></div>;
     return (
       <div className={"preview-controller" + (this.state.isDemonstrating  ? " active" : "")}>
@@ -487,7 +510,16 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
               return (
                 // <div key={preview.id} className={this.props.interactionRecord && this.props.interactionRecord.selectionDef && this.props.interactionRecord.selectionDef.id === preview.id ? 'selected' : ''}>
                 <div key={preview.id}>
-                  <div className="preview-label">{preview.label}</div>
+                  <div className="preview-label">{preview.label}
+                    {
+                      preview.id.includes('project') ?
+                        <div>
+                          <select onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
+                            {this.props.fieldsOfGroups.get(this.state.groupId).map(field => <option key={field} value={field}>{field}</option>)}
+                          </select>
+                        </div> : ''
+                    }
+                  </div>
                   <InteractionPreview ref={this.previewRefs[preview.id]}
                     id={`preview-${preview.id}`}
                     groupName={this.state.groupName}
