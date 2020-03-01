@@ -149,7 +149,6 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
       dispatch(setSelection(def, id));
     },
     setApplication: (def: any, id: number) => {
-      console.log(def, id);
       dispatch(setApplication(def, id));
     },
     selectInteraction: (id: number) => {
@@ -350,7 +349,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
         targetMarkName: exportName(mark.name),
         isDemonstratingInterval: this.state.isDemonstratingInterval,
         propertyName: "fill",
-        defaultValue: "grey"
+        defaultValue: "#797979"
       }));
       defs.push(MarkApplication({
         id: "opacity",
