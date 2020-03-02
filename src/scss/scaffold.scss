@@ -35,7 +35,7 @@ body {
   #vis {
     flex: 1;
     overflow: auto;
-    margin: 0 2*$outer-padding 2*$outer-padding;
+    padding: 0 2*$outer-padding 2*$outer-padding;
 
     canvas, svg {
       border: 1px solid #ccc;
