@@ -10,6 +10,7 @@ interface OwnProps {
   id: string,
   groupName: string, // name of group mark (view) this preview is attached to,
   preview: SelectionRecord | ApplicationRecord,
+  initialSignals: any, // this.mainViewSignalValues from InteractionPreviewController
   onClick: () => void
 }
 interface OwnState {
@@ -20,6 +21,9 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   constructor(props) {
     super(props);
   }
+
+  private width = 60; // these should match baseSignals in demonstrations.ts
+  private height = 60; //
 
   private previewToSpec(preview: SelectionRecord | ApplicationRecord): Spec {
     // const spec = ctrl.export(false, true);
@@ -50,22 +54,47 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
       renderer:  'svg',  // renderer (canvas or svg)
       container: `#${this.props.groupName}-${this.props.id}`   // parent DOM container
     });
-    this.view.width(100);
-    this.view.height(100);
+    this.view.width(this.width);
+    this.view.height(this.height);
     this.view.runAsync();
+
+    this.setInitialSignals();
   };
 
-  public width() {
-    return this.view.width();
+  private setInitialSignals() {
+    for (let [name, value] of Object.entries(this.props.initialSignals)) {
+      this.setPreviewSignal(name, value);
+    }
   }
 
-  public height() {
-    return this.view.height();
+  private scaleSignalValues(name, value) {
+    const wScale = this.width/640; // preview width / main view width
+    const hScale = this.height/360; // preview height / main view height
+
+    if (name === 'brush_x') {
+      return value.map(n => {
+        return n * wScale;
+      });
+    }
+    if (name === 'brush_y') {
+      return value.map(n => {
+        return n * hScale;
+      });
+    }
+    if (name === 'grid_translate_delta') {
+      return value ? {
+        x: value.x * wScale,
+        y: value.y * hScale
+      } : value;
+    }
+
+    return value;
   }
 
   public setPreviewSignal(name, value) {
     if (this.view) {
-      listeners.setSignalInGroup(this.view, this.props.groupName, name, value);
+      const scaledValue = this.scaleSignalValues(name, value);
+      listeners.setSignalInGroup(this.view, this.props.groupName, name, scaledValue);
       this.view.runAsync();
     }
   }

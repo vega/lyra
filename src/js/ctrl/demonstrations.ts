@@ -975,11 +975,11 @@ export function editSignals(specSignals, interactionSignals) {
 const baseSignals = [
   {
     name: "width",
-    init: "100"
+    init: "60"
   },
   {
     name: "height",
-    init: "100"
+    init: "60"
   },
   {
     name: "brush_x",
