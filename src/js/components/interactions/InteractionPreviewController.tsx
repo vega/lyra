@@ -424,42 +424,13 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
 
     this.updateIsDemonstrating();
 
-    const wScale = 100/640;
-    const hScale = 100/360; // TODO(jzong) preview height / main view height
-
-    const scaledValue = value.map(n => {
-      if (name === 'brush_x') {
-        return n * wScale;
-      }
-      else if (name === 'brush_y') {
-        return n * hScale;
-      }
-    });
-
-    this.updatePreviewSignals(name, scaledValue);
+    this.updatePreviewSignals(name, value);
   }
 
   private onMainViewGridSignal(name, value) {
     this.mainViewSignalValues[name] = value;
 
-    const wScale = 100/640;
-    const hScale = 100/360; // TODO(jzong) preview height / main view height
-    const scaledValue = this.mainViewSignalValues['grid_translate_delta'] ? {
-      x: this.mainViewSignalValues['grid_translate_delta'].x * wScale,
-      y: this.mainViewSignalValues['grid_translate_delta'].y * hScale
-    } : null;
-
-    // update grid signals in previews
-    this.state.applicationPreviews.forEach(preview => {
-      if (this.previewRefs[preview.id] && this.previewRefs[preview.id].current) {
-        if (this.mainViewSignalValues['grid_translate_anchor']) {
-          this.previewRefs[preview.id].current.setPreviewSignal('grid_translate_anchor', this.mainViewSignalValues['grid_translate_anchor']);
-        }
-        if (this.mainViewSignalValues['grid_translate_delta']) {
-          this.previewRefs[preview.id].current.setPreviewSignal('grid_translate_delta', scaledValue);
-        }
-      }
-    });
+    this.updatePreviewSignals(name, value);
   }
 
   private restoreSignalValues(groupName) {
@@ -625,6 +596,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
                     id={`preview-${preview.id}`}
                     groupName={this.state.groupName}
                     preview={preview}
+                    initialSignals={this.mainViewSignalValues}
                     onClick={() => this.onClickInteractionPreview(preview)}/>
                 </div>
               )
@@ -645,6 +617,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
                     id={`preview-${preview.id}`}
                     groupName={this.state.groupName}
                     preview={preview}
+                    initialSignals={this.mainViewSignalValues}
                     onClick={() => this.onClickInteractionPreview(preview)}/>
                 </div>
               )
