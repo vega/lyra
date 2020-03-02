@@ -29,13 +29,12 @@ interface StateProps {
   canDemonstrateGroups: Map<number, Boolean>;
   datasets: Map<string, DatasetRecord>;
   interactionsOfGroups: Map<number, InteractionRecord[]>;
-
 }
 
 interface DispatchProps {
   addInteraction: (groupId: number) => number; // return newly created interaction
-  setSelection: (def: any, id: number) => void;
-  setApplication: (def: any, id: number) => void;
+  setSelection: (selection: SelectionRecord, id: number) => void;
+  setApplication: (application: ApplicationRecord, id: number) => void;
   selectInteraction: (id: number) => void;
 }
 
@@ -46,7 +45,8 @@ interface OwnState {
   isDemonstratingInterval: boolean,
   selectionPreviews: SelectionRecord[];
   applicationPreviews: ApplicationRecord[];
-  interactionId: number;
+  interactionId: number; // mutually exclusive with "interaction": for editing an interaction already in the store
+  interaction: InteractionRecord; // mutual exclusive with "interactionId": for creating a new interaction
 }
 
 function mapStateToProps(state: State): StateProps {
@@ -121,11 +121,11 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
       dispatch(addInteractionToGroup(addAction.meta, groupId));
       return addAction.meta;
     },
-    setSelection: (def: any, id: number) => {
-      dispatch(setSelection(def, id));
+    setSelection: (selection, id) => {
+      dispatch(setSelection(selection, id));
     },
-    setApplication: (def: any, id: number) => {
-      dispatch(setApplication(def, id));
+    setApplication: (application, id) => {
+      dispatch(setApplication(application, id));
     },
     selectInteraction: (id: number) => {
       dispatch(selectInteraction(id));
@@ -145,7 +145,8 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
       groupName: null,
       selectionPreviews: [],
       applicationPreviews: [],
-      interactionId: null
+      interactionId: null,
+      interaction: Interaction({name: 'New Interaction'})
     };
   }
 
@@ -169,35 +170,61 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
       this.generatePreviews();
     }
 
-    if (prevState.groupId !== this.state.groupId || !prevState.isDemonstrating && this.state.isDemonstrating) {
-      const interactionsOfGroup = this.props.interactionsOfGroups.get(this.state.groupId);
-      if (interactionsOfGroup.length) {
-        const maybeUnfinishedInteraction = interactionsOfGroup.filter(interaction => {
-          return !Boolean(interaction.selection && interaction.application);
-        });
-        if (maybeUnfinishedInteraction.length) {
-          const unfinishedInteraction = maybeUnfinishedInteraction[0];
-          this.setState({
-            interactionId: unfinishedInteraction.id
-          });
-        }
-        else {
-          // TODO(jzong) worth user testing the logic here. do we want the preview to edit old interactions or create new ones by default?
+    // if (prevState.groupId !== this.state.groupId || !prevState.isDemonstrating && this.state.isDemonstrating) {
+    //   const interactionsOfGroup = this.props.interactionsOfGroups.get(this.state.groupId);
+    //   if (interactionsOfGroup.length) {
+    //     const maybeUnfinishedInteraction = interactionsOfGroup.filter(interaction => {
+    //       return !Boolean(interaction.selection && interaction.application);
+    //     });
+    //     if (maybeUnfinishedInteraction.length) {
+    //       const unfinishedInteraction = maybeUnfinishedInteraction[0];
+    //       this.setState({
+    //         interactionId: unfinishedInteraction.id
+    //       });
+    //     }
+    //     else {
+    //       // TODO(jzong) worth user testing the logic here. do we want the preview to edit old interactions or create new ones by default?
 
-          // const latestInteraction = interactionsOfGroup[interactionsOfGroup.length - 1];
-          // this.setState({
-          //   interactionId: latestInteraction.id
-          // });
-          const interactionId = this.props.addInteraction(this.state.groupId);
-          this.setState({
-            interactionId
-          });
-        }
+    //       // const latestInteraction = interactionsOfGroup[interactionsOfGroup.length - 1];
+    //       // this.setState({
+    //       //   interactionId: latestInteraction.id
+    //       // });
+    //       const interactionId = this.props.addInteraction(this.state.groupId);
+    //       this.setState({
+    //         interactionId
+    //       });
+    //     }
+    //   }
+    //   else {
+    //     const interactionId = this.props.addInteraction(this.state.groupId);
+    //     this.setState({
+    //       interactionId
+    //     });
+    //   }
+    // }
+
+    if (prevState.interactionId !== this.state.interactionId) {
+      if (this.state.interactionId) {
+        this.setState({
+          interaction: null
+        });
       }
       else {
-        const interactionId = this.props.addInteraction(this.state.groupId);
         this.setState({
-          interactionId
+          interactionId: null,
+          interaction: Interaction({name: 'New Interaction'})
+        });
+      }
+    }
+
+    if (prevState.interaction !== this.state.interaction) {
+      if (this.state.interaction && !this.state.interaction.id && this.state.interaction.selection && this.state.interaction.application) {
+        const interactionId = this.props.addInteraction(this.state.groupId);
+        this.props.setSelection(this.state.interaction.selection, interactionId);
+        this.props.setApplication(this.state.interaction.application, interactionId);
+        this.setState({
+          interactionId,
+          interaction: null
         });
       }
     }
@@ -300,21 +327,6 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
           field: fieldsOfGroup[0]
         })
       ];
-      // TODO(jzong): add heuristic here by sorting the fields by frequency
-      // fieldsOfGroup.forEach(field => {
-      //   defs.push(PointSelection({
-      //     ptype: 'single',
-      //     id: `single_${field}`,
-      //     label: `Single point (${field})`,
-      //     field
-      //   }));
-      //   defs.push(PointSelection({
-      //     ptype: 'multi',
-      //     id: `multi_${field}`,
-      //     label: `Multi point (${field})`,
-      //     field
-      //   }));
-      // });
       return defs;
     }
   }
@@ -510,12 +522,26 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     switch (preview.type) {
       case 'point':
       case 'interval':
-        this.props.setSelection(preview as SelectionRecord, this.state.interactionId);
+        if (this.state.interactionId) {
+          this.props.setSelection(preview as SelectionRecord, this.state.interactionId);
+        }
+        else {
+          this.setState({
+            interaction: this.state.interaction.set('selection', preview as SelectionRecord)
+          });
+        }
         break;
       case 'mark':
       case 'scale':
       case 'transform':
-        this.props.setApplication(preview as ApplicationRecord, this.state.interactionId);
+        if (this.state.interactionId) {
+          this.props.setApplication(preview as ApplicationRecord, this.state.interactionId);
+        }
+        else {
+          this.setState({
+            interaction: this.state.interaction.set('application', preview as ApplicationRecord)
+          });
+        }
         break;
     }
   }
@@ -536,7 +562,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
 
   private onSelectInteraction(interactionId: number) {
     this.setState({
-      interactionId
+      interactionId: interactionId ? interactionId : null
     })
   }
 
@@ -575,25 +601,41 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     return signals;
   }
 
+  private getFieldOptions(preview) {
+    // TODO(jzong): add heuristic here by sorting the fields by frequency
+    const options = this.props.fieldsOfGroups.get(this.state.groupId).map(field => <option key={field} value={field}>{field}</option>);
+
+    return <div>
+      <select value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
+        {options}
+      </select>
+    </div>
+  }
+
+  private getInteractionOptions() {
+    if (!this.state.groupId) return null;
+
+    const interactionOptions = this.props.interactionsOfGroups.get(this.state.groupId).map((interaction) => {
+      return <option key={interaction.name} value={interaction.id}>{interaction.name}</option>;
+    });
+
+    interactionOptions.unshift(<option key={'New Interaction'} value={0}>{'New Interaction'}</option>)
+
+    return <select value={this.state.interactionId} onChange={e => this.onSelectInteraction(Number(e.target.value))}>
+      {interactionOptions}
+    </select>;
+  }
+
   public render() {
-    let interaction, interactionOptions;
-    const signals = this.getSignalBubbles(this.props.scaleInfoForGroups, this.state.groupId, this.state.isDemonstratingInterval);
-    if (this.state.groupId && this.state.interactionId) {
-      interaction = this.props.interactionsOfGroups.get(this.state.groupId).filter(interaction => interaction.id === this.state.interactionId)[0];
-      interactionOptions = this.props.interactionsOfGroups.get(this.state.groupId).map((interaction) => {
-        return <option key={interaction.name} value={interaction.id}>{interaction.name}</option>;
-      });
-    }
+    const interaction = this.state.interaction ? this.state.interaction : this.props.interactionsOfGroups.get(this.state.groupId).filter(interaction => interaction.id === this.state.interactionId)[0];
     //
     return (
       <div className={"preview-controller" + (this.state.isDemonstrating  ? " active" : "")}>
         {this.state.isDemonstrating ? (
           <div className="preview-header">
             <h2>Interactions</h2>
-            <select value={this.state.interactionId} onChange={e => this.onSelectInteraction(Number(e.target.value))}>
-              {interactionOptions}
-            </select>
-            {signals}
+            {this.getInteractionOptions()}
+            {this.getSignalBubbles(this.props.scaleInfoForGroups, this.state.groupId, this.state.isDemonstratingInterval)}
             <div className="preview-close">
               <Icon glyph={assets.close} onClick={() => this.closePreview()} />
             </div>
@@ -610,12 +652,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
                 <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}>
                   <div className="preview-label">{preview.label}
                     {
-                      preview.id.includes('project') ?
-                        <div>
-                          <select value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
-                            {this.props.fieldsOfGroups.get(this.state.groupId).map(field => <option key={field} value={field}>{field}</option>)}
-                          </select>
-                        </div> : ''
+                      preview.id.includes('project') ? this.getFieldOptions(preview) : ''
                     }
                   </div>
                   <InteractionPreview ref={this.previewRefs[preview.id]}
