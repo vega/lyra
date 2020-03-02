@@ -11,7 +11,7 @@ interface SymbolInspectorProps {
 class BaseSymbolInspector extends React.Component<SymbolInspectorProps> {
   public render() {
     const props = this.props;
-    console.log(props);
+
     return (
       <div>
         <div className='property-group'>

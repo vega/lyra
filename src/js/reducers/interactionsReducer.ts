@@ -15,19 +15,19 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
   }
 
   if (action.type === getType(interactionActions.setSelection)) {
-    const t = action.payload;
-    console.log(id, t);
-    return state.setIn([String(id), 'selection'], t);
+    return state.setIn([String(id), 'selection'], action.payload);
   }
 
   if (action.type === getType(interactionActions.setApplication)) {
-    const t = action.payload;
-    console.log(id, t);
-    return state.setIn([String(id), 'application'], t);
+    return state.setIn([String(id), 'application'], action.payload);
   }
 
   if (action.type === getType(interactionActions.deleteInteraction)) {
     return state.remove(String(id));
+  }
+
+  if (action.type === getType(interactionActions.updateInteractionName)) {
+    return state.setIn([String(id), 'name'], action.payload);
   }
 
   return state;

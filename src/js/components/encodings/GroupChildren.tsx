@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import ReactTooltip from 'react-tooltip'
 import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
-import {selectMark, toggleLayers} from '../../actions/inspectorActions';
+import {selectMark, toggleLayers, InspectorSelectedType} from '../../actions/inspectorActions';
 import {deleteMark, updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store'
 import {ExpandedLayers} from '../../store/factory/Inspector';
@@ -11,6 +11,7 @@ import {GroupRecord} from '../../store/factory/marks/Group';
 import { Icon } from '../Icon';
 import GuideList from './GuideList';
 import MarkList from './MarkList';
+import InteractionList from './InteractionList';
 
 const ContentEditable = require('../ContentEditable');
 const imutils = require('../../util/immutable-utils');
@@ -20,6 +21,7 @@ const assets = require('../../util/assets');
 interface OwnProps {
   id?: number;
   selectedId: number;
+  selectedType: InspectorSelectedType;
   sceneId: number;
 }
 
@@ -85,7 +87,7 @@ class Group extends React.Component<OwnProps & StateProps & DispatchProps> {
 
     return (
       <li className={groupClass}>
-        <div className={'name' + (props.selectedId === id ? ' selected' : '')}
+        <div className={'name' + (props.selectedId === id && props.selectedType === InspectorSelectedType.SELECT_MARK ? ' selected' : '')}
           onClick={props.selectGroup}>
 
           <Icon glyph={assets['group-' + groupClass]} onClick={props.toggleGroup} />
@@ -102,6 +104,7 @@ class Group extends React.Component<OwnProps & StateProps & DispatchProps> {
           <ul className='group'>
             <GuideList groupId={id} {...props} />
             <MarkList groupId={id} {...props} />
+            <InteractionList groupId={id} {...props} />
           </ul>
         ) : null}
       </li>

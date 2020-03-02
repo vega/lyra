@@ -84,102 +84,10 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   };
 }
 
-function updateVal(field: string) {
-  return `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`
-}
 class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
-  [x: string]: any;
+
   constructor(props) {
     super(props);
-
-    this.state = {
-      size: 100,
-      color: '#666666',
-      opacity: 0.2
-    }
-    this.handleApplicationChange = this.handleApplicationChange.bind(this);
-    this.handleSelectionChange = this.handleSelectionChange.bind(this);
-    this.handlePropertyChangeThrottled = throttle(500, this.handlePropertyChange);
-  }
-
-  // componentWillMount() {
-  //   const name = 'lyra_interaction_' + this.props.primId + '_size';
-  //   this.props.initSignal(name, 100);
-  // }
-
-  public handleApplicationChange(value) {
-    if(this.props.type == 'widget') {
-      const fieldName = this.props.interaction.selection.field;
-      const previousApplicationDef = this.props.interaction.application;
-      const defs = widgetApplicationPreviewDefs(fieldName, previousApplicationDef.groupName, previousApplicationDef.comparator);
-      const def = defs.filter(e => e.id === value);
-      this.props.setMapping(def[0], this.props.interaction.id);
-    } else {
-      const preview = this.props.applicationDefs.filter(e => e.id === value);
-      if(preview.length) {
-        if (this.props.interaction.application && this.props.interaction.application.id === preview[0].id) {
-          this.props.setMapping(null, this.props.interaction.id);
-        }
-        else {
-          if (!this.props.interaction.selection) {
-            this.props.setSelection(this.props.selectionDefs[0], this.props.interaction.id);
-          }
-          this.props.setMapping(preview[0], this.props.interaction.id);
-        }
-      }
-    }
-    this.handlePropertyChange();
-  }
-
-
-  public handleSelectionChange(value) {
-    const preview = this.props.selectionDefs.filter(e => e.id === value);
-    if(preview.length) {
-      if (this.props.interaction.selection && this.props.interaction.selection.id === preview[0].id) {
-        this.props.setSelection(null, this.props.interaction.id);
-
-      }
-      else {
-        const fieldPresent = this.props.interaction.selection && this.props.interaction.selection.field ? true: false;
-        this.props.setSelection(preview[0], this.props.interaction.id);
-        if(fieldPresent) {
-          this.handleFieldChange(this.props.interaction.selection.field, preview[0]);
-        }
-      }
-    }
-  }
-
-  public handleFieldChange(field, def=this.props.interaction.selection) {
-    const currentDef = JSON.parse(JSON.stringify(def));
-    if(currentDef && currentDef.signals.length) {
-      currentDef.signals[0].on[0]['update'] = updateVal(field);
-      currentDef.signals[1]['value'][0].field = field;
-      currentDef.field = field;
-      this.props.setSelection(currentDef, this.props.interaction.id);
-    }
-  }
-
-  public handlePropertyChange() {
-    if(!this.props.interaction.application) this.handleApplicationChange('color');
-    const {markPropertyValues} = this.props.interaction
-    const id = this.props.interaction.application.id;
-    const update = this.props.interaction.application.markProperties.encode.update;
-    if(id == 'color' && update.fill[1].value != markPropertyValues.color) {
-      this.props.setValueInMark({property: 'fill', value: markPropertyValues.color}, this.props.interaction.id);
-    } else if (id == 'opacity' && update.fillOpacity[1].value != markPropertyValues.opacity) {
-      this.props.setValueInMark({property: 'fillOpacity', value: markPropertyValues.opacity}, this.props.interaction.id);
-    } else if (id == 'size' && update.size[1].value != markPropertyValues.size) {
-      this.props.setValueInMark({property: 'size', value: markPropertyValues.size}, this.props.interaction.id);
-    }
-
-  }
-
-  public onPropertyChange(e, field):void {
-    const value = e.target && e.target.value;
-    if(value) {
-      this.props.setMarkPropertyValue({property: field, value}, this.props.interaction.id);
-      this.handlePropertyChangeThrottled();
-    }
   }
 
   public render() {
@@ -188,8 +96,8 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     // fieldOptions.push(<option key='_blank3' value='_vgsid_'>None</option>)
 
     const interaction = this.props.interaction;
-    const selectionDef = interaction.selection;
-    const applicationDef = interaction.application;
+    const selection = interaction.selection;
+    const application = interaction.application;
 
     return (
       <div>
@@ -197,20 +105,20 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
           <h3 className='label'>Interaction</h3>
           <ul>
             <li>Name: {interaction.get('name')}</li>
-            <li>Selection: {selectionDef ? selectionDef.label : 'None'}</li>
-            <li>Application: {applicationDef ? applicationDef.label : 'None'}</li>
+            <li>Selection: {selection ? selection.label : 'None'}</li>
+            <li>Application: {application ? application.label : 'None'}</li>
           </ul>
         </div>
 
         <div className='property-group'>
           <h3 className='label'>Selection</h3>
           <ul>
-            <li>Field: </li>
+            <li>Field: {selection && selection.field !== '_vgsid_' ? selection.field : 'id'}</li>
           </ul>
         </div>
 
         {
-          applicationDef && applicationDef.type === 'mark' ? <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={applicationDef as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null
+          application && application.type === 'mark' ? <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={applicationDef as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null
         }
 
 {/*

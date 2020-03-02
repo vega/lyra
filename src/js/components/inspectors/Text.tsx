@@ -21,8 +21,8 @@ interface OwnProps {
 }
 
 interface OwnState {
-  interactions: string[];
-  type: string;
+  // interactions: string[];
+  // type: string;
 }
 
 interface StateProps {
@@ -56,58 +56,58 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
   constructor(props) {
     super(props);
 
-    this.state = {
-      interactions: [],
-      type: 'min'
-    }
+    // this.state = {
+    //   interactions: [],
+    //   type: 'min'
+    // }
   }
 
-  public bindSignalToText(interactions: string[], type='min') {
-    let condition = interactions[0];
-    if (interactions.length > 1) condition = condition + ' && ' + interactions[1];
-    const displayText = interactions.map(e => {
-      return `format(${type}(${e}[0], ${e}[1]),'d')`
-    })
-    let displayTextString = displayText.join(`+ ', ' +`);
-    displayTextString = `'(' + ` + displayTextString + `+ ')'`;
-    const value = `${condition} ? ${displayTextString} : ''`;
-    this.props.updateTextAttributes('text', value);
-    interactions.forEach(e => {
-      const scale = e[e.length - 1];
-      if (scale == 'x') this.props.updateTextAttributes('x', `${type}(lyra_brush_x[0], lyra_brush_x[1]) - 20`);
-      else if (scale == 'y') this.props.updateTextAttributes('y', `${type}(lyra_brush_y[0], lyra_brush_y[1]) - 5`);
-    })
-  }
-  public handleDrop = (evt) => {
-    const dt = evt.dataTransfer;
-    const signalName = dt.getData('signalName');
-    const signalObj = this.state.interactions.filter(e => e === signalName );
-    if (!signalObj.length) {
-      const newInteractions = [...this.state.interactions, signalName];
-      this.bindSignalToText(newInteractions, this.state.type);
-      this.setState({interactions: newInteractions});
-    }
-  };
+  // public bindSignalToText(interactions: string[], type='min') {
+  //   let condition = interactions[0];
+  //   if (interactions.length > 1) condition = condition + ' && ' + interactions[1];
+  //   const displayText = interactions.map(e => {
+  //     return `format(${type}(${e}[0], ${e}[1]),'d')`
+  //   })
+  //   let displayTextString = displayText.join(`+ ', ' +`);
+  //   displayTextString = `'(' + ` + displayTextString + `+ ')'`;
+  //   const value = `${condition} ? ${displayTextString} : ''`;
+  //   this.props.updateTextAttributes('text', value);
+  //   interactions.forEach(e => {
+  //     const scale = e[e.length - 1];
+  //     if (scale == 'x') this.props.updateTextAttributes('x', `${type}(lyra_brush_x[0], lyra_brush_x[1]) - 20`);
+  //     else if (scale == 'y') this.props.updateTextAttributes('y', `${type}(lyra_brush_y[0], lyra_brush_y[1]) - 5`);
+  //   })
+  // }
+  // public handleDrop = (evt) => {
+  //   const dt = evt.dataTransfer;
+  //   const signalName = dt.getData('signalName');
+  //   const signalObj = this.state.interactions.filter(e => e === signalName );
+  //   if (!signalObj.length) {
+  //     const newInteractions = [...this.state.interactions, signalName];
+  //     this.bindSignalToText(newInteractions, this.state.type);
+  //     this.setState({interactions: newInteractions});
+  //   }
+  // };
 
-  public handleTypeChange = (value) => {
-    if(value != this.state.type) {
-      this.bindSignalToText(this.state.interactions, value);
-      this.setState({type: value});
-    }
-  }
+  // public handleTypeChange = (value) => {
+  //   if(value != this.state.type) {
+  //     this.bindSignalToText(this.state.interactions, value);
+  //     this.setState({type: value});
+  //   }
+  // }
 
-  public handleDragOver = (evt) => {
-    if (evt.preventDefault) {
-      evt.preventDefault(); // Necessary. Allows us to drop.
-    }
-  };
+  // public handleDragOver = (evt) => {
+  //   if (evt.preventDefault) {
+  //     evt.preventDefault(); // Necessary. Allows us to drop.
+  //   }
+  // };
   public render() {
     const props = this.props;
     const dsId = props.dsId;
 
-    const signals = this.state.interactions.map((e, i) =>
-      <span className='widget-tag' key={e+i}>{e}</span>
-    )
+    // const signals = this.state.interactions.map((e, i) =>
+    //   <span className='widget-tag' key={e+i}>{e}</span>
+    // )
 
     return (
       <div>
@@ -117,7 +117,7 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
             <h3 className='label'>Text</h3>
           </Property>
 
-          <div onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
+          {/* <div onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
             {this.state.interactions.length ? signals : null}
             <div><i>Drop interaction here</i></div>
             <br />
@@ -126,7 +126,7 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
               <option value='min'>min</option>
               <option value='max'>max</option>
             </select>
-          </div>
+          </div> */}
         </div>
 
         <div className='property-group'>

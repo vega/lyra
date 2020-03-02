@@ -5,7 +5,7 @@ import ReactTooltip from 'react-tooltip'
 import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
 import {deleteGuide} from '../../actions/guideActions';
-import {selectGuide, selectMark} from '../../actions/inspectorActions';
+import {selectGuide, selectMark, InspectorSelectedType} from '../../actions/inspectorActions';
 import {State} from '../../store';
 import {AxisRecord, GuideRecord, GuideType, LegendForType, LegendRecord} from '../../store/factory/Guide';
 import {ScaleRecord} from '../../store/factory/Scale';
@@ -18,6 +18,7 @@ const assets = require('../../util/assets');
 interface OwnProps {
   groupId: number;
   selectedId: number;
+  selectedType: InspectorSelectedType;
 }
 
 interface StateProps {
@@ -71,6 +72,7 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
   public render() {
     const props = this.props;
     const selectedId = props.selectedId;
+    const selectedType = props.selectedType;
 
     return (
       <div>
@@ -93,7 +95,7 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
 
           return (
             <li key={guideId}>
-              <div className={'name' + (selectedId === guideId ? ' selected' : '')}
+              <div className={'name' + (selectedId === guideId && selectedType === InspectorSelectedType.SELECT_GUIDE ? ' selected' : '')}
                 onClick={props.selectGuide.bind(null, guideId)}>
 
                 {name + ' ' + type}

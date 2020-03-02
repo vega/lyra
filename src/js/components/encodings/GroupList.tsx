@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
-import {selectMark} from '../../actions/inspectorActions';
+import {selectMark, InspectorSelectedType} from '../../actions/inspectorActions';
 import {addMark} from '../../actions/markActions';
 import {clearScene} from '../../actions/sceneActions';
 import {State} from '../../store';
@@ -17,6 +17,7 @@ const assets = require('../../util/assets');
 interface StateProps {
   sceneId: number;
   selectedId: number;
+  selectedType: InspectorSelectedType;
   marks: number[]; // list of ids
 }
 
@@ -31,6 +32,7 @@ function mapStateToProps(reduxState: State): StateProps {
   return {
     sceneId: sceneId,
     selectedId: reduxState.getIn(['inspector', 'encodings', 'selectedId']),
+    selectedType: reduxState.getIn(['inspector', 'encodings', 'selectedType']),
     marks: getInVis(reduxState, 'marks.' + sceneId + '.marks')
   };
 }
@@ -55,7 +57,7 @@ class GroupList extends React.Component<StateProps & DispatchProps> {
   public render() {
     const props = this.props;
     const sceneId = props.sceneId;
-    const sceneSelected = props.selectedId === sceneId;
+    const sceneSelected = props.selectedId === sceneId && props.selectedType === InspectorSelectedType.SELECT_MARK;
     const groups = props.marks ? props.marks : [];
 
     return (
