@@ -23,6 +23,7 @@ module.exports = {
   erase: require('../../assets/erase.svg'),
   export: require('../../assets/export.svg'),
   scaffold: require('../../assets/scaffold.html'),
+  select: require('../../assets/select.svg'),
   sort: require('../../assets/sort.svg'),
   sortAlphaAsc: require('../../assets/sort-alpha-asc.svg'),
   sortAlphaDesc: require('../../assets/sort-alpha-desc.svg'),

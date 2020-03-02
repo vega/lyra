@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import ReactTooltip from 'react-tooltip'
 import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
-import {selectMark} from '../../actions/inspectorActions';
+import {selectMark, InspectorSelectedType} from '../../actions/inspectorActions';
 import {deleteMark, updateMarkProperty} from '../../actions/markActions';
 import {State} from '../../store';
 import {MarkRecord} from '../../store/factory/Mark';
@@ -16,6 +16,7 @@ const assets = require('../../util/assets');
 interface OwnProps {
   groupId: number;
   selectedId?: number;
+  selectedType?: InspectorSelectedType;
 }
 interface StateProps {
   marks: MarkRecord[];
@@ -68,6 +69,7 @@ class MarkList extends React.Component<OwnProps & StateProps & DispatchProps> {
   public render() {
     const props = this.props;
     const selectedId = props.selectedId;
+    const selectedType = props.selectedType;
 
     return (
       <div>
@@ -81,7 +83,7 @@ class MarkList extends React.Component<OwnProps & StateProps & DispatchProps> {
 
           return (
             <li key={markId}>
-              <div className={'name' + (selectedId === markId ? ' selected' : '')}
+              <div className={'name' + (selectedId === markId && selectedType === InspectorSelectedType.SELECT_MARK ? ' selected' : '')}
                 onClick={props.selectMark.bind(null, markId)}>
 
                 <Icon glyph={assets[mark.type]} />

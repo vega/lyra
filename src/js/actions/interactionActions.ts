@@ -1,5 +1,6 @@
 import {createStandardAction} from 'typesafe-actions';
 import {InteractionRecord, SelectionRecord, ApplicationRecord} from '../store/factory/Interaction';
+import {string} from 'prop-types';
 
 const counter  = require('../util/counter');
 
@@ -15,14 +16,10 @@ export const addInteraction = createStandardAction('ADD_INTERACTION').map((recor
   }
 });
 
-export const setSelection = createStandardAction('SET_SELECTION').map((payload: SelectionRecord, id: number) => {
-  return {
-    payload, meta: id
-  }
-});
-export const setApplication = createStandardAction('SET_APPLICATION').map((payload: ApplicationRecord, id: number) => {
-  return {
-    payload, meta: id
-  }
-});
+export const setSelection = createStandardAction('SET_SELECTION')<SelectionRecord, number>();
+
+export const setApplication = createStandardAction('SET_APPLICATION')<ApplicationRecord, number>();
+
 export const deleteInteraction = createStandardAction('DELETE_INTERACTION')<{groupId: number}, number>(); // id
+
+export const updateInteractionName = createStandardAction('UPDATE_INTERACTION_NAME')<string, number>();

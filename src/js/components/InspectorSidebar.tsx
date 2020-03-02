@@ -112,16 +112,16 @@ class BaseInspector extends React.Component<Inspector> {
       </div>
     ) : null;
 
-    const linkedInteractions = props.isMark ? (
-      <div className='property-group property'>
+    const linkedInteractions = this.props.interactionList.length && props.isMark ? (
+      <div className='property-group'>
         <h3 className='label-long'>Interactions</h3>
-        <div>
+        <div className='property'>
           {this.props.interactionList.length ?
             this.props.interactionList.map(interaction => {
               return (
                 <span key={interaction} className='interaction name'>{interaction}</span>
               )
-            }) : <div>No linked Interactions</div>
+            }) : null
           }
         </div>
       </div>

@@ -291,13 +291,13 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
           ptype: 'single',
           id: 'single_project',
           label: 'Single point (by field)',
-          field: '_vgsid_'
+          field: fieldsOfGroup[0]
         }),
         PointSelection({
           ptype: 'multi',
           id: 'multi_project',
           label: 'Multi point (by field)',
-          field: '_vgsid_'
+          field: fieldsOfGroup[0]
         })
       ];
       // TODO(jzong): add heuristic here by sorting the fields by frequency
@@ -521,14 +521,17 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
   }
 
   private onSelectProjectionField(preview: SelectionRecord, field: string) {
+    const newPreview = (preview as PointSelectionRecord).set('field', field);
     this.setState({
       selectionPreviews: this.state.selectionPreviews.map(p => {
         if (p === preview) {
-          return (preview as PointSelectionRecord).set('field', field);
+          return newPreview;
         }
         return p;
       })
-    })
+    }, () => {
+      this.props.setSelection(newPreview, this.state.interactionId);
+    });
   }
 
   private onSelectInteraction(interactionId: number) {
@@ -543,15 +546,45 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     })
   }
 
+  private getSignalBubbles(scaleInfoForGroups, groupId, isDemonstratingInterval) {
+    const signals = [];
+    const scaleInfo = scaleInfoForGroups.get(groupId);
+
+    const handleDragStart = (evt) => {
+      console.log(evt.target.dataset.signal);
+      evt.dataTransfer.setData('signalName', evt.target.dataset.signal);
+    }
+
+    if (isDemonstratingInterval) {
+      if (scaleInfo.xScaleName) {
+        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.xScaleName}`}>{`brush_${scaleInfo.xScaleName}`}</div>)
+      }
+      if (scaleInfo.yScaleName) {
+        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.yScaleName}`}>{`brush_${scaleInfo.yScaleName}`}</div>)
+      }
+      if (scaleInfo.xFieldName) {
+        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.xFieldName}`}>{`brush_${scaleInfo.xFieldName}`}</div>)
+      }
+      if (scaleInfo.yFieldName) {
+        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.yFieldName}`}>{`brush_${scaleInfo.yFieldName}`}</div>)
+      }
+    }
+    else {
+      signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal="points_tuple">points</div>)
+    }
+    return signals;
+  }
+
   public render() {
     let interaction, interactionOptions;
+    const signals = this.getSignalBubbles(this.props.scaleInfoForGroups, this.state.groupId, this.state.isDemonstratingInterval);
     if (this.state.groupId && this.state.interactionId) {
       interaction = this.props.interactionsOfGroups.get(this.state.groupId).filter(interaction => interaction.id === this.state.interactionId)[0];
       interactionOptions = this.props.interactionsOfGroups.get(this.state.groupId).map((interaction) => {
         return <option key={interaction.name} value={interaction.id}>{interaction.name}</option>;
       });
     }
-    // return <div></div>;
+    //
     return (
       <div className={"preview-controller" + (this.state.isDemonstrating  ? " active" : "")}>
         {this.state.isDemonstrating ? (
@@ -560,6 +593,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
             <select value={this.state.interactionId} onChange={e => this.onSelectInteraction(Number(e.target.value))}>
               {interactionOptions}
             </select>
+            {signals}
             <div className="preview-close">
               <Icon glyph={assets.close} onClick={() => this.closePreview()} />
             </div>
@@ -578,7 +612,7 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
                     {
                       preview.id.includes('project') ?
                         <div>
-                          <select onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
+                          <select value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
                             {this.props.fieldsOfGroups.get(this.state.groupId).map(field => <option key={field} value={field}>{field}</option>)}
                           </select>
                         </div> : ''

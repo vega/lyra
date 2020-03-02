@@ -7,6 +7,10 @@ body {
   overflow-y: hidden;
 }
 
+[draggable] {
+  user-select: none;
+}
+
 // The two main sections of our app
 // Sidebar is where the react components are placed
 .sidebar-container{
