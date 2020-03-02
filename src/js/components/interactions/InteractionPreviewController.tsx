@@ -14,7 +14,6 @@ import {selectInteraction} from '../../actions/inspectorActions';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionPreview} from './InteractionPreview';
 import { debounce } from "throttle-debounce";
-import interval from 'vega-lite/src/compile/selection/interval';
 import {Icon} from '../Icon';
 
 const ctrl = require('../../ctrl');
@@ -169,39 +168,6 @@ class InteractionPreviewController extends React.Component<StateProps & Dispatch
     if (prevState.groupId !== this.state.groupId || prevState.isDemonstratingInterval !== this.state.isDemonstratingInterval) {
       this.generatePreviews();
     }
-
-    // if (prevState.groupId !== this.state.groupId || !prevState.isDemonstrating && this.state.isDemonstrating) {
-    //   const interactionsOfGroup = this.props.interactionsOfGroups.get(this.state.groupId);
-    //   if (interactionsOfGroup.length) {
-    //     const maybeUnfinishedInteraction = interactionsOfGroup.filter(interaction => {
-    //       return !Boolean(interaction.selection && interaction.application);
-    //     });
-    //     if (maybeUnfinishedInteraction.length) {
-    //       const unfinishedInteraction = maybeUnfinishedInteraction[0];
-    //       this.setState({
-    //         interactionId: unfinishedInteraction.id
-    //       });
-    //     }
-    //     else {
-    //       // TODO(jzong) worth user testing the logic here. do we want the preview to edit old interactions or create new ones by default?
-
-    //       // const latestInteraction = interactionsOfGroup[interactionsOfGroup.length - 1];
-    //       // this.setState({
-    //       //   interactionId: latestInteraction.id
-    //       // });
-    //       const interactionId = this.props.addInteraction(this.state.groupId);
-    //       this.setState({
-    //         interactionId
-    //       });
-    //     }
-    //   }
-    //   else {
-    //     const interactionId = this.props.addInteraction(this.state.groupId);
-    //     this.setState({
-    //       interactionId
-    //     });
-    //   }
-    // }
 
     if (prevState.interactionId !== this.state.interactionId) {
       if (this.state.interactionId) {
