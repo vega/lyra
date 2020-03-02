@@ -77,7 +77,7 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
     return (
       <div>
         <li className='header'>
-          Guides <Icon glyph={assets.plus} width='10' height='10' />
+          Guides {/* <Icon glyph={assets.plus} width='10' height='10' /> */}
         </li>
 
         {props.guides.map(function(guide) {

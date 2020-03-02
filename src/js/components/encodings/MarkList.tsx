@@ -74,7 +74,7 @@ class MarkList extends React.Component<OwnProps & StateProps & DispatchProps> {
     return (
       <div>
         <li className='header'>
-          Marks <Icon glyph={assets.plus} width='10' height='10' />
+          Marks {/* <Icon glyph={assets.plus} width='10' height='10' /> */}
         </li>
 
         {props.marks.map(function(mark, i) {

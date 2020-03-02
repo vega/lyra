@@ -73,7 +73,7 @@ class InteractionList extends React.Component<OwnProps & StateProps & DispatchPr
     return (
       <div>
         <li className='header'>
-          Interactions <Icon glyph={assets.plus} width='10' height='10' />
+          Interactions {/* <Icon glyph={assets.plus} width='10' height='10' /> */}
         </li>
 
         {props.interactions.map(function(interaction) {

@@ -7,7 +7,7 @@ const counter  = require('../util/counter');
 export const addInteraction = createStandardAction('ADD_INTERACTION').map((record: InteractionRecord) => {
   const id: number = record.id || counter.global();
   record = (record as any).merge({id: id}) as InteractionRecord;
-  if (!record.get('name')) {
+  if (!record.get('name') || record.get('name') === 'New Interaction') {
     record = record.set('name', "Interaction "+id);
   }
 
