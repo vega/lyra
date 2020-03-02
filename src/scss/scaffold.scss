@@ -27,10 +27,14 @@ body {
   right: 0;
   top: 40px;
   bottom: 0;
-  overflow: auto;
+  height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
 
 
   #vis {
+    flex: 1;
+    overflow: auto;
     margin: 0 2*$outer-padding 2*$outer-padding;
 
     canvas, svg {
@@ -86,8 +90,6 @@ body {
 
     &.active {
       display: block;
-      position: absolute;
-      bottom: 0;
     }
 
     h2 {
