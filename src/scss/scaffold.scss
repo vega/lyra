@@ -80,12 +80,14 @@ body {
 
 
   .interaction-preview-container .preview-controller {
-    background: rgba(0,0,0,0.1);
-    padding: $outer-padding;
+    background: rgb(200,200,200);
+    width: 100%;
     display: none;
 
     &.active {
       display: block;
+      position: absolute;
+      bottom: 0;
     }
 
     h2 {
@@ -98,10 +100,15 @@ body {
     }
 
     .preview-close {
-      display: inline;
-      position: absolute;
-      right: $outer-padding;
+      margin-left: auto;
+      margin-right: $outer-padding;
       cursor: pointer;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      padding-top: $inner-padding;
     }
 
     .preview-header h2 {
