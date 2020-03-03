@@ -20,14 +20,20 @@ const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
 const assets = require('../../util/assets');
 
+interface OwnProps {
+  groupId: number;
+  groupName: string;
+  setActiveGroupId: () => void;
+}
+
 interface StateProps {
   groups: Map<number, GroupRecord>;
-  scaleInfoForGroups: Map<number, ScaleInfo>; // map of group ids to scale info
   marksOfGroups: Map<number, MarkRecord[]>; // map of group ids to array of mark specs
-  fieldsOfGroups: Map<number, string[]>; // map of group ids to array of fields
-  canDemonstrateGroups: Map<number, Boolean>;
+  scaleInfo: ScaleInfo;
+  fieldsOfGroup: string[];
+  canDemonstrate: Boolean;
   datasets: Map<string, DatasetRecord>;
-  interactionsOfGroups: Map<number, InteractionRecord[]>;
+  interactionsOfGroup: InteractionRecord[];
 }
 
 interface DispatchProps {
@@ -38,8 +44,6 @@ interface DispatchProps {
 }
 
 interface OwnState {
-  groupId: number; // active group (the one that the user is demonstrating on)
-  groupName: string; // active group (the one that the user is demonstrating on)
   isDemonstrating: boolean,
   isDemonstratingInterval: boolean,
   selectionPreviews: SelectionRecord[];
