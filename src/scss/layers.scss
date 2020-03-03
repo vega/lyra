@@ -1,6 +1,6 @@
 #layer-list {
   height: 50%;
-  overflow-y: scroll;
+  overflow-y: auto;
   ul.group {
     white-space: nowrap;
     border-bottom: 1px solid $lgrey-bg;
@@ -19,9 +19,9 @@
   }
 }
 
-#scale-list, #interaction-list {
-  height: 25%;
-  overflow-y: scroll;
+#scale-list {
+  height: 50%;
+  overflow-y: auto;
   text-align: center;
   border-top: 1px solid $lgrey-bg;
 
