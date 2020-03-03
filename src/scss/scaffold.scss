@@ -154,7 +154,7 @@ body {
   position: relative;
   z-index: 999;
   height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
   background-color: $bg-color;
   box-sizing: border-box;
 
