@@ -90,7 +90,7 @@ body {
   }
 
   .interaction-preview-container .preview-controller {
-    background: rgb(200,200,200);
+    background: $lgrey-bg;
     width: 100%;
     display: none;
 
@@ -116,7 +116,10 @@ body {
     .preview-header {
       display: flex;
       align-items: center;
-      padding-top: $inner-padding;
+      padding: $inner-padding 0;
+      background: $dgrey-bg;
+      color: white;
+      fill: white;
     }
 
     .preview-header h2 {
@@ -125,16 +128,17 @@ body {
 
     .preview-scroll {
       display: flex;
-      background: #aaa;
+      background: $grey-bg;
     }
 
     .preview-scroll > div {
       display: inline-block;
       padding: 0 $outer-padding $outer-padding;
+      background: $grey-bg;
+      color: white;
 
       &.selected {
-        background: #777;
-        color: white;
+        background: $lgrey-bg;
       }
 
       .preview-label {
@@ -144,6 +148,10 @@ body {
       svg.marks > g {
         transform: translate(12px, 13px);
       }
+    }
+
+    .signals-container {
+      margin-left: 10px;
     }
   }
 }
@@ -180,10 +188,6 @@ body {
   border-radius: 3px;
   display: inline-block;
   margin: 5px 2px;
-}
-
-#pipeline-sidebar {
-  width: $pipeline-sidebar-width;
 }
 
 .tooltip {
