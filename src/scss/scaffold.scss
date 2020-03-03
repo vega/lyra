@@ -1,7 +1,7 @@
 // Body
 
 body {
-  background: $bg-color;
+  background: $vlgrey-bg;
   font-family: Lato, Helvetica Neue, Helvetica, Arial;
   font-size: 12px;
   overflow-y: hidden;
@@ -155,11 +155,13 @@ body {
   z-index: 999;
   height: 100%;
   overflow-y: auto;
-  background-color: $bg-color;
   box-sizing: border-box;
 
   h2 {
     padding: 10px;
+    background-color: $dgrey-bg;
+    color: white;
+    fill: white;
   }
 }
 
@@ -167,14 +169,9 @@ body {
   display: flex;
   flex-flow: column;
   width: $visual-sidebar-width;
-  background-color: $vlgrey-bg;
-  border-right: 1px solid $lgrey-bg;
+  background-color: $lgrey-bg;
 }
 
-#inspector {
-  width: $inspector-width;
-  background-color: $lblue-bg;
-}
 .widget-tag {
   border: 1px solid #bed000;
   padding: 3px 10px;
@@ -187,7 +184,6 @@ body {
 
 #pipeline-sidebar {
   width: $pipeline-sidebar-width;
-  background-color: $dblue-bg;
 }
 
 .tooltip {
@@ -198,5 +194,9 @@ body {
 }
 
 .hidden {
+  display: none;
+}
+
+::-webkit-scrollbar-track {
   display: none;
 }

@@ -7,8 +7,6 @@
     background-color: $lgrey-bg;
     display: flex;
     margin: 0 10px 0 0;
-    border: solid 1px #999;
-    border-top: 0;
 
     li {
       position: relative;
@@ -26,7 +24,6 @@
         top: 27px;
         left: 0px;
         margin: -1px;
-        border-top: solid 1px #999;
 
         li {
           display: block;
@@ -35,7 +32,7 @@
       }
 
       &:hover {
-        background-color: $lblue-bg;
+        // background-color: $lblue-bg;
 
         ul { visibility: visible; }
       }

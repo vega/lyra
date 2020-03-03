@@ -2,15 +2,17 @@ $label-width: 60px;
 $long-label-width: $label-width + 10px;
 
 #inspector {
+  width: $inspector-width;
+  background-color: $vlgrey-bg;
+
   h2 {
-    background-color: $mblue-bg;
-    color: #fff;
+    background-color: $lgrey-bg;
     justify-content: center;
   }
 
   h3 {
     margin: $inner-padding 0;
-    color: $blue-font;
+    color: $dgrey-bg;
     font-weight: bold;
     cursor: default;
     justify-content: flex-start;
@@ -123,7 +125,7 @@ $long-label-width: $label-width + 10px;
 
 .more-props-label {
   display: block;
-  color: $blue-font;
+  color: $dgrey-bg;
   text-decoration: none;
   font-weight: bold;
   text-align: center;
