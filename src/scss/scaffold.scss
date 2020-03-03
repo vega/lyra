@@ -82,6 +82,12 @@ body {
     display: none;
   }
 
+  .preview-controller-wrap {
+    display :none;
+    &.active {
+      display: block;
+    }
+  }
 
   .interaction-preview-container .preview-controller {
     background: rgb(200,200,200);
