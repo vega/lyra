@@ -562,7 +562,9 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
           <div className="preview-header">
             <h2>Interactions</h2>
             {this.getInteractionOptions()}
-            {this.getSignalBubbles(this.props.scaleInfo, this.state.isDemonstratingInterval)}
+            <div className="signals-container">
+              {this.getSignalBubbles(this.props.scaleInfo, this.state.isDemonstratingInterval)}
+            </div>
             <div className="preview-close">
               <Icon glyph={assets.close} onClick={() => this.closePreview()} />
             </div>
