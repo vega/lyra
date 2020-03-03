@@ -1,37 +1,30 @@
 #layer-list {
-  height: 50%;
+  height: 75%;
   overflow-y: auto;
   ul.group {
     white-space: nowrap;
-    border-bottom: 1px solid $lgrey-bg;
+    border-bottom: 5px solid $lgrey-bg;
     li.header {
       padding: 1.5*$inner-padding $outer-padding;
       font-size: 10px;
-      color: $blue-font;
       font-weight: bold;
       text-transform: uppercase;
+      letter-spacing: 0.05em;
 
       .icon {
         float: right;
-        fill: $blue-font;
       }
     }
   }
 }
 
 #scale-list {
-  height: 50%;
+  height: 25%;
   overflow-y: auto;
   text-align: center;
-  border-top: 1px solid $lgrey-bg;
 
-  .interaction-list__group > h5 {
-    margin: 0 $outer-padding $outer-padding $outer-padding;
-    text-align: left;
-  }
-
-  h2 {
-    color: $grey-font;
+  ul {
+    margin-top: $inner-padding;
   }
 
   li {
@@ -41,14 +34,15 @@
     list-style-type: none;
   }
 
-  .scale.name, .interaction.name {
+  .scale.name {
     display: inline-block;
     padding: $inner-padding;
     text-align: center;
 
+    background-color: skyblue;
+
     &.selected {
-      background-color: $lblue-bg;
-      border-color: $dblue-bg;
+      background-color: $vlgrey-bg;
     }
   }
 }

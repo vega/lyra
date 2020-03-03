@@ -1,21 +1,16 @@
 $pipeline-width: 230px;
 
 #pipeline-sidebar {
-  h2 {
-    color: #fff;
-
-    svg {
-      fill: #fff;
-    }
-  }
+  width: $pipeline-sidebar-width;
+  background: $lgrey-bg;
 }
 
 .pipeline {
   position: relative; /* For the datatable header column */
-  background-color: $lblue-bg;
+  background-color: $vlgrey-bg;
   width: $pipeline-width - 2*$inner-padding;
   padding: $inner-padding;
-  margin: 0 auto $margin auto;
+  margin: $margin auto;
 
   border-radius: $border-radius;
 
@@ -32,7 +27,9 @@ $pipeline-width: 230px;
     align-items: center;
     margin: $margin (-$inner-padding);
     padding: $inner-padding;
-    background: $lgrey-bg;
+    background: $grey-bg;
+    color: white;
+    fill: white;
     border-top: 1px solid $lgrey-border;
     border-bottom: 1px solid $lgrey-border;
 
@@ -229,7 +226,7 @@ $pipeline-width: 230px;
     border-radius: $border-radius;
 
     &:hover {
-      background: $lblue-bg;
+      background: skyblue; //TODO
     }
 
     &.selected {
@@ -241,7 +238,7 @@ $pipeline-width: 230px;
     display: block;
     font-weight: bold;
     font-size: 14px;
-    color: $dblue-bg;
+    color: blue; // TODO
     margin-bottom: $inner-padding;
   }
 
@@ -274,8 +271,7 @@ $pipeline-width: 230px;
 
   .textarea-dnd {
     &.active {
-      background-color: $lblue-bg;
-      border-color: $mblue-bg;
+      // background-color: $lblue-bg;
     }
   }
 

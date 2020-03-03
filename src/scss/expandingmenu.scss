@@ -42,8 +42,8 @@
         &:hover .delete { visibility: visible; }
 
         &.selected {
-          background-color: $mblue-bg;
-          color: #fff;
+          background-color: $vlgrey-bg;
+          color: $dgrey-bg;
           font-weight: bold;
 
           .delete {
@@ -51,7 +51,7 @@
           }
 
           .icon {
-            fill: #fff;
+            fill: $dgrey-bg;
           }
         }
       }
@@ -61,7 +61,9 @@
     }
   }
   .expanded {
-    background-color: #fff;
+    background-color: $grey-bg;
+    color: white;
+    fill: white;
 
     > .name {
       font-weight: bold;

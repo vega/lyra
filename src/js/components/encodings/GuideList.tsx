@@ -95,7 +95,7 @@ class GuideList extends React.Component<OwnProps & StateProps & DispatchProps> {
 
           return (
             <li key={guideId}>
-              <div className={'name' + (selectedId === guideId && selectedType === InspectorSelectedType.SELECT_GUIDE ? ' selected' : '')}
+              <div style={{"paddingLeft": "26px"}} className={'name' + (selectedId === guideId && selectedType === InspectorSelectedType.SELECT_GUIDE ? ' selected' : '')}
                 onClick={props.selectGuide.bind(null, guideId)}>
 
                 {name + ' ' + type}
