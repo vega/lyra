@@ -7,12 +7,13 @@ $long-label-width: $label-width + 10px;
 
   h2 {
     background-color: $lgrey-bg;
+    color: black;
     justify-content: center;
   }
 
   h3 {
     margin: $inner-padding 0;
-    color: $dgrey-bg;
+    color: black;
     font-weight: bold;
     cursor: default;
     justify-content: flex-start;
@@ -125,7 +126,7 @@ $long-label-width: $label-width + 10px;
 
 .more-props-label {
   display: block;
-  color: $dgrey-bg;
+  color: black;
   text-decoration: none;
   font-weight: bold;
   text-align: center;
