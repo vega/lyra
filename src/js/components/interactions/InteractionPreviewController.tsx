@@ -366,8 +366,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     const isDemonstrating = intervalActive || pointActive;
     const isDemonstratingInterval = intervalActive || !pointActive;
 
-    console.log(this.props.groupName, isDemonstrating);
-
     this.setState({
       isDemonstratingInterval
     });
@@ -385,7 +383,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       this.timeout = null;
       this.setState({
         isDemonstrating
-      });
+      }, this.props.setActiveGroup);
     }
   }
 
