@@ -5,12 +5,21 @@ $pipeline-width: 230px;
   background: $lgrey-bg;
 }
 
+#pipeline-list {
+  padding: $margin;
+
+  #pipeline-hint {
+    text-align: center;
+    cursor: pointer;
+  }
+}
+
 .pipeline {
   position: relative; /* For the datatable header column */
   background-color: $vlgrey-bg;
   width: $pipeline-width - 2*$inner-padding;
   padding: $inner-padding;
-  margin: $margin auto;
+  margin: 0 auto $margin auto;
 
   border-radius: $border-radius;
 
@@ -226,11 +235,11 @@ $pipeline-width: 230px;
     border-radius: $border-radius;
 
     &:hover {
-      background: skyblue; //TODO
+      background: $vlgrey-bg;
     }
 
     &.selected {
-      background: $lyellow-bg;
+      background: $lgrey-bg;
     }
   }
 
@@ -238,7 +247,6 @@ $pipeline-width: 230px;
     display: block;
     font-weight: bold;
     font-size: 14px;
-    color: blue; // TODO
     margin-bottom: $inner-padding;
   }
 
@@ -271,7 +279,7 @@ $pipeline-width: 230px;
 
   .textarea-dnd {
     &.active {
-      // background-color: $lblue-bg;
+      background-color: $lblue-bg;
     }
   }
 

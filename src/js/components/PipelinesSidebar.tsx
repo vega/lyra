@@ -24,7 +24,7 @@ export class PipelinesSidebar extends React.PureComponent<{}, {modalIsOpen: bool
           </span>
         </h2>
 
-        <PipelineList />
+        <PipelineList openModal={this.openModal} />
 
         <PipelineModal modalIsOpen={this.state.modalIsOpen}
           closeModal={this.closeModal} />
