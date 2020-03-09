@@ -1,33 +1,16 @@
----
-layout: index
-title: Home
-permalink: /
----
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>The Lyra Visualization Design Environment</title>
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic" rel="stylesheet" type="text/css">
+    <link href="build/style.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet"></head>
+  <body>
+    <div class="chrome-container"></div>
 
-<div id="service">
-    <div class="container">
-        <div class="row centered">
-            <div class="col-md-4">
-                <i class="fa fa-bar-chart"></i>
-                <h4>The App</h4>
-                <p>Try lyra right now.</p>
-                <p><br/><a href="/try" class="btn btn-theme">More Info</a></p>
-            </div>
-            <div class="col-md-4">
-                <i class="fa fa-github"></i>
-                <h4>Contribute Code</h4>
-                <p>Hosted on github.</p>
-                <p><br/><a href="https://github.com/vega/lyra" class="btn btn-theme">More Info</a></p>
-            </div>
-            <div class="col-md-4">
-                <i class="fa fa-pencil"></i>
-                <h4>Contribute Design</h4>
-                <p>See our design manifesto.</p>
-                <p><br/><a href="/design" class="btn btn-theme">More Info</a></p>
-            </div>
-
-        </div>
-    </div><! --/container -->
-</div><! --/service -->
-
-{% include example.html title="EXAMPLES" limit=10 %}
+    <div class="vis-container">
+      <div id="vis"></div>
+      <div class="interaction-preview-container"></div>
+    </div>
+  <script type="text/javascript" src="js/vega-lite.js"></script><script type="text/javascript" src="js/vega.js"></script><script type="text/javascript" src="js/vendor.js"></script><script type="text/javascript" src="js/default.js"></script><script type="text/javascript" src="js/lyra.js"></script></body>
+</html>
