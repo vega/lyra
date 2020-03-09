@@ -241,7 +241,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
         }
       }
       if (markTypes.has('area')) {
-        const areaMark = marksOfGroup.filter(mark => mark.type === 'area')[0].toJS();
+        const areaMark = marksOfGroup.find(mark => mark.type === 'area').toJS();
         if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
           // TODO(jzong) what if orient is not in update but is in one of the other ones?
           if (areaMark.encode.update.orient.value === 'vertical' && scaleInfo.xScaleType) {
@@ -334,9 +334,8 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     otherGroups.forEach(otherGroup => {
       const otherGroupId = otherGroup._id;
       const marksOfOtherGroup = this.props.marksOfGroups.get(otherGroupId);
-      const maybeMarkWithDataset = marksOfOtherGroup.filter(mark => mark.from && mark.from.data);
-      if (maybeMarkWithDataset.length) {
-        const mark = maybeMarkWithDataset[0];
+      const mark = marksOfOtherGroup.find(mark => mark.from && mark.from.data);
+      if (mark) {
         const targetGroupName = exportName(otherGroup.name);
         const targetMarkName = exportName(mark.name);
 
@@ -554,7 +553,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   }
 
   public render() {
-    const interaction = this.state.interaction ? this.state.interaction : this.props.interactionsOfGroup.filter(interaction => interaction.id === this.state.interactionId)[0];
+    const interaction = this.state.interaction ? this.state.interaction : this.props.interactionsOfGroup.find(interaction => interaction.id === this.state.interactionId);
     //
     return (
       <div className={"preview-controller" + (this.state.isDemonstrating  ? " active" : "")}>

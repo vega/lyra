@@ -7,25 +7,34 @@ import {PipelineInspector} from './PipelineInspector';
 
 const getInVis = require('../../util/immutable-utils').getInVis;
 
-interface Props {
+interface OwnProps {
+  openModal: () => void;
+}
+interface StateProps {
   pipelines: Map<number, PipelineRecord>;
 }
 
-function mapState(state: State): Props {
+function mapState(state: State): StateProps {
   return {
     pipelines: getInVis(state, 'pipelines')
   };
 }
 
-class BasePipelineList extends React.Component<Props> {
+class BasePipelineList extends React.Component<OwnProps & StateProps> {
   public render() {
     const pipelines = this.props.pipelines.keySeq().toArray();
 
     return (
       <div id='pipeline-list'>
-        {pipelines.map(function(id) {
-          return (<PipelineInspector key={id} id={id} />);
-        })}
+        {
+          pipelines.length ?
+            pipelines.map(function(id) {
+              return (<PipelineInspector key={id} id={id} />);
+            }) :
+            <div id='pipeline-hint' onClick={this.props.openModal}>
+              Add a new data pipeline to get started.
+            </div>
+        }
       </div>
     );
   }
