@@ -295,7 +295,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     // TODO(jzong): change mark to dropdown
     marksOfGroup.forEach(mark => {
       defs.push(MarkApplication({
-        id: "color",
+        id: "color_" + this.state.isDemonstratingInterval,
         label: "Color",
         targetMarkName: exportName(mark.name),
         isDemonstratingInterval: this.state.isDemonstratingInterval,
@@ -303,7 +303,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
         defaultValue: "#797979"
       }));
       defs.push(MarkApplication({
-        id: "opacity",
+        id: "opacity_" + this.state.isDemonstratingInterval,
         label: "Opacity",
         targetMarkName: exportName(mark.name),
         isDemonstratingInterval: this.state.isDemonstratingInterval,
@@ -312,7 +312,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       }));
       if (mark.type === 'symbol') {
         defs.push(MarkApplication({
-          id: "size",
+          id: "size_" + this.state.isDemonstratingInterval,
           label: "Size",
           targetMarkName: exportName(mark.name),
           isDemonstratingInterval: this.state.isDemonstratingInterval,
@@ -342,7 +342,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
         const datasetName = this.props.datasets.get(String(mark.from.data)).name;
 
         defs.push(TransformApplication({
-          id: "filter_" + targetGroupName,
+          id: "filter_" + targetGroupName + "_" + this.state.isDemonstratingInterval,
           label: "Filter " + otherGroup.name,
           targetGroupName,
           datasetName,
