@@ -31,7 +31,7 @@ class AddMarksTool extends React.Component<AddMarksToolProps> {
   public classNames: 'new-marks';
   public render() {
     return (
-      <ul>
+      <ul className='add-marks'>
         {marksArray.map(function(markType, i) {
           return (
             <li

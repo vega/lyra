@@ -6,7 +6,7 @@ import PipelineModal from './pipelines/PipelineModal';
 const assets = require('../util/assets');
 
 
-export class PipelinesSidebar extends React.PureComponent<{}, {modalIsOpen: boolean}> {
+export class PipelinesToolbar extends React.PureComponent<{}, {modalIsOpen: boolean}> {
   constructor(props) {
     super(props);
     this.state = {modalIsOpen: false};
@@ -17,7 +17,7 @@ export class PipelinesSidebar extends React.PureComponent<{}, {modalIsOpen: bool
 
   public render() {
     return (
-      <div className='sidebar' id='pipeline-sidebar'>
+      <div id='pipeline-toolbar'>
         <h2>Data Pipelines
           <span className='new' onClick={this.openModal}>
             <Icon glyph={assets.plus} /> New

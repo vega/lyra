@@ -148,10 +148,10 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
           </div>
         ) : null}
 
-        <div className='paging'>
+        {/* <div className='paging'>
           <span>{fmt(start + 1)}–{stop > max ? fmt(max) : fmt(stop)} of {fmt(max)}</span>
           <span className='pager'>{prev} {next}</span>
-        </div>
+        </div> */}
       </div>
     );
   }

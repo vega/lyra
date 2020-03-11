@@ -6,19 +6,27 @@ import {store} from '../store';
 import {EncodingsSidebar} from './EncodingsSidebar';
 import {InspectorSidebar} from './InspectorSidebar';
 import InteractionPreviewContainer from './interactions/InteractionPreviewContainer';
-import {PipelinesSidebar} from './PipelinesSidebar';
+import {PipelinesToolbar} from './PipelinesSidebar';
 import {Toolbar} from './Toolbar';
 
 // React requires you only have one wrapper element called in your provider
-module.exports = (window as any).ui = ReactDOM.render(
+module.exports = ReactDOM.render(
   <Provider store={store}>
-    <div>
-      <Toolbar />
-
+    <div className='lyra-container'>
       <div className='sidebar-container'>
         <EncodingsSidebar />
         <InspectorSidebar />
-        <PipelinesSidebar />
+      </div>
+
+      <div className='main-container'>
+        <div className='topbar-container'>
+          <PipelinesToolbar />
+          <Toolbar />
+        </div>
+        <div className="vis-container">
+          <div id="vis"></div>
+          <div className="interaction-preview-container"></div>
+        </div>
       </div>
 
       <ReactTooltip
@@ -29,13 +37,13 @@ module.exports = (window as any).ui = ReactDOM.render(
       />
     </div>
   </Provider>,
-  document.querySelector('.chrome-container')
+  document.querySelector('.app-container')
 );
 
-// TODO: not hardcode the group name
-ReactDOM.render(
-  <Provider store={store}>
-    <InteractionPreviewContainer></InteractionPreviewContainer>
-  </Provider>,
-  document.querySelector('.interaction-preview-container')
-);
+// TODO(jzong): uncomment this and move it to inspector
+// ReactDOM.render(
+//   <Provider store={store}>
+//     <InteractionPreviewContainer></InteractionPreviewContainer>
+//   </Provider>,
+//   document.querySelector('.interaction-preview-container')
+// );
