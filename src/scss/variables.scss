@@ -24,8 +24,8 @@ $toolbar-height: 16px;
 $visual-sidebar-width: 130px;
 $scale-list-width: $visual-sidebar-width;
 $inspector-width: 200px;
-$pipeline-sidebar-width: 250px;
-$sidebars-width: $visual-sidebar-width + $inspector-width + $pipeline-sidebar-width;
+// $pipeline-sidebar-width: 250px;
+$sidebars-width: $visual-sidebar-width + $inspector-width; // + $pipeline-sidebar-width;
 
 $header-font-size: 15px;
 

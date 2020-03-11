@@ -50,10 +50,10 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps & Disp
     if (props.isSelected) {
       inner = (
         <div className='inner'>
-          <p className='source'>
+          {/* <p className='source'>
             <Icon glyph={assets.download} width={11} height={11} />
             Loaded Values
-          </p>
+          </p> */}
 
           <DataTable id={pipeline._source} />
 

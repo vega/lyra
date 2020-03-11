@@ -1,12 +1,15 @@
 $pipeline-width: 230px;
 
-#pipeline-sidebar {
-  width: $pipeline-sidebar-width;
+
+#pipeline-toolbar {
+  padding: $outer-padding;
   background: $lgrey-bg;
+  max-width: 230px;
+  flex: 1;
 }
 
 #pipeline-list {
-  padding: $margin;
+  padding-top: $outer-padding;
 
   #pipeline-hint {
     text-align: center;
@@ -17,9 +20,8 @@ $pipeline-width: 230px;
 .pipeline {
   position: relative; /* For the datatable header column */
   background-color: $vlgrey-bg;
-  width: $pipeline-width - 2*$inner-padding;
+  max-width: 100%;
   padding: $inner-padding;
-  margin: 0 auto $margin auto;
 
   border-radius: $border-radius;
 
@@ -49,6 +51,11 @@ $pipeline-width: 230px;
     div.header {
       font-weight: 900;
     }
+  }
+
+  .inner {
+    max-height: 160px;
+    overflow-y: auto;
   }
 
 }
@@ -176,7 +183,9 @@ $pipeline-width: 230px;
 .transform-list {
   display: flex;
   flex-wrap: wrap;
-  margin-bottom: $outer-padding;
+  &:not(:empty) {
+    margin-bottom: $outer-padding;
+  }
 
   .transform-button {
     display: inline-block;

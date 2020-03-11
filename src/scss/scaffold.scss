@@ -11,23 +11,39 @@ body {
   user-select: none;
 }
 
+// overall container
+.lyra-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+}
+
 // The two main sections of our app
 // Sidebar is where the react components are placed
 .sidebar-container{
+  display: flex;
   width: $sidebars-width;
-  position: relative;
   height: 100%;
+  box-shadow: 1px 0 3px rgba(0,0,0,0.12), 1px 0 2px rgba(0,0,0,0.24);
+  z-index: 1;
+}
+
+.main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-container .topbar-container {
+  margin-bottom: $margin;
+  display: flex;
+  height: 230px;
 }
 
 // Vis-container is where vega is placed
 .vis-container {
-  position: absolute;
-  display: block;
-  left: $sidebars-width;
-  right: 0;
-  top: 40px;
-  bottom: 0;
-  height: calc(100vh - 40px);
+  padding-left: $margin;
+  flex: 1;
   display: flex;
   flex-direction: column;
 
@@ -35,11 +51,10 @@ body {
   #vis {
     flex: 1;
     overflow: auto;
-    padding: 0 2*$outer-padding 2*$outer-padding;
 
     canvas, svg {
       border: 1px solid #ccc;
-      box-shadow: 2px 2px 17px 0px rgba(0,0,0,0.15)
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     }
   }
 

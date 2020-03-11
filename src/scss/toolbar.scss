@@ -1,12 +1,11 @@
 .toolbar {
-  position: absolute;
-  left: 2*$outer-padding;
-  margin-left: $sidebars-width;
+  margin-left: $outer-padding;
 
   ul {
     background-color: $lgrey-bg;
     display: flex;
     margin: 0 10px 0 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 
     li {
       position: relative;
@@ -87,3 +86,4 @@ label[for="nav-trigger"] {
 .nav-trigger:checked ~ .menu{
   top: 45px;
 }
+
