@@ -34,10 +34,8 @@ body {
   flex-direction: column;
 }
 
-.main-container .topbar-container {
-  margin-bottom: $margin;
+.tools-container {
   display: flex;
-  height: 230px;
 }
 
 // Vis-container is where vega is placed

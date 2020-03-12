@@ -43,6 +43,27 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
+/** TODO(jzong) move this into a util if we end up using this
+ *
+ * Returns an array with arrays of the given size.
+ *
+ * @param myArray {Array} array to split
+ * @param chunk_size {Integer} Size of every group
+ */
+function chunkArray(myArray, chunk_size){
+  let index = 0;
+  const arrayLength = myArray.length;
+  const tempArray = [];
+
+  for (index = 0; index < arrayLength; index += chunk_size) {
+      const myChunk = myArray.slice(index, index+chunk_size);
+      // Do something if you want with the group
+      tempArray.push(myChunk);
+  }
+
+  return tempArray;
+}
+
 class DataTable extends React.Component<OwnProps & StateProps & {className?: string}, OwnState> {
 
   constructor(props) {
@@ -103,10 +124,11 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     const schema = id ? props.dataset.get('_schema') : props.schema;
     const output = id ? dsUtil.output(id) : props.values;
     const values = output.slice(start, stop);
-    const keys = schema.keySeq().toArray();
     const max = output.length;
     const fmt = dl.format.auto.number();
     const scrollLeft = this.$table.current && this.$table.current.scrollLeft;
+
+    const keys_chunked = chunkArray(schema.keySeq().toArray(), 7);
 
     const prev = page > 0 ? (
       <Icon glyph={assets.prev} width='10' height='10' onClick={this.prevPage} />
@@ -117,36 +139,38 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     ) : null;
 
     return (
-      <div>
+      <div className='datatable-container'>
 
         <TransformList dsId={id} />
 
-        {output.length ? (
-          <div className='datatable' ref={this.$table}
-            onMouseLeave={this.hideHover} onScroll={this.hideHover}>
-
-            <table>
-              <tbody>
-                {keys.map(function(k) {
-                  return (
-                    <tr key={k}>
-                      <td className={'field ' + (schema.get(k).source ? 'source' : 'derived')}
-                        onMouseOver={this.showHoverField}>{k}</td>
-                      {values.map(function(v, i) {
-                        return (
-                          <td key={k + i} className={i % 2 ? 'even' : 'odd'}
-                            onMouseOver={this.showHoverValue}>{v[k]}</td>
-                        );
-                      }, this)}
-                    </tr>
-                  );
-                }, this)}
-              </tbody>
-            </table>
-            {id ? <HoverField dsId={id} schema={schema} def={state.hoverField} /> : null}
-            <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
-          </div>
-        ) : null}
+        {output.length ?
+              keys_chunked.map((keys) => {
+                return (
+                  <div className='datatable' ref={this.$table}
+                    onMouseLeave={this.hideHover} onScroll={this.hideHover}>
+                    <table>
+                      <tbody>
+                        {keys.map(function(k) {
+                          return (
+                            <tr key={k}>
+                              <td className={'field ' + (schema.get(k).source ? 'source' : 'derived')}
+                                onMouseOver={this.showHoverField}>{k}</td>
+                              {values.map(function(v, i) {
+                                return (
+                                  <td key={k + i} className={i % 2 ? 'even' : 'odd'}
+                                    onMouseOver={this.showHoverValue}>{v[k]}</td>
+                                );
+                              }, this)}
+                            </tr>
+                          );
+                        }, this)}
+                      </tbody>
+                    </table>
+                    {id ? <HoverField dsId={id} schema={schema} def={state.hoverField} /> : null}
+                    <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
+                  </div>
+                )
+              }) : null}
 
         {/* <div className='paging'>
           <span>{fmt(start + 1)}–{stop > max ? fmt(max) : fmt(stop)} of {fmt(max)}</span>

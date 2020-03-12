@@ -17,9 +17,9 @@ export class Toolbar extends React.PureComponent {
             <Icon glyph={assets.hamburger} />
           </label>
           <div className='menu'>
-            <Persist />
             <AddMarks />
             <UndoRedo />
+            <Persist />
             <Export />
           </div>
         </div>
