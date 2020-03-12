@@ -4,10 +4,17 @@
   ul {
     background-color: $lgrey-bg;
     display: flex;
-    margin: 0 10px 0 0;
+    margin: 0 0 10px 0;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 
+    &.add-marks {
+      display: flex;
+      flex-direction: column;
+    }
+
     li {
+      flex-basis: 50%;
+      justify-content: center;
       position: relative;
       text-transform: uppercase;
       width: auto;
@@ -49,10 +56,6 @@
         &:hover { background-color: transparent; }
       }
     }
-  }
-
-  .menu {
-    display: flex;
   }
 
   .nav-trigger, label {

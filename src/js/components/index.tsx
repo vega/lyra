@@ -19,13 +19,13 @@ module.exports = ReactDOM.render(
       </div>
 
       <div className='main-container'>
-        <div className='topbar-container'>
-          <PipelinesToolbar />
+        <PipelinesToolbar />
+        <div className='tools-container'>
+          <div className="vis-container">
+            <div id="vis"></div>
+            <div className="interaction-preview-container"></div>
+          </div>
           <Toolbar />
-        </div>
-        <div className="vis-container">
-          <div id="vis"></div>
-          <div className="interaction-preview-container"></div>
         </div>
       </div>
 
