@@ -10,11 +10,12 @@ import {GroupRecord} from '../../store/factory/marks/Group';
 import exportName from '../../util/exportName';
 import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
 import {LyraMarkType, MarkRecord} from '../../store/factory/Mark';
-import {selectInteraction} from '../../actions/inspectorActions';
+import {selectInteraction, InspectorSelectedType} from '../../actions/inspectorActions';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionPreview} from './InteractionPreview';
 import { debounce } from "throttle-debounce";
 import {Icon} from '../Icon';
+import {EncodingStateRecord} from '../../store/factory/Inspector';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -33,7 +34,7 @@ interface StateProps {
   fieldsOfGroup: string[];
   canDemonstrate: Boolean;
   datasets: Map<string, DatasetRecord>;
-  interactionsOfGroup: InteractionRecord[];
+  interaction: InteractionRecord;
 }
 
 interface DispatchProps {
@@ -49,8 +50,6 @@ interface OwnState {
   mainViewSignalValues: {[name: string]: any}, // name -> value
   selectionPreviews: SelectionRecord[];
   applicationPreviews: ApplicationRecord[];
-  interactionId: number; // mutually exclusive with "interaction": for editing an interaction already in the store
-  interaction: InteractionRecord; // mutual exclusive with "interactionId": for creating a new interaction
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -88,14 +87,31 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     fieldsOfGroup = fields;
   }
 
-  // const encState: EncodingStateRecord = state.getIn(['inspector', 'encodings']);
-  // const selId   = encState.get('selectedId');
-  // const selType = encState.get('selectedType');
-  // const isSelectedInteraction = selType === getType(selectInteraction);
+  const encState: EncodingStateRecord = state.getIn(['inspector', 'encodings']);
+  const selId   = encState.get('selectedId');
+  const selType = encState.get('selectedType');
+  const isSelectedInteraction = selType === InspectorSelectedType.SELECT_INTERACTION;
 
-  const interactionsOfGroup = group._interactions.map(interactionId => {
-      return state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+  let interactionId = null;
+  if (isSelectedInteraction) {
+    interactionId = group.get('_interactions').find(id => {
+      // const record: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(id)]);
+      // if (record.selectionDef && record.selectionDef.label === 'Widget') return false;
+      return id === selId;
     });
+  }
+  if (!interactionId) {
+    interactionId = group.get('_interactions').find(id => {
+      const record: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(id)]);
+      return !Boolean(record.selection && record.application);
+    });
+  }
+  const interaction = interactionId ? state.getIn(['vis', 'present', 'interactions', String(interactionId)]) : null;
+
+
+  // const interactionsOfGroup = group._interactions.map(interactionId => {
+  //     return state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+  //   });
 
   return {
     groups,
@@ -104,7 +120,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     fieldsOfGroup,
     canDemonstrate,
     datasets,
-    interactionsOfGroup
+    interaction
   };
 }
 
@@ -142,8 +158,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       mainViewSignalValues: {},
       selectionPreviews: [],
       applicationPreviews: [],
-      interactionId: null,
-      interaction: Interaction({name: 'New Interaction'})
     };
   }
 
@@ -162,29 +176,10 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       this.generatePreviews();
     }
 
-    if (prevState.interactionId !== this.state.interactionId) {
-      if (this.state.interactionId) {
-        this.setState({
-          interaction: null
-        });
-      }
-      else {
-        this.setState({
-          interactionId: null,
-          interaction: Interaction({name: 'New Interaction'})
-        });
-      }
-    }
-
-    if (prevState.interaction !== this.state.interaction) {
-      if (this.state.interaction && !this.state.interaction.id && this.state.interaction.selection && this.state.interaction.application) {
+    if (this.state.isDemonstrating && prevState.isDemonstrating !== this.state.isDemonstrating) {
+      if (!this.props.interaction) {
         const interactionId = this.props.addInteraction(this.props.groupId);
-        this.props.setSelection(this.state.interaction.selection, interactionId);
-        this.props.setApplication(this.state.interaction.application, interactionId);
-        this.setState({
-          interactionId,
-          interaction: null
-        });
+        this.props.selectInteraction(interactionId);
       }
     }
   }
@@ -451,25 +446,15 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     switch (preview.type) {
       case 'point':
       case 'interval':
-        if (this.state.interactionId) {
-          this.props.setSelection(preview as SelectionRecord, this.state.interactionId);
-        }
-        else {
-          this.setState({
-            interaction: this.state.interaction.set('selection', preview as SelectionRecord)
-          });
+        if (this.props.interaction) {
+          this.props.setSelection(preview as SelectionRecord, this.props.interaction.id);
         }
         break;
       case 'mark':
       case 'scale':
       case 'transform':
-        if (this.state.interactionId) {
-          this.props.setApplication(preview as ApplicationRecord, this.state.interactionId);
-        }
-        else {
-          this.setState({
-            interaction: this.state.interaction.set('application', preview as ApplicationRecord)
-          });
+        if (this.props.interaction) {
+          this.props.setApplication(preview as ApplicationRecord, this.props.interaction.id);
         }
         break;
     }
@@ -485,14 +470,8 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
         return p;
       })
     }, () => {
-      this.props.setSelection(newPreview, this.state.interactionId);
+      this.props.setSelection(newPreview, this.props.interaction.id);
     });
-  }
-
-  private onSelectInteraction(interactionId: number) {
-    this.setState({
-      interactionId: interactionId ? interactionId : null
-    })
   }
 
   private closePreview() {
@@ -540,27 +519,14 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     </div>
   }
 
-  private getInteractionOptions() {
-    const interactionOptions = this.props.interactionsOfGroup.map((interaction) => {
-      return <option key={interaction.name} value={interaction.id}>{interaction.name}</option>;
-    });
-
-    interactionOptions.unshift(<option key={'New Interaction'} value={0}>{'New Interaction'}</option>)
-
-    return <select value={this.state.interactionId} onChange={e => this.onSelectInteraction(Number(e.target.value))}>
-      {interactionOptions}
-    </select>;
-  }
-
   public render() {
-    const interaction = this.state.interaction ? this.state.interaction : this.props.interactionsOfGroup.find(interaction => interaction.id === this.state.interactionId);
+    const interaction = this.props.interaction;
     //
     return (
       <div className={"preview-controller" + (this.state.isDemonstrating  ? " active" : "")}>
         {this.state.isDemonstrating ? (
           <div className="preview-header">
             <h2>Interactions</h2>
-            {this.getInteractionOptions()}
             <div className="signals-container">
               {this.getSignalBubbles(this.props.scaleInfo, this.state.isDemonstratingInterval)}
             </div>
