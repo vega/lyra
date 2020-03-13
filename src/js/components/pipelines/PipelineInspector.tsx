@@ -1,7 +1,5 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {selectPipeline} from '../../actions/inspectorActions';
-import {updatePipelineProperty as updatePipeline} from '../../actions/pipelineActions';
 import {State} from '../../store';
 import {PipelineRecord} from '../../store/factory/Pipeline';
 import { Icon } from '../Icon';
@@ -9,47 +7,39 @@ import DataTable from './DataTable';
 import DataTableMulti from './DataTableMulti';
 import TransformList from './transforms/TransformList';
 
-const ContentEditable = require('../ContentEditable');
 const imutils = require('../../util/immutable-utils');
 const getInVis = imutils.getInVis;
 const assets = require('../../util/assets');
 
 interface OwnProps {
   id: number;
+  selectedId: number;
 }
 
 interface StateProps {
-  isSelected: boolean;
   pipeline: PipelineRecord;
-}
-
-interface DispatchProps {
-  selectPipeline: (id: number) => void;
-  updatePipeline: (payload: {property: string, value: any}, id: number) => void;
 }
 
 function mapState(state: State, ownProps: OwnProps): StateProps {
   const id = ownProps.id;
+
   return {
-    isSelected: state.getIn(['inspector', 'pipelines', 'selectedId']) === id,
     pipeline: getInVis(state, 'pipelines.' + id)
   };
 }
 
-const mapDispatch: DispatchProps = {
-  selectPipeline,
-  updatePipeline
-};
+const fieldsCount = 6;
 
-class BasePipelineInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
+class BasePipelineInspector extends React.Component<OwnProps & StateProps> {
   public render() {
     const props = this.props;
     const pipeline = props.pipeline;
     const id = props.id;
-    const name = pipeline.name;
     let inner;
 
-    if (props.isSelected) {
+    const isSelected = props.selectedId == id;
+
+    if (isSelected) {
       inner = (
         <div>
           {/* <p className='source'>
@@ -57,13 +47,13 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps & Disp
             Loaded Values
           </p> */}
 
-          <DataTableMulti id={pipeline._source} fieldsCount={7} />
+          <DataTableMulti id={pipeline._source} fieldsCount={fieldsCount} />
 
           {pipeline._aggregates.entrySeq().map(function(entry, i) {
             return (
               <div key={i}>
                 <p className='source'>Group By: {entry[0].split('|').join(', ')}</p>
-                <DataTableMulti id={entry[1]} fieldsCount={7} />
+                <DataTableMulti id={entry[1]} fieldsCount={fieldsCount} />
               </div>
             );
           })}
@@ -72,16 +62,11 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps & Disp
     }
 
     return (
-      <div className={'pipeline' + (props.isSelected ? ' selected' : '')}>
-        <ContentEditable className='header'
-          value={name}
-          save={props.updatePipeline.bind(this, id, 'name')}
-          onClick={() => props.selectPipeline(id)} />
+      <div className={'pipeline' + (isSelected ? ' selected' : '')}>
         {inner}
-
       </div>
     );
   }
 }
 
-export const PipelineInspector = connect(mapState, mapDispatch)(BasePipelineInspector);
+export const PipelineInspector = connect(mapState)(BasePipelineInspector);

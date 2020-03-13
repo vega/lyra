@@ -22,19 +22,28 @@ $pipeline-width: 230px;
   }
 }
 
+.pipeline-tabs div.header {
+  font-size: $header-font-size;
+  font-weight: bolder;
+  text-align: center;
+  font-weight: normal;
+  cursor: pointer;
+  display: inline-block;
+  padding: $inner-padding $outer-padding;
+
+  background-color: $grey-bg;
+  color: white;
+  &.selected {
+    background-color: $vlgrey-bg;
+    color: black;
+  }
+
+
+
+}
+
 .pipeline {
   background-color: $vlgrey-bg;
-  padding: $inner-padding;
-
-  border-radius: $border-radius;
-
-  div.header {
-    font-size: $header-font-size;
-    font-weight: bolder;
-    text-align: center;
-    font-weight: normal;
-    cursor: pointer;
-  }
 
   p.source {
     display: flex;
@@ -51,6 +60,7 @@ $pipeline-width: 230px;
   }
 
   &.selected {
+    padding: $inner-padding;
     div.header {
       font-weight: 900;
     }

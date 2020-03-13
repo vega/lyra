@@ -9,6 +9,7 @@ import {Dataset, DatasetRecord, Schema} from '../store/factory/Dataset';
 import {LyraAggregateTransform, PipelineRecord} from '../store/factory/Pipeline';
 import * as dsUtil from '../util/dataset-utils';
 import {addDataset} from './datasetActions';
+import {selectPipeline} from './inspectorActions';
 
 /**
  * Action creator to add a new Pipeline in the store. A new pipeline requires
@@ -29,6 +30,7 @@ export function addPipeline (pipeline: PipelineRecord, ds: DatasetRecord, values
 
     dispatch(newDs);
     dispatch(baseAddPipeline(pipeline.merge({_id: pid, _source: newDs.payload._id}), pid));
+    dispatch(selectPipeline(pid));
   };
 }
 
