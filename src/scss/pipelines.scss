@@ -4,7 +4,7 @@ $pipeline-width: 230px;
 #pipeline-toolbar {
   padding: $outer-padding;
   background: $lgrey-bg;
-  height: 205px;
+  max-height: 205px;
   margin-bottom: $outer-padding;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 
@@ -23,9 +23,10 @@ $pipeline-width: 230px;
 }
 
 .pipeline {
+  position: relative; /* For the datatable header column */
   background-color: $vlgrey-bg;
   // max-width: calc(100vw - #{$sidebars-width} - 30px);
-  max-width: 520px;
+  max-width: 230px;
   padding: $inner-padding;
 
   border-radius: $border-radius;
@@ -66,12 +67,10 @@ $pipeline-width: 230px;
 }
 
 .datatable-container {
-  display: flex;
+  // display: flex;
 }
 
 .datatable {
-  max-width: 200px;
-  position: relative; /* For the datatable header column */
   $cell-width: 55px;
   $cell-padding: 3px;
   $menu-offset: 22px; // calculate cell height
@@ -80,9 +79,9 @@ $pipeline-width: 230px;
   /* Req'd to prevent Chrome scrolling .field for some reason */
   $padding-hack: 2px;
 
-  padding-left: $cell-width + 2*$cell-padding - $padding-hack;
-  // padding-left: $padding-hack;
-  overflow-x: auto;
+  margin-left: $cell-width + 2*$cell-padding - $padding-hack;
+  padding-left: $padding-hack;
+  overflow: auto;
   font-size: 11px;
 
   td {
