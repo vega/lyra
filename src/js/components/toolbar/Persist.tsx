@@ -26,7 +26,7 @@ class BasePersist extends React.Component<PersistProps> {
 
   public render() {
     return (
-      <ul>
+      <ul class='persist'>
         <li onClick={this.open}><Icon glyph={assets.open} className='open' width='15' /></li>
         <li onClick={this.save}><Icon glyph={assets.save} className='save' /></li>
       </ul>

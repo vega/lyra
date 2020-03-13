@@ -14,7 +14,6 @@
 
     li {
       flex-basis: 50%;
-      justify-content: center;
       position: relative;
       text-transform: uppercase;
       width: auto;
@@ -34,6 +33,8 @@
         li {
           display: block;
           width: 100%;
+          flex-basis: 100%;
+          text-align: center;
         }
       }
 
@@ -55,6 +56,10 @@
         .icon { fill: #555; }
         &:hover { background-color: transparent; }
       }
+    }
+
+    &.undo-redo li, &.persist li {
+      justify-content: center;
     }
   }
 
