@@ -42,6 +42,8 @@ class BasePipelineList extends React.Component<OwnProps & StateProps & DispatchP
     const pipelineIds = this.props.pipelines.keySeq().toArray();
     const pipelines = this.props.pipelines.valueSeq().toArray();
 
+    const selectedId = this.props.selectedId ? this.props.selectedId : (pipelineIds.length ? pipelineIds[0] : this.props.selectedId);
+
     return (
       <div id='pipeline-list' style={{marginTop: pipelines.length ? -20 : -15}}>
         <div className='pipeline-tabs'>
@@ -51,7 +53,7 @@ class BasePipelineList extends React.Component<OwnProps & StateProps & DispatchP
                 const id = pipeline._id;
                 const name = pipeline.name;
                 return (
-                  <ContentEditable key={id} className={'header ' + (this.props.selectedId === id ? 'selected' : '')}
+                  <ContentEditable key={id} className={'header ' + (selectedId === id ? 'selected' : '')}
                   value={name}
                   save={this.props.updatePipeline.bind(this, id, 'name')}
                   onClick={() => this.props.selectPipeline(id)} />
@@ -66,7 +68,7 @@ class BasePipelineList extends React.Component<OwnProps & StateProps & DispatchP
         {
           pipelineIds.length ?
             pipelineIds.map((id) => {
-              return (<PipelineInspector key={id} id={id} selectedId={this.props.selectedId} />);
+              return (<PipelineInspector key={id} id={id} selectedId={selectedId} />);
             }) :
             <div id='pipeline-hint' onClick={this.props.openModal}>
               Add a new data pipeline to get started.

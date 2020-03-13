@@ -48,7 +48,7 @@ class InteractionPreviewContainer extends React.Component<StateProps, OwnState> 
 
     return (
       <React.Fragment>
-        <InteractionWidget></InteractionWidget>
+        {/* <InteractionWidget></InteractionWidget> */}
         {InteractionControllers}
       </React.Fragment>
     )

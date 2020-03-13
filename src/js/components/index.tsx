@@ -40,10 +40,9 @@ module.exports = ReactDOM.render(
   document.querySelector('.app-container')
 );
 
-// TODO(jzong): uncomment this and move it to inspector
-// ReactDOM.render(
-//   <Provider store={store}>
-//     <InteractionPreviewContainer></InteractionPreviewContainer>
-//   </Provider>,
-//   document.querySelector('.interaction-preview-container')
-// );
+ReactDOM.render(
+  <Provider store={store}>
+    <InteractionPreviewContainer></InteractionPreviewContainer>
+  </Provider>,
+  document.querySelector('.interaction-preview-container')
+);
