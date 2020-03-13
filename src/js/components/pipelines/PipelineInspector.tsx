@@ -6,6 +6,8 @@ import {State} from '../../store';
 import {PipelineRecord} from '../../store/factory/Pipeline';
 import { Icon } from '../Icon';
 import DataTable from './DataTable';
+import DataTableMulti from './DataTableMulti';
+import TransformList from './transforms/TransformList';
 
 const ContentEditable = require('../ContentEditable');
 const imutils = require('../../util/immutable-utils');
@@ -49,19 +51,19 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps & Disp
 
     if (props.isSelected) {
       inner = (
-        <div className='inner'>
+        <div>
           {/* <p className='source'>
             <Icon glyph={assets.download} width={11} height={11} />
             Loaded Values
           </p> */}
 
-          <DataTable id={pipeline._source} />
+          <DataTableMulti id={pipeline._source} fieldsCount={7} />
 
           {pipeline._aggregates.entrySeq().map(function(entry, i) {
             return (
               <div key={i}>
                 <p className='source'>Group By: {entry[0].split('|').join(', ')}</p>
-                <DataTable id={entry[1]} />
+                <DataTableMulti id={entry[1]} fieldsCount={7} />
               </div>
             );
           })}

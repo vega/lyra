@@ -23,10 +23,7 @@ $pipeline-width: 230px;
 }
 
 .pipeline {
-  position: relative; /* For the datatable header column */
   background-color: $vlgrey-bg;
-  // max-width: calc(100vw - #{$sidebars-width} - 30px);
-  max-width: 230px;
   padding: $inner-padding;
 
   border-radius: $border-radius;
@@ -58,16 +55,22 @@ $pipeline-width: 230px;
       font-weight: 900;
     }
   }
+}
 
-  .inner {
-    // max-height: 160px;
-    // overflow-y: auto;
+.datatable-multi {
+  display: flex;
+
+  .datatable-container {
+    max-width: 230px;
+    margin-right: $inner-padding;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
-
 }
 
 .datatable-container {
-  // display: flex;
+  position: relative; /* For the datatable header column */
 }
 
 .datatable {
@@ -95,7 +98,7 @@ $pipeline-width: 230px;
 
     &.field {
       position: absolute;
-      left: $inner-padding;
+      left: 0;
       top: auto;
     }
   }
@@ -125,7 +128,7 @@ $pipeline-width: 230px;
     padding: 5px $cell-padding;
 
     &.field {
-      left: $inner-padding;
+      left: 0;
     }
 
     &.value {

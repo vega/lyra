@@ -9,6 +9,7 @@ import {State} from '../../store';
 import {DatasetRecord, Schema} from '../../store/factory/Dataset';
 import {VegaReparseRecord} from '../../store/factory/Vega';
 import { Icon } from '../Icon';
+import {thisExpression} from '@babel/types';
 
 const d3 = require('d3');
 const dl = require('datalib');
@@ -16,12 +17,17 @@ const getInVis = require('../../util/immutable-utils').getInVis;
 const dsUtil = require('../../util/dataset-utils');
 const assets = require('../../util/assets');
 
-
-
 interface OwnProps {
   id?: number;
   schema?: Schema;
   values?: any;
+  limit: number;
+  page?: number; // for DataTableMulti, paging will be managed by the parent
+  fieldsIndex?: number; // this datatable displays fieldsCount fields starting from (fieldsIndex * fieldsCount)
+  fieldsCount?: number; // this datatable displays fieldsCount fields starting from (fieldsIndex * fieldsCount)
+  onPage?: (newPage: number) => void;
+  scroll?: number;
+  onScroll?: (newScroll: number) => void;
 }
 interface StateProps {
   dataset: DatasetRecord;
@@ -29,7 +35,6 @@ interface StateProps {
 }
 
 interface OwnState {
-  limit: number;
   page: number;
   hoverField: HoverFieldDef;
   hoverValue: React.MouseEvent<HTMLElement, MouseEvent>;
@@ -43,34 +48,12 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-/** TODO(jzong) move this into a util if we end up using this
- *
- * Returns an array with arrays of the given size.
- *
- * @param myArray {Array} array to split
- * @param chunk_size {Integer} Size of every group
- */
-function chunkArray(myArray, chunk_size){
-  let index = 0;
-  const arrayLength = myArray.length;
-  const tempArray = [];
-
-  for (index = 0; index < arrayLength; index += chunk_size) {
-      const myChunk = myArray.slice(index, index+chunk_size);
-      // Do something if you want with the group
-      tempArray.push(myChunk);
-  }
-
-  return tempArray;
-}
-
 class DataTable extends React.Component<OwnProps & StateProps & {className?: string}, OwnState> {
 
   constructor(props) {
     super(props);
 
     this.state = {
-      limit: 20,
       page: 0,
       hoverField: null,
       hoverValue: null
@@ -84,13 +67,29 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     return !vega.get('invalid') && !vega.get('isParsing');
   }
 
+  public componentDidUpdate(prevProps: OwnProps & StateProps, prevState: OwnState) {
+    if (this.props.scroll !== prevProps.scroll) {
+      if (this.$table) {
+        this.$table.current.scrollLeft = this.props.scroll;
+      }
+    }
+  }
+
   public prevPage = () => {
-    this.setState({page: this.state.page - 1});
+    this.setState({page: this.state.page - 1}, () => {
+      if (this.props.onPage) {
+        this.props.onPage(this.state.page);
+      }
+    });
     this.$table.current.scrollLeft = 0;
   }
 
   public nextPage = () => {
-    this.setState({page: this.state.page + 1});
+    this.setState({page: this.state.page + 1}, () => {
+      if (this.props.onPage) {
+        this.props.onPage(this.state.page);
+      }
+    });
     this.$table.current.scrollLeft = 0;
   }
 
@@ -113,18 +112,27 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     this.setState({hoverField: null, hoverValue: null});
   }
 
+  public onScroll = () => {
+    this.hideHover();
+    const scrollLeft = this.$table.current && this.$table.current.scrollLeft;
+    this.props.onScroll(scrollLeft);
+  }
+
   public render() {
     const state = this.state;
     const props = this.props;
-    const page  = state.page;
-    const limit = state.limit;
+    const page  = props.page !== undefined ? props.page : state.page;
+    const limit = props.limit;
     const start = page * limit;
     const stop  = start + limit;
     const id = props.id;
     const schema = id ? props.dataset.get('_schema') : props.schema;
     const output = id ? dsUtil.output(id) : props.values;
     const values = output.slice(start, stop);
-    const keys = schema.keySeq().toArray();
+    const keys = schema.keySeq().toArray().filter((_, idx) => {
+      if (this.props.fieldsIndex === undefined || this.props.fieldsCount === undefined) return true;
+      return idx >= this.props.fieldsIndex * this.props.fieldsCount && idx < this.props.fieldsIndex * this.props.fieldsCount + this.props.fieldsCount;
+    });
     const max = output.length;
     const fmt = dl.format.auto.number();
     const scrollLeft = this.$table.current && this.$table.current.scrollLeft;
@@ -142,11 +150,11 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     return (
       <div className='datatable-container'>
 
-        <TransformList dsId={id} />
+        {/* <TransformList dsId={id} /> */}
 
         {output.length ?
           <div className='datatable' ref={this.$table}
-            onMouseLeave={this.hideHover} onScroll={this.hideHover}>
+            onMouseLeave={this.hideHover} onScroll={this.onScroll}>
             <table>
               <tbody>
                 {keys.map(function(k) {
@@ -170,10 +178,10 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
           </div>
           : null}
 
-        {/* <div className='paging'>
+        <div className='paging'>
           <span>{fmt(start + 1)}–{stop > max ? fmt(max) : fmt(stop)} of {fmt(max)}</span>
           <span className='pager'>{prev} {next}</span>
-        </div> */}
+        </div>
       </div>
     );
   }
