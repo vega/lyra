@@ -34,13 +34,13 @@ $pipeline-width: 230px;
 
   background-color: $grey-bg;
   color: white;
+
   &.selected {
     background-color: $vlgrey-bg;
     color: black;
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
   }
-
-
-
 }
 
 .pipeline {
@@ -62,7 +62,12 @@ $pipeline-width: 230px;
   }
 
   &.selected {
+    display: inline-block;
     padding: $inner-padding;
+    border-top-right-radius: $border-radius;
+    border-bottom-left-radius: $border-radius;
+    border-bottom-right-radius: $border-radius;
+
     div.header {
       font-weight: 900;
     }
@@ -74,7 +79,7 @@ $pipeline-width: 230px;
 
   .datatable-container {
     max-width: 230px;
-    margin-right: $inner-padding;
+    margin-right: 2*$inner-padding;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
