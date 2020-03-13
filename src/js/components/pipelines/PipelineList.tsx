@@ -1,14 +1,16 @@
 import {Map} from 'immutable';
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {State} from '../../store';
-import {PipelineRecord} from '../../store/factory/Pipeline';
-import {PipelineInspector} from './PipelineInspector';
 import {selectPipeline} from '../../actions/inspectorActions';
 import {updatePipelineProperty as updatePipeline} from '../../actions/pipelineActions';
+import {State} from '../../store';
+import {PipelineRecord} from '../../store/factory/Pipeline';
+import {Icon} from '../Icon';
+import {PipelineInspector} from './PipelineInspector';
 
 const getInVis = require('../../util/immutable-utils').getInVis;
 const ContentEditable = require('../ContentEditable');
+const assets = require('../../util/assets');
 
 interface OwnProps {
   openModal: () => void;
@@ -41,7 +43,7 @@ class BasePipelineList extends React.Component<OwnProps & StateProps & DispatchP
     const pipelines = this.props.pipelines.valueSeq().toArray();
 
     return (
-      <div id='pipeline-list'>
+      <div id='pipeline-list' style={{marginTop: pipelines.length ? -20 : -15}}>
         <div className='pipeline-tabs'>
           {
             pipelines.length ?
@@ -49,13 +51,17 @@ class BasePipelineList extends React.Component<OwnProps & StateProps & DispatchP
                 const id = pipeline._id;
                 const name = pipeline.name;
                 return (
-                  <ContentEditable key={id} className={'header ' + (this.props.selectedId == id ? 'selected' : '')}
+                  <ContentEditable key={id} className={'header ' + (this.props.selectedId === id ? 'selected' : '')}
                   value={name}
                   save={this.props.updatePipeline.bind(this, id, 'name')}
                   onClick={() => this.props.selectPipeline(id)} />
                 );
               }) : null
           }
+
+          <span className='new' onClick={this.props.openModal}>
+            <Icon glyph={assets.plus} /> New
+          </span>
         </div>
         {
           pipelineIds.length ?

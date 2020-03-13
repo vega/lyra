@@ -7,14 +7,9 @@ $pipeline-width: 230px;
   max-height: 205px;
   margin-bottom: $outer-padding;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-
-  h2 .new {
-    margin-left: 30px;
-  }
 }
 
 #pipeline-list {
-  padding-top: $outer-padding;
   max-width: calc(100vw - #{$sidebars-width} - 20px);
 
   #pipeline-hint {
@@ -23,23 +18,32 @@ $pipeline-width: 230px;
   }
 }
 
-.pipeline-tabs div.header {
-  font-size: $header-font-size;
-  font-weight: bolder;
-  text-align: center;
-  font-weight: normal;
-  cursor: pointer;
-  display: inline-block;
-  padding: $inner-padding $outer-padding;
+.pipeline-tabs {
+  margin-left: 125px;
 
-  background-color: $grey-bg;
-  color: white;
+  .new {
+    padding: $inner-padding;
+    cursor: pointer;
+  }
 
-  &.selected {
-    background-color: $vlgrey-bg;
-    color: black;
+  div.header {
+    font-size: $header-font-size;
+    text-align: center;
+    cursor: pointer;
+    display: inline-block;
+    padding: $inner-padding $outer-padding;
+    margin-right: $margin/2;
+
+    background-color: $grey-bg;
+    color: white;
+
     border-top-left-radius: $border-radius;
     border-top-right-radius: $border-radius;
+
+    &.selected {
+      background-color: $vlgrey-bg;
+      color: black;
+    }
   }
 }
 
@@ -63,10 +67,8 @@ $pipeline-width: 230px;
 
   &.selected {
     display: inline-block;
-    padding: $inner-padding;
-    border-top-right-radius: $border-radius;
-    border-bottom-left-radius: $border-radius;
-    border-bottom-right-radius: $border-radius;
+    padding: $outer-padding $inner-padding $inner-padding $outer-padding;
+    border-radius: $border-radius;
 
     div.header {
       font-weight: 900;
@@ -127,7 +129,7 @@ $pipeline-width: 230px;
   }
 
   .even {
-    background: #eee;
+    background: #e3e3e3;
     border-bottom: 1px solid;
     border-color: #ddd;
   }

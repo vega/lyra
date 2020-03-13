@@ -1,10 +1,6 @@
 import * as React from 'react';
-import { Icon } from './Icon';
 import {PipelineList} from './pipelines/PipelineList';
 import PipelineModal from './pipelines/PipelineModal';
-
-const assets = require('../util/assets');
-
 
 export class PipelinesToolbar extends React.PureComponent<{}, {modalIsOpen: boolean}> {
   constructor(props) {
@@ -18,11 +14,7 @@ export class PipelinesToolbar extends React.PureComponent<{}, {modalIsOpen: bool
   public render() {
     return (
       <div id='pipeline-toolbar'>
-        <h2>Data Pipelines
-          <span className='new' onClick={this.openModal}>
-            <Icon glyph={assets.plus} /> New
-          </span>
-        </h2>
+        <h2>Data Pipelines</h2>
 
         <PipelineList openModal={this.openModal} />
 
