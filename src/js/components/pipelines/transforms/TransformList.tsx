@@ -21,7 +21,25 @@ function mapStateToProps(state: State, ownProps: OwnProps) {
   };
 }
 
-class TransformList extends React.Component<OwnProps & StateProps> {
+interface OwnState {
+  expandedIndex: number;
+}
+
+class TransformList extends React.Component<OwnProps & StateProps, OwnState> {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      expandedIndex: null
+    }
+  }
+
+  private setExpandedIndex(expandedIndex) {
+    this.setState({
+      expandedIndex
+    })
+  }
 
   public render() {
     const props = this.props;
@@ -34,7 +52,7 @@ class TransformList extends React.Component<OwnProps & StateProps> {
       <div className='transform-list'>
         {transforms.map(function(transform, i) {
           return transform.type === 'aggregate' || transform.type === 'identifier' ? null : (
-            <TransformInspector key={i} index={i} dsId={dsId} def={transform} />
+            <TransformInspector key={i} index={i} dsId={dsId} def={transform} expanded={this.state.expandedIndex == i} setExpandedIndex={(i) => this.setExpandedIndex(i)} />
           );
         }, this)}
       </div>

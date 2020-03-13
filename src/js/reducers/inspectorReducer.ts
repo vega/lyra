@@ -16,7 +16,6 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
   }
 
   if (action.type === getType(inspectorActions.selectPipeline)) {
-    console.log('select pipe', action.payload)
     return state.setIn(['pipelines', 'selectedId'], action.payload);
   }
 
