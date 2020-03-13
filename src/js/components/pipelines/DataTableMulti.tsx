@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import {State} from '../../store';
 import {DatasetRecord} from '../../store/factory/Dataset';
 
-import { throttle } from "throttle-debounce";
+import { throttle } from 'throttle-debounce';
 import DataTable from './DataTable';
 
 const getInVis = require('../../util/immutable-utils').getInVis;
@@ -61,10 +61,17 @@ class DataTableMulti extends React.Component<OwnProps & StateProps & {className?
     const schema = props.dataset.get('_schema');
     const keys = schema.keySeq().toArray();
 
+    const count = ~~(keys.length / props.fieldsCount);
     const dataTables = [];
 
-    for (let i = 0; i <= keys.length / props.fieldsCount; i++) {
-      dataTables.push(<DataTable key={i} id={this.props.id} fieldsIndex={i} fieldsCount={this.props.fieldsCount} limit={20} page={this.state.page} onPage={(p) => this.onPage(p)} scroll={this.state.scroll} onScroll={throttle(250, (s) => this.onScroll(s))}/>);
+    for (let i = 0; i <= count; i++) {
+      dataTables.push(<DataTable key={i} id={this.props.id}
+        first={i === 0} last={i === count}
+        fieldsIndex={i} fieldsCount={this.props.fieldsCount}
+        limit={20} page={this.state.page}
+        onPage={(p) => this.onPage(p)}
+        scroll={this.state.scroll}
+        onScroll={throttle(250, (s) => this.onScroll(s))}/>);
     }
 
     dataTables.push(

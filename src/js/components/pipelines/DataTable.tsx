@@ -2,6 +2,7 @@ import HoverField, {HoverFieldDef} from './HoverField';
 import HoverValue from './HoverValue';
 import TransformList from './transforms/TransformList';
 
+import {thisExpression} from '@babel/types';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
@@ -9,7 +10,6 @@ import {State} from '../../store';
 import {DatasetRecord, Schema} from '../../store/factory/Dataset';
 import {VegaReparseRecord} from '../../store/factory/Vega';
 import { Icon } from '../Icon';
-import {thisExpression} from '@babel/types';
 
 const d3 = require('d3');
 const dl = require('datalib');
@@ -28,6 +28,8 @@ interface OwnProps {
   onPage?: (newPage: number) => void;
   scroll?: number;
   onScroll?: (newScroll: number) => void;
+  first?: boolean;
+  last?: boolean;
 }
 interface StateProps {
   dataset: DatasetRecord;
@@ -130,7 +132,7 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     const output = id ? dsUtil.output(id) : props.values;
     const values = output.slice(start, stop);
     const keys = schema.keySeq().toArray().filter((_, idx) => {
-      if (this.props.fieldsIndex === undefined || this.props.fieldsCount === undefined) return true;
+      if (this.props.fieldsIndex === undefined || this.props.fieldsCount === undefined) { return true; }
       return idx >= this.props.fieldsIndex * this.props.fieldsCount && idx < this.props.fieldsIndex * this.props.fieldsCount + this.props.fieldsCount;
     });
     const max = output.length;
@@ -179,8 +181,8 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
           : null}
 
         <div className='paging'>
-          <span>{fmt(start + 1)}–{stop > max ? fmt(max) : fmt(stop)} of {fmt(max)}</span>
-          <span className='pager'>{prev} {next}</span>
+          {props.first ? <span>{fmt(start + 1)}–{stop > max ? fmt(max) : fmt(stop)} of {fmt(max)}</span> : null}
+          {props.last ? <span className='pager'>{prev} {next}</span> : null}
         </div>
       </div>
     );
