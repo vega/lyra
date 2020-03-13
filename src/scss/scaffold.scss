@@ -36,6 +36,7 @@ body {
 
 .tools-container {
   display: flex;
+  overflow-y: auto;
 }
 
 // Vis-container is where vega is placed
