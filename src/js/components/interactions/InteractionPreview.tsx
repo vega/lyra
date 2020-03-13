@@ -11,7 +11,6 @@ interface OwnProps {
   groupName: string, // name of group mark (view) this preview is attached to,
   preview: SelectionRecord | ApplicationRecord,
   initialSignals: any, // this.mainViewSignalValues from InteractionPreviewController
-  onClick: () => void
 }
 interface OwnState {
 }
@@ -108,7 +107,7 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   public render() {
 
     return (
-      <div id={`${this.props.groupName}-${this.props.id}`} className={"interaction-preview"} onClick={this.props.onClick}></div>
+      <div id={`${this.props.groupName}-${this.props.id}`} className={"interaction-preview"}></div>
     );
   }
 

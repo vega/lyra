@@ -577,7 +577,8 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
                 this.previewRefs[preview.id] = React.createRef();
               }
               return (
-                <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}>
+                <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}
+                    onClick={() => this.onClickInteractionPreview(preview)}>
                   <div className="preview-label">{preview.label}
                     {
                       preview.id.includes('project') ? this.getFieldOptions(preview) : ''
@@ -587,8 +588,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
                     id={`preview-${preview.id}`}
                     groupName={this.props.groupName}
                     preview={preview}
-                    initialSignals={this.state.mainViewSignalValues}
-                    onClick={() => this.onClickInteractionPreview(preview)}/>
+                    initialSignals={this.state.mainViewSignalValues}/>
                 </div>
               )
             })
@@ -602,14 +602,14 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
                 this.previewRefs[preview.id] = React.createRef();
               }
               return (
-                <div key={preview.id} className={interaction && interaction.application && interaction.application.id === preview.id ? 'selected' : ''}>
+                <div key={preview.id} className={interaction && interaction.application && interaction.application.id === preview.id ? 'selected' : ''}
+                    onClick={() => this.onClickInteractionPreview(preview)}>
                   <div className="preview-label">{preview.label}</div>
                   <InteractionPreview ref={this.previewRefs[preview.id]}
                     id={`preview-${preview.id}`}
                     groupName={this.props.groupName}
                     preview={preview}
-                    initialSignals={this.state.mainViewSignalValues}
-                    onClick={() => this.onClickInteractionPreview(preview)}/>
+                    initialSignals={this.state.mainViewSignalValues}/>
                 </div>
               )
             })
