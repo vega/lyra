@@ -12,13 +12,11 @@ interface OwnProps {
   dsId: number;
   index: number;
   def: Transforms;
+  expanded: boolean;
+  setExpandedIndex: (i: number) => void;
 }
 interface DispatchProps {
   updateTransform: (def: Transforms) => void;
-}
-
-interface OwnState {
-  expanded: boolean;
 }
 
 function mapDispatch(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
@@ -29,19 +27,12 @@ function mapDispatch(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
   };
 }
 
-export class TransformInspector extends React.Component<OwnProps & DispatchProps, OwnState> {
+export class TransformInspector extends React.Component<OwnProps & DispatchProps> {
 
   public Filter = filter;
   public Formula = formula;
   private timer = null;
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      expanded: true
-    }
-  }
 
   public componentDidMount() {
     this.resetTimer();
@@ -54,12 +45,12 @@ export class TransformInspector extends React.Component<OwnProps & DispatchProps
   public resetTimer = () => {
     window.clearTimeout(this.timer);
     this.timer = window.setTimeout(() => {
-      this.setState({expanded: false});
+      this.props.setExpandedIndex(null);
     }, 10000);
   }
 
   public expand = () => {
-    this.setState({expanded: true});
+    this.props.setExpandedIndex(this.props.index);
     this.resetTimer();
   }
 
@@ -73,7 +64,7 @@ export class TransformInspector extends React.Component<OwnProps & DispatchProps
     const type = capitalize(props.def.type);
     const InspectorType = this[type];
 
-    return !this.state.expanded ?
+    return !this.props.expanded ?
       (<div className='transform-button' onClick={this.expand}>{type}</div>) :
       (<div className='transform-inspector'>
         <InspectorType update={this.updateTransform} {...props} />

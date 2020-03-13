@@ -15,6 +15,7 @@ $pipeline-width: 230px;
 
 #pipeline-list {
   padding-top: $outer-padding;
+  max-width: calc(100vw - #{$sidebars-width} - 20px);
 
   #pipeline-hint {
     padding: 15px 0;
@@ -44,6 +45,7 @@ $pipeline-width: 230px;
 
 .pipeline {
   background-color: $vlgrey-bg;
+  overflow-x: auto;
 
   p.source {
     display: flex;
@@ -204,7 +206,8 @@ $pipeline-width: 230px;
 }
 
 .transform-list {
-  display: flex;
+  flex: 1;
+  flex-direction: column;
   flex-wrap: wrap;
   &:not(:empty) {
     margin-bottom: $outer-padding;
@@ -218,6 +221,7 @@ $pipeline-width: 230px;
     border: 1px solid $lgrey-border;
     border-radius: $border-radius;
     margin-right: $inner-padding;
+    margin-bottom: $inner-padding;
   }
 
   .transform-inspector {
