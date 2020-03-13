@@ -199,7 +199,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
               <h2>Preview</h2>
 
               <DataTable className='source'
-                values={state.values} schema={state.dataset._schema} />
+                values={state.values} schema={state.dataset._schema} limit={20} />
 
               <button className='button button-success'
                 onClick={this.done.bind(this, true)}>

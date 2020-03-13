@@ -21,7 +21,7 @@ function mapStateToProps(state: State, ownProps: OwnProps) {
   };
 }
 
-export class TransformList extends React.Component<OwnProps & StateProps> {
+class TransformList extends React.Component<OwnProps & StateProps> {
 
   public render() {
     const props = this.props;
