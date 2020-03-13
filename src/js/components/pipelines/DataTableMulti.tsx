@@ -35,6 +35,7 @@ class DataTableMulti extends React.Component<OwnProps & StateProps & {className?
   constructor(props) {
     super(props);
 
+    this.onPage = this.onPage.bind(this);
     this.state = {
       page: 0,
       scroll: 0
@@ -61,15 +62,16 @@ class DataTableMulti extends React.Component<OwnProps & StateProps & {className?
     const schema = props.dataset.get('_schema');
     const keys = schema.keySeq().toArray();
 
-    const count = ~~(keys.length / props.fieldsCount);
+    const count = ~~(keys.length / props.fieldsCount) ;
+    const fieldsCount = Math.ceil(keys.length / (count + 1)); // rescale to balance data tables and save vertical space.
     const dataTables = [];
 
     for (let i = 0; i <= count; i++) {
       dataTables.push(<DataTable key={i} id={this.props.id}
         first={i === 0} last={i === count}
-        fieldsIndex={i} fieldsCount={this.props.fieldsCount}
+        fieldsIndex={i} fieldsCount={fieldsCount}
         limit={20} page={this.state.page}
-        onPage={(p) => this.onPage(p)}
+        onPage={this.onPage}
         scroll={this.state.scroll}
         onScroll={throttle(250, (s) => this.onScroll(s))}/>);
     }

@@ -28,8 +28,6 @@ function mapState(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-const fieldsCount = 6;
-
 class BasePipelineInspector extends React.Component<OwnProps & StateProps> {
   public render() {
     const props = this.props;
@@ -37,7 +35,7 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps> {
     const id = props.id;
     let inner;
 
-    const isSelected = props.selectedId == id;
+    const isSelected = +props.selectedId === +id;
 
     if (isSelected) {
       inner = (
@@ -47,7 +45,7 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps> {
             Loaded Values
           </p> */}
 
-          <DataTableMulti id={pipeline._source} fieldsCount={fieldsCount} />
+          <DataTableMulti id={pipeline._source} fieldsCount={6} />
 
           {pipeline._aggregates.entrySeq().map(function(entry, i) {
             return (
