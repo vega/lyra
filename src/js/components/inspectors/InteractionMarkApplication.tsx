@@ -64,7 +64,6 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
   }
 
   private onDefaultValueChange(e):void {
-    console.log('ondefaultvaluechange');
     const value = e.target && e.target.value;
     if (value) {
       this.props.setApplication(this.props.markApplication.set('defaultValue', value), this.props.interactionId);

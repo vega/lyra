@@ -12,6 +12,13 @@
       flex-direction: column;
     }
 
+    &:not(.add-marks) {
+      .icon {
+        display: block;
+        margin: auto;
+      }
+    }
+
     li {
       flex-basis: 50%;
       position: relative;

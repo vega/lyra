@@ -124,8 +124,6 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, applic
 
       const newDatasetName = datasetName + "_filter_" + targetGroupName;
 
-      console.log(targetGroupName, targetMarkName, newDatasetName);
-
       sceneSpec = applyMarkProperties(sceneSpec, targetGroupName, targetMarkName, {
         "from": {
           "data": newDatasetName

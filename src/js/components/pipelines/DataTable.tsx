@@ -117,7 +117,7 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
   public onScroll = () => {
     this.hideHover();
     const scrollLeft = this.$table.current && this.$table.current.scrollLeft;
-    this.props.onScroll(scrollLeft);
+    if (this.props.onScroll) this.props.onScroll(scrollLeft);
   }
 
   public render() {
