@@ -134,3 +134,70 @@ $long-label-width: $label-width + 10px;
 
   &:hover { color: $grey-font !important; }
 }
+
+.preview-controller {
+  // background: $lgrey-bg;
+  width: 100%;
+
+  .preview-close {
+    margin-left: auto;
+    margin-right: $outer-padding;
+    cursor: pointer;
+  }
+
+  .preview-header {
+    display: flex;
+    align-items: center;
+    padding: $inner-padding 0;
+    background: $dgrey-bg;
+    color: white;
+    fill: white;
+  }
+
+  .preview-header h2 {
+    display: inline;
+  }
+
+  .preview-scroll {
+    display: flex;
+    background: $grey-bg;
+    overflow-x: auto;
+    margin-bottom: $outer-padding;
+  }
+
+  .preview-scroll > div {
+    display: inline-block;
+    padding: 0 $outer-padding $outer-padding;
+    background: $grey-bg;
+    color: white;
+
+    &.selected {
+      background: $lgrey-bg;
+    }
+
+    .preview-label {
+      margin: 0.5 * $outer-padding 0;
+    }
+
+    svg.marks > g {
+      transform: translate(12px, 13px);
+    }
+  }
+}
+
+.signals-container {
+  margin-top: $inner-padding;
+  margin-left: -$inner-padding;
+}
+
+.signal {
+  display: inline-block;
+  min-width: 20px;
+  padding: $inner-padding;
+  background-color: mediumslateblue;
+  color: white;
+  border-radius: 2*$border-radius;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+  margin: 2px;
+}

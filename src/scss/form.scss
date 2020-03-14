@@ -40,11 +40,14 @@
   min-width: 20px;
   padding: $inner-padding;
   background-color: mediumslateblue;
+  color: white;
+  border: 1px solid $dgrey-border;
   border-radius: 2*$border-radius;
   cursor: -webkit-grab;
   cursor: -moz-grab;
   margin: 2px;
 }
+
 
 .field {
   border: 1px solid;

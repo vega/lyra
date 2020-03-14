@@ -41,8 +41,8 @@ class InteractionPreviewContainer extends React.Component<StateProps, OwnState> 
   public render() {
 
     const InteractionControllers = this.props.groups.map((group) => {
-      return <div className={group._id === this.state.activeGroupId ? 'preview-controller-wrap active' : 'preview-controller-wrap'}>
-        <InteractionPreviewController key={group._id} groupId={group._id} groupName={exportName(group.name)} setActiveGroup={this.setActiveGroup.bind(this, group._id)}></InteractionPreviewController>
+      return <div key={group._id} className={group._id === this.state.activeGroupId ? 'preview-controller-wrap active' : 'preview-controller-wrap'}>
+        <InteractionPreviewController groupId={group._id} groupName={exportName(group.name)} setActiveGroup={this.setActiveGroup.bind(this, group._id)}></InteractionPreviewController>
       </div>
     });
 

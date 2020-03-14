@@ -64,6 +64,7 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
   }
 
   private onDefaultValueChange(e):void {
+    console.log('ondefaultvaluechange');
     const value = e.target && e.target.value;
     if (value) {
       this.props.setApplication(this.props.markApplication.set('defaultValue', value), this.props.interactionId);
@@ -104,21 +105,14 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
     }
 
     return (
-      <div>
-        Selected {propertyName} :
-        <Property name={propertyName} label={propertyName} canDrop={true} {...attributes} />
-        <br />
+      <div className='property-group'>
+        <h3>Mark Application</h3>
 
-        Default {propertyName} :
-        <FormInputProperty
-          name='defaultValue'
-          id='defaultValue'
-          onChange={(e) => this.onDefaultValueChange(e)}
-          value={defaultValue}
-          disabled={false}
-          {...attributes}>
-        </FormInputProperty>
-        <br />
+        <h5>Selected {propertyName}</h5>
+        <Property name={propertyName} label={propertyName} canDrop={true} {...attributes} />
+
+        <h5>Default {propertyName}</h5>
+        <Property name={'default'+propertyName} label={propertyName} onChange={(e) => this.onDefaultValueChange(e)} value={defaultValue} disabled={false} {...attributes} />
       </div>
     );
   }
