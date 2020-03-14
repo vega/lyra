@@ -11,19 +11,22 @@ import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
 import {MarkRecord} from '../../store/factory/Mark';
 import {selectInteraction, InspectorSelectedType} from '../../actions/inspectorActions';
 import {EncodingStateRecord} from '../../store/factory/Inspector';
+import {Icon} from '../Icon';
+import exportName from '../../util/exportName';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
+const assets = require('../../util/assets');
 
 interface OwnProps {
   groupId: number;
-  groupName: string;
-  setActiveGroup: () => void;
 }
 
 interface StateProps {
   canDemonstrate: Boolean;
   interaction: InteractionRecord;
+  isInteractionSelected: boolean;
+  groupName: string;
 }
 
 interface DispatchProps {
@@ -32,7 +35,6 @@ interface DispatchProps {
 }
 
 interface OwnState {
-  isDemonstrating: boolean
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -65,9 +67,13 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   }
   const interaction = interactionId ? state.getIn(['vis', 'present', 'interactions', String(interactionId)]) : null;
 
+  const isInteractionSelected = interactionId ? interactionId === selId : false;
+
   return {
     canDemonstrate,
-    interaction
+    interaction,
+    isInteractionSelected,
+    groupName: exportName(group.name)
   };
 }
 
@@ -92,10 +98,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
   constructor(props) {
     super(props);
-
-    this.state = {
-      isDemonstrating: false,
-    };
   }
 
   public componentDidUpdate(prevProps: StateProps, prevState: OwnState) {
@@ -107,13 +109,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
       this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
-    }
-
-    if (this.props.canDemonstrate && this.state.isDemonstrating && prevState.isDemonstrating !== this.state.isDemonstrating) {
-      if (!this.props.interaction) {
-        const interactionId = this.props.addInteraction(this.props.groupId);
-        this.props.selectInteraction(interactionId);
-      }
     }
   }
 
@@ -127,20 +122,16 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
     const isDemonstrating = intervalActive || pointActive;
 
-    if (!isDemonstrating) {
-      clearTimeout(this.timeout);
-      this.timeout = setTimeout(() => {
-        this.setState({
-          isDemonstrating
-        });
-      }, 250);
-    }
-    else {
-      clearTimeout(this.timeout);
-      this.timeout = null;
-      this.setState({
-        isDemonstrating
-      }, this.props.setActiveGroup);
+    if (this.props.canDemonstrate && isDemonstrating) {
+      if (!this.props.isInteractionSelected) {
+        if (!this.props.interaction) {
+          const interactionId = this.props.addInteraction(this.props.groupId);
+          this.props.selectInteraction(interactionId);
+        }
+        else {
+          this.props.selectInteraction(this.props.interaction.id);
+        }
+      }
     }
   }
 
@@ -177,7 +168,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
   }
 
   public render() {
-    return false;
+    return this.props.canDemonstrate ? <Icon glyph={assets.plus} onClick={() => this.props.addInteraction(this.props.groupId)} /> : null;
   }
 
 }

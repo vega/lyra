@@ -189,15 +189,3 @@ $long-label-width: $label-width + 10px;
   margin-top: $inner-padding;
   margin-left: -$inner-padding;
 }
-
-.signal {
-  display: inline-block;
-  min-width: 20px;
-  padding: $inner-padding;
-  background-color: mediumslateblue;
-  color: white;
-  border-radius: 2*$border-radius;
-  cursor: -webkit-grab;
-  cursor: -moz-grab;
-  margin: 2px;
-}
