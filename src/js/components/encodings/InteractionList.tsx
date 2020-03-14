@@ -6,8 +6,10 @@ import {ThunkDispatch} from 'redux-thunk';
 import {selectInteraction, InspectorSelectedType} from '../../actions/inspectorActions';
 import {State} from '../../store';
 import { Icon } from '../Icon';
-import {InteractionRecord} from '../../store/factory/Interaction';
-import {deleteInteraction, updateInteractionName} from '../../actions/interactionActions';
+import {InteractionRecord, Interaction} from '../../store/factory/Interaction';
+import {deleteInteraction, updateInteractionName, addInteraction} from '../../actions/interactionActions';
+import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
+import InteractionPreviewController from '../interactions/InteractionPreviewController';
 
 const ContentEditable = require('../ContentEditable');
 const assets = require('../../util/assets');
@@ -15,7 +17,7 @@ const assets = require('../../util/assets');
 interface OwnProps {
   groupId: number;
   selectedId?: number;
-  selectedType?: numbInspectorSelectedTypeer;
+  selectedType?: InspectorSelectedType;
 }
 interface StateProps {
   interactions: InteractionRecord[];
@@ -71,9 +73,9 @@ class InteractionList extends React.Component<OwnProps & StateProps & DispatchPr
     const selectedType = props.selectedType;
 
     return (
-      <div>
+      <div className='interaction-list'>
         <li className='header'>
-          Interactions {/* <Icon glyph={assets.plus} width='10' height='10' /> */}
+          Interactions <InteractionPreviewController groupId={this.props.groupId}></InteractionPreviewController>
         </li>
 
         {props.interactions.map(function(interaction) {

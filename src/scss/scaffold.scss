@@ -28,6 +28,14 @@ body {
   z-index: 1;
 }
 
+.interaction-list {
+  .icon {
+    cursor: pointer;
+    height: 10px;
+    width: 10px;
+  }
+}
+
 .main-container {
   flex: 1;
   display: flex;

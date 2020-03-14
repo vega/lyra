@@ -59,6 +59,8 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groupId)]);
   const groupName = exportName(group.name);
 
+  console.log(ownProps.primId, groupName);
+
   const marks: Map<string, MarkRecord> = state.getIn(['vis', 'present', 'marks']);
   const groups: Map<number, GroupRecord> = marks.filter((mark: MarkRecord) => {
     return mark.type === 'group';
@@ -362,6 +364,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   private onMainViewPointSignal(name, value) {
+    console.log('mainviewpointsignal');
     if (this.mainViewSignalValues[name] !== value) {
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
@@ -370,6 +373,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   private onMainViewIntervalSignal(name, value) {
+    console.log('mainviewintervalsignal');
     if (this.mainViewSignalValues[name] !== value) {
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();

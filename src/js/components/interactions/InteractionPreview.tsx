@@ -46,8 +46,6 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   public componentDidMount() {
     const spec = this.previewToSpec(this.props.preview);
 
-    // console.log(this.props.id, spec);
-
     this.view = new View(parse(spec), {
       renderer:  'svg',  // renderer (canvas or svg)
       container: `#${this.props.groupName}-${this.props.id}`   // parent DOM container
@@ -55,6 +53,20 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     this.view.width(this.width);
     this.view.height(this.height);
     this.view.runAsync();
+  }
+
+  public componentDidUpdate(prevProps: OwnProps) {
+    if (prevProps.groupName !== this.props.groupName) { // TODO: react is being inefficient by reusing this component across groups :(
+      const spec = this.previewToSpec(this.props.preview);
+
+      this.view = new View(parse(spec), {
+        renderer:  'svg',  // renderer (canvas or svg)
+        container: `#${this.props.groupName}-${this.props.id}`   // parent DOM container
+      });
+      this.view.width(this.width);
+      this.view.height(this.height);
+      this.view.runAsync();
+    }
   };
 
   private scaleSignalValues(name, value) {
