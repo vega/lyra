@@ -9,8 +9,7 @@ const ctrl = require('../../ctrl');
 interface OwnProps {
   id: string,
   groupName: string, // name of group mark (view) this preview is attached to,
-  preview: SelectionRecord | ApplicationRecord,
-  initialSignals: any, // this.mainViewSignalValues from InteractionPreviewController
+  preview: SelectionRecord | ApplicationRecord
 }
 interface OwnState {
 }
@@ -56,15 +55,7 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     this.view.width(this.width);
     this.view.height(this.height);
     this.view.runAsync();
-
-    this.setInitialSignals();
   };
-
-  private setInitialSignals() {
-    for (let [name, value] of Object.entries(this.props.initialSignals)) {
-      this.setPreviewSignal(name, value);
-    }
-  }
 
   private scaleSignalValues(name, value) {
     const wScale = this.width/640; // preview width / main view width
