@@ -25,7 +25,8 @@ interface OwnProps {
   type?: string;
   firstChild?: boolean;
   canDrop?: boolean;
-  opts?: string[]
+  opts?: string[];
+  value?: any;
 }
 
 interface StateProps {
@@ -64,10 +65,12 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const field = getIn(state, path + '.field');
   const scaleName = scale && getInVis(reduxState, 'scales.' + scale + '.name');
 
+  const value = getIn(state, path);
+
   return {
     group:  getIn(state, path + '.group'),
     signal: getIn(state, path + '.signal'),
-    value:  getIn(state, path),
+    value:  value ? value : ownProps.value,
     field:  field,
     scale:  scale,
     srcField:  dsId && field ?
