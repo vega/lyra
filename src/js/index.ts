@@ -37,7 +37,7 @@ import './components';
 store.dispatch(historyActions.clearHistory());
 
 // if recording state changes (e.g. to load known states for user testing),
-// do not record intialization actions (see store/replay.ts)
+// do not record initialization actions (see store/replay.ts)
 if (window.location.search.indexOf('record') > -1) {
   localStorage.clear();
   console.log('clear');

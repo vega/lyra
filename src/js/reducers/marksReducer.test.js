@@ -511,7 +511,7 @@ describe('marks reducer', function() {
         });
       });
 
-      // @TODO: Is this desireable behavior? It seems in keeping with the currently
+      // @TODO: Is this desirable behavior? It seems in keeping with the currently
       // existing functionality but once a property has been disconnected, the
       // disabled state can never be recovered.
       it('overwrites property disabled state', function() {

@@ -88,7 +88,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
 
   public error(err) {
     this.setState({
-      error: err.statusText || err.message || 'An error occured!',
+      error: err.statusText || err.message || 'An error occurred!',
       success: null,
       selectedExample: null
     });
@@ -111,7 +111,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
         this.error(err);
       } else {
         this.createDataset(data);
-        this.success(example ? null : `Succesfully imported ${url}`);
+        this.success(example ? null : `Successfully imported ${url}`);
         this.setState({selectedExample: url});
       }
     });

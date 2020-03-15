@@ -24,7 +24,7 @@ import {Hints, HintsRecord} from '../store/factory/Hints';
  *
  *  {
  *    title: 'title text for the hint',
- *    text: 'longer explaination,
+ *    text: 'longer explanation,
  *    action_text: 'Button text',
  *    action: require('../actions/clearScene'), // callback for the button's onClick event
  *    action_props: true // any properties that will be passed in the action event
