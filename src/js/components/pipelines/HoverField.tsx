@@ -3,9 +3,11 @@ import {connect} from 'react-redux';
 import ReactTooltip from 'react-tooltip'
 import * as vega from 'vega';
 import bindChannel from '../../actions/bindChannel';
+import {startDragging, stopDragging} from '../../actions/inspectorActions';
 import sg from '../../ctrl/signals';
 import {State} from '../../store';
 import {ColumnRecord, Schema} from '../../store/factory/Dataset';
+import {DraggingState, DraggingStateRecord} from '../../store/factory/Inspector';
 import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import duplicate from '../../util/duplicate';
 import {Icon} from '../Icon';
@@ -35,6 +37,8 @@ interface StateProps {
 
 interface DispatchProps {
   bindChannel: (dsId: number, field: ColumnRecord, markId: number, property: string) => void;
+  startDragging: (d: DraggingStateRecord) => void;
+  stopDragging: () => void;
 }
 
 interface OwnState {
@@ -56,7 +60,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-const actionCreators = {bindChannel};
+const actionCreators = {bindChannel, startDragging, stopDragging};
 
 class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
 
@@ -98,9 +102,16 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
       }
     });
 
-    evt.dataTransfer.setData('dsId', this.props.dsId);
-    evt.dataTransfer.setData('fieldDef', JSON.stringify(this.state.fieldDef.toJS()));
+    const dsId = this.props.dsId;
+    const fieldDef = this.state.fieldDef;
+
+    this.props.startDragging(DraggingState({dsId, fieldDef}));
+
+    // TODO: Remove these and rely purely on DraggingState.
+    evt.dataTransfer.setData('dsId', dsId);
+    evt.dataTransfer.setData('fieldDef', JSON.stringify(fieldDef.toJS()));
     evt.dataTransfer.effectAllowed = 'link';
+
     sg.set(MODE, 'channels');
     ctrl.update();
   }
@@ -127,6 +138,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
       console.error(e);
     }
 
+    props.stopDragging();
     sg.set(MODE, 'handles');
     sg.set(CELL, {});
     this.setState({bindField: null});

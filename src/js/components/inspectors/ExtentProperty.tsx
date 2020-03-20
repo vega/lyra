@@ -98,7 +98,7 @@ class BaseExtentProperty extends React.Component<OwnProps & StateProps & Dispatc
 
     return (
       <div>
-        <Property name={start} type='number' canDrop={true} firstChild={true}
+        <Property name={start} type='number' droppable={true} firstChild={true}
           disabled={props.startDisabled} {...props}>
 
           <div className='label-long label'>
@@ -116,7 +116,7 @@ class BaseExtentProperty extends React.Component<OwnProps & StateProps & Dispatc
           <SpatialPreset className='extra' name={start} {...props} />
         </Property>
 
-        <Property name={end} type='number' canDrop={true} firstChild={true}
+        <Property name={end} type='number' droppable={true} firstChild={true}
           disabled={props.endDisabled} {...props}>
 
           <br />

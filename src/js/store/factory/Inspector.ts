@@ -1,5 +1,6 @@
 import {Record, RecordOf} from 'immutable';
 import {InspectorSelectedType} from '../../actions/inspectorActions';
+import {ColumnRecord} from './Dataset';
 
 export interface ExpandedLayers {
   [key: number]: boolean
@@ -19,18 +20,32 @@ const EncodingState = Record<LyraEncodingState>({
 
 export type EncodingStateRecord = RecordOf<LyraEncodingState>;
 
+export interface LyraDraggingState {
+  dsId?: number;
+  fieldDef?: ColumnRecord;
+}
+
+export const DraggingState = Record<LyraDraggingState>({
+  dsId: null,
+  fieldDef: null
+}, 'LyraDraggingState');
+
+export type DraggingStateRecord = RecordOf<LyraDraggingState>;
+
 interface LyraInspector {
   pipelines: {
     selectedId: number;
   };
-  encodings: EncodingStateRecord
+  encodings: EncodingStateRecord;
+  dragging: DraggingStateRecord;
 }
 
 export const Inspector = Record<LyraInspector>({
   pipelines: {
     selectedId: null
   },
-  encodings: EncodingState()
+  encodings: EncodingState(),
+  dragging: null
 }, 'LyraInspector');
 
 export type InspectorRecord = RecordOf<LyraInspector>;

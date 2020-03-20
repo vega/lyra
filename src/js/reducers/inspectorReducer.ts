@@ -1,7 +1,7 @@
 import {ActionType, getType} from 'typesafe-actions';
 import * as inspectorActions from '../actions/inspectorActions';
-import * as markActions from '../actions/markActions';
 import * as interactionActions from '../actions/interactionActions';
+import * as markActions from '../actions/markActions';
 import {ExpandedLayers, Inspector, InspectorRecord} from '../store/factory/Inspector';
 
 function expandLayers(state: InspectorRecord, layerIds: number[]): InspectorRecord {
@@ -17,6 +17,14 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
 
   if (action.type === getType(inspectorActions.selectPipeline)) {
     return state.setIn(['pipelines', 'selectedId'], action.payload);
+  }
+
+  if (action.type === getType(inspectorActions.startDragging)) {
+    return state.setIn(['dragging'], action.payload);
+  }
+
+  if (action.type === getType(inspectorActions.stopDragging)) {
+    return state.setIn(['dragging'], null);
   }
 
   if (action.type === getType(inspectorActions.baseSelectMark) ||

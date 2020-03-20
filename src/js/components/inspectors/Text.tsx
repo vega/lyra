@@ -116,7 +116,7 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
       <div>
         <div className='property-group'>
           <Property name='text.signal' value={props.text}
-            type='autocomplete' autoType='tmpl'
+            type='autocomplete' autoType='tmpl' droppable={true}
             dsId={dsId} onChange={props.updateText} {...props}>
               <h3 className='label'>Text</h3>
           </Property>
@@ -137,24 +137,24 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
           <h3>Font</h3>
 
           <Property name='font' label='Face' type='select'
-            opts={TextFonts} canDrop={true} {...props} />
+            opts={TextFonts} droppable={true} {...props} />
 
           <Property name='fontSize' label='Size' type='number'
-            canDrop={true} {...props} />
+            droppable={true} {...props} />
 
           <Property name='fontWeight' label='Weight' type='toggle'
             glyph={assets.bold} opts={TextFontWeights.map(x => String(x))}
-            canDrop={true} {...props} />
+            droppable={true} {...props} />
 
           <Property name='fontStyle' label='Style' type='toggle'
             glyph={assets.italic} opts={TextFontStyles}
-            canDrop={true} {...props} />
+            droppable={true} {...props} />
 
           <Property name='fill' label='Color' type='color'
-            canDrop={true} {...props} />
+            droppable={true} {...props} />
 
           <Property name='fillOpacity' label='Opacity' type='range'
-            min='0' max='1' step='0.05' canDrop={true} {...props} />
+            min='0' max='1' step='0.05' droppable={true} {...props} />
         </div>
 
         {/* <div className='property-group'>
@@ -168,9 +168,9 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
         <div className='property-group'>
           <h3>Offset</h3>
 
-          <Property name='dx' label='X' type='number' canDrop={true} {...props} />
+          <Property name='dx' label='X' type='number' droppable={true} {...props} />
 
-          <Property name='dy' label='Y' type='number' canDrop={true} {...props} />
+          <Property name='dy' label='Y' type='number' droppable={true} {...props} />
 
         </div>
 
@@ -180,15 +180,15 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
           <Property name='align' label='Horizontal' type='selection'
             glyphs={[assets['align-left'],
                      assets['align-center'], assets['align-right']]}
-            opts={TextAlignments} canDrop={true} {...props} />
+            opts={TextAlignments} droppable={true} {...props} />
 
           <Property name='baseline' label='Vertical' type='selection'
             glyphs={[assets['vertical-align-top'],
                      assets['vertical-align-center'], assets['vertical-align-bottom']]}
-            opts={TextBaselines} canDrop={true} {...props} />
+            opts={TextBaselines} droppable={true} {...props} />
 
           <Property name='angle' label='Rotation' type='number'
-            canDrop={true} {...props} />
+            droppable={true} {...props} />
         </div>
       </div>
     );

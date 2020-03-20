@@ -49,6 +49,9 @@ $long-label-width: $label-width + 10px;
 
   &.first-child { margin-bottom: 0; }
 
+  /* &.droppable .control input, */&.droppable .autocomplete { outline: 2px solid cyan; }
+  /* &.drag-over .control input, */&.drag-over .autocomplete { outline-color: lightsalmon; }
+
   .control {
     display: flex;
     flex: 1;

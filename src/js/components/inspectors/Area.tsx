@@ -3,8 +3,8 @@ const INTERPOLATE = require('../../constants/interpolate');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {Property} from './Property';
 import {PrimType} from '../../constants/primTypes';
+import {Property} from './Property';
 
 interface AreaProps {
   primId: number,
@@ -23,46 +23,46 @@ class BaseArea extends React.Component<AreaProps> {
             opts={Area.ORIENT} {...props} />
         </div>*/}
 
-        <Property name='x' type='number' canDrop={true} {...props}>
+        <Property name='x' type='number' droppable={true} {...props}>
           <h3 className='label'>X Position</h3>
         </Property>
 
         <div className='property-group'>
           <h3>Y Position</h3>
 
-          <Property name='y' label='Start' type='number' canDrop={true} {...props} />
+          <Property name='y' label='Start' type='number' droppable={true} {...props} />
 
-          <Property name='y2' label='End' type='number' canDrop={true} {...props} />
+          <Property name='y2' label='End' type='number' droppable={true} {...props} />
         </div>
 
         <div className='property-group'>
           <h3>Fill</h3>
 
           <Property name='fill' label='Color' type='color'
-            canDrop={true} {...props} />
+            droppable={true} {...props} />
 
           <Property name='fillOpacity' label='Opacity' type='range'
-            min='0' max='1' step='0.05' canDrop={true} {...props} />
+            min='0' max='1' step='0.05' droppable={true} {...props} />
         </div>
 
         <div className='property-group'>
           <h3>Stroke</h3>
 
           <Property name='stroke' label='Color' type='color'
-            canDrop={true} {...props} />
+            droppable={true} {...props} />
 
           <Property name='strokeWidth' label='Width' type='range'
-            min='0' max='10' step='0.25' canDrop={true} {...props} />
+            min='0' max='10' step='0.25' droppable={true} {...props} />
         </div>
 
         <div className='property-group'>
           <h3>Line Strength</h3>
 
           <Property name='interpolate' label='Interpolate' type='select'
-            opts={INTERPOLATE} canDrop={true} {...props} />
+            opts={INTERPOLATE} droppable={true} {...props} />
 
           <Property name='tension' label='Tension' type='number'
-            canDrop={true} {...props} />
+            droppable={true} {...props} />
         </div>
       </div>
     );

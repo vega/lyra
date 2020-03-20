@@ -13,32 +13,53 @@ import * as React from 'react';
 import ContentEditable from 'react-contenteditable';
 import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+import {AnyAction} from 'redux';
+import {ThunkDispatch} from 'redux-thunk';
+import {updateMarkProperty} from '../../actions/markActions';
+import {PrimType} from '../../constants/primTypes';
 import {State} from '../../store';
 import {Schema} from '../../store/factory/Dataset';
+import {DraggingStateRecord} from '../../store/factory/Inspector';
+
+interface OwnState {
+  html: string
+}
 
 interface OwnProps {
   type: 'expr' | 'tmpl';
   dsId: number,
+  primId: number,
+  primType: PrimType,
   value: string,
   updateFn: (evt) => void
 }
 
 interface StateProps {
   fields: string[];
+  dragging: DraggingStateRecord;
 }
 
-interface OwnState {
-  html: string
+interface DispatchProps {
+  setDsId: (data: number) => void;
 }
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const schema: Schema = getInVis(reduxState, 'datasets.' + ownProps.dsId + '._schema');
   return {
-    fields: schema ? schema.keySeq().toJS() : []
+    fields: schema ? schema.keySeq().toJS() : [],
+    dragging: reduxState.inspector.dragging
   };
 }
 
-class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> {
+function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, ownProps: OwnProps) {
+  return {
+    setDsId(data: number) {
+      dispatch(updateMarkProperty({property: 'from', value: {data}}, ownProps.primId));
+    }
+  }
+}
+
+class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
   constructor(props) {
     super(props);
     this.state = {html: this.toHtml(props.value || '')};
@@ -101,14 +122,11 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
 
   public tmplToHtml(str) {
     let position = str.search(TMPL_DATUM);
-    let next;
-    let nextStr;
-    let end;
 
     while (position !== -1) {
-      next = position + TMPL_OPEN.length + DATUM.length;
-      nextStr = str.substring(next);
-      end = nextStr.search('}}');
+      const next = position + TMPL_OPEN.length + DATUM.length;
+      const nextStr = str.substring(next);
+      const end = nextStr.search('}}');
       str = str.substring(0, position) + nextStr.substring(0, end) +
         nextStr.substring(end + 2);
       position = str.search(TMPL_DATUM);
@@ -124,16 +142,17 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
     return this.htmlDecode(this.wrapStr(html, TMPL_OPEN + DATUM, TMPL_CLOSE));
   };
 
-  public wrapStr(str, pre, post) {
+  public wrapStr(str: string, pre: string, post: string) {
     const fields = this.props.fields;
     const extraLen = pre.length + post.length;
-    let position;
-    let searched;
-    let nextStr;
+
+    if (!fields.length && str !== 'Text') {
+      return `${pre}${str}${post}`;
+    }
 
     for (const field of fields) {
-      position = str.search(field);
-      searched = 0
+      let position = str.search(field);
+      let searched = 0
 
       while (position !== -1) {
         position += searched;
@@ -141,7 +160,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
           str.substring(position, position + field.length) + post +
           str.substring(position + field.length);
         searched = position + field.length + extraLen;
-        nextStr = str.substring(searched);
+        const nextStr = str.substring(searched);
         position = nextStr.search(field);
       }
     }
@@ -170,12 +189,15 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
   };
 
   public handleDrop = (evt)  => {
-    const dt = evt.dataTransfer;
-    const dsId = dt.getData('dsId');
-    const fieldDef = JSON.parse(dt.getData('fieldDef'));
+    const props = this.props;
+    const dragging = props.dragging;
+    const fieldName = dragging.fieldDef.name;
     const currHtml = this.state.html;
-    const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_OPEN + fieldDef.name + SPAN_CLOSE;
-    this.props.updateFn(this.fromHtml(html));
+    const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_OPEN + fieldName + SPAN_CLOSE;
+    if (!props.dsId && dragging.dsId && props.primType === 'marks') {
+      props.setDsId(dragging.dsId);
+    }
+    props.updateFn(this.fromHtml(html));
     this.setState({html});
   };
 
@@ -188,4 +210,4 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
     );
   }
 };
-export const AutoComplete = connect(mapStateToProps)(BaseAutoComplete);
+export const AutoComplete = connect(mapStateToProps, mapDispatchToProps)(BaseAutoComplete);

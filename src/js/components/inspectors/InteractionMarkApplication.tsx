@@ -108,7 +108,7 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
         <h3>Mark Application</h3>
 
         <h5>Selected {propertyName}</h5>
-        <Property name={propertyName} label={propertyName} canDrop={true} {...attributes} />
+        <Property name={propertyName} label={propertyName} droppable={true} {...attributes} />
 
         <h5>Default {propertyName}</h5>
         <Property name={'default'+propertyName} label={propertyName} onChange={(e) => this.onDefaultValueChange(e)} value={defaultValue} disabled={false} {...attributes} />
