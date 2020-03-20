@@ -1,5 +1,6 @@
 import {Dispatch} from 'redux';
 import {compare, EncodeEntry, extend} from 'vega';
+import {getFieldDef} from 'vega-lite/build/src/channeldef';
 import {CompiledBinding} from '.';
 import MARK_EXTENTS from '../../constants/markExtents';
 import {State} from '../../store';
@@ -7,10 +8,7 @@ import {propSg} from '../../util/prop-signal';
 import {disableMarkVisual, setMarkVisual, updateMarkProperty} from '../markActions';
 import {setSignal} from '../signalActions';
 
-const dl = require('datalib'),
-  imutils = require('../../util/immutable-utils'),
-  getInVis = imutils.getInVis,
-  getIn = imutils.getIn;
+const getInVis = require('../../util/immutable-utils').getInVis;
 
 /**
  * Parses the mark definition in the resultant Vega specification to determine
@@ -38,9 +36,7 @@ export default function parseMarks(dispatch: Dispatch, state: State, parsed: Com
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial(dispatch, state, parsed, def.encode.update);
   } else if (markType === 'text' && channel === 'text') {
-    // TODO: Text templates are now done via signals,
-    // but the rest of Lyra's infrastructure isn't expecting that.
-    // textTemplate(dispatch, parsed, def.encode.update);
+    textTemplate(dispatch, parsed);
   } else {
     bindProperty(dispatch, parsed, def.encode.update);
   }
@@ -163,14 +159,13 @@ function rectSpatial(dispatch: Dispatch, state: State, parsed: CompiledBinding, 
  * @param   {Object} def      The parsed Vega visual properties for the mark.
  * @returns {void}
  */
-function textTemplate(dispatch: Dispatch, parsed, def) {
+function textTemplate(dispatch: Dispatch, parsed: CompiledBinding) {
+  const text = getFieldDef(parsed.input.encoding.text);
   dispatch(
     setMarkVisual(
       {
         property: 'text',
-        def: {
-          template: '{{datum.' + def.text.field + '}}'
-        } as any
+        def: {signal: `{{datum.${text.field}}}`}
       },
       parsed.markId
     )

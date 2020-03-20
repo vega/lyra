@@ -27,6 +27,7 @@ interface OwnState {
 
 interface StateProps {
   dsId: number;
+  text: string;
 }
 
 interface DispatchProps {
@@ -35,8 +36,10 @@ interface DispatchProps {
 }
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
+  const primId = ownProps.primId;
   return {
-    dsId: getInVis(reduxState, 'marks.' + ownProps.primId + '.from.data')
+    dsId: getInVis(reduxState, `marks.${primId}.from.data`),
+    text: getInVis(reduxState, `marks.${primId}.encode.update.text.signal`)
   };
 }
 
@@ -112,9 +115,10 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
     return (
       <div>
         <div className='property-group'>
-          <Property name='text.signal' type='autocomplete' autoType='tmpl'
-          dsId={dsId} onChange={props.updateText} {...props}>
-            <h3 className='label'>Text</h3>
+          <Property name='text.signal' value={props.text}
+            type='autocomplete' autoType='tmpl'
+            dsId={dsId} onChange={props.updateText} {...props}>
+              <h3 className='label'>Text</h3>
           </Property>
 
           {/* <div onDragOver={this.handleDragOver} onDrop={this.handleDrop}>

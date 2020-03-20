@@ -44,6 +44,12 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
     this.state = {html: this.toHtml(props.value || '')};
   };
 
+  public componentDidUpdate(prevProps) {
+    if (this.props.value !== prevProps.value) {
+      this.setState({html: this.toHtml(this.props.value || '')});
+    }
+  };
+
   public componentDidMount() {
     const contentEditable = ReactDOM.findDOMNode(this);
     const handleChange = this.handleChange;
@@ -167,7 +173,8 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
     const dt = evt.dataTransfer;
     const dsId = dt.getData('dsId');
     const fieldDef = JSON.parse(dt.getData('fieldDef'));
-    const html = this.state.html + SPAN_OPEN + fieldDef.name + SPAN_CLOSE;
+    const currHtml = this.state.html;
+    const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_OPEN + fieldDef.name + SPAN_CLOSE;
     this.props.updateFn(this.fromHtml(html));
     this.setState({html});
   };

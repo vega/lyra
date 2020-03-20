@@ -202,6 +202,8 @@ function channelName(name: string): Channel {
     case 'fill':
     case 'stroke':
       return 'color';
+    case 'text':
+      return 'text';
   }
 }
 
