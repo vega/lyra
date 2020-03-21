@@ -31,7 +31,10 @@ const serializer = transit.withRecords([
 export function persist() {
   const state: LyraState = store.getState();
   return {
-    store: serializer.toJSON(state.vis.present),
+    store: {
+      vis: serializer.toJSON(state.vis.present),
+      inspector: serializer.toJSON(state.inspector)
+    },
     values: persistDataValues()
   };
 }
@@ -39,11 +42,16 @@ export function persist() {
 export const hydrate = createStandardAction('HYDRATE').map((str: string) => {
   const state = JSON.parse(str);
   persistDataValues(state.values);
-  return {payload: serializer.fromJSON(state.store)};
+  return {
+    payload: {
+      vis: serializer.fromJSON(state.store.vis),
+      inspector: serializer.fromJSON(state.store.inspector)
+    }
+  };
 });
 
-export function hydrator(visReducers) {
+export function hydrator(reducer, path) {
   return (state: VisStateTree, action: ActionType<typeof hydrate>) => {
-    return action.type === getType(hydrate) ? action.payload : visReducers(state, action);
+    return action.type === getType(hydrate) ? action.payload[path] : reducer(state, action);
   }
 }

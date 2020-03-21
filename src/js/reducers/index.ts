@@ -28,9 +28,9 @@ const visReducers = combineReducers({
 
 // order matters here
 export default combineReducers({
-  vis: undoable(hydrator(visReducers), historyOptions),
+  vis: undoable(hydrator(visReducers, 'vis'), historyOptions),
   vega,
-  inspector,
+  inspector: hydrator(inspector, 'inspector'),
   hints,
   walkthrough
 });
