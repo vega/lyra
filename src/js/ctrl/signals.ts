@@ -45,7 +45,7 @@ api.reference = function(name) {
 };
 
 function isDefault(name) {
-  return name in signalNames;
+  return signalNames.includes(name);
 }
 api.isDefault = isDefault;
 
