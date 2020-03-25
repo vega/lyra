@@ -19,7 +19,7 @@ import {updateMarkProperty} from '../../actions/markActions';
 import {PrimType} from '../../constants/primTypes';
 import {State} from '../../store';
 import {Schema} from '../../store/factory/Dataset';
-import {DraggingStateRecord} from '../../store/factory/Inspector';
+import {DraggingStateRecord, FieldDraggingStateRecord} from '../../store/factory/Inspector';
 
 interface OwnState {
   html: string
@@ -36,7 +36,7 @@ interface OwnProps {
 
 interface StateProps {
   fields: string[];
-  dragging: DraggingStateRecord;
+  dragging: FieldDraggingStateRecord;
 }
 
 interface DispatchProps {
@@ -66,6 +66,10 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   };
 
   public componentDidUpdate(prevProps) {
+    if (this.props.dsId !== prevProps.dsId) {
+      this.props.updateFn(this.fromHtml(this.state.html));
+
+    }
     if (this.props.value !== prevProps.value) {
       this.setState({html: this.toHtml(this.props.value || '')});
     }
@@ -145,11 +149,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   public wrapStr(str: string, pre: string, post: string) {
     const fields = this.props.fields;
     const extraLen = pre.length + post.length;
-
-    if (!fields.length && str !== 'Text') {
-      // return `${pre}${str}${post}`;
-      return str; // for when people just type straight into the autocomplete box
-    }
 
     for (const field of fields) {
       let position = str.search(field);
