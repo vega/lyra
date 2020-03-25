@@ -1,16 +1,15 @@
-import {Seq, List} from 'immutable';
-import {extend, isArray, isObject, isString, Mark, Signal, Spec} from 'vega';
+import {extend, isArray, isObject, isString, Mark, Spec} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
 import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
-import {InteractionRecord} from '../store/factory/Interaction';
+import {InteractionRecord, MarkApplicationRecord, TransformApplicationRecord} from '../store/factory/Interaction';
 import {GroupRecord} from '../store/factory/marks/Group';
 import {input} from '../util/dataset-utils';
 import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {demonstrationDatasets, demonstrations, editMarks, editScales, editSignals, addSelectionToScene, addApplicationToScene} from './demonstrations';
+import {demonstrationDatasets, demonstrations, addSelectionToScene, addApplicationToScene} from './demonstrations';
 import manipulators from './manipulators';
 import exportName from '../util/exportName';
 
@@ -51,32 +50,26 @@ export function exporter(internal: boolean = false, preview: boolean = false): S
   // add data stores for demonstration
   demonstrationDatasets(spec);
 
-  spec.signals = exporter.signals(state, int, prev);
-
   // Add interactions from store
   return exporter.interactions(state, spec);
 }
 
 exporter.interactions = function(state: State, spec) {
   state.getIn(['vis', 'present', 'interactions']).forEach((interaction: InteractionRecord) => {
-    if (interaction.selection && interaction.application) {
-      const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
-      const groupName = exportName(group.name);
-      spec = addSelectionToScene(spec, groupName, interaction.selection);
-      spec = addApplicationToScene(spec, groupName, interaction.application);
+    const defined = interaction.selection && interaction.application;
+    if (defined) {
+      const isDemonstratingInterval = (interaction.application as MarkApplicationRecord).isDemonstratingInterval || (interaction.application as MarkApplicationRecord).isDemonstratingInterval;
+      const valid = isDemonstratingInterval !== undefined ? (isDemonstratingInterval && interaction.selection.type === 'interval' || !isDemonstratingInterval && interaction.selection.type === 'point') : true;
+
+      if (valid) {
+        const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
+        const groupName = exportName(group.name);
+        spec = addSelectionToScene(spec, groupName, interaction.selection);
+        spec = addApplicationToScene(spec, groupName, interaction.application);
+      }
     }
   });
   return spec;
-}
-
-exporter.signals = function(state: State, internal: boolean, preview: boolean) {
-  const interaction = state.getIn(['vis', 'present', 'interactions']).valueSeq().toJS();
-  return interaction.reduce((signals, record) => {
-    if(record.selectionDef && record.selectionDef.label==='Widget') {
-      signals = [...signals, ...record.selectionDef.signals];
-    }
-    return signals;
-  }, []);
 }
 
 exporter.pipelines = function(state: State, internal: boolean, preview: boolean) {

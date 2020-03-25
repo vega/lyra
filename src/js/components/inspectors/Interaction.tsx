@@ -318,6 +318,18 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
   }
 
+  public componentDidUpdate(prevProps: OwnProps & StateProps, prevState: OwnState) {
+    if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
+      this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
+      this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
+      this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
+      this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
+      this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
+    }
+  }
+
+
   private getSelectionPreviews() {
     if (this.state.isDemonstratingInterval) {
       return this.props.selectionPreviewsInterval;
@@ -359,7 +371,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     const pointActive = Boolean(this.mainViewSignalValues['points_tuple']);
 
     const isDemonstratingInterval = intervalActive || !pointActive;
-    console.log(isDemonstratingInterval)
+
     if (this.state.isDemonstratingInterval !== isDemonstratingInterval) {
       this.setState({
         isDemonstratingInterval
@@ -592,7 +604,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
               }
             </div>
             {
-              (interaction && interaction.application && interaction.application.type === 'mark') ? (
+              (application && application.type === 'mark') ? (
                 this.getTargetMarkOptions(interaction.application as MarkApplicationRecord)
               ) : null
             }
