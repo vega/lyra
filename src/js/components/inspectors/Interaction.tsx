@@ -25,6 +25,7 @@ import sg from '../../ctrl/signals';
 import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import {NumericValueRef, StringValueRef} from 'vega';
 import * as vega from 'vega';
+import {Mark} from 'vega-lite/src/mark';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -234,10 +235,10 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
   const defs: ApplicationRecord[] = [];
 
   // TODO(jzong): could add a heuristic -- better way to sort these?
-  // TODO(jzong): change mark to dropdown
-  marksOfGroup.forEach(mark => {
+  if (marksOfGroup.length) {
+    const mark = marksOfGroup[0];
     defs.push(MarkApplication({
-      id: "color_" + isDemonstratingInterval,
+      id: "color_mark_" + isDemonstratingInterval,
       label: "Color",
       targetMarkName: exportName(mark.name),
       isDemonstratingInterval: isDemonstratingInterval,
@@ -245,7 +246,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
       defaultValue: "#797979"
     }));
     defs.push(MarkApplication({
-      id: "opacity_" + isDemonstratingInterval,
+      id: "opacity_mark_" + isDemonstratingInterval,
       label: "Opacity",
       targetMarkName: exportName(mark.name),
       isDemonstratingInterval: isDemonstratingInterval,
@@ -254,7 +255,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
     }));
     if (mark.type === 'symbol') {
       defs.push(MarkApplication({
-        id: "size_" + isDemonstratingInterval,
+        id: "size_mark_" + isDemonstratingInterval,
         label: "Size",
         targetMarkName: exportName(mark.name),
         isDemonstratingInterval: isDemonstratingInterval,
@@ -262,7 +263,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
         defaultValue: 30
       }));
     }
-  });
+  }
 
   if (isDemonstratingInterval) {
     defs.push(ScaleApplication({
@@ -412,11 +413,17 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   private getFieldOptions(preview: PointSelectionRecord) {
     const options = this.props.fieldsOfGroup.map(field => <option key={field} value={field}>{field}</option>);
 
-    return <select name='project_fields' value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
-        {options}
-      </select>
+    return (
+      <div className="property">
+        <label htmlFor='project_fields'>Field:</label>
+        <div className='control'>
+          <select name='project_fields' value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
+            {options}
+          </select>
+        </div>
+      </div>
+    );
   }
-
   private onSelectProjectionField(preview: PointSelectionRecord, field: string) {
     const newPreview = preview.set('field', field);
     // this.setState({
@@ -433,6 +440,35 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     // TODO (jzong) figure this out
   }
 
+  private getTargetMarkOptions(preview: MarkApplicationRecord) {
+    const marksOfGroup = this.props.marksOfGroups.get(this.props.group._id);
+
+    if (marksOfGroup.length === 1) {
+      return null;
+    }
+
+    const options = marksOfGroup.map(mark => {
+      const markName = exportName(mark.name);
+      return <option key={markName} value={markName}>{markName}</option>
+    });
+
+    return (
+      <div className="property">
+        <label htmlFor='target_mark'>Target Mark:</label>
+        <div className='control'>
+          <select name='target_mark' value={preview.targetMarkName} onChange={e => this.onSelectTargetMarkName(preview, e.target.value)}>
+            {options}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  private onSelectTargetMarkName(preview: MarkApplicationRecord, targetMarkName: string) {
+    const newPreview = preview.set('targetMarkName', targetMarkName);
+    this.props.setApplication(newPreview, this.props.interaction.id);
+    // TODO (jzong)
+  }
   private getSignalBubbles(scaleInfo, isDemonstratingInterval) {
     const signals = [];
 
@@ -455,8 +491,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         if (dropped) {
           const lyraId = +sel.mark.role.split('lyra_')[1]; // id of thing that was dropped onto
           const channel: string = cell.key;
-          console.log('dropped ', lyraId, cell.key, this.props.dragging.signal);
-          /// TODO (jzong) confirm with arvind whether this has edge cases
           this.props.setMarkVisual(
             {
               property: channel,
@@ -531,12 +565,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
             </div>
             {
               (interaction && interaction.selection && interaction.selection.id.includes('project')) ? (
-                <div className="property">
-                  <label htmlFor='project_fields'>Field:</label>
-                  <div className='control'>
-                    {this.getFieldOptions(interaction.selection as PointSelectionRecord)}
-                  </div>
-                </div>
+                this.getFieldOptions(interaction.selection as PointSelectionRecord)
               ) : null
             }
           </div>
@@ -562,6 +591,11 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                 })
               }
             </div>
+            {
+              (interaction && interaction.application && interaction.application.id.includes('mark')) ? (
+                this.getTargetMarkOptions(interaction.application as MarkApplicationRecord)
+              ) : null
+            }
             {
               application && application.type === 'mark' ? <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null
             }
