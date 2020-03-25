@@ -139,8 +139,6 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     const fmt = dl.format.auto.number();
     const scrollLeft = this.$table.current && this.$table.current.scrollLeft;
 
-    // const keys_chunked = chunkArray(keys, 7);
-
     const prev = page > 0 ? (
       <Icon glyph={assets.prev} width='10' height='10' onClick={this.prevPage} />
     ) : null;
@@ -151,8 +149,6 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
 
     return (
       <div className='datatable-container'>
-
-        {/* <TransformList dsId={id} /> */}
 
         {output.length ?
           <div className='datatable' ref={this.$table}

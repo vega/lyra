@@ -82,7 +82,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
     srcField:  dsId && field ?
       getInVis(reduxState, 'datasets.' + dsId + '._schema.' + field + '.source') : false,
     scaleName: scaleName,
-    dragging: reduxState.inspector.dragging
+    dragging: reduxState.getIn(['inspector', 'dragging'])
   };
 }
 

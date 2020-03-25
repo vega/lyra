@@ -20,6 +20,7 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
   }
 
   if (action.type === getType(inspectorActions.startDragging)) {
+    console.log('setting dragging', action.payload);
     return state.setIn(['dragging'], action.payload);
   }
 

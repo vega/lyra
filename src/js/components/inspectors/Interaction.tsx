@@ -10,7 +10,7 @@ import {Dispatch} from 'redux';
 import {setSelection, setApplication} from '../../actions/interactionActions';
 import {FormInputProperty} from './FormInputProperty';
 import {getScaleInfoForGroup, ScaleSimpleType} from '../../ctrl/demonstrations';
-import {DatasetRecord} from '../../store/factory/Dataset';
+import {DatasetRecord, ColumnRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
 import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
 import exportName from '../../util/exportName';
@@ -18,9 +18,17 @@ import {Icon} from '../Icon';
 import InteractionPreview from '../interactions/InteractionPreview';
 import {debounce} from 'vega';
 import {Map} from 'immutable';
+import {FieldDraggingState, DraggingStateRecord, SignalDraggingState, SignalDraggingStateRecord} from '../../store/factory/Inspector';
+import {startDragging, stopDragging} from '../../actions/inspectorActions';
+import {setMarkVisual} from '../../actions/markActions';
+import sg from '../../ctrl/signals';
+import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
+import {NumericValueRef, StringValueRef} from 'vega';
+import * as vega from 'vega';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
+const tupleid = (vega as any).tupleid; // TODO: remove when vega/vega#1947 is merged.
 
 interface OwnProps {
   primId: number;
@@ -34,6 +42,9 @@ interface OwnState {
 interface DispatchProps {
   setSelection: (record: SelectionRecord, id: number) => void;
   setApplication: (record: ApplicationRecord, id: number) => void;
+  startDragging: (d: DraggingStateRecord) => void;
+  stopDragging: () => void;
+  setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
 }
 
 interface StateProps {
@@ -50,6 +61,7 @@ interface StateProps {
   selectionPreviewsInterval: SelectionRecord[];
   applicationPreviewsPoint: ApplicationRecord[];
   applicationPreviewsInterval: ApplicationRecord[];
+  dragging: SignalDraggingStateRecord;
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -97,6 +109,9 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     applicationPreviewsInterval,
   } = generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction);
 
+  const draggingSignal = state.getIn(['inspector', 'dragging']) as SignalDraggingStateRecord;
+  const dragging = draggingSignal && draggingSignal.signal ? draggingSignal : null;
+
   return {
     interaction,
     groups,
@@ -110,9 +125,12 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     selectionPreviewsPoint,
     selectionPreviewsInterval,
     applicationPreviewsPoint,
-    applicationPreviewsInterval
+    applicationPreviewsInterval,
+    dragging
   };
 }
+
+const actionCreators = {setSelection, setApplication, startDragging, stopDragging, setMarkVisual};
 
 function generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction): {
   selectionPreviewsInterval: SelectionRecord[],
@@ -279,18 +297,6 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
   return defs;
 }
 
-
-function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
-  return {
-    setSelection: (def: SelectionRecord, id: number) => {
-      dispatch(setSelection(def, id));
-    },
-    setApplication: (def: ApplicationRecord, id: number) => {
-      dispatch(setApplication(def, id));
-    }
-  };
-}
-
 class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
 
   constructor(props) {
@@ -404,7 +410,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   private getFieldOptions(preview: PointSelectionRecord) {
-    // TODO(jzong): add heuristic here by sorting the fields by frequency
     const options = this.props.fieldsOfGroup.map(field => <option key={field} value={field}>{field}</option>);
 
     return <select name='project_fields' value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
@@ -432,26 +437,64 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     const signals = [];
 
     const handleDragStart = (evt) => {
-      console.log(evt.target.dataset.signal);
-      evt.dataTransfer.setData('signalName', evt.target.dataset.signal);
+      const groupId = this.props.group._id;
+      const signal = evt.target.dataset.signal;
+
+      this.props.startDragging(SignalDraggingState({groupId, signal}));
+
+      sg.set(MODE, 'channels');
+      ctrl.update();
+    }
+
+    const handleDragEnd = (evt) => {
+      const sel = sg.get(SELECTED);
+      const cell = sg.get(CELL);
+      const dropped = tupleid(sel) && tupleid(cell);
+
+      try {
+        if (dropped) {
+          const lyraId = +sel.mark.role.split('lyra_')[1]; // id of thing that was dropped onto
+          const channel: string = cell.key;
+          console.log('dropped ', lyraId, cell.key, this.props.dragging.signal);
+          /// TODO (jzong) confirm with arvind whether this has edge cases
+          this.props.setMarkVisual(
+            {
+              property: channel,
+              def: {signal: this.props.dragging.signal}
+            },
+            lyraId
+          )
+        }
+      } catch (e) {
+        console.error('Unable to bind primitive');
+        console.error(e);
+      }
+
+      this.props.stopDragging();
+      sg.set(MODE, 'handles');
+      sg.set(CELL, {});
+
+      if (!dropped) {
+        ctrl.update();
+      }
     }
 
     if (isDemonstratingInterval) {
       if (scaleInfo.xScaleName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.xScaleName}`}>{`brush_${scaleInfo.xScaleName}`}</div>)
+        signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${scaleInfo.xScaleName}`}>{`brush_${scaleInfo.xScaleName}`}</div>)
       }
       if (scaleInfo.yScaleName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.yScaleName}`}>{`brush_${scaleInfo.yScaleName}`}</div>)
+        signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${scaleInfo.yScaleName}`}>{`brush_${scaleInfo.yScaleName}`}</div>)
       }
       if (scaleInfo.xFieldName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.xFieldName}`}>{`brush_${scaleInfo.xFieldName}`}</div>)
+        signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${scaleInfo.xFieldName}`}>{`brush_${scaleInfo.xFieldName}`}</div>)
       }
       if (scaleInfo.yFieldName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.yFieldName}`}>{`brush_${scaleInfo.yFieldName}`}</div>)
+        signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${scaleInfo.yFieldName}`}>{`brush_${scaleInfo.yFieldName}`}</div>)
       }
     }
     else {
-      signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal="points_tuple">points</div>)
+      signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal="points_tuple">points</div>)
     }
     return signals;
   }
@@ -537,4 +580,4 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 };
 
-export const InteractionInspector = connect(mapStateToProps, mapDispatchToProps)(BaseInteractionInspector);
+export const InteractionInspector = connect(mapStateToProps, actionCreators)(BaseInteractionInspector);

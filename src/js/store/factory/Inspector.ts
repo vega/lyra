@@ -20,17 +20,30 @@ const EncodingState = Record<LyraEncodingState>({
 
 export type EncodingStateRecord = RecordOf<LyraEncodingState>;
 
-export interface LyraDraggingState {
+export interface LyraFieldDraggingState {
   dsId?: number;
   fieldDef?: ColumnRecord;
 }
 
-export const DraggingState = Record<LyraDraggingState>({
+export interface LyraSignalDraggingState {
+  groupId?: number;
+  signal?: string;
+}
+
+export const FieldDraggingState = Record<LyraFieldDraggingState>({
   dsId: null,
   fieldDef: null
-}, 'LyraDraggingState');
+}, 'LyraFieldDraggingState');
 
-export type DraggingStateRecord = RecordOf<LyraDraggingState>;
+
+export const SignalDraggingState = Record<LyraSignalDraggingState>({
+  groupId: null,
+  signal: null
+}, 'LyraSignalDraggingState');
+
+export type FieldDraggingStateRecord = RecordOf<LyraFieldDraggingState>;
+export type SignalDraggingStateRecord = RecordOf<LyraSignalDraggingState>;
+export type DraggingStateRecord = FieldDraggingStateRecord | SignalDraggingStateRecord;
 
 interface LyraInspector {
   pipelines: {

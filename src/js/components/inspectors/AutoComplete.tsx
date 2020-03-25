@@ -47,7 +47,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const schema: Schema = getInVis(reduxState, 'datasets.' + ownProps.dsId + '._schema');
   return {
     fields: schema ? schema.keySeq().toJS() : [],
-    dragging: reduxState.inspector.dragging
+    dragging: reduxState.getIn(['inspector', 'dragging'])
   };
 }
 

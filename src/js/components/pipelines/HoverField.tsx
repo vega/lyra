@@ -7,7 +7,7 @@ import {startDragging, stopDragging} from '../../actions/inspectorActions';
 import sg from '../../ctrl/signals';
 import {State} from '../../store';
 import {ColumnRecord, Schema} from '../../store/factory/Dataset';
-import {DraggingState, DraggingStateRecord} from '../../store/factory/Inspector';
+import {DraggingStateRecord, FieldDraggingState} from '../../store/factory/Inspector';
 import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import duplicate from '../../util/duplicate';
 import {Icon} from '../Icon';
@@ -105,12 +105,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
     const dsId = this.props.dsId;
     const fieldDef = this.state.fieldDef;
 
-    this.props.startDragging(DraggingState({dsId, fieldDef}));
-
-    // TODO: Remove these and rely purely on DraggingState.
-    evt.dataTransfer.setData('dsId', dsId);
-    evt.dataTransfer.setData('fieldDef', JSON.stringify(fieldDef.toJS()));
-    evt.dataTransfer.effectAllowed = 'link';
+    this.props.startDragging(FieldDraggingState({dsId, fieldDef}));
 
     sg.set(MODE, 'channels');
     ctrl.update();

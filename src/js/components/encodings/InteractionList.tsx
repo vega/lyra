@@ -6,9 +6,8 @@ import {ThunkDispatch} from 'redux-thunk';
 import {selectInteraction, InspectorSelectedType, selectMark} from '../../actions/inspectorActions';
 import {State} from '../../store';
 import { Icon } from '../Icon';
-import {InteractionRecord, Interaction} from '../../store/factory/Interaction';
-import {deleteInteraction, updateInteractionName, addInteraction} from '../../actions/interactionActions';
-import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
+import {InteractionRecord} from '../../store/factory/Interaction';
+import {deleteInteraction, updateInteractionName} from '../../actions/interactionActions';
 import InteractionPreviewController from '../interactions/InteractionPreviewController';
 
 const ContentEditable = require('../ContentEditable');
