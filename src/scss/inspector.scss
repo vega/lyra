@@ -23,6 +23,8 @@ $long-label-width: $label-width + 10px;
 
   .inner {
     padding: 0 $outer-padding;
+    height: calc(100% - 35px);
+    overflow-y: auto;
   }
 }
 
@@ -187,8 +189,9 @@ $long-label-width: $label-width + 10px;
       transform: translate(12px, 13px);
     }
 
-    > div {
-      padding: 0 $outer-padding $outer-padding;
+    .preview-label, .interaction-preview {
+      width: 85px;
+      margin: $inner-padding auto;
     }
   }
 }
