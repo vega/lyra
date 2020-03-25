@@ -519,6 +519,9 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                 })
               }
             </div>
+            {
+              application && application.type === 'mark' ? <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null
+            }
           </div>
         </div>
         <div className="property-group">
@@ -529,9 +532,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         </div>
 
 
-        {
-          application && application.type === 'mark' ? <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null
-        }
       </div>
     );
   }

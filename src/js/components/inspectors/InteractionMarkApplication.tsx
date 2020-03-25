@@ -104,14 +104,10 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
     }
 
     return (
-      <div className='property-group'>
-        <h3>Mark Application</h3>
+      <div>
+        <Property name={propertyName} label={'Selected ' + propertyName} droppable={true} {...attributes} />
 
-        <h5>Selected {propertyName}</h5>
-        <Property name={propertyName} label={propertyName} droppable={true} {...attributes} />
-
-        <h5>Default {propertyName}</h5>
-        <Property name={'default'+propertyName} label={propertyName} onChange={(e) => this.onDefaultValueChange(e)} value={defaultValue} disabled={false} {...attributes} />
+        <Property name={'default'+propertyName} label={'Default ' + propertyName} onChange={(e) => this.onDefaultValueChange(e)} value={defaultValue} disabled={false} {...attributes} />
       </div>
     );
   }
