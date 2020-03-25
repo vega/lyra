@@ -147,7 +147,8 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     const extraLen = pre.length + post.length;
 
     if (!fields.length && str !== 'Text') {
-      return `${pre}${str}${post}`;
+      // return `${pre}${str}${post}`;
+      return str; // for when people just type straight into the autocomplete box
     }
 
     for (const field of fields) {

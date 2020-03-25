@@ -207,7 +207,15 @@ exporter.mark = function(state: State, internal: boolean, preview: boolean, id: 
     let tmpl = spec.encode.update.text.signal;
     if (tmpl && !tmpl.startsWith('brush')) {
       tmpl = tmpl.split(RegExp('{{(.*?)}}')).map(s => {
-        return s.indexOf('datum') < 0 ? `"${s}"` : `+ ${s} + `
+        if (s.indexOf('datum') >= 0) {
+          return `+ ${s} + `;
+        }
+        else {
+          if (s.startsWith('#')) {
+            return `+ ${s.substring(1)} + `;
+          }
+          return `"${s}"`;
+        }
       }).join('');
       spec.encode.update.text.signal = tmpl;
     }

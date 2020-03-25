@@ -460,7 +460,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
           this.props.setMarkVisual(
             {
               property: channel,
-              def: {signal: this.props.dragging.signal}
+              def: {signal: `{{#${this.props.dragging.signal}}}`}
             },
             lyraId
           )
