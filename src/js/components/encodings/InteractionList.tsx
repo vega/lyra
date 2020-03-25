@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import ReactTooltip from 'react-tooltip'
 import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
-import {selectInteraction, InspectorSelectedType} from '../../actions/inspectorActions';
+import {selectInteraction, InspectorSelectedType, selectMark} from '../../actions/inspectorActions';
 import {State} from '../../store';
 import { Icon } from '../Icon';
 import {InteractionRecord, Interaction} from '../../store/factory/Interaction';
@@ -46,7 +46,7 @@ function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>): Di
 
     deleteInteraction: function (selectedId, groupId, interactionId, evt) {
       if (selectedId === interactionId) {
-        dispatch(selectInteraction(groupId));
+        dispatch(selectMark(groupId));
       }
       dispatch(deleteInteraction({groupId}, interactionId));
       evt.preventDefault();
@@ -94,7 +94,7 @@ class InteractionList extends React.Component<OwnProps & StateProps & DispatchPr
                   onClick={props.selectInteraction.bind(null, interactionId)} />
 
                 <Icon glyph={assets.trash} className='delete'
-                  onClick={props.deleteInteraction.bind(null, selectedId, interactionId)}
+                  onClick={props.deleteInteraction.bind(null, selectedId, this.props.groupId, interactionId)}
                   data-tip={'Delete ' + name} data-place='right' />
               </div>
             </li>

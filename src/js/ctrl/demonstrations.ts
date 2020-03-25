@@ -131,7 +131,6 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, applic
       });
 
       const {source, transform} = collectTransforms(sceneSpec, datasetName, []);
-
       sceneSpec = applyDatasetProperties(sceneSpec, {
         "name": newDatasetName,
         "source": source,
@@ -251,7 +250,8 @@ function collectTransforms(sceneSpec, datasetName: string, transforms: any[]): {
 function applyDatasetProperties(sceneSpec, datasetProperties): Spec {
   sceneSpec = duplicate(sceneSpec);
   const data = sceneSpec.data || (sceneSpec.data = []);
-  sceneSpec.data = [...data, datasetProperties];
+  const deduplicated = data.filter(d => d.name !== datasetProperties.name);
+  sceneSpec.data = [...deduplicated, datasetProperties];
   return sceneSpec;
 }
 
