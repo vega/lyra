@@ -351,7 +351,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       }
     });
   }
-  private updateIsDemonstrating() {
+  private updateIsDemonstrating = debounce(250, () => {
     const intervalActive = (this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&
       this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
@@ -359,13 +359,13 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     const pointActive = Boolean(this.mainViewSignalValues['points_tuple']);
 
     const isDemonstratingInterval = intervalActive || !pointActive;
-
+    console.log(isDemonstratingInterval)
     if (this.state.isDemonstratingInterval !== isDemonstratingInterval) {
       this.setState({
         isDemonstratingInterval
       });
     }
-  }
+  });
 
   private onMainViewPointSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
