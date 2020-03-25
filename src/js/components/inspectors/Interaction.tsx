@@ -238,7 +238,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
   if (marksOfGroup.length) {
     const mark = marksOfGroup[0];
     defs.push(MarkApplication({
-      id: "color_mark_" + isDemonstratingInterval,
+      id: "color_" + isDemonstratingInterval,
       label: "Color",
       targetMarkName: exportName(mark.name),
       isDemonstratingInterval: isDemonstratingInterval,
@@ -246,7 +246,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
       defaultValue: "#797979"
     }));
     defs.push(MarkApplication({
-      id: "opacity_mark_" + isDemonstratingInterval,
+      id: "opacity_" + isDemonstratingInterval,
       label: "Opacity",
       targetMarkName: exportName(mark.name),
       isDemonstratingInterval: isDemonstratingInterval,
@@ -255,7 +255,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
     }));
     if (mark.type === 'symbol') {
       defs.push(MarkApplication({
-        id: "size_mark_" + isDemonstratingInterval,
+        id: "size_" + isDemonstratingInterval,
         label: "Size",
         targetMarkName: exportName(mark.name),
         isDemonstratingInterval: isDemonstratingInterval,
@@ -592,7 +592,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
               }
             </div>
             {
-              (interaction && interaction.application && interaction.application.id.includes('mark')) ? (
+              (interaction && interaction.application && interaction.application.type === 'mark') ? (
                 this.getTargetMarkOptions(interaction.application as MarkApplicationRecord)
               ) : null
             }
