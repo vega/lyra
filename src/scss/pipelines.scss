@@ -54,25 +54,24 @@ $pipeline-width: 230px;
   p.source {
     display: flex;
     align-items: center;
-    margin: $margin (-$inner-padding);
-    padding: $inner-padding;
-    background: $grey-bg;
-    color: white;
-    fill: white;
-    border-top: 1px solid $lgrey-border;
-    border-bottom: 1px solid $lgrey-border;
-
+    // margin: $margin (-$inner-padding);
+    padding: $inner-padding 0;
+    // background: $grey-bg;
     .icon { margin-right: $inner-padding; }
   }
 
   &.selected {
     display: inline-block;
-    padding: $outer-padding $inner-padding $inner-padding $outer-padding;
+    padding: $outer-padding 0 $inner-padding $outer-padding;
     border-radius: $border-radius;
 
     div.header {
       font-weight: 900;
     }
+  }
+
+  > div {
+    display: flex;
   }
 }
 
@@ -81,10 +80,14 @@ $pipeline-width: 230px;
 
   .datatable-container {
     max-width: 230px;
-    margin-right: 2*$inner-padding;
+    margin-right: $outer-padding;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    &:empty {
+      margin-right: 0;
+    }
   }
 }
 

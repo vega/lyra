@@ -407,11 +407,9 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     // TODO(jzong): add heuristic here by sorting the fields by frequency
     const options = this.props.fieldsOfGroup.map(field => <option key={field} value={field}>{field}</option>);
 
-    return <div>
-      <select value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
+    return <select name='project_fields' value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
         {options}
       </select>
-    </div>
   }
 
   private onSelectProjectionField(preview: PointSelectionRecord, field: string) {
@@ -478,11 +476,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                   return (
                     <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}
                         onClick={() => this.onClickInteractionPreview(preview)}>
-                      <div className="preview-label">{preview.label}
-                        {
-                          preview.id.includes('project') ? this.getFieldOptions(preview as PointSelectionRecord) : ''
-                        }
-                      </div>
+                      <div className="preview-label">{preview.label}</div>
                       <InteractionPreview ref={this.previewRefs[preview.id]}
                         id={`preview-${preview.id}`}
                         groupName={this.props.groupName}
@@ -492,6 +486,16 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                 })
               }
             </div>
+            {
+              (interaction && interaction.selection && interaction.selection.id.includes('project')) ? (
+                <div className="property">
+                  <label htmlFor='project_fields'>Field:</label>
+                  <div className='control'>
+                    {this.getFieldOptions(interaction.selection as PointSelectionRecord)}
+                  </div>
+                </div>
+              ) : null
+            }
           </div>
           <div className='property-group'>
             <h3>Applications</h3>
@@ -502,13 +506,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                     this.previewRefs[preview.id] = React.createRef();
                   }
                   return (
-                    <div key={preview.id} className={interaction && interaction.application && interaction.application.id === preview.id ? 'selected' : ''}
-                        onClick={() => this.onClickInteractionPreview(preview)}>
-                      <div className="preview-label">{preview.label}</div>
-                      <InteractionPreview ref={this.previewRefs[preview.id]}
-                        id={`preview-${preview.id}`}
-                        groupName={this.props.groupName}
-                        preview={preview}/>
+                    <div key={preview.id} className={interaction && interaction.application && interaction.application.id === preview.id ? 'selected' : ''}>
+                      <div onClick={() => this.onClickInteractionPreview(preview)}>
+                        <div className="preview-label">{preview.label}</div>
+                        <InteractionPreview ref={this.previewRefs[preview.id]}
+                          id={`preview-${preview.id}`}
+                          groupName={this.props.groupName}
+                          preview={preview}/>
+                      </div>
                     </div>
                   )
                 })

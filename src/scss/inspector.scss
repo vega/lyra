@@ -163,14 +163,15 @@ $long-label-width: $label-width + 10px;
 
   .preview-scroll {
     display: flex;
+    flex-wrap: wrap;
     background: $grey-bg;
-    overflow-x: auto;
+    max-height: calc(117px * 2.5);
+    overflow-y: auto;
     margin-bottom: $outer-padding;
   }
 
   .preview-scroll > div {
-    display: inline-block;
-    padding: 0 $outer-padding $outer-padding;
+    flex-basis: 50%;
     background: $grey-bg;
     color: white;
 
@@ -184,6 +185,10 @@ $long-label-width: $label-width + 10px;
 
     svg.marks > g {
       transform: translate(12px, 13px);
+    }
+
+    > div {
+      padding: 0 $outer-padding $outer-padding;
     }
   }
 }

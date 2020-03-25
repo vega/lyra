@@ -49,9 +49,9 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps> {
 
           {pipeline._aggregates.entrySeq().map(function(entry, i) {
             return (
-              <div key={i}>
+              <div key={i} className="aggregate">
                 <p className='source'>Group By: {entry[0].split('|').join(', ')}</p>
-                <DataTableMulti id={entry[1]} fieldsCount={fieldsCount} />
+                <DataTableMulti id={entry[1]} fieldsCount={6} />
               </div>
             );
           })}
