@@ -91,6 +91,16 @@ $long-label-width: $label-width + 10px;
       text-overflow: ellipsis;
     }
 
+    .signal {
+      // max-width: 65px;
+      padding: 3px $inner-padding;
+      border: 0;
+      border-radius: $outer-padding;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     &:hover {
       .scale, .field {
         cursor: pointer;
@@ -199,4 +209,10 @@ $long-label-width: $label-width + 10px;
 .signals-container {
   margin-top: $inner-padding;
   margin-left: -$inner-padding;
+
+  .signal {
+    margin: 2px;
+    display: inline-block;
+    padding: $inner-padding;
+  }
 }

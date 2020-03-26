@@ -2,12 +2,16 @@
 const getInVis = require('../../util/immutable-utils').getInVis;
 
 // TODO: derived fields?
-const SPAN_OPEN  = '<span class="field source" contenteditable="false">';
+const SPAN_OPEN = '<span class="';
+const SPAN_FIELD_OPEN  = '<span class="field source" contenteditable="false">';
+const SPAN_SIGNAL_OPEN  = '<span class="signal" contenteditable="false">';
 const SPAN_CLOSE = '</span>';
 const DATUM = 'datum.';
+const SIGNALNAME = '#';
 const TMPL_OPEN  = '{{';
 const TMPL_CLOSE = '}}';
-const TMPL_DATUM = new RegExp(TMPL_OPEN + DATUM + '*' + TMPL_CLOSE);
+const TMPL_RE = new RegExp(TMPL_OPEN + '.*' + TMPL_CLOSE);
+const SPAN_RE = new RegExp('(' + SPAN_FIELD_OPEN + '|' + SPAN_SIGNAL_OPEN + ').*' + SPAN_CLOSE);
 
 import * as React from 'react';
 import ContentEditable from 'react-contenteditable';
@@ -19,7 +23,7 @@ import {updateMarkProperty} from '../../actions/markActions';
 import {PrimType} from '../../constants/primTypes';
 import {State} from '../../store';
 import {Schema} from '../../store/factory/Dataset';
-import {DraggingStateRecord, FieldDraggingStateRecord} from '../../store/factory/Inspector';
+import {FieldDraggingStateRecord} from '../../store/factory/Inspector';
 
 interface OwnState {
   html: string
@@ -89,7 +93,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       },
       index: 1,
       replace: function(word) {
-        return SPAN_OPEN + word + SPAN_CLOSE + ' ';
+        return SPAN_FIELD_OPEN + word + SPAN_CLOSE + ' ';
       }
     }];
 
@@ -115,36 +119,114 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
 
   public exprToHtml(str: string) {
     str = str.split(DATUM).join('');
-    return this.wrapStr(str, SPAN_OPEN, SPAN_CLOSE);
+    return this.wrapStr(str, SPAN_FIELD_OPEN, SPAN_CLOSE);
   };
 
   public htmlToExpr(html) {
-    html = html.split(SPAN_OPEN).join('');
+    html = html.split(SPAN_FIELD_OPEN).join('');
     html = html.split(SPAN_CLOSE).join('');
     return this.htmlDecode(this.wrapStr(html, DATUM, ''));
   };
 
   public tmplToHtml(str) {
-    let position = str.search(TMPL_DATUM);
+    const tokens = [];
+    let searchStr = str;
+    let position = searchStr.search(TMPL_RE);
 
     while (position !== -1) {
-      const next = position + TMPL_OPEN.length + DATUM.length;
-      const nextStr = str.substring(next);
-      const end = nextStr.search('}}');
-      str = str.substring(0, position) + nextStr.substring(0, end) +
-        nextStr.substring(end + 2);
-      position = str.search(TMPL_DATUM);
-    }
+      tokens.push({
+        type: 'literal',
+        str: searchStr.substring(0, position)
+      });
 
-    str = this.wrapStr(str, SPAN_OPEN, SPAN_CLOSE);
-    return str;
+      const next = position + TMPL_OPEN.length;
+      const nextStr = searchStr.substring(next);
+      const end = nextStr.search(TMPL_CLOSE);
+      if (nextStr.startsWith(SIGNALNAME)) {
+        tokens.push({
+          type: 'signal',
+          str: nextStr.substring(SIGNALNAME.length, end)
+        });
+      }
+      else if (nextStr.startsWith(DATUM)) {
+        tokens.push({
+          type: 'field',
+          str: nextStr.substring(DATUM.length, end)
+        });
+      }
+
+      searchStr = nextStr.substring(end + TMPL_CLOSE.length);
+      position = searchStr.search(TMPL_RE);
+    }
+    tokens.push({
+      type: 'literal',
+      str: searchStr
+    });
+
+    return this.wrapTokensHtml(tokens);
   };
 
   public htmlToTmpl(html) {
-    html = html.split(SPAN_OPEN).join('');
-    html = html.split(SPAN_CLOSE).join('');
-    return this.htmlDecode(this.wrapStr(html, TMPL_OPEN + DATUM, TMPL_CLOSE));
+    const tokens = [];
+    let searchStr = html;
+    let position = searchStr.search(SPAN_RE);
+
+    while (position !== -1) {
+      tokens.push({
+        type: 'literal',
+        str: searchStr.substring(0, position)
+      });
+
+      const next = position + SPAN_OPEN.length;
+      const nextStr = searchStr.substring(next);
+      const end = nextStr.search(SPAN_CLOSE);
+      if (nextStr.startsWith('signal')) {
+        tokens.push({
+          type: 'signal',
+          str: nextStr.substring(SPAN_SIGNAL_OPEN.length - SPAN_OPEN.length, end)
+        });
+      }
+      else if (nextStr.startsWith('field')) {
+        tokens.push({
+          type: 'field',
+          str: nextStr.substring(SPAN_FIELD_OPEN.length - SPAN_OPEN.length, end)
+        });
+      }
+
+      searchStr = nextStr.substring(end + SPAN_CLOSE.length);
+      position = searchStr.search(SPAN_RE);
+    }
+    tokens.push({
+      type: 'literal',
+      str: searchStr
+    });
+
+    return this.htmlDecode(this.wrapTokensTmpl(tokens));
   };
+
+  public wrapTokensHtml(tokens: any[]) {
+    return tokens.map(token => {
+      if (token.type === 'field') {
+        return SPAN_FIELD_OPEN + token.str + SPAN_CLOSE;
+      }
+      if (token.type === 'signal') {
+        return SPAN_SIGNAL_OPEN + token.str + SPAN_CLOSE;
+      }
+      return token.str;
+    }).join('');
+  }
+
+  public wrapTokensTmpl(tokens: any[]) {
+    return tokens.map(token => {
+      if (token.type === 'field') {
+        return TMPL_OPEN + DATUM + token.str + TMPL_CLOSE;
+      }
+      if (token.type === 'signal') {
+        return TMPL_OPEN + SIGNALNAME + token.str + TMPL_CLOSE;
+      }
+      return token.str;
+    }).join('');
+  }
 
   public wrapStr(str: string, pre: string, post: string) {
     const fields = this.props.fields;
@@ -193,7 +275,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     const dragging = props.dragging;
     const fieldName = dragging.fieldDef.name;
     const currHtml = this.state.html;
-    const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_OPEN + fieldName + SPAN_CLOSE;
+    const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE;
     if (!props.dsId && dragging.dsId && props.primType === 'marks') {
       props.setDsId(dragging.dsId);
     }
