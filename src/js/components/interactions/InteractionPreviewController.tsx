@@ -2,9 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {getScaleInfoForGroup} from '../../ctrl/demonstrations';
-import {Interaction, ScaleInfo, InteractionRecord} from '../../store/factory/Interaction';
+import {Interaction, ScaleInfo, InteractionRecord, InteractionInput} from '../../store/factory/Interaction';
 import {Dispatch} from 'redux';
-import {addInteraction} from '../../actions/interactionActions';
+import {addInteraction, setInput} from '../../actions/interactionActions';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
 import {selectInteraction, InspectorSelectedType} from '../../actions/inspectorActions';
@@ -29,6 +29,7 @@ interface StateProps {
 
 interface DispatchProps {
   addInteraction: (groupId: number) => number; // return newly created interaction
+  setInput: (input: InteractionInput, id: number) => void;
   selectInteraction: (id: number) => void;
 }
 
@@ -83,6 +84,9 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
       dispatch(addInteractionToGroup(addAction.meta, groupId));
       return addAction.meta;
     },
+    setInput: (input: InteractionInput, id: number) => {
+      dispatch(setInput(input, id));
+    },
     selectInteraction: (id: number) => {
       dispatch(selectInteraction(id));
     }
@@ -116,11 +120,19 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     const pointActive = Boolean(this.mainViewSignalValues['points_tuple']);
 
     const isDemonstrating = intervalActive || pointActive;
+    const isDemonstratingInterval = intervalActive || !pointActive;
+
+    const inputKeyboard = (window as any)._inputKeyboard;
 
     if (this.props.canDemonstrate && isDemonstrating) {
       if (!this.props.isInteractionSelected) {
         if (!this.props.interaction) {
           const interactionId = this.props.addInteraction(this.props.groupId);
+          this.props.setInput({
+            mouse: isDemonstratingInterval ? 'drag' : 'click',
+            keyboard: inputKeyboard ? inputKeyboard.keyboard : undefined,
+            _key: inputKeyboard ? inputKeyboard._key : undefined
+          }, interactionId)
           this.props.selectInteraction(interactionId);
         }
         else {

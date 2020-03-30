@@ -35,8 +35,12 @@ const groupListeners: {
 d3.select(window)
   .on('keydown', function() {
     const evt = d3.event;
+    (window as any)._inputKeyboard = {keyboard: evt.keyCode, _key: evt.key};
     handleHistory(evt);
     handleDelete(evt);
+  })
+  .on('keyup', function() {
+    (window as any)._inputKeyboard = null;
   })
   .on('beforeunload', beforeUnload);
 
