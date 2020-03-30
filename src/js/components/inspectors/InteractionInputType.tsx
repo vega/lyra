@@ -33,6 +33,10 @@ class BaseInteractionInputType extends React.Component<OwnProps & DispatchProps>
     }
   }
 
+  private clearKeyboard() {
+    this.props.setInput({...this.props.input, keyboard: undefined, _key: undefined}, this.props.interactionId);
+  }
+
   private onMouseValueChange(e):void {
     const value = e.target && e.target.value;
     if (value && value !== this.props.input.mouse) {
@@ -70,7 +74,8 @@ class BaseInteractionInputType extends React.Component<OwnProps & DispatchProps>
           <label htmlFor='key-input'>Keyboard</label>
           <div className='control'>
             <div>
-              <input className='key-input' name='key-input' type="text" onKeyDown={(e) => this.onKeyboardKeydown(e)} value={this.props.input._key ? this.props.input._key : 'None'} />
+              <input ref={element=>(element||{} as any).onsearch=() => this.clearKeyboard()}
+                className='key-input' name='key-input' type="search" onKeyDown={(e) => this.onKeyboardKeydown(e)} value={this.props.input._key ? this.props.input._key : 'None'} />
             </div>
           </div>
         </div>
