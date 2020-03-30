@@ -303,8 +303,19 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   constructor(props) {
     super(props);
 
+    const brush_x = listeners.getSignalInGroup(ctrl.view, this.props.groupName, 'brush_x')
+    console.log(brush_x);
+
+    // const intervalActive = (this.mainViewSignalValues['brush_x'] &&
+    //   this.mainViewSignalValues['brush_y'] &&
+    //   this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
+    //   this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1]);
+    // const pointActive = Boolean(this.mainViewSignalValues['points_tuple']);
+
+    // const isDemonstratingInterval = intervalActive || !pointActive;
+
     this.state = {
-      isDemonstratingInterval: false,
+      isDemonstratingInterval: this.props.interaction && this.props.interaction.selection ? this.props.interaction.selection.type === 'interval' : false,
       mainViewSignalValues: {}
     };
   }
@@ -319,6 +330,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState: OwnState) {
+    console.log('component update');
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
       this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
       this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));

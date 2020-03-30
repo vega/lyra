@@ -1,14 +1,12 @@
 import * as React from 'react';
-import {Map} from 'immutable';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {getScaleInfoForGroup} from '../../ctrl/demonstrations';
-import {Interaction, ApplicationRecord, ScaleInfo, SelectionRecord, InteractionRecord} from '../../store/factory/Interaction';
+import {Interaction, ScaleInfo, InteractionRecord} from '../../store/factory/Interaction';
 import {Dispatch} from 'redux';
-import {addInteraction, setSelection, setApplication} from '../../actions/interactionActions';
+import {addInteraction} from '../../actions/interactionActions';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
-import {MarkRecord} from '../../store/factory/Mark';
 import {selectInteraction, InspectorSelectedType} from '../../actions/inspectorActions';
 import {EncodingStateRecord} from '../../store/factory/Inspector';
 import {Icon} from '../Icon';
@@ -134,8 +132,6 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
       }
     }
   }
-
-  private timeout;
 
   private onMainViewPointSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
