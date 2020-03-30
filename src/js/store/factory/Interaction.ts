@@ -5,20 +5,6 @@ import {ScaleSimpleType} from '../../ctrl/demonstrations';
 import React from 'react';
 import {LyraMark} from './Mark';
 import {LyraScale} from './Scale';
-
-export interface PropertyValues {
-  size: number,
-  opacity: number,
-  color: string,
-}
-export interface LyraInteraction {
-  id: number;
-  name: string;
-  groupId: number;
-  selection: SelectionRecord;
-  application: ApplicationRecord;
-};
-
 export interface ScaleInfo {
   xScaleName: string;
   yScaleName: string;
@@ -123,10 +109,27 @@ export type TransformApplicationRecord = RecordOf<LyraTransformApplication>;
 
 export type ApplicationRecord = MarkApplicationRecord | ScaleApplicationRecord | TransformApplicationRecord;
 
+export interface InteractionInput {
+  mouse: 'click' | 'drag' | 'hover';
+  keyboard?: number; // keycode
+  _key?: string; // human readable key name
+}
+
+export interface LyraInteraction {
+  id: number;
+  name: string;
+  groupId: number;
+  input: InteractionInput;
+  selection: SelectionRecord;
+  application: ApplicationRecord;
+};
+
+
 export const Interaction = Record<LyraInteraction>({
   id: null,
   name: null,
   groupId: null,
+  input: null,
   selection: null,
   application: null
 }, 'LyraInteraction');

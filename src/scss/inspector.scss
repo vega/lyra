@@ -216,3 +216,8 @@ $long-label-width: $label-width + 10px;
     padding: $inner-padding;
   }
 }
+
+.key-input {
+  color: transparent;
+  text-shadow: 0 0 0 $grey-bg;
+}

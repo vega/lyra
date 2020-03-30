@@ -4,10 +4,10 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import { throttle } from "throttle-debounce";
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication} from '../../store/factory/Interaction';
+import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {Dispatch} from 'redux';
-import {setSelection, setApplication} from '../../actions/interactionActions';
+import {setInput, setSelection, setApplication} from '../../actions/interactionActions';
 import {FormInputProperty} from './FormInputProperty';
 import {getScaleInfoForGroup, ScaleSimpleType} from '../../ctrl/demonstrations';
 import {DatasetRecord, ColumnRecord} from '../../store/factory/Dataset';
@@ -26,6 +26,7 @@ import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import {NumericValueRef, StringValueRef} from 'vega';
 import * as vega from 'vega';
 import {Mark} from 'vega-lite/src/mark';
+import {InteractionInputType} from './InteractionInputType';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -35,12 +36,8 @@ interface OwnProps {
   primId: number;
 }
 
-interface OwnState {
-  isDemonstratingInterval: boolean,
-  mainViewSignalValues: {[name: string]: any}, // name -> value
-}
-
 interface DispatchProps {
+  setInput: (input: InteractionInput, id: number) => void;
   setSelection: (record: SelectionRecord, id: number) => void;
   setApplication: (record: ApplicationRecord, id: number) => void;
   startDragging: (d: DraggingStateRecord) => void;
@@ -58,10 +55,9 @@ interface StateProps {
   marksOfGroups: Map<number, MarkRecord[]>; // map of group ids to array of mark specs
   fieldsOfGroup: string[];
   canDemonstrate: boolean;
-  selectionPreviewsPoint: SelectionRecord[];
-  selectionPreviewsInterval: SelectionRecord[];
-  applicationPreviewsPoint: ApplicationRecord[];
-  applicationPreviewsInterval: ApplicationRecord[];
+  selectionPreviews: SelectionRecord[];
+  applicationPreviews: ApplicationRecord[];
+  isDemonstratingInterval: boolean;
   dragging: SignalDraggingStateRecord;
 }
 
@@ -103,12 +99,12 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
   const canDemonstrate = Boolean(!isParsing && ctrl.view && (scaleInfo.xScaleName && scaleInfo.xFieldName || scaleInfo.yScaleName && scaleInfo.yFieldName));
 
+  const isDemonstratingInterval = interaction.input ? interaction.input.mouse === 'drag' : null;
+
   const {
-    selectionPreviewsPoint,
-    selectionPreviewsInterval,
-    applicationPreviewsPoint,
-    applicationPreviewsInterval,
-  } = generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction);
+    selectionPreviews,
+    applicationPreviews,
+  } = generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction, isDemonstratingInterval);
 
   const draggingSignal = state.getIn(['inspector', 'dragging']) as SignalDraggingStateRecord;
   const dragging = draggingSignal && draggingSignal.signal ? draggingSignal : null;
@@ -123,29 +119,31 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     marksOfGroups,
     fieldsOfGroup,
     canDemonstrate,
-    selectionPreviewsPoint,
-    selectionPreviewsInterval,
-    applicationPreviewsPoint,
-    applicationPreviewsInterval,
+    selectionPreviews,
+    applicationPreviews,
+    isDemonstratingInterval,
     dragging
   };
 }
 
-const actionCreators = {setSelection, setApplication, startDragging, stopDragging, setMarkVisual};
+const actionCreators = {setInput, setSelection, setApplication, startDragging, stopDragging, setMarkVisual};
 
-function generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction): {
-  selectionPreviewsInterval: SelectionRecord[],
-  selectionPreviewsPoint: SelectionRecord[],
-  applicationPreviewsInterval: ApplicationRecord[],
-  applicationPreviewsPoint: ApplicationRecord[]
+function generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction, isDemonstratingInterval): {
+  selectionPreviews: SelectionRecord[],
+  applicationPreviews: ApplicationRecord[]
 } {
+  if (isDemonstratingInterval === null) {
+    return {
+      selectionPreviews: [],
+      applicationPreviews: []
+    }
+  }
+
   const marksOfGroup = marksOfGroups.get(groupId);
 
-  return {
-    selectionPreviewsPoint: generateSelectionPreviews(marksOfGroup, scaleInfo, fieldsOfGroup, interaction, false),
-    selectionPreviewsInterval: generateSelectionPreviews(marksOfGroup, scaleInfo, fieldsOfGroup, interaction, true),
-    applicationPreviewsPoint: generateApplicationPreviews(groupId, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, false),
-    applicationPreviewsInterval: generateApplicationPreviews(groupId, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, true)
+  return { // TODO maybe memoize these calls or something? also memoize the signal setters
+    selectionPreviews: generateSelectionPreviews(marksOfGroup, scaleInfo, fieldsOfGroup, interaction, isDemonstratingInterval),
+    applicationPreviews: generateApplicationPreviews(groupId, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, isDemonstratingInterval)
   };
 };
 
@@ -298,27 +296,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
   return defs;
 }
 
-class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
-
-  constructor(props) {
-    super(props);
-
-    const brush_x = listeners.getSignalInGroup(ctrl.view, this.props.groupName, 'brush_x')
-    console.log(brush_x);
-
-    // const intervalActive = (this.mainViewSignalValues['brush_x'] &&
-    //   this.mainViewSignalValues['brush_y'] &&
-    //   this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
-    //   this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1]);
-    // const pointActive = Boolean(this.mainViewSignalValues['points_tuple']);
-
-    // const isDemonstratingInterval = intervalActive || !pointActive;
-
-    this.state = {
-      isDemonstratingInterval: this.props.interaction && this.props.interaction.selection ? this.props.interaction.selection.type === 'interval' : false,
-      mainViewSignalValues: {}
-    };
-  }
+class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
 
   public componentDidMount() {
     this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
@@ -329,8 +307,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
   }
 
-  public componentDidUpdate(prevProps: OwnProps & StateProps, prevState: OwnState) {
-    console.log('component update');
+  public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
       this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
       this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
@@ -341,41 +318,22 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     }
   }
 
-
-  private getSelectionPreviews() {
-    if (this.state.isDemonstratingInterval) {
-      return this.props.selectionPreviewsInterval;
-    }
-    else {
-      return this.props.selectionPreviewsPoint;
-    }
-  }
-
-  private getApplicationPreviews() {
-    if (this.state.isDemonstratingInterval) {
-      return this.props.applicationPreviewsInterval;
-    }
-    else {
-      return this.props.applicationPreviewsPoint;
-    }
-  }
-
   private previewRefs = {}; // id -> ref
   private mainViewSignalValues = {}; // name -> value
 
   private updatePreviewSignals(name, value) {
-    this.getSelectionPreviews().forEach(preview => {
+    this.props.selectionPreviews.forEach(preview => {
       if (this.previewRefs[preview.id] && this.previewRefs[preview.id].current) {
         this.previewRefs[preview.id].current.setPreviewSignal(name, value);
       }
     });
-    this.getApplicationPreviews().forEach(preview => {
+    this.props.applicationPreviews.forEach(preview => {
       if (this.previewRefs[preview.id] && this.previewRefs[preview.id].current) {
         this.previewRefs[preview.id].current.setPreviewSignal(name, value);
       }
     });
   }
-  private updateIsDemonstrating = debounce(250, () => {
+  private updateIsDemonstrating = () => {
     const intervalActive = (this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&
       this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
@@ -384,12 +342,22 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
     const isDemonstratingInterval = intervalActive || !pointActive;
 
-    if (this.state.isDemonstratingInterval !== isDemonstratingInterval) {
-      this.setState({
-        isDemonstratingInterval
-      });
+    if (this.props.isDemonstratingInterval !== isDemonstratingInterval) {
+      if (!this.props.interaction.input) {
+        this.props.setInput({
+          mouse: isDemonstratingInterval ? 'drag' : 'click'
+        }, this.props.primId);
+      }
+      else {
+        if (!this.props.interaction.selection && !this.props.interaction.application) {
+          this.props.setInput({
+            mouse: isDemonstratingInterval ? 'drag' : 'click',
+            keyboard: this.props.interaction.input.keyboard
+          }, this.props.primId);
+        }
+      }
     }
-  });
+  };
 
   private onMainViewPointSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
@@ -494,6 +462,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     // TODO (jzong)
   }
   private getSignalBubbles(scaleInfo, isDemonstratingInterval) {
+    if (isDemonstratingInterval === null) return null;
     const signals = [];
 
     const handleDragStart = (evt) => {
@@ -563,14 +532,13 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
     return (
       <div>
-
-
+        <InteractionInputType interactionId={interaction.id} input={interaction.input}></InteractionInputType>
         <div className={"preview-controller"}>
           <div className='property-group'>
             <h3>Selections</h3>
             <div className="preview-scroll">
               {
-                this.getSelectionPreviews().map((preview) => {
+                this.props.selectionPreviews.map((preview) => {
                   if (!this.previewRefs[preview.id]) {
                     this.previewRefs[preview.id] = React.createRef();
                   }
@@ -597,7 +565,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
             <h3>Applications</h3>
             <div className="preview-scroll">
               {
-                this.getApplicationPreviews().map((preview) => {
+                this.props.applicationPreviews.map((preview) => {
                   if (!this.previewRefs[preview.id]) {
                     this.previewRefs[preview.id] = React.createRef();
                   }
@@ -628,7 +596,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         <div className="property-group">
           <h3>Signals</h3>
           <div className='signals-container'>
-            {this.getSignalBubbles(this.props.scaleInfo, this.state.isDemonstratingInterval)}
+            {this.getSignalBubbles(this.props.scaleInfo, this.props.isDemonstratingInterval)}
           </div>
         </div>
 

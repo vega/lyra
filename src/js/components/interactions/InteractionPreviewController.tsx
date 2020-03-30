@@ -32,9 +32,6 @@ interface DispatchProps {
   selectInteraction: (id: number) => void;
 }
 
-interface OwnState {
-}
-
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const scaleInfo: ScaleInfo = getScaleInfoForGroup(state, ownProps.groupId);
 
@@ -92,13 +89,13 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   };
 }
 
-class InteractionPreviewController extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
+class InteractionPreviewController extends React.Component<OwnProps & StateProps & DispatchProps> {
 
   constructor(props) {
     super(props);
   }
 
-  public componentDidUpdate(prevProps: StateProps, prevState: OwnState) {
+  public componentDidUpdate(prevProps: StateProps, prevState) {
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
       this.restoreSignalValues(this.props.groupName);
       this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));

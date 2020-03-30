@@ -1,5 +1,5 @@
 import {createStandardAction} from 'typesafe-actions';
-import {InteractionRecord, SelectionRecord, ApplicationRecord} from '../store/factory/Interaction';
+import {InteractionRecord, SelectionRecord, ApplicationRecord, InteractionInput} from '../store/factory/Interaction';
 import {string} from 'prop-types';
 
 const counter  = require('../util/counter');
@@ -16,6 +16,7 @@ export const addInteraction = createStandardAction('ADD_INTERACTION').map((recor
   }
 });
 
+export const setInput = createStandardAction('SET_INPUT')<InteractionInput, number>();
 export const setSelection = createStandardAction('SET_SELECTION')<SelectionRecord, number>();
 
 export const setApplication = createStandardAction('SET_APPLICATION')<ApplicationRecord, number>();

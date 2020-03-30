@@ -14,6 +14,10 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
     return state.set(String(id), action.payload);
   }
 
+  if (action.type === getType(interactionActions.setInput)) {
+    return state.setIn([String(id), 'input'], action.payload);
+  }
+
   if (action.type === getType(interactionActions.setSelection)) {
     return state.setIn([String(id), 'selection'], action.payload);
   }
