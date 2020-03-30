@@ -344,15 +344,18 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
     if (this.props.isDemonstratingInterval !== isDemonstratingInterval) {
       if (!this.props.interaction.input) {
+        const inputKeyboard = (window as any)._inputKeyboard;
         this.props.setInput({
-          mouse: isDemonstratingInterval ? 'drag' : 'click'
+          mouse: isDemonstratingInterval ? 'drag' : 'click',
+          keyboard: inputKeyboard ? inputKeyboard.keyboard : undefined,
+          _key: inputKeyboard ? inputKeyboard._key : undefined
         }, this.props.primId);
       }
       else {
         if (!this.props.interaction.selection && !this.props.interaction.application) {
           this.props.setInput({
+            ...this.props.interaction.input,
             mouse: isDemonstratingInterval ? 'drag' : 'click',
-            keyboard: this.props.interaction.input.keyboard
           }, this.props.primId);
         }
       }
