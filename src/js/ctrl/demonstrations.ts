@@ -112,7 +112,7 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
                 "value": false, // TODO(jzong) i disagree with this default behavior in vega
                 "on": [
                   {
-                    "events": [{"source": "scope", "type": "click"}],
+                    "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
                     "update": "event.shiftKey" // TODO(jzong) incorporate this into the event key customization logic
                   },
                   {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
