@@ -9,7 +9,7 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {demonstrationDatasets, demonstrations, addSelectionToScene, addApplicationToScene} from './demonstrations';
+import {demonstrationDatasets, demonstrations, addSelectionToScene, addApplicationToScene, addDatasetsToScene} from './demonstrations';
 import manipulators from './manipulators';
 import exportName from '../util/exportName';
 
@@ -61,6 +61,7 @@ exporter.interactions = function(state: State, spec) {
       // if (valid) {
         const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
         const groupName = exportName(group.name);
+        spec = addDatasetsToScene(spec, groupName, interaction.id);
         spec = addSelectionToScene(spec, groupName, interaction.id, interaction.input, interaction.selection);
         spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, interaction.application);
       // }

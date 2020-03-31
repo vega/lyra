@@ -6,6 +6,17 @@ import {MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
 import {ScaleInfo, ApplicationRecord, SelectionRecord, PointSelectionRecord, MarkApplicationRecord, ScaleApplicationRecord, TransformApplicationRecord, IntervalSelectionRecord, InteractionInput} from "../store/factory/Interaction";
 
+export function addDatasetsToScene(sceneSpec: Spec, groupName: string, interactionId: number) {
+  const sceneUpdated = duplicate(sceneSpec);
+  const data = sceneUpdated.data || (sceneUpdated.data = []);
+  sceneUpdated.data = [...data,
+    {"name": `brush_store_${groupName}_${interactionId}`},
+    {"name": `grid_store_${groupName}_${interactionId}`},
+    {"name": `points_store_${groupName}_${interactionId}`},
+  ];
+  return sceneUpdated;
+}
+
 export function addSelectionToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, selection: SelectionRecord): Spec {
   switch (selection.type) {
     case 'point':
@@ -13,41 +24,49 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
         const field = selection.field;
         switch (selection.ptype) {
           case 'single':
-            return applySignals(sceneSpec, groupName, [{
-              "name": `points_tuple`,
-              "on": [
+            return applySignals(sceneSpec, groupName, [
+                {"name": `points_${interactionId}`, "update": `vlSelectionResolve(\"points_store_${groupName}_${interactionId}\")`},
                 {
-                  "events": [{"source": "scope", "type": input ? input.mouse : "click", "filter": "true"}],
-                  "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
-                  "force": true
+                  "name": `points_tuple_${interactionId}`,
+                  "on": [
+                    {
+                      "events": [{"source": "scope", "type": input ? input.mouse : "click", "filter": "true"}],
+                      "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
+                      "force": true
+                    },
+                    {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+                  ]
                 },
-                {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-                ]},
                 {
-                  "name": "points_tuple_fields",
+                  "name": `points_tuple_fields_${interactionId}`,
                   "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
-            }]);
+                },
+                {
+                  "name": `points_modify_${interactionId}`,
+                  "update": `modify(\"points_store_${groupName}_${interactionId}\", points_tuple_${interactionId}, true, null)`
+                }
+              ]);
           case 'multi':
             return applySignals(sceneSpec, groupName, [{
-              "name": `points_tuple`,
+              "name": `points_tuple_${interactionId}`,
               "on": [{
                   "events": [{"source": "scope", "type": "click"}],
-                  "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
+                  "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
                   "force": true
                 },
                 {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
                 ]
               },
               {
-                "name": "points_tuple_fields",
+                "name": `points_tuple_fields_${interactionId}`,
                 "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
               },
               {
-                "name": "points_toggle",
+                "name": `points_toggle_${interactionId}`,
                 "value": false,
                 "on": [{
                     "events": [{"source": "scope", "type": "click"}],
-                    "update": "event.shiftKey"
+                    "update": "event.shiftKey" // TODO
                   },
                   {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
               ]}
@@ -87,7 +106,7 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
             [application.propertyName]: [
               {
                 "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
-                                                  `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
+                                                  `!(length(data(\"points_store_${groupName}_${interactionId}\"))) || (vlSelectionTest(\"points_store_${groupName}_${interactionId}\", datum))`,
                 "value": "" // we expect this to be overwritten with the mark's value
               },
               {"value": defaultValue}
@@ -135,7 +154,7 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
         "transform": [{
           "type": "filter",
           "expr": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
-          `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
+          `!(length(data(\"points_store_${groupName}_${interactionId}\"))) || (vlSelectionTest(\"points_store_${groupName}_${interactionId}\", datum))`,
         }, ...transform]
       });
 

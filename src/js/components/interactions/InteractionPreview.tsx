@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {View, parse, Spec} from 'vega';
 import {ApplicationRecord, SelectionRecord, TransformApplicationRecord, InteractionInput} from '../../store/factory/Interaction';
-import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview} from '../../ctrl/demonstrations';
+import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview, addDatasetsToScene} from '../../ctrl/demonstrations';
 
 const listeners = require('../../ctrl/listeners');
 const ctrl = require('../../ctrl');
@@ -27,7 +27,8 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
 
   private previewToSpec(preview: SelectionRecord | ApplicationRecord): Spec {
     const groupName = (preview as TransformApplicationRecord).targetGroupName || this.props.groupName;
-    const spec = cleanSpecForPreview(ctrl.export(false), groupName);
+    let spec = cleanSpecForPreview(ctrl.export(false), groupName);
+    spec = addDatasetsToScene(spec, this.props.groupName, this.props.interactionId);
 
     switch (preview.type) {
       case 'point':
@@ -38,8 +39,6 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
       case 'transform':
         return addApplicationToScene(spec, this.props.groupName, this.props.interactionId, this.props.input, preview as ApplicationRecord);
     }
-    // console.warn('expected switch to be exhaustive');
-    return spec;
   }
 
   private view;
