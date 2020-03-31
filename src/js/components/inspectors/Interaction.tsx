@@ -21,6 +21,7 @@ import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import {NumericValueRef, StringValueRef} from 'vega';
 import * as vega from 'vega';
 import {InteractionInputType} from './InteractionInputType';
+import { debounce } from "throttle-debounce";
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -331,7 +332,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       }
     });
   }
-  private updateIsDemonstrating = () => {
+  private updateIsDemonstrating = debounce(250, () => { // debounce is important
     const intervalActive = (this.mainViewSignalValues['brush_x'] &&
       this.mainViewSignalValues['brush_y'] &&
       this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
@@ -358,7 +359,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         }
       }
     }
-  };
+  });
 
   private onMainViewPointSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
