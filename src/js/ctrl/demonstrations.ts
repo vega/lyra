@@ -4,9 +4,16 @@ import {State} from "../store";
 import duplicate from "../util/duplicate";
 import {MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
-import {ScaleInfo, ApplicationRecord, SelectionRecord, PointSelectionRecord, MarkApplicationRecord, ScaleApplicationRecord, TransformApplicationRecord, IntervalSelectionRecord} from "../store/factory/Interaction";
+import {ScaleInfo, ApplicationRecord, SelectionRecord, PointSelectionRecord, MarkApplicationRecord, ScaleApplicationRecord, TransformApplicationRecord, IntervalSelectionRecord, InteractionInput} from "../store/factory/Interaction";
 
-export function addSelectionToScene(sceneSpec: Spec, groupName: string, selection: SelectionRecord): Spec {
+function inputToEventType(input: InteractionInput) {
+  switch (input.mouse) {
+    case 'click': return 'click';
+    case 'hover': return 'mouseover';
+    case 'drag': return 'mousemove';
+  }
+}
+export function addSelectionToScene(sceneSpec: Spec, groupName: string, input: InteractionInput, selection: SelectionRecord): Spec {
   switch (selection.type) {
     case 'point':
         selection = selection as PointSelectionRecord;
@@ -17,7 +24,7 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, selectio
               "name": "points_tuple",
               "on": [
                 {
-                  "events": [{"source": "scope", "type": "click"}],
+                  "events": [{"source": "scope", "type": inputToEventType(input), "filter": "true"}],
                   "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
                   "force": true
                 },
@@ -73,14 +80,13 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, selectio
   }
 }
 
-export function addApplicationToScene(sceneSpec: Spec, groupName: string, application: ApplicationRecord): Spec {
-  let isDemonstratingInterval;
+export function addApplicationToScene(sceneSpec: Spec, groupName: string, input: InteractionInput, application: ApplicationRecord): Spec {
+  const isDemonstratingInterval = input.mouse === 'drag';
   let targetMarkName;
   switch (application.type) {
     case 'mark':
       application = application as MarkApplicationRecord;
       targetMarkName = application.targetMarkName;
-      isDemonstratingInterval = application.isDemonstratingInterval;
       const defaultValue = application.defaultValue;
       return applyMarkProperties(sceneSpec, groupName, targetMarkName, {
         "encode": {
@@ -89,7 +95,7 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, applic
               {
                 "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
                                                   `!(length(data(\"points_store_${groupName}\"))) || (vlSelectionTest(\"points_store_${groupName}\", datum))`,
-                "value": "" // TODO right now, we expect this to be overwritten with the mark's value
+                "value": "" // we expect this to be overwritten with the mark's value
               },
               {"value": defaultValue}
             ],
@@ -120,7 +126,6 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, applic
       const datasetName = application.datasetName;
       const targetGroupName = application.targetGroupName;
       targetMarkName = application.targetMarkName;
-      isDemonstratingInterval = application.isDemonstratingInterval;
 
       const newDatasetName = datasetName + "_filter_" + targetGroupName;
 

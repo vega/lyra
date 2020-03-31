@@ -1,10 +1,5 @@
 import {Map, Record, RecordOf} from 'immutable';
-import InteractionPreview from '../../components/interactions/InteractionPreview';
-import {Signal} from 'vega';
 import {ScaleSimpleType} from '../../ctrl/demonstrations';
-import React from 'react';
-import {LyraMark} from './Mark';
-import {LyraScale} from './Scale';
 export interface ScaleInfo {
   xScaleName: string;
   yScaleName: string;
@@ -56,7 +51,6 @@ export type SelectionRecord = PointSelectionRecord | IntervalSelectionRecord;
 
 export type LyraMarkApplication = {
   targetMarkName: string; // which mark does this application affect?
-  isDemonstratingInterval: boolean; // true for interval, false for point
   propertyName: string; // which property (e.g. fill, opacity, size)
   // selectedValue: any; // value of property when mark is selected /// TODO(jzong): currently using the existing mark value
   defaultValue: any; // value of property otherwise
@@ -67,7 +61,6 @@ export const MarkApplication = Record<LyraMarkApplication>({
   id: null,
   label: null,
   targetMarkName: null,
-  isDemonstratingInterval: null,
   propertyName: null,
   // selectedValue: null,
   defaultValue: null
@@ -92,7 +85,6 @@ export type LyraTransformApplication = {
   targetGroupName: string; // which group does this application affect? (e.g. for filters, different from parent group)
   datasetName: string;
   targetMarkName: string,
-  isDemonstratingInterval: boolean; // true for interval, false for point
 } & LyraInteractionPreview;
 
 export const TransformApplication = Record<LyraTransformApplication>({
@@ -102,7 +94,6 @@ export const TransformApplication = Record<LyraTransformApplication>({
   targetGroupName: null,
   datasetName: null,
   targetMarkName: null,
-  isDemonstratingInterval: null
 }, 'LyraTransformApplication');
 
 export type TransformApplicationRecord = RecordOf<LyraTransformApplication>;

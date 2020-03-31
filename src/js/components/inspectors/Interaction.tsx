@@ -2,30 +2,24 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import { throttle } from "throttle-debounce";
 import {State} from '../../store';
 import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
-import {Dispatch} from 'redux';
 import {setInput, setSelection, setApplication} from '../../actions/interactionActions';
-import {FormInputProperty} from './FormInputProperty';
 import {getScaleInfoForGroup, ScaleSimpleType} from '../../ctrl/demonstrations';
-import {DatasetRecord, ColumnRecord} from '../../store/factory/Dataset';
+import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
 import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
 import exportName from '../../util/exportName';
-import {Icon} from '../Icon';
 import InteractionPreview from '../interactions/InteractionPreview';
-import {debounce} from 'vega';
 import {Map} from 'immutable';
-import {FieldDraggingState, DraggingStateRecord, SignalDraggingState, SignalDraggingStateRecord} from '../../store/factory/Inspector';
+import {DraggingStateRecord, SignalDraggingState, SignalDraggingStateRecord} from '../../store/factory/Inspector';
 import {startDragging, stopDragging} from '../../actions/inspectorActions';
 import {setMarkVisual} from '../../actions/markActions';
 import sg from '../../ctrl/signals';
 import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import {NumericValueRef, StringValueRef} from 'vega';
 import * as vega from 'vega';
-import {Mark} from 'vega-lite/src/mark';
 import {InteractionInputType} from './InteractionInputType';
 
 const ctrl = require('../../ctrl');
@@ -239,7 +233,6 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
       id: "color_" + isDemonstratingInterval,
       label: "Color",
       targetMarkName: exportName(mark.name),
-      isDemonstratingInterval: isDemonstratingInterval,
       propertyName: "fill",
       defaultValue: "#797979"
     }));
@@ -247,7 +240,6 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
       id: "opacity_" + isDemonstratingInterval,
       label: "Opacity",
       targetMarkName: exportName(mark.name),
-      isDemonstratingInterval: isDemonstratingInterval,
       propertyName: "opacity",
       defaultValue: "0.2"
     }));
@@ -256,7 +248,6 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
         id: "size_" + isDemonstratingInterval,
         label: "Size",
         targetMarkName: exportName(mark.name),
-        isDemonstratingInterval: isDemonstratingInterval,
         propertyName: "size",
         defaultValue: 30
       }));
@@ -288,7 +279,6 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
         targetGroupName,
         datasetName,
         targetMarkName,
-        isDemonstratingInterval: isDemonstratingInterval
       }));
     }
   });
@@ -478,7 +468,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       ctrl.update();
     }
 
-    const handleDragEnd = (evt) => {
+    const handleDragEnd = () => {
       const sel = sg.get(SELECTED);
       const cell = sg.get(CELL);
       const dropped = tupleid(sel) && tupleid(cell);
@@ -552,6 +542,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                       <InteractionPreview ref={this.previewRefs[preview.id]}
                         id={`preview-${preview.id}`}
                         groupName={this.props.groupName}
+                        input={this.props.interaction.input}
                         preview={preview}/>
                     </div>
                   )
@@ -579,6 +570,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                         <InteractionPreview ref={this.previewRefs[preview.id]}
                           id={`preview-${preview.id}`}
                           groupName={this.props.groupName}
+                          input={this.props.interaction.input}
                           preview={preview}/>
                       </div>
                     </div>

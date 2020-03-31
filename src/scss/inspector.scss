@@ -117,6 +117,7 @@ $long-label-width: $label-width + 10px;
   input[type=range] { width: 70px; }
 
   input[type=number],
+  input[type=search],
   input[type=text] {
     width: 75px;
   }

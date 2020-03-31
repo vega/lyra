@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {View, parse, Spec} from 'vega';
-import {ApplicationRecord, SelectionRecord, TransformApplicationRecord} from '../../store/factory/Interaction';
+import {ApplicationRecord, SelectionRecord, TransformApplicationRecord, InteractionInput} from '../../store/factory/Interaction';
 import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview} from '../../ctrl/demonstrations';
 
 const listeners = require('../../ctrl/listeners');
@@ -9,6 +9,7 @@ const ctrl = require('../../ctrl');
 interface OwnProps {
   id: string,
   groupName: string, // name of group mark (view) this preview is attached to,
+  input: InteractionInput,
   preview: SelectionRecord | ApplicationRecord
 }
 interface OwnState {
@@ -24,18 +25,17 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   private height = 60; //
 
   private previewToSpec(preview: SelectionRecord | ApplicationRecord): Spec {
-    // const spec = ctrl.export(false, true);
     const groupName = (preview as TransformApplicationRecord).targetGroupName || this.props.groupName;
-    const spec = cleanSpecForPreview(ctrl.export(false, true), groupName);
+    const spec = cleanSpecForPreview(ctrl.export(false), groupName);
 
     switch (preview.type) {
       case 'point':
       case 'interval':
-        return addSelectionToScene(spec, this.props.groupName, preview as SelectionRecord);
+        return addSelectionToScene(spec, this.props.groupName, this.props.input, preview as SelectionRecord);
       case 'mark':
       case 'scale':
       case 'transform':
-        return addApplicationToScene(spec, this.props.groupName, preview as ApplicationRecord);
+        return addApplicationToScene(spec, this.props.groupName, this.props.input, preview as ApplicationRecord);
     }
     // console.warn('expected switch to be exhaustive');
     return spec;
