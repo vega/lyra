@@ -64,6 +64,7 @@ exporter.interactions = function(state: State, spec) {
       spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, interaction.application);
     }
   });
+  console.log(spec);
   return spec;
 }
 

@@ -122,7 +122,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
     const isDemonstrating = intervalActive || pointActive;
     const isDemonstratingInterval = intervalActive || !pointActive;
 
-    const inputKeyboard = (window as any)._inputKeyboard;
+    const inputKeyboard: InteractionInput = (window as any)._inputKeyboard;
 
     if (this.props.canDemonstrate && isDemonstrating) {
       if (!this.props.isInteractionSelected) {
@@ -130,7 +130,7 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
           const interactionId = this.props.addInteraction(this.props.groupId);
           this.props.setInput({
             mouse: isDemonstratingInterval ? 'drag' : 'click',
-            keyboard: inputKeyboard ? inputKeyboard.keyboard : undefined,
+            keycode: inputKeyboard ? inputKeyboard.keycode : undefined,
             _key: inputKeyboard ? inputKeyboard._key : undefined
           }, interactionId)
           this.props.selectInteraction(interactionId);

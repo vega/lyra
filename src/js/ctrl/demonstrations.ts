@@ -22,13 +22,27 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
   const isDemonstratingInterval = input.mouse === 'drag';
   if (!isDemonstratingInterval) {
     return applySignals(sceneSpec, groupName, [
+      {
+        "name": `key_modifier_${interactionId}`,
+        "value": input.keycode ? false : true,
+        "on": [
+          {
+            "events": [{"source": "window", "type": "keydown"}],
+            "update": input.keycode ? `event.keyCode === ${input.keycode}` : "true"
+          },
+          {
+            "events": [{"source": "window", "type": "keyup"}],
+            "update": input.keycode ? "false" : "true"
+          }
+        ]
+      },
       {"name": `points_${interactionId}`, "update": `vlSelectionResolve(\"points_store_${groupName}_${interactionId}\")`},
       {
         "name": `points_tuple_${interactionId}`,
         "on": [
           {
-            "events": [{"source": "scope", "type": input ? input.mouse : "click", "filter": "true"}],
-            "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : null`,
+            "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+            "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_${interactionId} ) : null`,
             "force": true
           },
           {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
@@ -53,6 +67,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
 
 
 export function addSelectionToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, selection: SelectionRecord): Spec {
+  console.log(input.keycode);
   switch (selection.type) {
     case 'point':
         selection = selection as PointSelectionRecord;
@@ -60,13 +75,12 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
         switch (selection.ptype) {
           case 'single':
             return applySignals(sceneSpec, groupName, [
-                // {"name": `points_${interactionId}`, "update": `vlSelectionResolve(\"points_store_${groupName}_${interactionId}\")`},
                 {
                   "name": `points_tuple_${interactionId}`,
                   "on": [
                     {
-                      "events": [{"source": "scope", "type": input ? input.mouse : "click", "filter": "true"}],
-                      "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
+                      "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+                      "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : points_tuple_${interactionId} ) : null`,
                       "force": true
                     },
                     {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
@@ -76,10 +90,6 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
                   "name": `points_tuple_fields_${interactionId}`,
                   "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
                 },
-                // {
-                //   "name": `points_modify_${interactionId}`,
-                //   "update": `modify(\"points_store_${groupName}_${interactionId}\", points_tuple_${interactionId}, true, null)`
-                // }
               ]);
           case 'multi':
             return applySignals(sceneSpec, groupName, [
@@ -87,8 +97,8 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
                 "name": `points_tuple_${interactionId}`,
                 "on": [
                   {
-                    "events": [{"source": "scope", "type": input ? input.mouse : "click", "filter": "true"}],
-                    "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
+                    "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+                    "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : points_tuple_${interactionId} ) : null`,
                     "force": true
                   },
                   {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
@@ -104,7 +114,7 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
                 "on": [
                   {
                     "events": [{"source": "scope", "type": "click"}],
-                    "update": "event.shiftKey"
+                    "update": "event.shiftKey" // TODO(jzong) incorporate this into the event key customization logic
                   },
                   {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
                 ]

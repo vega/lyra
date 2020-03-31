@@ -21,8 +21,8 @@ class BaseInteractionInputType extends React.Component<OwnProps & DispatchProps>
   private onKeyboardKeydown(e) {
     const keycode = e.which || e.keyCode;
     const key = keycode === 32 ? 'Space' : e.key;
-    if (keycode !== this.props.input.keyboard) {
-      this.props.setInput({...this.props.input, keyboard: keycode, _key: key}, this.props.interactionId);
+    if (keycode !== this.props.input.keycode) {
+      this.props.setInput({...this.props.input, keycode: keycode, _key: key}, this.props.interactionId);
     }
     if (keycode === 13) {
       // prevent Enter interfering with clearKeyboard
@@ -32,7 +32,7 @@ class BaseInteractionInputType extends React.Component<OwnProps & DispatchProps>
   }
 
   private clearKeyboard() {
-    this.props.setInput({...this.props.input, keyboard: undefined, _key: undefined}, this.props.interactionId);
+    this.props.setInput({...this.props.input, keycode: undefined, _key: undefined}, this.props.interactionId);
   }
 
   private onMouseValueChange(e) {
