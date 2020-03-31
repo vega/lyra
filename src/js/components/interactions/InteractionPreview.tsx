@@ -8,6 +8,7 @@ const ctrl = require('../../ctrl');
 
 interface OwnProps {
   id: string,
+  interactionId: number,
   groupName: string, // name of group mark (view) this preview is attached to,
   input: InteractionInput,
   preview: SelectionRecord | ApplicationRecord
@@ -31,11 +32,11 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     switch (preview.type) {
       case 'point':
       case 'interval':
-        return addSelectionToScene(spec, this.props.groupName, this.props.input, preview as SelectionRecord);
+        return addSelectionToScene(spec, this.props.groupName, this.props.interactionId, this.props.input, preview as SelectionRecord);
       case 'mark':
       case 'scale':
       case 'transform':
-        return addApplicationToScene(spec, this.props.groupName, this.props.input, preview as ApplicationRecord);
+        return addApplicationToScene(spec, this.props.groupName, this.props.interactionId, this.props.input, preview as ApplicationRecord);
     }
     // console.warn('expected switch to be exhaustive');
     return spec;

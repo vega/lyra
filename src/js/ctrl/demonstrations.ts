@@ -6,14 +6,7 @@ import {MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
 import {ScaleInfo, ApplicationRecord, SelectionRecord, PointSelectionRecord, MarkApplicationRecord, ScaleApplicationRecord, TransformApplicationRecord, IntervalSelectionRecord, InteractionInput} from "../store/factory/Interaction";
 
-function inputToEventType(input: InteractionInput) {
-  switch (input.mouse) {
-    case 'click': return 'click';
-    case 'hover': return 'mouseover';
-    case 'drag': return 'mousemove';
-  }
-}
-export function addSelectionToScene(sceneSpec: Spec, groupName: string, input: InteractionInput, selection: SelectionRecord): Spec {
+export function addSelectionToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, selection: SelectionRecord): Spec {
   switch (selection.type) {
     case 'point':
         selection = selection as PointSelectionRecord;
@@ -21,10 +14,10 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, input: I
         switch (selection.ptype) {
           case 'single':
             return applySignals(sceneSpec, groupName, [{
-              "name": "points_tuple",
+              "name": `points_tuple`,
               "on": [
                 {
-                  "events": [{"source": "scope", "type": inputToEventType(input), "filter": "true"}],
+                  "events": [{"source": "scope", "type": input ? input.mouse : "click", "filter": "true"}],
                   "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
                   "force": true
                 },
@@ -36,7 +29,7 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, input: I
             }]);
           case 'multi':
             return applySignals(sceneSpec, groupName, [{
-              "name": "points_tuple",
+              "name": `points_tuple`,
               "on": [{
                   "events": [{"source": "scope", "type": "click"}],
                   "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? {unit: \"layer_0\", fields: points_tuple_fields, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : null`,
@@ -80,7 +73,7 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, input: I
   }
 }
 
-export function addApplicationToScene(sceneSpec: Spec, groupName: string, input: InteractionInput, application: ApplicationRecord): Spec {
+export function addApplicationToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, application: ApplicationRecord): Spec {
   const isDemonstratingInterval = input.mouse === 'drag';
   let targetMarkName;
   switch (application.type) {

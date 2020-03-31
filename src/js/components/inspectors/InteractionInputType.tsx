@@ -45,7 +45,7 @@ class BaseInteractionInputType extends React.Component<OwnProps & DispatchProps>
   private mouseValueMap = {
     'drag': 'Drag',
     'click': 'Click',
-    'hover': 'Hover'
+    'mouseover': 'Hover'
   }
 
   public render() {

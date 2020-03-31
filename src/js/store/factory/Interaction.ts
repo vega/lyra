@@ -101,7 +101,7 @@ export type TransformApplicationRecord = RecordOf<LyraTransformApplication>;
 export type ApplicationRecord = MarkApplicationRecord | ScaleApplicationRecord | TransformApplicationRecord;
 
 export interface InteractionInput {
-  mouse: 'click' | 'drag' | 'hover';
+  mouse: 'click' | 'drag' | 'mouseover';
   keyboard?: number; // keycode
   _key?: string; // human readable key name
 }

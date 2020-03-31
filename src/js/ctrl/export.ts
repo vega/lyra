@@ -61,8 +61,8 @@ exporter.interactions = function(state: State, spec) {
       // if (valid) {
         const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
         const groupName = exportName(group.name);
-        spec = addSelectionToScene(spec, groupName, interaction.input, interaction.selection);
-        spec = addApplicationToScene(spec, groupName, interaction.input, interaction.application);
+        spec = addSelectionToScene(spec, groupName, interaction.id, interaction.input, interaction.selection);
+        spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, interaction.application);
       // }
     }
   });
