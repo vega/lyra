@@ -67,7 +67,6 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
 
 
 export function addSelectionToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, selection: SelectionRecord): Spec {
-  console.log(input.keycode);
   switch (selection.type) {
     case 'point':
         selection = selection as PointSelectionRecord;
