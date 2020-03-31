@@ -295,6 +295,8 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
     this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
     this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
+    this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
+    this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
   }
 
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
@@ -305,7 +307,13 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
       this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
     }
+  }
+
+  private scopedSignalName(signalName: string) {
+    return `${signalName}_${this.props.interaction.id}`
   }
 
   private previewRefs = {}; // id -> ref

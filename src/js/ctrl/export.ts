@@ -9,7 +9,7 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {demonstrationDatasets, demonstrations, addSelectionToScene, addApplicationToScene, addDatasetsToScene} from './demonstrations';
+import {demonstrationDatasets, demonstrations, addSelectionToScene, addApplicationToScene, addDatasetsToScene, addInputsToScene} from './demonstrations';
 import manipulators from './manipulators';
 import exportName from '../util/exportName';
 
@@ -53,18 +53,15 @@ export function exporter(internal: boolean = false): Spec {
 
 exporter.interactions = function(state: State, spec) {
   state.getIn(['vis', 'present', 'interactions']).forEach((interaction: InteractionRecord) => {
-    const defined = interaction.selection && interaction.application;
-    if (defined) {
-      // const isDemonstratingInterval = (interaction.application as MarkApplicationRecord).isDemonstratingInterval || (interaction.application as MarkApplicationRecord).isDemonstratingInterval;
-      // const valid = isDemonstratingInterval !== undefined ? (isDemonstratingInterval && interaction.selection.type === 'interval' || !isDemonstratingInterval && interaction.selection.type === 'point') : true;
-
-      // if (valid) {
-        const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
-        const groupName = exportName(group.name);
-        spec = addDatasetsToScene(spec, groupName, interaction.id);
-        spec = addSelectionToScene(spec, groupName, interaction.id, interaction.input, interaction.selection);
-        spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, interaction.application);
-      // }
+    const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
+    const groupName = exportName(group.name);
+    spec = addDatasetsToScene(spec, groupName, interaction.id);
+    spec = addInputsToScene(spec, groupName, interaction.id, interaction.input);
+    if (interaction.selection) {
+      spec = addSelectionToScene(spec, groupName, interaction.id, interaction.input, interaction.selection);
+    }
+    if (interaction.application) {
+      spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, interaction.application);
     }
   });
   return spec;
