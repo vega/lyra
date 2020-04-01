@@ -1,13 +1,12 @@
 'use strict';
 
-const Text = require('../../store/factory/marks/Text');
 const assets = require('../../util/assets');
 const getInVis = require('../../util/immutable-utils').getInVis;
 
 import * as React from 'react';
 import {connect} from 'react-redux';
 import { Dispatch } from 'redux';
-import {setMarkVisual, updateMarkProperty} from '../../actions/markActions';
+import {setMarkVisual} from '../../actions/markActions';
 import {PrimType} from '../../constants/primTypes';
 import {State} from '../../store';
 import {TextAlignments, TextBaselines, TextFonts, TextFontStyles, TextFontWeights} from '../../store/factory/marks/Text';
@@ -18,11 +17,6 @@ interface OwnProps {
   primType: PrimType;
   autoVal: string;
 
-}
-
-interface OwnState {
-  // interactions: string[];
-  // type: string;
 }
 
 interface StateProps {
@@ -49,68 +43,19 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
       dispatch(setMarkVisual({property, def: {signal: value}}, ownProps.primId));
     },
     updateText: function(value) {
-      const val = value.target ? value.target.value : value;
       dispatch(setMarkVisual({property: 'text', def: {signal: value}}, ownProps.primId));
     }
   };
 }
 
-class BaseTextInspector extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
+class BaseTextInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
   constructor(props) {
     super(props);
-
-    // this.state = {
-    //   interactions: [],
-    //   type: 'min'
-    // }
   }
 
-  // public bindSignalToText(interactions: string[], type='min') {
-  //   let condition = interactions[0];
-  //   if (interactions.length > 1) condition = condition + ' && ' + interactions[1];
-  //   const displayText = interactions.map(e => {
-  //     return `format(${type}(${e}[0], ${e}[1]),'d')`
-  //   })
-  //   let displayTextString = displayText.join(`+ ', ' +`);
-  //   displayTextString = `'(' + ` + displayTextString + `+ ')'`;
-  //   const value = `${condition} ? ${displayTextString} : ''`;
-  //   this.props.updateTextAttributes('text', value);
-  //   interactions.forEach(e => {
-  //     const scale = e[e.length - 1];
-  //     if (scale == 'x') this.props.updateTextAttributes('x', `${type}(lyra_brush_x[0], lyra_brush_x[1]) - 20`);
-  //     else if (scale == 'y') this.props.updateTextAttributes('y', `${type}(lyra_brush_y[0], lyra_brush_y[1]) - 5`);
-  //   })
-  // }
-  // public handleDrop = (evt) => {
-  //   const dt = evt.dataTransfer;
-  //   const signalName = dt.getData('signalName');
-  //   const signalObj = this.state.interactions.filter(e => e === signalName );
-  //   if (!signalObj.length) {
-  //     const newInteractions = [...this.state.interactions, signalName];
-  //     this.bindSignalToText(newInteractions, this.state.type);
-  //     this.setState({interactions: newInteractions});
-  //   }
-  // };
-
-  // public handleTypeChange = (value) => {
-  //   if(value != this.state.type) {
-  //     this.bindSignalToText(this.state.interactions, value);
-  //     this.setState({type: value});
-  //   }
-  // }
-
-  // public handleDragOver = (evt) => {
-  //   if (evt.preventDefault) {
-  //     evt.preventDefault(); // Necessary. Allows us to drop.
-  //   }
-  // };
   public render() {
     const props = this.props;
     const dsId = props.dsId;
-
-    // const signals = this.state.interactions.map((e, i) =>
-    //   <span className='widget-tag' key={e+i}>{e}</span>
-    // )
 
     return (
       <div>
@@ -120,17 +65,6 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
             dsId={dsId} onChange={props.updateText} {...props}>
               <h3 className='label'>Text</h3>
           </Property>
-
-          {/* <div onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
-            {this.state.interactions.length ? signals : null}
-            <div><i>Drop interaction here</i></div>
-            <br />
-            Map to:
-            <select value={this.state.type} onChange={e => this.handleTypeChange(e.target.value)}>
-              <option value='min'>min</option>
-              <option value='max'>max</option>
-            </select>
-          </div> */}
         </div>
 
         <div className='property-group'>

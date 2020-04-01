@@ -17,25 +17,31 @@ export function addDatasetsToScene(sceneSpec: Spec, groupName: string, interacti
   return sceneUpdated;
 }
 
-export function addInputsToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput): Spec {
+export function addInputsToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, scaleInfo: ScaleInfo, exclusive?: boolean): Spec {
   if (!input) return sceneSpec;
+  const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
+  const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(scaleInfo);
+
   const isDemonstratingInterval = input.mouse === 'drag';
-  if (!isDemonstratingInterval) {
-    return applySignals(sceneSpec, groupName, [
+  const keyModifierSignal = {
+    "name": `key_modifier_${interactionId}`,
+    "value": input.keycode ? false : true,
+    "on": [
       {
-        "name": `key_modifier_${interactionId}`,
-        "value": input.keycode ? false : true,
-        "on": [
-          {
-            "events": [{"source": "window", "type": "keydown"}],
-            "update": input.keycode ? `event.keyCode === ${input.keycode}` : "true"
-          },
-          {
-            "events": [{"source": "window", "type": "keyup"}],
-            "update": input.keycode ? "false" : "true"
-          }
-        ]
+        "events": [{"source": "window", "type": "keydown"}],
+        "update": input.keycode ? `event.keyCode === ${input.keycode}` : (exclusive ? "false" : "true")
       },
+      {
+        "events": [{"source": "window", "type": "keyup"}],
+        "update": input.keycode ? "false" : "true"
+      }
+    ]
+  };
+
+  if (!isDemonstratingInterval) {
+    // Point
+    return applySignals(sceneSpec, groupName, [
+      keyModifierSignal,
       {"name": `points_${interactionId}`, "update": `vlSelectionResolve(\"points_store_${groupName}_${interactionId}\")`},
       {
         "name": `points_tuple_${interactionId}`,
@@ -59,8 +65,386 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     ]);
   }
   else {
-    // TODO
-    return sceneSpec;
+    // Interval
+    sceneSpec = addBrushMark(sceneSpec, groupName, interactionId, scaleInfo);
+    return applySignals(sceneSpec, groupName, [
+      keyModifierSignal,
+      {"name": `brush_${interactionId}`, "update": `vlSelectionResolve(\"brush_store_${groupName}_${interactionId}\")`},
+      {"name": `grid_${interactionId}`, "update": `vlSelectionResolve(\"grid_store_${groupName}_${interactionId}\")`},
+      {
+        "name": `brush_x_${interactionId}`,
+        "value": [],
+        "on": [
+          {
+            "events": {
+              "source": "scope",
+              "type": "mousedown",
+              "filter": [
+                "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+              ]
+            },
+            "update": `key_modifier_${interactionId} ? [x(unit), x(unit)] : brush_x_${interactionId}`
+          },
+          {
+            "events": {
+              "source": "window",
+              "type": "mousemove",
+              "consume": true,
+              "between": [
+                {
+                  "source": "scope",
+                  "type": "mousedown",
+                  "filter": [
+                    "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+                  ]
+                },
+                {
+                  "source": "window",
+                  "type": "mouseup"
+                }
+              ]
+            },
+            "update": `key_modifier_${interactionId} ? [brush_x_${interactionId}[0], clamp(x(unit), 0, width)] : brush_x_${interactionId}`
+          },
+          {
+            "events": {
+              "signal": `brush_scale_trigger_${interactionId}`
+            },
+            "update": ifXElse(`isArray(brush_${xFieldName}_${xScaleName}_${interactionId}) && length(brush_${xFieldName}_${xScaleName}_${interactionId}) == 2 ? [scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}_${interactionId}[0]), scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}_${interactionId}[1])] : [0, 0]`, "[width, 0]")
+          },
+          {
+            "events": {
+              "signal": `brush_translate_delta_${interactionId}`
+            },
+            "update": `clampRange(panLinear(brush_translate_anchor_${interactionId}.extent_x, brush_translate_delta_${interactionId}.x / span(brush_translate_anchor_${interactionId}.extent_x)), 0, width)`
+          },
+          {
+            "events": {
+              "signal": `brush_zoom_delta_${interactionId}`
+            },
+            "update": `clampRange(zoomLinear(brush_x_${interactionId}, brush_zoom_anchor_${interactionId}.x, brush_zoom_delta_${interactionId}), 0, width)`
+          },
+          {
+            "events": [
+              {
+                "source": "scope",
+                "type": "dblclick"
+              }
+            ],
+            "update": "[0, 0]"
+          }
+        ]
+      },
+      {
+        "name": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, `brush_x_field_undefined_${interactionId}`),
+        "on": ifXElse([
+          {
+            "events": {
+              "signal": `brush_x_${interactionId}`
+            },
+            "update": `brush_x_${interactionId}[0] === brush_x_${interactionId}[1] ? null : invert(\"${xScaleName}\", brush_x_${interactionId})`
+          }
+        ], [])
+      },
+      {
+        "name": `brush_y_${interactionId}`,
+        "value": [],
+        "on": [
+          {
+            "events": {
+              "source": "scope",
+              "type": "mousedown",
+              "filter": [
+                "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+              ]
+            },
+            "update": `key_modifier_${interactionId} ? [y(unit), y(unit)] : brush_y_${interactionId}`
+          },
+          {
+            "events": {
+              "source": "window",
+              "type": "mousemove",
+              "consume": true,
+              "between": [
+                {
+                  "source": "scope",
+                  "type": "mousedown",
+                  "filter": [
+                    "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+                  ]
+                },
+                {
+                  "source": "window",
+                  "type": "mouseup"
+                }
+              ]
+            },
+            "update": `key_modifier_${interactionId} ? [brush_y_${interactionId}[0], clamp(y(unit), 0, height)] : brush_y_${interactionId}`
+          },
+          {
+            "events": {
+              "signal": `brush_scale_trigger_${interactionId}`
+            },
+            "update": ifYElse(`isArray(brush_${yFieldName}_${yScaleName}_${interactionId}) && length(brush_${yFieldName}_${yScaleName}_${interactionId}) == 2 ? [scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}_${interactionId}[0]), scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}_${interactionId}[1])] : [0, 0]`, "[0, height]")
+          },
+          {
+            "events": {
+              "signal": `brush_translate_delta_${interactionId}`
+            },
+            "update": `clampRange(panLinear(brush_translate_anchor_${interactionId}.extent_y, brush_translate_delta_${interactionId}.y / span(brush_translate_anchor_${interactionId}.extent_y)), 0, height)`
+          },
+          {
+            "events": {
+              "signal": `brush_zoom_delta_${interactionId}`
+            },
+            "update": `clampRange(zoomLinear(brush_y_${interactionId}, brush_zoom_anchor_${interactionId}.y, brush_zoom_delta_${interactionId}), 0, height)`
+          },
+          {
+            "events": [
+              {
+                "source": "scope",
+                "type": "dblclick"
+              }
+            ],
+            "update": "[0, 0]"
+          }
+        ]
+      },
+      {
+        "name": ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, `brush_y_field_undefined_${interactionId}`),
+        "on": ifYElse([
+          {
+            "events": {
+              "signal": `brush_y_${interactionId}`
+            },
+            "update": `brush_y_${interactionId}[0] === brush_y_${interactionId}[1] ? null : invert(\"${yScaleName}\", brush_y_${interactionId})`
+          }
+        ], [])
+      },
+      {
+        "name": `brush_scale_trigger_${interactionId}`,
+        "value": {},
+        "on": [
+          {
+            "events": [].concat(ifXElse([
+                        {
+                          "scale": "x"
+                        }
+                      ], [])).concat(ifYElse([
+                        {
+                          "scale": "y"
+                        }
+                      ], [])),
+            "update":
+              ifXElse(`(!isArray(brush_${xFieldName}_${xScaleName}_${interactionId}) || (+invert(\"${xScaleName}\", brush_x_${interactionId})[0] === +brush_${xFieldName}_${xScaleName}_${interactionId}[0] && +invert(\"${xScaleName}\", brush_x_${interactionId})[1] === +brush_${xFieldName}_${xScaleName}_${interactionId}[1]))`, '') +
+              ifXY(" && ") +
+              ifYElse(`(!isArray(brush_${yFieldName}_${yScaleName}_${interactionId}) || (+invert(\"${yScaleName}\", brush_y_${interactionId})[0] === +brush_${yFieldName}_${yScaleName}_${interactionId}[0] && +invert(\"${yScaleName}\", brush_y_${interactionId})[1] === +brush_${yFieldName}_${yScaleName}_${interactionId}[1]))`, '') +
+              ` ? brush_scale_trigger_${interactionId} : {}`
+          }
+        ]
+      },
+      {
+        "name": `brush_tuple_${interactionId}`,
+        "on": [
+          {
+            "events": [
+              {
+                "signal": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" || ") + ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, "")
+              }
+            ],
+            "update": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" && ") + ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, "") + ` ? {unit: \"\", fields: brush_tuple_fields_${interactionId}, values: [` +
+                          ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(",") + ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, "") + "]} : null"
+          }
+        ]
+      },
+      {
+        "name": `brush_tuple_fields_${interactionId}`,
+        "value": [].concat(ifXElse([
+            {
+              "field": xFieldName,
+              "channel": "x",
+              "type": "R"
+            }
+          ], [])).concat(ifYElse([
+            {
+              "field": yFieldName,
+              "channel": "y",
+              "type": "R"
+            }
+          ], []))
+      },
+      {
+        "name": `brush_translate_anchor_${interactionId}`,
+        "value": {},
+        "on": [
+          {
+            "events": [
+              {
+                "source": "scope",
+                "type": "mousedown",
+                "markname": `lyra_brush_brush_${interactionId}`
+              }
+            ],
+            "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit), extent_x: slice(brush_x_${interactionId}), extent_y: slice(brush_y_${interactionId})} : brush_translate_anchor_${interactionId}`
+          }
+        ]
+      },
+      {
+        "name": `brush_translate_delta_${interactionId}`,
+        "value": {},
+        "on": [
+          {
+            "events": [
+              {
+                "source": "window",
+                "type": "mousemove",
+                "consume": true,
+                "between": [
+                  {
+                    "source": "scope",
+                    "type": "mousedown",
+                    "markname": `lyra_brush_brush_${interactionId}`
+                  },
+                  {
+                    "source": "window",
+                    "type": "mouseup"
+                  }
+                ]
+              }
+            ],
+            "update": `key_modifier_${interactionId} ? {x: brush_translate_anchor_${interactionId}.x - x(unit), y: brush_translate_anchor_${interactionId}.y - y(unit)} : brush_translate_delta_${interactionId}`
+          }
+        ]
+      },
+      {
+        "name": `brush_zoom_anchor_${interactionId}`,
+        "on": [
+          {
+            "events": [
+              {
+                "source": "scope",
+                "type": "wheel",
+                "consume": true,
+                "markname": `lyra_brush_brush_${interactionId}`
+              }
+            ],
+            "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit)} : brush_zoom_anchor_${interactionId}`
+          }
+        ]
+      },
+      {
+        "name": `brush_zoom_delta_${interactionId}`,
+        "on": [
+          {
+            "events": [
+              {
+                "source": "scope",
+                "type": "wheel",
+                "consume": true,
+                "markname": `lyra_brush_brush_${interactionId}`
+              }
+            ],
+            "force": true,
+            "update": `key_modifier_${interactionId} ? pow(1.001, event.deltaY * pow(16, event.deltaMode)) : brush_zoom_delta_${interactionId}`
+          }
+        ]
+      },
+      {
+        "name": `brush_modify_${interactionId}`,
+        "update": `modify(\"brush_store_${groupName}_${interactionId}\", brush_tuple_${interactionId}, true)`
+      },
+
+      {
+        "name": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, `grid_x_field_undefined_${interactionId}`),
+        "on": ifXElse([
+          {
+            "events": {"signal": `grid_translate_delta_${interactionId}`},
+            "update": `panLinear(grid_translate_anchor_${interactionId}.extent_x, -grid_translate_delta_${interactionId}.x / width)`
+          },
+          {
+            "events": {"signal": `grid_zoom_delta_${interactionId}`},
+            "update": `zoomLinear(domain(\"${xScaleName}\"), grid_zoom_anchor_${interactionId}.x, grid_zoom_delta_${interactionId})`
+          },
+          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+        ], [])
+      },
+      {
+        "name": ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, `grid_y_field_undefined_${interactionId}`),
+        "on": ifYElse([
+          {
+            "events": {"signal": `grid_translate_delta_${interactionId}`},
+            "update": `panLinear(grid_translate_anchor_${interactionId}.extent_y, grid_translate_delta_${interactionId}.y / height)`
+          },
+          {
+            "events": {"signal": `grid_zoom_delta_${interactionId}`},
+            "update": `zoomLinear(domain(\"${yScaleName}\"), grid_zoom_anchor_${interactionId}.y, grid_zoom_delta_${interactionId})`
+          },
+          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+        ], [])
+      },
+      {
+        "name": `grid_tuple_${interactionId}`,
+        "on": [
+          {
+            "events": [{"signal": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" || ") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "")}],
+            "update": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" && ") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "") + `? {unit: \"\", fields: brush_tuple_fields_${interactionId}, values: [` + ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(",") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "") + "]} : null"
+          }
+        ]
+      },
+      {
+        "name": `grid_translate_anchor_${interactionId}`,
+        "value": {},
+        "on": [
+          {
+            "events": [{"source": "scope", "type": "mousedown"}],
+            "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit)` + ifXElse(`, extent_x: domain(\"${xScaleName}\")`, "") + ifYElse(`, extent_y: domain(\"${yScaleName}\")`, "") + `} : grid_translate_anchor_${interactionId}`
+          },
+        ]
+      },
+      {
+        "name": `grid_translate_delta_${interactionId}`,
+        "value": {},
+        "on": [
+          {
+            "events": [
+              {
+                "source": "window",
+                "type": "mousemove",
+                "consume": true,
+                "between": [
+                  {"source": "scope", "type": "mousedown"},
+                  {"source": "window", "type": "mouseup"}
+                ]
+              }
+            ],
+            "update": `key_modifier_${interactionId} ? {x: grid_translate_anchor_${interactionId}.x - x(unit), y: grid_translate_anchor_${interactionId}.y - y(unit)} : grid_translate_delta_${interactionId}`
+          },
+        ]
+      },
+      {
+        "name": `grid_zoom_anchor_${interactionId}`,
+        "on": [
+          {
+            "events": [{"source": "scope", "type": "wheel", "consume": true}],
+            "update": `key_modifier_${interactionId} ? {` + ifXElse(`x: invert(\"${xScaleName}\", x(unit))`, "") + ifXY(", ") + ifYElse(`y: invert(\"${yScaleName}\", y(unit))`, "") + `} : grid_zoom_anchor_${interactionId}`
+          }
+        ]
+      },
+      {
+        "name": `grid_zoom_delta_${interactionId}`,
+        "on": [
+          {
+            "events": [{"source": "scope", "type": "wheel", "consume": true}],
+            "force": true,
+            "update": `key_modifier_${interactionId} ? pow(1.001, event.deltaY * pow(16, event.deltaMode)) : grid_zoom_delta_${interactionId}`
+          }
+        ]
+      },
+      {
+        "name": `grid_modify_${interactionId}`,
+        "update": `modify(\"grid_store_${groupName}_${interactionId}\", grid_tuple_${interactionId}, true)`
+      },
+    ]);
   }
 }
 
@@ -126,13 +510,13 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
         switch (selection.field) {
           case 'x':
             return applySignals(sceneSpec, groupName, [{
-              name: "lyra_brush_is_x_encoding",
-              init: "true"
+              name: "brush_y",
+              update: "[0, height]"
             }]);
           case 'y':
             return applySignals(sceneSpec, groupName, [{
-              name: "lyra_brush_is_y_encoding",
-              init: "true"
+              name: "brush_x",
+              update: "[width, 0]"
             }]);
           default:
             return sceneSpec;
@@ -153,7 +537,7 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
           "update": {
             [application.propertyName]: [
               {
-                "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+                "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}_${interactionId}\"))) || (vlSelectionTest(\"brush_store_${groupName}_${interactionId}\", datum))` :
                                                   `!(length(data(\"points_store_${groupName}_${interactionId}\"))) || (vlSelectionTest(\"points_store_${groupName}_${interactionId}\", datum))`,
                 "value": "" // we expect this to be overwritten with the mark's value
               },
@@ -171,13 +555,13 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
         {
           "_axis": "x",
           "name": scaleInfo.xScaleName,
-          "domainRaw": {"signal": `grid["${scaleInfo.xFieldName}"]`},
+          "domainRaw": {"signal": `grid_${interactionId}["${scaleInfo.xFieldName}"]`},
           "zero": false
         },
         {
           "_axis": "y",
           "name": scaleInfo.yScaleName,
-          "domainRaw": {"signal": `grid["${scaleInfo.yFieldName}"]`},
+          "domainRaw": {"signal": `grid_${interactionId}["${scaleInfo.yFieldName}"]`},
           "zero": false
         }
       ]);
@@ -201,7 +585,7 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
         "source": source,
         "transform": [{
           "type": "filter",
-          "expr": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}\"))) || (vlSelectionTest(\"brush_store_${groupName}\", datum))` :
+          "expr": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}_${interactionId}\"))) || (vlSelectionTest(\"brush_store_${groupName}_${interactionId}\", datum))` :
           `!(length(data(\"points_store_${groupName}_${interactionId}\"))) || (vlSelectionTest(\"points_store_${groupName}_${interactionId}\", datum))`,
         }, ...transform]
       });
@@ -355,123 +739,244 @@ export function demonstrations(groupSpec, groupId: number, state: State) {
       return groupSpec;
     }
 
-    return addMarksToGroup(addSignalsToGroup(groupSpec, scaleInfo), scaleInfo);
+    // return addMarksToGroup(addSignalsToGroup(groupSpec, scaleInfo), scaleInfo);
+    return addSignalsToGroup(groupSpec, scaleInfo);
   }
   return groupSpec;
 }
 
-function addMarksToGroup(groupSpec: GroupMark, scaleInfo: ScaleInfo): GroupMark {
+function addBrushMark(sceneSpec, groupName: string, interactionId: number, scaleInfo: ScaleInfo): Spec {
   const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(scaleInfo);
-  const marks = groupSpec.marks || (groupSpec.marks = []);
-  const groupName = groupSpec.name;
-  groupSpec.marks = [...marks,
-    {
-      "name": "lyra_brush_brush_bg",
-      "type": "rect",
-      "clip": true,
-      "encode": {
-        "enter": {
-          "fill": {
-            "value": "#333"
-          },
-          "fillOpacity": {
-            "value": 0.125
-          }
-        },
-        "update": {
-          "x": [
-            Object.assign({
-              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
-            }, ifXElse({"signal": "lyra_brush_x[0]"}, {"value": "0"})),
-            {
-              "value": 0
-            }
-          ],
-          "y": [
-            Object.assign({
-              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
-            }, ifYElse({"signal": "lyra_brush_y[0]"}, {"value": "0"})),
-            {
-              "value": 0
-            }
-          ],
-          "x2": [
-            Object.assign({
-              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
-            }, ifXElse({"signal": "lyra_brush_x[1]"}, {"signal": "width"})),
-            {
-              "value": 0
-            }
-          ],
-          "y2": [
-            Object.assign({
-              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
-            }, ifYElse({"signal": "lyra_brush_y[1]"}, {"signal": "height"})),
-            {
-              "value": 0
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "lyra_brush_brush",
-      "type": "rect",
-      "clip": true,
-      "encode": {
-        "enter": {
-          "fill": {
-            "value": "transparent"
-          }
-        },
-        "update": {
-          "x": [
-            Object.assign({
-              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
-            }, ifXElse({"signal": "lyra_brush_x[0]"}, {"value": "0"})),
-            {
-              "value": 0
-            }
-          ],
-          "y": [
-            Object.assign({
-              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
-            }, ifYElse({"signal": "lyra_brush_y[0]"}, {"value": "0"})),
-            {
-              "value": 0
-            }
-          ],
-          "x2": [
-            Object.assign({
-              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
-            }, ifXElse({"signal": "lyra_brush_x[1]"}, {"signal": "width"})),
-            {
-              "value": 0
-            }
-          ],
-          "y2": [
-            Object.assign({
-              "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
-            }, ifYElse({"signal": "lyra_brush_y[1]"}, {"signal": "height"})),
-            {
-              "value": 0
-            }
-          ],
-          "stroke": [
-            {
-              "test": ifXElse("lyra_brush_x[0] !== lyra_brush_x[1]", "") + ifXY(" && ") + ifYElse("lyra_brush_y[0] !== lyra_brush_y[1]", ""),
-              "value": "white"
+  sceneSpec = duplicate(sceneSpec);
+  sceneSpec.marks = sceneSpec.marks.map(markSpec => {
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      console.log('i think i added the marks');
+      markSpec.marks = [
+        ...markSpec.marks,
+        {
+          "name": `lyra_brush_brush_bg_${interactionId}`,
+          "type": "rect",
+          "clip": true,
+          "encode": {
+            "enter": {
+              "fill": {
+                "value": "#333"
+              },
+              "fillOpacity": {
+                "value": 0.125
+              }
             },
-            {
-              "value": null
+            "update": {
+              "x": [
+                Object.assign({
+                  "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
+                }, ifXElse({"signal": `brush_x_${interactionId}[0]`}, {"value": "0"})),
+                {
+                  "value": 0
+                }
+              ],
+              "y": [
+                Object.assign({
+                  "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
+                }, ifYElse({"signal": `brush_y_${interactionId}[0]`}, {"value": "0"})),
+                {
+                  "value": 0
+                }
+              ],
+              "x2": [
+                Object.assign({
+                  "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
+                }, ifXElse({"signal": `brush_x_${interactionId}[1]`}, {"signal": "width"})),
+                {
+                  "value": 0
+                }
+              ],
+              "y2": [
+                Object.assign({
+                  "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
+                }, ifYElse({"signal": `brush_y_${interactionId}[1]`}, {"signal": "height"})),
+                {
+                  "value": 0
+                }
+              ]
             }
-          ]
+          }
+        },
+        {
+          "name": `lyra_brush_brush_${interactionId}`,
+          "type": "rect",
+          "clip": true,
+          "encode": {
+            "enter": {
+              "fill": {
+                "value": "transparent"
+              }
+            },
+            "update": {
+              "x": [
+                Object.assign({
+                  "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
+                }, ifXElse({"signal": `brush_x_${interactionId}[0]`}, {"value": "0"})),
+                {
+                  "value": 0
+                }
+              ],
+              "y": [
+                Object.assign({
+                  "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
+                }, ifYElse({"signal": `brush_y_${interactionId}[0]`}, {"value": "0"})),
+                {
+                  "value": 0
+                }
+              ],
+              "x2": [
+                Object.assign({
+                  "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
+                }, ifXElse({"signal": `brush_x_${interactionId}[1]`}, {"signal": "width"})),
+                {
+                  "value": 0
+                }
+              ],
+              "y2": [
+                Object.assign({
+                  "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
+                }, ifYElse({"signal": `brush_y_${interactionId}[1]`}, {"signal": "height"})),
+                {
+                  "value": 0
+                }
+              ],
+              "stroke": [
+                {
+                  "test": ifXElse(`brush_x_${interactionId}[0] !== brush_x_${interactionId}[1]`, "") + ifXY(" && ") + ifYElse(`brush_y_${interactionId}[0] !== brush_y_${interactionId}[1]`, ""),
+                  "value": "white"
+                },
+                {
+                  "value": null
+                }
+              ]
+            }
+          }
         }
-      }
+      ]
     }
-  ];
-  return groupSpec;
+    return markSpec;
+  });
+  console.log('did i add the marks', sceneSpec);
+  return sceneSpec;
 }
+
+// function addMarksToGroup(groupSpec: GroupMark, scaleInfo: ScaleInfo): GroupMark {
+//   const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(scaleInfo);
+//   const marks = groupSpec.marks || (groupSpec.marks = []);
+//   const groupName = groupSpec.name;
+//   groupSpec.marks = [...marks,
+//     {
+//       "name": "lyra_brush_brush_bg",
+//       "type": "rect",
+//       "clip": true,
+//       "encode": {
+//         "enter": {
+//           "fill": {
+//             "value": "#333"
+//           },
+//           "fillOpacity": {
+//             "value": 0.125
+//           }
+//         },
+//         "update": {
+//           "x": [
+//             Object.assign({
+//               "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
+//             }, ifXElse({"signal": "lyra_brush_x[0]"}, {"value": "0"})),
+//             {
+//               "value": 0
+//             }
+//           ],
+//           "y": [
+//             Object.assign({
+//               "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
+//             }, ifYElse({"signal": "lyra_brush_y[0]"}, {"value": "0"})),
+//             {
+//               "value": 0
+//             }
+//           ],
+//           "x2": [
+//             Object.assign({
+//               "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
+//             }, ifXElse({"signal": "lyra_brush_x[1]"}, {"signal": "width"})),
+//             {
+//               "value": 0
+//             }
+//           ],
+//           "y2": [
+//             Object.assign({
+//               "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
+//             }, ifYElse({"signal": "lyra_brush_y[1]"}, {"signal": "height"})),
+//             {
+//               "value": 0
+//             }
+//           ]
+//         }
+//       }
+//     },
+//     {
+//       "name": "lyra_brush_brush",
+//       "type": "rect",
+//       "clip": true,
+//       "encode": {
+//         "enter": {
+//           "fill": {
+//             "value": "transparent"
+//           }
+//         },
+//         "update": {
+//           "x": [
+//             Object.assign({
+//               "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
+//             }, ifXElse({"signal": "lyra_brush_x[0]"}, {"value": "0"})),
+//             {
+//               "value": 0
+//             }
+//           ],
+//           "y": [
+//             Object.assign({
+//               "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
+//             }, ifYElse({"signal": "lyra_brush_y[0]"}, {"value": "0"})),
+//             {
+//               "value": 0
+//             }
+//           ],
+//           "x2": [
+//             Object.assign({
+//               "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
+//             }, ifXElse({"signal": "lyra_brush_x[1]"}, {"signal": "width"})),
+//             {
+//               "value": 0
+//             }
+//           ],
+//           "y2": [
+//             Object.assign({
+//               "test": `data(\"brush_store_${groupName}\").length && data(\"brush_store_${groupName}\")[0].unit === \"\"`,
+//             }, ifYElse({"signal": "lyra_brush_y[1]"}, {"signal": "height"})),
+//             {
+//               "value": 0
+//             }
+//           ],
+//           "stroke": [
+//             {
+//               "test": ifXElse("lyra_brush_x[0] !== lyra_brush_x[1]", "") + ifXY(" && ") + ifYElse("lyra_brush_y[0] !== lyra_brush_y[1]", ""),
+//               "value": "white"
+//             },
+//             {
+//               "value": null
+//             }
+//           ]
+//         }
+//       }
+//     }
+//   ];
+//   return groupSpec;
+// }
 
 function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
   const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
@@ -479,22 +984,22 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
   const groupName = groupSpec.name;
   const signals = groupSpec.signals || (groupSpec.signals = []);
   groupSpec.signals = [...signals,
-    {
-      "name": "lyra_brush_is_x_encoding",
-      "init": "false"
-    },
-    {
-      "name": "lyra_brush_is_y_encoding",
-      "init": "false"
-    },
-    {
-      "name": "lyra_brush_x",
-      "update": "lyra_brush_is_y_encoding ? [width, 0] : brush_x"
-    },
-    {
-      "name": "lyra_brush_y",
-      "update": "lyra_brush_is_x_encoding ? [0, height] : brush_y"
-    },
+    // {
+    //   "name": "lyra_brush_is_x_encoding",
+    //   "init": "false"
+    // },
+    // {
+    //   "name": "lyra_brush_is_y_encoding",
+    //   "init": "false"
+    // },
+    // {
+    //   "name": "lyra_brush_x",
+    //   "update": "lyra_brush_is_y_encoding ? [width, 0] : brush_x"
+    // },
+    // {
+    //   "name": "lyra_brush_y",
+    //   "update": "lyra_brush_is_x_encoding ? [0, height] : brush_y"
+    // },
     {
       "name": "unit",
       "value": {},
@@ -509,10 +1014,10 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
       "name": "brush",
       "update": `vlSelectionResolve(\"brush_store_${groupName}\")`
     },
-    {
-      "name": "grid",
-      "update": `vlSelectionResolve(\"grid_store_${groupName}\")`
-    },
+    // {
+    //   "name": "grid",
+    //   "update": `vlSelectionResolve(\"grid_store_${groupName}\")`
+    // },
     {
       "name": "brush_x",
       "value": [],
@@ -522,7 +1027,7 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
             "source": "scope",
             "type": "mousedown",
             "filter": [
-              "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
+              "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
             ]
           },
           "update": "[x(unit), x(unit)]"
@@ -537,7 +1042,7 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
                 "source": "scope",
                 "type": "mousedown",
                 "filter": [
-                  "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
+                  "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
                 ]
               },
               {
@@ -548,24 +1053,24 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
           },
           "update": "[brush_x[0], clamp(x(unit), 0, width)]"
         },
-        {
-          "events": {
-            "signal": "brush_scale_trigger"
-          },
-          "update": ifXElse(`isArray(brush_${xFieldName}_${xScaleName}) && length(brush_${xFieldName}_${xScaleName}) == 2 ? [scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}[0]), scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}[1])] : [0, 0]`, "[width, 0]")
-        },
-        {
-          "events": {
-            "signal": "brush_translate_delta"
-          },
-          "update": "clampRange(panLinear(brush_translate_anchor.extent_x, brush_translate_delta.x / span(brush_translate_anchor.extent_x)), 0, width)"
-        },
-        {
-          "events": {
-            "signal": "brush_zoom_delta"
-          },
-          "update": "clampRange(zoomLinear(brush_x, brush_zoom_anchor.x, brush_zoom_delta), 0, width)"
-        },
+        // {
+        //   "events": {
+        //     "signal": "brush_scale_trigger"
+        //   },
+        //   "update": ifXElse(`isArray(brush_${xFieldName}_${xScaleName}) && length(brush_${xFieldName}_${xScaleName}) == 2 ? [scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}[0]), scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}[1])] : [0, 0]`, "[width, 0]")
+        // },
+        // {
+        //   "events": {
+        //     "signal": "brush_translate_delta"
+        //   },
+        //   "update": "clampRange(panLinear(brush_translate_anchor.extent_x, brush_translate_delta.x / span(brush_translate_anchor.extent_x)), 0, width)"
+        // },
+        // {
+        //   "events": {
+        //     "signal": "brush_zoom_delta"
+        //   },
+        //   "update": "clampRange(zoomLinear(brush_x, brush_zoom_anchor.x, brush_zoom_delta), 0, width)"
+        // },
         {
           "events": [
             {
@@ -577,17 +1082,17 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
         }
       ]
     },
-    {
-      "name": ifXElse(`brush_${xFieldName}_${xScaleName}`, "brush_x_field_undefined"),
-      "on": ifXElse([
-        {
-          "events": {
-            "signal": "lyra_brush_x"
-          },
-          "update": `lyra_brush_x[0] === lyra_brush_x[1] ? null : invert(\"${xScaleName}\", lyra_brush_x)`
-        }
-      ], [])
-    },
+    // {
+    //   "name": ifXElse(`brush_${xFieldName}_${xScaleName}`, "brush_x_field_undefined"),
+    //   "on": ifXElse([
+    //     {
+    //       "events": {
+    //         "signal": "lyra_brush_x"
+    //       },
+    //       "update": `lyra_brush_x[0] === lyra_brush_x[1] ? null : invert(\"${xScaleName}\", lyra_brush_x)`
+    //     }
+    //   ], [])
+    // },
     {
       "name": "brush_y",
       "value": [],
@@ -597,7 +1102,7 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
             "source": "scope",
             "type": "mousedown",
             "filter": [
-              "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
+              "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
             ]
           },
           "update": "[y(unit), y(unit)]"
@@ -612,7 +1117,7 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
                 "source": "scope",
                 "type": "mousedown",
                 "filter": [
-                  "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
+                  "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
                 ]
               },
               {
@@ -623,24 +1128,24 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
           },
           "update": "[brush_y[0], clamp(y(unit), 0, height)]"
         },
-        {
-          "events": {
-            "signal": "brush_scale_trigger"
-          },
-          "update": ifYElse(`isArray(brush_${yFieldName}_${yScaleName}) && length(brush_${yFieldName}_${yScaleName}) == 2 ? [scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}[0]), scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}[1])] : [0, 0]`, "[0, height]")
-        },
-        {
-          "events": {
-            "signal": "brush_translate_delta"
-          },
-          "update": "clampRange(panLinear(brush_translate_anchor.extent_y, brush_translate_delta.y / span(brush_translate_anchor.extent_y)), 0, height)"
-        },
-        {
-          "events": {
-            "signal": "brush_zoom_delta"
-          },
-          "update": "clampRange(zoomLinear(brush_y, brush_zoom_anchor.y, brush_zoom_delta), 0, height)"
-        },
+        // {
+        //   "events": {
+        //     "signal": "brush_scale_trigger"
+        //   },
+        //   "update": ifYElse(`isArray(brush_${yFieldName}_${yScaleName}) && length(brush_${yFieldName}_${yScaleName}) == 2 ? [scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}[0]), scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}[1])] : [0, 0]`, "[0, height]")
+        // },
+        // {
+        //   "events": {
+        //     "signal": "brush_translate_delta"
+        //   },
+        //   "update": "clampRange(panLinear(brush_translate_anchor.extent_y, brush_translate_delta.y / span(brush_translate_anchor.extent_y)), 0, height)"
+        // },
+        // {
+        //   "events": {
+        //     "signal": "brush_zoom_delta"
+        //   },
+        //   "update": "clampRange(zoomLinear(brush_y, brush_zoom_anchor.y, brush_zoom_delta), 0, height)"
+        // },
         {
           "events": [
             {
@@ -652,242 +1157,242 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
         }
       ]
     },
-    {
-      "name": ifYElse(`brush_${yFieldName}_${yScaleName}`, "brush_y_field_undefined"),
-      "on": ifYElse([
-        {
-          "events": {
-            "signal": "lyra_brush_y"
-          },
-          "update": `lyra_brush_y[0] === lyra_brush_y[1] ? null : invert(\"${yScaleName}\", lyra_brush_y)`
-        }
-      ], [])
-    },
-    {
-      "name": "brush_scale_trigger",
-      "value": {},
-      "on": [
-        {
-          "events": [].concat(ifXElse([
-                      {
-                        "scale": "x"
-                      }
-                    ], [])).concat(ifYElse([
-                      {
-                        "scale": "y"
-                      }
-                    ], [])),
-          "update":
-            ifXElse(`(!isArray(brush_${xFieldName}_${xScaleName}) || (+invert(\"${xScaleName}\", lyra_brush_x)[0] === +brush_${xFieldName}_${xScaleName}[0] && +invert(\"${xScaleName}\", lyra_brush_x)[1] === +brush_${xFieldName}_${xScaleName}[1]))`, '') +
-            ifXY(" && ") +
-            ifYElse(`(!isArray(brush_${yFieldName}_${yScaleName}) || (+invert(\"${yScaleName}\", lyra_brush_y)[0] === +brush_${yFieldName}_${yScaleName}[0] && +invert(\"${yScaleName}\", lyra_brush_y)[1] === +brush_${yFieldName}_${yScaleName}[1]))`, '') +
-            ` ? brush_scale_trigger : {}`
-        }
-      ]
-    },
-    {
-      "name": "brush_tuple",
-      "on": [
-        {
-          "events": [
-            {
-              "signal": ifXElse(`brush_${xFieldName}_${xScaleName}`, "") + ifXY(" || ") + ifYElse(`brush_${yFieldName}_${yScaleName}`, "")
-            }
-          ],
-          "update": ifXElse(`brush_${xFieldName}_${xScaleName}`, "") + ifXY(" && ") + ifYElse(`brush_${yFieldName}_${yScaleName}`, "") + " ? {unit: \"\", fields: tuple_fields, values: [" +
-                        ifXElse(`brush_${xFieldName}_${xScaleName}`, "") + ifXY(",") + ifYElse(`brush_${yFieldName}_${yScaleName}`, "") + "]} : null"
-        }
-      ]
-    },
-    {
-      "name": "tuple_fields",
-      "value": [].concat(ifXElse([
-          {
-            "field": xFieldName,
-            "channel": "x",
-            "type": "R"
-          }
-        ], [])).concat(ifYElse([
-          {
-            "field": yFieldName,
-            "channel": "y",
-            "type": "R"
-          }
-        ], []))
-    },
-    {
-      "name": "brush_translate_anchor",
-      "value": {},
-      "on": [
-        {
-          "events": [
-            {
-              "source": "scope",
-              "type": "mousedown",
-              "markname": "lyra_brush_brush"
-            }
-          ],
-          // "update": "{x: x(unit), y: y(unit)" + ifXElse(", extent_x: slice(lyra_brush_x)", "") + ifYElse(", extent_y: slice(lyra_brush_y)", "") + "}"
-          "update": "{x: x(unit), y: y(unit), extent_x: slice(lyra_brush_x), extent_y: slice(lyra_brush_y)}"
-        }
-      ]
-    },
-    {
-      "name": "brush_translate_delta",
-      "value": {},
-      "on": [
-        {
-          "events": [
-            {
-              "source": "window",
-              "type": "mousemove",
-              "consume": true,
-              "between": [
-                {
-                  "source": "scope",
-                  "type": "mousedown",
-                  "markname": "lyra_brush_brush"
-                },
-                {
-                  "source": "window",
-                  "type": "mouseup"
-                }
-              ]
-            }
-          ],
-          "update": "{x: brush_translate_anchor.x - x(unit), y: brush_translate_anchor.y - y(unit)}"
-        }
-      ]
-    },
-    {
-      "name": "brush_zoom_anchor",
-      "on": [
-        {
-          "events": [
-            {
-              "source": "scope",
-              "type": "wheel",
-              "consume": true,
-              "markname": "lyra_brush_brush"
-            }
-          ],
-          "update": "{x: x(unit), y: y(unit)}"
-        }
-      ]
-    },
-    {
-      "name": "brush_zoom_delta",
-      "on": [
-        {
-          "events": [
-            {
-              "source": "scope",
-              "type": "wheel",
-              "consume": true,
-              "markname": "lyra_brush_brush"
-            }
-          ],
-          "force": true,
-          "update": "pow(1.001, event.deltaY * pow(16, event.deltaMode))"
-        }
-      ]
-    },
-    {
-      "name": "brush_modify",
-      "update": `modify(\"brush_store_${groupName}\", brush_tuple, true)`
-    },
+    // {
+    //   "name": ifYElse(`brush_${yFieldName}_${yScaleName}`, "brush_y_field_undefined"),
+    //   "on": ifYElse([
+    //     {
+    //       "events": {
+    //         "signal": "lyra_brush_y"
+    //       },
+    //       "update": `lyra_brush_y[0] === lyra_brush_y[1] ? null : invert(\"${yScaleName}\", lyra_brush_y)`
+    //     }
+    //   ], [])
+    // },
+    // {
+    //   "name": "brush_scale_trigger",
+    //   "value": {},
+    //   "on": [
+    //     {
+    //       "events": [].concat(ifXElse([
+    //                   {
+    //                     "scale": "x"
+    //                   }
+    //                 ], [])).concat(ifYElse([
+    //                   {
+    //                     "scale": "y"
+    //                   }
+    //                 ], [])),
+    //       "update":
+    //         ifXElse(`(!isArray(brush_${xFieldName}_${xScaleName}) || (+invert(\"${xScaleName}\", lyra_brush_x)[0] === +brush_${xFieldName}_${xScaleName}[0] && +invert(\"${xScaleName}\", lyra_brush_x)[1] === +brush_${xFieldName}_${xScaleName}[1]))`, '') +
+    //         ifXY(" && ") +
+    //         ifYElse(`(!isArray(brush_${yFieldName}_${yScaleName}) || (+invert(\"${yScaleName}\", lyra_brush_y)[0] === +brush_${yFieldName}_${yScaleName}[0] && +invert(\"${yScaleName}\", lyra_brush_y)[1] === +brush_${yFieldName}_${yScaleName}[1]))`, '') +
+    //         ` ? brush_scale_trigger : {}`
+    //     }
+    //   ]
+    // },
+    // {
+    //   "name": "brush_tuple",
+    //   "on": [
+    //     {
+    //       "events": [
+    //         {
+    //           "signal": ifXElse(`brush_${xFieldName}_${xScaleName}`, "") + ifXY(" || ") + ifYElse(`brush_${yFieldName}_${yScaleName}`, "")
+    //         }
+    //       ],
+    //       "update": ifXElse(`brush_${xFieldName}_${xScaleName}`, "") + ifXY(" && ") + ifYElse(`brush_${yFieldName}_${yScaleName}`, "") + " ? {unit: \"\", fields: brush_tuple_fields, values: [" +
+    //                     ifXElse(`brush_${xFieldName}_${xScaleName}`, "") + ifXY(",") + ifYElse(`brush_${yFieldName}_${yScaleName}`, "") + "]} : null"
+    //     }
+    //   ]
+    // },
+    // {
+    //   "name": "brush_tuple_fields",
+    //   "value": [].concat(ifXElse([
+    //       {
+    //         "field": xFieldName,
+    //         "channel": "x",
+    //         "type": "R"
+    //       }
+    //     ], [])).concat(ifYElse([
+    //       {
+    //         "field": yFieldName,
+    //         "channel": "y",
+    //         "type": "R"
+    //       }
+    //     ], []))
+    // },
+    // {
+    //   "name": "brush_translate_anchor",
+    //   "value": {},
+    //   "on": [
+    //     {
+    //       "events": [
+    //         {
+    //           "source": "scope",
+    //           "type": "mousedown",
+    //           "markname": "lyra_brush_brush"
+    //         }
+    //       ],
+    //       // "update": "{x: x(unit), y: y(unit)" + ifXElse(", extent_x: slice(lyra_brush_x)", "") + ifYElse(", extent_y: slice(lyra_brush_y)", "") + "}"
+    //       "update": "{x: x(unit), y: y(unit), extent_x: slice(lyra_brush_x), extent_y: slice(lyra_brush_y)}"
+    //     }
+    //   ]
+    // },
+    // {
+    //   "name": "brush_translate_delta",
+    //   "value": {},
+    //   "on": [
+    //     {
+    //       "events": [
+    //         {
+    //           "source": "window",
+    //           "type": "mousemove",
+    //           "consume": true,
+    //           "between": [
+    //             {
+    //               "source": "scope",
+    //               "type": "mousedown",
+    //               "markname": "lyra_brush_brush"
+    //             },
+    //             {
+    //               "source": "window",
+    //               "type": "mouseup"
+    //             }
+    //           ]
+    //         }
+    //       ],
+    //       "update": "{x: brush_translate_anchor.x - x(unit), y: brush_translate_anchor.y - y(unit)}"
+    //     }
+    //   ]
+    // },
+    // {
+    //   "name": "brush_zoom_anchor",
+    //   "on": [
+    //     {
+    //       "events": [
+    //         {
+    //           "source": "scope",
+    //           "type": "wheel",
+    //           "consume": true,
+    //           "markname": "lyra_brush_brush"
+    //         }
+    //       ],
+    //       "update": "{x: x(unit), y: y(unit)}"
+    //     }
+    //   ]
+    // },
+    // {
+    //   "name": "brush_zoom_delta",
+    //   "on": [
+    //     {
+    //       "events": [
+    //         {
+    //           "source": "scope",
+    //           "type": "wheel",
+    //           "consume": true,
+    //           "markname": "lyra_brush_brush"
+    //         }
+    //       ],
+    //       "force": true,
+    //       "update": "pow(1.001, event.deltaY * pow(16, event.deltaMode))"
+    //     }
+    //   ]
+    // },
+    // {
+    //   "name": "brush_modify",
+    //   "update": `modify(\"brush_store_${groupName}\", brush_tuple, true)`
+    // },
 
-    {
-      "name": ifXElse(`grid_${xFieldName}_${xScaleName}`, "grid_x_field_undefined"),
-      "on": ifXElse([
-        {
-          "events": {"signal": "grid_translate_delta"},
-          "update": "panLinear(grid_translate_anchor.extent_x, -grid_translate_delta.x / width)"
-        },
-        {
-          "events": {"signal": "grid_zoom_delta"},
-          "update": `zoomLinear(domain(\"${xScaleName}\"), grid_zoom_anchor.x, grid_zoom_delta)`
-        },
-        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-      ], [])
-    },
-    {
-      "name": ifYElse(`grid_${yFieldName}_${yScaleName}`, "grid_y_field_undefined"),
-      "on": ifYElse([
-        {
-          "events": {"signal": "grid_translate_delta"},
-          "update": "panLinear(grid_translate_anchor.extent_y, grid_translate_delta.y / height)"
-        },
-        {
-          "events": {"signal": "grid_zoom_delta"},
-          "update": `zoomLinear(domain(\"${yScaleName}\"), grid_zoom_anchor.y, grid_zoom_delta)`
-        },
-        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-      ], [])
-    },
-    {
-      "name": "grid_tuple",
-      "on": [
-        {
-          "events": [{"signal": ifXElse(`grid_${xFieldName}_${xScaleName}`, "") + ifXY(" || ") + ifYElse(`grid_${yFieldName}_${yScaleName}`, "")}],
-          "update": ifXElse(`grid_${xFieldName}_${xScaleName}`, "") + ifXY(" && ") + ifYElse(`grid_${yFieldName}_${yScaleName}`, "") + "? {unit: \"\", fields: tuple_fields, values: [" + ifXElse(`grid_${xFieldName}_${xScaleName}`, "") + ifXY(",") + ifYElse(`grid_${yFieldName}_${yScaleName}`, "") + "]} : null"
-        }
-      ]
-    },
-    {
-      "name": "grid_translate_anchor",
-      "value": {},
-      "on": [
-        {
-          "events": [{"source": "scope", "type": "mousedown"}],
-          "update": "{x: x(unit), y: y(unit)" + ifXElse(`, extent_x: domain(\"${xScaleName}\")`, "") + ifYElse(`, extent_y: domain(\"${yScaleName}\")`, "") + "}"
-        },
-      ]
-    },
-    {
-      "name": "grid_translate_delta",
-      "value": {},
-      "on": [
-        {
-          "events": [
-            {
-              "source": "window",
-              "type": "mousemove",
-              "consume": true,
-              "between": [
-                {"source": "scope", "type": "mousedown"},
-                {"source": "window", "type": "mouseup"}
-              ]
-            }
-          ],
-          "update": "{x: grid_translate_anchor.x - x(unit), y: grid_translate_anchor.y - y(unit)}"
-        },
-      ]
-    },
-    {
-      "name": "grid_zoom_anchor",
-      "on": [
-        {
-          "events": [{"source": "scope", "type": "wheel", "consume": true}],
-          "update": "{" + ifXElse(`x: invert(\"${xScaleName}\", x(unit))`, "") + ifXY(", ") + ifYElse(`y: invert(\"${yScaleName}\", y(unit))`, "") + "}"
-        }
-      ]
-    },
-    {
-      "name": "grid_zoom_delta",
-      "on": [
-        {
-          "events": [{"source": "scope", "type": "wheel", "consume": true}],
-          "force": true,
-          "update": "pow(1.001, event.deltaY * pow(16, event.deltaMode))"
-        }
-      ]
-    },
-    {
-      "name": "grid_modify",
-      "update": `modify(\"grid_store_${groupName}\", grid_tuple, true)`
-    },
-    {"name": "points", "update": `vlSelectionResolve(\"points_store_${groupName}\")`},
+    // {
+    //   "name": ifXElse(`grid_${xFieldName}_${xScaleName}`, "grid_x_field_undefined"),
+    //   "on": ifXElse([
+    //     {
+    //       "events": {"signal": "grid_translate_delta"},
+    //       "update": "panLinear(grid_translate_anchor.extent_x, -grid_translate_delta.x / width)"
+    //     },
+    //     {
+    //       "events": {"signal": "grid_zoom_delta"},
+    //       "update": `zoomLinear(domain(\"${xScaleName}\"), grid_zoom_anchor.x, grid_zoom_delta)`
+    //     },
+    //     {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+    //   ], [])
+    // },
+    // {
+    //   "name": ifYElse(`grid_${yFieldName}_${yScaleName}`, "grid_y_field_undefined"),
+    //   "on": ifYElse([
+    //     {
+    //       "events": {"signal": "grid_translate_delta"},
+    //       "update": "panLinear(grid_translate_anchor.extent_y, grid_translate_delta.y / height)"
+    //     },
+    //     {
+    //       "events": {"signal": "grid_zoom_delta"},
+    //       "update": `zoomLinear(domain(\"${yScaleName}\"), grid_zoom_anchor.y, grid_zoom_delta)`
+    //     },
+    //     {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+    //   ], [])
+    // },
+    // {
+    //   "name": "grid_tuple",
+    //   "on": [
+    //     {
+    //       "events": [{"signal": ifXElse(`grid_${xFieldName}_${xScaleName}`, "") + ifXY(" || ") + ifYElse(`grid_${yFieldName}_${yScaleName}`, "")}],
+    //       "update": ifXElse(`grid_${xFieldName}_${xScaleName}`, "") + ifXY(" && ") + ifYElse(`grid_${yFieldName}_${yScaleName}`, "") + "? {unit: \"\", fields: brush_tuple_fields, values: [" + ifXElse(`grid_${xFieldName}_${xScaleName}`, "") + ifXY(",") + ifYElse(`grid_${yFieldName}_${yScaleName}`, "") + "]} : null"
+    //     }
+    //   ]
+    // },
+    // {
+    //   "name": "grid_translate_anchor",
+    //   "value": {},
+    //   "on": [
+    //     {
+    //       "events": [{"source": "scope", "type": "mousedown"}],
+    //       "update": "{x: x(unit), y: y(unit)" + ifXElse(`, extent_x: domain(\"${xScaleName}\")`, "") + ifYElse(`, extent_y: domain(\"${yScaleName}\")`, "") + "}"
+    //     },
+    //   ]
+    // },
+    // {
+    //   "name": "grid_translate_delta",
+    //   "value": {},
+    //   "on": [
+    //     {
+    //       "events": [
+    //         {
+    //           "source": "window",
+    //           "type": "mousemove",
+    //           "consume": true,
+    //           "between": [
+    //             {"source": "scope", "type": "mousedown"},
+    //             {"source": "window", "type": "mouseup"}
+    //           ]
+    //         }
+    //       ],
+    //       "update": "{x: grid_translate_anchor.x - x(unit), y: grid_translate_anchor.y - y(unit)}"
+    //     },
+    //   ]
+    // },
+    // {
+    //   "name": "grid_zoom_anchor",
+    //   "on": [
+    //     {
+    //       "events": [{"source": "scope", "type": "wheel", "consume": true}],
+    //       "update": "{" + ifXElse(`x: invert(\"${xScaleName}\", x(unit))`, "") + ifXY(", ") + ifYElse(`y: invert(\"${yScaleName}\", y(unit))`, "") + "}"
+    //     }
+    //   ]
+    // },
+    // {
+    //   "name": "grid_zoom_delta",
+    //   "on": [
+    //     {
+    //       "events": [{"source": "scope", "type": "wheel", "consume": true}],
+    //       "force": true,
+    //       "update": "pow(1.001, event.deltaY * pow(16, event.deltaMode))"
+    //     }
+    //   ]
+    // },
+    // {
+    //   "name": "grid_modify",
+    //   "update": `modify(\"grid_store_${groupName}\", grid_tuple, true)`
+    // },
+    // {"name": "points", "update": `vlSelectionResolve(\"points_store_${groupName}\")`},
     {
       "name": "points_tuple",
       "on": [
@@ -903,14 +1408,14 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
       "name": "points_tuple_fields",
       "value": [{"type": "E", "field": "_vgsid_"}]
     },
-    {
-      "name": "points_toggle",
-      "init": false
-    },
-    {
-      "name": "points_modify",
-      "update": `modify(\"points_store_${groupName}\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)`
-    }
+    // {
+    //   "name": "points_toggle",
+    //   "init": false
+    // },
+    // {
+    //   "name": "points_modify",
+    //   "update": `modify(\"points_store_${groupName}\", points_toggle ? null : points_tuple, points_toggle ? null : true, points_toggle ? points_tuple : null)`
+    // }
   ];
   return groupSpec;
 }

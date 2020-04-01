@@ -9,7 +9,7 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {demonstrationDatasets, demonstrations, addSelectionToScene, addApplicationToScene, addDatasetsToScene, addInputsToScene} from './demonstrations';
+import {demonstrationDatasets, demonstrations, addSelectionToScene, addApplicationToScene, addDatasetsToScene, addInputsToScene, getScaleInfoForGroup} from './demonstrations';
 import manipulators from './manipulators';
 import exportName from '../util/exportName';
 
@@ -55,8 +55,15 @@ exporter.interactions = function(state: State, spec) {
   state.getIn(['vis', 'present', 'interactions']).forEach((interaction: InteractionRecord) => {
     const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
     const groupName = exportName(group.name);
+    const scaleInfo = getScaleInfoForGroup(state, group._id)
+    const mouseTypes = group._interactions.map(interactionId => {
+      const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+      if (!interaction.input) return null;
+      return interaction.input.mouse;
+    }).filter(x => x);
+    const exclusive = (new Set(mouseTypes)).size !== mouseTypes.length; // if there's more than one drag, for example, drag should not activate when shift+drag activates
     spec = addDatasetsToScene(spec, groupName, interaction.id);
-    spec = addInputsToScene(spec, groupName, interaction.id, interaction.input);
+    spec = addInputsToScene(spec, groupName, interaction.id, interaction.input, scaleInfo, exclusive);
     if (interaction.selection) {
       spec = addSelectionToScene(spec, groupName, interaction.id, interaction.input, interaction.selection);
     }

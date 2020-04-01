@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {View, parse, Spec} from 'vega';
 import {ApplicationRecord, SelectionRecord, TransformApplicationRecord, InteractionInput} from '../../store/factory/Interaction';
-import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview, addDatasetsToScene, addInputsToScene} from '../../ctrl/demonstrations';
+import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview} from '../../ctrl/demonstrations';
 
 const listeners = require('../../ctrl/listeners');
 const ctrl = require('../../ctrl');
