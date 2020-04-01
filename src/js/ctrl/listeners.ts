@@ -141,7 +141,9 @@ export function setSignalInGroup(view, groupName, signalName, value) {
   view.runAsync();
 }
 
-
+(window as any).getSignalInGroup = (groupName, signalName) => {
+  return getSignalInGroup(ctrl.view, groupName, signalName);
+}
 export function getSignalInGroup(view, groupName, signalName) {
   const operator = getSignalOperatorInGroup(view, groupName, signalName);
   if (operator) {

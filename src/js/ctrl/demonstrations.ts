@@ -509,15 +509,103 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
         selection = selection as IntervalSelectionRecord;
         switch (selection.field) {
           case 'x':
-            return applySignals(sceneSpec, groupName, [{
-              name: "brush_y",
-              update: "[0, height]"
-            }]);
+            return applySignals(sceneSpec, groupName, [
+              {
+                "name": `brush_y_${interactionId}`,
+                "value": [],
+                "on": [
+                  {
+                    "events": {
+                      "source": "scope",
+                      "type": "mousedown",
+                      "filter": [
+                        `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
+                      ]
+                    },
+                    "update": "[0, height]"
+                  },
+                  {
+                    "events": {
+                      "source": "window",
+                      "type": "mousemove",
+                      "consume": true,
+                      "between": [
+                        {
+                          "source": "scope",
+                          "type": "mousedown",
+                          "filter": [
+                            `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
+                          ]
+                        },
+                        {
+                          "source": "window",
+                          "type": "mouseup"
+                        }
+                      ]
+                    },
+                    "update": "[0, height]"
+                  },
+                  {
+                    "events": [
+                      {
+                        "source": "scope",
+                        "type": "dblclick"
+                      }
+                    ],
+                    "update": "[0, 0]"
+                  }
+                ]
+              }
+            ]);
           case 'y':
-            return applySignals(sceneSpec, groupName, [{
-              name: "brush_x",
-              update: "[width, 0]"
-            }]);
+            return applySignals(sceneSpec, groupName, [
+              {
+                "name": `brush_x_${interactionId}`,
+                "value": [],
+                "on": [
+                  {
+                    "events": {
+                      "source": "scope",
+                      "type": "mousedown",
+                      "filter": [
+                        `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
+                      ]
+                    },
+                    "update": "[width, 0]"
+                  },
+                  {
+                    "events": {
+                      "source": "window",
+                      "type": "mousemove",
+                      "consume": true,
+                      "between": [
+                        {
+                          "source": "scope",
+                          "type": "mousedown",
+                          "filter": [
+                            `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
+                          ]
+                        },
+                        {
+                          "source": "window",
+                          "type": "mouseup"
+                        }
+                      ]
+                    },
+                    "update": "[width, 0]"
+                  },
+                  {
+                    "events": [
+                      {
+                        "source": "scope",
+                        "type": "dblclick"
+                      }
+                    ],
+                    "update": "[0, 0]"
+                  }
+                ]
+              },
+            ]);
           default:
             return sceneSpec;
         }
@@ -750,7 +838,6 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
   sceneSpec = duplicate(sceneSpec);
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      console.log('i think i added the marks');
       markSpec.marks = [
         ...markSpec.marks,
         {
@@ -861,7 +948,6 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
     }
     return markSpec;
   });
-  console.log('did i add the marks', sceneSpec);
   return sceneSpec;
 }
 
