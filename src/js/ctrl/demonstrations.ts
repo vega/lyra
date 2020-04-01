@@ -70,6 +70,68 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     return applySignals(sceneSpec, groupName, [
       keyModifierSignal,
       {
+        "name": `mouse_x_${interactionId}`,
+        "on": [
+          {
+            "events": "mousemove",
+            "update": `key_modifier_${interactionId} ? x(unit) : mouse_x_${interactionId}`
+          }
+        ]
+      },
+      {
+        "name": `mouse_y_${interactionId}`,
+        "on": [
+          {
+            "events": "mousemove",
+            "update": `key_modifier_${interactionId} ? y(unit) : mouse_y_${interactionId}`
+          }
+        ]
+      },
+      {
+        "name": `brush_x_start_${interactionId}`,
+        "on": [
+          {
+            "events": {
+              "signal": `lyra_brush_x_${interactionId}`
+            },
+            "update": `lyra_brush_x_${interactionId}[0]`
+          }
+        ]
+      },
+      {
+        "name": `brush_x_end_${interactionId}`,
+        "on": [
+          {
+            "events": {
+              "signal": `lyra_brush_x_${interactionId}`
+            },
+            "update": `lyra_brush_x_${interactionId}[1]`
+          }
+        ]
+      },
+      {
+        "name": `brush_y_start_${interactionId}`,
+        "on": [
+          {
+            "events": {
+              "signal": `lyra_brush_y_${interactionId}`
+            },
+            "update": `lyra_brush_y_${interactionId}[0]`
+          }
+        ]
+      },
+      {
+        "name": `brush_y_end_${interactionId}`,
+        "on": [
+          {
+            "events": {
+              "signal": `lyra_brush_y_${interactionId}`
+            },
+            "update": `lyra_brush_y_${interactionId}[1]`
+          }
+        ]
+      },
+      {
         "name": `lyra_brush_is_x_encoding_${interactionId}`,
         "init": "false"
       },

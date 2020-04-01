@@ -463,8 +463,10 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     this.props.setApplication(newPreview, this.props.interaction.id);
     // TODO (jzong)
   }
-  private getSignalBubbles(scaleInfo, isDemonstratingInterval) {
-    if (isDemonstratingInterval === null) return null;
+  private getSignalBubbles(scaleInfo: ScaleInfo, input: InteractionInput) {
+    if (!input) return null;
+    const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
+
     const signals = [];
 
     const handleDragStart = (evt) => {
@@ -508,22 +510,36 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       }
     }
 
-    if (isDemonstratingInterval) {
-      if (scaleInfo.xScaleName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${scaleInfo.xScaleName}`}>{`brush_${scaleInfo.xScaleName}`}</div>)
-      }
-      if (scaleInfo.yScaleName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${scaleInfo.yScaleName}`}>{`brush_${scaleInfo.yScaleName}`}</div>)
-      }
-      if (scaleInfo.xFieldName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${scaleInfo.xFieldName}`}>{`brush_${scaleInfo.xFieldName}`}</div>)
-      }
-      if (scaleInfo.yFieldName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${scaleInfo.yFieldName}`}>{`brush_${scaleInfo.yFieldName}`}</div>)
-      }
-    }
-    else {
-      signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal="points_tuple">points</div>)
+    const interactionId = this.props.interaction.id;
+
+    switch (input.mouse) {
+      case 'drag':
+        if (xScaleName) {
+          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_x_start_${interactionId}`}>brush_x (start)</div>)
+          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_x_end_${interactionId}`}>brush_x (end)</div>)
+        }
+        if (yScaleName) {
+          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_y_start_${interactionId}`}>brush_y (start)</div>)
+          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_y_end_${interactionId}`}>brush_y (end)</div>)
+        }
+        // TODO create these signals
+        // if (xFieldName) {
+        //   signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${xFieldName}_${xScaleName}_${interactionId}_start`}>{`brush_${xFieldName} (start)`}</div>)
+        //   signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${xFieldName}_${xScaleName}_${interactionId}_end`}>{`brush_${xFieldName} (end)`}</div>)
+        // }
+        // if (yFieldName) {
+        //   signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${yFieldName}_${yScaleName}_${interactionId}_start`}>{`brush_${yFieldName} (start)`}</div>)
+        //   signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`brush_${yFieldName}_${yScaleName}_${interactionId}_end`}>{`brush_${yFieldName} (end)`}</div>)
+        // }
+        break;
+        case 'click':
+          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal="points_tuple">points</div>); // TODO: how do people actually use this?
+          break;
+        case 'mouseover':
+          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`mouse_x_${interactionId}`}>mouse_x</div>);
+          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`mouse_y_${interactionId}`}>mouse_y</div>);
+          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal="points_tuple">points</div>); // TODO: how do people actually use this?
+          break;
     }
     return signals;
   }
@@ -602,7 +618,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         <div className="property-group">
           <h3>Signals</h3>
           <div className='signals-container'>
-            {this.getSignalBubbles(this.props.scaleInfo, this.props.isDemonstratingInterval)}
+            {this.getSignalBubbles(this.props.scaleInfo, interaction.input)}
           </div>
         </div>
 
