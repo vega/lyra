@@ -80,7 +80,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
               "source": "scope",
               "type": "mousedown",
               "filter": [
-                "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+                `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
               ]
             },
             "update": `key_modifier_${interactionId} ? [x(unit), x(unit)] : brush_x_${interactionId}`
@@ -95,7 +95,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
                   "source": "scope",
                   "type": "mousedown",
                   "filter": [
-                    "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+                    `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
                   ]
                 },
                 {
@@ -155,7 +155,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
               "source": "scope",
               "type": "mousedown",
               "filter": [
-                "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+                `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
               ]
             },
             "update": `key_modifier_${interactionId} ? [y(unit), y(unit)] : brush_y_${interactionId}`
@@ -170,7 +170,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
                   "source": "scope",
                   "type": "mousedown",
                   "filter": [
-                    "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+                    `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
                   ]
                 },
                 {
@@ -1027,7 +1027,7 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
             "source": "scope",
             "type": "mousedown",
             "filter": [
-              "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+              "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
             ]
           },
           "update": "[x(unit), x(unit)]"
@@ -1042,7 +1042,7 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
                 "source": "scope",
                 "type": "mousedown",
                 "filter": [
-                  "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+                  "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
                 ]
               },
               {
@@ -1102,7 +1102,7 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
             "source": "scope",
             "type": "mousedown",
             "filter": [
-              "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+              "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
             ]
           },
           "update": "[y(unit), y(unit)]"
@@ -1117,7 +1117,7 @@ function addSignalsToGroup(groupSpec, scaleInfo: ScaleInfo) {
                 "source": "scope",
                 "type": "mousedown",
                 "filter": [
-                  "!event.item || indexof(event.item.mark.name, \"lyra_brush_brush\") < 0"
+                  "!event.item || event.item.mark.name !== \"lyra_brush_brush\""
                 ]
               },
               {
