@@ -69,6 +69,22 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     sceneSpec = addBrushMark(sceneSpec, groupName, interactionId, scaleInfo);
     return applySignals(sceneSpec, groupName, [
       keyModifierSignal,
+      {
+        "name": `lyra_brush_is_x_encoding_${interactionId}`,
+        "init": "false"
+      },
+      {
+        "name": `lyra_brush_is_y_encoding_${interactionId}`,
+        "init": "false"
+      },
+      {
+        "name": `lyra_brush_x_${interactionId}`,
+        "update": `lyra_brush_is_y_encoding_${interactionId} ? [width, 0] : brush_x`
+      },
+      {
+        "name": `lyra_brush_y_${interactionId}`,
+        "update": `lyra_brush_is_x_encoding_${interactionId} ? [0, height] : brush_y`
+      },
       {"name": `brush_${interactionId}`, "update": `vlSelectionResolve(\"brush_store_${groupName}_${interactionId}\")`},
       {"name": `grid_${interactionId}`, "update": `vlSelectionResolve(\"grid_store_${groupName}_${interactionId}\")`},
       {
@@ -140,9 +156,9 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
         "on": ifXElse([
           {
             "events": {
-              "signal": `brush_x_${interactionId}`
+              "signal": `lyra_brush_x_${interactionId}`
             },
-            "update": `brush_x_${interactionId}[0] === brush_x_${interactionId}[1] ? null : invert(\"${xScaleName}\", brush_x_${interactionId})`
+            "update": `lyra_brush_x_${interactionId}[0] === lyra_brush_x_${interactionId}[1] ? null : invert(\"${xScaleName}\", lyra_brush_x_${interactionId})`
           }
         ], [])
       },
@@ -215,9 +231,9 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
         "on": ifYElse([
           {
             "events": {
-              "signal": `brush_y_${interactionId}`
+              "signal": `lyra_brush_y_${interactionId}`
             },
-            "update": `brush_y_${interactionId}[0] === brush_y_${interactionId}[1] ? null : invert(\"${yScaleName}\", brush_y_${interactionId})`
+            "update": `lyra_brush_y_${interactionId}[0] === lyra_brush_y_${interactionId}[1] ? null : invert(\"${yScaleName}\", lyra_brush_y_${interactionId})`
           }
         ], [])
       },
@@ -236,9 +252,9 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
                         }
                       ], [])),
             "update":
-              ifXElse(`(!isArray(brush_${xFieldName}_${xScaleName}_${interactionId}) || (+invert(\"${xScaleName}\", brush_x_${interactionId})[0] === +brush_${xFieldName}_${xScaleName}_${interactionId}[0] && +invert(\"${xScaleName}\", brush_x_${interactionId})[1] === +brush_${xFieldName}_${xScaleName}_${interactionId}[1]))`, '') +
+              ifXElse(`(!isArray(brush_${xFieldName}_${xScaleName}_${interactionId}) || (+invert(\"${xScaleName}\", lyra_brush_x_${interactionId})[0] === +brush_${xFieldName}_${xScaleName}_${interactionId}[0] && +invert(\"${xScaleName}\", lyra_brush_x_${interactionId})[1] === +brush_${xFieldName}_${xScaleName}_${interactionId}[1]))`, '') +
               ifXY(" && ") +
-              ifYElse(`(!isArray(brush_${yFieldName}_${yScaleName}_${interactionId}) || (+invert(\"${yScaleName}\", brush_y_${interactionId})[0] === +brush_${yFieldName}_${yScaleName}_${interactionId}[0] && +invert(\"${yScaleName}\", brush_y_${interactionId})[1] === +brush_${yFieldName}_${yScaleName}_${interactionId}[1]))`, '') +
+              ifYElse(`(!isArray(brush_${yFieldName}_${yScaleName}_${interactionId}) || (+invert(\"${yScaleName}\", lyra_brush_y_${interactionId})[0] === +brush_${yFieldName}_${yScaleName}_${interactionId}[0] && +invert(\"${yScaleName}\", lyra_brush_y_${interactionId})[1] === +brush_${yFieldName}_${yScaleName}_${interactionId}[1]))`, '') +
               ` ? brush_scale_trigger_${interactionId} : {}`
           }
         ]
@@ -285,7 +301,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
                 "markname": `lyra_brush_brush_${interactionId}`
               }
             ],
-            "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit), extent_x: slice(brush_x_${interactionId}), extent_y: slice(brush_y_${interactionId})} : brush_translate_anchor_${interactionId}`
+            "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit), extent_x: slice(lyra_brush_x_${interactionId}), extent_y: slice(lyra_brush_y_${interactionId})} : brush_translate_anchor_${interactionId}`
           }
         ]
       },
@@ -511,100 +527,16 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
           case 'x':
             return applySignals(sceneSpec, groupName, [
               {
-                "name": `brush_y_${interactionId}`,
-                "value": [],
-                "on": [
-                  {
-                    "events": {
-                      "source": "scope",
-                      "type": "mousedown",
-                      "filter": [
-                        `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
-                      ]
-                    },
-                    "update": "[0, height]"
-                  },
-                  {
-                    "events": {
-                      "source": "window",
-                      "type": "mousemove",
-                      "consume": true,
-                      "between": [
-                        {
-                          "source": "scope",
-                          "type": "mousedown",
-                          "filter": [
-                            `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
-                          ]
-                        },
-                        {
-                          "source": "window",
-                          "type": "mouseup"
-                        }
-                      ]
-                    },
-                    "update": "[0, height]"
-                  },
-                  {
-                    "events": [
-                      {
-                        "source": "scope",
-                        "type": "dblclick"
-                      }
-                    ],
-                    "update": "[0, 0]"
-                  }
-                ]
+                "name": `lyra_brush_is_x_encoding_${interactionId}`,
+                "init": "true"
               }
             ]);
           case 'y':
             return applySignals(sceneSpec, groupName, [
               {
-                "name": `brush_x_${interactionId}`,
-                "value": [],
-                "on": [
-                  {
-                    "events": {
-                      "source": "scope",
-                      "type": "mousedown",
-                      "filter": [
-                        `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
-                      ]
-                    },
-                    "update": "[width, 0]"
-                  },
-                  {
-                    "events": {
-                      "source": "window",
-                      "type": "mousemove",
-                      "consume": true,
-                      "between": [
-                        {
-                          "source": "scope",
-                          "type": "mousedown",
-                          "filter": [
-                            `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
-                          ]
-                        },
-                        {
-                          "source": "window",
-                          "type": "mouseup"
-                        }
-                      ]
-                    },
-                    "update": "[width, 0]"
-                  },
-                  {
-                    "events": [
-                      {
-                        "source": "scope",
-                        "type": "dblclick"
-                      }
-                    ],
-                    "update": "[0, 0]"
-                  }
-                ]
-              },
+                "name": `lyra_brush_is_y_encoding_${interactionId}`,
+                "init": "true"
+              }
             ]);
           default:
             return sceneSpec;
@@ -857,7 +789,7 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
               "x": [
                 Object.assign({
                   "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
-                }, ifXElse({"signal": `brush_x_${interactionId}[0]`}, {"value": "0"})),
+                }, ifXElse({"signal": `lyra_brush_x_${interactionId}[0]`}, {"value": "0"})),
                 {
                   "value": 0
                 }
@@ -865,7 +797,7 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
               "y": [
                 Object.assign({
                   "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
-                }, ifYElse({"signal": `brush_y_${interactionId}[0]`}, {"value": "0"})),
+                }, ifYElse({"signal": `lyra_brush_y_${interactionId}[0]`}, {"value": "0"})),
                 {
                   "value": 0
                 }
@@ -873,7 +805,7 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
               "x2": [
                 Object.assign({
                   "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
-                }, ifXElse({"signal": `brush_x_${interactionId}[1]`}, {"signal": "width"})),
+                }, ifXElse({"signal": `lyra_brush_x_${interactionId}[1]`}, {"signal": "width"})),
                 {
                   "value": 0
                 }
@@ -881,7 +813,7 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
               "y2": [
                 Object.assign({
                   "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
-                }, ifYElse({"signal": `brush_y_${interactionId}[1]`}, {"signal": "height"})),
+                }, ifYElse({"signal": `lyra_brush_y_${interactionId}[1]`}, {"signal": "height"})),
                 {
                   "value": 0
                 }
@@ -903,7 +835,7 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
               "x": [
                 Object.assign({
                   "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
-                }, ifXElse({"signal": `brush_x_${interactionId}[0]`}, {"value": "0"})),
+                }, ifXElse({"signal": `lyra_brush_x_${interactionId}[0]`}, {"value": "0"})),
                 {
                   "value": 0
                 }
@@ -911,7 +843,7 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
               "y": [
                 Object.assign({
                   "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
-                }, ifYElse({"signal": `brush_y_${interactionId}[0]`}, {"value": "0"})),
+                }, ifYElse({"signal": `lyra_brush_y_${interactionId}[0]`}, {"value": "0"})),
                 {
                   "value": 0
                 }
@@ -919,7 +851,7 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
               "x2": [
                 Object.assign({
                   "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
-                }, ifXElse({"signal": `brush_x_${interactionId}[1]`}, {"signal": "width"})),
+                }, ifXElse({"signal": `lyra_brush_x_${interactionId}[1]`}, {"signal": "width"})),
                 {
                   "value": 0
                 }
@@ -927,14 +859,14 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
               "y2": [
                 Object.assign({
                   "test": `data(\"brush_store_${groupName}_${interactionId}\").length && data(\"brush_store_${groupName}_${interactionId}\")[0].unit === \"\"`,
-                }, ifYElse({"signal": `brush_y_${interactionId}[1]`}, {"signal": "height"})),
+                }, ifYElse({"signal": `lyra_brush_y_${interactionId}[1]`}, {"signal": "height"})),
                 {
                   "value": 0
                 }
               ],
               "stroke": [
                 {
-                  "test": ifXElse(`brush_x_${interactionId}[0] !== brush_x_${interactionId}[1]`, "") + ifXY(" && ") + ifYElse(`brush_y_${interactionId}[0] !== brush_y_${interactionId}[1]`, ""),
+                  "test": ifXElse(`lyra_brush_x_${interactionId}[0] !== lyra_brush_x_${interactionId}[1]`, "") + ifXY(" && ") + ifYElse(`lyra_brush_y_${interactionId}[0] !== lyra_brush_y_${interactionId}[1]`, ""),
                   "value": "white"
                 },
                 {
