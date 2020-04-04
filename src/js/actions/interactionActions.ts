@@ -21,6 +21,8 @@ export const setSelection = createStandardAction('SET_SELECTION')<SelectionRecor
 
 export const setApplication = createStandardAction('SET_APPLICATION')<ApplicationRecord, number>();
 
+export const removeApplication = createStandardAction('REMOVE_APPLICATION')<ApplicationRecord, number>();
+
 export const deleteInteraction = createStandardAction('DELETE_INTERACTION')<{groupId: number}, number>(); // id
 
 export const updateInteractionName = createStandardAction('UPDATE_INTERACTION_NAME')<string, number>();

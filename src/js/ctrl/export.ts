@@ -67,8 +67,10 @@ exporter.interactions = function(state: State, spec) {
     if (interaction.selection) {
       spec = addSelectionToScene(spec, groupName, interaction.id, interaction.input, interaction.selection);
     }
-    if (interaction.application) {
-      spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, interaction.application);
+    if (interaction.applications.length) {
+      for (let application of interaction.applications) {
+        spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, application);
+      }
     }
   });
 

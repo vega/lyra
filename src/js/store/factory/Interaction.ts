@@ -112,7 +112,7 @@ export interface LyraInteraction {
   groupId: number;
   input: InteractionInput;
   selection: SelectionRecord;
-  application: ApplicationRecord;
+  applications: ApplicationRecord[];
 };
 
 
@@ -122,7 +122,7 @@ export const Interaction = Record<LyraInteraction>({
   groupId: null,
   input: null,
   selection: null,
-  application: null
+  applications: []
 }, 'LyraInteraction');
 
 export type InteractionRecord = RecordOf<LyraInteraction>;

@@ -5,7 +5,7 @@ import {connect} from 'react-redux';
 import {State} from '../../store';
 import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
-import {setInput, setSelection, setApplication} from '../../actions/interactionActions';
+import {setInput, setSelection, setApplication, removeApplication} from '../../actions/interactionActions';
 import {getScaleInfoForGroup, ScaleSimpleType} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
@@ -35,6 +35,7 @@ interface DispatchProps {
   setInput: (input: InteractionInput, id: number) => void;
   setSelection: (record: SelectionRecord, id: number) => void;
   setApplication: (record: ApplicationRecord, id: number) => void;
+  removeApplication: (record: ApplicationRecord, id: number) => void;
   startDragging: (d: DraggingStateRecord) => void;
   stopDragging: () => void;
   setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
@@ -121,7 +122,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-const actionCreators = {setInput, setSelection, setApplication, startDragging, stopDragging, setMarkVisual};
+const actionCreators = {setInput, setSelection, setApplication, removeApplication, startDragging, stopDragging, setMarkVisual};
 
 function generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction, isDemonstratingInterval): {
   selectionPreviews: SelectionRecord[],
@@ -351,7 +352,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         }, this.props.primId);
       }
       else {
-        if (!this.props.interaction.selection && !this.props.interaction.application) {
+        if (!this.props.interaction.selection && !this.props.interaction.applications.length) {
           this.props.setInput({
             ...this.props.interaction.input,
             mouse: isDemonstratingInterval ? 'drag' : 'click',
@@ -398,10 +399,20 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       case 'scale':
       case 'transform':
         if (this.props.interaction) {
-          this.props.setApplication(preview as ApplicationRecord, this.props.interaction.id);
+          preview = preview as ApplicationRecord;
+          if (this.interactionHasApplication(preview)) {
+            this.props.removeApplication(preview, this.props.interaction.id);
+          }
+          else {
+            this.props.setApplication(preview, this.props.interaction.id);
+          }
         }
         break;
     }
+  }
+
+  private interactionHasApplication(preview: ApplicationRecord) {
+    return this.props.interaction.applications.some(application => application.id === preview.id);
   }
 
   private getFieldOptions(preview: PointSelectionRecord) {
@@ -546,7 +557,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
   public render() {
     const interaction = this.props.interaction;
-    const application = interaction.application;
+    const applications = interaction.applications;
 
     return (
       <div>
@@ -590,7 +601,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                     this.previewRefs[preview.id] = React.createRef();
                   }
                   return (
-                    <div key={preview.id} className={interaction && interaction.application && interaction.application.id === preview.id ? 'selected' : ''}>
+                    <div key={preview.id} className={interaction && this.interactionHasApplication(preview) ? 'selected' : ''}>
                       <div onClick={() => this.onClickInteractionPreview(preview)}>
                         <div className="preview-label">{preview.label}</div>
                         <InteractionPreview ref={this.previewRefs[preview.id]}
@@ -606,12 +617,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
               }
             </div>
             {
-              (application && application.type === 'mark') ? (
-                this.getTargetMarkOptions(interaction.application as MarkApplicationRecord)
-              ) : null
-            }
-            {
-              application && application.type === 'mark' ? <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null
+              applications.map(application => {
+                return application.type === 'mark' ? (
+                  <div>
+                    {this.getTargetMarkOptions(application as MarkApplicationRecord)}
+                    <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+                  </div>
+                ) : null
+              })
             }
           </div>
         </div>

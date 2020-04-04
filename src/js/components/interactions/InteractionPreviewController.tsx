@@ -58,7 +58,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   if (!interactionId) {
     interactionId = group.get('_interactions').find(id => {
       const record: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(id)]);
-      return !Boolean(record.selection && record.application);
+      return !Boolean(record.selection && record.applications.length);
     });
   }
   const interaction = interactionId ? state.getIn(['vis', 'present', 'interactions', String(interactionId)]) : null;

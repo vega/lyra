@@ -23,7 +23,15 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
   }
 
   if (action.type === getType(interactionActions.setApplication)) {
-    return state.setIn([String(id), 'application'], action.payload);
+    const applications = state.getIn([String(id), 'applications']);
+    const withoutPayload = applications.filter(application => application.id !== action.payload.id);
+    return state.setIn([String(id), 'applications'], [...withoutPayload, action.payload]);
+  }
+
+  if (action.type === getType(interactionActions.removeApplication)) {
+    const applications = state.getIn([String(id), 'applications']);
+    const withoutPayload = applications.filter(application => application.id !== action.payload.id);
+    return state.setIn([String(id), 'applications'], withoutPayload);
   }
 
   if (action.type === getType(interactionActions.deleteInteraction)) {
