@@ -23,25 +23,45 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
   const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(scaleInfo);
 
   const isDemonstratingInterval = input.mouse === 'drag';
-  const keyModifierSignal = {
-    "name": `key_modifier_${interactionId}`,
-    "value": input.keycode ? false : true,
-    "on": [
-      {
-        "events": [{"source": "window", "type": "keydown"}],
-        "update": input.keycode ? `event.keyCode === ${input.keycode}` : (exclusive ? "false" : "true")
-      },
-      {
-        "events": [{"source": "window", "type": "keyup"}],
-        "update": input.keycode ? "false" : "true"
-      }
-    ]
-  };
+
+  sceneSpec = applySignals(sceneSpec, groupName, [
+    {
+      "name": `key_modifier_${interactionId}`,
+      "value": input.keycode ? false : true,
+      "on": [
+        {
+          "events": [{"source": "window", "type": "keydown"}],
+          "update": input.keycode ? `event.keyCode === ${input.keycode}` : (exclusive ? "false" : "true")
+        },
+        {
+          "events": [{"source": "window", "type": "keyup"}],
+          "update": input.keycode ? "false" : "true"
+        }
+      ]
+    },
+    {
+      "name": `mouse_x_${interactionId}`,
+      "on": [
+        {
+          "events": "mousemove",
+          "update": `key_modifier_${interactionId} ? x(unit) : mouse_x_${interactionId}`
+        }
+      ]
+    },
+    {
+      "name": `mouse_y_${interactionId}`,
+      "on": [
+        {
+          "events": "mousemove",
+          "update": `key_modifier_${interactionId} ? y(unit) : mouse_y_${interactionId}`
+        }
+      ]
+    },
+  ]);
 
   if (!isDemonstratingInterval) {
     // Point
     return applySignals(sceneSpec, groupName, [
-      keyModifierSignal,
       {"name": `points_${interactionId}`, "update": `vlSelectionResolve(\"points_store_${groupName}_${interactionId}\")`},
       {
         "name": `points_tuple_${interactionId}`,
@@ -68,25 +88,6 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     // Interval
     sceneSpec = addBrushMark(sceneSpec, groupName, interactionId, scaleInfo);
     return applySignals(sceneSpec, groupName, [
-      keyModifierSignal,
-      {
-        "name": `mouse_x_${interactionId}`,
-        "on": [
-          {
-            "events": "mousemove",
-            "update": `key_modifier_${interactionId} ? x(unit) : mouse_x_${interactionId}`
-          }
-        ]
-      },
-      {
-        "name": `mouse_y_${interactionId}`,
-        "on": [
-          {
-            "events": "mousemove",
-            "update": `key_modifier_${interactionId} ? y(unit) : mouse_y_${interactionId}`
-          }
-        ]
-      },
       {
         "name": `brush_x_start_${interactionId}`,
         "on": [
