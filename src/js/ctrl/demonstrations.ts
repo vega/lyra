@@ -18,11 +18,8 @@ export function addDatasetsToScene(sceneSpec: Spec, groupName: string, interacti
 }
 
 export function addInputsToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, scaleInfo: ScaleInfo, exclusive?: boolean): Spec {
-  // if (!input) return sceneSpec;
   const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
   const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(scaleInfo);
-
-  // const isDemonstratingInterval = input.mouse === 'drag';
 
   sceneSpec = applySignals(sceneSpec, groupName, [
     {
@@ -69,463 +66,459 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     },
   ]);
 
-  // if (!isDemonstratingInterval) {
-    // Point
-    sceneSpec = applySignals(sceneSpec, groupName, [
-      {"name": `points_${interactionId}`, "update": `vlSelectionResolve(\"points_store_${groupName}_${interactionId}\")`},
-      {
-        "name": `lyra_is_point_projecting_${interactionId}`,
-        "init": "false"
-      },
-      {
-        "name": `lyra_points_tuple_${interactionId}`,
-        "update": `warn(lyra_is_point_projecting_${interactionId} ? points_tuple_projected_${interactionId} : points_tuple_${interactionId})`
-      },
-      {
-        "name": `points_tuple_${interactionId}`,
-        "on": [
-          {
-            "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
-            "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_${interactionId} ) : null`,
-            "force": true
+  // Point
+  sceneSpec = applySignals(sceneSpec, groupName, [
+    {"name": `points_${interactionId}`, "update": `vlSelectionResolve(\"points_store_${groupName}_${interactionId}\")`},
+    {
+      "name": `lyra_is_point_projecting_${interactionId}`,
+      "init": "false"
+    },
+    {
+      "name": `lyra_points_tuple_${interactionId}`,
+      "update": `warn(lyra_is_point_projecting_${interactionId} ? points_tuple_projected_${interactionId} : points_tuple_${interactionId})`
+    },
+    {
+      "name": `points_tuple_${interactionId}`,
+      "on": [
+        {
+          "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+          "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_${interactionId} ) : null`,
+          "force": true
+        },
+        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+      ]
+    },
+    {
+      "name": `points_tuple_projected_${interactionId}`,
+      "on": [
+        {
+          "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+          "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_projected_${interactionId} ) : null`,
+          "force": true
+        },
+        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+      ]
+    },
+    {
+      "name": `points_tuple_fields_${interactionId}`,
+      "value": [{"type": "E", "field": '_vgsid_'}]
+    },
+    {
+      "name": `points_modify_${interactionId}`,
+      "update": `warn(modify(\"points_store_${groupName}_${interactionId}\", lyra_points_tuple_${interactionId}, true, null))`
+    }
+  ]);
+  // Interval
+  sceneSpec = addBrushMark(sceneSpec, groupName, interactionId, scaleInfo);
+  sceneSpec = applySignals(sceneSpec, groupName, [
+    {
+      "name": `brush_x_start_${interactionId}`,
+      "update": `lyra_brush_x_${interactionId}[0]`
+    },
+    {
+      "name": `brush_x_end_${interactionId}`,
+      "update": `lyra_brush_x_${interactionId}[1]`
+    },
+    {
+      "name": `brush_y_start_${interactionId}`,
+      "update": `lyra_brush_y_${interactionId}[0]`
+    },
+    {
+      "name": `brush_y_end_${interactionId}`,
+      "update": `lyra_brush_y_${interactionId}[1]`
+    },
+    {
+      "name": `lyra_brush_is_x_encoding_${interactionId}`,
+      "init": "false"
+    },
+    {
+      "name": `lyra_brush_is_y_encoding_${interactionId}`,
+      "init": "false"
+    },
+    {
+      "name": `lyra_brush_x_${interactionId}`,
+      "update": `lyra_brush_is_y_encoding_${interactionId} ? [width, 0] : brush_x_${interactionId}`
+    },
+    {
+      "name": `lyra_brush_y_${interactionId}`,
+      "update": `lyra_brush_is_x_encoding_${interactionId} ? [0, height] : brush_y_${interactionId}`
+    },
+    {"name": `brush_${interactionId}`, "update": `vlSelectionResolve(\"brush_store_${groupName}_${interactionId}\")`},
+    {"name": `grid_${interactionId}`, "update": `vlSelectionResolve(\"grid_store_${groupName}_${interactionId}\")`},
+    {
+      "name": `brush_x_${interactionId}`,
+      "value": [],
+      "on": [
+        {
+          "events": {
+            "source": "scope",
+            "type": "mousedown",
+            "filter": [
+              `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
+            ]
           },
-          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-        ]
-      },
-      {
-        "name": `points_tuple_projected_${interactionId}`,
-        "on": [
-          {
-            "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
-            "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_projected_${interactionId} ) : null`,
-            "force": true
-          },
-          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-        ]
-      },
-      {
-        "name": `points_tuple_fields_${interactionId}`,
-        "value": [{"type": "E", "field": '_vgsid_'}]
-      },
-      {
-        "name": `points_modify_${interactionId}`,
-        "update": `warn(modify(\"points_store_${groupName}_${interactionId}\", lyra_points_tuple_${interactionId}, true, null))`
-      }
-    ]);
-  // }
-  // else {
-    // Interval
-    sceneSpec = addBrushMark(sceneSpec, groupName, interactionId, scaleInfo);
-    sceneSpec = applySignals(sceneSpec, groupName, [
-      {
-        "name": `brush_x_start_${interactionId}`,
-        "update": `lyra_brush_x_${interactionId}[0]`
-      },
-      {
-        "name": `brush_x_end_${interactionId}`,
-        "update": `lyra_brush_x_${interactionId}[1]`
-      },
-      {
-        "name": `brush_y_start_${interactionId}`,
-        "update": `lyra_brush_y_${interactionId}[0]`
-      },
-      {
-        "name": `brush_y_end_${interactionId}`,
-        "update": `lyra_brush_y_${interactionId}[1]`
-      },
-      {
-        "name": `lyra_brush_is_x_encoding_${interactionId}`,
-        "init": "false"
-      },
-      {
-        "name": `lyra_brush_is_y_encoding_${interactionId}`,
-        "init": "false"
-      },
-      {
-        "name": `lyra_brush_x_${interactionId}`,
-        "update": `lyra_brush_is_y_encoding_${interactionId} ? [width, 0] : brush_x_${interactionId}`
-      },
-      {
-        "name": `lyra_brush_y_${interactionId}`,
-        "update": `lyra_brush_is_x_encoding_${interactionId} ? [0, height] : brush_y_${interactionId}`
-      },
-      {"name": `brush_${interactionId}`, "update": `vlSelectionResolve(\"brush_store_${groupName}_${interactionId}\")`},
-      {"name": `grid_${interactionId}`, "update": `vlSelectionResolve(\"grid_store_${groupName}_${interactionId}\")`},
-      {
-        "name": `brush_x_${interactionId}`,
-        "value": [],
-        "on": [
-          {
-            "events": {
-              "source": "scope",
-              "type": "mousedown",
-              "filter": [
-                `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
-              ]
-            },
-            "update": `key_modifier_${interactionId} ? [x(unit), x(unit)] : brush_x_${interactionId}`
-          },
-          {
-            "events": {
-              "source": "window",
-              "type": "mousemove",
-              "consume": true,
-              "between": [
-                {
-                  "source": "scope",
-                  "type": "mousedown",
-                  "filter": [
-                    `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
-                  ]
-                },
-                {
-                  "source": "window",
-                  "type": "mouseup"
-                }
-              ]
-            },
-            "update": `key_modifier_${interactionId} ? [brush_x_${interactionId}[0], clamp(x(unit), 0, width)] : brush_x_${interactionId}`
-          },
-          {
-            "events": {
-              "signal": `brush_scale_trigger_${interactionId}`
-            },
-            "update": ifXElse(`isArray(brush_${xFieldName}_${xScaleName}_${interactionId}) && length(brush_${xFieldName}_${xScaleName}_${interactionId}) == 2 ? [scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}_${interactionId}[0]), scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}_${interactionId}[1])] : [0, 0]`, "[width, 0]")
-          },
-          {
-            "events": {
-              "signal": `brush_translate_delta_${interactionId}`
-            },
-            "update": `clampRange(panLinear(brush_translate_anchor_${interactionId}.extent_x, brush_translate_delta_${interactionId}.x / span(brush_translate_anchor_${interactionId}.extent_x)), 0, width)`
-          },
-          {
-            "events": {
-              "signal": `brush_zoom_delta_${interactionId}`
-            },
-            "update": `clampRange(zoomLinear(brush_x_${interactionId}, brush_zoom_anchor_${interactionId}.x, brush_zoom_delta_${interactionId}), 0, width)`
-          },
-          {
-            "events": [
-              {
-                "source": "scope",
-                "type": "dblclick"
-              }
-            ],
-            "update": "[0, 0]"
-          }
-        ]
-      },
-      {
-        "name": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, `brush_x_field_undefined_${interactionId}`),
-        "on": ifXElse([
-          {
-            "events": {
-              "signal": `lyra_brush_x_${interactionId}`
-            },
-            "update": `lyra_brush_x_${interactionId}[0] === lyra_brush_x_${interactionId}[1] ? null : invert(\"${xScaleName}\", lyra_brush_x_${interactionId})`
-          }
-        ], [])
-      },
-      {
-        "name": `brush_y_${interactionId}`,
-        "value": [],
-        "on": [
-          {
-            "events": {
-              "source": "scope",
-              "type": "mousedown",
-              "filter": [
-                `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
-              ]
-            },
-            "update": `key_modifier_${interactionId} ? [y(unit), y(unit)] : brush_y_${interactionId}`
-          },
-          {
-            "events": {
-              "source": "window",
-              "type": "mousemove",
-              "consume": true,
-              "between": [
-                {
-                  "source": "scope",
-                  "type": "mousedown",
-                  "filter": [
-                    `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
-                  ]
-                },
-                {
-                  "source": "window",
-                  "type": "mouseup"
-                }
-              ]
-            },
-            "update": `key_modifier_${interactionId} ? [brush_y_${interactionId}[0], clamp(y(unit), 0, height)] : brush_y_${interactionId}`
-          },
-          {
-            "events": {
-              "signal": `brush_scale_trigger_${interactionId}`
-            },
-            "update": ifYElse(`isArray(brush_${yFieldName}_${yScaleName}_${interactionId}) && length(brush_${yFieldName}_${yScaleName}_${interactionId}) == 2 ? [scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}_${interactionId}[0]), scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}_${interactionId}[1])] : [0, 0]`, "[0, height]")
-          },
-          {
-            "events": {
-              "signal": `brush_translate_delta_${interactionId}`
-            },
-            "update": `clampRange(panLinear(brush_translate_anchor_${interactionId}.extent_y, brush_translate_delta_${interactionId}.y / span(brush_translate_anchor_${interactionId}.extent_y)), 0, height)`
-          },
-          {
-            "events": {
-              "signal": `brush_zoom_delta_${interactionId}`
-            },
-            "update": `clampRange(zoomLinear(brush_y_${interactionId}, brush_zoom_anchor_${interactionId}.y, brush_zoom_delta_${interactionId}), 0, height)`
-          },
-          {
-            "events": [
-              {
-                "source": "scope",
-                "type": "dblclick"
-              }
-            ],
-            "update": "[0, 0]"
-          }
-        ]
-      },
-      {
-        "name": ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, `brush_y_field_undefined_${interactionId}`),
-        "on": ifYElse([
-          {
-            "events": {
-              "signal": `lyra_brush_y_${interactionId}`
-            },
-            "update": `lyra_brush_y_${interactionId}[0] === lyra_brush_y_${interactionId}[1] ? null : invert(\"${yScaleName}\", lyra_brush_y_${interactionId})`
-          }
-        ], [])
-      },
-      {
-        "name": `brush_scale_trigger_${interactionId}`,
-        "value": {},
-        "on": [
-          {
-            "events": [].concat(ifXElse([
-                        {
-                          "scale": "x"
-                        }
-                      ], [])).concat(ifYElse([
-                        {
-                          "scale": "y"
-                        }
-                      ], [])),
-            "update":
-              ifXElse(`(!isArray(brush_${xFieldName}_${xScaleName}_${interactionId}) || (+invert(\"${xScaleName}\", lyra_brush_x_${interactionId})[0] === +brush_${xFieldName}_${xScaleName}_${interactionId}[0] && +invert(\"${xScaleName}\", lyra_brush_x_${interactionId})[1] === +brush_${xFieldName}_${xScaleName}_${interactionId}[1]))`, '') +
-              ifXY(" && ") +
-              ifYElse(`(!isArray(brush_${yFieldName}_${yScaleName}_${interactionId}) || (+invert(\"${yScaleName}\", lyra_brush_y_${interactionId})[0] === +brush_${yFieldName}_${yScaleName}_${interactionId}[0] && +invert(\"${yScaleName}\", lyra_brush_y_${interactionId})[1] === +brush_${yFieldName}_${yScaleName}_${interactionId}[1]))`, '') +
-              ` ? brush_scale_trigger_${interactionId} : {}`
-          }
-        ]
-      },
-      {
-        "name": `brush_tuple_${interactionId}`,
-        "on": [
-          {
-            "events": [
-              {
-                "signal": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" || ") + ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, "")
-              }
-            ],
-            "update": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" && ") + ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, "") + ` ? {unit: \"\", fields: brush_tuple_fields_${interactionId}, values: [` +
-                          ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(",") + ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, "") + "]} : null"
-          }
-        ]
-      },
-      {
-        "name": `brush_tuple_fields_${interactionId}`,
-        "value": [].concat(ifXElse([
-            {
-              "field": xFieldName,
-              "channel": "x",
-              "type": "R"
-            }
-          ], [])).concat(ifYElse([
-            {
-              "field": yFieldName,
-              "channel": "y",
-              "type": "R"
-            }
-          ], []))
-      },
-      {
-        "name": `brush_translate_anchor_${interactionId}`,
-        "value": {},
-        "on": [
-          {
-            "events": [
+          "update": `key_modifier_${interactionId} ? [x(unit), x(unit)] : brush_x_${interactionId}`
+        },
+        {
+          "events": {
+            "source": "window",
+            "type": "mousemove",
+            "consume": true,
+            "between": [
               {
                 "source": "scope",
                 "type": "mousedown",
-                "markname": `lyra_brush_brush_${interactionId}`
-              }
-            ],
-            "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit), extent_x: slice(lyra_brush_x_${interactionId}), extent_y: slice(lyra_brush_y_${interactionId})} : brush_translate_anchor_${interactionId}`
-          }
-        ]
-      },
-      {
-        "name": `brush_translate_delta_${interactionId}`,
-        "value": {},
-        "on": [
-          {
-            "events": [
+                "filter": [
+                  `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
+                ]
+              },
               {
                 "source": "window",
-                "type": "mousemove",
-                "consume": true,
-                "between": [
-                  {
-                    "source": "scope",
-                    "type": "mousedown",
-                    "markname": `lyra_brush_brush_${interactionId}`
-                  },
-                  {
-                    "source": "window",
-                    "type": "mouseup"
-                  }
+                "type": "mouseup"
+              }
+            ]
+          },
+          "update": `key_modifier_${interactionId} ? [brush_x_${interactionId}[0], clamp(x(unit), 0, width)] : brush_x_${interactionId}`
+        },
+        {
+          "events": {
+            "signal": `brush_scale_trigger_${interactionId}`
+          },
+          "update": ifXElse(`isArray(brush_${xFieldName}_${xScaleName}_${interactionId}) && length(brush_${xFieldName}_${xScaleName}_${interactionId}) == 2 ? [scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}_${interactionId}[0]), scale(\"${xScaleName}\", brush_${xFieldName}_${xScaleName}_${interactionId}[1])] : [0, 0]`, "[width, 0]")
+        },
+        {
+          "events": {
+            "signal": `brush_translate_delta_${interactionId}`
+          },
+          "update": `clampRange(panLinear(brush_translate_anchor_${interactionId}.extent_x, brush_translate_delta_${interactionId}.x / span(brush_translate_anchor_${interactionId}.extent_x)), 0, width)`
+        },
+        {
+          "events": {
+            "signal": `brush_zoom_delta_${interactionId}`
+          },
+          "update": `clampRange(zoomLinear(brush_x_${interactionId}, brush_zoom_anchor_${interactionId}.x, brush_zoom_delta_${interactionId}), 0, width)`
+        },
+        {
+          "events": [
+            {
+              "source": "scope",
+              "type": "dblclick"
+            }
+          ],
+          "update": "[0, 0]"
+        }
+      ]
+    },
+    {
+      "name": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, `brush_x_field_undefined_${interactionId}`),
+      "on": ifXElse([
+        {
+          "events": {
+            "signal": `lyra_brush_x_${interactionId}`
+          },
+          "update": `lyra_brush_x_${interactionId}[0] === lyra_brush_x_${interactionId}[1] ? null : invert(\"${xScaleName}\", lyra_brush_x_${interactionId})`
+        }
+      ], [])
+    },
+    {
+      "name": `brush_y_${interactionId}`,
+      "value": [],
+      "on": [
+        {
+          "events": {
+            "source": "scope",
+            "type": "mousedown",
+            "filter": [
+              `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
+            ]
+          },
+          "update": `key_modifier_${interactionId} ? [y(unit), y(unit)] : brush_y_${interactionId}`
+        },
+        {
+          "events": {
+            "source": "window",
+            "type": "mousemove",
+            "consume": true,
+            "between": [
+              {
+                "source": "scope",
+                "type": "mousedown",
+                "filter": [
+                  `!event.item || event.item.mark.name !== \"lyra_brush_brush_${interactionId}\"`
                 ]
-              }
-            ],
-            "update": `key_modifier_${interactionId} ? {x: brush_translate_anchor_${interactionId}.x - x(unit), y: brush_translate_anchor_${interactionId}.y - y(unit)} : brush_translate_delta_${interactionId}`
-          }
-        ]
-      },
-      {
-        "name": `brush_zoom_anchor_${interactionId}`,
-        "on": [
-          {
-            "events": [
+              },
               {
-                "source": "scope",
-                "type": "wheel",
-                "consume": true,
-                "markname": `lyra_brush_brush_${interactionId}`
+                "source": "window",
+                "type": "mouseup"
               }
-            ],
-            "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit)} : brush_zoom_anchor_${interactionId}`
-          }
-        ]
-      },
-      {
-        "name": `brush_zoom_delta_${interactionId}`,
-        "on": [
+            ]
+          },
+          "update": `key_modifier_${interactionId} ? [brush_y_${interactionId}[0], clamp(y(unit), 0, height)] : brush_y_${interactionId}`
+        },
+        {
+          "events": {
+            "signal": `brush_scale_trigger_${interactionId}`
+          },
+          "update": ifYElse(`isArray(brush_${yFieldName}_${yScaleName}_${interactionId}) && length(brush_${yFieldName}_${yScaleName}_${interactionId}) == 2 ? [scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}_${interactionId}[0]), scale(\"${yScaleName}\", brush_${yFieldName}_${yScaleName}_${interactionId}[1])] : [0, 0]`, "[0, height]")
+        },
+        {
+          "events": {
+            "signal": `brush_translate_delta_${interactionId}`
+          },
+          "update": `clampRange(panLinear(brush_translate_anchor_${interactionId}.extent_y, brush_translate_delta_${interactionId}.y / span(brush_translate_anchor_${interactionId}.extent_y)), 0, height)`
+        },
+        {
+          "events": {
+            "signal": `brush_zoom_delta_${interactionId}`
+          },
+          "update": `clampRange(zoomLinear(brush_y_${interactionId}, brush_zoom_anchor_${interactionId}.y, brush_zoom_delta_${interactionId}), 0, height)`
+        },
+        {
+          "events": [
+            {
+              "source": "scope",
+              "type": "dblclick"
+            }
+          ],
+          "update": "[0, 0]"
+        }
+      ]
+    },
+    {
+      "name": ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, `brush_y_field_undefined_${interactionId}`),
+      "on": ifYElse([
+        {
+          "events": {
+            "signal": `lyra_brush_y_${interactionId}`
+          },
+          "update": `lyra_brush_y_${interactionId}[0] === lyra_brush_y_${interactionId}[1] ? null : invert(\"${yScaleName}\", lyra_brush_y_${interactionId})`
+        }
+      ], [])
+    },
+    {
+      "name": `brush_scale_trigger_${interactionId}`,
+      "value": {},
+      "on": [
+        {
+          "events": [].concat(ifXElse([
+                      {
+                        "scale": "x"
+                      }
+                    ], [])).concat(ifYElse([
+                      {
+                        "scale": "y"
+                      }
+                    ], [])),
+          "update":
+            ifXElse(`(!isArray(brush_${xFieldName}_${xScaleName}_${interactionId}) || (+invert(\"${xScaleName}\", lyra_brush_x_${interactionId})[0] === +brush_${xFieldName}_${xScaleName}_${interactionId}[0] && +invert(\"${xScaleName}\", lyra_brush_x_${interactionId})[1] === +brush_${xFieldName}_${xScaleName}_${interactionId}[1]))`, '') +
+            ifXY(" && ") +
+            ifYElse(`(!isArray(brush_${yFieldName}_${yScaleName}_${interactionId}) || (+invert(\"${yScaleName}\", lyra_brush_y_${interactionId})[0] === +brush_${yFieldName}_${yScaleName}_${interactionId}[0] && +invert(\"${yScaleName}\", lyra_brush_y_${interactionId})[1] === +brush_${yFieldName}_${yScaleName}_${interactionId}[1]))`, '') +
+            ` ? brush_scale_trigger_${interactionId} : {}`
+        }
+      ]
+    },
+    {
+      "name": `brush_tuple_${interactionId}`,
+      "on": [
+        {
+          "events": [
+            {
+              "signal": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" || ") + ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, "")
+            }
+          ],
+          "update": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" && ") + ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, "") + ` ? {unit: \"\", fields: brush_tuple_fields_${interactionId}, values: [` +
+                        ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(",") + ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, "") + "]} : null"
+        }
+      ]
+    },
+    {
+      "name": `brush_tuple_fields_${interactionId}`,
+      "value": [].concat(ifXElse([
           {
-            "events": [
-              {
-                "source": "scope",
-                "type": "wheel",
-                "consume": true,
-                "markname": `lyra_brush_brush_${interactionId}`
-              }
-            ],
-            "force": true,
-            "update": `key_modifier_${interactionId} ? pow(1.001, event.deltaY * pow(16, event.deltaMode)) : brush_zoom_delta_${interactionId}`
+            "field": xFieldName,
+            "channel": "x",
+            "type": "R"
           }
-        ]
-      },
-      {
-        "name": `brush_modify_${interactionId}`,
-        "update": `modify(\"brush_store_${groupName}_${interactionId}\", brush_tuple_${interactionId}, true)`
-      },
+        ], [])).concat(ifYElse([
+          {
+            "field": yFieldName,
+            "channel": "y",
+            "type": "R"
+          }
+        ], []))
+    },
+    {
+      "name": `brush_translate_anchor_${interactionId}`,
+      "value": {},
+      "on": [
+        {
+          "events": [
+            {
+              "source": "scope",
+              "type": "mousedown",
+              "markname": `lyra_brush_brush_${interactionId}`
+            }
+          ],
+          "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit), extent_x: slice(lyra_brush_x_${interactionId}), extent_y: slice(lyra_brush_y_${interactionId})} : brush_translate_anchor_${interactionId}`
+        }
+      ]
+    },
+    {
+      "name": `brush_translate_delta_${interactionId}`,
+      "value": {},
+      "on": [
+        {
+          "events": [
+            {
+              "source": "window",
+              "type": "mousemove",
+              "consume": true,
+              "between": [
+                {
+                  "source": "scope",
+                  "type": "mousedown",
+                  "markname": `lyra_brush_brush_${interactionId}`
+                },
+                {
+                  "source": "window",
+                  "type": "mouseup"
+                }
+              ]
+            }
+          ],
+          "update": `key_modifier_${interactionId} ? {x: brush_translate_anchor_${interactionId}.x - x(unit), y: brush_translate_anchor_${interactionId}.y - y(unit)} : brush_translate_delta_${interactionId}`
+        }
+      ]
+    },
+    {
+      "name": `brush_zoom_anchor_${interactionId}`,
+      "on": [
+        {
+          "events": [
+            {
+              "source": "scope",
+              "type": "wheel",
+              "consume": true,
+              "markname": `lyra_brush_brush_${interactionId}`
+            }
+          ],
+          "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit)} : brush_zoom_anchor_${interactionId}`
+        }
+      ]
+    },
+    {
+      "name": `brush_zoom_delta_${interactionId}`,
+      "on": [
+        {
+          "events": [
+            {
+              "source": "scope",
+              "type": "wheel",
+              "consume": true,
+              "markname": `lyra_brush_brush_${interactionId}`
+            }
+          ],
+          "force": true,
+          "update": `key_modifier_${interactionId} ? pow(1.001, event.deltaY * pow(16, event.deltaMode)) : brush_zoom_delta_${interactionId}`
+        }
+      ]
+    },
+    {
+      "name": `brush_modify_${interactionId}`,
+      "update": `modify(\"brush_store_${groupName}_${interactionId}\", brush_tuple_${interactionId}, true)`
+    },
 
-      {
-        "name": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, `grid_x_field_undefined_${interactionId}`),
-        "on": ifXElse([
-          {
-            "events": {"signal": `grid_translate_delta_${interactionId}`},
-            "update": `panLinear(grid_translate_anchor_${interactionId}.extent_x, -grid_translate_delta_${interactionId}.x / width)`
-          },
-          {
-            "events": {"signal": `grid_zoom_delta_${interactionId}`},
-            "update": `zoomLinear(domain(\"${xScaleName}\"), grid_zoom_anchor_${interactionId}.x, grid_zoom_delta_${interactionId})`
-          },
-          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-        ], [])
-      },
-      {
-        "name": ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, `grid_y_field_undefined_${interactionId}`),
-        "on": ifYElse([
-          {
-            "events": {"signal": `grid_translate_delta_${interactionId}`},
-            "update": `panLinear(grid_translate_anchor_${interactionId}.extent_y, grid_translate_delta_${interactionId}.y / height)`
-          },
-          {
-            "events": {"signal": `grid_zoom_delta_${interactionId}`},
-            "update": `zoomLinear(domain(\"${yScaleName}\"), grid_zoom_anchor_${interactionId}.y, grid_zoom_delta_${interactionId})`
-          },
-          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-        ], [])
-      },
-      {
-        "name": `grid_tuple_${interactionId}`,
-        "on": [
-          {
-            "events": [{"signal": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" || ") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "")}],
-            "update": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" && ") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "") + `? {unit: \"\", fields: brush_tuple_fields_${interactionId}, values: [` + ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(",") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "") + "]} : null"
-          }
-        ]
-      },
-      {
-        "name": `grid_translate_anchor_${interactionId}`,
-        "value": {},
-        "on": [
-          {
-            "events": [{"source": "scope", "type": "mousedown"}],
-            "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit)` + ifXElse(`, extent_x: domain(\"${xScaleName}\")`, "") + ifYElse(`, extent_y: domain(\"${yScaleName}\")`, "") + `} : grid_translate_anchor_${interactionId}`
-          },
-        ]
-      },
-      {
-        "name": `grid_translate_delta_${interactionId}`,
-        "value": {},
-        "on": [
-          {
-            "events": [
-              {
-                "source": "window",
-                "type": "mousemove",
-                "consume": true,
-                "between": [
-                  {"source": "scope", "type": "mousedown"},
-                  {"source": "window", "type": "mouseup"}
-                ]
-              }
-            ],
-            "update": `key_modifier_${interactionId} ? {x: grid_translate_anchor_${interactionId}.x - x(unit), y: grid_translate_anchor_${interactionId}.y - y(unit)} : grid_translate_delta_${interactionId}`
-          },
-        ]
-      },
-      {
-        "name": `grid_zoom_anchor_${interactionId}`,
-        "on": [
-          {
-            "events": [{"source": "scope", "type": "wheel", "consume": true}],
-            "update": `key_modifier_${interactionId} ? {` + ifXElse(`x: invert(\"${xScaleName}\", x(unit))`, "") + ifXY(", ") + ifYElse(`y: invert(\"${yScaleName}\", y(unit))`, "") + `} : grid_zoom_anchor_${interactionId}`
-          }
-        ]
-      },
-      {
-        "name": `grid_zoom_delta_${interactionId}`,
-        "on": [
-          {
-            "events": [{"source": "scope", "type": "wheel", "consume": true}],
-            "force": true,
-            "update": `key_modifier_${interactionId} ? pow(1.001, event.deltaY * pow(16, event.deltaMode)) : grid_zoom_delta_${interactionId}`
-          }
-        ]
-      },
-      {
-        "name": `grid_modify_${interactionId}`,
-        "update": `modify(\"grid_store_${groupName}_${interactionId}\", grid_tuple_${interactionId}, true)`
-      },
-    ]);
-  // }
+    {
+      "name": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, `grid_x_field_undefined_${interactionId}`),
+      "on": ifXElse([
+        {
+          "events": {"signal": `grid_translate_delta_${interactionId}`},
+          "update": `panLinear(grid_translate_anchor_${interactionId}.extent_x, -grid_translate_delta_${interactionId}.x / width)`
+        },
+        {
+          "events": {"signal": `grid_zoom_delta_${interactionId}`},
+          "update": `zoomLinear(domain(\"${xScaleName}\"), grid_zoom_anchor_${interactionId}.x, grid_zoom_delta_${interactionId})`
+        },
+        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+      ], [])
+    },
+    {
+      "name": ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, `grid_y_field_undefined_${interactionId}`),
+      "on": ifYElse([
+        {
+          "events": {"signal": `grid_translate_delta_${interactionId}`},
+          "update": `panLinear(grid_translate_anchor_${interactionId}.extent_y, grid_translate_delta_${interactionId}.y / height)`
+        },
+        {
+          "events": {"signal": `grid_zoom_delta_${interactionId}`},
+          "update": `zoomLinear(domain(\"${yScaleName}\"), grid_zoom_anchor_${interactionId}.y, grid_zoom_delta_${interactionId})`
+        },
+        {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+      ], [])
+    },
+    {
+      "name": `grid_tuple_${interactionId}`,
+      "on": [
+        {
+          "events": [{"signal": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" || ") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "")}],
+          "update": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" && ") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "") + `? {unit: \"\", fields: brush_tuple_fields_${interactionId}, values: [` + ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(",") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "") + "]} : null"
+        }
+      ]
+    },
+    {
+      "name": `grid_translate_anchor_${interactionId}`,
+      "value": {},
+      "on": [
+        {
+          "events": [{"source": "scope", "type": "mousedown"}],
+          "update": `key_modifier_${interactionId} ? {x: x(unit), y: y(unit)` + ifXElse(`, extent_x: domain(\"${xScaleName}\")`, "") + ifYElse(`, extent_y: domain(\"${yScaleName}\")`, "") + `} : grid_translate_anchor_${interactionId}`
+        },
+      ]
+    },
+    {
+      "name": `grid_translate_delta_${interactionId}`,
+      "value": {},
+      "on": [
+        {
+          "events": [
+            {
+              "source": "window",
+              "type": "mousemove",
+              "consume": true,
+              "between": [
+                {"source": "scope", "type": "mousedown"},
+                {"source": "window", "type": "mouseup"}
+              ]
+            }
+          ],
+          "update": `key_modifier_${interactionId} ? {x: grid_translate_anchor_${interactionId}.x - x(unit), y: grid_translate_anchor_${interactionId}.y - y(unit)} : grid_translate_delta_${interactionId}`
+        },
+      ]
+    },
+    {
+      "name": `grid_zoom_anchor_${interactionId}`,
+      "on": [
+        {
+          "events": [{"source": "scope", "type": "wheel", "consume": true}],
+          "update": `key_modifier_${interactionId} ? {` + ifXElse(`x: invert(\"${xScaleName}\", x(unit))`, "") + ifXY(", ") + ifYElse(`y: invert(\"${yScaleName}\", y(unit))`, "") + `} : grid_zoom_anchor_${interactionId}`
+        }
+      ]
+    },
+    {
+      "name": `grid_zoom_delta_${interactionId}`,
+      "on": [
+        {
+          "events": [{"source": "scope", "type": "wheel", "consume": true}],
+          "force": true,
+          "update": `key_modifier_${interactionId} ? pow(1.001, event.deltaY * pow(16, event.deltaMode)) : grid_zoom_delta_${interactionId}`
+        }
+      ]
+    },
+    {
+      "name": `grid_modify_${interactionId}`,
+      "update": `modify(\"grid_store_${groupName}_${interactionId}\", grid_tuple_${interactionId}, true)`
+    },
+  ]);
   return sceneSpec;
 }
 
@@ -536,50 +529,33 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
     case 'point':
         selection = selection as PointSelectionRecord;
         const field = selection.field;
+        sceneSpec = removeBrushMark(sceneSpec, groupName);
+        sceneSpec = applySignals(sceneSpec, groupName, [
+          {
+            "name": `lyra_is_point_projecting_${interactionId}`,
+            "init": field && field !== "_vgsid_" ? "true" : "false"
+          },
+          {
+            "name": `points_tuple_projected_${interactionId}`,
+            "on": [
+              {
+                "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+                "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : points_tuple_projected_${interactionId} ) : null`,
+                "force": true
+              },
+              {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+            ]
+          },
+          {
+            "name": `points_tuple_fields_${interactionId}`,
+            "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
+          },
+        ]);
         switch (selection.ptype) {
           case 'single':
-            return applySignals(sceneSpec, groupName, [
-                {
-                  "name": `lyra_is_point_projecting_${interactionId}`,
-                  "init": field && field !== "_vgsid_" ? "true" : "false"
-                },
-                {
-                  "name": `points_tuple_projected_${interactionId}`,
-                  "on": [
-                    {
-                      "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
-                      "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : points_tuple_projected_${interactionId} ) : null`,
-                      "force": true
-                    },
-                    {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-                  ]
-                },
-                {
-                  "name": `points_tuple_fields_${interactionId}`,
-                  "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
-                },
-              ]);
+            break;
           case 'multi':
-            return applySignals(sceneSpec, groupName, [
-              {
-                "name": `lyra_is_point_projecting_${interactionId}`,
-                "init": field && field !== "_vgsid_" ? "true" : "false"
-              },
-              {
-                "name": `points_tuple_projected_${interactionId}`,
-                "on": [
-                  {
-                    "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
-                    "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : points_tuple_${interactionId} ) : null`,
-                    "force": true
-                  },
-                  {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
-                ]
-              },
-              {
-                "name": `points_tuple_fields_${interactionId}`,
-                "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
-              },
+            sceneSpec = applySignals(sceneSpec, groupName, [
               {
                 "name": `points_toggle_${interactionId}`,
                 "value": false, // TODO(jzong) i disagree with this default behavior in vega
@@ -593,7 +569,7 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
               }
             ]);
         }
-      break;
+        return sceneSpec;
     case 'interval':
         selection = selection as IntervalSelectionRecord;
         switch (selection.field) {
@@ -746,7 +722,7 @@ function removeBrushMark(sceneSpec, groupName: string): Spec {
   sceneSpec = duplicate(sceneSpec);
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      markSpec.marks = markSpec.marks.filter(mark => !(mark.name && mark.name.indexOf('lyra') === 0));
+      markSpec.marks = markSpec.marks.filter(mark => !(mark.name && mark.name.startsWith('lyra_brush')));
     }
     return markSpec;
   });
