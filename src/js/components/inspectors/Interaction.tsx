@@ -360,7 +360,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       this.mainViewSignalValues[this.scopedSignalName('brush_y')] &&
       this.mainViewSignalValues[this.scopedSignalName('brush_x')][0] !== this.mainViewSignalValues[this.scopedSignalName('brush_x')][1] &&
       this.mainViewSignalValues[this.scopedSignalName('brush_y')][0] !== this.mainViewSignalValues[this.scopedSignalName('brush_y')][1]);
-    const pointActive = Boolean(this.mainViewSignalValues[this.scopedSignalName('lyra_points_tuple')]);
+    const pointActive = this.mainViewSignalValues[this.scopedSignalName('points_tuple')] || this.mainViewSignalValues[this.scopedSignalName('points_tuple_projected')];
 
     const isDemonstratingInterval = intervalActive || !pointActive;
 
@@ -374,7 +374,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         }, this.props.primId);
       }
       else {
-        if (!this.props.interaction.selection && !this.props.interaction.applications.length) {
+        if ((!this.props.interaction.selection || (this.props.selectionPreviews.length && this.props.interaction.selection.id === this.props.selectionPreviews[0].id)) && !this.props.interaction.applications.length) {
           this.props.setInput({
             ...this.props.interaction.input,
             mouse: isDemonstratingInterval ? 'drag' : 'click',
@@ -386,7 +386,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
   private onMainViewPointSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
-      console.log(name, value)
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
       this.updatePreviewSignals(name, value);

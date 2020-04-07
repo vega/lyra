@@ -81,7 +81,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       "name": `points_tuple_${interactionId}`,
       "on": [
         {
-          "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+          "events": [{"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"}],
           "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_${interactionId} ) : null`,
           "force": true
         },
@@ -92,7 +92,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       "name": `points_tuple_projected_${interactionId}`,
       "on": [
         {
-          "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+          "events": [{"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"}],
           "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_projected_${interactionId} ) : null`,
           "force": true
         },
