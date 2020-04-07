@@ -597,6 +597,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                         id={`preview-${preview.id}`}
                         interaction={this.props.interaction}
                         groupName={this.props.groupName}
+                        applicationPreviews={this.props.applicationPreviews}
                         preview={preview}/>
                     </div>
                   )
@@ -622,6 +623,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                           id={`preview-${preview.id}`}
                           interaction={this.props.interaction}
                           groupName={this.props.groupName}
+                          applicationPreviews={this.props.applicationPreviews}
                           preview={preview}/>
                       </div>
                     </div>

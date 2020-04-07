@@ -1,7 +1,8 @@
 import * as React from 'react';
 import {View, parse, Spec} from 'vega';
-import {ApplicationRecord, SelectionRecord, TransformApplicationRecord, InteractionInput, InteractionRecord} from '../../store/factory/Interaction';
+import {ApplicationRecord, SelectionRecord, TransformApplicationRecord, InteractionInput, InteractionRecord, MarkApplication} from '../../store/factory/Interaction';
 import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview} from '../../ctrl/demonstrations';
+import exportName from '../../util/exportName';
 
 const listeners = require('../../ctrl/listeners');
 const ctrl = require('../../ctrl');
@@ -10,6 +11,7 @@ interface OwnProps {
   id: string,
   interaction: InteractionRecord,
   groupName: string, // name of group mark (view) this preview is attached to,
+  applicationPreviews: ApplicationRecord[];
   preview: SelectionRecord | ApplicationRecord
 }
 interface OwnState {
@@ -30,6 +32,20 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
 
     switch (preview.type) {
       case 'point':
+        let defaultApplication;
+        if (this.props.interaction.applications.length) {
+          defaultApplication = this.props.interaction.applications.find(application => {
+            return application.type === 'mark';
+          });
+        }
+        if (!defaultApplication && this.props.applicationPreviews.length) {
+          defaultApplication = this.props.applicationPreviews.find(application => {
+            return application.type === 'mark';
+          });
+        }
+        if (defaultApplication) {
+          spec = addApplicationToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, defaultApplication);
+        }
       case 'interval':
         return addSelectionToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, preview as SelectionRecord);
       case 'mark':

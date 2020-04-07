@@ -1016,13 +1016,16 @@ function addBaseSignalsForPreview(sceneSpec, groupName) {
 }
 
 export function editSignals(specSignals, interactionSignals) {
-  return specSignals.map(signal => {
-    const match = interactionSignals.filter(s => s.name === signal.name);
-    return match.length ? match[0] : signal;
-  }).concat(interactionSignals.filter(signal => {
-    const match = specSignals.filter(s => s.name === signal.name);
-    return match.length === 0;
-  }));
+  const removeOldValues = specSignals.filter(signal => {
+    return interactionSignals.every(newSignal => newSignal.name !== signal.name);
+  });
+  return removeOldValues.concat(interactionSignals);
+  // return specSignals.map(signal => {
+  //   const match = interactionSignals.find(s => s.name === signal.name);
+  //   return match ? match : signal;
+  // }).concat(interactionSignals.filter(signal => {
+  //   return !specSignals.find(s => s.name === signal.name);
+  // }));
 }
 
 const baseSignals = [
