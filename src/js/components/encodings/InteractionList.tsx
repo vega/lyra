@@ -6,12 +6,14 @@ import {ThunkDispatch} from 'redux-thunk';
 import {selectInteraction, InspectorSelectedType, selectMark} from '../../actions/inspectorActions';
 import {State} from '../../store';
 import { Icon } from '../Icon';
-import {InteractionRecord} from '../../store/factory/Interaction';
-import {deleteInteraction, updateInteractionName} from '../../actions/interactionActions';
-import InteractionPreviewController from '../interactions/InteractionPreviewController';
+import {InteractionRecord, Interaction, ScaleInfo} from '../../store/factory/Interaction';
+import {addInteraction, deleteInteraction, updateInteractionName} from '../../actions/interactionActions';
+import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
+import {getScaleInfoForGroup} from '../../ctrl/demonstrations';
 
 const ContentEditable = require('../ContentEditable');
 const assets = require('../../util/assets');
+const ctrl = require('../../ctrl');
 
 interface OwnProps {
   groupId: number;
@@ -20,25 +22,42 @@ interface OwnProps {
 }
 interface StateProps {
   interactions: InteractionRecord[];
+  canDemonstrate: boolean;
 }
 
 interface DispatchProps {
+
+  addInteraction: (groupId: number) => void;
   selectInteraction: (interactionId: number) => void;
   deleteInteraction: (selectedId: number, groupId: number, interactionId: number, evt: any) => void;
   updateName: (interactionId: number, value: string) => void;
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
+  const scaleInfo: ScaleInfo = getScaleInfoForGroup(state, ownProps.groupId);
+  const isParsing = state.getIn(['vega', 'isParsing']);
+  const canDemonstrate = Boolean(!isParsing && ctrl.view && (scaleInfo.xScaleName && scaleInfo.xFieldName || scaleInfo.yScaleName && scaleInfo.yFieldName));
+
   const interactions = state.getIn(['vis', 'present', 'marks', String(ownProps.groupId), '_interactions']);
   return {
     interactions: interactions ? interactions.map(function(interactionId) {
       return state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
-    }) : []
+    }) : [],
+    canDemonstrate
   };
 }
 
 function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>): DispatchProps {
   return {
+    addInteraction: (groupId) => {
+      const record = Interaction({
+        groupId
+      });
+      const addAction = addInteraction(record);
+      dispatch(addAction);
+      dispatch(addInteractionToGroup(addAction.meta, groupId));
+    },
+
     selectInteraction: function(interactionId) {
       dispatch(selectInteraction(interactionId));
     },
@@ -74,7 +93,7 @@ class InteractionList extends React.Component<OwnProps & StateProps & DispatchPr
     return (
       <div className='interaction-list'>
         <li className='header'>
-          Interactions <InteractionPreviewController groupId={this.props.groupId}></InteractionPreviewController>
+          Interactions {this.props.canDemonstrate ? <Icon glyph={assets.plus} onClick={() => this.props.addInteraction(this.props.groupId)} /> : null}
         </li>
 
         {props.interactions.map(function(interaction) {

@@ -332,7 +332,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       if (this.mainViewSignalValues[signalName]) {
         setTimeout(() => {
           this.updatePreviewSignals(signalName, this.mainViewSignalValues[signalName]);
-        }, 100);
+        }, 50);
         // somehow it only works if you have both of these??? some kind of vega invalidation thing
         this.updatePreviewSignals(signalName, this.mainViewSignalValues[signalName]);
       }

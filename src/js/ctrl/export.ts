@@ -9,7 +9,7 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {demonstrationDatasets, demonstrations, addSelectionToScene, addApplicationToScene, addDatasetsToScene, addInputsToScene, getScaleInfoForGroup} from './demonstrations';
+import {addSelectionToScene, addApplicationToScene, addDatasetsToScene, addInputsToScene, getScaleInfoForGroup} from './demonstrations';
 import manipulators from './manipulators';
 import exportName from '../util/exportName';
 
@@ -43,9 +43,6 @@ export function exporter(internal: boolean = false): Spec {
 
   const spec: Spec = exporter.scene(state, int);
   spec.data = exporter.pipelines(state, int);
-
-  // add data stores for demonstration
-  demonstrationDatasets(spec);
 
   // Add interactions from store
   return exporter.interactions(state, spec);
@@ -263,8 +260,6 @@ exporter.group = function(state: State, internal: boolean, id: number) {
       {name: 'width', value: groupSize(mark, 'x')},
       {name: 'height', value: groupSize(mark, 'y')},
     );
-    // Add demonstrations signal/mark scaffolding
-    demonstrations(group, id, state);
   }
 
   return spec;
