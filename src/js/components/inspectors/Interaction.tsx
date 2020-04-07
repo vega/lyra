@@ -290,26 +290,10 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
 
 class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
 
-  public componentDidMount() {
-    // // this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
-    // // this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
-    // this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
-    // this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
-    // this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
-    // // this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
-    // this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
-    // this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
-
-    // this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
-    // // this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
-    // this.onSignal(this.props.groupName, this.scopedSignalName('brush_x'), (name, value) => this.onMainViewIntervalSignal(name, value));
-    // this.onSignal(this.props.groupName, this.scopedSignalName('brush_y'), (name, value) => this.onMainViewIntervalSignal(name, value));
-    // console.log('mount');
-  }
-
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
-      this.restoreSignalValues(this.props.groupName);
+      this.restoreMainViewSignals(this.props.groupName);
+      this.restorePreviewSignals();
       // // this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
       // // this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
       // this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
@@ -320,7 +304,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       // this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('brush_x'), (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('brush_y'), (name, value) => this.onMainViewIntervalSignal(name, value));
-      console.log('update');
     }
 
     if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
@@ -336,10 +319,22 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     return `${signalName}_${this.props.interaction.id}`
   }
 
-  private restoreSignalValues(groupName) {
+  private restoreMainViewSignals(groupName) {
     for (let signalName of ['brush_x', 'brush_y', 'points_tuple'].map(s => this.scopedSignalName(s))) {
       if (this.mainViewSignalValues[signalName]) {
         listeners.setSignalInGroup(ctrl.view, groupName, signalName, this.mainViewSignalValues[signalName]);
+      }
+    }
+  }
+
+  private restorePreviewSignals() {
+    for (let signalName of ['brush_x', 'brush_y', 'points_tuple'].map(s => this.scopedSignalName(s))) {
+      if (this.mainViewSignalValues[signalName]) {
+        setTimeout(() => {
+          this.updatePreviewSignals(signalName, this.mainViewSignalValues[signalName]);
+        }, 100);
+        // somehow it only works if you have both of these??? some kind of vega invalidation thing
+        this.updatePreviewSignals(signalName, this.mainViewSignalValues[signalName]);
       }
     }
   }
@@ -349,18 +344,17 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
   private updatePreviewSignals(name, value) {
     this.props.selectionPreviews.forEach(preview => {
-      if (this.previewRefs[preview.id] && this.previewRefs[preview.id].current) {
-        this.previewRefs[preview.id].current.setPreviewSignal(name, value);
+      if (this.previewRefs[preview.id]) {
+        this.previewRefs[preview.id].setPreviewSignal(name, value);
       }
     });
     this.props.applicationPreviews.forEach(preview => {
-      if (this.previewRefs[preview.id] && this.previewRefs[preview.id].current) {
-        this.previewRefs[preview.id].current.setPreviewSignal(name, value);
+      if (this.previewRefs[preview.id]) {
+        this.previewRefs[preview.id].setPreviewSignal(name, value);
       }
     });
   }
   private updateIsDemonstrating = debounce(250, () => { // debounce is important
-    console.log(this.mainViewSignalValues);
     const intervalActive = (this.mainViewSignalValues[this.scopedSignalName('brush_x')] &&
       this.mainViewSignalValues[this.scopedSignalName('brush_y')] &&
       this.mainViewSignalValues[this.scopedSignalName('brush_x')][0] !== this.mainViewSignalValues[this.scopedSignalName('brush_x')][1] &&
@@ -390,7 +384,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   });
 
   private onMainViewPointSignal(name, value) {
-    console.log(name, value);
     if (this.mainViewSignalValues[name] !== value) {
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
@@ -399,7 +392,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   private onMainViewIntervalSignal(name, value) {
-    console.log(name, value);
     if (this.mainViewSignalValues[name] !== value) {
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
@@ -597,18 +589,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
             <div className="preview-scroll">
               {
                 this.props.selectionPreviews.map((preview) => {
-                  if (!this.previewRefs[preview.id]) {
-                    this.previewRefs[preview.id] = React.createRef();
-                  }
                   return (
                     <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}
                         onClick={() => this.onClickInteractionPreview(preview)}>
                       <div className="preview-label">{preview.label}</div>
-                      <InteractionPreview ref={this.previewRefs[preview.id]}
+                      <InteractionPreview ref={ref => this.previewRefs[preview.id] = ref}
                         id={`preview-${preview.id}`}
-                        interactionId={this.props.interaction.id}
+                        interaction={this.props.interaction}
                         groupName={this.props.groupName}
-                        input={this.props.interaction.input}
                         preview={preview}/>
                     </div>
                   )
@@ -626,18 +614,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
             <div className="preview-scroll">
               {
                 this.props.applicationPreviews.map((preview) => {
-                  if (!this.previewRefs[preview.id]) {
-                    this.previewRefs[preview.id] = React.createRef();
-                  }
                   return (
                     <div key={preview.id} className={interaction && this.interactionHasApplication(preview) ? 'selected' : ''}>
                       <div onClick={() => this.onClickInteractionPreview(preview)}>
                         <div className="preview-label">{preview.label}</div>
-                        <InteractionPreview ref={this.previewRefs[preview.id]}
+                      <InteractionPreview ref={ref => this.previewRefs[preview.id] = ref}
                           id={`preview-${preview.id}`}
-                          interactionId={this.props.interaction.id}
+                          interaction={this.props.interaction}
                           groupName={this.props.groupName}
-                          input={this.props.interaction.input}
                           preview={preview}/>
                       </div>
                     </div>

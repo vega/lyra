@@ -90,47 +90,19 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     sceneSpec = applySignals(sceneSpec, groupName, [
       {
         "name": `brush_x_start_${interactionId}`,
-        "on": [
-          {
-            "events": {
-              "signal": `lyra_brush_x_${interactionId}`
-            },
-            "update": `lyra_brush_x_${interactionId}[0]`
-          }
-        ]
+        "update": `lyra_brush_x_${interactionId}[0]`
       },
       {
         "name": `brush_x_end_${interactionId}`,
-        "on": [
-          {
-            "events": {
-              "signal": `lyra_brush_x_${interactionId}`
-            },
-            "update": `lyra_brush_x_${interactionId}[1]`
-          }
-        ]
+        "update": `lyra_brush_x_${interactionId}[1]`
       },
       {
         "name": `brush_y_start_${interactionId}`,
-        "on": [
-          {
-            "events": {
-              "signal": `lyra_brush_y_${interactionId}`
-            },
-            "update": `lyra_brush_y_${interactionId}[0]`
-          }
-        ]
+        "update": `lyra_brush_y_${interactionId}[0]`
       },
       {
         "name": `brush_y_end_${interactionId}`,
-        "on": [
-          {
-            "events": {
-              "signal": `lyra_brush_y_${interactionId}`
-            },
-            "update": `lyra_brush_y_${interactionId}[1]`
-          }
-        ]
+        "update": `lyra_brush_y_${interactionId}[1]`
       },
       {
         "name": `lyra_brush_is_x_encoding_${interactionId}`,
@@ -593,6 +565,10 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
               {
                 "name": `lyra_brush_is_x_encoding_${interactionId}`,
                 "init": "true"
+              },
+              {
+                "name": `lyra_brush_is_y_encoding_${interactionId}`,
+                "init": "false"
               }
             ]);
           case 'y':
@@ -600,6 +576,10 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
               {
                 "name": `lyra_brush_is_y_encoding_${interactionId}`,
                 "init": "true"
+              },
+              {
+                "name": `lyra_brush_is_x_encoding_${interactionId}`,
+                "init": "false"
               }
             ]);
           default:

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {View, parse, Spec} from 'vega';
-import {ApplicationRecord, SelectionRecord, TransformApplicationRecord, InteractionInput} from '../../store/factory/Interaction';
+import {ApplicationRecord, SelectionRecord, TransformApplicationRecord, InteractionInput, InteractionRecord} from '../../store/factory/Interaction';
 import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview} from '../../ctrl/demonstrations';
 
 const listeners = require('../../ctrl/listeners');
@@ -8,9 +8,8 @@ const ctrl = require('../../ctrl');
 
 interface OwnProps {
   id: string,
-  interactionId: number,
+  interaction: InteractionRecord,
   groupName: string, // name of group mark (view) this preview is attached to,
-  input: InteractionInput,
   preview: SelectionRecord | ApplicationRecord
 }
 interface OwnState {
@@ -27,16 +26,19 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
 
   private previewToSpec(preview: SelectionRecord | ApplicationRecord): Spec {
     const groupName = (preview as TransformApplicationRecord).targetGroupName || this.props.groupName;
-    const spec = cleanSpecForPreview(ctrl.export(false), groupName);
+    let spec = cleanSpecForPreview(ctrl.export(false), groupName);
 
     switch (preview.type) {
       case 'point':
       case 'interval':
-        return addSelectionToScene(spec, this.props.groupName, this.props.interactionId, this.props.input, preview as SelectionRecord);
+        return addSelectionToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, preview as SelectionRecord);
       case 'mark':
       case 'scale':
       case 'transform':
-        return addApplicationToScene(spec, this.props.groupName, this.props.interactionId, this.props.input, preview as ApplicationRecord);
+        if (this.props.interaction.selection) {
+          spec = addSelectionToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, this.props.interaction.selection);
+        }
+        return addApplicationToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, preview as ApplicationRecord);
     }
   }
 
@@ -55,7 +57,7 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   }
 
   public componentDidUpdate(prevProps: OwnProps) {
-    if (prevProps.groupName !== this.props.groupName) { // TODO: react is being inefficient by reusing this component across groups :(
+    if (prevProps.groupName !== this.props.groupName || prevProps.interaction !== this.props.interaction) {
       const spec = this.previewToSpec(this.props.preview);
 
       this.view = new View(parse(spec), {
