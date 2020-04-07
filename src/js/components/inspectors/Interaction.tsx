@@ -312,6 +312,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
     }
+
+    if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
+      const selectionIds = this.props.selectionPreviews.map(s => s.id);
+      if (!this.props.interaction.selection ||
+          selectionIds.every(id => id !== this.props.interaction.selection.id)) {
+            this.props.setSelection(this.props.selectionPreviews[0], this.props.interaction.id);
+      }
+    }
   }
 
   private scopedSignalName(signalName: string) {
