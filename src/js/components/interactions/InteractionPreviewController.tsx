@@ -101,23 +101,23 @@ class InteractionPreviewController extends React.Component<OwnProps & StateProps
 
   public componentDidUpdate(prevProps: StateProps, prevState) {
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
-      this.restoreSignalValues(this.props.groupName, ['brush_x', 'brush_y', 'points_tuple', 'points_toggle']);
+      // this.restoreSignalValues(this.props.groupName, ['brush_x', 'brush_y', 'points_tuple', 'points_toggle']);
 
-      this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
-      this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
-      this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
-      this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
-      this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
-      this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
+      // this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
+      // this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
+      // this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
+      // this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
+      // this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
+      // this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
 
       if (this.props.interaction) {
-        const interactionId = this.props.interaction.id;
-        this.restoreSignalValues(this.props.groupName, [`brush_x_${interactionId}`, `brush_y_${interactionId}`, `points_tuple_${interactionId}`, `points_toggle_${interactionId}`]);
+        // const interactionId = this.props.interaction.id;
+        // this.restoreSignalValues(this.props.groupName, [`brush_x_${interactionId}`, `brush_y_${interactionId}`, `points_tuple_${interactionId}`, `points_toggle_${interactionId}`]);
 
-        this.onSignal(this.props.groupName, `brush_x_${interactionId}`, (name, value) => this.onMainViewIntervalSignal(name, value));
-        this.onSignal(this.props.groupName, `brush_y_${interactionId}`, (name, value) => this.onMainViewIntervalSignal(name, value));
-        this.onSignal(this.props.groupName, `points_tuple_${interactionId}`, (name, value) => this.onMainViewPointSignal(name, value));
-        this.onSignal(this.props.groupName, `points_toggle_${interactionId}`, (name, value) => this.onMainViewPointSignal(name, value));
+        // this.onSignal(this.props.groupName, `brush_x_${interactionId}`, (name, value) => this.onMainViewIntervalSignal(name, value));
+        // this.onSignal(this.props.groupName, `brush_y_${interactionId}`, (name, value) => this.onMainViewIntervalSignal(name, value));
+        // this.onSignal(this.props.groupName, `points_tuple_${interactionId}`, (name, value) => this.onMainViewPointSignal(name, value));
+        // this.onSignal(this.props.groupName, `points_toggle_${interactionId}`, (name, value) => this.onMainViewPointSignal(name, value));
       }
     }
   }

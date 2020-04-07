@@ -72,17 +72,17 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     const wScale = this.width/640; // preview width / main view width
     const hScale = this.height/360; // preview height / main view height
 
-    if (name === 'brush_x') {
+    if (name.startsWith('brush_x')) {
       return value.map(n => {
         return n * wScale;
       });
     }
-    if (name === 'brush_y') {
+    if (name.startsWith('brush_y')) {
       return value.map(n => {
         return n * hScale;
       });
     }
-    if (name === 'grid_translate_delta') {
+    if (name.startsWith('grid_translate_delta')) {
       return value ? {
         x: value.x * wScale,
         y: value.y * hScale

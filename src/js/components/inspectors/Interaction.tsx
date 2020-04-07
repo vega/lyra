@@ -291,26 +291,36 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
 class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
 
   public componentDidMount() {
-    // this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
-    // this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
-    this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
-    this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
-    this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
-    // this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
-    this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
-    this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
+    // // this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
+    // // this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
+    // this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
+    // this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
+    // this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
+    // // this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
+    // this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
+    // this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
+
+    // this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
+    // // this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
+    // this.onSignal(this.props.groupName, this.scopedSignalName('brush_x'), (name, value) => this.onMainViewIntervalSignal(name, value));
+    // this.onSignal(this.props.groupName, this.scopedSignalName('brush_y'), (name, value) => this.onMainViewIntervalSignal(name, value));
+    // console.log('mount');
   }
 
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
-      // this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
-      // this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
-      this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
-      this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
-      this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
-      // this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
+      this.restoreSignalValues(this.props.groupName);
+      // // this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
+      // // this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
+      // this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
+      // this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
+      // this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
+      // // this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
-      this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
+      // this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('brush_x'), (name, value) => this.onMainViewIntervalSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('brush_y'), (name, value) => this.onMainViewIntervalSignal(name, value));
+      console.log('update');
     }
 
     if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
@@ -324,6 +334,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
   private scopedSignalName(signalName: string) {
     return `${signalName}_${this.props.interaction.id}`
+  }
+
+  private restoreSignalValues(groupName) {
+    for (let signalName of ['brush_x', 'brush_y', 'points_tuple'].map(s => this.scopedSignalName(s))) {
+      if (this.mainViewSignalValues[signalName]) {
+        listeners.setSignalInGroup(ctrl.view, groupName, signalName, this.mainViewSignalValues[signalName]);
+      }
+    }
   }
 
   private previewRefs = {}; // id -> ref
@@ -342,11 +360,12 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     });
   }
   private updateIsDemonstrating = debounce(250, () => { // debounce is important
-    const intervalActive = (this.mainViewSignalValues['brush_x'] &&
-      this.mainViewSignalValues['brush_y'] &&
-      this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
-      this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1]);
-    const pointActive = Boolean(this.mainViewSignalValues['points_tuple']);
+    console.log(this.mainViewSignalValues);
+    const intervalActive = (this.mainViewSignalValues[this.scopedSignalName('brush_x')] &&
+      this.mainViewSignalValues[this.scopedSignalName('brush_y')] &&
+      this.mainViewSignalValues[this.scopedSignalName('brush_x')][0] !== this.mainViewSignalValues[this.scopedSignalName('brush_x')][1] &&
+      this.mainViewSignalValues[this.scopedSignalName('brush_y')][0] !== this.mainViewSignalValues[this.scopedSignalName('brush_y')][1]);
+    const pointActive = Boolean(this.mainViewSignalValues[this.scopedSignalName('points_tuple')]);
 
     const isDemonstratingInterval = intervalActive || !pointActive;
 
@@ -371,6 +390,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   });
 
   private onMainViewPointSignal(name, value) {
+    console.log(name, value);
     if (this.mainViewSignalValues[name] !== value) {
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
@@ -379,6 +399,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   private onMainViewIntervalSignal(name, value) {
+    console.log(name, value);
     if (this.mainViewSignalValues[name] !== value) {
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();

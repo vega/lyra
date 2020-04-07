@@ -18,24 +18,24 @@ export function addDatasetsToScene(sceneSpec: Spec, groupName: string, interacti
 }
 
 export function addInputsToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, scaleInfo: ScaleInfo, exclusive?: boolean): Spec {
-  if (!input) return sceneSpec;
+  // if (!input) return sceneSpec;
   const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
   const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(scaleInfo);
 
-  const isDemonstratingInterval = input.mouse === 'drag';
+  // const isDemonstratingInterval = input.mouse === 'drag';
 
   sceneSpec = applySignals(sceneSpec, groupName, [
     {
       "name": `key_modifier_${interactionId}`,
-      "value": input.keycode ? false : true,
+      "value": input && input.keycode ? false : true,
       "on": [
         {
           "events": [{"source": "window", "type": "keydown"}],
-          "update": input.keycode ? `event.keyCode === ${input.keycode}` : (exclusive ? "false" : "true")
+          "update": input && input.keycode ? `event.keyCode === ${input.keycode}` : (exclusive ? "false" : "true")
         },
         {
           "events": [{"source": "window", "type": "keyup"}],
-          "update": input.keycode ? "false" : "true"
+          "update": input && input.keycode ? "false" : "true"
         }
       ]
     },
@@ -59,9 +59,9 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     },
   ]);
 
-  if (!isDemonstratingInterval) {
+  // if (!isDemonstratingInterval) {
     // Point
-    return applySignals(sceneSpec, groupName, [
+    sceneSpec = applySignals(sceneSpec, groupName, [
       {"name": `points_${interactionId}`, "update": `vlSelectionResolve(\"points_store_${groupName}_${interactionId}\")`},
       {
         "name": `points_tuple_${interactionId}`,
@@ -83,11 +83,11 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
         "update": `modify(\"points_store_${groupName}_${interactionId}\", points_tuple_${interactionId}, true, null)`
       }
     ]);
-  }
-  else {
+  // }
+  // else {
     // Interval
     sceneSpec = addBrushMark(sceneSpec, groupName, interactionId, scaleInfo);
-    return applySignals(sceneSpec, groupName, [
+    sceneSpec = applySignals(sceneSpec, groupName, [
       {
         "name": `brush_x_start_${interactionId}`,
         "on": [
@@ -142,11 +142,11 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       },
       {
         "name": `lyra_brush_x_${interactionId}`,
-        "update": `lyra_brush_is_y_encoding_${interactionId} ? [width, 0] : brush_x`
+        "update": `lyra_brush_is_y_encoding_${interactionId} ? [width, 0] : brush_x_${interactionId}`
       },
       {
         "name": `lyra_brush_y_${interactionId}`,
-        "update": `lyra_brush_is_x_encoding_${interactionId} ? [0, height] : brush_y`
+        "update": `lyra_brush_is_x_encoding_${interactionId} ? [0, height] : brush_y_${interactionId}`
       },
       {"name": `brush_${interactionId}`, "update": `vlSelectionResolve(\"brush_store_${groupName}_${interactionId}\")`},
       {"name": `grid_${interactionId}`, "update": `vlSelectionResolve(\"grid_store_${groupName}_${interactionId}\")`},
@@ -524,7 +524,8 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
         "update": `modify(\"grid_store_${groupName}_${interactionId}\", grid_tuple_${interactionId}, true)`
       },
     ]);
-  }
+  // }
+  return sceneSpec;
 }
 
 
