@@ -74,6 +74,14 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     sceneSpec = applySignals(sceneSpec, groupName, [
       {"name": `points_${interactionId}`, "update": `vlSelectionResolve(\"points_store_${groupName}_${interactionId}\")`},
       {
+        "name": `lyra_is_point_projecting_${interactionId}`,
+        "init": "false"
+      },
+      {
+        "name": `lyra_points_tuple_${interactionId}`,
+        "update": `warn(lyra_is_point_projecting_${interactionId} ? points_tuple_projected_${interactionId} : points_tuple_${interactionId})`
+      },
+      {
         "name": `points_tuple_${interactionId}`,
         "on": [
           {
@@ -85,12 +93,23 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
         ]
       },
       {
+        "name": `points_tuple_projected_${interactionId}`,
+        "on": [
+          {
+            "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+            "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_projected_${interactionId} ) : null`,
+            "force": true
+          },
+          {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
+        ]
+      },
+      {
         "name": `points_tuple_fields_${interactionId}`,
         "value": [{"type": "E", "field": '_vgsid_'}]
       },
       {
         "name": `points_modify_${interactionId}`,
-        "update": `modify(\"points_store_${groupName}_${interactionId}\", points_tuple_${interactionId}, true, null)`
+        "update": `warn(modify(\"points_store_${groupName}_${interactionId}\", lyra_points_tuple_${interactionId}, true, null))`
       }
     ]);
   // }
@@ -521,11 +540,15 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
           case 'single':
             return applySignals(sceneSpec, groupName, [
                 {
-                  "name": `points_tuple_${interactionId}`,
+                  "name": `lyra_is_point_projecting_${interactionId}`,
+                  "init": field && field !== "_vgsid_" ? "true" : "false"
+                },
+                {
+                  "name": `points_tuple_projected_${interactionId}`,
                   "on": [
                     {
                       "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
-                      "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : points_tuple_${interactionId} ) : null`,
+                      "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : points_tuple_projected_${interactionId} ) : null`,
                       "force": true
                     },
                     {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
@@ -539,7 +562,11 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
           case 'multi':
             return applySignals(sceneSpec, groupName, [
               {
-                "name": `points_tuple_${interactionId}`,
+                "name": `lyra_is_point_projecting_${interactionId}`,
+                "init": field && field !== "_vgsid_" ? "true" : "false"
+              },
+              {
+                "name": `points_tuple_projected_${interactionId}`,
                 "on": [
                   {
                     "events": [{"source": "scope", "type": input ? input.mouse : "click"}],

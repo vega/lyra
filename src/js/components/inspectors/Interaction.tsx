@@ -301,6 +301,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       // this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
       // // this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple_projected'), (name, value) => this.onMainViewPointSignal(name, value));
       // this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('brush_x'), (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('brush_y'), (name, value) => this.onMainViewIntervalSignal(name, value));
@@ -320,7 +321,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   private restoreMainViewSignals(groupName) {
-    for (let signalName of ['brush_x', 'brush_y', 'points_tuple'].map(s => this.scopedSignalName(s))) {
+    for (let signalName of ['brush_x', 'brush_y', 'points_tuple', 'points_tuple_projected'].map(s => this.scopedSignalName(s))) {
       if (this.mainViewSignalValues[signalName]) {
         listeners.setSignalInGroup(ctrl.view, groupName, signalName, this.mainViewSignalValues[signalName]);
       }
@@ -328,7 +329,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   private restorePreviewSignals() {
-    for (let signalName of ['brush_x', 'brush_y', 'points_tuple'].map(s => this.scopedSignalName(s))) {
+    for (let signalName of ['brush_x', 'brush_y', 'points_tuple', 'points_tuple_projected'].map(s => this.scopedSignalName(s))) {
       if (this.mainViewSignalValues[signalName]) {
         setTimeout(() => {
           this.updatePreviewSignals(signalName, this.mainViewSignalValues[signalName]);
@@ -359,7 +360,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       this.mainViewSignalValues[this.scopedSignalName('brush_y')] &&
       this.mainViewSignalValues[this.scopedSignalName('brush_x')][0] !== this.mainViewSignalValues[this.scopedSignalName('brush_x')][1] &&
       this.mainViewSignalValues[this.scopedSignalName('brush_y')][0] !== this.mainViewSignalValues[this.scopedSignalName('brush_y')][1]);
-    const pointActive = Boolean(this.mainViewSignalValues[this.scopedSignalName('points_tuple')]);
+    const pointActive = Boolean(this.mainViewSignalValues[this.scopedSignalName('lyra_points_tuple')]);
 
     const isDemonstratingInterval = intervalActive || !pointActive;
 
@@ -385,6 +386,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
   private onMainViewPointSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
+      console.log(name, value)
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
       this.updatePreviewSignals(name, value);
@@ -565,12 +567,12 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         // }
         break;
         case 'click':
-          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal="points_tuple">points</div>); // TODO: how do people actually use this?
+          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`lyra_points_tuple_${interactionId}`}>points</div>); // TODO: how do people actually use this?
           break;
         case 'mouseover':
           signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`mouse_x_${interactionId}`}>mouse_x</div>);
           signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`mouse_y_${interactionId}`}>mouse_y</div>);
-          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal="points_tuple">points</div>); // TODO: how do people actually use this?
+          signals.push(<div draggable className="signal" onDragStart={handleDragStart} onDragEnd={handleDragEnd} data-signal={`lyra_points_tuple_${interactionId}`}>points</div>); // TODO: how do people actually use this?
           break;
     }
     return signals;

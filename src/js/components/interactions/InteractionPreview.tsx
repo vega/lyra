@@ -47,6 +47,9 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
           spec = addApplicationToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, defaultApplication);
         }
       case 'interval':
+        if (preview.id === 'single') {
+          console.log(spec,addSelectionToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, preview as SelectionRecord));
+        }
         return addSelectionToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, preview as SelectionRecord);
       case 'mark':
       case 'scale':
