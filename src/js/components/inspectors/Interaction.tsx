@@ -294,17 +294,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
       this.restoreMainViewSignals(this.props.groupName);
       this.restorePreviewSignals();
-      // // this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
-      // // this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
-      // this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
-      // this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
-      // this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
-      // // this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
+
       this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple_projected'), (name, value) => this.onMainViewPointSignal(name, value));
-      // this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('brush_x'), (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('brush_y'), (name, value) => this.onMainViewIntervalSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_anchor'), (name, value) => this.onMainViewGridSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_delta'), (name, value) => this.onMainViewGridSignal(name, value));
     }
 
     if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
@@ -453,18 +450,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
   private onSelectProjectionField(preview: PointSelectionRecord, field: string) {
     const newPreview = preview.set('field', field);
-    // this.setState({
-    //   selectionPreviews: this.state.selectionPreviews.map(p => {
-    //     if (p === preview) {
-    //       return newPreview;
-    //     }
-    //     return p;
-    //   })
-    // }, () => {
-    //   this.props.setSelection(newPreview, this.props.interaction.id);
-    // });
     this.props.setSelection(newPreview, this.props.interaction.id);
-    // TODO (jzong) figure this out
   }
 
   private getTargetMarkOptions(preview: MarkApplicationRecord) {
@@ -494,7 +480,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   private onSelectTargetMarkName(preview: MarkApplicationRecord, targetMarkName: string) {
     const newPreview = preview.set('targetMarkName', targetMarkName);
     this.props.setApplication(newPreview, this.props.interaction.id);
-    // TODO (jzong)
   }
   private getSignalBubbles(scaleInfo: ScaleInfo, input: InteractionInput) {
     if (!input) return;
