@@ -497,7 +497,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     // TODO (jzong)
   }
   private getSignalBubbles(scaleInfo: ScaleInfo, input: InteractionInput) {
-    if (!input) return null;
+    if (!input) return;
     const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
 
     const signals = [];
@@ -584,74 +584,78 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     return (
       <div>
         <InteractionInputType interactionId={interaction.id} input={interaction.input}></InteractionInputType>
-        <div className={"preview-controller"}>
-          <div className='property-group'>
-            <h3>Selections</h3>
-            <div className="preview-scroll">
-              {
-                this.props.selectionPreviews.map((preview) => {
-                  return (
-                    <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}
-                        onClick={() => this.onClickInteractionPreview(preview)}>
-                      <div className="preview-label">{preview.label}</div>
-                      <InteractionPreview ref={ref => this.previewRefs[preview.id] = ref}
-                        id={`preview-${preview.id}`}
-                        interaction={this.props.interaction}
-                        groupName={this.props.groupName}
-                        applicationPreviews={this.props.applicationPreviews}
-                        preview={preview}/>
-                    </div>
-                  )
-                })
-              }
-            </div>
-            {
-              (interaction && interaction.selection && interaction.selection.id.includes('project')) ? (
-                this.getFieldOptions(interaction.selection as PointSelectionRecord)
-              ) : null
-            }
-          </div>
-          <div className='property-group'>
-            <h3>Applications</h3>
-            <div className="preview-scroll">
-              {
-                this.props.applicationPreviews.map((preview) => {
-                  return (
-                    <div key={preview.id} className={interaction && this.interactionHasApplication(preview) ? 'selected' : ''}>
-                      <div onClick={() => this.onClickInteractionPreview(preview)}>
-                        <div className="preview-label">{preview.label}</div>
-                      <InteractionPreview ref={ref => this.previewRefs[preview.id] = ref}
-                          id={`preview-${preview.id}`}
-                          interaction={this.props.interaction}
-                          groupName={this.props.groupName}
-                          applicationPreviews={this.props.applicationPreviews}
-                          preview={preview}/>
-                      </div>
-                    </div>
-                  )
-                })
-              }
-            </div>
-            {
-              applications.map(application => {
-                return application.type === 'mark' ? (
-                  <div>
-                    {this.getTargetMarkOptions(application as MarkApplicationRecord)}
-                    <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+        {
+          interaction.input ? (
+            <div>
+              <div className={"preview-controller"}>
+                <div className='property-group'>
+                  <h3>Selections</h3>
+                  <div className="preview-scroll">
+                    {
+                      this.props.selectionPreviews.map((preview) => {
+                        return (
+                          <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}
+                              onClick={() => this.onClickInteractionPreview(preview)}>
+                            <div className="preview-label">{preview.label}</div>
+                            <InteractionPreview ref={ref => this.previewRefs[preview.id] = ref}
+                              id={`preview-${preview.id}`}
+                              interaction={this.props.interaction}
+                              groupName={this.props.groupName}
+                              applicationPreviews={this.props.applicationPreviews}
+                              preview={preview}/>
+                          </div>
+                        )
+                      })
+                    }
                   </div>
-                ) : null
-              })
-            }
-          </div>
-        </div>
-        <div className="property-group">
-          <h3>Signals</h3>
-          <div className='signals-container'>
-            {this.getSignalBubbles(this.props.scaleInfo, interaction.input)}
-          </div>
-        </div>
-
-
+                  {
+                    (interaction && interaction.selection && interaction.selection.id.includes('project')) ? (
+                      this.getFieldOptions(interaction.selection as PointSelectionRecord)
+                    ) : null
+                  }
+                </div>
+                <div className='property-group'>
+                  <h3>Applications</h3>
+                  <div className="preview-scroll">
+                    {
+                      this.props.applicationPreviews.map((preview) => {
+                        return (
+                          <div key={preview.id} className={interaction && this.interactionHasApplication(preview) ? 'selected' : ''}>
+                            <div onClick={() => this.onClickInteractionPreview(preview)}>
+                              <div className="preview-label">{preview.label}</div>
+                            <InteractionPreview ref={ref => this.previewRefs[preview.id] = ref}
+                                id={`preview-${preview.id}`}
+                                interaction={this.props.interaction}
+                                groupName={this.props.groupName}
+                                applicationPreviews={this.props.applicationPreviews}
+                                preview={preview}/>
+                            </div>
+                          </div>
+                        )
+                      })
+                    }
+                  </div>
+                  {
+                    applications.map(application => {
+                      return application.type === 'mark' ? (
+                        <div>
+                          {this.getTargetMarkOptions(application as MarkApplicationRecord)}
+                          <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+                        </div>
+                      ) : null
+                    })
+                  }
+                </div>
+              </div>
+              <div className="property-group">
+                <h3>Signals</h3>
+                <div className='signals-container'>
+                  {this.getSignalBubbles(this.props.scaleInfo, interaction.input)}
+                </div>
+              </div>
+            </div>
+          ) : null
+        }
       </div>
     );
   }

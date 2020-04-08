@@ -37,21 +37,25 @@ class BaseInteractionInputType extends React.Component<OwnProps & DispatchProps>
 
   private onMouseValueChange(e) {
     const value = e.target && e.target.value;
-    if (value && value !== this.props.input.mouse) {
+    if (!this.props.input || value && value !== this.props.input.mouse) {
       this.props.setInput({...this.props.input, mouse: value}, this.props.interactionId);
     }
   }
 
-  private mouseValueMap = {
-    'drag': 'Drag',
-    'click': 'Click',
-    'mouseover': 'Hover'
+  private mouseValueMap() {
+    const map = {
+      'drag': 'Drag',
+      'click': 'Click',
+      'mouseover': 'Hover'
+    }
+    if (!this.props.input) {
+      map['none'] = 'Select an event';
+    }
+    return map;
   }
 
   public render() {
-    if (!this.props.input) {
-      return null;
-    }
+    const input = this.props.input;
     return (
       <div className='property-group'>
         <h3>Input Event</h3>
@@ -59,24 +63,28 @@ class BaseInteractionInputType extends React.Component<OwnProps & DispatchProps>
           <label htmlFor='mouse-input'>Mouse</label>
           <div className='control'>
             <div>
-              <select id='mouse-input' name='mouse-input' value={this.props.input.mouse}
+              <select id='mouse-input' name='mouse-input' value={input ? input.mouse : 'none'}
                 onChange={(e) => this.onMouseValueChange(e)}>
-                {Object.entries(this.mouseValueMap).map(([k, v]) => {
+                {Object.entries(this.mouseValueMap()).map(([k, v]) => {
                   return (<option key={k} value={k}>{v}</option>);
                 }, this)}
               </select>
             </div>
           </div>
         </div>
-        <div className='property'>
-          <label htmlFor='key-input'>Keyboard</label>
-          <div className='control'>
-            <div>
-              <input ref={element=>(element||{} as any).onsearch=(e) => this.clearKeyboard()}
-                className='key-input' name='key-input' type="search" onKeyDown={(e) => this.onKeyboardKeydown(e)} value={this.props.input._key ? this.props.input._key : 'None'} />
+        {
+          input ? (
+            <div className='property'>
+              <label htmlFor='key-input'>Keyboard</label>
+              <div className='control'>
+                <div>
+                  <input ref={element=>(element||{} as any).onsearch=(e) => this.clearKeyboard()}
+                    className='key-input' name='key-input' type="search" onKeyDown={(e) => this.onKeyboardKeydown(e)} value={input && input._key ? input._key : 'None'} />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          ) : null
+        }
       </div>
     );
   }

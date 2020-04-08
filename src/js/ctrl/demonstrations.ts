@@ -75,7 +75,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     },
     {
       "name": `lyra_points_tuple_${interactionId}`,
-      "update": `warn(lyra_is_point_projecting_${interactionId} ? points_tuple_projected_${interactionId} : points_tuple_${interactionId})`
+      "update": `lyra_is_point_projecting_${interactionId} ? points_tuple_projected_${interactionId} : points_tuple_${interactionId}`
     },
     {
       "name": `points_tuple_${interactionId}`,
@@ -105,7 +105,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     },
     {
       "name": `points_modify_${interactionId}`,
-      "update": `warn(modify(\"points_store_${groupName}_${interactionId}\", lyra_points_tuple_${interactionId}, true, null))`
+      "update": `modify(\"points_store_${groupName}_${interactionId}\", lyra_points_tuple_${interactionId}, true, null)`
     }
   ]);
   // Interval
