@@ -733,7 +733,10 @@ function clipGroup(sceneSpec, groupName: string): Spec {
   sceneSpec = duplicate(sceneSpec);
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      markSpec.clip = {"value": true};
+      markSpec.marks = markSpec.marks.map(mark => {
+        mark.clip = {"value": true};
+        return mark;
+      });
     }
     return markSpec;
   });
@@ -997,7 +1000,6 @@ export function cleanSpecForPreview(sceneSpec, groupName): Spec {
       }
 
       if (markSpec.name !== groupName) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
-        markSpec.clip = true;
         markSpec.encode.update.x = {"value": -999};
         markSpec.encode.update.y = {"value": -999};
       }
