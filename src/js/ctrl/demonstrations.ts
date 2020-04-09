@@ -734,7 +734,7 @@ function clipGroup(sceneSpec, groupName: string): Spec {
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
       markSpec.marks = markSpec.marks.map(mark => {
-        mark.clip = {"value": true};
+        mark.clip = true;
         return mark;
       });
     }
