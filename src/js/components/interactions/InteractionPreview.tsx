@@ -23,8 +23,8 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     super(props);
   }
 
-  private width = 60; // these should match baseSignals in demonstrations.ts
-  private height = 60; //
+  private width = 75; // these should match baseSignals in demonstrations.ts
+  private height = 75; //
 
   private previewToSpec(preview: SelectionRecord | ApplicationRecord): Spec {
     const groupName = (preview as TransformApplicationRecord).targetGroupName || this.props.groupName;

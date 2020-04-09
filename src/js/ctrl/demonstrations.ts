@@ -975,6 +975,7 @@ function scaleTypeSimple(scaleType): ScaleSimpleType {
 
 export function cleanSpecForPreview(sceneSpec, groupName): Spec {
   const sceneUpdated = duplicate(sceneSpec);
+  sceneUpdated.autosize = "none";
   sceneUpdated.marks = sceneUpdated.marks.filter(() => {
     // return markSpec.name && markSpec.type === 'group' ? markSpec.name === groupName : true; // remove top-level groups (views) other than the relevant one
     return true;
@@ -1034,11 +1035,11 @@ export function editSignals(specSignals, interactionSignals) {
 const baseSignals = [
   {
     name: "width",
-    init: "60"
+    init: "75"
   },
   {
     name: "height",
-    init: "60"
+    init: "75"
   },
   {
     name: "brush_x",
