@@ -51,7 +51,7 @@ function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>): Di
 class AddInteractionsTool extends React.Component<StateProps & DispatchProps> {
 
   public render() {
-    if (!this.props.canDemonstrate) {
+    if (!this.props.canDemonstrate || this.props.groupId === 1) {
       return null;
     }
     return (
