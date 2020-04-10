@@ -236,14 +236,14 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
       label: "Color",
       targetMarkName: exportName(mark.name),
       propertyName: "fill",
-      defaultValue: "#797979"
+      unselectedValue: "#797979"
     }));
     defs.push(MarkApplication({
       id: "opacity_" + isDemonstratingInterval,
       label: "Opacity",
       targetMarkName: exportName(mark.name),
       propertyName: "opacity",
-      defaultValue: "0.2"
+      unselectedValue: "0.2"
     }));
     if (mark.type === 'symbol') {
       defs.push(MarkApplication({
@@ -251,7 +251,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
         label: "Size",
         targetMarkName: exportName(mark.name),
         propertyName: "size",
-        defaultValue: 30
+        unselectedValue: 30
       }));
     }
   }

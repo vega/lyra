@@ -3,19 +3,13 @@
 import * as React from 'react';
 import {Map} from 'immutable';
 import {connect} from 'react-redux';
-import { throttle } from "throttle-debounce";
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, MarkApplication} from '../../store/factory/Interaction';
+import {ApplicationRecord, MarkApplicationRecord} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import exportName from '../../util/exportName';
 import {Dispatch} from 'redux';
-import {setSelection, setApplication} from '../../actions/interactionActions';
-import {FormInputProperty} from './FormInputProperty';
+import {setApplication} from '../../actions/interactionActions';
 import {MarkRecord} from '../../store/factory/Mark';
-import {getScaleInfoForGroup} from '../../ctrl/demonstrations';
-import {DatasetRecord} from '../../store/factory/Dataset';
-import {NumericValueRef, StringValueRef} from 'vega';
-import {setMarkVisual} from '../../actions/markActions';
 import {Property} from './Property';
 
 interface OwnProps {
@@ -63,24 +57,21 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
     super(props);
   }
 
-  private onDefaultValueChange(e):void {
+  private onUnselectedValueChange(e):void {
     const value = e.target && e.target.value;
     if (value) {
-      this.props.setApplication(this.props.markApplication.set('defaultValue', value), this.props.interactionId);
+      this.props.setApplication(this.props.markApplication.set('unselectedValue', value), this.props.interactionId);
     }
   }
 
   public render() {
-
-    // mapOptions.push(<option hidden key='_blank1' value=''>Select Channel</option>)
-    // fieldOptions.push(<option key='_blank3' value='_vgsid_'>None</option>)
 
     const propertyName = this.props.markApplication.propertyName;
     const targetMarkName = this.props.markApplication.targetMarkName;
     const targetMark: MarkRecord = this.props.marks.filter((mark, markName) => {
       return markName === targetMarkName;
     }).valueSeq().first();
-    const defaultValue = this.props.markApplication.defaultValue;
+    const unselectedValue = this.props.markApplication.unselectedValue;
 
     const attributes = {
       primId: targetMark._id,
@@ -107,7 +98,7 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
       <div>
         <Property name={propertyName} label={'Selected ' + propertyName} droppable={true} {...attributes} />
 
-        <Property name={'default'+propertyName} label={'Default ' + propertyName} onChange={(e) => this.onDefaultValueChange(e)} value={defaultValue} disabled={false} {...attributes} />
+        <Property name={'unselected'+propertyName} label={'Unselected ' + propertyName} onChange={(e) => this.onUnselectedValueChange(e)} value={unselectedValue} disabled={false} {...attributes} />
       </div>
     );
   }

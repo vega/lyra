@@ -608,7 +608,7 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
     case 'mark':
       application = application as MarkApplicationRecord;
       targetMarkName = application.targetMarkName;
-      const defaultValue = application.defaultValue;
+      const unselectedValue = application.unselectedValue;
       return applyMarkProperties(sceneSpec, groupName, targetMarkName, {
         "encode": {
           "update": {
@@ -618,7 +618,7 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
                                                   `!(length(data(\"points_store_${groupName}_${interactionId}\"))) || (vlSelectionTest(\"points_store_${groupName}_${interactionId}\", datum))`,
                 "value": "" // we expect this to be overwritten with the mark's value
               },
-              {"value": defaultValue}
+              {"value": unselectedValue}
             ],
           }
         }

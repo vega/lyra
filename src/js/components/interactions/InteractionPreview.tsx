@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {View, parse, Spec} from 'vega';
-import {ApplicationRecord, SelectionRecord, TransformApplicationRecord, InteractionInput, InteractionRecord, MarkApplication} from '../../store/factory/Interaction';
+import {ApplicationRecord, SelectionRecord, TransformApplicationRecord, InteractionInput, InteractionRecord, MarkApplication, MarkApplicationRecord} from '../../store/factory/Interaction';
 import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview} from '../../ctrl/demonstrations';
 import exportName from '../../util/exportName';
 

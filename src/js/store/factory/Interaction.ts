@@ -53,7 +53,7 @@ export type LyraMarkApplication = {
   targetMarkName: string; // which mark does this application affect?
   propertyName: string; // which property (e.g. fill, opacity, size)
   // selectedValue: any; // value of property when mark is selected /// TODO(jzong): currently using the existing mark value
-  defaultValue: any; // value of property otherwise
+  unselectedValue: any; // value of property otherwise
 } & LyraInteractionPreview;
 
 export const MarkApplication = Record<LyraMarkApplication>({
@@ -63,7 +63,7 @@ export const MarkApplication = Record<LyraMarkApplication>({
   targetMarkName: null,
   propertyName: null,
   // selectedValue: null,
-  defaultValue: null
+  unselectedValue: null
 }, 'LyraMarkApplication');
 
 export type MarkApplicationRecord = RecordOf<LyraMarkApplication>;
