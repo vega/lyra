@@ -46,3 +46,6 @@ export const addLegendToGroup = createStandardAction('ADD_LEGEND_TO_GROUP')<numb
  * @returns {Object} A redux action object
  */
 export const addInteractionToGroup = createStandardAction('ADD_INTERACTION_TO_GROUP')<number, number>(); // interactionId, groupId
+
+
+export const addWidgetToGroup = createStandardAction('ADD_WIDGET_TO_GROUP')<number, number>(); // widgetId, groupId

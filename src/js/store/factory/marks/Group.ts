@@ -9,6 +9,7 @@ const getInVis = require('../../../util/immutable-utils').getInVis;
 export type LyraGroupMark = {
   _manualLayout: boolean;
   _interactions: number[] // array of IDs of InteractionRecords
+  _widgets: number[] // array of IDs of WidgetRecords
 } & LyraMarkMeta & GroupMark;
 
 export const Group = Record<LyraGroupMark>({
@@ -17,6 +18,7 @@ export const Group = Record<LyraGroupMark>({
   _vlUnit: null,
   _manualLayout: false,
   _interactions: [],
+  _widgets: [],
   type: 'group',
   name: null,
   from: null,

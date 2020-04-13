@@ -5,9 +5,10 @@ import ReactTooltip from 'react-tooltip'
 import {store} from '../store';
 import {EncodingsSidebar} from './EncodingsSidebar';
 import {InspectorSidebar} from './InspectorSidebar';
-import InteractionPreviewContainer from './interactions/InteractionPreviewContainer';
+import {WidgetContainers} from './interactions/WidgetContainers';
 import {PipelinesToolbar} from './PipelinesSidebar';
 import {Toolbar} from './Toolbar';
+import WidgetDropzone from './interactions/WidgetDropzone';
 
 // React requires you only have one wrapper element called in your provider
 module.exports = ReactDOM.render(
@@ -23,7 +24,8 @@ module.exports = ReactDOM.render(
         <div className='tools-container'>
           <div className="vis-container">
             <div id="vis"></div>
-            <div className="interaction-preview-container"></div>
+            <WidgetDropzone />
+            <WidgetContainers />
           </div>
           <Toolbar />
         </div>
@@ -38,11 +40,4 @@ module.exports = ReactDOM.render(
     </div>
   </Provider>,
   document.querySelector('.app-container')
-);
-
-ReactDOM.render(
-  <Provider store={store}>
-    <InteractionPreviewContainer></InteractionPreviewContainer>
-  </Provider>,
-  document.querySelector('.interaction-preview-container')
 );

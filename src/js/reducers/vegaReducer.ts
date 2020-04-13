@@ -4,6 +4,7 @@ import * as helperActions from '../actions/bindChannel/helperActions';
 import * as datasetActions from '../actions/datasetActions';
 import * as guideActions from '../actions/guideActions';
 import * as interactionActions from '../actions/interactionActions';
+import * as widgetActions from '../actions/widgetActions';
 import * as markActions from '../actions/markActions';
 import * as pipelineActions from '../actions/pipelineActions';
 import * as scaleActions from '../actions/scaleActions';
@@ -23,7 +24,8 @@ import {VegaReparse, VegaReparseRecord} from '../store/factory/Vega';
 export function invalidateVegaReducer(state: VegaReparseRecord,
                               action: ActionType<typeof vegaActions | typeof datasetActions | typeof hydrate |
                               typeof markActions | typeof pipelineActions | typeof sceneActions | typeof historyActions |
-                              typeof scaleActions | typeof helperActions | typeof signalActions | typeof guideActions | typeof interactionActions>): VegaReparseRecord {
+                              typeof scaleActions | typeof helperActions | typeof signalActions | typeof guideActions |
+                              typeof interactionActions | typeof widgetActions>): VegaReparseRecord {
   if (typeof state === 'undefined') {
     return VegaReparse({
       invalid: false,
@@ -64,6 +66,11 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     case getType(interactionActions.setApplication):
     case getType(interactionActions.removeApplication):
     case getType(interactionActions.deleteInteraction):
+    case getType(widgetActions.baseAddWidget):
+    case getType(widgetActions.setSelection):
+    case getType(widgetActions.setApplication):
+    case getType(widgetActions.removeApplication):
+    case getType(widgetActions.deleteWidget):
     // ACTIONS.REMOVE_AXIS_FROM_GROUP, // TODO this action doesn't exist (but would belong in helperActions
     case getType(datasetActions.sortDataset):
     case getType(datasetActions.addTransform):
