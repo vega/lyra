@@ -23,8 +23,6 @@ const getInVis = require('../../util/immutable-utils').getInVis;
 const assets = require('../../util/assets');
 const QUANTITATIVE = require('../../constants/measureTypes').QUANTITATIVE;
 
-const tupleid = (vega as any).tupleid; // TODO: remove when vega/vega#1947 is merged.
-
 interface OwnProps {
   dsId: number;
   def: HoverFieldDef;
@@ -119,7 +117,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
     const sel = sg.get(SELECTED);
     const cell = sg.get(CELL);
     const bindField = this.state.bindField;
-    const dropped = tupleid(sel) && tupleid(cell);
+    const dropped = vega.tupleid(sel) && vega.tupleid(cell);
     const dsId = bindField.source ? props.srcId : props.dsId;
 
     try {

@@ -22,12 +22,9 @@ class BaseWidgetContainers extends React.Component<StateProps> {
     return (
       <div className="widgets-container">
         {
-          this.props.widgets.map(widget => {
-            if (widget.field) {
-              const widgetId = widget.id;
-              return <div key={widgetId} className={`.widget_${widgetId}`}></div>
-            }
-            return null;
+          this.props.widgets.filter(widget => widget.field).map(widget => {
+            const widgetId = widget.id;
+            return <div key={widgetId} className={`.widget_${widgetId}`}></div>
           })
         }
       </div>

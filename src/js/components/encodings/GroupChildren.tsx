@@ -12,6 +12,7 @@ import { Icon } from '../Icon';
 import GuideList from './GuideList';
 import MarkList from './MarkList';
 import InteractionList from './InteractionList';
+import WidgetList from './WidgetList';
 
 const ContentEditable = require('../ContentEditable');
 const imutils = require('../../util/immutable-utils');
@@ -105,6 +106,7 @@ class Group extends React.Component<OwnProps & StateProps & DispatchProps> {
             <GuideList groupId={id} {...props} />
             <MarkList groupId={id} {...props} />
             <InteractionList groupId={id} {...props} />
+            <WidgetList groupId={id} {...props} />
           </ul>
         ) : null}
       </li>

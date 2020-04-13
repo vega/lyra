@@ -9,8 +9,10 @@ interface LyraWidgetSelection {
   id: string;
   label: string;
   step?: number;
-  comparator: '==' | '<' | '>' | '<=' | '>=';
+  comparator: WidgetComparator;
 }
+
+export type WidgetComparator = '==' | '<' | '>' | '<=' | '>=';
 export type WidgetSelectionRecord = RecordOf<LyraWidgetSelection>;
 export const WidgetSelection = Record<LyraWidgetSelection>({
   type: null,

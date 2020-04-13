@@ -4,7 +4,6 @@ import {createStandardAction} from 'typesafe-actions';
 import {State} from '../store';
 import {DraggingStateRecord} from '../store/factory/Inspector';
 import {getParentGroupIds} from '../util/hierarchy';
-import {baseDeleteMark, deleteMark} from './markActions';
 
 export namespace InspectorSelectedType {
   export const SELECT_GUIDE = 'SELECT_GUIDE';
@@ -12,8 +11,9 @@ export namespace InspectorSelectedType {
   export const SELECT_PIPELINE = 'SELECT_PIPELINE';
   export const SELECT_SCALE = 'SELECT_SCALE';
   export const SELECT_INTERACTION = 'SELECT_INTERACTION';
+  export const SELECT_WIDGET = 'SELECT_WIDGET';
 }
-export type InspectorSelectedType = 'SELECT_GUIDE' | 'SELECT_MARK' | 'SELECT_PIPELINE' | 'SELECT_SCALE' | 'SELECT_INTERACTION';
+export type InspectorSelectedType = 'SELECT_GUIDE' | 'SELECT_MARK' | 'SELECT_PIPELINE' | 'SELECT_SCALE' | 'SELECT_INTERACTION' | 'SELECT_WIDGET';
 
 /**
  * Return an object for the action to toggle a set of layers.
@@ -53,6 +53,7 @@ export function selectMark(id: number): ThunkAction<void, State, null, AnyAction
 export const selectPipeline = createStandardAction(InspectorSelectedType.SELECT_PIPELINE)<number>();
 export const selectScale = createStandardAction(InspectorSelectedType.SELECT_SCALE)<number>();
 export const selectInteraction = createStandardAction(InspectorSelectedType.SELECT_INTERACTION)<number>();
+export const selectWidget = createStandardAction(InspectorSelectedType.SELECT_WIDGET)<number>();
 
 export const startDragging = createStandardAction('START_DRAGGING')<DraggingStateRecord>();
 export const stopDragging = createStandardAction('STOP_DRAGGING')();

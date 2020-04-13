@@ -30,6 +30,7 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
   if (action.type === getType(inspectorActions.baseSelectMark) ||
     action.type === getType(inspectorActions.selectScale) ||
     action.type === getType(inspectorActions.selectInteraction) ||
+    action.type === getType(inspectorActions.selectWidget) ||
     action.type === getType(inspectorActions.selectGuide)) {
     state = state.setIn(['encodings', 'selectedId'], action.payload);
     state = state.setIn(['encodings', 'selectedType'], action.type);

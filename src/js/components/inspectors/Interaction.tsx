@@ -18,14 +18,11 @@ import {startDragging, stopDragging} from '../../actions/inspectorActions';
 import {setMarkVisual} from '../../actions/markActions';
 import sg from '../../ctrl/signals';
 import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
-import {NumericValueRef, StringValueRef} from 'vega';
-import * as vega from 'vega';
-import {debounce} from 'vega';
+import {debounce, NumericValueRef, StringValueRef, tupleid} from 'vega';
 import {InteractionInputType} from './InteractionInputType';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
-const tupleid = (vega as any).tupleid; // TODO: remove when vega/vega#1947 is merged.
 
 interface OwnProps {
   primId: number;
