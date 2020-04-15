@@ -96,7 +96,6 @@ export class WidgetPreview extends React.Component<OwnProps> {
 
   public setPreviewSignal(name, value) {
     if (this.view) {
-      console.log('setpreviewsignal', name, value);
       this.view.signal(name, value);
       this.view.runAsync();
     }

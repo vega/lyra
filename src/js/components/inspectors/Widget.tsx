@@ -6,7 +6,7 @@ import {State} from '../../store';
 import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {setSelection, setApplication, removeApplication} from '../../actions/widgetActions';
-import {getScaleInfoForGroup, ScaleSimpleType} from '../../ctrl/demonstrations';
+import {getScaleInfoForGroup, ScaleSimpleType, getNestedMarksOfGroup} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
 import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
@@ -69,11 +69,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   });
 
   const marksOfGroups: Map<number, MarkRecord[]> = groups.map(group => {
-    return group.marks.map(markId => {
-      return state.getIn(['vis', 'present', 'marks', String(markId)]);
-    }).filter((mark) => {
-      return !(mark.type === 'group' || mark.name.indexOf('lyra') === 0);
-    });
+    return getNestedMarksOfGroup(state, group);
   });
 
   const marksOfGroup = marksOfGroups.get(groupId);
@@ -172,7 +168,7 @@ function generateApplicationPreviews(marksOfGroup: MarkRecord[]): MarkApplicatio
       id: "color",
       label: "Color",
       targetMarkName: exportName(mark.name),
-      propertyName: "fill",
+      propertyName: mark.type === 'line' ? "stroke" : "fill",
       unselectedValue: "#797979"
     }));
     defs.push(MarkApplication({
@@ -258,7 +254,6 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
     if (this.mainViewSignalValues[name] !== value) {
       this.mainViewSignalValues[name] = value;
       this.updatePreviewSignals(name, value);
-      console.log(name, value);
     }
   }
 
@@ -327,7 +322,12 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
   }
 
   private onSelectTargetMarkName(preview: MarkApplicationRecord, targetMarkName: string) {
-    const newPreview = preview.set('targetMarkName', targetMarkName);
+    let newPreview = preview.set('targetMarkName', targetMarkName);
+    if (preview.id.startsWith('color')) {
+      const marksOfGroup = this.props.marksOfGroups.get(this.props.group._id);
+      const targetMark = marksOfGroup.find(mark => exportName(mark.name) === targetMarkName);
+      newPreview = newPreview.set('propertyName', targetMark.type === 'line' ? "stroke" : "fill");
+    }
     this.props.setApplication(newPreview, this.props.widget.id);
   }
   // private getSignalBubbles(scaleInfo: ScaleInfo, input: InteractionInput) {

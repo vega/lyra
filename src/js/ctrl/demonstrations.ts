@@ -6,7 +6,7 @@ import {MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
 import {ScaleInfo, ApplicationRecord, SelectionRecord, PointSelectionRecord, MarkApplicationRecord, ScaleApplicationRecord, TransformApplicationRecord, IntervalSelectionRecord, InteractionInput} from "../store/factory/Interaction";
 import {ColumnRecord} from "../store/factory/Dataset";
-import {NOMINAL, ORDINAL, QUANTITATIVE} from "vega-lite/src/type";
+import {NOMINAL, ORDINAL, QUANTITATIVE, TEMPORAL} from "vega-lite/src/type";
 import * as dsUtil from '../util/dataset-utils';
 import {WidgetRecord, WidgetSelectionRecord} from "../store/factory/Widget";
 
@@ -757,8 +757,7 @@ function applyMarkProperties(sceneSpec, groupName: string, markName: string, mar
   sceneSpec = duplicate(sceneSpec);
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      markSpec.marks = markSpec.marks.map(mark => {
-        if (mark.type === 'group' || mark.name.indexOf('lyra') === 0) return mark;
+      return mapNestedMarksOfGroup(markSpec, (mark) => {
         if (mark.name === markName) {
           for (let [key, value] of Object.entries(markProperties)) {
             if (key !== 'encode') {
@@ -808,7 +807,7 @@ function clipGroup(sceneSpec, groupName: string): Spec {
   sceneSpec = duplicate(sceneSpec);
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      markSpec.marks = markSpec.marks.map(mark => {
+      return mapNestedMarksOfGroup(markSpec, (mark) => {
         mark.clip = true;
         return mark;
       });
@@ -1168,7 +1167,7 @@ export function widgetParams(fieldDef: ColumnRecord, id: number) {
     }
     return {options: fieldValues};
   }
-  else if (type === QUANTITATIVE) {
+  else if (type === QUANTITATIVE || type === TEMPORAL) {
     fieldValues = fieldValues.sort((a,b)=> a-b);
     const length = fieldValues.length;
     const isInteger = fieldValues.every(v => Number.isInteger(v));
@@ -1181,4 +1180,35 @@ export function widgetParams(fieldDef: ColumnRecord, id: number) {
   else {
     // TODO: other types?
   }
+}
+
+/**
+ * Returns all non-group, non-lyra marks that are children of a group or its subgroups.
+ * @param group
+ */
+export function getNestedMarksOfGroup(state: State, group: GroupRecord): MarkRecord[] {
+  return group.marks.map(markId => {
+    const mark = state.getIn(['vis', 'present', 'marks', String(markId)]);
+    if (mark.type === 'group') {
+      return getNestedMarksOfGroup(state, group);
+    }
+    return mark;
+  }).filter((mark) => {
+    return !mark.name.startsWith('lyra');
+  });
+}
+
+/**
+ * Applies fn to all non-group, non-lyra marks that are children of groupSpec or its subgroups. Returns copy of groupSpec with changes applied
+*/
+export function mapNestedMarksOfGroup(groupSpec, fn) {
+  groupSpec = duplicate(groupSpec);
+  groupSpec.marks = groupSpec.marks.map(mark => {
+    if (mark.name && mark.name.startsWith('lyra')) return mark;
+    if (mark.type === 'group') {
+      return mapNestedMarksOfGroup(mark, fn);
+    }
+    return fn(mark);
+  });
+  return groupSpec;
 }

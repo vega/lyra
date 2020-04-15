@@ -11,6 +11,7 @@ import {Dispatch} from 'redux';
 import {setApplication} from '../../actions/interactionActions';
 import {MarkRecord} from '../../store/factory/Mark';
 import {Property} from './Property';
+import {getNestedMarksOfGroup} from '../../ctrl/demonstrations';
 
 interface OwnProps {
   interactionId: number;
@@ -30,11 +31,7 @@ interface StateProps {
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(ownProps.groupId)]);
 
-  const marksOfGroup = Map(group.marks.map(markId => {
-    return state.getIn(['vis', 'present', 'marks', String(markId)]);
-  }).filter((mark) => {
-    return !(mark.type === 'group' || mark.name.indexOf('lyra') === 0);
-  }).map((mark) => {
+  const marksOfGroup = Map(getNestedMarksOfGroup(state, group).map((mark) => {
     return [exportName(mark.name), mark];
   }));
 
@@ -77,12 +74,14 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
       primId: targetMark._id,
       primType: "marks" as const
     };
+
     switch (propertyName) {
       case 'size':
         attributes['type'] = 'number';
         attributes['min'] = '0';
         attributes['max'] = '500';
         break;
+      case 'stroke':
       case 'fill':
         attributes['type'] = 'color';
         break;
