@@ -203,7 +203,8 @@ function channelName(name: string): Channel {
     case 'stroke':
       return 'color';
     case 'text':
-      return 'text';
+    case 'detail':
+      return name;
   }
 }
 

@@ -72,8 +72,11 @@ function bindProperty(dispatch: Dispatch, parsed: CompiledBinding, update: Encod
     markType = parsed.markType;
 
   property = property || parsed.property;
-  const def = property === 'stroke' ? update.stroke || update.fill : update[property];
+  if (property === 'detail') {
+    return;
+  }
 
+  const def = property === 'stroke' ? update.stroke || update.fill : update[property];
   if ('scale' in def && typeof def.scale === 'string') {
     def.scale = map.scales[def.scale];
   }
