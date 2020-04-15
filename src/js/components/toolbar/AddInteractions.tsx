@@ -2,13 +2,12 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {addInteraction} from '../../actions/interactionActions';
 import { Icon } from '../Icon';
-import {InteractionRecord, Interaction, ScaleInfo} from '../../store/factory/Interaction';
+import {Interaction, ScaleInfo} from '../../store/factory/Interaction';
 import {getClosestGroupId} from '../../util/hierarchy';
 import {State} from '../../store';
 import {getScaleInfoForGroup} from '../../ctrl/demonstrations';
 import {ThunkDispatch} from 'redux-thunk';
 import {AnyAction} from 'redux';
-import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
 
 const assets = require('../../util/assets');
 const ctrl = require('../../ctrl');
@@ -32,7 +31,7 @@ function mapStateToProps(state: State): StateProps {
 }
 
 interface DispatchProps {
-  addInteraction: (groupId: number) => number;
+  addInteraction: (groupId: number) => void;
 }
 
 function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>): DispatchProps {
@@ -41,10 +40,7 @@ function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>): Di
       const record = Interaction({
         groupId
       });
-      const addAction = addInteraction(record);
-      dispatch(addAction);
-      dispatch(addInteractionToGroup(addAction.meta, groupId));
-      return addAction.meta;
+      dispatch(addInteraction(record));
     },
   }
 }

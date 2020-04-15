@@ -3,23 +3,19 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput} from '../../store/factory/Interaction';
+import {ScaleInfo, MarkApplicationRecord, MarkApplication} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {setSelection, setApplication, removeApplication} from '../../actions/widgetActions';
-import {getScaleInfoForGroup, ScaleSimpleType, getNestedMarksOfGroup} from '../../ctrl/demonstrations';
+import {getScaleInfoForGroup, getNestedMarksOfGroup} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
-import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
+import {MarkRecord} from '../../store/factory/Mark';
 import exportName from '../../util/exportName';
-import InteractionPreview from '../interactions/InteractionPreview';
 import {Map} from 'immutable';
-import {DraggingStateRecord, SignalDraggingState, SignalDraggingStateRecord} from '../../store/factory/Inspector';
+import {DraggingStateRecord, SignalDraggingStateRecord} from '../../store/factory/Inspector';
 import {startDragging, stopDragging} from '../../actions/inspectorActions';
 import {setMarkVisual} from '../../actions/markActions';
-import sg from '../../ctrl/signals';
-import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
-import {NumericValueRef, StringValueRef, tupleid, debounce} from 'vega';
-import {InteractionInputType} from './InteractionInputType';
+import {NumericValueRef, StringValueRef} from 'vega';
 import {WidgetSelectionRecord, WidgetRecord, WidgetSelection, WidgetComparator} from '../../store/factory/Widget';
 import WidgetPreview from '../interactions/WidgetPreview';
 
@@ -213,14 +209,14 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
 
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
-      this.restoreMainViewSignals(this.props.groupName);
+      this.restoreMainViewSignals();
       this.restorePreviewSignals();
 
       listeners.onSignal(`widget_${this.props.widget.id}`, (name, value) => this.onMainViewWidgetSignal(name, value));
     }
   }
 
-  private restoreMainViewSignals(groupName) {
+  private restoreMainViewSignals() {
     const signalName = `widget_${this.props.widget.id}`;
     if (this.mainViewSignalValues[signalName]) {
       ctrl.view.signal(signalName, this.mainViewSignalValues[signalName]);

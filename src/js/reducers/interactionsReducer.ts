@@ -10,7 +10,7 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
     return Map();
   }
 
-  if (action.type === getType(interactionActions.addInteraction)) {
+  if (action.type === getType(interactionActions.baseAddInteraction)) {
     return state.set(String(id), action.payload);
   }
 

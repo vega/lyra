@@ -60,7 +60,7 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     case getType(guideActions.updateGuideProperty):
     case getType(helperActions.addAxisToGroup):
     case getType(helperActions.addLegendToGroup):
-    case getType(interactionActions.addInteraction):
+    case getType(interactionActions.baseAddInteraction):
     case getType(interactionActions.setInput):
     case getType(interactionActions.setSelection):
     case getType(interactionActions.setApplication):

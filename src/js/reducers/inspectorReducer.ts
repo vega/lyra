@@ -11,7 +11,7 @@ function expandLayers(state: InspectorRecord, layerIds: number[]): InspectorReco
   }, state);
 }
 
-export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.addMark | typeof interactionActions.addInteraction | typeof widgetActions.baseAddWidget>): InspectorRecord {
+export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.addMark | typeof interactionActions.baseAddInteraction | typeof widgetActions.baseAddWidget>): InspectorRecord {
   if (typeof state === 'undefined') {
     return Inspector();
   }
@@ -37,7 +37,7 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
     state = state.setIn(['encodings', 'selectedType'], action.type);
   }
 
-  if (action.type === getType(interactionActions.addInteraction)) {
+  if (action.type === getType(interactionActions.baseAddInteraction)) {
     state = state.setIn(['encodings', 'selectedId'], action.meta);
     state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.selectInteraction));
   }

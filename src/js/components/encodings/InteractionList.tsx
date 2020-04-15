@@ -8,7 +8,6 @@ import {State} from '../../store';
 import { Icon } from '../Icon';
 import {InteractionRecord, Interaction, ScaleInfo} from '../../store/factory/Interaction';
 import {addInteraction, deleteInteraction, updateInteractionName} from '../../actions/interactionActions';
-import {addInteractionToGroup} from '../../actions/bindChannel/helperActions';
 import {getScaleInfoForGroup} from '../../ctrl/demonstrations';
 
 const ContentEditable = require('../ContentEditable');
@@ -53,9 +52,7 @@ function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>): Di
       const record = Interaction({
         groupId
       });
-      const addAction = addInteraction(record);
-      dispatch(addAction);
-      dispatch(addInteractionToGroup(addAction.meta, groupId));
+      dispatch(addInteraction(record));
     },
 
     selectInteraction: function(interactionId) {

@@ -1,19 +1,24 @@
 import {createStandardAction} from 'typesafe-actions';
 import {InteractionRecord, SelectionRecord, ApplicationRecord, InteractionInput} from '../store/factory/Interaction';
+import {Dispatch} from 'redux';
+import {addInteractionToGroup} from './bindChannel/helperActions';
 
 const counter  = require('../util/counter');
 
-export const addInteraction = createStandardAction('ADD_INTERACTION').map((record: InteractionRecord) => {
-  const id: number = record.id || counter.global();
-  record = (record as any).merge({id: id}) as InteractionRecord;
-  if (!record.get('name')) {
-    record = record.set('name', "Interaction "+id);
-  }
+export function addInteraction (record: InteractionRecord) {
+  return function(dispatch: Dispatch) {
+    const id: number = record.id || counter.global();
+    record = record.set('id', id);
+    if (!record.get('name')) {
+      record = record.set('name', "Interaction "+id);
+    }
 
-  return {
-    payload: record, meta: id
-  }
-});
+    dispatch(baseAddInteraction(record, id));
+    dispatch(addInteractionToGroup(id, record.groupId));
+  };
+}
+
+export const baseAddInteraction = createStandardAction('ADD_INTERACTION')<InteractionRecord, number>();
 
 export const setInput = createStandardAction('SET_INPUT')<InteractionInput, number>();
 export const setSelection = createStandardAction('SET_SELECTION')<SelectionRecord, number>();
