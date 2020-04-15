@@ -8,7 +8,6 @@ import {GroupRecord} from '../../store/factory/marks/Group';
 import {setSelection, setApplication, removeApplication} from '../../actions/widgetActions';
 import {getScaleInfoForGroup, getNestedMarksOfGroup} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
-import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
 import {MarkRecord} from '../../store/factory/Mark';
 import exportName from '../../util/exportName';
 import {Map} from 'immutable';
@@ -18,6 +17,7 @@ import {setMarkVisual} from '../../actions/markActions';
 import {NumericValueRef, StringValueRef} from 'vega';
 import {WidgetSelectionRecord, WidgetRecord, WidgetSelection, WidgetComparator} from '../../store/factory/Widget';
 import WidgetPreview from '../interactions/WidgetPreview';
+import {WidgetMarkApplicationProperty} from './WidgetMarkApplication';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -464,7 +464,7 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
                   return application.type === 'mark' ? (
                     <div>
                       {this.getTargetMarkOptions(application as MarkApplicationRecord)}
-                      <InteractionMarkApplicationProperty interactionId={widget.id} groupId={widget.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+                      <WidgetMarkApplicationProperty widgetId={widget.id} groupId={widget.groupId} markApplication={application}></WidgetMarkApplicationProperty>
                     </div>
                   ) : null
                 })
