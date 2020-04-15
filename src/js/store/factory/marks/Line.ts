@@ -17,8 +17,6 @@ export const Line = Record<LyraLineMark>({
   from: null,
   encode: {
     update: {
-      fill: undefined,
-      fillOpacity: undefined,
       strokeWidth: {value: 3},
       tension: {value: 13},
       interpolate: {value: 'monotone'}

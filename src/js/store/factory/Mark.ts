@@ -63,7 +63,15 @@ export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord
   switch(type) {
     case 'symbol': return Symbol(values as Partial<LyraSymbolMark>).mergeDeepWith(mergeComparator, defaults);
     case 'area': return Area(values as Partial<LyraAreaMark>).mergeDeepWith(mergeComparator, defaults);
-    case 'line': return Line(values as Partial<LyraLineMark>).mergeDeepWith(mergeComparator, defaults);
+    case 'line': return Line(values as Partial<LyraLineMark>).mergeDeepWith(mergeComparator, {
+      encode: {
+        update: {
+          ...defaults.encode.update,
+          fill: undefined,
+          fillOpacity: undefined
+        }
+      }
+    });
     case 'rect': return Rect(values as Partial<LyraRectMark>).mergeDeepWith(mergeComparator, defaults);
     case 'text': return Text(values as Partial<LyraTextMark>).mergeDeepWith(mergeComparator, defaults);
     case 'group': return Group(values as Partial<LyraGroupMark>).mergeDeepWith(mergeComparator, defaults);
@@ -94,7 +102,6 @@ export interface HandleStreams {[s: string]: OnEvent[];}
  * @returns {Object} A dictionary of signal stream definitions
  */
 Mark.getHandleStreams = function(mark: MarkRecord): HandleStreams {
-  // return {}; // TODO(rn): fix handle streams later for signal issues
   switch(mark.type) {
     case 'symbol': return symbolHandleStreams(mark);
     case 'area': return areaHandleStreams(mark);
