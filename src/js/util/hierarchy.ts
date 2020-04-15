@@ -2,6 +2,8 @@
 import {State, store} from '../store';
 import {MarkRecord} from '../store/factory/Mark';
 import {TextRecord} from '../store/factory/marks/Text';
+import {InteractionRecord} from '../store/factory/Interaction';
+import {WidgetRecord} from '../store/factory/Widget';
 
 const Bounds = require('vega-scenegraph').Bounds;
 const getInVis = require('./immutable-utils').getInVis;
@@ -88,9 +90,17 @@ export function getParentGroupIds(markId: number, state: State): number[] {
 export function getClosestGroupId(id?: number, state?: State) {
   state = state || store.getState();
   const markId = id || state.getIn(['inspector', 'encodings', 'selectedId']);
-  const mark = getInVis(state, 'marks.' + markId);
+  let mark = getInVis(state, 'marks.' + markId);
 
   if (!mark) {
+    const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(markId)]);
+    if (interaction && interaction.groupId) {
+      return interaction.groupId;
+    }
+    const widget: WidgetRecord = state.getIn(['vis', 'present', 'widgets', String(markId)]);
+    if (widget && widget.groupId) {
+      return widget.groupId;
+    }
     return getInVis(state, 'scene._id');
   }
 

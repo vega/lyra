@@ -1,10 +1,13 @@
-import {GroupMark, Spec} from "vega";
+import {Spec} from "vega";
 import {ScaleRecord} from "../store/factory/Scale";
 import {State} from "../store";
 import duplicate from "../util/duplicate";
 import {MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
 import {ScaleInfo, ApplicationRecord, SelectionRecord, PointSelectionRecord, MarkApplicationRecord, ScaleApplicationRecord, TransformApplicationRecord, IntervalSelectionRecord, InteractionInput} from "../store/factory/Interaction";
+import {ColumnRecord} from "../store/factory/Dataset";
+import {NOMINAL, ORDINAL, QUANTITATIVE} from "vega-lite/src/type";
+import * as dsUtil from '../util/dataset-utils';
 
 export function addDatasetsToScene(sceneSpec: Spec, groupName: string, interactionId: number): Spec {
   const sceneUpdated = duplicate(sceneSpec);
@@ -1080,3 +1083,30 @@ const baseSignals = [
     "init": {}
   },
 ];
+
+export function widgetParams(fieldDef: ColumnRecord, id: number) {
+  const type = fieldDef.mtype;
+  const data = dsUtil.output(id);
+  let fieldValues = data.map(e => e[fieldDef.name]);
+  if (type === NOMINAL || type === ORDINAL) {
+    fieldValues = [...new Set(fieldValues)];
+    if (fieldValues.length > 50) {
+      // TODO What to do for very large number of options?
+      fieldValues = fieldValues.slice(0, 50);
+    }
+    return {options: fieldValues};
+  }
+  else if (type === QUANTITATIVE) {
+    fieldValues = fieldValues.sort((a,b)=> a-b);
+    const length = fieldValues.length;
+    const isInteger = fieldValues.every(v => Number.isInteger(v));
+    return {
+      max: fieldValues[length-1],
+      min: fieldValues[0],
+      step: isInteger ? 1 : 0.1
+    }
+  }
+  else {
+    // TODO: other types?
+  }
+}

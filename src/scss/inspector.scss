@@ -203,6 +203,10 @@ $long-label-width: $label-width + 10px;
     .preview-label, .interaction-preview {
       width: 85px;
       margin: $inner-padding auto;
+
+      input {
+        max-width: 100%;
+      }
     }
   }
 }

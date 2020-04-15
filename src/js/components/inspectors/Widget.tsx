@@ -5,7 +5,7 @@ import {connect} from 'react-redux';
 import {State} from '../../store';
 import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
-import {setInput, setSelection, setApplication, removeApplication} from '../../actions/interactionActions';
+import {setSelection, setApplication, removeApplication} from '../../actions/widgetActions';
 import {getScaleInfoForGroup, ScaleSimpleType} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
@@ -21,6 +21,7 @@ import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import {NumericValueRef, StringValueRef, tupleid, debounce} from 'vega';
 import {InteractionInputType} from './InteractionInputType';
 import {WidgetSelectionRecord, WidgetRecord, WidgetSelection, WidgetComparator} from '../../store/factory/Widget';
+import WidgetPreview from '../interactions/WidgetPreview';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -115,7 +116,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-const actionCreators = {setInput, setSelection, setApplication, removeApplication, startDragging, stopDragging, setMarkVisual};
+const actionCreators = {setSelection, setApplication, removeApplication, startDragging, stopDragging, setMarkVisual};
 
 function generatePreviews(groupId, marksOfGroups, widget): {
   selectionPreviews: WidgetSelectionRecord[],
@@ -135,13 +136,13 @@ function generateSelectionPreviews(widget: WidgetRecord): WidgetSelectionRecord[
       WidgetSelection({
         type: 'radio',
         id: 'radio',
-        label: 'Radio buttons',
+        label: 'Radio',
         comparator: '=='
       }),
       WidgetSelection({
         type: 'select',
         id: 'select',
-        label: 'Select dropdown',
+        label: 'Select',
         comparator: '=='
       }),
     ]
@@ -151,7 +152,7 @@ function generateSelectionPreviews(widget: WidgetRecord): WidgetSelectionRecord[
       WidgetSelection({
         type: 'range',
         id: 'range',
-        label: 'Range slider',
+        label: 'Range',
         step: 1, // TODO
         comparator: '=='
       })
@@ -413,8 +414,8 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
   // }
 
   public render() {
-    const interaction = this.props.widget;
-    const applications = interaction.applications;
+    const widget = this.props.widget;
+    const applications = widget.applications;
 
     return (
       <div>
@@ -426,18 +427,20 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
                 {
                   this.props.selectionPreviews.map((preview) => {
                     return (
-                      <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}
+                      <div key={preview.id} className={widget && widget.selection && widget.selection.id === preview.id ? 'selected' : ''}
                           onClick={() => this.onClickWidgetPreview(preview)}>
                         <div className="preview-label">{preview.label}</div>
-                        {/*  */}
+                        <WidgetPreview id={`preview-${preview.id}`}
+                                widget={this.props.widget}
+                                preview={preview}/>
                       </div>
                     )
                   })
                 }
               </div>
               {
-                (interaction && interaction.selection) ? (
-                  this.getComparatorOptions(interaction.selection)
+                (widget && widget.selection) ? (
+                  this.getComparatorOptions(widget.selection)
                 ) : null
               }
             </div>
@@ -447,7 +450,7 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
                 {
                   this.props.applicationPreviews.map((preview) => {
                     return (
-                      <div key={preview.id} className={interaction && this.widgetHasApplication(preview) ? 'selected' : ''}>
+                      <div key={preview.id} className={widget && this.widgetHasApplication(preview) ? 'selected' : ''}>
                         <div onClick={() => this.onClickApplicationPreview(preview)}>
                           <div className="preview-label">{preview.label}</div>
                           {/*  */}
@@ -462,7 +465,7 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
                   return application.type === 'mark' ? (
                     <div>
                       {this.getTargetMarkOptions(application as MarkApplicationRecord)}
-                      <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+                      <InteractionMarkApplicationProperty interactionId={widget.id} groupId={widget.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
                     </div>
                   ) : null
                 })

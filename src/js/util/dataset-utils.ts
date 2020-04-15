@@ -97,27 +97,6 @@ export function output(id: number) {
   return data || input(id) || [];
 }
 
-export function widgetParams(fieldDef, id: number, type) {
-  const data = output(id);
-  let field = data.map(e => e[fieldDef.name]);
-  if(type === NOMINAL) {
-    field = [...new Set(field)];
-    if(field.length>50) { // What to do for very large number of options?
-      return {options: field.slice(0, 50)}
-    } else { return {options: field} }
-  }
-  field = field.sort((a,b)=> a-b);
-  const length = field.length;
-  return {
-    max: field[length-1],
-    min: field[0],
-    mid: field[Math.floor(length/2)],
-    quart1: field[Math.floor(length/4)],
-    quart2: field[Math.floor(3*length/4)],
-    length,
-  }
-}
-
 export interface ParsedValues {
   format: Format,
   values: Datum[]
@@ -215,8 +194,6 @@ module.exports = {
 
   input,
   output,
-
-  widgetParams,
 
   parseRaw,
   schema,

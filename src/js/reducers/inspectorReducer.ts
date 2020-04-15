@@ -1,6 +1,7 @@
 import {ActionType, getType} from 'typesafe-actions';
 import * as inspectorActions from '../actions/inspectorActions';
 import * as interactionActions from '../actions/interactionActions';
+import * as widgetActions from '../actions/widgetActions';
 import * as markActions from '../actions/markActions';
 import {ExpandedLayers, Inspector, InspectorRecord} from '../store/factory/Inspector';
 
@@ -10,7 +11,7 @@ function expandLayers(state: InspectorRecord, layerIds: number[]): InspectorReco
   }, state);
 }
 
-export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.addMark | typeof interactionActions.addInteraction>): InspectorRecord {
+export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.addMark | typeof interactionActions.addInteraction | typeof widgetActions.baseAddWidget>): InspectorRecord {
   if (typeof state === 'undefined') {
     return Inspector();
   }
@@ -39,6 +40,11 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
   if (action.type === getType(interactionActions.addInteraction)) {
     state = state.setIn(['encodings', 'selectedId'], action.meta);
     state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.selectInteraction));
+  }
+
+  if (action.type === getType(widgetActions.baseAddWidget)) {
+    state = state.setIn(['encodings', 'selectedId'], action.meta);
+    state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.selectWidget));
   }
 
   if (action.type === getType(markActions.addMark)) {
