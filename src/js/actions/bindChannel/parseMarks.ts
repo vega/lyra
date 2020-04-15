@@ -21,15 +21,17 @@ const getInVis = require('../../util/immutable-utils').getInVis;
  * @returns {void}
  */
 export default function parseMarks(dispatch: Dispatch, state: State, parsed: CompiledBinding) {
-  const markType = parsed.markType,
-    map = parsed.map,
-    markId = parsed.markId,
-    channel = parsed.channel;
+  const markType = parsed.markType;
+  const map = parsed.map;
+  const markId = parsed.markId;
+  const channel = parsed.channel;
+  let pathgroup = null;
 
   // Most marks will be at the top-level, but path marks (line/area) might
   // be nested in a group for faceting.
   let def = parsed.output.marks[0];
   if (def.type === 'group' && def.name.indexOf('pathgroup') >= 0) {
+    pathgroup = def;
     def = def.marks[0];
   }
 
@@ -41,7 +43,15 @@ export default function parseMarks(dispatch: Dispatch, state: State, parsed: Com
     bindProperty(dispatch, parsed, def.encode.update);
   }
 
-  if (def.from && def.from.data) {
+  if (pathgroup) {
+    dispatch(updateMarkProperty({
+      property: '_facet',
+      value: {
+        ...pathgroup.from.facet,
+        data: map.data[pathgroup.from.facet.data]
+      }
+    }, markId));
+  } else if (def.from && def.from.data) {
     dispatch(updateMarkProperty({property: 'from', value: {data: map.data[def.from.data]}}, markId));
   }
 }

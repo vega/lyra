@@ -2,7 +2,7 @@ import {Map} from 'immutable';
 import {TopLevel} from 'vega-lite/src/spec';
 import {DataMixins} from 'vega-lite/src/spec/base';
 import {NormalizedUnitSpec} from 'vega-lite/src/spec/unit';
-import {MarkType, OnEvent} from 'vega-typings';
+import {Facet, MarkType, OnEvent} from 'vega-typings';
 import {Area, AreaRecord, getHandleStreams as areaHandleStreams, LyraAreaMark} from './marks/Area';
 import {Group, GroupRecord, LyraGroupMark} from './marks/Group';
 import {getHandleStreams as lineHandleStreams, Line, LineRecord, LyraLineMark} from './marks/Line';
@@ -42,6 +42,10 @@ export interface LyraMarkMeta {
   _id: number;
   _parent: number;
   _vlUnit: LyraVegaLiteSpec;
+}
+
+export interface LyraPathFacet {
+  _facet: Facet
 }
 
 export type LyraMark = LyraAreaMark | LyraGroupMark | LyraLineMark | LyraRectMark | LyraSymbolMark | LyraTextMark;
