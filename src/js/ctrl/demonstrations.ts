@@ -8,6 +8,7 @@ import {ScaleInfo, ApplicationRecord, SelectionRecord, PointSelectionRecord, Mar
 import {ColumnRecord} from "../store/factory/Dataset";
 import {NOMINAL, ORDINAL, QUANTITATIVE} from "vega-lite/src/type";
 import * as dsUtil from '../util/dataset-utils';
+import {WidgetRecord, WidgetSelectionRecord} from "../store/factory/Widget";
 
 export function addDatasetsToScene(sceneSpec: Spec, groupName: string, interactionId: number): Spec {
   const sceneUpdated = duplicate(sceneSpec);
@@ -672,6 +673,76 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
 
       return sceneSpec;
   }
+}
+
+export function addWidgetSelectionToScene(sceneSpec: Spec, groupName: string, widget: WidgetRecord, selection: WidgetSelectionRecord): Spec {
+  sceneSpec = duplicate(sceneSpec);
+  sceneSpec.signals = sceneSpec.signals || [];
+  switch (selection.type) {
+    case 'select':
+      sceneSpec.signals = editSignals(sceneSpec.signals, [
+        {
+          "name": `widget_${widget.id}`,
+          "bind": {
+            name: widget.field.name,
+            input: 'select',
+            element: `.widget_${widget.id}`,
+            ...widgetParams(widget.field, widget.dsId)
+          }
+        }
+      ]);
+      return sceneSpec;
+    case 'radio':
+      sceneSpec.signals = editSignals(sceneSpec.signals, [
+        {
+          "name": `widget_${widget.id}`,
+          "bind": {
+            name: widget.field.name,
+            input: 'radio',
+            element: `.widget_${widget.id}`,
+            ...widgetParams(widget.field, widget.dsId)
+          }
+        }
+      ]);
+      return sceneSpec;
+    case 'range':
+      const params = widgetParams(widget.field, widget.dsId)
+      sceneSpec.signals = editSignals(sceneSpec.signals, [
+        {
+          "name": `widget_${widget.id}`,
+          "bind": {
+            name: widget.field.name,
+            input: 'range',
+            element: `.widget_${widget.id}`,
+            min: params.min,
+            max: params.max,
+            step: selection.step || params.step
+          }
+        }
+      ]);
+      return sceneSpec;
+    default:
+      return sceneSpec;
+  }
+}
+
+export function addWidgetApplicationToScene(sceneSpec: Spec, groupName: string, widget: WidgetRecord, application: MarkApplicationRecord): Spec {
+  if (!widget.selection) return sceneSpec;
+  const targetMarkName = application.targetMarkName;
+  const unselectedValue = application.unselectedValue;
+  return applyMarkProperties(sceneSpec, groupName, targetMarkName, {
+    "encode": {
+      "update": {
+        [application.propertyName]: [
+          {
+            "test": `datum.${widget.field.name} ${widget.selection.comparator} widget_${widget.id}`,
+            "value": "" // we expect this to be overwritten with the mark's value
+          },
+          {"value": unselectedValue}
+        ],
+      }
+    }
+  });
 }
 
 function applySignals(sceneSpec, groupName: string, signals: any[]): Spec {

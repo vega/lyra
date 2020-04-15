@@ -67,41 +67,21 @@ body {
 
   .interaction-widget {
     border: 1px solid #333333;
+    box-shadow: 0 0 0 3px cyan;
     padding: $outer-padding;
     border-radius: 3px;
     display: inline-block;
-    margin: 0 2*$outer-padding 2*$outer-padding 2*$outer-padding;
+    margin: 2*$outer-padding;
   }
 
-  .widget-tag {
-    border: 1px solid #bed000;
-    padding: 3px 10px;
-    cursor: pointer;
-    background:#bed9ab;
-    border-radius: 3px;
-    display: inline-block;
-    margin: 5px 2px;
-  }
-
-  .widgetPanel {
-    margin-top: 50px;
-    background: #ccc;
-    padding: 20px;
-  }
-
-    .widgetDemonstration {
-      display: inline-block;
-      margin: 0 25px;
-      padding: 10px;
-      background: #bbb;
-
-      &:hover {
-        background: #aaa;
+  .widgets-container {
+    color: transparent;
+    .vega-bind {
+      color: black;
+      .vega-bind-name {
+        display: block;
       }
     }
-
-  .widgetPanel.disabled {
-    display: none;
   }
 }
 

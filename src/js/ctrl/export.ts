@@ -9,9 +9,10 @@ import duplicate from '../util/duplicate';
 import name from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {addSelectionToScene, addApplicationToScene, addDatasetsToScene, addInputsToScene, getScaleInfoForGroup} from './demonstrations';
+import {addSelectionToScene, addApplicationToScene, addDatasetsToScene, addInputsToScene, getScaleInfoForGroup, addWidgetSelectionToScene, addWidgetApplicationToScene} from './demonstrations';
 import manipulators from './manipulators';
 import exportName from '../util/exportName';
+import {WidgetRecord} from '../store/factory/Widget';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -41,11 +42,13 @@ export function exporter(internal: boolean = false): Spec {
 
   counts = duplicate(SPEC_COUNT);
 
-  const spec: Spec = exporter.scene(state, int);
+  let spec: Spec = exporter.scene(state, int);
   spec.data = exporter.pipelines(state, int);
 
-  // Add interactions from store
-  return exporter.interactions(state, spec);
+  // Add interactions and widgets from store
+  spec = exporter.interactions(state, spec);
+  spec = exporter.widgets(state, spec);
+  return spec;
 }
 
 exporter.interactions = function(state: State, spec) {
@@ -67,6 +70,23 @@ exporter.interactions = function(state: State, spec) {
     if (interaction.applications.length) {
       for (let application of interaction.applications) {
         spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, application);
+      }
+    }
+  });
+
+  return spec;
+}
+
+exporter.widgets = function(state: State, spec) {
+  state.getIn(['vis', 'present', 'widgets']).forEach((widget: WidgetRecord) => {
+    const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(widget.groupId)]);
+    const groupName = exportName(group.name);
+    if (widget.selection) {
+      spec = addWidgetSelectionToScene(spec, groupName, widget, widget.selection);
+    }
+    if (widget.applications.length) {
+      for (let application of widget.applications) {
+        spec = addWidgetApplicationToScene(spec, groupName, widget, application);
       }
     }
   });

@@ -207,6 +207,10 @@ $long-label-width: $label-width + 10px;
       input {
         max-width: 100%;
       }
+
+      .vega-bindings {
+        display: none;
+      }
     }
   }
 }

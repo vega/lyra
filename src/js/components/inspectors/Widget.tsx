@@ -198,50 +198,48 @@ function generateApplicationPreviews(marksOfGroup: MarkRecord[]): MarkApplicatio
 
 class BaseWidgetInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
 
-  public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
-    if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
-      // this.restoreMainViewSignals(this.props.groupName);
-      // this.restorePreviewSignals();
-
-      // this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
-      // this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple_projected'), (name, value) => this.onMainViewPointSignal(name, value));
-      // this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
-      // this.onSignal(this.props.groupName, this.scopedSignalName('brush_x'), (name, value) => this.onMainViewIntervalSignal(name, value));
-      // this.onSignal(this.props.groupName, this.scopedSignalName('brush_y'), (name, value) => this.onMainViewIntervalSignal(name, value));
-      // this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_anchor'), (name, value) => this.onMainViewGridSignal(name, value));
-      // this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_delta'), (name, value) => this.onMainViewGridSignal(name, value));
-    }
-
-    if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
+  public componentDidMount() {
+    if (this.props.selectionPreviews && this.props.selectionPreviews.length) {
       const selectionIds = this.props.selectionPreviews.map(s => s.id);
       if (!this.props.widget.selection ||
           selectionIds.every(id => id !== this.props.widget.selection.id)) {
             this.props.setSelection(this.props.selectionPreviews[0], this.props.widget.id);
       }
     }
-  }
-
-  private scopedSignalName(signalName: string) {
-    return `${signalName}_${this.props.widget.id}`
-  }
-
-  private restoreMainViewSignals(groupName) {
-    for (let signalName of ['brush_x', 'brush_y', 'points_tuple', 'points_tuple_projected'].map(s => this.scopedSignalName(s))) {
-      if (this.mainViewSignalValues[signalName]) {
-        listeners.setSignalInGroup(ctrl.view, groupName, signalName, this.mainViewSignalValues[signalName]);
+    if (this.props.applicationPreviews && this.props.applicationPreviews.length) {
+      const applicationIds = this.props.applicationPreviews.map(a => a.id);
+      if (!this.props.widget.applications.length ||
+          applicationIds.every(id => this.props.widget.applications.map(a => a.id).includes(id))) {
+            this.props.setApplication(this.props.applicationPreviews[0], this.props.widget.id);
       }
     }
   }
 
+  public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
+    if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
+      this.restoreMainViewSignals(this.props.groupName);
+      this.restorePreviewSignals();
+
+      listeners.onSignal(`widget_${this.props.widget.id}`, (name, value) => this.onMainViewWidgetSignal(name, value));
+    }
+  }
+
+  private restoreMainViewSignals(groupName) {
+    const signalName = `widget_${this.props.widget.id}`;
+    if (this.mainViewSignalValues[signalName]) {
+      ctrl.view.signal(signalName, this.mainViewSignalValues[signalName]);
+      ctrl.view.runAsync();
+    }
+  }
+
   private restorePreviewSignals() {
-    for (let signalName of ['brush_x', 'brush_y', 'points_tuple', 'points_tuple_projected'].map(s => this.scopedSignalName(s))) {
-      if (this.mainViewSignalValues[signalName]) {
-        setTimeout(() => {
-          this.updatePreviewSignals(signalName, this.mainViewSignalValues[signalName]);
-        }, 50);
-        // somehow it only works if you have both of these??? some kind of vega invalidation thing
+    const signalName = `widget_${this.props.widget.id}`;
+    if (this.mainViewSignalValues[signalName]) {
+      setTimeout(() => {
         this.updatePreviewSignals(signalName, this.mainViewSignalValues[signalName]);
-      }
+      }, 50);
+      // somehow it only works if you have both of these??? some kind of vega invalidation thing
+      this.updatePreviewSignals(signalName, this.mainViewSignalValues[signalName]);
     }
   }
 
@@ -249,19 +247,19 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
   private mainViewSignalValues = {}; // name -> value
 
   private updatePreviewSignals(name, value) {
-    this.props.selectionPreviews.forEach(preview => {
-      if (this.previewRefs[preview.id]) {
-        this.previewRefs[preview.id].setPreviewSignal(name, value);
-      }
-    });
     this.props.applicationPreviews.forEach(preview => {
       if (this.previewRefs[preview.id]) {
         this.previewRefs[preview.id].setPreviewSignal(name, value);
       }
     });
   }
-  private onSignal(groupName, signalName, handler) {
-    listeners.onSignalInGroup(ctrl.view, groupName, signalName, handler);
+
+  private onMainViewWidgetSignal(name, value) {
+    if (this.mainViewSignalValues[name] !== value) {
+      this.mainViewSignalValues[name] = value;
+      this.updatePreviewSignals(name, value);
+      console.log(name, value);
+    }
   }
 
   private onClickWidgetPreview(preview: WidgetSelectionRecord) {
@@ -431,6 +429,7 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
                           onClick={() => this.onClickWidgetPreview(preview)}>
                         <div className="preview-label">{preview.label}</div>
                         <WidgetPreview id={`preview-${preview.id}`}
+                                groupName={this.props.groupName}
                                 widget={this.props.widget}
                                 preview={preview}/>
                       </div>
@@ -453,7 +452,11 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
                       <div key={preview.id} className={widget && this.widgetHasApplication(preview) ? 'selected' : ''}>
                         <div onClick={() => this.onClickApplicationPreview(preview)}>
                           <div className="preview-label">{preview.label}</div>
-                          {/*  */}
+                          <WidgetPreview ref={ref => this.previewRefs[preview.id] = ref}
+                                id={`preview-${preview.id}`}
+                                groupName={this.props.groupName}
+                                widget={this.props.widget}
+                                preview={preview}/>
                         </div>
                       </div>
                     )
