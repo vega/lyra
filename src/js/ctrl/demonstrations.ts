@@ -686,7 +686,6 @@ export function addWidgetSelectionToScene(sceneSpec: Spec, groupName: string, wi
           "bind": {
             name: widget.field.name,
             input: 'select',
-            element: `.widget_${widget.id}`,
             ...widgetParams(widget.field, widget.dsId)
           }
         }
@@ -699,7 +698,6 @@ export function addWidgetSelectionToScene(sceneSpec: Spec, groupName: string, wi
           "bind": {
             name: widget.field.name,
             input: 'radio',
-            element: `.widget_${widget.id}`,
             ...widgetParams(widget.field, widget.dsId)
           }
         }
@@ -713,7 +711,6 @@ export function addWidgetSelectionToScene(sceneSpec: Spec, groupName: string, wi
           "bind": {
             name: widget.field.name,
             input: 'range',
-            element: `.widget_${widget.id}`,
             min: params.min,
             max: params.max,
             step: selection.step || params.step

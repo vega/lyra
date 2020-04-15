@@ -71,17 +71,14 @@ body {
     padding: $outer-padding;
     border-radius: 3px;
     display: inline-block;
-    margin: 2*$outer-padding 5px;
+    margin: $outer-padding 5px;
     max-width: 640px;
   }
 
-  .widgets-container {
-    color: transparent;
-    .vega-bind {
-      color: black;
-      .vega-bind-name {
-        display: block;
-      }
+  .vega-bindings {
+    margin-top: $outer-padding;
+    .vega-bind-name {
+      display: block;
     }
   }
 }

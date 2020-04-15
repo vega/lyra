@@ -25,7 +25,6 @@ module.exports = ReactDOM.render(
           <div className="vis-container">
             <div id="vis"></div>
             <WidgetDropzone />
-            <WidgetContainers />
           </div>
           <Toolbar />
         </div>
