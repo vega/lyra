@@ -775,9 +775,13 @@ function applyMarkProperties(sceneSpec, groupName: string, markName: string, mar
                 if (oldValue.value || oldValue.signal || oldValue.field) {
                   delete value[0].value;
                   value[0] = {...value[0], ...oldValue};
-                } else if (Array.isArray(oldValue) && oldValue[0].test && !value[0].test.includes(oldValue[0].test)) {
-                  value[0].test = value[0].test + ' && ' + oldValue[0].test;
-                  value[0].value = oldValue[0].value;
+                } else if (Array.isArray(oldValue) && oldValue.length) {
+                  if (oldValue[0].test && !value[0].test.includes(oldValue[0].test)) {
+                    value[0].test = value[0].test + ' && ' + oldValue[0].test;
+                  }
+                  if (oldValue[0].value) {
+                    value[0].value = oldValue[0].value;
+                  }
                 }
               }
               mark.encode.update[key] = value;
