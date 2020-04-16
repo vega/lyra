@@ -473,6 +473,46 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     this.props.setApplication(newPreview, this.props.interaction.id);
   }
 
+
+  private getInteractionSignals(interaction: InteractionRecord, scaleInfo: ScaleInfo) {
+    const input = interaction.input;
+    if (!input) return [];
+    const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
+    const interactionId = interaction.id;
+
+    const signals = {};
+
+    switch (input.mouse) {
+      case 'drag':
+        if (xScaleName) {
+          signals[`brush_x_start_${interactionId}`] = 'brush_x (start)';
+          signals[`brush_x_end_${interactionId}`] = 'brush_x (start)';
+        }
+        if (yScaleName) {
+          signals[`brush_y_start_${interactionId}`] = 'brush_y (start)';
+          signals[`brush_y_end_${interactionId}`] = 'brush_y (start)';
+        }
+        // TODO create these signals
+        // if (xFieldName) {
+        //   signals.push(<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={`brush_${xFieldName}_${xScaleName}_${interactionId}_start`}>{`brush_${xFieldName} (start)`}</div>)
+        //   signals.push(<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={`brush_${xFieldName}_${xScaleName}_${interactionId}_end`}>{`brush_${xFieldName} (end)`}</div>)
+        // }
+        // if (yFieldName) {
+        //   signals.push(<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={`brush_${yFieldName}_${yScaleName}_${interactionId}_start`}>{`brush_${yFieldName} (start)`}</div>)
+        //   signals.push(<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={`brush_${yFieldName}_${yScaleName}_${interactionId}_end`}>{`brush_${yFieldName} (end)`}</div>)
+        // }
+        break;
+        case 'click':
+          signals[`lyra_points_tuple_${interactionId}`] = 'points'; // TODO (jzong) unpack this signal into single values so it's usable
+          break;
+        case 'mouseover':
+          signals[`mouse_x_${interactionId}`] = 'mouse_x';
+          signals[`mouse_y_${interactionId}`] = 'mouse_y';
+          break;
+    }
+    return signals;
+  }
+
   public render() {
     const interaction = this.props.interaction;
     const applications = interaction.applications;
@@ -545,7 +585,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
               </div>
               <div className="property-group">
                 <h3>Signals</h3>
-                <InteractionSignals groupId={this.props.group._id} interaction={this.props.interaction} scaleInfo={this.props.scaleInfo}></InteractionSignals>
+                <InteractionSignals groupId={this.props.group._id} signals={this.getInteractionSignals(this.props.interaction, this.props.scaleInfo)}></InteractionSignals>
               </div>
             </div>
           ) : null
