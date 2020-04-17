@@ -50,6 +50,7 @@ function recreateVegaIfNecessary(store, ctrl) {
       return true;
     }
 
+
     if (ctrl.view) {
       // Clear out the outdated vega spec: iterate through all registered
       // signal streams and remove their event listeners

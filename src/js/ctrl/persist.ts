@@ -15,6 +15,8 @@ import {Pipeline} from '../store/factory/Pipeline';
 import {Scale} from '../store/factory/Scale';
 import {Signal} from '../store/factory/Signal';
 import {persist as persistDataValues} from '../util/dataset-utils';
+import {InspectorRecord} from '../store/factory/Inspector';
+import {LyraGlobalsRecord} from '../store/factory/Lyra';
 
 const serializer = transit.withRecords([
   Symbol, Area, Line, Rect, Text, Group, Scene, Column,
@@ -33,7 +35,8 @@ export function persist() {
   return {
     store: {
       vis: serializer.toJSON(state.vis.present),
-      inspector: serializer.toJSON(state.inspector)
+      inspector: serializer.toJSON(state.inspector),
+      lyra: serializer.toJSON(state.lyra)
     },
     values: persistDataValues()
   };
@@ -52,7 +55,10 @@ export const hydrate = createStandardAction('HYDRATE').map((str: string) => {
 });
 
 export function hydrator(reducer, path) {
-  return (state: VisStateTree, action: ActionType<typeof hydrate>) => {
-    return action.type === getType(hydrate) ? action.payload[path] : reducer(state, action);
+  return (state: VisStateTree | InspectorRecord | LyraGlobalsRecord, action: ActionType<typeof hydrate>) => {
+    if (action.type === getType(hydrate)) {
+      return action.payload[path];
+    }
+    return reducer(state, action);
   }
 }

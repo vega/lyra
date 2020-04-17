@@ -33,7 +33,7 @@ const visReducers = combineReducers({
 export default combineReducers({
   vis: undoable(hydrator(visReducers, 'vis'), historyOptions),
   vega,
-  lyra,
+  lyra: hydrator(lyra, 'lyra'),
   inspector: hydrator(inspector, 'inspector'),
   hints,
   walkthrough
