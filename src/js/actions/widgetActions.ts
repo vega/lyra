@@ -3,11 +3,12 @@ import {WidgetRecord, WidgetSelectionRecord} from '../store/factory/Widget';
 import {MarkApplicationRecord} from '../store/factory/Interaction';
 import {Dispatch} from 'redux';
 import {addWidgetToGroup} from './bindChannel/helperActions';
+import {State} from '../store';
 
 const counter = require('../util/counter');
 
 export function addWidget (record: WidgetRecord) {
-  return function(dispatch: Dispatch) {
+  return function(dispatch: Dispatch, getState: () => State) {
     const id: number = record.id || counter.global();
     record = (record as any).merge({id: id}) as WidgetRecord;
     if (!record.get('name')) {

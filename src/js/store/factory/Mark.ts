@@ -11,16 +11,9 @@ import {LyraScene, Scene, SceneRecord} from './marks/Scene';
 import {getHandleStreams as symbolHandleStreams, LyraSymbolMark, Symbol, SymbolRecord} from './marks/Symbol';
 import {getHandleStreams as textHandleStreams, LyraTextMark, Text, TextRecord} from './marks/Text';
 
-const capitalize = require('capitalize');
-const counter = require('../../util/counter');
-
 // TODO(jzong) reconcile this with vega typings marktype
 // export type LyraMarkType = MarkType | 'scene';
 export type LyraMarkType = 'symbol' | 'area' | 'line' | 'rect' | 'text' | 'group';
-
-function name(type: LyraMarkType) {
-  return capitalize(type) + ' ' + counter.type('marks');
-}
 
 // Default visual properties for marks.
 const defaults = {
@@ -59,11 +52,6 @@ export type MarkRecord = AreaRecord | GroupRecord | LineRecord | RectRecord | Sy
  * @returns {Object} A Lyra mark definition.
  */
 export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord {
-  if (values) {
-    values.name = values.name || name(type);
-  } else {
-    values = {name: name(type)}
-  }
   switch(type) {
     case 'symbol': return Symbol(values as Partial<LyraSymbolMark>).mergeDeepWith(mergeComparator, defaults);
     case 'area': return Area(values as Partial<LyraAreaMark>).mergeDeepWith(mergeComparator, defaults);
