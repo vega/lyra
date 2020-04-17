@@ -1,5 +1,5 @@
 import {createStandardAction} from 'typesafe-actions';
-import {InteractionRecord, SelectionRecord, ApplicationRecord, InteractionInput} from '../store/factory/Interaction';
+import {InteractionRecord, SelectionRecord, ApplicationRecord, InteractionInput, InteractionSignal} from '../store/factory/Interaction';
 import {Dispatch} from 'redux';
 import {addInteractionToGroup} from './bindChannel/helperActions';
 import {assignId} from '../util/counter';
@@ -25,6 +25,8 @@ export const setInput = createStandardAction('SET_INPUT')<InteractionInput, numb
 export const setSelection = createStandardAction('SET_SELECTION')<SelectionRecord, number>();
 
 export const setApplication = createStandardAction('SET_APPLICATION')<ApplicationRecord, number>();
+
+export const setSignals = createStandardAction('SET_INTERACTION_SIGNALS')<InteractionSignal[], number>();
 
 export const removeApplication = createStandardAction('REMOVE_APPLICATION')<ApplicationRecord, number>();
 

@@ -3,7 +3,7 @@ import {ActionType, createStandardAction, getType} from 'typesafe-actions';
 import {LyraState, store, VisStateTree} from '../store';
 import {Column, Dataset} from '../store/factory/Dataset';
 import {Axis, Legend} from '../store/factory/Guide';
-import {Interaction} from '../store/factory/Interaction';
+import {Interaction, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication} from '../store/factory/Interaction';
 import {Area} from '../store/factory/marks/Area';
 import {Group} from '../store/factory/marks/Group';
 import {Line} from '../store/factory/marks/Line';
@@ -20,7 +20,7 @@ import {LyraGlobalsRecord} from '../store/factory/Lyra';
 
 const serializer = transit.withRecords([
   Symbol, Area, Line, Rect, Text, Group, Scene, Column,
-  Dataset, Axis, Legend, Pipeline, Signal, Interaction],
+  Dataset, Axis, Legend, Pipeline, Signal, Interaction, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication],
   (name, value) => {
     switch (name) {
       case 'LyraScale':

@@ -30,6 +30,10 @@ export function widgetsReducer(state: WidgetState, action: ActionType<typeof wid
     return state.setIn([String(id), 'applications'], withoutPayload);
   }
 
+  if (action.type === getType(widgetActions.setSignals)) {
+    return state.setIn([String(id), 'signals'], action.payload);
+  }
+
   if (action.type === getType(widgetActions.deleteWidget)) {
     return state.remove(String(id));
   }

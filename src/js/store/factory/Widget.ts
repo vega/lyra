@@ -1,6 +1,6 @@
 import {Map, Record, RecordOf} from 'immutable';
 import {ColumnRecord} from './Dataset';
-import {MarkApplicationRecord} from './Interaction';
+import {MarkApplicationRecord, InteractionSignal} from './Interaction';
 
 type LyraWidgetType = 'radio' | 'range' | 'select';
 
@@ -30,6 +30,7 @@ export interface LyraWidget {
   dsId: number;
   selection: WidgetSelectionRecord;
   applications: MarkApplicationRecord[];
+  signals: InteractionSignal[];
 };
 
 
@@ -40,7 +41,8 @@ export const Widget = Record<LyraWidget>({
   field: null,
   dsId: null,
   selection: null,
-  applications: []
+  applications: [],
+  signals: []
 }, 'LyraWidget');
 
 export type WidgetRecord = RecordOf<LyraWidget>;

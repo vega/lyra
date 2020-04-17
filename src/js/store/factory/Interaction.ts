@@ -106,6 +106,11 @@ export interface InteractionInput {
   _key?: string; // human readable key name
 }
 
+export interface InteractionSignal {
+  signal: string;
+  label: string; // human-readable label
+}
+
 export interface LyraInteraction {
   id: number;
   name: string;
@@ -113,6 +118,7 @@ export interface LyraInteraction {
   input: InteractionInput;
   selection: SelectionRecord;
   applications: ApplicationRecord[];
+  signals: InteractionSignal[];
 };
 
 
@@ -122,7 +128,8 @@ export const Interaction = Record<LyraInteraction>({
   groupId: null,
   input: null,
   selection: null,
-  applications: []
+  applications: [],
+  signals: []
 }, 'LyraInteraction');
 
 export type InteractionRecord = RecordOf<LyraInteraction>;

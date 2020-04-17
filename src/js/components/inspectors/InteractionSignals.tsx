@@ -10,12 +10,13 @@ import {setMarkVisual} from '../../actions/markActions';
 import {NumericValueRef, StringValueRef, tupleid} from 'vega';
 import sg from '../../ctrl/signals';
 import {channelName} from '../../actions/bindChannel';
+import {InteractionSignal} from '../../store/factory/Interaction';
 
 const ctrl = require('../../ctrl');
 
 interface OwnProps {
   groupId: number;
-  signals: {[signalName: string]: string}; // name -> label
+  signals: InteractionSignal[];
 }
 
 interface StateProps {
@@ -90,8 +91,9 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
     return (
       <div className='signals-container'>
         {
-          Object.entries(this.props.signals).map(([name, label]) => {
-            return (<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={name}>{label}</div>)
+          this.props.signals.map((interactionSignal) => {
+            console.log(interactionSignal);
+            return (<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={interactionSignal.signal}>{interactionSignal.label}</div>)
           })
         }
       </div>

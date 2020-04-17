@@ -3,18 +3,14 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {ScaleInfo, MarkApplicationRecord, MarkApplication} from '../../store/factory/Interaction';
+import {ScaleInfo, MarkApplicationRecord, MarkApplication, InteractionSignal} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
-import {setSelection, setApplication, removeApplication} from '../../actions/widgetActions';
+import {setSelection, setApplication, removeApplication, setSignals} from '../../actions/widgetActions';
 import {getScaleInfoForGroup, getNestedMarksOfGroup} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {MarkRecord} from '../../store/factory/Mark';
 import exportName from '../../util/exportName';
 import {Map} from 'immutable';
-import {DraggingStateRecord, SignalDraggingStateRecord} from '../../store/factory/Inspector';
-import {startDragging, stopDragging} from '../../actions/inspectorActions';
-import {setMarkVisual} from '../../actions/markActions';
-import {NumericValueRef, StringValueRef} from 'vega';
 import {WidgetSelectionRecord, WidgetRecord, WidgetSelection, WidgetComparator} from '../../store/factory/Widget';
 import WidgetPreview from '../interactions/WidgetPreview';
 import {WidgetMarkApplicationProperty} from './WidgetMarkApplication';
@@ -31,9 +27,7 @@ interface DispatchProps {
   setSelection: (record: WidgetSelectionRecord, id: number) => void;
   setApplication: (record: MarkApplicationRecord, id: number) => void;
   removeApplication: (record: MarkApplicationRecord, id: number) => void;
-  startDragging: (d: DraggingStateRecord) => void;
-  stopDragging: () => void;
-  setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
+  setSignals: (signals: InteractionSignal[], id: number) => void;
 }
 
 interface StateProps {
@@ -48,7 +42,6 @@ interface StateProps {
   canDemonstrate: boolean;
   selectionPreviews: WidgetSelectionRecord[];
   applicationPreviews: MarkApplicationRecord[];
-  dragging: SignalDraggingStateRecord;
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -90,9 +83,6 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     applicationPreviews,
   } = generatePreviews(groupId, marksOfGroups, widget);
 
-  const draggingSignal = state.getIn(['inspector', 'dragging']) as SignalDraggingStateRecord;
-  const dragging = draggingSignal && draggingSignal.signal ? draggingSignal : null;
-
   return {
     widget: widget,
     groups,
@@ -104,12 +94,11 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     fieldsOfGroup,
     canDemonstrate,
     selectionPreviews,
-    applicationPreviews,
-    dragging
+    applicationPreviews
   };
 }
 
-const actionCreators = {setSelection, setApplication, removeApplication, startDragging, stopDragging, setMarkVisual};
+const actionCreators: DispatchProps = {setSelection, setApplication, removeApplication, setSignals};
 
 function generatePreviews(groupId, marksOfGroups, widget): {
   selectionPreviews: WidgetSelectionRecord[],
@@ -206,6 +195,8 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
             this.props.setApplication(this.props.applicationPreviews[0], this.props.widget.id);
       }
     }
+
+    this.props.setSignals(this.getInteractionSignals(this.props.widget), this.props.widget.id);
   }
 
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
@@ -328,12 +319,13 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
     this.props.setApplication(newPreview, this.props.widget.id);
   }
 
-  private getInteractionSignals(widget: WidgetRecord) {
+  private getInteractionSignals(widget: WidgetRecord): InteractionSignal[] {
     const widgetId = widget.id;
 
-    return {
-      [`widget_${widgetId}`]: `widget_${widget.field.name}`
-    };
+    return [{
+      signal: `widget_${widgetId}`,
+      label: `widget_${widget.field.name}`
+    }];
   }
 
   public render() {
@@ -402,7 +394,7 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
           </div>
           <div className="property-group">
             <h3>Signals</h3>
-            <InteractionSignals groupId={this.props.group._id} signals={this.getInteractionSignals(this.props.widget)}></InteractionSignals>
+            <InteractionSignals groupId={this.props.group._id} signals={this.props.widget.signals}></InteractionSignals>
           </div>
         </div>
       </div>

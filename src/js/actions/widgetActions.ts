@@ -1,6 +1,6 @@
 import {createStandardAction} from 'typesafe-actions';
 import {WidgetRecord, WidgetSelectionRecord} from '../store/factory/Widget';
-import {MarkApplicationRecord} from '../store/factory/Interaction';
+import {MarkApplicationRecord, InteractionSignal} from '../store/factory/Interaction';
 import {Dispatch} from 'redux';
 import {addWidgetToGroup} from './bindChannel/helperActions';
 import {State} from '../store';
@@ -27,6 +27,7 @@ export const setApplication = createStandardAction('SET_WIDGET_APPLICATION')<Mar
 
 export const removeApplication = createStandardAction('REMOVE_WIDGET_APPLICATION')<MarkApplicationRecord, number>();
 
+export const setSignals = createStandardAction('SET_WIDGET_SIGNALS')<InteractionSignal[], number>();
 export const deleteWidget = createStandardAction('DELETE_WIDGET')<{groupId: number}, number>(); // id
 
 export const updateWidgetName = createStandardAction('UPDATE_WIDGET_NAME')<string, number>();

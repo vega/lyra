@@ -28,6 +28,10 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
     return state.setIn([String(id), 'applications'], [...withoutPayload, action.payload]);
   }
 
+  if (action.type === getType(interactionActions.setSignals)) {
+    return state.setIn([String(id), 'signals'], action.payload);
+  }
+
   if (action.type === getType(interactionActions.removeApplication)) {
     const applications = state.getIn([String(id), 'applications']);
     const withoutPayload = applications.filter(application => application.id !== action.payload.id);

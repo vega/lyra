@@ -23,7 +23,9 @@ import {updateMarkProperty} from '../../actions/markActions';
 import {PrimType} from '../../constants/primTypes';
 import {State} from '../../store';
 import {Schema} from '../../store/factory/Dataset';
-import {FieldDraggingStateRecord} from '../../store/factory/Inspector';
+import {FieldDraggingStateRecord, DraggingStateRecord, SignalDraggingStateRecord} from '../../store/factory/Inspector';
+import {InteractionRecord} from '../../store/factory/Interaction';
+import {WidgetRecord} from '../../store/factory/Widget';
 
 interface OwnState {
   html: string
@@ -40,7 +42,8 @@ interface OwnProps {
 
 interface StateProps {
   fields: string[];
-  dragging: FieldDraggingStateRecord;
+  signals: string[];
+  dragging: DraggingStateRecord;
 }
 
 interface DispatchProps {
@@ -49,8 +52,13 @@ interface DispatchProps {
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const schema: Schema = getInVis(reduxState, 'datasets.' + ownProps.dsId + '._schema');
+  const interactions: InteractionRecord[] = reduxState.getIn(['vis', 'present', 'interactions']).valueSeq().toArray();
+  const interactionSignals = [].concat.apply([], interactions.filter(interaction => interaction.signals.length).map(interaction => interaction.signals.map(signal => signal.signal)));
+  const widgets: WidgetRecord[] = reduxState.getIn(['vis', 'present', 'widgets']).valueSeq().toArray();
+  const widgetSignals = [].concat.apply([], widgets.filter(widget => widget.signals.length).map(widget => widget.signals.map(signal => signal.signal)));
   return {
     fields: schema ? schema.keySeq().toJS() : [],
+    signals: interactionSignals.concat(widgetSignals),
     dragging: reduxState.getIn(['inspector', 'dragging'])
   };
 }
@@ -118,14 +126,23 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   }
 
   public exprToHtml(str: string) {
-    str = str.split(DATUM).join('');
-    return this.wrapStr(str, SPAN_FIELD_OPEN, SPAN_CLOSE);
+    console.log(str);
+    const fields = this.props.fields;
+    const signals = this.props.signals;
+
+    const fieldRe = new RegExp(fields.map(s => DATUM + s).join('|'), 'g');
+    const signalRe = new RegExp(signals.join('|'), 'g');
+
+    str = str.replace(fieldRe, (match) => SPAN_FIELD_OPEN + match + SPAN_CLOSE);
+    str = str.replace(signalRe, (match) => SPAN_SIGNAL_OPEN + match + SPAN_CLOSE);
+
+    console.log(str);
+
+    return str;
   };
 
   public htmlToExpr(html) {
-    html = html.split(SPAN_FIELD_OPEN).join('');
-    html = html.split(SPAN_CLOSE).join('');
-    return this.htmlDecode(this.wrapStr(html, DATUM, ''));
+    return this.htmlDecode(this.wrapTokensExpr(this.htmlToTokens(html)));
   };
 
   public tmplToHtml(str) {
@@ -166,7 +183,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     return this.wrapTokensHtml(tokens);
   };
 
-  public htmlToTmpl(html) {
+  private htmlToTokens(html) {
     const tokens = [];
     let searchStr = html;
     let position = searchStr.search(SPAN_RE);
@@ -200,8 +217,11 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       type: 'literal',
       str: searchStr
     });
+    return tokens;
+  }
 
-    return this.htmlDecode(this.wrapTokensTmpl(tokens));
+  public htmlToTmpl(html) {
+    return this.htmlDecode(this.wrapTokensTmpl(this.htmlToTokens(html)));
   };
 
   public wrapTokensHtml(tokens: any[]) {
@@ -211,6 +231,15 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       }
       if (token.type === 'signal') {
         return SPAN_SIGNAL_OPEN + token.str + SPAN_CLOSE;
+      }
+      return token.str;
+    }).join('');
+  }
+
+  public wrapTokensExpr(tokens: any[]) {
+    return tokens.map(token => {
+      if (token.type === 'field') {
+        return DATUM + token.str;
       }
       return token.str;
     }).join('');
@@ -272,15 +301,27 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
 
   public handleDrop = (evt)  => {
     const props = this.props;
-    const dragging = props.dragging;
-    const fieldName = dragging.fieldDef.name;
-    const currHtml = this.state.html;
-    const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE;
-    if (!props.dsId && dragging.dsId && props.primType === 'marks') {
-      props.setDsId(dragging.dsId);
+    let dragging = props.dragging;
+    if ((dragging as FieldDraggingStateRecord).dsId) {
+      dragging = dragging as FieldDraggingStateRecord;
+      const fieldName = dragging.fieldDef.name;
+      const currHtml = this.state.html;
+      const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE;
+      if (!props.dsId && dragging.dsId && props.primType === 'marks') {
+        props.setDsId(dragging.dsId);
+      }
+      props.updateFn(this.fromHtml(html));
+      this.setState({html});
     }
-    props.updateFn(this.fromHtml(html));
-    this.setState({html});
+    else if ((dragging as SignalDraggingStateRecord).signal) {
+      dragging = dragging as SignalDraggingStateRecord;
+      const signalName = dragging.signal;
+      const currHtml = this.state.html;
+      const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE;
+      props.updateFn(this.fromHtml(html));
+      this.setState({html});
+    }
+
   };
 
   public render() {

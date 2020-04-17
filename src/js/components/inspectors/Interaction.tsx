@@ -3,9 +3,9 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput} from '../../store/factory/Interaction';
+import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
-import {setInput, setSelection, setApplication, removeApplication} from '../../actions/interactionActions';
+import {setInput, setSelection, setApplication, removeApplication, setSignals} from '../../actions/interactionActions';
 import {getScaleInfoForGroup, ScaleSimpleType, getNestedMarksOfGroup} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
@@ -21,6 +21,7 @@ import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import {debounce, NumericValueRef, StringValueRef, tupleid} from 'vega';
 import {InteractionInputType} from './InteractionInputType';
 import {InteractionSignals} from './InteractionSignals';
+import {isOfType} from 'typesafe-actions';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -33,6 +34,7 @@ interface DispatchProps {
   setInput: (input: InteractionInput, id: number) => void;
   setSelection: (record: SelectionRecord, id: number) => void;
   setApplication: (record: ApplicationRecord, id: number) => void;
+  setSignals: (signals: InteractionSignal[], id: number) => void;
   removeApplication: (record: ApplicationRecord, id: number) => void;
 }
 
@@ -108,7 +110,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-const actionCreators = {setInput, setSelection, setApplication, removeApplication, startDragging, stopDragging, setMarkVisual};
+const actionCreators: DispatchProps = {setInput, setSelection, setApplication, removeApplication, setSignals};
 
 function generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction, isDemonstratingInterval): {
   selectionPreviews: SelectionRecord[],
@@ -297,6 +299,13 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
             this.props.setSelection(this.props.selectionPreviews[0], this.props.interaction.id);
       }
     }
+
+    if (this.props.interaction.input && (!prevProps.interaction.input || prevProps.interaction.input.mouse !== this.props.interaction.input.mouse ||
+        !(prevProps.scaleInfo.xScaleName === this.props.scaleInfo.xScaleName && prevProps.scaleInfo.yScaleName === this.props.scaleInfo.yScaleName))) {
+      console.log(this.props.interaction.input, this.props.scaleInfo);
+      const signals = this.getInteractionSignals(this.props.interaction, this.props.scaleInfo);
+      this.props.setSignals(signals, this.props.interaction.id);
+    }
   }
 
   private scopedSignalName(signalName: string) {
@@ -474,23 +483,35 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
 
-  private getInteractionSignals(interaction: InteractionRecord, scaleInfo: ScaleInfo) {
+  private getInteractionSignals(interaction: InteractionRecord, scaleInfo: ScaleInfo): InteractionSignal[] {
     const input = interaction.input;
     if (!input) return [];
     const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
     const interactionId = interaction.id;
 
-    const signals = {};
+    const signals: InteractionSignal[] = [];
 
     switch (input.mouse) {
       case 'drag':
         if (xScaleName) {
-          signals[`brush_x_start_${interactionId}`] = 'brush_x (start)';
-          signals[`brush_x_end_${interactionId}`] = 'brush_x (start)';
+          signals.push({
+            signal: `brush_x_start_${interactionId}`,
+            label: 'brush_x (start)'
+          });
+          signals.push({
+            signal: `brush_x_end_${interactionId}`,
+            label: 'brush_x (end)'
+          });
         }
         if (yScaleName) {
-          signals[`brush_y_start_${interactionId}`] = 'brush_y (start)';
-          signals[`brush_y_end_${interactionId}`] = 'brush_y (start)';
+          signals.push({
+            signal: `brush_y_start_${interactionId}`,
+            label: 'brush_y (start)'
+          });
+          signals.push({
+            signal: `brush_y_end_${interactionId}`,
+            label: 'brush_y (end)'
+          });
         }
         // TODO create these signals
         // if (xFieldName) {
@@ -503,11 +524,20 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         // }
         break;
         case 'click':
-          signals[`lyra_points_tuple_${interactionId}`] = 'points'; // TODO (jzong) unpack this signal into single values so it's usable
+          signals.push({
+            signal: `lyra_points_tuple_${interactionId}`,
+            label: 'points' // TODO (jzong) unpack this signal into single values so it's usable
+          });
           break;
         case 'mouseover':
-          signals[`mouse_x_${interactionId}`] = 'mouse_x';
-          signals[`mouse_y_${interactionId}`] = 'mouse_y';
+          signals.push({
+            signal: `mouse_x_${interactionId}`,
+            label: 'mouse_x'
+          });
+          signals.push({
+            signal: `mouse_y_${interactionId}`,
+            label: 'mouse_y'
+          });
           break;
     }
     return signals;
@@ -585,7 +615,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
               </div>
               <div className="property-group">
                 <h3>Signals</h3>
-                <InteractionSignals groupId={this.props.group._id} signals={this.getInteractionSignals(this.props.interaction, this.props.scaleInfo)}></InteractionSignals>
+                <InteractionSignals groupId={this.props.group._id} signals={this.props.interaction.signals}></InteractionSignals>
               </div>
             </div>
           ) : null
