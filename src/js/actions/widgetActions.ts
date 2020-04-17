@@ -5,17 +5,14 @@ import {Dispatch} from 'redux';
 import {addWidgetToGroup} from './bindChannel/helperActions';
 import {State} from '../store';
 import {assignId} from '../util/counter';
+import {recordName} from '../util/recordName';
 
-function nameWidget(state: State): string {
-  const num = state.getIn(['vis', 'present', 'widgets']).size;
-  return 'Widget ' + (num + 1);
-}
 export function addWidget (record: WidgetRecord) {
   return function(dispatch: Dispatch, getState: () => State) {
     const id: number = record.id || assignId(dispatch, getState());
     record = (record as any).merge({id: id}) as WidgetRecord;
     if (!record.get('name')) {
-      record = record.set('name', nameWidget(getState()));
+      record = record.set('name', recordName(getState(), 'widgets', 'Widget'));
     }
 
     dispatch(baseAddWidget(record, id));

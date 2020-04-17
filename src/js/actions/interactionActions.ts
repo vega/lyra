@@ -4,17 +4,14 @@ import {Dispatch} from 'redux';
 import {addInteractionToGroup} from './bindChannel/helperActions';
 import {assignId} from '../util/counter';
 import {State} from '../store';
+import {recordName} from '../util/recordName';
 
-function nameInteraction(state: State): string {
-  const num = state.getIn(['vis', 'present', 'interactions']).size;
-  return 'Interaction ' + (num + 1);
-}
 export function addInteraction (record: InteractionRecord) {
   return function(dispatch: Dispatch, getState: () => State) {
     const id: number = record.id || assignId(dispatch, getState());
     record = record.set('id', id);
     if (!record.get('name')) {
-      record = record.set('name', nameInteraction(getState()));
+      record = record.set('name', recordName(getState(), 'interactions', 'Interaction'));
     }
 
     dispatch(baseAddInteraction(record, id));

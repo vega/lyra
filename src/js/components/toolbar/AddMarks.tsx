@@ -21,7 +21,6 @@ function mapDispatchToProps(dispatch, ownProps): DispatchProps {
       const newMarkProps = Mark(type, {
         _parent: getClosestGroupId()
       });
-      console.log('AddMarks', newMarkProps);
       dispatch(addMark(newMarkProps));
     }
   };
