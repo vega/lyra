@@ -45,7 +45,7 @@ export class TransformInspector extends React.Component<OwnProps & DispatchProps
   public resetTimer = () => {
     window.clearTimeout(this.timer);
     this.timer = window.setTimeout(() => {
-      this.props.setExpandedIndex(null);
+      // this.props.setExpandedIndex(null);
     }, 10000);
   }
 

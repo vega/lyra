@@ -14,7 +14,9 @@ export type VegaLiteUnit = UnitSpec;
 
 export const addMark = createStandardAction('ADD_MARK').map((record: MarkRecord) => {
   const id: number = record._id || counter.global();
-  record = (record as any).merge({_id: id}) as MarkRecord; // TODO(jzong) typescript barfs when calling merge on union record types
+  record = (record as any).set('_id', id) as MarkRecord; // TODO(jzong) typescript barfs when calling merge on union record types
+
+  console.log('markActions', record);
 
   return {
     payload: {

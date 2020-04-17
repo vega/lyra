@@ -230,3 +230,14 @@ $long-label-width: $label-width + 10px;
   color: transparent;
   text-shadow: 0 0 0 $grey-bg;
 }
+
+.transform-inspector {
+  .property label {
+    width: auto;
+  }
+
+  .autocomplete {
+    width: 90px;
+    white-space: nowrap;
+  }
+}
