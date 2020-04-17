@@ -22,7 +22,7 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
     return Map();
   }
 
-  if (action.type === getType(datasetActions.addDataset)) {
+  if (action.type === getType(datasetActions.baseAddDataset)) {
     if (action.meta) {
       dsUtil.init(action.payload, action.meta);
     }

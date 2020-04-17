@@ -7,7 +7,7 @@ export function sceneReducer(state: Map<string, number>, action: ActionType<type
     return Map();
   }
 
-  if (action.type === getType(sceneActions.createScene)) {
+  if (action.type === getType(sceneActions.baseCreateScene)) {
     return state.set('_id', action.meta);
   }
 

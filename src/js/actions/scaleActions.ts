@@ -1,14 +1,17 @@
 import {createStandardAction} from 'typesafe-actions';
 import {ScaleRecord} from '../store/factory/Scale';
-import * as counter from '../util/counter';
+import {assignId} from '../util/counter';
+import {State} from '../store';
+import {Dispatch} from 'redux';
 
-// /**
-//  * Action creator to create a new scale and add it to the store.
-//  */
-export const addScale = createStandardAction('ADD_SCALE').map((payload: ScaleRecord) => {
-  const id = payload._id || counter.global();
-  return {payload: payload.merge({_id: id}), meta: id}
-});
+export function addScale (payload: ScaleRecord) {
+  return function(dispatch: Dispatch, getState: () => State) {
+    const id = payload._id || assignId(dispatch, getState());
+
+    dispatch(baseAddScale(payload.merge({_id: id}), id));
+  };
+}
+export const baseAddScale = createStandardAction('ADD_SCALE')<ScaleRecord, number>();
 
 export const updateScaleProperty = createStandardAction('UPDATE_SCALE_PROPERTY')<{property: string, value: any}, number>();
 

@@ -24,8 +24,8 @@ export function scalesReducer(state: ScaleState, action: ActionType<typeof scale
     return Map();
   }
 
-  if (action.type === getType(scaleActions.addScale)) {
-    const record = (action.payload as any).set('name', renameScale(state, action.payload.name));
+  if (action.type === getType(scaleActions.baseAddScale)) {
+    let record = (action.payload as any).set('name', renameScale(state, action.payload.name)) as ScaleRecord;
     return state.set(String(id), record);
   }
 

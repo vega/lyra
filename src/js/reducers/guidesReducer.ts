@@ -7,7 +7,7 @@ import {GuideRecord, GuideState, GuideType, isAxis, isLegend} from '../store/fac
 const str = require('../util/immutable-utils').str;
 const convertValuesToSignals = require('../util/prop-signal').convertValuesToSignals;
 
-function makeGuide(action : ActionType<typeof guideActions.addGuide>): GuideRecord {
+function makeGuide(action : ActionType<typeof guideActions.baseAddGuide>): GuideRecord {
   const def: GuideRecord = action.payload;
   const props = def.encode;
 
@@ -26,7 +26,7 @@ export function guidesReducer(state: GuideState, action: ActionType<typeof guide
     return Map();
   }
 
-  if (action.type === getType(guideActions.addGuide)) {
+  if (action.type === getType(guideActions.baseAddGuide)) {
     return state.set(str(id), makeGuide(action));
   }
 

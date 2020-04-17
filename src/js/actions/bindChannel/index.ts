@@ -13,11 +13,11 @@ import parseData from './parseData';
 import parseGuides from './parseGuides';
 import parseMarks from './parseMarks';
 import parseScales from './parseScales';
+import updateAggregateDependencies from './aggregateDependencies';
 
 const AGGREGATE_OPS = require('../../constants/aggregateOps'),
   getInVis = require('../../util/immutable-utils').getInVis,
-  dsUtils = require('../../util/dataset-utils'),
-  updateAggregateDependencies = require('./aggregateDependencies');
+  dsUtils = require('../../util/dataset-utils');
 
 // Vega mark types to Vega-Lite mark types.
 const TYPES = {

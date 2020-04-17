@@ -10,8 +10,6 @@ import {MarkRecord, MarkState} from '../store/factory/Mark';
 import {SceneRecord} from '../store/factory/marks/Scene';
 import {convertValuesToSignals, propSg} from '../util/prop-signal';
 
-const capitalize = require('capitalize');
-
 const ensureValuePresent = function(state: MarkState, path: string[], valToAdd): MarkState {
   return state.updateIn(path, marks => {
     if (marks.indexOf(valToAdd) === -1) {
@@ -34,24 +32,15 @@ const ensureValueAbsent = function(state: MarkState, path: string[], valToRemove
   return state.updateIn(path, children => children.filter(c => c !== valToRemove));
 };
 
-function nameMark(state: MarkState, type: string): string {
-  const numMarks = state.keySeq().size;
-  return capitalize(type) + ' ' + (numMarks + 1);
-}
-
 // Helper reducer to add a mark to the store. Runs the mark through a method to
 // convert property values into signal references before setting the mark
 // within the store.
 // "state" is the marks store state; "action" is an object with a numeric
 // `._id`, string `.name`, and object `.props` defining the mark to be created.
-function makeMark(state: MarkState, action: ActionType<typeof markActions.addMark | typeof sceneActions.createScene>): MarkRecord {
-  let def: MarkRecord | SceneRecord = action.payload.props;
-  if (!def.name) {
-    def = (def as any).set('name', nameMark(state, def.type))
-  }
+function makeMark(action: ActionType<typeof markActions.baseAddMark | typeof sceneActions.baseCreateScene>): MarkRecord {
+  const def: MarkRecord | SceneRecord = action.payload.props;
   const props = def.encode && def.encode.update;
   return def.encode ? (def as any).merge({
-    // TODO(jzong) typescript barfs when calling merge on union record types
     encode: {
       update: convertValuesToSignals(props, (def as MarkRecord).type, action.meta)
     }
@@ -162,7 +151,7 @@ export function marksReducer(
   action:
     | ActionType<typeof markActions>
     | ActionType<typeof helperActions>
-    | ActionType<typeof sceneActions.createScene>
+    | ActionType<typeof sceneActions.baseCreateScene>
     | ActionType<typeof guideActions.deleteGuide>
     | ActionType<typeof interactionActions.deleteInteraction>
     | ActionType<typeof widgetActions.deleteWidget>
@@ -173,15 +162,15 @@ export function marksReducer(
 
   const markId = action.meta;
 
-  if (action.type === getType(sceneActions.createScene)) {
-    return state.set(String(markId), makeMark(state, action));
+  if (action.type === getType(sceneActions.baseCreateScene)) {
+    return state.set(String(markId), makeMark(action));
   }
 
-  if (action.type === getType(markActions.addMark)) {
+  if (action.type === getType(markActions.baseAddMark)) {
     // Make the mark and .set it at the provided ID, then pass it through a
     // method that will check to see whether the mark needs to be added as
     // a child of another mark
-    return setParentMark(state.set(String(markId), makeMark(state, action)), {
+    return setParentMark(state.set(String(markId), makeMark(action)), {
       parentId: action.payload.props ? action.payload.props._parent : null,
       childId: markId
     });

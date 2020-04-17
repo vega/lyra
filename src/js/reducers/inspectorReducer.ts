@@ -11,7 +11,7 @@ function expandLayers(state: InspectorRecord, layerIds: number[]): InspectorReco
   }, state);
 }
 
-export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.addMark | typeof interactionActions.baseAddInteraction | typeof widgetActions.baseAddWidget>): InspectorRecord {
+export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.baseAddMark | typeof interactionActions.baseAddInteraction | typeof widgetActions.baseAddWidget>): InspectorRecord {
   if (typeof state === 'undefined') {
     return Inspector();
   }
@@ -47,7 +47,7 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
     state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.selectWidget));
   }
 
-  if (action.type === getType(markActions.addMark)) {
+  if (action.type === getType(markActions.baseAddMark)) {
       state = state.setIn(['encodings', 'selectedId'], action.meta);
       state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.baseSelectMark));
   }
@@ -57,7 +57,7 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
   }
 
   // Auto-select new marks
-  if (action.type === getType(markActions.addMark)) {
+  if (action.type === getType(markActions.baseAddMark)) {
     const layers: ExpandedLayers = {};
     layers[action.payload.props._parent] = true;
     if (action.payload.props.type === 'group') {

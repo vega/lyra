@@ -8,6 +8,8 @@ import {addScale} from '../scaleActions';
 import {computeLayout} from './computeLayout';
 import {addScaleToGroup} from './helperActions';
 import {CompiledBinding} from './index';
+import {assignId} from '../../util/counter';
+import {ThunkDispatch} from 'redux-thunk';
 
 const imutils = require('../../util/immutable-utils'),
   getIn = imutils.getIn,
@@ -25,7 +27,7 @@ const imutils = require('../../util/immutable-utils'),
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-export default function parseScales(dispatch: Dispatch, state: State, parsed: CompiledBinding) {
+export default function parseScales(dispatch: ThunkDispatch<State, any, any>, state: State, parsed: CompiledBinding) {
   const map = parsed.map.scales,
     dsMap = parsed.map.data,
     mark = parsed.mark,
@@ -67,8 +69,10 @@ export default function parseScales(dispatch: Dispatch, state: State, parsed: Co
   // If no previous or matching scale exists, or if there's a mismatch in
   // definitions, dispatch actions to construct a new scale.
   if (!prev || !equals(state, def, prev, dsMap)) {
-    const action = createScale(dispatch, parsed, def);
-    scaleId = action.meta;
+    scaleId = assignId(dispatch, state);
+    const scale = createScale(parsed, def).merge({_id: scaleId});
+
+    dispatch(addScale(scale));
 
     // Ordinal-band scales can affect the layout. Call layout computation here
     // as (1) we only want to do this for new scales and (2) the scale doesn't
@@ -145,12 +149,11 @@ function equals(state: State, def: RangeScale, scale: ScaleRecord, dsMap): boole
   return true;
 }
 
-function createScale(dispatch: Dispatch, parsed: CompiledBinding, def: RangeScale): ActionType<typeof addScale> {
+function createScale(parsed: CompiledBinding, def: RangeScale): ScaleRecord {
   const {domain, ...rest} = def,
     props = isDataRefDomain(domain)
       ? extend({}, rest, {_domain: [{data: parsed.map.data[domain.data], field: domain.field}]})
       : def;
 
-  const action = addScale(Scale(props));
-  return (dispatch(action), action);
+  return Scale(props)
 }

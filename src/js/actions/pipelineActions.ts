@@ -1,4 +1,3 @@
-const counter = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
 
 import {Dispatch} from 'redux';
@@ -10,6 +9,8 @@ import {LyraAggregateTransform, PipelineRecord} from '../store/factory/Pipeline'
 import * as dsUtil from '../util/dataset-utils';
 import {addDataset} from './datasetActions';
 import {selectPipeline} from './inspectorActions';
+import {assignId} from '../util/counter';
+import {ThunkDispatch} from 'redux-thunk';
 
 /**
  * Action creator to add a new Pipeline in the store. A new pipeline requires
@@ -21,15 +22,17 @@ import {selectPipeline} from './inspectorActions';
  * @returns {Function} An async action function
  */
 export function addPipeline (pipeline: PipelineRecord, ds: DatasetRecord, values: Datum[]) {
-  return function(dispatch: Dispatch) {
-    const pid = pipeline._id || counter.global();
-    const newDs = addDataset(ds.merge({
+  return function(dispatch: ThunkDispatch<State, any, any>, getState) {
+    const pid = pipeline._id || assignId(dispatch, getState());
+    const dsId = assignId(dispatch, getState());
+    const newDs = ds.merge({
+      _id: dsId,
       name: pipeline.name + '_source',
       _parent: pid
-    }), values);
+    });
 
-    dispatch(newDs);
-    dispatch(baseAddPipeline(pipeline.merge({_id: pid, _source: newDs.payload._id}), pid));
+    dispatch(addDataset(newDs, values));
+    dispatch(baseAddPipeline(pipeline.merge({_id: pid, _source: dsId}), pid));
     dispatch(selectPipeline(pid));
   };
 }
@@ -52,19 +55,19 @@ export function aggregatePipeline (id: number, aggregate: LyraAggregateTransform
     const schema = dsUtil.aggregateSchema(srcSchema, aggregate);
     const key = (aggregate.groupby as string[]).join('|'); // TODO: vega 2 aggregate.groupby is string[]
 
-    const ds = addDataset(
-      Dataset({
-        name: pipeline.get('name') + '_groupby_' + key,
-        source: String(srcId),
-        transform: [aggregate],
-        _schema: schema,
-        _parent: id
-      }), null
-    );
+    const dsId = assignId(dispatch, getState());
+    const ds = Dataset({
+      _id: dsId,
+      name: pipeline.get('name') + '_groupby_' + key,
+      source: String(srcId),
+      transform: [aggregate],
+      _schema: schema,
+      _parent: id
+    });
 
-    dispatch(ds);
+    dispatch(addDataset(ds, null));
     dispatch(baseAggregatePipeline({
-      dsId: aggregate._id = ds.payload._id,
+      dsId: aggregate._id = dsId,
       key: key
     }, id));
   };

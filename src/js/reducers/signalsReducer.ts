@@ -24,7 +24,7 @@ function setStreams(state: SignalState, signal: string, value: SignalValue): Sig
 }
 
 // Initialize signals for any of the mark's properties that are defined with a .value
-function initSignalsForMark(state: SignalState, action: ActionType<typeof markActions.addMark | typeof guideActions.addGuide>, props, propName?): SignalState {
+function initSignalsForMark(state: SignalState, action: ActionType<typeof markActions.baseAddMark | typeof guideActions.baseAddGuide>, props, propName?): SignalState {
   if (!props) {
     // No property values to initialize as signals; return state as-is
     return state;
@@ -36,7 +36,7 @@ function initSignalsForMark(state: SignalState, action: ActionType<typeof markAc
       return accState;
     }
 
-    if (action.type === getType(guideActions.addGuide)) {
+    if (action.type === getType(guideActions.baseAddGuide)) {
       const type = 'guide';
       const name =  propName + '_' + key;
       const signalName = propSg(action.meta, type, name);
@@ -44,7 +44,7 @@ function initSignalsForMark(state: SignalState, action: ActionType<typeof markAc
       const intermediateState = signalInit(accState, signalName, props[key].value);
       return intermediateState;
     }
-    if (action.type === getType(markActions.addMark)) {
+    if (action.type === getType(markActions.baseAddMark)) {
       const type = action.payload.props.type;
       const name = key;
       const signalName = propSg(action.meta, type, name);
@@ -68,7 +68,7 @@ function deleteSignalsForMark(state: SignalState, action: ActionType<typeof mark
   });
 }
 
-export function signalsReducer(state: SignalState, action: ActionType<typeof signalActions | typeof markActions.addMark | typeof markActions.baseDeleteMark | typeof guideActions.addGuide | typeof guideActions.deleteGuide>): SignalState {
+export function signalsReducer(state: SignalState, action: ActionType<typeof signalActions | typeof markActions.baseAddMark | typeof markActions.baseDeleteMark | typeof guideActions.baseAddGuide | typeof guideActions.deleteGuide>): SignalState {
   if (typeof state === 'undefined') {
     return Map();
   }
@@ -89,12 +89,12 @@ export function signalsReducer(state: SignalState, action: ActionType<typeof sig
     return state.remove(action.meta);
   }
 
-  if (action.type === getType(markActions.addMark)) {
+  if (action.type === getType(markActions.baseAddMark)) {
     return initSignalsForMark(state, action,
       action.payload.props.encode && action.payload.props.encode.update);
   }
 
-  if (action.type === getType(guideActions.addGuide)) {
+  if (action.type === getType(guideActions.baseAddGuide)) {
     const props = action.payload.encode;
     Object.keys(props).forEach(function(key) {
       state = initSignalsForMark(state, action, props[key], key);

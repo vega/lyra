@@ -39,10 +39,10 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
 
   switch (action.type) {
     // All of these actions implicitly invalidate the view
-    case getType(sceneActions.createScene):
+    case getType(sceneActions.baseCreateScene):
     case getType(pipelineActions.baseAddPipeline):
     case getType(signalActions.initSignal):
-    case getType(markActions.addMark):
+    case getType(markActions.baseAddMark):
     case getType(guideActions.deleteGuide):
     case getType(markActions.baseDeleteMark):
     case getType(markActions.setParent):
@@ -52,11 +52,11 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     case getType(markActions.resetMarkVisual):
     case getType(markActions.setMarkExtent):
     case getType(markActions.bindScale):
-    case getType(scaleActions.addScale):
+    case getType(scaleActions.baseAddScale):
     case getType(scaleActions.updateScaleProperty):
     case getType(helperActions.addScaleToGroup):
     case getType(scaleActions.deleteScale):
-    case getType(guideActions.addGuide):
+    case getType(guideActions.baseAddGuide):
     case getType(guideActions.updateGuideProperty):
     case getType(helperActions.addAxisToGroup):
     case getType(helperActions.addLegendToGroup):

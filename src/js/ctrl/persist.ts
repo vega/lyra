@@ -45,7 +45,8 @@ export const hydrate = createStandardAction('HYDRATE').map((str: string) => {
   return {
     payload: {
       vis: serializer.fromJSON(state.store.vis),
-      inspector: serializer.fromJSON(state.store.inspector)
+      inspector: serializer.fromJSON(state.store.inspector),
+      lyra: serializer.fromJSON(state.store.lyra),
     }
   };
 });

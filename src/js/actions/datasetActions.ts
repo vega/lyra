@@ -1,20 +1,25 @@
 import {createStandardAction} from 'typesafe-actions';
 import {AggregateTransform, Compare, Transforms, Datum, IdentifierTransform} from 'vega-typings/types';
 import {DatasetRecord, MType} from '../store/factory/Dataset';
+import {Dispatch} from 'redux';
+import {State} from '../store';
+import {assignId} from '../util/counter';
 
-const counter = require('../util/counter');
+export function addDataset (payload: DatasetRecord, meta: Datum[]) {
+  return function(dispatch: Dispatch, getState: () => State) {
+    const id = payload._id || assignId(dispatch, getState());
+    const hasIdentifierTransform = payload.transform.filter(transform => transform.type === 'identifier').length > 0;
+    if (!hasIdentifierTransform) {
+      payload.transform.push({
+        type: 'identifier',
+        as: '_vgsid_'
+      } as IdentifierTransform);
+    }
+    dispatch(baseAddDataset(payload.merge({_id: id}), meta));
+  };
+}
+export const baseAddDataset = createStandardAction('ADD_DATASET')<DatasetRecord, Datum[]>();
 
-export const addDataset = createStandardAction('ADD_DATASET').map((payload: DatasetRecord, meta: Datum[]) => {
-  const id: number = payload._id || counter.global();
-  const hasIdentifierTransform = payload.transform.filter(transform => transform.type === 'identifier').length > 0;
-  if (!hasIdentifierTransform) {
-    payload.transform.push({
-      type: 'identifier',
-      as: '_vgsid_'
-    } as IdentifierTransform);
-  }
-  return {payload: payload.merge({_id: id}), meta}
-});
 
 export const deleteDataset = createStandardAction('DELETE_DATASET')<number, number>();
 

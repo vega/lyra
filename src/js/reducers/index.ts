@@ -14,6 +14,7 @@ import {scalesReducer as scales} from './scalesReducer';
 import {sceneReducer as scene} from './sceneReducer';
 import {signalsReducer as signals} from './signalsReducer';
 import {invalidateVegaReducer as vega} from './vegaReducer';
+import {lyraGlobalsReducer as lyra} from './lyraReducer';
 import {walkthroughReducer as walkthrough} from './walkthroughReducer';
 
 const visReducers = combineReducers({
@@ -32,6 +33,7 @@ const visReducers = combineReducers({
 export default combineReducers({
   vis: undoable(hydrator(visReducers, 'vis'), historyOptions),
   vega,
+  lyra,
   inspector: hydrator(inspector, 'inspector'),
   hints,
   walkthrough

@@ -4,15 +4,18 @@ import {MarkApplicationRecord} from '../store/factory/Interaction';
 import {Dispatch} from 'redux';
 import {addWidgetToGroup} from './bindChannel/helperActions';
 import {State} from '../store';
+import {assignId} from '../util/counter';
 
-const counter = require('../util/counter');
-
+function nameWidget(state: State): string {
+  const num = state.getIn(['vis', 'present', 'widgets']).size;
+  return 'Widget ' + (num + 1);
+}
 export function addWidget (record: WidgetRecord) {
   return function(dispatch: Dispatch, getState: () => State) {
-    const id: number = record.id || counter.global();
+    const id: number = record.id || assignId(dispatch, getState());
     record = (record as any).merge({id: id}) as WidgetRecord;
     if (!record.get('name')) {
-      record = record.set('name', "Widget "+id);
+      record = record.set('name', nameWidget(getState()));
     }
 
     dispatch(baseAddWidget(record, id));

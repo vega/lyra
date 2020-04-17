@@ -1,31 +1,43 @@
-import {AnyAction} from 'redux';
+import {AnyAction, Dispatch} from 'redux';
 import {ThunkAction} from 'redux-thunk';
 import {createStandardAction} from 'typesafe-actions';
 import {NumericValueRef, StringValueRef} from 'vega';
 import {UnitSpec} from 'vega-lite/src/spec';
 import {batchGroupBy} from '../reducers/historyOptions';
 import {State} from '../store';
-import {LyraMarkType, Mark, MarkRecord} from '../store/factory/Mark';
+import {LyraMarkType, Mark, MarkRecord, HandleStreams} from '../store/factory/Mark';
+import {assignId} from '../util/counter';
 
-const counter  = require('../util/counter');
+const capitalize = require('capitalize');
 const getInVis = require('../util/immutable-utils').getInVis;
 
 export type VegaLiteUnit = UnitSpec;
 
-export const addMark = createStandardAction('ADD_MARK').map((record: MarkRecord) => {
-  const id: number = record._id || counter.global();
-  record = (record as any).set('_id', id) as MarkRecord; // TODO(jzong) typescript barfs when calling merge on union record types
+function nameMark(state: State, type: string): string {
+  type = type || 'Mark';
+  const numMarks = state.getIn(['vis', 'present', 'marks']).filter(mark => mark.type === type).size;
+  return capitalize(type) + ' ' + (numMarks + 1);
+}
 
-  console.log('markActions', record);
+export function addMark (record: MarkRecord) {
+  return function(dispatch: Dispatch, getState: () => State) {
+    const id = record._id || assignId(dispatch, getState());
+    record = (record as any).set('_id', id) as MarkRecord;
 
-  return {
-    payload: {
+    if (!record.name) {
+      const name = nameMark(getState(), record.type)
+      record = (record as any).set('name', name) as MarkRecord;
+    }
+
+    dispatch(baseAddMark({
       name: record.name,
       streams: Mark.getHandleStreams(record),
       props: record
-    }, meta: id
-  }
-});
+    }, id));
+  };
+}
+export const baseAddMark = createStandardAction('ADD_MARK')<{name: string, streams: HandleStreams, props: MarkRecord}, number>();
+
 
 export const updateMarkProperty = createStandardAction('UPDATE_MARK_PROPERTY')<{property: string, value: any}, number>();
 
