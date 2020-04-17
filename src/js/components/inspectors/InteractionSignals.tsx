@@ -63,7 +63,7 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
     try {
       if (dropped) {
         const lyraId = +sel.mark.role.split('lyra_')[1]; // id of thing that was dropped onto
-        const channel: string = channelName(cell.key);
+        const channel = channelName(cell.key);
         this.props.setMarkVisual(
           {
             property: channel,
