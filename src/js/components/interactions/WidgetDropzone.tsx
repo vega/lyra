@@ -25,8 +25,11 @@ function mapStateToProps(state: State): StateProps {
 
   const canDemonstrate = Boolean(!isParsing && ctrl.view && (scaleInfo.xScaleName && scaleInfo.xFieldName || scaleInfo.yScaleName && scaleInfo.yFieldName));
 
+  const draggingRecord = state.getIn(['inspector', 'dragging']);
+  const isFieldDrag = draggingRecord && (draggingRecord as FieldDraggingStateRecord).dsId;
+
   return {
-    dragging: state.getIn(['inspector', 'dragging']),
+    dragging: isFieldDrag ? draggingRecord : null,
     groupId,
     canDemonstrate
   };

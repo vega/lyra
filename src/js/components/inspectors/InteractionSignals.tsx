@@ -9,6 +9,7 @@ import {startDragging, stopDragging} from '../../actions/inspectorActions';
 import {setMarkVisual} from '../../actions/markActions';
 import {NumericValueRef, StringValueRef, tupleid} from 'vega';
 import sg from '../../ctrl/signals';
+import {channelName} from '../../actions/bindChannel';
 
 const ctrl = require('../../ctrl');
 
@@ -62,7 +63,7 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
     try {
       if (dropped) {
         const lyraId = +sel.mark.role.split('lyra_')[1]; // id of thing that was dropped onto
-        const channel: string = cell.key;
+        const channel: string = channelName(cell.key);
         this.props.setMarkVisual(
           {
             property: channel,

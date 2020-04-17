@@ -185,7 +185,7 @@ function map(vlUnit) {
  * @param   {string} name A Vega mark property.
  * @returns {string}      A Vega-Lite encoding channel.
  */
-function channelName(name: string): Channel {
+export function channelName(name: string): Channel {
   //  We don't use Vega-Lite's x2/y2 channels because a user may bind them
   //  first in Lyra which Vega-Lite does not expect.
   switch (name) {
