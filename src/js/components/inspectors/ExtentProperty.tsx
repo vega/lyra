@@ -102,7 +102,7 @@ class BaseExtentProperty extends React.Component<OwnProps & StateProps & Dispatc
           disabled={props.startDisabled} {...props}>
 
           <div className='label-long label'>
-            <select name='start' value={start} onChange={this.handleChange}>
+            <select name='start' value={start} onChange={(e) => this.handleChange(e)}>
               {opts
                 .filter(function(x) {
                   return x.name !== end;
@@ -125,7 +125,7 @@ class BaseExtentProperty extends React.Component<OwnProps & StateProps & Dispatc
             {start === center ?
               (<label htmlFor='end'>{span}</label>) :
               (
-                <select name='end' value={end} onChange={this.handleChange}>
+                <select name='end' value={end} onChange={(e) => this.handleChange(e)}>
                   {opts
                     .filter(function(x) {
                       return x.name !== start && x.name !== center;
