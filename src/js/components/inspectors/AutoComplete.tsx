@@ -126,17 +126,14 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   }
 
   public exprToHtml(str: string) {
-    console.log(str);
     const fields = this.props.fields;
     const signals = this.props.signals;
 
     const fieldRe = new RegExp(fields.map(s => DATUM + s).join('|'), 'g');
     const signalRe = new RegExp(signals.join('|'), 'g');
 
-    str = str.replace(fieldRe, (match) => SPAN_FIELD_OPEN + match + SPAN_CLOSE);
+    str = str.replace(fieldRe, (match) => SPAN_FIELD_OPEN + match.substring(DATUM.length) + SPAN_CLOSE);
     str = str.replace(signalRe, (match) => SPAN_SIGNAL_OPEN + match + SPAN_CLOSE);
-
-    console.log(str);
 
     return str;
   };
@@ -256,28 +253,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       return token.str;
     }).join('');
   }
-
-  public wrapStr(str: string, pre: string, post: string) {
-    const fields = this.props.fields;
-    const extraLen = pre.length + post.length;
-
-    for (const field of fields) {
-      let position = str.search(field);
-      let searched = 0
-
-      while (position !== -1) {
-        position += searched;
-        str = str.substring(0, position) + pre +
-          str.substring(position, position + field.length) + post +
-          str.substring(position + field.length);
-        searched = position + field.length + extraLen;
-        const nextStr = str.substring(searched);
-        position = nextStr.search(field);
-      }
-    }
-
-    return str;
-  };
 
   public htmlDecode(input) {
     const e = document.createElement('div');

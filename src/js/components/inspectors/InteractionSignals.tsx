@@ -92,7 +92,6 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
       <div className='signals-container'>
         {
           this.props.signals.map((interactionSignal) => {
-            console.log(interactionSignal);
             return (<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={interactionSignal.signal}>{interactionSignal.label}</div>)
           })
         }

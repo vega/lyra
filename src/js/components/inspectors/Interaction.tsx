@@ -302,7 +302,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
     if (this.props.interaction.input && (!prevProps.interaction.input || prevProps.interaction.input.mouse !== this.props.interaction.input.mouse ||
         !(prevProps.scaleInfo.xScaleName === this.props.scaleInfo.xScaleName && prevProps.scaleInfo.yScaleName === this.props.scaleInfo.yScaleName))) {
-      console.log(this.props.interaction.input, this.props.scaleInfo);
       const signals = this.getInteractionSignals(this.props.interaction, this.props.scaleInfo);
       this.props.setSignals(signals, this.props.interaction.id);
     }

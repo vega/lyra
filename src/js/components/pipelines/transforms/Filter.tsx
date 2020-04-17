@@ -13,7 +13,6 @@ export class Filter extends React.Component<OwnProps> {
 
   public updateFilter = (value) => {
     const val = value.target ? value.target.value : value;
-    console.log(val);
     try {
       parseExpr(val);
       this.props.update({type: 'filter', expr: val});
