@@ -1,5 +1,4 @@
 const transit = require('transit-immutable-js');
-import {Action} from 'redux';
 import {ActionType, createStandardAction, getType} from 'typesafe-actions';
 import {LyraState, store, VisStateTree} from '../store';
 import {Column, Dataset} from '../store/factory/Dataset';
@@ -9,6 +8,7 @@ import {Area} from '../store/factory/marks/Area';
 import {Group} from '../store/factory/marks/Group';
 import {Line} from '../store/factory/marks/Line';
 import {Rect} from '../store/factory/marks/Rect';
+import {Text} from '../store/factory/marks/Text';
 import {Scene} from '../store/factory/marks/Scene';
 import {Symbol} from '../store/factory/marks/Symbol';
 import {Pipeline} from '../store/factory/Pipeline';
