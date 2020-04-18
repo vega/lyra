@@ -77,12 +77,12 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
       this.offSignal(prevSig);
 
       if (nextSig) {
-        this.onSignal(nextSig); // TODO(jzong) this will crash on signals that are nested in groups :(
+        this.onSignal(nextSig);
       }
     }
 
     if (nextSig || nextProps.value !== prevProps.value) {
-      this.setState({value: nextSig ? sg.get(nextSig) : nextProps.value});
+      this.setState({value: nextSig && nextSig.startsWith('lyra') ? sg.get(nextSig) : nextProps.value});
     }
   };
   public componentWillUnmount() {
