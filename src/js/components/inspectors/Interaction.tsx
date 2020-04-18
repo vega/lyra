@@ -537,6 +537,10 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
             signal: `mouse_y_${interactionId}`,
             label: 'mouse_y'
           });
+          signals.push({
+            signal: `mouse_${scaleInfo.xFieldName}_${interactionId}`,
+            label: `mouse_${scaleInfo.xFieldName}`
+          });
           break;
     }
     return signals;

@@ -69,6 +69,19 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       ]
     },
   ]);
+  if (scaleInfo.xScaleName && scaleInfo.xFieldName) {
+    sceneSpec = applySignals(sceneSpec, groupName, [
+      {
+        "name": `mouse_${scaleInfo.xFieldName}_${interactionId}`,
+        "on": [
+          {
+            "events": "mousemove",
+            "update": `key_modifier_${interactionId} ? invert("${scaleInfo.xScaleName}", mouse_x_${interactionId}) : mouse_${scaleInfo.xFieldName}_${interactionId}`
+          }
+        ]
+      }
+    ])
+  }
 
   // Point
   sceneSpec = applySignals(sceneSpec, groupName, [
@@ -1073,7 +1086,7 @@ function scaleTypeSimple(scaleType): ScaleSimpleType {
   }
 }
 
-export function cleanSpecForPreview(sceneSpec, groupName): Spec {
+export function cleanSpecForPreview(sceneSpec, groupName, interactionId): Spec {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.autosize = "none";
   sceneUpdated.marks = sceneUpdated.marks.filter(() => {
@@ -1104,14 +1117,21 @@ export function cleanSpecForPreview(sceneSpec, groupName): Spec {
     return markSpec;
   });
 
-  return addBaseSignalsForPreview(sceneUpdated, groupName);
+  return addBaseSignalsForPreview(sceneUpdated, groupName, interactionId);
 }
 
-function addBaseSignalsForPreview(sceneSpec, groupName) {
+function addBaseSignalsForPreview(sceneSpec, groupName, interactionId) {
   const sceneUpdated = duplicate(sceneSpec);
+  const baseSignalsScoped = baseSignals.map(s => {
+    if (s.name === 'width' || s.name === 'height') return s;
+    return {
+      ...s,
+      name: `${s.name}_${interactionId}`
+    }
+  });
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
-      markSpec.signals = editSignals(markSpec.signals, baseSignals);
+      markSpec.signals = editSignals(markSpec.signals, baseSignalsScoped);
     }
     return markSpec;
   });
@@ -1139,6 +1159,14 @@ const baseSignals = [
   {
     name: "height",
     init: "75"
+  },
+  {
+    name: "mouse_x",
+    init: "null"
+  },
+  {
+    name: "mouse_y",
+    init: "null"
   },
   {
     name: "brush_x",

@@ -65,6 +65,9 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
 
     try {
       if (dropped) {
+        this.props.setSignalPush({
+          [this.props.dragging.signal]: true
+        }, this.props.dragging.interactionId)
         const lyraId = +sel.mark.role.split('lyra_')[1]; // id of thing that was dropped onto
         const channel = channelName(cell.key);
         this.props.setMarkVisual(
@@ -74,9 +77,6 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
           },
           lyraId
         )
-        this.props.setSignalPush({
-          [this.props.dragging.signal]: true
-        }, this.props.dragging.interactionId)
       }
     } catch (e) {
       console.error('Unable to bind primitive');

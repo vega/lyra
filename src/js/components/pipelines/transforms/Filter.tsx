@@ -14,7 +14,13 @@ interface OwnProps {
 export class Filter extends React.Component<OwnProps> {
 
   public updateFilter = (value) => {
-    const val = value.target ? value.target.value : value;
+    let val = value.target ? value.target.value : value;
+    if (!ctrl.view) {
+      setTimeout(() => {
+        this.updateFilter(value);
+      }, 100);
+      return;
+    }
     try {
       parseExpr(val, {
         getSignal: (n) => ctrl.view.signal(n),
@@ -23,6 +29,7 @@ export class Filter extends React.Component<OwnProps> {
       this.props.update({type: 'filter', expr: val});
     } catch (e) {
       // TODO: Indicate error in parsing expression.
+      console.warn(e);
     }
   }
 
