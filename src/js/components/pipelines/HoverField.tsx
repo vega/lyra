@@ -58,7 +58,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-const actionCreators = {bindChannel, startDragging, stopDragging};
+const actionCreators: DispatchProps = {bindChannel, startDragging, stopDragging};
 
 class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
 

@@ -27,7 +27,7 @@ export function addPipeline (pipeline: PipelineRecord, ds: DatasetRecord, values
     const dsId = assignId(dispatch, getState());
     const newDs = ds.merge({
       _id: dsId,
-      name: pipeline.name + '_source',
+      name: `${pipeline.name}_${pid}_source`,
       _parent: pid
     });
 

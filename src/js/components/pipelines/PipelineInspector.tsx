@@ -2,14 +2,10 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
 import {PipelineRecord} from '../../store/factory/Pipeline';
-import { Icon } from '../Icon';
-import DataTable from './DataTable';
 import DataTableMulti from './DataTableMulti';
-import TransformList from './transforms/TransformList';
 
 const imutils = require('../../util/immutable-utils');
 const getInVis = imutils.getInVis;
-const assets = require('../../util/assets');
 
 interface OwnProps {
   id: number;
