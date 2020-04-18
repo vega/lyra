@@ -1,14 +1,15 @@
 import * as React from 'react';
 import * as ReactModal from 'react-modal';
 import { connect } from 'react-redux';
-import {Datum, extend} from 'vega';
-import {addPipeline} from '../../actions/pipelineActions';
-import {Dataset, DatasetRecord} from '../../store/factory/Dataset';
+import {Datum} from 'vega';
+import {addPipeline, derivePipeline} from '../../actions/pipelineActions';
+import {Dataset, DatasetRecord, ValuesDatasetRecord} from '../../store/factory/Dataset';
 import {Pipeline, PipelineRecord} from '../../store/factory/Pipeline';
 import * as dsUtils from '../../util/dataset-utils';
 import {get, read} from '../../util/io';
 import DataTable from './DataTable';
 import DataURL from './DataURL';
+import {State} from '../../store';
 
 const exampleDatasets = require('../../constants/exampleDatasets');
 const NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
@@ -18,29 +19,49 @@ interface OwnProps {
   modalIsOpen: boolean;
 }
 
-interface DispatchProps {
-  addPipeline: (pipeline: PipelineRecord, dataset: DatasetRecord, values: Datum[]) => void;
+interface StateProps {
+  datasets: Map<string, DatasetRecord>;
+  pipelines: PipelineRecord[];
+  canDerive: boolean;
 }
 
-export interface PipelineModalState {
-    error: string;
-    success: any;
-    showPreview: boolean;
-    selectedExample: string;
+interface DispatchProps {
+  addPipeline: (pipeline: PipelineRecord, dataset: DatasetRecord, values: Datum[]) => void;
+  derivePipeline: (pipelineId: number) => void;
+}
 
-    name: string;
-    pipeline: PipelineRecord;
-    dataset: DatasetRecord;
-    values: Datum[];
+function mapStateToProps(state: State): StateProps {
+  const pipelines = state.getIn(['vis', 'present', 'pipelines']).valueSeq().toArray();
+  const datasets = state.getIn(['vis', 'present', 'datasets']);
+  return {
+    pipelines,
+    datasets,
+    canDerive: pipelines.length
+  }
 }
 
 const mapDispatch: DispatchProps = {
-  addPipeline
+  addPipeline,
+  derivePipeline
 };
 
-export class PipelineModal extends React.Component<OwnProps & DispatchProps, PipelineModalState> {
+export interface OwnState {
+  error: string;
+  success: any;
+  showPreview: boolean;
+  selectedExample: string;
 
-  private initialState: PipelineModalState = {
+  name: string;
+  pipeline: PipelineRecord;
+  dataset: DatasetRecord;
+  values: Datum[];
+  isDerived: boolean; // for deriving pipelines
+}
+
+
+export class PipelineModal extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
+
+  private initialState: OwnState = {
     error: null,
     success: null,
     showPreview: false,
@@ -50,6 +71,8 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
     pipeline: null,
     dataset: null,
     values: null,
+
+    isDerived: false
   };
 
   constructor(props) {
@@ -82,7 +105,8 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
       error: null,
       success: msg || null,
       showPreview: true,
-      selectedExample
+      selectedExample,
+      isDerived: false
     });
   }
 
@@ -90,14 +114,20 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
     this.setState({
       error: err.statusText || err.message || 'An error occured!',
       success: null,
-      selectedExample: null
+      selectedExample: null,
+      isDerived: false
     });
   }
 
   public done(save) {
     const state = this.state;
     if (save && state.error === null) {
-      this.props.addPipeline(state.pipeline, state.dataset, state.values);
+      if (this.state.isDerived) {
+        this.props.derivePipeline(state.pipeline._id);
+      }
+      else {
+        this.props.addPipeline(state.pipeline, state.dataset, state.values);
+      }
     }
 
     this.setState(this.initialState);
@@ -117,6 +147,19 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
     });
   }
 
+  public selectPipelineToDerive(pipeline: PipelineRecord) {
+    const dataset = this.props.datasets.get(String(pipeline._source));
+    this.setState({
+      name: pipeline.name,
+      pipeline,
+      dataset,
+      values: dsUtils.output(dataset._id),
+      isDerived: true,
+      showPreview: true,
+      selectedExample: String(pipeline._id)
+    });
+  }
+
   public fopen(evt) {
     read(evt.target.files, (data, file) => {
       this.createPipeline(file.name);
@@ -132,6 +175,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
     const success = state.success;
     const preview = state.showPreview;
     const close = this.done.bind(this, false);
+    const canDerive = props.canDerive;
 
     const style = {
       overlay: {
@@ -144,7 +188,7 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
         overflow: 'hidden',
         top: null, bottom: null, left: null, right: null,
         width: '550px',
-        height: (success || error || preview) ? 'auto' : '300px',
+        height: (success || error || preview || canDerive) ? 'auto' : '300px',
         padding: null
       }
     };
@@ -155,41 +199,67 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
         <div className='pipelineModal'>
           <span className='closeModal' onClick={close}>close</span>
 
-          <div className='examples'>
-            <h2>Example Datasets</h2>
+          <div className='row'>
+            <div className='examples'>
+              <h2>Example Datasets</h2>
 
-            <ul>
-              {exampleDatasets.map(function(example) {
-                const name = example.name;
-                const description = example.description;
-                const url = example.url;
-                const className = state.selectedExample === url ? 'selected' : null;
+              <ul>
+                {exampleDatasets.map(function(example) {
+                  const name = example.name;
+                  const description = example.description;
+                  const url = example.url;
+                  const className = state.selectedExample === url ? 'selected' : null;
 
-                return (
-                  <li key={name} onClick={this.loadURL.bind(this, url, true)}
-                    className={className}>
-                    <p className='example-name'>{name}</p>
-                    <p>{description}</p>
-                  </li>
-                );
-              }, this)}
-            </ul>
+                  return (
+                    <li key={name} onClick={this.loadURL.bind(this, url, true)}
+                      className={className}>
+                      <p className='example-name'>{name}</p>
+                      <p>{description}</p>
+                    </li>
+                  );
+                }, this)}
+              </ul>
+            </div>
+
+            <div className='load'>
+              <h2>Import a Dataset</h2>
+
+              <p>
+                Data must be in a tabular form. Supported import
+                formats include <abbr title='JavaScript Object Notation'>json</abbr>, <abbr title='Comma-Separated Values'>csv</abbr> and <abbr title='Tab-Separated Values'>tsv</abbr>
+              </p>
+
+              <p><input type='file' accept='.json,.tsv,.csv' onChange={this.fopen} /></p>
+
+              <p>or</p>
+
+              <DataURL loadURL={this.loadURL} />
+            </div>
           </div>
+          {
+            this.props.pipelines.length ? (
+              <div className='row'>
+              <div className='derive'>
+                <h2>Derive from Existing Dataset</h2>
 
-          <div className='load'>
-            <h2>Import a Dataset</h2>
+                <ul>
+                  {this.props.pipelines.map(function(pipeline) {
+                    const name = pipeline.name;
+                    const className = state.selectedExample === String(pipeline._id) ? 'selected' : null;
 
-            <p>
-              Data must be in a tabular form. Supported import
-              formats include <abbr title='JavaScript Object Notation'>json</abbr>, <abbr title='Comma-Separated Values'>csv</abbr> and <abbr title='Tab-Separated Values'>tsv</abbr>
-            </p>
-
-            <p><input type='file' accept='.json,.tsv,.csv' onChange={this.fopen} /></p>
-
-            <p>or</p>
-
-            <DataURL loadURL={this.loadURL} />
-          </div>
+                    return (
+                      <li key={name} onClick={() => this.selectPipelineToDerive(pipeline)}
+                        className={className}>
+                        <p className='pipeline-name'>{name}</p>
+                        {/* <p>{description}</p> */}
+                      </li>
+                    );
+                  }, this)}
+                </ul>
+              </div>
+              </div>
+            ) : null
+          }
 
           {error ? <div className='error-message'>{error}</div> : null}
           {success ? <div className='success-message'>{success}</div> : null}
@@ -213,4 +283,4 @@ export class PipelineModal extends React.Component<OwnProps & DispatchProps, Pip
   }
 }
 
-export default connect(null, mapDispatch)(PipelineModal);
+export default connect(mapStateToProps, mapDispatch)(PipelineModal);

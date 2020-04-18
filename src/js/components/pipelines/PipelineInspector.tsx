@@ -43,14 +43,16 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps> {
 
           <DataTableMulti id={pipeline._source} fieldsCount={6} />
 
-          {pipeline._aggregates.entrySeq().map(function(entry, i) {
-            return (
-              <div key={i} className="aggregate">
-                <p className='source'>Group By: {entry[0].split('|').join(', ')}</p>
-                <DataTableMulti id={entry[1]} fieldsCount={6} />
-              </div>
-            );
-          })}
+          {
+            pipeline._aggregates.entrySeq().map(function(entry, i) {
+              return (
+                <div key={i} className="aggregate">
+                  <p className='source'>Group By: {entry[0].split('|').join(', ')}</p>
+                  <DataTableMulti id={entry[1]} fieldsCount={6} />
+                </div>
+              );
+            })
+          }
         </div>
       );
     }

@@ -246,18 +246,20 @@ $pipeline-width: 230px;
 }
 
 .pipelineModal {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
 
   .closeModal {
     top: $inner-padding;
     right: $inner-padding;
   }
 
+  .row {
+    width: 100%;
+    display: flex;
+    padding: 0 2*$inner-padding;
+  }
+
   .examples, .load {
     flex: 1;
-    padding: 0 2*$inner-padding;
     height: 300px;
     overflow: auto;
   }
@@ -270,12 +272,12 @@ $pipeline-width: 230px;
     margin-bottom: $margin;
   }
 
-  .examples h2 {
+  .examples h2, .derive h2 {
     margin: 2*$margin 0;
     margin-bottom: $margin;
   }
 
-  .examples li {
+  .examples li, .derive li {
     padding: $outer-padding;
     cursor: pointer;
     border-radius: $border-radius;
@@ -294,6 +296,19 @@ $pipeline-width: 230px;
     font-weight: bold;
     font-size: 14px;
     margin-bottom: $inner-padding;
+  }
+
+  .derive {
+    width: 100%;
+    max-height: 100px;
+    overflow: auto;
+    padding: 0 2*$inner-padding 2*$inner-padding;
+
+    .pipeline-name {
+      display: block;
+      font-weight: bold;
+      font-size: 14px;
+    }
   }
 
   abbr {

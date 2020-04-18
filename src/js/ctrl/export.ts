@@ -13,6 +13,7 @@ import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
 import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup, pushSignalsInScene} from './demonstrations';
 import manipulators from './manipulators';
+import {PipelineRecord} from '../store/factory/Pipeline';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -96,13 +97,11 @@ exporter.widgets = function(state: State, spec) {
 }
 
 exporter.pipelines = function(state: State, internal: boolean) {
-  const pipelines = getInVis(state, 'pipelines')
-    .valueSeq()
-    .toJS();
+  const pipelines: PipelineRecord[] = getInVis(state, 'pipelines').valueSeq();
   return pipelines.reduce(function(spec, pipeline) {
     spec.push(exporter.dataset(state, internal, pipeline._source));
 
-    const aggrs = pipeline._aggregates;
+    const aggrs = pipeline._aggregates.toJS();
     for (const key in aggrs) {
       spec.push(exporter.dataset(state, internal, aggrs[key]));
     }
