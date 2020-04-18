@@ -11,11 +11,12 @@ import {NumericValueRef, StringValueRef, tupleid} from 'vega';
 import sg from '../../ctrl/signals';
 import {channelName} from '../../actions/bindChannel';
 import {InteractionSignal} from '../../store/factory/Interaction';
+import {setSignalPush} from '../../actions/interactionActions';
 
 const ctrl = require('../../ctrl');
 
 interface OwnProps {
-  groupId: number;
+  interactionId: number;
   signals: InteractionSignal[];
 }
 
@@ -27,6 +28,7 @@ interface DispatchProps {
   startDragging: (d: DraggingStateRecord) => void;
   stopDragging: () => void;
   setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
+  setSignalPush: (payload, id) => void;
 }
 
 
@@ -38,7 +40,7 @@ function mapStateToProps(state: State): StateProps {
   }
 }
 
-const actionCreators = {startDragging, stopDragging, setMarkVisual};
+const actionCreators: DispatchProps = {startDragging, stopDragging, setMarkVisual, setSignalPush};
 
 class BaseInteractionSignals extends React.Component<OwnProps & StateProps & DispatchProps> {
 
@@ -47,10 +49,10 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
   }
 
   private handleDragStart = (evt) => {
-    const groupId = this.props.groupId;
+    const interactionId = this.props.interactionId;
     const signal = evt.target.dataset.signal;
 
-    this.props.startDragging(SignalDraggingState({groupId, signal}));
+    this.props.startDragging(SignalDraggingState({interactionId, signal}));
 
     sg.set(MODE, 'channels');
     ctrl.update();
@@ -72,6 +74,9 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
           },
           lyraId
         )
+        this.props.setSignalPush({
+          [this.props.dragging.signal]: true
+        }, this.props.dragging.interactionId)
       }
     } catch (e) {
       console.error('Unable to bind primitive');

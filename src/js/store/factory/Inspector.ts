@@ -21,13 +21,13 @@ const EncodingState = Record<LyraEncodingState>({
 export type EncodingStateRecord = RecordOf<LyraEncodingState>;
 
 export interface LyraFieldDraggingState {
-  dsId?: number;
-  fieldDef?: ColumnRecord;
+  dsId: number;
+  fieldDef: ColumnRecord;
 }
 
 export interface LyraSignalDraggingState {
-  groupId?: number;
-  signal?: string;
+  interactionId: number;
+  signal: string;
 }
 
 export const FieldDraggingState = Record<LyraFieldDraggingState>({
@@ -37,7 +37,7 @@ export const FieldDraggingState = Record<LyraFieldDraggingState>({
 
 
 export const SignalDraggingState = Record<LyraSignalDraggingState>({
-  groupId: null,
+  interactionId: null,
   signal: null
 }, 'LyraSignalDraggingState');
 

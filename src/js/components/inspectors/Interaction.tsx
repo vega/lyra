@@ -614,7 +614,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
               </div>
               <div className="property-group">
                 <h3>Signals</h3>
-                <InteractionSignals groupId={this.props.group._id} signals={this.props.interaction.signals}></InteractionSignals>
+                <InteractionSignals interactionId={this.props.interaction.id} signals={this.props.interaction.signals}></InteractionSignals>
               </div>
             </div>
           ) : null

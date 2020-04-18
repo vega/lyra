@@ -4,7 +4,7 @@ import {State} from "../store";
 import duplicate from "../util/duplicate";
 import {MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
-import {ScaleInfo, ApplicationRecord, SelectionRecord, PointSelectionRecord, MarkApplicationRecord, ScaleApplicationRecord, TransformApplicationRecord, IntervalSelectionRecord, InteractionInput} from "../store/factory/Interaction";
+import {ScaleInfo, ApplicationRecord, SelectionRecord, PointSelectionRecord, MarkApplicationRecord, ScaleApplicationRecord, TransformApplicationRecord, IntervalSelectionRecord, InteractionInput, InteractionSignal} from "../store/factory/Interaction";
 import {ColumnRecord} from "../store/factory/Dataset";
 import {NOMINAL, ORDINAL, QUANTITATIVE, TEMPORAL} from "vega-lite/src/type";
 import * as dsUtil from '../util/dataset-utils';
@@ -675,7 +675,30 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
   }
 }
 
-export function addWidgetSelectionToScene(sceneSpec: Spec, groupName: string, widget: WidgetRecord, selection: WidgetSelectionRecord): Spec {
+export function pushSignalsInScene(sceneSpec: Spec, groupName: string, interactionSignals: InteractionSignal[]) {
+  sceneSpec = duplicate(sceneSpec);
+  interactionSignals.forEach(s => {
+    if (s.push) {
+      sceneSpec.signals = sceneSpec.signals || [];
+      sceneSpec.signals = editSignals(sceneSpec.signals, [{"name": s.signal}]);
+
+      sceneSpec.marks = sceneSpec.marks.map(markSpec => {
+        if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+          markSpec.signals = markSpec.signals.map(gs => {
+            if (gs.name === s.signal) {
+              return {...gs, "push": "outer"};
+            }
+            return gs;
+          });
+        }
+        return markSpec;
+      });
+    }
+  })
+  return sceneSpec;
+}
+
+export function addWidgetSelectionToScene(sceneSpec: Spec, widget: WidgetRecord, selection: WidgetSelectionRecord): Spec {
   sceneSpec = duplicate(sceneSpec);
   sceneSpec.signals = sceneSpec.signals || [];
   switch (selection.type) {

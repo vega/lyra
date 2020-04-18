@@ -1,7 +1,7 @@
 import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import * as interactionActions from '../actions/interactionActions';
-import {InteractionState} from '../store/factory/Interaction';
+import {InteractionState, InteractionSignal} from '../store/factory/Interaction';
 
 export function interactionsReducer(state: InteractionState, action: ActionType<typeof interactionActions>): InteractionState {
   const id = action.meta;
@@ -30,6 +30,16 @@ export function interactionsReducer(state: InteractionState, action: ActionType<
 
   if (action.type === getType(interactionActions.setSignals)) {
     return state.setIn([String(id), 'signals'], action.payload);
+  }
+
+  if (action.type === getType(interactionActions.setSignalPush)) {
+    const signals: InteractionSignal[] = state.getIn([String(id), 'signals']);
+    signals.forEach(s => {
+      if (s.signal in action.payload) {
+        s.push = action.payload[s.signal];
+      }
+    })
+    return state.setIn([String(id), 'signals'], signals);
   }
 
   if (action.type === getType(interactionActions.removeApplication)) {

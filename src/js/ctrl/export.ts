@@ -11,7 +11,7 @@ import name from '../util/exportName';
 import exportName from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup} from './demonstrations';
+import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup, pushSignalsInScene} from './demonstrations';
 import manipulators from './manipulators';
 
 const json2csv = require('json2csv'),
@@ -72,6 +72,7 @@ exporter.interactions = function(state: State, spec) {
         spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, application);
       }
     }
+    spec = pushSignalsInScene(spec, groupName, interaction.signals);
   });
 
   return spec;
@@ -82,7 +83,7 @@ exporter.widgets = function(state: State, spec) {
     const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(widget.groupId)]);
     const groupName = exportName(group.name);
     if (widget.selection) {
-      spec = addWidgetSelectionToScene(spec, groupName, widget, widget.selection);
+      spec = addWidgetSelectionToScene(spec, widget, widget.selection);
     }
     if (widget.applications.length) {
       for (const application of widget.applications) {

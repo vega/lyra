@@ -28,6 +28,8 @@ export const setApplication = createStandardAction('SET_APPLICATION')<Applicatio
 
 export const setSignals = createStandardAction('SET_INTERACTION_SIGNALS')<InteractionSignal[], number>();
 
+export const setSignalPush = createStandardAction('SET_INTERACTION_SIGNAL_PUSH')<{[signalName: string]: boolean}, number>(); // signalName -> push, interactionId
+
 export const removeApplication = createStandardAction('REMOVE_APPLICATION')<ApplicationRecord, number>();
 
 export const deleteInteraction = createStandardAction('DELETE_INTERACTION')<{groupId: number}, number>(); // id

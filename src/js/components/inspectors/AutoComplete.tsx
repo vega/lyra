@@ -20,6 +20,7 @@ import { connect } from 'react-redux';
 import {AnyAction} from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
 import {updateMarkProperty} from '../../actions/markActions';
+import {setSignalPush} from '../../actions/interactionActions';
 import {PrimType} from '../../constants/primTypes';
 import {State} from '../../store';
 import {Schema} from '../../store/factory/Dataset';
@@ -48,6 +49,7 @@ interface StateProps {
 
 interface DispatchProps {
   setDsId: (data: number) => void;
+  setSignalPush: (signalName: string, push: boolean, id: number) => void;
 }
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
@@ -67,6 +69,9 @@ function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, own
   return {
     setDsId(data: number) {
       dispatch(updateMarkProperty({property: 'from', value: {data}}, ownProps.primId));
+    },
+    setSignalPush(signalName, push, id) {
+      dispatch(setSignalPush({[signalName]: push}, id));
     }
   }
 }
@@ -295,6 +300,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE;
       props.updateFn(this.fromHtml(html));
       this.setState({html});
+      this.props.setSignalPush(dragging.signal, true, dragging.interactionId);
     }
 
   };

@@ -109,6 +109,7 @@ export interface InteractionInput {
 export interface InteractionSignal {
   signal: string;
   label: string; // human-readable label
+  push?: boolean; // does the signal need to pushed to top level? set to true when bound to a mark property or used in a transform expression
 }
 
 export interface LyraInteraction {
