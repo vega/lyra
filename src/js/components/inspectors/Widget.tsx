@@ -394,7 +394,7 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
           </div>
           <div className="property-group">
             <h3>Signals</h3>
-            <InteractionSignals groupId={this.props.group._id} signals={this.props.widget.signals}></InteractionSignals>
+            {/* <InteractionSignals groupId={this.props.group._id} signals={this.props.widget.signals}></InteractionSignals> */}
           </div>
         </div>
       </div>
