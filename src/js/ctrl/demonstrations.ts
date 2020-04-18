@@ -98,7 +98,10 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       "name": `points_tuple_${interactionId}`,
       "on": [
         {
-          "events": [{"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"}],
+          "events": [Object.assign(
+            {"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"},
+            input && input.mouse && input.mouse === 'mouseover' && input.nearest ? {"markname": `voronoi_${interactionId}`} : {}
+          )],
           "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_${interactionId} ) : null`,
           "force": true
         },
@@ -109,7 +112,10 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       "name": `points_tuple_projected_${interactionId}`,
       "on": [
         {
-          "events": [{"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"}],
+          "events": [Object.assign(
+            {"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"},
+            input && input.mouse && input.mouse === 'mouseover' && input.nearest ? {"markname": `voronoi_${interactionId}`} : {}
+          )],
           "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_projected_${interactionId} ) : null`,
           "force": true
         },
@@ -556,7 +562,10 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
             "name": `points_tuple_projected_${interactionId}`,
             "on": [
               {
-                "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+                "events": [Object.assign(
+                  {"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"},
+                  input && input.mouse && input.mouse === 'mouseover' && input.nearest ? {"markname": `voronoi_${interactionId}`} : {}
+                )],
                 "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : points_tuple_projected_${interactionId} ) : null`,
                 "force": true
               },
@@ -578,7 +587,10 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
                 "value": false, // TODO(jzong) i disagree with this default behavior in vega
                 "on": [
                   {
-                    "events": [{"source": "scope", "type": input ? input.mouse : "click"}],
+                    "events": [Object.assign(
+                      {"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"},
+                      input && input.mouse && input.mouse === 'mouseover' && input.nearest ? {"markname": `voronoi_${interactionId}`} : {}
+                    )],
                     "update": "event.shiftKey" // TODO(jzong) incorporate this into the event key customization logic
                   },
                   {"events": [{"source": "scope", "type": "dblclick"}], "update": "false"}
@@ -626,7 +638,7 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
       application = application as MarkApplicationRecord;
       targetMarkName = application.targetMarkName;
       const unselectedValue = application.unselectedValue;
-      return applyMarkProperties(sceneSpec, groupName, targetMarkName, {
+      sceneSpec = applyMarkProperties(sceneSpec, groupName, targetMarkName, {
         "encode": {
           "update": {
             [application.propertyName]: [
@@ -640,6 +652,10 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
           }
         }
       });
+      if (input && input.mouse && input.mouse === 'mouseover' && input.nearest) {
+        sceneSpec = addVoronoiMark(sceneSpec, groupName, targetMarkName, interactionId);
+      }
+      return sceneSpec;
     case 'scale':
       application = application as ScaleApplicationRecord;
       const scaleInfo = application.scaleInfo;
@@ -1021,6 +1037,45 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
   return sceneSpec;
 }
 
+function addVoronoiMark(sceneSpec, groupName: string, targetMarkName: string, interactionId: number): Spec {
+  sceneSpec = duplicate(sceneSpec);
+  sceneSpec.marks = sceneSpec.marks.map(markSpec => {
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+      const targetMarkPresent = markSpec.marks.find(mark => mark.name === targetMarkName);
+      if (targetMarkPresent) {
+        markSpec.marks = markSpec.marks.filter(mark => mark.name !== `voronoi_${interactionId}`);
+        markSpec.marks = [
+          ...markSpec.marks,
+          {
+            "name": `voronoi_${interactionId}`,
+            "type": "path",
+            "interactive": true,
+            "from": {"data": targetMarkName},
+            "encode": {
+              "update": {
+                "fill": {"value": "transparent"},
+                "strokeWidth": {"value": 0.35},
+                "stroke": {"value": "transparent"},
+                "isVoronoi": {"value": true}
+              }
+            },
+            "transform": [
+              {
+                "type": "voronoi",
+                "x": {"expr": "datum.datum.x || 0"},
+                "y": {"expr": "datum.datum.y || 0"},
+                "size": [{"signal": "width"}, {"signal": "height"}]
+              }
+            ]
+          }
+        ];
+      }
+    }
+    return markSpec;
+  });
+  return sceneSpec;
+}
+
 function getScaleRecords(state: State, groupId: number): {scaleRecordX: ScaleRecord, scaleRecordY: ScaleRecord} {
   const ret = {
     scaleRecordX: null,
@@ -1252,7 +1307,7 @@ export function getNestedMarksOfGroup(state: State, group: GroupRecord): MarkRec
 /**
  * Applies fn to all non-group, non-lyra marks that are children of groupSpec or its subgroups. Returns copy of groupSpec with changes applied
 */
-export function mapNestedMarksOfGroup(groupSpec, fn) {
+export function mapNestedMarksOfGroup(groupSpec, fn: (mark: any) => any) {
   groupSpec = duplicate(groupSpec);
   groupSpec.marks = groupSpec.marks.map(mark => {
     if (mark.name && mark.name.startsWith('lyra')) return mark;

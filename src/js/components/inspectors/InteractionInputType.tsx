@@ -54,6 +54,11 @@ class BaseInteractionInputType extends React.Component<OwnProps & DispatchProps>
     return map;
   }
 
+  private setHoverNearest(e) {
+    const checked = e.target && e.target.checked;
+    this.props.setInput({...this.props.input, nearest: checked}, this.props.interactionId);
+  }
+
   public render() {
     const input = this.props.input;
     return (
@@ -72,6 +77,19 @@ class BaseInteractionInputType extends React.Component<OwnProps & DispatchProps>
             </div>
           </div>
         </div>
+        {
+          input && input.mouse === 'mouseover' ? (
+            <div className='property'>
+              <label htmlFor='nearest-input'>Nearest</label>
+              <div className='control'>
+                <div>
+                  <input type='checkbox' name='nearest-input' checked={input.nearest}
+                    onClick={(e) => this.setHoverNearest(e)} />
+                </div>
+              </div>
+            </div>
+          ) : null
+        }
         {
           input ? (
             <div className='property'>

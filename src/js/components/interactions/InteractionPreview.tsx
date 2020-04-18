@@ -61,7 +61,6 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
 
   public componentDidMount() {
     const spec = this.previewToSpec(this.props.preview);
-    console.log(spec);
     this.view = new View(parse(spec), {
       renderer:  'svg',  // renderer (canvas or svg)
       container: `#${this.props.groupName}-${this.props.id}`   // parent DOM container

@@ -102,6 +102,7 @@ export type ApplicationRecord = MarkApplicationRecord | ScaleApplicationRecord |
 
 export interface InteractionInput {
   mouse: 'click' | 'drag' | 'mouseover';
+  nearest?: boolean; // nearest parameter for 'mouseover'
   keycode?: number; // keycode
   _key?: string; // human readable key name
 }
