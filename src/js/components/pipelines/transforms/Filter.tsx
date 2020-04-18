@@ -3,6 +3,8 @@ import {FilterTransform} from 'vega';
 import parseExpr from 'vega-parser/src/parsers/expression';
 import {Property} from '../../inspectors/Property';
 
+const ctrl = require('../../../ctrl');
+
 interface OwnProps {
   dsId: number;
   index: number;
@@ -14,7 +16,10 @@ export class Filter extends React.Component<OwnProps> {
   public updateFilter = (value) => {
     const val = value.target ? value.target.value : value;
     try {
-      parseExpr(val);
+      parseExpr(val, {
+        getSignal: (n) => ctrl.view.signal(n),
+        signalRef: () => null
+      });
       this.props.update({type: 'filter', expr: val});
     } catch (e) {
       // TODO: Indicate error in parsing expression.
