@@ -136,18 +136,17 @@ function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleI
     const defs: IntervalSelectionRecord[] = [];
     const brush = IntervalSelection({
       id: "brush",
-      label: "Brush",
-      field: 'xy'
+      label: "Brush"
     });
     const brush_y = IntervalSelection({
       id: "brush_y",
       label: "Brush (y-axis)",
-      field: 'y'
+      encoding: 'y'
     });
     const brush_x = IntervalSelection({
       id: "brush_x",
       label: "Brush (x-axis)",
-      field: 'x'
+      encoding: 'x'
     });
 
     // HEURISTICS: surface different interval selections depending on mark type
@@ -183,6 +182,13 @@ function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleI
     return [... new Set(defs)];
   }
   else {
+    let field = fieldsOfGroup[0];
+    if (interaction && interaction.selection) {
+      const selection = interaction.selection as PointSelectionRecord;
+      if (selection.field && selection.field !== '_vgsid_') {
+        field = selection.field;
+      }
+    }
     const defs: PointSelectionRecord[] = [
       PointSelection({
         ptype: 'single',
@@ -200,13 +206,13 @@ function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleI
         ptype: 'single',
         id: 'single_project',
         label: 'Single point (by field)',
-        field: interaction && interaction.selection && interaction.selection.field && interaction.selection.field !== '_vgsid_' ? interaction.selection.field : fieldsOfGroup[0]
+        field: field
       }),
       PointSelection({
         ptype: 'multi',
         id: 'multi_project',
         label: 'Multi point (by field)',
-        field: interaction && interaction.selection && interaction.selection.field && interaction.selection.field !== '_vgsid_' ? interaction.selection.field : fieldsOfGroup[0]
+        field: field
       })
     ];
     return defs;
@@ -537,10 +543,18 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
             signal: `mouse_y_${interactionId}`,
             label: 'mouse_y'
           });
-          signals.push({
-            signal: `mouse_${scaleInfo.xFieldName}_${interactionId}`,
-            label: `mouse_${scaleInfo.xFieldName}`
-          });
+          if (xFieldName) {
+            signals.push({
+              signal: `mouse_${xFieldName}_${interactionId}`,
+              label: `mouse_${xFieldName}`
+            });
+          }
+          if (yFieldName) {
+            signals.push({
+              signal: `mouse_${yFieldName}_${interactionId}`,
+              label: `mouse_${yFieldName}`
+            });
+          }
           break;
     }
     return signals;

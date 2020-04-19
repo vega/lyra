@@ -69,14 +69,27 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       ]
     },
   ]);
-  if (scaleInfo.xScaleName && scaleInfo.xFieldName) {
+  if (xScaleName && xFieldName) {
     sceneSpec = applySignals(sceneSpec, groupName, [
       {
-        "name": `mouse_${scaleInfo.xFieldName}_${interactionId}`,
+        "name": `mouse_${xFieldName}_${interactionId}`,
         "on": [
           {
             "events": "mousemove",
-            "update": `key_modifier_${interactionId} ? invert("${scaleInfo.xScaleName}", mouse_x_${interactionId}) : mouse_${scaleInfo.xFieldName}_${interactionId}`
+            "update": `key_modifier_${interactionId} ? invert("${xScaleName}", mouse_x_${interactionId}) : mouse_${xFieldName}_${interactionId}`
+          }
+        ]
+      }
+    ])
+  }
+  if (yScaleName && yFieldName) {
+    sceneSpec = applySignals(sceneSpec, groupName, [
+      {
+        "name": `mouse_${yFieldName}_${interactionId}`,
+        "on": [
+          {
+            "events": "mousemove",
+            "update": `key_modifier_${interactionId} ? invert("${yScaleName}", mouse_x_${interactionId}) : mouse_${yFieldName}_${interactionId}`
           }
         ]
       }
@@ -601,7 +614,7 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
         return sceneSpec;
     case 'interval':
         selection = selection as IntervalSelectionRecord;
-        switch (selection.field) {
+        switch (selection.encoding) {
           case 'x':
             return applySignals(sceneSpec, groupName, [
               {

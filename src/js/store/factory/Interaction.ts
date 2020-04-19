@@ -21,7 +21,7 @@ interface LyraInteractionPreview {
 export type LyraPointSelection = {
   ptype: 'single' | 'multi';
   field: string;
-
+  encoding: 'x' | 'y';
 } & LyraInteractionPreview;
 
 export const PointSelection = Record<LyraPointSelection>({
@@ -29,20 +29,21 @@ export const PointSelection = Record<LyraPointSelection>({
   ptype: null,
   id: null,
   label: null,
-  field: null
+  field: null,
+  encoding: null
 }, 'LyraPointSelection');
 
 export type PointSelectionRecord = RecordOf<LyraPointSelection>;
 
 export type LyraIntervalSelection = {
-  field: 'x' | 'y' | 'xy';
+  encoding: 'x' | 'y';
 } & LyraInteractionPreview;
 
 export const IntervalSelection = Record<LyraIntervalSelection>({
   type: 'interval',
   id: null,
   label: null,
-  field: null
+  encoding: null
 }, 'LyraIntervalSelection');
 
 export type IntervalSelectionRecord = RecordOf<LyraIntervalSelection>;
