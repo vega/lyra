@@ -182,7 +182,7 @@ function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleI
     return [... new Set(defs)];
   }
   else {
-    let field = fieldsOfGroup[0];
+    let field = '_vgsid_';
     if (interaction && interaction.selection) {
       const selection = interaction.selection as PointSelectionRecord;
       if (selection.field && selection.field !== '_vgsid_') {
@@ -205,14 +205,16 @@ function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleI
       PointSelection({
         ptype: 'single',
         id: 'single_project',
-        label: 'Single point (by field)',
-        field: field
+        label: 'Single point (projected)',
+        field: field,
+        encoding: null
       }),
       PointSelection({
         ptype: 'multi',
         id: 'multi_project',
-        label: 'Multi point (by field)',
-        field: field
+        label: 'Multi point (projected)',
+        field: field,
+        encoding: null
       })
     ];
     return defs;
@@ -434,22 +436,49 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     return this.props.interaction.applications.some(application => application.id === preview.id);
   }
 
-  private getFieldOptions(preview: PointSelectionRecord) {
-    const options = this.props.fieldsOfGroup.map(field => <option key={field} value={field}>{field}</option>);
+  private getProjectionOptions(preview: PointSelectionRecord) {
+    const fieldOptions = [
+      <option key='_vgsid_' value={'_vgsid_'}>None</option>,
+      ...this.props.fieldsOfGroup.map(field => <option key={field} value={field}>{field}</option>)
+    ];
 
     return (
-      <div className="property">
-        <label htmlFor='project_fields'>Field:</label>
-        <div className='control'>
-          <select name='project_fields' value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
-            {options}
-          </select>
+      <div>
+        <div className="property">
+          <label htmlFor='project_fields'>Field:</label>
+          <div className='control'>
+            <select name='project_fields' value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
+              {fieldOptions}
+            </select>
+          </div>
+        </div>
+        <div className="property">
+          <label htmlFor='project_encodings'>Encoding:</label>
+          <div className='control'>
+            <select name='project_encodings' value={preview.encoding} onChange={e => this.onSelectProjectionEncoding(preview, e.target.value)}>
+              <option key='null' value='null'>None</option>
+              <option key='x' value='x'>x</option>
+              <option key='y' value='y'>y</option>
+            </select>
+          </div>
         </div>
       </div>
     );
   }
   private onSelectProjectionField(preview: PointSelectionRecord, field: string) {
     const newPreview = preview.set('field', field);
+    this.props.setSelection(newPreview, this.props.interaction.id);
+  }
+  private onSelectProjectionEncoding(preview: PointSelectionRecord, encoding: string) {
+    let newPreview;
+    switch (encoding) {
+      case 'x':
+        newPreview = preview.set('encoding', 'x'); break;
+      case 'y':
+        newPreview = preview.set('encoding', 'y'); break;
+      default:
+        newPreview = preview.set('encoding', null); break;
+    }
     this.props.setSelection(newPreview, this.props.interaction.id);
   }
 
@@ -593,7 +622,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                   </div>
                   {
                     (interaction && interaction.selection && interaction.selection.id.includes('project')) ? (
-                      this.getFieldOptions(interaction.selection as PointSelectionRecord)
+                      this.getProjectionOptions(interaction.selection as PointSelectionRecord)
                     ) : null
                   }
                 </div>

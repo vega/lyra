@@ -587,7 +587,12 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
           },
           {
             "name": `points_tuple_fields_${interactionId}`,
-            "value": [{"type": "E", "field": field ? field : '_vgsid_'}]
+            "value": [
+              Object.assign(
+                {"type": "E", "field": field ? field : '_vgsid_'},
+                selection.encoding ? {"channel": selection.encoding} : {}
+              )
+            ]
           },
         ]);
         switch (selection.ptype) {
@@ -665,9 +670,6 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
           }
         }
       });
-      if (input && input.mouse && input.mouse === 'mouseover' && input.nearest) {
-        sceneSpec = addVoronoiMark(sceneSpec, groupName, targetMarkName, interactionId);
-      }
       return sceneSpec;
     case 'scale':
       application = application as ScaleApplicationRecord;
@@ -1050,7 +1052,7 @@ function addBrushMark(sceneSpec, groupName: string, interactionId: number, scale
   return sceneSpec;
 }
 
-function addVoronoiMark(sceneSpec, groupName: string, targetMarkName: string, interactionId: number): Spec {
+export function addVoronoiMark(sceneSpec, groupName: string, encoding: 'x' | 'y', targetMarkName: string, interactionId: number, applicationId: string): Spec {
   sceneSpec = duplicate(sceneSpec);
   sceneSpec.marks = sceneSpec.marks.map(markSpec => {
     if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
@@ -1069,14 +1071,15 @@ function addVoronoiMark(sceneSpec, groupName: string, targetMarkName: string, in
                 "fill": {"value": "transparent"},
                 "strokeWidth": {"value": 0.35},
                 "stroke": {"value": "transparent"},
+                // "stroke": {"value": "#333"}, // for debugging
                 "isVoronoi": {"value": true}
               }
             },
             "transform": [
               {
                 "type": "voronoi",
-                "x": {"expr": "datum.datum.x || 0"},
-                "y": {"expr": "datum.datum.y || 0"},
+                "x": {"expr": encoding === 'y' ? "0" : "datum.datum.x || 0"},
+                "y": {"expr": encoding === 'x' ? "0" : "datum.datum.y || 0"},
                 "size": [{"signal": "width"}, {"signal": "height"}]
               }
             ]

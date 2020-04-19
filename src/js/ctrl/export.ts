@@ -2,7 +2,7 @@ import {array, extend, isArray, isObject, isString, Mark, Spec} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
 import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
-import {InteractionRecord, MarkApplicationRecord, TransformApplicationRecord} from '../store/factory/Interaction';
+import {InteractionRecord, MarkApplicationRecord} from '../store/factory/Interaction';
 import {GroupRecord} from '../store/factory/marks/Group';
 import {WidgetRecord} from '../store/factory/Widget';
 import {input} from '../util/dataset-utils';
@@ -11,7 +11,7 @@ import name from '../util/exportName';
 import exportName from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup, pushSignalsInScene} from './demonstrations';
+import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup, pushSignalsInScene, addVoronoiMark} from './demonstrations';
 import manipulators from './manipulators';
 import {PipelineRecord} from '../store/factory/Pipeline';
 
@@ -71,6 +71,13 @@ exporter.interactions = function(state: State, spec) {
     if (interaction.applications.length) {
       for (const application of interaction.applications) {
         spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, application);
+        if (interaction.input && interaction.input.mouse && interaction.input.mouse === 'mouseover' && interaction.input.nearest) {
+          const targetMarkName = (application as any).targetMarkName;
+          if (targetMarkName) {
+            const encoding = interaction.selection && interaction.selection.type === 'point' ? interaction.selection.encoding : null;
+            spec = addVoronoiMark(spec, groupName, encoding, targetMarkName, interaction.id, application.id);
+          }
+        }
       }
     }
     spec = pushSignalsInScene(spec, groupName, interaction.signals);
