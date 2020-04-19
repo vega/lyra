@@ -227,6 +227,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
   // TODO(jzong): could add a heuristic -- better way to sort these?
   if (marksOfGroup.length) {
     const mark = marksOfGroup[0];
+    const maybeSymbol = marksOfGroup.find(mark => mark.type === 'symbol');
     defs.push(MarkApplication({
       id: "color_" + isDemonstratingInterval,
       label: "Color",
@@ -241,11 +242,11 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
       propertyName: "opacity",
       unselectedValue: "0.2"
     }));
-    if (mark.type === 'symbol') {
+    if (maybeSymbol) {
       defs.push(MarkApplication({
         id: "size_" + isDemonstratingInterval,
         label: "Size",
-        targetMarkName: exportName(mark.name),
+        targetMarkName: exportName(maybeSymbol.name),
         propertyName: "size",
         unselectedValue: 30
       }));
@@ -490,6 +491,11 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     }
 
     const options = marksOfGroup.map(mark => {
+      if (preview.id.startsWith('size')) {
+        if (mark.type !== 'symbol') {
+          return null;
+        }
+      }
       const markName = exportName(mark.name);
       return <option key={markName} value={markName}>{markName}</option>
     });
