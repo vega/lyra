@@ -50,6 +50,7 @@ $pipeline-width: 230px;
 .pipeline {
   background-color: $vlgrey-bg;
   overflow-x: auto;
+  width: calc(100% - 10px);
 
   p.source {
     display: flex;
