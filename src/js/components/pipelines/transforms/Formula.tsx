@@ -19,7 +19,12 @@ export class Formula extends React.Component<OwnProps> {
     const def = props.def;
     const as = evt.target ? evt.target.value : def.as;
     const expr = evt.target ? def.expr : evt;
-
+    if (!ctrl.view) {
+      setTimeout(() => {
+        this.updateFormula(evt);
+      }, 100);
+      return;
+    }
     try {
       parseExpr(expr, {
         getSignal: (n) => ctrl.view.signal(n),

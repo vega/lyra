@@ -137,8 +137,18 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     const fieldRe = new RegExp(fields.map(s => DATUM + s).join('|'), 'g');
     const signalRe = new RegExp(signals.join('|'), 'g');
 
-    str = str.replace(fieldRe, (match) => SPAN_FIELD_OPEN + match.substring(DATUM.length) + SPAN_CLOSE);
-    str = str.replace(signalRe, (match) => SPAN_SIGNAL_OPEN + match + SPAN_CLOSE);
+    str = str.replace(fieldRe, (match) => {
+      if (match) {
+        return SPAN_FIELD_OPEN + match.substring(DATUM.length) + SPAN_CLOSE
+      }
+      return match;
+    });
+    str = str.replace(signalRe, (match) => {
+      if (match) {
+        return SPAN_SIGNAL_OPEN + match + SPAN_CLOSE
+      }
+      return match;
+    });
 
     return str;
   };
