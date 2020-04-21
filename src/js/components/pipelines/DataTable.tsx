@@ -47,13 +47,14 @@ interface OwnState {
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const id = ownProps.id;
   const dataset: DatasetRecord = state.getIn(['vis', 'present', 'datasets', String(id)]);
-  const interactions: InteractionRecord[] = state.getIn(['vis', 'present', 'interactions']).valueSeq().toArray();
-  const interactionSignals = [].concat.apply([], interactions.filter(interaction => interaction.signals.length).map(interaction => interaction.signals.map(signal => signal.signal)));
-  const widgets: WidgetRecord[] = state.getIn(['vis', 'present', 'widgets']).valueSeq().toArray();
-  const widgetSignals = [].concat.apply([], widgets.filter(widget => widget.signals.length).map(widget => widget.signals.map(signal => signal.signal)));
-  const signals = interactionSignals.concat(widgetSignals);
   let signalsInExprs = [];
-  if (dataset.transform) {
+  if (dataset && dataset.transform) {
+    const interactions: InteractionRecord[] = state.getIn(['vis', 'present', 'interactions']).valueSeq().toArray();
+    const interactionSignals = [].concat.apply([], interactions.filter(interaction => interaction.signals.length).map(interaction => interaction.signals.map(signal => signal.signal)));
+    const widgets: WidgetRecord[] = state.getIn(['vis', 'present', 'widgets']).valueSeq().toArray();
+    const widgetSignals = [].concat.apply([], widgets.filter(widget => widget.signals.length).map(widget => widget.signals.map(signal => signal.signal)));
+    const signals = interactionSignals.concat(widgetSignals);
+
     dataset.transform.map(transform => {
       if (transform.type === 'filter') {
         const expr = (transform as FilterTransform).expr;
