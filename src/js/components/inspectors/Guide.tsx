@@ -51,9 +51,9 @@ class BaseGuideInspector extends React.Component<OwnProps & DispatchProps> {
     const guideType = props.guideType;
 
     if (guideType === GuideType.Axis) {
-      return (<AxisInspector {...props} handleChange={this.handleChange} />);
+      return (<AxisInspector {...props} handleChange={(e) => this.handleChange(e)} />);
     } else if (guideType === GuideType.Legend) {
-      return (<LegendInspector {...props} handleChange={this.handleChange} />);
+      return (<LegendInspector {...props} handleChange={(e) => this.handleChange(e)} />);
     }
 
     return null;
