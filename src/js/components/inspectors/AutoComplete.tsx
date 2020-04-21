@@ -225,7 +225,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       searchStr = nextStr.substring(end + SPAN_CLOSE.length);
       position = searchStr.search(SPAN_RE);
     }
-    tokens.push({
+    tokens.push({ // TODO detect field names within literals (typed in instead of dragged in)
       type: 'literal',
       str: searchStr
     });

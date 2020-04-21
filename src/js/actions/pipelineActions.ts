@@ -53,16 +53,17 @@ export function derivePipeline (pipelineId: number) {
     const srcSchema: Schema = state.getIn(['vis', 'present', 'datasets', String(srcId), '_schema']);
 
     const dsId = assignId(dispatch, getState());
+    const pid = assignId(dispatch, getState());
+
     const ds = Dataset({
       _id: dsId,
       name: pipeline.get('name') + '_derived_' + dsId,
       source: String(srcId),
       transform: [],
       _schema: srcSchema,
-      _parent: pipelineId
+      _parent: pid
     });
 
-    const pid = assignId(dispatch, getState());
     const newPipeline = Pipeline({
       _id: pid,
       name: `${pipeline.name}_derived`,
@@ -71,6 +72,7 @@ export function derivePipeline (pipelineId: number) {
 
     dispatch(baseAddPipeline(newPipeline, pid));
     dispatch(addDataset(ds, null));
+    dispatch(selectPipeline(pid));
   };
 }
 
