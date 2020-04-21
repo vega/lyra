@@ -14,7 +14,7 @@ import {Map} from 'immutable';
 import {WidgetSelectionRecord, WidgetRecord, WidgetSelection, WidgetComparator} from '../../store/factory/Widget';
 import WidgetPreview from '../interactions/WidgetPreview';
 import {WidgetMarkApplicationProperty} from './WidgetMarkApplication';
-import {InteractionSignals} from './InteractionSignals';
+import {WidgetSignals} from './WidgetSignals';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -394,7 +394,7 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
           </div>
           <div className="property-group">
             <h3>Signals</h3>
-            {/* <InteractionSignals groupId={this.props.group._id} signals={this.props.widget.signals}></InteractionSignals> */}
+            <WidgetSignals widgetId={this.props.widget.id} signals={this.props.widget.signals}></WidgetSignals>
           </div>
         </div>
       </div>

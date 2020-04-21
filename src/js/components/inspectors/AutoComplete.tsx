@@ -305,7 +305,9 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     }
     else if ((dragging as SignalDraggingStateRecord).signal) {
       dragging = dragging as SignalDraggingStateRecord;
-      this.props.setSignalPush(dragging.signal, true, dragging.interactionId);
+      if (dragging.interactionId) {
+        this.props.setSignalPush(dragging.signal, true, dragging.interactionId);
+      }
       const signalName = dragging.signal;
       const currHtml = this.state.html;
       const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE;
