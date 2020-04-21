@@ -1,26 +1,26 @@
 import HoverField, {HoverFieldDef} from './HoverField';
 import HoverValue from './HoverValue';
-import TransformList from './transforms/TransformList';
-
-import {thisExpression} from '@babel/types';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {DatasetRecord, Schema} from '../../store/factory/Dataset';
 import {VegaReparseRecord} from '../../store/factory/Vega';
 import { Icon } from '../Icon';
+import {Datum, FilterTransform} from 'vega';
+import {InteractionRecord} from '../../store/factory/Interaction';
+import {WidgetRecord} from '../../store/factory/Widget';
+import {signalNames} from '../../store/factory/Signal';
 
-const d3 = require('d3');
 const dl = require('datalib');
 const getInVis = require('../../util/immutable-utils').getInVis;
 const dsUtil = require('../../util/dataset-utils');
 const assets = require('../../util/assets');
+const ctrl = require('../../ctrl');
 
 interface OwnProps {
   id?: number;
   schema?: Schema;
-  values?: any;
+  values?: Datum[];
   limit: number;
   page?: number; // for DataTableMulti, paging will be managed by the parent
   fieldsIndex?: number; // this datatable displays fieldsCount fields starting from (fieldsIndex * fieldsCount)
@@ -34,19 +34,38 @@ interface OwnProps {
 interface StateProps {
   dataset: DatasetRecord;
   vega: VegaReparseRecord;
+  signalsInExprs: string[]; // array of signal names found in filter expressions (to regenerate datatable)
 }
 
 interface OwnState {
   page: number;
   hoverField: HoverFieldDef;
   hoverValue: React.MouseEvent<HTMLElement, MouseEvent>;
+  output: Datum[];
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const id = ownProps.id;
+  const dataset: DatasetRecord = state.getIn(['vis', 'present', 'datasets', String(id)]);
+  const interactions: InteractionRecord[] = state.getIn(['vis', 'present', 'interactions']).valueSeq().toArray();
+  const interactionSignals = [].concat.apply([], interactions.filter(interaction => interaction.signals.length).map(interaction => interaction.signals.map(signal => signal.signal)));
+  const widgets: WidgetRecord[] = state.getIn(['vis', 'present', 'widgets']).valueSeq().toArray();
+  const widgetSignals = [].concat.apply([], widgets.filter(widget => widget.signals.length).map(widget => widget.signals.map(signal => signal.signal)));
+  const signals = interactionSignals.concat(widgetSignals);
+  let signalsInExprs = [];
+  if (dataset.transform) {
+    dataset.transform.map(transform => {
+      if (transform.type === 'filter') {
+        const expr = (transform as FilterTransform).expr;
+        const signalsInExpr = signals.filter(signalName => expr.indexOf(signalName) > -1);
+        signalsInExprs = signalsInExprs.concat(signalsInExpr);
+      }
+    })
+  }
   return {
-    dataset: getInVis(state, 'datasets.' + id),
-    vega: state.get('vega')
+    dataset,
+    vega: state.get('vega'),
+    signalsInExprs
   };
 }
 
@@ -58,7 +77,8 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     this.state = {
       page: 0,
       hoverField: null,
-      hoverValue: null
+      hoverValue: null,
+      output: props.id ? dsUtil.output(props.id) : props.values
     };
   }
 
@@ -75,6 +95,21 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
         this.$table.current.scrollLeft = this.props.scroll;
       }
     }
+    if (this.props.signalsInExprs !== prevProps.signalsInExprs) {
+      this.onFilterExprSignal();
+      prevProps.signalsInExprs.forEach(signalName => {
+        ctrl.view.removeSignalListener(signalName, () => this.onFilterExprSignal());
+      })
+      this.props.signalsInExprs.forEach(signalName => {
+        ctrl.view.addSignalListener(signalName, () => this.onFilterExprSignal())
+      })
+    }
+  }
+
+  private onFilterExprSignal() {
+    this.setState({
+      output: this.props.id ? dsUtil.output(this.props.id) : this.props.values
+    })
   }
 
   public prevPage = () => {
@@ -129,7 +164,7 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     const stop  = start + limit;
     const id = props.id;
     const schema = id ? props.dataset.get('_schema') : props.schema;
-    const output = id ? dsUtil.output(id) : props.values;
+    const output = state.output;
     const values = output.slice(start, stop);
     const keys = schema.keySeq().toArray().filter((_, idx) => {
       if (this.props.fieldsIndex === undefined || this.props.fieldsCount === undefined) { return true; }
