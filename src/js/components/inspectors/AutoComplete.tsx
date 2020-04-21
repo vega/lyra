@@ -314,8 +314,12 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
         this.props.setSignalPush(dragging.signal, true, dragging.interactionId);
       }
       const signalName = dragging.signal;
-      const currHtml = this.state.html;
-      const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE;
+      const currHtml = (this.state.html === 'Text' ? '' : this.state.html);
+      const decode = this.htmlDecode(currHtml);
+      let cursorPosition = decode.indexOf(window.getSelection().anchorNode.textContent);
+      cursorPosition = cursorPosition > -1 ? cursorPosition + window.getSelection().anchorOffset : decode.length;
+      cursorPosition = cursorPosition > decode.length ? decode.length : cursorPosition;
+      const html = decode.substring(0, cursorPosition) + SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE + decode.substring(cursorPosition);
       props.updateFn(this.fromHtml(html));
       this.setState({html});
     }
