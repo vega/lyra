@@ -270,9 +270,9 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   }
 
   public htmlDecode(input) {
-    const e = document.createElement('div');
-    e.innerHTML = input;
-    return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue;
+    var txt = document.createElement('textarea');
+    txt.innerHTML = input;
+    return txt.value;
   };
 
   public handleChange = (evt) => {
@@ -295,8 +295,13 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     if ((dragging as FieldDraggingStateRecord).dsId) {
       dragging = dragging as FieldDraggingStateRecord;
       const fieldName = dragging.fieldDef.name;
-      const currHtml = this.state.html;
-      const html = (currHtml === 'Text' ? '' : currHtml) + SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE;
+      const currHtml = (this.state.html === 'Text' ? '' : this.state.html);
+      const decode = this.htmlDecode(currHtml);
+      let cursorPosition = decode.indexOf(window.getSelection().anchorNode.textContent);
+      cursorPosition = cursorPosition > -1 ? cursorPosition + window.getSelection().anchorOffset : decode.length;
+      cursorPosition = cursorPosition > decode.length ? decode.length : cursorPosition;
+      const html = decode.substring(0, cursorPosition) + SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE + decode.substring(cursorPosition);
+      console.log(html);
       if (!props.dsId && dragging.dsId && props.primType === 'marks') {
         props.setDsId(dragging.dsId);
       }
