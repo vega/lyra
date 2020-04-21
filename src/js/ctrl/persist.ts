@@ -15,7 +15,7 @@ import {Pipeline} from '../store/factory/Pipeline';
 import {Scale} from '../store/factory/Scale';
 import {Signal} from '../store/factory/Signal';
 import {persist as persistDataValues} from '../util/dataset-utils';
-import {InspectorRecord, FieldDraggingState, SignalDraggingState, EncodingState, Inspector} from '../store/factory/Inspector';
+import {InspectorRecord, FieldDraggingState, SignalDraggingState, EncodingState, Inspector, ScaleDraggingState} from '../store/factory/Inspector';
 import {LyraGlobalsRecord, LyraGlobals} from '../store/factory/Lyra';
 import {Widget, WidgetSelection} from '../store/factory/Widget';
 import {VegaReparse} from '../store/factory/Vega';
@@ -23,7 +23,7 @@ import {VegaReparse} from '../store/factory/Vega';
 const serializer = transit.withRecords([
     Symbol, Area, Line, Rect, Text, Group, Scene, Column,
     Dataset, Axis, Legend, Pipeline, Signal,
-    EncodingState ,FieldDraggingState, SignalDraggingState, Inspector,
+    EncodingState ,FieldDraggingState, SignalDraggingState, ScaleDraggingState, Inspector,
     Interaction, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication,
     Widget, WidgetSelection,
     LyraGlobals, VegaReparse

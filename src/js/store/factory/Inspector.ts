@@ -30,6 +30,11 @@ export interface LyraSignalDraggingState {
   signal: string;
 }
 
+export interface LyraScaleDraggingState {
+  scaleId: number;
+  fieldName: string;
+}
+
 export const FieldDraggingState = Record<LyraFieldDraggingState>({
   dsId: null,
   fieldDef: null
@@ -41,9 +46,15 @@ export const SignalDraggingState = Record<LyraSignalDraggingState>({
   signal: null
 }, 'LyraSignalDraggingState');
 
+export const ScaleDraggingState = Record<LyraScaleDraggingState>({
+  scaleId: null,
+  fieldName: null,
+}, 'LyraScaleDraggingState');
+
 export type FieldDraggingStateRecord = RecordOf<LyraFieldDraggingState>;
 export type SignalDraggingStateRecord = RecordOf<LyraSignalDraggingState>;
-export type DraggingStateRecord = FieldDraggingStateRecord | SignalDraggingStateRecord;
+export type ScaleDraggingStateRecord = RecordOf<LyraScaleDraggingState>;
+export type DraggingStateRecord = FieldDraggingStateRecord | SignalDraggingStateRecord | ScaleDraggingStateRecord;
 
 interface LyraInspector {
   pipelines: {
