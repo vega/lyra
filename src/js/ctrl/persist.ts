@@ -15,12 +15,19 @@ import {Pipeline} from '../store/factory/Pipeline';
 import {Scale} from '../store/factory/Scale';
 import {Signal} from '../store/factory/Signal';
 import {persist as persistDataValues} from '../util/dataset-utils';
-import {InspectorRecord} from '../store/factory/Inspector';
-import {LyraGlobalsRecord} from '../store/factory/Lyra';
+import {InspectorRecord, FieldDraggingState, SignalDraggingState, EncodingState, Inspector} from '../store/factory/Inspector';
+import {LyraGlobalsRecord, LyraGlobals} from '../store/factory/Lyra';
+import {Widget, WidgetSelection} from '../store/factory/Widget';
+import {VegaReparse} from '../store/factory/Vega';
 
 const serializer = transit.withRecords([
-  Symbol, Area, Line, Rect, Text, Group, Scene, Column,
-  Dataset, Axis, Legend, Pipeline, Signal, Interaction, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication],
+    Symbol, Area, Line, Rect, Text, Group, Scene, Column,
+    Dataset, Axis, Legend, Pipeline, Signal,
+    EncodingState ,FieldDraggingState, SignalDraggingState, Inspector,
+    Interaction, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication,
+    Widget, WidgetSelection,
+    LyraGlobals, VegaReparse
+  ],
   (name, value) => {
     switch (name) {
       case 'LyraScale':

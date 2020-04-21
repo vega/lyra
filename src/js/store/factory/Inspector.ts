@@ -12,7 +12,7 @@ export interface LyraEncodingState {
   expandedLayers: ExpandedLayers
 }
 
-const EncodingState = Record<LyraEncodingState>({
+export const EncodingState = Record<LyraEncodingState>({
   selectedId:   null,
   selectedType: null,
   expandedLayers: {}
