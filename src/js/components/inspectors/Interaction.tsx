@@ -13,15 +13,9 @@ import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
 import exportName from '../../util/exportName';
 import InteractionPreview from '../interactions/InteractionPreview';
 import {Map} from 'immutable';
-import {DraggingStateRecord, SignalDraggingState, SignalDraggingStateRecord} from '../../store/factory/Inspector';
-import {startDragging, stopDragging} from '../../actions/inspectorActions';
-import {setMarkVisual} from '../../actions/markActions';
-import sg from '../../ctrl/signals';
-import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
-import {debounce, NumericValueRef, StringValueRef, tupleid} from 'vega';
+import {debounce} from 'vega';
 import {InteractionInputType} from './InteractionInputType';
 import {InteractionSignals} from './InteractionSignals';
-import {isOfType} from 'typesafe-actions';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -92,7 +86,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const {
     selectionPreviews,
     applicationPreviews,
-  } = generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction, isDemonstratingInterval);
+  } = generatePreviews(groupId, scaleInfo, groups, marksOfGroups, datasets, interaction, isDemonstratingInterval);
 
   return {
     interaction,
@@ -112,7 +106,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
 const actionCreators: DispatchProps = {setInput, setSelection, setApplication, removeApplication, setSignals};
 
-function generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction, isDemonstratingInterval): {
+function generatePreviews(groupId, scaleInfo, groups, marksOfGroups, datasets, interaction, isDemonstratingInterval): {
   selectionPreviews: SelectionRecord[],
   applicationPreviews: ApplicationRecord[]
 } {
@@ -125,13 +119,13 @@ function generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGrou
 
   const marksOfGroup = marksOfGroups.get(groupId);
 
-  return { // TODO maybe memoize these calls or something? also memoize the signal setters
-    selectionPreviews: generateSelectionPreviews(marksOfGroup, scaleInfo, fieldsOfGroup, interaction, isDemonstratingInterval),
+  return {
+    selectionPreviews: generateSelectionPreviews(marksOfGroup, scaleInfo, interaction, isDemonstratingInterval),
     applicationPreviews: generateApplicationPreviews(groupId, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, isDemonstratingInterval)
   };
 };
 
-function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, fieldsOfGroup: string[], interaction: InteractionRecord, isDemonstratingInterval: boolean): SelectionRecord[] {
+function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, interaction: InteractionRecord, isDemonstratingInterval: boolean): SelectionRecord[] {
   if (isDemonstratingInterval) {
     const defs: IntervalSelectionRecord[] = [];
     const brush = IntervalSelection({
