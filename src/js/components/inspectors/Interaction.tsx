@@ -298,7 +298,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
   otherGroups.forEach(otherGroup => {
     const otherGroupId = otherGroup._id;
     const marksOfOtherGroup = marksOfGroups.get(otherGroupId);
-    const mark = marksOfOtherGroup.find(mark => mark.from && mark.from.data);
+    const mark = marksOfOtherGroup.find(mark => mark.from && mark.from.data); // TODO(jzong): && mark.from.data === mark dataset in current group?
     if (mark) {
       const targetGroupName = exportName(otherGroup.name);
       const targetMarkName = exportName(mark.name);
