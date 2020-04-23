@@ -175,11 +175,18 @@ function generateSelectionPreviews(markScalesOfGroup: MarkScales[], interaction:
       const {mark, xScaleType, yScaleType} = markScales;
       switch (mark.type) {
         case 'rect':
-          if (xScaleType === ScaleSimpleType.DISCRETE) {
-            defs.push(brush_x);
+          if (xScaleType === ScaleSimpleType.DISCRETE || yScaleType === ScaleSimpleType.DISCRETE) {
+            if (xScaleType === ScaleSimpleType.DISCRETE) {
+              defs.push(brush_x);
+            }
+            if (yScaleType === ScaleSimpleType.DISCRETE) {
+              defs.push(brush_y);
+            }
           }
-          if (yScaleType === ScaleSimpleType.DISCRETE) {
-            defs.push(brush_y);
+          else {
+            if (xScaleType === ScaleSimpleType.CONTINUOUS && yScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush);
+            if (yScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_y);
+            if (xScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_x);
           }
           break;
         case 'symbol':
