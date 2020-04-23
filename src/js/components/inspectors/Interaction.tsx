@@ -6,7 +6,7 @@ import {State} from '../../store';
 import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {setInput, setSelection, setApplication, removeApplication, setSignals} from '../../actions/interactionActions';
-import {getScaleInfoForGroup, ScaleSimpleType, getNestedMarksOfGroup} from '../../ctrl/demonstrations';
+import {getScaleInfoForGroup, ScaleSimpleType, getNestedMarksOfGroup, scaleTypeSimple} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
 import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
@@ -41,10 +41,17 @@ interface StateProps {
   groupName: string;
   marksOfGroups: Map<number, MarkRecord[]>; // map of group ids to array of mark specs
   fieldsOfGroup: string[];
+  markScalesOfGroup: MarkScales[];
   canDemonstrate: boolean;
   selectionPreviews: SelectionRecord[];
   applicationPreviews: ApplicationRecord[];
   isDemonstratingInterval: boolean;
+}
+
+interface MarkScales {
+  mark: MarkRecord;
+  xScaleType: ScaleSimpleType;
+  yScaleType: ScaleSimpleType;
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -83,10 +90,29 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
   const isDemonstratingInterval = interaction.input ? interaction.input.mouse === 'drag' : null;
 
+  const markScalesOfGroup = marksOfGroup.map(mark => {
+    let xScaleType, yScaleType = null;
+    if (mark.encode && mark.encode.update && mark.encode.update.x && (mark.encode.update.x as any).scale) {
+      const xScaleId = (mark.encode.update.x as any).scale;
+      const xScaleRecord = state.getIn(['vis', 'present', 'scales', String(xScaleId)]);
+      xScaleType = scaleTypeSimple(xScaleRecord.type);
+    }
+    if (mark.encode && mark.encode.update && mark.encode.update.y && (mark.encode.update.y as any).scale) {
+      const yScaleId = (mark.encode.update.y as any).scale;
+      const yScaleRecord = state.getIn(['vis', 'present', 'scales', String(yScaleId)]);
+      yScaleType = scaleTypeSimple(yScaleRecord.type);
+    }
+    return {
+      mark,
+      xScaleType,
+      yScaleType
+    }
+  });
+
   const {
     selectionPreviews,
     applicationPreviews,
-  } = generatePreviews(groupId, scaleInfo, groups, marksOfGroups, datasets, interaction, isDemonstratingInterval);
+  } = generatePreviews(groupId, scaleInfo, groups, marksOfGroups, markScalesOfGroup, datasets, interaction, isDemonstratingInterval);
 
   return {
     interaction,
@@ -97,6 +123,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     datasets,
     marksOfGroups,
     fieldsOfGroup,
+    markScalesOfGroup,
     canDemonstrate,
     selectionPreviews,
     applicationPreviews,
@@ -106,7 +133,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
 const actionCreators: DispatchProps = {setInput, setSelection, setApplication, removeApplication, setSignals};
 
-function generatePreviews(groupId, scaleInfo, groups, marksOfGroups, datasets, interaction, isDemonstratingInterval): {
+function generatePreviews(groupId: number, scaleInfo: ScaleInfo, groups: Map<number, GroupRecord>, marksOfGroups: Map<number, MarkRecord[]>, markScalesOfGroup: MarkScales[], datasets: Map<string, DatasetRecord>, interaction: InteractionRecord, isDemonstratingInterval: boolean): {
   selectionPreviews: SelectionRecord[],
   applicationPreviews: ApplicationRecord[]
 } {
@@ -120,12 +147,12 @@ function generatePreviews(groupId, scaleInfo, groups, marksOfGroups, datasets, i
   const marksOfGroup = marksOfGroups.get(groupId);
 
   return {
-    selectionPreviews: generateSelectionPreviews(marksOfGroup, scaleInfo, interaction, isDemonstratingInterval),
+    selectionPreviews: generateSelectionPreviews(markScalesOfGroup, interaction, isDemonstratingInterval),
     applicationPreviews: generateApplicationPreviews(groupId, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, isDemonstratingInterval)
   };
 };
 
-function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, interaction: InteractionRecord, isDemonstratingInterval: boolean): SelectionRecord[] {
+function generateSelectionPreviews(markScalesOfGroup: MarkScales[], interaction: InteractionRecord, isDemonstratingInterval: boolean): SelectionRecord[] {
   if (isDemonstratingInterval) {
     const defs: IntervalSelectionRecord[] = [];
     const brush = IntervalSelection({
@@ -144,35 +171,40 @@ function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleI
     });
 
     // HEURISTICS: surface different interval selections depending on mark type
-    const markTypes: Set<LyraMarkType> = new Set(marksOfGroup.map((mark) => mark.type));
-    if (markTypes.has('symbol')) {
-      if (scaleInfo.xScaleType && scaleInfo.yScaleType) defs.push(brush);
-      if (scaleInfo.yScaleType) defs.push(brush_y);
-      if (scaleInfo.xScaleType) defs.push(brush_x);
-    }
-    if (markTypes.has('rect')) {
-      if (scaleInfo.xScaleType === ScaleSimpleType.DISCRETE) {
-        defs.push(brush_x);
+    markScalesOfGroup.forEach(markScales => {
+      const {mark, xScaleType, yScaleType} = markScales;
+      switch (mark.type) {
+        case 'rect':
+          if (xScaleType === ScaleSimpleType.DISCRETE) {
+            defs.push(brush_x);
+          }
+          if (yScaleType === ScaleSimpleType.DISCRETE) {
+            defs.push(brush_y);
+          }
+          break;
+        case 'symbol':
+        case 'text':
+          if (xScaleType === ScaleSimpleType.CONTINUOUS && yScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush);
+          if (yScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_y);
+          if (xScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_x);
+          break;
+        case 'line':
+          // TODO(jzong) ???
+          break;
+        case 'area':
+          const areaMark = mark.toJS();
+          if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
+            // TODO(jzong) what if orient is not in update but is in one of the other ones?
+            if (areaMark.encode.update.orient.value === 'vertical' && xScaleType) {
+              defs.push(brush_x);
+            }
+            else if (areaMark.encode.update.orient.value === 'horizontal' && yScaleType) {
+              defs.push(brush_y);
+            }
+          }
+          break;
       }
-      if (scaleInfo.yScaleType === ScaleSimpleType.DISCRETE) {
-        defs.push(brush_y);
-      }
-    }
-    if (markTypes.has('area')) {
-      const areaMark = marksOfGroup.find(mark => mark.type === 'area').toJS();
-      if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
-        // TODO(jzong) what if orient is not in update but is in one of the other ones?
-        if (areaMark.encode.update.orient.value === 'vertical' && scaleInfo.xScaleType) {
-          defs.push(brush_x);
-        }
-        else if (areaMark.encode.update.orient.value === 'horizontal' && scaleInfo.yScaleType) {
-          defs.push(brush_y);
-        }
-      }
-    }
-    if (markTypes.has('line')) {
-      // TODO(jzong) ?
-    }
+    });
     return [... new Set(defs)];
   }
   else {

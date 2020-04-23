@@ -1,12 +1,9 @@
 import {Map, Record, RecordOf} from 'immutable';
-import {ScaleSimpleType} from '../../ctrl/demonstrations';
 export interface ScaleInfo {
   xScaleName: string;
   yScaleName: string;
   xFieldName: string;
   yFieldName: string;
-  xScaleType: ScaleSimpleType;
-  yScaleType: ScaleSimpleType;
 
 }
 

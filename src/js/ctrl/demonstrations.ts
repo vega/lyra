@@ -1122,10 +1122,8 @@ export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
   return {
     xScaleName: scaleRecordX ? scaleRecordX.get('name') : null,
     xFieldName: scaleRecordX ? scaleRecordX.get('_domain')[0].field : null,
-    xScaleType: scaleRecordX ? scaleTypeSimple(scaleRecordX.get('type')) : null,
     yScaleName: scaleRecordY ? scaleRecordY.get('name') : null,
     yFieldName: scaleRecordY ? scaleRecordY.get('_domain')[0].field : null,
-    yScaleType: scaleRecordY ? scaleTypeSimple(scaleRecordY.get('type')) : null,
   };
 }
 
@@ -1135,7 +1133,7 @@ export namespace ScaleSimpleType {
 }
 export type ScaleSimpleType = 'CONTINUOUS' | 'DISCRETE';
 
-function scaleTypeSimple(scaleType): ScaleSimpleType {
+export function scaleTypeSimple(scaleType): ScaleSimpleType {
   switch (scaleType) {
     case 'linear':
     case 'log':
