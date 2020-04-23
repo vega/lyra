@@ -77,8 +77,9 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const datasets: Map<string, DatasetRecord> = state.getIn(['vis', 'present', 'datasets']);
 
   let fieldsOfGroup = [];
-  if (marksOfGroup.length && marksOfGroup[0].from && marksOfGroup[0].from.data) {
-    const dsId = String(marksOfGroup[0].from.data);
+  const markWithData = marksOfGroup.find(mark => mark.from && mark.from.data);
+  if (markWithData) {
+    const dsId = String(markWithData.from.data);
     const dataset: DatasetRecord =  datasets.get(dsId);
     const schema = dataset.get('_schema');
     const fields = schema.keySeq().toArray();
