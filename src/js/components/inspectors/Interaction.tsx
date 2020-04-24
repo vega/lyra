@@ -197,7 +197,8 @@ function generateSelectionPreviews(markScalesOfGroup: MarkScales[], interaction:
           if (xScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_x);
           break;
         case 'line':
-          // TODO(jzong) ???
+          if (yScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_y);
+          if (xScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_x);
           break;
         case 'area':
           const areaMark = mark.toJS();
