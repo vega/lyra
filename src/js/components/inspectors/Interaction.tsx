@@ -52,6 +52,7 @@ interface MarkScales {
   mark: MarkRecord;
   xScaleType: ScaleSimpleType;
   yScaleType: ScaleSimpleType;
+  scaleFields: string[];
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -103,10 +104,21 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
       const yScaleRecord = state.getIn(['vis', 'present', 'scales', String(yScaleId)]);
       yScaleType = scaleTypeSimple(yScaleRecord.type);
     }
+    const scaleFields = [];
+    if (mark.encode && mark.encode.update && mark.encode.update) {
+      for (const [key, value] of Object.entries(mark.encode.update)) {
+        if (key === 'x' || key === 'y') continue;
+        const field = (value as any).field;
+        if (field) {
+          scaleFields.push(field);
+        }
+      }
+    }
     return {
       mark,
       xScaleType,
-      yScaleType
+      yScaleType,
+      scaleFields
     }
   });
 
@@ -219,9 +231,20 @@ function generateSelectionPreviews(markScalesOfGroup: MarkScales[], interaction:
   else {
     let field = '_vgsid_';
     if (interaction && interaction.selection) {
-      const selection = interaction.selection as PointSelectionRecord;
+      const selection = (interaction.selection as PointSelectionRecord);
       if (selection.field && selection.field !== '_vgsid_') {
-        field = selection.field;
+        field = selection.field
+      }
+    }
+    if (field === '_vgsid_') {
+      const boundFields = new Set<string>();
+      markScalesOfGroup.forEach(markScales => {
+        markScales.scaleFields.forEach(field => {
+          boundFields.add(field);
+        })
+      });
+      if (boundFields.size) {
+        field = boundFields.values().next().value;
       }
     }
     const defs: PointSelectionRecord[] = [
