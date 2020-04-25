@@ -97,12 +97,12 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     if (mark.encode && mark.encode.update && mark.encode.update.x && (mark.encode.update.x as any).scale) {
       const xScaleId = (mark.encode.update.x as any).scale;
       const xScaleRecord = state.getIn(['vis', 'present', 'scales', String(xScaleId)]);
-      xScaleType = scaleTypeSimple(xScaleRecord.type);
+      xScaleType = scaleTypeSimple(xScaleRecord.get('type'));
     }
     if (mark.encode && mark.encode.update && mark.encode.update.y && (mark.encode.update.y as any).scale) {
       const yScaleId = (mark.encode.update.y as any).scale;
       const yScaleRecord = state.getIn(['vis', 'present', 'scales', String(yScaleId)]);
-      yScaleType = scaleTypeSimple(yScaleRecord.type);
+      yScaleType = scaleTypeSimple(yScaleRecord.get('type'));
     }
     const scaleFields = [];
     if (mark.encode && mark.encode.update && mark.encode.update) {

@@ -29,8 +29,10 @@ const serializer = transit.withRecords([
     LyraGlobals, VegaReparse
   ],
   (name, value) => {
+    console.log(name); // TODO this isn't getting called
     switch (name) {
       case 'LyraScale':
+        console.log(value);
         return Scale(value);
       default:
         return null;

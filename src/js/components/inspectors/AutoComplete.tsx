@@ -301,7 +301,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       cursorPosition = cursorPosition > -1 ? cursorPosition + window.getSelection().anchorOffset : decode.length;
       cursorPosition = cursorPosition > decode.length ? decode.length : cursorPosition;
       const html = decode.substring(0, cursorPosition) + SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE + decode.substring(cursorPosition);
-      console.log(html);
       if (!props.dsId && dragging.dsId && props.primType === 'marks') {
         props.setDsId(dragging.dsId);
       }
