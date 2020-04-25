@@ -107,7 +107,8 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     const scaleFields = [];
     if (mark.encode && mark.encode.update && mark.encode.update) {
       for (const [key, value] of Object.entries(mark.encode.update)) {
-        if (key === 'x' || key === 'y') continue;
+        console.log(key, value);
+        if (key === 'x' || key === 'y' || !value) continue;
         const field = (value as any).field;
         if (field) {
           scaleFields.push(field);
