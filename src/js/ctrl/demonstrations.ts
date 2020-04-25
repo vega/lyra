@@ -163,6 +163,27 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       "name": `brush_y_end_${interactionId}`,
       "update": `lyra_brush_y_${interactionId}[1]`
     },
+    { // TODO(jzong) all user-facing push signals needed to be converted to use "on" instead of just "update". important for release but not for paper.
+      "name": ifXElse(`brush_${xFieldName}_${xScaleName}_start_${interactionId}`, `brush_x_field_undefined_start_${interactionId}`),
+      "on": [
+        {
+          "events": {"signal": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId}`, `brush_x_field_undefined_${interactionId}`)},
+          "update": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId} && brush_${xFieldName}_${xScaleName}_${interactionId}.length ? brush_${xFieldName}_${xScaleName}_${interactionId}[0] : null`, 'null')
+        }
+      ]
+    },
+    {
+      "name": ifXElse(`brush_${xFieldName}_${xScaleName}_end_${interactionId}`, `brush_x_field_undefined_end_${interactionId}`),
+      "update": ifXElse(`brush_${xFieldName}_${xScaleName}_${interactionId} && brush_${xFieldName}_${xScaleName}_${interactionId}.length ? brush_${xFieldName}_${xScaleName}_${interactionId}[1] : null`, 'null')
+    },
+    {
+      "name": ifYElse(`brush_${yFieldName}_${yScaleName}_start_${interactionId}`, `brush_y_field_undefined_start_${interactionId}`),
+      "update": ifXElse(`brush_${yFieldName}_${yScaleName}_${interactionId} && brush_${yFieldName}_${yScaleName}_${interactionId}.length ? brush_${yFieldName}_${yScaleName}_${interactionId}[0] : null`, 'null')
+    },
+    {
+      "name": ifYElse(`brush_${yFieldName}_${yScaleName}_end_${interactionId}`, `brush_y_field_undefined_end_${interactionId}`),
+      "update": ifXElse(`brush_${yFieldName}_${yScaleName}_${interactionId} && brush_${yFieldName}_${yScaleName}_${interactionId}.length ? brush_${yFieldName}_${yScaleName}_${interactionId}[1] : null`, 'null')
+    },
     {
       "name": `lyra_brush_is_x_encoding_${interactionId}`,
       "init": "false"

@@ -600,6 +600,16 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
             signal: `brush_x_end_${interactionId}`,
             label: 'brush_x (end)'
           });
+          if (xFieldName) {
+            signals.push({
+              signal: `brush_${xFieldName}_${xScaleName}_start_${interactionId}`,
+              label: `brush_${xFieldName} (start)`
+            });
+            signals.push({
+              signal: `brush_${xFieldName}_${xScaleName}_end_${interactionId}`,
+              label: `brush_${xFieldName} (end)`
+            });
+          }
         }
         if (yScaleName) {
           signals.push({
@@ -610,16 +620,17 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
             signal: `brush_y_end_${interactionId}`,
             label: 'brush_y (end)'
           });
+          if (yFieldName) {
+            signals.push({
+              signal: `brush_${yFieldName}_${yScaleName}_start_${interactionId}`,
+              label: `brush_${yFieldName} (start)`
+            });
+            signals.push({
+              signal: `brush_${yFieldName}_${yScaleName}_end_${interactionId}`,
+              label: `brush_${yFieldName} (end)`
+            });
+          }
         }
-        // TODO create these signals
-        // if (xFieldName) {
-        //   signals.push(<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={`brush_${xFieldName}_${xScaleName}_${interactionId}_start`}>{`brush_${xFieldName} (start)`}</div>)
-        //   signals.push(<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={`brush_${xFieldName}_${xScaleName}_${interactionId}_end`}>{`brush_${xFieldName} (end)`}</div>)
-        // }
-        // if (yFieldName) {
-        //   signals.push(<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={`brush_${yFieldName}_${yScaleName}_${interactionId}_start`}>{`brush_${yFieldName} (start)`}</div>)
-        //   signals.push(<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={`brush_${yFieldName}_${yScaleName}_${interactionId}_end`}>{`brush_${yFieldName} (end)`}</div>)
-        // }
         break;
         case 'click':
           signals.push({
