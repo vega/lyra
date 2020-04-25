@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import {ActionCreators as historyActions} from 'redux-undo';
 import {getType} from 'typesafe-actions';
-import {baseSelectMark, expandLayers, selectMark} from '../actions/inspectorActions';
+import {baseSelectMark, expandLayers, selectMark, InspectorSelectedType} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';
 import {store} from '../store';
 import {MODE, SELECTED} from '../store/factory/Signal';
@@ -185,25 +185,27 @@ export function registerSignalListeners() {
   if (ctrl.view) {
     //  TODO (jzong): this works and is good, but currently conflicts with the
     //  way we're doing multi-interactions in InteractionPreviewController, fix that then uncomment this
-    // ctrl.view.addSignalListener(SELECTED, function(name, selected) {
-    //   const role = selected.mark.role;
-    //   const id = role && +role.split('lyra_')[1];
-    //   const state = store.getState();
+    ctrl.view.addSignalListener(SELECTED, function(name, selected) {
+      const role = selected.mark.role;
+      const id = role && +role.split('lyra_')[1];
+      const state = store.getState();
 
-    //   if (state.getIn(['inspector', 'encodings', 'selectedId']) === id) {
-    //     return;
-    //   }
+      const selectedId = state.getIn(['inspector', 'encodings', 'selectedId']);
+      const selectedType = state.getIn(['inspector', 'encodings', 'selectedType']);
+      if (selectedId === id || selectedType === InspectorSelectedType.SELECT_INTERACTION) {
+        return;
+      }
 
-    //   // Walk up from the selected primitive to create an array of its parent groups' IDs
-    //   const parentLayerIds = getParentGroupIds(id, state);
+      // Walk up from the selected primitive to create an array of its parent groups' IDs
+      const parentLayerIds = getParentGroupIds(id, state);
 
-    //   if (id) {
-    //     // Select the mark,
-    //     store.dispatch(baseSelectMark(id, parentLayerIds));
-    //     // And expand the hierarchy so that it is visible
-    //     store.dispatch(expandLayers(parentLayerIds));
-    //   }
-    // });
+      if (id) {
+        // Select the mark,
+        store.dispatch(baseSelectMark(id, parentLayerIds));
+        // And expand the hierarchy so that it is visible
+        store.dispatch(expandLayers(parentLayerIds));
+      }
+    });
 
     Object.keys(listeners).forEach(function(signalName) {
       if (!ctrl.view._signals[signalName]) {
