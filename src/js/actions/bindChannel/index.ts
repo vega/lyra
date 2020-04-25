@@ -8,12 +8,12 @@ import {batchGroupBy} from '../../reducers/historyOptions';
 import {LyraVegaLiteSpec, Mark, MarkRecord} from '../../store/factory/Mark';
 import duplicate from '../../util/duplicate';
 import {setVlUnit} from '../markActions';
+import updateAggregateDependencies from './aggregateDependencies';
 import cleanupUnused from './cleanupUnused';
 import parseData from './parseData';
 import parseGuides from './parseGuides';
 import parseMarks from './parseMarks';
 import parseScales from './parseScales';
-import updateAggregateDependencies from './aggregateDependencies';
 
 const AGGREGATE_OPS = require('../../constants/aggregateOps'),
   getInVis = require('../../util/immutable-utils').getInVis,
@@ -202,6 +202,7 @@ export function channelName(name: string): Channel {
     case 'fill':
     case 'stroke':
       return 'color';
+    case 'size':
     case 'text':
     case 'detail':
       return name;
