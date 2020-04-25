@@ -177,7 +177,7 @@ $long-label-width: $label-width + 10px;
   .preview-scroll {
     display: flex;
     flex-wrap: wrap;
-    background: $grey-bg;
+    background: $lgrey-bg;
     max-height: calc(117px * 2.5);
     overflow-y: auto;
     margin-bottom: $outer-padding;
@@ -185,15 +185,19 @@ $long-label-width: $label-width + 10px;
 
   .preview-scroll > div {
     flex-basis: 50%;
-    background: $grey-bg;
     color: white;
 
     &.selected {
-      background: $lgrey-bg;
+      background: $grey-bg;
+
+      .preview-label {
+        color: #eeeeee;
+      }
     }
 
     .preview-label {
       margin: 0.5 * $outer-padding 0;
+      color: #222222;
     }
 
     svg.marks > g {
