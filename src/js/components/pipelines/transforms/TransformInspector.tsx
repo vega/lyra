@@ -5,6 +5,7 @@ import {Transforms} from 'vega-typings/types';
 import {updateTransform} from '../../../actions/datasetActions';
 import {Filter as filter} from './Filter';
 import {Formula as formula} from './Formula';
+import {default as lookup} from './Lookup';
 
 const capitalize = require('capitalize');
 
@@ -31,6 +32,7 @@ export class TransformInspector extends React.Component<OwnProps & DispatchProps
 
   public Filter = filter;
   public Formula = formula;
+  public Lookup = lookup;
   private timer = null;
 
 

@@ -4,6 +4,7 @@ import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
 import {InteractionRecord, MarkApplicationRecord} from '../store/factory/Interaction';
 import {GroupRecord} from '../store/factory/marks/Group';
+import {PipelineRecord} from '../store/factory/Pipeline';
 import {WidgetRecord} from '../store/factory/Widget';
 import {input} from '../util/dataset-utils';
 import duplicate from '../util/duplicate';
@@ -11,9 +12,8 @@ import name from '../util/exportName';
 import exportName from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup, pushSignalsInScene, addVoronoiMark} from './demonstrations';
+import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addVoronoiMark, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup, pushSignalsInScene} from './demonstrations';
 import manipulators from './manipulators';
-import {PipelineRecord} from '../store/factory/Pipeline';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -143,6 +143,12 @@ exporter.dataset = function(state: State, internal: boolean, id: number) {
     spec.transform = spec.transform || [];
     spec.transform.push(sort);
   }
+
+  spec.transform.forEach(s => {
+    if (s.type === 'lookup') {
+      s.from = state.getIn(['vis', 'present', 'datasets', s.from, 'name'])
+    }
+  })
 
   return spec;
 };

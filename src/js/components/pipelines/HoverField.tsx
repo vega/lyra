@@ -15,6 +15,7 @@ import {AggregateList} from './AggregateList';
 import FieldType from './FieldType';
 import FilterIcon from './transforms/FilterIcon';
 import FormulaIcon from './transforms/FormulaIcon';
+import LookupIcon from './transforms/LookupIcon';
 import SortIcon from './transforms/SortIcon';
 
 const ctrl = require('../../ctrl');
@@ -181,6 +182,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
 
         <FilterIcon dsId={dsId} field={field}/>
         <FormulaIcon dsId={dsId} field={field}/>
+        <LookupIcon dsId={dsId} field={field} />
         {/* <SortIcon dsId={dsId} field={field} /> */}
       </div>
     ) : null;
