@@ -12,6 +12,9 @@ import sg from '../../ctrl/signals';
 import {channelName} from '../../actions/bindChannel';
 import {InteractionSignal} from '../../store/factory/Interaction';
 import {setSignalPush} from '../../actions/interactionActions';
+import {TextRecord} from '../../store/factory/marks/Text';
+import {MarkRecord} from '../../store/factory/Mark';
+import {Map} from 'immutable';
 
 const ctrl = require('../../ctrl');
 
@@ -22,6 +25,7 @@ interface OwnProps {
 
 interface StateProps {
   dragging: SignalDraggingStateRecord;
+  marks: Map<string, MarkRecord>;
 }
 
 interface DispatchProps {
@@ -35,8 +39,12 @@ interface DispatchProps {
 function mapStateToProps(state: State): StateProps {
   const draggingSignal = state.getIn(['inspector', 'dragging']) as SignalDraggingStateRecord;
   const dragging = draggingSignal && draggingSignal.signal ? draggingSignal : null;
+
+  const marks: Map<string, MarkRecord> = state.getIn(['vis', 'present', 'marks']);
+
   return {
-    dragging
+    dragging,
+    marks
   }
 }
 
@@ -70,10 +78,22 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
         }, this.props.dragging.interactionId)
         const lyraId = +sel.mark.role.split('lyra_')[1]; // id of thing that was dropped onto
         const channel = channelName(cell.key);
+        let value = this.props.dragging.signal;
+        if (channel === 'text') {
+          // append to current text value if dropping onto a text mark's text channel
+          value = `{{#${this.props.dragging.signal}}}`;
+          const textRecord: TextRecord = this.props.marks.get(String(lyraId)) as TextRecord;
+          const text = textRecord.encode?.update?.text as any;
+          if (text) {
+            let current = text.signal || text.value || '';
+            current = current === 'Text' ? '' : current;
+            value = current + value;
+          }
+        }
         this.props.setMarkVisual(
           {
             property: channel,
-            def: {signal: channel === 'text' ? `{{#${this.props.dragging.signal}}}` : this.props.dragging.signal}
+            def: {signal: value}
           },
           lyraId
         )
