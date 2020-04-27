@@ -12,7 +12,7 @@ import name from '../util/exportName';
 import exportName from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addVoronoiMark, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup, pushSignalsInScene} from './demonstrations';
+import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addVoronoiMark, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup, pushSignalsInScene, getFieldsOfGroup} from './demonstrations';
 import manipulators from './manipulators';
 
 const json2csv = require('json2csv'),
@@ -56,7 +56,8 @@ exporter.interactions = function(state: State, spec) {
   state.getIn(['vis', 'present', 'interactions']).forEach((interaction: InteractionRecord) => {
     const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
     const groupName = exportName(group.name);
-    const scaleInfo = getScaleInfoForGroup(state, group._id)
+    const scaleInfo = getScaleInfoForGroup(state, group._id);
+    const fieldsOfGroup = getFieldsOfGroup(state, group._id);
     const mouseTypes = group._interactions.map(interactionId => {
       const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
       if (!interaction.input) { return null; }
@@ -64,7 +65,7 @@ exporter.interactions = function(state: State, spec) {
     }).filter(x => x);
     const exclusive = (new Set(mouseTypes)).size !== mouseTypes.length; // if there's more than one drag, for example, drag should not activate when shift+drag activates
     spec = addDatasetsToScene(spec, groupName, interaction.id);
-    spec = addInputsToScene(spec, groupName, interaction.id, interaction.input, scaleInfo, exclusive);
+    spec = addInputsToScene(spec, groupName, interaction.id, interaction.input, scaleInfo, fieldsOfGroup, exclusive);
     if (interaction.selection) {
       spec = addSelectionToScene(spec, groupName, interaction.id, interaction.input, interaction.selection);
     }

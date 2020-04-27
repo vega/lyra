@@ -6,7 +6,7 @@ import {State} from '../../store';
 import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {setInput, setSelection, setApplication, removeApplication, setSignals} from '../../actions/interactionActions';
-import {getScaleInfoForGroup, ScaleSimpleType, getNestedMarksOfGroup, scaleTypeSimple} from '../../ctrl/demonstrations';
+import {getScaleInfoForGroup, ScaleSimpleType, getNestedMarksOfGroup, scaleTypeSimple, getFieldsOfGroup} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
 import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
@@ -77,15 +77,8 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
   const datasets: Map<string, DatasetRecord> = state.getIn(['vis', 'present', 'datasets']);
 
-  let fieldsOfGroup = [];
-  const markWithData = marksOfGroup.find(mark => mark.from && mark.from.data);
-  if (markWithData) {
-    const dsId = String(markWithData.from.data);
-    const dataset: DatasetRecord =  datasets.get(dsId);
-    const schema = dataset.get('_schema');
-    const fields = schema.keySeq().toArray();
-    fieldsOfGroup = fields;
-  }
+  const fieldsOfGroup = getFieldsOfGroup(state, group._id);
+
   const isParsing = state.getIn(['vega', 'isParsing']);
 
   const canDemonstrate = Boolean(!isParsing && ctrl.view && (scaleInfo.xScaleName && scaleInfo.xFieldName || scaleInfo.yScaleName && scaleInfo.yFieldName));
@@ -633,10 +626,13 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         }
         break;
         case 'click':
-          signals.push({
-            signal: `lyra_points_tuple_${interactionId}`,
-            label: 'points' // TODO (jzong) unpack this signal into single values so it's usable
-          });
+          const fields = this.props.fieldsOfGroup;
+          fields.forEach(field => {
+            signals.push({
+              signal: `point_${field}_${interactionId}`,
+              label: `point_${field}`
+            });
+          })
           break;
         case 'mouseover':
           signals.push({

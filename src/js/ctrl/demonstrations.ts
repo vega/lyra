@@ -5,10 +5,11 @@ import duplicate from "../util/duplicate";
 import {MarkRecord} from "../store/factory/Mark";
 import {GroupRecord} from "../store/factory/marks/Group";
 import {ScaleInfo, ApplicationRecord, SelectionRecord, PointSelectionRecord, MarkApplicationRecord, ScaleApplicationRecord, TransformApplicationRecord, IntervalSelectionRecord, InteractionInput, InteractionSignal} from "../store/factory/Interaction";
-import {ColumnRecord} from "../store/factory/Dataset";
+import {ColumnRecord, DatasetRecord} from "../store/factory/Dataset";
 import {NOMINAL, ORDINAL, QUANTITATIVE, TEMPORAL} from "vega-lite/src/type";
 import * as dsUtil from '../util/dataset-utils';
 import {WidgetRecord, WidgetSelectionRecord} from "../store/factory/Widget";
+import {Map} from 'immutable';
 
 export function addDatasetsToScene(sceneSpec: Spec, groupName: string, interactionId: number): Spec {
   const sceneUpdated = duplicate(sceneSpec);
@@ -21,7 +22,7 @@ export function addDatasetsToScene(sceneSpec: Spec, groupName: string, interacti
   return sceneUpdated;
 }
 
-export function addInputsToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, scaleInfo: ScaleInfo, exclusive?: boolean): Spec {
+export function addInputsToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, scaleInfo: ScaleInfo, fieldsOfGroup: string[], exclusive?: boolean): Spec {
   const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
   const {ifXElse, ifYElse, ifXY} = conditionalHelpersForScales(scaleInfo);
 
@@ -115,7 +116,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
             {"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"},
             input && input.mouse && input.mouse === 'mouseover' && input.nearest ? {"markname": `voronoi_${interactionId}`} : {}
           )],
-          "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_${interactionId} ) : null`,
+          "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']], datum: (item().isVoronoi ? datum.datum : datum)} : points_tuple_${interactionId} ) : null`,
           "force": true
         },
         {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
@@ -129,7 +130,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
             {"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"},
             input && input.mouse && input.mouse === 'mouseover' && input.nearest ? {"markname": `voronoi_${interactionId}`} : {}
           )],
-          "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']]} : points_tuple_projected_${interactionId} ) : null`,
+          "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['_vgsid_']], datum: (item().isVoronoi ? datum.datum : datum)} : points_tuple_projected_${interactionId} ) : null`,
           "force": true
         },
         {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
@@ -144,6 +145,17 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       "update": `modify(\"points_store_${groupName}_${interactionId}\", lyra_points_tuple_${interactionId}, true, null)`
     }
   ]);
+  sceneSpec = applySignals(sceneSpec, groupName, fieldsOfGroup.map(field => {
+    return {
+      "name": `point_${field}_${interactionId}`,
+      "on": [
+        {
+          "events": {"signal": `lyra_points_tuple_${interactionId}`},
+          "update": `lyra_points_tuple_${interactionId} && lyra_points_tuple_${interactionId}.datum ? lyra_points_tuple_${interactionId}.datum["${field}"] : null`,
+        }
+      ]
+    }
+  }));
   // Interval
   sceneSpec = addBrushMark(sceneSpec, groupName, interactionId, scaleInfo);
   sceneSpec = applySignals(sceneSpec, groupName, [
@@ -183,7 +195,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
         }
       ]
     },
-    { // TODO(jzong) all user-facing push signals needed to be converted to use "on" instead of just "update". important for release but not for paper.
+    {
       "name": ifXElse(`brush_${xFieldName}_${xScaleName}_start_${interactionId}`, `brush_x_field_undefined_start_${interactionId}`),
       "on": [
         {
@@ -635,7 +647,7 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
                   {"source": "scope", "type": input && input.mouse !== 'drag' ? input.mouse : "click"},
                   input && input.mouse && input.mouse === 'mouseover' && input.nearest ? {"markname": `voronoi_${interactionId}`} : {}
                 )],
-                "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']]} : points_tuple_projected_${interactionId} ) : null`,
+                "update": `datum && !datum.manipulator && item().mark.marktype !== 'group' ? (key_modifier_${interactionId} ? {unit: \"layer_0\", fields: points_tuple_fields_${interactionId}, values: [(item().isVoronoi ? datum.datum : datum)['${field ? field : '_vgsid_'}']], datum: (item().isVoronoi ? datum.datum : datum)} : points_tuple_projected_${interactionId} ) : null`,
                 "force": true
               },
               {"events": [{"source": "scope", "type": "dblclick"}], "update": "null"}
@@ -1172,6 +1184,24 @@ function getScaleRecords(state: State, groupId: number): {scaleRecordX: ScaleRec
   }
   return ret;
 }
+
+export function getFieldsOfGroup(state: State, groupId: number): string[] {
+  const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(groupId)])
+
+  const marksOfGroup = getNestedMarksOfGroup(state, group);
+
+  let fieldsOfGroup = [];
+  const markWithData = marksOfGroup.find(mark => mark.from && mark.from.data); // TODO(jzong): multiple datasets same group?
+  if (markWithData) {
+    const dsId = String(markWithData.from.data);
+    const dataset: DatasetRecord =  state.getIn(['vis', 'present', 'datasets', String(dsId)]);
+    const schema = dataset.get('_schema');
+    const fields = schema.keySeq().toArray();
+    fieldsOfGroup = fields;
+  }
+  return fieldsOfGroup;
+}
+
 
 export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
   const {scaleRecordX, scaleRecordY} = getScaleRecords(state, groupId);
