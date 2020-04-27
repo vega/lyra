@@ -579,6 +579,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     if (!input) return [];
     const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
     const interactionId = interaction.id;
+    const fields = this.props.fieldsOfGroup;
 
     const signals: InteractionSignal[] = [];
 
@@ -626,7 +627,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
         }
         break;
         case 'click':
-          const fields = this.props.fieldsOfGroup;
           fields.forEach(field => {
             signals.push({
               signal: `point_${field}_${interactionId}`,
@@ -655,6 +655,12 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
               label: `mouse_${yFieldName}`
             });
           }
+          fields.forEach(field => {
+            signals.push({
+              signal: `point_${field}_${interactionId}`,
+              label: `point_${field}`
+            });
+          })
           break;
     }
     return signals;
