@@ -21,7 +21,7 @@ export class WidgetPreview extends React.Component<OwnProps> {
 
   private previewToSpec(preview: MarkApplicationRecord): Spec {
     const groupName = this.props.groupName;
-    let spec = cleanSpecForPreview(ctrl.export(false), groupName);
+    let spec = cleanSpecForPreview(ctrl.export(false), this.width, this.height, groupName, this.props.widget.id);
 
     if (this.props.widget.selection) {
       spec = addWidgetSelectionToScene(spec, this.props.widget, this.props.widget.selection);

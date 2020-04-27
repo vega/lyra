@@ -1241,7 +1241,7 @@ export function scaleTypeSimple(scaleType): ScaleSimpleType {
   }
 }
 
-export function cleanSpecForPreview(sceneSpec, groupName, interactionId): Spec {
+export function cleanSpecForPreview(sceneSpec, width: number, height: number, groupName: string, interactionId: number): Spec {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.autosize = "none";
   sceneUpdated.marks = sceneUpdated.marks.filter(() => {
@@ -1249,6 +1249,11 @@ export function cleanSpecForPreview(sceneSpec, groupName, interactionId): Spec {
     return true;
   }).map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
+      const oldWidth = markSpec.encode?.update?.width?.value || 640;
+      const oldHeight = markSpec.encode?.update?.height?.value || 360;
+      const wScale = width / oldWidth; // preview width / main view width
+      const hScale = height / oldHeight; // preview height / main view height
+
       markSpec.axes = markSpec.axes.map((axis) => {
         return {...axis, title: '', labels: false, ticks: false, domain: false};
       });
@@ -1258,11 +1263,32 @@ export function cleanSpecForPreview(sceneSpec, groupName, interactionId): Spec {
       markSpec.encode.update.width = {"signal": "width"};
       markSpec.encode.update.height = {"signal": "height"};
 
-      if (markSpec.marks.length &&
-        markSpec.marks[0].type === 'symbol' &&
-        markSpec.marks[0].encode.update.size.value) {
-        markSpec.marks[0].encode.update.size = {"value": "10"};
-      }
+      markSpec = mapNestedMarksOfGroup(markSpec, mark => {
+        if (mark.type === 'symbol' && mark.encode?.update?.size?.value) {
+          mark.encode.update.size.value *= (wScale + hScale) / 2;
+        }
+        if (mark.type === 'text') {
+          if (mark.encode?.update?.fontSize?.value) {
+            mark.encode.update.fontSize.value /= 2;
+          }
+          if (mark.encode?.update?.dx?.value) {
+            mark.encode.update.dx.value *= wScale;
+          }
+          if (mark.encode?.update?.dy?.value) {
+            mark.encode.update.dy.value *= hScale;
+          }
+          if (mark.encode?.update?.x?.value) {
+            mark.encode.update.x.value *= wScale;
+          }
+          if (mark.encode?.update?.y?.value) {
+            mark.encode.update.y.value *= hScale;
+          }
+        }
+        if (mark.type === 'line' && mark.encode?.update?.strokeWidth?.value) {
+          mark.encode.update.strokeWidth.value /= 2;
+        }
+        return mark;
+      });
 
       if (markSpec.name !== groupName) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
         markSpec.encode.update.x = {"value": -999};

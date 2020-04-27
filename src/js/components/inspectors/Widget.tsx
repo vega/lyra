@@ -197,6 +197,11 @@ class BaseWidgetInspector extends React.Component<OwnProps & StateProps & Dispat
     }
 
     this.props.setSignals(this.getInteractionSignals(this.props.widget), this.props.widget.id);
+
+    this.restoreMainViewSignals();
+    this.restorePreviewSignals();
+
+    listeners.onSignal(`widget_${this.props.widget.id}`, (name, value) => this.onMainViewWidgetSignal(name, value));
   }
 
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
