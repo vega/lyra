@@ -1268,6 +1268,13 @@ export function cleanSpecForPreview(sceneSpec, groupName, interactionId): Spec {
         markSpec.encode.update.x = {"value": -999};
         markSpec.encode.update.y = {"value": -999};
       }
+
+      markSpec.scale = markSpec.scales.map(scale => {
+        if (scale.range && Array.isArray(scale.range) && scale.range.length == 2) {
+          scale.range = scale.range.map(n => n / 10);
+        }
+        return scale;
+      })
     }
     return markSpec;
   });
