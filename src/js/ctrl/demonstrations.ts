@@ -731,7 +731,6 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
               {
                 "test": isDemonstratingInterval ? `!(length(data(\"brush_store_${groupName}_${interactionId}\"))) || (vlSelectionTest(\"brush_store_${groupName}_${interactionId}\", datum))` :
                                                   `!(length(data(\"points_store_${groupName}_${interactionId}\"))) || (vlSelectionTest(\"points_store_${groupName}_${interactionId}\", datum))`,
-                "value": "" // we expect this to be overwritten with the mark's value
               },
               {"value": unselectedValue}
             ],
@@ -868,7 +867,6 @@ export function addWidgetApplicationToScene(sceneSpec: Spec, groupName: string, 
         [application.propertyName]: [
           {
             "test": `datum.${widget.field.name} ${widget.selection.comparator} widget_${widget.id}`,
-            "value": "" // we expect this to be overwritten with the mark's value
           },
           {"value": unselectedValue}
         ],
@@ -903,16 +901,14 @@ function applyMarkProperties(sceneSpec, groupName: string, markName: string, mar
             for (let [key, value] of Object.entries(markProperties.encode.update)) {
               const oldValue = mark.encode.update[key];
               if (oldValue) {
-                if (oldValue.value || oldValue.signal || oldValue.field) {
-                  delete value[0].value;
-                  value[0] = {...value[0], ...oldValue};
-                } else if (Array.isArray(oldValue) && oldValue.length) {
+                if (Array.isArray(oldValue) && oldValue.length) {
                   if (oldValue[0].test && !value[0].test.includes(oldValue[0].test)) {
                     value[0].test = value[0].test + ' && ' + oldValue[0].test;
                   }
-                  if (oldValue[0].value) {
-                    value[0].value = oldValue[0].value;
-                  }
+                  value[0] = {...oldValue[0], ...value[0]};
+                }
+                else {
+                  value[0] = {...value[0], ...oldValue};
                 }
               }
               mark.encode.update[key] = value;
