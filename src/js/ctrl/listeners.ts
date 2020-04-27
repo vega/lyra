@@ -183,8 +183,6 @@ export function registerSignalListeners() {
   }
 
   if (ctrl.view) {
-    //  TODO (jzong): this works and is good, but currently conflicts with the
-    //  way we're doing multi-interactions in InteractionPreviewController, fix that then uncomment this
     ctrl.view.addSignalListener(SELECTED, function(name, selected) {
       const role = selected.mark.role;
       const id = role && +role.split('lyra_')[1];
