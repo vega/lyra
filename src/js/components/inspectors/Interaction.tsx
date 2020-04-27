@@ -16,6 +16,8 @@ import {Map} from 'immutable';
 import {debounce} from 'vega';
 import {InteractionInputType} from './InteractionInputType';
 import {InteractionSignals} from './InteractionSignals';
+import {AreaRecord} from '../../store/factory/marks/Area';
+import {signalLookup} from '../../util/signal-lookup';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -207,12 +209,14 @@ function generateSelectionPreviews(markScalesOfGroup: MarkScales[], interaction:
           break;
         case 'area':
           const areaMark = mark.toJS();
-          if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
+          const orient = areaMark.encode?.update?.orient;
+          const value = orient ? orient.value || signalLookup(orient.signal) : null;
+          if (value) {
             // TODO(jzong) what if orient is not in update but is in one of the other ones?
-            if (areaMark.encode.update.orient.value === 'vertical' && xScaleType) {
+            if (value === 'vertical' && xScaleType) {
               defs.push(brush_x);
             }
-            else if (areaMark.encode.update.orient.value === 'horizontal' && yScaleType) {
+            else if (value === 'horizontal' && yScaleType) {
               defs.push(brush_y);
             }
           }
