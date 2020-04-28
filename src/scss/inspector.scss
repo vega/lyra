@@ -181,6 +181,10 @@ $long-label-width: $label-width + 10px;
     max-height: calc(117px * 2.5);
     overflow-y: auto;
     margin-bottom: $outer-padding;
+
+    &.overflow {
+      margin-right: -10px;
+    }
   }
 
   .preview-scroll > div {

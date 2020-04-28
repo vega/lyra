@@ -743,7 +743,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                 </div>
                 <div className='property-group'>
                   <h3>Applications</h3>
-                  <div className="preview-scroll">
+                  <div className={"preview-scroll " + (this.props.applicationPreviews.length > 4 ? "overflow" : '')}>
                     {
                       this.props.applicationPreviews.map((preview) => {
                         return (
