@@ -4,7 +4,7 @@ import * as React from 'react';
 import {Map} from 'immutable';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {ApplicationRecord, MarkApplicationRecord} from '../../store/factory/Interaction';
+import {ApplicationRecord, MarkApplicationRecord, MarkApplication, InteractionRecord} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import exportName from '../../util/exportName';
 import {Dispatch} from 'redux';
@@ -15,7 +15,6 @@ import {getNestedMarksOfGroup} from '../../ctrl/demonstrations';
 
 interface OwnProps {
   interactionId: number;
-  groupId: number;
   markApplication: MarkApplicationRecord;
 }
 
@@ -24,19 +23,29 @@ interface DispatchProps {
 }
 
 interface StateProps {
-  marks: Map<string, MarkRecord>;
+  targetMark: MarkRecord;
 }
 
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
-  const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(ownProps.groupId)]);
+  const marks: Map<string, MarkRecord> = state.getIn(['vis', 'present', 'marks']);
+  let targetGroupName = ownProps.markApplication.targetGroupName;
+  if (!targetGroupName) {
+    // TODO(jzong) this extra stuff is so that we don't have to regenerate everyone's json before the paper deadline
+    // delete this later
+    const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(ownProps.interactionId)]);
+    const groupId = interaction.groupId;
+    const group = marks.get(String(groupId));
+    targetGroupName = exportName(group.name);
+  }
+  const targetGroup = marks.find(mark => exportName(mark.name) === targetGroupName) as GroupRecord;
 
-  const marksOfGroup = Map(getNestedMarksOfGroup(state, group).map((mark) => {
-    return [exportName(mark.name), mark];
+  const targetMark = getNestedMarksOfGroup(state, targetGroup).find((mark => {
+    return exportName(mark.name) === ownProps.markApplication.targetMarkName;
   }));
 
   return {
-    marks: marksOfGroup
+    targetMark
   };
 }
 
@@ -64,10 +73,7 @@ class BaseInteractionMarkApplicationProperty extends React.Component<OwnProps & 
   public render() {
 
     const propertyName = this.props.markApplication.propertyName;
-    const targetMarkName = this.props.markApplication.targetMarkName;
-    const targetMark: MarkRecord = this.props.marks.filter((mark, markName) => {
-      return markName === targetMarkName;
-    }).valueSeq().first();
+    const targetMark = this.props.targetMark;
     const unselectedValue = this.props.markApplication.unselectedValue;
 
     const attributes = {

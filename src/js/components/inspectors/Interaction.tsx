@@ -120,7 +120,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const {
     selectionPreviews,
     applicationPreviews,
-  } = generatePreviews(groupId, scaleInfo, groups, marksOfGroups, markScalesOfGroup, datasets, interaction, isDemonstratingInterval);
+  } = generatePreviews(groupId, groupName, scaleInfo, groups, marksOfGroups, markScalesOfGroup, datasets, interaction, isDemonstratingInterval);
 
   return {
     interaction,
@@ -141,7 +141,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
 const actionCreators: DispatchProps = {setInput, setSelection, setApplication, removeApplication, setSignals};
 
-function generatePreviews(groupId: number, scaleInfo: ScaleInfo, groups: Map<number, GroupRecord>, marksOfGroups: Map<number, MarkRecord[]>, markScalesOfGroup: MarkScales[], datasets: Map<string, DatasetRecord>, interaction: InteractionRecord, isDemonstratingInterval: boolean): {
+function generatePreviews(groupId: number, groupName: string, scaleInfo: ScaleInfo, groups: Map<number, GroupRecord>, marksOfGroups: Map<number, MarkRecord[]>, markScalesOfGroup: MarkScales[], datasets: Map<string, DatasetRecord>, interaction: InteractionRecord, isDemonstratingInterval: boolean): {
   selectionPreviews: SelectionRecord[],
   applicationPreviews: ApplicationRecord[]
 } {
@@ -156,7 +156,7 @@ function generatePreviews(groupId: number, scaleInfo: ScaleInfo, groups: Map<num
 
   return {
     selectionPreviews: generateSelectionPreviews(markScalesOfGroup, interaction, isDemonstratingInterval),
-    applicationPreviews: generateApplicationPreviews(groupId, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, isDemonstratingInterval)
+    applicationPreviews: generateApplicationPreviews(groupId, groupName, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, isDemonstratingInterval)
   };
 };
 
@@ -276,16 +276,17 @@ function generateSelectionPreviews(markScalesOfGroup: MarkScales[], interaction:
   }
 }
 
-function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, groups: Map<number, GroupRecord>, marksOfGroups: Map<number, MarkRecord[]>, datasets: Map<string, DatasetRecord>, isDemonstratingInterval: boolean): ApplicationRecord[] {
+function generateApplicationPreviews(groupId: number, groupName: string, marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, groups: Map<number, GroupRecord>, marksOfGroups: Map<number, MarkRecord[]>, datasets: Map<string, DatasetRecord>, isDemonstratingInterval: boolean): ApplicationRecord[] {
   const defs: ApplicationRecord[] = [];
 
-  // TODO(jzong): could add a heuristic -- better way to sort these?
   if (marksOfGroup.length) {
     const mark = marksOfGroup[0];
     const maybeSymbol = marksOfGroup.find(mark => mark.type === 'symbol');
+
     defs.push(MarkApplication({
       id: "color_" + isDemonstratingInterval,
       label: "Color",
+      targetGroupName: groupName,
       targetMarkName: exportName(mark.name),
       propertyName: mark.type === 'line' ? "stroke" : "fill",
       unselectedValue: "#797979"
@@ -293,6 +294,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
     defs.push(MarkApplication({
       id: "opacity_" + isDemonstratingInterval,
       label: "Opacity",
+      targetGroupName: groupName,
       targetMarkName: exportName(mark.name),
       propertyName: "opacity",
       unselectedValue: "0.2"
@@ -301,6 +303,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
       defs.push(MarkApplication({
         id: "size_" + isDemonstratingInterval,
         label: "Size",
+        targetGroupName: groupName,
         targetMarkName: exportName(maybeSymbol.name),
         propertyName: "size",
         unselectedValue: 30
@@ -334,6 +337,37 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
         datasetName,
         targetMarkName,
       }));
+
+      // TODO(jzong): this part of the code pushes extra suggestions for brushing and linking.
+      // When we change the interface to allow multiple of each type of application, we'll want
+      // to remove this redundancy and expose a dropdown to select target group, similarly to
+      // how we currently select target mark.
+      defs.push(MarkApplication({
+        id: "color_" + isDemonstratingInterval + '_' + targetGroupName,
+        label: "Color " + otherGroup.name,
+        targetGroupName,
+        targetMarkName,
+        propertyName: mark.type === 'line' ? "stroke" : "fill",
+        unselectedValue: "#797979"
+      }));
+      defs.push(MarkApplication({
+        id: "opacity_" + isDemonstratingInterval + '_' + targetGroupName,
+        label: "Opacity " + otherGroup.name,
+        targetGroupName,
+        targetMarkName,
+        propertyName: "opacity",
+        unselectedValue: "0.2"
+      }));
+      if (mark.type === 'symbol') {
+        defs.push(MarkApplication({
+          id: "size_" + isDemonstratingInterval + '_' + targetGroupName,
+          label: "Size " + otherGroup.name,
+          targetGroupName,
+          targetMarkName,
+          propertyName: "size",
+          unselectedValue: 30
+        }));
+      }
     }
   });
 

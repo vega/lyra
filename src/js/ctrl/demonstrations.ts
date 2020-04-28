@@ -718,13 +718,14 @@ export function addSelectionToScene(sceneSpec: Spec, groupName: string, interact
 
 export function addApplicationToScene(sceneSpec: Spec, groupName: string, interactionId: number, input: InteractionInput, application: ApplicationRecord): Spec {
   const isDemonstratingInterval = input.mouse === 'drag';
-  let targetMarkName;
+  let targetGroupName, targetMarkName;
   switch (application.type) {
     case 'mark':
       application = application as MarkApplicationRecord;
+      targetGroupName = application.targetGroupName;
       targetMarkName = application.targetMarkName;
       const unselectedValue = application.unselectedValue;
-      sceneSpec = applyMarkProperties(sceneSpec, groupName, targetMarkName, {
+      sceneSpec = applyMarkProperties(sceneSpec, targetGroupName, targetMarkName, {
         "encode": {
           "update": {
             [application.propertyName]: [
@@ -760,7 +761,7 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
     case 'transform':
       application = application as TransformApplicationRecord;
       const datasetName = application.datasetName;
-      const targetGroupName = application.targetGroupName;
+      targetGroupName = application.targetGroupName;
       targetMarkName = application.targetMarkName;
 
       const newDatasetName = datasetName + "_filter_" + targetGroupName;
@@ -1422,6 +1423,7 @@ export function widgetParams(fieldDef: ColumnRecord, id: number) {
  * @param group
  */
 export function getNestedMarksOfGroup(state: State, group: GroupRecord): MarkRecord[] {
+  if (!group) return [];
   return group.marks.map(markId => {
     const mark = state.getIn(['vis', 'present', 'marks', String(markId)]);
     if (mark.type === 'group') {

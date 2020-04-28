@@ -48,9 +48,9 @@ export type IntervalSelectionRecord = RecordOf<LyraIntervalSelection>;
 export type SelectionRecord = PointSelectionRecord | IntervalSelectionRecord;
 
 export type LyraMarkApplication = {
+  targetGroupName: string; // which group does this application affect?
   targetMarkName: string; // which mark does this application affect?
   propertyName: string; // which property (e.g. fill, opacity, size)
-  // selectedValue: any; // value of property when mark is selected /// TODO(jzong): currently using the existing mark value
   unselectedValue: any; // value of property otherwise
 } & LyraInteractionPreview;
 
@@ -58,9 +58,9 @@ export const MarkApplication = Record<LyraMarkApplication>({
   type: 'mark',
   id: null,
   label: null,
+  targetGroupName: null,
   targetMarkName: null,
   propertyName: null,
-  // selectedValue: null,
   unselectedValue: null
 }, 'LyraMarkApplication');
 
@@ -81,8 +81,8 @@ export type ScaleApplicationRecord = RecordOf<LyraScaleApplication>;
 
 export type LyraTransformApplication = {
   targetGroupName: string; // which group does this application affect? (e.g. for filters, different from parent group)
+  targetMarkName: string;
   datasetName: string;
-  targetMarkName: string,
 } & LyraInteractionPreview;
 
 export const TransformApplication = Record<LyraTransformApplication>({
@@ -90,8 +90,8 @@ export const TransformApplication = Record<LyraTransformApplication>({
   id: null,
   label: null,
   targetGroupName: null,
-  datasetName: null,
   targetMarkName: null,
+  datasetName: null,
 }, 'LyraTransformApplication');
 
 export type TransformApplicationRecord = RecordOf<LyraTransformApplication>;
