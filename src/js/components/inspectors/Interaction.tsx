@@ -392,8 +392,9 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
     if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
       const selectionIds = this.props.selectionPreviews.map(s => s.id);
-      if (!this.props.interaction.selection ||
-          selectionIds.every(id => id !== this.props.interaction.selection.id)) {
+      const didHeuristicSetSelection = this.updateBrushXYHeuristic();
+      if (!didHeuristicSetSelection && (!this.props.interaction.selection ||
+          selectionIds.every(id => id !== this.props.interaction.selection.id))) {
             this.props.setSelection(this.props.selectionPreviews[0], this.props.interaction.id);
       }
     }
@@ -472,6 +473,29 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       }
     }
   });
+
+  private updateBrushXYHeuristic() {
+    if (this.props.interaction && this.props.interaction.selection) return;
+    const brush_x = this.mainViewSignalValues[this.scopedSignalName('brush_x')];
+    const brush_y = this.mainViewSignalValues[this.scopedSignalName('brush_y')];
+    if (!(brush_x && brush_y)) return;
+    const d_brush_x = Math.abs(brush_x[1] - brush_x[0]);
+    const d_brush_y = Math.abs(brush_y[1] - brush_y[0]);
+    const threshold_distance = 10;
+    if (!(Math.sqrt(d_brush_y * d_brush_y + d_brush_x * d_brush_x) > threshold_distance)) return;
+    const atan2_degrees = Math.abs(Math.atan2(d_brush_y, d_brush_x)) * 180 / Math.PI;
+    const threshold_degrees = 15;
+    if (atan2_degrees <= threshold_degrees) {
+      const brush_x_selection = this.props.selectionPreviews.find(s => s.id === 'brush_x');
+      this.props.setSelection(brush_x_selection, this.props.interaction.id);
+      return true;
+    }
+    if (atan2_degrees >= 90 - threshold_degrees) {
+      const brush_y_selection = this.props.selectionPreviews.find(s => s.id === 'brush_y');
+      this.props.setSelection(brush_y_selection, this.props.interaction.id);
+      return true;
+    }
+  }
 
   private onMainViewPointSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
