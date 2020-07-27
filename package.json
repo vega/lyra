@@ -53,7 +53,7 @@
     "istanbul": "^0.4.5",
     "istanbul-instrumenter-loader": "^0.2.0",
     "istanbul-react": "^1.1.0",
-    "jquery": "^2.2.4",
+    "jquery": "^3.5.0",
     "jquery-textcomplete": "^1.7.1",
     "jsdoc": "^3.4.0",
     "jshint": "^2.8.0",
