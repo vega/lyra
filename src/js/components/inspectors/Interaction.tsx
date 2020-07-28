@@ -18,6 +18,7 @@ import {InteractionInputType} from './InteractionInputType';
 import {InteractionSignals} from './InteractionSignals';
 import {AreaRecord} from '../../store/factory/marks/Area';
 import {signalLookup} from '../../util/signal-lookup';
+import {fieldInvalidTestValueRef} from 'vega-lite/src/compile/mark/encode/valueref';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -392,7 +393,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
     if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
       const selectionIds = this.props.selectionPreviews.map(s => s.id);
-      const didHeuristicSetSelection = this.updateBrushXYHeuristic();
+      const didHeuristicSetSelection = this.updateBrushXYHeuristic() || this.updatePointMultiHeuristic();
       if (!didHeuristicSetSelection && (!this.props.interaction.selection ||
           selectionIds.every(id => id !== this.props.interaction.selection.id))) {
             this.props.setSelection(this.props.selectionPreviews[0], this.props.interaction.id);
@@ -487,18 +488,46 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     const threshold_degrees = 15;
     if (atan2_degrees <= threshold_degrees) {
       const brush_x_selection = this.props.selectionPreviews.find(s => s.id === 'brush_x');
-      this.props.setSelection(brush_x_selection, this.props.interaction.id);
-      return true;
+      if (brush_x_selection) {
+        this.props.setSelection(brush_x_selection, this.props.interaction.id);
+        return true;
+      }
     }
     if (atan2_degrees >= 90 - threshold_degrees) {
       const brush_y_selection = this.props.selectionPreviews.find(s => s.id === 'brush_y');
-      this.props.setSelection(brush_y_selection, this.props.interaction.id);
+      if (brush_y_selection) {
+        this.props.setSelection(brush_y_selection, this.props.interaction.id);
+        return true;
+      }
+    }
+  }
+
+  private updatePointMultiHeuristic() {
+    if (this.props.interaction && this.props.interaction.selection) return;
+    const points_tuple = this.mainViewSignalValues[this.scopedSignalName('points_tuple')];
+    if (!(points_tuple && this.previousPointSignal)) return;
+
+    const point_multi_selection = this.props.selectionPreviews.find(s => s.id === 'multi');
+    if (point_multi_selection) {
+      this.props.setSelection(point_multi_selection, this.props.interaction.id);
       return true;
     }
   }
 
+  // for the purposes of demonstrating multi point selection by quickly clicking multiple points
+  private previousPointSignal = null;
+  private previousPointSignalTimeout = null;
+
   private onMainViewPointSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
+      console.log(name, value);
+      if (name.indexOf('points_tuple') >= 0) {
+        clearTimeout(this.previousPointSignalTimeout);
+        this.previousPointSignal = this.mainViewSignalValues[name];
+        this.previousPointSignalTimeout = setTimeout(() => {
+          this.previousPointSignal = null;
+        }, 800);
+      }
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
       this.updatePreviewSignals(name, value);
@@ -509,6 +538,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     if (this.mainViewSignalValues[name] !== value) {
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
+      // TODO: consider adding this.updateBrushXYHeuristic() debounced here
       this.updatePreviewSignals(name, value);
     }
   }
