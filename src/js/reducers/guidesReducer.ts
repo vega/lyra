@@ -35,7 +35,7 @@ export function guidesReducer(state: GuideState, action: ActionType<typeof guide
   }
 
   if (action.type === getType(guideActions.updateGuideProperty)) {
-    return state.setIn([str(id), action.payload.property], fromJS(action.payload.value));
+    return state.setIn([str(id), ...action.payload.property.split(".")], fromJS(action.payload.value));
   }
 
   if (action.type === getType(scaleActions.deleteScale)) {

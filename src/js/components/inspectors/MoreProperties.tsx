@@ -15,6 +15,7 @@ class BaseMoreProperties extends React.Component<MorePropsProps, MorePropsState>
   constructor(props) {
     super(props);
     this.state = {display: 'none'};
+    this.handleClick = this.handleClick.bind(this);
   };
 
   public toggle(old) {
