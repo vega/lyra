@@ -95,9 +95,9 @@ class BaseLegendInspector extends React.Component<OwnProps & StateProps> {
             <div className='property-group'>
               {/* <h3>Gradient</h3> */}
 
-              {/* <Property name={grad + 'height'} label="Height" type="number" {...props} /> */}
+              {/* <Property name={grad + 'height'} label="Height" type="number" onChange={handleChange} {...props} /> */}
 
-              {/* <Property name={grad + 'width'} label="Width" type="number" {...props} /> */}
+              {/* <Property name={grad + 'width'} label="Width" type="number" onChange={handleChange} {...props} /> */}
 
               <MoreProperties label='Gradient' header='true'>
                 <Property name={grad + 'stroke.value'} label='Color' type='color'  onChange={handleChange} {...props} />
