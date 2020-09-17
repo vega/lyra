@@ -19,7 +19,7 @@ class BaseAxisInspector extends React.Component<AxisProps> {
     const handleChange = props.handleChange;
     const orientOpts = ['top', 'bottom', 'left', 'right'];
     const layerOpts = ['back', 'front'];
-    const axis   = 'encode.axis.update.';
+    const axis   = 'encode.domain.update.';
     const title  = 'encode.title.update.';
     const labels = 'encode.labels.update.';
     const grid = 'encode.grid.update.';
@@ -34,10 +34,10 @@ class BaseAxisInspector extends React.Component<AxisProps> {
             opts={orientOpts} onChange={handleChange} {...props} />
 
           <MoreProperties label='Axis'>
-            <Property name={axis + 'stroke.value'} label='Color' type='color' {...props} />
+            <Property name={axis + 'stroke.value'} label='Color' type='color' onChange={handleChange} {...props} />
 
             <Property name={axis + 'strokeWidth.value'} label='Width' type='range'
-              min='0' max='10' step='0.25' {...props} />
+              min='0' max='10' step='0.25' onChange={handleChange} {...props} />
           </MoreProperties>
         </div>
 
