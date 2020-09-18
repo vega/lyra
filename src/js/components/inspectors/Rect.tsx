@@ -32,20 +32,20 @@ class BaseRectInspector extends React.Component<RectInspectorProps> {
           <h3>Fill</h3>
 
           <Property name='fill' label='Color' type='color'
-            canDrop={true} {...props} />
+            droppable={true} {...props} />
 
           <Property name='fillOpacity' label='Opacity' type='range'
-            min='0' max='1' step='0.05' canDrop={true} {...props} />
+            min='0' max='1' step='0.05' droppable={true} {...props} />
         </div>
 
         <div className='property-group'>
           <h3>Stroke</h3>
 
           <Property name='stroke' label='Color' type='color'
-            canDrop={true} {...props} />
+            droppable={true} {...props} />
 
           <Property name='strokeWidth' label='Width' type='range'
-            min='0' max='10' step='0.25' canDrop={true} {...props} />
+            min='0' max='10' step='0.25' droppable={true} {...props} />
         </div>
       </div>
     );

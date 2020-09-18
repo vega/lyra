@@ -22,7 +22,7 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
     return Map();
   }
 
-  if (action.type === getType(datasetActions.addDataset)) {
+  if (action.type === getType(datasetActions.baseAddDataset)) {
     if (action.meta) {
       dsUtil.init(action.payload, action.meta);
     }
@@ -72,6 +72,17 @@ export function datasetsReducer(state: DatasetState, action: ActionType<typeof d
       state = state.deleteIn([String(id), '_schema', oldName]);
       state = state.setIn([String(id), '_schema', transform.as],
         oldSchema.set('name', transform.as as string));
+    } else if (transform.type === 'lookup') {
+      const oldAs = state.getIn([String(id), 'transform', p.index, 'as']);
+      oldAs.forEach((as: string) => (state = state.deleteIn([String(id), '_schema', as])));
+
+      const newValues = transform.values as string[];
+      const newAs = transform.as as string[];
+      for (const [idx, as] of newAs.entries()) {
+        const val = newValues[idx];
+        const def = state.getIn([transform.from, '_schema', val]);
+        state = state.setIn([String(id), '_schema', as], def.set('name', as).set('source', false));
+      }
     }
 
     return state.setIn([String(id), 'transform', p.index], p.transform);

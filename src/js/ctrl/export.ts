@@ -1,18 +1,19 @@
-import {Seq, List} from 'immutable';
-import {extend, isArray, isObject, isString, Mark, Signal, Spec} from 'vega';
+import {array, extend, isArray, isObject, isString, Mark, Spec} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
 import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
-import {InteractionRecord} from '../store/factory/Interaction';
+import {InteractionRecord, MarkApplicationRecord} from '../store/factory/Interaction';
 import {GroupRecord} from '../store/factory/marks/Group';
+import {PipelineRecord} from '../store/factory/Pipeline';
+import {WidgetRecord} from '../store/factory/Widget';
 import {input} from '../util/dataset-utils';
 import duplicate from '../util/duplicate';
 import name from '../util/exportName';
+import exportName from '../util/exportName';
 import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
-import {demonstrationDatasets, demonstrations, editMarks, editScales, editSignals, addSelectionToScene, addApplicationToScene} from './demonstrations';
+import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addVoronoiMark, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup, pushSignalsInScene, getFieldsOfGroup} from './demonstrations';
 import manipulators from './manipulators';
-import exportName from '../util/exportName';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
@@ -34,67 +35,89 @@ let counts = duplicate(SPEC_COUNT);
  * removed (e.g., converting property signal references to actual values). When
  * true, additional mark specifications are also added corresponding to the
  * direct-manipulation interactors (handles, connectors, etc.).
- * @param  {boolean} [preview=false] Should interaction definitions be removed
- * (so that they can be overwritten to display interaction previews).
  * @returns {Object} A Vega specification.
  */
-export function exporter(internal: boolean = false, preview: boolean = false): Spec {
+export function exporter(internal: boolean = false): Spec {
   const state = store.getState();
   const int = internal === true;
-  const prev = preview === true;
 
   counts = duplicate(SPEC_COUNT);
 
-  const spec: Spec = exporter.scene(state, int, prev);
-  spec.data = exporter.pipelines(state, int, prev);
+  let spec: Spec = exporter.scene(state, int);
+  spec.data = exporter.pipelines(state, int);
 
-  // add data stores for demonstration
-  demonstrationDatasets(spec);
-
-  spec.signals = exporter.signals(state, int, prev);
-
-  // Add interactions from store
-  return exporter.interactions(state, spec);
+  // Add interactions and widgets from store
+  spec = exporter.interactions(state, spec);
+  spec = exporter.widgets(state, spec);
+  return spec;
 }
 
 exporter.interactions = function(state: State, spec) {
   state.getIn(['vis', 'present', 'interactions']).forEach((interaction: InteractionRecord) => {
-    if (interaction.selection && interaction.application) {
-      const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
-      const groupName = exportName(group.name);
-      spec = addSelectionToScene(spec, groupName, interaction.selection);
-      spec = addApplicationToScene(spec, groupName, interaction.application);
+    const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
+    const groupName = exportName(group.name);
+    const scaleInfo = getScaleInfoForGroup(state, group._id);
+    const fieldsOfGroup = getFieldsOfGroup(state, group._id);
+    const mouseTypes = group._interactions.map(interactionId => {
+      const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+      if (!interaction.input) { return null; }
+      return interaction.input.mouse;
+    }).filter(x => x);
+    const exclusive = (new Set(mouseTypes)).size !== mouseTypes.length; // if there's more than one drag, for example, drag should not activate when shift+drag activates
+    spec = addDatasetsToScene(spec, groupName, interaction.id);
+    spec = addInputsToScene(spec, groupName, interaction.id, interaction.input, scaleInfo, fieldsOfGroup, exclusive);
+    if (interaction.selection) {
+      spec = addSelectionToScene(spec, groupName, interaction.id, interaction.input, interaction.selection);
     }
+    if (interaction.applications.length) {
+      for (const application of interaction.applications) {
+        spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, application);
+        if (interaction.input && interaction.input.mouse && interaction.input.mouse === 'mouseover' && interaction.input.nearest) {
+          const targetMarkName = (application as any).targetMarkName;
+          if (targetMarkName) {
+            const encoding = interaction.selection && interaction.selection.type === 'point' ? interaction.selection.encoding : null;
+            spec = addVoronoiMark(spec, groupName, encoding, targetMarkName, interaction.id, application.id);
+          }
+        }
+      }
+    }
+    spec = pushSignalsInScene(spec, groupName, interaction.signals);
   });
+
   return spec;
 }
 
-exporter.signals = function(state: State, internal: boolean, preview: boolean) {
-  const interaction = state.getIn(['vis', 'present', 'interactions']).valueSeq().toJS();
-  return interaction.reduce((signals, record) => {
-    if(record.selectionDef && record.selectionDef.label==='Widget') {
-      signals = [...signals, ...record.selectionDef.signals];
+exporter.widgets = function(state: State, spec) {
+  state.getIn(['vis', 'present', 'widgets']).forEach((widget: WidgetRecord) => {
+    const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(widget.groupId)]);
+    const groupName = exportName(group.name);
+    if (widget.selection) {
+      spec = addWidgetSelectionToScene(spec, widget, widget.selection);
     }
-    return signals;
-  }, []);
+    if (widget.applications.length) {
+      for (const application of widget.applications) {
+        spec = addWidgetApplicationToScene(spec, groupName, widget, application);
+      }
+    }
+  });
+
+  return spec;
 }
 
-exporter.pipelines = function(state: State, internal: boolean, preview: boolean) {
-  const pipelines = getInVis(state, 'pipelines')
-    .valueSeq()
-    .toJS();
+exporter.pipelines = function(state: State, internal: boolean) {
+  const pipelines: PipelineRecord[] = getInVis(state, 'pipelines').valueSeq();
   return pipelines.reduce(function(spec, pipeline) {
-    spec.push(exporter.dataset(state, internal, preview, pipeline._source));
+    spec.push(exporter.dataset(state, internal, pipeline._source));
 
-    const aggrs = pipeline._aggregates;
+    const aggrs = pipeline._aggregates.toJS();
     for (const key in aggrs) {
-      spec.push(exporter.dataset(state, internal, preview, aggrs[key]));
+      spec.push(exporter.dataset(state, internal, aggrs[key]));
     }
     return spec;
   }, []);
 };
 
-exporter.dataset = function(state: State, internal: boolean, preview: boolean, id: number) {
+exporter.dataset = function(state: State, internal: boolean, id: number) {
   const dataset = getInVis(state, 'datasets.' + id).toJS(),
     spec = clean(duplicate(dataset), internal),
     values = input(id),
@@ -122,6 +145,12 @@ exporter.dataset = function(state: State, internal: boolean, preview: boolean, i
     spec.transform.push(sort);
   }
 
+  spec.transform.forEach(s => {
+    if (s.type === 'lookup') {
+      s.from = state.getIn(['vis', 'present', 'datasets', s.from, 'name'])
+    }
+  })
+
   return spec;
 };
 
@@ -145,9 +174,9 @@ exporter.sort = function(dataset) {
   };
 };
 
-exporter.scene = function(state: State, internal: boolean, preview: boolean): Mark {
+exporter.scene = function(state: State, internal: boolean): Mark {
   const sceneId = state.getIn(['vis', 'present', 'scene', '_id']);
-  let spec = exporter.group(state, internal, preview, sceneId);
+  let spec = exporter.group(state, internal, sceneId);
 
   if (internal) {
     spec = spec[0];
@@ -161,17 +190,20 @@ exporter.scene = function(state: State, internal: boolean, preview: boolean): Ma
   return spec;
 };
 
-exporter.mark = function(state: State, internal: boolean, preview: boolean, id: number) {
-  const mark = getInVis(state, 'marks.' + id).toJS(),
-    spec = clean(duplicate(mark), internal),
-    up = mark.encode.update,
-    upspec = spec.encode.update;
-  let fromId, count;
+exporter.mark = function(state: State, internal: boolean, id: number) {
+  const mark = getInVis(state, 'marks.' + id).toJS();
+  const spec = clean(duplicate(mark), internal);
+  const up = mark.encode.update;
+  const upspec = spec.encode.update;
+  const facet = mark._facet;
 
-  if (spec.from) {
+  if (facet) {
+    spec.from = {data: facet.name};
+  } else if (spec.from) {
+    let fromId;
     if ((fromId = spec.from.data)) {
       spec.from.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
-      count = counts.data[fromId] || (counts.data[fromId] = duplicate(DATA_COUNT));
+      const count = counts.data[fromId] || (counts.data[fromId] = duplicate(DATA_COUNT));
       count.marks[id] = true;
     } else if ((fromId = spec.from.mark)) {
       spec.from.mark = name(getInVis(state, 'marks.' + fromId + '.name'));
@@ -179,9 +211,9 @@ exporter.mark = function(state: State, internal: boolean, preview: boolean, id: 
   }
 
   Object.keys(upspec).forEach(function(key) {
-    let specVal = upspec[key],
-      origVal = up[key],
-      origScale = origVal.scale;
+    let specVal = upspec[key];
+    const origVal = up[key];
+    const origScale = origVal.scale;
 
     if (!isObject(specVal)) {
       // signalRef resolved to literal
@@ -192,7 +224,7 @@ exporter.mark = function(state: State, internal: boolean, preview: boolean, id: 
     // specVal was replaced above (e.g., scale + signal).
     if (origScale) {
       specVal.scale = name(getInVis(state, 'scales.' + origScale + '.name'));
-      count = counts.scales[origScale] || (counts.scales[origScale] = duplicate(SCALE_COUNT));
+      const count = counts.scales[origScale] || (counts.scales[origScale] = duplicate(SCALE_COUNT));
       count.marks[id] = true;
     }
 
@@ -207,7 +239,15 @@ exporter.mark = function(state: State, internal: boolean, preview: boolean, id: 
     let tmpl = spec.encode.update.text.signal;
     if (tmpl && !tmpl.startsWith('brush')) {
       tmpl = tmpl.split(RegExp('{{(.*?)}}')).map(s => {
-        return s.indexOf('datum') < 0 ? `"${s}"` : `+ ${s} + `
+        if (s.indexOf('datum') >= 0) {
+          return `+ ${s} + `;
+        }
+        else {
+          if (s.startsWith('#')) {
+            return `+ ${s.substring(1)} + `;
+          }
+          return `"${s}"`;
+        }
       }).join('');
       spec.encode.update.text.signal = tmpl;
     }
@@ -215,15 +255,36 @@ exporter.mark = function(state: State, internal: boolean, preview: boolean, id: 
 
   if (internal) {
     spec.role = `lyra_${mark._id}`;
-    return manipulators(mark, spec);
+    const s = manipulators(mark, spec);
+    return facet ? pathgroup(state, s, facet) : s;
   }
 
-  return spec;
+  return facet ? pathgroup(state, spec, facet) : spec;
 };
 
-exporter.group = function(state: State, internal: boolean, preview: boolean, id: number) {
+function pathgroup(state, marks, facet) {
+  return {
+    name: 'pathgroup',
+    type: 'group',
+    from: {
+      facet: {
+        ...facet,
+        data: name(getInVis(state, 'datasets.' + facet.data + '.name'))
+      }
+    },
+    encode: {
+      update: {
+        width: {field: {group: 'width'}},
+        height: {field: {group: 'height'}}
+      }
+    },
+    marks: array(marks)
+  }
+}
+
+exporter.group = function(state: State, internal: boolean, id: number) {
   const mark: GroupRecord = getInVis(state, `marks.${id}`);
-  let spec = exporter.mark(state, internal, preview, id);
+  const spec = exporter.mark(state, internal, id);
   const group = internal ? spec[0] : spec;
 
   ['scale', 'mark', 'axe', 'legend'].forEach(function(childType) {
@@ -235,8 +296,8 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
       .map(cid => {
         const child = getInVis(state, `${storePath}.${cid}`);
         return !child ? null :
-          exporter[child.type] ? exporter[child.type](state, internal, preview, cid) :
-          exporter[childType]  ? exporter[childType](state, internal, preview, cid) :
+          exporter[child.type] ? exporter[child.type](state, internal, cid) :
+          exporter[childType]  ? exporter[childType](state, internal, cid) :
           clean(duplicate(child.toJS()), internal);
       })
       .reduce((children, child) => {
@@ -257,17 +318,15 @@ exporter.group = function(state: State, internal: boolean, preview: boolean, id:
       {name: 'width', value: groupSize(mark, 'x')},
       {name: 'height', value: groupSize(mark, 'y')},
     );
-    // Add demonstrations signal/mark scaffolding
-    demonstrations(group, id, state);
   }
 
   return spec;
 };
 
-exporter.area = function(state: State, internal: boolean, preview: boolean, id: number) {
-  const spec = exporter.mark(state, internal, preview, id),
-    area = internal ? spec[0] : spec,
-    update = area.encode.update;
+exporter.area = function(state: State, internal: boolean, id: number) {
+  const spec = exporter.mark(state, internal, id);
+  const area = array(spec.name === 'pathgroup' ? spec.marks : spec)[0];
+  const update = area.encode.update;
 
   // Export with dummy data to have an initial area appear on the canvas.
   if (!area.from) {
@@ -285,10 +344,10 @@ exporter.area = function(state: State, internal: boolean, preview: boolean, id: 
   return spec;
 };
 
-exporter.line = function(state: State, internal: boolean, preview: boolean, id: number) {
-  const spec = exporter.mark(state, internal, preview, id),
-    line = internal ? spec[0] : spec,
-    update = line.encode.update;
+exporter.line = function(state: State, internal: boolean, id: number) {
+  const spec = exporter.mark(state, internal, id);
+  const line = array(spec.name === 'pathgroup' ? spec.marks : spec)[0];
+  const update = line.encode.update;
 
   // Export with dummy data to have an initial area appear on the canvas.
   if (!line.from) {
@@ -300,7 +359,7 @@ exporter.line = function(state: State, internal: boolean, preview: boolean, id: 
   return spec;
 };
 
-exporter.scale = function(state: State, internal: boolean, preview: boolean, id: number) {
+exporter.scale = function(state: State, internal: boolean, id: number) {
   const scale = getInVis(state, 'scales.' + id).toJS(),
     spec = clean(duplicate(scale), internal);
 
@@ -323,7 +382,7 @@ exporter.scale = function(state: State, internal: boolean, preview: boolean, id:
   return spec;
 };
 
-exporter.axe = exporter.legend = function(state: State, internal: boolean, preview: boolean, id: number) {
+exporter.axe = exporter.legend = function(state: State, internal: boolean, id: number) {
   const guide = getInVis(state, 'guides.' + id).toJS(),
     spec = clean(duplicate(guide), internal),
     gtype = guide._gtype,

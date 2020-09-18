@@ -7,7 +7,15 @@ import {getClosestGroupId} from '../../util/hierarchy';
 
 const assets = require('../../util/assets');
 
-function mapDispatchToProps(dispatch, ownProps) {
+// Currently supported mark types
+// TODO don't repeat this list across the codebase
+const marksArray = ['rect', 'symbol', 'text', 'line', 'area'];
+
+interface DispatchProps {
+  addMark: (type: LyraMarkType) => void;
+}
+
+function mapDispatchToProps(dispatch, ownProps): DispatchProps {
   return {
     addMark: (type) => {
       const newMarkProps = Mark(type, {
@@ -18,15 +26,7 @@ function mapDispatchToProps(dispatch, ownProps) {
   };
 }
 
-// Currently supported mark types
-// TODO don't repeat this list across the codebase
-const marksArray = ['rect', 'symbol', 'text', 'line', 'area'];
-
-interface AddMarksToolProps {
-  addMark: (type: LyraMarkType) => void;
-}
-
-class AddMarksTool extends React.Component<AddMarksToolProps> {
+class AddMarksTool extends React.Component<DispatchProps> {
 
   public classNames: 'new-marks';
   public render() {

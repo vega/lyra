@@ -1,4 +1,3 @@
-const counter = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
 
 import {Dispatch} from 'redux';
@@ -6,10 +5,12 @@ import {createStandardAction} from 'typesafe-actions';
 import {Datum} from 'vega-typings/types';
 import {State} from '../store'
 import {Dataset, DatasetRecord, Schema} from '../store/factory/Dataset';
-import {LyraAggregateTransform, PipelineRecord} from '../store/factory/Pipeline';
+import {LyraAggregateTransform, PipelineRecord, Pipeline} from '../store/factory/Pipeline';
 import * as dsUtil from '../util/dataset-utils';
 import {addDataset} from './datasetActions';
 import {selectPipeline} from './inspectorActions';
+import {assignId} from '../util/counter';
+import {ThunkDispatch} from 'redux-thunk';
 
 /**
  * Action creator to add a new Pipeline in the store. A new pipeline requires
@@ -21,15 +22,56 @@ import {selectPipeline} from './inspectorActions';
  * @returns {Function} An async action function
  */
 export function addPipeline (pipeline: PipelineRecord, ds: DatasetRecord, values: Datum[]) {
-  return function(dispatch: Dispatch) {
-    const pid = pipeline._id || counter.global();
-    const newDs = addDataset(ds.merge({
-      name: pipeline.name + '_source',
+  return function(dispatch: ThunkDispatch<State, any, any>, getState) {
+    const pid = pipeline._id || assignId(dispatch, getState());
+    const dsId = assignId(dispatch, getState());
+    const newDs = ds.merge({
+      _id: dsId,
+      name: `${pipeline.name}_source_${dsId}`,
       _parent: pid
-    }), values);
+    });
 
-    dispatch(newDs);
-    dispatch(baseAddPipeline(pipeline.merge({_id: pid, _source: newDs.payload._id}), pid));
+    dispatch(addDataset(newDs, values));
+    dispatch(baseAddPipeline(pipeline.merge({_id: pid, _source: dsId}), pid));
+    dispatch(selectPipeline(pid));
+  };
+}
+
+/**
+ * Action creator to derive a pipeline based on an existing dataset source.
+ * A derived pipeline shares an existing source dataset.
+ *
+ * @param {Object} pipelineId - The id of the pipeline to derive.
+ * @param {Object} dsId - The Lyra id of the source dataset.
+ * @returns {Function} An async action function
+ */
+export function derivePipeline (pipelineId: number) {
+  return function(dispatch, getState) {
+    const state: State = getState();
+    const pipeline: PipelineRecord = state.getIn(['vis', 'present', 'pipelines', String(pipelineId)]);
+    const srcId = pipeline._source;
+    const srcSchema: Schema = state.getIn(['vis', 'present', 'datasets', String(srcId), '_schema']);
+
+    const dsId = assignId(dispatch, getState());
+    const pid = assignId(dispatch, getState());
+
+    const ds = Dataset({
+      _id: dsId,
+      name: pipeline.get('name') + '_derived_' + dsId,
+      source: String(srcId),
+      transform: [],
+      _schema: srcSchema,
+      _parent: pid
+    });
+
+    const newPipeline = Pipeline({
+      _id: pid,
+      name: `${pipeline.name}_derived`,
+      _source: dsId
+    });
+
+    dispatch(baseAddPipeline(newPipeline, pid));
+    dispatch(addDataset(ds, null));
     dispatch(selectPipeline(pid));
   };
 }
@@ -46,25 +88,25 @@ export function addPipeline (pipeline: PipelineRecord, ds: DatasetRecord, values
 export function aggregatePipeline (id: number, aggregate: LyraAggregateTransform) {
   return function(dispatch, getState) {
     const state: State = getState();
-    const pipeline: PipelineRecord = getInVis(state, 'pipelines.' + id);
+    const pipeline: PipelineRecord = state.getIn(['vis', 'present', 'pipelines', String(id)]);
     const srcId = pipeline._source;
-    const srcSchema: Schema = getInVis(state, 'datasets.' + srcId + '._schema');
+    const srcSchema: Schema = state.getIn(['vis', 'present', 'datasets', String(srcId), '_schema']);
     const schema = dsUtil.aggregateSchema(srcSchema, aggregate);
     const key = (aggregate.groupby as string[]).join('|'); // TODO: vega 2 aggregate.groupby is string[]
 
-    const ds = addDataset(
-      Dataset({
-        name: pipeline.get('name') + '_groupby_' + key,
-        source: String(srcId),
-        transform: [aggregate],
-        _schema: schema,
-        _parent: id
-      }), null
-    );
+    const dsId = assignId(dispatch, getState());
+    const ds = Dataset({
+      _id: dsId,
+      name: pipeline.get('name') + '_groupby_' + key,
+      source: String(srcId),
+      transform: [aggregate],
+      _schema: schema,
+      _parent: id
+    });
 
-    dispatch(ds);
+    dispatch(addDataset(ds, null));
     dispatch(baseAggregatePipeline({
-      dsId: aggregate._id = ds.payload._id,
+      dsId: aggregate._id = dsId,
       key: key
     }, id));
   };
@@ -72,5 +114,5 @@ export function aggregatePipeline (id: number, aggregate: LyraAggregateTransform
 
 // action creators prefixed with "base" should only be called by their redux-thunk function wrappers - jzong
 export const baseAddPipeline = createStandardAction('ADD_PIPELINE')<PipelineRecord, number>();
-export const baseAggregatePipeline = createStandardAction('AGGREGATE_PIPELINE')<{dsId: number, key: any}, number>();
+export const baseAggregatePipeline = createStandardAction('AGGREGATE_PIPELINE')<{dsId: number, key: string}, number>();
 export const updatePipelineProperty = createStandardAction('UPDATE_PIPELINE_PROPERTY')<{property: string, value: any}, number>();

@@ -5,6 +5,8 @@ import {State} from '../../store';
 import {AxisRecord, Guide, GuideType, LegendRecord} from '../../store/factory/Guide';
 import {addGuide} from '../guideActions';
 import {addAxisToGroup, addLegendToGroup} from './helperActions';
+import {assignId} from '../../util/counter';
+import {ThunkDispatch} from 'redux-thunk';
 
 const imutils = require('../../util/immutable-utils'),
   getIn = imutils.getIn,
@@ -66,7 +68,7 @@ export default function parseGuides(dispatch: Dispatch, state: State, parsed: Co
  * @param  {Object} defs  All parsed Vega axis definitions.
  * @returns {void}
  */
-function findOrCreateAxis(dispatch: Dispatch, state: State, parsed: CompiledBinding, scaleId: number, defs: Axis[]) {
+function findOrCreateAxis(dispatch: ThunkDispatch<State, any, any>, state: State, parsed: CompiledBinding, scaleId: number, defs: Axis[]) {
   const map = parsed.map,
     mark = parsed.mark,
     parentId = mark._parent,
@@ -128,9 +130,10 @@ function findOrCreateAxis(dispatch: Dispatch, state: State, parsed: CompiledBind
       encode: def[0].encode
     });
 
-    const axisAction = addGuide(axis);
-    dispatch(axisAction);
-    dispatch(addAxisToGroup(axisAction.meta, parentId));
+    const axisId = assignId(dispatch, state);
+    axis = axis.merge({_id: axisId});
+    dispatch(addGuide(axis));
+    dispatch(addAxisToGroup(axisId, parentId));
   }
 }
 
@@ -146,7 +149,7 @@ function findOrCreateAxis(dispatch: Dispatch, state: State, parsed: CompiledBind
  * @param  {Object} defs  All parsed Vega legend definitions.
  * @returns {void}
  */
-function findOrCreateLegend(dispatch: Dispatch, state: State, parsed, scaleId: number, defs) {
+function findOrCreateLegend(dispatch: ThunkDispatch<State, any, any>, state: State, parsed, scaleId: number, defs) {
   const map = parsed.map,
     mark = parsed.mark,
     property = parsed.property,
@@ -172,8 +175,9 @@ function findOrCreateLegend(dispatch: Dispatch, state: State, parsed, scaleId: n
       encode: def.encode
     });
 
-    const legendAction = addGuide(legend);
-    dispatch(legendAction);
-    dispatch(addLegendToGroup(legendAction.meta, parentId));
+    const legendId = assignId(dispatch, state);
+    legend = legend.merge({_id: legendId});
+    dispatch(addGuide(legend));
+    dispatch(addLegendToGroup(legendId, parentId));
   }
 }

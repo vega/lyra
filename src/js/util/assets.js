@@ -30,6 +30,7 @@ module.exports = {
   sortNumericAsc: require('../../assets/sort-numeric-asc.svg'),
   sortNumericDesc: require('../../assets/sort-numeric-desc.svg'),
   filter: require('../../assets/filter.svg'),
+  lookup: require('../../assets/lookup.svg'),
   formula: require('../../assets/formula.svg'),
   aggregate: require('../../assets/aggregate.svg'),
   download: require('../../assets/download.svg'),

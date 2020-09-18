@@ -5,6 +5,7 @@ import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as sceneActions from '../actions/sceneActions';
 import * as interactionActions from '../actions/interactionActions';
+import * as widgetActions from '../actions/widgetActions';
 import {MarkRecord, MarkState} from '../store/factory/Mark';
 import {SceneRecord} from '../store/factory/marks/Scene';
 import {convertValuesToSignals, propSg} from '../util/prop-signal';
@@ -36,11 +37,10 @@ const ensureValueAbsent = function(state: MarkState, path: string[], valToRemove
 // within the store.
 // "state" is the marks store state; "action" is an object with a numeric
 // `._id`, string `.name`, and object `.props` defining the mark to be created.
-function makeMark(action: ActionType<typeof markActions.addMark | typeof sceneActions.createScene>): MarkRecord {
+function makeMark(action: ActionType<typeof markActions.baseAddMark | typeof sceneActions.baseCreateScene>): MarkRecord {
   const def: MarkRecord | SceneRecord = action.payload.props;
   const props = def.encode && def.encode.update;
   return def.encode ? (def as any).merge({
-    // TODO(jzong) typescript barfs when calling merge on union record types
     encode: {
       update: convertValuesToSignals(props, (def as MarkRecord).type, action.meta)
     }
@@ -151,9 +151,10 @@ export function marksReducer(
   action:
     | ActionType<typeof markActions>
     | ActionType<typeof helperActions>
-    | ActionType<typeof sceneActions.createScene>
+    | ActionType<typeof sceneActions.baseCreateScene>
     | ActionType<typeof guideActions.deleteGuide>
     | ActionType<typeof interactionActions.deleteInteraction>
+    | ActionType<typeof widgetActions.deleteWidget>
 ): MarkState {
   if (typeof state === 'undefined') {
     return Map();
@@ -161,11 +162,11 @@ export function marksReducer(
 
   const markId = action.meta;
 
-  if (action.type === getType(sceneActions.createScene)) {
+  if (action.type === getType(sceneActions.baseCreateScene)) {
     return state.set(String(markId), makeMark(action));
   }
 
-  if (action.type === getType(markActions.addMark)) {
+  if (action.type === getType(markActions.baseAddMark)) {
     // Make the mark and .set it at the provided ID, then pass it through a
     // method that will check to see whether the mark needs to be added as
     // a child of another mark
@@ -245,6 +246,10 @@ export function marksReducer(
     return ensureValuePresentImmutable(state, [String(groupId), '_interactions'], action.payload);
   }
 
+  if (action.type === getType(helperActions.addWidgetToGroup)) {
+    return ensureValuePresentImmutable(state, [String(groupId), '_widgets'], action.payload);
+  }
+
   const id = action.meta;
 
   if (action.type === getType(guideActions.deleteGuide)) {
@@ -254,6 +259,10 @@ export function marksReducer(
 
   if (action.type === getType(interactionActions.deleteInteraction)) {
     return ensureValueAbsent(state, [String(action.payload.groupId), '_interactions'], id);
+  }
+
+  if (action.type === getType(widgetActions.deleteWidget)) {
+    return ensureValueAbsent(state, [String(action.payload.groupId), '_widgets'], id);
   }
 
   return state;

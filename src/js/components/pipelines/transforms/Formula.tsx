@@ -3,6 +3,7 @@ import {FormulaTransform} from 'vega';
 import parseExpr from 'vega-parser/src/parsers/expression';
 import {Property} from '../../inspectors/Property';
 
+const ctrl = require('../../../ctrl');
 
 interface OwnProps {
   dsId: number;
@@ -18,9 +19,17 @@ export class Formula extends React.Component<OwnProps> {
     const def = props.def;
     const as = evt.target ? evt.target.value : def.as;
     const expr = evt.target ? def.expr : evt;
-
+    if (!ctrl.view) {
+      setTimeout(() => {
+        this.updateFormula(evt);
+      }, 100);
+      return;
+    }
     try {
-      parseExpr(expr);
+      parseExpr(expr, {
+        getSignal: (n) => ctrl.view.signal(n),
+        signalRef: () => null
+      });
       props.update({type: 'formula', as, expr});
     } catch (e) {
       // TODO: Indicate error in parsing expression.

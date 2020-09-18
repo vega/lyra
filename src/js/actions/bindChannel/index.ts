@@ -8,6 +8,7 @@ import {batchGroupBy} from '../../reducers/historyOptions';
 import {LyraVegaLiteSpec, Mark, MarkRecord} from '../../store/factory/Mark';
 import duplicate from '../../util/duplicate';
 import {setVlUnit} from '../markActions';
+import updateAggregateDependencies from './aggregateDependencies';
 import cleanupUnused from './cleanupUnused';
 import parseData from './parseData';
 import parseGuides from './parseGuides';
@@ -16,8 +17,7 @@ import parseScales from './parseScales';
 
 const AGGREGATE_OPS = require('../../constants/aggregateOps'),
   getInVis = require('../../util/immutable-utils').getInVis,
-  dsUtils = require('../../util/dataset-utils'),
-  updateAggregateDependencies = require('./aggregateDependencies');
+  dsUtils = require('../../util/dataset-utils');
 
 // Vega mark types to Vega-Lite mark types.
 const TYPES = {
@@ -185,7 +185,7 @@ function map(vlUnit) {
  * @param   {string} name A Vega mark property.
  * @returns {string}      A Vega-Lite encoding channel.
  */
-function channelName(name: string): Channel {
+export function channelName(name: string): Channel {
   //  We don't use Vega-Lite's x2/y2 channels because a user may bind them
   //  first in Lyra which Vega-Lite does not expect.
   switch (name) {
@@ -202,6 +202,10 @@ function channelName(name: string): Channel {
     case 'fill':
     case 'stroke':
       return 'color';
+    case 'size':
+    case 'text':
+    case 'detail':
+      return name;
   }
 }
 

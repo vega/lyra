@@ -2,46 +2,94 @@
 const getInVis = require('../../util/immutable-utils').getInVis;
 
 // TODO: derived fields?
-const SPAN_OPEN  = '<span class="field source" contenteditable="false">';
+const SPAN_OPEN = '<span class="';
+const SPAN_FIELD_OPEN  = '<span class="field source" contenteditable="false">';
+const SPAN_SIGNAL_OPEN  = '<span class="signal" contenteditable="false">';
 const SPAN_CLOSE = '</span>';
 const DATUM = 'datum.';
+const SIGNALNAME = '#';
 const TMPL_OPEN  = '{{';
 const TMPL_CLOSE = '}}';
-const TMPL_DATUM = new RegExp(TMPL_OPEN + DATUM + '*' + TMPL_CLOSE);
+const TMPL_RE = new RegExp(TMPL_OPEN + '.*' + TMPL_CLOSE);
+const SPAN_RE = new RegExp('(' + SPAN_FIELD_OPEN + '|' + SPAN_SIGNAL_OPEN + ').*' + SPAN_CLOSE);
 
 import * as React from 'react';
 import ContentEditable from 'react-contenteditable';
 import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
+import {AnyAction} from 'redux';
+import {ThunkDispatch} from 'redux-thunk';
+import {updateMarkProperty} from '../../actions/markActions';
+import {setSignalPush} from '../../actions/interactionActions';
+import {PrimType} from '../../constants/primTypes';
 import {State} from '../../store';
 import {Schema} from '../../store/factory/Dataset';
+import {FieldDraggingStateRecord, DraggingStateRecord, SignalDraggingStateRecord} from '../../store/factory/Inspector';
+import {InteractionRecord} from '../../store/factory/Interaction';
+import {WidgetRecord} from '../../store/factory/Widget';
+
+interface OwnState {
+  html: string
+}
 
 interface OwnProps {
   type: 'expr' | 'tmpl';
   dsId: number,
+  primId: number,
+  primType: PrimType,
   value: string,
   updateFn: (evt) => void
 }
 
 interface StateProps {
   fields: string[];
+  signals: string[];
+  dragging: DraggingStateRecord;
 }
 
-interface OwnState {
-  html: string
+interface DispatchProps {
+  setDsId: (data: number) => void;
+  setSignalPush: (signalName: string, push: boolean, id: number) => void;
 }
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const schema: Schema = getInVis(reduxState, 'datasets.' + ownProps.dsId + '._schema');
+  const interactions: InteractionRecord[] = reduxState.getIn(['vis', 'present', 'interactions']).valueSeq().toArray();
+  const interactionSignals = [].concat.apply([], interactions.filter(interaction => interaction.signals.length).map(interaction => interaction.signals.map(signal => signal.signal)));
+  const widgets: WidgetRecord[] = reduxState.getIn(['vis', 'present', 'widgets']).valueSeq().toArray();
+  const widgetSignals = [].concat.apply([], widgets.filter(widget => widget.signals.length).map(widget => widget.signals.map(signal => signal.signal)));
   return {
-    fields: schema ? schema.keySeq().toJS() : []
+    fields: schema ? schema.keySeq().toJS() : [],
+    signals: interactionSignals.concat(widgetSignals),
+    dragging: reduxState.getIn(['inspector', 'dragging'])
   };
 }
 
-class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> {
+function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, ownProps: OwnProps) {
+  return {
+    setDsId(data: number) {
+      dispatch(updateMarkProperty({property: 'from', value: {data}}, ownProps.primId));
+    },
+    setSignalPush(signalName, push, id) {
+      dispatch(setSignalPush({[signalName]: push}, id));
+    }
+  }
+}
+
+class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
   constructor(props) {
     super(props);
     this.state = {html: this.toHtml(props.value || '')};
+  };
+
+  public componentDidUpdate(prevProps) {
+    if (this.props.dsId !== prevProps.dsId) {
+      this.props.updateFn(this.fromHtml(this.state.html));
+
+    }
+    if (this.props.value !== prevProps.value) {
+      this.setState({html: this.toHtml(this.props.value || '')});
+    }
   };
 
   public componentDidMount() {
@@ -58,7 +106,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
       },
       index: 1,
       replace: function(word) {
-        return SPAN_OPEN + word + SPAN_CLOSE + ' ';
+        return SPAN_FIELD_OPEN + word + SPAN_CLOSE + ' ';
       }
     }];
 
@@ -83,70 +131,148 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
   }
 
   public exprToHtml(str: string) {
-    str = str.split(DATUM).join('');
-    return this.wrapStr(str, SPAN_OPEN, SPAN_CLOSE);
+    const fields = this.props.fields;
+    const signals = this.props.signals;
+
+    const fieldRe = new RegExp(fields.map(s => DATUM + s).join('|'), 'g');
+    const signalRe = new RegExp(signals.join('|'), 'g');
+
+    str = str.replace(fieldRe, (match) => {
+      if (match) {
+        return SPAN_FIELD_OPEN + match.substring(DATUM.length) + SPAN_CLOSE
+      }
+      return match;
+    });
+    str = str.replace(signalRe, (match) => {
+      if (match) {
+        return SPAN_SIGNAL_OPEN + match + SPAN_CLOSE
+      }
+      return match;
+    });
+
+    return str;
   };
 
   public htmlToExpr(html) {
-    html = html.split(SPAN_OPEN).join('');
-    html = html.split(SPAN_CLOSE).join('');
-    return this.htmlDecode(this.wrapStr(html, DATUM, ''));
+    return this.htmlDecode(this.wrapTokensExpr(this.htmlToTokens(html)));
   };
 
   public tmplToHtml(str) {
-    let position = str.search(TMPL_DATUM);
-    let next;
-    let nextStr;
-    let end;
+    const tokens = [];
+    let searchStr = str;
+    let position = searchStr.search(TMPL_RE);
 
     while (position !== -1) {
-      next = position + TMPL_OPEN.length + DATUM.length;
-      nextStr = str.substring(next);
-      end = nextStr.search('}}');
-      str = str.substring(0, position) + nextStr.substring(0, end) +
-        nextStr.substring(end + 2);
-      position = str.search(TMPL_DATUM);
-    }
+      tokens.push({
+        type: 'literal',
+        str: searchStr.substring(0, position)
+      });
 
-    str = this.wrapStr(str, SPAN_OPEN, SPAN_CLOSE);
-    return str;
+      const next = position + TMPL_OPEN.length;
+      const nextStr = searchStr.substring(next);
+      const end = nextStr.search(TMPL_CLOSE);
+      if (nextStr.startsWith(SIGNALNAME)) {
+        tokens.push({
+          type: 'signal',
+          str: nextStr.substring(SIGNALNAME.length, end)
+        });
+      }
+      else if (nextStr.startsWith(DATUM)) {
+        tokens.push({
+          type: 'field',
+          str: nextStr.substring(DATUM.length, end)
+        });
+      }
+
+      searchStr = nextStr.substring(end + TMPL_CLOSE.length);
+      position = searchStr.search(TMPL_RE);
+    }
+    tokens.push({
+      type: 'literal',
+      str: searchStr
+    });
+
+    return this.wrapTokensHtml(tokens);
   };
+
+  private htmlToTokens(html) {
+    const tokens = [];
+    let searchStr = html;
+    let position = searchStr.search(SPAN_RE);
+
+    while (position !== -1) {
+      tokens.push({
+        type: 'literal',
+        str: searchStr.substring(0, position)
+      });
+
+      const next = position + SPAN_OPEN.length;
+      const nextStr = searchStr.substring(next);
+      const end = nextStr.search(SPAN_CLOSE);
+      if (nextStr.startsWith('signal')) {
+        tokens.push({
+          type: 'signal',
+          str: nextStr.substring(SPAN_SIGNAL_OPEN.length - SPAN_OPEN.length, end)
+        });
+      }
+      else if (nextStr.startsWith('field')) {
+        tokens.push({
+          type: 'field',
+          str: nextStr.substring(SPAN_FIELD_OPEN.length - SPAN_OPEN.length, end)
+        });
+      }
+
+      searchStr = nextStr.substring(end + SPAN_CLOSE.length);
+      position = searchStr.search(SPAN_RE);
+    }
+    tokens.push({ // TODO detect field names within literals (typed in instead of dragged in)
+      type: 'literal',
+      str: searchStr
+    });
+    return tokens;
+  }
 
   public htmlToTmpl(html) {
-    html = html.split(SPAN_OPEN).join('');
-    html = html.split(SPAN_CLOSE).join('');
-    return this.htmlDecode(this.wrapStr(html, TMPL_OPEN + DATUM, TMPL_CLOSE));
+    return this.htmlDecode(this.wrapTokensTmpl(this.htmlToTokens(html)));
   };
 
-  public wrapStr(str, pre, post) {
-    const fields = this.props.fields;
-    const extraLen = pre.length + post.length;
-    let position;
-    let searched;
-    let nextStr;
-
-    for (const field of fields) {
-      position = str.search(field);
-      searched = 0
-
-      while (position !== -1) {
-        position += searched;
-        str = str.substring(0, position) + pre +
-          str.substring(position, position + field.length) + post +
-          str.substring(position + field.length);
-        searched = position + field.length + extraLen;
-        nextStr = str.substring(searched);
-        position = nextStr.search(field);
+  public wrapTokensHtml(tokens: any[]) {
+    return tokens.map(token => {
+      if (token.type === 'field') {
+        return SPAN_FIELD_OPEN + token.str + SPAN_CLOSE;
       }
-    }
+      if (token.type === 'signal') {
+        return SPAN_SIGNAL_OPEN + token.str + SPAN_CLOSE;
+      }
+      return token.str;
+    }).join('');
+  }
 
-    return str;
-  };
+  public wrapTokensExpr(tokens: any[]) {
+    return tokens.map(token => {
+      if (token.type === 'field') {
+        return DATUM + token.str;
+      }
+      return token.str;
+    }).join('');
+  }
+
+  public wrapTokensTmpl(tokens: any[]) {
+    return tokens.map(token => {
+      if (token.type === 'field') {
+        return TMPL_OPEN + DATUM + token.str + TMPL_CLOSE;
+      }
+      if (token.type === 'signal') {
+        return TMPL_OPEN + SIGNALNAME + token.str + TMPL_CLOSE;
+      }
+      return token.str;
+    }).join('');
+  }
 
   public htmlDecode(input) {
-    const e = document.createElement('div');
-    e.innerHTML = input;
-    return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue;
+    var txt = document.createElement('textarea');
+    txt.innerHTML = input;
+    return txt.value;
   };
 
   public handleChange = (evt) => {
@@ -164,12 +290,39 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
   };
 
   public handleDrop = (evt)  => {
-    const dt = evt.dataTransfer;
-    const dsId = dt.getData('dsId');
-    const fieldDef = JSON.parse(dt.getData('fieldDef'));
-    const html = this.state.html + SPAN_OPEN + fieldDef.name + SPAN_CLOSE;
-    this.props.updateFn(this.fromHtml(html));
-    this.setState({html});
+    const props = this.props;
+    let dragging = props.dragging;
+    if ((dragging as FieldDraggingStateRecord).dsId) {
+      dragging = dragging as FieldDraggingStateRecord;
+      const fieldName = dragging.fieldDef.name;
+      const currHtml = (this.state.html === 'Text' ? '' : this.state.html);
+      const decode = this.htmlDecode(currHtml);
+      let cursorPosition = decode.indexOf(window.getSelection().anchorNode.textContent);
+      cursorPosition = cursorPosition > -1 ? cursorPosition + window.getSelection().anchorOffset : decode.length;
+      cursorPosition = cursorPosition > decode.length ? decode.length : cursorPosition;
+      const html = decode.substring(0, cursorPosition) + SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE + decode.substring(cursorPosition);
+      if (!props.dsId && dragging.dsId && props.primType === 'marks') {
+        props.setDsId(dragging.dsId);
+      }
+      props.updateFn(this.fromHtml(html));
+      this.setState({html});
+    }
+    else if ((dragging as SignalDraggingStateRecord).signal) {
+      dragging = dragging as SignalDraggingStateRecord;
+      if (dragging.interactionId) {
+        this.props.setSignalPush(dragging.signal, true, dragging.interactionId);
+      }
+      const signalName = dragging.signal;
+      const currHtml = (this.state.html === 'Text' ? '' : this.state.html);
+      const decode = this.htmlDecode(currHtml);
+      let cursorPosition = decode.indexOf(window.getSelection().anchorNode.textContent);
+      cursorPosition = cursorPosition > -1 ? cursorPosition + window.getSelection().anchorOffset : decode.length;
+      cursorPosition = cursorPosition > decode.length ? decode.length : cursorPosition;
+      const html = decode.substring(0, cursorPosition) + SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE + decode.substring(cursorPosition);
+      props.updateFn(this.fromHtml(html));
+      this.setState({html});
+    }
+
   };
 
   public render() {
@@ -181,4 +334,4 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps, OwnState> 
     );
   }
 };
-export const AutoComplete = connect(mapStateToProps)(BaseAutoComplete);
+export const AutoComplete = connect(mapStateToProps, mapDispatchToProps)(BaseAutoComplete);

@@ -1,7 +1,8 @@
 import {ActionType, getType} from 'typesafe-actions';
 import * as inspectorActions from '../actions/inspectorActions';
-import * as markActions from '../actions/markActions';
 import * as interactionActions from '../actions/interactionActions';
+import * as widgetActions from '../actions/widgetActions';
+import * as markActions from '../actions/markActions';
 import {ExpandedLayers, Inspector, InspectorRecord} from '../store/factory/Inspector';
 
 function expandLayers(state: InspectorRecord, layerIds: number[]): InspectorRecord {
@@ -10,7 +11,7 @@ function expandLayers(state: InspectorRecord, layerIds: number[]): InspectorReco
   }, state);
 }
 
-export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.addMark | typeof interactionActions.addInteraction>): InspectorRecord {
+export function inspectorReducer(state: InspectorRecord, action: ActionType<typeof inspectorActions | typeof markActions.baseAddMark | typeof interactionActions.baseAddInteraction | typeof widgetActions.baseAddWidget>): InspectorRecord {
   if (typeof state === 'undefined') {
     return Inspector();
   }
@@ -19,20 +20,34 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
     return state.setIn(['pipelines', 'selectedId'], action.payload);
   }
 
+  if (action.type === getType(inspectorActions.startDragging)) {
+    return state.setIn(['dragging'], action.payload);
+  }
+
+  if (action.type === getType(inspectorActions.stopDragging)) {
+    return state.setIn(['dragging'], null);
+  }
+
   if (action.type === getType(inspectorActions.baseSelectMark) ||
     action.type === getType(inspectorActions.selectScale) ||
     action.type === getType(inspectorActions.selectInteraction) ||
+    action.type === getType(inspectorActions.selectWidget) ||
     action.type === getType(inspectorActions.selectGuide)) {
     state = state.setIn(['encodings', 'selectedId'], action.payload);
     state = state.setIn(['encodings', 'selectedType'], action.type);
   }
 
-  if (action.type === getType(interactionActions.addInteraction)) {
+  if (action.type === getType(interactionActions.baseAddInteraction)) {
     state = state.setIn(['encodings', 'selectedId'], action.meta);
     state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.selectInteraction));
   }
 
-  if (action.type === getType(markActions.addMark)) {
+  if (action.type === getType(widgetActions.baseAddWidget)) {
+    state = state.setIn(['encodings', 'selectedId'], action.meta);
+    state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.selectWidget));
+  }
+
+  if (action.type === getType(markActions.baseAddMark)) {
       state = state.setIn(['encodings', 'selectedId'], action.meta);
       state = state.setIn(['encodings', 'selectedType'], getType(inspectorActions.baseSelectMark));
   }
@@ -42,7 +57,7 @@ export function inspectorReducer(state: InspectorRecord, action: ActionType<type
   }
 
   // Auto-select new marks
-  if (action.type === getType(markActions.addMark)) {
+  if (action.type === getType(markActions.baseAddMark)) {
     const layers: ExpandedLayers = {};
     layers[action.payload.props._parent] = true;
     if (action.payload.props.type === 'group') {

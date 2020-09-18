@@ -83,7 +83,7 @@ class BaseSpatialPreset extends React.Component<OwnProps & StateProps & Dispatch
       return (scale && scale.get('type') === 'ordinal' && !scale.get('points')) ? (
         <label>
           <input type='checkbox' name={name} checked={props.band}
-            onChange={this.handleChange} /> Automatic
+            onChange={(e) => this.handleChange(e)} /> Automatic
         </label>
       ) : null;
     }
@@ -91,7 +91,7 @@ class BaseSpatialPreset extends React.Component<OwnProps & StateProps & Dispatch
     return (
       <label>
         <input type='checkbox' name={name} checked={props.group}
-          onChange={this.handleChange} /> Set to group {preset}
+          onChange={(e) => this.handleChange(e)} /> Set to group {preset}
       </label>
     );
   }

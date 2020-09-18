@@ -8,8 +8,13 @@ import { Dispatch } from 'redux';
 import {resetMarkVisual} from '../../actions/markActions';
 import {PrimType} from '../../constants/primTypes';
 import {State} from '../../store';
+import {DraggingStateRecord} from '../../store/factory/Inspector';
 import {AutoComplete} from './AutoComplete';
 import {FormInputProperty} from './FormInputProperty';
+
+interface OwnState {
+  dragOver?: number;
+}
 
 // hunch: probably actually needs to be a bunch of different types anded to a base type
 // instead of one type with everything optional
@@ -20,11 +25,11 @@ interface OwnProps {
   name?: string;
   label?: string;
   dsId?: number;
-  autoType?: string;
+  autoType?: 'expr' | 'tmpl';
   onChange?: (value) => void;
   type?: string;
   firstChild?: boolean;
-  canDrop?: boolean;
+  droppable?: boolean;
   opts?: string[];
   value?: any;
 }
@@ -37,6 +42,7 @@ interface StateProps {
   scale?:  any;
   srcField?:  any;
   scaleName?: any;
+  dragging?: DraggingStateRecord
 }
 
 interface DispatchProps {
@@ -75,7 +81,8 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
     scale:  scale,
     srcField:  dsId && field ?
       getInVis(reduxState, 'datasets.' + dsId + '._schema.' + field + '.source') : false,
-    scaleName: scaleName
+    scaleName: scaleName,
+    dragging: reduxState.getIn(['inspector', 'dragging'])
   };
 }
 
@@ -87,7 +94,12 @@ function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchPro
   };
 }
 
-class BaseProperty extends React.Component</*OwnProps & StateProps & DispatchProps*/ any> {
+class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
+  constructor(props) {
+    super(props);
+    this.state = {dragOver: 0};
+  };
+
   public render() {
     const props = this.props;
     const name  = props.name;
@@ -96,6 +108,7 @@ class BaseProperty extends React.Component</*OwnProps & StateProps & DispatchPro
     const scale = props.scale;
     const field = props.field;
     const unbind = props.unbind;
+    let dragOver = this.state.dragOver;
     let labelEl;
     let scaleEl;
     let controlEl;
@@ -125,12 +138,13 @@ class BaseProperty extends React.Component</*OwnProps & StateProps & DispatchPro
         case 'autocomplete':
           controlEl = (
             <AutoComplete type={props.autoType} updateFn={props.onChange}
-              value={props.value} dsId={props.dsId}/>
+              value={props.value} dsId={props.dsId}
+              primId={props.primId} primType={props.primType} />
           );
           break;
         default:
           controlEl = (
-            <FormInputProperty {...props} />
+            <FormInputProperty {...props as any} />
           );
       }
     }
@@ -139,11 +153,15 @@ class BaseProperty extends React.Component</*OwnProps & StateProps & DispatchPro
       extraEl = (<div className='extra'>{extraEl}</div>);
     }
 
-    const className = 'property' + (props.canDrop ? ' can-drop' : '') +
+    const className = 'property' +
+      (props.droppable && props.dragging ? ' droppable' : '') +
+      (props.droppable && dragOver ? ' drag-over' : '') +
       (props.firstChild ? ' first-child' : '');
 
     return (
-      <div className={className}>
+      <div className={className}
+        onDragEnter={() => this.setState({dragOver: ++dragOver})}
+        onDragLeave={() => this.setState({dragOver: --dragOver})}>
         {labelEl}
         <div className='control'>
           {scaleEl}

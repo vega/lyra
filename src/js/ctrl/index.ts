@@ -99,7 +99,11 @@ ctrl.parse = function(el: string) {
         return;
       }
       // Recreate the vega spec
-      resolve(vg.parse(ctrl.manipulators()));
+      try {
+        resolve(vg.parse(ctrl.manipulators()));
+      } catch (e) {
+        console.error(e);
+      }
     }, 10);
   });
 

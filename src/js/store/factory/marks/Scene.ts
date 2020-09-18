@@ -4,10 +4,12 @@ import {Spec} from 'vega-typings';
 export type LyraScene = {
   _id: number;
   name: string;
+  type: string;
 } & Spec;
 
 export const Scene = Record<LyraScene>({
   _id: null,
+  type: 'scene',
   name: 'Scene',
   background: 'white',
   autosize: 'pad',

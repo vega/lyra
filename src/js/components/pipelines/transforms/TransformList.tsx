@@ -43,17 +43,18 @@ class TransformList extends React.Component<OwnProps & StateProps, OwnState> {
 
   public render() {
     const props = this.props;
-    const transforms = props.transforms;
+    const transforms = props.transforms.filter(transform => {
+      return transform.type !== 'aggregate';
+    });
     const aggregate  = transforms ? transforms.length === 1 &&
           transforms[0].type === 'aggregate' : false;
     const dsId = props.dsId;
 
-    return transforms && !aggregate ? (
+    return transforms && transforms.length && !aggregate ? (
       <div className='transform-list'>
         {transforms.map(function(transform, i) {
-          return transform.type === 'aggregate' || transform.type === 'identifier' ? null : (
-            <TransformInspector key={i} index={i} dsId={dsId} def={transform} expanded={this.state.expandedIndex === i} setExpandedIndex={(i) => this.setExpandedIndex(i)} />
-          );
+          if (transform.type === 'identifier') return null; // important not to filter these out beforehand to keep the indexes correctly matching the store
+          return <TransformInspector key={i} index={i} dsId={dsId} def={transform} expanded={this.state.expandedIndex === i} setExpandedIndex={(i) => this.setExpandedIndex(i)} />;
         }, this)}
       </div>
     ) : null;

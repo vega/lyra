@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {View, parse, Spec} from 'vega';
-import {ApplicationRecord, SelectionRecord, TransformApplicationRecord} from '../../store/factory/Interaction';
+import {ApplicationRecord, SelectionRecord, TransformApplicationRecord, InteractionRecord} from '../../store/factory/Interaction';
 import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview} from '../../ctrl/demonstrations';
 
 const listeners = require('../../ctrl/listeners');
@@ -8,7 +8,9 @@ const ctrl = require('../../ctrl');
 
 interface OwnProps {
   id: string,
+  interaction: InteractionRecord,
   groupName: string, // name of group mark (view) this preview is attached to,
+  applicationPreviews: ApplicationRecord[];
   preview: SelectionRecord | ApplicationRecord
 }
 interface OwnState {
@@ -20,32 +22,45 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     super(props);
   }
 
-  private width = 60; // these should match baseSignals in demonstrations.ts
-  private height = 60; //
+  private width = 75; // these should match baseSignals in demonstrations.ts
+  private height = 75; //
 
   private previewToSpec(preview: SelectionRecord | ApplicationRecord): Spec {
-    // const spec = ctrl.export(false, true);
     const groupName = (preview as TransformApplicationRecord).targetGroupName || this.props.groupName;
-    const spec = cleanSpecForPreview(ctrl.export(false, true), groupName);
+    let spec = cleanSpecForPreview(ctrl.export(false), this.width, this.height, groupName, this.props.interaction.id);
 
     switch (preview.type) {
       case 'point':
+        let defaultApplication;
+        if (this.props.interaction.applications.length) {
+          defaultApplication = this.props.interaction.applications.find(application => {
+            return application.type === 'mark';
+          });
+        }
+        if (!defaultApplication && this.props.applicationPreviews.length) {
+          defaultApplication = this.props.applicationPreviews.find(application => {
+            return application.type === 'mark';
+          });
+        }
+        if (defaultApplication) {
+          spec = addApplicationToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, defaultApplication);
+        }
       case 'interval':
-        return addSelectionToScene(spec, this.props.groupName, preview as SelectionRecord);
+        return addSelectionToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, preview as SelectionRecord);
       case 'mark':
       case 'scale':
       case 'transform':
-        return addApplicationToScene(spec, this.props.groupName, preview as ApplicationRecord);
+        if (this.props.interaction.selection) {
+          spec = addSelectionToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, this.props.interaction.selection);
+        }
+        return addApplicationToScene(spec, this.props.groupName, this.props.interaction.id, this.props.interaction.input, preview as ApplicationRecord);
     }
-    // console.warn('expected switch to be exhaustive');
-    return spec;
   }
 
   private view;
 
   public componentDidMount() {
     const spec = this.previewToSpec(this.props.preview);
-
     this.view = new View(parse(spec), {
       renderer:  'svg',  // renderer (canvas or svg)
       container: `#${this.props.groupName}-${this.props.id}`   // parent DOM container
@@ -56,7 +71,7 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   }
 
   public componentDidUpdate(prevProps: OwnProps) {
-    if (prevProps.groupName !== this.props.groupName) { // TODO: react is being inefficient by reusing this component across groups :(
+    if (prevProps.groupName !== this.props.groupName || prevProps.interaction !== this.props.interaction) {
       const spec = this.previewToSpec(this.props.preview);
 
       this.view = new View(parse(spec), {
@@ -73,17 +88,17 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     const wScale = this.width/640; // preview width / main view width
     const hScale = this.height/360; // preview height / main view height
 
-    if (name === 'brush_x') {
+    if (name.startsWith('brush_x')) {
       return value.map(n => {
         return n * wScale;
       });
     }
-    if (name === 'brush_y') {
+    if (name.startsWith('brush_y')) {
       return value.map(n => {
         return n * hScale;
       });
     }
-    if (name === 'grid_translate_delta') {
+    if (name.startsWith('grid_translate_delta')) {
       return value ? {
         x: value.x * wScale,
         y: value.y * hScale

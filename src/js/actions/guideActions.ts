@@ -1,15 +1,17 @@
 import {createStandardAction} from 'typesafe-actions';
 import {GuideRecord} from '../store/factory/Guide';
+import {Dispatch} from 'redux';
+import {State} from '../store';
+import {assignId} from '../util/counter';
 
-const counter = require('../util/counter');
+export function addGuide (payload: GuideRecord) {
+  return function(dispatch: Dispatch, getState: () => State) {
+    const id = payload._id || assignId(dispatch, getState());
 
-export const addGuide = createStandardAction('ADD_GUIDE')
-  .map((payload: GuideRecord) => {
-        const id: number = payload._id || counter.global();
-        // TODO(rneogy) figure out better solution for payload as any
-        return {payload: (payload as any).merge({_id: id}) as GuideRecord, meta: id}
-    }
-  );
+    dispatch(baseAddGuide(payload.merge({_id: id}), id));
+  };
+}
+export const baseAddGuide = createStandardAction('ADD_GUIDE')<GuideRecord, number>();
 
 export const deleteGuide = createStandardAction('DELETE_GUIDE')<{groupId: number}, number>();
 

@@ -1,7 +1,21 @@
 import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import * as scaleActions from '../actions/scaleActions';
-import {ScaleState} from '../store/factory/Scale';
+import {ScaleState, ScaleRecord} from '../store/factory/Scale';
+
+// Scales churn (unused scales are deleted) and thus we want to reuse names
+// as much as possible.
+function renameScale(state: ScaleState, name: string): string {
+  const names = state.valueSeq().map((scaleRecord: ScaleRecord) => {
+    return scaleRecord.get('name');
+  });
+  let count = 1;
+  let str = name || 'scale';
+  while (names.contains(str)) {
+    str = name + '' + ++count;
+  }
+  return str;
+}
 
 export function scalesReducer(state: ScaleState, action: ActionType<typeof scaleActions>): ScaleState {
   const id = action.meta;
@@ -10,8 +24,9 @@ export function scalesReducer(state: ScaleState, action: ActionType<typeof scale
     return Map();
   }
 
-  if (action.type === getType(scaleActions.addScale)) {
-    return state.set(String(id), action.payload);
+  if (action.type === getType(scaleActions.baseAddScale)) {
+    let record = (action.payload as any).set('name', renameScale(state, action.payload.name)) as ScaleRecord;
+    return state.set(String(id), record);
   }
 
   if (action.type === getType(scaleActions.updateScaleProperty)) {

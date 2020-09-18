@@ -23,6 +23,8 @@ $long-label-width: $label-width + 10px;
 
   .inner {
     padding: 0 $outer-padding;
+    height: calc(100% - 35px);
+    overflow-y: auto;
   }
 }
 
@@ -48,6 +50,9 @@ $long-label-width: $label-width + 10px;
   h3, .label-long { width: $long-label-width; }
 
   &.first-child { margin-bottom: 0; }
+
+  /* &.droppable .control input, */&.droppable .autocomplete { outline: 2px solid cyan; }
+  /* &.drag-over .control input, */&.drag-over .autocomplete { outline-color: lightsalmon; }
 
   .control {
     display: flex;
@@ -86,6 +91,16 @@ $long-label-width: $label-width + 10px;
       text-overflow: ellipsis;
     }
 
+    .signal {
+      // max-width: 65px;
+      padding: 3px $inner-padding;
+      border: 0;
+      border-radius: $outer-padding;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     &:hover {
       .scale, .field {
         cursor: pointer;
@@ -102,6 +117,7 @@ $long-label-width: $label-width + 10px;
   input[type=range] { width: 70px; }
 
   input[type=number],
+  input[type=search],
   input[type=text] {
     width: 75px;
   }
@@ -160,19 +176,26 @@ $long-label-width: $label-width + 10px;
 
   .preview-scroll {
     display: flex;
-    background: $grey-bg;
-    overflow-x: auto;
+    flex-wrap: wrap;
+    background: $lgrey-bg;
+    max-height: calc(117px * 2.5);
+    overflow-y: auto;
     margin-bottom: $outer-padding;
+
+    &.overflow {
+      margin-right: -10px;
+    }
   }
 
   .preview-scroll > div {
-    display: inline-block;
-    padding: 0 $outer-padding $outer-padding;
-    background: $grey-bg;
-    color: white;
+    flex-basis: 50%;
+    color: #222222;
+    background: $lgrey-bg;
 
     &.selected {
-      background: $lgrey-bg;
+      color: white;
+      background: $grey-bg;
+
     }
 
     .preview-label {
@@ -180,7 +203,20 @@ $long-label-width: $label-width + 10px;
     }
 
     svg.marks > g {
-      transform: translate(12px, 13px);
+      transform: translate(5px, 5px);
+    }
+
+    .preview-label, .interaction-preview {
+      width: 85px;
+      margin: $inner-padding auto;
+
+      input {
+        max-width: 100%;
+      }
+
+      .vega-bindings {
+        display: none;
+      }
     }
   }
 }
@@ -188,4 +224,21 @@ $long-label-width: $label-width + 10px;
 .signals-container {
   margin-top: $inner-padding;
   margin-left: -$inner-padding;
+
+  .signal {
+    margin: 2px;
+    display: inline-block;
+    padding: $inner-padding;
+  }
+}
+
+.key-input {
+  color: transparent;
+  text-shadow: 0 0 0 $grey-bg;
+}
+
+.transform-inspector {
+  .property label {
+    width: auto;
+  }
 }

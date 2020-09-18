@@ -26,21 +26,14 @@ const listeners = require('./store/listeners');
 store.subscribe(listeners.createStoreListener(store, ctrl));
 
 // Initializes the Lyra ctrl with a new Scene primitive.
-store.dispatch(
+(store as any).dispatch(
   createScene(Scene())
 );
 
-store.dispatch(addMark(Mark('group', {_parent: 1})));
+(store as any).dispatch(addMark(Mark('group', {_parent: 1})));
 
 import './components';
 
 store.dispatch(historyActions.clearHistory());
-
-// if recording state changes (e.g. to load known states for user testing),
-// do not record initialization actions (see store/replay.ts)
-if (window.location.search.indexOf('record') > -1) {
-  localStorage.clear();
-  console.log('clear');
-}
 
 (global as any).vega = vega;

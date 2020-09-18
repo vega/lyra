@@ -19,28 +19,14 @@ export type LyraScale = {
   _range: any[]
 } & RangeScale;
 
-const names = {};
-
-// Scales churn (unused scales are deleted) and thus we want to reuse names
-// as much as possible.
-function rename(name): string {
-  let count = 1;
-  let str = name;
-  while (names[str]) {
-    str = name + '' + ++count;
-  }
-  return (names[str] = 1, str);
-}
-
 export function Scale(values?: Partial<LyraScale>): ScaleRecord {
   return Record<LyraScale>({
     _id: null,
-    _origName: values.name,
+    _origName: null,
     _domain: [],
     _range: [],
-
+    name: null,
     ...values,
-    name: rename(values.name)
   } as any, 'LyraScale')();
 }
 

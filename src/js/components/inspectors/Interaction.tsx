@@ -2,22 +2,23 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import { throttle } from "throttle-debounce";
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication} from '../../store/factory/Interaction';
+import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
-import {Dispatch} from 'redux';
-import {setSelection, setApplication} from '../../actions/interactionActions';
-import {FormInputProperty} from './FormInputProperty';
-import {getScaleInfoForGroup, ScaleSimpleType} from '../../ctrl/demonstrations';
+import {setInput, setSelection, setApplication, removeApplication, setSignals} from '../../actions/interactionActions';
+import {getScaleInfoForGroup, ScaleSimpleType, getNestedMarksOfGroup, scaleTypeSimple, getFieldsOfGroup} from '../../ctrl/demonstrations';
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
 import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
 import exportName from '../../util/exportName';
-import {Icon} from '../Icon';
 import InteractionPreview from '../interactions/InteractionPreview';
-import {debounce} from 'vega';
 import {Map} from 'immutable';
+import {debounce} from 'vega';
+import {InteractionInputType} from './InteractionInputType';
+import {InteractionSignals} from './InteractionSignals';
+import {AreaRecord} from '../../store/factory/marks/Area';
+import {signalLookup} from '../../util/signal-lookup';
+import {fieldInvalidTestValueRef} from 'vega-lite/src/compile/mark/encode/valueref';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -26,14 +27,12 @@ interface OwnProps {
   primId: number;
 }
 
-interface OwnState {
-  isDemonstratingInterval: boolean,
-  mainViewSignalValues: {[name: string]: any}, // name -> value
-}
-
 interface DispatchProps {
+  setInput: (input: InteractionInput, id: number) => void;
   setSelection: (record: SelectionRecord, id: number) => void;
   setApplication: (record: ApplicationRecord, id: number) => void;
+  setSignals: (signals: InteractionSignal[], id: number) => void;
+  removeApplication: (record: ApplicationRecord, id: number) => void;
 }
 
 interface StateProps {
@@ -45,11 +44,18 @@ interface StateProps {
   groupName: string;
   marksOfGroups: Map<number, MarkRecord[]>; // map of group ids to array of mark specs
   fieldsOfGroup: string[];
+  markScalesOfGroup: MarkScales[];
   canDemonstrate: boolean;
-  selectionPreviewsPoint: SelectionRecord[];
-  selectionPreviewsInterval: SelectionRecord[];
-  applicationPreviewsPoint: ApplicationRecord[];
-  applicationPreviewsInterval: ApplicationRecord[];
+  selectionPreviews: SelectionRecord[];
+  applicationPreviews: ApplicationRecord[];
+  isDemonstratingInterval: boolean;
+}
+
+interface MarkScales {
+  mark: MarkRecord;
+  xScaleType: ScaleSimpleType;
+  yScaleType: ScaleSimpleType;
+  scaleFields: string[];
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -67,35 +73,55 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   });
 
   const marksOfGroups: Map<number, MarkRecord[]> = groups.map(group => {
-    return group.marks.map(markId => {
-      return state.getIn(['vis', 'present', 'marks', String(markId)]);
-    }).filter((mark) => {
-      return !(mark.type === 'group' || mark.name.indexOf('lyra') === 0);
-    });
+    return getNestedMarksOfGroup(state, group);
   });
 
   const marksOfGroup = marksOfGroups.get(groupId);
 
   const datasets: Map<string, DatasetRecord> = state.getIn(['vis', 'present', 'datasets']);
 
-  let fieldsOfGroup = [];
-  if (marksOfGroup.length && marksOfGroup[0].from && marksOfGroup[0].from.data) {
-    const dsId = String(marksOfGroup[0].from.data);
-    const dataset: DatasetRecord =  datasets.get(dsId);
-    const schema = dataset.get('_schema');
-    const fields = schema.keySeq().toArray();
-    fieldsOfGroup = fields;
-  }
+  const fieldsOfGroup = getFieldsOfGroup(state, group._id);
+
   const isParsing = state.getIn(['vega', 'isParsing']);
 
   const canDemonstrate = Boolean(!isParsing && ctrl.view && (scaleInfo.xScaleName && scaleInfo.xFieldName || scaleInfo.yScaleName && scaleInfo.yFieldName));
 
+  const isDemonstratingInterval = interaction.input ? interaction.input.mouse === 'drag' : null;
+
+  const markScalesOfGroup = marksOfGroup.map(mark => {
+    let xScaleType, yScaleType = null;
+    if (mark.encode && mark.encode.update && mark.encode.update.x && (mark.encode.update.x as any).scale) {
+      const xScaleId = (mark.encode.update.x as any).scale;
+      const xScaleRecord = state.getIn(['vis', 'present', 'scales', String(xScaleId)]);
+      xScaleType = scaleTypeSimple(xScaleRecord.get('type'));
+    }
+    if (mark.encode && mark.encode.update && mark.encode.update.y && (mark.encode.update.y as any).scale) {
+      const yScaleId = (mark.encode.update.y as any).scale;
+      const yScaleRecord = state.getIn(['vis', 'present', 'scales', String(yScaleId)]);
+      yScaleType = scaleTypeSimple(yScaleRecord.get('type'));
+    }
+    const scaleFields = [];
+    if (mark.encode && mark.encode.update && mark.encode.update) {
+      for (const [key, value] of Object.entries(mark.encode.update)) {
+        if (key === 'x' || key === 'y' || !value) continue;
+        const field = (value as any).field;
+        if (field) {
+          scaleFields.push(field);
+        }
+      }
+    }
+    return {
+      mark,
+      xScaleType,
+      yScaleType,
+      scaleFields
+    }
+  });
+
   const {
-    selectionPreviewsPoint,
-    selectionPreviewsInterval,
-    applicationPreviewsPoint,
-    applicationPreviewsInterval,
-  } = generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction);
+    selectionPreviews,
+    applicationPreviews,
+  } = generatePreviews(groupId, groupName, scaleInfo, groups, marksOfGroups, markScalesOfGroup, datasets, interaction, isDemonstratingInterval);
 
   return {
     interaction,
@@ -106,82 +132,119 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     datasets,
     marksOfGroups,
     fieldsOfGroup,
+    markScalesOfGroup,
     canDemonstrate,
-    selectionPreviewsPoint,
-    selectionPreviewsInterval,
-    applicationPreviewsPoint,
-    applicationPreviewsInterval
+    selectionPreviews,
+    applicationPreviews,
+    isDemonstratingInterval
   };
 }
 
-function generatePreviews(groupId, scaleInfo, fieldsOfGroup, groups, marksOfGroups, datasets, interaction): {
-  selectionPreviewsInterval: SelectionRecord[],
-  selectionPreviewsPoint: SelectionRecord[],
-  applicationPreviewsInterval: ApplicationRecord[],
-  applicationPreviewsPoint: ApplicationRecord[]
+const actionCreators: DispatchProps = {setInput, setSelection, setApplication, removeApplication, setSignals};
+
+function generatePreviews(groupId: number, groupName: string, scaleInfo: ScaleInfo, groups: Map<number, GroupRecord>, marksOfGroups: Map<number, MarkRecord[]>, markScalesOfGroup: MarkScales[], datasets: Map<string, DatasetRecord>, interaction: InteractionRecord, isDemonstratingInterval: boolean): {
+  selectionPreviews: SelectionRecord[],
+  applicationPreviews: ApplicationRecord[]
 } {
+  if (isDemonstratingInterval === null) {
+    return {
+      selectionPreviews: [],
+      applicationPreviews: []
+    }
+  }
+
   const marksOfGroup = marksOfGroups.get(groupId);
 
   return {
-    selectionPreviewsPoint: generateSelectionPreviews(marksOfGroup, scaleInfo, fieldsOfGroup, interaction, false),
-    selectionPreviewsInterval: generateSelectionPreviews(marksOfGroup, scaleInfo, fieldsOfGroup, interaction, true),
-    applicationPreviewsPoint: generateApplicationPreviews(groupId, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, false),
-    applicationPreviewsInterval: generateApplicationPreviews(groupId, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, true)
+    selectionPreviews: generateSelectionPreviews(markScalesOfGroup, interaction, isDemonstratingInterval),
+    applicationPreviews: generateApplicationPreviews(groupId, groupName, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, isDemonstratingInterval)
   };
 };
 
-function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, fieldsOfGroup: string[], interaction: InteractionRecord, isDemonstratingInterval: boolean): SelectionRecord[] {
+function generateSelectionPreviews(markScalesOfGroup: MarkScales[], interaction: InteractionRecord, isDemonstratingInterval: boolean): SelectionRecord[] {
   if (isDemonstratingInterval) {
     const defs: IntervalSelectionRecord[] = [];
     const brush = IntervalSelection({
       id: "brush",
-      label: "Brush",
-      field: 'xy'
+      label: "Brush"
     });
     const brush_y = IntervalSelection({
       id: "brush_y",
       label: "Brush (y-axis)",
-      field: 'y'
+      encoding: 'y'
     });
     const brush_x = IntervalSelection({
       id: "brush_x",
       label: "Brush (x-axis)",
-      field: 'x'
+      encoding: 'x'
     });
 
     // HEURISTICS: surface different interval selections depending on mark type
-    const markTypes: Set<LyraMarkType> = new Set(marksOfGroup.map((mark) => mark.type));
-    if (markTypes.has('symbol')) {
-      if (scaleInfo.xScaleType && scaleInfo.yScaleType) defs.push(brush);
-      if (scaleInfo.yScaleType) defs.push(brush_y);
-      if (scaleInfo.xScaleType) defs.push(brush_x);
-    }
-    if (markTypes.has('rect')) {
-      if (scaleInfo.xScaleType === ScaleSimpleType.DISCRETE) {
-        defs.push(brush_x);
+    markScalesOfGroup.forEach(markScales => {
+      const {mark, xScaleType, yScaleType} = markScales;
+      switch (mark.type) {
+        case 'rect':
+          if (xScaleType === ScaleSimpleType.DISCRETE || yScaleType === ScaleSimpleType.DISCRETE) {
+            if (xScaleType === ScaleSimpleType.DISCRETE) {
+              defs.push(brush_x);
+            }
+            if (yScaleType === ScaleSimpleType.DISCRETE) {
+              defs.push(brush_y);
+            }
+          }
+          else {
+            if (xScaleType === ScaleSimpleType.CONTINUOUS && yScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush);
+            if (yScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_y);
+            if (xScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_x);
+          }
+          break;
+        case 'symbol':
+        case 'text':
+          if (xScaleType === ScaleSimpleType.CONTINUOUS && yScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush);
+          if (yScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_y);
+          if (xScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_x);
+          break;
+        case 'line':
+          if (yScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_y);
+          if (xScaleType === ScaleSimpleType.CONTINUOUS) defs.push(brush_x);
+          break;
+        case 'area':
+          const areaMark = mark.toJS();
+          const orient = areaMark.encode?.update?.orient;
+          const value = orient ? orient.value || signalLookup(orient.signal) : null;
+          if (value) {
+            // TODO(jzong) what if orient is not in update but is in one of the other ones?
+            if (value === 'vertical' && xScaleType) {
+              defs.push(brush_x);
+            }
+            else if (value === 'horizontal' && yScaleType) {
+              defs.push(brush_y);
+            }
+          }
+          break;
       }
-      if (scaleInfo.yScaleType === ScaleSimpleType.DISCRETE) {
-        defs.push(brush_y);
-      }
-    }
-    if (markTypes.has('area')) {
-      const areaMark = marksOfGroup.find(mark => mark.type === 'area').toJS();
-      if (areaMark.encode && areaMark.encode.update && areaMark.encode.update.orient && areaMark.encode.update.orient.value) {
-        // TODO(jzong) what if orient is not in update but is in one of the other ones?
-        if (areaMark.encode.update.orient.value === 'vertical' && scaleInfo.xScaleType) {
-          defs.push(brush_x);
-        }
-        else if (areaMark.encode.update.orient.value === 'horizontal' && scaleInfo.yScaleType) {
-          defs.push(brush_y);
-        }
-      }
-    }
-    if (markTypes.has('line')) {
-      // TODO(jzong) ?
-    }
+    });
     return [... new Set(defs)];
   }
   else {
+    let field = '_vgsid_';
+    if (interaction && interaction.selection) {
+      const selection = (interaction.selection as PointSelectionRecord);
+      if (selection.field && selection.field !== '_vgsid_') {
+        field = selection.field
+      }
+    }
+    if (field === '_vgsid_') {
+      const boundFields = new Set<string>();
+      markScalesOfGroup.forEach(markScales => {
+        markScales.scaleFields.forEach(field => {
+          boundFields.add(field);
+        })
+      });
+      if (boundFields.size) {
+        field = boundFields.values().next().value;
+      }
+    }
     const defs: PointSelectionRecord[] = [
       PointSelection({
         ptype: 'single',
@@ -198,53 +261,56 @@ function generateSelectionPreviews(marksOfGroup: MarkRecord[], scaleInfo: ScaleI
       PointSelection({
         ptype: 'single',
         id: 'single_project',
-        label: 'Single point (by field)',
-        field: interaction && interaction.selection && interaction.selection.field && interaction.selection.field !== '_vgsid_' ? interaction.selection.field : fieldsOfGroup[0]
+        label: 'Single point (projected)',
+        field: field,
+        encoding: null
       }),
       PointSelection({
         ptype: 'multi',
         id: 'multi_project',
-        label: 'Multi point (by field)',
-        field: interaction && interaction.selection && interaction.selection.field && interaction.selection.field !== '_vgsid_' ? interaction.selection.field : fieldsOfGroup[0]
+        label: 'Multi point (projected)',
+        field: field,
+        encoding: null
       })
     ];
     return defs;
   }
 }
 
-function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, groups: Map<number, GroupRecord>, marksOfGroups: Map<number, MarkRecord[]>, datasets: Map<string, DatasetRecord>, isDemonstratingInterval: boolean): ApplicationRecord[] {
+function generateApplicationPreviews(groupId: number, groupName: string, marksOfGroup: MarkRecord[], scaleInfo: ScaleInfo, groups: Map<number, GroupRecord>, marksOfGroups: Map<number, MarkRecord[]>, datasets: Map<string, DatasetRecord>, isDemonstratingInterval: boolean): ApplicationRecord[] {
   const defs: ApplicationRecord[] = [];
 
-  // TODO(jzong): could add a heuristic -- better way to sort these?
-  // TODO(jzong): change mark to dropdown
-  marksOfGroup.forEach(mark => {
+  if (marksOfGroup.length) {
+    const mark = marksOfGroup[0];
+    const maybeSymbol = marksOfGroup.find(mark => mark.type === 'symbol');
+
     defs.push(MarkApplication({
       id: "color_" + isDemonstratingInterval,
       label: "Color",
+      targetGroupName: groupName,
       targetMarkName: exportName(mark.name),
-      isDemonstratingInterval: isDemonstratingInterval,
-      propertyName: "fill",
-      defaultValue: "#797979"
+      propertyName: mark.type === 'line' ? "stroke" : "fill",
+      unselectedValue: "#797979"
     }));
     defs.push(MarkApplication({
       id: "opacity_" + isDemonstratingInterval,
       label: "Opacity",
+      targetGroupName: groupName,
       targetMarkName: exportName(mark.name),
-      isDemonstratingInterval: isDemonstratingInterval,
       propertyName: "opacity",
-      defaultValue: "0.2"
+      unselectedValue: "0.2"
     }));
-    if (mark.type === 'symbol') {
+    if (maybeSymbol) {
       defs.push(MarkApplication({
         id: "size_" + isDemonstratingInterval,
         label: "Size",
-        targetMarkName: exportName(mark.name),
-        isDemonstratingInterval: isDemonstratingInterval,
+        targetGroupName: groupName,
+        targetMarkName: exportName(maybeSymbol.name),
         propertyName: "size",
-        defaultValue: 30
+        unselectedValue: 30
       }));
     }
-  });
+  }
 
   if (isDemonstratingInterval) {
     defs.push(ScaleApplication({
@@ -258,7 +324,7 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
   otherGroups.forEach(otherGroup => {
     const otherGroupId = otherGroup._id;
     const marksOfOtherGroup = marksOfGroups.get(otherGroupId);
-    const mark = marksOfOtherGroup.find(mark => mark.from && mark.from.data);
+    const mark = marksOfOtherGroup.find(mark => mark.from && mark.from.data); // TODO(jzong): && mark.from.data === mark dataset in current group?
     if (mark) {
       const targetGroupName = exportName(otherGroup.name);
       const targetMarkName = exportName(mark.name);
@@ -271,61 +337,97 @@ function generateApplicationPreviews(groupId: number, marksOfGroup: MarkRecord[]
         targetGroupName,
         datasetName,
         targetMarkName,
-        isDemonstratingInterval: isDemonstratingInterval
       }));
+
+      // TODO(jzong): this part of the code pushes extra suggestions for brushing and linking.
+      // When we change the interface to allow multiple of each type of application, we'll want
+      // to remove this redundancy and expose a dropdown to select target group, similarly to
+      // how we currently select target mark.
+      defs.push(MarkApplication({
+        id: "color_" + isDemonstratingInterval + '_' + targetGroupName,
+        label: "Color " + otherGroup.name,
+        targetGroupName,
+        targetMarkName,
+        propertyName: mark.type === 'line' ? "stroke" : "fill",
+        unselectedValue: "#797979"
+      }));
+      defs.push(MarkApplication({
+        id: "opacity_" + isDemonstratingInterval + '_' + targetGroupName,
+        label: "Opacity " + otherGroup.name,
+        targetGroupName,
+        targetMarkName,
+        propertyName: "opacity",
+        unselectedValue: "0.2"
+      }));
+      if (mark.type === 'symbol') {
+        defs.push(MarkApplication({
+          id: "size_" + isDemonstratingInterval + '_' + targetGroupName,
+          label: "Size " + otherGroup.name,
+          targetGroupName,
+          targetMarkName,
+          propertyName: "size",
+          unselectedValue: 30
+        }));
+      }
     }
   });
 
   return defs;
 }
 
+class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
 
-function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
-  return {
-    setSelection: (def: SelectionRecord, id: number) => {
-      dispatch(setSelection(def, id));
-    },
-    setApplication: (def: ApplicationRecord, id: number) => {
-      dispatch(setApplication(def, id));
+  public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
+    if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
+      this.restoreMainViewSignals(this.props.groupName);
+      this.restorePreviewSignals();
+
+      this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple'), (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('points_tuple_projected'), (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('points_toggle'), (name, value) => this.onMainViewPointSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('brush_x'), (name, value) => this.onMainViewIntervalSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('brush_y'), (name, value) => this.onMainViewIntervalSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_anchor'), (name, value) => this.onMainViewGridSignal(name, value));
+      this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_delta'), (name, value) => this.onMainViewGridSignal(name, value));
     }
-  };
-}
 
-class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isDemonstratingInterval: false,
-      mainViewSignalValues: {}
-    };
-  }
-
-  public componentDidMount() {
-    this.onSignal(this.props.groupName, 'grid_translate_anchor', (name, value) => this.onMainViewGridSignal(name, value));
-    this.onSignal(this.props.groupName, 'grid_translate_delta', (name, value) => this.onMainViewGridSignal(name, value));
-    this.onSignal(this.props.groupName, 'brush_x', (name, value) => this.onMainViewIntervalSignal(name, value));
-    this.onSignal(this.props.groupName, 'brush_y', (name, value) => this.onMainViewIntervalSignal(name, value));
-    this.onSignal(this.props.groupName, 'points_tuple', (name, value) => this.onMainViewPointSignal(name, value));
-    this.onSignal(this.props.groupName, 'points_toggle', (name, value) => this.onMainViewPointSignal(name, value));
-  }
-
-  private getSelectionPreviews() {
-    if (this.state.isDemonstratingInterval) {
-      return this.props.selectionPreviewsInterval;
+    if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
+      const selectionIds = this.props.selectionPreviews.map(s => s.id);
+      const didHeuristicSetSelection = this.updateBrushXYHeuristic() || this.updatePointMultiHeuristic();
+      if (!didHeuristicSetSelection && (!this.props.interaction.selection ||
+          selectionIds.every(id => id !== this.props.interaction.selection.id))) {
+            this.props.setSelection(this.props.selectionPreviews[0], this.props.interaction.id);
+      }
     }
-    else {
-      return this.props.selectionPreviewsPoint;
+
+    if (this.props.interaction.input && (!prevProps.interaction.input || prevProps.interaction.input.mouse !== this.props.interaction.input.mouse ||
+        !(prevProps.scaleInfo.xScaleName === this.props.scaleInfo.xScaleName && prevProps.scaleInfo.yScaleName === this.props.scaleInfo.yScaleName))) {
+      const signals = this.getInteractionSignals(this.props.interaction, this.props.scaleInfo);
+      this.props.setSignals(signals, this.props.interaction.id);
     }
   }
 
-  private getApplicationPreviews() {
-    if (this.state.isDemonstratingInterval) {
-      return this.props.applicationPreviewsInterval;
+  private scopedSignalName(signalName: string) {
+    return `${signalName}_${this.props.interaction.id}`
+  }
+
+  private restoreMainViewSignals(groupName) {
+    for (let signalName of ['brush_x', 'brush_y', 'points_tuple', 'points_tuple_projected'].map(s => this.scopedSignalName(s))) {
+      if (this.mainViewSignalValues[signalName]) {
+        listeners.setSignalInGroup(ctrl.view, groupName, signalName, this.mainViewSignalValues[signalName]);
+      }
     }
-    else {
-      return this.props.applicationPreviewsPoint;
+  }
+
+  private restorePreviewSignals() {
+    for (let signalName of ['brush_x', 'brush_y', 'points_tuple', 'points_tuple_projected'].map(s => this.scopedSignalName(s))) {
+      if (this.mainViewSignalValues[signalName]) {
+        setTimeout(() => {
+          this.updatePreviewSignals(signalName, this.mainViewSignalValues[signalName]);
+        }, 50);
+        // somehow it only works if you have both of these??? some kind of vega invalidation thing
+        this.updatePreviewSignals(signalName, this.mainViewSignalValues[signalName]);
+      }
     }
   }
 
@@ -333,35 +435,99 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   private mainViewSignalValues = {}; // name -> value
 
   private updatePreviewSignals(name, value) {
-    this.getSelectionPreviews().forEach(preview => {
-      if (this.previewRefs[preview.id] && this.previewRefs[preview.id].current) {
-        this.previewRefs[preview.id].current.setPreviewSignal(name, value);
+    this.props.selectionPreviews.forEach(preview => {
+      if (this.previewRefs[preview.id]) {
+        this.previewRefs[preview.id].setPreviewSignal(name, value);
       }
     });
-    this.getApplicationPreviews().forEach(preview => {
-      if (this.previewRefs[preview.id] && this.previewRefs[preview.id].current) {
-        this.previewRefs[preview.id].current.setPreviewSignal(name, value);
+    this.props.applicationPreviews.forEach(preview => {
+      if (this.previewRefs[preview.id]) {
+        this.previewRefs[preview.id].setPreviewSignal(name, value);
       }
     });
   }
-  private updateIsDemonstrating() {
-    const intervalActive = (this.mainViewSignalValues['brush_x'] &&
-      this.mainViewSignalValues['brush_y'] &&
-      this.mainViewSignalValues['brush_x'][0] !== this.mainViewSignalValues['brush_x'][1] &&
-      this.mainViewSignalValues['brush_y'][0] !== this.mainViewSignalValues['brush_y'][1]);
-    const pointActive = Boolean(this.mainViewSignalValues['points_tuple']);
+  private updateIsDemonstrating = debounce(250, () => { // debounce is important
+    const intervalActive = (this.mainViewSignalValues[this.scopedSignalName('brush_x')] &&
+      this.mainViewSignalValues[this.scopedSignalName('brush_y')] &&
+      Math.abs(this.mainViewSignalValues[this.scopedSignalName('brush_x')][0] - this.mainViewSignalValues[this.scopedSignalName('brush_x')][1]) > 10 &&
+      Math.abs(this.mainViewSignalValues[this.scopedSignalName('brush_y')][0] - this.mainViewSignalValues[this.scopedSignalName('brush_y')][1]) > 10);
+    const pointActive = this.mainViewSignalValues[this.scopedSignalName('points_tuple')] || this.mainViewSignalValues[this.scopedSignalName('points_tuple_projected')];
 
     const isDemonstratingInterval = intervalActive || !pointActive;
 
-    if (this.state.isDemonstratingInterval !== isDemonstratingInterval) {
-      this.setState({
-        isDemonstratingInterval
-      });
+    if (this.props.isDemonstratingInterval !== isDemonstratingInterval) {
+      if (!this.props.interaction.input) {
+        const inputKeyboard: InteractionInput = (window as any)._inputKeyboard;
+        this.props.setInput({
+          mouse: isDemonstratingInterval ? 'drag' : 'click',
+          keycode: inputKeyboard ? inputKeyboard.keycode : undefined,
+          _key: inputKeyboard ? inputKeyboard._key : undefined
+        }, this.props.primId);
+      }
+      else {
+        if ((!this.props.interaction.selection || (this.props.selectionPreviews.length && this.props.interaction.selection.id === this.props.selectionPreviews[0].id)) && !this.props.interaction.applications.length) {
+          this.props.setInput({
+            ...this.props.interaction.input,
+            mouse: isDemonstratingInterval ? 'drag' : 'click',
+          }, this.props.primId);
+        }
+      }
+    }
+  });
+
+  private updateBrushXYHeuristic() {
+    if (this.props.interaction && this.props.interaction.selection) return;
+    const brush_x = this.mainViewSignalValues[this.scopedSignalName('brush_x')];
+    const brush_y = this.mainViewSignalValues[this.scopedSignalName('brush_y')];
+    if (!(brush_x && brush_y)) return;
+    const d_brush_x = Math.abs(brush_x[1] - brush_x[0]);
+    const d_brush_y = Math.abs(brush_y[1] - brush_y[0]);
+    const threshold_distance = 10;
+    if (!(Math.sqrt(d_brush_y * d_brush_y + d_brush_x * d_brush_x) > threshold_distance)) return;
+    const atan2_degrees = Math.abs(Math.atan2(d_brush_y, d_brush_x)) * 180 / Math.PI;
+    const threshold_degrees = 15;
+    if (atan2_degrees <= threshold_degrees) {
+      const brush_x_selection = this.props.selectionPreviews.find(s => s.id === 'brush_x');
+      if (brush_x_selection) {
+        this.props.setSelection(brush_x_selection, this.props.interaction.id);
+        return true;
+      }
+    }
+    if (atan2_degrees >= 90 - threshold_degrees) {
+      const brush_y_selection = this.props.selectionPreviews.find(s => s.id === 'brush_y');
+      if (brush_y_selection) {
+        this.props.setSelection(brush_y_selection, this.props.interaction.id);
+        return true;
+      }
     }
   }
 
+  private updatePointMultiHeuristic() {
+    if (this.props.interaction && this.props.interaction.selection) return;
+    const points_tuple = this.mainViewSignalValues[this.scopedSignalName('points_tuple')];
+    if (!(points_tuple && this.previousPointSignal)) return;
+
+    const point_multi_selection = this.props.selectionPreviews.find(s => s.id === 'multi');
+    if (point_multi_selection) {
+      this.props.setSelection(point_multi_selection, this.props.interaction.id);
+      return true;
+    }
+  }
+
+  // for the purposes of demonstrating multi point selection by quickly clicking multiple points
+  private previousPointSignal = null;
+  private previousPointSignalTimeout = null;
+
   private onMainViewPointSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
+      console.log(name, value);
+      if (name.indexOf('points_tuple') >= 0) {
+        clearTimeout(this.previousPointSignalTimeout);
+        this.previousPointSignal = this.mainViewSignalValues[name];
+        this.previousPointSignalTimeout = setTimeout(() => {
+          this.previousPointSignal = null;
+        }, 800);
+      }
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
       this.updatePreviewSignals(name, value);
@@ -372,6 +538,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     if (this.mainViewSignalValues[name] !== value) {
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
+      // TODO: consider adding this.updateBrushXYHeuristic() debounced here
       this.updatePreviewSignals(name, value);
     }
   }
@@ -397,139 +564,280 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       case 'scale':
       case 'transform':
         if (this.props.interaction) {
-          this.props.setApplication(preview as ApplicationRecord, this.props.interaction.id);
+          preview = preview as ApplicationRecord;
+          if (this.interactionHasApplication(preview)) {
+            this.props.removeApplication(preview, this.props.interaction.id);
+          }
+          else {
+            this.props.setApplication(preview, this.props.interaction.id);
+          }
         }
         break;
     }
   }
 
-  private getFieldOptions(preview: PointSelectionRecord) {
-    // TODO(jzong): add heuristic here by sorting the fields by frequency
-    const options = this.props.fieldsOfGroup.map(field => <option key={field} value={field}>{field}</option>);
-
-    return <div>
-      <select value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
-        {options}
-      </select>
-    </div>
+  private interactionHasApplication(preview: ApplicationRecord) {
+    return this.props.interaction.applications.some(application => application.id === preview.id);
   }
 
+  private getProjectionOptions(preview: PointSelectionRecord) {
+    const fieldOptions = [
+      <option key='_vgsid_' value={'_vgsid_'}>None</option>,
+      ...this.props.fieldsOfGroup.map(field => <option key={field} value={field}>{field}</option>)
+    ];
+
+    return (
+      <div>
+        <div className="property">
+          <label htmlFor='project_fields'>Field:</label>
+          <div className='control'>
+            <select name='project_fields' value={preview.field} onChange={e => this.onSelectProjectionField(preview, e.target.value)}>
+              {fieldOptions}
+            </select>
+          </div>
+        </div>
+        <div className="property">
+          <label htmlFor='project_encodings'>Encoding:</label>
+          <div className='control'>
+            <select name='project_encodings' value={preview.encoding} onChange={e => this.onSelectProjectionEncoding(preview, e.target.value)}>
+              <option key='null' value='null'>None</option>
+              <option key='x' value='x'>x</option>
+              <option key='y' value='y'>y</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    );
+  }
   private onSelectProjectionField(preview: PointSelectionRecord, field: string) {
     const newPreview = preview.set('field', field);
-    // this.setState({
-    //   selectionPreviews: this.state.selectionPreviews.map(p => {
-    //     if (p === preview) {
-    //       return newPreview;
-    //     }
-    //     return p;
-    //   })
-    // }, () => {
-    //   this.props.setSelection(newPreview, this.props.interaction.id);
-    // });
     this.props.setSelection(newPreview, this.props.interaction.id);
-    // TODO (jzong) figure this out
+  }
+  private onSelectProjectionEncoding(preview: PointSelectionRecord, encoding: string) {
+    let newPreview;
+    switch (encoding) {
+      case 'x':
+        newPreview = preview.set('encoding', 'x'); break;
+      case 'y':
+        newPreview = preview.set('encoding', 'y'); break;
+      default:
+        newPreview = preview.set('encoding', null); break;
+    }
+    this.props.setSelection(newPreview, this.props.interaction.id);
   }
 
-  private getSignalBubbles(scaleInfo, isDemonstratingInterval) {
-    const signals = [];
+  private getTargetMarkOptions(preview: MarkApplicationRecord) {
+    const marksOfGroup = this.props.marksOfGroups.get(this.props.group._id);
 
-    const handleDragStart = (evt) => {
-      console.log(evt.target.dataset.signal);
-      evt.dataTransfer.setData('signalName', evt.target.dataset.signal);
+    if (marksOfGroup.length === 1) {
+      return null;
     }
 
-    if (isDemonstratingInterval) {
-      if (scaleInfo.xScaleName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.xScaleName}`}>{`brush_${scaleInfo.xScaleName}`}</div>)
+    const options = marksOfGroup.map(mark => {
+      if (preview.id.startsWith('size')) {
+        if (mark.type !== 'symbol') {
+          return null;
+        }
       }
-      if (scaleInfo.yScaleName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.yScaleName}`}>{`brush_${scaleInfo.yScaleName}`}</div>)
-      }
-      if (scaleInfo.xFieldName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.xFieldName}`}>{`brush_${scaleInfo.xFieldName}`}</div>)
-      }
-      if (scaleInfo.yFieldName) {
-        signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal={`brush_${scaleInfo.yFieldName}`}>{`brush_${scaleInfo.yFieldName}`}</div>)
-      }
+      const markName = exportName(mark.name);
+      return <option key={markName} value={markName}>{markName}</option>
+    });
+
+    return (
+      <div className="property">
+        <label htmlFor='target_mark'>Target Mark:</label>
+        <div className='control'>
+          <select name='target_mark' value={preview.targetMarkName} onChange={e => this.onSelectTargetMarkName(preview, e.target.value)}>
+            {options}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  private onSelectTargetMarkName(preview: MarkApplicationRecord, targetMarkName: string) {
+    let newPreview = preview.set('targetMarkName', targetMarkName);
+    if (preview.id.startsWith('color')) {
+      const marksOfGroup = this.props.marksOfGroups.get(this.props.group._id);
+      const targetMark = marksOfGroup.find(mark => exportName(mark.name) === targetMarkName);
+      newPreview = newPreview.set('propertyName', targetMark.type === 'line' ? "stroke" : "fill");
     }
-    else {
-      signals.push(<div draggable className="signal" onDragStart={handleDragStart} data-signal="points_tuple">points</div>)
+    this.props.setApplication(newPreview, this.props.interaction.id);
+  }
+
+
+  private getInteractionSignals(interaction: InteractionRecord, scaleInfo: ScaleInfo): InteractionSignal[] {
+    const input = interaction.input;
+    if (!input) return [];
+    const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
+    const interactionId = interaction.id;
+    const fields = this.props.fieldsOfGroup;
+
+    const signals: InteractionSignal[] = [];
+
+    switch (input.mouse) {
+      case 'drag':
+        if (xScaleName) {
+          signals.push({
+            signal: `brush_x_start_${interactionId}`,
+            label: 'brush_x (start)'
+          });
+          signals.push({
+            signal: `brush_x_end_${interactionId}`,
+            label: 'brush_x (end)'
+          });
+          if (xFieldName) {
+            signals.push({
+              signal: `brush_${xFieldName}_${xScaleName}_start_${interactionId}`,
+              label: `brush_${xFieldName} (start)`
+            });
+            signals.push({
+              signal: `brush_${xFieldName}_${xScaleName}_end_${interactionId}`,
+              label: `brush_${xFieldName} (end)`
+            });
+          }
+        }
+        if (yScaleName) {
+          signals.push({
+            signal: `brush_y_start_${interactionId}`,
+            label: 'brush_y (start)'
+          });
+          signals.push({
+            signal: `brush_y_end_${interactionId}`,
+            label: 'brush_y (end)'
+          });
+          if (yFieldName) {
+            signals.push({
+              signal: `brush_${yFieldName}_${yScaleName}_start_${interactionId}`,
+              label: `brush_${yFieldName} (start)`
+            });
+            signals.push({
+              signal: `brush_${yFieldName}_${yScaleName}_end_${interactionId}`,
+              label: `brush_${yFieldName} (end)`
+            });
+          }
+        }
+        break;
+        case 'click':
+          fields.forEach(field => {
+            signals.push({
+              signal: `point_${field}_${interactionId}`,
+              label: `point_${field}`
+            });
+          })
+          break;
+        case 'mouseover':
+          signals.push({
+            signal: `mouse_x_${interactionId}`,
+            label: 'mouse_x'
+          });
+          signals.push({
+            signal: `mouse_y_${interactionId}`,
+            label: 'mouse_y'
+          });
+          if (xFieldName) {
+            signals.push({
+              signal: `mouse_${xFieldName}_${interactionId}`,
+              label: `mouse_${xFieldName}`
+            });
+          }
+          if (yFieldName) {
+            signals.push({
+              signal: `mouse_${yFieldName}_${interactionId}`,
+              label: `mouse_${yFieldName}`
+            });
+          }
+          fields.forEach(field => {
+            signals.push({
+              signal: `point_${field}_${interactionId}`,
+              label: `point_${field}`
+            });
+          })
+          break;
     }
     return signals;
   }
 
   public render() {
     const interaction = this.props.interaction;
-    const application = interaction.application;
+    const applications = interaction.applications;
 
     return (
       <div>
-
-
-        <div className={"preview-controller"}>
-          <div className='property-group'>
-            <h3>Selections</h3>
-            <div className="preview-scroll">
-              {
-                this.getSelectionPreviews().map((preview) => {
-                  if (!this.previewRefs[preview.id]) {
-                    this.previewRefs[preview.id] = React.createRef();
-                  }
-                  return (
-                    <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}
-                        onClick={() => this.onClickInteractionPreview(preview)}>
-                      <div className="preview-label">{preview.label}
-                        {
-                          preview.id.includes('project') ? this.getFieldOptions(preview as PointSelectionRecord) : ''
-                        }
-                      </div>
-                      <InteractionPreview ref={this.previewRefs[preview.id]}
-                        id={`preview-${preview.id}`}
-                        groupName={this.props.groupName}
-                        preview={preview}/>
-                    </div>
-                  )
-                })
-              }
-            </div>
-          </div>
-          <div className='property-group'>
-            <h3>Applications</h3>
-            <div className="preview-scroll">
-              {
-                this.getApplicationPreviews().map((preview) => {
-                  if (!this.previewRefs[preview.id]) {
-                    this.previewRefs[preview.id] = React.createRef();
-                  }
-                  return (
-                    <div key={preview.id} className={interaction && interaction.application && interaction.application.id === preview.id ? 'selected' : ''}
-                        onClick={() => this.onClickInteractionPreview(preview)}>
-                      <div className="preview-label">{preview.label}</div>
-                      <InteractionPreview ref={this.previewRefs[preview.id]}
-                        id={`preview-${preview.id}`}
-                        groupName={this.props.groupName}
-                        preview={preview}/>
-                    </div>
-                  )
-                })
-              }
-            </div>
-          </div>
-        </div>
-        <div className="property-group">
-          <h3>Signals</h3>
-          <div className='signals-container'>
-            {this.getSignalBubbles(this.props.scaleInfo, this.state.isDemonstratingInterval)}
-          </div>
-        </div>
-
-
+        <InteractionInputType interactionId={interaction.id} input={interaction.input}></InteractionInputType>
         {
-          application && application.type === 'mark' ? <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty> : null
+          interaction.input ? (
+            <div>
+              <div className={"preview-controller"}>
+                <div className='property-group'>
+                  <h3>Selections</h3>
+                  <div className="preview-scroll">
+                    {
+                      this.props.selectionPreviews.map((preview) => {
+                        return (
+                          <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}
+                              onClick={() => this.onClickInteractionPreview(preview)}>
+                            <div className="preview-label">{preview.label}</div>
+                            <InteractionPreview ref={ref => this.previewRefs[preview.id] = ref}
+                              id={`preview-${preview.id}`}
+                              interaction={this.props.interaction}
+                              groupName={this.props.groupName}
+                              applicationPreviews={this.props.applicationPreviews}
+                              preview={preview}/>
+                          </div>
+                        )
+                      })
+                    }
+                  </div>
+                  {
+                    (interaction && interaction.selection && interaction.selection.id.includes('project')) ? (
+                      this.getProjectionOptions(interaction.selection as PointSelectionRecord)
+                    ) : null
+                  }
+                </div>
+                <div className='property-group'>
+                  <h3>Applications</h3>
+                  <div className={"preview-scroll " + (this.props.applicationPreviews.length > 4 ? "overflow" : '')}>
+                    {
+                      this.props.applicationPreviews.map((preview) => {
+                        return (
+                          <div key={preview.id} className={interaction && this.interactionHasApplication(preview) ? 'selected' : ''}>
+                            <div onClick={() => this.onClickInteractionPreview(preview)}>
+                              <div className="preview-label">{preview.label}</div>
+                            <InteractionPreview ref={ref => this.previewRefs[preview.id] = ref}
+                                id={`preview-${preview.id}`}
+                                interaction={this.props.interaction}
+                                groupName={this.props.groupName}
+                                applicationPreviews={this.props.applicationPreviews}
+                                preview={preview}/>
+                            </div>
+                          </div>
+                        )
+                      })
+                    }
+                  </div>
+                  {
+                    applications.map(application => {
+                      return application.type === 'mark' ? (
+                        <div>
+                          {this.getTargetMarkOptions(application as MarkApplicationRecord)}
+                          <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+                        </div>
+                      ) : null
+                    })
+                  }
+                </div>
+              </div>
+              <div className="property-group">
+                <h3>Signals</h3>
+                <InteractionSignals interactionId={this.props.interaction.id} signals={this.props.interaction.signals}></InteractionSignals>
+              </div>
+            </div>
+          ) : null
         }
       </div>
     );
   }
 };
 
-export const InteractionInspector = connect(mapStateToProps, mapDispatchToProps)(BaseInteractionInspector);
+export const InteractionInspector = connect(mapStateToProps, actionCreators)(BaseInteractionInspector);

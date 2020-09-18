@@ -58,4 +58,8 @@ prototype.channels = function(item) {
     ].map(annotate('stroke', 'border')));
 };
 
-prototype.altchannels = prototype.channels;
+prototype.altchannels = function(item) {
+  const channels = this.channels(item);
+  return channels.filter(d => d.key === 'stroke')
+    .map(annotate('detail', 'border'));
+};

@@ -2,7 +2,7 @@ import {Map} from 'immutable';
 import {TopLevel} from 'vega-lite/src/spec';
 import {DataMixins} from 'vega-lite/src/spec/base';
 import {NormalizedUnitSpec} from 'vega-lite/src/spec/unit';
-import {MarkType, OnEvent} from 'vega-typings';
+import {Facet, MarkType, OnEvent} from 'vega-typings';
 import {Area, AreaRecord, getHandleStreams as areaHandleStreams, LyraAreaMark} from './marks/Area';
 import {Group, GroupRecord, LyraGroupMark} from './marks/Group';
 import {getHandleStreams as lineHandleStreams, Line, LineRecord, LyraLineMark} from './marks/Line';
@@ -11,16 +11,9 @@ import {LyraScene, Scene, SceneRecord} from './marks/Scene';
 import {getHandleStreams as symbolHandleStreams, LyraSymbolMark, Symbol, SymbolRecord} from './marks/Symbol';
 import {getHandleStreams as textHandleStreams, LyraTextMark, Text, TextRecord} from './marks/Text';
 
-const capitalize = require('capitalize');
-const counter = require('../../util/counter');
-
 // TODO(jzong) reconcile this with vega typings marktype
 // export type LyraMarkType = MarkType | 'scene';
 export type LyraMarkType = 'symbol' | 'area' | 'line' | 'rect' | 'text' | 'group';
-
-function name(type: LyraMarkType) {
-  return capitalize(type) + ' ' + counter.type('marks');
-}
 
 // Default visual properties for marks.
 const defaults = {
@@ -44,6 +37,10 @@ export interface LyraMarkMeta {
   _vlUnit: LyraVegaLiteSpec;
 }
 
+export interface LyraPathFacet {
+  _facet: Facet
+}
+
 export type LyraMark = LyraAreaMark | LyraGroupMark | LyraLineMark | LyraRectMark | LyraSymbolMark | LyraTextMark;
 export type MarkRecord = AreaRecord | GroupRecord | LineRecord | RectRecord | SymbolRecord | TextRecord;
 
@@ -55,15 +52,18 @@ export type MarkRecord = AreaRecord | GroupRecord | LineRecord | RectRecord | Sy
  * @returns {Object} A Lyra mark definition.
  */
 export function Mark(type: LyraMarkType, values?: Partial<LyraMark>): MarkRecord {
-  if (values) {
-    values.name = values.name || name(type);
-  } else {
-    values = {name: name(type)}
-  }
   switch(type) {
     case 'symbol': return Symbol(values as Partial<LyraSymbolMark>).mergeDeepWith(mergeComparator, defaults);
     case 'area': return Area(values as Partial<LyraAreaMark>).mergeDeepWith(mergeComparator, defaults);
-    case 'line': return Line(values as Partial<LyraLineMark>).mergeDeepWith(mergeComparator, defaults);
+    case 'line': return Line(values as Partial<LyraLineMark>).mergeDeepWith(mergeComparator, {
+      encode: {
+        update: {
+          ...defaults.encode.update,
+          fill: undefined,
+          fillOpacity: undefined
+        }
+      }
+    });
     case 'rect': return Rect(values as Partial<LyraRectMark>).mergeDeepWith(mergeComparator, defaults);
     case 'text': return Text(values as Partial<LyraTextMark>).mergeDeepWith(mergeComparator, defaults);
     case 'group': return Group(values as Partial<LyraGroupMark>).mergeDeepWith(mergeComparator, defaults);
@@ -94,7 +94,6 @@ export interface HandleStreams {[s: string]: OnEvent[];}
  * @returns {Object} A dictionary of signal stream definitions
  */
 Mark.getHandleStreams = function(mark: MarkRecord): HandleStreams {
-  // return {}; // TODO(rn): fix handle streams later for signal issues
   switch(mark.type) {
     case 'symbol': return symbolHandleStreams(mark);
     case 'area': return areaHandleStreams(mark);

@@ -1,4 +1,4 @@
-import {Dispatch} from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
 import {getCounts} from '../../ctrl/export';
 import {State} from '../../store';
 import {GuideType} from '../../store/factory/Guide';
@@ -7,6 +7,7 @@ import {updateGuideProperty} from '../guideActions';
 import {updateMarkProperty} from '../markActions';
 import {addScale, amendDataRef, updateScaleProperty} from '../scaleActions';
 import {addScaleToGroup} from './helperActions';
+import {assignId} from '../../util/counter';
 
 const imutils = require('../../util/immutable-utils'),
   getInVis = imutils.getInVis,
@@ -34,7 +35,7 @@ const imutils = require('../../util/immutable-utils'),
  * specifications as well as a mapping of output spec names to Lyra IDs.
  * @returns {void}
  */
-module.exports = function(dispatch: Dispatch, state: State, parsed) {
+export default function(dispatch: ThunkDispatch<State, any, any>, state: State, parsed) {
   const map = parsed.map,
     aggId = map.data.summary,
     markId = parsed.markId,
@@ -45,6 +46,8 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
   function dataRefHasAgg(ref) {
     return ref.get('data') === aggId;
   }
+
+  dispatch;
 
   // If this function is executing, this mark is backed by an aggregated dataset.
   // So update all scales it uses to draw from the aggregated dataset rather
@@ -85,15 +88,16 @@ module.exports = function(dispatch: Dispatch, state: State, parsed) {
   // This behavior reduces guide churning, and keeps guides always visualizing
   // the most recent scale.  Finally, any mark properties that referred to the
   // pre-cloned scales are updated.
+  const _dispatch = dispatch; // TODO(jzong) idk why i need this to appease the compiler
   if (Object.keys(clones).length > 0) {
-    Object.keys(clones).forEach(function(scaleId) {
+    Object.keys(clones).forEach(function (scaleId) {
       const scale = getInVis(state, 'scales.' + scaleId),
-        newScale = addScale(cloneScale(scale, aggId)),
-        newScaleId = (clones[scaleId] = newScale.meta),
         groupId = mark.get('_parent');
       let guide, guideId;
 
-      dispatch(newScale);
+      const newScaleId = (clones[scaleId] = assignId(_dispatch, state));
+      const newScale = cloneScale(scale, aggId).merge({_id: newScaleId});
+      dispatch(addScale(newScale));
       dispatch(addScaleToGroup(newScaleId, groupId));
 
       for (guideId in counts.scales[scaleId].guides) {

@@ -1,24 +1,25 @@
-import {AnyAction} from 'redux';
+import {AnyAction, Dispatch} from 'redux';
 import {ThunkAction} from 'redux-thunk';
 import {createStandardAction} from 'typesafe-actions';
 import {batchGroupBy} from '../reducers/historyOptions';
 import {State} from '../store';
 import {SceneRecord} from '../store/factory/marks/Scene';
 import {deleteMark} from './markActions';
+import {assignId} from '../util/counter';
 
-const counter = require('../util/counter');
 const getInVis = require('../util/immutable-utils').getInVis;
 
-export const createScene = createStandardAction('CREATE_SCENE').map((payload: SceneRecord) => {
-  const id: number = payload._id || counter.global();
-  return {
-    payload: {
+export function createScene (payload: SceneRecord) {
+  return function(dispatch: Dispatch, getState: () => State) {
+    const id: number = payload._id || assignId(dispatch, getState());
+
+    dispatch(baseCreateScene({
       props: payload.merge({_id: id}),
       name: 'Scene'
-    },
-    meta: id
-  };
-});
+    }, id));
+  }
+}
+export const baseCreateScene = createStandardAction('CREATE_SCENE')<{props: SceneRecord, name: string}, number>();
 export function clearScene(): ThunkAction<void, State, null, AnyAction> {
   return function(dispatch, getState) {
     const state = getState();

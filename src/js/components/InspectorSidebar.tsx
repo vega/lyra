@@ -15,11 +15,12 @@ import {LineInspector} from './inspectors/Line';
 import {RectInspector} from './inspectors/Rect';
 import {ScaleInspector} from './inspectors/Scale';
 import {InteractionInspector} from './inspectors/Interaction';
+import {WidgetInspector} from './inspectors/Widget';
 import {SymbolInspector} from './inspectors/Symbol';
 import {TextInspector} from './inspectors/Text';
 
 const inspectors = {AreaInspector, GuideInspector, LineInspector,
-  RectInspector, ScaleInspector, SymbolInspector, TextInspector, InteractionInspector,
+  RectInspector, ScaleInspector, SymbolInspector, TextInspector, InteractionInspector, WidgetInspector,
   GroupInspector: RectInspector};
 
 interface Inspector {
@@ -28,6 +29,7 @@ interface Inspector {
   isGuide: boolean,
   isScale: boolean,
   isInteraction: boolean,
+  isWidget: boolean,
   name: string,
   from: string,
   markType: string,
@@ -47,11 +49,13 @@ function mapStateToProps(state: State, ownProps): Inspector {
   const isGuide = selType === getType(inspectorActions.selectGuide);
   const isScale = selType === getType(inspectorActions.selectScale);
   const isInteraction = selType === getType(inspectorActions.selectInteraction);
+  const isWidget = selType === getType(inspectorActions.selectWidget);
 
   const primitive = isMark ? getInVis(state, `marks.${selId}`) :
     isGuide ? getInVis(state, `guides.${selId}`) :
     isScale ? getInVis(state, `scales.${selId}`) :
-    isInteraction ? getInVis(state, `interactions.${selId}`) : null;
+    isInteraction ? getInVis(state, `interactions.${selId}`) :
+    isWidget ? getInVis(state, `widgets.${selId}`) : null;
 
   let from, interactions = [];
   if(isMark) {
@@ -66,12 +70,13 @@ function mapStateToProps(state: State, ownProps): Inspector {
 
   return {
     selectedId: selId,
-    isMark:  isMark,
-    isGuide: isGuide,
-    isScale: isScale,
-    isInteraction: isInteraction,
+    isMark,
+    isGuide,
+    isScale,
+    isInteraction,
+    isWidget,
     name: primitive && primitive.get('name'),
-    from: from,
+    from,
     markType:  primitive && primitive.get('type'),
     guideType: primitive && primitive.get('_gtype'),
     interactionList: interactions
@@ -101,6 +106,9 @@ class BaseInspector extends React.Component<Inspector> {
       } else if (props.isInteraction) {
         ctor = 'Interaction';
         primType = PrimType.INTERACTIONS;
+      } else if (props.isWidget) {
+        ctor = 'Widget';
+        primType = PrimType.WIDGETS;
       }
       InspectorType = inspectors[ctor + 'Inspector'];
     }

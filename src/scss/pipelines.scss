@@ -50,29 +50,29 @@ $pipeline-width: 230px;
 .pipeline {
   background-color: $vlgrey-bg;
   overflow-x: auto;
+  width: calc(100% - 10px);
 
   p.source {
     display: flex;
     align-items: center;
-    margin: $margin (-$inner-padding);
-    padding: $inner-padding;
-    background: $grey-bg;
-    color: white;
-    fill: white;
-    border-top: 1px solid $lgrey-border;
-    border-bottom: 1px solid $lgrey-border;
-
+    // margin: $margin (-$inner-padding);
+    padding: $inner-padding 0;
+    // background: $grey-bg;
     .icon { margin-right: $inner-padding; }
   }
 
   &.selected {
     display: inline-block;
-    padding: $outer-padding $inner-padding $inner-padding $outer-padding;
+    padding: $outer-padding 0 $inner-padding $outer-padding;
     border-radius: $border-radius;
 
     div.header {
       font-weight: 900;
     }
+  }
+
+  > div {
+    display: flex;
   }
 }
 
@@ -81,10 +81,14 @@ $pipeline-width: 230px;
 
   .datatable-container {
     max-width: 230px;
-    margin-right: 2*$inner-padding;
+    margin-right: $outer-padding;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    &:empty {
+      margin-right: 0;
+    }
   }
 }
 
@@ -243,18 +247,20 @@ $pipeline-width: 230px;
 }
 
 .pipelineModal {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
 
   .closeModal {
     top: $inner-padding;
     right: $inner-padding;
   }
 
+  .row {
+    width: 100%;
+    display: flex;
+    padding: 0 2*$inner-padding;
+  }
+
   .examples, .load {
     flex: 1;
-    padding: 0 2*$inner-padding;
     height: 300px;
     overflow: auto;
   }
@@ -267,12 +273,12 @@ $pipeline-width: 230px;
     margin-bottom: $margin;
   }
 
-  .examples h2 {
+  .examples h2, .derive h2 {
     margin: 2*$margin 0;
     margin-bottom: $margin;
   }
 
-  .examples li {
+  .examples li, .derive li {
     padding: $outer-padding;
     cursor: pointer;
     border-radius: $border-radius;
@@ -291,6 +297,19 @@ $pipeline-width: 230px;
     font-weight: bold;
     font-size: 14px;
     margin-bottom: $inner-padding;
+  }
+
+  .derive {
+    width: 100%;
+    max-height: 100px;
+    overflow: auto;
+    padding: 0 2*$inner-padding 2*$inner-padding;
+
+    .pipeline-name {
+      display: block;
+      font-weight: bold;
+      font-size: 14px;
+    }
   }
 
   abbr {

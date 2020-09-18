@@ -82,7 +82,7 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
     }
 
     if (nextSig || nextProps.value !== prevProps.value) {
-      this.setState({value: nextSig ? sg.get(nextSig) : nextProps.value});
+      this.setState({value: nextSig && nextSig.startsWith('lyra') ? sg.get(nextSig) : nextProps.value});
     }
   };
   public componentWillUnmount() {

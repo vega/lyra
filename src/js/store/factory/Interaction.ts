@@ -1,31 +1,9 @@
 import {Map, Record, RecordOf} from 'immutable';
-import InteractionPreview from '../../components/interactions/InteractionPreview';
-import {Signal} from 'vega';
-import {ScaleSimpleType} from '../../ctrl/demonstrations';
-import React from 'react';
-import {LyraMark} from './Mark';
-import {LyraScale} from './Scale';
-
-export interface PropertyValues {
-  size: number,
-  opacity: number,
-  color: string,
-}
-export interface LyraInteraction {
-  id: number;
-  name: string;
-  groupId: number;
-  selection: SelectionRecord;
-  application: ApplicationRecord;
-};
-
 export interface ScaleInfo {
   xScaleName: string;
   yScaleName: string;
   xFieldName: string;
   yFieldName: string;
-  xScaleType: ScaleSimpleType;
-  yScaleType: ScaleSimpleType;
 
 }
 
@@ -40,7 +18,7 @@ interface LyraInteractionPreview {
 export type LyraPointSelection = {
   ptype: 'single' | 'multi';
   field: string;
-
+  encoding: 'x' | 'y';
 } & LyraInteractionPreview;
 
 export const PointSelection = Record<LyraPointSelection>({
@@ -48,20 +26,21 @@ export const PointSelection = Record<LyraPointSelection>({
   ptype: null,
   id: null,
   label: null,
-  field: null
+  field: null,
+  encoding: null
 }, 'LyraPointSelection');
 
 export type PointSelectionRecord = RecordOf<LyraPointSelection>;
 
 export type LyraIntervalSelection = {
-  field: 'x' | 'y' | 'xy';
+  encoding: 'x' | 'y';
 } & LyraInteractionPreview;
 
 export const IntervalSelection = Record<LyraIntervalSelection>({
   type: 'interval',
   id: null,
   label: null,
-  field: null
+  encoding: null
 }, 'LyraIntervalSelection');
 
 export type IntervalSelectionRecord = RecordOf<LyraIntervalSelection>;
@@ -69,22 +48,20 @@ export type IntervalSelectionRecord = RecordOf<LyraIntervalSelection>;
 export type SelectionRecord = PointSelectionRecord | IntervalSelectionRecord;
 
 export type LyraMarkApplication = {
+  targetGroupName: string; // which group does this application affect?
   targetMarkName: string; // which mark does this application affect?
-  isDemonstratingInterval: boolean; // true for interval, false for point
   propertyName: string; // which property (e.g. fill, opacity, size)
-  // selectedValue: any; // value of property when mark is selected /// TODO(jzong): currently using the existing mark value
-  defaultValue: any; // value of property otherwise
+  unselectedValue: any; // value of property otherwise
 } & LyraInteractionPreview;
 
 export const MarkApplication = Record<LyraMarkApplication>({
   type: 'mark',
   id: null,
   label: null,
+  targetGroupName: null,
   targetMarkName: null,
-  isDemonstratingInterval: null,
   propertyName: null,
-  // selectedValue: null,
-  defaultValue: null
+  unselectedValue: null
 }, 'LyraMarkApplication');
 
 export type MarkApplicationRecord = RecordOf<LyraMarkApplication>;
@@ -104,9 +81,8 @@ export type ScaleApplicationRecord = RecordOf<LyraScaleApplication>;
 
 export type LyraTransformApplication = {
   targetGroupName: string; // which group does this application affect? (e.g. for filters, different from parent group)
+  targetMarkName: string;
   datasetName: string;
-  targetMarkName: string,
-  isDemonstratingInterval: boolean; // true for interval, false for point
 } & LyraInteractionPreview;
 
 export const TransformApplication = Record<LyraTransformApplication>({
@@ -114,21 +90,46 @@ export const TransformApplication = Record<LyraTransformApplication>({
   id: null,
   label: null,
   targetGroupName: null,
-  datasetName: null,
   targetMarkName: null,
-  isDemonstratingInterval: null
+  datasetName: null,
 }, 'LyraTransformApplication');
 
 export type TransformApplicationRecord = RecordOf<LyraTransformApplication>;
 
 export type ApplicationRecord = MarkApplicationRecord | ScaleApplicationRecord | TransformApplicationRecord;
 
+export interface InteractionInput {
+  mouse: 'click' | 'drag' | 'mouseover';
+  nearest?: boolean; // nearest parameter for 'mouseover'
+  keycode?: number; // keycode
+  _key?: string; // human readable key name
+}
+
+export interface InteractionSignal {
+  signal: string;
+  label: string; // human-readable label
+  push?: boolean; // does the signal need to pushed to top level? set to true when bound to a mark property or used in a transform expression
+}
+
+export interface LyraInteraction {
+  id: number;
+  name: string;
+  groupId: number;
+  input: InteractionInput;
+  selection: SelectionRecord;
+  applications: ApplicationRecord[];
+  signals: InteractionSignal[];
+};
+
+
 export const Interaction = Record<LyraInteraction>({
   id: null,
   name: null,
   groupId: null,
+  input: null,
   selection: null,
-  application: null
+  applications: [],
+  signals: []
 }, 'LyraInteraction');
 
 export type InteractionRecord = RecordOf<LyraInteraction>;

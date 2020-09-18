@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Icon } from '../Icon';
 import { AddMarks } from './AddMarks';
+import { AddInteractions } from './AddInteractions';
 import { Export } from './Export';
 import {Persist} from './Persist';
 import { UndoRedo } from './UndoRedo';
@@ -18,6 +19,7 @@ export class Toolbar extends React.PureComponent {
           </label>
           <div className='menu'>
             <AddMarks />
+            <AddInteractions />
             <UndoRedo />
             <Persist />
             <Export />

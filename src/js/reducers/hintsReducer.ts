@@ -51,11 +51,11 @@ export function hintsReducer(state: HintsRecord, action: ActionType<typeof hintA
     return state.set('on', action.payload);
   }
 
-  if (action.type === getType(sceneActions.createScene)) {
+  if (action.type === getType(sceneActions.baseCreateScene)) {
     return state.set('display', SceneHints.CREATE_SCENE);
   }
 
-  if (action.type === getType(markActions.addMark)) {
+  if (action.type === getType(markActions.baseAddMark)) {
     const markType = action.payload.props.type;
     if (MarkHints.ADD_MARK[markType]) {
       return state.set('display', MarkHints.ADD_MARK[markType]);

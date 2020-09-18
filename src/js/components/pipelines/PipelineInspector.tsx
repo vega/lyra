@@ -2,14 +2,10 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
 import {PipelineRecord} from '../../store/factory/Pipeline';
-import { Icon } from '../Icon';
-import DataTable from './DataTable';
 import DataTableMulti from './DataTableMulti';
-import TransformList from './transforms/TransformList';
 
 const imutils = require('../../util/immutable-utils');
 const getInVis = imutils.getInVis;
-const assets = require('../../util/assets');
 
 interface OwnProps {
   id: number;
@@ -47,14 +43,16 @@ class BasePipelineInspector extends React.Component<OwnProps & StateProps> {
 
           <DataTableMulti id={pipeline._source} fieldsCount={6} />
 
-          {pipeline._aggregates.entrySeq().map(function(entry, i) {
-            return (
-              <div key={i}>
-                <p className='source'>Group By: {entry[0].split('|').join(', ')}</p>
-                <DataTableMulti id={entry[1]} fieldsCount={fieldsCount} />
-              </div>
-            );
-          })}
+          {
+            pipeline._aggregates.entrySeq().map(function(entry, i) {
+              return (
+                <div key={i} className="aggregate">
+                  <p className='source'>Group By: {entry[0].split('|').join(', ')}</p>
+                  <DataTableMulti id={entry[1]} fieldsCount={6} />
+                </div>
+              );
+            })
+          }
         </div>
       );
     }

@@ -1,5 +1,6 @@
 import {Dispatch} from 'redux';
 import {compare, EncodeEntry, extend} from 'vega';
+import {getFieldDef} from 'vega-lite/build/src/channeldef';
 import {CompiledBinding} from '.';
 import MARK_EXTENTS from '../../constants/markExtents';
 import {State} from '../../store';
@@ -7,10 +8,7 @@ import {propSg} from '../../util/prop-signal';
 import {disableMarkVisual, setMarkVisual, updateMarkProperty} from '../markActions';
 import {setSignal} from '../signalActions';
 
-const dl = require('datalib'),
-  imutils = require('../../util/immutable-utils'),
-  getInVis = imutils.getInVis,
-  getIn = imutils.getIn;
+const getInVis = require('../../util/immutable-utils').getInVis;
 
 /**
  * Parses the mark definition in the resultant Vega specification to determine
@@ -23,29 +21,37 @@ const dl = require('datalib'),
  * @returns {void}
  */
 export default function parseMarks(dispatch: Dispatch, state: State, parsed: CompiledBinding) {
-  const markType = parsed.markType,
-    map = parsed.map,
-    markId = parsed.markId,
-    channel = parsed.channel;
+  const markType = parsed.markType;
+  const map = parsed.map;
+  const markId = parsed.markId;
+  const channel = parsed.channel;
+  let pathgroup = null;
 
   // Most marks will be at the top-level, but path marks (line/area) might
   // be nested in a group for faceting.
   let def = parsed.output.marks[0];
   if (def.type === 'group' && def.name.indexOf('pathgroup') >= 0) {
+    pathgroup = def;
     def = def.marks[0];
   }
 
   if (markType === 'rect' && (channel === 'x' || channel === 'y')) {
     rectSpatial(dispatch, state, parsed, def.encode.update);
   } else if (markType === 'text' && channel === 'text') {
-    // TODO: Text templates are now done via signals,
-    // but the rest of Lyra's infrastructure isn't expecting that.
-    // textTemplate(dispatch, parsed, def.encode.update);
+    textTemplate(dispatch, parsed);
   } else {
     bindProperty(dispatch, parsed, def.encode.update);
   }
 
-  if (def.from && def.from.data) {
+  if (pathgroup) {
+    dispatch(updateMarkProperty({
+      property: '_facet',
+      value: {
+        ...pathgroup.from.facet,
+        data: map.data[pathgroup.from.facet.data]
+      }
+    }, markId));
+  } else if (def.from && def.from.data) {
     dispatch(updateMarkProperty({property: 'from', value: {data: map.data[def.from.data]}}, markId));
   }
 }
@@ -66,8 +72,11 @@ function bindProperty(dispatch: Dispatch, parsed: CompiledBinding, update: Encod
     markType = parsed.markType;
 
   property = property || parsed.property;
-  const def = property === 'stroke' ? update.stroke || update.fill : update[property];
+  if (property === 'detail') {
+    return;
+  }
 
+  const def = property === 'stroke' ? update.stroke || update.fill : update[property];
   if ('scale' in def && typeof def.scale === 'string') {
     def.scale = map.scales[def.scale];
   }
@@ -163,14 +172,13 @@ function rectSpatial(dispatch: Dispatch, state: State, parsed: CompiledBinding, 
  * @param   {Object} def      The parsed Vega visual properties for the mark.
  * @returns {void}
  */
-function textTemplate(dispatch: Dispatch, parsed, def) {
+function textTemplate(dispatch: Dispatch, parsed: CompiledBinding) {
+  const text = getFieldDef(parsed.input.encoding.text);
   dispatch(
     setMarkVisual(
       {
         property: 'text',
-        def: {
-          template: '{{datum.' + def.text.field + '}}'
-        } as any
+        def: {signal: `{{datum.${text.field}}}`}
       },
       parsed.markId
     )

@@ -3,9 +3,11 @@ import {connect} from 'react-redux';
 import ReactTooltip from 'react-tooltip'
 import * as vega from 'vega';
 import bindChannel from '../../actions/bindChannel';
+import {startDragging, stopDragging} from '../../actions/inspectorActions';
 import sg from '../../ctrl/signals';
 import {State} from '../../store';
 import {ColumnRecord, Schema} from '../../store/factory/Dataset';
+import {DraggingStateRecord, FieldDraggingState} from '../../store/factory/Inspector';
 import {CELL, MODE, SELECTED} from '../../store/factory/Signal';
 import duplicate from '../../util/duplicate';
 import {Icon} from '../Icon';
@@ -13,6 +15,7 @@ import {AggregateList} from './AggregateList';
 import FieldType from './FieldType';
 import FilterIcon from './transforms/FilterIcon';
 import FormulaIcon from './transforms/FormulaIcon';
+import LookupIcon from './transforms/LookupIcon';
 import SortIcon from './transforms/SortIcon';
 
 const ctrl = require('../../ctrl');
@@ -20,8 +23,6 @@ const ctrl = require('../../ctrl');
 const getInVis = require('../../util/immutable-utils').getInVis;
 const assets = require('../../util/assets');
 const QUANTITATIVE = require('../../constants/measureTypes').QUANTITATIVE;
-
-const tupleid = (vega as any).tupleid; // TODO: remove when vega/vega#1947 is merged.
 
 interface OwnProps {
   dsId: number;
@@ -35,6 +36,8 @@ interface StateProps {
 
 interface DispatchProps {
   bindChannel: (dsId: number, field: ColumnRecord, markId: number, property: string) => void;
+  startDragging: (d: DraggingStateRecord) => void;
+  stopDragging: () => void;
 }
 
 interface OwnState {
@@ -56,7 +59,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-const actionCreators = {bindChannel};
+const actionCreators: DispatchProps = {bindChannel, startDragging, stopDragging};
 
 class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
 
@@ -98,9 +101,11 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
       }
     });
 
-    evt.dataTransfer.setData('dsId', this.props.dsId);
-    evt.dataTransfer.setData('fieldDef', JSON.stringify(this.state.fieldDef.toJS()));
-    evt.dataTransfer.effectAllowed = 'link';
+    const dsId = this.props.dsId;
+    const fieldDef = this.state.fieldDef;
+
+    this.props.startDragging(FieldDraggingState({dsId, fieldDef}));
+
     sg.set(MODE, 'channels');
     ctrl.update();
   }
@@ -113,7 +118,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
     const sel = sg.get(SELECTED);
     const cell = sg.get(CELL);
     const bindField = this.state.bindField;
-    const dropped = tupleid(sel) && tupleid(cell);
+    const dropped = vega.tupleid(sel) && vega.tupleid(cell);
     const dsId = bindField.source ? props.srcId : props.dsId;
 
     try {
@@ -127,6 +132,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
       console.error(e);
     }
 
+    props.stopDragging();
     sg.set(MODE, 'handles');
     sg.set(CELL, {});
     this.setState({bindField: null});
@@ -176,6 +182,7 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
 
         <FilterIcon dsId={dsId} field={field}/>
         <FormulaIcon dsId={dsId} field={field}/>
+        <LookupIcon dsId={dsId} field={field} />
         {/* <SortIcon dsId={dsId} field={field} /> */}
       </div>
     ) : null;
