@@ -6,6 +6,12 @@ import {connect} from 'react-redux';
 import {PrimType} from '../../constants/primTypes';
 import {Property} from './Property';
 
+const Area = {
+  'ORIENT': [
+    'vertical',
+    'horizontal'
+]};
+
 interface AreaProps {
   primId: number,
   primType: PrimType
@@ -16,12 +22,12 @@ class BaseArea extends React.Component<AreaProps> {
     const props = this.props;
     return (
       <div>
-        {/* <div className="property-group">
+        <div className="property-group">
           <h3>Orientation</h3>
 
           <Property name="orient" label="Orient" type="select"
             opts={Area.ORIENT} {...props} />
-        </div>*/}
+        </div>
 
         <Property name='x' type='number' droppable={true} {...props}>
           <h3 className='label'>X Position</h3>
