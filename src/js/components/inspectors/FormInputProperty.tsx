@@ -118,7 +118,6 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
     if (type === 'number' || type === 'range') {
       value = +value;
     }
-
     // Set the signal on the view but do not dispatch: the `.signal` listener
     // above will dispatch the action to synchronize Redux with Vega.
     if (signal) {
@@ -148,6 +147,7 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
     const colorSupport = this.colorSupport();
 
     switch (props.type) {
+
       case 'checkbox':
         return (
           <input id={id} name={name} type='checkbox' checked={value}
