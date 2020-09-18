@@ -5,6 +5,7 @@ import {propSg} from '../../../util/prop-signal';
 import test from '../../../util/test-if';
 import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
+import {SymbolShape} from 'vega-typings';
 
 export type LyraSymbolMark = LyraMarkMeta & SymbolMark;
 
@@ -24,7 +25,7 @@ export const Symbol = Record<LyraSymbolMark>({
 }, 'LyraSymbolMark');
 
 export type SymbolRecord = RecordOf<LyraSymbolMark>;
-export const SymbolShapes = [
+export const SymbolShapes: SymbolShape[] = [
   'circle',
   'square',
   'cross',
