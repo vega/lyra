@@ -86,7 +86,7 @@ describe('immutable utilities', function() {
     });
 
     it('returns undefined if a non-existant path is supplied', function() {
-      var result = getIn(map, 'some.non.existant.path');
+      var result = getIn(map, 'some.non.existent.path');
       expect(result).to.be.undefined;
     });
 

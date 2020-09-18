@@ -231,7 +231,7 @@ export function registerSignalListeners() {
 }
 
 /**
- * Returns true if the keypresses occured within an input/textarea/contenteditable,
+ * Returns true if the keypresses occurred within an input/textarea/contenteditable,
  * in which case, we want the default functionality to kick in, not our custom.
  * @param   {Event}   evt The triggering DOM event.
  * @returns {boolean} True/false if default behaviour should/should not occur.

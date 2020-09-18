@@ -19,7 +19,7 @@ var context = require.context('./src/js', true, /\.jsx?$/);
 // The two exceptions are the root index.js file (which is also suppressed via
 // IgnorePlugin, see "note also" below) and the root component file which
 // renders the root React component into the document; both of these are for
-// kicking off the app in a live environment, and cause undesireable side-
+// kicking off the app in a live environment, and cause undesirable side-
 // effects when run in a test environment.
 //
 // It's important to note that the tests will run if we skip this step: we'd
