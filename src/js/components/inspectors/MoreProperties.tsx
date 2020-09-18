@@ -37,25 +37,25 @@ class BaseMoreProperties extends React.Component<MorePropsProps, MorePropsState>
       moreLink = (
         <div>
           <h3 className='show-more-props more-props-label'
-            onClick={this.handleClick} style={style1}>
+            onClick={(e) => this.handleClick(e)} style={style1}>
             + {props.label}</h3>
 
           <h3 className='hide-more-props more-props-label'
-            onClick={this.handleClick} style={style0}>
+            onClick={(e) => this.handleClick(e)} style={style0}>
             — {props.label}</h3>
         </div>
       );
     } else {
       moreLink = (
         <a className='show-more-props more-props-label' href='#'
-          onClick={this.handleClick} style={style1}>
+          onClick={(e) => this.handleClick(e)} style={style1}>
           + More {props.label} Properties
         </a>
       );
 
       fewerLink = (
         <a className='hide-more-props more-props-label' href='#'
-          style={style0} onClick={this.handleClick}>
+          style={style0} onClick={(e) => this.handleClick(e)}>
           – Fewer {props.label} Properties
         </a>
       );
