@@ -62,7 +62,15 @@ export const Legend = Record<LyraLegend>({
   symbolFillColor: '#ffffff',
   symbolOpacity: 1,
   strokeColor: '#ffffff',
-  encode: {},
+  encode: {
+    title: {
+      update: {
+        fontSize: {
+          value: null
+        }
+      }
+    }
+  },
   title: null,
   orient: null
 }, 'LyraLegend');

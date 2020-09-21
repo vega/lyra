@@ -28,7 +28,8 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
 
   return {
     legendType: type,
-    scaleType: scale.get('type')
+    scaleType: scale.get('type'),
+    ...guide
   };
 }
 
