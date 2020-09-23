@@ -1,10 +1,12 @@
 'use strict';
 const INTERPOLATE = require('../../constants/interpolate');
+const getInVis = require('../../util/immutable-utils').getInVis;
 
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {PrimType} from '../../constants/primTypes';
 import {Property} from './Property';
+import {State} from '../../store';
 
 const Area = {
   'ORIENT': [
@@ -12,12 +14,22 @@ const Area = {
     'horizontal'
 ]};
 
-interface AreaProps {
+interface OwnProps {
   primId: number,
   primType: PrimType
 }
 
-class BaseArea extends React.Component<AreaProps> {
+interface StateProps {
+  orient: string;
+}
+
+function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
+  const primId = ownProps.primId;
+  return {
+    orient: getInVis(reduxState, `signals.lyra_area_${primId}_orient.value`)
+  };
+}
+class BaseArea extends React.Component<OwnProps & StateProps> {
   public render() {
     const props = this.props;
     return (
@@ -29,17 +41,32 @@ class BaseArea extends React.Component<AreaProps> {
             opts={Area.ORIENT} {...props} />
         </div>
 
-        <Property name='x' type='number' droppable={true} {...props}>
-          <h3 className='label'>X Position</h3>
-        </Property>
+        {props.orient === 'vertical' ?
+            <Property name='x' type='number' droppable={true} {...props}>
+              <h3 className='label'>X Position</h3>
+            </Property>
 
-        <div className='property-group'>
-          <h3>Y Position</h3>
+          : <div className='property-group'>
+              <h3>X Position</h3>
 
-          <Property name='y' label='Start' type='number' droppable={true} {...props} />
+              <Property name='x' label='Start' type='number' droppable={true} {...props} />
 
-          <Property name='y2' label='End' type='number' droppable={true} {...props} />
-        </div>
+              <Property name='x2' label='End' type='number' droppable={true} {...props} />
+            </div>
+        }
+
+        {props.orient === 'vertical' ?
+            <div className='property-group'>
+              <h3>Y Position</h3>
+
+              <Property name='y' label='Start' type='number' droppable={true} {...props} />
+
+              <Property name='y2' label='End' type='number' droppable={true} {...props} />
+            </div>
+          :  <Property name='y' type='number' droppable={true} {...props}>
+                <h3 className='label'>Y Position</h3>
+              </Property>
+        }
 
         <div className='property-group'>
           <h3>Fill</h3>
@@ -74,4 +101,4 @@ class BaseArea extends React.Component<AreaProps> {
     );
   }
 };
-export const AreaInspector = connect()(BaseArea);
+export const AreaInspector = connect(mapStateToProps)(BaseArea);
