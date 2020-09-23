@@ -19,8 +19,12 @@ export const Area = Record<LyraAreaMark>({
   from: null,
   encode: {
     update: {
-      // x2: {value: 0},
+      x2: {value: 0},
       y2: {value: 250},
+      xc: {value: 70, _disabled: true},
+      yc: {value: 70, _disabled: true},
+      width: {value: 40, _disabled: true},
+      height: {value: 40, _disabled: true},
       tension: {value: 13},
       interpolate: {value: 'monotone'},
       orient: {value: 'vertical'}

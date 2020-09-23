@@ -6,6 +6,7 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {PrimType} from '../../constants/primTypes';
 import {Property} from './Property';
+import {ExtentProperty} from './ExtentProperty';
 import {State} from '../../store';
 
 const Area = {
@@ -48,20 +49,21 @@ class BaseArea extends React.Component<OwnProps & StateProps> {
 
           : <div className='property-group'>
               <h3>X Position</h3>
+              {console.log("...props", props)}
+              <ExtentProperty exType='x' {...props} />
+              {/* <Property name='x' label='Start' type='number' droppable={true} {...props} />
 
-              <Property name='x' label='Start' type='number' droppable={true} {...props} />
-
-              <Property name='x2' label='End' type='number' droppable={true} {...props} />
+              <Property name='x2' label='End' type='number' droppable={true} {...props} /> */}
             </div>
         }
 
         {props.orient === 'vertical' ?
             <div className='property-group'>
               <h3>Y Position</h3>
+              <ExtentProperty exType='y' {...props} />
+              {/* <Property name='y' label='Start' type='number' droppable={true} {...props} />
 
-              <Property name='y' label='Start' type='number' droppable={true} {...props} />
-
-              <Property name='y2' label='End' type='number' droppable={true} {...props} />
+              <Property name='y2' label='End' type='number' droppable={true} {...props} /> */}
             </div>
           :  <Property name='y' type='number' droppable={true} {...props}>
                 <h3 className='label'>Y Position</h3>
