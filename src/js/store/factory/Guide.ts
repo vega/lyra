@@ -40,58 +40,34 @@ export const Axis = Record<LyraAxis>({
   encode: {
     domain: {
       update: {
-        stroke: {
-          value: '#000000'
-        },
-        strokeWidth: {
-          value: 0
-        }
+        stroke: {value: '#000000'},
+        strokeWidth: {value: 0}
       }
     },
     title: {
       update: {
-        fontSize: {
-          value: 10
-        },
-        fill: {
-          value: '#000000'
-        }
+        fontSize: {value: 10},
+        fill: {value: '#000000'}
       }
     },
     labels: {
       update: {
-        fontSize: {
-          value: 10
-        },
-        angle: {
-          value: 0
-        },
-        fill: {
-          value: '#000000'
-        }
+        fontSize: {value: 10},
+        angle: {value: 0},
+        fill: {value: '#000000'}
       }
     },
     grid: {
       update: {
-        stroke: {
-          value: '#000000'
-        },
-        strokeOpacity: {
-          value: 0.5
-        },
-        strokeWidth: {
-          value: 0.25
-        }
+        stroke: {value: '#000000'},
+        strokeOpacity: {value: 0.5},
+        strokeWidth: {value: 0.25}
       }
     },
     ticks: {
       update: {
-        stroke: {
-          value: '#000000'
-        },
-        strokeWidth: {
-          value: 0
-        }
+        stroke: {value: '#000000'},
+        strokeWidth: {value: 0}
       }
     }
   }
@@ -123,32 +99,20 @@ export const Legend = Record<LyraLegend>({
   encode: {
     title: {
       update: {
-        fontSize: {
-          value: 10
-        },
-        fill: {
-          value: '#000000'
-        }
+        fontSize: {value: 10},
+        fill: {value: '#000000'}
       }
     },
     legend: {
       update: { 
-        stroke: {
-          value: '#000000'
-        },
-        strokeWidth: {
-          value: 0
-        }
+        stroke: {value: '#000000'},
+        strokeWidth: {value: 0}
       }
     },
     labels: {
       update: {
-        fontSize: {
-          value: 10
-        },
-        fill: {
-          value: '#000000'
-        }
+        fontSize: {value: 10},
+        fill: {value: '#000000'}
       }
     }
   },
