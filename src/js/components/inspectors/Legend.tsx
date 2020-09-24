@@ -28,8 +28,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
 
   return {
     legendType: type,
-    scaleType: scale.get('type'),
-    ...guide
+    scaleType: scale.get('type')
   };
 }
 
@@ -68,9 +67,9 @@ class BaseLegendInspector extends React.Component<OwnProps & StateProps> {
             opts={orientOpts} onChange={handleChange} {...props} />
 
           <MoreProperties label='Legend'>
-            <Property name={legend + 'stroke'} label='Color' type='color' {...props} />
+            <Property name={legend + 'stroke.value'} label='Color' type='color' onChange={handleChange} {...props} />
 
-            <Property name={legend + 'strokeWidth'} label='Width' type='range'
+            <Property name={legend + 'strokeWidth.value'} label='Width' onChange={handleChange} type='range'
               min='0' max='10' step='0.25' {...props} />
           </MoreProperties>
         </div>

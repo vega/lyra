@@ -1,5 +1,4 @@
 'use strict';
-const getInVis = require('../../util/immutable-utils').getInVis;
 
 import * as React from 'react';
 import {connect} from 'react-redux';
@@ -18,23 +17,12 @@ interface OwnProps {
 
 }
 
-interface StateProps {
-  scaleType?: string;
-}
-
 interface DispatchProps {
   updateGuideProperty: (guideId: number, property: string, value: any) => void;
 }
 
-function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
-  const guide = getInVis(state, 'guides.' + ownProps.primId);
-  const scaleKey = ownProps.guideType === 'axis' ? 'scale' : guide.get('_type');
-  const scaleId = guide.get(scaleKey);
-  const scale = getInVis(state, 'scales.' + scaleId);
-
-  return {
-    ...guide.toJSON()
-  };
+function mapStateToProps(state: State, ownProps) {
+  return {};
 }
 
 function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
