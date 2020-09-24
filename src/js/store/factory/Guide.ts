@@ -32,12 +32,69 @@ export const Axis = Record<LyraAxis>({
   _id: null,
   orient: null,
   scale: null,
-  tickCount: null, // replaces ticks
-  tickSize: null,
+  tickCount: 12, // replaces ticks
+  tickSize: 0,
   grid: false,
   title: null,
   zindex: 0, // replaces layer
-  encode: {}
+  encode: {
+    domain: {
+      update: {
+        stroke: {
+          value: '#000000'
+        },
+        strokeWidth: {
+          value: 0
+        }
+      }
+    },
+    title: {
+      update: {
+        fontSize: {
+          value: 10
+        },
+        fill: {
+          value: '#000000'
+        }
+      }
+    },
+    labels: {
+      update: {
+        fontSize: {
+          value: 10
+        },
+        angle: {
+          value: 0
+        },
+        fill: {
+          value: '#000000'
+        }
+      }
+    },
+    grid: {
+      update: {
+        stroke: {
+          value: '#000000'
+        },
+        strokeOpacity: {
+          value: 0.5
+        },
+        strokeWidth: {
+          value: 0.25
+        }
+      }
+    },
+    ticks: {
+      update: {
+        stroke: {
+          value: '#000000'
+        },
+        strokeWidth: {
+          value: 0
+        }
+      }
+    }
+  }
 }, 'LyraAxis');
 
 export type AxisRecord = RecordOf<LyraAxis>;
