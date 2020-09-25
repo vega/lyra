@@ -26,8 +26,9 @@ interface StateProps {
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const primId = ownProps.primId;
+  const orientSignal = reduxState.getIn(['vis', 'present', 'marks', String(primId), 'encode', 'update', 'orient', 'signal']);
   return {
-    orient: getInVis(reduxState, `signals.lyra_area_${primId}_orient.value`)
+    orient: reduxState.getIn(['vis', 'present', 'signals', orientSignal, 'value'])
   };
 }
 class BaseArea extends React.Component<OwnProps & StateProps> {
@@ -35,33 +36,27 @@ class BaseArea extends React.Component<OwnProps & StateProps> {
     const props = this.props;
     return (
       <div>
-        <div className="property-group">
+        {/* Decided not to expose  orientation as the expected behavior is unclear */}
+        {/* <div className="property-group">
           <h3>Orientation</h3>
 
           <Property name="orient" label="Orient" type="select"
             opts={Area.ORIENT} {...props} />
-        </div>
+        </div> */}
 
+        <h3 className='label'>X Position</h3>
         {props.orient === 'vertical' ?
-            <Property name='x' type='number' droppable={true} {...props}>
-              <h3 className='label'>X Position</h3>
-            </Property>
+            <Property name='x' type='number' droppable={true} {...props} />
 
-          : <div className='property-group'>
-              <h3>X Position</h3>
-              <ExtentProperty exType='x' {...props} />
-            </div>
+          :
+            <ExtentProperty exType='x' {...props} />
         }
 
+        <h3>Y Position</h3>
         {props.orient === 'vertical' ?
-            <div className='property-group'>
-              <h3>Y Position</h3>
-              <ExtentProperty exType='y' {...props} />
-
-            </div>
-          :  <Property name='y' type='number' droppable={true} {...props}>
-                <h3 className='label'>Y Position</h3>
-              </Property>
+            <ExtentProperty exType='y' {...props} />
+          :
+            <Property name='y' type='number' droppable={true} {...props} />
         }
 
         <div className='property-group'>
