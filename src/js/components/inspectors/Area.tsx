@@ -44,20 +44,23 @@ class BaseArea extends React.Component<OwnProps & StateProps> {
             opts={Area.ORIENT} {...props} />
         </div> */}
 
-        <h3 className='label'>X Position</h3>
-        {props.orient === 'vertical' ?
-            <Property name='x' type='number' droppable={true} {...props} />
+        <div className='property-group'>
+          <h3>X Position</h3>
+          {props.orient === 'vertical' ?
+              <Property name='x' label='X' type='number' droppable={true} {...props} />
+            :
+              <ExtentProperty exType='x' {...props} />
+          }
+        </div>
 
-          :
-            <ExtentProperty exType='x' {...props} />
-        }
-
-        <h3>Y Position</h3>
-        {props.orient === 'vertical' ?
-            <ExtentProperty exType='y' {...props} />
-          :
-            <Property name='y' type='number' droppable={true} {...props} />
-        }
+        <div className='property-group'>
+          <h3>Y Position</h3>
+          {props.orient === 'vertical' ?
+              <ExtentProperty exType='y' {...props} />
+            :
+              <Property name='y' label='Y' type='number' droppable={true} {...props} />
+          }
+        </div>
 
         <div className='property-group'>
           <h3>Fill</h3>
