@@ -1,6 +1,5 @@
 'use strict';
 const INTERPOLATE = require('../../constants/interpolate');
-const getInVis = require('../../util/immutable-utils').getInVis;
 
 import * as React from 'react';
 import {connect} from 'react-redux';
@@ -9,11 +8,12 @@ import {Property} from './Property';
 import {ExtentProperty} from './ExtentProperty';
 import {State} from '../../store';
 
-const Area = {
-  'ORIENT': [
-    'vertical',
-    'horizontal'
-]};
+// Needed for orient selector
+// const Area = {
+//   'ORIENT': [
+//     'vertical',
+//     'horizontal'
+// ]};
 
 interface OwnProps {
   primId: number,
