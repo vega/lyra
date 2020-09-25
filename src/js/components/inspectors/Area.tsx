@@ -5,35 +5,59 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {PrimType} from '../../constants/primTypes';
 import {Property} from './Property';
+import {ExtentProperty} from './ExtentProperty';
+import {State} from '../../store';
 
-interface AreaProps {
+// Needed for orient selector
+// const Area = {
+//   'ORIENT': [
+//     'vertical',
+//     'horizontal'
+// ]};
+
+interface OwnProps {
   primId: number,
   primType: PrimType
 }
 
-class BaseArea extends React.Component<AreaProps> {
+interface StateProps {
+  orient: string;
+}
+
+function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
+  const primId = ownProps.primId;
+  const orientSignal = reduxState.getIn(['vis', 'present', 'marks', String(primId), 'encode', 'update', 'orient', 'signal']);
+  return {
+    orient: reduxState.getIn(['vis', 'present', 'signals', orientSignal, 'value'])
+  };
+}
+class BaseArea extends React.Component<OwnProps & StateProps> {
   public render() {
     const props = this.props;
     return (
       <div>
+        {/* Decided not to expose  orientation as the expected behavior is unclear */}
         {/* <div className="property-group">
           <h3>Orientation</h3>
 
           <Property name="orient" label="Orient" type="select"
             opts={Area.ORIENT} {...props} />
-        </div>*/}
+        </div> */}
 
-        <Property name='x' type='number' droppable={true} {...props}>
-          <h3 className='label'>X Position</h3>
-        </Property>
+        <h3 className='label'>X Position</h3>
+        {props.orient === 'vertical' ?
+            <Property name='x' type='number' droppable={true} {...props} />
 
-        <div className='property-group'>
-          <h3>Y Position</h3>
+          :
+            <ExtentProperty exType='x' {...props} />
+        }
 
-          <Property name='y' label='Start' type='number' droppable={true} {...props} />
-
-          <Property name='y2' label='End' type='number' droppable={true} {...props} />
-        </div>
+        <h3>Y Position</h3>
+        {props.orient === 'vertical' ?
+            <ExtentProperty exType='y' {...props} />
+          :
+            <Property name='y' type='number' droppable={true} {...props} />
+        }
 
         <div className='property-group'>
           <h3>Fill</h3>
@@ -68,4 +92,4 @@ class BaseArea extends React.Component<AreaProps> {
     );
   }
 };
-export const AreaInspector = connect()(BaseArea);
+export const AreaInspector = connect(mapStateToProps)(BaseArea);
