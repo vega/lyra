@@ -14,13 +14,16 @@ interface AxisProps {
 }
 
 interface StateProps {
-  orient: string;
+  scaleName: string;
 }
 
 function mapStateToProps(reduxState: State, ownProps: AxisProps): StateProps {
   const primId = ownProps.primId;
+  const guide = reduxState.getIn(['vis', 'present', 'guides', String(primId)]);
+  const scaleId = guide.get("scale");
+  const scale = reduxState.getIn(['vis', 'present', 'scales', scaleId]);
   return {
-    orient: reduxState.getIn(['vis', 'present', 'guides', String(primId),'orient'])
+    scaleName: scale.name
   };
 }
 class BaseAxisInspector extends React.Component<StateProps & AxisProps> {
@@ -42,7 +45,7 @@ class BaseAxisInspector extends React.Component<StateProps & AxisProps> {
           <h3>Axis</h3>
 
           <Property name='orient' label='Orient' type='select'
-            opts={props.orient == 'top' || props.orient == 'bottom' ? orientOpts.slice(0,2) : orientOpts.slice(2,4)} onChange={handleChange} {...props} />
+            opts={props.scaleName === 'x' ? orientOpts.slice(0,2) : orientOpts.slice(2,4)} onChange={handleChange} {...props} />
 
           <MoreProperties label='Axis'>
             <Property name={axis + 'stroke.value'} label='Color' type='color' onChange={handleChange} {...props} />
