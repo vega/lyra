@@ -32,12 +32,45 @@ export const Axis = Record<LyraAxis>({
   _id: null,
   orient: null,
   scale: null,
-  tickCount: null, // replaces ticks
-  tickSize: null,
+  tickCount: 12, // replaces ticks
+  tickSize: 0,
   grid: false,
   title: null,
   zindex: 0, // replaces layer
-  encode: {}
+  encode: {
+    domain: {
+      update: {
+        stroke: {value: '#000000'},
+        strokeWidth: {value: 0}
+      }
+    },
+    title: {
+      update: {
+        fontSize: {value: 10},
+        fill: {value: '#000000'}
+      }
+    },
+    labels: {
+      update: {
+        fontSize: {value: 10},
+        angle: {value: 0},
+        fill: {value: '#000000'}
+      }
+    },
+    grid: {
+      update: {
+        stroke: {value: '#000000'},
+        strokeOpacity: {value: 0.5},
+        strokeWidth: {value: 0.25}
+      }
+    },
+    ticks: {
+      update: {
+        stroke: {value: '#000000'},
+        strokeWidth: {value: 0}
+      }
+    }
+  }
 }, 'LyraAxis');
 
 export type AxisRecord = RecordOf<LyraAxis>;
@@ -62,9 +95,29 @@ export const Legend = Record<LyraLegend>({
   symbolFillColor: '#ffffff',
   symbolOpacity: 1,
   strokeColor: '#ffffff',
-  encode: {},
+  titleFontSize: 10,
+  encode: {
+    title: {
+      update: {
+        fontSize: {value: 10},
+        fill: {value: '#000000'}
+      }
+    },
+    legend: {
+      update: { 
+        stroke: {value: '#000000'},
+        strokeWidth: {value: 0}
+      }
+    },
+    labels: {
+      update: {
+        fontSize: {value: 10},
+        fill: {value: '#000000'}
+      }
+    }
+  },
   title: null,
-  orient: null
+  orient: 'right'
 }, 'LyraLegend');
 
 export type LegendRecord = RecordOf<LyraLegend>;
@@ -98,8 +151,7 @@ export function Guide(gtype : GuideType, type: string, scaleId : number | ScaleR
   } else if (gtype === GuideType.Legend) {
     return Legend({
       _type: type as LegendForType,
-      [type]: scale,
-      encode: {}
+      [type]: scale
     });
   }
 };
