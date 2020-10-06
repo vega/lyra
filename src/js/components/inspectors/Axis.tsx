@@ -66,7 +66,10 @@ class BaseAxisInspector extends React.Component<StateProps & AxisProps> {
           <MoreProperties label='Title'>
             <Property name={title + 'fill.value'} label='Color' type='color' onChange={handleChange} {...props} />
 
-            <Property name='titleOffset' label='Offset' type='number'
+            <Property name={title + 'dx.value'} label='dx Offset' type='number'
+              onChange={handleChange} {...props} />
+            
+            <Property name={title + 'dy.value'} label='dy Offset' type='number'
               onChange={handleChange} {...props} />
           </MoreProperties>
         </div>

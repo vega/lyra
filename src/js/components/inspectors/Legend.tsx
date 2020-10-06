@@ -130,7 +130,7 @@ class BaseLegendInspector extends React.Component<OwnProps & StateProps> {
               ) : null}
 
               <MoreProperties label='Symbol'>
-                <Property name={symbols + 'fillOpacity.value'} label='Opacity'
+                <Property name={symbols + 'opacity.value'} label='Opacity'
                   type='range' min='0' max='1' step='0.05'  onChange={handleChange} {...props} />
 
                 <Property name={symbols + 'strokeWidth.value'} label='Width'
