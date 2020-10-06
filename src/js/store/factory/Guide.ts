@@ -105,7 +105,7 @@ export const Legend = Record<LyraLegend>({
       }
     },
     legend: {
-      update: { 
+      update: {
         stroke: {value: '#000000'},
         strokeWidth: {value: 0}
       }
@@ -120,7 +120,8 @@ export const Legend = Record<LyraLegend>({
       update: {
         stroke: { value: '#000000' },
         strokeWidth: { value: 0 }
-    },    
+      }
+    },
     symbols: {
       update: {
         strokeWidth: { value: 1 },
