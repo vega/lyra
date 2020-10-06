@@ -5,6 +5,7 @@ import {connect} from 'react-redux';
 import {MoreProperties} from './MoreProperties';
 import {Property} from './Property';
 import {PrimType} from '../../constants/primTypes';
+import {State} from '../../store';
 
 interface AxisProps {
   primId: number,
@@ -12,7 +13,20 @@ interface AxisProps {
   handleChange: (evt) => void
 }
 
-class BaseAxisInspector extends React.Component<AxisProps> {
+interface StateProps {
+  scaleName: string;
+}
+
+function mapStateToProps(reduxState: State, ownProps: AxisProps): StateProps {
+  const primId = ownProps.primId;
+  const guide = reduxState.getIn(['vis', 'present', 'guides', String(primId)]);
+  const scaleId = guide.get("scale");
+  const scale = reduxState.getIn(['vis', 'present', 'scales', scaleId]);
+  return {
+    scaleName: scale.name
+  };
+}
+class BaseAxisInspector extends React.Component<StateProps & AxisProps> {
 
   public render() {
     const props = this.props;
@@ -31,7 +45,7 @@ class BaseAxisInspector extends React.Component<AxisProps> {
           <h3>Axis</h3>
 
           <Property name='orient' label='Orient' type='select'
-            opts={orientOpts} onChange={handleChange} {...props} />
+            opts={props.scaleName === 'x' ? orientOpts.slice(0,2) : orientOpts.slice(2,4)} onChange={handleChange} {...props} />
 
           <MoreProperties label='Axis'>
             <Property name={axis + 'stroke.value'} label='Color' type='color' onChange={handleChange} {...props} />
@@ -52,7 +66,10 @@ class BaseAxisInspector extends React.Component<AxisProps> {
           <MoreProperties label='Title'>
             <Property name={title + 'fill.value'} label='Color' type='color' onChange={handleChange} {...props} />
 
-            <Property name='titleOffset' label='Offset' type='number'
+            <Property name={title + 'dx.value'} label='dx Offset' type='number'
+              onChange={handleChange} {...props} />
+            
+            <Property name={title + 'dy.value'} label='dy Offset' type='number'
               onChange={handleChange} {...props} />
           </MoreProperties>
         </div>
@@ -100,9 +117,6 @@ class BaseAxisInspector extends React.Component<AxisProps> {
             <Property name={ticks + 'strokeWidth.value'} label='Width' type='range'
               min='0' max='10' step='0.25' onChange={handleChange} {...props} />
 
-            <Property name='tickPadding' label='Padding' type='range'
-              onChange={handleChange} {...props} />
-
             <Property name='tickSize' label='Size' type='number'
               onChange={handleChange} {...props} />
           </MoreProperties>
@@ -112,4 +126,4 @@ class BaseAxisInspector extends React.Component<AxisProps> {
   }
 };
 
-export const AxisInspector = connect()(BaseAxisInspector);
+export const AxisInspector = connect(mapStateToProps)(BaseAxisInspector);

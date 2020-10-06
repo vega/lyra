@@ -18,8 +18,14 @@ interface DispatchProps {
 function mapDispatchToProps(dispatch, ownProps): DispatchProps {
   return {
     addMark: (type) => {
+      const parentId = getClosestGroupId();
+      console.log(parentId)
+      if (parentId === 1) {
+        // parent is scene. don't add marks directly to the scene (marks should be under a group)
+        return;
+      }
       const newMarkProps = Mark(type, {
-        _parent: getClosestGroupId()
+        _parent: parentId
       });
       dispatch(addMark(newMarkProps));
     }

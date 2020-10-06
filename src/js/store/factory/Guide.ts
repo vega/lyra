@@ -47,7 +47,9 @@ export const Axis = Record<LyraAxis>({
     title: {
       update: {
         fontSize: {value: 10},
-        fill: {value: '#000000'}
+        fill: {value: '#000000'},
+        dx: {value: 0},
+        dy: {value: 0}
       }
     },
     labels: {
@@ -93,7 +95,6 @@ export const Legend = Record<LyraLegend>({
   strokeWidth: null,
   strokeDash: null,
   symbolFillColor: '#ffffff',
-  symbolOpacity: 1,
   strokeColor: '#ffffff',
   titleFontSize: 10,
   encode: {
@@ -119,6 +120,11 @@ export const Legend = Record<LyraLegend>({
       update: {
         stroke: { value: '#000000' },
         strokeWidth: { value: 0 }
+    },    
+    symbols: {
+      update: {
+        strokeWidth: { value: 1 },
+        opacity: {value: 1}
       }
     }
   },
