@@ -115,6 +115,11 @@ export const Legend = Record<LyraLegend>({
         fontSize: {value: 10},
         fill: {value: '#000000'}
       }
+    },
+    gradient: {
+      update: {
+        stroke: { value: '#000000' },
+        strokeWidth: { value: 0 }
     },    
     symbols: {
       update: {
