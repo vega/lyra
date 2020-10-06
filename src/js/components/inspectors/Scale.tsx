@@ -20,6 +20,7 @@ interface StateProps {
 
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
+  console.log(getInVis(state, 'scales.' + ownProps.primId))
   return {
     scale: getInVis(state, 'scales.' + ownProps.primId)
   };
@@ -35,7 +36,19 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps> {
           <ul>
             <li>name: {scale.get('name')}</li>
             <li>type: {scale.get('type')}</li>
-            {/* <li>range: {scale.get('range')}</li> TODO */}
+            <li>range: {JSON.stringify(scale.get('range'))}</li>
+            <li>domain: {JSON.stringify(scale.get('_domain'))}</li>
+            <li>domainMin: {scale.get('domainMin')}</li>
+            <li>domainMax: {scale.get('domainMax')}</li>
+            <li>domainMid: {scale.get('domainMid')}</li>
+            <li>domainRaw: {scale.get('domainRaw')}</li>
+            <li>reverse: {scale.get('reverse')}</li>
+            <li>round: {scale.get('round')}</li>
+            <li>nice*: {scale.get('nice')+''}</li>
+            <li>exponent*: {scale.get('exponent') + ''}</li>
+            <li>align*: {scale.get('align') + ''}</li>
+            <li>padding*: {scale.get('padding') + ''}</li>
+            <li>paddingOuter*: {scale.get('paddingOuter') + ''}</li>
           </ul>
         </div>
       </div>
