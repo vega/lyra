@@ -100,9 +100,9 @@ class BaseLegendInspector extends React.Component<OwnProps & StateProps> {
               {/* <Property name={grad + 'width'} label="Width" type="number" onChange={handleChange} {...props} /> */}
 
               <MoreProperties label='Gradient' header='true'>
-                <Property name={grad + 'stroke.value'} label='Color' type='color'  onChange={handleChange} {...props} />
+                <Property name={grad + 'stroke.value'} label='Border Color' type='color'  onChange={handleChange} {...props} />
 
-                <Property name={grad + 'strokeWidth.value'} label='Width' type='range'
+                <Property name={grad + 'strokeWidth.value'} label='Border Width' type='range'
                   min='0' max='10' step='0.25'  onChange={handleChange} {...props} />
               </MoreProperties>
             </div>
