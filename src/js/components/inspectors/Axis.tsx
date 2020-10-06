@@ -117,9 +117,6 @@ class BaseAxisInspector extends React.Component<StateProps & AxisProps> {
             <Property name={ticks + 'strokeWidth.value'} label='Width' type='range'
               min='0' max='10' step='0.25' onChange={handleChange} {...props} />
 
-            <Property name='tickPadding' label='Padding' type='range'
-              onChange={handleChange} {...props} />
-
             <Property name='tickSize' label='Size' type='number'
               onChange={handleChange} {...props} />
           </MoreProperties>
