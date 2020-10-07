@@ -6,6 +6,7 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
 import {PrimType} from '../../constants/primTypes';
+import {Property} from './Property';
 import {ScaleRecord} from '../../store/factory/Scale';
 
 interface OwnProps {
@@ -27,8 +28,11 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 }
 
 class BaseScaleInspector extends React.Component<OwnProps & StateProps> {
+
   public render() {
-    const scale = this.props.scale;
+    const props = this.props;
+    const scale = props.scale;
+    const typeOpts = ['linear', 'log', 'time', 'ordinal', 'point'];
     return (
       <div>
         <div className='property-group'>
@@ -36,6 +40,9 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps> {
           <ul>
             <li>name: {scale.get('name')}</li>
             <li>type: {scale.get('type')}</li>
+
+            <Property name='type' label='Type' type='select' opts={typeOpts} {...props} />
+
             <li>range: {JSON.stringify(scale.get('range'))}</li>
             <li>domain: {JSON.stringify(scale.get('_domain'))}</li>
             <li>domainMin: {scale.get('domainMin')}</li>
