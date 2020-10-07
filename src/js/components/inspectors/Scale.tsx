@@ -44,14 +44,14 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
 class BaseScaleInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
 
   public handleChange(evt) {
-    const guideId = this.props.primId;
+    const scaleId = this.props.primId;
     const target = evt.target;
     const property = target.name;
     let value = (target.type === 'checkbox') ? target.checked : target.value;
 
     // Parse number or keep string around.
     value = value === '' || isNaN(+value) ? value : +value;
-    this.props.updateScaleProperty(guideId, property, value);
+    this.props.updateScaleProperty(scaleId, property, value);
   };
 
   public render() {
