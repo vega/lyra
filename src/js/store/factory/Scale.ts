@@ -16,7 +16,12 @@ export type LyraScale = {
    */
   _origName: string;
   _domain: any[],
-  _range: any[]
+  _range: any[],
+  nice: any,
+  exponent: any,
+  align: any,
+  padding: any,
+  paddingOuter
 } & RangeScale;
 
 export function Scale(values?: Partial<LyraScale>): ScaleRecord {

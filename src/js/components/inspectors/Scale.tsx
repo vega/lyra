@@ -5,9 +5,11 @@ const getInVis = require('../../util/immutable-utils').getInVis;
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
+import { Dispatch } from 'redux';
 import {PrimType} from '../../constants/primTypes';
 import {Property} from './Property';
 import {ScaleRecord} from '../../store/factory/Scale';
+import { updateScaleProperty } from '../../actions/scaleActions';
 
 interface OwnProps {
   primId: number;
@@ -19,6 +21,10 @@ interface StateProps {
   scale: ScaleRecord;
 }
 
+interface DispatchProps {
+  updateScaleProperty: (scaleId: number, property: string, value: any) => void;
+}
+
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   console.log(getInVis(state, 'scales.' + ownProps.primId))
@@ -27,7 +33,26 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-class BaseScaleInspector extends React.Component<OwnProps & StateProps> {
+function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
+  return {
+    updateScaleProperty: function (scaleId, property, value) {
+      dispatch(updateScaleProperty({ property, value }, scaleId));
+    }
+  };
+}
+
+class BaseScaleInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
+
+  public handleChange(evt) {
+    const guideId = this.props.primId;
+    const target = evt.target;
+    const property = target.name;
+    let value = (target.type === 'checkbox') ? target.checked : target.value;
+
+    // Parse number or keep string around.
+    value = value === '' || isNaN(+value) ? value : +value;
+    this.props.updateScaleProperty(guideId, property, value);
+  };
 
   public render() {
     const props = this.props;
@@ -41,7 +66,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps> {
             <li>name: {scale.get('name')}</li>
             <li>type: {scale.get('type')}</li>
 
-            <Property name='type' label='Type' type='select' opts={typeOpts} {...props} />
+            <Property name='type' label='Type' type='select' opts={typeOpts} onChange={(e) => this.handleChange(e)} {...props} />
 
             <li>range: {JSON.stringify(scale.get('range'))}</li>
             <li>domain: {JSON.stringify(scale.get('_domain'))}</li>
@@ -63,4 +88,4 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps> {
   }
 };
 
-export const ScaleInspector = connect(mapStateToProps)(BaseScaleInspector);
+export const ScaleInspector = connect(mapStateToProps, mapDispatchToProps)(BaseScaleInspector);
