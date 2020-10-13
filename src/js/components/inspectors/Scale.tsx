@@ -27,7 +27,7 @@ interface DispatchProps {
 
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
-  console.log(getInVis(state, 'scales.' + ownProps.primId))
+  console.log("map state to props:", getInVis(state, 'scales.' + ownProps.primId));
   return {
     scale: getInVis(state, 'scales.' + ownProps.primId)
   };
@@ -36,6 +36,8 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   return {
     updateScaleProperty: function (scaleId, property, value) {
+      console.log("dispatch property", property);
+      console.log("dispatch value", value);
       dispatch(updateScaleProperty({ property, value }, scaleId));
     }
   };
@@ -47,8 +49,8 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     const scaleId = this.props.primId;
     const target = evt.target;
     const property = target.name;
-    let value = (target.type === 'checkbox') ? target.checked : target.value;
 
+    let value = (target.type === 'checkbox') ? target.checked : target.value;
     // Parse number or keep string around.
     value = value === '' || isNaN(+value) ? value : +value;
     this.props.updateScaleProperty(scaleId, property, value);
@@ -68,8 +70,12 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
 
             <Property name='type' label='Type' type='select' opts={typeOpts} onChange={(e) => this.handleChange(e)} {...props} />
 
-            <li>range: {JSON.stringify(scale.get('range'))}</li>
             <li>domain: {JSON.stringify(scale.get('_domain'))}</li>
+            <Property name='domainMin' label='Domain Min' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+            <Property name='domainMax' label='Domain Max' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+
+            <li>range: {JSON.stringify(scale.get('range'))}</li>
+
             <li>domainMin: {scale.get('domainMin')}</li>
             <li>domainMax: {scale.get('domainMax')}</li>
             <li>domainMid: {scale.get('domainMid')}</li>

@@ -21,7 +21,9 @@ export type LyraScale = {
   exponent: any,
   align: any,
   padding: any,
-  paddingOuter
+  paddingOuter: any,
+  domainMin: 0,
+  domainMax: 100,
 } & RangeScale;
 
 export function Scale(values?: Partial<LyraScale>): ScaleRecord {
