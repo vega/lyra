@@ -46,22 +46,19 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     const scaleId = this.props.primId;
     const target = evt.target;
     const property = target.name;
+    const scaleName = this.props.scale.get('name');
 
-    let value = (target.type === 'checkbox') ? target.checked : target.value;
-    // Parse number or keep string around.
-    value = value === '' || isNaN(+value) ? value : +value;
+    let value = (target.type === 'checkbox') ? target.checked : target.value;;
+    if (scaleName === 'color' && property === 'range') {
+      value = { "scheme": value };
+    } else if (!(typeof (value) === 'boolean' || value === '' || isNaN(+value))) {
+      // Parse number or keep string around.
+      value =  +value;
+    }
+    
     this.props.updateScaleProperty(scaleId, property, value);
   };
 
-  public handleRangeColor(evt) {
-    const scaleId = this.props.primId;
-    const target = evt.target;
-    const property = target.name;
-    const value = target.value;
-
-    this.props.updateScaleProperty(scaleId, property, {"scheme": value});
-
-  }
   public render() {
     const props = this.props;
     const scale = props.scale;
@@ -90,7 +87,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
           <Property name='padding' label='Padding' type='number' onChange={(e) => this.handleChange(e)} {...props} />
 
           <div className="property">
-            <div className='label-long'>Domain Field</div>
+            <div className='label'>Domain Field</div>
             <div className='control'>{scale.getIn(['_domain', 0, 'field'])}</div>
           </div>
           { (scaleType === 'linear' || scaleType === 'log' || scaleType === 'time') &&
@@ -102,7 +99,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
           {scaleName === "color" ?
               <Property name='range' label='Range' type='select'
               opts={rangeColorCategoryOpts.concat(rangeColorSequentialOpts).concat(rangeColorDivergingOpts)}
-              onChange={(e) => this.handleRangeColor(e)} {...props} />
+              onChange={(e) => this.handleChange(e)} {...props} />
             :
               <Property name='range' label='Range' type='select' opts={rangeOpts}
               onChange={(e) => this.handleChange(e)} {...props} />
