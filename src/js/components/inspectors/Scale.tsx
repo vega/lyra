@@ -27,7 +27,6 @@ interface DispatchProps {
 
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
-  console.log("map state to props:", getInVis(state, 'scales.' + ownProps.primId));
   return {
     scale: getInVis(state, 'scales.' + ownProps.primId)
   };
@@ -36,8 +35,6 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   return {
     updateScaleProperty: function (scaleId, property, value) {
-      // console.log("dispatch property", property);
-      // console.log("dispatch value", value);
       dispatch(updateScaleProperty({ property, value }, scaleId));
     }
   };
@@ -56,11 +53,23 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     this.props.updateScaleProperty(scaleId, property, value);
   };
 
+  public handleRangeColor(evt) {
+    const scaleId = this.props.primId;
+    const target = evt.target;
+    const property = target.name;
+    const value = target.value;
+
+    this.props.updateScaleProperty(scaleId, property, {"scheme": value});
+
+  }
   public render() {
     const props = this.props;
     const scale = props.scale;
     const typeOpts = ['linear', 'log', 'time', 'ordinal', 'band', 'point'];
     const rangeOpts = ['width', 'height', 'symbol', 'category', 'diverging', 'ordinal', 'ramp', 'heatmap'];
+    const rangeColorCategoryOpts = ['tableau10', 'category10', 'category20', 'tableau20'];
+    const rangeColorSequentialOpts = ['blues', 'greens', 'oranges', 'reds', 'purples'];
+    const rangeColorDivergingOpts = ['blueorange', 'redblue', 'spectral'];
     return (
       <div>
         <div className='property-group'>
@@ -83,7 +92,15 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
               </div>
             }
             <li>range: {JSON.stringify(scale.get('range'))}</li>
-            <Property name='range' label='Range' type='select' opts={rangeOpts} onChange={(e) => this.handleChange(e)} {...props} />
+            {scale.get('name') == "color" ?
+                <Property name='range' label='Range' type='select'
+                opts={rangeColorCategoryOpts.concat(rangeColorSequentialOpts).concat(rangeColorDivergingOpts)}
+                onChange={(e) => this.handleRangeColor(e)} {...props} />
+              :
+                <Property name='range' label='Range' type='select' opts={rangeOpts}
+                onChange={(e) => this.handleChange(e)} {...props} />
+            }
+
 
             <li>domainMin: {scale.get('domainMin')}</li>
             <li>domainMax: {scale.get('domainMax')}</li>

@@ -141,7 +141,7 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
     const min = props.min;
     const max = props.max;
     const disabled = props.disabled || props.group;
-    const value = !disabled ? this.state.value : '';
+    let value = !disabled ? this.state.value : '';
     const onChange = props.onChange || this.handleChange.bind(this);
     const onBlur = props.onBlur;
     const colorSupport = this.colorSupport();
@@ -189,6 +189,9 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
         );
 
       case 'select':
+        if (value.scheme) {
+          value = value.scheme;
+        }
         return (
           <select id={id} name={name} value={value} disabled={disabled}
             onChange={onChange} onBlur={onBlur}>
