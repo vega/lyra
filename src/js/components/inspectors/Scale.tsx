@@ -70,50 +70,43 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     const rangeColorCategoryOpts = ['tableau10', 'category10', 'category20', 'tableau20'];
     const rangeColorSequentialOpts = ['blues', 'greens', 'oranges', 'reds', 'purples'];
     const rangeColorDivergingOpts = ['blueorange', 'redblue', 'spectral'];
+    const scaleName = scale.get('name');
+    const scaleType = scale.get('type');
     return (
       <div>
         <div className='property-group'>
-          <h3 className='label'>Placeholder</h3>
-          <ul>
-            <li>name: {scale.get('name')}</li>
-            <li>type: {scale.get('type')}</li>
+          <Property name='type' label='Type' type='select' opts={typeOpts} onChange={(e) => this.handleChange(e)} {...props} />
+          <Property name='clamp' label='Clamp' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
+          <Property name='nice' label='Nice' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
+          <Property name='zero' label='Zero' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
 
-            <Property name='type' label='Type' type='select' opts={typeOpts} onChange={(e) => this.handleChange(e)} {...props} />
+          <Property name='reverse' label='Reverse' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
+          <Property name='round' label='Round' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
 
-            <Property name='clamp' label='Clamp' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
-            <Property name='nice' label='Nice' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
-            <Property name='zero' label='Zero' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
+          <Property name='align' label='Align' type='number' onChange={(e) => this.handleChange(e)} {...props} />
 
-            <li>domain: {JSON.stringify(scale.get('_domain'))}</li>
-            { (scale.get('type') == 'linear' || scale.get('type') == 'log' || scale.get('type') == 'time') &&
-              <div>
-                <Property name='domainMin' label='Domain Min' type='number' onChange={(e) => this.handleChange(e)} {...props} />
-                <Property name='domainMax' label='Domain Max' type='number' onChange={(e) => this.handleChange(e)} {...props} />
-              </div>
-            }
-            <li>range: {JSON.stringify(scale.get('range'))}</li>
-            {scale.get('name') == "color" ?
-                <Property name='range' label='Range' type='select'
-                opts={rangeColorCategoryOpts.concat(rangeColorSequentialOpts).concat(rangeColorDivergingOpts)}
-                onChange={(e) => this.handleRangeColor(e)} {...props} />
-              :
-                <Property name='range' label='Range' type='select' opts={rangeOpts}
-                onChange={(e) => this.handleChange(e)} {...props} />
-            }
+          <Property name='paddingInner' label='Padding Inner' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+          <Property name='paddingOuter' label='Padding Outer' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+          <Property name='padding' label='Padding' type='number' onChange={(e) => this.handleChange(e)} {...props} />
 
-
-            <li>domainMin: {scale.get('domainMin')}</li>
-            <li>domainMax: {scale.get('domainMax')}</li>
-            <li>domainMid: {scale.get('domainMid')}</li>
-            <li>domainRaw: {scale.get('domainRaw')}</li>
-            <li>reverse: {scale.get('reverse')}</li>
-            <li>round: {scale.get('round')}</li>
-            <li>nice*: {scale.get('nice')+''}</li>
-            <li>exponent*: {scale.get('exponent') + ''}</li>
-            <li>align*: {scale.get('align') + ''}</li>
-            <li>padding*: {scale.get('padding') + ''}</li>
-            <li>paddingOuter*: {scale.get('paddingOuter') + ''}</li>
-          </ul>
+          <div className="property">
+            <div className='label-long'>Domain Field</div>
+            <div className='control'>{scale.getIn(['_domain', 0, 'field'])}</div>
+          </div>
+          { (scaleType === 'linear' || scaleType === 'log' || scaleType === 'time') &&
+            <div>
+              <Property name='domainMin' label='Domain Min' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+              <Property name='domainMax' label='Domain Max' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+            </div>
+          }
+          {scaleName === "color" ?
+              <Property name='range' label='Range' type='select'
+              opts={rangeColorCategoryOpts.concat(rangeColorSequentialOpts).concat(rangeColorDivergingOpts)}
+              onChange={(e) => this.handleRangeColor(e)} {...props} />
+            :
+              <Property name='range' label='Range' type='select' opts={rangeOpts}
+              onChange={(e) => this.handleChange(e)} {...props} />
+          }
         </div>
       </div>
     );
