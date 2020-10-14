@@ -36,8 +36,8 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   return {
     updateScaleProperty: function (scaleId, property, value) {
-      console.log("dispatch property", property);
-      console.log("dispatch value", value);
+      // console.log("dispatch property", property);
+      // console.log("dispatch value", value);
       dispatch(updateScaleProperty({ property, value }, scaleId));
     }
   };
@@ -59,7 +59,8 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
   public render() {
     const props = this.props;
     const scale = props.scale;
-    const typeOpts = ['linear', 'log', 'time', 'ordinal', 'point'];
+    const typeOpts = ['linear', 'log', 'time', 'ordinal', 'band', 'point'];
+    const rangeOpts = ['width', 'height', 'symbol', 'category', 'diverging', 'ordinal', 'ramp', 'heatmap'];
     return (
       <div>
         <div className='property-group'>
@@ -70,11 +71,19 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
 
             <Property name='type' label='Type' type='select' opts={typeOpts} onChange={(e) => this.handleChange(e)} {...props} />
 
-            <li>domain: {JSON.stringify(scale.get('_domain'))}</li>
-            <Property name='domainMin' label='Domain Min' type='number' onChange={(e) => this.handleChange(e)} {...props} />
-            <Property name='domainMax' label='Domain Max' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+            <Property name='clamp' label='Clamp' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
+            <Property name='nice' label='Nice' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
+            <Property name='zero' label='Zero' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
 
+            <li>domain: {JSON.stringify(scale.get('_domain'))}</li>
+            { (scale.get('type') == 'linear' || scale.get('type') == 'log' || scale.get('type') == 'time') &&
+              <div>
+                <Property name='domainMin' label='Domain Min' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+                <Property name='domainMax' label='Domain Max' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+              </div>
+            }
             <li>range: {JSON.stringify(scale.get('range'))}</li>
+            <Property name='range' label='Range' type='select' opts={rangeOpts} onChange={(e) => this.handleChange(e)} {...props} />
 
             <li>domainMin: {scale.get('domainMin')}</li>
             <li>domainMax: {scale.get('domainMax')}</li>
