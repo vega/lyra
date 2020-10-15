@@ -51,7 +51,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     let value = (target.type === 'checkbox') ? target.checked : target.value;;
     if (scaleName === 'color' && property === 'range') {
       value = { "scheme": value };
-    } else if (!(typeof (value) === 'boolean' || value === '' || isNaN(+value))) {
+    } else if (typeof (value) !== 'boolean' && value !== '' && !isNaN(+value)) {
       // Parse number or keep string around.
       value =  +value;
     }
@@ -80,10 +80,13 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
           <Property name='reverse' label='Reverse' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
           <Property name='round' label='Round' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
 
-          <Property name='align' label='Align' type='number' onChange={(e) => this.handleChange(e)} {...props} />
-
-          <Property name='paddingInner' label='Padding Inner' type='number' onChange={(e) => this.handleChange(e)} {...props} />
-          <Property name='paddingOuter' label='Padding Outer' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+          {(scaleType === 'band') &&
+            <div>
+              <Property name='align' label='Align' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+              <Property name='paddingInner' label='Padding Inner' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+              <Property name='paddingOuter' label='Padding Outer' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+            </div>
+          }
           <Property name='padding' label='Padding' type='number' onChange={(e) => this.handleChange(e)} {...props} />
 
           <div className="property">
