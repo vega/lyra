@@ -189,7 +189,7 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
         );
 
       case 'select':
-        if (value.scheme) {
+        if (value && value.scheme) {
           value = value.scheme;
         }
         return (
