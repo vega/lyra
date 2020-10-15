@@ -8,6 +8,7 @@ import {State} from '../../store';
 import { Dispatch } from 'redux';
 import {PrimType} from '../../constants/primTypes';
 import {Property} from './Property';
+import { MoreProperties } from './MoreProperties';
 import {ScaleRecord} from '../../store/factory/Scale';
 import { updateScaleProperty } from '../../actions/scaleActions';
 
@@ -72,41 +73,50 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     return (
       <div>
         <div className='property-group'>
+          <h3>Type</h3>
           <Property name='type' label='Type' type='select' opts={typeOpts} onChange={(e) => this.handleChange(e)} {...props} />
           <Property name='clamp' label='Clamp' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
           <Property name='nice' label='Nice' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
           <Property name='zero' label='Zero' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
-
           <Property name='reverse' label='Reverse' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
           <Property name='round' label='Round' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
-
-          {(scaleType === 'band') &&
-            <div>
-              <Property name='align' label='Align' type='number' onChange={(e) => this.handleChange(e)} {...props} />
-              <Property name='paddingInner' label='Padding Inner' type='number' onChange={(e) => this.handleChange(e)} {...props} />
-              <Property name='paddingOuter' label='Padding Outer' type='number' onChange={(e) => this.handleChange(e)} {...props} />
-            </div>
-          }
-          <Property name='padding' label='Padding' type='number' onChange={(e) => this.handleChange(e)} {...props} />
-
+        </div>
+        <div className='property-group'>
+          <h3>Domain</h3>
           <div className="property">
             <div className='label'>Domain Field</div>
             <div className='control'>{scale.getIn(['_domain', 0, 'field'])}</div>
           </div>
-          { (scaleType === 'linear' || scaleType === 'log' || scaleType === 'time') &&
+          {(scaleType === 'linear' || scaleType === 'log' || scaleType === 'time') &&
             <div>
               <Property name='domainMin' label='Domain Min' type='number' onChange={(e) => this.handleChange(e)} {...props} />
               <Property name='domainMax' label='Domain Max' type='number' onChange={(e) => this.handleChange(e)} {...props} />
             </div>
           }
+        </div>
+        <div className='property-group'>
+          <h3>Range</h3>
           {scaleName === "color" ?
-              <Property name='range' label='Range' type='select'
+            <Property name='range' label='Range' type='select'
               opts={rangeColorCategoryOpts.concat(rangeColorSequentialOpts).concat(rangeColorDivergingOpts)}
               onChange={(e) => this.handleChange(e)} {...props} />
             :
-              <Property name='range' label='Range' type='select' opts={rangeOpts}
+            <Property name='range' label='Range' type='select' opts={rangeOpts}
               onChange={(e) => this.handleChange(e)} {...props} />
           }
+        </div>
+        <div className='property-group'>
+          <h3>Padding</h3>
+          <Property name='padding' label='Padding' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+          {(scaleType === 'band') &&
+            <div>
+            <MoreProperties label='Scale'>
+              <Property name='paddingInner' label='Padding Inner' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+              <Property name='paddingOuter' label='Padding Outer' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+              <Property name='align' label='Align' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+            </MoreProperties>
+            </div>
+          }  
         </div>
       </div>
     );
