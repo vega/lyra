@@ -9,6 +9,7 @@ import { Dispatch } from 'redux';
 import {PrimType} from '../../constants/primTypes';
 import {Property} from './Property';
 import { MoreProperties } from './MoreProperties';
+import { MultiValueProperty } from './MultiValueProperty';
 import {ScaleRecord} from '../../store/factory/Scale';
 import { updateScaleProperty } from '../../actions/scaleActions';
 
