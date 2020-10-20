@@ -50,9 +50,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     const scaleName = this.props.scale.get('name');
 
     let value = (target.type === 'checkbox') ? target.checked : target.value;;
-    // if (scaleName === 'color' && property === 'range') {
-    //   value = { "scheme": value };
-    // } else if (typeof (value) !== 'boolean' && value !== '' && !isNaN(+value)) {
+
     if (typeof (value) !== 'boolean' && value !== '' && !isNaN(+value)) {
       // Parse number or keep string around.
       value =  +value;
