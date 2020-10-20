@@ -31,7 +31,13 @@ export function scalesReducer(state: ScaleState, action: ActionType<typeof scale
 
   if (action.type === getType(scaleActions.updateScaleProperty)) {
     const p = action.payload;
-    return state.setIn([String(id), ...p.property.split(".")], p.value);
+    if (state.getIn([String(id), ...p.property.split(".")])) {
+      return state.setIn([String(id), ...p.property.split(".")], p.value);
+    }
+    const key = p.property.split(".").slice(-1).toString();
+    const obj = {};
+    obj[key] = p.value;
+    return state.setIn([String(id), ...p.property.split(".").slice(0,-1)], obj);
   }
 
   if (action.type === getType(scaleActions.amendDataRef)) {

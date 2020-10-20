@@ -50,13 +50,14 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     const scaleName = this.props.scale.get('name');
 
     let value = (target.type === 'checkbox') ? target.checked : target.value;;
-    if (scaleName === 'color' && property === 'range') {
-      value = { "scheme": value };
-    } else if (typeof (value) !== 'boolean' && value !== '' && !isNaN(+value)) {
+    // if (scaleName === 'color' && property === 'range') {
+    //   value = { "scheme": value };
+    // } else if (typeof (value) !== 'boolean' && value !== '' && !isNaN(+value)) {
+    if (typeof (value) !== 'boolean' && value !== '' && !isNaN(+value)) {
       // Parse number or keep string around.
       value =  +value;
     }
-    
+
     this.props.updateScaleProperty(scaleId, property, value);
   };
 
@@ -97,7 +98,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
         <div className='property-group'>
           <h3>Range</h3>
           {scaleName === "color" ?
-            <Property name='range' label='Range' type='select'
+            <Property name='range.scheme' label='Range' type='select'
               opts={rangeColorCategoryOpts.concat(rangeColorSequentialOpts).concat(rangeColorDivergingOpts)}
               onChange={(e) => this.handleChange(e)} {...props} />
             :
@@ -116,7 +117,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
               <Property name='align' label='Align' type='number' onChange={(e) => this.handleChange(e)} {...props} />
             </MoreProperties>
             </div>
-          }  
+          }
         </div>
       </div>
     );
