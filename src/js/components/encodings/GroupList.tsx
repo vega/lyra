@@ -69,7 +69,7 @@ class GroupList extends React.Component<StateProps & DispatchProps> {
           </span>
         </h2>
 
-        <ul>
+        {/* <ul>
           <li id='scene'>
             <div className={'edit name' + (sceneSelected ? ' selected' : '')}
               onClick={this.props.selectMark.bind(null, sceneId)}> Edit Scene
@@ -79,7 +79,7 @@ class GroupList extends React.Component<StateProps & DispatchProps> {
                 data-html={true} data-tip={'Clear scene'} data-place='right' />
             </div>
           </li>
-        </ul>
+        </ul> */}
 
         <ul>
           {groups.map(function(id) {
