@@ -56,17 +56,17 @@ export function getHandleStreams(text: TextRecord): HandleStreams {
 
   return {
     [x]: [{
-      events: {signal: DELTA}, update: test(at(), `${x} + ${DX}`, x)
+      events: {signal: DELTA}, update: test(at(), `${x} + ${DX}`, x, id)
     }],
     [y]: [{
-      events: {signal: DELTA}, update: test(at(), `${y} + ${DY}`, y)
+      events: {signal: DELTA}, update: test(at(), `${y} + ${DY}`, y, id)
     }],
     // Allow upper-left and lower-right handles to control font size
     [fontSize]: [
-      {events: {signal: DELTA}, update: test(`${at('left')} && ${at('top')}`, `${fontSize} - ${DX}`, fontSize)},
-      {events: {signal: DELTA}, update: test(`${at('right')} && ${at('bottom')}`, `${fontSize} + ${DX}`, fontSize)},
-      {events: {signal: DELTA}, update: test(`${at('left')} && ${at('top')}`, `${fontSize} - ${DY}`, fontSize)},
-      {events: {signal: DELTA}, update: test(`${at('right')} && ${at('bottom')}`, `${fontSize} + ${DY}`, fontSize)}
+      {events: {signal: DELTA}, update: test(`${at('left')} && ${at('top')}`, `${fontSize} - ${DX}`, fontSize, id)},
+      {events: {signal: DELTA}, update: test(`${at('right')} && ${at('bottom')}`, `${fontSize} + ${DX}`, fontSize, id)},
+      {events: {signal: DELTA}, update: test(`${at('left')} && ${at('top')}`, `${fontSize} - ${DY}`, fontSize, id)},
+      {events: {signal: DELTA}, update: test(`${at('right')} && ${at('bottom')}`, `${fontSize} + ${DY}`, fontSize, id)}
     ]
   }
 };

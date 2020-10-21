@@ -49,10 +49,10 @@ export function getHandleStreams(line: LineRecord): HandleStreams {
 
   return {
     [x]: [{
-      events: {signal: DELTA}, update: test(at(), `${x} + ${DX}`, x)
+      events: {signal: DELTA}, update: test(at(), `${x} + ${DX}`, x, id)
     }],
     [y]: [{
-      events: {signal: DELTA}, update: test(at(), `${y} + ${DY}`, y)
+      events: {signal: DELTA}, update: test(at(), `${y} + ${DY}`, y, id)
     }]
   };
 };

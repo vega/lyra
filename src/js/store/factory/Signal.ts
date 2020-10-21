@@ -41,8 +41,7 @@ export const defaultSignalState: SignalState = Map({
     name: SELECTED,
     value: {mark: {}},
     on: [
-      {events: 'mousedown[item().mark && item().mark.name &&' +
-          'item().mark.name !== ' + stringValue(CELL) + ']',
+      {events: `mousedown[item().mark && item().mark.marktype !== 'group' && item().mark.name && item().mark.name !== ${stringValue(CELL)}], click[item().mark && item().mark.marktype === 'group' && item().mark.name && item().mark.name !== ${stringValue(CELL)}]`,
         update: 'item()'},
       {events: 'mousedown[!item().mark]', update: '{mark: {}}'}
     ],

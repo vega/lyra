@@ -59,30 +59,30 @@ export function getHandleStreams(rect: RectRecord | GroupRecord): HandleStreams 
 
   return {
     [x]: [{
-      events: {signal: DELTA}, update: test(`${at()} || ${at('left')}`, `${x} + ${DX}`, x)
+      events: {signal: DELTA}, update: test(`${at()} || ${at('left')}`, `${x} + ${DX}`, x, id)
     }],
     [xc]: [{
-      events: {signal: DELTA}, update: test(`${at()} || ${at('left')}`, `${xc} + ${DX}`, xc)
+      events: {signal: DELTA}, update: test(`${at()} || ${at('left')}`, `${xc} + ${DX}`, xc, id)
     }],
     [x2]: [{
-      events: {signal: DELTA}, update: test(`${at()} || ${at('right')}`, `${x2} + ${DX}`, x2)
+      events: {signal: DELTA}, update: test(`${at()} || ${at('right')}`, `${x2} + ${DX}`, x2, id)
     }],
     [y]: [{
-      events: {signal: DELTA}, update: test(`${at()} || ${at('top')}`, `${y} + ${DY}`, y)
+      events: {signal: DELTA}, update: test(`${at()} || ${at('top')}`, `${y} + ${DY}`, y, id)
     }],
     [yc]: [{
-      events: {signal: DELTA}, update: test(`${at()} || ${at('top')}`, `${yc} + ${DY}`, yc)
+      events: {signal: DELTA}, update: test(`${at()} || ${at('top')}`, `${yc} + ${DY}`, yc, id)
     }],
     [y2]: [{
-      events: {signal: DELTA}, update: test(`${at()} || ${at('bottom')}`, `${y2} + ${DY}`, y2)
+      events: {signal: DELTA}, update: test(`${at()} || ${at('bottom')}`, `${y2} + ${DY}`, y2, id)
     }],
     [w]: [
-      {events: {signal: DELTA}, update: test(at('left'), w + '-' + DX, w)},
-      {events: {signal: DELTA}, update: test(at('right'), w + '+' + DX, w)}
+      {events: {signal: DELTA}, update: test(at('left'), w + '-' + DX, w, id)},
+      {events: {signal: DELTA}, update: test(at('right'), w + '+' + DX, w, id)}
     ],
     [h]: [
-      {events: {signal: DELTA}, update: test(at('top'), h + '-' + DY, h)},
-      {events: {signal: DELTA}, update: test(at('bottom'), h + '+' + DY, h)}
+      {events: {signal: DELTA}, update: test(at('top'), h + '-' + DY, h, id)},
+      {events: {signal: DELTA}, update: test(at('bottom'), h + '+' + DY, h, id)}
     ]
   };
 };
