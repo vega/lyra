@@ -47,7 +47,6 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     const scaleId = this.props.primId;
     const target = evt.target;
     const property = target.name;
-    const scaleName = this.props.scale.get('name');
 
     let value = (target.type === 'checkbox') ? target.checked : target.value;;
 
