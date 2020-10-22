@@ -59,6 +59,15 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     this.props.updateScaleProperty(scaleId, property, value);
   };
 
+  public filterOpts(opts, scaleName) {
+    if (scaleName.slice(0,1) === "y"){
+      return opts.filter(opt => opt === 'height');
+    } else if (scaleName.slice(0,1) === "x" || scaleName.slice(0,4) == "size") {
+      return opts.filter(opt => opt === 'width');
+    }
+    return opts;
+  }
+
   public render() {
     const props = this.props;
     const scale = props.scale;
@@ -95,13 +104,13 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
         </div>
         <div className='property-group'>
           <h3>Range</h3>
-          {scaleName === "color" ?
+          {scaleName.slice(0,5) === "color" ?
             <Property name='range.scheme' label='Range' type='select'
               opts={rangeColorCategoryOpts.concat(rangeColorSequentialOpts).concat(rangeColorDivergingOpts)}
               onChange={(e) => this.handleChange(e)} {...props} />
             :
-            <Property name='range' label='Range' type='select' opts={rangeOpts}
-              onChange={(e) => this.handleChange(e)} {...props} />
+            <Property name='range' label='Range' type='select' opts={this.filterOpts(rangeOpts, scaleName)}
+            onChange={(e) => this.handleChange(e)} {...props} />
           }
         </div>
         <div className='property-group'>
