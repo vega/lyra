@@ -31,6 +31,8 @@ export function scalesReducer(state: ScaleState, action: ActionType<typeof scale
 
   if (action.type === getType(scaleActions.updateScaleProperty)) {
     const p = action.payload;
+    // try/catch to handle typescript error when setting range.scheme
+    // range can be  range = {"scheme": someColorScheme} or range = "string"
     try {
       return state.setIn([String(id), ...p.property.split(".")], p.value);
     }
