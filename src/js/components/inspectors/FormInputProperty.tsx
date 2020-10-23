@@ -4,7 +4,8 @@ const ctrl = require('../../ctrl');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import { Dispatch } from 'redux';
+import { AnyAction } from 'redux';
+import {ThunkDispatch} from 'redux-thunk';
 import {setSignal} from '../../actions/signalActions';
 import {offSignal, onSignal} from '../../ctrl/listeners';
 import sg from '../../ctrl/signals';
@@ -33,7 +34,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  setSignal: (value: any) => any; // TODO: find function in/out types
+  setSignal: (value: any) => void;
 }
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
@@ -43,7 +44,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   };
 }
 
-function mapDispatchToProps(dispatch: Dispatch, ownProps: OwnProps): DispatchProps {
+function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, ownProps: OwnProps): DispatchProps {
   const signal = ownProps.signal;
   return {
     setSignal: function(value) {

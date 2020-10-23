@@ -77,7 +77,7 @@ export function signalsReducer(state: SignalState, action: ActionType<typeof sig
     return signalInit(state, action.meta, action.payload);
   }
 
-  if (action.type === getType(signalActions.setSignal)) {
+  if (action.type === getType(signalActions.baseSetSignal)) {
     return state.setIn([action.meta, 'value'], action.payload);
   }
 
