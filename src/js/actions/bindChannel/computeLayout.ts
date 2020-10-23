@@ -1,7 +1,6 @@
 'use strict';
 
-import {AnyAction, Dispatch} from 'redux';
-import {ThunkDispatch} from 'redux-thunk';
+import {Dispatch} from 'redux';
 import {defaultConfig} from 'vega-lite/src/config';
 import {updateMarkProperty} from '../../actions/markActions';
 import {setSignal} from '../../actions/signalActions';
@@ -57,7 +56,7 @@ export function computeLayout(dispatch : Dispatch, state : State, parsed, scale)
 };
 
 
-function resize(dispatch: ThunkDispatch<State, null, AnyAction>, state : State, mark, prop : string, size) {
+function resize(dispatch : Dispatch, state : State, mark, prop : string, size) {
   if (mark.get(prop)) { // Scene
     dispatch(updateMarkProperty({property: prop, value: size}, mark.get('_id')));
   } else {

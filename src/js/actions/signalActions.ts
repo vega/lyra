@@ -1,9 +1,5 @@
-import {Dispatch} from 'redux';
 import {createStandardAction} from 'typesafe-actions';
 import {OnEvent, SignalValue} from 'vega-typings/types';
-import {State} from '../store';
-import {invalidateVega} from './vegaActions';
-import {debounce} from 'vega';
 
 /**
  * Action creator to initialize a signal.
@@ -21,20 +17,7 @@ export const initSignal = createStandardAction('INIT_SIGNAL')<SignalValue, strin
  * @param {*} value - The value to set as the signal's initial value
  * @returns {Object} An action object
  */
-export const baseSetSignal = createStandardAction('SET_SIGNAL')<SignalValue, string>();
-
-const dispatchInvalidateVega = debounce(500, (dispatch: Dispatch) => {
-  dispatch(invalidateVega(true));
-});
-
-export function setSignal (value: SignalValue, signal: string) {
-  return function(dispatch: Dispatch, getState: () => State) {
-    dispatchInvalidateVega(dispatch);
-    dispatch(baseSetSignal(value, signal));
-  };
-}
-
-
+export const setSignal = createStandardAction('SET_SIGNAL')<SignalValue, string>();
 
 /**
  * Action creator to configure a property to update based on a stream.

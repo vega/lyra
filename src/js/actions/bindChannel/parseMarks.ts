@@ -1,5 +1,4 @@
-import {AnyAction, Dispatch} from 'redux';
-import {ThunkDispatch} from 'redux-thunk';
+import {Dispatch} from 'redux';
 import {compare, EncodeEntry, extend} from 'vega';
 import {getFieldDef} from 'vega-lite/build/src/channeldef';
 import {CompiledBinding} from '.';
@@ -67,7 +66,7 @@ export default function parseMarks(dispatch: Dispatch, state: State, parsed: Com
  * @param   {string} [property=parsed.property]  The visual property to bind.
  * @returns {void}
  */
-function bindProperty(dispatch: ThunkDispatch<State, null, AnyAction>, parsed: CompiledBinding, update: EncodeEntry, property?: string) {
+function bindProperty(dispatch: Dispatch, parsed: CompiledBinding, update: EncodeEntry, property?: string) {
   const map = parsed.map,
     markId = parsed.markId,
     markType = parsed.markType;
