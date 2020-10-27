@@ -1204,9 +1204,9 @@ export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
   const {scaleRecordX, scaleRecordY} = getScaleRecords(state, groupId);
   return {
     xScaleName: scaleRecordX ? scaleRecordX.get('name') : null,
-    xFieldName: scaleRecordX ? scaleRecordX.get('_domain')[0].field : null,
+    xFieldName: scaleRecordX && scaleRecordX.get('_domain').length > 0 ?  scaleRecordX.get('_domain')[0].field : null,
     yScaleName: scaleRecordY ? scaleRecordY.get('name') : null,
-    yFieldName: scaleRecordY ? scaleRecordY.get('_domain')[0].field : null,
+    yFieldName: scaleRecordY && scaleRecordY.get('_domain').length > 0 ? scaleRecordY.get('_domain')[0].field : null,
   };
 }
 

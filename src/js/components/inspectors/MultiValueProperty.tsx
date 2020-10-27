@@ -1,6 +1,4 @@
 const imutils = require('../../util/immutable-utils');
-const getIn = imutils.getIn;
-const getInVis = imutils.getInVis;
 
 import * as React from 'react';
 import { connect } from 'react-redux';
@@ -9,8 +7,7 @@ import { resetMarkVisual } from '../../actions/markActions';
 import { PrimType } from '../../constants/primTypes';
 import { State } from '../../store';
 import { DraggingStateRecord } from '../../store/factory/Inspector';
-import { AutoComplete } from './AutoComplete';
-import { FormInputProperty } from './FormInputProperty';
+import { Property } from './Property';
 
 interface OwnState {
   dragOver?: number;
@@ -32,6 +29,9 @@ interface OwnProps {
   droppable?: boolean;
   opts?: string[];
   value?: any;
+  isField?: boolean;
+  valueProperty?: string;
+  processValue?: (value, props) => typeof value;
 }
 
 interface StateProps {
@@ -42,7 +42,7 @@ interface StateProps {
   scale?: any;
   srcField?: any;
   scaleName?: any;
-  dragging?: DraggingStateRecord
+  dragging?: DraggingStateRecord;
 }
 
 interface DispatchProps {
@@ -51,36 +51,36 @@ interface DispatchProps {
 
 function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   if (!ownProps.primId) {
-    return {};
+    return {value: null};
   }
 
-  const state = getInVis(reduxState, ownProps.primType + '.' + ownProps.primId);
+  const state = reduxState.getIn(['vis', 'present', ownProps.primType , String(ownProps.primId)]);
   let path;
   let dsId;
 
   if (ownProps.name) {
     if (ownProps.primType === PrimType.MARKS) {
       path = 'encode.update.' + ownProps.name;
-      dsId = getIn(state, 'from.data');
+      dsId = state.getIn(['from','data']);
     } else {
       path = ownProps.name;
     }
   }
 
-  const scale = getIn(state, path + '.scale');
-  const field = getIn(state, path + '.field');
-  const scaleName = scale && getInVis(reduxState, 'scales.' + scale + '.name');
+  const scale = state.getIn([path, 'scale']);
+  const field = state.getIn([path, 'field']);
+  const scaleName = scale && reduxState.getIn(['vis', 'present','scales', String(scale), 'name']);
 
-  const value = getIn(state, path);
+  const value = state.getIn([path]);
 
   return {
-    group: getIn(state, path + '.group'),
-    signal: getIn(state, path + '.signal'),
-    value: value !== null ? value : ownProps.value,
+    group: state.getIn([path, 'group']),
+    signal: state.getIn([path, 'signal']),
+    value: value != null ? value : ownProps.value,
     field: field,
     scale: scale,
     srcField: dsId && field ?
-      getInVis(reduxState, 'datasets.' + dsId + '._schema.' + field + '.source') : false,
+      reduxState.getIn(['vis', 'present', 'datasets', dsId, '_schema', field, 'source']) : false,
     scaleName: scaleName,
     dragging: reduxState.getIn(['inspector', 'dragging'])
   };
@@ -100,59 +100,72 @@ class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps
     this.state = { dragOver: 0 };
   };
 
-  public render() {
+  public handleChange(evt) {
     const props = this.props;
-    const name = props.name;
-    const label = props.label;
     const type = props.type;
-    const scale = props.scale;
-    const field = props.field;
-    const unbind = props.unbind;
-    let dragOver = this.state.dragOver;
-    let labelEl;
-    let scaleEl;
-    let controlEl;
-    let extraEl;
+    let value = evt.target ? evt.target.value : evt;
 
-    React.Children.forEach(props.children, function (child: JSX.Element) {
-      const className = child && child.props.className;
-      if (className === 'extra') {
-        extraEl = child;
-      } else if (className === 'control') {
-        controlEl = child;
-      } else if (type === 'label' || (className && className.indexOf('label') !== -1)) {
-        labelEl = child;
+    // Ensure value is a number
+    if (type === 'number' || type === 'range') {
+      value = +value;
+    }
+
+    let newVal = props.processValue ? props.processValue(value, props) : value;
+
+    let currVals = [...props.value];
+    currVals.push(newVal);
+    
+    evt._isArray = true;
+    evt._arrayValues = currVals;
+
+    props.onChange(evt);
+  };
+
+  public handleUnBind(evt) {
+    const props = this.props;
+    let value = evt.target ? evt.target.dataset.value : evt;
+
+    const unbindVal = props.processValue ? props.processValue(value, props) : value;
+
+    let currVals = props.value.filter((val) => {
+      if (props.valueProperty) {
+        return val[props.valueProperty] !== unbindVal[props.valueProperty];
+      } else {
+        return val !== unbindVal;
       }
     });
 
-    labelEl = labelEl || (<label htmlFor={name}>{label}</label>);
-    scaleEl = scale ?
-      (<div className='scale' onClick={unbind}>{props.scaleName}</div>) : null;
+    evt.target.name = props.name;
+    evt._isArray = true;
+    evt._arrayValues = currVals;
 
-    controlEl = field ?
-      (<div className={'field ' + (props.srcField ? 'source' : 'derived')}
-        onClick={unbind}>{field}</div>) : controlEl;
+    props.onChange(evt);
+  };
 
-    if (!controlEl) {
-      switch (type) {
-        case 'autocomplete':
-          controlEl = (
-            <AutoComplete type={props.autoType} updateFn={props.onChange}
-              value={props.value} dsId={props.dsId}
-              primId={props.primId} primType={props.primType} />
-          );
-          break;
-        default:
-          controlEl = (
-            <FormInputProperty {...props as any} />
-          );
-      }
-    }
-
-    if (extraEl) {
-      extraEl = (<div className='extra'>{extraEl}</div>);
-    }
-
+  public render() {
+    const props = this.props;
+    const isField = props.isField;
+    const label = props.label;
+    const valueProperty = props.valueProperty;
+    let dragOver = this.state.dragOver;
+    let labelEl = (<h3>{label}</h3>);
+    let selectedValsEl = [];
+    props.value.forEach( (item, index) => {
+      selectedValsEl.push(isField ? 
+        <div className="property" key={index}>
+          <div className='label'>{index}</div>
+          <div className='control'>
+            <div className='scale' data-value={valueProperty ? item[valueProperty] : item} onClick={(e) => this.handleUnBind(e)}>Field</div>
+            <div className='field source' data-value={valueProperty ? item[valueProperty] : item}
+              onClick={(e) => this.handleUnBind(e)}>{valueProperty ? item[valueProperty] : item}</div>
+          </div>
+        </div>
+      : <div className="property" key={index}>
+          <div className='label'>{index}</div>
+          <div className='control'>{valueProperty ? item[valueProperty] : item}</div>
+        </div>);
+    });
+    
     const className = 'property' +
       (props.droppable && props.dragging ? ' droppable' : '') +
       (props.droppable && dragOver ? ' drag-over' : '') +
@@ -163,11 +176,8 @@ class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps
         onDragEnter={() => this.setState({ dragOver: ++dragOver })}
         onDragLeave={() => this.setState({ dragOver: --dragOver })}>
         {labelEl}
-        <div className='control'>
-          {scaleEl}
-          {controlEl}
-        </div>
-        {extraEl}
+        {selectedValsEl}
+        <Property {...props} label="Add" onChange={(e) => this.handleChange(e)}/>
       </div>
     );
   }

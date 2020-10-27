@@ -12,15 +12,17 @@ import { MoreProperties } from './MoreProperties';
 import { MultiValueProperty } from './MultiValueProperty';
 import {ScaleRecord} from '../../store/factory/Scale';
 import { updateScaleProperty } from '../../actions/scaleActions';
+import { FormInputProperty } from './FormInputProperty';
 
 interface OwnProps {
   primId: number;
   primType: PrimType;
-
+  _manual: boolean;
 }
 
 interface StateProps {
   scale: ScaleRecord;
+  fields: any;
 }
 
 interface DispatchProps {
@@ -29,8 +31,18 @@ interface DispatchProps {
 
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
+  let scale = state.getIn(['vis', 'present', 'scales', String(ownProps.primId)]);
+  let scaleDomain = scale.get("_domain");
+  let currentFields = scaleDomain.map((domain) => domain.field);
+  let dataIds, fields = [''];
+  [...dataIds] = state.getIn(['vis', 'present', 'datasets']).keys();
+  dataIds.forEach((dataId) => {
+    fields = fields.concat(state.getIn(['vis', 'present', 'datasets', String(dataId), '_schema']).keySeq().toJS());
+  });
+  fields = fields.filter((field) => !currentFields.includes(field));
   return {
-    scale: getInVis(state, 'scales.' + ownProps.primId)
+       scale,
+        fields
   };
 }
 
@@ -49,15 +61,24 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     const target = evt.target;
     const property = target.name;
     const scaleName = this.props.scale.get('name');
+    const isArray = evt._isArray;
 
-    let value = (target.type === 'checkbox') ? target.checked : target.value;;
+    let value = (target.type === 'checkbox') ? target.checked : isArray ? evt._arrayValues :  target.value;;
 
-    if (typeof (value) !== 'boolean' && value !== '' && !isNaN(+value)) {
+    if (typeof (value) !== 'boolean' && value !== '' && !isNaN(+value) && !Array.isArray(value)) {
       // Parse number or keep string around.
       value =  +value;
     }
 
     this.props.updateScaleProperty(scaleId, property, value);
+  };
+
+  public processValue(value, props) {
+    if (props.name === '_domain' && props.type === 'select') {
+      return { data: 5, field: value }
+    } else {
+      return value;
+    }
   };
 
   public render() {
@@ -70,6 +91,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     const rangeColorDivergingOpts = ['blueorange', 'redblue', 'spectral'];
     const scaleName = scale.get('name');
     const scaleType = scale.get('type');
+    const isScaleManual = scale.get('_manual');
     return (
       <div>
         <div className='property-group'>
@@ -82,15 +104,22 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
           <Property name='round' label='Round' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
         </div>
         <div className='property-group'>
-          <h3>Domain</h3>
-          <div className="property">
-            <div className='label'>Domain Field</div>
-            <div className='control'>{scale.getIn(['_domain', 0, 'field'])}</div>
+          <div>
+            <h3>Domain </h3>
+            <Property name='_manual' label='Manual' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
           </div>
-          {(scaleType === 'linear' || scaleType === 'log' || scaleType === 'time') &&
+          {(!isScaleManual) &&
+            <MultiValueProperty name='_domain' label='Fields' type='select' isField onChange={(e) => this.handleChange(e)} opts={props.fields} valueProperty='field' processValue={(value, props) => this.processValue(value, props)} {...props} />
+          }
+          {(scaleType === 'linear' || scaleType === 'log' || scaleType === 'time') && isScaleManual &&
             <div>
               <Property name='domainMin' label='Domain Min' type='number' onChange={(e) => this.handleChange(e)} {...props} />
               <Property name='domainMax' label='Domain Max' type='number' onChange={(e) => this.handleChange(e)} {...props} />
+            </div>
+          }
+          {isScaleManual &&
+            <div>
+            <MultiValueProperty name='_domainManual' label='Values' type='text' valueProperty='field' value={[]} onChange={(e) => this.handleChange(e)} {...props} />
             </div>
           }
         </div>

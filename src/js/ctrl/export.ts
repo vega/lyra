@@ -478,7 +478,7 @@ export function getCounts(recount: boolean) {
  * the last option, as the structure has performance implications in Vega.
  * Most to least performant:
  *   {"data": ..., "field": ...} for a single field
- *   {"data": ..., "field": [...]} for multiple fields from the same dataset.
+ *   {"data": ..., "fields": [...]} for multiple fields from the same dataset.
  *   {"fields": [...]} for multiple fields from distinct datasets
  *
  * @param  {object} state Redux state
@@ -525,7 +525,12 @@ function dataRef(state: State, scale, ref) {
 }
 
 function sortDataRef(data, scale, field) {
-  const ref = {data: name(data.get('name')), field: field};
+  let ref;
+  if (Array.isArray(field)) {
+    ref = { data: name(data.get('name')), fields: field };
+  } else {
+    ref = { data: name(data.get('name')), field: field };
+  }
   if (scale.type === 'ordinal' && data.get('_sort')) {
     const sortField = getIn(data, '_sort.field');
     return extend({}, ref, {
