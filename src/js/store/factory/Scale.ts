@@ -44,3 +44,32 @@ export function Scale(values?: Partial<LyraScale>): ScaleRecord {
 
 export type ScaleRecord = RecordOf<LyraScale>;
 export type ScaleState = Map<string, ScaleRecord>;
+
+
+export namespace ScaleSimpleType {
+  export const CONTINUOUS = 'CONTINUOUS';
+  export const DISCRETE = 'DISCRETE';
+}
+export type ScaleSimpleType = 'CONTINUOUS' | 'DISCRETE';
+
+export function scaleTypeSimple(scaleType): ScaleSimpleType {
+  switch (scaleType) {
+    case 'linear':
+    case 'log':
+    case 'pow':
+    case 'sqrt':
+    case 'symlog':
+    case 'time':
+    case 'utc':
+    case 'sequential':
+      return ScaleSimpleType.CONTINUOUS;
+    case 'ordinal':
+    case 'band':
+    case 'point':
+    case 'quantile':
+    case 'quantize':
+    case 'threshold':
+    case 'bin-ordinal':
+      return ScaleSimpleType.DISCRETE;
+  }
+}

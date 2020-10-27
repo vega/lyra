@@ -1210,34 +1210,6 @@ export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
   };
 }
 
-export namespace ScaleSimpleType {
-  export const CONTINUOUS = 'CONTINUOUS';
-  export const DISCRETE = 'DISCRETE';
-}
-export type ScaleSimpleType = 'CONTINUOUS' | 'DISCRETE';
-
-export function scaleTypeSimple(scaleType): ScaleSimpleType {
-  switch (scaleType) {
-    case 'linear':
-    case 'log':
-    case 'pow':
-    case 'sqrt':
-    case 'symlog':
-    case 'time':
-    case 'utc':
-    case 'sequential':
-      return ScaleSimpleType.CONTINUOUS;
-    case 'ordinal':
-    case 'band':
-    case 'point':
-    case 'quantile':
-    case 'quantize':
-    case 'threshold':
-    case 'bin-ordinal':
-      return ScaleSimpleType.DISCRETE;
-  }
-}
-
 export function cleanSpecForPreview(sceneSpec, width: number, height: number, groupName: string, interactionId: number): Spec {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.autosize = "none";
