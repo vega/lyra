@@ -153,7 +153,7 @@ class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps
     props.value.forEach( (item, index) => {
       selectedValsEl.push(isField ? 
         <div className="property" key={index}>
-          <div className='label'>{index}</div>
+          <div className='label'>{index + 1}</div>
           <div className='control'>
             <div className='scale' data-value={valueProperty ? item[valueProperty] : item} onClick={(e) => this.handleUnBind(e)}>Field</div>
             <div className='field source' data-value={valueProperty ? item[valueProperty] : item}
@@ -161,7 +161,7 @@ class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps
           </div>
         </div>
       : <div className="property" key={index}>
-          <div className='label'>{index}</div>
+          <div className='label'>{index + 1}</div>
           <div className='control'>{valueProperty ? item[valueProperty] : item}</div>
         </div>);
     });
