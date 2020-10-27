@@ -11,6 +11,7 @@ import {Property} from './Property';
 import { MoreProperties } from './MoreProperties';
 import {ScaleRecord} from '../../store/factory/Scale';
 import { updateScaleProperty } from '../../actions/scaleActions';
+import { ScaleSimpleType, scaleTypeSimple} from '../../ctrl/demonstrations';
 
 interface OwnProps {
   primId: number;
@@ -81,7 +82,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
       <div>
         <div className='property-group'>
           <h3>Type</h3>
-          <Property name='type' label='Type' type='select' opts={typeOpts} onChange={(e) => this.handleChange(e)} {...props} />
+          <Property name='type' label='Type' type='select' opts={typeOpts.filter(opt => {return scaleTypeSimple(opt) === scaleTypeSimple(scaleType)})} onChange={(e) => this.handleChange(e)} {...props} />
           <Property name='clamp' label='Clamp' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
           <Property name='nice' label='Nice' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
           <Property name='zero' label='Zero' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
@@ -94,8 +95,8 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
             <div className='label'>Domain Field</div>
             <div className='control'>{scale.getIn(['_domain', 0, 'field'])}</div>
           </div>
-          {(scaleType === 'linear' || scaleType === 'log' || scaleType === 'time') &&
-            <div>
+          {scaleTypeSimple(scaleType) === ScaleSimpleType.CONTINUOUS &&
+           <div>
               <Property name='domainMin' label='Domain Min' type='number' onChange={(e) => this.handleChange(e)} {...props} />
               <Property name='domainMax' label='Domain Max' type='number' onChange={(e) => this.handleChange(e)} {...props} />
             </div>
