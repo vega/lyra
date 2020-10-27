@@ -11,7 +11,7 @@ import {Property} from './Property';
 import { MoreProperties } from './MoreProperties';
 import {ScaleRecord} from '../../store/factory/Scale';
 import { updateScaleProperty } from '../../actions/scaleActions';
-import { ScaleSimpleType, scaleTypeSimple} from '../../ctrl/demonstrations';
+import { ScaleSimpleType, scaleTypeSimple} from '../../store/factory/Scale';
 
 interface OwnProps {
   primId: number;

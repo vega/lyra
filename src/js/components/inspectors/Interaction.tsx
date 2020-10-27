@@ -6,7 +6,8 @@ import {State} from '../../store';
 import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {setInput, setSelection, setApplication, removeApplication, setSignals} from '../../actions/interactionActions';
-import {getScaleInfoForGroup, ScaleSimpleType, getNestedMarksOfGroup, scaleTypeSimple, getFieldsOfGroup} from '../../ctrl/demonstrations';
+import {getScaleInfoForGroup,  getNestedMarksOfGroup,  getFieldsOfGroup} from '../../ctrl/demonstrations';
+import {ScaleSimpleType, scaleTypeSimple} from '../../store/factory/Scale'
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
 import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
