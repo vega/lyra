@@ -119,7 +119,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
           </div>
           {(!isScaleManual) &&
             <MultiValueProperty name='_domain' label='Fields' type='select' isField onChange={(e) => this.handleChange(e)} opts={props.fields} valueProperty='field' processValue={(value, props) => this.processValue(value, props)} {...props} />
-          }
+          } 
           {scaleTypeSimple(scaleType) === ScaleSimpleType.CONTINUOUS && isScaleManual &&
             <div>
               <Property name='domainMin' label='Domain Min' type='number' onChange={(e) => this.handleChange(e)} {...props} />
