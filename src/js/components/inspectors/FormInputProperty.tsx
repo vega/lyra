@@ -21,6 +21,7 @@ interface OwnProps {
   signal?: string;
   onChange?: (e) => any; // TODO: find function in/out types
   onBlur?: () => any; // TODO: find function in/out types
+  onKeyPress?: () => any; // TODO: find function in/out types
   name?: any;
   group?: any;
   glyph?: any;
@@ -144,6 +145,7 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
     const value = !disabled ? this.state.value : '';
     const onChange = props.onChange || this.handleChange.bind(this);
     const onBlur = props.onBlur;
+    const onKeyPress = props.onKeyPress;
     const colorSupport = this.colorSupport();
 
     switch (props.type) {
@@ -151,20 +153,20 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
       case 'checkbox':
         return (
           <input id={id} name={name} type='checkbox' checked={value}
-            disabled={disabled} onChange={onChange} onBlur={onBlur} />
+            disabled={disabled} onChange={onChange} onBlur={onBlur} onKeyPress={onKeyPress}/>
         );
 
       case 'text':
         return (
           <input id={id} name={name} type='text' value={value}
-            disabled={disabled} onChange={onChange} onBlur={onBlur} />
+            disabled={disabled} onChange={onChange} onBlur={onBlur} onKeyPress={onKeyPress} />
         );
 
       case 'number':
         return (
           <input id={id} name={name} type='number' value={value}
             min={min} max={max} disabled={disabled}
-            onChange={onChange} onBlur={onBlur} />
+            onChange={onChange} onBlur={onBlur} onKeyPress={onKeyPress} />
         );
 
       case 'range':
@@ -172,7 +174,7 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
           <div>
             <input id={id} name={name} type='range' value={value}
               min={min} max={max} step={props.step}
-              disabled={disabled} onChange={onChange} onBlur={onBlur} />
+              disabled={disabled} onChange={onChange} onBlur={onBlur} onKeyPress={onKeyPress} />
 
             <ContentEditable value={value} save={onChange} />
           </div>
@@ -182,7 +184,7 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
         return (
           <div>
             <input id={id} name={name} type={colorSupport ? 'color' : 'text'}
-              value={value} disabled={disabled} onChange={onChange} onBlur={onBlur} />
+              value={value} disabled={disabled} onChange={onChange} onBlur={onBlur} onKeyPress={onKeyPress} />
 
             {colorSupport ? (<ContentEditable value={value} save={onChange} />) : null}
           </div>
@@ -194,7 +196,7 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
         }
         return (
           <select id={id} name={name} value={value} disabled={disabled}
-            onChange={onChange} onBlur={onBlur}>
+            onChange={onChange} onBlur={onBlur} onKeyPress={onKeyPress}>
             {props.opts.map(function(o) {
               return (<option key={o} value={o}>{o}</option>);
             }, this)}

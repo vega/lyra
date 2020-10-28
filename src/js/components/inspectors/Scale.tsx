@@ -57,13 +57,17 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
 
 class BaseScaleInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
 
-  public handleChange(evt) {
+  public handleChange(evt, arrayValues?) {
+    // Skip none ENTER key events
+    if ((evt.key && evt.key !== 'Enter') || (evt.keyCode && evt.keyCode !== 13)) {
+      return;
+    }
+
     const scaleId = this.props.primId;
     const target = evt.target;
     const property = target.name;
-    const isArray = evt._isArray;
 
-    let value = (target.type === 'checkbox') ? target.checked : isArray ? evt._arrayValues :  target.value;;
+    let value = (target.type === 'checkbox') ? target.checked : arrayValues ? arrayValues :  target.value;;
 
     if (typeof (value) !== 'boolean' && value !== '' && !isNaN(+value) && !Array.isArray(value)) {
       // Parse number or keep string around.
@@ -118,7 +122,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
             <Property name='_manual' label='Manual' type='checkbox' onChange={(e) => this.handleChange(e)} {...props} />
           </div>
           {(!isScaleManual) &&
-            <MultiValueProperty name='_domain' label='Fields' type='select' isField onChange={(e) => this.handleChange(e)} opts={props.fields} valueProperty='field' processValue={(value, props) => this.processValue(value, props)} {...props} />
+            <MultiValueProperty name='_domain' label='Fields' type='select' subLabel='field' onChange={(e, arrVals) => this.handleChange(e, arrVals)} opts={props.fields} valueProperty='field' processValue={(value, props) => this.processValue(value, props)} {...props} />
           } 
           {scaleTypeSimple(scaleType) === ScaleSimpleType.CONTINUOUS && isScaleManual &&
             <div>
@@ -126,9 +130,9 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
               <Property name='domainMax' label='Domain Max' type='number' onChange={(e) => this.handleChange(e)} {...props} />
             </div>
           }
-          {isScaleManual &&
+          {scaleTypeSimple(scaleType) === ScaleSimpleType.DISCRETE && isScaleManual &&
             <div>
-            <MultiValueProperty name='_domainManual' label='Values' type='text' valueProperty='field' value={[]} onChange={(e) => this.handleChange(e)} {...props} />
+            <MultiValueProperty name='_domainArray' label='Values' type='text' onKeyPress={(e, arrVals) => this.handleChange(e, arrVals)} {...props} />
             </div>
           }
         </div>

@@ -23,15 +23,17 @@ interface OwnProps {
   label?: string;
   dsId?: number;
   autoType?: 'expr' | 'tmpl';
-  onChange?: (value) => void;
+  onChange?: (value, arrayValues?) => void;
+  onBlur?: (value, arrayValues?) => void;
+  onKeyPress?: (value, arrayValues?) => void;
   type?: string;
   firstChild?: boolean;
   droppable?: boolean;
   opts?: string[];
   value?: any;
-  isField?: boolean;
   valueProperty?: string;
   processValue?: (value, props) => typeof value;
+  subLabel?: string;
 }
 
 interface StateProps {
@@ -112,13 +114,11 @@ class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps
 
     let newVal = props.processValue ? props.processValue(value, props) : value;
 
-    let currVals = [...props.value];
-    currVals.push(newVal);
-    
-    evt._isArray = true;
-    evt._arrayValues = currVals;
+    let arrayValues = [...props.value];
+    arrayValues.push(newVal);
 
-    props.onChange(evt);
+    evt.target.name = props.name;
+    props.onBlur ? props.onBlur(evt, arrayValues) : props.onKeyPress ? props.onKeyPress(evt, arrayValues) :  props.onChange(evt, arrayValues);
   };
 
   public handleUnBind(evt) {
@@ -127,7 +127,7 @@ class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps
 
     const unbindVal = props.processValue ? props.processValue(value, props) : value;
 
-    let currVals = props.value.filter((val) => {
+    let arrayValues = props.value.filter((val) => {
       if (props.valueProperty) {
         return val[props.valueProperty] !== unbindVal[props.valueProperty];
       } else {
@@ -136,34 +136,27 @@ class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps
     });
 
     evt.target.name = props.name;
-    evt._isArray = true;
-    evt._arrayValues = currVals;
-
-    props.onChange(evt);
+    props.onBlur ? props.onBlur(evt, arrayValues) : props.onKeyPress ? props.onKeyPress(evt, arrayValues) : props.onChange(evt, arrayValues);
   };
 
   public render() {
     const props = this.props;
-    const isField = props.isField;
     const label = props.label;
     const valueProperty = props.valueProperty;
     let dragOver = this.state.dragOver;
     let labelEl = (<h3>{label}</h3>);
     let selectedValsEl = [];
     props.value.forEach( (item, index) => {
-      selectedValsEl.push(isField ? 
+      selectedValsEl.push(
         <div className="property" key={index}>
           <div className='label'>{index + 1}</div>
           <div className='control'>
-            <div className='scale' data-value={valueProperty ? item[valueProperty] : item} onClick={(e) => this.handleUnBind(e)}>Field</div>
+            <div className='scale' data-value={valueProperty ? item[valueProperty] : item} onClick={(e) => this.handleUnBind(e)}>{props.subLabel || 'value'}</div>
             <div className='field source' data-value={valueProperty ? item[valueProperty] : item}
               onClick={(e) => this.handleUnBind(e)}>{valueProperty ? item[valueProperty] : item}</div>
           </div>
         </div>
-      : <div className="property" key={index}>
-          <div className='label'>{index + 1}</div>
-          <div className='control'>{valueProperty ? item[valueProperty] : item}</div>
-        </div>);
+      );
     });
     
     const className = 'property' +
@@ -172,12 +165,14 @@ class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps
       (props.firstChild ? ' first-child' : '');
 
     return (
-      <div className={className}
-        onDragEnter={() => this.setState({ dragOver: ++dragOver })}
-        onDragLeave={() => this.setState({ dragOver: --dragOver })}>
+      <div>
         {labelEl}
-        {selectedValsEl}
-        <Property {...props} label="Add" onChange={(e) => this.handleChange(e)}/>
+        <div className={className}
+          onDragEnter={() => this.setState({ dragOver: ++dragOver })}
+          onDragLeave={() => this.setState({ dragOver: --dragOver })}>
+          {selectedValsEl}
+          <Property {...props} label="Add" name={'__' + props.name} onChange={props.onChange ? (e) => this.handleChange(e) : null} onBlur={props.onBlur ? (e) => this.handleChange(e) : null} onKeyPress={props.onKeyPress ? (e) => this.handleChange(e) : null} />
+        </div>
       </div>
     );
   }

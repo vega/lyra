@@ -27,6 +27,8 @@ interface OwnProps {
   dsId?: number;
   autoType?: 'expr' | 'tmpl';
   onChange?: (value) => void;
+  onBlur?: (value) => void;
+  onKeyPress?: (value) => void;
   type?: string;
   firstChild?: boolean;
   droppable?: boolean;

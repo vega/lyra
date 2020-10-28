@@ -365,8 +365,8 @@ exporter.scale = function(state: State, internal: boolean, id: number) {
 
   counts.scales[id] = counts.scales[id] || duplicate(SCALE_COUNT);
 
-  if (!scale.domain && scale._domain && scale._domain.length) {
-    spec.domain = dataRef(state, scale, scale._domain);
+  if (!scale.domain && scale._domain && scale._domain.length ) {
+    spec.domain = scale._manual && scale._domainArray.length ? scale._domainArray : dataRef(state, scale, scale._domain);
   }
 
   if (!scale.range && scale._range && scale._range.length) {
