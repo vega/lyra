@@ -123,11 +123,11 @@ function findOrCreateAxis(dispatch: ThunkDispatch<State, any, any>, state: State
   if (count < 2) {
     let axis = Guide(GuideType.Axis, parsed.channel, scaleId) as AxisRecord;
     axis = axis.mergeDeep({
-      title: def[1].title,
+      title: def.find(x=>x.title).title,
       // zindex: def[0].zindex,
       grid: def.length > 1,
-      orient: count === 1 && prevOrient ? SWAP_ORIENT[prevOrient] : def[1].orient || axis.orient,
-      encode: def[1].encode
+      orient: count === 1 && prevOrient ? SWAP_ORIENT[prevOrient] : def.find(x=>x.title).orient || axis.orient,
+      encode: def.find(x=>x.title).encode
     });
 
     const axisId = assignId(dispatch, state);
