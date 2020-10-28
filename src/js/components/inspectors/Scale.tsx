@@ -1,7 +1,5 @@
 'use strict';
 
-const getInVis = require('../../util/immutable-utils').getInVis;
-
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
@@ -13,7 +11,6 @@ import { MultiValueProperty } from './MultiValueProperty';
 import {ScaleRecord} from '../../store/factory/Scale';
 import { updateScaleProperty } from '../../actions/scaleActions';
 import { ScaleSimpleType, scaleTypeSimple} from '../../store/factory/Scale';
-import { FormInputProperty } from './FormInputProperty';
 
 interface OwnProps {
   primId: number;

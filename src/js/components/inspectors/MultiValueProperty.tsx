@@ -1,5 +1,3 @@
-const imutils = require('../../util/immutable-utils');
-
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
