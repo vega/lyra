@@ -169,7 +169,7 @@ class BaseProperty extends React.Component<OwnProps & StateProps & DispatchProps
           onDragEnter={() => this.setState({ dragOver: ++dragOver })}
           onDragLeave={() => this.setState({ dragOver: --dragOver })}>
           {selectedValsEl}
-          <Property {...props} label="Add" name={'__' + props.name} onChange={props.onChange ? (e) => this.handleChange(e) : null} onBlur={props.onBlur ? (e) => this.handleChange(e) : null} onKeyPress={props.onKeyPress ? (e) => this.handleChange(e) : null} />
+          <Property {...props} label="Add" value={null} onChange={props.onChange ? (e) => this.handleChange(e) : null} onBlur={props.onBlur ? (e) => this.handleChange(e) : null} onKeyPress={props.onKeyPress ? (e) => this.handleChange(e) : null} />
         </div>
       </div>
     );

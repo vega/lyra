@@ -21,6 +21,7 @@ interface OwnProps {
 interface StateProps {
   scale: ScaleRecord;
   fields: any;
+  fieldMap: any;
 }
 
 interface DispatchProps {
@@ -32,15 +33,18 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   let scale = state.getIn(['vis', 'present', 'scales', String(ownProps.primId)]);
   let scaleDomain = scale.get("_domain");
   let currentFields = scaleDomain.map((domain) => domain.field);
-  let dataIds, fields = [''];
+  let dataIds, fields = [''], fieldMap = new Map();
   [...dataIds] = state.getIn(['vis', 'present', 'datasets']).keys();
   dataIds.forEach((dataId) => {
-    fields = fields.concat(state.getIn(['vis', 'present', 'datasets', String(dataId), '_schema']).keySeq().toJS());
+    let fieldVal = state.getIn(['vis', 'present', 'datasets', String(dataId), '_schema']).keySeq().toJS();
+    fields = fields.concat(fieldVal);
+    fieldMap.set(dataId, fieldVal);
   });
   fields = fields.filter((field) => !currentFields.includes(field));
   return {
-       scale,
-        fields
+      scale,
+      fields,
+      fieldMap
   };
 }
 
@@ -64,7 +68,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
     const target = evt.target;
     const property = target.name;
 
-    let value = (target.type === 'checkbox') ? target.checked : arrayValues ? arrayValues :  target.value;;
+    let value = (target.type === 'checkbox') ? target.checked : arrayValues ? arrayValues :  target.value;
 
     if (typeof (value) !== 'boolean' && value !== '' && !isNaN(+value) && !Array.isArray(value)) {
       // Parse number or keep string around.
@@ -85,7 +89,11 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
 
   public processValue(value, props) {
     if (props.name === '_domain' && props.type === 'select') {
-      return { data: 5, field: value }
+      let dataId;
+      props.fieldMap.forEach((val, key) => { // This will match the last dataset that has the field
+        dataId = val.includes(value) ? key : null;
+      });
+      return { data: dataId, field: value };
     } else {
       return value;
     }
@@ -129,7 +137,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
           }
           {scaleTypeSimple(scaleType) === ScaleSimpleType.DISCRETE && isScaleManual &&
             <div>
-            <MultiValueProperty name='_manualArray' label='Values' type='text' onKeyPress={(e, arrVals) => this.handleChange(e, arrVals)} {...props} />
+            <MultiValueProperty name='_manualDomain' label='Values' type='text' onKeyPress={(e, arrVals) => this.handleChange(e, arrVals)} {...props} />
             </div>
           }
         </div>
