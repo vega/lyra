@@ -18,7 +18,7 @@ export type LyraScale = {
   _domain: any[],
   _range: any[],
   _manual: boolean,
-  _domainArray: any[]
+  _manualArray: any[]
 } & RangeScale;
 
 export function Scale(values?: Partial<LyraScale>): ScaleRecord {
@@ -38,7 +38,7 @@ export function Scale(values?: Partial<LyraScale>): ScaleRecord {
     round: false,
     clamp: false,
     _manual: false,
-    _domainArray: [],
+    _manualArray: [],
     ...values,
   } as any, 'LyraScale')();
 }

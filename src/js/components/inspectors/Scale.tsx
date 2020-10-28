@@ -129,7 +129,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
           }
           {scaleTypeSimple(scaleType) === ScaleSimpleType.DISCRETE && isScaleManual &&
             <div>
-            <MultiValueProperty name='_domainArray' label='Values' type='text' onKeyPress={(e, arrVals) => this.handleChange(e, arrVals)} {...props} />
+            <MultiValueProperty name='_manualArray' label='Values' type='text' onKeyPress={(e, arrVals) => this.handleChange(e, arrVals)} {...props} />
             </div>
           }
         </div>
