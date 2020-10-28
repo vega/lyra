@@ -57,14 +57,14 @@ export function getHandleStreams(symbol: SymbolRecord): HandleStreams {
 
   return {
     [x]: [{
-      events: {signal: DELTA}, update: test(at(), `${x} + ${DX}`, x)
+      events: {signal: DELTA}, update: test(at(), `${x} + ${DX}`, x, id)
     }],
     [y]: [{
-      events: {signal: DELTA}, update: test(at(), `${y} + ${DY}`, y)
+      events: {signal: DELTA}, update: test(at(), `${y} + ${DY}`, y, id)
     }],
     [size]: [
-      {events: {signal: DELTA}, update: test(at('top'), `${size} - (${DY} << 5)`, size)},
-      {events: {signal: DELTA}, update: test(at('bottom'), `${size} + (${DY} << 5)`, size)}
+      {events: {signal: DELTA}, update: test(at('top'), `${size} - (${DY} << 5)`, size, id)},
+      {events: {signal: DELTA}, update: test(at('bottom'), `${size} + (${DY} << 5)`, size, id)}
     ]
   };
 };

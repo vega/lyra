@@ -1233,8 +1233,21 @@ export function cleanSpecForPreview(sceneSpec, width: number, height: number, gr
       markSpec.encode.update.height = {"signal": "height"};
 
       markSpec = mapNestedMarksOfGroup(markSpec, mark => {
-        if (mark.type === 'symbol' && mark.encode?.update?.size?.value) {
-          mark.encode.update.size.value *= (wScale + hScale) / 2;
+        if (mark.type === 'symbol' && mark.encode?.update?.size) {
+          if (Array.isArray(mark.encode.update.size) && mark.encode?.update?.size.length == 2) {
+            mark.encode.update.size = mark.encode.update.size.map(def => {
+              if (def.value) {
+                return {
+                  ...def,
+                  value: def.value * (wScale + hScale) / 2
+                }
+              }
+              return def;
+            })
+          }
+          else if (mark.encode.update.size.value) {
+            mark.encode.update.size.value *= (wScale + hScale) / 2;
+          }
         }
         if (mark.type === 'text') {
           if (mark.encode?.update?.fontSize?.value) {
@@ -1264,9 +1277,20 @@ export function cleanSpecForPreview(sceneSpec, width: number, height: number, gr
         markSpec.encode.update.y = {"value": -999};
       }
 
-      markSpec.scale = markSpec.scales.map(scale => {
-        if (scale.range && Array.isArray(scale.range) && scale.range.length == 2) {
-          scale.range = scale.range.map(n => n / 10);
+      markSpec.scales = markSpec.scales.map(scale => {
+        if (scale.range) {
+          const range = scale.range;
+          if (Array.isArray(range) && range.length == 2 && !range.some(isNaN)) {
+            scale.range = range.map(n => n / 10);
+          }
+          if (range.step && range.step.signal) {
+            markSpec.signals = markSpec.signals.map(signal => {
+              if (signal.name === range.step.signal) {
+                signal.value /= 2;
+              }
+              return signal;
+            });
+          }
         }
         return scale;
       })

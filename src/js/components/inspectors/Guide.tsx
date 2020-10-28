@@ -14,15 +14,27 @@ interface OwnProps {
   primType: PrimType;
   primId: number;
   guideType: GuideType;
+}
 
+interface StateProps {
+  domainField: string,
+  scaleName: string
 }
 
 interface DispatchProps {
   updateGuideProperty: (guideId: number, property: string, value: any) => void;
 }
 
-function mapStateToProps(state: State, ownProps) {
-  return {};
+function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
+  const guide = state.getIn(['vis', 'present', 'guides', String(ownProps.primId)]);
+  const scaleKey = ownProps.guideType === 'axis' ? 'scale' : guide.get('_type');
+  const scaleId = guide.get(scaleKey);
+  const scale = state.getIn(['vis', 'present', 'scales', scaleId]);
+
+  return {
+    domainField: scale.get("_domain")[0].field,
+    scaleName: scale.get("name"),
+  };
 }
 
 function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
@@ -33,7 +45,7 @@ function mapDispatchToProps(dispatch: Dispatch): DispatchProps {
   };
 }
 
-class BaseGuideInspector extends React.Component<OwnProps & DispatchProps> {
+class BaseGuideInspector extends React.Component<OwnProps & StateProps  & DispatchProps> {
 
   public handleChange(evt) {
     const guideId = this.props.primId;
@@ -50,10 +62,26 @@ class BaseGuideInspector extends React.Component<OwnProps & DispatchProps> {
     const props = this.props;
     const guideType = props.guideType;
 
+    const scale = props.guideType ? (
+      <div className='property-group'>
+        <h3 >Scale</h3>
+        <div className="property">
+          <div className='label-long'>{props.scaleName}</div>
+          <div className='control'>{props.domainField}</div>
+        </div>
+      </div>
+    ) : null;
+    
     if (guideType === GuideType.Axis) {
-      return (<AxisInspector {...props} handleChange={(e) => this.handleChange(e)} />);
+      return (<div className='inner'>
+        {scale}
+        <AxisInspector {...props} handleChange={(e) => this.handleChange(e)} />
+      </div>);
     } else if (guideType === GuideType.Legend) {
-      return (<LegendInspector {...props} handleChange={(e) => this.handleChange(e)} />);
+      return (<div className='inner'>
+        {scale}
+        <LegendInspector {...props} handleChange={(e) => this.handleChange(e)} />
+      </div>);
     }
 
     return null;

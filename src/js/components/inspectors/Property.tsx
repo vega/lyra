@@ -78,7 +78,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   return {
     group:  getIn(state, path + '.group'),
     signal: getIn(state, path + '.signal'),
-    value:  value !== null ? value : ownProps.value,
+    value:  value !== null && value !== undefined ? value : ownProps.value,
     field:  field,
     scale:  scale,
     srcField:  dsId && field ?

@@ -2,12 +2,11 @@ import {Map} from 'immutable';
 import {TopLevel} from 'vega-lite/src/spec';
 import {DataMixins} from 'vega-lite/src/spec/base';
 import {NormalizedUnitSpec} from 'vega-lite/src/spec/unit';
-import {Facet, MarkType, OnEvent} from 'vega-typings';
+import {Facet, OnEvent} from 'vega-typings';
 import {Area, AreaRecord, getHandleStreams as areaHandleStreams, LyraAreaMark} from './marks/Area';
 import {Group, GroupRecord, LyraGroupMark} from './marks/Group';
 import {getHandleStreams as lineHandleStreams, Line, LineRecord, LyraLineMark} from './marks/Line';
 import {getHandleStreams as rectHandleStreams, LyraRectMark, Rect, RectRecord} from './marks/Rect';
-import {LyraScene, Scene, SceneRecord} from './marks/Scene';
 import {getHandleStreams as symbolHandleStreams, LyraSymbolMark, Symbol, SymbolRecord} from './marks/Symbol';
 import {getHandleStreams as textHandleStreams, LyraTextMark, Text, TextRecord} from './marks/Text';
 

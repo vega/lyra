@@ -113,21 +113,29 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
     const props = this.props;
     const type  = props.type;
     const signal = props.signal;
-    let value  = evt.target ? evt.target.value : evt;
+    const value  = evt.target ? evt.target.value : evt;
+    let cleanedValue = value;
 
     // Ensure value is a number
     if (type === 'number' || type === 'range') {
-      value = +value;
+      cleanedValue = +value;
     }
+
     // Set the signal on the view but do not dispatch: the `.signal` listener
     // above will dispatch the action to synchronize Redux with Vega.
     if (signal) {
-      sg.set(signal, value, false);
+      sg.set(signal, cleanedValue, false);
       ctrl.update();
     }
 
     this.setState({value});
   };
+
+  public ensureNumberFilled() {
+    this.setState({
+      value: +this.state.value
+    });
+  }
 
   public colorSupport() {
     const input = document.createElement('input');
@@ -166,7 +174,7 @@ class BaseFormInputProperty extends React.Component<OwnProps & StateProps & Disp
         return (
           <input id={id} name={name} type='number' value={value}
             min={min} max={max} disabled={disabled}
-            onChange={onChange} onBlur={onBlur} onKeyPress={onKeyPress} />
+            onChange={onChange} onBlur={() => {if (onBlur) onBlur(); this.ensureNumberFilled();}} onKeyPress={onKeyPress} />
         );
 
       case 'range':

@@ -1,10 +1,6 @@
-import {Record, RecordOf, List} from 'immutable';
+import {Record, RecordOf} from 'immutable';
 import {GroupMark} from 'vega-typings';
 import {LyraMarkMeta} from '../Mark';
-import {InteractionRecord} from '../Interaction';
-// import {store} from '../../';
-
-const getInVis = require('../../../util/immutable-utils').getInVis;
 
 export type LyraGroupMark = {
   _manualLayout: boolean;

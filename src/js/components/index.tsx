@@ -5,7 +5,6 @@ import ReactTooltip from 'react-tooltip'
 import {store} from '../store';
 import {EncodingsSidebar} from './EncodingsSidebar';
 import {InspectorSidebar} from './InspectorSidebar';
-import {WidgetContainers} from './interactions/WidgetContainers';
 import {PipelinesToolbar} from './PipelinesSidebar';
 import {Toolbar} from './Toolbar';
 import WidgetDropzone from './interactions/WidgetDropzone';

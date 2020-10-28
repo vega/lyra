@@ -7,7 +7,7 @@ import duplicate from '../util/duplicate';
  * @description The BubbleCursor transform uses the user's mouse position
  * and a voronoi tessellation computed for the current Lyra manipulator type to
  * indicate which manipulator is currently selected. This is indicated on the
- * visualization with a salmon shaded region.
+ * visualization with a shaded region.
  *
  * @param {string} graph - A Vega model.
  * @returns {Object} A Vega-Dataflow Node.
