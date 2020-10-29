@@ -15,13 +15,12 @@ import { ScaleSimpleType, scaleTypeSimple} from '../../store/factory/Scale';
 interface OwnProps {
   primId: number;
   primType: PrimType;
-  _manual: boolean;
 }
 
 interface StateProps {
   scale: ScaleRecord;
-  fields: any;
-  fieldMap: any;
+  fields: string[];
+  fieldMap: Map<string, string[]>;
 }
 
 interface DispatchProps {

@@ -19,9 +19,9 @@ interface OwnProps {
   disabled?: boolean|string;
   opts?: string[];
   signal?: string;
-  onChange?: (e) => any; // TODO: find function in/out types
-  onBlur?: () => any; // TODO: find function in/out types
-  onKeyPress?: () => any; // TODO: find function in/out types
+  onChange?: (e) => void;
+  onBlur?: () => void;
+  onKeyPress?: () => void;
   name?: any;
   group?: any;
   glyph?: any;
