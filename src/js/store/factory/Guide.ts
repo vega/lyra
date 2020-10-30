@@ -34,7 +34,7 @@ export const Axis = Record<LyraAxis>({
   scale: null,
   tickCount: 12, // replaces ticks
   tickSize: 0,
-  grid: false,
+  grid: true,
   title: null,
   zindex: 0, // replaces layer
   encode: {

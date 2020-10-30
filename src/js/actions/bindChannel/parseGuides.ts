@@ -81,7 +81,7 @@ function findOrCreateAxis(dispatch: ThunkDispatch<State, any, any>, state: State
 
   // First, find a def and then iterate through axes for the current group
   // to see if an axis exists for this scale or if we have room to add one more.
-  const def = defs.filter(axis => map.scales[axis.scale] === scaleId);
+  const def = defs.find(axis => map.scales[axis.scale] === scaleId && axis.title);
 
   axes.some(function(axisId) {
     const axis = getInVis(state, `guides.${axisId}`);
@@ -93,7 +93,7 @@ function findOrCreateAxis(dispatch: ThunkDispatch<State, any, any>, state: State
       return (foundAxis = true); // Early exit.
     }
 
-    if (axis.orient === def[0].orient) {
+    if (axis.orient === def.orient) {
       ++count;
       prevOrient = axis.orient;
     }
@@ -123,11 +123,9 @@ function findOrCreateAxis(dispatch: ThunkDispatch<State, any, any>, state: State
   if (count < 2) {
     let axis = Guide(GuideType.Axis, parsed.channel, scaleId) as AxisRecord;
     axis = axis.mergeDeep({
-      title: def[1].title,
-      // zindex: def[0].zindex,
-      grid: def.length > 1,
-      orient: count === 1 && prevOrient ? SWAP_ORIENT[prevOrient] : def[1].orient || axis.orient,
-      encode: def[1].encode
+      title: def.title,
+      orient: count === 1 && prevOrient ? SWAP_ORIENT[prevOrient] : def.orient || axis.orient,
+      encode: def.encode
     });
 
     const axisId = assignId(dispatch, state);
