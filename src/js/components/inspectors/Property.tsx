@@ -27,6 +27,8 @@ interface OwnProps {
   dsId?: number;
   autoType?: 'expr' | 'tmpl';
   onChange?: (value) => void;
+  onBlur?: (value) => void;
+  onKeyPress?: (value) => void;
   type?: string;
   firstChild?: boolean;
   droppable?: boolean;
@@ -76,7 +78,7 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   return {
     group:  getIn(state, path + '.group'),
     signal: getIn(state, path + '.signal'),
-    value:  value !== null && value !== undefined ? value : ownProps.value,
+    value: ownProps.value !== undefined ? ownProps.value : (value !== null ? value : undefined),
     field:  field,
     scale:  scale,
     srcField:  dsId && field ?

@@ -365,8 +365,8 @@ exporter.scale = function(state: State, internal: boolean, id: number) {
 
   counts.scales[id] = counts.scales[id] || duplicate(SCALE_COUNT);
 
-  if (!scale.domain && scale._domain && scale._domain.length) {
-    spec.domain = dataRef(state, scale, scale._domain);
+  if (!scale.domain && scale._domain && scale._domain.length ) {
+    spec.domain = scale._manual && scale._manualDomain.length ? scale._manualDomain : dataRef(state, scale, scale._domain);
   }
 
   if (!scale.range && scale._range && scale._range.length) {
@@ -478,7 +478,7 @@ export function getCounts(recount: boolean) {
  * the last option, as the structure has performance implications in Vega.
  * Most to least performant:
  *   {"data": ..., "field": ...} for a single field
- *   {"data": ..., "field": [...]} for multiple fields from the same dataset.
+ *   {"data": ..., "fields": [...]} for multiple fields from the same dataset.
  *   {"fields": [...]} for multiple fields from distinct datasets
  *
  * @param  {object} state Redux state
@@ -525,7 +525,12 @@ function dataRef(state: State, scale, ref) {
 }
 
 function sortDataRef(data, scale, field) {
-  const ref = {data: name(data.get('name')), field: field};
+  let ref;
+  if (Array.isArray(field)) {
+    ref = { data: name(data.get('name')), fields: field };
+  } else {
+    ref = { data: name(data.get('name')), field: field };
+  }
   if (scale.type === 'ordinal' && data.get('_sort')) {
     const sortField = getIn(data, '_sort.field');
     return extend({}, ref, {

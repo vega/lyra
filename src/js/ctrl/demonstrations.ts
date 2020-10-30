@@ -1204,38 +1204,10 @@ export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
   const {scaleRecordX, scaleRecordY} = getScaleRecords(state, groupId);
   return {
     xScaleName: scaleRecordX ? scaleRecordX.get('name') : null,
-    xFieldName: scaleRecordX ? scaleRecordX.get('_domain')[0].field : null,
+    xFieldName: scaleRecordX && scaleRecordX.get('_domain').length > 0 ?  scaleRecordX.get('_domain')[0].field : null,
     yScaleName: scaleRecordY ? scaleRecordY.get('name') : null,
-    yFieldName: scaleRecordY ? scaleRecordY.get('_domain')[0].field : null,
+    yFieldName: scaleRecordY && scaleRecordY.get('_domain').length > 0 ? scaleRecordY.get('_domain')[0].field : null,
   };
-}
-
-export namespace ScaleSimpleType {
-  export const CONTINUOUS = 'CONTINUOUS';
-  export const DISCRETE = 'DISCRETE';
-}
-export type ScaleSimpleType = 'CONTINUOUS' | 'DISCRETE';
-
-export function scaleTypeSimple(scaleType): ScaleSimpleType {
-  switch (scaleType) {
-    case 'linear':
-    case 'log':
-    case 'pow':
-    case 'sqrt':
-    case 'symlog':
-    case 'time':
-    case 'utc':
-    case 'sequential':
-      return ScaleSimpleType.CONTINUOUS;
-    case 'ordinal':
-    case 'band':
-    case 'point':
-    case 'quantile':
-    case 'quantize':
-    case 'threshold':
-    case 'bin-ordinal':
-      return ScaleSimpleType.DISCRETE;
-  }
 }
 
 export function cleanSpecForPreview(sceneSpec, width: number, height: number, groupName: string, interactionId: number): Spec {
