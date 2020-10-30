@@ -73,10 +73,12 @@ function mapStateToProps(reduxState: State, ownProps: OwnProps): StateProps {
   const field = getIn(state, path + '.field');
   const scaleName = scale && getInVis(reduxState, 'scales.' + scale + '.name');
 
+  const value = getIn(state, path);
+
   return {
     group:  getIn(state, path + '.group'),
     signal: getIn(state, path + '.signal'),
-    value: ownProps.value === undefined ? getIn(state, path) : undefined, // Not using || because value could be 0
+    value: ownProps.value !== undefined ? ownProps.value : (value !== null ? value : undefined),
     field:  field,
     scale:  scale,
     srcField:  dsId && field ?
