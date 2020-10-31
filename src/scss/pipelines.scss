@@ -141,7 +141,6 @@ $pipeline-width: 230px;
   .aggregates-list,
   .full {
     display: none;
-    position: absolute;
     min-width: $mw;
     width: auto;
     vertical-align: middle;
@@ -149,6 +148,7 @@ $pipeline-width: 230px;
 
   .full {
     padding: 5px $cell-padding;
+    position: absolute;
 
     &.field {
       left: 0;
@@ -174,11 +174,12 @@ $pipeline-width: 230px;
   }
 
   .aggregates-list {
+    position: fixed;
     top: 0;
     left: $inner-padding;
     margin: $menu-offset 0;
     box-shadow: 0px 6px 12px rgba(0,0,0,.175);
-    z-index: 5000;
+    z-index: 9000;
 
     .full {
       display: block;

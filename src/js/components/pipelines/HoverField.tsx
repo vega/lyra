@@ -28,6 +28,8 @@ interface OwnProps {
   dsId: number;
   def: HoverFieldDef;
   schema: Schema;
+  dataTableTop: number;
+  dataTableLeft: number;
 }
 
 interface StateProps {
@@ -157,7 +159,8 @@ class HoverField extends React.Component<OwnProps & StateProps & DispatchProps, 
       display: field ? 'block' : 'none'
     };
     const listStyle  = {
-      top: state.offsetTop,
+      top: (this.props.dataTableTop || 0) + state.offsetTop,
+      left: (this.props.dataTableLeft || 0) - 50,
       display: field && state.showAggregates ? 'block' : 'none'
     };
     const bufferStyle = {

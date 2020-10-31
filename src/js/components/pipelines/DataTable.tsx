@@ -42,6 +42,8 @@ interface OwnState {
   hoverField: HoverFieldDef;
   hoverValue: React.MouseEvent<HTMLElement, MouseEvent>;
   output: Datum[];
+  dataTableTop: number;
+  dataTableLeft: number;
 }
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
@@ -94,6 +96,15 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     if (this.props.scroll !== prevProps.scroll) {
       if (this.$table) {
         this.$table.current.scrollLeft = this.props.scroll;
+      }
+    }
+    if (this.$table) {
+      const bounds = this.$table.current?.getBoundingClientRect();
+      if (bounds && (this.state.dataTableTop !== bounds.top || this.state.dataTableLeft !== bounds.left)) {
+        this.setState({
+          dataTableTop: bounds.top,
+          dataTableLeft: bounds.left
+        })
       }
     }
     if (this.props.signalsInExprs !== prevProps.signalsInExprs) {
@@ -207,7 +218,7 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
                 }, this)}
               </tbody>
             </table>
-            {id ? <HoverField dsId={id} schema={schema} def={state.hoverField} /> : null}
+            {id ? <HoverField dsId={id} schema={schema} def={state.hoverField} dataTableTop={state.dataTableTop} dataTableLeft={state.dataTableLeft} /> : null}
             <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
           </div>
           : null}
