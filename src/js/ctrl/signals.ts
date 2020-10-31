@@ -90,7 +90,7 @@ api.set = function(name, val, dispatch?) {
     view = ctrl.view;
   // Always flow signals up to the store,
   if (!isDefault(name) && dispatch !== false) {
-    store.dispatch(signalActions.setSignal(val, name));
+    store.dispatch(signalActions.setSignal(val, name) as any);
   }
 
   // and if we have a Vega view, flow signals down to Vega as well.
