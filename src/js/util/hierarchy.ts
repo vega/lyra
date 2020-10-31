@@ -101,6 +101,10 @@ export function getClosestGroupId(id?: number, state?: State) {
     if (widget && widget.groupId) {
       return widget.groupId;
     }
+    const groups = state.getIn(['vis', 'present', 'marks']).filter(mark => mark.type === 'group');
+    if (groups.size === 1) {
+      return groups.first()._id;
+    }
     return getInVis(state, 'scene._id');
   }
 

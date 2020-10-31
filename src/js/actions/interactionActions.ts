@@ -5,6 +5,7 @@ import {addInteractionToGroup} from './bindChannel/helperActions';
 import {assignId} from '../util/counter';
 import {State} from '../store';
 import {recordName} from '../util/recordName';
+import {batchGroupBy} from '../reducers/historyOptions';
 
 export function addInteraction (record: InteractionRecord) {
   return function(dispatch: Dispatch, getState: () => State) {
@@ -14,8 +15,10 @@ export function addInteraction (record: InteractionRecord) {
       record = record.set('name', recordName(getState(), 'interactions', 'Interaction'));
     }
 
+    batchGroupBy.start();
     dispatch(baseAddInteraction(record, id));
     dispatch(addInteractionToGroup(id, record.groupId));
+    batchGroupBy.end();
   };
 }
 

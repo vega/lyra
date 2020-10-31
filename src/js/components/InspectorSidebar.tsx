@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {getType} from 'typesafe-actions';
+import {action, getType} from 'typesafe-actions';
 import * as inspectorActions from '../actions/inspectorActions';
 import {PrimType} from '../constants/primTypes';
 import {State} from '../store';
@@ -18,13 +18,21 @@ import {InteractionInspector} from './inspectors/Interaction';
 import {WidgetInspector} from './inspectors/Widget';
 import {SymbolInspector} from './inspectors/Symbol';
 import {TextInspector} from './inspectors/Text';
+import {GuideRecord} from '../store/factory/Guide';
+import {InteractionRecord} from '../store/factory/Interaction';
+import {WidgetRecord} from '../store/factory/Widget';
+import {ScaleRecord} from '../store/factory/Scale';
+import {MarkRecord} from '../store/factory/Mark';
+import {selectMark} from '../actions/inspectorActions'
+import {getClosestGroupId} from '../util/hierarchy';
 
 const inspectors = {AreaInspector, GuideInspector, LineInspector,
   RectInspector, ScaleInspector, SymbolInspector, TextInspector, InteractionInspector, WidgetInspector,
   GroupInspector: RectInspector};
 
-interface Inspector {
+interface StateProps {
   selectedId: number,
+  selected: MarkRecord | GuideRecord | ScaleRecord | InteractionRecord | WidgetRecord,
   isMark: boolean,
   isGuide: boolean,
   isScale: boolean,
@@ -37,11 +45,15 @@ interface Inspector {
   interactionList: string[],
 }
 
+interface DispatchProps {
+  selectMark: (id: number) => void;
+}
+
 const capitalize = require('capitalize');
 const imutils  = require('../util/immutable-utils');
 const getInVis = imutils.getInVis;
 
-function mapStateToProps(state: State, ownProps): Inspector {
+function mapStateToProps(state: State, ownProps): StateProps {
   const encState: EncodingStateRecord = state.getIn(['inspector', 'encodings']);
   const selId   = encState.get('selectedId');
   const selType = encState.get('selectedType');
@@ -70,6 +82,7 @@ function mapStateToProps(state: State, ownProps): Inspector {
 
   return {
     selectedId: selId,
+    selected: primitive,
     isMark,
     isGuide,
     isScale,
@@ -83,17 +96,20 @@ function mapStateToProps(state: State, ownProps): Inspector {
   };
 }
 
-class BaseInspector extends React.Component<Inspector> {
+const actionCreators: DispatchProps = {selectMark}
+
+class BaseInspector extends React.Component<StateProps & DispatchProps> {
   public render() {
     const  props  = this.props;
     const primId = props.selectedId;
+    const prim = props.selected;
     const from = props.from;
     let ctor;
     let primType: PrimType;
     let InspectorType;
 
 
-    if (primId) {
+    if (primId && prim) {
       if (props.isMark && props.markType) {
         ctor = capitalize(props.markType);
         primType = PrimType.MARKS;
@@ -111,6 +127,10 @@ class BaseInspector extends React.Component<Inspector> {
         primType = PrimType.WIDGETS;
       }
       InspectorType = inspectors[ctor + 'Inspector'];
+    }
+
+    if (!InspectorType) {
+      props.selectMark(getClosestGroupId());
     }
 
     const pipeline = props.isMark ? (
@@ -156,4 +176,4 @@ class BaseInspector extends React.Component<Inspector> {
   }
 };
 
-export const InspectorSidebar = connect(mapStateToProps)(BaseInspector);
+export const InspectorSidebar = connect(mapStateToProps, actionCreators)(BaseInspector);

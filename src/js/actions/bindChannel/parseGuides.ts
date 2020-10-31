@@ -7,6 +7,7 @@ import {addGuide} from '../guideActions';
 import {addAxisToGroup, addLegendToGroup} from './helperActions';
 import {assignId} from '../../util/counter';
 import {ThunkDispatch} from 'redux-thunk';
+import {batchGroupBy} from '../../reducers/historyOptions';
 
 const imutils = require('../../util/immutable-utils'),
   getIn = imutils.getIn,
@@ -130,8 +131,11 @@ function findOrCreateAxis(dispatch: ThunkDispatch<State, any, any>, state: State
 
     const axisId = assignId(dispatch, state);
     axis = axis.merge({_id: axisId});
+
+    batchGroupBy.start();
     dispatch(addGuide(axis));
     dispatch(addAxisToGroup(axisId, parentId));
+    batchGroupBy.end();
   }
 }
 
@@ -175,7 +179,10 @@ function findOrCreateLegend(dispatch: ThunkDispatch<State, any, any>, state: Sta
 
     const legendId = assignId(dispatch, state);
     legend = legend.merge({_id: legendId});
+
+    batchGroupBy.start();
     dispatch(addGuide(legend));
     dispatch(addLegendToGroup(legendId, parentId));
+    batchGroupBy.end();
   }
 }

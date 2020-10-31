@@ -10,6 +10,7 @@ import {addScaleToGroup} from './helperActions';
 import {CompiledBinding} from './index';
 import {assignId} from '../../util/counter';
 import {ThunkDispatch} from 'redux-thunk';
+import {batchGroupBy} from '../../reducers/historyOptions';
 
 const imutils = require('../../util/immutable-utils'),
   getIn = imutils.getIn,
@@ -66,6 +67,7 @@ export default function parseScales(dispatch: ThunkDispatch<State, any, any>, st
       });
   }
 
+  batchGroupBy.start();
   // If no previous or matching scale exists, or if there's a mismatch in
   // definitions, dispatch actions to construct a new scale.
   if (!prev || !equals(state, def, prev, dsMap)) {
@@ -82,6 +84,7 @@ export default function parseScales(dispatch: ThunkDispatch<State, any, any>, st
 
   map[channel] = scaleId;
   dispatch(addScaleToGroup(scaleId, mark._parent));
+  batchGroupBy.end();
 }
 
 /**

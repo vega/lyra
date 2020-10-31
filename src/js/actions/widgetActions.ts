@@ -6,6 +6,7 @@ import {addWidgetToGroup} from './bindChannel/helperActions';
 import {State} from '../store';
 import {assignId} from '../util/counter';
 import {recordName} from '../util/recordName';
+import {batchGroupBy} from '../reducers/historyOptions';
 
 export function addWidget (record: WidgetRecord) {
   return function(dispatch: Dispatch, getState: () => State) {
@@ -15,8 +16,10 @@ export function addWidget (record: WidgetRecord) {
       record = record.set('name', recordName(getState(), 'widgets', 'Widget'));
     }
 
+    batchGroupBy.start();
     dispatch(baseAddWidget(record, id));
     dispatch(addWidgetToGroup(id, record.groupId));
+    batchGroupBy.end();
   };
 }
 export const baseAddWidget = createStandardAction('ADD_WIDGET')<WidgetRecord, number>();
