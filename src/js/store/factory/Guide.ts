@@ -125,7 +125,8 @@ export const Legend = Record<LyraLegend>({
     symbols: {
       update: {
         strokeWidth: { value: 1 },
-        opacity: {value: 1}
+        opacity: {value: 1},
+        size: {value: 100}
       }
     }
   },
