@@ -1,7 +1,8 @@
-import {groupByActionTypes} from 'redux-undo';
+import {excludeAction, groupByActionTypes} from 'redux-undo';
 import {getType} from 'typesafe-actions';
 import {baseAddDataset} from '../actions/datasetActions';
 import {updateGuideProperty} from '../actions/guideActions';
+import {setInput, setSignals} from '../actions/interactionActions';
 import {baseSetSignal} from '../actions/signalActions';
 
 export const batchGroupBy = {
@@ -20,8 +21,7 @@ export const batchGroupBy = {
 
 export default {
   limit: 15,
-  filter: function(action) {
-    return action.type !== getType(baseAddDataset);
-  },
+  debug: true,
+  filter: excludeAction([getType(baseAddDataset), getType(setInput)]),
   groupBy: batchGroupBy.init([getType(baseSetSignal), getType(updateGuideProperty)])
 };

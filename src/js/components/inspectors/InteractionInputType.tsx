@@ -8,6 +8,7 @@ import {setInput} from '../../actions/interactionActions';
 interface OwnProps {
   interactionId: number;
   input: InteractionInput;
+  initializeInteraction: (mouse) => void;
 }
 
 interface DispatchProps {
@@ -36,9 +37,9 @@ class BaseInteractionInputType extends React.Component<OwnProps & DispatchProps>
   }
 
   private onMouseValueChange(e) {
-    const value = e.target && e.target.value;
+    const value: InteractionInput['mouse'] = e.target && e.target.value;
     if (!this.props.input || value && value !== this.props.input.mouse) {
-      this.props.setInput({...this.props.input, mouse: value}, this.props.interactionId);
+      this.props.initializeInteraction(value);
     }
   }
 
