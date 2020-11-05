@@ -21,7 +21,6 @@ export const batchGroupBy = {
 
 export default {
   limit: 15,
-  debug: true,
   filter: excludeAction([getType(baseAddDataset)]),
   groupBy: batchGroupBy.init([getType(baseSetSignal), getType(updateGuideProperty)])
 };

@@ -364,7 +364,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   public componentDidMount() {
-    // state goes away when unmounting (when you close the inspector)
+    // necessary because state goes away when unmounting (when you close the inspector)
     if (this.props.interaction?.input) {
       const previews = this.generatePreviews(this.props.isDemonstratingInterval);
       this.setState(previews);
