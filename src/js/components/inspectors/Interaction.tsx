@@ -397,6 +397,13 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_delta'), (name, value) => this.onMainViewGridSignal(name, value));
     }
 
+    if (this.props.interaction?.selection) {
+      if (!this.state.selectionPreviews?.find(x => x.id === this.props.interaction.selection.id)) {
+        const previews = this.generatePreviews(this.props.isDemonstratingInterval);
+        this.setState(previews);
+      }
+    }
+
     // if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
     //   const selectionIds = this.props.selectionPreviews.map(s => s.id);
     //   const didHeuristicSetSelection = this.updateBrushXYHeuristic() || this.updatePointMultiHeuristic();
@@ -422,6 +429,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       if (this.mainViewSignalValues[signalName]) {
         listeners.setSignalInGroup(ctrl.view, groupName, signalName, this.mainViewSignalValues[signalName]);
       }
+    }
+  }
+
+
+  private clearMainViewSignals(groupName) {
+    for (let signalName of ['brush_x', 'brush_y', 'points_tuple', 'points_tuple_projected'].map(s => this.scopedSignalName(s))) {
+      this.mainViewSignalValues[signalName] = null;
+      listeners.setSignalInGroup(ctrl.view, groupName, signalName, null);
     }
   }
 
@@ -452,6 +467,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       }
     });
   }
+
   private updateIsDemonstrating = debounce(250, () => { // debounce is important
     const intervalActive = (this.mainViewSignalValues[this.scopedSignalName('brush_x')] &&
       this.mainViewSignalValues[this.scopedSignalName('brush_y')] &&
@@ -459,25 +475,29 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       Math.abs(this.mainViewSignalValues[this.scopedSignalName('brush_y')][0] - this.mainViewSignalValues[this.scopedSignalName('brush_y')][1]) > 10);
     const pointActive = this.mainViewSignalValues[this.scopedSignalName('points_tuple')] || this.mainViewSignalValues[this.scopedSignalName('points_tuple_projected')];
 
-    const isDemonstratingInterval = intervalActive || !pointActive;
 
-    console.log('isdemonstrating', isDemonstratingInterval);
+
+    const isDemonstratingInterval = intervalActive || this.props.isDemonstratingInterval && !pointActive;
 
     if (this.props.isDemonstratingInterval !== isDemonstratingInterval) {
       // re-initialize interaction using a demonstration if
       if (!this.props.interaction.selection || // it hasn't been initialized
           (this.state.selectionPreviews.length && this.props.interaction.selection.id === this.state.selectionPreviews[0].id) && !this.props.interaction.applications.length // user hasn't touched the default selection / application
         ) {
-          console.log('initalize from demonstration')
         this.initializeInteraction(isDemonstratingInterval ? 'drag' : 'click');
       }
     }
   });
 
-  private initializeInteraction(mouse: InteractionInput['mouse']) {
+  private initializeInteraction(mouse: InteractionInput['mouse'], didUseDropdown?: boolean) {
     const isDemonstratingInterval = mouse === 'drag';
     const previews = this.generatePreviews(isDemonstratingInterval);
     this.setState(previews);
+
+    if (didUseDropdown) {
+      // clear the demonstration signals so that they don't reset the dropdown choice
+      this.clearMainViewSignals(this.props.groupName)
+    }
 
     batchGroupBy.start();
 
@@ -566,7 +586,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
   private onMainViewIntervalSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
-      console.log(name, value);
       this.mainViewSignalValues[name] = value;
       this.updateIsDemonstrating();
       // TODO: consider adding this.updateBrushXYHeuristic() debounced here
