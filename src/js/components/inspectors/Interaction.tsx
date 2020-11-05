@@ -363,6 +363,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     };
   }
 
+  public componentDidMount() {
+    // state goes away when unmounting (when you close the inspector)
+    if (this.props.interaction?.input) {
+      const previews = this.generatePreviews(this.props.isDemonstratingInterval);
+      this.setState(previews);
+    }
+  }
+
   private generatePreviews(isDemonstratingInterval: boolean): {
     selectionPreviews: SelectionRecord[],
     applicationPreviews: ApplicationRecord[]
@@ -394,6 +402,12 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       this.onSignal(this.props.groupName, this.scopedSignalName('brush_y'), (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_anchor'), (name, value) => this.onMainViewGridSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_delta'), (name, value) => this.onMainViewGridSignal(name, value));
+
+      if (this.props.interaction?.signals?.length) {
+        this.props.interaction.signals.forEach(s => {
+          this.onSignal(this.props.groupName, s.signal, (name, value) => this.updatePreviewSignals(name, value));
+        })
+      }
     }
 
     // necessary to handle undo/redo
@@ -509,7 +523,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     }
     if (!didHeuristicSetSelection) this.props.setSelection(previews.selectionPreviews[0], this.props.interaction.id);
 
-    const signals = getInteractionSignals(this.props.fieldsOfGroup, input, this.props.scaleInfo);
+    const signals = getInteractionSignals(this.props.interaction.id, input, this.props.scaleInfo, this.props.fieldsOfGroup);
     this.props.setSignals(signals, this.props.interaction.id);
 
     batchGroupBy.end();
@@ -729,7 +743,8 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                               interaction={this.props.interaction}
                               groupName={this.props.groupName}
                               applicationPreviews={this.state.applicationPreviews}
-                              preview={preview}/>
+                              preview={preview}
+                              canDemonstrate={this.props.canDemonstrate}/>
                           </div>
                         )
                       })
@@ -755,7 +770,8 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                                 interaction={this.props.interaction}
                                 groupName={this.props.groupName}
                                 applicationPreviews={this.state.applicationPreviews}
-                                preview={preview}/>
+                                preview={preview}
+                                canDemonstrate={this.props.canDemonstrate}/>
                             </div>
                           </div>
                         )

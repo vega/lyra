@@ -115,7 +115,7 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
   }
 
   public render() {
-    const signals = getInteractionSignals(this.props.fieldsOfGroup, this.props.input, this.props.scaleInfo);
+    const signals = getInteractionSignals(this.props.interactionId, this.props.input, this.props.scaleInfo, this.props.fieldsOfGroup);
     return (
       <div className='signals-container'>
         {

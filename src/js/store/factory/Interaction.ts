@@ -136,10 +136,9 @@ export type InteractionRecord = RecordOf<LyraInteraction>;
 export type InteractionState = Map<string, InteractionRecord>;
 
 
-export function getInteractionSignals(fieldsOfGroup: string[], input: InteractionInput, scaleInfo: ScaleInfo): InteractionSignal[] {
+export function getInteractionSignals(interactionId: number, input: InteractionInput, scaleInfo: ScaleInfo, fieldsOfGroup: string[]): InteractionSignal[] {
   if (!input) return [];
   const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
-  const interactionId = this.props.interactionId;
 
   const signals: InteractionSignal[] = [];
 
