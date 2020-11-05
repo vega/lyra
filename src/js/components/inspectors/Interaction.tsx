@@ -3,7 +3,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal} from '../../store/factory/Interaction';
+import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal, getInteractionSignals} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {setInput, setSelection, setApplication, removeApplication, setSignals} from '../../actions/interactionActions';
 import {getScaleInfoForGroup,  getNestedMarksOfGroup,  getFieldsOfGroup} from '../../ctrl/demonstrations';
@@ -17,7 +17,6 @@ import {Map} from 'immutable';
 import {debounce} from 'vega';
 import {InteractionInputType} from './InteractionInputType';
 import {InteractionSignals} from './InteractionSignals';
-import {AreaRecord} from '../../store/factory/marks/Area';
 import {signalLookup} from '../../util/signal-lookup';
 import {batchGroupBy} from '../../reducers/historyOptions';
 
@@ -397,27 +396,13 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_delta'), (name, value) => this.onMainViewGridSignal(name, value));
     }
 
+    // necessary to handle undo/redo
     if (this.props.interaction?.selection) {
       if (!this.state.selectionPreviews?.find(x => x.id === this.props.interaction.selection.id)) {
         const previews = this.generatePreviews(this.props.isDemonstratingInterval);
         this.setState(previews);
       }
     }
-
-    // if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
-    //   const selectionIds = this.props.selectionPreviews.map(s => s.id);
-    //   const didHeuristicSetSelection = this.updateBrushXYHeuristic() || this.updatePointMultiHeuristic();
-    //   if (!didHeuristicSetSelection && (!this.props.interaction.selection ||
-    //       selectionIds.every(id => id !== this.props.interaction.selection.id))) {
-    //         this.props.setSelection(this.props.selectionPreviews[0], this.props.interaction.id);
-    //   }
-    // }
-
-    // if (this.props.interaction.input && (!this.props.interaction.signals?.length || !prevProps.interaction.input || prevProps.interaction.input.mouse !== this.props.interaction.input.mouse ||
-    //     !(prevProps.scaleInfo.xScaleName === this.props.scaleInfo.xScaleName && prevProps.scaleInfo.yScaleName === this.props.scaleInfo.yScaleName))) {
-    //   const signals = this.getInteractionSignals(this.props.interaction, this.props.scaleInfo);
-    //   this.props.setSignals(signals, this.props.interaction.id);
-    // }
   }
 
   private scopedSignalName(signalName: string) {
@@ -431,7 +416,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       }
     }
   }
-
 
   private clearMainViewSignals(groupName) {
     for (let signalName of ['brush_x', 'brush_y', 'points_tuple', 'points_tuple_projected'].map(s => this.scopedSignalName(s))) {
@@ -475,8 +459,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       Math.abs(this.mainViewSignalValues[this.scopedSignalName('brush_y')][0] - this.mainViewSignalValues[this.scopedSignalName('brush_y')][1]) > 10);
     const pointActive = this.mainViewSignalValues[this.scopedSignalName('points_tuple')] || this.mainViewSignalValues[this.scopedSignalName('points_tuple_projected')];
 
-
-
     const isDemonstratingInterval = intervalActive || this.props.isDemonstratingInterval && !pointActive;
 
     if (this.props.isDemonstratingInterval !== isDemonstratingInterval) {
@@ -518,9 +500,16 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     }
     this.props.setInput(input, this.props.primId);
 
-    this.props.setSelection(previews.selectionPreviews[0], this.props.interaction.id);
+    let didHeuristicSetSelection = false;
+    if (isDemonstratingInterval) {
+      didHeuristicSetSelection = this.updateBrushXYHeuristic();
+    }
+    else {
+      didHeuristicSetSelection = this.updatePointMultiHeuristic();
+    }
+    if (!didHeuristicSetSelection) this.props.setSelection(previews.selectionPreviews[0], this.props.interaction.id);
 
-    const signals = this.getInteractionSignals(input, this.props.scaleInfo);
+    const signals = getInteractionSignals(this.props.fieldsOfGroup, input, this.props.scaleInfo);
     this.props.setSignals(signals, this.props.interaction.id);
 
     batchGroupBy.end();
@@ -715,98 +704,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     this.props.setApplication(newPreview, this.props.interaction.id);
   }
 
-
-  private getInteractionSignals(input, scaleInfo: ScaleInfo): InteractionSignal[] {
-    if (!input) return [];
-    const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
-    const fields = this.props.fieldsOfGroup;
-    const interactionId = this.props.interaction.id;
-
-    const signals: InteractionSignal[] = [];
-
-    switch (input.mouse) {
-      case 'drag':
-        if (xScaleName) {
-          signals.push({
-            signal: `brush_x_start_${interactionId}`,
-            label: 'brush_x (start)'
-          });
-          signals.push({
-            signal: `brush_x_end_${interactionId}`,
-            label: 'brush_x (end)'
-          });
-          if (xFieldName) {
-            signals.push({
-              signal: `brush_${xFieldName}_${xScaleName}_start_${interactionId}`,
-              label: `brush_${xFieldName} (start)`
-            });
-            signals.push({
-              signal: `brush_${xFieldName}_${xScaleName}_end_${interactionId}`,
-              label: `brush_${xFieldName} (end)`
-            });
-          }
-        }
-        if (yScaleName) {
-          signals.push({
-            signal: `brush_y_start_${interactionId}`,
-            label: 'brush_y (start)'
-          });
-          signals.push({
-            signal: `brush_y_end_${interactionId}`,
-            label: 'brush_y (end)'
-          });
-          if (yFieldName) {
-            signals.push({
-              signal: `brush_${yFieldName}_${yScaleName}_start_${interactionId}`,
-              label: `brush_${yFieldName} (start)`
-            });
-            signals.push({
-              signal: `brush_${yFieldName}_${yScaleName}_end_${interactionId}`,
-              label: `brush_${yFieldName} (end)`
-            });
-          }
-        }
-        break;
-        case 'click':
-          fields.forEach(field => {
-            signals.push({
-              signal: `point_${field}_${interactionId}`,
-              label: `point_${field}`
-            });
-          })
-          break;
-        case 'mouseover':
-          signals.push({
-            signal: `mouse_x_${interactionId}`,
-            label: 'mouse_x'
-          });
-          signals.push({
-            signal: `mouse_y_${interactionId}`,
-            label: 'mouse_y'
-          });
-          if (xFieldName) {
-            signals.push({
-              signal: `mouse_${xFieldName}_${interactionId}`,
-              label: `mouse_${xFieldName}`
-            });
-          }
-          if (yFieldName) {
-            signals.push({
-              signal: `mouse_${yFieldName}_${interactionId}`,
-              label: `mouse_${yFieldName}`
-            });
-          }
-          fields.forEach(field => {
-            signals.push({
-              signal: `point_${field}_${interactionId}`,
-              label: `point_${field}`
-            });
-          })
-          break;
-    }
-    return signals;
-  }
-
   public render() {
     const interaction = this.props.interaction;
     const applications = interaction.applications;
@@ -870,7 +767,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                       return application.type === 'mark' ? (
                         <div>
                           {this.getTargetMarkOptions(application as MarkApplicationRecord)}
-                          <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+                          <InteractionMarkApplicationProperty interactionId={interaction.id} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
                         </div>
                       ) : null
                     })
@@ -879,7 +776,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
               </div>
               <div className="property-group">
                 <h3>Signals</h3>
-                <InteractionSignals interactionId={this.props.interaction.id} signals={this.props.interaction.signals}></InteractionSignals>
+                <InteractionSignals interactionId={this.props.interaction.id} fieldsOfGroup={this.props.fieldsOfGroup} input={this.props.interaction.input} scaleInfo={this.props.scaleInfo}></InteractionSignals>
               </div>
             </div>
           ) : null
