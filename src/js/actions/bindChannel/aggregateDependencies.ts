@@ -8,6 +8,7 @@ import {updateMarkProperty} from '../markActions';
 import {addScale, amendDataRef, updateScaleProperty} from '../scaleActions';
 import {addScaleToGroup} from './helperActions';
 import {assignId} from '../../util/counter';
+import {batchGroupBy} from '../../reducers/historyOptions';
 
 const imutils = require('../../util/immutable-utils'),
   getInVis = imutils.getInVis,
@@ -46,6 +47,8 @@ export default function(dispatch: ThunkDispatch<State, any, any>, state: State, 
   function dataRefHasAgg(ref) {
     return ref.get('data') === aggId;
   }
+
+  dispatch;
 
   // If this function is executing, this mark is backed by an aggregated dataset.
   // So update all scales it uses to draw from the aggregated dataset rather
@@ -86,16 +89,19 @@ export default function(dispatch: ThunkDispatch<State, any, any>, state: State, 
   // This behavior reduces guide churning, and keeps guides always visualizing
   // the most recent scale.  Finally, any mark properties that referred to the
   // pre-cloned scales are updated.
+  const _dispatch = dispatch; // TODO(jzong) idk why i need this to appease the compiler
   if (Object.keys(clones).length > 0) {
     Object.keys(clones).forEach(function (scaleId) {
       const scale = getInVis(state, 'scales.' + scaleId),
         groupId = mark.get('_parent');
       let guide, guideId;
 
-      const newScaleId = (clones[scaleId] = assignId(dispatch, state));
+      const newScaleId = (clones[scaleId] = assignId(_dispatch, state));
       const newScale = cloneScale(scale, aggId).merge({_id: newScaleId});
+      batchGroupBy.start();
       dispatch(addScale(newScale));
       dispatch(addScaleToGroup(newScaleId, groupId));
+      batchGroupBy.end();
 
       for (guideId in counts.scales[scaleId].guides) {
         guide = getInVis(state, 'guides.' + guideId);
