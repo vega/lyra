@@ -142,12 +142,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     this.insertNodeAtCaret(replace);
   }
 
-  public componentDidUpdate(prevProps, prevState) {
-    // if (this.props.dsId !== prevProps.dsId) {
-    //   this.props.updateFn(this.htmlToExpr(this.state.html));
-    // }
-  };
-
   public toHtml(expr) {
     if (this.props.type === 'expr') return this.exprToHtml(expr);
     if (this.props.type === 'tmpl') return this.tmplToHtml(expr);
