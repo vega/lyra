@@ -20,7 +20,6 @@ export const batchGroupBy = {
 
 export default {
   limit: 15,
-  debug: true,
   filter: function(action) {
     return action.type !== getType(baseAddDataset);
   },
