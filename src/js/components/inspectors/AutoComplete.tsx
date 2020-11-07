@@ -24,9 +24,6 @@ import {FieldDraggingStateRecord, DraggingStateRecord, SignalDraggingStateRecord
 import {InteractionRecord} from '../../store/factory/Interaction';
 import {WidgetRecord} from '../../store/factory/Widget';
 
-interface OwnState {
-}
-
 interface OwnProps {
   type: 'expr' | 'tmpl';
   dsId: number,
@@ -71,7 +68,7 @@ function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, own
   }
 }
 
-class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
+class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchProps> {
 
   private ref;
 
@@ -273,9 +270,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       }
     });
 
-    console.log(this.fromHtml(value))
     this.props.updateFn(this.fromHtml(value));
-    // this.setState({html: value, caret: this.getCaret()});
   };
 
   public handleDragOver = (evt) => {

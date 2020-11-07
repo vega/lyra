@@ -175,7 +175,6 @@ function rectSpatial(dispatch: Dispatch, state: State, parsed: CompiledBinding, 
  */
 function textTemplate(dispatch: Dispatch, parsed: CompiledBinding) {
   const text = getFieldDef(parsed.input.encoding.text);
-  console.log('TODO make this play nicer with the autocomplete')
   dispatch(
     setMarkVisual(
       {
