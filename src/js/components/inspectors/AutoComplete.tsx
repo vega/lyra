@@ -217,9 +217,9 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
         return JSON.parse(str);
       }
       else if (str.startsWith(DATUM)) {
-        return str.substring(DATUM.length);
+        return SPAN_FIELD_OPEN + str.substring(DATUM.length) + SPAN_CLOSE;
       }
-      return str;
+      return SPAN_SIGNAL_OPEN + str + SPAN_CLOSE;
     }).join('');
   }
 
@@ -307,7 +307,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   public render() {
     return (
       <div className="autocomplete-wrap" onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
-        <ContentEditable ref={(ref) => {this.ref = ref}} className='autocomplete' html={this.toHtml(this.props.value)}
+        <ContentEditable ref={(ref) => {this.ref = ref}} className='autocomplete' html={this.toHtml(this.props.value || '')}
         disabled={false} onChange={this.handleChange} />
       </div>
     );
