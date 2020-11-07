@@ -2,7 +2,6 @@ import {groupByActionTypes} from 'redux-undo';
 import {getType} from 'typesafe-actions';
 import {baseAddDataset} from '../actions/datasetActions';
 import {updateGuideProperty} from '../actions/guideActions';
-import {setMarkVisual} from '../actions/markActions';
 import {baseSetSignal} from '../actions/signalActions';
 
 export const batchGroupBy = {
