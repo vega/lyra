@@ -234,25 +234,6 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
     }
   });
 
-  // Escape string literals in text signal expressions.
-  if (spec.type === 'text') {
-    let tmpl = spec.encode.update.text.signal;
-    // if (tmpl && !tmpl.startsWith('brush')) {
-    //   tmpl = tmpl.split(RegExp('{{(.*?)}}')).map(s => {
-    //     if (s.indexOf('datum') >= 0) {
-    //       return `+ ${s} + `;
-    //     }
-    //     else {
-    //       if (s.startsWith('#')) {
-    //         return `+ ${s.substring(1)} + `;
-    //       }
-    //       return `"${s}"`;
-    //     }
-    //   }).join('');
-    //   spec.encode.update.text.signal = tmpl;
-    // }
-  }
-
   if (internal) {
     spec.role = `lyra_${mark._id}`;
     const s = manipulators(mark, spec);
