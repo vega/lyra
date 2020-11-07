@@ -201,7 +201,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     return tokens.map(token => {
       switch (token.type) {
         case 'literal':
-          return JSON.stringify(this.decodeHtml(token.str));
+          return JSON.stringify(this.decodeHtml(token.str.replace(/(<([^>]+)>)/gi, "")));
         case 'signal':
           return token.str;
         case 'field':
@@ -310,7 +310,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     return (
       <div className="autocomplete-wrap" onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
         <ContentEditable ref={(ref) => {this.ref = ref}} className='autocomplete' html={this.toHtml(this.props.value || '')}
-        disabled={false} onChange={this.handleChange} />
+        disabled={false} onChange={this.handleChange} onKeyDown={(e) => {if (e.key === 'Enter' || e.keyCode === 13) e.preventDefault()}} />
       </div>
     );
   }
