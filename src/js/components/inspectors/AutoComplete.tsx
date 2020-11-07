@@ -6,6 +6,8 @@ const SPAN_FIELD_OPEN  = '<span class="field source" contenteditable="false">';
 const SPAN_SIGNAL_OPEN  = '<span class="signal" contenteditable="false">';
 const SPAN_CLOSE = '</span>';
 const DATUM = 'datum.';
+const SPAN_PREFIX = '<span class="';
+const SPAN_RE = new RegExp('(' + SPAN_FIELD_OPEN + '|' + SPAN_SIGNAL_OPEN + ').*' + SPAN_CLOSE);
 
 import * as React from 'react';
 import * as rangy from 'rangy';
@@ -73,12 +75,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
 
   private ref;
 
-  private createElementFromHTML(htmlString) {
-    var div = document.createElement('div');
-    div.innerHTML = htmlString.trim();
-    return div.firstChild;
-  }
-
   private getSelectedRangeWithinEl() {
     const el = this.ref?.htmlEl;
     var selectedRange = null;
@@ -93,7 +89,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       //set the caret after the node for this range
       if (el.childNodes?.length) {
         const lastChild = el.childNodes[el.childNodes.length - 1];
-        console.log(lastChild);
         elRange.setStartAfter(lastChild);
         elRange.setEndAfter(lastChild);
       }
@@ -109,6 +104,11 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     return selectedRange;
   }
 
+  private createElementFromHTML(htmlString) {
+    var div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+    return div.firstChild;
+  }
 
   private insertNodeAtCaret = (window as any).insertNodeAtCaret = (html) => {
     const node = this.createElementFromHTML(html);
@@ -123,7 +123,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   }
 
   private replaceMaintainingCaret = (search, replace) => {
-    console.log('replace');
     const sel = window.getSelection();
     if (!sel.focusNode) {
       return;
@@ -134,7 +133,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     if (startIndex === -1) {
       return;
     }
-    console.log("first focus node: ", sel.focusNode.nodeValue);
+
     const range = document.createRange();
     //Set the range to contain search text
     range.setStart(sel.focusNode, startIndex);
@@ -146,10 +145,86 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   }
 
   public componentDidUpdate(prevProps, prevState) {
-    if (this.props.dsId !== prevProps.dsId) {
-      // this.props.updateFn(this.htmlToExpr(this.state.html));
-    }
+    // if (this.props.dsId !== prevProps.dsId) {
+    //   this.props.updateFn(this.htmlToExpr(this.state.html));
+    // }
   };
+
+  public toHtml(expr) {
+    if (this.props.type === 'expr') return this.exprToHtml(expr);
+    if (this.props.type === 'tmpl') return this.tmplToHtml(expr);
+  }
+
+  public fromHtml(html) {
+    if (this.props.type === 'expr') return this.htmlToExpr(html);
+    if (this.props.type === 'tmpl') return this.htmlToTmpl(html);
+  }
+
+  private decodeHtml(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+
+  public htmlToTmpl(html) {
+    const tokens = [];
+    let searchStr = html;
+    let position = searchStr.search(SPAN_RE);
+
+    while (position !== -1) {
+      tokens.push({
+        type: 'literal',
+        str: searchStr.substring(0, position)
+      });
+
+      const next = position + SPAN_PREFIX.length;
+      const nextStr = searchStr.substring(next);
+      const end = nextStr.search(SPAN_CLOSE);
+      if (nextStr.startsWith('signal')) {
+        tokens.push({
+          type: 'signal',
+          str: nextStr.substring(SPAN_SIGNAL_OPEN.length - SPAN_PREFIX.length, end)
+        });
+      }
+      else if (nextStr.startsWith('field')) {
+        tokens.push({
+          type: 'field',
+          str: nextStr.substring(SPAN_FIELD_OPEN.length - SPAN_PREFIX.length, end)
+        });
+      }
+
+      searchStr = nextStr.substring(end + SPAN_CLOSE.length);
+      position = searchStr.search(SPAN_RE);
+    }
+    tokens.push({
+      type: 'literal',
+      str: searchStr
+    });
+
+    return tokens.map(token => {
+      switch (token.type) {
+        case 'literal':
+          return JSON.stringify(this.decodeHtml(token.str));
+        case 'signal':
+          return token.str;
+        case 'field':
+          return DATUM + token.str;
+      };
+    }).join(' + ');
+  }
+
+  public tmplToHtml(tmpl: string) {
+    const unjoin = tmpl.split(' + ')
+    return unjoin.map(str => {
+      if (str.startsWith('"') && str.endsWith('"')) {
+        return JSON.parse(str);
+      }
+      else if (str.startsWith(DATUM)) {
+        return str.substring(DATUM.length);
+      }
+      return str;
+    }).join('');
+  }
 
   public exprToHtml(str: string) {
     const fields = this.props.fields;
@@ -180,7 +255,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       html = html.replace(fieldTag, DATUM + fieldName);
     });
     const tagsStripped = html.replace(/(<([^>]+)>)/gi, "");
-    return tagsStripped;
+    return this.decodeHtml(tagsStripped);
   }
 
   public handleChange = (evt) => {
@@ -198,7 +273,8 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       }
     });
 
-    // this.props.updateFn(this.htmlToExpr(value));
+    console.log(this.fromHtml(value))
+    this.props.updateFn(this.fromHtml(value));
     // this.setState({html: value, caret: this.getCaret()});
   };
 
@@ -236,7 +312,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   public render() {
     return (
       <div className="autocomplete-wrap" onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
-        <ContentEditable ref={(ref) => {this.ref = ref}} className='autocomplete' html={this.exprToHtml(this.props.value || '')}
+        <ContentEditable ref={(ref) => {this.ref = ref}} className='autocomplete' html={this.toHtml(this.props.value)}
         disabled={false} onChange={this.handleChange} />
       </div>
     );
