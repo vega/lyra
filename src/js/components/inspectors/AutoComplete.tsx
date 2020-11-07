@@ -2,20 +2,14 @@
 const getInVis = require('../../util/immutable-utils').getInVis;
 
 // TODO: derived fields?
-const SPAN_OPEN = '<span class="';
 const SPAN_FIELD_OPEN  = '<span class="field source" contenteditable="false">';
 const SPAN_SIGNAL_OPEN  = '<span class="signal" contenteditable="false">';
 const SPAN_CLOSE = '</span>';
 const DATUM = 'datum.';
-const SIGNALNAME = '#';
-const TMPL_OPEN  = '{{';
-const TMPL_CLOSE = '}}';
-const TMPL_RE = new RegExp(TMPL_OPEN + '.*' + TMPL_CLOSE);
-const SPAN_RE = new RegExp('(' + SPAN_FIELD_OPEN + '|' + SPAN_SIGNAL_OPEN + ').*' + SPAN_CLOSE);
 
 import * as React from 'react';
+import * as rangy from 'rangy';
 import ContentEditable from 'react-contenteditable';
-import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import {AnyAction} from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
@@ -29,7 +23,6 @@ import {InteractionRecord} from '../../store/factory/Interaction';
 import {WidgetRecord} from '../../store/factory/Widget';
 
 interface OwnState {
-  html: string
 }
 
 interface OwnProps {
@@ -77,58 +70,86 @@ function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, own
 }
 
 class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
-  constructor(props) {
-    super(props);
-    this.state = {html: this.toHtml(props.value || '')};
-  };
 
-  public componentDidUpdate(prevProps) {
-    if (this.props.dsId !== prevProps.dsId) {
-      this.props.updateFn(this.fromHtml(this.state.html));
+  private ref;
 
-    }
-    if (this.props.value !== prevProps.value) {
-      this.setState({html: this.toHtml(this.props.value || '')});
-    }
-  };
-
-  public componentDidMount() {
-    const contentEditable = ReactDOM.findDOMNode(this);
-    const handleChange = this.handleChange;
-
-    const strategies = [{
-      words: this.props.fields,
-      match: /\b(\w{2,})$/,
-      search: function(term, callback) {
-        callback(this.words.map(function(word) {
-          return word.toLowerCase().indexOf(term.toLowerCase()) === 0 ? word : null;
-        }));
-      },
-      index: 1,
-      replace: function(word) {
-        return SPAN_FIELD_OPEN + word + SPAN_CLOSE + ' ';
-      }
-    }];
-
-    const options = {
-      onKeydown: function(e, commands) {
-        if (e.keyCode === 32) {
-          return commands.KEY_ENTER;
-        }
-      }
-    };
-
-    // $(contentEditable).textcomplete(strategies, options)
-    //   .on({'textComplete:select': handleChange});
-  };
-
-  public toHtml(str: string) {
-    return this.props.type === 'expr' ? this.exprToHtml(str) : this.tmplToHtml(str);
-  };
-
-  public fromHtml(str: string) {
-    return this.props.type === 'expr' ? this.htmlToExpr(str) : this.htmlToTmpl(str);
+  private createElementFromHTML(htmlString) {
+    var div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+    return div.firstChild;
   }
+
+  private getSelectedRangeWithinEl() {
+    const el = this.ref?.htmlEl;
+    var selectedRange = null;
+    var sel = rangy.getSelection();
+    var elRange = rangy.createRange();
+    elRange.selectNodeContents(el);
+    if (sel.rangeCount) {
+        selectedRange = sel.getRangeAt(0).intersection(elRange);
+    }
+    elRange.detach();
+    if (!selectedRange) {
+      //set the caret after the node for this range
+      if (el.childNodes?.length) {
+        const lastChild = el.childNodes[el.childNodes.length - 1];
+        console.log(lastChild);
+        elRange.setStartAfter(lastChild);
+        elRange.setEndAfter(lastChild);
+      }
+      else {
+        elRange.selectNodeContents(el);
+      }
+
+      //apply this range to the selection object
+      sel.removeAllRanges();
+      sel.addRange(elRange);
+      return elRange;
+    }
+    return selectedRange;
+  }
+
+
+  private insertNodeAtCaret = (window as any).insertNodeAtCaret = (html) => {
+    const node = this.createElementFromHTML(html);
+    const sel = rangy.getSelection();
+    const range = this.getSelectedRangeWithinEl();
+    if (range) {
+      range.collapse(false);
+      range.insertNode(node);
+      range.collapseAfter(node);
+      sel.setSingleRange(range);
+    }
+  }
+
+  private replaceMaintainingCaret = (search, replace) => {
+    console.log('replace');
+    const sel = window.getSelection();
+    if (!sel.focusNode) {
+      return;
+    }
+
+    const startIndex = sel.focusNode.nodeValue.indexOf(search);
+    const endIndex = startIndex + search.length;
+    if (startIndex === -1) {
+      return;
+    }
+    console.log("first focus node: ", sel.focusNode.nodeValue);
+    const range = document.createRange();
+    //Set the range to contain search text
+    range.setStart(sel.focusNode, startIndex);
+    range.setEnd(sel.focusNode, endIndex);
+    //Delete search text
+    range.deleteContents();
+    //Insert replace text
+    this.insertNodeAtCaret(replace);
+  }
+
+  public componentDidUpdate(prevProps, prevState) {
+    if (this.props.dsId !== prevProps.dsId) {
+      // this.props.updateFn(this.htmlToExpr(this.state.html));
+    }
+  };
 
   public exprToHtml(str: string) {
     const fields = this.props.fields;
@@ -153,132 +174,32 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     return str;
   };
 
-  public htmlToExpr(html) {
-    return this.htmlDecode(this.wrapTokensExpr(this.htmlToTokens(html)));
-  };
-
-  public tmplToHtml(str) {
-    const tokens = [];
-    let searchStr = str;
-    let position = searchStr.search(TMPL_RE);
-
-    while (position !== -1) {
-      tokens.push({
-        type: 'literal',
-        str: searchStr.substring(0, position)
-      });
-
-      const next = position + TMPL_OPEN.length;
-      const nextStr = searchStr.substring(next);
-      const end = nextStr.search(TMPL_CLOSE);
-      if (nextStr.startsWith(SIGNALNAME)) {
-        tokens.push({
-          type: 'signal',
-          str: nextStr.substring(SIGNALNAME.length, end)
-        });
-      }
-      else if (nextStr.startsWith(DATUM)) {
-        tokens.push({
-          type: 'field',
-          str: nextStr.substring(DATUM.length, end)
-        });
-      }
-
-      searchStr = nextStr.substring(end + TMPL_CLOSE.length);
-      position = searchStr.search(TMPL_RE);
-    }
-    tokens.push({
-      type: 'literal',
-      str: searchStr
+  private htmlToExpr = (html: string) => {
+    this.props.fields.forEach(fieldName => {
+      const fieldTag = SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE;
+      html = html.replace(fieldTag, DATUM + fieldName);
     });
-
-    return this.wrapTokensHtml(tokens);
-  };
-
-  private htmlToTokens(html) {
-    const tokens = [];
-    let searchStr = html;
-    let position = searchStr.search(SPAN_RE);
-
-    while (position !== -1) {
-      tokens.push({
-        type: 'literal',
-        str: searchStr.substring(0, position)
-      });
-
-      const next = position + SPAN_OPEN.length;
-      const nextStr = searchStr.substring(next);
-      const end = nextStr.search(SPAN_CLOSE);
-      if (nextStr.startsWith('signal')) {
-        tokens.push({
-          type: 'signal',
-          str: nextStr.substring(SPAN_SIGNAL_OPEN.length - SPAN_OPEN.length, end)
-        });
-      }
-      else if (nextStr.startsWith('field')) {
-        tokens.push({
-          type: 'field',
-          str: nextStr.substring(SPAN_FIELD_OPEN.length - SPAN_OPEN.length, end)
-        });
-      }
-
-      searchStr = nextStr.substring(end + SPAN_CLOSE.length);
-      position = searchStr.search(SPAN_RE);
-    }
-    tokens.push({ // TODO detect field names within literals (typed in instead of dragged in)
-      type: 'literal',
-      str: searchStr
-    });
-    return tokens;
+    const tagsStripped = html.replace(/(<([^>]+)>)/gi, "");
+    return tagsStripped;
   }
-
-  public htmlToTmpl(html) {
-    return this.htmlDecode(this.wrapTokensTmpl(this.htmlToTokens(html)));
-  };
-
-  public wrapTokensHtml(tokens: any[]) {
-    return tokens.map(token => {
-      if (token.type === 'field') {
-        return SPAN_FIELD_OPEN + token.str + SPAN_CLOSE;
-      }
-      if (token.type === 'signal') {
-        return SPAN_SIGNAL_OPEN + token.str + SPAN_CLOSE;
-      }
-      return token.str;
-    }).join('');
-  }
-
-  public wrapTokensExpr(tokens: any[]) {
-    return tokens.map(token => {
-      if (token.type === 'field') {
-        return DATUM + token.str;
-      }
-      return token.str;
-    }).join('');
-  }
-
-  public wrapTokensTmpl(tokens: any[]) {
-    return tokens.map(token => {
-      if (token.type === 'field') {
-        return TMPL_OPEN + DATUM + token.str + TMPL_CLOSE;
-      }
-      if (token.type === 'signal') {
-        return TMPL_OPEN + SIGNALNAME + token.str + TMPL_CLOSE;
-      }
-      return token.str;
-    }).join('');
-  }
-
-  public htmlDecode(input) {
-    var txt = document.createElement('textarea');
-    txt.innerHTML = input;
-    return txt.value;
-  };
 
   public handleChange = (evt) => {
-    const value = evt.target.value || evt.target.innerHTML || '';
-    this.props.updateFn(this.fromHtml(value));
-    this.setState({html: value});
+    let value = evt.target.value || evt.target.innerHTML || '';
+
+    this.props.fields.forEach(field => {
+      if (value.includes(`:${field}:`)) {
+        this.replaceMaintainingCaret(`:${field}:`, SPAN_FIELD_OPEN + field + SPAN_CLOSE);
+      }
+    });
+
+    this.props.signals.forEach(signal => {
+      if (value.includes(`:${signal}:`)) {
+        this.replaceMaintainingCaret(`:${signal}:`, SPAN_FIELD_OPEN + signal + SPAN_CLOSE);
+      }
+    });
+
+    // this.props.updateFn(this.htmlToExpr(value));
+    // this.setState({html: value, caret: this.getCaret()});
   };
 
   public handleDragOver = (evt) => {
@@ -295,17 +216,11 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     if ((dragging as FieldDraggingStateRecord).dsId) {
       dragging = dragging as FieldDraggingStateRecord;
       const fieldName = dragging.fieldDef.name;
-      const currHtml = (this.state.html === 'Text' ? '' : this.state.html);
-      const decode = this.htmlDecode(currHtml);
-      let cursorPosition = decode.indexOf(window.getSelection().anchorNode.textContent);
-      cursorPosition = cursorPosition > -1 ? cursorPosition + window.getSelection().anchorOffset : decode.length;
-      cursorPosition = cursorPosition > decode.length ? decode.length : cursorPosition;
-      const html = decode.substring(0, cursorPosition) + SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE + decode.substring(cursorPosition);
+      // const currHtml = (this.state.html === 'Text' ? '' : this.state.html);
+      this.insertNodeAtCaret(SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE);
       if (!props.dsId && dragging.dsId && props.primType === 'marks') {
         props.setDsId(dragging.dsId);
       }
-      props.updateFn(this.fromHtml(html));
-      this.setState({html});
     }
     else if ((dragging as SignalDraggingStateRecord).signal) {
       dragging = dragging as SignalDraggingStateRecord;
@@ -313,22 +228,15 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
         this.props.setSignalPush(dragging.signal, true, dragging.interactionId);
       }
       const signalName = dragging.signal;
-      const currHtml = (this.state.html === 'Text' ? '' : this.state.html);
-      const decode = this.htmlDecode(currHtml);
-      let cursorPosition = decode.indexOf(window.getSelection().anchorNode.textContent);
-      cursorPosition = cursorPosition > -1 ? cursorPosition + window.getSelection().anchorOffset : decode.length;
-      cursorPosition = cursorPosition > decode.length ? decode.length : cursorPosition;
-      const html = decode.substring(0, cursorPosition) + SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE + decode.substring(cursorPosition);
-      props.updateFn(this.fromHtml(html));
-      this.setState({html});
+      this.insertNodeAtCaret(SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE);
     }
 
   };
 
   public render() {
     return (
-      <div onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
-        <ContentEditable className='autocomplete' html={this.state.html}
+      <div className="autocomplete-wrap" onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
+        <ContentEditable ref={(ref) => {this.ref = ref}} className='autocomplete' html={this.exprToHtml(this.props.value || '')}
         disabled={false} onChange={this.handleChange} />
       </div>
     );
