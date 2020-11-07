@@ -24,6 +24,7 @@ import {FieldDraggingStateRecord, DraggingStateRecord, SignalDraggingStateRecord
 import {InteractionRecord} from '../../store/factory/Interaction';
 import {WidgetRecord} from '../../store/factory/Widget';
 import {debounce} from 'throttle-debounce';
+import {AutoCompleteList} from './AutoCompleteList';
 
 interface OwnProps {
   type: 'expr' | 'tmpl';
@@ -32,6 +33,10 @@ interface OwnProps {
   primType: PrimType,
   value: string,
   updateFn: (evt) => void
+}
+
+interface OwnState {
+  searchPrefix: string;
 }
 
 interface StateProps {
@@ -69,7 +74,15 @@ function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, own
   }
 }
 
-class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchProps> {
+class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      searchPrefix: null
+    }
+  }
 
   private ref;
 
@@ -121,25 +134,48 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   }
 
   private replaceMaintainingCaret = (search, replace) => {
-    const sel = window.getSelection();
-    if (!sel.focusNode) {
-      return;
-    }
+    console.log(search, replace);
+    if (this.ref) {
+      const sel = rangy.getSelection();
 
-    const startIndex = sel.focusNode.nodeValue.indexOf(search);
-    const endIndex = startIndex + search.length;
-    if (startIndex === -1) {
-      return;
-    }
+      this.ref.htmlEl.childNodes.forEach(node => {
+        if (node.nodeValue) {
+          const startIndex = node.nodeValue.indexOf(search);
+          const endIndex = startIndex + search.length;
 
-    const range = document.createRange();
-    //Set the range to contain search text
-    range.setStart(sel.focusNode, startIndex);
-    range.setEnd(sel.focusNode, endIndex);
-    //Delete search text
-    range.deleteContents();
-    //Insert replace text
-    this.insertNodeAtCaret(replace);
+          console.log(node.nodeValue, startIndex);
+
+          if (startIndex === -1) {
+            return;
+          }
+
+          const range = document.createRange();
+          //Set the range to contain search text
+          range.setStart(node, startIndex);
+          range.setEnd(node, endIndex);
+          //Delete search text
+          range.deleteContents();
+          //Insert replace text
+          this.insertNodeAtCaret(replace);
+        }
+      })
+    }
+  }
+
+  private getHeadToCaret = (window as any).getHeadToCaret = () => {
+    if (this.ref) {
+      const sel = rangy.getSelection();
+      const selRange = this.getSelectedRangeWithinEl();
+      const newRange = document.createRange();
+      newRange.selectNodeContents(this.ref.htmlEl);
+      newRange.setEnd(selRange.startContainer, selRange.startOffset);
+      const fragment = newRange.cloneContents();
+      const temp = document.createElement("body");
+      temp.appendChild(fragment);
+      const html = temp.innerHTML;
+      console.log(html);
+      return html;
+    }
   }
 
   public toHtml(expr) {
@@ -256,9 +292,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     }
   })
 
-  public handleChange = (evt) => {
-    let value = evt.target.value || evt.target.innerHTML || '';
-
+  private processTokens = (value) => {
     this.props.fields.forEach(field => {
       if (value.includes(`:${field}:`)) {
         this.replaceMaintainingCaret(`:${field}:`, SPAN_FIELD_OPEN + field + SPAN_CLOSE);
@@ -270,6 +304,21 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
         this.replaceMaintainingCaret(`:${signal}:`, SPAN_FIELD_OPEN + signal + SPAN_CLOSE);
       }
     });
+  }
+
+  public handleChange = (evt) => {
+    let value = evt.target.value || evt.target.innerHTML || '';
+
+    this.processTokens(value);
+
+    const sub = this.getHeadToCaret();
+    if (sub.match(/:\w*$/g)) {
+      const searchPrefix = sub.substring(sub.lastIndexOf(':') + 1);
+      this.setState({searchPrefix});
+    }
+    else {
+      this.setState({searchPrefix: null});
+    }
 
     this.debounceUpdate();
   };
@@ -304,11 +353,20 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     this.debounceUpdate();
   };
 
+  public onAutoCompleteSelect = (value) => {
+    this.replaceMaintainingCaret(":" + this.state.searchPrefix, ":" + value + ":");
+    if (this.ref) {
+      this.processTokens(this.ref.htmlEl.innerHTML)
+    }
+    this.setState({searchPrefix: null});
+  }
+
   public render() {
     return (
       <div className="autocomplete-wrap" onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
         <ContentEditable ref={(ref) => {this.ref = ref}} className='autocomplete' html={this.toHtml(this.props.value || '')}
         disabled={false} onChange={this.handleChange} onKeyDown={(e) => {if (e.key === 'Enter' || e.keyCode === 13) e.preventDefault()}} />
+        <AutoCompleteList fields={this.props.fields} signals={this.props.signals} searchPrefix={this.state.searchPrefix} onSelected={this.onAutoCompleteSelect}></AutoCompleteList>
       </div>
     );
   }
