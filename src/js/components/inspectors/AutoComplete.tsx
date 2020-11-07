@@ -294,7 +294,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     if ((dragging as FieldDraggingStateRecord).dsId) {
       dragging = dragging as FieldDraggingStateRecord;
       const fieldName = dragging.fieldDef.name;
-      // const currHtml = (this.state.html === 'Text' ? '' : this.state.html);
       this.insertNodeAtCaret(SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE);
       if (!props.dsId && dragging.dsId && props.primType === 'marks') {
         props.setDsId(dragging.dsId);
@@ -308,7 +307,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       const signalName = dragging.signal;
       this.insertNodeAtCaret(SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE);
     }
-
+    this.debounceUpdate();
   };
 
   public render() {
