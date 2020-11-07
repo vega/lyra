@@ -270,7 +270,9 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       }
     });
 
-    this.props.updateFn(this.fromHtml(value));
+    if (this.ref) {
+      this.props.updateFn(this.fromHtml(this.ref.htmlEl.innerHTML));
+    }
   };
 
   public handleDragOver = (evt) => {
