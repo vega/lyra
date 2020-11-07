@@ -23,6 +23,7 @@ import {Schema} from '../../store/factory/Dataset';
 import {FieldDraggingStateRecord, DraggingStateRecord, SignalDraggingStateRecord} from '../../store/factory/Inspector';
 import {InteractionRecord} from '../../store/factory/Interaction';
 import {WidgetRecord} from '../../store/factory/Widget';
+import {debounce} from 'throttle-debounce';
 
 interface OwnProps {
   type: 'expr' | 'tmpl';
@@ -255,6 +256,12 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     return this.decodeHtml(tagsStripped);
   }
 
+  private debounceUpdate = debounce(500, () => {
+    if (this.ref) {
+      this.props.updateFn(this.fromHtml(this.ref.htmlEl.innerHTML));
+    }
+  })
+
   public handleChange = (evt) => {
     let value = evt.target.value || evt.target.innerHTML || '';
 
@@ -270,9 +277,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       }
     });
 
-    if (this.ref) {
-      this.props.updateFn(this.fromHtml(this.ref.htmlEl.innerHTML));
-    }
+    this.debounceUpdate();
   };
 
   public handleDragOver = (evt) => {
