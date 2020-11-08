@@ -382,7 +382,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       return {
         top: bounds.bottom,
         left: bounds.left,
-        width: bounds.width - 2,
+        minWidth: bounds.width - 2,
       }
     }
     return null;

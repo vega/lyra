@@ -58,10 +58,10 @@
 .autocomplete-list {
   background-color: white;
   position: fixed;
+  margin-top: -1px;
 
   &.active {
     border: 1px solid #ccc;
-    border-top: none;
   }
 
   .autocomplete-suggestion {

@@ -31,7 +31,7 @@ interface OwnProps {
   searchPrefix: string;
   keyCode: number;
   onSelected: (value: string) => void;
-  style: {top: number, left: number, width: number}
+  style: {top: number, left: number, minWidth: number}
 }
 
 interface OwnState {
