@@ -34,13 +34,15 @@
 .autocomplete {
   min-width: 100px;
   max-width: 100%;
-  white-space: nowrap;
   overflow: auto;
   padding: 5px;
   line-height: 20px;
   background-color: white;
   border: 1px solid #ccc;
 
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
   // br, div { display: none; }
 
   .field {
@@ -50,5 +52,23 @@
   .signal {
     text-decoration: none !important;
     cursor: default !important;
+  }
+}
+
+.autocomplete-list {
+  background-color: white;
+
+  &.active {
+    border: 1px solid #ccc;
+    border-top: none;
+  }
+
+  .autocomplete-suggestion {
+    padding: 5px;
+    cursor: pointer;
+
+    &.active {
+      background-color: #eee;
+    }
   }
 }

@@ -37,6 +37,7 @@ interface OwnProps {
 
 interface OwnState {
   searchPrefix: string;
+  keyCode: number;
 }
 
 interface StateProps {
@@ -80,7 +81,8 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     super(props);
 
     this.state = {
-      searchPrefix: null
+      searchPrefix: null,
+      keyCode: null
     }
   }
 
@@ -134,7 +136,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
   }
 
   private replaceMaintainingCaret = (search, replace) => {
-    console.log(search, replace);
     if (this.ref) {
       const sel = rangy.getSelection();
 
@@ -142,8 +143,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
         if (node.nodeValue) {
           const startIndex = node.nodeValue.indexOf(search);
           const endIndex = startIndex + search.length;
-
-          console.log(node.nodeValue, startIndex);
 
           if (startIndex === -1) {
             return;
@@ -173,7 +172,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       const temp = document.createElement("body");
       temp.appendChild(fragment);
       const html = temp.innerHTML;
-      console.log(html);
       return html;
     }
   }
@@ -361,12 +359,25 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     this.setState({searchPrefix: null});
   }
 
+  private onKeyDown = (e) => {
+    if (this.state.searchPrefix !== null) {
+      if (e.keyCode === 38 || e.keyCode === 40) {
+        e.preventDefault(); // capture up and down keys when the autocompletelist is open
+      }
+      this.setState({keyCode: e.keyCode});
+    }
+  }
+
+  private onKeyUp = (e) => {
+    this.setState({keyCode: null});
+  }
+
   public render() {
     return (
-      <div className="autocomplete-wrap" onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
+      <div className="autocomplete-wrap" onDragOver={this.handleDragOver} onDrop={this.handleDrop} onKeyDown={this.onKeyDown} onKeyUp={this.onKeyUp}>
         <ContentEditable ref={(ref) => {this.ref = ref}} className='autocomplete' html={this.toHtml(this.props.value || '')}
         disabled={false} onChange={this.handleChange} onKeyDown={(e) => {if (e.key === 'Enter' || e.keyCode === 13) e.preventDefault()}} />
-        <AutoCompleteList fields={this.props.fields} signals={this.props.signals} searchPrefix={this.state.searchPrefix} onSelected={this.onAutoCompleteSelect}></AutoCompleteList>
+        <AutoCompleteList fields={this.props.fields} signals={this.props.signals} searchPrefix={this.state.searchPrefix} keyCode={this.state.keyCode} onSelected={this.onAutoCompleteSelect}></AutoCompleteList>
       </div>
     );
   }
