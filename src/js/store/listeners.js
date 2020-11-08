@@ -81,10 +81,14 @@ function updateSelectedMarkInVega(selectedMark, vegaView) {
     return;
   }
 
-  var selectedSignal = vegaView.signal(sg.SELECTED),
-      role = selectedSignal.mark.role,
+  var selectedSignal = vegaView.signal(sg.SELECTED);
+
+  if (!selectedSignal) return;
+
+  var role = selectedSignal.mark.role,
       vegaSelectedId = role && +role.split('lyra_')[1],
       selectedMarkId = selectedMark.get('_id');
+
 
   // If the store and the Vega scene graph are in sync, take no action
   if (selectedMarkId === vegaSelectedId) {

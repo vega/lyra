@@ -91,7 +91,7 @@ class BaseWidgetSignals extends React.Component<OwnProps & StateProps & Dispatch
       <div className='signals-container'>
         {
           this.props.signals.map((interactionSignal) => {
-            return (<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={interactionSignal.signal}>{interactionSignal.label}</div>)
+            return (<div key={interactionSignal.signal} draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={interactionSignal.signal}>{interactionSignal.label}</div>)
           })
         }
       </div>
