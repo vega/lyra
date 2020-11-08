@@ -137,7 +137,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
 
   private replaceMaintainingCaret = (search, replace) => {
     if (this.ref) {
-      const sel = rangy.getSelection();
 
       [...this.ref.htmlEl.childNodes].forEach(node => {
         if (node.nodeValue) {
@@ -163,7 +162,6 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
 
   private getHeadToCaret = (window as any).getHeadToCaret = () => {
     if (this.ref) {
-      const sel = rangy.getSelection();
       const selRange = this.getSelectedRangeWithinEl();
       const newRange = document.createRange();
       newRange.selectNodeContents(this.ref.htmlEl);
@@ -329,7 +327,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     return false;
   };
 
-  public handleDrop = (evt)  => {
+  public handleDrop = ()  => {
     const props = this.props;
     let dragging = props.dragging;
     if ((dragging as FieldDraggingStateRecord).dsId) {
@@ -372,7 +370,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     }
   }
 
-  private onKeyUp = (e) => {
+  private onKeyUp = () => {
     this.setState({keyCode: null});
   }
 
