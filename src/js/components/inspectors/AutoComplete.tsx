@@ -373,12 +373,24 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     this.setState({keyCode: null});
   }
 
+  private getDropdownPosition() {
+    if (this.ref) {
+      const bounds = this.ref.htmlEl.getBoundingClientRect();
+      return {
+        top: bounds.bottom,
+        left: bounds.left,
+        width: bounds.width - 2,
+      }
+    }
+    return null;
+  }
+
   public render() {
     return (
       <div className="autocomplete-wrap" onDragOver={this.handleDragOver} onDrop={this.handleDrop} onKeyDown={this.onKeyDown} onKeyUp={this.onKeyUp}>
         <ContentEditable ref={(ref) => {this.ref = ref}} className='autocomplete' html={this.toHtml(this.props.value || '')}
         disabled={false} onChange={this.handleChange} onKeyDown={(e) => {if (e.key === 'Enter' || e.keyCode === 13) e.preventDefault()}} />
-        <AutoCompleteList fields={this.props.fields} signals={this.props.signals} searchPrefix={this.state.searchPrefix} keyCode={this.state.keyCode} onSelected={this.onAutoCompleteSelect}></AutoCompleteList>
+        <AutoCompleteList style={this.getDropdownPosition()} fields={this.props.fields} signals={this.props.signals} searchPrefix={this.state.searchPrefix} keyCode={this.state.keyCode} onSelected={this.onAutoCompleteSelect}></AutoCompleteList>
       </div>
     );
   }

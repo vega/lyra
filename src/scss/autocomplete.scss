@@ -57,6 +57,7 @@
 
 .autocomplete-list {
   background-color: white;
+  position: fixed;
 
   &.active {
     border: 1px solid #ccc;

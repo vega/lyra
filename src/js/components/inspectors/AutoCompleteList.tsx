@@ -31,6 +31,7 @@ interface OwnProps {
   searchPrefix: string;
   keyCode: number;
   onSelected: (value: string) => void;
+  style: {top: number, left: number, width: number}
 }
 
 interface OwnState {
@@ -112,7 +113,7 @@ export class AutoCompleteList extends React.Component<OwnProps, OwnState> {
 
   public render() {
     return (
-      <div className={"autocomplete-list " + (this.state.suggestions.length ? "active" : null)}>
+      <div className={"autocomplete-list " + (this.state.suggestions.length ? "active" : null)} style={this.props.style}>
         {
           this.state.suggestions.map(s => {
             return <div key={s}
