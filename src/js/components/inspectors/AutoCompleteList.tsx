@@ -74,7 +74,7 @@ export class AutoCompleteList extends React.Component<OwnProps, OwnState> {
       if (this.props.keyCode === 13) {
         // enter
         if (this.state.selectedValue) {
-          this.props.onSelected(this.state.selectedValue);
+          this.onSelected(this.state.selectedValue);
         }
       }
     }
@@ -111,6 +111,11 @@ export class AutoCompleteList extends React.Component<OwnProps, OwnState> {
     }
   }
 
+  private onSelected(s) {
+    this.props.onSelected(s);
+    this.setSelectedValue(null);
+  }
+
   public render() {
     return (
       <div className={"autocomplete-list " + (this.state.suggestions.length ? "active" : null)} style={this.props.style}>
@@ -118,7 +123,7 @@ export class AutoCompleteList extends React.Component<OwnProps, OwnState> {
           this.state.suggestions.map(s => {
             return <div key={s}
                         className={"autocomplete-suggestion " + (this.state.selectedValue === s ? 'active' : null)}
-                        onClick={() => this.props.onSelected(s)}
+                        onClick={() => this.onSelected(s)}
                         onMouseEnter={() => this.setSelectedValue(s)}
                         onMouseLeave={() => {
                           if (this.state.selectedValue === s) this.setSelectedValue(null)

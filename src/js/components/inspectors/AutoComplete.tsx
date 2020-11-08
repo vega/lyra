@@ -139,7 +139,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     if (this.ref) {
       const sel = rangy.getSelection();
 
-      this.ref.htmlEl.childNodes.forEach(node => {
+      [...this.ref.htmlEl.childNodes].forEach(node => {
         if (node.nodeValue) {
           const startIndex = node.nodeValue.indexOf(search);
           const endIndex = startIndex + search.length;
@@ -364,8 +364,11 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     if (this.state.searchPrefix !== null) {
       if (e.keyCode === 38 || e.keyCode === 40) {
         e.preventDefault(); // capture up and down keys when the autocompletelist is open
+        this.setState({keyCode: e.keyCode});
       }
-      this.setState({keyCode: e.keyCode});
+      if (e.keyCode === 13) {
+        this.setState({keyCode: e.keyCode});
+      }
     }
   }
 
