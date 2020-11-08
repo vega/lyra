@@ -299,7 +299,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
 
     this.props.signals.forEach(signal => {
       if (value.includes(`:${signal}:`)) {
-        this.replaceMaintainingCaret(`:${signal}:`, SPAN_FIELD_OPEN + signal + SPAN_CLOSE);
+        this.replaceMaintainingCaret(`:${signal}:`, SPAN_SIGNAL_OPEN + signal + SPAN_CLOSE);
       }
     });
   }
@@ -357,6 +357,7 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
       this.processTokens(this.ref.htmlEl.innerHTML)
     }
     this.setState({searchPrefix: null});
+    this.debounceUpdate();
   }
 
   private onKeyDown = (e) => {
