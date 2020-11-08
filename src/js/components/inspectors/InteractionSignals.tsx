@@ -81,13 +81,12 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
         let value = this.props.dragging.signal;
         if (channel === 'text') {
           // append to current text value if dropping onto a text mark's text channel
-          value = `{{#${this.props.dragging.signal}}}`;
           const textRecord: TextRecord = this.props.marks.get(String(lyraId)) as TextRecord;
           const text = textRecord.encode?.update?.text as any;
           if (text) {
             let current = text.signal || text.value || '';
-            current = current === 'Text' ? '' : current;
-            value = current + value;
+            current = current === '"Text"' ? '' : current;
+            value = current + (current.endsWith('"') ? ' + ' : ' ') + value;
           }
         }
         this.props.setMarkVisual(
