@@ -20,6 +20,7 @@ import {InteractionSignals} from './InteractionSignals';
 import {AreaRecord} from '../../store/factory/marks/Area';
 import {signalLookup} from '../../util/signal-lookup';
 import {fieldInvalidTestValueRef} from 'vega-lite/src/compile/mark/encode/valueref';
+import {consoleTestResultHandler} from 'tslint/lib/test';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -628,6 +629,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
   private getTargetMarkOptions(preview: MarkApplicationRecord) {
+    //need to just use preview target group instead of group
     const marksOfGroup = this.props.marksOfGroups.get(this.props.group._id);
 
     if (marksOfGroup.length === 1) {
@@ -663,6 +665,32 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       const targetMark = marksOfGroup.find(mark => exportName(mark.name) === targetMarkName);
       newPreview = newPreview.set('propertyName', targetMark.type === 'line' ? "stroke" : "fill");
     }
+    this.props.setApplication(newPreview, this.props.interaction.id);
+  }
+
+
+  private getTargetGroupOptions(preview: MarkApplicationRecord) {
+    const options = this.props.groups.map(group => {
+      return <option key={group.name} value={exportName(group.name)}>{group.name}</option>
+    });
+    const group = preview.targetGroupName;
+    return (
+      <div className="property">
+        <label htmlFor='target_group'>Target Group:</label>
+        <div className='control'>
+          <select name='target_group' key={group} value={group} onChange={e => this.onSelectTargetGroup(preview, e.target.value)}>
+            {options}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  private onSelectTargetGroup(preview: MarkApplicationRecord, targetGroup: string) {
+    let newPreview = preview.set('targetGroupName', targetGroup);
+    const group = this.props.groups.find(group => exportName(group.name) == targetGroup);
+    newPreview = newPreview.set('targetMarkName', exportName(this.props.marksOfGroups.get(group._id)[0].name));
+
     this.props.setApplication(newPreview, this.props.interaction.id);
   }
 
@@ -829,6 +857,17 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                   }
                 </div>
               </div>
+              {applications.map(application => {
+                return application.type === 'mark' && this.props.groups.size > 1 ? (
+                    <div className="property-group">
+                    <div>
+                      {this.getTargetGroupOptions(application as MarkApplicationRecord)}
+                    </div>
+                  </div>
+                ) : null
+              })
+              }
+
               <div className="property-group">
                 <h3>Signals</h3>
                 <InteractionSignals interactionId={this.props.interaction.id} signals={this.props.interaction.signals}></InteractionSignals>
