@@ -322,8 +322,11 @@ function generateApplicationPreviews(groupId: number, groupName: string, marksOf
     }));
   }
 
-  const otherGroups = groups.filter(group => group._id !== groupId);
-  otherGroups.forEach(otherGroup => {
+  // const otherGroups = groups.filter(group => group._id !== groupId);
+  // console.log(otherGroups);
+  const otherGroup = groups.find(group => group._id !== groupId);
+  console.log(otherGroup);
+  if (otherGroup) {
     const otherGroupId = otherGroup._id;
     const marksOfOtherGroup = marksOfGroups.get(otherGroupId);
     const mark = marksOfOtherGroup.find(mark => mark.from && mark.from.data); // TODO(jzong): && mark.from.data === mark dataset in current group?
@@ -335,45 +338,13 @@ function generateApplicationPreviews(groupId: number, groupName: string, marksOf
 
       defs.push(TransformApplication({
         id: "filter_" + targetGroupName + "_" + isDemonstratingInterval,
-        label: "Filter " + otherGroup.name,
+        label: "Filter",
         targetGroupName,
         datasetName,
         targetMarkName,
       }));
-
-      // TODO(jzong): this part of the code pushes extra suggestions for brushing and linking.
-      // When we change the interface to allow multiple of each type of application, we'll want
-      // to remove this redundancy and expose a dropdown to select target group, similarly to
-      // how we currently select target mark.
-      defs.push(MarkApplication({
-        id: "color_" + isDemonstratingInterval + '_' + targetGroupName,
-        label: "Color " + otherGroup.name,
-        targetGroupName,
-        targetMarkName,
-        propertyName: mark.type === 'line' ? "stroke" : "fill",
-        unselectedValue: "#797979"
-      }));
-      defs.push(MarkApplication({
-        id: "opacity_" + isDemonstratingInterval + '_' + targetGroupName,
-        label: "Opacity " + otherGroup.name,
-        targetGroupName,
-        targetMarkName,
-        propertyName: "opacity",
-        unselectedValue: "0.2"
-      }));
-      if (mark.type === 'symbol') {
-        defs.push(MarkApplication({
-          id: "size_" + isDemonstratingInterval + '_' + targetGroupName,
-          label: "Size " + otherGroup.name,
-          targetGroupName,
-          targetMarkName,
-          propertyName: "size",
-          unselectedValue: 30
-        }));
-      }
     }
-  });
-
+  }
   return defs;
 }
 
@@ -858,7 +829,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                 </div>
               </div>
               {applications.map(application => {
-                return application.type === 'mark' && this.props.groups.size > 1 ? (
+                return this.props.groups.size > 1 ? (
                     <div className="property-group">
                     <div>
                       {this.getTargetGroupOptions(application as MarkApplicationRecord)}
