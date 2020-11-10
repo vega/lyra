@@ -3,29 +3,33 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal} from '../../store/factory/Interaction';
+import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal, getInteractionSignals, TransformApplicationRecord} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {setInput, setSelection, setApplication, removeApplication, setSignals} from '../../actions/interactionActions';
 import {getScaleInfoForGroup,  getNestedMarksOfGroup,  getFieldsOfGroup} from '../../ctrl/demonstrations';
 import {ScaleSimpleType, scaleTypeSimple} from '../../store/factory/Scale'
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
-import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
+import {MarkRecord} from '../../store/factory/Mark';
 import exportName from '../../util/exportName';
 import InteractionPreview from '../interactions/InteractionPreview';
 import {Map} from 'immutable';
 import {debounce} from 'vega';
 import {InteractionInputType} from './InteractionInputType';
 import {InteractionSignals} from './InteractionSignals';
-import {AreaRecord} from '../../store/factory/marks/Area';
 import {signalLookup} from '../../util/signal-lookup';
-import {fieldInvalidTestValueRef} from 'vega-lite/src/compile/mark/encode/valueref';
+import {batchGroupBy} from '../../reducers/historyOptions';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
 
 interface OwnProps {
   primId: number;
+}
+
+interface OwnState {
+  selectionPreviews: SelectionRecord[]
+  applicationPreviews: ApplicationRecord[]
 }
 
 interface DispatchProps {
@@ -47,8 +51,6 @@ interface StateProps {
   fieldsOfGroup: string[];
   markScalesOfGroup: MarkScales[];
   canDemonstrate: boolean;
-  selectionPreviews: SelectionRecord[];
-  applicationPreviews: ApplicationRecord[];
   isDemonstratingInterval: boolean;
 }
 
@@ -119,11 +121,6 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     }
   });
 
-  const {
-    selectionPreviews,
-    applicationPreviews,
-  } = generatePreviews(groupId, groupName, scaleInfo, groups, marksOfGroups, markScalesOfGroup, datasets, interaction, isDemonstratingInterval);
-
   return {
     interaction,
     groups,
@@ -135,32 +132,11 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     fieldsOfGroup,
     markScalesOfGroup,
     canDemonstrate,
-    selectionPreviews,
-    applicationPreviews,
     isDemonstratingInterval
   };
 }
 
 const actionCreators: DispatchProps = {setInput, setSelection, setApplication, removeApplication, setSignals};
-
-function generatePreviews(groupId: number, groupName: string, scaleInfo: ScaleInfo, groups: Map<number, GroupRecord>, marksOfGroups: Map<number, MarkRecord[]>, markScalesOfGroup: MarkScales[], datasets: Map<string, DatasetRecord>, interaction: InteractionRecord, isDemonstratingInterval: boolean): {
-  selectionPreviews: SelectionRecord[],
-  applicationPreviews: ApplicationRecord[]
-} {
-  if (isDemonstratingInterval === null) {
-    return {
-      selectionPreviews: [],
-      applicationPreviews: []
-    }
-  }
-
-  const marksOfGroup = marksOfGroups.get(groupId);
-
-  return {
-    selectionPreviews: generateSelectionPreviews(markScalesOfGroup, interaction, isDemonstratingInterval),
-    applicationPreviews: generateApplicationPreviews(groupId, groupName, marksOfGroup, scaleInfo, groups, marksOfGroups, datasets, isDemonstratingInterval)
-  };
-};
 
 function generateSelectionPreviews(markScalesOfGroup: MarkScales[], interaction: InteractionRecord, isDemonstratingInterval: boolean): SelectionRecord[] {
   if (isDemonstratingInterval) {
@@ -317,12 +293,13 @@ function generateApplicationPreviews(groupId: number, groupName: string, marksOf
     defs.push(ScaleApplication({
       id: "panzoom",
       label: "Pan and zoom",
+      targetGroupName: groupName,
       scaleInfo
     }));
   }
 
-  const otherGroups = groups.filter(group => group._id !== groupId);
-  otherGroups.forEach(otherGroup => {
+  const otherGroup = groups.find(group => group._id !== groupId);
+  if (otherGroup) {
     const otherGroupId = otherGroup._id;
     const marksOfOtherGroup = marksOfGroups.get(otherGroupId);
     const mark = marksOfOtherGroup.find(mark => mark.from && mark.from.data); // TODO(jzong): && mark.from.data === mark dataset in current group?
@@ -334,49 +311,53 @@ function generateApplicationPreviews(groupId: number, groupName: string, marksOf
 
       defs.push(TransformApplication({
         id: "filter_" + targetGroupName + "_" + isDemonstratingInterval,
-        label: "Filter " + otherGroup.name,
+        label: "Filter",
         targetGroupName,
         datasetName,
         targetMarkName,
       }));
-
-      // TODO(jzong): this part of the code pushes extra suggestions for brushing and linking.
-      // When we change the interface to allow multiple of each type of application, we'll want
-      // to remove this redundancy and expose a dropdown to select target group, similarly to
-      // how we currently select target mark.
-      defs.push(MarkApplication({
-        id: "color_" + isDemonstratingInterval + '_' + targetGroupName,
-        label: "Color " + otherGroup.name,
-        targetGroupName,
-        targetMarkName,
-        propertyName: mark.type === 'line' ? "stroke" : "fill",
-        unselectedValue: "#797979"
-      }));
-      defs.push(MarkApplication({
-        id: "opacity_" + isDemonstratingInterval + '_' + targetGroupName,
-        label: "Opacity " + otherGroup.name,
-        targetGroupName,
-        targetMarkName,
-        propertyName: "opacity",
-        unselectedValue: "0.2"
-      }));
-      if (mark.type === 'symbol') {
-        defs.push(MarkApplication({
-          id: "size_" + isDemonstratingInterval + '_' + targetGroupName,
-          label: "Size " + otherGroup.name,
-          targetGroupName,
-          targetMarkName,
-          propertyName: "size",
-          unselectedValue: 30
-        }));
-      }
     }
-  });
-
+  }
   return defs;
 }
 
-class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
+class BaseInteractionInspector extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selectionPreviews: [],
+      applicationPreviews: []
+    };
+  }
+
+  public componentDidMount() {
+    // necessary because state goes away when unmounting (when you close the inspector)
+    if (this.props.interaction?.input) {
+      const previews = this.generatePreviews(this.props.isDemonstratingInterval);
+      this.setState(previews);
+    }
+  }
+
+  private generatePreviews(isDemonstratingInterval: boolean): {
+    selectionPreviews: SelectionRecord[],
+    applicationPreviews: ApplicationRecord[]
+  } {
+    if (isDemonstratingInterval === null) {
+      return {
+        selectionPreviews: [],
+        applicationPreviews: []
+      }
+    }
+
+    const marksOfGroup = this.props.marksOfGroups.get(this.props.interaction.groupId);
+
+    return {
+      selectionPreviews: generateSelectionPreviews(this.props.markScalesOfGroup, this.props.interaction, isDemonstratingInterval),
+      applicationPreviews: generateApplicationPreviews(this.props.interaction.groupId, this.props.groupName, marksOfGroup, this.props.scaleInfo, this.props.groups, this.props.marksOfGroups, this.props.datasets, isDemonstratingInterval)
+    };
+  };
 
   public componentDidUpdate(prevProps: OwnProps & StateProps, prevState) {
     if (!prevProps.canDemonstrate && this.props.canDemonstrate) {
@@ -390,21 +371,20 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       this.onSignal(this.props.groupName, this.scopedSignalName('brush_y'), (name, value) => this.onMainViewIntervalSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_anchor'), (name, value) => this.onMainViewGridSignal(name, value));
       this.onSignal(this.props.groupName, this.scopedSignalName('grid_translate_delta'), (name, value) => this.onMainViewGridSignal(name, value));
-    }
 
-    if (prevProps.selectionPreviews !== this.props.selectionPreviews && this.props.selectionPreviews.length) {
-      const selectionIds = this.props.selectionPreviews.map(s => s.id);
-      const didHeuristicSetSelection = this.updateBrushXYHeuristic() || this.updatePointMultiHeuristic();
-      if (!didHeuristicSetSelection && (!this.props.interaction.selection ||
-          selectionIds.every(id => id !== this.props.interaction.selection.id))) {
-            this.props.setSelection(this.props.selectionPreviews[0], this.props.interaction.id);
+      if (this.props.interaction?.signals?.length) {
+        this.props.interaction.signals.forEach(s => {
+          this.onSignal(this.props.groupName, s.signal, (name, value) => this.updatePreviewSignals(name, value));
+        })
       }
     }
 
-    if (this.props.interaction.input && (!prevProps.interaction.input || prevProps.interaction.input.mouse !== this.props.interaction.input.mouse ||
-        !(prevProps.scaleInfo.xScaleName === this.props.scaleInfo.xScaleName && prevProps.scaleInfo.yScaleName === this.props.scaleInfo.yScaleName))) {
-      const signals = this.getInteractionSignals(this.props.interaction, this.props.scaleInfo);
-      this.props.setSignals(signals, this.props.interaction.id);
+    // necessary to handle undo/redo
+    if (this.props.interaction?.selection) {
+      if (!this.state.selectionPreviews?.find(x => x.id === this.props.interaction.selection.id)) {
+        const previews = this.generatePreviews(this.props.isDemonstratingInterval);
+        this.setState(previews);
+      }
     }
   }
 
@@ -417,6 +397,13 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       if (this.mainViewSignalValues[signalName]) {
         listeners.setSignalInGroup(ctrl.view, groupName, signalName, this.mainViewSignalValues[signalName]);
       }
+    }
+  }
+
+  private clearMainViewSignals(groupName) {
+    for (let signalName of ['brush_x', 'brush_y', 'points_tuple', 'points_tuple_projected'].map(s => this.scopedSignalName(s))) {
+      this.mainViewSignalValues[signalName] = null;
+      listeners.setSignalInGroup(ctrl.view, groupName, signalName, null);
     }
   }
 
@@ -436,17 +423,18 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   private mainViewSignalValues = {}; // name -> value
 
   private updatePreviewSignals(name, value) {
-    this.props.selectionPreviews.forEach(preview => {
+    this.state.selectionPreviews.forEach(preview => {
       if (this.previewRefs[preview.id]) {
         this.previewRefs[preview.id].setPreviewSignal(name, value);
       }
     });
-    this.props.applicationPreviews.forEach(preview => {
+    this.state.applicationPreviews.forEach(preview => {
       if (this.previewRefs[preview.id]) {
         this.previewRefs[preview.id].setPreviewSignal(name, value);
       }
     });
   }
+
   private updateIsDemonstrating = debounce(250, () => { // debounce is important
     const intervalActive = (this.mainViewSignalValues[this.scopedSignalName('brush_x')] &&
       this.mainViewSignalValues[this.scopedSignalName('brush_y')] &&
@@ -454,27 +442,61 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       Math.abs(this.mainViewSignalValues[this.scopedSignalName('brush_y')][0] - this.mainViewSignalValues[this.scopedSignalName('brush_y')][1]) > 10);
     const pointActive = this.mainViewSignalValues[this.scopedSignalName('points_tuple')] || this.mainViewSignalValues[this.scopedSignalName('points_tuple_projected')];
 
-    const isDemonstratingInterval = intervalActive || !pointActive;
+    const isDemonstratingInterval = intervalActive || this.props.isDemonstratingInterval && !pointActive;
 
     if (this.props.isDemonstratingInterval !== isDemonstratingInterval) {
-      if (!this.props.interaction.input) {
-        const inputKeyboard: InteractionInput = (window as any)._inputKeyboard;
-        this.props.setInput({
-          mouse: isDemonstratingInterval ? 'drag' : 'click',
-          keycode: inputKeyboard ? inputKeyboard.keycode : undefined,
-          _key: inputKeyboard ? inputKeyboard._key : undefined
-        }, this.props.primId);
-      }
-      else {
-        if ((!this.props.interaction.selection || (this.props.selectionPreviews.length && this.props.interaction.selection.id === this.props.selectionPreviews[0].id)) && !this.props.interaction.applications.length) {
-          this.props.setInput({
-            ...this.props.interaction.input,
-            mouse: isDemonstratingInterval ? 'drag' : 'click',
-          }, this.props.primId);
-        }
+      // re-initialize interaction using a demonstration if
+      if (!this.props.interaction.selection || // it hasn't been initialized
+          (this.state.selectionPreviews.length && this.props.interaction.selection.id === this.state.selectionPreviews[0].id) && !this.props.interaction.applications.length // user hasn't touched the default selection / application
+        ) {
+        this.initializeInteraction(isDemonstratingInterval ? 'drag' : 'click');
       }
     }
   });
+
+  private initializeInteraction(mouse: InteractionInput['mouse'], didUseDropdown?: boolean) {
+    const isDemonstratingInterval = mouse === 'drag';
+    const previews = this.generatePreviews(isDemonstratingInterval);
+    this.setState(previews);
+
+    if (didUseDropdown) {
+      // clear the demonstration signals so that they don't reset the dropdown choice
+      this.clearMainViewSignals(this.props.groupName)
+    }
+
+    batchGroupBy.start();
+
+    let input = this.props.interaction.input;
+    if (!this.props.interaction.input) {
+      const inputKeyboard: InteractionInput = (window as any)._inputKeyboard;
+      input = {
+        mouse,
+        keycode: inputKeyboard ? inputKeyboard.keycode : undefined,
+        _key: inputKeyboard ? inputKeyboard._key : undefined
+      };
+    }
+    else {
+      input = {
+        ...this.props.interaction.input,
+        mouse,
+      }
+    }
+    this.props.setInput(input, this.props.primId);
+
+    let didHeuristicSetSelection = false;
+    if (isDemonstratingInterval) {
+      didHeuristicSetSelection = this.updateBrushXYHeuristic();
+    }
+    else {
+      didHeuristicSetSelection = this.updatePointMultiHeuristic();
+    }
+    if (!didHeuristicSetSelection) this.props.setSelection(previews.selectionPreviews[0], this.props.interaction.id);
+
+    const signals = getInteractionSignals(this.props.interaction.id, input, this.props.scaleInfo, this.props.fieldsOfGroup);
+    this.props.setSignals(signals, this.props.interaction.id);
+
+    batchGroupBy.end();
+  }
 
   private updateBrushXYHeuristic() {
     if (this.props.interaction && this.props.interaction.selection) return;
@@ -488,14 +510,14 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     const atan2_degrees = Math.abs(Math.atan2(d_brush_y, d_brush_x)) * 180 / Math.PI;
     const threshold_degrees = 15;
     if (atan2_degrees <= threshold_degrees) {
-      const brush_x_selection = this.props.selectionPreviews.find(s => s.id === 'brush_x');
+      const brush_x_selection = this.state.selectionPreviews.find(s => s.id === 'brush_x');
       if (brush_x_selection) {
         this.props.setSelection(brush_x_selection, this.props.interaction.id);
         return true;
       }
     }
     if (atan2_degrees >= 90 - threshold_degrees) {
-      const brush_y_selection = this.props.selectionPreviews.find(s => s.id === 'brush_y');
+      const brush_y_selection = this.state.selectionPreviews.find(s => s.id === 'brush_y');
       if (brush_y_selection) {
         this.props.setSelection(brush_y_selection, this.props.interaction.id);
         return true;
@@ -508,7 +530,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     const points_tuple = this.mainViewSignalValues[this.scopedSignalName('points_tuple')];
     if (!(points_tuple && this.previousPointSignal)) return;
 
-    const point_multi_selection = this.props.selectionPreviews.find(s => s.id === 'multi');
+    const point_multi_selection = this.state.selectionPreviews.find(s => s.id === 'multi');
     if (point_multi_selection) {
       this.props.setSelection(point_multi_selection, this.props.interaction.id);
       return true;
@@ -521,7 +543,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
 
   private onMainViewPointSignal(name, value) {
     if (this.mainViewSignalValues[name] !== value) {
-      console.log(name, value);
       if (name.indexOf('points_tuple') >= 0) {
         clearTimeout(this.previousPointSignalTimeout);
         this.previousPointSignal = this.mainViewSignalValues[name];
@@ -627,37 +648,46 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     this.props.setSelection(newPreview, this.props.interaction.id);
   }
 
-  private getTargetMarkOptions(preview: MarkApplicationRecord) {
-    const marksOfGroup = this.props.marksOfGroups.get(this.props.group._id);
+  private getTargetMarkOptions(preview: MarkApplicationRecord | TransformApplicationRecord) {
+    const targetGroupName = preview.targetGroupName;
+    const group = this.props.groups.find(group => exportName(group.name) === targetGroupName);
+    const marksOfGroup = this.props.marksOfGroups.get(group._id);
+
+    let options;
 
     if (marksOfGroup.length === 1) {
-      return null;
+      options = <div>{marksOfGroup[0].name}</div>
     }
-
-    const options = marksOfGroup.map(mark => {
-      if (preview.id.startsWith('size')) {
-        if (mark.type !== 'symbol') {
-          return null;
-        }
-      }
-      const markName = exportName(mark.name);
-      return <option key={markName} value={markName}>{markName}</option>
-    });
+    else {
+      options = (
+        <select name='target_mark' value={preview.targetMarkName} onChange={e => this.onSelectTargetMarkName(preview, e.target.value)}>
+          {
+            marksOfGroup.map(mark => {
+              if (preview.id.startsWith('size')) {
+                if (mark.type !== 'symbol') {
+                  return null;
+                }
+              }
+              const markName = exportName(mark.name);
+              return <option key={markName} value={markName}>{mark.name}</option>
+            })
+          }
+        </select>
+      )
+    }
 
     return (
       <div className="property">
-        <label htmlFor='target_mark'>Target Mark:</label>
+        <label htmlFor='target_mark'>Mark:</label>
         <div className='control'>
-          <select name='target_mark' value={preview.targetMarkName} onChange={e => this.onSelectTargetMarkName(preview, e.target.value)}>
-            {options}
-          </select>
+          {options}
         </div>
       </div>
     );
   }
 
-  private onSelectTargetMarkName(preview: MarkApplicationRecord, targetMarkName: string) {
-    let newPreview = preview.set('targetMarkName', targetMarkName);
+  private onSelectTargetMarkName(preview: MarkApplicationRecord | TransformApplicationRecord, targetMarkName: string) {
+    let newPreview = (preview as any).set('targetMarkName', targetMarkName);
     if (preview.id.startsWith('color')) {
       const marksOfGroup = this.props.marksOfGroups.get(this.props.group._id);
       const targetMark = marksOfGroup.find(mark => exportName(mark.name) === targetMarkName);
@@ -666,106 +696,60 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     this.props.setApplication(newPreview, this.props.interaction.id);
   }
 
+  private getTargetGroupOptions(preview: ApplicationRecord) {
+    const groups = this.props.groups.valueSeq().toArray().filter(group => {
+      if (preview.label === 'Filter' && group._id === this.props.group._id) {
+        return false;
+      }
+      return true;
+    });
 
-  private getInteractionSignals(interaction: InteractionRecord, scaleInfo: ScaleInfo): InteractionSignal[] {
-    const input = interaction.input;
-    if (!input) return [];
-    const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
-    const interactionId = interaction.id;
-    const fields = this.props.fieldsOfGroup;
+    let options;
 
-    const signals: InteractionSignal[] = [];
-
-    switch (input.mouse) {
-      case 'drag':
-        if (xScaleName) {
-          signals.push({
-            signal: `brush_x_start_${interactionId}`,
-            label: 'brush_x (start)'
-          });
-          signals.push({
-            signal: `brush_x_end_${interactionId}`,
-            label: 'brush_x (end)'
-          });
-          if (xFieldName) {
-            signals.push({
-              signal: `brush_${xFieldName}_${xScaleName}_start_${interactionId}`,
-              label: `brush_${xFieldName} (start)`
-            });
-            signals.push({
-              signal: `brush_${xFieldName}_${xScaleName}_end_${interactionId}`,
-              label: `brush_${xFieldName} (end)`
-            });
-          }
-        }
-        if (yScaleName) {
-          signals.push({
-            signal: `brush_y_start_${interactionId}`,
-            label: 'brush_y (start)'
-          });
-          signals.push({
-            signal: `brush_y_end_${interactionId}`,
-            label: 'brush_y (end)'
-          });
-          if (yFieldName) {
-            signals.push({
-              signal: `brush_${yFieldName}_${yScaleName}_start_${interactionId}`,
-              label: `brush_${yFieldName} (start)`
-            });
-            signals.push({
-              signal: `brush_${yFieldName}_${yScaleName}_end_${interactionId}`,
-              label: `brush_${yFieldName} (end)`
-            });
-          }
-        }
-        break;
-        case 'click':
-          fields.forEach(field => {
-            signals.push({
-              signal: `point_${field}_${interactionId}`,
-              label: `point_${field}`
-            });
-          })
-          break;
-        case 'mouseover':
-          signals.push({
-            signal: `mouse_x_${interactionId}`,
-            label: 'mouse_x'
-          });
-          signals.push({
-            signal: `mouse_y_${interactionId}`,
-            label: 'mouse_y'
-          });
-          if (xFieldName) {
-            signals.push({
-              signal: `mouse_${xFieldName}_${interactionId}`,
-              label: `mouse_${xFieldName}`
-            });
-          }
-          if (yFieldName) {
-            signals.push({
-              signal: `mouse_${yFieldName}_${interactionId}`,
-              label: `mouse_${yFieldName}`
-            });
-          }
-          fields.forEach(field => {
-            signals.push({
-              signal: `point_${field}_${interactionId}`,
-              label: `point_${field}`
-            });
-          })
-          break;
+    if (groups.length === 1) {
+      options = <div>{groups[0].name}</div>;
     }
-    return signals;
+    else {
+      options = (
+        <select name='target_group' value={preview.targetGroupName} onChange={e => this.onSelectTargetGroup(preview, e.target.value)}>
+          {
+            groups.map(group => {
+              const groupName = exportName(group.name);
+              return <option key={groupName} value={groupName}>{group.name}</option>
+            })
+          }
+        </select>
+      );
+    }
+
+    return (
+      <div className="property">
+        <label htmlFor='target_group'>Group:</label>
+        <div className='control'>
+          {options}
+        </div>
+      </div>
+    );
   }
 
+  private onSelectTargetGroup(preview: ApplicationRecord, targetGroup: string) {
+    let newPreview = (preview as any).set('targetGroupName', targetGroup);
+    const group = this.props.groups.find(group => exportName(group.name) == targetGroup);
+    const marksOfGroup = this.props.marksOfGroups.get(group._id);
+    if (marksOfGroup.length) {
+      newPreview = newPreview.set('targetMarkName', exportName(this.props.marksOfGroups.get(group._id)[0].name));
+    }
+
+    this.props.setApplication(newPreview, this.props.interaction.id);
+  }
+        
   public render() {
     const interaction = this.props.interaction;
     const applications = interaction.applications;
 
     return (
       <div>
-        <InteractionInputType interactionId={interaction.id} input={interaction.input}></InteractionInputType>
+        <InteractionInputType interactionId={interaction.id} input={interaction.input} initializeInteraction={(m) => this.initializeInteraction(m, true)}></InteractionInputType>
         {
           interaction.input ? (
             <div>
@@ -774,7 +758,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                   <h3>Selections</h3>
                   <div className="preview-scroll">
                     {
-                      this.props.selectionPreviews.map((preview) => {
+                      this.state.selectionPreviews.map((preview) => {
                         return (
                           <div key={preview.id} className={interaction && interaction.selection && interaction.selection.id === preview.id ? 'selected' : ''}
                               onClick={() => this.onClickInteractionPreview(preview)}>
@@ -783,8 +767,9 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                               id={`preview-${preview.id}`}
                               interaction={this.props.interaction}
                               groupName={this.props.groupName}
-                              applicationPreviews={this.props.applicationPreviews}
-                              preview={preview}/>
+                              applicationPreviews={this.state.applicationPreviews}
+                              preview={preview}
+                              canDemonstrate={this.props.canDemonstrate}/>
                           </div>
                         )
                       })
@@ -798,9 +783,9 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                 </div>
                 <div className='property-group'>
                   <h3>Applications</h3>
-                  <div className={"preview-scroll " + (this.props.applicationPreviews.length > 4 ? "overflow" : '')}>
+                  <div className={"preview-scroll " + (this.state.applicationPreviews.length > 4 ? "overflow" : '')}>
                     {
-                      this.props.applicationPreviews.map((preview) => {
+                      this.state.applicationPreviews.map((preview) => {
                         return (
                           <div key={preview.id} className={interaction && this.interactionHasApplication(preview) ? 'selected' : ''}>
                             <div onClick={() => this.onClickInteractionPreview(preview)}>
@@ -809,29 +794,43 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                                 id={`preview-${preview.id}`}
                                 interaction={this.props.interaction}
                                 groupName={this.props.groupName}
-                                applicationPreviews={this.props.applicationPreviews}
-                                preview={preview}/>
+                                applicationPreviews={this.state.applicationPreviews}
+                                preview={preview}
+                                canDemonstrate={this.props.canDemonstrate}/>
                             </div>
                           </div>
                         )
                       })
                     }
                   </div>
-                  {
-                    applications.map(application => {
-                      return application.type === 'mark' ? (
-                        <div>
-                          {this.getTargetMarkOptions(application as MarkApplicationRecord)}
-                          <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+                  <div className='application-options-wrap'>
+                    {
+                      applications.map(application => {
+                        const targetGroupOptions = application.type === 'scale' ? null : this.getTargetGroupOptions(application); // TODO: support scale applications here too
+                        const targetMarkOptions = application.type === 'mark' || application.type === 'transform' ? (
+                          this.getTargetMarkOptions(application as any)
+                        ) : null;
+                        const properties = application.type === 'mark' ? (
+                          <div>
+                            <InteractionMarkApplicationProperty interactionId={interaction.id} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+                          </div>
+                        ) : null;
+
+                        return <div className='application-options'>
+                          <h5>{application.label}</h5>
+                          {targetGroupOptions}
+                          {targetMarkOptions}
+                          {properties}
                         </div>
-                      ) : null
-                    })
-                  }
+                      })
+                    }
+                  </div>
                 </div>
               </div>
+
               <div className="property-group">
                 <h3>Signals</h3>
-                <InteractionSignals interactionId={this.props.interaction.id} signals={this.props.interaction.signals}></InteractionSignals>
+                <InteractionSignals interactionId={this.props.interaction.id} fieldsOfGroup={this.props.fieldsOfGroup} input={this.props.interaction.input} scaleInfo={this.props.scaleInfo}></InteractionSignals>
               </div>
             </div>
           ) : null

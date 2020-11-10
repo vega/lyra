@@ -11,12 +11,11 @@ interface OwnProps {
   interaction: InteractionRecord,
   groupName: string, // name of group mark (view) this preview is attached to,
   applicationPreviews: ApplicationRecord[];
-  preview: SelectionRecord | ApplicationRecord
-}
-interface OwnState {
+  preview: SelectionRecord | ApplicationRecord;
+  canDemonstrate: boolean;
 }
 
-export class InteractionPreview extends React.Component<OwnProps, OwnState> {
+export class InteractionPreview extends React.Component<OwnProps> {
 
   constructor(props) {
     super(props);
@@ -71,7 +70,7 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
   }
 
   public componentDidUpdate(prevProps: OwnProps) {
-    if (prevProps.groupName !== this.props.groupName || prevProps.interaction !== this.props.interaction) {
+    if (!prevProps.canDemonstrate && this.props.canDemonstrate || prevProps.groupName !== this.props.groupName || prevProps.interaction !== this.props.interaction) {
       const spec = this.previewToSpec(this.props.preview);
 
       this.view = new View(parse(spec), {
@@ -88,12 +87,12 @@ export class InteractionPreview extends React.Component<OwnProps, OwnState> {
     const wScale = this.width/640; // preview width / main view width
     const hScale = this.height/360; // preview height / main view height
 
-    if (name.startsWith('brush_x')) {
+    if (name.startsWith('brush_x') && Array.isArray(value)) {
       return value.map(n => {
         return n * wScale;
       });
     }
-    if (name.startsWith('brush_y')) {
+    if (name.startsWith('brush_y') && Array.isArray(value)) {
       return value.map(n => {
         return n * hScale;
       });

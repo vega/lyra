@@ -10,7 +10,7 @@ import {setMarkVisual} from '../../actions/markActions';
 import {NumericValueRef, StringValueRef, tupleid} from 'vega';
 import sg from '../../ctrl/signals';
 import {channelName} from '../../actions/bindChannel';
-import {InteractionSignal} from '../../store/factory/Interaction';
+import {getInteractionSignals, InteractionInput, InteractionSignal, ScaleInfo} from '../../store/factory/Interaction';
 import {setSignalPush} from '../../actions/interactionActions';
 import {TextRecord} from '../../store/factory/marks/Text';
 import {MarkRecord} from '../../store/factory/Mark';
@@ -20,7 +20,9 @@ const ctrl = require('../../ctrl');
 
 interface OwnProps {
   interactionId: number;
-  signals: InteractionSignal[];
+  fieldsOfGroup: string[];
+  input: InteractionInput;
+  scaleInfo: ScaleInfo;
 }
 
 interface StateProps {
@@ -112,10 +114,11 @@ class BaseInteractionSignals extends React.Component<OwnProps & StateProps & Dis
   }
 
   public render() {
+    const signals = getInteractionSignals(this.props.interactionId, this.props.input, this.props.scaleInfo, this.props.fieldsOfGroup);
     return (
       <div className='signals-container'>
         {
-          this.props.signals.map((interactionSignal) => {
+          signals.map((interactionSignal) => {
             return (<div draggable className="signal" onDragStart={this.handleDragStart} onDragEnd={this.handleDragEnd} data-signal={interactionSignal.signal}>{interactionSignal.label}</div>)
           })
         }
