@@ -31,11 +31,11 @@ export class BaseUndoRedo extends React.PureComponent<StateProps & DispatchProps
     const props = this.props;
     return (
       <ul className='undo-redo'>
-        <li onClick={props.undo} className={!props.canUndo ? 'grey' : ''}>
+        <li onClick={props.canUndo ? props.undo : null} className={!props.canUndo ? 'grey' : ''}>
           <Icon glyph={assets.undo} className='undo' width='12' height='12' />
         </li>
 
-        <li onClick={props.redo} className={!props.canRedo ? 'grey' : ''}>
+        <li onClick={props.canRedo ? props.redo : null} className={!props.canRedo ? 'grey' : ''}>
           <Icon glyph={assets.redo} className='redo' width='12' height='12' />
         </li>
       </ul>

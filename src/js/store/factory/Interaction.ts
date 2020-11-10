@@ -67,6 +67,7 @@ export const MarkApplication = Record<LyraMarkApplication>({
 export type MarkApplicationRecord = RecordOf<LyraMarkApplication>;
 
 export type LyraScaleApplication = {
+  targetGroupName: string;
   scaleInfo: ScaleInfo;
 } & LyraInteractionPreview;
 
@@ -74,6 +75,7 @@ export const ScaleApplication = Record<LyraScaleApplication>({
   type: 'scale',
   id: null,
   label: null,
+  targetGroupName: null,
   scaleInfo: null
 }, 'LyraScaleApplication');
 
@@ -134,3 +136,93 @@ export const Interaction = Record<LyraInteraction>({
 
 export type InteractionRecord = RecordOf<LyraInteraction>;
 export type InteractionState = Map<string, InteractionRecord>;
+
+
+export function getInteractionSignals(interactionId: number, input: InteractionInput, scaleInfo: ScaleInfo, fieldsOfGroup: string[]): InteractionSignal[] {
+  if (!input) return [];
+  const {xScaleName, yScaleName, xFieldName, yFieldName} = scaleInfo;
+
+  const signals: InteractionSignal[] = [];
+
+  switch (input.mouse) {
+    case 'drag':
+      if (xScaleName) {
+        signals.push({
+          signal: `brush_x_start_${interactionId}`,
+          label: 'brush_x (start)'
+        });
+        signals.push({
+          signal: `brush_x_end_${interactionId}`,
+          label: 'brush_x (end)'
+        });
+        if (xFieldName) {
+          signals.push({
+            signal: `brush_${xFieldName}_${xScaleName}_start_${interactionId}`,
+            label: `brush_${xFieldName} (start)`
+          });
+          signals.push({
+            signal: `brush_${xFieldName}_${xScaleName}_end_${interactionId}`,
+            label: `brush_${xFieldName} (end)`
+          });
+        }
+      }
+      if (yScaleName) {
+        signals.push({
+          signal: `brush_y_start_${interactionId}`,
+          label: 'brush_y (start)'
+        });
+        signals.push({
+          signal: `brush_y_end_${interactionId}`,
+          label: 'brush_y (end)'
+        });
+        if (yFieldName) {
+          signals.push({
+            signal: `brush_${yFieldName}_${yScaleName}_start_${interactionId}`,
+            label: `brush_${yFieldName} (start)`
+          });
+          signals.push({
+            signal: `brush_${yFieldName}_${yScaleName}_end_${interactionId}`,
+            label: `brush_${yFieldName} (end)`
+          });
+        }
+      }
+      break;
+      case 'click':
+        fieldsOfGroup.forEach(field => {
+          signals.push({
+            signal: `point_${field}_${interactionId}`,
+            label: `point_${field}`
+          });
+        })
+        break;
+      case 'mouseover':
+        signals.push({
+          signal: `mouse_x_${interactionId}`,
+          label: 'mouse_x'
+        });
+        signals.push({
+          signal: `mouse_y_${interactionId}`,
+          label: 'mouse_y'
+        });
+        if (xFieldName) {
+          signals.push({
+            signal: `mouse_${xFieldName}_${interactionId}`,
+            label: `mouse_${xFieldName}`
+          });
+        }
+        if (yFieldName) {
+          signals.push({
+            signal: `mouse_${yFieldName}_${interactionId}`,
+            label: `mouse_${yFieldName}`
+          });
+        }
+        fieldsOfGroup.forEach(field => {
+          signals.push({
+            signal: `point_${field}_${interactionId}`,
+            label: `point_${field}`
+          });
+        })
+        break;
+  }
+  return signals;
+}

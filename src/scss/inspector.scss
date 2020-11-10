@@ -222,6 +222,15 @@ $long-label-width: $label-width + 10px;
   }
 }
 
+.application-options-wrap {
+  max-height: 300px;
+  overflow: auto;
+}
+
+.application-options {
+  padding-bottom: $outer-padding;
+}
+
 .signals-container {
   margin-top: $inner-padding;
   margin-left: -$inner-padding;
