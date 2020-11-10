@@ -1293,15 +1293,25 @@
   resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-1.19.0.tgz#a2502fb7ce9b6626fdbfc2e2a496f472de1bdd05"
   integrity sha512-gDE8JJEygpay7IjA/u3JiIURvwZW08f0cZSZLAzFoX/ZmeqvS0Sqv+97aKuHpNsalAMMhwPe+iAS6fQbfmbt7A==
 
-"@types/prop-types@*", "@types/prop-types@^15.5.4":
+"@types/prop-types@*":
   version "15.7.1"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.1.tgz#f1a11e7babb0c3cad68100be381d1e064c68f1f6"
   integrity sha512-CFzn9idOEpHrgdw8JsoTkaDDyRWk1jrzIV8djzcgpq0y9tG4B4lFT+Nxh52DVpDXV+n4+NPNv7M1Dj5uMp6XFg==
+
+"@types/prop-types@^15.5.4":
+  version "15.7.3"
+  resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.3.tgz#2ab0d5da2e5815f94b0b9d4b95d1e5f243ab2ca7"
+  integrity sha512-KfRL3PuHmqQLOG+2tGpRO26Ctg+Cq1E01D2DMriKEATHgWLfeNDmq9e29Q9WIky0dQ3NPkd1mzYH8Lm936Z9qw==
 
 "@types/qs@^6.2.31":
   version "6.5.3"
   resolved "https://registry.yarnpkg.com/@types/qs/-/qs-6.5.3.tgz#1c3b71b091eaeaf5924538006b7f70603ce63d38"
   integrity sha512-Jugo5V/1bS0fRhy2z8+cUAHEyWOATaz4rbyLVvcFs7+dXp5HfwpEwzF1Q11bB10ApUqHf+yTauxI0UXQDwGrbA==
+
+"@types/rangy@0.0.33":
+  version "0.0.33"
+  resolved "https://registry.yarnpkg.com/@types/rangy/-/rangy-0.0.33.tgz#9f1afff01b4ba840360713a2c2ef3a36e7d49576"
+  integrity sha512-j2lhwVgbxZORhiB7yP+cly6+ow75MYmyHIkkSBwDl7XzrO5TMUECKkXqCf0pZVDjW5TgulIvhKg7SyEWSSgzmA==
 
 "@types/react-dom@^16.0.9":
   version "16.8.4"
@@ -10159,6 +10169,11 @@ range-parser@^1.0.3, range-parser@~1.2.0:
   resolved "https://registry.yarnpkg.com/range-parser/-/range-parser-1.2.0.tgz#f49be6b487894ddc40dcc94a322f611092e00d5e"
   integrity sha1-9JvmtIeJTdxA3MlKMi9hEJLgDV4=
 
+rangy@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/rangy/-/rangy-1.3.0.tgz#b7c9a70aea05e5d8cdc74a8d4c8273d697271904"
+  integrity sha1-t8mnCuoF5djNx0qNTIJz1pcnGQQ=
+
 raw-body@2.3.3:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/raw-body/-/raw-body-2.3.3.tgz#1b324ece6b5706e153855bc1148c65bb7f6ea0c3"
@@ -10199,7 +10214,7 @@ react-addons-test-utils@^15.2.1:
   resolved "https://registry.yarnpkg.com/react-addons-test-utils/-/react-addons-test-utils-15.6.2.tgz#c12b6efdc2247c10da7b8770d185080a7b047156"
   integrity sha1-wStu/cIkfBDae4dw0YUICnsEcVY=
 
-react-contenteditable@^2.0.1:
+react-contenteditable@^2.0.4:
   version "2.1.6"
   resolved "https://registry.yarnpkg.com/react-contenteditable/-/react-contenteditable-2.1.6.tgz#ea953f776963ac1f8405758cbca1a74347bad819"
   integrity sha512-HqqAdAP69SEhZhlrzJSujVSVMmThpUzVnbNDB7dFk+LWhvuhNj5iT0DgedoURpPJqbTDX8msSkFuU7FsAMxf3Q==

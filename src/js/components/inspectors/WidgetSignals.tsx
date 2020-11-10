@@ -67,7 +67,7 @@ class BaseWidgetSignals extends React.Component<OwnProps & StateProps & Dispatch
         this.props.setMarkVisual(
           {
             property: channel,
-            def: {signal: channel === 'text' ? `{{#${this.props.dragging.signal}}}` : this.props.dragging.signal}
+            def: {signal: this.props.dragging.signal}
           },
           lyraId
         )

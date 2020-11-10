@@ -27,14 +27,23 @@
   cursor: pointer;
 }
 
-.autocomplete {
-  width: 100px;
-  white-space: nowrap;
-  max-height: 60px;
-  overflow: auto;
-  line-height: 20px;
+.autocomplete-wrap {
+  width: 100%;
+}
 
-  br, div { display: none; }
+.autocomplete {
+  min-width: 100px;
+  max-width: 100%;
+  overflow: auto;
+  padding: 5px;
+  line-height: 20px;
+  background-color: white;
+  border: 1px solid #ccc;
+
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  // br, div { display: none; }
 
   .field {
     text-decoration: none !important;
@@ -43,5 +52,24 @@
   .signal {
     text-decoration: none !important;
     cursor: default !important;
+  }
+}
+
+.autocomplete-list {
+  background-color: white;
+  position: fixed;
+  margin-top: -1px;
+
+  &.active {
+    border: 1px solid #ccc;
+  }
+
+  .autocomplete-suggestion {
+    padding: 5px;
+    cursor: pointer;
+
+    &.active {
+      background-color: #eee;
+    }
   }
 }

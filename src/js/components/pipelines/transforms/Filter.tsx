@@ -38,7 +38,7 @@ export class Filter extends React.Component<OwnProps> {
     const dsId  = props.dsId;
 
     return (
-      <Property type='autocomplete' autoType='expr' label='Filter'
+      <Property type='autocomplete' droppable autoType='expr' label='Filter'
         primType='datasets' primId={dsId} name={'transform.' + props.index + '.expr'}
         dsId={dsId} onChange={this.updateFilter} />
     );

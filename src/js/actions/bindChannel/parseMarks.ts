@@ -179,7 +179,7 @@ function textTemplate(dispatch: Dispatch, parsed: CompiledBinding) {
     setMarkVisual(
       {
         property: 'text',
-        def: {signal: `{{datum.${text.field}}}`}
+        def: {signal: `datum.${text.field}`}
       },
       parsed.markId
     )

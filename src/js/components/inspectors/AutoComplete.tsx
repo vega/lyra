@@ -2,20 +2,16 @@
 const getInVis = require('../../util/immutable-utils').getInVis;
 
 // TODO: derived fields?
-const SPAN_OPEN = '<span class="';
 const SPAN_FIELD_OPEN  = '<span class="field source" contenteditable="false">';
 const SPAN_SIGNAL_OPEN  = '<span class="signal" contenteditable="false">';
 const SPAN_CLOSE = '</span>';
 const DATUM = 'datum.';
-const SIGNALNAME = '#';
-const TMPL_OPEN  = '{{';
-const TMPL_CLOSE = '}}';
-const TMPL_RE = new RegExp(TMPL_OPEN + '.*' + TMPL_CLOSE);
+const SPAN_PREFIX = '<span class="';
 const SPAN_RE = new RegExp('(' + SPAN_FIELD_OPEN + '|' + SPAN_SIGNAL_OPEN + ').*' + SPAN_CLOSE);
 
 import * as React from 'react';
+import * as rangy from 'rangy';
 import ContentEditable from 'react-contenteditable';
-import * as ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import {AnyAction} from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
@@ -27,10 +23,8 @@ import {Schema} from '../../store/factory/Dataset';
 import {FieldDraggingStateRecord, DraggingStateRecord, SignalDraggingStateRecord} from '../../store/factory/Inspector';
 import {InteractionRecord} from '../../store/factory/Interaction';
 import {WidgetRecord} from '../../store/factory/Widget';
-
-interface OwnState {
-  html: string
-}
+import {debounce} from 'throttle-debounce';
+import {AutoCompleteList} from './AutoCompleteList';
 
 interface OwnProps {
   type: 'expr' | 'tmpl';
@@ -39,6 +33,11 @@ interface OwnProps {
   primType: PrimType,
   value: string,
   updateFn: (evt) => void
+}
+
+interface OwnState {
+  searchPrefix: string;
+  keyCode: number;
 }
 
 interface StateProps {
@@ -77,57 +76,178 @@ function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, own
 }
 
 class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchProps, OwnState> {
+
   constructor(props) {
     super(props);
-    this.state = {html: this.toHtml(props.value || '')};
-  };
 
-  public componentDidUpdate(prevProps) {
-    if (this.props.dsId !== prevProps.dsId) {
-      this.props.updateFn(this.fromHtml(this.state.html));
-
+    this.state = {
+      searchPrefix: null,
+      keyCode: null
     }
-    if (this.props.value !== prevProps.value) {
-      this.setState({html: this.toHtml(this.props.value || '')});
+  }
+
+  private ref;
+
+  private getSelectedRangeWithinEl() {
+    const el = this.ref?.htmlEl;
+    var selectedRange = null;
+    var sel = rangy.getSelection();
+    var elRange = rangy.createRange();
+    elRange.selectNodeContents(el);
+    if (sel.rangeCount) {
+        selectedRange = sel.getRangeAt(0).intersection(elRange);
     }
-  };
-
-  public componentDidMount() {
-    const contentEditable = ReactDOM.findDOMNode(this);
-    const handleChange = this.handleChange;
-
-    const strategies = [{
-      words: this.props.fields,
-      match: /\b(\w{2,})$/,
-      search: function(term, callback) {
-        callback(this.words.map(function(word) {
-          return word.toLowerCase().indexOf(term.toLowerCase()) === 0 ? word : null;
-        }));
-      },
-      index: 1,
-      replace: function(word) {
-        return SPAN_FIELD_OPEN + word + SPAN_CLOSE + ' ';
+    elRange.detach();
+    if (!selectedRange) {
+      //set the caret after the node for this range
+      if (el.childNodes?.length) {
+        const lastChild = el.childNodes[el.childNodes.length - 1];
+        elRange.setStartAfter(lastChild);
+        elRange.setEndAfter(lastChild);
       }
-    }];
+      else {
+        elRange.selectNodeContents(el);
+      }
 
-    const options = {
-      onKeydown: function(e, commands) {
-        if (e.keyCode === 32) {
-          return commands.KEY_ENTER;
+      //apply this range to the selection object
+      sel.removeAllRanges();
+      sel.addRange(elRange);
+      return elRange;
+    }
+    return selectedRange;
+  }
+
+  private createElementFromHTML(htmlString) {
+    var div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+    return div.firstChild;
+  }
+
+  private insertNodeAtCaret = (window as any).insertNodeAtCaret = (html) => {
+    const node = this.createElementFromHTML(html);
+    const sel = rangy.getSelection();
+    const range = this.getSelectedRangeWithinEl();
+    if (range) {
+      range.collapse(false);
+      range.insertNode(node);
+      range.collapseAfter(node);
+      sel.setSingleRange(range);
+    }
+  }
+
+  private replaceMaintainingCaret = (search, replace) => {
+    if (this.ref) {
+
+      [...this.ref.htmlEl.childNodes].forEach(node => {
+        if (node.nodeValue) {
+          const startIndex = node.nodeValue.indexOf(search);
+          const endIndex = startIndex + search.length;
+
+          if (startIndex === -1) {
+            return;
+          }
+
+          const range = document.createRange();
+          //Set the range to contain search text
+          range.setStart(node, startIndex);
+          range.setEnd(node, endIndex);
+          //Delete search text
+          range.deleteContents();
+          //Insert replace text
+          this.insertNodeAtCaret(replace);
         }
+      })
+    }
+  }
+
+  private getHeadToCaret = (window as any).getHeadToCaret = () => {
+    if (this.ref) {
+      const selRange = this.getSelectedRangeWithinEl();
+      const newRange = document.createRange();
+      newRange.selectNodeContents(this.ref.htmlEl);
+      newRange.setEnd(selRange.startContainer, selRange.startOffset);
+      const fragment = newRange.cloneContents();
+      const temp = document.createElement("body");
+      temp.appendChild(fragment);
+      const html = temp.innerHTML;
+      return html;
+    }
+  }
+
+  public toHtml(expr) {
+    if (this.props.type === 'expr') return this.exprToHtml(expr);
+    if (this.props.type === 'tmpl') return this.tmplToHtml(expr);
+  }
+
+  public fromHtml(html) {
+    if (this.props.type === 'expr') return this.htmlToExpr(html);
+    if (this.props.type === 'tmpl') return this.htmlToTmpl(html);
+  }
+
+  private decodeHtml(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+
+  public htmlToTmpl(html) {
+    const tokens = [];
+    let searchStr = html;
+    let position = searchStr.search(SPAN_RE);
+
+    while (position !== -1) {
+      tokens.push({
+        type: 'literal',
+        str: searchStr.substring(0, position)
+      });
+
+      const next = position + SPAN_PREFIX.length;
+      const nextStr = searchStr.substring(next);
+      const end = nextStr.search(SPAN_CLOSE);
+      if (nextStr.startsWith('signal')) {
+        tokens.push({
+          type: 'signal',
+          str: nextStr.substring(SPAN_SIGNAL_OPEN.length - SPAN_PREFIX.length, end)
+        });
       }
-    };
+      else if (nextStr.startsWith('field')) {
+        tokens.push({
+          type: 'field',
+          str: nextStr.substring(SPAN_FIELD_OPEN.length - SPAN_PREFIX.length, end)
+        });
+      }
 
-    // $(contentEditable).textcomplete(strategies, options)
-    //   .on({'textComplete:select': handleChange});
-  };
+      searchStr = nextStr.substring(end + SPAN_CLOSE.length);
+      position = searchStr.search(SPAN_RE);
+    }
+    tokens.push({
+      type: 'literal',
+      str: searchStr
+    });
 
-  public toHtml(str: string) {
-    return this.props.type === 'expr' ? this.exprToHtml(str) : this.tmplToHtml(str);
-  };
+    return tokens.map(token => {
+      switch (token.type) {
+        case 'literal':
+          return JSON.stringify(this.decodeHtml(token.str.replace(/(<([^>]+)>)/gi, "")));
+        case 'signal':
+          return token.str;
+        case 'field':
+          return DATUM + token.str;
+      };
+    }).join(' + ');
+  }
 
-  public fromHtml(str: string) {
-    return this.props.type === 'expr' ? this.htmlToExpr(str) : this.htmlToTmpl(str);
+  public tmplToHtml(tmpl: string) {
+    const unjoin = tmpl.split(' + ')
+    return unjoin.map(str => {
+      if (str.startsWith('"') && str.endsWith('"')) {
+        return JSON.parse(str);
+      }
+      else if (str.startsWith(DATUM)) {
+        return SPAN_FIELD_OPEN + str.substring(DATUM.length) + SPAN_CLOSE;
+      }
+      return SPAN_SIGNAL_OPEN + str + SPAN_CLOSE;
+    }).join('');
   }
 
   public exprToHtml(str: string) {
@@ -153,132 +273,50 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     return str;
   };
 
-  public htmlToExpr(html) {
-    return this.htmlDecode(this.wrapTokensExpr(this.htmlToTokens(html)));
-  };
+  private htmlToExpr = (html: string) => {
+    this.props.fields.forEach(fieldName => {
+      const fieldTag = SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE;
+      html = html.replace(fieldTag, DATUM + fieldName);
+    });
+    const tagsStripped = html.replace(/(<([^>]+)>)/gi, "");
+    return this.decodeHtml(tagsStripped);
+  }
 
-  public tmplToHtml(str) {
-    const tokens = [];
-    let searchStr = str;
-    let position = searchStr.search(TMPL_RE);
-
-    while (position !== -1) {
-      tokens.push({
-        type: 'literal',
-        str: searchStr.substring(0, position)
-      });
-
-      const next = position + TMPL_OPEN.length;
-      const nextStr = searchStr.substring(next);
-      const end = nextStr.search(TMPL_CLOSE);
-      if (nextStr.startsWith(SIGNALNAME)) {
-        tokens.push({
-          type: 'signal',
-          str: nextStr.substring(SIGNALNAME.length, end)
-        });
-      }
-      else if (nextStr.startsWith(DATUM)) {
-        tokens.push({
-          type: 'field',
-          str: nextStr.substring(DATUM.length, end)
-        });
-      }
-
-      searchStr = nextStr.substring(end + TMPL_CLOSE.length);
-      position = searchStr.search(TMPL_RE);
+  private debounceUpdate = debounce(500, () => {
+    if (this.ref) {
+      this.props.updateFn(this.fromHtml(this.ref.htmlEl.innerHTML));
     }
-    tokens.push({
-      type: 'literal',
-      str: searchStr
+  })
+
+  private processTokens = (value) => {
+    this.props.fields.forEach(field => {
+      if (value.includes(`:${field}:`)) {
+        this.replaceMaintainingCaret(`:${field}:`, SPAN_FIELD_OPEN + field + SPAN_CLOSE);
+      }
     });
 
-    return this.wrapTokensHtml(tokens);
-  };
-
-  private htmlToTokens(html) {
-    const tokens = [];
-    let searchStr = html;
-    let position = searchStr.search(SPAN_RE);
-
-    while (position !== -1) {
-      tokens.push({
-        type: 'literal',
-        str: searchStr.substring(0, position)
-      });
-
-      const next = position + SPAN_OPEN.length;
-      const nextStr = searchStr.substring(next);
-      const end = nextStr.search(SPAN_CLOSE);
-      if (nextStr.startsWith('signal')) {
-        tokens.push({
-          type: 'signal',
-          str: nextStr.substring(SPAN_SIGNAL_OPEN.length - SPAN_OPEN.length, end)
-        });
+    this.props.signals.forEach(signal => {
+      if (value.includes(`:${signal}:`)) {
+        this.replaceMaintainingCaret(`:${signal}:`, SPAN_SIGNAL_OPEN + signal + SPAN_CLOSE);
       }
-      else if (nextStr.startsWith('field')) {
-        tokens.push({
-          type: 'field',
-          str: nextStr.substring(SPAN_FIELD_OPEN.length - SPAN_OPEN.length, end)
-        });
-      }
-
-      searchStr = nextStr.substring(end + SPAN_CLOSE.length);
-      position = searchStr.search(SPAN_RE);
-    }
-    tokens.push({ // TODO detect field names within literals (typed in instead of dragged in)
-      type: 'literal',
-      str: searchStr
     });
-    return tokens;
   }
-
-  public htmlToTmpl(html) {
-    return this.htmlDecode(this.wrapTokensTmpl(this.htmlToTokens(html)));
-  };
-
-  public wrapTokensHtml(tokens: any[]) {
-    return tokens.map(token => {
-      if (token.type === 'field') {
-        return SPAN_FIELD_OPEN + token.str + SPAN_CLOSE;
-      }
-      if (token.type === 'signal') {
-        return SPAN_SIGNAL_OPEN + token.str + SPAN_CLOSE;
-      }
-      return token.str;
-    }).join('');
-  }
-
-  public wrapTokensExpr(tokens: any[]) {
-    return tokens.map(token => {
-      if (token.type === 'field') {
-        return DATUM + token.str;
-      }
-      return token.str;
-    }).join('');
-  }
-
-  public wrapTokensTmpl(tokens: any[]) {
-    return tokens.map(token => {
-      if (token.type === 'field') {
-        return TMPL_OPEN + DATUM + token.str + TMPL_CLOSE;
-      }
-      if (token.type === 'signal') {
-        return TMPL_OPEN + SIGNALNAME + token.str + TMPL_CLOSE;
-      }
-      return token.str;
-    }).join('');
-  }
-
-  public htmlDecode(input) {
-    var txt = document.createElement('textarea');
-    txt.innerHTML = input;
-    return txt.value;
-  };
 
   public handleChange = (evt) => {
-    const value = evt.target.value || evt.target.innerHTML || '';
-    this.props.updateFn(this.fromHtml(value));
-    this.setState({html: value});
+    let value = evt.target.value || evt.target.innerHTML || '';
+
+    this.processTokens(value);
+
+    const sub = this.getHeadToCaret();
+    if (sub.match(/:\w*$/g)) {
+      const searchPrefix = sub.substring(sub.lastIndexOf(':') + 1);
+      this.setState({searchPrefix});
+    }
+    else {
+      this.setState({searchPrefix: null});
+    }
+
+    this.debounceUpdate();
   };
 
   public handleDragOver = (evt) => {
@@ -289,23 +327,16 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
     return false;
   };
 
-  public handleDrop = (evt)  => {
+  public handleDrop = ()  => {
     const props = this.props;
     let dragging = props.dragging;
     if ((dragging as FieldDraggingStateRecord).dsId) {
       dragging = dragging as FieldDraggingStateRecord;
       const fieldName = dragging.fieldDef.name;
-      const currHtml = (this.state.html === 'Text' ? '' : this.state.html);
-      const decode = this.htmlDecode(currHtml);
-      let cursorPosition = decode.indexOf(window.getSelection().anchorNode.textContent);
-      cursorPosition = cursorPosition > -1 ? cursorPosition + window.getSelection().anchorOffset : decode.length;
-      cursorPosition = cursorPosition > decode.length ? decode.length : cursorPosition;
-      const html = decode.substring(0, cursorPosition) + SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE + decode.substring(cursorPosition);
+      this.insertNodeAtCaret(SPAN_FIELD_OPEN + fieldName + SPAN_CLOSE);
       if (!props.dsId && dragging.dsId && props.primType === 'marks') {
         props.setDsId(dragging.dsId);
       }
-      props.updateFn(this.fromHtml(html));
-      this.setState({html});
     }
     else if ((dragging as SignalDraggingStateRecord).signal) {
       dragging = dragging as SignalDraggingStateRecord;
@@ -313,23 +344,54 @@ class BaseAutoComplete extends React.Component<OwnProps & StateProps & DispatchP
         this.props.setSignalPush(dragging.signal, true, dragging.interactionId);
       }
       const signalName = dragging.signal;
-      const currHtml = (this.state.html === 'Text' ? '' : this.state.html);
-      const decode = this.htmlDecode(currHtml);
-      let cursorPosition = decode.indexOf(window.getSelection().anchorNode.textContent);
-      cursorPosition = cursorPosition > -1 ? cursorPosition + window.getSelection().anchorOffset : decode.length;
-      cursorPosition = cursorPosition > decode.length ? decode.length : cursorPosition;
-      const html = decode.substring(0, cursorPosition) + SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE + decode.substring(cursorPosition);
-      props.updateFn(this.fromHtml(html));
-      this.setState({html});
+      this.insertNodeAtCaret(SPAN_SIGNAL_OPEN + signalName + SPAN_CLOSE);
     }
-
+    this.debounceUpdate();
   };
+
+  public onAutoCompleteSelect = (value) => {
+    this.replaceMaintainingCaret(":" + this.state.searchPrefix, ":" + value + ":");
+    if (this.ref) {
+      this.processTokens(this.ref.htmlEl.innerHTML)
+    }
+    this.setState({searchPrefix: null});
+    this.debounceUpdate();
+  }
+
+  private onKeyDown = (e) => {
+    if (this.state.searchPrefix !== null) {
+      if (e.keyCode === 38 || e.keyCode === 40) {
+        e.preventDefault(); // capture up and down keys when the autocompletelist is open
+        this.setState({keyCode: e.keyCode});
+      }
+      if (e.keyCode === 13) {
+        this.setState({keyCode: e.keyCode});
+      }
+    }
+  }
+
+  private onKeyUp = () => {
+    this.setState({keyCode: null});
+  }
+
+  private getDropdownPosition() {
+    if (this.ref) {
+      const bounds = this.ref.htmlEl.getBoundingClientRect();
+      return {
+        top: bounds.bottom,
+        left: bounds.left,
+        minWidth: bounds.width - 2,
+      }
+    }
+    return null;
+  }
 
   public render() {
     return (
-      <div onDragOver={this.handleDragOver} onDrop={this.handleDrop}>
-        <ContentEditable className='autocomplete' html={this.state.html}
-        disabled={false} onChange={this.handleChange} />
+      <div className="autocomplete-wrap" onDragOver={this.handleDragOver} onDrop={this.handleDrop} onKeyDown={this.onKeyDown} onKeyUp={this.onKeyUp}>
+        <ContentEditable ref={(ref) => {this.ref = ref}} className='autocomplete' html={this.toHtml(this.props.value || '')}
+        disabled={false} onChange={this.handleChange} onKeyDown={(e) => {if (e.key === 'Enter' || e.keyCode === 13) e.preventDefault()}} />
+        <AutoCompleteList style={this.getDropdownPosition()} fields={this.props.fields} signals={this.props.signals} searchPrefix={this.state.searchPrefix} keyCode={this.state.keyCode} onSelected={this.onAutoCompleteSelect}></AutoCompleteList>
       </div>
     );
   }
