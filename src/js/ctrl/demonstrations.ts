@@ -1214,10 +1214,7 @@ export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
 export function cleanSpecForPreview(sceneSpec, width: number, height: number, groupName: string, interactionId: number): Spec {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.autosize = "none";
-  sceneUpdated.marks = sceneUpdated.marks.filter(() => {
-    // return markSpec.name && markSpec.type === 'group' ? markSpec.name === groupName : true; // remove top-level groups (views) other than the relevant one
-    return true;
-  }).map(markSpec => {
+  sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
     if (markSpec.name && markSpec.type === 'group') { // don't touch manipulators, which don't have names
       const oldWidth = markSpec.encode?.update?.width?.value || 640;
       const oldHeight = markSpec.encode?.update?.height?.value || 360;
