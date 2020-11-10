@@ -140,14 +140,29 @@ exporter.dataset = function(state: State, internal: boolean, id: number) {
     spec.values = format && format !== 'json' ? json2csv({data: values, del: format === 'tsv' ? '\t' : ','}) : values;
   }
 
+  const interactions: InteractionRecord[] = state.getIn(['vis', 'present', 'interactions']).valueSeq().toArray();
+  const interactionSignals = [].concat.apply([], interactions.filter(interaction => interaction.signals.length).map(interaction => interaction.signals.map(signal => signal.signal)));
+  const widgets: WidgetRecord[] = state.getIn(['vis', 'present', 'widgets']).valueSeq().toArray();
+  const widgetSignals = [].concat.apply([], widgets.filter(widget => widget.signals.length).map(widget => widget.signals.map(signal => signal.signal)));
+  const signals = interactionSignals.concat(widgetSignals);
+
+  spec.transform = spec.transform || [];
+
   if (sort !== undefined) {
-    spec.transform = spec.transform || [];
     spec.transform.push(sort);
   }
 
   spec.transform.forEach(s => {
     if (s.type === 'lookup') {
       s.from = state.getIn(['vis', 'present', 'datasets', s.from, 'name'])
+    }
+    if (s.type === 'filter') {
+      // if any of the interaction signals in the filter are undefined, just let everything pass
+      signals.forEach(signal => {
+        if (s.expr.indexOf(signal) >= 0) {
+          s.expr = `(${signal} ? ${s.expr} : true)`;
+        }
+      });
     }
   })
 

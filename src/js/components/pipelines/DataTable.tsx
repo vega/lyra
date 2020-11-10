@@ -9,10 +9,9 @@ import { Icon } from '../Icon';
 import {Datum, FilterTransform} from 'vega';
 import {InteractionRecord} from '../../store/factory/Interaction';
 import {WidgetRecord} from '../../store/factory/Widget';
-import {signalNames} from '../../store/factory/Signal';
+import {throttle} from 'throttle-debounce';
 
 const dl = require('datalib');
-const getInVis = require('../../util/immutable-utils').getInVis;
 const dsUtil = require('../../util/dataset-utils');
 const assets = require('../../util/assets');
 const ctrl = require('../../ctrl');
@@ -81,7 +80,9 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
       page: 0,
       hoverField: null,
       hoverValue: null,
-      output: props.id ? dsUtil.output(props.id) : props.values
+      output: props.id ? dsUtil.output(props.id) : props.values,
+      dataTableLeft: null,
+      dataTableTop: null
     };
   }
 
@@ -118,11 +119,11 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     }
   }
 
-  private onFilterExprSignal() {
+  private onFilterExprSignal = throttle(250, () => {
     this.setState({
       output: this.props.id ? dsUtil.output(this.props.id) : this.props.values
     })
-  }
+  })
 
   public prevPage = () => {
     this.setState({page: this.state.page - 1}, () => {
@@ -197,7 +198,6 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
     return (
       <div className='datatable-container'>
 
-        {output.length ?
           <div className='datatable' ref={this.$table}
             onMouseLeave={this.hideHover} onScroll={this.onScroll}>
             <table>
@@ -207,12 +207,15 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
                     <tr key={k}>
                       <td className={'field ' + (schema.get(k).source ? 'source' : 'derived')}
                         onMouseOver={this.showHoverField}>{k}</td>
-                      {values.map(function(v, i) {
-                        return (
-                          <td key={k + i} className={i % 2 ? 'even' : 'odd'}
-                            onMouseOver={this.showHoverValue}>{v[k]}</td>
-                        );
-                      }, this)}
+                      {
+                        values.length ? values.map(function(v, i) {
+                          return (
+                            <td key={k + i} className={i % 2 ? 'even' : 'odd'}
+                              onMouseOver={this.showHoverValue}>{v[k]}</td>
+                          );
+                        }, this) :
+                        <td>n/a</td>
+                      }
                     </tr>
                   );
                 }, this)}
@@ -221,7 +224,6 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
             {id ? <HoverField dsId={id} schema={schema} def={state.hoverField} dataTableTop={state.dataTableTop} dataTableLeft={state.dataTableLeft} /> : null}
             <HoverValue event={state.hoverValue} scrollLeft={scrollLeft} />
           </div>
-          : null}
 
         <div className='paging'>
           {props.first ? <span>{fmt(start + 1)}–{stop > max ? fmt(max) : fmt(stop)} of {fmt(max)}</span> : null}
