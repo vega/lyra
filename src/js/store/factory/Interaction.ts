@@ -67,6 +67,7 @@ export const MarkApplication = Record<LyraMarkApplication>({
 export type MarkApplicationRecord = RecordOf<LyraMarkApplication>;
 
 export type LyraScaleApplication = {
+  targetGroupName: string;
   scaleInfo: ScaleInfo;
 } & LyraInteractionPreview;
 
@@ -74,6 +75,7 @@ export const ScaleApplication = Record<LyraScaleApplication>({
   type: 'scale',
   id: null,
   label: null,
+  targetGroupName: null,
   scaleInfo: null
 }, 'LyraScaleApplication');
 

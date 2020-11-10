@@ -29,7 +29,7 @@ interface StateProps {
 
 function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const marks: Map<string, MarkRecord> = state.getIn(['vis', 'present', 'marks']);
-  let targetGroupName = ownProps.markApplication.targetGroupName;
+  let targetGroupName = exportName(ownProps.markApplication.targetGroupName);
   if (!targetGroupName) {
     // TODO(jzong) this extra stuff is so that we don't have to regenerate everyone's json before the paper deadline
     // delete this later
@@ -45,7 +45,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   }));
 
   return {
-    targetMark
+      targetMark
   };
 }
 
