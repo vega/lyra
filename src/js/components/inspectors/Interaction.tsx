@@ -3,24 +3,21 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal} from '../../store/factory/Interaction';
+import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal, TransformApplicationRecord} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {setInput, setSelection, setApplication, removeApplication, setSignals} from '../../actions/interactionActions';
 import {getScaleInfoForGroup,  getNestedMarksOfGroup,  getFieldsOfGroup} from '../../ctrl/demonstrations';
 import {ScaleSimpleType, scaleTypeSimple} from '../../store/factory/Scale'
 import {DatasetRecord} from '../../store/factory/Dataset';
 import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
-import {MarkRecord, LyraMarkType} from '../../store/factory/Mark';
+import {MarkRecord} from '../../store/factory/Mark';
 import exportName from '../../util/exportName';
 import InteractionPreview from '../interactions/InteractionPreview';
 import {Map} from 'immutable';
 import {debounce} from 'vega';
 import {InteractionInputType} from './InteractionInputType';
 import {InteractionSignals} from './InteractionSignals';
-import {AreaRecord} from '../../store/factory/marks/Area';
 import {signalLookup} from '../../util/signal-lookup';
-import {fieldInvalidTestValueRef} from 'vega-lite/src/compile/mark/encode/valueref';
-import {consoleTestResultHandler} from 'tslint/lib/test';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -318,14 +315,12 @@ function generateApplicationPreviews(groupId: number, groupName: string, marksOf
     defs.push(ScaleApplication({
       id: "panzoom",
       label: "Pan and zoom",
+      targetGroupName: groupName,
       scaleInfo
     }));
   }
 
-  // const otherGroups = groups.filter(group => group._id !== groupId);
-  // console.log(otherGroups);
   const otherGroup = groups.find(group => group._id !== groupId);
-  console.log(otherGroup);
   if (otherGroup) {
     const otherGroupId = otherGroup._id;
     const marksOfOtherGroup = marksOfGroups.get(otherGroupId);
@@ -599,38 +594,46 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     this.props.setSelection(newPreview, this.props.interaction.id);
   }
 
-  private getTargetMarkOptions(preview: MarkApplicationRecord) {
-    //need to just use preview target group instead of group
-    const marksOfGroup = this.props.marksOfGroups.get(this.props.group._id);
+  private getTargetMarkOptions(preview: MarkApplicationRecord | TransformApplicationRecord) {
+    const targetGroupName = preview.targetGroupName;
+    const group = this.props.groups.find(group => exportName(group.name) === targetGroupName);
+    const marksOfGroup = this.props.marksOfGroups.get(group._id);
+
+    let options;
 
     if (marksOfGroup.length === 1) {
-      return null;
+      options = <div>{marksOfGroup[0].name}</div>
     }
-
-    const options = marksOfGroup.map(mark => {
-      if (preview.id.startsWith('size')) {
-        if (mark.type !== 'symbol') {
-          return null;
-        }
-      }
-      const markName = exportName(mark.name);
-      return <option key={markName} value={markName}>{markName}</option>
-    });
+    else {
+      options = (
+        <select name='target_mark' value={preview.targetMarkName} onChange={e => this.onSelectTargetMarkName(preview, e.target.value)}>
+          {
+            marksOfGroup.map(mark => {
+              if (preview.id.startsWith('size')) {
+                if (mark.type !== 'symbol') {
+                  return null;
+                }
+              }
+              const markName = exportName(mark.name);
+              return <option key={markName} value={markName}>{mark.name}</option>
+            })
+          }
+        </select>
+      )
+    }
 
     return (
       <div className="property">
-        <label htmlFor='target_mark'>Target Mark:</label>
+        <label htmlFor='target_mark'>Mark:</label>
         <div className='control'>
-          <select name='target_mark' value={preview.targetMarkName} onChange={e => this.onSelectTargetMarkName(preview, e.target.value)}>
-            {options}
-          </select>
+          {options}
         </div>
       </div>
     );
   }
 
-  private onSelectTargetMarkName(preview: MarkApplicationRecord, targetMarkName: string) {
-    let newPreview = preview.set('targetMarkName', targetMarkName);
+  private onSelectTargetMarkName(preview: MarkApplicationRecord | TransformApplicationRecord, targetMarkName: string) {
+    let newPreview = (preview as any).set('targetMarkName', targetMarkName);
     if (preview.id.startsWith('color')) {
       const marksOfGroup = this.props.marksOfGroups.get(this.props.group._id);
       const targetMark = marksOfGroup.find(mark => exportName(mark.name) === targetMarkName);
@@ -640,27 +643,49 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
   }
 
 
-  private getTargetGroupOptions(preview: MarkApplicationRecord) {
-    const options = this.props.groups.map(group => {
-      return <option key={group.name} value={exportName(group.name)}>{group.name}</option>
+  private getTargetGroupOptions(preview: ApplicationRecord) {
+    const groups = this.props.groups.valueSeq().toArray().filter(group => {
+      if (preview.label === 'Filter' && group._id === this.props.group._id) {
+        return false;
+      }
+      return true;
     });
-    const group = preview.targetGroupName;
+
+    let options;
+
+    if (groups.length === 1) {
+      options = <div>{groups[0].name}</div>;
+    }
+    else {
+      options = (
+        <select name='target_group' value={preview.targetGroupName} onChange={e => this.onSelectTargetGroup(preview, e.target.value)}>
+          {
+            groups.map(group => {
+              const groupName = exportName(group.name);
+              return <option key={groupName} value={groupName}>{group.name}</option>
+            })
+          }
+        </select>
+      );
+    }
+
     return (
       <div className="property">
-        <label htmlFor='target_group'>Target Group:</label>
+        <label htmlFor='target_group'>Group:</label>
         <div className='control'>
-          <select name='target_group' key={group} value={group} onChange={e => this.onSelectTargetGroup(preview, e.target.value)}>
-            {options}
-          </select>
+          {options}
         </div>
       </div>
     );
   }
 
-  private onSelectTargetGroup(preview: MarkApplicationRecord, targetGroup: string) {
-    let newPreview = preview.set('targetGroupName', targetGroup);
+  private onSelectTargetGroup(preview: ApplicationRecord, targetGroup: string) {
+    let newPreview = (preview as any).set('targetGroupName', targetGroup);
     const group = this.props.groups.find(group => exportName(group.name) == targetGroup);
-    newPreview = newPreview.set('targetMarkName', exportName(this.props.marksOfGroups.get(group._id)[0].name));
+    const marksOfGroup = this.props.marksOfGroups.get(group._id);
+    if (marksOfGroup.length) {
+      newPreview = newPreview.set('targetMarkName', exportName(this.props.marksOfGroups.get(group._id)[0].name));
+    }
 
     this.props.setApplication(newPreview, this.props.interaction.id);
   }
@@ -816,28 +841,30 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                       })
                     }
                   </div>
-                  {
-                    applications.map(application => {
-                      return application.type === 'mark' ? (
-                        <div>
-                          {this.getTargetMarkOptions(application as MarkApplicationRecord)}
-                          <InteractionMarkApplicationProperty interactionId={interaction.id} groupId={interaction.groupId} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+                  <div className='application-options-wrap'>
+                    {
+                      applications.map(application => {
+                        const targetGroupOptions = application.type === 'scale' ? null : this.getTargetGroupOptions(application); // TODO: support scale applications here too
+                        const targetMarkOptions = application.type === 'mark' || application.type === 'transform' ? (
+                          this.getTargetMarkOptions(application as any)
+                        ) : null;
+                        const properties = application.type === 'mark' ? (
+                          <div>
+                            <InteractionMarkApplicationProperty interactionId={interaction.id} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
+                          </div>
+                        ) : null;
+
+                        return <div className='application-options'>
+                          <h5>{application.label}</h5>
+                          {targetGroupOptions}
+                          {targetMarkOptions}
+                          {properties}
                         </div>
-                      ) : null
-                    })
-                  }
+                      })
+                    }
+                  </div>
                 </div>
               </div>
-              {applications.map(application => {
-                return this.props.groups.size > 1 ? (
-                    <div className="property-group">
-                    <div>
-                      {this.getTargetGroupOptions(application as MarkApplicationRecord)}
-                    </div>
-                  </div>
-                ) : null
-              })
-              }
 
               <div className="property-group">
                 <h3>Signals</h3>
