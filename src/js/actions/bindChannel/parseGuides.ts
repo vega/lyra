@@ -83,14 +83,14 @@ function findOrCreateAxis(dispatch: ThunkDispatch<State, any, any>, state: State
   // to see if an axis exists for this scale or if we have room to add one more.
   const def = defs.find(axis => map.scales[axis.scale] === scaleId && axis.title);
 
-  axes.some(function(axisId) {
+  axes.forEach((axisId) => {
     const axis = getInVis(state, `guides.${axisId}`);
     if (!axis) {
-      return false;
+      return;
     }
 
-    if (axis.scale === scaleId) {
-      return (foundAxis = true); // Early exit.
+    if (String(axis.scale) === String(scaleId)) {
+      foundAxis = true;
     }
 
     if (axis.orient === def.orient) {
