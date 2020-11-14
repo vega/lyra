@@ -98,6 +98,10 @@ function findOrCreateAxis(dispatch: ThunkDispatch<State, any, any>, state: State
       prevOrient = axis.orient;
     }
 
+    if (SWAP_ORIENT[axis.orient] === def.orient) {
+      ++count;
+    }
+
     // Test domain/range since point/band-ordinal scales can share an axis.
     // const axisScale = getInVis(state, 'scales.' + axis.get('scale'));
     // if (axisScale.get('type') === 'ordinal') {
