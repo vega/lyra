@@ -32,6 +32,9 @@ export function pipelinesReducer(state: PipelineState, action: ActionType<typeof
 
   if (action.type === getType(pipelineActions.baseAggregatePipeline)) {
     const p = action.payload;
+    if (p.dsId === undefined) {
+      return state.deleteIn([str(id), '_aggregates', p.key]);
+    }
     return state.setIn([str(id), '_aggregates', p.key], p.dsId);
   }
 

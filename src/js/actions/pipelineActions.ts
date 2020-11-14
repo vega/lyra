@@ -94,21 +94,48 @@ export function aggregatePipeline (id: number, aggregate: LyraAggregateTransform
     const schema = dsUtil.aggregateSchema(srcSchema, aggregate);
     const key = (aggregate.groupby as string[]).join('|'); // TODO: vega 2 aggregate.groupby is string[]
 
-    const dsId = assignId(dispatch, getState());
-    const ds = Dataset({
-      _id: dsId,
-      name: pipeline.get('name') + '_groupby_' + key,
-      source: String(srcId),
-      transform: [aggregate],
-      _schema: schema,
-      _parent: id
-    });
+    // check if an aggregate was added previously with an empty groupby
+    // this happens when you drag the aggregate measure to a dropzone first
+    const partialAggregateId = pipeline._aggregates.get("");
+    if (partialAggregateId) {
+      const ds = Dataset({
+        _id: partialAggregateId,
+        name: pipeline.get('name') + '_groupby_' + key,
+        source: String(srcId),
+        transform: [aggregate],
+        _schema: schema,
+        _parent: id
+      });
 
-    dispatch(addDataset(ds, null));
-    dispatch(baseAggregatePipeline({
-      dsId: aggregate._id = dsId,
-      key: key
-    }, id));
+      dispatch(addDataset(ds, null)); // overwrite the old dataset
+      dispatch(baseAggregatePipeline({ // delete the reference to the old, partial dataset
+        dsId: undefined,
+        key: ""
+      }, id));
+      dispatch(baseAggregatePipeline({ // add a reference to the new dataset using the correct key
+        dsId: aggregate._id = partialAggregateId,
+        key: key
+      }, id));
+    }
+    else {
+      // this is the normal case
+      const dsId = assignId(dispatch, getState());
+      const ds = Dataset({
+        _id: dsId,
+        name: pipeline.get('name') + '_groupby_' + key,
+        source: String(srcId),
+        transform: [aggregate],
+        _schema: schema,
+        _parent: id
+      });
+
+      dispatch(addDataset(ds, null));
+      dispatch(baseAggregatePipeline({
+        dsId: aggregate._id = dsId,
+        key: key
+      }, id));
+    }
+
   };
 }
 
