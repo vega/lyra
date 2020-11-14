@@ -29,7 +29,7 @@ const dispatchInvalidateVega = debounce(500, (dispatch: Dispatch) => {
 
 export function setSignal (value: SignalValue, signal: string) {
   return function(dispatch: Dispatch, getState: () => State) {
-    if (signal.startsWith('lyra_group') && (signal.endsWith('width') || signal.endsWith('height'))) {
+    if (signal.startsWith('lyra_group') && (signal.endsWith('width') || signal.endsWith('height') || signal.endsWith('x') || signal.endsWith('y'))) {
       // re-render vega when resizing a view to get the canvas to resize
       const store = getState();
       const isParsing = store.getIn(['vega', 'isParsing']);
