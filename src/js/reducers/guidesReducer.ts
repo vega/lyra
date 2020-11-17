@@ -51,10 +51,13 @@ export function guidesReducer(state: GuideState, action: ActionType<typeof guide
           scaleId = guide[guide._type];
         }
         if (String(scaleId) === String(id)) {
+          const fieldsInScale = p.value.map(x => x.field);
           // guide uses scale that is being updated
-          if (guide.title && typeof guide.title === 'string') {
+          if (!guide.title) {
+            newState = newState.setIn([String(guide._id), 'title'], fieldsInScale.join(', '));
+          }
+          else if (guide.title && typeof guide.title === 'string') {
             const fieldsInCurrentTitle = (guide.title as String).split(', ');
-            const fieldsInScale = p.value.map(x => x.field);
             // if the current title is a default title (it's a list of fields, comma separated)
             // and it differs from the list of fields by one edit (a field was added or deleted)
             if (fieldsInCurrentTitle.every(f => fieldsInScale.includes(f)) && (fieldsInCurrentTitle.length + 1) === fieldsInScale.length ||
