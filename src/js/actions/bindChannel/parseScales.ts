@@ -67,9 +67,9 @@ export default function parseScales(dispatch: ThunkDispatch<State, any, any>, st
   // check the scale of other marks in the visualization. if we are
   // layering marks (dropping a field to the same channel where another
   // mark already has a scale) then union the fields in a single scale.
-  const otherMarks = state.getIn(['vis', 'present', 'marks']).valueSeq().filter(x => x.type !== 'group' && x.type !== 'scene' && x._id !== mark._id);
+  const otherMarksInGroup = state.getIn(['vis', 'present', 'marks']).valueSeq().filter(x => x.type !== 'group' && x.type !== 'scene' && x._id !== mark._id && x._parent === mark._parent);
   let didUnion = false;
-  otherMarks.forEach((mark: MarkRecord) => {
+  otherMarksInGroup.forEach((mark: MarkRecord) => {
     let markScale;
     if (channel === 'x') {
       markScale = (mark.encode?.update?.x as any).scale;
