@@ -2,9 +2,8 @@ import {fromJS, Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import * as guideActions from '../actions/guideActions';
 import * as scaleActions from '../actions/scaleActions';
-import {GuideRecord, GuideState, GuideType, isAxis, isLegend} from '../store/factory/Guide';
+import {GuideRecord, GuideState, isAxis, isLegend} from '../store/factory/Guide';
 
-const str = require('../util/immutable-utils').str;
 const convertValuesToSignals = require('../util/prop-signal').convertValuesToSignals;
 
 function makeGuide(action : ActionType<typeof guideActions.baseAddGuide>): GuideRecord {
@@ -19,7 +18,7 @@ function makeGuide(action : ActionType<typeof guideActions.baseAddGuide>): Guide
   });
 }
 
-export function guidesReducer(state: GuideState, action: ActionType<typeof guideActions> | ActionType<typeof scaleActions.deleteScale>): GuideState {
+export function guidesReducer(state: GuideState, action: ActionType<typeof guideActions> | ActionType<typeof scaleActions.deleteScale> | ActionType<typeof scaleActions.updateScaleProperty>): GuideState {
   const id = action.meta;
 
   if (typeof state === 'undefined') {
@@ -27,15 +26,45 @@ export function guidesReducer(state: GuideState, action: ActionType<typeof guide
   }
 
   if (action.type === getType(guideActions.baseAddGuide)) {
-    return state.set(str(id), makeGuide(action));
+    return state.set(String(id), makeGuide(action));
   }
 
   if (action.type === getType(guideActions.deleteGuide)) {
-    return state.remove(str(id));
+    return state.remove(String(id));
   }
 
   if (action.type === getType(guideActions.updateGuideProperty)) {
-    return state.setIn([str(id), ...action.payload.property.split(".")], fromJS(action.payload.value));
+    return state.setIn([String(id), ...action.payload.property.split(".")], fromJS(action.payload.value));
+  }
+
+  if (action.type === getType(scaleActions.updateScaleProperty)) {
+    const p = action.payload;
+    let newState = state;
+    if (p.property === '_domain') {
+      // if we're updating a scale domain, edit the default guide titles to list all the fields in the domain
+      state.valueSeq().forEach(guide => {
+        let scaleId;
+        if (isAxis(guide)) {
+          scaleId = guide.scale;
+        }
+        if (isLegend(guide)) {
+          scaleId = guide[guide._type];
+        }
+        if (String(scaleId) === String(id)) {
+          // guide uses scale that is being updated
+          if (guide.title && typeof guide.title === 'string') {
+            const fieldsInCurrentTitle = (guide.title as String).split(', ');
+            const fieldsInScale = p.value.map(x => x.field);
+            // if the current title is a default title (it's a list of fields, comma separated)
+            // and it differs from the list of fields by one edit (a field was added or deleted)
+            if (fieldsInCurrentTitle.every(f => fieldsInScale.includes(f)) && (fieldsInCurrentTitle.length + 1) === fieldsInScale.length ||
+              fieldsInScale.every(f => fieldsInCurrentTitle.includes(f)) && (fieldsInScale.length + 1) === fieldsInCurrentTitle.length)
+            newState = newState.setIn([String(guide._id), 'title'], fieldsInScale.join(', '));
+          }
+        }
+      });
+    }
+    return newState;
   }
 
   if (action.type === getType(scaleActions.deleteScale)) {

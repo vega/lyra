@@ -3,8 +3,6 @@ import {ActionType, getType} from 'typesafe-actions';
 import * as pipelineActions from '../actions/pipelineActions';
 import {PipelineState} from '../store/factory/Pipeline';
 
-const str   = require('../util/immutable-utils').str;
-
 /**
  * Main pipelines reducer function, which generates a new state for the
  * pipelines property store based on the changes specified by the dispatched
@@ -22,20 +20,20 @@ export function pipelinesReducer(state: PipelineState, action: ActionType<typeof
   }
 
   if (action.type === getType(pipelineActions.baseAddPipeline)) {
-    return state.set(str(id), action.payload);
+    return state.set(String(id), action.payload);
   }
 
   if (action.type === getType(pipelineActions.updatePipelineProperty)) {
     const p = action.payload;
-    return state.setIn([str(id), p.property], p.value);
+    return state.setIn([String(id), p.property], p.value);
   }
 
   if (action.type === getType(pipelineActions.baseAggregatePipeline)) {
     const p = action.payload;
     if (p.dsId === undefined) {
-      return state.deleteIn([str(id), '_aggregates', p.key]);
+      return state.deleteIn([String(id), '_aggregates', p.key]);
     }
-    return state.setIn([str(id), '_aggregates', p.key], p.dsId);
+    return state.setIn([String(id), '_aggregates', p.key], p.dsId);
   }
 
   // TODO: this code is unused

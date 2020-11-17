@@ -17,7 +17,7 @@ interface OwnProps {
 }
 
 interface StateProps {
-  domainField: string,
+  domainFields: string,
   scaleName: string
 }
 
@@ -32,7 +32,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   const scale = state.getIn(['vis', 'present', 'scales', scaleId]);
 
   return {
-    domainField: scale.get("_domain")[0].field,
+    domainFields: scale.get("_domain").map(d => d.field).join(', '),
     scaleName: scale.get("name"),
   };
 }
@@ -67,11 +67,11 @@ class BaseGuideInspector extends React.Component<OwnProps & StateProps  & Dispat
         <h3 >Scale</h3>
         <div className="property">
           <div className='label-long'>{props.scaleName}</div>
-          <div className='control'>{props.domainField}</div>
+          <div className='control'>{props.domainFields}</div>
         </div>
       </div>
     ) : null;
-    
+
     if (guideType === GuideType.Axis) {
       return (<div className='inner'>
         {scale}

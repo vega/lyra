@@ -92,7 +92,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
       props.fieldMap.forEach((val, key) => { // This will match the last dataset that has the field
         dataId = val.includes(value) ? key : null;
       });
-      return { data: dataId, field: value };
+      return { data: Number(dataId), field: value };
     } else {
       return value;
     }
@@ -127,7 +127,7 @@ class BaseScaleInspector extends React.Component<OwnProps & StateProps & Dispatc
           </div>
           {(!isScaleManual) &&
             <MultiValueProperty name='_domain' label='Fields' type='select' subLabel='field' onChange={(e, arrVals) => this.handleChange(e, arrVals)} opts={props.fields} valueProperty='field' processValue={(value, props) => this.processValue(value, props)} {...props} />
-          } 
+          }
           {scaleTypeSimple(scaleType) === ScaleSimpleType.CONTINUOUS && isScaleManual &&
             <div>
               <Property name='domainMin' label='Domain Min' type='number' onChange={(e) => this.handleChange(e)} {...props} />
