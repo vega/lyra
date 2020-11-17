@@ -91,13 +91,13 @@ class BaseTextInspector extends React.Component<OwnProps & StateProps & Dispatch
             min='0' max='1' step='0.05' droppable={true} {...props} />
         </div>
 
-        {/* <div className='property-group'>
+        <div className='property-group'>
           <h3>Position</h3>
 
-          <Property name='x' label='X' type='text' canDrop={true} {...props} />
+          <Property name='x' label='X' type='number' droppable={true} {...props} />
 
-          <Property name='y' label='Y' type='text' canDrop={true} {...props} />
-        </div> */}
+          <Property name='y' label='Y' type='number' droppable={true} {...props} />
+        </div>
 
         <div className='property-group'>
           <h3>Offset</h3>
