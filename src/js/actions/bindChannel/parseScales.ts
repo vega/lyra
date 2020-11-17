@@ -1,15 +1,13 @@
-import {Dispatch} from 'redux';
-import {ActionType} from 'typesafe-actions';
 import {extend, isArray} from 'vega';
 import {isDataRefDomain, isSignalRef} from 'vega-lite/build/src/vega.schema';
 import {State} from '../../store';
 import {RangeScale, Scale, ScaleRecord} from '../../store/factory/Scale';
-import {addScale} from '../scaleActions';
-import {computeLayout} from './computeLayout';
+import {addScale, updateScaleProperty} from '../scaleActions';
 import {addScaleToGroup} from './helperActions';
 import {CompiledBinding} from './index';
 import {assignId} from '../../util/counter';
 import {ThunkDispatch} from 'redux-thunk';
+import {MarkRecord} from '../../store/factory/Mark';
 
 const imutils = require('../../util/immutable-utils'),
   getIn = imutils.getIn,
@@ -66,9 +64,34 @@ export default function parseScales(dispatch: ThunkDispatch<State, any, any>, st
       });
   }
 
+  // check the scale of other marks in the visualization. if we are
+  // layering marks (dropping a field to the same channel where another
+  // mark already has a scale) then union the fields in a single scale.
+  const otherMarks = state.getIn(['vis', 'present', 'marks']).valueSeq().filter(x => x.type !== 'group' && x.type !== 'scene' && x._id !== mark._id);
+  let didUnion = false;
+  otherMarks.forEach((mark: MarkRecord) => {
+    let markScale;
+    if (channel === 'x') {
+      markScale = (mark.encode?.update?.x as any).scale;
+    }
+    else if (channel === 'y') {
+      markScale = (mark.encode?.update?.y as any).scale;
+    }
+    if (markScale) {
+      const scale = state.getIn(['vis', 'present', 'scales', String(markScale)]);
+      prev = scale;
+      scaleId = scale._id;
+
+      const tempScale = createScale(parsed, def);
+      // union the domains
+      const unionedDomain = scale._domain.concat(tempScale._domain).filter((value, idx, arr) => arr.findIndex( t => (t.field === value.field)) === idx);
+      dispatch(updateScaleProperty({ property: '_domain', value: unionedDomain }, scale._id))
+      didUnion = true;
+    }
+  });
   // If no previous or matching scale exists, or if there's a mismatch in
   // definitions, dispatch actions to construct a new scale.
-  if (!prev || !equals(state, def, prev, dsMap)) {
+  if (!didUnion && (!prev || !equals(state, def, prev, dsMap))) {
     scaleId = assignId(dispatch, state);
     const scale = createScale(parsed, def).merge({_id: scaleId});
 

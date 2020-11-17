@@ -6,13 +6,14 @@ import {ScaleState, ScaleRecord} from '../store/factory/Scale';
 // Scales churn (unused scales are deleted) and thus we want to reuse names
 // as much as possible.
 function renameScale(state: ScaleState, name: string): string {
+  name = name || 'scale';
   const names = state.valueSeq().map((scaleRecord: ScaleRecord) => {
     return scaleRecord.get('name');
   });
-  let count = 1;
-  let str = name || 'scale';
+  let count = 2;
+  let str = name;
   while (names.contains(str)) {
-    str = name + '' + ++count;
+    str = name + '' + count++;
   }
   return str;
 }
