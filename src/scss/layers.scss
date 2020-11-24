@@ -28,15 +28,14 @@
   }
 
   li {
-    float: left;
     margin: $inner-padding;
     margin-top: 0;
     list-style-type: none;
   }
 
   .scale.name {
-    display: inline-block;
-    padding: $inner-padding;
+    display: flex;
+    padding: 2*$inner-padding;
     text-align: center;
 
     background-color: skyblue;

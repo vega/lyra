@@ -8,14 +8,21 @@ import sg from '../../ctrl/signals';
 import {channelName} from '../../actions/bindChannel';
 import {MODE, SELECTED, CELL} from '../../store/factory/Signal';
 import {ScaleDraggingState, DraggingStateRecord, ScaleDraggingStateRecord} from '../../store/factory/Inspector';
-import {startDragging, stopDragging} from '../../actions/inspectorActions';
+import { startDragging, stopDragging, selectMark} from '../../actions/inspectorActions';
 import {setMarkVisual} from '../../actions/markActions';
 import {NumericValueRef, StringValueRef, tupleid} from 'vega';
+import { deleteScale } from '../../actions/scaleActions';
+import { Icon } from '../Icon';
+import ReactTooltip from 'react-tooltip';
+import { ThunkDispatch } from 'redux-thunk';
+import { AnyAction } from 'redux';
 
 const ctrl = require('../../ctrl');
 
 const imutils = require('../../util/immutable-utils');
 const getInVis = imutils.getInVis;
+const assets = require('../../util/assets');
+const capitalize = require('capitalize');
 
 interface StateProps {
   selectedId: number;
@@ -28,6 +35,7 @@ interface DispatchProps {
   startDragging: (d: DraggingStateRecord) => void;
   stopDragging: () => void;
   setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
+  deleteScale: (_: any, id: number, evt: any) => void;
 }
 
 function mapStateToProps(reduxState: State, ownProps): StateProps {
@@ -40,7 +48,28 @@ function mapStateToProps(reduxState: State, ownProps): StateProps {
   };
 }
 
-const actionCreators: DispatchProps = {startDragging, stopDragging, selectScale, setMarkVisual};
+function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>): DispatchProps {
+  return {
+    startDragging: function (d) {
+      dispatch(startDragging(d));
+    },
+    stopDragging: function () {
+      dispatch(stopDragging());
+    },
+    selectScale: function (guideId) {
+      dispatch(selectScale(guideId));
+    },
+    setMarkVisual: function (payload, markId) {
+      dispatch(setMarkVisual(payload, markId));
+    },
+    deleteScale: function (selectedId, scaleId, evt) {
+      dispatch(deleteScale(null, scaleId));
+      evt.preventDefault();
+      evt.stopPropagation();
+      ReactTooltip.hide();
+    },
+  };
+}
 
 class ScaleList extends React.Component<StateProps & DispatchProps> {
   private handleDragStart = (evt) => {
@@ -86,12 +115,17 @@ class ScaleList extends React.Component<StateProps & DispatchProps> {
       ctrl.update();
     }
   }
+
+  public componentDidUpdate() {
+    ReactTooltip.rebuild();
+  }
+
   public render() {
     const props = this.props;
     const scales = [...props.scales.values()]
 
     return (
-      <div id='scale-list'>
+      <div id='scale-list' className="expandingMenu">
         <h2>Scales</h2>
         <ul>
           {scales.map((scale) => {
@@ -109,7 +143,12 @@ class ScaleList extends React.Component<StateProps & DispatchProps> {
                   data-scale={scale.get('_id')}
                   data-field={field}>
                   {/* <ContentEditable value={name} save={updateScaleName}  /> */}
-                  {name}
+                  <div style={{ "marginLeft": "26px" }}>
+                    {capitalize(name)}
+                  </div>
+                  <Icon glyph={assets.trash} className='delete'
+                    onClick={props.deleteScale.bind(null, props.selectedId, id)}
+                    data-tip={'Delete ' + name + ' scale'} data-place='right'/>
                 </div>
               </li>
             );
@@ -120,4 +159,4 @@ class ScaleList extends React.Component<StateProps & DispatchProps> {
   }
 }
 
-export default connect(mapStateToProps, actionCreators)(ScaleList);
+export default connect(mapStateToProps, mapDispatchToProps)(ScaleList);

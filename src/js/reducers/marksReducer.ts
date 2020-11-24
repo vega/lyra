@@ -2,6 +2,7 @@ import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import * as helperActions from '../actions/bindChannel/helperActions';
 import * as guideActions from '../actions/guideActions';
+import * as scaleActions from '../actions/scaleActions';
 import * as markActions from '../actions/markActions';
 import * as sceneActions from '../actions/sceneActions';
 import * as interactionActions from '../actions/interactionActions';
@@ -29,7 +30,7 @@ const ensureValuePresentImmutable = function(state: MarkState, path: string[], v
 };
 
 const ensureValueAbsent = function(state: MarkState, path: string[], valToRemove): MarkState {
-  return state.updateIn(path, children => children.filter(c => c !== valToRemove));
+  return state.updateIn(path, children => children != null ? children.filter(c => c !== valToRemove) : children);
 };
 
 // Helper reducer to add a mark to the store. Runs the mark through a method to
@@ -155,6 +156,7 @@ export function marksReducer(
     | ActionType<typeof guideActions.deleteGuide>
     | ActionType<typeof interactionActions.deleteInteraction>
     | ActionType<typeof widgetActions.deleteWidget>
+    | ActionType<typeof scaleActions.deleteScale>
 ): MarkState {
   if (typeof state === 'undefined') {
     return Map();
@@ -255,6 +257,24 @@ export function marksReducer(
   if (action.type === getType(guideActions.deleteGuide)) {
     state = ensureValueAbsent(state, [String(action.payload.groupId), 'axes'], id);
     return ensureValueAbsent(state, [String(action.payload.groupId), 'legends'], id);
+  }
+
+  if (action.type === getType(scaleActions.deleteScale)) {
+    const groupIds = state.keySeq().toArray();
+    groupIds.forEach(function (groupId) {
+      state = ensureValueAbsent(state, [String(groupId), 'scales'], id);
+
+      // clean up encoding references
+      let encodingKeys = Object.keys(state.getIn([String(groupId), 'encode', 'update']));
+      encodingKeys.forEach(function (encodingKey) {
+        let needsDelete = state.getIn([String(groupId), 'encode', 'update', encodingKey, 'scale']) === id;
+        if (needsDelete) {
+          state = state.setIn([String(groupId), 'encode', 'update', encodingKey], undefined);
+        }
+      });
+      
+    });
+    return state;
   }
 
   if (action.type === getType(interactionActions.deleteInteraction)) {
