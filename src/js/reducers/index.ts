@@ -22,9 +22,9 @@ const visReducers = combineReducers({
   scene,
   pipelines,
   datasets,
+  scales,
   guides,
   marks,
-  scales,
   interactions,
   widgets
 });

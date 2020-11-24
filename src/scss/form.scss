@@ -19,9 +19,13 @@
   background-color: $dgrey-bg;
   color: white;
   border: 1px solid $dgrey-border;
-  border-radius: 2px;
+  border-radius: 2*$border-radius;
   cursor: -webkit-grab;
   cursor: -moz-grab;
+}
+
+.scale.name {
+  border-radius: 2px;
 }
 
 .signal {
