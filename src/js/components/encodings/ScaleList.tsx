@@ -8,7 +8,7 @@ import sg from '../../ctrl/signals';
 import {channelName} from '../../actions/bindChannel';
 import {MODE, SELECTED, CELL} from '../../store/factory/Signal';
 import {ScaleDraggingState, DraggingStateRecord, ScaleDraggingStateRecord} from '../../store/factory/Inspector';
-import { startDragging, stopDragging, selectMark} from '../../actions/inspectorActions';
+import { startDragging, stopDragging} from '../../actions/inspectorActions';
 import {setMarkVisual} from '../../actions/markActions';
 import {NumericValueRef, StringValueRef, tupleid} from 'vega';
 import { deleteScale } from '../../actions/scaleActions';
