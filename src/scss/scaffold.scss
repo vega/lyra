@@ -44,7 +44,7 @@ body {
 
 .tools-container {
   display: flex;
-  overflow-y: auto;
+  overflow: auto;
 }
 
 // Vis-container is where vega is placed
@@ -53,7 +53,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-
+  max-width: calc(100vw - #{$sidebars-width} - 100px);
 
   #vis {
     flex: 1;
