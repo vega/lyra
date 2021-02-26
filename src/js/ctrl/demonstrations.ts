@@ -218,7 +218,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       "on": [
         {
           "events": {"signal": ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, `brush_y_field_undefined_${interactionId}`)},
-          "update": ifXElse(`brush_${yFieldName}_${yScaleName}_${interactionId} && brush_${yFieldName}_${yScaleName}_${interactionId}.length ? brush_${yFieldName}_${yScaleName}_${interactionId}[0] : null`, 'null')
+          "update": ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId} && brush_${yFieldName}_${yScaleName}_${interactionId}.length ? brush_${yFieldName}_${yScaleName}_${interactionId}[0] : null`, 'null')
         }
       ]
     },
@@ -227,7 +227,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       "on": [
         {
           "events": {"signal": ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId}`, `brush_y_field_undefined_${interactionId}`)},
-          "update": ifXElse(`brush_${yFieldName}_${yScaleName}_${interactionId} && brush_${yFieldName}_${yScaleName}_${interactionId}.length ? brush_${yFieldName}_${yScaleName}_${interactionId}[1] : null`, 'null')
+          "update": ifYElse(`brush_${yFieldName}_${yScaleName}_${interactionId} && brush_${yFieldName}_${yScaleName}_${interactionId}.length ? brush_${yFieldName}_${yScaleName}_${interactionId}[1] : null`, 'null')
         }
       ]
     },
@@ -320,7 +320,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
           "events": {
             "signal": `lyra_brush_x_${interactionId}`
           },
-          "update": `lyra_brush_x_${interactionId}[0] === lyra_brush_x_${interactionId}[1] ? null : invert(\"${xScaleName}\", lyra_brush_x_${interactionId})`
+          "update": ifXElse(`lyra_brush_x_${interactionId}[0] === lyra_brush_x_${interactionId}[1] ? null : invert(\"${xScaleName}\", lyra_brush_x_${interactionId})`, '')
         }
       ], [])
     },
@@ -395,7 +395,7 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
           "events": {
             "signal": `lyra_brush_y_${interactionId}`
           },
-          "update": `lyra_brush_y_${interactionId}[0] === lyra_brush_y_${interactionId}[1] ? null : invert(\"${yScaleName}\", lyra_brush_y_${interactionId})`
+          "update": ifYElse(`lyra_brush_y_${interactionId}[0] === lyra_brush_y_${interactionId}[1] ? null : invert(\"${yScaleName}\", lyra_brush_y_${interactionId})`, '')
         }
       ], [])
     },
@@ -741,11 +741,11 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
       return sceneSpec;
     case 'scale':
       application = application as ScaleApplicationRecord;
-      // targetGroupName = application.targetGroupName; // TODO: support target group for scale applications
+      targetGroupName = application.targetGroupName;
       const scaleInfo = application.scaleInfo;
       sceneSpec = removeBrushMark(sceneSpec, groupName);
       sceneSpec = clipGroup(sceneSpec, groupName);
-      return applyScaleProperties(sceneSpec, groupName, [
+      return applyScaleProperties(sceneSpec, targetGroupName, [
         {
           "_axis": "x",
           "name": scaleInfo.xScaleName,
