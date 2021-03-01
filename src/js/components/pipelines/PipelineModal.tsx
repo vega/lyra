@@ -11,18 +11,41 @@ import DataTable from './DataTable';
 import DataURL from './DataURL';
 import {State} from '../../store';
 
-const exampleDatasets = require('../../constants/exampleDatasets');
 const NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
 const vegaDatasets = require('vega-datasets');
+const highlightedDatasets = [
+  {
+    label: 'Cars',
+    name: 'cars.json',
+    description: 'Vehicular data which consists of names, cylinders and displacement',
+  },
+  {
+    label: 'Seattle Weather',
+    name: 'seattle-weather.csv',
+    description: 'Seattle weather data, including temperature, precipitation, and type of weather',
+  },
+  {
+    label: 'Stocks',
+    name: 'stocks.csv',
+    description: 'Stock data including symbols, dates, and prices',
+  },
+  {
+    label: 'Budgets',
+    name: 'budgets.json',
+    description: 'Projected and real U.S. national budgets, from NYT’s Amanda Cox',
+  },
+  {
+    label: 'S&P 500',
+    name: 'sp500.csv',
+    description: 'Date and price data for the S&P 500 stock index',
+  },
+];
 const vegaDatasetFilenames = Object.keys(vegaDatasets).filter(n => n.endsWith('.csv') || n.endsWith('.tsv') || n.endsWith('.json'))
   .filter(n => {
     return ![
-      // remove the ones that are already in exampleDatasets
-      'cars.json',
-      'jobs.json',
-      'gapminder.json',
-      'climate.json',
+      // remove the ones that are already in highlightedDatasets
+      ...highlightedDatasets.map(d => d.name),
       // remove because format doesn't work with createDataset
       'annual-precip.json',
       'miserables.json',
@@ -236,10 +259,10 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
               <h2>Example Datasets</h2>
 
               <ul>
-                {exampleDatasets.map(function(example) {
-                  const name = example.name;
+                {highlightedDatasets.map(function(example) {
+                  const name = example.label;
                   const description = example.description;
-                  const url = example.url;
+                  const url = vegaDatasets[example.name].url;
                   const className = state.selectedExample === url ? 'selected' : null;
 
                   return (
