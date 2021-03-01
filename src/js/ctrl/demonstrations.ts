@@ -743,6 +743,7 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
       application = application as ScaleApplicationRecord;
       targetGroupName = application.targetGroupName;
       const scaleInfo = application.scaleInfo;
+      console.log(scaleInfo);
       sceneSpec = removeBrushMark(sceneSpec, groupName);
       sceneSpec = clipGroup(sceneSpec, groupName);
       return applyScaleProperties(sceneSpec, targetGroupName, [

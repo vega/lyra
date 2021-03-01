@@ -3,7 +3,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal, getInteractionSignals, TransformApplicationRecord} from '../../store/factory/Interaction';
+import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal, getInteractionSignals, TransformApplicationRecord, ScaleApplicationRecord} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
 import {setInput, setSelection, setApplication, removeApplication, setSignals} from '../../actions/interactionActions';
 import {getScaleInfoForGroup,  getNestedMarksOfGroup,  getFieldsOfGroup} from '../../ctrl/demonstrations';
@@ -44,6 +44,7 @@ interface StateProps {
   groups: Map<number, GroupRecord>;
   interaction: InteractionRecord;
   scaleInfo: ScaleInfo;
+  scaleInfoOfGroups: Map<number, ScaleInfo>;
   datasets: Map<string, DatasetRecord>;
   group: GroupRecord;
   groupName: string;
@@ -77,6 +78,10 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
 
   const marksOfGroups: Map<number, MarkRecord[]> = groups.map(group => {
     return getNestedMarksOfGroup(state, group);
+  });
+
+  const scaleInfoOfGroups: Map<number, ScaleInfo> = groups.map(group => {
+    return getScaleInfoForGroup(state, group._id);
   });
 
   const marksOfGroup = marksOfGroups.get(groupId);
@@ -125,6 +130,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     interaction,
     groups,
     scaleInfo,
+    scaleInfoOfGroups,
     group,
     groupName,
     datasets,
@@ -738,6 +744,9 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     const marksOfGroup = this.props.marksOfGroups.get(group._id);
     if (marksOfGroup.length) {
       newPreview = newPreview.set('targetMarkName', exportName(this.props.marksOfGroups.get(group._id)[0].name));
+    }
+    if ((preview as ScaleApplicationRecord).scaleInfo) {
+      newPreview = newPreview.set('scaleInfo', this.props.scaleInfoOfGroups.get(group._id));
     }
 
     this.props.setApplication(newPreview, this.props.interaction.id);
