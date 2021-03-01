@@ -533,6 +533,14 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     },
 
     {
+      "name": ifXElse(`lyra_grid_${xFieldName}_${xScaleName}_${interactionId}`, `grid_x_field_undefined_${interactionId}`),
+      "update": ifXElse(`lyra_brush_is_y_encoding_${interactionId} ? grid_translate_anchor_${interactionId}.extent_x : grid_${xFieldName}_${xScaleName}_${interactionId}`, `grid_x_field_undefined_${interactionId}`),
+    },
+    {
+      "name": ifXElse(`lyra_grid_${yFieldName}_${yScaleName}_${interactionId}`, `grid_y_field_undefined_${interactionId}`),
+      "update": ifXElse(`lyra_brush_is_x_encoding_${interactionId} ? grid_translate_anchor_${interactionId}.extent_y : grid_${yFieldName}_${yScaleName}_${interactionId}`, `grid_y_field_undefined_${interactionId}`),
+    },
+    {
       "name": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, `grid_x_field_undefined_${interactionId}`),
       "on": ifXElse([
         {
@@ -564,8 +572,8 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
       "name": `grid_tuple_${interactionId}`,
       "on": [
         {
-          "events": [{"signal": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" || ") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "")}],
-          "update": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" && ") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "") + `? {unit: \"\", fields: brush_tuple_fields_${interactionId}, values: [` + ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(",") + ifYElse(`grid_${yFieldName}_${yScaleName}_${interactionId}`, "") + "]} : null"
+          "events": [{"signal": ifXElse(`lyra_grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" || ") + ifYElse(`lyra_grid_${yFieldName}_${yScaleName}_${interactionId}`, "")}],
+          "update": ifXElse(`lyra_grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(" && ") + ifYElse(`lyra_grid_${yFieldName}_${yScaleName}_${interactionId}`, "") + `? {unit: \"\", fields: brush_tuple_fields_${interactionId}, values: [` + ifXElse(`lyra_grid_${xFieldName}_${xScaleName}_${interactionId}`, "") + ifXY(",") + ifYElse(`lyra_grid_${yFieldName}_${yScaleName}_${interactionId}`, "") + "]} : null"
         }
       ]
     },
@@ -744,7 +752,6 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
       // targetGroupName = application.targetGroupName; // TODO: support target group for scale applications
       targetGroupName = groupName;
       const scaleInfo = application.scaleInfo;
-      console.log(scaleInfo);
       sceneSpec = removeBrushMark(sceneSpec, groupName);
       sceneSpec = clipGroup(sceneSpec, groupName);
       return applyScaleProperties(sceneSpec, targetGroupName, [
