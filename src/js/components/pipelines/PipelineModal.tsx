@@ -14,6 +14,32 @@ import {State} from '../../store';
 const exampleDatasets = require('../../constants/exampleDatasets');
 const NAME_REGEX = /([\w\d_-]*)\.?[^\\\/]*$/i;
 
+const vegaDatasets = require('vega-datasets');
+const vegaDatasetFilenames = Object.keys(vegaDatasets).filter(n => n.endsWith('.csv') || n.endsWith('.tsv') || n.endsWith('.json'))
+  .filter(n => {
+    return ![
+      // remove the ones that are already in exampleDatasets
+      'cars.json',
+      'jobs.json',
+      'gapminder.json',
+      'climate.json',
+      // remove because format doesn't work with createDataset
+      'annual-precip.json',
+      'miserables.json',
+      'londonBoroughs.json',
+      'us-10m.json',
+      'volcano.json',
+      'weather.json',
+      'world-110m.json',
+      // remove because it looks weird
+      'movies.json',
+      'budget.json',
+      // remove because too large for lyra
+      'earthquakes.json',
+    ].includes(n);
+  }).sort();
+const vegaDatasetUrls = vegaDatasetFilenames.map(n => vegaDatasets[n].url);
+
 interface OwnProps {
   closeModal: () => void;
   modalIsOpen: boolean;
@@ -48,8 +74,10 @@ const mapDispatch: DispatchProps = {
 export interface OwnState {
   error: string;
   success: any;
+  loading: boolean;
   showPreview: boolean;
   selectedExample: string;
+  selectedVegaDataset: string;
 
   name: string;
   pipeline: PipelineRecord;
@@ -66,6 +94,7 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
     success: null,
     showPreview: false,
     selectedExample: null,
+    selectedVegaDataset: vegaDatasetUrls.length ? vegaDatasetUrls[0] : '',
 
     name: null,
     pipeline: null,
@@ -136,7 +165,9 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
 
   public loadURL(url: string, example?: boolean) {
     this.createPipeline(url);
+    this.setState({loading: true});
     get(url, (data, err) => {
+      this.setState({loading: false});
       if (err) {
         this.error(err);
       } else {
@@ -171,6 +202,7 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
   public render() {
     const props = this.props;
     const state = this.state;
+    const loading = state.loading;
     const error = state.error;
     const success = state.success;
     const preview = state.showPreview;
@@ -188,7 +220,7 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
         overflow: 'hidden',
         top: null, bottom: null, left: null, right: null,
         width: '550px',
-        height: (success || error || preview || canDerive) ? 'auto' : '300px',
+        height: 'auto',
         padding: null
       }
     };
@@ -218,6 +250,18 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
                     </li>
                   );
                 }, this)}
+
+                <li className={vegaDatasetUrls.includes(state.selectedExample) ? 'selected' : null}
+                    onClick={this.loadURL.bind(this, state.selectedVegaDataset, true)}>
+                  <p className='example-name'>All Example Datasets</p>
+                  <select value={state.selectedVegaDataset} onChange={(e) => {this.setState({selectedVegaDataset: e.target.value})}}>
+                    {
+                      vegaDatasetFilenames.map(name => {
+                        return <option key={name} value={vegaDatasets[name].url}>{name}</option>
+                      })
+                    }
+                  </select>
+                </li>
               </ul>
             </div>
 
@@ -239,24 +283,24 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
           {
             this.props.pipelines.length ? (
               <div className='row'>
-              <div className='derive'>
-                <h2>Derive from Existing Dataset</h2>
+                <div className='derive'>
+                  <h2>Derive from Existing Dataset</h2>
 
-                <ul>
-                  {this.props.pipelines.map(function(pipeline) {
-                    const name = pipeline.name;
-                    const className = state.selectedExample === String(pipeline._id) ? 'selected' : null;
+                  <ul>
+                    {this.props.pipelines.map(function(pipeline) {
+                      const name = pipeline.name;
+                      const className = state.selectedExample === String(pipeline._id) ? 'selected' : null;
 
-                    return (
-                      <li key={name} onClick={() => this.selectPipelineToDerive(pipeline)}
-                        className={className}>
-                        <p className='pipeline-name'>{name}</p>
-                        {/* <p>{description}</p> */}
-                      </li>
-                    );
-                  }, this)}
-                </ul>
-              </div>
+                      return (
+                        <li key={name} onClick={() => this.selectPipelineToDerive(pipeline)}
+                          className={className}>
+                          <p className='pipeline-name'>{name}</p>
+                          {/* <p>{description}</p> */}
+                        </li>
+                      );
+                    }, this)}
+                  </ul>
+                </div>
               </div>
             ) : null
           }
@@ -264,17 +308,23 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
           {error ? <div className='error-message'>{error}</div> : null}
           {success ? <div className='success-message'>{success}</div> : null}
 
+          {!preview && loading ? <div className='loading-message'>Loading dataset...</div> : null}
+
           {!preview || error ? null : (
-            <div className='preview'>
-              <h2>Preview</h2>
+            <div className='row'>
+              <div className='preview'>
+                <h2>Preview</h2>
 
-              <DataTable className='source'
-                values={state.values} schema={state.dataset._schema} limit={20} />
+                {loading ? <div className='loading-message'>Loading dataset...</div> : null}
 
-              <button className='button button-success'
-                onClick={this.done.bind(this, true)}>
-                Import
-              </button>
+                <DataTable className='source'
+                  values={state.values} schema={state.dataset._schema} limit={20} />
+
+                <button className='button button-success'
+                  onClick={this.done.bind(this, true)}>
+                  Import
+                </button>
+              </div>
             </div>
           )}
         </div>

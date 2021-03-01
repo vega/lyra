@@ -250,33 +250,31 @@ $pipeline-width: 230px;
 .pipelineModal {
 
   .closeModal {
-    top: $inner-padding;
-    right: $inner-padding;
+    top: $margin;
+    right: $margin;
   }
 
   .row {
     width: 100%;
     display: flex;
-    padding: 0 2*$inner-padding;
+    padding: 2*$inner-padding;
   }
 
   .examples, .load {
     flex: 1;
-    height: 300px;
     overflow: auto;
-  }
-
-  .load h2 {
-    margin: 2*$margin 0;
   }
 
   .load p {
     margin-bottom: $margin;
   }
 
-  .examples h2, .derive h2 {
-    margin: 2*$margin 0;
+  h2 {
     margin-bottom: $margin;
+  }
+
+  .load h2 {
+    margin-bottom: 2*$margin;
   }
 
   .examples li, .derive li {
@@ -301,10 +299,9 @@ $pipeline-width: 230px;
   }
 
   .derive {
-    width: 100%;
+    width: 50%;
     max-height: 100px;
     overflow: auto;
-    padding: 0 2*$inner-padding 2*$inner-padding;
 
     .pipeline-name {
       display: block;
@@ -351,7 +348,7 @@ $pipeline-width: 230px;
     margin-top: 5px;
   }
 
-  .error-message, .success-message {
+  .error-message, .success-message, .loading-message {
     width: 100%;
     margin: 2 * $margin;
     margin-top: 0;
@@ -360,8 +357,7 @@ $pipeline-width: 230px;
 
   .preview {
     position: relative;
-    margin: 0 2 * $margin;
-    width: 520px;
+    width: 530px;
 
     h2 {
       align-items: flex-start;
@@ -369,10 +365,17 @@ $pipeline-width: 230px;
       margin-bottom: $margin;
     }
 
-    .datatable td.field, .datatable .full.field { left: 0; }
+    .datatable {
+      max-height: 300px;
+      margin-left: 0;
+    }
+
+    .datatable td.field, .datatable .full.field {
+      position: static;
+    }
 
     button {
-      margin: $margin 0;
+      margin-top: $margin;
     }
   }
 }
