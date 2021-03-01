@@ -741,7 +741,8 @@ export function addApplicationToScene(sceneSpec: Spec, groupName: string, intera
       return sceneSpec;
     case 'scale':
       application = application as ScaleApplicationRecord;
-      targetGroupName = application.targetGroupName;
+      // targetGroupName = application.targetGroupName; // TODO: support target group for scale applications
+      targetGroupName = groupName;
       const scaleInfo = application.scaleInfo;
       console.log(scaleInfo);
       sceneSpec = removeBrushMark(sceneSpec, groupName);

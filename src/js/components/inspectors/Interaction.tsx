@@ -815,7 +815,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                   <div className='application-options-wrap'>
                     {
                       applications.map(application => {
-                        const targetGroupOptions = this.getTargetGroupOptions(application);
+                        const targetGroupOptions = application.type === 'scale' ? null : this.getTargetGroupOptions(application); // TODO: support scale applications here too
                         const targetMarkOptions = application.type === 'mark' || application.type === 'transform' ? (
                           this.getTargetMarkOptions(application as any)
                         ) : null;
