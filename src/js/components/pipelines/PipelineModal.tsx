@@ -71,7 +71,6 @@ interface OwnProps {
 interface StateProps {
   datasets: Map<string, DatasetRecord>;
   pipelines: PipelineRecord[];
-  canDerive: boolean;
 }
 
 interface DispatchProps {
@@ -85,7 +84,6 @@ function mapStateToProps(state: State): StateProps {
   return {
     pipelines,
     datasets,
-    canDerive: pipelines.length
   }
 }
 
@@ -115,6 +113,7 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
   private initialState: OwnState = {
     error: null,
     success: null,
+    loading: false,
     showPreview: false,
     selectedExample: null,
     selectedVegaDataset: vegaDatasetUrls.length ? vegaDatasetUrls[0] : '',
@@ -230,7 +229,6 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
     const success = state.success;
     const preview = state.showPreview;
     const close = this.done.bind(this, false);
-    const canDerive = props.canDerive;
 
     const style = {
       overlay: {
