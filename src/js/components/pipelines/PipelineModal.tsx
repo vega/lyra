@@ -274,7 +274,7 @@ export class PipelineModal extends React.Component<OwnProps & StateProps & Dispa
 
                 <li className={vegaDatasetUrls.includes(state.selectedExample) ? 'selected' : null}
                     onClick={this.loadURL.bind(this, state.selectedVegaDataset, true)}>
-                  <p className='example-name'>All Example Datasets</p>
+                  <p className='example-name'>More Example Datasets</p>
                   <select value={state.selectedVegaDataset} onChange={(e) => {this.setState({selectedVegaDataset: e.target.value})}}>
                     {
                       vegaDatasetFilenames.map(name => {
