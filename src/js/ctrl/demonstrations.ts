@@ -533,12 +533,12 @@ export function addInputsToScene(sceneSpec: Spec, groupName: string, interaction
     },
 
     {
-      "name": ifXElse(`lyra_grid_${xFieldName}_${xScaleName}_${interactionId}`, `grid_x_field_undefined_${interactionId}`),
+      "name": ifXElse(`lyra_grid_${xFieldName}_${xScaleName}_${interactionId}`, `lyra_grid_x_field_undefined_${interactionId}`),
       "update": ifXElse(`lyra_brush_is_y_encoding_${interactionId} ? grid_translate_anchor_${interactionId}.extent_x : grid_${xFieldName}_${xScaleName}_${interactionId}`, `grid_x_field_undefined_${interactionId}`),
     },
     {
-      "name": ifXElse(`lyra_grid_${yFieldName}_${yScaleName}_${interactionId}`, `grid_y_field_undefined_${interactionId}`),
-      "update": ifXElse(`lyra_brush_is_x_encoding_${interactionId} ? grid_translate_anchor_${interactionId}.extent_y : grid_${yFieldName}_${yScaleName}_${interactionId}`, `grid_y_field_undefined_${interactionId}`),
+      "name": ifYElse(`lyra_grid_${yFieldName}_${yScaleName}_${interactionId}`, `lyra_grid_y_field_undefined_${interactionId}`),
+      "update": ifYElse(`lyra_brush_is_x_encoding_${interactionId} ? grid_translate_anchor_${interactionId}.extent_y : grid_${yFieldName}_${yScaleName}_${interactionId}`, `grid_y_field_undefined_${interactionId}`),
     },
     {
       "name": ifXElse(`grid_${xFieldName}_${xScaleName}_${interactionId}`, `grid_x_field_undefined_${interactionId}`),
