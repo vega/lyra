@@ -248,7 +248,7 @@ class BaseInteractionApplicationProperties extends React.Component<OwnProps & St
                         <div key={idx} className='application-options'>
                             {
                               canTargetMultiple && applicationsOfType.length > 1 ?
-                                <Icon glyph={assets.trash} className='delete'
+                                <Icon glyph={assets.close} className='delete'
                                   onClick={() => {this.props.removeApplication(application, interaction.id)}} data-html={true} data-place='right'/> : null
                             }
                           {targetGroupOptions}
