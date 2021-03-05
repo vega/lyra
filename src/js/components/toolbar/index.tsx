@@ -5,6 +5,7 @@ import { AddInteractions } from './AddInteractions';
 import { Export } from './Export';
 import {Persist} from './Persist';
 import { UndoRedo } from './UndoRedo';
+import {Feedback} from './Feedback';
 
 const assets = require('../../util/assets');
 
@@ -23,6 +24,9 @@ export class Toolbar extends React.PureComponent {
             <UndoRedo />
             <Persist />
             <Export />
+            <br/>
+            <br/>
+            <Feedback />
           </div>
         </div>
       </div>

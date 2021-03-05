@@ -1,6 +1,12 @@
 .toolbar {
   margin-left: $outer-padding;
 
+  a {
+    text-decoration: none;
+    color: inherit;
+    display: table-cell;
+  }
+
   ul {
     background-color: $lgrey-bg;
     display: flex;
@@ -102,3 +108,10 @@ label[for="nav-trigger"] {
   top: 45px;
 }
 
+.feedback li {
+  padding-left: 4.5px !important;
+
+  .icon {
+    padding-right: 2px !important;
+  }
+}

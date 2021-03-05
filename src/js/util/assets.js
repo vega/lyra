@@ -38,6 +38,8 @@ module.exports = {
   italic: require('../../assets/italic.svg'),
   open: require('../../assets/open.svg'),
   save: require('../../assets/save.svg'),
+  exclamation: require('../../assets/exclamation.svg'),
+  book: require('../../assets/book.svg'),
   'align-left': require('../../assets/align-left.svg'),
   'align-center': require('../../assets/align-center.svg'),
   'align-right': require('../../assets/align-right.svg'),

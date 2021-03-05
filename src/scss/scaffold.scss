@@ -53,7 +53,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: calc(100vw - #{$sidebars-width} - 100px);
+  max-width: calc(100vw - #{$sidebars-width} - 110px);
 
   #vis {
     flex: 1;
