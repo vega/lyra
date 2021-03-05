@@ -27,11 +27,12 @@ export const baseAddInteraction = createStandardAction('ADD_INTERACTION')<Intera
 export const setInput = createStandardAction('SET_INPUT')<InteractionInput, number>();
 export const setSelection = createStandardAction('SET_SELECTION')<SelectionRecord, number>();
 
-export const setApplication = createStandardAction('SET_APPLICATION')<ApplicationRecord, number>();
-
 export const setSignals = createStandardAction('SET_INTERACTION_SIGNALS')<InteractionSignal[], number>();
 
 export const setSignalPush = createStandardAction('SET_INTERACTION_SIGNAL_PUSH')<{[signalName: string]: boolean}, number>(); // signalName -> push, interactionId
+
+export const toggleEnableApplicationType = createStandardAction('TOGGLE_ENABLE_APPLICATION_TYPE')<ApplicationRecord, number>();
+export const setApplication = createStandardAction('SET_APPLICATION')<ApplicationRecord, number>();
 
 export const removeApplication = createStandardAction('REMOVE_APPLICATION')<ApplicationRecord, number>();
 

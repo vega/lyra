@@ -63,8 +63,9 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     case getType(interactionActions.baseAddInteraction):
     case getType(interactionActions.setInput):
     case getType(interactionActions.setSelection):
-    case getType(interactionActions.setApplication):
     case getType(interactionActions.setSignalPush):
+    case getType(interactionActions.toggleEnableApplicationType):
+    case getType(interactionActions.setApplication):
     case getType(interactionActions.removeApplication):
     case getType(interactionActions.deleteInteraction):
     case getType(widgetActions.baseAddWidget):

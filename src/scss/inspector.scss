@@ -192,6 +192,7 @@ $long-label-width: $label-width + 10px;
     flex-basis: 50%;
     color: #222222;
     background: $lgrey-bg;
+    cursor: pointer;
 
     &.selected {
       color: white;
@@ -227,8 +228,29 @@ $long-label-width: $label-width + 10px;
   overflow: auto;
 }
 
-.application-options {
+.application-options-label .icon {
+  float: right;
+  cursor: pointer;
+}
+
+.application-options-property-group {
+  border-left: 2px solid $lgrey-bg;
+  padding-left: 5px;
+}
+
+.application-options:not(:last-child) {
   padding-bottom: $outer-padding;
+}
+
+.application-options {
+  position: relative;
+}
+
+.application-options .icon {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  cursor: pointer;
 }
 
 .signals-container {

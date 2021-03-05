@@ -3,13 +3,12 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {State} from '../../store';
-import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal, getInteractionSignals, TransformApplicationRecord, ScaleApplicationRecord} from '../../store/factory/Interaction';
+import {InteractionRecord, ApplicationRecord, SelectionRecord, ScaleInfo, MarkApplicationRecord, PointSelectionRecord, IntervalSelectionRecord, IntervalSelection, PointSelection, MarkApplication, ScaleApplication, TransformApplication, InteractionInput, InteractionSignal, getInteractionSignals, TransformApplicationRecord, ScaleApplicationRecord, applicationIsEnabled} from '../../store/factory/Interaction';
 import {GroupRecord} from '../../store/factory/marks/Group';
-import {setInput, setSelection, setApplication, removeApplication, setSignals} from '../../actions/interactionActions';
+import {setInput, setSelection, setApplication, removeApplication, toggleEnableApplicationType, setSignals} from '../../actions/interactionActions';
 import {getScaleInfoForGroup,  getNestedMarksOfGroup,  getFieldsOfGroup} from '../../ctrl/demonstrations';
 import {ScaleSimpleType, scaleTypeSimple} from '../../store/factory/Scale'
 import {DatasetRecord} from '../../store/factory/Dataset';
-import {InteractionMarkApplicationProperty} from './InteractionMarkApplication';
 import {MarkRecord} from '../../store/factory/Mark';
 import exportName from '../../util/exportName';
 import InteractionPreview from '../interactions/InteractionPreview';
@@ -19,6 +18,7 @@ import {InteractionInputType} from './InteractionInputType';
 import {InteractionSignals} from './InteractionSignals';
 import {signalLookup} from '../../util/signal-lookup';
 import {batchGroupBy} from '../../reducers/historyOptions';
+import {InteractionApplicationProperties} from './InteractionApplicationProperties';
 
 const ctrl = require('../../ctrl');
 const listeners = require('../../ctrl/listeners');
@@ -35,18 +35,17 @@ interface OwnState {
 interface DispatchProps {
   setInput: (input: InteractionInput, id: number) => void;
   setSelection: (record: SelectionRecord, id: number) => void;
+  toggleEnableApplicationType: (payload: ApplicationRecord, id: number) => void;
   setApplication: (record: ApplicationRecord, id: number) => void;
-  setSignals: (signals: InteractionSignal[], id: number) => void;
   removeApplication: (record: ApplicationRecord, id: number) => void;
+  setSignals: (signals: InteractionSignal[], id: number) => void;
 }
 
 interface StateProps {
   groups: Map<number, GroupRecord>;
   interaction: InteractionRecord;
   scaleInfo: ScaleInfo;
-  scaleInfoOfGroups: Map<number, ScaleInfo>;
   datasets: Map<string, DatasetRecord>;
-  group: GroupRecord;
   groupName: string;
   marksOfGroups: Map<number, MarkRecord[]>; // map of group ids to array of mark specs
   fieldsOfGroup: string[];
@@ -130,8 +129,6 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
     interaction,
     groups,
     scaleInfo,
-    scaleInfoOfGroups,
-    group,
     groupName,
     datasets,
     marksOfGroups,
@@ -142,7 +139,7 @@ function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
   };
 }
 
-const actionCreators: DispatchProps = {setInput, setSelection, setApplication, removeApplication, setSignals};
+const actionCreators: DispatchProps = {setInput, setSelection, toggleEnableApplicationType, setApplication, removeApplication, setSignals};
 
 function generateSelectionPreviews(markScalesOfGroup: MarkScales[], interaction: InteractionRecord, isDemonstratingInterval: boolean): SelectionRecord[] {
   if (isDemonstratingInterval) {
@@ -593,19 +590,15 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
       case 'transform':
         if (this.props.interaction) {
           preview = preview as ApplicationRecord;
-          if (this.interactionHasApplication(preview)) {
-            this.props.removeApplication(preview, this.props.interaction.id);
-          }
-          else {
+          this.props.toggleEnableApplicationType(preview, this.props.interaction.id);
+          if (!this.props.interaction.applications.some(application => {
+            return application.id === preview.id;
+          })) {
             this.props.setApplication(preview, this.props.interaction.id);
           }
         }
         break;
     }
-  }
-
-  private interactionHasApplication(preview: ApplicationRecord) {
-    return this.props.interaction.applications.some(application => application.id === preview.id);
   }
 
   private getProjectionOptions(preview: PointSelectionRecord) {
@@ -654,104 +647,6 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
     this.props.setSelection(newPreview, this.props.interaction.id);
   }
 
-  private getTargetMarkOptions(preview: MarkApplicationRecord | TransformApplicationRecord) {
-    const targetGroupName = preview.targetGroupName;
-    const group = this.props.groups.find(group => exportName(group.name) === targetGroupName);
-    const marksOfGroup = this.props.marksOfGroups.get(group._id);
-
-    let options;
-
-    if (marksOfGroup.length === 1) {
-      options = <div>{marksOfGroup[0].name}</div>
-    }
-    else {
-      options = (
-        <select name='target_mark' value={preview.targetMarkName} onChange={e => this.onSelectTargetMarkName(preview, e.target.value)}>
-          {
-            marksOfGroup.map(mark => {
-              if (preview.id.startsWith('size')) {
-                if (mark.type !== 'symbol') {
-                  return null;
-                }
-              }
-              const markName = exportName(mark.name);
-              return <option key={markName} value={markName}>{mark.name}</option>
-            })
-          }
-        </select>
-      )
-    }
-
-    return (
-      <div className="property">
-        <label htmlFor='target_mark'>Mark:</label>
-        <div className='control'>
-          {options}
-        </div>
-      </div>
-    );
-  }
-
-  private onSelectTargetMarkName(preview: MarkApplicationRecord | TransformApplicationRecord, targetMarkName: string) {
-    let newPreview = (preview as any).set('targetMarkName', targetMarkName);
-    if (preview.id.startsWith('color')) {
-      const marksOfGroup = this.props.marksOfGroups.get(this.props.group._id);
-      const targetMark = marksOfGroup.find(mark => exportName(mark.name) === targetMarkName);
-      newPreview = newPreview.set('propertyName', targetMark.type === 'line' ? "stroke" : "fill");
-    }
-    this.props.setApplication(newPreview, this.props.interaction.id);
-  }
-
-  private getTargetGroupOptions(preview: ApplicationRecord) {
-    const groups = this.props.groups.valueSeq().toArray().filter(group => {
-      if (preview.label === 'Filter' && group._id === this.props.group._id) {
-        return false;
-      }
-      return true;
-    });
-
-    let options;
-
-    if (groups.length === 1) {
-      options = <div>{groups[0].name}</div>;
-    }
-    else {
-      options = (
-        <select name='target_group' value={preview.targetGroupName} onChange={e => this.onSelectTargetGroup(preview, e.target.value)}>
-          {
-            groups.map(group => {
-              const groupName = exportName(group.name);
-              return <option key={groupName} value={groupName}>{group.name}</option>
-            })
-          }
-        </select>
-      );
-    }
-
-    return (
-      <div className="property">
-        <label htmlFor='target_group'>Group:</label>
-        <div className='control'>
-          {options}
-        </div>
-      </div>
-    );
-  }
-
-  private onSelectTargetGroup(preview: ApplicationRecord, targetGroup: string) {
-    let newPreview = (preview as any).set('targetGroupName', targetGroup);
-    const group = this.props.groups.find(group => exportName(group.name) == targetGroup);
-    const marksOfGroup = this.props.marksOfGroups.get(group._id);
-    if (marksOfGroup.length) {
-      newPreview = newPreview.set('targetMarkName', exportName(this.props.marksOfGroups.get(group._id)[0].name));
-    }
-    if ((preview as ScaleApplicationRecord).scaleInfo) {
-      newPreview = newPreview.set('scaleInfo', this.props.scaleInfoOfGroups.get(group._id));
-    }
-
-    this.props.setApplication(newPreview, this.props.interaction.id);
-  }
-
   public render() {
     const interaction = this.props.interaction;
     const applications = interaction.applications;
@@ -796,7 +691,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                     {
                       this.state.applicationPreviews.map((preview) => {
                         return (
-                          <div key={preview.id} className={interaction && this.interactionHasApplication(preview) ? 'selected' : ''}>
+                          <div key={preview.id} className={interaction && applicationIsEnabled(preview, interaction) ? 'selected' : ''}>
                             <div onClick={() => this.onClickInteractionPreview(preview)}>
                               <div className="preview-label">{preview.label}</div>
                             <InteractionPreview ref={ref => this.previewRefs[preview.id] = ref}
@@ -812,28 +707,7 @@ class BaseInteractionInspector extends React.Component<OwnProps & StateProps & D
                       })
                     }
                   </div>
-                  <div className='application-options-wrap'>
-                    {
-                      applications.map(application => {
-                        const targetGroupOptions = application.type === 'scale' ? (<div>{application.targetGroupName}</div>) : this.getTargetGroupOptions(application); // TODO: support scale applications here too
-                        const targetMarkOptions = application.type === 'mark' || application.type === 'transform' ? (
-                          this.getTargetMarkOptions(application as any)
-                        ) : null;
-                        const properties = application.type === 'mark' ? (
-                          <div>
-                            <InteractionMarkApplicationProperty interactionId={interaction.id} markApplication={application as MarkApplicationRecord}></InteractionMarkApplicationProperty>
-                          </div>
-                        ) : null;
-
-                        return <div className='application-options'>
-                          <h5>{application.label}</h5>
-                          {targetGroupOptions}
-                          {targetMarkOptions}
-                          {properties}
-                        </div>
-                      })
-                    }
-                  </div>
+                  <InteractionApplicationProperties interaction={this.props.interaction} applications={applications} groups={this.props.groups} marksOfGroups={this.props.marksOfGroups}></InteractionApplicationProperties>
                 </div>
               </div>
 

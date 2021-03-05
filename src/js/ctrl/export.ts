@@ -2,7 +2,7 @@ import {array, extend, isArray, isObject, isString, Mark, Spec} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
 import {State, store} from '../store';
 import {GuideType} from '../store/factory/Guide';
-import {InteractionRecord, MarkApplicationRecord} from '../store/factory/Interaction';
+import {applicationIsEnabled, InteractionRecord, MarkApplicationRecord} from '../store/factory/Interaction';
 import {GroupRecord} from '../store/factory/marks/Group';
 import {PipelineRecord} from '../store/factory/Pipeline';
 import {WidgetRecord} from '../store/factory/Widget';
@@ -71,6 +71,7 @@ exporter.interactions = function(state: State, spec) {
     }
     if (interaction.applications.length) {
       for (const application of interaction.applications) {
+        if (!applicationIsEnabled(application, interaction)) continue;
         spec = addApplicationToScene(spec, groupName, interaction.id, interaction.input, application);
         if (interaction.input && interaction.input.mouse && interaction.input.mouse === 'mouseover' && interaction.input.nearest) {
           const targetMarkName = (application as any).targetMarkName;

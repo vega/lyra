@@ -120,6 +120,7 @@ export interface LyraInteraction {
   input: InteractionInput;
   selection: SelectionRecord;
   applications: ApplicationRecord[];
+  _applicationTypeIsEnabled: Map<string, boolean>;
   signals: InteractionSignal[];
 };
 
@@ -131,12 +132,16 @@ export const Interaction = Record<LyraInteraction>({
   input: null,
   selection: null,
   applications: [],
+  _applicationTypeIsEnabled: Map<string, boolean>(),
   signals: []
 }, 'LyraInteraction');
 
 export type InteractionRecord = RecordOf<LyraInteraction>;
 export type InteractionState = Map<string, InteractionRecord>;
 
+export function applicationIsEnabled(application: ApplicationRecord, interaction: InteractionRecord): boolean {
+  return Boolean(interaction._applicationTypeIsEnabled.get(application.label));
+}
 
 export function getInteractionSignals(interactionId: number, input: InteractionInput, scaleInfo: ScaleInfo, fieldsOfGroup: string[]): InteractionSignal[] {
   if (!input) return [];
