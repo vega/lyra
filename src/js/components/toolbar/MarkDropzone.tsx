@@ -1,13 +1,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
-import {ScaleInfo} from '../../store/factory/Interaction';
 import {MarkDraggingStateRecord} from '../../store/factory/Inspector';
 import { LyraMarkType, Mark } from '../../store/factory/Mark';
 import {addMark} from '../../actions/markActions';
-import {getScaleInfoForGroup} from '../../ctrl/demonstrations';
 import {getClosestGroupId} from '../../util/hierarchy';
-const ctrl = require('../../ctrl');
 const imutils = require('../../util/immutable-utils');
 const getInVis = imutils.getInVis;
 interface StateProps {
