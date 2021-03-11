@@ -41,13 +41,11 @@ class AddMarksTool extends React.Component<DispatchProps> {
 
   public classNames: 'new-marks';
 
-  public handleClick = (evt: React.DragEvent<HTMLDivElement>, mark) => {
-    console.log("click");
+  public handleClick = (mark) => {
     this.props.addMark(mark);
 
   }
-  public handleDragStart = (evt, mark) => {
-    console.log("drag start");
+  public handleDragStart = (mark) => {
     this.props.startDragging(MarkDraggingState({mark}));
   }
 
@@ -66,8 +64,8 @@ class AddMarksTool extends React.Component<DispatchProps> {
           return (
             <li draggable={true}
               key={markType}
-              onClick={(e) => {this.handleClick(e, markType)}}
-              onDragStart={(e) => {this.handleDragStart(e, markType)}}
+              onClick={() => {this.handleClick(markType)}}
+              onDragStart={() => {this.handleDragStart(markType)}}
               onDragEnd={this.handleDragEnd}
             >
               <Icon glyph={assets[markType]} /> {markType}

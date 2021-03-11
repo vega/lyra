@@ -30,7 +30,6 @@ function mapStateToProps(state: State): StateProps {
 function mapDispatchToProps(dispatch, ownProps): DispatchProps {
   return {
     addMark: (type, parentId) => {
-      console.log("parentId", parentId);
 ;      if (!parentId) {
         parentId = getClosestGroupId();
       }
@@ -42,7 +41,6 @@ function mapDispatchToProps(dispatch, ownProps): DispatchProps {
       const newMarkProps = Mark(type, {
         _parent: parentId
       });
-      console.log("type " + type + " new mark props " + newMarkProps);
       dispatch(addMark(newMarkProps));
     }
   };
@@ -58,20 +56,16 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps> {
     return false;
   };
 
-  public handleDrop = (evt)  => {
-    console.log("mark", this.props.dragging.mark);
-    // this.props.addMark.bind(null, markType);
+  public handleDrop = ()  => {
     const sceneId = this.props.sceneId;
-    console.log("add group")
     this.props.addMark('group', sceneId);
-    console.log("add mark");
     this.props.addMark(this.props.dragging.mark, null);
   };
 
   public render() {
     if (!(this.props.dragging)) return null;
     return (
-      <div className="drop-mark" onDragOver={(e) => this.handleDragOver(e)} onDrop={(e) => this.handleDrop(e)}>
+      <div className="drop-mark" onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
         <div><i>Drop mark to create new group</i></div>
       </div>
     );
