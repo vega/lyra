@@ -75,6 +75,19 @@ body {
     max-width: 640px;
   }
 
+  .drop-mark {
+    border: 1px solid #333333;
+    box-shadow: 0 0 0 3px lightgray;
+    background-color: lightgray;
+    padding: $outer-padding;
+    border-radius: 3px;
+    margin: $outer-padding 5px;
+    max-width: 160px;
+    position: absolute;
+    top: 180px;
+    left: 400px;
+  }
+
   .vega-bindings {
     margin-top: $outer-padding;
     .vega-bind-name {

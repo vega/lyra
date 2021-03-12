@@ -1,6 +1,7 @@
 import {Record, RecordOf} from 'immutable';
 import {InspectorSelectedType} from '../../actions/inspectorActions';
 import {ColumnRecord} from './Dataset';
+import {LyraMarkType} from './Mark';
 
 export interface ExpandedLayers {
   [key: number]: boolean
@@ -34,6 +35,9 @@ export interface LyraScaleDraggingState {
   scaleId: number;
   fieldName: string;
 }
+export interface LyraMarkDraggingState {
+  mark:  LyraMarkType;
+}
 
 export const FieldDraggingState = Record<LyraFieldDraggingState>({
   dsId: null,
@@ -51,10 +55,15 @@ export const ScaleDraggingState = Record<LyraScaleDraggingState>({
   fieldName: null,
 }, 'LyraScaleDraggingState');
 
+export const MarkDraggingState = Record<LyraMarkDraggingState>({
+  mark: null,
+}, 'LyraMarkDraggingState');
+
 export type FieldDraggingStateRecord = RecordOf<LyraFieldDraggingState>;
 export type SignalDraggingStateRecord = RecordOf<LyraSignalDraggingState>;
 export type ScaleDraggingStateRecord = RecordOf<LyraScaleDraggingState>;
-export type DraggingStateRecord = FieldDraggingStateRecord | SignalDraggingStateRecord | ScaleDraggingStateRecord;
+export type MarkDraggingStateRecord = RecordOf<LyraMarkDraggingState>;
+export type DraggingStateRecord = FieldDraggingStateRecord | SignalDraggingStateRecord | ScaleDraggingStateRecord | MarkDraggingStateRecord;
 
 interface LyraInspector {
   pipelines: {
