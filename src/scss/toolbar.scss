@@ -104,6 +104,10 @@ label[for="nav-trigger"] {
   transition: top 0.2s;
 }
 
+.menu-group {
+  margin-bottom: 2*$margin;
+}
+
 .nav-trigger:checked ~ .menu{
   top: 45px;
 }
@@ -113,5 +117,42 @@ label[for="nav-trigger"] {
 
   .icon {
     padding-right: 2px !important;
+  }
+}
+
+.examples-button li {
+  padding-left: 5.5px !important;
+
+  .icon {
+    padding-right: 1px !important;
+  }
+}
+
+.example-gallery-entry {
+  padding: 15px 0;
+
+  img {
+    border: 1px solid $lgrey-bg;
+  }
+
+  h5 {
+    margin: 0.66em auto;
+  }
+
+  ul {
+    line-height: 1.3;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  li {
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }

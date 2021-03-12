@@ -228,6 +228,10 @@ $long-label-width: $label-width + 10px;
   overflow: auto;
 }
 
+.application-options-wrap > div:not(:last-child) {
+  margin-bottom: 2*$margin;
+}
+
 .application-options-label .icon {
   float: right;
   cursor: pointer;

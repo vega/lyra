@@ -6,6 +6,7 @@ import { Export } from './Export';
 import {Persist} from './Persist';
 import { UndoRedo } from './UndoRedo';
 import {Feedback} from './Feedback';
+import {ExampleGallery} from './ExampleGallery';
 
 const assets = require('../../util/assets');
 
@@ -19,14 +20,19 @@ export class Toolbar extends React.PureComponent {
             <Icon glyph={assets.hamburger} />
           </label>
           <div className='menu'>
-            <AddMarks />
-            <AddInteractions />
-            <UndoRedo />
-            <Persist />
-            <Export />
-            <br/>
-            <br/>
-            <Feedback />
+            <div className='menu-group'>
+              <AddMarks />
+              <AddInteractions />
+              <UndoRedo />
+              <Persist />
+              <Export />
+            </div>
+            <div className='menu-group'>
+              <ExampleGallery />
+            </div>
+            <div className='menu-group'>
+              <Feedback />
+            </div>
           </div>
         </div>
       </div>
