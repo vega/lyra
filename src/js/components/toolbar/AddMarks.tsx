@@ -49,9 +49,6 @@ class AddMarksTool extends React.Component<DispatchProps> {
     this.props.startDragging(MarkDraggingState({mark}));
   }
 
-  // This makes use of the bubble cursor, which corresponds to the cell signal;
-  // we're using that to figure out which channel we are closest to. The
-  // SELECTED signal indicates the mark to bind the data to.
   public handleDragEnd = (evt: React.DragEvent<HTMLDivElement>, opts?) => {
     this.props.stopDragging();
 
