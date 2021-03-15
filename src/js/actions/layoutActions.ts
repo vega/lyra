@@ -7,13 +7,8 @@ import {Dispatch} from 'redux';
 export function addLayout (payload: LayoutRecord) {
   return function(dispatch: Dispatch, getState: () => State) {
     const id = payload._id || assignId(dispatch, getState());
-
     dispatch(baseAddLayout(payload.merge({_id: id}), id));
   };
-}
-
-export function addGrouptoLayout (payload: LayoutRecord) {
-  return {};
 }
 
 export function addDimension (payload: LayoutRecord) {
@@ -22,4 +17,4 @@ export function addDimension (payload: LayoutRecord) {
 }
 export const baseAddLayout = createStandardAction('ADD_LAYOUT')<LayoutRecord, number>();
 
-export const add
+export const addGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{groupId: number}, number>();

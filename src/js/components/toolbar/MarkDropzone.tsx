@@ -4,6 +4,7 @@ import {State} from '../../store';
 import {MarkDraggingStateRecord} from '../../store/factory/Inspector';
 import { LyraMarkType, Mark } from '../../store/factory/Mark';
 import {addMark} from '../../actions/markActions';
+import {addGrouptoLayout} from '../../actions/layoutActions';
 import {getClosestGroupId} from '../../util/hierarchy';
 const imutils = require('../../util/immutable-utils');
 const getInVis = imutils.getInVis;
@@ -12,8 +13,14 @@ interface StateProps {
   sceneId: number;
 }
 
+interface OwnProps {
+  key: number
+  layoutId: number;
+  direction: string;
+}
 interface DispatchProps {
   addMark: (type: LyraMarkType, parentId: number) => void;
+  addGrouptoLayout: (groupId: number) => void;
 }
 
 function mapStateToProps(state: State): StateProps {
@@ -23,11 +30,11 @@ function mapStateToProps(state: State): StateProps {
 
   return {
     dragging: isMarkDrag ? draggingRecord : null,
-    sceneId: sceneId
+    sceneId: sceneId,
   };
 }
 
-function mapDispatchToProps(dispatch, ownProps): DispatchProps {
+function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
   return {
     addMark: (type, parentId) => {
 ;      if (!parentId) {
@@ -42,7 +49,8 @@ function mapDispatchToProps(dispatch, ownProps): DispatchProps {
         _parent: parentId
       });
       dispatch(addMark(newMarkProps));
-    }
+    },
+    addGrouptoLayout: (groupId: number) => {dispatch(addGrouptoLayout({groupId}, ownProps.layoutId));}
   };
 }
 
@@ -60,6 +68,9 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps> {
     const sceneId = this.props.sceneId;
     this.props.addMark('group', sceneId);
     this.props.addMark(this.props.dragging.mark, null);
+    //figure out new group ID from new group mark
+    let groupId = 1;
+    this.props.addGrouptoLayout(groupId);
   };
 
   public render() {

@@ -25,7 +25,11 @@ module.exports = ReactDOM.render(
           <div className="vis-container">
             <div id="vis"></div>
             <WidgetDropzone />
-            <MarkDropzone />
+            <MarkDropzone key={0} direction="top" layoutId={0}/>
+            {/* <MarkDropzone direction="bottom" layoutId={0}/>
+            <MarkDropzone direction="left" layoutId={0}/>
+            <MarkDropzone direction="right" layoutId={0}/> */}
+
           </div>
           <Toolbar />
         </div>
