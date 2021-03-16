@@ -17,4 +17,4 @@ export function addDimension (payload: LayoutRecord) {
 }
 export const baseAddLayout = createStandardAction('ADD_LAYOUT')<LayoutRecord, number>();
 
-export const addGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{groupId: number}, number>();
+export const addGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{groupId: number, dir: string}, number>();

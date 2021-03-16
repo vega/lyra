@@ -50,11 +50,11 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
       });
       dispatch(addMark(newMarkProps));
     },
-    addGrouptoLayout: (groupId: number) => {dispatch(addGrouptoLayout({groupId}, ownProps.layoutId));}
+    addGrouptoLayout: (groupId: number) => {dispatch(addGrouptoLayout({groupId, dir: ownProps.direction}, ownProps.layoutId));}
   };
 }
 
-class MarkDropzone extends React.Component<StateProps & DispatchProps> {
+class MarkDropzone extends React.Component<StateProps & DispatchProps & OwnProps> {
 
   public handleDragOver = (evt) => {
     if (evt.preventDefault) {
@@ -69,15 +69,15 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps> {
     this.props.addMark('group', sceneId);
     this.props.addMark(this.props.dragging.mark, null);
     //figure out new group ID from new group mark
-    let groupId = 1;
+    let groupId = 2;
     this.props.addGrouptoLayout(groupId);
   };
 
   public render() {
     if (!(this.props.dragging)) return null;
     return (
-      <div className="drop-mark" onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
-        <div><i>Drop mark to create new group</i></div>
+      <div className={"drop-mark " + this.props.direction}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
+        <div><i>Drop to add group on the {this.props.direction}</i></div>
       </div>
     );
   }

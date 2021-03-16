@@ -83,9 +83,38 @@ body {
     border-radius: 3px;
     margin: $outer-padding 5px;
     max-width: 160px;
-    position: absolute;
+  }
+
+  .markdropzone-container {
+    display: flex;
+    flex-direction: row;
     top: 180px;
     left: 400px;
+  }
+
+  .markdropzone-line.top {
+    position: absolute;
+    top: 180;
+    left: 600px;
+  }
+
+  .markdropzone-line.bottom {
+    position: absolute;
+    top: 500;
+    left: 600px;
+  }
+
+  .markdropzone-line.left {
+    position: absolute;
+    top: 350;
+    left: 300px;
+    transform: rotate(-90deg);
+  }
+  .markdropzone-line.right {
+    position: absolute;
+    top: 350;
+    left: 900px;
+    transform: rotate(90deg);
   }
 
   .vega-bindings {
