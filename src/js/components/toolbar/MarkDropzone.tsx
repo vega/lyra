@@ -2,8 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {MarkDraggingStateRecord} from '../../store/factory/Inspector';
+import {GroupRecord} from '../../store/factory/marks/Group';
 import { LyraMarkType, Mark } from '../../store/factory/Mark';
-import {addMark} from '../../actions/markActions';
+import {addMark, addGroup } from '../../actions/markActions';
 import {addGrouptoLayout} from '../../actions/layoutActions';
 import {getClosestGroupId} from '../../util/hierarchy';
 const imutils = require('../../util/immutable-utils');
@@ -11,6 +12,7 @@ const getInVis = imutils.getInVis;
 interface StateProps {
   dragging: MarkDraggingStateRecord;
   sceneId: number;
+  groups: GroupRecord[];
 }
 
 interface OwnProps {
@@ -20,6 +22,7 @@ interface OwnProps {
 }
 interface DispatchProps {
   addMark: (type: LyraMarkType, parentId: number) => void;
+  addGroup: (sceneId: number) => void;
   addGrouptoLayout: (groupId: number) => void;
 }
 
@@ -27,10 +30,12 @@ function mapStateToProps(state: State): StateProps {
   const draggingRecord = state.getIn(['inspector', 'dragging']);
   const isMarkDrag = draggingRecord && (draggingRecord as MarkDraggingStateRecord).mark;
   const sceneId = getInVis(state, 'scene._id');
+  const groups = state.getIn(['vis', 'present', 'marks']).filter(mark => mark.type == 'group');
 
   return {
     dragging: isMarkDrag ? draggingRecord : null,
     sceneId: sceneId,
+    groups
   };
 }
 
@@ -50,6 +55,13 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
       });
       dispatch(addMark(newMarkProps));
     },
+    addGroup: (sceneId) => {
+      const newMarkProps = Mark('group', {
+        _parent: sceneId
+      });
+
+      dispatch(addGroup(newMarkProps, ownProps.layoutId, ownProps.direction));
+    },
     addGrouptoLayout: (groupId: number) => {dispatch(addGrouptoLayout({groupId, dir: ownProps.direction}, ownProps.layoutId));}
   };
 }
@@ -66,18 +78,15 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps & OwnProps
 
   public handleDrop = ()  => {
     const sceneId = this.props.sceneId;
-    this.props.addMark('group', sceneId);
+    this.props.addGroup(sceneId);
     this.props.addMark(this.props.dragging.mark, null);
-    //figure out new group ID from new group mark
-    let groupId = 2;
-    this.props.addGrouptoLayout(groupId);
   };
 
   public render() {
     if (!(this.props.dragging)) return null;
     return (
       <div className={"drop-mark " + this.props.direction}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
-        <div><i>Drop to add group on the {this.props.direction}</i></div>
+        <div><i>Add group to {this.props.direction}</i></div>
       </div>
     );
   }

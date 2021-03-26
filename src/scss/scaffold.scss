@@ -86,34 +86,38 @@ body {
   }
 
   .markdropzone-container {
-    display: flex;
-    flex-direction: row;
     top: 180px;
     left: 400px;
   }
 
-  .markdropzone-line.top {
+  .markdropzone-line {
     position: absolute;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .markdropzone-line.top {
     top: 180;
-    left: 600px;
+    left: 400px;
+    width: 100%;
   }
 
   .markdropzone-line.bottom {
-    position: absolute;
     top: 500;
-    left: 600px;
+    left: 400px;
+    width: 100%;
   }
 
   .markdropzone-line.left {
-    position: absolute;
     top: 350;
     left: 300px;
+    // width: 100%;
     transform: rotate(-90deg);
   }
   .markdropzone-line.right {
-    position: absolute;
     top: 350;
     left: 900px;
+    // width: 470px;
     transform: rotate(90deg);
   }
 

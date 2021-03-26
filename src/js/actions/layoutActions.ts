@@ -10,11 +10,6 @@ export function addLayout (payload: LayoutRecord) {
     dispatch(baseAddLayout(payload.merge({_id: id}), id));
   };
 }
-
-export function addDimension (payload: LayoutRecord) {
-  return {
-  };
-}
 export const baseAddLayout = createStandardAction('ADD_LAYOUT')<LayoutRecord, number>();
 
 export const addGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{groupId: number, dir: string}, number>();

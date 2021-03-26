@@ -24,20 +24,14 @@ class MarkDropzoneGroup extends React.Component<StateProps & OwnProps> {
   public render() {
     return (
       <div className={'markdropzone-line ' + this.props.direction}>
-        {/* {this.props.layout.colSizes && this.props.layout.rowSizes &&
-          this.props.direction == 'top' || this.props.direction == 'bottom'
-            ? this.props.layout.colSizes.map(function(signal, i) {
-                return (
-                  <MarkDropzone key={i} direction={this.props.direction} layoutId={this.props.layoutId}/>
-                );
-              }, this)
-            : this.props.layout.rowSizes.map(function(signal, i) {
-                return (
-                  <MarkDropzone key={i} direction={this.props.direction} layoutId={this.props.layoutId}/>
-                );
-          }, this)
-        } */}
-        <MarkDropzone key={0} direction={this.props.direction} layoutId={this.props.layoutId}/>
+        {this.props.direction == 'right' || this.props.direction == 'left'
+         ? [...Array(this.props.layout.rows).keys()].map(i => {
+            return(<MarkDropzone key={i} direction={this.props.direction} layoutId={this.props.layoutId}/>)
+        })
+      : [...Array(this.props.layout.cols).keys()].map(i => {
+        return(<MarkDropzone key={i} direction={this.props.direction} layoutId={this.props.layoutId}/>)
+    })}
+
       </div>
     )}
 
