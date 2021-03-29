@@ -7,6 +7,7 @@ module.exports = {
   signals: require('./signalActions'),
   scene: require('./sceneActions'),
   pipelines: require('./pipelineActions'),
+  history: require('./historyActions'),
   datasets: require('./datasetActions'),
   scales: require('./scaleActions'),
   guides: require('./guideActions'),

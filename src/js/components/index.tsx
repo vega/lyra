@@ -6,6 +6,7 @@ import {store} from '../store';
 import {EncodingsSidebar} from './EncodingsSidebar';
 import {InspectorSidebar} from './InspectorSidebar';
 import {PipelinesToolbar} from './PipelinesSidebar';
+import {HistoryToolbar} from './HistoryToolbar';
 import {Toolbar} from './Toolbar';
 import WidgetDropzone from './interactions/WidgetDropzone';
 
@@ -27,6 +28,7 @@ module.exports = ReactDOM.render(
           </div>
           <Toolbar />
         </div>
+        <HistoryToolbar />
       </div>
 
       <ReactTooltip

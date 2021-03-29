@@ -1211,7 +1211,7 @@ export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
   };
 }
 
-export function cleanSpecForPreview(sceneSpec, width: number, height: number, groupName: string, interactionId: number): Spec {
+export function cleanSpecForPreview(sceneSpec, width: number, height: number, groupName: string, interactionId: number, includeAxisLegend: boolean, includeAllGroups: boolean): Spec {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.autosize = "none";
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
@@ -1220,11 +1220,61 @@ export function cleanSpecForPreview(sceneSpec, width: number, height: number, gr
       const oldHeight = markSpec.encode?.update?.height?.value || 360;
       const wScale = width / oldWidth; // preview width / main view width
       const hScale = height / oldHeight; // preview height / main view height
+      let scale = (wScale + hScale) / 2;
 
       markSpec.axes = markSpec.axes.map((axis) => {
-        return {...axis, title: '', labels: false, ticks: false, domain: false};
+        if (!includeAxisLegend) {
+          return {...axis, title: '', labels: false, ticks: false, domain: false};
+        } else {
+          // labels
+          let fntSize = axis.encode.labels.update.fontSize.value;
+          axis.encode.labels.update.fontSize.value = fntSize*scale;
+
+          // grid
+          let gridStrokeWidth = axis.encode.grid.update.strokeWidth.value;
+          axis.encode.grid.update.strokeWidth.value = gridStrokeWidth*scale;
+
+          // ticks
+          let tickStrokeWidth = axis.encode.ticks.update.strokeWidth.value;
+          axis.encode.ticks.update.strokeWidth.value = tickStrokeWidth*scale;
+
+          // title
+          let titlefntSize = axis.encode.title.update.fontSize.value;
+          axis.encode.title.update.fontSize.value = titlefntSize*scale;
+          return axis;
+        }
       });
-      markSpec.legends = [];
+
+      if (!includeAxisLegend) {
+        markSpec.legends = [];
+      } else {
+        markSpec.legends = markSpec.legends.map((legend) => {
+            let scale = (wScale + hScale) / 2;
+            // title
+            let titleFontSize = legend.titleFontSize;
+            legend.titleFontSize = titleFontSize*scale;
+
+            let titlefntSize = legend.encode.title.update.fontSize.value;
+            legend.encode.title.update.fontSize.value = titlefntSize*scale;
+
+            // labels
+            let fntSize = legend.encode.labels.update.fontSize.value;
+            legend.encode.labels.update.fontSize.value = fntSize*scale;
+
+            // strokewidth
+            let legendStrokeWidth = legend.encode.legend.update.strokeWidth.value;
+            legend.encode.legend.update.strokeWidth.value = legendStrokeWidth*scale;
+
+            // symbols
+            let symbolStrokeWidth = legend.encode.symbols.update.strokeWidth.value;
+            legend.encode.symbols.update.strokeWidth.value = symbolStrokeWidth*scale;
+
+            let symbolSize = legend.encode.symbols.update.size.value;
+            legend.encode.symbols.update.size.value = symbolSize*scale;
+            return legend;
+        });
+      }
+
       markSpec.encode.update.x = {"value": 0};
       markSpec.encode.update.y = {"value": 0};
       markSpec.encode.update.width = {"signal": "width"};
@@ -1267,10 +1317,16 @@ export function cleanSpecForPreview(sceneSpec, width: number, height: number, gr
         if (mark.type === 'line' && mark.encode?.update?.strokeWidth?.value) {
           mark.encode.update.strokeWidth.value /= 2;
         }
+        if (mark.encode?.update?.x?.value != null) {
+          mark.encode.update.x.value *= scale;
+        }
+        if (mark.encode?.update?.y?.value != null) {
+          mark.encode.update.y.value *= scale;
+        }
         return mark;
       });
 
-      if (markSpec.name !== groupName) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
+      if (markSpec.name !== groupName && !includeAllGroups) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
         markSpec.encode.update.x = {"value": -999};
         markSpec.encode.update.y = {"value": -999};
       }
@@ -1296,20 +1352,27 @@ export function cleanSpecForPreview(sceneSpec, width: number, height: number, gr
     return markSpec;
   });
 
-  return addBaseSignalsForPreview(sceneUpdated, groupName, interactionId);
+  return addBaseSignalsForPreview(sceneUpdated, groupName, interactionId, includeAxisLegend, includeAllGroups);
 }
 
-function addBaseSignalsForPreview(sceneSpec, groupName, interactionId) {
+function addBaseSignalsForPreview(sceneSpec, groupName, interactionId, includeAxisLegend, includeAllGroups) {
   const sceneUpdated = duplicate(sceneSpec);
   const baseSignalsScoped = baseSignals.map(s => {
-    if (s.name === 'width' || s.name === 'height') return s;
+    if (s.name === 'width' || s.name === 'height') {
+      if (includeAxisLegend && s.name === 'height') {
+        s.init = "100";
+      } else if (includeAxisLegend && s.name === 'width') {
+        s.init = "100";
+      }
+      return s
+    };
     return {
       ...s,
       name: `${s.name}_${interactionId}`
     }
   });
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
-    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
+    if (markSpec.name && (includeAllGroups || markSpec.name === groupName) && markSpec.type === 'group') {
       markSpec.signals = editSignals(markSpec.signals, baseSignalsScoped);
     }
     return markSpec;
