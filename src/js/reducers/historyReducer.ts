@@ -28,31 +28,5 @@ export function historyReducer(state: HistoryState, action: ActionType<typeof hi
     return state.setIn([String(id), p.property], p.value);
   }
 
-  if (action.type === getType(historyActions.baseAggregateHistory)) {
-    const p = action.payload;
-    if (p.dsId === undefined) {
-      return state.deleteIn([String(id), '_aggregates', p.key]);
-    }
-    return state.setIn([String(id), '_aggregates', p.key], p.dsId);
-  }
-
-  // TODO: this code is unused
-  /*
-  if (action.type === ACTIONS.DELETE_DATASET) {
-    const plId = action.plId,
-        dsId = action.dsId;
-
-    if (getIn(state, plId + '._source') === dsId) {
-      throw Error('Cannot delete a history\' source dataset.');
-    }
-
-    const key = getIn(state, plId + '._aggregates').findKey(function(aggId) {
-      return aggId === dsId;
-    });
-
-    return state.deleteIn([plId + '', '_aggregates', key]);
-  }
-  */
-
   return state;
 }

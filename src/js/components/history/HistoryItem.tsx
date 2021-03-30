@@ -75,7 +75,7 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
   private height = 100; //
 
   public handleClick = (historyId: number) => {
-    this.props.mergeHistory(historyId);
+    // this.props.mergeHistory(historyId);
 
   }
   public handleDragStart = (historyId: number) => {
@@ -135,6 +135,7 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
           if (historyProp.signal) {
             let historySigVal = this.props.history.getIn(["signals", historyProp.signal]).value;
             this.props.setSignal(historySigVal, historyProp.signal);
+            sg.set(historyProp.signal, historySigVal, false);
             // this.props.setMarkVisual(
             //   { property: prop, def: historySigVal},
             //   lyraId
@@ -142,12 +143,6 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
           }
         });
         batchGroupBy.end();
-
-        // set signal
-        // this.props.setMarkVisual(
-        //   { property: 'shape', value: ""},
-        //   lyraId
-        // );
       }
     } catch (e) {
       console.error('Unable to bind primitive');
@@ -158,22 +153,15 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
     sg.set(MODE, 'handles');
     sg.set(CELL, {});
 
-    if (!dropped) {
-      ctrl.update();
-    }
+    ctrl.update();
 
   }
 
   private historyToSpec(preview: HistoryRecord): Spec {
-    // is groupName important?
-    // let spec = cleanSpecForPreview(ctrl.export(true, this.props.history), this.width, this.height, null, parseInt(this.props.id));
-    // let spec = cleanSpecForPreview(ctrl.export(false), this.width, this.height, this.props.groupNames[0], parseInt(this.props.id), true);
-    let historySpec = ctrl.historyExport(false, this.props.history);
+    let historySpec = ctrl.export(false, this.props.history);
     if (historySpec.marks) {
-      historySpec = cleanSpecForPreview(historySpec, this.width, this.height, null, parseInt(this.props.id), true, true);
+      historySpec = cleanSpecForPreview(historySpec, this.width, this.height, null, parseInt(this.props.id), true);
     }
-    // let spec2 = cleanSpecForPreview(, this.width, this.height, this.props.groupNames[0], parseInt(this.props.id));
-    // let spec = ctrl.export(false);
 
     return historySpec;
   }

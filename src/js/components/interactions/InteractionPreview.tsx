@@ -26,7 +26,7 @@ export class InteractionPreview extends React.Component<OwnProps> {
 
   private previewToSpec(preview: SelectionRecord | ApplicationRecord): Spec {
     const groupName = (preview as TransformApplicationRecord).targetGroupName || this.props.groupName;
-    let spec = cleanSpecForPreview(ctrl.export(false), this.width, this.height, groupName, this.props.interaction.id);
+    let spec = cleanSpecForPreview(ctrl.export(false), this.width, this.height, groupName, this.props.interaction.id, false);
 
     switch (preview.type) {
       case 'point':

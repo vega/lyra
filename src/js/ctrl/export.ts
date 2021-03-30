@@ -37,8 +37,12 @@ let counts = duplicate(SPEC_COUNT);
  * direct-manipulation interactors (handles, connectors, etc.).
  * @returns {Object} A Vega specification.
  */
-export function exporter(internal: boolean = false): Spec {
-  const state = store.getState();
+export function exporter(internal: boolean = false, history): Spec { // TODO: use history.ts so you only have to pass id or index
+  if (history && history.getIn(['marks']).size == 0) {
+    return {};
+  }
+
+  const state = history || store.getState().getIn(['vis', 'present']);
   const int = internal === true;
 
   counts = duplicate(SPEC_COUNT);
@@ -47,19 +51,20 @@ export function exporter(internal: boolean = false): Spec {
   spec.data = exporter.pipelines(state, int);
 
   // Add interactions and widgets from store
-  spec = exporter.interactions(state, spec);
+  spec = history ? spec : exporter.interactions(state, spec);
   spec = exporter.widgets(state, spec);
   return spec;
 }
 
 exporter.interactions = function(state: State, spec) {
-  state.getIn(['vis', 'present', 'interactions']).forEach((interaction: InteractionRecord) => {
-    const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
+  let storeState = store.getState(); // use Store state instead
+  state.getIn(['interactions']).forEach((interaction: InteractionRecord) => {
+    const group: GroupRecord = state.getIn(['marks', String(interaction.groupId)]);
     const groupName = exportName(group.name);
-    const scaleInfo = getScaleInfoForGroup(state, group._id);
-    const fieldsOfGroup = getFieldsOfGroup(state, group._id);
+    const scaleInfo = getScaleInfoForGroup(storeState, group._id);
+    const fieldsOfGroup = getFieldsOfGroup(storeState, group._id);
     const mouseTypes = group._interactions.map(interactionId => {
-      const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+      const interaction: InteractionRecord = state.getIn(['interactions', String(interactionId)]);
       if (!interaction.input) { return null; }
       return interaction.input.mouse;
     }).filter(x => x);
@@ -88,8 +93,8 @@ exporter.interactions = function(state: State, spec) {
 }
 
 exporter.widgets = function(state: State, spec) {
-  state.getIn(['vis', 'present', 'widgets']).forEach((widget: WidgetRecord) => {
-    const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(widget.groupId)]);
+  state.getIn(['widgets']).forEach((widget: WidgetRecord) => {
+    const group: GroupRecord = state.getIn(['marks', String(widget.groupId)]);
     const groupName = exportName(group.name);
     if (widget.selection) {
       spec = addWidgetSelectionToScene(spec, widget, widget.selection);
@@ -105,7 +110,7 @@ exporter.widgets = function(state: State, spec) {
 }
 
 exporter.pipelines = function(state: State, internal: boolean) {
-  const pipelines: PipelineRecord[] = getInVis(state, 'pipelines').valueSeq();
+  const pipelines: PipelineRecord[] = state.getIn(['pipelines']).valueSeq();
   return pipelines.reduce(function(spec, pipeline) {
     spec.push(exporter.dataset(state, internal, pipeline._source));
 
@@ -118,7 +123,7 @@ exporter.pipelines = function(state: State, internal: boolean) {
 };
 
 exporter.dataset = function(state: State, internal: boolean, id: number) {
-  const dataset = getInVis(state, 'datasets.' + id).toJS(),
+  const dataset = state.getIn(['datasets', String(id)]).toJS(),
     spec = clean(duplicate(dataset), internal),
     values = input(id),
     format = spec.format && spec.format.type,
@@ -131,7 +136,7 @@ exporter.dataset = function(state: State, internal: boolean, id: number) {
   //   1. We're re-rendering the Lyra view
   //   2. Raw values were provided by the user directly (i.e., no url/source).
   if (spec.source) {
-    spec.source = name(getInVis(state, 'datasets.' + spec.source + '.name'));
+    spec.source = name(state.getIn(['datasets', String(spec.source), 'name']));
   } else if (internal) {
     spec.values = values;
     delete spec.url;
@@ -140,9 +145,9 @@ exporter.dataset = function(state: State, internal: boolean, id: number) {
     spec.values = format && format !== 'json' ? json2csv({data: values, del: format === 'tsv' ? '\t' : ','}) : values;
   }
 
-  const interactions: InteractionRecord[] = state.getIn(['vis', 'present', 'interactions']).valueSeq().toArray();
+  const interactions: InteractionRecord[] = state.getIn(['interactions']).valueSeq().toArray();
   const interactionSignals = [].concat.apply([], interactions.filter(interaction => interaction.signals.length).map(interaction => interaction.signals.map(signal => signal.signal)));
-  const widgets: WidgetRecord[] = state.getIn(['vis', 'present', 'widgets']).valueSeq().toArray();
+  const widgets: WidgetRecord[] = state.getIn(['widgets']).valueSeq().toArray();
   const widgetSignals = [].concat.apply([], widgets.filter(widget => widget.signals.length).map(widget => widget.signals.map(signal => signal.signal)));
   const signals = interactionSignals.concat(widgetSignals);
 
@@ -154,7 +159,7 @@ exporter.dataset = function(state: State, internal: boolean, id: number) {
 
   spec.transform.forEach(s => {
     if (s.type === 'lookup') {
-      s.from = state.getIn(['vis', 'present', 'datasets', s.from, 'name'])
+      s.from = state.getIn(['datasets', String(s.from), 'name'])
     }
     if (s.type === 'filter') {
       // if any of the interaction signals in the filter are undefined, just let everything pass
@@ -190,7 +195,7 @@ exporter.sort = function(dataset) {
 };
 
 exporter.scene = function(state: State, internal: boolean): Mark {
-  const sceneId = state.getIn(['vis', 'present', 'scene', '_id']);
+  const sceneId = state.getIn(['scene', '_id']);
   let spec = exporter.group(state, internal, sceneId);
 
   if (internal) {
@@ -206,7 +211,7 @@ exporter.scene = function(state: State, internal: boolean): Mark {
 };
 
 exporter.mark = function(state: State, internal: boolean, id: number) {
-  const mark = getInVis(state, 'marks.' + id).toJS();
+  const mark = state.getIn(['marks', String(id)]).toJS();
   const spec = clean(duplicate(mark), internal);
   const up = mark.encode.update;
   const upspec = spec.encode.update;
@@ -217,11 +222,11 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
   } else if (spec.from) {
     let fromId;
     if ((fromId = spec.from.data)) {
-      spec.from.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
+      spec.from.data = name(state.getIn(['datasets', String(fromId), 'name']));
       const count = counts.data[fromId] || (counts.data[fromId] = duplicate(DATA_COUNT));
       count.marks[id] = true;
     } else if ((fromId = spec.from.mark)) {
-      spec.from.mark = name(getInVis(state, 'marks.' + fromId + '.name'));
+      spec.from.mark = name(state.getIn(['marks', String(fromId), 'name']));
     }
   }
 
@@ -238,7 +243,7 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
     // Use the origVal to determine if scale/fields have been set in case
     // specVal was replaced above (e.g., scale + signal).
     if (origScale) {
-      specVal.scale = name(getInVis(state, 'scales.' + origScale + '.name'));
+      specVal.scale = name(state.getIn(['scales', String(origScale), 'name']));
       const count = counts.scales[origScale] || (counts.scales[origScale] = duplicate(SCALE_COUNT));
       count.marks[id] = true;
     }
@@ -265,7 +270,7 @@ function pathgroup(state, marks, facet) {
     from: {
       facet: {
         ...facet,
-        data: name(getInVis(state, 'datasets.' + facet.data + '.name'))
+        data: name(state.getIn(['datasets', String(facet.data), 'name']))
       }
     },
     encode: {
@@ -279,7 +284,7 @@ function pathgroup(state, marks, facet) {
 }
 
 exporter.group = function(state: State, internal: boolean, id: number) {
-  const mark: GroupRecord = getInVis(state, `marks.${id}`);
+  const mark: GroupRecord = state.getIn(['marks', String(id)]);
   const spec = exporter.mark(state, internal, id);
   const group = internal ? spec[0] : spec;
 
@@ -290,7 +295,7 @@ exporter.group = function(state: State, internal: boolean, id: number) {
     // Route export to the most appropriate function.
     group[childTypes] = mark[childTypes]
       .map(cid => {
-        const child = getInVis(state, `${storePath}.${cid}`);
+        const child = state.getIn([storePath, String(cid)]);
         return !child ? null :
           exporter[child.type] ? exporter[child.type](state, internal, cid) :
           exporter[childType]  ? exporter[childType](state, internal, cid) :
@@ -356,7 +361,7 @@ exporter.line = function(state: State, internal: boolean, id: number) {
 };
 
 exporter.scale = function(state: State, internal: boolean, id: number) {
-  const scale = getInVis(state, 'scales.' + id).toJS(),
+  const scale = state.getIn(['scales', String(id)]).toJS(),
     spec = clean(duplicate(scale), internal);
 
   counts.scales[id] = counts.scales[id] || duplicate(SCALE_COUNT);
@@ -379,17 +384,17 @@ exporter.scale = function(state: State, internal: boolean, id: number) {
 };
 
 exporter.axe = exporter.legend = function(state: State, internal: boolean, id: number) {
-  const guide = getInVis(state, 'guides.' + id).toJS(),
+  const guide = state.getIn(['guides', String(id)]).toJS(),
     spec = clean(duplicate(guide), internal),
     gtype = guide._gtype,
     type = guide._type;
 
   if (gtype === GuideType.Axis) {
     counts.scales[spec.scale].guides[id] = true;
-    spec.scale = name(getInVis(state, 'scales.' + spec.scale + '.name'));
+    spec.scale = name(state.getIn(['scales', String(spec.scale), 'name']));
   } else if (gtype === GuideType.Legend) {
     counts.scales[spec[type]].guides[id] = true;
-    spec[type] = name(getInVis(state, 'scales.' + spec[type] + '.name'));
+    spec[type] = name(state.getIn(['scales', String(spec[type]), 'name']));
   }
 
   Object.keys(spec.encode).forEach(function(prop) {
@@ -494,13 +499,13 @@ function dataRef(state: State, scale, ref) {
   // One ref
   if (ref.length === 1) {
     ref = ref[0];
-    data = getInVis(state, 'datasets.' + ref.data);
+    data = state.getIn(['datasets', String(ref.data)]);
     return sortDataRef(data, scale, ref.field);
   }
 
   // More than one ref
   for (i = 0, len = ref.length; i < len; ++i) {
-    data = getInVis(state, 'datasets.' + ref[i].data);
+    data = state.getIn(['datasets', String(ref[i].data)]);
     field = ref[i].field;
     sets[(did = data.get('_id'))] = sets[did] || (sets[did] = []);
     sets[did].push(field);
@@ -513,7 +518,7 @@ function dataRef(state: State, scale, ref) {
 
   ref = {fields: []};
   for (i = 0, len = keys.length; i < len; ++i) {
-    data = getInVis(state, 'datasets.' + keys[i]);
+    data = state.getIn(['datasets', String(keys[i])]);
     ref.fields.push(sortDataRef(data, scale, sets[keys[i]]));
   }
 
