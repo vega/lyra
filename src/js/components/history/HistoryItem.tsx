@@ -1,13 +1,10 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import { Dispatch } from 'redux';
 import {View, parse, Spec} from 'vega';
 import {HistoryRecord, HistoryState} from '../../store/factory/History';
-import {addSelectionToScene, addApplicationToScene, cleanSpecForPreview} from '../../ctrl/demonstrations';
+import {cleanSpecForPreview} from '../../ctrl/demonstrations';
 import {startDragging, stopDragging} from '../../actions/inspectorActions';
 import {DraggingStateRecord, HistoryDraggingState} from '../../store/factory/Inspector';
-import {getClosestGroupId} from '../../util/hierarchy';
-import {mergeHistory} from '../../actions/historyActions';
 import sg from '../../ctrl/signals';
 import {MODE, SELECTED, CELL} from '../../store/factory/Signal';
 import {NumericValueRef, StringValueRef, tupleid} from 'vega';
@@ -20,21 +17,19 @@ import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
 import {State} from '../../store';
 import {setSignal} from '../../actions/signalActions';
-import {OnEvent, SignalValue} from 'vega-typings/types';
+import {SignalValue} from 'vega-typings/types';
 import {batchGroupBy} from '../../reducers/historyOptions';
 
-const listeners = require('../../ctrl/listeners');
 const ctrl = require('../../ctrl');
 
 
 interface OwnProps {
   id: string,
-  history: HistoryRecord
+  history: HistoryRecord // TODO: use History.ts for you just have to pass the id
 
   groupNames: any[];
 }
 interface DispatchProps {
-  mergeHistory: (id: number) => void;
   startDragging: (d: DraggingStateRecord) => void;
   stopDragging: () => void;
   setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
@@ -46,9 +41,6 @@ interface DispatchProps {
 
 function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, ownProps: OwnProps): DispatchProps {
   return {
-    mergeHistory: (id: number) => {
-      dispatch(mergeHistory(id));
-    },
     startDragging: (d: DraggingStateRecord) => {
       dispatch(startDragging(d)); },
     stopDragging: () => {
@@ -75,7 +67,6 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
   private height = 100; //
 
   public handleClick = (historyId: number) => {
-    // this.props.mergeHistory(historyId);
 
   }
   public handleDragStart = (historyId: number) => {
@@ -99,30 +90,31 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
         let fieldName, dsId;
         if (channel === 'x' || channel === 'y' || channel === 'color' || channel === 'size') {
           // set scale
-          let guides = this.props.history.getIn(["guides"]).map((g) => {
-            return channel == 'x' || channel == 'y' ? g.scale : channel == 'size' ? g[channel] : g.fill;
-          })
-          let id = guides.filter((scaleId) => {
-            let scaleName = this.props.history.getIn(["scales"]).get(scaleId).name;
-            return scaleName === channel;
-          });
+          let channelScaleIds = this.props.history.getIn(["guides"])
+            .map((g) => {
+              return channel == 'x' || channel == 'y' ? g.scale : channel == 'size' ? g[channel] : g.fill;
+            })
+            .filter((scaleId) => {
+              let scaleName = scaleId ? this.props.history.getIn(["scales"]).get(scaleId).name : null;
+              return scaleName === channel;
+            });
 
-          fieldName = id.map((scaleId) => {
+          fieldName = channelScaleIds.map((scaleId) => {
             let scaleRecord = this.props.history.getIn(["scales"]).get(scaleId);
             return scaleRecord.get('_domain').length > 0 ?  scaleRecord.get('_domain')[0].field : null;
-          });
+          }).first();
 
-          dsId = id.map((scaleId) => {
+          dsId = channelScaleIds.map((scaleId) => {
             let scaleRecord = this.props.history.getIn(["scales"]).get(scaleId);
             return scaleRecord.get('_domain').length > 0 ?  scaleRecord.get('_domain')[0].data : null;
-          });
+          }).first();
 
 
         }
 
-        const bindField = this.props.history.getIn(["datasets", String(dsId.first()), "_schema", fieldName.first()]);
-        vega.extend(bindField.toJS(), opts); // Aggregate or Bin passed in opts.
-        props.bindChannel(dsId.first(), bindField.toJS(), lyraId, cell.key);
+        const bindField = this.props.history.getIn(["datasets", String(dsId), "_schema", fieldName]).toJS();
+        vega.extend(bindField, opts); // Aggregate or Bin passed in opts.
+        props.bindChannel(dsId, bindField, lyraId, cell.key);
       } else {
         // update the whole symbol/mark: shape, size
         // the history has the signals
@@ -134,12 +126,8 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
           let historyProp = historyMark.getIn(["encode", "update", prop]);
           if (historyProp.signal) {
             let historySigVal = this.props.history.getIn(["signals", historyProp.signal]).value;
-            this.props.setSignal(historySigVal, historyProp.signal);
-            sg.set(historyProp.signal, historySigVal, false);
-            // this.props.setMarkVisual(
-            //   { property: prop, def: historySigVal},
-            //   lyraId
-            // );
+            this.props.setSignal(historySigVal, historyProp.signal); // update Store
+            sg.set(historyProp.signal, historySigVal, false); // update Vega
           }
         });
         batchGroupBy.end();
@@ -153,7 +141,7 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
     sg.set(MODE, 'handles');
     sg.set(CELL, {});
 
-    ctrl.update();
+    ctrl.update(); // Apply changes
 
   }
 
@@ -181,58 +169,6 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
     // this.view.signal("height", this.height);
     this.view.runAsync();
   }
-
-  // public componentDidUpdate(prevProps: OwnProps) {
-  //   if (!prevProps.canDemonstrate && this.props.canDemonstrate || prevProps.groupName !== this.props.groupName || prevProps.history !== this.props.history) {
-  //     const spec = this.historyToSpec(this.props.preview);
-
-  //     this.view = new View(parse(spec), {
-  //       renderer:  'svg',  // renderer (canvas or svg)
-  //       container: `#${this.props.groupName}-${this.props.id}`   // parent DOM container
-  //     });
-  //     this.view.width(this.width);
-  //     this.view.height(this.height);
-  //     this.view.runAsync();
-  //   }
-  // };
-
-  private scaleSignalValues(name, value) {
-    const wScale = this.width/640; // preview width / main view width
-    const hScale = this.height/360; // preview height / main view height
-
-    if (name.startsWith('brush_x') && Array.isArray(value)) {
-      return value.map(n => {
-        return n * wScale;
-      });
-    }
-    if (name.startsWith('brush_y') && Array.isArray(value)) {
-      return value.map(n => {
-        return n * hScale;
-      });
-    }
-    if (name.startsWith('grid_translate_delta')) {
-      return value ? {
-        x: value.x * wScale,
-        y: value.y * hScale
-      } : value;
-    }
-
-    return value;
-  }
-
-  // public setPreviewSignal(name, value) {
-  //   if (this.view) {
-  //     const scaledValue = this.scaleSignalValues(name, value);
-  //     listeners.setSignalInGroup(this.view, this.props.groupName, name, scaledValue);
-  //     this.view.runAsync();
-  //   }
-  // }
-
-  // public getPreviewSignal(name) {
-  //   if (this.view) {
-  //     return listeners.getSignalInGroup(this.view, this.props.groupName, name);
-  //   }
-  // }
 
   public render() {
 
