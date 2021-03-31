@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
-import { LayoutRecord} from '../../store/factory/Layout';
 import MarkDropzoneLine from './MarkDropzoneLine';
 
 const layoutDirs = ['top', 'bottom', 'left', 'right'];
