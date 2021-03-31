@@ -3,6 +3,7 @@ import {LayoutRecord} from '../store/factory/Layout';
 import {assignId} from '../util/counter';
 import {State} from '../store';
 import {Dispatch} from 'redux';
+import {MarkRecord} from '../store/factory/Mark';
 
 export function addLayout (payload: LayoutRecord) {
   return function(dispatch: Dispatch, getState: () => State) {
@@ -12,4 +13,4 @@ export function addLayout (payload: LayoutRecord) {
 }
 export const baseAddLayout = createStandardAction('ADD_LAYOUT')<LayoutRecord, number>();
 
-export const addGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{groupId: number, dir: string}, number>();
+export const addGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{group: MarkRecord, dir: string}, number>();

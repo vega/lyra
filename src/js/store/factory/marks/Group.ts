@@ -39,8 +39,8 @@ export const Group = Record<LyraGroupMark>({
       yc: {value: 70, _disabled: true},
       // width: {value: scene && scene.get('width')},
       // height: {value: scene && scene.get('height')},
-      width: {value: 640},
-      height: {value: 360}
+      width: {value: 200},
+      height: {value: 150}
     }
   }
 }, 'LyraGroupMark');

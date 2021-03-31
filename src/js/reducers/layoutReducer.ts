@@ -22,35 +22,30 @@ export function layoutReducer(state: LayoutState,
   }
   else if (action.type === getType(layoutActions.addGrouptoLayout)) {
     const groups = state.getIn([String(id), 'groups']);
-    const withoutPayload = groups.filter(group => group.id !== action.payload.groupId);
-    state = state.setIn([String(id), "groups"], [ ...withoutPayload, action.payload.groupId]);
-
-    // console.log('groups', state.getIn(['vis', 'present', 'marks']));
-    // const newGroup = state.getIn(['vis', 'present', 'marks', String(action.payload.groupId)]);
-    // console.log('new group', newGroup.toJS());
+    const withoutPayload = groups.filter(group => group.id !== action.payload.group._id);
+    state = state.setIn([String(id), "groups"], [ ...withoutPayload, action.payload.group._id]);
 
     if (action.payload.dir == 'top' || action.payload.dir == 'bottom' ) {
       const newRows = state.getIn([String(id), 'rows'])+1;
-      console.log("newRows", newRows);
       state = state.setIn([String(id), "rows"], newRows);
 
-      // const originalRows = state.getIn([String(id), 'rowSizes']);
-      // if (action.payload.dir == 'top') {
-      //   state.setIn([String(id), "rowSizes"], [newGroup.encode.update.height, ...originalRows]);
-      // } else {
-      //   state.setIn([String(id), "rowSizes"], [ ...originalRows, newGroup.encode.update.height]);
-      // }
+      const originalRows = state.getIn([String(id), 'rowSizes']);
+      if (action.payload.dir == 'top') {
+        state = state.setIn([String(id), "rowSizes"], [action.payload.group.encode.update.height, ...originalRows]);
+      } else {
+        state = state.setIn([String(id), "rowSizes"], [ ...originalRows, action.payload.group.encode.update.height]);
+      }
     } else if (action.payload.dir == 'right' || action.payload.dir == 'left' ) {
       const newCols = state.getIn([String(id), 'cols'])+1;
-      console.log("newCols", newCols);
       state = state.setIn([String(id), "cols"], newCols);
 
-      // const originalRows = state.getIn([String(id), 'rowSizes']);
-      // if (action.payload.dir == 'left') {
-      //   state.setIn([String(id), "colSizes"], [newGroup.encode.update.width, ...originalRows]);
-      // } else {
-      //   state.setIn([String(id), "colSizes"], [ ...originalRows, newGroup.encode.update.width]);
-      // }
+      const originalCols = state.getIn([String(id), 'colSizes']);
+      if (action.payload.dir == 'left') {
+        state = state.setIn([String(id), "colSizes"], [action.payload.group.encode.update.width, ...originalCols]);
+      } else {
+        const newCols = [ ...originalCols, action.payload.group.encode.update.width];
+        state = state.setIn([String(id), "colSizes"], newCols);
+      }
     }
   }
 

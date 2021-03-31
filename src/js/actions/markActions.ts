@@ -45,7 +45,7 @@ export function addGroup(record: MarkRecord, layoutId: number, dir: string) {
 
     batchGroupBy.start();
     dispatch(addMark((record)) as any);
-    dispatch(addGrouptoLayout({groupId: id, dir}, layoutId));
+    dispatch(addGrouptoLayout({group: record, dir}, layoutId));
     batchGroupBy.end();
   };
 }

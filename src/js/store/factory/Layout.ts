@@ -23,11 +23,11 @@ export interface LyraLayout {
   /**
    * Size of rows in this layout.
    */
-  rowSizes: number[];
+  rowSizes: any[];
   /**
    * Size of columns in this layout.
    */
-  colSizes: number[];
+  colSizes: any[];
 }
 
 export const Layout = Record<LyraLayout>({
