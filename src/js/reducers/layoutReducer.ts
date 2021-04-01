@@ -20,7 +20,7 @@ export function layoutReducer(state: LayoutState,
   if (action.type === getType(layoutActions.baseAddLayout)) {
     return state.set(String(id), action.payload);
   }
-  else if (action.type === getType(layoutActions.addGrouptoLayout)) {
+  else if (action.type === getType(layoutActions.baseAddGrouptoLayout)) {
     const groups = state.getIn([String(id), 'groups']);
     const withoutPayload = groups.filter(group => group.id !== action.payload.group._id);
     state = state.setIn([String(id), "groups"], [ ...withoutPayload, action.payload.group._id]);
@@ -47,6 +47,9 @@ export function layoutReducer(state: LayoutState,
         state = state.setIn([String(id), "colSizes"], newCols);
       }
     }
+  } else if (action.type === getType(layoutActions.addPlaceHoldertoLayout)) {
+    const originalPlaceholders =  state.getIn([String(id), 'placeHolders']);
+    return state.setIn([String(id), 'placeHolders'], [...originalPlaceholders, action.payload])
   }
 
   return state;

@@ -9,6 +9,7 @@ import {PipelinesToolbar} from './PipelinesSidebar';
 import {Toolbar} from './Toolbar';
 import WidgetDropzone from './interactions/WidgetDropzone';
 import MarkDropzoneGroup from './toolbar/MarkDropzoneGroup';
+import MarkDropPlaceGroup from './toolbar/MarkDropPlaceGroup';
 
 // React requires you only have one wrapper element called in your provider
 module.exports = ReactDOM.render(
@@ -26,6 +27,7 @@ module.exports = ReactDOM.render(
             <div id="vis"></div>
             <WidgetDropzone />
             <MarkDropzoneGroup />
+            <MarkDropPlaceGroup />
           </div>
           <Toolbar />
         </div>

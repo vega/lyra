@@ -2,19 +2,17 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {MarkDraggingStateRecord} from '../../store/factory/Inspector';
-import {GroupRecord} from '../../store/factory/marks/Group';
 import { LyraMarkType, Mark } from '../../store/factory/Mark';
 import {addMark, addGroup } from '../../actions/markActions';
-import {addGrouptoLayout} from '../../actions/layoutActions';
 import {getClosestGroupId} from '../../util/hierarchy';
-import { LayoutRecord} from '../../store/factory/Layout';
+import { LayoutRecord, placeHolder} from '../../store/factory/Layout';
+import {addPlaceHoldertoLayout} from '../../actions/layoutActions';
 
 const imutils = require('../../util/immutable-utils');
 const getInVis = imutils.getInVis;
 interface StateProps {
   dragging: MarkDraggingStateRecord;
   sceneId: number;
-  groups: GroupRecord[];
   layout: LayoutRecord;
   colSizes: number[];
   rowSizes: number[];
@@ -27,15 +25,14 @@ interface OwnProps {
 }
 interface DispatchProps {
   addMark: (type: LyraMarkType, parentId: number) => void;
-  addGroup: (sceneId: number, rowSizes: number[], colSizes: number[]) => void;
-  addGrouptoLayout: (groupId: number) => void;
+  addGroup: (sceneId: number, x: number, y: number) => void;
+  addPlaceHoldertoLayout: (top: number, left: number, width: number, height: number) => void;
 }
 
 function mapStateToProps(state: State,  ownProps: OwnProps): StateProps {
   const draggingRecord = state.getIn(['inspector', 'dragging']);
   const isMarkDrag = draggingRecord && (draggingRecord as MarkDraggingStateRecord).mark;
   const sceneId = getInVis(state, 'scene._id');
-  const groups = state.getIn(['vis', 'present', 'marks']).filter(mark => mark.type == 'group');
   const layout = state.getIn(['vis', 'present', 'layouts', ownProps.layoutId]);
 
   const rowSizes = layout.rowSizes.map(obj => state.getIn(['vis', 'present', 'signals', obj.signal, 'value']));
@@ -44,7 +41,6 @@ function mapStateToProps(state: State,  ownProps: OwnProps): StateProps {
   return {
     dragging: isMarkDrag ? draggingRecord : null,
     sceneId: sceneId,
-    groups,
     layout,
     rowSizes,
     colSizes
@@ -67,18 +63,8 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
       });
       dispatch(addMark(newMarkProps));
     },
-    addGroup: (sceneId, rowSizes, colSizes) => {
-      console.log("index", ownProps.index);
-      let x;
-      let y;
-      // console.log("calc x", rowSizes.reduce((size, acc, i)=>{if (i< ownProps.index) {return acc +size+30} else {return acc}}, 0))
-      if (ownProps.direction == "top" || ownProps.direction == "bottom") {
-        x = colSizes.reduce((acc, size, i)=>{if (i< ownProps.index) {return acc +size+30} else {return acc}}, 0);
-        y = ownProps.direction == "top"? 0 : rowSizes.reduce((size, acc)=>{return acc +size+30}, 0);
-      } else if (ownProps.direction == "left" || ownProps.direction == "right") {
-        x = ownProps.direction == "left"? 0 : colSizes.reduce((size, acc)=>{return acc +size+30}, 0);
-        y = rowSizes.reduce((acc, size, i)=>{if (i< ownProps.index) {return acc +size+30} else {return acc}}, 0);
-      }
+    addGroup: (sceneId, x, y) => {
+
       const newMarkProps = Mark('group', {
         _parent: sceneId,
         encode: {
@@ -101,7 +87,10 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
 
       dispatch(addGroup(newMarkProps, ownProps.layoutId, ownProps.direction));
     },
-    addGrouptoLayout: (groupId: number) => {dispatch(addGrouptoLayout({groupId, dir: ownProps.direction}, ownProps.layoutId));}
+    addPlaceHoldertoLayout: (top, left, width, height) => {
+      const holder = placeHolder({top, left, width, height});
+      dispatch(addPlaceHoldertoLayout(holder, ownProps.layoutId))
+    }
   };
 }
 
@@ -117,14 +106,54 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps & OwnProps
 
   public handleDrop = ()  => {
     const sceneId = this.props.sceneId;
-    this.props.addGroup(sceneId, this.props.rowSizes, this.props.colSizes);
-    this.props.addMark(this.props.dragging.mark, null);
+    let numDims = (this.props.direction == "top" || this.props.direction == "bottom")?  this.props.colSizes.length:  this.props.rowSizes.length;
+    for (let i=0; i< numDims; i++) {
+      if (i == this.props.index) {
+        let x;
+        let y;
+        // console.log("calc x", rowSizes.reduce((size, acc, i)=>{if (i< ownProps.index) {return acc +size+30} else {return acc}}, 0))
+        if (this.props.direction == "top" || this.props.direction == "bottom") {
+          x = this.props.colSizes.reduce((acc, size, i)=>{if (i< this.props.index) {return acc +size+30} else {return acc}}, 0);
+          y = this.props.direction == "top"? 0 : this.props.rowSizes.reduce((size, acc)=>{return acc +size+30}, 0);
+        } else if (this.props.direction == "left" || this.props.direction == "right") {
+          x = this.props.direction == "left"? 0 : this.props.colSizes.reduce((size, acc)=>{return acc +size+30}, 0);
+          y = this.props.rowSizes.reduce((acc, size, i)=>{if (i< this.props.index) {return acc +size+30} else {return acc}}, 0);
+        }
+
+        this.props.addGroup(sceneId, x, y);
+        this.props.addMark(this.props.dragging.mark, null);
+      } else {
+        let top;
+        let left;
+        let width;
+        let height;
+        if (this.props.direction == "top" || this.props.direction == "bottom") {
+          top = this.props.direction == "top" ? 0 : this.props.rowSizes.reduce((acc, size)=> acc+size+30, 0);
+          left = this.props.colSizes.reduce((acc, size, j)=>{if (j< i) {return acc +size+30} else {return acc}}, 0);
+          width = this.props.colSizes[i];
+          height = 150;
+        } else if (this.props.direction == "right" || this.props.direction == "left") {
+          left = this.props.direction == "left" ? 0 : this.props.colSizes.reduce((acc, size)=> acc+size+30, 0);
+          top = this.props.rowSizes.reduce((acc, size, j)=>{if (j< i) {return acc +size+30} else {return acc}}, 0);;
+          width = 200;
+          height = this.props.rowSizes[i];
+        }
+        this.props.addPlaceHoldertoLayout(top, left, width, height);
+      }
+    }
+
   };
 
   public render() {
     if (!(this.props.dragging)) return null;
+    let dimSizes;
+    if (this.props.direction == "top" || this.props.direction == "bottom") {
+      dimSizes = this.props.colSizes;
+    } else if (this.props.direction == "right" || this.props.direction == "left") {
+      dimSizes = this.props.rowSizes;
+    }
     return (
-      <div className={"drop-mark " + this.props.direction}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
+      <div style={{width:dimSizes[this.props.index]}} className={"drop-mark " + this.props.direction}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
         <div><i>Add group to {this.props.direction}</i></div>
       </div>
     );
