@@ -47,9 +47,13 @@ export function layoutReducer(state: LayoutState,
         state = state.setIn([String(id), "colSizes"], newCols);
       }
     }
-  } else if (action.type === getType(layoutActions.addPlaceHoldertoLayout)) {
+  } else if (action.type === getType(layoutActions.baseAddPlaceHoldertoLayout)) {
     const originalPlaceholders =  state.getIn([String(id), 'placeHolders']);
     return state.setIn([String(id), 'placeHolders'], [...originalPlaceholders, action.payload])
+  } else if (action.type == getType(layoutActions.removePlaceHolder)) {
+    const originalPlaceholders =  state.getIn([String(id), 'placeHolders']);
+    const filteredPlaceholders = originalPlaceholders.filter(holder => holder._id != action.payload);
+    return state.setIn([String(id), 'placeHolders'], filteredPlaceholders);
   }
 
   return state;

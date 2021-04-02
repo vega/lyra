@@ -4,6 +4,7 @@ import {State} from '../../store';
 import {MarkDraggingStateRecord} from '../../store/factory/Inspector';
 import { LyraMarkType, Mark } from '../../store/factory/Mark';
 import {addMark, addGroup } from '../../actions/markActions';
+import {removePlaceHolder} from '../../actions/layoutActions';
 import {getClosestGroupId} from '../../util/hierarchy';
 import { LayoutRecord} from '../../store/factory/Layout';
 
@@ -26,6 +27,7 @@ interface OwnProps {
 interface DispatchProps {
   addMark: (type: LyraMarkType, parentId: number) => void;
   addGroup: (sceneId: number) => void;
+  removePlaceHolder: () => void;
 }
 
 function mapStateToProps(state: State,  ownProps: OwnProps): StateProps {
@@ -79,6 +81,9 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
       });
 
       dispatch(addGroup(newMarkProps, ownProps.layoutId, null));
+    },
+    removePlaceHolder: () => {
+      dispatch(removePlaceHolder(ownProps.placeholderId, ownProps.layoutId));
     }
 
   };
@@ -98,12 +103,13 @@ class MarkDropPlace extends React.Component<StateProps & DispatchProps & OwnProp
     const sceneId = this.props.sceneId;
     this.props.addGroup(sceneId);
     this.props.addMark(this.props.dragging.mark, null);
+    this.props.removePlaceHolder();
   };
 
   public render() {
     if (!(this.props.dragging)) return null;
     return (
-      <div style={{top:this.props.top, left:this.props.left, width:this.props.width, height:this.props.height}} className={"drop-mark placeholder"}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
+      <div style={{top:this.props.top+this.props.height*0.1, left:this.props.left + this.props.width*0.15, width:this.props.width*0.7, height:this.props.height*0.7}} className={"drop-mark placeholder"}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
         <div><i>Add group here</i></div>
       </div>
     );

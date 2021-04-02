@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
-import {LayoutRecord, PlaceHolderRecord} from '../../store/factory/Layout';
+import {PlaceHolderRecord} from '../../store/factory/Layout';
 import MarkDropPlace from './MarkDropPlace';
 
 interface StateProps {

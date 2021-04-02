@@ -152,8 +152,9 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps & OwnProps
     } else if (this.props.direction == "right" || this.props.direction == "left") {
       dimSizes = this.props.rowSizes;
     }
+
     return (
-      <div style={{width:dimSizes[this.props.index]}} className={"drop-mark " + this.props.direction}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
+      <div style={{width: dimSizes[this.props.index]}} className={"drop-mark " + this.props.direction}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
         <div><i>Add group to {this.props.direction}</i></div>
       </div>
     );

@@ -5,6 +5,7 @@ import {State} from '../store';
 import {Dispatch} from 'redux';
 import {MarkRecord} from '../store/factory/Mark';
 import {setSignal} from './signalActions';
+import {number} from 'yargs';
 
 export function addLayout (payload: LayoutRecord) {
   return function(dispatch: Dispatch, getState: () => State) {
@@ -37,4 +38,12 @@ export function addGrouptoLayout (payload: {group: MarkRecord, dir: string}, id:
   }
 }
 export const baseAddGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{group: MarkRecord, dir: string}, number>();
-export const addPlaceHoldertoLayout = createStandardAction('ADD_PLACEHOLDER_TO_LAYOUT')<PlaceHolderRecord, number>();
+export function addPlaceHoldertoLayout (payload: PlaceHolderRecord, layoutId) {
+  return function(dispatch: Dispatch, getState: () => State) {
+    const id = payload._id || assignId(dispatch, getState());
+    dispatch(baseAddPlaceHoldertoLayout(payload.merge({_id: id}), layoutId));
+  };
+}
+export const baseAddPlaceHoldertoLayout = createStandardAction('ADD_PLACEHOLDER_TO_LAYOUT')<PlaceHolderRecord, number>();
+
+export const removePlaceHolder = createStandardAction('REMOVE_PLACEHOLDER')<number, number>();

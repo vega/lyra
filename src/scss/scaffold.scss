@@ -111,23 +111,28 @@ body {
   }
 
   .markdropzone-line.bottom {
-    top: 300px;
+    // top: 300px;
     // left: 370px;
     // width: 100%;
     flex-direction: row;
   }
 
   .markdropzone-line.left {
-    transform: rotate(-90deg);
-    top: 100px;
-    left: -80px;
+    // transform: rotate(-90deg);
+    // top: 100px;
+    // left: -80px;
     flex-direction: row-reverse;
+    transform: rotate(-90deg) translate(-100%, 0);
+    transform-origin: top left;
   }
   .markdropzone-line.right {
-    top: 100px;
-    left: 400px;
-    transform: rotate(90deg);
+    // top: 100px;
+    // left: 400px;
+    // transform: rotate(90deg);
     flex-direction: row;
+    transform: rotate(90deg) translate(0%, -100%);
+    transform-origin: top left;
+    // left: 460px;
   }
 
   .vega-bindings {
