@@ -142,5 +142,10 @@
   },
   "devDependencies": {
     "@types/rangy": "0.0.33"
+  },
+  "babel": {
+    "presets": [
+      "react"
+    ]
   }
 }
