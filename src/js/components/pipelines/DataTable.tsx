@@ -15,6 +15,7 @@ const dl = require('datalib');
 const dsUtil = require('../../util/dataset-utils');
 const assets = require('../../util/assets');
 const ctrl = require('../../ctrl');
+const MTYPES = require('../../constants/measureTypes');
 
 interface OwnProps {
   id?: number;
@@ -211,7 +212,7 @@ class DataTable extends React.Component<OwnProps & StateProps & {className?: str
                         values.length ? values.map(function(v, i) {
                           return (
                             <td key={k + i} className={i % 2 ? 'even' : 'odd'}
-                              onMouseOver={this.showHoverValue}>{v[k]}</td>
+                              onMouseOver={this.showHoverValue}>{schema.get(k).mtype === MTYPES.TEMPORAL ? (new Date(v[k])).toDateString() : v[k]}</td>
                           );
                         }, this) :
                         <td>n/a</td>

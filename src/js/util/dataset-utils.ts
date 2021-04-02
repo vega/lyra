@@ -118,6 +118,7 @@ export function parseRaw(raw: string): ParsedValues {
     format.type = 'json';
     return {format: format as FormatJSON, values: dl.read(raw, format)};
   } catch (error) {
+    console.error(error);
     format.type = 'csv';
     parsed = dl.read(raw, format);
 
@@ -149,7 +150,7 @@ export function schema(arg: object[]): Schema {
   if (dl.isNumber(arg)) {
     throw Error('Dataset schemas are now available in the store.');
   } else if (dl.isArray(arg)) {
-    const types = dl.type.inferAll(arg);
+    const types = (arg as any).__types__; // from type.annotate in datalib
     return dl.keys(types).reduce(function(s: Schema, k: string) {
       return s.set(k, Column({
         name: k,
