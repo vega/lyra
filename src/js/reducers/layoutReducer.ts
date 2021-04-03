@@ -54,6 +54,10 @@ export function layoutReducer(state: LayoutState,
     const originalPlaceholders =  state.getIn([String(id), 'placeHolders']);
     const filteredPlaceholders = originalPlaceholders.filter(holder => holder._id != action.payload);
     return state.setIn([String(id), 'placeHolders'], filteredPlaceholders);
+  } else if (action.type == getType(layoutActions.setPlaceHolderProperty)) {
+    const placeholders = state.getIn([String(id), 'placeHolders']);
+    const newPlaceholders = placeholders.filter(placeholder => placeholder._id != action.payload._id);
+    return state.setIn([String(id), 'placeHolders'], [...newPlaceholders, action.payload]);
   }
 
   return state;

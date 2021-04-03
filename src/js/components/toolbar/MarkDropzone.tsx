@@ -107,22 +107,21 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps & OwnProps
   public handleDrop = ()  => {
     const sceneId = this.props.sceneId;
     let numDims = (this.props.direction == "top" || this.props.direction == "bottom")?  this.props.colSizes.length:  this.props.rowSizes.length;
-    for (let i=0; i< numDims; i++) {
-      if (i == this.props.index) {
-        let x;
-        let y;
-        // console.log("calc x", rowSizes.reduce((size, acc, i)=>{if (i< ownProps.index) {return acc +size+30} else {return acc}}, 0))
-        if (this.props.direction == "top" || this.props.direction == "bottom") {
-          x = this.props.colSizes.reduce((acc, size, i)=>{if (i< this.props.index) {return acc +size+30} else {return acc}}, 0);
-          y = this.props.direction == "top"? 0 : this.props.rowSizes.reduce((size, acc)=>{return acc +size+30}, 0);
-        } else if (this.props.direction == "left" || this.props.direction == "right") {
-          x = this.props.direction == "left"? 0 : this.props.colSizes.reduce((size, acc)=>{return acc +size+30}, 0);
-          y = this.props.rowSizes.reduce((acc, size, i)=>{if (i< this.props.index) {return acc +size+30} else {return acc}}, 0);
-        }
+    let x;
+    let y;
+    if (this.props.direction == "top" || this.props.direction == "bottom") {
+      x = this.props.colSizes.reduce((acc, size, i)=>{if (i< this.props.index) {return acc +size+30} else {return acc}}, 0);
+      y = this.props.direction == "top"? 0 : this.props.rowSizes.reduce((size, acc)=>{return acc +size+30}, 0);
+    } else if (this.props.direction == "left" || this.props.direction == "right") {
+      x = this.props.direction == "left"? 0 : this.props.colSizes.reduce((size, acc)=>{return acc +size+30}, 0);
+      y = this.props.rowSizes.reduce((acc, size, i)=>{if (i< this.props.index) {return acc +size+30} else {return acc}}, 0);
+    }
 
-        this.props.addGroup(sceneId, x, y);
-        this.props.addMark(this.props.dragging.mark, null);
-      } else {
+    this.props.addGroup(sceneId, x, y);
+    this.props.addMark(this.props.dragging.mark, null);
+
+    for (let i=0; i< numDims; i++) {
+      if (i != this.props.index) {
         let top;
         let left;
         let width;
