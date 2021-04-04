@@ -1224,7 +1224,6 @@ export function cleanSpecForPreview(sceneSpec, width: number, height: number, gr
       markSpec.axes = markSpec.axes.map((axis) => {
         return {...axis, title: '', labels: false, ticks: false, domain: false};
       });
-
       markSpec.legends = [];
       markSpec.encode.update.x = {"value": 0};
       markSpec.encode.update.y = {"value": 0};
@@ -1300,7 +1299,7 @@ export function cleanSpecForPreview(sceneSpec, width: number, height: number, gr
   return addBaseSignalsForPreview(sceneUpdated, groupName, interactionId);
 }
 
-export function addBaseSignalsForPreview(sceneSpec, groupName, interactionId) {
+function addBaseSignalsForPreview(sceneSpec, groupName, interactionId) {
   const sceneUpdated = duplicate(sceneSpec);
   const baseSignalsScoped = baseSignals.map(s => {
     if (s.name === 'width' || s.name === 'height') return s;
