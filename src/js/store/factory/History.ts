@@ -3,7 +3,7 @@ import {Map, Record, RecordOf} from 'immutable';
 /**
  * Historys group together a single source dataset with additional derived datasets (e.g., aggregates or facets).
  */
-export interface LyraHistory {
+export interface LyraHistory { // TODO(ej) use this for tree history implementation
   /**
    * The Lyra ID of this history.
    */

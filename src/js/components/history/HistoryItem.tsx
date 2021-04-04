@@ -2,7 +2,7 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {View, parse, Spec} from 'vega';
 import {HistoryRecord, HistoryState} from '../../store/factory/History';
-import {cleanSpecForPreview} from '../../ctrl/demonstrations';
+import {cleanHistorySpec} from './HistoryList';
 import {startDragging, stopDragging} from '../../actions/inspectorActions';
 import {DraggingStateRecord, HistoryDraggingState} from '../../store/factory/Inspector';
 import sg from '../../ctrl/signals';
@@ -16,7 +16,6 @@ import {ColumnRecord, Schema} from '../../store/factory/Dataset';
 import { AnyAction } from 'redux';
 import {ThunkDispatch} from 'redux-thunk';
 import {State} from '../../store';
-import {setSignal} from '../../actions/signalActions';
 import {SignalValue} from 'vega-typings/types';
 import {batchGroupBy} from '../../reducers/historyOptions';
 
@@ -24,38 +23,21 @@ const ctrl = require('../../ctrl');
 
 
 interface OwnProps {
-  id: string,
-  history: HistoryRecord // TODO: use History.ts for you just have to pass the id
-
-  groupNames: any[];
+  id: number,
+  history: HistoryRecord // TODO(ej): use History.ts so you just have to pass the id
+  groupNames: string[];
+  width: number;
+  height: number;
 }
 interface DispatchProps {
-  startDragging: (d: DraggingStateRecord) => void;
-  stopDragging: () => void;
+  startDragging: (d: DraggingStateRecord) => void; // TODO(ej): use this for custom drop zones later
+  stopDragging: () => void; // TODO(ej): use this for custom drop zones later
   setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
 
   bindChannel: (dsId: number, field: ColumnRecord, markId: number, property: string) => void;
-
-  setSignal: (value: SignalValue, signal: string) => void;
 }
 
-function mapDispatchToProps(dispatch: ThunkDispatch<State, null, AnyAction>, ownProps: OwnProps): DispatchProps {
-  return {
-    startDragging: (d: DraggingStateRecord) => {
-      dispatch(startDragging(d)); },
-    stopDragging: () => {
-      dispatch(stopDragging()); },
-    setMarkVisual: (p, markId) => {
-      dispatch(setMarkVisual(p, markId));
-    },
-    bindChannel: (dsId: number, field: ColumnRecord, markId: number, property: string) => {
-      dispatch(bindChannel(dsId, field, markId, property));
-    },
-    setSignal: (value: SignalValue, signal: string) => {
-      dispatch(setSignal(value, signal));
-    }
-  };
-}
+const actionCreators: DispatchProps = {startDragging, stopDragging, setMarkVisual, bindChannel};
 
 export class HistoryItemInspector extends React.Component<OwnProps & DispatchProps> {
 
@@ -63,14 +45,13 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
     super(props);
   }
 
-  private width = 100; // these should match baseSignals in demonstrations.ts
-  private height = 100; //
+
 
   public handleClick = (historyId: number) => {
 
   }
   public handleDragStart = (historyId: number) => {
-    this.props.startDragging(HistoryDraggingState({historyId}));
+    this.props.startDragging(HistoryDraggingState({historyId})); // TODO(ej) use this for custom drop zones
 
     sg.set(MODE, 'channels');
     ctrl.update();
@@ -88,7 +69,7 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
       if (dropped) {
         const channel = channelName(cell.key);
         let fieldName, dsId;
-        if (channel === 'x' || channel === 'y' || channel === 'color' || channel === 'size') {
+        if (channel === 'x' || channel === 'y' || channel === 'color' || channel === 'size') { // TODO(ej): Adapt this to work with other mark types. channels won't always be color and size though x and y are consistent
           // set scale
           let channelScaleIds = this.props.history.getIn(["guides"])
             .map((g) => {
@@ -116,21 +97,19 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
         vega.extend(bindField, opts); // Aggregate or Bin passed in opts.
         props.bindChannel(dsId, bindField, lyraId, cell.key);
       } else {
+        // TODO(ej): need to introduce custom drop zones for aesthetic/non-scale merges instead of using non bubble cursor drops
         // update the whole symbol/mark: shape, size
         // the history has the signals
         let relevantProps = ["size", "shape", "fill", "fillOpacity", "stroke",  "strokeWidth"];
         let historyMark = this.props.history.getIn(["marks", String(lyraId)]); // assume mark is the same as before. wanna revert to old settings of old mark
 
-        batchGroupBy.start();
         relevantProps.forEach((prop) => {
           let historyProp = historyMark.getIn(["encode", "update", prop]);
           if (historyProp.signal) {
             let historySigVal = this.props.history.getIn(["signals", historyProp.signal]).value;
-            this.props.setSignal(historySigVal, historyProp.signal); // update Store
-            sg.set(historyProp.signal, historySigVal, false); // update Vega
+            sg.set(historyProp.signal, historySigVal, false);
           }
         });
-        batchGroupBy.end();
       }
     } catch (e) {
       console.error('Unable to bind primitive');
@@ -145,10 +124,10 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
 
   }
 
-  private historyToSpec(preview: HistoryRecord): Spec {
+  private getHistorySpec(): Spec {
     let historySpec = ctrl.export(false, this.props.history);
     if (historySpec.marks) {
-      historySpec = cleanSpecForPreview(historySpec, this.width, this.height, null, parseInt(this.props.id), true);
+      historySpec = cleanHistorySpec(historySpec, this.props.width, this.props.height);
     }
 
     return historySpec;
@@ -158,15 +137,13 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
 
 
   public componentDidMount() {
-    const spec = this.historyToSpec(this.props.history);
+    const spec = this.getHistorySpec();
     this.view = new View(parse(spec), {
       renderer:  'svg',  // renderer (canvas or svg)
       container: `#history-test-${this.props.id}`   // parent DOM container
     });
-    this.view.width(this.width);
-    // this.view.signal("width", this.width);
-    this.view.height(this.height);
-    // this.view.signal("height", this.height);
+    this.view.width(this.props.width);
+    this.view.height(this.props.height);
     this.view.runAsync();
   }
 
@@ -177,16 +154,15 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
       className={"history-preview"}
       draggable={true}
               key={this.props.id}
-              onClick={() => this.handleClick(parseInt(this.props.id))}
-              onDragStart={() => this.handleDragStart(parseInt(this.props.id))}
+              onClick={() => this.handleClick(this.props.id)}
+              onDragStart={() => this.handleDragStart(this.props.id)}
               onDragEnd={this.handleDragEnd}></div>
     );
 
   }
-
 }
 
 export const HistoryItem = connect(
   null,
-  mapDispatchToProps
+  actionCreators
 )(HistoryItemInspector);

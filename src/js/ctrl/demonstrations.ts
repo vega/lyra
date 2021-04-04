@@ -1211,7 +1211,7 @@ export function getScaleInfoForGroup(state: State, groupId: number): ScaleInfo {
   };
 }
 
-export function cleanSpecForPreview(sceneSpec, width: number, height: number, groupName: string, interactionId: number, isHistoryItem: boolean): Spec {
+export function cleanSpecForPreview(sceneSpec, width: number, height: number, groupName: string, interactionId: number): Spec {
   const sceneUpdated = duplicate(sceneSpec);
   sceneUpdated.autosize = "none";
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
@@ -1220,34 +1220,12 @@ export function cleanSpecForPreview(sceneSpec, width: number, height: number, gr
       const oldHeight = markSpec.encode?.update?.height?.value || 360;
       const wScale = width / oldWidth; // preview width / main view width
       const hScale = height / oldHeight; // preview height / main view height
-      let scale = (wScale + hScale) / 2;
 
       markSpec.axes = markSpec.axes.map((axis) => {
-        if (!isHistoryItem) {
-          return {...axis, title: '', labels: false, ticks: false, domain: false};
-        } else {
-          axis.encode.labels.update.fontSize.value *= scale; // labels
-          axis.encode.grid.update.strokeWidth.value *=scale; // grid
-          axis.encode.ticks.update.strokeWidth.value *=scale; // ticks
-          axis.encode.title.update.fontSize.value *=scale; // title
-          return axis;
-        }
+        return {...axis, title: '', labels: false, ticks: false, domain: false};
       });
 
-      if (!isHistoryItem) {
-        markSpec.legends = [];
-      } else {
-        markSpec.legends = markSpec.legends.map((legend) => {
-            legend.titleFontSize *=scale; // title
-            legend.encode.title.update.fontSize.value *=scale; // title
-            legend.encode.labels.update.fontSize.value *=scale; // labels
-            legend.encode.legend.update.strokeWidth.value *=scale; // strokewidth
-            legend.encode.symbols.update.strokeWidth.value *=scale; // symbols
-            legend.encode.symbols.update.size.value *=scale; // symbols
-            return legend;
-        });
-      }
-
+      markSpec.legends = [];
       markSpec.encode.update.x = {"value": 0};
       markSpec.encode.update.y = {"value": 0};
       markSpec.encode.update.width = {"signal": "width"};
@@ -1290,16 +1268,10 @@ export function cleanSpecForPreview(sceneSpec, width: number, height: number, gr
         if (mark.type === 'line' && mark.encode?.update?.strokeWidth?.value) {
           mark.encode.update.strokeWidth.value /= 2;
         }
-        if (isHistoryItem && mark.encode?.update?.x?.value != null) {
-          mark.encode.update.x.value *= scale;
-        }
-        if (isHistoryItem && mark.encode?.update?.y?.value != null) {
-          mark.encode.update.y.value *= scale;
-        }
         return mark;
       });
 
-      if (markSpec.name !== groupName && !isHistoryItem) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
+      if (markSpec.name !== groupName) { // hide groups non-relevant to preview (but can't delete them in the case of multiview filtering)
         markSpec.encode.update.x = {"value": -999};
         markSpec.encode.update.y = {"value": -999};
       }
@@ -1325,27 +1297,20 @@ export function cleanSpecForPreview(sceneSpec, width: number, height: number, gr
     return markSpec;
   });
 
-  return addBaseSignalsForPreview(sceneUpdated, groupName, interactionId, isHistoryItem);
+  return addBaseSignalsForPreview(sceneUpdated, groupName, interactionId);
 }
 
-function addBaseSignalsForPreview(sceneSpec, groupName, interactionId, isHistoryItem) {
+export function addBaseSignalsForPreview(sceneSpec, groupName, interactionId) {
   const sceneUpdated = duplicate(sceneSpec);
   const baseSignalsScoped = baseSignals.map(s => {
-    if (s.name === 'width' || s.name === 'height') {
-      if (isHistoryItem && s.name === 'height') {
-        s.init = "100";
-      } else if (isHistoryItem && s.name === 'width') {
-        s.init = "100";
-      }
-      return s
-    };
+    if (s.name === 'width' || s.name === 'height') return s;
     return {
       ...s,
       name: `${s.name}_${interactionId}`
     }
   });
   sceneUpdated.marks = sceneUpdated.marks.map(markSpec => {
-    if (markSpec.name && (isHistoryItem || markSpec.name === groupName) && markSpec.type === 'group') {
+    if (markSpec.name && markSpec.name === groupName && markSpec.type === 'group') {
       markSpec.signals = editSignals(markSpec.signals, baseSignalsScoped);
     }
     return markSpec;
