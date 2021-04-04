@@ -1,8 +1,8 @@
 import {array, extend, isArray, isObject, isString, Mark, Spec} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
-import {State, store} from '../store';
+import {store} from '../store';
 import {GuideType} from '../store/factory/Guide';
-import {InteractionRecord, MarkApplicationRecord} from '../store/factory/Interaction';
+import {InteractionRecord} from '../store/factory/Interaction';
 import {GroupRecord} from '../store/factory/marks/Group';
 import {PipelineRecord} from '../store/factory/Pipeline';
 import {WidgetRecord} from '../store/factory/Widget';
@@ -19,7 +19,6 @@ import {VisStateTree} from '../store';
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
   getIn = imutils.getIn,
-  getInVis = imutils.getInVis,
   ORDER = require('../constants/sortOrder');
 
 const SPEC_COUNT = {data: {}, scales: {}, _totaled: false},

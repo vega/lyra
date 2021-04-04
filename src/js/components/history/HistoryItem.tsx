@@ -12,12 +12,7 @@ import {channelName} from '../../actions/bindChannel';
 import {setMarkVisual} from '../../actions/markActions';
 import * as vega from 'vega';
 import bindChannel from '../../actions/bindChannel';
-import {ColumnRecord, Schema} from '../../store/factory/Dataset';
-import { AnyAction } from 'redux';
-import {ThunkDispatch} from 'redux-thunk';
-import {State} from '../../store';
-import {SignalValue} from 'vega-typings/types';
-import {batchGroupBy} from '../../reducers/historyOptions';
+import {ColumnRecord} from '../../store/factory/Dataset';
 
 const ctrl = require('../../ctrl');
 

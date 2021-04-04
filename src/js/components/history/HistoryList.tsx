@@ -9,7 +9,6 @@ import exportName from '../../util/exportName';
 import {mapNestedMarksOfGroup, editSignals} from '../../ctrl/demonstrations';
 import duplicate from "../../util/duplicate";
 import {Spec} from "vega";
-import {marksReducer} from '../../reducers/marksReducer';
 
 const getIn = require('../../util/immutable-utils').getIn;
 const HEIGHT = 100;

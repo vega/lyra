@@ -1,5 +1,3 @@
-const getInVis = require('../util/immutable-utils').getInVis;
-
 import {createStandardAction} from 'typesafe-actions';
 import {HistoryRecord} from '../store/factory/History';
 
