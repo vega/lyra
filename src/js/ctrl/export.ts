@@ -1,8 +1,8 @@
 import {array, extend, isArray, isObject, isString, Mark, Spec} from 'vega';
 import MARK_EXTENTS from '../constants/markExtents';
-import {State, store} from '../store';
+import {store} from '../store';
 import {GuideType} from '../store/factory/Guide';
-import {InteractionRecord, MarkApplicationRecord} from '../store/factory/Interaction';
+import {InteractionRecord} from '../store/factory/Interaction';
 import {GroupRecord} from '../store/factory/marks/Group';
 import {PipelineRecord} from '../store/factory/Pipeline';
 import {WidgetRecord} from '../store/factory/Widget';
@@ -14,11 +14,11 @@ import {propSg} from '../util/prop-signal';
 import {signalLookup} from '../util/signal-lookup';
 import {addApplicationToScene, addDatasetsToScene, addInputsToScene, addSelectionToScene, addVoronoiMark, addWidgetApplicationToScene, addWidgetSelectionToScene, getScaleInfoForGroup, pushSignalsInScene, getFieldsOfGroup} from './demonstrations';
 import manipulators from './manipulators';
+import {VisStateTree} from '../store';
 
 const json2csv = require('json2csv'),
   imutils = require('../util/immutable-utils'),
   getIn = imutils.getIn,
-  getInVis = imutils.getInVis,
   ORDER = require('../constants/sortOrder');
 
 const SPEC_COUNT = {data: {}, scales: {}, _totaled: false},
@@ -37,29 +37,34 @@ let counts = duplicate(SPEC_COUNT);
  * direct-manipulation interactors (handles, connectors, etc.).
  * @returns {Object} A Vega specification.
  */
-export function exporter(internal: boolean = false): Spec {
-  const state = store.getState();
+export function exporter(internal: boolean = false, visState?: VisStateTree): Spec { // TODO(ej): use history.ts so you only have to pass id or index
+  if (visState && visState.getIn(['marks']).size == 0) {
+    return {};
+  }
+
+  visState = visState || store.getState().getIn(['vis', 'present']);
   const int = internal === true;
 
   counts = duplicate(SPEC_COUNT);
 
-  let spec: Spec = exporter.scene(state, int);
-  spec.data = exporter.pipelines(state, int);
+  let spec: Spec = exporter.scene(visState, int);
+  spec.data = exporter.pipelines(visState, int);
 
   // Add interactions and widgets from store
-  spec = exporter.interactions(state, spec);
-  spec = exporter.widgets(state, spec);
+  spec = exporter.interactions(visState, spec);
+  spec = exporter.widgets(visState, spec);
   return spec;
 }
 
-exporter.interactions = function(state: State, spec) {
-  state.getIn(['vis', 'present', 'interactions']).forEach((interaction: InteractionRecord) => {
-    const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(interaction.groupId)]);
+exporter.interactions = function(visState: VisStateTree, spec) {
+  let storeState = store.getState(); // use Store state instead
+  visState.getIn(['interactions']).forEach((interaction: InteractionRecord) => {
+    const group: GroupRecord = visState.getIn(['marks', String(interaction.groupId)]);
     const groupName = exportName(group.name);
-    const scaleInfo = getScaleInfoForGroup(state, group._id);
-    const fieldsOfGroup = getFieldsOfGroup(state, group._id);
+    const scaleInfo = getScaleInfoForGroup(storeState, group._id);
+    const fieldsOfGroup = getFieldsOfGroup(storeState, group._id);
     const mouseTypes = group._interactions.map(interactionId => {
-      const interaction: InteractionRecord = state.getIn(['vis', 'present', 'interactions', String(interactionId)]);
+      const interaction: InteractionRecord = visState.getIn(['interactions', String(interactionId)]);
       if (!interaction.input) { return null; }
       return interaction.input.mouse;
     }).filter(x => x);
@@ -87,9 +92,9 @@ exporter.interactions = function(state: State, spec) {
   return spec;
 }
 
-exporter.widgets = function(state: State, spec) {
-  state.getIn(['vis', 'present', 'widgets']).forEach((widget: WidgetRecord) => {
-    const group: GroupRecord = state.getIn(['vis', 'present', 'marks', String(widget.groupId)]);
+exporter.widgets = function(visState: VisStateTree, spec) {
+  visState.getIn(['widgets']).forEach((widget: WidgetRecord) => {
+    const group: GroupRecord = visState.getIn(['marks', String(widget.groupId)]);
     const groupName = exportName(group.name);
     if (widget.selection) {
       spec = addWidgetSelectionToScene(spec, widget, widget.selection);
@@ -104,21 +109,21 @@ exporter.widgets = function(state: State, spec) {
   return spec;
 }
 
-exporter.pipelines = function(state: State, internal: boolean) {
-  const pipelines: PipelineRecord[] = getInVis(state, 'pipelines').valueSeq();
+exporter.pipelines = function(visState: VisStateTree, internal: boolean) {
+  const pipelines: PipelineRecord[] = visState.getIn(['pipelines']).valueSeq();
   return pipelines.reduce(function(spec, pipeline) {
-    spec.push(exporter.dataset(state, internal, pipeline._source));
+    spec.push(exporter.dataset(visState, internal, pipeline._source));
 
     const aggrs = pipeline._aggregates.toJS();
     for (const key in aggrs) {
-      spec.push(exporter.dataset(state, internal, aggrs[key]));
+      spec.push(exporter.dataset(visState, internal, aggrs[key]));
     }
     return spec;
   }, []);
 };
 
-exporter.dataset = function(state: State, internal: boolean, id: number) {
-  const dataset = getInVis(state, 'datasets.' + id).toJS(),
+exporter.dataset = function(visState: VisStateTree, internal: boolean, id: number) {
+  const dataset = visState.getIn(['datasets', String(id)]).toJS(),
     spec = clean(duplicate(dataset), internal),
     values = input(id),
     format = spec.format && spec.format.type,
@@ -131,7 +136,7 @@ exporter.dataset = function(state: State, internal: boolean, id: number) {
   //   1. We're re-rendering the Lyra view
   //   2. Raw values were provided by the user directly (i.e., no url/source).
   if (spec.source) {
-    spec.source = name(getInVis(state, 'datasets.' + spec.source + '.name'));
+    spec.source = name(visState.getIn(['datasets', String(spec.source), 'name']));
   } else if (internal) {
     spec.values = values;
     delete spec.url;
@@ -140,9 +145,9 @@ exporter.dataset = function(state: State, internal: boolean, id: number) {
     spec.values = format && format !== 'json' ? json2csv({data: values, del: format === 'tsv' ? '\t' : ','}) : values;
   }
 
-  const interactions: InteractionRecord[] = state.getIn(['vis', 'present', 'interactions']).valueSeq().toArray();
+  const interactions: InteractionRecord[] = visState.getIn(['interactions']).valueSeq().toArray();
   const interactionSignals = [].concat.apply([], interactions.filter(interaction => interaction.signals.length).map(interaction => interaction.signals.map(signal => signal.signal)));
-  const widgets: WidgetRecord[] = state.getIn(['vis', 'present', 'widgets']).valueSeq().toArray();
+  const widgets: WidgetRecord[] = visState.getIn(['widgets']).valueSeq().toArray();
   const widgetSignals = [].concat.apply([], widgets.filter(widget => widget.signals.length).map(widget => widget.signals.map(signal => signal.signal)));
   const signals = interactionSignals.concat(widgetSignals);
 
@@ -154,7 +159,7 @@ exporter.dataset = function(state: State, internal: boolean, id: number) {
 
   spec.transform.forEach(s => {
     if (s.type === 'lookup') {
-      s.from = state.getIn(['vis', 'present', 'datasets', s.from, 'name'])
+      s.from = visState.getIn(['datasets', String(s.from), 'name'])
     }
     if (s.type === 'filter') {
       // if any of the interaction signals in the filter are undefined, just let everything pass
@@ -189,9 +194,9 @@ exporter.sort = function(dataset) {
   };
 };
 
-exporter.scene = function(state: State, internal: boolean): Mark {
-  const sceneId = state.getIn(['vis', 'present', 'scene', '_id']);
-  let spec = exporter.group(state, internal, sceneId);
+exporter.scene = function(visState: VisStateTree, internal: boolean): Mark {
+  const sceneId = visState.getIn(['scene', '_id']);
+  let spec = exporter.group(visState, internal, sceneId);
 
   if (internal) {
     spec = spec[0];
@@ -205,8 +210,8 @@ exporter.scene = function(state: State, internal: boolean): Mark {
   return spec;
 };
 
-exporter.mark = function(state: State, internal: boolean, id: number) {
-  const mark = getInVis(state, 'marks.' + id).toJS();
+exporter.mark = function(visState: VisStateTree, internal: boolean, id: number) {
+  const mark = visState.getIn(['marks', String(id)]).toJS();
   const spec = clean(duplicate(mark), internal);
   const up = mark.encode.update;
   const upspec = spec.encode.update;
@@ -217,11 +222,11 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
   } else if (spec.from) {
     let fromId;
     if ((fromId = spec.from.data)) {
-      spec.from.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
+      spec.from.data = name(visState.getIn(['datasets', String(fromId), 'name']));
       const count = counts.data[fromId] || (counts.data[fromId] = duplicate(DATA_COUNT));
       count.marks[id] = true;
     } else if ((fromId = spec.from.mark)) {
-      spec.from.mark = name(getInVis(state, 'marks.' + fromId + '.name'));
+      spec.from.mark = name(visState.getIn(['marks', String(fromId), 'name']));
     }
   }
 
@@ -238,7 +243,7 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
     // Use the origVal to determine if scale/fields have been set in case
     // specVal was replaced above (e.g., scale + signal).
     if (origScale) {
-      specVal.scale = name(getInVis(state, 'scales.' + origScale + '.name'));
+      specVal.scale = name(visState.getIn(['scales', String(origScale), 'name']));
       const count = counts.scales[origScale] || (counts.scales[origScale] = duplicate(SCALE_COUNT));
       count.marks[id] = true;
     }
@@ -252,20 +257,20 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
   if (internal) {
     spec.role = `lyra_${mark._id}`;
     const s = manipulators(mark, spec);
-    return facet ? pathgroup(state, s, facet) : s;
+    return facet ? pathgroup(visState, s, facet) : s;
   }
 
-  return facet ? pathgroup(state, spec, facet) : spec;
+  return facet ? pathgroup(visState, spec, facet) : spec;
 };
 
-function pathgroup(state, marks, facet) {
+function pathgroup(visState, marks, facet) {
   return {
     name: 'pathgroup',
     type: 'group',
     from: {
       facet: {
         ...facet,
-        data: name(getInVis(state, 'datasets.' + facet.data + '.name'))
+        data: name(visState.getIn(['datasets', String(facet.data), 'name']))
       }
     },
     encode: {
@@ -278,9 +283,9 @@ function pathgroup(state, marks, facet) {
   }
 }
 
-exporter.group = function(state: State, internal: boolean, id: number) {
-  const mark: GroupRecord = getInVis(state, `marks.${id}`);
-  const spec = exporter.mark(state, internal, id);
+exporter.group = function(visState: VisStateTree, internal: boolean, id: number) {
+  const mark: GroupRecord = visState.getIn(['marks', String(id)]);
+  const spec = exporter.mark(visState, internal, id);
   const group = internal ? spec[0] : spec;
 
   ['scale', 'mark', 'axe', 'legend'].forEach(function(childType) {
@@ -290,10 +295,10 @@ exporter.group = function(state: State, internal: boolean, id: number) {
     // Route export to the most appropriate function.
     group[childTypes] = mark[childTypes]
       .map(cid => {
-        const child = getInVis(state, `${storePath}.${cid}`);
+        const child = visState.getIn([storePath, String(cid)]);
         return !child ? null :
-          exporter[child.type] ? exporter[child.type](state, internal, cid) :
-          exporter[childType]  ? exporter[childType](state, internal, cid) :
+          exporter[child.type] ? exporter[child.type](visState, internal, cid) :
+          exporter[childType]  ? exporter[childType](visState, internal, cid) :
           clean(duplicate(child.toJS()), internal);
       })
       .reduce((children, child) => {
@@ -319,8 +324,8 @@ exporter.group = function(state: State, internal: boolean, id: number) {
   return spec;
 };
 
-exporter.area = function(state: State, internal: boolean, id: number) {
-  const spec = exporter.mark(state, internal, id);
+exporter.area = function(visState: VisStateTree, internal: boolean, id: number) {
+  const spec = exporter.mark(visState, internal, id);
   const area = array(spec.name === 'pathgroup' ? spec.marks : spec)[0];
   const update = area.encode.update;
 
@@ -340,8 +345,8 @@ exporter.area = function(state: State, internal: boolean, id: number) {
   return spec;
 };
 
-exporter.line = function(state: State, internal: boolean, id: number) {
-  const spec = exporter.mark(state, internal, id);
+exporter.line = function(visState: VisStateTree, internal: boolean, id: number) {
+  const spec = exporter.mark(visState, internal, id);
   const line = array(spec.name === 'pathgroup' ? spec.marks : spec)[0];
   const update = line.encode.update;
 
@@ -355,18 +360,18 @@ exporter.line = function(state: State, internal: boolean, id: number) {
   return spec;
 };
 
-exporter.scale = function(state: State, internal: boolean, id: number) {
-  const scale = getInVis(state, 'scales.' + id).toJS(),
+exporter.scale = function(visState: VisStateTree, internal: boolean, id: number) {
+  const scale = visState.getIn(['scales', String(id)]).toJS(),
     spec = clean(duplicate(scale), internal);
 
   counts.scales[id] = counts.scales[id] || duplicate(SCALE_COUNT);
 
   if (!scale.domain && scale._domain && scale._domain.length ) {
-    spec.domain = scale._manual && scale._manualDomain.length ? scale._manualDomain : dataRef(state, scale, scale._domain);
+    spec.domain = scale._manual && scale._manualDomain.length ? scale._manualDomain : dataRef(visState, scale, scale._domain);
   }
 
   if (!scale.range && scale._range && scale._range.length) {
-    spec.range = dataRef(state, scale, scale._range);
+    spec.range = dataRef(visState, scale, scale._range);
   }
 
   // TODO: Sorting multiple datasets?
@@ -378,18 +383,18 @@ exporter.scale = function(state: State, internal: boolean, id: number) {
   return spec;
 };
 
-exporter.axe = exporter.legend = function(state: State, internal: boolean, id: number) {
-  const guide = getInVis(state, 'guides.' + id).toJS(),
+exporter.axe = exporter.legend = function(visState: VisStateTree, internal: boolean, id: number) {
+  const guide = visState.getIn(['guides', String(id)]).toJS(),
     spec = clean(duplicate(guide), internal),
     gtype = guide._gtype,
     type = guide._type;
 
   if (gtype === GuideType.Axis) {
     counts.scales[spec.scale].guides[id] = true;
-    spec.scale = name(getInVis(state, 'scales.' + spec.scale + '.name'));
+    spec.scale = name(visState.getIn(['scales', String(spec.scale), 'name']));
   } else if (gtype === GuideType.Legend) {
     counts.scales[spec[type]].guides[id] = true;
-    spec[type] = name(getInVis(state, 'scales.' + spec[type] + '.name'));
+    spec[type] = name(visState.getIn(['scales', String(spec[type]), 'name']));
   }
 
   Object.keys(spec.encode).forEach(function(prop) {
@@ -477,12 +482,12 @@ export function getCounts(recount: boolean) {
  *   {"data": ..., "fields": [...]} for multiple fields from the same dataset.
  *   {"fields": [...]} for multiple fields from distinct datasets
  *
- * @param  {object} state Redux state
+ * @param  {object} visState Lyra state
  * @param  {Object} scale The definition of the scale.
  * @param  {Array}  ref   Array of fields
  * @returns {Object} A Vega DataRef
  */
-function dataRef(state: State, scale, ref) {
+function dataRef(visState: VisStateTree, scale, ref) {
   let sets = {},
     data,
     did,
@@ -494,13 +499,13 @@ function dataRef(state: State, scale, ref) {
   // One ref
   if (ref.length === 1) {
     ref = ref[0];
-    data = getInVis(state, 'datasets.' + ref.data);
+    data = visState.getIn(['datasets', String(ref.data)]);
     return sortDataRef(data, scale, ref.field);
   }
 
   // More than one ref
   for (i = 0, len = ref.length; i < len; ++i) {
-    data = getInVis(state, 'datasets.' + ref[i].data);
+    data = visState.getIn(['datasets', String(ref[i].data)]);
     field = ref[i].field;
     sets[(did = data.get('_id'))] = sets[did] || (sets[did] = []);
     sets[did].push(field);
@@ -513,7 +518,7 @@ function dataRef(state: State, scale, ref) {
 
   ref = {fields: []};
   for (i = 0, len = keys.length; i < len; ++i) {
-    data = getInVis(state, 'datasets.' + keys[i]);
+    data = visState.getIn(['datasets', String(keys[i])]);
     ref.fields.push(sortDataRef(data, scale, sets[keys[i]]));
   }
 

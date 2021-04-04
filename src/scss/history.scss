@@ -1,0 +1,26 @@
+$history-width: 230px;
+
+
+#history-toolbar {
+  padding: $outer-padding;
+  height: 150px;
+  background: $lgrey-bg;
+}
+
+#history-toolbar h2 {
+  margin-bottom: 10px;
+}
+
+#history-list {
+  max-width: calc(100vw - #{$sidebars-width} - 20px);
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  .history-preview {
+    display: inline-block;
+    margin-right: 10px;
+  }
+}
+
+
