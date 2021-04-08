@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
-import {PlaceHolderRecord} from '../../store/factory/Layout';
+import {PlaceholderRecord} from '../../store/factory/Layout';
 import MarkDropPlace from './MarkDropPlace';
 
 interface StateProps {
   layoutId: number;
-  placeholders: PlaceHolderRecord[];
+  placeholders: PlaceholderRecord[];
 }
 
 function mapStateToProps(state: State): StateProps {
@@ -17,7 +17,7 @@ function mapStateToProps(state: State): StateProps {
   const placeholders = state.getIn(['vis', 'present', 'layouts', layoutId, 'placeHolders']);
 
   return {
-    layoutId: +layoutId,
+    layoutId: Number(layoutId),
     placeholders
   };
 }

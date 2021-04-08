@@ -1,11 +1,12 @@
 import {createStandardAction} from 'typesafe-actions';
-import {LayoutRecord, PlaceHolderRecord, placeHolder} from '../store/factory/Layout';
+import {LayoutRecord, PlaceholderRecord, Placeholder} from '../store/factory/Layout';
 import {assignId} from '../util/counter';
 import {State} from '../store';
 import {Dispatch} from 'redux';
-import {MarkRecord} from '../store/factory/Mark';
+import {GroupRecord} from '../store/factory/marks/Group';
 import {setSignal} from './signalActions';
 import {batchGroupBy} from '../reducers/historyOptions';
+import {defaultGroupHeight, defaultGroupWidth, defaultGroupSpacing} from '../store/factory/marks/Group';
 
 export function addLayout (payload: LayoutRecord) {
   return function(dispatch: Dispatch, getState: () => State) {
@@ -16,7 +17,7 @@ export function addLayout (payload: LayoutRecord) {
 export const baseAddLayout = createStandardAction('ADD_LAYOUT')<LayoutRecord, number>();
 
 
-export function addGrouptoLayout (payload: {group: MarkRecord, dir: string}, id: number) {
+export function addGrouptoLayout (payload: {group: GroupRecord, dir: string}, id: number) {
   return function(dispatch: Dispatch, getState: () => State) {
     const groups = getState().getIn(['vis', 'present', 'layouts', id, 'groups']);
     const placeholders = getState().getIn(['vis', 'present', 'layouts', id, 'placeHolders']);
@@ -25,13 +26,13 @@ export function addGrouptoLayout (payload: {group: MarkRecord, dir: string}, id:
       groups.forEach(groupId => {
         const y_sig = getState().getIn(['vis', 'present', 'marks', String(groupId), 'encode', 'update', 'y', 'signal']);
         const y_sig_val = getState().getIn(['vis', 'present', 'signals', y_sig, 'value']);
-        const value = y_sig_val + 180;
+        const value = y_sig_val + defaultGroupHeight + defaultGroupSpacing;
         dispatch(setSignal(value, y_sig) as any);
       });
       if (placeholders) {
         placeholders.forEach(placeholder => {
-          const newPlaceholder = placeHolder({_id: placeholder._id, top: placeholder.top +180, left: placeholder.left, width: placeholder.width, height: placeholder.height});
-          dispatch(setPlaceHolderProperty(newPlaceholder, id));
+          const newPlaceholder = Placeholder({_id: placeholder._id, top: placeholder.top +180, left: placeholder.left, width: placeholder.width, height: placeholder.height});
+          dispatch(setPlaceholderProperty(newPlaceholder, id));
         });
       }
 
@@ -39,13 +40,13 @@ export function addGrouptoLayout (payload: {group: MarkRecord, dir: string}, id:
       groups.forEach(groupId => {
         const x_sig = getState().getIn(['vis', 'present', 'marks', String(groupId), 'encode', 'update', 'x', 'signal']);
         const x_sig_val = getState().getIn(['vis', 'present', 'signals', x_sig, 'value']);
-        const value = x_sig_val + 230;
+        const value = x_sig_val + defaultGroupWidth + defaultGroupSpacing;
         dispatch(setSignal(value, x_sig) as any);
       });
       if (placeholders) {
         placeholders.forEach(placeholder => {
-          const newPlaceholder = placeHolder({_id: placeholder._id, top: placeholder.top, left: placeholder.left+230, width: placeholder.width, height: placeholder.height});
-          dispatch(setPlaceHolderProperty(newPlaceholder, id));
+          const newPlaceholder = Placeholder({_id: placeholder._id, top: placeholder.top, left: placeholder.left+230, width: placeholder.width, height: placeholder.height});
+          dispatch(setPlaceholderProperty(newPlaceholder, id));
         });
       }
     };
@@ -53,15 +54,15 @@ export function addGrouptoLayout (payload: {group: MarkRecord, dir: string}, id:
     batchGroupBy.end();
   }
 }
-export const baseAddGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{group: MarkRecord, dir: string}, number>();
-export function addPlaceHoldertoLayout (payload: PlaceHolderRecord, layoutId) {
+export const baseAddGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{group: GroupRecord, dir: string}, number>();
+export function addPlaceHoldertoLayout (payload: PlaceholderRecord, layoutId) {
   return function(dispatch: Dispatch, getState: () => State) {
     const id = payload._id || assignId(dispatch, getState());
-    dispatch(baseAddPlaceHoldertoLayout(payload.merge({_id: id}), layoutId));
+    dispatch(baseAddPlaceholdertoLayout(payload.merge({_id: id}), layoutId));
   };
 }
-export const baseAddPlaceHoldertoLayout = createStandardAction('ADD_PLACEHOLDER_TO_LAYOUT')<PlaceHolderRecord, number>();
+export const baseAddPlaceholdertoLayout = createStandardAction('ADD_PLACEHOLDER_TO_LAYOUT')<PlaceholderRecord, number>();
 
 export const removePlaceHolder = createStandardAction('REMOVE_PLACEHOLDER')<number, number>();
 
-export const setPlaceHolderProperty = createStandardAction('SET_PLACEHOLDER_PROPERTY')<PlaceHolderRecord, number>();
+export const setPlaceholderProperty = createStandardAction('SET_PLACEHOLDER_PROPERTY')<PlaceholderRecord, number>();

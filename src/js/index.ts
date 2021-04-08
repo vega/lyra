@@ -1,12 +1,14 @@
 import {ActionCreators as historyActions} from 'redux-undo';
 import * as vega from 'vega';
-import { addMark } from './actions/markActions';
+import { addGroup } from './actions/markActions';
 import {addLayout} from './actions/layoutActions';
 import { createScene } from './actions/sceneActions';
 import {store as initialStore} from './store';
 import { Mark } from './store/factory/Mark';
+import { GroupRecord } from './store/factory/marks/Group';
 import { Scene } from './store/factory/marks/Scene';
 import { Layout } from './store/factory/Layout';
+import {assignId} from './util/counter';
 
 require('../scss/app.scss');
 
@@ -32,16 +34,13 @@ store.subscribe(listeners.createStoreListener(store, ctrl));
   createScene(Scene())
 );
 
-(store as any).dispatch(addMark(Mark('group', {_parent: 1})));
-var state = store.getState();
-var group = state.getIn(['vis', 'present', 'marks', '2']);
+const layoutId = assignId(store.dispatch, store.getState());
 (store as any).dispatch(addLayout(Layout({
-  rows: 1,
-  cols: 1,
-  groups: [2],
-  rowSizes: [group.encode.update.height],
-  colSizes: [group.encode.update.width]
-}))); // fix hardcoded group ID
+  _id: layoutId,
+  rows: 0,
+  cols: 0,
+})));
+(store as any).dispatch(addGroup(Mark('group', {_parent: 1}) as GroupRecord, layoutId, 'init'));
 
 import './components';
 

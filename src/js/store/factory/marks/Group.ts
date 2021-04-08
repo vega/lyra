@@ -8,6 +8,9 @@ export type LyraGroupMark = {
   _widgets: number[] // array of IDs of WidgetRecords
 } & LyraMarkMeta & GroupMark;
 
+export const defaultGroupWidth = 200;
+export const defaultGroupHeight = 150;
+export const defaultGroupSpacing = 30;
 export const Group = Record<LyraGroupMark>({
   _id: null,
   _parent: null,
@@ -39,8 +42,8 @@ export const Group = Record<LyraGroupMark>({
       yc: {value: 70, _disabled: true},
       // width: {value: scene && scene.get('width')},
       // height: {value: scene && scene.get('height')},
-      width: {value: 200},
-      height: {value: 150}
+      width: {value: defaultGroupWidth},
+      height: {value: defaultGroupHeight}
     }
   }
 }, 'LyraGroupMark');

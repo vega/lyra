@@ -1,4 +1,5 @@
 import {Map, Record, RecordOf} from 'immutable';
+import { defaultGroupWidth, defaultGroupHeight} from './marks/Group';
 
 /**
  * Layouts align multiple groups
@@ -31,7 +32,7 @@ export interface LyraLayout {
   /**
    * Placeholders are openings in the layout where a new group could go
    */
-  placeHolders: PlaceHolderRecord[];
+  placeHolders: PlaceholderRecord[];
 }
 
 export interface LyraPlaceholder {
@@ -49,12 +50,12 @@ export interface LyraPlaceholder {
 
 }
 
-export const placeHolder = Record<LyraPlaceholder>({
+export const Placeholder = Record<LyraPlaceholder>({
   _id: null,
   top: 0,
   left: 0,
-  width: 200,
-  height: 150
+  width: defaultGroupWidth,
+  height: defaultGroupHeight
 }, 'LyraPlaceholder');
 export const Layout = Record<LyraLayout>({
   _id: null,
@@ -70,4 +71,4 @@ export type LayoutRecord = RecordOf<LyraLayout>;
 
 export type LayoutState = Map<string, LayoutRecord>;
 
-export type PlaceHolderRecord = RecordOf<LyraPlaceholder>;
+export type PlaceholderRecord = RecordOf<LyraPlaceholder>;

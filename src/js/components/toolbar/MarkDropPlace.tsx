@@ -3,13 +3,12 @@ import { connect } from 'react-redux';
 import {State} from '../../store';
 import {MarkDraggingStateRecord} from '../../store/factory/Inspector';
 import { LyraMarkType, Mark } from '../../store/factory/Mark';
+import { GroupRecord } from '../../store/factory/marks/Group';
 import {addMark, addGroup } from '../../actions/markActions';
 import {removePlaceHolder} from '../../actions/layoutActions';
 import {getClosestGroupId} from '../../util/hierarchy';
 import { LayoutRecord} from '../../store/factory/Layout';
 
-const imutils = require('../../util/immutable-utils');
-const getInVis = imutils.getInVis;
 interface StateProps {
   dragging: MarkDraggingStateRecord;
   sceneId: number;
@@ -33,12 +32,13 @@ interface DispatchProps {
 function mapStateToProps(state: State,  ownProps: OwnProps): StateProps {
   const draggingRecord = state.getIn(['inspector', 'dragging']);
   const isMarkDrag = draggingRecord && (draggingRecord as MarkDraggingStateRecord).mark;
-  const sceneId = getInVis(state, 'scene._id');
+  let sceneId;
+  state.getIn(['vis', 'present', 'marks']).filter(mark => mark.name == "Scene").forEach(scene => sceneId = scene._id);
   const layout = state.getIn(['vis', 'present', 'layouts', ownProps.layoutId]);
 
   return {
     dragging: isMarkDrag ? draggingRecord : null,
-    sceneId: sceneId,
+    sceneId,
     layout,
   };
 }
@@ -80,7 +80,7 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
         }
       });
 
-      dispatch(addGroup(newMarkProps, ownProps.layoutId, null));
+      dispatch(addGroup(newMarkProps as GroupRecord, ownProps.layoutId, null));
     },
     removePlaceHolder: () => {
       dispatch(removePlaceHolder(ownProps.placeholderId, ownProps.layoutId));

@@ -11,53 +11,66 @@ import * as layoutActions from '../actions/layoutActions';
 export function layoutReducer(state: LayoutState,
   action: ActionType<typeof layoutActions>): LayoutState {
   // handle layout actions
-  const id = action.meta;
+  const id = String(action.meta);
 
   if (typeof state === 'undefined') {
     return Map();
   }
 
   if (action.type === getType(layoutActions.baseAddLayout)) {
-    return state.set(String(id), action.payload);
+    return state.set(id, action.payload);
   }
-  else if (action.type === getType(layoutActions.baseAddGrouptoLayout)) {
-    const groups = state.getIn([String(id), 'groups']);
+  if (action.type === getType(layoutActions.baseAddGrouptoLayout)) {
+    const groups = state.getIn([id, 'groups']);
     const withoutPayload = groups.filter(group => group.id !== action.payload.group._id);
-    state = state.setIn([String(id), "groups"], [ ...withoutPayload, action.payload.group._id]);
+    state = state.setIn([id, "groups"], [ ...withoutPayload, action.payload.group._id]);
 
     if (action.payload.dir == 'top' || action.payload.dir == 'bottom' ) {
-      const newRows = state.getIn([String(id), 'rows'])+1;
-      state = state.setIn([String(id), "rows"], newRows);
+      const newRows = state.getIn([id, 'rows'])+1;
+      state = state.setIn([id, "rows"], newRows);
 
-      const originalRows = state.getIn([String(id), 'rowSizes']);
+      const originalRows = state.getIn([id, 'rowSizes']);
       if (action.payload.dir == 'top') {
-        state = state.setIn([String(id), "rowSizes"], [action.payload.group.encode.update.height, ...originalRows]);
+        state = state.setIn([id, "rowSizes"], [action.payload.group.encode.update.height, ...originalRows]);
       } else {
-        state = state.setIn([String(id), "rowSizes"], [ ...originalRows, action.payload.group.encode.update.height]);
+        state = state.setIn([id, "rowSizes"], [ ...originalRows, action.payload.group.encode.update.height]);
       }
     } else if (action.payload.dir == 'right' || action.payload.dir == 'left' ) {
-      const newCols = state.getIn([String(id), 'cols'])+1;
-      state = state.setIn([String(id), "cols"], newCols);
+      const newCols = state.getIn([id, 'cols'])+1;
+      state = state.setIn([id, "cols"], newCols);
 
-      const originalCols = state.getIn([String(id), 'colSizes']);
+      const originalCols = state.getIn([id, 'colSizes']);
       if (action.payload.dir == 'left') {
-        state = state.setIn([String(id), "colSizes"], [action.payload.group.encode.update.width, ...originalCols]);
+        state = state.setIn([id, "colSizes"], [action.payload.group.encode.update.width, ...originalCols]);
       } else {
         const newCols = [ ...originalCols, action.payload.group.encode.update.width];
-        state = state.setIn([String(id), "colSizes"], newCols);
+        state = state.setIn([id, "colSizes"], newCols);
       }
+    } else if (action.payload.dir == 'init') {
+      const newRows = state.getIn([id, 'rows'])+1;
+      state = state.setIn([id, "rows"], newRows);
+      const newCols = state.getIn([id, 'cols'])+1;
+      state = state.setIn([id, "cols"], newCols);
+
+      state = state.setIn([id, "colSizes"], [action.payload.group.encode.update.width]);
+      state = state.setIn([id, "rowSizes"], [action.payload.group.encode.update.height]);
+
     }
-  } else if (action.type === getType(layoutActions.baseAddPlaceHoldertoLayout)) {
-    const originalPlaceholders =  state.getIn([String(id), 'placeHolders']);
-    return state.setIn([String(id), 'placeHolders'], [...originalPlaceholders, action.payload])
-  } else if (action.type == getType(layoutActions.removePlaceHolder)) {
-    const originalPlaceholders =  state.getIn([String(id), 'placeHolders']);
+    return state;
+  }
+  if (action.type === getType(layoutActions.baseAddPlaceholdertoLayout)) {
+    const originalPlaceholders =  state.getIn([id, 'placeHolders']);
+    return state.setIn([id, 'placeHolders'], [...originalPlaceholders, action.payload])
+  }
+  if (action.type == getType(layoutActions.removePlaceHolder)) {
+    const originalPlaceholders =  state.getIn([id, 'placeHolders']);
     const filteredPlaceholders = originalPlaceholders.filter(holder => holder._id != action.payload);
-    return state.setIn([String(id), 'placeHolders'], filteredPlaceholders);
-  } else if (action.type == getType(layoutActions.setPlaceHolderProperty)) {
-    const placeholders = state.getIn([String(id), 'placeHolders']);
+    return state.setIn([id, 'placeHolders'], filteredPlaceholders);
+  }
+  if (action.type == getType(layoutActions.setPlaceholderProperty)) {
+    const placeholders = state.getIn([id, 'placeHolders']);
     const newPlaceholders = placeholders.filter(placeholder => placeholder._id != action.payload._id);
-    return state.setIn([String(id), 'placeHolders'], [...newPlaceholders, action.payload]);
+    return state.setIn([id, 'placeHolders'], [...newPlaceholders, action.payload]);
   }
 
   return state;
