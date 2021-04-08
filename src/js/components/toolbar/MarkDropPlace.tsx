@@ -32,8 +32,7 @@ interface DispatchProps {
 function mapStateToProps(state: State,  ownProps: OwnProps): StateProps {
   const draggingRecord = state.getIn(['inspector', 'dragging']);
   const isMarkDrag = draggingRecord && (draggingRecord as MarkDraggingStateRecord).mark;
-  let sceneId;
-  state.getIn(['vis', 'present', 'marks']).filter(mark => mark.name == "Scene").forEach(scene => sceneId = scene._id);
+  const sceneId = state.getIn(['vis', 'present', 'scene', '_id']);
   const layout = state.getIn(['vis', 'present', 'layouts', ownProps.layoutId]);
 
   return {
