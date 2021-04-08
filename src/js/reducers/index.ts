@@ -16,7 +16,7 @@ import {signalsReducer as signals} from './signalsReducer';
 import {invalidateVegaReducer as vega} from './vegaReducer';
 import {lyraGlobalsReducer as lyra} from './lyraReducer';
 import {walkthroughReducer as walkthrough} from './walkthroughReducer';
-import {layoutReducer as layouts} from './layoutReducer';
+import {layoutReducer as layouts} from './layoutsReducer';
 
 const visReducers = combineReducers({
   signals,
