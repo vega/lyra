@@ -8,7 +8,7 @@ import * as layoutActions from '../actions/layoutActions';
  * @param {Object} state - An Immutable state object
  * @param {Object} action - An action object
  */
-export function layoutReducer(state: LayoutState,
+export function layoutsReducer(state: LayoutState,
   action: ActionType<typeof layoutActions>): LayoutState {
   // handle layout actions
   const id = String(action.meta);
