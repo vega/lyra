@@ -6,7 +6,10 @@ import {UnitSpec} from 'vega-lite/src/spec';
 import {batchGroupBy} from '../reducers/historyOptions';
 import {State} from '../store';
 import {LyraMarkType, Mark, MarkRecord, HandleStreams} from '../store/factory/Mark';
+import {GroupRecord} from '../store/factory/marks/Group';
+import {addGrouptoLayout} from './layoutActions';
 import {assignId} from '../util/counter';
+import {ThunkDispatch} from 'redux-thunk';
 
 const capitalize = require('capitalize');
 const getInVis = require('../util/immutable-utils').getInVis;
@@ -34,6 +37,18 @@ export function addMark (record: MarkRecord) {
       streams: Mark.getHandleStreams(record),
       props: record
     }, id));
+  };
+}
+
+export function addGroup(record: GroupRecord, layoutId: number, dir: string) {
+  return function(dispatch: ThunkDispatch<State, any, any>, getState: () => State) {
+    const id = record._id || assignId(dispatch, getState());
+    record = record.set('_id', id) as GroupRecord;
+
+    batchGroupBy.start();
+    dispatch(addMark(record));
+    dispatch(addGrouptoLayout({group: record, dir}, layoutId));
+    batchGroupBy.end();
   };
 }
 export const baseAddMark = createStandardAction('ADD_MARK')<{name: string, streams: HandleStreams, props: MarkRecord}, number>();

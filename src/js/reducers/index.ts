@@ -16,6 +16,7 @@ import {signalsReducer as signals} from './signalsReducer';
 import {invalidateVegaReducer as vega} from './vegaReducer';
 import {lyraGlobalsReducer as lyra} from './lyraReducer';
 import {walkthroughReducer as walkthrough} from './walkthroughReducer';
+import {layoutsReducer as layouts} from './layoutsReducer';
 
 const visReducers = combineReducers({
   signals,
@@ -26,7 +27,8 @@ const visReducers = combineReducers({
   guides,
   marks,
   interactions,
-  widgets
+  widgets,
+  layouts
 });
 
 // order matters here
@@ -36,5 +38,5 @@ export default combineReducers({
   lyra: hydrator(lyra, 'lyra'),
   inspector: hydrator(inspector, 'inspector'),
   hints,
-  walkthrough
+  walkthrough,
 });

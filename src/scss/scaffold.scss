@@ -75,6 +75,7 @@ body {
     max-width: 640px;
   }
 
+  // dropzones to handle group placement in layout
   .drop-mark {
     border: 1px solid #333333;
     box-shadow: 0 0 0 3px lightgray;
@@ -82,10 +83,38 @@ body {
     padding: $outer-padding;
     border-radius: 3px;
     margin: $outer-padding 5px;
-    max-width: 160px;
+  }
+
+  .drop-mark.placeholder {
     position: absolute;
-    top: 180px;
-    left: 400px;
+  }
+
+  .markdropzone-container {
+    position: absolute;
+  }
+
+  .markdropzone-line {
+    position: absolute;
+    display: flex;
+  }
+
+  .markdropzone-line.top {
+    flex-direction: row;
+  }
+
+  .markdropzone-line.bottom {
+    flex-direction: row;
+  }
+
+  .markdropzone-line.left {
+    flex-direction: row-reverse;
+    transform: rotate(-90deg) translate(-100%, 0);
+    transform-origin: top left;
+  }
+  .markdropzone-line.right {
+    flex-direction: row;
+    transform: rotate(90deg) translate(0%, -100%);
+    transform-origin: top left;
   }
 
   .vega-bindings {
