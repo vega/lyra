@@ -4,7 +4,9 @@ import {SignalValue} from 'vega-typings/types';
 import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as signalActions from '../actions/signalActions';
+import * as layoutActions from '../actions/layoutActions';
 import {Signal, SignalState} from '../store/factory/Signal';
+import {defaultGroupHeight, defaultGroupWidth} from '../store/factory/marks/Group';
 import {propSg} from '../util/prop-signal';
 
 const ns = require('../util/ns');
@@ -56,6 +58,31 @@ function initSignalsForMark(state: SignalState, action: ActionType<typeof markAc
   }, state);
 }
 
+function initSignalsForLayout(state: SignalState, action: ActionType<typeof layoutActions.baseAddGrouptoLayout>) {
+  const dir = action.payload.dir;
+  if (dir == "top" || dir == "bottom") {
+    // add row size and position signals
+    return ["size", "pos"].reduce(function(accState, key) {
+      const signalName = propSg(action.meta, "row", key);
+      const intermediateState = signalInit(accState, signalName, defaultGroupHeight);
+      return intermediateState;
+    }, state);
+  }
+  if (dir == "left" || dir == "right") {
+    // add col size and position signals
+    return ["size", "pos"].reduce(function(accState, key) {
+      const signalName = propSg(action.meta, "col", key);
+      const intermediateState = signalInit(accState, signalName, defaultGroupWidth);
+      return intermediateState;
+    }, state);
+  }
+  return["rowsize", "rowpos", "colsize", "colpos"].reduce(function(accState, key) {
+    const signalName = propSg(action.meta, key.slice(0,3), key.slice(3));
+    const intermediateState = signalInit(accState, signalName, defaultGroupWidth);
+    return intermediateState;
+  }, state);
+}
+
 // Action has two non-type properties, markId and markType
 function deleteSignalsForMark(state: SignalState, action: ActionType<typeof markActions.baseDeleteMark | typeof guideActions.deleteGuide>): SignalState {
   // Create a regular expression which will match any signal that was created
@@ -68,7 +95,7 @@ function deleteSignalsForMark(state: SignalState, action: ActionType<typeof mark
   });
 }
 
-export function signalsReducer(state: SignalState, action: ActionType<typeof signalActions | typeof markActions.baseAddMark | typeof markActions.baseDeleteMark | typeof guideActions.baseAddGuide | typeof guideActions.deleteGuide>): SignalState {
+export function signalsReducer(state: SignalState, action: ActionType<typeof signalActions | typeof markActions.baseAddMark | typeof markActions.baseDeleteMark | typeof guideActions.baseAddGuide | typeof guideActions.deleteGuide | typeof layoutActions.baseAddGrouptoLayout>): SignalState {
   if (typeof state === 'undefined') {
     return Map();
   }
@@ -87,6 +114,11 @@ export function signalsReducer(state: SignalState, action: ActionType<typeof sig
 
   if (action.type === getType(signalActions.unsetSignal)) {
     return state.remove(action.meta);
+  }
+
+  if (action.type === getType(layoutActions.baseAddGrouptoLayout)) {
+    console.log("HERE??")
+    return initSignalsForLayout(state, action);
   }
 
   if (action.type === getType(markActions.baseAddMark)) {
