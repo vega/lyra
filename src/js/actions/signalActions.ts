@@ -4,6 +4,7 @@ import {OnEvent, SignalValue} from 'vega-typings/types';
 import {State} from '../store';
 import {invalidateVega} from './vegaActions';
 import {debounce} from 'vega';
+import {string} from 'yargs';
 
 /**
  * Action creator to initialize a signal.
@@ -59,3 +60,5 @@ export const setSignalStreams = createStandardAction('SET_SIGNAL_STREAMS')<OnEve
  * @returns {Object} An action object
  */
 export const unsetSignal = createStandardAction('UNSET_SIGNAL')<null, string>();
+
+export const addSignalUpdate = createStandardAction('ADD_SIGNAL_UPDATE')<string, string>(); // update expression string, signal name

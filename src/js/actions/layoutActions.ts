@@ -4,7 +4,7 @@ import {assignId} from '../util/counter';
 import {State} from '../store';
 import {Dispatch} from 'redux';
 import {GroupRecord} from '../store/factory/marks/Group';
-import {setSignal} from './signalActions';
+import {setSignal, addSignalUpdate} from './signalActions';
 import {batchGroupBy} from '../reducers/historyOptions';
 import {defaultGroupHeight, defaultGroupWidth, defaultGroupSpacing} from '../store/factory/marks/Group';
 
@@ -21,6 +21,7 @@ export function addGrouptoLayout (payload: {group: GroupRecord, dir: string}, id
   return function(dispatch: Dispatch, getState: () => State) {
     const groups = getState().getIn(['vis', 'present', 'layouts', id, 'groups']);
     const placeholders = getState().getIn(['vis', 'present', 'layouts', id, 'placeHolders']);
+
     batchGroupBy.start();
     if (payload.dir == "top") {
       groups.forEach(groupId => {
@@ -50,11 +51,19 @@ export function addGrouptoLayout (payload: {group: GroupRecord, dir: string}, id
         });
       }
     };
-    dispatch(baseAddGrouptoLayout(payload, id));
+
+    let dimNum = 0;
+    if (payload.dir == "top" || payload.dir == "bottom") {
+      dimNum = getState().getIn(['vis', 'present', 'layouts', String(id), 'rowSizes']).length;
+    } else {
+      dimNum = getState().getIn(['vis', 'present', 'layouts', String(id), 'colSizes']).length;
+    }
+    dispatch(baseAddGrouptoLayout({group: (payload.group) as GroupRecord, dir: (payload.dir) as string, num: dimNum}, id));
+    // dispatch(addSignalUpdate({group: (payload.group) as GroupRecord, dir: (payload.dir) as string, num: dimNum}, id))
     batchGroupBy.end();
   }
 }
-export const baseAddGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{group: GroupRecord, dir: string}, number>();
+export const baseAddGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{group: GroupRecord, dir: string, num: number}, number>();
 export function addPlaceHoldertoLayout (payload: PlaceholderRecord, layoutId) {
   return function(dispatch: Dispatch, getState: () => State) {
     const id = payload._id || assignId(dispatch, getState());

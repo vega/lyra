@@ -63,22 +63,31 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
   if (dir == "top" || dir == "bottom") {
     // add row size and position signals
     return ["size", "pos"].reduce(function(accState, key) {
-      const signalName = propSg(action.meta, "row", key);
-      const intermediateState = signalInit(accState, signalName, defaultGroupHeight);
+      const signalName = propSg(action.meta, "layout", "row_" + action.payload.num+"_"+key);
+      const val = key == "size" ? defaultGroupHeight: 0;
+      const intermediateState = signalInit(accState, signalName, val);
       return intermediateState;
     }, state);
   }
   if (dir == "left" || dir == "right") {
     // add col size and position signals
     return ["size", "pos"].reduce(function(accState, key) {
-      const signalName = propSg(action.meta, "col", key);
-      const intermediateState = signalInit(accState, signalName, defaultGroupWidth);
+      const signalName = propSg(action.meta, "layout", "col_" + action.payload.num+"_"+key);
+      const val = key == "size" ? defaultGroupWidth: 0;
+      const intermediateState = signalInit(accState, signalName, val);
       return intermediateState;
     }, state);
   }
+  // first group the dir is null
   return["rowsize", "rowpos", "colsize", "colpos"].reduce(function(accState, key) {
-    const signalName = propSg(action.meta, key.slice(0,3), key.slice(3));
-    const intermediateState = signalInit(accState, signalName, defaultGroupWidth);
+    const signalName = propSg(action.meta, "layout", key.slice(0,3)+"_"+action.payload.num+"_"+key.slice(3));
+    let val;
+    if (key.slice(0,3) == "row"){
+      val = key.slice(3) == "size" ? defaultGroupHeight: 0;
+    } else {
+      val = key.slice(3) == "size" ? defaultGroupWidth: 0;
+    }
+    const intermediateState = signalInit(accState, signalName, val);
     return intermediateState;
   }, state);
 }
@@ -116,8 +125,11 @@ export function signalsReducer(state: SignalState, action: ActionType<typeof sig
     return state.remove(action.meta);
   }
 
+  if (action.type == getType(signalActions.addSignalUpdate)) {
+    return state.setIn([action.meta, 'update'], action.payload);
+  }
+
   if (action.type === getType(layoutActions.baseAddGrouptoLayout)) {
-    console.log("HERE??")
     return initSignalsForLayout(state, action);
   }
 

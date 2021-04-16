@@ -2,6 +2,7 @@ import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import {LayoutState} from '../store/factory/Layout';
 import * as layoutActions from '../actions/layoutActions';
+import {propSg} from '../util/prop-signal';
 
 /**
  * This reducer handles layout updates
@@ -30,21 +31,22 @@ export function layoutsReducer(state: LayoutState,
       state = state.setIn([id, "rows"], newRows);
 
       const originalRows = state.getIn([id, 'rowSizes']);
+      const signalName = propSg(Number(id), "layout", "row_" + action.payload.num+"_size");
       if (action.payload.dir == 'top') {
-        state = state.setIn([id, "rowSizes"], [action.payload.group.encode.update.height, ...originalRows]);
+        state = state.setIn([id, "rowSizes"], [{signal: signalName}, ...originalRows]);
       } else {
-        state = state.setIn([id, "rowSizes"], [ ...originalRows, action.payload.group.encode.update.height]);
+        state = state.setIn([id, "rowSizes"], [ ...originalRows, {signal: signalName}]);
       }
     } else if (action.payload.dir == 'right' || action.payload.dir == 'left' ) {
       const newCols = state.getIn([id, 'cols'])+1;
       state = state.setIn([id, "cols"], newCols);
 
       const originalCols = state.getIn([id, 'colSizes']);
+      const signalName = propSg(Number(id), "layout", "col_" + action.payload.num+"_size");
       if (action.payload.dir == 'left') {
-        state = state.setIn([id, "colSizes"], [action.payload.group.encode.update.width, ...originalCols]);
+        state = state.setIn([id, "colSizes"], [{signal: signalName}, ...originalCols]);
       } else {
-        const newCols = [ ...originalCols, action.payload.group.encode.update.width];
-        state = state.setIn([id, "colSizes"], newCols);
+        state = state.setIn([id, "colSizes"], [ ...originalCols, {signal: signalName}]);
       }
     } else if (action.payload.dir == 'init') {
       const newRows = state.getIn([id, 'rows'])+1;
@@ -52,8 +54,8 @@ export function layoutsReducer(state: LayoutState,
       const newCols = state.getIn([id, 'cols'])+1;
       state = state.setIn([id, "cols"], newCols);
 
-      state = state.setIn([id, "colSizes"], [action.payload.group.encode.update.width]);
-      state = state.setIn([id, "rowSizes"], [action.payload.group.encode.update.height]);
+      state = state.setIn([id, "colSizes"], [{signal: propSg(Number(id), "layout", "col_" + action.payload.num+"_size")}]);
+      state = state.setIn([id, "rowSizes"], [{signal: propSg(Number(id), "layout", "row_" + action.payload.num+"_size")}]);
 
     }
     return state;
