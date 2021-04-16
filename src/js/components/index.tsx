@@ -10,6 +10,7 @@ import {Toolbar} from './Toolbar';
 import WidgetDropzone from './interactions/WidgetDropzone';
 import MarkDropzoneGroup from './toolbar/MarkDropzoneGroup';
 import MarkDropPlaceGroup from './toolbar/MarkDropPlaceGroup';
+import FacetOptionsHolder from './pipelines/FacetOptionsHolder';
 
 // React requires you only have one wrapper element called in your provider
 module.exports = ReactDOM.render(
@@ -28,6 +29,7 @@ module.exports = ReactDOM.render(
             <WidgetDropzone />
             <MarkDropzoneGroup />
             <MarkDropPlaceGroup />
+            <FacetOptionsHolder />
           </div>
           <Toolbar />
         </div>
