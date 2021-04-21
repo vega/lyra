@@ -66,6 +66,10 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
       const signalName = propSg(action.meta, "layout", "row_" + action.payload.num+"_"+key);
       const val = key == "size" ? defaultGroupHeight: 0;
       const intermediateState = signalInit(accState, signalName, val);
+      if (key == "pos"){
+        const update = propSg(action.meta, "layout", "row_" + (action.payload.num-1)+"_pos") + " + " + propSg(action.meta, "layout", "row_" + (action.payload.num-1)+"_size");
+        return setSignalUpdate(intermediateState, signalName, update);
+      }
       return intermediateState;
     }, state);
   }
@@ -75,6 +79,10 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
       const signalName = propSg(action.meta, "layout", "col_" + action.payload.num+"_"+key);
       const val = key == "size" ? defaultGroupWidth: 0;
       const intermediateState = signalInit(accState, signalName, val);
+      if (key == "pos"){
+        const update = propSg(action.meta, "layout", "col_" + (action.payload.num-1)+"_pos") + " + " + propSg(action.meta, "layout", "col_" + (action.payload.num-1)+"_size");
+        return setSignalUpdate(intermediateState, signalName, update);
+      }
       return intermediateState;
     }, state);
   }
@@ -90,6 +98,10 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
     const intermediateState = signalInit(accState, signalName, val);
     return intermediateState;
   }, state);
+}
+
+function setSignalUpdate(state: SignalState, signal: string, update: SignalValue) {
+  return state.setIn([signal, 'update'], update);
 }
 
 // Action has two non-type properties, markId and markType

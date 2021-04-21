@@ -29,7 +29,8 @@ export const Signal = Record<LyraSignal>({
   _idx: null,
   value: null,
   name: null,
-  on: []
+  on: [],
+  update: null
 }, 'LyraSignal');
 
 export type SignalRecord = RecordOf<LyraSignal>;
