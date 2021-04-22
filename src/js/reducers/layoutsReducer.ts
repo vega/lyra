@@ -31,7 +31,7 @@ export function layoutsReducer(state: LayoutState,
       state = state.setIn([id, "rows"], newRows);
 
       const originalRows = state.getIn([id, 'rowSizes']);
-      const signalName = propSg(Number(id), "layout", "row_" + action.payload.num+"_size");
+      const signalName = propSg(Number(id), "layout", "row_" + action.payload.rowNum+"_size");
       if (action.payload.dir == 'top') {
         state = state.setIn([id, "rowSizes"], [{signal: signalName}, ...originalRows]);
       } else {
@@ -42,7 +42,7 @@ export function layoutsReducer(state: LayoutState,
       state = state.setIn([id, "cols"], newCols);
 
       const originalCols = state.getIn([id, 'colSizes']);
-      const signalName = propSg(Number(id), "layout", "col_" + action.payload.num+"_size");
+      const signalName = propSg(Number(id), "layout", "col_" + action.payload.colNum+"_size");
       if (action.payload.dir == 'left') {
         state = state.setIn([id, "colSizes"], [{signal: signalName}, ...originalCols]);
       } else {
@@ -54,8 +54,8 @@ export function layoutsReducer(state: LayoutState,
       const newCols = state.getIn([id, 'cols'])+1;
       state = state.setIn([id, "cols"], newCols);
 
-      state = state.setIn([id, "colSizes"], [{signal: propSg(Number(id), "layout", "col_" + action.payload.num+"_size")}]);
-      state = state.setIn([id, "rowSizes"], [{signal: propSg(Number(id), "layout", "row_" + action.payload.num+"_size")}]);
+      state = state.setIn([id, "colSizes"], [{signal: propSg(Number(id), "layout", "col_" + action.payload.colNum+"_size")}]);
+      state = state.setIn([id, "rowSizes"], [{signal: propSg(Number(id), "layout", "row_" + action.payload.rowNum+"_size")}]);
 
     }
     return state;

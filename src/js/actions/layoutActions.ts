@@ -52,18 +52,18 @@ export function addGrouptoLayout (payload: {group: GroupRecord, dir: string}, id
       }
     };
 
-    let dimNum = 0;
-    if (payload.dir == "top" || payload.dir == "bottom") {
-      dimNum = getState().getIn(['vis', 'present', 'layouts', String(id), 'rowSizes']).length;
-    } else {
-      dimNum = getState().getIn(['vis', 'present', 'layouts', String(id), 'colSizes']).length;
+    let rowNum = 0;
+    let colNum = 0;
+    if (payload.dir != null){
+      rowNum = getState().getIn(['vis', 'present', 'layouts', String(id), 'rowSizes']).length;
+      colNum = getState().getIn(['vis', 'present', 'layouts', String(id), 'colSizes']).length;
     }
-    dispatch(baseAddGrouptoLayout({group: (payload.group) as GroupRecord, dir: (payload.dir) as string, num: dimNum}, id));
+    dispatch(baseAddGrouptoLayout({group: (payload.group) as GroupRecord, dir: (payload.dir) as string, rowNum: rowNum, colNum:colNum}, id));
     // dispatch(addSignalUpdate({group: (payload.group) as GroupRecord, dir: (payload.dir) as string, num: dimNum}, id))
     batchGroupBy.end();
   }
 }
-export const baseAddGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{group: GroupRecord, dir: string, num: number}, number>();
+export const baseAddGrouptoLayout = createStandardAction('ADD_GROUP_TO_LAYOUT')<{group: GroupRecord, dir: string, rowNum: number, colNum}, number>();
 export function addPlaceHoldertoLayout (payload: PlaceholderRecord, layoutId) {
   return function(dispatch: Dispatch, getState: () => State) {
     const id = payload._id || assignId(dispatch, getState());

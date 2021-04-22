@@ -62,42 +62,71 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
   const dir = action.payload.dir;
   if (dir == "top" || dir == "bottom") {
     // add row size and position signals
-    return ["size", "pos"].reduce(function(accState, key) {
-      const signalName = propSg(action.meta, "layout", "row_" + action.payload.num+"_"+key);
+    state = ["size", "pos"].reduce(function(accState, key) {
+      const signalName = propSg(action.meta, "layout", "row_" + action.payload.rowNum+"_"+key);
       const val = key == "size" ? defaultGroupHeight: 0;
       const intermediateState = signalInit(accState, signalName, val);
       if (key == "pos"){
-        const update = propSg(action.meta, "layout", "row_" + (action.payload.num-1)+"_pos") + " + " + propSg(action.meta, "layout", "row_" + (action.payload.num-1)+"_size");
+        const update = propSg(action.meta, "layout", "row_" + (action.payload.rowNum-1)+"_pos") + " + " + propSg(action.meta, "layout", "row_" + (action.payload.rowNum-1)+"_size");
         return setSignalUpdate(intermediateState, signalName, update);
       }
       return intermediateState;
     }, state);
   }
-  if (dir == "left" || dir == "right") {
+  else if (dir == "left" || dir == "right") {
     // add col size and position signals
-    return ["size", "pos"].reduce(function(accState, key) {
-      const signalName = propSg(action.meta, "layout", "col_" + action.payload.num+"_"+key);
+    state = ["size", "pos"].reduce(function(accState, key) {
+      const signalName = propSg(action.meta, "layout", "col_" + action.payload.colNum+"_"+key);
       const val = key == "size" ? defaultGroupWidth: 0;
       const intermediateState = signalInit(accState, signalName, val);
       if (key == "pos"){
-        const update = propSg(action.meta, "layout", "col_" + (action.payload.num-1)+"_pos") + " + " + propSg(action.meta, "layout", "col_" + (action.payload.num-1)+"_size");
+        const update = propSg(action.meta, "layout", "col_" + (action.payload.colNum-1)+"_pos") + " + " + propSg(action.meta, "layout", "col_" + (action.payload.colNum-1)+"_size");
         return setSignalUpdate(intermediateState, signalName, update);
       }
       return intermediateState;
     }, state);
   }
-  // first group the dir is null
-  return["rowsize", "rowpos", "colsize", "colpos"].reduce(function(accState, key) {
-    const signalName = propSg(action.meta, "layout", key.slice(0,3)+"_"+action.payload.num+"_"+key.slice(3));
-    let val;
-    if (key.slice(0,3) == "row"){
-      val = key.slice(3) == "size" ? defaultGroupHeight: 0;
-    } else {
-      val = key.slice(3) == "size" ? defaultGroupWidth: 0;
-    }
-    const intermediateState = signalInit(accState, signalName, val);
-    return intermediateState;
-  }, state);
+  else {
+    // first group the dir is null
+    state = ["rowsize", "rowpos", "colsize", "colpos"].reduce(function(accState, key) {
+      const num = key.slice(0,3) == "row" ? action.payload.rowNum : action.payload.colNum;
+      const signalName = propSg(action.meta, "layout", key.slice(0,3)+"_"+num+"_"+key.slice(3));
+      let val;
+      if (key.slice(0,3) == "row"){
+        val = key.slice(3) == "size" ? defaultGroupHeight: 0;
+      } else {
+        val = key.slice(3) == "size" ? defaultGroupWidth: 0;
+      }
+      const intermediateState = signalInit(accState, signalName, val);
+      return intermediateState;
+    }, state);
+  }
+
+  let rowNum = action.payload.rowNum;
+  let colNum = action.payload.colNum;
+  if (dir == "top" || dir == "bottom") {
+    colNum = action.payload.colNum-1;
+  } else if (dir == "right" || dir == "left"){
+    rowNum = action.payload.rowNum-1;
+  }
+
+  let groupSigName = propSg(action.payload.group._id, "group", "x");
+  let signalName = propSg(action.meta, "layout", "col_" + colNum+"_pos");
+  state = setSignalUpdate(state, groupSigName, signalName);
+
+  groupSigName = propSg(action.payload.group._id, "group", "y");
+  signalName = propSg(action.meta, "layout", "row_" + rowNum+"_pos");
+  state = setSignalUpdate(state, groupSigName, signalName);
+
+  groupSigName = propSg(action.payload.group._id, "group", "width");
+  signalName = propSg(action.meta, "layout", "col_" + colNum+"_size");
+  state = setSignalUpdate(state, groupSigName, signalName);
+
+  groupSigName = propSg(action.payload.group._id, "group", "height");
+  signalName = propSg(action.meta, "layout", "row_" + rowNum+"_size");
+  state = setSignalUpdate(state, groupSigName, signalName);
+
+  return state;
 }
 
 function setSignalUpdate(state: SignalState, signal: string, update: SignalValue) {
