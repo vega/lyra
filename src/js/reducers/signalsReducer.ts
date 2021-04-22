@@ -67,7 +67,7 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
       const val = key == "size" ? defaultGroupHeight: 0;
       const intermediateState = signalInit(accState, signalName, val);
       if (key == "pos"){
-        const update = propSg(action.meta, "layout", "row_" + (action.payload.rowNum-1)+"_pos") + " + " + propSg(action.meta, "layout", "row_" + (action.payload.rowNum-1)+"_size");
+        const update = propSg(action.meta, "layout", "row_" + (action.payload.rowNum-1)+"_pos") + " + " + propSg(action.meta, "layout", "row_" + (action.payload.rowNum-1)+"_size + 30");// fix hardcoded 30
         return setSignalUpdate(intermediateState, signalName, update);
       }
       return intermediateState;
@@ -80,7 +80,7 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
       const val = key == "size" ? defaultGroupWidth: 0;
       const intermediateState = signalInit(accState, signalName, val);
       if (key == "pos"){
-        const update = propSg(action.meta, "layout", "col_" + (action.payload.colNum-1)+"_pos") + " + " + propSg(action.meta, "layout", "col_" + (action.payload.colNum-1)+"_size");
+        const update = propSg(action.meta, "layout", "col_" + (action.payload.colNum-1)+"_pos") + " + " + propSg(action.meta, "layout", "col_" + (action.payload.colNum-1)+"_size + 30"); // fix hardcoded 30
         return setSignalUpdate(intermediateState, signalName, update);
       }
       return intermediateState;

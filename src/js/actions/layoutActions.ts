@@ -4,7 +4,7 @@ import {assignId} from '../util/counter';
 import {State} from '../store';
 import {Dispatch} from 'redux';
 import {GroupRecord} from '../store/factory/marks/Group';
-import {setSignal, addSignalUpdate} from './signalActions';
+import {setSignal} from './signalActions';
 import {batchGroupBy} from '../reducers/historyOptions';
 import {defaultGroupHeight, defaultGroupWidth, defaultGroupSpacing} from '../store/factory/marks/Group';
 

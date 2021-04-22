@@ -84,7 +84,7 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
         }
       });
 
-      dispatch(addGroup(newMarkProps as GroupRecord, ownProps.layoutId, ownProps.direction));
+      dispatch(addGroup(newMarkProps as GroupRecord, ownProps.layoutId, ownProps.direction, ownProps.index));
     },
     addPlaceHoldertoLayout: (top, left, width, height) => {
       const holder = Placeholder({top, left, width, height});

@@ -117,6 +117,29 @@ body {
     transform-origin: top left;
   }
 
+  .rowColResize-container {
+    position: absolute;
+  }
+
+  .resize-line.vertical {
+    position: absolute;
+    /* visibility: hidden; */
+    border-left: 3px dotted lightgray;
+    height: 160px;
+    top: 0px;
+    left: 0px;
+  }
+
+  .resize-line.horizontal {
+    position: absolute;
+    /* visibility: hidden; */
+    border-top: 3px dotted lightgray;
+    width: 160px;
+    top: 0px;
+    left: 0px;
+    z-index: 0;
+  }
+
   .vega-bindings {
     margin-top: $outer-padding;
     .vega-bind-name {
