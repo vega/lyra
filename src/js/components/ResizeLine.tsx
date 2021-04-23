@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../store';
 import { LayoutRecord} from '../store/factory/Layout';
+import { defaultGroupSpacing} from '../store/factory/marks/Group';
 import {setSignal} from '../actions/signalActions';
 import {propSg} from '../util/prop-signal';
 
@@ -68,10 +69,8 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps> 
     e.preventDefault();
 
     if (this.props.direction == "horizontal"){
-      console.log("event move ", e.pageY);
       this.props.setSignal(this.props.rowSizes[this.props.index]-e.pageY);
     } else {
-      console.log("event move ", e.pageX);
       this.props.setSignal(this.props.colSizes[this.props.index]-e.pageX);
     }
 
@@ -79,20 +78,16 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps> 
 
   public handleClick = (e) => {
     if (this.props.direction == "horizontal"){
-      console.log("event click ", e.pageY);
       this.props.setSignal(this.props.rowSizes[this.props.index]+10);
     } else {
-      console.log("event click ", e.pageX);
       this.props.setSignal(this.props.colSizes[this.props.index]+10);
     }
   }
 
   public handleDblClick = (e) => {
     if (this.props.direction == "horizontal"){
-      console.log("event dbl ");
       this.props.setSignal(this.props.rowSizes[this.props.index]-10);
     } else {
-      console.log("event dbl ");
       this.props.setSignal(this.props.colSizes[this.props.index]-10);
     }
   }
@@ -104,27 +99,27 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps> 
     if (this.props.direction == "horizontal") {
       let cumm = 0;
       dimSizes = this.props.rowSizes.map((size) => {cumm += size; return cumm});
-      length = this.props.colSizes.reduce((acc, size) => {return acc + size}, 0);
+      length = this.props.colSizes.reduce((acc, size) => {return acc + size+defaultGroupSpacing}, -defaultGroupSpacing);
     } else if (this.props.direction == "vertical") {
       let cumm = 0;
       dimSizes = this.props.colSizes.map((size) => {cumm += size; return cumm});
-      length = this.props.rowSizes.reduce((acc, size) => {return acc + size}, 0);
+      length = this.props.rowSizes.reduce((acc, size) => {return acc + size+defaultGroupSpacing}, -defaultGroupSpacing);
     }
 
     return (
       <div>
       {/* {this.props.direction == "horizontal" ?
-      <div draggable style={{top: dimSizes[this.props.index], width:length}} className={"resize-line " + this.props.direction} onMouseDown={(e) => this.handleMouseDown(e)} onMouseUp={(e) => this.handleMouseUp(e)} onMouseMove={(e) => this.handleMouseMove(e)}>
+      <div draggable style={{top: dimSizes[this.props.index]+defaultGroupSpacing/2, width:length}} className={"resize-line " + this.props.direction} onMouseDown={(e) => this.handleMouseDown(e)} onMouseUp={(e) => this.handleMouseUp(e)} onMouseMove={(e) => this.handleMouseMove(e)}>
       </div>
       :
-      <div draggable style={{left: dimSizes[this.props.index], height: length}} className={"resize-line " + this.props.direction} onMouseDown={(e) => this.handleMouseDown(e)} onMouseUp={(e) => this.handleMouseUp(e)} onMouseMove={(e) => this.handleMouseMove(e)}>
+      <div draggable style={{left: dimSizes[this.props.index]+defaultGroupSpacing/2, height: length}} className={"resize-line " + this.props.direction} onMouseDown={(e) => this.handleMouseDown(e)} onMouseUp={(e) => this.handleMouseUp(e)} onMouseMove={(e) => this.handleMouseMove(e)}>
       </div>
       } */}
       {this.props.direction == "horizontal" ?
-      <div draggable style={{top: dimSizes[this.props.index], width:length}} className={"resize-line " + this.props.direction} onClick={(e) => this.handleClick(e)} onDoubleClick={(e) => this.handleDblClick(e)}>
+      <div draggable style={{top: dimSizes[this.props.index]+defaultGroupSpacing/2, width:length}} className={"resize-line " + this.props.direction} onClick={(e) => this.handleClick(e)} onDoubleClick={(e) => this.handleDblClick(e)}>
       </div>
       :
-      <div draggable style={{left: dimSizes[this.props.index], height: length}} className={"resize-line " + this.props.direction} onClick={(e) => this.handleClick(e)} onDoubleClick={(e) => this.handleDblClick(e)}>
+      <div draggable style={{left: dimSizes[this.props.index]+defaultGroupSpacing/2, height: length}} className={"resize-line " + this.props.direction} onClick={(e) => this.handleClick(e)} onDoubleClick={(e) => this.handleDblClick(e)}>
       </div>
       }
       </div>
