@@ -50,14 +50,18 @@ export const Group = Record<LyraGroupMark>({
 
 export type GroupRecord = RecordOf<LyraGroupMark>;
 
-export type LyraGroupFacet = {
-  name: string,
-  data: string, // refers to dataset name
-  groupby: string[], // string of field
-}
+// export type LyraGroupFacet = {
+//   facet: {
+//     name: string,
+//     data: string, // refers to dataset name
+//     groupby: any[], // string of field
+//   }
+// }
 
-export const GroupFacet = Record<LyraGroupFacet>({
-  name: "",
-  data: "", // refers to dataset name
-  groupby: [],
-}, 'LyraGroupFacet');
+// export const GroupFacet = Record<LyraGroupFacet>({
+//   facet: {
+//     name: "",
+//     data: "", // refers to dataset name
+//     groupby: [],
+//   }
+// }, 'LyraGroupFacet');

@@ -12,6 +12,7 @@ export const Text = Record<LyraTextMark>({
   _id: null,
   _parent: null,
   _vlUnit: null,
+  _facet: null,
   type: 'text',
   name: null,
   from: null,

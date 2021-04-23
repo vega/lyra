@@ -13,6 +13,7 @@ export const Rect = Record<LyraRectMark>({
   _id: null,
   _parent: null,
   _vlUnit: null,
+  _facet: null,
   type: 'rect',
   name: null,
   from: null,

@@ -3,10 +3,10 @@ import {LineMark} from 'vega-typings';
 import anchorTarget from '../../../util/anchor-target';
 import {propSg} from '../../../util/prop-signal';
 import test from '../../../util/test-if';
-import {HandleStreams, LyraMarkMeta, LyraPathFacet} from '../Mark';
+import {HandleStreams, LyraMarkMeta} from '../Mark';
 import {DELTA} from '../Signal';
 
-export type LyraLineMark = LyraMarkMeta & LineMark & LyraPathFacet;
+export type LyraLineMark = LyraMarkMeta & LineMark;
 
 export const Line = Record<LyraLineMark>({
   _id: null,

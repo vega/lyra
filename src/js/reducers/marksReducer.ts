@@ -250,7 +250,12 @@ export function marksReducer(
     return ensureValuePresentImmutable(state, [String(groupId), '_widgets'], action.payload);
   }
 
-  if (action.type == getType(markActions.addGroupFacet)) {
+  if (action.type == getType(markActions.baseAddGroupFacet)) {
+    return state.setIn([String(groupId), "from"], {facet: action.payload});
+  }
+
+  if (action.type == getType(markActions.baseAddFacet)) {
+    console.log("id " + String(groupId) + ", payload ", action.payload);
     return state.setIn([String(groupId), "from"], action.payload);
   }
 

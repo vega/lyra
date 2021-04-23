@@ -2,10 +2,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {FieldDraggingStateRecord} from '../../store/factory/Inspector';
-import {GroupFacet} from "../../store/factory/marks/Group";
+// import {GroupFacet} from "../../store/factory/marks/Group";
+import {Facet} from 'vega-typings';
 import {getClosestGroupId} from '../../util/hierarchy';
 import {addFacetLayout} from '../../actions/facetLayoutActions';
-import {addGroupFacet} from '../../actions/markActions';
+import {addFacet} from '../../actions/markActions';
 import {FacetLayout} from '../../store/factory/FacetLayout';
 interface StateProps {
   dragging: FieldDraggingStateRecord;
@@ -41,7 +42,8 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
         numCols = null;
       }
       dispatch(addFacetLayout(FacetLayout({columns: numCols})));
-      dispatch(addGroupFacet(GroupFacet({name: "facet", data: "cars_source_5", groupby: [field]}), groupId)); // remove hardcoded data name
+      // dispatch(addGroupFacet(GroupFacet({facet: {name: "facet", data: "cars_source_5", groupby: [field]}}), groupId)); // remove hardcoded data name
+      dispatch(addFacet({name: "facet",data: "5", groupby: field} as Facet, groupId));
     }
   }
 }

@@ -1,7 +1,7 @@
 import {Map} from 'immutable';
 import {ActionType, getType} from 'typesafe-actions';
 import {FacetLayoutState} from '../store/factory/FacetLayout';
-import * as FacetLayoutActions from '../actions/FacetLayoutActions';
+import * as FacetLayoutActions from '../actions/facetLayoutActions';
 
 /**
  * This reducer handles layout updates

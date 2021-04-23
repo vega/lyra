@@ -6,7 +6,8 @@ import {UnitSpec} from 'vega-lite/src/spec';
 import {batchGroupBy} from '../reducers/historyOptions';
 import {State} from '../store';
 import {LyraMarkType, Mark, MarkRecord, HandleStreams} from '../store/factory/Mark';
-import {LyraGroupFacet, GroupRecord} from '../store/factory/marks/Group';
+import {GroupRecord} from '../store/factory/marks/Group';
+import {Facet} from 'vega-typings';
 import {addGrouptoLayout} from './layoutActions';
 import {assignId} from '../util/counter';
 import {ThunkDispatch} from 'redux-thunk';
@@ -53,7 +54,19 @@ export function addGroup(record: GroupRecord, layoutId: number, dir: string) {
 }
 export const baseAddMark = createStandardAction('ADD_MARK')<{name: string, streams: HandleStreams, props: MarkRecord}, number>();
 
-export const addGroupFacet = createStandardAction('ADD_GROUP_FACET')<LyraGroupFacet, number>(); // number of Group ID
+export function addFacet(facet: Facet, groupId: number) {
+  return function(dispatch: ThunkDispatch<State, any, any>, getState: () => State) {
+    batchGroupBy.start();
+    dispatch(baseAddGroupFacet(facet, groupId));
+    const childrenMarks = getState().getIn(['vis', 'present', 'marks', String(groupId), 'marks']);
+    childrenMarks.forEach(mark => {
+      dispatch(baseAddFacet(facet,mark));
+    });
+    batchGroupBy.end();
+  };
+}
+export const baseAddFacet = createStandardAction('ADD_FACET')<Facet, number>(); // number of mark ID
+export const baseAddGroupFacet = createStandardAction('ADD_GROUP_FACET')<Facet, number>(); // number of Group ID
 export const updateMarkProperty = createStandardAction('UPDATE_MARK_PROPERTY')<{property: string, value: any}, number>();
 
 export const setParent = createStandardAction('SET_PARENT_MARK')<number, number>(); // parentId, childId

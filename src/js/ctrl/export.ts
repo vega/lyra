@@ -216,12 +216,16 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
     spec.from = {data: facet.name};
   } else if (spec.from) {
     let fromId;
-    if ((fromId = spec.from.data)) {
+    if ((fromId = spec.from.name)) {
+      spec.from = {"data": fromId};
+    } else if ((fromId = spec.from.data)) {
       spec.from.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
       const count = counts.data[fromId] || (counts.data[fromId] = duplicate(DATA_COUNT));
       count.marks[id] = true;
     } else if ((fromId = spec.from.mark)) {
       spec.from.mark = name(getInVis(state, 'marks.' + fromId + '.name'));
+    } else if ((fromId = spec.from.facet.data)) {
+      spec.from.facet.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
     }
   }
 
