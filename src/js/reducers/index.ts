@@ -17,6 +17,7 @@ import {invalidateVegaReducer as vega} from './vegaReducer';
 import {lyraGlobalsReducer as lyra} from './lyraReducer';
 import {walkthroughReducer as walkthrough} from './walkthroughReducer';
 import {layoutsReducer as layouts} from './layoutsReducer';
+import {facetLayoutsReducer as facetLayouts} from './facetLayoutsReducer';
 
 const visReducers = combineReducers({
   signals,
@@ -28,7 +29,8 @@ const visReducers = combineReducers({
   marks,
   interactions,
   widgets,
-  layouts
+  layouts,
+  facetLayouts
 });
 
 // order matters here
