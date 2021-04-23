@@ -40,14 +40,14 @@ export function addMark (record: MarkRecord) {
   };
 }
 
-export function addGroup(record: GroupRecord, layoutId: number, dir: string) {
+export function addGroup(record: GroupRecord, layoutId: number, dir: string, index: number) {
   return function(dispatch: ThunkDispatch<State, any, any>, getState: () => State) {
     const id = record._id || assignId(dispatch, getState());
     record = record.set('_id', id) as GroupRecord;
 
     batchGroupBy.start();
     dispatch(addMark(record));
-    dispatch(addGrouptoLayout({group: record, dir}, layoutId));
+    dispatch(addGrouptoLayout({group: record, dir, index}, layoutId));
     batchGroupBy.end();
   };
 }

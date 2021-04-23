@@ -60,15 +60,22 @@ function initSignalsForMark(state: SignalState, action: ActionType<typeof markAc
 
 function initSignalsForLayout(state: SignalState, action: ActionType<typeof layoutActions.baseAddGrouptoLayout>) {
   const dir = action.payload.dir;
+
   if (dir == "top" || dir == "bottom") {
     // add row size and position signals
     state = ["size", "pos"].reduce(function(accState, key) {
-      const signalName = propSg(action.meta, "layout", "row_" + action.payload.rowNum+"_"+key);
+      const signalName = propSg(action.meta, "layout", "row_" + String(action.payload.newDim)+"_"+key);
       const val = key == "size" ? defaultGroupHeight: 0;
       const intermediateState = signalInit(accState, signalName, val);
       if (key == "pos"){
-        const update = propSg(action.meta, "layout", "row_" + (action.payload.rowNum-1)+"_pos") + " + " + propSg(action.meta, "layout", "row_" + (action.payload.rowNum-1)+"_size + 30");// fix hardcoded 30
-        return setSignalUpdate(intermediateState, signalName, update);
+        if (dir == "bottom") {
+          const update = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos") + " + " + propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"size + 30");// fix hardcoded 30
+          return setSignalUpdate(intermediateState, signalName, update);
+        } else { // top the original first el now has update to new signal
+          const updateSig = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos")
+          const update = propSg(action.meta, "layout", "row_"+action.payload.newDim+"_pos") + " + " + propSg(action.meta, "layout", "row_"+action.payload.newDim+"_size + 30");// fix hardcoded 30
+          return setSignalUpdate(intermediateState, updateSig, update);
+        }
       }
       return intermediateState;
     }, state);
@@ -76,12 +83,18 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
   else if (dir == "left" || dir == "right") {
     // add col size and position signals
     state = ["size", "pos"].reduce(function(accState, key) {
-      const signalName = propSg(action.meta, "layout", "col_" + action.payload.colNum+"_"+key);
+      const signalName = propSg(action.meta, "layout", "col_" +String(action.payload.newDim)+"_"+key);
       const val = key == "size" ? defaultGroupWidth: 0;
       const intermediateState = signalInit(accState, signalName, val);
       if (key == "pos"){
-        const update = propSg(action.meta, "layout", "col_" + (action.payload.colNum-1)+"_pos") + " + " + propSg(action.meta, "layout", "col_" + (action.payload.colNum-1)+"_size + 30"); // fix hardcoded 30
-        return setSignalUpdate(intermediateState, signalName, update);
+        if (dir == "right") {
+          const update = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos") + " + " + propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"size + 30");// fix hardcoded 30
+          return setSignalUpdate(intermediateState, signalName, update);
+        } else { // left, the original first el now has update to new signal
+          const updateSig = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos")
+          const update = propSg(action.meta, "layout", "col_"+action.payload.newDim+"_pos") + " + " + propSg(action.meta, "layout", "col_"+action.payload.newDim+"_size + 30");// fix hardcoded 30
+          return setSignalUpdate(intermediateState, updateSig, update);
+        }
       }
       return intermediateState;
     }, state);
@@ -89,8 +102,8 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
   else {
     // first group the dir is null
     state = ["rowsize", "rowpos", "colsize", "colpos"].reduce(function(accState, key) {
-      const num = key.slice(0,3) == "row" ? action.payload.rowNum : action.payload.colNum;
-      const signalName = propSg(action.meta, "layout", key.slice(0,3)+"_"+num+"_"+key.slice(3));
+      const signalName = propSg(action.meta, "layout", key.slice(0,3)+"_0_"+key.slice(3));
+
       let val;
       if (key.slice(0,3) == "row"){
         val = key.slice(3) == "size" ? defaultGroupHeight: 0;
@@ -102,28 +115,30 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
     }, state);
   }
 
-  let rowNum = action.payload.rowNum;
-  let colNum = action.payload.colNum;
+  let rowSigBase = "row_0";
+  let colSigBase = "col_0";
   if (dir == "top" || dir == "bottom") {
-    colNum = action.payload.colNum-1;
+    rowSigBase = "row_" + action.payload.newDim;
+    colSigBase = action.payload.otherDim.slice(14, -5);  // e.g. "lyra_layout_2_col_1_size" -> "col_1"
   } else if (dir == "right" || dir == "left"){
-    rowNum = action.payload.rowNum-1;
+    rowSigBase = action.payload.otherDim.slice(14, -5);  // e.g. "lyra_layout_2_col_1_size" -> "col_1"
+    colSigBase = "col_" + action.payload.newDim;
   }
 
   let groupSigName = propSg(action.payload.group._id, "group", "x");
-  let signalName = propSg(action.meta, "layout", "col_" + colNum+"_pos");
+  let signalName = propSg(action.meta, "layout", colSigBase+"_pos");
   state = setSignalUpdate(state, groupSigName, signalName);
 
   groupSigName = propSg(action.payload.group._id, "group", "y");
-  signalName = propSg(action.meta, "layout", "row_" + rowNum+"_pos");
+  signalName = propSg(action.meta, "layout", rowSigBase+"_pos");
   state = setSignalUpdate(state, groupSigName, signalName);
 
   groupSigName = propSg(action.payload.group._id, "group", "width");
-  signalName = propSg(action.meta, "layout", "col_" + colNum+"_size");
+  signalName = propSg(action.meta, "layout", colSigBase+"_size");
   state = setSignalUpdate(state, groupSigName, signalName);
 
   groupSigName = propSg(action.payload.group._id, "group", "height");
-  signalName = propSg(action.meta, "layout", "row_" + rowNum+"_size");
+  signalName = propSg(action.meta, "layout", rowSigBase+"_size");
   state = setSignalUpdate(state, groupSigName, signalName);
 
   return state;
