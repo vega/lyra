@@ -4,7 +4,6 @@ import {OnEvent, SignalValue} from 'vega-typings/types';
 import {State} from '../store';
 import {invalidateVega} from './vegaActions';
 import {debounce} from 'vega';
-import {string} from 'yargs';
 
 /**
  * Action creator to initialize a signal.
