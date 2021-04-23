@@ -36,7 +36,7 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
   return {
     facetField: (field, groupId) => {
       let numCols;
-      if (ownProps.layoutOrientation == "vertical") {
+      if (ownProps.layoutOrientation == "Column") {
         numCols = 1;
       } else {
         numCols = null;

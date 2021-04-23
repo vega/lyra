@@ -49,7 +49,19 @@ export function exporter(internal: boolean = false): Spec {
   // Add interactions and widgets from store
   spec = exporter.interactions(state, spec);
   spec = exporter.widgets(state, spec);
+
+  if (state.getIn(['vis', 'present', 'facetLayouts']).size > 0){
+    spec.layout = exporter.layouts(state, int);
+  }
   return spec;
+}
+
+exporter.layouts = function (state: State, internal: boolean) {
+  const facetLayouts = state.getIn(['vis', 'present', 'facetLayouts']);
+  const layout = clean(duplicate(facetLayouts), internal);
+  console.log("layout keys", Object.keys(layout)[Object.keys(layout).length -1]);
+  const id = Object.keys(layout)[Object.keys(layout).length -1];
+  return layout[id];
 }
 
 exporter.interactions = function(state: State, spec) {
