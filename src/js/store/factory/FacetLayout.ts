@@ -9,10 +9,6 @@ export interface FacetLayout {
    */
   _id: number;
   /**
-   * Name of this layout.
-   */
-  name: string;
-  /**
    * Number of columns in this layout.
    */
   columns: number;
@@ -33,12 +29,11 @@ export interface FacetLayout {
 
 export const FacetLayout = Record<FacetLayout>({
   _id: null,
-  name: "",
-  columns: 0,
+  columns: null,
   padding: 30,
   bounds: "full",
   align: "all"
-}, 'VegaLayout');
+}, 'FacetLayout');
 
 export type FacetLayoutRecord = RecordOf<FacetLayout>;
 

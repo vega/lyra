@@ -2,8 +2,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {State} from '../../store';
 import {FieldDraggingStateRecord} from '../../store/factory/Inspector';
+import {GroupFacet} from "../../store/factory/marks/Group";
 import {getClosestGroupId} from '../../util/hierarchy';
-const ctrl = require('../../ctrl');
+import {addFacetLayout} from '../../actions/facetLayoutActions';
+import {addGroupFacet} from '../../actions/markActions';
+import {FacetLayout} from '../../store/factory/FacetLayout';
 interface StateProps {
   dragging: FieldDraggingStateRecord;
   groupId: number;
@@ -13,7 +16,7 @@ interface OwnProps {
   layoutOrientation: string
 }
 interface DispatchProps {
-  facetField: (payload) => void;
+  facetField: (field: string, groupId: number) => void;
 }
 
 function mapStateToProps(state: State): StateProps {
@@ -30,8 +33,15 @@ function mapStateToProps(state: State): StateProps {
 
 function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
   return {
-    facetField: () => {
-
+    facetField: (field, groupId) => {
+      let numCols;
+      if (ownProps.layoutOrientation == "vertical") {
+        numCols = 1;
+      } else {
+        numCols = null;
+      }
+      dispatch(addFacetLayout(FacetLayout({columns: numCols})));
+      dispatch(addGroupFacet(GroupFacet({name: "facet", data: "cars_source_5", groupby: [field]}), groupId)); // remove hardcoded data name
     }
   }
 }
@@ -47,7 +57,7 @@ class FacetDropzone extends React.Component<StateProps & OwnProps & DispatchProp
   };
 
   public handleDrop = ()  => {
-    console.log("field dropped, layout orientation", this.props.layoutOrientation);
+    this.props.facetField(this.props.dragging.fieldDef.name, this.props.groupId);
   };
 
   public render() {
