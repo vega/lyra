@@ -76,6 +76,7 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     case getType(datasetActions.sortDataset):
     case getType(datasetActions.addTransform):
     case getType(datasetActions.updateTransform):
+    case getType(markActions.baseAddFacet):
     case getType(hydrate):
     case historyActions.UNDO:
     case historyActions.REDO:

@@ -59,7 +59,6 @@ export function exporter(internal: boolean = false): Spec {
 exporter.layouts = function (state: State, internal: boolean) {
   const facetLayouts = state.getIn(['vis', 'present', 'facetLayouts']);
   const layout = clean(duplicate(facetLayouts), internal);
-  console.log("layout keys", Object.keys(layout)[Object.keys(layout).length -1]);
   const id = Object.keys(layout)[Object.keys(layout).length -1];
   return layout[id];
 }

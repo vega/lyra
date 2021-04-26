@@ -255,7 +255,6 @@ export function marksReducer(
   }
 
   if (action.type == getType(markActions.baseAddFacet)) {
-    console.log("id " + String(groupId) + ", payload ", action.payload);
     return state.setIn([String(groupId), "from"], action.payload);
   }
 
