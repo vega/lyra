@@ -45,11 +45,13 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
   public handleClick = (historyId: number) => {
 
   }
-  public handleDragStart = (historyId: number) => {
-    this.props.startDragging(HistoryDraggingState({historyId})); // TODO(ej) use this for custom drop zones
+  public handleDragStart = (historyId: number, history: any) => {
+    const sel = sg.get(SELECTED);
+    const lyraId = +sel.mark.role.split('lyra_')[1]; // id of thing that was dropped onto
+    this.props.startDragging(HistoryDraggingState({historyId, lyraId, history})); // TODO(ej) use this for custom drop zones
 
-    sg.set(MODE, 'channels');
-    ctrl.update();
+    // sg.set(MODE, 'channels');
+    // ctrl.update();
   }
 
   public handleDragEnd = (evt: React.DragEvent<HTMLDivElement>, opts?) => {
@@ -59,52 +61,37 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
     const dropped = tupleid(sel) && tupleid(cell);
 
     try {
-      const lyraId = +sel.mark.role.split('lyra_')[1]; // id of thing that was dropped onto
-
       if (dropped) {
-        const channel = channelName(cell.key);
-        let fieldName, dsId;
-        if (channel === 'x' || channel === 'y' || channel === 'color' || channel === 'size') { // TODO(ej): Adapt this to work with other mark types. channels won't always be color and size though x and y are consistent
-          // set scale
-          let channelScaleIds = this.props.history.getIn(["guides"])
-            .map((g) => {
-              return channel == 'x' || channel == 'y' ? g.scale : channel == 'size' ? g[channel] : g.fill;
-            })
-            .filter((scaleId) => {
-              let scaleName = scaleId ? this.props.history.getIn(["scales"]).get(scaleId).name : null;
-              return scaleName === channel;
-            });
+        // const lyraId = +sel.mark.role.split('lyra_')[1]; // id of thing that was dropped onto
+        // const channel = channelName(cell.key);
+        // let fieldName, dsId;
+        // if (channel === 'x' || channel === 'y' || channel === 'color' || channel === 'size') { // TODO(ej): Adapt this to work with other mark types. channels won't always be color and size though x and y are consistent
+        //   // set scale
+        //   let channelScaleIds = this.props.history.getIn(["guides"])
+        //     .map((g) => {
+        //       return channel == 'x' || channel == 'y' ? g.scale : channel == 'size' ? g[channel] : g.fill;
+        //     })
+        //     .filter((scaleId) => {
+        //       let scaleName = scaleId ? this.props.history.getIn(["scales"]).get(scaleId).name : null;
+        //       return scaleName === channel;
+        //     });
 
-          fieldName = channelScaleIds.map((scaleId) => {
-            let scaleRecord = this.props.history.getIn(["scales"]).get(scaleId);
-            return scaleRecord.get('_domain').length > 0 ?  scaleRecord.get('_domain')[0].field : null;
-          }).first();
+        //   fieldName = channelScaleIds.map((scaleId) => {
+        //     let scaleRecord = this.props.history.getIn(["scales"]).get(scaleId);
+        //     return scaleRecord.get('_domain').length > 0 ?  scaleRecord.get('_domain')[0].field : null;
+        //   }).first();
 
-          dsId = channelScaleIds.map((scaleId) => {
-            let scaleRecord = this.props.history.getIn(["scales"]).get(scaleId);
-            return scaleRecord.get('_domain').length > 0 ?  scaleRecord.get('_domain')[0].data : null;
-          }).first();
+        //   dsId = channelScaleIds.map((scaleId) => {
+        //     let scaleRecord = this.props.history.getIn(["scales"]).get(scaleId);
+        //     return scaleRecord.get('_domain').length > 0 ?  scaleRecord.get('_domain')[0].data : null;
+        //   }).first();
 
 
-        }
+        // }
 
-        const bindField = this.props.history.getIn(["datasets", String(dsId), "_schema", fieldName]).toJS();
-        vega.extend(bindField, opts); // Aggregate or Bin passed in opts.
-        props.bindChannel(dsId, bindField, lyraId, cell.key);
-      } else {
-        // TODO(ej): need to introduce custom drop zones for aesthetic/non-scale merges instead of using non bubble cursor drops
-        // update the whole symbol/mark: shape, size
-        // the history has the signals
-        let relevantProps = ["size", "shape", "fill", "fillOpacity", "stroke",  "strokeWidth"];
-        let historyMark = this.props.history.getIn(["marks", String(lyraId)]); // assume mark is the same as before. wanna revert to old settings of old mark
-
-        relevantProps.forEach((prop) => {
-          let historyProp = historyMark.getIn(["encode", "update", prop]);
-          if (historyProp.signal) {
-            let historySigVal = this.props.history.getIn(["signals", historyProp.signal]).value;
-            sg.set(historyProp.signal, historySigVal, false);
-          }
-        });
+        // const bindField = this.props.history.getIn(["datasets", String(dsId), "_schema", fieldName]).toJS();
+        // vega.extend(bindField, opts); // Aggregate or Bin passed in opts.
+        // props.bindChannel(dsId, bindField, lyraId, cell.key);
       }
     } catch (e) {
       console.error('Unable to bind primitive');
@@ -112,8 +99,8 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
     }
 
     this.props.stopDragging();
-    sg.set(MODE, 'handles');
-    sg.set(CELL, {});
+    // sg.set(MODE, 'handles');
+    // sg.set(CELL, {});
 
     ctrl.update(); // Apply changes
 
@@ -150,7 +137,7 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
       draggable={true}
               key={this.props.id}
               onClick={() => this.handleClick(this.props.id)}
-              onDragStart={() => this.handleDragStart(this.props.id)}
+              onDragStart={() => this.handleDragStart(this.props.id, this.props.history)}
               onDragEnd={this.handleDragEnd}></div>
     );
 

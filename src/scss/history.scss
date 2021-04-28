@@ -3,12 +3,26 @@ $history-width: 230px;
 
 #history-toolbar {
   padding: $outer-padding;
-  height: 150px;
   background: $lgrey-bg;
+  z-index: 1;
+  margin-top: auto;
+}
+
+#history-toolbar.expanded {
+  height: 150px;
+}
+
+#history-toolbar.contracted {
+  height: 10px;
 }
 
 #history-toolbar h2 {
   margin-bottom: 10px;
+  display: inline-block;
+}
+
+#history-toolbar .icon {
+  vertical-align: middle;
 }
 
 #history-list {
@@ -23,4 +37,14 @@ $history-width: 230px;
   }
 }
 
+.drop-history {
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 0 2px #2abfbf;
+  border-radius: 3px;
+  position: absolute;
+}
+
+.drop-history:hover {
+  border: 1px solid #FF4D00;
+}
 

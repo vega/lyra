@@ -32,6 +32,8 @@ export interface LyraSignalDraggingState {
 
 export interface LyraHistoryDraggingState {
   historyId: number;
+  lyraId: number;
+  history: any; // TODO(ej): remove after implementing history state
 }
 
 export interface LyraScaleDraggingState {
@@ -52,6 +54,8 @@ export const SignalDraggingState = Record<LyraSignalDraggingState>({
 
 export const HistoryDraggingState = Record<LyraHistoryDraggingState>({
   historyId: null,
+  lyraId: null,
+  history: null // TODO(ej): remove after implementing history state
 }, 'LyraHistoryDraggingState');
 
 export const ScaleDraggingState = Record<LyraScaleDraggingState>({

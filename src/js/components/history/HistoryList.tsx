@@ -9,8 +9,12 @@ import exportName from '../../util/exportName';
 import {mapNestedMarksOfGroup, editSignals} from '../../ctrl/demonstrations';
 import duplicate from "../../util/duplicate";
 import {Spec} from "vega";
+import { Icon } from '../Icon';
+import {ExpandedLayers} from '../../store/factory/Inspector';
+import {toggleLayers} from '../../actions/inspectorActions';
 
 const getIn = require('../../util/immutable-utils').getIn;
+const assets = require('../../util/assets');
 const HEIGHT = 100;
 const WIDTH = 100;
 
@@ -19,10 +23,12 @@ interface OwnProps {
 interface StateProps {
   history: any[];
   groupNames: string[];
+  expandedLayers?: ExpandedLayers;
 }
 
 interface DispatchProps {
   updateHistoryProperty: (payload: {property: string, value: any}, id: number) => void;
+  toggleGroup?: () => void;
 }
 
 function mapStateToProps(state: State): StateProps {
@@ -36,28 +42,38 @@ function mapStateToProps(state: State): StateProps {
   history.push(getIn(state, 'vis').present);
   return {
     history,
-    groupNames: groupNames
+    groupNames: groupNames,
+    expandedLayers: state.getIn(['inspector', 'encodings', 'expandedLayers']),
   };
 }
 
-const actionCreators: DispatchProps = {
-  updateHistoryProperty
-};
+function mapDispatchToProps(dispatch, ownProps): DispatchProps {
+  return {
+    updateHistoryProperty,
+    toggleGroup: function() {
+      dispatch(toggleLayers([1000])); // todo(ej): have a better id for this state.
+    }
+  };
+}
 
 class BaseHistoryList extends React.Component<OwnProps & StateProps & DispatchProps> {
 
   public render() {
-
+    const isExpanded = this.props.expandedLayers[1000]; // todo(ej): have a better id for this state. use history state
+    const groupClass = isExpanded ? 'expanded' : 'contracted';
     return (
-      <div id='history-toolbar'>
-        <h2>History</h2>
-        <div id='history-list' >
+      <div id='history-toolbar' className={groupClass}>
+        <h2 onClick={this.props.toggleGroup}>
+          <Icon glyph={assets['group-' + groupClass]} className="icon" />
+          History
+        </h2>
+        {isExpanded ? <div id='history-list' >
           {this.props.history.map(
             (item, idx) => {
               return <HistoryItem id={idx} key={idx+''} history={item} groupNames={this.props.groupNames} width={WIDTH} height={HEIGHT} />
             }
           )}
-        </div>
+        </div> : null}
       </div>
     );
   }
@@ -201,4 +217,4 @@ const baseSignals = [
   }
 ];
 
-export const HistoryList = connect(mapStateToProps, actionCreators)(BaseHistoryList);
+export const HistoryList = connect(mapStateToProps, mapDispatchToProps)(BaseHistoryList);
