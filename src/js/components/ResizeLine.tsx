@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import {State} from '../store';
 import { LayoutRecord} from '../store/factory/Layout';
 import { defaultGroupSpacing} from '../store/factory/marks/Group';
-import {setSignal} from '../actions/signalActions';
 import {propSg} from '../util/prop-signal';
+import sg from '../ctrl/signals';
 
 interface StateProps {
   layout: LayoutRecord;
@@ -40,7 +40,7 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
   return {
     setSignal: (value) => {
       let signalName = ownProps.direction == "vertical"? propSg(ownProps.layoutId, "layout", "col_" + ownProps.index+"_size") : propSg(ownProps.layoutId, "layout", "row_" + ownProps.index+"_size");
-      dispatch(setSignal(value, signalName));
+      sg.set(signalName, value);
     },
   };
 }
