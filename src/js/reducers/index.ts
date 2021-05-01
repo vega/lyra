@@ -7,6 +7,7 @@ import {hintsReducer as hints} from './hintsReducer';
 import historyOptions from './historyOptions';
 import {inspectorReducer as inspector} from './inspectorReducer';
 import {interactionsReducer as interactions} from './interactionsReducer';
+import {historyReducer as histories} from './historyReducer';
 import {widgetsReducer as widgets} from './widgetsReducer';
 import {marksReducer as marks} from './marksReducer';
 import {pipelinesReducer as pipelines} from './pipelinesReducer';
@@ -26,6 +27,7 @@ const visReducers = combineReducers({
   guides,
   marks,
   interactions,
+  histories,
   widgets
 });
 

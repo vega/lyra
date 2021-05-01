@@ -35,6 +35,10 @@ $history-width: 230px;
     display: inline-block;
     margin-right: 10px;
   }
+
+  .history-preview.selected {
+    border: 2px solid black;
+  }
 }
 
 .drop-history {

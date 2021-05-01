@@ -13,6 +13,7 @@ import {setMarkVisual} from '../../actions/markActions';
 import * as vega from 'vega';
 import bindChannel from '../../actions/bindChannel';
 import {ColumnRecord} from '../../store/factory/Dataset';
+import {ActionCreators as historyActions} from 'redux-undo';
 
 const ctrl = require('../../ctrl');
 
@@ -23,6 +24,7 @@ interface OwnProps {
   groupNames: string[];
   width: number;
   height: number;
+  type: string;
 }
 interface DispatchProps {
   startDragging: (d: DraggingStateRecord) => void; // TODO(ej): use this for custom drop zones later
@@ -30,9 +32,13 @@ interface DispatchProps {
   setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
 
   bindChannel: (dsId: number, field: ColumnRecord, markId: number, property: string) => void;
+  jump: (point: number) => void;
+  jumpToPast: (index: number) => void;
+  jumpToFuture: (index: number) => void;
+  clearHistory: () => void;
 }
 
-const actionCreators: DispatchProps = {startDragging, stopDragging, setMarkVisual, bindChannel};
+const actionCreators: DispatchProps = {startDragging, stopDragging, setMarkVisual, bindChannel, ...historyActions};
 
 export class HistoryItemInspector extends React.Component<OwnProps & DispatchProps> {
 
@@ -42,8 +48,17 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
 
 
 
-  public handleClick = (historyId: number) => {
-
+  public handleClick = (historyId: number, type: string) => {
+    let indx = parseInt(type.split("-")[1]);
+    if (type.includes("past")) {
+      this.props.jumpToPast(indx);
+    } else if (type.includes("future")) {
+      this.props.jumpToFuture(indx);
+    } else {
+      let t= 1;
+    }
+    // this.props.jumpToPast(historyId);
+    ctrl.update();
   }
   public handleDragStart = (historyId: number, history: any) => {
     const sel = sg.get(SELECTED);
@@ -132,11 +147,11 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
   public render() {
 
     return (
-      <div id={`history-test-${this.props.id}`}
-      className={"history-preview"}
+      <div id={`history-test-${this.props.id}`} data-type={this.props.type}
+      className={"history-preview"+(this.props.type.includes("present") ? " selected" : "")}
       draggable={true}
               key={this.props.id}
-              onClick={() => this.handleClick(this.props.id)}
+              onClick={() => this.handleClick(this.props.id, this.props.type)}
               onDragStart={() => this.handleDragStart(this.props.id, this.props.history)}
               onDragEnd={this.handleDragEnd}></div>
     );

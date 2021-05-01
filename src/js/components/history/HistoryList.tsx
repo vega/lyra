@@ -21,7 +21,10 @@ const WIDTH = 100;
 interface OwnProps {
 }
 interface StateProps {
-  history: any[];
+  past: any[];
+  present: any[];
+  future: any[];
+  all: any[];
   groupNames: string[];
   expandedLayers?: ExpandedLayers;
 }
@@ -38,10 +41,14 @@ function mapStateToProps(state: State): StateProps {
   }).map((v) => {
     return exportName(v.name);
   }).toList().toJSON();
-  let history = [...getIn(state, 'vis').past];
-  history.push(getIn(state, 'vis').present);
+  let past = [...getIn(state, 'vis').past];
+  let present = [getIn(state, 'vis').present];
+  let future = [...getIn(state, 'vis').future];
   return {
-    history,
+    past: [...past],
+    present: [...present],
+    future: [...future],
+    all: [...past, ...present, ...future],
     groupNames: groupNames,
     expandedLayers: state.getIn(['inspector', 'encodings', 'expandedLayers']),
   };
@@ -68,11 +75,26 @@ class BaseHistoryList extends React.Component<OwnProps & StateProps & DispatchPr
           History
         </h2>
         {isExpanded ? <div id='history-list' >
-          {this.props.history.map(
+          {this.props.all.map(
             (item, idx) => {
-              return <HistoryItem id={idx} key={idx+''} history={item} groupNames={this.props.groupNames} width={WIDTH} height={HEIGHT} />
+              return <HistoryItem id={idx} key={idx+''} history={item} groupNames={this.props.groupNames} width={WIDTH} height={HEIGHT} type={this.props.past.includes(item) ? "past-"+this.props.past.indexOf(item) : this.props.future.includes(item) ? "future-"+this.props.future.indexOf(item) : "present-"+this.props.present.indexOf(item)} />
             }
           )}
+          {/* {this.props.past.map(
+            (item, idx) => {
+              return <HistoryItem id={idx} key={idx+''} history={item} groupNames={this.props.groupNames} width={WIDTH} height={HEIGHT} type="past" />
+            }
+          )}
+          {this.props.present.map(
+            (item, idx) => {
+              return <HistoryItem id={idx} key={idx+''} history={item} groupNames={this.props.groupNames} width={WIDTH} height={HEIGHT} type="present" />
+            }
+          )}
+          {this.props.future.map(
+            (item, idx) => {
+              return <HistoryItem id={idx} key={idx+''} history={item} groupNames={this.props.groupNames} width={WIDTH} height={HEIGHT} type="future" />
+            }
+          )} */}
         </div> : null}
       </div>
     );
