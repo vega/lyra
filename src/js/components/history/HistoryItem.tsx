@@ -13,6 +13,7 @@ import {setMarkVisual} from '../../actions/markActions';
 import * as vega from 'vega';
 import bindChannel from '../../actions/bindChannel';
 import {ColumnRecord} from '../../store/factory/Dataset';
+import {ActionCreators as historyActions} from 'redux-undo'
 
 const ctrl = require('../../ctrl');
 
@@ -25,14 +26,16 @@ interface OwnProps {
   height: number;
 }
 interface DispatchProps {
+
   startDragging: (d: DraggingStateRecord) => void; // TODO(ej): use this for custom drop zones later
   stopDragging: () => void; // TODO(ej): use this for custom drop zones later
   setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
 
   bindChannel: (dsId: number, field: ColumnRecord, markId: number, property: string) => void;
+  jump: (index: number) => void;
 }
 
-const actionCreators: DispatchProps = {startDragging, stopDragging, setMarkVisual, bindChannel};
+const actionCreators: DispatchProps = {startDragging, stopDragging, setMarkVisual, bindChannel, ...historyActions};
 
 export class HistoryItemInspector extends React.Component<OwnProps & DispatchProps> {
 
@@ -40,10 +43,8 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
     super(props);
   }
 
-
-
   public handleClick = (historyId: number) => {
-
+    this.props.jump(historyId);
   }
   public handleDragStart = (historyId: number, history: any) => {
     const sel = sg.get(SELECTED);

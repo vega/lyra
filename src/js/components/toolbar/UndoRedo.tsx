@@ -5,7 +5,8 @@ const assets = require('../../util/assets');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {ActionCreators} from 'redux-undo';
+import {ActionCreators, canUndo, canRedo} from 'redux-undo';
+import {canUseUnaggregatedDomain} from 'vega-lite/src/compile/scale/domain';
 import {State} from '../../store';
 import {Icon} from '../Icon';
 
@@ -21,8 +22,8 @@ interface DispatchProps {
 function mapStateToProps(state: State): StateProps {
   const vis = state.vis;
   return {
-    canUndo: vis.past.length > 0,
-    canRedo: vis.future.length > 0
+    canUndo: canUndo(vis),
+    canRedo: canRedo(vis)
   };
 }
 
