@@ -36,4 +36,6 @@ import './components';
 
 store.dispatch(historyActions.clearHistory());
 
+console.log('clear history');
+
 (global as any).vega = vega;

@@ -38,8 +38,7 @@ function mapStateToProps(state: State): StateProps {
   }).map((v) => {
     return exportName(v.name);
   }).toList().toJSON();
-  let history = [...getIn(state, 'vis').past];
-  history.push(getIn(state, 'vis').present);
+  const history = state.getIn(['vis', '_allStates']);
   return {
     history,
     groupNames: groupNames,

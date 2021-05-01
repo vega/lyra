@@ -22,10 +22,11 @@ export type VisStateTree = Map<string, Map<string, number |
   MarkRecord | SignalRecord | InteractionRecord | WidgetRecord>>;
 
 export interface VisState {
-  past: VisStateTree[];
-  present: VisStateTree;
-  future: VisStateTree[];
-  filtered?: boolean;
+  present: VisStateTree,
+  _allStates: VisStateTree[],
+  _parentIds: number[],
+  _childrenIds: number[][],
+  _activeChildIds: number[],
 }
 
 export interface LyraState {
@@ -37,21 +38,24 @@ export interface LyraState {
   hints: HintsRecord;
 };
 
+const defaultVisStateTree = Map({
+  pipelines: Map<string, PipelineRecord>(),
+  datasets: Map<string, DatasetRecord>(),
+  scene: Map<string, number>(),
+  scales: Map<string, ScaleRecord>(),
+  guides: Map<string, GuideRecord>(),
+  marks: Map<string, MarkRecord>(),
+  interactions: Map<string, InteractionRecord>(),
+  widgets: Map<string, WidgetRecord>(),
+  signals: defaultSignalState,
+});
 const getDefaultState = Record<LyraState>({
   vis: {
-    past: [],
-    present: Map({
-      pipelines: Map<string, PipelineRecord>(),
-      datasets: Map<string, DatasetRecord>(),
-      scene: Map<string, number>(),
-      scales: Map<string, ScaleRecord>(),
-      guides: Map<string, GuideRecord>(),
-      marks: Map<string, MarkRecord>(),
-      interactions: Map<string, InteractionRecord>(),
-      widgets: Map<string, WidgetRecord>(),
-      signals: defaultSignalState,
-    }),
-    future: []
+    present: defaultVisStateTree,
+    _allStates: [defaultVisStateTree],
+    _parentIds: [null],
+    _childrenIds: [[]],
+    _activeChildIds: [null]
   },
   vega: VegaReparse(),
   lyra: LyraGlobals(),

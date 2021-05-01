@@ -79,8 +79,7 @@ export function invalidateVegaReducer(state: VegaReparseRecord,
     case getType(hydrate):
     case historyActions.UNDO:
     case historyActions.REDO:
-    case historyActions.JUMP_TO_FUTURE:
-    case historyActions.JUMP_TO_PAST:
+    case historyActions.JUMP:
       return state.set('invalid', true);
   }
 
