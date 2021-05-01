@@ -27,15 +27,13 @@ interface OwnProps {
   type: string;
 }
 interface DispatchProps {
+
   startDragging: (d: DraggingStateRecord) => void; // TODO(ej): use this for custom drop zones later
   stopDragging: () => void; // TODO(ej): use this for custom drop zones later
   setMarkVisual: (payload: {property: string, def: NumericValueRef | StringValueRef}, markId: number) => void;
 
   bindChannel: (dsId: number, field: ColumnRecord, markId: number, property: string) => void;
-  jump: (point: number) => void;
-  jumpToPast: (index: number) => void;
-  jumpToFuture: (index: number) => void;
-  clearHistory: () => void;
+  jump: (index: number) => void;
 }
 
 const actionCreators: DispatchProps = {startDragging, stopDragging, setMarkVisual, bindChannel, ...historyActions};
@@ -46,19 +44,8 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
     super(props);
   }
 
-
-
-  public handleClick = (historyId: number, type: string) => {
-    let indx = parseInt(type.split("-")[1]);
-    if (type.includes("past")) {
-      this.props.jumpToPast(indx);
-    } else if (type.includes("future")) {
-      this.props.jumpToFuture(indx);
-    } else {
-      let t= 1;
-    }
-    // this.props.jumpToPast(historyId);
-    ctrl.update();
+  public handleClick = (historyId: number) => {
+    this.props.jump(historyId);
   }
   public handleDragStart = (historyId: number, history: any) => {
     const sel = sg.get(SELECTED);
