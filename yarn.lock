@@ -10708,10 +10708,9 @@ redux-thunk@^2.1.0:
   resolved "https://registry.yarnpkg.com/redux-thunk/-/redux-thunk-2.3.0.tgz#51c2c19a185ed5187aaa9a2d08b666d0d6467622"
   integrity sha512-km6dclyFnmcvxhAcrQV2AkZmPQjzPDjgVlQtR0EQjxZPyJ0BnMf3in1ryuR8A2qU0HldVRfxYXbFSKlI3N7Slw==
 
-redux-undo@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/redux-undo/-/redux-undo-1.0.0.tgz#7688f0ae3874e0da35077de4fb1753c5d2e66a7a"
-  integrity sha512-WhCbkQyzY3KgqR+3wF1wR/O9WhvTsYGxKhwX5H1nWLA0q9AHrtHWgj4WQhTIJr5HzUR5uJyHm/Dnu5fiSvqL7w==
+redux-undo@jonathanzong/redux-undo:
+  version "1.0.1"
+  resolved "https://codeload.github.com/jonathanzong/redux-undo/tar.gz/d1014d07bf8fa2000b32a82b75fdc96b2a564487"
 
 redux@^4.0.0, redux@^4.0.1:
   version "4.0.1"

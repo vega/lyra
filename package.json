@@ -97,7 +97,7 @@
     "redux-logger": "^3.0.6",
     "redux-mock-store": "^1.2.0",
     "redux-thunk": "^2.1.0",
-    "redux-undo": "^1.0.0",
+    "redux-undo": "jonathanzong/redux-undo",
     "sass": "^1.32.8",
     "sass-loader": "^7.1.0",
     "sinon": "^1.17.4",
