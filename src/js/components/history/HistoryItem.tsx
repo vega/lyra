@@ -7,24 +7,30 @@ import {startDragging, stopDragging} from '../../actions/inspectorActions';
 import {DraggingStateRecord, HistoryDraggingState} from '../../store/factory/Inspector';
 import sg from '../../ctrl/signals';
 import {MODE, SELECTED, CELL} from '../../store/factory/Signal';
+import {State} from '../../store';
 import {NumericValueRef, StringValueRef, tupleid} from 'vega';
 import {channelName} from '../../actions/bindChannel';
 import {setMarkVisual} from '../../actions/markActions';
 import * as vega from 'vega';
 import bindChannel from '../../actions/bindChannel';
 import {ColumnRecord} from '../../store/factory/Dataset';
-import {ActionCreators as historyActions} from 'redux-undo';
+import {ActionCreators as historyActions} from 'redux-undo/src';
 
 const ctrl = require('../../ctrl');
 
 
 interface OwnProps {
   id: number,
-  history: HistoryRecord // TODO(ej): use History.ts so you just have to pass the id
-  groupNames: string[];
+  subIndex?: number,
+
+  historyId: number,
   width: number;
   height: number;
-  type: string;
+  isCurrent: boolean;
+}
+
+interface StateProps {
+  history: HistoryRecord // TODO(ej): use History.ts so you just have to pass the id
 }
 interface DispatchProps {
 
@@ -36,9 +42,15 @@ interface DispatchProps {
   jump: (index: number) => void;
 }
 
+function mapStateToProps(state: State, ownProps: OwnProps): StateProps {
+  return {
+    history: state.getIn(['vis', '_allStates'])[ownProps.historyId],
+  };
+}
+
 const actionCreators: DispatchProps = {startDragging, stopDragging, setMarkVisual, bindChannel, ...historyActions};
 
-export class HistoryItemInspector extends React.Component<OwnProps & DispatchProps> {
+export class HistoryItemInspector extends React.Component<OwnProps & StateProps & DispatchProps> {
 
   constructor(props) {
     super(props);
@@ -119,11 +131,18 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
 
   private view;
 
+  public componentDidUpdate() {
+    console.log("update", this.props.id);
+  }
+
+  public componentDidcomponentWillUnmountUpdate() {
+    console.log("unmount", this.props.id);
+  }
 
   public componentDidMount() {
     const spec = this.getHistorySpec();
     this.view = new View(parse(spec), {
-      renderer:  'svg',  // renderer (canvas or svg)
+      renderer:  'canvas',  // renderer (canvas or svg)
       container: `#history-test-${this.props.id}`   // parent DOM container
     });
     this.view.width(this.props.width);
@@ -132,21 +151,21 @@ export class HistoryItemInspector extends React.Component<OwnProps & DispatchPro
   }
 
   public render() {
-
+    let subIndex = this.props.subIndex;
     return (
-      <div id={`history-test-${this.props.id}`} data-type={this.props.type}
-      className={"history-preview"+(this.props.type.includes("present") ? " selected" : "")}
+      <div id={`history-test-${this.props.id}`}
+      className={"history-preview"+(this.props.isCurrent ? " selected" : "")} style={subIndex != null ? {top: -1*(subIndex)*5, left:-1*(subIndex)*5} : {}}
       draggable={true}
-              key={this.props.id}
-              onClick={() => this.handleClick(this.props.id, this.props.type)}
-              onDragStart={() => this.handleDragStart(this.props.id, this.props.history)}
-              onDragEnd={this.handleDragEnd}></div>
+      key={this.props.id}
+      onClick={() => this.handleClick(this.props.id)}
+      onDragStart={() => this.handleDragStart(this.props.id, this.props.history)}
+      onDragEnd={this.handleDragEnd}></div>
     );
 
   }
 }
 
 export const HistoryItem = connect(
-  null,
+  mapStateToProps,
   actionCreators
 )(HistoryItemInspector);

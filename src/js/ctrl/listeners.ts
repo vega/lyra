@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import {ActionCreators as historyActions} from 'redux-undo';
+import {ActionCreators as historyActions} from 'redux-undo/src';
 import {getType} from 'typesafe-actions';
 import {baseSelectMark, expandLayers, selectMark, InspectorSelectedType} from '../actions/inspectorActions';
 import {deleteMark} from '../actions/markActions';

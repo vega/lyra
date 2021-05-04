@@ -1,5 +1,5 @@
 import {combineReducers} from 'redux-immutable';
-import undoable from 'redux-undo';
+import undoable from 'redux-undo/src';
 import {hydrator} from '../ctrl/persist';
 import {datasetsReducer as datasets} from './datasetsReducer';
 import {guidesReducer as guides} from './guidesReducer';

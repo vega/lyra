@@ -21,11 +21,10 @@ const WIDTH = 100;
 interface OwnProps {
 }
 interface StateProps {
-  past: any[];
-  present: any[];
-  future: any[];
-  all: any[];
-  groupNames: string[];
+  historyIds: any[];
+  parentIds: number[];
+  childrenIds: number[];
+  currentId: number;
   expandedLayers?: ExpandedLayers;
 }
 
@@ -36,19 +35,44 @@ interface DispatchProps {
 
 function mapStateToProps(state: State): StateProps {
   const marks: Map<string, MarkRecord> = state.getIn(['vis', 'present', 'marks']);
-  const groupNames = marks.filter((mark: MarkRecord) => {
-    return mark.type === 'group';
-  }).map((v) => {
-    return exportName(v.name);
-  }).toList().toJSON();
-  const history = state.getIn(['vis', '_allStates']);
+  let currentId = state.getIn(['vis', '_allStates']).indexOf(state.getIn(['vis']).present);
+  let parentIds = state.getIn(['vis', '_parentIds']);
+  let childrenIds = state.getIn(['vis', '_childrenIds']);
+
+  let addSiblings = (idx) => {
+    let parent = parentIds[idx];
+    if (parent == null) {
+      return [idx];
+    }
+    let siblings = childrenIds[parent].filter((id) => id !== idx);
+    siblings.unshift(idx);
+    return siblings;
+  }
+
+  let historyIds = [addSiblings(currentId)];
+
+  // build history tree. will move this to a hlep function later
+  let curr = currentId;
+  while (parentIds[curr] !== null) { // ancestors
+    let parentId = parentIds[curr];
+    historyIds.unshift(addSiblings(parentId));
+    curr = parentId;
+  }
+
+  curr = currentId;
+  while (childrenIds[curr] && childrenIds[curr].length != 0) { // descendants. default to last(most recent) at each level
+    let childIds = childrenIds[curr];
+    historyIds.push(addSiblings(childIds[childIds.length - 1]));
+    curr = childIds[childIds.length - 1];
+  }
+  console.log(historyIds);
+
   return {
-    past: [...past],
-    present: [...present],
-    future: [...future],
-    all: [...past, ...present, ...future],
-    groupNames: groupNames,
+    parentIds,
+    childrenIds,
+    historyIds,
     expandedLayers: state.getIn(['inspector', 'encodings', 'expandedLayers']),
+    currentId
   };
 }
 
@@ -63,36 +87,39 @@ function mapDispatchToProps(dispatch, ownProps): DispatchProps {
 
 class BaseHistoryList extends React.Component<OwnProps & StateProps & DispatchProps> {
 
+  public handleExpand = (e, historyId: number) => {
+    e.target.parentElement.classList.toggle("expanded");
+  }
   public render() {
     const isExpanded = this.props.expandedLayers[1000]; // todo(ej): have a better id for this state. use history state
     const groupClass = isExpanded ? 'expanded' : 'contracted';
+
     return (
-      <div id='history-toolbar' className={groupClass}>
+      <div id='history-toolbar' className={groupClass} key="history-toolbar">
         <h2 onClick={this.props.toggleGroup}>
           <Icon glyph={assets['group-' + groupClass]} className="icon" />
           History
         </h2>
-        {isExpanded ? <div id='history-list' >
-          {this.props.all.map(
+        {isExpanded ? <div id='history-list'>
+          {this.props.historyIds.map(
             (item, idx) => {
-              return <HistoryItem id={idx} key={idx+''} history={item} groupNames={this.props.groupNames} width={WIDTH} height={HEIGHT} type={this.props.past.includes(item) ? "past-"+this.props.past.indexOf(item) : this.props.future.includes(item) ? "future-"+this.props.future.indexOf(item) : "present-"+this.props.present.indexOf(item)} />
+              if (item.length == 1) {
+                return <HistoryItem id={item[0]} key={idx+''} historyId={item[0]} width={WIDTH} height={HEIGHT} isCurrent={item[0] === this.props.currentId} />
+              } else {
+                return (
+                  <div className="history-item-container" style={{height: HEIGHT+10, width: WIDTH+10}} id={'history-container-'+idx} key={'history-container-'+idx}>
+                    {item.map( (it, id) => {
+                      return <HistoryItem id={it} key={idx+'-'+id} historyId={it} subIndex={item.length - id - 1} width={WIDTH} height={HEIGHT} isCurrent={it === this.props.currentId} />
+                    })}
+                    <span className="history-item-count" onClick={(e) => {this.handleExpand(e, item)}}>{item.length}</span>
+                  </div>
+                );
+
+              }
+
             }
           )}
-          {/* {this.props.past.map(
-            (item, idx) => {
-              return <HistoryItem id={idx} key={idx+''} history={item} groupNames={this.props.groupNames} width={WIDTH} height={HEIGHT} type="past" />
-            }
-          )}
-          {this.props.present.map(
-            (item, idx) => {
-              return <HistoryItem id={idx} key={idx+''} history={item} groupNames={this.props.groupNames} width={WIDTH} height={HEIGHT} type="present" />
-            }
-          )}
-          {this.props.future.map(
-            (item, idx) => {
-              return <HistoryItem id={idx} key={idx+''} history={item} groupNames={this.props.groupNames} width={WIDTH} height={HEIGHT} type="future" />
-            }
-          )} */}
+
         </div> : null}
       </div>
     );

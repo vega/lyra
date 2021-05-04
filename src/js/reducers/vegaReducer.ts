@@ -1,4 +1,4 @@
-import {ActionTypes as historyActions} from 'redux-undo';
+import {ActionTypes as historyActions} from 'redux-undo/src';
 import {ActionType, getType} from 'typesafe-actions';
 import * as helperActions from '../actions/bindChannel/helperActions';
 import * as datasetActions from '../actions/datasetActions';

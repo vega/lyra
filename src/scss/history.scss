@@ -30,14 +30,55 @@ $history-width: 230px;
   white-space: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
+  padding: 10px;
 
   .history-preview {
     display: inline-block;
     margin-right: 10px;
+    border: 2px solid transparent;
   }
 
   .history-preview.selected {
     border: 2px solid black;
+  }
+
+  .history-preview:hover {
+    border: 2px solid black;
+  }
+
+  .history-item-container {
+    display: inline-block;
+    position: relative;
+    margin: 0px 20px;
+
+    .history-preview {
+      position: absolute;
+      border: 2px orange solid;
+    }
+
+    .history-preview:hover {
+      border: 2px solid black;
+    }
+  }
+
+  .history-item-container.expanded {
+    width: initial !important;
+    height: initial !important;
+
+    .history-preview {
+      position: inherit;
+      top: 0px !important;
+      left: 0px !important;
+    }
+  }
+
+  .history-item-count {
+    position: absolute;
+    right: 15px;
+    bottom: 5px;
+    border: 2px solid black;
+    border-radius: 8px;
+    padding: 2px;
   }
 }
 

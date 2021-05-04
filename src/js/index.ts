@@ -1,4 +1,4 @@
-import {ActionCreators as historyActions} from 'redux-undo';
+import {ActionCreators as historyActions} from 'redux-undo/src';
 import * as vega from 'vega';
 import { addMark } from './actions/markActions';
 import { createScene } from './actions/sceneActions';

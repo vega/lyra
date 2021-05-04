@@ -5,7 +5,7 @@ const assets = require('../../util/assets');
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {ActionCreators, canUndo, canRedo} from 'redux-undo';
+import {ActionCreators, canUndo, canRedo} from 'redux-undo/src';
 import {canUseUnaggregatedDomain} from 'vega-lite/src/compile/scale/domain';
 import {State} from '../../store';
 import {Icon} from '../Icon';

@@ -1,4 +1,4 @@
-import {excludeAction, groupByActionTypes} from 'redux-undo';
+import {excludeAction, groupByActionTypes} from 'redux-undo/src';
 import {getType} from 'typesafe-actions';
 import {baseAddDataset} from '../actions/datasetActions';
 import {updateGuideProperty} from '../actions/guideActions';
