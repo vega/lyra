@@ -123,8 +123,7 @@ body {
 
   .resize-line.vertical {
     position: absolute;
-    /* visibility: hidden; */
-    border-left: 3px dotted lightgray;
+    border-left: 5px solid white;
     height: 160px;
     top: 0px;
     left: 0px;
@@ -132,8 +131,7 @@ body {
 
   .resize-line.horizontal {
     position: absolute;
-    /* visibility: hidden; */
-    border-top: 3px dotted lightgray;
+    border-top: 5px solid white;
     width: 160px;
     top: 0px;
     left: 0px;

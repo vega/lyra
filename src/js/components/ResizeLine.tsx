@@ -106,6 +106,8 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps> 
       length = this.props.rowSizes.reduce((acc, size) => {return acc + size+defaultGroupSpacing}, -defaultGroupSpacing);
     }
 
+    let vis = false;
+
     return (
       <div>
       {/* {this.props.direction == "horizontal" ?
@@ -116,10 +118,10 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps> 
       </div>
       } */}
       {this.props.direction == "horizontal" ?
-      <div draggable style={{top: dimSizes[this.props.index]+defaultGroupSpacing/2, width:length}} className={"resize-line " + this.props.direction} onClick={(e) => this.handleClick(e)} onDoubleClick={(e) => this.handleDblClick(e)}>
+      <div draggable style={{top: dimSizes[this.props.index]+defaultGroupSpacing/2, width:length, borderTop: vis? '5px solid black' : '5px dashed lightgray'}} className={"resize-line " + this.props.direction} onClick={(e) => this.handleClick(e)} onDoubleClick={(e) => this.handleDblClick(e)}>
       </div>
       :
-      <div draggable style={{left: dimSizes[this.props.index]+defaultGroupSpacing/2, height: length}} className={"resize-line " + this.props.direction} onClick={(e) => this.handleClick(e)} onDoubleClick={(e) => this.handleDblClick(e)}>
+      <div draggable style={{left: dimSizes[this.props.index]+defaultGroupSpacing/2, height: length, borderLeft: vis? '5px solid black' : '5px dashed lightgray'}} className={"resize-line " + this.props.direction} onClick={(e) => this.handleClick(e)} onDoubleClick={(e) => this.handleDblClick(e)}>
       </div>
       }
       </div>
