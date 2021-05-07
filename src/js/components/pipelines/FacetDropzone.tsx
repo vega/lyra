@@ -17,7 +17,7 @@ interface OwnProps {
   layoutOrientation: string
 }
 interface DispatchProps {
-  facetField: (field: string, groupId: number) => void;
+  facetField: (field: string, datasetId: number, groupId: number) => void;
 }
 
 function mapStateToProps(state: State): StateProps {
@@ -34,7 +34,7 @@ function mapStateToProps(state: State): StateProps {
 
 function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
   return {
-    facetField: (field, groupId) => {
+    facetField: (field, datasetId, groupId) => {
       let numCols;
       if (ownProps.layoutOrientation == "Column") {
         numCols = 1;
@@ -43,7 +43,7 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
       }
       dispatch(addFacetLayout(FacetLayout({columns: numCols})));
       // dispatch(addGroupFacet(GroupFacet({facet: {name: "facet", data: "cars_source_5", groupby: [field]}}), groupId)); // remove hardcoded data name
-      dispatch(addFacet({name: "facet",data: "5", groupby: field} as Facet, groupId));
+      dispatch(addFacet({name: "facet",data: String(datasetId), groupby: field} as Facet, groupId));
     }
   }
 }
@@ -59,7 +59,7 @@ class FacetDropzone extends React.Component<StateProps & OwnProps & DispatchProp
   };
 
   public handleDrop = ()  => {
-    this.props.facetField(this.props.dragging.fieldDef.name, this.props.groupId);
+    this.props.facetField(this.props.dragging.fieldDef.name, this.props.dragging.dsId, this.props.groupId);
   };
 
   public render() {
