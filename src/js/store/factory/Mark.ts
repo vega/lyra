@@ -34,11 +34,9 @@ export interface LyraMarkMeta {
   _id: number;
   _parent: number;
   _vlUnit: LyraVegaLiteSpec;
+  _facet: Facet;
 }
 
-export interface LyraPathFacet {
-  _facet: Facet
-}
 
 export type LyraMark = LyraAreaMark | LyraGroupMark | LyraLineMark | LyraRectMark | LyraSymbolMark | LyraTextMark;
 export type MarkRecord = AreaRecord | GroupRecord | LineRecord | RectRecord | SymbolRecord | TextRecord;

@@ -44,6 +44,9 @@ export default function parseMarks(dispatch: Dispatch, state: State, parsed: Com
     bindProperty(dispatch, parsed, def.encode.update);
   }
 
+  const parentID = state.getIn(['vis', 'present', 'marks', String(markId), '_parent']);
+  const isFacetMark = parentID && state.getIn(['vis', 'present', 'marks', String(parentID), 'from', 'facet']);
+
   if (pathgroup) {
     dispatch(updateMarkProperty({
       property: '_facet',
@@ -52,7 +55,7 @@ export default function parseMarks(dispatch: Dispatch, state: State, parsed: Com
         data: map.data[pathgroup.from.facet.data]
       }
     }, markId));
-  } else if (def.from && def.from.data) {
+  } else if (!isFacetMark && def.from && def.from.data) {
     dispatch(updateMarkProperty({property: 'from', value: {data: map.data[def.from.data]}}, markId));
   }
 }

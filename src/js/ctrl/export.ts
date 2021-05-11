@@ -49,7 +49,18 @@ export function exporter(internal: boolean = false): Spec {
   // Add interactions and widgets from store
   spec = exporter.interactions(state, spec);
   spec = exporter.widgets(state, spec);
+
+  if (state.getIn(['vis', 'present', 'facetLayouts']).size > 0){
+    spec.layout = exporter.layouts(state, int);
+  }
   return spec;
+}
+
+exporter.layouts = function (state: State, internal: boolean) {
+  const facetLayouts = state.getIn(['vis', 'present', 'facetLayouts']);
+  const layout = clean(duplicate(facetLayouts), internal);
+  const id = Object.keys(layout)[Object.keys(layout).length -1];
+  return layout[id];
 }
 
 exporter.interactions = function(state: State, spec) {
@@ -216,12 +227,20 @@ exporter.mark = function(state: State, internal: boolean, id: number) {
     spec.from = {data: facet.name};
   } else if (spec.from) {
     let fromId;
-    if ((fromId = spec.from.data)) {
+    if (spec.from.name) {
+      fromId = spec.from.name;
+      spec.from = {"data": fromId};
+    } else if ( spec.from.data) {
+      fromId = spec.from.data;
       spec.from.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
       const count = counts.data[fromId] || (counts.data[fromId] = duplicate(DATA_COUNT));
       count.marks[id] = true;
-    } else if ((fromId = spec.from.mark)) {
+    } else if (spec.from.mark) {
+      fromId = spec.from.mark;
       spec.from.mark = name(getInVis(state, 'marks.' + fromId + '.name'));
+    } else if (spec.from.facet.data) {
+      fromId = spec.from.facet.data;
+      spec.from.facet.data = name(getInVis(state, 'datasets.' + fromId + '.name'));
     }
   }
 

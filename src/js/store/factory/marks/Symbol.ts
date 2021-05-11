@@ -13,6 +13,7 @@ export const Symbol = Record<LyraSymbolMark>({
   _id: null,
   _parent: null,
   _vlUnit: null,
+  _facet: null,
   type: 'symbol',
   name: null,
   from: null,
