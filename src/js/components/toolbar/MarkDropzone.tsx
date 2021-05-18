@@ -5,8 +5,7 @@ import {MarkDraggingStateRecord} from '../../store/factory/Inspector';
 import { LyraMarkType, Mark } from '../../store/factory/Mark';
 import {addMark, addGroup } from '../../actions/markActions';
 import {getClosestGroupId} from '../../util/hierarchy';
-import { LayoutRecord, Placeholder} from '../../store/factory/Layout';
-import {addPlaceHoldertoLayout} from '../../actions/layoutActions';
+import { LayoutRecord } from '../../store/factory/Layout';
 import {GroupRecord, defaultGroupHeight, defaultGroupWidth, defaultGroupSpacing} from '../../store/factory/marks/Group';
 
 interface StateProps {
@@ -100,7 +99,6 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps & OwnProps
 
   public handleDrop = ()  => {
     const sceneId = this.props.sceneId;
-    let numDims = (this.props.direction == "top" || this.props.direction == "bottom")?  this.props.colSizes.length:  this.props.rowSizes.length;
     let x;
     let y;
     if (this.props.direction == "top" || this.props.direction == "bottom") {

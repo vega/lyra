@@ -64,8 +64,8 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
 
   public handleMouseDown = (e) => {
     console.log("here");
-    // e.preventDefault()
-    e.stopPropagation();
+    e.preventDefault()
+    // e.stopPropagation();
     // this.state.dragging = true;
     this.setState({dragging: true, pos1: e.clientX, pos2: e.clientY});
 
@@ -75,27 +75,23 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
   }
 
   public handleMouseUp = (e) => {
-    e.preventDefault()
-    e.stopPropagation();
+    // e.preventDefault()
+    // e.stopPropagation();
     this.setState({dragging: false});
     console.log("end drag", this.state.dragging);
 
   }
 
   public handleMouseMove = (e)  => {
-    console.log("dragging")
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("calc 0", this.props.colSizes[this.props.index] + e.clientX - this.state.pos1);
-
-
+    // e.preventDefault();
+    // e.stopPropagation();
 
     if (this.state.dragging && this.props.direction == "horizontal"){
       this.props.setSignal(this.props.rowSizes[this.props.index] + e.clientY - this.state.pos2);
-      this.props.setSignal(this.props.rowSizes[this.props.index+1] - (e.clientY - this.state.pos2));
+      // this.props.setSignal(this.props.rowSizes[this.props.index+1] - (e.clientY - this.state.pos2));
     } else if (this.state.dragging  && this.props.direction == "vertical") {
       this.props.setSignal(this.props.colSizes[this.props.index] + e.clientX - this.state.pos1);
-      this.props.setSignal(this.props.colSizes[this.props.index+1] - (e.clientX - this.state.pos1));
+      // this.props.setSignal(this.props.colSizes[this.props.index+1] - (e.clientX - this.state.pos1));
     }
 
     this.setState({pos1: e.clientX, pos2: e.clientY});
@@ -116,7 +112,6 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
   public render() {
     let dimSizes;
     let length;
-    console.log(defaultGroupSpacing);
     if (this.props.direction == "horizontal") {
       let cumm = 0;
       dimSizes = this.props.rowSizes.map((size) => {cumm += size; return cumm});
@@ -124,26 +119,25 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
     } else if (this.props.direction == "vertical") {
       let cumm = 0;
       dimSizes = this.props.colSizes.map((size) => {cumm += size; return cumm});
-      length = this.props.rowSizes.reduce((acc, size) => {console.log(acc, size, acc + size+defaultGroupSpacing); return acc + size+defaultGroupSpacing}, -defaultGroupSpacing);
+      length = this.props.rowSizes.reduce((acc, size) => {return acc + size+defaultGroupSpacing}, -defaultGroupSpacing);
     }
 
-    console.log(dimSizes);
     return (
       <div>
-      {/* {this.props.direction == "horizontal" ?
-      <div draggable style={{top: dimSizes[this.props.index]+defaultGroupSpacing/2, width:length}} className={"resize-line " + this.props.direction} onMouseDown={(e) => this.handleMouseDown(e)} onMouseUp={(e) => this.handleMouseUp(e)} onMouseMove={(e) => this.handleMouseMove(e)}>
+      {this.props.direction == "horizontal" ?
+      <div draggable style={{top: dimSizes[this.props.index]+ (3/4+this.props.index)*defaultGroupSpacing, width:length, borderTop: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onMouseDown={(e) => this.handleMouseDown(e)} onMouseUp={(e) => this.handleMouseUp(e)} onMouseMove={(e) => this.handleMouseMove(e)}>
       </div>
       :
-      <div draggable style={{left: dimSizes[this.props.index]+defaultGroupSpacing/2, height: length}} className={"resize-line " + this.props.direction} onMouseDown={(e) => this.handleMouseDown(e)} onMouseUp={(e) => this.handleMouseUp(e)} onMouseMove={(e) => this.handleMouseMove(e)}>
+      <div draggable style={{left: dimSizes[this.props.index]+ (3/4+this.props.index)*defaultGroupSpacing, height: length, borderLeft: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onMouseDown={(e) => this.handleMouseDown(e)} onMouseUp={(e) => this.handleMouseUp(e)} onMouseMove={(e) => this.handleMouseMove(e)}>
       </div>
-      } */}
-      {this.props.direction == "horizontal" ?
+      }
+      {/* {this.props.direction == "horizontal" ?
       <div draggable style={{top: dimSizes[this.props.index]+ this.props.index*defaultGroupSpacing+defaultGroupSpacing/2-5, width:length, borderTop: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onDragStart={ this.handleMouseDown} onDragEnd={this.handleMouseUp} onDrag={this.handleMouseMove}>
       </div>
       :
       <div draggable style={{left: dimSizes[this.props.index]+ this.props.index*defaultGroupSpacing+defaultGroupSpacing/2-5, height: length, borderLeft: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={ this.handleMouseOver} onMouseOut={this.handleMouseOut} onDrag={this.handleMouseMove} onDragStart={this.handleMouseDown} onDragEnd={this.handleMouseUp}>
       </div>
-      }
+      } */}
       </div>
     );
   }
