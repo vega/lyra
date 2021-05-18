@@ -4,9 +4,9 @@ import {assignId} from '../util/counter';
 import {State} from '../store';
 import {Dispatch} from 'redux';
 import {GroupRecord} from '../store/factory/marks/Group';
-import {setSignal} from './signalActions';
 import {batchGroupBy} from '../reducers/historyOptions';
 import {defaultGroupHeight, defaultGroupWidth, defaultGroupSpacing} from '../store/factory/marks/Group';
+import {propSg} from '../util/prop-signal';
 
 export function addLayout (payload: LayoutRecord) {
   return function(dispatch: Dispatch, getState: () => State) {
@@ -19,43 +19,30 @@ export const baseAddLayout = createStandardAction('ADD_LAYOUT')<LayoutRecord, nu
 
 export function addGrouptoLayout (payload: {group: GroupRecord, dir: string, index: number}, id: number) {
   return function(dispatch: Dispatch, getState: () => State) {
-    const groups = getState().getIn(['vis', 'present', 'layouts', id, 'groups']);
-    const placeholders = getState().getIn(['vis', 'present', 'layouts', id, 'placeHolders']);
+    // const placeholders = getState().getIn(['vis', 'present', 'layouts', id, 'placeHolders']);
 
     batchGroupBy.start();
-    if (payload.dir == "top") {
-      groups.forEach(groupId => {
-        const y_sig = getState().getIn(['vis', 'present', 'marks', String(groupId), 'encode', 'update', 'y', 'signal']);
-        const y_sig_val = getState().getIn(['vis', 'present', 'signals', y_sig, 'value']);
-        const value = y_sig_val + defaultGroupHeight + defaultGroupSpacing;
-        dispatch(setSignal(value, y_sig) as any);
-      });
-      if (placeholders) {
-        placeholders.forEach(placeholder => {
-          const newPlaceholder = Placeholder({_id: placeholder._id, top: placeholder.top +180, left: placeholder.left, width: placeholder.width, height: placeholder.height});
-          dispatch(setPlaceholderProperty(newPlaceholder, id));
-        });
-      }
+    // if (payload.dir == "top") {
+    //   if (placeholders) {
+    //     placeholders.forEach(placeholder => {
+    //       const newPlaceholder = Placeholder({_id: placeholder._id, top: placeholder.top +defaultGroupHeight +defaultGroupSpacing, left: placeholder.left, width: placeholder.width, height: placeholder.height});
+    //       dispatch(setPlaceholderProperty(newPlaceholder, id));
+    //     });
+    //   }
 
-    } else if (payload.dir == "left") {
-      groups.forEach(groupId => {
-        const x_sig = getState().getIn(['vis', 'present', 'marks', String(groupId), 'encode', 'update', 'x', 'signal']);
-        const x_sig_val = getState().getIn(['vis', 'present', 'signals', x_sig, 'value']);
-        const value = x_sig_val + defaultGroupWidth + defaultGroupSpacing;
-        dispatch(setSignal(value, x_sig) as any);
-      });
-      if (placeholders) {
-        placeholders.forEach(placeholder => {
-          const newPlaceholder = Placeholder({_id: placeholder._id, top: placeholder.top, left: placeholder.left+230, width: placeholder.width, height: placeholder.height});
-          dispatch(setPlaceholderProperty(newPlaceholder, id));
-        });
-      }
-    };
+    // } else if (payload.dir == "left") {
+    //   if (placeholders) {
+    //     placeholders.forEach(placeholder => {
+    //       const newPlaceholder = Placeholder({_id: placeholder._id, top: placeholder.top, left: placeholder.left+defaultGroupWidth +defaultGroupSpacing, width: placeholder.width, height: placeholder.height});
+    //       dispatch(setPlaceholderProperty(newPlaceholder, id));
+    //     });
+    //   }
+    // };
 
     let newDim = 0;
     let otherDim = null;
     let updateDim = null;
-    if (payload.dir !="init"){
+    if (payload.index != null && payload.dir !="init"){
       if (payload.dir == 'top' || payload.dir == 'bottom'){
         newDim = getState().getIn(['vis', 'present', 'layouts', String(id), 'rowSizes']).length;
         otherDim = getState().getIn(['vis', 'present', 'layouts', String(id), 'colSizes'])[payload.index].signal
@@ -68,6 +55,42 @@ export function addGrouptoLayout (payload: {group: GroupRecord, dir: string, ind
 
     }
     dispatch(baseAddGrouptoLayout({group: (payload.group) as GroupRecord, dir: (payload.dir) as string, newDim: newDim, otherDim:otherDim, updateDim: updateDim}, id));
+
+    const rowSizes = getState().getIn(['vis', 'present', 'layouts', id, 'rowSizes']);
+    const colSizes = getState().getIn(['vis', 'present', 'layouts', id, 'colSizes']);
+    // console.log(rowSizes, colSizes);
+    if (rowSizes && colSizes) {
+      let numDims = (payload.dir == "top" || payload.dir == "bottom")?  colSizes.length:  rowSizes.length;
+      for (let i=0; i< numDims; i++) {
+        let top, left, width, height;
+        if (i != payload.index) {
+          if (payload.dir == "top" || payload.dir == "bottom") {
+            // row = this.props.direction == "top" ? 0 : this.props.rowSizes.length;
+            // col = i;
+            const topSignalName = propSg(id, "layout", "row_" + String(newDim)+"_pos");
+            top = {"signal": topSignalName};
+            const leftSignalName = colSizes[i].signal.slice(0,-4) + "pos";
+            left = {"signal": leftSignalName};
+            width = colSizes[i];
+            const heightSignalName = propSg(id, "layout", "row_" + String(newDim)+"_size");
+            height = {"signal": heightSignalName};
+          } else if (payload.dir == "left" || payload.dir == "right") {
+            // row = i;
+            // col = this.props.direction == "left" ? 0 : this.props.colSizes.length;
+            const topSignalName = rowSizes[i].signal.slice(0,-4) + "pos";
+            top = {"signal": topSignalName};
+            const leftSignalName = propSg(id, "layout", "col_" + String(newDim)+"_pos");
+            left = {"signal": leftSignalName};
+            const widthSignalName = propSg(id, "layout", "col_" + String(newDim)+"_size");
+            width = {"signal": widthSignalName};
+            height = rowSizes[i];
+
+          }
+          const holder = Placeholder({top, left, width, height});
+          dispatch(addPlaceHoldertoLayout(holder, id) as any);
+        }
+      }
+    }
     batchGroupBy.end();
   }
 }

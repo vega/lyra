@@ -25,7 +25,8 @@ interface OwnProps {
 interface DispatchProps {
   addMark: (type: LyraMarkType, parentId: number) => void;
   addGroup: (sceneId: number, x: number, y: number) => void;
-  addPlaceHoldertoLayout: (top: number, left: number, width: number, height: number) => void;
+  // addPlaceHoldertoLayout: (top: number, left: number, width: number, height: number) => void;
+  addPlaceHoldertoLayout: (row: number, col: number) => void;
 }
 
 function mapStateToProps(state: State,  ownProps: OwnProps): StateProps {
@@ -86,7 +87,12 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
 
       dispatch(addGroup(newMarkProps as GroupRecord, ownProps.layoutId, ownProps.direction, ownProps.index));
     },
-    addPlaceHoldertoLayout: (top, left, width, height) => {
+    // addPlaceHoldertoLayout: (top, left, width, height) => {
+    //   const holder = Placeholder({top, left, width, height});
+    //   dispatch(addPlaceHoldertoLayout(holder, ownProps.layoutId))
+    // }
+    addPlaceHoldertoLayout: (row, col) => {
+      let width =  col
       const holder = Placeholder({top, left, width, height});
       dispatch(addPlaceHoldertoLayout(holder, ownProps.layoutId))
     }
@@ -125,18 +131,31 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps & OwnProps
         let left;
         let width;
         let height;
+        // if (this.props.direction == "top" || this.props.direction == "bottom") {
+        //   top = this.props.direction == "top" ? 0 : this.props.rowSizes.reduce((acc, size)=> acc+size+defaultGroupSpacing, 0);
+        //   left = this.props.colSizes.reduce((acc, size, j)=>{if (j< i) {return acc +size+defaultGroupSpacing} else {return acc}}, 0);
+        //   width = this.props.colSizes[i];
+        //   height = defaultGroupHeight;
+        // } else if (this.props.direction == "right" || this.props.direction == "left") {
+        //   left = this.props.direction == "left" ? 0 : this.props.colSizes.reduce((acc, size)=> acc+size+defaultGroupSpacing, 0);
+        //   top = this.props.rowSizes.reduce((acc, size, j)=>{if (j< i) {return acc +size+defaultGroupSpacing} else {return acc}}, 0);;
+        //   width = defaultGroupWidth;
+        //   height = this.props.rowSizes[i];
+        // }
+        // this.props.addPlaceHoldertoLayout(top, left, width, height);
+
+        // let row;
+        // let col;
         if (this.props.direction == "top" || this.props.direction == "bottom") {
-          top = this.props.direction == "top" ? 0 : this.props.rowSizes.reduce((acc, size)=> acc+size+defaultGroupSpacing, 0);
-          left = this.props.colSizes.reduce((acc, size, j)=>{if (j< i) {return acc +size+defaultGroupSpacing} else {return acc}}, 0);
+          // row = this.props.direction == "top" ? 0 : this.props.rowSizes.length;
+          // col = i;
           width = this.props.colSizes[i];
-          height = defaultGroupHeight;
-        } else if (this.props.direction == "right" || this.props.direction == "left") {
-          left = this.props.direction == "left" ? 0 : this.props.colSizes.reduce((acc, size)=> acc+size+defaultGroupSpacing, 0);
-          top = this.props.rowSizes.reduce((acc, size, j)=>{if (j< i) {return acc +size+defaultGroupSpacing} else {return acc}}, 0);;
-          width = defaultGroupWidth;
-          height = this.props.rowSizes[i];
+        } else if (this.props.direction == "left" || this.props.direction == "right") {
+          // row = i;
+          // col = this.props.direction == "left" ? 0 : this.props.colSizes.length;
+
         }
-        this.props.addPlaceHoldertoLayout(top, left, width, height);
+        // this.props.addPlaceHoldertoLayout(row, col);
       }
     }
 

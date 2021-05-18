@@ -115,13 +115,14 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
     }, state);
   }
 
+  // set update property for group size and position signals to layout signals
   let rowSigBase = "row_0";
   let colSigBase = "col_0";
   if (dir == "top" || dir == "bottom") {
     rowSigBase = "row_" + action.payload.newDim;
-    colSigBase = action.payload.otherDim.slice(14, -5);  // e.g. "lyra_layout_2_col_1_size" -> "col_1"
+    colSigBase = action.payload.otherDim.slice(14, -5);  // "lyra_layout_2_col_1_size" -> "col_1"
   } else if (dir == "right" || dir == "left"){
-    rowSigBase = action.payload.otherDim.slice(14, -5);  // e.g. "lyra_layout_2_col_1_size" -> "col_1"
+    rowSigBase = action.payload.otherDim.slice(14, -5);  // "lyra_layout_2_col_1_size" -> "col_1"
     colSigBase = "col_" + action.payload.newDim;
   }
 

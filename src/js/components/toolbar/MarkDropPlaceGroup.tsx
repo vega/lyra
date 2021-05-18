@@ -30,7 +30,7 @@ class MarkDropzoneGroup extends React.Component<StateProps> {
         {/* {this.props.layouts.map((layout) => { */}
           {this.props.placeholders.map((placeholder, j)=> {
             return (
-              <MarkDropPlace key={j} layoutId={this.props.layoutId} placeholderId={placeholder._id} top={placeholder.top} left={placeholder.left} width={placeholder.width} height={placeholder.height}/>
+              <MarkDropPlace key={j} layoutId={this.props.layoutId} placeholder={placeholder}/>
             );
           })}
 

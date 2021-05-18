@@ -43,17 +43,17 @@ export interface LyraPlaceholder {
   /**
    * Size and positioning of this placeholder.
    */
-  top: number;
-  left: number;
-  width: number;
-  height: number;
+  top: any;
+  left: any;
+  width: any;
+  height: any;
 
 }
 
 export const Placeholder = Record<LyraPlaceholder>({
   _id: null,
-  top: 0,
-  left: 0,
+  top: null,
+  left: null,
   width: defaultGroupWidth,
   height: defaultGroupHeight
 }, 'LyraPlaceholder');

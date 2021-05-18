@@ -8,8 +8,10 @@ import {State} from '../store';
 import {LyraMarkType, Mark, MarkRecord, HandleStreams} from '../store/factory/Mark';
 import {GroupRecord} from '../store/factory/marks/Group';
 import {addGrouptoLayout} from './layoutActions';
+import {addSignalUpdate} from './signalActions';
 import {assignId} from '../util/counter';
 import {ThunkDispatch} from 'redux-thunk';
+import {propSg} from '../util/prop-signal';
 
 const capitalize = require('capitalize');
 const getInVis = require('../util/immutable-utils').getInVis;
@@ -45,9 +47,26 @@ export function addGroup(record: GroupRecord, layoutId: number, dir: string, ind
     const id = record._id || assignId(dispatch, getState());
     record = record.set('_id', id) as GroupRecord;
 
+    // console.log("mark actions", record.toJS());
+    let topSig, leftSig, widthSig, heightSig;
+    let update = false;
+    if (record.encode.update.x.name) {
+      update = true;
+      console.log("x", record.encode.update.x.name)
+      topSig = record.encode.update.y.name;
+      leftSig = record.encode.update.x.name;
+      widthSig = record.encode.update.width.name;
+      heightSig = record.encode.update.height.name;
+    }
     batchGroupBy.start();
     dispatch(addMark(record));
     dispatch(addGrouptoLayout({group: record, dir, index}, layoutId));
+    if (update) {
+      dispatch(addSignalUpdate(leftSig, propSg(id, "group", "x")));
+      dispatch(addSignalUpdate(topSig, propSg(id, "group", "y")));
+      dispatch(addSignalUpdate(widthSig, propSg(id, "group", "width")));
+      dispatch(addSignalUpdate(heightSig, propSg(id, "group", "height")));
+    }
     batchGroupBy.end();
   };
 }
