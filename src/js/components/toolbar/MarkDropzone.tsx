@@ -124,41 +124,6 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps & OwnProps
 
     this.props.addGroup(sceneId, x, y);
     this.props.addMark(this.props.dragging.mark, null);
-
-    for (let i=0; i< numDims; i++) {
-      if (i != this.props.index) {
-        let top;
-        let left;
-        let width;
-        let height;
-        // if (this.props.direction == "top" || this.props.direction == "bottom") {
-        //   top = this.props.direction == "top" ? 0 : this.props.rowSizes.reduce((acc, size)=> acc+size+defaultGroupSpacing, 0);
-        //   left = this.props.colSizes.reduce((acc, size, j)=>{if (j< i) {return acc +size+defaultGroupSpacing} else {return acc}}, 0);
-        //   width = this.props.colSizes[i];
-        //   height = defaultGroupHeight;
-        // } else if (this.props.direction == "right" || this.props.direction == "left") {
-        //   left = this.props.direction == "left" ? 0 : this.props.colSizes.reduce((acc, size)=> acc+size+defaultGroupSpacing, 0);
-        //   top = this.props.rowSizes.reduce((acc, size, j)=>{if (j< i) {return acc +size+defaultGroupSpacing} else {return acc}}, 0);;
-        //   width = defaultGroupWidth;
-        //   height = this.props.rowSizes[i];
-        // }
-        // this.props.addPlaceHoldertoLayout(top, left, width, height);
-
-        // let row;
-        // let col;
-        if (this.props.direction == "top" || this.props.direction == "bottom") {
-          // row = this.props.direction == "top" ? 0 : this.props.rowSizes.length;
-          // col = i;
-          width = this.props.colSizes[i];
-        } else if (this.props.direction == "left" || this.props.direction == "right") {
-          // row = i;
-          // col = this.props.direction == "left" ? 0 : this.props.colSizes.length;
-
-        }
-        // this.props.addPlaceHoldertoLayout(row, col);
-      }
-    }
-
   };
 
   public render() {

@@ -5,7 +5,6 @@ import {State} from '../store';
 import {Dispatch} from 'redux';
 import {GroupRecord} from '../store/factory/marks/Group';
 import {batchGroupBy} from '../reducers/historyOptions';
-import {defaultGroupHeight, defaultGroupWidth, defaultGroupSpacing} from '../store/factory/marks/Group';
 import {propSg} from '../util/prop-signal';
 
 export function addLayout (payload: LayoutRecord) {
@@ -19,26 +18,7 @@ export const baseAddLayout = createStandardAction('ADD_LAYOUT')<LayoutRecord, nu
 
 export function addGrouptoLayout (payload: {group: GroupRecord, dir: string, index: number}, id: number) {
   return function(dispatch: Dispatch, getState: () => State) {
-    // const placeholders = getState().getIn(['vis', 'present', 'layouts', id, 'placeHolders']);
-
     batchGroupBy.start();
-    // if (payload.dir == "top") {
-    //   if (placeholders) {
-    //     placeholders.forEach(placeholder => {
-    //       const newPlaceholder = Placeholder({_id: placeholder._id, top: placeholder.top +defaultGroupHeight +defaultGroupSpacing, left: placeholder.left, width: placeholder.width, height: placeholder.height});
-    //       dispatch(setPlaceholderProperty(newPlaceholder, id));
-    //     });
-    //   }
-
-    // } else if (payload.dir == "left") {
-    //   if (placeholders) {
-    //     placeholders.forEach(placeholder => {
-    //       const newPlaceholder = Placeholder({_id: placeholder._id, top: placeholder.top, left: placeholder.left+defaultGroupWidth +defaultGroupSpacing, width: placeholder.width, height: placeholder.height});
-    //       dispatch(setPlaceholderProperty(newPlaceholder, id));
-    //     });
-    //   }
-    // };
-
     let newDim = 0;
     let otherDim = null;
     let updateDim = null;
