@@ -83,6 +83,20 @@ body {
     padding: $outer-padding;
     border-radius: 3px;
     margin: $outer-padding 5px;
+
+    // .left {
+    //   margin-left: 50;
+    // }
+    // .top, .right, .bottom {
+    //   margin-right: 50;
+    // }
+  }
+  .drop-mark.left {
+    margin-left: 50;
+  }
+
+  .drop-mark.top, .drop-mark.bottom, .drop-mark.right {
+    margin-right: 50;
   }
 
   .drop-mark.placeholder {
@@ -108,7 +122,7 @@ body {
 
   .markdropzone-line.left {
     flex-direction: row-reverse;
-    transform: rotate(-90deg) translate(-100%, 0);
+    transform: rotate(-90deg) translate(-100%, 0%);
     transform-origin: top left;
   }
   .markdropzone-line.right {

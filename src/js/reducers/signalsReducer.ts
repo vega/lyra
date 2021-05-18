@@ -6,7 +6,7 @@ import * as markActions from '../actions/markActions';
 import * as signalActions from '../actions/signalActions';
 import * as layoutActions from '../actions/layoutActions';
 import {Signal, SignalState} from '../store/factory/Signal';
-import {defaultGroupHeight, defaultGroupWidth} from '../store/factory/marks/Group';
+import {defaultGroupHeight, defaultGroupSpacing, defaultGroupWidth} from '../store/factory/marks/Group';
 import {propSg} from '../util/prop-signal';
 
 const ns = require('../util/ns');
@@ -69,11 +69,11 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
       const intermediateState = signalInit(accState, signalName, val);
       if (key == "pos"){
         if (dir == "bottom") {
-          const update = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos") + " + " + propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"size + 30");// fix hardcoded 30
+          const update = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos") + " + " + propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"size + "+String(defaultGroupSpacing));
           return setSignalUpdate(intermediateState, signalName, update);
         } else { // top the original first el now has update to new signal
           const updateSig = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos")
-          const update = propSg(action.meta, "layout", "row_"+action.payload.newDim+"_pos") + " + " + propSg(action.meta, "layout", "row_"+action.payload.newDim+"_size + 30");// fix hardcoded 30
+          const update = propSg(action.meta, "layout", "row_"+action.payload.newDim+"_pos") + " + " + propSg(action.meta, "layout", "row_"+action.payload.newDim+"_size + "+String(defaultGroupSpacing));
           return setSignalUpdate(intermediateState, updateSig, update);
         }
       }
@@ -88,11 +88,11 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
       const intermediateState = signalInit(accState, signalName, val);
       if (key == "pos"){
         if (dir == "right") {
-          const update = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos") + " + " + propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"size + 30");// fix hardcoded 30
+          const update = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos") + " + " + propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"size + " +String(defaultGroupSpacing));// fix hardcoded 30
           return setSignalUpdate(intermediateState, signalName, update);
         } else { // left, the original first el now has update to new signal
           const updateSig = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos")
-          const update = propSg(action.meta, "layout", "col_"+action.payload.newDim+"_pos") + " + " + propSg(action.meta, "layout", "col_"+action.payload.newDim+"_size + 30");// fix hardcoded 30
+          const update = propSg(action.meta, "layout", "col_"+action.payload.newDim+"_pos") + " + " + propSg(action.meta, "layout", "col_"+action.payload.newDim+"_size + "+String(defaultGroupSpacing));// fix hardcoded 30
           return setSignalUpdate(intermediateState, updateSig, update);
         }
       }

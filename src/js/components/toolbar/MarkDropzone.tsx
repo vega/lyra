@@ -25,8 +25,6 @@ interface OwnProps {
 interface DispatchProps {
   addMark: (type: LyraMarkType, parentId: number) => void;
   addGroup: (sceneId: number, x: number, y: number) => void;
-  // addPlaceHoldertoLayout: (top: number, left: number, width: number, height: number) => void;
-  addPlaceHoldertoLayout: (row: number, col: number) => void;
 }
 
 function mapStateToProps(state: State,  ownProps: OwnProps): StateProps {
@@ -86,15 +84,6 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
       });
 
       dispatch(addGroup(newMarkProps as GroupRecord, ownProps.layoutId, ownProps.direction, ownProps.index));
-    },
-    // addPlaceHoldertoLayout: (top, left, width, height) => {
-    //   const holder = Placeholder({top, left, width, height});
-    //   dispatch(addPlaceHoldertoLayout(holder, ownProps.layoutId))
-    // }
-    addPlaceHoldertoLayout: (row, col) => {
-      let width =  col
-      const holder = Placeholder({top, left, width, height});
-      dispatch(addPlaceHoldertoLayout(holder, ownProps.layoutId))
     }
   };
 }
@@ -134,6 +123,7 @@ class MarkDropzone extends React.Component<StateProps & DispatchProps & OwnProps
     } else if (this.props.direction == "right" || this.props.direction == "left") {
       dimSizes = this.props.rowSizes;
     }
+
 
     return (
       <div style={{width: dimSizes[this.props.index]}} className={"drop-mark " + this.props.direction}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
