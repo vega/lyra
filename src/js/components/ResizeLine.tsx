@@ -5,6 +5,7 @@ import { LayoutRecord} from '../store/factory/Layout';
 import { defaultGroupSpacing} from '../store/factory/marks/Group';
 import {propSg} from '../util/prop-signal';
 import sg from '../ctrl/signals';
+import {throttle} from 'throttle-debounce';
 
 interface StateProps {
   layout: LayoutRecord;
@@ -64,28 +65,24 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
 
   public handleMouseDown = (e) => {
     console.log("here");
-    e.preventDefault()
-    // e.stopPropagation();
-    // this.state.dragging = true;
+
     this.setState({dragging: true, pos1: e.clientX, pos2: e.clientY});
 
     console.log("mouse down", this.state.pos1);
 
-
+    window.addEventListener('mousemove', this.handleMouseMove, true);
+    window.addEventListener('mouseup', this.handleMouseUp, true);
   }
 
   public handleMouseUp = (e) => {
-    // e.preventDefault()
-    // e.stopPropagation();
+    window.removeEventListener('mousemove', this.handleMouseMove, true);
+    window.removeEventListener('mouseup', this.handleMouseUp, true);
+
     this.setState({dragging: false});
     console.log("end drag", this.state.dragging);
-
   }
 
-  public handleMouseMove = (e)  => {
-    // e.preventDefault();
-    // e.stopPropagation();
-
+  public handleMouseMove = throttle(100, (e)  => {
     if (this.state.dragging && this.props.direction == "horizontal"){
       this.props.setSignal(this.props.rowSizes[this.props.index] + e.clientY - this.state.pos2);
       // this.props.setSignal(this.props.rowSizes[this.props.index+1] - (e.clientY - this.state.pos2));
@@ -96,7 +93,7 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
 
     this.setState({pos1: e.clientX, pos2: e.clientY});
 
-  };
+  });
 
   public handleMouseOver = () => {
     this.setState({vis: true});
@@ -125,17 +122,17 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
     return (
       <div>
       {this.props.direction == "horizontal" ?
-      <div draggable style={{top: dimSizes[this.props.index]+ (3/4+this.props.index)*defaultGroupSpacing, width:length, borderTop: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onMouseDown={(e) => this.handleMouseDown(e)} onMouseUp={(e) => this.handleMouseUp(e)} onMouseMove={(e) => this.handleMouseMove(e)}>
+      <div style={{top: dimSizes[this.props.index]+ (3/4+this.props.index)*defaultGroupSpacing, width:length, borderTop: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onMouseDown={(e) => this.handleMouseDown(e)}>
       </div>
       :
-      <div draggable style={{left: dimSizes[this.props.index]+ (3/4+this.props.index)*defaultGroupSpacing, height: length, borderLeft: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onMouseDown={(e) => this.handleMouseDown(e)} onMouseUp={(e) => this.handleMouseUp(e)} onMouseMove={(e) => this.handleMouseMove(e)}>
+      <div style={{left: dimSizes[this.props.index]+ (3/4+this.props.index)*defaultGroupSpacing, height: length, borderLeft: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onMouseDown={(e) => this.handleMouseDown(e)}>
       </div>
       }
       {/* {this.props.direction == "horizontal" ?
-      <div draggable style={{top: dimSizes[this.props.index]+ this.props.index*defaultGroupSpacing+defaultGroupSpacing/2-5, width:length, borderTop: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onDragStart={ this.handleMouseDown} onDragEnd={this.handleMouseUp} onDrag={this.handleMouseMove}>
+      <div style={{top: dimSizes[this.props.index]+ this.props.index*defaultGroupSpacing+defaultGroupSpacing/2-5, width:length, borderTop: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onDragStart={ this.handleMouseDown} onDragEnd={this.handleMouseUp} onDrag={this.handleMouseMove}>
       </div>
       :
-      <div draggable style={{left: dimSizes[this.props.index]+ this.props.index*defaultGroupSpacing+defaultGroupSpacing/2-5, height: length, borderLeft: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={ this.handleMouseOver} onMouseOut={this.handleMouseOut} onDrag={this.handleMouseMove} onDragStart={this.handleMouseDown} onDragEnd={this.handleMouseUp}>
+      <div style={{left: dimSizes[this.props.index]+ this.props.index*defaultGroupSpacing+defaultGroupSpacing/2-5, height: length, borderLeft: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={ this.handleMouseOver} onMouseOut={this.handleMouseOut} onDrag={this.handleMouseMove} onDragStart={this.handleMouseDown} onDragEnd={this.handleMouseUp}>
       </div>
       } */}
       </div>
