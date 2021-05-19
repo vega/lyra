@@ -7,6 +7,8 @@ import {propSg} from '../util/prop-signal';
 import sg from '../ctrl/signals';
 import {throttle} from 'throttle-debounce';
 
+const ctrl = require('../ctrl');
+
 interface StateProps {
   layout: LayoutRecord;
   colSizes: number[];
@@ -48,6 +50,7 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
       // console.log("set", value);
       let signalName = ownProps.direction == "vertical"? propSg(ownProps.layoutId, "layout", "col_" + ownProps.index+"_size") : propSg(ownProps.layoutId, "layout", "row_" + ownProps.index+"_size");
       sg.set(signalName, value);
+      ctrl.update();
     },
   };
 }

@@ -311,8 +311,8 @@ exporter.group = function(state: State, internal: boolean, id: number) {
     // Add width/height signals so that nested scales span correctly.
     group.signals = group.signals || [];
     group.signals.push(
-      {name: 'width', value: groupSize(mark, 'x')},
-      {name: 'height', value: groupSize(mark, 'y')},
+      groupSize(mark, 'x'),
+      groupSize(mark, 'y')
     );
   }
 
@@ -409,9 +409,9 @@ function groupSize(group, dimension: 'x' | 'y') {
   const update = group.encode.update,
     extents = MARK_EXTENTS[dimension];
 
-  // TODO: If these properties are scale bound.
   if (!update[extents.SPAN.name]._disabled) {
-    return signalLookup(update[extents.SPAN.name].signal);
+    const name = dimension === 'x' ? 'width' : 'height';
+    return {name, update: update[extents.SPAN.name].signal};
   }
 }
 
