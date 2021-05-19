@@ -122,10 +122,10 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
     return (
       <div>
       {this.props.direction == "horizontal" ?
-      <div style={{top: dimSizes[this.props.index]+ (3/4+this.props.index)*defaultGroupSpacing, width:length, borderTop: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onMouseDown={(e) => this.handleMouseDown(e)}>
+      <div style={{top: dimSizes[this.props.index]+ (3/4+this.props.index)*defaultGroupSpacing, width:length, borderTop: this.state.vis? '5px dotted lightgray' : '5px dotted white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onMouseDown={(e) => this.handleMouseDown(e)}>
       </div>
       :
-      <div style={{left: dimSizes[this.props.index]+ (3/4+this.props.index)*defaultGroupSpacing, height: length, borderLeft: this.state.vis? '10px dashed lightgray' : '10px dashed white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onMouseDown={(e) => this.handleMouseDown(e)}>
+      <div style={{left: dimSizes[this.props.index]+ (3/4+this.props.index)*defaultGroupSpacing, height: length, borderLeft: this.state.vis? '5px dotted lightgray' : '5px dotted white'}} className={"resize-line " + this.props.direction} onMouseOver={this.handleMouseOver} onMouseOut={ this.handleMouseOut} onMouseDown={(e) => this.handleMouseDown(e)}>
       </div>
       }
       {/* {this.props.direction == "horizontal" ?
