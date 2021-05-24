@@ -11,8 +11,8 @@ const ctrl = require('../ctrl');
 
 interface StateProps {
   layout: LayoutRecord;
-  colSizes: number[];
-  rowSizes: number[];
+  colSizes: any[];
+  rowSizes: any[];
 }
 
 interface OwnProps {
@@ -21,7 +21,7 @@ interface OwnProps {
   direction: string;
 }
 interface DispatchProps {
-  setSignal: (value: number) => void;
+  setSignal: (value: number, dimSignals: any[]) => void;
 }
 
 interface OwnState {
@@ -34,8 +34,8 @@ interface OwnState {
 function mapStateToProps(state: State,  ownProps: OwnProps): StateProps {
   const layout = state.getIn(['vis', 'present', 'layouts', String(ownProps.layoutId)]);
 
-  const rowSizes = layout.rowSizes.map(obj => state.getIn(['vis', 'present', 'signals', obj.signal, 'value']));
-  const colSizes = layout.colSizes.map(obj => state.getIn(['vis', 'present', 'signals', obj.signal, 'value']));
+  const rowSizes = layout.rowSizes.map(obj => state.getIn(['vis', 'present', 'signals', obj.signal]));
+  const colSizes = layout.colSizes.map(obj => state.getIn(['vis', 'present', 'signals', obj.signal]));
 
   return {
     layout,
@@ -46,9 +46,9 @@ function mapStateToProps(state: State,  ownProps: OwnProps): StateProps {
 
 function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
   return {
-    setSignal: (value) => {
-      // console.log("set", value);
-      let signalName = ownProps.direction == "vertical"? propSg(ownProps.layoutId, "layout", "col_" + ownProps.index+"_size") : propSg(ownProps.layoutId, "layout", "row_" + ownProps.index+"_size");
+    setSignal: (value, dimSignals) => {
+      let signalName = dimSignals[ownProps.index].name;
+      // console.log("setting", signalName, value);
       sg.set(signalName, value);
       ctrl.update();
     },
@@ -67,7 +67,7 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
   };
 
   public handleMouseDown = (e) => {
-    console.log("here");
+    console.log("here", this.props.index);
 
     this.setState({dragging: true, pos1: e.clientX, pos2: e.clientY});
 
@@ -87,10 +87,10 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
 
   public handleMouseMove = throttle(100, (e)  => {
     if (this.state.dragging && this.props.direction == "horizontal"){
-      this.props.setSignal(this.props.rowSizes[this.props.index] + e.clientY - this.state.pos2);
+      this.props.setSignal(this.props.rowSizes[this.props.index].value + e.clientY - this.state.pos2, this.props.rowSizes);
       // this.props.setSignal(this.props.rowSizes[this.props.index+1] - (e.clientY - this.state.pos2));
     } else if (this.state.dragging  && this.props.direction == "vertical") {
-      this.props.setSignal(this.props.colSizes[this.props.index] + e.clientX - this.state.pos1);
+      this.props.setSignal(this.props.colSizes[this.props.index].value + e.clientX - this.state.pos1, this.props.colSizes);
       // this.props.setSignal(this.props.colSizes[this.props.index+1] - (e.clientX - this.state.pos1));
     }
 
@@ -114,12 +114,12 @@ class ResizeLine extends React.Component<StateProps & DispatchProps & OwnProps, 
     let length;
     if (this.props.direction == "horizontal") {
       let cumm = 0;
-      dimSizes = this.props.rowSizes.map((size) => {cumm += size; return cumm});
-      length = this.props.colSizes.reduce((acc, size) => {return acc + size+defaultGroupSpacing}, -defaultGroupSpacing);
+      dimSizes = this.props.rowSizes.map((signal) => {cumm += signal.value; return cumm});
+      length = this.props.colSizes.reduce((acc, signal) => {return acc + signal.value+defaultGroupSpacing}, -defaultGroupSpacing);
     } else if (this.props.direction == "vertical") {
       let cumm = 0;
-      dimSizes = this.props.colSizes.map((size) => {cumm += size; return cumm});
-      length = this.props.rowSizes.reduce((acc, size) => {return acc + size+defaultGroupSpacing}, -defaultGroupSpacing);
+      dimSizes = this.props.colSizes.map((signal) => {cumm += signal.value; return cumm});
+      length = this.props.rowSizes.reduce((acc, signal) => {return acc + signal.value+defaultGroupSpacing}, -defaultGroupSpacing);
     }
 
     return (

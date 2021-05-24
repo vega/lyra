@@ -86,7 +86,6 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
           }
         }
       });
-      console.log("new gorup", newMarkProps.toJS(), left.toJS());
       dispatch(addGroup(newMarkProps as GroupRecord, ownProps.layoutId, null, null));
     },
     removePlaceHolder: () => {

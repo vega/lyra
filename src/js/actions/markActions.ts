@@ -52,7 +52,6 @@ export function addGroup(record: GroupRecord, layoutId: number, dir: string, ind
     let update = false;
     if (record.encode.update.x.name) {
       update = true;
-      console.log("x", record.encode.update.x.name)
       topSig = record.encode.update.y.name;
       leftSig = record.encode.update.x.name;
       widthSig = record.encode.update.width.name;

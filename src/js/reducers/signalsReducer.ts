@@ -99,8 +99,8 @@ function initSignalsForLayout(state: SignalState, action: ActionType<typeof layo
       return intermediateState;
     }, state);
   }
-  else {
-    // first group the dir is null
+  else if (dir== "init") {
+    // first group the dir is "init"
     state = ["rowsize", "rowpos", "colsize", "colpos"].reduce(function(accState, key) {
       const signalName = propSg(action.meta, "layout", key.slice(0,3)+"_0_"+key.slice(3));
 

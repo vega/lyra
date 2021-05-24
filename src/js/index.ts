@@ -40,7 +40,7 @@ const layoutId = assignId(store.dispatch, store.getState());
   rows: 0,
   cols: 0,
 })));
-(store as any).dispatch(addGroup(Mark('group', {_parent: 1}) as GroupRecord, layoutId, 'init'));
+(store as any).dispatch(addGroup(Mark('group', {_parent: 1}) as GroupRecord, layoutId, 'init', null));
 
 import './components';
 
