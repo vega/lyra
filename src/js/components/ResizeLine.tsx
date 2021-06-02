@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import {State} from '../store';
 import { LayoutRecord} from '../store/factory/Layout';
 import { defaultGroupSpacing} from '../store/factory/marks/Group';
-import {propSg} from '../util/prop-signal';
 import sg from '../ctrl/signals';
 import {throttle} from 'throttle-debounce';
 
