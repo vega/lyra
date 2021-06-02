@@ -10,7 +10,7 @@ export type LyraGroupMark = {
 
 export const defaultGroupWidth = 200;
 export const defaultGroupHeight = 150;
-export const defaultGroupSpacing = 30;
+export const defaultGroupSpacing = 70;
 export const Group = Record<LyraGroupMark>({
   _id: null,
   _parent: null,

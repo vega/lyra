@@ -4,7 +4,9 @@ import {SignalValue} from 'vega-typings/types';
 import * as guideActions from '../actions/guideActions';
 import * as markActions from '../actions/markActions';
 import * as signalActions from '../actions/signalActions';
+import * as layoutActions from '../actions/layoutActions';
 import {Signal, SignalState} from '../store/factory/Signal';
+import {defaultGroupHeight, defaultGroupSpacing, defaultGroupWidth} from '../store/factory/marks/Group';
 import {propSg} from '../util/prop-signal';
 
 const ns = require('../util/ns');
@@ -56,6 +58,97 @@ function initSignalsForMark(state: SignalState, action: ActionType<typeof markAc
   }, state);
 }
 
+function initSignalsForLayout(state: SignalState, action: ActionType<typeof layoutActions.baseAddGrouptoLayout>) {
+  const dir = action.payload.dir;
+
+  if (dir == "top" || dir == "bottom") {
+    // add row size and position signals
+    state = ["size", "pos"].reduce(function(accState, key) {
+      const signalName = propSg(action.meta, "layout", "row_" + String(action.payload.newDim)+"_"+key);
+      const val = key == "size" ? defaultGroupHeight: 0;
+      const intermediateState = signalInit(accState, signalName, val);
+      if (key == "pos"){
+        if (dir == "bottom") {
+          const update = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos") + " + " + propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"size + "+String(defaultGroupSpacing));
+          return setSignalUpdate(intermediateState, signalName, update);
+        } else { // top the original first el now has update to new signal
+          const updateSig = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos")
+          const update = propSg(action.meta, "layout", "row_"+action.payload.newDim+"_pos") + " + " + propSg(action.meta, "layout", "row_"+action.payload.newDim+"_size + "+String(defaultGroupSpacing));
+          return setSignalUpdate(intermediateState, updateSig, update);
+        }
+      }
+      return intermediateState;
+    }, state);
+  }
+  else if (dir == "left" || dir == "right") {
+    // add col size and position signals
+    state = ["size", "pos"].reduce(function(accState, key) {
+      const signalName = propSg(action.meta, "layout", "col_" +String(action.payload.newDim)+"_"+key);
+      const val = key == "size" ? defaultGroupWidth: 0;
+      const intermediateState = signalInit(accState, signalName, val);
+      if (key == "pos"){
+        if (dir == "right") {
+          const update = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos") + " + " + propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"size + " +String(defaultGroupSpacing));// fix hardcoded 30
+          return setSignalUpdate(intermediateState, signalName, update);
+        } else { // left, the original first el now has update to new signal
+          const updateSig = propSg(action.meta, "layout", action.payload.updateDim.slice(14,-4)+"pos")
+          const update = propSg(action.meta, "layout", "col_"+action.payload.newDim+"_pos") + " + " + propSg(action.meta, "layout", "col_"+action.payload.newDim+"_size + "+String(defaultGroupSpacing));// fix hardcoded 30
+          return setSignalUpdate(intermediateState, updateSig, update);
+        }
+      }
+      return intermediateState;
+    }, state);
+  }
+  else if (dir== "init") {
+    // first group the dir is "init"
+    state = ["rowsize", "rowpos", "colsize", "colpos"].reduce(function(accState, key) {
+      const signalName = propSg(action.meta, "layout", key.slice(0,3)+"_0_"+key.slice(3));
+
+      let val;
+      if (key.slice(0,3) == "row"){
+        val = key.slice(3) == "size" ? defaultGroupHeight: 0;
+      } else {
+        val = key.slice(3) == "size" ? defaultGroupWidth: 0;
+      }
+      const intermediateState = signalInit(accState, signalName, val);
+      return intermediateState;
+    }, state);
+  }
+
+  // set update property for group size and position signals to layout signals
+  let rowSigBase = "row_0";
+  let colSigBase = "col_0";
+  if (dir == "top" || dir == "bottom") {
+    rowSigBase = "row_" + action.payload.newDim;
+    colSigBase = action.payload.otherDim.slice(14, -5);  // "lyra_layout_2_col_1_size" -> "col_1"
+  } else if (dir == "right" || dir == "left"){
+    rowSigBase = action.payload.otherDim.slice(14, -5);  // "lyra_layout_2_col_1_size" -> "col_1"
+    colSigBase = "col_" + action.payload.newDim;
+  }
+
+  let groupSigName = propSg(action.payload.group._id, "group", "x");
+  let signalName = propSg(action.meta, "layout", colSigBase+"_pos");
+  state = setSignalUpdate(state, groupSigName, signalName);
+
+  groupSigName = propSg(action.payload.group._id, "group", "y");
+  signalName = propSg(action.meta, "layout", rowSigBase+"_pos");
+  state = setSignalUpdate(state, groupSigName, signalName);
+
+  groupSigName = propSg(action.payload.group._id, "group", "width");
+  signalName = propSg(action.meta, "layout", colSigBase+"_size");
+  state = setSignalUpdate(state, groupSigName, signalName);
+
+  groupSigName = propSg(action.payload.group._id, "group", "height");
+  signalName = propSg(action.meta, "layout", rowSigBase+"_size");
+  state = setSignalUpdate(state, groupSigName, signalName);
+
+  return state;
+}
+
+function setSignalUpdate(state: SignalState, signal: string, update: SignalValue) {
+  return state.setIn([signal, 'update'], update);
+}
+
 // Action has two non-type properties, markId and markType
 function deleteSignalsForMark(state: SignalState, action: ActionType<typeof markActions.baseDeleteMark | typeof guideActions.deleteGuide>): SignalState {
   // Create a regular expression which will match any signal that was created
@@ -68,7 +161,7 @@ function deleteSignalsForMark(state: SignalState, action: ActionType<typeof mark
   });
 }
 
-export function signalsReducer(state: SignalState, action: ActionType<typeof signalActions | typeof markActions.baseAddMark | typeof markActions.baseDeleteMark | typeof guideActions.baseAddGuide | typeof guideActions.deleteGuide>): SignalState {
+export function signalsReducer(state: SignalState, action: ActionType<typeof signalActions | typeof markActions.baseAddMark | typeof markActions.baseDeleteMark | typeof guideActions.baseAddGuide | typeof guideActions.deleteGuide | typeof layoutActions.baseAddGrouptoLayout>): SignalState {
   if (typeof state === 'undefined') {
     return Map();
   }
@@ -87,6 +180,14 @@ export function signalsReducer(state: SignalState, action: ActionType<typeof sig
 
   if (action.type === getType(signalActions.unsetSignal)) {
     return state.remove(action.meta);
+  }
+
+  if (action.type == getType(signalActions.addSignalUpdate)) {
+    return state.setIn([action.meta, 'update'], action.payload);
+  }
+
+  if (action.type === getType(layoutActions.baseAddGrouptoLayout)) {
+    return initSignalsForLayout(state, action);
   }
 
   if (action.type === getType(markActions.baseAddMark)) {

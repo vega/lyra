@@ -59,3 +59,5 @@ export const setSignalStreams = createStandardAction('SET_SIGNAL_STREAMS')<OnEve
  * @returns {Object} An action object
  */
 export const unsetSignal = createStandardAction('UNSET_SIGNAL')<null, string>();
+
+export const addSignalUpdate = createStandardAction('ADD_SIGNAL_UPDATE')<string, string>(); // update expression string, signal name

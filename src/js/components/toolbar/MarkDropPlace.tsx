@@ -7,25 +7,25 @@ import { GroupRecord } from '../../store/factory/marks/Group';
 import {addMark, addGroup } from '../../actions/markActions';
 import {removePlaceHolder} from '../../actions/layoutActions';
 import {getClosestGroupId} from '../../util/hierarchy';
-import { LayoutRecord} from '../../store/factory/Layout';
+import { LayoutRecord, PlaceholderRecord} from '../../store/factory/Layout';
 
 interface StateProps {
   dragging: MarkDraggingStateRecord;
   sceneId: number;
   layout: LayoutRecord;
+  top: any;
+  left: any;
+  width: any;
+  height: any;
 }
 
 interface OwnProps {
   layoutId: number;
-  placeholderId: number;
-  top: number;
-  left: number;
-  width: number;
-  height: number;
+  placeholder: PlaceholderRecord;
 }
 interface DispatchProps {
   addMark: (type: LyraMarkType, parentId: number) => void;
-  addGroup: (sceneId: number) => void;
+  addGroup: (sceneId: number, top: any, left: any, width: any, height: any) => void;
   removePlaceHolder: () => void;
 }
 
@@ -35,10 +35,18 @@ function mapStateToProps(state: State,  ownProps: OwnProps): StateProps {
   const sceneId = state.getIn(['vis', 'present', 'scene', '_id']);
   const layout = state.getIn(['vis', 'present', 'layouts', ownProps.layoutId]);
 
+  const top = state.getIn(['vis', 'present', 'signals', ownProps.placeholder.top.signal]);
+  const left = state.getIn(['vis', 'present', 'signals', ownProps.placeholder.left.signal]);
+  const width= state.getIn(['vis', 'present', 'signals', ownProps.placeholder.width.signal]);
+  const height = state.getIn(['vis', 'present', 'signals', ownProps.placeholder.height.signal]);
   return {
     dragging: isMarkDrag ? draggingRecord : null,
     sceneId,
     layout,
+    top,
+    left,
+    width,
+    height,
   };
 }
 
@@ -58,31 +66,30 @@ function mapDispatchToProps(dispatch, ownProps: OwnProps): DispatchProps {
       });
       dispatch(addMark(newMarkProps));
     },
-    addGroup: (sceneId) => {
+    addGroup: (sceneId, top, left, width, height) => {
       const newMarkProps = Mark('group', {
         _parent: sceneId,
         encode: {
           update: {
             fill: {'value': 'transparent'},
             stroke: null,
-            x: {value: ownProps.left},
-            y: {value: ownProps.top},
+            x: left,
+            y: top,
             x2: {value: 140, _disabled: true},
             y2: {value: 140, _disabled: true},
             xc: {value: 70, _disabled: true},
             yc: {value: 70, _disabled: true},
             // width: {value: scene && scene.get('width')},
             // height: {value: scene && scene.get('height')},
-            width: {value: ownProps.width},
-            height: {value: ownProps.height}
+            width: width,
+            height: height
           }
         }
       });
-
-      dispatch(addGroup(newMarkProps as GroupRecord, ownProps.layoutId, null));
+      dispatch(addGroup(newMarkProps as GroupRecord, ownProps.layoutId, null, null));
     },
     removePlaceHolder: () => {
-      dispatch(removePlaceHolder(ownProps.placeholderId, ownProps.layoutId));
+      dispatch(removePlaceHolder(ownProps.placeholder._id, ownProps.layoutId));
     }
 
   };
@@ -100,7 +107,7 @@ class MarkDropPlace extends React.Component<StateProps & DispatchProps & OwnProp
 
   public handleDrop = ()  => {
     const sceneId = this.props.sceneId;
-    this.props.addGroup(sceneId);
+    this.props.addGroup(sceneId, this.props.top, this.props.left, this.props.width, this.props.height);
     this.props.addMark(this.props.dragging.mark, null);
     this.props.removePlaceHolder();
   };
@@ -108,7 +115,7 @@ class MarkDropPlace extends React.Component<StateProps & DispatchProps & OwnProp
   public render() {
     if (!(this.props.dragging)) return null;
     return (
-      <div style={{top:this.props.top+this.props.height*0.1, left:this.props.left + this.props.width*0.15, width:this.props.width*0.7, height:this.props.height*0.7}} className={"drop-mark placeholder"}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
+      <div style={{top:this.props.top.value+this.props.height.value*0.1, left:this.props.left.value + this.props.width.value*0.15, width:this.props.width.value*0.7, height:this.props.height.value*0.7}} className={"drop-mark placeholder"}  onDragOver={(e) => this.handleDragOver(e)} onDrop={() => this.handleDrop()}>
         <div><i>Add group here</i></div>
       </div>
     );
