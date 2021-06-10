@@ -338,9 +338,7 @@ exporter.group = function(state: State, internal: boolean, id: number) {
       spec = {
         "type": "group",
         "layout": layout,
-        "marks": [
-          spec
-        ]
+        "marks": spec
       };
     }
   }
