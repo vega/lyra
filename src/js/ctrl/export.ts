@@ -50,18 +50,10 @@ export function exporter(internal: boolean = false): Spec {
   spec = exporter.interactions(state, spec);
   spec = exporter.widgets(state, spec);
 
-  if (state.getIn(['vis', 'present', 'facetLayouts']).size > 0){
-    spec.layout = exporter.layouts(state, int);
-  }
+  console.log("final spec", spec);
   return spec;
 }
 
-exporter.layouts = function (state: State, internal: boolean) {
-  const facetLayouts = state.getIn(['vis', 'present', 'facetLayouts']);
-  const layout = clean(duplicate(facetLayouts), internal);
-  const id = Object.keys(layout)[Object.keys(layout).length -1];
-  return layout[id];
-}
 
 exporter.interactions = function(state: State, spec) {
   state.getIn(['vis', 'present', 'interactions']).forEach((interaction: InteractionRecord) => {
@@ -299,7 +291,7 @@ function pathgroup(state, marks, facet) {
 
 exporter.group = function(state: State, internal: boolean, id: number) {
   const mark: GroupRecord = getInVis(state, `marks.${id}`);
-  const spec = exporter.mark(state, internal, id);
+  let spec = exporter.mark(state, internal, id);
   const group = internal ? spec[0] : spec;
 
   ['scale', 'mark', 'axe', 'legend'].forEach(function(childType) {
@@ -333,6 +325,20 @@ exporter.group = function(state: State, internal: boolean, id: number) {
       {name: 'width', value: groupSize(mark, 'x')},
       {name: 'height', value: groupSize(mark, 'y')},
     );
+  }
+
+  if (mark.from) {
+    if (mark.from.facet) {
+      const facetLayouts = state.getIn(['vis', 'present', 'facetLayouts']);
+      const layout = clean(facetLayouts.toJS(), internal);
+      spec = {
+        "type": "group",
+        "layout": layout,
+        "marks": [
+          spec
+        ]
+      };
+    }
   }
 
   return spec;

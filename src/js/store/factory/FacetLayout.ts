@@ -37,5 +37,5 @@ export const FacetLayout = Record<FacetLayout>({
 
 export type FacetLayoutRecord = RecordOf<FacetLayout>;
 
-export type FacetLayoutState = Map<string, FacetLayoutRecord>;
+export type FacetLayoutState = FacetLayoutRecord;
 

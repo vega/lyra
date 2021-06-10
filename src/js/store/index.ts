@@ -7,7 +7,7 @@ import {DatasetRecord} from './factory/Dataset';
 import {GuideRecord} from './factory/Guide';
 import {Hints, HintsRecord} from './factory/Hints';
 import {LayoutRecord} from './factory/Layout';
-import {FacetLayoutRecord} from './factory/FacetLayout';
+import {FacetLayoutRecord, FacetLayout} from './factory/FacetLayout';
 import {Inspector, InspectorRecord} from './factory/Inspector';
 import {InteractionRecord} from './factory/Interaction';
 import {MarkRecord} from './factory/Mark';
