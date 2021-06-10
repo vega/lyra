@@ -329,8 +329,12 @@ exporter.group = function(state: State, internal: boolean, id: number) {
 
   if (mark.from) {
     if (mark.from.facet) {
-      const facetLayouts = state.getIn(['vis', 'present', 'facetLayouts']);
-      const layout = clean(facetLayouts.toJS(), internal);
+      const facetLayouts = state.getIn(['vis', 'present', 'facetLayouts']).toJS();
+      console.log("layouts", facetLayouts);
+      const id = Object.keys(facetLayouts)[Object.keys(facetLayouts).length -1]; //add facet id to groups instead
+      console.log("id", id)
+      const layout = clean(facetLayouts[id], internal);
+      console.log("layout", layout);
       spec = {
         "type": "group",
         "layout": layout,
