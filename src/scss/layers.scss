@@ -28,16 +28,16 @@
   }
 
   li {
-    float: left;
     margin: $inner-padding;
     margin-top: 0;
     list-style-type: none;
   }
 
   .scale.name {
-    display: inline-block;
-    padding: $inner-padding;
+    display: flex;
+    padding: 2*$inner-padding;
     text-align: center;
+    border-radius: 2px;
 
     background-color: skyblue;
     color: black;
