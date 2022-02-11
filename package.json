@@ -59,7 +59,7 @@
     "jshint": "^2.8.0",
     "json-loader": "^0.5.7",
     "json2csv": "^3.6.1",
-    "karma": "^0.13.19",
+    "karma": "^6.3.14",
     "karma-chrome-launcher": "^0.2.2",
     "karma-coverage": "^0.5.5",
     "karma-firefox-launcher": "^0.1.7",
